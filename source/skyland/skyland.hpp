@@ -15,7 +15,7 @@ public:
     void render(Platform& pfrm);
 
 private:
-    Island player_;
+    Island player_island_;
     Float cloud_scroll_1_;
     Float cloud_scroll_2_;
 };

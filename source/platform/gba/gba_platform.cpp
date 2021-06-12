@@ -1034,12 +1034,34 @@ void Platform::Screen::clear()
     // noticable if we perform the copies further from the site of the vsync.
     map_dynamic_textures();
 
-    auto view_offset = view_.get_center().cast<s32>();
-    *bg0_x_scroll = view_offset.x;
-    *bg0_y_scroll = view_offset.y;
+    // auto view_offset = view_.get_center().cast<s32>();
+    // *bg0_x_scroll = view_offset.x;
+    // *bg0_y_scroll = view_offset.y;
 
-    *bg3_x_scroll = view_offset.x;
-    *bg3_y_scroll = view_offset.y;
+    // *bg3_x_scroll = view_offset.x;
+    // *bg3_y_scroll = view_offset.y;
+}
+
+
+void Platform::set_scroll(Layer layer, u16 x, u16 y)
+{
+    switch (layer) {
+    case Layer::background:
+    case Layer::overlay:
+        break;
+
+    case Layer::map_0_ext:
+    case Layer::map_0:
+        *bg0_x_scroll = x;
+        *bg0_y_scroll = y;
+        break;
+
+    case Layer::map_1_ext:
+    case Layer::map_1:
+        *bg3_x_scroll = x;
+        *bg3_y_scroll = y;
+        break;
+    }
 }
 
 
@@ -1283,6 +1305,43 @@ static bool validate_overlay_texture_size(Platform& pfrm, size_t size)
 }
 
 
+static void set_map_tile_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
+{
+    auto ref = [](u16 x_, u16 y_) { return x_ * 2 + y_ * 32 * 2; };
+
+    auto screen_block = [&]() -> u16 {
+        // FIXME: copy pasted from elsewhere, not actually correct
+        if (x > 8 and y > 8) {
+            x %= 8;
+            y %= 10;
+            return base + 3;
+        } else if (y > 9) {
+            y %= 10;
+            return base + 2;
+        } else if (x > 7) {
+            x %= 8;
+            return base + 1;
+        } else {
+            return base;
+        }
+    }();
+
+    MEM_SCREENBLOCKS[screen_block][0 + ref(x % 16, y)] =
+        (tile_id * 4 + 0) | SE_PALBANK(palette);
+
+    MEM_SCREENBLOCKS[screen_block][1 + ref(x % 16, y)] =
+        (tile_id * 4 + 1) | SE_PALBANK(palette);
+
+    MEM_SCREENBLOCKS[screen_block][0 + ref(x % 16, y) + 32] =
+        (tile_id * 4 + 2) | SE_PALBANK(palette);
+
+    MEM_SCREENBLOCKS[screen_block][1 + ref(x % 16, y) + 32] =
+        (tile_id * 4 + 3) | SE_PALBANK(palette);
+
+
+}
+
+
 COLD static void set_map_tile(u8 base, u16 x, u16 y, u16 tile_id, int palette)
 {
     // NOTE: The game's tiles are 32x24px in size. GBA tiles are each
@@ -1427,6 +1486,12 @@ u16 Platform::get_tile(Layer layer, u16 x, u16 y)
             return 0;
         }
         return MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32];
+
+    case Layer::map_1_ext:
+        break;
+
+    case Layer::map_0_ext:
+        break;
 
     case Layer::map_0:
         return get_map_tile(sbb_t0_tiles, x, y, 0);
@@ -3484,6 +3549,14 @@ void Platform::set_tile(Layer layer, u16 x, u16 y, u16 val)
             return;
         }
         set_overlay_tile(*this, x, y, val, 1);
+        break;
+
+    case Layer::map_1_ext:
+        set_map_tile_16p(sbb_t1_tiles, x, y, val, 2);
+        break;
+
+    case Layer::map_0_ext:
+        set_map_tile_16p(sbb_t0_tiles, x, y, val, 0);
         break;
 
     case Layer::map_1:

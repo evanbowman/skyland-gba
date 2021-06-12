@@ -63,7 +63,10 @@ set(SOURCES
 set(SOURCES
   ${SOURCES}
   ${SOURCE_DIR}/skyland/skyland.cpp
-  ${SOURCE_DIR}/skyland/island.cpp)
+  ${SOURCE_DIR}/skyland/island.cpp
+  ${SOURCE_DIR}/skyland/roomPool.cpp
+  ${SOURCE_DIR}/skyland/rooms/core.cpp
+  ${SOURCE_DIR}/skyland/rooms/stairwell.cpp)
 
 
 set(SOURCES

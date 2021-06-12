@@ -1,4 +1,5 @@
 #include "globals.hpp"
+#include "skyland/skyland.hpp"
 #include "transformGroup.hpp"
 
 
@@ -20,13 +21,12 @@ void skyland_main_loop(Platform& pf)
     pf.remote_console().printline(::console_header);
 
     globals().emplace<SkylandGlobalData>();
+    skyland::room_pool::pool_ = &std::get<SkylandGlobalData>(globals()).room_pool_;
 
     skyland::App app(pf);
 
     pf.enable_glyph_mode(true);
     pf.load_overlay_texture("overlay");
-
-    Text t(pf, " skyland ", {10, 2});
 
     while (pf.is_running()) {
 

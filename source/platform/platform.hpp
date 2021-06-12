@@ -16,6 +16,7 @@
 #include "unicode.hpp"
 #include <array>
 #include <optional>
+#include "layer.hpp"
 
 
 using TileDesc = u16;
@@ -33,9 +34,6 @@ struct FontColors {
 ////////////////////////////////////////////////////////////////////////////////
 // Platform
 ////////////////////////////////////////////////////////////////////////////////
-
-
-enum class Layer { overlay, map_1, map_0, background };
 
 
 class Platform {
@@ -178,6 +176,9 @@ public:
     // wrap when scrolled. Map tiles, on the other hand, are 32x24 pixels, and
     // the whole map consists of 64x64 8x8 pixel tiles.
     void set_tile(Layer layer, u16 x, u16 y, TileDesc val);
+
+
+    void set_scroll(Layer layer, u16 x, u16 y);
 
 
     // A special version of set_tile meant for glyphs. Allows you to set custom

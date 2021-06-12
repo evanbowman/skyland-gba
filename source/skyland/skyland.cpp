@@ -1,8 +1,46 @@
 #include "skyland.hpp"
 #include "platform/platform.hpp"
+#include "globals.hpp"
 
 
 namespace skyland {
+
+
+static void init_clouds(Platform& pfrm);
+
+
+App::App(Platform& pfrm) : player_island_(pfrm, Layer::map_0_ext, 6)
+{
+    pfrm.load_tile0_texture("tilesheet");
+
+    player_island_.set_position({10, 274});
+
+
+    init_clouds(pfrm);
+}
+
+
+void App::update(Platform& pfrm, Microseconds delta)
+{
+    cloud_scroll_1_ += 0.00002f * delta;
+    cloud_scroll_2_ += 0.00004f * delta;
+
+
+    pfrm.set_scroll(player_island_.layer(),
+                    -player_island_.get_position().cast<u16>().x,
+                    -player_island_.get_position().cast<u16>().y -
+                    player_island_.get_ambient_movement());
+
+
+    player_island_.update(pfrm, *this, delta);
+}
+
+
+void App::render(Platform& pfrm)
+{
+    pfrm.enable_feature("_prlx7", (u8)cloud_scroll_1_);
+    pfrm.enable_feature("_prlx8", (u8)cloud_scroll_2_);
+}
 
 
 static void init_clouds(Platform& pfrm)
@@ -56,28 +94,6 @@ static void init_clouds(Platform& pfrm)
         put_bg_cloud_type_n(offset + 3, 3);
     }
 
-}
-
-
-App::App(Platform& pfrm) : player_(pfrm)
-{
-    pfrm.load_tile0_texture("tilesheet");
-
-    init_clouds(pfrm);
-}
-
-
-void App::update(Platform& pfrm, Microseconds delta)
-{
-    cloud_scroll_1_ += 0.00005f * delta;
-    cloud_scroll_2_ += 0.00009f * delta;
-}
-
-
-void App::render(Platform& pfrm)
-{
-    pfrm.enable_feature("_prlx7", (u8)cloud_scroll_1_);
-    pfrm.enable_feature("_prlx8", (u8)cloud_scroll_2_);
 }
 
 
