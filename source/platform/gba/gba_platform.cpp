@@ -1314,6 +1314,20 @@ static bool validate_overlay_texture_size(Platform& pfrm, size_t size)
 }
 
 
+
+static u16 get_map_tile_16p(u8 base, u16 x, u16 y, int palette)
+{
+    auto ref = [](u16 x_, u16 y_) { return x_ * 2 + y_ * 32 * 2; };
+
+    auto screen_block = [&]() -> u16 {
+        return base;
+    }();
+
+    return (MEM_SCREENBLOCKS[screen_block][0 + ref(x % 16, y)] & ~(SE_PALBANK(palette))) / 4;
+}
+
+
+
 static void set_map_tile_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
 {
     auto ref = [](u16 x_, u16 y_) { return x_ * 2 + y_ * 32 * 2; };
@@ -1495,10 +1509,10 @@ u16 Platform::get_tile(Layer layer, u16 x, u16 y)
         return MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32];
 
     case Layer::map_1_ext:
-        break;
+        return get_map_tile_16p(sbb_t1_tiles, x, y, 2);
 
     case Layer::map_0_ext:
-        break;
+        return get_map_tile_16p(sbb_t0_tiles, x, y, 0);
 
     case Layer::map_0:
         return get_map_tile(sbb_t0_tiles, x, y, 0);

@@ -1,0 +1,39 @@
+#include "hull.hpp"
+#include "platform/platform.hpp"
+#include "skyland/tile.hpp"
+
+
+
+namespace skyland {
+
+
+
+Hull::Hull(Island* parent, const Vec2<u8>& position)
+    : Room(parent, name(), size(), position, Health(300))
+{
+}
+
+
+
+void Hull::update(Platform&, App&, Microseconds delta)
+{
+    // ...
+}
+
+
+
+void Hull::render_interior(Platform& pfrm, Layer layer)
+{
+    pfrm.set_tile(layer, position().x, position().y, InteriorTile::empty);
+}
+
+
+
+void Hull::render_exterior(Platform& pfrm, Layer layer)
+{
+    pfrm.set_tile(layer, position().x, position().y, Tile::hull);
+}
+
+
+
+} // namespace skyland

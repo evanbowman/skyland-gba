@@ -3,26 +3,25 @@
 #include "platform/platform.hpp"
 
 
+
 namespace skyland {
 
 
+
 static void init_clouds(Platform& pfrm);
+
 
 
 App::App(Platform& pfrm)
     : player_island_(pfrm, Layer::map_0_ext, 5), current_scene_(null_scene()),
       next_scene_(null_scene())
 {
-    pfrm.load_tile0_texture("tilesheet");
-
-    player_island_.set_position({10, 374});
-
-
     current_scene_ = initial_scene();
     current_scene_->enter(pfrm, *this, *current_scene_);
 
     init_clouds(pfrm);
 }
+
 
 
 void App::update(Platform& pfrm, Microseconds delta)
@@ -41,11 +40,13 @@ void App::update(Platform& pfrm, Microseconds delta)
 }
 
 
+
 void App::updateParallax(Microseconds delta)
 {
     cloud_scroll_1_ += 0.00002f * delta;
     cloud_scroll_2_ += 0.00004f * delta;
 }
+
 
 
 void App::render(Platform& pfrm)
@@ -55,6 +56,7 @@ void App::render(Platform& pfrm)
 
     current_scene_->display(pfrm, *this);
 }
+
 
 
 static void init_clouds(Platform& pfrm)
@@ -105,6 +107,7 @@ static void init_clouds(Platform& pfrm)
         put_bg_cloud_type_n(offset + 3, 3);
     }
 }
+
 
 
 } // namespace skyland

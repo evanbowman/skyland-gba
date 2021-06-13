@@ -19,6 +19,8 @@ struct Tile {
         wall_window_middle_1,
         wall_window_middle_2,
         grass,
+        reserved_1,
+        hull,
     };
 };
 
@@ -38,6 +40,11 @@ struct InteriorTile {
         ladder_mid_2,
         ladder_top,
         grass,
-        empty
+        empty,
+        hull,
+        workshop_1,
+        workshop_2,
+        workshop_3,
+        workshop_4,
     };
 };

@@ -3,29 +3,40 @@
 #include "number/numeric.hpp"
 #include "platform/layer.hpp"
 #include <memory>
+#include "scene.hpp"
+
 
 
 class Platform;
 
 
+
 namespace skyland {
+
 
 
 class App;
 class Entity;
 class Island;
+class RoomMeta;
+
 
 
 class Room {
 public:
+    using Health = int;
+
+
     virtual ~Room()
     {
     }
 
-    Room(Island* parent, const Vec2<u8>& size, const Vec2<u8>& position)
-        : parent_(parent), size_(size), position_(position)
-    {
-    }
+
+    Room(Island* parent,
+         const char* name,
+         const Vec2<u8>& size,
+         const Vec2<u8>& position,
+         Health health);
 
 
     virtual bool add_occupant(Entity* entity)
@@ -41,6 +52,18 @@ public:
     virtual void update(Platform& pfrm, App&, Microseconds delta) = 0;
 
 
+    virtual bool has_roof()
+    {
+        return true;
+    }
+
+
+    virtual bool has_chimney()
+    {
+        return false;
+    }
+
+
     const Vec2<u8>& position() const
     {
         return position_;
@@ -53,14 +76,30 @@ public:
     }
 
 
+    virtual ScenePtr<Scene> select()
+    {
+        return null_scene();
+    }
+
+
+    RoomMeta* metaclass()
+    {
+        return metaclass_;
+    }
+
+
 private:
     Island* parent_;
+    RoomMeta* metaclass_;
     Vec2<u8> size_;
     Vec2<u8> position_;
+    Health health_;
 };
 
 
+
 template <typename T> using RoomPtr = std::unique_ptr<T, void (*)(Room*)>;
+
 
 
 } // namespace skyland

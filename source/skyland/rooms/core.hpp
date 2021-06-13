@@ -1,7 +1,7 @@
 #pragma once
 
-#include "skyland/room.hpp"
 #include "skyland/coins.hpp"
+#include "skyland/room.hpp"
 
 
 
@@ -19,6 +19,12 @@ public:
 
     void render_interior(Platform& pfrm, Layer layer) override;
     void render_exterior(Platform& pfrm, Layer layer) override;
+
+
+    bool has_chimney() override
+    {
+        return true;
+    }
 
 
     static Vec2<u8> size()

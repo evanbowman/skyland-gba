@@ -4,8 +4,9 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "worldScene.hpp"
 #include "skyland/tile.hpp"
+#include "worldScene.hpp"
+#include "globals.hpp"
 
 
 
@@ -16,7 +17,13 @@ namespace skyland {
 ScenePtr<Scene>
 ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (pfrm.keyboard().down_transition<Key::alt_2>()) {
+    if (pfrm.keyboard().down_transition<Key::alt_2>() or
+        (state_ == State::select_loc and pfrm.keyboard().down_transition<Key::action_2>())) {
+        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        if (not construction_sites_.empty()) {
+            cursor_loc.x = construction_sites_[selector_].x;
+            cursor_loc.y = construction_sites_[selector_].y;
+        }
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -33,7 +40,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             --selector_;
         }
 
-        if (pfrm.keyboard().down_transition<Key::action_2>() and
+        if (not construction_sites_.empty()) {
+            auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            cursor_loc.x = construction_sites_[selector_].x;
+            cursor_loc.y = construction_sites_[selector_].y;
+        }
+
+        if (pfrm.keyboard().down_transition<Key::action_1>() and
             not construction_sites_.empty()) {
 
             if (construction_sites_[selector_].y == 15) {
@@ -54,7 +67,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::choose_building:
-        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (pfrm.keyboard().down_transition<Key::action_2>()) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
             msg(pfrm, ":build");
@@ -81,19 +94,22 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (pfrm.keyboard().down_transition<Key::action_1>()) {
             const auto& target = *available_buildings_[building_selector_];
 
             if (app.coins() < target->cost()) {
+                msg(pfrm, "insufficent funds!");
+                state_ = State::insufficent_funds;
                 break;
             }
 
+            app.coins() -= target->cost();
+
             const auto sz = target->size().y;
-            target->create(
-                pfrm,
-                &app.player_island(),
-                {construction_sites_[selector_].x,
-                 u8(construction_sites_[selector_].y - (sz - 1))});
+            target->create(pfrm,
+                           &app.player_island(),
+                           {construction_sites_[selector_].x,
+                            u8(construction_sites_[selector_].y - (sz - 1))});
 
             find_construction_sites(pfrm, app);
 
@@ -102,15 +118,28 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
 
+    case State::insufficent_funds:
+        if (pfrm.keyboard().down_transition<Key::action_2, Key::action_1>()) {
+            find_construction_sites(pfrm, app);
+            state_ = State::select_loc;
+            msg(pfrm, ":build");
+        }
+        break;
+
     case State::add_terrain:
-        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (pfrm.keyboard().down_transition<Key::action_2>()) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
             msg(pfrm, ":build");
             break;
         }
 
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+            if (app.coins() < app.terrain_cost()) {
+                msg(pfrm, "insufficent funds!");
+                state_ = State::insufficent_funds;
+                break;
+            }
 
             app.coins() -= app.terrain_cost();
 
@@ -150,6 +179,9 @@ void ConstructionScene::display(Platform& pfrm, App& app)
     WorldScene::display(pfrm, app);
 
     switch (state_) {
+    case State::insufficent_funds:
+        break;
+
     case State::select_loc:
         if (not construction_sites_.empty()) {
             auto origin = app.player_island().origin();
@@ -177,14 +209,23 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             origin.x += construction_sites_[selector_].x * 16;
             origin.y += (construction_sites_[selector_].y - (sz.y - 1)) * 16;
 
-            Sprite sprite;
-            sprite.set_texture_index(13);
-            sprite.set_size(Sprite::Size::w16_h32);
+            if (sz.x == 1 and sz.y == 1) {
+                Sprite sprite;
+                sprite.set_texture_index(14);
+                sprite.set_size(Sprite::Size::w16_h32);
+                sprite.set_position({origin.x, origin.y - 16});
+                pfrm.screen().draw(sprite);
+            } else {
+                Sprite sprite;
+                sprite.set_texture_index(13);
+                sprite.set_size(Sprite::Size::w16_h32);
 
-            for (int x = 0; x < sz.x; ++x) {
-                for (int y = 0; y < sz.y / 2; ++y) {
-                    sprite.set_position({origin.x + x * 16, origin.y + y * 32});
-                    pfrm.screen().draw(sprite);
+                for (int x = 0; x < sz.x; ++x) {
+                    for (int y = 0; y < sz.y / 2; ++y) {
+                        sprite.set_position(
+                            {origin.x + x * 16, origin.y + y * 32});
+                        pfrm.screen().draw(sprite);
+                    }
                 }
             }
         }
@@ -226,7 +267,7 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
     }
 
     auto& terrain = app.player_island().terrain();
-    if (not terrain.full() and app.coins() >= app.terrain_cost()) {
+    if (not terrain.full()) {
         construction_sites_.push_back({u8(terrain.size()), 15});
     }
 
@@ -289,7 +330,20 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
 
+    persist_coins();
+
     find_construction_sites(pfrm, app);
+
+    if (not construction_sites_.empty()) {
+        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+        for (u32 i = 0; i < construction_sites_.size(); ++i) {
+            if (construction_sites_[i].x == cursor_loc.x) {
+
+                selector_ = i;
+            }
+        }
+    }
 
     msg(pfrm, ":build");
 }

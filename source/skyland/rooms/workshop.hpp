@@ -9,9 +9,9 @@ namespace skyland {
 
 
 
-class ExteriorWall : public Room {
+class Workshop : public Room {
 public:
-    ExteriorWall(Island* parent, const Vec2<u8>& position);
+    Workshop(Island* parent, const Vec2<u8>& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -23,19 +23,19 @@ public:
 
     static Vec2<u8> size()
     {
-        return {1, 2};
+        return {2, 2};
     }
 
 
     static const char* name()
     {
-        return "retaining wall";
+        return "workshop";
     }
 
 
     static Coins cost()
     {
-        return 300;
+        return 1000;
     }
 };
 

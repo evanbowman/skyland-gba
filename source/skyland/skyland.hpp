@@ -1,9 +1,10 @@
 #pragma once
 
+#include "coins.hpp"
 #include "island.hpp"
 #include "platform/platform.hpp"
 #include "scene.hpp"
-#include "coins.hpp"
+#include "camera.hpp"
 
 
 
@@ -40,6 +41,24 @@ public:
     }
 
 
+    Camera& camera()
+    {
+        return camera_;
+    }
+
+
+    bool& paused()
+    {
+        return paused_;
+    }
+
+
+    std::optional<Island>& encountered_island()
+    {
+        return encountered_island_;
+    }
+
+
 private:
     Island player_island_;
     Float cloud_scroll_1_;
@@ -48,6 +67,10 @@ private:
     ScenePtr<Scene> next_scene_;
     Coins coins_ = 0;
     Coins terrain_cost_ = 0;
+    Camera camera_;
+    bool paused_ = false;
+
+    std::optional<Island> encountered_island_;
 };
 
 

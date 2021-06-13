@@ -2,23 +2,23 @@
 
 #include <variant>
 
-#include "blind_jump/game.hpp"
+// #include "blind_jump/game.hpp"
 #include "skyland/roomPool.hpp"
 #include "skyland/scene_pool.hpp"
 
 
-struct BlindJumpGlobalData {
-    Game::EnemyGroup::Pool_ enemy_pool_;
-    Game::EnemyGroup::NodePool_ enemy_node_pool_;
+// struct BlindJumpGlobalData {
+//     Game::EnemyGroup::Pool_ enemy_pool_;
+//     Game::EnemyGroup::NodePool_ enemy_node_pool_;
 
-    Game::DetailGroup::Pool_ detail_pool_;
-    Game::DetailGroup::NodePool_ detail_node_pool_;
+//     Game::DetailGroup::Pool_ detail_pool_;
+//     Game::DetailGroup::NodePool_ detail_node_pool_;
 
-    Game::EffectGroup::Pool_ effect_pool_;
-    Game::EffectGroup::NodePool_ effect_node_pool_;
+//     Game::EffectGroup::Pool_ effect_pool_;
+//     Game::EffectGroup::NodePool_ effect_node_pool_;
 
-    Bitmatrix<TileMap::width, TileMap::height> visited_;
-};
+//     Bitmatrix<TileMap::width, TileMap::height> visited_;
+// };
 
 
 struct ExampleGlobalData {
@@ -29,6 +29,8 @@ struct ExampleGlobalData {
 struct SkylandGlobalData {
     skyland::room_pool::_Pool room_pool_;
     skyland::scene_pool::_Pool scene_pool_;
+
+    Vec2<u8> near_cursor_loc_;
 };
 
 
@@ -37,7 +39,8 @@ struct SkylandGlobalData {
 // am declaring them all in this one structure. I have been toying with the idea
 // of compiling multiple games into a single rom/executable, which makes keeping
 // track of global variable memory usage important.
-using Globals = std::variant<BlindJumpGlobalData, SkylandGlobalData>;
+using Globals = std::variant<// BlindJumpGlobalData,
+    SkylandGlobalData>;
 
 
 Globals& globals();

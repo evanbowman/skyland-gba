@@ -1,9 +1,9 @@
 #pragma once
 
 
+#include "coins.hpp"
 #include "island.hpp"
 #include "room.hpp"
-#include "coins.hpp"
 
 
 

@@ -7,7 +7,7 @@ namespace skyland {
 
 
 Core::Core(Island* parent, const Vec2<u8>& position)
-    : Room(parent, {2, 2}, position)
+    : Room(parent, name(), size(), position, Health(400))
 {
 }
 

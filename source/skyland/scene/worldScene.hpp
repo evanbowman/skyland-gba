@@ -1,8 +1,9 @@
 #pragma once
 
 
-#include "skyland/scene.hpp"
 #include "graphics/overlay.hpp"
+#include "skyland/coins.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -21,8 +22,14 @@ public:
     void exit(Platform&, App&, Scene& next) override;
 
 
+    void persist_coins();
+
+
 private:
     std::optional<UIMetric> coins_;
+    bool persistent_coins_ = false;
+    Microseconds coin_hide_timer_ = 0;
+    Coins last_coins_ = 0;
 };
 
 

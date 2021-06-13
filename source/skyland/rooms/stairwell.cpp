@@ -7,7 +7,7 @@ namespace skyland {
 
 
 Stairwell::Stairwell(Island* parent, const Vec2<u8>& position)
-    : Room(parent, {1, 4}, position)
+    : Room(parent, name(), size(), position, Health(100))
 {
 }
 

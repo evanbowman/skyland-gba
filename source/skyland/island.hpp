@@ -42,6 +42,12 @@ public:
     void set_position(const Vec2<Float>& position);
 
 
+    Room* get_room(const Vec2<u8>& coord);
+
+
+    void destroy_room(Platform& pfrm, const Vec2<u8>& coord);
+
+
     u8 get_ambient_movement()
     {
         return ambient_movement_;
@@ -60,7 +66,7 @@ public:
     void render_exterior(Platform& pfrm);
 
 
-    void plot_rooms(bool matrix[16][16]) const;
+    void plot_rooms(u8 matrix[16][16]) const;
 
 
     void plot_construction_zones(bool matrix[16][16]) const;
@@ -90,9 +96,10 @@ public:
     void render_terrain(Platform& pfrm);
 
 
+    void set_float_timer(Microseconds value);
+
+
 private:
-
-
     Rooms rooms_;
     const Layer layer_;
     Buffer<u8, 10> terrain_;

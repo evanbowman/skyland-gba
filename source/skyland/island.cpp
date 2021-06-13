@@ -1,12 +1,12 @@
 #include "island.hpp"
 #include "roomPool.hpp"
-#include "rooms/core.hpp"
-#include "rooms/exteriorWall.hpp"
-#include "rooms/stairwell.hpp"
 #include "tile.hpp"
+#include "number/random.hpp"
+
 
 
 namespace skyland {
+
 
 
 Island::Island(Platform& pfrm, Layer layer, u8 width)
@@ -21,18 +21,15 @@ Island::Island(Platform& pfrm, Layer layer, u8 width)
     terrain_.push_back(14);
 
     render_terrain(pfrm);
-
-    add_room<Core>(pfrm, {1, 13});
-    // add_room<Stairwell>(pfrm, {0, 11});
-    // add_room<ExteriorWall>(pfrm, {3, 13});
-    // add_room<Core>(pfrm, {4, 13});
 }
+
 
 
 Island::Rooms& Island::rooms()
 {
     return rooms_;
 }
+
 
 
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
@@ -49,6 +46,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 }
 
 
+
 void Island::render_terrain(Platform& pfrm)
 {
     for (u32 i = 0; i < terrain_.size(); ++i) {
@@ -57,16 +55,19 @@ void Island::render_terrain(Platform& pfrm)
 }
 
 
+
 const Vec2<Float>& Island::get_position() const
 {
     return position_;
 }
 
 
+
 void Island::set_position(const Vec2<Float>& position)
 {
     position_ = position;
 }
+
 
 
 void Island::render_interior(Platform& pfrm)
@@ -79,6 +80,7 @@ void Island::render_interior(Platform& pfrm)
 }
 
 
+
 void Island::render_exterior(Platform& pfrm)
 {
     for (auto& room : rooms()) {
@@ -89,7 +91,8 @@ void Island::render_exterior(Platform& pfrm)
 }
 
 
-void Island::plot_rooms(bool matrix[16][16]) const
+
+void Island::plot_rooms(u8 matrix[16][16]) const
 {
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -101,18 +104,24 @@ void Island::plot_rooms(bool matrix[16][16]) const
         auto pos = room->position();
         auto sz = room->size();
 
+        int val = 2;
+        if (room->has_roof()) {
+            val = 1;
+        }
+
         for (int x = 0; x < sz.x; ++x) {
             for (int y = 0; y < sz.y; ++y) {
-                matrix[x + pos.x][y + pos.y] = true;
+                matrix[x + pos.x][y + pos.y] = val;
             }
         }
     }
 }
 
 
+
 void Island::plot_construction_zones(bool matrix[16][16]) const
 {
-    bool matrix_temp[16][16];
+    u8 matrix_temp[16][16];
 
     plot_rooms(matrix_temp);
 
@@ -135,9 +144,10 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
 }
 
 
+
 void Island::repaint(Platform& pfrm)
 {
-    bool matrix[16][16];
+    u8 matrix[16][16];
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 15; ++y) {
@@ -153,10 +163,23 @@ void Island::repaint(Platform& pfrm)
 
     plot_rooms(matrix);
 
+    Buffer<u8, terrain_.capacity()> chimney_locs;
+
+    for (auto& room : rooms_) {
+        if (room->has_chimney()) {
+            chimney_locs.push_back(room->position().x);
+        }
+    }
+
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 15; ++y) {
-            if (matrix[x][y] == 0 and y < 31 and matrix[x][y + 1]) {
+            if (matrix[x][y] == 0 and y < 31 and matrix[x][y + 1] == 1) {
                 pfrm.set_tile(layer_, x, y, Tile::roof_plain);
+                for (auto& loc : chimney_locs) {
+                    if (loc == x) {
+                        pfrm.set_tile(layer_, x, y, Tile::roof_chimney);
+                    }
+                }
             } else if (y == 14 and matrix[x][y] == 0 and
                        x < (int)terrain_.size()) {
                 pfrm.set_tile(layer_, x, y, Tile::grass);
@@ -166,10 +189,51 @@ void Island::repaint(Platform& pfrm)
 }
 
 
+
 Vec2<Float> Island::origin() const
 {
     return {position_.x, position_.y + ambient_movement_};
 }
+
+
+
+Room* Island::get_room(const Vec2<u8>& coord)
+{
+    for (auto& room : rooms_) {
+        if (coord.x >= room->position().x and coord.y >= room->position().y
+            and coord.x < room->position().x + room->size().x
+            and coord.y < room->position().y + room->size().y) {
+
+            return room.get();
+        }
+    }
+
+    return nullptr;
+}
+
+
+
+void Island::destroy_room(Platform& pfrm, const Vec2<u8>& coord)
+{
+    for (auto& room : rooms_) {
+        if (coord.x >= room->position().x and coord.y >= room->position().y
+            and coord.x < room->position().x + room->size().x
+            and coord.y < room->position().y + room->size().y) {
+
+            rooms_.erase(&room);
+            repaint(pfrm);
+            return;
+        }
+    }
+}
+
+
+
+void Island::set_float_timer(Microseconds value)
+{
+    timer_ = value;
+}
+
 
 
 } // namespace skyland

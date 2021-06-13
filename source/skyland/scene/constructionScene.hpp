@@ -2,9 +2,9 @@
 
 #include "graphics/overlay.hpp"
 #include "memory/buffer.hpp"
+#include "skyland/room_metatable.hpp"
 #include "skyland/scene.hpp"
 #include "worldScene.hpp"
-#include "skyland/room_metatable.hpp"
 
 
 
@@ -41,6 +41,7 @@ private:
         select_loc,
         choose_building,
         add_terrain,
+        insufficent_funds,
     };
 
 

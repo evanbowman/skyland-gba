@@ -9,9 +9,9 @@ namespace skyland {
 
 
 
-class ExteriorWall : public Room {
+class Hull : public Room {
 public:
-    ExteriorWall(Island* parent, const Vec2<u8>& position);
+    Hull(Island* parent, const Vec2<u8>& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -21,15 +21,21 @@ public:
     void render_exterior(Platform& pfrm, Layer layer) override;
 
 
+    bool has_roof() override
+    {
+        return false;
+    }
+
+
     static Vec2<u8> size()
     {
-        return {1, 2};
+        return {1, 1};
     }
 
 
     static const char* name()
     {
-        return "retaining wall";
+        return "hull";
     }
 
 
