@@ -181,5 +181,10 @@ void Island::repaint(Platform& pfrm)
 }
 
 
+Vec2<Float> Island::origin() const
+{
+    return {position_.x, position_.y + ambient_movement_};
+}
+
 
 }

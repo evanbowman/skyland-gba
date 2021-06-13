@@ -35,7 +35,10 @@ public:
     virtual ScenePtr<Scene> update(Platform&, App&, Microseconds delta)
     {
         return null_scene();
-    };
+    }
+
+
+    virtual void display(Platform&, App&) {}
 
 
     virtual void enter(Platform&, App&, Scene& prev_scene) {};

@@ -28,6 +28,7 @@ void skyland_main_loop(Platform& pf)
 
     pf.enable_glyph_mode(true);
     pf.load_overlay_texture("overlay");
+    pf.load_sprite_texture("spritesheet");
 
     while (pf.is_running()) {
         pf.keyboard().poll();

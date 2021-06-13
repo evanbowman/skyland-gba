@@ -77,6 +77,9 @@ public:
     }
 
 
+    Vec2<Float> origin() const;
+
+
 private:
 
 

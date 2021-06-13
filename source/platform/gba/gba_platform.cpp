@@ -502,14 +502,15 @@ static auto blend(const Color& c1, const Color& c2, u8 amt)
 static void init_video(Platform::Screen& screen)
 {
     REG_DISPCNT = MODE_0 | OBJ_ENABLE | OBJ_MAP_1D | BG0_ENABLE | BG1_ENABLE |
-                  BG2_ENABLE | BG3_ENABLE | WIN0_ENABLE;
+                  BG2_ENABLE | BG3_ENABLE // | WIN0_ENABLE
+        ;
 
-    REG_WININ = WIN_ALL;
+    // REG_WININ = WIN_ALL;
 
     // Always display the starfield and the overlay in the outer window. We just
     // want to mask off areas of the game map that have wrapped to the other
     // side of the screen.
-    REG_WINOUT = WIN_OBJ | WIN_BG1 | WIN_BG2;
+    // REG_WINOUT = WIN_OBJ | WIN_BG1 | WIN_BG2;
 
     *reg_blendcnt = BLD_BUILD(BLD_OBJ, BLD_BG0 | BLD_BG1 | BLD_BG3, 0);
 
@@ -1005,7 +1006,13 @@ static void map_dynamic_textures()
 }
 
 
-static u8 parallax_table[10];
+static u8 parallax_table[280];
+
+
+static u16 x0_scroll = 0;
+static u16 y0_scroll = 0;
+static u16 x3_scroll = 0;
+static u16 y3_scroll = 0;
 
 
 void Platform::Screen::clear()
@@ -1034,13 +1041,16 @@ void Platform::Screen::clear()
     // noticable if we perform the copies further from the site of the vsync.
     map_dynamic_textures();
 
-    // auto view_offset = view_.get_center().cast<s32>();
-    // *bg0_x_scroll = view_offset.x;
-    // *bg0_y_scroll = view_offset.y;
+    auto view_offset = view_.get_center().cast<s32>();
+    *bg0_x_scroll = x0_scroll + view_offset.x;
+    *bg0_y_scroll = y0_scroll + view_offset.y;
 
-    // *bg3_x_scroll = view_offset.x;
-    // *bg3_y_scroll = view_offset.y;
+    *bg3_x_scroll = x3_scroll + view_offset.x;
+    *bg3_y_scroll = y3_scroll + view_offset.y;
 }
+
+
+
 
 
 void Platform::set_scroll(Layer layer, u16 x, u16 y)
@@ -1052,14 +1062,14 @@ void Platform::set_scroll(Layer layer, u16 x, u16 y)
 
     case Layer::map_0_ext:
     case Layer::map_0:
-        *bg0_x_scroll = x;
-        *bg0_y_scroll = y;
+        x0_scroll = x;
+        y0_scroll = y;
         break;
 
     case Layer::map_1_ext:
     case Layer::map_1:
-        *bg3_x_scroll = x;
-        *bg3_y_scroll = y;
+        x3_scroll = x;
+        y3_scroll = y;
         break;
     }
 }
@@ -1157,29 +1167,31 @@ void Platform::Screen::display()
     // useful if you were making certain kinds of games, like some kind of
     // Civilization clone, but for BlindJump, it doesn't make sense to display
     // the wrapped area).
-    const s32 scroll_limit_x_max = 512 - size().x;
-    const s32 scroll_limit_y_max = 480 - size().y;
-    if (view_offset.x > scroll_limit_x_max) {
-        REG_WIN0H =
-            (0 << 8) | (size().x - (view_offset.x - scroll_limit_x_max));
-    } else if (view_offset.x < 0) {
-        REG_WIN0H = ((view_offset.x * -1) << 8) | (0);
-    } else {
-        REG_WIN0H = (0 << 8) | (size().x);
-    }
+    // const s32 scroll_limit_x_max = 512 - size().x;
+    // const s32 scroll_limit_y_max = 480 - size().y;
+    // if (view_offset.x > scroll_limit_x_max) {
+    //     REG_WIN0H =
+    //         (0 << 8) | (size().x - (view_offset.x - scroll_limit_x_max));
+    // } else if (view_offset.x < 0) {
+    //     REG_WIN0H = ((view_offset.x * -1) << 8) | (0);
+    // } else {
+    //     REG_WIN0H = (0 << 8) | (size().x);
+    // }
 
-    if (view_offset.y > scroll_limit_y_max) {
-        REG_WIN0V =
-            (0 << 8) | (size().y - (view_offset.y - scroll_limit_y_max));
-    } else if (view_offset.y < 0) {
-        REG_WIN0V = ((view_offset.y * -1) << 8) | (0);
-    } else {
-        REG_WIN0V = (0 << 8) | (size().y);
-    }
+    // if (view_offset.y > scroll_limit_y_max) {
+    //     REG_WIN0V =
+    //         (0 << 8) | (size().y - (view_offset.y - scroll_limit_y_max));
+    // } else if (view_offset.y < 0) {
+    //     REG_WIN0V = ((view_offset.y * -1) << 8) | (0);
+    // } else {
+    //     REG_WIN0V = (0 << 8) | (size().y);
+    // }
 
     if (not get_gflag(GlobalFlag::parallax_clouds)) {
         *bg1_x_scroll = view_offset.x * 0.3f;
         *bg1_y_scroll = view_offset.y * 0.3f;
+    } else {
+        *bg1_y_scroll = view_offset.y;
     }
 }
 
@@ -1311,19 +1323,19 @@ static void set_map_tile_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
 
     auto screen_block = [&]() -> u16 {
         // FIXME: copy pasted from elsewhere, not actually correct
-        if (x > 8 and y > 8) {
-            x %= 8;
-            y %= 10;
-            return base + 3;
-        } else if (y > 9) {
-            y %= 10;
-            return base + 2;
-        } else if (x > 7) {
-            x %= 8;
-            return base + 1;
-        } else {
+        // if (x > 8 and y > 8) {
+        //     x %= 8;
+        //     y %= 10;
+        //     return base + 3;
+        // } else if (y > 9) {
+        //     y %= 10;
+        //     return base + 2;
+        // } else if (x > 7) {
+        //     x %= 8;
+        //     return base + 1;
+        // } else {
             return base;
-        }
+        // }
     }();
 
     MEM_SCREENBLOCKS[screen_block][0 + ref(x % 16, y)] =
@@ -4601,9 +4613,15 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 void Platform::enable_feature(const char* feature_name, int value)
 {
     if (str_cmp(feature_name, "_prlx7") == 0) {
-        ::parallax_table[7] = value;
+        auto offset = screen_.get_view().get_center().cast<s32>().y;
+        for (int i = 112 - offset; i < 128 - offset; ++i) {
+            parallax_table[i] = value;
+        }
     } else if (str_cmp(feature_name, "_prlx8") == 0) {
-        ::parallax_table[8] = value;
+        auto offset = screen_.get_view().get_center().cast<s32>().y;
+        for (int i = 128 - offset; i < 144 - offset; ++i) {
+            parallax_table[i] = value;
+        }
     } else if (str_cmp(feature_name, "gswap") == 0) {
         *((u16*)0x4000002) = 0x0000 | (bool)value;
     } else if (str_cmp(feature_name, "spatialized-audio") == 0) {
@@ -4627,7 +4645,8 @@ void Platform::enable_feature(const char* feature_name, int value)
         if (value) {
             irqEnable(IRQ_HBLANK);
             irqSet(IRQ_HBLANK, [] {
-                *bg1_x_scroll = ::parallax_table[(REG_VCOUNT + 1) / 16];
+                *bg1_x_scroll = ::parallax_table[(REG_VCOUNT + 1) // / 16
+                                                 ];
             });
         } else {
             irqDisable(IRQ_HBLANK);

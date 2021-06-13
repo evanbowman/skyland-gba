@@ -16,6 +16,9 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    void display(Platform&, App&) override;
+
+
     void enter(Platform&, App&, Scene& prev) override;
 
 
@@ -23,9 +26,15 @@ public:
 
 
 private:
+
+
+    void find_construction_sites(Platform&, App&);
+
+
     using Coord = Vec2<u8>;
 
     Buffer<Coord, 12> construction_sites_;
+    u32 selector_ = 0;
 };
 
 

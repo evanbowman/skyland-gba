@@ -13,18 +13,17 @@ static void init_clouds(Platform& pfrm);
 
 
 App::App(Platform& pfrm) :
-    player_island_(pfrm, Layer::map_0_ext, 6),
+    player_island_(pfrm, Layer::map_0_ext, 5),
     current_scene_(null_scene()),
     next_scene_(null_scene())
 {
     pfrm.load_tile0_texture("tilesheet");
 
-    player_island_.set_position({10, 274});
+    player_island_.set_position({10, 374});
 
 
     current_scene_ = initial_scene();
     current_scene_->enter(pfrm, *this, *current_scene_);
-
 
     init_clouds(pfrm);
 }
@@ -40,6 +39,13 @@ void App::update(Platform& pfrm, Microseconds delta)
     }
 
     next_scene_ = current_scene_->update(pfrm, *this, delta);
+
+    if (pfrm.keyboard().down_transition<Key::up>()) {
+        auto view = pfrm.screen().get_view();
+        const auto center = view.get_center();
+        view.set_center({center.x, center.y - 1});
+        pfrm.screen().set_view(view);
+    }
 
     if (next_scene_) {
         current_scene_->exit(pfrm, *this, *next_scene_);
@@ -60,6 +66,8 @@ void App::render(Platform& pfrm)
 {
     pfrm.enable_feature("_prlx7", (u8)cloud_scroll_1_);
     pfrm.enable_feature("_prlx8", (u8)cloud_scroll_2_);
+
+    current_scene_->display(pfrm, *this);
 }
 
 
