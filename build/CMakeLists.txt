@@ -66,6 +66,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/island.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
+  ${SOURCE_DIR}/skyland/room_metatable.cpp
   ${SOURCE_DIR}/skyland/rooms/core.cpp
   ${SOURCE_DIR}/skyland/rooms/exteriorWall.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp

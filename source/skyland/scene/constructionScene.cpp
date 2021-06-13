@@ -4,7 +4,7 @@
 #include "platform/platform.hpp"
 #include "readyScene.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/rooms/stairwell.hpp"
+#include "skyland/room_metatable.hpp"
 
 
 
@@ -29,10 +29,10 @@ ScenePtr<Scene> ConstructionScene::update(Platform& pfrm, App& app, Microseconds
     }
 
     if (pfrm.keyboard().down_transition<Key::action_2>() and not construction_sites_.empty()) {
-
-        app.player_island().add_room<Stairwell>(pfrm,
-                                                {construction_sites_[selector_].x,
-                                                 u8(construction_sites_[selector_].y - 3)});
+        room_metatable().first[0].spawner().create(pfrm,
+                                                   &app.player_island(),
+                                                   {construction_sites_[selector_].x,
+                                                    u8(construction_sites_[selector_].y - 3)});
 
         find_construction_sites(pfrm, app);
     }
