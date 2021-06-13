@@ -73,7 +73,7 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
 
     for (u8 x = 0; x < 16; ++x) {
         for (u8 y = 0; y < 16; ++y) {
-            if (matrix[x][y]) {
+            if (matrix[x][y] and y > 8) {
                 construction_sites_.push_back({x, y});
             }
         }

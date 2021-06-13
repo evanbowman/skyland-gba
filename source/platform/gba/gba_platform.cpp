@@ -1191,7 +1191,7 @@ void Platform::Screen::display()
         *bg1_x_scroll = view_offset.x * 0.3f;
         *bg1_y_scroll = view_offset.y * 0.3f;
     } else {
-        *bg1_y_scroll = view_offset.y;
+        *bg1_y_scroll = view_offset.y / 2;
     }
 }
 
@@ -4613,12 +4613,12 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 void Platform::enable_feature(const char* feature_name, int value)
 {
     if (str_cmp(feature_name, "_prlx7") == 0) {
-        auto offset = screen_.get_view().get_center().cast<s32>().y;
+        auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
         for (int i = 112 - offset; i < 128 - offset; ++i) {
             parallax_table[i] = value;
         }
     } else if (str_cmp(feature_name, "_prlx8") == 0) {
-        auto offset = screen_.get_view().get_center().cast<s32>().y;
+        auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
         for (int i = 128 - offset; i < 144 - offset; ++i) {
             parallax_table[i] = value;
         }

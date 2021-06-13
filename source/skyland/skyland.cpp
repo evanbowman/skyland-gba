@@ -40,10 +40,20 @@ void App::update(Platform& pfrm, Microseconds delta)
 
     next_scene_ = current_scene_->update(pfrm, *this, delta);
 
-    if (pfrm.keyboard().down_transition<Key::up>()) {
+    if (pfrm.keyboard().pressed<Key::up>()) {
         auto view = pfrm.screen().get_view();
         const auto center = view.get_center();
-        view.set_center({center.x, center.y - 1});
+        if (center.y > -40) {
+            view.set_center({center.x, center.y - 1});
+        }
+        pfrm.screen().set_view(view);
+    }
+    if (pfrm.keyboard().pressed<Key::down>()) {
+        auto view = pfrm.screen().get_view();
+        const auto center = view.get_center();
+        if (center.y < 0) {
+            view.set_center({center.x, center.y + 1});
+        }
         pfrm.screen().set_view(view);
     }
 
