@@ -91,7 +91,7 @@ void ReadyScene::display(Platform& pfrm, App& app)
 
     cursor.set_position(origin);
 
-    // pfrm.screen().draw(cursor);
+    pfrm.screen().draw(cursor);
 }
 
 
