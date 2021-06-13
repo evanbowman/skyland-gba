@@ -1,44 +1,42 @@
 #pragma once
 
-#include <memory>
+#include "scene.hpp"
 #include "memory/pool.hpp"
-#include "skyland/room.hpp"
 
 
 
 namespace skyland {
 
 
-
-namespace room_pool {
-
-
-
-static constexpr const int max_room_size = 64;
-static constexpr const int pool_capacity = 32;
+namespace scene_pool {
 
 
 
-using _Pool = Pool<max_room_size, pool_capacity, 8>;
+static constexpr const int max_scene_size = 256;
+static constexpr const int pool_capacity = 3;
+
+
+
+using _Pool = Pool<max_scene_size, pool_capacity, 8>;
 
 extern _Pool* pool_;
 
 
 
-inline void deleter(Room* room)
+inline void deleter(Scene* scene)
 {
-    if (room) {
-        room->~Room();
-        pool_->post(reinterpret_cast<byte*>(room));
+    if (scene) {
+        scene->~Scene();
+        pool_->post(reinterpret_cast<byte*>(scene));
     }
 }
 
 
 
 template <typename T, typename... Args>
-RoomPtr<T> alloc(Args&&... args)
+ScenePtr<T> alloc(Args&&... args)
 {
-    static_assert(sizeof(T) <= max_room_size);
+    static_assert(sizeof(T) <= max_scene_size);
     static_assert(alignof(T) <= pool_->alignment());
 
     if (pool_ == nullptr) {

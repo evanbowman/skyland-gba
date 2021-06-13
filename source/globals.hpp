@@ -4,6 +4,7 @@
 
 #include "blind_jump/game.hpp"
 #include "skyland/roomPool.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 struct BlindJumpGlobalData {
@@ -27,6 +28,7 @@ struct ExampleGlobalData {
 
 struct SkylandGlobalData {
     skyland::room_pool::_Pool room_pool_;
+    skyland::scene_pool::_Pool scene_pool_;
 };
 
 

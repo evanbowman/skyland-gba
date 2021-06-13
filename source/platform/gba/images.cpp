@@ -17,6 +17,8 @@
 //;
 #include "data/tilesheet.h"
 //;
+#include "data/tilesheet_interior.h"
+//;
 #include "data/tilesheet_top.h"
 //;
 #include "data/overlay.h"
@@ -50,6 +52,8 @@ static const TextureData sprite_textures[] = {
 static const TextureData tile_textures[] = {
 
     TEXTURE_INFO(tilesheet),
+//;
+    TEXTURE_INFO(tilesheet_interior),
 //;
     TEXTURE_INFO(tilesheet_top),
 //

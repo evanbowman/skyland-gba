@@ -18,5 +18,26 @@ struct Tile {
         roof_plain_intersect_armored_wall,
         wall_window_middle_1,
         wall_window_middle_2,
+        grass,
+    };
+};
+
+
+struct InteriorTile {
+    enum {
+        core_1 = 15,
+        core_2,
+        core_3,
+        core_4,
+        roof_1,
+        roof_2,
+        cannon_1,
+        ladder_base,
+        ladder_mid,
+        roof_3,
+        ladder_mid_2,
+        ladder_top,
+        grass,
+        empty
     };
 };

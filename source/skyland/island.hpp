@@ -68,7 +68,13 @@ public:
     void plot_construction_zones(bool matrix[16][16]) const;
 
 
-    void repaint(Platform& pfrm) const;
+    void repaint(Platform& pfrm);
+
+
+    bool interior_visible() const
+    {
+        return interior_visible_;
+    }
 
 
 private:
@@ -83,6 +89,8 @@ private:
     Vec2<Float> position_;
     u8 ambient_movement_;
     Microseconds timer_;
+
+    bool interior_visible_;
 };
 
 

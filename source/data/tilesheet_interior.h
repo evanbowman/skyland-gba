@@ -1,9 +1,9 @@
 
-//{{BLOCK(tilesheet)
+//{{BLOCK(tilesheet_interior)
 
 //======================================================================
 //
-//	tilesheet, 1776x16@4, 
+//	tilesheet_interior, 1776x16@4, 
 //	Transparent color : FF,00,FF
 //	+ palette 256 entries, not compressed
 //	+ 444 tiles Metatiled by 2x2 not compressed
@@ -15,15 +15,15 @@
 //
 //======================================================================
 
-#ifndef GRIT_TILESHEET_H
-#define GRIT_TILESHEET_H
+#ifndef GRIT_TILESHEET_INTERIOR_H
+#define GRIT_TILESHEET_INTERIOR_H
 
-#define tilesheetTilesLen 14208
-extern const unsigned int tilesheetTiles[3552];
+#define tilesheet_interiorTilesLen 14208
+extern const unsigned int tilesheet_interiorTiles[3552];
 
-#define tilesheetPalLen 512
-extern const unsigned short tilesheetPal[256];
+#define tilesheet_interiorPalLen 512
+extern const unsigned short tilesheet_interiorPal[256];
 
-#endif // GRIT_TILESHEET_H
+#endif // GRIT_TILESHEET_INTERIOR_H
 
-//}}BLOCK(tilesheet)
+//}}BLOCK(tilesheet_interior)

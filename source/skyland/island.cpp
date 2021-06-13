@@ -1,6 +1,7 @@
 #include "island.hpp"
 #include "rooms/core.hpp"
 #include "rooms/stairwell.hpp"
+#include "rooms/exteriorWall.hpp"
 #include "roomPool.hpp"
 #include "tile.hpp"
 
@@ -11,7 +12,10 @@ namespace skyland {
 
 
 
-Island::Island(Platform& pfrm, Layer layer, u8 width) : layer_(layer), timer_(0)
+Island::Island(Platform& pfrm, Layer layer, u8 width) :
+    layer_(layer),
+    timer_(0),
+    interior_visible_(false)
 {
     terrain_.push_back(13), --width;
 
@@ -24,18 +28,10 @@ Island::Island(Platform& pfrm, Layer layer, u8 width) : layer_(layer), timer_(0)
     render_terrain(pfrm);
 
     add_room<Core>(pfrm, {1, 13});
-    add_room<Stairwell>(pfrm, {0, 11});
+    // add_room<Stairwell>(pfrm, {0, 11});
+    // add_room<ExteriorWall>(pfrm, {3, 13});
+    // add_room<Core>(pfrm, {4, 13});
 
-    // bool matrix[16][16];
-    // plot_construction_zones(matrix);
-
-    // for (int x = 0; x < 16; ++x) {
-    //     for (int y = 0; y < 15; ++y) {
-    //         if (matrix[x][y]) {
-    //             pfrm.set_tile(layer, x, y, 1);
-    //         }
-    //     }
-    // }
 }
 
 
@@ -91,6 +87,8 @@ void Island::render_interior(Platform& pfrm)
     for (auto& room : rooms()) {
         room->render_interior(pfrm, layer_);
     }
+
+    interior_visible_ = true;
 }
 
 
@@ -100,6 +98,8 @@ void Island::render_exterior(Platform& pfrm)
     for (auto& room : rooms()) {
         room->render_exterior(pfrm, layer_);
     }
+
+    interior_visible_ = false;
 }
 
 
@@ -138,6 +138,10 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
         }
     }
 
+    for (int x = 0; x < 16; ++x) {
+        matrix[x][15] = false;
+    }
+
     for (u32 x = 0; x < terrain_.size(); ++x) {
         if (matrix_temp[x][14] == 0) {
             matrix[x][14] = true;
@@ -147,7 +151,7 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
 
 
 
-void Island::repaint(Platform& pfrm) const
+void Island::repaint(Platform& pfrm)
 {
     bool matrix[16][16];
 
@@ -157,8 +161,10 @@ void Island::repaint(Platform& pfrm) const
         }
     }
 
-    for (auto& room : rooms_) {
-        room->render_exterior(pfrm, layer_);
+    if (interior_visible_) {
+        render_interior(pfrm);
+    } else {
+        render_exterior(pfrm);
     }
 
     plot_rooms(matrix);
@@ -167,6 +173,8 @@ void Island::repaint(Platform& pfrm) const
         for (int y = 0; y < 15; ++y) {
             if (matrix[x][y] == 0 and y < 31 and matrix[x][y + 1]) {
                 pfrm.set_tile(layer_, x, y, Tile::roof_plain);
+            } else if (y == 14 and matrix[x][y] == 0 and x < (int)terrain_.size()) {
+                pfrm.set_tile(layer_, x, y, Tile::grass);
             }
         }
     }

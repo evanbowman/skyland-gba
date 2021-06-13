@@ -22,6 +22,7 @@ void skyland_main_loop(Platform& pf)
 
     globals().emplace<SkylandGlobalData>();
     skyland::room_pool::pool_ = &std::get<SkylandGlobalData>(globals()).room_pool_;
+    skyland::scene_pool::pool_ = &std::get<SkylandGlobalData>(globals()).scene_pool_;
 
     skyland::App app(pf);
 
@@ -29,6 +30,7 @@ void skyland_main_loop(Platform& pf)
     pf.load_overlay_texture("overlay");
 
     while (pf.is_running()) {
+        pf.keyboard().poll();
 
         pf.feed_watchdog();
 

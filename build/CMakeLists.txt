@@ -65,8 +65,13 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/island.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
+  ${SOURCE_DIR}/skyland/scene_pool.cpp
   ${SOURCE_DIR}/skyland/rooms/core.cpp
-  ${SOURCE_DIR}/skyland/rooms/stairwell.cpp)
+  ${SOURCE_DIR}/skyland/rooms/exteriorWall.cpp
+  ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
+  ${SOURCE_DIR}/skyland/scene/worldScene.cpp
+  ${SOURCE_DIR}/skyland/scene/readyScene.cpp
+  ${SOURCE_DIR}/skyland/scene/constructionScene.cpp)
 
 
 set(SOURCES
@@ -141,6 +146,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay.s
     ${DATA_DIR}/charset.s
     ${DATA_DIR}/tilesheet.s
+    ${DATA_DIR}/tilesheet_interior.s
     ${DATA_DIR}/tilesheet_top.s
     ${DATA_DIR}/spritesheet.s
     ${DATA_DIR}/sound_msg.s
@@ -384,6 +390,7 @@ if(GAMEBOY_ADVANCE)
   if(GBA_AUTOBUILD_IMG)
     add_spritesheet(spritesheet 2 4 NO)
     add_tilesheet(tilesheet 2 2 NO NO)
+    add_tilesheet(tilesheet_interior 2 2 NO NO)
     add_tilesheet(tilesheet_top 4 3 NO NO)
     add_overlay(overlay 0 0 NO NO)
     add_overlay(charset 0 0 NO NO)

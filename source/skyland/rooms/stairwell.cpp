@@ -24,7 +24,10 @@ void Stairwell::update(Platform&, App&, Microseconds delta)
 
 void Stairwell::render_interior(Platform& pfrm, Layer layer)
 {
-
+    pfrm.set_tile(layer, position().x, position().y, InteriorTile::ladder_top);
+    pfrm.set_tile(layer, position().x, position().y + 1, InteriorTile::ladder_mid_2);
+    pfrm.set_tile(layer, position().x, position().y + 2, InteriorTile::ladder_mid);
+    pfrm.set_tile(layer, position().x, position().y + 3, InteriorTile::ladder_base);
 }
 
 
