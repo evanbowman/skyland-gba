@@ -1,6 +1,7 @@
 #pragma once
 
 #include "skyland/room.hpp"
+#include "skyland/coins.hpp"
 
 
 
@@ -18,9 +19,26 @@ public:
 
     void render_interior(Platform& pfrm, Layer layer) override;
     void render_exterior(Platform& pfrm, Layer layer) override;
+
+
+    static Vec2<u8> size()
+    {
+        return {1, 2};
+    }
+
+
+    static const char* name()
+    {
+        return "retaining wall";
+    }
+
+
+    static Coins cost()
+    {
+        return 300;
+    }
 };
 
 
 
-
-}
+} // namespace skyland

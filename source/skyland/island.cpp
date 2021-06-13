@@ -1,21 +1,16 @@
 #include "island.hpp"
-#include "rooms/core.hpp"
-#include "rooms/stairwell.hpp"
-#include "rooms/exteriorWall.hpp"
 #include "roomPool.hpp"
+#include "rooms/core.hpp"
+#include "rooms/exteriorWall.hpp"
+#include "rooms/stairwell.hpp"
 #include "tile.hpp"
-
-
 
 
 namespace skyland {
 
 
-
-Island::Island(Platform& pfrm, Layer layer, u8 width) :
-    layer_(layer),
-    timer_(0),
-    interior_visible_(false)
+Island::Island(Platform& pfrm, Layer layer, u8 width)
+    : layer_(layer), timer_(0), interior_visible_(false)
 {
     terrain_.push_back(13), --width;
 
@@ -31,9 +26,7 @@ Island::Island(Platform& pfrm, Layer layer, u8 width) :
     // add_room<Stairwell>(pfrm, {0, 11});
     // add_room<ExteriorWall>(pfrm, {3, 13});
     // add_room<Core>(pfrm, {4, 13});
-
 }
-
 
 
 Island::Rooms& Island::rooms()
@@ -42,21 +35,18 @@ Island::Rooms& Island::rooms()
 }
 
 
-
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;
 
-    ambient_movement_ = 4 *
-        float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
-        std::numeric_limits<s16>::max();
+    ambient_movement_ = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
+                        std::numeric_limits<s16>::max();
 
 
     for (auto& room : rooms_) {
         room->update(pfrm, app, dt);
     }
 }
-
 
 
 void Island::render_terrain(Platform& pfrm)
@@ -67,19 +57,16 @@ void Island::render_terrain(Platform& pfrm)
 }
 
 
-
 const Vec2<Float>& Island::get_position() const
 {
     return position_;
 }
 
 
-
 void Island::set_position(const Vec2<Float>& position)
 {
     position_ = position;
 }
-
 
 
 void Island::render_interior(Platform& pfrm)
@@ -92,7 +79,6 @@ void Island::render_interior(Platform& pfrm)
 }
 
 
-
 void Island::render_exterior(Platform& pfrm)
 {
     for (auto& room : rooms()) {
@@ -101,7 +87,6 @@ void Island::render_exterior(Platform& pfrm)
 
     interior_visible_ = false;
 }
-
 
 
 void Island::plot_rooms(bool matrix[16][16]) const
@@ -125,7 +110,6 @@ void Island::plot_rooms(bool matrix[16][16]) const
 }
 
 
-
 void Island::plot_construction_zones(bool matrix[16][16]) const
 {
     bool matrix_temp[16][16];
@@ -134,7 +118,8 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 15; ++y) {
-            matrix[x][y] = matrix_temp[x][y] == 0 and y < 15 and matrix_temp[x][y + 1];
+            matrix[x][y] =
+                matrix_temp[x][y] == 0 and y < 15 and matrix_temp[x][y + 1];
         }
     }
 
@@ -148,7 +133,6 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
         }
     }
 }
-
 
 
 void Island::repaint(Platform& pfrm)
@@ -173,7 +157,8 @@ void Island::repaint(Platform& pfrm)
         for (int y = 0; y < 15; ++y) {
             if (matrix[x][y] == 0 and y < 31 and matrix[x][y + 1]) {
                 pfrm.set_tile(layer_, x, y, Tile::roof_plain);
-            } else if (y == 14 and matrix[x][y] == 0 and x < (int)terrain_.size()) {
+            } else if (y == 14 and matrix[x][y] == 0 and
+                       x < (int)terrain_.size()) {
                 pfrm.set_tile(layer_, x, y, Tile::grass);
             }
         }
@@ -187,4 +172,4 @@ Vec2<Float> Island::origin() const
 }
 
 
-}
+} // namespace skyland

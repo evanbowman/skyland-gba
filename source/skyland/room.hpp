@@ -1,17 +1,14 @@
 #pragma once
 
-#include <memory>
 #include "number/numeric.hpp"
 #include "platform/layer.hpp"
-
+#include <memory>
 
 
 class Platform;
 
 
-
 namespace skyland {
-
 
 
 class App;
@@ -19,15 +16,14 @@ class Entity;
 class Island;
 
 
-
 class Room {
 public:
-    virtual ~Room() {}
+    virtual ~Room()
+    {
+    }
 
-    Room(Island* parent, const Vec2<u8>& size, const Vec2<u8>& position) :
-        parent_(parent),
-        size_(size),
-        position_(position)
+    Room(Island* parent, const Vec2<u8>& size, const Vec2<u8>& position)
+        : parent_(parent), size_(size), position_(position)
     {
     }
 
@@ -64,10 +60,7 @@ private:
 };
 
 
-
-template <typename T>
-using RoomPtr = std::unique_ptr<T, void (*)(Room*)>;
+template <typename T> using RoomPtr = std::unique_ptr<T, void (*)(Room*)>;
 
 
-
-}
+} // namespace skyland

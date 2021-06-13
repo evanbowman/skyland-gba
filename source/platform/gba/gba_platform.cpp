@@ -1050,9 +1050,6 @@ void Platform::Screen::clear()
 }
 
 
-
-
-
 void Platform::set_scroll(Layer layer, u16 x, u16 y)
 {
     switch (layer) {
@@ -1334,7 +1331,7 @@ static void set_map_tile_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
         //     x %= 8;
         //     return base + 1;
         // } else {
-            return base;
+        return base;
         // }
     }();
 
@@ -1349,8 +1346,6 @@ static void set_map_tile_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
 
     MEM_SCREENBLOCKS[screen_block][1 + ref(x % 16, y) + 32] =
         (tile_id * 4 + 3) | SE_PALBANK(palette);
-
-
 }
 
 
@@ -2226,7 +2221,8 @@ static const struct AudioTrack {
     const AudioSample* data_;
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
-} music_tracks[] = {DEF_MUSIC(chantiers_navals_412, music_chantiers_navals_412)};
+} music_tracks[] = {
+    DEF_MUSIC(chantiers_navals_412, music_chantiers_navals_412)};
 
 
 static const AudioTrack* find_music(const char* name)
@@ -4646,7 +4642,7 @@ void Platform::enable_feature(const char* feature_name, int value)
             irqEnable(IRQ_HBLANK);
             irqSet(IRQ_HBLANK, [] {
                 *bg1_x_scroll = ::parallax_table[(REG_VCOUNT + 1) // / 16
-                                                 ];
+                ];
             });
         } else {
             irqDisable(IRQ_HBLANK);

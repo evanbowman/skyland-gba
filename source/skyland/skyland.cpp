@@ -1,21 +1,17 @@
 #include "skyland.hpp"
-#include "platform/platform.hpp"
 #include "globals.hpp"
-
+#include "platform/platform.hpp"
 
 
 namespace skyland {
 
 
-
 static void init_clouds(Platform& pfrm);
 
 
-
-App::App(Platform& pfrm) :
-    player_island_(pfrm, Layer::map_0_ext, 5),
-    current_scene_(null_scene()),
-    next_scene_(null_scene())
+App::App(Platform& pfrm)
+    : player_island_(pfrm, Layer::map_0_ext, 5), current_scene_(null_scene()),
+      next_scene_(null_scene())
 {
     pfrm.load_tile0_texture("tilesheet");
 
@@ -29,7 +25,6 @@ App::App(Platform& pfrm) :
 }
 
 
-
 void App::update(Platform& pfrm, Microseconds delta)
 {
     if (next_scene_) {
@@ -40,28 +35,10 @@ void App::update(Platform& pfrm, Microseconds delta)
 
     next_scene_ = current_scene_->update(pfrm, *this, delta);
 
-    if (pfrm.keyboard().pressed<Key::up>()) {
-        auto view = pfrm.screen().get_view();
-        const auto center = view.get_center();
-        if (center.y > -40) {
-            view.set_center({center.x, center.y - 1});
-        }
-        pfrm.screen().set_view(view);
-    }
-    if (pfrm.keyboard().pressed<Key::down>()) {
-        auto view = pfrm.screen().get_view();
-        const auto center = view.get_center();
-        if (center.y < 0) {
-            view.set_center({center.x, center.y + 1});
-        }
-        pfrm.screen().set_view(view);
-    }
-
     if (next_scene_) {
         current_scene_->exit(pfrm, *this, *next_scene_);
     }
 }
-
 
 
 void App::updateParallax(Microseconds delta)
@@ -71,7 +48,6 @@ void App::updateParallax(Microseconds delta)
 }
 
 
-
 void App::render(Platform& pfrm)
 {
     pfrm.enable_feature("_prlx7", (u8)cloud_scroll_1_);
@@ -79,7 +55,6 @@ void App::render(Platform& pfrm)
 
     current_scene_->display(pfrm, *this);
 }
-
 
 
 static void init_clouds(Platform& pfrm)
@@ -97,21 +72,18 @@ static void init_clouds(Platform& pfrm)
         pfrm.set_tile(Layer::background, i, 19, 5);
     }
 
-    auto put_cloud_block = [&](int x, int y, int offset)
-    {
+    auto put_cloud_block = [&](int x, int y, int offset) {
         pfrm.set_tile(Layer::background, x, y, offset++);
         pfrm.set_tile(Layer::background, x + 1, y, offset++);
         pfrm.set_tile(Layer::background, x, y + 1, offset++);
         pfrm.set_tile(Layer::background, x + 1, y + 1, offset);
     };
 
-    auto put_fg_cloud_type_n = [&](int x, int type)
-    {
+    auto put_fg_cloud_type_n = [&](int x, int type) {
         put_cloud_block(x * 2, 16, 8 + type * 4);
     };
 
-    auto put_bg_cloud_type_n = [&](int x, int type)
-    {
+    auto put_bg_cloud_type_n = [&](int x, int type) {
         put_cloud_block(x * 2, 14, 32 + type * 4);
     };
 
@@ -132,9 +104,7 @@ static void init_clouds(Platform& pfrm)
         put_bg_cloud_type_n(offset + 2, 2);
         put_bg_cloud_type_n(offset + 3, 3);
     }
-
 }
 
 
-
-}
+} // namespace skyland

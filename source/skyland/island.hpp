@@ -1,14 +1,12 @@
 #pragma once
 
+#include "bulkAllocator.hpp"
 #include "memory/buffer.hpp"
 #include "room.hpp"
-#include "bulkAllocator.hpp"
 #include "roomPool.hpp"
 
 
-
 namespace skyland {
-
 
 
 class Island {
@@ -80,10 +78,19 @@ public:
     Vec2<Float> origin() const;
 
 
-private:
+    using Terrain = Buffer<u8, 10>;
+
+
+    Terrain& terrain()
+    {
+        return terrain_;
+    }
 
 
     void render_terrain(Platform& pfrm);
+
+
+private:
 
 
     Rooms rooms_;
@@ -97,5 +104,4 @@ private:
 };
 
 
-
-}
+} // namespace skyland

@@ -72,6 +72,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp
+  ${SOURCE_DIR}/skyland/scene/newgameScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp)
 
 

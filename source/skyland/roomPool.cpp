@@ -9,4 +9,4 @@ _Pool* pool_ = nullptr;
 
 }
 
-}
+} // namespace skyland

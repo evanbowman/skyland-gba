@@ -7,6 +7,7 @@
 #include "graphics/sprite.hpp"
 #include "graphics/view.hpp"
 #include "key.hpp"
+#include "layer.hpp"
 #include "memory/buffer.hpp"
 #include "memory/rc.hpp"
 #include "number/numeric.hpp"
@@ -16,7 +17,6 @@
 #include "unicode.hpp"
 #include <array>
 #include <optional>
-#include "layer.hpp"
 
 
 using TileDesc = u16;

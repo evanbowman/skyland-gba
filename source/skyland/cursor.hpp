@@ -1,13 +1,10 @@
 #pragma once
 
 
-
 namespace skyland {
 
 
-
 class Island;
-
 
 
 class Cursor {
@@ -18,11 +15,9 @@ public:
     }
 
 
-
 private:
     Island* frame_of_reference_ = nullptr;
 };
 
 
-
-}
+} // namespace skyland

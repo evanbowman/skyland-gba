@@ -3,7 +3,6 @@
 #include "transformGroup.hpp"
 
 
-
 // clang-format off
 
 const char* console_header =
@@ -21,8 +20,10 @@ void skyland_main_loop(Platform& pf)
     pf.remote_console().printline(::console_header);
 
     globals().emplace<SkylandGlobalData>();
-    skyland::room_pool::pool_ = &std::get<SkylandGlobalData>(globals()).room_pool_;
-    skyland::scene_pool::pool_ = &std::get<SkylandGlobalData>(globals()).scene_pool_;
+    skyland::room_pool::pool_ =
+        &std::get<SkylandGlobalData>(globals()).room_pool_;
+    skyland::scene_pool::pool_ =
+        &std::get<SkylandGlobalData>(globals()).scene_pool_;
 
     skyland::App app(pf);
 

@@ -1,22 +1,17 @@
 #include "scene_pool.hpp"
-#include "scene/readyScene.hpp"
-
+#include "scene/newgameScene.hpp"
 
 
 namespace skyland {
 
 
-
 namespace scene_pool {
-
 
 
 _Pool* pool_ = nullptr;
 
 
-
 }
-
 
 
 ScenePtr<Scene> null_scene()
@@ -25,12 +20,10 @@ ScenePtr<Scene> null_scene()
 }
 
 
-
 ScenePtr<Scene> initial_scene()
 {
-    return scene_pool::alloc<ReadyScene>();
+    return scene_pool::alloc<NewgameScene>();
 }
 
 
-
-}
+} // namespace skyland

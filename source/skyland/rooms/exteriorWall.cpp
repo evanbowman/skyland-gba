@@ -3,24 +3,19 @@
 #include "skyland/tile.hpp"
 
 
-
-
 namespace skyland {
 
 
-
-ExteriorWall::ExteriorWall(Island* parent, const Vec2<u8>& position) :
-    Room(parent, {1, 2}, position)
+ExteriorWall::ExteriorWall(Island* parent, const Vec2<u8>& position)
+    : Room(parent, {1, 2}, position)
 {
 }
-
 
 
 void ExteriorWall::update(Platform&, App&, Microseconds delta)
 {
     // ...
 }
-
 
 
 void ExteriorWall::render_interior(Platform& pfrm, Layer layer)
@@ -30,7 +25,6 @@ void ExteriorWall::render_interior(Platform& pfrm, Layer layer)
 }
 
 
-
 void ExteriorWall::render_exterior(Platform& pfrm, Layer layer)
 {
     pfrm.set_tile(layer, position().x, position().y, Tile::armored_wall_1);
@@ -38,5 +32,4 @@ void ExteriorWall::render_exterior(Platform& pfrm, Layer layer)
 }
 
 
-
-}
+} // namespace skyland

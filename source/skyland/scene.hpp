@@ -4,32 +4,25 @@
 #include <memory>
 
 
-
 class Platform;
 
 
-
 namespace skyland {
-
 
 
 class App;
 class Scene;
 
 
-
-template <typename T>
-using ScenePtr = std::unique_ptr<T, void (*)(Scene*)>;
-
+template <typename T> using ScenePtr = std::unique_ptr<T, void (*)(Scene*)>;
 
 
 ScenePtr<Scene> null_scene();
 
 
-
 class Scene {
 public:
-    virtual ~Scene() {};
+    virtual ~Scene(){};
 
 
     virtual ScenePtr<Scene> update(Platform&, App&, Microseconds delta)
@@ -38,20 +31,19 @@ public:
     }
 
 
-    virtual void display(Platform&, App&) {}
+    virtual void display(Platform&, App&)
+    {
+    }
 
 
-    virtual void enter(Platform&, App&, Scene& prev_scene) {};
+    virtual void enter(Platform&, App&, Scene& prev_scene){};
 
 
-    virtual void exit(Platform&, App&, Scene& next_scene) {};
+    virtual void exit(Platform&, App&, Scene& next_scene){};
 };
-
 
 
 ScenePtr<Scene> initial_scene();
 
 
-
-
-}
+} // namespace skyland

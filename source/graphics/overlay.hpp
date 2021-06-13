@@ -418,6 +418,11 @@ public:
         return pos_;
     }
 
+    int value() const
+    {
+        return value_;
+    }
+
 private:
     inline void display(Platform& pfrm)
     {

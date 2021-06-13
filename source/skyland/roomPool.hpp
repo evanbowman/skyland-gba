@@ -1,28 +1,23 @@
 #pragma once
 
-#include <memory>
 #include "memory/pool.hpp"
 #include "skyland/room.hpp"
-
+#include <memory>
 
 
 namespace skyland {
 
 
-
 namespace room_pool {
-
 
 
 static constexpr const int max_room_size = 64;
 static constexpr const int pool_capacity = 32;
 
 
-
 using _Pool = Pool<max_room_size, pool_capacity, 8>;
 
 extern _Pool* pool_;
-
 
 
 inline void deleter(Room* room)
@@ -34,9 +29,7 @@ inline void deleter(Room* room)
 }
 
 
-
-template <typename T, typename... Args>
-RoomPtr<T> alloc(Args&&... args)
+template <typename T, typename... Args> RoomPtr<T> alloc(Args&&... args)
 {
     static_assert(sizeof(T) <= max_room_size);
     static_assert(alignof(T) <= pool_->alignment());
@@ -55,8 +48,7 @@ RoomPtr<T> alloc(Args&&... args)
 }
 
 
+} // namespace room_pool
 
-}
 
-
-}
+} // namespace skyland

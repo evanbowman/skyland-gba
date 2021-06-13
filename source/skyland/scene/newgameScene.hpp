@@ -1,16 +1,19 @@
 #pragma once
 
 
-#include "worldScene.hpp"
+#include "skyland/scene.hpp"
+
 
 
 namespace skyland {
 
 
-class ReadyScene : public WorldScene {
+
+class NewgameScene : public Scene {
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 };
+
 
 
 } // namespace skyland
