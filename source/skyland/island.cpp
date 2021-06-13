@@ -171,14 +171,23 @@ void Island::repaint(Platform& pfrm)
         }
     }
 
+    bool placed_flag = false;
+
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 15; ++y) {
             if (matrix[x][y] == 0 and y < 31 and matrix[x][y + 1] == 1) {
                 pfrm.set_tile(layer_, x, y, Tile::roof_plain);
+                bool chimney = false;
                 for (auto& loc : chimney_locs) {
                     if (loc == x) {
                         pfrm.set_tile(layer_, x, y, Tile::roof_chimney);
+                        chimney = true;
                     }
+                }
+                if (not chimney and show_flag_ and not placed_flag) {
+                    placed_flag = true;
+                    pfrm.set_tile(layer_, x, y, Tile::roof_flag);
+                    pfrm.set_tile(layer_, x, y - 1, Tile::flag);
                 }
             } else if (y == 14 and matrix[x][y] == 0 and
                        x < (int)terrain_.size()) {

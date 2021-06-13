@@ -1,6 +1,7 @@
 #include "room.hpp"
 #include "platform/platform.hpp"
 #include "room_metatable.hpp"
+#include "island.hpp"
 
 
 
@@ -27,6 +28,73 @@ Room::Room(Island* parent,
         }
     }
 }
+
+
+
+void Room::set_injured(Platform& pfrm)
+{
+    for (int x = 0; x < size().x; ++x) {
+        for (int y = 0; y < size().y; ++y) {
+            pfrm.set_palette(parent_->layer(),
+                             position().x + x,
+                             position().y + y,
+                             13);
+        }
+    }
+
+    injured_timer_ = milliseconds(250);
+}
+
+
+
+void Room::update(Platform& pfrm, App&, Microseconds delta)
+{
+    if (injured_timer_) {
+        if (injured_timer_ > 0) {
+            const auto new_timer = injured_timer_ - delta;
+
+            if (new_timer < milliseconds(210) and injured_timer_ > milliseconds(210)) {
+                for (int x = 0; x < size().x; ++x) {
+                    for (int y = 0; y < size().y; ++y) {
+                        pfrm.set_palette(parent_->layer(),
+                                         position().x + x,
+                                         position().y + y,
+                                         14);
+                    }
+                }
+            }
+
+            if (new_timer < milliseconds(170) and injured_timer_ > milliseconds(170)) {
+                for (int x = 0; x < size().x; ++x) {
+                    for (int y = 0; y < size().y; ++y) {
+                        pfrm.set_palette(parent_->layer(),
+                                         position().x + x,
+                                         position().y + y,
+                                         15);
+                    }
+                }
+            }
+
+
+            injured_timer_ = new_timer;
+
+            if (injured_timer_ <= 0) {
+                injured_timer_ = 0;
+
+                for (int x = 0; x < size().x; ++x) {
+                    for (int y = 0; y < size().y; ++y) {
+                        pfrm.set_palette(parent_->layer(),
+                                         position().x + x,
+                                         position().y + y,
+                                         parent_->layer() == Layer::map_0_ext ? 0 : 2);
+                    }
+                }
+
+            }
+        }
+    }
+}
+
 
 
 

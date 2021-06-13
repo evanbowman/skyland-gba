@@ -15,8 +15,9 @@ Cannon::Cannon(Island* parent, const Vec2<u8>& position)
 
 
 
-void Cannon::update(Platform&, App&, Microseconds delta)
+void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    Room::update(pfrm, app, delta);
 }
 
 
@@ -31,6 +32,13 @@ void Cannon::render_interior(Platform& pfrm, Layer layer)
 void Cannon::render_exterior(Platform& pfrm, Layer layer)
 {
     pfrm.set_tile(layer, position().x, position().y, Tile::cannon_1);
+}
+
+
+
+ScenePtr<Scene> Cannon::select()
+{
+    return null_scene();
 }
 
 

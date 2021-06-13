@@ -49,7 +49,10 @@ public:
     virtual void render_exterior(Platform& pfrm, Layer layer) = 0;
 
 
-    virtual void update(Platform& pfrm, App&, Microseconds delta) = 0;
+    void set_injured(Platform& pfrm);
+
+
+    virtual void update(Platform& pfrm, App&, Microseconds delta);
 
 
     virtual bool has_roof()
@@ -94,6 +97,7 @@ private:
     Vec2<u8> size_;
     Vec2<u8> position_;
     Health health_;
+    Microseconds injured_timer_;
 };
 
 

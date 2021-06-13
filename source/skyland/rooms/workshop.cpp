@@ -12,9 +12,9 @@ Workshop::Workshop(Island* parent, const Vec2<u8>& position)
 }
 
 
-void Workshop::update(Platform&, App&, Microseconds delta)
+void Workshop::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    // ...
+    Room::update(pfrm, app, delta);
 }
 
 

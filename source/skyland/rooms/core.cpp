@@ -12,9 +12,9 @@ Core::Core(Island* parent, const Vec2<u8>& position)
 }
 
 
-void Core::update(Platform&, App&, Microseconds delta)
+void Core::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    // ...
+    Room::update(pfrm, app, delta);
 }
 
 

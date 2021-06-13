@@ -44,6 +44,9 @@ public:
     {
         return 800;
     }
+
+
+    ScenePtr<Scene> select() override;
 };
 
 

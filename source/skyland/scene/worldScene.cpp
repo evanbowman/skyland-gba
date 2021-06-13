@@ -18,6 +18,9 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (pfrm.keyboard().down_transition<Key::select>()) {
         app.paused() = not app.paused();
+        if (not app.paused()) {
+            pfrm.set_tile(Layer::overlay, 18, 1, 0);
+        }
     }
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
@@ -53,6 +56,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                         app.encountered_island()->get_ambient_movement());
 
         }
+    } else {
+        pfrm.set_tile(Layer::overlay, 18, 1, 223);
     }
 
     if (last_coins_ not_eq app.coins()) {

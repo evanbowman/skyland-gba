@@ -15,9 +15,9 @@ ExteriorWall::ExteriorWall(Island* parent, const Vec2<u8>& position)
 
 
 
-void ExteriorWall::update(Platform&, App&, Microseconds delta)
+void ExteriorWall::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    // ...
+    Room::update(pfrm, app, delta);
 }
 
 

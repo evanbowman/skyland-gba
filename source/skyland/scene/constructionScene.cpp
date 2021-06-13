@@ -7,6 +7,7 @@
 #include "skyland/tile.hpp"
 #include "worldScene.hpp"
 #include "globals.hpp"
+#include "localization.hpp"
 
 
 
@@ -168,6 +169,9 @@ void ConstructionScene::show_current_building_text(Platform& pfrm)
     StringBuffer<32> str = ":build :";
 
     str += (*available_buildings_[building_selector_])->name();
+    str += " ";
+    str += to_string<10>((*available_buildings_[building_selector_])->cost());
+    str += "$";
 
     msg(pfrm, str.c_str());
 }

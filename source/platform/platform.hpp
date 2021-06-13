@@ -178,6 +178,9 @@ public:
     void set_tile(Layer layer, u16 x, u16 y, TileDesc val);
 
 
+    void set_palette(Layer layer, u16 x, u16 y, u16 palette);
+
+
     void set_scroll(Layer layer, u16 x, u16 y);
 
 

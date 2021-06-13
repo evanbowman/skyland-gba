@@ -29,6 +29,7 @@ ScenePtr<Scene> NewgameScene::update(Platform& pfrm, App& app, Microseconds delt
 
 
     app.encountered_island().emplace(pfrm, Layer::map_1_ext, 3);
+    app.encountered_island()->show_flag(true);
     app.encountered_island()->set_position({150, 374});
     app.encountered_island()->set_float_timer(std::numeric_limits<Microseconds>::max() / 2);
 

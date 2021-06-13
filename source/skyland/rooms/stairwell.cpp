@@ -12,8 +12,9 @@ Stairwell::Stairwell(Island* parent, const Vec2<u8>& position)
 }
 
 
-void Stairwell::update(Platform&, App&, Microseconds delta)
+void Stairwell::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    Room::update(pfrm, app, delta);
 }
 
 

@@ -15,9 +15,9 @@ Hull::Hull(Island* parent, const Vec2<u8>& position)
 
 
 
-void Hull::update(Platform&, App&, Microseconds delta)
+void Hull::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    // ...
+    Room::update(pfrm, app, delta);
 }
 
 

@@ -21,6 +21,8 @@ struct Tile {
         grass,
         reserved_1,
         hull,
+        roof_flag = 109,
+        flag = 110,
     };
 };
 

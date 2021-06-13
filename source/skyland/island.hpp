@@ -99,6 +99,12 @@ public:
     void set_float_timer(Microseconds value);
 
 
+    void show_flag(bool show)
+    {
+        show_flag_ = show;
+    }
+
+
 private:
     Rooms rooms_;
     const Layer layer_;
@@ -108,6 +114,7 @@ private:
     Microseconds timer_;
 
     bool interior_visible_;
+    bool show_flag_ = false;
 };
 
 
