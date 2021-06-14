@@ -105,6 +105,9 @@ public:
     }
 
 
+    void set_drift(Float drift);
+
+
 private:
     Rooms rooms_;
     const Layer layer_;
@@ -112,6 +115,7 @@ private:
     Vec2<Float> position_;
     u8 ambient_movement_;
     Microseconds timer_;
+    Float drift_ = 0;
 
     bool interior_visible_;
     bool show_flag_ = false;

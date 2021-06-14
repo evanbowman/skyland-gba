@@ -62,24 +62,25 @@ set(SOURCES
 
 set(SOURCES
   ${SOURCES}
-  ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/room.cpp
   ${SOURCE_DIR}/skyland/island.cpp
+  ${SOURCE_DIR}/skyland/camera.cpp
+  ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
-  ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/room_metatable.cpp
   ${SOURCE_DIR}/skyland/rooms/core.cpp
-  ${SOURCE_DIR}/skyland/rooms/workshop.cpp
-  ${SOURCE_DIR}/skyland/rooms/exteriorWall.cpp
   ${SOURCE_DIR}/skyland/rooms/hull.cpp
-  ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
+  ${SOURCE_DIR}/skyland/rooms/workshop.cpp
+  ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
+  ${SOURCE_DIR}/skyland/rooms/exteriorWall.cpp
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp
   ${SOURCE_DIR}/skyland/scene/newgameScene.cpp
+  ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
-  ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp)
+  ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp)
 
 
 set(SOURCES

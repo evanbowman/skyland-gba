@@ -43,6 +43,10 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     for (auto& room : rooms_) {
         room->update(pfrm, app, dt);
     }
+
+    if (drift_) {
+        position_.x += drift_ * dt;
+    }
 }
 
 
@@ -195,6 +199,13 @@ void Island::repaint(Platform& pfrm)
             }
         }
     }
+}
+
+
+
+void Island::set_drift(Float drift)
+{
+    drift_ = drift;
 }
 
 

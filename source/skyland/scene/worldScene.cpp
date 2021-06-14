@@ -19,12 +19,18 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (pfrm.keyboard().down_transition<Key::select>()) {
         app.paused() = not app.paused();
         if (not app.paused()) {
-            pfrm.set_tile(Layer::overlay, 18, 1, 0);
+            auto st = calc_screen_tiles(pfrm);
+            pfrm.set_tile(Layer::overlay, st.x - 2, 1, 0);
         }
     }
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-    app.camera().update(pfrm, app.player_island(), cursor_loc, delta);
+    if (app.encountered_island() and UNLIKELY(far_camera_)) {
+        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        app.camera().update(pfrm, *app.encountered_island(), cursor_loc, delta, false);
+    } else {
+        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        app.camera().update(pfrm, app.player_island(), cursor_loc, delta, true);
+    }
 
     if (not app.paused()) {
         pfrm.set_scroll(app.player_island().layer(),
@@ -57,7 +63,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         }
     } else {
-        pfrm.set_tile(Layer::overlay, 18, 1, 223);
+        auto st = calc_screen_tiles(pfrm);
+        pfrm.set_tile(Layer::overlay, st.x - 2, 1, 223);
     }
 
     if (last_coins_ not_eq app.coins()) {
@@ -95,10 +102,12 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 }
 
 
+
 void WorldScene::persist_coins()
 {
     persistent_coins_ = true;
 }
+
 
 
 void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
@@ -117,9 +126,17 @@ void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
+
 void WorldScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     coins_.reset();
+}
+
+
+
+void WorldScene::far_camera()
+{
+    far_camera_ = true;
 }
 
 

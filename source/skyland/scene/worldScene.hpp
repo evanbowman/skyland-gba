@@ -25,11 +25,15 @@ public:
     void persist_coins();
 
 
+    void far_camera();
+
+
 private:
     std::optional<UIMetric> coins_;
     bool persistent_coins_ = false;
     Microseconds coin_hide_timer_ = 0;
     Coins last_coins_ = 0;
+    bool far_camera_ = false;
 };
 
 

@@ -21,7 +21,8 @@ public:
     void update(Platform& pfrm,
                 Island& target,
                 const Vec2<u8>& cursor_loc,
-                Microseconds delta);
+                Microseconds delta,
+                bool near);
 
 
 private:

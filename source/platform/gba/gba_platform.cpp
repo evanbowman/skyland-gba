@@ -502,15 +502,14 @@ static auto blend(const Color& c1, const Color& c2, u8 amt)
 static void init_video(Platform::Screen& screen)
 {
     REG_DISPCNT = MODE_0 | OBJ_ENABLE | OBJ_MAP_1D | BG0_ENABLE | BG1_ENABLE |
-                  BG2_ENABLE | BG3_ENABLE // | WIN0_ENABLE
-        ;
+                  BG2_ENABLE | BG3_ENABLE | WIN0_ENABLE;
 
-    // REG_WININ = WIN_ALL;
+    REG_WININ = WIN_ALL;
 
     // Always display the starfield and the overlay in the outer window. We just
     // want to mask off areas of the game map that have wrapped to the other
     // side of the screen.
-    // REG_WINOUT = WIN_OBJ | WIN_BG1 | WIN_BG2;
+    REG_WINOUT = WIN_OBJ | WIN_BG1 | WIN_BG2;
 
     *reg_blendcnt = BLD_BUILD(BLD_OBJ, BLD_BG0 | BLD_BG1 | BLD_BG3, 0);
 
@@ -1164,25 +1163,25 @@ void Platform::Screen::display()
     // useful if you were making certain kinds of games, like some kind of
     // Civilization clone, but for BlindJump, it doesn't make sense to display
     // the wrapped area).
-    // const s32 scroll_limit_x_max = 512 - size().x;
-    // const s32 scroll_limit_y_max = 480 - size().y;
-    // if (view_offset.x > scroll_limit_x_max) {
-    //     REG_WIN0H =
-    //         (0 << 8) | (size().x - (view_offset.x - scroll_limit_x_max));
-    // } else if (view_offset.x < 0) {
-    //     REG_WIN0H = ((view_offset.x * -1) << 8) | (0);
-    // } else {
-    //     REG_WIN0H = (0 << 8) | (size().x);
-    // }
+    const s32 scroll_limit_x_max = 512 - size().x;
+    const s32 scroll_limit_y_max = 480 - size().y;
+    if (view_offset.x > scroll_limit_x_max) {
+        REG_WIN0H =
+            (0 << 8) | (size().x - (view_offset.x - scroll_limit_x_max));
+    } else if (view_offset.x < 0) {
+        REG_WIN0H = ((view_offset.x * -1) << 8) | (0);
+    } else {
+        REG_WIN0H = (0 << 8) | (size().x);
+    }
 
-    // if (view_offset.y > scroll_limit_y_max) {
-    //     REG_WIN0V =
-    //         (0 << 8) | (size().y - (view_offset.y - scroll_limit_y_max));
-    // } else if (view_offset.y < 0) {
-    //     REG_WIN0V = ((view_offset.y * -1) << 8) | (0);
-    // } else {
-    //     REG_WIN0V = (0 << 8) | (size().y);
-    // }
+    if (view_offset.y > scroll_limit_y_max) {
+        REG_WIN0V =
+            (0 << 8) | (size().y - (view_offset.y - scroll_limit_y_max));
+    } else if (view_offset.y < 0) {
+        REG_WIN0V = ((view_offset.y * -1) << 8) | (0);
+    } else {
+        REG_WIN0V = (0 << 8) | (size().y);
+    }
 
     if (not get_gflag(GlobalFlag::parallax_clouds)) {
         *bg1_x_scroll = view_offset.x * 0.3f;

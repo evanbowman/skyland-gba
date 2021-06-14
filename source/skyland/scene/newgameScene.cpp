@@ -12,6 +12,14 @@ namespace skyland {
 
 
 
+void set_island_positions(Island& left_island, Island& right_island)
+{
+    left_island.set_position({10, 374});
+    right_island.set_position({(Float)left_island.terrain().size() * 16 + 72, 374});
+}
+
+
+
 ScenePtr<Scene> NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     pfrm.load_tile0_texture("tilesheet");
@@ -21,21 +29,22 @@ ScenePtr<Scene> NewgameScene::update(Platform& pfrm, App& app, Microseconds delt
     cursor_loc.x = 0;
     cursor_loc.y = 14;
 
-    app.player_island().set_position({10, 374});
     app.player_island().add_room<Core>(pfrm, {1, 13});
 
     app.coins() = 3500;
     app.terrain_cost() = 500;
 
 
-    app.encountered_island().emplace(pfrm, Layer::map_1_ext, 3);
+    app.encountered_island().emplace(pfrm, Layer::map_1_ext, 4);
     app.encountered_island()->show_flag(true);
-    app.encountered_island()->set_position({150, 374});
     app.encountered_island()->set_float_timer(std::numeric_limits<Microseconds>::max() / 2);
 
     app.encountered_island()->add_room<Core>(pfrm, {1, 13});
     app.encountered_island()->add_room<Cannon>(pfrm, {0, 14});
     app.encountered_island()->add_room<Cannon>(pfrm, {0, 13});
+    app.encountered_island()->add_room<Cannon>(pfrm, {9, 13});
+
+    set_island_positions(app.player_island(), *app.encountered_island());
 
 
     return scene_pool::alloc<ReadyScene>();

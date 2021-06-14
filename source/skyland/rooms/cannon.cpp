@@ -1,6 +1,8 @@
 #include "cannon.hpp"
 #include "platform/platform.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/scene/weaponSetTargetScene.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 
@@ -38,7 +40,7 @@ void Cannon::render_exterior(Platform& pfrm, Layer layer)
 
 ScenePtr<Scene> Cannon::select()
 {
-    return null_scene();
+    return scene_pool::alloc<WeaponSetTargetScene>(position());
 }
 
 

@@ -57,15 +57,13 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (pfrm.keyboard().down_transition<Key::action_1>()) {
         if (auto room = app.player_island().get_room(cursor_loc)) {
-            pfrm.sleep(30);
             return room->select();
         }
     }
 
     if (pfrm.keyboard().down_transition<Key::action_2>()) {
-        if (auto room = app.player_island().get_room(cursor_loc)) {
-            room->set_injured(pfrm);
-            // return scene_pool::alloc<SalvageRoomScene>();
+        if (app.player_island().get_room(cursor_loc)) {
+            return scene_pool::alloc<SalvageRoomScene>();
         }
     }
 
