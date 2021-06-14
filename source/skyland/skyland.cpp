@@ -32,6 +32,10 @@ void App::update(Platform& pfrm, Microseconds delta)
         current_scene_ = std::move(next_scene_);
     }
 
+    if (pfrm.keyboard().down_transition<Key::start>()) {
+        camera_.shake();
+    }
+
     next_scene_ = current_scene_->update(pfrm, *this, delta);
 
     if (next_scene_) {

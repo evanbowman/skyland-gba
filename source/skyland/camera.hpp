@@ -25,9 +25,24 @@ public:
                 bool near);
 
 
+
+    void shake(int magnitude = 12);
+
+
+    bool is_shaking() const
+    {
+        return shake_magnitude_;
+    }
+
+
 private:
+
+
     Vec2<int> target_;
     Vec2<Float> current_;
+
+    Microseconds shake_timer_ = 0;
+    int shake_magnitude_ = 0;
 };
 
 

@@ -45,9 +45,51 @@ void Camera::update(Platform& pfrm,
     current_ = interpolate(target_.cast<Float>(), current_, delta * 0.0000081f);
 
 
+    if (shake_magnitude_ not_eq 0) {
+        shake_timer_ += delta;
 
-    view.set_center(current_);
+        const auto shake_duration = milliseconds(250);
+
+        if (shake_timer_ > shake_duration) {
+            shake_timer_ = 0;
+            shake_magnitude_ = 0;
+        }
+
+        // Exponents are too expensive, so we aren't doing true damping...
+        const auto damping =
+            ease_out(shake_timer_, 0, shake_magnitude_ / 2, shake_duration);
+
+        auto offset = shake_magnitude_ * (float(cosine(shake_timer_ / 4)) /
+                                          std::numeric_limits<s16>::max());
+
+        if (offset > 0) {
+            offset -= damping;
+            if (offset < 0) {
+                offset = 0;
+            }
+        } else {
+            offset += damping;
+            if (offset > 0) {
+                offset = 0;
+            }
+        }
+
+        view.set_center({current_.x, clamp(current_.y + offset, -40.f, 0.f)});
+    } else {
+        view.set_center(current_);
+    }
+
     pfrm.screen().set_view(view);
+}
+
+
+
+void Camera::shake(int magnitude)
+{
+    if (shake_magnitude_ == 0 or shake_magnitude_ <= magnitude) {
+        shake_magnitude_ = magnitude;
+        shake_timer_ = 0;
+    }
 }
 
 

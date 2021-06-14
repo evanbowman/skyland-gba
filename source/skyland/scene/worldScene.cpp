@@ -55,8 +55,10 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         camera_update_timer_ = milliseconds(500);
     }
 
-    if (camera_update_timer_ > 0) {
+    if (app.camera().is_shaking() or
+        camera_update_timer_ > 0) {
         camera_update_timer_ -= delta;
+        camera_update_timer_ = std::max((int)camera_update_timer_, 0);
 
         // You may be wondering, why are we setting a timer to determine whether
         // to update the camera? Because we're using a floating point value
