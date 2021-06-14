@@ -19,8 +19,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (pfrm.keyboard().down_transition<Key::select>()) {
         app.paused() = not app.paused();
         if (not app.paused()) {
-            auto st = calc_screen_tiles(pfrm);
-            pfrm.set_tile(Layer::overlay, st.x - 2, 1, 0);
+            set_pause_icon(pfrm, false);
         }
     }
 
@@ -51,22 +50,34 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (app.encountered_island() and UNLIKELY(far_camera_)) {
-        auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
-        app.camera().update(
-            pfrm, *app.encountered_island(), cursor_loc, delta, false);
-    } else {
-        auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-        app.camera().update(pfrm, app.player_island(), cursor_loc, delta, true);
+    if (pfrm.keyboard().any_pressed<
+        Key::left, Key::right, Key::up, Key::down, Key::alt_1>()) {
+        camera_update_timer_ = milliseconds(500);
     }
 
-    if (not app.paused()) {
-        pfrm.set_scroll(app.player_island().layer(),
-                        -app.player_island().get_position().cast<u16>().x,
-                        -app.player_island().get_position().cast<u16>().y -
-                            app.player_island().get_ambient_movement());
+    if (camera_update_timer_ > 0) {
+        camera_update_timer_ -= delta;
+
+        // You may be wondering, why are we setting a timer to determine whether
+        // to update the camera? Because we're using a floating point value
+        // multiplied by a delta time for linear interpolation, for really
+        // fine-grained camera movements, the camera target can get stuck
+        // flipping back and forth over a fractional pixel. Not updating the
+        // camera for times longer then half a second makes the issue go
+        // away. It really only happens when the camera's sitting idle in the
+        // same spot for a long time.
+
+        if (app.encountered_island() and UNLIKELY(far_camera_)) {
+            auto& cursor_loc =
+                std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+            app.camera().update(
+                                pfrm, *app.encountered_island(), cursor_loc, delta, false);
+        } else {
+            auto& cursor_loc =
+                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            app.camera().update(pfrm, app.player_island(), cursor_loc, delta, true);
+        }
+
     }
 
 
@@ -85,16 +96,9 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (app.encountered_island()) {
             app.encountered_island()->update(pfrm, app, delta);
-
-            pfrm.set_scroll(
-                app.encountered_island()->layer(),
-                -app.encountered_island()->get_position().cast<u16>().x,
-                -app.encountered_island()->get_position().cast<u16>().y -
-                    app.encountered_island()->get_ambient_movement());
         }
     } else {
-        auto st = calc_screen_tiles(pfrm);
-        pfrm.set_tile(Layer::overlay, st.x - 2, 1, 223);
+        set_pause_icon(pfrm, true);
     }
 
     if (last_coins_ not_eq app.coins()) {
@@ -142,6 +146,8 @@ void WorldScene::persist_coins()
 
 void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    camera_update_timer_ = milliseconds(500);
+
     last_coins_ = app.coins();
 
     // If we came from another world scene where the coins were visible...
@@ -166,6 +172,32 @@ void WorldScene::exit(Platform& pfrm, App& app, Scene& next)
 void WorldScene::far_camera()
 {
     far_camera_ = true;
+}
+
+
+
+void WorldScene::set_pause_icon(Platform& pfrm, bool paused)
+{
+    auto st = calc_screen_tiles(pfrm);
+
+    if (not paused) {
+        pfrm.set_tile(Layer::overlay, st.x - 3, 1, 0);
+        pfrm.set_tile(Layer::overlay, st.x - 2, 1, 0);
+        pfrm.set_tile(Layer::overlay, st.x - 3, 2, 0);
+        pfrm.set_tile(Layer::overlay, st.x - 2, 2, 0);
+    } else {
+        auto t = pfrm.get_tile(Layer::overlay, st.x - 2, 1);
+        if (t == 177) {
+            return;
+        }
+
+        t = 177;
+
+        pfrm.set_tile(Layer::overlay, st.x - 3, 1, t++);
+        pfrm.set_tile(Layer::overlay, st.x - 2, 1, t++);
+        pfrm.set_tile(Layer::overlay, st.x - 3, 2, t++);
+        pfrm.set_tile(Layer::overlay, st.x - 2, 2, t);
+    }
 }
 
 

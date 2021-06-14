@@ -47,6 +47,11 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     if (drift_) {
         position_.x += drift_ * dt;
     }
+
+    pfrm.set_scroll(layer(),
+                    -get_position().cast<u16>().x,
+                    -get_position().cast<u16>().y -
+                    get_ambient_movement());
 }
 
 

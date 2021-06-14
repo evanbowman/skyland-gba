@@ -26,7 +26,7 @@ public:
 
 
 private:
-    Vec2<Float> target_;
+    Vec2<int> target_;
     Vec2<Float> current_;
 };
 

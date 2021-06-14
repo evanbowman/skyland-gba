@@ -29,9 +29,15 @@ public:
 
 
 private:
+
+
+    void set_pause_icon(Platform& pfrm, bool paused);
+
+
     std::optional<UIMetric> coins_;
     bool persistent_coins_ = false;
     Microseconds coin_hide_timer_ = 0;
+    Microseconds camera_update_timer_ = 0;
     Coins last_coins_ = 0;
     bool far_camera_ = false;
 };

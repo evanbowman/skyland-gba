@@ -18,7 +18,7 @@ void Camera::update(Platform& pfrm,
     // auto center = view.get_center();
 
     target_.y = (-((15 - (cursor_loc.y + 1)) * 16) / 2);
-    target_.y = clamp(target_.y, -40.f, 0.f);
+    target_.y = clamp(target_.y, -40, 0);
 
     // Ok, so, about the x-anchoring for the camera. If we're the near camera,
     // we want the camera to be weighted slightly to the right, so we can get a
@@ -30,19 +30,19 @@ void Camera::update(Platform& pfrm,
     if (near) {
         target_.x = target.get_position().x + ((cursor_loc.x - 3) * 16) / 2;
         target_.x = clamp(target_.x,
-                          target.get_position().x - 40,
-                          target.get_position().x + 48);
+                          (int)target.get_position().x - 40,
+                          (int)target.get_position().x + 48);
         target_.x -= 16;
     } else {
         target_.x = target.get_position().x + ((cursor_loc.x + 3) * 16) / 2;
         target_.x = clamp(target_.x,
-                          target.get_position().x - 48,
-                          target.get_position().x + 256);
+                          (int)target.get_position().x - 48,
+                          (int)target.get_position().x + 256);
         target_.x -= 100;
     }
 
 
-    current_ = interpolate(target_, current_, delta * 0.0000081f);
+    current_ = interpolate(target_.cast<Float>(), current_, delta * 0.0000081f);
 
 
 
