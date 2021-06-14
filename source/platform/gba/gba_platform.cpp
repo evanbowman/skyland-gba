@@ -1318,11 +1318,11 @@ static u16 get_map_tile_16p(u8 base, u16 x, u16 y, int palette)
 {
     auto ref = [](u16 x_, u16 y_) { return x_ * 2 + y_ * 32 * 2; };
 
-    auto screen_block = [&]() -> u16 {
-        return base;
-    }();
+    auto screen_block = [&]() -> u16 { return base; }();
 
-    return (MEM_SCREENBLOCKS[screen_block][0 + ref(x % 16, y)] & ~(SE_PALBANK_MASK)) / 4;
+    return (MEM_SCREENBLOCKS[screen_block][0 + ref(x % 16, y)] &
+            ~(SE_PALBANK_MASK)) /
+           4;
 }
 
 
@@ -2994,13 +2994,16 @@ extern char __eheap_start;
 Platform::Platform()
 {
     for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(15 * 16) + i] = Color(custom_color(0xef0d54)).bgr_hex_555();
+        MEM_BG_PALETTE[(15 * 16) + i] =
+            Color(custom_color(0xef0d54)).bgr_hex_555();
     }
     for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(14 * 16) + i] = Color(custom_color(0x103163)).bgr_hex_555();
+        MEM_BG_PALETTE[(14 * 16) + i] =
+            Color(custom_color(0x103163)).bgr_hex_555();
     }
     for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(13 * 16) + i] = Color(ColorConstant::silver_white).bgr_hex_555();
+        MEM_BG_PALETTE[(13 * 16) + i] =
+            Color(ColorConstant::silver_white).bgr_hex_555();
     }
 
 
@@ -3578,9 +3581,7 @@ static void set_map_tile_16p_palette(u8 base, u16 x, u16 y, int palette)
 {
     auto ref = [](u16 x_, u16 y_) { return x_ * 2 + y_ * 32 * 2; };
 
-    auto screen_block = [&]() -> u16 {
-        return base;
-    }();
+    auto screen_block = [&]() -> u16 { return base; }();
 
     u16 val = 0;
 
@@ -3607,7 +3608,6 @@ static void set_map_tile_16p_palette(u8 base, u16 x, u16 y, int palette)
     val |= SE_PALBANK(palette);
     MEM_SCREENBLOCKS[screen_block][1 + ref(x % 16, y) + 32] = val;
 }
-
 
 
 

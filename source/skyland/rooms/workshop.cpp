@@ -21,8 +21,10 @@ void Workshop::update(Platform& pfrm, App& app, Microseconds delta)
 void Workshop::render_interior(Platform& pfrm, Layer layer)
 {
     pfrm.set_tile(layer, position().x, position().y, InteriorTile::workshop_1);
-    pfrm.set_tile(layer, position().x, position().y + 1, InteriorTile::workshop_2);
-    pfrm.set_tile(layer, position().x + 1, position().y, InteriorTile::workshop_3);
+    pfrm.set_tile(
+        layer, position().x, position().y + 1, InteriorTile::workshop_2);
+    pfrm.set_tile(
+        layer, position().x + 1, position().y, InteriorTile::workshop_3);
     pfrm.set_tile(
         layer, position().x + 1, position().y + 1, InteriorTile::workshop_4);
 }

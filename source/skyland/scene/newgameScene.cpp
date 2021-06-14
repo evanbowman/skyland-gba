@@ -1,10 +1,10 @@
 #include "newgameScene.hpp"
+#include "globals.hpp"
 #include "readyScene.hpp"
+#include "skyland/rooms/cannon.hpp"
+#include "skyland/rooms/core.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "globals.hpp"
-#include "skyland/rooms/core.hpp"
-#include "skyland/rooms/cannon.hpp"
 
 
 
@@ -16,12 +16,14 @@ void set_island_positions(Island& left_island, Island& right_island)
 {
     left_island.set_position({10, 374});
     // Pretty much as far away as possible, without wrapping across the screen.
-    right_island.set_position({Float(350 + 16 * (10 - right_island.terrain().size())), 374});
+    right_island.set_position(
+        {Float(350 + 16 * (10 - right_island.terrain().size())), 374});
 }
 
 
 
-ScenePtr<Scene> NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     pfrm.load_tile0_texture("tilesheet");
     pfrm.load_tile1_texture("tilesheet_enemy_0");
@@ -36,9 +38,10 @@ ScenePtr<Scene> NewgameScene::update(Platform& pfrm, App& app, Microseconds delt
     app.terrain_cost() = 500;
 
 
-    app.encountered_island().emplace(pfrm, Layer::map_1_ext, 9);
+    app.encountered_island().emplace(pfrm, Layer::map_1_ext, 4);
     app.encountered_island()->show_flag(true);
-    app.encountered_island()->set_float_timer(std::numeric_limits<Microseconds>::max() / 2);
+    app.encountered_island()->set_float_timer(
+        std::numeric_limits<Microseconds>::max() / 2);
 
     app.encountered_island()->add_room<Core>(pfrm, {1, 13});
     app.encountered_island()->add_room<Cannon>(pfrm, {0, 14});

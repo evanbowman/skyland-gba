@@ -108,6 +108,12 @@ public:
     void set_drift(Float drift);
 
 
+    Float get_drift() const
+    {
+        return drift_;
+    }
+
+
 private:
     Rooms rooms_;
     const Layer layer_;

@@ -1,8 +1,8 @@
 #include "worldScene.hpp"
+#include "globals.hpp"
 #include "platform/platform.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "globals.hpp"
 
 
 
@@ -25,18 +25,40 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.encountered_island()) {
-        if ((int)app.encountered_island()->get_position().x <=
-            (int)app.player_island().terrain().size() * 16 + 48) {
+        // Hey, I threw this code together in a panic for a game jam, I know
+        // this is illegible. Drift encountered island toward the player, until
+        // a certain distance. If the player extends the terrain on his own
+        // island, drift the encountered island away to maintain the ideal
+        // distance between the two.
+        if ((app.encountered_island()->get_drift() < 0 and
+             (int) app.encountered_island()->get_position().x <=
+                 (int)app.player_island().terrain().size() * 16 + 48) or
+            (app.encountered_island()->get_drift() > 0 and
+             (int) app.encountered_island()->get_position().x >
+                 (int)app.player_island().terrain().size() * 16 + 48)) {
 
+            app.encountered_island()->set_position(
+                {(Float)app.player_island().terrain().size() * 16 + 48,
+                 app.encountered_island()->get_position().y});
             app.encountered_island()->set_drift(0);
+        }
+
+        if (app.encountered_island()->get_drift() == 0) {
+            if ((int)app.encountered_island()->get_position().x <
+                (int)app.player_island().terrain().size() * 16 + 48) {
+                app.encountered_island()->set_drift(0.00003f);
+            }
         }
     }
 
     if (app.encountered_island() and UNLIKELY(far_camera_)) {
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
-        app.camera().update(pfrm, *app.encountered_island(), cursor_loc, delta, false);
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        app.camera().update(
+            pfrm, *app.encountered_island(), cursor_loc, delta, false);
     } else {
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
         app.camera().update(pfrm, app.player_island(), cursor_loc, delta, true);
     }
 
@@ -44,7 +66,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.set_scroll(app.player_island().layer(),
                         -app.player_island().get_position().cast<u16>().x,
                         -app.player_island().get_position().cast<u16>().y -
-                        app.player_island().get_ambient_movement());
+                            app.player_island().get_ambient_movement());
     }
 
 
@@ -64,11 +86,11 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.encountered_island()) {
             app.encountered_island()->update(pfrm, app, delta);
 
-            pfrm.set_scroll(app.encountered_island()->layer(),
-                        -app.encountered_island()->get_position().cast<u16>().x,
-                        -app.encountered_island()->get_position().cast<u16>().y -
-                        app.encountered_island()->get_ambient_movement());
-
+            pfrm.set_scroll(
+                app.encountered_island()->layer(),
+                -app.encountered_island()->get_position().cast<u16>().x,
+                -app.encountered_island()->get_position().cast<u16>().y -
+                    app.encountered_island()->get_ambient_movement());
         }
     } else {
         auto st = calc_screen_tiles(pfrm);
@@ -131,7 +153,6 @@ void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
                        UIMetric::Align::left);
     }
 }
-
 
 
 

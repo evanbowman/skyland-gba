@@ -1,8 +1,8 @@
 #include "weaponSetTargetScene.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/scene_pool.hpp"
-#include "readyScene.hpp"
 #include "globals.hpp"
+#include "readyScene.hpp"
+#include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -10,14 +10,15 @@ namespace skyland {
 
 
 
-WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc) :
-    weapon_loc_(weapon_loc)
+WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc)
+    : weapon_loc_(weapon_loc)
 {
 }
 
 
 
-ScenePtr<Scene> WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto new_scene = WorldScene::update(pfrm, app, delta)) {
         return new_scene;
@@ -114,4 +115,4 @@ void WeaponSetTargetScene::collect_targets(Platform& pfrm, App& app)
 
 
 
-}
+} // namespace skyland

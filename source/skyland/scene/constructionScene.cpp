@@ -1,4 +1,6 @@
 #include "constructionScene.hpp"
+#include "globals.hpp"
+#include "localization.hpp"
 #include "platform/platform.hpp"
 #include "readyScene.hpp"
 #include "skyland/room_metatable.hpp"
@@ -6,8 +8,6 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "worldScene.hpp"
-#include "globals.hpp"
-#include "localization.hpp"
 
 
 
@@ -19,8 +19,10 @@ ScenePtr<Scene>
 ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (pfrm.keyboard().down_transition<Key::alt_2>() or
-        (state_ == State::select_loc and pfrm.keyboard().down_transition<Key::action_2>())) {
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        (state_ == State::select_loc and
+         pfrm.keyboard().down_transition<Key::action_2>())) {
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
         if (not construction_sites_.empty()) {
             cursor_loc.x = construction_sites_[selector_].x;
             cursor_loc.y = construction_sites_[selector_].y;
@@ -42,7 +44,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (not construction_sites_.empty()) {
-            auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            auto& cursor_loc =
+                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
             cursor_loc.x = construction_sites_[selector_].x;
             cursor_loc.y = construction_sites_[selector_].y;
         }
@@ -339,7 +342,8 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
     find_construction_sites(pfrm, app);
 
     if (not construction_sites_.empty()) {
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
         for (u32 i = 0; i < construction_sites_.size(); ++i) {
             if (construction_sites_[i].x == cursor_loc.x) {

@@ -1,7 +1,7 @@
 #include "island.hpp"
+#include "number/random.hpp"
 #include "roomPool.hpp"
 #include "tile.hpp"
-#include "number/random.hpp"
 
 
 
@@ -220,9 +220,9 @@ Vec2<Float> Island::origin() const
 Room* Island::get_room(const Vec2<u8>& coord)
 {
     for (auto& room : rooms_) {
-        if (coord.x >= room->position().x and coord.y >= room->position().y
-            and coord.x < room->position().x + room->size().x
-            and coord.y < room->position().y + room->size().y) {
+        if (coord.x >= room->position().x and coord.y >= room->position().y and
+            coord.x < room->position().x + room->size().x and
+            coord.y < room->position().y + room->size().y) {
 
             return room.get();
         }
@@ -236,9 +236,9 @@ Room* Island::get_room(const Vec2<u8>& coord)
 void Island::destroy_room(Platform& pfrm, const Vec2<u8>& coord)
 {
     for (auto& room : rooms_) {
-        if (coord.x >= room->position().x and coord.y >= room->position().y
-            and coord.x < room->position().x + room->size().x
-            and coord.y < room->position().y + room->size().y) {
+        if (coord.x >= room->position().x and coord.y >= room->position().y and
+            coord.x < room->position().x + room->size().x and
+            coord.y < room->position().y + room->size().y) {
 
             rooms_.erase(&room);
             repaint(pfrm);

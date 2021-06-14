@@ -1,6 +1,6 @@
 #include "camera.hpp"
-#include "platform/platform.hpp"
 #include "island.hpp"
+#include "platform/platform.hpp"
 
 
 
@@ -29,27 +29,27 @@ void Camera::update(Platform& pfrm,
 
     if (near) {
         target_.x = target.get_position().x + ((cursor_loc.x - 3) * 16) / 2;
-        target_.x = clamp(target_.x, target.get_position().x -40, target.get_position().x + 48);
+        target_.x = clamp(target_.x,
+                          target.get_position().x - 40,
+                          target.get_position().x + 48);
         target_.x -= 16;
     } else {
         target_.x = target.get_position().x + ((cursor_loc.x + 3) * 16) / 2;
-        target_.x = clamp(target_.x, target.get_position().x -48, target.get_position().x + 256);
+        target_.x = clamp(target_.x,
+                          target.get_position().x - 48,
+                          target.get_position().x + 256);
         target_.x -= 100;
     }
 
 
-    current_ = interpolate(
-            target_,
-            current_,
-            delta * 0.0000081f);
+    current_ = interpolate(target_, current_, delta * 0.0000081f);
 
 
 
     view.set_center(current_);
     pfrm.screen().set_view(view);
-
 }
 
 
 
-}
+} // namespace skyland

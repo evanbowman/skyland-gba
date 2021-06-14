@@ -19,9 +19,8 @@ public:
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
-
 };
 
 
 
-}
+} // namespace skyland

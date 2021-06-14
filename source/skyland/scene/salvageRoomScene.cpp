@@ -1,8 +1,8 @@
 #include "salvageRoomScene.hpp"
-#include "skyland/skyland.hpp"
 #include "globals.hpp"
 #include "readyScene.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -10,9 +10,8 @@ namespace skyland {
 
 
 
-ScenePtr<Scene> SalvageRoomScene::update(Platform& pfrm,
-                                         App& app,
-                                         Microseconds delta)
+ScenePtr<Scene>
+SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
@@ -35,4 +34,4 @@ ScenePtr<Scene> SalvageRoomScene::update(Platform& pfrm,
 
 
 
-}
+} // namespace skyland
