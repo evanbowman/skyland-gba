@@ -13,7 +13,7 @@ static void init_clouds(Platform& pfrm);
 
 
 App::App(Platform& pfrm)
-    : player_island_(pfrm, Layer::map_0_ext, 8), current_scene_(null_scene()),
+    : player_island_(pfrm, Layer::map_0_ext, 5), current_scene_(null_scene()),
       next_scene_(null_scene())
 {
     current_scene_ = initial_scene();

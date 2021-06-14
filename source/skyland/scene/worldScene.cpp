@@ -24,6 +24,14 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    if (app.encountered_island()) {
+        if ((int)app.encountered_island()->get_position().x <=
+            (int)app.player_island().terrain().size() * 16 + 48) {
+
+            app.encountered_island()->set_drift(0);
+        }
+    }
+
     if (app.encountered_island() and UNLIKELY(far_camera_)) {
         auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
         app.camera().update(pfrm, *app.encountered_island(), cursor_loc, delta, false);

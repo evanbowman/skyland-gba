@@ -15,7 +15,8 @@ namespace skyland {
 void set_island_positions(Island& left_island, Island& right_island)
 {
     left_island.set_position({10, 374});
-    right_island.set_position({(Float)left_island.terrain().size() * 16 + 72, 374});
+    // Pretty much as far away as possible, without wrapping across the screen.
+    right_island.set_position({Float(350 + 16 * (10 - right_island.terrain().size())), 374});
 }
 
 
@@ -35,14 +36,16 @@ ScenePtr<Scene> NewgameScene::update(Platform& pfrm, App& app, Microseconds delt
     app.terrain_cost() = 500;
 
 
-    app.encountered_island().emplace(pfrm, Layer::map_1_ext, 4);
+    app.encountered_island().emplace(pfrm, Layer::map_1_ext, 9);
     app.encountered_island()->show_flag(true);
     app.encountered_island()->set_float_timer(std::numeric_limits<Microseconds>::max() / 2);
 
     app.encountered_island()->add_room<Core>(pfrm, {1, 13});
     app.encountered_island()->add_room<Cannon>(pfrm, {0, 14});
     app.encountered_island()->add_room<Cannon>(pfrm, {0, 13});
-    app.encountered_island()->add_room<Cannon>(pfrm, {9, 13});
+    // app.encountered_island()->add_room<Cannon>(pfrm, {9, 13});
+
+    app.encountered_island()->set_drift(-0.00001f);
 
     set_island_positions(app.player_island(), *app.encountered_island());
 
