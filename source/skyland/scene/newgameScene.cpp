@@ -3,6 +3,7 @@
 #include "readyScene.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/core.hpp"
+#include "skyland/rooms/stairwell.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 
@@ -46,7 +47,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.encountered_island()->add_room<Core>(pfrm, {1, 13});
     app.encountered_island()->add_room<Cannon>(pfrm, {0, 14});
     app.encountered_island()->add_room<Cannon>(pfrm, {0, 13});
-    // app.encountered_island()->add_room<Cannon>(pfrm, {9, 13});
+    app.encountered_island()->add_room<Stairwell>(pfrm, {3, 11});
 
     app.encountered_island()->set_drift(-0.00003f);
 
