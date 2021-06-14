@@ -38,7 +38,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (pfrm.keyboard().down_transition<Key::up>()) {
-        if (cursor_loc.y > 0) {
+        if (cursor_loc.y > 6) {
             --cursor_loc.y;
         }
     }

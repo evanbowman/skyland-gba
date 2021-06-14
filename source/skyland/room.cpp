@@ -3,6 +3,7 @@
 #include "platform/platform.hpp"
 #include "room_metatable.hpp"
 #include "skyland.hpp"
+#include "globals.hpp"
 
 
 
@@ -14,7 +15,11 @@ Room::Room(Island* parent,
            const Vec2<u8>& size,
            const Vec2<u8>& position,
            Health health)
-    : parent_(parent), size_(size), position_(position), health_(health)
+    : parent_(parent),
+      characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
+      size_(size),
+      position_(position),
+      health_(health)
 {
     auto metatable = room_metatable();
 
@@ -25,6 +30,16 @@ Room::Room(Island* parent,
             metaclass_ = &current;
         }
     }
+
+#ifdef __GBA__
+    static_assert(sizeof(Room) < 33,
+                  "Not actually a hard requirement, just put"
+                  "this here as a reminder to keep rooms small."
+                  " Room pool entries are only 64 bytes in size."
+                  " Increasing the base room size will leave fewer "
+                  " bytes for derived rooms. If needed, you could "
+                  " increase the room pool size in roomPool.hpp");
+#endif
 }
 
 
@@ -43,8 +58,12 @@ void Room::set_injured(Platform& pfrm)
 
 
 
-void Room::update(Platform& pfrm, App&, Microseconds delta)
+void Room::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    for (auto& character : characters_) {
+        character->update(pfrm, app, delta);
+    }
+
     if (injured_timer_) {
         if (injured_timer_ > 0) {
             const auto new_timer = injured_timer_ - delta;

@@ -4,6 +4,7 @@
 #include "memory/buffer.hpp"
 #include "room.hpp"
 #include "roomPool.hpp"
+#include "entity.hpp"
 
 
 namespace skyland {
@@ -115,6 +116,15 @@ public:
     }
 
 
+    EntityList& projectiles()
+    {
+        return projectiles_;
+    }
+
+
+    bool test_collision(Entity& entity);
+
+
 private:
     Rooms rooms_;
     const Layer layer_;
@@ -126,6 +136,9 @@ private:
 
     bool interior_visible_;
     bool show_flag_ = false;
+
+    EntityList characters_;
+    EntityList projectiles_;
 };
 
 

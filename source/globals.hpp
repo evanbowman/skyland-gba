@@ -5,6 +5,7 @@
 // #include "blind_jump/game.hpp"
 #include "skyland/roomPool.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/entity.hpp"
 
 
 // struct BlindJumpGlobalData {
@@ -32,6 +33,9 @@ struct SkylandGlobalData {
 
     Vec2<u8> near_cursor_loc_;
     Vec2<u8> far_cursor_loc_;
+
+    skyland::EntityNodePool<skyland::entity_pool_size> entity_node_pool_;
+    skyland::EntityPool entity_pool_;
 };
 
 

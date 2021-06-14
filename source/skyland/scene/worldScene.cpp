@@ -134,6 +134,18 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    if (not app.paused()) {
+        if (app.encountered_island()) {
+            for (auto& projectile : app.player_island().projectiles()) {
+                app.encountered_island()->test_collision(*projectile);
+            }
+
+            for (auto& projectile : app.encountered_island()->projectiles()) {
+                app.player_island().test_collision(*projectile);
+            }
+        }
+    }
+
     return null_scene();
 }
 

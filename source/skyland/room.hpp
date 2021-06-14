@@ -4,6 +4,7 @@
 #include "platform/layer.hpp"
 #include "scene.hpp"
 #include <memory>
+#include "entity.hpp"
 
 
 
@@ -102,6 +103,7 @@ public:
 private:
     Island* parent_;
     RoomMeta* metaclass_;
+    EntityList characters_;
     Vec2<u8> size_;
     Vec2<u8> position_;
     Health health_;

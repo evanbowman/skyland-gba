@@ -4,19 +4,24 @@
 #include "scene.hpp"
 
 
+
 namespace skyland {
 
 
+
 namespace scene_pool {
+
 
 
 static constexpr const int max_scene_size = 256;
 static constexpr const int pool_capacity = 3;
 
 
+
 using _Pool = Pool<max_scene_size, pool_capacity, 8>;
 
 extern _Pool* pool_;
+
 
 
 inline void deleter(Scene* scene)
@@ -26,6 +31,7 @@ inline void deleter(Scene* scene)
         pool_->post(reinterpret_cast<byte*>(scene));
     }
 }
+
 
 
 template <typename T, typename... Args> ScenePtr<T> alloc(Args&&... args)
@@ -47,7 +53,9 @@ template <typename T, typename... Args> ScenePtr<T> alloc(Args&&... args)
 }
 
 
+
 } // namespace scene_pool
+
 
 
 } // namespace skyland

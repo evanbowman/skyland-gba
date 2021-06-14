@@ -5,6 +5,7 @@
 #include "island.hpp"
 #include "platform/platform.hpp"
 #include "scene.hpp"
+#include "blind_jump/entity/entityGroup.hpp"
 
 
 
@@ -69,6 +70,8 @@ private:
     Coins terrain_cost_ = 0;
     Camera camera_;
     bool paused_ = false;
+
+    EntityList effects_;
 
     std::optional<Island> encountered_island_;
 };

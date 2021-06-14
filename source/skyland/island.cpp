@@ -2,6 +2,7 @@
 #include "number/random.hpp"
 #include "roomPool.hpp"
 #include "tile.hpp"
+#include "globals.hpp"
 
 
 
@@ -10,7 +11,11 @@ namespace skyland {
 
 
 Island::Island(Platform& pfrm, Layer layer, u8 width)
-    : layer_(layer), timer_(0), interior_visible_(false)
+    : layer_(layer),
+      timer_(0),
+      interior_visible_(false),
+      characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
+      projectiles_(std::get<SkylandGlobalData>(globals()).entity_node_pool_)
 {
     terrain_.push_back(13), --width;
 
@@ -44,6 +49,14 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         room->update(pfrm, app, dt);
     }
 
+    for (auto& character : characters_) {
+        character->update(pfrm, app, dt);
+    }
+
+    for (auto& projectile : projectiles_) {
+        projectile->update(pfrm, app, dt);
+    }
+
     if (drift_) {
         position_.x += drift_ * dt;
     }
@@ -52,6 +65,48 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     -get_position().cast<u16>().x,
                     -get_position().cast<u16>().y -
                     get_ambient_movement());
+}
+
+
+
+bool Island::test_collision(Entity& entity)
+{
+    // First, check whether the hitbox for the entity intersects with the
+    // x-value range of the island. If not, then there's no need to check
+    // collisions with individual rooms.
+
+    Vec2<Float> hitbox_pos = this->origin();
+    HitBox island_hitbox;
+    island_hitbox.position_ = &hitbox_pos;
+    island_hitbox.dimension_.size_.x = terrain_.size() * 16;
+    island_hitbox.dimension_.size_.y = 16 * 16;
+
+    if (island_hitbox.overlapping(entity.hitbox())) {
+        // Now, the Entity must be within the larger bounding box for the
+        // island. Lets scan through each of the island's rooms until we find a
+        // collision.
+        for (auto& room : rooms_) {
+
+            static const int tile_size = 16;
+
+            hitbox_pos = this->origin();
+            hitbox_pos.x += room->position().x * tile_size;
+            hitbox_pos.y += room->position().y * tile_size;
+
+            HitBox room_hitbox;
+            room_hitbox.position_ = &hitbox_pos;
+            room_hitbox.dimension_.size_.x = room->size().x * tile_size;
+            room_hitbox.dimension_.size_.y = room->size().y * tile_size;
+
+            if (room_hitbox.overlapping(entity.hitbox())) {
+                // TODO: deliver collisions to room and to entity.
+                // TODO: actually test this code to see if it even works.
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 
