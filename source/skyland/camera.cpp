@@ -28,7 +28,7 @@ void Camera::update(Platform& pfrm,
     // enemy castles are small.
 
     if (near) {
-        target_.x = ((cursor_loc.x - 3) * 16) / 2;
+        target_.x = target.get_position().x + ((cursor_loc.x - 3) * 16) / 2;
         target_.x = clamp(target_.x, target.get_position().x -40, target.get_position().x + 48);
         target_.x -= 16;
     } else {

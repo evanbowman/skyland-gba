@@ -45,7 +45,7 @@ ScenePtr<Scene> NewgameScene::update(Platform& pfrm, App& app, Microseconds delt
     app.encountered_island()->add_room<Cannon>(pfrm, {0, 13});
     // app.encountered_island()->add_room<Cannon>(pfrm, {9, 13});
 
-    app.encountered_island()->set_drift(-0.00001f);
+    app.encountered_island()->set_drift(-0.00003f);
 
     set_island_positions(app.player_island(), *app.encountered_island());
 
