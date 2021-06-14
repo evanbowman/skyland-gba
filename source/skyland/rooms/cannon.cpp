@@ -3,6 +3,7 @@
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -20,6 +21,26 @@ Cannon::Cannon(Island* parent, const Vec2<u8>& position)
 void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
+
+
+    if (reload_ > 0) {
+        reload_ -= delta;
+    } else {
+
+        auto island = other_island(app);
+
+        if (island) {
+            if (target_) {
+                if (auto room = island->get_room(*target_)) {
+                    app.camera().shake(4);
+                    // Just a test :)
+                    room->set_injured(pfrm);
+                }
+            }
+        }
+
+        reload_ = reload_time;
+    }
 }
 
 

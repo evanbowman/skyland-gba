@@ -47,6 +47,21 @@ public:
 
 
     ScenePtr<Scene> select() override;
+
+
+    void set_target(const Vec2<u8>& target) override
+    {
+        target_ = target;
+    }
+
+
+private:
+    static constexpr const Microseconds reload_time = seconds(3);
+
+
+    Microseconds reload_ = reload_time;
+
+    std::optional<Vec2<u8>> target_;
 };
 
 

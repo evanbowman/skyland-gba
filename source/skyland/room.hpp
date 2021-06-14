@@ -55,6 +55,9 @@ public:
     virtual void update(Platform& pfrm, App&, Microseconds delta);
 
 
+    Island* other_island(App&);
+
+
     virtual bool has_roof()
     {
         return true;
@@ -82,6 +85,11 @@ public:
     virtual ScenePtr<Scene> select()
     {
         return null_scene();
+    }
+
+
+    virtual void set_target(const Vec2<u8>& target)
+    {
     }
 
 

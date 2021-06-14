@@ -53,6 +53,10 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        const auto target = targets_[selector_];
+        if (auto room = app.player_island().get_room(weapon_loc_)) {
+            room->set_target(target);
+        }
         return scene_pool::alloc<ReadyScene>();
     }
 

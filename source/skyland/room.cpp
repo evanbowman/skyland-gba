@@ -2,6 +2,7 @@
 #include "island.hpp"
 #include "platform/platform.hpp"
 #include "room_metatable.hpp"
+#include "skyland.hpp"
 
 
 
@@ -89,6 +90,20 @@ void Room::update(Platform& pfrm, App&, Microseconds delta)
                 }
             }
         }
+    }
+}
+
+
+
+Island* Room::other_island(App& app)
+{
+    if (&app.player_island() == parent_) {
+        if (app.encountered_island()) {
+            return &*app.encountered_island();
+        }
+        return nullptr;
+    } else {
+        return &app.player_island();
     }
 }
 

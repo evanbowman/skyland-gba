@@ -148,7 +148,7 @@ void WorldScene::persist_coins()
 
 void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    camera_update_timer_ = milliseconds(500);
+    camera_update_timer_ = milliseconds(1000);
 
     last_coins_ = app.coins();
 

@@ -8,6 +8,11 @@ namespace skyland {
 
 class Entity {
 public:
+
+
+
+
+
 };
 
 

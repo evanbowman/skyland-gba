@@ -26,6 +26,7 @@ public:
                 return true;
             }
         }
+        pfrm.fatal("room pool exhausted");
         return false;
     }
 
