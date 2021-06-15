@@ -2,11 +2,12 @@
 
 
 
-#include "number/numeric.hpp"
 #include "graphics/sprite.hpp"
-#include "list.hpp"
-#include <memory>
+#include "health.hpp"
 #include "hitbox.hpp"
+#include "list.hpp"
+#include "number/numeric.hpp"
+#include <memory>
 
 
 
@@ -33,6 +34,9 @@ public:
         hitbox_.position_ = &sprite_.position_;
         hitbox_.dimension_ = dimension;
     }
+
+
+    Entity(const Entity&) = delete;
 
 
     virtual ~Entity()
@@ -67,8 +71,6 @@ public:
 
 
 protected:
-
-
     void kill()
     {
         health_ = 0;
@@ -77,7 +79,7 @@ protected:
 
     Sprite sprite_;
     HitBox hitbox_;
-    u16 health_;
+    Health health_;
 };
 
 
@@ -88,8 +90,7 @@ static constexpr const int max_entity_size = 64;
 
 
 
-template <typename T>
-using EntityRef = std::unique_ptr<T, void (*)(Entity*)>;
+template <typename T> using EntityRef = std::unique_ptr<T, void (*)(Entity*)>;
 
 
 
@@ -102,19 +103,16 @@ using EntityNodePool = Pool<sizeof(EntityNode), Capacity, alignof(Entity)>;
 
 
 
-
 using EntityList = List<EntityRef<Entity>, EntityNodePool<entity_pool_size>>;
 using EntityPool = Pool<max_entity_size, entity_pool_size, 8>;
 
 
 
-inline void updateEntities(Platform& pfrm,
-                           App& app,
-                           Microseconds dt,
-                           EntityList& lat)
+inline void
+update_entities(Platform& pfrm, App& app, Microseconds dt, EntityList& lat)
 {
     for (auto it = lat.begin(); it not_eq lat.end();) {
-        if (not (*it)->alive()) {
+        if (not(*it)->alive()) {
             it = lat.erase(it);
         } else {
             (*it)->update(pfrm, app, dt);

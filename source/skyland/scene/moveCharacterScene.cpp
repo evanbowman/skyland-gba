@@ -1,8 +1,8 @@
 #include "moveCharacterScene.hpp"
-#include "skyland/skyland.hpp"
+#include "globals.hpp"
 #include "readyScene.hpp"
 #include "skyland/scene_pool.hpp"
-#include "globals.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -10,8 +10,8 @@ namespace skyland {
 
 
 
-MoveCharacterScene::MoveCharacterScene(Platform& pfrm) :
-    matrix_(allocate_dynamic<bool[16][16]>(pfrm))
+MoveCharacterScene::MoveCharacterScene(Platform& pfrm)
+    : matrix_(allocate_dynamic<bool[16][16]>(pfrm))
 {
     if (not matrix_) {
         pfrm.fatal("MCS: buffers exhausted");
@@ -21,6 +21,16 @@ MoveCharacterScene::MoveCharacterScene(Platform& pfrm) :
 
 
 u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y);
+
+
+
+void MoveCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
+{
+    WorldScene::exit(pfrm, app, next);
+
+    app.player_island().render_interior(pfrm);
+    app.player_island().repaint(pfrm);
+}
 
 
 
@@ -34,6 +44,22 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
     // Now, we want to do a bfs search, to find all connected parts of the
     // walkable areas.
 
+
+    // TODO: again, parameterize island. Currently using near cursor.
+    auto cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+    if (not(*matrix_)[cursor_loc.x][cursor_loc.y]) {
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) {
+                // Because you should only be in this state if you selected a
+                // character, which should only ever be standing in a valid
+                // tile, you shouldn't be able to get into a state where you've
+                // selected a non-walkable tile as the starting point.
+                return;
+            }
+        }
+    }
+
     u8 matrix[16][16];
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -44,10 +70,6 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
             }
         }
     }
-
-    // TODO: again, parameterize island. Currently using near cursor.
-    auto cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-
 
     // Ok, so now we do a flood fill, to find all cells reachable from the
     // position of the cursor. Erase all othre disconnected components.
@@ -63,20 +85,60 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
             }
         }
     }
+
+
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 16; ++y) {
+            if ((*matrix_)[x][y]) {
+                pfrm.set_tile(app.player_island().layer(), x, y, 34);
+            }
+        }
+    }
 }
 
 
 
-ScenePtr<Scene> MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (pfrm.keyboard().down_transition<Key::alt_1>()) {
-        // We can only get into the MoveCharacterScene when viewing the interior
-        // of our building. When switching to view the exterior, cancel out of
-        // the current scene.
-        pfrm.load_tile0_texture("tilesheet");
-        app.player_island().render_exterior(pfrm);
-        return scene_pool::alloc<ReadyScene>();
+        return null_scene();
     }
+
+    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+
+    if (pfrm.keyboard().down_transition<Key::left>()) {
+        if (cursor_loc.x > 0 and (*matrix_)[cursor_loc.x - 1][cursor_loc.y]) {
+            --cursor_loc.x;
+        }
+    }
+
+    if (pfrm.keyboard().down_transition<Key::right>()) {
+        if (cursor_loc.x < app.player_island().terrain().size() and
+            (*matrix_)[cursor_loc.x + 1][cursor_loc.y]) {
+            ++cursor_loc.x;
+        }
+    }
+
+    if (pfrm.keyboard().down_transition<Key::up>()) {
+        if (cursor_loc.y > 6 and (*matrix_)[cursor_loc.x][cursor_loc.y - 1]) {
+            --cursor_loc.y;
+        }
+    }
+
+    if (pfrm.keyboard().down_transition<Key::down>()) {
+        if (cursor_loc.y < 14 and (*matrix_)[cursor_loc.x][cursor_loc.y + 1]) {
+            ++cursor_loc.y;
+        }
+    }
+
+    cursor_anim_timer_ += delta;
+    if (cursor_anim_timer_ > milliseconds(200)) {
+        cursor_anim_timer_ -= milliseconds(200);
+        cursor_anim_frame_ = not cursor_anim_frame_;
+    }
+
 
     if (auto new_scene = WorldScene::update(pfrm, app, delta)) {
         return new_scene;
@@ -84,6 +146,10 @@ ScenePtr<Scene> MoveCharacterScene::update(Platform& pfrm, App& app, Microsecond
 
     if (pfrm.keyboard().down_transition<Key::action_2>()) {
         return scene_pool::alloc<ReadyScene>();
+    }
+
+    if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        // TODO... move the character...
     }
 
     return null_scene();
@@ -95,21 +161,37 @@ void MoveCharacterScene::display(Platform& pfrm, App& app)
 {
     WorldScene::display(pfrm, app);
 
-    Sprite sprite;
-    sprite.set_texture_index(19);
-    sprite.set_size(Sprite::Size::w16_h32);
+    Sprite cursor;
+    cursor.set_size(Sprite::Size::w16_h32);
+    cursor.set_texture_index(15 + cursor_anim_frame_);
 
-    for (int x = 0; x < 16; ++x) {
-        for (int y = 0; y < 16; ++y) {
-            if ((*matrix_)[x][y]) {
-                auto origin = app.player_island().origin();
-                origin.x += x * 16;
-                origin.y += (y - 1) * 16;
-                sprite.set_position(origin);
-                pfrm.screen().draw(sprite);
-            }
-        }
-    }
+    auto origin = app.player_island().origin();
+
+    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+    origin.x += cursor_loc.x * 16;
+    origin.y += cursor_loc.y * 16;
+
+    cursor.set_position(origin);
+
+    pfrm.screen().draw(cursor);
+
+
+    // Sprite sprite;
+    // sprite.set_texture_index(19);
+    // sprite.set_size(Sprite::Size::w16_h32);
+
+    // for (int x = 0; x < 16; ++x) {
+    //     for (int y = 0; y < 16; ++y) {
+    //         if ((*matrix_)[x][y]) {
+    //             auto origin = app.player_island().origin();
+    //             origin.x += x * 16;
+    //             origin.y += (y - 1) * 16;
+    //             sprite.set_position(origin);
+    //             pfrm.screen().draw(sprite);
+    //         }
+    //     }
+    // }
 }
 
 
@@ -120,7 +202,7 @@ u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y)
 
     ScratchBufferBulkAllocator mem(pfrm);
 
-    auto stack = mem.alloc<Buffer<Coord, 16*16>>();
+    auto stack = mem.alloc<Buffer<Coord, 16 * 16>>();
 
     if (UNLIKELY(not stack)) {
         pfrm.fatal("fatal error in floodfill");
@@ -162,4 +244,4 @@ u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y)
 
 
 
-}
+} // namespace skyland

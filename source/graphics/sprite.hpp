@@ -103,8 +103,10 @@ private:
     Vec2<s16> origin_;
 
     Vec2<s16> scale_;
+
 public:
     Vec2<Float> position_;
+
 private:
     Rotation rot_ = 0;
     TextureIndex texture_index_ = 0;

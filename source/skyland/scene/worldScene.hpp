@@ -29,8 +29,6 @@ public:
 
 
 private:
-
-
     void set_pause_icon(Platform& pfrm, bool paused);
 
 

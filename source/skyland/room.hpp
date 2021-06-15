@@ -1,10 +1,11 @@
 #pragma once
 
+#include "entity.hpp"
+#include "health.hpp"
 #include "number/numeric.hpp"
 #include "platform/layer.hpp"
 #include "scene.hpp"
 #include <memory>
-#include "entity.hpp"
 
 
 
@@ -20,14 +21,12 @@ class App;
 class Entity;
 class Island;
 class RoomMeta;
+class Cannonball;
 
 
 
 class Room {
 public:
-    using Health = int;
-
-
     virtual ~Room()
     {
     }
@@ -91,9 +90,16 @@ public:
     }
 
 
-    virtual void on_collision(Platform& pfrm, App& app, Entity& entity)
+    void on_collision(Platform& pfrm, App& app, Entity& entity);
+
+
+    void apply_damage(Health damage)
     {
-        set_injured(pfrm);
+        if (damage > health_) {
+            health_ = 0;
+        } else {
+            health_ -= damage;
+        }
     }
 
 
@@ -121,6 +127,12 @@ public:
     EntityList& characters()
     {
         return characters_;
+    }
+
+
+    Health health() const
+    {
+        return health_;
     }
 
 

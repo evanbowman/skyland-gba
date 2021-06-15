@@ -1,11 +1,11 @@
 #pragma once
 
+#include "blind_jump/entity/entityGroup.hpp"
 #include "camera.hpp"
 #include "coins.hpp"
 #include "island.hpp"
 #include "platform/platform.hpp"
 #include "scene.hpp"
-#include "blind_jump/entity/entityGroup.hpp"
 
 
 
@@ -66,6 +66,21 @@ public:
     }
 
 
+    using DeferredCallback = Function<16, void(Platform&, App&)>;
+
+
+    bool on_timeout(Platform& pfrm,
+                    Microseconds expire_time,
+                    const DeferredCallback& callback)
+    {
+        if (not deferred_callbacks_.push_back({callback, expire_time})) {
+            warning(pfrm, "failed to enq timeout");
+            return false;
+        }
+        return true;
+    }
+
+
 private:
     Island player_island_;
     Float cloud_scroll_1_;
@@ -80,6 +95,8 @@ private:
     EntityList effects_;
 
     std::optional<Island> encountered_island_;
+
+    Buffer<std::pair<DeferredCallback, Microseconds>, 10> deferred_callbacks_;
 };
 
 

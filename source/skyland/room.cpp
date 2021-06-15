@@ -1,10 +1,10 @@
 #include "room.hpp"
+#include "globals.hpp"
 #include "island.hpp"
 #include "platform/platform.hpp"
 #include "room_metatable.hpp"
-#include "skyland.hpp"
-#include "globals.hpp"
 #include "scene/moveCharacterScene.hpp"
+#include "skyland.hpp"
 
 
 
@@ -18,9 +18,7 @@ Room::Room(Island* parent,
            Health health)
     : parent_(parent),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      size_(size),
-      position_(position),
-      health_(health)
+      size_(size), position_(position), health_(health)
 {
     auto metatable = room_metatable();
 
@@ -61,7 +59,7 @@ void Room::set_injured(Platform& pfrm)
 
 void Room::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    updateEntities(pfrm, app, delta, characters_);
+    update_entities(pfrm, app, delta, characters_);
 
     if (injured_timer_) {
         if (injured_timer_ > 0) {
@@ -181,6 +179,13 @@ void Room::plot_walkable_zones(bool matrix[16][16])
     for (int x = 0; x < size_.x; ++x) {
         matrix[position_.x + x][position_.y + size_.y - 1] = true;
     }
+}
+
+
+
+void Room::on_collision(Platform& pfrm, App& app, Entity& entity)
+{
+    set_injured(pfrm);
 }
 
 

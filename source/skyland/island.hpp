@@ -1,10 +1,10 @@
 #pragma once
 
 #include "bulkAllocator.hpp"
+#include "entity.hpp"
 #include "memory/buffer.hpp"
 #include "room.hpp"
 #include "roomPool.hpp"
-#include "entity.hpp"
 
 
 namespace skyland {

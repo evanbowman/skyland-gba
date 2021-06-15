@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "list.hpp"
 #include "hitbox.hpp"
+#include "list.hpp"
 
 
 

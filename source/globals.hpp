@@ -3,9 +3,9 @@
 #include <variant>
 
 // #include "blind_jump/game.hpp"
+#include "skyland/entity.hpp"
 #include "skyland/roomPool.hpp"
 #include "skyland/scene_pool.hpp"
-#include "skyland/entity.hpp"
 
 
 // struct BlindJumpGlobalData {

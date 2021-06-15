@@ -1,8 +1,9 @@
 #include "island.hpp"
+#include "entity/explosion/explosion.hpp"
+#include "globals.hpp"
 #include "number/random.hpp"
 #include "roomPool.hpp"
 #include "tile.hpp"
-#include "globals.hpp"
 
 
 
@@ -11,9 +12,7 @@ namespace skyland {
 
 
 Island::Island(Platform& pfrm, Layer layer, u8 width)
-    : layer_(layer),
-      timer_(0),
-      interior_visible_(false),
+    : layer_(layer), timer_(0), interior_visible_(false),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       projectiles_(std::get<SkylandGlobalData>(globals()).entity_node_pool_)
 {
@@ -45,12 +44,20 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                         std::numeric_limits<s16>::max();
 
 
-    for (auto& room : rooms_) {
-        room->update(pfrm, app, dt);
+    for (auto it = rooms_.begin(); it not_eq rooms_.end();) {
+        if ((*it)->health() == 0) {
+            big_explosion(pfrm, app, (*it)->center());
+            it = rooms_.erase(it);
+            repaint(pfrm);
+        } else {
+            (*it)->update(pfrm, app, dt);
+            ++it;
+        }
     }
 
-    updateEntities(pfrm, app, dt, characters_);
-    updateEntities(pfrm, app, dt, projectiles_);
+
+    update_entities(pfrm, app, dt, characters_);
+    update_entities(pfrm, app, dt, projectiles_);
 
     if (drift_) {
         position_.x += drift_ * dt;
@@ -58,8 +65,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
     pfrm.set_scroll(layer(),
                     -get_position().cast<u16>().x,
-                    -get_position().cast<u16>().y -
-                    get_ambient_movement());
+                    -get_position().cast<u16>().y - get_ambient_movement());
 }
 
 

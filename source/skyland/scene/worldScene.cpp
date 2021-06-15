@@ -50,13 +50,16 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (pfrm.keyboard().any_pressed<
-        Key::left, Key::right, Key::up, Key::down, Key::alt_1>()) {
+    if (pfrm.keyboard()
+            .any_pressed<Key::left,
+                         Key::right,
+                         Key::up,
+                         Key::down,
+                         Key::alt_1>()) {
         camera_update_timer_ = milliseconds(500);
     }
 
-    if (app.camera().is_shaking() or
-        camera_update_timer_ > 0) {
+    if (app.camera().is_shaking() or camera_update_timer_ > 0) {
         camera_update_timer_ -= delta;
         camera_update_timer_ = std::max((int)camera_update_timer_, 0);
 
@@ -73,13 +76,13 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             auto& cursor_loc =
                 std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
             app.camera().update(
-                                pfrm, *app.encountered_island(), cursor_loc, delta, false);
+                pfrm, *app.encountered_island(), cursor_loc, delta, false);
         } else {
             auto& cursor_loc =
                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-            app.camera().update(pfrm, app.player_island(), cursor_loc, delta, true);
+            app.camera().update(
+                pfrm, app.player_island(), cursor_loc, delta, true);
         }
-
     }
 
 
@@ -100,6 +103,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.encountered_island()->update(pfrm, app, delta);
         }
 
+        update_entities(pfrm, app, delta, app.effects());
         for (auto& effect : app.effects()) {
             effect->update(pfrm, app, delta);
         }
@@ -142,7 +146,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (not app.paused()) {
         if (app.encountered_island()) {
             for (auto& projectile : app.player_island().projectiles()) {
-                app.encountered_island()->test_collision(pfrm, app, *projectile);
+                app.encountered_island()->test_collision(
+                    pfrm, app, *projectile);
             }
 
             for (auto& projectile : app.encountered_island()->projectiles()) {

@@ -21,15 +21,15 @@ inline void entity_deleter(Entity* entity)
 
 
 
-EntityRef<Entity> null_entity()
+inline EntityRef<Entity> null_entity()
 {
     return {nullptr, entity_deleter};
 }
 
 
 
-template <typename T, typename ...Args>
-EntityRef<T> alloc_entity(Args&& ...args)
+template <typename T, typename... Args>
+EntityRef<T> alloc_entity(Args&&... args)
 {
     auto& pool = std::get<SkylandGlobalData>(globals()).entity_pool_;
 
@@ -47,4 +47,4 @@ EntityRef<T> alloc_entity(Args&& ...args)
 
 
 
-}
+} // namespace skyland
