@@ -38,6 +38,9 @@ public:
     void update(Platform&, App&, Microseconds delta);
 
 
+    void display(Platform&);
+
+
     const Vec2<Float>& get_position() const;
 
 

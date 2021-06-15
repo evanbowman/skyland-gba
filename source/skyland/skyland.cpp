@@ -59,6 +59,12 @@ void App::render(Platform& pfrm)
     pfrm.enable_feature("_prlx7", (u8)cloud_scroll_1_);
     pfrm.enable_feature("_prlx8", (u8)cloud_scroll_2_);
 
+    player_island_.display(pfrm);
+
+    if (encountered_island_) {
+        encountered_island_->display(pfrm);
+    }
+
     current_scene_->display(pfrm, *this);
 }
 

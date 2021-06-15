@@ -53,8 +53,13 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         character->update(pfrm, app, dt);
     }
 
-    for (auto& projectile : projectiles_) {
-        projectile->update(pfrm, app, dt);
+    for (auto it = projectiles_.begin(); it not_eq projectiles_.end();) {
+        if (not (*it)->alive()) {
+            it = projectiles_.erase(it);
+        } else {
+            (*it)->update(pfrm, app, dt);
+            ++it;
+        }
     }
 
     if (drift_) {
@@ -65,6 +70,15 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     -get_position().cast<u16>().x,
                     -get_position().cast<u16>().y -
                     get_ambient_movement());
+}
+
+
+
+void Island::display(Platform& pfrm)
+{
+    for (auto& p : projectiles_) {
+        pfrm.screen().draw(p->sprite());
+    }
 }
 
 

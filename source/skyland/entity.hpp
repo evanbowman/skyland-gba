@@ -24,12 +24,13 @@ class App;
 
 class Entity {
 public:
-    Entity()
+    Entity(const HitBox::Dimension& dimension) : health_(1)
     {
         // By default, use sprite position as hitbox position. Derived entities
         // can assign it to something else if need be (if the spite position
         // and entity posiiton are not the same thing);
         hitbox_.position_ = &sprite_.position_;
+        hitbox_.dimension_ = dimension;
     }
 
 
@@ -55,11 +56,19 @@ public:
 
     bool alive() const
     {
-        return health_;
+        return health_ not_eq 0;
     }
 
 
 protected:
+
+
+    void kill()
+    {
+        health_ = 0;
+    }
+
+
     Sprite sprite_;
     HitBox hitbox_;
     u16 health_;
@@ -69,12 +78,12 @@ protected:
 
 static constexpr const int entity_pool_size = 64;
 static constexpr const int entity_pool_align = 8;
-static constexpr const int max_entity_size = 48;
+static constexpr const int max_entity_size = 64;
 
 
 
 template <typename T>
-using EntityRef = std::unique_ptr<T, void (*)(T*)>;
+using EntityRef = std::unique_ptr<T, void (*)(Entity*)>;
 
 
 

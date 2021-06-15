@@ -100,6 +100,15 @@ public:
     }
 
 
+    Vec2<Float> origin() const;
+
+
+    Island* parent() const
+    {
+        return parent_;
+    }
+
+
 private:
     Island* parent_;
     RoomMeta* metaclass_;

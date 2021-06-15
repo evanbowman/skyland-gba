@@ -4,6 +4,8 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/entity/projectile/cannonball.hpp"
+#include "skyland/alloc_entity.hpp"
 
 
 
@@ -33,8 +35,10 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
             if (target_) {
                 if (auto room = island->get_room(*target_)) {
                     app.camera().shake(4);
-                    // Just a test :)
                     room->set_injured(pfrm);
+
+                    auto c = alloc_entity<Cannonball>(origin());
+                    parent()->projectiles().push(std::move(c));
                 }
             }
         }

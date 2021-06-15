@@ -128,4 +128,14 @@ Island* Room::other_island(App& app)
 
 
 
+Vec2<Float> Room::origin() const
+{
+    auto origin = parent_->origin();
+    origin.x += position_.x * 16;
+    origin.y += position_.y * 16;
+    return origin;
+}
+
+
+
 } // namespace skyland

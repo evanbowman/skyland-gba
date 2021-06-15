@@ -39,7 +39,7 @@ EntityRef<T> alloc_entity(Args&& ...args)
     if (auto mem = pool.get()) {
         new (mem) T(std::forward<Args>(args)...);
 
-        return {reinterpret_cast<T*>(mem), entity_deleter};
+        return EntityRef<T>(reinterpret_cast<T*>(mem), entity_deleter);
     }
 
     return {nullptr, entity_deleter};
