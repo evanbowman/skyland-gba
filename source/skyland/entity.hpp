@@ -19,6 +19,7 @@ namespace skyland {
 
 
 class App;
+class Room;
 
 
 
@@ -57,6 +58,11 @@ public:
     bool alive() const
     {
         return health_ not_eq 0;
+    }
+
+
+    virtual void on_collision(Platform& pfrm, App& app, Room& room)
+    {
     }
 
 

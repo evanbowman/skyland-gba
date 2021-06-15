@@ -56,7 +56,7 @@ public:
 
 
 private:
-    static constexpr const Microseconds reload_time = seconds(3);
+    static constexpr const Microseconds reload_time = seconds(5);
 
 
     Microseconds reload_ = reload_time;

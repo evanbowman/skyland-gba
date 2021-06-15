@@ -138,4 +138,23 @@ Vec2<Float> Room::origin() const
 
 
 
+Vec2<Float> Room::center() const
+{
+    auto o = origin();
+    o.x += size_.x * 16;
+    o.y += size_.y * 16;
+
+    if (size_.x % 2 == 1) {
+        o.x -= 8;
+    }
+
+    if (size_.y % 2 == 1) {
+        o.y -= 8;
+    }
+
+    return o;
+}
+
+
+
 } // namespace skyland

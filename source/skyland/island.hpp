@@ -125,7 +125,7 @@ public:
     }
 
 
-    bool test_collision(Entity& entity);
+    void test_collision(Platform&, App&, Entity& entity);
 
 
 private:

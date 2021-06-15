@@ -83,7 +83,7 @@ void Island::display(Platform& pfrm)
 
 
 
-bool Island::test_collision(Entity& entity)
+void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
 {
     // First, check whether the hitbox for the entity intersects with the
     // x-value range of the island. If not, then there's no need to check
@@ -115,12 +115,12 @@ bool Island::test_collision(Entity& entity)
             if (room_hitbox.overlapping(entity.hitbox())) {
                 // TODO: deliver collisions to room and to entity.
                 // TODO: actually test this code to see if it even works.
-                return true;
+                entity.on_collision(pfrm, app, *room);
+                room->on_collision(pfrm, app, entity);
+                return;
             }
         }
     }
-
-    return false;
 }
 
 

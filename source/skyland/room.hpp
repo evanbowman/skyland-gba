@@ -94,6 +94,12 @@ public:
     }
 
 
+    virtual void on_collision(Platform& pfrm, App& app, Entity& entity)
+    {
+        set_injured(pfrm);
+    }
+
+
     RoomMeta* metaclass()
     {
         return metaclass_;
@@ -101,6 +107,9 @@ public:
 
 
     Vec2<Float> origin() const;
+
+
+    Vec2<Float> center() const;
 
 
     Island* parent() const
