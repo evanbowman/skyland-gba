@@ -21,7 +21,7 @@ public:
 
         sprite_.set_origin({8, 8});
 
-        static const Float speed = 0.0001f;
+        static const Float speed = 0.00015f;
         step_vector_ = direction(position, target) * speed;
     }
 

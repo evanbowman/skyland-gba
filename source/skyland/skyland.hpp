@@ -60,6 +60,12 @@ public:
     }
 
 
+    EntityList& effects()
+    {
+        return effects_;
+    }
+
+
 private:
     Island player_island_;
     Float cloud_scroll_1_;

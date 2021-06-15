@@ -108,4 +108,21 @@ using EntityPool = Pool<max_entity_size, entity_pool_size, 8>;
 
 
 
+inline void updateEntities(Platform& pfrm,
+                           App& app,
+                           Microseconds dt,
+                           EntityList& lat)
+{
+    for (auto it = lat.begin(); it not_eq lat.end();) {
+        if (not (*it)->alive()) {
+            it = lat.erase(it);
+        } else {
+            (*it)->update(pfrm, app, dt);
+            ++it;
+        }
+    }
+}
+
+
+
 } // namespace skyland

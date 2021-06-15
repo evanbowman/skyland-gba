@@ -21,6 +21,9 @@ public:
     void render_exterior(Platform& pfrm, Layer layer) override;
 
 
+    void plot_walkable_zones(bool matrix[16][16]) override;
+
+
     static Vec2<u8> size()
     {
         return {1, 4};

@@ -99,6 +99,11 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.encountered_island()) {
             app.encountered_island()->update(pfrm, app, delta);
         }
+
+        for (auto& effect : app.effects()) {
+            effect->update(pfrm, app, delta);
+        }
+
     } else {
         set_pause_icon(pfrm, true);
     }

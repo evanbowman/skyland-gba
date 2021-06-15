@@ -41,4 +41,15 @@ void Stairwell::render_exterior(Platform& pfrm, Layer layer)
 }
 
 
+
+void Stairwell::plot_walkable_zones(bool matrix[16][16])
+{
+    // All tiles in a stairwell are walkable, that's kind of the point.
+    for (int y = 0; y < size().y; ++y) {
+        matrix[position().x][position().y + y] = true;
+    }
+}
+
+
+
 } // namespace skyland

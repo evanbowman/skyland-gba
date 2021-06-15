@@ -4,6 +4,7 @@
 #include "room_metatable.hpp"
 #include "skyland.hpp"
 #include "globals.hpp"
+#include "scene/moveCharacterScene.hpp"
 
 
 
@@ -60,9 +61,7 @@ void Room::set_injured(Platform& pfrm)
 
 void Room::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    for (auto& character : characters_) {
-        character->update(pfrm, app, delta);
-    }
+    updateEntities(pfrm, app, delta, characters_);
 
     if (injured_timer_) {
         if (injured_timer_ > 0) {
@@ -153,6 +152,35 @@ Vec2<Float> Room::center() const
     }
 
     return o;
+}
+
+
+
+ScenePtr<Scene> Room::select(Platform& pfrm)
+{
+    if (parent_->interior_visible()) {
+        if (length(characters_)) {
+            // TODO...  In the default implementation, select a character if the
+            // cursor overlaps with one of the characters assigned to the room.
+        }
+
+        // Just a test...
+        return scene_pool::alloc<MoveCharacterScene>(pfrm);
+    }
+
+    return null_scene();
+}
+
+
+
+void Room::plot_walkable_zones(bool matrix[16][16])
+{
+    // By default, treat every cell in the lowest row of a room as walkable for
+    // NPCs. A few rooms, like staircases, cannons, walls, etc. will need to
+    // provide different implementations.
+    for (int x = 0; x < size_.x; ++x) {
+        matrix[position_.x + x][position_.y + size_.y - 1] = true;
+    }
 }
 
 

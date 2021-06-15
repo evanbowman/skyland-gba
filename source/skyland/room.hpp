@@ -83,10 +83,7 @@ public:
     }
 
 
-    virtual ScenePtr<Scene> select()
-    {
-        return null_scene();
-    }
+    virtual ScenePtr<Scene> select(Platform& pfrm);
 
 
     virtual void set_target(const Vec2<u8>& target)
@@ -98,6 +95,9 @@ public:
     {
         set_injured(pfrm);
     }
+
+
+    virtual void plot_walkable_zones(bool matrix[16][16]);
 
 
     RoomMeta* metaclass()
@@ -115,6 +115,12 @@ public:
     Island* parent() const
     {
         return parent_;
+    }
+
+
+    EntityList& characters()
+    {
+        return characters_;
     }
 
 

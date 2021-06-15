@@ -49,18 +49,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         room->update(pfrm, app, dt);
     }
 
-    for (auto& character : characters_) {
-        character->update(pfrm, app, dt);
-    }
-
-    for (auto it = projectiles_.begin(); it not_eq projectiles_.end();) {
-        if (not (*it)->alive()) {
-            it = projectiles_.erase(it);
-        } else {
-            (*it)->update(pfrm, app, dt);
-            ++it;
-        }
-    }
+    updateEntities(pfrm, app, dt, characters_);
+    updateEntities(pfrm, app, dt, projectiles_);
 
     if (drift_) {
         position_.x += drift_ * dt;
@@ -76,8 +66,18 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
 void Island::display(Platform& pfrm)
 {
+    for (auto& c : characters_) {
+        pfrm.screen().draw(c->sprite());
+    }
+
     for (auto& p : projectiles_) {
         pfrm.screen().draw(p->sprite());
+    }
+
+    for (auto& room : rooms_) {
+        for (auto& c : room->characters()) {
+            pfrm.screen().draw(c->sprite());
+        }
     }
 }
 
@@ -192,6 +192,23 @@ void Island::plot_rooms(u8 matrix[16][16]) const
                 matrix[x + pos.x][y + pos.y] = val;
             }
         }
+    }
+}
+
+
+
+void Island::plot_walkable_zones(bool matrix[16][16]) const
+{
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 16; ++y) {
+            matrix[x][y] = 0;
+        }
+    }
+
+    // TODO: label outdoor grass areas as walkable.
+
+    for (auto& room : rooms_) {
+        room->plot_walkable_zones(matrix);
     }
 }
 

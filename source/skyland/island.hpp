@@ -77,6 +77,9 @@ public:
     void plot_construction_zones(bool matrix[16][16]) const;
 
 
+    void plot_walkable_zones(bool matrix[16][16]) const;
+
+
     void repaint(Platform& pfrm);
 
 

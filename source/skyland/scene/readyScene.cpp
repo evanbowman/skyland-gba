@@ -25,6 +25,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
+
     if (pfrm.keyboard().down_transition<Key::left>()) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
@@ -57,7 +58,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (pfrm.keyboard().down_transition<Key::action_1>()) {
         if (auto room = app.player_island().get_room(cursor_loc)) {
-            return room->select();
+            return room->select(pfrm);
         }
     }
 

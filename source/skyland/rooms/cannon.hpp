@@ -46,12 +46,18 @@ public:
     }
 
 
-    ScenePtr<Scene> select() override;
+    ScenePtr<Scene> select(Platform& pfrm) override;
 
 
     void set_target(const Vec2<u8>& target) override
     {
         target_ = target;
+    }
+
+
+    void plot_walkable_zones(bool matrix[16][16]) override
+    {
+        // one cannot walk through this tile, intentionally do nothing.
     }
 
 

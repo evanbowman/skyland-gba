@@ -21,6 +21,13 @@ public:
     void render_exterior(Platform& pfrm, Layer layer) override;
 
 
+    void plot_walkable_zones(bool matrix[16][16]) override
+    {
+        // one cannot walk through this tile, intentionally do nothing.
+    }
+
+
+
     bool has_roof() override
     {
         return false;

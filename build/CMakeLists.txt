@@ -80,6 +80,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/newgameScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
+  ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp)
 
 
