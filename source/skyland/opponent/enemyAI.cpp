@@ -72,7 +72,6 @@ void EnemyAI::set_cannon_target(Platform& pfrm, App& app, Cannon& cannon)
     }
 
     if (highest_weighted_room) {
-        highest_weighted_room->set_injured(pfrm);
         cannon.set_target(highest_weighted_room->position());
     }
 }
