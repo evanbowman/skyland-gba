@@ -28,20 +28,13 @@ void Missile::update(Platform&, App&, Microseconds delta)
 {
     timer_ += delta;
 
-    // pos = pos + Float(delta) * step_vector_;
-    // sprite_.set_position(pos);
-
-    // timer_ += delta;
-
-    // if (timer_ > seconds(1)) {
-    //     kill();
-    // }
 
     switch (state_) {
     case State::rising: {
         if (timer_ > milliseconds(400)) {
             timer_ = 0;
             state_ = State::wait;
+            sprite_.set_alpha(Sprite::Alpha::transparent);
         }
         auto pos = sprite_.get_position();
         pos.y -= delta * 0.0003f;
@@ -57,6 +50,7 @@ void Missile::update(Platform&, App&, Microseconds delta)
             pos.x = target_x_;
             sprite_.set_position(pos);
             sprite_.set_flip({false, true});
+            sprite_.set_alpha(Sprite::Alpha::opaque);
         }
         break;
 
@@ -82,7 +76,7 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
     kill();
     app.camera().shake(18);
     big_explosion(pfrm, app, sprite_.get_position());
-    room.apply_damage(pfrm, app, 180);
+    room.apply_damage(pfrm, app, Missile::deals_damage);
 }
 
 

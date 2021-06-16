@@ -31,15 +31,20 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (island) {
             if (target_) {
-                if (auto room = island->get_room(*target_)) {
-                    auto start = center();
-                    start.y -= 24;
+                if (parent()->owner().missile_ammo()) {
 
-                    app.camera().shake(6);
+                    parent()->owner().missile_ammo()--;
 
-                    auto m = alloc_entity<Missile>(start, room->center());
+                    if (auto room = island->get_room(*target_)) {
+                        auto start = center();
+                        start.y -= 24;
 
-                    parent()->projectiles().push(std::move(m));
+                        app.camera().shake(6);
+
+                        auto m = alloc_entity<Missile>(start, room->center());
+
+                        parent()->projectiles().push(std::move(m));
+                    }
                 }
 
                 target_.reset();

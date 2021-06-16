@@ -26,6 +26,9 @@ public:
     void on_collision(Platform& pfrm, App& app, Room&) override;
 
 
+    static const Health deals_damage = 180;
+
+
 private:
     Microseconds timer_ = 0;
     Float speed_;

@@ -2,8 +2,10 @@
 #include "skyland/skyland.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/cannon.hpp"
+#include "skyland/rooms/missileSilo.hpp"
 #include "skyland/room_metatable.hpp"
 #include "number/random.hpp"
+#include "skyland/entity/projectile/missile.hpp"
 
 
 
@@ -15,13 +17,28 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 {
     next_action_timer_ -= delta;
 
+    if (next_missile_launch_ > 0) {
+        next_missile_launch_ -= delta;
+    }
+
+
+    if (app.encountered_island() and not app.encountered_island()->get_drift()) {
+        last_missile_launch_ += delta;
+    }
+
+
     if (next_action_timer_ <= 0) {
         next_action_timer_ = next_action_timeout;
+
+        u8 matrix[16][16];
+        app.player_island().plot_rooms(matrix);
 
         if (app.encountered_island()) {
             for (auto& room : app.encountered_island()->rooms()) {
                 if (auto cannon = dynamic_cast<Cannon*>(&*room)) {
-                    set_cannon_target(pfrm, app, *cannon);
+                    set_target(pfrm, app, matrix, *cannon);
+                } else if (auto silo = dynamic_cast<MissileSilo*>(&*room)) {
+                    set_target(pfrm, app, matrix, *silo);
                 }
             }
         }
@@ -30,13 +47,104 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void EnemyAI::set_cannon_target(Platform& pfrm, App& app, Cannon& cannon)
+void EnemyAI::set_target(Platform& pfrm,
+                         App& app,
+                         const u8 matrix[16][16],
+                         MissileSilo& silo)
+{
+    if (next_missile_launch_ > 0) {
+        return;
+    }
+
+    if (silo.parent()->get_drift()) {
+        // Wait until we've stopped moving
+        return;
+    }
+
+    Buffer<Room*, 32> visible_rooms;
+
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 16; ++y) {
+            if (matrix[x][y]) {
+                if (auto room = app.player_island().get_room({u8(x), u8(y)})) {
+                    visible_rooms.push_back(room);
+                }
+                break;
+            }
+        }
+    }
+
+    Room* highest_weighted_room = nullptr;
+    Float highest_weight = 3E-5;
+
+    auto cannon_metac = load_metaclass("cannon");
+
+    bool cannons_remaining = false;
+
+    for (auto& room : silo.parent()->rooms()) {
+        if (room->metaclass() == cannon_metac) {
+            cannons_remaining = true;
+        }
+    }
+
+    for (auto room : visible_rooms) {
+        auto meta_c = room->metaclass();
+        auto w = (*meta_c)->ai_base_weight();
+
+        // If the player has a missile silo, and remaining missiles, we may want
+        // to think about destroying it.
+        if (str_cmp((*meta_c)->name(), "missile silo") == 0) {
+            if (app.player().missile_ammo() == 0) {
+                // OK, so there's no urgent need to attack this missile silo,
+                // because the player doesn't even have any missiles.
+                w = 50.f;
+            } else {
+                w += 500.f;
+            }
+        }
+
+        // Give the room some extra weight, if firing a missile into it would be
+        // really destructive.
+        if (w > 400 and
+            room->health() <= Missile::deals_damage) {
+            w += 300.f;
+        }
+
+        // We don't have any cannons left, but the other player does. Try to
+        // take out some of those cannons with missiles.
+        if (meta_c == cannon_metac and not cannons_remaining) {
+            w += 200.f;
+        }
+
+        if (w > highest_weight) {
+            highest_weighted_room = room;
+            highest_weight = w;
+        }
+    }
+
+
+    // More likely to use a missile when we have more of them.
+    const Float missile_value = 2000 / app.opponent().missile_ammo();
+
+    if (highest_weight >= missile_value or
+        silo.health() < 40 or
+        last_missile_launch_ > seconds(30)) {
+        if (highest_weighted_room) {
+            silo.set_target(highest_weighted_room->position());
+            next_missile_launch_= seconds(5);
+            last_missile_launch_ = 0;
+        }
+    }
+}
+
+
+
+void EnemyAI::set_target(Platform& pfrm,
+                         App& app,
+                         const u8 matrix[16][16],
+                         Cannon& cannon)
 {
     // Ok, lets start by finding all of the line-of-sight targets:
-    u8 matrix[16][16];
-    app.player_island().plot_rooms(matrix);
-
-
     // (FIXME: actually draw the line-of-sight correctly...)
     Buffer<Room*, 32> visible_rooms;
 

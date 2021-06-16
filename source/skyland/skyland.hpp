@@ -84,6 +84,12 @@ public:
     }
 
 
+    Player& player()
+    {
+        return player_;
+    }
+
+
     Opponent& opponent()
     {
         return enemy_ai_;

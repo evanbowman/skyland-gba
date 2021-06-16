@@ -2,6 +2,7 @@
 #include "globals.hpp"
 #include "readyScene.hpp"
 #include "skyland/rooms/cannon.hpp"
+#include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/scene_pool.hpp"
@@ -38,6 +39,8 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.coins() = 3500;
     app.terrain_cost() = 500;
 
+    app.player().missile_ammo() = 3;
+
 
     app.encountered_island().emplace(pfrm, Layer::map_1_ext, 4, app.opponent());
     app.encountered_island()->show_flag(true);
@@ -47,9 +50,12 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.encountered_island()->add_room<Core>(pfrm, {1, 13});
     app.encountered_island()->add_room<Cannon>(pfrm, {0, 14});
     app.encountered_island()->add_room<Cannon>(pfrm, {0, 13});
-    app.encountered_island()->add_room<Stairwell>(pfrm, {3, 11});
+    // app.encountered_island()->add_room<Stairwell>(pfrm, {3, 11});
+    app.encountered_island()->add_room<MissileSilo>(pfrm, {1, 11});
 
     app.encountered_island()->set_drift(-0.000025f);
+
+    app.opponent().missile_ammo() = 5;
 
     set_island_positions(app.player_island(), *app.encountered_island());
 
