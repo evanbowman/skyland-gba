@@ -75,11 +75,11 @@ void WeaponSetTargetScene::display(Platform& pfrm, App& app)
         return;
     }
 
-    if (not app.encountered_island()) {
+    if (not app.opponent_island()) {
         return;
     }
 
-    auto origin = app.encountered_island()->origin();
+    auto origin = app.opponent_island()->origin();
     origin.x += targets_[selector_].x * 16;
     origin.y += targets_[selector_].y * 16;
 
@@ -108,8 +108,8 @@ void WeaponSetTargetScene::collect_targets(Platform& pfrm, App& app)
 {
     targets_.clear();
 
-    if (app.encountered_island()) {
-        Island& island = *app.encountered_island();
+    if (app.opponent_island()) {
+        Island& island = *app.opponent_island();
 
         for (auto& room : island.rooms()) {
             targets_.push_back(room->position());

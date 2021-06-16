@@ -6,6 +6,7 @@
 #include "room.hpp"
 #include "roomPool.hpp"
 #include "player.hpp"
+#include "entity/character/basicCharacter.hpp"
 
 
 
@@ -20,6 +21,14 @@ public:
     using Rooms = Buffer<RoomPtr<Room>, 20>;
 
 
+    bool add_room(Platform& pfrm, RoomPtr<Room> insert)
+    {
+        auto result = rooms_.push_back(std::move(insert));
+        repaint(pfrm);
+        return result;
+    }
+
+
     template <typename T>
     bool add_room(Platform& pfrm, const Vec2<u8>& position)
     {
@@ -32,6 +41,10 @@ public:
         pfrm.fatal("room pool exhausted");
         return false;
     }
+
+
+    bool add_character(EntityRef<BasicCharacter> character);
+
 
 
     Rooms& rooms();
@@ -124,7 +137,7 @@ public:
     }
 
 
-    EntityList& projectiles()
+    EntityList<Entity>& projectiles()
     {
         return projectiles_;
     }
@@ -136,6 +149,18 @@ public:
     Player& owner()
     {
         return player_;
+    }
+
+
+    bool is_destroyed()
+    {
+        return destroyed_;
+    }
+
+
+    std::optional<Vec2<u8>> chimney_loc() const
+    {
+        return chimney_loc_;
     }
 
 
@@ -151,12 +176,15 @@ private:
     bool interior_visible_;
     bool show_flag_ = false;
 
-    EntityList characters_;
-    EntityList projectiles_;
+    EntityList<BasicCharacter> characters_;
+    EntityList<Entity> projectiles_;
 
     Player& player_;
 
     bool destroyed_ = false;
+
+    std::optional<Vec2<u8>> chimney_loc_;
+    Microseconds chimney_spawn_timer_ = 0;
 };
 
 

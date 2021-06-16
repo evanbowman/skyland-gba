@@ -15,6 +15,11 @@ namespace skyland {
 
 void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (app.player_island().is_destroyed()) {
+        return;
+    }
+
+
     next_action_timer_ -= delta;
 
     if (next_missile_launch_ > 0) {
@@ -22,7 +27,7 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (app.encountered_island() and not app.encountered_island()->get_drift()) {
+    if (app.opponent_island() and not app.opponent_island()->get_drift()) {
         last_missile_launch_ += delta;
     }
 
@@ -33,8 +38,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         u8 matrix[16][16];
         app.player_island().plot_rooms(matrix);
 
-        if (app.encountered_island()) {
-            for (auto& room : app.encountered_island()->rooms()) {
+        if (app.opponent_island()) {
+            for (auto& room : app.opponent_island()->rooms()) {
                 if (auto cannon = dynamic_cast<Cannon*>(&*room)) {
                     set_target(pfrm, app, matrix, *cannon);
                 } else if (auto silo = dynamic_cast<MissileSilo*>(&*room)) {
@@ -52,7 +57,7 @@ void EnemyAI::set_target(Platform& pfrm,
                          const u8 matrix[16][16],
                          MissileSilo& silo)
 {
-    if (next_missile_launch_ > 0) {
+    if (next_missile_launch_ > 0 and silo.health() > 40) {
         return;
     }
 
@@ -84,6 +89,7 @@ void EnemyAI::set_target(Platform& pfrm,
     for (auto& room : silo.parent()->rooms()) {
         if (room->metaclass() == cannon_metac) {
             cannons_remaining = true;
+            break;
         }
     }
 
@@ -188,10 +194,10 @@ void EnemyAI::set_target(Platform& pfrm,
 
 void EnemyAI::on_room_damaged(Platform& pfrm, App& app, Room& room)
 {
-    if (app.encountered_island()) {
+    if (app.opponent_island()) {
 
         // bool weapons_remaining = false;
-        // for (auto& room : app.encountered_island()->rooms()) {
+        // for (auto& room : app.opponent_island()->rooms()) {
         //     if (dynamic_cast<Cannon*>(&*room)) {
         //         weapons_remaining = true;
         //         break;
@@ -209,7 +215,7 @@ void EnemyAI::on_room_damaged(Platform& pfrm, App& app, Room& room)
         //         // cannon!
         //         // Do we have a spot to place it?
         //         bool matrix[16][16];
-        //         app.encountered_island()->plot_construction_zones(matrix);
+        //         app.opponent_island()->plot_construction_zones(matrix);
         //         std::optional<Vec2<u8>> target;
 
         //         [&] {
@@ -224,7 +230,7 @@ void EnemyAI::on_room_damaged(Platform& pfrm, App& app, Room& room)
         //         }();
 
         //         if (target) {
-        //             (*cannon_mt)->create(pfrm, &*app.encountered_island(), *target);
+        //             (*cannon_mt)->create(pfrm, &*app.opponent_island(), *target);
         //             coins_ -= (*cannon_mt)->cost();
         //         }
 

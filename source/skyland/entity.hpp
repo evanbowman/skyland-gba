@@ -103,13 +103,16 @@ using EntityNodePool = Pool<sizeof(EntityNode), Capacity, alignof(Entity)>;
 
 
 
-using EntityList = List<EntityRef<Entity>, EntityNodePool<entity_pool_size>>;
+template <typename T>
+using EntityList = List<EntityRef<T>, EntityNodePool<entity_pool_size>>;
 using EntityPool = Pool<max_entity_size, entity_pool_size, 8>;
 
 
 
-inline void
-update_entities(Platform& pfrm, App& app, Microseconds dt, EntityList& lat)
+
+template <typename T>
+void
+update_entities(Platform& pfrm, App& app, Microseconds dt, EntityList<T>& lat)
 {
     for (auto it = lat.begin(); it not_eq lat.end();) {
         if (not(*it)->alive()) {

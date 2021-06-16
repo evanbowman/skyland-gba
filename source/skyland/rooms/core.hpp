@@ -41,7 +41,7 @@ public:
 
     static const char* name()
     {
-        return "power core";
+        return "power-core";
     }
 
 

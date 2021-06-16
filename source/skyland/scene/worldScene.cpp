@@ -16,36 +16,36 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.updateParallax(delta);
     }
 
-    // if (pfrm.keyboard().down_transition<Key::select>()) {
-    //     app.paused() = not app.paused();
-    //     if (not app.paused()) {
-    //         set_pause_icon(pfrm, false);
-    //     }
-    // }
+    if (pfrm.keyboard().down_transition<Key::select>()) {
+        app.paused() = not app.paused();
+        if (not app.paused()) {
+            set_pause_icon(pfrm, false);
+        }
+    }
 
-    if (app.encountered_island()) {
+    if (app.opponent_island()) {
         // Hey, I threw this code together in a panic for a game jam, I know
-        // this is illegible. Drift encountered island toward the player, until
+        // this is illegible. Drift opponent island toward the player, until
         // a certain distance. If the player extends the terrain on his own
-        // island, drift the encountered island away to maintain the ideal
+        // island, drift the opponent island away to maintain the ideal
         // distance between the two.
-        if ((app.encountered_island()->get_drift() < 0 and
-             (int) app.encountered_island()->get_position().x <=
+        if ((app.opponent_island()->get_drift() < 0 and
+             (int) app.opponent_island()->get_position().x <=
                  (int)app.player_island().terrain().size() * 16 + 48) or
-            (app.encountered_island()->get_drift() > 0 and
-             (int) app.encountered_island()->get_position().x >
+            (app.opponent_island()->get_drift() > 0 and
+             (int) app.opponent_island()->get_position().x >
                  (int)app.player_island().terrain().size() * 16 + 48)) {
 
-            app.encountered_island()->set_position(
+            app.opponent_island()->set_position(
                 {(Float)app.player_island().terrain().size() * 16 + 48,
-                 app.encountered_island()->get_position().y});
-            app.encountered_island()->set_drift(0);
+                 app.opponent_island()->get_position().y});
+            app.opponent_island()->set_drift(0);
         }
 
-        if (app.encountered_island()->get_drift() == 0) {
-            if ((int)app.encountered_island()->get_position().x <
+        if (app.opponent_island()->get_drift() == 0) {
+            if ((int)app.opponent_island()->get_position().x <
                 (int)app.player_island().terrain().size() * 16 + 48) {
-                app.encountered_island()->set_drift(0.00003f);
+                app.opponent_island()->set_drift(0.00003f);
             }
         }
     }
@@ -72,11 +72,11 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         // away. It really only happens when the camera's sitting idle in the
         // same spot for a long time.
 
-        if (app.encountered_island() and UNLIKELY(far_camera_)) {
+        if (app.opponent_island() and UNLIKELY(far_camera_)) {
             auto& cursor_loc =
                 std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
             app.camera().update(
-                pfrm, *app.encountered_island(), cursor_loc, delta, false);
+                pfrm, *app.opponent_island(), cursor_loc, delta, false);
         } else {
             auto& cursor_loc =
                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
@@ -101,8 +101,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         app.player_island().update(pfrm, app, delta);
 
-        if (app.encountered_island()) {
-            app.encountered_island()->update(pfrm, app, delta);
+        if (app.opponent_island()) {
+            app.opponent_island()->update(pfrm, app, delta);
         }
 
         update_entities(pfrm, app, delta, app.effects());
@@ -130,7 +130,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (not persistent_coins_) {
             coin_hide_timer_ += delta;
-            if (coin_hide_timer_ > seconds(2)) {
+            if (coin_hide_timer_ > seconds(4)) {
                 coins_.reset();
                 coin_hide_timer_ = 0;
             }
@@ -146,13 +146,13 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (not app.paused()) {
-        if (app.encountered_island()) {
+        if (app.opponent_island()) {
             for (auto& projectile : app.player_island().projectiles()) {
-                app.encountered_island()->test_collision(
+                app.opponent_island()->test_collision(
                     pfrm, app, *projectile);
             }
 
-            for (auto& projectile : app.encountered_island()->projectiles()) {
+            for (auto& projectile : app.opponent_island()->projectiles()) {
                 app.player_island().test_collision(pfrm, app, *projectile);
             }
 
@@ -160,8 +160,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.player_island().test_collision(pfrm, app, *projectile);
             }
 
-            for (auto& projectile : app.encountered_island()->projectiles()) {
-                app.encountered_island()->test_collision(
+            for (auto& projectile : app.opponent_island()->projectiles()) {
+                app.opponent_island()->test_collision(
                     pfrm, app, *projectile);
             }
         }

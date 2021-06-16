@@ -36,7 +36,7 @@ public:
 
     static const char* name()
     {
-        return "missile silo";
+        return "missile-silo";
     }
 
 

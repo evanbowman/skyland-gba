@@ -7,6 +7,8 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/alloc_entity.hpp"
+#include "loadLevelScene.hpp"
 
 
 
@@ -14,53 +16,40 @@ namespace skyland {
 
 
 
-void set_island_positions(Island& left_island, Island& right_island)
-{
-    left_island.set_position({10, 374});
-    // Pretty much as far away as possible, without wrapping across the screen.
-    right_island.set_position(
-        {Float(350 + 16 * (10 - right_island.terrain().size())), 374});
-}
+// void set_island_positions(Island& left_island, Island& right_island)
+// {
+//     left_island.set_position({10, 374});
+//     // Pretty much as far away as possible, without wrapping across the screen.
+//     right_island.set_position(
+//         {Float(350 + 16 * (10 - right_island.terrain().size())), 374});
+// }
 
 
 
 ScenePtr<Scene>
 NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    pfrm.screen().fade(1.f);
+
     pfrm.load_tile0_texture("tilesheet");
     pfrm.load_tile1_texture("tilesheet_enemy_0");
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-    cursor_loc.x = 0;
-    cursor_loc.y = 14;
 
     app.player_island().add_room<Core>(pfrm, {1, 13});
 
-    app.coins() = 3500;
+    app.coins() = 2500;
     app.terrain_cost() = 500;
 
     app.player().missile_ammo() = 3;
 
 
-    app.encountered_island().emplace(pfrm, Layer::map_1_ext, 4, app.opponent());
-    app.encountered_island()->show_flag(true);
-    app.encountered_island()->set_float_timer(
-        std::numeric_limits<Microseconds>::max() / 2);
-
-    app.encountered_island()->add_room<Core>(pfrm, {1, 13});
-    app.encountered_island()->add_room<Cannon>(pfrm, {0, 14});
-    app.encountered_island()->add_room<Cannon>(pfrm, {0, 13});
-    // app.encountered_island()->add_room<Stairwell>(pfrm, {3, 11});
-    app.encountered_island()->add_room<MissileSilo>(pfrm, {1, 11});
-
-    app.encountered_island()->set_drift(-0.000025f);
-
-    app.opponent().missile_ammo() = 5;
-
-    set_island_positions(app.player_island(), *app.encountered_island());
+    auto chr = alloc_entity<BasicCharacter>(&app.player_island(),
+                                            Vec2<u8>({2, 14}));
+    while (not chr);
+    app.player_island().add_character(std::move(chr));
 
 
-    return scene_pool::alloc<ReadyScene>();
+    return scene_pool::alloc<LoadLevelScene>("test.lisp");
 }
 
 

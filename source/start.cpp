@@ -27,6 +27,8 @@ void skyland_main_loop(Platform& pf)
 
     skyland::App app(pf);
 
+    app.init_scripts(pf);
+
     pf.enable_glyph_mode(true);
     pf.load_overlay_texture("overlay");
     pf.load_sprite_texture("spritesheet");

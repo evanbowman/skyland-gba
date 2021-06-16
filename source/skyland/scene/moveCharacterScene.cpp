@@ -48,6 +48,8 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
     // TODO: again, parameterize island. Currently using near cursor.
     auto cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
+    initial_cursor_ = cursor_loc;
+
     if (not(*matrix_)[cursor_loc.x][cursor_loc.y]) {
         for (int x = 0; x < 16; ++x) {
             for (int y = 0; y < 16; ++y) {
@@ -149,7 +151,22 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (pfrm.keyboard().down_transition<Key::action_1>()) {
-        // TODO... move the character...
+        // FIXME: this instantly jumps the character to a room. We want to
+        // actually calculate a path, and have the character walk.
+        if (auto room = app.player_island().get_room(initial_cursor_)) {
+            for (auto it = room->characters().begin(); it not_eq room->characters().end(); ++it) {
+                if ((*it)->grid_position() == initial_cursor_) {
+                    if (auto new_room = app.player_island().get_room(cursor_loc)) {
+                        (*it)->set_grid_position(cursor_loc);
+                        auto unlinked = std::move(*it);
+                        room->characters().erase(it);
+                        new_room->add_occupant(std::move(unlinked));
+                        return scene_pool::alloc<ReadyScene>();
+                    }
+                }
+            }
+
+        }
     }
 
     return null_scene();

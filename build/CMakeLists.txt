@@ -67,12 +67,14 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
+  ${SOURCE_DIR}/skyland/script_defs.cpp
   ${SOURCE_DIR}/skyland/opponent/enemyAI.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
   ${SOURCE_DIR}/skyland/room_metatable.cpp
   ${SOURCE_DIR}/skyland/entity/explosion/explosion.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
+  ${SOURCE_DIR}/skyland/entity/character/basicCharacter.cpp
   ${SOURCE_DIR}/skyland/rooms/core.cpp
   ${SOURCE_DIR}/skyland/rooms/hull.cpp
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
@@ -82,11 +84,14 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/exteriorWall.cpp
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp
+  ${SOURCE_DIR}/skyland/scene/fadeInScene.cpp
   ${SOURCE_DIR}/skyland/scene/newgameScene.cpp
+  ${SOURCE_DIR}/skyland/scene/loadLevelScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
-  ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp)
+  ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp
+  ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp)
 
 
 set(SOURCES
@@ -149,10 +154,7 @@ if(GAMEBOY_ADVANCE)
 
     # Data files below. Because the gameboy advance does not have a filesystem,
     # all of the sounds and images need to be compiled into the ROM.
-    ${DATA_DIR}/file_init.cpp
-    ${DATA_DIR}/file_pre_levelgen.cpp
-    ${DATA_DIR}/file_post_levelgen.cpp
-    ${DATA_DIR}/file_waypoint_clear.cpp
+    ${DATA_DIR}/file_test.cpp
     ${DATA_DIR}/file_english.cpp
     ${DATA_DIR}/file_spanish.cpp
     ${DATA_DIR}/file_chinese.cpp
@@ -389,10 +391,7 @@ if(GAMEBOY_ADVANCE)
     -mcpu=arm7tdmi
     -mtune=arm7tdmi)
 
-  add_file(scripts init lisp)
-  add_file(scripts pre_levelgen lisp)
-  add_file(scripts post_levelgen lisp)
-  add_file(scripts waypoint_clear lisp)
+  add_file(scripts test lisp)
 
   add_file(strings english txt)
   add_file(strings spanish txt)

@@ -69,17 +69,17 @@ void App::render(Platform& pfrm)
     pfrm.enable_feature("_prlx7", (u8)cloud_scroll_1_);
     pfrm.enable_feature("_prlx8", (u8)cloud_scroll_2_);
 
+    current_scene_->display(pfrm, *this);
+
     player_island_.display(pfrm);
 
-    if (encountered_island_) {
-        encountered_island_->display(pfrm);
+    if (opponent_island_) {
+        opponent_island_->display(pfrm);
     }
 
     for (auto& effect : effects_) {
         pfrm.screen().draw(effect->sprite());
     }
-
-    current_scene_->display(pfrm, *this);
 }
 
 

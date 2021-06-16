@@ -1164,7 +1164,7 @@ void Platform::Screen::display()
     // Civilization clone, but for BlindJump, it doesn't make sense to display
     // the wrapped area).
     const s32 scroll_limit_x_max = 512 - size().x;
-    const s32 scroll_limit_y_max = 480 - size().y;
+    // const s32 scroll_limit_y_max = 480 - size().y;
     if (view_offset.x > scroll_limit_x_max) {
         REG_WIN0H =
             (0 << 8) | (size().x - (view_offset.x - scroll_limit_x_max));
@@ -1174,14 +1174,14 @@ void Platform::Screen::display()
         REG_WIN0H = (0 << 8) | (size().x);
     }
 
-    if (view_offset.y > scroll_limit_y_max) {
-        REG_WIN0V =
-            (0 << 8) | (size().y - (view_offset.y - scroll_limit_y_max));
-    } else if (view_offset.y < 0) {
-        REG_WIN0V = ((view_offset.y * -1) << 8) | (0);
-    } else {
+    // if (view_offset.y > scroll_limit_y_max) {
+    //     REG_WIN0V =
+    //         (0 << 8) | (size().y - (view_offset.y - scroll_limit_y_max));
+    // } else if (view_offset.y < 0) {
+    //     REG_WIN0V = ((view_offset.y * -1) << 8) | (0);
+    // } else {
         REG_WIN0V = (0 << 8) | (size().y);
-    }
+    // }
 
     if (not get_gflag(GlobalFlag::parallax_clouds)) {
         *bg1_x_scroll = view_offset.x * 0.3f;

@@ -6,6 +6,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "worldScene.hpp"
+#include "skyland/scene/playerIslandDestroyedScene.hpp"
 
 
 
@@ -15,6 +16,35 @@ namespace skyland {
 
 ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (app.player_island().is_destroyed()) {
+        // app.on_timeout(pfrm, milliseconds(120), [](Platform& pfrm, App& app) {
+        //     auto origin = app.player_island().origin();
+        //     origin.x += (app.player_island().terrain().size() / 2) * 16;
+        //     medium_explosion(pfrm, app, origin);
+        // });
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+        cursor_loc.x = 0;
+
+        app.effects().clear();
+        return scene_pool::alloc<PlayerIslandDestroyedScene>(&app.player_island());
+    }
+
+
+    if (app.opponent_island() and
+        app.opponent_island()->is_destroyed()) {
+
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+        cursor_loc.x = 0;
+
+        app.effects().clear();
+        return scene_pool::alloc<PlayerIslandDestroyedScene>(&*app.opponent_island());
+    }
+
+
     if (auto scene = WorldScene::update(pfrm, app, delta)) {
         return scene;
     }

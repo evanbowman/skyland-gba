@@ -41,6 +41,13 @@ Island::Rooms& Island::rooms()
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;
+    chimney_spawn_timer_ += dt;
+
+    if (chimney_spawn_timer_ > milliseconds(100)) {
+        chimney_spawn_timer_ = 0;
+
+        // TODO...
+    }
 
     ambient_movement_ = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
                         std::numeric_limits<s16>::max();
@@ -49,6 +56,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     for (auto it = rooms_.begin(); it not_eq rooms_.end();) {
         if ((*it)->health() == 0) {
             big_explosion(pfrm, app, (*it)->center());
+
             it = rooms_.erase(it);
 
             bool has_core = false;
@@ -94,9 +102,11 @@ void Island::display(Platform& pfrm)
         pfrm.screen().draw(p->sprite());
     }
 
-    for (auto& room : rooms_) {
-        for (auto& c : room->characters()) {
-            pfrm.screen().draw(c->sprite());
+    if (interior_visible()) {
+        for (auto& room : rooms_) {
+            for (auto& c : room->characters()) {
+                pfrm.screen().draw(c->sprite());
+            }
         }
     }
 }
@@ -217,6 +227,16 @@ void Island::plot_rooms(u8 matrix[16][16]) const
 
 
 
+bool Island::add_character(EntityRef<BasicCharacter> character)
+{
+    if (auto room = get_room(character->grid_position())) {
+        return room->add_occupant(std::move(character));
+    }
+    return false;
+}
+
+
+
 void Island::plot_walkable_zones(bool matrix[16][16]) const
 {
     for (int x = 0; x < 16; ++x) {
@@ -286,6 +306,8 @@ void Island::repaint(Platform& pfrm)
         }
     }
 
+    chimney_loc_.reset();
+
     bool placed_flag = false;
 
     for (int x = 0; x < 16; ++x) {
@@ -297,6 +319,7 @@ void Island::repaint(Platform& pfrm)
                     if (loc == x) {
                         pfrm.set_tile(layer_, x, y, Tile::roof_chimney);
                         chimney = true;
+                        chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
                     }
                 }
                 if (not chimney and show_flag_ and not placed_flag) {

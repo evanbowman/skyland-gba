@@ -57,13 +57,13 @@ public:
     }
 
 
-    std::optional<Island>& encountered_island()
+    std::optional<Island>& opponent_island()
     {
-        return encountered_island_;
+        return opponent_island_;
     }
 
 
-    EntityList& effects()
+    EntityList<Entity>& effects()
     {
         return effects_;
     }
@@ -96,6 +96,15 @@ public:
     }
 
 
+    void init_scripts(Platform& pfrm);
+
+
+    Coins& victory_coins()
+    {
+        return victory_coins_;
+    }
+
+
 private:
     Island player_island_;
     Float cloud_scroll_1_;
@@ -104,12 +113,13 @@ private:
     ScenePtr<Scene> next_scene_;
     Coins coins_ = 0;
     Coins terrain_cost_ = 0;
+    Coins victory_coins_ = 0;
     Camera camera_;
     bool paused_ = false;
 
-    EntityList effects_;
+    EntityList<Entity> effects_;
 
-    std::optional<Island> encountered_island_;
+    std::optional<Island> opponent_island_;
 
     Buffer<std::pair<DeferredCallback, Microseconds>, 10> deferred_callbacks_;
 

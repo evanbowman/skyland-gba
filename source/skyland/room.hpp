@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entity.hpp"
+#include "entity/character/basicCharacter.hpp"
 #include "health.hpp"
 #include "number/numeric.hpp"
 #include "platform/layer.hpp"
@@ -22,6 +23,7 @@ class Entity;
 class Island;
 class RoomMeta;
 class Cannonball;
+class BasicCharacter;
 
 
 
@@ -39,9 +41,10 @@ public:
          Health health);
 
 
-    virtual bool add_occupant(Entity* entity)
+    virtual bool add_occupant(EntityRef<BasicCharacter> entity)
     {
-        return false;
+        characters_.push(std::move(entity));
+        return true;
     }
 
 
@@ -123,7 +126,7 @@ public:
     }
 
 
-    EntityList& characters()
+    EntityList<BasicCharacter>& characters()
     {
         return characters_;
     }
@@ -138,7 +141,7 @@ public:
 private:
     Island* parent_;
     RoomMeta* metaclass_;
-    EntityList characters_;
+    EntityList<BasicCharacter> characters_;
     Vec2<u8> size_;
     Vec2<u8> position_;
     Health health_;

@@ -114,8 +114,8 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
 Island* Room::other_island(App& app)
 {
     if (&app.player_island() == parent_) {
-        if (app.encountered_island()) {
-            return &*app.encountered_island();
+        if (app.opponent_island()) {
+            return &*app.opponent_island();
         }
         return nullptr;
     } else {
@@ -150,12 +150,15 @@ ScenePtr<Scene> Room::select(Platform& pfrm)
 {
     if (parent_->interior_visible()) {
         if (length(characters_)) {
-            // TODO...  In the default implementation, select a character if the
-            // cursor overlaps with one of the characters assigned to the room.
-        }
+            auto cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
-        // Just a test...
-        return scene_pool::alloc<MoveCharacterScene>(pfrm);
+            for (auto& character : characters_) {
+                if (character->grid_position() == cursor_loc) {
+                    return scene_pool::alloc<MoveCharacterScene>(pfrm);
+                }
+            }
+
+        }
     }
 
     return null_scene();

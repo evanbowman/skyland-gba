@@ -31,7 +31,7 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
 
         auto island = other_island(app);
 
-        if (island) {
+        if (island and not island->is_destroyed()) {
             if (target_) {
                 if (auto room = island->get_room(*target_)) {
                     app.camera().shake(4);

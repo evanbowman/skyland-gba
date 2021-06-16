@@ -24,7 +24,7 @@ void Hull::update(Platform& pfrm, App& app, Microseconds delta)
 
 void Hull::render_interior(Platform& pfrm, Layer layer)
 {
-    pfrm.set_tile(layer, position().x, position().y, InteriorTile::empty);
+    pfrm.set_tile(layer, position().x, position().y, InteriorTile::hull);
 }
 
 
