@@ -16,12 +16,12 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.updateParallax(delta);
     }
 
-    if (pfrm.keyboard().down_transition<Key::select>()) {
-        app.paused() = not app.paused();
-        if (not app.paused()) {
-            set_pause_icon(pfrm, false);
-        }
-    }
+    // if (pfrm.keyboard().down_transition<Key::select>()) {
+    //     app.paused() = not app.paused();
+    //     if (not app.paused()) {
+    //         set_pause_icon(pfrm, false);
+    //     }
+    // }
 
     if (app.encountered_island()) {
         // Hey, I threw this code together in a panic for a game jam, I know
@@ -97,6 +97,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (not app.paused()) {
+        app.opponent().update(pfrm, app, delta);
+
         app.player_island().update(pfrm, app, delta);
 
         if (app.encountered_island()) {

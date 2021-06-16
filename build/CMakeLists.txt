@@ -67,6 +67,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
+  ${SOURCE_DIR}/skyland/opponent/enemyAI.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
   ${SOURCE_DIR}/skyland/room_metatable.cpp
   ${SOURCE_DIR}/skyland/entity/explosion/explosion.cpp
@@ -76,6 +77,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
+  ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/exteriorWall.cpp
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp

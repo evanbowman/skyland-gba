@@ -7,12 +7,13 @@
 #include "skyland/rooms/hull.hpp"
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/workshop.hpp"
+#include "skyland/rooms/missileSilo.hpp"
 
 
 namespace skyland {
 
 
-RoomMetatable<Hull, Cannon, Core, Workshop, Stairwell> __room_metatable;
+RoomMetatable<Hull, Cannon, MissileSilo, Stairwell, Workshop, Core> __room_metatable;
 
 
 std::pair<RoomMeta*, int> room_metatable()

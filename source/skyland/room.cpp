@@ -186,6 +186,7 @@ void Room::plot_walkable_zones(bool matrix[16][16])
 void Room::on_collision(Platform& pfrm, App& app, Entity& entity)
 {
     set_injured(pfrm);
+    parent_->owner().on_room_damaged(pfrm, *this);
 }
 
 

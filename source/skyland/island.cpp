@@ -11,10 +11,11 @@ namespace skyland {
 
 
 
-Island::Island(Platform& pfrm, Layer layer, u8 width)
+Island::Island(Platform& pfrm, Layer layer, u8 width, Player& player)
     : layer_(layer), timer_(0), interior_visible_(false),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      projectiles_(std::get<SkylandGlobalData>(globals()).entity_node_pool_)
+      projectiles_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
+      player_(player)
 {
     terrain_.push_back(13), --width;
 

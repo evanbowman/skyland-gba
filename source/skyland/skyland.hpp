@@ -6,6 +6,9 @@
 #include "island.hpp"
 #include "platform/platform.hpp"
 #include "scene.hpp"
+#include "player.hpp"
+#include "opponent/enemyAI.hpp"
+
 
 
 
@@ -81,6 +84,12 @@ public:
     }
 
 
+    Opponent& opponent()
+    {
+        return enemy_ai_;
+    }
+
+
 private:
     Island player_island_;
     Float cloud_scroll_1_;
@@ -97,6 +106,10 @@ private:
     std::optional<Island> encountered_island_;
 
     Buffer<std::pair<DeferredCallback, Microseconds>, 10> deferred_callbacks_;
+
+    Player player_; // Just a null sentinel object essentially...
+
+    EnemyAI enemy_ai_;
 };
 
 

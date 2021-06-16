@@ -5,6 +5,8 @@
 #include "memory/buffer.hpp"
 #include "room.hpp"
 #include "roomPool.hpp"
+#include "player.hpp"
+
 
 
 namespace skyland {
@@ -12,7 +14,7 @@ namespace skyland {
 
 class Island {
 public:
-    Island(Platform& pfrm, Layer layer, u8 width);
+    Island(Platform& pfrm, Layer layer, u8 width, Player& player);
 
 
     using Rooms = Buffer<RoomPtr<Room>, 20>;
@@ -131,6 +133,12 @@ public:
     void test_collision(Platform&, App&, Entity& entity);
 
 
+    Player& owner()
+    {
+        return player_;
+    }
+
+
 private:
     Rooms rooms_;
     const Layer layer_;
@@ -145,6 +153,8 @@ private:
 
     EntityList characters_;
     EntityList projectiles_;
+
+    Player& player_;
 };
 
 

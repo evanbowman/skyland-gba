@@ -21,6 +21,13 @@ struct Tile {
         grass,
         reserved_1,
         hull,
+        reserved_2,
+        reserved_3,
+        reserved_4,
+        reserved_5,
+        reserved_6,
+        missile_silo_1,
+        missile_silo_2,
         roof_flag = 109,
         flag = 110,
     };
@@ -48,5 +55,8 @@ struct InteriorTile {
         workshop_2,
         workshop_3,
         workshop_4,
+        path_marker,
+        missile_silo_1,
+        missile_silo_2,
     };
 };

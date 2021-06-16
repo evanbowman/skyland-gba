@@ -10,9 +10,9 @@ namespace skyland {
 
 
 
-class Cannon : public Room {
+class MissileSilo : public Room {
 public:
-    Cannon(Island* parent, const Vec2<u8>& position);
+    MissileSilo(Island* parent, const Vec2<u8>& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -30,23 +30,20 @@ public:
 
     static Vec2<u8> size()
     {
-        return {1, 1};
+        return {1, 2};
     }
 
 
     static const char* name()
     {
-        return "cannon";
+        return "missile silo";
     }
 
 
     static Coins cost()
     {
-        return 1000;
+        return 1800;
     }
-
-
-    ScenePtr<Scene> select(Platform& pfrm) override;
 
 
     void set_target(const Vec2<u8>& target) override

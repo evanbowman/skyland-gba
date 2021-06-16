@@ -39,7 +39,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.terrain_cost() = 500;
 
 
-    app.encountered_island().emplace(pfrm, Layer::map_1_ext, 4);
+    app.encountered_island().emplace(pfrm, Layer::map_1_ext, 4, app.opponent());
     app.encountered_island()->show_flag(true);
     app.encountered_island()->set_float_timer(
         std::numeric_limits<Microseconds>::max() / 2);
