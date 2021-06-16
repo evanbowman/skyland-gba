@@ -36,7 +36,18 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
                 if (auto room = island->get_room(*target_)) {
                     app.camera().shake(4);
 
-                    auto c = alloc_entity<Cannonball>(center(),
+                    auto start = center();
+
+                    // This just makes it a bit less likely for cannonballs to
+                    // run into the player's own buildings, especially around
+                    // corners.
+                    if (island == &app.player_island()) {
+                        start.x -= 6;
+                    } else {
+                        start.x += 6;
+                    }
+
+                    auto c = alloc_entity<Cannonball>(start,
                                                       room->center(),
                                                       parent());
                     parent()->projectiles().push(std::move(c));
