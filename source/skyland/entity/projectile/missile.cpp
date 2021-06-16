@@ -44,7 +44,7 @@ void Missile::update(Platform&, App&, Microseconds delta)
             state_ = State::wait;
         }
         auto pos = sprite_.get_position();
-        pos.y -= delta * 0.0003f * speed_;
+        pos.y -= delta * 0.0003f;
         sprite_.set_position(pos);
         break;
     }
@@ -61,12 +61,12 @@ void Missile::update(Platform&, App&, Microseconds delta)
         break;
 
     case State::falling:
-        if (timer_ > seconds(4)) {
+        if (timer_ > seconds(400)) {
             timer_ = 0;
             kill();
         }
         auto pos = sprite_.get_position();
-        pos.y += delta * 0.00035f;
+        pos.y += delta * 0.00041f;
         sprite_.set_position(pos);
         break;
     }

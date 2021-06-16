@@ -33,7 +33,7 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
             if (target_) {
                 if (auto room = island->get_room(*target_)) {
                     auto start = center();
-                    start.y -= 46;
+                    start.y -= 24;
 
                     app.camera().shake(6);
 
