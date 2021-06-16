@@ -131,7 +131,7 @@ void EnemyAI::set_target(Platform& pfrm,
         last_missile_launch_ > seconds(30)) {
         if (highest_weighted_room) {
             silo.set_target(highest_weighted_room->position());
-            next_missile_launch_= seconds(5);
+            next_missile_launch_= seconds(6);
             last_missile_launch_ = 0;
         }
     }
