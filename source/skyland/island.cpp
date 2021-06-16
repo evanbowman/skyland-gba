@@ -4,6 +4,7 @@
 #include "number/random.hpp"
 #include "roomPool.hpp"
 #include "tile.hpp"
+#include "rooms/core.hpp"
 
 
 
@@ -49,6 +50,18 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         if ((*it)->health() == 0) {
             big_explosion(pfrm, app, (*it)->center());
             it = rooms_.erase(it);
+
+            bool has_core = false;
+            for (auto& room : rooms_) {
+                if (dynamic_cast<Core*>(&*room)) {
+                    has_core = true;
+                    break;
+                }
+            }
+            if (not has_core) {
+                destroyed_ = true;
+            }
+
             repaint(pfrm);
         } else {
             (*it)->update(pfrm, app, dt);

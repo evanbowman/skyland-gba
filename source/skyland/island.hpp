@@ -155,6 +155,8 @@ private:
     EntityList projectiles_;
 
     Player& player_;
+
+    bool destroyed_ = false;
 };
 
 

@@ -5,6 +5,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/entity/projectile/missile.hpp"
 
 
 
@@ -22,6 +23,29 @@ MissileSilo::MissileSilo(Island* parent, const Vec2<u8>& position)
 void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
+
+    if (load_ > 0) {
+        load_ -= delta;
+    } else {
+        auto island = other_island(app);
+
+        if (island) {
+            if (target_) {
+                if (auto room = island->get_room(*target_)) {
+                    auto start = center();
+                    start.y -= 46;
+
+                    app.camera().shake(6);
+
+                    auto m = alloc_entity<Missile>(start, room->center());
+
+                    parent()->projectiles().push(std::move(m));
+                }
+
+                target_.reset();
+            }
+        }
+    }
 }
 
 
@@ -40,6 +64,12 @@ void MissileSilo::render_exterior(Platform& pfrm, Layer layer)
     pfrm.set_tile(layer, position().x, position().y + 1, Tile::missile_silo_2);
 }
 
+
+ScenePtr<Scene> MissileSilo::select(Platform& pfrm)
+{
+    load_ = load_time;
+    return scene_pool::alloc<WeaponSetTargetScene>(position());
+}
 
 
 } // namespace skyland
