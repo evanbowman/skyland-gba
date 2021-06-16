@@ -36,7 +36,9 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
                 if (auto room = island->get_room(*target_)) {
                     app.camera().shake(4);
 
-                    auto c = alloc_entity<Cannonball>(center(), room->center());
+                    auto c = alloc_entity<Cannonball>(center(),
+                                                      room->center(),
+                                                      parent());
                     parent()->projectiles().push(std::move(c));
                 }
             }

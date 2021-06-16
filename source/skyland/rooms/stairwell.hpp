@@ -24,6 +24,12 @@ public:
     void plot_walkable_zones(bool matrix[16][16]) override;
 
 
+    static Float ai_base_weight()
+    {
+        return 50.f;
+    }
+
+
     static Vec2<u8> size()
     {
         return {1, 4};

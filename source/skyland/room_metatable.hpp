@@ -20,6 +20,7 @@ struct RoomMeta {
         virtual const char* name() const = 0;
         virtual Vec2<u8> size() const = 0;
         virtual Coins cost() const = 0;
+        virtual Float ai_base_weight() const = 0;
     };
 
     template <typename T> struct BoxImpl : public Box {
@@ -43,6 +44,11 @@ struct RoomMeta {
         virtual Coins cost() const override
         {
             return T::cost();
+        }
+
+        virtual Float ai_base_weight() const override
+        {
+            return T::ai_base_weight();
         }
     };
 
@@ -108,6 +114,9 @@ public:
 
 
 std::pair<RoomMeta*, int> room_metatable();
+
+
+RoomMeta* load_metaclass(const char* name);
 
 
 } // namespace skyland

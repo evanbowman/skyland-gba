@@ -12,7 +12,9 @@ namespace skyland {
 
 class Cannonball : public Projectile {
 public:
-    Cannonball(const Vec2<Float>& position, const Vec2<Float>& target);
+    Cannonball(const Vec2<Float>& position,
+               const Vec2<Float>& target,
+               Island* source);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -24,6 +26,7 @@ public:
 private:
     Microseconds timer_ = 0;
     Vec2<Float> step_vector_;
+    Island* source_;
 };
 
 

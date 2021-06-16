@@ -4,6 +4,7 @@
 #include "cannonball.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/room.hpp"
+#include "skyland/rooms/cannon.hpp"
 
 
 
@@ -11,8 +12,11 @@ namespace skyland {
 
 
 
-Cannonball::Cannonball(const Vec2<Float>& position, const Vec2<Float>& target)
-    : Projectile({{10, 10}, {8, 8}})
+Cannonball::Cannonball(const Vec2<Float>& position,
+                       const Vec2<Float>& target,
+                       Island* source)
+    : Projectile({{10, 10}, {8, 8}}),
+      source_(source)
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -43,10 +47,14 @@ void Cannonball::update(Platform&, App&, Microseconds delta)
 
 void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
 {
+    // Argh. I know, I shouldn't be doing this.
+    if (source_ == room.parent() and dynamic_cast<Cannon*>(&room)) {
+        return;
+    }
     kill();
     app.camera().shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
-    room.apply_damage(40);
+    room.apply_damage(pfrm, app, 40);
 }
 
 

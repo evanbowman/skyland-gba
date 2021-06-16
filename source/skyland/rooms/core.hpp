@@ -27,6 +27,12 @@ public:
     }
 
 
+    static Float ai_base_weight()
+    {
+        return 1000.f;
+    }
+
+
     static Vec2<u8> size()
     {
         return {2, 2};
@@ -41,7 +47,7 @@ public:
 
     static Coins cost()
     {
-        return 2500;
+        return 3000;
     }
 };
 

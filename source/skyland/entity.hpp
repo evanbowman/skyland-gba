@@ -86,7 +86,7 @@ protected:
 
 static constexpr const int entity_pool_size = 64;
 static constexpr const int entity_pool_align = 8;
-static constexpr const int max_entity_size = 64;
+static constexpr const int max_entity_size = 96;
 
 
 

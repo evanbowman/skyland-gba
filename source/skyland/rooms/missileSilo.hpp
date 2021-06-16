@@ -46,6 +46,12 @@ public:
     }
 
 
+    static Float ai_base_weight()
+    {
+        return 600.f;
+    }
+
+
     void set_target(const Vec2<u8>& target) override
     {
         target_ = target;

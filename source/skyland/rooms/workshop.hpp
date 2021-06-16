@@ -33,6 +33,12 @@ public:
     }
 
 
+    static Float ai_base_weight()
+    {
+        return 700.f;
+    }
+
+
     static Coins cost()
     {
         return 1000;

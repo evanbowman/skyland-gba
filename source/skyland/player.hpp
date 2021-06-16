@@ -11,6 +11,7 @@ namespace skyland {
 
 
 class Room;
+class App;
 
 
 
@@ -19,7 +20,7 @@ public:
     virtual ~Player() {}
 
 
-    virtual void on_room_damaged(Platform& pfrm, Room& room) {}
+    virtual void on_room_damaged(Platform& pfrm, App& app, Room& room) {}
 };
 
 

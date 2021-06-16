@@ -34,6 +34,12 @@ public:
     }
 
 
+    static Float ai_base_weight()
+    {
+        return 1.f;
+    }
+
+
     static Vec2<u8> size()
     {
         return {1, 1};

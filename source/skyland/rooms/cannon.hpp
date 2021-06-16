@@ -46,6 +46,12 @@ public:
     }
 
 
+    static Float ai_base_weight()
+    {
+        return 800.f;
+    }
+
+
     ScenePtr<Scene> select(Platform& pfrm) override;
 
 

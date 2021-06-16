@@ -76,6 +76,12 @@ public:
     }
 
 
+    Vec2<u8>& __position()
+    {
+        return position_;
+    }
+
+
     const Vec2<u8>& size() const
     {
         return size_;
@@ -93,14 +99,7 @@ public:
     void on_collision(Platform& pfrm, App& app, Entity& entity);
 
 
-    void apply_damage(Health damage)
-    {
-        if (damage > health_) {
-            health_ = 0;
-        } else {
-            health_ -= damage;
-        }
-    }
+    void apply_damage(Platform&, App&, Health damage);
 
 
     virtual void plot_walkable_zones(bool matrix[16][16]);
