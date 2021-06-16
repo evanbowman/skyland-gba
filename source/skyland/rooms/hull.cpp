@@ -9,7 +9,7 @@ namespace skyland {
 
 
 Hull::Hull(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(200))
+    : Room(parent, name(), size(), position, Health(230))
 {
 }
 
