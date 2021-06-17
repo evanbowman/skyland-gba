@@ -1,6 +1,7 @@
 #include "skyland.hpp"
 #include "globals.hpp"
 #include "platform/platform.hpp"
+#include "number/random.hpp"
 
 
 
@@ -16,10 +17,13 @@ App::App(Platform& pfrm)
     : player_island_(pfrm, Layer::map_0_ext, 5, player_),
       current_scene_(null_scene()),
       next_scene_(null_scene()),
-      effects_(std::get<SkylandGlobalData>(globals()).entity_node_pool_)
+      effects_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
+      birbs_(std::get<SkylandGlobalData>(globals()).entity_node_pool_)
 {
     current_scene_ = initial_scene();
-    current_scene_->enter(pfrm, *this, *current_scene_);
+    next_scene_ = initial_scene();
+
+    rng::get(rng::critical_state);
 
     init_clouds(pfrm);
 }
@@ -70,16 +74,6 @@ void App::render(Platform& pfrm)
     pfrm.enable_feature("_prlx8", (u8)cloud_scroll_2_);
 
     current_scene_->display(pfrm, *this);
-
-    player_island_.display(pfrm);
-
-    if (opponent_island_) {
-        opponent_island_->display(pfrm);
-    }
-
-    for (auto& effect : effects_) {
-        pfrm.screen().draw(effect->sprite());
-    }
 }
 
 

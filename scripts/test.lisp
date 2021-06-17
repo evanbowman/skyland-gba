@@ -2,6 +2,7 @@
 
 (init-opponent 3)
 
+
 (configure-player
  (opponent)
  '((cannon 0 13)

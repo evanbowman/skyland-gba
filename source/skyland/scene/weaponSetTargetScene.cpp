@@ -71,6 +71,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void WeaponSetTargetScene::display(Platform& pfrm, App& app)
 {
+    WorldScene::display(pfrm, app);
+
     if (targets_.empty()) {
         return;
     }

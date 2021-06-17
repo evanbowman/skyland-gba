@@ -8,6 +8,7 @@
 #include "scene.hpp"
 #include "player.hpp"
 #include "opponent/enemyAI.hpp"
+#include "worldMap.hpp"
 
 
 
@@ -105,6 +106,24 @@ public:
     }
 
 
+    EntityList<Entity>& birbs()
+    {
+        return birbs_;
+    }
+
+
+    Microseconds& birb_counter()
+    {
+        return birb_counter_;
+    }
+
+
+    WorldMap& world_map()
+    {
+        return world_map_;
+    }
+
+
 private:
     Island player_island_;
     Float cloud_scroll_1_;
@@ -116,8 +135,12 @@ private:
     Coins victory_coins_ = 0;
     Camera camera_;
     bool paused_ = false;
+    WorldMap world_map_;
 
     EntityList<Entity> effects_;
+    EntityList<Entity> birbs_;
+
+    Microseconds birb_counter_;
 
     std::optional<Island> opponent_island_;
 

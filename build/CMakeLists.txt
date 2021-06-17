@@ -65,9 +65,11 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/room.cpp
   ${SOURCE_DIR}/skyland/island.cpp
   ${SOURCE_DIR}/skyland/camera.cpp
+  ${SOURCE_DIR}/skyland/serial.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
   ${SOURCE_DIR}/skyland/script_defs.cpp
+  ${SOURCE_DIR}/skyland/configure_island.cpp
   ${SOURCE_DIR}/skyland/opponent/enemyAI.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
   ${SOURCE_DIR}/skyland/room_metatable.cpp
@@ -86,6 +88,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp
   ${SOURCE_DIR}/skyland/scene/fadeInScene.cpp
   ${SOURCE_DIR}/skyland/scene/newgameScene.cpp
+  ${SOURCE_DIR}/skyland/scene/worldMapScene.cpp
   ${SOURCE_DIR}/skyland/scene/loadLevelScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
@@ -161,6 +164,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/file_russian.cpp
     ${DATA_DIR}/music_chantiers_navals_412.s
     ${DATA_DIR}/overlay.s
+    ${DATA_DIR}/overlay_world_map.s
     ${DATA_DIR}/charset.s
     ${DATA_DIR}/tilesheet.s
     ${DATA_DIR}/tilesheet_enemy_0.s
@@ -410,6 +414,7 @@ if(GAMEBOY_ADVANCE)
     add_tilesheet(tilesheet_top 4 3 NO NO)
     add_overlay(overlay 0 0 NO NO)
     add_overlay(charset 0 0 NO NO)
+    add_overlay(overlay_world_map 0 0 NO NO)
 
     configure_file(images.cpp.in ${SOURCE_DIR}/platform/gba/images.cpp)
   endif()

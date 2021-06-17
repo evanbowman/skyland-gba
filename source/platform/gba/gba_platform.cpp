@@ -829,6 +829,15 @@ u16 find_dynamic_mapping(u16 virtual_index)
 }
 
 
+static int __sprite_priority = 1;
+
+
+void Platform::sprite_priority(int value)
+{
+    __sprite_priority = value;
+}
+
+
 void Platform::Screen::draw(const Sprite& spr)
 {
     if (UNLIKELY(spr.get_alpha() == Sprite::Alpha::transparent)) {
@@ -923,7 +932,7 @@ void Platform::Screen::draw(const Sprite& spr)
         const auto target_index = 2 + ti * scale + tex_off;
         oa->attribute_2 = target_index;
         oa->attribute_2 |= pb;
-        oa->attribute_2 |= ATTR2_PRIORITY(1);
+        oa->attribute_2 |= ATTR2_PRIORITY(__sprite_priority);
         oam_write_index += 1;
     };
 
@@ -3249,6 +3258,11 @@ bool Platform::load_overlay_texture(const char* name)
                 memcpy16((void*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0],
                          info.tile_data_,
                          info.tile_data_length_ / 2);
+            } else {
+                StringBuffer<32> err("texture ");
+                err += name;
+                err += "too big";
+                fatal(err.c_str());
             }
 
             if (get_gflag(GlobalFlag::glyph_mode)) {

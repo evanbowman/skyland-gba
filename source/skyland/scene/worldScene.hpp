@@ -16,6 +16,9 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    void display(Platform&, App&) override;
+
+
     void enter(Platform&, App&, Scene& prev) override;
 
 

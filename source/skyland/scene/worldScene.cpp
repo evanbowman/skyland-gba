@@ -3,10 +3,29 @@
 #include "platform/platform.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/entity/birbs/smolBirb.hpp"
+#include "number/random.hpp"
+#include "skyland/alloc_entity.hpp"
 
 
 
 namespace skyland {
+
+
+
+void WorldScene::display(Platform& pfrm, App& app)
+{
+    app.player_island().display(pfrm);
+
+    if (app.opponent_island()) {
+        app.opponent_island()->display(pfrm);
+    }
+
+    for (auto& effect : app.effects()) {
+        pfrm.screen().draw(effect->sprite());
+    }
+
+}
 
 
 

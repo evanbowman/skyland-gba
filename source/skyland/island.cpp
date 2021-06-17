@@ -5,6 +5,9 @@
 #include "roomPool.hpp"
 #include "tile.hpp"
 #include "rooms/core.hpp"
+#include "alloc_entity.hpp"
+#include "entity/misc/smokePuff.hpp"
+#include "skyland.hpp"
 
 
 
@@ -41,12 +44,21 @@ Island::Rooms& Island::rooms()
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;
-    chimney_spawn_timer_ += dt;
 
-    if (chimney_spawn_timer_ > milliseconds(100)) {
-        chimney_spawn_timer_ = 0;
+    if (chimney_loc_) {
+        chimney_spawn_timer_ += dt;
 
-        // TODO...
+        if (chimney_spawn_timer_ > milliseconds(600)) {
+            chimney_spawn_timer_ = 0;
+
+            auto o = origin();
+
+            o.x += chimney_loc_->x * 16 + 8;
+            o.y += chimney_loc_->y * 16 - 4;
+
+            app.effects().push(alloc_entity<SmokePuff>(o));
+        }
+
     }
 
     ambient_movement_ = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /

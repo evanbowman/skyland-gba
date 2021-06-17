@@ -164,6 +164,7 @@ public:
     }
 
 
+
 private:
     Rooms rooms_;
     const Layer layer_;
@@ -186,6 +187,7 @@ private:
     std::optional<Vec2<u8>> chimney_loc_;
     Microseconds chimney_spawn_timer_ = 0;
 };
+
 
 
 } // namespace skyland

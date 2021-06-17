@@ -26,6 +26,8 @@
 #include "data/overlay.h"
 //;
 #include "data/charset.h"
+//;
+#include "data/overlay_world_map.h"
 //
 
 struct TextureData {
@@ -69,6 +71,8 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(overlay),
 //;
     TEXTURE_INFO(charset),
+//;
+    TEXTURE_INFO(overlay_world_map),
 //
 };
 

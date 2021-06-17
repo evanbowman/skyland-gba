@@ -6,6 +6,7 @@
 #include "skyland/skyland.hpp"
 #include "globals.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/configure_island.hpp"
 
 
 

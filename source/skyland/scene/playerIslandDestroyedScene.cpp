@@ -1,6 +1,9 @@
 #include "playerIslandDestroyedScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
+#include "skyland/serial.hpp"
+#include "worldMapScene.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 
@@ -104,11 +107,15 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Platform& pfrm,
         app.coins() += app.victory_coins();
         app.victory_coins() = 0;
         anim_state_ = AnimState::wait_2;
+
+
+        info(pfrm, serialize(pfrm, app.player_island())->c_str());
+
         break;
     }
 
     case AnimState::wait_2: {
-        if (timer_ > milliseconds(220)) {
+        if (timer_ > milliseconds(1000)) {
             timer_ = 0;
             anim_state_ = AnimState::fade_out;
         }
@@ -128,6 +135,11 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Platform& pfrm,
     }
 
     case AnimState::idle:
+        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+            if (island_ not_eq &app.player_island()) {
+                return scene_pool::alloc<WorldMapScene>();
+            }
+        }
         break;
     }
 

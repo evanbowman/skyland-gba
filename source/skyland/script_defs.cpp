@@ -2,6 +2,7 @@
 #include "script/lisp.hpp"
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
+#include "configure_island.hpp"
 
 
 
@@ -108,18 +109,8 @@ void App::init_scripts(Platform& pfrm)
         auto [app, pfrm] = interp_get_context();
         auto island = (Island*)lisp::get_op(1)->user_data_.obj_;
 
-        lisp::foreach(lisp::get_op(0), [&](lisp::Value* val) {
-            auto name_symb = lisp::get_list(val, 0);
-            if (name_symb->type_ not_eq lisp::Value::Type::symbol) {
-                return;
-            }
-            u8 x = lisp::get_list(val, 1)->integer_.value_;
-            u8 y = lisp::get_list(val, 2)->integer_.value_;
+        configure_island(*pfrm, *island, lisp::get_op(0));
 
-            if (auto c = load_metaclass(name_symb->symbol_.name_)) {
-                (*c)->create(*pfrm, island, Vec2<u8>{x, y});
-            }
-        });
         return L_NIL;
     }));
 
@@ -145,9 +136,6 @@ void App::init_scripts(Platform& pfrm)
 
         return L_NIL;
     }));
-
-
-
 }
 
 
