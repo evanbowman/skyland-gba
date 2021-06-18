@@ -29,6 +29,10 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
     } else {
         auto island = other_island(app);
 
+        if (parent()->power_supply() < parent()->power_drain()) {
+            return;
+        }
+
         if (island) {
             if (target_) {
                 if (auto room = island->get_room(*target_)) {

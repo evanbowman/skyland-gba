@@ -29,6 +29,10 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
         reload_ -= delta;
     } else {
 
+        if (parent()->power_supply() < parent()->power_drain()) {
+            return;
+        }
+
         auto island = other_island(app);
 
         if (island and not island->is_destroyed()) {
