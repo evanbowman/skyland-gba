@@ -26,7 +26,7 @@ public:
     void on_collision(Platform& pfrm, App& app, Room&) override;
 
 
-    static const Health deals_damage = 150;
+    static const Health deals_damage = 100;
 
 
 private:

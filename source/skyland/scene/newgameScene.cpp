@@ -37,7 +37,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.current_map_location() = {0, 1};
     app.world_map().generate();
 
-    app.coins() = 4000;
+    app.coins() = 3200;
     app.terrain_cost() = 500;
 
     app.player().missile_ammo() = 3;

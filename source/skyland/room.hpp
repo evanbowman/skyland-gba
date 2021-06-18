@@ -100,6 +100,11 @@ public:
     }
 
 
+    virtual void unset_target()
+    {
+    }
+
+
     void on_collision(Platform& pfrm, App& app, Entity& entity);
 
 

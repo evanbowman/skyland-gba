@@ -67,6 +67,12 @@ public:
     }
 
 
+    void unset_target() override
+    {
+        target_.reset();
+    }
+
+
     void plot_walkable_zones(bool matrix[16][16]) override
     {
         // one cannot walk through this tile, intentionally do nothing.
@@ -74,7 +80,7 @@ public:
 
 
 private:
-    static constexpr const Microseconds load_time = seconds(2);
+    static constexpr const Microseconds load_time = seconds(10);
 
 
     Microseconds load_ = load_time;

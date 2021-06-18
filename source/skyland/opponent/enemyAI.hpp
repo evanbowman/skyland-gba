@@ -42,12 +42,6 @@ private:
     Microseconds next_action_timer_ = next_action_timeout;
 
 
-    // Give the player some time to attempt to take out the AI's missile
-    // launchers, or to build defenses, before attempting to attack.
-    Microseconds next_missile_launch_ = seconds(25);
-    Microseconds last_missile_launch_ = 0;
-
-
     Coins coins_ = 0;
 };
 

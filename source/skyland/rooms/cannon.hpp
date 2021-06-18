@@ -61,6 +61,12 @@ public:
     }
 
 
+    void unset_target() override
+    {
+        target_.reset();
+    }
+
+
     void plot_walkable_zones(bool matrix[16][16]) override
     {
         // one cannot walk through this tile, intentionally do nothing.
@@ -69,7 +75,7 @@ public:
 
     static Power consumes_power()
     {
-        return 40;
+        return 28;
     }
 
 

@@ -22,15 +22,6 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
     next_action_timer_ -= delta;
 
-    if (next_missile_launch_ > 0) {
-        next_missile_launch_ -= delta;
-    }
-
-
-    if (app.opponent_island() and not app.opponent_island()->get_drift()) {
-        last_missile_launch_ += delta;
-    }
-
 
     if (next_action_timer_ <= 0) {
         next_action_timer_ = next_action_timeout;
@@ -57,10 +48,6 @@ void EnemyAI::set_target(Platform& pfrm,
                          const u8 matrix[16][16],
                          MissileSilo& silo)
 {
-    if (next_missile_launch_ > 0 and silo.health() > 40) {
-        return;
-    }
-
     if (silo.parent()->get_drift()) {
         // Wait until we've stopped moving
         return;
@@ -97,17 +84,17 @@ void EnemyAI::set_target(Platform& pfrm,
         auto meta_c = room->metaclass();
         auto w = (*meta_c)->ai_base_weight();
 
-        // If the player has a missile silo, and remaining missiles, we may want
-        // to think about destroying it.
-        if (str_cmp((*meta_c)->name(), "missile silo") == 0) {
-            if (app.player().missile_ammo() == 0) {
-                // OK, so there's no urgent need to attack this missile silo,
-                // because the player doesn't even have any missiles.
-                w = 50.f;
-            } else {
-                w += 500.f;
-            }
-        }
+        // // If the player has a missile silo, and remaining missiles, we may want
+        // // to think about destroying it.
+        // if (str_cmp((*meta_c)->name(), "missile silo") == 0) {
+        //     if (app.player().missile_ammo() == 0) {
+        //         // OK, so there's no urgent need to attack this missile silo,
+        //         // because the player doesn't even have any missiles.
+        //         w = 50.f;
+        //     } else {
+        //         w += 500.f;
+        //     }
+        // }
 
         // Give the room some extra weight, if firing a missile into it would be
         // really destructive.
@@ -128,18 +115,8 @@ void EnemyAI::set_target(Platform& pfrm,
         }
     }
 
-
-    // More likely to use a missile when we have more of them.
-    const Float missile_value = 2000 / app.opponent().missile_ammo();
-
-    if (highest_weight >= missile_value or
-        silo.health() < 40 or
-        last_missile_launch_ > seconds(30)) {
-        if (highest_weighted_room) {
-            silo.set_target(highest_weighted_room->position());
-            next_missile_launch_= seconds(6);
-            last_missile_launch_ = 0;
-        }
+    if (highest_weighted_room) {
+        silo.set_target(highest_weighted_room->position());
     }
 }
 

@@ -43,6 +43,11 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Platform& pfrm,
         big_explosion(
             pfrm, app, {origin.x + off, origin.y + off});
         timer_ = 0;
+
+        for (auto& room : app.player_island().rooms()) {
+            room->unset_target();
+        }
+
         anim_state_ = AnimState::explosion_wait1;
         break;
     }
