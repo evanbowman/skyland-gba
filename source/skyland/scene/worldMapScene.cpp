@@ -16,10 +16,6 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
                                       App& app,
                                       Microseconds delta)
 {
-    if (pfrm.keyboard().down_transition<Key::action_1>()) {
-        return scene_pool::alloc<NewgameScene>();
-    }
-
     cursor_anim_timer_ += delta;
     if (cursor_anim_timer_ > milliseconds(200)) {
         cursor_anim_timer_ -= milliseconds(200);
@@ -29,34 +25,118 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
 
     auto& node = app.world_map().matrix_[cursor_.x][cursor_.y];
 
-    if (pfrm.keyboard().down_transition<Key::right>() and
-        node.connections_.mask_ & WorldMap::Node::Connections::r) {
-        cursor_.x += 1;
-        show_map(pfrm, app.world_map());
-    } else if (pfrm.keyboard().down_transition<Key::left>() and
-        node.connections_.mask_ & WorldMap::Node::Connections::l) {
-        cursor_.x -= 1;
-        show_map(pfrm, app.world_map());
-    } else if (pfrm.keyboard().down_transition<Key::up>()) {
-        if (node.connections_.mask_ & WorldMap::Node::Connections::ru) {
-            cursor_.x += 1;
-            cursor_.y -= 1;
-            show_map(pfrm, app.world_map());
-        } else if (node.connections_.mask_ & WorldMap::Node::Connections::lu) {
-            cursor_.x -= 1;
-            cursor_.y -= 1;
-            show_map(pfrm, app.world_map());
+
+    switch (state_) {
+    case State::deselected:
+        if (pfrm.keyboard().down_transition<Key::right, Key::left, Key::up, Key::action_1>()) {
+            state_ = State::explore_paths;
         }
-    } else if (pfrm.keyboard().down_transition<Key::down>()) {
-        if (node.connections_.mask_ & WorldMap::Node::Connections::ld) {
-            cursor_.x -= 1;
-            cursor_.y += 1;
+        break;
+
+
+    case State::explore_paths:
+        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+            state_ = State::deselected;
+            cursor_ = app.current_map_location();
             show_map(pfrm, app.world_map());
-        } else if (node.connections_.mask_ & WorldMap::Node::Connections::rd) {
-            cursor_.x += 1;
-            cursor_.y += 1;
-            show_map(pfrm, app.world_map());
+            break;
         }
+        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+            if (cursor_ == app.current_map_location()) {
+                state_ = State::move;
+                show_move_arrows(pfrm, app);
+            }
+        }
+        if (pfrm.keyboard().down_transition<Key::right>() and
+            node.connections_.mask_ & WorldMap::Node::Connections::r) {
+            cursor_.x += 1;
+            show_map(pfrm, app.world_map());
+        } else if (pfrm.keyboard().down_transition<Key::left>() and
+                   node.connections_.mask_ & WorldMap::Node::Connections::l) {
+            cursor_.x -= 1;
+            show_map(pfrm, app.world_map());
+        } else if (pfrm.keyboard().down_transition<Key::up>()) {
+            if (node.connections_.mask_ & WorldMap::Node::Connections::ru) {
+                cursor_.x += 1;
+                cursor_.y -= 1;
+                show_map(pfrm, app.world_map());
+            } else if (node.connections_.mask_ & WorldMap::Node::Connections::lu) {
+                cursor_.x -= 1;
+                cursor_.y -= 1;
+                show_map(pfrm, app.world_map());
+            }
+        } else if (pfrm.keyboard().down_transition<Key::down>()) {
+            if (node.connections_.mask_ & WorldMap::Node::Connections::ld) {
+                cursor_.x -= 1;
+                cursor_.y += 1;
+                show_map(pfrm, app.world_map());
+            } else if (node.connections_.mask_ & WorldMap::Node::Connections::rd) {
+                cursor_.x += 1;
+                cursor_.y += 1;
+                show_map(pfrm, app.world_map());
+            }
+        }
+        break;
+
+
+    case State::move:
+        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+            state_ = State::explore_paths;
+            cursor_ = app.current_map_location();
+            show_map(pfrm, app.world_map());
+            break;
+        }
+        if (pfrm.keyboard().down_transition<Key::up>()
+            and node.connections_.mask_ & WorldMap::Node::Connections::ru) {
+            for (int i = 0; i < 3; ++i) {
+                move_arrow_sel_[i] = false;
+            }
+            move_arrow_sel_[0] = true;
+            show_move_arrows(pfrm, app);
+        }
+        if (pfrm.keyboard().down_transition<Key::right>()
+            and node.connections_.mask_ & WorldMap::Node::Connections::r) {
+            for (int i = 0; i < 3; ++i) {
+                move_arrow_sel_[i] = false;
+            }
+            move_arrow_sel_[1] = true;
+            show_move_arrows(pfrm, app);
+        }
+        if (pfrm.keyboard().down_transition<Key::down>()
+            and node.connections_.mask_ & WorldMap::Node::Connections::rd) {
+            for (int i = 0; i < 3; ++i) {
+                move_arrow_sel_[i] = false;
+            }
+            move_arrow_sel_[2] = true;
+            show_move_arrows(pfrm, app);
+        }
+
+        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+            state_ = State::wait;
+            if (move_arrow_sel_[0]) {
+                app.current_map_location().x += 1;
+                app.current_map_location().y -= 1;
+            } else if (move_arrow_sel_[1]) {
+                app.current_map_location().x += 1;
+            } else if (move_arrow_sel_[2]) {
+                app.current_map_location().x += 1;
+                app.current_map_location().y += 1;
+            }
+        }
+        break;
+
+    case State::wait:
+        timer_ += delta;
+        if (timer_ > seconds(2)) {
+            timer_ = 0;
+            state_ = State::fade_out;
+        }
+        break;
+
+
+    case State::fade_out:
+        return scene_pool::alloc<NewgameScene>();
+        break;
     }
 
 
@@ -66,18 +146,109 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
 
 
 
+void WorldMapScene::show_move_arrows(Platform& pfrm, App& app)
+{
+    auto& node = app.world_map().matrix_[cursor_.x][cursor_.y];
+
+    if (move_arrow_sel_[0]) {
+        cursor_ = app.current_map_location();
+        cursor_.x += 1;
+        cursor_.y -= 1;
+        show_map(pfrm, app.world_map());
+        cursor_ = app.current_map_location();
+
+        pfrm.set_tile(Layer::overlay, 4 + cursor_.x * 3,
+                      5 + cursor_.y * 3,
+                      114 + node.type_);
+
+        pfrm.set_tile(Layer::overlay, 5 + cursor_.x * 3, 4 + cursor_.y * 3, 103);
+        pfrm.set_tile(Layer::overlay, 6 + cursor_.x * 3, 3 + cursor_.y * 3, 103);
+
+    } else if (move_arrow_sel_[1]) {
+        cursor_ = app.current_map_location();
+        cursor_.x += 1;
+        show_map(pfrm, app.world_map());
+        cursor_ = app.current_map_location();
+
+        pfrm.set_tile(Layer::overlay, 4 + cursor_.x * 3,
+                      5 + cursor_.y * 3,
+                      114 + node.type_);
+
+        pfrm.set_tile(Layer::overlay, 5 + cursor_.x * 3, 5 + cursor_.y * 3, 102);
+        pfrm.set_tile(Layer::overlay, 6 + cursor_.x * 3, 5 + cursor_.y * 3, 102);
+
+    } else if (move_arrow_sel_[2]) {
+            cursor_ = app.current_map_location();
+            cursor_.x += 1;
+            cursor_.y += 1;
+            show_map(pfrm, app.world_map());
+            cursor_ = app.current_map_location();
+
+            pfrm.set_tile(Layer::overlay, 4 + cursor_.x * 3,
+                          5 + cursor_.y * 3,
+                          114 + node.type_);
+
+        pfrm.set_tile(Layer::overlay, 5 + cursor_.x * 3, 6 + cursor_.y * 3, 104);
+        pfrm.set_tile(Layer::overlay, 6 + cursor_.x * 3, 7 + cursor_.y * 3, 104);
+    }
+}
+
+
+
 void WorldMapScene::display(Platform& pfrm, App& app)
 {
     Sprite cursor;
+
     cursor.set_size(Sprite::Size::w16_h32);
-    cursor.set_texture_index(15 + cursor_keyframe_);
 
+    cursor.set_texture_index(28);
     cursor.set_position({
-            Float(28 + cursor_.x * 24),
-            Float(36 + cursor_.y * 24)
+            Float(28 + app.current_map_location().x * 24) - 4,
+            Float(36 + app.current_map_location().y * 24) - 8
         });
-
     pfrm.screen().draw(cursor);
+
+
+    if (state_ == State::explore_paths) {
+        cursor.set_texture_index(15 + cursor_keyframe_);
+
+        cursor.set_position({
+                Float(28 + cursor_.x * 24),
+                Float(36 + cursor_.y * 24)
+            });
+
+        pfrm.screen().draw(cursor);
+    } else if (state_ == State::move) {
+        auto& node = app.world_map().matrix_[cursor_.x][cursor_.y];
+
+        if (node.connections_.mask_ & WorldMap::Node::Connections::r) {
+            cursor.set_texture_index(34 - 3 * move_arrow_sel_[1]);
+            cursor.set_position({
+                Float(28 + cursor_.x * 24) + 17,
+                Float(36 + cursor_.y * 24) - 1
+            });
+            pfrm.screen().draw(cursor);
+        }
+
+        if (node.connections_.mask_ & WorldMap::Node::Connections::ru) {
+            cursor.set_texture_index(32 - 3 * move_arrow_sel_[0]);
+            cursor.set_position({
+                Float(28 + cursor_.x * 24) + 11,
+                Float(36 + cursor_.y * 24) - 13
+            });
+            pfrm.screen().draw(cursor);
+        }
+
+        if (node.connections_.mask_ & WorldMap::Node::Connections::rd) {
+            cursor.set_texture_index(33 - 3 * move_arrow_sel_[2]);
+            cursor.set_position({
+                Float(28 + cursor_.x * 24) + 11,
+                Float(36 + cursor_.y * 24) + 13
+            });
+            pfrm.screen().draw(cursor);
+        }
+
+    }
 }
 
 
@@ -85,6 +256,8 @@ void WorldMapScene::display(Platform& pfrm, App& app)
 void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 {
     pfrm.screen().fade(0.f);
+
+    cursor_ = app.current_map_location();
 
     auto view = pfrm.screen().get_view();
     view.set_center({});

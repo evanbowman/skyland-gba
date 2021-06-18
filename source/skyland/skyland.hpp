@@ -124,6 +124,12 @@ public:
     }
 
 
+    Vec2<u8>& current_map_location()
+    {
+        return current_map_location_;
+    }
+
+
 private:
     Island player_island_;
     Float cloud_scroll_1_;
@@ -136,6 +142,7 @@ private:
     Camera camera_;
     bool paused_ = false;
     WorldMap world_map_;
+    Vec2<u8> current_map_location_ = {0, 1};
 
     EntityList<Entity> effects_;
     EntityList<Entity> birbs_;
