@@ -1146,6 +1146,10 @@ static u32 read_string(const char* code)
         i++;
     }
 
+    if (*code == '"') {
+        ++i;
+        ++code;
+    }
 
     push_op(make_string(bound_context->pfrm_, temp->data_));
 
@@ -1298,7 +1302,7 @@ u32 read(const char* code)
         case '"':
             pop_op(); // nil
             i += read_string(code + i + 1);
-            return i;
+            return i + 1;
 
         default:
             pop_op(); // nil
