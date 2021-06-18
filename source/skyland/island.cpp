@@ -8,6 +8,7 @@
 #include "alloc_entity.hpp"
 #include "entity/misc/smokePuff.hpp"
 #include "skyland.hpp"
+#include "room_metatable.hpp"
 
 
 
@@ -81,6 +82,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             if (not has_core) {
                 destroyed_ = true;
             }
+
+            recalculate_power_usage();
 
             repaint(pfrm);
         } else {
@@ -238,6 +241,25 @@ void Island::plot_rooms(u8 matrix[16][16]) const
 }
 
 
+void Island::recalculate_power_usage()
+{
+    power_supply_ = 0;
+    power_drain_ = 0;
+
+    for (auto& room : rooms_) {
+        auto metac = room->metaclass();
+        auto power = (*metac)->consumes_power();
+
+        if (power < 0) {
+            power_supply_ += -power;
+        } else {
+            power_drain_ += power;
+        }
+
+    }
+}
+
+
 
 bool Island::add_character(EntityRef<BasicCharacter> character)
 {
@@ -391,6 +413,8 @@ void Island::destroy_room(Platform& pfrm, const Vec2<u8>& coord)
             return;
         }
     }
+
+    recalculate_power_usage();
 }
 
 

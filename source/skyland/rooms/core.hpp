@@ -49,6 +49,13 @@ public:
     {
         return 3000;
     }
+
+
+    static Power consumes_power()
+    {
+        return -150;
+    }
+
 };
 
 

@@ -359,15 +359,22 @@ u32 integer_text_length(int n);
 
 class UIMetric {
 public:
-    enum class Align { left, right };
+    enum class Align : u8 { left, right };
+
+    enum class Format : u8 {
+        plain_integer,
+        fraction,
+    };
 
 
     inline UIMetric(Platform& pfrm,
                     const OverlayCoord& pos,
                     int icon_tile,
-                    int value,
-                    Align align)
+                    u32 value,
+                    Align align,
+                    Format format = Format::plain_integer)
         : icon_tile_(icon_tile), value_(value), anim_(pfrm, pos), align_(align),
+          format_(format),
           pos_(pos)
     {
         display(pfrm);
@@ -379,9 +386,15 @@ public:
     {
     }
 
-    inline void set_value(int value)
+    inline void set_value(u32 value)
     {
-        const auto value_len = integer_text_length(value);
+        auto value_len = integer_text_length(value);
+
+        if (format_ == Format::fraction) {
+            auto v1 = value & 0x0000ffff;
+            auto v2 = (value & 0xffff0000) >> 16;
+            value_len = integer_text_length(v1) + 1 + integer_text_length(v2);
+        }
 
         anim_.init(value_len);
         value_ = value;
@@ -409,16 +422,12 @@ public:
         }
     }
 
-    virtual void on_display(Text&, int)
-    {
-    }
-
     const OverlayCoord& position() const
     {
         return pos_;
     }
 
-    int value() const
+    u32 value() const
     {
         return value_;
     }
@@ -441,17 +450,27 @@ private:
         }
         }
 
-        text_->assign(value_);
 
-        on_display(*text_, value_);
+        if (format_ == Format::fraction) {
+            auto v1 = value_ & 0x0000ffff;
+            auto v2 = (value_ & 0xffff0000) >> 16;
+
+            text_->append(v2);
+            text_->append("/");
+            text_->append(v1);
+
+        } else {
+            text_->assign(value_);
+        }
     }
 
     const int icon_tile_;
     std::optional<SmallIcon> icon_;
     std::optional<Text> text_;
-    int value_;
+    u32 value_;
     HorizontalFlashAnimation anim_;
     const Align align_;
+    const Format format_;
     OverlayCoord pos_;
 };
 

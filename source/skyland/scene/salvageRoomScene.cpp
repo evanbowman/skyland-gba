@@ -57,7 +57,7 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.set_tile(Layer::overlay, i, st.y - 4, 425);
     }
 
-    persist_coins();
+    persist_ui();
 }
 
 

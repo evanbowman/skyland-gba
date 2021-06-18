@@ -7,6 +7,7 @@
 #include "platform/layer.hpp"
 #include "scene.hpp"
 #include <memory>
+#include "power.hpp"
 
 
 
@@ -135,6 +136,12 @@ public:
     Health health() const
     {
         return health_;
+    }
+
+
+    static Power consumes_power()
+    {
+        return 10;
     }
 
 

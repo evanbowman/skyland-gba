@@ -29,6 +29,13 @@ void WorldScene::display(Platform& pfrm, App& app)
 
 
 
+static u32 format_power_fraction(Power avail, Power used)
+{
+    return (avail & 0x0000ffff) | ((used & 0x0000ffff) << 16);
+}
+
+
+
 ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (not app.paused()) {
@@ -133,9 +140,43 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         set_pause_icon(pfrm, true);
     }
 
+
+    if (last_power_supplied_ not_eq app.player_island().power_supply() or
+        last_power_used_ not_eq app.player_island().power_drain()) {
+
+        last_power_supplied_ = app.player_island().power_supply();
+        last_power_used_ = app.player_island().power_drain();
+
+        power_->set_value(format_power_fraction(last_power_supplied_,
+                                                last_power_used_));
+    }
+
+    if (power_) {
+        power_->update(pfrm, delta);
+
+        if (not persistent_ui_ and
+            last_power_supplied_ >= last_power_used_) {
+            power_hide_timer_ += delta;
+            if (power_hide_timer_ > seconds(4)) {
+                power_.reset();
+                power_hide_timer_ = 0;
+            }
+        }
+    } else {
+        if (persistent_ui_) {
+            power_.emplace(pfrm,
+                           OverlayCoord{1, 1},
+                           147,
+                           format_power_fraction(app.player_island().power_supply(),
+                                                 app.player_island().power_drain()),
+                           UIMetric::Align::left,
+                           UIMetric::Format::fraction);
+        }
+    }
+
     if (last_coins_ not_eq app.coins()) {
         coins_.emplace(pfrm,
-                       OverlayCoord{1, 1},
+                       OverlayCoord{1, 2},
                        146,
                        (int)app.coins(),
                        UIMetric::Align::left);
@@ -147,7 +188,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (coins_) {
         coins_->update(pfrm, delta);
 
-        if (not persistent_coins_) {
+        if (not persistent_ui_) {
             coin_hide_timer_ += delta;
             if (coin_hide_timer_ > seconds(4)) {
                 coins_.reset();
@@ -155,9 +196,9 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
     } else {
-        if (persistent_coins_) {
+        if (persistent_ui_) {
             coins_.emplace(pfrm,
-                           OverlayCoord{1, 1},
+                           OverlayCoord{1, 2},
                            146,
                            (int)app.coins(),
                            UIMetric::Align::left);
@@ -191,9 +232,9 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void WorldScene::persist_coins()
+void WorldScene::persist_ui()
 {
-    persistent_coins_ = true;
+    persistent_ui_ = true;
 }
 
 
@@ -205,13 +246,30 @@ void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
     last_coins_ = app.coins();
 
     // If we came from another world scene where the coins were visible...
-    if (dynamic_cast<WorldScene*>(&prev)->coins_) {
-        coins_.emplace(pfrm,
-                       OverlayCoord{1, 1},
-                       146,
-                       (int)app.coins(),
-                       UIMetric::Align::left);
+    if (auto last = dynamic_cast<WorldScene*>(&prev)) {
+        if (last->coins_) {
+            coins_.emplace(pfrm,
+                           OverlayCoord{1, 2},
+                           146,
+                           (int)app.coins(),
+                           UIMetric::Align::left);
+        }
+
+        if (last->power_) {
+            power_.emplace(pfrm,
+                           OverlayCoord{1, 1},
+                           147,
+                           format_power_fraction(app.player_island().power_supply(),
+                                                 app.player_island().power_drain()),
+                           UIMetric::Align::left,
+                           UIMetric::Format::fraction);
+        }
+
+        last_power_supplied_ = last->last_power_supplied_;
+        last_power_used_ = last->last_power_used_;
     }
+
+
 }
 
 
@@ -219,6 +277,7 @@ void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
 void WorldScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     coins_.reset();
+    power_.reset();
 }
 
 

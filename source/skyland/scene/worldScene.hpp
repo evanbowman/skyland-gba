@@ -4,6 +4,7 @@
 #include "graphics/overlay.hpp"
 #include "skyland/coins.hpp"
 #include "skyland/scene.hpp"
+#include "skyland/power.hpp"
 
 
 
@@ -25,7 +26,7 @@ public:
     void exit(Platform&, App&, Scene& next) override;
 
 
-    void persist_coins();
+    void persist_ui();
 
 
     void far_camera();
@@ -34,12 +35,16 @@ public:
 private:
     void set_pause_icon(Platform& pfrm, bool paused);
 
-
     std::optional<UIMetric> coins_;
-    bool persistent_coins_ = false;
+    std::optional<UIMetric> power_;
+
+    bool persistent_ui_ = false;
     Microseconds coin_hide_timer_ = 0;
     Microseconds camera_update_timer_ = 0;
+    Microseconds power_hide_timer_ = 0;
     Coins last_coins_ = 0;
+    Power last_power_supplied_ = 0;
+    Power last_power_used_ = 0;
     bool far_camera_ = false;
 };
 

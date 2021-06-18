@@ -7,6 +7,7 @@
 #include "roomPool.hpp"
 #include "player.hpp"
 #include "entity/character/basicCharacter.hpp"
+#include "power.hpp"
 
 
 
@@ -25,6 +26,7 @@ public:
     {
         auto result = rooms_.push_back(std::move(insert));
         repaint(pfrm);
+        recalculate_power_usage();
         return result;
     }
 
@@ -35,6 +37,7 @@ public:
         if (auto room = room_pool::alloc<T>(this, position)) {
             if (rooms_.push_back({room.release(), room_pool::deleter})) {
                 repaint(pfrm);
+                recalculate_power_usage();
                 return true;
             }
         }
@@ -164,8 +167,26 @@ public:
     }
 
 
+    Power power_supply() const
+    {
+        return power_supply_;
+    }
+
+
+    Power power_drain() const
+    {
+        return power_drain_;
+    }
+
 
 private:
+
+    void recalculate_power_usage();
+
+
+    Power power_supply_ = 0;
+    Power power_drain_ = 0;
+
     Rooms rooms_;
     const Layer layer_;
     Buffer<u8, 10> terrain_;
@@ -173,6 +194,9 @@ private:
     u8 ambient_movement_;
     Microseconds timer_;
     Float drift_ = 0;
+
+    int power_available_ = 0;
+    int power_used_ = 0;
 
     bool interior_visible_;
     bool show_flag_ = false;

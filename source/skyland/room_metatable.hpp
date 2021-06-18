@@ -21,6 +21,7 @@ struct RoomMeta {
         virtual Vec2<u8> size() const = 0;
         virtual Coins cost() const = 0;
         virtual Float ai_base_weight() const = 0;
+        virtual Power consumes_power() const = 0;
     };
 
     template <typename T> struct BoxImpl : public Box {
@@ -49,6 +50,11 @@ struct RoomMeta {
         virtual Float ai_base_weight() const override
         {
             return T::ai_base_weight();
+        }
+
+        virtual Power consumes_power() const override
+        {
+            return T::consumes_power();
         }
     };
 

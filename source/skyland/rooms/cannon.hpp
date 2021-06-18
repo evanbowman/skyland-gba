@@ -67,6 +67,13 @@ public:
     }
 
 
+    static Power consumes_power()
+    {
+        return 40;
+    }
+
+
+
 private:
     static constexpr const Microseconds reload_time = seconds(5);
 

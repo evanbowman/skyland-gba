@@ -56,6 +56,13 @@ public:
     {
         return 300;
     }
+
+
+    static Power consumes_power()
+    {
+        return 0;
+    }
+
 };
 
 

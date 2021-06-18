@@ -13,7 +13,7 @@ namespace scene_pool {
 
 
 
-static constexpr const int max_scene_size = 256;
+static constexpr const int max_scene_size = 350;
 static constexpr const int pool_capacity = 3;
 
 

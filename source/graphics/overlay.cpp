@@ -159,6 +159,10 @@ static void print_char(Platform& pfrm,
         pfrm.set_tile(Layer::overlay, coord.x, coord.y, 146);
         return;
     }
+    if (c == '`') {
+        pfrm.set_tile(Layer::overlay, coord.x, coord.y, 147);
+        return;
+    }
     if (c not_eq 0) {
         auto mapping_info = locale_texture_map()(c);
 

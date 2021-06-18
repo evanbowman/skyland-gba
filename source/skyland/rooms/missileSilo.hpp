@@ -52,6 +52,12 @@ public:
     }
 
 
+    static Power consumes_power()
+    {
+        return 20;
+    }
+
+
     ScenePtr<Scene> select(Platform& pfrm) override;
 
 

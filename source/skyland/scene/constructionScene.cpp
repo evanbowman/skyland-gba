@@ -107,6 +107,14 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
+            if (app.player_island().power_supply() -
+                app.player_island().power_drain() <
+                target->consumes_power()) {
+                msg(pfrm, "insufficient power supply!");
+                state_ = State::insufficent_funds;
+                break;
+            }
+
             app.coins() -= target->cost();
 
             const auto sz = target->size().y;
@@ -175,6 +183,9 @@ void ConstructionScene::show_current_building_text(Platform& pfrm)
     str += " ";
     str += to_string<10>((*available_buildings_[building_selector_])->cost());
     str += "$";
+    str += " ";
+    str += to_string<10>((*available_buildings_[building_selector_])->consumes_power());
+    str += "`";
 
     msg(pfrm, str.c_str());
 }
@@ -337,7 +348,7 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
 
-    persist_coins();
+    persist_ui();
 
     find_construction_sites(pfrm, app);
 
