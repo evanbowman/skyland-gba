@@ -8,21 +8,11 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/alloc_entity.hpp"
-#include "loadLevelScene.hpp"
+#include "worldMapScene.hpp"
 
 
 
 namespace skyland {
-
-
-
-// void set_island_positions(Island& left_island, Island& right_island)
-// {
-//     left_island.set_position({10, 374});
-//     // Pretty much as far away as possible, without wrapping across the screen.
-//     right_island.set_position(
-//         {Float(350 + 16 * (10 - right_island.terrain().size())), 374});
-// }
 
 
 
@@ -49,7 +39,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player_island().add_character(std::move(chr));
 
 
-    return scene_pool::alloc<LoadLevelScene>("test.lisp");
+    return scene_pool::alloc<WorldMapScene>();
 }
 
 

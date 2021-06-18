@@ -1,5 +1,5 @@
 #include "scene_pool.hpp"
-#include "scene/worldMapScene.hpp"
+#include "scene/newgameScene.hpp"
 
 
 namespace skyland {
@@ -22,7 +22,7 @@ ScenePtr<Scene> null_scene()
 
 ScenePtr<Scene> initial_scene()
 {
-    return scene_pool::alloc<WorldMapScene>();
+    return scene_pool::alloc<NewgameScene>();
 }
 
 

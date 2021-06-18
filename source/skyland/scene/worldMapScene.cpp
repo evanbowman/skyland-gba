@@ -1,5 +1,5 @@
 #include "skyland/scene_pool.hpp"
-#include "newgameScene.hpp"
+#include "loadLevelScene.hpp"
 #include "worldMapScene.hpp"
 #include "platform/platform.hpp"
 #include "graphics/overlay.hpp"
@@ -80,10 +80,25 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
 
 
     case State::move:
+        {
+            if (cmix_.amount_ > 0) {
+                timer_ += delta;
+                if (timer_ > 12000) {
+                    timer_ -= 12000;
+                    cmix_ = {cmix_.color_, u8(cmix_.amount_ - 5)};
+                }
+            } else {
+                timer_ = 0;
+                cmix_ = {ColorConstant::silver_white, 200};
+            }
+        }
+
+
         if (pfrm.keyboard().down_transition<Key::action_2>()) {
             state_ = State::explore_paths;
             cursor_ = app.current_map_location();
             show_map(pfrm, app.world_map());
+            cmix_ = {};
             break;
         }
         if (pfrm.keyboard().down_transition<Key::up>()
@@ -113,6 +128,7 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
 
         if (pfrm.keyboard().down_transition<Key::action_1>()) {
             state_ = State::wait;
+            cmix_ = {};
             if (move_arrow_sel_[0]) {
                 app.current_map_location().x += 1;
                 app.current_map_location().y -= 1;
@@ -127,16 +143,24 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
 
     case State::wait:
         timer_ += delta;
-        if (timer_ > seconds(2)) {
+        if (timer_ > seconds(1)) {
             timer_ = 0;
             state_ = State::fade_out;
         }
         break;
 
 
-    case State::fade_out:
-        return scene_pool::alloc<NewgameScene>();
+    case State::fade_out: {
+        timer_ += delta;
+        constexpr auto fade_duration = milliseconds(1200);
+        if (timer_ > fade_duration) {
+            return scene_pool::alloc<LoadLevelScene>("test.lisp");
+        } else {
+            const auto amount = smoothstep(0.f, fade_duration, timer_);
+            pfrm.screen().fade(amount, ColorConstant::rich_black, {}, true, true);
+        }
         break;
+    }
     }
 
 
@@ -206,7 +230,11 @@ void WorldMapScene::display(Platform& pfrm, App& app)
             Float(28 + app.current_map_location().x * 24) - 4,
             Float(36 + app.current_map_location().y * 24) - 8
         });
+    cursor.set_mix(cmix_);
     pfrm.screen().draw(cursor);
+
+
+    cursor.set_mix({});
 
 
     if (state_ == State::explore_paths) {
@@ -308,6 +336,16 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
     pfrm.set_tile(Layer::overlay, 1, 13, 115);
     pfrm.set_tile(Layer::overlay, 1, 15, 118);
     pfrm.set_tile(Layer::overlay, 1, 17, 116);
+
+    auto& node = app.world_map().matrix_[cursor_.x][cursor_.y];
+    if (not (node.connections_.mask_ & WorldMap::Node::Connections::r)) {
+        move_arrow_sel_[1] = false;
+        if (node.connections_.mask_ & WorldMap::Node::Connections::ru) {
+            move_arrow_sel_[0] = true;
+        } else if (node.connections_.mask_ & WorldMap::Node::Connections::rd) {
+            move_arrow_sel_[2] = true;
+        }
+    }
 }
 
 

@@ -55,6 +55,7 @@ private:
     u8 cursor_keyframe_ = 0;
     Microseconds cursor_anim_timer_ = 0;
     Microseconds timer_ = 0;
+    ColorMix cmix_;
 
     std::optional<Text> heading_;
     std::optional<Text> key_[3];
