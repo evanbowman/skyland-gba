@@ -13,17 +13,14 @@ namespace skyland {
 
 class LoadLevelScene : public Scene {
 public:
-    LoadLevelScene(const char* script)
+    LoadLevelScene()
     {
-        script_name_ = script;
     }
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
-private:
-    StringBuffer<32> script_name_;
 };
 
 

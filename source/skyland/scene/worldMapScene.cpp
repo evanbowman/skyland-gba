@@ -160,7 +160,7 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(1200);
         if (timer_ > fade_duration) {
-            return scene_pool::alloc<LoadLevelScene>("test.lisp");
+            return scene_pool::alloc<LoadLevelScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             pfrm.screen().fade(amount, ColorConstant::rich_black, {}, true, true);

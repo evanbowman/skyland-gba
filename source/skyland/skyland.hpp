@@ -130,6 +130,12 @@ public:
     }
 
 
+    int& hostile_nodes_visited()
+    {
+        return hostile_nodes_visited_;
+    }
+
+
 private:
     Island player_island_;
     Float cloud_scroll_1_;
@@ -143,6 +149,7 @@ private:
     bool paused_ = false;
     WorldMap world_map_;
     Vec2<u8> current_map_location_ = {0, 1};
+    int hostile_nodes_visited_ = 0;
 
     EntityList<Entity> effects_;
     EntityList<Entity> birbs_;

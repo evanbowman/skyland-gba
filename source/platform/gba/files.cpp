@@ -2,6 +2,8 @@
 
 extern const unsigned char file_test[];
 //;
+extern const unsigned char file_test2[];
+//;
 extern const unsigned char file_english[];
 //;
 extern const unsigned char file_spanish[];
@@ -18,6 +20,8 @@ static const struct {
 } files[] = {
 
     {"scripts", "test.lisp", file_test},
+//;
+    {"scripts", "test2.lisp", file_test2},
 //;
     {"strings", "english.txt", file_english},
 //;

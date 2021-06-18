@@ -26,7 +26,31 @@ void set_island_positions(Island& left_island, Island& right_island)
 
 ScenePtr<Scene> LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    lisp::dostring(pfrm.load_file_contents("scripts", script_name_.c_str()));
+    const auto loc = app.current_map_location();
+    auto& node = app.world_map().matrix_[loc.x][loc.y];
+
+
+    switch (node.type_) {
+    case WorldMap::Node::Type::storm_clear:
+    case WorldMap::Node::Type::clear:
+        lisp::dostring(pfrm.load_file_contents("scripts", "test.lisp"));
+        break;
+
+    case WorldMap::Node::Type::storm_hostile:
+        lisp::dostring(pfrm.load_file_contents("scripts", "test2.lisp"));
+        app.hostile_nodes_visited() += 1;
+        break;
+
+    case WorldMap::Node::Type::hostile:
+        lisp::dostring(pfrm.load_file_contents("scripts", "test.lisp"));
+        app.hostile_nodes_visited() += 1;
+        break;
+
+
+    case WorldMap::Node::Type::null:
+        pfrm.fatal("world map mem corrupt");
+    }
+
 
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;

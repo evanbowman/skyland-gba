@@ -59,7 +59,8 @@ struct Context {
                        allocate_dynamic<ValuePool>(pfrm)},
           operand_stack_(allocate_dynamic<OperandStack>(pfrm)),
           globals_(allocate_dynamic<Globals>(pfrm)),
-          interns_(allocate_dynamic<Interns>(pfrm))
+          interns_(allocate_dynamic<Interns>(pfrm)),
+          pfrm_(pfrm)
     {
         for (auto& pl : value_pools_) {
             if (not pl) {
@@ -84,6 +85,8 @@ struct Context {
     DynamicMemory<OperandStack> operand_stack_;
     DynamicMemory<Globals> globals_;
     DynamicMemory<Interns> interns_;
+
+    Platform& pfrm_;
 };
 
 
@@ -435,6 +438,78 @@ Value* make_databuffer(Platform& pfrm)
 }
 
 
+void live_values(::Function<24, void(Value&)> callback);
+
+
+Value* make_string(Platform& pfrm, const char* string)
+{
+    auto len = str_len(string);
+
+    Value* existing_buffer = nullptr;
+    decltype(len) free = 0;
+
+    live_values([&](Value& value) {
+        if (existing_buffer) {
+            return;
+        }
+
+        if (value.type_ == Value::Type::string) {
+            auto buffer = dcompr(value.string_.data_buffer_);
+            free = 0;
+            for (int i = SCRATCH_BUFFER_SIZE - 1; i > 0; --i) {
+                if (buffer->data_buffer_.value()->data_[i] == '\0') {
+                    ++free;
+                }
+            }
+            if (free > len + 1) { // +1 for null term, > for other null term
+                existing_buffer = buffer;
+            }
+        }
+    });
+
+    if (existing_buffer) {
+        const auto offset = (SCRATCH_BUFFER_SIZE - free) + 1;
+
+        auto write_ptr = existing_buffer->data_buffer_.value()->data_ + offset;
+
+        while (*string) {
+            *write_ptr++ = *string++;
+        }
+
+        if (auto val = alloc_value()) {
+            val->type_ = Value::Type::string;
+            val->string_.data_buffer_ = compr(existing_buffer);
+            val->string_.offset_ = offset;
+            return val;
+        } else {
+            return bound_context->oom_;
+        }
+    } else {
+        auto buffer = make_databuffer(pfrm);
+        if (buffer == bound_context->oom_) {
+            return bound_context->oom_;
+        }
+        for (int i = 0; i < SCRATCH_BUFFER_SIZE; ++i) {
+            buffer->data_buffer_.value()->data_[i] = '\0';
+        }
+        auto write_ptr = buffer->data_buffer_.value()->data_;
+
+        while (*string) {
+            *write_ptr++ = *string++;
+        }
+
+        if (auto val = alloc_value()) {
+            val->type_ = Value::Type::string;
+            val->string_.data_buffer_ = compr(buffer);
+            val->string_.offset_ = 0;
+            return val;
+        } else {
+            return bound_context->oom_;
+        }
+    }
+}
+
+
 void set_list(Value* list, u32 position, Value* value)
 {
     while (position--) {
@@ -706,6 +781,12 @@ void format_impl(Value* value, Printer& p)
         p.put_str("nil");
         break;
 
+    case lisp::Value::Type::string:
+        p.put_str("\"");
+        p.put_str(value->string_.value());
+        p.put_str("\"");
+        break;
+
     case lisp::Value::Type::symbol:
         p.put_str(value->symbol_.name_);
         break;
@@ -761,6 +842,13 @@ void format_impl(Value* value, Printer& p)
         break;
     }
 }
+
+
+const char* String::value()
+{
+    return dcompr(data_buffer_)->data_buffer_.value()->data_ + offset_;
+}
+
 
 
 void format(Value* value, Printer& p)
@@ -895,6 +983,7 @@ static void invoke_finalizer(Value* value)
         Symbol::finalizer,
         UserData::finalizer,
         DataBuffer::finalizer,
+        String::finalizer,
     };
 
     table[value->type_].fn_(value);
@@ -1042,6 +1131,28 @@ static u32 read_list(const char* code)
 }
 
 
+static u32 read_string(const char* code)
+{
+    auto temp = bound_context->pfrm_.make_scratch_buffer();
+    auto write = temp->data_;
+
+    int i = 0;
+    while (*code not_eq '"') {
+        if (*code == '\0' or i == SCRATCH_BUFFER_SIZE - 1) {
+            // FIXME: correct error code.
+            push_op(lisp::make_error(Error::Code::mismatched_parentheses));
+        }
+        *(write++) = *(code++);
+        i++;
+    }
+
+
+    push_op(make_string(bound_context->pfrm_, temp->data_));
+
+    return i;
+}
+
+
 static u32 read_symbol(const char* code)
 {
     int i = 0;
@@ -1183,6 +1294,11 @@ u32 read(const char* code)
         case ' ':
             ++i;
             break;
+
+        case '"':
+            pop_op(); // nil
+            i += read_string(code + i + 1);
+            return i;
 
         default:
             pop_op(); // nil

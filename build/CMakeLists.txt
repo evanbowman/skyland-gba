@@ -158,6 +158,7 @@ if(GAMEBOY_ADVANCE)
     # Data files below. Because the gameboy advance does not have a filesystem,
     # all of the sounds and images need to be compiled into the ROM.
     ${DATA_DIR}/file_test.cpp
+    ${DATA_DIR}/file_test2.cpp
     ${DATA_DIR}/file_english.cpp
     ${DATA_DIR}/file_spanish.cpp
     ${DATA_DIR}/file_chinese.cpp
@@ -396,6 +397,7 @@ if(GAMEBOY_ADVANCE)
     -mtune=arm7tdmi)
 
   add_file(scripts test lisp)
+  add_file(scripts test2 lisp)
 
   add_file(strings english txt)
   add_file(strings spanish txt)

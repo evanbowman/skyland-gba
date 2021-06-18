@@ -144,6 +144,20 @@ struct DataBuffer {
 };
 
 
+
+struct String {
+    CompressedPtr data_buffer_;
+    u16 offset_;
+
+    const char* value();
+
+    static void finalizer(Value*)
+    {
+    }
+};
+
+
+
 struct Error {
     enum class Code {
         value_not_callable,
@@ -204,6 +218,7 @@ struct Value {
         symbol,
         user_data,
         data_buffer,
+        string,
         count,
     };
     u8 type_ : 4;
@@ -221,6 +236,7 @@ struct Value {
         Symbol symbol_;
         UserData user_data_;
         DataBuffer data_buffer_;
+        String string_;
     };
 
     template <typename T> T& expect()
@@ -293,6 +309,7 @@ Value* make_userdata(void* obj);
 Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
 Value* make_databuffer(Platform& pfrm);
+Value* make_string(Platform& pfrm, const char* str);
 
 
 void get_interns(::Function<24, void(const char*)> callback);
