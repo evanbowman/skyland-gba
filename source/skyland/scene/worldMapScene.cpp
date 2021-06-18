@@ -128,7 +128,7 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
 
         if (pfrm.keyboard().down_transition<Key::action_1>()) {
             state_ = State::wait;
-            cmix_ = {};
+            cmix_ = {ColorConstant::stil_de_grain, 200};
             if (move_arrow_sel_[0]) {
                 app.current_map_location().x += 1;
                 app.current_map_location().y -= 1;
@@ -142,9 +142,15 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
         break;
 
     case State::wait:
-        timer_ += delta;
-        if (timer_ > seconds(1)) {
+        if (cmix_.amount_ > 0) {
+            timer_ += delta;
+            if (timer_ > 12000) {
+                timer_ -= 12000;
+                cmix_ = {cmix_.color_, u8(cmix_.amount_ - 5)};
+            }
+        } else {
             timer_ = 0;
+            cmix_ = {};
             state_ = State::fade_out;
         }
         break;
