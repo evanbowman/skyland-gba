@@ -130,9 +130,9 @@ public:
     }
 
 
-    int& hostile_nodes_visited()
+    Float& difficulty_accumulator()
     {
-        return hostile_nodes_visited_;
+        return difficulty_accumulator_;
     }
 
 
@@ -149,7 +149,9 @@ private:
     bool paused_ = false;
     WorldMap world_map_;
     Vec2<u8> current_map_location_ = {0, 1};
-    int hostile_nodes_visited_ = 0;
+
+    Float difficulty_accumulator_ = 0.f;
+
 
     EntityList<Entity> effects_;
     EntityList<Entity> birbs_;

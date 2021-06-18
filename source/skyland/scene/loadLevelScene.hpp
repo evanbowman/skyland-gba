@@ -2,7 +2,7 @@
 
 
 
-#include "skyland/scene.hpp"
+#include "worldScene.hpp"
 #include "string.hpp"
 
 
@@ -11,15 +11,21 @@ namespace skyland {
 
 
 
-class LoadLevelScene : public Scene {
+class LoadLevelScene : public WorldScene {
 public:
     LoadLevelScene()
     {
     }
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+    void enter(Platform&, App&, Scene& prev) override;
 
+
+    void exit(Platform&, App&, Scene& next) override;
+
+
+
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 };
 

@@ -459,6 +459,8 @@ Value* make_string(Platform& pfrm, const char* string)
             for (int i = SCRATCH_BUFFER_SIZE - 1; i > 0; --i) {
                 if (buffer->data_buffer_.value()->data_[i] == '\0') {
                     ++free;
+                } else {
+                    break;
                 }
             }
             if (free > len + 1) { // +1 for null term, > for other null term
@@ -752,7 +754,7 @@ bool is_executing()
 }
 
 
-void dostring(const char* code)
+void dostring(const char* code, ::Function<16, void(Value&)> on_error)
 {
     ++bound_context->interp_entry_count_;
 
@@ -766,8 +768,16 @@ void dostring(const char* code)
             break;
         }
         eval(reader_result);
-        pop_op(); // reader result
+        auto expr_result = get_op(0);
         pop_op(); // expression result
+        pop_op(); // reader result
+
+        if (expr_result->type_ == Value::Type::error) {
+            push_op(expr_result);
+            on_error(*expr_result);
+            pop_op();
+            break;
+        }
     }
 
     --bound_context->interp_entry_count_;
@@ -882,6 +892,10 @@ static void gc_mark_value(Value* value)
             gc_mark_value(
                 (dcompr(value->function_.bytecode_impl_.data_buffer_)));
         }
+        break;
+
+    case Value::Type::string:
+        gc_mark_value(dcompr(value->string_.data_buffer_));
         break;
 
     case Value::Type::cons:
@@ -1490,6 +1504,16 @@ void eval(Value* code)
 }
 
 
+static Platform* interp_get_pfrm()
+{
+    auto pfrm = lisp::get_var("*pfrm*");
+    if (pfrm->type_ not_eq lisp::Value::Type::user_data) {
+        return nullptr;
+    }
+    return (Platform*)pfrm->user_data_.obj_;
+}
+
+
 void init(Platform& pfrm)
 {
     bound_context.emplace(pfrm);
@@ -1848,6 +1872,25 @@ void init(Platform& pfrm)
                 return get_nil();
             }));
 
+    set_var("string", make_function([](int argc) {
+        EvalBuffer b;
+        EvalPrinter p(b);
+
+        for (int i = argc - 1; i > -1; --i) {
+            auto val = get_op(i);
+            if (val->type_ == Value::Type::string) {
+                p.put_str(val->string_.value());
+            } else {
+                format_impl(val, p);
+            }
+        }
+
+        if (auto pfrm = interp_get_pfrm()) {
+            return make_string(*pfrm, b.c_str());
+        }
+        return L_NIL;
+    }));
+
     set_var("bound", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, symbol);
@@ -1860,6 +1903,50 @@ void init(Platform& pfrm)
 
                 return make_integer(0);
             }));
+
+
+    set_var("filter", make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(0, cons);
+        L_EXPECT_OP(1, function);
+
+        auto fn = get_op(1);
+        Value* result = make_cons(L_NIL, L_NIL);
+        auto prev = result;
+        auto current = result;
+
+        foreach(get_op(0), [&](Value* val) {
+            push_op(result); // gc protect
+
+            push_op(val);
+            funcall(fn, 1);
+            auto funcall_result = get_op(0);
+
+            if (is_boolean_true(funcall_result)) {
+                current->cons_.set_car(val);
+                auto next = make_cons(L_NIL, L_NIL);
+                if (next == bound_context->oom_) {
+                    current = result;
+                    return;
+                }
+                current->cons_.set_cdr(next);
+                prev = current;
+                current = next;
+            }
+            pop_op(); // funcall result
+
+            pop_op(); // gc unprotect
+        });
+
+        if (current == result) {
+            return L_NIL;
+        }
+
+        prev->cons_.set_cdr(L_NIL);
+
+        return result;
+    }));
+
 
     set_var(
         "map", make_function([](int argc) {
@@ -1924,6 +2011,20 @@ void init(Platform& pfrm)
 
             return result;
         }));
+
+    set_var("reverse", make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, cons);
+
+        Value* result = get_nil();
+        foreach(get_op(0), [&](Value* car) {
+            push_op(result);
+            result = make_cons(car, result);
+            pop_op();
+        });
+
+        return result;
+    }));
 
     set_var("select", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 2);

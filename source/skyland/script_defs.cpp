@@ -47,6 +47,18 @@ void App::init_scripts(Platform& pfrm)
     lisp::set_var("*app*", lisp::make_userdata(this));
 
 
+    lisp::set_var("print", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, string);
+
+        if (auto pfrm = interp_get_pfrm()) {
+            debug(*pfrm, lisp::get_op(0)->string_.value());
+        }
+
+        return L_NIL;
+    }));
+
+
 
     lisp::set_var("player", lisp::make_function([](int argc) {
         auto app = interp_get_app();
@@ -136,6 +148,36 @@ void App::init_scripts(Platform& pfrm)
 
         return L_NIL;
     }));
+
+
+    lisp::set_var("eval-other-file", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, string);
+
+        if (auto pfrm = interp_get_pfrm()) {
+            auto str = lisp::get_op(0)->string_.value();
+            if (auto contents = pfrm->load_file_contents("scripts", str)) {
+                lisp::dostring(contents, [pfrm](lisp::Value& v) {
+                    pfrm->fatal(lisp::Error::get_string(v.error_.code_));
+                });
+            } else {
+                StringBuffer<32> err("script '");
+                err += str;
+                err += "' missing";
+                pfrm->fatal(err.c_str());
+            }
+        }
+        return L_NIL;
+    }));
+
+
+    lisp::set_var("cr-choice", lisp::make_function([](int argc) {
+                      L_EXPECT_ARGC(argc, 1);
+                      L_EXPECT_OP(0, integer);
+                      return lisp::make_integer(
+                          rng::choice(lisp::get_op(0)->integer_.value_,
+                                      rng::critical_state));
+                  }));
 }
 
 

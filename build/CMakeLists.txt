@@ -108,9 +108,18 @@ set(SOURCES
   ${SOURCES})
 
 
+
+# Ok, I should explain... For each call to add_file, the cmake script creates a
+# build dependency for the executable, converts the file to an array of bytes
+# with xxd, outputs a .cpp file, and adds the name of the .cpp file to a list of
+# files, which are then compiled into a static library and linked with the
+# executable. Maybe this sounds complicated, but now adding files to the project
+# is as easy as `add_file(...)` (see below).
 set(FILES_DIR ${SOURCE_DIR}/../)
 set(FILES "")
 set(FILE_DECLS "")
+set(FILES_SOURCE_LIST)
+
 
 
 macro(add_file prefix file suffix)
@@ -133,6 +142,8 @@ macro(add_file prefix file suffix)
     add_custom_target(convert_${file}_file DEPENDS ${FILE_OUT})
 
     add_dependencies(Skyland convert_${file}_file)
+
+    list(APPEND FILES_SOURCE_LIST "${DATA_DIR}file_${file}.cpp")
 
   endif()
 endmacro()
@@ -157,12 +168,6 @@ if(GAMEBOY_ADVANCE)
 
     # Data files below. Because the gameboy advance does not have a filesystem,
     # all of the sounds and images need to be compiled into the ROM.
-    ${DATA_DIR}/file_test.cpp
-    ${DATA_DIR}/file_test2.cpp
-    ${DATA_DIR}/file_english.cpp
-    ${DATA_DIR}/file_spanish.cpp
-    ${DATA_DIR}/file_chinese.cpp
-    ${DATA_DIR}/file_russian.cpp
     ${DATA_DIR}/music_chantiers_navals_412.s
     ${DATA_DIR}/overlay.s
     ${DATA_DIR}/overlay_world_map.s
@@ -396,13 +401,28 @@ if(GAMEBOY_ADVANCE)
     -mcpu=arm7tdmi
     -mtune=arm7tdmi)
 
+  add_file(scripts newgame lisp)
+  add_file(scripts hostile lisp)
   add_file(scripts test lisp)
   add_file(scripts test2 lisp)
+
+  add_file(scripts hostile_0 lisp)
+  add_file(scripts hostile_0_0 lisp)
+  add_file(scripts hostile_0_1 lisp)
 
   add_file(strings english txt)
   add_file(strings spanish txt)
   add_file(strings chinese txt)
   add_file(strings russian txt)
+
+  add_library(EMBED_FILES ${FILES_SOURCE_LIST})
+
+  target_compile_options(EMBED_FILES PRIVATE
+    -mthumb
+    -mthumb-interwork
+    -mcpu=arm7tdmi
+    -mtune=arm7tdmi)
+
 
   if(GBA_AUTOBUILD_CONF)
     configure_file(files.cpp.in ${SOURCE_DIR}/platform/gba/files.cpp)
@@ -428,6 +448,9 @@ if(GAMEBOY_ADVANCE)
   target_link_libraries(Skyland PRIVATE
     # ${DEVKITPRO}/libgba/lib/libgba.a
     ARM_ROUTINES)
+
+  target_link_libraries(Skyland PRIVATE
+    EMBED_FILES)
 
   target_compile_options(Skyland PRIVATE
     -mthumb

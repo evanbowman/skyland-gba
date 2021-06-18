@@ -10,6 +10,8 @@
    (power-core 1 13)))
 
 
+;; (eval-other-file "test2.lisp")
+
 
 ;; (init-opponent 4)
 
