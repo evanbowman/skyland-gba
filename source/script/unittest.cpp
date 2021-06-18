@@ -137,7 +137,9 @@ int main(int argc, char** argv)
     std::string str((std::istreambuf_iterator<char>(t)),
                     std::istreambuf_iterator<char>());
 
-    lisp::dostring(str.c_str(), [](lisp::Value&) {});
+    lisp::dostring(str.c_str(), [](lisp::Value& v) {
+        std::cout << lisp::Error::get_string(v.error_.code_) << std::endl;
+    });
 
 
     std::string line;

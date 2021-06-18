@@ -598,6 +598,8 @@ void funcall(Value* obj, u8 argc)
         }
     };
 
+
+
     switch (obj->type_) {
     case Value::Type::function: {
         if (bound_context->operand_stack_->size() < argc) {
@@ -1655,6 +1657,10 @@ void init(Platform& pfrm)
                 case Value::Type::user_data:
                     return get_op(0)->user_data_.obj_ ==
                            get_op(1)->user_data_.obj_;
+
+                case Value::Type::string:
+                    return str_cmp(get_op(0)->string_.value(),
+                                   get_op(1)->string_.value()) == 0;
                 }
                 return false;
             }());
@@ -1871,6 +1877,15 @@ void init(Platform& pfrm)
 
                 return get_nil();
             }));
+
+
+    set_var("symbol", make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, string);
+
+        return make_symbol(get_op(0)->string_.value());
+    }));
+
 
     set_var("string", make_function([](int argc) {
         EvalBuffer b;

@@ -63,7 +63,7 @@ ScenePtr<Scene> LoadLevelScene::update(Platform& pfrm, App& app, Microseconds de
         break;
 
     case WorldMap::Node::Type::hostile:
-        lisp::dostring(pfrm.load_file_contents("scripts", "hostile.lisp"),
+        lisp::dostring(pfrm.load_file_contents("scripts", "test.lisp"),
                        on_lisp_error);
         break;
 
