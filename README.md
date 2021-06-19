@@ -7,6 +7,10 @@ A Gameboy Advance game created, frantically, for a game jam, in about twenty fiv
 days. For posterity, I will not be editing this repository after finishing the
 game jam. All future work will be completed in a fork (link forthcoming).
 
+I forked a top-down action game called Blind Jump to leverage some existing gba
+framework code that I'd written in the past for interfacing with the hardware,
+but most of the code is entirely new.
+
 
 ## Controls, Mechanics, and other Info
 
