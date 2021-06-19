@@ -8,6 +8,9 @@
 
 (configure-player
  (opponent)
- '((cannon 0 13)
+ '((cannon 0 12)
+   (hull 0 11)
+   (missile-silo 1 11)
+   (hull 0 13)
    (hull 0 14)
    (power-core 1 13)))

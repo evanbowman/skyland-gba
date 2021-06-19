@@ -42,7 +42,7 @@ public:
 
     static Coins cost()
     {
-        return 1500;
+        return 1400;
     }
 
 

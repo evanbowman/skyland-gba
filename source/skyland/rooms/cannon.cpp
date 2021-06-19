@@ -27,7 +27,7 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (reload_ > 0) {
         reload_ -= delta;
-    } else {
+    } else if (target_) {
 
         if (parent()->power_supply() < parent()->power_drain()) {
             return;
@@ -36,30 +36,30 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
         auto island = other_island(app);
 
         if (island and not island->is_destroyed()) {
-            if (target_) {
-                if (auto room = island->get_room(*target_)) {
-                    app.camera().shake(4);
+            if (auto room = island->get_room(*target_)) {
+                app.camera().shake(4);
 
-                    auto start = center();
+                auto start = center();
 
-                    // This just makes it a bit less likely for cannonballs to
-                    // run into the player's own buildings, especially around
-                    // corners.
-                    if (island == &app.player_island()) {
-                        start.x -= 6;
-                    } else {
-                        start.x += 6;
-                    }
-
-                    auto c = alloc_entity<Cannonball>(
-                                                      start, rng::sample<6>(room->center(),
-                                                                            rng::utility_state), parent());
-                    parent()->projectiles().push(std::move(c));
+                // This just makes it a bit less likely for cannonballs to
+                // run into the player's own buildings, especially around
+                // corners.
+                if (island == &app.player_island()) {
+                    start.x -= 6;
+                } else {
+                    start.x += 6;
                 }
+
+                auto c = alloc_entity<Cannonball>(
+                                                  start, rng::sample<6>(room->center(),
+                                                                        rng::utility_state), parent());
+                parent()->projectiles().push(std::move(c));
+
+                reload_ = reload_time;
+            } else {
+                target_.reset();
             }
         }
-
-        reload_ = reload_time;
     }
 }
 

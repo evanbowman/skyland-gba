@@ -24,32 +24,6 @@ extern const unsigned char file_hostile_0_6[];
 //;
 extern const unsigned char file_hostile_0_7[];
 //;
-extern const unsigned char file_hostile_0_8[];
-//;
-extern const unsigned char file_hostile_0_9[];
-//;
-extern const unsigned char file_hostile_0_10[];
-//;
-extern const unsigned char file_hostile_0_11[];
-//;
-extern const unsigned char file_hostile_0_12[];
-//;
-extern const unsigned char file_hostile_0_13[];
-//;
-extern const unsigned char file_hostile_0_14[];
-//;
-extern const unsigned char file_hostile_0_15[];
-//;
-extern const unsigned char file_hostile_0_16[];
-//;
-extern const unsigned char file_hostile_0_17[];
-//;
-extern const unsigned char file_hostile_0_18[];
-//;
-extern const unsigned char file_hostile_0_19[];
-//;
-extern const unsigned char file_hostile_0_20[];
-//;
 extern const unsigned char file_friendly_0_0[];
 //;
 extern const unsigned char file_english[];
@@ -90,32 +64,6 @@ static const struct {
     {"scripts", "hostile_0_6.lisp", file_hostile_0_6},
 //;
     {"scripts", "hostile_0_7.lisp", file_hostile_0_7},
-//;
-    {"scripts", "hostile_0_8.lisp", file_hostile_0_8},
-//;
-    {"scripts", "hostile_0_9.lisp", file_hostile_0_9},
-//;
-    {"scripts", "hostile_0_10.lisp", file_hostile_0_10},
-//;
-    {"scripts", "hostile_0_11.lisp", file_hostile_0_11},
-//;
-    {"scripts", "hostile_0_12.lisp", file_hostile_0_12},
-//;
-    {"scripts", "hostile_0_13.lisp", file_hostile_0_13},
-//;
-    {"scripts", "hostile_0_14.lisp", file_hostile_0_14},
-//;
-    {"scripts", "hostile_0_15.lisp", file_hostile_0_15},
-//;
-    {"scripts", "hostile_0_16.lisp", file_hostile_0_16},
-//;
-    {"scripts", "hostile_0_17.lisp", file_hostile_0_17},
-//;
-    {"scripts", "hostile_0_18.lisp", file_hostile_0_18},
-//;
-    {"scripts", "hostile_0_19.lisp", file_hostile_0_19},
-//;
-    {"scripts", "hostile_0_20.lisp", file_hostile_0_20},
 //;
     {"scripts", "friendly_0_0.lisp", file_friendly_0_0},
 //;

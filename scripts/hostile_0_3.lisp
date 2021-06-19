@@ -3,11 +3,12 @@
 ;;;
 
 
-(init-opponent 6 'hostile)
+(init-opponent 5 'hostile)
 
 
 (configure-player
  (opponent)
  '((cannon 0 13)
-   (hull 0 14)
-   (power-core 2 13)))
+   (missile-silo 1 13)
+   (power-core 2 13)
+   (stairwell 4 11)))

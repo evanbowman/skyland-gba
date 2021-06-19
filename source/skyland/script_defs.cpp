@@ -178,18 +178,15 @@ void App::init_scripts(Platform& pfrm)
                       return L_NIL;
                   }));
 
+    lisp::set_var("add-coins", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, integer);
 
-    // lisp::set_var("missile-ammo", lisp::make_function([](int argc) {
-    //     L_EXPECT_ARGC(argc, 2);
-    //     L_EXPECT_OP(0, integer);
-    //     L_EXPECT_OP(1, user_data);
+        auto app = interp_get_app();
+        app->coins() += lisp::get_op(0)->integer_.value_;
 
-    //     auto island = (Island*)lisp::get_op(1)->user_data_.obj_;
-    //     island->owner().missile_ammo() = lisp::get_op(0)->integer_.value_;
-
-    //     return L_NIL;
-    // }));
-
+        return L_NIL;
+    }));
 
     lisp::set_var(
         "eval-other-file", lisp::make_function([](int argc) {
