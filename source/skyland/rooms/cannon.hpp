@@ -75,7 +75,7 @@ public:
 
     static Power consumes_power()
     {
-        return 28;
+        return 34;
     }
 
 

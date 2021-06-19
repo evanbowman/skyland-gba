@@ -2,6 +2,7 @@
 
 #include "number/numeric.hpp"
 #include <memory>
+#include "function.hpp"
 
 
 class Platform;
@@ -44,6 +45,10 @@ public:
 
 
 ScenePtr<Scene> initial_scene();
+
+
+using DeferredScene = Function<16, ScenePtr<Scene>()>;
+
 
 
 } // namespace skyland

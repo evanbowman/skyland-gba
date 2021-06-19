@@ -16,11 +16,11 @@ namespace skyland {
 
 
 
-Island::Island(Platform& pfrm, Layer layer, u8 width, Player& player)
+Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
     : layer_(layer), timer_(0), interior_visible_(false),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       projectiles_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      player_(player)
+      owner_(&owner)
 {
     terrain_.push_back(13), --width;
 
@@ -45,6 +45,8 @@ Island::Rooms& Island::rooms()
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;
+
+    owner_->update(pfrm, app, dt);
 
     if (chimney_loc_) {
         chimney_spawn_timer_ += dt;
@@ -332,9 +334,15 @@ void Island::repaint(Platform& pfrm)
 
     Buffer<u8, terrain_.capacity()> chimney_locs;
 
+    has_radar_ = false;
+
     for (auto& room : rooms_) {
         if (room->has_chimney()) {
             chimney_locs.push_back(room->position().x);
+        }
+        auto metac = room->metaclass();
+        if (str_cmp((*metac)->name(), "radar") == 0) {
+            has_radar_ = true;
         }
     }
 

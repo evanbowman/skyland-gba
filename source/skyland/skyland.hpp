@@ -9,6 +9,8 @@
 #include "player.hpp"
 #include "scene.hpp"
 #include "worldMap.hpp"
+#include "boxed.hpp"
+#include "dialog.hpp"
 
 
 
@@ -90,9 +92,16 @@ public:
     }
 
 
-    Opponent& opponent()
+    Opponent& ai()
     {
-        return enemy_ai_;
+        return *ai_;
+    }
+
+
+    template <typename T, typename ...Args>
+    void swap_ai(Args&& ...args)
+    {
+        ai_.emplace<T>(std::forward<Args>(args)...);
     }
 
 
@@ -135,6 +144,18 @@ public:
     }
 
 
+    int& zone()
+    {
+        return zone_;
+    }
+
+
+    std::optional<DialogBuffer>& dialog_buffer()
+    {
+        return dialog_buffer_;
+    }
+
+
 private:
     Island player_island_;
     Float cloud_scroll_1_;
@@ -149,8 +170,12 @@ private:
     WorldMap world_map_;
     Vec2<u8> current_map_location_ = {0, 1};
 
+    std::optional<DialogBuffer> dialog_buffer_;
+
+
     Float difficulty_accumulator_ = 0.f;
 
+    int zone_ = 0;
 
     EntityList<Entity> effects_;
     EntityList<Entity> birbs_;
@@ -163,7 +188,9 @@ private:
 
     Player player_; // Just a null sentinel object essentially...
 
-    EnemyAI enemy_ai_;
+
+    Boxed<Opponent, EnemyAI, 64> ai_;
+
 };
 
 

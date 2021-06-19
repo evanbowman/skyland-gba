@@ -1,6 +1,6 @@
 
 
-(init-opponent 3)
+(init-opponent 3 'hostile)
 
 
 (configure-player
@@ -13,7 +13,7 @@
 ;; (eval-other-file "test2.lisp")
 
 
-;; (init-opponent 4)
+;; (init-opponent 4 'hostile)
 
 
 ;; (configure-player
@@ -24,7 +24,7 @@
 ;;    (stairwell 3 11)))
 
 
-;; (init-opponent 6)
+;; (init-opponent 6 'hostile)
 
 ;; (show-flag (opponent))
 

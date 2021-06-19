@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include "number/numeric.hpp"
 #include "skyland/player.hpp"
 
 
@@ -23,7 +22,6 @@ public:
     virtual ~Opponent()
     {
     }
-    virtual void update(Platform&, App&, Microseconds delta) = 0;
 };
 
 

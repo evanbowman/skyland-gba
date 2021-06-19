@@ -92,6 +92,15 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.opponent_island()) {
+
+        if (not app.opponent_island()->interior_visible() and
+            app.player_island().has_radar()) {
+
+            pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
+
+            app.opponent_island()->render_interior(pfrm);
+        }
+
         // Hey, I threw this code together in a panic for a game jam, I know
         // this is illegible. Drift opponent island toward the player, until
         // a certain distance. If the player extends the terrain on his own
@@ -165,7 +174,6 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (not app.paused()) {
-        app.opponent().update(pfrm, app, delta);
 
         app.player_island().update(pfrm, app, delta);
 

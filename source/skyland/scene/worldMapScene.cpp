@@ -331,7 +331,8 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 
     heading_.emplace(pfrm, OverlayCoord{1, 1});
 
-    heading_->assign("sky map - zone 1");
+    heading_->assign("sky map - zone ");
+    heading_->append(app.zone());
 
     show_map(pfrm, app.world_map());
 

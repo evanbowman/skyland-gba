@@ -52,7 +52,8 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
                     }
 
                     auto c = alloc_entity<Cannonball>(
-                        start, room->center(), parent());
+                                                      start, rng::sample<6>(room->center(),
+                                                                            rng::utility_state), parent());
                     parent()->projectiles().push(std::move(c));
                 }
             }

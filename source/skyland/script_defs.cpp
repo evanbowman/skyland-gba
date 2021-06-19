@@ -3,6 +3,7 @@
 #include "rooms/core.hpp"
 #include "script/lisp.hpp"
 #include "skyland.hpp"
+#include "opponent/friendlyAI.hpp"
 
 
 
@@ -76,17 +77,53 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
+    lisp::set_var("dialog", lisp::make_function([](int argc) {
+        auto app = interp_get_app();
+        auto pfrm = interp_get_pfrm();
+
+        for (int i = argc - 1; i > -1; --i) {
+            if (not app->dialog_buffer()) {
+                app->dialog_buffer().emplace(allocate_dynamic<DialogString>(*pfrm));
+            }
+
+            if (lisp::get_op(i)->type_ not_eq lisp::Value::Type::string) {
+                if (lisp::get_op((i)) == L_NIL) {
+                    return lisp::get_op((i));
+                } else {
+                    return lisp::make_error(lisp::Error::Code::invalid_argument_type);
+                }
+            }
+
+            **app->dialog_buffer() += lisp::get_op(i)->string_.value();
+        }
+
+        return L_NIL;
+    }));
+
+
     lisp::set_var("init-opponent", lisp::make_function([](int argc) {
-                      L_EXPECT_ARGC(argc, 1);
-                      L_EXPECT_OP(0, integer);
+                      L_EXPECT_ARGC(argc, 2);
+                      L_EXPECT_OP(1, integer);
+                      L_EXPECT_OP(0, symbol);
 
                       auto [app, pfrm] = interp_get_context();
+
+                      auto conf = lisp::get_op(0);
+                      if (str_cmp(conf->symbol_.name_, "hostile") == 0) {
+                          app->swap_ai<EnemyAI>();
+                      } else if (str_cmp(conf->symbol_.name_, "neutral") == 0) {
+                          app->swap_ai<FriendlyAI>();
+                      } else {
+                          StringBuffer<30> err("bad ai sym: '");
+                          err += conf->symbol_.name_;
+                          pfrm->fatal(err.c_str());
+                      }
 
                       app->opponent_island().emplace(
                           *pfrm,
                           Layer::map_1_ext,
-                          lisp::get_op(0)->integer_.value_,
-                          app->opponent());
+                          lisp::get_op(1)->integer_.value_,
+                          app->ai());
 
                       return L_NIL;
                   }));

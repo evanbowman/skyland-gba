@@ -1,5 +1,6 @@
 #include "loadLevelScene.hpp"
 #include "fadeInScene.hpp"
+#include "fullscreenDialogScene.hpp"
 #include "globals.hpp"
 #include "platform/platform.hpp"
 #include "script/lisp.hpp"
@@ -50,7 +51,7 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     switch (node.type_) {
     case WorldMap::Node::Type::storm_clear:
     case WorldMap::Node::Type::clear:
-        lisp::dostring(pfrm.load_file_contents("scripts", "test.lisp"),
+        lisp::dostring(pfrm.load_file_contents("scripts", "friendly_0_0.lisp"),
                        on_lisp_error);
         break;
 
@@ -97,6 +98,13 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     pfrm.delta_clock().reset(); // skip large dt from loading lisp scripts...
+
+    if (app.dialog_buffer()) {
+        auto buffer = std::move(*app.dialog_buffer());
+        app.dialog_buffer().reset();
+
+        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer));
+    }
 
     return scene_pool::alloc<FadeInScene>();
 }

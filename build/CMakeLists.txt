@@ -80,6 +80,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/entity/character/basicCharacter.cpp
   ${SOURCE_DIR}/skyland/rooms/core.cpp
   ${SOURCE_DIR}/skyland/rooms/hull.cpp
+  ${SOURCE_DIR}/skyland/rooms/radar.cpp
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
@@ -92,10 +93,12 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/worldMapScene.cpp
   ${SOURCE_DIR}/skyland/scene/inspectP2Scene.cpp
   ${SOURCE_DIR}/skyland/scene/loadLevelScene.cpp
+  ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp
+  ${SOURCE_DIR}/skyland/scene/fullscreenDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp)
 
 
@@ -172,10 +175,12 @@ if(GAMEBOY_ADVANCE)
     # all of the sounds and images need to be compiled into the ROM.
     ${DATA_DIR}/music_chantiers_navals_412.s
     ${DATA_DIR}/overlay.s
+    ${DATA_DIR}/overlay_dialog.s
     ${DATA_DIR}/overlay_world_map.s
     ${DATA_DIR}/charset.s
     ${DATA_DIR}/tilesheet.s
     ${DATA_DIR}/tilesheet_enemy_0.s
+    ${DATA_DIR}/tilesheet_enemy_0_interior.s
     ${DATA_DIR}/tilesheet_interior.s
     ${DATA_DIR}/tilesheet_top.s
     ${DATA_DIR}/spritesheet.s
@@ -404,13 +409,35 @@ if(GAMEBOY_ADVANCE)
     -mtune=arm7tdmi)
 
   add_file(scripts newgame lisp)
-  add_file(scripts hostile lisp)
   add_file(scripts test lisp)
   add_file(scripts test2 lisp)
 
-  add_file(scripts hostile_0 lisp)
   add_file(scripts hostile_0_0 lisp)
   add_file(scripts hostile_0_1 lisp)
+  add_file(scripts hostile_0_2 lisp)
+  add_file(scripts hostile_0_3 lisp)
+  add_file(scripts hostile_0_4 lisp)
+  add_file(scripts hostile_0_5 lisp)
+  add_file(scripts hostile_0_6 lisp)
+  add_file(scripts hostile_0_7 lisp)
+  add_file(scripts hostile_0_8 lisp)
+  add_file(scripts hostile_0_9 lisp)
+  add_file(scripts hostile_0_10 lisp)
+  add_file(scripts hostile_0_11 lisp)
+  add_file(scripts hostile_0_12 lisp)
+  add_file(scripts hostile_0_13 lisp)
+  add_file(scripts hostile_0_14 lisp)
+  add_file(scripts hostile_0_15 lisp)
+  add_file(scripts hostile_0_16 lisp)
+  add_file(scripts hostile_0_17 lisp)
+  add_file(scripts hostile_0_18 lisp)
+  add_file(scripts hostile_0_19 lisp)
+  add_file(scripts hostile_0_20 lisp)
+
+
+
+  add_file(scripts friendly_0_0 lisp)
+
 
   add_file(strings english txt)
   add_file(strings spanish txt)
@@ -434,9 +461,11 @@ if(GAMEBOY_ADVANCE)
     add_spritesheet(spritesheet 2 4 NO)
     add_tilesheet(tilesheet 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0 2 2 NO NO)
+    add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
     add_tilesheet(tilesheet_interior 2 2 NO NO)
     add_tilesheet(tilesheet_top 4 3 NO NO)
     add_overlay(overlay 0 0 NO NO)
+    add_overlay(overlay_dialog 0 0 NO NO)
     add_overlay(charset 0 0 NO NO)
     add_overlay(overlay_world_map 0 0 NO NO)
 

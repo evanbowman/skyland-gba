@@ -19,11 +19,15 @@
 //;
 #include "data/tilesheet_enemy_0.h"
 //;
+#include "data/tilesheet_enemy_0_interior.h"
+//;
 #include "data/tilesheet_interior.h"
 //;
 #include "data/tilesheet_top.h"
 //;
 #include "data/overlay.h"
+//;
+#include "data/overlay_dialog.h"
 //;
 #include "data/charset.h"
 //;
@@ -59,6 +63,8 @@ static const TextureData tile_textures[] = {
 //;
     TEXTURE_INFO(tilesheet_enemy_0),
 //;
+    TEXTURE_INFO(tilesheet_enemy_0_interior),
+//;
     TEXTURE_INFO(tilesheet_interior),
 //;
     TEXTURE_INFO(tilesheet_top),
@@ -69,6 +75,8 @@ static const TextureData tile_textures[] = {
 static const TextureData overlay_textures[] = {
 
     TEXTURE_INFO(overlay),
+//;
+    TEXTURE_INFO(overlay_dialog),
 //;
     TEXTURE_INFO(charset),
 //;

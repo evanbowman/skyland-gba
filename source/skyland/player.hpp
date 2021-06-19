@@ -1,6 +1,9 @@
 #pragma once
 
 
+#include "number/numeric.hpp"
+
+
 
 class Platform;
 
@@ -22,6 +25,11 @@ using MissileAmmo = short int;
 class Player {
 public:
     virtual ~Player()
+    {
+    }
+
+
+    virtual void update(Platform&, App&, Microseconds delta)
     {
     }
 

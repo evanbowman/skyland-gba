@@ -16,7 +16,7 @@ namespace skyland {
 
 class Island {
 public:
-    Island(Platform& pfrm, Layer layer, u8 width, Player& player);
+    Island(Platform& pfrm, Layer layer, u8 width, Player& owner);
 
 
     using Rooms = Buffer<RoomPtr<Room>, 20>;
@@ -151,7 +151,7 @@ public:
 
     Player& owner()
     {
-        return player_;
+        return *owner_;
     }
 
 
@@ -179,6 +179,18 @@ public:
     }
 
 
+    void set_owner(Player& player)
+    {
+        owner_ = &player;
+    }
+
+
+    bool has_radar() const
+    {
+        return has_radar_;
+    }
+
+
 private:
     void recalculate_power_usage();
 
@@ -200,10 +212,13 @@ private:
     bool interior_visible_;
     bool show_flag_ = false;
 
+    bool has_radar_ = false;
+
+
     EntityList<BasicCharacter> characters_;
     EntityList<Entity> projectiles_;
 
-    Player& player_;
+    Player* owner_;
 
     bool destroyed_ = false;
 

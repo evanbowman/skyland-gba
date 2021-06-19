@@ -54,6 +54,18 @@ template <typename T, typename... Args> ScenePtr<T> alloc(Args&&... args)
 
 
 
+template <typename S, typename... Args>
+DeferredScene make_deferred_scene(Args&&... args)
+{
+    return [args = std::make_tuple(std::forward<Args>(args)...)] {
+        return std::apply(
+            [](auto&&... args) { return alloc<S>(args...); },
+            std::move(args));
+    };
+}
+
+
+
 } // namespace scene_pool
 
 

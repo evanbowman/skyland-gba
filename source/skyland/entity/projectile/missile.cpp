@@ -46,6 +46,7 @@ void Missile::update(Platform&, App&, Microseconds delta)
             state_ = State::falling;
             auto pos = sprite_.get_position();
             pos.x = target_x_;
+            pos.x = rng::sample<5>(pos.x, rng::utility_state);
             sprite_.set_position(pos);
             sprite_.set_flip({false, true});
             sprite_.set_alpha(Sprite::Alpha::opaque);
