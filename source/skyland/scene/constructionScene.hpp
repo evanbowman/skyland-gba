@@ -54,7 +54,7 @@ private:
     void msg(Platform& pfrm, const char* text);
 
 
-    void show_current_building_text(Platform& pfrm);
+    void show_current_building_text(Platform& pfrm, App& app);
 
 
     using Coord = Vec2<u8>;

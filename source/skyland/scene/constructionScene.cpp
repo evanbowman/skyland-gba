@@ -15,6 +15,18 @@ namespace skyland {
 
 
 
+static Coins get_cost(App& app, const RoomMeta& meta)
+{
+    Coins cost = meta->cost();
+    for (int i = 0; i < app.player_island().workshop_count(); ++i) {
+        cost *= 0.8f;
+    }
+    return cost;
+}
+
+
+
+
 ScenePtr<Scene>
 ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -66,7 +78,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 if (not available_buildings_.empty()) {
                     state_ = State::choose_building;
-                    show_current_building_text(pfrm);
+                    show_current_building_text(pfrm, app);
                 }
             }
         }
@@ -83,27 +95,27 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (pfrm.keyboard().down_transition<Key::up>()) {
             if (building_selector_ < (int)available_buildings_.size() - 1) {
                 ++building_selector_;
-                show_current_building_text(pfrm);
+                show_current_building_text(pfrm, app);
             } else {
                 building_selector_ = 0;
-                show_current_building_text(pfrm);
+                show_current_building_text(pfrm, app);
             }
         }
 
         if (pfrm.keyboard().down_transition<Key::down>()) {
             if (building_selector_ > 0) {
                 --building_selector_;
-                show_current_building_text(pfrm);
+                show_current_building_text(pfrm, app);
             } else {
                 building_selector_ = available_buildings_.size() - 1;
-                show_current_building_text(pfrm);
+                show_current_building_text(pfrm, app);
             }
         }
 
         if (pfrm.keyboard().down_transition<Key::action_1>()) {
             const auto& target = *available_buildings_[building_selector_];
 
-            if (app.coins() < target->cost()) {
+            if (app.coins() < get_cost(app, target)) {
                 msg(pfrm, "insufficent funds!");
                 state_ = State::insufficent_funds;
                 break;
@@ -117,7 +129,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            app.coins() -= target->cost();
+            app.coins() -= get_cost(app, target);
 
             const auto sz = target->size().y;
             target->create(pfrm,
@@ -177,13 +189,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void ConstructionScene::show_current_building_text(Platform& pfrm)
+void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 {
     StringBuffer<32> str = ":build :";
 
     str += (*available_buildings_[building_selector_])->name();
     str += " ";
-    str += to_string<10>((*available_buildings_[building_selector_])->cost());
+    str += to_string<10>(get_cost(app, (*available_buildings_[building_selector_])));
     str += "$";
     str += " ";
     str += to_string<10>(

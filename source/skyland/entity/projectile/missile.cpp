@@ -3,6 +3,8 @@
 #include "skyland/room.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/room_metatable.hpp"
+#include "skyland/rooms/forcefield.hpp"
 
 
 
@@ -10,8 +12,12 @@ namespace skyland {
 
 
 
-Missile::Missile(const Vec2<Float>& position, const Vec2<Float>& target)
-    : Projectile({{10, 10}, {8, 8}}), target_x_(target.x)
+Missile::Missile(const Vec2<Float>& position,
+                 const Vec2<Float>& target,
+                 Island* source)
+    : Projectile({{10, 10}, {8, 8}}),
+      target_x_(target.x),
+      source_(source)
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -69,13 +75,26 @@ void Missile::update(Platform&, App&, Microseconds delta)
 
 void Missile::on_collision(Platform& pfrm, App& app, Room& room)
 {
-    if (state_ not_eq State::falling) {
+    if (source_ == room.parent() and dynamic_cast<MissileSilo*>(&room)) {
         return;
     }
+
+    if (source_ == room.parent() and dynamic_cast<Forcefield*>(&room)) {
+        return;
+    }
+
     kill();
     app.camera().shake(18);
     big_explosion(pfrm, app, sprite_.get_position());
-    room.apply_damage(pfrm, app, Missile::deals_damage);
+
+    auto metac = room.metaclass();
+
+    if (str_cmp((*metac)->name(), "hull") == 0) {
+        room.apply_damage(pfrm, app, Missile::deals_damage * 0.75f);
+    } else {
+        room.apply_damage(pfrm, app, Missile::deals_damage);
+    }
+
 }
 
 

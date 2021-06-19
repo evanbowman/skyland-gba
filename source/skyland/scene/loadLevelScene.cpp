@@ -56,12 +56,8 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case WorldMap::Node::Type::storm_hostile:
-        lisp::dostring(pfrm.load_file_contents("scripts", "test2.lisp"),
-                       on_lisp_error);
-        break;
-
     case WorldMap::Node::Type::hostile:
-        lisp::dostring(pfrm.load_file_contents("scripts", "test2.lisp"),
+        lisp::dostring(pfrm.load_file_contents("scripts", "hostile_0.lisp"),
                        on_lisp_error);
         break;
 

@@ -41,7 +41,7 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
 
                     app.camera().shake(6);
                     load_ = load_time;
-                    auto m = alloc_entity<Missile>(start, room->center());
+                    auto m = alloc_entity<Missile>(start, room->center(), parent());
 
                     parent()->projectiles().push(std::move(m));
                 }

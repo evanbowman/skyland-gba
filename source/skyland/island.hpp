@@ -140,6 +140,12 @@ public:
     }
 
 
+    int workshop_count()
+    {
+        return workshop_count_;
+    }
+
+
     EntityList<Entity>& projectiles()
     {
         return projectiles_;
@@ -213,7 +219,7 @@ private:
     bool show_flag_ = false;
 
     bool has_radar_ = false;
-
+    int workshop_count_ = 0;
 
     EntityList<BasicCharacter> characters_;
     EntityList<Entity> projectiles_;

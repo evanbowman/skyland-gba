@@ -84,6 +84,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
+  ${SOURCE_DIR}/skyland/rooms/forcefield.cpp
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/exteriorWall.cpp
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
@@ -412,6 +413,7 @@ if(GAMEBOY_ADVANCE)
   add_file(scripts test lisp)
   add_file(scripts test2 lisp)
 
+  add_file(scripts hostile_0 lisp)
   add_file(scripts hostile_0_0 lisp)
   add_file(scripts hostile_0_1 lisp)
   add_file(scripts hostile_0_2 lisp)

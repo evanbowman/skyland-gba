@@ -7,7 +7,7 @@ namespace skyland {
 
 
 Workshop::Workshop(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(300))
+    : Room(parent, name(), size(), position, Health(60))
 {
 }
 

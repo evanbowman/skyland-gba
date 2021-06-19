@@ -6,6 +6,8 @@ extern const unsigned char file_test[];
 //;
 extern const unsigned char file_test2[];
 //;
+extern const unsigned char file_hostile_0[];
+//;
 extern const unsigned char file_hostile_0_0[];
 //;
 extern const unsigned char file_hostile_0_1[];
@@ -70,6 +72,8 @@ static const struct {
     {"scripts", "test.lisp", file_test},
 //;
     {"scripts", "test2.lisp", file_test2},
+//;
+    {"scripts", "hostile_0.lisp", file_hostile_0},
 //;
     {"scripts", "hostile_0_0.lisp", file_hostile_0_0},
 //;

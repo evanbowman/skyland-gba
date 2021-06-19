@@ -41,7 +41,7 @@ public:
 
     static Coins cost()
     {
-        return 1000;
+        return 2000;
     }
 };
 

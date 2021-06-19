@@ -42,7 +42,7 @@ public:
 
     static Coins cost()
     {
-        return 1800;
+        return 1500;
     }
 
 
@@ -80,7 +80,7 @@ public:
 
 
 private:
-    static constexpr const Microseconds load_time = seconds(10);
+    static constexpr const Microseconds load_time = seconds(7);
 
 
     Microseconds load_ = load_time;

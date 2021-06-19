@@ -335,7 +335,7 @@ void Island::repaint(Platform& pfrm)
     Buffer<u8, terrain_.capacity()> chimney_locs;
 
     has_radar_ = false;
-
+    workshop_count_ = 0;
     for (auto& room : rooms_) {
         if (room->has_chimney()) {
             chimney_locs.push_back(room->position().x);
@@ -343,6 +343,8 @@ void Island::repaint(Platform& pfrm)
         auto metac = room->metaclass();
         if (str_cmp((*metac)->name(), "radar") == 0) {
             has_radar_ = true;
+        } else if (str_cmp((*metac)->name(), "workshop") == 0) {
+            ++workshop_count_;
         }
     }
 

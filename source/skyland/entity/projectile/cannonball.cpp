@@ -5,6 +5,7 @@
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/room.hpp"
 #include "skyland/rooms/cannon.hpp"
+#include "skyland/rooms/forcefield.hpp"
 
 
 
@@ -50,9 +51,16 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
     if (source_ == room.parent() and dynamic_cast<Cannon*>(&room)) {
         return;
     }
+
+    if (source_ == room.parent() and dynamic_cast<Forcefield*>(&room)) {
+        return;
+    }
+
+
     kill();
     app.camera().shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
+
     room.apply_damage(pfrm, app, 40);
 }
 

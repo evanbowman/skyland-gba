@@ -15,7 +15,9 @@ class Island;
 
 class Missile : public Projectile {
 public:
-    Missile(const Vec2<Float>& position, const Vec2<Float>& target);
+    Missile(const Vec2<Float>& position,
+            const Vec2<Float>& target,
+            Island* source);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -31,6 +33,8 @@ private:
     Microseconds timer_ = 0;
     Float speed_;
     Float target_x_;
+
+    Island* source_;
 
     enum class State {
         rising,

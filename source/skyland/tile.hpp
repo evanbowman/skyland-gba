@@ -28,6 +28,7 @@ struct Tile {
         reserved_6,
         missile_silo_1,
         missile_silo_2,
+        forcefield,
         roof_flag = 109,
         flag = 110,
     };
@@ -58,5 +59,6 @@ struct InteriorTile {
         path_marker,
         missile_silo_1,
         missile_silo_2,
+        forcefield,
     };
 };

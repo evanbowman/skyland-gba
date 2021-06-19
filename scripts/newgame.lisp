@@ -6,3 +6,5 @@
 
 
 (set 'after-fadein (lambda))
+
+(set 'enemies-seen 0)
