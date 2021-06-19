@@ -137,6 +137,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::idle:
         if (pfrm.keyboard().down_transition<Key::action_1>()) {
             if (island_ not_eq &app.player_island()) {
+                if (app.current_map_location() == Vec2<u8>{7, 1}) {
+                    // We're at the exit node. Let's adjust stuff, so that we're at
+                    // the beginning of the next zone.
+                    app.current_map_location().x = 0;
+                    app.world_map().generate();
+                }
+
                 return scene_pool::alloc<WorldMapScene>();
             }
         }

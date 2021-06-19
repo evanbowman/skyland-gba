@@ -227,6 +227,28 @@ struct WorldMap {
             // We generated a boring map.
             goto RETRY;
         }
+
+        int hostile_counts[3] = {0, 0, 0};
+
+        for (int x = 0; x < 6; ++x) {
+            for (int y = 0; y < 3; ++y) {
+                if (matrix_[x + 1][y].type_ == Node::Type::storm_hostile or
+                    matrix_[x + 1][y].type_ == Node::Type::hostile) {
+                    hostile_counts[y]++;
+                }
+            }
+        }
+
+        for (int i = 0; i < 3; ++i) {
+            if (hostile_counts[i] < 3) {
+                // We can't have just two hostile enemy on a path, that's super
+                // boring.
+                goto RETRY;
+            }
+        }
+
+        // The exit node is always hostile.
+        matrix_[7][1].type_ = Node::Type::hostile;
     }
 };
 
