@@ -9,7 +9,8 @@ game jam. All future work will be completed in a fork (link forthcoming).
 
 I forked a top-down action game called Blind Jump to leverage some existing gba
 framework code that I'd written in the past for interfacing with the hardware,
-but most of the code is entirely new.
+but most of the code is entirely new. For game-specific code, see the source/Skyland 
+directory.
 
 
 ## Controls, Mechanics, and other Info
