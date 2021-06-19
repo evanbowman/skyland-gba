@@ -49,6 +49,12 @@ public:
     }
 
 
+    static Conditions::Value conditions()
+    {
+        return Conditions::workshop_required;
+    }
+
+
     void plot_walkable_zones(bool matrix[16][16]) override
     {
         // one cannot walk through this tile, intentionally do nothing.

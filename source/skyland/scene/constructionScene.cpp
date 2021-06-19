@@ -344,10 +344,17 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         }
     }
 
+    const auto w_count = app.player_island().workshop_count();
+
     auto metatable = room_metatable();
     for (int i = 0; i < metatable.second; ++i) {
         auto& meta = metatable.first[i];
-        if (meta->size().x <= avail_space) {
+
+        const bool workshop_required =
+            (meta->conditions() & Conditions::workshop_required);
+
+        if (meta->size().x <= avail_space and
+            (not workshop_required or (workshop_required and w_count > 0))) {
             available_buildings_.push_back(&meta);
         }
     }
