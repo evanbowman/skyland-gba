@@ -15,9 +15,7 @@ class Island;
 
 class Missile : public Projectile {
 public:
-
-    Missile(const Vec2<Float>& position,
-            const Vec2<Float>& target);
+    Missile(const Vec2<Float>& position, const Vec2<Float>& target);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -43,4 +41,4 @@ private:
 
 
 
-}
+} // namespace skyland

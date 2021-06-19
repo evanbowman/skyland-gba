@@ -8,7 +8,8 @@ namespace skyland {
 
 
 
-ScenePtr<Scene> FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     WorldScene::update(pfrm, app, delta);
 
@@ -28,5 +29,4 @@ ScenePtr<Scene> FadeInScene::update(Platform& pfrm, App& app, Microseconds delta
 
 
 
-
-}
+} // namespace skyland

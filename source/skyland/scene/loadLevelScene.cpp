@@ -1,16 +1,12 @@
 #include "loadLevelScene.hpp"
+#include "fadeInScene.hpp"
+#include "globals.hpp"
 #include "platform/platform.hpp"
 #include "script/lisp.hpp"
+#include "skyland/configure_island.hpp"
+#include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "globals.hpp"
-#include "skyland/room_metatable.hpp"
-#include "skyland/configure_island.hpp"
-#include "fadeInScene.hpp"
-
-
-
-
 
 
 
@@ -40,7 +36,8 @@ void LoadLevelScene::exit(Platform& pfrm, App& app, Scene& next)
 }
 
 
-ScenePtr<Scene> LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     const auto loc = app.current_map_location();
     auto& node = app.world_map().matrix_[loc.x][loc.y];
@@ -88,7 +85,8 @@ ScenePtr<Scene> LoadLevelScene::update(Platform& pfrm, App& app, Microseconds de
 
         app.player_island().set_float_timer(0);
 
-        app.opponent_island()->set_float_timer(std::numeric_limits<Microseconds>::max() / 2);
+        app.opponent_island()->set_float_timer(
+            std::numeric_limits<Microseconds>::max() / 2);
 
         for (auto& room : app.opponent_island()->rooms()) {
             app.victory_coins() += 0.25f * (*room->metaclass())->cost();
@@ -105,4 +103,4 @@ ScenePtr<Scene> LoadLevelScene::update(Platform& pfrm, App& app, Microseconds de
 
 
 
-}
+} // namespace skyland

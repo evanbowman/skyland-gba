@@ -110,7 +110,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             if (app.player_island().power_supply() -
-                app.player_island().power_drain() <
+                    app.player_island().power_drain() <
                 target->consumes_power()) {
                 msg(pfrm, "insufficient power supply!");
                 state_ = State::insufficent_funds;
@@ -186,7 +186,8 @@ void ConstructionScene::show_current_building_text(Platform& pfrm)
     str += to_string<10>((*available_buildings_[building_selector_])->cost());
     str += "$";
     str += " ";
-    str += to_string<10>((*available_buildings_[building_selector_])->consumes_power());
+    str += to_string<10>(
+        (*available_buildings_[building_selector_])->consumes_power());
     str += "`";
 
     msg(pfrm, str.c_str());

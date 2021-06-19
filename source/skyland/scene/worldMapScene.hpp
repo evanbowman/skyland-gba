@@ -16,7 +16,6 @@ class WorldMap;
 
 class WorldMapScene : public Scene {
 public:
-
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
@@ -30,8 +29,6 @@ public:
 
 
 private:
-
-
     void update_tree(Platform&, WorldMap& map);
 
 
@@ -63,4 +60,4 @@ private:
 
 
 
-}
+} // namespace skyland

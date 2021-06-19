@@ -374,8 +374,7 @@ public:
                     Align align,
                     Format format = Format::plain_integer)
         : icon_tile_(icon_tile), value_(value), anim_(pfrm, pos), align_(align),
-          format_(format),
-          pos_(pos)
+          format_(format), pos_(pos)
     {
         display(pfrm);
     }

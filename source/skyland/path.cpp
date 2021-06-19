@@ -115,7 +115,7 @@ std::optional<Path> find_path(Platform& pfrm,
 
             for (auto& neighbor : neighbors(min)) {
                 auto alt = min->dist_ +
-                    manhattan_length(min->coord_, neighbor->coord_);
+                           manhattan_length(min->coord_, neighbor->coord_);
                 if (alt < neighbor->dist_) {
                     neighbor->dist_ = alt;
                     neighbor->prev_ = min;
@@ -131,4 +131,4 @@ std::optional<Path> find_path(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

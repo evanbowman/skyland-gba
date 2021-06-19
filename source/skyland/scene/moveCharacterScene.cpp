@@ -1,10 +1,10 @@
-#include "localization.hpp"
 #include "moveCharacterScene.hpp"
 #include "globals.hpp"
+#include "localization.hpp"
 #include "readyScene.hpp"
+#include "skyland/path.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/path.hpp"
 
 
 
@@ -156,9 +156,12 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         // FIXME: this instantly jumps the character to a room. We want to
         // actually calculate a path, and have the character walk.
         if (auto room = app.player_island().get_room(initial_cursor_)) {
-            for (auto it = room->characters().begin(); it not_eq room->characters().end(); ++it) {
+            for (auto it = room->characters().begin();
+                 it not_eq room->characters().end();
+                 ++it) {
                 if ((*it)->grid_position() == initial_cursor_) {
-                    if (auto new_room = app.player_island().get_room(cursor_loc)) {
+                    if (auto new_room =
+                            app.player_island().get_room(cursor_loc)) {
 
                         // (*it)->set_grid_position(cursor_loc);
                         auto unlinked = std::move(*it);
@@ -180,7 +183,6 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
             }
-
         }
     }
 

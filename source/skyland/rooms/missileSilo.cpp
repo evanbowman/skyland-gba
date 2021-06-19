@@ -1,11 +1,11 @@
 #include "missileSilo.hpp"
 #include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/entity/projectile/missile.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/entity/projectile/missile.hpp"
 
 
 

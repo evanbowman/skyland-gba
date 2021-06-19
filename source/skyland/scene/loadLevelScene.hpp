@@ -2,8 +2,8 @@
 
 
 
-#include "worldScene.hpp"
 #include "string.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -26,9 +26,8 @@ public:
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
-
 };
 
 
 
-}
+} // namespace skyland

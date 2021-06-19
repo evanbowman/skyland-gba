@@ -1,9 +1,9 @@
 #pragma once
 
 
+#include "memory/buffer.hpp"
 #include "number/numeric.hpp"
 #include "number/random.hpp"
-#include "memory/buffer.hpp"
 
 
 
@@ -67,19 +67,24 @@ struct WorldMap {
 
 
         for (int x = 0; x < 8; ++x) {
-            matrix_[x][1].connections_.mask_ |= (Node::Connections::l | Node::Connections::r);
+            matrix_[x][1].connections_.mask_ |=
+                (Node::Connections::l | Node::Connections::r);
         }
 
         matrix_[0][1].connections_.mask_ &= ~(Node::Connections::l);
         matrix_[7][1].connections_.mask_ &= ~(Node::Connections::r);
 
-        matrix_[0][1].connections_.mask_ |= Node::Connections::ru | Node::Connections::rd;
-        matrix_[7][1].connections_.mask_ |= Node::Connections::lu | Node::Connections::ld;
+        matrix_[0][1].connections_.mask_ |=
+            Node::Connections::ru | Node::Connections::rd;
+        matrix_[7][1].connections_.mask_ |=
+            Node::Connections::lu | Node::Connections::ld;
 
 
         for (int x = 1; x < 7; ++x) {
-            matrix_[x][0].connections_.mask_ |= (Node::Connections::l | Node::Connections::r);
-            matrix_[x][2].connections_.mask_ |= (Node::Connections::l | Node::Connections::r);
+            matrix_[x][0].connections_.mask_ |=
+                (Node::Connections::l | Node::Connections::r);
+            matrix_[x][2].connections_.mask_ |=
+                (Node::Connections::l | Node::Connections::r);
         }
 
         matrix_[1][0].connections_.mask_ &= ~(Node::Connections::l);
@@ -92,8 +97,6 @@ struct WorldMap {
         matrix_[6][0].connections_.mask_ |= Node::Connections::rd;
         matrix_[1][2].connections_.mask_ |= Node::Connections::lu;
         matrix_[6][2].connections_.mask_ |= Node::Connections::ru;
-
-
     }
 
 
@@ -117,7 +120,6 @@ struct WorldMap {
         };
 
         auto conceal = [&](int row) {
-
             if (accumulated_weight not_eq 2) {
                 accumulated_weight = abs(accumulated_weight);
 
@@ -134,7 +136,6 @@ struct WorldMap {
                     }
                 }
             }
-
         };
 
         for (int i = 1; i < 7; ++i) {
@@ -164,11 +165,16 @@ struct WorldMap {
 
         auto convert_weight = [](Node::Type t) {
             switch (t) {
-            case Node::Type::clear: return -1;
-            case Node::Type::hostile: return 1;
-            case Node::Type::storm_clear: return -1;
-            case Node::Type::storm_hostile: return 1;
-            default: return 0;
+            case Node::Type::clear:
+                return -1;
+            case Node::Type::hostile:
+                return 1;
+            case Node::Type::storm_clear:
+                return -1;
+            case Node::Type::storm_hostile:
+                return 1;
+            default:
+                return 0;
             }
         };
 
@@ -179,8 +185,7 @@ struct WorldMap {
 
             bool r0 = false;
 
-            if (abs(weights[0] - weights[1]) > 2
-                and not relief[0] and
+            if (abs(weights[0] - weights[1]) > 2 and not relief[0] and
                 matrix_[i][0].type_ not_eq matrix_[i + 1][1].type_) {
 
                 matrix_[i][0].connections_.mask_ |= Node::Connections::rd;
@@ -190,9 +195,9 @@ struct WorldMap {
             }
 
             bool r1 = false;
-            if (abs(weights[0] - weights[1]) > 2 and rng::choice<2>(rng::critical_state)
-                and not relief[1] and not r0 and
-                matrix_[i][1].type_ not_eq matrix_[i + 1][0].type_) {
+            if (abs(weights[0] - weights[1]) > 2 and
+                rng::choice<2>(rng::critical_state) and not relief[1] and
+                not r0 and matrix_[i][1].type_ not_eq matrix_[i + 1][0].type_) {
 
                 matrix_[i][1].connections_.mask_ |= Node::Connections::ru;
                 matrix_[i + 1][0].connections_.mask_ |= Node::Connections::ld;
@@ -200,8 +205,7 @@ struct WorldMap {
                 r1 = true;
             }
 
-            if (abs(weights[1] - weights[2]) > 2
-                and not relief[1] and
+            if (abs(weights[1] - weights[2]) > 2 and not relief[1] and
                 matrix_[i][1].type_ not_eq matrix_[i + 1][2].type_) {
 
                 matrix_[i][1].connections_.mask_ |= Node::Connections::rd;
@@ -210,9 +214,8 @@ struct WorldMap {
                 r1 = true;
             }
 
-            if (abs(weights[1] - weights[2]) > 2
-                and not relief[2] and not r1 and
-                matrix_[i][2].type_ not_eq matrix_[i + 1][1].type_) {
+            if (abs(weights[1] - weights[2]) > 2 and not relief[2] and
+                not r1 and matrix_[i][2].type_ not_eq matrix_[i + 1][1].type_) {
 
                 matrix_[i][2].connections_.mask_ |= Node::Connections::ru;
                 matrix_[i + 1][1].connections_.mask_ |= Node::Connections::ld;
@@ -228,4 +231,4 @@ struct WorldMap {
 };
 
 
-}
+} // namespace skyland

@@ -51,9 +51,8 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
                         start.x += 6;
                     }
 
-                    auto c = alloc_entity<Cannonball>(start,
-                                                      room->center(),
-                                                      parent());
+                    auto c = alloc_entity<Cannonball>(
+                        start, room->center(), parent());
                     parent()->projectiles().push(std::move(c));
                 }
             }

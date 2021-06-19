@@ -20,10 +20,12 @@ class App;
 
 class Opponent : public Player {
 public:
-    virtual ~Opponent() {}
+    virtual ~Opponent()
+    {
+    }
     virtual void update(Platform&, App&, Microseconds delta) = 0;
 };
 
 
 
-}
+} // namespace skyland

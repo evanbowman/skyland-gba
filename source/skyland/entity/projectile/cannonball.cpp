@@ -15,8 +15,7 @@ namespace skyland {
 Cannonball::Cannonball(const Vec2<Float>& position,
                        const Vec2<Float>& target,
                        Island* source)
-    : Projectile({{10, 10}, {8, 8}}),
-      source_(source)
+    : Projectile({{10, 10}, {8, 8}}), source_(source)
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);

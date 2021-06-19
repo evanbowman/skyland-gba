@@ -1,8 +1,7 @@
 #include "serial.hpp"
-#include "localization.hpp"
 #include "island.hpp"
+#include "localization.hpp"
 #include "room_metatable.hpp"
-
 
 
 
@@ -38,4 +37,4 @@ DynamicMemory<SerialString> serialize(Platform& pfrm, Island& island)
 
 
 
-}
+} // namespace skyland

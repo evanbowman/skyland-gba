@@ -52,7 +52,6 @@ public:
     {
         return 5;
     }
-
 };
 
 

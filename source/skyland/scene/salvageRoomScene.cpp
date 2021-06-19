@@ -1,15 +1,13 @@
 #include "salvageRoomScene.hpp"
 #include "globals.hpp"
+#include "localization.hpp"
 #include "readyScene.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
-#include "localization.hpp"
 
 
 
 namespace skyland {
-
-
 
 
 
@@ -94,7 +92,8 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<ReadyScene>();
         }
     } else {
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
         if (pfrm.keyboard().down_transition<Key::action_1>()) {
             if (auto room = app.player_island().get_room(cursor_loc)) {

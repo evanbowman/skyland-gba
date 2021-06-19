@@ -383,8 +383,7 @@ void eval(Value* code);
 void compile(Platform& pfrm, Value* code);
 
 
-void dostring(const char* code,
-              ::Function<16, void(Value&)> on_error);
+void dostring(const char* code, ::Function<16, void(Value&)> on_error);
 
 
 bool is_executing();

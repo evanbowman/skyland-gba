@@ -30,25 +30,25 @@ static const struct {
 } files[] = {
 
     {"scripts", "newgame.lisp", file_newgame},
-//;
+    //;
     {"scripts", "hostile.lisp", file_hostile},
-//;
+    //;
     {"scripts", "test.lisp", file_test},
-//;
+    //;
     {"scripts", "test2.lisp", file_test2},
-//;
+    //;
     {"scripts", "hostile_0.lisp", file_hostile_0},
-//;
+    //;
     {"scripts", "hostile_0_0.lisp", file_hostile_0_0},
-//;
+    //;
     {"scripts", "hostile_0_1.lisp", file_hostile_0_1},
-//;
+    //;
     {"strings", "english.txt", file_english},
-//;
+    //;
     {"strings", "spanish.txt", file_spanish},
-//;
+    //;
     {"strings", "chinese.txt", file_chinese},
-//;
+    //;
     {"strings", "russian.txt", file_russian},
-//
+    //
 };

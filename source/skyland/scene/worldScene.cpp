@@ -1,12 +1,12 @@
 #include "worldScene.hpp"
 #include "globals.hpp"
+#include "number/random.hpp"
 #include "platform/platform.hpp"
+#include "skyland/alloc_entity.hpp"
+#include "skyland/entity/birbs/smolBirb.hpp"
+#include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/entity/birbs/smolBirb.hpp"
-#include "number/random.hpp"
-#include "skyland/alloc_entity.hpp"
-#include "skyland/scene/playerIslandDestroyedScene.hpp"
 
 
 
@@ -14,7 +14,8 @@ namespace skyland {
 
 
 
-ScenePtr<Scene> ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto new_scene = WorldScene::update(pfrm, app, delta)) {
         return new_scene;
@@ -33,12 +34,12 @@ ScenePtr<Scene> ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds 
         cursor_loc.x = 0;
 
         app.effects().clear();
-        return scene_pool::alloc<PlayerIslandDestroyedScene>(&app.player_island());
+        return scene_pool::alloc<PlayerIslandDestroyedScene>(
+            &app.player_island());
     }
 
 
-    if (app.opponent_island() and
-        app.opponent_island()->is_destroyed()) {
+    if (app.opponent_island() and app.opponent_island()->is_destroyed()) {
 
         auto& cursor_loc =
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
@@ -46,7 +47,8 @@ ScenePtr<Scene> ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds 
         cursor_loc.x = 0;
 
         app.effects().clear();
-        return scene_pool::alloc<PlayerIslandDestroyedScene>(&*app.opponent_island());
+        return scene_pool::alloc<PlayerIslandDestroyedScene>(
+            &*app.opponent_island());
     }
 
     return null_scene();
@@ -65,7 +67,6 @@ void WorldScene::display(Platform& pfrm, App& app)
     for (auto& effect : app.effects()) {
         pfrm.screen().draw(effect->sprite());
     }
-
 }
 
 
@@ -188,15 +189,14 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         last_power_supplied_ = app.player_island().power_supply();
         last_power_used_ = app.player_island().power_drain();
 
-        power_->set_value(format_power_fraction(last_power_supplied_,
-                                                last_power_used_));
+        power_->set_value(
+            format_power_fraction(last_power_supplied_, last_power_used_));
     }
 
     if (power_) {
         power_->update(pfrm, delta);
 
-        if (not persistent_ui_ and
-            last_power_supplied_ >= last_power_used_) {
+        if (not persistent_ui_ and last_power_supplied_ >= last_power_used_) {
             power_hide_timer_ += delta;
             if (power_hide_timer_ > seconds(4)) {
                 power_.reset();
@@ -205,13 +205,14 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     } else {
         if (persistent_ui_) {
-            power_.emplace(pfrm,
-                           OverlayCoord{1, 1},
-                           147,
-                           format_power_fraction(app.player_island().power_supply(),
-                                                 app.player_island().power_drain()),
-                           UIMetric::Align::left,
-                           UIMetric::Format::fraction);
+            power_.emplace(
+                pfrm,
+                OverlayCoord{1, 1},
+                147,
+                format_power_fraction(app.player_island().power_supply(),
+                                      app.player_island().power_drain()),
+                UIMetric::Align::left,
+                UIMetric::Format::fraction);
         }
     }
 
@@ -249,8 +250,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (not app.paused()) {
         if (app.opponent_island()) {
             for (auto& projectile : app.player_island().projectiles()) {
-                app.opponent_island()->test_collision(
-                    pfrm, app, *projectile);
+                app.opponent_island()->test_collision(pfrm, app, *projectile);
             }
 
             for (auto& projectile : app.opponent_island()->projectiles()) {
@@ -262,8 +262,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             for (auto& projectile : app.opponent_island()->projectiles()) {
-                app.opponent_island()->test_collision(
-                    pfrm, app, *projectile);
+                app.opponent_island()->test_collision(pfrm, app, *projectile);
             }
         }
     }
@@ -297,20 +296,19 @@ void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
 
         if (last->power_) {
-            power_.emplace(pfrm,
-                           OverlayCoord{1, 1},
-                           147,
-                           format_power_fraction(app.player_island().power_supply(),
-                                                 app.player_island().power_drain()),
-                           UIMetric::Align::left,
-                           UIMetric::Format::fraction);
+            power_.emplace(
+                pfrm,
+                OverlayCoord{1, 1},
+                147,
+                format_power_fraction(app.player_island().power_supply(),
+                                      app.player_island().power_drain()),
+                UIMetric::Align::left,
+                UIMetric::Format::fraction);
         }
 
         last_power_supplied_ = last->last_power_supplied_;
         last_power_used_ = last->last_power_used_;
     }
-
-
 }
 
 

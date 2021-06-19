@@ -62,7 +62,6 @@ public:
     {
         return 0;
     }
-
 };
 
 

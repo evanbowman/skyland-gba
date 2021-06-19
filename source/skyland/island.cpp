@@ -1,14 +1,14 @@
 #include "island.hpp"
+#include "alloc_entity.hpp"
 #include "entity/explosion/explosion.hpp"
+#include "entity/misc/smokePuff.hpp"
 #include "globals.hpp"
 #include "number/random.hpp"
 #include "roomPool.hpp"
-#include "tile.hpp"
-#include "rooms/core.hpp"
-#include "alloc_entity.hpp"
-#include "entity/misc/smokePuff.hpp"
-#include "skyland.hpp"
 #include "room_metatable.hpp"
+#include "rooms/core.hpp"
+#include "skyland.hpp"
+#include "tile.hpp"
 
 
 
@@ -59,7 +59,6 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             app.effects().push(alloc_entity<SmokePuff>(o));
         }
-
     }
 
     ambient_movement_ = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
@@ -255,7 +254,6 @@ void Island::recalculate_power_usage()
         } else {
             power_drain_ += power;
         }
-
     }
 }
 

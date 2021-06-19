@@ -10,10 +10,8 @@ namespace skyland {
 
 
 
-Missile::Missile(const Vec2<Float>& position,
-                 const Vec2<Float>& target)
-    : Projectile({{10, 10}, {8, 8}}),
-      target_x_(target.x)
+Missile::Missile(const Vec2<Float>& position, const Vec2<Float>& target)
+    : Projectile({{10, 10}, {8, 8}}), target_x_(target.x)
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -81,8 +79,4 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
 
 
 
-
-
-
-
-}
+} // namespace skyland

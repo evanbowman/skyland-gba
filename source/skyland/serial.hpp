@@ -25,4 +25,4 @@ DynamicMemory<SerialString> serialize(Platform&, Island& island);
 
 
 
-}
+} // namespace skyland

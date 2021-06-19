@@ -5,9 +5,9 @@
 #include "health.hpp"
 #include "number/numeric.hpp"
 #include "platform/layer.hpp"
+#include "power.hpp"
 #include "scene.hpp"
 #include <memory>
-#include "power.hpp"
 
 
 

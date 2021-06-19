@@ -4,12 +4,11 @@
 #include "camera.hpp"
 #include "coins.hpp"
 #include "island.hpp"
-#include "platform/platform.hpp"
-#include "scene.hpp"
-#include "player.hpp"
 #include "opponent/enemyAI.hpp"
+#include "platform/platform.hpp"
+#include "player.hpp"
+#include "scene.hpp"
 #include "worldMap.hpp"
-
 
 
 

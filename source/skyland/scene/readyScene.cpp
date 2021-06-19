@@ -1,11 +1,11 @@
 #include "readyScene.hpp"
 #include "constructionScene.hpp"
 #include "globals.hpp"
+#include "inspectP2Scene.hpp"
 #include "platform/platform.hpp"
 #include "salvageRoomScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "inspectP2Scene.hpp"
 #include "worldScene.hpp"
 
 

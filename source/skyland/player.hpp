@@ -21,10 +21,14 @@ using MissileAmmo = short int;
 
 class Player {
 public:
-    virtual ~Player() {}
+    virtual ~Player()
+    {
+    }
 
 
-    virtual void on_room_damaged(Platform& pfrm, App& app, Room& room) {}
+    virtual void on_room_damaged(Platform& pfrm, App& app, Room& room)
+    {
+    }
 
 
     MissileAmmo& missile_ammo()
@@ -39,4 +43,4 @@ private:
 
 
 
-}
+} // namespace skyland

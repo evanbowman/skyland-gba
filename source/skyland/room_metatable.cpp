@@ -5,9 +5,9 @@
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/exteriorWall.hpp"
 #include "skyland/rooms/hull.hpp"
+#include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/workshop.hpp"
-#include "skyland/rooms/missileSilo.hpp"
 
 
 
@@ -15,7 +15,8 @@ namespace skyland {
 
 
 
-RoomMetatable<Hull, Cannon, MissileSilo, Stairwell, Workshop, Core> __room_metatable;
+RoomMetatable<Hull, Cannon, MissileSilo, Stairwell, Workshop, Core>
+    __room_metatable;
 
 
 

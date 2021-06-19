@@ -59,8 +59,7 @@ struct Context {
                        allocate_dynamic<ValuePool>(pfrm)},
           operand_stack_(allocate_dynamic<OperandStack>(pfrm)),
           globals_(allocate_dynamic<Globals>(pfrm)),
-          interns_(allocate_dynamic<Interns>(pfrm)),
-          pfrm_(pfrm)
+          interns_(allocate_dynamic<Interns>(pfrm)), pfrm_(pfrm)
     {
         for (auto& pl : value_pools_) {
             if (not pl) {
@@ -1880,31 +1879,31 @@ void init(Platform& pfrm)
 
 
     set_var("symbol", make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, string);
+                L_EXPECT_ARGC(argc, 1);
+                L_EXPECT_OP(0, string);
 
-        return make_symbol(get_op(0)->string_.value());
-    }));
+                return make_symbol(get_op(0)->string_.value());
+            }));
 
 
     set_var("string", make_function([](int argc) {
-        EvalBuffer b;
-        EvalPrinter p(b);
+                EvalBuffer b;
+                EvalPrinter p(b);
 
-        for (int i = argc - 1; i > -1; --i) {
-            auto val = get_op(i);
-            if (val->type_ == Value::Type::string) {
-                p.put_str(val->string_.value());
-            } else {
-                format_impl(val, p);
-            }
-        }
+                for (int i = argc - 1; i > -1; --i) {
+                    auto val = get_op(i);
+                    if (val->type_ == Value::Type::string) {
+                        p.put_str(val->string_.value());
+                    } else {
+                        format_impl(val, p);
+                    }
+                }
 
-        if (auto pfrm = interp_get_pfrm()) {
-            return make_string(*pfrm, b.c_str());
-        }
-        return L_NIL;
-    }));
+                if (auto pfrm = interp_get_pfrm()) {
+                    return make_string(*pfrm, b.c_str());
+                }
+                return L_NIL;
+            }));
 
     set_var("bound", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
@@ -1921,46 +1920,47 @@ void init(Platform& pfrm)
 
 
     set_var("filter", make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(0, cons);
-        L_EXPECT_OP(1, function);
+                L_EXPECT_ARGC(argc, 2);
+                L_EXPECT_OP(0, cons);
+                L_EXPECT_OP(1, function);
 
-        auto fn = get_op(1);
-        Value* result = make_cons(L_NIL, L_NIL);
-        auto prev = result;
-        auto current = result;
+                auto fn = get_op(1);
+                Value* result = make_cons(L_NIL, L_NIL);
+                auto prev = result;
+                auto current = result;
 
-        foreach(get_op(0), [&](Value* val) {
-            push_op(result); // gc protect
+                foreach (get_op(0), [&](Value* val) {
+                    push_op(result); // gc protect
 
-            push_op(val);
-            funcall(fn, 1);
-            auto funcall_result = get_op(0);
+                    push_op(val);
+                    funcall(fn, 1);
+                    auto funcall_result = get_op(0);
 
-            if (is_boolean_true(funcall_result)) {
-                current->cons_.set_car(val);
-                auto next = make_cons(L_NIL, L_NIL);
-                if (next == bound_context->oom_) {
-                    current = result;
-                    return;
+                    if (is_boolean_true(funcall_result)) {
+                        current->cons_.set_car(val);
+                        auto next = make_cons(L_NIL, L_NIL);
+                        if (next == bound_context->oom_) {
+                            current = result;
+                            return;
+                        }
+                        current->cons_.set_cdr(next);
+                        prev = current;
+                        current = next;
+                    }
+                    pop_op(); // funcall result
+
+                    pop_op(); // gc unprotect
+                })
+                    ;
+
+                if (current == result) {
+                    return L_NIL;
                 }
-                current->cons_.set_cdr(next);
-                prev = current;
-                current = next;
-            }
-            pop_op(); // funcall result
 
-            pop_op(); // gc unprotect
-        });
+                prev->cons_.set_cdr(L_NIL);
 
-        if (current == result) {
-            return L_NIL;
-        }
-
-        prev->cons_.set_cdr(L_NIL);
-
-        return result;
-    }));
+                return result;
+            }));
 
 
     set_var(
@@ -2028,18 +2028,19 @@ void init(Platform& pfrm)
         }));
 
     set_var("reverse", make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, cons);
+                L_EXPECT_ARGC(argc, 1);
+                L_EXPECT_OP(0, cons);
 
-        Value* result = get_nil();
-        foreach(get_op(0), [&](Value* car) {
-            push_op(result);
-            result = make_cons(car, result);
-            pop_op();
-        });
+                Value* result = get_nil();
+                foreach (get_op(0), [&](Value* car) {
+                    push_op(result);
+                    result = make_cons(car, result);
+                    pop_op();
+                })
+                    ;
 
-        return result;
-    }));
+                return result;
+            }));
 
     set_var("select", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 2);

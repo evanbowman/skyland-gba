@@ -17,8 +17,6 @@ class MissileSilo;
 
 class EnemyAI : public Opponent {
 public:
-
-
     void update(Platform&, App&, Microseconds delta) override;
 
 
@@ -32,9 +30,9 @@ public:
 
 
 private:
-
     void set_target(Platform&, App&, const u8 matrix[16][16], Cannon& cannon);
-    void set_target(Platform&, App&, const u8 matrix[16][16], MissileSilo& silo);
+    void
+    set_target(Platform&, App&, const u8 matrix[16][16], MissileSilo& silo);
 
 
     static const auto next_action_timeout = seconds(1);
@@ -47,4 +45,4 @@ private:
 
 
 
-}
+} // namespace skyland

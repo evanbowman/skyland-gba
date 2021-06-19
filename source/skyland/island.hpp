@@ -2,12 +2,12 @@
 
 #include "bulkAllocator.hpp"
 #include "entity.hpp"
+#include "entity/character/basicCharacter.hpp"
 #include "memory/buffer.hpp"
+#include "player.hpp"
+#include "power.hpp"
 #include "room.hpp"
 #include "roomPool.hpp"
-#include "player.hpp"
-#include "entity/character/basicCharacter.hpp"
-#include "power.hpp"
 
 
 
@@ -180,7 +180,6 @@ public:
 
 
 private:
-
     void recalculate_power_usage();
 
 

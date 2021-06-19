@@ -3,8 +3,8 @@
 
 #include "graphics/overlay.hpp"
 #include "skyland/coins.hpp"
-#include "skyland/scene.hpp"
 #include "skyland/power.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -52,7 +52,6 @@ private:
 
 class ActiveWorldScene : public WorldScene {
 public:
-
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 };
 

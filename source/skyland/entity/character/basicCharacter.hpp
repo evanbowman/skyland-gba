@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "skyland/entity.hpp"
 #include "memory/buffer.hpp"
+#include "skyland/entity.hpp"
 #include "skyland/path.hpp"
 
 
@@ -50,4 +50,4 @@ private:
 
 
 
-}
+} // namespace skyland

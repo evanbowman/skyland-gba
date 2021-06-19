@@ -1,7 +1,7 @@
 #include "inspectP2Scene.hpp"
 #include "globals.hpp"
-#include "skyland/skyland.hpp"
 #include "readyScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -23,10 +23,8 @@ void InspectP2Scene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-
-ScenePtr<Scene> InspectP2Scene::update(Platform& pfrm,
-                                       App& app,
-                                       Microseconds delta)
+ScenePtr<Scene>
+InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return new_scene;
@@ -91,7 +89,8 @@ void InspectP2Scene::display(Platform& pfrm, App& app)
 
         auto origin = app.opponent_island()->origin();
 
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
         origin.x += cursor_loc.x * 16;
         origin.y += cursor_loc.y * 16;
@@ -100,8 +99,7 @@ void InspectP2Scene::display(Platform& pfrm, App& app)
 
         pfrm.screen().draw(cursor);
     }
-
 }
 
 
-}
+} // namespace skyland

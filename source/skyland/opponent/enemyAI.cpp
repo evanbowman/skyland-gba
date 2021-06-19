@@ -1,11 +1,11 @@
 #include "enemyAI.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/rooms/core.hpp"
-#include "skyland/rooms/cannon.hpp"
-#include "skyland/rooms/missileSilo.hpp"
-#include "skyland/room_metatable.hpp"
 #include "number/random.hpp"
 #include "skyland/entity/projectile/missile.hpp"
+#include "skyland/room_metatable.hpp"
+#include "skyland/rooms/cannon.hpp"
+#include "skyland/rooms/core.hpp"
+#include "skyland/rooms/missileSilo.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -98,8 +98,7 @@ void EnemyAI::set_target(Platform& pfrm,
 
         // Give the room some extra weight, if firing a missile into it would be
         // really destructive.
-        if (w > 400 and
-            room->health() <= Missile::deals_damage) {
+        if (w > 400 and room->health() <= Missile::deals_damage) {
             w += 300.f;
         }
 
@@ -157,8 +156,7 @@ void EnemyAI::set_target(Platform& pfrm,
 
     // Potentially attack the second highest weighted visible room, just to keep
     // things interesting.
-    if (visible_rooms.size() > 1 and
-        rng::choice<3>(rng::utility_state) == 0) {
+    if (visible_rooms.size() > 1 and rng::choice<3>(rng::utility_state) == 0) {
         highest_weighted_room = visible_rooms[1];
     }
 
@@ -224,4 +222,4 @@ void EnemyAI::on_room_damaged(Platform& pfrm, App& app, Room& room)
 
 
 
-}
+} // namespace skyland

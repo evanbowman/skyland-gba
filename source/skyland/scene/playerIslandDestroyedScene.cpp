@@ -1,9 +1,9 @@
 #include "playerIslandDestroyedScene.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
-#include "skyland/serial.hpp"
-#include "worldMapScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/serial.hpp"
+#include "skyland/skyland.hpp"
+#include "worldMapScene.hpp"
 
 
 
@@ -11,9 +11,8 @@ namespace skyland {
 
 
 
-ScenePtr<Scene> PlayerIslandDestroyedScene::update(Platform& pfrm,
-                                                   App& app,
-                                                   Microseconds delta)
+ScenePtr<Scene>
+PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     WorldScene::update(pfrm, app, delta);
 
@@ -38,10 +37,8 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Platform& pfrm,
 
         const auto off = 50.f;
 
-        big_explosion(
-            pfrm, app, {origin.x - off, origin.y - off});
-        big_explosion(
-            pfrm, app, {origin.x + off, origin.y + off});
+        big_explosion(pfrm, app, {origin.x - off, origin.y - off});
+        big_explosion(pfrm, app, {origin.x + off, origin.y + off});
         timer_ = 0;
 
         for (auto& room : app.player_island().rooms()) {
@@ -57,10 +54,8 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Platform& pfrm,
             big_explosion(pfrm, app, origin);
             const auto off = -50.f;
 
-            big_explosion(
-                pfrm, app, {origin.x - off, origin.y + off});
-            big_explosion(
-                pfrm, app, {origin.x + off, origin.y - off});
+            big_explosion(pfrm, app, {origin.x - off, origin.y + off});
+            big_explosion(pfrm, app, {origin.x + off, origin.y - off});
 
             anim_state_ = AnimState::explosion_wait2;
 
@@ -153,4 +148,4 @@ ScenePtr<Scene> PlayerIslandDestroyedScene::update(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

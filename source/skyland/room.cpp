@@ -150,14 +150,14 @@ ScenePtr<Scene> Room::select(Platform& pfrm)
 {
     if (parent_->interior_visible()) {
         if (length(characters_)) {
-            auto cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            auto cursor_loc =
+                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
             for (auto& character : characters_) {
                 if (character->grid_position() == cursor_loc) {
                     return scene_pool::alloc<MoveCharacterScene>(pfrm);
                 }
             }
-
         }
     }
 
@@ -193,7 +193,6 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
     set_injured(pfrm);
     parent_->owner().on_room_damaged(pfrm, app, *this);
 }
-
 
 
 

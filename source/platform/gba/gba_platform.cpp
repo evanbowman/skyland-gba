@@ -1189,7 +1189,7 @@ void Platform::Screen::display()
     // } else if (view_offset.y < 0) {
     //     REG_WIN0V = ((view_offset.y * -1) << 8) | (0);
     // } else {
-        REG_WIN0V = (0 << 8) | (size().y);
+    REG_WIN0V = (0 << 8) | (size().y);
     // }
 
     if (not get_gflag(GlobalFlag::parallax_clouds)) {

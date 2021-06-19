@@ -5,17 +5,14 @@
 
 
 
-
 namespace skyland {
 
 
 
 class SmolBirb : public Entity {
 public:
-    SmolBirb(const Vec2<Float>& position) :
-        Entity({{}, {}}),
-        timer1_(0),
-        timer2_(0)
+    SmolBirb(const Vec2<Float>& position)
+        : Entity({{}, {}}), timer1_(0), timer2_(0)
     {
         sprite_.set_position(position);
         sprite_.set_texture_index(28);
@@ -58,4 +55,4 @@ private:
 
 
 
-}
+} // namespace skyland

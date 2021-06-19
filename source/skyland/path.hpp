@@ -25,4 +25,4 @@ std::optional<Path> find_path(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

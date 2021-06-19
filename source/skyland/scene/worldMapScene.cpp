@@ -1,10 +1,10 @@
-#include "skyland/scene_pool.hpp"
-#include "loadLevelScene.hpp"
 #include "worldMapScene.hpp"
-#include "platform/platform.hpp"
 #include "graphics/overlay.hpp"
-#include "skyland/worldMap.hpp"
+#include "loadLevelScene.hpp"
+#include "platform/platform.hpp"
+#include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/worldMap.hpp"
 
 
 
@@ -12,9 +12,8 @@ namespace skyland {
 
 
 
-ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
-                                      App& app,
-                                      Microseconds delta)
+ScenePtr<Scene>
+WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     cursor_anim_timer_ += delta;
     if (cursor_anim_timer_ > milliseconds(200)) {
@@ -28,7 +27,11 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
 
     switch (state_) {
     case State::deselected:
-        if (pfrm.keyboard().down_transition<Key::right, Key::left, Key::up, Key::action_1>()) {
+        if (pfrm.keyboard()
+                .down_transition<Key::right,
+                                 Key::left,
+                                 Key::up,
+                                 Key::action_1>()) {
             state_ = State::explore_paths;
         }
         break;
@@ -60,7 +63,8 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
                 cursor_.x += 1;
                 cursor_.y -= 1;
                 show_map(pfrm, app.world_map());
-            } else if (node.connections_.mask_ & WorldMap::Node::Connections::lu) {
+            } else if (node.connections_.mask_ &
+                       WorldMap::Node::Connections::lu) {
                 cursor_.x -= 1;
                 cursor_.y -= 1;
                 show_map(pfrm, app.world_map());
@@ -70,7 +74,8 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
                 cursor_.x -= 1;
                 cursor_.y += 1;
                 show_map(pfrm, app.world_map());
-            } else if (node.connections_.mask_ & WorldMap::Node::Connections::rd) {
+            } else if (node.connections_.mask_ &
+                       WorldMap::Node::Connections::rd) {
                 cursor_.x += 1;
                 cursor_.y += 1;
                 show_map(pfrm, app.world_map());
@@ -79,19 +84,18 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
         break;
 
 
-    case State::move:
-        {
-            if (cmix_.amount_ > 0) {
-                timer_ += delta;
-                if (timer_ > 12000) {
-                    timer_ -= 12000;
-                    cmix_ = {cmix_.color_, u8(cmix_.amount_ - 5)};
-                }
-            } else {
-                timer_ = 0;
-                cmix_ = {ColorConstant::silver_white, 200};
+    case State::move: {
+        if (cmix_.amount_ > 0) {
+            timer_ += delta;
+            if (timer_ > 12000) {
+                timer_ -= 12000;
+                cmix_ = {cmix_.color_, u8(cmix_.amount_ - 5)};
             }
+        } else {
+            timer_ = 0;
+            cmix_ = {ColorConstant::silver_white, 200};
         }
+    }
 
 
         if (pfrm.keyboard().down_transition<Key::action_2>()) {
@@ -101,24 +105,24 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
             cmix_ = {};
             break;
         }
-        if (pfrm.keyboard().down_transition<Key::up>()
-            and node.connections_.mask_ & WorldMap::Node::Connections::ru) {
+        if (pfrm.keyboard().down_transition<Key::up>() and
+            node.connections_.mask_ & WorldMap::Node::Connections::ru) {
             for (int i = 0; i < 3; ++i) {
                 move_arrow_sel_[i] = false;
             }
             move_arrow_sel_[0] = true;
             show_move_arrows(pfrm, app);
         }
-        if (pfrm.keyboard().down_transition<Key::right>()
-            and node.connections_.mask_ & WorldMap::Node::Connections::r) {
+        if (pfrm.keyboard().down_transition<Key::right>() and
+            node.connections_.mask_ & WorldMap::Node::Connections::r) {
             for (int i = 0; i < 3; ++i) {
                 move_arrow_sel_[i] = false;
             }
             move_arrow_sel_[1] = true;
             show_move_arrows(pfrm, app);
         }
-        if (pfrm.keyboard().down_transition<Key::down>()
-            and node.connections_.mask_ & WorldMap::Node::Connections::rd) {
+        if (pfrm.keyboard().down_transition<Key::down>() and
+            node.connections_.mask_ & WorldMap::Node::Connections::rd) {
             for (int i = 0; i < 3; ++i) {
                 move_arrow_sel_[i] = false;
             }
@@ -163,7 +167,8 @@ ScenePtr<Scene> WorldMapScene::update(Platform& pfrm,
             return scene_pool::alloc<LoadLevelScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(amount, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().fade(
+                amount, ColorConstant::rich_black, {}, true, true);
         }
         break;
     }
@@ -187,12 +192,15 @@ void WorldMapScene::show_move_arrows(Platform& pfrm, App& app)
         show_map(pfrm, app.world_map());
         cursor_ = app.current_map_location();
 
-        pfrm.set_tile(Layer::overlay, 4 + cursor_.x * 3,
+        pfrm.set_tile(Layer::overlay,
+                      4 + cursor_.x * 3,
                       5 + cursor_.y * 3,
                       114 + node.type_);
 
-        pfrm.set_tile(Layer::overlay, 5 + cursor_.x * 3, 4 + cursor_.y * 3, 103);
-        pfrm.set_tile(Layer::overlay, 6 + cursor_.x * 3, 3 + cursor_.y * 3, 103);
+        pfrm.set_tile(
+            Layer::overlay, 5 + cursor_.x * 3, 4 + cursor_.y * 3, 103);
+        pfrm.set_tile(
+            Layer::overlay, 6 + cursor_.x * 3, 3 + cursor_.y * 3, 103);
 
     } else if (move_arrow_sel_[1]) {
         cursor_ = app.current_map_location();
@@ -200,26 +208,32 @@ void WorldMapScene::show_move_arrows(Platform& pfrm, App& app)
         show_map(pfrm, app.world_map());
         cursor_ = app.current_map_location();
 
-        pfrm.set_tile(Layer::overlay, 4 + cursor_.x * 3,
+        pfrm.set_tile(Layer::overlay,
+                      4 + cursor_.x * 3,
                       5 + cursor_.y * 3,
                       114 + node.type_);
 
-        pfrm.set_tile(Layer::overlay, 5 + cursor_.x * 3, 5 + cursor_.y * 3, 102);
-        pfrm.set_tile(Layer::overlay, 6 + cursor_.x * 3, 5 + cursor_.y * 3, 102);
+        pfrm.set_tile(
+            Layer::overlay, 5 + cursor_.x * 3, 5 + cursor_.y * 3, 102);
+        pfrm.set_tile(
+            Layer::overlay, 6 + cursor_.x * 3, 5 + cursor_.y * 3, 102);
 
     } else if (move_arrow_sel_[2]) {
-            cursor_ = app.current_map_location();
-            cursor_.x += 1;
-            cursor_.y += 1;
-            show_map(pfrm, app.world_map());
-            cursor_ = app.current_map_location();
+        cursor_ = app.current_map_location();
+        cursor_.x += 1;
+        cursor_.y += 1;
+        show_map(pfrm, app.world_map());
+        cursor_ = app.current_map_location();
 
-            pfrm.set_tile(Layer::overlay, 4 + cursor_.x * 3,
-                          5 + cursor_.y * 3,
-                          114 + node.type_);
+        pfrm.set_tile(Layer::overlay,
+                      4 + cursor_.x * 3,
+                      5 + cursor_.y * 3,
+                      114 + node.type_);
 
-        pfrm.set_tile(Layer::overlay, 5 + cursor_.x * 3, 6 + cursor_.y * 3, 104);
-        pfrm.set_tile(Layer::overlay, 6 + cursor_.x * 3, 7 + cursor_.y * 3, 104);
+        pfrm.set_tile(
+            Layer::overlay, 5 + cursor_.x * 3, 6 + cursor_.y * 3, 104);
+        pfrm.set_tile(
+            Layer::overlay, 6 + cursor_.x * 3, 7 + cursor_.y * 3, 104);
     }
 }
 
@@ -232,10 +246,8 @@ void WorldMapScene::display(Platform& pfrm, App& app)
     cursor.set_size(Sprite::Size::w16_h32);
 
     cursor.set_texture_index(28);
-    cursor.set_position({
-            Float(28 + app.current_map_location().x * 24) - 4,
-            Float(36 + app.current_map_location().y * 24) - 8
-        });
+    cursor.set_position({Float(28 + app.current_map_location().x * 24) - 4,
+                         Float(36 + app.current_map_location().y * 24) - 8});
     cursor.set_mix(cmix_);
     pfrm.screen().draw(cursor);
 
@@ -246,10 +258,8 @@ void WorldMapScene::display(Platform& pfrm, App& app)
     if (state_ == State::explore_paths) {
         cursor.set_texture_index(15 + cursor_keyframe_);
 
-        cursor.set_position({
-                Float(28 + cursor_.x * 24),
-                Float(36 + cursor_.y * 24)
-            });
+        cursor.set_position(
+            {Float(28 + cursor_.x * 24), Float(36 + cursor_.y * 24)});
 
         pfrm.screen().draw(cursor);
     } else if (state_ == State::move) {
@@ -257,31 +267,24 @@ void WorldMapScene::display(Platform& pfrm, App& app)
 
         if (node.connections_.mask_ & WorldMap::Node::Connections::r) {
             cursor.set_texture_index(34 - 3 * move_arrow_sel_[1]);
-            cursor.set_position({
-                Float(28 + cursor_.x * 24) + 17,
-                Float(36 + cursor_.y * 24) - 1
-            });
+            cursor.set_position({Float(28 + cursor_.x * 24) + 17,
+                                 Float(36 + cursor_.y * 24) - 1});
             pfrm.screen().draw(cursor);
         }
 
         if (node.connections_.mask_ & WorldMap::Node::Connections::ru) {
             cursor.set_texture_index(32 - 3 * move_arrow_sel_[0]);
-            cursor.set_position({
-                Float(28 + cursor_.x * 24) + 11,
-                Float(36 + cursor_.y * 24) - 13
-            });
+            cursor.set_position({Float(28 + cursor_.x * 24) + 11,
+                                 Float(36 + cursor_.y * 24) - 13});
             pfrm.screen().draw(cursor);
         }
 
         if (node.connections_.mask_ & WorldMap::Node::Connections::rd) {
             cursor.set_texture_index(33 - 3 * move_arrow_sel_[2]);
-            cursor.set_position({
-                Float(28 + cursor_.x * 24) + 11,
-                Float(36 + cursor_.y * 24) + 13
-            });
+            cursor.set_position({Float(28 + cursor_.x * 24) + 11,
+                                 Float(36 + cursor_.y * 24) + 13});
             pfrm.screen().draw(cursor);
         }
-
     }
 }
 
@@ -344,7 +347,7 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
     pfrm.set_tile(Layer::overlay, 1, 17, 116);
 
     auto& node = app.world_map().matrix_[cursor_.x][cursor_.y];
-    if (not (node.connections_.mask_ & WorldMap::Node::Connections::r)) {
+    if (not(node.connections_.mask_ & WorldMap::Node::Connections::r)) {
         move_arrow_sel_[1] = false;
         if (node.connections_.mask_ & WorldMap::Node::Connections::ru) {
             move_arrow_sel_[0] = true;
@@ -356,15 +359,12 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 
 
 
-static void highlight_subtree(Platform& pfrm,
-                              WorldMap& map,
-                              const Vec2<u8>& coord)
+static void
+highlight_subtree(Platform& pfrm, WorldMap& map, const Vec2<u8>& coord)
 {
     auto& node = map.matrix_[coord.x][coord.y];
-    pfrm.set_tile(Layer::overlay,
-                  4 + coord.x * 3,
-                  5 + coord.y * 3,
-                  114 + node.type_);
+    pfrm.set_tile(
+        Layer::overlay, 4 + coord.x * 3, 5 + coord.y * 3, 114 + node.type_);
 
 
     if (node.connections_.mask_ & WorldMap::Node::Connections::r) {
@@ -401,10 +401,8 @@ void WorldMapScene::show_map(Platform& pfrm, WorldMap& map)
         for (int y = 0; y < 3; ++y) {
             auto& node = map.matrix_[x][y];
 
-            pfrm.set_tile(Layer::overlay,
-                          4 + x * 3,
-                          5 + y * 3,
-                          97 + node.type_);
+            pfrm.set_tile(
+                Layer::overlay, 4 + x * 3, 5 + y * 3, 97 + node.type_);
 
             if (node.connections_.mask_ & WorldMap::Node::Connections::l) {
                 pfrm.set_tile(Layer::overlay, 3 + x * 3, 5 + y * 3, 85);
@@ -443,4 +441,4 @@ void WorldMapScene::exit(Platform& pfrm, App&, Scene& next_scene)
 
 
 
-}
+} // namespace skyland

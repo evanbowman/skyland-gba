@@ -18,8 +18,7 @@ class Island;
 
 class PlayerIslandDestroyedScene : public WorldScene {
 public:
-    PlayerIslandDestroyedScene(Island* island) :
-        island_(island)
+    PlayerIslandDestroyedScene(Island* island) : island_(island)
     {
     }
 
