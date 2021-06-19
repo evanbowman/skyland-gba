@@ -19,7 +19,7 @@ static Coins get_cost(App& app, const RoomMeta& meta)
 {
     Coins cost = meta->cost();
     for (int i = 0; i < app.player_island().workshop_count(); ++i) {
-        cost *= 0.8f;
+        cost *= 0.9f;
     }
     return cost;
 }

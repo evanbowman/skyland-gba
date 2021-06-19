@@ -55,6 +55,12 @@ public:
     {
         return -150;
     }
+
+
+    static Conditions::Value conditions()
+    {
+        return Conditions::workshop_required;
+    }
 };
 
 

@@ -28,6 +28,15 @@ class BasicCharacter;
 
 
 
+struct Conditions {
+    enum Value : u32 {
+        none = 0,
+        workshop_required = (1 << 0),
+    };
+};
+
+
+
 class Room {
 public:
     virtual ~Room()
@@ -147,6 +156,12 @@ public:
     static Power consumes_power()
     {
         return 10;
+    }
+
+
+    static Conditions::Value conditions()
+    {
+        return Conditions::none;
     }
 
 

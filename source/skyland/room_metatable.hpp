@@ -16,12 +16,14 @@ struct RoomMeta {
         virtual ~Box()
         {
         }
+
         virtual void create(Platform&, Island*, const Vec2<u8>&) const = 0;
         virtual const char* name() const = 0;
         virtual Vec2<u8> size() const = 0;
         virtual Coins cost() const = 0;
         virtual Float ai_base_weight() const = 0;
         virtual Power consumes_power() const = 0;
+        virtual Conditions::Value conditions() const = 0;
     };
 
     template <typename T> struct BoxImpl : public Box {
@@ -55,6 +57,11 @@ struct RoomMeta {
         virtual Power consumes_power() const override
         {
             return T::consumes_power();
+        }
+
+        virtual Conditions::Value conditions() const override
+        {
+            return T::conditions();
         }
     };
 

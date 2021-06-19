@@ -11,6 +11,9 @@
  "Far on the horizon, another fortress approaches, flying a black flag... pirates! ")
 
 
+(set 'enemies-seen 1)
+
+
 (configure-player
  (opponent)
  '((cannon 0 14)

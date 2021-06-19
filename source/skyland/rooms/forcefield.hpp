@@ -63,6 +63,12 @@ public:
     {
         return 40;
     }
+
+
+    static Conditions::Value conditions()
+    {
+        return Conditions::workshop_required;
+    }
 };
 
 
