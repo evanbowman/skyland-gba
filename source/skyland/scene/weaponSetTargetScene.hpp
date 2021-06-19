@@ -13,7 +13,7 @@ class Room;
 
 
 
-class WeaponSetTargetScene : public WorldScene {
+class WeaponSetTargetScene : public ActiveWorldScene {
 public:
     WeaponSetTargetScene(const Vec2<u8>& weapon_loc);
 

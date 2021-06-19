@@ -30,7 +30,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    WorldScene::update(pfrm, app, delta);
+    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+        return new_scene;
+    }
 
     switch (state_) {
     case State::select_loc:

@@ -2,6 +2,8 @@
 
 
 #include "skyland/entity.hpp"
+#include "memory/buffer.hpp"
+#include "skyland/path.hpp"
 
 
 
@@ -31,17 +33,19 @@ public:
         grid_position_ = pos;
     }
 
-
-    void set_outdoors(bool outdoors)
+    void set_movement_path(Path path)
     {
-        outdoors_ = outdoors;
+        movement_path_ = std::move(path);
     }
 
 
 private:
     Island* parent_;
     Vec2<u8> grid_position_;
-    bool outdoors_ = false;
+    Vec2<Float> real_position_;
+    Microseconds movement_timer_ = 0;
+
+    std::optional<Path> movement_path_;
 };
 
 

@@ -84,7 +84,7 @@ void SalvageRoomScene::exit(Platform& pfrm, App& app, Scene& next)
 ScenePtr<Scene>
 SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (auto next = WorldScene::update(pfrm, app, delta)) {
+    if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
         return next;
     }
 

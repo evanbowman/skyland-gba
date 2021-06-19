@@ -6,10 +6,51 @@
 #include "skyland/entity/birbs/smolBirb.hpp"
 #include "number/random.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/scene/playerIslandDestroyedScene.hpp"
 
 
 
 namespace skyland {
+
+
+
+ScenePtr<Scene> ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    if (auto new_scene = WorldScene::update(pfrm, app, delta)) {
+        return new_scene;
+    }
+
+
+    if (app.player_island().is_destroyed()) {
+        // app.on_timeout(pfrm, milliseconds(120), [](Platform& pfrm, App& app) {
+        //     auto origin = app.player_island().origin();
+        //     origin.x += (app.player_island().terrain().size() / 2) * 16;
+        //     medium_explosion(pfrm, app, origin);
+        // });
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+        cursor_loc.x = 0;
+
+        app.effects().clear();
+        return scene_pool::alloc<PlayerIslandDestroyedScene>(&app.player_island());
+    }
+
+
+    if (app.opponent_island() and
+        app.opponent_island()->is_destroyed()) {
+
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+        cursor_loc.x = 0;
+
+        app.effects().clear();
+        return scene_pool::alloc<PlayerIslandDestroyedScene>(&*app.opponent_island());
+    }
+
+    return null_scene();
+}
 
 
 

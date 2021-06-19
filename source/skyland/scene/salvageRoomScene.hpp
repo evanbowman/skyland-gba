@@ -11,7 +11,7 @@ namespace skyland {
 
 
 
-class SalvageRoomScene : public WorldScene {
+class SalvageRoomScene : public ActiveWorldScene {
 public:
     SalvageRoomScene()
     {

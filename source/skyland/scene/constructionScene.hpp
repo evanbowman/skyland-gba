@@ -12,7 +12,7 @@ namespace skyland {
 
 
 
-class ConstructionScene : public WorldScene {
+class ConstructionScene : public ActiveWorldScene {
 public:
     ConstructionScene()
     {

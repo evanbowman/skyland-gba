@@ -20,7 +20,7 @@ WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc)
 ScenePtr<Scene>
 WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (auto new_scene = WorldScene::update(pfrm, app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return new_scene;
     }
 

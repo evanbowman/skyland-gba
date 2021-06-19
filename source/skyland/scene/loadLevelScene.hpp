@@ -11,7 +11,7 @@ namespace skyland {
 
 
 
-class LoadLevelScene : public WorldScene {
+class LoadLevelScene : public ActiveWorldScene {
 public:
     LoadLevelScene()
     {

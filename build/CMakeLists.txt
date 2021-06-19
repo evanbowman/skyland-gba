@@ -63,6 +63,7 @@ set(SOURCES
 set(SOURCES
   ${SOURCES}
   ${SOURCE_DIR}/skyland/room.cpp
+  ${SOURCE_DIR}/skyland/path.cpp
   ${SOURCE_DIR}/skyland/island.cpp
   ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/serial.cpp
@@ -89,6 +90,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/fadeInScene.cpp
   ${SOURCE_DIR}/skyland/scene/newgameScene.cpp
   ${SOURCE_DIR}/skyland/scene/worldMapScene.cpp
+  ${SOURCE_DIR}/skyland/scene/inspectP2Scene.cpp
   ${SOURCE_DIR}/skyland/scene/loadLevelScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
