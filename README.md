@@ -10,7 +10,8 @@ game jam. All future work will be completed in a fork (link forthcoming).
 I forked a top-down action game called Blind Jump to leverage some existing gba
 framework code that I'd written in the past for interfacing with the hardware,
 but most of the code is entirely new. For game-specific code, see the source/skyland 
-directory.
+directory, and the scripts directory, where you'll find all the various level scenarios
+as LISP code.
 
 
 ## Controls, Mechanics, and other Info
@@ -40,7 +41,7 @@ construct the selected room. The game may reject your request to build
 structures, if you have not collected enough coins, or have not constructed
 enough power cores to sustain the new addition.
 
-See below for a complete annotation of all structions that you may build:
+See below for a complete annotation of all structures that you may build:
 
 #### Hull
 
