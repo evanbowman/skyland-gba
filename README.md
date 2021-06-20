@@ -40,7 +40,7 @@ construct the selected room. The game may reject your request to build
 structures, if you have not collected enough coins, or have not constructed
 enough power cores to sustain the new addition.
 
-See below for a complete annotation of all structions that you may build:
+See below for a complete annotation of all structures that you may build:
 
 #### Hull
 
