@@ -428,6 +428,7 @@ if(GAMEBOY_ADVANCE)
   add_file(scripts neutral_0 lisp)
   add_file(scripts neutral_0_0 lisp)
   add_file(scripts neutral_0_1 lisp)
+  add_file(scripts neutral_0_2 lisp)
 
 
   add_file(strings english txt)

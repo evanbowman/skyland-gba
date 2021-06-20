@@ -1,7 +1,4 @@
 
-(dialog
- "A heavily armored castle hovers in the distance. It begins loading its weapons...")
-
 
 (init-opponent 6 'hostile)
 

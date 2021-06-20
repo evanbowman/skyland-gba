@@ -41,6 +41,48 @@ Island::Rooms& Island::rooms()
 }
 
 
+void Island::remove_character(const Vec2<u8>& location)
+{
+    if (auto room = get_room(location)) {
+        for (auto it = room->characters().begin(); it not_eq room->characters().end();) {
+            if ((*it)->grid_position() == location) {
+                room->characters().erase(it);
+                return;
+            } else {
+                ++it;
+            }
+        }
+    }
+
+    for (auto it = characters_.begin(); it not_eq characters_.end();) {
+        if ((*it)->grid_position() == location) {
+            characters_.erase(it);
+            return;
+        } else {
+            ++it;
+        }
+    }
+}
+
+
+bool Island::is_character_at_location(const Vec2<u8>& loc)
+{
+    if (auto room = get_room(loc)) {
+        for (auto& chr : room->characters()) {
+            if (chr->grid_position() == loc) {
+                return true;
+            }
+        }
+    }
+    for (auto& chr : characters_) {
+        if (chr->grid_position() == loc) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {

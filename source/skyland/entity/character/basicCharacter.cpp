@@ -12,6 +12,12 @@ BasicCharacter::BasicCharacter(Island* parent, const Vec2<u8>& position)
 {
     sprite_.set_texture_index(26);
     sprite_.set_size(Sprite::Size::w16_h32);
+
+    auto o = parent_->origin();
+    o.x += grid_position_.x * 16;
+    o.y += grid_position_.y * 16 - 2;
+
+    sprite_.set_position(o);
 }
 
 

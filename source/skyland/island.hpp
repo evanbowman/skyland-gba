@@ -50,6 +50,8 @@ public:
     bool add_character(EntityRef<BasicCharacter> character);
 
 
+    void remove_character(const Vec2<u8>& location);
+
 
     Rooms& rooms();
 
@@ -97,6 +99,9 @@ public:
 
 
     void plot_walkable_zones(bool matrix[16][16]) const;
+
+
+    bool is_character_at_location(const Vec2<u8>& loc);
 
 
     void repaint(Platform& pfrm);

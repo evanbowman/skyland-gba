@@ -27,7 +27,9 @@
 
 (set 'after-converge-hook
      (lambda
-       (dialog "The warship requests a tribute of 300$. Will you pay?")
+       (set 'temp "The warship requests a tribute of 300$. Will you pay?")
+       (dialog temp)
+       (print temp)
 
        (await-dialog-y/n)
        (set 'after-converge-hook nil)))
@@ -37,7 +39,7 @@
      (lambda
        (add-coins (- 0 300))
        (dialog "The fortress' captain peers smugly from behind her spectacles. "
-               "She's glad that you understand the gravity of the situation.")
+               "She's glad that you understand the nature of the situation.")
        (exit-level)))
 
 

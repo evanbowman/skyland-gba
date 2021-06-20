@@ -58,7 +58,7 @@ void Missile::update(Platform&, App&, Microseconds delta)
         break;
 
     case State::falling:
-        if (timer_ > seconds(1)) {
+        if (timer_ > milliseconds(700)) {
             timer_ = 0;
             kill();
         }

@@ -14,7 +14,7 @@
  '((power-core 3 13)))
 
 
-(add-character (opponent) 1 14)
+(add-chr (opponent) 1 14)
 
 
 (set 'after-converge-hook
@@ -28,14 +28,19 @@
 (set 'after-dialog-accepted-hook
      (lambda
 
-       ;; (set 'temp (find-unused-character-slot (player)))
-       ;; (if temp
-       ;;     (progn
-       ;;       (remove-character (opponent) 1 14)
-       ;;       (add-character (player) (car temp) (cdr temp)))
-       ;;     (dialog "Sadly, there's no room for the castaway in your castle."))
+       (set 'temp (chr-slots (player)))
 
-       (dialog "The castaway joined your crew!")
+       (print (string temp))
+
+       (if temp
+           (progn
+             (set 'temp (get temp (cr-choice (length temp))))
+             (add-chr (player) (car temp) (cdr temp))
+             (rem-chr (opponent) 1 14)
+             (set 'temp (nil))
+             (dialog "The castaway joined your crew!"))
+         (dialog "Sadly, there's no room..."))
+
        (exit-level)))
 
 

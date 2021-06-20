@@ -82,6 +82,9 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     cursor_loc.y = 14;
 
 
+    app.victory_coins() = 0;
+
+
     if (app.opponent_island()) {
         app.opponent_island()->set_drift(-0.000025f);
 
