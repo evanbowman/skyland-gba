@@ -39,11 +39,29 @@ public:
     }
 
 
+    Island* parent() const
+    {
+        return parent_;
+    }
+
+
+    void heal(int amount)
+    {
+        if (health_ + amount > 255) {
+            health_ = 255;
+        } else {
+            health_ += amount;
+        }
+    }
+
+
 private:
     Island* parent_;
     Vec2<u8> grid_position_;
     Vec2<Float> real_position_;
     Microseconds movement_timer_ = 0;
+
+    u8 health_ = 255;
 
     std::optional<Path> movement_path_;
 };

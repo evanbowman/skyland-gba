@@ -60,5 +60,9 @@ struct InteriorTile {
         missile_silo_1,
         missile_silo_2,
         forcefield,
+        infirmary_1,
+        infirmary_3,
+        infirmary_2,
+        infirmary_4,
     };
 };

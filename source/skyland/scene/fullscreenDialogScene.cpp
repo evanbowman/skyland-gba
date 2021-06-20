@@ -112,24 +112,24 @@ void FullscreenDialogScene::clear_textbox(Platform& pfrm)
 {
     const auto st = calc_screen_tiles(pfrm);
 
-    // Corners
-    pfrm.set_tile(Layer::overlay, 1, 1, 93);
-    pfrm.set_tile(Layer::overlay, 1, 2, 95);
-    pfrm.set_tile(Layer::overlay, 2, 1, 94);
+    // // Corners
+    // pfrm.set_tile(Layer::overlay, 1, 1, 93);
+    // pfrm.set_tile(Layer::overlay, 1, 2, 95);
+    // pfrm.set_tile(Layer::overlay, 2, 1, 94);
 
-    pfrm.set_tile(Layer::overlay, st.x - 3, 1, 97);
-    pfrm.set_tile(Layer::overlay, st.x - 2, 1, 98);
-    pfrm.set_tile(Layer::overlay, st.x - 2, 2, 100);
+    // pfrm.set_tile(Layer::overlay, st.x - 3, 1, 97);
+    // pfrm.set_tile(Layer::overlay, st.x - 2, 1, 98);
+    // pfrm.set_tile(Layer::overlay, st.x - 2, 2, 100);
 
-    pfrm.set_tile(Layer::overlay, 1, st.y - 2, 103);
-    pfrm.set_tile(Layer::overlay, 2, st.y - 2, 104);
-    pfrm.set_tile(Layer::overlay, 1, st.y - 3, 101);
+    // pfrm.set_tile(Layer::overlay, 1, st.y - 2, 103);
+    // pfrm.set_tile(Layer::overlay, 2, st.y - 2, 104);
+    // pfrm.set_tile(Layer::overlay, 1, st.y - 3, 101);
 
-    pfrm.set_tile(Layer::overlay, st.x - 3, st.y - 2, 107);
-    pfrm.set_tile(Layer::overlay, st.x - 2, st.y - 2, 108);
-    pfrm.set_tile(Layer::overlay, st.x - 2, st.y - 3, 106);
+    // pfrm.set_tile(Layer::overlay, st.x - 3, st.y - 2, 107);
+    // pfrm.set_tile(Layer::overlay, st.x - 2, st.y - 2, 108);
+    // pfrm.set_tile(Layer::overlay, st.x - 2, st.y - 3, 106);
 
-    // End Corners
+    // // End Corners
 
     for (int x = 1; x < st.x - 1; ++x) {
         pfrm.set_tile(Layer::overlay, x, st.y - (5 + y_start), 84);
