@@ -1713,7 +1713,8 @@ void init(Platform& pfrm)
                 const int count = get_op(1)->integer_.value_;
                 push_op(result);
                 for (int i = 0; i < count; ++i) {
-                    funcall(fn, 0);
+                    push_op(make_integer(i));
+                    funcall(fn, 1);
                     set_list(result, i, get_op(0));
                     pop_op(); // result from funcall
                 }
@@ -1723,6 +1724,11 @@ void init(Platform& pfrm)
 
     set_var("length", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
+
+                if (get_op(0)->type_ == Value::Type::nil) {
+                    return make_integer(0);
+                }
+
                 L_EXPECT_OP(0, cons);
 
                 return make_integer(length(get_op(0)));

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "worldScene.hpp"
 #include "skyland/dialog.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -16,9 +16,8 @@ namespace skyland {
 
 class BoxedDialogScene : public WorldScene {
 public:
-    BoxedDialogScene(DialogBuffer buffer, bool expects_answer_y_n) :
-        buffer_(std::move(buffer)),
-        expects_answer_y_n_(expects_answer_y_n)
+    BoxedDialogScene(DialogBuffer buffer, bool expects_answer_y_n)
+        : buffer_(std::move(buffer)), expects_answer_y_n_(expects_answer_y_n)
     {
     }
 
@@ -31,11 +30,7 @@ public:
 
 
 private:
-
-    bool advance_text(Platform& pfrm,
-                      App& app,
-                      Microseconds delta,
-                      bool sfx);
+    bool advance_text(Platform& pfrm, App& app, Microseconds delta, bool sfx);
 
     void clear_textbox(Platform& pfrm);
 
@@ -55,6 +50,7 @@ private:
         wait,
         done,
         animate_out,
+        boolean_choice,
         clear,
     } display_mode_ = DisplayMode::animate_in;
 
@@ -63,8 +59,12 @@ private:
     DialogBuffer buffer_;
 
     bool expects_answer_y_n_;
+
+    std::optional<Text> yes_text_;
+    std::optional<Text> no_text_;
+    bool choice_sel_ = true;
 };
 
 
 
-}
+} // namespace skyland

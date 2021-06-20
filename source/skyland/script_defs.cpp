@@ -1,10 +1,10 @@
+#include "alloc_entity.hpp"
 #include "configure_island.hpp"
+#include "opponent/friendlyAI.hpp"
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
 #include "script/lisp.hpp"
 #include "skyland.hpp"
-#include "opponent/friendlyAI.hpp"
-#include "alloc_entity.hpp"
 
 
 
@@ -12,13 +12,19 @@ namespace skyland {
 
 
 
+// Given a variable name of this format, lisp user code will never be able to
+// access the variable, which is by design.
+const char* app_binding_name = "'(app)";
+
+
+
 static App* interp_get_app()
 {
-    auto game = lisp::get_var("*app*");
-    if (game->type_ not_eq lisp::Value::Type::user_data) {
+    auto app = lisp::get_var(app_binding_name);
+    if (app->type_ not_eq lisp::Value::Type::user_data) {
         return nullptr;
     }
-    return (App*)game->user_data_.obj_;
+    return (App*)app->user_data_.obj_;
 }
 
 
@@ -46,7 +52,7 @@ void App::init_scripts(Platform& pfrm)
     lisp::init(pfrm);
 
 
-    lisp::set_var("*app*", lisp::make_userdata(this));
+    lisp::set_var(app_binding_name, lisp::make_userdata(this));
 
 
     lisp::set_var("print", lisp::make_function([](int argc) {
@@ -79,34 +85,58 @@ void App::init_scripts(Platform& pfrm)
 
 
     lisp::set_var("await-dialog-y/n", lisp::make_function([](int argc) {
-        auto app = interp_get_app();
-        app->dialog_expects_answer_ = true;
-        return L_NIL;
-    }));
+                      auto app = interp_get_app();
+                      app->dialog_expects_answer_ = true;
+                      return L_NIL;
+                  }));
 
 
-    lisp::set_var("dialog", lisp::make_function([](int argc) {
-        auto app = interp_get_app();
-        auto pfrm = interp_get_pfrm();
+    lisp::set_var(
+        "dialog", lisp::make_function([](int argc) {
+            auto app = interp_get_app();
+            auto pfrm = interp_get_pfrm();
 
-        for (int i = argc - 1; i > -1; --i) {
-            if (not app->dialog_buffer()) {
-                app->dialog_buffer().emplace(allocate_dynamic<DialogString>(*pfrm));
-            }
-
-            if (lisp::get_op(i)->type_ not_eq lisp::Value::Type::string) {
-                if (lisp::get_op((i)) == L_NIL) {
-                    return lisp::get_op((i));
-                } else {
-                    return lisp::make_error(lisp::Error::Code::invalid_argument_type);
+            for (int i = argc - 1; i > -1; --i) {
+                if (not app->dialog_buffer()) {
+                    app->dialog_buffer().emplace(
+                        allocate_dynamic<DialogString>(*pfrm));
                 }
+
+                if (lisp::get_op(i)->type_ not_eq lisp::Value::Type::string) {
+                    if (lisp::get_op((i)) == L_NIL) {
+                        return lisp::get_op((i));
+                    } else {
+                        return lisp::make_error(
+                            lisp::Error::Code::invalid_argument_type);
+                    }
+                }
+
+                **app->dialog_buffer() += lisp::get_op(i)->string_.value();
             }
 
-            **app->dialog_buffer() += lisp::get_op(i)->string_.value();
-        }
+            return L_NIL;
+        }));
 
-        return L_NIL;
-    }));
+
+    lisp::set_var("swap-ai", lisp::make_function([](int argc) {
+                      L_EXPECT_ARGC(argc, 1);
+                      L_EXPECT_OP(0, symbol);
+
+                      auto [app, pfrm] = interp_get_context();
+
+                      auto conf = lisp::get_op(0);
+                      if (str_cmp(conf->symbol_.name_, "hostile") == 0) {
+                          app->swap_ai<EnemyAI>();
+                      } else if (str_cmp(conf->symbol_.name_, "neutral") == 0) {
+                          app->swap_ai<FriendlyAI>();
+                      } else {
+                          StringBuffer<30> err("bad ai sym: '");
+                          err += conf->symbol_.name_;
+                          pfrm->fatal(err.c_str());
+                      }
+
+                      return L_NIL;
+                  }));
 
 
     lisp::set_var("init-opponent", lisp::make_function([](int argc) {
@@ -163,24 +193,24 @@ void App::init_scripts(Platform& pfrm)
 
 
     lisp::set_var("add-character", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 3);
-        L_EXPECT_OP(0, integer); // y
-        L_EXPECT_OP(1, integer); // x
-        L_EXPECT_OP(2, user_data);
+                      L_EXPECT_ARGC(argc, 3);
+                      L_EXPECT_OP(0, integer); // y
+                      L_EXPECT_OP(1, integer); // x
+                      L_EXPECT_OP(2, user_data);
 
-        auto island = (Island*)lisp::get_op(2)->user_data_.obj_;
+                      auto island = (Island*)lisp::get_op(2)->user_data_.obj_;
 
-        auto coord = Vec2<u8>{
-            (u8)lisp::get_op(1)->integer_.value_,
-            (u8)lisp::get_op(0)->integer_.value_,
-        };
+                      auto coord = Vec2<u8>{
+                          (u8)lisp::get_op(1)->integer_.value_,
+                          (u8)lisp::get_op(0)->integer_.value_,
+                      };
 
-        auto chr = alloc_entity<BasicCharacter>(island, coord);
+                      auto chr = alloc_entity<BasicCharacter>(island, coord);
 
-        island->add_character(std::move(chr));
+                      island->add_character(std::move(chr));
 
-        return L_NIL;
-    }));
+                      return L_NIL;
+                  }));
 
 
     lisp::set_var("configure-player", lisp::make_function([](int argc) {
@@ -208,15 +238,29 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
+    lisp::set_var("zone", lisp::make_function([](int argc) {
+                      return lisp::make_integer(interp_get_app()->zone() - 1);
+                  }));
+
+
+    lisp::set_var("exit-level", lisp::make_function([](int argc) {
+                      interp_get_app()->exit_level() = true;
+                      return L_NIL;
+                  }));
+
+
     lisp::set_var("add-coins", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, integer);
+                      L_EXPECT_ARGC(argc, 1);
+                      L_EXPECT_OP(0, integer);
 
-        auto app = interp_get_app();
-        app->coins() += lisp::get_op(0)->integer_.value_;
+                      auto app = interp_get_app();
+                      app->coins() += lisp::get_op(0)->integer_.value_;
 
-        return L_NIL;
-    }));
+                      app->coins() = std::max(0, app->coins());
+
+                      return L_NIL;
+                  }));
+
 
     lisp::set_var(
         "eval-other-file", lisp::make_function([](int argc) {

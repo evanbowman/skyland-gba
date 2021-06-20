@@ -17,6 +17,7 @@ namespace skyland {
 class Island {
 public:
     Island(Platform& pfrm, Layer layer, u8 width, Player& owner);
+    Island(const Island&) = delete;
 
 
     using Rooms = Buffer<RoomPtr<Room>, 20>;

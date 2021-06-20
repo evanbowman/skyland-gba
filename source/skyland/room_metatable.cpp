@@ -4,13 +4,13 @@
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/exteriorWall.hpp"
+#include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/hull.hpp"
+#include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/missileSilo.hpp"
+#include "skyland/rooms/radar.hpp"
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/workshop.hpp"
-#include "skyland/rooms/radar.hpp"
-#include "skyland/rooms/forcefield.hpp"
-#include "skyland/rooms/infirmary.hpp"
 
 
 
@@ -18,7 +18,15 @@ namespace skyland {
 
 
 
-RoomMetatable<Hull, Forcefield, Cannon, MissileSilo, Stairwell, Workshop, Infirmary, Core, Radar>
+RoomMetatable<Hull,
+              Forcefield,
+              Cannon,
+              MissileSilo,
+              Stairwell,
+              Workshop,
+              Infirmary,
+              Core,
+              Radar>
     __room_metatable;
 
 

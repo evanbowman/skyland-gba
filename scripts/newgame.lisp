@@ -7,6 +7,7 @@
 
 (eval-other-file "reset_hooks.lisp")
 
+(set 'last-zone 0)
 
-(set 'enemies-seen 0)
-(set 'friendlies-seen 0)
+(set 'enemies-seen '())
+(set 'friendlies-seen '())

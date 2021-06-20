@@ -1,10 +1,10 @@
 #include "missile.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/room.hpp"
-#include "skyland/rooms/missileSilo.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/forcefield.hpp"
+#include "skyland/rooms/missileSilo.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -15,9 +15,7 @@ namespace skyland {
 Missile::Missile(const Vec2<Float>& position,
                  const Vec2<Float>& target,
                  Island* source)
-    : Projectile({{10, 10}, {8, 8}}),
-      target_x_(target.x),
-      source_(source)
+    : Projectile({{10, 10}, {8, 8}}), target_x_(target.x), source_(source)
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -94,7 +92,6 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
     } else {
         room.apply_damage(pfrm, app, Missile::deals_damage);
     }
-
 }
 
 

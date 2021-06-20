@@ -9,15 +9,10 @@
 namespace skyland {
 
 
-template <typename T,
-          typename DefaultType,
-          int mem = sizeof(T),
-          int align = 8>
+template <typename T, typename DefaultType, int mem = sizeof(T), int align = 8>
 class Boxed {
 public:
-
-    template <typename ...Args>
-    Boxed(Args&& ...args)
+    template <typename... Args> Boxed(Args&&... args)
     {
         static_assert(std::is_base_of<T, DefaultType>::value);
         static_assert(alignof(DefaultType) <= align);
@@ -26,8 +21,7 @@ public:
     }
 
 
-    template <typename U, typename ...Args>
-    void emplace(Args&& ...args)
+    template <typename U, typename... Args> void emplace(Args&&... args)
     {
         static_assert(std::is_base_of<T, U>::value);
         static_assert(alignof(U) <= align);
@@ -70,7 +64,6 @@ public:
     }
 
 private:
-
     void destroy()
     {
         reinterpret_cast<T*>(mem_)->~T();
@@ -81,4 +74,4 @@ private:
 
 
 
-}
+} // namespace skyland

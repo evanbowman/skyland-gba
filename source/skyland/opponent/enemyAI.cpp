@@ -19,7 +19,6 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         return;
     }
 
-
     next_action_timer_ -= delta;
 
 

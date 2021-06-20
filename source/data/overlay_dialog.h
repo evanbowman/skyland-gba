@@ -3,13 +3,13 @@
 
 //======================================================================
 //
-//	overlay_dialog, 1000x8@4, 
+//	overlay_dialog, 1200x8@4, 
 //	Transparent color : FF,00,FF
 //	+ palette 256 entries, not compressed
-//	+ 125 tiles not compressed
-//	Total size: 512 + 4000 = 4512
+//	+ 150 tiles not compressed
+//	Total size: 512 + 4800 = 5312
 //
-//	Time-stamp: 2021-06-19, 12:51:45
+//	Time-stamp: 2021-06-20, 12:58:59
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,8 +18,8 @@
 #ifndef GRIT_OVERLAY_DIALOG_H
 #define GRIT_OVERLAY_DIALOG_H
 
-#define overlay_dialogTilesLen 4000
-extern const unsigned int overlay_dialogTiles[1000];
+#define overlay_dialogTilesLen 4800
+extern const unsigned int overlay_dialogTiles[1200];
 
 #define overlay_dialogPalLen 512
 extern const unsigned short overlay_dialogPal[256];

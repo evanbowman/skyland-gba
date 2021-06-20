@@ -14,9 +14,6 @@
 (show-flag (opponent))
 
 
-(set 'enemies-seen 1)
-
-
 (configure-player
  (opponent)
  '((cannon 0 13)

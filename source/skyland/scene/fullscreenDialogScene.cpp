@@ -1,7 +1,7 @@
 #include "fullscreenDialogScene.hpp"
+#include "fadeInScene.hpp"
 #include "graphics/overlay.hpp"
 #include "localization.hpp"
-#include "fadeInScene.hpp"
 #include "skyland/scene_pool.hpp"
 
 
@@ -112,48 +112,11 @@ void FullscreenDialogScene::clear_textbox(Platform& pfrm)
 {
     const auto st = calc_screen_tiles(pfrm);
 
-
-    // Corners
-
-    // pfrm.set_tile(Layer::overlay, 1, 1, 93);
-    // pfrm.set_tile(Layer::overlay, 1, 2, 95);
-    // pfrm.set_tile(Layer::overlay, 2, 1, 94);
-
-    // pfrm.set_tile(Layer::overlay, st.x - 3, 1, 97);
-    // pfrm.set_tile(Layer::overlay, st.x - 2, 1, 98);
-    // pfrm.set_tile(Layer::overlay, st.x - 2, 2, 100);
-
-    // pfrm.set_tile(Layer::overlay, 1, st.y - 2, 103);
-    // pfrm.set_tile(Layer::overlay, 2, st.y - 2, 104);
-    // pfrm.set_tile(Layer::overlay, 1, st.y - 3, 101);
-
-    // pfrm.set_tile(Layer::overlay, st.x - 3, st.y - 2, 107);
-    // pfrm.set_tile(Layer::overlay, st.x - 2, st.y - 2, 108);
-    // pfrm.set_tile(Layer::overlay, st.x - 2, st.y - 3, 106);
-
-    // End Corners
-
-
     for (int x = 1; x < st.x - 1; ++x) {
-        pfrm.set_tile(Layer::overlay, x, st.y - (5 + y_start), 84);
         pfrm.set_tile(Layer::overlay, x, st.y - (4 + y_start), 82);
         pfrm.set_tile(Layer::overlay, x, st.y - (3 + y_start), 82);
         pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start), 82);
-        pfrm.set_tile(Layer::overlay, x, st.y - (1 + y_start), 85);
     }
-
-    pfrm.set_tile(Layer::overlay, 0, st.y - (4 + y_start), 89);
-    pfrm.set_tile(Layer::overlay, 0, st.y - (3 + y_start), 89);
-    pfrm.set_tile(Layer::overlay, 0, st.y - (2 + y_start), 89);
-
-    pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (4 + y_start), 88);
-    pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (3 + y_start), 88);
-    pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (2 + y_start), 88);
-
-    pfrm.set_tile(Layer::overlay, 0, st.y - (5 + y_start), 83);
-    pfrm.set_tile(Layer::overlay, 0, st.y - (1 + y_start), 90);
-    pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (5 + y_start), 87);
-    pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (1 + y_start), 86);
 
     text_state_.line_ = 0;
     text_state_.pos_ = 0;
@@ -184,26 +147,26 @@ void FullscreenDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
     pfrm.fill_overlay(0);
 
     pfrm.load_overlay_texture("overlay");
-
 }
 
 
 
-ScenePtr<Scene> FullscreenDialogScene::update(Platform& pfrm,
-                                              App& app,
-                                              Microseconds delta)
+ScenePtr<Scene>
+FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-
     auto animate_moretext_icon = [&] {
         static const auto duration = milliseconds(500);
         text_state_.timer_ += delta;
         if (text_state_.timer_ > duration) {
             text_state_.timer_ = 0;
             const auto st = calc_screen_tiles(pfrm);
-            if (pfrm.get_tile(Layer::overlay, st.x - 3, st.y - (2 + y_start)) == 91) {
-                pfrm.set_tile(Layer::overlay, st.x - 3, st.y - (2 + y_start), 92);
+            if (pfrm.get_tile(Layer::overlay, st.x - 3, st.y - (2 + y_start)) ==
+                91) {
+                pfrm.set_tile(
+                    Layer::overlay, st.x - 3, st.y - (2 + y_start), 92);
             } else {
-                pfrm.set_tile(Layer::overlay, st.x - 3, st.y - (2 + y_start), 91);
+                pfrm.set_tile(
+                    Layer::overlay, st.x - 3, st.y - (2 + y_start), 91);
             }
         }
     };
@@ -254,8 +217,8 @@ ScenePtr<Scene> FullscreenDialogScene::update(Platform& pfrm,
         // if (pfrm.keyboard().down_transition<Key::action_2>() or
         //     pfrm.keyboard().down_transition<Key::action_1>()) {
 
-            text_state_.timer_ = seconds(1);
-            display_mode_ = DisplayMode::wait;
+        text_state_.timer_ = seconds(1);
+        display_mode_ = DisplayMode::wait;
         // }
         break;
 
@@ -263,8 +226,8 @@ ScenePtr<Scene> FullscreenDialogScene::update(Platform& pfrm,
         // if (pfrm.keyboard().down_transition<Key::action_2>() or
         //     pfrm.keyboard().down_transition<Key::action_1>()) {
 
-            text_state_.timer_ = seconds(1);
-            display_mode_ = DisplayMode::done;
+        text_state_.timer_ = seconds(1);
+        display_mode_ = DisplayMode::done;
         // }
         break;
 
@@ -278,7 +241,7 @@ ScenePtr<Scene> FullscreenDialogScene::update(Platform& pfrm,
             //     init_text(pfrm, *text_);
             //     display_mode_ = DisplayMode::animate_in;
             // } else {
-                display_mode_ = DisplayMode::animate_out;
+            display_mode_ = DisplayMode::animate_out;
             // }
         }
         break;
@@ -297,4 +260,4 @@ ScenePtr<Scene> FullscreenDialogScene::update(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

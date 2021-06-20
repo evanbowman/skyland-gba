@@ -328,10 +328,12 @@ void Island::repaint(Platform& pfrm)
     u8 matrix[16][16];
 
     for (int x = 0; x < 16; ++x) {
-        for (int y = 0; y < 15; ++y) {
+        for (int y = 0; y < 16; ++y) {
             pfrm.set_tile(layer_, x, y, 0);
         }
     }
+
+    render_terrain(pfrm);
 
     if (interior_visible_) {
         render_interior(pfrm);

@@ -6,6 +6,7 @@
 #include "salvageRoomScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "worldMapScene.hpp"
 #include "worldScene.hpp"
 
 
@@ -18,6 +19,11 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return scene;
+    }
+
+    if (app.exit_level()) {
+        app.exit_level() = false;
+        return scene_pool::alloc<WorldMapScene>();
     }
 
     if (pfrm.keyboard().down_transition<Key::alt_2>()) {

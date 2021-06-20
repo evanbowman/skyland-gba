@@ -2,13 +2,13 @@
 #include "fadeInScene.hpp"
 #include "fullscreenDialogScene.hpp"
 #include "globals.hpp"
+#include "localization.hpp"
 #include "platform/platform.hpp"
 #include "script/lisp.hpp"
 #include "skyland/configure_island.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "localization.hpp"
 
 
 
@@ -21,7 +21,7 @@ void set_island_positions(Island& left_island, Island& right_island)
     left_island.set_position({10, 374});
     // Pretty much as far away as possible, without wrapping across the screen.
     right_island.set_position(
-        {Float(350 + 16 * (10 - right_island.terrain().size())), 374});
+        {Float(300 + 16 * (10 - right_island.terrain().size())), 374});
 }
 
 
@@ -55,7 +55,7 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     switch (node.type_) {
     case WorldMap::Node::Type::storm_clear:
     case WorldMap::Node::Type::clear: {
-        StringBuffer<32> fname("friendly_");
+        StringBuffer<32> fname("neutral_");
         fname += to_string<10>(std::min(max_zone, app.zone()) - 1);
         fname += ".lisp";
         lisp::dostring(pfrm.load_file_contents("scripts", fname.c_str()),
@@ -65,10 +65,7 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case WorldMap::Node::Type::storm_hostile:
     case WorldMap::Node::Type::hostile: {
-        StringBuffer<32> fname("hostile_");
-        fname += to_string<10>(std::min(max_zone, app.zone()) - 1);
-        fname += ".lisp";
-        lisp::dostring(pfrm.load_file_contents("scripts", fname.c_str()),
+        lisp::dostring(pfrm.load_file_contents("scripts", "hostile.lisp"),
                        on_lisp_error);
         break;
     }

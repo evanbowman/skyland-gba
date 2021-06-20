@@ -412,11 +412,9 @@ if(GAMEBOY_ADVANCE)
     -mtune=arm7tdmi)
 
   add_file(scripts newgame lisp)
-  add_file(scripts test lisp)
-  add_file(scripts test2 lisp)
   add_file(scripts reset_hooks lisp)
 
-  add_file(scripts hostile_0 lisp)
+  add_file(scripts hostile lisp)
   add_file(scripts hostile_0_0 lisp)
   add_file(scripts hostile_0_1 lisp)
   add_file(scripts hostile_0_2 lisp)
@@ -427,8 +425,9 @@ if(GAMEBOY_ADVANCE)
   add_file(scripts hostile_0_7 lisp)
 
 
-  add_file(scripts friendly_0 lisp)
-  add_file(scripts friendly_0_0 lisp)
+  add_file(scripts neutral_0 lisp)
+  add_file(scripts neutral_0_0 lisp)
+  add_file(scripts neutral_0_1 lisp)
 
 
   add_file(strings english txt)

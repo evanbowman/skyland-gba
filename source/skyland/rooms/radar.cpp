@@ -30,4 +30,4 @@ void Radar::render_exterior(Platform& pfrm, Layer layer)
 
 
 
-}
+} // namespace skyland

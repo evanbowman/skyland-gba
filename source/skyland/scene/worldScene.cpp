@@ -1,14 +1,14 @@
-#include "boxedDialogScene.hpp"
 #include "worldScene.hpp"
+#include "boxedDialogScene.hpp"
 #include "globals.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
+#include "scriptHookScene.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/birbs/smolBirb.hpp"
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "scriptHookScene.hpp"
 
 
 
@@ -120,10 +120,9 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                  app.opponent_island()->get_position().y});
             app.opponent_island()->set_drift(0);
 
-            app.on_timeout(pfrm, milliseconds(500),
-                           [](Platform& pfrm, App&) {
-                               invoke_hook(pfrm, "after-converge-hook");
-                           });
+            app.on_timeout(pfrm, milliseconds(500), [](Platform& pfrm, App&) {
+                invoke_hook(pfrm, "after-converge-hook");
+            });
         }
 
         if (app.opponent_island()->get_drift() == 0) {
@@ -187,7 +186,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.dialog_buffer().reset();
             const bool answer = app.dialog_expects_answer();
             app.dialog_expects_answer() = false;
-            return scene_pool::alloc<BoxedDialogScene>(std::move(buffer), answer);
+            return scene_pool::alloc<BoxedDialogScene>(std::move(buffer),
+                                                       answer);
         }
 
         app.player_island().update(pfrm, app, delta);

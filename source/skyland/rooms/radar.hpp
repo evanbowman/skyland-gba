@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "skyland/room.hpp"
 #include "skyland/coins.hpp"
+#include "skyland/room.hpp"
 
 
 
@@ -65,10 +65,8 @@ public:
     {
         return false;
     }
-
-
 };
 
 
 
-}
+} // namespace skyland

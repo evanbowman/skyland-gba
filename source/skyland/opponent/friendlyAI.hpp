@@ -3,6 +3,7 @@
 
 #include "opponent.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/scene/scriptHookScene.hpp"
 
 
 
@@ -23,10 +24,12 @@ public:
     }
 
 
-    void on_room_damaged(Platform&, App& app, Room&) override
+    void on_room_damaged(Platform& pfrm, App& app, Room&) override
     {
         // What!? The player attacked us! We're no longer a friendly AI.
         app.swap_ai<EnemyAI>();
+
+        invoke_hook(pfrm, "hostile-transition-hook");
     }
 };
 

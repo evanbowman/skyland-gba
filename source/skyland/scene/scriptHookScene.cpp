@@ -7,9 +7,8 @@ namespace skyland {
 
 
 
-ScenePtr<Scene> ScriptHookScene::update(Platform& pfrm,
-                                        App& app,
-                                        Microseconds delta)
+ScenePtr<Scene>
+ScriptHookScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     invoke_hook(pfrm, invoke_hook_name_.c_str());
 
@@ -44,4 +43,4 @@ void invoke_hook(Platform& pfrm, const char* lisp_hook_name)
 
 
 
-}
+} // namespace skyland

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "skyland/scene.hpp"
 #include "skyland/dialog.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -11,8 +11,7 @@ namespace skyland {
 
 class FullscreenDialogScene : public Scene {
 public:
-    FullscreenDialogScene(DialogBuffer buffer) :
-        buffer_(std::move(buffer))
+    FullscreenDialogScene(DialogBuffer buffer) : buffer_(std::move(buffer))
     {
     }
 
@@ -25,11 +24,7 @@ public:
 
 
 private:
-
-    bool advance_text(Platform& pfrm,
-                      App& app,
-                      Microseconds delta,
-                      bool sfx);
+    bool advance_text(Platform& pfrm, App& app, Microseconds delta, bool sfx);
 
     void clear_textbox(Platform& pfrm);
 
@@ -59,4 +54,4 @@ private:
 
 
 
-}
+} // namespace skyland

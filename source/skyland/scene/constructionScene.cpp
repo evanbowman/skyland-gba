@@ -26,7 +26,6 @@ static Coins get_cost(App& app, const RoomMeta& meta)
 
 
 
-
 ScenePtr<Scene>
 ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -195,7 +194,8 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 
     str += (*available_buildings_[building_selector_])->name();
     str += " ";
-    str += to_string<10>(get_cost(app, (*available_buildings_[building_selector_])));
+    str += to_string<10>(
+        get_cost(app, (*available_buildings_[building_selector_])));
     str += "$";
     str += " ";
     str += to_string<10>(

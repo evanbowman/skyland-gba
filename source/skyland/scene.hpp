@@ -1,8 +1,8 @@
 #pragma once
 
+#include "function.hpp"
 #include "number/numeric.hpp"
 #include <memory>
-#include "function.hpp"
 
 
 class Platform;

@@ -1,16 +1,16 @@
 #pragma once
 
 #include "blind_jump/entity/entityGroup.hpp"
+#include "boxed.hpp"
 #include "camera.hpp"
 #include "coins.hpp"
+#include "dialog.hpp"
 #include "island.hpp"
 #include "opponent/enemyAI.hpp"
 #include "platform/platform.hpp"
 #include "player.hpp"
 #include "scene.hpp"
 #include "worldMap.hpp"
-#include "boxed.hpp"
-#include "dialog.hpp"
 
 
 
@@ -98,10 +98,12 @@ public:
     }
 
 
-    template <typename T, typename ...Args>
-    void swap_ai(Args&& ...args)
+    template <typename T, typename... Args> void swap_ai(Args&&... args)
     {
         ai_.emplace<T>(std::forward<Args>(args)...);
+        if (opponent_island()) {
+            opponent_island()->set_owner(*ai_);
+        }
     }
 
 
@@ -162,6 +164,12 @@ public:
     }
 
 
+    bool& exit_level()
+    {
+        return exit_level_;
+    }
+
+
 private:
     Island player_island_;
     Float cloud_scroll_1_;
@@ -178,6 +186,7 @@ private:
 
     std::optional<DialogBuffer> dialog_buffer_;
     bool dialog_expects_answer_ = false;
+    bool exit_level_ = false;
 
     Float difficulty_accumulator_ = 0.f;
 
@@ -196,7 +205,6 @@ private:
 
 
     Boxed<Opponent, EnemyAI, 64> ai_;
-
 };
 
 

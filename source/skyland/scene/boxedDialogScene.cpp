@@ -2,8 +2,8 @@
 #include "graphics/overlay.hpp"
 #include "localization.hpp"
 #include "readyScene.hpp"
-#include "skyland/scene_pool.hpp"
 #include "scriptHookScene.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 
@@ -20,9 +20,9 @@ const int y_start = 1;
 
 
 bool BoxedDialogScene::advance_text(Platform& pfrm,
-                                         App& app,
-                                         Microseconds delta,
-                                         bool sfx)
+                                    App& app,
+                                    Microseconds delta,
+                                    bool sfx)
 {
     const auto delay = milliseconds(80);
 
@@ -182,14 +182,12 @@ void BoxedDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
     pfrm.fill_overlay(0);
 
     pfrm.load_overlay_texture("overlay");
-
 }
 
 
 
-ScenePtr<Scene> BoxedDialogScene::update(Platform& pfrm,
-                                              App& app,
-                                              Microseconds delta)
+ScenePtr<Scene>
+BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
 
     auto animate_moretext_icon = [&] {
@@ -198,10 +196,13 @@ ScenePtr<Scene> BoxedDialogScene::update(Platform& pfrm,
         if (text_state_.timer_ > duration) {
             text_state_.timer_ = 0;
             const auto st = calc_screen_tiles(pfrm);
-            if (pfrm.get_tile(Layer::overlay, st.x - 3, st.y - (2 + y_start)) == 91) {
-                pfrm.set_tile(Layer::overlay, st.x - 3, st.y - (2 + y_start), 92);
+            if (pfrm.get_tile(Layer::overlay, st.x - 3, st.y - (2 + y_start)) ==
+                91) {
+                pfrm.set_tile(
+                    Layer::overlay, st.x - 3, st.y - (2 + y_start), 92);
             } else {
-                pfrm.set_tile(Layer::overlay, st.x - 3, st.y - (2 + y_start), 91);
+                pfrm.set_tile(
+                    Layer::overlay, st.x - 3, st.y - (2 + y_start), 91);
             }
         }
     };
@@ -252,26 +253,108 @@ ScenePtr<Scene> BoxedDialogScene::update(Platform& pfrm,
         // if (pfrm.keyboard().down_transition<Key::action_2>() or
         //     pfrm.keyboard().down_transition<Key::action_1>()) {
 
-            text_state_.timer_ = seconds(1);
-            display_mode_ = DisplayMode::wait;
+        text_state_.timer_ = seconds(1);
+        display_mode_ = DisplayMode::wait;
         // }
         break;
 
     case DisplayMode::key_released_check2:
         text_state_.timer_ = seconds(1);
         display_mode_ = DisplayMode::done;
-
-        if (expects_answer_y_n_) {
-            // TODO...
-            invoke_hook(pfrm, "after-dialog-accepted-hook");
-        }
-
         break;
 
     case DisplayMode::done:
+        if (expects_answer_y_n_) {
+            const auto st = calc_screen_tiles(pfrm);
+
+            pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (10 + y_start), 83);
+
+            for (int i = 2; i < 8; ++i) {
+                pfrm.set_tile(
+                    Layer::overlay, st.x - i, st.y - (10 + y_start), 84);
+                pfrm.set_tile(
+                    Layer::overlay, st.x - i, st.y - (9 + y_start), 82);
+                pfrm.set_tile(
+                    Layer::overlay, st.x - i, st.y - (8 + y_start), 82);
+                pfrm.set_tile(
+                    Layer::overlay, st.x - i, st.y - (7 + y_start), 82);
+                pfrm.set_tile(
+                    Layer::overlay, st.x - i, st.y - (6 + y_start), 85);
+            }
+
+            pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (6 + y_start), 86);
+            pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (9 + y_start), 88);
+            pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (8 + y_start), 88);
+            pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (7 + y_start), 88);
+            pfrm.set_tile(Layer::overlay, st.x - 1, st.y - (10 + y_start), 87);
+
+            pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (9 + y_start), 89);
+            pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (8 + y_start), 89);
+            pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (7 + y_start), 89);
+            pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (6 + y_start), 90);
+
+            yes_text_.emplace(
+                pfrm,
+                "yes",
+                OverlayCoord{u8(st.x - 5), u8(st.y - (9 + y_start))});
+
+            no_text_.emplace(
+                pfrm,
+                "no",
+                OverlayCoord{u8(st.x - 4), u8(st.y - (7 + y_start))});
+
+            display_mode_ = DisplayMode::boolean_choice;
+            break;
+        }
         animate_moretext_icon();
         if (pfrm.keyboard().down_transition<Key::action_2>() or
             pfrm.keyboard().down_transition<Key::action_1>()) {
+
+            display_mode_ = DisplayMode::animate_out;
+        }
+        break;
+
+    case DisplayMode::boolean_choice:
+        static const auto duration = milliseconds(400);
+        text_state_.timer_ += delta;
+        if (text_state_.timer_ > duration) {
+            text_state_.timer_ = 0;
+            const auto st = calc_screen_tiles(pfrm);
+            if (pfrm.get_tile(Layer::overlay,
+                              st.x - 7,
+                              st.y - (7 + y_start + 2 * choice_sel_)) == 109) {
+                pfrm.set_tile(Layer::overlay,
+                              st.x - 7,
+                              st.y - (7 + y_start + 2 * choice_sel_),
+                              110);
+            } else {
+                pfrm.set_tile(Layer::overlay,
+                              st.x - 7,
+                              st.y - (7 + y_start + 2 * choice_sel_),
+                              109);
+            }
+        }
+
+        if (pfrm.keyboard().down_transition<Key::up>() or
+            pfrm.keyboard().down_transition<Key::down>()) {
+            const auto st = calc_screen_tiles(pfrm);
+            pfrm.set_tile(Layer::overlay,
+                          st.x - 7,
+                          st.y - (7 + y_start + 2 * (choice_sel_)),
+                          82);
+            pfrm.set_tile(Layer::overlay,
+                          st.x - 7,
+                          st.y - (7 + y_start + 2 * (not choice_sel_)),
+                          110);
+            choice_sel_ = not choice_sel_;
+        }
+
+        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+            if (choice_sel_) {
+                invoke_hook(pfrm, "after-dialog-accepted-hook");
+            } else {
+                invoke_hook(pfrm, "after-dialog-declined-hook");
+            }
 
             display_mode_ = DisplayMode::animate_out;
         }
@@ -291,4 +374,4 @@ ScenePtr<Scene> BoxedDialogScene::update(Platform& pfrm,
 
 
 
-}
+} // namespace skyland
