@@ -156,6 +156,12 @@ public:
     }
 
 
+    bool& dialog_expects_answer()
+    {
+        return dialog_expects_answer_;
+    }
+
+
 private:
     Island player_island_;
     Float cloud_scroll_1_;
@@ -171,7 +177,7 @@ private:
     Vec2<u8> current_map_location_ = {0, 1};
 
     std::optional<DialogBuffer> dialog_buffer_;
-
+    bool dialog_expects_answer_ = false;
 
     Float difficulty_accumulator_ = 0.f;
 

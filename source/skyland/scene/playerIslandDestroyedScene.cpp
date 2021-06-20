@@ -145,6 +145,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     app.zone() += 1;
                 }
 
+                app.opponent_island().reset();
+
                 return scene_pool::alloc<WorldMapScene>();
             }
         }

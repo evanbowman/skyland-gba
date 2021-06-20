@@ -4,6 +4,7 @@
 #include "script/lisp.hpp"
 #include "skyland.hpp"
 #include "opponent/friendlyAI.hpp"
+#include "alloc_entity.hpp"
 
 
 
@@ -75,6 +76,13 @@ void App::init_scripts(Platform& pfrm)
                       }
                       return lisp::make_userdata(&*app->opponent_island());
                   }));
+
+
+    lisp::set_var("await-dialog-y/n", lisp::make_function([](int argc) {
+        auto app = interp_get_app();
+        app->dialog_expects_answer_ = true;
+        return L_NIL;
+    }));
 
 
     lisp::set_var("dialog", lisp::make_function([](int argc) {
@@ -154,6 +162,27 @@ void App::init_scripts(Platform& pfrm)
         }));
 
 
+    lisp::set_var("add-character", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 3);
+        L_EXPECT_OP(0, integer); // y
+        L_EXPECT_OP(1, integer); // x
+        L_EXPECT_OP(2, user_data);
+
+        auto island = (Island*)lisp::get_op(2)->user_data_.obj_;
+
+        auto coord = Vec2<u8>{
+            (u8)lisp::get_op(1)->integer_.value_,
+            (u8)lisp::get_op(0)->integer_.value_,
+        };
+
+        auto chr = alloc_entity<BasicCharacter>(island, coord);
+
+        island->add_character(std::move(chr));
+
+        return L_NIL;
+    }));
+
+
     lisp::set_var("configure-player", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 2);
                       L_EXPECT_OP(0, cons);
@@ -172,11 +201,12 @@ void App::init_scripts(Platform& pfrm)
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, user_data);
 
-                      auto island = (Island*)lisp::get_op(1)->user_data_.obj_;
+                      auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
                       island->show_flag(true);
 
                       return L_NIL;
                   }));
+
 
     lisp::set_var("add-coins", lisp::make_function([](int argc) {
         L_EXPECT_ARGC(argc, 1);

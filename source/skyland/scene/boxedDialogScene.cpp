@@ -1,8 +1,9 @@
-#include "fullscreenDialogScene.hpp"
+#include "boxedDialogScene.hpp"
 #include "graphics/overlay.hpp"
 #include "localization.hpp"
-#include "fadeInScene.hpp"
+#include "readyScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "scriptHookScene.hpp"
 
 
 
@@ -14,11 +15,11 @@ namespace skyland {
 
 
 
-const int y_start = 9;
+const int y_start = 1;
 
 
 
-bool FullscreenDialogScene::advance_text(Platform& pfrm,
+bool BoxedDialogScene::advance_text(Platform& pfrm,
                                          App& app,
                                          Microseconds delta,
                                          bool sfx)
@@ -108,7 +109,7 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
 
 
 
-void FullscreenDialogScene::clear_textbox(Platform& pfrm)
+void BoxedDialogScene::clear_textbox(Platform& pfrm)
 {
     const auto st = calc_screen_tiles(pfrm);
 
@@ -161,12 +162,9 @@ void FullscreenDialogScene::clear_textbox(Platform& pfrm)
 
 
 
-void FullscreenDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
+void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.load_overlay_texture("overlay_dialog");
-
-    pfrm.screen().fade(1.f, custom_color(0), {}, true, false);
-    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, false);
 
     clear_textbox(pfrm);
 
@@ -179,7 +177,7 @@ void FullscreenDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void FullscreenDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
+void BoxedDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.fill_overlay(0);
 
@@ -189,7 +187,7 @@ void FullscreenDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
 
 
 
-ScenePtr<Scene> FullscreenDialogScene::update(Platform& pfrm,
+ScenePtr<Scene> BoxedDialogScene::update(Platform& pfrm,
                                               App& app,
                                               Microseconds delta)
 {
@@ -260,12 +258,14 @@ ScenePtr<Scene> FullscreenDialogScene::update(Platform& pfrm,
         break;
 
     case DisplayMode::key_released_check2:
-        // if (pfrm.keyboard().down_transition<Key::action_2>() or
-        //     pfrm.keyboard().down_transition<Key::action_1>()) {
+        text_state_.timer_ = seconds(1);
+        display_mode_ = DisplayMode::done;
 
-            text_state_.timer_ = seconds(1);
-            display_mode_ = DisplayMode::done;
-        // }
+        if (expects_answer_y_n_) {
+            // TODO...
+            invoke_hook(pfrm, "after-dialog-accepted");
+        }
+
         break;
 
     case DisplayMode::done:
@@ -273,13 +273,7 @@ ScenePtr<Scene> FullscreenDialogScene::update(Platform& pfrm,
         if (pfrm.keyboard().down_transition<Key::action_2>() or
             pfrm.keyboard().down_transition<Key::action_1>()) {
 
-            // if (text_[1] not_eq LocaleString::empty) {
-            //     ++text_;
-            //     init_text(pfrm, *text_);
-            //     display_mode_ = DisplayMode::animate_in;
-            // } else {
-                display_mode_ = DisplayMode::animate_out;
-            // }
+            display_mode_ = DisplayMode::animate_out;
         }
         break;
 
@@ -289,7 +283,7 @@ ScenePtr<Scene> FullscreenDialogScene::update(Platform& pfrm,
         break;
 
     case DisplayMode::clear:
-        return scene_pool::alloc<FadeInScene>();
+        return scene_pool::alloc<ReadyScene>();
     }
 
     return null_scene();

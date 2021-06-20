@@ -6,6 +6,9 @@
 (init-opponent 3 'hostile)
 
 
+(show-flag (opponent))
+
+
 (configure-player
  (opponent)
  '((cannon 0 12)

@@ -111,7 +111,14 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 void Island::display(Platform& pfrm)
 {
     for (auto& c : characters_) {
-        pfrm.screen().draw(c->sprite());
+        // The interior floor is two pixels thick. But our character is now
+        // standing outside, where there's no floor, so we need to shift the
+        // character down by two pixels.
+        Sprite cpy = c->sprite();
+        auto pos = cpy.get_position();
+        pos.y += 2;
+        cpy.set_position(pos);
+        pfrm.screen().draw(cpy);
     }
 
     for (auto& p : projectiles_) {
@@ -265,8 +272,10 @@ bool Island::add_character(EntityRef<BasicCharacter> character)
 {
     if (auto room = get_room(character->grid_position())) {
         return room->add_occupant(std::move(character));
+    } else {
+        characters_.push(std::move(character));
+        return true;
     }
-    return false;
 }
 
 

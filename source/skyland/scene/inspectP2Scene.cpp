@@ -54,7 +54,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (pfrm.keyboard().down_transition<Key::right>()) {
-        if (cursor_loc.x < app.player_island().terrain().size()) {
+        if (cursor_loc.x < app.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
         }
     }

@@ -31,4 +31,8 @@ private:
 
 
 
+void invoke_hook(Platform& pfrm, const char* lisp_hook_name);
+
+
+
 }

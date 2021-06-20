@@ -6,6 +6,8 @@ extern const unsigned char file_test[];
 //;
 extern const unsigned char file_test2[];
 //;
+extern const unsigned char file_reset_hooks[];
+//;
 extern const unsigned char file_hostile_0[];
 //;
 extern const unsigned char file_hostile_0_0[];
@@ -23,6 +25,8 @@ extern const unsigned char file_hostile_0_5[];
 extern const unsigned char file_hostile_0_6[];
 //;
 extern const unsigned char file_hostile_0_7[];
+//;
+extern const unsigned char file_friendly_0[];
 //;
 extern const unsigned char file_friendly_0_0[];
 //;
@@ -47,6 +51,8 @@ static const struct {
 //;
     {"scripts", "test2.lisp", file_test2},
 //;
+    {"scripts", "reset_hooks.lisp", file_reset_hooks},
+//;
     {"scripts", "hostile_0.lisp", file_hostile_0},
 //;
     {"scripts", "hostile_0_0.lisp", file_hostile_0_0},
@@ -64,6 +70,8 @@ static const struct {
     {"scripts", "hostile_0_6.lisp", file_hostile_0_6},
 //;
     {"scripts", "hostile_0_7.lisp", file_hostile_0_7},
+//;
+    {"scripts", "friendly_0.lisp", file_friendly_0},
 //;
     {"scripts", "friendly_0_0.lisp", file_friendly_0_0},
 //;

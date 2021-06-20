@@ -8,6 +8,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "localization.hpp"
 
 
 
@@ -48,18 +49,29 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
 
+    const auto max_zone = 1;
+
+
     switch (node.type_) {
     case WorldMap::Node::Type::storm_clear:
-    case WorldMap::Node::Type::clear:
-        lisp::dostring(pfrm.load_file_contents("scripts", "hostile_0_0.lisp"),
+    case WorldMap::Node::Type::clear: {
+        StringBuffer<32> fname("friendly_");
+        fname += to_string<10>(std::min(max_zone, app.zone()) - 1);
+        fname += ".lisp";
+        lisp::dostring(pfrm.load_file_contents("scripts", fname.c_str()),
                        on_lisp_error);
         break;
+    }
 
     case WorldMap::Node::Type::storm_hostile:
-    case WorldMap::Node::Type::hostile:
-        lisp::dostring(pfrm.load_file_contents("scripts", "hostile_0.lisp"),
+    case WorldMap::Node::Type::hostile: {
+        StringBuffer<32> fname("hostile_");
+        fname += to_string<10>(std::min(max_zone, app.zone()) - 1);
+        fname += ".lisp";
+        lisp::dostring(pfrm.load_file_contents("scripts", fname.c_str()),
                        on_lisp_error);
         break;
+    }
 
 
     case WorldMap::Node::Type::null:
@@ -89,7 +101,6 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.victory_coins() += 0.25f * (*room->metaclass())->cost();
         }
 
-        app.opponent_island()->show_flag(true);
         app.opponent_island()->repaint(pfrm);
     }
 

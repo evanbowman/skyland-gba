@@ -5,6 +5,8 @@
 ;;;
 
 
-(set 'after-fadein (lambda))
+(eval-other-file "reset_hooks.lisp")
+
 
 (set 'enemies-seen 0)
+(set 'friendlies-seen 0)

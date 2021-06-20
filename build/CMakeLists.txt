@@ -96,6 +96,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/inspectP2Scene.cpp
   ${SOURCE_DIR}/skyland/scene/loadLevelScene.cpp
   ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
+  ${SOURCE_DIR}/skyland/scene/boxedDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
@@ -413,6 +414,7 @@ if(GAMEBOY_ADVANCE)
   add_file(scripts newgame lisp)
   add_file(scripts test lisp)
   add_file(scripts test2 lisp)
+  add_file(scripts reset_hooks lisp)
 
   add_file(scripts hostile_0 lisp)
   add_file(scripts hostile_0_0 lisp)
@@ -425,6 +427,7 @@ if(GAMEBOY_ADVANCE)
   add_file(scripts hostile_0_7 lisp)
 
 
+  add_file(scripts friendly_0 lisp)
   add_file(scripts friendly_0_0 lisp)
 
 

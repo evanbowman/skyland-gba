@@ -6,6 +6,9 @@
 (init-opponent 5 'hostile)
 
 
+(show-flag (opponent))
+
+
 (configure-player
  (opponent)
  '((hull 0 13)
