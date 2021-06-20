@@ -1,6 +1,7 @@
 #pragma once
 
 
+
 #include "memory/buffer.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/path.hpp"
@@ -8,6 +9,7 @@
 
 
 namespace skyland {
+
 
 
 class Island;

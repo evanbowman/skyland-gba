@@ -112,7 +112,9 @@ void FullscreenDialogScene::clear_textbox(Platform& pfrm)
 {
     const auto st = calc_screen_tiles(pfrm);
 
-    // // Corners
+
+    // Corners
+
     // pfrm.set_tile(Layer::overlay, 1, 1, 93);
     // pfrm.set_tile(Layer::overlay, 1, 2, 95);
     // pfrm.set_tile(Layer::overlay, 2, 1, 94);
@@ -129,7 +131,8 @@ void FullscreenDialogScene::clear_textbox(Platform& pfrm)
     // pfrm.set_tile(Layer::overlay, st.x - 2, st.y - 2, 108);
     // pfrm.set_tile(Layer::overlay, st.x - 2, st.y - 3, 106);
 
-    // // End Corners
+    // End Corners
+
 
     for (int x = 1; x < st.x - 1; ++x) {
         pfrm.set_tile(Layer::overlay, x, st.y - (5 + y_start), 84);
