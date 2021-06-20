@@ -142,6 +142,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // the beginning of the next zone.
                     app.current_map_location().x = 0;
                     app.world_map().generate();
+                    app.zone() += 1;
                 }
 
                 return scene_pool::alloc<WorldMapScene>();
