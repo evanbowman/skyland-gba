@@ -263,7 +263,7 @@ ScenePtr<Scene> BoxedDialogScene::update(Platform& pfrm,
 
         if (expects_answer_y_n_) {
             // TODO...
-            invoke_hook(pfrm, "after-dialog-accepted");
+            invoke_hook(pfrm, "after-dialog-accepted-hook");
         }
 
         break;

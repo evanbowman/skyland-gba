@@ -3,7 +3,7 @@
 ;;;
 
 
-(set 'after-fadein nil)
-(set 'after-converge nil)
-(set 'after-dialog-accepted nil)
-(set 'after-dialog-declined nil)
+(set 'after-fadein-hook nil)
+(set 'after-converge-hook nil)
+(set 'after-dialog-accepted-hook nil)
+(set 'after-dialog-declined-hook nil)

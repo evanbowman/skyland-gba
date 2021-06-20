@@ -122,7 +122,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             app.on_timeout(pfrm, milliseconds(500),
                            [](Platform& pfrm, App&) {
-                               invoke_hook(pfrm, "after-converge");
+                               invoke_hook(pfrm, "after-converge-hook");
                            });
         }
 

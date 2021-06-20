@@ -17,16 +17,14 @@
 (add-character (opponent) 1 14)
 
 
-(set 'after-converge
+(set 'after-converge-hook
      (lambda
        (dialog "Invite castaway aboard?")
 
-       (await-dialog-y/n)
-
-       (set 'after-converge nil)))
+       (await-dialog-y/n)))
 
 
-(set 'after-dialog-accepted
+(set 'after-dialog-accepted-hook
      (lambda
 
        ;; (set 'temp (find-unused-character-slot (player)))
@@ -36,14 +34,10 @@
        ;;       (add-character (player) (car temp) (cdr temp)))
        ;;     (dialog "Sadly, there's no room for the castaway in your castle."))
 
-       (dialog "The castaway joined your crew!")
-
-       (set 'after-dialog-accepted nil)
-       (set 'after-dialog-declined nil)))
+       (dialog "The castaway joined your crew!")))
 
 
-(set 'after-dialog-declined
+(set 'after-dialog-declined-hook
      (lambda
-       (exit-level)
-       (set 'after-dialog-accepted nil)
-       (set 'after-dialog-declined nil)))
+       ;; TODO...
+       ))
