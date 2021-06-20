@@ -8,7 +8,7 @@
 
 (dialog
  "Your castle sails through the clouds, buffeted by a cold wind. "
- "Another fortress approaches, flying a black flag... pirates! ")
+ "Another fortress approaches, flying a black flag...")
 
 
 (set 'enemies-seen 1)
