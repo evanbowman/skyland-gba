@@ -33,6 +33,8 @@ void configure_island_from_codestring(Platform& pfrm,
 {
     lisp::read(lisp_data); // leaves result of (read) at top of operand stack.
 
+    island.rooms().clear();
+
     configure_island(pfrm, island, lisp::get_op(0));
 
     lisp::pop_op();

@@ -292,6 +292,9 @@ void WorldMapScene::display(Platform& pfrm, App& app)
 
 void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 {
+    app.effects().clear();
+    app.player_island().projectiles().clear();
+
     pfrm.screen().fade(0.f);
 
     cursor_ = app.current_map_location();

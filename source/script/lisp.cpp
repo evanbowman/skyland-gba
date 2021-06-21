@@ -700,6 +700,7 @@ Value* get_var(const char* name)
         }
     }
 
+    error(bound_context->pfrm_, name);
     return make_error(Error::Code::undefined_variable_access);
 }
 
@@ -2134,6 +2135,17 @@ void init(Platform& pfrm)
                     *((u32*)(intptr_t)get_op(0)->integer_.value_));
             }));
 #endif // __GBA__
+
+
+    set_var("read", make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, string);
+        read(get_op(0)->string_.value());
+        auto result = get_op(0);
+        pop_op();
+        return result;
+    }));
+
 
     set_var("eval", make_function([](int argc) {
                 if (argc < 1) {

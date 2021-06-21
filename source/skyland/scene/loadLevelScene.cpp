@@ -48,17 +48,10 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.fatal(lisp::Error::get_string(v.error_.code_));
     };
 
-
-    const auto max_zone = 1;
-
-
     switch (node.type_) {
     case WorldMap::Node::Type::storm_clear:
     case WorldMap::Node::Type::clear: {
-        StringBuffer<32> fname("neutral_");
-        fname += to_string<10>(std::min(max_zone, app.zone()) - 1);
-        fname += ".lisp";
-        lisp::dostring(pfrm.load_file_contents("scripts", fname.c_str()),
+        lisp::dostring(pfrm.load_file_contents("scripts", "neutral.lisp"),
                        on_lisp_error);
         break;
     }

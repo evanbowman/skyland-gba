@@ -404,27 +404,36 @@ void Island::repaint(Platform& pfrm)
     chimney_loc_.reset();
 
     bool placed_flag = false;
+    bool placed_chimney = false;
 
     for (int x = 0; x < 16; ++x) {
-        for (int y = 0; y < 15; ++y) {
-            if (matrix[x][y] == 0 and y < 31 and matrix[x][y + 1] == 1) {
+        for (int y = 15; y > -1; --y) {
+            if (matrix[x][y] == 0 and y < 15 and matrix[x][y + 1] == 1) {
                 pfrm.set_tile(layer_, x, y, Tile::roof_plain);
-                bool chimney = false;
-                for (auto& loc : chimney_locs) {
-                    if (loc == x) {
-                        pfrm.set_tile(layer_, x, y, Tile::roof_chimney);
-                        chimney = true;
-                        chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
+                if (not placed_chimney) {
+                    bool chimney = false;
+                    for (auto& loc : chimney_locs) {
+                        if (loc == x) {
+                            pfrm.set_tile(layer_, x, y, Tile::roof_chimney);
+                            chimney = true;
+                            chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
+                        }
                     }
-                }
-                if (not chimney and show_flag_ and not placed_flag) {
-                    placed_flag = true;
-                    pfrm.set_tile(layer_, x, y, Tile::roof_flag);
-                    pfrm.set_tile(layer_, x, y - 1, Tile::flag);
+                    if (not chimney and show_flag_ and not placed_flag) {
+                        placed_flag = true;
+                        pfrm.set_tile(layer_, x, y, Tile::roof_flag);
+                        pfrm.set_tile(layer_, x, y - 1, Tile::flag);
+                    }
                 }
             } else if (y == 14 and matrix[x][y] == 0 and
                        x < (int)terrain_.size()) {
                 pfrm.set_tile(layer_, x, y, Tile::grass);
+            } else if (matrix[x][y] == 0 and matrix[x][y + 1] == 2) {
+                if (not placed_chimney) {
+                    for (auto& loc : chimney_locs) {
+                        (void)loc;
+                    }
+                }
             }
         }
     }

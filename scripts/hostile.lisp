@@ -8,8 +8,11 @@
 (eval-other-file "reset_hooks.lisp")
 
 
+
 (if (not (equal (zone) last-zone))
-    (set 'enemies-seen '()))
+    (progn
+      (set 'friendlies-seen '())
+      (set 'enemies-seen '())))
 
 
 (set 'last-zone (zone))
@@ -37,13 +40,13 @@
 (set 'lv-num
      (if (equal (length enemies-seen) 0)
          0
-         (get avail-levels (cr-choice (length avail-levels)))))
+       (get avail-levels (cr-choice (length avail-levels)))))
 
 
 (set 'enemies-seen (cons lv-num enemies-seen))
 
 
-(eval-other-file (string 'hostile_ (zone) '_ lv-num '.lisp))
+(eval-other-file (string 'hostile '_ (zone) '_ lv-num '.lisp))
 
 
 ;; Just to save some memory...

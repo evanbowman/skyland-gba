@@ -108,7 +108,6 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.victory_coins() = 0;
         anim_state_ = AnimState::wait_2;
 
-
         info(pfrm, serialize(pfrm, app.player_island())->c_str());
 
         break;

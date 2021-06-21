@@ -5,6 +5,7 @@
 #include "rooms/core.hpp"
 #include "script/lisp.hpp"
 #include "skyland.hpp"
+#include "serial.hpp"
 
 
 
@@ -116,6 +117,21 @@ void App::init_scripts(Platform& pfrm)
 
             return L_NIL;
         }));
+
+
+    lisp::set_var("rooms", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, user_data);
+
+        auto pfrm = interp_get_pfrm();
+
+        auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
+        auto result = serialize(*pfrm, *island);
+        lisp::read(result->c_str());
+        auto ret = lisp::get_op(0);
+        lisp::pop_op();
+        return ret;
+    }));
 
 
     lisp::set_var("chr-slots", lisp::make_function([](int argc) {
