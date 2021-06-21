@@ -29,6 +29,11 @@ struct Tile {
         missile_silo_1,
         missile_silo_2,
         forcefield,
+        reserved7,
+        reserved8,
+        reserved9,
+        reserved10,
+        tin_chimney,
         roof_flag = 109,
         flag = 110,
     };
@@ -64,5 +69,6 @@ struct InteriorTile {
         infirmary_3,
         infirmary_2,
         infirmary_4,
+        tin_chimney,
     };
 };

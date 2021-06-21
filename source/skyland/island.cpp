@@ -417,6 +417,7 @@ void Island::repaint(Platform& pfrm)
                             pfrm.set_tile(layer_, x, y, Tile::roof_chimney);
                             chimney = true;
                             chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
+                            placed_chimney = true;
                         }
                     }
                     if (not chimney and show_flag_ and not placed_flag) {
@@ -431,7 +432,11 @@ void Island::repaint(Platform& pfrm)
             } else if (matrix[x][y] == 0 and matrix[x][y + 1] == 2) {
                 if (not placed_chimney) {
                     for (auto& loc : chimney_locs) {
-                        (void)loc;
+                        if (loc == x) {
+                            pfrm.set_tile(layer_, x, y, Tile::tin_chimney);
+                            placed_chimney = true;
+                            chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
+                        }
                     }
                 }
             }
