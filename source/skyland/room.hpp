@@ -77,6 +77,12 @@ public:
     }
 
 
+    virtual bool disallow_chimney()
+    {
+        return false;
+    }
+
+
     virtual bool has_chimney()
     {
         return false;

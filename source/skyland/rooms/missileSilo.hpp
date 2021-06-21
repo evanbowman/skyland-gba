@@ -28,6 +28,12 @@ public:
     }
 
 
+    virtual bool disallow_chimney()
+    {
+        return true;
+    }
+
+
     static Vec2<u8> size()
     {
         return {1, 2};

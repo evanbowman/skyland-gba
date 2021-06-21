@@ -260,6 +260,31 @@ void Island::render_exterior(Platform& pfrm)
         room->render_exterior(pfrm, layer_);
     }
 
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 15; ++y) {
+            auto t1 = pfrm.get_tile(layer_, x, y);
+            auto t2 = pfrm.get_tile(layer_, x, y + 1);
+
+            if (t1 == Tile::wall_window_2) {
+                if (t2 == Tile::wall_window_1) {
+                    pfrm.set_tile(layer_, x, y, Tile::wall_window_middle_2);
+                    pfrm.set_tile(layer_, x, y + 1, Tile::wall_window_middle_1);
+                } else if (t2 == Tile::wall_plain_1) {
+                    pfrm.set_tile(layer_, x, y, Tile::wall_window_middle_2);
+                    pfrm.set_tile(layer_, x, y + 1, Tile::wall_plain_middle);
+                }
+            } else if (t1 == Tile::wall_plain_2) {
+                if (t2 == Tile::wall_window_1) {
+                    pfrm.set_tile(layer_, x, y, Tile::wall_plain_middle);
+                    pfrm.set_tile(layer_, x, y + 1, Tile::wall_window_middle_1);
+                } else if (t2 == Tile::wall_plain_1) {
+                    pfrm.set_tile(layer_, x, y, Tile::wall_plain_middle);
+                    pfrm.set_tile(layer_, x, y + 1, Tile::wall_window_middle_1);
+                }
+            }
+        }
+    }
+
     interior_visible_ = false;
 }
 
@@ -280,6 +305,8 @@ void Island::plot_rooms(u8 matrix[16][16]) const
         int val = 2;
         if (room->has_roof()) {
             val = 1;
+        } else if (room->disallow_chimney()) {
+            val = 3;
         }
 
         for (int x = 0; x < sz.x; ++x) {

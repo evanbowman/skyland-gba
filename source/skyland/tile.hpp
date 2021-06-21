@@ -21,7 +21,7 @@ struct Tile {
         grass,
         reserved_1,
         hull,
-        reserved_2,
+        wall_plain_middle,
         reserved_3,
         reserved_4,
         reserved_5,
