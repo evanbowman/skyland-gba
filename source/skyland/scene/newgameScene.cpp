@@ -11,6 +11,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
+#include "zoneImageScene.hpp"
 
 
 
@@ -21,13 +22,11 @@ namespace skyland {
 ScenePtr<Scene>
 NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    pfrm.screen().fade(1.f);
-
-    if (not pfrm.keyboard().pressed<Key::action_1>() and
-        not pfrm.keyboard().pressed<Key::action_2>()) {
-        rng::get(rng::critical_state);
-        return null_scene();
-    }
+    pfrm.screen().fade(1.f,
+                       ColorConstant::rich_black,
+                       {},
+                       true,
+                       true);
 
     lisp::dostring(pfrm.load_file_contents("scripts", "newgame.lisp"),
                    [&pfrm](lisp::Value& v) {
@@ -62,7 +61,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player_island().add_character(std::move(chr));
 
 
-    return scene_pool::alloc<WorldMapScene>();
+    return scene_pool::alloc<ZoneImageScene>();
 }
 
 

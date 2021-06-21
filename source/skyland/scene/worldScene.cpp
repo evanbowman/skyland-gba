@@ -83,10 +83,10 @@ static u32 format_power_fraction(Power avail, Power used)
 ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (not app.paused()) {
-        app.updateParallax(delta);
+        app.update_parallax(delta);
     }
 
-    if (pfrm.keyboard().down_transition<Key::select>()) {
+    if (pfrm.keyboard().down_transition<Key::alt_1>()) {
         app.paused() = not app.paused();
         if (not app.paused()) {
             set_pause_icon(pfrm, false);
@@ -138,7 +138,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                          Key::right,
                          Key::up,
                          Key::down,
-                         Key::alt_1>()) {
+                         Key::select>()) {
         camera_update_timer_ = milliseconds(500);
     }
 
@@ -169,7 +169,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (pfrm.keyboard().down_transition<Key::alt_1>()) {
+    if (pfrm.keyboard().down_transition<Key::select>()) {
         if (app.player_island().interior_visible()) {
             pfrm.load_tile0_texture("tilesheet");
             app.player_island().render_exterior(pfrm);

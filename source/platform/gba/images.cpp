@@ -25,6 +25,12 @@
 //;
 #include "data/tilesheet_top.h"
 //;
+#include "data/skyland_title_1_flattened.h"
+//;
+#include "data/skyland_title_0_flattened.h"
+//;
+#include "data/zone_image_0_flattened.h"
+//;
 #include "data/overlay.h"
 //;
 #include "data/overlay_dialog.h"
@@ -68,6 +74,12 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(tilesheet_interior),
 //;
     TEXTURE_INFO(tilesheet_top),
+//;
+    TEXTURE_INFO(skyland_title_1_flattened),
+//;
+    TEXTURE_INFO(skyland_title_0_flattened),
+//;
+    TEXTURE_INFO(zone_image_0_flattened),
 //
 };
 

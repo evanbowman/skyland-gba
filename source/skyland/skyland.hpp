@@ -32,7 +32,7 @@ public:
     }
 
 
-    void updateParallax(Microseconds delta);
+    void update_parallax(Microseconds delta);
 
 
     Coins& coins()

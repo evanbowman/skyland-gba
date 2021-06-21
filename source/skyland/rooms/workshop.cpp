@@ -3,7 +3,9 @@
 #include "skyland/tile.hpp"
 
 
+
 namespace skyland {
+
 
 
 Workshop::Workshop(Island* parent, const Vec2<u8>& position)
@@ -12,10 +14,12 @@ Workshop::Workshop(Island* parent, const Vec2<u8>& position)
 }
 
 
+
 void Workshop::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 }
+
 
 
 void Workshop::render_interior(Platform& pfrm, Layer layer)
@@ -30,6 +34,7 @@ void Workshop::render_interior(Platform& pfrm, Layer layer)
 }
 
 
+
 void Workshop::render_exterior(Platform& pfrm, Layer layer)
 {
     pfrm.set_tile(layer, position().x, position().y, Tile::wall_window_1);
@@ -38,6 +43,7 @@ void Workshop::render_exterior(Platform& pfrm, Layer layer)
     pfrm.set_tile(
         layer, position().x + 1, position().y + 1, Tile::wall_plain_2);
 }
+
 
 
 } // namespace skyland

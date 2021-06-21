@@ -109,6 +109,8 @@ extern "C" {
 __attribute__((section(".iwram"), long_call)) void
 memcpy32(void* dst, const void* src, uint wcount);
 void memcpy16(void* dst, const void* src, uint hwcount);
+
+__attribute__((section(".iwram"), long_call)) void hblank_scroll_isr();
 }
 
 
@@ -1014,7 +1016,7 @@ static void map_dynamic_textures()
 }
 
 
-static u8 parallax_table[280];
+extern int parallax_table[280];
 
 
 static u16 x0_scroll = 0;
@@ -1341,20 +1343,19 @@ static void set_map_tile_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
     auto ref = [](u16 x_, u16 y_) { return x_ * 2 + y_ * 32 * 2; };
 
     auto screen_block = [&]() -> u16 {
-        // FIXME: copy pasted from elsewhere, not actually correct
-        // if (x > 8 and y > 8) {
-        //     x %= 8;
-        //     y %= 10;
-        //     return base + 3;
-        // } else if (y > 9) {
-        //     y %= 10;
-        //     return base + 2;
-        // } else if (x > 7) {
-        //     x %= 8;
-        //     return base + 1;
-        // } else {
-        return base;
-        // }
+        if (x > 15 and y > 15) {
+            x %= 16;
+            y %= 16;
+            return base + 3;
+        } else if (y > 15) {
+            y %= 16;
+            return base + 2;
+        } else if (x > 15) {
+            x %= 15;
+            return base + 1;
+        } else {
+            return base;
+        }
     }();
 
     MEM_SCREENBLOCKS[screen_block][0 + ref(x % 16, y)] =
@@ -3512,6 +3513,7 @@ static PaletteBank custom_text_palette_write_ptr = custom_text_palette_begin;
 static const TextureData* custom_text_palette_source_texture = nullptr;
 
 
+
 void Platform::set_tile(u16 x, u16 y, TileDesc glyph, const FontColors& colors)
 {
     if (not get_gflag(GlobalFlag::glyph_mode) or not is_glyph(glyph)) {
@@ -3619,6 +3621,17 @@ void Platform::set_palette(Layer layer, u16 x, u16 y, u16 palette)
         set_map_tile_16p_palette(sbb_t0_tiles, x, y, palette);
     }
 }
+
+
+void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
+{
+    if (layer == Layer::map_1) {
+        MEM_SCREENBLOCKS[sbb_t1_tiles][x + y * 32] = val | SE_PALBANK(2);
+    } else if (layer == Layer::map_0) {
+        MEM_SCREENBLOCKS[sbb_t0_tiles][x + y * 32] = val | SE_PALBANK(0);
+    }
+}
+
 
 
 void Platform::set_tile(Layer layer, u16 x, u16 y, u16 val)
@@ -4683,12 +4696,14 @@ void Platform::enable_feature(const char* feature_name, int value)
     if (str_cmp(feature_name, "_prlx7") == 0) {
         auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
         for (int i = 112 - offset; i < 128 - offset; ++i) {
-            parallax_table[i] = value;
+            u8 temp = value;
+            parallax_table[i] = temp;
         }
     } else if (str_cmp(feature_name, "_prlx8") == 0) {
         auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
         for (int i = 128 - offset; i < 144 - offset; ++i) {
-            parallax_table[i] = value;
+            u8 temp = value;
+            parallax_table[i] = temp;
         }
     } else if (str_cmp(feature_name, "gswap") == 0) {
         *((u16*)0x4000002) = 0x0000 | (bool)value;
@@ -4712,10 +4727,7 @@ void Platform::enable_feature(const char* feature_name, int value)
 
         if (value) {
             irqEnable(IRQ_HBLANK);
-            irqSet(IRQ_HBLANK, [] {
-                *bg1_x_scroll = ::parallax_table[(REG_VCOUNT + 1) // / 16
-                ];
-            });
+            irqSet(IRQ_HBLANK, hblank_scroll_isr);
         } else {
             irqDisable(IRQ_HBLANK);
         }

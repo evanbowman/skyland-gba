@@ -6,6 +6,7 @@
 #include "script/lisp.hpp"
 #include "skyland.hpp"
 #include "serial.hpp"
+#include "scene/scriptHookScene.hpp"
 
 
 
@@ -132,6 +133,24 @@ void App::init_scripts(Platform& pfrm)
         lisp::pop_op();
         return ret;
     }));
+
+
+    // lisp::set_var("on-timeout", lisp::make_function([](int argc) {
+    //     L_EXPECT_ARGC(argc, 2);
+    //     L_EXPECT_OP(0, symbol);
+    //     L_EXPECT_OP(1, integer);
+
+    //     auto name = lisp::get_op(0)->symbol_.name_;
+
+    //     auto [app, pfrm] = interp_get_context();
+
+    //     app->on_timeout(*pfrm, milliseconds(lisp::get_op(1)->integer_.value_),
+    //                     [name](Platform& pfrm, App&) {
+    //                         invoke_hook(pfrm, name);
+    //                     });
+
+    //     return L_NIL;
+    // }));
 
 
     lisp::set_var("chr-slots", lisp::make_function([](int argc) {

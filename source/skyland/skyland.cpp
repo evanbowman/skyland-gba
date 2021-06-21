@@ -9,7 +9,7 @@ namespace skyland {
 
 
 
-static void init_clouds(Platform& pfrm);
+void init_clouds(Platform& pfrm);
 
 
 
@@ -59,7 +59,7 @@ void App::update(Platform& pfrm, Microseconds delta)
 
 
 
-void App::updateParallax(Microseconds delta)
+void App::update_parallax(Microseconds delta)
 {
     cloud_scroll_1_ += 0.00002f * delta;
     cloud_scroll_2_ += 0.00004f * delta;
@@ -77,7 +77,7 @@ void App::render(Platform& pfrm)
 
 
 
-static void init_clouds(Platform& pfrm)
+void init_clouds(Platform& pfrm)
 {
     pfrm.enable_feature("parallax-clouds", true);
 

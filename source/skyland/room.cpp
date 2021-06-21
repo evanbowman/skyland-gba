@@ -27,6 +27,7 @@ Room::Room(Island* parent,
 
         if (str_cmp(name, current->name()) == 0) {
             metaclass_ = &current;
+            return;
         }
     }
 
@@ -39,6 +40,10 @@ Room::Room(Island* parent,
                   " bytes for derived rooms. If needed, you could "
                   " increase the room pool size in roomPool.hpp");
 #endif
+
+    // TODO: actually raise an error for an unassigned metaclass. We would need
+    // to pass in a Platform instance in order to raise a fatal error.
+    while (true) ;
 }
 
 

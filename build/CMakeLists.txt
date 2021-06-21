@@ -91,13 +91,17 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp
   ${SOURCE_DIR}/skyland/scene/fadeInScene.cpp
+  ${SOURCE_DIR}/skyland/scene/fadeOutScene.cpp
   ${SOURCE_DIR}/skyland/scene/newgameScene.cpp
   ${SOURCE_DIR}/skyland/scene/worldMapScene.cpp
   ${SOURCE_DIR}/skyland/scene/inspectP2Scene.cpp
   ${SOURCE_DIR}/skyland/scene/loadLevelScene.cpp
+  ${SOURCE_DIR}/skyland/scene/zoneImageScene.cpp
   ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
   ${SOURCE_DIR}/skyland/scene/boxedDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
+  ${SOURCE_DIR}/skyland/scene/titleScreenScene.cpp
+  ${SOURCE_DIR}/skyland/scene/introCreditsScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp
@@ -186,6 +190,9 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/tilesheet_enemy_0_interior.s
     ${DATA_DIR}/tilesheet_interior.s
     ${DATA_DIR}/tilesheet_top.s
+    ${DATA_DIR}/skyland_title_1_flattened.s
+    ${DATA_DIR}/skyland_title_0_flattened.s
+    ${DATA_DIR}/zone_image_0_flattened.s
     ${DATA_DIR}/spritesheet.s
     ${DATA_DIR}/sound_msg.s
     ${DATA_DIR}/sound_pop.s
@@ -456,6 +463,9 @@ if(GAMEBOY_ADVANCE)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
     add_tilesheet(tilesheet_interior 2 2 NO NO)
     add_tilesheet(tilesheet_top 4 3 NO NO)
+    add_tilesheet(skyland_title_1 0 0 YES NO)
+    add_tilesheet(skyland_title_0 0 0 YES NO)
+    add_tilesheet(zone_image_0 0 0 YES NO)
     add_overlay(overlay 0 0 NO NO)
     add_overlay(overlay_dialog 0 0 NO NO)
     add_overlay(charset 0 0 NO NO)

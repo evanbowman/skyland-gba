@@ -11,6 +11,5 @@
 
 (configure-player
  (opponent)
- '((cannon 0 13)
-   (hull 0 14)
+ '((missile-silo 0 13)
    (power-core 1 13)))

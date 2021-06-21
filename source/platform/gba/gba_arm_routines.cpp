@@ -17,11 +17,15 @@
 
 #include "gba.h"
 
-// Because the cartridge interrupt handler runs when the cartridge is removed,
-// it obviously cannot be defined in gamepak rom! So we have to put the code in
-// IWRAM.
-IWRAM_CODE
-void cartridge_interrupt_handler()
+
+int parallax_table[280];
+
+
+
+extern "C" {
+IWRAM_CODE void hblank_scroll_isr()
 {
-    Stop();
+
+    *((volatile short*)0x4000014) = ::parallax_table[(REG_VCOUNT + 1)];
+}
 }

@@ -3,7 +3,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/serial.hpp"
 #include "skyland/skyland.hpp"
-#include "worldMapScene.hpp"
+#include "zoneImageScene.hpp"
 
 
 
@@ -146,7 +146,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 app.opponent_island().reset();
 
-                return scene_pool::alloc<WorldMapScene>();
+                return scene_pool::alloc<ZoneImageScene>();
             }
         }
         break;

@@ -8,6 +8,7 @@
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
 #include "worldScene.hpp"
+#include "fadeOutScene.hpp"
 
 
 
@@ -23,7 +24,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.exit_level()) {
         app.exit_level() = false;
-        return scene_pool::alloc<WorldMapScene>();
+        return scene_pool::alloc<FadeOutScene>();
     }
 
     if (pfrm.keyboard().down_transition<Key::alt_2>()) {

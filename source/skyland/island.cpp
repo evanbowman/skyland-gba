@@ -279,7 +279,7 @@ void Island::render_exterior(Platform& pfrm)
                     pfrm.set_tile(layer_, x, y + 1, Tile::wall_window_middle_1);
                 } else if (t2 == Tile::wall_plain_1) {
                     pfrm.set_tile(layer_, x, y, Tile::wall_plain_middle);
-                    pfrm.set_tile(layer_, x, y + 1, Tile::wall_window_middle_1);
+                    pfrm.set_tile(layer_, x, y + 1, Tile::wall_plain_middle);
                 }
             }
         }

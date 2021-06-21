@@ -105,7 +105,7 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
 ScenePtr<Scene>
 MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (pfrm.keyboard().down_transition<Key::alt_1>()) {
+    if (pfrm.keyboard().down_transition<Key::select>()) {
         return null_scene();
     }
 
