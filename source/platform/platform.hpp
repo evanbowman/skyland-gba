@@ -187,9 +187,6 @@ public:
     void set_scroll(Layer layer, u16 x, u16 y);
 
 
-    void sprite_priority(int value);
-
-
     // A special version of set_tile meant for glyphs. Allows you to set custom
     // colors. If the platform runs out of room for colors, the oldest ones will
     // be overwritten.

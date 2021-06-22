@@ -84,6 +84,18 @@ public:
     Scale get_scale() const;
 
 
+    void set_priority(u8 priority)
+    {
+        priority_ = priority;
+    }
+
+
+    u8 get_priority() const
+    {
+        return priority_;
+    }
+
+
 private:
     // For the gameboy advance edition of the game, all the data for the engine
     // is designed to fit within IWRAM, so we need to be careful about
@@ -96,7 +108,8 @@ private:
 
     // Extra flags reserved for future use.
     u8 flags1_ : 3;
-    u8 flags2_ : 8;
+    u8 priority_ : 2;
+    u8 reserved_ : 3;
 
     // Because sprites are only 16x32 or 32x32, 16bits for the origin field is
     // quite generous...

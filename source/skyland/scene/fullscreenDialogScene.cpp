@@ -33,7 +33,7 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
         text_state_.timer_ = 0;
 
         if (sfx) {
-            // pfrm.speaker().play_sound("msg", 5);
+            pfrm.speaker().play_sound("msg", 5);
         }
 
         if (text_state_.current_word_remaining_ == 0) {

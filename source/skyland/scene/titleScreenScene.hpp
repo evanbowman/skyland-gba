@@ -20,6 +20,9 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    void display(Platform&, App&) override;
+
+
 private:
     bool wait_ = true;
     std::optional<Text> text_;
@@ -48,6 +51,9 @@ private:
     int menu_selection_stop_ = 0;
 
     int x_scroll_ = 0;
+
+    Microseconds island_mov_timer_ = 0;
+    int island_offset_ = 0;
 };
 
 

@@ -35,6 +35,7 @@ public:
     void update_parallax(Microseconds delta);
 
 
+
     Coins& coins()
     {
         return coins_;

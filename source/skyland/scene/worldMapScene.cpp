@@ -242,6 +242,7 @@ void WorldMapScene::show_move_arrows(Platform& pfrm, App& app)
 void WorldMapScene::display(Platform& pfrm, App& app)
 {
     Sprite cursor;
+    cursor.set_priority(0);
 
     cursor.set_size(Sprite::Size::w16_h32);
 
@@ -306,8 +307,6 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
     auto view = pfrm.screen().get_view();
     view.set_center({});
     pfrm.screen().set_view(view);
-
-    pfrm.sprite_priority(0);
 
     pfrm.load_overlay_texture("overlay_world_map");
 
@@ -441,7 +440,6 @@ void WorldMapScene::show_map(Platform& pfrm, WorldMap& map)
 
 void WorldMapScene::exit(Platform& pfrm, App&, Scene& next_scene)
 {
-    pfrm.sprite_priority(1);
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
     pfrm.load_overlay_texture("overlay");

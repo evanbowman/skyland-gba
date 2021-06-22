@@ -15,6 +15,8 @@
 
 #include "data/spritesheet.h"
 //;
+#include "data/spritesheet_title_screen.h"
+//;
 #include "data/tilesheet.h"
 //;
 #include "data/tilesheet_enemy_0.h"
@@ -59,6 +61,8 @@ struct TextureData {
 static const TextureData sprite_textures[] = {
 
     TEXTURE_INFO(spritesheet),
+//;
+    TEXTURE_INFO(spritesheet_title_screen),
 //
 };
 

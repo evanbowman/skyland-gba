@@ -519,7 +519,7 @@ static void init_video(Platform::Screen& screen)
 
     // Tilemap layer 0
     *bg0_control = BG_CBB(cbb_t0_texture) | BG_SBB(sbb_t0_tiles) |
-                   BG_REG_64x64 | BG_PRIORITY(3) | BG_MOSAIC;
+                   BG_REG_64x64 | BG_PRIORITY(2) | BG_MOSAIC;
 
     // Tilemap layer 1
     *bg3_control = BG_CBB(cbb_t1_texture) | BG_SBB(sbb_t1_tiles) |
@@ -831,15 +831,6 @@ u16 find_dynamic_mapping(u16 virtual_index)
 }
 
 
-static int __sprite_priority = 1;
-
-
-void Platform::sprite_priority(int value)
-{
-    __sprite_priority = value;
-}
-
-
 void Platform::Screen::draw(const Sprite& spr)
 {
     if (UNLIKELY(spr.get_alpha() == Sprite::Alpha::transparent)) {
@@ -934,7 +925,7 @@ void Platform::Screen::draw(const Sprite& spr)
         const auto target_index = 2 + ti * scale + tex_off;
         oa->attribute_2 = target_index;
         oa->attribute_2 |= pb;
-        oa->attribute_2 |= ATTR2_PRIORITY(__sprite_priority);
+        oa->attribute_2 |= ATTR2_PRIORITY(spr.get_priority());
         oam_write_index += 1;
     };
 
@@ -2207,7 +2198,7 @@ void Platform::Speaker::play_note(Note n, Octave o, Channel c)
 }
 
 
-#include "data/music_chantiers_navals_412.hpp"
+#include "data/shadows.hpp"
 
 
 static const int null_music_len = 8;
@@ -2241,7 +2232,7 @@ static const struct AudioTrack {
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
 } music_tracks[] = {
-    DEF_MUSIC(chantiers_navals_412, music_chantiers_navals_412)};
+    DEF_MUSIC(shadows, shadows)};
 
 
 static const AudioTrack* find_music(const char* name)
@@ -2946,7 +2937,7 @@ void Platform::enable_expanded_glyph_mode(bool enabled)
     irqSet(IRQ_TIMER1, audio_update_fast_isr);
 
     REG_TM0CNT_L = 0xffff;
-    REG_TM1CNT_L = 0xffff - 7; // I think that this is correct, but I'm not
+    REG_TM1CNT_L = 0xffff - 3; // I think that this is correct, but I'm not
                                // certain... so we want to play four samples at
                                // a time, which means that by subtracting three
                                // from the initial count, the timer will

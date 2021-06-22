@@ -59,6 +59,7 @@ void TitleScreenScene::enter(Platform& pfrm, App&, Scene& prev)
     pfrm.load_overlay_texture("overlay");
     pfrm.load_tile1_texture("skyland_title_1_flattened");
     pfrm.load_tile0_texture("skyland_title_0_flattened");
+    pfrm.load_sprite_texture("spritesheet_title_screen");
 
     pfrm.fill_overlay(0);
 
@@ -121,6 +122,7 @@ void TitleScreenScene::exit(Platform& pfrm, App&, Scene& next)
 
     pfrm.load_tile0_texture("tilesheet");
     pfrm.load_tile1_texture("tilesheet_enemy_0");
+    pfrm.load_sprite_texture("spritesheet");
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -190,6 +192,13 @@ ScenePtr<Scene> TitleScreenScene::update(Platform& pfrm, App& app, Microseconds 
     }
 
 
+    if (menu_selection_ == 1) {
+        island_mov_timer_ += delta;
+        island_offset_ =
+            2 * float(sine(2 * 3.14f * 0.0005f * hover_timer_ + 180)) /
+            std::numeric_limits<s16>::max();
+    }
+
     switch (state_) {
     case State::fade_in: {
         timer_ += delta;
@@ -225,11 +234,13 @@ ScenePtr<Scene> TitleScreenScene::update(Platform& pfrm, App& app, Microseconds 
 
         if (pfrm.keyboard().pressed<Key::action_1>()) {
             state_ = State::fade_out;
+            pfrm.speaker().stop_music();
         }
         if (pfrm.keyboard().down_transition<Key::right>()) {
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
                 put_menu_text(pfrm);
+                // pfrm.speaker().play_sound("scroll", 1);
                 state_ = State::scroll_right;
                 timer_ = 0;
             }
@@ -238,6 +249,7 @@ ScenePtr<Scene> TitleScreenScene::update(Platform& pfrm, App& app, Microseconds 
             if (menu_selection_ == 1) {
                 menu_selection_ = 0;
                 put_menu_text(pfrm);
+                // pfrm.speaker().play_sound("scroll", 1);
                 state_ = State::scroll_left;
                 timer_ = 0;
             }
@@ -292,6 +304,21 @@ ScenePtr<Scene> TitleScreenScene::update(Platform& pfrm, App& app, Microseconds 
 
     return null_scene();
 }
+
+
+
+void TitleScreenScene::display(Platform& pfrm, App& app)
+{
+    if (x_scroll_ > 160) {
+        Sprite sprite;
+        sprite.set_position({Float(135 - x_scroll_ / 3) + island_offset_,
+                Float(110 - 0.25f * (240 - x_scroll_))});
+        sprite.set_priority(3);
+
+        pfrm.screen().draw(sprite);
+    }
+}
+
 
 
 static void init_clouds2(Platform& pfrm)
