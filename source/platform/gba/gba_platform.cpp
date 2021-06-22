@@ -2197,7 +2197,7 @@ void Platform::Logger::read(void* buffer, u32 start_offset, u32 num_bytes)
 // Speaker
 //
 // For music, the Speaker class uses the GameBoy's direct sound chip to play
-// 8-bit signed raw audio, at 16kHz.
+// 8-bit signed raw audio, at 8kHz.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -2718,7 +2718,7 @@ Platform::Speaker::Speaker()
 
 // Simpler mixer, without stereo sound or volume modulation, for multiplayer
 // games.
-static void audio_update_fast_isr()
+__attribute__ ((section(".iwram"))) static void audio_update_fast_isr()
 {
     alignas(4) AudioSample mixing_buffer[4];
 
@@ -2927,7 +2927,7 @@ void Platform::enable_expanded_glyph_mode(bool enabled)
 }
 
 
-static void audio_start()
+[[maybe_unused]]static void audio_start()
 {
     clear_music();
 
@@ -2946,11 +2946,14 @@ static void audio_start()
     irqSet(IRQ_TIMER1, audio_update_fast_isr);
 
     REG_TM0CNT_L = 0xffff;
-    REG_TM1CNT_L = 0xffff - 3; // I think that this is correct, but I'm not
+    REG_TM1CNT_L = 0xffff - 7; // I think that this is correct, but I'm not
                                // certain... so we want to play four samples at
                                // a time, which means that by subtracting three
                                // from the initial count, the timer will
-                               // overflow at the correct rate, right?
+                               // overflow at the correct rate, right?*
+    // * now I'm playing back audio slower, because the audio interrupts mess
+    // * with the hblank handler. It's definitely less noticeable when dropping
+    // * from 16k to 8k.
 
     // While it may look like TM0 is unused, it is in fact used for setting the
     // sample rate for the digital audio chip.
