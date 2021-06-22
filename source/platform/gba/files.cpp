@@ -46,41 +46,41 @@ static const struct {
 } files[] = {
 
     {"scripts", "newgame.lisp", file_newgame},
-//;
+    //;
     {"scripts", "reset_hooks.lisp", file_reset_hooks},
-//;
+    //;
     {"scripts", "hostile.lisp", file_hostile},
-//;
+    //;
     {"scripts", "hostile_0_0.lisp", file_hostile_0_0},
-//;
+    //;
     {"scripts", "hostile_0_1.lisp", file_hostile_0_1},
-//;
+    //;
     {"scripts", "hostile_0_2.lisp", file_hostile_0_2},
-//;
+    //;
     {"scripts", "hostile_0_3.lisp", file_hostile_0_3},
-//;
+    //;
     {"scripts", "hostile_0_4.lisp", file_hostile_0_4},
-//;
+    //;
     {"scripts", "hostile_0_5.lisp", file_hostile_0_5},
-//;
+    //;
     {"scripts", "hostile_0_6.lisp", file_hostile_0_6},
-//;
+    //;
     {"scripts", "hostile_0_7.lisp", file_hostile_0_7},
-//;
+    //;
     {"scripts", "neutral.lisp", file_neutral},
-//;
+    //;
     {"scripts", "neutral_0_0.lisp", file_neutral_0_0},
-//;
+    //;
     {"scripts", "neutral_0_1.lisp", file_neutral_0_1},
-//;
+    //;
     {"scripts", "neutral_0_2.lisp", file_neutral_0_2},
-//;
+    //;
     {"strings", "english.txt", file_english},
-//;
+    //;
     {"strings", "spanish.txt", file_spanish},
-//;
+    //;
     {"strings", "chinese.txt", file_chinese},
-//;
+    //;
     {"strings", "russian.txt", file_russian},
-//
+    //
 };

@@ -1,5 +1,6 @@
 #include "readyScene.hpp"
 #include "constructionScene.hpp"
+#include "fadeOutScene.hpp"
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
 #include "platform/platform.hpp"
@@ -8,7 +9,6 @@
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
 #include "worldScene.hpp"
-#include "fadeOutScene.hpp"
 
 
 

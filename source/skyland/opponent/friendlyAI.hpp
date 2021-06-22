@@ -2,8 +2,8 @@
 
 
 #include "opponent.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/scene/scriptHookScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 

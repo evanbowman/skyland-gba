@@ -1,8 +1,9 @@
 #include "titleScreenScene.hpp"
+#include "newgameScene.hpp"
+#include "skyland/alloc_entity.hpp"
+#include "skyland/entity/birbs/smolBirb.hpp"
 #include "skyland/scene_pool.hpp"
-#include "newgameScene.hpp"
 #include "skyland/skyland.hpp"
-#include "newgameScene.hpp"
 #include "zoneImageScene.hpp"
 
 
@@ -39,7 +40,6 @@ void __draw_image(Platform& pfrm,
         }
     }
 }
-
 
 
 
@@ -94,7 +94,6 @@ void TitleScreenScene::window_image_hack(Platform& pfrm)
         pfrm.set_tile(Layer::map_0_ext, i, 5, empty_tile);
     }
     pfrm.set_tile(Layer::map_0_ext, 3, 6, empty_tile);
-
 }
 
 
@@ -114,7 +113,7 @@ void TitleScreenScene::redraw_margins(Platform& pfrm)
 }
 
 
-void TitleScreenScene::exit(Platform& pfrm, App&, Scene& next)
+void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     pfrm.set_overlay_origin(0, 0);
 
@@ -135,13 +134,13 @@ void TitleScreenScene::exit(Platform& pfrm, App&, Scene& next)
 
     pfrm.set_scroll(Layer::map_1_ext, 0, 8);
     pfrm.set_scroll(Layer::map_0_ext, 0, 0);
+
+    app.birbs().clear();
 }
 
 
 
-[[maybe_unused]] static const char* menu_text[2] {
-    "adventure", "challenge"
- };
+[[maybe_unused]] static const char* menu_text[2]{"adventure", "challenge"};
 
 
 void TitleScreenScene::put_menu_text(Platform& pfrm)
@@ -153,9 +152,10 @@ void TitleScreenScene::put_menu_text(Platform& pfrm)
     const auto prefix_len = buffer.length();
     buffer += menu_text[menu_selection_];
     auto margin = centered_text_margins(pfrm, buffer.length());
-    text_.emplace(pfrm, buffer.c_str(),
-                  OverlayCoord{u8(st.x - (buffer.length() + margin + 1)),
-                      u8(st.y - 2)});
+    text_.emplace(
+        pfrm,
+        buffer.c_str(),
+        OverlayCoord{u8(st.x - (buffer.length() + margin + 1)), u8(st.y - 2)});
 
     menu_selection_start_ = margin + 1 + prefix_len;
     menu_selection_stop_ = margin + 1 + buffer.length();
@@ -166,7 +166,8 @@ void TitleScreenScene::put_menu_text(Platform& pfrm)
 
 
 
-ScenePtr<Scene> TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     app.update_parallax(delta);
 
@@ -194,10 +195,36 @@ ScenePtr<Scene> TitleScreenScene::update(Platform& pfrm, App& app, Microseconds 
 
     if (menu_selection_ == 1) {
         island_mov_timer_ += delta;
-        island_offset_ =
-            2 * float(sine(2 * 3.14f * 0.0005f * hover_timer_ + 180)) /
-            std::numeric_limits<s16>::max();
+        island_offset_ = 2 *
+                         float(sine(2 * 3.14f * 0.0005f * hover_timer_ + 180)) /
+                         std::numeric_limits<s16>::max();
+    } else if (menu_selection_ == 0) {
+        birb_timer_ -= delta;
+        if (birb_timer_ <= 0) {
+            birb_timer_ =
+                seconds(12) + seconds(rng::choice<4>(rng::critical_state));
+            if (rng::choice<6>(rng::critical_state)) {
+                birb_timer_ =
+                    milliseconds(1300) -
+                    milliseconds(rng::choice<700>(rng::critical_state));
+            }
+            auto pos = Vec2<Float>{1, 130};
+            auto speed =
+                (5 + rng::choice<4>(rng::critical_state)) / Float(100000);
+            pos.y += rng::choice<20>(rng::critical_state);
+            if (auto e = alloc_entity<SmolBirb>(pos, speed)) {
+                app.birbs().push(std::move(e));
+            }
+        }
     }
+
+    for (auto& birb : app.birbs()) {
+        if (birb->sprite().get_position().x > (197 + 16) - x_scroll_ / 2) {
+            birb->kill();
+        }
+    }
+    update_entities(pfrm, app, delta, app.birbs());
+
 
     switch (state_) {
     case State::fade_in: {
@@ -211,7 +238,8 @@ ScenePtr<Scene> TitleScreenScene::update(Platform& pfrm, App& app, Microseconds 
             timer_ = 0;
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(amount, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().fade(
+                amount, ColorConstant::rich_black, {}, true, true);
         }
         break;
     }
@@ -224,11 +252,15 @@ ScenePtr<Scene> TitleScreenScene::update(Platform& pfrm, App& app, Microseconds 
 
             const auto st = calc_screen_tiles(pfrm);
             if (selector_shaded_) {
-                pfrm.set_tile(Layer::overlay, menu_selection_start_ - 4, st.y - 2, 373);
-                pfrm.set_tile(Layer::overlay, menu_selection_stop_ - 1, st.y - 2, 374);
+                pfrm.set_tile(
+                    Layer::overlay, menu_selection_start_ - 4, st.y - 2, 373);
+                pfrm.set_tile(
+                    Layer::overlay, menu_selection_stop_ - 1, st.y - 2, 374);
             } else {
-                pfrm.set_tile(Layer::overlay, menu_selection_start_ - 4, st.y - 2, 375);
-                pfrm.set_tile(Layer::overlay, menu_selection_stop_ - 1, st.y - 2, 376);
+                pfrm.set_tile(
+                    Layer::overlay, menu_selection_start_ - 4, st.y - 2, 375);
+                pfrm.set_tile(
+                    Layer::overlay, menu_selection_stop_ - 1, st.y - 2, 376);
             }
         }
 
@@ -293,7 +325,8 @@ ScenePtr<Scene> TitleScreenScene::update(Platform& pfrm, App& app, Microseconds 
             return scene_pool::alloc<NewgameScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(amount, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().fade(
+                amount, ColorConstant::rich_black, {}, true, true);
         }
         break;
     }
@@ -312,10 +345,27 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
     if (x_scroll_ > 160) {
         Sprite sprite;
         sprite.set_position({Float(135 - x_scroll_ / 3) + island_offset_,
-                Float(110 - 0.25f * (240 - x_scroll_))});
+                             Float(110 - 0.25f * (240 - x_scroll_))});
         sprite.set_priority(3);
 
         pfrm.screen().draw(sprite);
+    }
+    for (auto& birb : app.birbs()) {
+        auto spr = birb->sprite();
+        auto pos = spr.get_position();
+        pos.x = pos.x - x_scroll_ / 2;
+
+        const auto ambient_movement =
+            8 *
+            float(sine(((birb->speed() * 100000) / 2) * 3.14f * 0.0005f *
+                           birb->age() +
+                       180)) /
+            std::numeric_limits<s16>::max();
+
+        pos.y += ambient_movement;
+
+        spr.set_position(pos);
+        pfrm.screen().draw(spr);
     }
 }
 
@@ -399,4 +449,4 @@ static void init_clouds2(Platform& pfrm)
 }
 
 
-}
+} // namespace skyland

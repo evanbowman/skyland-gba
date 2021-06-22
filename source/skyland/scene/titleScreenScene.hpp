@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "skyland/scene.hpp"
 #include "graphics/overlay.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -12,7 +12,6 @@ namespace skyland {
 
 class TitleScreenScene : public Scene {
 public:
-
     void enter(Platform&, App&, Scene& prev) override;
     void exit(Platform&, App&, Scene& next) override;
 
@@ -54,8 +53,9 @@ private:
 
     Microseconds island_mov_timer_ = 0;
     int island_offset_ = 0;
+    Microseconds birb_timer_ = seconds(7);
 };
 
 
 
-}
+} // namespace skyland

@@ -11,13 +11,14 @@ namespace skyland {
 
 class SmolBirb : public Entity {
 public:
-    SmolBirb(const Vec2<Float>& position)
-        : Entity({{}, {}}), timer1_(0), timer2_(0)
+    SmolBirb(const Vec2<Float>& position, Float speed)
+        : Entity({{}, {}}), timer1_(0), timer2_(0), speed_(speed)
     {
         sprite_.set_position(position);
         sprite_.set_texture_index(28);
         sprite_.set_size(Sprite::Size::w16_h32);
         sprite_.set_origin({8, 8});
+        sprite_.set_priority(3);
     }
 
 
@@ -39,18 +40,31 @@ public:
         }
 
         auto pos = sprite_.get_position();
-        pos.x += 0.00004f * delta;
+        pos.x += speed_ * delta;
         sprite_.set_position(pos);
 
-        if (timer2_ > seconds(15)) {
+        if (timer2_ > seconds(10)) {
             kill();
         }
+    }
+
+
+    auto age() const
+    {
+        return timer2_;
+    }
+
+
+    Float speed() const
+    {
+        return speed_;
     }
 
 
 private:
     Microseconds timer1_;
     Microseconds timer2_;
+    Float speed_;
 };
 
 

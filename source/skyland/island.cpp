@@ -44,7 +44,8 @@ Island::Rooms& Island::rooms()
 void Island::remove_character(const Vec2<u8>& location)
 {
     if (auto room = get_room(location)) {
-        for (auto it = room->characters().begin(); it not_eq room->characters().end();) {
+        for (auto it = room->characters().begin();
+             it not_eq room->characters().end();) {
             if ((*it)->grid_position() == location) {
                 room->characters().erase(it);
                 return;

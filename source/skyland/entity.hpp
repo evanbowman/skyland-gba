@@ -33,6 +33,7 @@ public:
         // and entity posiiton are not the same thing);
         hitbox_.position_ = &sprite_.position_;
         hitbox_.dimension_ = dimension;
+        sprite_.set_priority(1);
     }
 
 
@@ -70,13 +71,13 @@ public:
     }
 
 
-protected:
     void kill()
     {
         health_ = 0;
     }
 
 
+protected:
     Sprite sprite_;
     HitBox hitbox_;
     Health health_;

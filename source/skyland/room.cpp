@@ -43,7 +43,8 @@ Room::Room(Island* parent,
 
     // TODO: actually raise an error for an unassigned metaclass. We would need
     // to pass in a Platform instance in order to raise a fatal error.
-    while (true) ;
+    while (true)
+        ;
 }
 
 

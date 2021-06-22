@@ -2138,13 +2138,13 @@ void init(Platform& pfrm)
 
 
     set_var("read", make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, string);
-        read(get_op(0)->string_.value());
-        auto result = get_op(0);
-        pop_op();
-        return result;
-    }));
+                L_EXPECT_ARGC(argc, 1);
+                L_EXPECT_OP(0, string);
+                read(get_op(0)->string_.value());
+                auto result = get_op(0);
+                pop_op();
+                return result;
+            }));
 
 
     set_var("eval", make_function([](int argc) {

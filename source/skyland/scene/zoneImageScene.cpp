@@ -1,8 +1,8 @@
 #include "zoneImageScene.hpp"
+#include "localization.hpp"
 #include "newgameScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "localization.hpp"
 #include "worldMapScene.hpp"
 
 
@@ -27,7 +27,8 @@ void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.set_scroll(Layer::map_1_ext, 0, 8);
     pfrm.set_scroll(Layer::map_0_ext, 0, 0);
 
-    if (not(app.current_map_location().x == 0 and app.current_map_location().y == 1)) {
+    if (not(app.current_map_location().x == 0 and
+            app.current_map_location().y == 1)) {
         return;
     }
     const auto screen_tiles = calc_screen_tiles(pfrm);
@@ -52,10 +53,11 @@ void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
     buffer += to_string<10>(app.zone());
     buffer += " --";
     auto margin = centered_text_margins(pfrm, buffer.length());
-    text_.emplace(pfrm, buffer.c_str(),
-                  OverlayCoord{u8(screen_tiles.x - (buffer.length() + margin + 1)),
-                      u8(screen_tiles.y - 2)});
-
+    text_.emplace(
+        pfrm,
+        buffer.c_str(),
+        OverlayCoord{u8(screen_tiles.x - (buffer.length() + margin + 1)),
+                     u8(screen_tiles.y - 2)});
 }
 
 
@@ -81,9 +83,11 @@ void ZoneImageScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-ScenePtr<Scene> ZoneImageScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+ZoneImageScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (not(app.current_map_location().x == 0 and app.current_map_location().y == 1)) {
+    if (not(app.current_map_location().x == 0 and
+            app.current_map_location().y == 1)) {
         return scene_pool::alloc<WorldMapScene>();
     }
 
@@ -98,7 +102,8 @@ ScenePtr<Scene> ZoneImageScene::update(Platform& pfrm, App& app, Microseconds de
             timer_ = 0;
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(amount, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().fade(
+                amount, ColorConstant::rich_black, {}, true, true);
         }
         break;
     }
@@ -119,7 +124,8 @@ ScenePtr<Scene> ZoneImageScene::update(Platform& pfrm, App& app, Microseconds de
             return scene_pool::alloc<WorldMapScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(amount, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().fade(
+                amount, ColorConstant::rich_black, {}, true, true);
         }
         break;
     }
@@ -130,4 +136,4 @@ ScenePtr<Scene> ZoneImageScene::update(Platform& pfrm, App& app, Microseconds de
 
 
 
-}
+} // namespace skyland

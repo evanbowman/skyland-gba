@@ -2231,8 +2231,7 @@ static const struct AudioTrack {
     const AudioSample* data_;
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
-} music_tracks[] = {
-    DEF_MUSIC(shadows, shadows)};
+} music_tracks[] = {DEF_MUSIC(shadows, shadows)};
 
 
 static const AudioTrack* find_music(const char* name)
@@ -2709,7 +2708,7 @@ Platform::Speaker::Speaker()
 
 // Simpler mixer, without stereo sound or volume modulation, for multiplayer
 // games.
-__attribute__ ((section(".iwram"))) static void audio_update_fast_isr()
+__attribute__((section(".iwram"))) static void audio_update_fast_isr()
 {
     alignas(4) AudioSample mixing_buffer[4];
 
@@ -2918,7 +2917,7 @@ void Platform::enable_expanded_glyph_mode(bool enabled)
 }
 
 
-[[maybe_unused]]static void audio_start()
+[[maybe_unused]] static void audio_start()
 {
     clear_music();
 

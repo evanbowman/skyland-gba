@@ -1,10 +1,11 @@
 #pragma once
 
-#include "blind_jump/entity/entityGroup.hpp"
+
 #include "boxed.hpp"
 #include "camera.hpp"
 #include "coins.hpp"
 #include "dialog.hpp"
+#include "entity/birbs/smolBirb.hpp"
 #include "island.hpp"
 #include "opponent/enemyAI.hpp"
 #include "platform/platform.hpp"
@@ -117,7 +118,7 @@ public:
     }
 
 
-    EntityList<Entity>& birbs()
+    EntityList<SmolBirb>& birbs()
     {
         return birbs_;
     }
@@ -194,7 +195,7 @@ private:
     int zone_ = 0;
 
     EntityList<Entity> effects_;
-    EntityList<Entity> birbs_;
+    EntityList<SmolBirb> birbs_;
 
     Microseconds birb_counter_;
 

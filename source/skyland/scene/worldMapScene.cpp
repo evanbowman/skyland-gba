@@ -293,11 +293,7 @@ void WorldMapScene::display(Platform& pfrm, App& app)
 
 void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 {
-    pfrm.screen().fade(1.f,
-                       ColorConstant::rich_black,
-                       {},
-                       true,
-                       true);
+    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
     app.effects().clear();
     app.player_island().projectiles().clear();

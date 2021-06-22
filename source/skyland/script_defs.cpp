@@ -3,10 +3,10 @@
 #include "opponent/friendlyAI.hpp"
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
-#include "script/lisp.hpp"
-#include "skyland.hpp"
-#include "serial.hpp"
 #include "scene/scriptHookScene.hpp"
+#include "script/lisp.hpp"
+#include "serial.hpp"
+#include "skyland.hpp"
 
 
 
@@ -121,18 +121,18 @@ void App::init_scripts(Platform& pfrm)
 
 
     lisp::set_var("rooms", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, user_data);
+                      L_EXPECT_ARGC(argc, 1);
+                      L_EXPECT_OP(0, user_data);
 
-        auto pfrm = interp_get_pfrm();
+                      auto pfrm = interp_get_pfrm();
 
-        auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
-        auto result = serialize(*pfrm, *island);
-        lisp::read(result->c_str());
-        auto ret = lisp::get_op(0);
-        lisp::pop_op();
-        return ret;
-    }));
+                      auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
+                      auto result = serialize(*pfrm, *island);
+                      lisp::read(result->c_str());
+                      auto ret = lisp::get_op(0);
+                      lisp::pop_op();
+                      return ret;
+                  }));
 
 
     // lisp::set_var("on-timeout", lisp::make_function([](int argc) {
@@ -153,42 +153,43 @@ void App::init_scripts(Platform& pfrm)
     // }));
 
 
-    lisp::set_var("chr-slots", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, user_data);
+    lisp::set_var(
+        "chr-slots", lisp::make_function([](int argc) {
+            L_EXPECT_ARGC(argc, 1);
+            L_EXPECT_OP(0, user_data);
 
-        bool matrix[16][16];
+            bool matrix[16][16];
 
-        auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
+            auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
 
-        island->plot_walkable_zones(matrix);
+            island->plot_walkable_zones(matrix);
 
-        lisp::Value* ret = lisp::get_nil();
+            lisp::Value* ret = lisp::get_nil();
 
-        // FIXME: this could in theory return such a large list that we end up
-        // with oom errors. But in practice... seems unlikely.
+            // FIXME: this could in theory return such a large list that we end up
+            // with oom errors. But in practice... seems unlikely.
 
-        for (u8 x = 0; x < 16; ++x) {
-            for (u8 y = 0; y < 16; ++y) {
-                if (matrix[x][y]) {
-                    if (not island->is_character_at_location({x, y})) {
-                        lisp::push_op(ret);
-                        {
-                            auto cell = lisp::make_cons(L_NIL, L_NIL);
-                            lisp::push_op(cell);
-                            cell->cons_.set_car(lisp::make_integer(x));
-                            cell->cons_.set_cdr(lisp::make_integer(y));
-                            ret = lisp::make_cons(cell, ret);
-                            lisp::pop_op(); // cell
+            for (u8 x = 0; x < 16; ++x) {
+                for (u8 y = 0; y < 16; ++y) {
+                    if (matrix[x][y]) {
+                        if (not island->is_character_at_location({x, y})) {
+                            lisp::push_op(ret);
+                            {
+                                auto cell = lisp::make_cons(L_NIL, L_NIL);
+                                lisp::push_op(cell);
+                                cell->cons_.set_car(lisp::make_integer(x));
+                                cell->cons_.set_cdr(lisp::make_integer(y));
+                                ret = lisp::make_cons(cell, ret);
+                                lisp::pop_op(); // cell
+                            }
+                            lisp::pop_op(); // ret
                         }
-                        lisp::pop_op(); // ret
                     }
                 }
             }
-        }
 
-        return ret;
-    }));
+            return ret;
+        }));
 
 
     lisp::set_var("swap-ai", lisp::make_function([](int argc) {
@@ -266,23 +267,22 @@ void App::init_scripts(Platform& pfrm)
 
 
     lisp::set_var("rem-chr", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 3);
-        L_EXPECT_OP(0, integer); // y
-        L_EXPECT_OP(1, integer); // x
-        L_EXPECT_OP(2, user_data);
+                      L_EXPECT_ARGC(argc, 3);
+                      L_EXPECT_OP(0, integer); // y
+                      L_EXPECT_OP(1, integer); // x
+                      L_EXPECT_OP(2, user_data);
 
-        auto island = (Island*)lisp::get_op(2)->user_data_.obj_;
+                      auto island = (Island*)lisp::get_op(2)->user_data_.obj_;
 
-        auto coord = Vec2<u8>{
-            (u8)lisp::get_op(1)->integer_.value_,
-            (u8)lisp::get_op(0)->integer_.value_,
-        };
+                      auto coord = Vec2<u8>{
+                          (u8)lisp::get_op(1)->integer_.value_,
+                          (u8)lisp::get_op(0)->integer_.value_,
+                      };
 
-        island->remove_character(coord);
+                      island->remove_character(coord);
 
-        return L_NIL;
-
-    }));
+                      return L_NIL;
+                  }));
 
 
     lisp::set_var("add-chr", lisp::make_function([](int argc) {

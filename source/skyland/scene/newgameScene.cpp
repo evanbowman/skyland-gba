@@ -22,11 +22,7 @@ namespace skyland {
 ScenePtr<Scene>
 NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    pfrm.screen().fade(1.f,
-                       ColorConstant::rich_black,
-                       {},
-                       true,
-                       true);
+    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
     lisp::dostring(pfrm.load_file_contents("scripts", "newgame.lisp"),
                    [&pfrm](lisp::Value& v) {

@@ -1,6 +1,6 @@
 #include "introCreditsScene.hpp"
-#include "skyland/scene_pool.hpp"
 #include "newgameScene.hpp"
+#include "skyland/scene_pool.hpp"
 #include "titleScreenScene.hpp"
 
 
@@ -26,7 +26,8 @@ void IntroCreditsScene::exit(Platform& pfrm, App&, Scene& next)
 
 
 
-ScenePtr<Scene> IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
+ScenePtr<Scene>
+IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
 {
     timer_ += delta;
 
@@ -39,14 +40,15 @@ ScenePtr<Scene> IntroCreditsScene::update(Platform& pfrm, App&, Microseconds del
             pfrm.set_overlay_origin(-4, 0);
         }
     } else if (text_) {
-        if (timer_ > seconds(4) or pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (timer_ > seconds(4) or
+            pfrm.keyboard().down_transition<Key::action_2>()) {
             text_.reset();
             timer_ = 0;
         }
     } else {
         pfrm.set_overlay_origin(0, 0);
         // if (timer_ > milliseconds(600)) {
-            return scene_pool::alloc<TitleScreenScene>();
+        return scene_pool::alloc<TitleScreenScene>();
         // }
     }
 
@@ -55,5 +57,4 @@ ScenePtr<Scene> IntroCreditsScene::update(Platform& pfrm, App&, Microseconds del
 
 
 
-
-}
+} // namespace skyland
