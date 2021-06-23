@@ -89,6 +89,12 @@ public:
     }
 
 
+    enum class State {
+        moving_or_idle,
+        fighting,
+    };
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -96,10 +102,18 @@ private:
     Microseconds movement_timer_ = 0;
     bool awaiting_movement_ = true;
     bool can_move_ = false;
+    State state_ = State::moving_or_idle;
 
     u8 health_ = 255;
 
     std::optional<Path> movement_path_;
+
+    void reassign_room(const Vec2<u8>& old_coord,
+                       const Vec2<u8>& new_coord);
+
+
+    void movement_step(Microseconds delta);
+
 };
 
 

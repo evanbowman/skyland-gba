@@ -160,27 +160,18 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                  it not_eq room->characters().end();
                  ++it) {
                 if ((*it)->grid_position() == initial_cursor_) {
-                    if (auto new_room =
-                            app.player_island().get_room(cursor_loc)) {
 
-                        // (*it)->set_grid_position(cursor_loc);
-                        auto unlinked = std::move(*it);
+                    auto path = find_path(pfrm,
+                                          &app.player_island(),
+                                          initial_cursor_,
+                                          cursor_loc);
 
-                        auto path = find_path(pfrm,
-                                              &app.player_island(),
-                                              initial_cursor_,
-                                              cursor_loc);
-
-                        if (path and *path) {
-                            unlinked->set_movement_path(std::move(*path));
-                        } else {
-                            // path not found, raise error?
-                        }
-
-                        room->characters().erase(it);
-                        new_room->add_occupant(std::move(unlinked));
-                        return scene_pool::alloc<ReadyScene>();
+                    if (path and *path) {
+                        (*it)->set_movement_path(std::move(*path));
+                    } else {
+                        // path not found, raise error?
                     }
+                    return scene_pool::alloc<ReadyScene>();
                 }
             }
         }
