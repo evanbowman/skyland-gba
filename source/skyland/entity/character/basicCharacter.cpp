@@ -1,5 +1,7 @@
 #include "basicCharacter.hpp"
 #include "skyland/island.hpp"
+#include "skyland/skyland.hpp"
+#include "localization.hpp"
 
 
 
@@ -27,7 +29,19 @@ BasicCharacter::BasicCharacter(Island* parent,
 
 
 
-void BasicCharacter::update(Platform&, App&, Microseconds delta)
+void BasicCharacter::set_can_move()
+{
+    if (not can_move_ and
+        state_ == State::moving_or_idle) {
+        state_ = State::check_surroundings;
+    }
+
+    can_move_ = true;
+}
+
+
+
+void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto o = parent_->origin();
     o.x += grid_position_.x * 16;
@@ -38,15 +52,70 @@ void BasicCharacter::update(Platform&, App&, Microseconds delta)
     case State::fighting:
         awaiting_movement_ = true;
         can_move_ = false;
+        sprite_.set_position(o);
+        timer_ += delta;
+        if (timer_ > milliseconds(300)) {
+            timer_ = 0;
+            if (sprite_.get_texture_index() == 35) {
+                sprite_.set_texture_index(26);
+            } else {
+                sprite_.set_texture_index(35);
+            }
+        }
+        if (movement_path_) {
+            state_ = State::moving_or_idle;
+            timer_ = 0;
+        }
+        break;
+
+    case State::check_surroundings:
+        sprite_.set_texture_index(26);
+        state_ = State::moving_or_idle;
+        sprite_.set_position(o);
+
+        if (not(*movement_path_)->empty()) {
+            auto get_chr = [&](u32 i) -> BasicCharacter* {
+                auto sz = (*movement_path_)->size();
+                if (sz >= i + 1) {
+                    auto coord = (**movement_path_)[sz - (i + 1)];
+                    return parent_->character_at_location(coord);
+                }
+                return nullptr;
+            };
+
+            if (auto c = get_chr(0)) {
+                if (c->owner() not_eq owner()) {
+                    movement_path_.reset();
+                    state_ = State::fighting;
+                }
+            } else if (auto c = get_chr(1)) {
+                // NOTE: Ok, maybe it seems unfair that we're weighting movement
+                // stuff in favor of the enemy AI. But think about it this
+                // way. You have two characters, and they stand one block
+                // apart. At which point is either character allowed to move?
+                // One of the player's characters and one of the enemy's
+                // characters could end up both moving into the same grid
+                // location. We could randomly assign the ability to move into a
+                // space adjacent to another character's movement path, but then
+                // we would need to keep more state, so it's simpler to just
+                // give the AI or give the player preference in all cases.
+                if (c->owner() not_eq owner() and owner() == &app.player()) {
+                    movement_path_.reset();
+                }
+            }
+        }
+
         break;
 
     case State::moving_or_idle:
+        sprite_.set_texture_index(26);
         if (movement_path_) {
             if (awaiting_movement_ and not can_move_) {
                 // ... we're waiting to be told that we can move. Because movement
                 // is grid-based
                 sprite_.set_position(o);
             } else {
+                timer_ += delta;
                 movement_step(delta);
             }
         } else {
@@ -57,6 +126,7 @@ void BasicCharacter::update(Platform&, App&, Microseconds delta)
         break;
     }
 }
+
 
 
 void BasicCharacter::movement_step(Microseconds delta)
@@ -70,7 +140,6 @@ void BasicCharacter::movement_step(Microseconds delta)
 
     static const auto movement_step_duration = milliseconds(400);
 
-    movement_timer_ += delta;
 
     if (not(*movement_path_)->empty()) {
         auto dest_grid_pos = (*movement_path_)->back();
@@ -79,11 +148,11 @@ void BasicCharacter::movement_step(Microseconds delta)
         dest.y += dest_grid_pos.y * 16 - 2; // floor is two pixels thick
 
         sprite_.set_position(interpolate(
-            dest, o, Float(movement_timer_) / movement_step_duration));
+            dest, o, Float(timer_) / movement_step_duration));
     }
 
-    if (movement_timer_ > movement_step_duration) {
-        movement_timer_ = 0;
+    if (timer_ > movement_step_duration) {
+        timer_ = 0;
 
         awaiting_movement_ = true;
         can_move_ = false;

@@ -66,22 +66,22 @@ void Island::remove_character(const Vec2<u8>& location)
 }
 
 
-bool Island::is_character_at_location(const Vec2<u8>& loc)
+BasicCharacter* Island::character_at_location(const Vec2<u8>& loc)
 {
     if (auto room = get_room(loc)) {
         for (auto& chr : room->characters()) {
             if (chr->grid_position() == loc) {
-                return true;
+                return chr.get();
             }
         }
     }
     for (auto& chr : characters_) {
         if (chr->grid_position() == loc) {
-            return true;
+            return chr.get();
         }
     }
 
-    return false;
+    return nullptr;
 }
 
 

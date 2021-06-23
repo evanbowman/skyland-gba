@@ -18,7 +18,9 @@ Room::Room(Island* parent,
            Health health)
     : parent_(parent),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      size_(size), position_(position), health_(health)
+      size_(size), position_(position),
+      health_(health),
+      max_health_(health)
 {
     auto metatable = room_metatable();
 
@@ -150,7 +152,7 @@ Vec2<Float> Room::center() const
 
 
 
-ScenePtr<Scene> Room::select(Platform& pfrm)
+ScenePtr<Scene> Room::select(Platform& pfrm, App& app)
 {
     if (parent_->interior_visible()) {
         if (length(characters_)) {
@@ -158,9 +160,8 @@ ScenePtr<Scene> Room::select(Platform& pfrm)
                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
             for (auto& character : characters_) {
-                if (character->grid_position() == cursor_loc//  and
-                    // character->owner() == ... TODO
-                    ) {
+                if (character->grid_position() == cursor_loc and
+                    character->owner() == &app.player()) {
                     return scene_pool::alloc<MoveCharacterScene>(pfrm);
                 }
             }

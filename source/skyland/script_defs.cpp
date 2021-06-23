@@ -172,7 +172,7 @@ void App::init_scripts(Platform& pfrm)
             for (u8 x = 0; x < 16; ++x) {
                 for (u8 y = 0; y < 16; ++y) {
                     if (matrix[x][y]) {
-                        if (not island->is_character_at_location({x, y})) {
+                        if (not island->character_at_location({x, y})) {
                             lisp::push_op(ret);
                             {
                                 auto cell = lisp::make_cons(L_NIL, L_NIL);

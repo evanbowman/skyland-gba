@@ -68,7 +68,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (pfrm.keyboard().down_transition<Key::action_1>()) {
         if (auto room = app.player_island().get_room(cursor_loc)) {
-            return room->select(pfrm);
+            return room->select(pfrm, app);
         }
     }
 

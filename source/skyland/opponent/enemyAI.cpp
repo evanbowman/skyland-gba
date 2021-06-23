@@ -197,6 +197,21 @@ void EnemyAI::set_target(Platform& pfrm,
         auto meta_c = room->metaclass();
         auto w = (*meta_c)->ai_base_weight();
 
+        for (auto& chr : room->characters()) {
+            const bool ai_owns_character = chr->owner() == this;
+            if (ai_owns_character) {
+                // Sometimes we want to blow up a room that contains some of our
+                // own invading characters, but often, we don't :)
+                //
+                // We can make this calculation a bit more complex,
+                // though. E.G. if we're attacking a power core, and we don't
+                // realistically have enough weapons to destroy the player's
+                // offensive capabilities, then the only path to victory may be
+                // through destroying rooms containing our own characters.
+                w -= 200.f;
+            }
+        }
+
         // Give the room some extra weight, if firing a missile into it would be
         // really destructive.
         if (w > 400 and room->health() <= Missile::deals_damage) {

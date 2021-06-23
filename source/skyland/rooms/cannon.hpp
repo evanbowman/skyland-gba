@@ -52,7 +52,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm) override;
+    ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
     void set_target(const Vec2<u8>& target) override

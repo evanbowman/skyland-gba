@@ -30,6 +30,9 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
         } else {
             text += "0";
         }
+        if (length(room->characters()) > 0) {
+            exit_countdown_ = 1;
+        }
     }
 
     text += "$";
@@ -97,12 +100,20 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (pfrm.keyboard().down_transition<Key::action_1>()) {
             if (auto room = app.player_island().get_room(cursor_loc)) {
-                if (auto mt = room->metaclass()) {
-                    app.coins() += (*mt)->cost() * 0.75f;
+
+                // You cannot salvage an occupied room, doing so would destroy
+                // all of the characters inside.
+                if (length(room->characters()) == 0) {
+
+                    if (auto mt = room->metaclass()) {
+                        app.coins() += (*mt)->cost() * 0.75f;
+                    }
+                    app.player_island().destroy_room(pfrm, cursor_loc);
+                    exit_countdown_ = milliseconds(500);
                 }
-                app.player_island().destroy_room(pfrm, cursor_loc);
+            } else {
+                return scene_pool::alloc<ReadyScene>();
             }
-            exit_countdown_ = milliseconds(500);
         }
     }
 

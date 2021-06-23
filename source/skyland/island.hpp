@@ -101,7 +101,7 @@ public:
     void plot_walkable_zones(bool matrix[16][16]) const;
 
 
-    bool is_character_at_location(const Vec2<u8>& loc);
+    BasicCharacter* character_at_location(const Vec2<u8>& loc);
 
 
     void repaint(Platform& pfrm);

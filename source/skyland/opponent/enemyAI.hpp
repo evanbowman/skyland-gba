@@ -43,9 +43,9 @@ private:
 
     Microseconds next_action_timer_ = next_action_timeout;
 
-    static const auto character_reassign_timeout = seconds(4);
+    static const auto character_reassign_timeout = seconds(2);
 
-    Microseconds character_reassign_timer_ = seconds(4);
+    Microseconds character_reassign_timer_ = character_reassign_timeout;
 
     Coins coins_ = 0;
 };

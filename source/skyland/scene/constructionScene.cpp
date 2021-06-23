@@ -15,6 +15,10 @@ namespace skyland {
 
 
 
+int construction_zone_min_y = 7;
+
+
+
 static Coins get_cost(App& app, const RoomMeta& meta)
 {
     Coins cost = meta->cost();
@@ -293,7 +297,7 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
 
     for (u8 x = 0; x < 16; ++x) {
         for (u8 y = 0; y < 16; ++y) {
-            if (matrix[x][y] and y > 8) {
+            if (matrix[x][y] and y > construction_zone_min_y) {
                 construction_sites_.push_back({x, y});
             }
         }
@@ -344,6 +348,8 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         }
     }
 
+    const int avail_y_space = current.y - construction_zone_min_y;
+
     const auto w_count = app.player_island().workshop_count();
 
     auto metatable = room_metatable();
@@ -354,6 +360,7 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             (meta->conditions() & Conditions::workshop_required);
 
         if (meta->size().x <= avail_space and
+            meta->size().y <= avail_y_space and
             (not workshop_required or (workshop_required and w_count > 0))) {
             available_buildings_.push_back(&meta);
         }

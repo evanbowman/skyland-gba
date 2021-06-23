@@ -80,7 +80,7 @@ void Cannon::render_exterior(Platform& pfrm, Layer layer)
 
 
 
-ScenePtr<Scene> Cannon::select(Platform& pfrm)
+ScenePtr<Scene> Cannon::select(Platform& pfrm, App& app)
 {
     return scene_pool::alloc<WeaponSetTargetScene>(position());
 }

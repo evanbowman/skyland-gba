@@ -83,13 +83,11 @@ public:
     }
 
 
-    void set_can_move()
-    {
-        can_move_ = true;
-    }
+    void set_can_move();
 
 
     enum class State {
+        check_surroundings,
         moving_or_idle,
         fighting,
     };
@@ -99,7 +97,7 @@ private:
     Island* parent_;
     Player* owner_;
     Vec2<u8> grid_position_;
-    Microseconds movement_timer_ = 0;
+    Microseconds timer_ = 0;
     bool awaiting_movement_ = true;
     bool can_move_ = false;
     State state_ = State::moving_or_idle;

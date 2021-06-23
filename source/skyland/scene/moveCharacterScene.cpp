@@ -113,26 +113,25 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (pfrm.keyboard().down_transition<Key::left>()) {
-        if (cursor_loc.x > 0 and (*matrix_)[cursor_loc.x - 1][cursor_loc.y]) {
+        if (cursor_loc.x > 0) {
             --cursor_loc.x;
         }
     }
 
     if (pfrm.keyboard().down_transition<Key::right>()) {
-        if (cursor_loc.x < app.player_island().terrain().size() and
-            (*matrix_)[cursor_loc.x + 1][cursor_loc.y]) {
+        if (cursor_loc.x < app.player_island().terrain().size()) {
             ++cursor_loc.x;
         }
     }
 
     if (pfrm.keyboard().down_transition<Key::up>()) {
-        if (cursor_loc.y > 6 and (*matrix_)[cursor_loc.x][cursor_loc.y - 1]) {
+        if (cursor_loc.y > 6) {
             --cursor_loc.y;
         }
     }
 
     if (pfrm.keyboard().down_transition<Key::down>()) {
-        if (cursor_loc.y < 14 and (*matrix_)[cursor_loc.x][cursor_loc.y + 1]) {
+        if (cursor_loc.y < 14) {
             ++cursor_loc.y;
         }
     }
@@ -152,7 +151,8 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (pfrm.keyboard().down_transition<Key::action_1>()) {
+    if (pfrm.keyboard().down_transition<Key::action_1>()
+         and (*matrix_)[cursor_loc.x][cursor_loc.y]) {
         // FIXME: this instantly jumps the character to a room. We want to
         // actually calculate a path, and have the character walk.
         if (auto room = app.player_island().get_room(initial_cursor_)) {

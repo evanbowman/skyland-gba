@@ -27,24 +27,26 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
     if (load_ > 0) {
         load_ -= delta;
     } else {
-        auto island = other_island(app);
+        if (target_) {
+            auto island = other_island(app);
 
-        if (parent()->power_supply() < parent()->power_drain()) {
-            return;
-        }
+            if (parent()->power_supply() < parent()->power_drain()) {
+                return;
+            }
 
-        if (island) {
-            if (target_) {
-                if (auto room = island->get_room(*target_)) {
-                    auto start = center();
-                    start.y -= 24;
+            if (island) {
+                if (target_) {
+                    if (auto room = island->get_room(*target_)) {
+                        auto start = center();
+                        start.y -= 24;
 
-                    app.camera().shake(6);
-                    load_ = load_time;
-                    auto m =
-                        alloc_entity<Missile>(start, room->center(), parent());
+                        app.camera().shake(6);
+                        load_ = load_time;
+                        auto m =
+                            alloc_entity<Missile>(start, room->center(), parent());
 
-                    parent()->projectiles().push(std::move(m));
+                        parent()->projectiles().push(std::move(m));
+                    }
                 }
             }
         }
@@ -68,9 +70,8 @@ void MissileSilo::render_exterior(Platform& pfrm, Layer layer)
 }
 
 
-ScenePtr<Scene> MissileSilo::select(Platform& pfrm)
+ScenePtr<Scene> MissileSilo::select(Platform& pfrm, App& app)
 {
-    load_ = load_time;
     return scene_pool::alloc<WeaponSetTargetScene>(position());
 }
 

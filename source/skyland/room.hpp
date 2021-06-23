@@ -107,7 +107,7 @@ public:
     }
 
 
-    virtual ScenePtr<Scene> select(Platform& pfrm);
+    virtual ScenePtr<Scene> select(Platform& pfrm, App&);
 
 
     virtual void set_target(const Vec2<u8>& target)
@@ -171,6 +171,19 @@ public:
     }
 
 
+    Health max_health() const
+    {
+        return max_health_;
+    }
+
+
+    void heal(Health amount)
+    {
+        const Health new_health = health_ + amount;
+        health_ = std::min(max_health_, new_health);
+    }
+
+
 private:
     Island* parent_;
     RoomMeta* metaclass_;
@@ -178,6 +191,7 @@ private:
     Vec2<u8> size_;
     Vec2<u8> position_;
     Health health_;
+    Health max_health_;
     Microseconds injured_timer_;
 };
 
