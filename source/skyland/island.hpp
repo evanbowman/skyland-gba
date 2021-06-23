@@ -234,6 +234,8 @@ private:
 
     bool destroyed_ = false;
 
+    bool all_characters_awaiting_movement_ = false;
+
     std::optional<Vec2<u8>> chimney_loc_;
     Microseconds chimney_spawn_timer_ = 0;
 };

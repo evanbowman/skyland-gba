@@ -7,8 +7,13 @@ namespace skyland {
 
 
 
-BasicCharacter::BasicCharacter(Island* parent, const Vec2<u8>& position)
-    : Entity({{}, {}}), parent_(parent), grid_position_(position)
+BasicCharacter::BasicCharacter(Island* parent,
+                               Player* owner,
+                               const Vec2<u8>& position)
+    : Entity({{}, {}}),
+      parent_(parent),
+      owner_(owner),
+      grid_position_(position)
 {
     sprite_.set_texture_index(26);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -31,32 +36,44 @@ void BasicCharacter::update(Platform&, App&, Microseconds delta)
 
     if (movement_path_) {
 
-        static const auto movement_step_duration = milliseconds(400);
+        if (awaiting_movement_ and not can_move_) {
+            // ... we're waiting to be told that we can move. Because movement
+            // is grid-based
+            sprite_.set_position(o);
+        } else {
+            awaiting_movement_ = false;
+            can_move_ = false;
 
-        movement_timer_ += delta;
+            static const auto movement_step_duration = milliseconds(400);
 
-
-        if (not(*movement_path_)->empty()) {
-            auto dest_grid_pos = (*movement_path_)->back();
-            auto dest = parent_->origin();
-            dest.x += dest_grid_pos.x * 16;
-            dest.y += dest_grid_pos.y * 16 - 2; // floor is two pixels thick
-
-            sprite_.set_position(interpolate(
-                dest, o, Float(movement_timer_) / movement_step_duration));
-        }
-
-        if (movement_timer_ > movement_step_duration) {
-            movement_timer_ = 0;
+            movement_timer_ += delta;
 
             if (not(*movement_path_)->empty()) {
-                grid_position_ = (*movement_path_)->back();
-                (*movement_path_)->pop_back();
-            } else {
-                movement_path_.reset();
+                auto dest_grid_pos = (*movement_path_)->back();
+                auto dest = parent_->origin();
+                dest.x += dest_grid_pos.x * 16;
+                dest.y += dest_grid_pos.y * 16 - 2; // floor is two pixels thick
+
+                sprite_.set_position(interpolate(
+                    dest, o, Float(movement_timer_) / movement_step_duration));
+            }
+
+            if (movement_timer_ > movement_step_duration) {
+                movement_timer_ = 0;
+
+                awaiting_movement_ = true;
+                can_move_ = false;
+
+                if (not(*movement_path_)->empty()) {
+                    grid_position_ = (*movement_path_)->back();
+                    (*movement_path_)->pop_back();
+                } else {
+                    movement_path_.reset();
+                }
             }
         }
     } else {
+        awaiting_movement_ = true;
         sprite_.set_position(o);
     }
 }

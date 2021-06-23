@@ -293,17 +293,48 @@ void App::init_scripts(Platform& pfrm)
 
                       auto island = (Island*)lisp::get_op(2)->user_data_.obj_;
 
+                      auto app = interp_get_app();
+
                       auto coord = Vec2<u8>{
                           (u8)lisp::get_op(1)->integer_.value_,
                           (u8)lisp::get_op(0)->integer_.value_,
                       };
 
-                      auto chr = alloc_entity<BasicCharacter>(island, coord);
+                      auto chr = alloc_entity<BasicCharacter>(island,
+                                                              &app->player(),
+                                                              coord);
 
                       island->add_character(std::move(chr));
 
                       return L_NIL;
                   }));
+
+
+    lisp::set_var("add-hostile-chr", lisp::make_function([](int argc) {
+                      L_EXPECT_ARGC(argc, 3);
+                      L_EXPECT_OP(0, integer); // y
+                      L_EXPECT_OP(1, integer); // x
+                      L_EXPECT_OP(2, user_data);
+
+                      auto app = interp_get_app();
+
+                      auto island = (Island*)lisp::get_op(2)->user_data_.obj_;
+
+                      auto coord = Vec2<u8>{
+                          (u8)lisp::get_op(1)->integer_.value_,
+                          (u8)lisp::get_op(0)->integer_.value_,
+                      };
+
+                      auto chr =
+                          alloc_entity<BasicCharacter>(island,
+                                                       &app->ai(),
+                                                       coord);
+
+                      island->add_character(std::move(chr));
+
+                      return L_NIL;
+                  }));
+
 
 
     lisp::set_var("configure-player", lisp::make_function([](int argc) {

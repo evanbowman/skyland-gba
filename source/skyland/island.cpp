@@ -110,6 +110,29 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                         std::numeric_limits<s16>::max();
 
 
+    const bool movement_ready = all_characters_awaiting_movement_;
+    all_characters_awaiting_movement_ = true;
+
+
+    auto update_characters = [&](auto& chr_list) {
+        for (auto it = chr_list.begin(); it not_eq chr_list.end();) {
+            if (not(*it)->alive()) {
+                it = chr_list.erase(it);
+            } else {
+                if ((*it)->is_awaiting_movement()) {
+                    if (movement_ready) {
+                        (*it)->set_can_move();
+                    }
+                } else {
+                    all_characters_awaiting_movement_ = false;
+                }
+                (*it)->update(pfrm, app, dt);
+                ++it;
+            }
+        }
+    };
+
+
     for (auto it = rooms_.begin(); it not_eq rooms_.end();) {
         if ((*it)->health() == 0) {
             big_explosion(pfrm, app, (*it)->center());
@@ -132,12 +155,16 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             repaint(pfrm);
         } else {
             (*it)->update(pfrm, app, dt);
+
+            update_characters((*it)->characters());
+
             ++it;
         }
     }
 
+    update_characters(characters_);
 
-    update_entities(pfrm, app, dt, characters_);
+
     update_entities(pfrm, app, dt, projectiles_);
 
     if (drift_) {

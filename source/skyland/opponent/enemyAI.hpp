@@ -12,6 +12,7 @@ namespace skyland {
 
 class Cannon;
 class MissileSilo;
+class BasicCharacter;
 
 
 
@@ -35,10 +36,16 @@ private:
     set_target(Platform&, App&, const u8 matrix[16][16], MissileSilo& silo);
 
 
+    void assign_boarded_character(Platform&, App&, BasicCharacter& character);
+
+
     static const auto next_action_timeout = seconds(1);
 
     Microseconds next_action_timer_ = next_action_timeout;
 
+    static const auto character_reassign_timeout = seconds(4);
+
+    Microseconds character_reassign_timer_ = seconds(4);
 
     Coins coins_ = 0;
 };

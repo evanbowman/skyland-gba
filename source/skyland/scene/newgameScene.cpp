@@ -51,7 +51,9 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player_island().set_position({10, 374});
 
     auto chr =
-        alloc_entity<BasicCharacter>(&app.player_island(), Vec2<u8>({2, 14}));
+        alloc_entity<BasicCharacter>(&app.player_island(),
+                                     &app.player(),
+                                     Vec2<u8>({2, 14}));
     while (not chr)
         ;
     app.player_island().add_character(std::move(chr));

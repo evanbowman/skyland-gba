@@ -16,7 +16,7 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
     WorldScene::enter(pfrm, app, prev);
 
     auto st = calc_screen_tiles(pfrm);
-    StringBuffer<30> text("reall salvage?  +");
+    StringBuffer<30> text("really salvage?  +");
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
     if (auto room = app.player_island().get_room(cursor_loc)) {

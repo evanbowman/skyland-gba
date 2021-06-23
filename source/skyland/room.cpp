@@ -65,8 +65,6 @@ void Room::set_injured(Platform& pfrm)
 
 void Room::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    update_entities(pfrm, app, delta, characters_);
-
     if (injured_timer_) {
         if (injured_timer_ > 0) {
             const auto new_timer = injured_timer_ - delta;
@@ -160,7 +158,9 @@ ScenePtr<Scene> Room::select(Platform& pfrm)
                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
             for (auto& character : characters_) {
-                if (character->grid_position() == cursor_loc) {
+                if (character->grid_position() == cursor_loc//  and
+                    // character->owner() == ... TODO
+                    ) {
                     return scene_pool::alloc<MoveCharacterScene>(pfrm);
                 }
             }

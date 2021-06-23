@@ -37,6 +37,8 @@ void configure_island_from_codestring(Platform& pfrm,
 
     configure_island(pfrm, island, lisp::get_op(0));
 
+    island.repaint(pfrm);
+
     lisp::pop_op();
 }
 
