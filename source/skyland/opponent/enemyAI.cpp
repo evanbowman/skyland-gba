@@ -152,14 +152,27 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
             slot.ai_weight_ = (*room->metaclass())->ai_base_weight();
             slot.ai_weight_ -= 3 * manhattan_length(slot.coord_, current_pos);
 
+            Float player_chr_remove_weight = 0.f;
             for (auto& chr : room->characters()) {
                 // If the player has a bunch of characters in the room, label it
                 // as "toxic" and resist allocating entities to the room (unless
                 // it's really valuable).
                 if (chr->owner() not_eq this) {
-                    slot.ai_weight_ -= 200.f;
+
+
+                    player_chr_remove_weight += 200.f;
                 }
             }
+
+            // NOTE: exclude_slots.size() + 1 gives us the total number of
+            // boarded (invading) characters that the AI controls.  We want to
+            // avoid entering a room if it is crammed with defending characters,
+            // but also, we want to divide up the weight that we plan to
+            // subtract off by the number of our own AI characters, so that we
+            // will still potentially attack the room if we have enough
+            // characters to (potentially) overwhelm the occupants.
+            slot.ai_weight_ -=
+                player_chr_remove_weight / (exclude_slots.size() + 1);
         }
         for (auto& exc : exclude_slots) {
             if (slot.coord_ == exc) {
