@@ -92,17 +92,39 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             describe_room_timer_ = 0;
 
             if (auto room = app.player_island().get_room(cursor_loc)) {
-                auto metac = room->metaclass();
                 room_description_.reset();
                 room_description_.emplace(pfrm,
                                           OverlayCoord{0,
                                               u8(calc_screen_tiles(pfrm).y - 1)});
-                room_description_->append("(");
-                room_description_->append((*metac)->name());
-                room_description_->append(") ");
-                room_description_->append(room->health());
-                room_description_->append("/");
-                room_description_->append(room->max_health());
+                int i = 0;
+                if (length(room->characters())) {
+
+                    for (auto& chr : room->characters()) {
+                        if (chr->grid_position() == cursor_loc) {
+                            if (i > 0) {
+                                room_description_->append(",");
+                            }
+                            room_description_->append("(chr");
+                            room_description_->append(i);
+                            room_description_->append(") ");
+                            room_description_->append(chr->health() / 10);
+                            room_description_->append("/");
+                            room_description_->append(25);
+                            ++i;
+                        }
+                    }
+                }
+
+                if (i == 0) {
+                    auto metac = room->metaclass();
+                    room_description_->append("(");
+                    room_description_->append((*metac)->name());
+                    room_description_->append(") ");
+                    room_description_->append(room->health());
+                    room_description_->append("/");
+                    room_description_->append(room->max_health());
+                }
+
             }
         }
     }

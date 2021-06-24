@@ -83,7 +83,9 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
         return;
     }
 
-    Buffer<Vec2<u8>, 16> exclude_slots;
+    Buffer<Vec2<u8>, 16> exclude_slots; // Don't move into currently occupied
+                                        // slots, or slots that will be
+                                        // occupied.
 
     for (auto& room : app.player_island().rooms()) {
         for (auto& other : room->characters()) {
@@ -148,13 +150,14 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
     for (auto& slot : slots) {
         if (auto room = app.player_island().get_room(slot.coord_)) {
             slot.ai_weight_ = (*room->metaclass())->ai_base_weight();
+            slot.ai_weight_ -= 3 * manhattan_length(slot.coord_, current_pos);
 
             for (auto& chr : room->characters()) {
                 // If the player has a bunch of characters in the room, label it
                 // as "toxic" and resist allocating entities to the room (unless
                 // it's really valuable).
                 if (chr->owner() not_eq this) {
-                    slot.ai_weight_ -= 300.f;
+                    slot.ai_weight_ -= 200.f;
                 }
             }
         }
@@ -162,7 +165,7 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
             if (slot.coord_ == exc) {
                 // Don't move into a slot targeted by another one of our ai
                 // characters.
-                slot.ai_weight_ = 0.f;
+                slot.ai_weight_ = -2000.f;
             }
         }
     }

@@ -45,11 +45,6 @@ BasicCharacter::BasicCharacter(Island* parent,
 
 void BasicCharacter::set_can_move()
 {
-    // if (not can_move_ and
-    //     state_ == State::moving_or_idle) {
-    //     state_ = State::check_surroundings;
-    // }
-
     can_move_ = true;
 }
 
@@ -92,6 +87,15 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
             can_move_ = false;
             sprite_.set_position(o);
             sprite_.set_texture_index(base_frame(this, app) + 5);
+
+            if (auto room = parent_->get_room(grid_position_)) {
+                for (auto& character : room->characters()) {
+                    if (character->owner() not_eq owner() and
+                        character->grid_position() == grid_position_) {
+                        state_ = State::fighting;
+                    }
+                }
+            }
         }
         break;
     }
