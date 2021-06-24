@@ -159,7 +159,8 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
             for (auto it = room->characters().begin();
                  it not_eq room->characters().end();
                  ++it) {
-                if ((*it)->grid_position() == initial_cursor_) {
+                if ((*it)->grid_position() == initial_cursor_ and
+                    (*it)->owner() == &app.player()) {
 
                     auto path = find_path(pfrm,
                                           &app.player_island(),

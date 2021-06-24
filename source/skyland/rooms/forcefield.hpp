@@ -42,6 +42,12 @@ public:
     }
 
 
+    bool description_visible() override
+    {
+        return true;
+    }
+
+
     static Float ai_base_weight()
     {
         return 10.f;

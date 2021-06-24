@@ -17,9 +17,14 @@ public:
     void display(Platform&, App&) override;
 
 
+    void exit(Platform&, App&, Scene& next) override;
+
+
 private:
     Microseconds cursor_anim_timer_;
+    Microseconds describe_room_timer_ = seconds(1);
     u8 cursor_anim_frame_;
+    std::optional<Text> room_description_;
 };
 
 

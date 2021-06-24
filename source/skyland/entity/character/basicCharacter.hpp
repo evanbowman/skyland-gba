@@ -87,10 +87,20 @@ public:
 
 
     enum class State {
-        check_surroundings,
         moving_or_idle,
         fighting,
     };
+
+
+    State state() const
+    {
+        return state_;
+    }
+
+
+    void apply_damage(Health damage)
+    {
+    }
 
 
 private:
@@ -98,8 +108,9 @@ private:
     Player* owner_;
     Vec2<u8> grid_position_;
     Microseconds timer_ = 0;
-    bool awaiting_movement_ = true;
-    bool can_move_ = false;
+    Microseconds anim_timer_ = 0;
+    bool awaiting_movement_ : 1;
+    bool can_move_ : 1;
     State state_ = State::moving_or_idle;
 
     u8 health_ = 255;
@@ -111,6 +122,8 @@ private:
 
 
     void movement_step(Microseconds delta);
+
+    void update_attack(Microseconds delta, App&);
 
 };
 

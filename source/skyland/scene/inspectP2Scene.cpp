@@ -2,6 +2,7 @@
 #include "globals.hpp"
 #include "readyScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/room_metatable.hpp"
 
 
 
@@ -19,6 +20,14 @@ void InspectP2Scene::enter(Platform& pfrm, App& app, Scene& prev)
     cursor_loc.y = std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
 
     far_camera();
+}
+
+
+void InspectP2Scene::exit(Platform& pfrm, App& app, Scene& next)
+{
+    WorldScene::exit(pfrm, app, next);
+
+    room_description_.reset();
 }
 
 
@@ -48,6 +57,8 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     if (pfrm.keyboard().down_transition<Key::left>()) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
+            room_description_.reset();
+            describe_room_timer_ = milliseconds(300);
         } else {
             return scene_pool::alloc<ReadyScene>();
         }
@@ -56,22 +67,59 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     if (pfrm.keyboard().down_transition<Key::right>()) {
         if (cursor_loc.x < app.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
+            room_description_.reset();
+            describe_room_timer_ = milliseconds(300);
         }
     }
 
     if (pfrm.keyboard().down_transition<Key::up>()) {
         if (cursor_loc.y > 6) {
             --cursor_loc.y;
+            room_description_.reset();
+            describe_room_timer_ = milliseconds(300);
         }
     }
 
     if (pfrm.keyboard().down_transition<Key::down>()) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
+            room_description_.reset();
+            describe_room_timer_ = milliseconds(300);
         }
     }
 
 
+    if (describe_room_timer_ > 0) {
+        describe_room_timer_ -= delta;
+        if (describe_room_timer_ <= 0) {
+            describe_room_timer_ = 0;
+
+            if (auto room = app.opponent_island()->get_room(cursor_loc)) {
+
+                if (room->description_visible()) {
+                    auto metac = room->metaclass();
+                    room_description_.reset();
+                    room_description_.emplace(pfrm,
+                                              OverlayCoord{0,
+                                                  u8(calc_screen_tiles(pfrm).y - 1)});
+                    room_description_->append("(");
+                    room_description_->append((*metac)->name());
+                    room_description_->append(") ");
+                    room_description_->append(room->health());
+                    room_description_->append("/");
+                    room_description_->append(room->max_health());
+                } else {
+                    room_description_.emplace(pfrm,
+                                              OverlayCoord{0,
+                                                  u8(calc_screen_tiles(pfrm).y - 1)});
+
+                    room_description_->assign("(??"); // Split to avoid trigraph
+                    room_description_->append("?) ??");
+                    room_description_->append("?/???");
+                }
+            }
+        }
+    }
 
     return null_scene();
 }

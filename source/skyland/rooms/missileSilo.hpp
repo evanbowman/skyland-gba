@@ -28,6 +28,12 @@ public:
     }
 
 
+    bool description_visible() override
+    {
+        return true;
+    }
+
+
     virtual bool disallow_chimney()
     {
         return true;

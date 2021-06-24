@@ -186,7 +186,7 @@ void Island::display(Platform& pfrm)
         // character down by two pixels.
         Sprite cpy = c->sprite();
         auto pos = cpy.get_position();
-        pos.y += 2;
+        pos.y += 3;
         cpy.set_position(pos);
         pfrm.screen().draw(cpy);
     }

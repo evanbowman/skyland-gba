@@ -152,6 +152,13 @@ Vec2<Float> Room::center() const
 
 
 
+bool Room::description_visible()
+{
+    return parent_->interior_visible();
+}
+
+
+
 ScenePtr<Scene> Room::select(Platform& pfrm, App& app)
 {
     if (parent_->interior_visible()) {

@@ -37,12 +37,16 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (pfrm.keyboard().down_transition<Key::left>()) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
+            room_description_.reset();
+            describe_room_timer_ = milliseconds(300);
         }
     }
 
     if (pfrm.keyboard().down_transition<Key::right>()) {
         if (cursor_loc.x < app.player_island().terrain().size()) {
             ++cursor_loc.x;
+            room_description_.reset();
+            describe_room_timer_ = milliseconds(300);
         } else {
             return scene_pool::alloc<InspectP2Scene>();
         }
@@ -51,12 +55,16 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (pfrm.keyboard().down_transition<Key::up>()) {
         if (cursor_loc.y > 6) {
             --cursor_loc.y;
+            room_description_.reset();
+            describe_room_timer_ = milliseconds(300);
         }
     }
 
     if (pfrm.keyboard().down_transition<Key::down>()) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
+            room_description_.reset();
+            describe_room_timer_ = milliseconds(300);
         }
     }
 
@@ -75,6 +83,27 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (pfrm.keyboard().down_transition<Key::action_2>()) {
         if (app.player_island().get_room(cursor_loc)) {
             return scene_pool::alloc<SalvageRoomScene>();
+        }
+    }
+
+    if (describe_room_timer_ > 0) {
+        describe_room_timer_ -= delta;
+        if (describe_room_timer_ <= 0) {
+            describe_room_timer_ = 0;
+
+            if (auto room = app.player_island().get_room(cursor_loc)) {
+                auto metac = room->metaclass();
+                room_description_.reset();
+                room_description_.emplace(pfrm,
+                                          OverlayCoord{0,
+                                              u8(calc_screen_tiles(pfrm).y - 1)});
+                room_description_->append("(");
+                room_description_->append((*metac)->name());
+                room_description_->append(") ");
+                room_description_->append(room->health());
+                room_description_->append("/");
+                room_description_->append(room->max_health());
+            }
         }
     }
 
@@ -101,6 +130,13 @@ void ReadyScene::display(Platform& pfrm, App& app)
     cursor.set_position(origin);
 
     pfrm.screen().draw(cursor);
+}
+
+
+
+void ReadyScene::exit(Platform&, App&, Scene& next)
+{
+    room_description_.reset();
 }
 
 

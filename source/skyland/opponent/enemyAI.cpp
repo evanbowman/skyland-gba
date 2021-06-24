@@ -79,6 +79,10 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
         return;
     }
 
+    if (character.state() == BasicCharacter::State::fighting) {
+        return;
+    }
+
     DynamicMemory<bool[16][16]> matrix_ = allocate_dynamic<bool[16][16]>(pfrm);
 
     app.player_island().plot_walkable_zones(*matrix_);

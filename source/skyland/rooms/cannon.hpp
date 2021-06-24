@@ -28,6 +28,12 @@ public:
     }
 
 
+    bool description_visible() override
+    {
+        return true;
+    }
+
+
     static Vec2<u8> size()
     {
         return {1, 1};

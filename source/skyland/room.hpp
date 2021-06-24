@@ -184,6 +184,9 @@ public:
     }
 
 
+    virtual bool description_visible();
+
+
 private:
     Island* parent_;
     RoomMeta* metaclass_;
