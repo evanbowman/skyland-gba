@@ -51,6 +51,17 @@ public:
     }
 
 
+    std::optional<Vec2<u8>> destination() const
+    {
+        if (has_movement_path()) {
+            if (not (*movement_path_)->empty()) {
+                return (**movement_path_)[0];
+            }
+        }
+        return {};
+    }
+
+
     Island* parent() const
     {
         return parent_;
