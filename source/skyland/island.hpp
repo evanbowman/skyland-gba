@@ -203,6 +203,12 @@ public:
     }
 
 
+    bool is_boarded() const
+    {
+        return is_boarded_;
+    }
+
+
     void on_layout_changed(const Vec2<u8>& room_added_removed_coord);
 
 
@@ -228,16 +234,16 @@ private:
     bool show_flag_ = false;
 
     bool has_radar_ = false;
+    bool is_boarded_ = false;
     int workshop_count_ = 0;
+
+    bool destroyed_ = false;
+    bool all_characters_awaiting_movement_ = false;
 
     EntityList<BasicCharacter> characters_;
     EntityList<Entity> projectiles_;
 
     Player* owner_;
-
-    bool destroyed_ = false;
-
-    bool all_characters_awaiting_movement_ = false;
 
     std::optional<Vec2<u8>> chimney_loc_;
     Microseconds chimney_spawn_timer_ = 0;

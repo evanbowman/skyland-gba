@@ -113,6 +113,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     const bool movement_ready = all_characters_awaiting_movement_;
     all_characters_awaiting_movement_ = true;
 
+    is_boarded_ = false;
 
     auto update_characters = [&](auto& chr_list) {
         for (auto it = chr_list.begin(); it not_eq chr_list.end();) {
@@ -125,6 +126,9 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     }
                 } else {
                     all_characters_awaiting_movement_ = false;
+                }
+                if ((*it)->owner() not_eq &owner()) {
+                    is_boarded_ = true;
                 }
                 (*it)->update(pfrm, app, dt);
                 ++it;
@@ -223,7 +227,7 @@ void Island::display(Platform& pfrm)
         Sprite cpy = c->sprite();
         auto pos = cpy.get_position();
         if (pos.y < screen_limit_y) {
-            pos.y += 3;
+            pos.y += 2;
             cpy.set_position(pos);
             pfrm.screen().draw(cpy);
         }

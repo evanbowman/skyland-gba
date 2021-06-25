@@ -69,6 +69,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (state_) {
     case State::fighting:
+        sprite_.set_flip({});
         update_attack(delta, app);
         break;
 
@@ -149,6 +150,20 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
             break;
         }
 
+        sprite_.set_flip({});
+
+        anim_timer_ += delta;
+        if (anim_timer_ > milliseconds(200)) {
+            anim_timer_ = 0;
+            auto index = sprite_.get_texture_index();
+            if (index == base_frame(this, app) + 5) {
+                index = base_frame(this, app) + 1;
+            } else {
+                index = base_frame(this, app) + 5;
+            }
+            sprite_.set_texture_index(index);
+        }
+
         timer_ += delta;
         if (timer_ > milliseconds(500)) {
             timer_ = 0;
@@ -173,6 +188,8 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
     case State::repair_room:
         awaiting_movement_ = true;
         can_move_ = false;
+
+        sprite_.set_flip({});
 
         sprite_.set_position(o);
 

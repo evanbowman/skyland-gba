@@ -95,12 +95,22 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.opponent_island()) {
 
+        const bool show_opponent_interior =
+            app.player_island().has_radar() or
+            app.opponent_island()->is_boarded();
+
         if (not app.opponent_island()->interior_visible() and
-            app.player_island().has_radar()) {
+            show_opponent_interior) {
 
             pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
 
             app.opponent_island()->render_interior(pfrm);
+        } else if (app.opponent_island()->interior_visible() and
+                   not show_opponent_interior) {
+
+            pfrm.load_tile1_texture("tilesheet_enemy_0");
+
+            app.opponent_island()->render_exterior(pfrm);
         }
 
         // Hey, I threw this code together in a panic for a game jam, I know

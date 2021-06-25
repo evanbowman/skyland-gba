@@ -49,12 +49,38 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
         }
+
+        if (app.opponent_island()) {
+            for (auto& room : app.opponent_island()->rooms()) {
+                for (auto& character : room->characters()) {
+                    if (character->owner() == this) {
+                        assign_local_character(pfrm, app, *character);
+                    }
+                }
+            }
+        }
     }
 }
 
 
 
 u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y);
+
+
+
+void EnemyAI::assign_local_character(Platform& pfrm,
+                                     App& app,
+                                     BasicCharacter& character)
+{
+    if (character.has_movement_path()) {
+        return;
+    }
+
+    Buffer<Vec2<u8>, 16> exclude_slots;
+
+
+
+}
 
 
 
@@ -79,9 +105,6 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
         return;
     }
 
-    if (character.state() == BasicCharacter::State::fighting) {
-        return;
-    }
 
     Buffer<Vec2<u8>, 16> exclude_slots; // Don't move into currently occupied
                                         // slots, or slots that will be
@@ -201,7 +224,12 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
                               &app.player_island(),
                               current_pos,
                               target.coord_)) {
-        character.set_movement_path(std::move(*path));
+        if (not ((*path)->size() == 1 and
+                 (**path)[0] == character.grid_position())) {
+            // Don't waste a path buffer on an entity if the ideal path
+            // represents a single node with the character's current position.
+            character.set_movement_path(std::move(*path));
+        }
     }
 }
 

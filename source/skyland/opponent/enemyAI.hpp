@@ -39,6 +39,9 @@ private:
     void assign_boarded_character(Platform&, App&, BasicCharacter& character);
 
 
+    void assign_local_character(Platform&, App&, BasicCharacter& character);
+
+
     static const auto next_action_timeout = seconds(1);
 
     Microseconds next_action_timer_ = next_action_timeout;
