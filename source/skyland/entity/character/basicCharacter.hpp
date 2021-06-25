@@ -51,6 +51,22 @@ public:
     }
 
 
+    void drop_movement_path()
+    {
+        movement_path_.reset();
+    }
+
+
+    const PathBuffer* get_movement_path() const
+    {
+        if (movement_path_) {
+            return movement_path_->obj_.get();
+        }
+        return nullptr;
+    }
+
+
+
     std::optional<Vec2<u8>> destination() const
     {
         if (has_movement_path()) {

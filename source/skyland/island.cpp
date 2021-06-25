@@ -137,7 +137,11 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         if ((*it)->health() == 0) {
             big_explosion(pfrm, app, (*it)->center());
 
+            const auto pos = (*it)->position();
+
             it = rooms_.erase(it);
+
+            on_layout_changed(pos);
 
             bool has_core = false;
             for (auto& room : rooms_) {
@@ -162,6 +166,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         }
     }
 
+
     update_characters(characters_);
 
 
@@ -178,6 +183,37 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
 
 
+void Island::on_layout_changed(const Vec2<u8>& room_added_removed_coord)
+{
+
+    for (auto& room : rooms()) {
+        for (auto& chr : room->characters()) {
+            if (auto path = chr->get_movement_path()) {
+                for (auto& node : *path) {
+                    if (get_room(node) == nullptr) {
+                        // Ok, a character is moving, but the room in the
+                        // character's movement path no longer exists. We should
+                        // remove the movement path, otherwise, the character
+                        // will try to walk into a non-existing room, fail to
+                        // re-attach itself to a new room structure, and be
+                        // deallocated.
+                        chr->drop_movement_path();
+                        break; // NOTE: we just deallocated the path, so we
+                               // cannot run the enclosing loop over the path
+                               // nodes anymore.
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+static const int screen_limit_y = 700;
+
+
+
 void Island::display(Platform& pfrm)
 {
     for (auto& c : characters_) {
@@ -186,9 +222,11 @@ void Island::display(Platform& pfrm)
         // character down by two pixels.
         Sprite cpy = c->sprite();
         auto pos = cpy.get_position();
-        pos.y += 3;
-        cpy.set_position(pos);
-        pfrm.screen().draw(cpy);
+        if (pos.y < screen_limit_y) {
+            pos.y += 3;
+            cpy.set_position(pos);
+            pfrm.screen().draw(cpy);
+        }
     }
 
     for (auto& p : projectiles_) {
@@ -198,7 +236,10 @@ void Island::display(Platform& pfrm)
     if (interior_visible()) {
         for (auto& room : rooms_) {
             for (auto& c : room->characters()) {
-                pfrm.screen().draw(c->sprite());
+                const auto& pos = c->sprite().get_position();
+                if (pos.y < screen_limit_y) {
+                    pfrm.screen().draw(c->sprite());
+                }
             }
         }
     }
@@ -539,6 +580,9 @@ void Island::destroy_room(Platform& pfrm, const Vec2<u8>& coord)
             coord.y < room->position().y + room->size().y) {
 
             rooms_.erase(&room);
+
+            on_layout_changed(coord);
+
             repaint(pfrm);
             recalculate_power_usage();
             return;

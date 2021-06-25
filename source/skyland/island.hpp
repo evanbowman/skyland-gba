@@ -20,7 +20,7 @@ public:
     Island(const Island&) = delete;
 
 
-    using Rooms = Buffer<RoomPtr<Room>, 20>;
+    using Rooms = Buffer<RoomPtr<Room>, 40>;
 
 
     bool add_room(Platform& pfrm, RoomPtr<Room> insert)
@@ -201,6 +201,9 @@ public:
     {
         return has_radar_;
     }
+
+
+    void on_layout_changed(const Vec2<u8>& room_added_removed_coord);
 
 
 private:
