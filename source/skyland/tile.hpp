@@ -37,6 +37,8 @@ struct Tile {
         plundered_room,
         reserved_11,
         reserved_12,
+        radar_1,
+        radar_2,
         roof_flag = 109,
         flag = 110,
     };
@@ -76,5 +78,7 @@ struct InteriorTile {
         plundered_room,
         transporter_1,
         transporter_2,
+        radar_1,
+        radar_2,
     };
 };

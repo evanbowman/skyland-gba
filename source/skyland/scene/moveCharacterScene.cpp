@@ -32,8 +32,19 @@ void MoveCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     WorldScene::exit(pfrm, app, next);
 
-    app.player_island().render_interior(pfrm);
-    app.player_island().repaint(pfrm);
+
+    Island* island = nullptr;
+
+    if (near_) {
+        island = &app.player_island();
+    } else if (app.opponent_island()) {
+        island = &*app.opponent_island();
+    }
+
+    island->render_interior(pfrm);
+    // island->repaint()
+    // app.player_island().render_interior(pfrm);
+    // app.player_island().repaint(pfrm);
 }
 
 

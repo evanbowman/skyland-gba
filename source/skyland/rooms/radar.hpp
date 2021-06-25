@@ -33,7 +33,7 @@ public:
 
     static Coins cost()
     {
-        return 1000;
+        return 300;
     }
 
 
@@ -51,7 +51,7 @@ public:
 
     static Power consumes_power()
     {
-        return 60;
+        return 64;
     }
 
 

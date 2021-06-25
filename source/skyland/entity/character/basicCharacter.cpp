@@ -66,6 +66,16 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ = 0;
     };
 
+    auto has_opponent = [&](Room* room) {
+        for (auto& character : room->characters()) {
+            if (character->owner() not_eq owner() and
+                character->grid_position() == grid_position_) {
+                return true;
+            }
+        }
+        return false;
+    };
+
 
     switch (state_) {
     case State::fighting:
@@ -101,19 +111,11 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
             sprite_.set_texture_index(base_frame(this, app) + 5);
 
             if (auto room = parent_->get_room(grid_position_)) {
-                auto has_opponent = [&] {
-                    for (auto& character : room->characters()) {
-                        if (character->owner() not_eq owner() and
-                            character->grid_position() == grid_position_) {
-                            return true;
-                        }
-                    }
-                    return false;
-                };
+
 
                 auto metac = room->metaclass();
 
-                if (has_opponent()) {
+                if (has_opponent(room)) {
                     state_ = State::fighting;
                     timer_ = 0;
                     anim_timer_ = 0;
@@ -179,6 +181,13 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                 }
 
                 room->plunder(pfrm, app, 2);
+
+                if (has_opponent(room)) {
+                    state_ = State::fighting;
+                    timer_ = 0;
+                    anim_timer_ = 0;
+                    break;
+                }
             }
         }
 
@@ -218,6 +227,14 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                     room->heal(2);
                 } else {
                     idle();
+                    break;
+                }
+
+                if (has_opponent(room)) {
+                    state_ = State::fighting;
+                    timer_ = 0;
+                    anim_timer_ = 0;
+                    break;
                 }
             }
         }

@@ -72,14 +72,173 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                                      App& app,
                                      BasicCharacter& character)
 {
+    // This code is so cluttered and sprawling. I had to write an AI and only
+    // had two weeks for this project, so it's kind of a mess.
+
+    // Basically, we first want to collect all of the reachable slots from the
+    // character's position, via a breadth-first search. Then, we assign a
+    // weight to each destination slot based on a series of heuristics. The
+    // heursitics are the most convoluted and messy part. Then, we sort the
+    // reachable slots by the assigned weights, and move the the highest-value
+    // slot.
+
     if (character.has_movement_path()) {
         return;
     }
 
     Buffer<Vec2<u8>, 16> exclude_slots;
 
+    // We may want to keep track of how many of the player's characters have
+    // boarded our island. We might not want to transport to the player's island
+    // if many of the player's characters have boarded.
+    int player_characters_local = 0;
+    int player_characters_remote = 0; // number of player characters on the
+                                      // player's island.
+
+    // The number of ai characters that have already boarded the player's
+    // island.
+    int ai_characters_remote = 0;
+    int ai_characters_local = 0;
 
 
+    int transporter_count = 0;
+
+    for (auto& room : app.opponent_island()->rooms()) {
+        auto metac = room->metaclass();
+        if (str_cmp((*metac)->name(), "transporter") == 0) {
+            ++transporter_count;
+        }
+        for (auto& other : room->characters()) {
+            if (other->owner() == this and other.get() not_eq &character) {
+                if (auto dest = other->destination()) {
+                    exclude_slots.push_back(*dest);
+                } else {
+                    exclude_slots.push_back(other->grid_position());
+                }
+                ++ai_characters_local;
+            } else if (other->owner() not_eq this) {
+                ++player_characters_local;
+            }
+        }
+    }
+
+    for (auto& room : app.player_island().rooms()) {
+        for (auto& chr : room->characters()) {
+            if (chr->owner() == this) {
+                ++player_characters_remote;
+            } else {
+                ++ai_characters_remote;
+            }
+        }
+    }
+
+    DynamicMemory<bool[16][16]> matrix_ = allocate_dynamic<bool[16][16]>(pfrm);
+
+    app.opponent_island()->plot_walkable_zones(*matrix_);
+
+    u8 matrix[16][16];
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 16; ++y) {
+            if ((*matrix_)[x][y]) {
+                matrix[x][y] = 1;
+            } else {
+                matrix[x][y] = 0;
+            }
+        }
+    }
+
+    auto current_pos = character.grid_position();
+
+    flood_fill(pfrm,
+               matrix,
+               2,
+               current_pos.x,
+               current_pos.y);
+
+    struct Destination {
+        Vec2<u8> coord_;
+        Float ai_weight_;
+    };
+
+    Buffer<Destination, 48> slots;
+
+    for (u8 x = 0; x < 16; ++x) {
+        for (u8 y = 0; y < 16; ++y) {
+            if (matrix[x][y] == 2) {
+                slots.push_back({{x, y}, 0.f});
+            }
+        }
+    }
+
+    if (slots.empty()) {
+        return; // hmm...
+    }
+
+
+    for (auto& slot : slots) {
+        if (auto room = app.opponent_island()->get_room(slot.coord_)) {
+
+            const auto base_weight = (*room->metaclass())->ai_base_weight();
+
+            // Increase room weight if damaged.
+            slot.ai_weight_ = base_weight +
+                (base_weight - base_weight * (Float(room->health()) / room->max_health()));
+
+            if (room->health() not_eq room->max_health()) {
+                slot.ai_weight_ += 500.f;
+            }
+
+            slot.ai_weight_ -= 3 * manhattan_length(slot.coord_, current_pos);
+
+            auto metac = room->metaclass();
+            if (str_cmp((*metac)->name(), "transporter") == 0) {
+                // Ok, so when do we want to set the weight such that or ai
+                // character enters a transporter? Let's see...
+
+                if (player_characters_remote > ai_characters_remote) {
+                    slot.ai_weight_ += 200.f *
+                        (player_characters_remote - ai_characters_remote);
+                }
+                if (player_characters_local > ai_characters_local) {
+                    slot.ai_weight_ -= 300.f *
+                        (player_characters_local - ai_characters_local);
+                }
+            }
+        }
+        for (auto& exc : exclude_slots) {
+            if (slot.coord_ == exc) {
+                // Don't move into a slot targeted by another one of our ai
+                // characters.
+                slot.ai_weight_ = -2000.f;
+            }
+        }
+    }
+
+    std::sort(slots.begin(), slots.end(), [&](const Destination& lhs,
+                                              const Destination& rhs) {
+        return lhs.ai_weight_ < rhs.ai_weight_;
+    });
+
+    if (slots.back().ai_weight_ == 0.f) {
+        // Again, perhaps this is overly defensive coding. But we should never
+        // end up in a situation where the weights of the rooms are all
+        // uninitialized...
+        return;
+    }
+
+    auto target = slots.back();
+
+    if (auto path = find_path(pfrm,
+                              &*app.opponent_island(),
+                              current_pos,
+                              target.coord_)) {
+        if (not ((*path)->size() == 1 and
+                 (**path)[0] == character.grid_position())) {
+            // Don't waste a path buffer on an entity if the ideal path
+            // represents a single node with the character's current position.
+            character.set_movement_path(std::move(*path));
+        }
+    }
 }
 
 

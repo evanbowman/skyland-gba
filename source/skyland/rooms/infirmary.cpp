@@ -35,7 +35,7 @@ void Infirmary::update(Platform& pfrm, App& app, Microseconds delta)
             distribute_health /= characters_healing;
             for (auto& character : characters()) {
                 if (character->owner() == &parent()->owner()  and
-                    character->state() == BasicCharacter::State::moving_or_idle) {
+                    character->state() not_eq BasicCharacter::State::fighting) {
                     character->heal(distribute_health);
                 }
             }
