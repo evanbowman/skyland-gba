@@ -163,13 +163,22 @@ ScenePtr<Scene> Room::select(Platform& pfrm, App& app)
 {
     if (parent_->interior_visible()) {
         if (length(characters_)) {
-            auto cursor_loc =
-                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+            const bool near = parent() == &app.player_island();
+
+            Vec2<u8> cursor_loc;
+
+            if (near) {
+                cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            } else {
+                cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+            }
 
             for (auto& character : characters_) {
                 if (character->grid_position() == cursor_loc and
                     character->owner() == &app.player()) {
-                    return scene_pool::alloc<MoveCharacterScene>(pfrm);
+
+                    return scene_pool::alloc<MoveCharacterScene>(pfrm, near);
                 }
             }
         }
@@ -197,6 +206,7 @@ void Room::on_collision(Platform& pfrm, App& app, Entity& entity)
 }
 
 
+
 void Room::apply_damage(Platform& pfrm, App& app, Health damage)
 {
     if (damage > health_) {
@@ -206,6 +216,78 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
     }
     set_injured(pfrm);
     parent_->owner().on_room_damaged(pfrm, app, *this);
+}
+
+
+
+void Room::plunder(Platform& pfrm, App& app, Health damage)
+{
+    apply_damage(pfrm, app, damage);
+
+    if (health_ == 0) {
+        // Ok, so when a character plunders a room, we don't actually want to
+        // leave the health as zero, and let the engine erase the room. Doing so
+        // would kill all of the characters attached to the room. Instead, we
+        // want to detach all of the room's characters, spawn a bunch of
+        // "plundered room" sentinel structures, and reattach each character to
+        // the plundered room.
+
+        // NOTE: This buffer should be plenty big enough. Only two characters
+        // can occupy one x,y slot in a room (not as a limitation of the code,
+        // but as a requirement of the gameplay). The max room size is generally
+        // four slots, so we should have eight character entities at most...
+        Buffer<EntityRef<BasicCharacter>, 16> chrs;
+
+        for (auto& chr : characters()) {
+            chrs.push_back(std::move(chr));
+        }
+
+        characters().clear();
+
+        std::optional<RoomPtr<Room>> self;
+
+        // Detach ourself from the parent island's room list:
+        for (auto it = parent_->rooms().begin();
+             it not_eq parent_->rooms().end();) {
+            if ((*it).get() == this) {
+                self = std::move(*it);
+                it = parent_->rooms().erase(it);
+                break;
+            } else {
+                ++it;
+            }
+        }
+
+        if (not self) {
+            // hmm... not sure why we would ever get here...
+            pfrm.fatal("plunder: reassign failure");
+        }
+
+        auto plunder_metac = load_metaclass("plundered-room");
+
+        if (not plunder_metac) {
+            error(pfrm, "failed to load metaclass");
+            return;
+        }
+
+        for (int x = 0; x < size_.x; x += (*plunder_metac)->size().x) {
+            for (int y = 0; y < size_.y; y += (*plunder_metac)->size().y) {
+                const Vec2<u8> pos = {
+                    u8(position_.x + x),
+                    u8(position_.y + y),
+                };
+                (*plunder_metac)->create(pfrm, parent_, pos);
+            }
+        }
+
+        // Now that we've created plundered rooms where the now-detached room
+        // was, we can add the characters back to the parent island.
+        for (auto& chr : chrs) {
+            parent_->add_character(std::move(chr));
+        }
+
+        parent_->rooms().push_back(std::move(*self));
+    }
 }
 
 

@@ -69,20 +69,44 @@ build the more complex structures listed below.
 
 #### Power Core
 
-Your island will have one power core at the beginning of the game. If a castle's
-power core is destroyed, it will sink into the clouds, and all of the island's
-residents will perish. You must have a workshop in your castle to build a Power
-Core.
+Your island will have one power core at the beginning of the game. If all of a
+castle's power cores are destroyed, it will sink into the clouds, and all of the
+island's residents will perish. You must have a workshop in your castle to build
+a Power Core. Each room on your island consumes an amount of power (with the
+sole exception of hull blocks, which consume no power). If the total power
+consumption of your island exceeds the combined power output of your power
+cores, all systems will shut down, until you salvage rooms to free up power, or
+until you build more power cores.
 
 #### Forcefield
 
-Almost identical to a Hull block, but consumes power, and allows your own
-weapons to shoot through the forcefields without damageing them. Mainly intended
-for protecting weapons (otherwise, you could just build Hull blocks). You must
-have a workshop to build a Forcefield.
+Almost identical to a Hull block, but consumes power, and your own weapons may
+shoot through forcefield blocks without damageing them. Mainly intended for
+protecting weapons (otherwise, you could just build Hull blocks). You must have
+a workshop to build a Forcefield.
+
+#### Transporter
+
+Allows you to transport one of your characters to another island. If you have
+not constructed a Radar (see below), your character will be transported to a
+random room in the opponent's island. Transporters have a cool-down period, so
+you may need to build multiple transporters if you want to effectively raid
+enemy islands. By selecting a transporter, you may also retrieve characters on
+other islands, so you may, for instance, steal enemies from the other island and
+place them in a room on your own island.
 
 #### Radar
 
 Allows you to see the interior of your opponent's structures. Fragile, and
 consumes a relatively large amount of power. You must have a workshop to build a
 Radar.
+
+#### Infirmary
+
+Heals each idle occupant controlled by the owner of the infirmary. Therefore,
+invaders cannot heal in your own island, and your crew cannot heal after
+boarding an opponent's island, at least, not without transporting to your own
+castle. Your characters will also not heal while fighting an enemy. The health
+provided by the infrirmary will be distributed evenly across all occupants, so a
+player will heal more quickly if other characters are not attempting to heal at
+the same time.

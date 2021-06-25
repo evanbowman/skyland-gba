@@ -1,5 +1,6 @@
 #include "infirmary.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/island.hpp"
 
 
 
@@ -20,7 +21,8 @@ void Infirmary::update(Platform& pfrm, App& app, Microseconds delta)
     int characters_healing = 0;
 
     for (auto& character : characters()) {
-        if (character->parent() == parent()) {
+        if (character->owner() == &parent()->owner() and
+            character->state() == BasicCharacter::State::moving_or_idle) {
             ++characters_healing;
         }
     }
@@ -29,10 +31,13 @@ void Infirmary::update(Platform& pfrm, App& app, Microseconds delta)
         heal_timer_ += delta;
         if (heal_timer_ > milliseconds(1000)) {
             heal_timer_ = 0;
-            int distribute_health = 16;
+            int distribute_health = 20;
             distribute_health /= characters_healing;
             for (auto& character : characters()) {
-                character->heal(distribute_health);
+                if (character->owner() == &parent()->owner()  and
+                    character->state() == BasicCharacter::State::moving_or_idle) {
+                    character->heal(distribute_health);
+                }
             }
         }
     }

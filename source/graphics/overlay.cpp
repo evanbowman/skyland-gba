@@ -195,8 +195,23 @@ void Text::resize(u32 len)
 
 void Text::assign(const char* str, const OptColors& colors)
 {
-    // this->resize(utf8::len(str));
-    this->erase();
+    const auto new_len = utf8::len(str);
+    if (len_ > new_len) {
+        if (not config_.double_size_) {
+            for (int i = new_len; i < len_; ++i) {
+                pfrm_.set_tile(Layer::overlay, coord_.x + i, coord_.y, 0);
+            }
+        } else {
+            for (int i = new_len; i < len_ * 2; ++i) {
+                pfrm_.set_tile(Layer::overlay, coord_.x + i, coord_.y, 0);
+            }
+            for (int i = new_len; i < len_ * 2; ++i) {
+                pfrm_.set_tile(Layer::overlay, coord_.x + i, coord_.y + 1, 0);
+            }
+        }
+    }
+    len_ = 0;
+
 
     this->append(str, colors);
 }

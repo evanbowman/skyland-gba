@@ -68,6 +68,12 @@ public:
     }
 
 
+    void set_parent(Island* parent)
+    {
+        parent_ = parent;
+    }
+
+
     Player* owner() const
     {
         return owner_;
@@ -107,6 +113,8 @@ public:
     enum class State {
         moving_or_idle,
         fighting,
+        plunder_room,
+        repair_room,
     };
 
 
@@ -118,6 +126,14 @@ public:
 
     void apply_damage(Health damage)
     {
+        int current = health_;
+        current -= damage;
+
+        if (current < 0) {
+            health_ = 0;
+        } else {
+            health_ = current;
+        }
     }
 
 
@@ -130,8 +146,6 @@ private:
     bool awaiting_movement_ : 1;
     bool can_move_ : 1;
     State state_ = State::moving_or_idle;
-
-    u8 health_ = 255;
 
     std::optional<Path> movement_path_;
 

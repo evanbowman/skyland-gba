@@ -88,6 +88,11 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (auto room = app.opponent_island()->get_room(cursor_loc)) {
+            return room->select(pfrm, app);
+        }
+    }
 
     if (describe_room_timer_ > 0) {
         describe_room_timer_ -= delta;

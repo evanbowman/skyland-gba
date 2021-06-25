@@ -13,7 +13,7 @@ namespace skyland {
 
 class MoveCharacterScene : public ActiveWorldScene {
 public:
-    MoveCharacterScene(Platform& pfrm);
+    MoveCharacterScene(Platform& pfrm, bool near);
 
 
     void enter(Platform&, App&, Scene& prev) override;
@@ -31,6 +31,7 @@ private:
     Microseconds cursor_anim_timer_ = 0;
     u8 cursor_anim_frame_ = 0;
     Vec2<u8> initial_cursor_;
+    const bool near_;
 };
 
 

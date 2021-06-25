@@ -2,6 +2,7 @@
 #include "globals.hpp"
 #include "localization.hpp"
 #include "readyScene.hpp"
+#include "inspectP2Scene.hpp"
 #include "skyland/path.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -12,8 +13,9 @@ namespace skyland {
 
 
 
-MoveCharacterScene::MoveCharacterScene(Platform& pfrm)
-    : matrix_(allocate_dynamic<bool[16][16]>(pfrm))
+MoveCharacterScene::MoveCharacterScene(Platform& pfrm, bool near)
+    : matrix_(allocate_dynamic<bool[16][16]>(pfrm)),
+      near_(near)
 {
     if (not matrix_) {
         pfrm.fatal("MCS: buffers exhausted");
@@ -40,15 +42,30 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
 
-    // TODO: parameterize island...
-    app.player_island().plot_walkable_zones(*matrix_);
+    if (not near_) {
+        far_camera();
+    }
 
-    // Now, we want to do a bfs search, to find all connected parts of the
+    Island* island = nullptr;
+
+    if (near_) {
+        island = &app.player_island();
+    } else if (app.opponent_island()) {
+        island = &*app.opponent_island();
+    }
+
+    island->plot_walkable_zones(*matrix_);
+
+    // Now, we want to do a bfs walk, to find all connected parts of the
     // walkable areas.
 
+    Vec2<u8> cursor_loc;
 
-    // TODO: again, parameterize island. Currently using near cursor.
-    auto cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    if (near_) {
+        cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    } else {
+        cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+    }
 
     initial_cursor_ = cursor_loc;
 
@@ -94,7 +111,7 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             if ((*matrix_)[x][y]) {
-                pfrm.set_tile(app.player_island().layer(), x, y, 34);
+                pfrm.set_tile(island->layer(), x, y, 34);
             }
         }
     }
@@ -109,30 +126,43 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         return null_scene();
     }
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    Island* island = nullptr;
 
+    if (near_) {
+        island = &app.player_island();
+    } else if (app.opponent_island()) {
+        island = &*app.opponent_island();
+    }
+
+    Vec2<u8>* cursor_loc = nullptr;
+
+    if (near_) {
+        cursor_loc = &std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    } else {
+        cursor_loc = &std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+    }
 
     if (pfrm.keyboard().down_transition<Key::left>()) {
-        if (cursor_loc.x > 0) {
-            --cursor_loc.x;
+        if (cursor_loc->x > 0) {
+            --cursor_loc->x;
         }
     }
 
     if (pfrm.keyboard().down_transition<Key::right>()) {
-        if (cursor_loc.x < app.player_island().terrain().size()) {
-            ++cursor_loc.x;
+        if (cursor_loc->x < island->terrain().size()) {
+            ++cursor_loc->x;
         }
     }
 
     if (pfrm.keyboard().down_transition<Key::up>()) {
-        if (cursor_loc.y > 6) {
-            --cursor_loc.y;
+        if (cursor_loc->y > 6) {
+            --cursor_loc->y;
         }
     }
 
     if (pfrm.keyboard().down_transition<Key::down>()) {
-        if (cursor_loc.y < 14) {
-            ++cursor_loc.y;
+        if (cursor_loc->y < 14) {
+            ++cursor_loc->y;
         }
     }
 
@@ -148,33 +178,72 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (pfrm.keyboard().down_transition<Key::action_2>()) {
-        return scene_pool::alloc<ReadyScene>();
+        if (near_) {
+            return scene_pool::alloc<ReadyScene>();
+        } else {
+            return scene_pool::alloc<InspectP2Scene>();
+        }
     }
 
     if (pfrm.keyboard().down_transition<Key::action_1>()
-         and (*matrix_)[cursor_loc.x][cursor_loc.y]) {
-        // FIXME: this instantly jumps the character to a room. We want to
-        // actually calculate a path, and have the character walk.
-        if (auto room = app.player_island().get_room(initial_cursor_)) {
-            for (auto it = room->characters().begin();
-                 it not_eq room->characters().end();
-                 ++it) {
-                if ((*it)->grid_position() == initial_cursor_ and
-                    (*it)->owner() == &app.player()) {
+         and (*matrix_)[cursor_loc->x][cursor_loc->y]) {
 
-                    auto path = find_path(pfrm,
-                                          &app.player_island(),
-                                          initial_cursor_,
-                                          cursor_loc);
+        auto sel_chr = [&]() -> BasicCharacter* {
+            if (auto room = island->get_room(initial_cursor_)) {
+                for (auto it = room->characters().begin();
+                     it not_eq room->characters().end();
+                     ++it) {
+                    if ((*it)->grid_position() == initial_cursor_ and
+                        (*it)->owner() == &app.player()) {
 
-                    if (path and *path) {
-                        (*it)->set_movement_path(std::move(*path));
-                    } else {
-                        // path not found, raise error?
+                        return it->get();
                     }
-                    return scene_pool::alloc<ReadyScene>();
                 }
             }
+            return nullptr;
+        }();
+
+
+        if (sel_chr) {
+
+            for (auto& room : island->rooms()) {
+                for (auto& other : room->characters()) {
+                    if (other.get() not_eq sel_chr and
+                        other->owner() == sel_chr->owner()) {
+
+                        if (auto dest = other->destination()) {
+                            // We don't want to allow a character to move into a
+                            // slot that another character is already moving
+                            // into.
+                            if (*dest == *cursor_loc) {
+                                return null_scene();
+                            }
+                        } else if (other->grid_position() == *cursor_loc) {
+                            // We don't want to allow a character to move into a
+                            // slot that another non-moving character already
+                            // occupies.
+                            return null_scene();
+                        }
+                    }
+                }
+            }
+
+            auto path = find_path(pfrm,
+                                  island,
+                                  initial_cursor_,
+                                  *cursor_loc);
+
+            if (path and *path) {
+                sel_chr->set_movement_path(std::move(*path));
+            } else {
+                // path not found, raise error?
+            }
+        }
+
+        if (near_) {
+            return scene_pool::alloc<ReadyScene>();
+        } else {
+            return scene_pool::alloc<InspectP2Scene>();
         }
     }
 
@@ -191,9 +260,18 @@ void MoveCharacterScene::display(Platform& pfrm, App& app)
     cursor.set_size(Sprite::Size::w16_h32);
     cursor.set_texture_index(15 + cursor_anim_frame_);
 
-    auto origin = app.player_island().origin();
+    Vec2<Float> origin;
+    if (near_) {
+        origin = app.player_island().origin();
+    } else {
+        if (app.opponent_island()) {
+            origin = app.opponent_island()->origin();
+        }
+    }
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    const auto cursor_loc = near_ ?
+        std::get<SkylandGlobalData>(globals()).near_cursor_loc_ :
+        std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
     origin.x += cursor_loc.x * 16;
     origin.y += cursor_loc.y * 16;

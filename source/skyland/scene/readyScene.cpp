@@ -89,24 +89,37 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (describe_room_timer_ > 0) {
         describe_room_timer_ -= delta;
         if (describe_room_timer_ <= 0) {
-            describe_room_timer_ = 0;
+            describe_room_timer_ = milliseconds(500);
 
             if (auto room = app.player_island().get_room(cursor_loc)) {
-                room_description_.reset();
-                room_description_.emplace(pfrm,
-                                          OverlayCoord{0,
-                                              u8(calc_screen_tiles(pfrm).y - 1)});
+                if (not room_description_) {
+                    room_description_.emplace(pfrm,
+                                              OverlayCoord{0,
+                                                  u8(calc_screen_tiles(pfrm).y - 1)});
+                }
                 int i = 0;
                 if (length(room->characters())) {
-
+                    room_description_->erase();
                     for (auto& chr : room->characters()) {
                         if (chr->grid_position() == cursor_loc) {
                             if (i > 0) {
                                 room_description_->append(",");
                             }
-                            room_description_->append("(chr");
-                            room_description_->append(i);
-                            room_description_->append(") ");
+                            Text::OptColors opts;
+                            if (chr->owner() == &app.player()) {
+                                opts = {
+                                    custom_color(0xff6675),
+                                    ColorConstant::rich_black
+                                };
+                                room_description_->append("(human) ", opts);
+                            } else {
+                                opts = {
+                                    custom_color(0xcf54ff),
+                                    ColorConstant::rich_black
+                                };
+                                room_description_->append("(goblin) ", opts);
+
+                            }
                             room_description_->append(chr->health() / 10);
                             room_description_->append("/");
                             room_description_->append(25);
@@ -117,9 +130,11 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 if (i == 0) {
                     auto metac = room->metaclass();
-                    room_description_->append("(");
-                    room_description_->append((*metac)->name());
-                    room_description_->append(") ");
+                    StringBuffer<32> desc;
+                    desc += "(";
+                    desc += (*metac)->name();
+                    desc += ") ";
+                    room_description_->assign(desc.c_str());
                     room_description_->append(room->health());
                     room_description_->append("/");
                     room_description_->append(room->max_health());

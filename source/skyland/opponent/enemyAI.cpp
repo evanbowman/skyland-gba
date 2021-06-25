@@ -172,7 +172,7 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
             // will still potentially attack the room if we have enough
             // characters to (potentially) overwhelm the occupants.
             slot.ai_weight_ -=
-                player_chr_remove_weight / (exclude_slots.size() + 1);
+                player_chr_remove_weight / (0.75f * (exclude_slots.size() + 1));
         }
         for (auto& exc : exclude_slots) {
             if (slot.coord_ == exc) {

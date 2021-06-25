@@ -34,6 +34,9 @@ struct Tile {
         reserved9,
         reserved10,
         tin_chimney,
+        plundered_room,
+        reserved_11,
+        reserved_12,
         roof_flag = 109,
         flag = 110,
     };
@@ -70,5 +73,8 @@ struct InteriorTile {
         infirmary_2,
         infirmary_4,
         tin_chimney,
+        plundered_room,
+        transporter_1,
+        transporter_2,
     };
 };

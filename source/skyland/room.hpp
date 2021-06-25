@@ -32,6 +32,7 @@ struct Conditions {
     enum Value : u32 {
         none = 0,
         workshop_required = (1 << 0),
+        not_constructible = (1 << 1),
     };
 };
 
@@ -124,6 +125,9 @@ public:
 
 
     void apply_damage(Platform&, App&, Health damage);
+
+
+    void plunder(Platform&, App&, Health damage);
 
 
     virtual void plot_walkable_zones(bool matrix[16][16]);

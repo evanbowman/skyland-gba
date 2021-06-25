@@ -540,11 +540,11 @@ void Island::destroy_room(Platform& pfrm, const Vec2<u8>& coord)
 
             rooms_.erase(&room);
             repaint(pfrm);
+            recalculate_power_usage();
             return;
         }
     }
 
-    recalculate_power_usage();
 }
 
 

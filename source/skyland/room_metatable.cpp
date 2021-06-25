@@ -11,6 +11,8 @@
 #include "skyland/rooms/radar.hpp"
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/workshop.hpp"
+#include "skyland/rooms/plunderedRoom.hpp"
+#include "skyland/rooms/transporter.hpp"
 
 
 
@@ -26,7 +28,9 @@ RoomMetatable<Hull,
               Workshop,
               Infirmary,
               Core,
-              Radar>
+              Radar,
+              PlunderedRoom,
+              Transporter>
     __room_metatable;
 
 

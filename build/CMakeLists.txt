@@ -87,7 +87,9 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
   ${SOURCE_DIR}/skyland/rooms/forcefield.cpp
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
+  ${SOURCE_DIR}/skyland/rooms/transporter.cpp
   ${SOURCE_DIR}/skyland/rooms/exteriorWall.cpp
+  ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp
   ${SOURCE_DIR}/skyland/scene/fadeInScene.cpp
@@ -106,6 +108,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/fullscreenDialogScene.cpp
+  ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp)
 
 
