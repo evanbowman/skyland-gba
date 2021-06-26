@@ -407,9 +407,12 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
                 // as "toxic" and resist allocating entities to the room (unless
                 // it's really valuable).
                 if (chr->owner() not_eq this) {
-
-
                     player_chr_remove_weight += 100.f;
+
+                    if (character.health() < 50) {
+                        // More likely to flee the room if we're badly injured.
+                        player_chr_remove_weight += 100.f;
+                    }
                 }
             }
 
