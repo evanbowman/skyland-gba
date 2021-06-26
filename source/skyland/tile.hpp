@@ -39,6 +39,10 @@ struct Tile {
         reserved_12,
         radar_1,
         radar_2,
+        reserved_13,
+        reserved_14,
+        reserved_15,
+        reserved_16,
         roof_flag = 109,
         flag = 110,
     };
@@ -80,5 +84,9 @@ struct InteriorTile {
         transporter_2,
         radar_1,
         radar_2,
+        bulkhead_closed_1,
+        bulkhead_closed_2,
+        bulkhead_open_1,
+        bulkhead_open_2,
     };
 };

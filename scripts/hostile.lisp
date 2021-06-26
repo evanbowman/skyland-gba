@@ -15,23 +15,36 @@
 ;;    (workshop 3 13)
 ;;    (stairwell 3 9)
 ;;    (stairwell 4 9)
-;;    (workshop 1 9)))
+;;    (workshop 1 9)
+;;    (radar 0 9)))
 
 
-;; (init-opponent 3 'hostile)
+;; (init-opponent 6 'hostile)
 
 
 ;; (configure-player
 ;;  (opponent)
-;;  '((missile-silo 0 13)
-;;    (power-core 1 13)))
+;;  '((power-core 0 13)
+;;    (workshop 2 13)
+;;    (workshop 0 11)
+;;    (infirmary 2 11)
+;;    (stairwell 4 11)
+;;    (transporter 5 13)
+;;    (transporter 5 11)))
+
+
+;; (add-hostile-chr (opponent) 3 14)
+;; (add-hostile-chr (opponent) 2 14)
+;; (add-hostile-chr (opponent) 3 12)
+;(add-hostile-chr (opponent) 2 12)
 
 
 ;; (add-hostile-chr (player) 1 10)
 ;; (add-hostile-chr (player) 2 10)
 ;; (add-hostile-chr (player) 3 11)
 
-;; (add-chr (player) 3 14)
+;;(add-chr (player) 3 14)
+
 
 (if (not (equal (zone) last-zone))
     (progn

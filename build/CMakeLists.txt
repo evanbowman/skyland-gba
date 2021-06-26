@@ -82,6 +82,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/hull.cpp
   ${SOURCE_DIR}/skyland/rooms/radar.cpp
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
+  ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
   ${SOURCE_DIR}/skyland/rooms/infirmary.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp

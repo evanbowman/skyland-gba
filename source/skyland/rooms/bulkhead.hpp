@@ -2,7 +2,6 @@
 
 #include "skyland/coins.hpp"
 #include "skyland/room.hpp"
-#include "skyland/island.hpp" // move to .cpp
 
 
 
@@ -31,24 +30,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm, App& app)
-    {
-        if (not open_) {
-            open_ = true;
-        } else {
-            // We don't want to close the door on any characters, so make sure
-            // that we don't have any occupants.
-            if (length(characters()) == 0) {
-                open_ = false;
-
-                parent()->on_layout_changed({
-                        position().x,
-                        u8(position().y + 1)
-                    });
-            }
-        }
-        return null_scene();
-    }
+    ScenePtr<Scene> select(Platform& pfrm, App& app);
 
 
     static Float ai_base_weight()
@@ -83,6 +65,7 @@ public:
 
 private:
     bool open_ = true;
+    bool interior_visible_ = false;
 };
 
 

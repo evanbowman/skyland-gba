@@ -13,6 +13,7 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
+#include "skyland/rooms/bulkhead.hpp"
 
 
 
@@ -25,6 +26,7 @@ RoomMetatable<Hull,
               Cannon,
               MissileSilo,
               Stairwell,
+              Bulkhead,
               Workshop,
               Infirmary,
               Core,
