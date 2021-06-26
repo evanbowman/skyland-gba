@@ -46,7 +46,7 @@ private:
 
     Microseconds next_action_timer_ = next_action_timeout;
 
-    static const auto character_reassign_timeout = seconds(2);
+    static const auto character_reassign_timeout = seconds(6);
 
     Microseconds character_reassign_timer_ = character_reassign_timeout;
 

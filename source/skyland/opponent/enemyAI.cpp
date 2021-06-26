@@ -10,6 +10,10 @@
 
 
 
+// I wrote this AI code frantically for a game jam. I know it's kind of a mess.
+
+
+
 namespace skyland {
 
 
@@ -29,6 +33,22 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         u8 matrix[16][16];
         app.player_island().plot_rooms(matrix);
 
+
+        // NOTE: there should never be as many as 8 boarded ai characters at
+        // once! I doubt that the game can realistically run AI code and
+        // pathfinding for all of those entities. Of course, the game _can_
+        // handle that many entities, but doing so would result in periodic long
+        // pauses.
+        Buffer<BasicCharacter*, 8> boarded_ai_characters;
+        for (auto& room : app.player_island().rooms()) {
+            for (auto& character : room->characters()) {
+                if (character->owner() == this) {
+                    boarded_ai_characters.push_back(character.get());
+                }
+            }
+        }
+
+
         if (app.opponent_island()) {
             for (auto& room : app.opponent_island()->rooms()) {
                 if (auto cannon = dynamic_cast<Cannon*>(&*room)) {
@@ -37,11 +57,44 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                     set_target(pfrm, app, matrix, *silo);
                 } else if (auto transporter =
                                dynamic_cast<Transporter*>(&*room)) {
-                    if (length(transporter->characters())) {
+                    if (length(transporter->characters()) and
+                        transporter->ready()) {
                         auto transport_chr = transporter->characters().begin();
                         if ((*transport_chr)->state() not_eq
                             BasicCharacter::State::repair_room) {
                             transporter->random_transport_occupant(pfrm, app);
+                        }
+                    } else if (transporter->ready()) {
+                        // If we have an infirmary, potentially transport some
+                        // of our injured AIs back to heal.
+
+                        bool found_infirmary = false;
+
+                        auto metac = load_metaclass("infirmary");
+                        for (auto& room : app.opponent_island()->rooms()) {
+                            if (room->metaclass() == metac) {
+                                found_infirmary = true;
+                            }
+                        }
+
+                        if (found_infirmary) {
+                            auto recover_pos = [&]()
+                                -> std::optional<Vec2<u8>> {
+                                for (auto it = boarded_ai_characters.begin();
+                                     it not_eq boarded_ai_characters.end();) {
+                                    if ((*it)->health() < 25) {
+                                        it = boarded_ai_characters.erase(it);
+                                        return (*it)->grid_position();
+                                    } else {
+                                        ++it;
+                                    }
+                                }
+                                return {};
+                            }();
+
+                            if (recover_pos) {
+                                transporter->recover_character(app, *recover_pos);
+                            }
                         }
                     }
                 }
@@ -89,8 +142,8 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     // character's position, via a breadth-first search. Then, we assign a
     // weight to each destination slot based on a series of heuristics. The
     // heursitics are the most convoluted and messy part. Then, we sort the
-    // reachable slots by the assigned weights, and move the the highest-value
-    // slot.
+    // reachable slots by the assigned weights, and run an implementation of
+    // Dijkstra's algorithm to find a path.
 
     if (character.has_movement_path()) {
         return;
@@ -110,14 +163,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     int ai_characters_remote = 0;
     int ai_characters_local = 0;
 
-
-    int transporter_count = 0;
-
     for (auto& room : app.opponent_island()->rooms()) {
-        auto metac = room->metaclass();
-        if (str_cmp((*metac)->name(), "transporter") == 0) {
-            ++transporter_count;
-        }
         for (auto& other : room->characters()) {
             if (other->owner() == this and other.get() not_eq &character) {
                 if (auto dest = other->destination()) {
@@ -128,6 +174,8 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 ++ai_characters_local;
             } else if (other->owner() not_eq this) {
                 ++player_characters_local;
+            } else if (other.get() == &character) {
+                ++ai_characters_local;
             }
         }
     }
@@ -181,6 +229,9 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     }
 
 
+    const auto infirmary_metac = load_metaclass("infirmary");
+
+
     for (auto& slot : slots) {
         if (auto room = app.opponent_island()->get_room(slot.coord_)) {
 
@@ -198,18 +249,29 @@ void EnemyAI::assign_local_character(Platform& pfrm,
 
             slot.ai_weight_ -= 3 * manhattan_length(slot.coord_, current_pos);
 
-            auto metac = room->metaclass();
-            if (str_cmp((*metac)->name(), "transporter") == 0) {
-                // Ok, so when do we want to set the weight such that or ai
-                // character enters a transporter? Let's see...
-
-                if (player_characters_remote > ai_characters_remote) {
-                    slot.ai_weight_ += 300.f * (player_characters_remote -
-                                                ai_characters_remote);
+            if (room->metaclass() == infirmary_metac) {
+                if (character.health() < 25) {
+                    slot.ai_weight_ += 2000.f;
                 }
-                if (player_characters_local > ai_characters_local) {
-                    slot.ai_weight_ -=
-                        250.f * (player_characters_local - ai_characters_local);
+            } else if (auto transporter = dynamic_cast<Transporter*>(room)) {
+                // Now, let's see. We want to raid the player's island if we
+                // have more characters, but also...
+                //
+                // TODO: Increase the transporter weight a lot if we don't have
+                // any remaining offensive capabilities. In that case, raids
+                // would be our only offense.
+                if (transporter->ready()) {
+                    if (player_characters_remote >= ai_characters_remote and
+                        ai_characters_remote + ai_characters_local > player_characters_remote) {
+                        slot.ai_weight_ += 300.f * (player_characters_remote -
+                                                    ai_characters_remote);
+                    }
+                    if (player_characters_local > ai_characters_local) {
+                        slot.ai_weight_ -=
+                            250.f * (player_characters_local - ai_characters_local);
+                    }
+                } else {
+                    slot.ai_weight_ -= 300;
                 }
             }
         }

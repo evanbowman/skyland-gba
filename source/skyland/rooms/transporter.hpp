@@ -27,6 +27,9 @@ public:
     void random_transport_occupant(Platform& pfrm, App& app);
 
 
+    void recover_character(App& app, const Vec2<u8>& pos);
+
+
     static Vec2<u8> size()
     {
         return {1, 2};
@@ -63,8 +66,17 @@ public:
     }
 
 
+    static const Microseconds recharge_time = seconds(20);
+
+
+    bool ready() const
+    {
+        return recharge_ == 0;
+    }
+
+
 private:
-    Microseconds recharge_ = 0;
+    Microseconds recharge_ = recharge_time;
 };
 
 

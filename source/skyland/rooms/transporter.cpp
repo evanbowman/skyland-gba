@@ -33,8 +33,53 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+void Transporter::recover_character(App& app, const Vec2<u8>& position)
+{
+    recharge_ = recharge_time;
+
+    auto island = other_island(app);
+    if (island == nullptr) {
+        return;
+    }
+
+    if (auto room = island->get_room(position)) {
+        for (auto it = room->characters().begin();
+             it not_eq room->characters().end();) {
+            if ((*it)->owner() not_eq &island->owner() and
+                (*it)->grid_position() == position) {
+                auto unlinked = std::move(*it);
+                room->characters().erase(it);
+
+                // If the character was in the process of moving, we need to
+                // detach its path, as we are transporting the character back to
+                // our island, where the path would make no sense.
+                unlinked->drop_movement_path();
+
+                // Again, the character is warping to a new location, let's
+                // update its position.
+                unlinked->set_grid_position({
+                        this->position().x,
+                        u8(this->position().y + 1)
+                    });
+
+                unlinked->set_parent(parent());
+
+                characters().push(std::move(unlinked));
+
+                return;
+            } else {
+                ++it;
+            }
+        }
+    }
+}
+
+
+
 void Transporter::random_transport_occupant(Platform& pfrm, App& app)
 {
+    recharge_ = recharge_time;
+
     auto chr = characters().begin();
 
     auto island = other_island(app);
@@ -96,6 +141,7 @@ ScenePtr<Scene> Transporter::select(Platform& pfrm, App& app)
     if (recharge_) {
         return null_scene();
     } else if (length(characters())) {
+
         auto chr = characters().begin();
         if ((*chr)->has_movement_path()) {
             return null_scene();
