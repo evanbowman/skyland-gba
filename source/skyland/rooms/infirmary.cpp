@@ -1,6 +1,6 @@
 #include "infirmary.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/island.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -34,7 +34,7 @@ void Infirmary::update(Platform& pfrm, App& app, Microseconds delta)
             int distribute_health = 20;
             distribute_health /= characters_healing;
             for (auto& character : characters()) {
-                if (character->owner() == &parent()->owner()  and
+                if (character->owner() == &parent()->owner() and
                     character->state() not_eq BasicCharacter::State::fighting) {
                     character->heal(distribute_health);
                 }

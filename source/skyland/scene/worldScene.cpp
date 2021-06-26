@@ -95,9 +95,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.opponent_island()) {
 
-        const bool show_opponent_interior =
-            app.player_island().has_radar() or
-            app.opponent_island()->is_boarded();
+        const bool show_opponent_interior = app.player_island().has_radar() or
+                                            app.opponent_island()->is_boarded();
 
         if (not app.opponent_island()->interior_visible() and
             show_opponent_interior) {

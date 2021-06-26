@@ -61,7 +61,6 @@ public:
     {
         return Conditions::not_constructible;
     }
-
 };
 
 

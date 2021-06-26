@@ -24,6 +24,9 @@ public:
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
+    void random_transport_occupant(Platform& pfrm, App& app);
+
+
     static Vec2<u8> size()
     {
         return {1, 2};

@@ -5,6 +5,7 @@
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/missileSilo.hpp"
+#include "skyland/rooms/transporter.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -34,6 +35,15 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                     set_target(pfrm, app, matrix, *cannon);
                 } else if (auto silo = dynamic_cast<MissileSilo*>(&*room)) {
                     set_target(pfrm, app, matrix, *silo);
+                } else if (auto transporter =
+                               dynamic_cast<Transporter*>(&*room)) {
+                    if (length(transporter->characters())) {
+                        auto transport_chr = transporter->characters().begin();
+                        if ((*transport_chr)->state() not_eq
+                            BasicCharacter::State::repair_room) {
+                            transporter->random_transport_occupant(pfrm, app);
+                        }
+                    }
                 }
             }
         }
@@ -125,9 +135,9 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     for (auto& room : app.player_island().rooms()) {
         for (auto& chr : room->characters()) {
             if (chr->owner() == this) {
-                ++player_characters_remote;
-            } else {
                 ++ai_characters_remote;
+            } else {
+                ++player_characters_remote;
             }
         }
     }
@@ -149,11 +159,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
 
     auto current_pos = character.grid_position();
 
-    flood_fill(pfrm,
-               matrix,
-               2,
-               current_pos.x,
-               current_pos.y);
+    flood_fill(pfrm, matrix, 2, current_pos.x, current_pos.y);
 
     struct Destination {
         Vec2<u8> coord_;
@@ -181,8 +187,10 @@ void EnemyAI::assign_local_character(Platform& pfrm,
             const auto base_weight = (*room->metaclass())->ai_base_weight();
 
             // Increase room weight if damaged.
-            slot.ai_weight_ = base_weight +
-                (base_weight - base_weight * (Float(room->health()) / room->max_health()));
+            slot.ai_weight_ =
+                base_weight +
+                (base_weight -
+                 base_weight * (Float(room->health()) / room->max_health()));
 
             if (room->health() not_eq room->max_health()) {
                 slot.ai_weight_ += 500.f;
@@ -196,12 +204,12 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 // character enters a transporter? Let's see...
 
                 if (player_characters_remote > ai_characters_remote) {
-                    slot.ai_weight_ += 200.f *
-                        (player_characters_remote - ai_characters_remote);
+                    slot.ai_weight_ += 300.f * (player_characters_remote -
+                                                ai_characters_remote);
                 }
                 if (player_characters_local > ai_characters_local) {
-                    slot.ai_weight_ -= 300.f *
-                        (player_characters_local - ai_characters_local);
+                    slot.ai_weight_ -=
+                        250.f * (player_characters_local - ai_characters_local);
                 }
             }
         }
@@ -214,10 +222,11 @@ void EnemyAI::assign_local_character(Platform& pfrm,
         }
     }
 
-    std::sort(slots.begin(), slots.end(), [&](const Destination& lhs,
-                                              const Destination& rhs) {
-        return lhs.ai_weight_ < rhs.ai_weight_;
-    });
+    std::sort(slots.begin(),
+              slots.end(),
+              [&](const Destination& lhs, const Destination& rhs) {
+                  return lhs.ai_weight_ < rhs.ai_weight_;
+              });
 
     if (slots.back().ai_weight_ == 0.f) {
         // Again, perhaps this is overly defensive coding. But we should never
@@ -228,12 +237,10 @@ void EnemyAI::assign_local_character(Platform& pfrm,
 
     auto target = slots.back();
 
-    if (auto path = find_path(pfrm,
-                              &*app.opponent_island(),
-                              current_pos,
-                              target.coord_)) {
-        if (not ((*path)->size() == 1 and
-                 (**path)[0] == character.grid_position())) {
+    if (auto path = find_path(
+            pfrm, &*app.opponent_island(), current_pos, target.coord_)) {
+        if (not((*path)->size() == 1 and
+                (**path)[0] == character.grid_position())) {
             // Don't waste a path buffer on an entity if the ideal path
             // represents a single node with the character's current position.
             character.set_movement_path(std::move(*path));
@@ -299,11 +306,7 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 
     auto current_pos = character.grid_position();
 
-    flood_fill(pfrm,
-               matrix,
-               2,
-               current_pos.x,
-               current_pos.y);
+    flood_fill(pfrm, matrix, 2, current_pos.x, current_pos.y);
 
     struct Destination {
         Vec2<u8> coord_;
@@ -365,10 +368,11 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
         }
     }
 
-    std::sort(slots.begin(), slots.end(), [&](const Destination& lhs,
-                                              const Destination& rhs) {
-        return lhs.ai_weight_ < rhs.ai_weight_;
-    });
+    std::sort(slots.begin(),
+              slots.end(),
+              [&](const Destination& lhs, const Destination& rhs) {
+                  return lhs.ai_weight_ < rhs.ai_weight_;
+              });
 
     if (slots.back().ai_weight_ == 0.f) {
         // Again, perhaps this is overly defensive coding. But we should never
@@ -379,12 +383,10 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 
     auto target = slots.back();
 
-    if (auto path = find_path(pfrm,
-                              &app.player_island(),
-                              current_pos,
-                              target.coord_)) {
-        if (not ((*path)->size() == 1 and
-                 (**path)[0] == character.grid_position())) {
+    if (auto path =
+            find_path(pfrm, &app.player_island(), current_pos, target.coord_)) {
+        if (not((*path)->size() == 1 and
+                (**path)[0] == character.grid_position())) {
             // Don't waste a path buffer on an entity if the ideal path
             // represents a single node with the character's current position.
             character.set_movement_path(std::move(*path));

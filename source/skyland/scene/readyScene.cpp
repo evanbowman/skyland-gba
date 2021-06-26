@@ -16,6 +16,14 @@ namespace skyland {
 
 
 
+void describe_room(Platform& pfrm,
+                   App& app,
+                   Island* island,
+                   const Vec2<u8>& cursor_loc,
+                   std::optional<Text>& room_description);
+
+
+
 ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
@@ -91,62 +99,78 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (describe_room_timer_ <= 0) {
             describe_room_timer_ = milliseconds(500);
 
-            if (auto room = app.player_island().get_room(cursor_loc)) {
-                if (not room_description_) {
-                    room_description_.emplace(pfrm,
-                                              OverlayCoord{0,
-                                                  u8(calc_screen_tiles(pfrm).y - 1)});
-                }
-                int i = 0;
-                if (length(room->characters())) {
-                    room_description_->erase();
-                    for (auto& chr : room->characters()) {
-                        if (chr->grid_position() == cursor_loc) {
-                            if (i > 0) {
-                                room_description_->append(",");
-                            }
-                            Text::OptColors opts;
-                            if (chr->owner() == &app.player()) {
-                                opts = {
-                                    custom_color(0xff6675),
-                                    ColorConstant::rich_black
-                                };
-                                room_description_->append("(human) ", opts);
-                            } else {
-                                opts = {
-                                    custom_color(0xcf54ff),
-                                    ColorConstant::rich_black
-                                };
-                                room_description_->append("(goblin) ", opts);
-
-                            }
-                            room_description_->append(chr->health() / 10);
-                            room_description_->append("/");
-                            room_description_->append(25);
-                            ++i;
-                        }
-                    }
-                }
-
-                if (i == 0) {
-                    auto metac = room->metaclass();
-                    StringBuffer<32> desc;
-                    desc += "(";
-                    desc += (*metac)->name();
-                    desc += ") ";
-                    room_description_->assign(desc.c_str());
-                    room_description_->append(room->health());
-                    room_description_->append("/");
-                    room_description_->append(room->max_health());
-                }
-
-            }
+            describe_room(
+                pfrm, app, &app.player_island(), cursor_loc, room_description_);
         }
     }
 
     return null_scene();
 }
 
+
+
+void describe_room(Platform& pfrm,
+                   App& app,
+                   Island* island,
+                   const Vec2<u8>& cursor_loc,
+                   std::optional<Text>& room_description)
+{
+    if (auto room = island->get_room(cursor_loc)) {
+        if (not room_description) {
+            room_description.emplace(
+                pfrm, OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+        }
+        if (room->parent() == &app.player_island() or
+            room->description_visible()) {
+
+            int i = 0;
+            if (length(room->characters())) {
+                room_description->erase();
+                for (auto& chr : room->characters()) {
+                    if (chr->grid_position() == cursor_loc) {
+                        if (i > 0) {
+                            room_description->append(",");
+                        }
+                        Text::OptColors opts;
+                        if (chr->owner() == &app.player()) {
+                            opts = {custom_color(0xff6675),
+                                    ColorConstant::rich_black};
+                            room_description->append("(human) ", opts);
+                        } else {
+                            opts = {custom_color(0xcf54ff),
+                                    ColorConstant::rich_black};
+                            room_description->append("(goblin) ", opts);
+                        }
+                        room_description->append(chr->health() / 10);
+                        room_description->append("/");
+                        room_description->append(25);
+                        ++i;
+                    }
+                }
+            }
+
+            if (i == 0) {
+                auto metac = room->metaclass();
+                StringBuffer<32> desc;
+                desc += "(";
+                desc += (*metac)->name();
+                desc += ") ";
+                room_description->assign(desc.c_str());
+                room_description->append(room->health());
+                room_description->append("/");
+                room_description->append(room->max_health());
+            }
+
+        } else {
+            room_description.emplace(
+                pfrm, OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+
+            room_description->assign("(??"); // Split to avoid trigraph
+            room_description->append("?) ??");
+            room_description->append("?/???");
+        }
+    }
+}
 
 
 void ReadyScene::display(Platform& pfrm, App& app)

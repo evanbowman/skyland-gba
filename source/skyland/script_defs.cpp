@@ -300,9 +300,8 @@ void App::init_scripts(Platform& pfrm)
                           (u8)lisp::get_op(0)->integer_.value_,
                       };
 
-                      auto chr = alloc_entity<BasicCharacter>(island,
-                                                              &app->player(),
-                                                              coord);
+                      auto chr = alloc_entity<BasicCharacter>(
+                          island, &app->player(), coord);
 
                       island->add_character(std::move(chr));
 
@@ -325,10 +324,8 @@ void App::init_scripts(Platform& pfrm)
                           (u8)lisp::get_op(0)->integer_.value_,
                       };
 
-                      auto chr =
-                          alloc_entity<BasicCharacter>(island,
-                                                       &app->ai(),
-                                                       coord);
+                      auto chr = alloc_entity<BasicCharacter>(
+                          island, &app->ai(), coord);
 
                       island->add_character(std::move(chr));
 

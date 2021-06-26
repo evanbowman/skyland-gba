@@ -23,8 +23,10 @@ void PlunderedRoom::update(Platform& pfrm, App& app, Microseconds delta)
 
 void PlunderedRoom::render_interior(Platform& pfrm, Layer layer)
 {
-    pfrm.set_tile(layer, position().x, position().y, InteriorTile::plundered_room);
-    pfrm.set_tile(layer, position().x, position().y + 1, InteriorTile::plundered_room);
+    pfrm.set_tile(
+        layer, position().x, position().y, InteriorTile::plundered_room);
+    pfrm.set_tile(
+        layer, position().x, position().y + 1, InteriorTile::plundered_room);
 }
 
 

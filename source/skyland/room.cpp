@@ -18,9 +18,7 @@ Room::Room(Island* parent,
            Health health)
     : parent_(parent),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      size_(size), position_(position),
-      health_(health),
-      max_health_(health)
+      size_(size), position_(position), health_(health), max_health_(health)
 {
     auto metatable = room_metatable();
 
@@ -169,9 +167,11 @@ ScenePtr<Scene> Room::select(Platform& pfrm, App& app)
             Vec2<u8> cursor_loc;
 
             if (near) {
-                cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+                cursor_loc =
+                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
             } else {
-                cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+                cursor_loc =
+                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
             }
 
             for (auto& character : characters_) {
@@ -225,6 +225,11 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
     apply_damage(pfrm, app, damage);
 
     if (health_ == 0) {
+        if (parent() not_eq &app.player_island()) {
+            // You get some coins for plundering a room
+            app.coins() += (*metaclass())->cost() * 0.3f;
+        }
+
         // Ok, so when a character plunders a room, we don't actually want to
         // leave the health as zero, and let the engine erase the room. Doing so
         // would kill all of the characters attached to the room. Instead, we

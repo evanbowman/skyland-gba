@@ -1,8 +1,8 @@
 #include "moveCharacterScene.hpp"
 #include "globals.hpp"
+#include "inspectP2Scene.hpp"
 #include "localization.hpp"
 #include "readyScene.hpp"
-#include "inspectP2Scene.hpp"
 #include "skyland/path.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -14,8 +14,7 @@ namespace skyland {
 
 
 MoveCharacterScene::MoveCharacterScene(Platform& pfrm, bool near)
-    : matrix_(allocate_dynamic<bool[16][16]>(pfrm)),
-      near_(near)
+    : matrix_(allocate_dynamic<bool[16][16]>(pfrm)), near_(near)
 {
     if (not matrix_) {
         pfrm.fatal("MCS: buffers exhausted");
@@ -196,8 +195,8 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (pfrm.keyboard().down_transition<Key::action_1>()
-         and (*matrix_)[cursor_loc->x][cursor_loc->y]) {
+    if (pfrm.keyboard().down_transition<Key::action_1>() and
+        (*matrix_)[cursor_loc->x][cursor_loc->y]) {
 
         auto sel_chr = [&]() -> BasicCharacter* {
             if (auto room = island->get_room(initial_cursor_)) {
@@ -239,10 +238,7 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
 
-            auto path = find_path(pfrm,
-                                  island,
-                                  initial_cursor_,
-                                  *cursor_loc);
+            auto path = find_path(pfrm, island, initial_cursor_, *cursor_loc);
 
             if (path and *path) {
                 sel_chr->set_movement_path(std::move(*path));
@@ -280,9 +276,9 @@ void MoveCharacterScene::display(Platform& pfrm, App& app)
         }
     }
 
-    const auto cursor_loc = near_ ?
-        std::get<SkylandGlobalData>(globals()).near_cursor_loc_ :
-        std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+    const auto cursor_loc =
+        near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
+              : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
     origin.x += cursor_loc.x * 16;
     origin.y += cursor_loc.y * 16;

@@ -19,9 +19,7 @@ class Player;
 
 class BasicCharacter : public Entity {
 public:
-    BasicCharacter(Island* parent,
-                   Player* owner,
-                   const Vec2<u8>& position);
+    BasicCharacter(Island* parent, Player* owner, const Vec2<u8>& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -70,7 +68,7 @@ public:
     std::optional<Vec2<u8>> destination() const
     {
         if (has_movement_path()) {
-            if (not (*movement_path_)->empty()) {
+            if (not(*movement_path_)->empty()) {
                 return (**movement_path_)[0];
             }
         }
@@ -165,14 +163,12 @@ private:
 
     std::optional<Path> movement_path_;
 
-    void reassign_room(const Vec2<u8>& old_coord,
-                       const Vec2<u8>& new_coord);
+    void reassign_room(const Vec2<u8>& old_coord, const Vec2<u8>& new_coord);
 
 
     void movement_step(Microseconds delta);
 
     void update_attack(Microseconds delta, App&);
-
 };
 
 

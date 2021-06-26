@@ -1,8 +1,8 @@
 #include "basicCharacter.hpp"
-#include "skyland/island.hpp"
-#include "skyland/skyland.hpp"
 #include "localization.hpp"
+#include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -24,10 +24,7 @@ static u16 base_frame(BasicCharacter* character, App& app)
 BasicCharacter::BasicCharacter(Island* parent,
                                Player* owner,
                                const Vec2<u8>& position)
-    : Entity({{}, {}}),
-      parent_(parent),
-      owner_(owner),
-      grid_position_(position)
+    : Entity({{}, {}}), parent_(parent), owner_(owner), grid_position_(position)
 {
     sprite_.set_texture_index(40);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -126,8 +123,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                         str_cmp((*metac)->name(), "stairwell") == 0;
 
                     if (&room->parent()->owner() not_eq owner() and
-                        not is_plundered and
-                        not is_stairwell) {
+                        not is_plundered and not is_stairwell) {
                         state_ = State::plunder_room;
                         timer_ = 0;
                     } else if (&room->parent()->owner() == owner() and
@@ -172,7 +168,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
             if (auto room = parent_->get_room(grid_position_)) {
                 auto metac = room->metaclass();
                 const bool is_plundered =
-                        str_cmp((*metac)->name(), "plundered-room") == 0;
+                    str_cmp((*metac)->name(), "plundered-room") == 0;
 
                 if (is_plundered) { // We've successfully ransacked the room,
                                     // let's try moving on to somewhere else.
@@ -259,8 +255,8 @@ void BasicCharacter::update_attack(Microseconds delta, App& app)
         auto get_opponent = [&]() -> BasicCharacter* {
             if (auto room = parent_->get_room(grid_position_)) {
                 for (auto& chr : room->characters()) {
-                    if (chr->grid_position() == grid_position_
-                        and chr->owner() not_eq owner()) {
+                    if (chr->grid_position() == grid_position_ and
+                        chr->owner() not_eq owner()) {
                         return chr.get();
                     }
                 }
@@ -316,8 +312,8 @@ void BasicCharacter::movement_step(Microseconds delta)
             sprite_.set_flip({true, false});
         }
 
-        sprite_.set_position(interpolate(
-            dest, o, Float(timer_) / movement_step_duration));
+        sprite_.set_position(
+            interpolate(dest, o, Float(timer_) / movement_step_duration));
     }
 
     if (timer_ > movement_step_duration) {

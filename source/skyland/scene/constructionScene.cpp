@@ -362,7 +362,7 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         if (meta->size().x <= avail_space and
             meta->size().y <= avail_y_space and
             (not workshop_required or (workshop_required and w_count > 0)) and
-            not (meta->conditions() & Conditions::not_constructible)) {
+            not(meta->conditions() & Conditions::not_constructible)) {
             available_buildings_.push_back(&meta);
         }
     }

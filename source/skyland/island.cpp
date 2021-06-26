@@ -592,7 +592,6 @@ void Island::destroy_room(Platform& pfrm, const Vec2<u8>& coord)
             return;
         }
     }
-
 }
 
 
