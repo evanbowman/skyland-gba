@@ -78,8 +78,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                         }
 
                         if (found_infirmary) {
-                            auto recover_pos = [&]()
-                                -> std::optional<Vec2<u8>> {
+                            auto recover_pos =
+                                [&]() -> std::optional<Vec2<u8>> {
                                 for (auto it = boarded_ai_characters.begin();
                                      it not_eq boarded_ai_characters.end();) {
                                     if ((*it)->health() < 25) {
@@ -93,7 +93,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                             }();
 
                             if (recover_pos) {
-                                transporter->recover_character(app, *recover_pos);
+                                transporter->recover_character(app,
+                                                               *recover_pos);
                             }
                         }
                     }
@@ -262,13 +263,14 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 // would be our only offense.
                 if (transporter->ready()) {
                     if (player_characters_remote >= ai_characters_remote and
-                        ai_characters_remote + ai_characters_local > player_characters_remote) {
+                        ai_characters_remote + ai_characters_local >
+                            player_characters_remote) {
                         slot.ai_weight_ += 300.f * (player_characters_remote -
                                                     ai_characters_remote);
                     }
                     if (player_characters_local > ai_characters_local) {
-                        slot.ai_weight_ -=
-                            250.f * (player_characters_local - ai_characters_local);
+                        slot.ai_weight_ -= 250.f * (player_characters_local -
+                                                    ai_characters_local);
                     }
                 } else {
                     slot.ai_weight_ -= 300;
@@ -407,7 +409,7 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
                 if (chr->owner() not_eq this) {
 
 
-                    player_chr_remove_weight += 200.f;
+                    player_chr_remove_weight += 100.f;
                 }
             }
 

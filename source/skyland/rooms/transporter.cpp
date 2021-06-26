@@ -57,10 +57,8 @@ void Transporter::recover_character(App& app, const Vec2<u8>& position)
 
                 // Again, the character is warping to a new location, let's
                 // update its position.
-                unlinked->set_grid_position({
-                        this->position().x,
-                        u8(this->position().y + 1)
-                    });
+                unlinked->set_grid_position(
+                    {this->position().x, u8(this->position().y + 1)});
 
                 unlinked->set_parent(parent());
 
