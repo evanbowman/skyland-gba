@@ -109,6 +109,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/fullscreenDialogScene.cpp
+  ${SOURCE_DIR}/skyland/scene/recoverCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp)
 
