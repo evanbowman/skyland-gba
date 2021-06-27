@@ -61,7 +61,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                         transporter->ready()) {
                         auto transport_chr = transporter->characters().begin();
                         if ((*transport_chr)->state() not_eq
-                            BasicCharacter::State::repair_room) {
+                            BasicCharacter::State::repair_room and
+                            (*transport_chr)->owner() == this) {
                             transporter->random_transport_occupant(pfrm, app);
                         }
                     } else if (transporter->ready()) {

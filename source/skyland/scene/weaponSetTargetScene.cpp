@@ -117,6 +117,12 @@ void WeaponSetTargetScene::collect_targets(Platform& pfrm, App& app)
             targets_.push_back(room->position());
         }
     }
+
+    std::sort(targets_.begin(),
+              targets_.end(),
+              [](const Vec2<u8>& lhs, const Vec2<u8>& rhs) {
+                  return lhs.x < rhs.x || (lhs.x == rhs.x and lhs.y < rhs.y);
+              });
 }
 
 

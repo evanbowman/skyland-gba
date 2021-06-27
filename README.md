@@ -91,9 +91,8 @@ Allows you to transport one of your characters to another island. If you have
 not constructed a Radar (see below), your character will be transported to a
 random room in the opponent's island. Transporters have a cool-down period, so
 you may need to build multiple transporters if you want to effectively raid
-enemy islands. By selecting a transporter, you may also retrieve characters on
-other islands, so you may, for instance, steal enemies from the other island and
-place them in a room on your own island.
+enemy islands. By selecting an empty transporter, you may also retrieve
+characters on other islands.
 
 #### Radar
 

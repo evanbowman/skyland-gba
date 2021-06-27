@@ -4,6 +4,7 @@
 #include "skyland/island.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/scene/recoverCharacterScene.hpp"
 
 
 
@@ -154,7 +155,7 @@ ScenePtr<Scene> Transporter::select(Platform& pfrm, App& app)
 
         return null_scene();
     } else {
-        return null_scene();
+        return scene_pool::alloc<RecoverCharacterScene>(position());
     }
 }
 

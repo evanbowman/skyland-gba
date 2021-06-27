@@ -27,8 +27,12 @@ public:
     void enter(Platform&, App&, Scene& prev) override;
 
 
+    void exit(Platform&, App&, Scene& prev) override;
+
+
 private:
     Vec2<u8> transporter_loc_;
+    std::optional<Text> text_;
 };
 
 
