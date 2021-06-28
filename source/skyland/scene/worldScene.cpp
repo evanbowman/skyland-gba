@@ -16,6 +16,20 @@ namespace skyland {
 
 
 
+void ListenerImpl::receive(Platform&, App&, const network::RoomConstructed&)
+{
+    // ...
+}
+
+
+
+void ListenerImpl::receive(Platform&, App&, const network::RoomSalvaged&)
+{
+    // ...
+}
+
+
+
 ScenePtr<Scene>
 ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -82,6 +96,10 @@ static u32 format_power_fraction(Power avail, Power used)
 
 ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (pfrm.network_peer().is_connected()) {
+        network::poll_messages(pfrm, app, *this);
+    }
+
     if (not app.paused()) {
         app.update_parallax(delta);
     }

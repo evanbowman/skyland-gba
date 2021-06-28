@@ -44,6 +44,21 @@ std::pair<RoomMeta*, int> room_metatable()
 
 
 
+MetaclassIndex metaclass_index(const char* name)
+{
+    auto [mt, ms] = room_metatable();
+
+    for (int i = 0; i < ms; ++i) {
+        if (str_cmp(mt[i]->name(), name) == 0) {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
+
+
 RoomMeta* load_metaclass(const char* name)
 {
     auto [mt, ms] = room_metatable();
@@ -52,6 +67,19 @@ RoomMeta* load_metaclass(const char* name)
         if (str_cmp(mt[i]->name(), name) == 0) {
             return &mt[i];
         }
+    }
+
+    return nullptr;
+}
+
+
+
+RoomMeta* load_metaclass(MetaclassIndex index)
+{
+    auto [mt, ms] = room_metatable();
+
+    if (ms > index) {
+        return &mt[index];
     }
 
     return nullptr;

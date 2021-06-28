@@ -537,10 +537,10 @@ void Island::repaint(Platform& pfrm)
                         }
                     }
                 }
-                if (not placed_chimney and show_flag_ and not placed_flag) {
-                    placed_flag = true;
-                    pfrm.set_tile(layer_, x, y, Tile::flag);
-                }
+                // if (not placed_chimney and show_flag_ and not placed_flag) {
+                //     placed_flag = true;
+                //     pfrm.set_tile(layer_, x, y, Tile::flag);
+                // }
             }
         }
     }

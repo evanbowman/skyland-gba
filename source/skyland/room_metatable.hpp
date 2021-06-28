@@ -129,7 +129,20 @@ public:
 std::pair<RoomMeta*, int> room_metatable();
 
 
+
+using MetaclassIndex = u16;
+
+
+
+MetaclassIndex metaclass_index(const char* name);
+
+
+
 RoomMeta* load_metaclass(const char* name);
+RoomMeta* load_metaclass(MetaclassIndex index);
+
+
+
 
 
 } // namespace skyland

@@ -68,6 +68,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/serial.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
+  ${SOURCE_DIR}/skyland/network.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
   ${SOURCE_DIR}/skyland/script_defs.cpp
   ${SOURCE_DIR}/skyland/configure_island.cpp
@@ -111,6 +112,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/fullscreenDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/recoverCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
+  ${SOURCE_DIR}/skyland/scene/multiplayerConnectScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp)
 
 
@@ -446,6 +448,8 @@ if(GAMEBOY_ADVANCE)
   add_file(scripts neutral_0_1 lisp)
   add_file(scripts neutral_0_2 lisp)
   add_file(scripts neutral_0_3 lisp)
+
+  add_file(scripts neutral_1_0 lisp)
 
 
   add_file(strings english txt)

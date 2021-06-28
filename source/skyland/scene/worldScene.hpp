@@ -5,6 +5,7 @@
 #include "skyland/coins.hpp"
 #include "skyland/power.hpp"
 #include "skyland/scene.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -12,7 +13,17 @@ namespace skyland {
 
 
 
-class WorldScene : public Scene {
+class ListenerImpl : public network::Listener {
+public:
+    void receive(Platform&, App&, const network::RoomConstructed&) override;
+
+
+    void receive(Platform&, App&, const network::RoomSalvaged&) override;
+};
+
+
+
+class WorldScene : public Scene, public ListenerImpl {
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
