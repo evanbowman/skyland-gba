@@ -1098,6 +1098,8 @@ static u32 read_list(const char* code)
     auto result = get_nil();
     push_op(get_nil());
 
+    bool dotted_pair = false;
+
     while (true) {
         switch (code[i]) {
         case '\r':
@@ -1105,6 +1107,19 @@ static u32 read_list(const char* code)
         case '\t':
         case ' ':
             ++i;
+            break;
+
+        case '.':
+            i += 1;
+            if (dotted_pair or result == get_nil()) {
+                push_op(lisp::make_error(Error::Code::mismatched_parentheses));
+                return i;
+            } else {
+                dotted_pair = true;
+                i += read(code + i);
+                result->cons_.set_cdr(get_op(0));
+                pop_op();
+            }
             break;
 
         case ';':
@@ -1128,6 +1143,10 @@ static u32 read_list(const char* code)
             break;
 
         default:
+            if (dotted_pair) {
+                push_op(lisp::make_error(Error::Code::mismatched_parentheses));
+                return i;
+            }
             i += read(code + i);
 
             if (result == get_nil()) {

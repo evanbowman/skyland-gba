@@ -4,6 +4,8 @@ extern const unsigned char file_newgame[];
 //;
 extern const unsigned char file_reset_hooks[];
 //;
+extern const unsigned char file_save[];
+//;
 extern const unsigned char file_hostile[];
 //;
 extern const unsigned char file_hostile_0_0[];
@@ -54,6 +56,8 @@ static const struct {
     {"scripts", "newgame.lisp", file_newgame},
 //;
     {"scripts", "reset_hooks.lisp", file_reset_hooks},
+//;
+    {"scripts", "save.lisp", file_save},
 //;
     {"scripts", "hostile.lisp", file_hostile},
 //;

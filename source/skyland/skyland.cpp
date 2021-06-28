@@ -2,6 +2,8 @@
 #include "globals.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
+#include "serial.hpp"
+#include "script/lisp.hpp"
 
 
 
@@ -55,6 +57,22 @@ void App::update(Platform& pfrm, Microseconds delta)
     if (next_scene_) {
         current_scene_->exit(pfrm, *this, *next_scene_);
     }
+}
+
+
+
+void App::save(Platform& pfrm)
+{
+    if (auto script = pfrm.load_file_contents("scripts", "save.lisp")) {
+        lisp::dostring(script, [](lisp::Value&){});
+    }
+
+    SaveData save_data;
+    save_data.magic_.set(0);
+    save_data.script_length_.set(0);
+    memcpy(&save_data.data_, &persistent_data_, sizeof persistent_data_);
+
+    pfrm.write_save_data(&save_data, sizeof save_data, 0);
 }
 
 

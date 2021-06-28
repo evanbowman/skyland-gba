@@ -1,5 +1,5 @@
 ;;;
-;;; neutral_0.lisp
+;;; neutral.lisp
 ;;;
 
 

@@ -20,7 +20,7 @@ public:
 
 
 private:
-    bool wait_ = true;
+    bool ready_ = false;
     std::optional<Text> text_;
     Microseconds timer_ = 0;
 };

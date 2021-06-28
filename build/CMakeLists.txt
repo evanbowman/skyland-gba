@@ -429,6 +429,7 @@ if(GAMEBOY_ADVANCE)
 
   add_file(scripts newgame lisp)
   add_file(scripts reset_hooks lisp)
+  add_file(scripts save lisp)
 
   add_file(scripts hostile lisp)
   add_file(scripts hostile_0_0 lisp)

@@ -34,8 +34,6 @@
 
        (set 'temp (chr-slots (player)))
 
-       (print (string temp))
-
        (if temp
            (progn
              (add-coins (- 0 400))

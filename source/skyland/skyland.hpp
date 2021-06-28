@@ -39,7 +39,7 @@ public:
 
     Coins& coins()
     {
-        return coins_;
+        return persistent_data_.coins_;
     }
 
 
@@ -132,13 +132,13 @@ public:
 
     WorldMap& world_map()
     {
-        return world_map_;
+        return persistent_data_.world_map_;
     }
 
 
     Vec2<u8>& current_map_location()
     {
-        return current_map_location_;
+        return persistent_data_.current_map_location_;
     }
 
 
@@ -150,7 +150,7 @@ public:
 
     int& zone()
     {
-        return zone_;
+        return persistent_data_.zone_;
     }
 
 
@@ -172,27 +172,48 @@ public:
     }
 
 
+    void save(Platform& pfrm);
+
+
 private:
+
+    struct PersistentData {
+        Coins coins_ = 0; // TODO: use HostInteger<> here?
+        WorldMap world_map_;
+        Vec2<u8> current_map_location_ = {0, 1};
+        int zone_ = 0;
+    } persistent_data_;
+
+
+
+    struct SaveData {
+        HostInteger<u32> magic_;
+        App::PersistentData data_;
+
+        // We have some persistent data used by the application (above). But, we
+        // also want to serialize a bunch of data used by the lisp interpreter,
+        // and just eval it later.
+        HostInteger<u32> script_length_;
+        // u8 script_[...]; variable-sized data to follow...
+    };
+
+
+
     Island player_island_;
     Float cloud_scroll_1_;
     Float cloud_scroll_2_;
     ScenePtr<Scene> current_scene_;
     ScenePtr<Scene> next_scene_;
-    Coins coins_ = 0;
     Coins terrain_cost_ = 0;
     Coins victory_coins_ = 0;
     Camera camera_;
     bool paused_ = false;
-    WorldMap world_map_;
-    Vec2<u8> current_map_location_ = {0, 1};
 
     std::optional<DialogBuffer> dialog_buffer_;
     bool dialog_expects_answer_ = false;
     bool exit_level_ = false;
 
     Float difficulty_accumulator_ = 0.f;
-
-    int zone_ = 0;
 
     EntityList<Entity> effects_;
     EntityList<SmolBirb> birbs_;

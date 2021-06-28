@@ -510,16 +510,18 @@ void Island::repaint(Platform& pfrm)
         for (int y = 15; y > -1; --y) {
             if (matrix[x][y] == 0 and y < 15 and matrix[x][y + 1] == 1) {
                 pfrm.set_tile(layer_, x, y, Tile::roof_plain);
+                bool placed_chimney_this_tile = false;
                 if (not placed_chimney) {
                     for (auto& loc : chimney_locs) {
                         if (loc == x) {
                             pfrm.set_tile(layer_, x, y, Tile::roof_chimney);
                             chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
                             placed_chimney = true;
+                            placed_chimney_this_tile = true;
                         }
                     }
                 }
-                if (not placed_chimney and show_flag_ and not placed_flag) {
+                if (not placed_chimney_this_tile and show_flag_ and not placed_flag) {
                     placed_flag = true;
                     pfrm.set_tile(layer_, x, y, Tile::roof_flag);
                     pfrm.set_tile(layer_, x, y - 1, Tile::flag);

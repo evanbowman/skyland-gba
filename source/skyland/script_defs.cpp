@@ -135,22 +135,33 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
-    // lisp::set_var("on-timeout", lisp::make_function([](int argc) {
-    //     L_EXPECT_ARGC(argc, 2);
-    //     L_EXPECT_OP(0, symbol);
-    //     L_EXPECT_OP(1, integer);
+    lisp::set_var("chrs", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, user_data);
 
-    //     auto name = lisp::get_op(0)->symbol_.name_;
+        auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
 
-    //     auto [app, pfrm] = interp_get_context();
+        lisp::Value* ret = lisp::get_nil();
 
-    //     app->on_timeout(*pfrm, milliseconds(lisp::get_op(1)->integer_.value_),
-    //                     [name](Platform& pfrm, App&) {
-    //                         invoke_hook(pfrm, name);
-    //                     });
+        for (auto& room : island->rooms()) {
+            for (auto& chr : room->characters()) {
+                if (chr->owner() == &island->owner()) {
+                    lisp::push_op(ret);
+                    {
+                        auto cell = lisp::make_cons(L_NIL, L_NIL);
+                        lisp::push_op(cell);
+                        cell->cons_.set_car(lisp::make_integer(chr->grid_position().x));
+                        cell->cons_.set_cdr(lisp::make_integer(chr->grid_position().y));
+                        ret = lisp::make_cons(cell, ret);
+                        lisp::pop_op(); // cell
+                    }
+                    lisp::pop_op(); // ret
+                }
+            }
+        }
 
-    //     return L_NIL;
-    // }));
+        return ret;
+    }));
 
 
     lisp::set_var(

@@ -265,10 +265,6 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (pfrm.keyboard().down_transition<Key::select>()) {
-            // TODO: make a UI for this stuff...
-            return scene_pool::alloc<MultiplayerConnectScene>();
-        }
         if (pfrm.keyboard().pressed<Key::action_1>()) {
             state_ = State::fade_out;
             pfrm.speaker().stop_music();
