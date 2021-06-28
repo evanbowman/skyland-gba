@@ -66,7 +66,7 @@ public:
     }
 
 
-    static const Microseconds recharge_time = seconds(20);
+    static const Microseconds recharge_time = seconds(18);
 
 
     bool ready() const

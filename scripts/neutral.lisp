@@ -23,7 +23,7 @@
                       (lambda (equal temp (arg 0)))
                       friendlies-seen))))
       (gen
-       (get '(3 3) (zone)) ;; number of levels to select from based on current zone
+       (get '(4 3) (zone)) ;; number of levels to select from based on current zone
        (lambda (arg 0)))))
 
 

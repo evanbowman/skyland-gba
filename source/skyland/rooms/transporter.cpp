@@ -105,7 +105,10 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
         const auto index = rng::choice(slots.size(), rng::critical_state);
         auto slot = &slots[index];
 
-        if (island->character_at_location(*slot)) {
+        auto existing = island->character_at_location(*slot);
+        if (existing and existing->owner() == &parent()->owner()) {
+            // Do not transport into a slot containing one of your own
+            // characters.
             slots.erase(slot);
         } else {
             dest = *slot;

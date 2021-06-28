@@ -511,20 +511,18 @@ void Island::repaint(Platform& pfrm)
             if (matrix[x][y] == 0 and y < 15 and matrix[x][y + 1] == 1) {
                 pfrm.set_tile(layer_, x, y, Tile::roof_plain);
                 if (not placed_chimney) {
-                    bool chimney = false;
                     for (auto& loc : chimney_locs) {
                         if (loc == x) {
                             pfrm.set_tile(layer_, x, y, Tile::roof_chimney);
-                            chimney = true;
                             chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
                             placed_chimney = true;
                         }
                     }
-                    if (not chimney and show_flag_ and not placed_flag) {
-                        placed_flag = true;
-                        pfrm.set_tile(layer_, x, y, Tile::roof_flag);
-                        pfrm.set_tile(layer_, x, y - 1, Tile::flag);
-                    }
+                }
+                if (not placed_chimney and show_flag_ and not placed_flag) {
+                    placed_flag = true;
+                    pfrm.set_tile(layer_, x, y, Tile::roof_flag);
+                    pfrm.set_tile(layer_, x, y - 1, Tile::flag);
                 }
             } else if (y == 14 and matrix[x][y] == 0 and
                        x < (int)terrain_.size()) {
@@ -538,6 +536,10 @@ void Island::repaint(Platform& pfrm)
                             chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
                         }
                     }
+                }
+                if (not placed_chimney and show_flag_ and not placed_flag) {
+                    placed_flag = true;
+                    pfrm.set_tile(layer_, x, y, Tile::flag);
                 }
             }
         }
