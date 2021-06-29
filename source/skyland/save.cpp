@@ -111,16 +111,16 @@ bool load(Platform& pfrm, PersistentData& d)
     lisp::pop_op(); // result of read() (0)
 
 
-    return false;
+    return true;
 }
 
 
 
 void erase(Platform& pfrm)
 {
-    SaveData d;
-    d.magic_.set(0);
-    pfrm.write_save_data(&d, sizeof d, 0);
+    SaveData save_data;
+    save_data.magic_.set(0);
+    pfrm.write_save_data(&save_data, sizeof save_data, 0);
 }
 
 

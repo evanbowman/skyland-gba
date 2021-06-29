@@ -43,8 +43,12 @@ private:
         explore_paths,
         move,
         wait,
+        save_selected,
         fade_out,
-    } state_;
+        fade_out_saved,
+        print_saved_text,
+        show_saved_text,
+    } state_ = State::deselected;
 
     bool move_arrow_sel_[3] = {false, true, false};
 
@@ -56,6 +60,7 @@ private:
 
     std::optional<Text> heading_;
     std::optional<Text> key_[3];
+    std::optional<MediumIcon> save_icon_;
 };
 
 

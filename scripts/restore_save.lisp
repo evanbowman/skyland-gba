@@ -5,10 +5,9 @@
 ;;;
 
 
-(eval-other-file "reset_hooks.lisp")
-
-
 (lambda
+  (eval-other-file "reset_hooks.lisp")
+
   (configure-player
    (player)
    (get (arg 0) 0)) ;; list of rooms in list index zero

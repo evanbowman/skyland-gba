@@ -5,6 +5,8 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/worldMap.hpp"
+#include "skyland/save.hpp"
+#include "titleScreenScene.hpp"
 
 
 
@@ -31,6 +33,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                 .down_transition<Key::right,
                                  Key::left,
                                  Key::up,
+                                 Key::down,
                                  Key::action_1>()) {
             state_ = State::explore_paths;
         }
@@ -79,7 +82,27 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_.x += 1;
                 cursor_.y += 1;
                 show_map(pfrm, app.world_map());
+            } else {
+                state_ = State::save_selected;
+                const auto cached_cursor = cursor_;
+                cursor_ = app.current_map_location(); // needed for show_map
+                show_map(pfrm, app.world_map());
+                cursor_ = cached_cursor;
             }
+        }
+        break;
+
+
+    case State::save_selected:
+        if (pfrm.keyboard().down_transition<Key::up>() or
+            pfrm.keyboard().down_transition<Key::action_2>()) {
+            state_ = State::explore_paths;
+            show_map(pfrm, app.world_map());
+        }
+
+        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+            state_ = State::fade_out_saved;
+            timer_ = 0;
         }
         break;
 
@@ -172,6 +195,40 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
     }
+
+
+    case State::fade_out_saved: {
+        timer_ += delta;
+        constexpr auto fade_duration = milliseconds(1200);
+        if (timer_ > fade_duration) {
+            timer_ = 0;
+            state_ = State::print_saved_text;
+            save::store(pfrm, app.persistent_data());
+            pfrm.fill_overlay(0);
+        } else {
+            const auto amount = smoothstep(0.f, fade_duration, timer_);
+            pfrm.screen().fade(
+                amount, ColorConstant::rich_black, {}, true, true);
+        }
+        break;
+    }
+
+
+    case State::print_saved_text:
+        pfrm.load_overlay_texture("overlay");
+        heading_.emplace(pfrm, "progress saved...", OverlayCoord{1, 1});
+        pfrm.screen().fade(1.f);
+        state_ = State::show_saved_text;
+        break;
+
+
+    case State::show_saved_text:
+        timer_ += delta;
+        if (timer_ > milliseconds(1300)) {
+            return scene_pool::alloc<TitleScreenScene>();
+        }
+        break;
+
     }
 
 
@@ -286,6 +343,11 @@ void WorldMapScene::display(Platform& pfrm, App& app)
                                  Float(36 + cursor_.y * 24) + 13});
             pfrm.screen().draw(cursor);
         }
+    } else if (state_ == State::save_selected) {
+        cursor.set_size(Sprite::Size::w32_h32);
+        cursor.set_texture_index(26 + cursor_keyframe_);
+        cursor.set_position({200, 120});
+        pfrm.screen().draw(cursor);
     }
 }
 
@@ -358,6 +420,8 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
             move_arrow_sel_[2] = true;
         }
     }
+
+    save_icon_.emplace(pfrm, 120, OverlayCoord{26, 16});
 
     pfrm.screen().fade(0.f);
 }
@@ -438,9 +502,16 @@ void WorldMapScene::exit(Platform& pfrm, App&, Scene& next_scene)
 {
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
-    pfrm.load_overlay_texture("overlay");
-
     pfrm.fill_overlay(0);
+
+    save_icon_.reset();
+    heading_.reset();
+
+    key_[0].reset();
+    key_[1].reset();
+    key_[2].reset();
+
+    pfrm.load_overlay_texture("overlay");
 }
 
 

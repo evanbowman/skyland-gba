@@ -12,6 +12,7 @@
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
 #include "zoneImageScene.hpp"
+#include "skyland/save.hpp"
 
 
 
@@ -22,32 +23,36 @@ namespace skyland {
 ScenePtr<Scene>
 NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
-
-    app.player_island().rooms().clear();
-
-    lisp::dostring(pfrm.load_file_contents("scripts", "newgame.lisp"),
-                   [&pfrm](lisp::Value& v) {
-                       pfrm.fatal(lisp::Error::get_string(v.error_.code_));
-                   });
-
-
     pfrm.load_tile0_texture("tilesheet");
     pfrm.load_tile1_texture("tilesheet_enemy_0");
 
-    app.current_map_location() = {0, 1};
-    app.world_map().generate();
+    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
-    app.coins() = 2500;
-    app.terrain_cost() = 500;
+    if (save::load(pfrm, app.persistent_data())) {
+        save::erase(pfrm);
+    } else {
+        lisp::dostring(pfrm.load_file_contents("scripts", "newgame.lisp"),
+                       [&pfrm](lisp::Value& v) {
+                           pfrm.fatal(lisp::Error::get_string(v.error_.code_));
+                       });
 
-    app.zone() = 1;
+        app.current_map_location() = {0, 1};
+        app.world_map().generate();
+
+        app.coins() = 2500;
+        app.terrain_cost() = 500;
+
+        app.zone() = 1;
+    }
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
     cursor_loc.x = 0;
     cursor_loc.y = 14;
 
     app.player_island().set_position({10, 374});
+
+    // Because interpreting all those lisp scripts ran up a high frame latency.
+    pfrm.delta_clock().reset();
 
 
     return scene_pool::alloc<ZoneImageScene>();

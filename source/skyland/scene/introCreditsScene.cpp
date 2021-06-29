@@ -2,6 +2,7 @@
 #include "newgameScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "titleScreenScene.hpp"
+#include "number/random.hpp"
 
 
 
@@ -14,6 +15,8 @@ void IntroCreditsScene::enter(Platform& pfrm, App&, Scene& prev)
     pfrm.load_overlay_texture("overlay");
 
     pfrm.screen().fade(1.f);
+
+    rng::critical_state = 2021;
 }
 
 

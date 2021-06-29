@@ -12,3 +12,11 @@
 
 (if (not (bound 'last-zone))
     (set 'last-zone (zone)))
+
+
+(if (not (bound 'enemies-seen))
+    (set 'enemies-seen '()))
+
+
+(if (not (bound 'friendlies-seen))
+    (set 'friendlies-seen '()))

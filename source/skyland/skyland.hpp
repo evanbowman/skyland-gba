@@ -173,6 +173,12 @@ public:
     }
 
 
+    PersistentData& persistent_data()
+    {
+        return persistent_data_;
+    }
+
+
 private:
     PersistentData persistent_data_;
     Island player_island_;

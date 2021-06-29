@@ -57,6 +57,8 @@ struct Context {
                        allocate_dynamic<ValuePool>(pfrm),
                        allocate_dynamic<ValuePool>(pfrm),
                        allocate_dynamic<ValuePool>(pfrm),
+                       allocate_dynamic<ValuePool>(pfrm),
+                       allocate_dynamic<ValuePool>(pfrm),
                        allocate_dynamic<ValuePool>(pfrm)},
           operand_stack_(allocate_dynamic<OperandStack>(pfrm)),
           globals_(allocate_dynamic<Globals>(pfrm)),
@@ -79,7 +81,7 @@ struct Context {
     // We're allocating 10k bytes toward lisp values. Because our simplistic
     // allocation strategy cannot support sizes other than 2k, we need to split
     // our memory for lisp values into regions.
-    static constexpr const int value_pool_count = 8;
+    static constexpr const int value_pool_count = 10;
     DynamicMemory<ValuePool> value_pools_[value_pool_count];
 
     DynamicMemory<OperandStack> operand_stack_;
