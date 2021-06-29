@@ -24,6 +24,8 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
+    app.player_island().rooms().clear();
+
     lisp::dostring(pfrm.load_file_contents("scripts", "newgame.lisp"),
                    [&pfrm](lisp::Value& v) {
                        pfrm.fatal(lisp::Error::get_string(v.error_.code_));
@@ -32,9 +34,6 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     pfrm.load_tile0_texture("tilesheet");
     pfrm.load_tile1_texture("tilesheet_enemy_0");
-
-    app.player_island().rooms().clear();
-    app.player_island().add_room<Core>(pfrm, {1, 13});
 
     app.current_map_location() = {0, 1};
     app.world_map().generate();
@@ -49,12 +48,6 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     cursor_loc.y = 14;
 
     app.player_island().set_position({10, 374});
-
-    auto chr = alloc_entity<BasicCharacter>(
-        &app.player_island(), &app.player(), Vec2<u8>({2, 14}));
-    while (not chr)
-        ;
-    app.player_island().add_character(std::move(chr));
 
 
     return scene_pool::alloc<ZoneImageScene>();

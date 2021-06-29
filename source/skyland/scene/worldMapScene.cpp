@@ -359,8 +359,6 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
         }
     }
 
-    app.save(pfrm);
-
     pfrm.screen().fade(0.f);
 }
 

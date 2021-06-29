@@ -64,6 +64,7 @@ set(SOURCES
   ${SOURCES}
   ${SOURCE_DIR}/skyland/room.cpp
   ${SOURCE_DIR}/skyland/path.cpp
+  ${SOURCE_DIR}/skyland/save.cpp
   ${SOURCE_DIR}/skyland/island.cpp
   ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/serial.cpp
@@ -430,6 +431,7 @@ if(GAMEBOY_ADVANCE)
   add_file(scripts newgame lisp)
   add_file(scripts reset_hooks lisp)
   add_file(scripts save lisp)
+  add_file(scripts restore_save lisp)
 
   add_file(scripts hostile lisp)
   add_file(scripts hostile_0_0 lisp)

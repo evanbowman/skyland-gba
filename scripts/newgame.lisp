@@ -11,3 +11,13 @@
 
 (set 'enemies-seen '())
 (set 'friendlies-seen '())
+
+
+
+;; Initial setup for player's island
+(configure-player
+ (player)
+ '((power-core 1 13)))
+
+
+(add-chr (player) 2 14)

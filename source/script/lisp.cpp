@@ -56,6 +56,7 @@ struct Context {
                        allocate_dynamic<ValuePool>(pfrm),
                        allocate_dynamic<ValuePool>(pfrm),
                        allocate_dynamic<ValuePool>(pfrm),
+                       allocate_dynamic<ValuePool>(pfrm),
                        allocate_dynamic<ValuePool>(pfrm)},
           operand_stack_(allocate_dynamic<OperandStack>(pfrm)),
           globals_(allocate_dynamic<Globals>(pfrm)),
@@ -78,7 +79,7 @@ struct Context {
     // We're allocating 10k bytes toward lisp values. Because our simplistic
     // allocation strategy cannot support sizes other than 2k, we need to split
     // our memory for lisp values into regions.
-    static constexpr const int value_pool_count = 7;
+    static constexpr const int value_pool_count = 8;
     DynamicMemory<ValuePool> value_pools_[value_pool_count];
 
     DynamicMemory<OperandStack> operand_stack_;
@@ -786,11 +787,18 @@ void dostring(const char* code, ::Function<16, void(Value&)> on_error)
 }
 
 
-void format_impl(Value* value, Printer& p)
+void format_impl(Value* value, Printer& p, int depth)
 {
+    bool prefix_quote = false;
+
     switch ((lisp::Value::Type)value->type_) {
     case lisp::Value::Type::nil:
-        p.put_str("nil");
+        if (depth == 0) {
+            p.put_str("'()");
+        } else {
+            p.put_str("()");
+        }
+
         break;
 
     case lisp::Value::Type::string:
@@ -809,21 +817,27 @@ void format_impl(Value* value, Printer& p)
     }
 
     case lisp::Value::Type::cons:
+        if (depth == 0 and not prefix_quote) {
+            p.put_str("'");
+            prefix_quote = true;
+        }
         p.put_str("(");
-        format_impl(value->cons_.car(), p);
-        if (value->cons_.cdr()->type_ not_eq Value::Type::cons) {
+        format_impl(value->cons_.car(), p, depth + 1);
+        if (value->cons_.cdr()->type_ == Value::Type::nil) {
+            // ...
+        } else if (value->cons_.cdr()->type_ not_eq Value::Type::cons) {
             p.put_str(" . ");
-            format_impl(value->cons_.cdr(), p);
+            format_impl(value->cons_.cdr(), p, depth + 1);
         } else {
             auto current = value;
             while (true) {
                 if (current->cons_.cdr()->type_ == Value::Type::cons) {
                     p.put_str(" ");
-                    format_impl(current->cons_.cdr()->cons_.car(), p);
+                    format_impl(current->cons_.cdr()->cons_.car(), p, depth + 1);
                     current = current->cons_.cdr();
                 } else if (current->cons_.cdr() not_eq get_nil()) {
                     p.put_str(" ");
-                    format_impl(current->cons_.cdr(), p);
+                    format_impl(current->cons_.cdr(), p, depth + 1);
                     break;
                 } else {
                     break;
@@ -865,7 +879,7 @@ const char* String::value()
 
 void format(Value* value, Printer& p)
 {
-    format_impl(value, p);
+    format_impl(value, p, 0);
 }
 
 
@@ -1921,7 +1935,7 @@ void init(Platform& pfrm)
                     if (val->type_ == Value::Type::string) {
                         p.put_str(val->string_.value());
                     } else {
-                        format_impl(val, p);
+                        format_impl(val, p, 0);
                     }
                 }
 

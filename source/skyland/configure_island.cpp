@@ -11,6 +11,8 @@ void configure_island(Platform& pfrm,
                       Island& island,
                       lisp::Value* island_desc_lat)
 {
+    island.rooms().clear();
+
     lisp::foreach (island_desc_lat, [&](lisp::Value* val) {
         auto name_symb = lisp::get_list(val, 0);
         if (name_symb->type_ not_eq lisp::Value::Type::symbol) {
@@ -23,6 +25,8 @@ void configure_island(Platform& pfrm,
             (*c)->create(pfrm, &island, Vec2<u8>{x, y});
         }
     });
+
+    island.repaint(pfrm);
 }
 
 
@@ -33,11 +37,7 @@ void configure_island_from_codestring(Platform& pfrm,
 {
     lisp::read(lisp_data); // leaves result of (read) at top of operand stack.
 
-    island.rooms().clear();
-
     configure_island(pfrm, island, lisp::get_op(0));
-
-    island.repaint(pfrm);
 
     lisp::pop_op();
 }

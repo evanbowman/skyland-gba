@@ -12,6 +12,7 @@
 #include "player.hpp"
 #include "scene.hpp"
 #include "worldMap.hpp"
+#include "persistentData.hpp"
 
 
 
@@ -172,33 +173,8 @@ public:
     }
 
 
-    void save(Platform& pfrm);
-
-
 private:
-
-    struct PersistentData {
-        Coins coins_ = 0; // TODO: use HostInteger<> here?
-        WorldMap world_map_;
-        Vec2<u8> current_map_location_ = {0, 1};
-        int zone_ = 0;
-    } persistent_data_;
-
-
-
-    struct SaveData {
-        HostInteger<u32> magic_;
-        App::PersistentData data_;
-
-        // We have some persistent data used by the application (above). But, we
-        // also want to serialize a bunch of data used by the lisp interpreter,
-        // and just eval it later.
-        HostInteger<u32> script_length_;
-        // u8 script_[...]; variable-sized data to follow...
-    };
-
-
-
+    PersistentData persistent_data_;
     Island player_island_;
     Float cloud_scroll_1_;
     Float cloud_scroll_2_;
