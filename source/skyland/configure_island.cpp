@@ -18,12 +18,29 @@ void configure_island(Platform& pfrm,
         if (name_symb->type_ not_eq lisp::Value::Type::symbol) {
             return;
         }
-        u8 x = lisp::get_list(val, 1)->integer_.value_;
-        u8 y = lisp::get_list(val, 2)->integer_.value_;
 
-        if (auto c = load_metaclass(name_symb->symbol_.name_)) {
-            (*c)->create(pfrm, &island, Vec2<u8>{x, y});
+        const auto len = length(val);
+
+
+        if (len >= 3) {
+            u8 x = lisp::get_list(val, 1)->integer_.value_;
+            u8 y = lisp::get_list(val, 2)->integer_.value_;
+
+            if (auto c = load_metaclass(name_symb->symbol_.name_)) {
+                (*c)->create(pfrm, &island, Vec2<u8>{x, y});
+            }
+
+            // Optionally, the schema for saving rooms will include a health
+            // parameter.
+            if (len >= 4) {
+                const auto health = lisp::get_list(val, 3)->integer_.value_;
+                if (auto room = island.get_room({x, y})) {
+                    room->set_health(health);
+                }
+            }
         }
+
+
     });
 
     island.repaint(pfrm);

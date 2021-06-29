@@ -8,6 +8,8 @@ extern const unsigned char file_save[];
 //;
 extern const unsigned char file_restore_save[];
 //;
+extern const unsigned char file_multiplayer_init[];
+//;
 extern const unsigned char file_hostile[];
 //;
 extern const unsigned char file_hostile_0_0[];
@@ -62,6 +64,8 @@ static const struct {
     {"scripts", "save.lisp", file_save},
 //;
     {"scripts", "restore_save.lisp", file_restore_save},
+//;
+    {"scripts", "multiplayer_init.lisp", file_multiplayer_init},
 //;
     {"scripts", "hostile.lisp", file_hostile},
 //;

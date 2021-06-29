@@ -203,7 +203,7 @@ void App::init_scripts(Platform& pfrm)
         }));
 
 
-    lisp::set_var("swap-ai", lisp::make_function([](int argc) {
+    lisp::set_var("swap-opponent", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, symbol);
 
@@ -211,9 +211,9 @@ void App::init_scripts(Platform& pfrm)
 
                       auto conf = lisp::get_op(0);
                       if (str_cmp(conf->symbol_.name_, "hostile") == 0) {
-                          app->swap_ai<EnemyAI>();
+                          app->swap_opponent<EnemyAI>();
                       } else if (str_cmp(conf->symbol_.name_, "neutral") == 0) {
-                          app->swap_ai<FriendlyAI>();
+                          app->swap_opponent<FriendlyAI>();
                       } else {
                           StringBuffer<30> err("bad ai sym: '");
                           err += conf->symbol_.name_;
@@ -233,9 +233,9 @@ void App::init_scripts(Platform& pfrm)
 
                       auto conf = lisp::get_op(0);
                       if (str_cmp(conf->symbol_.name_, "hostile") == 0) {
-                          app->swap_ai<EnemyAI>();
+                          app->swap_opponent<EnemyAI>();
                       } else if (str_cmp(conf->symbol_.name_, "neutral") == 0) {
-                          app->swap_ai<FriendlyAI>();
+                          app->swap_opponent<FriendlyAI>();
                       } else {
                           StringBuffer<30> err("bad ai sym: '");
                           err += conf->symbol_.name_;
@@ -246,7 +246,7 @@ void App::init_scripts(Platform& pfrm)
                           *pfrm,
                           Layer::map_1_ext,
                           lisp::get_op(1)->integer_.value_,
-                          app->ai());
+                          app->opponent());
 
                       return L_NIL;
                   }));
@@ -336,7 +336,7 @@ void App::init_scripts(Platform& pfrm)
                       };
 
                       auto chr = alloc_entity<BasicCharacter>(
-                          island, &app->ai(), coord);
+                          island, &app->opponent(), coord);
 
                       island->add_character(std::move(chr));
 

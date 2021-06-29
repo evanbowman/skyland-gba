@@ -27,7 +27,7 @@ public:
     void on_room_damaged(Platform& pfrm, App& app, Room&) override
     {
         // What!? The player attacked us! We're no longer a friendly AI.
-        app.swap_ai<EnemyAI>();
+        app.swap_opponent<EnemyAI>();
 
         invoke_hook(pfrm, "hostile-transition-hook");
     }

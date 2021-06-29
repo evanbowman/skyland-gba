@@ -5,6 +5,10 @@
 #include <utility>
 
 
+// Maybe you'll think this class is kind of dumb. But I wanted to be able to
+// create duck-typed objects without using malloc. Boxed implements an in-place
+// allocation, which may be swapped for an instance with a type derived from T.
+
 
 namespace skyland {
 

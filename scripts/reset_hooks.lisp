@@ -23,4 +23,4 @@
 
 
 (if (not (bound 'snapshots))
-    (set 'snapshots '()))
+    (set 'snapshots '(() ())))

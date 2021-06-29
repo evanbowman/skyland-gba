@@ -188,6 +188,12 @@ public:
     }
 
 
+    void set_health(Health amount)
+    {
+        health_ = amount;
+    }
+
+
     virtual bool description_visible();
 
 

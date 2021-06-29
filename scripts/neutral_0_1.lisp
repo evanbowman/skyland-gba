@@ -43,7 +43,7 @@
 
 (set 'after-dialog-declined-hook
      (lambda
-       (swap-ai 'hostile)
+       (swap-opponent 'hostile)
        (dialog "The fortress begins charging its weapons...")))
 
 

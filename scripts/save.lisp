@@ -10,4 +10,5 @@
  (rooms (player))
  (chrs (player))
  enemies-seen
- friendlies-seen)
+ friendlies-seen
+ last-zone)

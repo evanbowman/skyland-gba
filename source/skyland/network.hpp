@@ -8,11 +8,8 @@
 
 
 namespace skyland {
-
-
-
 namespace network {
-
+namespace packet {
 
 
 
@@ -20,7 +17,9 @@ struct Header {
     enum MessageType : u8 {
         null,
         room_constructed,
+        terrain_constructed,
         room_salvaged,
+        weapon_set_target,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -36,9 +35,19 @@ struct RoomConstructed {
     HostInteger<MetaclassIndex> metaclass_index_;
     u8 x_;
     u8 y_;
-    u8 unused_[7];
+    u8 unused_[1];
 
     static const auto mt = Header::MessageType::room_constructed;
+};
+
+
+
+struct TerrainConstructed {
+    Header header_;
+    u8 new_terrain_size_;
+    u8 unused_[4];
+
+    static const auto mt = Header::MessageType::terrain_constructed;
 };
 
 
@@ -48,10 +57,26 @@ struct RoomSalvaged {
     u8 x_;
     u8 y_;
 
-    u8 unused_[9];
+    u8 unused_[3];
 
     static const auto mt = Header::MessageType::room_salvaged;
 };
+
+
+
+struct WeaponSetTarget {
+    Header header_;
+    u8 x_;
+    u8 y_;
+
+    u8 unused_[3];
+
+    static const auto mt = Header::MessageType::weapon_set_target;
+};
+
+
+
+}
 
 
 
@@ -62,12 +87,22 @@ public:
     }
 
 
-    virtual void receive(Platform&, App&, const RoomConstructed&)
+    virtual void receive(Platform&, App&, const packet::RoomConstructed&)
     {
     }
 
 
-    virtual void receive(Platform&, App&, const RoomSalvaged&)
+    virtual void receive(Platform&, App&, const packet::RoomSalvaged&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::TerrainConstructed&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::WeaponSetTarget&)
     {
     }
 };

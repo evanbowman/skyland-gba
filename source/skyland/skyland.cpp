@@ -31,12 +31,54 @@ App::App(Platform& pfrm)
 
 
 
+class RemoteConsoleLispPrinter : public lisp::Printer {
+public:
+    RemoteConsoleLispPrinter(Platform& pfrm) : pfrm_(pfrm)
+    {
+    }
+
+    void put_str(const char* str) override
+    {
+        fmt_ += str;
+    }
+
+    Platform::RemoteConsole::Line fmt_;
+    Platform& pfrm_;
+};
+
+
+
+COLD void on_remote_console_text(Platform& pfrm,
+                                 const Platform::RemoteConsole::Line& str)
+{
+    info(pfrm, str.c_str());
+
+    RemoteConsoleLispPrinter printer(pfrm);
+
+    lisp::read(str.c_str());
+    lisp::eval(lisp::get_op(0));
+    format(lisp::get_op(0), printer);
+
+    lisp::pop_op();
+    lisp::pop_op();
+
+
+    pfrm.remote_console().printline(printer.fmt_.c_str());
+}
+
+
+
 void App::update(Platform& pfrm, Microseconds delta)
 {
     if (next_scene_) {
         next_scene_->enter(pfrm, *this, *current_scene_);
 
         current_scene_ = std::move(next_scene_);
+    }
+
+    auto line = pfrm.remote_console().readline();
+    if (UNLIKELY(static_cast<bool>(line))) {
+        on_remote_console_text(pfrm, *line);
     }
 
     for (auto it = deferred_callbacks_.begin();

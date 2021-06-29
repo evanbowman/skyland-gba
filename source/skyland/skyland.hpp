@@ -95,17 +95,17 @@ public:
     }
 
 
-    Opponent& ai()
+    Opponent& opponent()
     {
-        return *ai_;
+        return *opponent_;
     }
 
 
-    template <typename T, typename... Args> void swap_ai(Args&&... args)
+    template <typename T, typename... Args> void swap_opponent(Args&&... args)
     {
-        ai_.emplace<T>(std::forward<Args>(args)...);
+        opponent_.emplace<T>(std::forward<Args>(args)...);
         if (opponent_island()) {
-            opponent_island()->set_owner(*ai_);
+            opponent_island()->set_owner(*opponent_);
         }
     }
 
@@ -209,7 +209,7 @@ private:
     Player player_; // Just a null sentinel object essentially...
 
 
-    Boxed<Opponent, EnemyAI, 64> ai_;
+    Boxed<Opponent, EnemyAI, 64> opponent_;
 };
 
 

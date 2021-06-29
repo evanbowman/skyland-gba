@@ -13,15 +13,15 @@ namespace network {
 void poll_messages(Platform& pfrm, App& app, Listener& listener)
 {
     while (auto message = pfrm.network_peer().poll_message()) {
-        if (message->length_ < sizeof(Header)) {
+        if (message->length_ < sizeof(packet::Header)) {
             return;
         }
-        Header header;
+        packet::Header header;
         memcpy(&header, message->data_, sizeof header);
 
         switch (header.message_type_) {
-        case Header::null:
-            pfrm.network_peer().poll_consume(sizeof(Header));
+        case packet::Header::null:
+            pfrm.network_peer().poll_consume(sizeof(packet::Header));
             continue;
 
 #define HANDLE_MESSAGE(MESSAGE_TYPE)                                           \
@@ -37,8 +37,10 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
         continue;                                                              \
     }
 
-            HANDLE_MESSAGE(RoomConstructed)
-            HANDLE_MESSAGE(RoomSalvaged)
+            HANDLE_MESSAGE(packet::RoomConstructed)
+            HANDLE_MESSAGE(packet::RoomSalvaged)
+            HANDLE_MESSAGE(packet::TerrainConstructed)
+            HANDLE_MESSAGE(packet::WeaponSetTarget)
         }
 
         error(pfrm, "garbled message!?");

@@ -12,8 +12,11 @@ namespace skyland {
 namespace scene_pool {
 
 
-
+#ifdef __GBA__
 static constexpr const int max_scene_size = 350;
+#else
+static constexpr const int max_scene_size = 700;
+#endif
 static constexpr const int pool_capacity = 3;
 
 

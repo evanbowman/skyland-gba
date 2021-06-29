@@ -3,6 +3,7 @@
 #include "readyScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -56,6 +57,11 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         const auto target = targets_[selector_];
         if (auto room = app.player_island().get_room(weapon_loc_)) {
             room->set_target(target);
+
+            network::packet::WeaponSetTarget packet;
+            packet.x_ = weapon_loc_.x;
+            packet.y_ = weapon_loc_.y;
+            network::transmit(pfrm, packet);
         }
         return scene_pool::alloc<ReadyScene>();
     }

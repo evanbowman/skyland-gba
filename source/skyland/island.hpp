@@ -86,6 +86,9 @@ public:
     }
 
 
+    void flip(Platform& pfrm);
+
+
     void render_interior(Platform& pfrm);
 
 

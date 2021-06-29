@@ -13,17 +13,7 @@ namespace skyland {
 
 
 
-class ListenerImpl : public network::Listener {
-public:
-    void receive(Platform&, App&, const network::RoomConstructed&) override;
-
-
-    void receive(Platform&, App&, const network::RoomSalvaged&) override;
-};
-
-
-
-class WorldScene : public Scene, public ListenerImpl {
+class WorldScene : public Scene {
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 

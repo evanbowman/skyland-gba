@@ -74,6 +74,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/script_defs.cpp
   ${SOURCE_DIR}/skyland/configure_island.cpp
   ${SOURCE_DIR}/skyland/opponent/enemyAI.cpp
+  ${SOURCE_DIR}/skyland/opponent/multiplayerPeer.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
   ${SOURCE_DIR}/skyland/room_metatable.cpp
   ${SOURCE_DIR}/skyland/entity/explosion/explosion.cpp
@@ -432,6 +433,7 @@ if(GAMEBOY_ADVANCE)
   add_file(scripts reset_hooks lisp)
   add_file(scripts save lisp)
   add_file(scripts restore_save lisp)
+  add_file(scripts multiplayer_init lisp)
 
   add_file(scripts hostile lisp)
   add_file(scripts hostile_0_0 lisp)

@@ -18,4 +18,6 @@
    (get (arg 0) 1)) ;; list of characters in list index one
 
   (set 'enemies-seen (get (arg 0) 2))
-  (set 'frendlies-seen (get (arg 0) 3)))
+  (set 'frendlies-seen (get (arg 0) 3))
+
+  (set 'last-zone (get (arg 0) 4)))

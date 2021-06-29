@@ -27,6 +27,12 @@ DynamicMemory<SerialString> serialize(Platform& pfrm, Island& island)
         (*str) += to_string<24>(room->position().x);
         str->push_back(' ');
         (*str) += to_string<24>(room->position().y);
+
+        if (room->health() not_eq room->max_health()) {
+            str->push_back(' ');
+            (*str) += to_string<24>(room->health());
+        }
+
         str->push_back(')');
     }
 

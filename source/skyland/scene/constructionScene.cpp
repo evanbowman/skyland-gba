@@ -8,6 +8,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "worldScene.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -135,10 +136,15 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.coins() -= get_cost(app, target);
 
             const auto sz = target->size().y;
-            target->create(pfrm,
-                           &app.player_island(),
-                           {construction_sites_[selector_].x,
-                            u8(construction_sites_[selector_].y - (sz - 1))});
+            const u8 dest_x = construction_sites_[selector_].x;
+            const u8 dest_y = construction_sites_[selector_].y - (sz - 1);
+            target->create(pfrm, &app.player_island(), {dest_x, dest_y});
+
+            network::packet::RoomConstructed packet;
+            packet.metaclass_index_.set(metaclass_index(target->name()));
+            packet.x_ = dest_x;
+            packet.y_ = dest_y;
+            network::transmit(pfrm, packet);
 
             find_construction_sites(pfrm, app);
 
@@ -178,6 +184,11 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             terrain.push_back(Tile::terrain_right);
 
             app.player_island().render_terrain(pfrm);
+
+            network::packet::TerrainConstructed packet;
+            packet.new_terrain_size_ = app.player_island().terrain().size();
+            network::transmit(pfrm, packet);
+
 
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;

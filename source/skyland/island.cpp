@@ -85,6 +85,25 @@ BasicCharacter* Island::character_at_location(const Vec2<u8>& loc)
 }
 
 
+
+void Island::flip(Platform& pfrm)
+{
+    int max = 0;
+    for (auto& room : rooms_) {
+        if (max < room->position().x) {
+            max = room->position().x;
+        }
+    }
+
+    for (auto& room : rooms_) {
+        room->__position().x = (room->position().x - max) - (room->size().x - 1);
+    }
+
+    repaint(pfrm);
+}
+
+
+
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;

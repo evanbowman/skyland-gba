@@ -81,6 +81,7 @@ void TitleScreenScene::enter(Platform& pfrm, App&, Scene& prev)
 }
 
 
+
 void TitleScreenScene::window_image_hack(Platform& pfrm)
 {
     // We needed to cram the textures for the scrolling background image into
@@ -102,6 +103,7 @@ void TitleScreenScene::window_image_hack(Platform& pfrm)
 }
 
 
+
 void TitleScreenScene::redraw_margins(Platform& pfrm)
 {
     const auto screen_tiles = calc_screen_tiles(pfrm);
@@ -116,6 +118,7 @@ void TitleScreenScene::redraw_margins(Platform& pfrm)
         pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 256);
     }
 }
+
 
 
 void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
@@ -148,6 +151,7 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 [[maybe_unused]] static const char* menu_text[2]{"adventure", "challenge"};
+
 
 
 void TitleScreenScene::put_menu_text(Platform& pfrm)
@@ -275,6 +279,12 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::fade_out;
             pfrm.speaker().stop_music();
         }
+
+        if (pfrm.keyboard().down_transition<Key::start>()) {
+            pfrm.speaker().stop_music();
+            return scene_pool::alloc<MultiplayerConnectScene>();
+        }
+
         if (pfrm.keyboard().down_transition<Key::right>()) {
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
@@ -454,6 +464,7 @@ static void init_clouds2(Platform& pfrm)
         put_bg_cloud_type_n(offset + 3, 3);
     }
 }
+
 
 
 } // namespace skyland

@@ -4,6 +4,7 @@
 #include "readyScene.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -110,6 +111,11 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                     app.player_island().destroy_room(pfrm, cursor_loc);
                     exit_countdown_ = milliseconds(500);
+
+                    network::packet::RoomSalvaged packet;
+                    packet.x_ = cursor_loc.x;
+                    packet.y_ = cursor_loc.y;
+                    network::transmit(pfrm, packet);
                 }
             } else {
                 return scene_pool::alloc<ReadyScene>();
