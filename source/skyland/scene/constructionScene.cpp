@@ -315,7 +315,7 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
     }
 
     auto& terrain = app.player_island().terrain();
-    if (not terrain.full()) {
+    if (not terrain.full() and not pfrm.network_peer().is_connected()) {
         construction_sites_.push_back({u8(terrain.size()), 15});
     }
 

@@ -9,6 +9,8 @@
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "localization.hpp"
+#include "multiplayerReadyScene.hpp"
 
 
 
@@ -85,6 +87,46 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (not app.paused()) {
         app.update_parallax(delta);
     }
+
+    auto& mt_prep_timer =
+        std::get<SkylandGlobalData>(globals()).multiplayer_prep_timer_;
+
+    auto& mt_prep_seconds =
+        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+
+
+    if (pfrm.network_peer().is_connected()) {
+        if (mt_prep_seconds) {
+            mt_prep_timer += delta;
+            if (mt_prep_timer > seconds(1)) {
+                mt_prep_timer -= seconds(1);
+                mt_prep_seconds--;
+
+                if (mt_prep_seconds == 0) {
+                    return scene_pool::alloc<MultiplayerReadyScene>();
+                }
+
+                StringBuffer<30> msg = "get ready! 0";
+                msg += to_string<10>(mt_prep_seconds / 60);
+                msg += ":";
+                const auto rem = mt_prep_seconds % 60;
+                if (rem < 10) {
+                    msg += "0";
+                }
+                msg += to_string<10>(rem);
+
+                const u8 margin = centered_text_margins(pfrm, msg.length());
+
+                std::get<SkylandGlobalData>(globals()).multiplayer_prep_text_
+                    .emplace(pfrm, msg.c_str(), OverlayCoord{margin, 4});
+            }
+        } else {
+            std::get<SkylandGlobalData>(globals()).multiplayer_prep_text_.reset();
+        }
+    } else {
+        std::get<SkylandGlobalData>(globals()).multiplayer_prep_text_.reset();
+    }
+
 
     if (pfrm.network_peer().is_connected()) {
         // We don't allow pausing during multiplayer games yet. Makes things

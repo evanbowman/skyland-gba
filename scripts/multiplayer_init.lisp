@@ -10,7 +10,9 @@
 
 (configure-player
  (player)
- '((power-core 1 13)))
+ '((stairwell)
+   (power-core 1 13)
+   (power-core 3 13)))
 
 
 (add-chr (player) 2 14)
@@ -27,7 +29,9 @@
 
 (configure-player
  (opponent)
- '((power-core 1 13)))
+ '((stairwell 5 11)
+   (power-core 4 13)
+   (power-core 2 13)))
 
 
-(add-hostile-chr (opponent) 2 14)
+(add-hostile-chr (opponent) 1 14)

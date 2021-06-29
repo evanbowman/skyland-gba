@@ -31,7 +31,27 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
                              *app.opponent_island());
 
         app.opponent_island()->repaint(pfrm);
+    } else {
+        pfrm.fatal("multi missing opp island");
     }
+
+    auto& terrain_0 = app.player_island().terrain();
+    auto& terrain_1 = app.opponent_island()->terrain();
+
+    terrain_0.clear();
+    terrain_1.clear();
+
+    terrain_0.push_back(13);
+    terrain_1.push_back(13);
+
+    for (int i = 0; i < 5; ++i) {
+        terrain_0.push_back(12);
+        terrain_1.push_back(12);
+    }
+
+    terrain_0.push_back(14);
+    terrain_1.push_back(14);
+
 
     app.player_island().repaint(pfrm);
 
@@ -45,6 +65,8 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_tile0_texture("tilesheet");
     pfrm.load_tile1_texture("tilesheet_enemy_0");
 
+    std::get<SkylandGlobalData>(globals()).multiplayer_prep_timer_ = 0;
+    std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 120;
 }
 
 

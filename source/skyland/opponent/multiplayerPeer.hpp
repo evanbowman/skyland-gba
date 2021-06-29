@@ -33,7 +33,7 @@ public:
 
     void receive(Platform& pfrm,
                  App& app,
-                 const network::packet::TerrainConstructed& packet) override;
+                 const network::packet::WeaponSetTarget& packet) override;
 
 };
 

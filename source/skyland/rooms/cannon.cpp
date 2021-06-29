@@ -50,9 +50,15 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
                     start.x += 6;
                 }
 
+                auto target = room->center();
+
+                if (not pfrm.network_peer().is_connected()) {
+                    target = rng::sample<6>(target, rng::critical_state);
+                }
+
                 auto c = alloc_entity<Cannonball>(
                     start,
-                    rng::sample<6>(room->center(), rng::utility_state),
+                    target,
                     parent());
                 parent()->projectiles().push(std::move(c));
 

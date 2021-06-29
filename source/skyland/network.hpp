@@ -66,10 +66,12 @@ struct RoomSalvaged {
 
 struct WeaponSetTarget {
     Header header_;
-    u8 x_;
-    u8 y_;
+    u8 weapon_x_;
+    u8 weapon_y_;
+    u8 target_x_;
+    u8 target_y_;
 
-    u8 unused_[3];
+    u8 unused_[1];
 
     static const auto mt = Header::MessageType::weapon_set_target;
 };

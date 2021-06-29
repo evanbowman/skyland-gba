@@ -59,8 +59,10 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             room->set_target(target);
 
             network::packet::WeaponSetTarget packet;
-            packet.x_ = weapon_loc_.x;
-            packet.y_ = weapon_loc_.y;
+            packet.weapon_x_ = weapon_loc_.x;
+            packet.weapon_y_ = weapon_loc_.y;
+            packet.target_x_ = target.x;
+            packet.target_y_ = target.y;
             network::transmit(pfrm, packet);
         }
         return scene_pool::alloc<ReadyScene>();

@@ -26,7 +26,7 @@ Missile::Missile(const Vec2<Float>& position,
 
 
 
-void Missile::update(Platform&, App&, Microseconds delta)
+void Missile::update(Platform& pfrm, App&, Microseconds delta)
 {
     timer_ += delta;
 
@@ -50,7 +50,9 @@ void Missile::update(Platform&, App&, Microseconds delta)
             state_ = State::falling;
             auto pos = sprite_.get_position();
             pos.x = target_x_;
-            pos.x = rng::sample<5>(pos.x, rng::utility_state);
+            if (not pfrm.network_peer().is_connected()) {
+                pos.x = rng::sample<5>(pos.x, rng::critical_state);
+            }
             sprite_.set_position(pos);
             sprite_.set_flip({false, true});
             sprite_.set_alpha(Sprite::Alpha::opaque);

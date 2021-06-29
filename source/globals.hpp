@@ -6,6 +6,7 @@
 #include "skyland/entity.hpp"
 #include "skyland/roomPool.hpp"
 #include "skyland/scene_pool.hpp"
+#include "graphics/overlay.hpp"
 
 
 // struct BlindJumpGlobalData {
@@ -36,6 +37,10 @@ struct SkylandGlobalData {
 
     skyland::EntityNodePool<skyland::entity_pool_size> entity_node_pool_;
     skyland::EntityPool entity_pool_;
+
+    std::optional<Text> multiplayer_prep_text_;
+    Microseconds multiplayer_prep_timer_ = 0;
+    u16 multiplayer_prep_seconds_ = 0;
 };
 
 
