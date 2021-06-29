@@ -20,3 +20,7 @@
 
 (if (not (bound 'friendlies-seen))
     (set 'friendlies-seen '()))
+
+
+(if (not (bound 'snapshots))
+    (set 'snapshots '()))

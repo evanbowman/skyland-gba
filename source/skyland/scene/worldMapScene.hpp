@@ -39,16 +39,19 @@ private:
 
 
     enum class State {
+        fade_in,
         deselected,
         explore_paths,
         move,
         wait,
         save_selected,
+        save_button_depressed,
+        save_button_released_wait,
         fade_out,
         fade_out_saved,
         print_saved_text,
         show_saved_text,
-    } state_ = State::deselected;
+    } state_ = State::fade_in;
 
     bool move_arrow_sel_[3] = {false, true, false};
 

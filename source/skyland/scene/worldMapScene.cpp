@@ -101,8 +101,28 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (pfrm.keyboard().down_transition<Key::action_1>()) {
-            state_ = State::fade_out_saved;
+            state_ = State::save_button_depressed;
+            save_icon_.emplace(pfrm, 124, OverlayCoord{26, 16});
             timer_ = 0;
+        }
+        break;
+
+
+    case State::save_button_depressed:
+        timer_ += delta;
+        if (timer_ > milliseconds(100)) {
+            timer_ = 0;
+            state_ = State::save_button_released_wait;
+            save_icon_.emplace(pfrm, 120, OverlayCoord{26, 16});
+        }
+        break;
+
+
+    case State::save_button_released_wait:
+        timer_ += delta;
+        if (timer_ > milliseconds(60)) {
+            timer_ = 0;
+            state_ = State::fade_out_saved;
         }
         break;
 
@@ -190,6 +210,21 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<LoadLevelScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
+            pfrm.screen().fade(
+                amount, ColorConstant::rich_black, {}, true, true);
+        }
+        break;
+    }
+
+
+    case State::fade_in: {
+        timer_ += delta;
+        constexpr auto fade_duration = milliseconds(350);
+        if (timer_ > fade_duration) {
+            timer_ = 0;
+            state_ = State::deselected;
+        } else {
+            const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
             pfrm.screen().fade(
                 amount, ColorConstant::rich_black, {}, true, true);
         }
@@ -343,7 +378,9 @@ void WorldMapScene::display(Platform& pfrm, App& app)
                                  Float(36 + cursor_.y * 24) + 13});
             pfrm.screen().draw(cursor);
         }
-    } else if (state_ == State::save_selected) {
+    } else if (state_ == State::save_selected or
+               state_ == State::save_button_depressed or
+               state_ == State::save_button_released_wait) {
         cursor.set_size(Sprite::Size::w32_h32);
         cursor.set_texture_index(26 + cursor_keyframe_);
         cursor.set_position({200, 120});

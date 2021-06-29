@@ -66,6 +66,8 @@ void ZoneImageScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     pfrm.set_overlay_origin(0, 0);
 
+    pfrm.fill_overlay(0);
+
     if (app.player_island().interior_visible()) {
         pfrm.load_tile0_texture("tilesheet_interior");
     } else {
