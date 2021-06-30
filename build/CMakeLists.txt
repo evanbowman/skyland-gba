@@ -80,6 +80,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/entity/explosion/explosion.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/ionBurst.cpp
   ${SOURCE_DIR}/skyland/entity/character/basicCharacter.cpp
   ${SOURCE_DIR}/skyland/rooms/core.cpp
   ${SOURCE_DIR}/skyland/rooms/hull.cpp
@@ -89,6 +90,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
   ${SOURCE_DIR}/skyland/rooms/infirmary.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
+  ${SOURCE_DIR}/skyland/rooms/ionCannon.cpp
   ${SOURCE_DIR}/skyland/rooms/forcefield.cpp
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/transporter.cpp
@@ -454,6 +456,7 @@ if(GAMEBOY_ADVANCE)
   add_file(scripts neutral_0_1 lisp)
   add_file(scripts neutral_0_2 lisp)
   add_file(scripts neutral_0_3 lisp)
+  add_file(scripts neutral_0_4 lisp)
 
   add_file(scripts neutral_1_0 lisp)
   add_file(scripts neutral_1_1 lisp)

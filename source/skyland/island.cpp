@@ -589,7 +589,8 @@ void Island::repaint(Platform& pfrm)
                         }
                     }
                 }
-                if (not placed_chimney_this_tile and show_flag_ and not placed_flag) {
+                if (not placed_chimney_this_tile and show_flag_ and not placed_flag
+                    and y > 1 and matrix[x][y - 1] == 0) {
                     if (auto room = get_room({x, (u8)(y + 1)})) {
                         if (str_cmp((*room->metaclass())->name(), "hull") == 0) {
                             placed_flag = true;

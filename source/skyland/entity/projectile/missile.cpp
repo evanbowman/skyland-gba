@@ -75,11 +75,11 @@ void Missile::update(Platform& pfrm, App&, Microseconds delta)
 
 void Missile::on_collision(Platform& pfrm, App& app, Room& room)
 {
-    if (source_ == room.parent() and dynamic_cast<MissileSilo*>(&room)) {
+    if (source_ == room.parent() and room.metaclass() == missile_silo_mt) {
         return;
     }
 
-    if (source_ == room.parent() and dynamic_cast<Forcefield*>(&room)) {
+    if (source_ == room.parent() and room.metaclass() == forcefield_mt) {
         return;
     }
 

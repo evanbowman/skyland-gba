@@ -142,7 +142,11 @@ RoomMeta* load_metaclass(const char* name);
 RoomMeta* load_metaclass(MetaclassIndex index);
 
 
-
+// Some cached metaclass pointers, for convenience.
+extern const RoomMeta* forcefield_mt;
+extern const RoomMeta* cannon_mt;
+extern const RoomMeta* missile_silo_mt;
+extern const RoomMeta* ion_cannon_mt;
 
 
 } // namespace skyland

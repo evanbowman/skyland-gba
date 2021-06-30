@@ -30,14 +30,12 @@
 
        (set 'temp (chr-slots (player)))
 
-       (print (string temp))
-
        (if temp
            (progn
              (set 'temp (get temp (cr-choice (length temp))))
              (add-chr (player) (car temp) (cdr temp))
              (rem-chr (opponent) 1 14)
-             (set 'temp (nil))
+             (set 'temp '())
              (dialog "The castaway joined your crew!"))
          (dialog "Sadly, there's no room..."))
 

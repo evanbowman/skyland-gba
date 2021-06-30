@@ -62,6 +62,16 @@ vertically on the other island. For attacking the top face of an island.
 A tall room, with no function other than to allow your fortress' residents to
 move between blocks stacked on top of one another.
 
+#### Infirmary
+
+Heals each idle occupant controlled by the owner of the infirmary. Therefore,
+invaders cannot heal in your own island, and your crew cannot heal after
+boarding an opponent's island, at least, not without transporting to your own
+castle. Your characters will also not heal while fighting an enemy. The health
+provided by the infrirmary will be distributed evenly across all occupants, so a
+player will heal more quickly if other characters are not attempting to heal at
+the same time.
+
 #### Workshop
 
 A square room. Slightly lowers the cost of building all rooms, and allows you to
@@ -100,12 +110,7 @@ Allows you to see the interior of your opponent's structures. Fragile, and
 consumes a relatively large amount of power. You must have a workshop to build a
 Radar.
 
-#### Infirmary
+#### Ion Cannon
 
-Heals each idle occupant controlled by the owner of the infirmary. Therefore,
-invaders cannot heal in your own island, and your crew cannot heal after
-boarding an opponent's island, at least, not without transporting to your own
-castle. Your characters will also not heal while fighting an enemy. The health
-provided by the infrirmary will be distributed evenly across all occupants, so a
-player will heal more quickly if other characters are not attempting to heal at
-the same time.
+An energy weapon. Fires projectiles that pass through walls and rooms. Deals
+significant damage to forcefields and bulkheads.

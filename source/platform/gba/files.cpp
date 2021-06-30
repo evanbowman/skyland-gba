@@ -42,6 +42,8 @@ extern const unsigned char file_neutral_0_2[];
 //;
 extern const unsigned char file_neutral_0_3[];
 //;
+extern const unsigned char file_neutral_0_4[];
+//;
 extern const unsigned char file_neutral_1_0[];
 //;
 extern const unsigned char file_neutral_1_1[];
@@ -102,6 +104,8 @@ static const struct {
     {"scripts", "neutral_0_2.lisp", file_neutral_0_2},
 //;
     {"scripts", "neutral_0_3.lisp", file_neutral_0_3},
+//;
+    {"scripts", "neutral_0_4.lisp", file_neutral_0_4},
 //;
     {"scripts", "neutral_1_0.lisp", file_neutral_1_0},
 //;

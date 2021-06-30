@@ -1,10 +1,7 @@
-#include "projectile.hpp"
+#include "ionBurst.hpp"
 
-
-#include "cannonball.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/room.hpp"
-#include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/room_metatable.hpp"
 
@@ -14,7 +11,7 @@ namespace skyland {
 
 
 
-Cannonball::Cannonball(const Vec2<Float>& position,
+IonBurst::IonBurst(const Vec2<Float>& position,
                        const Vec2<Float>& target,
                        Island* source)
     : Projectile({{10, 10}, {8, 8}}), source_(source)
@@ -31,7 +28,7 @@ Cannonball::Cannonball(const Vec2<Float>& position,
 
 
 
-void Cannonball::update(Platform&, App&, Microseconds delta)
+void IonBurst::update(Platform&, App&, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + Float(delta) * step_vector_;
@@ -46,13 +43,13 @@ void Cannonball::update(Platform&, App&, Microseconds delta)
 
 
 
-void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
+void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
 {
-    if (source_ == room.parent() and room.metaclass() == cannon_mt) {
+    if (source_ == room.parent() and room.metaclass() == ion_cannon_mt) {
         return;
     }
 
-    if (source_ == room.parent() and room.metaclass() == forcefield_mt) {
+    if (room.metaclass() not_eq forcefield_mt) {
         return;
     }
 
@@ -61,7 +58,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
     app.camera().shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
-    room.apply_damage(pfrm, app, 40);
+    room.apply_damage(pfrm, app, 100);
 }
 
 

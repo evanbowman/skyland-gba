@@ -14,6 +14,7 @@
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
 #include "skyland/rooms/bulkhead.hpp"
+#include "skyland/rooms/ionCannon.hpp"
 
 
 
@@ -21,25 +22,38 @@ namespace skyland {
 
 
 
-RoomMetatable<Hull,
-              Forcefield,
-              Cannon,
-              MissileSilo,
-              Stairwell,
-              Bulkhead,
-              Workshop,
-              Infirmary,
-              Core,
-              Radar,
-              PlunderedRoom,
-              Transporter>
-    __room_metatable;
+static auto& __metatable()
+{
+    static RoomMetatable<Hull,
+                         Forcefield,
+                         Cannon,
+                         IonCannon,
+                         MissileSilo,
+                         Stairwell,
+                         Bulkhead,
+                         Workshop,
+                         Infirmary,
+                         Core,
+                         Radar,
+                         PlunderedRoom,
+                         Transporter>
+        __room_metatable;
+
+    return __room_metatable;
+}
+
+
+
+const RoomMeta* forcefield_mt = load_metaclass(Forcefield::name());
+const RoomMeta* cannon_mt = load_metaclass(Cannon::name());
+const RoomMeta* missile_silo_mt = load_metaclass(MissileSilo::name());
+const RoomMeta* ion_cannon_mt = load_metaclass(IonCannon::name());
 
 
 
 std::pair<RoomMeta*, int> room_metatable()
 {
-    return {__room_metatable.table_, __room_metatable.size()};
+    return {__metatable().table_, __metatable().size()};
 }
 
 
