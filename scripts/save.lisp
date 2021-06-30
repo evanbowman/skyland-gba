@@ -11,4 +11,5 @@
  (chrs (player))
  enemies-seen
  friendlies-seen
- last-zone)
+ last-zone
+ (terrain (player)))

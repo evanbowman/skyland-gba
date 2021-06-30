@@ -43,8 +43,9 @@ struct Tile {
         reserved_14,
         reserved_15,
         reserved_16,
+        flag_start = 105,
+        flag_end = 108,
         roof_flag = 109,
-        flag = 110,
     };
 };
 

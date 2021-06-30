@@ -21,7 +21,7 @@ void set_island_positions(Island& left_island, Island& right_island)
     left_island.set_position({10, 374});
     // Pretty much as far away as possible, without wrapping across the screen.
     right_island.set_position(
-        {Float(300 + 16 * (10 - right_island.terrain().size())), 374});
+        {Float(250 + 16 * (10 - right_island.terrain().size())), 374});
 }
 
 

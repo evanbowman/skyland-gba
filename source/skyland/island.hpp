@@ -47,6 +47,9 @@ public:
     }
 
 
+    void init_terrain(Platform& pfrm, int width);
+
+
     bool add_character(EntityRef<BasicCharacter> character);
 
 
@@ -119,7 +122,7 @@ public:
     Vec2<Float> origin() const;
 
 
-    using Terrain = Buffer<u8, 10>;
+    using Terrain = Buffer<u8, 11>;
 
 
     Terrain& terrain()
@@ -224,7 +227,7 @@ private:
 
     Rooms rooms_;
     const Layer layer_;
-    Buffer<u8, 10> terrain_;
+    Buffer<u8, 11> terrain_;
     Vec2<Float> position_;
     u8 ambient_movement_;
     Microseconds timer_;
@@ -242,6 +245,9 @@ private:
 
     bool destroyed_ = false;
     bool all_characters_awaiting_movement_ = false;
+
+    std::optional<Vec2<u8>> flag_pos_;
+    Microseconds flag_anim_timer_ = 0;
 
     EntityList<BasicCharacter> characters_;
     EntityList<Entity> projectiles_;

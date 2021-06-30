@@ -50,6 +50,18 @@ public:
     using DeviceName = StringBuffer<23>;
     DeviceName device_name() const;
 
+
+    struct alignas(4) EncodedTile {
+        u8 bytes_[128];
+    };
+
+
+    EncodedTile encode_tile(u8 tile_data[16][16]);
+
+
+    void overwrite_t0_tile(u16 index, const EncodedTile& t);
+
+
     // Timestamp recorded when the process launched, returns an empty optional
     // if the platform does not provide a functional clock.
     std::optional<DateTime> startup_time() const;

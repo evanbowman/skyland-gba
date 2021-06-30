@@ -16,12 +16,12 @@ namespace skyland {
 
 
 
-Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
-    : layer_(layer), timer_(0), interior_visible_(false),
-      characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      projectiles_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      owner_(&owner)
+void Island::init_terrain(Platform& pfrm, int width)
 {
+    if (width < 3) {
+        return;
+    }
+
     terrain_.push_back(13), --width;
 
     for (int i = 0; i < width - 1; ++i) {
@@ -31,6 +31,17 @@ Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
     terrain_.push_back(14);
 
     render_terrain(pfrm);
+}
+
+
+
+Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
+    : layer_(layer), timer_(0), interior_visible_(false),
+      characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
+      projectiles_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
+      owner_(&owner)
+{
+    init_terrain(pfrm, width);
 }
 
 
@@ -107,6 +118,19 @@ void Island::flip(Platform& pfrm)
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;
+
+    if (show_flag_ and flag_pos_) {
+        flag_anim_timer_ += dt;
+        if (flag_anim_timer_ > milliseconds(80)) {
+            flag_anim_timer_ = 0;
+            auto current = pfrm.get_tile(layer_, flag_pos_->x, flag_pos_->y);
+            if (current < Tile::flag_end) {
+                pfrm.set_tile(layer_, flag_pos_->x, flag_pos_->y, current + 1);
+            } else {
+                pfrm.set_tile(layer_, flag_pos_->x, flag_pos_->y, Tile::flag_start);
+            }
+        }
+    }
 
     owner_->update(pfrm, app, dt);
 
@@ -488,6 +512,8 @@ void Island::repaint(Platform& pfrm)
 {
     u8 matrix[16][16];
 
+    flag_pos_.reset();
+
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             pfrm.set_tile(layer_, x, y, 0);
@@ -525,7 +551,7 @@ void Island::repaint(Platform& pfrm)
     bool placed_flag = false;
     bool placed_chimney = false;
 
-    for (int x = 0; x < 16; ++x) {
+    for (u8 x = 0; x < 16; ++x) {
         for (int y = 15; y > -1; --y) {
             if (matrix[x][y] == 0 and y < 15 and matrix[x][y + 1] == 1) {
                 pfrm.set_tile(layer_, x, y, Tile::roof_plain);
@@ -543,7 +569,8 @@ void Island::repaint(Platform& pfrm)
                 if (not placed_chimney_this_tile and show_flag_ and not placed_flag) {
                     placed_flag = true;
                     pfrm.set_tile(layer_, x, y, Tile::roof_flag);
-                    pfrm.set_tile(layer_, x, y - 1, Tile::flag);
+                    pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);
+                    flag_pos_ = {x, u8(y - 1)};
                 }
             } else if (y == 14 and matrix[x][y] == 0 and
                        x < (int)terrain_.size()) {

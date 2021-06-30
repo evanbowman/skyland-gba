@@ -1016,6 +1016,69 @@ static u16 x3_scroll = 0;
 static u16 y3_scroll = 0;
 
 
+
+void Platform::overwrite_t0_tile(u16 index, const EncodedTile& t)
+{
+    u8* p = ((u8*)&MEM_SCREENBLOCKS[sbb_t0_texture][0]) + index * (vram_tile_size() * 4);
+
+    memcpy16(p, &t, (sizeof t) / 2);
+}
+
+
+
+Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
+{
+    EncodedTile t;
+    Buffer<u8, 128> buffer;
+
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            if (j % 2) {
+                buffer.back() |= tile_data[i][j] << 4;
+            } else {
+                buffer.push_back(tile_data[i][j] & 0xff);
+            }
+        }
+    }
+
+    for (int i = 8; i < 16; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            if (j % 2) {
+                buffer.back() |= tile_data[i][j] << 4;
+            } else {
+                buffer.push_back(tile_data[i][j] & 0xff);
+            }
+        }
+    }
+
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 8; j < 16; ++j) {
+            if (j % 2) {
+                buffer.back() |= tile_data[i][j] << 4;
+            } else {
+                buffer.push_back(tile_data[i][j] & 0xff);
+            }
+        }
+    }
+
+    for (int i = 8; i < 16; ++i) {
+        for (int j = 8; j < 16; ++j) {
+            if (j % 2) {
+                buffer.back() |= tile_data[i][j] << 4;
+            } else {
+                buffer.push_back(tile_data[i][j] & 0xff);
+            }
+        }
+    }
+
+
+    memcpy(t.bytes_, buffer.data(), 128);
+
+    return t;
+}
+
+
+
 void Platform::Screen::clear()
 {
     rumble_update();

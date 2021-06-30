@@ -20,4 +20,6 @@
   (set 'enemies-seen (get (arg 0) 2))
   (set 'frendlies-seen (get (arg 0) 3))
 
-  (set 'last-zone (get (arg 0) 4)))
+  (set 'last-zone (get (arg 0) 4))
+
+  (terrain (player) (get (arg 0) 5)))

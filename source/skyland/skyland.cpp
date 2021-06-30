@@ -27,6 +27,8 @@ App::App(Platform& pfrm)
     rng::get(rng::critical_state);
 
     init_clouds(pfrm);
+
+    player_island_.show_flag(true);
 }
 
 

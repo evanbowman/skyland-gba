@@ -446,6 +446,7 @@ if(GAMEBOY_ADVANCE)
   add_file(scripts hostile_0_7 lisp)
 
   add_file(scripts hostile_1_0 lisp)
+  add_file(scripts hostile_1_1 lisp)
 
 
   add_file(scripts neutral lisp)
@@ -455,6 +456,7 @@ if(GAMEBOY_ADVANCE)
   add_file(scripts neutral_0_3 lisp)
 
   add_file(scripts neutral_1_0 lisp)
+  add_file(scripts neutral_1_1 lisp)
 
 
   add_file(strings english txt)

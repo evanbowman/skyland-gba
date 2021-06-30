@@ -30,6 +30,8 @@ extern const unsigned char file_hostile_0_7[];
 //;
 extern const unsigned char file_hostile_1_0[];
 //;
+extern const unsigned char file_hostile_1_1[];
+//;
 extern const unsigned char file_neutral[];
 //;
 extern const unsigned char file_neutral_0_0[];
@@ -41,6 +43,8 @@ extern const unsigned char file_neutral_0_2[];
 extern const unsigned char file_neutral_0_3[];
 //;
 extern const unsigned char file_neutral_1_0[];
+//;
+extern const unsigned char file_neutral_1_1[];
 //;
 extern const unsigned char file_english[];
 //;
@@ -87,6 +91,8 @@ static const struct {
 //;
     {"scripts", "hostile_1_0.lisp", file_hostile_1_0},
 //;
+    {"scripts", "hostile_1_1.lisp", file_hostile_1_1},
+//;
     {"scripts", "neutral.lisp", file_neutral},
 //;
     {"scripts", "neutral_0_0.lisp", file_neutral_0_0},
@@ -98,6 +104,8 @@ static const struct {
     {"scripts", "neutral_0_3.lisp", file_neutral_0_3},
 //;
     {"scripts", "neutral_1_0.lisp", file_neutral_1_0},
+//;
+    {"scripts", "neutral_1_1.lisp", file_neutral_1_1},
 //;
     {"strings", "english.txt", file_english},
 //;

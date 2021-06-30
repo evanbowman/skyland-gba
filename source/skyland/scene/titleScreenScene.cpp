@@ -131,6 +131,7 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.load_tile1_texture("tilesheet_enemy_0");
     pfrm.load_sprite_texture("spritesheet");
 
+
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             pfrm.set_tile(Layer::map_0_ext, x, y, 0);
@@ -280,10 +281,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.speaker().stop_music();
         }
 
-        if (pfrm.keyboard().down_transition<Key::start>()) {
-            pfrm.speaker().stop_music();
-            return scene_pool::alloc<MultiplayerConnectScene>();
-        }
+        // if (pfrm.keyboard().down_transition<Key::start>()) {
+        //     pfrm.speaker().stop_music();
+        //     return scene_pool::alloc<MultiplayerConnectScene>();
+        // }
 
         if (pfrm.keyboard().down_transition<Key::right>()) {
             if (menu_selection_ == 0) {

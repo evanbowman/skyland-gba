@@ -7,9 +7,6 @@
 
 (eval-other-file "reset_hooks.lisp")
 
-;;(eval-other-file "hostile_1_0.lisp")
-;;(add-coins 5000)
-
 
 (if (not (equal (zone) last-zone))
     (progn
@@ -28,7 +25,7 @@
                       (lambda (equal temp (arg 0)))
                       enemies-seen))))
       (gen
-       (get '(8 1) (zone)) ;; number of levels to select from based on current zone
+       (get '(8 2) (zone)) ;; number of levels to select from based on current zone
        (lambda (arg 0)))))
 
 

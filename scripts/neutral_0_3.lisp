@@ -1,10 +1,9 @@
 ;;;
-;;; neutral_0_4.lisp
+;;; neutral_0_3.lisp
 ;;;
 
 
-(dialog "The remains of an abandoned island emerge from the mist, floating towards you...")
-
+(dialog "In the distance, you see an island inhabited by a lone castaway...")
 
 
 (init-opponent 5 'neutral)
@@ -12,21 +11,40 @@
 
 (configure-player
  (opponent)
- '((hull 0 14)
-   (power-core 1 13)
-   (hull 1 12)
-   (workshop 3 13)))
+ '((power-core 3 13)))
+
+
+(add-chr (opponent) 1 14)
 
 
 (set 'after-converge-hook
      (lambda
-       (set 'temp (+ 800 (cr-choice 400)))
+       (dialog "Invite castaway aboard?")
 
-       (set 'after-converge-hook nil)
+       (await-dialog-y/n)
+       (set 'after-converge-hook nil)))
 
-       (dialog
-        "You explore, and discover " (string temp) "$ amongst the ruins!")
 
-       (add-coins temp)
+(set 'after-dialog-accepted-hook
+     (lambda
 
+       (set 'temp (chr-slots (player)))
+
+       (print (string temp))
+
+       (if temp
+           (progn
+             (set 'temp (get temp (cr-choice (length temp))))
+             (add-chr (player) (car temp) (cdr temp))
+             (rem-chr (opponent) 1 14)
+             (set 'temp (nil))
+             (dialog "The castaway joined your crew!"))
+         (dialog "Sadly, there's no room..."))
+
+       (exit-level)))
+
+
+(set 'after-dialog-declined-hook
+     (lambda
+       ;; TODO...
        (exit-level)))

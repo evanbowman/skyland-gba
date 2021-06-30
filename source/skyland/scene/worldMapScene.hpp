@@ -47,6 +47,9 @@ private:
         save_selected,
         save_button_depressed,
         save_button_released_wait,
+        // flag_selected,
+        // flag_button_depressed,
+        // flag_button_released_wait,
         fade_out,
         fade_out_saved,
         print_saved_text,
@@ -64,6 +67,7 @@ private:
     std::optional<Text> heading_;
     std::optional<Text> key_[3];
     std::optional<MediumIcon> save_icon_;
+    std::optional<MediumIcon> flag_icon_;
 };
 
 
