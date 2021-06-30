@@ -113,7 +113,7 @@ Radar.
 #### Ion Cannon
 
 An energy weapon. Fires projectiles that pass through walls and rooms. Deals
-significant damage to forcefields and bulkheads.
+significant damage to forcefields.
 
 
 ## Hacking
