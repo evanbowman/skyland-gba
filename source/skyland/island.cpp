@@ -578,19 +578,27 @@ void Island::repaint(Platform& pfrm)
                        x < (int)terrain_.size()) {
                 pfrm.set_tile(layer_, x, y, Tile::grass);
             } else if (matrix[x][y] == 0 and matrix[x][y + 1] == 2) {
+                bool placed_chimney_this_tile = false;
                 if (not placed_chimney) {
                     for (auto& loc : chimney_locs) {
                         if (loc == x) {
                             pfrm.set_tile(layer_, x, y, Tile::tin_chimney);
                             placed_chimney = true;
                             chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
+                            placed_chimney_this_tile = true;
                         }
                     }
                 }
-                // if (not placed_chimney and show_flag_ and not placed_flag) {
-                //     placed_flag = true;
-                //     pfrm.set_tile(layer_, x, y, Tile::flag);
-                // }
+                if (not placed_chimney_this_tile and show_flag_ and not placed_flag) {
+                    if (auto room = get_room({x, (u8)(y + 1)})) {
+                        if (str_cmp((*room->metaclass())->name(), "hull") == 0) {
+                            placed_flag = true;
+                            pfrm.set_tile(layer_, x, y, Tile::flag_mount);
+                            pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);
+                            flag_pos_ = {x, u8(y - 1)};
+                        }
+                    }
+                }
             }
         }
     }

@@ -46,6 +46,7 @@ struct Tile {
         flag_start = 105,
         flag_end = 108,
         roof_flag = 109,
+        flag_mount
     };
 };
 
