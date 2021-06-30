@@ -13,6 +13,8 @@ but most of the code is entirely new. For game-specific code, see the source/sky
 directory, and the scripts directory, where you'll find all the various level scenarios
 as LISP code.
 
+<img src="imgs_for_readme/skyland-fight-x2.gif"/>
+
 
 ## Controls, Mechanics, and other Info
 
