@@ -70,7 +70,7 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                     info(pfrm, str.c_str());
                     if (auto transporter = dynamic_cast<Transporter*>(origin)) {
                         info(pfrm, "origin is transporter");
-                        transporter->recover_character(app, cursor_loc);
+                        transporter->recover_character(pfrm, app, cursor_loc);
                         return scene_pool::alloc<ReadyScene>();
                     }
                 }

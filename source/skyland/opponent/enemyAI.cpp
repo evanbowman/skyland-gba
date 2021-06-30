@@ -94,7 +94,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                             }();
 
                             if (recover_pos) {
-                                transporter->recover_character(app,
+                                transporter->recover_character(pfrm,
+                                                               app,
                                                                *recover_pos);
                             }
                         }

@@ -44,6 +44,7 @@ struct Tile {
         reserved_15,
         reserved_16,
         particle_gun,
+        reserved_17,
         flag_start = 105,
         flag_end = 108,
         roof_flag = 109,
@@ -92,5 +93,6 @@ struct InteriorTile {
         bulkhead_open_1,
         bulkhead_open_2,
         particle_gun,
+        transporter_recharge,
     };
 };

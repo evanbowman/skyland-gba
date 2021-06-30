@@ -27,6 +27,7 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
         recharge_ -= delta;
 
         if (recharge_ < 0) {
+            render_interior(pfrm, parent()->layer());
             recharge_ = 0;
         }
     }
@@ -34,9 +35,13 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Transporter::recover_character(App& app, const Vec2<u8>& position)
+void Transporter::recover_character(Platform& pfrm,
+                                    App& app,
+                                    const Vec2<u8>& position)
 {
     recharge_ = recharge_time;
+
+    render_interior(pfrm, parent()->layer());
 
     auto island = other_island(app);
     if (island == nullptr) {
@@ -78,6 +83,8 @@ void Transporter::recover_character(App& app, const Vec2<u8>& position)
 void Transporter::random_transport_occupant(Platform& pfrm, App& app)
 {
     recharge_ = recharge_time;
+
+    render_interior(pfrm, parent()->layer());
 
     auto chr = characters().begin();
 
@@ -165,8 +172,11 @@ ScenePtr<Scene> Transporter::select(Platform& pfrm, App& app)
 
 void Transporter::render_interior(Platform& pfrm, Layer layer)
 {
-    pfrm.set_tile(
-        layer, position().x, position().y, InteriorTile::transporter_1);
+    if (recharge_) {
+        pfrm.set_tile(layer, position().x, position().y, InteriorTile::transporter_recharge);
+    } else {
+        pfrm.set_tile(layer, position().x, position().y, InteriorTile::transporter_1);
+    }
     pfrm.set_tile(
         layer, position().x, position().y + 1, InteriorTile::transporter_2);
 }

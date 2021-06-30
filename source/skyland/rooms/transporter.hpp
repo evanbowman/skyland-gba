@@ -27,7 +27,7 @@ public:
     void random_transport_occupant(Platform& pfrm, App& app);
 
 
-    void recover_character(App& app, const Vec2<u8>& pos);
+    void recover_character(Platform&, App& app, const Vec2<u8>& pos);
 
 
     static Vec2<u8> size()
