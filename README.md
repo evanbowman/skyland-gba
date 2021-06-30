@@ -114,3 +114,15 @@ Radar.
 
 An energy weapon. Fires projectiles that pass through walls and rooms. Deals
 significant damage to forcefields and bulkheads.
+
+
+## Hacking
+
+You can find all of the different level scenarios specified as lisp scripts, in
+the scripts directory. If you open up one of the release ROMs, find the _FS_
+string (near the end of the ROM), and delete the symbol, along with everything
+after it, you will have a clean ROM file, containing only the engine. Now, make
+whatever changes that you'd like to the game's scripts. Next, you can run the
+encode_files.py script in the build/ directory, which produces a filesystem,
+stored in fs.bin. You may then cat together the filesystem and the engine ROM,
+to produce a runnable game.
