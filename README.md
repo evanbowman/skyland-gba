@@ -36,7 +36,7 @@ or walls, for instance).
 
 To build new rooms, open up the construction menu by pressing the right
 bumper. You may then press A to select a construction site, and then scroll
-through a list of structures to build with the B button. Press A again to
+through a list of structures to build with the d-pad. Press A again to
 construct the selected room. The game may reject your request to build
 structures, if you have not collected enough coins, or have not constructed
 enough power cores to sustain the new addition.
