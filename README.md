@@ -119,7 +119,7 @@ significant damage to forcefields.
 ## Hacking
 
 You can find all of the different level scenarios specified as lisp scripts, in
-the scripts directory. If you open up one of the release ROMs, find the _FS_
+the scripts directory. If you open up one of the release ROMs, find the `_FS_`
 string (near the end of the ROM), and delete the symbol, along with everything
 after it, you will have a clean ROM file, containing only the engine. Now, make
 whatever changes that you'd like to the game's scripts. Next, you can run the
