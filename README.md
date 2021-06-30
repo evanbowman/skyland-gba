@@ -45,24 +45,34 @@ See below for a complete annotation of all structures that you may build:
 
 #### Hull
 
+<img src="imgs_for_readme/hull.png"/>
+
 The simplest block in the game. A purely defensive structure. The only structure
 in the game that does not supply or deplete energy.
 
 #### Cannon
 
+<img src="imgs_for_readme/cannon.png"/>
+
 For attacking other islands. Mainly used for attacking from left-to-right.
 
 #### Missile Silo
+
+<img src="imgs_for_readme/missile-silo.png"/>
 
 For attacking other islands. Missiles will launch vertically, and fall down
 vertically on the other island. For attacking the top face of an island.
 
 #### Stairwell
 
+<img src="imgs_for_readme/stairwell.png"/>
+
 A tall room, with no function other than to allow your fortress' residents to
 move between blocks stacked on top of one another.
 
 #### Infirmary
+
+<img src="imgs_for_readme/infirmary.png"/>
 
 Heals each idle occupant controlled by the owner of the infirmary. Therefore,
 invaders cannot heal in your own island, and your crew cannot heal after
@@ -74,10 +84,14 @@ the same time.
 
 #### Workshop
 
+<img src="imgs_for_readme/workshop.png"/>
+
 A square room. Slightly lowers the cost of building all rooms, and allows you to
 build the more complex structures listed below.
 
 #### Power Core
+
+<img src="imgs_for_readme/power-core.png"/>
 
 Your island will have one power core at the beginning of the game. If all of a
 castle's power cores are destroyed, it will sink into the clouds, and all of the
@@ -90,12 +104,16 @@ until you build more power cores.
 
 #### Forcefield
 
+<img src="imgs_for_readme/forcefield.png"/>
+
 Almost identical to a Hull block, but consumes power, and your own weapons may
 shoot through forcefield blocks without damageing them. Mainly intended for
 protecting weapons (otherwise, you could just build Hull blocks). You must have
 a workshop to build a Forcefield.
 
 #### Transporter
+
+<img src="imgs_for_readme/transporter.png"/>
 
 Allows you to transport one of your characters to another island. If you have
 not constructed a Radar (see below), your character will be transported to a
@@ -106,11 +124,15 @@ characters on other islands.
 
 #### Radar
 
+<img src="imgs_for_readme/radar.png"/>
+
 Allows you to see the interior of your opponent's structures. Fragile, and
 consumes a relatively large amount of power. You must have a workshop to build a
 Radar.
 
 #### Ion Cannon
+
+<img src="imgs_for_readme/ion-cannon.png"/>
 
 An energy weapon. Fires projectiles that pass through walls and rooms. Deals
 significant damage to forcefields.
