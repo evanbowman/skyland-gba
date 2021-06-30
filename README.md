@@ -43,6 +43,8 @@ enough power cores to sustain the new addition.
 
 See below for a complete annotation of all structures that you may build:
 
+---
+
 #### Hull
 
 <img src="imgs_for_readme/hull.png"/>
@@ -50,11 +52,15 @@ See below for a complete annotation of all structures that you may build:
 The simplest block in the game. A purely defensive structure. The only structure
 in the game that does not supply or deplete energy.
 
+---
+
 #### Cannon
 
 <img src="imgs_for_readme/cannon.png"/>
 
 For attacking other islands. Mainly used for attacking from left-to-right.
+
+---
 
 #### Missile Silo
 
@@ -63,12 +69,16 @@ For attacking other islands. Mainly used for attacking from left-to-right.
 For attacking other islands. Missiles will launch vertically, and fall down
 vertically on the other island. For attacking the top face of an island.
 
+---
+
 #### Stairwell
 
 <img src="imgs_for_readme/stairwell.png"/>
 
 A tall room, with no function other than to allow your fortress' residents to
 move between blocks stacked on top of one another.
+
+---
 
 #### Infirmary
 
@@ -82,12 +92,16 @@ provided by the infrirmary will be distributed evenly across all occupants, so a
 player will heal more quickly if other characters are not attempting to heal at
 the same time.
 
+---
+
 #### Workshop
 
 <img src="imgs_for_readme/workshop.png"/>
 
 A square room. Slightly lowers the cost of building all rooms, and allows you to
 build the more complex structures listed below.
+
+---
 
 #### Power Core
 
@@ -102,6 +116,8 @@ consumption of your island exceeds the combined power output of your power
 cores, all systems will shut down, until you salvage rooms to free up power, or
 until you build more power cores.
 
+---
+
 #### Forcefield
 
 <img src="imgs_for_readme/forcefield.png"/>
@@ -110,6 +126,8 @@ Almost identical to a Hull block, but consumes power, and your own weapons may
 shoot through forcefield blocks without damageing them. Mainly intended for
 protecting weapons (otherwise, you could just build Hull blocks). You must have
 a workshop to build a Forcefield.
+
+---
 
 #### Transporter
 
@@ -122,6 +140,8 @@ you may need to build multiple transporters if you want to effectively raid
 enemy islands. By selecting an empty transporter, you may also retrieve
 characters on other islands.
 
+---
+
 #### Radar
 
 <img src="imgs_for_readme/radar.png"/>
@@ -130,6 +150,8 @@ Allows you to see the interior of your opponent's structures. Fragile, and
 consumes a relatively large amount of power. You must have a workshop to build a
 Radar.
 
+---
+
 #### Ion Cannon
 
 <img src="imgs_for_readme/ion-cannon.png"/>
@@ -137,6 +159,7 @@ Radar.
 An energy weapon. Fires projectiles that pass through walls and rooms. Deals
 significant damage to forcefields.
 
+---
 
 ## Hacking
 
