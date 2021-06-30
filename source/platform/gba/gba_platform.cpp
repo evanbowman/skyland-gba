@@ -21,6 +21,7 @@
 #include "string.hpp"
 #include "util.hpp"
 #include <algorithm>
+#include "filesystem.hpp"
 
 
 void english__to_string(int num, char* buffer, int base);
@@ -1630,7 +1631,7 @@ void Platform::fatal(const char* msg)
     render_line("    3.3 volts, 9600 baud    ", 2, text_colors_inv);
 
     Text text3(*::platform, {1, 18});
-    text3.append("press start to reset...", text_colors);
+    text3.append("L+R+START+SELECT reset...", text_colors);
 
 
     ::platform->screen().display();
@@ -1651,9 +1652,6 @@ void Platform::fatal(const char* msg)
         }
 
         ::platform->keyboard().poll();
-        if (::platform->keyboard().pressed<Key::start>()) {
-            restart();
-        }
     }
 }
 
@@ -2846,19 +2844,15 @@ void Platform::on_watchdog_timeout(WatchdogCallback callback)
 }
 
 
-#include "files.cpp"
-
-
 const char* Platform::load_file_contents(const char* folder,
                                          const char* filename) const
 {
-    for (auto& file : files) {
-        if (str_cmp(file.name_, filename) == 0 and
-            str_cmp(file.root_, folder) == 0) {
-            return reinterpret_cast<const char*>(file.data_);
-        }
-    }
-    return nullptr;
+    StringBuffer<64> path("/");
+    path += folder;
+    path += "/";
+    path += filename;
+
+    return filesystem::load(path.c_str());
 }
 
 
@@ -3051,6 +3045,7 @@ extern char __iwram_start__;
 extern char __data_end__;
 extern char __ewram_start;
 extern char __eheap_start;
+extern char __rom_end__;
 
 
 Platform::Platform()
@@ -3107,6 +3102,11 @@ Platform::Platform()
         used = "ewram used: ";
         used += to_string<10>(&__eheap_start - &__ewram_start);
         info(*this, used.c_str());
+
+        used = "text end: ";
+        used += to_string<20>((intptr_t)&__rom_end__);
+        info(*this, used.c_str());
+
     }
 
     // IMPORTANT: No calls to map_glyph() are allowed before reaching this
@@ -3219,6 +3219,12 @@ Platform::Platform()
         // sprite. I have no idea why!
         object_attribute_back_buffer[i].attribute_2 = ATTR2_PRIORITY(3);
         object_attribute_back_buffer[i].attribute_0 |= attr0_mask::disabled;
+    }
+
+
+    if (not filesystem::is_mounted()) {
+        keyboard_.poll();
+        fatal("resource bundle missing");
     }
 }
 

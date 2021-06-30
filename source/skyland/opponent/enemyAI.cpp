@@ -467,6 +467,16 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 void EnemyAI::set_target(Platform& pfrm,
                          App& app,
                          const u8 matrix[16][16],
+                         IonCannon& silo)
+{
+
+}
+
+
+
+void EnemyAI::set_target(Platform& pfrm,
+                         App& app,
+                         const u8 matrix[16][16],
                          MissileSilo& silo)
 {
     if (silo.parent()->get_drift()) {

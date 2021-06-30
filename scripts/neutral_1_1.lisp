@@ -30,6 +30,7 @@
            (progn
              (set 'temp (+ 600 (cr-choice 300)))
              (dialog "You explore, and salvage " (string temp) "$ from the ruins.")
+             (add-coins temp)
              (exit-level))
          (progn
            (configure-player

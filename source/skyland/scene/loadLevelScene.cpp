@@ -91,7 +91,7 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
             std::numeric_limits<Microseconds>::max() / 2);
 
         for (auto& room : app.opponent_island()->rooms()) {
-            app.victory_coins() += 0.25f * (*room->metaclass())->cost();
+            app.victory_coins() += 0.35f * (*room->metaclass())->cost();
         }
 
         app.opponent_island()->repaint(pfrm);

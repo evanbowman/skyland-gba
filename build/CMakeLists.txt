@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(Skyland)
+project(SkylandEngine)
 
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(SOURCE_DIR ${ROOT_DIR}/source)
@@ -164,7 +164,7 @@ macro(add_file prefix file suffix)
 
     add_custom_target(convert_${file}_file DEPENDS ${FILE_OUT})
 
-    add_dependencies(Skyland convert_${file}_file)
+    add_dependencies(SkylandEngine convert_${file}_file)
 
     list(APPEND FILES_SOURCE_LIST "${DATA_DIR}file_${file}.cpp")
 
@@ -181,6 +181,7 @@ if(GAMEBOY_ADVANCE)
     ${SOURCE_DIR}/platform/gba/gba_platform.cpp
     ${SOURCE_DIR}/platform/gba/gbp_logo.cpp
     ${SOURCE_DIR}/platform/gba/memcpy.s
+    ${SOURCE_DIR}/platform/gba/filesystem.cpp
 
     ${ROOT_DIR}/external/libgba/interrupt.c
     ${ROOT_DIR}/external/libgba/interrupt_dispatch.s
@@ -240,11 +241,11 @@ endif()
 
 
 if(APPLE)
-  add_executable(Skyland MACOSX_BUNDLE ${SOURCES})
+  add_executable(SkylandEngine MACOSX_BUNDLE ${SOURCES})
 
 
 else()
-  add_executable(Skyland
+  add_executable(SkylandEngine
     ${SOURCES})
 endif()
 
@@ -339,7 +340,7 @@ function(compile_image filename mw mh flatten bpp compr)
 
   endif()
 
-  add_dependencies(Skyland compile_image_${filename})
+  add_dependencies(SkylandEngine compile_image_${filename})
 endfunction()
 
 
@@ -373,42 +374,42 @@ elseif(WIN32)
 
   set(SFML_LIB_DIR ${ROOT_DIR}/external/SFML-2.5.1/lib/Release)
 
-  target_link_libraries(Skyland
+  target_link_libraries(SkylandEngine
     ${SFML_LIB_DIR}/sfml-graphics.lib
     ${SFML_LIB_DIR}/sfml-window.lib
     ${SFML_LIB_DIR}/sfml-system.lib
     ${SFML_LIB_DIR}/sfml-audio.lib
     ${SFML_LIB_DIR}/sfml-network.lib)
 
-  add_custom_command(TARGET Skyland POST_BUILD
+  add_custom_command(TARGET SkylandEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SFML_LIB_DIR}/sfml-graphics-2.dll"
-        $<TARGET_FILE_DIR:Skyland>)
+        $<TARGET_FILE_DIR:SkylandEngine>)
 
-  add_custom_command(TARGET Skyland POST_BUILD
+  add_custom_command(TARGET SkylandEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SFML_LIB_DIR}/sfml-audio-2.dll"
-        $<TARGET_FILE_DIR:Skyland>)
+        $<TARGET_FILE_DIR:SkylandEngine>)
 
-  add_custom_command(TARGET Skyland POST_BUILD
+  add_custom_command(TARGET SkylandEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SFML_LIB_DIR}/sfml-window-2.dll"
-        $<TARGET_FILE_DIR:Skyland>)
+        $<TARGET_FILE_DIR:SkylandEngine>)
 
-  add_custom_command(TARGET Skyland POST_BUILD
+  add_custom_command(TARGET SkylandEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SFML_LIB_DIR}/sfml-network-2.dll"
-        $<TARGET_FILE_DIR:Skyland>)
+        $<TARGET_FILE_DIR:SkylandEngine>)
 
-  add_custom_command(TARGET Skyland POST_BUILD
+  add_custom_command(TARGET SkylandEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${SFML_LIB_DIR}/sfml-system-2.dll"
-        $<TARGET_FILE_DIR:Skyland>)
+        $<TARGET_FILE_DIR:SkylandEngine>)
 
-   add_custom_command(TARGET Skyland POST_BUILD
+   add_custom_command(TARGET SkylandEngine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${ROOT_DIR}/external/SFML-2.5.1/extlibs/bin/x64/openal32.dll"
-        $<TARGET_FILE_DIR:Skyland>)
+        $<TARGET_FILE_DIR:SkylandEngine>)
 endif()
 
 
@@ -431,49 +432,6 @@ if(GAMEBOY_ADVANCE)
     -mcpu=arm7tdmi
     -mtune=arm7tdmi)
 
-  add_file(scripts newgame lisp)
-  add_file(scripts reset_hooks lisp)
-  add_file(scripts save lisp)
-  add_file(scripts restore_save lisp)
-  add_file(scripts multiplayer_init lisp)
-
-  add_file(scripts hostile lisp)
-  add_file(scripts hostile_0_0 lisp)
-  add_file(scripts hostile_0_1 lisp)
-  add_file(scripts hostile_0_2 lisp)
-  add_file(scripts hostile_0_3 lisp)
-  add_file(scripts hostile_0_4 lisp)
-  add_file(scripts hostile_0_5 lisp)
-  add_file(scripts hostile_0_6 lisp)
-  add_file(scripts hostile_0_7 lisp)
-
-  add_file(scripts hostile_1_0 lisp)
-  add_file(scripts hostile_1_1 lisp)
-
-
-  add_file(scripts neutral lisp)
-  add_file(scripts neutral_0_0 lisp)
-  add_file(scripts neutral_0_1 lisp)
-  add_file(scripts neutral_0_2 lisp)
-  add_file(scripts neutral_0_3 lisp)
-  add_file(scripts neutral_0_4 lisp)
-
-  add_file(scripts neutral_1_0 lisp)
-  add_file(scripts neutral_1_1 lisp)
-
-
-  add_file(strings english txt)
-  add_file(strings spanish txt)
-  add_file(strings chinese txt)
-  add_file(strings russian txt)
-
-  add_library(EMBED_FILES ${FILES_SOURCE_LIST})
-
-  target_compile_options(EMBED_FILES PRIVATE
-    -mthumb
-    -mthumb-interwork
-    -mcpu=arm7tdmi
-    -mtune=arm7tdmi)
 
 
   if(GBA_AUTOBUILD_CONF)
@@ -500,56 +458,53 @@ if(GAMEBOY_ADVANCE)
   endif()
 
   set(CMAKE_EXE_LINKER_FLAGS
-    "-mthumb -mthumb-interwork -Wl,-Map,Skyland.elf.map -specs=gba.specs"
+    "-mthumb -mthumb-interwork -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"
     CACHE INTERNAL "" FORCE)
 
-  target_link_libraries(Skyland PRIVATE
+  target_link_libraries(SkylandEngine PRIVATE
     # ${DEVKITPRO}/libgba/lib/libgba.a
     ARM_ROUTINES)
 
-  target_link_libraries(Skyland PRIVATE
-    EMBED_FILES)
-
-  target_compile_options(Skyland PRIVATE
+  target_compile_options(SkylandEngine PRIVATE
     -mthumb
     -mthumb-interwork
     -mcpu=arm7tdmi
     -mtune=arm7tdmi)
 
-  add_custom_command(TARGET Skyland POST_BUILD
+  add_custom_command(TARGET SkylandEngine POST_BUILD
     COMMENT "building cartridge"
-    COMMAND ${DEVKITARM}/bin/arm-none-eabi-objcopy -O binary Skyland Skyland.gba
+    COMMAND ${DEVKITARM}/bin/arm-none-eabi-objcopy -O binary SkylandEngine SkylandEngine.gba
     # NOTE: using DrillDozer's ROM id code for testing purposes, because many
     # emulator developers do not give you the option to manually override which
-    # gamepacks support gpio rumble. Skyland's actual ROM code was originally CBJE.
-    COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSkyland -cV49E -r0 -mEB Skyland.gba)
+    # gamepacks support gpio rumble. SkylandEngine's actual ROM code was originally CBJE.
+    COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSkylandEngine -cV49E -r0 -mEB SkylandEngine.gba)
 
-  target_compile_options(Skyland PRIVATE
+  target_compile_options(SkylandEngine PRIVATE
     -D__GBA__)
 
 elseif(APPLE)
-  target_link_libraries(Skyland
+  target_link_libraries(SkylandEngine
     "-framework sfml-window -framework sfml-graphics -framework sfml-system -framework sfml-audio -framework sfml-network -framework Cocoa")
-  set_target_properties(Skyland
+  set_target_properties(SkylandEngine
     PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 
   include_directories("/usr/local/include/")
 
-  add_custom_target(pkg ALL mkdir -p Skyland.app/Contents/Resources
-    COMMAND mkdir -p Skyland.app/Contents/Frameworks
-    COMMAND cp -r ${ROOT_DIR}/images/ Skyland.app/Contents/images/
-    COMMAND cp -r ${ROOT_DIR}/shaders/ Skyland.app/Contents/shaders/
-    COMMAND cp -r ${ROOT_DIR}/sounds/ Skyland.app/Contents/sounds/
-    COMMAND cp -r ${ROOT_DIR}/scripts/ Skyland.app/Contents/scripts/
-    COMMAND cp -r ${ROOT_DIR}/strings/ Skyland.app/Contents/strings/
-    # COMMAND cp macOS/icon.icns Skyland.app/Contents/Resources
-    # COMMAND cp -r ${SFML_DIR}/lib/* Skyland.app/Contents/Frameworks
-    # COMMAND cp -r ${SFML_DIR}/extlibs/libs-osx/Frameworks/* Skyland.app/Contents/Frameworks
+  add_custom_target(pkg ALL mkdir -p SkylandEngine.app/Contents/Resources
+    COMMAND mkdir -p SkylandEngine.app/Contents/Frameworks
+    COMMAND cp -r ${ROOT_DIR}/images/ SkylandEngine.app/Contents/images/
+    COMMAND cp -r ${ROOT_DIR}/shaders/ SkylandEngine.app/Contents/shaders/
+    COMMAND cp -r ${ROOT_DIR}/sounds/ SkylandEngine.app/Contents/sounds/
+    COMMAND cp -r ${ROOT_DIR}/scripts/ SkylandEngine.app/Contents/scripts/
+    COMMAND cp -r ${ROOT_DIR}/strings/ SkylandEngine.app/Contents/strings/
+    # COMMAND cp macOS/icon.icns SkylandEngine.app/Contents/Resources
+    # COMMAND cp -r ${SFML_DIR}/lib/* SkylandEngine.app/Contents/Frameworks
+    # COMMAND cp -r ${SFML_DIR}/extlibs/libs-osx/Frameworks/* SkylandEngine.app/Contents/Frameworks
     )
 
 elseif(UNIX)
 
-  target_link_libraries(Skyland
+  target_link_libraries(SkylandEngine
     -lpthread
     -lsfml-window
     -lsfml-graphics
@@ -561,7 +516,7 @@ endif()
 
 
 
-target_compile_options(Skyland PRIVATE
+target_compile_options(SkylandEngine PRIVATE
   ${SHARED_COMPILE_OPTIONS})
 
 
