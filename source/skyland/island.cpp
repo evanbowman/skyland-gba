@@ -22,6 +22,8 @@ void Island::init_terrain(Platform& pfrm, int width)
         return;
     }
 
+    terrain_.clear();
+
     terrain_.push_back(13), --width;
 
     for (int i = 0; i < width - 1; ++i) {
