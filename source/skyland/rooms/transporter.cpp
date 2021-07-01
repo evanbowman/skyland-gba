@@ -42,8 +42,6 @@ void Transporter::recover_character(Platform& pfrm,
                                     App& app,
                                     const Vec2<u8>& position)
 {
-    while (true)
-        ;
     recharge_ = recharge_time;
 
     if (parent()->interior_visible()) {

@@ -241,6 +241,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.load_overlay_texture("overlay_island_destroyed");
             if (island_ not_eq &app.player_island()) {
                 draw_image(pfrm, 82, 4, 1, 22, 8, Layer::overlay);
+            } else {
+                draw_image(pfrm, 436, 4, 1, 22, 8, Layer::overlay);
             }
             stat_timer_ = milliseconds(145);
         }
