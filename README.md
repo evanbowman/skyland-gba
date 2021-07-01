@@ -13,6 +13,8 @@ but most of the code is entirely new. For game-specific code, see the source/sky
 directory, and the scripts directory, where you'll find all the various level scenarios
 as LISP code.
 
+<img src="imgs_for_readme/skyland-fight-x2.gif"/>
+
 
 ## Controls, Mechanics, and other Info
 
@@ -58,7 +60,7 @@ in the game that does not supply or deplete energy.
 
 <img src="imgs_for_readme/cannon.png"/>
 
-For attacking other islands. Mainly used for attacking from left-to-right.
+For attacking other islands. Mainly used for attacking horizontally.
 
 ---
 
@@ -84,10 +86,8 @@ move between blocks stacked on top of one another.
 
 <img src="imgs_for_readme/infirmary.png"/>
 
-Heals each idle occupant controlled by the owner of the infirmary. Therefore,
-invaders cannot heal in your own island, and your crew cannot heal after
-boarding an opponent's island, at least, not without transporting to your own
-castle. Your characters will also not heal while fighting an enemy. The health
+Heals each idle occupant _controlled by the owner of the infirmary._
+Your characters will not heal while fighting an enemy. The health
 provided by the infrirmary will be distributed evenly across all occupants, so a
 player will heal more quickly if other characters are not attempting to heal at
 the same time.
@@ -110,7 +110,7 @@ build the more complex structures listed below.
 Your island will have one power core at the beginning of the game. If all of a
 castle's power cores are destroyed, it will sink into the clouds, and all of the
 island's residents will perish. You must have a workshop in your castle to build
-a Power Core. Each room on your island consumes an amount of power (with the
+aadditional Power Cores. Each room on your island consumes an amount of power (with the
 sole exception of hull blocks, which consume no power). If the total power
 consumption of your island exceeds the combined power output of your power
 cores, all systems will shut down, until you salvage rooms to free up power, or
@@ -138,7 +138,8 @@ not constructed a Radar (see below), your character will be transported to a
 random room in the opponent's island. Transporters have a cool-down period, so
 you may need to build multiple transporters if you want to effectively raid
 enemy islands. By selecting an empty transporter, you may also retrieve
-characters on other islands.
+characters on other islands. A light on the transporter tile image will change
+from red to blue when the transporter finishes recharging.
 
 ---
 
