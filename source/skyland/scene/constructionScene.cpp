@@ -3,12 +3,12 @@
 #include "localization.hpp"
 #include "platform/platform.hpp"
 #include "readyScene.hpp"
+#include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "worldScene.hpp"
-#include "skyland/network.hpp"
 
 
 

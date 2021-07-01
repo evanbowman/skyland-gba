@@ -4,9 +4,9 @@
 #include "cannonball.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/room.hpp"
+#include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
-#include "skyland/room_metatable.hpp"
 
 
 
@@ -39,7 +39,7 @@ void Cannonball::update(Platform&, App&, Microseconds delta)
 
     timer_ += delta;
 
-    if (timer_ > seconds(1)) {
+    if (timer_ > seconds(2)) {
         kill();
     }
 }

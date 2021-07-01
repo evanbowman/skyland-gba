@@ -1,10 +1,10 @@
 #include "multiplayerConnectScene.hpp"
-#include "skyland/opponent/multiplayerPeer.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/scene_pool.hpp"
-#include "script/lisp.hpp"
 #include "fadeInScene.hpp"
 #include "globals.hpp"
+#include "script/lisp.hpp"
+#include "skyland/opponent/multiplayerPeer.hpp"
+#include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -27,8 +27,7 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     if (app.opponent_island()) {
-        set_island_positions(app.player_island(),
-                             *app.opponent_island());
+        set_island_positions(app.player_island(), *app.opponent_island());
 
         app.opponent_island()->repaint(pfrm);
     } else {
@@ -78,9 +77,8 @@ void MultiplayerConnectScene::exit(Platform&, App&, Scene& next)
 
 
 
-ScenePtr<Scene> MultiplayerConnectScene::update(Platform& pfrm,
-                                                App& app,
-                                                Microseconds delta)
+ScenePtr<Scene>
+MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (not ready_) {
         ready_ = true;
@@ -101,4 +99,4 @@ ScenePtr<Scene> MultiplayerConnectScene::update(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

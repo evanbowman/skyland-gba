@@ -22,3 +22,6 @@
    (cannon 3 10)
    (hull 3 12)
    (hull 2 12)))
+
+
+(add-hostile-chr 4 14)

@@ -25,10 +25,8 @@ namespace filesystem {
 Root* get_root()
 {
     auto root = (Root*)&__rom_end__;
-    if (not (root->magic_[0] == '_' and
-             root->magic_[1] == 'F' and
-             root->magic_[2] == 'S' and
-             root->magic_[3] == '_')) {
+    if (not(root->magic_[0] == '_' and root->magic_[1] == 'F' and
+            root->magic_[2] == 'S' and root->magic_[3] == '_')) {
         // The filesystem root must begin with the characters "_FS_". This is
         // how we detect whether there's a filesystem attached to the ROM.
         return nullptr;
@@ -71,5 +69,5 @@ FileContents load(FilePath path)
 
 
 
-}
+} // namespace filesystem
 #pragma GCC diagnostic pop

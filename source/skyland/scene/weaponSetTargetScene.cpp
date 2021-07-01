@@ -1,9 +1,9 @@
 #include "weaponSetTargetScene.hpp"
 #include "globals.hpp"
 #include "readyScene.hpp"
+#include "skyland/network.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/network.hpp"
 
 
 

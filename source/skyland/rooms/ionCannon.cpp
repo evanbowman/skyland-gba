@@ -1,10 +1,10 @@
 #include "ionCannon.hpp"
-#include "skyland/scene_pool.hpp"
-#include "skyland/tile.hpp"
-#include "skyland/scene/weaponSetTargetScene.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/entity/projectile/ionBurst.hpp"
+#include "skyland/scene/weaponSetTargetScene.hpp"
+#include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -57,10 +57,7 @@ void IonCannon::update(Platform& pfrm, App& app, Microseconds delta)
                     target = rng::sample<6>(target, rng::critical_state);
                 }
 
-                auto c = alloc_entity<IonBurst>(
-                    start,
-                    target,
-                    parent());
+                auto c = alloc_entity<IonBurst>(start, target, parent());
                 parent()->projectiles().push(std::move(c));
 
                 reload_ = reload_time;
@@ -75,7 +72,8 @@ void IonCannon::update(Platform& pfrm, App& app, Microseconds delta)
 
 void IonCannon::render_interior(Platform& pfrm, Layer layer)
 {
-    pfrm.set_tile(layer, position().x, position().y, InteriorTile::particle_gun);
+    pfrm.set_tile(
+        layer, position().x, position().y, InteriorTile::particle_gun);
 }
 
 
@@ -94,4 +92,4 @@ ScenePtr<Scene> IonCannon::select(Platform& pfrm, App& app)
 
 
 
-}
+} // namespace skyland

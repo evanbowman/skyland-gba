@@ -32,7 +32,6 @@ static_assert(std::is_trivially_copyable<SaveData>::value,
 
 
 
-
 void store(Platform& pfrm, const PersistentData& d);
 
 
@@ -45,5 +44,5 @@ void erase(Platform& pfrm);
 
 
 
-}
-}
+} // namespace save
+} // namespace skyland

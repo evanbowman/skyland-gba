@@ -2,9 +2,9 @@
 #include "globals.hpp"
 #include "localization.hpp"
 #include "readyScene.hpp"
+#include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/network.hpp"
 
 
 

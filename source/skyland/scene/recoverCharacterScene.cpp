@@ -1,10 +1,10 @@
 #include "recoverCharacterScene.hpp"
 #include "globals.hpp"
+#include "localization.hpp"
 #include "readyScene.hpp"
+#include "skyland/rooms/transporter.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/rooms/transporter.hpp"
-#include "localization.hpp"
 
 
 
@@ -61,7 +61,8 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
             info(pfrm, "found other room");
             if (length(room->characters())) {
                 info(pfrm, "found chrs");
-                if (auto origin = app.player_island().get_room(transporter_loc_)) {
+                if (auto origin =
+                        app.player_island().get_room(transporter_loc_)) {
                     info(pfrm, "origin exists");
                     StringBuffer<32> str;
                     str += to_string<10>(transporter_loc_.x);
@@ -130,7 +131,6 @@ void RecoverCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
     for (int i = 0; i < st.x; ++i) {
         pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
     }
-
 }
 
 

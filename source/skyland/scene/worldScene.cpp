@@ -1,6 +1,8 @@
 #include "worldScene.hpp"
 #include "boxedDialogScene.hpp"
 #include "globals.hpp"
+#include "localization.hpp"
+#include "multiplayerReadyScene.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
 #include "scriptHookScene.hpp"
@@ -9,8 +11,6 @@
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "localization.hpp"
-#include "multiplayerReadyScene.hpp"
 
 
 
@@ -117,11 +117,13 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 const u8 margin = centered_text_margins(pfrm, msg.length());
 
-                std::get<SkylandGlobalData>(globals()).multiplayer_prep_text_
-                    .emplace(pfrm, msg.c_str(), OverlayCoord{margin, 4});
+                std::get<SkylandGlobalData>(globals())
+                    .multiplayer_prep_text_.emplace(
+                        pfrm, msg.c_str(), OverlayCoord{margin, 4});
             }
         } else {
-            std::get<SkylandGlobalData>(globals()).multiplayer_prep_text_.reset();
+            std::get<SkylandGlobalData>(globals())
+                .multiplayer_prep_text_.reset();
         }
     } else {
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_text_.reset();

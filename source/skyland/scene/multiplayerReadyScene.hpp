@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include "worldScene.hpp"
-#include "skyland/scene_pool.hpp"
 #include "fadeInScene.hpp"
+#include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -14,7 +14,8 @@ namespace skyland {
 
 class MultiplayerReadyScene : public WorldScene {
 public:
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         WorldScene::update(pfrm, app, delta);
 
@@ -56,4 +57,4 @@ private:
 
 
 
-}
+} // namespace skyland

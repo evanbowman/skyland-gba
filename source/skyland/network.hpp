@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "number/int.h"
 #include "number/endian.hpp"
+#include "number/int.h"
 #include "room_metatable.hpp"
 
 
@@ -78,7 +78,7 @@ struct WeaponSetTarget {
 
 
 
-}
+} // namespace packet
 
 
 
@@ -129,8 +129,8 @@ template <typename T> void transmit(Platform& pfrm, T& message)
 
 
 
-}
+} // namespace network
 
 
 
-}
+} // namespace skyland

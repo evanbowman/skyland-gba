@@ -17,7 +17,6 @@ class MissileSilo;
 
 class MultiplayerPeer : public Opponent, public network::Listener {
 public:
-
     void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
@@ -34,7 +33,6 @@ public:
     void receive(Platform& pfrm,
                  App& app,
                  const network::packet::WeaponSetTarget& packet) override;
-
 };
 
 

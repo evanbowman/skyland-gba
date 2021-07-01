@@ -1,6 +1,6 @@
 #include "bulkhead.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/island.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -25,11 +25,19 @@ void Bulkhead::update(Platform& pfrm, App& app, Microseconds delta)
 void Bulkhead::render_interior(Platform& pfrm, Layer layer)
 {
     if (open_) {
-        pfrm.set_tile(layer, position().x, position().y, InteriorTile::bulkhead_open_1);
-        pfrm.set_tile(layer, position().x, position().y + 1, InteriorTile::bulkhead_open_2);
+        pfrm.set_tile(
+            layer, position().x, position().y, InteriorTile::bulkhead_open_1);
+        pfrm.set_tile(layer,
+                      position().x,
+                      position().y + 1,
+                      InteriorTile::bulkhead_open_2);
     } else {
-        pfrm.set_tile(layer, position().x, position().y, InteriorTile::bulkhead_closed_1);
-        pfrm.set_tile(layer, position().x, position().y + 1, InteriorTile::bulkhead_closed_2);
+        pfrm.set_tile(
+            layer, position().x, position().y, InteriorTile::bulkhead_closed_1);
+        pfrm.set_tile(layer,
+                      position().x,
+                      position().y + 1,
+                      InteriorTile::bulkhead_closed_2);
     }
 
     interior_visible_ = true;
@@ -61,10 +69,7 @@ ScenePtr<Scene> Bulkhead::select(Platform& pfrm, App& app)
 
         render_interior(pfrm, parent()->layer());
 
-        parent()->on_layout_changed({
-                position().x,
-                u8(position().y + 1)
-            });
+        parent()->on_layout_changed({position().x, u8(position().y + 1)});
     }
     return null_scene();
 }

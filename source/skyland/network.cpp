@@ -51,8 +51,8 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
 
 
 
-}
+} // namespace network
 
 
 
-}
+} // namespace skyland

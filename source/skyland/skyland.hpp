@@ -8,11 +8,11 @@
 #include "entity/birbs/smolBirb.hpp"
 #include "island.hpp"
 #include "opponent/enemyAI.hpp"
+#include "persistentData.hpp"
 #include "platform/platform.hpp"
 #include "player.hpp"
 #include "scene.hpp"
 #include "worldMap.hpp"
-#include "persistentData.hpp"
 
 
 

@@ -10,6 +10,7 @@
 #ifdef __GBA__
 
 #include "bulkAllocator.hpp"
+#include "filesystem.hpp"
 #include "gba_color.hpp"
 #include "gbp_logo.hpp"
 #include "graphics/overlay.hpp"
@@ -21,7 +22,6 @@
 #include "string.hpp"
 #include "util.hpp"
 #include <algorithm>
-#include "filesystem.hpp"
 
 
 void english__to_string(int num, char* buffer, int base);
@@ -1020,7 +1020,8 @@ static u16 y3_scroll = 0;
 
 void Platform::overwrite_t0_tile(u16 index, const EncodedTile& t)
 {
-    u8* p = ((u8*)&MEM_SCREENBLOCKS[sbb_t0_texture][0]) + index * (vram_tile_size() * 4);
+    u8* p = ((u8*)&MEM_SCREENBLOCKS[sbb_t0_texture][0]) +
+            index * (vram_tile_size() * 4);
 
     memcpy16(p, &t, (sizeof t) / 2);
 }
@@ -3106,7 +3107,6 @@ Platform::Platform()
         used = "text end: ";
         used += to_string<20>((intptr_t)&__rom_end__);
         info(*this, used.c_str());
-
     }
 
     // IMPORTANT: No calls to map_glyph() are allowed before reaching this

@@ -23,3 +23,6 @@
    (hull 2 12)
    (forcefield 3 10)
    (hull 5 10)))
+
+
+(add-hostile-chr 2 14)

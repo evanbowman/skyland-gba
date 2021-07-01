@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "number/int.h"
 #include "number/endian.hpp"
+#include "number/int.h"
 
 
 
@@ -38,4 +38,4 @@ FileContents load(FilePath path);
 
 
 
-}
+} // namespace filesystem

@@ -50,8 +50,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-[[maybe_unused]]
-    const auto& mt_prep_seconds =
+    [[maybe_unused]] const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
 
 

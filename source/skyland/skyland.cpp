@@ -2,8 +2,8 @@
 #include "globals.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
-#include "serial.hpp"
 #include "script/lisp.hpp"
+#include "serial.hpp"
 
 
 

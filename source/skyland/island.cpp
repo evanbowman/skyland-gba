@@ -109,7 +109,8 @@ void Island::flip(Platform& pfrm)
     }
 
     for (auto& room : rooms_) {
-        room->__position().x = (room->position().x - max) - (room->size().x - 1);
+        room->__position().x =
+            (room->position().x - max) - (room->size().x - 1);
     }
 
     repaint(pfrm);
@@ -129,7 +130,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             if (current < Tile::flag_end) {
                 pfrm.set_tile(layer_, flag_pos_->x, flag_pos_->y, current + 1);
             } else {
-                pfrm.set_tile(layer_, flag_pos_->x, flag_pos_->y, Tile::flag_start);
+                pfrm.set_tile(
+                    layer_, flag_pos_->x, flag_pos_->y, Tile::flag_start);
             }
         }
     }
@@ -568,7 +570,8 @@ void Island::repaint(Platform& pfrm)
                         }
                     }
                 }
-                if (not placed_chimney_this_tile and show_flag_ and not placed_flag) {
+                if (not placed_chimney_this_tile and show_flag_ and
+                    not placed_flag) {
                     placed_flag = true;
                     pfrm.set_tile(layer_, x, y, Tile::roof_flag);
                     pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);
@@ -589,10 +592,11 @@ void Island::repaint(Platform& pfrm)
                         }
                     }
                 }
-                if (not placed_chimney_this_tile and show_flag_ and not placed_flag
-                    and y > 1 and matrix[x][y - 1] == 0) {
+                if (not placed_chimney_this_tile and show_flag_ and
+                    not placed_flag and y > 1 and matrix[x][y - 1] == 0) {
                     if (auto room = get_room({x, (u8)(y + 1)})) {
-                        if (str_cmp((*room->metaclass())->name(), "hull") == 0) {
+                        if (str_cmp((*room->metaclass())->name(), "hull") ==
+                            0) {
                             placed_flag = true;
                             pfrm.set_tile(layer_, x, y, Tile::flag_mount);
                             pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);

@@ -56,10 +56,7 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
                     target = rng::sample<6>(target, rng::critical_state);
                 }
 
-                auto c = alloc_entity<Cannonball>(
-                    start,
-                    target,
-                    parent());
+                auto c = alloc_entity<Cannonball>(start, target, parent());
                 parent()->projectiles().push(std::move(c));
 
                 reload_ = reload_time;

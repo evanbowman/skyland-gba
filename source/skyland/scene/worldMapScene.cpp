@@ -2,10 +2,10 @@
 #include "graphics/overlay.hpp"
 #include "loadLevelScene.hpp"
 #include "platform/platform.hpp"
+#include "skyland/save.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/worldMap.hpp"
-#include "skyland/save.hpp"
 #include "titleScreenScene.hpp"
 
 
@@ -263,7 +263,6 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<TitleScreenScene>();
         }
         break;
-
     }
 
 

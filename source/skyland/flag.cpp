@@ -47,4 +47,4 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
 
 
 
-}
+} // namespace skyland

@@ -86,7 +86,6 @@ void ZoneImageScene::exit(Platform& pfrm, App& app, Scene& next)
 
         pfrm.encode_tile(test);
         // pfrm.overwrite_t0_tile(105, t);
-
     }
 
     pfrm.load_tile1_texture("tilesheet_enemy_0");

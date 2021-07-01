@@ -39,8 +39,6 @@ void configure_island(Platform& pfrm,
                 }
             }
         }
-
-
     });
 
     island.repaint(pfrm);

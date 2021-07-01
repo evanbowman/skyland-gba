@@ -1,10 +1,11 @@
 #include "transporter.hpp"
+#include "localization.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
 #include "skyland/island.hpp"
+#include "skyland/scene/recoverCharacterScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/scene/recoverCharacterScene.hpp"
 
 
 
@@ -27,8 +28,10 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
         recharge_ -= delta;
 
         if (recharge_ < 0) {
-            render_interior(pfrm, parent()->layer());
             recharge_ = 0;
+            if (parent()->interior_visible()) {
+                render_interior(pfrm, parent()->layer());
+            }
         }
     }
 }
@@ -39,9 +42,13 @@ void Transporter::recover_character(Platform& pfrm,
                                     App& app,
                                     const Vec2<u8>& position)
 {
+    while (true)
+        ;
     recharge_ = recharge_time;
 
-    render_interior(pfrm, parent()->layer());
+    if (parent()->interior_visible()) {
+        render_interior(pfrm, parent()->layer());
+    }
 
     auto island = other_island(app);
     if (island == nullptr) {
@@ -128,6 +135,11 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
         return;
     }
 
+    auto log = to_string<40>(dest->x);
+    log += ",";
+    log += to_string<10>(dest->y);
+    info(pfrm, log.c_str());
+
     if (auto room = island->get_room(*dest)) {
         (*chr)->set_grid_position(*dest);
         (*chr)->set_parent(island);
@@ -173,9 +185,13 @@ ScenePtr<Scene> Transporter::select(Platform& pfrm, App& app)
 void Transporter::render_interior(Platform& pfrm, Layer layer)
 {
     if (recharge_) {
-        pfrm.set_tile(layer, position().x, position().y, InteriorTile::transporter_recharge);
+        pfrm.set_tile(layer,
+                      position().x,
+                      position().y,
+                      InteriorTile::transporter_recharge);
     } else {
-        pfrm.set_tile(layer, position().x, position().y, InteriorTile::transporter_1);
+        pfrm.set_tile(
+            layer, position().x, position().y, InteriorTile::transporter_1);
     }
     pfrm.set_tile(
         layer, position().x, position().y + 1, InteriorTile::transporter_2);

@@ -3,8 +3,8 @@
 
 
 #include "coins.hpp"
-#include "worldMap.hpp"
 #include "number/endian.hpp"
+#include "worldMap.hpp"
 
 
 
@@ -21,4 +21,4 @@ struct PersistentData {
 
 
 
-}
+} // namespace skyland

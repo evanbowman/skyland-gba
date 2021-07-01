@@ -4,6 +4,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/core.hpp"
+#include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/skyland.hpp"
@@ -55,15 +56,42 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                     set_target(pfrm, app, matrix, *cannon);
                 } else if (auto silo = dynamic_cast<MissileSilo*>(&*room)) {
                     set_target(pfrm, app, matrix, *silo);
+                } else if (auto ion_cannon = dynamic_cast<IonCannon*>(&*room)) {
+                    set_target(pfrm, app, matrix, *ion_cannon);
                 } else if (auto transporter =
                                dynamic_cast<Transporter*>(&*room)) {
                     if (length(transporter->characters()) and
                         transporter->ready()) {
                         auto transport_chr = transporter->characters().begin();
                         if ((*transport_chr)->state() not_eq
-                            BasicCharacter::State::repair_room and
+                                BasicCharacter::State::repair_room and
                             (*transport_chr)->owner() == this) {
-                            transporter->random_transport_occupant(pfrm, app);
+
+
+                            // Justification for particularly nasty looking
+                            // if-statement (below):
+                            //
+                            // Ok, so we only want to transport a character if
+                            // another one of the characters isn't busy walking
+                            // through the room.
+                            //
+                            // This fixes a bug where a character would be
+                            // standing idle in the transporter, another
+                            // character would be walking through, on the way to
+                            // a different room, and the walking character,
+                            // rather than the idle character, would be
+                            // transported, creating a whole bunch of glitches.
+                            if (not((*transport_chr)->has_movement_path() and
+                                    not(*transport_chr)
+                                           ->get_movement_path()
+                                           ->empty() and
+                                    (not((*(*transport_chr)
+                                               ->get_movement_path())[0] ==
+                                         (*transport_chr)->grid_position())))) {
+
+                                transporter->random_transport_occupant(pfrm,
+                                                                       app);
+                            }
                         }
                     } else if (transporter->ready()) {
                         // If we have an infirmary, potentially transport some
@@ -94,9 +122,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                             }();
 
                             if (recover_pos) {
-                                transporter->recover_character(pfrm,
-                                                               app,
-                                                               *recover_pos);
+                                transporter->recover_character(
+                                    pfrm, app, *recover_pos);
                             }
                         }
                     }
@@ -468,9 +495,33 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 void EnemyAI::set_target(Platform& pfrm,
                          App& app,
                          const u8 matrix[16][16],
-                         IonCannon& silo)
+                         IonCannon& ion_cannon)
 {
+    Room* highest_weighted_room = nullptr;
+    Float highest_weight = 3E-5;
 
+    for (auto& room : app.player_island().rooms()) {
+        auto meta_c = room->metaclass();
+
+        if (meta_c not_eq forcefield_mt) {
+            continue;
+        }
+
+        auto w = (*meta_c)->ai_base_weight();
+
+
+        w += 3 * manhattan_length(room->origin(), ion_cannon.origin());
+
+
+        if (w > highest_weight) {
+            highest_weighted_room = room.get();
+            highest_weight = w;
+        }
+    }
+
+    if (highest_weighted_room) {
+        ion_cannon.set_target(highest_weighted_room->position());
+    }
 }
 
 

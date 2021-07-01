@@ -835,7 +835,8 @@ void format_impl(Value* value, Printer& p, int depth)
             while (true) {
                 if (current->cons_.cdr()->type_ == Value::Type::cons) {
                     p.put_str(" ");
-                    format_impl(current->cons_.cdr()->cons_.car(), p, depth + 1);
+                    format_impl(
+                        current->cons_.cdr()->cons_.car(), p, depth + 1);
                     current = current->cons_.cdr();
                 } else if (current->cons_.cdr() not_eq get_nil()) {
                     p.put_str(" ");

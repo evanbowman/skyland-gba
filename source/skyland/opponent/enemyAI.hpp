@@ -36,7 +36,8 @@ private:
     void
     set_target(Platform&, App&, const u8 matrix[16][16], MissileSilo& silo);
 
-    void set_target(Platform&, App&, const u8 matrix[16][16], IonCannon& cannon);
+    void
+    set_target(Platform&, App&, const u8 matrix[16][16], IonCannon& cannon);
 
 
     void assign_boarded_character(Platform&, App&, BasicCharacter& character);

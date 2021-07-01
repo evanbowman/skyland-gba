@@ -2,8 +2,8 @@
 
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/room.hpp"
-#include "skyland/rooms/forcefield.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/rooms/forcefield.hpp"
 
 
 
@@ -12,8 +12,8 @@ namespace skyland {
 
 
 IonBurst::IonBurst(const Vec2<Float>& position,
-                       const Vec2<Float>& target,
-                       Island* source)
+                   const Vec2<Float>& target,
+                   Island* source)
     : Projectile({{10, 10}, {8, 8}}), source_(source)
 {
     sprite_.set_position(position);

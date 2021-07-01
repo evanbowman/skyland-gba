@@ -1,6 +1,6 @@
 #include "save.hpp"
-#include "script/lisp.hpp"
 #include "platform/platform.hpp"
+#include "script/lisp.hpp"
 
 
 
@@ -66,9 +66,8 @@ bool load(Platform& pfrm, PersistentData& d)
     __builtin_memset(buffer, '\0', sizeof buffer);
 
     if (buffer_size > save_data.script_length_.get()) {
-        pfrm.read_save_data(&buffer,
-                            save_data.script_length_.get(),
-                            sizeof save_data);
+        pfrm.read_save_data(
+            &buffer, save_data.script_length_.get(), sizeof save_data);
 
 
     } else {
@@ -77,7 +76,7 @@ bool load(Platform& pfrm, PersistentData& d)
 
     memcpy(&d, &save_data.data_, sizeof d);
 
-    lisp::read(buffer); // (0)
+    lisp::read(buffer);          // (0)
     lisp::eval(lisp::get_op(0)); // (1)
 
 
@@ -97,8 +96,8 @@ bool load(Platform& pfrm, PersistentData& d)
         auto fn = lisp::get_op(0);
         if (fn->type_ == lisp::Value::Type::function) {
             lisp::push_op(arg); // pass save data buffer on stack
-            funcall(fn, 1); // one argument (the save data)
-            lisp::pop_op(); // funcall result
+            funcall(fn, 1);     // one argument (the save data)
+            lisp::pop_op();     // funcall result
         } else {
             pfrm.fatal("not function!");
         }
@@ -125,5 +124,5 @@ void erase(Platform& pfrm)
 
 
 
-}
-}
+} // namespace save
+} // namespace skyland
