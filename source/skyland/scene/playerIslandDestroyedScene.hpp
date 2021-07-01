@@ -25,10 +25,20 @@ public:
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
+
+    void exit(Platform& pfrm, App& app, Scene& next) override;
+
+
 private:
     Microseconds timer_ = 0;
     Float sink_speed_ = 0.000011f;
     Island* island_;
+
+    Buffer<Text, 5> lines_;
+
+    void show_stats(Platform&, App&);
+
+    Microseconds stat_timer_ = 0;
 
     enum class AnimState {
         init,
@@ -40,6 +50,7 @@ private:
         wait_2,
         fade_out,
         idle,
+        fade_complete,
     } anim_state_ = AnimState::init;
 };
 

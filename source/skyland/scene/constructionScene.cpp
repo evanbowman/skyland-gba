@@ -133,7 +133,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            app.coins() -= get_cost(app, target);
+            const auto diff = get_cost(app, target);
+            app.coins() -= diff;
+            app.level_coins_spent() += diff;
 
             const auto sz = target->size().y;
             const u8 dest_x = construction_sites_[selector_].x;

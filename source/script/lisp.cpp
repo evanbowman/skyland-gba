@@ -8,6 +8,8 @@
 #if not defined(__GBA__) and not defined(__PSP__)
 #include <iostream>
 #endif
+#include "listBuilder.hpp"
+
 
 
 namespace lisp {
@@ -39,6 +41,7 @@ struct Context {
 
     Value* nil_ = nullptr;
     Value* oom_ = nullptr;
+    Value* string_buffer_ = nullptr;
 
     int string_intern_pos_ = 0;
 
@@ -451,26 +454,23 @@ Value* make_string(Platform& pfrm, const char* string)
     Value* existing_buffer = nullptr;
     decltype(len) free = 0;
 
-    live_values([&](Value& value) {
-        if (existing_buffer) {
-            return;
+    if (bound_context->string_buffer_ not_eq L_NIL) {
+        auto buffer = bound_context->string_buffer_;
+        free = 0;
+        for (int i = SCRATCH_BUFFER_SIZE - 1; i > 0; --i) {
+            if (buffer->data_buffer_.value()->data_[i] == '\0') {
+                ++free;
+            } else {
+                break;
+            }
         }
+        if (free > len + 1) { // +1 for null term, > for other null term
+            existing_buffer = buffer;
+        } else {
+            bound_context->string_buffer_ = L_NIL;
+        }
+    }
 
-        if (value.type_ == Value::Type::string) {
-            auto buffer = dcompr(value.string_.data_buffer_);
-            free = 0;
-            for (int i = SCRATCH_BUFFER_SIZE - 1; i > 0; --i) {
-                if (buffer->data_buffer_.value()->data_[i] == '\0') {
-                    ++free;
-                } else {
-                    break;
-                }
-            }
-            if (free > len + 1) { // +1 for null term, > for other null term
-                existing_buffer = buffer;
-            }
-        }
-    });
 
     if (existing_buffer) {
         const auto offset = (SCRATCH_BUFFER_SIZE - free) + 1;
@@ -491,9 +491,14 @@ Value* make_string(Platform& pfrm, const char* string)
         }
     } else {
         auto buffer = make_databuffer(pfrm);
+
         if (buffer == bound_context->oom_) {
             return bound_context->oom_;
         }
+
+        Protected p(buffer);
+        bound_context->string_buffer_ = buffer;
+
         for (int i = 0; i < SCRATCH_BUFFER_SIZE; ++i) {
             buffer->data_buffer_.value()->data_[i] = '\0';
         }
@@ -1044,6 +1049,10 @@ void DataBuffer::finalizer(Value* buffer)
 
 static int gc_sweep()
 {
+    if (not bound_context->string_buffer_->mark_bit_) {
+        bound_context->string_buffer_ = L_NIL;
+    }
+
     int collect_count = 0;
     for (auto& pl : bound_context->value_pools_) {
         pl->scan_cells([&pl, &collect_count](Value* val) {
@@ -1593,6 +1602,8 @@ void init(Platform& pfrm)
     bound_context->oom_->type_ = Value::Type::error;
     bound_context->oom_->error_.code_ = Error::Code::out_of_memory;
 
+    bound_context->string_buffer_ = bound_context->nil_;
+
     for (auto& var : *bound_context->globals_) {
         var.value_ = get_nil();
     }
@@ -1858,17 +1869,19 @@ void init(Platform& pfrm)
             }));
 
     set_var("interp-stat", make_function([](int argc) {
-                auto lat = make_list(4);
                 auto& ctx = bound_context;
                 int values_remaining = 0;
                 for (auto& pl : ctx->value_pools_) {
                     values_remaining += pl->remaining();
                 }
 
-                push_op(lat); // for the gc
+                ListBuilder lat;
 
                 auto make_stat = [&](const char* name, int value) {
                     auto c = make_cons(get_nil(), get_nil());
+                    if (c == bound_context->oom_) {
+                        return c;
+                    }
                     push_op(c); // gc protect
 
                     c->cons_.set_car(
@@ -1879,14 +1892,7 @@ void init(Platform& pfrm)
                     return c;
                 };
 
-                set_list(lat, 0, make_stat("vals-left", values_remaining));
-                set_list(lat,
-                         1,
-                         make_stat("interned-bytes", ctx->string_intern_pos_));
-                set_list(lat,
-                         2,
-                         make_stat("stack-used", ctx->operand_stack_->size()));
-                set_list(lat, 3, make_stat("vars", [&] {
+                lat.push_front(make_stat("vars", [&] {
                              int symb_tab_used = 0;
                              for (u32 i = 0; i < ctx->globals_->size(); ++i) {
                                  if (str_cmp("", (*ctx->globals_)[i].name_)) {
@@ -1895,9 +1901,12 @@ void init(Platform& pfrm)
                              }
                              return symb_tab_used;
                          }()));
-                pop_op(); // lat
 
-                return lat;
+                lat.push_front(make_stat("stack-used", ctx->operand_stack_->size()));
+                lat.push_front(make_stat("interned-bytes", ctx->string_intern_pos_));
+                lat.push_front(make_stat("vals-left", values_remaining));
+
+                return lat.result();
             }));
 
     set_var("range", make_function([](int argc) {
@@ -2247,8 +2256,10 @@ void init(Platform& pfrm)
                 get_env([&current, pfrm](const char* str) {
                     current->cons_.set_car(intern_to_symbol(str));
                     auto next = make_cons(get_nil(), get_nil());
-                    current->cons_.set_cdr(next);
-                    current = next;
+                    if (next not_eq bound_context->oom_) {
+                        current->cons_.set_cdr(next);
+                        current = next;
+                    }
                 });
 
                 pop_op(); // result

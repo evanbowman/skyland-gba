@@ -75,6 +75,7 @@ void Text::assign(int val, const OptColors& colors)
 
 Platform::TextureCpMapper locale_texture_map();
 Platform::TextureCpMapper locale_doublesize_texture_map();
+Platform::TextureCpMapper locale_texture_map_transparent();
 
 
 void print_double_char(Platform& pfrm,

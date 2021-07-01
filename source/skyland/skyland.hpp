@@ -14,6 +14,7 @@
 #include "rumble.hpp"
 #include "scene.hpp"
 #include "worldMap.hpp"
+#include "timeTracker.hpp"
 
 
 
@@ -144,12 +145,6 @@ public:
     }
 
 
-    Float& difficulty_accumulator()
-    {
-        return difficulty_accumulator_;
-    }
-
-
     int& zone()
     {
         return persistent_data_.zone_;
@@ -186,6 +181,24 @@ public:
     }
 
 
+    int& pause_count()
+    {
+        return pause_count_;
+    }
+
+
+    TimeTracker& level_timer()
+    {
+        return level_timer_;
+    }
+
+
+    Coins& level_coins_spent()
+    {
+        return level_coins_spent_;
+    }
+
+
 private:
     PersistentData persistent_data_;
     Island player_island_;
@@ -195,20 +208,21 @@ private:
     ScenePtr<Scene> next_scene_;
     Coins terrain_cost_ = 0;
     Coins victory_coins_ = 0;
+    Coins level_coins_spent_ = 0;
     Camera camera_;
     bool paused_ = false;
+    int pause_count_ = 0;
     Rumble rumble_;
 
     std::optional<DialogBuffer> dialog_buffer_;
     bool dialog_expects_answer_ = false;
     bool exit_level_ = false;
 
-    Float difficulty_accumulator_ = 0.f;
-
     EntityList<Entity> effects_;
     EntityList<SmolBirb> birbs_;
 
     Microseconds birb_counter_;
+    TimeTracker level_timer_;
 
     std::optional<Island> opponent_island_;
 

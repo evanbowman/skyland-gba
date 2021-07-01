@@ -3,6 +3,40 @@
 #include "script/lisp.hpp"
 
 
+
+StringBuffer<32> format_time(u32 seconds, bool include_hours)
+{
+    StringBuffer<32> result;
+    char buffer[32];
+
+    int hours = seconds / 3600;
+    int remainder = (int)seconds - hours * 3600;
+    int mins = remainder / 60;
+    remainder = remainder - mins * 60;
+    int secs = remainder;
+
+    if (include_hours) {
+        locale_num2str(hours, buffer, 10);
+        result += buffer;
+        result += ":";
+    }
+
+    locale_num2str(mins, buffer, 10);
+    result += buffer;
+    result += ":";
+
+    if (secs < 10) {
+        result += "0";
+    }
+
+    locale_num2str(secs, buffer, 10);
+    result += buffer;
+
+    return result;
+}
+
+
+
 class str_const {
 private:
     const char* const p_;
@@ -70,6 +104,18 @@ template <u32 B, bool C> constexpr void my_assert()
         my_assert<(u32)(u8)str_const(_STR_)[0], false>();                      \
         return 0;                                                              \
     }()
+
+
+
+static const char* font_image = "charset";
+
+
+
+void set_font_image(const char* font_image_name)
+{
+    font_image = font_image_name;
+}
+
 
 
 std::optional<Platform::TextureMapping>
@@ -263,7 +309,7 @@ standard_texture_map(const utf8::Codepoint& cp)
         }
     }();
     if (mapping) {
-        return Platform::TextureMapping{"charset", *mapping};
+        return Platform::TextureMapping{font_image, *mapping};
     } else {
         return {};
     }
@@ -1004,7 +1050,7 @@ doublesize_texture_map(const utf8::Codepoint& cp)
         }
     }();
     if (mapping) {
-        return Platform::TextureMapping{"charset", *mapping};
+        return Platform::TextureMapping{font_image, *mapping};
     } else {
         return {};
     }

@@ -11,6 +11,14 @@ namespace skyland {
 
 
 
+void describe_room(Platform& pfrm,
+                   App& app,
+                   Island* island,
+                   const Vec2<u8>& cursor_loc,
+                   std::optional<Text>& room_description);
+
+
+
 WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc)
     : weapon_loc_(weapon_loc)
 {
@@ -41,6 +49,9 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             selector_ = 0;
         }
+
+        room_description_.reset();
+        describe_room_timer_ = milliseconds(300);
     }
 
     if (pfrm.keyboard().down_transition<Key::left>() or
@@ -51,6 +62,9 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             selector_ = targets_.size() - 1;
         }
+
+        room_description_.reset();
+        describe_room_timer_ = milliseconds(300);
     }
 
     if (pfrm.keyboard().down_transition<Key::action_1>()) {
@@ -72,6 +86,16 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
+    if (describe_room_timer_ > 0) {
+        describe_room_timer_ -= delta;
+        if (describe_room_timer_ <= 0) {
+            describe_room_timer_ = milliseconds(500);
+
+            if (app.opponent_island()) {
+                describe_room(pfrm, app, &*app.opponent_island(), cursor_loc, room_description_);
+            }
+        }
+    }
 
     return null_scene();
 }

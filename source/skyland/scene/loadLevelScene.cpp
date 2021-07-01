@@ -78,6 +78,9 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     app.victory_coins() = 0;
+    app.pause_count() = 0;
+    app.level_timer().reset(0);
+    app.level_coins_spent() = 0;
 
 
     if (app.opponent_island()) {

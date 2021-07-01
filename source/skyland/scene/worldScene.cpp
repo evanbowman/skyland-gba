@@ -135,10 +135,13 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         // simpler.
         app.paused() = false;
     } else if (pfrm.keyboard().down_transition<Key::alt_1>()) {
-        app.paused() = not app.paused();
         if (not app.paused()) {
-            set_pause_icon(pfrm, false);
+            app.pause_count()++;
+            app.paused() = true;
+        } else {
+            app.paused() = false;
         }
+        set_pause_icon(pfrm, app.paused());
     }
 
     if (app.opponent_island()) {

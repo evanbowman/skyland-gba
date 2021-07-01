@@ -4,10 +4,85 @@
 #include "skyland/serial.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
+#include "localization.hpp"
+
+
+
+StringBuffer<32> format_time(u32 seconds, bool include_hours = true);
 
 
 
 namespace skyland {
+
+
+
+void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
+{
+    const auto screen_tiles = calc_screen_tiles(pfrm);
+
+    int metrics_y_offset_ = 2;
+
+    const auto dot = ".";
+
+    auto print_metric_impl = [&](const char* str,
+                                 const StringBuffer<32>& text,
+                                 const char* suffix = "",
+                                 bool highlight = false) {
+        if (lines_.full()) {
+            return;
+        }
+
+        lines_.emplace_back(
+            pfrm, Vec2<u8>{3, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
+
+        const auto colors =
+            highlight
+                ? Text::OptColors{FontColors{ColorConstant::rich_black,
+                                             ColorConstant::aerospace_orange}}
+            : Text::OptColors{};
+
+
+        lines_.back().append(str, colors);
+
+        const auto iters = screen_tiles.x - (utf8::len(str) + 6 +
+                                             text.length() + utf8::len(suffix));
+
+
+        for (u32 i = 0; i < iters; ++i) {
+            lines_.back().append(dot, colors);
+        }
+
+        lines_.back().append(text.c_str(), colors);
+        lines_.back().append(suffix, colors);
+    };
+
+
+    auto print_metric = [&](const char* str,
+                            int num,
+                            const char* suffix = "",
+                            bool highlight = false) {
+
+        print_metric_impl(str, to_string<20>(num), suffix, highlight);
+    };
+
+    switch (lines_.size()) {
+    case 0:
+        print_metric_impl("time ", format_time(app.level_timer().whole_seconds(), true));
+        break;
+
+    case 1:
+        print_metric("pauses used ", app.pause_count());
+        break;
+
+    case 2:
+        print_metric("coins spent ", app.level_coins_spent());
+        break;
+
+    case 3:
+        print_metric("dolor sit amet ", 12);
+        break;
+    }
+}
 
 
 
@@ -27,6 +102,15 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     origin.x += 16 * (island_->terrain().size() / 2);
 
     timer_ += delta;
+
+    if (stat_timer_) {
+        stat_timer_ -= delta;
+
+        if (stat_timer_ < 0) {
+            stat_timer_ = milliseconds(75 - lines_.size() * 5);
+            show_stats(pfrm, app);
+        }
+    }
 
 
     switch (anim_state_) {
@@ -68,6 +152,23 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             anim_state_ = AnimState::fade;
             app.rumble().activate(pfrm, milliseconds(190));
+
+            // If we destroyed the other island, erase all of the goblins on our
+            // own island. We're doing this here, because the screen's faded to
+            // white anyway, so it won't look so bad if the characters just
+            // disappear.
+            if (island_ not_eq &app.player_island()) {
+                for (auto& room : app.player_island().rooms()) {
+                    for (auto it = room->characters().begin();
+                         it not_eq room->characters().end();) {
+                        if ((*it)->owner() not_eq &app.player()) {
+                            it = room->characters().erase(it);
+                        } else {
+                            ++it;
+                        }
+                    }
+                }
+            }
         }
         break;
 
@@ -115,27 +216,44 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case AnimState::wait_2: {
-        if (timer_ > milliseconds(1000)) {
+        if (timer_ > milliseconds(2000)) {
             timer_ = 0;
             anim_state_ = AnimState::fade_out;
+            coins_.reset();
+            power_.reset();
         }
         break;
     }
 
     case AnimState::fade_out: {
+        coins_.reset();
+        power_.reset();
+
+        if (timer_ - delta < milliseconds(250) and timer_ > milliseconds(250)) {
+            pfrm.load_overlay_texture("overlay_island_destroyed");
+            if (island_ not_eq &app.player_island()) {
+                draw_image(pfrm, 82, 4, 1, 22, 8, Layer::overlay);
+            }
+            stat_timer_ = milliseconds(145);
+        }
+
         constexpr auto fade_duration = milliseconds(500);
         if (timer_ > fade_duration) {
             timer_ = 0;
             anim_state_ = AnimState::idle;
         } else {
-            const auto amount = smoothstep(0.f, fade_duration, timer_) * 0.6f;
+            const auto amount = smoothstep(0.f, fade_duration, timer_) * 0.72f;
             pfrm.screen().fade(amount);
         }
         break;
     }
 
-    case AnimState::idle:
-        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+    case AnimState::fade_complete: {
+        coins_.reset();
+        power_.reset();
+
+        constexpr auto fade_duration = milliseconds(350);
+        if (timer_ > fade_duration) {
             if (island_ not_eq &app.player_island()) {
                 if (app.current_map_location() == Vec2<u8>{7, 1}) {
                     // We're at the exit node. Let's adjust stuff, so that we're at
@@ -148,12 +266,37 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.opponent_island().reset();
 
                 return scene_pool::alloc<ZoneImageScene>();
+            } else {
+                pfrm.fatal("you died.");
             }
+        } else {
+            const auto amount =  0.72f + (1.f - 0.72f) * smoothstep(0.f, fade_duration, timer_);
+            pfrm.screen().fade(amount);
+        }
+        break;
+    }
+
+    case AnimState::idle:
+        coins_.reset();
+        power_.reset();
+        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+            timer_ = 0;
+            lines_.clear();
+            pfrm.fill_overlay(0);
+            anim_state_ = AnimState::fade_complete;
         }
         break;
     }
 
     return null_scene();
+}
+
+
+
+void PlayerIslandDestroyedScene::exit(Platform& pfrm, App& app, Scene& next)
+{
+    lines_.clear();
+    pfrm.load_overlay_texture("overlay");
 }
 
 

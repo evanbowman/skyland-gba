@@ -18,6 +18,9 @@ using LocalizedText = DynamicMemory<LocalizedStrBuffer>;
 LocalizedText locale_string(Platform& pfrm, LocaleString ls);
 
 
+void set_font_image(const char* font_image_name);
+
+
 StringBuffer<31> locale_language_name(int language);
 
 LocalizedText locale_localized_language_name(Platform& pfrm, int language);

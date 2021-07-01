@@ -37,37 +37,6 @@ void OverworldState::exit(Platform& pfrm, Game&, State& next_state)
 }
 
 
-StringBuffer<32> format_time(u32 seconds, bool include_hours)
-{
-    StringBuffer<32> result;
-    char buffer[32];
-
-    int hours = seconds / 3600;
-    int remainder = (int)seconds - hours * 3600;
-    int mins = remainder / 60;
-    remainder = remainder - mins * 60;
-    int secs = remainder;
-
-    if (include_hours) {
-        locale_num2str(hours, buffer, 10);
-        result += buffer;
-        result += ":";
-    }
-
-    locale_num2str(mins, buffer, 10);
-    result += buffer;
-    result += ":";
-
-    if (secs < 10) {
-        result += "0";
-    }
-
-    locale_num2str(secs, buffer, 10);
-    result += buffer;
-
-    return result;
-}
-
 
 void OverworldState::display_time_remaining(Platform& pfrm, Game& game)
 {

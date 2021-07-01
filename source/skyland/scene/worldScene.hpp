@@ -33,11 +33,13 @@ public:
     void far_camera();
 
 
+protected:
+    std::optional<UIMetric> coins_;
+    std::optional<UIMetric> power_;
+
 private:
     void set_pause_icon(Platform& pfrm, bool paused);
 
-    std::optional<UIMetric> coins_;
-    std::optional<UIMetric> power_;
 
     bool persistent_ui_ = false;
     Microseconds coin_hide_timer_ = 0;

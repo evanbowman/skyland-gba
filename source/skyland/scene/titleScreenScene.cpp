@@ -340,7 +340,12 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = milliseconds(1300);
         if (timer_ > fade_duration) {
             text_.reset();
-            return scene_pool::alloc<NewgameScene>();
+            switch (menu_selection_) {
+            case 0:
+                return scene_pool::alloc<NewgameScene>();
+            case 1:
+                return scene_pool::alloc<NewgameScene>();
+            }
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
             pfrm.screen().fade(

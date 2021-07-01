@@ -19,7 +19,8 @@ App::App(Platform& pfrm)
     : player_island_(pfrm, Layer::map_0_ext, 5, player_),
       current_scene_(null_scene()), next_scene_(null_scene()),
       effects_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      birbs_(std::get<SkylandGlobalData>(globals()).entity_node_pool_)
+      birbs_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
+      level_timer_(0)
 {
     current_scene_ = initial_scene();
     next_scene_ = initial_scene();
@@ -84,6 +85,8 @@ void App::update(Platform& pfrm, Microseconds delta)
     }
 
     rumble_.update(pfrm, delta);
+
+    level_timer_.count_up(delta);
 
     for (auto it = deferred_callbacks_.begin();
          it not_eq deferred_callbacks_.end();) {

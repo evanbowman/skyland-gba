@@ -196,6 +196,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay.s
     ${DATA_DIR}/overlay_dialog.s
     ${DATA_DIR}/overlay_world_map.s
+    ${DATA_DIR}/overlay_island_destroyed.s
     ${DATA_DIR}/charset.s
     ${DATA_DIR}/tilesheet.s
     ${DATA_DIR}/tilesheet_enemy_0.s
@@ -453,6 +454,7 @@ if(GAMEBOY_ADVANCE)
     add_overlay(overlay_dialog 0 0 NO NO)
     add_overlay(charset 0 0 NO NO)
     add_overlay(overlay_world_map 0 0 NO NO)
+    add_overlay(overlay_island_destroyed 0 0 NO NO)
 
     configure_file(images.cpp.in ${SOURCE_DIR}/platform/gba/images.cpp)
   endif()

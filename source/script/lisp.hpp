@@ -446,6 +446,11 @@ public:
 
     ~Protected();
 
+    void set(Value* val)
+    {
+        val_ = val;
+    }
+
     Protected* next() const
     {
         return next_;

@@ -40,6 +40,9 @@ private:
 
     Buffer<Vec2<u8>, 32> targets_;
     int selector_ = 0;
+
+    Microseconds describe_room_timer_ = milliseconds(400);
+    std::optional<Text> room_description_;
 };
 
 
