@@ -159,7 +159,7 @@ struct String {
 
 
 struct Error {
-    enum class Code {
+    enum class Code : u8 {
         value_not_callable,
         invalid_argc,
         symbol_table_exhausted,
@@ -169,6 +169,8 @@ struct Error {
         set_in_expression_context,
         mismatched_parentheses,
     } code_;
+
+    CompressedPtr context_;
 
     static const char* get_string(Code c)
     {
@@ -304,7 +306,7 @@ Value* make_function(Function::CPP_Impl impl);
 Value* make_cons(Value* car, Value* cdr);
 Value* make_integer(s32 value);
 Value* make_list(u32 length);
-Value* make_error(Error::Code error_code);
+Value* make_error(Error::Code error_code, Value* context);
 Value* make_userdata(void* obj);
 Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
@@ -396,18 +398,22 @@ const char* intern(const char* string);
 
 
 #define L_EXPECT_OP(OFFSET, TYPE)                                              \
-    if (lisp::get_op((OFFSET))->type_ not_eq lisp::Value::Type::TYPE) {        \
+    if (lisp::Value::Type::TYPE not_eq lisp::Value::Type::error and            \
+        lisp::get_op((OFFSET))->type_ == lisp::Value::Type::error) {           \
+        return lisp::get_op((OFFSET));                                         \
+    } else if (lisp::get_op((OFFSET))->type_ not_eq lisp::Value::Type::TYPE) { \
         if (lisp::get_op((OFFSET)) == L_NIL) {                                 \
             return lisp::get_op((OFFSET));                                     \
         } else {                                                               \
-            return lisp::make_error(lisp::Error::Code::invalid_argument_type); \
+            return lisp::make_error(lisp::Error::Code::invalid_argument_type,  \
+                                    L_NIL);                                    \
         }                                                                      \
     }
 
 
 #define L_EXPECT_ARGC(ARGC, EXPECTED)                                          \
     if (ARGC not_eq EXPECTED)                                                  \
-        return lisp::make_error(lisp::Error::Code::invalid_argc);
+        return lisp::make_error(lisp::Error::Code::invalid_argc, L_NIL);
 
 
 class Printer {
@@ -417,6 +423,18 @@ public:
     {
     }
 };
+
+
+class DefaultPrinter : public lisp::Printer {
+public:
+    void put_str(const char* str) override
+    {
+        fmt_ += str;
+    }
+
+    StringBuffer<1024> fmt_;
+};
+
 
 
 void format(Value* value, Printer& p);

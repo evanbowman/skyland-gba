@@ -30,6 +30,9 @@ struct FontConfiguration {
 };
 
 
+using OptColors = std::optional<FontColors>;
+
+
 class Text {
 public:
     Text(Platform& pfrm,
@@ -46,7 +49,7 @@ public:
 
     ~Text();
 
-    using OptColors = std::optional<FontColors>;
+    using OptColors = ::OptColors;
 
     void assign(const char* str, const OptColors& colors = {});
     void assign(int num, const OptColors& colors = {});
@@ -122,11 +125,14 @@ public:
     TextView(const TextView&) = delete;
     ~TextView();
 
+    using OptColors = ::OptColors;
+
     // Use the skiplines parameter to scroll the textview vertically.
     void assign(const char* str,
                 const OverlayCoord& coord,
                 const OverlayCoord& size,
-                int skiplines = 0);
+                int skiplines = 0,
+                const OptColors& opts = {});
 
     inline const OverlayCoord& size()
     {

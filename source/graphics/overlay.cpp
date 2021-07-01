@@ -308,7 +308,8 @@ TextView::~TextView()
 void TextView::assign(const char* str,
                       const OverlayCoord& coord,
                       const OverlayCoord& size,
-                      int skiplines)
+                      int skiplines,
+                      const OptColors& colors)
 {
     position_ = coord;
     size_ = size;
@@ -321,7 +322,7 @@ void TextView::assign(const char* str,
 
     auto newline = [&] {
         while (cursor.x < coord.x + size.x) {
-            print_char(pfrm_, ' ', cursor);
+            print_char(pfrm_, ' ', cursor, colors);
             ++cursor.x;
         }
         cursor.x = coord.x;
@@ -363,7 +364,7 @@ void TextView::assign(const char* str,
             // ...
         } else {
             if (not skiplines) {
-                print_char(pfrm_, ustr.get(i), cursor);
+                print_char(pfrm_, ustr.get(i), cursor, colors);
             }
 
             ++cursor.x;

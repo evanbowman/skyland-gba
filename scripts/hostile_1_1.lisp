@@ -25,4 +25,4 @@
    (hull 5 10)))
 
 
-(add-hostile-chr 2 14)
+(add-hostile-chr (opponent) 2 14)

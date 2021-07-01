@@ -8,14 +8,6 @@
 
 
 (configure-player
- (player)
- '((radar 2 13)
-   (power-core 0 13)))
-
-(add-chr (player) 0 14)
-
-
-(configure-player
  (opponent)
  '((power-core 2 13)
    (power-core 5 13)

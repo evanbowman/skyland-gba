@@ -21,10 +21,11 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
     text_.emplace(pfrm, "session connecting...", OverlayCoord{1, 1});
 
     lisp::dostring(pfrm.load_file_contents("scripts", "multiplayer_init.lisp"),
-                   [&pfrm](lisp::Value& v) {
-                       pfrm.fatal(lisp::Error::get_string(v.error_.code_));
+                   [&pfrm](lisp::Value& err) {
+                       lisp::DefaultPrinter p;
+                       lisp::format(&err, p);
+                       pfrm.fatal(p.fmt_.c_str());
                    });
-
 
     if (app.opponent_island()) {
         set_island_positions(app.player_island(), *app.opponent_island());

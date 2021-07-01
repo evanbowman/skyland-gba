@@ -109,7 +109,7 @@ void App::init_scripts(Platform& pfrm)
                         return lisp::get_op((i));
                     } else {
                         return lisp::make_error(
-                            lisp::Error::Code::invalid_argument_type);
+                            lisp::Error::Code::invalid_argument_type, L_NIL);
                     }
                 }
 
@@ -424,8 +424,10 @@ void App::init_scripts(Platform& pfrm)
             if (auto pfrm = interp_get_pfrm()) {
                 auto str = lisp::get_op(0)->string_.value();
                 if (auto contents = pfrm->load_file_contents("scripts", str)) {
-                    lisp::dostring(contents, [pfrm](lisp::Value& v) {
-                        pfrm->fatal(lisp::Error::get_string(v.error_.code_));
+                    lisp::dostring(contents, [pfrm](lisp::Value& err) {
+                        lisp::DefaultPrinter p;
+                        lisp::format(&err, p);
+                        pfrm->fatal(p.fmt_.c_str());
                     });
                 } else {
                     StringBuffer<32> err("script '");

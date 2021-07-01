@@ -11,9 +11,9 @@
 #include "persistentData.hpp"
 #include "platform/platform.hpp"
 #include "player.hpp"
+#include "rumble.hpp"
 #include "scene.hpp"
 #include "worldMap.hpp"
-#include "rumble.hpp"
 
 
 

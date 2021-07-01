@@ -32,8 +32,10 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
         save::erase(pfrm);
     } else {
         lisp::dostring(pfrm.load_file_contents("scripts", "newgame.lisp"),
-                       [&pfrm](lisp::Value& v) {
-                           pfrm.fatal(lisp::Error::get_string(v.error_.code_));
+                       [&pfrm](lisp::Value& err) {
+                           lisp::DefaultPrinter p;
+                           lisp::format(&err, p);
+                           pfrm.fatal(p.fmt_.c_str());
                        });
 
         app.current_map_location() = {0, 1};

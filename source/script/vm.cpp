@@ -175,7 +175,7 @@ void vm_execute(Value* code_buffer, int start_offset)
             if (arg->type_ == Value::Type::cons) {
                 push_op(arg->cons_.car());
             } else {
-                push_op(make_error(Error::Code::invalid_argument_type));
+                push_op(make_error(Error::Code::invalid_argument_type, L_NIL));
             }
             break;
         }
@@ -187,7 +187,7 @@ void vm_execute(Value* code_buffer, int start_offset)
             if (arg->type_ == Value::Type::cons) {
                 push_op(arg->cons_.cdr());
             } else {
-                push_op(make_error(Error::Code::invalid_argument_type));
+                push_op(make_error(Error::Code::invalid_argument_type, L_NIL));
             }
             break;
         }

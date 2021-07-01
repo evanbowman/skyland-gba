@@ -370,11 +370,12 @@ Value* make_list(u32 length)
 }
 
 
-Value* make_error(Error::Code error_code)
+Value* make_error(Error::Code error_code, Value* context)
 {
     if (auto val = alloc_value()) {
         val->type_ = Value::Type::error;
         val->error_.code_ = error_code;
+        val->error_.context_ = compr(context);
         return val;
     }
     return bound_context->oom_;
@@ -606,7 +607,7 @@ void funcall(Value* obj, u8 argc)
     case Value::Type::function: {
         if (bound_context->operand_stack_->size() < argc) {
             pop_args();
-            push_op(make_error(Error::Code::invalid_argc));
+            push_op(make_error(Error::Code::invalid_argc, obj));
             return;
         }
 
@@ -657,7 +658,7 @@ void funcall(Value* obj, u8 argc)
     }
 
     default:
-        push_op(make_error(Error::Code::value_not_callable));
+        push_op(make_error(Error::Code::value_not_callable, L_NIL));
         break;
     }
 }
@@ -682,7 +683,7 @@ Value* set_var(const char* name, Value* value)
         }
     }
 
-    return make_error(Error::Code::symbol_table_exhausted);
+    return make_error(Error::Code::symbol_table_exhausted, L_NIL);
 }
 
 
@@ -703,8 +704,12 @@ Value* get_var(const char* name)
         }
     }
 
-    error(bound_context->pfrm_, name);
-    return make_error(Error::Code::undefined_variable_access);
+    StringBuffer<31> hint("[var: ");
+    hint += name;
+    hint += "]";
+
+    return make_error(Error::Code::undefined_variable_access,
+                      make_string(bound_context->pfrm_, hint.c_str()));
 }
 
 
@@ -859,8 +864,11 @@ void format_impl(Value* value, Printer& p, int depth)
         break;
 
     case lisp::Value::Type::error:
-        p.put_str("ERR: ");
+        p.put_str("[ERR: ");
         p.put_str(lisp::Error::get_string(value->error_.code_));
+        p.put_str(" : ");
+        format_impl(dcompr(value->error_.context_), p, 0);
+        p.put_str("]");
         break;
 
     case lisp::Value::Type::data_buffer:
@@ -915,6 +923,10 @@ static void gc_mark_value(Value* value)
 
     case Value::Type::string:
         gc_mark_value(dcompr(value->string_.data_buffer_));
+        break;
+
+    case Value::Type::error:
+        gc_mark_value(dcompr(value->error_.context_));
         break;
 
     case Value::Type::cons:
@@ -1129,7 +1141,8 @@ static u32 read_list(const char* code)
         case '.':
             i += 1;
             if (dotted_pair or result == get_nil()) {
-                push_op(lisp::make_error(Error::Code::mismatched_parentheses));
+                push_op(lisp::make_error(Error::Code::mismatched_parentheses,
+                                         L_NIL));
                 return i;
             } else {
                 dotted_pair = true;
@@ -1155,13 +1168,15 @@ static u32 read_list(const char* code)
 
         case '\0':
             pop_op();
-            push_op(lisp::make_error(Error::Code::mismatched_parentheses));
+            push_op(
+                lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
             return i;
             break;
 
         default:
             if (dotted_pair) {
-                push_op(lisp::make_error(Error::Code::mismatched_parentheses));
+                push_op(lisp::make_error(Error::Code::mismatched_parentheses,
+                                         L_NIL));
                 return i;
             }
             i += read(code + i);
@@ -1192,7 +1207,8 @@ static u32 read_string(const char* code)
     while (*code not_eq '"') {
         if (*code == '\0' or i == SCRATCH_BUFFER_SIZE - 1) {
             // FIXME: correct error code.
-            push_op(lisp::make_error(Error::Code::mismatched_parentheses));
+            push_op(
+                lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
         }
         *(write++) = *(code++);
         i++;
@@ -1386,7 +1402,7 @@ u32 read(const char* code)
 static void eval_if(Value* code)
 {
     if (code->type_ not_eq Value::Type::cons) {
-        push_op(lisp::make_error(Error::Code::mismatched_parentheses));
+        push_op(lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
         return;
     }
 
@@ -1420,7 +1436,7 @@ static void eval_if(Value* code)
 static void eval_while(Value* code)
 {
     if (code->type_ not_eq Value::Type::cons) {
-        push_op(lisp::make_error(Error::Code::mismatched_parentheses));
+        push_op(lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
         return;
     }
 
@@ -1520,7 +1536,7 @@ void eval(Value* code)
             if (arg_list->type_ not_eq Value::Type::cons) {
                 clear_args();
                 pop_op();
-                push_op(make_error(Error::Code::value_not_callable));
+                push_op(make_error(Error::Code::value_not_callable, arg_list));
                 --bound_context->interp_entry_count_;
                 return;
             }
@@ -1533,6 +1549,10 @@ void eval(Value* code)
 
         funcall(function, argc);
         auto result = get_op(0);
+        if (result->type_ == Value::Type::error and
+            dcompr(result->error_.context_) == L_NIL) {
+            result->error_.context_ = compr(code);
+        }
         pop_op(); // result
         pop_op(); // protected expr (see top)
         push_op(result);
@@ -1599,6 +1619,17 @@ void init(Platform& pfrm)
 
     set_var("cons", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 2);
+                auto car = get_op(1);
+                auto cdr = get_op(0);
+
+                if (car->type_ == lisp::Value::Type::error) {
+                    return car;
+                }
+
+                if (cdr->type_ == lisp::Value::Type::error) {
+                    return cdr;
+                }
+
                 return make_cons(get_op(1), get_op(0));
             }));
 
@@ -1617,7 +1648,11 @@ void init(Platform& pfrm)
     set_var("list", make_function([](int argc) {
                 auto lat = make_list(argc);
                 for (int i = 0; i < argc; ++i) {
-                    set_list(lat, i, get_op((argc - 1) - i));
+                    auto val = get_op((argc - 1) - i);
+                    if (val->type_ == Value::Type::error) {
+                        return val;
+                    }
+                    set_list(lat, i, val);
                 }
                 return lat;
             }));
@@ -1713,7 +1748,8 @@ void init(Platform& pfrm)
                 int apply_argc = 0;
                 while (lat not_eq get_nil()) {
                     if (lat->type_ not_eq Value::Type::cons) {
-                        return make_error(Error::Code::invalid_argument_type);
+                        return make_error(Error::Code::invalid_argument_type,
+                                          lat);
                     }
                     ++apply_argc;
                     push_op(lat->cons_.car());
@@ -1887,7 +1923,8 @@ void init(Platform& pfrm)
                     end = get_op(1)->integer_.value_;
                     incr = get_op(0)->integer_.value_;
                 } else {
-                    return lisp::make_error(lisp::Error::Code::invalid_argc);
+                    return lisp::make_error(lisp::Error::Code::invalid_argc,
+                                            L_NIL);
                 }
 
                 if (incr == 0) {
@@ -2014,7 +2051,7 @@ void init(Platform& pfrm)
             if (lisp::get_op(argc - 1)->type_ not_eq Value::Type::function and
                 lisp::get_op(argc - 1)->type_ not_eq Value::Type::cons) {
                 return lisp::make_error(
-                    lisp::Error::Code::invalid_argument_type);
+                    lisp::Error::Code::invalid_argument_type, L_NIL);
             }
 
             // I've never seen map used with so many input lists, but who knows,
@@ -2185,7 +2222,8 @@ void init(Platform& pfrm)
 
     set_var("eval", make_function([](int argc) {
                 if (argc < 1) {
-                    return lisp::make_error(lisp::Error::Code::invalid_argc);
+                    return lisp::make_error(lisp::Error::Code::invalid_argc,
+                                            L_NIL);
                 }
 
                 eval(get_op(0));

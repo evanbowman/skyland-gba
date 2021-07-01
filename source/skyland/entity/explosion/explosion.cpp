@@ -40,7 +40,6 @@ void big_explosion(Platform& pfrm, App& app, const Vec2<Float>& position)
 
     app.on_timeout(
         pfrm, milliseconds(90), [pos = position](Platform& pf, App& app) {
-
             app.rumble().activate(pf, milliseconds(390));
 
             for (int i = 0; i < 3; ++i) {

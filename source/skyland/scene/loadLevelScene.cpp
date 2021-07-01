@@ -44,8 +44,10 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     const auto loc = app.current_map_location();
     auto& node = app.world_map().matrix_[loc.x][loc.y];
 
-    auto on_lisp_error = [&pfrm](lisp::Value& v) {
-        pfrm.fatal(lisp::Error::get_string(v.error_.code_));
+    auto on_lisp_error = [&pfrm](lisp::Value& err) {
+        lisp::DefaultPrinter p;
+        lisp::format(&err, p);
+        pfrm.fatal(p.fmt_.c_str());
     };
 
     switch (node.type_) {

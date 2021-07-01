@@ -1596,9 +1596,9 @@ void Platform::fatal(const char* msg)
     irqDisable(IRQ_TIMER2 | IRQ_KEYPAD | IRQ_TIMER3 | IRQ_VBLANK);
 
 
-    ::platform->screen().fade(1.f, bkg_color);
-    ::platform->fill_overlay(0);
-    ::platform->load_overlay_texture("overlay");
+    screen().fade(1.f, bkg_color);
+    fill_overlay(0);
+    load_overlay_texture("overlay");
     enable_glyph_mode(true);
 
     static const Text::OptColors text_colors{
@@ -1607,40 +1607,92 @@ void Platform::fatal(const char* msg)
     static const Text::OptColors text_colors_inv{
         {text_colors->background_, text_colors->foreground_}};
 
-    Text text(*::platform, {1, 1});
+    Text text(*this, {1, 1});
     text.append("fatal error:", text_colors_inv);
 
-    Text text2(*::platform, {1, 3});
-    text2.append(msg, text_colors);
+    std::optional<Text> text2;
+
 
     Buffer<Text, 6> line_buffer;
-    int offset = 0;
 
-    auto render_line = [&](const char* line,
-                           int spacing,
-                           Text::OptColors colors) {
-        line_buffer.emplace_back(*::platform, OverlayCoord{1, u8(6 + offset)});
-        line_buffer.back().append(line, colors);
-        offset += spacing;
+    std::optional<TextView> verbose_error;
+
+
+    auto show_default_scrn = [&] {
+        irqEnable(IRQ_VBLANK);
+
+        screen().clear();
+
+        verbose_error.reset();
+
+        screen().display();
+        screen().clear();
+
+        text2.emplace(*this, OverlayCoord{1, 3});
+
+        const auto msg_len = str_len(msg);
+        if (msg_len > 28) {
+            StringBuffer<28> temp;
+            for (int i = 0; i < 24; ++i) {
+                temp.push_back(msg[i]);
+            }
+            temp += "...";
+            text2->append(temp.c_str(), text_colors);
+        } else {
+            text2->append(msg, text_colors);
+        }
+
+        int offset = 0;
+
+        auto render_line = [&](const char* line,
+                               int spacing,
+                               Text::OptColors colors) {
+            line_buffer.emplace_back(*this, OverlayCoord{1, u8(6 + offset)});
+            line_buffer.back().append(line, colors);
+            offset += spacing;
+        };
+
+        render_line("uart console available", 2, text_colors);
+        render_line("link port        rs232 cable", 2, text_colors_inv);
+        render_line("  SO  ---------------> RxD", 2, text_colors);
+        render_line("  SI  ---------------> TxD", 2, text_colors);
+        render_line("  GND ---------------> GND", 2, text_colors);
+        render_line("    3.3 volts, 9600 baud    ", 2, text_colors_inv);
+
+        Text text3(*this, {1, 18});
+        text3.append("L+R+START+SELECT reset...", text_colors);
+
+
+        screen().display();
+
+        irqDisable(IRQ_VBLANK);
     };
 
-    render_line("uart console available", 2, text_colors);
-    render_line("link port        rs232 cable", 2, text_colors_inv);
-    render_line("  SO  ---------------> RxD", 2, text_colors);
-    render_line("  SI  ---------------> TxD", 2, text_colors);
-    render_line("  GND ---------------> GND", 2, text_colors);
-    render_line("    3.3 volts, 9600 baud    ", 2, text_colors_inv);
+    show_default_scrn();
 
-    Text text3(*::platform, {1, 18});
-    text3.append("L+R+START+SELECT reset...", text_colors);
+    auto show_verbose_msg = [&] {
+        irqEnable(IRQ_VBLANK);
 
+        screen().clear();
 
-    ::platform->screen().display();
+        text2.reset();
+        line_buffer.clear();
+
+        screen().display();
+        screen().clear();
+
+        verbose_error.emplace(*this);
+        verbose_error->assign(msg, {1, 3}, {28, 14}, 0, text_colors);
+
+        screen().display();
+
+        irqDisable(IRQ_VBLANK);
+    };
 
     while (true) {
 
-        if (auto line = ::platform->remote_console().readline()) {
-            RemoteConsoleLispPrinter printer(*::platform);
+        if (auto line = remote_console().readline()) {
+            RemoteConsoleLispPrinter printer(*this);
 
             lisp::read(line->c_str());
             lisp::eval(lisp::get_op(0));
@@ -1649,10 +1701,19 @@ void Platform::fatal(const char* msg)
             lisp::pop_op();
             lisp::pop_op();
 
-            platform->remote_console().printline(printer.fmt_.c_str());
+            remote_console().printline(printer.fmt_.c_str());
         }
 
-        ::platform->keyboard().poll();
+        keyboard().poll();
+
+        if (keyboard().down_transition<Key::action_2>()) {
+
+            if (not verbose_error) {
+                show_verbose_msg();
+            } else {
+                show_default_scrn();
+            }
+        }
     }
 }
 
@@ -2498,6 +2559,73 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 }
 
 
+#define REG_SGFIFOA *(volatile u32*)0x40000A0
+#define REG_SGFIFOB *(volatile u32*)0x40000A4
+
+
+// __attribute__((section(".iwram"))) static void audio_update_empty_isr()
+// {
+//     alignas(4) AudioSample mixing_buffer[4] = {0};
+
+//     REG_SGFIFOA = *((u32*)mixing_buffer);
+// }
+
+
+__attribute__((section(".iwram"))) static void audio_update_fast_nomusic_isr()
+{
+    alignas(4) AudioSample mixing_buffer[4] = {0};
+
+    for (auto it = snd_ctx.active_sounds.begin();
+         it not_eq snd_ctx.active_sounds.end();) {
+        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+            it = snd_ctx.active_sounds.erase(it);
+            // if (snd_ctx.active_sounds.size() == 0) {
+            //     irqSet(IRQ_TIMER1, audio_update_empty_isr);
+            // }
+        } else {
+            for (int i = 0; i < 4; ++i) {
+                mixing_buffer[i] += (u8)it->data_[it->position_];
+                ++it->position_;
+            }
+            ++it;
+        }
+    }
+
+    REG_SGFIFOA = *((u32*)mixing_buffer);
+}
+
+
+// Simpler mixer, without stereo sound or volume modulation, for multiplayer
+// games.
+__attribute__((section(".iwram"))) static void audio_update_fast_isr()
+{
+    alignas(4) AudioSample mixing_buffer[4];
+
+    // NOTE: audio tracks in ROM should therefore have four byte alignment!
+    *((u32*)mixing_buffer) =
+        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+
+    if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
+        snd_ctx.music_track_pos = 0;
+    }
+
+    for (auto it = snd_ctx.active_sounds.begin();
+         it not_eq snd_ctx.active_sounds.end();) {
+        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+            it = snd_ctx.active_sounds.erase(it);
+        } else {
+            for (int i = 0; i < 4; ++i) {
+                mixing_buffer[i] += (u8)it->data_[it->position_];
+                ++it->position_;
+            }
+            ++it;
+        }
+    }
+
+    REG_SGFIFOA = *((u32*)mixing_buffer);
+}
+
+
 bool Platform::Speaker::is_music_playing(const char* name)
 {
     bool playing = false;
@@ -2614,7 +2742,10 @@ static void clear_music()
 
 static void stop_music()
 {
-    modify_audio([] { clear_music(); });
+    modify_audio([] {
+        clear_music();
+        irqSet(IRQ_TIMER1, audio_update_fast_nomusic_isr);
+    });
 }
 
 
@@ -2637,6 +2768,7 @@ static void play_music(const char* name, Microseconds offset)
         snd_ctx.music_track_length = track->length_;
         snd_ctx.music_track = track->data_;
         snd_ctx.music_track_pos = (sample_offset / 4) % track->length_;
+        irqSet(IRQ_TIMER1, audio_update_fast_isr);
     });
 }
 
@@ -2679,9 +2811,6 @@ Platform::Speaker::Speaker()
 // Misc
 ////////////////////////////////////////////////////////////////////////////////
 
-
-#define REG_SGFIFOA *(volatile u32*)0x40000A0
-#define REG_SGFIFOB *(volatile u32*)0x40000A4
 
 
 // NOTE: I tried to move this audio update interrupt handler to IWRAM, but the
@@ -2765,37 +2894,6 @@ Platform::Speaker::Speaker()
 
     REG_SGFIFOA = *((u32*)mixing_buffer);
     // REG_SGFIFOB = *((u32*)mixing_buffer);
-}
-
-
-// Simpler mixer, without stereo sound or volume modulation, for multiplayer
-// games.
-__attribute__((section(".iwram"))) static void audio_update_fast_isr()
-{
-    alignas(4) AudioSample mixing_buffer[4];
-
-    // NOTE: audio tracks in ROM should therefore have four byte alignment!
-    *((u32*)mixing_buffer) =
-        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
-
-    if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
-        snd_ctx.music_track_pos = 0;
-    }
-
-    for (auto it = snd_ctx.active_sounds.begin();
-         it not_eq snd_ctx.active_sounds.end();) {
-        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
-            it = snd_ctx.active_sounds.erase(it);
-        } else {
-            for (int i = 0; i < 4; ++i) {
-                mixing_buffer[i] += (u8)it->data_[it->position_];
-                ++it->position_;
-            }
-            ++it;
-        }
-    }
-
-    REG_SGFIFOA = *((u32*)mixing_buffer);
 }
 
 
