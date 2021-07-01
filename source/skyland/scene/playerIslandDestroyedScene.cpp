@@ -16,6 +16,10 @@ namespace skyland {
 
 
 
+static const Float partial_fade_amt = 0.76f;
+
+
+
 void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
 {
     const auto screen_tiles = calc_screen_tiles(pfrm);
@@ -107,7 +111,11 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         stat_timer_ -= delta;
 
         if (stat_timer_ < 0) {
-            stat_timer_ = milliseconds(75 - lines_.size() * 5);
+            if (lines_.size() not_eq 4) {
+                stat_timer_ = milliseconds(75 - lines_.size() * 5);
+            } else {
+                stat_timer_ = 0;
+            }
             show_stats(pfrm, app);
         }
     }
@@ -229,7 +237,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         coins_.reset();
         power_.reset();
 
-        if (timer_ - delta < milliseconds(250) and timer_ > milliseconds(250)) {
+        if (timer_ - delta < milliseconds(300) and timer_ > milliseconds(300)) {
             pfrm.load_overlay_texture("overlay_island_destroyed");
             if (island_ not_eq &app.player_island()) {
                 draw_image(pfrm, 82, 4, 1, 22, 8, Layer::overlay);
@@ -237,12 +245,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             stat_timer_ = milliseconds(145);
         }
 
-        constexpr auto fade_duration = milliseconds(500);
+        constexpr auto fade_duration = milliseconds(2800);
         if (timer_ > fade_duration) {
             timer_ = 0;
             anim_state_ = AnimState::idle;
         } else {
-            const auto amount = smoothstep(0.f, fade_duration, timer_) * 0.72f;
+            const auto amount = smoothstep(0.f, fade_duration, timer_) * partial_fade_amt;
             pfrm.screen().fade(amount);
         }
         break;
@@ -270,7 +278,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.fatal("you died.");
             }
         } else {
-            const auto amount =  0.72f + (1.f - 0.72f) * smoothstep(0.f, fade_duration, timer_);
+            const auto amount = partial_fade_amt + (1.f - partial_fade_amt) * smoothstep(0.f, fade_duration, timer_);
             pfrm.screen().fade(amount);
         }
         break;

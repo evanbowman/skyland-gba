@@ -459,9 +459,6 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 
     save_icon_.emplace(pfrm, 120, OverlayCoord{26, 16});
     // flag_icon_.emplace(pfrm, 128, OverlayCoord{23, 16});
-
-
-    pfrm.screen().fade(0.f);
 }
 
 
