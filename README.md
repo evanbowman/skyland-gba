@@ -107,7 +107,7 @@ build the more complex structures listed below.
 
 <img src="imgs_for_readme/power-core.png"/>
 
-Your island will have one power core at the beginning of the game. If all of a
+Your island will include one power core at the beginning of the game. If all of a
 castle's power cores are destroyed, it will sink into the clouds, and all of the
 island's residents will perish. You must have a workshop in your castle to build
 aadditional Power Cores. Each room on your island consumes an amount of power (with the
@@ -157,10 +157,18 @@ Radar.
 
 <img src="imgs_for_readme/ion-cannon.png"/>
 
-An energy weapon. Fires projectiles that pass through walls and rooms. Deals
+An energy weapon. Fires projectiles that pass through hull and rooms. Deals
 significant damage to forcefields.
 
 ---
+
+### Characters
+
+Characters, such as your castle's residents, or enemy goblins, can damage or
+repair rooms. When successfully destroying another castle's room, a character
+will plunder a fraction of the room's construction cost, increasing your coin
+count.
+
 
 ## Hacking
 
