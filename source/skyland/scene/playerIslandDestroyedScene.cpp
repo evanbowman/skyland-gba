@@ -67,6 +67,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > milliseconds(120)) {
             timer_ = 0;
             anim_state_ = AnimState::fade;
+            app.rumble().activate(pfrm, milliseconds(190));
         }
         break;
 

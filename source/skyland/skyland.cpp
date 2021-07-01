@@ -83,6 +83,8 @@ void App::update(Platform& pfrm, Microseconds delta)
         on_remote_console_text(pfrm, *line);
     }
 
+    rumble_.update(pfrm, delta);
+
     for (auto it = deferred_callbacks_.begin();
          it not_eq deferred_callbacks_.end();) {
 

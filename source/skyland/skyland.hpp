@@ -13,6 +13,7 @@
 #include "player.hpp"
 #include "scene.hpp"
 #include "worldMap.hpp"
+#include "rumble.hpp"
 
 
 
@@ -179,6 +180,12 @@ public:
     }
 
 
+    Rumble& rumble()
+    {
+        return rumble_;
+    }
+
+
 private:
     PersistentData persistent_data_;
     Island player_island_;
@@ -190,6 +197,7 @@ private:
     Coins victory_coins_ = 0;
     Camera camera_;
     bool paused_ = false;
+    Rumble rumble_;
 
     std::optional<DialogBuffer> dialog_buffer_;
     bool dialog_expects_answer_ = false;

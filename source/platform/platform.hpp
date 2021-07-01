@@ -254,6 +254,9 @@ public:
     bool read_save_data(void* buffer, u32 data_length, u32 offset);
 
 
+    // For historical reasons, allows you to specify a folder and filename
+    // separately. If you do not care for this behavior, supply an empty string
+    // in the folder argument, and the path in the filename argument.
     const char* load_file_contents(const char* folder,
                                    const char* filename) const;
 

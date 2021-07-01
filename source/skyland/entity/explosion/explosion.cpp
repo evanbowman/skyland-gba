@@ -17,6 +17,7 @@ void medium_explosion(Platform& pfrm, App& app, const Vec2<Float>& position)
 
     app.on_timeout(
         pfrm, milliseconds(60), [pos = position](Platform& pf, App& app) {
+            app.rumble().activate(pf, milliseconds(200));
             app.effects().push(alloc_entity<Explosion>(
                 rng::sample<18>(pos, rng::utility_state)));
 
@@ -39,6 +40,9 @@ void big_explosion(Platform& pfrm, App& app, const Vec2<Float>& position)
 
     app.on_timeout(
         pfrm, milliseconds(90), [pos = position](Platform& pf, App& app) {
+
+            app.rumble().activate(pf, milliseconds(390));
+
             for (int i = 0; i < 3; ++i) {
                 app.effects().push(alloc_entity<Explosion>(
                     rng::sample<32>(pos, rng::utility_state)));

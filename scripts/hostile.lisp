@@ -8,7 +8,7 @@
 (eval-other-file "reset_hooks.lisp")
 
 
-]
+
 (if (not (equal (zone) last-zone))
     (progn
       (set 'friendlies-seen '())
