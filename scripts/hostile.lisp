@@ -6,52 +6,51 @@
 
 
 (eval-other-file "reset_hooks.lisp")
-(eval-other-file "hostile_1_3.lisp")
 
 
-
-;; (if (not (equal (zone) last-zone))
-;;     (progn
-;;       (set 'friendlies-seen '())
-;;       (set 'enemies-seen '())))
-
-
-;; (set 'last-zone (zone))
+]
+(if (not (equal (zone) last-zone))
+    (progn
+      (set 'friendlies-seen '())
+      (set 'enemies-seen '())))
 
 
-;; (set 'avail-levels ;; list of unvisited levels
-;;      (filter
-;;       (lambda
-;;         (set 'temp (arg 0))
-;;         (not (length (filter
-;;                       (lambda (equal temp (arg 0)))
-;;                       enemies-seen))))
-;;       (gen
-;;        (get '(8 3 1) (zone)) ;; number of levels to select from based on current zone
-;;        (lambda (arg 0)))))
+(set 'last-zone (zone))
 
 
-;; ;; Ok, so if we're at the point where we've exhausted all of the possible level
-;; ;; scenarios (which shouldn't really happen, anyway), we should clear the list
-;; ;; of seen enemies, so that next time we won't end up with nil.
-;; (if (equal (length avail-levels) 1)
-;;     (set 'enemies-seen '()))
+(set 'avail-levels ;; list of unvisited levels
+     (filter
+      (lambda
+        (set 'temp (arg 0))
+        (not (length (filter
+                      (lambda (equal temp (arg 0)))
+                      enemies-seen))))
+      (gen
+       (get '(8 4 1) (zone)) ;; number of levels to select from based on current zone
+       (lambda (arg 0)))))
 
 
-;; (set 'lv-num (get avail-levels (cr-choice (length avail-levels))))
+;; Ok, so if we're at the point where we've exhausted all of the possible level
+;; scenarios (which shouldn't really happen, anyway), we should clear the list
+;; of seen enemies, so that next time we won't end up with nil.
+(if (equal (length avail-levels) 1)
+    (set 'enemies-seen '()))
 
 
-;; (if (equal (length enemies-seen) 0)
-;;     (if (equal (zone) 0)
-;;         (set 'lv-num 0)))
+(set 'lv-num (get avail-levels (cr-choice (length avail-levels))))
 
 
-;; (set 'enemies-seen (cons lv-num enemies-seen))
+(if (equal (length enemies-seen) 0)
+    (if (equal (zone) 0)
+        (set 'lv-num 0)))
 
 
-;; (eval-other-file (string 'hostile '_ (zone) '_ lv-num '.lisp))
+(set 'enemies-seen (cons lv-num enemies-seen))
 
 
-;; ;; Just to save some memory...
-;; (set 'avail-levels '())
-;; (gc)
+(eval-other-file (string 'hostile '_ (zone) '_ lv-num '.lisp))
+
+
+;; Just to save some memory...
+(set 'avail-levels '())
+(gc)
