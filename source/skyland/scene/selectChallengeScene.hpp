@@ -1,0 +1,43 @@
+#pragma once
+
+
+#include "graphics/overlay.hpp"
+#include "skyland/scene.hpp"
+#include "script/lisp.hpp"
+
+
+
+namespace skyland {
+
+
+
+class SelectChallengeScene : public Scene {
+public:
+    void enter(Platform&, App&, Scene& prev) override;
+    void exit(Platform&, App&, Scene& next) override;
+
+
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+
+    void display(Platform&, App&) override;
+
+
+private:
+
+    void show_options(Platform&);
+
+    std::optional<lisp::Protected> challenges_;
+    Buffer<Text, 5> text_;
+
+    int page_ = 0;
+    int cursor_ = 0;
+
+    int page_count_ = 0;
+
+    Microseconds timer_ = 0;
+};
+
+
+
+}

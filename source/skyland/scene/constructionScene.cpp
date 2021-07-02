@@ -142,6 +142,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             const u8 dest_y = construction_sites_[selector_].y - (sz - 1);
             target->create(pfrm, &app.player_island(), {dest_x, dest_y});
 
+            app.player().rooms_built_++;
+
             network::packet::RoomConstructed packet;
             packet.metaclass_index_.set(metaclass_index(target->name()));
             packet.x_ = dest_x;

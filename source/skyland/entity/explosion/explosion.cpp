@@ -14,7 +14,6 @@ void medium_explosion(Platform& pfrm, App& app, const Vec2<Float>& position)
     app.effects().push(
         alloc_entity<Explosion>(rng::sample<18>(position, rng::utility_state)));
 
-
     app.on_timeout(
         pfrm, milliseconds(60), [pos = position](Platform& pf, App& app) {
             app.rumble().activate(pf, milliseconds(200));

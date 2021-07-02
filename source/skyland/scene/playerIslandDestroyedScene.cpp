@@ -83,7 +83,11 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
         break;
 
     case 3:
-        print_metric("dolor sit amet ", 12);
+        StringBuffer<24> fmt;
+        fmt += to_string<10>(app.player().rooms_built_);
+        fmt += "/";
+        fmt += to_string<10>(app.player().rooms_lost_);
+        print_metric_impl("rooms built/lost ", fmt.c_str());
         break;
     }
 }
@@ -237,12 +241,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         coins_.reset();
         power_.reset();
 
-        if (timer_ - delta < milliseconds(300) and timer_ > milliseconds(300)) {
+        if (timer_ - delta < milliseconds(600) and timer_ > milliseconds(600)) {
             pfrm.load_overlay_texture("overlay_island_destroyed");
             if (island_ not_eq &app.player_island()) {
                 draw_image(pfrm, 82, 4, 1, 22, 8, Layer::overlay);
             } else {
-                draw_image(pfrm, 436, 4, 1, 22, 8, Layer::overlay);
+                draw_image(pfrm, 259, 4, 1, 22, 8, Layer::overlay);
             }
             stat_timer_ = milliseconds(145);
         }

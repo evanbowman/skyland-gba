@@ -21,7 +21,6 @@
 int parallax_table[280];
 
 
-
 extern "C" {
 IWRAM_CODE void hblank_scroll_isr()
 {

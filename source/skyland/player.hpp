@@ -39,6 +39,16 @@ public:
     }
 
 
+    virtual void on_room_destroyed(Platform& pfrm, App& app, Room& room)
+    {
+        ++rooms_lost_;
+    }
+
+
+    int rooms_lost_ = 0;
+    int rooms_built_ = 0;
+
+
     MissileAmmo& missile_ammo()
     {
         return missile_ammo_;

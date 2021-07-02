@@ -4,7 +4,6 @@
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/core.hpp"
-#include "skyland/rooms/exteriorWall.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/hull.hpp"
 #include "skyland/rooms/infirmary.hpp"

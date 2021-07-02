@@ -25,6 +25,14 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         return;
     }
 
+    if (app.opponent_island()) {
+        if (app.opponent_island()->power_supply() <
+            app.opponent_island()->power_drain()) {
+            resolve_insufficient_power(pfrm, app);
+        }
+    }
+
+
     next_action_timer_ -= delta;
     character_reassign_timer_ -= delta;
 
@@ -157,6 +165,17 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+void EnemyAI::resolve_insufficient_power(Platform& pfrm, App& app)
+{
+    // TODO...
+    // When we have more power drain than power supply, we need to
+    // salvage a bunch of structures to make rebalance our power usage.
+
+
+}
+
+
+
 u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y);
 
 
@@ -193,7 +212,16 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     int ai_characters_remote = 0;
     int ai_characters_local = 0;
 
+    // Should we board the player's castle? Well, if we have no weapons
+    // remaining, a boarding party is the only way that we can deal damage,
+    // so...
+    int weapon_count = 0;
+
     for (auto& room : app.opponent_island()->rooms()) {
+        if (room->metaclass() == cannon_mt or
+            room->metaclass() == missile_silo_mt) {
+            ++weapon_count;
+        }
         for (auto& other : room->characters()) {
             if (other->owner() == this and other.get() not_eq &character) {
                 if (auto dest = other->destination()) {
@@ -300,6 +328,12 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                     if (player_characters_local > ai_characters_local) {
                         slot.ai_weight_ -= 250.f * (player_characters_local -
                                                     ai_characters_local);
+                    }
+                    if (weapon_count == 0) {
+                        // If we don't have any remaining weapons, potentially
+                        // board the player's castle, even if doing so would be
+                        // a suicide mission.
+                        slot.ai_weight_ += 1000.f;
                     }
                 } else {
                     slot.ai_weight_ -= 300;
@@ -657,52 +691,6 @@ void EnemyAI::on_room_damaged(Platform& pfrm, App& app, Room& room)
 {
     if (app.opponent_island()) {
 
-        // bool weapons_remaining = false;
-        // for (auto& room : app.opponent_island()->rooms()) {
-        //     if (dynamic_cast<Cannon*>(&*room)) {
-        //         weapons_remaining = true;
-        //         break;
-        //     }
-        // }
-
-        // if (not weapons_remaining) {
-        //     // Ok, all of our weapons have been destroyed. I.E. we cannot
-        //     // possibly win in this state. Now let's see what we can do...
-
-        //     // Maybe we can build a cannons?
-        //     auto cannon_mt = load_metaclass("cannon");
-        //     if ((*cannon_mt)->cost() < coins_) {
-        //         // Ok, so we actually have enough coins lying around to buy a
-        //         // cannon!
-        //         // Do we have a spot to place it?
-        //         bool matrix[16][16];
-        //         app.opponent_island()->plot_construction_zones(matrix);
-        //         std::optional<Vec2<u8>> target;
-
-        //         [&] {
-        //             for (u8 y = 0; y < 16; ++y) {
-        //                 for (u8 x = 0; x < 16; ++x) {
-        //                     if (matrix[x][y]) {
-        //                         target = {x, y};
-        //                         return;
-        //                     }
-        //                 }
-        //             }
-        //         }();
-
-        //         if (target) {
-        //             (*cannon_mt)->create(pfrm, &*app.opponent_island(), *target);
-        //             coins_ -= (*cannon_mt)->cost();
-        //         }
-
-        //     }
-
-        // }
-
-        // Things that we might want to do here:
-        // 1) Initiate repairs
-        // 2) Salvage the room (if it's about to be destroyed anyway)
-        // 3) Build weapons or fortifications
     }
 }
 

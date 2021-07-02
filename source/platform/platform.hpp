@@ -773,6 +773,13 @@ inline void draw_image(Platform& pfrm,
 }
 
 
+template <Key k>
+bool key_down(Platform& pfrm)
+{
+    return pfrm.keyboard().down_transition<k>();
+}
+
+
 #ifdef __BLINDJUMP_ENABLE_LOGS
 #ifdef __GBA__
 // #pragma message "Warning: logging can wear down Flash memory, be careful using this on physical hardware!"

@@ -2,6 +2,11 @@
 ;;; challenge.lisp
 ;;;
 
-'(("t1" . "challenge-1.lisp")
-  ("t2" . "challenge-2.lisp")
-  ("t3" . "challenge-3.lisp"))
+
+
+
+'(("1: Wind Fortress" . "challenge-1.lisp")
+  ("2: The Flatiron" . "challenge-2.lisp")
+  ("3: Goblin Raid" . "challenge-3.lisp")
+  ("4: " . "...")
+  ("5: " . "..."))

@@ -6,6 +6,8 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
+#include "script/lisp.hpp"
+#include "selectChallengeScene.hpp"
 
 
 
@@ -343,8 +345,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             switch (menu_selection_) {
             case 0:
                 return scene_pool::alloc<NewgameScene>();
-            case 1:
-                return scene_pool::alloc<NewgameScene>();
+
+            case 1: {
+                return scene_pool::alloc<SelectChallengeScene>();
+            }
             }
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

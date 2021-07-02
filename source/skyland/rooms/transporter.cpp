@@ -205,4 +205,12 @@ void Transporter::render_exterior(Platform& pfrm, Layer layer)
 
 
 
+bool Transporter::ready() const
+{
+    return recharge_ == 0 and
+        parent()->power_supply() < parent()->power_drain();
+}
+
+
+
 } // namespace skyland

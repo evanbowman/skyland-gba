@@ -769,11 +769,17 @@ bool is_executing()
 }
 
 
-void dostring(const char* code, ::Function<16, void(Value&)> on_error)
+Value* dostring(const char* code, ::Function<16, void(Value&)> on_error)
 {
+    if (code == nullptr) {
+        on_error(*L_NIL);
+    }
+
     ++bound_context->interp_entry_count_;
 
     int i = 0;
+
+    Protected result(get_nil());
 
     while (true) {
         i += read(code + i);
@@ -784,6 +790,7 @@ void dostring(const char* code, ::Function<16, void(Value&)> on_error)
         }
         eval(reader_result);
         auto expr_result = get_op(0);
+        result.set(expr_result);
         pop_op(); // expression result
         pop_op(); // reader result
 
@@ -796,6 +803,8 @@ void dostring(const char* code, ::Function<16, void(Value&)> on_error)
     }
 
     --bound_context->interp_entry_count_;
+
+    return result;
 }
 
 

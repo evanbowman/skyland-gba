@@ -21,6 +21,7 @@
 (set 'after-converge-hook
      (lambda
        (dialog "The fortress appears to be empty, but you cannot be certain. Attempt to board?")
+       (set 'after-converge-hook '())
        (await-dialog-y/n)))
 
 

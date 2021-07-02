@@ -192,6 +192,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             it = rooms_.erase(it);
 
+            owner().rooms_lost_++;
+
             on_layout_changed(pos);
 
             bool has_core = false;
@@ -649,6 +651,7 @@ void Island::destroy_room(Platform& pfrm, const Vec2<u8>& coord)
             coord.y < room->position().y + room->size().y) {
 
             rooms_.erase(&room);
+            owner().rooms_lost_++;
 
             on_layout_changed(coord);
 

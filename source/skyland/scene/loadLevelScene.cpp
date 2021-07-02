@@ -32,10 +32,51 @@ void LoadLevelScene::enter(Platform& pfrm, App& app, Scene& prev)
 }
 
 
+
 void LoadLevelScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     WorldScene::exit(pfrm, app, next);
 }
+
+
+
+void prep_level(Platform& pfrm, App& app)
+{
+    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    cursor_loc.x = 0;
+    cursor_loc.y = 14;
+
+
+    app.victory_coins() = 0;
+    app.pause_count() = 0;
+    app.level_timer().reset(0);
+    app.level_coins_spent() = 0;
+    app.player().rooms_built_ = 0;
+    app.player().rooms_lost_ = 0;
+
+
+
+    if (app.opponent_island()) {
+        app.opponent_island()->set_drift(-0.000025f);
+
+        app.opponent_island()->repaint(pfrm);
+
+        set_island_positions(app.player_island(), *app.opponent_island());
+
+        app.player_island().set_float_timer(0);
+
+        app.opponent_island()->set_float_timer(
+            std::numeric_limits<Microseconds>::max() / 2);
+
+        for (auto& room : app.opponent_island()->rooms()) {
+            app.victory_coins() += 0.35f * (*room->metaclass())->cost();
+        }
+
+        app.opponent_island()->repaint(pfrm);
+    }
+
+}
+
 
 
 ScenePtr<Scene>
@@ -71,36 +112,8 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    prep_level(pfrm, app);
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-    cursor_loc.x = 0;
-    cursor_loc.y = 14;
-
-
-    app.victory_coins() = 0;
-    app.pause_count() = 0;
-    app.level_timer().reset(0);
-    app.level_coins_spent() = 0;
-
-
-    if (app.opponent_island()) {
-        app.opponent_island()->set_drift(-0.000025f);
-
-        app.opponent_island()->repaint(pfrm);
-
-        set_island_positions(app.player_island(), *app.opponent_island());
-
-        app.player_island().set_float_timer(0);
-
-        app.opponent_island()->set_float_timer(
-            std::numeric_limits<Microseconds>::max() / 2);
-
-        for (auto& room : app.opponent_island()->rooms()) {
-            app.victory_coins() += 0.35f * (*room->metaclass())->cost();
-        }
-
-        app.opponent_island()->repaint(pfrm);
-    }
 
     pfrm.delta_clock().reset(); // skip large dt from loading lisp scripts...
 

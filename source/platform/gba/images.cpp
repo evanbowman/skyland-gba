@@ -42,6 +42,8 @@
 #include "data/overlay_world_map.h"
 //;
 #include "data/overlay_island_destroyed.h"
+//;
+#include "data/overlay_challenges.h"
 //
 
 struct TextureData {
@@ -101,6 +103,8 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(overlay_world_map),
 //;
     TEXTURE_INFO(overlay_island_destroyed),
+//;
+    TEXTURE_INFO(overlay_challenges),
 //
 };
 

@@ -1009,6 +1009,7 @@ static void map_dynamic_textures()
 
 
 extern int parallax_table[280];
+extern int vertical_parallax_table[280];
 
 
 static u16 x0_scroll = 0;
@@ -2563,37 +2564,6 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 #define REG_SGFIFOB *(volatile u32*)0x40000A4
 
 
-// __attribute__((section(".iwram"))) static void audio_update_empty_isr()
-// {
-//     alignas(4) AudioSample mixing_buffer[4] = {0};
-
-//     REG_SGFIFOA = *((u32*)mixing_buffer);
-// }
-
-
-__attribute__((section(".iwram"))) static void audio_update_fast_nomusic_isr()
-{
-    alignas(4) AudioSample mixing_buffer[4] = {0};
-
-    for (auto it = snd_ctx.active_sounds.begin();
-         it not_eq snd_ctx.active_sounds.end();) {
-        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
-            it = snd_ctx.active_sounds.erase(it);
-            // if (snd_ctx.active_sounds.size() == 0) {
-            //     irqSet(IRQ_TIMER1, audio_update_empty_isr);
-            // }
-        } else {
-            for (int i = 0; i < 4; ++i) {
-                mixing_buffer[i] += (u8)it->data_[it->position_];
-                ++it->position_;
-            }
-            ++it;
-        }
-    }
-
-    REG_SGFIFOA = *((u32*)mixing_buffer);
-}
-
 
 // Simpler mixer, without stereo sound or volume modulation, for multiplayer
 // games.
@@ -2744,7 +2714,6 @@ static void stop_music()
 {
     modify_audio([] {
         clear_music();
-        irqSet(IRQ_TIMER1, audio_update_fast_nomusic_isr);
     });
 }
 
@@ -4854,16 +4823,18 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 void Platform::enable_feature(const char* feature_name, int value)
 {
     if (str_cmp(feature_name, "_prlx7") == 0) {
-        auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
+        auto offset = screen_.get_view().get_center().cast<s32>().y / 2; // * 0.5f + 3;
         for (int i = 112 - offset; i < 128 - offset; ++i) {
-            u8 temp = value;
+            u8 temp = value + screen_.get_view().get_center().cast<s32>().x / 3;
             parallax_table[i] = temp;
+            // vertical_parallax_table[i] = offset;
         }
     } else if (str_cmp(feature_name, "_prlx8") == 0) {
-        auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
+        auto offset = screen_.get_view().get_center().cast<s32>().y / 2; // * 0.6f + 3;
         for (int i = 128 - offset; i < 144 - offset; ++i) {
-            u8 temp = value;
+            u8 temp = value + screen_.get_view().get_center().cast<s32>().x / 3;
             parallax_table[i] = temp;
+            // vertical_parallax_table[i] = offset;
         }
     } else if (str_cmp(feature_name, "gswap") == 0) {
         *((u16*)0x4000002) = 0x0000 | (bool)value;
@@ -4888,6 +4859,9 @@ void Platform::enable_feature(const char* feature_name, int value)
         if (value) {
             irqEnable(IRQ_HBLANK);
             irqSet(IRQ_HBLANK, hblank_scroll_isr);
+            // for (auto& val : vertical_parallax_table) {
+            //     val = 200;
+            // }
         } else {
             irqDisable(IRQ_HBLANK);
         }

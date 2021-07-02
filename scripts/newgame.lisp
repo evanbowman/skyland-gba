@@ -21,3 +21,5 @@
 
 
 (add-chr (player) 2 14)
+
+(set 'challenges-completed '())
