@@ -23,9 +23,17 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (auto room = app.player_island().get_room(cursor_loc)) {
         if (auto mt = room->metaclass()) {
             if (str_cmp((*mt)->name(), "power-core") == 0) {
-                // That would be suicide! You can't salvage your island's power
-                // core.
-                exit_countdown_ = 1;
+                int core_count = 0;
+                for (auto& room : app.player_island().rooms()) {
+                    if (str_cmp((*room->metaclass())->name(), "power-core") == 0) {
+                        core_count++;
+                    }
+                }
+                if (core_count == 1) {
+                    // That would be suicide! You can't salvage your island's
+                    // only power core.
+                    exit_countdown_ = 1;
+                }
             }
             text += to_string<10>((*mt)->cost() * 0.75f);
         } else {

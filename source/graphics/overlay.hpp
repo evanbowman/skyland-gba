@@ -460,9 +460,18 @@ private:
             auto v1 = value_ & 0x0000ffff;
             auto v2 = (value_ & 0xffff0000) >> 16;
 
-            text_->append(v2);
-            text_->append("/");
-            text_->append(v1);
+            auto clr = [&] {
+                if (v1 < v2) {
+                    return Text::OptColors{{ColorConstant::rich_black,
+                            ColorConstant::aerospace_orange}};
+                } else {
+                    return Text::OptColors{};
+                }
+            }();
+
+            text_->append(v2, clr);
+            text_->append("/", clr);
+            text_->append(v1, clr);
 
         } else {
             text_->assign(value_);
