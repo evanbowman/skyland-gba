@@ -203,6 +203,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/hint_infirmary.s
     ${DATA_DIR}/hint_goblin.s
     ${DATA_DIR}/hint_plunder.s
+    ${DATA_DIR}/hint_damaged_core.s
     ${DATA_DIR}/charset.s
     ${DATA_DIR}/tilesheet.s
     ${DATA_DIR}/tilesheet_enemy_0.s
@@ -467,6 +468,7 @@ if(GAMEBOY_ADVANCE)
     add_overlay(hint_infirmary 0 0 NO NO)
     add_overlay(hint_goblin 0 0 NO NO)
     add_overlay(hint_plunder 0 0 NO NO)
+    add_overlay(hint_damaged_core 0 0 NO NO)
 
 
     configure_file(images.cpp.in ${SOURCE_DIR}/platform/gba/images.cpp)

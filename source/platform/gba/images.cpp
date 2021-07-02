@@ -52,6 +52,8 @@
 #include "data/hint_goblin.h"
 //;
 #include "data/hint_plunder.h"
+//;
+#include "data/hint_damaged_core.h"
 //
 
 struct TextureData {
@@ -121,6 +123,8 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(hint_goblin),
 //;
     TEXTURE_INFO(hint_plunder),
+//;
+    TEXTURE_INFO(hint_damaged_core),
 //
 };
 
