@@ -76,6 +76,12 @@ public:
     }
 
 
+    bool& challenge_mode()
+    {
+        return challenge_mode_;
+    }
+
+
     using DeferredCallback = Function<16, void(Platform&, App&)>;
 
 
@@ -217,6 +223,7 @@ private:
     std::optional<DialogBuffer> dialog_buffer_;
     bool dialog_expects_answer_ = false;
     bool exit_level_ = false;
+    bool challenge_mode_ = false;
 
     EntityList<Entity> effects_;
     EntityList<SmolBirb> birbs_;

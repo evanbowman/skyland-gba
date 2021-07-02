@@ -2,6 +2,7 @@
 #include "skyland/skyland.hpp"
 #include "fadeInScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "titleScreenScene.hpp"
 
 
 
@@ -41,7 +42,9 @@ void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
 
 void SelectChallengeScene::show_options(Platform& pfrm)
 {
+    pfrm.screen().clear();
     text_.clear();
+    pfrm.screen().display();
 
     if (not challenges_) {
         return;
@@ -86,9 +89,9 @@ void prep_level(Platform& pfrm, App& app);
 
 
 
-void SelectChallengeScene::exit(Platform&, App&, Scene& next)
+void SelectChallengeScene::exit(Platform& pfrm, App&, Scene& next)
 {
-
+    pfrm.load_overlay_texture("overlay");
 }
 
 
@@ -118,6 +121,10 @@ ScenePtr<Scene> SelectChallengeScene::update(Platform& pfrm,
                                              App& app,
                                              Microseconds delta)
 {
+    if (exit_) {
+        return scene_pool::alloc<TitleScreenScene>();
+    }
+
     timer_ += delta;
 
     if (not challenges_) {
@@ -148,9 +155,11 @@ ScenePtr<Scene> SelectChallengeScene::update(Platform& pfrm,
 
     if (key_down<Key::left>(pfrm)) {
         if (page_ > 0) {
-            cursor_ = 0;
             --page_;
             show_options(pfrm);
+            if ((u32)cursor_ >= text_.size()) {
+                cursor_ = text_.size() - 1;
+            }
         }
     }
 
@@ -178,6 +187,10 @@ ScenePtr<Scene> SelectChallengeScene::update(Platform& pfrm,
             err += " missing";
             pfrm.fatal(err.c_str());
         }
+    } else if (key_down<Key::action_2>(pfrm)) {
+        text_.clear();
+        pfrm.fill_overlay(0);
+        exit_ = true;
     }
 
     app.update_parallax(delta);

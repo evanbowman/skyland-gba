@@ -5,6 +5,7 @@
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
 #include "localization.hpp"
+#include "selectChallengeScene.hpp"
 
 
 
@@ -279,7 +280,11 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 app.opponent_island().reset();
 
-                return scene_pool::alloc<ZoneImageScene>();
+                if (app.challenge_mode()) {
+                    return scene_pool::alloc<SelectChallengeScene>();
+                } else {
+                    return scene_pool::alloc<ZoneImageScene>();
+                }
             } else {
                 pfrm.fatal("you died.");
             }

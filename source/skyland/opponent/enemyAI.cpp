@@ -308,7 +308,12 @@ void EnemyAI::assign_local_character(Platform& pfrm,
             slot.ai_weight_ -= 3 * manhattan_length(slot.coord_, current_pos);
 
             if (room->metaclass() == infirmary_metac) {
+                // If our health is really low, we probably want to go to the
+                // infirmary. If our health is just kinda low, we maybe want to
+                // go to the infirmary.
                 if (character.health() < 25) {
+                    slot.ai_weight_ += 2000.f;
+                } else if (character.health() < 200 and not player_characters_local) {
                     slot.ai_weight_ += 2000.f;
                 }
             } else if (auto transporter = dynamic_cast<Transporter*>(room)) {

@@ -36,6 +36,8 @@ private:
     int page_count_ = 0;
 
     Microseconds timer_ = 0;
+
+    bool exit_ = false;
 };
 
 

@@ -344,9 +344,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             text_.reset();
             switch (menu_selection_) {
             case 0:
+                app.challenge_mode() = false;
                 return scene_pool::alloc<NewgameScene>();
 
             case 1: {
+                app.challenge_mode() = true;
                 return scene_pool::alloc<SelectChallengeScene>();
             }
             }
