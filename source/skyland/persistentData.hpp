@@ -17,6 +17,9 @@ struct PersistentData {
     WorldMap world_map_;
     Vec2<u8> current_map_location_ = {0, 1};
     int zone_ = 0;
+
+    HostInteger<u32> total_seconds_;
+    HostInteger<u32> total_pauses_;
 };
 
 

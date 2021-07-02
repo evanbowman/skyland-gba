@@ -41,8 +41,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     cursor_loc.x = targets_[selector_].x;
     cursor_loc.y = targets_[selector_].y;
 
-    if (pfrm.keyboard().down_transition<Key::right>() or
-        pfrm.keyboard().down_transition<Key::down>()) {
+    if (key_down<Key::right>(pfrm) or key_down<Key::down>(pfrm)) {
 
         if (selector_ < (int)targets_.size() - 1) {
             selector_++;
@@ -54,8 +53,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         describe_room_timer_ = milliseconds(300);
     }
 
-    if (pfrm.keyboard().down_transition<Key::left>() or
-        pfrm.keyboard().down_transition<Key::up>()) {
+    if (key_down<Key::left>(pfrm) or key_down<Key::up>(pfrm)) {
 
         if (selector_ > 0) {
             --selector_;
@@ -67,7 +65,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         describe_room_timer_ = milliseconds(300);
     }
 
-    if (pfrm.keyboard().down_transition<Key::action_1>()) {
+    if (key_down<Key::action_1>(pfrm)) {
         const auto target = targets_[selector_];
         if (auto room = app.player_island().get_room(weapon_loc_)) {
             room->set_target(target);
@@ -82,7 +80,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (pfrm.keyboard().down_transition<Key::action_2>()) {
+    if (key_down<Key::action_2>(pfrm)) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -92,7 +90,11 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             describe_room_timer_ = milliseconds(500);
 
             if (app.opponent_island()) {
-                describe_room(pfrm, app, &*app.opponent_island(), cursor_loc, room_description_);
+                describe_room(pfrm,
+                              app,
+                              &*app.opponent_island(),
+                              cursor_loc,
+                              room_description_);
             }
         }
     }

@@ -41,27 +41,27 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     case State::explore_paths:
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (key_down<Key::action_2>(pfrm)) {
             state_ = State::deselected;
             cursor_ = app.current_map_location();
             show_map(pfrm, app.world_map());
             break;
         }
-        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (key_down<Key::action_1>(pfrm)) {
             if (cursor_ == app.current_map_location()) {
                 state_ = State::move;
                 show_move_arrows(pfrm, app);
             }
         }
-        if (pfrm.keyboard().down_transition<Key::right>() and
+        if (key_down<Key::right>(pfrm) and
             node.connections_.mask_ & WorldMap::Node::Connections::r) {
             cursor_.x += 1;
             show_map(pfrm, app.world_map());
-        } else if (pfrm.keyboard().down_transition<Key::left>() and
+        } else if (key_down<Key::left>(pfrm) and
                    node.connections_.mask_ & WorldMap::Node::Connections::l) {
             cursor_.x -= 1;
             show_map(pfrm, app.world_map());
-        } else if (pfrm.keyboard().down_transition<Key::up>()) {
+        } else if (key_down<Key::up>(pfrm)) {
             if (node.connections_.mask_ & WorldMap::Node::Connections::ru) {
                 cursor_.x += 1;
                 cursor_.y -= 1;
@@ -72,7 +72,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_.y -= 1;
                 show_map(pfrm, app.world_map());
             }
-        } else if (pfrm.keyboard().down_transition<Key::down>()) {
+        } else if (key_down<Key::down>(pfrm)) {
             if (node.connections_.mask_ & WorldMap::Node::Connections::ld) {
                 cursor_.x -= 1;
                 cursor_.y += 1;
@@ -94,13 +94,12 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     case State::save_selected:
-        if (pfrm.keyboard().down_transition<Key::up>() or
-            pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (key_down<Key::up>(pfrm) or key_down<Key::action_2>(pfrm)) {
             state_ = State::explore_paths;
             show_map(pfrm, app.world_map());
         }
 
-        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (key_down<Key::action_1>(pfrm)) {
             state_ = State::save_button_depressed;
             save_icon_.emplace(pfrm, 124, OverlayCoord{26, 16});
             timer_ = 0;
@@ -141,14 +140,14 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (key_down<Key::action_2>(pfrm)) {
             state_ = State::explore_paths;
             cursor_ = app.current_map_location();
             show_map(pfrm, app.world_map());
             cmix_ = {};
             break;
         }
-        if (pfrm.keyboard().down_transition<Key::up>() and
+        if (key_down<Key::up>(pfrm) and
             node.connections_.mask_ & WorldMap::Node::Connections::ru) {
             for (int i = 0; i < 3; ++i) {
                 move_arrow_sel_[i] = false;
@@ -156,7 +155,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             move_arrow_sel_[0] = true;
             show_move_arrows(pfrm, app);
         }
-        if (pfrm.keyboard().down_transition<Key::right>() and
+        if (key_down<Key::right>(pfrm) and
             node.connections_.mask_ & WorldMap::Node::Connections::r) {
             for (int i = 0; i < 3; ++i) {
                 move_arrow_sel_[i] = false;
@@ -164,7 +163,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             move_arrow_sel_[1] = true;
             show_move_arrows(pfrm, app);
         }
-        if (pfrm.keyboard().down_transition<Key::down>() and
+        if (key_down<Key::down>(pfrm) and
             node.connections_.mask_ & WorldMap::Node::Connections::rd) {
             for (int i = 0; i < 3; ++i) {
                 move_arrow_sel_[i] = false;
@@ -173,7 +172,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             show_move_arrows(pfrm, app);
         }
 
-        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (key_down<Key::action_1>(pfrm)) {
             state_ = State::wait;
             cmix_ = {ColorConstant::stil_de_grain, 200};
             if (move_arrow_sel_[0]) {

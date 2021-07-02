@@ -773,8 +773,7 @@ inline void draw_image(Platform& pfrm,
 }
 
 
-template <Key k>
-bool key_down(Platform& pfrm)
+template <Key k> bool key_down(Platform& pfrm)
 {
     return pfrm.keyboard().down_transition<k>();
 }

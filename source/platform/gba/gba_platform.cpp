@@ -2567,7 +2567,8 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 
 // Simpler mixer, without stereo sound or volume modulation, for multiplayer
 // games.
-__attribute__((section(".iwram"))) static void audio_update_fast_isr()
+// __attribute__((section(".iwram")))
+static void audio_update_fast_isr()
 {
     alignas(4) AudioSample mixing_buffer[4];
 
@@ -2712,9 +2713,7 @@ static void clear_music()
 
 static void stop_music()
 {
-    modify_audio([] {
-        clear_music();
-    });
+    modify_audio([] { clear_music(); });
 }
 
 
@@ -4823,14 +4822,16 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 void Platform::enable_feature(const char* feature_name, int value)
 {
     if (str_cmp(feature_name, "_prlx7") == 0) {
-        auto offset = screen_.get_view().get_center().cast<s32>().y / 2; // * 0.5f + 3;
+        auto offset =
+            screen_.get_view().get_center().cast<s32>().y / 2; // * 0.5f + 3;
         for (int i = 112 - offset; i < 128 - offset; ++i) {
             u8 temp = value + screen_.get_view().get_center().cast<s32>().x / 3;
             parallax_table[i] = temp;
             // vertical_parallax_table[i] = offset;
         }
     } else if (str_cmp(feature_name, "_prlx8") == 0) {
-        auto offset = screen_.get_view().get_center().cast<s32>().y / 2; // * 0.6f + 3;
+        auto offset =
+            screen_.get_view().get_center().cast<s32>().y / 2; // * 0.6f + 3;
         for (int i = 128 - offset; i < 144 - offset; ++i) {
             u8 temp = value + screen_.get_view().get_center().cast<s32>().x / 3;
             parallax_table[i] = temp;

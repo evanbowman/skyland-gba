@@ -1,6 +1,7 @@
 #include "save.hpp"
 #include "platform/platform.hpp"
 #include "script/lisp.hpp"
+#include "highscores.hpp"
 
 
 
@@ -9,7 +10,7 @@ namespace save {
 
 
 
-static const u32 save_data_magic = 0xABCD;
+static const u32 save_data_magic = 0xABCD + 1;
 
 
 
@@ -46,16 +47,25 @@ void store(Platform& pfrm, const PersistentData& d)
     save_data.script_length_.set(p.fmt_.length());
     memcpy(&save_data.data_, &d, sizeof d);
 
-    pfrm.write_save_data(&save_data, sizeof save_data, 0);
-    pfrm.write_save_data(p.fmt_.c_str(), p.fmt_.length(), sizeof save_data);
+    u32 offset = sizeof(Highscores);
+
+    pfrm.write_save_data(&save_data, sizeof save_data, offset);
+
+    offset += sizeof save_data;
+
+    pfrm.write_save_data(p.fmt_.c_str(), p.fmt_.length(), offset);
 }
 
 
 
 bool load(Platform& pfrm, PersistentData& d)
 {
+    u32 offset = sizeof(Highscores);
+
     SaveData save_data;
-    pfrm.read_save_data(&save_data, sizeof save_data, 0);
+    pfrm.read_save_data(&save_data, sizeof save_data, offset);
+
+    offset += sizeof save_data;
 
     if (save_data.magic_.get() not_eq save_data_magic) {
         return false;
@@ -67,7 +77,7 @@ bool load(Platform& pfrm, PersistentData& d)
 
     if (buffer_size > save_data.script_length_.get()) {
         pfrm.read_save_data(
-            &buffer, save_data.script_length_.get(), sizeof save_data);
+            &buffer, save_data.script_length_.get(), offset);
 
 
     } else {

@@ -1902,17 +1902,19 @@ void init(Platform& pfrm)
                 };
 
                 lat.push_front(make_stat("vars", [&] {
-                             int symb_tab_used = 0;
-                             for (u32 i = 0; i < ctx->globals_->size(); ++i) {
-                                 if (str_cmp("", (*ctx->globals_)[i].name_)) {
-                                     ++symb_tab_used;
-                                 }
-                             }
-                             return symb_tab_used;
-                         }()));
+                    int symb_tab_used = 0;
+                    for (u32 i = 0; i < ctx->globals_->size(); ++i) {
+                        if (str_cmp("", (*ctx->globals_)[i].name_)) {
+                            ++symb_tab_used;
+                        }
+                    }
+                    return symb_tab_used;
+                }()));
 
-                lat.push_front(make_stat("stack-used", ctx->operand_stack_->size()));
-                lat.push_front(make_stat("interned-bytes", ctx->string_intern_pos_));
+                lat.push_front(
+                    make_stat("stack-used", ctx->operand_stack_->size()));
+                lat.push_front(
+                    make_stat("interned-bytes", ctx->string_intern_pos_));
                 lat.push_front(make_stat("vals-left", values_remaining));
 
                 return lat.result();

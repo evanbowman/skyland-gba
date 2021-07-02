@@ -13,8 +13,9 @@
 #include "player.hpp"
 #include "rumble.hpp"
 #include "scene.hpp"
-#include "worldMap.hpp"
 #include "timeTracker.hpp"
+#include "worldMap.hpp"
+#include "highscores.hpp"
 
 
 
@@ -204,6 +205,8 @@ public:
         return level_coins_spent_;
     }
 
+
+    Highscores highscores_;
 
 private:
     PersistentData persistent_data_;

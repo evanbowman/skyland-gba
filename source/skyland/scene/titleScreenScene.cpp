@@ -1,13 +1,13 @@
 #include "titleScreenScene.hpp"
 #include "multiplayerConnectScene.hpp"
 #include "newgameScene.hpp"
+#include "script/lisp.hpp"
+#include "selectChallengeScene.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/birbs/smolBirb.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
-#include "script/lisp.hpp"
-#include "selectChallengeScene.hpp"
 
 
 
@@ -46,15 +46,17 @@ void __draw_image(Platform& pfrm,
 
 
 
-void TitleScreenScene::enter(Platform& pfrm, App&, Scene& prev)
+void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.screen().fade(1.f);
     const int offset = 64;
+
 
     init_clouds2(pfrm);
 
     auto view = pfrm.screen().get_view();
     auto c = view.get_center();
+    c.x = 0;
     c.y += offset;
     view.set_center(c);
     pfrm.screen().set_view(view);
@@ -288,7 +290,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         //     return scene_pool::alloc<MultiplayerConnectScene>();
         // }
 
-        if (pfrm.keyboard().down_transition<Key::right>()) {
+        if (key_down<Key::right>(pfrm)) {
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
                 put_menu_text(pfrm);
@@ -297,7 +299,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 timer_ = 0;
             }
         }
-        if (pfrm.keyboard().down_transition<Key::left>()) {
+        if (key_down<Key::left>(pfrm)) {
             if (menu_selection_ == 1) {
                 menu_selection_ = 0;
                 put_menu_text(pfrm);

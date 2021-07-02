@@ -2,8 +2,8 @@
 
 
 #include "graphics/overlay.hpp"
-#include "skyland/scene.hpp"
 #include "script/lisp.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -24,7 +24,6 @@ public:
 
 
 private:
-
     void show_options(Platform&);
 
     std::optional<lisp::Protected> challenges_;
@@ -42,4 +41,4 @@ private:
 
 
 
-}
+} // namespace skyland

@@ -1,11 +1,12 @@
 #include "playerIslandDestroyedScene.hpp"
+#include "localization.hpp"
+#include "selectChallengeScene.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/serial.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
-#include "localization.hpp"
-#include "selectChallengeScene.hpp"
+#include "highscoresScene.hpp"
 
 
 
@@ -44,7 +45,7 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
             highlight
                 ? Text::OptColors{FontColors{ColorConstant::rich_black,
                                              ColorConstant::aerospace_orange}}
-            : Text::OptColors{};
+                : Text::OptColors{};
 
 
         lines_.back().append(str, colors);
@@ -66,13 +67,13 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
                             int num,
                             const char* suffix = "",
                             bool highlight = false) {
-
         print_metric_impl(str, to_string<20>(num), suffix, highlight);
     };
 
     switch (lines_.size()) {
     case 0:
-        print_metric_impl("time ", format_time(app.level_timer().whole_seconds(), true));
+        print_metric_impl("time ",
+                          format_time(app.level_timer().whole_seconds(), true));
         break;
 
     case 1:
@@ -257,7 +258,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             anim_state_ = AnimState::idle;
         } else {
-            const auto amount = smoothstep(0.f, fade_duration, timer_) * partial_fade_amt;
+            const auto amount =
+                smoothstep(0.f, fade_duration, timer_) * partial_fade_amt;
             pfrm.screen().fade(amount);
         }
         break;
@@ -280,16 +282,31 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 app.opponent_island().reset();
 
+                app.persistent_data().total_seconds_.set((u32)(
+                    app.persistent_data().total_seconds_.get() +
+                                                         app.level_timer().whole_seconds()));
+
+                app.persistent_data().total_pauses_.set(
+                    app.persistent_data().total_pauses_.get() +
+                    app.pause_count());
+
+
                 if (app.challenge_mode()) {
                     return scene_pool::alloc<SelectChallengeScene>();
                 } else {
                     return scene_pool::alloc<ZoneImageScene>();
                 }
             } else {
-                pfrm.fatal("you died.");
+                if (app.challenge_mode()) {
+                    return scene_pool::alloc<SelectChallengeScene>();
+                } else {
+                    return scene_pool::alloc<HighscoresScene>();
+                }
             }
         } else {
-            const auto amount = partial_fade_amt + (1.f - partial_fade_amt) * smoothstep(0.f, fade_duration, timer_);
+            const auto amount =
+                partial_fade_amt + (1.f - partial_fade_amt) *
+                                       smoothstep(0.f, fade_duration, timer_);
             pfrm.screen().fade(amount);
         }
         break;
@@ -298,7 +315,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::idle:
         coins_.reset();
         power_.reset();
-        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (key_down<Key::action_1>(pfrm)) {
             timer_ = 0;
             lines_.clear();
             pfrm.fill_overlay(0);

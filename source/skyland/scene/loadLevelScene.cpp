@@ -74,7 +74,6 @@ void prep_level(Platform& pfrm, App& app)
 
         app.opponent_island()->repaint(pfrm);
     }
-
 }
 
 

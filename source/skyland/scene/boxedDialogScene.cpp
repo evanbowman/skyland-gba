@@ -223,8 +223,8 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (not text_busy) {
             display_mode_ = DisplayMode::key_released_check1;
         } else {
-            if (pfrm.keyboard().down_transition<Key::action_2>() or
-                pfrm.keyboard().down_transition<Key::action_1>()) {
+            if (key_down<Key::action_2>(pfrm) or
+                key_down<Key::action_1>(pfrm)) {
 
                 while (advance_text(pfrm, app, delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {
@@ -242,8 +242,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
     case DisplayMode::wait: {
         animate_moretext_icon();
 
-        if (pfrm.keyboard().down_transition<Key::action_2>() or
-            pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (key_down<Key::action_2>(pfrm) or key_down<Key::action_1>(pfrm)) {
 
             text_state_.timer_ = 0;
 
@@ -254,8 +253,8 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case DisplayMode::key_released_check1:
-        // if (pfrm.keyboard().down_transition<Key::action_2>() or
-        //     pfrm.keyboard().down_transition<Key::action_1>()) {
+        // if (key_down<Key::action_2>(pfrm) or
+        //     key_down<Key::action_1>(pfrm)) {
 
         text_state_.timer_ = seconds(1);
         display_mode_ = DisplayMode::wait;
@@ -311,8 +310,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             break;
         }
         animate_moretext_icon();
-        if (pfrm.keyboard().down_transition<Key::action_2>() or
-            pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (key_down<Key::action_2>(pfrm) or key_down<Key::action_1>(pfrm)) {
 
             display_mode_ = DisplayMode::animate_out;
         }
@@ -339,8 +337,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (pfrm.keyboard().down_transition<Key::up>() or
-            pfrm.keyboard().down_transition<Key::down>()) {
+        if (key_down<Key::up>(pfrm) or key_down<Key::down>(pfrm)) {
             const auto st = calc_screen_tiles(pfrm);
             pfrm.set_tile(Layer::overlay,
                           st.x - 7,
@@ -353,7 +350,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             choice_sel_ = not choice_sel_;
         }
 
-        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (key_down<Key::action_1>(pfrm)) {
             if (choice_sel_) {
                 invoke_hook(pfrm, "after-dialog-accepted-hook");
             } else {

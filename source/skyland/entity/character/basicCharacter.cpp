@@ -91,7 +91,9 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
     case State::after_transport: {
         anim_timer_ += delta;
         if (anim_timer_ < milliseconds(500)) {
-            u8 fade_amt = 255 * interpolate(255, 0, Float(anim_timer_) / milliseconds(500));
+            u8 fade_amt =
+                255 *
+                interpolate(255, 0, Float(anim_timer_) / milliseconds(500));
             sprite_.set_mix({ColorConstant::electric_blue, fade_amt});
         } else {
             anim_timer_ = 0;

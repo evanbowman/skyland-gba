@@ -43,8 +43,7 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             pfrm.set_overlay_origin(-4, 0);
         }
     } else if (text_) {
-        if (timer_ > seconds(4) or
-            pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (timer_ > seconds(4) or key_down<Key::action_2>(pfrm)) {
             text_.reset();
             timer_ = 0;
         }

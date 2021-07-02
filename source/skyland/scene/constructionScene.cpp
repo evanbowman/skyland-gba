@@ -35,8 +35,7 @@ ScenePtr<Scene>
 ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (pfrm.keyboard().down_transition<Key::alt_2>() or
-        (state_ == State::select_loc and
-         pfrm.keyboard().down_transition<Key::action_2>())) {
+        (state_ == State::select_loc and key_down<Key::action_2>(pfrm))) {
         auto& cursor_loc =
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
         if (not construction_sites_.empty()) {
@@ -52,12 +51,12 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (state_) {
     case State::select_loc:
-        if (pfrm.keyboard().down_transition<Key::right>() and
+        if (key_down<Key::right>(pfrm) and
             selector_ < construction_sites_.size() - 1) {
             ++selector_;
         }
 
-        if (pfrm.keyboard().down_transition<Key::left>() and selector_ > 0) {
+        if (key_down<Key::left>(pfrm) and selector_ > 0) {
             --selector_;
         }
 
@@ -68,8 +67,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             cursor_loc.y = construction_sites_[selector_].y;
         }
 
-        if (pfrm.keyboard().down_transition<Key::action_1>() and
-            not construction_sites_.empty()) {
+        if (key_down<Key::action_1>(pfrm) and not construction_sites_.empty()) {
 
             if (construction_sites_[selector_].y == 15) {
                 // Special case: we want to add to the terrain level, not
@@ -89,14 +87,14 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::choose_building:
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (key_down<Key::action_2>(pfrm)) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
             msg(pfrm, ":build");
             break;
         }
 
-        if (pfrm.keyboard().down_transition<Key::up>()) {
+        if (key_down<Key::up>(pfrm)) {
             if (building_selector_ < (int)available_buildings_.size() - 1) {
                 ++building_selector_;
                 show_current_building_text(pfrm, app);
@@ -106,7 +104,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (pfrm.keyboard().down_transition<Key::down>()) {
+        if (key_down<Key::down>(pfrm)) {
             if (building_selector_ > 0) {
                 --building_selector_;
                 show_current_building_text(pfrm, app);
@@ -116,7 +114,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (key_down<Key::action_1>(pfrm)) {
             const auto& target = *available_buildings_[building_selector_];
 
             if (app.coins() < get_cost(app, target)) {
@@ -166,14 +164,14 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::add_terrain:
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (key_down<Key::action_2>(pfrm)) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
             msg(pfrm, ":build");
             break;
         }
 
-        if (pfrm.keyboard().down_transition<Key::action_1>()) {
+        if (key_down<Key::action_1>(pfrm)) {
             if (app.coins() < app.terrain_cost()) {
                 msg(pfrm, "insufficent funds!");
                 state_ = State::insufficent_funds;

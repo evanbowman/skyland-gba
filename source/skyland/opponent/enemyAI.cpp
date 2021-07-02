@@ -170,8 +170,6 @@ void EnemyAI::resolve_insufficient_power(Platform& pfrm, App& app)
     // TODO...
     // When we have more power drain than power supply, we need to
     // salvage a bunch of structures to make rebalance our power usage.
-
-
 }
 
 
@@ -313,7 +311,8 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 // go to the infirmary.
                 if (character.health() < 25) {
                     slot.ai_weight_ += 2000.f;
-                } else if (character.health() < 200 and not player_characters_local) {
+                } else if (character.health() < 200 and
+                           not player_characters_local) {
                     slot.ai_weight_ += 2000.f;
                 }
             } else if (auto transporter = dynamic_cast<Transporter*>(room)) {
@@ -695,7 +694,6 @@ void EnemyAI::set_target(Platform& pfrm,
 void EnemyAI::on_room_damaged(Platform& pfrm, App& app, Room& room)
 {
     if (app.opponent_island()) {
-
     }
 }
 

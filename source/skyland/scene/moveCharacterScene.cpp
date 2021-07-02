@@ -152,25 +152,25 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         cursor_loc = &std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
     }
 
-    if (pfrm.keyboard().down_transition<Key::left>()) {
+    if (key_down<Key::left>(pfrm)) {
         if (cursor_loc->x > 0) {
             --cursor_loc->x;
         }
     }
 
-    if (pfrm.keyboard().down_transition<Key::right>()) {
+    if (key_down<Key::right>(pfrm)) {
         if (cursor_loc->x < island->terrain().size()) {
             ++cursor_loc->x;
         }
     }
 
-    if (pfrm.keyboard().down_transition<Key::up>()) {
+    if (key_down<Key::up>(pfrm)) {
         if (cursor_loc->y > 6) {
             --cursor_loc->y;
         }
     }
 
-    if (pfrm.keyboard().down_transition<Key::down>()) {
+    if (key_down<Key::down>(pfrm)) {
         if (cursor_loc->y < 14) {
             ++cursor_loc->y;
         }
@@ -187,7 +187,7 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         return new_scene;
     }
 
-    if (pfrm.keyboard().down_transition<Key::action_2>()) {
+    if (key_down<Key::action_2>(pfrm)) {
         if (near_) {
             return scene_pool::alloc<ReadyScene>();
         } else {
@@ -195,7 +195,7 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (pfrm.keyboard().down_transition<Key::action_1>() and
+    if (key_down<Key::action_1>(pfrm) and
         (*matrix_)[cursor_loc->x][cursor_loc->y]) {
 
         auto sel_chr = [&]() -> BasicCharacter* {

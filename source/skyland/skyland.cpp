@@ -30,6 +30,15 @@ App::App(Platform& pfrm)
     init_clouds(pfrm);
 
     player_island_.show_flag(true);
+
+    pfrm.read_save_data(&highscores_, sizeof highscores_, 0);
+    if (highscores_.magic_[0] not_eq 'H' or
+        highscores_.magic_[1] not_eq 'S') {
+        highscores_ = Highscores{};
+        for (auto& score : highscores_.values_) {
+            score.set(0);
+        }
+    }
 }
 
 

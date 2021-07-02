@@ -22,5 +22,5 @@
     (set 'friendlies-seen '()))
 
 
-(if (not (bound 'snapshots))
-    (set 'snapshots '(() ())))
+(if (not (bound 'quest-log))
+    (set 'quest-log '()))

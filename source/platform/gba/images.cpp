@@ -33,6 +33,8 @@
 //;
 #include "data/zone_image_0_flattened.h"
 //;
+#include "data/zone_image_1_flattened.h"
+//;
 #include "data/overlay.h"
 //;
 #include "data/overlay_dialog.h"
@@ -88,6 +90,8 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(skyland_title_0_flattened),
 //;
     TEXTURE_INFO(zone_image_0_flattened),
+//;
+    TEXTURE_INFO(zone_image_1_flattened),
 //
 };
 

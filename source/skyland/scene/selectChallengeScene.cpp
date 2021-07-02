@@ -1,7 +1,7 @@
 #include "selectChallengeScene.hpp"
-#include "skyland/skyland.hpp"
 #include "fadeInScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 
 
@@ -15,12 +15,11 @@ void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
     pfrm.load_overlay_texture("overlay_challenges");
 
     if (auto script = pfrm.load_file_contents("scripts", "challenge.lisp")) {
-        auto result = lisp::dostring(script,
-                                     [&pfrm](lisp::Value& err) {
-                                         lisp::DefaultPrinter p;
-                                         lisp::format(&err, p);
-                                         pfrm.fatal(p.fmt_.c_str());
-                                     });
+        auto result = lisp::dostring(script, [&pfrm](lisp::Value& err) {
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
         challenges_ = result;
         const auto challenge_count = lisp::length(result);
         page_count_ = challenge_count / 5 + (challenge_count % 5 ? 1 : 0);
@@ -31,11 +30,7 @@ void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
 
     show_options(pfrm);
 
-    pfrm.screen().fade(0.6,
-                       ColorConstant::rich_black,
-                       {},
-                       false);
-
+    pfrm.screen().fade(0.6, ColorConstant::rich_black, {}, false);
 }
 
 
@@ -53,7 +48,7 @@ void SelectChallengeScene::show_options(Platform& pfrm)
     int index = 0;
     int start_index = page_ * 5;
 
-    lisp::foreach(*challenges_, [&](lisp::Value* val) {
+    lisp::foreach (*challenges_, [&](lisp::Value* val) {
         if (val->type_ not_eq lisp::Value::Type::cons) {
             pfrm.fatal("challenge list format invalid");
         }
@@ -67,9 +62,9 @@ void SelectChallengeScene::show_options(Platform& pfrm)
             return;
         }
 
-        text_.emplace_back(pfrm, name->string_.value(),
-                           OverlayCoord{4,
-                               u8(4 + text_.size() * 2)});
+        text_.emplace_back(pfrm,
+                           name->string_.value(),
+                           OverlayCoord{4, u8(4 + text_.size() * 2)});
     });
 
     int margin = (calc_screen_tiles(pfrm).x - page_count_ * 2) / 2;
@@ -105,7 +100,7 @@ void SelectChallengeScene::display(Platform& pfrm, App& app)
     Vec2<Float> origin;
 
     auto ambient_movement = 2 * float(sine(4 * 3.14f * 0.004f * timer_ + 180)) /
-        std::numeric_limits<s16>::max();
+                            std::numeric_limits<s16>::max();
 
     origin.x += 16 + ambient_movement;
     origin.y += 32 + cursor_ * 16 - 1;
@@ -117,9 +112,8 @@ void SelectChallengeScene::display(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene> SelectChallengeScene::update(Platform& pfrm,
-                                             App& app,
-                                             Microseconds delta)
+ScenePtr<Scene>
+SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (exit_) {
         return scene_pool::alloc<TitleScreenScene>();
@@ -172,13 +166,13 @@ ScenePtr<Scene> SelectChallengeScene::update(Platform& pfrm,
             pfrm.fatal("challenge list format invalid");
         }
 
-        if (auto script = pfrm.load_file_contents("scripts", file_name->string_.value())) {
-            lisp::dostring(script,
-                           [&pfrm](lisp::Value& err) {
-                               lisp::DefaultPrinter p;
-                               lisp::format(&err, p);
-                               pfrm.fatal(p.fmt_.c_str());
-                           });
+        if (auto script = pfrm.load_file_contents("scripts",
+                                                  file_name->string_.value())) {
+            lisp::dostring(script, [&pfrm](lisp::Value& err) {
+                lisp::DefaultPrinter p;
+                lisp::format(&err, p);
+                pfrm.fatal(p.fmt_.c_str());
+            });
             prep_level(pfrm, app);
             return scene_pool::alloc<FadeInScene>();
         } else {
@@ -200,4 +194,4 @@ ScenePtr<Scene> SelectChallengeScene::update(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

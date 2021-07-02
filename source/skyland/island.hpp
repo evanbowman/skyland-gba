@@ -28,6 +28,7 @@ public:
         auto result = rooms_.push_back(std::move(insert));
         repaint(pfrm);
         recalculate_power_usage();
+        on_layout_changed(insert->position());
         return result;
     }
 
@@ -39,6 +40,7 @@ public:
             if (rooms_.push_back({room.release(), room_pool::deleter})) {
                 repaint(pfrm);
                 recalculate_power_usage();
+                on_layout_changed(position);
                 return true;
             }
         }

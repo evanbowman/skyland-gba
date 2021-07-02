@@ -32,31 +32,31 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
-    if (pfrm.keyboard().down_transition<Key::left>()) {
+    if (key_down<Key::left>(pfrm)) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
         }
     }
 
-    if (pfrm.keyboard().down_transition<Key::right>()) {
+    if (key_down<Key::right>(pfrm)) {
         if (cursor_loc.x < app.player_island().terrain().size()) {
             ++cursor_loc.x;
         }
     }
 
-    if (pfrm.keyboard().down_transition<Key::up>()) {
+    if (key_down<Key::up>(pfrm)) {
         if (cursor_loc.y > 6) {
             --cursor_loc.y;
         }
     }
 
-    if (pfrm.keyboard().down_transition<Key::down>()) {
+    if (key_down<Key::down>(pfrm)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
         }
     }
 
-    if (pfrm.keyboard().down_transition<Key::action_1>()) {
+    if (key_down<Key::action_1>(pfrm)) {
         if (auto room = app.opponent_island()->get_room(cursor_loc)) {
             info(pfrm, "found other room");
             if (length(room->characters())) {
@@ -79,7 +79,7 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (pfrm.keyboard().down_transition<Key::action_2>()) {
+    if (key_down<Key::action_2>(pfrm)) {
         return scene_pool::alloc<ReadyScene>();
     }
 

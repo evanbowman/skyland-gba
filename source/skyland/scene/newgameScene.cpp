@@ -45,6 +45,9 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.terrain_cost() = 500;
 
         app.zone() = 1;
+
+        app.persistent_data().total_pauses_.set(0);
+        app.persistent_data().total_seconds_.set(0);
     }
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
