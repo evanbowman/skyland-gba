@@ -50,6 +50,14 @@ void BasicCharacter::set_can_move()
 
 
 
+void BasicCharacter::transported()
+{
+    state_ = State::after_transport;
+    anim_timer_ = 0;
+}
+
+
+
 void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto o = parent_->origin();
@@ -79,6 +87,21 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
         sprite_.set_flip({});
         update_attack(delta, app);
         break;
+
+    case State::after_transport: {
+        anim_timer_ += delta;
+        if (anim_timer_ < milliseconds(500)) {
+            u8 fade_amt = 255 * interpolate(255, 0, Float(anim_timer_) / milliseconds(500));
+            sprite_.set_mix({ColorConstant::electric_blue, fade_amt});
+        } else {
+            anim_timer_ = 0;
+            sprite_.set_mix({});
+            state_ = State::moving_or_idle;
+        }
+
+        sprite_.set_position(o);
+        break;
+    }
 
     case State::moving_or_idle:
         if (movement_path_) {

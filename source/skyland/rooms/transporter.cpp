@@ -72,6 +72,7 @@ void Transporter::recover_character(Platform& pfrm,
                     {this->position().x, u8(this->position().y + 1)});
 
                 unlinked->set_parent(parent());
+                unlinked->transported();
 
                 characters().push(std::move(unlinked));
 
@@ -141,6 +142,7 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
     if (auto room = island->get_room(*dest)) {
         (*chr)->set_grid_position(*dest);
         (*chr)->set_parent(island);
+        (*chr)->transported();
         room->characters().push(std::move(*chr));
     } else {
         return;

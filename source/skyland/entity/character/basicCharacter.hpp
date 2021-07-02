@@ -88,6 +88,9 @@ public:
     }
 
 
+    void transported();
+
+
     Player* owner() const
     {
         return owner_;
@@ -129,6 +132,7 @@ public:
         fighting,
         plunder_room,
         repair_room,
+        after_transport,
     };
 
 

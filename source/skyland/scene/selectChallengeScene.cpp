@@ -21,7 +21,8 @@ void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
                                          pfrm.fatal(p.fmt_.c_str());
                                      });
         challenges_ = result;
-        page_count_ = lisp::length(result) / 5;
+        const auto challenge_count = lisp::length(result);
+        page_count_ = challenge_count / 5 + (challenge_count % 5 ? 1 : 0);
 
     } else {
         pfrm.fatal("missing file challenge.lisp");
@@ -34,18 +35,20 @@ void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
                        {},
                        false);
 
-    for (int i = 0; i < page_count_; ++i) {
-        pfrm.set_tile(Layer::overlay, 3 + i * 2, 18, 82);
-    }
 }
 
 
 
 void SelectChallengeScene::show_options(Platform& pfrm)
 {
+    text_.clear();
+
     if (not challenges_) {
         return;
     }
+
+    int index = 0;
+    int start_index = page_ * 5;
 
     lisp::foreach(*challenges_, [&](lisp::Value* val) {
         if (val->type_ not_eq lisp::Value::Type::cons) {
@@ -57,10 +60,24 @@ void SelectChallengeScene::show_options(Platform& pfrm)
             pfrm.fatal("challenge list format invalid");
         }
 
+        if (index++ < start_index) {
+            return;
+        }
+
         text_.emplace_back(pfrm, name->string_.value(),
                            OverlayCoord{4,
                                u8(4 + text_.size() * 2)});
     });
+
+    int margin = (calc_screen_tiles(pfrm).x - page_count_ * 2) / 2;
+
+    for (int i = 0; i < page_count_; ++i) {
+        if (i == page_) {
+            pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 83);
+        } else {
+            pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 82);
+        }
+    }
 }
 
 
@@ -116,6 +133,24 @@ ScenePtr<Scene> SelectChallengeScene::update(Platform& pfrm,
     if (key_down<Key::up>(pfrm)) {
         if (cursor_) {
             cursor_--;
+        }
+    }
+
+    if (key_down<Key::right>(pfrm)) {
+        if (page_ < page_count_ - 1) {
+            ++page_;
+            show_options(pfrm);
+            if ((u32)cursor_ >= text_.size()) {
+                cursor_ = text_.size() - 1;
+            }
+        }
+    }
+
+    if (key_down<Key::left>(pfrm)) {
+        if (page_ > 0) {
+            cursor_ = 0;
+            --page_;
+            show_options(pfrm);
         }
     }
 
