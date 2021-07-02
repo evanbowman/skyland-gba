@@ -46,6 +46,12 @@
 #include "data/overlay_island_destroyed.h"
 //;
 #include "data/overlay_challenges.h"
+//;
+#include "data/hint_infirmary.h"
+//;
+#include "data/hint_goblin.h"
+//;
+#include "data/hint_plunder.h"
 //
 
 struct TextureData {
@@ -109,6 +115,12 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(overlay_island_destroyed),
 //;
     TEXTURE_INFO(overlay_challenges),
+//;
+    TEXTURE_INFO(hint_infirmary),
+//;
+    TEXTURE_INFO(hint_goblin),
+//;
+    TEXTURE_INFO(hint_plunder),
 //
 };
 

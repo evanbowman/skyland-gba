@@ -95,6 +95,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/transporter.cpp
   ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp
+  ${SOURCE_DIR}/skyland/scene/hintScene.cpp
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp
   ${SOURCE_DIR}/skyland/scene/fadeInScene.cpp
@@ -199,6 +200,9 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay_world_map.s
     ${DATA_DIR}/overlay_island_destroyed.s
     ${DATA_DIR}/overlay_challenges.s
+    ${DATA_DIR}/hint_infirmary.s
+    ${DATA_DIR}/hint_goblin.s
+    ${DATA_DIR}/hint_plunder.s
     ${DATA_DIR}/charset.s
     ${DATA_DIR}/tilesheet.s
     ${DATA_DIR}/tilesheet_enemy_0.s
@@ -460,6 +464,10 @@ if(GAMEBOY_ADVANCE)
     add_overlay(overlay_world_map 0 0 NO NO)
     add_overlay(overlay_island_destroyed 0 0 NO NO)
     add_overlay(overlay_challenges 0 0 NO NO)
+    add_overlay(hint_infirmary 0 0 NO NO)
+    add_overlay(hint_goblin 0 0 NO NO)
+    add_overlay(hint_plunder 0 0 NO NO)
+
 
     configure_file(images.cpp.in ${SOURCE_DIR}/platform/gba/images.cpp)
   endif()

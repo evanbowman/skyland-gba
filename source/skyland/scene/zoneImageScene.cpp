@@ -43,7 +43,7 @@ void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 256);
     }
 
-    if (app.zone() == 1) {
+    if (app.zone() == 0) {
         pfrm.load_tile1_texture("zone_image_0_flattened");
     } else {
         pfrm.load_tile1_texture("zone_image_1_flattened");

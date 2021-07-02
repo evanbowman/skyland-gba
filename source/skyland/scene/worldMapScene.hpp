@@ -47,11 +47,12 @@ private:
         save_selected,
         save_button_depressed,
         save_button_released_wait,
-        // flag_selected,
-        // flag_button_depressed,
-        // flag_button_released_wait,
+        help_selected,
+        help_button_depressed,
+        help_button_released_wait,
         fade_out,
         fade_out_saved,
+        fade_out_help,
         print_saved_text,
         show_saved_text,
     } state_ = State::fade_in;
@@ -67,7 +68,7 @@ private:
     std::optional<Text> heading_;
     std::optional<Text> key_[3];
     std::optional<MediumIcon> save_icon_;
-    std::optional<MediumIcon> flag_icon_;
+    std::optional<MediumIcon> help_icon_;
 };
 
 

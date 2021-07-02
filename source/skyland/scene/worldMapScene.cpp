@@ -7,6 +7,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/worldMap.hpp"
 #include "titleScreenScene.hpp"
+#include "hintScene.hpp"
 
 
 
@@ -97,12 +98,49 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (key_down<Key::up>(pfrm) or key_down<Key::action_2>(pfrm)) {
             state_ = State::explore_paths;
             show_map(pfrm, app.world_map());
+        } else if (key_down<Key::left>(pfrm)) {
+            state_ = State::help_selected;
         }
 
         if (key_down<Key::action_1>(pfrm)) {
             state_ = State::save_button_depressed;
             save_icon_.emplace(pfrm, 124, OverlayCoord{26, 16});
             timer_ = 0;
+        }
+        break;
+
+
+    case State::help_selected:
+        if (key_down<Key::up>(pfrm) or key_down<Key::action_2>(pfrm)) {
+            state_ = State::explore_paths;
+            show_map(pfrm, app.world_map());
+        } else if (key_down<Key::right>(pfrm)) {
+            state_ = State::save_selected;
+        }
+
+        if (key_down<Key::action_1>(pfrm)) {
+            state_ = State::help_button_depressed;
+            help_icon_.emplace(pfrm, 132, OverlayCoord{23, 16});
+            timer_ = 0;
+        }
+        break;
+
+
+    case State::help_button_depressed:
+        timer_ += delta;
+        if (timer_ > milliseconds(100)) {
+            timer_ = 0;
+            state_ = State::help_button_released_wait;
+            help_icon_.emplace(pfrm, 128, OverlayCoord{23, 16});
+        }
+        break;
+
+
+    case State::help_button_released_wait:
+        timer_ += delta;
+        if (timer_ > milliseconds(60)) {
+            timer_ = 0;
+            state_ = State::fade_out_help;
         }
         break;
 
@@ -248,6 +286,22 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    case State::fade_out_help: {
+        timer_ += delta;
+        constexpr auto fade_duration = milliseconds(1200);
+        if (timer_ > fade_duration) {
+            timer_ = 0;
+            pfrm.fill_overlay(0);
+            return scene_pool::alloc<HintScene>();
+        } else {
+            const auto amount = smoothstep(0.f, fade_duration, timer_);
+            pfrm.screen().fade(
+                amount, ColorConstant::rich_black, {}, true, true);
+        }
+        break;
+    }
+
+
     case State::print_saved_text:
         pfrm.load_overlay_texture("overlay");
         heading_.emplace(pfrm, "progress saved...", OverlayCoord{1, 1});
@@ -383,6 +437,13 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         cursor.set_texture_index(26 + cursor_keyframe_);
         cursor.set_position({200, 120});
         pfrm.screen().draw(cursor);
+    } else if (state_ == State::help_selected or
+               state_ == State::help_button_depressed or
+               state_ == State::help_button_released_wait) {
+        cursor.set_size(Sprite::Size::w32_h32);
+        cursor.set_texture_index(26 + cursor_keyframe_);
+        cursor.set_position({176, 120});
+        pfrm.screen().draw(cursor);
     }
 }
 
@@ -457,7 +518,7 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
     }
 
     save_icon_.emplace(pfrm, 120, OverlayCoord{26, 16});
-    // flag_icon_.emplace(pfrm, 128, OverlayCoord{23, 16});
+    help_icon_.emplace(pfrm, 128, OverlayCoord{23, 16});
 }
 
 
@@ -539,7 +600,7 @@ void WorldMapScene::exit(Platform& pfrm, App&, Scene& next_scene)
     pfrm.fill_overlay(0);
 
     save_icon_.reset();
-    flag_icon_.reset();
+    help_icon_.reset();
     heading_.reset();
 
     key_[0].reset();
