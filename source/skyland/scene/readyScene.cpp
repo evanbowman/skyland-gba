@@ -142,7 +142,11 @@ void describe_room(Platform& pfrm,
                         if (chr->owner() == &app.player()) {
                             opts = {custom_color(0xff6675),
                                     ColorConstant::rich_black};
-                            room_description->append("(human) ", opts);
+                            if (chr->is_replicant()) {
+                                room_description->append("(replicant) ", opts);
+                            } else {
+                                room_description->append("(human) ", opts);
+                            }
                         } else {
                             opts = {custom_color(0xcf54ff),
                                     ColorConstant::rich_black};

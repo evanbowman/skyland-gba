@@ -23,7 +23,8 @@ static u16 base_frame(BasicCharacter* character, App& app)
 
 BasicCharacter::BasicCharacter(Island* parent,
                                Player* owner,
-                               const Vec2<u8>& position)
+                               const Vec2<u8>& position,
+                               bool is_replicant)
     : Entity({{}, {}}), parent_(parent), owner_(owner), grid_position_(position)
 {
     sprite_.set_texture_index(40);
@@ -37,6 +38,8 @@ BasicCharacter::BasicCharacter(Island* parent,
 
     awaiting_movement_ = true;
     can_move_ = false;
+
+    is_replicant_ = is_replicant;
 
     health_ = 255;
 }

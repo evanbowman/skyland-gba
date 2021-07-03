@@ -30,8 +30,9 @@
    (hull 6 10)
    (stairwell 6 11)
    (power-core 3 9)
-   (hull 3 8)
-   (hull 4 8)))
+
+   (missile-silo 3 7)
+   (missile-silo 4 7)))
 
 
 (show-flag (opponent))

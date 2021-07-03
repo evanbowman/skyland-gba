@@ -19,7 +19,10 @@ class Player;
 
 class BasicCharacter : public Entity {
 public:
-    BasicCharacter(Island* parent, Player* owner, const Vec2<u8>& position);
+    BasicCharacter(Island* parent,
+                   Player* owner,
+                   const Vec2<u8>& position,
+                   bool is_replicant);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -99,6 +102,11 @@ public:
 
     void heal(int amount)
     {
+        if (is_replicant_) {
+            // Replicants cannot heal
+            return;
+        }
+
         if (health_ + amount > 255) {
             health_ = 255;
         } else {
@@ -155,6 +163,12 @@ public:
     }
 
 
+    bool is_replicant() const
+    {
+        return is_replicant_;
+    }
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -163,6 +177,7 @@ private:
     Microseconds anim_timer_ = 0;
     bool awaiting_movement_ : 1;
     bool can_move_ : 1;
+    bool is_replicant_ : 1;
     State state_ = State::moving_or_idle;
 
     std::optional<Path> movement_path_;

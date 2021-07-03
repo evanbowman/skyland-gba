@@ -9,6 +9,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "worldScene.hpp"
+#include "salvageRoomScene.hpp"
 
 
 
@@ -25,6 +26,11 @@ static Coins get_cost(App& app, const RoomMeta& meta)
     Coins cost = meta->cost();
     for (int i = 0; i < app.player_island().workshop_count(); ++i) {
         cost *= 0.9f;
+    }
+    if (cost < meta->cost() * salvage_factor) {
+        // You shouldn't be able to farm coins by building a bunch of workshops
+        // and salvaging rooms repeatedly.
+        return meta->cost() * salvage_factor;
     }
     return cost;
 }

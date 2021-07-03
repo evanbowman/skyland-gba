@@ -30,7 +30,7 @@ void Bulkhead::render_interior(Platform& pfrm, Layer layer)
         pfrm.set_tile(layer,
                       position().x,
                       position().y + 1,
-                      InteriorTile::bulkhead_open_2);
+                      InteriorTile::plain_floor);
     } else {
         pfrm.set_tile(
             layer, position().x, position().y, InteriorTile::bulkhead_closed_1);

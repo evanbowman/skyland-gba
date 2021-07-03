@@ -14,6 +14,7 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
+#include "skyland/rooms/replicator.hpp"
 
 
 
@@ -35,7 +36,8 @@ static auto& __metatable()
                          Core,
                          Radar,
                          PlunderedRoom,
-                         Transporter>
+                         Transporter,
+                         Replicator>
         __room_metatable;
 
     return __room_metatable;

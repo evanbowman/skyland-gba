@@ -69,7 +69,14 @@ void prep_level(Platform& pfrm, App& app)
             std::numeric_limits<Microseconds>::max() / 2);
 
         for (auto& room : app.opponent_island()->rooms()) {
-            app.victory_coins() += 0.35f * (*room->metaclass())->cost();
+            if (app.zone() < 2) {
+                app.victory_coins() += 0.35f * (*room->metaclass())->cost();
+            } else if (app.zone() < 3) {
+                app.victory_coins() += 0.29f * (*room->metaclass())->cost();
+            } else if (app.zone() < 4) {
+                app.victory_coins() += 0.24f * (*room->metaclass())->cost();
+            }
+
         }
 
         app.opponent_island()->repaint(pfrm);

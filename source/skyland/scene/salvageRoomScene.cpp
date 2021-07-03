@@ -36,7 +36,7 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
                     exit_countdown_ = 1;
                 }
             }
-            text += to_string<10>((*mt)->cost() * 0.75f);
+            text += to_string<10>((*mt)->cost() * salvage_factor);
         } else {
             text += "0";
         }
@@ -116,7 +116,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (length(room->characters()) == 0) {
 
                     if (auto mt = room->metaclass()) {
-                        app.coins() += (*mt)->cost() * 0.75f;
+                        app.coins() += (*mt)->cost() * salvage_factor;
                     }
                     app.player_island().destroy_room(pfrm, cursor_loc);
                     exit_countdown_ = milliseconds(500);

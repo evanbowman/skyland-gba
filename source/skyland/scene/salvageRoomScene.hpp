@@ -35,5 +35,8 @@ private:
 };
 
 
+static const Float salvage_factor = 0.65f;
+
+
 
 } // namespace skyland

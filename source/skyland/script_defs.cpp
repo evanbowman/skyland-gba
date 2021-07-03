@@ -334,9 +334,11 @@ void App::init_scripts(Platform& pfrm)
                       };
 
                       auto chr = alloc_entity<BasicCharacter>(
-                          island, &app->player(), coord);
+                                                              island, &app->player(), coord, false);
 
-                      island->add_character(std::move(chr));
+                      if (chr) {
+                          island->add_character(std::move(chr));
+                      }
 
                       return L_NIL;
                   }));
@@ -358,9 +360,11 @@ void App::init_scripts(Platform& pfrm)
                       };
 
                       auto chr = alloc_entity<BasicCharacter>(
-                          island, &app->opponent(), coord);
+                                                              island, &app->opponent(), coord, false);
 
-                      island->add_character(std::move(chr));
+                      if (chr) {
+                          island->add_character(std::move(chr));
+                      }
 
                       return L_NIL;
                   }));

@@ -20,7 +20,7 @@
    (hull 2 10)
    (hull 3 10)
    (hull 4 10)
-   (hull 0 14)
+   (cannon 0 14)
    (missile-silo 1 11)
    (transporter 6 13)
    (missile-silo 6 11)
