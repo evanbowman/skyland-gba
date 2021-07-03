@@ -33,9 +33,12 @@ def encode_file(path, real_name, out):
 def collect_paths(paths_list, subdir):
     for root, dirs, files in os.walk(os.path.join(project_root_path, subdir), topdown=False):
         for name in files:
-            full = os.path.join('/' + subdir, name)
-            if not '~' in full:
-                paths_list.append(['/' + subdir + '/' + name, os.path.join(root, name)])
+            if os.path.basename(root) == subdir.split('/')[-1]:
+                full = os.path.join('/' + subdir, name)
+                if not '~' in full:
+                    paths_list.append(['/' + subdir + '/' + name, os.path.join(root, name)])
+        for sdir in dirs:
+            collect_paths(paths_list, subdir + '/' + sdir)
 
 
 

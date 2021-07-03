@@ -26,6 +26,13 @@ public:
 private:
     void show_options(Platform&);
 
+    enum class State {
+        fade_in,
+        idle,
+        fade_out,
+    } state_ = State::idle;
+
+
     std::optional<lisp::Protected> challenges_;
     Buffer<Text, 5> text_;
 

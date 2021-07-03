@@ -101,6 +101,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     WorldScene::update(pfrm, app, delta);
 
+    app.paused() = false;
+
     auto pos = island_->get_position();
     if (pos.y < 700) {
         pos.y += sink_speed_ * delta;

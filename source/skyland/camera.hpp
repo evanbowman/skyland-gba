@@ -35,6 +35,13 @@ public:
     }
 
 
+    void reset()
+    {
+        target_ = {};
+        current_ = {};
+    }
+
+
 private:
     Vec2<int> target_;
     Vec2<Float> current_;

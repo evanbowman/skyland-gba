@@ -12,7 +12,7 @@ namespace room_pool {
 
 
 static constexpr const int max_room_size = 64;
-static constexpr const int pool_capacity = 40;
+static constexpr const int pool_capacity = 80;
 
 
 using _Pool = Pool<max_room_size, pool_capacity, 8>;

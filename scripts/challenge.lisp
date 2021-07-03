@@ -3,11 +3,28 @@
 ;;;
 
 
+(eval-other-file "reset_hooks.lisp")
 
-'(("1: Wind Fortress" . "challenge-1.lisp")
+
+
+;; Initial setup for player's island
+(configure-player
+ (player)
+ '((power-core 1 13)))
+
+
+(add-chr (player) 2 14)
+
+(set 'challenges-completed '())
+
+
+(gc)
+
+
+'(("1: Goliath" . "challenges/goliath.lisp")
   ("2: The Flatiron" . "challenge-2.lisp")
   ("3: Goblin Raid" . "challenge-3.lisp")
-  ("4: Goliath" . "...")
+  ("4: Wind Fortress" . "...")
   ("5: " . "...")
   ("6: " . "...")
   ("7: " . "...")

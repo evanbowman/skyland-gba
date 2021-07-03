@@ -10,6 +10,10 @@ namespace skyland {
 
 
 
+static const Float default_fade = 0.6f;
+
+
+
 void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
 {
     pfrm.load_overlay_texture("overlay_challenges");
@@ -30,7 +34,18 @@ void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
 
     show_options(pfrm);
 
-    pfrm.screen().fade(0.6, ColorConstant::rich_black, {}, false);
+    for (int i = 0; i < 16; ++i) {
+        for (int j = 0; j < 16; ++j) {
+            pfrm.set_tile(Layer::map_0_ext, i, j, 0);
+            pfrm.set_tile(Layer::map_1_ext, i, j, 0);
+        }
+    }
+
+    pfrm.delta_clock().reset();
+
+    pfrm.screen().set_view({});
+
+    pfrm.screen().fade(default_fade, ColorConstant::rich_black, {}, false);
 }
 
 
@@ -86,6 +101,8 @@ void prep_level(Platform& pfrm, App& app);
 
 void SelectChallengeScene::exit(Platform& pfrm, App&, Scene& next)
 {
+    text_.clear();
+    pfrm.fill_overlay(0);
     pfrm.load_overlay_texture("overlay");
 }
 
@@ -93,6 +110,9 @@ void SelectChallengeScene::exit(Platform& pfrm, App&, Scene& next)
 
 void SelectChallengeScene::display(Platform& pfrm, App& app)
 {
+    if (state_ not_eq State::idle) {
+        return;
+    }
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h32);
     cursor.set_texture_index(59);
@@ -121,70 +141,98 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     timer_ += delta;
 
-    if (not challenges_) {
-        return null_scene();
-    }
+    switch (state_) {
+    case State::fade_in:
+        break;
 
-    if (key_down<Key::down>(pfrm)) {
-        if ((u32)cursor_ < text_.size() - 1) {
-            cursor_++;
+    case State::idle: {
+        if (not challenges_) {
+            return null_scene();
         }
-    }
 
-    if (key_down<Key::up>(pfrm)) {
-        if (cursor_) {
-            cursor_--;
-        }
-    }
-
-    if (key_down<Key::right>(pfrm)) {
-        if (page_ < page_count_ - 1) {
-            ++page_;
-            show_options(pfrm);
-            if ((u32)cursor_ >= text_.size()) {
-                cursor_ = text_.size() - 1;
+        if (key_down<Key::down>(pfrm)) {
+            if ((u32)cursor_ < text_.size() - 1) {
+                cursor_++;
             }
         }
-    }
 
-    if (key_down<Key::left>(pfrm)) {
-        if (page_ > 0) {
-            --page_;
-            show_options(pfrm);
-            if ((u32)cursor_ >= text_.size()) {
-                cursor_ = text_.size() - 1;
+        if (key_down<Key::up>(pfrm)) {
+            if (cursor_) {
+                cursor_--;
             }
         }
-    }
 
-    if (key_down<Key::action_1>(pfrm)) {
-        auto index = page_ * 5 + cursor_;
-        auto choice = lisp::get_list(*challenges_, index);
-
-        auto file_name = choice->cons_.cdr();
-        if (file_name->type_ not_eq lisp::Value::Type::string) {
-            pfrm.fatal("challenge list format invalid");
+        if (key_down<Key::right>(pfrm)) {
+            if (page_ < page_count_ - 1) {
+                ++page_;
+                show_options(pfrm);
+                if ((u32)cursor_ >= text_.size()) {
+                    cursor_ = text_.size() - 1;
+                }
+            }
         }
 
-        if (auto script = pfrm.load_file_contents("scripts",
-                                                  file_name->string_.value())) {
-            lisp::dostring(script, [&pfrm](lisp::Value& err) {
-                lisp::DefaultPrinter p;
-                lisp::format(&err, p);
-                pfrm.fatal(p.fmt_.c_str());
-            });
-            prep_level(pfrm, app);
-            return scene_pool::alloc<FadeInScene>();
+        if (key_down<Key::left>(pfrm)) {
+            if (page_ > 0) {
+                --page_;
+                show_options(pfrm);
+                if ((u32)cursor_ >= text_.size()) {
+                    cursor_ = text_.size() - 1;
+                }
+            }
+        }
+
+        if (key_down<Key::action_1>(pfrm)) {
+            state_ = State::fade_out;
+            timer_ = 0;
+            text_.clear();
+        } else if (key_down<Key::action_2>(pfrm)) {
+            text_.clear();
+            pfrm.fill_overlay(0);
+            exit_ = true;
+        }
+        break;
+    }
+
+    case State::fade_out: {
+        constexpr auto fade_duration = milliseconds(800);
+        if (timer_ > fade_duration) {
+            app.camera().reset();
+            pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+            auto index = page_ * 5 + cursor_;
+            auto choice = lisp::get_list(*challenges_, index);
+
+            auto file_name = choice->cons_.cdr();
+            if (file_name->type_ not_eq lisp::Value::Type::string) {
+                pfrm.fatal("challenge list format invalid");
+            }
+
+            if (auto script = pfrm.load_file_contents("scripts",
+                                                      file_name->string_.value())) {
+                lisp::dostring(script, [&pfrm](lisp::Value& err) {
+                    lisp::DefaultPrinter p;
+                    lisp::format(&err, p);
+                    pfrm.fatal(p.fmt_.c_str());
+                });
+                prep_level(pfrm, app);
+                app.player_island().repaint(pfrm);
+
+                return scene_pool::alloc<FadeInScene>();
+            } else {
+                StringBuffer<32> err("file ");
+                err += file_name->string_.value();
+                err += " missing";
+                pfrm.fatal(err.c_str());
+            }
+
         } else {
-            StringBuffer<32> err("file ");
-            err += file_name->string_.value();
-            err += " missing";
-            pfrm.fatal(err.c_str());
+            const auto amount =
+                default_fade +
+                (1.f - default_fade) * smoothstep(0.f, fade_duration, timer_);
+            pfrm.screen().fade(amount);
         }
-    } else if (key_down<Key::action_2>(pfrm)) {
-        text_.clear();
-        pfrm.fill_overlay(0);
-        exit_ = true;
+        break;
+    }
     }
 
     app.update_parallax(delta);
