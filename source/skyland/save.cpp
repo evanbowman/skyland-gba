@@ -1,7 +1,7 @@
 #include "save.hpp"
+#include "highscores.hpp"
 #include "platform/platform.hpp"
 #include "script/lisp.hpp"
-#include "highscores.hpp"
 
 
 
@@ -76,8 +76,7 @@ bool load(Platform& pfrm, PersistentData& d)
     __builtin_memset(buffer, '\0', sizeof buffer);
 
     if (buffer_size > save_data.script_length_.get()) {
-        pfrm.read_save_data(
-            &buffer, save_data.script_length_.get(), offset);
+        pfrm.read_save_data(&buffer, save_data.script_length_.get(), offset);
 
 
     } else {

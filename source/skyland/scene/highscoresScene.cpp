@@ -1,8 +1,8 @@
 #include "highscoresScene.hpp"
-#include "skyland/skyland.hpp"
 #include "localization.hpp"
-#include "titleScreenScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
+#include "titleScreenScene.hpp"
 
 
 
@@ -53,12 +53,10 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     // Score calculation
     int score = 0;
-    score =
-        1000 +
-        app.persistent_data().coins_ +
-        app.persistent_data().zone_ * 12000 +
-        (app.persistent_data().current_map_location_.x + 1) * 800 +
-        app.persistent_data().zone_ * app.persistent_data().zone_ * 1000;
+    score = 1000 + app.persistent_data().coins_ +
+            app.persistent_data().zone_ * 12000 +
+            (app.persistent_data().current_map_location_.x + 1) * 800 +
+            app.persistent_data().zone_ * app.persistent_data().zone_ * 1000;
 
     score -= 2 * app.persistent_data().total_seconds_.get() / 2;
     score -= 15 * app.persistent_data().total_pauses_.get();
@@ -83,16 +81,15 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    std::sort(std::begin(highscores.values_),
-              std::end(highscores.values_),
-              [](const auto& lhs, const auto& rhs) {
-                  return lhs.get() > rhs.get();
-              });
+    std::sort(
+        std::begin(highscores.values_),
+        std::end(highscores.values_),
+        [](const auto& lhs, const auto& rhs) { return lhs.get() > rhs.get(); });
 
     print_metric("score ", score);
 
     lines_.emplace_back(
-            pfrm, Vec2<u8>{7, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
+        pfrm, Vec2<u8>{7, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
 
     lines_.back().append("-- highscores --");
 
@@ -102,9 +99,9 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         StringBuffer<24> str;
         str += to_string<12>(i + 1);
         str += " ";
-        bool highlight = not highlighted and highscores.values_[i].get() == (u32)score;
-        print_metric(str.c_str(), highscores.values_[i].get(), "",
-                     highlight);
+        bool highlight =
+            not highlighted and highscores.values_[i].get() == (u32)score;
+        print_metric(str.c_str(), highscores.values_[i].get(), "", highlight);
 
         if (highlight) {
             highlighted = true;
@@ -132,4 +129,4 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App&, Microseconds)
 
 
 
-}
+} // namespace skyland

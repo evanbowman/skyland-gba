@@ -463,7 +463,7 @@ private:
             auto clr = [&] {
                 if (v1 < v2) {
                     return Text::OptColors{{ColorConstant::rich_black,
-                            ColorConstant::aerospace_orange}};
+                                            ColorConstant::aerospace_orange}};
                 } else {
                     return Text::OptColors{};
                 }

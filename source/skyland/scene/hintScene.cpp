@@ -1,7 +1,7 @@
 #include "hintScene.hpp"
 #include "platform/platform.hpp"
-#include "worldMapScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "worldMapScene.hpp"
 
 
 
@@ -15,18 +15,18 @@ struct HintInfo {
 
 
 
-std::array<HintInfo, 4> hints = {{
-    {"hint_infirmary", "Build an infirmary to heal your crew!"},
-    {"hint_goblin", "Use bulkhead doors to protect your power-cores against goblins!"},
-    {"hint_plunder", "Raid and plunder castles for extra coins!"},
-    {"hint_damaged_core", "If you lose a power-core, systems may shut down til you rebalance power."}
-}};
+std::array<HintInfo, 4> hints = {
+    {{"hint_infirmary", "Build an infirmary to heal your crew!"},
+     {"hint_goblin",
+      "Use bulkhead doors to protect your power-cores against goblins!"},
+     {"hint_plunder", "Raid and plunder castles for extra coins!"},
+     {"hint_damaged_core",
+      "If you lose a power-core, systems may shut down til you rebalance "
+      "power."}}};
 
 
 
-static void show_hint(Platform& pfrm,
-                      const HintInfo& info,
-                      TextView& text)
+static void show_hint(Platform& pfrm, const HintInfo& info, TextView& text)
 {
     pfrm.load_overlay_texture(info.img_name_);
 
@@ -43,9 +43,9 @@ void HintScene::enter(Platform& pfrm, App&, Scene& prev)
     show_hint(pfrm, hints[hint_index_], *body_);
 
     heading_.emplace(pfrm, OverlayCoord{1, 1});
-    heading_->assign("tips and tricks",
-                     Text::OptColors{{custom_color(0x163061),
-                                      custom_color(0xffffff)}});
+    heading_->assign(
+        "tips and tricks",
+        Text::OptColors{{custom_color(0x163061), custom_color(0xffffff)}});
 }
 
 
@@ -55,7 +55,6 @@ void HintScene::exit(Platform& pfrm, App&, Scene& next)
     heading_.reset();
     body_.reset();
     pfrm.fill_overlay(82);
-
 }
 
 
@@ -123,9 +122,9 @@ ScenePtr<Scene> HintScene::update(Platform& pfrm, App&, Microseconds delta)
         state_ = State::fade_in;
 
         heading_.emplace(pfrm, OverlayCoord{1, 1});
-        heading_->assign("tips and tricks",
-                         Text::OptColors{{custom_color(0x163061),
-                                     custom_color(0xffffff)}});
+        heading_->assign(
+            "tips and tricks",
+            Text::OptColors{{custom_color(0x163061), custom_color(0xffffff)}});
         break;
 
     case State::fade_out:
@@ -138,11 +137,7 @@ ScenePtr<Scene> HintScene::update(Platform& pfrm, App&, Microseconds delta)
                                true,
                                true);
         } else {
-            pfrm.screen().fade(1.f,
-                               custom_color(0x163061),
-                               {},
-                               true,
-                               true);
+            pfrm.screen().fade(1.f, custom_color(0x163061), {}, true, true);
 
             timer_ = 0;
             state_ = State::swap_img;
@@ -155,4 +150,4 @@ ScenePtr<Scene> HintScene::update(Platform& pfrm, App&, Microseconds delta)
 
 
 
-}
+} // namespace skyland

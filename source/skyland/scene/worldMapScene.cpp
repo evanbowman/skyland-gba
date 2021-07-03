@@ -1,5 +1,6 @@
 #include "worldMapScene.hpp"
 #include "graphics/overlay.hpp"
+#include "hintScene.hpp"
 #include "loadLevelScene.hpp"
 #include "platform/platform.hpp"
 #include "skyland/save.hpp"
@@ -7,7 +8,6 @@
 #include "skyland/skyland.hpp"
 #include "skyland/worldMap.hpp"
 #include "titleScreenScene.hpp"
-#include "hintScene.hpp"
 
 
 

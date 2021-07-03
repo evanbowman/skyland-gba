@@ -25,7 +25,8 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
             if (str_cmp((*mt)->name(), "power-core") == 0) {
                 int core_count = 0;
                 for (auto& room : app.player_island().rooms()) {
-                    if (str_cmp((*room->metaclass())->name(), "power-core") == 0) {
+                    if (str_cmp((*room->metaclass())->name(), "power-core") ==
+                        0) {
                         core_count++;
                     }
                 }

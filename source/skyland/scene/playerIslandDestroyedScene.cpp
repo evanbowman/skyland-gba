@@ -1,4 +1,5 @@
 #include "playerIslandDestroyedScene.hpp"
+#include "highscoresScene.hpp"
 #include "localization.hpp"
 #include "selectChallengeScene.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
@@ -6,7 +7,6 @@
 #include "skyland/serial.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
-#include "highscoresScene.hpp"
 
 
 
@@ -282,9 +282,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 app.opponent_island().reset();
 
-                app.persistent_data().total_seconds_.set((u32)(
-                    app.persistent_data().total_seconds_.get() +
-                                                         app.level_timer().whole_seconds()));
+                app.persistent_data().total_seconds_.set(
+                    (u32)(app.persistent_data().total_seconds_.get() +
+                          app.level_timer().whole_seconds()));
 
                 app.persistent_data().total_pauses_.set(
                     app.persistent_data().total_pauses_.get() +

@@ -14,4 +14,4 @@ struct Highscores {
 };
 
 
-}
+} // namespace skyland

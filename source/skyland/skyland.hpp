@@ -6,6 +6,7 @@
 #include "coins.hpp"
 #include "dialog.hpp"
 #include "entity/birbs/smolBirb.hpp"
+#include "highscores.hpp"
 #include "island.hpp"
 #include "opponent/enemyAI.hpp"
 #include "persistentData.hpp"
@@ -15,7 +16,6 @@
 #include "scene.hpp"
 #include "timeTracker.hpp"
 #include "worldMap.hpp"
-#include "highscores.hpp"
 
 
 
