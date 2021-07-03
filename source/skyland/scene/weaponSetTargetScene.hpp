@@ -43,6 +43,7 @@ private:
 
     Microseconds describe_room_timer_ = milliseconds(400);
     std::optional<Text> room_description_;
+    bool freeform_ = false;
 };
 
 

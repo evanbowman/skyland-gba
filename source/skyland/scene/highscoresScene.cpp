@@ -54,7 +54,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
     // Score calculation
     int score = 0;
     score = 1000 + app.persistent_data().coins_ +
-            app.persistent_data().zone_ * 12000 +
+        (app.persistent_data().zone_ - 1) * 12000 +
             (app.persistent_data().current_map_location_.x + 1) * 800 +
             app.persistent_data().zone_ * app.persistent_data().zone_ * 1000;
 

@@ -2322,7 +2322,7 @@ void Platform::Speaker::play_note(Note n, Octave o, Channel c)
 }
 
 
-#include "data/shadows.hpp"
+// #include "data/shadows.hpp"
 
 
 static const int null_music_len = 8;
@@ -2349,13 +2349,16 @@ static const u32 null_music[null_music_len] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 SoundContext snd_ctx;
 
+static const int shadowsLen = 10;
+u8 shadows[shadowsLen];
+
 
 static const struct AudioTrack {
     const char* name_;
     const AudioSample* data_;
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
-} music_tracks[] = {DEF_MUSIC(shadows, shadows)};
+} music_tracks[] = {DEF_MUSIC(blah, shadows)};
 
 
 static const AudioTrack* find_music(const char* name)
@@ -2374,55 +2377,55 @@ static const AudioTrack* find_music(const char* name)
 // NOTE: Between remixing the audio track down to 8-bit 16kHz signed, generating
 // assembly output, adding the file to CMake, adding the include, and adding the
 // sound to the sounds array, it's just too tedious to keep working this way...
-#include "data/sound_bell.hpp"
-#include "data/sound_blaster.hpp"
-#include "data/sound_click.hpp"
-#include "data/sound_coin.hpp"
-#include "data/sound_creak.hpp"
-#include "data/sound_dodge.hpp"
-#include "data/sound_dropitem.hpp"
-#include "data/sound_explosion1.hpp"
-#include "data/sound_explosion2.hpp"
-#include "data/sound_footstep1.hpp"
-#include "data/sound_footstep2.hpp"
-#include "data/sound_footstep3.hpp"
-#include "data/sound_footstep4.hpp"
-#include "data/sound_heart.hpp"
-#include "data/sound_laser1.hpp"
+// #include "data/sound_bell.hpp"
+// #include "data/sound_blaster.hpp"
+// #include "data/sound_click.hpp"
+// #include "data/sound_coin.hpp"
+// #include "data/sound_creak.hpp"
+// #include "data/sound_dodge.hpp"
+// #include "data/sound_dropitem.hpp"
+// #include "data/sound_explosion1.hpp"
+// #include "data/sound_explosion2.hpp"
+// #include "data/sound_footstep1.hpp"
+// #include "data/sound_footstep2.hpp"
+// #include "data/sound_footstep3.hpp"
+// #include "data/sound_footstep4.hpp"
+// #include "data/sound_heart.hpp"
+// #include "data/sound_laser1.hpp"
 #include "data/sound_msg.hpp"
-#include "data/sound_open_book.hpp"
-#include "data/sound_openbag.hpp"
-#include "data/sound_pop.hpp"
-#include "data/sound_scroll.hpp"
-#include "data/sound_select.hpp"
-#include "data/sound_thud.hpp"
-#include "data/sound_tw_bell.hpp"
-#include "data/sound_typewriter.hpp"
+// #include "data/sound_open_book.hpp"
+// #include "data/sound_openbag.hpp"
+// #include "data/sound_pop.hpp"
+// #include "data/sound_scroll.hpp"
+// #include "data/sound_select.hpp"
+// #include "data/sound_thud.hpp"
+// #include "data/sound_tw_bell.hpp"
+// #include "data/sound_typewriter.hpp"
 
 
-static const AudioTrack sounds[] = {DEF_SOUND(explosion1, sound_explosion1),
-                                    DEF_SOUND(explosion2, sound_explosion2),
-                                    DEF_SOUND(typewriter, sound_typewriter),
-                                    DEF_SOUND(footstep1, sound_footstep1),
-                                    DEF_SOUND(footstep2, sound_footstep2),
-                                    DEF_SOUND(footstep3, sound_footstep3),
-                                    DEF_SOUND(footstep4, sound_footstep4),
-                                    DEF_SOUND(open_book, sound_open_book),
-                                    DEF_SOUND(dropitem, sound_dropitem),
-                                    DEF_SOUND(openbag, sound_openbag),
-                                    DEF_SOUND(blaster, sound_blaster),
-                                    DEF_SOUND(tw_bell, sound_tw_bell),
-                                    DEF_SOUND(select, sound_select),
-                                    DEF_SOUND(laser1, sound_laser1),
-                                    DEF_SOUND(scroll, sound_scroll),
-                                    DEF_SOUND(creak, sound_creak),
-                                    DEF_SOUND(dodge, sound_dodge),
-                                    DEF_SOUND(heart, sound_heart),
-                                    DEF_SOUND(click, sound_click),
-                                    DEF_SOUND(thud, sound_thud),
-                                    DEF_SOUND(coin, sound_coin),
-                                    DEF_SOUND(bell, sound_bell),
-                                    DEF_SOUND(pop, sound_pop),
+static const AudioTrack sounds[] = {// DEF_SOUND(explosion1, sound_explosion1),
+                                    // DEF_SOUND(explosion2, sound_explosion2),
+                                    // DEF_SOUND(typewriter, sound_typewriter),
+                                    // DEF_SOUND(footstep1, sound_footstep1),
+                                    // DEF_SOUND(footstep2, sound_footstep2),
+                                    // DEF_SOUND(footstep3, sound_footstep3),
+                                    // DEF_SOUND(footstep4, sound_footstep4),
+                                    // DEF_SOUND(open_book, sound_open_book),
+                                    // DEF_SOUND(dropitem, sound_dropitem),
+                                    // DEF_SOUND(openbag, sound_openbag),
+                                    // DEF_SOUND(blaster, sound_blaster),
+                                    // DEF_SOUND(tw_bell, sound_tw_bell),
+                                    // DEF_SOUND(select, sound_select),
+                                    // DEF_SOUND(laser1, sound_laser1),
+                                    // DEF_SOUND(scroll, sound_scroll),
+                                    // DEF_SOUND(creak, sound_creak),
+                                    // DEF_SOUND(dodge, sound_dodge),
+                                    // DEF_SOUND(heart, sound_heart),
+                                    // DEF_SOUND(click, sound_click),
+                                    // DEF_SOUND(thud, sound_thud),
+                                    // DEF_SOUND(coin, sound_coin),
+                                    // DEF_SOUND(bell, sound_bell),
+                                    // DEF_SOUND(pop, sound_pop),
                                     DEF_SOUND(msg, sound_msg)};
 
 
@@ -3268,7 +3271,7 @@ Platform::Platform()
 
     enable_watchdog();
 
-    audio_start();
+    // audio_start();
 
     fill_overlay(0);
 

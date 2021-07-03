@@ -49,7 +49,7 @@ void IonBurst::update(Platform&, App&, Microseconds delta)
     }
 
 
-    if (timer_ > seconds(1)) {
+    if (timer_ > seconds(4)) {
         kill();
     }
 }

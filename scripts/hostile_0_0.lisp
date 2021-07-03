@@ -16,6 +16,10 @@
 
 (configure-player
  (opponent)
- '((cannon 0 13)
-   (hull 0 14)
-   (power-core 1 13)))
+ (if (cr-choice 2)
+     '((cannon 0 13)
+       (hull 0 14)
+       (power-core 1 13))
+   '((hull 2 12)
+     (missile-silo 1 11)
+     (power-core 1 13))))

@@ -33,52 +33,109 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return new_scene;
     }
 
-    if (targets_.empty()) {
+    if (targets_.empty() or not app.opponent_island()) {
         return scene_pool::alloc<ReadyScene>();
     }
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
-    cursor_loc.x = targets_[selector_].x;
-    cursor_loc.y = targets_[selector_].y;
 
-    if (key_down<Key::right>(pfrm) or key_down<Key::down>(pfrm)) {
+    if (freeform_) {
 
-        if (selector_ < (int)targets_.size() - 1) {
-            selector_++;
-        } else {
-            selector_ = 0;
+        if (key_down<Key::alt_2>(pfrm)) {
+            freeform_ = false;
         }
 
-        room_description_.reset();
-        describe_room_timer_ = milliseconds(300);
-    }
+        if (key_down<Key::right>(pfrm)) {
+            if (cursor_loc.x < app.opponent_island()->terrain().size()) {
+                ++cursor_loc.x;
+                room_description_.reset();
+                describe_room_timer_ = milliseconds(300);
+            }
+        }
+        if (key_down<Key::down>(pfrm)) {
+            if (cursor_loc.y < 14) {
+                ++cursor_loc.y;
+                room_description_.reset();
+                describe_room_timer_ = milliseconds(300);
+            }
+        }
+        if (key_down<Key::up>(pfrm)) {
+            if (cursor_loc.y > 6) {
+                --cursor_loc.y;
+                room_description_.reset();
+                describe_room_timer_ = milliseconds(300);
+            }
+        }
+        if (key_down<Key::left>(pfrm)) {
+            if (cursor_loc.x > 0) {
+                --cursor_loc.x;
+                room_description_.reset();
+                describe_room_timer_ = milliseconds(300);
+            }
+        }
+        if (key_down<Key::action_1>(pfrm)) {
+            if (auto target_room = app.opponent_island()->get_room(cursor_loc)) {
+                if (auto room = app.player_island().get_room(weapon_loc_)) {
+                    room->set_target(target_room->position());
 
-    if (key_down<Key::left>(pfrm) or key_down<Key::up>(pfrm)) {
+                    network::packet::WeaponSetTarget packet;
+                    packet.weapon_x_ = weapon_loc_.x;
+                    packet.weapon_y_ = weapon_loc_.y;
+                    packet.target_x_ = target_room->position().x;
+                    packet.target_y_ = target_room->position().y;
+                    network::transmit(pfrm, packet);
+                }
+                return scene_pool::alloc<ReadyScene>();
+            }
+        }
+    } else {
+        cursor_loc.x = targets_[selector_].x;
+        cursor_loc.y = targets_[selector_].y;
 
-        if (selector_ > 0) {
-            --selector_;
-        } else {
-            selector_ = targets_.size() - 1;
+        if (key_down<Key::alt_2>(pfrm)) {
+            freeform_ = true;
         }
 
-        room_description_.reset();
-        describe_room_timer_ = milliseconds(300);
-    }
+        if (key_down<Key::right>(pfrm) or key_down<Key::down>(pfrm)) {
 
-    if (key_down<Key::action_1>(pfrm)) {
-        const auto target = targets_[selector_];
-        if (auto room = app.player_island().get_room(weapon_loc_)) {
-            room->set_target(target);
+            if (selector_ < (int)targets_.size() - 1) {
+                selector_++;
+            } else {
+                selector_ = 0;
+            }
 
-            network::packet::WeaponSetTarget packet;
-            packet.weapon_x_ = weapon_loc_.x;
-            packet.weapon_y_ = weapon_loc_.y;
-            packet.target_x_ = target.x;
-            packet.target_y_ = target.y;
-            network::transmit(pfrm, packet);
+            room_description_.reset();
+            describe_room_timer_ = milliseconds(300);
         }
-        return scene_pool::alloc<ReadyScene>();
+
+        if (key_down<Key::left>(pfrm) or key_down<Key::up>(pfrm)) {
+
+            if (selector_ > 0) {
+                --selector_;
+            } else {
+                selector_ = targets_.size() - 1;
+            }
+
+            room_description_.reset();
+            describe_room_timer_ = milliseconds(300);
+        }
+
+        if (key_down<Key::action_1>(pfrm)) {
+            const auto target = targets_[selector_];
+            if (auto room = app.player_island().get_room(weapon_loc_)) {
+                room->set_target(target);
+
+                network::packet::WeaponSetTarget packet;
+                packet.weapon_x_ = weapon_loc_.x;
+                packet.weapon_y_ = weapon_loc_.y;
+                packet.target_x_ = target.x;
+                packet.target_y_ = target.y;
+                network::transmit(pfrm, packet);
+            }
+            return scene_pool::alloc<ReadyScene>();
+        }
     }
+
 
     if (key_down<Key::action_2>(pfrm)) {
         return scene_pool::alloc<ReadyScene>();
@@ -116,8 +173,11 @@ void WeaponSetTargetScene::display(Platform& pfrm, App& app)
     }
 
     auto origin = app.opponent_island()->origin();
-    origin.x += targets_[selector_].x * 16;
-    origin.y += targets_[selector_].y * 16;
+
+    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+    origin.x += cursor_loc.x * 16;
+    origin.y += cursor_loc.y * 16;
 
     Sprite sprite;
     sprite.set_position(origin);
@@ -134,6 +194,12 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
     WorldScene::enter(pfrm, app, prev);
 
     collect_targets(pfrm, app);
+
+    if (not targets_.empty()) {
+        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        cursor_loc.x = targets_[selector_].x;
+        cursor_loc.y = targets_[selector_].y;
+    }
 
     far_camera();
 }
