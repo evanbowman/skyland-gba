@@ -167,9 +167,32 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
 void EnemyAI::resolve_insufficient_power(Platform& pfrm, App& app)
 {
-    // TODO...
-    // When we have more power drain than power supply, we need to
-    // salvage a bunch of structures to make rebalance our power usage.
+    // When we have more power drain than power supply, we need to salvage a
+    // bunch of structures to rebalance our power usage.
+
+    // TODO: Make the AI less stupid.
+
+    Room* lowest_weighted_room = nullptr;
+    Float lowest_weight = 2000000.f;
+
+    for (auto& room : app.opponent_island()->rooms()) {
+        auto pwr = (*room->metaclass())->consumes_power();
+        if (pwr > 0) {
+            auto w = (*room->metaclass())->ai_base_weight();
+            if (w < lowest_weight) {
+                lowest_weighted_room = room.get();
+                lowest_weight = w;
+            }
+        }
+    }
+
+    if (lowest_weighted_room) {
+        // TODO: give coins back to the AI, so that it can potentially construct
+        // something else. For the time being, we just want to salvage the
+        // lowest-weighted rooms, until we have a stable balance of power, to
+        // bring our systems back online.
+        lowest_weighted_room->apply_damage(pfrm, app, 9999);
+    }
 }
 
 
@@ -323,11 +346,11 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 // any remaining offensive capabilities. In that case, raids
                 // would be our only offense.
                 if (transporter->ready()) {
+
                     if (player_characters_remote >= ai_characters_remote and
                         ai_characters_remote + ai_characters_local >
                             player_characters_remote) {
-                        slot.ai_weight_ += 300.f * (player_characters_remote -
-                                                    ai_characters_remote);
+                        slot.ai_weight_ += 400.f * ai_characters_local;
                     }
                     if (player_characters_local > ai_characters_local) {
                         slot.ai_weight_ -= 250.f * (player_characters_local -
