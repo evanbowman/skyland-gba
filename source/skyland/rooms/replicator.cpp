@@ -2,6 +2,8 @@
 #include "skyland/island.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/scene/replicatorSelectionScene.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 
@@ -40,7 +42,7 @@ bool Replicator::create_replicant()
         const auto chr_pos = found_chr->grid_position();
         const auto chr_health = found_chr->health();
 
-        const auto replicant_health = chr_health / 2;
+        const Health replicant_health = chr_health * 0.75f;
 
         const auto dst = [&] {
             if (chr_pos.x == position().x) { // We have two slots where we can place
@@ -83,7 +85,20 @@ ScenePtr<Scene> Replicator::select(Platform& pfrm, App& app)
         return next;
     }
 
-    create_replicant();
+    int character_count = 0;
+
+    BasicCharacter* found_chr = nullptr;
+
+    for (auto& chr : characters()) {
+        if (chr->owner() == &parent()->owner()) {
+            character_count++;
+            found_chr = chr.get();
+        }
+    }
+
+    if (found_chr) {
+        return scene_pool::alloc<ReplicatorSelectionScene>();
+    }
 
     return null_scene();
 }

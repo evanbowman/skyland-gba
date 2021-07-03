@@ -3,15 +3,13 @@
 ;;;
 
 
+;; A large ship designed mostly for boarding. It only carries one real weapon, a
+;; single missile silo. But with six crew and three transporters, this level can
+;; give unprepared players some serious trouble.
+
+
 (init-opponent 7 'hostile)
 
-
-;; (configure-player
-;;  (player)
-;;  '((power-core 1 13)
-;;    (radar 3 13)))
-
-;; (add-chr (player) 2 14)
 
 
 (configure-player
@@ -39,7 +37,6 @@
 
 (show-flag (opponent))
 
-(add-coins 10000)
 
 (map
  (lambda

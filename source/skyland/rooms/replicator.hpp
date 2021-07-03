@@ -58,6 +58,12 @@ public:
     bool create_replicant();
 
 
+    static Conditions::Value conditions()
+    {
+        return Conditions::workshop_required;
+    }
+
+
 private:
 
     static const auto recharge_time = seconds(5);

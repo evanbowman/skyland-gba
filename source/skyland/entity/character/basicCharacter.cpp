@@ -57,6 +57,7 @@ void BasicCharacter::transported()
 {
     state_ = State::after_transport;
     anim_timer_ = 0;
+    sprite_.set_mix({ColorConstant::electric_blue, 255});
 }
 
 

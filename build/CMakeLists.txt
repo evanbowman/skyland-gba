@@ -120,6 +120,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/recoverCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerConnectScene.cpp
+  ${SOURCE_DIR}/skyland/scene/replicatorSelectionScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp)
 
 
