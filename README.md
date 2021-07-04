@@ -103,6 +103,15 @@ the same time.
 
 ---
 
+### Bulkhead
+
+<img src="imgs_for_readme/bulkhead.png"/>
+
+Select a bulkhead and press A to open/close. Characters cannot walk through closed
+bulkhead doors. Use to limit invading enemy movement within your castle.
+
+---
+
 #### Workshop
 
 <img src="imgs_for_readme/workshop.png"/>
