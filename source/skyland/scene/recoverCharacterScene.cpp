@@ -39,7 +39,7 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (key_down<Key::right>(pfrm)) {
-        if (cursor_loc.x < app.player_island().terrain().size()) {
+        if (cursor_loc.x < app.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
         }
     }
