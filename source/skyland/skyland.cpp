@@ -183,6 +183,14 @@ void init_clouds(Platform& pfrm)
         put_bg_cloud_type_n(offset + 2, 2);
         put_bg_cloud_type_n(offset + 3, 3);
     }
+
+    // This is just a band of tiles to fill the vertical gap between rows when
+    // parallax-scrolling the the cloud layers.
+    for (int i = 0; i < 32; ++i) {
+        pfrm.set_tile(Layer::background, i, 20, 7);
+        pfrm.set_tile(Layer::background, i, 21, 7);
+        pfrm.set_tile(Layer::background, i, 22, 7);
+    }
 }
 
 

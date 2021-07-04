@@ -18,6 +18,8 @@ void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
 {
     pfrm.load_overlay_texture("overlay_challenges");
 
+    pfrm.enable_feature("v-parallax", false);
+
     if (auto script = pfrm.load_file_contents("scripts", "challenge.lisp")) {
         auto result = lisp::dostring(script, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
@@ -104,6 +106,8 @@ void SelectChallengeScene::exit(Platform& pfrm, App&, Scene& next)
     text_.clear();
     pfrm.fill_overlay(0);
     pfrm.load_overlay_texture("overlay");
+
+    pfrm.enable_feature("v-parallax", true);
 }
 
 

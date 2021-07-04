@@ -61,6 +61,7 @@ enum class GlobalFlag {
     save_using_flash,
     glyph_mode,
     parallax_clouds,
+    v_parallax,
     count
 };
 
@@ -111,7 +112,8 @@ __attribute__((section(".iwram"), long_call)) void
 memcpy32(void* dst, const void* src, uint wcount);
 void memcpy16(void* dst, const void* src, uint hwcount);
 
-__attribute__((section(".iwram"), long_call)) void hblank_scroll_isr();
+__attribute__((section(".iwram"), long_call)) void hblank_full_scroll_isr();
+__attribute__((section(".iwram"), long_call)) void hblank_x_scroll_isr();
 }
 
 
@@ -4830,21 +4832,66 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 void Platform::enable_feature(const char* feature_name, int value)
 {
     if (str_cmp(feature_name, "_prlx7") == 0) {
+
+        if (not get_gflag(GlobalFlag::v_parallax)) {
+            auto offset =
+                screen_.get_view().get_center().cast<s32>().y / 2;
+            for (int i = 112 - offset; i < 128 - offset; ++i) {
+                u8 temp = value + screen_.get_view().get_center().cast<s32>().x / 3;
+                parallax_table[i] = temp;
+            }
+            // Fixme: clean up this code...
+            return;
+        }
+
         auto offset =
-            screen_.get_view().get_center().cast<s32>().y / 2; // * 0.5f + 3;
-        for (int i = 112 - offset; i < 128 - offset; ++i) {
-            u8 temp = value + screen_.get_view().get_center().cast<s32>().x / 3;
-            parallax_table[i] = temp;
-            // vertical_parallax_table[i] = offset;
+            screen_.get_view().get_center().cast<s32>().y / 2 * 0.5f + 3;
+
+        const auto x_amount =
+            value + (screen_.get_view().get_center().cast<s32>().x / 3) * 0.8f;
+
+        for (int i = (112 - offset) - 5; i < 128 - offset; ++i) {
+            parallax_table[i] = x_amount;
+            vertical_parallax_table[i] = offset;
         }
     } else if (str_cmp(feature_name, "_prlx8") == 0) {
-        auto offset =
-            screen_.get_view().get_center().cast<s32>().y / 2; // * 0.6f + 3;
-        for (int i = 128 - offset; i < 144 - offset; ++i) {
-            u8 temp = value + screen_.get_view().get_center().cast<s32>().x / 3;
-            parallax_table[i] = temp;
-            // vertical_parallax_table[i] = offset;
+
+        if (not get_gflag(GlobalFlag::v_parallax)) {
+            auto offset =
+                screen_.get_view().get_center().cast<s32>().y / 2;
+            for (int i = 128 - offset; i < 144 - offset; ++i) {
+                u8 temp = value + screen_.get_view().get_center().cast<s32>().x / 3;
+                parallax_table[i] = temp;
+            }
+            return;
         }
+
+        auto offset =
+            screen_.get_view().get_center().cast<s32>().y / 2 * 0.7f + 3;
+
+        const auto x_amount =
+            value + screen_.get_view().get_center().cast<s32>().x / 3;
+
+        for (int i = 128 - offset; i < 144 - offset; ++i) {
+            parallax_table[i] = x_amount;
+            vertical_parallax_table[i] = offset;
+        }
+
+        // When the two layers of parallax scrolling diverge, there is a gap of
+        // unshifted pixels between them, which we need to account for.
+        // Otherwise, certain rows that were scrolled last time will not have
+        // their y-scroll adjusted, which can create graphical glitches.
+        auto other_row_offset =
+            screen_.get_view().get_center().cast<s32>().y / 2 * 0.5f + 3;
+
+        for (int i = 128 - other_row_offset; i < (128 - offset) - 1; ++i) {
+            // We put a layer of solid-colored tiles offscreen, and we scroll
+            // them up to fill the gap.
+            vertical_parallax_table[i] = 36;
+            parallax_table[i] = x_amount;
+        }
+
+
     } else if (str_cmp(feature_name, "gswap") == 0) {
         *((u16*)0x4000002) = 0x0000 | (bool)value;
     } else if (str_cmp(feature_name, "spatialized-audio") == 0) {
@@ -4867,12 +4914,24 @@ void Platform::enable_feature(const char* feature_name, int value)
 
         if (value) {
             irqEnable(IRQ_HBLANK);
-            irqSet(IRQ_HBLANK, hblank_scroll_isr);
-            // for (auto& val : vertical_parallax_table) {
-            //     val = 200;
-            // }
+            irqSet(IRQ_HBLANK, hblank_full_scroll_isr);
+            for (int i = 0; i < 280; ++i) {
+                if (i < 140) {
+                    vertical_parallax_table[i] = 200;
+                } else {
+                    vertical_parallax_table[i] = 0;
+                }
+            }
         } else {
             irqDisable(IRQ_HBLANK);
+        }
+    } else if (str_cmp(feature_name, "v-parallax") == 0) {
+        set_gflag(GlobalFlag::v_parallax, value);
+
+        if (value) {
+            irqSet(IRQ_HBLANK, hblank_full_scroll_isr);
+        } else {
+            irqSet(IRQ_HBLANK, hblank_x_scroll_isr);
         }
     }
 }

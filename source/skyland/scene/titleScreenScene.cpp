@@ -51,8 +51,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.screen().fade(1.f);
     const int offset = 64;
 
-
     init_clouds2(pfrm);
+    pfrm.enable_feature("v-parallax", false);
 
     auto view = pfrm.screen().get_view();
     auto c = view.get_center();
@@ -130,6 +130,8 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.set_overlay_origin(0, 0);
 
     init_clouds(pfrm);
+
+    pfrm.enable_feature("v-parallax", true);
 
     pfrm.load_tile0_texture("tilesheet");
     pfrm.load_tile1_texture("tilesheet_enemy_0");

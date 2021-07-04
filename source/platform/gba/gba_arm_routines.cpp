@@ -19,12 +19,22 @@
 
 
 int parallax_table[280];
+int vertical_parallax_table[280];
 
 
 extern "C" {
-IWRAM_CODE void hblank_scroll_isr()
+IWRAM_CODE void hblank_full_scroll_isr()
 {
+    *((volatile short*)0x4000014) = ::parallax_table[(REG_VCOUNT + 1)];
+    *((volatile short*)0x4000016) = ::vertical_parallax_table[(REG_VCOUNT + 1)];
 
+}
+
+
+IWRAM_CODE void hblank_x_scroll_isr()
+{
     *((volatile short*)0x4000014) = ::parallax_table[(REG_VCOUNT + 1)];
 }
+
+
 }
