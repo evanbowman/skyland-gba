@@ -43,6 +43,12 @@ construct the selected room. The game may reject your request to build
 structures, if you have not collected enough coins, or have not constructed
 enough power cores to sustain the new addition.
 
+You may also salvage and recover some value from existing rooms, by selecting
+the room with the cursor, and pressing A.
+
+You may pause the game to make adjustments at any time, by pressing the left
+bumper. Pausing frequently does affect your highscore a bit though.
+
 See below for a complete annotation of all structures that you may build:
 
 ---
@@ -60,7 +66,10 @@ in the game that does not supply or deplete energy.
 
 <img src="imgs_for_readme/cannon.png"/>
 
-For attacking other islands. Mainly used for attacking horizontally.
+For attacking other islands. Mainly used for attacking horizontally. Select a 
+cannon and press A to choose a target. By default, the selector will move between
+targets sequentially (left to right, top to bottom), but you can tap the R bumper
+while choosing a target to detach and move the selector without constraint.
 
 ---
 
@@ -133,8 +142,9 @@ a workshop to build a Forcefield.
 
 <img src="imgs_for_readme/transporter.png"/>
 
-Allows you to transport one of your characters to another island. If you have
-not constructed a Radar (see below), your character will be transported to a
+Allows you to transport one of your characters to another island. Move one of
+your characters into the transporter, select the transporter, and press the
+A button. Your character will be transported to a
 random room in the opponent's island. Transporters have a cool-down period, so
 you may need to build multiple transporters if you want to effectively raid
 enemy islands. By selecting an empty transporter, you may also retrieve
@@ -166,11 +176,13 @@ significant damage to forcefields.
 
 <img src="imgs_for_readme/replicator.png"/>
 
-Produces replicants. Move one of your human characters into the replicator,
-press A on the replicator, and you will be given the option to create a
+Produces replicants. Move one of your human characters into the replicator, select
+the replicator, and press A; the game will be give you the option to create a
 replicant. Replicants cannot heal in an infirmary, and have 75% of the health of
-the template character from which they were created.
- 
+the template character from which they were created. Under the hood, using
+replicants affects your highscore calculation, but this doesn't matter too much
+if you're just playing for fun.
+
 ---
 
 ### Characters
