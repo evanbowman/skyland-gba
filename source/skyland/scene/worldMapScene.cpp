@@ -519,6 +519,9 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 
     save_icon_.emplace(pfrm, 120, OverlayCoord{26, 16});
     help_icon_.emplace(pfrm, 128, OverlayCoord{23, 16});
+
+
+    draw_image(pfrm, 150, 23, 1, 6, 5, Layer::overlay);
 }
 
 
