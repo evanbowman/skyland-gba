@@ -162,6 +162,17 @@ significant damage to forcefields.
 
 ---
 
+#### Replicator
+
+<img src="imgs_for_readme/ion-cannon.png"/>
+
+Produces replicants. Move one of your human characters into the replicator,
+press A on the replicator, and you will be given the option to create a
+replicant. Replicants cannot heal in an infirmary, and have 75% of the health of
+the template character from which they were created.
+ 
+---
+
 ### Characters
 
 Characters, such as your castle's residents, or enemy goblins, can damage or
