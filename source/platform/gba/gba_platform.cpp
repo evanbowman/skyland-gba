@@ -1943,8 +1943,12 @@ void Platform::load_tile0_texture(const char* name)
 
                 error(*this, buf.c_str());
             }
+
+            return;
         }
     }
+
+    fatal(name);
 }
 
 
@@ -1980,8 +1984,12 @@ void Platform::load_tile1_texture(const char* name)
 
                 error(*this, buf.c_str());
             }
+
+            return;
         }
     }
+
+    fatal(name);
 }
 
 

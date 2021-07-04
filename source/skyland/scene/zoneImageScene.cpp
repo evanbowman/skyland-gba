@@ -31,6 +31,7 @@ void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
             app.current_map_location().y == 1)) {
         return;
     }
+
     const auto screen_tiles = calc_screen_tiles(pfrm);
     for (int i = 0; i < screen_tiles.x; ++i) {
         pfrm.set_tile(Layer::overlay, i, 0, 112);
@@ -43,10 +44,10 @@ void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 256);
     }
 
-    if (app.zone() == 0) {
-        pfrm.load_tile1_texture("zone_image_0_flattened");
-    } else {
+    if (app.zone() == 1) {
         pfrm.load_tile1_texture("zone_image_1_flattened");
+    } else {
+        pfrm.load_tile1_texture("zone_image_2_flattened");
     }
 
     __draw_image(pfrm, 1, 0, 3, 30, 14, Layer::map_1);

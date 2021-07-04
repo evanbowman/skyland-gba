@@ -216,6 +216,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/skyland_title_0_flattened.s
     ${DATA_DIR}/zone_image_0_flattened.s
     ${DATA_DIR}/zone_image_1_flattened.s
+    ${DATA_DIR}/zone_image_2_flattened.s
     ${DATA_DIR}/spritesheet.s
     ${DATA_DIR}/spritesheet_title_screen.s
     #${DATA_DIR}/shadows.s
@@ -461,6 +462,7 @@ if(GAMEBOY_ADVANCE)
     add_tilesheet(skyland_title_0 0 0 YES NO)
     add_tilesheet(zone_image_0 0 0 YES NO)
     add_tilesheet(zone_image_1 0 0 YES NO)
+    add_tilesheet(zone_image_2 0 0 YES NO)
     add_overlay(overlay 0 0 NO NO)
     add_overlay(overlay_dialog 0 0 NO NO)
     add_overlay(charset 0 0 NO NO)
