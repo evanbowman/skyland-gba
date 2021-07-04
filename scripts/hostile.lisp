@@ -6,9 +6,7 @@
 
 
 (eval-other-file "reset_hooks.lisp")
-;; (eval-other-file "hostile_2_2.lisp")
 
-(add-coins 10000)
 
 (if (not (equal (zone) last-zone))
     (progn
