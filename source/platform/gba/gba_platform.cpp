@@ -3273,7 +3273,7 @@ Platform::Platform()
 
     enable_watchdog();
 
-    // audio_start();
+    // audio_start(); // TODO: uncomment when I add sound back in.
 
     fill_overlay(0);
 
