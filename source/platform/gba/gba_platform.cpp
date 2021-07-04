@@ -4887,7 +4887,7 @@ void Platform::enable_feature(const char* feature_name, int value)
         for (int i = 128 - other_row_offset; i < (128 - offset) - 1; ++i) {
             // We put a layer of solid-colored tiles offscreen, and we scroll
             // them up to fill the gap.
-            vertical_parallax_table[i] = 36;
+            vertical_parallax_table[i] = 38;
             parallax_table[i] = x_amount;
         }
 
