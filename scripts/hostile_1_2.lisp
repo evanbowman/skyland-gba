@@ -30,5 +30,5 @@
 
 (show-flag (opponent))
 
-(add-hostile-chr (opponent) 4 14)
-(add-hostile-chr (opponent) 3 14)
+(add-chr (opponent) 4 14 'hostile 0)
+(add-chr (opponent) 3 14 'hostile 0)

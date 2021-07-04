@@ -15,8 +15,8 @@
    (hull 0 14)))
 
 
-(add-chr (opponent) 1 14)
-(add-chr (opponent) 2 14)
+(add-chr (opponent) 1 14 'neutral 0)
+(add-chr (opponent) 2 14 'neutral 0)
 
 
 (set 'after-converge-hook
@@ -34,14 +34,14 @@
            (progn
              (add-coins (- 0 800))
              (set 'temp (get temp (cr-choice (length temp))))
-             (add-chr (player) (car temp) (cdr temp))
+             (add-chr (player) (car temp) (cdr temp) 'neutral 0)
              (rem-chr (opponent) 1 14)
 
              (set 'temp (chr-slots (player)))
              (if temp
                  (progn
                    (set 'temp (get temp (cr-choice (length temp))))
-                   (add-chr (player) (car temp) (cdr temp))
+                   (add-chr (player) (car temp) (cdr temp) 'neutral 0)
                    (rem-chr (opponent) 2 14)
                    (dialog "Two survivors joined your crew!"))
                (dialog "You rescue one of the survivors. The other survivor decides "

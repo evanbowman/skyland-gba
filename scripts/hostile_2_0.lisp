@@ -27,5 +27,5 @@
    (forcefield 6 10)))
 
 
-(add-hostile-chr (opponent) 3 14)
-(add-hostile-chr (opponent) 2 14)
+(add-chr (opponent) 3 14 'hostile 0)
+(add-chr (opponent) 2 14 'hostile 0)

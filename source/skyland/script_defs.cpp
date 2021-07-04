@@ -7,6 +7,7 @@
 #include "script/lisp.hpp"
 #include "serial.hpp"
 #include "skyland.hpp"
+#include "script/listBuilder.hpp"
 
 
 
@@ -141,28 +142,25 @@ void App::init_scripts(Platform& pfrm)
 
                       auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
 
-                      lisp::Value* ret = lisp::get_nil();
+                      lisp::ListBuilder list;
 
                       for (auto& room : island->rooms()) {
                           for (auto& chr : room->characters()) {
                               if (chr->owner() == &island->owner()) {
-                                  lisp::push_op(ret);
-                                  {
-                                      auto cell = lisp::make_cons(L_NIL, L_NIL);
-                                      lisp::push_op(cell);
-                                      cell->cons_.set_car(lisp::make_integer(
-                                          chr->grid_position().x));
-                                      cell->cons_.set_cdr(lisp::make_integer(
-                                          chr->grid_position().y));
-                                      ret = lisp::make_cons(cell, ret);
-                                      lisp::pop_op(); // cell
+                                  lisp::ListBuilder chr_info;
+                                  chr_info.push_back(lisp::make_integer(chr->grid_position().x));
+                                  chr_info.push_back(lisp::make_integer(chr->grid_position().y));
+                                  if (chr->health() not_eq 255) {
+                                      chr_info.push_back(lisp::make_integer(chr->health()));
                                   }
-                                  lisp::pop_op(); // ret
+                                  if (chr->is_replicant()) {
+                                      chr_info.push_back(lisp::make_integer(1));
+                                  }
+                                  list.push_front(chr_info.result());
                               }
                           }
                       }
-
-                      return ret;
+                      return list.result();
                   }));
 
 
@@ -318,57 +316,74 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
+    lisp::set_var("chr-hp", lisp::make_function([](int argc) {
+                      L_EXPECT_ARGC(argc, 4);
+                      L_EXPECT_OP(1, integer); // y
+                      L_EXPECT_OP(2, integer); // x
+                      L_EXPECT_OP(3, user_data);
+
+                      auto island = (Island*)lisp::get_op(3)->user_data_.obj_;
+
+                      auto coord = Vec2<u8>{
+                          (u8)lisp::get_op(2)->integer_.value_,
+                          (u8)lisp::get_op(1)->integer_.value_,
+                      };
+
+                      auto arg0 = lisp::get_op(0);
+
+                      if (auto chr = island->character_at_location(coord)) {
+                          if (arg0->type_ == lisp::Value::Type::integer) {
+                              chr->set_health(arg0->integer_.value_);
+                          }
+                          return lisp::make_integer(chr->health());
+                      }
+                      return L_NIL;
+    }));
+
+
     lisp::set_var("add-chr", lisp::make_function([](int argc) {
-                      L_EXPECT_ARGC(argc, 3);
-                      L_EXPECT_OP(0, integer); // y
-                      L_EXPECT_OP(1, integer); // x
-                      L_EXPECT_OP(2, user_data);
+                      L_EXPECT_ARGC(argc, 5);
+                      L_EXPECT_OP(0, integer);
+                      L_EXPECT_OP(1, symbol);
+                      L_EXPECT_OP(2, integer); // y
+                      L_EXPECT_OP(3, integer); // x
+                      L_EXPECT_OP(4, user_data);
 
-                      auto island = (Island*)lisp::get_op(2)->user_data_.obj_;
+                      auto island = (Island*)lisp::get_op(4)->user_data_.obj_;
 
                       auto app = interp_get_app();
 
+
                       auto coord = Vec2<u8>{
-                          (u8)lisp::get_op(1)->integer_.value_,
-                          (u8)lisp::get_op(0)->integer_.value_,
+                          (u8)lisp::get_op(3)->integer_.value_,
+                          (u8)lisp::get_op(2)->integer_.value_,
                       };
 
-                      auto chr = alloc_entity<BasicCharacter>(
-                                                              island, &app->player(), coord, false);
+                      const bool is_replicant =
+                          lisp::get_op(0)->integer_.value_;
 
-                      if (chr) {
-                          island->add_character(std::move(chr));
+                      auto conf = lisp::get_op(1);
+                      if (str_cmp(conf->symbol_.name_, "hostile") == 0) {
+                          app->swap_opponent<EnemyAI>();
+                          auto chr = alloc_entity<BasicCharacter>(
+                              island, &app->opponent(), coord,
+                              is_replicant);
+
+                          if (chr) {
+                              island->add_character(std::move(chr));
+                          }
+                      } else if (str_cmp(conf->symbol_.name_, "neutral") == 0) {
+                          auto chr = alloc_entity<BasicCharacter>(
+                             island, &app->player(), coord,
+                             is_replicant);
+
+                          if (chr) {
+                              island->add_character(std::move(chr));
+                          }
                       }
 
                       return L_NIL;
                   }));
-
-
-    lisp::set_var("add-hostile-chr", lisp::make_function([](int argc) {
-                      L_EXPECT_ARGC(argc, 3);
-                      L_EXPECT_OP(0, integer); // y
-                      L_EXPECT_OP(1, integer); // x
-                      L_EXPECT_OP(2, user_data);
-
-                      auto app = interp_get_app();
-
-                      auto island = (Island*)lisp::get_op(2)->user_data_.obj_;
-
-                      auto coord = Vec2<u8>{
-                          (u8)lisp::get_op(1)->integer_.value_,
-                          (u8)lisp::get_op(0)->integer_.value_,
-                      };
-
-                      auto chr = alloc_entity<BasicCharacter>(
-                                                              island, &app->opponent(), coord, false);
-
-                      if (chr) {
-                          island->add_character(std::move(chr));
-                      }
-
-                      return L_NIL;
-                  }));
-
 
 
     lisp::set_var("configure-player", lisp::make_function([](int argc) {

@@ -28,10 +28,10 @@
    (hull 7 13)))
 
 
-(add-chr (player) 1 14)
-(add-chr (player) 2 14)
-(add-chr (player) 1 12)
-(add-chr (player) 2 12)
+(add-chr (player) 1 14 'neutral 0)
+(add-chr (player) 2 14 'neutral 0)
+(add-chr (player) 1 12 'neutral 0)
+(add-chr (player) 2 12 'neutral 0)
 
 
 
@@ -73,4 +73,4 @@
    (hull 8 12)))
 
 
-(add-hostile-chr (opponent) 3 14)
+(add-chr (opponent) 3 14 'hostile 0)

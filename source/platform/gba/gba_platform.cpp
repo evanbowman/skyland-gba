@@ -3602,9 +3602,14 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
                         gm.mapper_offset_ = 0;
                     }
                 } else {
-                    error(pfrm,
-                          "existing tile is a glyph, but has no"
-                          " mapping table entry!");
+                    // I suppose this could happen if we swapped overlay
+                    // textures, without clearing out existing tiles? Not
+                    // sure. The code has been stable in the real world for
+                    // quite a while, so I'm commenting out the log line.
+                    //
+                    // error(pfrm,
+                    //       "existing tile is a glyph, but has no"
+                    //       " mapping table entry!");
                 }
             }
 

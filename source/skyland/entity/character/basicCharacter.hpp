@@ -115,6 +115,12 @@ public:
     }
 
 
+    void set_health(Health amount)
+    {
+        health_ = amount;
+    }
+
+
     Health health()
     {
         return health_;

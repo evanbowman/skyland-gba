@@ -14,7 +14,7 @@
  '((power-core 3 13)))
 
 
-(add-chr (opponent) 1 14)
+(add-chr (opponent) 1 14 'neutral 0)
 
 
 (set 'after-converge-hook
@@ -33,7 +33,7 @@
        (if temp
            (progn
              (set 'temp (get temp (cr-choice (length temp))))
-             (add-chr (player) (car temp) (cdr temp))
+             (add-chr (player) (car temp) (cdr temp) 'neutral 0)
              (rem-chr (opponent) 1 14)
              (set 'temp '())
              (dialog "The castaway joined your crew!"))

@@ -14,7 +14,18 @@
 
   (map
    (lambda
-     (add-chr (player) (car (arg 0)) (cdr (arg 0))))
+     (set 'temp (arg 0))
+
+     (add-chr (player)
+              (get temp 0) ;; x
+              (get temp 1) ;; y
+              'neutral
+              (if (> (length temp) 3)
+                  (get temp 3) ;; 1/0 possibly in this index if chr is replicant
+                0))
+
+     (if (> (length temp) 2)
+         (chr-hp (player) (get temp 0) (get temp 1) (get temp 2))))
    (get (arg 0) 1)) ;; list of characters in list index one
 
   (set 'enemies-seen (get (arg 0) 2))

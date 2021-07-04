@@ -17,8 +17,8 @@
    (missile-silo 7 13)))
 
 
-(add-chr (opponent) 1 14)
-(add-chr (opponent) 2 14)
+(add-chr (opponent) 1 14 'neutral 0)
+(add-chr (opponent) 2 14 'neutral 0)
 
 
 (set 'after-converge-hook
@@ -38,7 +38,7 @@
            (progn
              (add-coins (- 0 400))
              (set 'temp (get temp (cr-choice (length temp))))
-             (add-chr (player) (car temp) (cdr temp))
+             (add-chr (player) (car temp) (cdr temp) 'neutral 0)
              (rem-chr (opponent) 1 14)
              (set 'temp (nil))
              (dialog "The mercenary joined your crew!"))

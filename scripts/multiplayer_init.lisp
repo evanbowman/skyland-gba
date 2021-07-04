@@ -15,7 +15,7 @@
    (power-core 3 13)))
 
 
-(add-chr (player) 2 14)
+(add-chr (player) 2 14 'neutral 0)
 
 
 
@@ -34,4 +34,4 @@
    (power-core 2 13)))
 
 
-(add-hostile-chr (opponent) 1 14)
+(add-chr (opponent) 1 14 'hostile 0)

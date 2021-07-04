@@ -12,4 +12,6 @@
  enemies-seen
  friendlies-seen
  last-zone
- (terrain (player)))
+ (terrain (player))
+ 0 ;; save protocol version.
+ )
