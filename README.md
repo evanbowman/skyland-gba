@@ -164,7 +164,7 @@ significant damage to forcefields.
 
 #### Replicator
 
-<img src="imgs_for_readme/ion-cannon.png"/>
+<img src="imgs_for_readme/replicator.png"/>
 
 Produces replicants. Move one of your human characters into the replicator,
 press A on the replicator, and you will be given the option to create a
