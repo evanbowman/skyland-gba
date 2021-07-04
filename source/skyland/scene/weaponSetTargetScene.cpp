@@ -19,6 +19,11 @@ void describe_room(Platform& pfrm,
 
 
 
+void clear_room_description(Platform& pfrm,
+                            std::optional<Text>& room_description);
+
+
+
 WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc)
     : weapon_loc_(weapon_loc)
 {
@@ -48,28 +53,28 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (key_down<Key::right>(pfrm)) {
             if (cursor_loc.x < app.opponent_island()->terrain().size()) {
                 ++cursor_loc.x;
-                room_description_.reset();
+                clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
             }
         }
         if (key_down<Key::down>(pfrm)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
-                room_description_.reset();
+                clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
             }
         }
         if (key_down<Key::up>(pfrm)) {
             if (cursor_loc.y > 6) {
                 --cursor_loc.y;
-                room_description_.reset();
+                clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
             }
         }
         if (key_down<Key::left>(pfrm)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
-                room_description_.reset();
+                clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
             }
         }
@@ -104,7 +109,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                 selector_ = 0;
             }
 
-            room_description_.reset();
+            clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
 
@@ -116,7 +121,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                 selector_ = targets_.size() - 1;
             }
 
-            room_description_.reset();
+            clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
 
@@ -189,9 +194,18 @@ void WeaponSetTargetScene::display(Platform& pfrm, App& app)
 
 
 
+void WeaponSetTargetScene::exit(Platform& pfrm, App& app, Scene& next)
+{
+    ActiveWorldScene::exit(pfrm, app, next);
+
+    clear_room_description(pfrm, room_description_);
+}
+
+
+
 void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    WorldScene::enter(pfrm, app, prev);
+    ActiveWorldScene::enter(pfrm, app, prev);
 
     collect_targets(pfrm, app);
 

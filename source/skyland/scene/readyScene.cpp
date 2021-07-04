@@ -23,6 +23,22 @@ void describe_room(Platform& pfrm,
                    std::optional<Text>& room_description);
 
 
+void clear_room_description(Platform& pfrm,
+                            std::optional<Text>& room_description)
+{
+    if (not room_description) {
+        return;
+    }
+
+    const u8 y = calc_screen_tiles(pfrm).y - 2;
+
+    for (int i = 0; i < room_description->len(); ++i) {
+        pfrm.set_tile(Layer::overlay, i, y, 0);
+    }
+    room_description.reset();
+}
+
+
 
 ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -45,7 +61,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (key_down<Key::left>(pfrm)) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
-            room_description_.reset();
+            clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
     }
@@ -57,7 +73,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (key_down<Key::right>(pfrm)) {
         if (cursor_loc.x < app.player_island().terrain().size()) {
             ++cursor_loc.x;
-            room_description_.reset();
+            clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         } else // if (mt_prep_seconds == 0)
         {
@@ -70,7 +86,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (key_down<Key::up>(pfrm)) {
         if (cursor_loc.y > 6) {
             --cursor_loc.y;
-            room_description_.reset();
+            clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
     }
@@ -78,7 +94,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (key_down<Key::down>(pfrm)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
-            room_description_.reset();
+            clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
     }
@@ -184,6 +200,13 @@ void describe_room(Platform& pfrm,
             room_description->append("?/???");
         }
     }
+
+    if (room_description) {
+        const u8 y = calc_screen_tiles(pfrm).y - 2;
+        for (int i = 0; i < room_description->len(); ++i) {
+            pfrm.set_tile(Layer::overlay, i, y, 425);
+        }
+    }
 }
 
 
@@ -209,9 +232,9 @@ void ReadyScene::display(Platform& pfrm, App& app)
 
 
 
-void ReadyScene::exit(Platform&, App&, Scene& next)
+void ReadyScene::exit(Platform& pfrm, App&, Scene& next)
 {
-    room_description_.reset();
+    clear_room_description(pfrm, room_description_);
 }
 
 
