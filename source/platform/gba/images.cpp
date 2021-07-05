@@ -37,6 +37,8 @@
 //;
 #include "data/zone_image_2_flattened.h"
 //;
+#include "data/zone_image_3_flattened.h"
+//;
 #include "data/overlay.h"
 //;
 #include "data/overlay_dialog.h"
@@ -104,6 +106,8 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(zone_image_1_flattened),
 //;
     TEXTURE_INFO(zone_image_2_flattened),
+//;
+    TEXTURE_INFO(zone_image_3_flattened),
 //
 };
 
