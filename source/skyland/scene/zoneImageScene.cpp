@@ -4,6 +4,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
+#include "highscoresScene.hpp"
 
 
 
@@ -46,8 +47,10 @@ void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     if (app.zone() == 1) {
         pfrm.load_tile1_texture("zone_image_1_flattened");
-    } else {
+    } else if (app.zone() == 2) {
         pfrm.load_tile1_texture("zone_image_2_flattened");
+    } else {
+        pfrm.load_tile1_texture("zone_image_3_flattened");
     }
 
     __draw_image(pfrm, 1, 0, 3, 30, 14, Layer::map_1);
@@ -109,7 +112,11 @@ ZoneImageScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (not(app.current_map_location().x == 0 and
             app.current_map_location().y == 1)) {
-        return scene_pool::alloc<WorldMapScene>();
+        if (app.zone() == 4) {
+            return scene_pool::alloc<HighscoresScene>();
+        } else {
+            return scene_pool::alloc<WorldMapScene>();
+        }
     }
 
     switch (state_) {

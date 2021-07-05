@@ -292,7 +292,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         //     return scene_pool::alloc<MultiplayerConnectScene>();
         // }
 
-        if (key_down<Key::right>(pfrm)) {
+        if (key_down<Key::right>(pfrm) or key_down<Key::down>(pfrm)) {
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
                 put_menu_text(pfrm);
@@ -301,7 +301,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 timer_ = 0;
             }
         }
-        if (key_down<Key::left>(pfrm)) {
+        if (key_down<Key::left>(pfrm) or key_down<Key::up>(pfrm)) {
             if (menu_selection_ == 1) {
                 menu_selection_ = 0;
                 put_menu_text(pfrm);
