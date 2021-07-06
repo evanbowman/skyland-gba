@@ -32,4 +32,3 @@
 (add-chr (opponent) 2 14 'hostile 0)
 (add-chr (opponent) 3 14 'hostile 0)
 (add-chr (opponent) 5 14 'hostile 0)
-(add-chr (opponent) 6 14 'hostile 0)

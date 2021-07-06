@@ -4,28 +4,14 @@
 
 
 (add-coins (- 0 1000000))
-(add-coins 3000)
+(add-coins 6000)
 
 
 (terrain (player) 8)
 (configure-player
  (player)
  '((power-core 1 13)
-   (workshop 1 11)
-   (hull 4 14)
-   (hull 4 13)
-   (hull 4 12)
-   (hull 4 11)
-   (hull 5 14)
-   (hull 5 13)
-   (hull 5 12)
-   (hull 5 11)
-   (hull 6 14)
-   (hull 6 13)
-   (hull 6 12)
-   (hull 6 11)
-   (hull 7 14)
-   (hull 7 13)))
+   (workshop 1 11)))
 
 
 (add-chr (player) 1 14 'neutral 0)
@@ -65,6 +51,7 @@
    (hull 2 10)
    (hull 2 9)
    (workshop 7 13)
+   (hull 4 6)
    (hull 3 7)
    (hull 4 7)
    (hull 5 8)
