@@ -25,8 +25,6 @@
 
 
 
-
-
 (configure-player
  (opponent)
  '((power-core 3 10)
