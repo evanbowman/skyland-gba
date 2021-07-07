@@ -5,7 +5,7 @@
 
 <img src="imgs_for_readme/header.png"/>
 
-A Gameboy Advance game created, frantically, for a game jam, in about twenty five
+A Gameboy Advance game created, frantically, for a game jam, in about twenty
 days. For posterity, I will not be editing this repository after finishing the
 game jam. All future work will be completed in a fork (link forthcoming).
 
@@ -46,10 +46,12 @@ structures, if you have not collected enough coins, or have not constructed
 enough power cores to sustain the new addition.
 
 You may also salvage and recover some value from existing rooms, by selecting
-the room with the cursor, and pressing A.
+the room with the cursor, and pressing B.
 
 You may pause the game to make adjustments at any time, by pressing the left
 bumper. Pausing frequently does affect your highscore a bit though.
+
+Press the select button to toggle the interior view of your castle.
 
 See below for a complete annotation of all structures that you may build:
 
@@ -190,9 +192,7 @@ significant damage to forcefields.
 Produces replicants. Move one of your human characters into the replicator, select
 the replicator, and press A; the game will be give you the option to create a
 replicant. Replicants cannot heal in an infirmary, and have 75% of the health of
-the template character from which they were created. Under the hood, using
-replicants affects your highscore calculation, but this doesn't matter too much
-if you're just playing for fun.
+the template character from which they were created.
 
 ---
 
