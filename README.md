@@ -190,9 +190,7 @@ significant damage to forcefields.
 Produces replicants. Move one of your human characters into the replicator, select
 the replicator, and press A; the game will be give you the option to create a
 replicant. Replicants cannot heal in an infirmary, and have 75% of the health of
-the template character from which they were created. Under the hood, using
-replicants affects your highscore calculation, but this doesn't matter too much
-if you're just playing for fun.
+the template character from which they were created.
 
 ---
 
