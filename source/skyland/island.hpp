@@ -20,7 +20,7 @@ public:
     Island(const Island&) = delete;
 
 
-    using Rooms = Buffer<RoomPtr<Room>, 40>;
+    using Rooms = Buffer<RoomPtr<Room>, 70>;
 
 
     bool add_room(Platform& pfrm, RoomPtr<Room> insert)

@@ -84,13 +84,15 @@ void SelectChallengeScene::show_options(Platform& pfrm)
                            OverlayCoord{4, u8(4 + text_.size() * 2)});
     });
 
-    int margin = (calc_screen_tiles(pfrm).x - page_count_ * 2) / 2;
 
-    for (int i = 0; i < page_count_; ++i) {
-        if (i == page_) {
-            pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 83);
-        } else {
-            pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 82);
+    if (page_count_ > 1) {
+        int margin = (calc_screen_tiles(pfrm).x - page_count_ * 2) / 2;
+        for (int i = 0; i < page_count_; ++i) {
+            if (i == page_) {
+                pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 83);
+            } else {
+                pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 82);
+            }
         }
     }
 }

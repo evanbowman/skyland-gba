@@ -23,7 +23,9 @@
 
 (set 'after-converge-hook
      (lambda
-       (dialog "One of the mercenaries offers to join you crew, for a cost of 400$. Accept offer?")
+       (dialog "One of the mercenaries offers to join you crew, for a cost of "
+               (string (* 400 (zone)))
+               "$. Accept offer?")
 
        (await-dialog-y/n)
        (set 'after-converge-hook nil)))
@@ -36,7 +38,7 @@
 
        (if temp
            (progn
-             (add-coins (- 0 400))
+             (add-coins (- 0 (* 400 (zone))))
              (set 'temp (get temp (cr-choice (length temp))))
              (add-chr (player) (car temp) (cdr temp) 'neutral 0)
              (rem-chr (opponent) 1 14)

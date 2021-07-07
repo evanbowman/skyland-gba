@@ -58,6 +58,7 @@ void BasicCharacter::transported()
     state_ = State::after_transport;
     anim_timer_ = 0;
     sprite_.set_mix({ColorConstant::electric_blue, 255});
+    idle_count_ = 0;
 }
 
 
@@ -73,6 +74,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
         sprite_.set_texture_index(base_frame(this, app) + 5);
         state_ = State::moving_or_idle;
         timer_ = 0;
+        idle_count_ = 0;
     };
 
     auto has_opponent = [&](Room* room) {
@@ -135,6 +137,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
             can_move_ = false;
             sprite_.set_position(o);
             sprite_.set_texture_index(base_frame(this, app) + 5);
+            ++idle_count_;
 
             if (auto room = parent_->get_room(grid_position_)) {
 
@@ -299,6 +302,7 @@ void BasicCharacter::update_attack(Microseconds delta, App& app)
             sprite_.set_texture_index(base_frame(this, app) + 5);
             state_ = State::moving_or_idle;
             timer_ = 0;
+            idle_count_ = 0;
         }
 
         timer_ = 0;
@@ -312,6 +316,7 @@ void BasicCharacter::update_attack(Microseconds delta, App& app)
         sprite_.set_texture_index(base_frame(this, app) + 5);
         state_ = State::moving_or_idle;
         timer_ = 0;
+        idle_count_ = 0;
     }
 }
 

@@ -16,8 +16,9 @@ namespace skyland {
 
 Cannonball::Cannonball(const Vec2<Float>& position,
                        const Vec2<Float>& target,
-                       Island* source)
-    : Projectile({{10, 10}, {8, 8}}), source_(source)
+                       Island* source,
+                       const Vec2<u8>& origin_tile)
+    : Projectile({{10, 10}, {8, 8}}), source_(source), origin_tile_(origin_tile)
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -48,8 +49,12 @@ void Cannonball::update(Platform&, App&, Microseconds delta)
 
 void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
 {
-    if (source_ == room.parent() and room.metaclass() == cannon_mt) {
-        return;
+    if (source_ == room.parent()) {
+        if (room.position().x - (room.size().x - 1) == origin_tile_.x) {
+            // Because we do not want to include collisions with the originating
+            // cannon, or with any blocks directly above or below the cannon.
+            return;
+        }
     }
 
     if (source_ == room.parent() and room.metaclass() == forcefield_mt) {

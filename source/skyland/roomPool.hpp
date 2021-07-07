@@ -11,7 +11,7 @@ namespace skyland {
 namespace room_pool {
 
 
-static constexpr const int max_room_size = 64;
+static constexpr const int max_room_size = 48;
 static constexpr const int pool_capacity = 80;
 
 

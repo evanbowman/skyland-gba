@@ -175,6 +175,12 @@ public:
     }
 
 
+    u16 idle_count() const
+    {
+        return idle_count_;
+    }
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -185,6 +191,7 @@ private:
     bool can_move_ : 1;
     bool is_replicant_ : 1;
     State state_ = State::moving_or_idle;
+    u16 idle_count_ = 0;
 
     std::optional<Path> movement_path_;
 

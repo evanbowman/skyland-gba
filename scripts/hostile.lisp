@@ -25,7 +25,7 @@
                       (lambda (equal temp (arg 0)))
                       enemies-seen))))
       (gen
-       (get '(8 5 2) (zone)) ;; number of levels to select from based on current zone
+       (get '(8 5 4) (zone)) ;; number of levels to select from based on current zone
        (lambda (arg 0)))))
 
 

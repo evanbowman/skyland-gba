@@ -48,11 +48,14 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         // pathfinding for all of those entities. Of course, the game _can_
         // handle that many entities, but doing so would result in periodic long
         // pauses.
-        Buffer<BasicCharacter*, 8> boarded_ai_characters;
+        Buffer<std::pair<BasicCharacter*, Room*>, 8> boarded_ai_characters;
         for (auto& room : app.player_island().rooms()) {
             for (auto& character : room->characters()) {
                 if (character->owner() == this) {
-                    boarded_ai_characters.push_back(character.get());
+                    boarded_ai_characters.push_back({
+                            character.get(),
+                            room.get()
+                        });
                 }
             }
         }
@@ -119,15 +122,33 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                                 [&]() -> std::optional<Vec2<u8>> {
                                 for (auto it = boarded_ai_characters.begin();
                                      it not_eq boarded_ai_characters.end();) {
-                                    if ((*it)->health() < 25) {
+                                    if ((*it).first->health() < 25) {
                                         it = boarded_ai_characters.erase(it);
-                                        return (*it)->grid_position();
+                                        return (*it).first->grid_position();
                                     } else {
                                         ++it;
                                     }
                                 }
                                 return {};
                             }();
+
+                            if (not recover_pos) {
+                                for (auto it = boarded_ai_characters.begin();
+                                     it not_eq boarded_ai_characters.end();) {
+                                    if (str_cmp((*(*it).second->metaclass())->name(),
+                                                "plundered-room") == 0
+                                        and (*it).first->idle_count() > 600) {
+                                        // If we've plundered a room, and we've
+                                        // been waiting a while, i.e. we have
+                                        // nowhere to go, then we should recover
+                                        // the character.
+                                        it = boarded_ai_characters.erase(it);
+                                        recover_pos = (*it).first->grid_position();
+                                    } else {
+                                        ++it;
+                                    }
+                                }
+                            }
 
                             if (recover_pos) {
                                 transporter->recover_character(
@@ -236,12 +257,18 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     // Should we board the player's castle? Well, if we have no weapons
     // remaining, a boarding party is the only way that we can deal damage,
     // so...
-    int weapon_count = 0;
+    int cannon_count = 0;
+    int missile_count = 0;
+
+    int player_cannon_count = 0;
+    int player_missile_count = 0;
 
     for (auto& room : app.opponent_island()->rooms()) {
-        if (room->metaclass() == cannon_mt or
-            room->metaclass() == missile_silo_mt) {
-            ++weapon_count;
+        if (room->metaclass() == cannon_mt) {
+            ++cannon_count;
+        }
+        if (room->metaclass() == missile_silo_mt) {
+            ++missile_count;
         }
         for (auto& other : room->characters()) {
             if (other->owner() == this and other.get() not_eq &character) {
@@ -260,6 +287,12 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     }
 
     for (auto& room : app.player_island().rooms()) {
+        if (room->metaclass() == cannon_mt) {
+            ++player_cannon_count;
+        }
+        if (room->metaclass() == missile_silo_mt) {
+            ++player_missile_count;
+        }
         for (auto& chr : room->characters()) {
             if (chr->owner() == this) {
                 ++ai_characters_remote;
@@ -356,11 +389,16 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                         slot.ai_weight_ -= 250.f * (player_characters_local -
                                                     ai_characters_local);
                     }
+                    const auto weapon_count = cannon_count + missile_count;
                     if (weapon_count == 0) {
                         // If we don't have any remaining weapons, potentially
                         // board the player's castle, even if doing so would be
                         // a suicide mission.
                         slot.ai_weight_ += 1000.f;
+                    } else if (missile_count and cannon_count == 0 and player_cannon_count) {
+                        slot.ai_weight_ += 400.f;
+                    } else if (cannon_count and missile_count == 0 and player_missile_count) {
+                        slot.ai_weight_ += 400.f;
                     }
                 } else {
                     slot.ai_weight_ -= 300;

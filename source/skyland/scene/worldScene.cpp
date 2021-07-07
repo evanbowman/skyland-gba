@@ -400,6 +400,14 @@ void WorldScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     coins_.reset();
     power_.reset();
+
+
+    // FIXME: clear out room description correctly in other scenes...
+    const u8 y = calc_screen_tiles(pfrm).y - 2;
+
+    for (int i = 0; i < 32; ++i) {
+        pfrm.set_tile(Layer::overlay, i, y, 0);
+    }
 }
 
 

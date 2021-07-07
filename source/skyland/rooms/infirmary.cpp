@@ -22,7 +22,7 @@ void Infirmary::update(Platform& pfrm, App& app, Microseconds delta)
 
     for (auto& character : characters()) {
         if (character->owner() == &parent()->owner() and
-            character->state() == BasicCharacter::State::moving_or_idle) {
+            character->state() not_eq BasicCharacter::State::fighting) {
             ++characters_healing;
         }
     }
