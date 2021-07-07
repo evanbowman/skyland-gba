@@ -9,6 +9,7 @@
 #include "rooms/core.hpp"
 #include "skyland.hpp"
 #include "tile.hpp"
+#include "network.hpp"
 
 
 
@@ -165,6 +166,14 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     auto update_characters = [&](auto& chr_list) {
         for (auto it = chr_list.begin(); it not_eq chr_list.end();) {
             if (not(*it)->alive()) {
+
+                network::packet::CharacterDied packet;
+                packet.chr_x_ = (*it)->grid_position().x;
+                packet.chr_y_ = (*it)->grid_position().y;
+                packet.near_island_ = &owner() not_eq &app.player();
+                packet.chr_owned_by_player_ = (*it)->owner() not_eq &app.player();
+                network::transmit(pfrm, packet);
+
                 it = chr_list.erase(it);
             } else {
                 if ((*it)->is_awaiting_movement()) {
@@ -189,6 +198,14 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             big_explosion(pfrm, app, (*it)->center());
 
             const auto pos = (*it)->position();
+
+            network::packet::RoomDestroyed packet;
+            packet.room_x_ = pos.x;
+            packet.room_y_ = pos.y;
+            packet.near_island_ = &owner() not_eq &app.player();
+            packet.metaclass_index_.set(metaclass_index((*(*it)->metaclass())->name()));
+            network::transmit(pfrm, packet);
+
 
             it = rooms_.erase(it);
 

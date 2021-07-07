@@ -41,6 +41,13 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::RoomSalvaged)
             HANDLE_MESSAGE(packet::TerrainConstructed)
             HANDLE_MESSAGE(packet::WeaponSetTarget)
+            HANDLE_MESSAGE(packet::CharacterSetTarget)
+            HANDLE_MESSAGE(packet::RoomDestroyed)
+            HANDLE_MESSAGE(packet::CharacterBoarded)
+            HANDLE_MESSAGE(packet::CharacterDisembark)
+            HANDLE_MESSAGE(packet::CharacterDied)
+            HANDLE_MESSAGE(packet::ReplicantCreated)
+            HANDLE_MESSAGE(packet::OpponentBulkheadChanged)
         }
 
         error(pfrm, "garbled message!?");

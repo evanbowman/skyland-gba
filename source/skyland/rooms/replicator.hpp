@@ -55,7 +55,7 @@ public:
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
-    bool create_replicant();
+    bool create_replicant(Platform& pfrm);
 
 
     static Conditions::Value conditions()

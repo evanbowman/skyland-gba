@@ -6,6 +6,8 @@
 #include "skyland/scene/recoverCharacterScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/network.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -66,10 +68,23 @@ void Transporter::recover_character(Platform& pfrm,
                 // our island, where the path would make no sense.
                 unlinked->drop_movement_path();
 
+                const Vec2<u8> dst = {
+                    this->position().x,
+                    u8(this->position().y + 1)
+                };
+
+                if (&parent()->owner() == &app.player()) {
+                    network::packet::CharacterDisembark packet;
+                    packet.src_x_ = unlinked->grid_position().x;
+                    packet.src_y_ = unlinked->grid_position().y;
+                    packet.dst_x_ = dst.x;
+                    packet.dst_y_ = dst.y;
+                    network::transmit(pfrm, packet);
+                }
+
                 // Again, the character is warping to a new location, let's
                 // update its position.
-                unlinked->set_grid_position(
-                    {this->position().x, u8(this->position().y + 1)});
+                unlinked->set_grid_position(dst);
 
                 unlinked->set_parent(parent());
                 unlinked->transported();
@@ -134,15 +149,26 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
         return;
     }
 
-    auto log = to_string<40>(dest->x);
-    log += ",";
-    log += to_string<10>(dest->y);
-    info(pfrm, log.c_str());
+    // auto log = to_string<40>(dest->x);
+    // log += ",";
+    // log += to_string<10>(dest->y);
+    // info(pfrm, log.c_str());
 
     if (auto room = island->get_room(*dest)) {
+
+        if (&parent()->owner() == &app.player()) {
+            network::packet::CharacterBoarded packet;
+            packet.src_x_ = (*chr)->grid_position().x;
+            packet.src_y_ = (*chr)->grid_position().y;
+            packet.dst_x_ = dest->x;
+            packet.dst_y_ = dest->y;
+            network::transmit(pfrm, packet);
+        }
+
         (*chr)->set_grid_position(*dest);
         (*chr)->set_parent(island);
         (*chr)->transported();
+
         room->characters().push(std::move(*chr));
     } else {
         return;
@@ -171,6 +197,7 @@ ScenePtr<Scene> Transporter::select(Platform& pfrm, App& app)
         if (parent()->has_radar()) {
             // TODO: When the player has a radar, should be able to select which
             // room that they want to transport the character into.
+            random_transport_occupant(pfrm, app);
         } else {
             random_transport_occupant(pfrm, app);
         }

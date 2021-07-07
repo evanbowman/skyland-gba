@@ -6,6 +6,7 @@
 #include "skyland/path.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -242,6 +243,15 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (path and *path) {
                 sel_chr->set_movement_path(std::move(*path));
+
+                network::packet::CharacterSetTarget packet;
+                packet.src_x_ = initial_cursor_.x;
+                packet.src_y_ = initial_cursor_.y;
+                packet.dst_x_ = cursor_loc->x;
+                packet.dst_y_ = cursor_loc->y;
+                packet.near_island_ = island not_eq &app.player_island();
+                network::transmit(pfrm, packet);
+
             } else {
                 // path not found, raise error?
             }

@@ -63,6 +63,9 @@ public:
     }
 
 
+    void set_open(Platform& pfrm, bool open);
+
+
 private:
     bool open_ = true;
     bool interior_visible_ = false;

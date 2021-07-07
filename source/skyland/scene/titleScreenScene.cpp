@@ -244,6 +244,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     update_entities(pfrm, app, delta, app.birbs());
 
 
+    if (key_down<Key::start>(pfrm)) {
+        return scene_pool::alloc<MultiplayerConnectScene>();
+    }
+
+
     switch (state_) {
     case State::fade_in: {
         timer_ += delta;

@@ -1,6 +1,8 @@
 #include "bulkhead.hpp"
 #include "skyland/island.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/skyland.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -55,22 +57,39 @@ void Bulkhead::render_exterior(Platform& pfrm, Layer layer)
 
 
 
+void Bulkhead::set_open(Platform& pfrm, bool open)
+{
+    open_ = open;
+
+    if (parent()->interior_visible()) {
+        if (open_) {
+            render_interior(pfrm, parent()->layer());
+        } else {
+            render_interior(pfrm, parent()->layer());
+        }
+    }
+    parent()->on_layout_changed({position().x, u8(position().y + 1)});
+}
+
+
 ScenePtr<Scene> Bulkhead::select(Platform& pfrm, App& app)
 {
     if (length(characters())) {
         return Room::select(pfrm, app);
     }
 
-    if (not open_) {
-        open_ = true;
-        render_interior(pfrm, parent()->layer());
-    } else {
-        open_ = false;
+    open_ = not open_;
 
-        render_interior(pfrm, parent()->layer());
+    set_open(pfrm, open_);
 
-        parent()->on_layout_changed({position().x, u8(position().y + 1)});
+    if (&parent()->owner() == &app.player()) {
+        network::packet::OpponentBulkheadChanged packet;
+        packet.room_x_ = position().x;
+        packet.room_y_ = position().y;
+        packet.open_ = open_;
+        network::transmit(pfrm, packet);
     }
+
     return null_scene();
 }
 

@@ -4,6 +4,7 @@
 #include "skyland/alloc_entity.hpp"
 #include "skyland/scene/replicatorSelectionScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -25,7 +26,7 @@ void Replicator::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-bool Replicator::create_replicant()
+bool Replicator::create_replicant(Platform& pfrm)
 {
     int character_count = 0;
 
@@ -65,6 +66,13 @@ bool Replicator::create_replicant()
                                                 true);
 
         if (chr) {
+            network::packet::ReplicantCreated packet;
+            packet.src_x_ = dst.x;
+            packet.src_y_ = dst.y;
+            packet.health_ = replicant_health;
+            network::transmit(pfrm, packet);
+
+
             chr->apply_damage(255 - replicant_health);
             chr->transported();
             characters().push(std::move(chr));

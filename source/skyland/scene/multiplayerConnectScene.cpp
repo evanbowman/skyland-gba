@@ -35,27 +35,7 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.fatal("multi missing opp island");
     }
 
-    auto& terrain_0 = app.player_island().terrain();
-    auto& terrain_1 = app.opponent_island()->terrain();
-
-    terrain_0.clear();
-    terrain_1.clear();
-
-    terrain_0.push_back(13);
-    terrain_1.push_back(13);
-
-    for (int i = 0; i < 5; ++i) {
-        terrain_0.push_back(12);
-        terrain_1.push_back(12);
-    }
-
-    terrain_0.push_back(14);
-    terrain_1.push_back(14);
-
-
     app.player_island().repaint(pfrm);
-
-    app.coins() = 10000;
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
     cursor_loc.x = 0;
