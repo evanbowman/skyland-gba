@@ -1634,12 +1634,12 @@ void Platform::fatal(const char* msg)
         text2.emplace(*this, OverlayCoord{1, 3});
 
         const auto msg_len = str_len(msg);
-        if (msg_len > 28) {
+        if (msg_len > 26) {
             StringBuffer<28> temp;
-            for (int i = 0; i < 24; ++i) {
+            for (int i = 0; i < 20; ++i) {
                 temp.push_back(msg[i]);
             }
-            temp += "...";
+            temp += "... (B)";
             text2->append(temp.c_str(), text_colors);
         } else {
             text2->append(msg, text_colors);

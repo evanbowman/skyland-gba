@@ -38,6 +38,8 @@ private:
         fade_out,
         scroll_right,
         scroll_left,
+        scroll_multiplayer,
+        scroll_to_center,
         wait_2,
     } state_ = State::fade_in;
 

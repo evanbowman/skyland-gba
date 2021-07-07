@@ -157,12 +157,17 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-[[maybe_unused]] static const char* menu_text[2]{"adventure", "challenge"};
+static const char* menu_text[3]{
+    "adventure",
+    "challenge",
+    "multiplayer"
+};
 
 
 
 void TitleScreenScene::put_menu_text(Platform& pfrm)
 {
+    text_.reset();
     redraw_margins(pfrm);
 
     const auto st = calc_screen_tiles(pfrm);
@@ -206,7 +211,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         view.set_center(c);
         pfrm.screen().set_view(view);
 
-        pfrm.set_scroll(Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
+        if (x_scroll_ < 0) {
+            pfrm.set_scroll(Layer::map_1_ext, x_scroll_ - 272, -offset + 8);
+        } else {
+            pfrm.set_scroll(Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
+        }
         pfrm.set_scroll(Layer::map_0_ext, x_scroll_, -offset + 8);
     }
 
@@ -242,11 +251,6 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
     update_entities(pfrm, app, delta, app.birbs());
-
-
-    if (key_down<Key::start>(pfrm)) {
-        return scene_pool::alloc<MultiplayerConnectScene>();
-    }
 
 
     switch (state_) {
@@ -304,6 +308,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // pfrm.speaker().play_sound("scroll", 1);
                 state_ = State::scroll_right;
                 timer_ = 0;
+            } else if (menu_selection_ == 2) {
+                menu_selection_ = 0;
+                put_menu_text(pfrm);
+                state_ = State::scroll_to_center;
+                timer_ = 0;
             }
         }
         if (key_down<Key::left>(pfrm) or key_down<Key::up>(pfrm)) {
@@ -313,9 +322,44 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // pfrm.speaker().play_sound("scroll", 1);
                 state_ = State::scroll_left;
                 timer_ = 0;
+            } else if (menu_selection_ == 0) {
+                menu_selection_ = 2;
+                put_menu_text(pfrm);
+                state_ = State::scroll_multiplayer;
+                pfrm.load_tile1_texture("skyland_title_2_flattened");
+                timer_ = 0;
             }
         }
         break;
+
+    case State::scroll_multiplayer: {
+        timer_ += delta;
+        static const auto duration = milliseconds(1250);
+        if (timer_ > duration) {
+            timer_ = 0;
+            state_ = State::wait;
+            x_scroll_ = -240;
+        } else {
+            const auto amount = smoothstep(0.f, duration, timer_);
+            x_scroll_ = -240 * amount;
+        }
+        break;
+    }
+
+    case State::scroll_to_center: {
+        timer_ += delta;
+        static const auto duration = milliseconds(1250);
+        if (timer_ > duration) {
+            timer_ = 0;
+            state_ = State::wait;
+            pfrm.load_tile1_texture("skyland_title_1_flattened");
+            x_scroll_ = 0;
+        } else {
+            const auto amount = -240 * (1.f - smoothstep(0.f, duration, timer_));
+            x_scroll_ = amount;
+        }
+        break;
+    }
 
     case State::scroll_right: {
         timer_ += delta;
@@ -360,6 +404,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.challenge_mode() = true;
                 return scene_pool::alloc<SelectChallengeScene>();
             }
+
+            case 2:
+                app.challenge_mode() = false;
+                return scene_pool::alloc<MultiplayerConnectScene>();
             }
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

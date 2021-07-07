@@ -27,6 +27,8 @@
 //;
 #include "data/tilesheet_top.h"
 //;
+#include "data/skyland_title_2_flattened.h"
+//;
 #include "data/skyland_title_1_flattened.h"
 //;
 #include "data/skyland_title_0_flattened.h"
@@ -96,6 +98,8 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(tilesheet_interior),
 //;
     TEXTURE_INFO(tilesheet_top),
+//;
+    TEXTURE_INFO(skyland_title_2_flattened),
 //;
     TEXTURE_INFO(skyland_title_1_flattened),
 //;

@@ -105,7 +105,9 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
 {
     recharge_ = recharge_time;
 
-    render_interior(pfrm, parent()->layer());
+    if (parent()->interior_visible()) {
+        render_interior(pfrm, parent()->layer());
+    }
 
     auto chr = characters().begin();
 
