@@ -46,10 +46,12 @@ structures, if you have not collected enough coins, or have not constructed
 enough power cores to sustain the new addition.
 
 You may also salvage and recover some value from existing rooms, by selecting
-the room with the cursor, and pressing A.
+the room with the cursor, and pressing B.
 
 You may pause the game to make adjustments at any time, by pressing the left
 bumper. Pausing frequently does affect your highscore a bit though.
+
+Press the select button to toggle the interior view of your castle.
 
 See below for a complete annotation of all structures that you may build:
 
