@@ -5,7 +5,7 @@
 
 <img src="imgs_for_readme/header.png"/>
 
-A Gameboy Advance game created, frantically, for a game jam, in about twenty five
+A Gameboy Advance game created, frantically, for a game jam, in about twenty
 days. For posterity, I will not be editing this repository after finishing the
 game jam. All future work will be completed in a fork (link forthcoming).
 
