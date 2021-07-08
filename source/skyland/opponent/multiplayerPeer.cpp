@@ -15,7 +15,8 @@ void MultiplayerPeer::update(Platform& pfrm, App& app, Microseconds delta)
     if (pfrm.network_peer().is_connected()) {
         network::poll_messages(pfrm, app, *this);
     } else {
-        app.swap_opponent<EnemyAI>();
+        pfrm.fatal("connection lost");
+        // app.swap_opponent<EnemyAI>();
         return;
     }
 
