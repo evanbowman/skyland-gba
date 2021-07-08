@@ -30,6 +30,23 @@ private:
     Microseconds selector_timer_ = 0;
     bool selector_shaded_ = false;
 
+    struct Pong {
+        struct Pad {
+            Float speed_;
+            Float pos_;
+        };
+
+        Pad pad1_ = {0.2f, 0};
+        Pad pad2_ = {0.2f, 10};
+
+        Vec2<Float> ball_ = {3, 3};
+        Vec2<Float> ball_speed_ = {0.35f, 0.35f};
+
+        void update();
+        void display(Platform&, int x_scroll);
+    } pong_;
+
+
     void window_image_hack(Platform&);
 
     enum class State {

@@ -85,7 +85,6 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 }
 
 
-
 void TitleScreenScene::window_image_hack(Platform& pfrm)
 {
     // We needed to cram the textures for the scrolling background image into
@@ -197,6 +196,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     rng::get(rng::critical_state);
 
     hover_timer_ += delta;
+
+    pong_.update();
 
     {
         const auto ambient_movement =
@@ -435,6 +436,8 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         sprite.set_priority(3);
 
         pfrm.screen().draw(sprite);
+    } else if (x_scroll_ < 0) {
+        pong_.display(pfrm, x_scroll_);
     }
     for (auto& birb : app.birbs()) {
         auto spr = birb->sprite();
@@ -532,6 +535,83 @@ static void init_clouds2(Platform& pfrm)
         put_bg_cloud_type_n(offset + 2, 2);
         put_bg_cloud_type_n(offset + 3, 3);
     }
+}
+
+
+
+void TitleScreenScene::Pong::update()
+{
+    if (ball_.x >= 23) {
+        ball_speed_.x *= -1;
+    }
+    if (ball_.y >= 20) {
+        ball_speed_.y *= -1;
+    }
+    if (ball_.y < 1) {
+        ball_speed_.y *= -1;
+    }
+    if (ball_.x < 1) {
+        ball_speed_.x *= -1;
+    }
+
+    if (pad1_.pos_ >= 19) {
+        pad1_.speed_ *= -1;
+    }
+    if (pad1_.pos_ < 0) {
+        pad1_.speed_ *= -1;
+    }
+
+    if (pad2_.pos_ >= 20) {
+        pad2_.speed_ *= -1;
+    }
+    if (pad2_.pos_ < 2) {
+        pad2_.speed_ *= -1;
+    }
+
+    ball_.x += ball_speed_.x;
+    ball_.y += ball_speed_.y;
+
+    pad1_.pos_ += pad1_.speed_;
+    pad2_.pos_ += pad2_.speed_;
+}
+
+
+
+void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
+{
+    auto view = pfrm.screen().get_view();
+    auto c = view.get_center();
+
+    const Vec2<Float> anchor = {
+        73.f,
+        (c.y - 64) + 148
+    };
+
+    Sprite sprite;
+    sprite.set_size(Sprite::Size::w16_h32);
+    sprite.set_texture_index(26);
+    sprite.set_origin({1, 2});
+    sprite.set_position({
+            (anchor.x) - (240 + x_scroll),
+            anchor.y + clamp(interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
+                             0.f, 19.f)
+        });
+    pfrm.screen().draw(sprite);
+
+    sprite.set_position({
+            (anchor.x + 24) - (240 + x_scroll),
+            anchor.y + interpolate(ball_.y, pad2_.pos_, ball_.x / 22)
+        });
+
+    pfrm.screen().draw(sprite);
+
+    sprite.set_origin({});
+    sprite.set_texture_index(27);
+    sprite.set_position({
+            (ball_.x + anchor.x) - (240 + x_scroll),
+            ball_.y + anchor.y
+        });
+    pfrm.screen().draw(sprite);
 }
 
 
