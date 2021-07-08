@@ -15,14 +15,16 @@ struct HintInfo {
 
 
 
-std::array<HintInfo, 4> hints = {
+std::array<HintInfo, 5> hints = {
     {{"hint_infirmary", "Build an infirmary to heal your crew!"},
      {"hint_goblin",
       "Use bulkhead doors to protect your power-cores against goblins!"},
      {"hint_plunder", "Raid and plunder castles for extra coins!"},
      {"hint_damaged_core",
       "If you lose a power-core, systems may shut down til you rebalance "
-      "power."}}};
+      "power."},
+     {"hint_goblin",
+      "go to https://github .com/evanbowman /skyland and read the manual!"}}};
 
 
 

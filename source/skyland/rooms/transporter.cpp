@@ -8,6 +8,7 @@
 #include "skyland/tile.hpp"
 #include "skyland/network.hpp"
 #include "skyland/skyland.hpp"
+#include "globals.hpp"
 
 
 
@@ -186,6 +187,15 @@ ScenePtr<Scene> Transporter::select(Platform& pfrm, App& app)
     if (auto new_scene = Room::select(pfrm, app)) {
         return new_scene;
     }
+
+    const auto& mt_prep_seconds =
+        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+
+
+    if (mt_prep_seconds) {
+        return null_scene();
+    }
+
 
     if (recharge_) {
         return null_scene();

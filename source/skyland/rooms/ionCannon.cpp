@@ -23,9 +23,6 @@ void IonCannon::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
-    Room::update(pfrm, app, delta);
-
-
     if (reload_ > 0) {
         reload_ -= delta;
     } else if (target_) {
@@ -87,6 +84,13 @@ void IonCannon::render_exterior(Platform& pfrm, Layer layer)
 
 ScenePtr<Scene> IonCannon::select(Platform& pfrm, App& app)
 {
+    const auto& mt_prep_seconds =
+        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+
+    if (mt_prep_seconds) {
+        return null_scene();
+    }
+
     return scene_pool::alloc<WeaponSetTargetScene>(position());
 }
 

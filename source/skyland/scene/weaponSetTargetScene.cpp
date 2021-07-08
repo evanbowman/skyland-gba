@@ -38,7 +38,10 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return new_scene;
     }
 
-    if (targets_.empty() or not app.opponent_island()) {
+    const auto& mt_prep_seconds =
+        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+
+    if (targets_.empty() or not app.opponent_island() or mt_prep_seconds not_eq 0) {
         return scene_pool::alloc<ReadyScene>();
     }
 

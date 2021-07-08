@@ -6,6 +6,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/serial.hpp"
 #include "skyland/skyland.hpp"
+#include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
 
 
@@ -293,12 +294,20 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     app.pause_count());
 
 
+                if (pfrm.network_peer().is_connected()) {
+                    pfrm.network_peer().disconnect();
+                    return scene_pool::alloc<TitleScreenScene>();
+                }
                 if (app.challenge_mode()) {
                     return scene_pool::alloc<SelectChallengeScene>();
                 } else {
                     return scene_pool::alloc<ZoneImageScene>();
                 }
             } else {
+                if (pfrm.network_peer().is_connected()) {
+                    pfrm.network_peer().disconnect();
+                    return scene_pool::alloc<TitleScreenScene>();
+                }
                 if (app.challenge_mode()) {
                     return scene_pool::alloc<SelectChallengeScene>();
                 } else {
