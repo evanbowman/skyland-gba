@@ -32,25 +32,12 @@ static int run_gc();
 static const u32 string_intern_table_size = 1999;
 
 
+
 struct Context {
     using ValuePool = ObjectPool<Value, 166>;
     using OperandStack = Buffer<CompressedPtr, 994>;
     using Globals = std::array<Variable, 249>;
     using Interns = char[string_intern_table_size];
-    u16 arguments_break_loc_;
-
-    Value* nil_ = nullptr;
-    Value* oom_ = nullptr;
-    Value* string_buffer_ = nullptr;
-
-    int string_intern_pos_ = 0;
-
-    int eval_depth_ = 0;
-
-    int interp_entry_count_ = 0;
-
-    const IntegralConstant* constants_ = nullptr;
-    u16 constants_count_ = 0;
 
     Context(Platform& pfrm)
         : value_pools_{allocate_dynamic<ValuePool>(pfrm),
@@ -91,22 +78,21 @@ struct Context {
     DynamicMemory<Globals> globals_;
     DynamicMemory<Interns> interns_;
 
+    u16 arguments_break_loc_;
+
+    Value* nil_ = nullptr;
+    Value* oom_ = nullptr;
+    Value* string_buffer_ = nullptr;
+
+    int string_intern_pos_ = 0;
+    int eval_depth_ = 0;
+    int interp_entry_count_ = 0;
+
     Platform& pfrm_;
 };
 
 
 static std::optional<Context> bound_context;
-
-
-void set_constants(const IntegralConstant* constants, u16 count)
-{
-    if (not bound_context) {
-        return;
-    }
-
-    bound_context->constants_ = constants;
-    bound_context->constants_count_ = count;
-}
 
 
 u16 symbol_offset(const char* symbol)
@@ -144,10 +130,6 @@ void get_interns(::Function<24, void(const char*)> callback)
         }
         ++i;
     }
-
-    for (u16 i = 0; i < bound_context->constants_count_; ++i) {
-        callback((const char*)bound_context->constants_[i].name_);
-    }
 }
 
 
@@ -159,10 +141,6 @@ void get_env(::Function<24, void(const char*)> callback)
         if (str_cmp("", (*ctx->globals_)[i].name_)) {
             callback((const char*)(*ctx->globals_)[i].name_);
         }
-    }
-
-    for (u16 i = 0; i < bound_context->constants_count_; ++i) {
-        callback((const char*)bound_context->constants_[i].name_);
     }
 }
 
@@ -699,13 +677,6 @@ Value* get_var(const char* name)
         if (str_cmp(name, globals[i].name_) == 0) {
             std::swap(globals[i], globals[0]);
             return globals[0].value_;
-        }
-    }
-
-    for (u16 i = 0; i < bound_context->constants_count_; ++i) {
-        const auto& k = bound_context->constants_[i];
-        if (str_cmp(k.name_, name) == 0) {
-            return lisp::make_integer(k.value_);
         }
     }
 
@@ -1417,6 +1388,94 @@ u32 read(const char* code)
 }
 
 
+static void eval_let(Value* code)
+{
+    if (code->type_ not_eq Value::Type::cons) {
+        push_op(lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
+        return;
+    }
+
+    // TODO: we can simply put the let cache on the operand stack... right? Just
+    // need to tiptoe around the arguments break location.
+
+    struct LetCache {
+        const char* name_;
+        Protected old_value_;
+    };
+
+    Buffer<LetCache, 6> cached_vars;
+
+    Value* bindings = code->cons_.car();
+
+    if ((u32)length(bindings) > cached_vars.capacity()) {
+        push_op(lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
+        return;
+    }
+
+    Value* err = nullptr;
+
+    foreach(bindings, [&](Value* val) {
+        if (err) {
+            return;
+        }
+        if (val->type_ == Value::Type::cons) {
+            auto sym = val->cons_.car();
+            auto bind = val->cons_.cdr();
+            if (sym->type_ == Value::Type::symbol and
+                bind->type_ == Value::Type::cons) {
+                auto prev = get_var(sym->symbol_.name_);
+
+                cached_vars.push_back({
+                        sym->symbol_.name_,
+                        prev
+                    });
+
+                eval(bind->cons_.car());
+
+                set_var(sym->symbol_.name_, get_op(0));
+                pop_op();
+
+            } else {
+                err = lisp::make_error(Error::Code::mismatched_parentheses, L_NIL);
+            }
+        } else {
+            err = lisp::make_error(Error::Code::mismatched_parentheses, L_NIL);
+        }
+    });
+
+    if (err) {
+        push_op(err);
+        return;
+    }
+
+
+    Protected result(get_nil());
+
+    foreach(code->cons_.cdr(), [&](Value* val) {
+            eval(val);
+            result.set(get_op(0));
+            pop_op();
+        });
+
+
+    for (auto& binding : cached_vars) {
+        if (((Value*)binding.old_value_)->type_ not_eq Value::Type::error) {
+            set_var(binding.name_, binding.old_value_);
+        } else {
+            for (auto& var : *bound_context->globals_) {
+                if (str_cmp(binding.name_, var.name_) == 0) {
+                    var.value_ = get_nil();
+                    var.name_ = "";
+                    break;
+                }
+            }
+        }
+    }
+
+    push_op(result);
+}
+
+
 static void eval_if(Value* code)
 {
     if (code->type_ not_eq Value::Type::cons) {
@@ -1528,6 +1587,14 @@ void eval(Value* code)
             } else if (str_cmp(form->symbol_.name_, "'") == 0) {
                 pop_op(); // code
                 push_op(code->cons_.cdr());
+                --bound_context->interp_entry_count_;
+                return;
+            } else if (str_cmp(form->symbol_.name_, "let") == 0) {
+                eval_let(code->cons_.cdr());
+                auto result = get_op(0);
+                pop_op();
+                pop_op();
+                push_op(result);
                 --bound_context->interp_entry_count_;
                 return;
             }
