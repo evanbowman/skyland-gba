@@ -145,7 +145,7 @@ until you build more power cores.
 <img src="imgs_for_readme/forcefield.png"/>
 
 Almost identical to a Hull block, but consumes power, and your own weapons may
-shoot through forcefield blocks without damageing them. Mainly intended for
+shoot through forcefield blocks without damaging them. Mainly intended for
 protecting weapons (otherwise, you could just build Hull blocks). You must have
 a workshop to build a Forcefield.
 
