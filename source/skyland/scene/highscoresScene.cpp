@@ -56,10 +56,10 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     // Score calculation
     int score = 0;
-    score = (score_per_level * levels_per_zone * app.persistent_data().zone_ - 1) +
+    score = (score_per_level * levels_per_zone * (app.persistent_data().zone_ - 1)) +
         app.persistent_data().coins_ * 10 +
         app.persistent_data().current_map_location_.x * score_per_level +
-        app.persistent_data().zone_ * 2000;
+        (app.persistent_data().zone_ - 1) * 2000;
 
     score -= app.persistent_data().total_seconds_.get() / 4;
     score -= 15 * app.persistent_data().total_pauses_.get();
