@@ -51,14 +51,17 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
     };
 
 
+    static const Float score_per_level = 800;
+    static const int levels_per_zone = 7;
+
     // Score calculation
     int score = 0;
-    score = 1000 + app.persistent_data().coins_ +
-        (app.persistent_data().zone_ - 1) * 12000 +
-            (app.persistent_data().current_map_location_.x + 1) * 800 +
-            app.persistent_data().zone_ * app.persistent_data().zone_ * 1000;
+    score = (score_per_level * levels_per_zone * app.persistent_data().zone_ - 1) +
+        app.persistent_data().coins_ * 10 +
+        app.persistent_data().current_map_location_.x * score_per_level +
+        app.persistent_data().zone_ * 2000;
 
-    score -= 2 * app.persistent_data().total_seconds_.get() / 2;
+    score -= app.persistent_data().total_seconds_.get() / 4;
     score -= 15 * app.persistent_data().total_pauses_.get();
 
     if (score < 0) {
