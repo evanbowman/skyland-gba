@@ -338,13 +338,30 @@ Value* get_arg(u16 arg);
 void funcall(Value* fn, u8 argc);
 
 
-Value* set_var(const char* name, Value* value);
-Value* get_var(const char* name);
+Value* set_var(Symbol& sym, Value* value);
+Value* get_var(Symbol& sym);
 
 
-template <typename T> T& loadv(const char* name)
+// Provided for convenience.
+inline Value* set_var(const char* name, Value* value)
 {
-    return get_var(name)->expect<T>();
+    auto var_sym = make_symbol(name);
+    if (var_sym->type_ not_eq Value::Type::symbol) {
+        return var_sym;
+    }
+
+    return set_var(var_sym->symbol_, value);
+}
+
+
+inline Value* get_var(const char* name)
+{
+    auto var_sym = make_symbol(name);
+    if (var_sym->type_ not_eq Value::Type::symbol) {
+        return var_sym;
+    }
+
+    return get_var(var_sym->symbol_);
 }
 
 

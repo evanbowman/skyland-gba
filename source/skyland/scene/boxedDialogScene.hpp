@@ -62,6 +62,7 @@ private:
 
     std::optional<Text> yes_text_;
     std::optional<Text> no_text_;
+    std::optional<UIMetric> coins_;
     bool choice_sel_ = true;
 };
 

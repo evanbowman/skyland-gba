@@ -4,6 +4,7 @@
 #include "readyScene.hpp"
 #include "scriptHookScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -186,6 +187,7 @@ void BoxedDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
     pfrm.fill_overlay(0);
 
     pfrm.load_overlay_texture("overlay");
+    coins_.reset();
 }
 
 
@@ -193,6 +195,9 @@ void BoxedDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
 ScenePtr<Scene>
 BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (coins_) {
+        coins_->update(pfrm, delta);
+    }
 
     auto animate_moretext_icon = [&] {
         static const auto duration = milliseconds(500);
@@ -295,6 +300,12 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (8 + y_start), 89);
             pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (7 + y_start), 89);
             pfrm.set_tile(Layer::overlay, st.x - 8, st.y - (6 + y_start), 90);
+
+            coins_.emplace(pfrm,
+                           OverlayCoord{1, 2},
+                           146,
+                           (int)app.coins(),
+                           UIMetric::Align::left);
 
             yes_text_.emplace(
                 pfrm,

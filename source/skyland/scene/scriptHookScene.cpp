@@ -19,7 +19,13 @@ ScriptHookScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void invoke_hook(Platform& pfrm, const char* lisp_hook_name)
 {
-    auto fn = lisp::get_var(lisp_hook_name);
+    auto var_name_sym = lisp::make_symbol(lisp_hook_name);
+
+    auto fn = lisp::get_nil();
+
+    if (var_name_sym->type_ == lisp::Value::Type::symbol) {
+        fn = lisp::get_var(var_name_sym->symbol_);
+    }
 
     if (fn->type_ == lisp::Value::Type::function) {
         lisp::funcall(fn, 0);

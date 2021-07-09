@@ -647,11 +647,13 @@ void funcall(Value* obj, u8 argc)
 }
 
 
-Value* set_var(const char* name, Value* value)
+// These functions aren't _that_ fast. But they replace older functions which
+// did a string compare, rather than using the intern'd string pointer.
+Value* __set_var_fast(const char* name, Value* value)
 {
     auto& globals = *bound_context->globals_;
     for (u32 i = 0; i < globals.size(); ++i) {
-        if (str_cmp(name, globals[i].name_) == 0) {
+        if (name == globals[i].name_) {
             std::swap(globals[i], globals[0]);
             globals[0].value_ = value;
             return get_nil();
@@ -670,11 +672,11 @@ Value* set_var(const char* name, Value* value)
 }
 
 
-Value* get_var(const char* name)
+Value* __get_var_fast(const char* name)
 {
     auto& globals = *bound_context->globals_;
     for (u32 i = 0; i < globals.size(); ++i) {
-        if (str_cmp(name, globals[i].name_) == 0) {
+        if (name == globals[i].name_) {
             std::swap(globals[i], globals[0]);
             return globals[0].value_;
         }
@@ -686,6 +688,18 @@ Value* get_var(const char* name)
 
     return make_error(Error::Code::undefined_variable_access,
                       make_string(bound_context->pfrm_, hint.c_str()));
+}
+
+
+Value* get_var(Symbol& symbol)
+{
+    return __get_var_fast(symbol.name_);
+}
+
+
+Value* set_var(Symbol& symbol, Value* val)
+{
+    return __set_var_fast(symbol.name_, val);
 }
 
 
@@ -1416,14 +1430,14 @@ static void eval_let(Value* code)
             auto bind = val->cons_.cdr();
             if (sym->type_ == Value::Type::symbol and
                 bind->type_ == Value::Type::cons) {
-                auto prev = get_var(sym->symbol_.name_);
+                auto prev = get_var(sym->symbol_);
 
                 push_op(prev);
                 ++stashed_vars;
 
                 eval(bind->cons_.car());
 
-                set_var(sym->symbol_.name_, get_op(0));
+                set_var(sym->symbol_, get_op(0));
                 pop_op();
 
             } else {
@@ -1459,7 +1473,7 @@ static void eval_let(Value* code)
         auto sym = val->cons_.car();
 
         if (value->type_ not_eq Value::Type::error) {
-            set_var(sym->symbol_.name_, value);
+            set_var(sym->symbol_, value);
         } else {
             for (auto& var : *bound_context->globals_) {
                  if (str_cmp(sym->symbol_.name_, var.name_) == 0) {
@@ -1557,7 +1571,7 @@ void eval(Value* code)
 
     if (code->type_ == Value::Type::symbol) {
         pop_op();
-        push_op(get_var(code->symbol_.name_));
+        push_op(get_var(code->symbol_));
     } else if (code->type_ == Value::Type::cons) {
         auto form = code->cons_.car();
         if (form->type_ == Value::Type::symbol) {
@@ -1648,13 +1662,9 @@ void eval(Value* code)
 }
 
 
-static Platform* interp_get_pfrm()
+Platform* interp_get_pfrm()
 {
-    auto pfrm = lisp::get_var("*pfrm*");
-    if (pfrm->type_ not_eq lisp::Value::Type::user_data) {
-        return nullptr;
-    }
-    return (Platform*)pfrm->user_data_.obj_;
+    return &bound_context->pfrm_;
 }
 
 
@@ -1699,8 +1709,7 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 2);
                 L_EXPECT_OP(1, symbol);
 
-                const char* name = get_op(1)->symbol_.name_;
-                lisp::set_var(name, get_op(0));
+                lisp::set_var(get_op(1)->symbol_, get_op(0));
 
                 return L_NIL;
             }));
@@ -2322,10 +2331,7 @@ void init(Platform& pfrm)
             }));
 
     set_var("env", make_function([](int argc) {
-                auto pfrm = lisp::get_var("*pfrm*");
-                if (pfrm->type_ not_eq lisp::Value::Type::user_data) {
-                    return get_nil();
-                }
+                auto pfrm = interp_get_pfrm();
 
                 Value* result = make_cons(get_nil(), get_nil());
                 push_op(result); // protect from the gc
@@ -2347,17 +2353,14 @@ void init(Platform& pfrm)
             }));
 
     set_var("compile", make_function([](int argc) {
-                auto pfrm = lisp::get_var("*pfrm*");
-                if (pfrm->type_ not_eq lisp::Value::Type::user_data) {
-                    return get_nil();
-                }
+                auto pfrm = interp_get_pfrm();
 
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, function);
 
                 if (get_op(0)->mode_bits_ ==
                     Function::ModeBits::lisp_function) {
-                    compile(*(Platform*)pfrm->user_data_.obj_,
+                    compile(*pfrm,
                             dcompr(get_op(0)->function_.lisp_impl_));
                     auto ret = get_op(0);
                     pop_op();
@@ -2560,13 +2563,8 @@ void init(Platform& pfrm)
                     case Ret::op(): {
                         if (depth == 0) {
                             out += "RET\r\n";
-                            auto pfrm = lisp::get_var("*pfrm*");
-                            if (pfrm->type_ not_eq
-                                lisp::Value::Type::user_data) {
-                                return get_nil();
-                            }
-                            ((Platform*)pfrm->user_data_.obj_)
-                                ->remote_console()
+                            auto pfrm = interp_get_pfrm();
+                            pfrm->remote_console()
                                 .printline(out.c_str(), false);
                             ((Platform*)pfrm)->sleep(80);
                             return get_nil();
@@ -2579,10 +2577,10 @@ void init(Platform& pfrm)
                     }
 
                     default:
-                        ((Platform*)lisp::get_var("*pfrm*")->user_data_.obj_)
+                        interp_get_pfrm()
                             ->remote_console()
                             .printline(out.c_str(), false);
-                        ((Platform*)lisp::get_var("*pfrm*")->user_data_.obj_)
+                        interp_get_pfrm()
                             ->sleep(80);
                         return get_nil();
                     }

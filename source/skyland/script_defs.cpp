@@ -11,41 +11,28 @@
 
 
 
-namespace skyland {
-
-
-
-// Given a variable name of this format, lisp user code will never be able to
-// access the variable, which is by design.
-const char* app_binding_name = "'(app)";
-
-
-
-static App* interp_get_app()
-{
-    auto app = lisp::get_var(app_binding_name);
-    if (app->type_ not_eq lisp::Value::Type::user_data) {
-        return nullptr;
-    }
-    return (App*)app->user_data_.obj_;
+namespace lisp {
+    Platform* interp_get_pfrm();
 }
 
 
 
-static Platform* interp_get_pfrm()
+namespace skyland {
+
+
+App* __app = nullptr;
+
+
+static App* interp_get_app()
 {
-    auto pfrm = lisp::get_var("*pfrm*");
-    if (pfrm->type_ not_eq lisp::Value::Type::user_data) {
-        return nullptr;
-    }
-    return (Platform*)pfrm->user_data_.obj_;
+    return __app;
 }
 
 
 
 std::pair<App*, Platform*> interp_get_context()
 {
-    return {interp_get_app(), interp_get_pfrm()};
+    return {interp_get_app(), lisp::interp_get_pfrm()};
 }
 
 
@@ -55,14 +42,14 @@ void App::init_scripts(Platform& pfrm)
     lisp::init(pfrm);
 
 
-    lisp::set_var(app_binding_name, lisp::make_userdata(this));
+    __app = this;
 
 
     lisp::set_var("print", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, string);
 
-                      if (auto pfrm = interp_get_pfrm()) {
+                      if (auto pfrm = lisp::interp_get_pfrm()) {
                           debug(*pfrm, lisp::get_op(0)->string_.value());
                       }
 
@@ -97,7 +84,7 @@ void App::init_scripts(Platform& pfrm)
     lisp::set_var(
         "dialog", lisp::make_function([](int argc) {
             auto app = interp_get_app();
-            auto pfrm = interp_get_pfrm();
+            auto pfrm = lisp::interp_get_pfrm();
 
             for (int i = argc - 1; i > -1; --i) {
                 if (not app->dialog_buffer()) {
@@ -125,7 +112,7 @@ void App::init_scripts(Platform& pfrm)
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, user_data);
 
-                      auto pfrm = interp_get_pfrm();
+                      auto pfrm = lisp::interp_get_pfrm();
 
                       auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
                       auto result = serialize(*pfrm, *island);
@@ -259,7 +246,7 @@ void App::init_scripts(Platform& pfrm)
                 L_EXPECT_OP(1, user_data);
 
                 auto island = (Island*)lisp::get_op(1)->user_data_.obj_;
-                island->init_terrain(*interp_get_pfrm(),
+                island->init_terrain(*lisp::interp_get_pfrm(),
                                      lisp::get_op(0)->integer_.value_);
 
             } else if (argc == 1) {
@@ -440,7 +427,7 @@ void App::init_scripts(Platform& pfrm)
             L_EXPECT_ARGC(argc, 1);
             L_EXPECT_OP(0, string);
 
-            if (auto pfrm = interp_get_pfrm()) {
+            if (auto pfrm = lisp::interp_get_pfrm()) {
                 auto str = lisp::get_op(0)->string_.value();
                 if (auto contents = pfrm->load_file_contents("scripts", str)) {
                     lisp::dostring(contents, [pfrm](lisp::Value& err) {

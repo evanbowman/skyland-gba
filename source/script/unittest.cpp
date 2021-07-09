@@ -18,7 +18,7 @@ static lisp::Value* function_test()
             }));
 
     push_op(make_integer(48));
-    funcall(get_var("double"), 1);
+    funcall(get_var(make_symbol("double")->symbol_), 1);
 
     L_EXPECT_OP(0, integer);
 
@@ -47,7 +47,7 @@ static lisp::Value* arithmetic_test()
 
     push_op(make_integer(48));
     push_op(make_integer(96));
-    funcall(get_var("-"), 2);
+    funcall(get_var(make_symbol("-")->symbol_), 2);
 
     L_EXPECT_OP(0, integer);
 
