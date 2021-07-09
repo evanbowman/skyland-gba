@@ -327,25 +327,6 @@ void pop_op();
 Value* get_arg(u16 arg);
 
 
-template <typename F> void foreach (Value* list, F && fn)
-{
-    push_op(list);
-
-    while (true) {
-
-        if (list->type_ not_eq Value::Type::cons) {
-            break;
-        } else {
-            fn(list->cons_.car());
-        }
-
-        list = list->cons_.cdr();
-    }
-
-    pop_op();
-}
-
-
 // Arguments should be pushed onto the operand stack prior to the function
 // call. The interpreter will consume the arguments, leaving the result on top
 // of the operand stack. i.e., use get_op(0) to read the result. Remember to
@@ -464,6 +445,23 @@ protected:
     Protected* prev_;
     Protected* next_;
 };
+
+
+template <typename F> void foreach (Value* list, F && fn)
+{
+    Protected p(list);
+
+    while (true) {
+
+        if (list->type_ not_eq Value::Type::cons) {
+            break;
+        } else {
+            fn(list->cons_.car());
+        }
+
+        list = list->cons_.cdr();
+    }
+}
 
 
 } // namespace lisp

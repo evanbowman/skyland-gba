@@ -1390,32 +1390,25 @@ u32 read(const char* code)
 
 static void eval_let(Value* code)
 {
+    // Overview:
+    // Push the previous values of all of the let binding vars onto the stack.
+    // Overwrite the current contents of the global vars. Pop the previous
+    // contents off of the operand stack, and re-assign the var to the stashed
+    // value.
+
     if (code->type_ not_eq Value::Type::cons) {
         push_op(lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
         return;
     }
 
-    // TODO: we can simply put the let cache on the operand stack... right? Just
-    // need to tiptoe around the arguments break location.
-
-    struct LetCache {
-        const char* name_;
-        Protected old_value_;
-    };
-
-    Buffer<LetCache, 6> cached_vars;
-
     Value* bindings = code->cons_.car();
 
-    if ((u32)length(bindings) > cached_vars.capacity()) {
-        push_op(lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
-        return;
-    }
+    Protected result(get_nil());
 
-    Value* err = nullptr;
+    int stashed_vars = 0;
 
     foreach(bindings, [&](Value* val) {
-        if (err) {
+        if (result not_eq get_nil()) {
             return;
         }
         if (val->type_ == Value::Type::cons) {
@@ -1425,10 +1418,8 @@ static void eval_let(Value* code)
                 bind->type_ == Value::Type::cons) {
                 auto prev = get_var(sym->symbol_.name_);
 
-                cached_vars.push_back({
-                        sym->symbol_.name_,
-                        prev
-                    });
+                push_op(prev);
+                ++stashed_vars;
 
                 eval(bind->cons_.car());
 
@@ -1436,20 +1427,24 @@ static void eval_let(Value* code)
                 pop_op();
 
             } else {
-                err = lisp::make_error(Error::Code::mismatched_parentheses, L_NIL);
+                result = lisp::make_error(Error::Code::mismatched_parentheses, L_NIL);
             }
         } else {
-            err = lisp::make_error(Error::Code::mismatched_parentheses, L_NIL);
+            result = lisp::make_error(Error::Code::mismatched_parentheses, L_NIL);
         }
     });
 
-    if (err) {
-        push_op(err);
+    auto clear_stash = [&] {
+        for (int i = 0; i < stashed_vars; ++i) {
+            pop_op();
+        }
+    };
+
+    if (result not_eq get_nil()) {
+        clear_stash();
+        push_op(result);
         return;
     }
-
-
-    Protected result(get_nil());
 
     foreach(code->cons_.cdr(), [&](Value* val) {
             eval(val);
@@ -1457,21 +1452,27 @@ static void eval_let(Value* code)
             pop_op();
         });
 
+    int i = 0;
+    foreach(bindings, [&i, stashed_vars](Value* val) {
+        auto value = get_op((stashed_vars - 1) - i);
 
-    for (auto& binding : cached_vars) {
-        if (((Value*)binding.old_value_)->type_ not_eq Value::Type::error) {
-            set_var(binding.name_, binding.old_value_);
+        auto sym = val->cons_.car();
+
+        if (value->type_ not_eq Value::Type::error) {
+            set_var(sym->symbol_.name_, value);
         } else {
             for (auto& var : *bound_context->globals_) {
-                if (str_cmp(binding.name_, var.name_) == 0) {
-                    var.value_ = get_nil();
-                    var.name_ = "";
-                    break;
-                }
-            }
+                 if (str_cmp(sym->symbol_.name_, var.name_) == 0) {
+                     var.value_ = get_nil();
+                     var.name_ = "";
+                     break;
+                 }
+             }
         }
-    }
+        ++i;
+    });
 
+    clear_stash();
     push_op(result);
 }
 
