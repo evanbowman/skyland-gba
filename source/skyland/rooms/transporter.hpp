@@ -66,6 +66,18 @@ public:
     }
 
 
+    static Icon icon()
+    {
+        return 904;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 888;
+    }
+
+
     static const Microseconds recharge_time = seconds(18);
 
 

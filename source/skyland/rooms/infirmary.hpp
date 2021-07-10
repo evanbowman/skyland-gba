@@ -45,6 +45,18 @@ public:
     }
 
 
+    static Icon icon()
+    {
+        return 680;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 664;
+    }
+
+
 private:
     Microseconds heal_timer_ = 0;
 };

@@ -37,6 +37,10 @@ static Coins get_cost(App& app, const RoomMeta& meta)
 
 
 
+static bool show_construction_icons = true;
+
+
+
 ScenePtr<Scene>
 ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -100,7 +104,24 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             break;
         }
 
+        if (key_down<Key::start>(pfrm)) {
+            show_construction_icons = not show_construction_icons;
+            show_current_building_text(pfrm, app);
+        }
+
+        if (key_down<Key::down>(pfrm)) {
+            building_selector_ += 5;
+            building_selector_ %= available_buildings_.size();
+            show_current_building_text(pfrm, app);
+        }
+
         if (key_down<Key::up>(pfrm)) {
+            building_selector_ -= 5;
+            building_selector_ %= available_buildings_.size();
+            show_current_building_text(pfrm, app);
+        }
+
+        if (key_down<Key::right>(pfrm)) {
             if (building_selector_ < (int)available_buildings_.size() - 1) {
                 ++building_selector_;
                 show_current_building_text(pfrm, app);
@@ -110,7 +131,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (key_down<Key::down>(pfrm)) {
+        if (key_down<Key::left>(pfrm)) {
             if (building_selector_ > 0) {
                 --building_selector_;
                 show_current_building_text(pfrm, app);
@@ -210,7 +231,6 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 }
 
 
-
 void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 {
     StringBuffer<32> str = ":build :";
@@ -226,6 +246,123 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
     str += "`";
 
     msg(pfrm, str.c_str());
+
+
+    auto st = calc_screen_tiles(pfrm);
+
+    if (not show_construction_icons) {
+        return;
+    }
+
+    for (int i = st.x - 25; i < st.x - 5; ++i) {
+        pfrm.set_tile(Layer::overlay, i, st.y - 6, 425);
+    }
+
+    for (int y = st.y - 5; y < st.y - 2; ++y) {
+        pfrm.set_tile(Layer::overlay, st.x - 26, y, 128);
+        pfrm.set_tile(Layer::overlay, st.x - 5, y, 433);
+    }
+
+    pfrm.set_tile(Layer::overlay, st.x - 26, st.y - 2, 419);
+    pfrm.set_tile(Layer::overlay, st.x - 5, st.y - 2, 418);
+
+    {
+        int index = building_selector_;
+        if (index - 2 < -1) {
+            index = available_buildings_.size() - 2;
+        } else if (index - 2 < 0) {
+            index = available_buildings_.size() - 1;
+        } else {
+            index = index - 2;
+        }
+
+        auto icon = (*available_buildings_[index])->unsel_icon();
+        draw_image(pfrm,
+                   258,
+                   st.x - 25,
+                   st.y - 5,
+                   4,
+                   4,
+                   Layer::overlay);
+
+        pfrm.load_overlay_chunk(258, icon, 16);
+    }
+
+    {
+        int index = building_selector_;
+        if (index - 1 < 0) {
+            index = available_buildings_.size() - 1;
+        } else {
+            index = index - 1;
+        }
+
+        auto icon = (*available_buildings_[index])->unsel_icon();
+        draw_image(pfrm,
+                   181,
+                   st.x - 21,
+                   st.y - 5,
+                   4,
+                   4,
+                   Layer::overlay);
+
+        pfrm.load_overlay_chunk(181, icon, 16);
+    }
+
+    {
+        auto icon = (*available_buildings_[building_selector_])->icon();
+        draw_image(pfrm,
+                   197,
+                   st.x - 17,
+                   st.y - 5,
+                   4,
+                   4,
+                   Layer::overlay);
+
+        pfrm.load_overlay_chunk(197, icon, 16);
+    }
+
+    {
+        int index = building_selector_;
+        if (index + 1 >= (int)available_buildings_.size()) {
+            index = 0;
+        } else {
+            index = index + 1;
+        }
+
+        auto icon = (*available_buildings_[index])->unsel_icon();
+        draw_image(pfrm,
+                   213,
+                   st.x - 13,
+                   st.y - 5,
+                   4,
+                   4,
+                   Layer::overlay);
+
+        pfrm.load_overlay_chunk(213, icon, 16);
+    }
+
+    {
+        int index = building_selector_;
+        if (index + 1 >= (int)available_buildings_.size()) {
+            index = 1;
+        } else if (index + 2 >= (int)available_buildings_.size()) {
+            index = 0;
+        } else {
+            index = index + 2;
+        }
+
+        auto icon = (*available_buildings_[index])->unsel_icon();
+        draw_image(pfrm,
+                   274,
+                   st.x - 9,
+                   st.y - 5,
+                   4,
+                   4,
+                   Layer::overlay);
+
+        pfrm.load_overlay_chunk(274, icon, 16);
+    }
+
 }
 
 
@@ -348,6 +485,10 @@ void ConstructionScene::msg(Platform& pfrm, const char* text)
 
     for (int i = 0; i < st.x; ++i) {
         pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
+        pfrm.set_tile(Layer::overlay, i, st.y - 3, 0);
+        pfrm.set_tile(Layer::overlay, i, st.y - 4, 0);
+        pfrm.set_tile(Layer::overlay, i, st.y - 5, 0);
+        pfrm.set_tile(Layer::overlay, i, st.y - 6, 0);
     }
 }
 

@@ -980,6 +980,21 @@ void Platform::push_task(Task* task)
 }
 
 
+
+void Platform::load_overlay_chunk(TileDesc dst, TileDesc src, u16 count)
+{
+    const u8* image_data = (const u8*)current_overlay_texture->tile_data_;
+    u8* overlay_vram_base_addr = (u8*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0];
+
+    const auto chunk_size = vram_tile_size() * count;
+
+    memcpy32(overlay_vram_base_addr + vram_tile_size() * dst,
+             image_data + vram_tile_size() * src,
+             chunk_size / 4); // memcpy32 copy amount is in units of words.
+}
+
+
+
 static void map_dynamic_textures()
 {
     for (int i = 0; i < Platform::dynamic_texture_count; ++i) {
@@ -1372,6 +1387,7 @@ static bool validate_tilemap_texture_size(Platform& pfrm, size_t size)
 }
 
 
+[[maybe_unused]]
 static bool validate_overlay_texture_size(Platform& pfrm, size_t size)
 {
     constexpr auto charblock_size = sizeof(ScreenBlock) * 8;
@@ -3396,16 +3412,22 @@ bool Platform::load_overlay_texture(const char* name)
                 }
             }
 
-            if (validate_overlay_texture_size(*this, info.tile_data_length_)) {
-                memcpy16((void*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0],
-                         info.tile_data_,
-                         info.tile_data_length_ / 2);
-            } else {
-                StringBuffer<32> err("texture ");
-                err += name;
-                err += "too big";
-                fatal(err.c_str());
-            }
+            constexpr auto charblock_size = sizeof(ScreenBlock) * 8;
+
+            memcpy16((void*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0],
+                     info.tile_data_,
+                     std::min((size_t)info.tile_data_length_ / 2, charblock_size / 2));
+
+
+
+            // if (validate_overlay_texture_size(*this, info.tile_data_length_)) {
+
+            // } else {
+            //     StringBuffer<32> err("texture ");
+            //     err += name;
+            //     err += "too big";
+            //     fatal(err.c_str());
+            // }
 
             if (get_gflag(GlobalFlag::glyph_mode)) {
                 for (auto& gm : ::glyph_table->obj_->mappings_) {

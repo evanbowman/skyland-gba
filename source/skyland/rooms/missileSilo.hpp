@@ -70,6 +70,18 @@ public:
     }
 
 
+    static Icon icon()
+    {
+        return 584;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 568;
+    }
+
+
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 

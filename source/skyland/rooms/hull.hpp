@@ -68,6 +68,18 @@ public:
     {
         return 0;
     }
+
+
+    static Icon icon()
+    {
+        return 520;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 504;
+    }
 };
 
 

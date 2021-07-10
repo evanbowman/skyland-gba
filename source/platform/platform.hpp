@@ -138,6 +138,12 @@ public:
                        const TextureMapping& mapping);
 
 
+    // Copy a chunk of the overlay texture into another chunk of the
+    // texture. Allows you to create textures larger than will fit in vram, and
+    // swap in sections.
+    void load_overlay_chunk(TileDesc dst, TileDesc src, u16 count);
+
+
     static constexpr const int dynamic_texture_count = 6;
 
     // While spritesheets are generally fixed, the platform provides a number of

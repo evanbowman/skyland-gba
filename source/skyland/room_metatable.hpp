@@ -24,6 +24,8 @@ struct RoomMeta {
         virtual Float ai_base_weight() const = 0;
         virtual Power consumes_power() const = 0;
         virtual Conditions::Value conditions() const = 0;
+        virtual Room::Icon icon() const = 0;
+        virtual Room::Icon unsel_icon() const = 0;
     };
 
     template <typename T> struct BoxImpl : public Box {
@@ -37,6 +39,16 @@ struct RoomMeta {
         const char* name() const override
         {
             return T::name();
+        }
+
+        Room::Icon icon() const override
+        {
+            return T::icon();
+        }
+
+        Room::Icon unsel_icon() const override
+        {
+            return T::unsel_icon();
         }
 
         virtual Vec2<u8> size() const override

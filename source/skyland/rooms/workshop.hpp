@@ -33,6 +33,18 @@ public:
     }
 
 
+    static Icon icon()
+    {
+        return 776;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 760;
+    }
+
+
     static Float ai_base_weight()
     {
         return 700.f;

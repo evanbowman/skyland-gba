@@ -63,6 +63,18 @@ public:
     }
 
 
+    static Icon icon()
+    {
+        return 648;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 632;
+    }
+
+
     void set_open(Platform& pfrm, bool open);
 
 

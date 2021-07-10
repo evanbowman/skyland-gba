@@ -52,6 +52,18 @@ public:
     }
 
 
+    static Icon icon()
+    {
+        return 808;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 792;
+    }
+
+
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 

@@ -91,6 +91,18 @@ public:
     }
 
 
+    static Icon icon()
+    {
+        return 840;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 824;
+    }
+
+
 private:
     static constexpr const Microseconds reload_time = milliseconds(3500);
 

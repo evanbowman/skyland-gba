@@ -78,6 +78,18 @@ public:
     }
 
 
+    static Icon icon()
+    {
+        return 712;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 696;
+    }
+
+
     static Conditions::Value conditions()
     {
         return Conditions::workshop_required;

@@ -45,6 +45,10 @@ public:
     }
 
 
+    using Icon = u16;
+
+
+
     Room(Island* parent,
          const char* name,
          const Vec2<u8>& size,
@@ -172,6 +176,18 @@ public:
     static Conditions::Value conditions()
     {
         return Conditions::none;
+    }
+
+
+    static Icon icon()
+    {
+        return 450;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 450;
     }
 
 
