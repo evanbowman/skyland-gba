@@ -807,6 +807,13 @@ void format_impl(Value* value, Printer& p, int depth)
 
         break;
 
+    case lisp::Value::Type::__reserved:
+        break;
+
+    case lisp::Value::Type::character:
+        // TODO...
+        break;
+
     case lisp::Value::Type::string:
         p.put_str("\"");
         p.put_str(value->string_.value());
@@ -1028,6 +1035,8 @@ static void invoke_finalizer(Value* value)
         UserData::finalizer,
         DataBuffer::finalizer,
         String::finalizer,
+        Character::finalizer,
+        __Reserved::finalizer,
     };
 
     table[value->type_].fn_(value);

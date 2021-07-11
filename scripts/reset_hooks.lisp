@@ -22,5 +22,4 @@
     (set 'friendlies-seen '()))
 
 
-(if (not (bound 'quest-log))
-    (set 'quest-log '()))
+(gc)

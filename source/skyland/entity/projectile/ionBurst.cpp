@@ -3,7 +3,7 @@
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/room.hpp"
 #include "skyland/room_metatable.hpp"
-#include "skyland/rooms/forcefield.hpp"
+#include "skyland/rooms/bulkhead.hpp"
 
 
 
@@ -49,7 +49,7 @@ void IonBurst::update(Platform&, App&, Microseconds delta)
     }
 
 
-    if (timer_ > seconds(4)) {
+    if (timer_ > seconds(3)) {
         kill();
     }
 }
@@ -60,6 +60,14 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
 {
     if (source_ == room.parent() and room.metaclass() == ion_cannon_mt) {
         return;
+    }
+
+    if (room.metaclass() == bulkhead_mt) {
+        if (auto bulkhead = dynamic_cast<Bulkhead*>(&room)) {
+            if (not bulkhead->is_open()) {
+                bulkhead->select(pfrm, app);
+            }
+        }
     }
 
     if (room.metaclass() not_eq forcefield_mt) {

@@ -111,8 +111,9 @@ the same time.
 
 <img src="imgs_for_readme/bulkhead.png"/>
 
-Select a bulkhead and press A to open/close. Characters cannot walk through closed
-bulkhead doors. Use to limit invading enemy movement within your castle.
+Select a bulkhead and press A to open/close. Four second recharge when the
+bulkhead changes state. Characters cannot walk through closed bulkhead
+doors. Use to limit invading enemy movement within your castle.
 
 ---
 
@@ -180,8 +181,8 @@ Radar.
 
 <img src="imgs_for_readme/ion-cannon.png"/>
 
-An energy weapon. Fires projectiles that pass through hull and rooms. Deals
-significant damage to forcefields.
+An energy weapon. Fires projectiles that pass through hull and rooms, and
+cause bulkhead doors to open. Deals significant damage to forcefields.
 
 ---
 

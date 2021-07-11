@@ -49,6 +49,7 @@ const RoomMeta* forcefield_mt = load_metaclass(Forcefield::name());
 const RoomMeta* cannon_mt = load_metaclass(Cannon::name());
 const RoomMeta* missile_silo_mt = load_metaclass(MissileSilo::name());
 const RoomMeta* ion_cannon_mt = load_metaclass(IonCannon::name());
+const RoomMeta* bulkhead_mt = load_metaclass(Bulkhead::name());
 
 
 

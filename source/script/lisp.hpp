@@ -4,6 +4,7 @@
 #include "number/numeric.hpp"
 #include "platform/scratch_buffer.hpp"
 #include "string.hpp"
+#include "unicode.hpp"
 
 
 class Platform;
@@ -46,6 +47,15 @@ struct Symbol {
 
 struct Integer {
     s32 value_;
+
+    static void finalizer(Value*)
+    {
+    }
+};
+
+
+struct Character {
+    utf8::Codepoint cp;
 
     static void finalizer(Value*)
     {
@@ -210,6 +220,16 @@ struct UserData {
 };
 
 
+struct __Reserved {
+
+    // Reserved for future use
+
+    static void finalizer(Value*)
+    {
+    }
+};
+
+
 struct Value {
     enum Type {
         nil,
@@ -221,6 +241,8 @@ struct Value {
         user_data,
         data_buffer,
         string,
+        character,
+        __reserved,
         count,
     };
     u8 type_ : 4;
@@ -239,6 +261,8 @@ struct Value {
         UserData user_data_;
         DataBuffer data_buffer_;
         String string_;
+        Character character_;
+        __Reserved __reserved_;
     };
 
     template <typename T> T& expect()
@@ -304,6 +328,7 @@ Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
 Value* make_databuffer(Platform& pfrm);
 Value* make_string(Platform& pfrm, const char* str);
+Value* make_character(Platform& pfrm, utf8::Codepoint cp);
 
 
 void get_interns(::Function<24, void(const char*)> callback);

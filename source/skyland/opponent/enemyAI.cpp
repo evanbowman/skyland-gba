@@ -7,6 +7,7 @@
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/transporter.hpp"
+#include "skyland/rooms/bulkhead.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -599,17 +600,25 @@ void EnemyAI::set_target(Platform& pfrm,
     Room* highest_weighted_room = nullptr;
     Float highest_weight = 3E-5;
 
+
+
     for (auto& room : app.player_island().rooms()) {
         auto meta_c = room->metaclass();
 
-        if (meta_c not_eq forcefield_mt) {
-            continue;
-        }
-
         auto w = (*meta_c)->ai_base_weight();
 
-
-        w += 3 * manhattan_length(room->origin(), ion_cannon.origin());
+        if (meta_c == bulkhead_mt and app.player_island().is_boarded()) {
+            if (auto bulkhead = dynamic_cast<Bulkhead*>(room.get())) {
+                if (not bulkhead->is_open()) {
+                    w = (*forcefield_mt)->ai_base_weight() +
+                        2 * manhattan_length(room->origin(), ion_cannon.origin());
+                }
+            }
+        } else if (meta_c not_eq forcefield_mt) {
+            continue;
+        } else {
+            w += 3 * manhattan_length(room->origin(), ion_cannon.origin());
+        }
 
 
         if (w > highest_weight) {

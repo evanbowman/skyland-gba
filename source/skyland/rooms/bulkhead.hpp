@@ -78,9 +78,16 @@ public:
     void set_open(Platform& pfrm, bool open);
 
 
+    bool is_open() const
+    {
+        return open_;
+    }
+
+
 private:
     bool open_ = true;
     bool interior_visible_ = false;
+    Microseconds cooldown_ = 0;
 };
 
 

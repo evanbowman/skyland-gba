@@ -8,7 +8,7 @@
 ;; give unprepared players some serious trouble.
 
 
-(init-opponent 7 'hostile)
+(init-opponent 8 'hostile)
 
 
 
@@ -17,16 +17,19 @@
  '((power-core 4 13)
    (power-core 4 11)
    (stairwell 6 11)
-   (transporter 3 13)
+   (transporter 7 13)
+   (hull 7 12)
    (transporter 3 11)
    (transporter 2 11)
-   (infirmary 1 13)
+   (infirmary 2 13)
    (hull 0 14)
    (hull 0 13)
    (hull 0 12)
    (hull 0 11)
+   (hull 1 14)
+   (hull 1 13)
    (missile-silo 1 11)
-   (hull 2 10)
+   (ion-cannon 2 10)
    (hull 3 10)
    (hull 5 10)
    (hull 4 10)
