@@ -3,6 +3,8 @@
 #include "skyland/skyland.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/rooms/bulkhead.hpp"
+#include "version.hpp"
+#include "localization.hpp"
 
 
 
@@ -341,6 +343,31 @@ void MultiplayerPeer::receive(Platform& pfrm,
         if (auto bulkhead = dynamic_cast<Bulkhead*>(room)) {
             bulkhead->set_open(pfrm, packet.open_);
         }
+    }
+}
+
+
+
+void MultiplayerPeer::receive(Platform& pfrm,
+                              App& app,
+                              const network::packet::ProgramVersion& packet)
+{
+    if (packet.major_.get() not_eq PROGRAM_MAJOR_VERSION or
+        packet.minor_ not_eq PROGRAM_MINOR_VERSION or
+        packet.subminor_ not_eq PROGRAM_SUBMINOR_VERSION or
+        packet.revision_ not_eq PROGRAM_VERSION_REVISION) {
+
+        StringBuffer<48> err;
+        err += "got incompatible program version ";
+        err += to_string<8>(packet.major_.get());
+        err += ".";
+        err += to_string<8>(packet.minor_);
+        err += ".";
+        err += to_string<8>(packet.subminor_);
+        err += ".";
+        err += to_string<8>(packet.revision_);
+
+        pfrm.fatal(err.c_str());
     }
 }
 

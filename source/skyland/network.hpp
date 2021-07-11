@@ -29,6 +29,7 @@ struct Header {
         character_died,
         replicant_created,
         bulkhead_changed,
+        program_version,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -37,6 +38,20 @@ static_assert(sizeof(Header) == 1);
 
 #define NET_EVENT_SIZE_CHECK(TYPE)                                             \
     static_assert(sizeof(TYPE) == Platform::NetworkPeer::max_message_size);
+
+
+
+struct ProgramVersion {
+    Header header_;
+
+    host_u16 major_;
+    u8 minor_;
+    u8 subminor_;
+    u8 revision_;
+
+    static const auto mt = Header::MessageType::program_version;
+};
+
 
 
 struct RoomConstructed {
@@ -280,6 +295,11 @@ public:
 
 
     virtual void receive(Platform&, App&, const packet::OpponentBulkheadChanged&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::ProgramVersion&)
     {
     }
 };

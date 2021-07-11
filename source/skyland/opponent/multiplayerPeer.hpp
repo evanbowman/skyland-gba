@@ -65,6 +65,11 @@ public:
                  const network::packet::OpponentBulkheadChanged& packet) override;
 
 
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::ProgramVersion& packet) override;
+
+
 private:
     Microseconds sync_micros_ = 0;
     int sync_seconds_ = 0;

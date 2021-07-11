@@ -5,6 +5,7 @@
 #include "skyland/opponent/multiplayerPeer.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "version.hpp"
 
 
 
@@ -70,6 +71,14 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (not pfrm.network_peer().is_connected()) {
         pfrm.fatal("failed to connect to multiplayer peer");
     } else {
+        network::packet::ProgramVersion packet;
+        packet.major_.set(PROGRAM_MAJOR_VERSION);
+        packet.minor_ = PROGRAM_MINOR_VERSION;
+        packet.subminor_ = PROGRAM_SUBMINOR_VERSION;
+        packet.revision_ = PROGRAM_VERSION_REVISION;
+
+        network::transmit(pfrm, packet);
+
         app.swap_opponent<MultiplayerPeer>();
         rng::critical_state = 42;
         return scene_pool::alloc<FadeInScene>();

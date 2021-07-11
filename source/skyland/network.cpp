@@ -48,6 +48,7 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::CharacterDied)
             HANDLE_MESSAGE(packet::ReplicantCreated)
             HANDLE_MESSAGE(packet::OpponentBulkheadChanged)
+            HANDLE_MESSAGE(packet::ProgramVersion)
         }
 
         error(pfrm, "garbled message!?");
