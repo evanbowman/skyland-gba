@@ -87,6 +87,24 @@ public:
     }
 
 
+    static Conditions::Value conditions()
+    {
+        return Conditions::workshop_required;
+    }
+
+
+    static Icon icon()
+    {
+        return 936;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 920;
+    }
+
+
 private:
     static constexpr const Microseconds reload_time = milliseconds(4500);
 
