@@ -72,7 +72,7 @@ void prep_level(Platform& pfrm, App& app)
             if (app.zone() < 2) {
                 app.victory_coins() += 0.35f * (*room->metaclass())->cost();
             } else if (app.zone() < 3) {
-                app.victory_coins() += 0.25f * (*room->metaclass())->cost();
+                app.victory_coins() += 0.27f * (*room->metaclass())->cost();
             } else if (app.zone() < 4) {
                 app.victory_coins() += 0.16f * (*room->metaclass())->cost();
             } else {
