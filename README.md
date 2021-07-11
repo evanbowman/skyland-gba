@@ -204,6 +204,11 @@ will plunder a fraction of the room's construction cost, increasing your coin
 count.
 
 
+## Downloads
+
+See here: https://github.com/evanbowman/skyland/releases
+
+
 ## Hacking
 
 If you want to mod the game, you can either manually build the SkylandEngine ROM from this repository, and then run the bundle script to attach the lisp code, or you can find the pre-compiled engine ROM here: https://github.com/evanbowman/skyland-baserom
