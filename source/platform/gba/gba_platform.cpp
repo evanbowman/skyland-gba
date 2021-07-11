@@ -1760,11 +1760,11 @@ void Platform::Screen::fade(float amount,
 {
     const u8 amt = amount * 255;
 
-    if (amt < 128) {
-        color_mix_disabled = false;
-    } else {
-        color_mix_disabled = true;
-    }
+    // if (amt < 128) {
+    //     color_mix_disabled = false;
+    // } else {
+    //     color_mix_disabled = true;
+    // }
 
     if (amt == last_fade_amt and k == last_color and
         last_fade_include_sprites == include_sprites) {

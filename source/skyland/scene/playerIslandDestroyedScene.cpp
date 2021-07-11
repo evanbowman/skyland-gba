@@ -97,12 +97,80 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
 
 
 
+void PlayerIslandDestroyedScene::display(Platform& pfrm, App& app)
+{
+    WorldScene::display(pfrm, app);
+
+    if (confetti_ and *confetti_) {
+        for (auto& c : **confetti_) {
+            Sprite spr_;
+            spr_.set_priority(0);
+            spr_.set_position({c.x_, c.y_});
+            spr_.set_size(Sprite::Size::w16_h32);
+            spr_.set_mix({[&] {
+                switch (c.clr_) {
+                default:
+                case 0: return ColorConstant::spanish_crimson;
+                case 1: return custom_color(0xbdef84);
+                case 2: return custom_color(0x006bff);
+                }
+            }(), 255});
+            spr_.set_texture_index(c.img_ + c.anim_ * 4);
+            pfrm.screen().draw(spr_);
+        }
+    }
+}
+
+
+
 ScenePtr<Scene>
 PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     WorldScene::update(pfrm, app, delta);
 
     app.paused() = false;
+
+
+    if (confetti_ and *confetti_) {
+        const auto view = pfrm.screen().get_view().get_center();
+
+        for (auto it = (**confetti_).begin();
+             it not_eq (**confetti_).end();) {
+
+            auto& c = *it;
+
+            c.kf_++;
+            if (c.kf_ == 5) {
+                c.kf_ = 0;
+                c.anim_ = !c.anim_;
+            }
+
+            if (c.y_ > view.y + 170) {
+                it = (**confetti_).erase(it);
+            } else {
+                auto step_vec = rotate({1, 0}, -c.angle_);
+                step_vec.x *= c.speed_;
+                step_vec.y *= c.speed_;
+                c.x_ += step_vec.x * delta;
+                c.y_ += step_vec.y * delta;
+
+                c.speed_ = interpolate(0.000004f, c.speed_, 0.0000025f * delta);
+
+                c.y_ += c.gravity_ * delta;
+
+                if (c.fall_slower_) {
+                    c.gravity_ = interpolate(0.00075f, c.gravity_, 0.000000015f * delta);
+                } else {
+                    c.gravity_ = interpolate(0.001f, c.gravity_, 0.000000015f * delta);
+                }
+
+
+                ++it;
+            }
+
+        }
+    }
+
 
     auto pos = island_->get_position();
     if (pos.y < 700) {
@@ -250,6 +318,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.load_overlay_texture("overlay_island_destroyed");
             if (island_ not_eq &app.player_island()) {
                 draw_image(pfrm, 82, 4, 1, 22, 8, Layer::overlay);
+                confetti_state_ = ConfettiState::wait_1;
+                confetti_timer_ = 0;
             } else {
                 draw_image(pfrm, 259, 4, 1, 22, 8, Layer::overlay);
             }
@@ -332,6 +402,80 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.fill_overlay(0);
             anim_state_ = AnimState::fade_complete;
         }
+        break;
+    }
+
+    switch (confetti_state_) {
+    case ConfettiState::dormant:
+        break;
+
+    case ConfettiState::wait_1:
+        confetti_timer_ += delta;
+        if (confetti_timer_ > milliseconds(500)) {
+            confetti_timer_ = 0;
+            confetti_state_ = ConfettiState::wait_2;
+
+            auto vc = pfrm.screen().get_view().get_center();
+
+            app.camera().shake(3);
+
+            confetti_ = allocate_dynamic<ConfettiBuffer>(pfrm);
+            if (confetti_ and *confetti_) {
+                for (int i = 0; i < 18; ++i) {
+
+                    (*confetti_)->push_back({
+                            vc.x + 3,
+                            vc.y + 140,
+                            0.00008f * (1 + rng::choice<7>(rng::utility_state)),
+                            20 + rng::choice<50>(rng::utility_state),
+                            0.00000001f * (3 + rng::choice<600>(rng::utility_state)),
+                            (u8)(107 + rng::choice<2>(rng::utility_state)),
+                            (u8)(rng::choice<3>(rng::utility_state)),
+                            0,
+                            0,
+                            (u8)(rng::choice<2>(rng::utility_state))
+                        });
+                }
+            }
+        }
+        break;
+
+    case ConfettiState::confetti_pop_1:
+        break;
+
+    case ConfettiState::wait_2:
+        confetti_timer_ += delta;
+        if (confetti_timer_ > milliseconds(500)) {
+            confetti_timer_ = 0;
+            confetti_state_ = ConfettiState::wait_3;
+
+
+            auto vc = pfrm.screen().get_view().get_center();
+
+            app.camera().shake(3);
+
+            for (int i = 0; i < 18; ++i) {
+                    (*confetti_)->push_back({
+                            vc.x + 235,
+                            vc.y + 140,
+                            0.00008f * (1 + rng::choice<7>(rng::utility_state)),
+                            90 + 20 + rng::choice<50>(rng::utility_state),
+                            0.0000009f,
+                            (u8)(107 + rng::choice<4>(rng::utility_state)),
+                            (u8)(rng::choice<3>(rng::utility_state)),
+                            0,
+                            0,
+                            (u8)(rng::choice<2>(rng::utility_state))
+                        });
+                }
+        }
+        break;
+
+    case ConfettiState::confetti_pop_2:
+        break;
+
+    case ConfettiState::wait_3:
+        // ...
         break;
     }
 
