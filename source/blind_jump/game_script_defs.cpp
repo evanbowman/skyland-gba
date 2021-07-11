@@ -405,7 +405,7 @@ void Game::init_script(Platform& pfrm)
                           pfrm->network_peer().is_connected());
                   }));
 
-    lisp::set_var("cr-choice", lisp::make_function([](int argc) {
+    lisp::set_var("choice", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, integer);
                       return lisp::make_integer(

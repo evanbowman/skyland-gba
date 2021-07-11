@@ -33,14 +33,14 @@
        (if temp
            (progn
              (add-coins (- 0 800))
-             (set 'temp (get temp (cr-choice (length temp))))
+             (set 'temp (get temp (choice (length temp))))
              (add-chr (player) (car temp) (cdr temp) 'neutral 0)
              (rem-chr (opponent) 1 14)
 
              (set 'temp (chr-slots (player)))
              (if temp
                  (progn
-                   (set 'temp (get temp (cr-choice (length temp))))
+                   (set 'temp (get temp (choice (length temp))))
                    (add-chr (player) (car temp) (cdr temp) 'neutral 0)
                    (rem-chr (opponent) 2 14)
                    (dialog "Two survivors joined your crew!"))

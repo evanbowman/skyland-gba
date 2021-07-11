@@ -27,7 +27,7 @@
                       (get '(8 5 4) (zone)) ;; number of levels to select from
                                             ;; based on current zone
                       (lambda (arg 0)))))
-      (lv-num (get avail-levels (cr-choice (length avail-levels)))))
+      (lv-num (get avail-levels (choice (length avail-levels)))))
 
   ;; Ok, so if we're at the point where we've exhausted all of the possible
   ;; level scenarios (which shouldn't really happen, anyway), we should clear

@@ -23,7 +23,7 @@
                       (lambda (equal temp (arg 0)))
                       friendlies-seen))))
       (gen
-       (get '(4 3 2) (zone)) ;; number of levels to select from based on current zone
+       (get '(4 4 2) (zone)) ;; number of levels to select from based on current zone
        (lambda (arg 0)))))
 
 
@@ -31,7 +31,7 @@
     (set 'friendlies-seen '()))
 
 
-(set 'lv-num (get avail-levels (cr-choice (length avail-levels))))
+(set 'lv-num (get avail-levels (choice (length avail-levels))))
 
 
 (set 'friendlies-seen (cons lv-num friendlies-seen))

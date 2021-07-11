@@ -20,7 +20,7 @@
 
 (set 'after-converge-hook
      (lambda
-       (set 'temp (+ 400 (cr-choice 900)))
+       (set 'temp (+ 400 (choice 900)))
 
        (set 'after-converge-hook nil)
 

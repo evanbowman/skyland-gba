@@ -39,7 +39,7 @@
        (if temp
            (progn
              (add-coins (- 0 (* 400 (zone))))
-             (set 'temp (get temp (cr-choice (length temp))))
+             (set 'temp (get temp (choice (length temp))))
              (add-chr (player) (car temp) (cdr temp) 'neutral 0)
              (rem-chr (opponent) 1 14)
              (set 'temp (nil))

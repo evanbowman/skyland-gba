@@ -34,13 +34,13 @@
      (lambda
 
        (set 'temp (chr-slots (player)))
-       (set 'temp (get temp (cr-choice (length temp))))
+       (set 'temp (get temp (choice (length temp))))
 
 
        (if temp
            (progn
              (rem-chr (opponent) 1 14)
-             (if (equal (cr-choice 2) 0)
+             (if (equal (choice 2) 0)
                  (progn
                    (add-chr (player) (car temp) (cdr temp) 'neutral 0)
                    (dialog "The survivor joined your crew!")

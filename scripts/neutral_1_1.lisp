@@ -27,9 +27,9 @@
 
 (set 'after-dialog-accepted-hook
      (lambda
-       (if (equal (cr-choice 2) 0)
+       (if (equal (choice 2) 0)
            (progn
-             (set 'temp (+ 600 (cr-choice 300)))
+             (set 'temp (+ 600 (choice 300)))
              (dialog "You explore, and salvage " (string temp) "$ from the ruins.")
              (add-coins temp)
              (exit-level))

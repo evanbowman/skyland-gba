@@ -10,7 +10,7 @@
 
 
 ;; Pick a random snapshot
-(set 'temp (get temp (cr-choice (length temp))))
+(set 'temp (get temp (choice (length temp))))
 
 
 ;; Find the highest x-value in the room data (We want to mirror the room over

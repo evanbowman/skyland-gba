@@ -117,6 +117,8 @@ int main(int argc, char** argv)
 
     lisp::init(pfrm);
 
+    std::cout << sizeof(lisp::Value) << std::endl;
+
     // if (argc == 1) {
     //     auto lat = lisp::make_list(9);
 
