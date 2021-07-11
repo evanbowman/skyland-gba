@@ -700,7 +700,12 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     if (highest_weighted_room) {
-        silo.set_target(highest_weighted_room->position());
+        if (visible_rooms.size() > 1 and rng::choice<4>(rng::utility_state) == 0) {
+            silo.set_target(visible_rooms[rng::choice(visible_rooms.size(),
+                                                      rng::utility_state)]->position());
+        } else {
+            silo.set_target(highest_weighted_room->position());
+        }
     }
 }
 
