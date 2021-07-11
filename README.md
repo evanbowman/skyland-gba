@@ -186,6 +186,29 @@ cause bulkhead doors to open. Deals significant damage to forcefields.
 
 ---
 
+#### Flak Gun
+
+<img src="imgs_for_readme/flak-gun.png"/>
+
+Fires projectiles that deal small amounts of damage to large areas of a
+castle. Deals thirteen damage at the point of impact, ten damage to grid
+locations adjacent to the point of impact, and eight damage to grid locations
+one-tile-removed from the impact site.
+
+```
+          8
+       8 10  8
+    8 10 13 10 8
+       8 10  8
+          8
+
+```
+
+Rooms larger than one 16x16 tile will receive damage from each tile that
+overlaps with the blast radius.
+
+---
+
 #### Replicator
 
 <img src="imgs_for_readme/replicator.png"/>
