@@ -5,14 +5,14 @@
 #include "rooms/core.hpp"
 #include "scene/scriptHookScene.hpp"
 #include "script/lisp.hpp"
+#include "script/listBuilder.hpp"
 #include "serial.hpp"
 #include "skyland.hpp"
-#include "script/listBuilder.hpp"
 
 
 
 namespace lisp {
-    Platform* interp_get_pfrm();
+Platform* interp_get_pfrm();
 }
 
 
@@ -135,10 +135,13 @@ void App::init_scripts(Platform& pfrm)
                           for (auto& chr : room->characters()) {
                               if (chr->owner() == &island->owner()) {
                                   lisp::ListBuilder chr_info;
-                                  chr_info.push_back(lisp::make_integer(chr->grid_position().x));
-                                  chr_info.push_back(lisp::make_integer(chr->grid_position().y));
+                                  chr_info.push_back(lisp::make_integer(
+                                      chr->grid_position().x));
+                                  chr_info.push_back(lisp::make_integer(
+                                      chr->grid_position().y));
                                   if (chr->health() not_eq 255) {
-                                      chr_info.push_back(lisp::make_integer(chr->health()));
+                                      chr_info.push_back(
+                                          lisp::make_integer(chr->health()));
                                   }
                                   if (chr->is_replicant()) {
                                       chr_info.push_back(lisp::make_integer(1));
@@ -325,7 +328,7 @@ void App::init_scripts(Platform& pfrm)
                           return lisp::make_integer(chr->health());
                       }
                       return L_NIL;
-    }));
+                  }));
 
 
     lisp::set_var("add-chr", lisp::make_function([](int argc) {
@@ -352,17 +355,15 @@ void App::init_scripts(Platform& pfrm)
                       auto conf = lisp::get_op(1);
                       if (str_cmp(conf->symbol_.name_, "hostile") == 0) {
                           app->swap_opponent<EnemyAI>();
-                          auto chr = alloc_entity<BasicCharacter>(
-                              island, &app->opponent(), coord,
-                              is_replicant);
+                          auto chr = ::skyland::alloc_entity<BasicCharacter>(
+                              island, &app->opponent(), coord, is_replicant);
 
                           if (chr) {
                               island->add_character(std::move(chr));
                           }
                       } else if (str_cmp(conf->symbol_.name_, "neutral") == 0) {
-                          auto chr = alloc_entity<BasicCharacter>(
-                             island, &app->player(), coord,
-                             is_replicant);
+                          auto chr = ::skyland::alloc_entity<BasicCharacter>(
+                              island, &app->player(), coord, is_replicant);
 
                           if (chr) {
                               island->add_character(std::move(chr));

@@ -1430,7 +1430,7 @@ static void eval_let(Value* code)
 
     int stashed_vars = 0;
 
-    foreach(bindings, [&](Value* val) {
+    foreach (bindings, [&](Value* val) {
         if (result not_eq get_nil()) {
             return;
         }
@@ -1450,12 +1450,15 @@ static void eval_let(Value* code)
                 pop_op();
 
             } else {
-                result = lisp::make_error(Error::Code::mismatched_parentheses, L_NIL);
+                result = lisp::make_error(Error::Code::mismatched_parentheses,
+                                          L_NIL);
             }
         } else {
-            result = lisp::make_error(Error::Code::mismatched_parentheses, L_NIL);
+            result =
+                lisp::make_error(Error::Code::mismatched_parentheses, L_NIL);
         }
-    });
+    })
+        ;
 
     auto clear_stash = [&] {
         for (int i = 0; i < stashed_vars; ++i) {
@@ -1469,14 +1472,15 @@ static void eval_let(Value* code)
         return;
     }
 
-    foreach(code->cons_.cdr(), [&](Value* val) {
-            eval(val);
-            result.set(get_op(0));
-            pop_op();
-        });
+    foreach (code->cons_.cdr(), [&](Value* val) {
+        eval(val);
+        result.set(get_op(0));
+        pop_op();
+    })
+        ;
 
     int i = 0;
-    foreach(bindings, [&i, stashed_vars](Value* val) {
+    foreach (bindings, [&i, stashed_vars](Value* val) {
         auto value = get_op((stashed_vars - 1) - i);
 
         auto sym = val->cons_.car();
@@ -1485,15 +1489,16 @@ static void eval_let(Value* code)
             set_var(sym->symbol_, value);
         } else {
             for (auto& var : *bound_context->globals_) {
-                 if (str_cmp(sym->symbol_.name_, var.name_) == 0) {
-                     var.value_ = get_nil();
-                     var.name_ = "";
-                     break;
-                 }
-             }
+                if (str_cmp(sym->symbol_.name_, var.name_) == 0) {
+                    var.value_ = get_nil();
+                    var.name_ = "";
+                    break;
+                }
+            }
         }
         ++i;
-    });
+    })
+        ;
 
     clear_stash();
     push_op(result);
@@ -2369,8 +2374,7 @@ void init(Platform& pfrm)
 
                 if (get_op(0)->mode_bits_ ==
                     Function::ModeBits::lisp_function) {
-                    compile(*pfrm,
-                            dcompr(get_op(0)->function_.lisp_impl_));
+                    compile(*pfrm, dcompr(get_op(0)->function_.lisp_impl_));
                     auto ret = get_op(0);
                     pop_op();
                     return ret;
@@ -2573,8 +2577,8 @@ void init(Platform& pfrm)
                         if (depth == 0) {
                             out += "RET\r\n";
                             auto pfrm = interp_get_pfrm();
-                            pfrm->remote_console()
-                                .printline(out.c_str(), false);
+                            pfrm->remote_console().printline(out.c_str(),
+                                                             false);
                             ((Platform*)pfrm)->sleep(80);
                             return get_nil();
                         } else {
@@ -2586,11 +2590,9 @@ void init(Platform& pfrm)
                     }
 
                     default:
-                        interp_get_pfrm()
-                            ->remote_console()
-                            .printline(out.c_str(), false);
-                        interp_get_pfrm()
-                            ->sleep(80);
+                        interp_get_pfrm()->remote_console().printline(
+                            out.c_str(), false);
+                        interp_get_pfrm()->sleep(80);
                         return get_nil();
                     }
                     out += "\r\n";

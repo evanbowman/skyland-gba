@@ -54,8 +54,11 @@ void IonCannon::update(Platform& pfrm, App& app, Microseconds delta)
                     target = rng::sample<6>(target, rng::critical_state);
                 }
 
-                auto c = alloc_entity<IonBurst>(start, target, parent());
-                parent()->projectiles().push(std::move(c));
+                auto c =
+                    app.alloc_entity<IonBurst>(pfrm, start, target, parent());
+                if (c) {
+                    parent()->projectiles().push(std::move(c));
+                }
 
                 reload_ = reload_time;
             } else {

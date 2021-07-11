@@ -60,9 +60,10 @@ public:
                  const network::packet::ReplicantCreated& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::OpponentBulkheadChanged& packet) override;
+    void
+    receive(Platform& pfrm,
+            App& app,
+            const network::packet::OpponentBulkheadChanged& packet) override;
 
 
     void receive(Platform& pfrm,

@@ -1,10 +1,11 @@
 #include "replicator.hpp"
-#include "skyland/island.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/island.hpp"
+#include "skyland/network.hpp"
 #include "skyland/scene/replicatorSelectionScene.hpp"
 #include "skyland/scene_pool.hpp"
-#include "skyland/network.hpp"
+#include "skyland/skyland.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -26,7 +27,7 @@ void Replicator::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-bool Replicator::create_replicant(Platform& pfrm)
+bool Replicator::create_replicant(Platform& pfrm, App& app)
 {
     int character_count = 0;
 
@@ -46,24 +47,17 @@ bool Replicator::create_replicant(Platform& pfrm)
         const Health replicant_health = chr_health * 0.75f;
 
         const auto dst = [&] {
-            if (chr_pos.x == position().x) { // We have two slots where we can place
-                                             // the replicant.
-                return Vec2<u8>{
-                    u8(chr_pos.x + 1),
-                    chr_pos.y
-                };
+            if (chr_pos.x ==
+                position().x) { // We have two slots where we can place
+                                // the replicant.
+                return Vec2<u8>{u8(chr_pos.x + 1), chr_pos.y};
             } else {
-                return Vec2<u8>{
-                    u8(chr_pos.x - 1),
-                    chr_pos.y
-                };
+                return Vec2<u8>{u8(chr_pos.x - 1), chr_pos.y};
             }
         }();
 
-        auto chr = alloc_entity<BasicCharacter>(parent(),
-                                                found_chr->owner(),
-                                                dst,
-                                                true);
+        auto chr = app.alloc_entity<BasicCharacter>(
+            pfrm, parent(), found_chr->owner(), dst, true);
 
         if (chr) {
             network::packet::ReplicantCreated packet;
@@ -118,12 +112,18 @@ void Replicator::render_interior(Platform& pfrm, Layer layer)
     pfrm.set_tile(layer, position().x, position().y, InteriorTile::empty);
     pfrm.set_tile(layer, position().x + 1, position().y, InteriorTile::empty);
 
-    pfrm.set_tile(layer, position().x, position().y + 1, InteriorTile::replicator_1);
-    pfrm.set_tile(layer, position().x, position().y + 2, InteriorTile::replicator_3);
-    pfrm.set_tile(layer, position().x + 1, position().y + 1, InteriorTile::replicator_2);
-    pfrm.set_tile(layer, position().x + 1, position().y + 2, InteriorTile::replicator_4);
-    pfrm.set_tile(layer, position().x, position().y + 3, InteriorTile::plain_floor);
-    pfrm.set_tile(layer, position().x + 1, position().y + 3, InteriorTile::plain_floor);
+    pfrm.set_tile(
+        layer, position().x, position().y + 1, InteriorTile::replicator_1);
+    pfrm.set_tile(
+        layer, position().x, position().y + 2, InteriorTile::replicator_3);
+    pfrm.set_tile(
+        layer, position().x + 1, position().y + 1, InteriorTile::replicator_2);
+    pfrm.set_tile(
+        layer, position().x + 1, position().y + 2, InteriorTile::replicator_4);
+    pfrm.set_tile(
+        layer, position().x, position().y + 3, InteriorTile::plain_floor);
+    pfrm.set_tile(
+        layer, position().x + 1, position().y + 3, InteriorTile::plain_floor);
 }
 
 
@@ -142,7 +142,8 @@ void Replicator::render_exterior(Platform& pfrm, Layer layer)
         layer, position().x + 1, position().y + 1, Tile::wall_window_middle_2);
     pfrm.set_tile(
         layer, position().x + 1, position().y + 2, Tile::wall_window_middle_1);
-    pfrm.set_tile(layer, position().x + 1, position().y + 3, Tile::wall_window_2);
+    pfrm.set_tile(
+        layer, position().x + 1, position().y + 3, Tile::wall_window_2);
 }
 
 

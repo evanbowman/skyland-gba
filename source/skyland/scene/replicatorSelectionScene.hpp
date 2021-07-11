@@ -13,8 +13,6 @@ namespace skyland {
 
 class ReplicatorSelectionScene : public ActiveWorldScene {
 public:
-
-
     void enter(Platform&, App&, Scene& prev) override;
 
 
@@ -33,5 +31,4 @@ private:
 
 
 
-
-}
+} // namespace skyland

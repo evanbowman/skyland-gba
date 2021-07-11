@@ -213,8 +213,8 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.fatal("challenge list format invalid");
             }
 
-            if (auto script = pfrm.load_file_contents("scripts",
-                                                      file_name->string_.value())) {
+            if (auto script = pfrm.load_file_contents(
+                    "scripts", file_name->string_.value())) {
                 lisp::dostring(script, [&pfrm](lisp::Value& err) {
                     lisp::DefaultPrinter p;
                     lisp::format(&err, p);

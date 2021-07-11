@@ -27,6 +27,18 @@ inline EntityRef<Entity> null_entity()
 }
 
 
+class EntityOOM : public Entity {
+public:
+    EntityOOM() : Entity({})
+    {
+        kill();
+    }
+
+    void update(Platform&, App&, Microseconds delta) override
+    {
+    }
+};
+
 
 template <typename T, typename... Args>
 EntityRef<T> alloc_entity(Args&&... args)

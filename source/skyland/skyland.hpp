@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include "alloc_entity.hpp"
 #include "boxed.hpp"
 #include "camera.hpp"
 #include "coins.hpp"
@@ -80,6 +81,26 @@ public:
     bool& challenge_mode()
     {
         return challenge_mode_;
+    }
+
+
+    template <typename T, typename... Args>
+    EntityRef<T> alloc_entity(Platform& pfrm, Args&&... args)
+    {
+        if (auto e = ::skyland::alloc_entity<T>(std::forward<Args>(args)...)) {
+            return e;
+        }
+
+        // If we fail to allocate an entity, try clearing out all of the special
+        // effects, and allocating again. This should free up enough space...
+        effects().clear();
+
+        auto e = ::skyland::alloc_entity<T>(std::forward<Args>(args)...);
+        if (not e) {
+            error(pfrm, "entity pool exhausted");
+        }
+
+        return e;
     }
 
 

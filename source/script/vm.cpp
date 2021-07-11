@@ -72,7 +72,8 @@ void vm_execute(Value* code_buffer, int start_offset)
 
         case LoadVar::op(): {
             auto inst = read<LoadVar>(code, pc);
-            push_op(__get_var_fast(symbol_from_offset(inst->name_offset_.get())));
+            push_op(
+                __get_var_fast(symbol_from_offset(inst->name_offset_.get())));
             break;
         }
 

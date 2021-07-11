@@ -41,7 +41,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
 
-    if (targets_.empty() or not app.opponent_island() or mt_prep_seconds not_eq 0) {
+    if (targets_.empty() or not app.opponent_island() or
+        mt_prep_seconds not_eq 0) {
         return scene_pool::alloc<ReadyScene>();
     }
 
@@ -82,7 +83,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
         if (key_down<Key::action_1>(pfrm)) {
-            if (auto target_room = app.opponent_island()->get_room(cursor_loc)) {
+            if (auto target_room =
+                    app.opponent_island()->get_room(cursor_loc)) {
                 if (auto room = app.player_island().get_room(weapon_loc_)) {
                     room->set_target(target_room->position());
 
@@ -213,7 +215,8 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
     collect_targets(pfrm, app);
 
     if (not targets_.empty()) {
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
         cursor_loc.x = targets_[selector_].x;
         cursor_loc.y = targets_[selector_].y;
     }

@@ -3,13 +3,13 @@
 #include "entity/explosion/explosion.hpp"
 #include "entity/misc/smokePuff.hpp"
 #include "globals.hpp"
+#include "network.hpp"
 #include "number/random.hpp"
 #include "roomPool.hpp"
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
 #include "skyland.hpp"
 #include "tile.hpp"
-#include "network.hpp"
 
 
 
@@ -150,7 +150,9 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             o.x += chimney_loc_->x * 16 + 8;
             o.y += chimney_loc_->y * 16 - 4;
 
-            app.effects().push(alloc_entity<SmokePuff>(o));
+            if (auto e = app.alloc_entity<SmokePuff>(pfrm, o)) {
+                app.effects().push(std::move(e));
+            }
         }
     }
 
@@ -171,7 +173,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 packet.chr_x_ = (*it)->grid_position().x;
                 packet.chr_y_ = (*it)->grid_position().y;
                 packet.near_island_ = &owner() not_eq &app.player();
-                packet.chr_owned_by_player_ = (*it)->owner() not_eq &app.player();
+                packet.chr_owned_by_player_ =
+                    (*it)->owner() not_eq &app.player();
                 network::transmit(pfrm, packet);
 
                 it = chr_list.erase(it);
@@ -203,7 +206,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             packet.room_x_ = pos.x;
             packet.room_y_ = pos.y;
             packet.near_island_ = &owner() not_eq &app.player();
-            packet.metaclass_index_.set(metaclass_index((*(*it)->metaclass())->name()));
+            packet.metaclass_index_.set(
+                metaclass_index((*(*it)->metaclass())->name()));
             network::transmit(pfrm, packet);
 
 

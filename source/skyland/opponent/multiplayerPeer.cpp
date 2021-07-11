@@ -1,10 +1,10 @@
 #include "multiplayerPeer.hpp"
-#include "skyland/room_metatable.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/alloc_entity.hpp"
-#include "skyland/rooms/bulkhead.hpp"
-#include "version.hpp"
 #include "localization.hpp"
+#include "skyland/alloc_entity.hpp"
+#include "skyland/room_metatable.hpp"
+#include "skyland/rooms/bulkhead.hpp"
+#include "skyland/skyland.hpp"
+#include "version.hpp"
 
 
 
@@ -109,14 +109,15 @@ void MultiplayerPeer::receive(Platform& pfrm,
         // should already have been destroyed on both consoles by the time this
         // message is received. We're only sending this message in the first
         // place in case stuff gets out of sync.
-        if (auto room = island->get_room({
-                    invert_axis(app, packet.room_x_),
-                    packet.room_y_})) {
+        if (auto room = island->get_room(
+                {invert_axis(app, packet.room_x_), packet.room_y_})) {
             // We want to at least make sure that the destroyed room is an
             // instance of the same class as the room at the target
             // coordinates. This clears up a few edge-cases.
-            if (str_cmp((*room->metaclass())->name(),
-                        (*load_metaclass(packet.metaclass_index_.get()))->name()) == 0) {
+            if (str_cmp(
+                    (*room->metaclass())->name(),
+                    (*load_metaclass(packet.metaclass_index_.get()))->name()) ==
+                0) {
                 room->apply_damage(pfrm, app, 9999);
             }
         }
@@ -140,24 +141,17 @@ void MultiplayerPeer::receive(Platform& pfrm,
     }
 
     if (island) {
-        const Vec2<u8> src_coord {
-            invert_axis(app, packet.src_x_),
-            packet.src_y_
-        };
-        const Vec2<u8> dst_coord {
-            invert_axis(app, packet.dst_x_),
-            packet.dst_y_
-        };
+        const Vec2<u8> src_coord{invert_axis(app, packet.src_x_),
+                                 packet.src_y_};
+        const Vec2<u8> dst_coord{invert_axis(app, packet.dst_x_),
+                                 packet.dst_y_};
 
         if (auto room = island->get_room(src_coord)) {
             for (auto& chr : room->characters()) {
                 if (chr->grid_position() == src_coord and
                     chr->owner() not_eq &app.player()) {
 
-                    auto path = find_path(pfrm,
-                                          island,
-                                          src_coord,
-                                          dst_coord);
+                    auto path = find_path(pfrm, island, src_coord, dst_coord);
 
                     if (path and *path) {
                         chr->set_movement_path(std::move(*path));
@@ -249,8 +243,6 @@ void MultiplayerPeer::receive(Platform& pfrm,
             }
         }
     }
-
-
 }
 
 
@@ -269,10 +261,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
         }
     }
 
-    const Vec2<u8> chr_loc = {
-        invert_axis(app, packet.chr_x_),
-        packet.chr_y_
-    };
+    const Vec2<u8> chr_loc = {invert_axis(app, packet.chr_x_), packet.chr_y_};
 
     if (island) {
         if (auto room = island->get_room(chr_loc)) {
@@ -307,15 +296,10 @@ void MultiplayerPeer::receive(Platform& pfrm,
         return;
     }
 
-    const Vec2<u8> loc = {
-        invert_axis(app, packet.src_x_),
-        packet.src_y_
-    };
+    const Vec2<u8> loc = {invert_axis(app, packet.src_x_), packet.src_y_};
 
-    auto chr = alloc_entity<BasicCharacter>(&*app.opponent_island(),
-                                            &app.opponent(),
-                                            loc,
-                                            true);
+    auto chr = alloc_entity<BasicCharacter>(
+        &*app.opponent_island(), &app.opponent(), loc, true);
 
     if (chr) {
         chr->apply_damage(255 - packet.health_);
@@ -326,18 +310,16 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 
 
-void MultiplayerPeer::receive(Platform& pfrm,
-                              App& app,
-                              const network::packet::OpponentBulkheadChanged& packet)
+void MultiplayerPeer::receive(
+    Platform& pfrm,
+    App& app,
+    const network::packet::OpponentBulkheadChanged& packet)
 {
     if (not app.opponent_island()) {
         return;
     }
 
-    const Vec2<u8> loc = {
-        invert_axis(app, packet.room_x_),
-        packet.room_y_
-    };
+    const Vec2<u8> loc = {invert_axis(app, packet.room_x_), packet.room_y_};
 
     if (auto room = app.opponent_island()->get_room(loc)) {
         if (auto bulkhead = dynamic_cast<Bulkhead*>(room)) {

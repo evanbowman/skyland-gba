@@ -74,7 +74,8 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         } else {
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y = cursor_loc.y;
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y =
+                cursor_loc.y;
             return scene_pool::alloc<ReadyScene>();
         }
     }

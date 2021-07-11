@@ -1,14 +1,14 @@
 #include "transporter.hpp"
+#include "globals.hpp"
 #include "localization.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
 #include "skyland/island.hpp"
+#include "skyland/network.hpp"
 #include "skyland/scene/recoverCharacterScene.hpp"
 #include "skyland/scene_pool.hpp"
-#include "skyland/tile.hpp"
-#include "skyland/network.hpp"
 #include "skyland/skyland.hpp"
-#include "globals.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -69,10 +69,8 @@ void Transporter::recover_character(Platform& pfrm,
                 // our island, where the path would make no sense.
                 unlinked->drop_movement_path();
 
-                const Vec2<u8> dst = {
-                    this->position().x,
-                    u8(this->position().y + 1)
-                };
+                const Vec2<u8> dst = {this->position().x,
+                                      u8(this->position().y + 1)};
 
                 if (&parent()->owner() == &app.player()) {
                     network::packet::CharacterDisembark packet;

@@ -2,12 +2,13 @@
 #include "number/random.hpp"
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/core.hpp"
+#include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/transporter.hpp"
-#include "skyland/rooms/bulkhead.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -53,10 +54,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         for (auto& room : app.player_island().rooms()) {
             for (auto& character : room->characters()) {
                 if (character->owner() == this) {
-                    boarded_ai_characters.push_back({
-                            character.get(),
-                            room.get()
-                        });
+                    boarded_ai_characters.push_back(
+                        {character.get(), room.get()});
                 }
             }
         }
@@ -68,6 +67,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                     set_target(pfrm, app, matrix, *cannon);
                 } else if (auto silo = dynamic_cast<MissileSilo*>(&*room)) {
                     set_target(pfrm, app, matrix, *silo);
+                } else if (auto flak_gun = dynamic_cast<FlakGun*>(&*room)) {
+                    set_target(pfrm, app, matrix, *flak_gun);
                 } else if (auto ion_cannon = dynamic_cast<IonCannon*>(&*room)) {
                     set_target(pfrm, app, matrix, *ion_cannon);
                 } else if (auto transporter =
@@ -136,15 +137,17 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                             if (not recover_pos) {
                                 for (auto it = boarded_ai_characters.begin();
                                      it not_eq boarded_ai_characters.end();) {
-                                    if (str_cmp((*(*it).second->metaclass())->name(),
-                                                "plundered-room") == 0
-                                        and (*it).first->idle_count() > 600) {
+                                    if (str_cmp((*(*it).second->metaclass())
+                                                    ->name(),
+                                                "plundered-room") == 0 and
+                                        (*it).first->idle_count() > 600) {
                                         // If we've plundered a room, and we've
                                         // been waiting a while, i.e. we have
                                         // nowhere to go, then we should recover
                                         // the character.
                                         it = boarded_ai_characters.erase(it);
-                                        recover_pos = (*it).first->grid_position();
+                                        recover_pos =
+                                            (*it).first->grid_position();
                                     } else {
                                         ++it;
                                     }
@@ -396,9 +399,11 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                         // board the player's castle, even if doing so would be
                         // a suicide mission.
                         slot.ai_weight_ += 1000.f;
-                    } else if (missile_count and cannon_count == 0 and player_cannon_count) {
+                    } else if (missile_count and cannon_count == 0 and
+                               player_cannon_count) {
                         slot.ai_weight_ += 400.f;
-                    } else if (cannon_count and missile_count == 0 and player_missile_count) {
+                    } else if (cannon_count and missile_count == 0 and
+                               player_missile_count) {
                         slot.ai_weight_ += 400.f;
                     }
                 } else {
@@ -611,7 +616,8 @@ void EnemyAI::set_target(Platform& pfrm,
             if (auto bulkhead = dynamic_cast<Bulkhead*>(room.get())) {
                 if (not bulkhead->is_open()) {
                     w = (*forcefield_mt)->ai_base_weight() +
-                        2 * manhattan_length(room->origin(), ion_cannon.origin());
+                        2 * manhattan_length(room->origin(),
+                                             ion_cannon.origin());
                 }
             }
         } else if (meta_c not_eq forcefield_mt) {
@@ -709,12 +715,90 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     if (highest_weighted_room) {
-        if (visible_rooms.size() > 1 and rng::choice<4>(rng::utility_state) == 0) {
+        if (visible_rooms.size() > 1 and
+            rng::choice<4>(rng::utility_state) == 0) {
             silo.set_target(visible_rooms[rng::choice(visible_rooms.size(),
-                                                      rng::utility_state)]->position());
+                                                      rng::utility_state)]
+                                ->position());
         } else {
             silo.set_target(highest_weighted_room->position());
         }
+    }
+}
+
+
+
+void EnemyAI::set_target(Platform& pfrm,
+                         App& app,
+                         const u8 matrix[16][16],
+                         FlakGun& flak_gun)
+{
+    struct RoomInfo {
+        Room* room_;
+        int x_;
+        int y_;
+    };
+    Buffer<RoomInfo, 32> visible_rooms;
+
+    for (u8 y = 0; y < 16; ++y) {
+        for (int x = 15; x > -1; --x) {
+            if (matrix[x][y]) {
+                if (auto room = app.player_island().get_room({u8(x), y})) {
+                    visible_rooms.push_back({room, x, y});
+                }
+                break;
+            }
+        }
+    }
+
+    Room* highest_weighted_room = nullptr;
+    Float highest_weight = 3E-5;
+
+    for (auto room_info : visible_rooms) {
+        auto meta_c = room_info.room_->metaclass();
+        auto w = (*meta_c)->ai_base_weight();
+
+        auto neighbor_weight = [&](int x_offset, int y_offset) {
+            const auto x = room_info.x_ + x_offset;
+            const auto y = room_info.y_ + y_offset;
+
+            if (x >= 0 and x < 15 and y >= 0 and y < 15) {
+                if (auto room = app.player_island().get_room({u8(x), u8(y)})) {
+                    return (*room->metaclass())->ai_base_weight();
+                }
+            }
+
+            return 0.f;
+        };
+
+        // Yeah, this is pretty bad. Project due in a few hours, though!
+        w += 0.5f * neighbor_weight(1, 0);
+        w += 0.5f * neighbor_weight(-1, 0);
+        w += 0.5f * neighbor_weight(0, 1);
+        w += 0.5f * neighbor_weight(0, -1);
+
+        w += 0.3f * neighbor_weight(2, 0);
+        w += 0.3f * neighbor_weight(1, -1);
+        w += 0.3f * neighbor_weight(0, -2);
+        w += 0.3f * neighbor_weight(-1, -1);
+        w += 0.3f * neighbor_weight(-2, 0);
+        w += 0.3f * neighbor_weight(-1, 1);
+        w += 0.3f * neighbor_weight(0, 2);
+        w += 0.3f * neighbor_weight(1, 1);
+
+
+        if (w > highest_weight) {
+            highest_weighted_room = room_info.room_;
+            highest_weight = w;
+        }
+    }
+
+    if (visible_rooms.size() > 1 and rng::choice<3>(rng::utility_state) == 0) {
+        highest_weighted_room = visible_rooms[1].room_;
+    }
+
+    if (highest_weighted_room) {
+        flak_gun.set_target(highest_weighted_room->position());
     }
 }
 

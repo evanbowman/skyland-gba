@@ -3,10 +3,10 @@
 #include "inspectP2Scene.hpp"
 #include "localization.hpp"
 #include "readyScene.hpp"
+#include "skyland/network.hpp"
 #include "skyland/path.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/network.hpp"
 
 
 

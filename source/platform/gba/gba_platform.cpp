@@ -1387,8 +1387,8 @@ static bool validate_tilemap_texture_size(Platform& pfrm, size_t size)
 }
 
 
-[[maybe_unused]]
-static bool validate_overlay_texture_size(Platform& pfrm, size_t size)
+[[maybe_unused]] static bool validate_overlay_texture_size(Platform& pfrm,
+                                                           size_t size)
 {
     constexpr auto charblock_size = sizeof(ScreenBlock) * 8;
     if (size > charblock_size) {
@@ -2429,30 +2429,30 @@ static const AudioTrack* find_music(const char* name)
 // #include "data/sound_typewriter.hpp"
 
 
-static const AudioTrack sounds[] = {// DEF_SOUND(explosion1, sound_explosion1),
-                                    // DEF_SOUND(explosion2, sound_explosion2),
-                                    // DEF_SOUND(typewriter, sound_typewriter),
-                                    // DEF_SOUND(footstep1, sound_footstep1),
-                                    // DEF_SOUND(footstep2, sound_footstep2),
-                                    // DEF_SOUND(footstep3, sound_footstep3),
-                                    // DEF_SOUND(footstep4, sound_footstep4),
-                                    // DEF_SOUND(open_book, sound_open_book),
-                                    // DEF_SOUND(dropitem, sound_dropitem),
-                                    // DEF_SOUND(openbag, sound_openbag),
-                                    // DEF_SOUND(blaster, sound_blaster),
-                                    // DEF_SOUND(tw_bell, sound_tw_bell),
-                                    // DEF_SOUND(select, sound_select),
-                                    // DEF_SOUND(laser1, sound_laser1),
-                                    // DEF_SOUND(scroll, sound_scroll),
-                                    // DEF_SOUND(creak, sound_creak),
-                                    // DEF_SOUND(dodge, sound_dodge),
-                                    // DEF_SOUND(heart, sound_heart),
-                                    // DEF_SOUND(click, sound_click),
-                                    // DEF_SOUND(thud, sound_thud),
-                                    // DEF_SOUND(coin, sound_coin),
-                                    // DEF_SOUND(bell, sound_bell),
-                                    // DEF_SOUND(pop, sound_pop),
-                                    DEF_SOUND(msg, sound_msg)};
+static const AudioTrack sounds[] = { // DEF_SOUND(explosion1, sound_explosion1),
+    // DEF_SOUND(explosion2, sound_explosion2),
+    // DEF_SOUND(typewriter, sound_typewriter),
+    // DEF_SOUND(footstep1, sound_footstep1),
+    // DEF_SOUND(footstep2, sound_footstep2),
+    // DEF_SOUND(footstep3, sound_footstep3),
+    // DEF_SOUND(footstep4, sound_footstep4),
+    // DEF_SOUND(open_book, sound_open_book),
+    // DEF_SOUND(dropitem, sound_dropitem),
+    // DEF_SOUND(openbag, sound_openbag),
+    // DEF_SOUND(blaster, sound_blaster),
+    // DEF_SOUND(tw_bell, sound_tw_bell),
+    // DEF_SOUND(select, sound_select),
+    // DEF_SOUND(laser1, sound_laser1),
+    // DEF_SOUND(scroll, sound_scroll),
+    // DEF_SOUND(creak, sound_creak),
+    // DEF_SOUND(dodge, sound_dodge),
+    // DEF_SOUND(heart, sound_heart),
+    // DEF_SOUND(click, sound_click),
+    // DEF_SOUND(thud, sound_thud),
+    // DEF_SOUND(coin, sound_coin),
+    // DEF_SOUND(bell, sound_bell),
+    // DEF_SOUND(pop, sound_pop),
+    DEF_SOUND(msg, sound_msg)};
 
 
 static const AudioTrack* get_sound(const char* name)
@@ -3416,7 +3416,8 @@ bool Platform::load_overlay_texture(const char* name)
 
             memcpy16((void*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0],
                      info.tile_data_,
-                     std::min((size_t)info.tile_data_length_ / 2, charblock_size / 2));
+                     std::min((size_t)info.tile_data_length_ / 2,
+                              charblock_size / 2));
 
 
 
@@ -4864,10 +4865,10 @@ void Platform::enable_feature(const char* feature_name, int value)
     if (str_cmp(feature_name, "_prlx7") == 0) {
 
         if (not get_gflag(GlobalFlag::v_parallax)) {
-            auto offset =
-                screen_.get_view().get_center().cast<s32>().y / 2;
+            auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
             for (int i = 112 - offset; i < 128 - offset; ++i) {
-                u8 temp = value + screen_.get_view().get_center().cast<s32>().x / 3;
+                u8 temp =
+                    value + screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
             }
             // Fixme: clean up this code...
@@ -4887,10 +4888,10 @@ void Platform::enable_feature(const char* feature_name, int value)
     } else if (str_cmp(feature_name, "_prlx8") == 0) {
 
         if (not get_gflag(GlobalFlag::v_parallax)) {
-            auto offset =
-                screen_.get_view().get_center().cast<s32>().y / 2;
+            auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
             for (int i = 128 - offset; i < 144 - offset; ++i) {
-                u8 temp = value + screen_.get_view().get_center().cast<s32>().x / 3;
+                u8 temp =
+                    value + screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
             }
             return;

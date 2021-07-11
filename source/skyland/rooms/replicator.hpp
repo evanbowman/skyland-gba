@@ -67,7 +67,7 @@ public:
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
-    bool create_replicant(Platform& pfrm);
+    bool create_replicant(Platform& pfrm, App& app);
 
 
     static Conditions::Value conditions()
@@ -77,7 +77,6 @@ public:
 
 
 private:
-
     static const auto recharge_time = seconds(5);
 
     Microseconds recharge_timer_ = 0;

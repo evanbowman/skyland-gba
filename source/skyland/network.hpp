@@ -294,7 +294,8 @@ public:
     }
 
 
-    virtual void receive(Platform&, App&, const packet::OpponentBulkheadChanged&)
+    virtual void
+    receive(Platform&, App&, const packet::OpponentBulkheadChanged&)
     {
     }
 

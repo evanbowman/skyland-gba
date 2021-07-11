@@ -11,6 +11,7 @@ namespace skyland {
 
 
 class Cannon;
+class FlakGun;
 class IonCannon;
 class MissileSilo;
 class BasicCharacter;
@@ -38,6 +39,9 @@ private:
 
     void
     set_target(Platform&, App&, const u8 matrix[16][16], IonCannon& cannon);
+
+
+    void set_target(Platform&, App&, const u8 matrix[16][16], FlakGun& gun);
 
 
     void assign_boarded_character(Platform&, App&, BasicCharacter& character);

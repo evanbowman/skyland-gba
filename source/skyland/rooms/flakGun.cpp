@@ -1,7 +1,7 @@
-#include "cannon.hpp"
-#include "platform/platform.hpp"
+#include "flakGun.hpp"
+#include "globals.hpp"
 #include "skyland/alloc_entity.hpp"
-#include "skyland/entity/projectile/cannonball.hpp"
+#include "skyland/entity/projectile/flak.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -13,17 +13,16 @@ namespace skyland {
 
 
 
-Cannon::Cannon(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(200))
+FlakGun::FlakGun(Island* parent, const Vec2<u8>& position)
+    : Room(parent, name(), size(), position, Health(130))
 {
 }
 
 
 
-void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
+void FlakGun::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
-
 
     if (reload_ > 0) {
         reload_ -= delta;
@@ -45,9 +44,9 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
                 // run into the player's own buildings, especially around
                 // corners.
                 if (island == &app.player_island()) {
-                    start.x -= 6;
+                    start.x -= 18;
                 } else {
-                    start.x += 6;
+                    start.x += 18;
                 }
 
                 auto target = room->center();
@@ -56,11 +55,12 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
                     target = rng::sample<6>(target, rng::critical_state);
                 }
 
-                auto c = alloc_entity<Cannonball>(
-                    start, target, parent(), position());
+                auto c =
+                    alloc_entity<Flak>(start, target, parent(), position());
                 if (c) {
                     parent()->projectiles().push(std::move(c));
                 }
+
 
                 reload_ = reload_time;
             } else {
@@ -72,21 +72,7 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Cannon::render_interior(Platform& pfrm, Layer layer)
-{
-    pfrm.set_tile(layer, position().x, position().y, Tile::cannon_1);
-}
-
-
-
-void Cannon::render_exterior(Platform& pfrm, Layer layer)
-{
-    pfrm.set_tile(layer, position().x, position().y, Tile::cannon_1);
-}
-
-
-
-ScenePtr<Scene> Cannon::select(Platform& pfrm, App& app)
+ScenePtr<Scene> FlakGun::select(Platform& pfrm, App& app)
 {
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
@@ -96,6 +82,23 @@ ScenePtr<Scene> Cannon::select(Platform& pfrm, App& app)
     }
 
     return scene_pool::alloc<WeaponSetTargetScene>(position());
+}
+
+
+
+void FlakGun::render_exterior(Platform& pfrm, Layer layer)
+{
+    pfrm.set_tile(layer, position().x, position().y, InteriorTile::flak_gun_1);
+    pfrm.set_tile(
+        layer, position().x + 1, position().y, InteriorTile::flak_gun_2);
+}
+
+
+
+void FlakGun::render_interior(Platform& pfrm, Layer layer)
+{
+    pfrm.set_tile(layer, position().x, position().y, Tile::flak_gun_1);
+    pfrm.set_tile(layer, position().x + 1, position().y, Tile::flak_gun_2);
 }
 
 

@@ -1,8 +1,8 @@
 #include "bulkhead.hpp"
 #include "skyland/island.hpp"
-#include "skyland/tile.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/network.hpp"
+#include "skyland/skyland.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -37,10 +37,8 @@ void Bulkhead::render_interior(Platform& pfrm, Layer layer)
     if (open_) {
         pfrm.set_tile(
             layer, position().x, position().y, InteriorTile::bulkhead_open_1);
-        pfrm.set_tile(layer,
-                      position().x,
-                      position().y + 1,
-                      InteriorTile::plain_floor);
+        pfrm.set_tile(
+            layer, position().x, position().y + 1, InteriorTile::plain_floor);
     } else {
         pfrm.set_tile(
             layer, position().x, position().y, InteriorTile::bulkhead_closed_1);

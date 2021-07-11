@@ -156,11 +156,7 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-static const char* menu_text[3]{
-    "adventure",
-    "challenge",
-    "multiplayer"
-};
+static const char* menu_text[3]{"adventure", "challenge", "multiplayer"};
 
 
 
@@ -356,7 +352,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.load_tile1_texture("skyland_title_1_flattened");
             x_scroll_ = 0;
         } else {
-            const auto amount = -240 * (1.f - smoothstep(0.f, duration, timer_));
+            const auto amount =
+                -240 * (1.f - smoothstep(0.f, duration, timer_));
             x_scroll_ = amount;
         }
         break;
@@ -582,35 +579,29 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
     auto view = pfrm.screen().get_view();
     auto c = view.get_center();
 
-    const Vec2<Float> anchor = {
-        73.f,
-        (c.y - 64) + 148
-    };
+    const Vec2<Float> anchor = {73.f, (c.y - 64) + 148};
 
     Sprite sprite;
     sprite.set_size(Sprite::Size::w16_h32);
     sprite.set_texture_index(26);
     sprite.set_origin({1, 2});
-    sprite.set_position({
-            (anchor.x) - (240 + x_scroll),
-            anchor.y + clamp(interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
-                             0.f, 19.f)
-        });
+    sprite.set_position(
+        {(anchor.x) - (240 + x_scroll),
+         anchor.y + clamp(interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
+                          0.f,
+                          19.f)});
     pfrm.screen().draw(sprite);
 
-    sprite.set_position({
-            (anchor.x + 24) - (240 + x_scroll),
-            anchor.y + interpolate(ball_.y, pad2_.pos_, ball_.x / 22)
-        });
+    sprite.set_position(
+        {(anchor.x + 24) - (240 + x_scroll),
+         anchor.y + interpolate(ball_.y, pad2_.pos_, ball_.x / 22)});
 
     pfrm.screen().draw(sprite);
 
     sprite.set_origin({});
     sprite.set_texture_index(27);
-    sprite.set_position({
-            (ball_.x + anchor.x) - (240 + x_scroll),
-            ball_.y + anchor.y
-        });
+    sprite.set_position(
+        {(ball_.x + anchor.x) - (240 + x_scroll), ball_.y + anchor.y});
     pfrm.screen().draw(sprite);
 }
 

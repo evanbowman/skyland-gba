@@ -3,13 +3,13 @@
 #include "localization.hpp"
 #include "platform/platform.hpp"
 #include "readyScene.hpp"
+#include "salvageRoomScene.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "worldScene.hpp"
-#include "salvageRoomScene.hpp"
 
 
 
@@ -277,13 +277,7 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
         }
 
         auto icon = (*available_buildings_[index])->unsel_icon();
-        draw_image(pfrm,
-                   258,
-                   st.x - 25,
-                   st.y - 5,
-                   4,
-                   4,
-                   Layer::overlay);
+        draw_image(pfrm, 258, st.x - 25, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(258, icon, 16);
     }
@@ -297,26 +291,14 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
         }
 
         auto icon = (*available_buildings_[index])->unsel_icon();
-        draw_image(pfrm,
-                   181,
-                   st.x - 21,
-                   st.y - 5,
-                   4,
-                   4,
-                   Layer::overlay);
+        draw_image(pfrm, 181, st.x - 21, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(181, icon, 16);
     }
 
     {
         auto icon = (*available_buildings_[building_selector_])->icon();
-        draw_image(pfrm,
-                   197,
-                   st.x - 17,
-                   st.y - 5,
-                   4,
-                   4,
-                   Layer::overlay);
+        draw_image(pfrm, 197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(197, icon, 16);
     }
@@ -330,13 +312,7 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
         }
 
         auto icon = (*available_buildings_[index])->unsel_icon();
-        draw_image(pfrm,
-                   213,
-                   st.x - 13,
-                   st.y - 5,
-                   4,
-                   4,
-                   Layer::overlay);
+        draw_image(pfrm, 213, st.x - 13, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(213, icon, 16);
     }
@@ -352,17 +328,10 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
         }
 
         auto icon = (*available_buildings_[index])->unsel_icon();
-        draw_image(pfrm,
-                   274,
-                   st.x - 9,
-                   st.y - 5,
-                   4,
-                   4,
-                   Layer::overlay);
+        draw_image(pfrm, 274, st.x - 9, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(274, icon, 16);
     }
-
 }
 
 
@@ -407,6 +376,14 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 sprite.set_texture_index(14);
                 sprite.set_size(Sprite::Size::w16_h32);
                 sprite.set_position({origin.x, origin.y - 16});
+                pfrm.screen().draw(sprite);
+            } else if (sz.x == 2 and sz.y == 1) {
+                Sprite sprite;
+                sprite.set_texture_index(14);
+                sprite.set_size(Sprite::Size::w16_h32);
+                sprite.set_position({origin.x, origin.y - 16});
+                pfrm.screen().draw(sprite);
+                sprite.set_position({origin.x + 16, origin.y - 16});
                 pfrm.screen().draw(sprite);
             } else {
                 Sprite sprite;

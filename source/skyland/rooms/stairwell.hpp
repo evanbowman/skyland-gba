@@ -64,7 +64,6 @@ public:
     {
         return 600;
     }
-
 };
 
 
