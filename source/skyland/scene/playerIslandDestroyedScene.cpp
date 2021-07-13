@@ -332,8 +332,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             anim_state_ = AnimState::idle;
         } else {
             const auto amount =
-                smoothstep(0.f, fade_duration, timer_) * partial_fade_amt;
-            pfrm.screen().fade(amount);
+                smoothstep(0.f, fade_duration, timer_);
+            pfrm.screen().fade(amount * partial_fade_amt);
+            pfrm.screen().pixelate(amount * 28, false);
         }
         break;
     }
@@ -488,6 +489,7 @@ void PlayerIslandDestroyedScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     lines_.clear();
     pfrm.load_overlay_texture("overlay");
+    pfrm.screen().pixelate(0);
 }
 
 

@@ -1684,6 +1684,10 @@ Platform* interp_get_pfrm()
 
 void init(Platform& pfrm)
 {
+    if (bound_context) {
+        return;
+    }
+
     bound_context.emplace(pfrm);
 
     // We cannot be sure that the memory will be zero-initialized, so make sure
@@ -2598,6 +2602,19 @@ void init(Platform& pfrm)
                     out += "\r\n";
                 }
                 return get_nil();
+            } else if (get_op(0)->mode_bits_ ==
+                       Function::ModeBits::lisp_function) {
+                auto expression_list =
+                    dcompr(get_op(0)->function_.lisp_impl_);
+
+                DefaultPrinter p;
+                format(expression_list, p);
+
+                interp_get_pfrm()->remote_console().printline(
+                            p.fmt_.c_str(), false);
+                interp_get_pfrm()->sleep(80);
+                return get_nil();
+
             } else {
                 return get_nil();
             }

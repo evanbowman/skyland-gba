@@ -8,6 +8,7 @@
 #include "script/listBuilder.hpp"
 #include "serial.hpp"
 #include "skyland.hpp"
+#include "bulkAllocator.hpp"
 
 
 
@@ -33,6 +34,46 @@ static App* interp_get_app()
 std::pair<App*, Platform*> interp_get_context()
 {
     return {interp_get_app(), lisp::interp_get_pfrm()};
+}
+
+
+
+using FileLine = StringBuffer<1980>;
+
+
+DynamicMemory<FileLine> get_line_from_file(Platform& pfrm,
+                                           const char* file_name,
+                                           int line)
+{
+    --line; // From the caller's perspective, file lines start from 1.
+
+    auto result = allocate_dynamic<FileLine>(pfrm);
+
+    if (!result) {
+        return result;
+    }
+
+    if (auto contents = pfrm.load_file_contents("", file_name)) {
+
+        while (line) {
+            while (*contents not_eq '\n') {
+                if (*contents == '\0') {
+                    return result;
+                }
+                ++contents;
+            }
+            ++contents;
+
+            --line;
+        }
+
+        while (*contents not_eq '\0' and *contents not_eq '\n') {
+            result->push_back(*contents);
+            ++contents;
+        }
+    }
+
+    return result;
 }
 
 
@@ -454,6 +495,31 @@ void App::init_scripts(Platform& pfrm)
                           rng::choice(lisp::get_op(0)->integer_.value_,
                                       rng::critical_state));
                   }));
+
+
+    lisp::set_var("get-line-of-file", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(1, string);
+        L_EXPECT_OP(0, integer);
+
+        auto line = get_line_from_file(*lisp::interp_get_pfrm(),
+                                       lisp::get_op(1)->string_.value(),
+                                       lisp::get_op(0)->integer_.value_);
+
+        if (line) {
+            return lisp::make_string(*lisp::interp_get_pfrm(),
+                                     line->c_str());
+        }
+
+        return L_NIL;
+    }));
+
+    lisp::dostring(pfrm.load_file_contents("scripts", "init.lisp"),
+                   [&pfrm](lisp::Value& err) {
+                       lisp::DefaultPrinter p;
+                       lisp::format(&err, p);
+                       pfrm.fatal(p.fmt_.c_str());
+                   });
 }
 
 

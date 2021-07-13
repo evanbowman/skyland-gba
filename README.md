@@ -6,8 +6,8 @@
 <img src="imgs_for_readme/header.png"/>
 
 A Gameboy Advance game created, frantically, for a game jam, in about twenty
-days. For posterity, I will not be editing this repository after finishing the
-game jam. All future work will be completed in a fork (link forthcoming).
+days. A simple realtime strategy game where you build flying castles and fight
+AI players. Also includes a multiplayer vs mode.
 
 I forked a top-down action game called Blind Jump to leverage some existing gba
 framework code that I'd written in the past for interfacing with the hardware,

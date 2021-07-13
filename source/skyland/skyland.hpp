@@ -12,7 +12,7 @@
 #include "opponent/enemyAI.hpp"
 #include "persistentData.hpp"
 #include "platform/platform.hpp"
-#include "player.hpp"
+#include "playerP1.hpp"
 #include "rumble.hpp"
 #include "scene.hpp"
 #include "timeTracker.hpp"
@@ -229,6 +229,16 @@ public:
 
     Highscores highscores_;
 
+
+    static const auto pixelate_duration = milliseconds(200);
+
+    void pixelate()
+    {
+        pixelate_timer_ = pixelate_duration;
+    }
+
+
+
 private:
     PersistentData persistent_data_;
     Island player_island_;
@@ -255,11 +265,13 @@ private:
     Microseconds birb_counter_;
     TimeTracker level_timer_;
 
+    Microseconds pixelate_timer_ = 0;
+
     std::optional<Island> opponent_island_;
 
     Buffer<std::pair<DeferredCallback, Microseconds>, 10> deferred_callbacks_;
 
-    Player player_; // Just a null sentinel object essentially...
+    PlayerP1 player_;
 
 
     Boxed<Opponent, EnemyAI, 64> opponent_;

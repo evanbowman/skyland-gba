@@ -73,6 +73,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/roomPool.cpp
   ${SOURCE_DIR}/skyland/script_defs.cpp
   ${SOURCE_DIR}/skyland/configure_island.cpp
+  ${SOURCE_DIR}/skyland/playerP1.cpp
   ${SOURCE_DIR}/skyland/opponent/enemyAI.cpp
   ${SOURCE_DIR}/skyland/opponent/multiplayerPeer.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp

@@ -908,7 +908,7 @@ void Platform::Screen::draw(const Sprite& spr)
 
         oa->attribute_0 |= abs_position.y & 0x00ff;
 
-        if ((mix.amount_ > 215 and mix.amount_ < 255) or
+        if (not mix.amount_ and
             screen_pixelate_amount not_eq 0) {
 
             oa->attribute_0 |= ATTR0_MOSAIC;
@@ -1681,13 +1681,14 @@ void Platform::fatal(const char* msg)
         Text text3(*this, {1, 18});
         text3.append("L+R+START+SELECT reset...", text_colors);
 
-
         screen().display();
 
         irqDisable(IRQ_VBLANK);
     };
 
     show_default_scrn();
+
+    lisp::init(*this);
 
     auto show_verbose_msg = [&] {
         irqEnable(IRQ_VBLANK);
@@ -2944,8 +2945,12 @@ const char* Platform::load_file_contents(const char* folder,
                                          const char* filename) const
 {
     StringBuffer<64> path("/");
-    path += folder;
-    path += "/";
+
+    if (str_len(folder) > 0) {
+        path += folder;
+        path += "/";
+    }
+
     path += filename;
 
     return filesystem::load(path.c_str());
