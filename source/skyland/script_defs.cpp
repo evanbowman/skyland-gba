@@ -9,6 +9,7 @@
 #include "serial.hpp"
 #include "skyland.hpp"
 #include "bulkAllocator.hpp"
+#include "autopilotPlayer.hpp"
 
 
 
@@ -495,6 +496,16 @@ void App::init_scripts(Platform& pfrm)
                           rng::choice(lisp::get_op(0)->integer_.value_,
                                       rng::critical_state));
                   }));
+
+
+    lisp::set_var("autopilot", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, cons);
+
+        interp_get_app()->swap_player<AutopilotPlayer>(lisp::get_op(0));
+
+        return L_NIL;
+    }));
 
 
     lisp::set_var("get-line-of-file", lisp::make_function([](int argc) {

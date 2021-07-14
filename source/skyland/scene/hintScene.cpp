@@ -2,6 +2,7 @@
 #include "platform/platform.hpp"
 #include "skyland/scene_pool.hpp"
 #include "worldMapScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -58,7 +59,9 @@ void HintScene::exit(Platform& pfrm, App&, Scene& next)
 }
 
 
-ScenePtr<Scene> HintScene::update(Platform& pfrm, App&, Microseconds delta)
+ScenePtr<Scene> HintScene::update(Platform& pfrm,
+                                  App& app,
+                                  Microseconds delta)
 {
     switch (state_) {
     case State::scene_intro: {
@@ -79,7 +82,7 @@ ScenePtr<Scene> HintScene::update(Platform& pfrm, App&, Microseconds delta)
     }
 
     case State::idle:
-        if (key_down<Key::action_1>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             // if (hint_index_ >= (sizeof(hints) / sizeof(HintInfo))) {
             //     hint_index_ = 0;
             // } else {
@@ -90,7 +93,7 @@ ScenePtr<Scene> HintScene::update(Platform& pfrm, App&, Microseconds delta)
             timer_ = 0;
 
             state_ = State::fade_out;
-        } else if (key_down<Key::action_2>(pfrm)) {
+        } else if (app.player().key_down(pfrm, Key::action_2)) {
             return scene_pool::alloc<WorldMapScene>();
         }
         break;

@@ -169,6 +169,11 @@ void BoxedDialogScene::clear_textbox(Platform& pfrm)
 
 void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    pfrm.fill_overlay(0);
+
+    pfrm.screen().clear();
+    pfrm.screen().display();
+
     pfrm.load_overlay_texture("overlay_dialog");
 
     clear_textbox(pfrm);

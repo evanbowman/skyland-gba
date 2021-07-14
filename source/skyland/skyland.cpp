@@ -16,7 +16,7 @@ void init_clouds(Platform& pfrm);
 
 
 App::App(Platform& pfrm)
-    : player_island_(pfrm, Layer::map_0_ext, 5, player_),
+    : player_island_(pfrm, Layer::map_0_ext, 5, player()),
       current_scene_(null_scene()), next_scene_(null_scene()),
       effects_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       birbs_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),

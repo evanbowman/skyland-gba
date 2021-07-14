@@ -50,39 +50,39 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (freeform_) {
 
-        if (key_down<Key::alt_2>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::alt_2)) {
             freeform_ = false;
         }
 
-        if (key_down<Key::right>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::right)) {
             if (cursor_loc.x < app.opponent_island()->terrain().size()) {
                 ++cursor_loc.x;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
             }
         }
-        if (key_down<Key::down>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
             }
         }
-        if (key_down<Key::up>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::up)) {
             if (cursor_loc.y > 6) {
                 --cursor_loc.y;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
             }
         }
-        if (key_down<Key::left>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
             }
         }
-        if (key_down<Key::action_1>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             if (auto target_room =
                     app.opponent_island()->get_room(cursor_loc)) {
                 if (auto room = app.player_island().get_room(weapon_loc_)) {
@@ -102,11 +102,12 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         cursor_loc.x = targets_[selector_].x;
         cursor_loc.y = targets_[selector_].y;
 
-        if (key_down<Key::alt_2>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::alt_2)) {
             freeform_ = true;
         }
 
-        if (key_down<Key::right>(pfrm) or key_down<Key::down>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::right) or
+            app.player().key_down(pfrm, Key::down)) {
 
             if (selector_ < (int)targets_.size() - 1) {
                 selector_++;
@@ -118,7 +119,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             describe_room_timer_ = milliseconds(300);
         }
 
-        if (key_down<Key::left>(pfrm) or key_down<Key::up>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::left) or
+            app.player().key_down(pfrm, Key::up)) {
 
             if (selector_ > 0) {
                 --selector_;
@@ -130,7 +132,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             describe_room_timer_ = milliseconds(300);
         }
 
-        if (key_down<Key::action_1>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             const auto target = targets_[selector_];
             if (auto room = app.player_island().get_room(weapon_loc_)) {
                 room->set_target(target);
@@ -147,7 +149,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (key_down<Key::action_2>(pfrm)) {
+    if (app.player().key_down(pfrm, Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 

@@ -1,4 +1,4 @@
-#include "selectChallengeScene.hpp"
+#include "selectTutorialScene.hpp"
 #include "fadeInScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -14,24 +14,30 @@ static const Float default_fade = 0.6f;
 
 
 
-void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
+void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    pfrm.fill_overlay(0);
+
+    // In case we came from a previous tutorial, give control back to the
+    // player.
+    app.swap_player<PlayerP1>();
+
     pfrm.load_overlay_texture("overlay_challenges");
 
     pfrm.enable_feature("v-parallax", false);
 
-    if (auto script = pfrm.load_file_contents("scripts", "challenge.lisp")) {
+    if (auto script = pfrm.load_file_contents("scripts", "tutorials.lisp")) {
         auto result = lisp::dostring(script, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
             pfrm.fatal(p.fmt_.c_str());
         });
-        challenges_ = result;
-        const auto challenge_count = lisp::length(result);
-        page_count_ = challenge_count / 5 + (challenge_count % 5 ? 1 : 0);
+        tutorials_ = result;
+        const auto tutorial_count = lisp::length(result);
+        page_count_ = tutorial_count / 5 + (tutorial_count % 5 ? 1 : 0);
 
     } else {
-        pfrm.fatal("missing file challenge.lisp");
+        pfrm.fatal("missing file tutorial.lisp");
     }
 
     show_options(pfrm);
@@ -52,27 +58,27 @@ void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
 
 
 
-void SelectChallengeScene::show_options(Platform& pfrm)
+void SelectTutorialScene::show_options(Platform& pfrm)
 {
     pfrm.screen().clear();
     text_.clear();
     pfrm.screen().display();
 
-    if (not challenges_) {
+    if (not tutorials_) {
         return;
     }
 
     int index = 0;
     int start_index = page_ * 5;
 
-    lisp::foreach (*challenges_, [&](lisp::Value* val) {
+    lisp::foreach (*tutorials_, [&](lisp::Value* val) {
         if (val->type_ not_eq lisp::Value::Type::cons) {
-            pfrm.fatal("challenge list format invalid");
+            pfrm.fatal("tutorial list format invalid");
         }
 
         auto name = val->cons_.car();
         if (name->type_ not_eq lisp::Value::Type::string) {
-            pfrm.fatal("challenge list format invalid");
+            pfrm.fatal("tutorial list format invalid");
         }
 
         if (index++ < start_index) {
@@ -103,7 +109,7 @@ void prep_level(Platform& pfrm, App& app);
 
 
 
-void SelectChallengeScene::exit(Platform& pfrm, App&, Scene& next)
+void SelectTutorialScene::exit(Platform& pfrm, App&, Scene& next)
 {
     text_.clear();
     pfrm.fill_overlay(0);
@@ -114,7 +120,7 @@ void SelectChallengeScene::exit(Platform& pfrm, App&, Scene& next)
 
 
 
-void SelectChallengeScene::display(Platform& pfrm, App& app)
+void SelectTutorialScene::display(Platform& pfrm, App& app)
 {
     if (state_ not_eq State::idle) {
         return;
@@ -139,7 +145,7 @@ void SelectChallengeScene::display(Platform& pfrm, App& app)
 
 
 ScenePtr<Scene>
-SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
+SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (exit_) {
         return scene_pool::alloc<TitleScreenScene>();
@@ -152,7 +158,7 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::idle: {
-        if (not challenges_) {
+        if (not tutorials_) {
             return null_scene();
         }
 
@@ -206,11 +212,11 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.camera().reset();
             pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
             auto index = page_ * 5 + cursor_;
-            auto choice = lisp::get_list(*challenges_, index);
+            auto choice = lisp::get_list(*tutorials_, index);
 
             auto file_name = choice->cons_.cdr();
             if (file_name->type_ not_eq lisp::Value::Type::string) {
-                pfrm.fatal("challenge list format invalid");
+                pfrm.fatal("tutorial list format invalid");
             }
 
             if (auto script = pfrm.load_file_contents(

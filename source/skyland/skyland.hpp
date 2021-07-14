@@ -84,6 +84,12 @@ public:
     }
 
 
+    bool& tutorial_mode()
+    {
+        return tutorial_mode_;
+    }
+
+
     template <typename T, typename... Args>
     EntityRef<T> alloc_entity(Platform& pfrm, Args&&... args)
     {
@@ -121,7 +127,7 @@ public:
 
     Player& player()
     {
-        return player_;
+        return *player_;
     }
 
 
@@ -137,6 +143,13 @@ public:
         if (opponent_island()) {
             opponent_island()->set_owner(*opponent_);
         }
+    }
+
+
+    template <typename T, typename... Args> void swap_player(Args&&... args)
+    {
+        player_.emplace<T>(std::forward<Args>(args)...);
+        player_island().set_owner(*player_); // probably unnecessary
     }
 
 
@@ -258,6 +271,7 @@ private:
     bool dialog_expects_answer_ = false;
     bool exit_level_ = false;
     bool challenge_mode_ = false;
+    bool tutorial_mode_ = false;
 
     EntityList<Entity> effects_;
     EntityList<SmolBirb> birbs_;
@@ -271,9 +285,8 @@ private:
 
     Buffer<std::pair<DeferredCallback, Microseconds>, 10> deferred_callbacks_;
 
-    PlayerP1 player_;
 
-
+    Boxed<Player, PlayerP1, 100> player_;
     Boxed<Opponent, EnemyAI, 64> opponent_;
 };
 

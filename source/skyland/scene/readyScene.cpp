@@ -51,26 +51,24 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<FadeOutScene>();
     }
 
-    if (pfrm.keyboard().down_transition<Key::alt_2>()) {
+    if (app.player().key_down(pfrm, Key::alt_2)) {
         return scene_pool::alloc<ConstructionScene>();
     }
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
 
-    if (key_down<Key::left>(pfrm)) {
+
+    const auto& mt_prep_seconds =
+        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+
+    if (app.player().key_down(pfrm, Key::left)) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
-    }
-
-    const auto& mt_prep_seconds =
-        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
-
-
-    if (key_down<Key::right>(pfrm)) {
+    } else if (app.player().key_down(pfrm, Key::right)) {
         if (cursor_loc.x < app.player_island().terrain().size()) {
             ++cursor_loc.x;
             clear_room_description(pfrm, room_description_);
@@ -82,15 +80,13 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (key_down<Key::up>(pfrm)) {
+    if (app.player().key_down(pfrm, Key::up)) {
         if (cursor_loc.y > 6) {
             --cursor_loc.y;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
-    }
-
-    if (key_down<Key::down>(pfrm)) {
+    } else if (app.player().key_down(pfrm, Key::down)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
             clear_room_description(pfrm, room_description_);
@@ -104,13 +100,13 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         cursor_anim_frame_ = not cursor_anim_frame_;
     }
 
-    if (key_down<Key::action_1>(pfrm)) {
+    if (app.player().key_down(pfrm, Key::action_1)) {
         if (auto room = app.player_island().get_room(cursor_loc)) {
             return room->select(pfrm, app);
         }
     }
 
-    if (key_down<Key::action_2>(pfrm)) {
+    if (app.player().key_down(pfrm, Key::action_2)) {
         if (app.player_island().get_room(cursor_loc)) {
             return scene_pool::alloc<SalvageRoomScene>();
         }

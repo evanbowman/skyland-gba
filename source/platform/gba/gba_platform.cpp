@@ -916,15 +916,13 @@ void Platform::Screen::draw(const Sprite& spr)
 
         oa->attribute_1 |= (abs_position.x + x_off) & 0x01ff;
 
-        const auto w16_h32_index =
-            spr.get_texture_index() * (scale == 16 ? 2 : 1);
         auto ti = spr.get_texture_index();
-        if (w16_h32_index > 125) {
-            ti = find_dynamic_mapping(w16_h32_index);
-            if (scale == 16) {
-                ti /= 2;
-            }
-        }
+        // if (w16_h32_index > 125) {
+        //     ti = find_dynamic_mapping(w16_h32_index);
+        //     if (scale == 16) {
+        //         ti /= 2;
+        //     }
+        // }
         const auto target_index = 2 + ti * scale + tex_off;
         oa->attribute_2 = target_index;
         oa->attribute_2 |= pb;

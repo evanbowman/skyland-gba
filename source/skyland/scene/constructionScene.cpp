@@ -44,8 +44,12 @@ static bool show_construction_icons = true;
 ScenePtr<Scene>
 ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (pfrm.keyboard().down_transition<Key::alt_2>() or
-        (state_ == State::select_loc and key_down<Key::action_2>(pfrm))) {
+    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+        return new_scene;
+    }
+
+    if (app.player().key_down(pfrm, Key::alt_2) or
+        (state_ == State::select_loc and app.player().key_down(pfrm, Key::action_2))) {
         auto& cursor_loc =
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
         if (not construction_sites_.empty()) {
@@ -55,18 +59,14 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
-        return new_scene;
-    }
-
     switch (state_) {
     case State::select_loc:
-        if (key_down<Key::right>(pfrm) and
+        if (app.player().key_down(pfrm, Key::right) and
             selector_ < construction_sites_.size() - 1) {
             ++selector_;
         }
 
-        if (key_down<Key::left>(pfrm) and selector_ > 0) {
+        if (app.player().key_down(pfrm, Key::left) and selector_ > 0) {
             --selector_;
         }
 
@@ -77,7 +77,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             cursor_loc.y = construction_sites_[selector_].y;
         }
 
-        if (key_down<Key::action_1>(pfrm) and not construction_sites_.empty()) {
+        if (app.player().key_down(pfrm, Key::action_1)
+            and not construction_sites_.empty()) {
 
             if (construction_sites_[selector_].y == 15) {
                 // Special case: we want to add to the terrain level, not
@@ -97,31 +98,31 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::choose_building:
-        if (key_down<Key::action_2>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_2)) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
             msg(pfrm, ":build");
             break;
         }
 
-        if (key_down<Key::start>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::start)) {
             show_construction_icons = not show_construction_icons;
             show_current_building_text(pfrm, app);
         }
 
-        if (key_down<Key::down>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::down)) {
             building_selector_ += 5;
             building_selector_ %= available_buildings_.size();
             show_current_building_text(pfrm, app);
         }
 
-        if (key_down<Key::up>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::up)) {
             building_selector_ -= 5;
             building_selector_ %= available_buildings_.size();
             show_current_building_text(pfrm, app);
         }
 
-        if (key_down<Key::right>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::right)) {
             if (building_selector_ < (int)available_buildings_.size() - 1) {
                 ++building_selector_;
                 show_current_building_text(pfrm, app);
@@ -131,7 +132,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (key_down<Key::left>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::left)) {
             if (building_selector_ > 0) {
                 --building_selector_;
                 show_current_building_text(pfrm, app);
@@ -141,7 +142,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (key_down<Key::action_1>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             const auto& target = *available_buildings_[building_selector_];
 
             if (app.coins() < get_cost(app, target)) {
@@ -183,7 +184,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::insufficent_funds:
-        if (pfrm.keyboard().down_transition<Key::action_2, Key::action_1>()) {
+        if (app.player().key_down(pfrm, Key::action_2) or
+            app.player().key_down(pfrm, Key::action_1)) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
             msg(pfrm, ":build");
@@ -191,14 +193,14 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::add_terrain:
-        if (key_down<Key::action_2>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_2)) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
             msg(pfrm, ":build");
             break;
         }
 
-        if (key_down<Key::action_1>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             if (app.coins() < app.terrain_cost()) {
                 msg(pfrm, "insufficent funds!");
                 state_ = State::insufficent_funds;

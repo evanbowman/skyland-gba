@@ -2,6 +2,7 @@
 
 
 #include "number/numeric.hpp"
+#include "platform/key.hpp"
 
 
 
@@ -42,6 +43,18 @@ public:
     virtual void on_room_destroyed(Platform& pfrm, App& app, Room& room)
     {
         ++rooms_lost_;
+    }
+
+
+    virtual bool key_down(Platform&, Key k)
+    {
+        return false;
+    }
+
+
+    virtual bool key_pressed(Platform&, Key k)
+    {
+        return false;
     }
 
 

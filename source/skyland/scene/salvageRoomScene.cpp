@@ -111,7 +111,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto& cursor_loc =
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
-        if (key_down<Key::action_1>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             if (auto room = app.player_island().get_room(cursor_loc)) {
 
                 // You cannot salvage an occupied room, doing so would destroy
@@ -137,7 +137,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-    if (key_down<Key::action_2>(pfrm)) {
+    if (app.player().key_down(pfrm, Key::action_2)) {
         return scene_pool::alloc<ReadyScene>();
     }
 

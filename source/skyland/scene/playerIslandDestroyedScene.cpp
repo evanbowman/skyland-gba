@@ -397,7 +397,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::idle:
         coins_.reset();
         power_.reset();
-        if (key_down<Key::action_1>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             timer_ = 0;
             lines_.clear();
             pfrm.fill_overlay(0);

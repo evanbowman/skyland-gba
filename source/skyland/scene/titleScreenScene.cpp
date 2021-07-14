@@ -3,6 +3,7 @@
 #include "newgameScene.hpp"
 #include "script/lisp.hpp"
 #include "selectChallengeScene.hpp"
+#include "selectTutorialScene.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/birbs/smolBirb.hpp"
 #include "skyland/scene_pool.hpp"
@@ -50,6 +51,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.screen().fade(1.f);
     const int offset = 64;
+
+    app.swap_player<PlayerP1>();
 
     init_clouds2(pfrm);
     pfrm.enable_feature("v-parallax", false);
@@ -293,12 +296,16 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.speaker().stop_music();
         }
 
-        // if (pfrm.keyboard().down_transition<Key::start>()) {
-        //     pfrm.speaker().stop_music();
-        //     return scene_pool::alloc<MultiplayerConnectScene>();
-        // }
+        if (pfrm.keyboard().down_transition<Key::start>()) {
+            pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+            pfrm.speaker().stop_music();
+            app.challenge_mode() = false;
+            app.tutorial_mode() = true;
+            return scene_pool::alloc<SelectTutorialScene>();
+        }
 
-        if (key_down<Key::right>(pfrm) or key_down<Key::down>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::right) or
+            app.player().key_down(pfrm, Key::down)) {
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
                 put_menu_text(pfrm);
@@ -312,7 +319,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 timer_ = 0;
             }
         }
-        if (key_down<Key::left>(pfrm) or key_down<Key::up>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::left) or
+            app.player().key_down(pfrm, Key::up)) {
             if (menu_selection_ == 1) {
                 menu_selection_ = 0;
                 put_menu_text(pfrm);
@@ -396,15 +404,18 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             switch (menu_selection_) {
             case 0:
                 app.challenge_mode() = false;
+                app.tutorial_mode() = false;
                 return scene_pool::alloc<NewgameScene>();
 
             case 1: {
                 app.challenge_mode() = true;
+                app.tutorial_mode() = false;
                 return scene_pool::alloc<SelectChallengeScene>();
             }
 
             case 2:
                 app.challenge_mode() = false;
+                app.tutorial_mode() = false;
                 return scene_pool::alloc<MultiplayerConnectScene>();
             }
         } else {

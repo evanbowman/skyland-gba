@@ -1,6 +1,9 @@
 #include "fadeOutScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "zoneImageScene.hpp"
+#include "skyland/autopilotPlayer.hpp"
+#include "skyland/skyland.hpp"
+#include "selectTutorialScene.hpp"
 
 
 
@@ -18,10 +21,11 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
     constexpr auto fade_duration = milliseconds(800);
     if (timer_ > fade_duration) {
         pfrm.screen().fade(1.f);
-        // auto future_scene = scene_pool::make_deferred_scene<WorldMapScene>();
-        // return scene_pool::alloc<ScriptHookScene>("after-fadeout-hook",
-        //                                           future_scene);
-        return scene_pool::alloc<ZoneImageScene>();
+        if (app.tutorial_mode()) {
+            return scene_pool::alloc<SelectTutorialScene>();
+        } else {
+            return scene_pool::alloc<ZoneImageScene>();
+        }
     } else {
         const auto amount = smoothstep(0.f, fade_duration, timer_);
         pfrm.screen().fade(amount);

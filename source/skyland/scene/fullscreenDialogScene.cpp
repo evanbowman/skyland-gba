@@ -128,6 +128,8 @@ void FullscreenDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.load_overlay_texture("overlay_dialog");
 
+    pfrm.fill_overlay(0);
+
     pfrm.screen().fade(1.f, custom_color(0), {}, true, false);
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, false);
 
@@ -183,8 +185,7 @@ FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (not text_busy) {
             display_mode_ = DisplayMode::key_released_check1;
         } else {
-            if (key_down<Key::action_2>(pfrm) or
-                key_down<Key::action_1>(pfrm)) {
+            if (key_down<Key::action_2>(pfrm) or key_down<Key::action_1>(pfrm)) {
 
                 while (advance_text(pfrm, app, delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {

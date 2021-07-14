@@ -42,27 +42,27 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     case State::explore_paths:
-        if (key_down<Key::action_2>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_2)) {
             state_ = State::deselected;
             cursor_ = app.current_map_location();
             show_map(pfrm, app.world_map());
             break;
         }
-        if (key_down<Key::action_1>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             if (cursor_ == app.current_map_location()) {
                 state_ = State::move;
                 show_move_arrows(pfrm, app);
             }
         }
-        if (key_down<Key::right>(pfrm) and
+        if (app.player().key_down(pfrm, Key::right) and
             node.connections_.mask_ & WorldMap::Node::Connections::r) {
             cursor_.x += 1;
             show_map(pfrm, app.world_map());
-        } else if (key_down<Key::left>(pfrm) and
+        } else if (app.player().key_down(pfrm, Key::left) and
                    node.connections_.mask_ & WorldMap::Node::Connections::l) {
             cursor_.x -= 1;
             show_map(pfrm, app.world_map());
-        } else if (key_down<Key::up>(pfrm)) {
+        } else if (app.player().key_down(pfrm, Key::up)) {
             if (node.connections_.mask_ & WorldMap::Node::Connections::ru) {
                 cursor_.x += 1;
                 cursor_.y -= 1;
@@ -73,7 +73,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_.y -= 1;
                 show_map(pfrm, app.world_map());
             }
-        } else if (key_down<Key::down>(pfrm)) {
+        } else if (app.player().key_down(pfrm, Key::down)) {
             if (node.connections_.mask_ & WorldMap::Node::Connections::ld) {
                 cursor_.x -= 1;
                 cursor_.y += 1;
@@ -95,14 +95,15 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     case State::save_selected:
-        if (key_down<Key::up>(pfrm) or key_down<Key::action_2>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::up) or
+            app.player().key_down(pfrm, Key::action_2)) {
             state_ = State::explore_paths;
             show_map(pfrm, app.world_map());
-        } else if (key_down<Key::left>(pfrm)) {
+        } else if (app.player().key_down(pfrm, Key::left)) {
             state_ = State::help_selected;
         }
 
-        if (key_down<Key::action_1>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             state_ = State::save_button_depressed;
             save_icon_.emplace(pfrm, 124, OverlayCoord{26, 16});
             timer_ = 0;
@@ -111,14 +112,15 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     case State::help_selected:
-        if (key_down<Key::up>(pfrm) or key_down<Key::action_2>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::up) or
+            app.player().key_down(pfrm, Key::action_2)) {
             state_ = State::explore_paths;
             show_map(pfrm, app.world_map());
-        } else if (key_down<Key::right>(pfrm)) {
+        } else if (app.player().key_down(pfrm, Key::right)) {
             state_ = State::save_selected;
         }
 
-        if (key_down<Key::action_1>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             state_ = State::help_button_depressed;
             help_icon_.emplace(pfrm, 132, OverlayCoord{23, 16});
             timer_ = 0;
@@ -178,14 +180,14 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-        if (key_down<Key::action_2>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_2)) {
             state_ = State::explore_paths;
             cursor_ = app.current_map_location();
             show_map(pfrm, app.world_map());
             cmix_ = {};
             break;
         }
-        if (key_down<Key::up>(pfrm) and
+        if (app.player().key_down(pfrm, Key::up) and
             node.connections_.mask_ & WorldMap::Node::Connections::ru) {
             for (int i = 0; i < 3; ++i) {
                 move_arrow_sel_[i] = false;
@@ -193,7 +195,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             move_arrow_sel_[0] = true;
             show_move_arrows(pfrm, app);
         }
-        if (key_down<Key::right>(pfrm) and
+        if (app.player().key_down(pfrm, Key::right) and
             node.connections_.mask_ & WorldMap::Node::Connections::r) {
             for (int i = 0; i < 3; ++i) {
                 move_arrow_sel_[i] = false;
@@ -201,7 +203,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             move_arrow_sel_[1] = true;
             show_move_arrows(pfrm, app);
         }
-        if (key_down<Key::down>(pfrm) and
+        if (app.player().key_down(pfrm, Key::down) and
             node.connections_.mask_ & WorldMap::Node::Connections::rd) {
             for (int i = 0; i < 3; ++i) {
                 move_arrow_sel_[i] = false;
@@ -210,7 +212,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             show_move_arrows(pfrm, app);
         }
 
-        if (key_down<Key::action_1>(pfrm)) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             state_ = State::wait;
             cmix_ = {ColorConstant::stil_de_grain, 200};
             if (move_arrow_sel_[0]) {
@@ -452,6 +454,8 @@ void WorldMapScene::display(Platform& pfrm, App& app)
 void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 {
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+
+    app.swap_player<PlayerP1>();
 
     app.effects().clear();
     app.player_island().projectiles().clear();

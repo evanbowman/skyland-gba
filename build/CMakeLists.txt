@@ -74,6 +74,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/script_defs.cpp
   ${SOURCE_DIR}/skyland/configure_island.cpp
   ${SOURCE_DIR}/skyland/playerP1.cpp
+  ${SOURCE_DIR}/skyland/autopilotPlayer.cpp
   ${SOURCE_DIR}/skyland/opponent/enemyAI.cpp
   ${SOURCE_DIR}/skyland/opponent/multiplayerPeer.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
@@ -117,6 +118,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/introCreditsScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
+  ${SOURCE_DIR}/skyland/scene/selectTutorialScene.cpp
   ${SOURCE_DIR}/skyland/scene/selectChallengeScene.cpp
   ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/fullscreenDialogScene.cpp

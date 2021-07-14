@@ -21,6 +21,15 @@ namespace skyland {
 ScenePtr<Scene>
 ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    app.player().update(pfrm, app, delta);
+
+    if (not app.paused()) {
+        // Technically, we could update the opponent player in all
+        // scenarios. But we can save some cycles by not doing so.
+        app.opponent().update(pfrm, app, delta);
+    }
+
+
     if (auto new_scene = WorldScene::update(pfrm, app, delta)) {
         return new_scene;
     }
@@ -134,7 +143,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         // We don't allow pausing during multiplayer games yet. Makes things
         // simpler.
         app.paused() = false;
-    } else if (pfrm.keyboard().down_transition<Key::alt_1>()) {
+    } else if (app.player().key_down(pfrm, Key::alt_1)) {
         if (not app.paused()) {
             app.pause_count()++;
             app.paused() = true;
@@ -193,12 +202,12 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (pfrm.keyboard()
-            .any_pressed<Key::left,
-                         Key::right,
-                         Key::up,
-                         Key::down,
-                         Key::select>()) {
+    if (app.player().key_pressed(pfrm, Key::left) or
+        app.player().key_pressed(pfrm, Key::right) or
+        app.player().key_pressed(pfrm, Key::up) or
+        app.player().key_pressed(pfrm, Key::down) or
+        app.player().key_pressed(pfrm, Key::select)) {
+
         camera_update_timer_ = milliseconds(500);
     }
 
@@ -229,7 +238,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (pfrm.keyboard().down_transition<Key::select>()) {
+    if (app.player().key_down(pfrm, Key::select)) {
         if (app.player_island().interior_visible()) {
             pfrm.load_tile0_texture("tilesheet");
             app.player_island().render_exterior(pfrm);
@@ -239,16 +248,16 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (not app.paused()) {
+    if (app.dialog_buffer()) {
+        auto buffer = std::move(*app.dialog_buffer());
+        app.dialog_buffer().reset();
+        const bool answer = app.dialog_expects_answer();
+        app.dialog_expects_answer() = false;
+        return scene_pool::alloc<BoxedDialogScene>(std::move(buffer),
+                                                   answer);
+    }
 
-        if (app.dialog_buffer()) {
-            auto buffer = std::move(*app.dialog_buffer());
-            app.dialog_buffer().reset();
-            const bool answer = app.dialog_expects_answer();
-            app.dialog_expects_answer() = false;
-            return scene_pool::alloc<BoxedDialogScene>(std::move(buffer),
-                                                       answer);
-        }
+    if (not app.paused()) {
 
         app.player_island().update(pfrm, app, delta);
 

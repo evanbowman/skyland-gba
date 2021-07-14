@@ -123,9 +123,10 @@ void HighscoresScene::exit(Platform& pfrm, App& app, Scene& prev)
 }
 
 
-ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App&, Microseconds)
+ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
 {
-    if (key_down<Key::action_1>(pfrm) or key_down<Key::action_2>(pfrm)) {
+    if (app.player().key_down(pfrm, Key::action_1) or
+        app.player().key_down(pfrm, Key::action_2)) {
         return scene_pool::alloc<TitleScreenScene>();
     }
     return null_scene();

@@ -137,7 +137,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         }
     }
 
-    owner_->update(pfrm, app, dt);
+    // owner_->update(pfrm, app, dt);
 
     if (chimney_loc_) {
         chimney_spawn_timer_ += dt;

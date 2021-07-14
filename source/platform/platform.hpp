@@ -394,10 +394,11 @@ public:
 
 
     class Keyboard {
-    private:
+    public:
+
         using KeyStates = std::array<bool, int(Key::count)>;
 
-    public:
+
         void poll();
 
         void rumble(bool enabled);
