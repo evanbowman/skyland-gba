@@ -93,7 +93,7 @@
    (383 L)
    (317 Up)
    (650 Left)
-   (4448 L)
+   (1000 nil)
    (100 nil)
    (100 "Systems back online. We could have instead built a new power core, if we had a workshop, and if we had enough resources.")
    (983 A)))
