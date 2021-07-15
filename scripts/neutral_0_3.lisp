@@ -30,23 +30,25 @@
      (lambda
        (set 'temp (chr-slots (player)))
 
-       (if temp
-           (progn
-             (add-coins (- 0 800))
-             (set 'temp (get temp (choice (length temp))))
-             (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-             (rem-chr (opponent) 1 14)
+       (if (> 800 (coins))
+           (dialog "Unfortunately, you do not have enough resources.")
+         (if temp
+             (progn
+               (add-coins (- 0 800))
+               (set 'temp (get temp (choice (length temp))))
+               (add-chr (player) (car temp) (cdr temp) 'neutral 0)
+               (rem-chr (opponent) 1 14)
 
-             (set 'temp (chr-slots (player)))
-             (if temp
-                 (progn
-                   (set 'temp (get temp (choice (length temp))))
-                   (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-                   (rem-chr (opponent) 2 14)
-                   (dialog "Two survivors joined your crew!"))
-               (dialog "You rescue one of the survivors. The other survivor decides "
-                       "that your castle is too crowded and declines to come aboard.")))
-         (dialog "Sadly, there's no room in your castle for anyone else"))
+               (set 'temp (chr-slots (player)))
+               (if temp
+                   (progn
+                     (set 'temp (get temp (choice (length temp))))
+                     (add-chr (player) (car temp) (cdr temp) 'neutral 0)
+                     (rem-chr (opponent) 2 14)
+                     (dialog "Two survivors joined your crew!"))
+                 (dialog "You rescue one of the survivors. The other survivor decides "
+                         "that your castle is too crowded and declines to come aboard.")))
+           (dialog "Sadly, there's no room in your castle for anyone else")))
 
        (exit-level)))
 

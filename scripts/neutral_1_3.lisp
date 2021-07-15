@@ -28,10 +28,16 @@
 
 (set 'after-dialog-accepted-hook
      (lambda
-       (add-coins (- 0 temp))
-       (dialog "The goblin king rejoices, having successfully extorted "
-               (string temp)
-               "$.")
+       (if (> 500 (coins))
+           (progn
+             (swap-opponent 'hostile)
+             (dialog "You cannot afford to pay. Prepare to be boarded!"))
+         (progn
+           (add-coins (- 0 temp))
+           (dialog "The goblin king rejoices, having successfully extorted "
+                   (string temp)
+                   "$.")))
+
        (exit-level)))
 
 

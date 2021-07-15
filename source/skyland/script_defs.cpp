@@ -452,6 +452,12 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
+    lisp::set_var("coins", lisp::make_function([](int argc) {
+        auto app = interp_get_app();
+        return lisp::make_integer(app->coins());
+    }));
+
+
     lisp::set_var("add-coins", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, integer);

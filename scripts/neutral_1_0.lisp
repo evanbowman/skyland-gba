@@ -36,15 +36,17 @@
 
        (set 'temp (chr-slots (player)))
 
-       (if temp
-           (progn
-             (add-coins (- 0 (* 400 (zone))))
-             (set 'temp (get temp (choice (length temp))))
-             (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-             (rem-chr (opponent) 1 14)
-             (set 'temp (nil))
-             (dialog "The mercenary joined your crew!"))
-         (dialog "Sadly, there's no room..."))
+       (if (> (* 400 (zone)) (coins))
+           (dialog "You cannot afford to pay. The mercenaries become frustrated, and cut the transmission.")
+         (if temp
+             (progn
+               (add-coins (- 0 (* 400 (zone))))
+               (set 'temp (get temp (choice (length temp))))
+               (add-chr (player) (car temp) (cdr temp) 'neutral 0)
+               (rem-chr (opponent) 1 14)
+               (set 'temp (nil))
+               (dialog "The mercenary joined your crew!"))
+           (dialog "Sadly, there's no room...")))
 
        (exit-level)))
 

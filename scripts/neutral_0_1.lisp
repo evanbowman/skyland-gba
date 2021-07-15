@@ -35,10 +35,15 @@
 
 (set 'after-dialog-accepted-hook
      (lambda
-       (add-coins (- 0 300))
-       (dialog "The fortress' captain peers smugly from behind her spectacles. "
-               "She's glad that you understand the nature of the situation.")
-       (exit-level)))
+       (if (< (coins) 300)
+           (progn
+             (dialog "You do not have enough resources to pay! The fortress begins charging its weapons...")
+             (swap-opponent 'hostile))
+         (progn
+           (add-coins (- 0 300))
+           (dialog "The fortress' captain peers smugly from behind her spectacles. "
+                   "She's glad that you understand the nature of the situation.")
+           (exit-level)))))
 
 
 (set 'after-dialog-declined-hook
