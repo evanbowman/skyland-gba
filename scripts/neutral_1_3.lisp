@@ -36,9 +36,8 @@
            (add-coins (- 0 temp))
            (dialog "The goblin king rejoices, having successfully extorted "
                    (string temp)
-                   "$.")))
-
-       (exit-level)))
+                   "$.")
+           (exit-level)))))
 
 
 (set 'after-dialog-declined-hook
