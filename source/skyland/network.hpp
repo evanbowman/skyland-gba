@@ -30,6 +30,8 @@ struct Header {
         replicant_created,
         bulkhead_changed,
         program_version,
+        block_transfer_start,
+        block_transfer,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -233,6 +235,32 @@ struct OpponentBulkheadChanged {
 
 
 
+struct BlockTransferStart {
+    Header header_;
+
+    enum class Category : u8 {
+        null
+    } category_;
+
+    host_u16 length_;
+
+    u8 unused_[2];
+
+    static const auto mt = Header::MessageType::block_transfer_start;
+};
+
+
+
+struct BlockTransfer {
+    Header header_;
+    u8 sequence_; // (a block transfer can span 256 * 4 bytes)
+    u8 data_[4];
+
+    static const auto mt = Header::MessageType::block_transfer;
+};
+
+
+
 } // namespace packet
 
 
@@ -301,6 +329,16 @@ public:
 
 
     virtual void receive(Platform&, App&, const packet::ProgramVersion&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::BlockTransferStart&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::BlockTransfer&)
     {
     }
 };
