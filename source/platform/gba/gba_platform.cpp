@@ -1610,7 +1610,7 @@ void Platform::fatal(const char* msg)
 {
     const auto bkg_color = custom_color(0xcb1500);
 
-    irqDisable(IRQ_TIMER2 | IRQ_KEYPAD | IRQ_TIMER3 | IRQ_VBLANK);
+    irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
 
 
     screen().fade(1.f, bkg_color);
