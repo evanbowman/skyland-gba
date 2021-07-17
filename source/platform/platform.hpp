@@ -121,7 +121,8 @@ public:
     [[noreturn]] void fatal(const char* message);
 
     // Enable platform specific features. NOP if unsupported.
-    void enable_feature(const char* feature_name, int value);
+    void* system_call(const char* feature_name, int value);
+
 
     struct TextureMapping {
         const char* texture_name_;
@@ -561,7 +562,7 @@ public:
 
 
     ////////////////////////////////////////////////////////////////////////////
-    // NetworkPeer (incomplete...)
+    // NetworkPeer
     ////////////////////////////////////////////////////////////////////////////
 
 

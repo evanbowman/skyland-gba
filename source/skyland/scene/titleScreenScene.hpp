@@ -47,7 +47,7 @@ private:
     } pong_;
 
 
-    void window_image_hack(Platform&);
+    void window_image_hack(Platform&, u16 empty_tile);
 
     enum class State {
         fade_in,
@@ -58,6 +58,8 @@ private:
         scroll_multiplayer,
         scroll_to_center,
         wait_2,
+        scroll_to_end,
+        scroll_from_end,
     } state_ = State::fade_in;
 
     int menu_selection_ = 0;

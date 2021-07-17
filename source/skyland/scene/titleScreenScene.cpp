@@ -55,7 +55,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     app.swap_player<PlayerP1>();
 
     init_clouds2(pfrm);
-    pfrm.enable_feature("v-parallax", false);
+    pfrm.system_call("v-parallax", false);
 
     auto view = pfrm.screen().get_view();
     auto c = view.get_center();
@@ -80,7 +80,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     __draw_image(pfrm, 1, 0, 3, 30, 14, Layer::map_1);
     __draw_image(pfrm, 1, 0, 3, 30, 14, Layer::map_0);
 
-    window_image_hack(pfrm);
+    window_image_hack(pfrm, 2);
 
     pfrm.set_scroll(Layer::map_1_ext, 0, -offset + 8);
 
@@ -88,13 +88,13 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 }
 
 
-void TitleScreenScene::window_image_hack(Platform& pfrm)
+void TitleScreenScene::window_image_hack(Platform& pfrm, u16 empty_tile)
 {
     // We needed to cram the textures for the scrolling background image into
     // the texture for another background layer (in this case, into the empty
     // space inside the window image). But, we draw the layer as an image, and
     // we need to mask out all of the bits that we don't want to be visible.
-    const int empty_tile = 2;
+
     // for (int i = 3; i < 12; ++i) {
     //     pfrm.set_tile(Layer::map_1_ext, i, 4, empty_tile);
     //     pfrm.set_tile(Layer::map_1_ext, i, 5, empty_tile);
@@ -133,7 +133,7 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 
     init_clouds(pfrm);
 
-    pfrm.enable_feature("v-parallax", true);
+    pfrm.system_call("v-parallax", true);
 
     pfrm.load_tile0_texture("tilesheet");
     pfrm.load_tile1_texture("tilesheet_enemy_0");
@@ -159,7 +159,12 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-static const char* menu_text[3]{"adventure", "challenge", "multiplayer"};
+static const char* menu_text[4] {
+    "adventure",
+    "challenge",
+    "multiplayer",
+    "modules",
+};
 
 
 
@@ -172,14 +177,17 @@ void TitleScreenScene::put_menu_text(Platform& pfrm)
     StringBuffer<32> buffer("SKYLAND:   ");
     const auto prefix_len = buffer.length();
     buffer += menu_text[menu_selection_];
+
+    const auto len = utf8::len(buffer.c_str());
+
     auto margin = centered_text_margins(pfrm, buffer.length());
     text_.emplace(
         pfrm,
         buffer.c_str(),
-        OverlayCoord{u8(st.x - (buffer.length() + margin + 1)), u8(st.y - 2)});
+        OverlayCoord{u8(st.x - (len + margin + 1)), u8(st.y - 2)});
 
-    menu_selection_start_ = margin + 1 + prefix_len;
-    menu_selection_stop_ = margin + 1 + buffer.length();
+    menu_selection_start_ = margin + 1 + prefix_len + (len % 2 ? 1 : 0);
+    menu_selection_stop_ = margin + 1 + buffer.length() + (len % 2 ? 1 : 0);
 
     pfrm.set_tile(Layer::overlay, menu_selection_start_ - 4, st.y - 2, 375);
     pfrm.set_tile(Layer::overlay, menu_selection_stop_ - 1, st.y - 2, 376);
@@ -213,10 +221,15 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (x_scroll_ < 0) {
             pfrm.set_scroll(Layer::map_1_ext, x_scroll_ - 272, -offset + 8);
+            pfrm.set_scroll(Layer::map_0_ext, x_scroll_, -offset + 8);
+        } else if (x_scroll_ > 240) {
+            pfrm.set_scroll(Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
+            pfrm.set_scroll(Layer::map_0_ext, x_scroll_ + 32, -offset + 8);
         } else {
             pfrm.set_scroll(Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
+            pfrm.set_scroll(Layer::map_0_ext, x_scroll_, -offset + 8);
         }
-        pfrm.set_scroll(Layer::map_0_ext, x_scroll_, -offset + 8);
+
     }
 
 
@@ -317,6 +330,13 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 put_menu_text(pfrm);
                 state_ = State::scroll_to_center;
                 timer_ = 0;
+            } else if (menu_selection_ == 1) {
+                menu_selection_ = 3;
+                put_menu_text(pfrm);
+                state_ = State::scroll_to_end;
+                timer_ = 0;
+                pfrm.load_tile0_texture("skyland_title_3_flattened");
+                window_image_hack(pfrm, 130);
             }
         }
         if (app.player().key_down(pfrm, Key::left) or
@@ -332,6 +352,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 put_menu_text(pfrm);
                 state_ = State::scroll_multiplayer;
                 pfrm.load_tile1_texture("skyland_title_2_flattened");
+                timer_ = 0;
+            } else if (menu_selection_ == 3) {
+                menu_selection_ = 1;
+                put_menu_text(pfrm);
+                state_ = State::scroll_from_end;
                 timer_ = 0;
             }
         }
@@ -366,6 +391,39 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
     }
+
+
+    case State::scroll_to_end: {
+        timer_ += delta;
+        static const auto duration = milliseconds(1250);
+        if (timer_ > duration) {
+            timer_ = 0;
+            state_ = State::wait;
+            x_scroll_ = 480;
+        } else {
+            const auto amount = smoothstep(0.f, duration, timer_);
+            x_scroll_ = 240 + 240 * amount;
+        }
+        break;
+    }
+
+
+    case State::scroll_from_end: {
+        timer_ += delta;
+        static const auto duration = milliseconds(1250);
+        if (timer_ > duration) {
+            timer_ = 0;
+            state_ = State::wait;
+            x_scroll_ = 240;
+            pfrm.load_tile0_texture("skyland_title_0_flattened");
+            window_image_hack(pfrm, 2);
+        } else {
+            const auto amount = smoothstep(0.f, duration, timer_);
+            x_scroll_ = 480 - 240 * amount;
+        }
+        break;
+    }
+
 
     case State::scroll_right: {
         timer_ += delta;
@@ -417,6 +475,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.challenge_mode() = false;
                 app.tutorial_mode() = false;
                 return scene_pool::alloc<MultiplayerConnectScene>();
+
+            case 3:
+                pfrm.fatal("module system incomplete");
             }
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
@@ -475,7 +536,7 @@ static void init_clouds2(Platform& pfrm)
     // throughout the project. I am embarassed by my work here, but what to do?
     // Deadlines looming...
 
-    pfrm.enable_feature("parallax-clouds", true);
+    pfrm.system_call("parallax-clouds", true);
 
     for (int i = 0; i < 32; ++i) {
         for (int j = 0; j < 32; ++j) {

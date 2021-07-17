@@ -66,6 +66,8 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
         ready_ = true;
         return null_scene();
     }
+    // pfrm.enable_feature("dlc-download", 0);
+
     pfrm.network_peer().listen();
 
     if (not pfrm.network_peer().is_connected()) {

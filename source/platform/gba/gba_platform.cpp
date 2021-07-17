@@ -3149,6 +3149,8 @@ extern char __rom_end__;
 
 Platform::Platform()
 {
+    // NOTE: these colors were a custom hack I threw in during the GBA game jam,
+    // when I wanted background tiles to flicker between a few different colors.
     for (int i = 0; i < 16; ++i) {
         MEM_BG_PALETTE[(15 * 16) + i] =
             Color(custom_color(0xef0d54)).bgr_hex_555();
@@ -4317,7 +4319,8 @@ MASTER_RETRY:
         ::platform->feed_watchdog();
     }
 
-    const char* handshake = "v00003";
+    const char* handshake =
+        "lnsk06"; // Link cable program, skyland, 6 byte packet.
 
     if (str_len(handshake) not_eq Platform::NetworkPeer::max_message_size) {
         ::platform->network_peer().disconnect();
@@ -4332,12 +4335,18 @@ MASTER_RETRY:
 
     multiplayer_schedule_tx();
 
+    if (multiplayer_is_master()) {
+        error(*::platform, "I am the master");
+    }
+
     while (true) {
         ::platform->feed_watchdog();
         delta += ::platform->delta_clock().reset();
         if (delta > seconds(20)) {
+            StringBuffer<64> err = "no valid handshake received within a reasonable window ";
+            err += to_string<10>(multiplayer_comms.rx_message_count);
             error(*::platform,
-                  "no valid handshake received within a reasonable window");
+                  err.c_str());
             ::platform->network_peer().disconnect();
             return;
         } else if (auto msg = ::platform->network_peer().poll_message()) {
@@ -4353,6 +4362,12 @@ MASTER_RETRY:
                         // where the other device is not yet plugged in, or the
                         // other player has not initiated their own connection.
                         info(*::platform, "master retrying...");
+
+                        StringBuffer<32> temp = "got: ";
+                        for (u32 i = 0; i < sizeof handshake; ++i) {
+                            temp.push_back(((char*)msg->data_)[i]);
+                        }
+                        info(*::platform, temp.c_str());
 
                         // busy-wait for a bit. This is sort of necessary;
                         // Platform::sleep() does not contribute to the
@@ -4375,6 +4390,9 @@ MASTER_RETRY:
         }
     }
 }
+
+
+
 
 
 void Platform::NetworkPeer::connect(const char* peer)
@@ -4485,6 +4503,15 @@ void Platform::NetworkPeer::disconnect()
         mc.rx_current_all_zeroes = true;
         for (auto& msg : mc.rx_ring) {
             if (msg) {
+                StringBuffer<32> note = "consumed msg containing ";
+                note.push_back(((char*)msg->data_)[0]);
+                note.push_back(((char*)msg->data_)[1]);
+                note.push_back(((char*)msg->data_)[2]);
+                note.push_back(((char*)msg->data_)[4]);
+                note.push_back(((char*)msg->data_)[5]);
+                note.push_back(((char*)msg->data_)[6]);
+                note += " during disconnect";
+                info(*::platform, note.c_str());
                 mc.rx_message_pool.post(msg);
                 msg = nullptr;
             }
@@ -4752,7 +4779,6 @@ static void uart_serial_isr()
     // if (is_rcv) {
 
     // just for debugging purposes
-    ++multiplayer_comms.rx_message_count;
 
     if (data == '\r') {
         if (state.rx_in_progress_) {
@@ -4863,7 +4889,12 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 }
 
 
-void Platform::enable_feature(const char* feature_name, int value)
+
+void read_dlc(Platform&);
+
+
+
+void* Platform::system_call(const char* feature_name, int value)
 {
     if (str_cmp(feature_name, "_prlx7") == 0) {
 
@@ -4875,7 +4906,7 @@ void Platform::enable_feature(const char* feature_name, int value)
                 parallax_table[i] = temp;
             }
             // Fixme: clean up this code...
-            return;
+            return nullptr;
         }
 
         auto offset =
@@ -4897,7 +4928,7 @@ void Platform::enable_feature(const char* feature_name, int value)
                     value + screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
             }
-            return;
+            return nullptr;
         }
 
         auto offset =
@@ -4967,8 +4998,16 @@ void Platform::enable_feature(const char* feature_name, int value)
         } else {
             irqSet(IRQ_HBLANK, hblank_x_scroll_isr);
         }
+    } else if (str_cmp(feature_name, "dlc-download") == 0) {
+        read_dlc(*this);
     }
+
+
+    return nullptr;
 }
+
+
+
 
 
 #endif // __GBA__
