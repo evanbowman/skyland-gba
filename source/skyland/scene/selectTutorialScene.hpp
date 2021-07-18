@@ -4,6 +4,7 @@
 #include "graphics/overlay.hpp"
 #include "script/lisp.hpp"
 #include "skyland/scene.hpp"
+#include "module.hpp"
 
 
 
@@ -11,7 +12,7 @@ namespace skyland {
 
 
 
-class SelectTutorialScene : public Scene {
+class SelectTutorialScene : public Module<SelectTutorialScene> {
 public:
     void enter(Platform&, App&, Scene& prev) override;
     void exit(Platform&, App&, Scene& next) override;
@@ -21,6 +22,13 @@ public:
 
 
     void display(Platform&, App&) override;
+
+
+    static const char* module_name()
+    {
+        return "Tutorials";
+    }
+
 
 
 private:
@@ -44,6 +52,9 @@ private:
     Microseconds timer_ = 0;
 
     bool exit_ = false;
+
+
+    static Factory factory_;
 };
 
 

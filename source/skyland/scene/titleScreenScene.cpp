@@ -3,12 +3,13 @@
 #include "newgameScene.hpp"
 #include "script/lisp.hpp"
 #include "selectChallengeScene.hpp"
-#include "selectTutorialScene.hpp"
+#include "loadModuleScene.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/birbs/smolBirb.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
+#include "module.hpp"
 
 
 
@@ -76,6 +77,13 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.fill_overlay(0);
 
     redraw_margins(pfrm);
+
+    for (int i = 0; i < 32; ++i) {
+        for (int j = 0; j < 32; ++j) {
+            pfrm.set_raw_tile(Layer::map_0, i, j, 0);
+            pfrm.set_raw_tile(Layer::map_1, i, j, 0);
+        }
+    }
 
     __draw_image(pfrm, 1, 0, 3, 30, 14, Layer::map_1);
     __draw_image(pfrm, 1, 0, 3, 30, 14, Layer::map_0);
@@ -163,8 +171,33 @@ static const char* menu_text[4] {
     "adventure",
     "challenge",
     "multiplayer",
-    "modules",
+    "extras",
 };
+
+
+
+void TitleScreenScene::put_module_text(Platform& pfrm)
+{
+    text_.reset();
+    redraw_margins(pfrm);
+    show_module_icons(pfrm, 0); // TODO: page
+
+    const auto st = calc_screen_tiles(pfrm);
+    StringBuffer<32> buffer;
+    if (auto factory = detail::_Module::Factory::get(0)) {
+        buffer += factory->name();
+    } else {
+        return;
+    }
+
+    const auto len = utf8::len(buffer.c_str());
+
+    auto margin = centered_text_margins(pfrm, buffer.length());
+    text_.emplace(
+        pfrm,
+        buffer.c_str(),
+        OverlayCoord{u8(st.x - (len + margin)), u8(st.y - 2)});
+}
 
 
 
@@ -306,15 +339,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (pfrm.keyboard().pressed<Key::action_1>()) {
             state_ = State::fade_out;
+            if (menu_selection_ == 3) {
+                state_ = State::fade_modules_1;
+            }
             pfrm.speaker().stop_music();
-        }
-
-        if (pfrm.keyboard().down_transition<Key::start>()) {
-            pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
-            pfrm.speaker().stop_music();
-            app.challenge_mode() = false;
-            app.tutorial_mode() = true;
-            return scene_pool::alloc<SelectTutorialScene>();
         }
 
         if (app.player().key_down(pfrm, Key::right) or
@@ -454,6 +482,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
     }
 
+
     case State::fade_out: {
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(1300);
@@ -477,21 +506,108 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 return scene_pool::alloc<MultiplayerConnectScene>();
 
             case 3:
-                pfrm.fatal("module system incomplete");
+                app.challenge_mode() = false;
+                app.tutorial_mode() = true;
+                return scene_pool::alloc<LoadModuleScene>();
             }
         } else {
-            const auto amount = smoothstep(0.f, fade_duration, timer_);
+            auto amount = smoothstep(0.f, fade_duration, timer_);
+
             pfrm.screen().fade(
                 amount, ColorConstant::rich_black, {}, true, true);
         }
         break;
     }
 
+
+    case State::fade_modules_backout: {
+        timer_ += delta;
+        constexpr auto fade_duration = milliseconds(300);
+        if (timer_ > fade_duration) {
+            put_menu_text(pfrm);
+
+            pfrm.screen().fade(0.f);
+
+            state_ = State::wait;
+
+        } else {
+            auto amount = smoothstep(0.f, fade_duration, timer_);
+
+            pfrm.screen().fade(
+                0.7f - 0.7f * amount, ColorConstant::rich_black, {}, true, true);
+
+        }
+        break;
+    }
+
+    case State::fade_modules_1: {
+        timer_ += delta;
+        constexpr auto fade_duration = milliseconds(500);
+        if (timer_ > fade_duration) {
+            redraw_margins(pfrm);
+            show_module_icons(pfrm, 0);
+            state_ = State::show_modules;
+
+            put_module_text(pfrm);
+
+            pfrm.screen().fade(
+                0.7f, ColorConstant::rich_black, {}, true, true);
+
+        } else {
+            auto amount = smoothstep(0.f, fade_duration, timer_);
+
+            pfrm.screen().fade(
+                0.7f * amount, ColorConstant::rich_black, {}, true, true);
+
+        }
+        break;
+    }
+
+
+
+    case State::show_modules:
+        pfrm.screen().fade(0.69f, ColorConstant::rich_black, {}, true, false);
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            state_ = State::fade_modules_backout;
+            timer_ = 0;
+            pfrm.fill_overlay(0);
+            redraw_margins(pfrm);
+        }
+        break;
+
     case State::wait_2:
         break;
     }
 
     return null_scene();
+}
+
+
+
+void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
+{
+    auto show_icon = [&](int x, int y) {
+        auto x_start = 4 + x * 8;
+        auto y_start = 2 + y * 8;
+
+        for (int x = 0; x < 6; ++x) {
+            for (int y = 0; y < 6; ++y) {
+                pfrm.set_tile(Layer::overlay, x_start + x, y_start + y, 470);
+            }
+        }
+
+        pfrm.set_tile(Layer::overlay, x_start, y_start, 466);
+        pfrm.set_tile(Layer::overlay, x_start + 5, y_start, 467);
+        pfrm.set_tile(Layer::overlay, x_start, y_start + 5, 468);
+        pfrm.set_tile(Layer::overlay, x_start + 5, y_start + 5, 469);
+    };
+
+    for (int x = 0; x < 3; ++x) {
+        for (int y = 0; y < 2; ++y) {
+            show_icon(x, y);
+        }
+    }
+
 }
 
 

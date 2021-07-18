@@ -257,4 +257,8 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+SelectTutorialScene::Factory SelectTutorialScene::factory_;
+
+
+
 } // namespace skyland

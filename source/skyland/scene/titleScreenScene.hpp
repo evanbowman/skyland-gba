@@ -30,6 +30,10 @@ private:
     Microseconds selector_timer_ = 0;
     bool selector_shaded_ = false;
 
+
+    void show_module_icons(Platform&, int page);
+
+
     struct Pong {
         struct Pad {
             Float speed_;
@@ -60,11 +64,15 @@ private:
         wait_2,
         scroll_to_end,
         scroll_from_end,
+        fade_modules_1,
+        show_modules,
+        fade_modules_backout,
     } state_ = State::fade_in;
 
     int menu_selection_ = 0;
 
     void put_menu_text(Platform&);
+    void put_module_text(Platform&);
     void redraw_margins(Platform&);
 
     int menu_selection_start_ = 0;

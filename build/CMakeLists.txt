@@ -100,6 +100,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/transporter.cpp
   ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp
+  ${SOURCE_DIR}/skyland/scene/module.cpp
   ${SOURCE_DIR}/skyland/scene/hintScene.cpp
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp
@@ -112,6 +113,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/zoneImageScene.cpp
   ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
   ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
+  ${SOURCE_DIR}/skyland/scene/loadModuleScene.cpp
   ${SOURCE_DIR}/skyland/scene/boxedDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/titleScreenScene.cpp
@@ -126,7 +128,9 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerConnectScene.cpp
   ${SOURCE_DIR}/skyland/scene/replicatorSelectionScene.cpp
-  ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp)
+  ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp)
 
 
 set(SOURCES
