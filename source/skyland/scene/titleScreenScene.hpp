@@ -28,10 +28,13 @@ private:
     Microseconds timer_ = 0;
     Microseconds hover_timer_ = 0;
     Microseconds selector_timer_ = 0;
+    Float ambient_movement_ = 0.f;
     bool selector_shaded_ = false;
 
 
     void show_module_icons(Platform&, int page);
+
+    std::optional<Vec2<u8>> module_cursor_;
 
 
     struct Pong {

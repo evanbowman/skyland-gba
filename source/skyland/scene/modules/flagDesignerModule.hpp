@@ -18,6 +18,12 @@ public:
     }
 
 
+    static u16 icon()
+    {
+        return 952;
+    }
+
+
     static Factory factory_;
 };
 

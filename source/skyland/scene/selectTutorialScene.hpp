@@ -30,6 +30,12 @@ public:
     }
 
 
+    static u16 icon()
+    {
+        return 984;
+    }
+
+
 
 private:
     void show_options(Platform&);

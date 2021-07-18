@@ -30,6 +30,9 @@ public:
         virtual const char* name() = 0;
 
 
+        virtual u16 icon() = 0;
+
+
         virtual ~Factory()
         {
         }
@@ -75,6 +78,12 @@ public:
         virtual const char* name() override
         {
             return T::module_name();
+        }
+
+
+        virtual u16 icon() override
+        {
+            return T::icon();
         }
 
 
