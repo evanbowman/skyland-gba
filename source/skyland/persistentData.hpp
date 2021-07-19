@@ -5,6 +5,7 @@
 #include "coins.hpp"
 #include "number/endian.hpp"
 #include "worldMap.hpp"
+#include "flag.hpp"
 
 
 

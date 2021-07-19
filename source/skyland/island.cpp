@@ -130,9 +130,18 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             auto current = pfrm.get_tile(layer_, flag_pos_->x, flag_pos_->y);
             if (current < Tile::flag_end) {
                 pfrm.set_tile(layer_, flag_pos_->x, flag_pos_->y, current + 1);
+                if (layer_ == Layer::map_0_ext) {
+                    // NOTE: the player can design his/her own flag, so we
+                    // reserve a specific palette bank just for the flag
+                    // image. Untimately, doing so simplifies things.
+                    pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y, 12);
+                }
             } else {
                 pfrm.set_tile(
                     layer_, flag_pos_->x, flag_pos_->y, Tile::flag_start);
+                if (layer_ == Layer::map_0_ext) {
+                    pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y, 12);
+                }
             }
         }
     }
@@ -601,6 +610,9 @@ void Island::repaint(Platform& pfrm)
                     placed_flag = true;
                     pfrm.set_tile(layer_, x, y, Tile::roof_flag);
                     pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);
+                    if (layer_ == Layer::map_0_ext) {
+                        pfrm.set_palette(layer_, x, y - 1, 12);
+                    }
                     flag_pos_ = {x, u8(y - 1)};
                 }
             } else if (y == 14 and matrix[x][y] == 0 and
@@ -626,6 +638,9 @@ void Island::repaint(Platform& pfrm)
                             placed_flag = true;
                             pfrm.set_tile(layer_, x, y, Tile::flag_mount);
                             pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);
+                            if (layer_ == Layer::map_0_ext) {
+                                pfrm.set_palette(layer_, x, y - 1, 12);
+                            }
                             flag_pos_ = {x, u8(y - 1)};
                         }
                     }

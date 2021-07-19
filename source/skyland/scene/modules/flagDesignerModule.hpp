@@ -36,16 +36,16 @@ public:
 
 private:
 
+    bool ready_ = false;
+
     u16 palette_[16];
 
 
-    void show(Platform&);
+    void show(Platform&, App&);
 
 
     Vec2<u8> cursor_;
     int color_ = 0;
-
-    FlagPixels flag_img_;
 
 
     static Factory factory_;

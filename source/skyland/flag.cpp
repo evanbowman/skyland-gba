@@ -26,7 +26,10 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
     }
 
 
-    pfrm.overwrite_t0_tile(Tile::flag_start, pfrm.encode_tile(tile_data));
+    auto enc = pfrm.encode_tile(tile_data);
+
+    pfrm.overwrite_t0_tile(Tile::flag_start, enc);
+    pfrm.overwrite_t1_tile(Tile::flag_start, enc);
 
 
 
@@ -38,7 +41,13 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
         }
     }
 
-    pfrm.overwrite_t0_tile(Tile::flag_start + 1, pfrm.encode_tile(tile_data));
+
+    enc = pfrm.encode_tile(tile_data);
+
+    pfrm.overwrite_t0_tile(Tile::flag_start + 1, enc);
+    pfrm.overwrite_t1_tile(Tile::flag_start + 1, enc);
+
+
 
     for (int x = 9; x < 12; ++x) { // undo shift down
         for (int y = 1; y < 13; ++y) {
@@ -53,7 +62,14 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
         }
     }
 
-    pfrm.overwrite_t0_tile(Tile::flag_start + 2, pfrm.encode_tile(tile_data));
+
+    enc = pfrm.encode_tile(tile_data);
+
+    pfrm.overwrite_t0_tile(Tile::flag_start + 2, enc);
+    pfrm.overwrite_t1_tile(Tile::flag_start + 2, enc);
+
+
+
 
     for (int x = 5; x < 9; ++x) { // undo shift down
         for (int y = 1; y < 13; ++y) {
@@ -67,7 +83,11 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
         }
     }
 
-    pfrm.overwrite_t0_tile(Tile::flag_start + 3, pfrm.encode_tile(tile_data));
+
+    enc = pfrm.encode_tile(tile_data);
+
+    pfrm.overwrite_t0_tile(Tile::flag_start + 3, enc);
+    pfrm.overwrite_t1_tile(Tile::flag_start + 3, enc);
 }
 
 

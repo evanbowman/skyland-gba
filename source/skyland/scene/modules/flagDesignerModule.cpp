@@ -2,6 +2,8 @@
 #include "platform/platform.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/configure_island.hpp"
+#include "skyland/scene_pool.hpp"
+#include "skyland/scene/titleScreenScene.hpp"
 
 
 
@@ -13,6 +15,11 @@ namespace skyland {
 static const int canvas_start_x = 3;
 static const int canvas_start_y = 3;
 static const int view_shift = -18;
+
+
+
+u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y);
+
 
 
 void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
@@ -58,26 +65,22 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     auto data = pfrm.extract_tile(Layer::map_0, 105);
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
-            flag_img_.pixels[x][y] = data.data_[x][y + 1];
+            app.flag_img_.pixels[x][y] = data.data_[x][y + 1];
         }
     }
 
-    show(pfrm);
+    show(pfrm, app);
 
-    // FIXME: I just put this here because we use a pressed() level-triggered
-    // event below, and if the player taps a key too long, they will edit the
-    // flag.
-    pfrm.sleep(20);
     pfrm.screen().fade(0);
 }
 
 
 
-void FlagDesignerModule::show(Platform& pfrm)
+void FlagDesignerModule::show(Platform& pfrm, App& app)
 {
     for (int y = 0; y < 11; ++y) {
         for (int x = 0; x < 13; ++x) {
-            const auto t = palette_[flag_img_.pixels[x][y]];
+            const auto t = palette_[app.flag_img_.pixels[x][y]];
             pfrm.set_tile(Layer::overlay,
                           x + canvas_start_x, y + canvas_start_y, t);
             pfrm.set_palette(Layer::overlay,
@@ -85,7 +88,7 @@ void FlagDesignerModule::show(Platform& pfrm)
         }
     }
 
-    vram_write_flag(pfrm, flag_img_);
+    vram_write_flag(pfrm, app.flag_img_);
 }
 
 
@@ -97,26 +100,54 @@ ScenePtr<Scene> FlagDesignerModule::update(Platform& pfrm,
     if (app.player().key_down(pfrm, Key::alt_1)) {
         color_--;
         color_ %= 16;
+        ready_ = true;
     }
     if (app.player().key_down(pfrm, Key::alt_2)) {
         color_++;
         color_ %= 16;
+        ready_ = true;
     }
     if (app.player().key_down(pfrm, Key::right) and cursor_.x < 12) {
         ++cursor_.x;
+        ready_ = true;
     }
     if (app.player().key_down(pfrm, Key::left) and cursor_.x > 0) {
         --cursor_.x;
+        ready_ = true;
     }
     if (app.player().key_down(pfrm, Key::up) and cursor_.y > 0) {
         --cursor_.y;
+        ready_ = true;
     }
     if (app.player().key_down(pfrm, Key::down) and cursor_.y < 10) {
         ++cursor_.y;
+        ready_ = true;
     }
-    if (app.player().key_pressed(pfrm, Key::action_1)) {
-        flag_img_.pixels[cursor_.x][cursor_.y] = color_;
-        show(pfrm);
+    if (app.player().key_down(pfrm, Key::action_1)) {
+        ready_ = true;
+    }
+    if (app.player().key_down(pfrm, Key::action_2)) {
+        return scene_pool::alloc<TitleScreenScene>();
+    }
+    if (app.player().key_down(pfrm, Key::start)) {
+        ready_ = true;
+        u8 temp[16][16];
+        for (int x = 0; x < FlagPixels::width; ++x) {
+            for (int y = 0; y < FlagPixels::height; ++y) {
+                temp[x][y] = app.flag_img_.pixels[x][y];
+            }
+        }
+        flood_fill(pfrm, temp, color_, cursor_.x, cursor_.y);
+        for (int x = 0; x < FlagPixels::width; ++x) {
+            for (int y = 0; y < FlagPixels::height; ++y) {
+                app.flag_img_.pixels[x][y] = temp[x][y];
+            }
+        }
+        show(pfrm, app);
+    }
+    if (app.player().key_pressed(pfrm, Key::action_1) and ready_) {
+        app.flag_img_.pixels[cursor_.x][cursor_.y] = color_;
+        show(pfrm, app);
     }
 
     app.update_parallax(delta);

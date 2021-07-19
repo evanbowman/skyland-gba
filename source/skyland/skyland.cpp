@@ -31,6 +31,17 @@ App::App(Platform& pfrm)
 
     player_island_.show_flag(true);
 
+    pfrm.screen().fade(1.f);
+    pfrm.load_tile0_texture("tilesheet");
+
+    auto data = pfrm.extract_tile(Layer::map_0, 105);
+    for (int x = 0; x < 13; ++x) {
+        for (int y = 0; y < 11; ++y) {
+            flag_img_.pixels[x][y] = data.data_[x][y + 1];
+        }
+    }
+
+
     pfrm.read_save_data(&highscores_, sizeof highscores_, 0);
     if (highscores_.magic_[0] not_eq 'H' or highscores_.magic_[1] not_eq 'S') {
         highscores_ = Highscores{};

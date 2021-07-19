@@ -60,6 +60,7 @@ public:
 
 
     void overwrite_t0_tile(u16 index, const EncodedTile& t);
+    void overwrite_t1_tile(u16 index, const EncodedTile& t);
 
 
     struct TilePixels {

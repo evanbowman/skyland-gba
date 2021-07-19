@@ -150,6 +150,9 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.load_sprite_texture("spritesheet");
 
 
+    vram_write_flag(pfrm, app.flag_img_);
+
+
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             pfrm.set_tile(Layer::map_0_ext, x, y, 0);

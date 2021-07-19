@@ -10,7 +10,7 @@ namespace save {
 
 
 
-static const u32 save_data_magic = 0xABCD + 1;
+static const u32 save_data_magic = 0xABCD + 2;
 
 
 

@@ -1044,6 +1044,16 @@ void Platform::overwrite_t0_tile(u16 index, const EncodedTile& t)
 
 
 
+void Platform::overwrite_t1_tile(u16 index, const EncodedTile& t)
+{
+    u8* p = ((u8*)&MEM_SCREENBLOCKS[sbb_t1_texture][0]) +
+            index * (vram_tile_size() * 4);
+
+    memcpy16(p, &t, (sizeof t) / 2);
+}
+
+
+
 Platform::TilePixels Platform::extract_tile(Layer layer, u16 tile)
 {
     TilePixels result;
@@ -1852,6 +1862,10 @@ void Platform::Screen::fade(float amount,
             auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
             MEM_BG_PALETTE[i] = blend(from, c, amt);
         }
+        // for (int i = 0; i < 16; ++i) {
+        //     auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
+        //     MEM_BG_PALETTE[i + 16 * 12] = blend(from, c, amt);
+        // }
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
             MEM_BG_PALETTE[32 + i] = blend(from, c, amt);
@@ -3230,6 +3244,16 @@ Platform::Platform()
         MEM_BG_PALETTE[(13 * 16) + i] =
             Color(ColorConstant::silver_white).bgr_hex_555();
     }
+
+    // Really bad hack. We added a feature where the player can design his/her
+    // own flag, but we frequently switch color palettes when viewing
+    // interior/exterior of a castle, so we reserve one of the palette banks for
+    // the flag palette, which is taken from the tilesheet texture.
+    load_tile0_texture("tilesheet");
+    for (int i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[(12 * 16) + i] = MEM_BG_PALETTE[i];
+    }
+
 
 
     logger().set_threshold(Severity::fatal);

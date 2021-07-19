@@ -44,6 +44,9 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.delta_clock().reset();
     pfrm.load_tile0_texture("tilesheet");
+
+    vram_write_flag(pfrm, app.flag_img_);
+
     pfrm.load_tile1_texture("tilesheet_enemy_0");
 
     std::get<SkylandGlobalData>(globals()).multiplayer_prep_timer_ = 0;

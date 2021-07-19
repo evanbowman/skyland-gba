@@ -17,6 +17,7 @@
 #include "scene.hpp"
 #include "timeTracker.hpp"
 #include "worldMap.hpp"
+#include "flag.hpp"
 
 
 
@@ -101,7 +102,7 @@ public:
         // effects, and allocating again. This should free up enough space...
         effects().clear();
 
-        auto e = ::skyland::alloc_entity<T>(std::forward<Args>(args)...);
+       auto e = ::skyland::alloc_entity<T>(std::forward<Args>(args)...);
         if (not e) {
             error(pfrm, "entity pool exhausted");
         }
@@ -241,6 +242,7 @@ public:
 
 
     Highscores highscores_;
+    FlagPixels flag_img_;
 
 
     static const auto pixelate_duration = milliseconds(200);

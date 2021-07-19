@@ -335,6 +335,10 @@ u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y)
 
     const u8 target = matrix[x][y];
 
+    if (target == replace) {
+        return 0;
+    }
+
     u32 count = 0;
 
     const auto action = [&](const Coord& c, u8 x_off, u8 y_off) {
