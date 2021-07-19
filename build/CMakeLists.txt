@@ -62,6 +62,7 @@ set(SOURCES
 
 set(SOURCES
   ${SOURCES}
+  ${SOURCE_DIR}/skyland/flag.cpp
   ${SOURCE_DIR}/skyland/room.cpp
   ${SOURCE_DIR}/skyland/path.cpp
   ${SOURCE_DIR}/skyland/save.cpp

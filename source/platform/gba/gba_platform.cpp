@@ -1044,6 +1044,72 @@ void Platform::overwrite_t0_tile(u16 index, const EncodedTile& t)
 
 
 
+Platform::TilePixels Platform::extract_tile(Layer layer, u16 tile)
+{
+    TilePixels result;
+
+    switch (layer) {
+    case Layer::map_1_ext:
+    case Layer::map_0_ext:
+    case Layer::map_1:
+    case Layer::map_0: {
+        auto mem = (const u8*)(layer == Layer::map_0 ? current_tilesheet0->tile_data_ : current_tilesheet1->tile_data_) + vram_tile_size() * 4 * tile; // 2x2 meta tiles
+        for (int y = 0; y < 8; ++y) {
+            for (int x = 0; x < 8; ++x) {
+                auto index = x + y * 8;
+                auto idx1 = index / 2;
+                if (x % 2) {
+                    result.data_[x][y] = (mem[idx1] & 0xf0) >> 4;
+                } else {
+                    result.data_[x][y] = mem[idx1] & 0x0f;
+                }
+                auto idx2 = index / 2 + vram_tile_size();
+                if (x % 2) {
+                    result.data_[x + 8][y] = (mem[idx2] & 0xf0) >> 4;
+                } else {
+                    result.data_[x + 8][y] = mem[idx2] & 0x0f;
+                }
+                auto idx3 = index / 2 + 2 * vram_tile_size();
+                if (x % 2) {
+                    result.data_[x][y + 8] = (mem[idx3] & 0xf0) >> 4;
+                } else {
+                    result.data_[x][y + 8] = mem[idx3] & 0x0f;
+                }
+                auto idx4 = index / 2 + 3 * vram_tile_size();
+                if (x % 2) {
+                    result.data_[x + 8][y + 8] = (mem[idx4] & 0xf0) >> 4;
+                } else {
+                    result.data_[x + 8][y + 8] = mem[idx4] & 0x0f;
+                }
+            }
+        }
+        break;
+    }
+
+    case Layer::background:
+        fatal("unimplemented extract_tile for background layer");
+
+    case Layer::overlay:
+        auto mem = (const u8*)(current_overlay_texture->tile_data_) + vram_tile_size() * tile;
+        for (int y = 0; y < 8; ++y) {
+            for (int x = 0; x < 8; ++x) {
+                auto index = x + y * 8;
+                auto idx1 = index / 2;
+                if (x % 2) {
+                    result.data_[x][y] = (mem[idx1] & 0xf0) >> 4;
+                } else {
+                    result.data_[x][y] = mem[idx1] & 0x0f;
+                }
+            }
+        }
+        break;
+    }
+
+    return result;
+}
+
+
+
 Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 {
     EncodedTile t;
@@ -1052,19 +1118,9 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
             if (j % 2) {
-                buffer.back() |= tile_data[i][j] << 4;
+                buffer.back() |= tile_data[j][i] << 4;
             } else {
-                buffer.push_back(tile_data[i][j] & 0xff);
-            }
-        }
-    }
-
-    for (int i = 8; i < 16; ++i) {
-        for (int j = 0; j < 8; ++j) {
-            if (j % 2) {
-                buffer.back() |= tile_data[i][j] << 4;
-            } else {
-                buffer.push_back(tile_data[i][j] & 0xff);
+                buffer.push_back(tile_data[j][i] & 0xff);
             }
         }
     }
@@ -1072,9 +1128,19 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
     for (int i = 0; i < 8; ++i) {
         for (int j = 8; j < 16; ++j) {
             if (j % 2) {
-                buffer.back() |= tile_data[i][j] << 4;
+                buffer.back() |= tile_data[j][i] << 4;
             } else {
-                buffer.push_back(tile_data[i][j] & 0xff);
+                buffer.push_back(tile_data[j][i] & 0xff);
+            }
+        }
+    }
+
+    for (int i = 8; i < 16; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            if (j % 2) {
+                buffer.back() |= tile_data[j][i] << 4;
+            } else {
+                buffer.push_back(tile_data[j][i] & 0xff);
             }
         }
     }
@@ -1082,9 +1148,9 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
     for (int i = 8; i < 16; ++i) {
         for (int j = 8; j < 16; ++j) {
             if (j % 2) {
-                buffer.back() |= tile_data[i][j] << 4;
+                buffer.back() |= tile_data[j][i] << 4;
             } else {
-                buffer.push_back(tile_data[i][j] & 0xff);
+                buffer.push_back(tile_data[j][i] & 0xff);
             }
         }
     }
@@ -1573,6 +1639,7 @@ static u16 get_map_tile(u8 base, u16 x, u16 y, int palette)
                12;
     }
 }
+
 
 
 u16 Platform::get_tile(Layer layer, u16 x, u16 y)
@@ -3793,6 +3860,9 @@ void Platform::set_palette(Layer layer, u16 x, u16 y, u16 palette)
         set_map_tile_16p_palette(sbb_t1_tiles, x, y, palette);
     } else if (layer == Layer::map_0_ext) {
         set_map_tile_16p_palette(sbb_t0_tiles, x, y, palette);
+    } else if (layer == Layer::overlay) {
+        auto t = get_tile(Layer::overlay, x, y);
+        set_overlay_tile(*this, x, y, t, palette);
     }
 }
 
@@ -4894,7 +4964,7 @@ void read_dlc(Platform&);
 
 
 
-void* Platform::system_call(const char* feature_name, int value)
+void* Platform::system_call(const char* feature_name, void* arg)
 {
     if (str_cmp(feature_name, "_prlx7") == 0) {
 
@@ -4902,7 +4972,7 @@ void* Platform::system_call(const char* feature_name, int value)
             auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
             for (int i = 112 - offset; i < 128 - offset; ++i) {
                 u8 temp =
-                    value + screen_.get_view().get_center().cast<s32>().x / 3;
+                    ((u8)(intptr_t)arg) + screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
             }
             // Fixme: clean up this code...
@@ -4913,7 +4983,7 @@ void* Platform::system_call(const char* feature_name, int value)
             screen_.get_view().get_center().cast<s32>().y / 2 * 0.5f + 3;
 
         const auto x_amount =
-            value + (screen_.get_view().get_center().cast<s32>().x / 3) * 0.8f;
+            ((u8)(intptr_t)arg) + (screen_.get_view().get_center().cast<s32>().x / 3) * 0.8f;
 
         for (int i = (112 - offset) - 5; i < 128 - offset; ++i) {
             parallax_table[i] = x_amount;
@@ -4925,7 +4995,7 @@ void* Platform::system_call(const char* feature_name, int value)
             auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
             for (int i = 128 - offset; i < 144 - offset; ++i) {
                 u8 temp =
-                    value + screen_.get_view().get_center().cast<s32>().x / 3;
+                    ((u8)(intptr_t)arg) + screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
             }
             return nullptr;
@@ -4935,7 +5005,7 @@ void* Platform::system_call(const char* feature_name, int value)
             screen_.get_view().get_center().cast<s32>().y / 2 * 0.7f + 3;
 
         const auto x_amount =
-            value + screen_.get_view().get_center().cast<s32>().x / 3;
+            ((u8)(intptr_t)arg) + screen_.get_view().get_center().cast<s32>().x / 3;
 
         for (int i = 128 - offset; i < 144 - offset; ++i) {
             parallax_table[i] = x_amount;
@@ -4958,26 +5028,12 @@ void* Platform::system_call(const char* feature_name, int value)
 
 
     } else if (str_cmp(feature_name, "gswap") == 0) {
-        *((u16*)0x4000002) = 0x0000 | (bool)value;
-    } else if (str_cmp(feature_name, "spatialized-audio") == 0) {
-        switch (value) {
-        case 0:
-            irqSet(IRQ_TIMER1, audio_update_fast_isr);
-            break;
-
-        case 1:
-            irqSet(IRQ_TIMER1, audio_update_spatialized_isr);
-            break;
-
-        case 2:
-            irqSet(IRQ_TIMER1, audio_update_spatialized_stereo_isr);
-            break;
-        }
+        *((u16*)0x4000002) = 0x0000 | (bool)arg;
     } else if (str_cmp(feature_name, "parallax-clouds") == 0) {
 
-        set_gflag(GlobalFlag::parallax_clouds, value);
+        set_gflag(GlobalFlag::parallax_clouds, (bool)arg);
 
-        if (value) {
+        if ((bool)arg) {
             irqEnable(IRQ_HBLANK);
             irqSet(IRQ_HBLANK, hblank_full_scroll_isr);
             for (int i = 0; i < 280; ++i) {
@@ -4991,15 +5047,17 @@ void* Platform::system_call(const char* feature_name, int value)
             irqDisable(IRQ_HBLANK);
         }
     } else if (str_cmp(feature_name, "v-parallax") == 0) {
-        set_gflag(GlobalFlag::v_parallax, value);
+        set_gflag(GlobalFlag::v_parallax, (bool)arg);
 
-        if (value) {
+        if ((bool)arg) {
             irqSet(IRQ_HBLANK, hblank_full_scroll_isr);
         } else {
             irqSet(IRQ_HBLANK, hblank_x_scroll_isr);
         }
     } else if (str_cmp(feature_name, "dlc-download") == 0) {
         read_dlc(*this);
+    } else if (str_cmp(feature_name, "get-flag-palette") == 0) {
+
     }
 
 

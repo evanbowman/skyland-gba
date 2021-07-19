@@ -56,7 +56,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     app.swap_player<PlayerP1>();
 
     init_clouds2(pfrm);
-    pfrm.system_call("v-parallax", false);
+    pfrm.system_call("v-parallax", (void*)false);
 
     auto view = pfrm.screen().get_view();
     auto c = view.get_center();
@@ -141,7 +141,9 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 
     init_clouds(pfrm);
 
-    pfrm.system_call("v-parallax", true);
+    text_.reset();
+
+    pfrm.system_call("v-parallax", (void*)true);
 
     pfrm.load_tile0_texture("tilesheet");
     pfrm.load_tile1_texture("tilesheet_enemy_0");
@@ -767,7 +769,7 @@ static void init_clouds2(Platform& pfrm)
     // throughout the project. I am embarassed by my work here, but what to do?
     // Deadlines looming...
 
-    pfrm.system_call("parallax-clouds", true);
+    pfrm.system_call("parallax-clouds", (void*)true);
 
     for (int i = 0; i < 32; ++i) {
         for (int j = 0; j < 32; ++j) {

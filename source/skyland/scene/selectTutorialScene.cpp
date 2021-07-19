@@ -24,7 +24,7 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.load_overlay_texture("overlay_challenges");
 
-    pfrm.system_call("v-parallax", false);
+    pfrm.system_call("v-parallax", (void*)false);
 
     if (auto script = pfrm.load_file_contents("scripts", "tutorials.lisp")) {
         auto result = lisp::dostring(script, [&pfrm](lisp::Value& err) {
@@ -115,7 +115,7 @@ void SelectTutorialScene::exit(Platform& pfrm, App&, Scene& next)
     pfrm.fill_overlay(0);
     pfrm.load_overlay_texture("overlay");
 
-    pfrm.system_call("v-parallax", true);
+    pfrm.system_call("v-parallax", (void*)true);
 }
 
 

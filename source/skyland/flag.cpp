@@ -21,7 +21,7 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
     }
 
     // Flag pole
-    for (int j = 0; j < FlagPixels::height; ++j) {
+    for (int j = 0; j < 16; ++j) {
         tile_data[13][j] = 1; // TODO...
     }
 

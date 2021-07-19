@@ -2,6 +2,7 @@
 
 
 #include "skyland/scene/module.hpp"
+#include "skyland/flag.hpp"
 
 
 
@@ -22,6 +23,29 @@ public:
     {
         return 952;
     }
+
+
+    void enter(Platform&, App&, Scene& prev) override;
+
+
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+
+    void display(Platform&, App&) override;
+
+
+private:
+
+    u16 palette_[16];
+
+
+    void show(Platform&);
+
+
+    Vec2<u8> cursor_;
+    int color_ = 0;
+
+    FlagPixels flag_img_;
 
 
     static Factory factory_;

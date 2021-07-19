@@ -128,8 +128,8 @@ void App::update_parallax(Microseconds delta)
 
 void App::render(Platform& pfrm)
 {
-    pfrm.system_call("_prlx7", (u8)cloud_scroll_1_);
-    pfrm.system_call("_prlx8", (u8)cloud_scroll_2_);
+    pfrm.system_call("_prlx7", (void*)(intptr_t)(u8)cloud_scroll_1_);
+    pfrm.system_call("_prlx8", (void*)(intptr_t)(u8)cloud_scroll_2_);
 
     current_scene_->display(pfrm, *this);
 }
@@ -138,7 +138,7 @@ void App::render(Platform& pfrm)
 
 void init_clouds(Platform& pfrm)
 {
-    pfrm.system_call("parallax-clouds", true);
+    pfrm.system_call("parallax-clouds", (void*)true);
 
     for (int i = 0; i < 32; ++i) {
         for (int j = 0; j < 32; ++j) {

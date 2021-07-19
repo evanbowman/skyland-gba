@@ -62,6 +62,14 @@ public:
     void overwrite_t0_tile(u16 index, const EncodedTile& t);
 
 
+    struct TilePixels {
+        u8 data_[16][16];
+    };
+
+
+    TilePixels extract_tile(Layer layer, u16 tile);
+
+
     // Timestamp recorded when the process launched, returns an empty optional
     // if the platform does not provide a functional clock.
     std::optional<DateTime> startup_time() const;
@@ -121,7 +129,7 @@ public:
     [[noreturn]] void fatal(const char* message);
 
     // Enable platform specific features. NOP if unsupported.
-    void* system_call(const char* feature_name, int value);
+    void* system_call(const char* feature_name, void* arg);
 
 
     struct TextureMapping {
@@ -217,6 +225,9 @@ public:
     // This function is not necessarily implemented efficiently, may in fact be
     // very slow.
     TileDesc get_tile(Layer layer, u16 x, u16 y);
+
+
+    u8 get_pixel(Layer layer, u16 tile, u16 x, u16 y);
 
 
     void fill_overlay(u16 TileDesc);
