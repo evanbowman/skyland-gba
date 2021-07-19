@@ -18,6 +18,7 @@ static const int view_shift = -18;
 void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.fill_overlay(0);
+    pfrm.screen().fade(1.f);
 
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
@@ -31,7 +32,6 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     View v;
     v.set_center({0, view_shift});
     pfrm.screen().set_view(v);
-    pfrm.screen().fade(0);
 
     // We use tiles to draw the large flag visualization, we need to re-order
     // the tiles based on the order of the player island's palette table.
@@ -46,7 +46,6 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
             pfrm.set_tile(Layer::overlay, td.data_[0][0] + 1, y, 488 + i);
             pfrm.set_palette(Layer::overlay, td.data_[0][0] + 1, y, 0);
         }
-
     }
 
     app.player_island().init_terrain(pfrm, 4);
@@ -64,6 +63,12 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     show(pfrm);
+
+    // FIXME: I just put this here because we use a pressed() level-triggered
+    // event below, and if the player taps a key too long, they will edit the
+    // flag.
+    pfrm.sleep(20);
+    pfrm.screen().fade(0);
 }
 
 
@@ -90,6 +95,10 @@ ScenePtr<Scene> FlagDesignerModule::update(Platform& pfrm,
                                            Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::alt_1)) {
+        color_--;
+        color_ %= 16;
+    }
+    if (app.player().key_down(pfrm, Key::alt_2)) {
         color_++;
         color_ %= 16;
     }
@@ -130,6 +139,14 @@ void FlagDesignerModule::display(Platform& pfrm, App&)
 
     sprite.set_texture_index(62);
     sprite.set_priority(0);
+    pfrm.screen().draw(sprite);
+
+
+    sprite.set_texture_index(63);
+    sprite.set_position({
+            4 + color_ * 8.f,
+            128 + view_shift
+        });
     pfrm.screen().draw(sprite);
 }
 
