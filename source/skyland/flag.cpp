@@ -81,7 +81,7 @@ void load_default_flag(Platform& pfrm, App& app)
     auto data = pfrm.extract_tile(Layer::map_0, 105);
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
-            app.flag_img_.pixels[x][y] = data.data_[x][y + 1];
+            app.gp_.flag_img_.pixels[x][y] = data.data_[x][y + 1];
         }
     }
 

@@ -150,7 +150,7 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.load_sprite_texture("spritesheet");
 
 
-    vram_write_flag(pfrm, app.flag_img_);
+    vram_write_flag(pfrm, app.gp_.flag_img_);
 
 
     for (int x = 0; x < 16; ++x) {
@@ -614,7 +614,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 auto index = module_cursor_->x + module_cursor_->y * 3;
                 if (auto f = detail::_Module::Factory::get(index)) {
                     pfrm.fill_overlay(0);
-                    pfrm.screen().fade(1.f);
+                    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
                     return f->create(pfrm);
                 }
             }

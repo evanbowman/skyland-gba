@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-DlcInjectorModule::Factory DlcInjectorModule::factory_;
+// NOTE: uncomment when we actually implement this module.
+// DlcInjectorModule::Factory DlcInjectorModule::factory_;
 
 
 }

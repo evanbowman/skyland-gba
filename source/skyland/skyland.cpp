@@ -4,6 +4,7 @@
 #include "platform/platform.hpp"
 #include "script/lisp.hpp"
 #include "serial.hpp"
+#include "save.hpp"
 
 
 
@@ -32,12 +33,10 @@ App::App(Platform& pfrm)
     player_island_.show_flag(true);
 
     pfrm.screen().fade(1.f);
-    load_default_flag(pfrm, *this);
 
-    pfrm.read_save_data(&highscores_, sizeof highscores_, 0);
-    if (highscores_.magic_[0] not_eq 'H' or highscores_.magic_[1] not_eq 'S') {
-        highscores_ = Highscores{};
-        for (auto& score : highscores_.values_) {
+    if (not save::load_global_data(pfrm, gp_)) {
+        load_default_flag(pfrm, *this);
+        for (auto& score : gp_.highscores_.values_) {
             score.set(0);
         }
     }

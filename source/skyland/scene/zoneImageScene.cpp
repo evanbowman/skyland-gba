@@ -96,7 +96,7 @@ void ZoneImageScene::exit(Platform& pfrm, App& app, Scene& next)
         // pfrm.overwrite_t0_tile(105, t);
     }
 
-    vram_write_flag(pfrm, app.flag_img_);
+    vram_write_flag(pfrm, app.gp_.flag_img_);
 
     pfrm.load_tile1_texture("tilesheet_enemy_0");
 

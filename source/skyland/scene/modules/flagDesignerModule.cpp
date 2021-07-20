@@ -4,6 +4,7 @@
 #include "skyland/configure_island.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
+#include "skyland/save.hpp"
 
 
 
@@ -65,7 +66,7 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     auto data = pfrm.extract_tile(Layer::map_0, 105);
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
-            app.flag_img_.pixels[x][y] = data.data_[x][y + 1];
+            app.gp_.flag_img_.pixels[x][y] = data.data_[x][y + 1];
         }
     }
 
@@ -74,6 +75,13 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     draw_rulers(pfrm);
 
     pfrm.screen().fade(0);
+}
+
+
+
+void FlagDesignerModule::exit(Platform& pfrm, App&, Scene& next)
+{
+    pfrm.fill_overlay(0);
 }
 
 
@@ -94,7 +102,7 @@ void FlagDesignerModule::show(Platform& pfrm, App& app)
 {
     for (int y = 0; y < 11; ++y) {
         for (int x = 0; x < 13; ++x) {
-            const auto t = palette_[app.flag_img_.pixels[x][y]];
+            const auto t = palette_[app.gp_.flag_img_.pixels[x][y]];
             pfrm.set_tile(Layer::overlay,
                           x + canvas_start_x, y + canvas_start_y, t);
             pfrm.set_palette(Layer::overlay,
@@ -102,7 +110,7 @@ void FlagDesignerModule::show(Platform& pfrm, App& app)
         }
     }
 
-    vram_write_flag(pfrm, app.flag_img_);
+    vram_write_flag(pfrm, app.gp_.flag_img_);
 }
 
 
@@ -186,6 +194,7 @@ ScenePtr<Scene> FlagDesignerModule::update(Platform& pfrm,
         ready_ = true;
     }
     if (app.player().key_down(pfrm, Key::action_2)) {
+        save::store_global_data(pfrm, app.gp_);
         return scene_pool::alloc<TitleScreenScene>();
     }
     if (app.player().key_down(pfrm, Key::start)) {
@@ -193,13 +202,13 @@ ScenePtr<Scene> FlagDesignerModule::update(Platform& pfrm,
         u8 temp[16][16];
         for (int x = 0; x < FlagPixels::width; ++x) {
             for (int y = 0; y < FlagPixels::height; ++y) {
-                temp[x][y] = app.flag_img_.pixels[x][y];
+                temp[x][y] = app.gp_.flag_img_.pixels[x][y];
             }
         }
         flood_fill(pfrm, temp, color_, cursor_.x, cursor_.y);
         for (int x = 0; x < FlagPixels::width; ++x) {
             for (int y = 0; y < FlagPixels::height; ++y) {
-                app.flag_img_.pixels[x][y] = temp[x][y];
+                app.gp_.flag_img_.pixels[x][y] = temp[x][y];
             }
         }
         show(pfrm, app);
@@ -209,7 +218,7 @@ ScenePtr<Scene> FlagDesignerModule::update(Platform& pfrm,
         show(pfrm, app);
     }
     if (app.player().key_pressed(pfrm, Key::action_1) and ready_) {
-        app.flag_img_.pixels[cursor_.x][cursor_.y] = color_;
+        app.gp_.flag_img_.pixels[cursor_.x][cursor_.y] = color_;
         show(pfrm, app);
     }
 

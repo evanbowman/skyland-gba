@@ -241,8 +241,7 @@ public:
     }
 
 
-    Highscores highscores_;
-    FlagPixels flag_img_;
+    GlobalPersistentData gp_;
 
 
     static const auto pixelate_duration = milliseconds(200);
