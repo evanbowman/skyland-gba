@@ -63,13 +63,6 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     app.player_island().set_position({146, 370});
 
 
-    auto data = pfrm.extract_tile(Layer::map_0, 105);
-    for (int x = 0; x < 13; ++x) {
-        for (int y = 0; y < 11; ++y) {
-            app.gp_.flag_img_.pixels[x][y] = data.data_[x][y + 1];
-        }
-    }
-
     show(pfrm, app);
 
     draw_rulers(pfrm);
