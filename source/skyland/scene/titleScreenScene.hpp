@@ -28,7 +28,14 @@ private:
     Microseconds timer_ = 0;
     Microseconds hover_timer_ = 0;
     Microseconds selector_timer_ = 0;
+    Float ambient_movement_ = 0.f;
     bool selector_shaded_ = false;
+
+
+    void show_module_icons(Platform&, int page);
+
+    std::optional<Vec2<u8>> module_cursor_;
+
 
     struct Pong {
         struct Pad {
@@ -47,7 +54,7 @@ private:
     } pong_;
 
 
-    void window_image_hack(Platform&);
+    void window_image_hack(Platform&, u16 empty_tile);
 
     enum class State {
         fade_in,
@@ -58,11 +65,17 @@ private:
         scroll_multiplayer,
         scroll_to_center,
         wait_2,
+        scroll_to_end,
+        scroll_from_end,
+        fade_modules_1,
+        show_modules,
+        fade_modules_backout,
     } state_ = State::fade_in;
 
     int menu_selection_ = 0;
 
     void put_menu_text(Platform&);
+    void put_module_text(Platform&);
     void redraw_margins(Platform&);
 
     int menu_selection_start_ = 0;

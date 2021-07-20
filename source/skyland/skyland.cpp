@@ -4,6 +4,7 @@
 #include "platform/platform.hpp"
 #include "script/lisp.hpp"
 #include "serial.hpp"
+#include "save.hpp"
 
 
 
@@ -31,10 +32,11 @@ App::App(Platform& pfrm)
 
     player_island_.show_flag(true);
 
-    pfrm.read_save_data(&highscores_, sizeof highscores_, 0);
-    if (highscores_.magic_[0] not_eq 'H' or highscores_.magic_[1] not_eq 'S') {
-        highscores_ = Highscores{};
-        for (auto& score : highscores_.values_) {
+    pfrm.screen().fade(1.f);
+
+    if (not save::load_global_data(pfrm, gp_)) {
+        load_default_flag(pfrm, *this);
+        for (auto& score : gp_.highscores_.values_) {
             score.set(0);
         }
     }
@@ -128,8 +130,8 @@ void App::update_parallax(Microseconds delta)
 
 void App::render(Platform& pfrm)
 {
-    pfrm.enable_feature("_prlx7", (u8)cloud_scroll_1_);
-    pfrm.enable_feature("_prlx8", (u8)cloud_scroll_2_);
+    pfrm.system_call("_prlx7", (void*)(intptr_t)(u8)cloud_scroll_1_);
+    pfrm.system_call("_prlx8", (void*)(intptr_t)(u8)cloud_scroll_2_);
 
     current_scene_->display(pfrm, *this);
 }
@@ -138,7 +140,7 @@ void App::render(Platform& pfrm)
 
 void init_clouds(Platform& pfrm)
 {
-    pfrm.enable_feature("parallax-clouds", true);
+    pfrm.system_call("parallax-clouds", (void*)true);
 
     for (int i = 0; i < 32; ++i) {
         for (int j = 0; j < 32; ++j) {

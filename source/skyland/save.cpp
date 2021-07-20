@@ -1,7 +1,7 @@
 #include "save.hpp"
-#include "highscores.hpp"
 #include "platform/platform.hpp"
 #include "script/lisp.hpp"
+#include "flag.hpp"
 
 
 
@@ -10,7 +10,63 @@ namespace save {
 
 
 
-static const u32 save_data_magic = 0xABCD + 1;
+struct SaveData {
+    HostInteger<u32> magic_;
+    PersistentData data_;
+
+    // We have some persistent data used by the application (above). But, we
+    // also want to serialize a bunch of data used by the lisp interpreter,
+    // and just eval it later.
+    HostInteger<u32> script_length_;
+    // u8 script_[...]; variable-sized data to follow...
+};
+
+
+
+static_assert(std::is_trivially_copyable<SaveData>::value,
+              "SaveData will be memcpy'd to the output destination, and "
+              "therefore must be trivially copyable.");
+
+
+
+
+
+static const u32 save_data_magic = 0xABCD + 2;
+static const u32 global_save_data_magic = 0xABCD;
+
+
+
+struct GlobalSaveData {
+    HostInteger<u32> magic_;
+    GlobalPersistentData data_;
+};
+
+
+
+bool load_global_data(Platform& pfrm, GlobalPersistentData& data)
+{
+    GlobalSaveData loaded;
+
+    pfrm.read_save_data(&loaded, sizeof loaded, 0);
+
+    if (loaded.magic_.get() == global_save_data_magic) {
+        data = loaded.data_;
+        return true;
+    }
+
+    return false;
+}
+
+
+
+void store_global_data(Platform& pfrm, const GlobalPersistentData& data)
+{
+    GlobalSaveData out;
+    out.magic_.set(global_save_data_magic);
+    out.data_ = data;
+
+    pfrm.write_save_data(&out, sizeof out, 0);
+}
 
 
 
@@ -47,7 +103,7 @@ void store(Platform& pfrm, const PersistentData& d)
     save_data.script_length_.set(p.fmt_.length());
     memcpy(&save_data.data_, &d, sizeof d);
 
-    u32 offset = sizeof(Highscores);
+    u32 offset = sizeof(GlobalSaveData);
 
     pfrm.write_save_data(&save_data, sizeof save_data, offset);
 
@@ -60,7 +116,7 @@ void store(Platform& pfrm, const PersistentData& d)
 
 bool load(Platform& pfrm, PersistentData& d)
 {
-    u32 offset = sizeof(Highscores);
+    u32 offset = sizeof(GlobalSaveData);
 
     SaveData save_data;
     pfrm.read_save_data(&save_data, sizeof save_data, offset);

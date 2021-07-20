@@ -5,10 +5,19 @@
 #include "coins.hpp"
 #include "number/endian.hpp"
 #include "worldMap.hpp"
+#include "flag.hpp"
+#include "highscores.hpp"
 
 
 
 namespace skyland {
+
+
+
+struct GlobalPersistentData {
+    FlagPixels flag_img_;
+    Highscores highscores_;
+};
 
 
 

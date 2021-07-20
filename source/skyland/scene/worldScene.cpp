@@ -242,9 +242,11 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player_island().interior_visible()) {
             pfrm.load_tile0_texture("tilesheet");
             app.player_island().render_exterior(pfrm);
+            vram_write_flag(pfrm, app.gp_.flag_img_);
         } else {
             pfrm.load_tile0_texture("tilesheet_interior");
             app.player_island().render_interior(pfrm);
+            vram_write_flag(pfrm, app.gp_.flag_img_);
         }
     }
 

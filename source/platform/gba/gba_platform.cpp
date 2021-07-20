@@ -1044,6 +1044,82 @@ void Platform::overwrite_t0_tile(u16 index, const EncodedTile& t)
 
 
 
+void Platform::overwrite_t1_tile(u16 index, const EncodedTile& t)
+{
+    u8* p = ((u8*)&MEM_SCREENBLOCKS[sbb_t1_texture][0]) +
+            index * (vram_tile_size() * 4);
+
+    memcpy16(p, &t, (sizeof t) / 2);
+}
+
+
+
+Platform::TilePixels Platform::extract_tile(Layer layer, u16 tile)
+{
+    TilePixels result;
+
+    switch (layer) {
+    case Layer::map_1_ext:
+    case Layer::map_0_ext:
+    case Layer::map_1:
+    case Layer::map_0: {
+        auto mem = (const u8*)(layer == Layer::map_0 ? current_tilesheet0->tile_data_ : current_tilesheet1->tile_data_) + vram_tile_size() * 4 * tile; // 2x2 meta tiles
+        for (int y = 0; y < 8; ++y) {
+            for (int x = 0; x < 8; ++x) {
+                auto index = x + y * 8;
+                auto idx1 = index / 2;
+                if (x % 2) {
+                    result.data_[x][y] = (mem[idx1] & 0xf0) >> 4;
+                } else {
+                    result.data_[x][y] = mem[idx1] & 0x0f;
+                }
+                auto idx2 = index / 2 + vram_tile_size();
+                if (x % 2) {
+                    result.data_[x + 8][y] = (mem[idx2] & 0xf0) >> 4;
+                } else {
+                    result.data_[x + 8][y] = mem[idx2] & 0x0f;
+                }
+                auto idx3 = index / 2 + 2 * vram_tile_size();
+                if (x % 2) {
+                    result.data_[x][y + 8] = (mem[idx3] & 0xf0) >> 4;
+                } else {
+                    result.data_[x][y + 8] = mem[idx3] & 0x0f;
+                }
+                auto idx4 = index / 2 + 3 * vram_tile_size();
+                if (x % 2) {
+                    result.data_[x + 8][y + 8] = (mem[idx4] & 0xf0) >> 4;
+                } else {
+                    result.data_[x + 8][y + 8] = mem[idx4] & 0x0f;
+                }
+            }
+        }
+        break;
+    }
+
+    case Layer::background:
+        fatal("unimplemented extract_tile for background layer");
+
+    case Layer::overlay:
+        auto mem = (const u8*)(current_overlay_texture->tile_data_) + vram_tile_size() * tile;
+        for (int y = 0; y < 8; ++y) {
+            for (int x = 0; x < 8; ++x) {
+                auto index = x + y * 8;
+                auto idx1 = index / 2;
+                if (x % 2) {
+                    result.data_[x][y] = (mem[idx1] & 0xf0) >> 4;
+                } else {
+                    result.data_[x][y] = mem[idx1] & 0x0f;
+                }
+            }
+        }
+        break;
+    }
+
+    return result;
+}
+
+
+
 Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 {
     EncodedTile t;
@@ -1052,19 +1128,9 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
     for (int i = 0; i < 8; ++i) {
         for (int j = 0; j < 8; ++j) {
             if (j % 2) {
-                buffer.back() |= tile_data[i][j] << 4;
+                buffer.back() |= tile_data[j][i] << 4;
             } else {
-                buffer.push_back(tile_data[i][j] & 0xff);
-            }
-        }
-    }
-
-    for (int i = 8; i < 16; ++i) {
-        for (int j = 0; j < 8; ++j) {
-            if (j % 2) {
-                buffer.back() |= tile_data[i][j] << 4;
-            } else {
-                buffer.push_back(tile_data[i][j] & 0xff);
+                buffer.push_back(tile_data[j][i] & 0xff);
             }
         }
     }
@@ -1072,9 +1138,19 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
     for (int i = 0; i < 8; ++i) {
         for (int j = 8; j < 16; ++j) {
             if (j % 2) {
-                buffer.back() |= tile_data[i][j] << 4;
+                buffer.back() |= tile_data[j][i] << 4;
             } else {
-                buffer.push_back(tile_data[i][j] & 0xff);
+                buffer.push_back(tile_data[j][i] & 0xff);
+            }
+        }
+    }
+
+    for (int i = 8; i < 16; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            if (j % 2) {
+                buffer.back() |= tile_data[j][i] << 4;
+            } else {
+                buffer.push_back(tile_data[j][i] & 0xff);
             }
         }
     }
@@ -1082,9 +1158,9 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
     for (int i = 8; i < 16; ++i) {
         for (int j = 8; j < 16; ++j) {
             if (j % 2) {
-                buffer.back() |= tile_data[i][j] << 4;
+                buffer.back() |= tile_data[j][i] << 4;
             } else {
-                buffer.push_back(tile_data[i][j] & 0xff);
+                buffer.push_back(tile_data[j][i] & 0xff);
             }
         }
     }
@@ -1575,6 +1651,7 @@ static u16 get_map_tile(u8 base, u16 x, u16 y, int palette)
 }
 
 
+
 u16 Platform::get_tile(Layer layer, u16 x, u16 y)
 {
     switch (layer) {
@@ -1610,7 +1687,7 @@ void Platform::fatal(const char* msg)
 {
     const auto bkg_color = custom_color(0xcb1500);
 
-    irqDisable(IRQ_TIMER2 | IRQ_KEYPAD | IRQ_TIMER3 | IRQ_VBLANK);
+    irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
 
 
     screen().fade(1.f, bkg_color);
@@ -1784,6 +1861,10 @@ void Platform::Screen::fade(float amount,
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
             MEM_BG_PALETTE[i] = blend(from, c, amt);
+        }
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
+            MEM_BG_PALETTE[16 * 12 + i] = blend(from, c, amt);
         }
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
@@ -3149,6 +3230,8 @@ extern char __rom_end__;
 
 Platform::Platform()
 {
+    // NOTE: these colors were a custom hack I threw in during the GBA game jam,
+    // when I wanted background tiles to flicker between a few different colors.
     for (int i = 0; i < 16; ++i) {
         MEM_BG_PALETTE[(15 * 16) + i] =
             Color(custom_color(0xef0d54)).bgr_hex_555();
@@ -3161,6 +3244,16 @@ Platform::Platform()
         MEM_BG_PALETTE[(13 * 16) + i] =
             Color(ColorConstant::silver_white).bgr_hex_555();
     }
+
+    // Really bad hack. We added a feature where the player can design his/her
+    // own flag, but we frequently switch color palettes when viewing
+    // interior/exterior of a castle, so we reserve one of the palette banks for
+    // the flag palette, which is taken from the tilesheet texture.
+    load_tile0_texture("tilesheet");
+    for (int i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[(12 * 16) + i] = MEM_BG_PALETTE[i];
+    }
+
 
 
     logger().set_threshold(Severity::fatal);
@@ -3791,6 +3884,9 @@ void Platform::set_palette(Layer layer, u16 x, u16 y, u16 palette)
         set_map_tile_16p_palette(sbb_t1_tiles, x, y, palette);
     } else if (layer == Layer::map_0_ext) {
         set_map_tile_16p_palette(sbb_t0_tiles, x, y, palette);
+    } else if (layer == Layer::overlay) {
+        auto t = get_tile(Layer::overlay, x, y);
+        set_overlay_tile(*this, x, y, t, palette);
     }
 }
 
@@ -4317,7 +4413,8 @@ MASTER_RETRY:
         ::platform->feed_watchdog();
     }
 
-    const char* handshake = "v00003";
+    const char* handshake =
+        "lnsk06"; // Link cable program, skyland, 6 byte packet.
 
     if (str_len(handshake) not_eq Platform::NetworkPeer::max_message_size) {
         ::platform->network_peer().disconnect();
@@ -4332,12 +4429,18 @@ MASTER_RETRY:
 
     multiplayer_schedule_tx();
 
+    if (multiplayer_is_master()) {
+        error(*::platform, "I am the master");
+    }
+
     while (true) {
         ::platform->feed_watchdog();
         delta += ::platform->delta_clock().reset();
         if (delta > seconds(20)) {
+            StringBuffer<64> err = "no valid handshake received within a reasonable window ";
+            err += to_string<10>(multiplayer_comms.rx_message_count);
             error(*::platform,
-                  "no valid handshake received within a reasonable window");
+                  err.c_str());
             ::platform->network_peer().disconnect();
             return;
         } else if (auto msg = ::platform->network_peer().poll_message()) {
@@ -4353,6 +4456,12 @@ MASTER_RETRY:
                         // where the other device is not yet plugged in, or the
                         // other player has not initiated their own connection.
                         info(*::platform, "master retrying...");
+
+                        StringBuffer<32> temp = "got: ";
+                        for (u32 i = 0; i < sizeof handshake; ++i) {
+                            temp.push_back(((char*)msg->data_)[i]);
+                        }
+                        info(*::platform, temp.c_str());
 
                         // busy-wait for a bit. This is sort of necessary;
                         // Platform::sleep() does not contribute to the
@@ -4375,6 +4484,9 @@ MASTER_RETRY:
         }
     }
 }
+
+
+
 
 
 void Platform::NetworkPeer::connect(const char* peer)
@@ -4485,6 +4597,15 @@ void Platform::NetworkPeer::disconnect()
         mc.rx_current_all_zeroes = true;
         for (auto& msg : mc.rx_ring) {
             if (msg) {
+                StringBuffer<32> note = "consumed msg containing ";
+                note.push_back(((char*)msg->data_)[0]);
+                note.push_back(((char*)msg->data_)[1]);
+                note.push_back(((char*)msg->data_)[2]);
+                note.push_back(((char*)msg->data_)[4]);
+                note.push_back(((char*)msg->data_)[5]);
+                note.push_back(((char*)msg->data_)[6]);
+                note += " during disconnect";
+                info(*::platform, note.c_str());
                 mc.rx_message_pool.post(msg);
                 msg = nullptr;
             }
@@ -4752,7 +4873,6 @@ static void uart_serial_isr()
     // if (is_rcv) {
 
     // just for debugging purposes
-    ++multiplayer_comms.rx_message_count;
 
     if (data == '\r') {
         if (state.rx_in_progress_) {
@@ -4863,7 +4983,12 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 }
 
 
-void Platform::enable_feature(const char* feature_name, int value)
+
+void read_dlc(Platform&);
+
+
+
+void* Platform::system_call(const char* feature_name, void* arg)
 {
     if (str_cmp(feature_name, "_prlx7") == 0) {
 
@@ -4871,18 +4996,18 @@ void Platform::enable_feature(const char* feature_name, int value)
             auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
             for (int i = 112 - offset; i < 128 - offset; ++i) {
                 u8 temp =
-                    value + screen_.get_view().get_center().cast<s32>().x / 3;
+                    ((u8)(intptr_t)arg) + screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
             }
             // Fixme: clean up this code...
-            return;
+            return nullptr;
         }
 
         auto offset =
             screen_.get_view().get_center().cast<s32>().y / 2 * 0.5f + 3;
 
         const auto x_amount =
-            value + (screen_.get_view().get_center().cast<s32>().x / 3) * 0.8f;
+            ((u8)(intptr_t)arg) + (screen_.get_view().get_center().cast<s32>().x / 3) * 0.8f;
 
         for (int i = (112 - offset) - 5; i < 128 - offset; ++i) {
             parallax_table[i] = x_amount;
@@ -4894,17 +5019,17 @@ void Platform::enable_feature(const char* feature_name, int value)
             auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
             for (int i = 128 - offset; i < 144 - offset; ++i) {
                 u8 temp =
-                    value + screen_.get_view().get_center().cast<s32>().x / 3;
+                    ((u8)(intptr_t)arg) + screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
             }
-            return;
+            return nullptr;
         }
 
         auto offset =
             screen_.get_view().get_center().cast<s32>().y / 2 * 0.7f + 3;
 
         const auto x_amount =
-            value + screen_.get_view().get_center().cast<s32>().x / 3;
+            ((u8)(intptr_t)arg) + screen_.get_view().get_center().cast<s32>().x / 3;
 
         for (int i = 128 - offset; i < 144 - offset; ++i) {
             parallax_table[i] = x_amount;
@@ -4927,26 +5052,12 @@ void Platform::enable_feature(const char* feature_name, int value)
 
 
     } else if (str_cmp(feature_name, "gswap") == 0) {
-        *((u16*)0x4000002) = 0x0000 | (bool)value;
-    } else if (str_cmp(feature_name, "spatialized-audio") == 0) {
-        switch (value) {
-        case 0:
-            irqSet(IRQ_TIMER1, audio_update_fast_isr);
-            break;
-
-        case 1:
-            irqSet(IRQ_TIMER1, audio_update_spatialized_isr);
-            break;
-
-        case 2:
-            irqSet(IRQ_TIMER1, audio_update_spatialized_stereo_isr);
-            break;
-        }
+        *((u16*)0x4000002) = 0x0000 | (bool)arg;
     } else if (str_cmp(feature_name, "parallax-clouds") == 0) {
 
-        set_gflag(GlobalFlag::parallax_clouds, value);
+        set_gflag(GlobalFlag::parallax_clouds, (bool)arg);
 
-        if (value) {
+        if ((bool)arg) {
             irqEnable(IRQ_HBLANK);
             irqSet(IRQ_HBLANK, hblank_full_scroll_isr);
             for (int i = 0; i < 280; ++i) {
@@ -4960,15 +5071,25 @@ void Platform::enable_feature(const char* feature_name, int value)
             irqDisable(IRQ_HBLANK);
         }
     } else if (str_cmp(feature_name, "v-parallax") == 0) {
-        set_gflag(GlobalFlag::v_parallax, value);
+        set_gflag(GlobalFlag::v_parallax, (bool)arg);
 
-        if (value) {
+        if ((bool)arg) {
             irqSet(IRQ_HBLANK, hblank_full_scroll_isr);
         } else {
             irqSet(IRQ_HBLANK, hblank_x_scroll_isr);
         }
+    } else if (str_cmp(feature_name, "dlc-download") == 0) {
+        read_dlc(*this);
+    } else if (str_cmp(feature_name, "get-flag-palette") == 0) {
+
     }
+
+
+    return nullptr;
 }
+
+
+
 
 
 #endif // __GBA__

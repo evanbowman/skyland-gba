@@ -28,6 +28,10 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
+
+    vram_write_flag(pfrm, app.gp_.flag_img_);
+
+
     if (save::load(pfrm, app.persistent_data())) {
         save::erase(pfrm);
     } else {

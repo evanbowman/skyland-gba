@@ -49,6 +49,8 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::ReplicantCreated)
             HANDLE_MESSAGE(packet::OpponentBulkheadChanged)
             HANDLE_MESSAGE(packet::ProgramVersion)
+            HANDLE_MESSAGE(packet::BlockTransferStart)
+            HANDLE_MESSAGE(packet::BlockTransfer)
         }
 
         error(pfrm, "garbled message!?");

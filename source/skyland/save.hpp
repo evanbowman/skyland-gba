@@ -13,22 +13,11 @@ namespace save {
 
 
 
-struct SaveData {
-    HostInteger<u32> magic_;
-    PersistentData data_;
-
-    // We have some persistent data used by the application (above). But, we
-    // also want to serialize a bunch of data used by the lisp interpreter,
-    // and just eval it later.
-    HostInteger<u32> script_length_;
-    // u8 script_[...]; variable-sized data to follow...
-};
+bool load_global_data(Platform&, GlobalPersistentData&);
 
 
 
-static_assert(std::is_trivially_copyable<SaveData>::value,
-              "SaveData will be memcpy'd to the output destination, and "
-              "therefore must be trivially copyable.");
+void store_global_data(Platform&, const GlobalPersistentData&);
 
 
 

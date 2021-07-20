@@ -62,6 +62,7 @@ set(SOURCES
 
 set(SOURCES
   ${SOURCES}
+  ${SOURCE_DIR}/skyland/flag.cpp
   ${SOURCE_DIR}/skyland/room.cpp
   ${SOURCE_DIR}/skyland/path.cpp
   ${SOURCE_DIR}/skyland/save.cpp
@@ -100,6 +101,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/transporter.cpp
   ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp
+  ${SOURCE_DIR}/skyland/scene/module.cpp
   ${SOURCE_DIR}/skyland/scene/hintScene.cpp
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp
@@ -112,6 +114,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/zoneImageScene.cpp
   ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
   ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
+  ${SOURCE_DIR}/skyland/scene/loadModuleScene.cpp
   ${SOURCE_DIR}/skyland/scene/boxedDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/titleScreenScene.cpp
@@ -126,7 +129,9 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerConnectScene.cpp
   ${SOURCE_DIR}/skyland/scene/replicatorSelectionScene.cpp
-  ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp)
+  ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp)
 
 
 set(SOURCES
@@ -198,6 +203,7 @@ if(GAMEBOY_ADVANCE)
     ${ROOT_DIR}/external/libgba/reset.s
 
     ${SOURCE_DIR}/platform/gba/rumble.c
+    ${SOURCE_DIR}/platform/gba/dlc.cpp
 
     # Data files below. Because the gameboy advance does not have a filesystem,
     # all of the sounds and images need to be compiled into the ROM.
@@ -217,6 +223,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/tilesheet_enemy_0_interior.s
     ${DATA_DIR}/tilesheet_interior.s
     ${DATA_DIR}/tilesheet_top.s
+    ${DATA_DIR}/skyland_title_3_flattened.s
     ${DATA_DIR}/skyland_title_2_flattened.s
     ${DATA_DIR}/skyland_title_1_flattened.s
     ${DATA_DIR}/skyland_title_0_flattened.s
@@ -465,6 +472,7 @@ if(GAMEBOY_ADVANCE)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
     add_tilesheet(tilesheet_interior 2 2 NO NO)
     add_tilesheet(tilesheet_top 4 3 NO NO)
+    add_tilesheet(skyland_title_3 0 0 YES NO)
     add_tilesheet(skyland_title_2 0 0 YES NO)
     add_tilesheet(skyland_title_1 0 0 YES NO)
     add_tilesheet(skyland_title_0 0 0 YES NO)

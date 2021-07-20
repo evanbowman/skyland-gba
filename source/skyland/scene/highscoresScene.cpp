@@ -3,6 +3,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
+#include "skyland/save.hpp"
 
 
 
@@ -76,7 +77,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         print_metric_impl(str, to_string<20>(num), suffix, highlight);
     };
 
-    auto& highscores = app.highscores_;
+    auto& highscores = app.gp_.highscores_;
 
     for (auto& highscore : reversed(highscores.values_)) {
         if (highscore.get() < (u32)score) {
@@ -112,7 +113,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    pfrm.write_save_data(&highscores, sizeof highscores, 0);
+    save::store_global_data(pfrm, app.gp_);
 }
 
 
