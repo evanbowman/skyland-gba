@@ -1862,10 +1862,10 @@ void Platform::Screen::fade(float amount,
             auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
             MEM_BG_PALETTE[i] = blend(from, c, amt);
         }
-        // for (int i = 0; i < 16; ++i) {
-        //     auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
-        //     MEM_BG_PALETTE[i + 16 * 12] = blend(from, c, amt);
-        // }
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
+            MEM_BG_PALETTE[16 * 12 + i] = blend(from, c, amt);
+        }
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
             MEM_BG_PALETTE[32 + i] = blend(from, c, amt);

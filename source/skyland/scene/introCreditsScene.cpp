@@ -24,7 +24,6 @@ void IntroCreditsScene::enter(Platform& pfrm, App&, Scene& prev)
 void IntroCreditsScene::exit(Platform& pfrm, App&, Scene& next)
 {
     text_.reset();
-    pfrm.screen().fade(0.f);
 }
 
 

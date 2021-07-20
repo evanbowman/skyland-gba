@@ -36,12 +36,15 @@ public:
 
 private:
 
+    Microseconds cursor_move_tic_ = 0;
+
     bool ready_ = false;
 
     u16 palette_[16];
 
 
     void show(Platform&, App&);
+    void draw_rulers(Platform&);
 
 
     Vec2<u8> cursor_;

@@ -59,7 +59,7 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     configure_island_from_codestring(pfrm, app.player_island(), "'((power-core 1 13))");
 
     app.player_island().repaint(pfrm);
-    app.player_island().set_position({140, 370});
+    app.player_island().set_position({146, 370});
 
 
     auto data = pfrm.extract_tile(Layer::map_0, 105);
@@ -71,7 +71,21 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
 
     show(pfrm, app);
 
+    draw_rulers(pfrm);
+
     pfrm.screen().fade(0);
+}
+
+
+
+void FlagDesignerModule::draw_rulers(Platform& pfrm)
+{
+    for (int i = 0; i < 13; ++i) {
+        pfrm.set_tile(Layer::overlay, 3 + i, 2, i == cursor_.x ? 474 : 472);
+    }
+    for (int i = 0; i < 11; ++i) {
+        pfrm.set_tile(Layer::overlay, 16, 3 + i, i == cursor_.y ? 473 : 471);
+    }
 }
 
 
@@ -107,22 +121,67 @@ ScenePtr<Scene> FlagDesignerModule::update(Platform& pfrm,
         color_ %= 16;
         ready_ = true;
     }
-    if (app.player().key_down(pfrm, Key::right) and cursor_.x < 12) {
-        ++cursor_.x;
-        ready_ = true;
+    bool cursor_move_ready = false;
+
+    if (cursor_move_tic_ > 0) {
+        cursor_move_tic_ -= delta;
+        if (cursor_move_tic_ <= 0) {
+            cursor_move_tic_ = 0;
+            cursor_move_ready = true;
+        }
     }
-    if (app.player().key_down(pfrm, Key::left) and cursor_.x > 0) {
-        --cursor_.x;
-        ready_ = true;
+    if (cursor_move_ready) {
+        if (app.player().key_pressed(pfrm, Key::right) and cursor_.x < 12) {
+            ++cursor_.x;
+            ready_ = true;
+            cursor_move_tic_ = milliseconds(90);
+            draw_rulers(pfrm);
+        }
+        if (app.player().key_pressed(pfrm, Key::left) and cursor_.x > 0) {
+            --cursor_.x;
+            ready_ = true;
+            cursor_move_tic_ = milliseconds(90);
+            draw_rulers(pfrm);
+        }
+        if (app.player().key_pressed(pfrm, Key::up) and cursor_.y > 0) {
+            --cursor_.y;
+            ready_ = true;
+            cursor_move_tic_ = milliseconds(90);
+            draw_rulers(pfrm);
+        }
+        if (app.player().key_pressed(pfrm, Key::down) and cursor_.y < 10) {
+            ++cursor_.y;
+            ready_ = true;
+            cursor_move_tic_ = milliseconds(90);
+            draw_rulers(pfrm);
+        }
+    } else {
+        if (app.player().key_down(pfrm, Key::right) and cursor_.x < 12) {
+            ++cursor_.x;
+            ready_ = true;
+            cursor_move_tic_ = milliseconds(400);
+            draw_rulers(pfrm);
+        }
+        if (app.player().key_down(pfrm, Key::left) and cursor_.x > 0) {
+            --cursor_.x;
+            ready_ = true;
+            cursor_move_tic_ = milliseconds(400);
+            draw_rulers(pfrm);
+        }
+        if (app.player().key_down(pfrm, Key::up) and cursor_.y > 0) {
+            --cursor_.y;
+            ready_ = true;
+            cursor_move_tic_ = milliseconds(400);
+            draw_rulers(pfrm);
+        }
+        if (app.player().key_down(pfrm, Key::down) and cursor_.y < 10) {
+            ++cursor_.y;
+            ready_ = true;
+            cursor_move_tic_ = milliseconds(400);
+            draw_rulers(pfrm);
+        }
     }
-    if (app.player().key_down(pfrm, Key::up) and cursor_.y > 0) {
-        --cursor_.y;
-        ready_ = true;
-    }
-    if (app.player().key_down(pfrm, Key::down) and cursor_.y < 10) {
-        ++cursor_.y;
-        ready_ = true;
-    }
+
     if (app.player().key_down(pfrm, Key::action_1)) {
         ready_ = true;
     }
@@ -143,6 +202,10 @@ ScenePtr<Scene> FlagDesignerModule::update(Platform& pfrm,
                 app.flag_img_.pixels[x][y] = temp[x][y];
             }
         }
+        show(pfrm, app);
+    }
+    if (app.player().key_down(pfrm, Key::select)) {
+        load_default_flag(pfrm, app);
         show(pfrm, app);
     }
     if (app.player().key_pressed(pfrm, Key::action_1) and ready_) {

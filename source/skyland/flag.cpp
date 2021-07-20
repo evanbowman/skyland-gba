@@ -1,6 +1,7 @@
 #include "flag.hpp"
 #include "platform/platform.hpp"
 #include "tile.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -25,12 +26,7 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
         tile_data[13][j] = 1; // TODO...
     }
 
-
-    auto enc = pfrm.encode_tile(tile_data);
-
-    pfrm.overwrite_t0_tile(Tile::flag_start, enc);
-    pfrm.overwrite_t1_tile(Tile::flag_start, enc);
-
+    pfrm.overwrite_t0_tile(Tile::flag_start, pfrm.encode_tile(tile_data));
 
 
     // Now, we want to generate our wavy animation...
@@ -41,12 +37,7 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
         }
     }
 
-
-    enc = pfrm.encode_tile(tile_data);
-
-    pfrm.overwrite_t0_tile(Tile::flag_start + 1, enc);
-    pfrm.overwrite_t1_tile(Tile::flag_start + 1, enc);
-
+    pfrm.overwrite_t0_tile(Tile::flag_start + 1, pfrm.encode_tile(tile_data));
 
 
     for (int x = 9; x < 12; ++x) { // undo shift down
@@ -62,12 +53,7 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
         }
     }
 
-
-    enc = pfrm.encode_tile(tile_data);
-
-    pfrm.overwrite_t0_tile(Tile::flag_start + 2, enc);
-    pfrm.overwrite_t1_tile(Tile::flag_start + 2, enc);
-
+    pfrm.overwrite_t0_tile(Tile::flag_start + 2, pfrm.encode_tile(tile_data));
 
 
 
@@ -83,11 +69,22 @@ void vram_write_flag(Platform& pfrm, const FlagPixels& px)
         }
     }
 
+    pfrm.overwrite_t0_tile(Tile::flag_start + 3, pfrm.encode_tile(tile_data));
+}
 
-    enc = pfrm.encode_tile(tile_data);
 
-    pfrm.overwrite_t0_tile(Tile::flag_start + 3, enc);
-    pfrm.overwrite_t1_tile(Tile::flag_start + 3, enc);
+
+void load_default_flag(Platform& pfrm, App& app)
+{
+    pfrm.load_tile0_texture("tilesheet");
+
+    auto data = pfrm.extract_tile(Layer::map_0, 105);
+    for (int x = 0; x < 13; ++x) {
+        for (int y = 0; y < 11; ++y) {
+            app.flag_img_.pixels[x][y] = data.data_[x][y + 1];
+        }
+    }
+
 }
 
 
