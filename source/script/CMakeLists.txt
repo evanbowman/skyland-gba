@@ -18,3 +18,7 @@ add_executable(LISP
   unittest.cpp
   compiler.cpp
   bootstrap.cpp)
+
+
+target_compile_options(LISP PRIVATE
+  -g3)

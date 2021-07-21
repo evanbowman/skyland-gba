@@ -224,8 +224,10 @@ ScenePtr<Scene> FlagDesignerModule::update(Platform& pfrm,
 
 
 
-void FlagDesignerModule::display(Platform& pfrm, App&)
+void FlagDesignerModule::display(Platform& pfrm, App& app)
 {
+    app.player_island().display(pfrm);
+
     Sprite sprite;
     sprite.set_size(Sprite::Size::w16_h32);
     sprite.set_position({

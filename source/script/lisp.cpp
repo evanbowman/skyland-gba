@@ -5,7 +5,7 @@
 #include "memory/buffer.hpp"
 #include "memory/pool.hpp"
 #include <complex>
-#if not defined(__GBA__) and not defined(__PSP__)
+#ifndef UNHOSTED
 #include <iostream>
 #endif
 #include "listBuilder.hpp"
@@ -34,8 +34,14 @@ static const u32 string_intern_table_size = 1999;
 
 
 struct Context {
-    using ValuePool = ObjectPool<Value, 166>;
+#ifdef UNHOSTED
     using OperandStack = Buffer<CompressedPtr, 994>;
+    using ValuePool = ObjectPool<Value, 166>;
+#else
+    using OperandStack = std::vector<CompressedPtr>;
+    using ValuePool = ObjectPool<Value, 10000>;
+#endif
+
     using Globals = std::array<Variable, 249>;
     using Interns = char[string_intern_table_size];
 
@@ -195,6 +201,7 @@ const char* intern(const char* string)
 
 CompressedPtr compr(Value* val)
 {
+#ifdef USE_COMPRESSED_PTRS
     for (int pool_id = 0; pool_id < Context::value_pool_count; ++pool_id) {
         auto& cells = bound_context->value_pools_[pool_id]->cells();
         if ((char*)val >= (char*)cells.data() and
@@ -220,13 +227,20 @@ CompressedPtr compr(Value* val)
 
     while (true)
         ; // Attempt to compress invalid pointer
+#else
+    return {val};
+#endif // USE_COMPRESSED_PTRS
 }
 
 
 Value* dcompr(CompressedPtr ptr)
 {
+#ifdef USE_COMPRESSED_PTRS
     auto& cells = bound_context->value_pools_[ptr.source_pool_]->cells();
     return (Value*)((char*)cells.data() + ptr.offset_);
+#else
+    return (Value*)ptr.ptr_;
+#endif // USE_COMPRESSED_PTRS
 }
 
 
@@ -544,10 +558,14 @@ void pop_op()
 
 void push_op(Value* operand)
 {
+#ifdef UNHOSTED
     if (not bound_context->operand_stack_->push_back(compr(operand))) {
         while (true)
             ; // TODO: raise error
     }
+#else
+    bound_context->operand_stack_->push_back(compr(operand));
+#endif
 }
 
 
@@ -991,7 +1009,10 @@ Protected::~Protected()
 static void gc_mark()
 {
     gc_mark_value(bound_context->nil_);
-    gc_mark_value(bound_context->oom_);
+
+    if (bound_context->oom_) {
+        gc_mark_value(bound_context->oom_);
+    }
 
     auto& ctx = bound_context;
 
@@ -1703,9 +1724,11 @@ void init(Platform& pfrm)
     bound_context->nil_ = alloc_value();
     bound_context->nil_->type_ = Value::Type::nil;
 
+    puts("create oom");
     bound_context->oom_ = alloc_value();
     bound_context->oom_->type_ = Value::Type::error;
     bound_context->oom_->error_.code_ = Error::Code::out_of_memory;
+    bound_context->oom_->error_.context_ = compr(bound_context->nil_);
 
     bound_context->string_buffer_ = bound_context->nil_;
 

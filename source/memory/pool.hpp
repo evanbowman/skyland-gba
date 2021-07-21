@@ -5,6 +5,12 @@
 #include <new>
 
 
+#ifdef POOL_USE_HEAP
+#include <vector>
+#endif
+
+
+
 template <u32 size, u32 count, u32 align = size> class Pool {
 public:
     struct Cell {
@@ -12,9 +18,19 @@ public:
         Cell* next_;
     };
 
+    #ifdef POOL_USE_HEAP
+    using Cells = std::vector<Cell>;
+    #else
+    using Cells = std::array<Cell, count>;
+    #endif
+
 
     Pool() : freelist_(nullptr)
     {
+        #ifdef POOL_USE_HEAP
+        cells_.resize(count);
+        #endif
+
         for (decltype(count) i = 0; i < count; ++i) {
             Cell* next = &cells_[i];
             next->next_ = freelist_;
@@ -52,7 +68,6 @@ public:
         return align;
     }
 
-    using Cells = std::array<Cell, count>;
     Cells& cells()
     {
         return cells_;

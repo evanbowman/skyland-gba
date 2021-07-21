@@ -1,10 +1,32 @@
 #pragma once
 
+
+#ifdef __GBA__
+// If defined, the system will use fixed pools, and will never call malloc.
+#define UNHOSTED
+#endif
+
+
+
+#ifdef UNHOSTED
+#define USE_COMPRESSED_PTRS
+#endif
+
+
+
+#ifndef UNHOSTED
+#define POOL_USE_HEAP
+#endif
+
+
+
 #include "function.hpp"
 #include "number/numeric.hpp"
 #include "platform/scratch_buffer.hpp"
 #include "string.hpp"
 #include "unicode.hpp"
+
+
 
 
 class Platform;
@@ -70,6 +92,7 @@ struct Character {
 // byte offset into that memory pool. This gives us fifteen possible memory pools,
 // and a max offset of 4095 bytes.
 struct CompressedPtr {
+#ifdef USE_COMPRESSED_PTRS
     static constexpr const int source_pool_bits = 4;
     static constexpr const int offset_bits = 12;
 
@@ -77,6 +100,9 @@ struct CompressedPtr {
 
     u16 source_pool_ : source_pool_bits;
     u16 offset_ : offset_bits;
+#else
+    void* ptr_;
+#endif // USE_COMPRESSED_PTRS
 };
 
 

@@ -184,7 +184,7 @@ void erase(Platform& pfrm)
 {
     SaveData save_data;
     save_data.magic_.set(0);
-    pfrm.write_save_data(&save_data, sizeof save_data, 0);
+    pfrm.write_save_data(&save_data, sizeof save_data, sizeof(GlobalSaveData));
 }
 
 

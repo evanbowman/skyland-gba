@@ -127,21 +127,11 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         flag_anim_timer_ += dt;
         if (flag_anim_timer_ > milliseconds(80)) {
             flag_anim_timer_ = 0;
-            auto current = pfrm.get_tile(layer_, flag_pos_->x, flag_pos_->y);
+            auto current = flag_anim_index_;
             if (current < Tile::flag_end) {
-                pfrm.set_tile(layer_, flag_pos_->x, flag_pos_->y, current + 1);
-                if (layer_ == Layer::map_0_ext) {
-                    // NOTE: the player can design his/her own flag, so we
-                    // reserve a specific palette bank just for the flag
-                    // image. Untimately, doing so simplifies things.
-                    pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y, 12);
-                }
+                ++flag_anim_index_;
             } else {
-                pfrm.set_tile(
-                    layer_, flag_pos_->x, flag_pos_->y, Tile::flag_start);
-                if (layer_ == Layer::map_0_ext) {
-                    pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y, 12);
-                }
+                flag_anim_index_ = Tile::flag_start;
             }
         }
     }
@@ -302,6 +292,14 @@ static const int screen_limit_y = 700;
 
 void Island::display(Platform& pfrm)
 {
+    pfrm.set_tile(layer_, flag_pos_->x, flag_pos_->y, flag_anim_index_);
+    if (layer_ == Layer::map_0_ext) {
+        // NOTE: the player can design his/her own flag, so we
+        // reserve a specific palette bank just for the flag
+        // image. Untimately, doing so simplifies things.
+        pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y, 12);
+    }
+
     for (auto& c : characters_) {
         // The interior floor is two pixels thick. But our character is now
         // standing outside, where there's no floor, so we need to shift the
