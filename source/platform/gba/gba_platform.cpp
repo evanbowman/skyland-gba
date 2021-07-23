@@ -2676,15 +2676,21 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 #define REG_SGFIFOA *(volatile u32*)0x40000A0
 #define REG_SGFIFOB *(volatile u32*)0x40000A4
 
-static AudioBuffer audio_buffers[2];
+
+static const int audio_buffer_count = 4;
+
+
+// Front buffer + two back buffers. A single back buffer isn't really good
+// enough.
+static AudioBuffer audio_buffers[3];
 static int audio_front_buffer = 0;
 static int audio_buffer_read_index = 0;
+static volatile bool audio_buffers_consumed[3];
 
 
-void audio_mix()
+
+static void audio_mix_to_buffer(AudioBuffer* mixing_buffer)
 {
-    AudioBuffer* mixing_buffer = &audio_buffers[not audio_front_buffer];
-
     for (int i = 0; i < AudioBuffer::sample_count; ++i) {
         mixing_buffer->samples_[i] = ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
 
@@ -2695,40 +2701,33 @@ void audio_mix()
 }
 
 
+
+void audio_mix()
+{
+    auto start = (audio_front_buffer + 1) % 3;
+    for (int i = 0; i < 2; ++i) {
+        auto index = (start + i) % 3;
+        if (audio_buffers_consumed[index]) {
+            audio_mix_to_buffer(&audio_buffers[index]);
+            audio_buffers_consumed[index] = false;
+        }
+    }
+}
+
+
+
 // Simpler mixer, without stereo sound or volume modulation, for multiplayer
 // games.
 // __attribute__((section(".iwram")))
 static void audio_update_fast_isr()
 {
-    // alignas(4) AudioSample mixing_buffer[4];
-
-    // // NOTE: audio tracks in ROM should therefore have four byte alignment!
-    // *((u32*)mixing_buffer) =
-    //     ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
-
-    // if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
-    //     snd_ctx.music_track_pos = 0;
-    // }
-
-    // for (auto it = snd_ctx.active_sounds.begin();
-    //      it not_eq snd_ctx.active_sounds.end();) {
-    //     if (UNLIKELY(it->position_ + 4 >= it->length_)) {
-    //         it = snd_ctx.active_sounds.erase(it);
-    //     } else {
-    //         for (int i = 0; i < 4; ++i) {
-    //             mixing_buffer[i] += (u8)it->data_[it->position_];
-    //             ++it->position_;
-    //         }
-    //         ++it;
-    //     }
-    // }
-
     REG_SGFIFOA = audio_buffers[audio_front_buffer].samples_[audio_buffer_read_index++];
         // *((u32*)mixing_buffer);
 
     if (UNLIKELY(audio_buffer_read_index >= AudioBuffer::sample_count)) {
         audio_buffer_read_index = 0;
-        audio_front_buffer = not audio_front_buffer;
+        audio_buffers_consumed[audio_front_buffer] = true;
+        audio_front_buffer = (audio_front_buffer + 1) % 3;
     }
 }
 
