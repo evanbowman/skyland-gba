@@ -28,3 +28,10 @@ struct SoundContext {
     s32 music_track_length = 0;
     s32 music_track_pos = 0;
 };
+
+
+struct AudioBuffer {
+    static const int sample_count = 270 / 4;
+
+    int samples_[sample_count];
+};

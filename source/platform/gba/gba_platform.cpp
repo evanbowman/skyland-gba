@@ -978,7 +978,6 @@ void Platform::push_task(Task* task)
 }
 
 
-
 void Platform::load_overlay_chunk(TileDesc dst, TileDesc src, u16 count)
 {
     const u8* image_data = (const u8*)current_overlay_texture->tile_data_;
@@ -1173,6 +1172,10 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 
 
 
+static void audio_mix();
+
+
+
 void Platform::Screen::clear()
 {
     rumble_update();
@@ -1192,6 +1195,7 @@ void Platform::Screen::clear()
     // VSync
     VBlankIntrWait();
 
+    audio_mix();
 
     // We want to do the dynamic texture remapping near the screen clear, to
     // reduce tearing. Most of the other changes that we make to vram, like the
@@ -2428,7 +2432,7 @@ void Platform::Speaker::play_note(Note n, Octave o, Channel c)
 }
 
 
-// #include "data/shadows.hpp"
+#include "data/shadows.hpp"
 
 
 static const int null_music_len = 8;
@@ -2455,8 +2459,8 @@ static const u32 null_music[null_music_len] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 SoundContext snd_ctx;
 
-static const int shadowsLen = 10;
-u8 shadows[shadowsLen];
+// static const int shadowsLen = 10;
+// u8 shadows[shadowsLen];
 
 
 static const struct AudioTrack {
@@ -2464,7 +2468,7 @@ static const struct AudioTrack {
     const AudioSample* data_;
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
-} music_tracks[] = {DEF_MUSIC(blah, shadows)};
+} music_tracks[] = {DEF_MUSIC(shadows, shadows)};
 
 
 static const AudioTrack* find_music(const char* name)
@@ -2672,6 +2676,23 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 #define REG_SGFIFOA *(volatile u32*)0x40000A0
 #define REG_SGFIFOB *(volatile u32*)0x40000A4
 
+static AudioBuffer audio_buffers[2];
+static int audio_front_buffer = 0;
+static int audio_buffer_read_index = 0;
+
+
+void audio_mix()
+{
+    AudioBuffer* mixing_buffer = &audio_buffers[not audio_front_buffer];
+
+    for (int i = 0; i < AudioBuffer::sample_count; ++i) {
+        mixing_buffer->samples_[i] = ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+
+        if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
+            snd_ctx.music_track_pos = 0;
+        }
+    }
+}
 
 
 // Simpler mixer, without stereo sound or volume modulation, for multiplayer
@@ -2679,30 +2700,36 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 // __attribute__((section(".iwram")))
 static void audio_update_fast_isr()
 {
-    alignas(4) AudioSample mixing_buffer[4];
+    // alignas(4) AudioSample mixing_buffer[4];
 
-    // NOTE: audio tracks in ROM should therefore have four byte alignment!
-    *((u32*)mixing_buffer) =
-        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+    // // NOTE: audio tracks in ROM should therefore have four byte alignment!
+    // *((u32*)mixing_buffer) =
+    //     ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
 
-    if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
-        snd_ctx.music_track_pos = 0;
+    // if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
+    //     snd_ctx.music_track_pos = 0;
+    // }
+
+    // for (auto it = snd_ctx.active_sounds.begin();
+    //      it not_eq snd_ctx.active_sounds.end();) {
+    //     if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+    //         it = snd_ctx.active_sounds.erase(it);
+    //     } else {
+    //         for (int i = 0; i < 4; ++i) {
+    //             mixing_buffer[i] += (u8)it->data_[it->position_];
+    //             ++it->position_;
+    //         }
+    //         ++it;
+    //     }
+    // }
+
+    REG_SGFIFOA = audio_buffers[audio_front_buffer].samples_[audio_buffer_read_index++];
+        // *((u32*)mixing_buffer);
+
+    if (UNLIKELY(audio_buffer_read_index >= AudioBuffer::sample_count)) {
+        audio_buffer_read_index = 0;
+        audio_front_buffer = not audio_front_buffer;
     }
-
-    for (auto it = snd_ctx.active_sounds.begin();
-         it not_eq snd_ctx.active_sounds.end();) {
-        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
-            it = snd_ctx.active_sounds.erase(it);
-        } else {
-            for (int i = 0; i < 4; ++i) {
-                mixing_buffer[i] += (u8)it->data_[it->position_];
-                ++it->position_;
-            }
-            ++it;
-        }
-    }
-
-    REG_SGFIFOA = *((u32*)mixing_buffer);
 }
 
 
@@ -3393,7 +3420,7 @@ Platform::Platform()
 
     enable_watchdog();
 
-    // audio_start(); // TODO: uncomment when I add sound back in.
+    audio_start();
 
     fill_overlay(0);
 
