@@ -8,6 +8,8 @@
 #include "list.hpp"
 #include "number/numeric.hpp"
 #include <memory>
+#include "memory/buffer.hpp"
+#include "bulkAllocator.hpp"
 
 
 
@@ -90,6 +92,55 @@ static constexpr const int entity_pool_align = 8;
 static constexpr const int max_entity_size = 100;
 
 
+struct EntityPools {
+public:
+    static const auto entities_per_pool = 16;
+    static const auto pool_count = entity_pool_size / entities_per_pool;
+
+
+    using EntityPool = Pool<max_entity_size, 16, entity_pool_align>;
+
+
+    void init(Platform& pfrm)
+    {
+        for (u32 i = 0; i < pools_.capacity(); ++i) {
+            pools_.push_back(allocate_dynamic<EntityPool>(pfrm));
+        }
+    }
+
+
+    void* get()
+    {
+        for (auto& pl : pools_) {
+            if (not pl->empty()) {
+                return pl->get();
+            }
+        }
+        while (true) {
+            // Fixme: raise error...
+        }
+    }
+
+
+    void post(void* e)
+    {
+        for (auto& pl : pools_) {
+            if (e >= pl->cells().begin() and e < pl->cells().end()) {
+                pl->post((byte*)e);
+                return;
+            }
+        }
+        while (true) {
+            // hmm... someone did something very bad. This entity wasn't
+            // allocated from a pool in the first place...
+        }
+    }
+
+
+private:
+    Buffer<DynamicMemory<EntityPool>, pool_count> pools_;
+};
+
 
 template <typename T> using EntityRef = std::unique_ptr<T, void (*)(Entity*)>;
 
@@ -106,7 +157,6 @@ using EntityNodePool = Pool<sizeof(EntityNode), Capacity, alignof(Entity)>;
 
 template <typename T>
 using EntityList = List<EntityRef<T>, EntityNodePool<entity_pool_size>>;
-using EntityPool = Pool<max_entity_size, entity_pool_size, 8>;
 
 
 

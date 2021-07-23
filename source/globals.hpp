@@ -36,7 +36,7 @@ struct SkylandGlobalData {
     Vec2<u8> far_cursor_loc_;
 
     skyland::EntityNodePool<skyland::entity_pool_size> entity_node_pool_;
-    skyland::EntityPool entity_pool_;
+    skyland::EntityPools entity_pools_;
 
     std::optional<Text> multiplayer_prep_text_;
     Microseconds multiplayer_prep_timer_ = 0;

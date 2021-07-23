@@ -3099,7 +3099,7 @@ static void enable_watchdog()
 }
 
 
-bool use_optimized_waitstates = false;
+bool use_optimized_waitstates = true;
 
 
 // EWRAM is large, but has a narrower bus. The platform offers a window into

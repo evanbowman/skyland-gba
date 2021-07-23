@@ -14,8 +14,8 @@ inline void entity_deleter(Entity* entity)
 {
     if (entity) {
         entity->~Entity();
-        auto& pool = std::get<SkylandGlobalData>(globals()).entity_pool_;
-        pool.post(reinterpret_cast<byte*>(entity));
+        auto& pools = std::get<SkylandGlobalData>(globals()).entity_pools_;
+        pools.post(reinterpret_cast<byte*>(entity));
     }
 }
 
@@ -43,10 +43,10 @@ public:
 template <typename T, typename... Args>
 EntityRef<T> alloc_entity(Args&&... args)
 {
-    auto& pool = std::get<SkylandGlobalData>(globals()).entity_pool_;
+    auto& pool = std::get<SkylandGlobalData>(globals()).entity_pools_;
 
     static_assert(sizeof(T) <= max_entity_size);
-    static_assert(alignof(T) <= pool.alignment());
+    static_assert(alignof(T) <= entity_pool_align);
 
     if (auto mem = pool.get()) {
         new (mem) T(std::forward<Args>(args)...);

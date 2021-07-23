@@ -25,6 +25,8 @@ void skyland_main_loop(Platform& pf)
     skyland::scene_pool::pool_ =
         &std::get<SkylandGlobalData>(globals()).scene_pool_;
 
+    std::get<SkylandGlobalData>(globals()).entity_pools_.init(pf);
+
     skyland::App app(pf);
 
     app.init_scripts(pf);
