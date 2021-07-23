@@ -31,7 +31,7 @@ struct SoundContext {
 
 
 struct AudioBuffer {
-    static const int sample_count = 270 / 4;
+    static const int sample_count = 600 / 4;
 
     int samples_[sample_count];
 };

@@ -1172,7 +1172,25 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 
 
 
-static void audio_mix();
+void audio_mix();
+static void audio_mix_music_only();
+
+
+
+// What if the game lags, and an update requires more than a frame? This can
+// happen when the game's loading stuff. In those instances, we want to forcibly
+// run a stripped-down version of the audio mixer, which just memcpy's music
+// track samples to the mixing buffer. At least, in these cases, we won't have
+// audio studder, although sound effect samples will not show up, sound effects
+// typically do not play while we're loading stuff anyway.
+// static volatile bool force_mix = false;
+
+
+
+static void vblank_isr()
+{
+    audio_mix_music_only();
+}
 
 
 
@@ -1192,10 +1210,10 @@ void Platform::Screen::clear()
         }
     }
 
+
     // VSync
     VBlankIntrWait();
 
-    audio_mix();
 
     // We want to do the dynamic texture remapping near the screen clear, to
     // reduce tearing. Most of the other changes that we make to vram, like the
@@ -2432,11 +2450,19 @@ void Platform::Speaker::play_note(Note n, Octave o, Channel c)
 }
 
 
+
+#include "gba_platform_soundcontext.hpp"
+
+
+SoundContext snd_ctx;
+
+
+
 #include "data/shadows.hpp"
 
 
-static const int null_music_len = 8;
-static const u32 null_music[null_music_len] = {0, 0, 0, 0, 0, 0, 0, 0};
+static const int null_music_len = AudioBuffer::sample_count;
+static const u32 null_music[null_music_len] = {0};
 
 
 #define DEF_AUDIO(__STR_NAME__, __TRACK_NAME__, __DIV__)                       \
@@ -2454,13 +2480,6 @@ static const u32 null_music[null_music_len] = {0, 0, 0, 0, 0, 0, 0, 0};
     DEF_AUDIO(__STR_NAME__, __TRACK_NAME__, 1)
 
 
-#include "gba_platform_soundcontext.hpp"
-
-
-SoundContext snd_ctx;
-
-// static const int shadowsLen = 10;
-// u8 shadows[shadowsLen];
 
 
 static const struct AudioTrack {
@@ -2680,22 +2699,36 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 static const int audio_buffer_count = 4;
 
 
-// Front buffer + two back buffers. A single back buffer isn't really good
-// enough.
-static AudioBuffer audio_buffers[3];
+Buffer<DynamicMemory<AudioBuffer>, audio_buffer_count> audio_buffers;
+
 static int audio_front_buffer = 0;
 static int audio_buffer_read_index = 0;
-static volatile bool audio_buffers_consumed[3];
+static volatile bool audio_buffers_consumed[audio_buffer_count];
 
 
 
 static void audio_mix_to_buffer(AudioBuffer* mixing_buffer)
 {
-    for (int i = 0; i < AudioBuffer::sample_count; ++i) {
-        mixing_buffer->samples_[i] = ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+    memcpy32(mixing_buffer->samples_,
+             ((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos,
+             AudioBuffer::sample_count);
 
-        if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
-            snd_ctx.music_track_pos = 0;
+    snd_ctx.music_track_pos += AudioBuffer::sample_count;
+
+    if (UNLIKELY(snd_ctx.music_track_pos >= snd_ctx.music_track_length)) {
+        snd_ctx.music_track_pos = 0;
+    }
+}
+
+
+static void audio_mix_music_only()
+{
+    auto start = (audio_front_buffer + 1) % audio_buffer_count;
+    for (int i = 0; i < 2; ++i) {
+        auto index = (start + i) % audio_buffer_count;
+        if (audio_buffers_consumed[index]) {
+            audio_mix_to_buffer(&*audio_buffers[index]);
+            audio_buffers_consumed[index] = false;
         }
     }
 }
@@ -2704,14 +2737,8 @@ static void audio_mix_to_buffer(AudioBuffer* mixing_buffer)
 
 void audio_mix()
 {
-    auto start = (audio_front_buffer + 1) % 3;
-    for (int i = 0; i < 2; ++i) {
-        auto index = (start + i) % 3;
-        if (audio_buffers_consumed[index]) {
-            audio_mix_to_buffer(&audio_buffers[index]);
-            audio_buffers_consumed[index] = false;
-        }
-    }
+    audio_mix_music_only();
+    // TODO: re-implement sound effects...
 }
 
 
@@ -2721,13 +2748,13 @@ void audio_mix()
 // __attribute__((section(".iwram")))
 static void audio_update_fast_isr()
 {
-    REG_SGFIFOA = audio_buffers[audio_front_buffer].samples_[audio_buffer_read_index++];
+    REG_SGFIFOA = audio_buffers[audio_front_buffer]->samples_[audio_buffer_read_index++];
         // *((u32*)mixing_buffer);
 
     if (UNLIKELY(audio_buffer_read_index >= AudioBuffer::sample_count)) {
         audio_buffer_read_index = 0;
         audio_buffers_consumed[audio_front_buffer] = true;
-        audio_front_buffer = (audio_front_buffer + 1) % 3;
+        audio_front_buffer = (audio_front_buffer + 1) % audio_buffer_count;
     }
 }
 
@@ -3184,6 +3211,7 @@ void Platform::enable_expanded_glyph_mode(bool enabled)
 {
     clear_music();
 
+
     REG_SOUNDCNT_H =
         0x0B0F; //DirectSound A + fifo reset + max volume to L and R
     REG_SOUNDCNT_X = 0x0080; //turn sound chip on
@@ -3197,6 +3225,7 @@ void Platform::enable_expanded_glyph_mode(bool enabled)
 
     irqEnable(IRQ_TIMER1);
     irqSet(IRQ_TIMER1, audio_update_fast_isr);
+    irqSet(IRQ_VBLANK, vblank_isr);
 
     REG_TM0CNT_L = 0xffff;
     REG_TM1CNT_L = 0xffff - 3; // I think that this is correct, but I'm not
@@ -3280,6 +3309,10 @@ Platform::Platform()
         MEM_BG_PALETTE[(12 * 16) + i] = MEM_BG_PALETTE[i];
     }
 
+
+    for (int i = 0; i < audio_buffer_count; ++i) {
+        audio_buffers.push_back(allocate_dynamic<AudioBuffer>(*this));
+    }
 
 
     logger().set_threshold(Severity::fatal);
