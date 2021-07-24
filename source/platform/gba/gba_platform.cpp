@@ -1172,7 +1172,7 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 
 
 
-void audio_mix();
+static void audio_mix();
 static void audio_mix_music_only();
 
 
@@ -1183,13 +1183,16 @@ static void audio_mix_music_only();
 // track samples to the mixing buffer. At least, in these cases, we won't have
 // audio studder, although sound effect samples will not show up, sound effects
 // typically do not play while we're loading stuff anyway.
-// static volatile bool force_mix = false;
-
+static volatile bool audio_update_fallback = false;
+static volatile bool vbl_mixed_audio = false;
 
 
 static void vblank_isr()
 {
-    audio_mix_music_only();
+    if (audio_update_fallback) {
+        audio_mix_music_only();
+        vbl_mixed_audio = true;
+    }
 }
 
 
@@ -1210,9 +1213,12 @@ void Platform::Screen::clear()
         }
     }
 
+    audio_update_fallback = false;
 
     // VSync
     VBlankIntrWait();
+
+    audio_update_fallback = true;
 
 
     // We want to do the dynamic texture remapping near the screen clear, to
@@ -1363,13 +1369,17 @@ void Platform::Screen::display()
     // } else {
     REG_WIN0V = (0 << 8) | (size().y);
     // }
-
     if (not get_gflag(GlobalFlag::parallax_clouds)) {
         *bg1_x_scroll = view_offset.x * 0.3f;
         *bg1_y_scroll = view_offset.y * 0.3f;
     } else {
         *bg1_y_scroll = view_offset.y / 2;
     }
+
+    if (not vbl_mixed_audio) {
+        audio_mix();
+    }
+    vbl_mixed_audio = false;
 }
 
 
@@ -2699,7 +2709,7 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 static const int audio_buffer_count = 4;
 
 
-Buffer<DynamicMemory<AudioBuffer>, audio_buffer_count> audio_buffers;
+AudioBuffer audio_buffers[audio_buffer_count];
 
 static int audio_front_buffer = 0;
 static int audio_buffer_read_index = 0;
@@ -2709,16 +2719,31 @@ static volatile bool audio_buffers_consumed[audio_buffer_count];
 
 static void audio_mix_to_buffer(AudioBuffer* mixing_buffer)
 {
-    memcpy32(mixing_buffer->samples_,
-             ((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos,
-             AudioBuffer::sample_count);
+    if (UNLIKELY(snd_ctx.music_track_pos + AudioBuffer::sample_count >=
+                 snd_ctx.music_track_length)) {
+        const auto first_batch = snd_ctx.music_track_length - snd_ctx.music_track_pos;
+        memcpy32(mixing_buffer->samples_,
+                 ((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos,
+                 first_batch);
 
-    snd_ctx.music_track_pos += AudioBuffer::sample_count;
+        const auto remaining = AudioBuffer::sample_count - first_batch;
+        snd_ctx.music_track_pos = remaining;
 
-    if (UNLIKELY(snd_ctx.music_track_pos >= snd_ctx.music_track_length)) {
-        snd_ctx.music_track_pos = 0;
+        if (remaining) {
+            memcpy32(mixing_buffer->samples_ + first_batch,
+                     ((u32*)(snd_ctx.music_track)),
+                     remaining);
+        }
+
+    } else {
+        memcpy32(mixing_buffer->samples_,
+                 ((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos,
+                 AudioBuffer::sample_count);
+
+        snd_ctx.music_track_pos += AudioBuffer::sample_count;
     }
 }
+
 
 
 static void audio_mix_music_only()
@@ -2727,7 +2752,7 @@ static void audio_mix_music_only()
     for (int i = 0; i < 2; ++i) {
         auto index = (start + i) % audio_buffer_count;
         if (audio_buffers_consumed[index]) {
-            audio_mix_to_buffer(&*audio_buffers[index]);
+            audio_mix_to_buffer(&audio_buffers[index]);
             audio_buffers_consumed[index] = false;
         }
     }
@@ -2737,18 +2762,24 @@ static void audio_mix_music_only()
 
 void audio_mix()
 {
-    audio_mix_music_only();
-    // TODO: re-implement sound effects...
+    auto start = (audio_front_buffer + 1) % audio_buffer_count;
+    for (int i = 0; i < 2; ++i) {
+        auto index = (start + i) % audio_buffer_count;
+        if (audio_buffers_consumed[index]) {
+            audio_mix_to_buffer(&audio_buffers[index]);
+            audio_buffers_consumed[index] = false;
+        }
+    }
 }
 
 
 
 // Simpler mixer, without stereo sound or volume modulation, for multiplayer
 // games.
-// __attribute__((section(".iwram")))
+__attribute__((section(".iwram")))
 static void audio_update_fast_isr()
 {
-    REG_SGFIFOA = audio_buffers[audio_front_buffer]->samples_[audio_buffer_read_index++];
+    REG_SGFIFOA = audio_buffers[audio_front_buffer].samples_[audio_buffer_read_index++];
         // *((u32*)mixing_buffer);
 
     if (UNLIKELY(audio_buffer_read_index >= AudioBuffer::sample_count)) {
@@ -3310,9 +3341,9 @@ Platform::Platform()
     }
 
 
-    for (int i = 0; i < audio_buffer_count; ++i) {
-        audio_buffers.push_back(allocate_dynamic<AudioBuffer>(*this));
-    }
+    // for (int i = 0; i < audio_buffer_count; ++i) {
+    //     audio_buffers.push_back(allocate_dynamic<AudioBuffer>(*this));
+    // }
 
 
     logger().set_threshold(Severity::fatal);
