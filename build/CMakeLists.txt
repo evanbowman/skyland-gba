@@ -92,6 +92,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
   ${SOURCE_DIR}/skyland/rooms/flakGun.cpp
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
+  ${SOURCE_DIR}/skyland/rooms/infestor.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
   ${SOURCE_DIR}/skyland/rooms/infirmary.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
@@ -192,6 +193,7 @@ if(GAMEBOY_ADVANCE)
 
   set(SOURCES
     ${SOURCES}
+    ${SOURCE_DIR}/platform/gba/mixer.cpp
     ${SOURCE_DIR}/platform/gba/gba_platform.cpp
     ${SOURCE_DIR}/platform/gba/gbp_logo.cpp
     ${SOURCE_DIR}/platform/gba/memcpy.s
@@ -233,7 +235,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/zone_image_3_flattened.s
     ${DATA_DIR}/spritesheet.s
     ${DATA_DIR}/spritesheet_title_screen.s
-    #${DATA_DIR}/shadows.s
+    ${DATA_DIR}/shadows.s
     ${DATA_DIR}/sound_msg.s
     ${DATA_DIR}/sound_pop.s
     ${DATA_DIR}/sound_coin.s

@@ -200,7 +200,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (anim_state_) {
     case AnimState::init: {
-        pfrm.speaker().stop_music();
+        // pfrm.speaker().stop_music();
 
         big_explosion(pfrm, app, origin);
 

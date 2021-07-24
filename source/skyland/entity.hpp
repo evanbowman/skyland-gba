@@ -94,11 +94,11 @@ static constexpr const int max_entity_size = 100;
 
 struct EntityPools {
 public:
-    static const auto entities_per_pool = 16;
+    static const auto entities_per_pool = 19;
     static const auto pool_count = entity_pool_size / entities_per_pool;
 
 
-    using EntityPool = Pool<max_entity_size, 16, entity_pool_align>;
+    using EntityPool = Pool<max_entity_size, entities_per_pool, entity_pool_align>;
 
 
     void init(Platform& pfrm)

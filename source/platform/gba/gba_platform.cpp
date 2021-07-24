@@ -22,6 +22,9 @@
 #include "string.hpp"
 #include "util.hpp"
 #include <algorithm>
+#include "mixer.hpp"
+
+
 
 
 void english__to_string(int num, char* buffer, int base);
@@ -1172,11 +1175,6 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 
 
 
-static void audio_mix();
-static void audio_mix_music_only();
-
-
-
 // What if the game lags, and an update requires more than a frame? This can
 // happen when the game's loading stuff. In those instances, we want to forcibly
 // run a stripped-down version of the audio mixer, which just memcpy's music
@@ -1185,6 +1183,7 @@ static void audio_mix_music_only();
 // typically do not play while we're loading stuff anyway.
 static volatile bool audio_update_fallback = false;
 static volatile bool vbl_mixed_audio = false;
+
 
 
 static void vblank_isr()
@@ -2464,7 +2463,7 @@ void Platform::Speaker::play_note(Note n, Octave o, Channel c)
 #include "gba_platform_soundcontext.hpp"
 
 
-SoundContext snd_ctx;
+
 
 
 
@@ -2706,71 +2705,8 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 #define REG_SGFIFOB *(volatile u32*)0x40000A4
 
 
-static const int audio_buffer_count = 4;
 
-
-AudioBuffer audio_buffers[audio_buffer_count];
-
-static int audio_front_buffer = 0;
 static int audio_buffer_read_index = 0;
-static volatile bool audio_buffers_consumed[audio_buffer_count];
-
-
-
-static void audio_mix_to_buffer(AudioBuffer* mixing_buffer)
-{
-    if (UNLIKELY(snd_ctx.music_track_pos + AudioBuffer::sample_count >=
-                 snd_ctx.music_track_length)) {
-        const auto first_batch = snd_ctx.music_track_length - snd_ctx.music_track_pos;
-        memcpy32(mixing_buffer->samples_,
-                 ((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos,
-                 first_batch);
-
-        const auto remaining = AudioBuffer::sample_count - first_batch;
-        snd_ctx.music_track_pos = remaining;
-
-        if (remaining) {
-            memcpy32(mixing_buffer->samples_ + first_batch,
-                     ((u32*)(snd_ctx.music_track)),
-                     remaining);
-        }
-
-    } else {
-        memcpy32(mixing_buffer->samples_,
-                 ((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos,
-                 AudioBuffer::sample_count);
-
-        snd_ctx.music_track_pos += AudioBuffer::sample_count;
-    }
-}
-
-
-
-static void audio_mix_music_only()
-{
-    auto start = (audio_front_buffer + 1) % audio_buffer_count;
-    for (int i = 0; i < 2; ++i) {
-        auto index = (start + i) % audio_buffer_count;
-        if (audio_buffers_consumed[index]) {
-            audio_mix_to_buffer(&audio_buffers[index]);
-            audio_buffers_consumed[index] = false;
-        }
-    }
-}
-
-
-
-void audio_mix()
-{
-    auto start = (audio_front_buffer + 1) % audio_buffer_count;
-    for (int i = 0; i < 2; ++i) {
-        auto index = (start + i) % audio_buffer_count;
-        if (audio_buffers_consumed[index]) {
-            audio_mix_to_buffer(&audio_buffers[index]);
-            audio_buffers_consumed[index] = false;
-        }
-    }
-}
 
 
 
@@ -2790,6 +2726,7 @@ static void audio_update_fast_isr()
 }
 
 
+
 bool Platform::Speaker::is_music_playing(const char* name)
 {
     bool playing = false;
@@ -2804,6 +2741,7 @@ bool Platform::Speaker::is_music_playing(const char* name)
 
     return playing;
 }
+
 
 
 static Vec2<Float> spatialized_audio_listener_pos;
@@ -2974,88 +2912,88 @@ Platform::Speaker::Speaker()
 
 
 
-// NOTE: I tried to move this audio update interrupt handler to IWRAM, but the
-// sound output became sort of glitchy, and I noticed some tearing in the
-// display. At the same time, the game was less laggy, so maybe when I work out
-// the kinks, this function will eventually be moved to arm code instead of
-// thumb.
-//
-// NOTE: We play music at 16kHz, and we can load four samples upon each audio
-// interrupt, i.e. 4000 interrupts per second, i.e. approximately sixty-seven
-// interrupts per frame (given sixty fps). Considering how many interrupts we're
-// dealing with here, this isr should be kept small and simple. We're only
-// supporting one music channel (which loops by default), and three concurrent
-// sound channels, in our audio mixer.
-//
-// Considering the number of interrupts that we're dealing with here, one might
-// wonder why we aren't using one of the DMA channels to load sound samples. The
-// DMA halts the CPU, which could result in missed serial I/O interrupts during
-// multiplayer games.
-[[maybe_unused]] static void audio_update_spatialized_stereo_isr()
-{
-    alignas(4) AudioSample mixing_buffer_l[4];
-    alignas(4) AudioSample mixing_buffer_r[4];
+// // NOTE: I tried to move this audio update interrupt handler to IWRAM, but the
+// // sound output became sort of glitchy, and I noticed some tearing in the
+// // display. At the same time, the game was less laggy, so maybe when I work out
+// // the kinks, this function will eventually be moved to arm code instead of
+// // thumb.
+// //
+// // NOTE: We play music at 16kHz, and we can load four samples upon each audio
+// // interrupt, i.e. 4000 interrupts per second, i.e. approximately sixty-seven
+// // interrupts per frame (given sixty fps). Considering how many interrupts we're
+// // dealing with here, this isr should be kept small and simple. We're only
+// // supporting one music channel (which loops by default), and three concurrent
+// // sound channels, in our audio mixer.
+// //
+// // Considering the number of interrupts that we're dealing with here, one might
+// // wonder why we aren't using one of the DMA channels to load sound samples. The
+// // DMA halts the CPU, which could result in missed serial I/O interrupts during
+// // multiplayer games.
+// [[maybe_unused]] static void audio_update_spatialized_stereo_isr()
+// {
+//     alignas(4) AudioSample mixing_buffer_l[4];
+//     alignas(4) AudioSample mixing_buffer_r[4];
 
-    // NOTE: audio tracks in ROM should therefore have four byte alignment!
-    *((u32*)mixing_buffer_l) =
-        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+//     // NOTE: audio tracks in ROM should therefore have four byte alignment!
+//     *((u32*)mixing_buffer_l) =
+//         ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
 
-    *((u32*)mixing_buffer_r) = *((u32*)mixing_buffer_l);
+//     *((u32*)mixing_buffer_r) = *((u32*)mixing_buffer_l);
 
-    if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
-        snd_ctx.music_track_pos = 0;
-    }
+//     if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
+//         snd_ctx.music_track_pos = 0;
+//     }
 
-    for (auto it = snd_ctx.active_sounds.begin();
-         it not_eq snd_ctx.active_sounds.end();) {
-        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
-            it = snd_ctx.active_sounds.erase(it);
-        } else {
-            for (int i = 0; i < 4; ++i) {
-                mixing_buffer_r[i] +=
-                    (*it->r_volume_lut_)[(u8)it->data_[it->position_]];
-                mixing_buffer_l[i] +=
-                    (*it->l_volume_lut_)[(u8)it->data_[it->position_]];
-                ++it->position_;
-            }
-            ++it;
-        }
-    }
+//     for (auto it = snd_ctx.active_sounds.begin();
+//          it not_eq snd_ctx.active_sounds.end();) {
+//         if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+//             it = snd_ctx.active_sounds.erase(it);
+//         } else {
+//             for (int i = 0; i < 4; ++i) {
+//                 mixing_buffer_r[i] +=
+//                     (*it->r_volume_lut_)[(u8)it->data_[it->position_]];
+//                 mixing_buffer_l[i] +=
+//                     (*it->l_volume_lut_)[(u8)it->data_[it->position_]];
+//                 ++it->position_;
+//             }
+//             ++it;
+//         }
+//     }
 
-    REG_SGFIFOA = *((u32*)mixing_buffer_r);
-    REG_SGFIFOB = *((u32*)mixing_buffer_l);
-}
+//     REG_SGFIFOA = *((u32*)mixing_buffer_r);
+//     REG_SGFIFOB = *((u32*)mixing_buffer_l);
+// }
 
 
-[[maybe_unused]] static void audio_update_spatialized_isr()
-{
-    alignas(4) AudioSample mixing_buffer[4];
+// [[maybe_unused]] static void audio_update_spatialized_isr()
+// {
+//     alignas(4) AudioSample mixing_buffer[4];
 
-    // NOTE: audio tracks in ROM should therefore have four byte alignment!
-    *((u32*)mixing_buffer) =
-        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+//     // NOTE: audio tracks in ROM should therefore have four byte alignment!
+//     *((u32*)mixing_buffer) =
+//         ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
 
-    if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
-        snd_ctx.music_track_pos = 0;
-    }
+//     if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
+//         snd_ctx.music_track_pos = 0;
+//     }
 
-    for (auto it = snd_ctx.active_sounds.begin();
-         it not_eq snd_ctx.active_sounds.end();) {
-        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
-            it = snd_ctx.active_sounds.erase(it);
-        } else {
-            for (int i = 0; i < 4; ++i) {
-                mixing_buffer[i] +=
-                    (*it->r_volume_lut_)[(u8)it->data_[it->position_]];
-                ++it->position_;
-            }
-            ++it;
-        }
-    }
+//     for (auto it = snd_ctx.active_sounds.begin();
+//          it not_eq snd_ctx.active_sounds.end();) {
+//         if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+//             it = snd_ctx.active_sounds.erase(it);
+//         } else {
+//             for (int i = 0; i < 4; ++i) {
+//                 mixing_buffer[i] +=
+//                     (*it->r_volume_lut_)[(u8)it->data_[it->position_]];
+//                 ++it->position_;
+//             }
+//             ++it;
+//         }
+//     }
 
-    REG_SGFIFOA = *((u32*)mixing_buffer);
-    // REG_SGFIFOB = *((u32*)mixing_buffer);
-}
+//     REG_SGFIFOA = *((u32*)mixing_buffer);
+//     // REG_SGFIFOB = *((u32*)mixing_buffer);
+// }
 
 
 void Platform::soft_exit()

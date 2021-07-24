@@ -352,7 +352,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (menu_selection_ == 3) {
                 state_ = State::fade_modules_1;
             }
-            pfrm.speaker().stop_music();
+            // pfrm.speaker().stop_music();
         }
 
         if (app.player().key_down(pfrm, Key::right) or

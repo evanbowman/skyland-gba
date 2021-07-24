@@ -16,6 +16,7 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
+#include "skyland/rooms/infestor.hpp"
 
 
 
@@ -31,6 +32,7 @@ static auto& __metatable()
                          IonCannon,
                          FlakGun,
                          MissileSilo,
+                         Infestor,
                          Stairwell,
                          Bulkhead,
                          Workshop,
