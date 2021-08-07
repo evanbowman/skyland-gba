@@ -3144,10 +3144,6 @@ extern char __rom_end__;
 
 
 
-#include "cothread.hpp"
-
-
-
 Platform::Platform()
 {
     // NOTE: these colors were a custom hack I threw in during the GBA game jam,
@@ -3178,9 +3174,6 @@ Platform::Platform()
     // for (int i = 0; i < audio_buffer_count; ++i) {
     //     audio_buffers.push_back(allocate_dynamic<AudioBuffer>(*this));
     // }
-
-
-    co_thread_create(*this);
 
 
     logger().set_threshold(Severity::fatal);
