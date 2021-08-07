@@ -219,6 +219,11 @@ ScenePtr<Scene> FlagDesignerModule::update(Platform& pfrm,
 
     app.player_island().update(pfrm, app, delta);
 
+    update_entities(pfrm, app, delta, app.effects());
+    for (auto& effect : app.effects()) {
+        effect->update(pfrm, app, delta);
+    }
+
     return null_scene();
 }
 
