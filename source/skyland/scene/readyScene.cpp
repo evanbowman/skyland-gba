@@ -23,6 +23,7 @@ void describe_room(Platform& pfrm,
                    std::optional<Text>& room_description);
 
 
+
 void clear_room_description(Platform& pfrm,
                             std::optional<Text>& room_description)
 {
@@ -47,6 +48,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.exit_level()) {
+        set_gamespeed(pfrm, app, GameSpeed::normal);
         app.exit_level() = false;
         return scene_pool::alloc<FadeOutScene>();
     }
@@ -208,6 +210,7 @@ void describe_room(Platform& pfrm,
         }
     }
 }
+
 
 
 void ReadyScene::display(Platform& pfrm, App& app)

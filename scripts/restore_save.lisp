@@ -8,6 +8,8 @@
 (lambda
   (eval-other-file "reset_hooks.lisp")
 
+  (terrain (player) (get (arg 0) 5))
+
   (configure-player
    (player)
    (get (arg 0) 0)) ;; list of rooms in list index zero
@@ -31,6 +33,4 @@
   (set 'enemies-seen (get (arg 0) 2))
   (set 'frendlies-seen (get (arg 0) 3))
 
-  (set 'last-zone (get (arg 0) 4))
-
-  (terrain (player) (get (arg 0) 5)))
+  (set 'last-zone (get (arg 0) 4)))

@@ -121,6 +121,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/titleScreenScene.cpp
   ${SOURCE_DIR}/skyland/scene/introCreditsScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
+  ${SOURCE_DIR}/skyland/scene/setGamespeedScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/selectTutorialScene.cpp
   ${SOURCE_DIR}/skyland/scene/selectChallengeScene.cpp
@@ -205,6 +206,7 @@ if(GAMEBOY_ADVANCE)
     ${ROOT_DIR}/external/libgba/reset.s
 
     ${SOURCE_DIR}/platform/gba/rumble.c
+    ${SOURCE_DIR}/platform/gba/cothread.cpp
     ${SOURCE_DIR}/platform/gba/dlc.cpp
 
     # Data files below. Because the gameboy advance does not have a filesystem,
@@ -215,6 +217,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay_world_map.s
     ${DATA_DIR}/overlay_island_destroyed.s
     ${DATA_DIR}/overlay_challenges.s
+    ${DATA_DIR}/overlay_gamespeed.s
     ${DATA_DIR}/hint_infirmary.s
     ${DATA_DIR}/hint_goblin.s
     ${DATA_DIR}/hint_plunder.s
@@ -236,6 +239,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/spritesheet.s
     ${DATA_DIR}/spritesheet_title_screen.s
     ${DATA_DIR}/shadows.s
+    ${DATA_DIR}/jazzyfrenchy.s
     ${DATA_DIR}/sound_msg.s
     ${DATA_DIR}/sound_pop.s
     ${DATA_DIR}/sound_coin.s
@@ -483,6 +487,7 @@ if(GAMEBOY_ADVANCE)
     add_tilesheet(zone_image_2 0 0 YES NO)
     add_tilesheet(zone_image_3 0 0 YES NO)
     add_overlay(overlay 0 0 NO NO)
+    add_overlay(overlay_gamespeed 0 0 NO NO)
     add_overlay(overlay_dialog 0 0 NO NO)
     add_overlay(charset 0 0 NO NO)
     add_overlay(overlay_world_map 0 0 NO NO)

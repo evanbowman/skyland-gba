@@ -11,10 +11,79 @@
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "setGamespeedScene.hpp"
 
 
 
 namespace skyland {
+
+
+
+static void apply_gamespeed(App& app, Microseconds& delta)
+{
+    switch (app.game_speed()) {
+    case GameSpeed::normal:
+        break;
+
+    case GameSpeed::slow:
+        delta /= 2;
+        break;
+
+    case GameSpeed::fast:
+        delta *= 2;
+        break;
+
+    case GameSpeed::stopped:
+        delta = 0;
+        break;
+
+    case GameSpeed::count:
+        // ... raise error?
+        break;
+    }
+}
+
+
+
+u16 gamespeed_icon(GameSpeed speed)
+{
+    switch (speed) {
+    case GameSpeed::normal:
+        return 358;
+
+    case GameSpeed::slow:
+        return 354;
+
+    case GameSpeed::fast:
+        return 362;
+
+    case GameSpeed::stopped:
+        return 177;
+
+    default:
+        break;
+    }
+    return 0;
+}
+
+
+
+void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
+{
+    app.game_speed() = speed;
+    if (speed == GameSpeed::normal) {
+        set_pause_icon(pfrm, 0);
+    } else {
+        set_pause_icon(pfrm, gamespeed_icon(speed));
+    }
+}
+
+
+
+void WorldScene::reset_gamespeed(Platform& pfrm, App& app)
+{
+    set_gamespeed(pfrm, app, GameSpeed::normal);
+}
 
 
 
@@ -23,24 +92,18 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     app.player().update(pfrm, app, delta);
 
-    if (not app.paused()) {
-        // Technically, we could update the opponent player in all
-        // scenarios. But we can save some cycles by not doing so.
-        app.opponent().update(pfrm, app, delta);
-    }
+    app.opponent().update(pfrm, app, delta);
 
 
     if (auto new_scene = WorldScene::update(pfrm, app, delta)) {
         return new_scene;
     }
 
+    apply_gamespeed(app, delta);
 
     if (app.player_island().is_destroyed()) {
-        // app.on_timeout(pfrm, milliseconds(120), [](Platform& pfrm, App& app) {
-        //     auto origin = app.player_island().origin();
-        //     origin.x += (app.player_island().terrain().size() / 2) * 16;
-        //     medium_explosion(pfrm, app, origin);
-        // });
+        reset_gamespeed(pfrm, app);
+
         auto& cursor_loc =
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
@@ -53,6 +116,7 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (app.opponent_island() and app.opponent_island()->is_destroyed()) {
+        reset_gamespeed(pfrm, app);
 
         auto& cursor_loc =
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
@@ -93,9 +157,11 @@ static u32 format_power_fraction(Power avail, Power used)
 
 ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (not app.paused()) {
-        app.update_parallax(delta);
-    }
+    Microseconds world_delta = delta;
+    apply_gamespeed(app, world_delta);
+
+    app.update_parallax(world_delta);
+
 
     auto& mt_prep_timer =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_timer_;
@@ -142,15 +208,23 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (pfrm.network_peer().is_connected()) {
         // We don't allow pausing during multiplayer games yet. Makes things
         // simpler.
-        app.paused() = false;
-    } else if (app.player().key_down(pfrm, Key::alt_1)) {
-        if (not app.paused()) {
+        set_gamespeed(pfrm, app, GameSpeed::normal);
+    } else if (app.player().key_up(pfrm, Key::alt_1)) {
+        if (app.game_speed() not_eq GameSpeed::stopped) {
             app.pause_count()++;
-            app.paused() = true;
+            set_gamespeed(pfrm, app, GameSpeed::stopped);
         } else {
-            app.paused() = false;
+            set_gamespeed(pfrm, app, GameSpeed::normal);
         }
-        set_pause_icon(pfrm, app.paused());
+    } else if (app.player().key_pressed(pfrm, Key::alt_1)) {
+        // TODO: keep a timer, then, after some time, go to a state where the
+        // player can select from a range of game speeds.
+        set_gamespeed_keyheld_timer_ += delta;
+        if (set_gamespeed_keyheld_timer_ > milliseconds(300)) {
+            return scene_pool::alloc<SetGamespeedScene>();
+        }
+    } else {
+        set_gamespeed_keyheld_timer_ = 0;
     }
 
     if (app.opponent_island()) {
@@ -259,21 +333,23 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                                                    answer);
     }
 
-    if (not app.paused()) {
 
-        app.player_island().update(pfrm, app, delta);
+    app.player_island().update(pfrm, app, world_delta);
 
-        if (app.opponent_island()) {
-            app.opponent_island()->update(pfrm, app, delta);
-        }
+    if (app.opponent_island()) {
+        app.opponent_island()->update(pfrm, app, world_delta);
+    }
 
-        update_entities(pfrm, app, delta, app.effects());
-        for (auto& effect : app.effects()) {
-            effect->update(pfrm, app, delta);
-        }
+    update_entities(pfrm, app, world_delta, app.effects());
+    for (auto& effect : app.effects()) {
+        effect->update(pfrm, app, world_delta);
+    }
+
+
+    if (app.game_speed() not_eq GameSpeed::stopped) {
 
     } else {
-        set_pause_icon(pfrm, true);
+        set_pause_icon(pfrm, gamespeed_icon(app.game_speed()));
     }
 
 
@@ -341,25 +417,25 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (not app.paused()) {
-        if (app.opponent_island()) {
-            for (auto& projectile : app.player_island().projectiles()) {
-                app.opponent_island()->test_collision(pfrm, app, *projectile);
-            }
+    // if (app.game_speed() == App::GameSpeed::normal) {
+    if (app.opponent_island()) {
+        for (auto& projectile : app.player_island().projectiles()) {
+            app.opponent_island()->test_collision(pfrm, app, *projectile);
+        }
 
-            for (auto& projectile : app.opponent_island()->projectiles()) {
-                app.player_island().test_collision(pfrm, app, *projectile);
-            }
+        for (auto& projectile : app.opponent_island()->projectiles()) {
+            app.player_island().test_collision(pfrm, app, *projectile);
+        }
 
-            for (auto& projectile : app.player_island().projectiles()) {
-                app.player_island().test_collision(pfrm, app, *projectile);
-            }
+        for (auto& projectile : app.player_island().projectiles()) {
+            app.player_island().test_collision(pfrm, app, *projectile);
+        }
 
-            for (auto& projectile : app.opponent_island()->projectiles()) {
-                app.opponent_island()->test_collision(pfrm, app, *projectile);
-            }
+        for (auto& projectile : app.opponent_island()->projectiles()) {
+            app.opponent_island()->test_collision(pfrm, app, *projectile);
         }
     }
+    // }
 
     return null_scene();
 }
@@ -430,22 +506,22 @@ void WorldScene::far_camera()
 
 
 
-void WorldScene::set_pause_icon(Platform& pfrm, bool paused)
+void WorldScene::set_pause_icon(Platform& pfrm, u16 icon)
 {
     auto st = calc_screen_tiles(pfrm);
 
-    if (not paused) {
+    if (icon == 0) {
         pfrm.set_tile(Layer::overlay, st.x - 3, 1, 0);
         pfrm.set_tile(Layer::overlay, st.x - 2, 1, 0);
         pfrm.set_tile(Layer::overlay, st.x - 3, 2, 0);
         pfrm.set_tile(Layer::overlay, st.x - 2, 2, 0);
     } else {
         auto t = pfrm.get_tile(Layer::overlay, st.x - 2, 1);
-        if (t == 177) {
+        if (t == icon) {
             return;
         }
 
-        t = 177;
+        t = icon;
 
         pfrm.set_tile(Layer::overlay, st.x - 3, 1, t++);
         pfrm.set_tile(Layer::overlay, st.x - 2, 1, t++);

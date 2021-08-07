@@ -117,6 +117,7 @@ void memcpy16(void* dst, const void* src, uint hwcount);
 
 __attribute__((section(".iwram"), long_call)) void hblank_full_scroll_isr();
 __attribute__((section(".iwram"), long_call)) void hblank_x_scroll_isr();
+__attribute__((section(".iwram"), long_call)) void audio_update_isr();
 }
 
 
@@ -1175,12 +1176,8 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 
 
 
-// What if the game lags, and an update requires more than a frame? This can
-// happen when the game's loading stuff. In those instances, we want to forcibly
-// run a stripped-down version of the audio mixer, which just memcpy's music
-// track samples to the mixing buffer. At least, in these cases, we won't have
-// audio studder, although sound effect samples will not show up, sound effects
-// typically do not play while we're loading stuff anyway.
+// If the game lags and an update takes longer than one frame, perform a
+// scaled-back audio mixer in the vblank handler.
 static volatile bool audio_update_fallback = false;
 static volatile bool vbl_mixed_audio = false;
 
@@ -1190,16 +1187,15 @@ static void vblank_isr()
 {
     if (audio_update_fallback) {
         audio_mix_music_only();
-        vbl_mixed_audio = true;
     }
+
+    rumble_update();
 }
 
 
 
 void Platform::Screen::clear()
 {
-    rumble_update();
-
     // On the GBA, we don't have real threads, so run tasks prior to the vsync,
     // so any updates are least likely to cause tearing.
     for (auto it = task_queue_.begin(); it not_eq task_queue_.end();) {
@@ -1218,6 +1214,8 @@ void Platform::Screen::clear()
     VBlankIntrWait();
 
     audio_update_fallback = true;
+
+    audio_mix();
 
 
     // We want to do the dynamic texture remapping near the screen clear, to
@@ -1375,9 +1373,6 @@ void Platform::Screen::display()
         *bg1_y_scroll = view_offset.y / 2;
     }
 
-    if (not vbl_mixed_audio) {
-        audio_mix();
-    }
     vbl_mixed_audio = false;
 }
 
@@ -2297,6 +2292,7 @@ bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
     } else {
         sram_load(buffer, offset, data_length);
     }
+
     return true;
 }
 
@@ -2373,7 +2369,7 @@ void Platform::Logger::log(Severity level, const char* msg)
         return;
     }
 
-    std::array<char, 256> buffer;
+    std::array<char, 400> buffer;
 
     buffer[1] = ':';
 
@@ -2468,9 +2464,10 @@ void Platform::Speaker::play_note(Note n, Octave o, Channel c)
 
 
 #include "data/shadows.hpp"
+#include "data/jazzyfrenchy.hpp"
 
 
-static const int null_music_len = AudioBuffer::sample_count;
+static const int null_music_len = AudioBuffer::sample_count * 2;
 static const u32 null_music[null_music_len] = {0};
 
 
@@ -2496,7 +2493,10 @@ static const struct AudioTrack {
     const AudioSample* data_;
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
-} music_tracks[] = {DEF_MUSIC(shadows, shadows)};
+} music_tracks[] = {
+    DEF_MUSIC(shadows, shadows),
+    DEF_MUSIC(battle, jazzyfrenchy),
+};
 
 
 static const AudioTrack* find_music(const char* name)
@@ -2672,13 +2672,14 @@ static std::optional<ActiveSoundInfo> make_sound(const char* name)
 }
 
 
+// FIXME: comment out of date
 // If you're going to edit any of the variables used by the interrupt handler
 // for audio playback, you should use this helper function.
 template <typename F> auto modify_audio(F&& callback)
 {
-    irqDisable(IRQ_TIMER0);
+    // irqDisable(IRQ_TIMER0);
     callback();
-    irqEnable(IRQ_TIMER0);
+    // irqEnable(IRQ_TIMER0);
 }
 
 
@@ -2698,31 +2699,6 @@ bool Platform::Speaker::is_sound_playing(const char* name)
         return playing;
     }
     return false;
-}
-
-
-#define REG_SGFIFOA *(volatile u32*)0x40000A0
-#define REG_SGFIFOB *(volatile u32*)0x40000A4
-
-
-
-static int audio_buffer_read_index = 0;
-
-
-
-// Simpler mixer, without stereo sound or volume modulation, for multiplayer
-// games.
-__attribute__((section(".iwram")))
-static void audio_update_fast_isr()
-{
-    REG_SGFIFOA = audio_buffers[audio_front_buffer].samples_[audio_buffer_read_index++];
-        // *((u32*)mixing_buffer);
-
-    if (UNLIKELY(audio_buffer_read_index >= AudioBuffer::sample_count)) {
-        audio_buffer_read_index = 0;
-        audio_buffers_consumed[audio_front_buffer] = true;
-        audio_front_buffer = (audio_front_buffer + 1) % audio_buffer_count;
-    }
 }
 
 
@@ -2867,7 +2843,6 @@ static void play_music(const char* name, Microseconds offset)
         snd_ctx.music_track_length = track->length_;
         snd_ctx.music_track = track->data_;
         snd_ctx.music_track_pos = (sample_offset / 4) % track->length_;
-        irqSet(IRQ_TIMER1, audio_update_fast_isr);
     });
 }
 
@@ -2910,90 +2885,6 @@ Platform::Speaker::Speaker()
 // Misc
 ////////////////////////////////////////////////////////////////////////////////
 
-
-
-// // NOTE: I tried to move this audio update interrupt handler to IWRAM, but the
-// // sound output became sort of glitchy, and I noticed some tearing in the
-// // display. At the same time, the game was less laggy, so maybe when I work out
-// // the kinks, this function will eventually be moved to arm code instead of
-// // thumb.
-// //
-// // NOTE: We play music at 16kHz, and we can load four samples upon each audio
-// // interrupt, i.e. 4000 interrupts per second, i.e. approximately sixty-seven
-// // interrupts per frame (given sixty fps). Considering how many interrupts we're
-// // dealing with here, this isr should be kept small and simple. We're only
-// // supporting one music channel (which loops by default), and three concurrent
-// // sound channels, in our audio mixer.
-// //
-// // Considering the number of interrupts that we're dealing with here, one might
-// // wonder why we aren't using one of the DMA channels to load sound samples. The
-// // DMA halts the CPU, which could result in missed serial I/O interrupts during
-// // multiplayer games.
-// [[maybe_unused]] static void audio_update_spatialized_stereo_isr()
-// {
-//     alignas(4) AudioSample mixing_buffer_l[4];
-//     alignas(4) AudioSample mixing_buffer_r[4];
-
-//     // NOTE: audio tracks in ROM should therefore have four byte alignment!
-//     *((u32*)mixing_buffer_l) =
-//         ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
-
-//     *((u32*)mixing_buffer_r) = *((u32*)mixing_buffer_l);
-
-//     if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
-//         snd_ctx.music_track_pos = 0;
-//     }
-
-//     for (auto it = snd_ctx.active_sounds.begin();
-//          it not_eq snd_ctx.active_sounds.end();) {
-//         if (UNLIKELY(it->position_ + 4 >= it->length_)) {
-//             it = snd_ctx.active_sounds.erase(it);
-//         } else {
-//             for (int i = 0; i < 4; ++i) {
-//                 mixing_buffer_r[i] +=
-//                     (*it->r_volume_lut_)[(u8)it->data_[it->position_]];
-//                 mixing_buffer_l[i] +=
-//                     (*it->l_volume_lut_)[(u8)it->data_[it->position_]];
-//                 ++it->position_;
-//             }
-//             ++it;
-//         }
-//     }
-
-//     REG_SGFIFOA = *((u32*)mixing_buffer_r);
-//     REG_SGFIFOB = *((u32*)mixing_buffer_l);
-// }
-
-
-// [[maybe_unused]] static void audio_update_spatialized_isr()
-// {
-//     alignas(4) AudioSample mixing_buffer[4];
-
-//     // NOTE: audio tracks in ROM should therefore have four byte alignment!
-//     *((u32*)mixing_buffer) =
-//         ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
-
-//     if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
-//         snd_ctx.music_track_pos = 0;
-//     }
-
-//     for (auto it = snd_ctx.active_sounds.begin();
-//          it not_eq snd_ctx.active_sounds.end();) {
-//         if (UNLIKELY(it->position_ + 4 >= it->length_)) {
-//             it = snd_ctx.active_sounds.erase(it);
-//         } else {
-//             for (int i = 0; i < 4; ++i) {
-//                 mixing_buffer[i] +=
-//                     (*it->r_volume_lut_)[(u8)it->data_[it->position_]];
-//                 ++it->position_;
-//             }
-//             ++it;
-//         }
-//     }
-
-//     REG_SGFIFOA = *((u32*)mixing_buffer);
-//     // REG_SGFIFOB = *((u32*)mixing_buffer);
-// }
 
 
 void Platform::soft_exit()
@@ -3193,7 +3084,7 @@ void Platform::enable_expanded_glyph_mode(bool enabled)
 
 
     irqEnable(IRQ_TIMER1);
-    irqSet(IRQ_TIMER1, audio_update_fast_isr);
+    irqSet(IRQ_TIMER1, audio_update_isr);
     irqSet(IRQ_VBLANK, vblank_isr);
 
     REG_TM0CNT_L = 0xffff;
@@ -3252,6 +3143,11 @@ extern char __eheap_start;
 extern char __rom_end__;
 
 
+
+#include "cothread.hpp"
+
+
+
 Platform::Platform()
 {
     // NOTE: these colors were a custom hack I threw in during the GBA game jam,
@@ -3282,6 +3178,9 @@ Platform::Platform()
     // for (int i = 0; i < audio_buffer_count; ++i) {
     //     audio_buffers.push_back(allocate_dynamic<AudioBuffer>(*this));
     // }
+
+
+    co_thread_create(*this);
 
 
     logger().set_threshold(Severity::fatal);
@@ -4506,7 +4405,6 @@ MASTER_RETRY:
                 }
             }
             info(*::platform, "validated handshake");
-            irqSet(IRQ_TIMER1, audio_update_fast_isr);
             ::platform->network_peer().poll_consume(sizeof handshake);
             return;
         }
@@ -4598,8 +4496,6 @@ void Platform::NetworkPeer::disconnect()
     // you leave a message sitting in the transmit ring, it may be erroneously
     // sent out when you try to reconnect, instead of the handshake message);
     if (is_connected()) {
-
-        irqSet(IRQ_TIMER1, audio_update_fast_isr);
 
         info(*::platform, "disconnected!");
         set_gflag(GlobalFlag::multiplayer_connected, false);

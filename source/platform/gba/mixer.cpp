@@ -56,7 +56,20 @@ static void audio_buffer_cp_music(AudioBuffer* mixing_buffer)
 
 static void audio_buffer_mixin_sfx(AudioBuffer* mixing_buffer)
 {
-    // TODO...
+    for (int i = 0; i < AudioBuffer::sample_count * 4; i += 4) {
+        for (auto it = snd_ctx.active_sounds.begin();
+             it not_eq snd_ctx.active_sounds.end();) {
+            if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+                it = snd_ctx.active_sounds.erase(it);
+            } else {
+                for (int j = 0; j < 4; ++j) {
+                    ((AudioSample*)mixing_buffer->samples_)[i + j] +=
+                        (AudioSample)it->data_[it->position_++];
+                }
+                ++it;
+            }
+        }
+    }
 }
 
 

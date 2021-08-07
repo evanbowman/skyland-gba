@@ -21,6 +21,9 @@ public:
     bool key_down(Platform&, Key k) override;
 
 
+    bool key_up(Platform&, Key k) override;
+
+
     bool key_pressed(Platform&, Key k) override;
 
 

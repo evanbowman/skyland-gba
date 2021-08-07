@@ -32,7 +32,7 @@ static auto& __metatable()
                          IonCannon,
                          FlakGun,
                          MissileSilo,
-                         Infestor,
+                         // Infestor,
                          Stairwell,
                          Bulkhead,
                          Workshop,

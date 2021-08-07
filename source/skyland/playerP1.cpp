@@ -89,6 +89,13 @@ bool PlayerP1::key_down(Platform& pfrm, Key k)
 
 
 
+bool PlayerP1::key_up(Platform& pfrm, Key k)
+{
+    return pfrm.keyboard().up_transition(k);
+}
+
+
+
 bool PlayerP1::key_pressed(Platform& pfrm, Key k)
 {
     return pfrm.keyboard().pressed(k);

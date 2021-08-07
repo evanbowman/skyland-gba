@@ -46,6 +46,12 @@ public:
     }
 
 
+    virtual bool key_up(Platform&, Key k)
+    {
+        return false;
+    }
+
+
     virtual bool key_down(Platform&, Key k)
     {
         return false;

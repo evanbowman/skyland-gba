@@ -16,6 +16,7 @@
 
 
 #include "gba.h"
+#include "mixer.hpp"
 
 
 int parallax_table[280];
@@ -34,4 +35,29 @@ IWRAM_CODE void hblank_x_scroll_isr()
 {
     *((volatile short*)0x4000014) = ::parallax_table[(REG_VCOUNT + 1)];
 }
+
+
+
+#define REG_SGFIFOA *(volatile u32*)0x40000A0
+#define REG_SGFIFOB *(volatile u32*)0x40000A4
+
+
+
+static int audio_buffer_read_index = 0;
+
+
+
+IWRAM_CODE void audio_update_isr()
+{
+    REG_SGFIFOA = audio_buffers[audio_front_buffer].samples_[audio_buffer_read_index++];
+
+    if (UNLIKELY(audio_buffer_read_index >= AudioBuffer::sample_count)) {
+        audio_buffer_read_index = 0;
+        audio_buffers_consumed[audio_front_buffer] = true;
+        audio_front_buffer = (audio_front_buffer + 1) % audio_buffer_count;
+    }
+}
+
+
+
 }

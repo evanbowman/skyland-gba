@@ -18,6 +18,7 @@
 #include "timeTracker.hpp"
 #include "worldMap.hpp"
 #include "flag.hpp"
+#include "gamespeed.hpp"
 
 
 
@@ -61,9 +62,9 @@ public:
     }
 
 
-    bool& paused()
+    GameSpeed& game_speed()
     {
-        return paused_;
+        return game_speed_;
     }
 
 
@@ -264,7 +265,7 @@ private:
     Coins victory_coins_ = 0;
     Coins level_coins_spent_ = 0;
     Camera camera_;
-    bool paused_ = false;
+    GameSpeed game_speed_ = GameSpeed::normal;
     int pause_count_ = 0;
     Rumble rumble_;
 

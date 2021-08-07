@@ -151,6 +151,13 @@ bool AutopilotPlayer::key_down(Platform&, Key k)
 
 
 
+bool AutopilotPlayer::key_up(Platform&, Key k)
+{
+    return not states_[int(k)] and prev_[int(k)];
+}
+
+
+
 bool AutopilotPlayer::key_pressed(Platform&, Key k)
 {
     return states_[int(k)];

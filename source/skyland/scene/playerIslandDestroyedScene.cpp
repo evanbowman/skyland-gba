@@ -128,7 +128,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     WorldScene::update(pfrm, app, delta);
 
-    app.paused() = false;
+    reset_gamespeed(pfrm, app);
 
 
     if (confetti_ and *confetti_) {

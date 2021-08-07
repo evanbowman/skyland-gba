@@ -110,6 +110,7 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     case WorldMap::Node::Type::hostile: {
         lisp::dostring(pfrm.load_file_contents("scripts", "hostile.lisp"),
                        on_lisp_error);
+        pfrm.speaker().play_music("battle", 0);
         break;
     }
 
