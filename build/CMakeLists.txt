@@ -206,7 +206,7 @@ if(GAMEBOY_ADVANCE)
     ${ROOT_DIR}/external/libgba/reset.s
 
     ${SOURCE_DIR}/platform/gba/rumble.c
-    ${SOURCE_DIR}/platform/gba/cothread.cpp
+    ${SOURCE_DIR}/platform/gba/co_thread.c
     ${SOURCE_DIR}/platform/gba/dlc.cpp
 
     # Data files below. Because the gameboy advance does not have a filesystem,

@@ -665,46 +665,6 @@ public:
     };
 
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Task
-    ////////////////////////////////////////////////////////////////////////////
-
-    class Task {
-    public:
-        virtual void run() = 0;
-
-        virtual ~Task()
-        {
-        }
-
-        bool complete() const
-        {
-            return complete_;
-        }
-
-        bool running() const
-        {
-            return running_;
-        }
-
-    protected:
-        void completed()
-        {
-            complete_ = true;
-        }
-
-        friend class Platform;
-
-    private:
-        Atomic<bool> running_ = false;
-        Atomic<bool> complete_ = false;
-    };
-
-    // If only we had a heap, and shared pointers, we could enforce better
-    // ownership than raw pointers for Tasks... ah well.
-    void push_task(Task* task);
-
-
     class Data;
 
     Data* data()
@@ -833,6 +793,3 @@ inline void error(Platform&, const char*)
 {
 }
 #endif // __BLINDJUMP_ENABLE_LOGS
-
-
-u16 arctangent(u16 y, u16 x);

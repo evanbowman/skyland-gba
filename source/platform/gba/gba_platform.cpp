@@ -968,19 +968,6 @@ void Platform::Screen::draw(const Sprite& spr)
 }
 
 
-static Buffer<Platform::Task*, 7> task_queue_;
-
-
-void Platform::push_task(Task* task)
-{
-    task->complete_ = false;
-    task->running_ = true;
-
-    if (not task_queue_.push_back(task)) {
-        fatal("failed to enqueue task");
-    }
-}
-
 
 void Platform::load_overlay_chunk(TileDesc dst, TileDesc src, u16 count)
 {
@@ -1196,18 +1183,6 @@ static void vblank_isr()
 
 void Platform::Screen::clear()
 {
-    // On the GBA, we don't have real threads, so run tasks prior to the vsync,
-    // so any updates are least likely to cause tearing.
-    for (auto it = task_queue_.begin(); it not_eq task_queue_.end();) {
-        (*it)->run();
-        if ((*it)->complete()) {
-            (*it)->running_ = false;
-            task_queue_.erase(it);
-        } else {
-            ++it;
-        }
-    }
-
     audio_update_fallback = false;
 
     // VSync
@@ -2488,25 +2463,27 @@ static const u32 null_music[null_music_len] = {0};
 
 
 
-static const struct AudioTrack {
+// static const
+struct AudioTrack {
     const char* name_;
     const AudioSample* data_;
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
-} music_tracks[] = {
-    DEF_MUSIC(shadows, shadows),
-    DEF_MUSIC(battle, jazzyfrenchy),
-};
+}//  music_tracks[] = {
+//     DEF_MUSIC(shadows, shadows),
+//     DEF_MUSIC(battle, jazzyfrenchy),
+// }
+;
 
 
 static const AudioTrack* find_music(const char* name)
 {
-    for (auto& track : music_tracks) {
+    // for (auto& track : music_tracks) {
 
-        if (str_cmp(name, track.name_) == 0) {
-            return &track;
-        }
-    }
+    //     if (str_cmp(name, track.name_) == 0) {
+    //         return &track;
+    //     }
+    // }
 
     return nullptr;
 }
@@ -3313,7 +3290,7 @@ Platform::Platform()
 
     enable_watchdog();
 
-    audio_start();
+    // audio_start();
 
     fill_overlay(0);
 
