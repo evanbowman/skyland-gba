@@ -60,7 +60,7 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     configure_island_from_codestring(pfrm, app.player_island(), "'((power-core 1 13))");
 
     app.player_island().repaint(pfrm);
-    app.player_island().set_position({146, 370});
+    app.player_island().set_position({152, 370});
 
 
     show(pfrm, app);
@@ -232,6 +232,11 @@ ScenePtr<Scene> FlagDesignerModule::update(Platform& pfrm,
 void FlagDesignerModule::display(Platform& pfrm, App& app)
 {
     app.player_island().display(pfrm);
+
+    for (auto& effect : app.effects()) {
+        pfrm.screen().draw(effect->sprite());
+    }
+
 
     Sprite sprite;
     sprite.set_size(Sprite::Size::w16_h32);
