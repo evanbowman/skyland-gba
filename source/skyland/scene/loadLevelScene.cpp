@@ -54,6 +54,8 @@ void prep_level(Platform& pfrm, App& app)
     app.player().rooms_built_ = 0;
     app.player().rooms_lost_ = 0;
 
+    app.persistent_data().score_
+        .set(std::max((s32)0, app.persistent_data().score_.get()));
 
 
     if (app.opponent_island()) {

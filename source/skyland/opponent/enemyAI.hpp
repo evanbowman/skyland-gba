@@ -62,6 +62,8 @@ private:
     Microseconds character_reassign_timer_ = character_reassign_timeout;
 
     Coins coins_ = 0;
+
+    Microseconds score_subtract_timer_ = 0;
 };
 
 

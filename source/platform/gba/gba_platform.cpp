@@ -2469,21 +2469,19 @@ struct AudioTrack {
     const AudioSample* data_;
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
-}//  music_tracks[] = {
-//     DEF_MUSIC(shadows, shadows),
-//     DEF_MUSIC(battle, jazzyfrenchy),
-// }
-;
+} music_tracks[] = {
+    DEF_MUSIC(shadows, shadows),
+};
 
 
 static const AudioTrack* find_music(const char* name)
 {
-    // for (auto& track : music_tracks) {
+    for (auto& track : music_tracks) {
 
-    //     if (str_cmp(name, track.name_) == 0) {
-    //         return &track;
-    //     }
-    // }
+        if (str_cmp(name, track.name_) == 0) {
+            return &track;
+        }
+    }
 
     return nullptr;
 }
@@ -3290,7 +3288,7 @@ Platform::Platform()
 
     enable_watchdog();
 
-    // audio_start();
+    audio_start();
 
     fill_overlay(0);
 

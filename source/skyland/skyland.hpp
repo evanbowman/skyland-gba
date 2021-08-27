@@ -194,6 +194,12 @@ public:
     }
 
 
+    HostInteger<s32>& score()
+    {
+        return persistent_data_.score_;
+    }
+
+
     std::optional<DialogBuffer>& dialog_buffer()
     {
         return dialog_buffer_;

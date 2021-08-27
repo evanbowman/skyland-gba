@@ -209,6 +209,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 metaclass_index((*(*it)->metaclass())->name()));
             network::transmit(pfrm, packet);
 
+            app.player().on_room_destroyed(pfrm, app, **it);
 
             it = rooms_.erase(it);
 
@@ -292,12 +293,14 @@ static const int screen_limit_y = 700;
 
 void Island::display(Platform& pfrm)
 {
-    pfrm.set_tile(layer_, flag_pos_->x, flag_pos_->y, flag_anim_index_);
-    if (layer_ == Layer::map_0_ext) {
-        // NOTE: the player can design his/her own flag, so we
-        // reserve a specific palette bank just for the flag
-        // image. Untimately, doing so simplifies things.
-        pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y, 12);
+    if (flag_pos_ and show_flag_) {
+        pfrm.set_tile(layer_, flag_pos_->x, flag_pos_->y, flag_anim_index_);
+        if (layer_ == Layer::map_0_ext) {
+            // NOTE: the player can design his/her own flag, so we reserve a
+            // specific palette bank just for the flag image. Untimately, doing
+            // so simplifies things.
+            pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y, 12);
+        }
     }
 
     for (auto& c : characters_) {

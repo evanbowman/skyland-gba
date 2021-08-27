@@ -26,6 +26,8 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.system_call("v-parallax", (void*)false);
 
+    app.tutorial_mode() = true;
+
     if (auto script = pfrm.load_file_contents("scripts", "tutorials.lisp")) {
         auto result = lisp::dostring(script, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;

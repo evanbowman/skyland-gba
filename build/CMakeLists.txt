@@ -239,7 +239,6 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/spritesheet.s
     ${DATA_DIR}/spritesheet_title_screen.s
     ${DATA_DIR}/shadows.s
-    ${DATA_DIR}/jazzyfrenchy.s
     ${DATA_DIR}/sound_msg.s
     ${DATA_DIR}/sound_pop.s
     ${DATA_DIR}/sound_coin.s

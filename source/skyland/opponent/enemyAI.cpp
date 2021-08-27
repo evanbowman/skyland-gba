@@ -32,6 +32,20 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
             app.opponent_island()->power_drain()) {
             resolve_insufficient_power(pfrm, app);
         }
+
+
+        if (not app.opponent_island()->is_destroyed() and
+            not app.player_island().is_destroyed()) {
+
+            score_subtract_timer_ += delta;
+            if (score_subtract_timer_ > seconds(1)) {
+                // For level score calculation. The player earns score after
+                // destroying an AI's rooms, and loses score for each second
+                // spent in the level.
+                score_subtract_timer_ -= seconds(1);
+                app.score().set(app.score().get() - 2);
+            }
+        }
     }
 
 

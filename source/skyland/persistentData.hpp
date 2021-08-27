@@ -30,6 +30,7 @@ struct PersistentData {
     HostInteger<u32> total_seconds_;
     HostInteger<u32> total_pauses_;
     HostInteger<u16> replicants_created_;
+    HostInteger<s32> score_;
 };
 
 
