@@ -232,7 +232,10 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             repaint(pfrm);
         } else {
-            (*it)->update(pfrm, app, dt);
+            if (dt not_eq 0) {
+                // Do not update a room if the game is stopped.
+                (*it)->update(pfrm, app, dt);
+            }
 
             update_characters((*it)->characters());
 

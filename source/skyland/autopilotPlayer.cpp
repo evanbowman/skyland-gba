@@ -87,6 +87,14 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    for (auto& s : prev_) {
+        s = false;
+    }
+
+    for (int i = 0; i < static_cast<int>(Key::count); ++i) {
+        prev_[i] = states_[i];
+    }
+
     for (auto& s : states_) {
         // These events are level-triggered, so we only want to keep this state
         // set for one update of the game loop, or else the key pressed events

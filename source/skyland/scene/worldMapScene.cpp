@@ -453,6 +453,10 @@ void WorldMapScene::display(Platform& pfrm, App& app)
 
 void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 {
+    if (not pfrm.speaker().is_music_playing("campaign")) {
+        pfrm.speaker().play_music("campaign", 0);
+    }
+
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
     app.swap_player<PlayerP1>();

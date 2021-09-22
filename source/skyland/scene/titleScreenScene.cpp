@@ -351,8 +351,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::fade_out;
             if (menu_selection_ == 3) {
                 state_ = State::fade_modules_1;
+            } else {
+                pfrm.speaker().stop_music();
             }
-            pfrm.speaker().stop_music();
         }
 
         if (app.player().key_down(pfrm, Key::right) or
@@ -619,6 +620,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (auto f = detail::_Module::Factory::get(index)) {
                     pfrm.fill_overlay(0);
                     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+                    pfrm.speaker().stop_music();
                     return f->create(pfrm);
                 }
             }
