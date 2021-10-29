@@ -24,7 +24,7 @@ void invoke_hook(Platform& pfrm, const char* lisp_hook_name)
     auto fn = lisp::get_nil();
 
     if (var_name_sym->type_ == lisp::Value::Type::symbol) {
-        fn = lisp::get_var(var_name_sym->symbol_);
+        fn = lisp::get_var(var_name_sym);
     }
 
     if (fn->type_ == lisp::Value::Type::function) {

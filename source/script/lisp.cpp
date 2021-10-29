@@ -5,11 +5,12 @@
 #include "memory/buffer.hpp"
 #include "memory/pool.hpp"
 #include <complex>
-#ifndef UNHOSTED
-#include <iostream>
-#endif
 #include "listBuilder.hpp"
-
+#ifdef __GBA__
+#define HEAP_DATA  __attribute__((section(".ewram")))
+#else
+#define HEAP_DATA
+#endif
 
 
 namespace lisp {
@@ -32,63 +33,83 @@ static int run_gc();
 static const u32 string_intern_table_size = 1999;
 
 
+#define VALUE_POOL_SIZE 9000
+
+
+static HEAP_DATA Value value_pool_data[VALUE_POOL_SIZE];
+static Value* value_pool = nullptr;
+
+
+void value_pool_init()
+{
+    for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
+        Value* v = value_pool_data + i;
+
+        v->alive_ = false;
+        v->mark_bit_ = false;
+        v->type_ = Value::Type::heap_node;
+
+        v->heap_node_.next_ = value_pool;
+        value_pool = v;
+    }
+}
+
+
+Value* value_pool_alloc()
+{
+    if (value_pool) {
+        auto ret = value_pool;
+        value_pool = ret->heap_node_.next_;
+        return (Value*)ret;
+    }
+    return nullptr;
+}
+
+
+void value_pool_free(Value* value)
+{
+    value->type_ = Value::Type::heap_node;
+    value->alive_ = false;
+    value->mark_bit_ = false;
+
+    value->heap_node_.next_ = value_pool;
+    value_pool = value;
+}
+
+
 
 struct Context {
-#ifdef UNHOSTED
     using OperandStack = Buffer<CompressedPtr, 994>;
-    using ValuePool = ObjectPool<Value, 166>;
-#else
-    using OperandStack = std::vector<CompressedPtr>;
-    using ValuePool = ObjectPool<Value, 10000>;
-#endif
 
-    using Globals = std::array<Variable, 249>;
     using Interns = char[string_intern_table_size];
 
     Context(Platform& pfrm)
-        : value_pools_{allocate_dynamic<ValuePool>(pfrm),
-                       allocate_dynamic<ValuePool>(pfrm),
-                       allocate_dynamic<ValuePool>(pfrm),
-                       allocate_dynamic<ValuePool>(pfrm),
-                       allocate_dynamic<ValuePool>(pfrm),
-                       allocate_dynamic<ValuePool>(pfrm),
-                       allocate_dynamic<ValuePool>(pfrm),
-                       allocate_dynamic<ValuePool>(pfrm),
-                       allocate_dynamic<ValuePool>(pfrm),
-                       allocate_dynamic<ValuePool>(pfrm)},
-          operand_stack_(allocate_dynamic<OperandStack>(pfrm)),
-          globals_(allocate_dynamic<Globals>(pfrm)),
+        : operand_stack_(allocate_dynamic<OperandStack>(pfrm)),
           interns_(allocate_dynamic<Interns>(pfrm)), pfrm_(pfrm)
     {
-        for (auto& pl : value_pools_) {
-            if (not pl) {
-                while (true)
-                    ; // FIXME: raise error
-            }
-        }
-
-        if (not operand_stack_ or not globals_ or not interns_) {
+        if (not operand_stack_ or not interns_) {
 
             while (true)
                 ; // FIXME: raise error
         }
     }
 
-    // We're allocating 10k bytes toward lisp values. Because our simplistic
-    // allocation strategy cannot support sizes other than 2k, we need to split
-    // our memory for lisp values into regions.
-    static constexpr const int value_pool_count = 10;
-    DynamicMemory<ValuePool> value_pools_[value_pool_count];
-
     DynamicMemory<OperandStack> operand_stack_;
-    DynamicMemory<Globals> globals_;
     DynamicMemory<Interns> interns_;
 
     u16 arguments_break_loc_;
+    u8 current_fn_argc_ = 0;
+    Value* this_ = nullptr;
+
 
     Value* nil_ = nullptr;
     Value* oom_ = nullptr;
     Value* string_buffer_ = nullptr;
+    Value* globals_tree_ = nullptr;
+
+
+    const IntegralConstant* constants_ = nullptr;
+    u16 constants_count_ = 0;
 
     int string_intern_pos_ = 0;
     int eval_depth_ = 0;
@@ -99,6 +120,244 @@ struct Context {
 
 
 static std::optional<Context> bound_context;
+
+
+// Globals tree node:
+// ((key . value) . (left-child . right-child))
+//
+// i.e.: Each global variable binding uses three cons cells.
+
+
+static void globals_tree_insert(Value* key, Value* value)
+{
+    auto& ctx = *bound_context;
+
+    Protected new_kvp(make_cons(key, value));
+
+    if (ctx.globals_tree_ == get_nil()) {
+        // The empty set of left/right children
+        push_op(make_cons(get_nil(), get_nil()));
+
+        auto new_tree = make_cons(new_kvp, get_op(0));
+        pop_op();
+
+        ctx.globals_tree_ = new_tree;
+
+    } else {
+        // Ok, if the tree exists, now we need to scan the tree, looking for the
+        // key. If it exists, replace the existing value with our new
+        // value. Otherwise, insert key at the terminal point.
+
+        Protected current(ctx.globals_tree_);
+        Protected prev(ctx.globals_tree_);
+        bool insert_left = true;
+
+        while (current not_eq get_nil()) {
+
+            auto current_key = current->cons_.car()->cons_.car();
+
+            if (current_key->symbol_.name_ == key->symbol_.name_) {
+                // The key alreay exists, overwrite the previous value.
+                current->cons_.car()->cons_.set_cdr(value);
+                return;
+
+            } else {
+                prev = (Value*)current;
+
+                if (current_key->symbol_.name_ < key->symbol_.name_) {
+                    // Continue loop through left subtree
+                    insert_left = true;
+                    current = current->cons_.cdr()->cons_.car();
+                } else {
+                    // Continue loop through right subtree
+                    insert_left = false;
+                    current = current->cons_.cdr()->cons_.cdr();
+                }
+            }
+        }
+
+        if (insert_left) {
+            push_op(make_cons(get_nil(), get_nil()));
+
+            auto new_tree = make_cons(new_kvp, get_op(0));
+            pop_op();
+
+            prev->cons_.cdr()->cons_.set_car(new_tree);
+
+        } else {
+            push_op(make_cons(get_nil(), get_nil()));
+
+            auto new_tree = make_cons(new_kvp, get_op(0));
+            pop_op();
+
+            prev->cons_.cdr()->cons_.set_cdr(new_tree);
+        }
+    }
+}
+
+
+using GlobalsTreeVisitor = ::Function<24, void(Value&, Value&)>;
+
+
+static Value* left_subtree(Value* tree)
+{
+    return tree->cons_.cdr()->cons_.car();
+}
+
+
+static Value* right_subtree(Value* tree)
+{
+    return tree->cons_.cdr()->cons_.cdr();
+}
+
+
+static void set_right_subtree(Value* tree, Value* value)
+{
+    tree->cons_.cdr()->cons_.set_cdr(value);
+}
+
+
+// Invokes callback with (key . value) for each global var definition.
+// In place traversal, using Morris algorithm.
+static void globals_tree_traverse(Value* root, GlobalsTreeVisitor callback)
+{
+    if (root == get_nil()) {
+        return;
+    }
+
+    auto current = root;
+    auto prev = get_nil();
+
+    while (current not_eq get_nil()) {
+
+        if (left_subtree(current) == get_nil()) {
+            callback(*current->cons_.car(), *current);
+            current = right_subtree(current);
+        } else {
+            prev = left_subtree(current);
+
+            while (right_subtree(prev) not_eq get_nil() and
+                   right_subtree(prev) not_eq current) {
+                prev = right_subtree(prev);
+            }
+
+            if (right_subtree(prev) == get_nil()) {
+                set_right_subtree(prev, current);
+                current = left_subtree(current);
+            } else {
+                set_right_subtree(prev, get_nil());
+                callback(*current->cons_.car(), *current);
+                current = right_subtree(current);
+            }
+        }
+    }
+}
+
+
+static void globals_tree_erase(Value* key)
+{
+    auto& ctx = *bound_context;
+
+    if (ctx.globals_tree_ == get_nil()) {
+        return;
+    }
+
+    auto current = ctx.globals_tree_;
+    auto prev = current;
+    bool erase_left = true;
+
+    while (current not_eq get_nil()) {
+
+        auto current_key = current->cons_.car()->cons_.car();
+
+        if (current_key->symbol_.name_ == key->symbol_.name_) {
+
+            Protected erased(current);
+
+            if (current == prev) {
+                ctx.globals_tree_ = get_nil();
+            } else {
+                if (erase_left) {
+                    prev->cons_.cdr()->cons_.set_car(get_nil());
+                } else {
+                    prev->cons_.cdr()->cons_.set_cdr(get_nil());
+                }
+            }
+
+            auto reattach_child = [](Value& kvp, Value&) {
+                globals_tree_insert(kvp.cons_.car(), kvp.cons_.cdr());
+            };
+
+            auto left_child = erased->cons_.cdr()->cons_.car();
+            if (left_child not_eq get_nil()) {
+                globals_tree_traverse(left_child, reattach_child);
+            }
+
+            auto right_child = erased->cons_.cdr()->cons_.cdr();
+            if (right_child not_eq get_nil()) {
+                globals_tree_traverse(right_child, reattach_child);
+            }
+
+            return;
+        }
+
+        prev = current;
+
+        if (current_key->symbol_.name_ < key->symbol_.name_) {
+            erase_left = true;
+            current = current->cons_.cdr()->cons_.car();
+        } else {
+            erase_left = false;
+            current = current->cons_.cdr()->cons_.cdr();
+        }
+    }
+}
+
+
+static Value* globals_tree_find(Value* key)
+{
+    auto& ctx = *bound_context;
+
+    if (ctx.globals_tree_ == get_nil()) {
+        return get_nil();
+    }
+
+    auto current = ctx.globals_tree_;
+
+    while (current not_eq get_nil()) {
+
+        auto current_key = current->cons_.car()->cons_.car();
+
+        if (current_key->symbol_.name_ == key->symbol_.name_) {
+            return current->cons_.car()->cons_.cdr();
+        }
+
+        if (current_key->symbol_.name_ < key->symbol_.name_) {
+            current = current->cons_.cdr()->cons_.car();
+        } else {
+            current = current->cons_.cdr()->cons_.cdr();
+        }
+    }
+
+    StringBuffer<31> hint("[var: ");
+    hint += key->symbol_.name_;
+    hint += "]";
+
+    return make_error(Error::Code::undefined_variable_access,
+                      make_string(bound_context->pfrm_, hint.c_str()));
+}
+
+
+
+void set_constants(const IntegralConstant* constants, u16 count)
+{
+    if (not bound_context) {
+        return;
+    }
+
+    bound_context->constants_ = constants;
+    bound_context->constants_count_ = count;
+}
 
 
 u16 symbol_offset(const char* symbol)
@@ -136,6 +395,10 @@ void get_interns(::Function<24, void(const char*)> callback)
         }
         ++i;
     }
+
+    for (u16 i = 0; i < bound_context->constants_count_; ++i) {
+        callback((const char*)bound_context->constants_[i].name_);
+    }
 }
 
 
@@ -143,20 +406,24 @@ void get_env(::Function<24, void(const char*)> callback)
 {
     auto& ctx = bound_context;
 
-    for (u32 i = 0; i < ctx->globals_->size(); ++i) {
-        if (str_cmp("", (*ctx->globals_)[i].name_)) {
-            callback((const char*)(*ctx->globals_)[i].name_);
-        }
+    globals_tree_traverse(ctx->globals_tree_,
+                          [&callback] (Value& val, Value&) {
+                              callback((const char*)val.cons_.car()->symbol_.name_);
+                          });
+
+    for (u16 i = 0; i < bound_context->constants_count_; ++i) {
+        callback((const char*)bound_context->constants_[i].name_);
     }
 }
 
 
 // Only meant to be called by lisp functions
-Value* get_arg(u16 arg)
+Value* get_arg(u16 n)
 {
     auto br = bound_context->arguments_break_loc_;
-    if (br + arg < bound_context->operand_stack_->size()) {
-        return dcompr((*bound_context->operand_stack_)[br - arg]);
+    auto argc = bound_context->current_fn_argc_;
+    if (br + n < bound_context->operand_stack_->size()) {
+        return dcompr((*bound_context->operand_stack_)[br - ((argc - 1) - n)]);
     } else {
         return get_nil();
     }
@@ -201,45 +468,26 @@ const char* intern(const char* string)
 
 CompressedPtr compr(Value* val)
 {
+    CompressedPtr result;
+
 #ifdef USE_COMPRESSED_PTRS
-    for (int pool_id = 0; pool_id < Context::value_pool_count; ++pool_id) {
-        auto& cells = bound_context->value_pools_[pool_id]->cells();
-        if ((char*)val >= (char*)cells.data() and
-            (char*) val < (char*)(cells.data() + cells.size())) {
-
-            static_assert((1 << CompressedPtr::source_pool_bits) - 1 >=
-                              Context::value_pool_count - 1,
-                          "Source pool bits in compressed ptr insufficient "
-                          "to address all value pools");
-
-            static_assert((1 << CompressedPtr::offset_bits) - 1 >=
-                              sizeof(Context::ValuePool::Cells),
-                          "Compressed pointer offset insufficient to address "
-                          "all memory in value pool");
-
-            CompressedPtr result;
-            result.source_pool_ = pool_id;
-            result.offset_ = (char*)val - (char*)cells.data();
-
-            return result;
-        }
-    }
-
-    while (true)
-        ; // Attempt to compress invalid pointer
+    static_assert(sizeof(Value) % 2 == 0);
+    result.offset_ = ((u8*)val - (u8*)value_pool_data) / sizeof(Value);
 #else
-    return {val};
-#endif // USE_COMPRESSED_PTRS
+    result.ptr_ = val;
+#endif
+
+    return result;
 }
 
 
 Value* dcompr(CompressedPtr ptr)
 {
 #ifdef USE_COMPRESSED_PTRS
-    auto& cells = bound_context->value_pools_[ptr.source_pool_]->cells();
-    return (Value*)((char*)cells.data() + ptr.offset_);
+    auto ret = (Value*)(((ptr.offset_ * sizeof(Value)) + (u8*)value_pool_data));
+    return ret;
 #else
-    return (Value*)ptr.ptr_;
+    return ptr.ptr_;
 #endif // USE_COMPRESSED_PTRS
 }
 
@@ -269,23 +517,20 @@ static Value* alloc_value()
         return val;
     };
 
-    for (auto& pl : bound_context->value_pools_) {
-        if (not pl->empty()) {
-            return init_val(pl->get());
-        }
+    if (auto val = value_pool_alloc()) {
+        return init_val(val);
     }
 
     run_gc();
 
     // Hopefully, we've freed up enough memory...
-    for (auto& pl : bound_context->value_pools_) {
-        if (not pl->empty()) {
-            return init_val(pl->get());
-        }
+    if (auto val = value_pool_alloc()) {
+        return init_val(val);
     }
 
     return nullptr;
 }
+
 
 
 Value* make_function(Function::CPP_Impl impl)
@@ -304,7 +549,8 @@ static Value* make_lisp_function(Value* impl)
 {
     if (auto val = alloc_value()) {
         val->type_ = Value::Type::function;
-        val->function_.lisp_impl_ = compr(impl);
+        val->function_.lisp_impl_.code_ = compr(impl);
+        val->function_.lisp_impl_.docstring_ = compr(get_nil());
         val->mode_bits_ = Function::ModeBits::lisp_function;
         return val;
     }
@@ -602,14 +848,20 @@ void funcall(Value* obj, u8 argc)
         }
     };
 
+    // NOTE: The callee must be somewhere on the operand stack, so it's safe
+    // to store this unprotected var here.
+    Value* prev_this = get_this();
 
+    auto& ctx = *bound_context;
+    auto prev_arguments_break_loc = ctx.arguments_break_loc_;
+    auto prev_argc = ctx.current_fn_argc_;
 
     switch (obj->type_) {
     case Value::Type::function: {
         if (bound_context->operand_stack_->size() < argc) {
             pop_args();
             push_op(make_error(Error::Code::invalid_argc, obj));
-            return;
+            break;
         }
 
         switch (obj->mode_bits_) {
@@ -623,7 +875,7 @@ void funcall(Value* obj, u8 argc)
         case Function::ModeBits::lisp_function: {
             auto& ctx = *bound_context;
             const auto break_loc = ctx.operand_stack_->size() - 1;
-            auto expression_list = dcompr(obj->function_.lisp_impl_);
+            auto expression_list = dcompr(obj->function_.lisp_impl_.code_);
             auto result = get_nil();
             push_op(result);
             while (expression_list not_eq get_nil()) {
@@ -632,6 +884,8 @@ void funcall(Value* obj, u8 argc)
                 }
                 pop_op(); // result
                 ctx.arguments_break_loc_ = break_loc;
+                ctx.current_fn_argc_ = argc;
+                ctx.this_ = obj;
                 eval(expression_list->cons_.car()); // new result
                 expression_list = expression_list->cons_.cdr();
             }
@@ -646,6 +900,8 @@ void funcall(Value* obj, u8 argc)
             auto& ctx = *bound_context;
             const auto break_loc = ctx.operand_stack_->size() - 1;
             ctx.arguments_break_loc_ = break_loc;
+            ctx.current_fn_argc_ = argc;
+            ctx.this_ = obj;
             vm_execute(dcompr(obj->function_.bytecode_impl_.data_buffer_),
                        obj->function_.bytecode_impl_.bc_offset_);
             auto result = get_op(0);
@@ -662,62 +918,53 @@ void funcall(Value* obj, u8 argc)
         push_op(make_error(Error::Code::value_not_callable, L_NIL));
         break;
     }
+
+    bound_context->this_ = prev_this;
+    ctx.arguments_break_loc_ = prev_arguments_break_loc;
+    ctx.current_fn_argc_ = prev_argc;
 }
 
 
-// These functions aren't _that_ fast. But they replace older functions which
-// did a string compare, rather than using the intern'd string pointer.
-Value* __set_var_fast(const char* name, Value* value)
+u8 get_argc()
 {
-    auto& globals = *bound_context->globals_;
-    for (u32 i = 0; i < globals.size(); ++i) {
-        if (name == globals[i].name_) {
-            std::swap(globals[i], globals[0]);
-            globals[0].value_ = value;
-            return get_nil();
+    return bound_context->current_fn_argc_;
+}
+
+
+Value* get_this()
+{
+    return bound_context->this_;
+}
+
+
+Value* get_var_stable(const char* intern_str)
+{
+    return get_var(make_symbol(intern_str, Symbol::ModeBits::stable_pointer));
+}
+
+
+Value* get_var(Value* symbol)
+{
+    auto found = globals_tree_find(symbol);
+
+    if (found->type_ not_eq Value::Type::error) {
+        return found;
+    } else {
+        for (u16 i = 0; i < bound_context->constants_count_; ++i) {
+            const auto& k = bound_context->constants_[i];
+            if (str_cmp(k.name_, symbol->symbol_.name_) == 0) {
+                return lisp::make_integer(k.value_);
+            }
         }
+        return found;
     }
-
-    for (auto& var : *bound_context->globals_) {
-        if (str_cmp(var.name_, "") == 0) {
-            var.name_ = intern(name);
-            var.value_ = value;
-            return get_nil();
-        }
-    }
-
-    return make_error(Error::Code::symbol_table_exhausted, L_NIL);
 }
 
 
-Value* __get_var_fast(const char* name)
+Value* set_var(Value* symbol, Value* val)
 {
-    auto& globals = *bound_context->globals_;
-    for (u32 i = 0; i < globals.size(); ++i) {
-        if (name == globals[i].name_) {
-            std::swap(globals[i], globals[0]);
-            return globals[0].value_;
-        }
-    }
-
-    StringBuffer<31> hint("[var: ");
-    hint += name;
-    hint += "]";
-
-    return make_error(Error::Code::undefined_variable_access,
-                      make_string(bound_context->pfrm_, hint.c_str()));
-}
-
-
-Value* get_var(Symbol& symbol)
-{
-    return __get_var_fast(symbol.name_);
-}
-
-
-Value* set_var(Symbol& symbol, Value* val)
-{
-    return __set_var_fast(symbol.name_, val);
+    globals_tree_insert(symbol, val);
+    return get_nil();
 }
 
 
@@ -816,6 +1063,11 @@ void format_impl(Value* value, Printer& p, int depth)
     bool prefix_quote = false;
 
     switch ((lisp::Value::Type)value->type_) {
+    case lisp::Value::Type::heap_node:
+        // We should never reach here.
+        while (true) ;
+        break;
+
     case lisp::Value::Type::nil:
         if (depth == 0) {
             p.put_str("'()");
@@ -937,7 +1189,8 @@ static void gc_mark_value(Value* value)
     switch (value->type_) {
     case Value::Type::function:
         if (value->mode_bits_ == Function::ModeBits::lisp_function) {
-            gc_mark_value((dcompr(value->function_.lisp_impl_)));
+            gc_mark_value((dcompr(value->function_.lisp_impl_.code_)));
+            gc_mark_value((dcompr(value->function_.lisp_impl_.docstring_)));
         } else if (value->mode_bits_ ==
                    Function::ModeBits::lisp_bytecode_function) {
             gc_mark_value(
@@ -1020,9 +1273,14 @@ static void gc_mark()
         gc_mark_value(dcompr(elem));
     }
 
-    for (auto& var : *ctx->globals_) {
-        gc_mark_value(var.value_);
-    }
+    globals_tree_traverse(ctx->globals_tree_,
+                          [](Value& car, Value& node) {
+                              node.mark_bit_ = true;
+                              node.cons_.cdr()->mark_bit_ = true;
+                              gc_mark_value(&car);
+                          });
+
+    gc_mark_value(ctx->this_);
 
     auto p_list = __protected_values;
     while (p_list) {
@@ -1047,6 +1305,7 @@ static void invoke_finalizer(Value* value)
 {
     // NOTE: This ordering should match the Value::Type enum.
     static const std::array<FinalizerTableEntry, Value::Type::count> table = {
+        HeapNode::finalizer,
         Nil::finalizer,
         Integer::finalizer,
         Cons::finalizer,
@@ -1078,33 +1337,35 @@ static int gc_sweep()
     }
 
     int collect_count = 0;
-    for (auto& pl : bound_context->value_pools_) {
-        pl->scan_cells([&pl, &collect_count](Value* val) {
-            if (val->alive_) {
-                if (val->mark_bit_) {
-                    val->mark_bit_ = false;
-                } else {
-                    // This value should be unreachable, let's collect it.
-                    val->alive_ = false;
-                    invoke_finalizer(val);
-                    pl->post(val);
-                    ++collect_count;
-                }
+
+    for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
+
+        Value* val = &value_pool_data[i];
+
+        if (val->alive_) {
+            if (val->mark_bit_) {
+                val->mark_bit_ = false;
+            } else {
+                invoke_finalizer(val);
+                value_pool_free(val);
+                ++collect_count;
             }
-        });
+        }
     }
+
     return collect_count;
 }
 
 
 void live_values(::Function<24, void(Value&)> callback)
 {
-    for (auto& pl : bound_context->value_pools_) {
-        pl->scan_cells([&callback](Value* val) {
-            if (val->alive_) {
-                callback(*val);
-            }
-        });
+    for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
+
+        Value* val = &value_pool_data[i];
+
+        if (val->alive_) {
+            callback(*val);
+        }
     }
 }
 
@@ -1460,14 +1721,14 @@ static void eval_let(Value* code)
             auto bind = val->cons_.cdr();
             if (sym->type_ == Value::Type::symbol and
                 bind->type_ == Value::Type::cons) {
-                auto prev = get_var(sym->symbol_);
+                auto prev = get_var(sym);
 
                 push_op(prev);
                 ++stashed_vars;
 
                 eval(bind->cons_.car());
 
-                set_var(sym->symbol_, get_op(0));
+                set_var(sym, get_op(0));
                 pop_op();
 
             } else {
@@ -1507,15 +1768,9 @@ static void eval_let(Value* code)
         auto sym = val->cons_.car();
 
         if (value->type_ not_eq Value::Type::error) {
-            set_var(sym->symbol_, value);
+            set_var(sym, value);
         } else {
-            for (auto& var : *bound_context->globals_) {
-                if (str_cmp(sym->symbol_.name_, var.name_) == 0) {
-                    var.value_ = get_nil();
-                    var.name_ = "";
-                    break;
-                }
-            }
+            globals_tree_erase(sym);
         }
         ++i;
     })
@@ -1560,34 +1815,6 @@ static void eval_if(Value* code)
 }
 
 
-static void eval_while(Value* code)
-{
-    if (code->type_ not_eq Value::Type::cons) {
-        push_op(lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
-        return;
-    }
-
-    auto cond = code->cons_.car();
-
-    // result
-    push_op(get_nil());
-
-    while (true) {
-        eval(cond);
-
-        if (not is_boolean_true(get_op(0))) {
-            pop_op(); // cond
-            break;
-        }
-
-        pop_op(); // cond
-
-        pop_op();                // previous result
-        eval(code->cons_.cdr()); // new result at top of stack
-    }
-}
-
-
 static void eval_lambda(Value* code)
 {
     // todo: argument list...
@@ -1606,7 +1833,7 @@ void eval(Value* code)
 
     if (code->type_ == Value::Type::symbol) {
         pop_op();
-        push_op(get_var(code->symbol_));
+        push_op(get_var(code));
     } else if (code->type_ == Value::Type::cons) {
         auto form = code->cons_.car();
         if (form->type_ == Value::Type::symbol) {
@@ -1615,14 +1842,6 @@ void eval(Value* code)
                 auto result = get_op(0);
                 pop_op(); // result
                 pop_op(); // code
-                push_op(result);
-                --bound_context->interp_entry_count_;
-                return;
-            } else if (str_cmp(form->symbol_.name_, "while") == 0) {
-                eval_while(code->cons_.cdr());
-                auto result = get_op(0);
-                pop_op();
-                pop_op();
                 push_op(result);
                 --bound_context->interp_entry_count_;
                 return;
@@ -1711,30 +1930,18 @@ void init(Platform& pfrm)
 
     bound_context.emplace(pfrm);
 
-    // We cannot be sure that the memory will be zero-initialized, so make sure
-    // that all of the alive bits in the value pool entries are zero. This needs
-    // to be done at least once, otherwise, gc will not work correctly.
-    for (auto& pl : bound_context->value_pools_) {
-        pl->scan_cells([](Value* val) {
-            val->alive_ = false;
-            val->mark_bit_ = false;
-        });
-    }
-
+    value_pool_init();
     bound_context->nil_ = alloc_value();
     bound_context->nil_->type_ = Value::Type::nil;
+    bound_context->globals_tree_ = bound_context->nil_;
+    bound_context->this_ = bound_context->nil_;
 
-    puts("create oom");
     bound_context->oom_ = alloc_value();
     bound_context->oom_->type_ = Value::Type::error;
     bound_context->oom_->error_.code_ = Error::Code::out_of_memory;
     bound_context->oom_->error_.context_ = compr(bound_context->nil_);
 
     bound_context->string_buffer_ = bound_context->nil_;
-
-    for (auto& var : *bound_context->globals_) {
-        var.value_ = get_nil();
-    }
 
     if (dcompr(compr(get_nil())) not_eq get_nil()) {
         error(pfrm, "pointer compression test failed");
@@ -1750,7 +1957,7 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 2);
                 L_EXPECT_OP(1, symbol);
 
-                lisp::set_var(get_op(1)->symbol_, get_op(0));
+                lisp::set_var(get_op(1), get_op(0));
 
                 return L_NIL;
             }));
@@ -1997,9 +2204,12 @@ void init(Platform& pfrm)
 
     set_var("interp-stat", make_function([](int argc) {
                 auto& ctx = bound_context;
+
                 int values_remaining = 0;
-                for (auto& pl : ctx->value_pools_) {
-                    values_remaining += pl->remaining();
+                Value* current = value_pool;
+                while (current) {
+                    ++values_remaining;
+                    current = current->heap_node_.next_;
                 }
 
                 ListBuilder lat;
@@ -2021,19 +2231,30 @@ void init(Platform& pfrm)
 
                 lat.push_front(make_stat("vars", [&] {
                     int symb_tab_used = 0;
-                    for (u32 i = 0; i < ctx->globals_->size(); ++i) {
-                        if (str_cmp("", (*ctx->globals_)[i].name_)) {
-                            ++symb_tab_used;
-                        }
-                    }
+                    globals_tree_traverse(ctx->globals_tree_,
+                                          [&symb_tab_used](Value&, Value&) {
+                                              ++symb_tab_used;
+                                          });
                     return symb_tab_used;
                 }()));
 
                 lat.push_front(
-                    make_stat("stack-used", ctx->operand_stack_->size()));
+                    make_stat("stk", ctx->operand_stack_->size()));
                 lat.push_front(
-                    make_stat("interned-bytes", ctx->string_intern_pos_));
-                lat.push_front(make_stat("vals-left", values_remaining));
+                    make_stat("internb", ctx->string_intern_pos_));
+                lat.push_front(make_stat("free", values_remaining));
+
+                int databuffers = 0;
+
+                for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
+                    Value* val = &value_pool_data[i];
+                    if (val->alive_ and
+                        val->type_ == Value::Type::data_buffer) {
+                        ++databuffers;
+                    }
+                }
+
+                lat.push_front(make_stat("sbr", databuffers));
 
                 return lat.result();
             }));
@@ -2084,13 +2305,7 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, symbol);
 
-                for (auto& var : *bound_context->globals_) {
-                    if (str_cmp(get_op(0)->symbol_.name_, var.name_) == 0) {
-                        var.value_ = get_nil();
-                        var.name_ = "";
-                        return get_nil();
-                    }
-                }
+                globals_tree_erase(get_op(0));
 
                 return get_nil();
             }));
@@ -2127,13 +2342,10 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, symbol);
 
-                for (auto& var : *bound_context->globals_) {
-                    if (str_cmp(get_op(0)->symbol_.name_, var.name_) == 0) {
-                        return make_integer(1);
-                    }
-                }
-
-                return make_integer(0);
+                auto found = globals_tree_find(get_op(0));
+                return make_integer(found not_eq get_nil() and
+                                    found->type_
+                                    not_eq lisp::Value::Type::error);
             }));
 
 
@@ -2371,6 +2583,20 @@ void init(Platform& pfrm)
                 return result;
             }));
 
+    set_var("globals", make_function([](int argc) {
+                return bound_context->globals_tree_;
+            }));
+
+    set_var("this", make_function([](int argc) {
+                return bound_context->this_;
+            }));
+
+    set_var("argc", make_function([](int argc) {
+                // NOTE: This works because native functions do not assign
+                // current_fn_argc_.
+                return make_integer(bound_context->current_fn_argc_);
+            }));
+
     set_var("env", make_function([](int argc) {
                 auto pfrm = interp_get_pfrm();
 
@@ -2401,7 +2627,8 @@ void init(Platform& pfrm)
 
                 if (get_op(0)->mode_bits_ ==
                     Function::ModeBits::lisp_function) {
-                    compile(*pfrm, dcompr(get_op(0)->function_.lisp_impl_));
+                    compile(*pfrm, dcompr(get_op(0)
+                                          ->function_.lisp_impl_.code_));
                     auto ret = get_op(0);
                     pop_op();
                     return ret;
@@ -2451,8 +2678,7 @@ void init(Platform& pfrm)
                     case LoadVar::op():
                         i += 1;
                         out += "LOAD_VAR(";
-                        out += to_string<10>(
-                            ((HostInteger<s16>*)(data->data_ + i))->get());
+                        out += symbol_from_offset(((HostInteger<s16>*)(data->data_ + i))->get());
                         out += ")";
                         i += 2;
                         break;
@@ -2541,9 +2767,37 @@ void init(Platform& pfrm)
                         ++depth;
                         break;
 
+                    case PushThis::op():
+                        out += PushThis::name();
+                        i += sizeof(PushThis);
+                        break;
+
                     case Arg::op():
                         out += Arg::name();
                         i += sizeof(Arg);
+                        break;
+
+                    case TailCall::op():
+                        out += TailCall::name();
+                        out += "(";
+                        out += to_string<10>(*(data->data_ + i + 1));
+                        out += ")";
+                        i += 2;
+                        break;
+
+                    case TailCall1::op():
+                        out += TailCall1::name();
+                        ++i;
+                        break;
+
+                    case TailCall2::op():
+                        out += TailCall2::name();
+                        ++i;
+                        break;
+
+                    case TailCall3::op():
+                        out += TailCall3::name();
+                        ++i;
                         break;
 
                     case Funcall::op():
@@ -2628,7 +2882,7 @@ void init(Platform& pfrm)
             } else if (get_op(0)->mode_bits_ ==
                        Function::ModeBits::lisp_function) {
                 auto expression_list =
-                    dcompr(get_op(0)->function_.lisp_impl_);
+                    dcompr(get_op(0)->function_.lisp_impl_.code_);
 
                 DefaultPrinter p;
                 format(expression_list, p);

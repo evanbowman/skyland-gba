@@ -423,6 +423,82 @@ struct Arg {
 };
 
 
+struct TailCall {
+    Header header_;
+    u8 argc_;
+
+    static const char* name()
+    {
+        return "TAILCALL";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 28;
+    }
+};
+
+
+struct TailCall1 {
+    Header header_;
+
+    static const char* name()
+    {
+        return "TAILCALL1";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 29;
+    }
+};
+
+
+struct TailCall2 {
+    Header header_;
+
+    static const char* name()
+    {
+        return "TAILCALL2";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 30;
+    }
+};
+
+
+struct TailCall3 {
+    Header header_;
+
+    static const char* name()
+    {
+        return "TAILCALL3";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 31;
+    }
+};
+
+
+struct PushThis {
+    Header header_;
+
+    static const char* name()
+    {
+        return "PUSH_THIS";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 32;
+    }
+};
+
+
 // Just a utility intended for the compiler, not to be used by the vm.
 inline Header* load_instruction(ScratchBuffer& buffer, int index)
 {
@@ -456,6 +532,10 @@ inline Header* load_instruction(ScratchBuffer& buffer, int index)
             MATCH(SmallJumpIfFalse)
             MATCH(SmallJump)
             MATCH(PushLambda)
+            MATCH(TailCall)
+            MATCH(TailCall1)
+            MATCH(TailCall2)
+            MATCH(TailCall3)
             MATCH(Funcall)
             MATCH(Funcall1)
             MATCH(Funcall2)
@@ -468,6 +548,7 @@ inline Header* load_instruction(ScratchBuffer& buffer, int index)
             MATCH(First)
             MATCH(Rest)
             MATCH(Arg)
+            MATCH(PushThis)
         }
     }
     return nullptr;

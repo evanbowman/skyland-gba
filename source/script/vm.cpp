@@ -15,6 +15,9 @@ const char* symbol_from_offset(u16 offset);
 Value* make_bytecode_function(Value* buffer);
 
 
+Value* get_var_stable(const char* intern_str);
+
+
 template <typename Instruction>
 Instruction* read(ScratchBuffer& buffer, int& pc)
 {
@@ -24,12 +27,7 @@ Instruction* read(ScratchBuffer& buffer, int& pc)
 }
 
 
-Value* __get_var_fast(const char* symbol_str);
-void __set_var_fast(const char* symbol_str, Value* value);
-
-
-
-void vm_execute(Value* code_buffer, int start_offset)
+void vm_execute(Value* code_buffer, const int start_offset)
 {
     int pc = start_offset;
 
@@ -37,6 +35,7 @@ void vm_execute(Value* code_buffer, int start_offset)
 
     using namespace instruction;
 
+ TOP:
     while (true) {
 
         switch ((Opcode)code.data_[pc]) {
@@ -73,7 +72,7 @@ void vm_execute(Value* code_buffer, int start_offset)
         case LoadVar::op(): {
             auto inst = read<LoadVar>(code, pc);
             push_op(
-                __get_var_fast(symbol_from_offset(inst->name_offset_.get())));
+                get_var_stable(symbol_from_offset(inst->name_offset_.get())));
             break;
         }
 
@@ -119,6 +118,142 @@ void vm_execute(Value* code_buffer, int start_offset)
             auto inst = read<PushSymbol>(code, pc);
             push_op(make_symbol(symbol_from_offset(inst->name_offset_.get()),
                                 Symbol::ModeBits::stable_pointer));
+            break;
+        }
+
+        case TailCall::op(): {
+
+            Protected fn(get_op(0));
+
+            auto argc = read<TailCall>(code, pc)->argc_;
+
+
+            if (fn == get_this()) {
+                pop_op(); // function on stack
+
+                if (get_argc() not_eq argc) {
+                    // TODO: raise error: attempted recursive call with
+                    // different number of args than current function.
+                    // Actually...
+                    // The isn't really anything preventing a variadic function
+                    // from being executed recursively with a different number
+                    // of args, right? So maybe shouldn't be isn't an error...
+                    while (true) ;
+                }
+
+                if (argc == 0) {
+                    pc = start_offset;
+                    goto TOP;
+                } else {
+                    // TODO: perform TCO for N-arg function
+                    while (true) {
+                        // ...
+                    }
+                }
+
+            } else {
+
+                pop_op();
+                funcall(fn, argc);
+            }
+
+            break;
+        }
+
+        case TailCall1::op(): {
+            read<TailCall1>(code, pc);
+            Protected fn(get_op(0));
+
+            if (fn == get_this()) {
+                auto arg = get_op(1);
+
+                if (get_argc() not_eq 1) {
+                    // TODO: raise error: attempted recursive call with
+                    // different number of args than current function.
+                    while (true) ;
+                }
+
+                pop_op(); // function on stack
+                pop_op(); // argument
+                pop_op(); // previous arg
+
+                push_op(arg);
+
+                pc = start_offset;
+                goto TOP;
+
+            } else {
+                pop_op();
+                funcall(fn, 1);
+            }
+            break;
+        }
+
+        case TailCall2::op(): {
+            read<TailCall2>(code, pc);
+            Protected fn(get_op(0));
+
+            if (fn == get_this()) {
+                auto arg0 = get_op(1);
+                auto arg1 = get_op(2);
+
+                if (get_argc() not_eq 2) {
+                    // TODO: raise error: attempted recursive call with
+                    // different number of args than current function.
+                    while (true) ;
+                }
+
+                pop_op(); // function on stack
+                pop_op(); // arg
+                pop_op(); // arg
+                pop_op(); // prev arg
+                pop_op(); // prev arg
+
+                push_op(arg1);
+                push_op(arg0);
+
+                pc = start_offset;
+                goto TOP;
+
+            } else {
+                pop_op();
+                funcall(fn, 2);
+            }
+            break;
+        }
+
+        case TailCall3::op(): {
+            read<TailCall3>(code, pc);
+            Protected fn(get_op(0));
+
+            if (fn == get_this()) {
+                auto arg0 = get_op(1);
+                auto arg1 = get_op(2);
+                auto arg2 = get_op(3);
+
+                if (get_argc() not_eq 3) {
+                    while (true) ;
+                }
+
+                pop_op(); // function on stack
+                pop_op(); // arg
+                pop_op(); // arg
+                pop_op(); // arg
+                pop_op(); // prev arg
+                pop_op(); // prev arg
+                pop_op(); // prev arg
+
+                push_op(arg2);
+                push_op(arg1);
+                push_op(arg0);
+
+                pc = start_offset;
+                goto TOP;
+
+            } else {
+                pop_op();
+                funcall(fn, 3);
+            }
             break;
         }
 
@@ -227,6 +362,12 @@ void vm_execute(Value* code_buffer, int start_offset)
                 pop_op();
             }
             push_op(lat);
+            break;
+        }
+
+        case PushThis::op(): {
+            push_op(get_this());
+            read<PushThis>(code, pc);
             break;
         }
 

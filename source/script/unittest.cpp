@@ -6,85 +6,85 @@
 #include <iostream>
 
 
-static lisp::Value* function_test()
-{
-    using namespace lisp;
+// static lisp::Value* function_test()
+// {
+//     using namespace lisp;
 
-    set_var("double", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, integer);
+//     set_var("double", make_function([](int argc) {
+//                 L_EXPECT_ARGC(argc, 1);
+//                 L_EXPECT_OP(0, integer);
 
-                return make_integer(get_op(0)->integer_.value_ * 2);
-            }));
+//                 return make_integer(get_op(0)->integer_.value_ * 2);
+//             }));
 
-    push_op(make_integer(48));
-    funcall(get_var(make_symbol("double")->symbol_), 1);
+//     push_op(make_integer(48));
+//     funcall(get_var(make_symbol("double")->symbol_), 1);
 
-    L_EXPECT_OP(0, integer);
+//     L_EXPECT_OP(0, integer);
 
-    if (get_op(0)->integer_.value_ not_eq 48 * 2) {
-        std::cout << "funcall test result check failed!" << std::endl;
-        return L_NIL;
-    }
+//     if (get_op(0)->integer_.value_ not_eq 48 * 2) {
+//         std::cout << "funcall test result check failed!" << std::endl;
+//         return L_NIL;
+//     }
 
-    // if (bound_context->operand_stack_.size() not_eq 1) {
-    //     std::cout << "operand stack size check failed!" << std::endl;
-    //     return L_NIL;
-    // }
-
-
-    pop_op();
-
-    std::cout << "funcall test passed!" << std::endl;
-
-    return L_NIL;
-}
+//     // if (bound_context->operand_stack_.size() not_eq 1) {
+//     //     std::cout << "operand stack size check failed!" << std::endl;
+//     //     return L_NIL;
+//     // }
 
 
-static lisp::Value* arithmetic_test()
-{
-    using namespace lisp;
+//     pop_op();
 
-    push_op(make_integer(48));
-    push_op(make_integer(96));
-    funcall(get_var(make_symbol("-")->symbol_), 2);
+//     std::cout << "funcall test passed!" << std::endl;
 
-    L_EXPECT_OP(0, integer);
-
-    if (get_op(0)->integer_.value_ not_eq 48 - 96) {
-        std::cout << "bad arithmetic!" << std::endl;
-        return L_NIL;
-    }
-
-    std::cout << "arithmetic test passed!" << std::endl;
-
-    return L_NIL;
-}
+//     return L_NIL;
+// }
 
 
-static void intern_test()
-{
-    auto initial = lisp::intern("blah");
-    if (str_cmp("blah", initial) not_eq 0) {
-        std::cout << "interpreter intern failed" << std::endl;
-        return;
-    }
+// static lisp::Value* arithmetic_test()
+// {
+//     using namespace lisp;
 
-    // Intern some other junk. We want to re-intern the initial string (above),
-    // and make sure that we do not receive a non-matching pointer, which would
-    // indicate that we somehow have two copies of the string in the intern
-    // table.
-    if (str_cmp(lisp::intern("dskjflfs"), "dskjflfs") not_eq 0) {
-        std::cout << "intern failed" << std::endl;
-    }
+//     push_op(make_integer(48));
+//     push_op(make_integer(96));
+//     funcall(get_var(make_symbol("-")->symbol_), 2);
 
-    if (lisp::intern("blah") not_eq initial) {
-        std::cout << "string intern leak" << std::endl;
-        return;
-    }
+//     L_EXPECT_OP(0, integer);
 
-    std::cout << "intern test passed!" << std::endl;
-}
+//     if (get_op(0)->integer_.value_ not_eq 48 - 96) {
+//         std::cout << "bad arithmetic!" << std::endl;
+//         return L_NIL;
+//     }
+
+//     std::cout << "arithmetic test passed!" << std::endl;
+
+//     return L_NIL;
+// }
+
+
+// static void intern_test()
+// {
+//     auto initial = lisp::intern("blah");
+//     if (str_cmp("blah", initial) not_eq 0) {
+//         std::cout << "interpreter intern failed" << std::endl;
+//         return;
+//     }
+
+//     // Intern some other junk. We want to re-intern the initial string (above),
+//     // and make sure that we do not receive a non-matching pointer, which would
+//     // indicate that we somehow have two copies of the string in the intern
+//     // table.
+//     if (str_cmp(lisp::intern("dskjflfs"), "dskjflfs") not_eq 0) {
+//         std::cout << "intern failed" << std::endl;
+//     }
+
+//     if (lisp::intern("blah") not_eq initial) {
+//         std::cout << "string intern leak" << std::endl;
+//         return;
+//     }
+
+//     std::cout << "intern test passed!" << std::endl;
+// }
 
 class Printer : public lisp::Printer {
 public:
@@ -95,20 +95,20 @@ public:
 };
 
 
-void do_tests()
-{
-    auto lat = lisp::make_list(9);
+// void do_tests()
+// {
+//     auto lat = lisp::make_list(9);
 
-    lisp::set_var("L", lat);
-    lisp::set_list(lat, 4, lisp::make_integer(12));
+//     lisp::set_var("L", lat);
+//     lisp::set_list(lat, 4, lisp::make_integer(12));
 
-    Printer p;
-    lisp::format(lisp::get_list(lisp::get_var("L"), 4), p);
+//     Printer p;
+//     lisp::format(lisp::get_list(lisp::get_var("L"), 4), p);
 
-    intern_test();
-    function_test();
-    arithmetic_test();
-}
+//     intern_test();
+//     function_test();
+//     arithmetic_test();
+// }
 
 
 int main(int argc, char** argv)

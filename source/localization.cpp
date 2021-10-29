@@ -1088,7 +1088,7 @@ void locale_set_language(int language_id)
 // to use traditional chinese numbers rather than arabic numerals.
 const char* locale_repr_smallnum(u8 num, std::array<char, 40>& buffer)
 {
-    auto languages = lisp::get_var(lisp::make_symbol("languages")->symbol_);
+    auto languages = lisp::get_var(lisp::make_symbol("languages"));
 
     auto lang = lisp::get_list(languages, ::language_id);
 
@@ -1216,7 +1216,7 @@ int locale_get_language()
 
 StringBuffer<31> locale_language_name(int language)
 {
-    auto languages = lisp::get_var(lisp::make_symbol("languages")->symbol_);
+    auto languages = lisp::get_var(lisp::make_symbol("languages"));
 
     auto lang = lisp::get_list(languages, language);
 
@@ -1240,7 +1240,7 @@ LocalizedText locale_localized_language_name(Platform& pfrm, int language)
 
 bool locale_requires_doublesize_font()
 {
-    auto languages = lisp::get_var(lisp::make_symbol("languages")->symbol_);
+    auto languages = lisp::get_var(lisp::make_symbol("languages"));
 
     auto lang = lisp::get_list(languages, ::language_id);
 
@@ -1257,7 +1257,7 @@ LocalizedText locale_string(Platform& pfrm, LocaleString ls)
 {
     auto result = allocate_dynamic<LocalizedStrBuffer>(pfrm);
 
-    auto languages = lisp::get_var(lisp::make_symbol("languages")->symbol_);
+    auto languages = lisp::get_var(lisp::make_symbol("languages"));
 
     auto lang = lisp::get_list(languages, ::language_id);
 

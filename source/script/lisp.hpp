@@ -5,7 +5,7 @@
 // If defined, the system will use fixed pools, and will never call malloc.
 #define UNHOSTED
 #endif
-
+#define UNHOSTED
 
 
 #ifdef UNHOSTED
@@ -56,8 +56,9 @@ struct Symbol {
     enum class ModeBits {
         requires_intern,
         // If you create a symbol, while promising that the string pointer is
-        // stable, the string will _not_ be interned. This uses less memory, but
-        // should be used very carefully, and ONLY WITH STRING LITERALS.
+        // stable, the interpreter assumes that the string was previously
+        // inserted into the string intern table. It will not perform the
+        // slow lookup into the string intern memory region.
         stable_pointer,
     };
 
@@ -85,21 +86,9 @@ struct Character {
 };
 
 
-// NOTE: using compressed pointers significantly reduces the amount of memory
-// used for cons cells. This lisp interpreter runs with intentionally limited
-// memory, so we don't need a huge address space. We use four bits to represent
-// the pool that a value was allocated from, and twelve bits to represent the
-// byte offset into that memory pool. This gives us fifteen possible memory pools,
-// and a max offset of 4095 bytes.
 struct CompressedPtr {
 #ifdef USE_COMPRESSED_PTRS
-    static constexpr const int source_pool_bits = 4;
-    static constexpr const int offset_bits = 12;
-
-    static_assert(source_pool_bits + offset_bits == 16);
-
-    u16 source_pool_ : source_pool_bits;
-    u16 offset_ : offset_bits;
+    u16 offset_;
 #else
     void* ptr_;
 #endif // USE_COMPRESSED_PTRS
@@ -150,9 +139,14 @@ struct Function {
         CompressedPtr data_buffer_;
     };
 
+    struct LispFunction {
+        CompressedPtr code_;
+        CompressedPtr docstring_;
+    };
+
     union {
         CPP_Impl cpp_impl_;
-        CompressedPtr lisp_impl_;
+        LispFunction lisp_impl_;
         Bytecode bytecode_impl_;
     };
 
@@ -256,8 +250,24 @@ struct __Reserved {
 };
 
 
+struct HeapNode {
+    Value* next_;
+
+    static void finalizer(Value*)
+    {
+        // Should be unreachable.
+        while (true) ;
+    }
+};
+
+
 struct Value {
     enum Type {
+        // When a Value is deallocated, it is converted into a HeapNode, and
+        // inserted into a freelist. Therefore, we need no extra space to
+        // maintain the freelist.
+        heap_node,
+
         nil,
         integer,
         cons,
@@ -278,6 +288,7 @@ struct Value {
     u8 mode_bits_ : 2;
 
     union {
+        HeapNode heap_node_;
         Nil nil_;
         Integer integer_;
         Cons cons_;
@@ -343,6 +354,14 @@ struct Value {
 };
 
 
+struct IntegralConstant {
+    const char* const name_;
+    const int value_;
+};
+
+
+void set_constants(const IntegralConstant* array, u16 count);
+
 
 Value* make_function(Function::CPP_Impl impl);
 Value* make_cons(Value* car, Value* cdr);
@@ -378,6 +397,10 @@ void pop_op();
 Value* get_arg(u16 arg);
 
 
+Value* get_this();
+u8 get_argc();
+
+
 // Arguments should be pushed onto the operand stack prior to the function
 // call. The interpreter will consume the arguments, leaving the result on top
 // of the operand stack. i.e., use get_op(0) to read the result. Remember to
@@ -389,8 +412,8 @@ Value* get_arg(u16 arg);
 void funcall(Value* fn, u8 argc);
 
 
-Value* set_var(Symbol& sym, Value* value);
-Value* get_var(Symbol& sym);
+Value* set_var(Value* sym, Value* value);
+Value* get_var(Value* sym);
 
 
 // Provided for convenience.
@@ -401,7 +424,7 @@ inline Value* set_var(const char* name, Value* value)
         return var_sym;
     }
 
-    return set_var(var_sym->symbol_, value);
+    return set_var(var_sym, value);
 }
 
 
@@ -412,7 +435,13 @@ inline Value* get_var(const char* name)
         return var_sym;
     }
 
-    return get_var(var_sym->symbol_);
+    return get_var(var_sym);
+}
+
+
+template <typename T> T& loadv(const char* name)
+{
+    return get_var(name)->expect<T>();
 }
 
 
@@ -482,9 +511,20 @@ public:
 void format(Value* value, Printer& p);
 
 
+// Protected objects will not be collected until the Protected wrapper goes out
+// of scope.
 class Protected {
 public:
     Protected(Value* val);
+
+    Protected& operator=(Value* val)
+    {
+        val_ = val;
+        return *this;
+    }
+
+    Protected(const Protected&) = delete;
+    Protected(Protected&&) = delete;
 
     ~Protected();
 
@@ -504,6 +544,11 @@ public:
     }
 
     operator Value*()
+    {
+        return val_;
+    }
+
+    Value* operator->()
     {
         return val_;
     }
