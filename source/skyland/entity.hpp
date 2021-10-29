@@ -116,9 +116,7 @@ public:
                 return pl->get();
             }
         }
-        while (true) {
-            // Fixme: raise error...
-        }
+        return nullptr;
     }
 
 
