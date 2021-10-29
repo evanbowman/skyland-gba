@@ -87,7 +87,9 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
         auto e = app.alloc_entity<SmokePuff>(
             pfrm, rng::sample<48>(pos, rng::utility_state), 61);
 
-        app.effects().push(std::move(e));
+        if (e) {
+            app.effects().push(std::move(e));
+        }
     };
 
     flak_smoke(pfrm, app, sprite_.get_position());

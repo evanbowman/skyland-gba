@@ -103,7 +103,7 @@ public:
         // effects, and allocating again. This should free up enough space...
         effects().clear();
 
-       auto e = ::skyland::alloc_entity<T>(std::forward<Args>(args)...);
+        auto e = ::skyland::alloc_entity<T>(std::forward<Args>(args)...);
         if (not e) {
             error(pfrm, "entity pool exhausted");
         }
