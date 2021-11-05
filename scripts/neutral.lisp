@@ -18,13 +18,13 @@
 (set 'avail-levels ;; list of unvisited levels
      (filter
       (lambda
-        (set 'temp (arg 0))
+        (set 'temp $0)
         (not (length (filter
-                      (lambda (equal temp (arg 0)))
+                      (lambda (equal temp $0))
                       friendlies-seen))))
       (gen
        (get '(4 4 2 1) (zone)) ;; number of levels to select from based on current zone
-       (lambda (arg 0)))))
+       (lambda $0))))
 
 
 (if (equal (length avail-levels) 1)

@@ -35,7 +35,7 @@ void vm_execute(Value* code_buffer, const int start_offset)
 
     using namespace instruction;
 
- TOP:
+TOP:
     while (true) {
 
         switch ((Opcode)code.data_[pc]) {
@@ -79,6 +79,14 @@ void vm_execute(Value* code_buffer, const int start_offset)
         case Dup::op(): {
             read<Dup>(code, pc);
             push_op(get_op(0));
+            break;
+        }
+
+        case Not::op(): {
+            read<Not>(code, pc);
+            auto input = get_op(0);
+            pop_op();
+            push_op(make_integer(not is_boolean_true(input)));
             break;
         }
 
@@ -138,7 +146,8 @@ void vm_execute(Value* code_buffer, const int start_offset)
                     // The isn't really anything preventing a variadic function
                     // from being executed recursively with a different number
                     // of args, right? So maybe shouldn't be isn't an error...
-                    while (true) ;
+                    while (true)
+                        ;
                 }
 
                 if (argc == 0) {
@@ -146,9 +155,7 @@ void vm_execute(Value* code_buffer, const int start_offset)
                     goto TOP;
                 } else {
                     // TODO: perform TCO for N-arg function
-                    while (true) {
-                        // ...
-                    }
+                    funcall(fn, argc);
                 }
 
             } else {
@@ -170,7 +177,8 @@ void vm_execute(Value* code_buffer, const int start_offset)
                 if (get_argc() not_eq 1) {
                     // TODO: raise error: attempted recursive call with
                     // different number of args than current function.
-                    while (true) ;
+                    while (true)
+                        ;
                 }
 
                 pop_op(); // function on stack
@@ -200,7 +208,8 @@ void vm_execute(Value* code_buffer, const int start_offset)
                 if (get_argc() not_eq 2) {
                     // TODO: raise error: attempted recursive call with
                     // different number of args than current function.
-                    while (true) ;
+                    while (true)
+                        ;
                 }
 
                 pop_op(); // function on stack
@@ -232,7 +241,8 @@ void vm_execute(Value* code_buffer, const int start_offset)
                 auto arg2 = get_op(3);
 
                 if (get_argc() not_eq 3) {
-                    while (true) ;
+                    while (true)
+                        ;
                 }
 
                 pop_op(); // function on stack
@@ -298,6 +308,24 @@ void vm_execute(Value* code_buffer, const int start_offset)
             break;
         }
 
+        case Arg0::op(): {
+            read<Arg0>(code, pc);
+            push_op(get_arg(0));
+            break;
+        }
+
+        case Arg1::op(): {
+            read<Arg1>(code, pc);
+            push_op(get_arg(1));
+            break;
+        }
+
+        case Arg2::op(): {
+            read<Arg2>(code, pc);
+            push_op(get_arg(2));
+            break;
+        }
+
         case MakePair::op(): {
             read<MakePair>(code, pc);
             auto car = get_op(1);
@@ -338,6 +366,7 @@ void vm_execute(Value* code_buffer, const int start_offset)
             pop_op();
             break;
 
+        case EarlyRet::op():
         case Ret::op():
             return;
 

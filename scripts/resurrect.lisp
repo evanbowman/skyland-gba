@@ -17,15 +17,15 @@
 ;; the y-axis).
 (set 'max-x 0)
 (map (lambda
-       (if (> (get (arg 0) 1) max-x)
-           (set 'max-x (get (arg 0) 1))))
+       (if (> (get $0 1) max-x)
+           (set 'max-x (get $0 1))))
      temp)
 
 
 ;; Flip the room (the enemy must face the player)
 (set 'temp
      (map (lambda
-            (list (get (arg 0) 0)
-                  (- highest (get (arg 0) 1))
-                  (get (arg 0) 2)))
+            (list (get $0 0)
+                  (- highest (get $0 1))
+                  (get $0 2)))
           temp))

@@ -19,14 +19,14 @@
 
 (let ((avail-levels (filter
                      (lambda
-                       (set 'temp (arg 0))
+                       (set 'temp $0)
                        (not (length (filter
-                                     (lambda (equal temp (arg 0)))
+                                     (lambda (equal temp $0))
                                      enemies-seen))))
                      (gen
                       (get '(8 6 6 1) (zone)) ;; number of levels to select from
                                               ;; based on current zone
-                      (lambda (arg 0)))))
+                      (lambda $0))))
       (lv-num (get avail-levels (choice (length avail-levels)))))
 
   ;; Ok, so if we're at the point where we've exhausted all of the possible

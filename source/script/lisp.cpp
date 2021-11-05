@@ -1,13 +1,13 @@
 #include "lisp.hpp"
 #include "bulkAllocator.hpp"
 #include "bytecode.hpp"
+#include "listBuilder.hpp"
 #include "localization.hpp"
 #include "memory/buffer.hpp"
 #include "memory/pool.hpp"
 #include <complex>
-#include "listBuilder.hpp"
 #ifdef __GBA__
-#define HEAP_DATA  __attribute__((section(".ewram")))
+#define HEAP_DATA __attribute__((section(".ewram")))
 #else
 #define HEAP_DATA
 #endif
@@ -75,7 +75,6 @@ void value_pool_free(Value* value)
     value->heap_node_.next_ = value_pool;
     value_pool = value;
 }
-
 
 
 struct Context {
@@ -348,7 +347,6 @@ static Value* globals_tree_find(Value* key)
 }
 
 
-
 void set_constants(const IntegralConstant* constants, u16 count)
 {
     if (not bound_context) {
@@ -406,10 +404,9 @@ void get_env(::Function<24, void(const char*)> callback)
 {
     auto& ctx = bound_context;
 
-    globals_tree_traverse(ctx->globals_tree_,
-                          [&callback] (Value& val, Value&) {
-                              callback((const char*)val.cons_.car()->symbol_.name_);
-                          });
+    globals_tree_traverse(ctx->globals_tree_, [&callback](Value& val, Value&) {
+        callback((const char*)val.cons_.car()->symbol_.name_);
+    });
 
     for (u16 i = 0; i < bound_context->constants_count_; ++i) {
         callback((const char*)bound_context->constants_[i].name_);
@@ -417,12 +414,11 @@ void get_env(::Function<24, void(const char*)> callback)
 }
 
 
-// Only meant to be called by lisp functions
 Value* get_arg(u16 n)
 {
     auto br = bound_context->arguments_break_loc_;
     auto argc = bound_context->current_fn_argc_;
-    if (br + n < bound_context->operand_stack_->size()) {
+    if (br >= ((argc - 1) - n)) {
         return dcompr((*bound_context->operand_stack_)[br - ((argc - 1) - n)]);
     } else {
         return get_nil();
@@ -530,7 +526,6 @@ static Value* alloc_value()
 
     return nullptr;
 }
-
 
 
 Value* make_function(Function::CPP_Impl impl)
@@ -945,6 +940,15 @@ Value* get_var_stable(const char* intern_str)
 
 Value* get_var(Value* symbol)
 {
+    if (symbol->symbol_.name_[0] == '$') {
+        s32 argn = 0;
+        for (u32 i = 1; symbol->symbol_.name_[i] not_eq '\0'; ++i) {
+            argn = argn * 10 + (symbol->symbol_.name_[i] - '0');
+        }
+
+        return get_arg(argn);
+    }
+
     auto found = globals_tree_find(symbol);
 
     if (found->type_ not_eq Value::Type::error) {
@@ -1065,7 +1069,8 @@ void format_impl(Value* value, Printer& p, int depth)
     switch ((lisp::Value::Type)value->type_) {
     case lisp::Value::Type::heap_node:
         // We should never reach here.
-        while (true) ;
+        while (true)
+            ;
         break;
 
     case lisp::Value::Type::nil:
@@ -1161,7 +1166,6 @@ const char* String::value()
 {
     return dcompr(data_buffer_)->data_buffer_.value()->data_ + offset_;
 }
-
 
 
 void format(Value* value, Printer& p)
@@ -1273,12 +1277,11 @@ static void gc_mark()
         gc_mark_value(dcompr(elem));
     }
 
-    globals_tree_traverse(ctx->globals_tree_,
-                          [](Value& car, Value& node) {
-                              node.mark_bit_ = true;
-                              node.cons_.cdr()->mark_bit_ = true;
-                              gc_mark_value(&car);
-                          });
+    globals_tree_traverse(ctx->globals_tree_, [](Value& car, Value& node) {
+        node.mark_bit_ = true;
+        node.cons_.cdr()->mark_bit_ = true;
+        gc_mark_value(&car);
+    });
 
     gc_mark_value(ctx->this_);
 
@@ -2231,17 +2234,14 @@ void init(Platform& pfrm)
 
                 lat.push_front(make_stat("vars", [&] {
                     int symb_tab_used = 0;
-                    globals_tree_traverse(ctx->globals_tree_,
-                                          [&symb_tab_used](Value&, Value&) {
-                                              ++symb_tab_used;
-                                          });
+                    globals_tree_traverse(
+                        ctx->globals_tree_,
+                        [&symb_tab_used](Value&, Value&) { ++symb_tab_used; });
                     return symb_tab_used;
                 }()));
 
-                lat.push_front(
-                    make_stat("stk", ctx->operand_stack_->size()));
-                lat.push_front(
-                    make_stat("internb", ctx->string_intern_pos_));
+                lat.push_front(make_stat("stk", ctx->operand_stack_->size()));
+                lat.push_front(make_stat("internb", ctx->string_intern_pos_));
                 lat.push_front(make_stat("free", values_remaining));
 
                 int databuffers = 0;
@@ -2344,8 +2344,8 @@ void init(Platform& pfrm)
 
                 auto found = globals_tree_find(get_op(0));
                 return make_integer(found not_eq get_nil() and
-                                    found->type_
-                                    not_eq lisp::Value::Type::error);
+                                    found->type_ not_eq
+                                        lisp::Value::Type::error);
             }));
 
 
@@ -2587,9 +2587,8 @@ void init(Platform& pfrm)
                 return bound_context->globals_tree_;
             }));
 
-    set_var("this", make_function([](int argc) {
-                return bound_context->this_;
-            }));
+    set_var("this",
+            make_function([](int argc) { return bound_context->this_; }));
 
     set_var("argc", make_function([](int argc) {
                 // NOTE: This works because native functions do not assign
@@ -2619,23 +2618,22 @@ void init(Platform& pfrm)
                 return result;
             }));
 
-    set_var("compile", make_function([](int argc) {
-                auto pfrm = interp_get_pfrm();
+    set_var(
+        "compile", make_function([](int argc) {
+            auto pfrm = interp_get_pfrm();
 
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, function);
+            L_EXPECT_ARGC(argc, 1);
+            L_EXPECT_OP(0, function);
 
-                if (get_op(0)->mode_bits_ ==
-                    Function::ModeBits::lisp_function) {
-                    compile(*pfrm, dcompr(get_op(0)
-                                          ->function_.lisp_impl_.code_));
-                    auto ret = get_op(0);
-                    pop_op();
-                    return ret;
-                } else {
-                    return get_op(0);
-                }
-            }));
+            if (get_op(0)->mode_bits_ == Function::ModeBits::lisp_function) {
+                compile(*pfrm, dcompr(get_op(0)->function_.lisp_impl_.code_));
+                auto ret = get_op(0);
+                pop_op();
+                return ret;
+            } else {
+                return get_op(0);
+            }
+        }));
 
     set_var(
         "disassemble", make_function([](int argc) {
@@ -2678,7 +2676,8 @@ void init(Platform& pfrm)
                     case LoadVar::op():
                         i += 1;
                         out += "LOAD_VAR(";
-                        out += symbol_from_offset(((HostInteger<s16>*)(data->data_ + i))->get());
+                        out += symbol_from_offset(
+                            ((HostInteger<s16>*)(data->data_ + i))->get());
                         out += ")";
                         i += 2;
                         break;
@@ -2777,6 +2776,21 @@ void init(Platform& pfrm)
                         i += sizeof(Arg);
                         break;
 
+                    case Arg0::op():
+                        out += Arg0::name();
+                        i += sizeof(Arg0);
+                        break;
+
+                    case Arg1::op():
+                        out += Arg1::name();
+                        i += sizeof(Arg1);
+                        break;
+
+                    case Arg2::op():
+                        out += Arg2::name();
+                        i += sizeof(Arg2);
+                        break;
+
                     case TailCall::op():
                         out += TailCall::name();
                         out += "(";
@@ -2839,6 +2853,11 @@ void init(Platform& pfrm)
                         i += 1;
                         break;
 
+                    case Not::op():
+                        out += Not::name();
+                        i += sizeof(Not);
+                        break;
+
                     case First::op():
                         out += First::name();
                         i += sizeof(First);
@@ -2852,6 +2871,11 @@ void init(Platform& pfrm)
                     case Dup::op():
                         out += Dup::name();
                         i += 1;
+                        break;
+
+                    case EarlyRet::op():
+                        out += EarlyRet::name();
+                        i += sizeof(EarlyRet);
                         break;
 
                     case Ret::op(): {
@@ -2887,8 +2911,8 @@ void init(Platform& pfrm)
                 DefaultPrinter p;
                 format(expression_list, p);
 
-                interp_get_pfrm()->remote_console().printline(
-                            p.fmt_.c_str(), false);
+                interp_get_pfrm()->remote_console().printline(p.fmt_.c_str(),
+                                                              false);
                 interp_get_pfrm()->sleep(80);
                 return get_nil();
 

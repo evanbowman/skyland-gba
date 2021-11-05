@@ -8,15 +8,15 @@
 (lambda
   (eval-other-file "reset_hooks.lisp")
 
-  (terrain (player) (get (arg 0) 5))
+  (terrain (player) (get $0 5))
 
   (configure-player
    (player)
-   (get (arg 0) 0)) ;; list of rooms in list index zero
+   (get $0 0)) ;; list of rooms in list index zero
 
   (map
    (lambda
-     (set 'temp (arg 0))
+     (set 'temp $0)
 
      (add-chr (player)
               (get temp 0) ;; x
@@ -28,9 +28,9 @@
 
      (if (> (length temp) 2)
          (chr-hp (player) (get temp 0) (get temp 1) (get temp 2))))
-   (get (arg 0) 1)) ;; list of characters in list index one
+   (get $0 1)) ;; list of characters in list index one
 
-  (set 'enemies-seen (get (arg 0) 2))
-  (set 'frendlies-seen (get (arg 0) 3))
+  (set 'enemies-seen (get $0 2))
+  (set 'frendlies-seen (get $0 3))
 
-  (set 'last-zone (get (arg 0) 4)))
+  (set 'last-zone (get $0 4)))
