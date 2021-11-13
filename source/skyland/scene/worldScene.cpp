@@ -6,12 +6,12 @@
 #include "number/random.hpp"
 #include "platform/platform.hpp"
 #include "scriptHookScene.hpp"
+#include "setGamespeedScene.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/birbs/smolBirb.hpp"
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "setGamespeedScene.hpp"
 
 
 
@@ -329,8 +329,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.dialog_buffer().reset();
         const bool answer = app.dialog_expects_answer();
         app.dialog_expects_answer() = false;
-        return scene_pool::alloc<BoxedDialogScene>(std::move(buffer),
-                                                   answer);
+        return scene_pool::alloc<BoxedDialogScene>(std::move(buffer), answer);
     }
 
 

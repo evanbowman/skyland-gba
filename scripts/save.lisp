@@ -7,11 +7,10 @@
 
 
 (list
- (rooms (player))
- (chrs (player))
- enemies-seen
- friendlies-seen
- last-zone
- (terrain (player))
- 0 ;; save protocol version.
- )
+ (cons 'save-protocol 1)
+ (cons 'rooms (rooms (player)))
+ (cons 'chrs (chrs (player)))
+ (cons 'enemies-seen enemies-seen)
+ (cons 'friendlies-seen friendlies-seen)
+ (cons 'last-zone last-zone)
+ (cons 'terrain (terrain (player))))

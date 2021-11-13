@@ -14,7 +14,7 @@ namespace skyland {
 
 
 FlakGun::FlakGun(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(125))
+    : Room(parent, name(), size(), position, Health(full_health()))
 {
 }
 
@@ -51,8 +51,8 @@ void FlakGun::update(Platform& pfrm, App& app, Microseconds delta)
 
                 auto target = room->center();
 
-                if (not pfrm.network_peer().is_connected() and not
-                    app.tutorial_mode()) {
+                if (not pfrm.network_peer().is_connected() and
+                    not app.tutorial_mode()) {
                     target = rng::sample<6>(target, rng::critical_state);
                 }
 

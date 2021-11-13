@@ -1,7 +1,6 @@
 #include "autopilotPlayer.hpp"
-#include "skyland.hpp"
 #include "localization.hpp"
-
+#include "skyland.hpp"
 
 
 
@@ -9,8 +8,7 @@ namespace skyland {
 
 
 
-AutopilotPlayer::AutopilotPlayer(lisp::Value* keys_list) :
-    keys_list_(keys_list)
+AutopilotPlayer::AutopilotPlayer(lisp::Value* keys_list) : keys_list_(keys_list)
 {
     for (auto& s : prev_) {
         s = false;
@@ -19,7 +17,6 @@ AutopilotPlayer::AutopilotPlayer(lisp::Value* keys_list) :
     for (auto& s : states_) {
         s = false;
     }
-
 }
 
 
@@ -115,25 +112,26 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         auto first = ((lisp::Value*)keys_list_);
-        if (first->type_ == lisp::Value::Type::cons) {
-            auto current = first->cons_.car();
-            if (current->type_ == lisp::Value::Type::cons) {
-                auto tm = current->cons_.car();
-                if (tm->type_ == lisp::Value::Type::integer) {
-                    next_key_timeout_ = milliseconds(tm->integer_.value_);
+        if (first->type() == lisp::Value::Type::cons) {
+            auto current = first->cons().car();
+            if (current->type() == lisp::Value::Type::cons) {
+                auto tm = current->cons().car();
+                if (tm->type() == lisp::Value::Type::integer) {
+                    next_key_timeout_ = milliseconds(tm->integer().value_);
                 } else {
                     pfrm.fatal("invalid autopilot list format");
                 }
 
-                current = current->cons_.cdr();
-                if (current->type_ == lisp::Value::Type::cons) {
-                    auto key = current->cons_.car();
-                    if (key->type_ == lisp::Value::Type::symbol) {
-                        const char* name = key->symbol_.name_;
+                current = current->cons().cdr();
+                if (current->type() == lisp::Value::Type::cons) {
+                    auto key = current->cons().car();
+                    if (key->type() == lisp::Value::Type::symbol) {
+                        const char* name = key->symbol().name_;
                         next_timeout_key_ = button_name_to_key(name);
-                    } else if (key->type_ == lisp::Value::Type::string) {
-                        app.dialog_buffer().emplace(allocate_dynamic<DialogString>(pfrm));
-                        **app.dialog_buffer() += key->string_.value();
+                    } else if (key->type() == lisp::Value::Type::string) {
+                        app.dialog_buffer().emplace(
+                            allocate_dynamic<DialogString>(pfrm));
+                        **app.dialog_buffer() += key->string().value();
                     }
                 } else {
                     pfrm.fatal("invalid autopilot list format");
@@ -143,7 +141,7 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.fatal("invalid autopilot list format");
             }
 
-            keys_list_.set(first->cons_.cdr());
+            keys_list_.set(first->cons().cdr());
         } else {
             app.exit_level() = true;
         }
@@ -173,4 +171,4 @@ bool AutopilotPlayer::key_pressed(Platform&, Key k)
 
 
 
-}
+} // namespace skyland

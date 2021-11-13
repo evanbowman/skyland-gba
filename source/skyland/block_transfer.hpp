@@ -1,9 +1,9 @@
 #pragma once
 
 
-#include "network.hpp"
 #include "bitvector.hpp"
 #include "bulkAllocator.hpp"
+#include "network.hpp"
 
 
 
@@ -18,7 +18,6 @@ namespace skyland {
 
 class BlockTransferListener : public network::Listener {
 public:
-
     void receive(Platform&,
                  App&,
                  const network::packet::BlockTransferStart& packet) override
@@ -75,4 +74,4 @@ void block_transfer_receive(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

@@ -12,6 +12,14 @@ namespace skyland {
 
 
 
+static Coins salvage_value(Room& room)
+{
+    return ((*room.metaclass())->cost() * salvage_factor) *
+           (Float(room.health()) / (*room.metaclass())->full_health());
+}
+
+
+
 void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
@@ -36,7 +44,7 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
                     exit_countdown_ = 1;
                 }
             }
-            text += to_string<10>((*mt)->cost() * salvage_factor);
+            text += to_string<10>(salvage_value(*room));
         } else {
             text += "0";
         }
@@ -118,9 +126,8 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // all of the characters inside.
                 if (length(room->characters()) == 0) {
 
-                    if (auto mt = room->metaclass()) {
-                        app.coins() += (*mt)->cost() * salvage_factor;
-                    }
+                    app.coins() += salvage_value(*room);
+
                     app.player_island().destroy_room(pfrm, cursor_loc);
                     exit_countdown_ = milliseconds(500);
 

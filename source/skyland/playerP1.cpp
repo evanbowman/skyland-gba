@@ -1,7 +1,7 @@
 #include "playerP1.hpp"
-#include "skyland.hpp"
 #include "localization.hpp"
 #include "room_metatable.hpp"
+#include "skyland.hpp"
 
 
 
@@ -75,11 +75,19 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-
 void PlayerP1::on_room_destroyed(Platform& pfrm, App& app, Room& room)
 {
-    if (room.parent() == &app.player_island()) {
+    if (room.parent() not_eq &app.player_island()) {
         app.score().set(app.score().get() + (*room.metaclass())->cost());
+    }
+}
+
+
+
+void PlayerP1::on_room_plundered(Platform& pfrm, App& app, Room& room)
+{
+    if (room.parent() not_eq &app.player_island()) {
+        app.score().set(app.score().get() + 1.2f * (*room.metaclass())->cost());
     }
 }
 
@@ -106,4 +114,4 @@ bool PlayerP1::key_pressed(Platform& pfrm, Key k)
 
 
 
-}
+} // namespace skyland

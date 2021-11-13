@@ -1,15 +1,15 @@
 #include "titleScreenScene.hpp"
+#include "loadModuleScene.hpp"
+#include "module.hpp"
 #include "multiplayerConnectScene.hpp"
 #include "newgameScene.hpp"
 #include "script/lisp.hpp"
 #include "selectChallengeScene.hpp"
-#include "loadModuleScene.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/birbs/smolBirb.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
-#include "module.hpp"
 
 
 
@@ -172,7 +172,7 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-static const char* menu_text[4] {
+static const char* menu_text[4]{
     "adventure",
     "challenge",
     "multiplayer",
@@ -203,10 +203,9 @@ void TitleScreenScene::put_module_text(Platform& pfrm)
     const auto len = utf8::len(buffer.c_str());
 
     auto margin = centered_text_margins(pfrm, buffer.length());
-    text_.emplace(
-        pfrm,
-        buffer.c_str(),
-        OverlayCoord{u8(st.x - (len + margin)), u8(st.y - 2)});
+    text_.emplace(pfrm,
+                  buffer.c_str(),
+                  OverlayCoord{u8(st.x - (len + margin)), u8(st.y - 2)});
 }
 
 
@@ -224,10 +223,9 @@ void TitleScreenScene::put_menu_text(Platform& pfrm)
     const auto len = utf8::len(buffer.c_str());
 
     auto margin = centered_text_margins(pfrm, buffer.length());
-    text_.emplace(
-        pfrm,
-        buffer.c_str(),
-        OverlayCoord{u8(st.x - (len + margin + 1)), u8(st.y - 2)});
+    text_.emplace(pfrm,
+                  buffer.c_str(),
+                  OverlayCoord{u8(st.x - (len + margin + 1)), u8(st.y - 2)});
 
     menu_selection_start_ = margin + 1 + prefix_len + (len % 2 ? 1 : 0);
     menu_selection_stop_ = margin + 1 + buffer.length() + (len % 2 ? 1 : 0);
@@ -272,7 +270,6 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.set_scroll(Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
             pfrm.set_scroll(Layer::map_0_ext, x_scroll_, -offset + 8);
         }
-
     }
 
 
@@ -548,9 +545,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
 
-            pfrm.screen().fade(
-                0.7f - 0.7f * amount, ColorConstant::rich_black, {}, true, true);
-
+            pfrm.screen().fade(0.7f - 0.7f * amount,
+                               ColorConstant::rich_black,
+                               {},
+                               true,
+                               true);
         }
         break;
     }
@@ -563,8 +562,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             show_module_icons(pfrm, 0);
             state_ = State::show_modules;
 
-            pfrm.screen().fade(
-                0.7f, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().fade(0.7f, ColorConstant::rich_black, {}, true, true);
 
             module_cursor_ = {0, 0};
 
@@ -575,7 +573,6 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             pfrm.screen().fade(
                 0.7f * amount, ColorConstant::rich_black, {}, true, true);
-
         }
         break;
     }
@@ -598,19 +595,23 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             module_cursor_.reset();
         }
         if (module_cursor_) {
-            if (app.player().key_down(pfrm, Key::right) and module_cursor_->x < 2) {
+            if (app.player().key_down(pfrm, Key::right) and
+                module_cursor_->x < 2) {
                 module_cursor_->x += 1;
                 put_module_text(pfrm);
             }
-            if (app.player().key_down(pfrm, Key::left) and module_cursor_->x > 0) {
+            if (app.player().key_down(pfrm, Key::left) and
+                module_cursor_->x > 0) {
                 module_cursor_->x -= 1;
                 put_module_text(pfrm);
             }
-            if (app.player().key_down(pfrm, Key::up) and module_cursor_->y > 0) {
+            if (app.player().key_down(pfrm, Key::up) and
+                module_cursor_->y > 0) {
                 module_cursor_->y -= 1;
                 put_module_text(pfrm);
             }
-            if (app.player().key_down(pfrm, Key::down) and module_cursor_->y < 1) {
+            if (app.player().key_down(pfrm, Key::down) and
+                module_cursor_->y < 1) {
                 module_cursor_->y += 1;
                 put_module_text(pfrm);
             }
@@ -619,7 +620,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 auto index = module_cursor_->x + module_cursor_->y * 3;
                 if (auto f = detail::_Module::Factory::get(index)) {
                     pfrm.fill_overlay(0);
-                    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+                    pfrm.screen().fade(
+                        1.f, ColorConstant::rich_black, {}, true, true);
                     pfrm.speaker().stop_music();
                     return f->create(pfrm);
                 }
@@ -672,7 +674,8 @@ void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
 
             for (int x = 0; x < 6; ++x) {
                 for (int y = 0; y < 6; ++y) {
-                    pfrm.set_tile(Layer::overlay, x_start + x, y_start + y, 470);
+                    pfrm.set_tile(
+                        Layer::overlay, x_start + x, y_start + y, 470);
                 }
             }
 
@@ -683,9 +686,9 @@ void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
 
             auto icon = alloc_icon();
             pfrm.load_overlay_chunk(icon, f->icon(), 16);
-            draw_image(pfrm, icon, x_start + 1, y_start + 1, 4, 4, Layer::overlay);
+            draw_image(
+                pfrm, icon, x_start + 1, y_start + 1, 4, 4, Layer::overlay);
         }
-
     };
 
     for (int x = 0; x < 3; ++x) {
@@ -693,7 +696,6 @@ void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
             show_icon(x, y);
         }
     }
-
 }
 
 
@@ -736,36 +738,35 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         sprite.set_priority(0);
 
 
-        sprite.set_position({
-                28 + 64.f * module_cursor_->x + (selector_shaded_ ? 1 : 0),
-                ambient_movement_ + 60 + 8 + 64.f * module_cursor_->y + (selector_shaded_ ? 1 : 0)
-            });
+        sprite.set_position(
+            {28 + 64.f * module_cursor_->x + (selector_shaded_ ? 1 : 0),
+             ambient_movement_ + 60 + 8 + 64.f * module_cursor_->y +
+                 (selector_shaded_ ? 1 : 0)});
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({true, false});
-        sprite.set_position({
-                83 + 64.f * module_cursor_->x - (selector_shaded_ ? 1 : 0),
-                ambient_movement_ + 60 + 8 + 64.f * module_cursor_->y + (selector_shaded_ ? 1 : 0)
-            });
+        sprite.set_position(
+            {83 + 64.f * module_cursor_->x - (selector_shaded_ ? 1 : 0),
+             ambient_movement_ + 60 + 8 + 64.f * module_cursor_->y +
+                 (selector_shaded_ ? 1 : 0)});
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({false, true});
-        sprite.set_position({
-                28 + 64.f * module_cursor_->x + (selector_shaded_ ? 1 : 0),
-                ambient_movement_ + 60 + 8 + 64.f * module_cursor_->y + 40 - (selector_shaded_ ? 1 : 0)
-            });
+        sprite.set_position(
+            {28 + 64.f * module_cursor_->x + (selector_shaded_ ? 1 : 0),
+             ambient_movement_ + 60 + 8 + 64.f * module_cursor_->y + 40 -
+                 (selector_shaded_ ? 1 : 0)});
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({true, true});
-        sprite.set_position({
-                83 + 64.f * module_cursor_->x - (selector_shaded_ ? 1 : 0),
-                ambient_movement_ + 60 + 8 + 64.f * module_cursor_->y + 40 - (selector_shaded_ ? 1 : 0)
-            });
+        sprite.set_position(
+            {83 + 64.f * module_cursor_->x - (selector_shaded_ ? 1 : 0),
+             ambient_movement_ + 60 + 8 + 64.f * module_cursor_->y + 40 -
+                 (selector_shaded_ ? 1 : 0)});
         pfrm.screen().draw(sprite);
-
     }
 }
 

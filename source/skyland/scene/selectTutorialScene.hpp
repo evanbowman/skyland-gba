@@ -2,9 +2,9 @@
 
 
 #include "graphics/overlay.hpp"
+#include "module.hpp"
 #include "script/lisp.hpp"
 #include "skyland/scene.hpp"
-#include "module.hpp"
 
 
 

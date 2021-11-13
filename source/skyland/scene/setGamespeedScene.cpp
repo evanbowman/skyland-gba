@@ -1,7 +1,7 @@
 #include "setGamespeedScene.hpp"
-#include "skyland/skyland.hpp"
 #include "readyScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-ScenePtr<Scene> SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::right)) {
         selection_++;
@@ -69,49 +70,28 @@ void SetGamespeedScene::repaint_selector(Platform& pfrm)
 
         pfrm.set_tile(Layer::overlay, start - i * 2, 3, 119);
         pfrm.set_tile(Layer::overlay, start - i * 2 + 1, 3, 119);
-
     }
 
-    pfrm.set_tile(Layer::overlay,
-                  (st.x - 5) - 2 * ((int)GameSpeed::count - 1),
-                  1,
-                  424);
+    pfrm.set_tile(
+        Layer::overlay, (st.x - 5) - 2 * ((int)GameSpeed::count - 1), 1, 424);
 
 
-    pfrm.set_tile(Layer::overlay,
-                  (st.x - 5) - 2 * ((int)GameSpeed::count - 1),
-                  2,
-                  128);
+    pfrm.set_tile(
+        Layer::overlay, (st.x - 5) - 2 * ((int)GameSpeed::count - 1), 2, 128);
 
 
-    pfrm.set_tile(Layer::overlay,
-                  (st.x - 1),
-                  1,
-                  423);
+    pfrm.set_tile(Layer::overlay, (st.x - 1), 1, 423);
 
 
-    pfrm.set_tile(Layer::overlay,
-                  (st.x - 1),
-                  2,
-                  433);
+    pfrm.set_tile(Layer::overlay, (st.x - 1), 2, 433);
 
     // divider
-    pfrm.set_tile(Layer::overlay,
-                  (st.x - 4),
-                  1,
-                  379);
+    pfrm.set_tile(Layer::overlay, (st.x - 4), 1, 379);
 
 
-    pfrm.set_tile(Layer::overlay,
-                  (st.x - 4),
-                  2,
-                  379);
+    pfrm.set_tile(Layer::overlay, (st.x - 4), 2, 379);
 
-    pfrm.set_tile(Layer::overlay,
-                  (st.x - 4),
-                  3,
-                  119);
-
+    pfrm.set_tile(Layer::overlay, (st.x - 4), 3, 119);
 }
 
 
@@ -125,4 +105,4 @@ void SetGamespeedScene::exit(Platform& pfrm, App& app, Scene&)
 
 
 
-}
+} // namespace skyland

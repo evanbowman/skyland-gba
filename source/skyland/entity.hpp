@@ -2,14 +2,14 @@
 
 
 
+#include "bulkAllocator.hpp"
 #include "graphics/sprite.hpp"
 #include "health.hpp"
 #include "hitbox.hpp"
 #include "list.hpp"
+#include "memory/buffer.hpp"
 #include "number/numeric.hpp"
 #include <memory>
-#include "memory/buffer.hpp"
-#include "bulkAllocator.hpp"
 
 
 
@@ -98,7 +98,8 @@ public:
     static const auto pool_count = entity_pool_size / entities_per_pool;
 
 
-    using EntityPool = Pool<max_entity_size, entities_per_pool, entity_pool_align>;
+    using EntityPool =
+        Pool<max_entity_size, entities_per_pool, entity_pool_align>;
 
 
     void init(Platform& pfrm)

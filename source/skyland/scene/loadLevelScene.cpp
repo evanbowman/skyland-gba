@@ -54,8 +54,8 @@ void prep_level(Platform& pfrm, App& app)
     app.player().rooms_built_ = 0;
     app.player().rooms_lost_ = 0;
 
-    app.persistent_data().score_
-        .set(std::max((s32)0, app.persistent_data().score_.get()));
+    app.persistent_data().score_.set(
+        std::max((s32)0, app.persistent_data().score_.get()));
 
 
     if (app.opponent_island()) {
@@ -72,13 +72,13 @@ void prep_level(Platform& pfrm, App& app)
 
         for (auto& room : app.opponent_island()->rooms()) {
             if (app.zone() < 2) {
-                app.victory_coins() += 0.35f * (*room->metaclass())->cost();
+                app.victory_coins() += 0.55f * (*room->metaclass())->cost();
             } else if (app.zone() < 3) {
-                app.victory_coins() += 0.27f * (*room->metaclass())->cost();
+                app.victory_coins() += 0.45f * (*room->metaclass())->cost();
             } else if (app.zone() < 4) {
-                app.victory_coins() += 0.22f * (*room->metaclass())->cost();
+                app.victory_coins() += 0.3f * (*room->metaclass())->cost();
             } else {
-                app.victory_coins() += 0.10f * (*room->metaclass())->cost();
+                app.victory_coins() += 0.2f * (*room->metaclass())->cost();
             }
         }
 

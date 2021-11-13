@@ -29,4 +29,4 @@ ScenePtr<Scene> detail::_Module::load(Platform& pfrm, const char* name)
 
 
 
-}
+} // namespace skyland

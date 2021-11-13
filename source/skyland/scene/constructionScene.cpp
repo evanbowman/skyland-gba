@@ -49,7 +49,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_down(pfrm, Key::alt_2) or
-        (state_ == State::select_loc and app.player().key_down(pfrm, Key::action_2))) {
+        (state_ == State::select_loc and
+         app.player().key_down(pfrm, Key::action_2))) {
         auto& cursor_loc =
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
         if (not construction_sites_.empty()) {
@@ -77,8 +78,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             cursor_loc.y = construction_sites_[selector_].y;
         }
 
-        if (app.player().key_down(pfrm, Key::action_1)
-            and not construction_sites_.empty()) {
+        if (app.player().key_down(pfrm, Key::action_1) and
+            not construction_sites_.empty()) {
 
             if (construction_sites_[selector_].y == 15) {
                 // Special case: we want to add to the terrain level, not

@@ -1,9 +1,8 @@
 #pragma once
 
 
-#include "skyland/scene/module.hpp"
 #include "skyland/flag.hpp"
-
+#include "skyland/scene/module.hpp"
 
 
 
@@ -36,7 +35,6 @@ public:
 
 
 private:
-
     Microseconds cursor_move_tic_ = 0;
 
     bool ready_ = false;
@@ -57,4 +55,4 @@ private:
 
 
 
-}
+} // namespace skyland

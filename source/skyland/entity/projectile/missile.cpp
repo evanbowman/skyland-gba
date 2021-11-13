@@ -25,18 +25,26 @@ Missile::Missile(const Vec2<Float>& position,
 }
 
 
-
 void Missile::update(Platform& pfrm, App& app, Microseconds delta)
 {
     timer_ += delta;
 
+    // FIXME: Most entities in the game do not move far enough offscreen for the
+    // gba's sprite display wrapping to be a problem. But for this particular
+    // missile projectile, I threw in this little hack. Really, we should be
+    // creating a bounding box for the view and testing intersection with the
+    // missile entity. TODO. Unitl then...
+    if (sprite_.get_position().y < 450) {
+        sprite_.set_alpha(Sprite::Alpha::transparent);
+    } else {
+        sprite_.set_alpha(Sprite::Alpha::opaque);
+    }
 
     switch (state_) {
     case State::rising: {
         if (timer_ > milliseconds(400)) {
             timer_ = 0;
             state_ = State::wait;
-            sprite_.set_alpha(Sprite::Alpha::transparent);
         }
         auto pos = sprite_.get_position();
         pos.y -= delta * 0.0003f;
@@ -50,13 +58,12 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::falling;
             auto pos = sprite_.get_position();
             pos.x = target_x_;
-            if (not pfrm.network_peer().is_connected() and not
-                app.tutorial_mode()) {
+            if (not pfrm.network_peer().is_connected() and
+                not app.tutorial_mode()) {
                 pos.x = rng::sample<5>(pos.x, rng::critical_state);
             }
             sprite_.set_position(pos);
             sprite_.set_flip({false, true});
-            sprite_.set_alpha(Sprite::Alpha::opaque);
         }
         break;
 

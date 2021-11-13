@@ -29,7 +29,8 @@ static void audio_buffer_cp_music(AudioBuffer* mixing_buffer)
 {
     if (UNLIKELY(snd_ctx.music_track_pos + AudioBuffer::sample_count >=
                  snd_ctx.music_track_length)) {
-        const auto first_batch = snd_ctx.music_track_length - snd_ctx.music_track_pos;
+        const auto first_batch =
+            snd_ctx.music_track_length - snd_ctx.music_track_pos;
         memcpy32(mixing_buffer->samples_,
                  ((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos,
                  first_batch);

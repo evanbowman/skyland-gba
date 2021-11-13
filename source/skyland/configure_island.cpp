@@ -15,7 +15,7 @@ void configure_island(Platform& pfrm,
 
     lisp::foreach (island_desc_lat, [&](lisp::Value* val) {
         auto name_symb = lisp::get_list(val, 0);
-        if (name_symb->type_ not_eq lisp::Value::Type::symbol) {
+        if (name_symb->type() not_eq lisp::Value::Type::symbol) {
             return;
         }
 
@@ -23,17 +23,17 @@ void configure_island(Platform& pfrm,
 
 
         if (len >= 3) {
-            u8 x = lisp::get_list(val, 1)->integer_.value_;
-            u8 y = lisp::get_list(val, 2)->integer_.value_;
+            u8 x = lisp::get_list(val, 1)->integer().value_;
+            u8 y = lisp::get_list(val, 2)->integer().value_;
 
-            if (auto c = load_metaclass(name_symb->symbol_.name_)) {
+            if (auto c = load_metaclass(name_symb->symbol().name_)) {
                 (*c)->create(pfrm, &island, Vec2<u8>{x, y});
             }
 
             // Optionally, the schema for saving rooms will include a health
             // parameter.
             if (len >= 4) {
-                const auto health = lisp::get_list(val, 3)->integer_.value_;
+                const auto health = lisp::get_list(val, 3)->integer().value_;
                 if (auto room = island.get_room({x, y})) {
                     room->set_health(health);
                 }

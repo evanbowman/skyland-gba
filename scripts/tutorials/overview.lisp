@@ -45,7 +45,7 @@
    (1365 Right)
    (1032 B)
    (1133 L)
-   (9000 nil)
+   (9400 nil)
    (100 "Looks like we took some damage. You can see the health of a room by hovering over it with your cursor.")
    (584 L)
    (1549 Left)

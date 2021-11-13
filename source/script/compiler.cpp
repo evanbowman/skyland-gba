@@ -6,7 +6,7 @@
 namespace lisp {
 
 
-Value* make_bytecode_function(Value* buffer);
+Value* make_bytecode_function(Value* bytecode);
 
 
 u16 symbol_offset(const char* symbol);
@@ -43,23 +43,27 @@ int compile_lambda(ScratchBuffer& buffer,
                    Value* code,
                    int jump_offset)
 {
+    bool first = true;
+
     auto lat = code;
     while (lat not_eq get_nil()) {
-        if (lat->type_ not_eq Value::Type::cons) {
+        if (lat->type() not_eq Value::Type::cons) {
             // error...
             break;
         }
 
-        if (write_pos not_eq 0) {
+        if (not first) {
             append<instruction::Pop>(buffer, write_pos);
+        } else {
+            first = false;
         }
 
-        bool tail_expr = lat->cons_.cdr() == get_nil();
+        bool tail_expr = lat->cons().cdr() == get_nil();
 
         write_pos = compile_impl(
-            buffer, write_pos, lat->cons_.car(), jump_offset, tail_expr);
+            buffer, write_pos, lat->cons().car(), jump_offset, tail_expr);
 
-        lat = lat->cons_.cdr();
+        lat = lat->cons().cdr();
     }
 
     append<instruction::Ret>(buffer, write_pos);
@@ -73,24 +77,24 @@ int compile_quoted(ScratchBuffer& buffer,
                    Value* code,
                    bool tail_expr)
 {
-    if (code->type_ == Value::Type::integer) {
+    if (code->type() == Value::Type::integer) {
         write_pos = compile_impl(buffer, write_pos, code, 0, tail_expr);
-    } else if (code->type_ == Value::Type::symbol) {
+    } else if (code->type() == Value::Type::symbol) {
         auto inst = append<instruction::PushSymbol>(buffer, write_pos);
-        inst->name_offset_.set(symbol_offset(code->symbol_.name_));
-    } else if (code->type_ == Value::Type::cons) {
+        inst->name_offset_.set(symbol_offset(code->symbol().name_));
+    } else if (code->type() == Value::Type::cons) {
 
         int list_len = 0;
 
         while (code not_eq get_nil()) {
-            if (code->type_ not_eq Value::Type::cons) {
+            if (code->type() not_eq Value::Type::cons) {
                 // ...
                 break;
             }
-            write_pos =
-                compile_quoted(buffer, write_pos, code->cons_.car(), tail_expr);
+            write_pos = compile_quoted(
+                buffer, write_pos, code->cons().car(), tail_expr);
 
-            code = code->cons_.cdr();
+            code = code->cons().cdr();
 
             list_len++;
 
@@ -109,40 +113,105 @@ int compile_quoted(ScratchBuffer& buffer,
 }
 
 
+int compile_let(ScratchBuffer& buffer,
+                int write_pos,
+                Value* code,
+                int jump_offset,
+                bool tail_expr)
+{
+    if (code->type() not_eq Value::Type::cons) {
+        while (true)
+            ;
+        // TODO: raise error
+    }
+
+    append<instruction::LexicalFramePush>(buffer, write_pos);
+
+    foreach (code->cons().car(), [&](Value* val) {
+        if (val->type() == Value::Type::cons) {
+            auto sym = val->cons().car();
+            auto bind = val->cons().cdr();
+            if (sym->type() == Value::Type::symbol and
+                bind->type() == Value::Type::cons) {
+
+                write_pos = compile_impl(
+                    buffer, write_pos, bind->cons().car(), jump_offset, false);
+
+                auto inst = append<instruction::LexicalDef>(buffer, write_pos);
+                inst->name_offset_.set(symbol_offset(sym->symbol().name_));
+            }
+        }
+    })
+        ;
+
+    code = code->cons().cdr();
+
+    while (code not_eq get_nil()) {
+
+        bool tail = tail_expr and code->cons().cdr() == get_nil();
+
+        write_pos = compile_impl(
+            buffer, write_pos, code->cons().car(), jump_offset, tail);
+
+        code = code->cons().cdr();
+    }
+
+    append<instruction::LexicalFramePop>(buffer, write_pos);
+
+    return write_pos;
+}
+
+
 int compile_impl(ScratchBuffer& buffer,
                  int write_pos,
                  Value* code,
                  int jump_offset,
                  bool tail_expr)
 {
-    if (code->type_ == Value::Type::nil) {
+    if (code->type() == Value::Type::nil) {
 
         append<instruction::PushNil>(buffer, write_pos);
 
-    } else if (code->type_ == Value::Type::integer) {
+    } else if (code->type() == Value::Type::integer) {
 
-        if (code->integer_.value_ == 0) {
+        if (code->integer().value_ == 0) {
             append<instruction::Push0>(buffer, write_pos);
-        } else if (code->integer_.value_ == 1) {
+        } else if (code->integer().value_ == 1) {
             append<instruction::Push1>(buffer, write_pos);
-        } else if (code->integer_.value_ == 2) {
+        } else if (code->integer().value_ == 2) {
             append<instruction::Push2>(buffer, write_pos);
-        } else if (code->integer_.value_ < 127 and
-                   code->integer_.value_ > -127) {
+        } else if (code->integer().value_ < 127 and
+                   code->integer().value_ > -127) {
 
             append<instruction::PushSmallInteger>(buffer, write_pos)->value_ =
-                code->integer_.value_;
+                code->integer().value_;
 
         } else {
             append<instruction::PushInteger>(buffer, write_pos)
-                ->value_.set(code->integer_.value_);
+                ->value_.set(code->integer().value_);
         }
-    } else if (code->type_ == Value::Type::symbol) {
+    } else if (code->type() == Value::Type::string) {
+        const auto str = code->string().value();
+        const auto len = str_len(str);
+        append<instruction::PushString>(buffer, write_pos)->length_ = len + 1;
 
-        if (code->symbol_.name_[0] == '$') {
+        if (write_pos + len + 1 >= SCRATCH_BUFFER_SIZE) {
+            while (true)
+                ;
+        }
+
+        for (u32 i = 0; i < len; ++i) {
+            *(buffer.data_ + write_pos++) = str[i];
+        }
+
+        *(buffer.data_ + write_pos++) = '\0';
+
+    } else if (code->type() == Value::Type::symbol) {
+
+        if (code->symbol().name_[0] == '$') {
             s32 argn = 0;
-            for (u32 i = 1; code->symbol_.name_[i] not_eq '\0'; ++i) {
-                argn = argn * 10 + (code->symbol_.name_[i] - '0');
+            for (u32 i = 1; code->symbol().name_[i] not_eq '\0'; ++i) {
+                argn = argn * 10 + (code->symbol().name_[i] - '0');
             }
 
             switch (argn) {
@@ -167,42 +236,45 @@ int compile_impl(ScratchBuffer& buffer,
 
         } else {
             append<instruction::LoadVar>(buffer, write_pos)
-                ->name_offset_.set(symbol_offset(code->symbol_.name_));
+                ->name_offset_.set(symbol_offset(code->symbol().name_));
         }
 
-    } else if (code->type_ == Value::Type::cons) {
+    } else if (code->type() == Value::Type::cons) {
 
         auto lat = code;
 
-        auto fn = lat->cons_.car();
+        auto fn = lat->cons().car();
 
-        if (fn->type_ == Value::Type::symbol and
-            str_cmp(fn->symbol_.name_, "let") == 0) {
+        if (fn->type() == Value::Type::symbol and
+            str_cmp(fn->symbol().name_, "let") == 0) {
 
-            while (true)
-                ; // TODO: implement compilation for let
-        } else if (fn->type_ == Value::Type::symbol and
-                   str_cmp(fn->symbol_.name_, "if") == 0) {
+            write_pos = compile_let(
+                buffer, write_pos, lat->cons().cdr(), jump_offset, tail_expr);
 
-            lat = lat->cons_.cdr();
-            if (lat->type_ not_eq Value::Type::cons) {
+        } else if (fn->type() == Value::Type::symbol and
+                   str_cmp(fn->symbol().name_, "if") == 0) {
+
+            lat = lat->cons().cdr();
+            if (lat->type() not_eq Value::Type::cons) {
                 while (true)
                     ; // TODO: raise error!
             }
 
             write_pos = compile_impl(
-                buffer, write_pos, lat->cons_.car(), jump_offset, false);
+                buffer, write_pos, lat->cons().car(), jump_offset, false);
 
             auto jne = append<instruction::JumpIfFalse>(buffer, write_pos);
 
             auto true_branch = get_nil();
             auto false_branch = get_nil();
 
-            if (lat->cons_.cdr()->type_ == Value::Type::cons) {
-                true_branch = lat->cons_.cdr()->cons_.car();
+            if (lat->cons().cdr()->type() == Value::Type::cons) {
+                true_branch = lat->cons().cdr()->cons().car();
 
-                if (lat->cons_.cdr()->cons_.cdr()->type_ == Value::Type::cons) {
-                    false_branch = lat->cons_.cdr()->cons_.cdr()->cons_.car();
+                if (lat->cons().cdr()->cons().cdr()->type() ==
+                    Value::Type::cons) {
+                    false_branch =
+                        lat->cons().cdr()->cons().cdr()->cons().car();
                 }
             }
 
@@ -218,12 +290,12 @@ int compile_impl(ScratchBuffer& buffer,
 
             jmp->offset_.set(write_pos - jump_offset);
 
-        } else if (fn->type_ == Value::Type::symbol and
-                   str_cmp(fn->symbol_.name_, "lambda") == 0) {
+        } else if (fn->type() == Value::Type::symbol and
+                   str_cmp(fn->symbol().name_, "lambda") == 0) {
 
-            lat = lat->cons_.cdr();
+            lat = lat->cons().cdr();
 
-            if (lat->type_ not_eq Value::Type::cons) {
+            if (lat->type() not_eq Value::Type::cons) {
                 while (true)
                     ; // TODO: raise error!
             }
@@ -233,7 +305,7 @@ int compile_impl(ScratchBuffer& buffer,
             // TODO: compile multiple nested expressions! FIXME... pretty broken.
             write_pos = compile_impl(buffer,
                                      write_pos,
-                                     lat->cons_.car(),
+                                     lat->cons().car(),
                                      jump_offset + write_pos,
                                      false);
 
@@ -241,27 +313,27 @@ int compile_impl(ScratchBuffer& buffer,
 
             lambda->lambda_end_.set(write_pos - jump_offset);
 
-        } else if (fn->type_ == Value::Type::symbol and
-                   str_cmp(fn->symbol_.name_, "'") == 0) {
+        } else if (fn->type() == Value::Type::symbol and
+                   str_cmp(fn->symbol().name_, "'") == 0) {
 
             write_pos =
-                compile_quoted(buffer, write_pos, lat->cons_.cdr(), tail_expr);
+                compile_quoted(buffer, write_pos, lat->cons().cdr(), tail_expr);
         } else {
             u8 argc = 0;
 
-            lat = lat->cons_.cdr();
+            lat = lat->cons().cdr();
 
             // Compile each function arument
             while (lat not_eq get_nil()) {
-                if (lat->type_ not_eq Value::Type::cons) {
+                if (lat->type() not_eq Value::Type::cons) {
                     // ...
                     break;
                 }
 
                 write_pos = compile_impl(
-                    buffer, write_pos, lat->cons_.car(), jump_offset, false);
+                    buffer, write_pos, lat->cons().car(), jump_offset, false);
 
-                lat = lat->cons_.cdr();
+                lat = lat->cons().cdr();
 
                 argc++;
 
@@ -272,32 +344,32 @@ int compile_impl(ScratchBuffer& buffer,
                 }
             }
 
-            if (fn->type_ == Value::Type::symbol and
-                str_cmp(fn->symbol_.name_, "cons") == 0 and argc == 2) {
+            if (fn->type() == Value::Type::symbol and
+                str_cmp(fn->symbol().name_, "cons") == 0 and argc == 2) {
 
                 append<instruction::MakePair>(buffer, write_pos);
 
-            } else if (fn->type_ == Value::Type::symbol and
-                       str_cmp(fn->symbol_.name_, "car") == 0 and argc == 1) {
+            } else if (fn->type() == Value::Type::symbol and
+                       str_cmp(fn->symbol().name_, "car") == 0 and argc == 1) {
 
                 append<instruction::First>(buffer, write_pos);
 
-            } else if (fn->type_ == Value::Type::symbol and
-                       str_cmp(fn->symbol_.name_, "cdr") == 0 and argc == 1) {
+            } else if (fn->type() == Value::Type::symbol and
+                       str_cmp(fn->symbol().name_, "cdr") == 0 and argc == 1) {
 
                 append<instruction::Rest>(buffer, write_pos);
 
-            } else if (fn->type_ == Value::Type::symbol and
-                       str_cmp(fn->symbol_.name_, "arg") == 0 and argc == 1) {
+            } else if (fn->type() == Value::Type::symbol and
+                       str_cmp(fn->symbol().name_, "arg") == 0 and argc == 1) {
 
                 append<instruction::Arg>(buffer, write_pos);
 
-            } else if (fn->type_ == Value::Type::symbol and
-                       str_cmp(fn->symbol_.name_, "this") == 0 and argc == 0) {
+            } else if (fn->type() == Value::Type::symbol and
+                       str_cmp(fn->symbol().name_, "this") == 0 and argc == 0) {
                 append<instruction::PushThis>(buffer, write_pos);
 
-            } else if (fn->type_ == Value::Type::symbol and
-                       str_cmp(fn->symbol_.name_, "not") == 0 and argc == 1) {
+            } else if (fn->type() == Value::Type::symbol and
+                       str_cmp(fn->symbol().name_, "not") == 0 and argc == 1) {
                 append<instruction::Not>(buffer, write_pos);
             } else {
 
@@ -625,22 +697,26 @@ void compile(Platform& pfrm, Value* code)
 {
     // We will be rendering all of our compiled code into this buffer.
     push_op(make_databuffer(pfrm));
+    if (get_op(0)->type() not_eq Value::Type::data_buffer) {
+        return;
+    }
 
-    if (get_op(0)->type_ not_eq Value::Type::data_buffer) {
+    push_op(make_cons(make_integer(0), get_op(0)));
+    if (get_op(0)->type() not_eq Value::Type::cons) {
         return;
     }
 
     auto fn = make_bytecode_function(get_op(0));
-    if (fn->type_ not_eq Value::Type::function) {
+    if (fn->type() not_eq Value::Type::function) {
+        pop_op();
         pop_op();
         auto err = fn;
         push_op(err);
         return;
     }
 
-    fn->function_.bytecode_impl_.bc_offset_ = 0;
-
-    auto buffer = get_op(0)->data_buffer_.value();
+    pop_op();
+    auto buffer = get_op(0)->data_buffer().value();
     pop_op();
     push_op(fn);
 
@@ -651,8 +727,7 @@ void compile(Platform& pfrm, Value* code)
     write_pos = compile_lambda(*buffer, write_pos, code, 0);
 
     write_pos = PeepholeOptimizer().run(
-        *dcompr(fn->function_.bytecode_impl_.data_buffer_)
-             ->data_buffer_.value(),
+        *fn->function().bytecode_impl_.databuffer()->data_buffer().value(),
         write_pos);
 
     // std::cout << "compilation finished, bytes used: " << write_pos << std::endl;
@@ -671,13 +746,13 @@ void compile(Platform& pfrm, Value* code)
             return;
         }
 
-        if (fn not_eq &val and val.type_ == Value::Type::function and
-            val.mode_bits_ == Function::ModeBits::lisp_bytecode_function) {
+        if (fn not_eq &val and val.type() == Value::Type::function and
+            val.hdr_.mode_bits_ == Function::ModeBits::lisp_bytecode_function) {
 
-            auto buf = dcompr(val.function_.bytecode_impl_.data_buffer_);
+            auto buf = val.function().bytecode_impl_.databuffer();
             int used = SCRATCH_BUFFER_SIZE - 1;
             for (; used > 0; --used) {
-                if ((Opcode)buf->data_buffer_.value()->data_[used] not_eq
+                if ((Opcode)buf->data_buffer().value()->data_[used] not_eq
                     instruction::Fatal::op()) {
                     ++used;
                     break;
@@ -694,15 +769,16 @@ void compile(Platform& pfrm, Value* code)
                 //           << " bytes to dest buffer offset "
                 //           << used;
 
-                auto src_buffer =
-                    dcompr(fn->function_.bytecode_impl_.data_buffer_);
+                auto src_buffer = fn->function().bytecode_impl_.databuffer();
                 for (int i = 0; i < bytes_used; ++i) {
-                    buf->data_buffer_.value()->data_[used + i] =
-                        src_buffer->data_buffer_.value()->data_[i];
+                    buf->data_buffer().value()->data_[used + i] =
+                        src_buffer->data_buffer().value()->data_[i];
                 }
 
-                fn->function_.bytecode_impl_.bc_offset_ = used;
-                fn->function_.bytecode_impl_.data_buffer_ = compr(buf);
+                Protected used_bytes(make_integer(used));
+
+                fn->function().bytecode_impl_.bytecode_ =
+                    compr(make_cons(used_bytes, buf));
             }
         }
     });

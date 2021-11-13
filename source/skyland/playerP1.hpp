@@ -17,6 +17,9 @@ public:
     void on_room_destroyed(Platform& pfrm, App& app, Room& room) override;
 
 
+    void on_room_plundered(Platform& pfrm, App& app, Room& room) override;
+
+
     bool key_down(Platform&, Key k) override;
 
 
@@ -28,9 +31,8 @@ public:
 
 private:
     Microseconds last_key_ = 0;
-
 };
 
 
 
-}
+} // namespace skyland

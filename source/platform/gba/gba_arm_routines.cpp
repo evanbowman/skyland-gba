@@ -49,7 +49,8 @@ static int audio_buffer_read_index = 0;
 
 IWRAM_CODE void audio_update_isr()
 {
-    REG_SGFIFOA = audio_buffers[audio_front_buffer].samples_[audio_buffer_read_index++];
+    REG_SGFIFOA =
+        audio_buffers[audio_front_buffer].samples_[audio_buffer_read_index++];
 
     if (UNLIKELY(audio_buffer_read_index >= AudioBuffer::sample_count)) {
         audio_buffer_read_index = 0;
@@ -57,7 +58,4 @@ IWRAM_CODE void audio_update_isr()
         audio_front_buffer = (audio_front_buffer + 1) % audio_buffer_count;
     }
 }
-
-
-
 }

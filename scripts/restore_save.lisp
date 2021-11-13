@@ -8,29 +8,30 @@
 (lambda
   (eval-other-file "reset_hooks.lisp")
 
-  (terrain (player) (get $0 5))
+  (let ((data $0))
+    (let ((load (lambda (cdr (assoc $0 data)))))
 
-  (configure-player
-   (player)
-   (get $0 0)) ;; list of rooms in list index zero
+      (if (equal (load 'save-protocol) 1)
+          (progn
+            (terrain (player) (load 'terrain))
 
-  (map
-   (lambda
-     (set 'temp $0)
+            (configure-player (player) (load 'rooms))
 
-     (add-chr (player)
-              (get temp 0) ;; x
-              (get temp 1) ;; y
-              'neutral
-              (if (> (length temp) 3)
-                  (get temp 3) ;; 1/0 possibly in this index if chr is replicant
-                0))
+            (map
+             (lambda
+               (add-chr (player)
+                        (get $0 0) ;; x
+                        (get $0 1) ;; y
+                        'neutral
+                        (if (> (length $0) 3)
+                            (get $0 3) ;; 1/0 possibly in this index if chr is replicant
+                          0))
 
-     (if (> (length temp) 2)
-         (chr-hp (player) (get temp 0) (get temp 1) (get temp 2))))
-   (get $0 1)) ;; list of characters in list index one
+               (if (> (length $0) 2)
+                   (chr-hp (player) (get $0 0) (get $0 1) (get $0 2))))
+             (load 'chrs))
 
-  (set 'enemies-seen (get $0 2))
-  (set 'frendlies-seen (get $0 3))
+            (set 'enemies-seen (load 'enemies-seen))
+            (set 'frendlies-seen (load 'friendlies-seen))
 
-  (set 'last-zone (get $0 4)))
+            (set 'last-zone (load 'last-zone)))))))

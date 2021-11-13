@@ -1,8 +1,8 @@
 #include "hintScene.hpp"
 #include "platform/platform.hpp"
 #include "skyland/scene_pool.hpp"
-#include "worldMapScene.hpp"
 #include "skyland/skyland.hpp"
+#include "worldMapScene.hpp"
 
 
 
@@ -59,9 +59,7 @@ void HintScene::exit(Platform& pfrm, App&, Scene& next)
 }
 
 
-ScenePtr<Scene> HintScene::update(Platform& pfrm,
-                                  App& app,
-                                  Microseconds delta)
+ScenePtr<Scene> HintScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     switch (state_) {
     case State::scene_intro: {

@@ -5,10 +5,10 @@
 
 
 typedef enum {
-    multi_PlayerId_host    = (1 << 0),
-    multi_PlayerId_p1      = (1 << 1),
-    multi_PlayerId_p2      = (1 << 2),
-    multi_PlayerId_p3      = (1 << 3),
+    multi_PlayerId_host = (1 << 0),
+    multi_PlayerId_p1 = (1 << 1),
+    multi_PlayerId_p2 = (1 << 2),
+    multi_PlayerId_p3 = (1 << 3),
     multi_PlayerId_unknown = (1 << 4)
 } multi_PlayerId;
 
@@ -68,21 +68,17 @@ static void multi_connect_check_device_ready(int* connection_mask,
 
 static void multi_connect_check_devices(int* connection_mask)
 {
-    multi_connect_check_device_ready(connection_mask,
-                                     REG_SIOMULTI0,
-                                     multi_PlayerId_host);
+    multi_connect_check_device_ready(
+        connection_mask, REG_SIOMULTI0, multi_PlayerId_host);
 
-    multi_connect_check_device_ready(connection_mask,
-                                     REG_SIOMULTI1,
-                                     multi_PlayerId_p1);
+    multi_connect_check_device_ready(
+        connection_mask, REG_SIOMULTI1, multi_PlayerId_p1);
 
-    multi_connect_check_device_ready(connection_mask,
-                                     REG_SIOMULTI2,
-                                     multi_PlayerId_p2);
+    multi_connect_check_device_ready(
+        connection_mask, REG_SIOMULTI2, multi_PlayerId_p2);
 
-    multi_connect_check_device_ready(connection_mask,
-                                     REG_SIOMULTI3,
-                                     multi_PlayerId_p3);
+    multi_connect_check_device_ready(
+        connection_mask, REG_SIOMULTI3, multi_PlayerId_p3);
 }
 
 
@@ -194,7 +190,8 @@ void read_dlc(Platform& pfrm)
         while (1) {
             REG_SIOMLT_SEND = MULTI_DEVICE_READY;
 
-            while (!sio_got_intr) ; // Wait for serial interrupt.
+            while (!sio_got_intr)
+                ; // Wait for serial interrupt.
             sio_got_intr = 0;
 
             // If we've received a start command from the master, now let's set
@@ -213,5 +210,4 @@ void read_dlc(Platform& pfrm)
 
 
     info(pfrm, receive_data.c_str());
-
 }

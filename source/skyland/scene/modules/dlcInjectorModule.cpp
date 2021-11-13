@@ -14,4 +14,4 @@ namespace skyland {
 // DlcInjectorModule::Factory DlcInjectorModule::factory_;
 
 
-}
+} // namespace skyland

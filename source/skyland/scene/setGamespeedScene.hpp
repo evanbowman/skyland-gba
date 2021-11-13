@@ -18,7 +18,6 @@ public:
 
 
 private:
-
     void repaint_selector(Platform& pfrm);
 
     int selection_ = 0;
@@ -26,4 +25,4 @@ private:
 
 
 
-}
+} // namespace skyland

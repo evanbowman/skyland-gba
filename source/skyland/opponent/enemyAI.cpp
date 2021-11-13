@@ -729,8 +729,7 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     if (highest_weighted_room) {
-        if (not app.tutorial_mode() and
-            visible_rooms.size() > 1 and
+        if (not app.tutorial_mode() and visible_rooms.size() > 1 and
             rng::choice<4>(rng::utility_state) == 0) {
             silo.set_target(visible_rooms[rng::choice(visible_rooms.size(),
                                                       rng::utility_state)]
@@ -808,8 +807,8 @@ void EnemyAI::set_target(Platform& pfrm,
         }
     }
 
-    if (not app.tutorial_mode() and
-        visible_rooms.size() > 1 and rng::choice<3>(rng::utility_state) == 0) {
+    if (not app.tutorial_mode() and visible_rooms.size() > 1 and
+        rng::choice<3>(rng::utility_state) == 0) {
         highest_weighted_room = visible_rooms[1].room_;
     }
 
@@ -855,7 +854,8 @@ void EnemyAI::set_target(Platform& pfrm,
 
     // Potentially attack the second highest weighted visible room, just to keep
     // things interesting.
-    if (not app.tutorial_mode() and visible_rooms.size() > 1 and rng::choice<3>(rng::utility_state) == 0) {
+    if (not app.tutorial_mode() and visible_rooms.size() > 1 and
+        rng::choice<3>(rng::utility_state) == 0) {
         highest_weighted_room = visible_rooms[1];
     }
 

@@ -42,7 +42,11 @@ public:
 
     virtual void on_room_destroyed(Platform& pfrm, App& app, Room& room)
     {
-        ++rooms_lost_;
+    }
+
+
+    virtual void on_room_plundered(Platform& pfrm, App& app, Room& room)
+    {
     }
 
 

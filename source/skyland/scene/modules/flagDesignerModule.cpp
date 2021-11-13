@@ -1,11 +1,10 @@
 #include "flagDesignerModule.hpp"
 #include "platform/platform.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/configure_island.hpp"
-#include "skyland/scene_pool.hpp"
-#include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/save.hpp"
-
+#include "skyland/scene/titleScreenScene.hpp"
+#include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -30,8 +29,10 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
 
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
-            pfrm.set_tile(Layer::overlay, x + canvas_start_x, y + canvas_start_y, 492);
-            pfrm.set_palette(Layer::overlay, x + canvas_start_x, y + canvas_start_y, 0);
+            pfrm.set_tile(
+                Layer::overlay, x + canvas_start_x, y + canvas_start_y, 492);
+            pfrm.set_palette(
+                Layer::overlay, x + canvas_start_x, y + canvas_start_y, 0);
         }
     }
 
@@ -57,7 +58,8 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     app.player_island().init_terrain(pfrm, 4);
-    configure_island_from_codestring(pfrm, app.player_island(), "'((power-core 1 13))");
+    configure_island_from_codestring(
+        pfrm, app.player_island(), "'((power-core 1 13))");
 
     app.player_island().repaint(pfrm);
     app.player_island().set_position({152, 370});
@@ -96,10 +98,10 @@ void FlagDesignerModule::show(Platform& pfrm, App& app)
     for (int y = 0; y < 11; ++y) {
         for (int x = 0; x < 13; ++x) {
             const auto t = palette_[app.gp_.flag_img_.pixels[x][y]];
-            pfrm.set_tile(Layer::overlay,
-                          x + canvas_start_x, y + canvas_start_y, t);
-            pfrm.set_palette(Layer::overlay,
-                             x + canvas_start_x, y + canvas_start_y, 0);
+            pfrm.set_tile(
+                Layer::overlay, x + canvas_start_x, y + canvas_start_y, t);
+            pfrm.set_palette(
+                Layer::overlay, x + canvas_start_x, y + canvas_start_y, 0);
         }
     }
 
@@ -108,9 +110,8 @@ void FlagDesignerModule::show(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene> FlagDesignerModule::update(Platform& pfrm,
-                                           App& app,
-                                           Microseconds delta)
+ScenePtr<Scene>
+FlagDesignerModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::alt_1)) {
         color_--;
@@ -241,9 +242,9 @@ void FlagDesignerModule::display(Platform& pfrm, App& app)
     Sprite sprite;
     sprite.set_size(Sprite::Size::w16_h32);
     sprite.set_position({
-            -8 + cursor_.x * 8.f + 8 * canvas_start_x,
-            2 + cursor_.y * 8.f + 8 * canvas_start_y + view_shift,
-        });
+        -8 + cursor_.x * 8.f + 8 * canvas_start_x,
+        2 + cursor_.y * 8.f + 8 * canvas_start_y + view_shift,
+    });
 
     sprite.set_texture_index(62);
     sprite.set_priority(0);
@@ -251,10 +252,7 @@ void FlagDesignerModule::display(Platform& pfrm, App& app)
 
 
     sprite.set_texture_index(63);
-    sprite.set_position({
-            4 + color_ * 8.f,
-            128 + view_shift
-        });
+    sprite.set_position({4 + color_ * 8.f, 128 + view_shift});
     pfrm.screen().draw(sprite);
 }
 
@@ -264,4 +262,4 @@ FlagDesignerModule::Factory FlagDesignerModule::factory_;
 
 
 
-}
+} // namespace skyland

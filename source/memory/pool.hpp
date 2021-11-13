@@ -18,18 +18,18 @@ public:
         Cell* next_;
     };
 
-    #ifdef POOL_USE_HEAP
+#ifdef POOL_USE_HEAP
     using Cells = std::vector<Cell>;
-    #else
+#else
     using Cells = std::array<Cell, count>;
-    #endif
+#endif
 
 
     Pool() : freelist_(nullptr)
     {
-        #ifdef POOL_USE_HEAP
+#ifdef POOL_USE_HEAP
         cells_.resize(count);
-        #endif
+#endif
 
         for (decltype(count) i = 0; i < count; ++i) {
             Cell* next = &cells_[i];

@@ -1,4 +1,6 @@
 #include "alloc_entity.hpp"
+#include "autopilotPlayer.hpp"
+#include "bulkAllocator.hpp"
 #include "configure_island.hpp"
 #include "opponent/friendlyAI.hpp"
 #include "room_metatable.hpp"
@@ -8,8 +10,6 @@
 #include "script/listBuilder.hpp"
 #include "serial.hpp"
 #include "skyland.hpp"
-#include "bulkAllocator.hpp"
-#include "autopilotPlayer.hpp"
 
 
 
@@ -42,9 +42,8 @@ std::pair<App*, Platform*> interp_get_context()
 using FileLine = StringBuffer<1980>;
 
 
-DynamicMemory<FileLine> get_line_from_file(Platform& pfrm,
-                                           const char* file_name,
-                                           int line)
+DynamicMemory<FileLine>
+get_line_from_file(Platform& pfrm, const char* file_name, int line)
 {
     --line; // From the caller's perspective, file lines start from 1.
 
@@ -92,7 +91,7 @@ void App::init_scripts(Platform& pfrm)
                       L_EXPECT_OP(0, string);
 
                       if (auto pfrm = lisp::interp_get_pfrm()) {
-                          debug(*pfrm, lisp::get_op(0)->string_.value());
+                          debug(*pfrm, lisp::get_op(0)->string().value());
                       }
 
                       return L_NIL;
@@ -134,7 +133,7 @@ void App::init_scripts(Platform& pfrm)
                         allocate_dynamic<DialogString>(*pfrm));
                 }
 
-                if (lisp::get_op(i)->type_ not_eq lisp::Value::Type::string) {
+                if (lisp::get_op(i)->type() not_eq lisp::Value::Type::string) {
                     if (lisp::get_op((i)) == L_NIL) {
                         return lisp::get_op((i));
                     } else {
@@ -143,7 +142,7 @@ void App::init_scripts(Platform& pfrm)
                     }
                 }
 
-                **app->dialog_buffer() += lisp::get_op(i)->string_.value();
+                **app->dialog_buffer() += lisp::get_op(i)->string().value();
             }
 
             return L_NIL;
@@ -156,7 +155,7 @@ void App::init_scripts(Platform& pfrm)
 
                       auto pfrm = lisp::interp_get_pfrm();
 
-                      auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
+                      auto island = (Island*)lisp::get_op(0)->user_data().obj_;
                       auto result = serialize(*pfrm, *island);
                       lisp::read(result->c_str());
                       auto ret = lisp::get_op(0);
@@ -169,7 +168,7 @@ void App::init_scripts(Platform& pfrm)
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, user_data);
 
-                      auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
+                      auto island = (Island*)lisp::get_op(0)->user_data().obj_;
 
                       lisp::ListBuilder list;
 
@@ -203,7 +202,7 @@ void App::init_scripts(Platform& pfrm)
 
             bool matrix[16][16];
 
-            auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
+            auto island = (Island*)lisp::get_op(0)->user_data().obj_;
 
             island->plot_walkable_zones(matrix);
 
@@ -220,8 +219,8 @@ void App::init_scripts(Platform& pfrm)
                             {
                                 auto cell = lisp::make_cons(L_NIL, L_NIL);
                                 lisp::push_op(cell);
-                                cell->cons_.set_car(lisp::make_integer(x));
-                                cell->cons_.set_cdr(lisp::make_integer(y));
+                                cell->cons().set_car(lisp::make_integer(x));
+                                cell->cons().set_cdr(lisp::make_integer(y));
                                 ret = lisp::make_cons(cell, ret);
                                 lisp::pop_op(); // cell
                             }
@@ -242,13 +241,14 @@ void App::init_scripts(Platform& pfrm)
                       auto [app, pfrm] = interp_get_context();
 
                       auto conf = lisp::get_op(0);
-                      if (str_cmp(conf->symbol_.name_, "hostile") == 0) {
+                      if (str_cmp(conf->symbol().name_, "hostile") == 0) {
                           app->swap_opponent<EnemyAI>();
-                      } else if (str_cmp(conf->symbol_.name_, "neutral") == 0) {
+                      } else if (str_cmp(conf->symbol().name_, "neutral") ==
+                                 0) {
                           app->swap_opponent<FriendlyAI>();
                       } else {
                           StringBuffer<30> err("bad ai sym: '");
-                          err += conf->symbol_.name_;
+                          err += conf->symbol().name_;
                           pfrm->fatal(err.c_str());
                       }
 
@@ -256,32 +256,32 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
-    lisp::set_var("init-opponent", lisp::make_function([](int argc) {
-                      L_EXPECT_ARGC(argc, 2);
-                      L_EXPECT_OP(1, integer);
-                      L_EXPECT_OP(0, symbol);
+    lisp::set_var(
+        "init-opponent", lisp::make_function([](int argc) {
+            L_EXPECT_ARGC(argc, 2);
+            L_EXPECT_OP(1, integer);
+            L_EXPECT_OP(0, symbol);
 
-                      auto [app, pfrm] = interp_get_context();
+            auto [app, pfrm] = interp_get_context();
 
-                      auto conf = lisp::get_op(0);
-                      if (str_cmp(conf->symbol_.name_, "hostile") == 0) {
-                          app->swap_opponent<EnemyAI>();
-                      } else if (str_cmp(conf->symbol_.name_, "neutral") == 0) {
-                          app->swap_opponent<FriendlyAI>();
-                      } else {
-                          StringBuffer<30> err("bad ai sym: '");
-                          err += conf->symbol_.name_;
-                          pfrm->fatal(err.c_str());
-                      }
+            auto conf = lisp::get_op(0);
+            if (str_cmp(conf->symbol().name_, "hostile") == 0) {
+                app->swap_opponent<EnemyAI>();
+            } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
+                app->swap_opponent<FriendlyAI>();
+            } else {
+                StringBuffer<30> err("bad ai sym: '");
+                err += conf->symbol().name_;
+                pfrm->fatal(err.c_str());
+            }
 
-                      app->opponent_island().emplace(
-                          *pfrm,
-                          Layer::map_1_ext,
-                          lisp::get_op(1)->integer_.value_,
-                          app->opponent());
+            app->opponent_island().emplace(*pfrm,
+                                           Layer::map_1_ext,
+                                           lisp::get_op(1)->integer().value_,
+                                           app->opponent());
 
-                      return L_NIL;
-                  }));
+            return L_NIL;
+        }));
 
 
     lisp::set_var(
@@ -290,14 +290,14 @@ void App::init_scripts(Platform& pfrm)
                 L_EXPECT_OP(0, integer);
                 L_EXPECT_OP(1, user_data);
 
-                auto island = (Island*)lisp::get_op(1)->user_data_.obj_;
+                auto island = (Island*)lisp::get_op(1)->user_data().obj_;
                 island->init_terrain(*lisp::interp_get_pfrm(),
-                                     lisp::get_op(0)->integer_.value_);
+                                     lisp::get_op(0)->integer().value_);
 
             } else if (argc == 1) {
                 L_EXPECT_OP(0, user_data);
 
-                auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
+                auto island = (Island*)lisp::get_op(0)->user_data().obj_;
                 return lisp::make_integer(island->terrain().size());
             }
             return L_NIL;
@@ -312,10 +312,10 @@ void App::init_scripts(Platform& pfrm)
 
             auto [app, pfrm] = interp_get_context();
 
-            auto island = (Island*)lisp::get_op(1)->user_data_.obj_;
-            auto name = lisp::get_list(lisp::get_op(0), 0)->symbol_.name_;
-            u8 x = lisp::get_list(lisp::get_op(0), 1)->integer_.value_;
-            u8 y = lisp::get_list(lisp::get_op(0), 2)->integer_.value_;
+            auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+            auto name = lisp::get_list(lisp::get_op(0), 0)->symbol().name_;
+            u8 x = lisp::get_list(lisp::get_op(0), 1)->integer().value_;
+            u8 y = lisp::get_list(lisp::get_op(0), 2)->integer().value_;
 
             if (auto c = load_metaclass(name)) {
                 (*c)->create(*pfrm, island, Vec2<u8>{x, y});
@@ -335,11 +335,11 @@ void App::init_scripts(Platform& pfrm)
                       L_EXPECT_OP(1, integer); // x
                       L_EXPECT_OP(2, user_data);
 
-                      auto island = (Island*)lisp::get_op(2)->user_data_.obj_;
+                      auto island = (Island*)lisp::get_op(2)->user_data().obj_;
 
                       auto coord = Vec2<u8>{
-                          (u8)lisp::get_op(1)->integer_.value_,
-                          (u8)lisp::get_op(0)->integer_.value_,
+                          (u8)lisp::get_op(1)->integer().value_,
+                          (u8)lisp::get_op(0)->integer().value_,
                       };
 
                       island->remove_character(coord);
@@ -354,18 +354,18 @@ void App::init_scripts(Platform& pfrm)
                       L_EXPECT_OP(2, integer); // x
                       L_EXPECT_OP(3, user_data);
 
-                      auto island = (Island*)lisp::get_op(3)->user_data_.obj_;
+                      auto island = (Island*)lisp::get_op(3)->user_data().obj_;
 
                       auto coord = Vec2<u8>{
-                          (u8)lisp::get_op(2)->integer_.value_,
-                          (u8)lisp::get_op(1)->integer_.value_,
+                          (u8)lisp::get_op(2)->integer().value_,
+                          (u8)lisp::get_op(1)->integer().value_,
                       };
 
                       auto arg0 = lisp::get_op(0);
 
                       if (auto chr = island->character_at_location(coord)) {
-                          if (arg0->type_ == lisp::Value::Type::integer) {
-                              chr->set_health(arg0->integer_.value_);
+                          if (arg0->type() == lisp::Value::Type::integer) {
+                              chr->set_health(arg0->integer().value_);
                           }
                           return lisp::make_integer(chr->health());
                       }
@@ -373,47 +373,47 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
-    lisp::set_var("add-chr", lisp::make_function([](int argc) {
-                      L_EXPECT_ARGC(argc, 5);
-                      L_EXPECT_OP(0, integer);
-                      L_EXPECT_OP(1, symbol);
-                      L_EXPECT_OP(2, integer); // y
-                      L_EXPECT_OP(3, integer); // x
-                      L_EXPECT_OP(4, user_data);
+    lisp::set_var(
+        "add-chr", lisp::make_function([](int argc) {
+            L_EXPECT_ARGC(argc, 5);
+            L_EXPECT_OP(0, integer);
+            L_EXPECT_OP(1, symbol);
+            L_EXPECT_OP(2, integer); // y
+            L_EXPECT_OP(3, integer); // x
+            L_EXPECT_OP(4, user_data);
 
-                      auto island = (Island*)lisp::get_op(4)->user_data_.obj_;
+            auto island = (Island*)lisp::get_op(4)->user_data().obj_;
 
-                      auto app = interp_get_app();
+            auto app = interp_get_app();
 
 
-                      auto coord = Vec2<u8>{
-                          (u8)lisp::get_op(3)->integer_.value_,
-                          (u8)lisp::get_op(2)->integer_.value_,
-                      };
+            auto coord = Vec2<u8>{
+                (u8)lisp::get_op(3)->integer().value_,
+                (u8)lisp::get_op(2)->integer().value_,
+            };
 
-                      const bool is_replicant =
-                          lisp::get_op(0)->integer_.value_;
+            const bool is_replicant = lisp::get_op(0)->integer().value_;
 
-                      auto conf = lisp::get_op(1);
-                      if (str_cmp(conf->symbol_.name_, "hostile") == 0) {
-                          app->swap_opponent<EnemyAI>();
-                          auto chr = ::skyland::alloc_entity<BasicCharacter>(
-                              island, &app->opponent(), coord, is_replicant);
+            auto conf = lisp::get_op(1);
+            if (str_cmp(conf->symbol().name_, "hostile") == 0) {
+                app->swap_opponent<EnemyAI>();
+                auto chr = ::skyland::alloc_entity<BasicCharacter>(
+                    island, &app->opponent(), coord, is_replicant);
 
-                          if (chr) {
-                              island->add_character(std::move(chr));
-                          }
-                      } else if (str_cmp(conf->symbol_.name_, "neutral") == 0) {
-                          auto chr = ::skyland::alloc_entity<BasicCharacter>(
-                              island, &app->player(), coord, is_replicant);
+                if (chr) {
+                    island->add_character(std::move(chr));
+                }
+            } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
+                auto chr = ::skyland::alloc_entity<BasicCharacter>(
+                    island, &app->player(), coord, is_replicant);
 
-                          if (chr) {
-                              island->add_character(std::move(chr));
-                          }
-                      }
+                if (chr) {
+                    island->add_character(std::move(chr));
+                }
+            }
 
-                      return L_NIL;
-                  }));
+            return L_NIL;
+        }));
 
 
     lisp::set_var("configure-player", lisp::make_function([](int argc) {
@@ -422,7 +422,7 @@ void App::init_scripts(Platform& pfrm)
                       L_EXPECT_OP(1, user_data);
 
                       auto [app, pfrm] = interp_get_context();
-                      auto island = (Island*)lisp::get_op(1)->user_data_.obj_;
+                      auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
                       configure_island(*pfrm, *island, lisp::get_op(0));
 
@@ -434,7 +434,7 @@ void App::init_scripts(Platform& pfrm)
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, user_data);
 
-                      auto island = (Island*)lisp::get_op(0)->user_data_.obj_;
+                      auto island = (Island*)lisp::get_op(0)->user_data().obj_;
                       island->show_flag(true);
 
                       return L_NIL;
@@ -453,9 +453,9 @@ void App::init_scripts(Platform& pfrm)
 
 
     lisp::set_var("coins", lisp::make_function([](int argc) {
-        auto app = interp_get_app();
-        return lisp::make_integer(app->coins());
-    }));
+                      auto app = interp_get_app();
+                      return lisp::make_integer(app->coins());
+                  }));
 
 
     lisp::set_var("add-coins", lisp::make_function([](int argc) {
@@ -463,7 +463,7 @@ void App::init_scripts(Platform& pfrm)
                       L_EXPECT_OP(0, integer);
 
                       auto app = interp_get_app();
-                      app->coins() += lisp::get_op(0)->integer_.value_;
+                      app->coins() += lisp::get_op(0)->integer().value_;
 
                       app->coins() = std::max(0, app->coins());
 
@@ -477,7 +477,7 @@ void App::init_scripts(Platform& pfrm)
             L_EXPECT_OP(0, string);
 
             if (auto pfrm = lisp::interp_get_pfrm()) {
-                auto str = lisp::get_op(0)->string_.value();
+                auto str = lisp::get_op(0)->string().value();
                 if (auto contents = pfrm->load_file_contents("scripts", str)) {
                     lisp::dostring(contents, [pfrm](lisp::Value& err) {
                         lisp::DefaultPrinter p;
@@ -499,37 +499,39 @@ void App::init_scripts(Platform& pfrm)
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, integer);
                       return lisp::make_integer(
-                          rng::choice(lisp::get_op(0)->integer_.value_,
+                          rng::choice(lisp::get_op(0)->integer().value_,
                                       rng::critical_state));
                   }));
 
 
     lisp::set_var("autopilot", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, cons);
+                      L_EXPECT_ARGC(argc, 1);
+                      L_EXPECT_OP(0, cons);
 
-        interp_get_app()->swap_player<AutopilotPlayer>(lisp::get_op(0));
+                      interp_get_app()->swap_player<AutopilotPlayer>(
+                          lisp::get_op(0));
 
-        return L_NIL;
-    }));
+                      return L_NIL;
+                  }));
 
 
     lisp::set_var("get-line-of-file", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(1, string);
-        L_EXPECT_OP(0, integer);
+                      L_EXPECT_ARGC(argc, 2);
+                      L_EXPECT_OP(1, string);
+                      L_EXPECT_OP(0, integer);
 
-        auto line = get_line_from_file(*lisp::interp_get_pfrm(),
-                                       lisp::get_op(1)->string_.value(),
-                                       lisp::get_op(0)->integer_.value_);
+                      auto line =
+                          get_line_from_file(*lisp::interp_get_pfrm(),
+                                             lisp::get_op(1)->string().value(),
+                                             lisp::get_op(0)->integer().value_);
 
-        if (line) {
-            return lisp::make_string(*lisp::interp_get_pfrm(),
-                                     line->c_str());
-        }
+                      if (line) {
+                          return lisp::make_string(*lisp::interp_get_pfrm(),
+                                                   line->c_str());
+                      }
 
-        return L_NIL;
-    }));
+                      return L_NIL;
+                  }));
 
     lisp::dostring(pfrm.load_file_contents("scripts", "init.lisp"),
                    [&pfrm](lisp::Value& err) {

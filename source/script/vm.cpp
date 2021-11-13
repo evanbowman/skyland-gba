@@ -12,10 +12,15 @@ bool is_boolean_true(Value* val);
 const char* symbol_from_offset(u16 offset);
 
 
-Value* make_bytecode_function(Value* buffer);
+Value* make_bytecode_function(Value* bytecode);
 
 
 Value* get_var_stable(const char* intern_str);
+
+
+void lexical_frame_push();
+void lexical_frame_pop();
+void lexical_frame_store(Value* kvp);
 
 
 template <typename Instruction>
@@ -27,11 +32,24 @@ Instruction* read(ScratchBuffer& buffer, int& pc)
 }
 
 
-void vm_execute(Value* code_buffer, const int start_offset)
+void vm_execute(Platform& pfrm, Value* code_buffer, const int start_offset)
 {
     int pc = start_offset;
 
-    auto& code = *code_buffer->data_buffer_.value();
+    auto& code = *code_buffer->data_buffer().value();
+
+    int nested_scope = 0;
+
+    // If we are within a let expression, and we want to optimize out a
+    // recursive tail call, we need to unwind all frames of the lexical scope,
+    // because we will never return from the optimized out function call and hit
+    // the LEXICAL_FRAME_POP instruction after the tailcall instruciton.
+    auto unwind_lexical_scope = [&nested_scope] {
+        while (nested_scope) {
+            lexical_frame_pop();
+            --nested_scope;
+        }
+    };
 
     using namespace instruction;
 
@@ -129,6 +147,13 @@ TOP:
             break;
         }
 
+        case PushString::op(): {
+            auto inst = read<PushString>(code, pc);
+            push_op(make_string(pfrm, code.data_ + pc));
+            pc += inst->length_;
+            break;
+        }
+
         case TailCall::op(): {
 
             Protected fn(get_op(0));
@@ -151,6 +176,7 @@ TOP:
                 }
 
                 if (argc == 0) {
+                    unwind_lexical_scope();
                     pc = start_offset;
                     goto TOP;
                 } else {
@@ -187,6 +213,7 @@ TOP:
 
                 push_op(arg);
 
+                unwind_lexical_scope();
                 pc = start_offset;
                 goto TOP;
 
@@ -221,6 +248,7 @@ TOP:
                 push_op(arg1);
                 push_op(arg0);
 
+                unwind_lexical_scope();
                 pc = start_offset;
                 goto TOP;
 
@@ -257,6 +285,7 @@ TOP:
                 push_op(arg1);
                 push_op(arg0);
 
+                unwind_lexical_scope();
                 pc = start_offset;
                 goto TOP;
 
@@ -302,7 +331,7 @@ TOP:
         case Arg::op(): {
             read<Arg>(code, pc);
             auto arg_num = get_op(0);
-            auto arg = get_arg(arg_num->integer_.value_);
+            auto arg = get_arg(arg_num->integer().value_);
             pop_op();
             push_op(arg);
             break;
@@ -341,8 +370,8 @@ TOP:
             read<First>(code, pc);
             auto arg = get_op(0);
             pop_op();
-            if (arg->type_ == Value::Type::cons) {
-                push_op(arg->cons_.car());
+            if (arg->type() == Value::Type::cons) {
+                push_op(arg->cons().car());
             } else {
                 push_op(make_error(Error::Code::invalid_argument_type, L_NIL));
             }
@@ -353,8 +382,8 @@ TOP:
             read<Rest>(code, pc);
             auto arg = get_op(0);
             pop_op();
-            if (arg->type_ == Value::Type::cons) {
-                push_op(arg->cons_.cdr());
+            if (arg->type() == Value::Type::cons) {
+                push_op(arg->cons().cdr());
             } else {
                 push_op(make_error(Error::Code::invalid_argument_type, L_NIL));
             }
@@ -372,11 +401,18 @@ TOP:
 
         case PushLambda::op(): {
             auto inst = read<PushLambda>(code, pc);
-            auto fn = make_bytecode_function(code_buffer);
-            if (fn->type_ == lisp::Value::Type::function) {
-                fn->function_.bytecode_impl_.bc_offset_ = pc;
+            auto offset = make_integer(pc);
+            if (offset->type() == lisp::Value::Type::integer) {
+                auto bytecode = make_cons(offset, code_buffer);
+                if (bytecode->type() == lisp::Value::Type::cons) {
+                    auto fn = make_bytecode_function(bytecode);
+                    push_op(fn);
+                } else {
+                    push_op(bytecode);
+                }
+            } else {
+                push_op(offset);
             }
-            push_op(fn);
             pc = start_offset + inst->lambda_end_.get();
             break;
         }
@@ -397,6 +433,36 @@ TOP:
         case PushThis::op(): {
             push_op(get_this());
             read<PushThis>(code, pc);
+            break;
+        }
+
+        case LexicalDef::op(): {
+            auto inst = read<LexicalDef>(code, pc);
+            Protected sym(
+                make_symbol(symbol_from_offset(inst->name_offset_.get()),
+                            Symbol::ModeBits::stable_pointer));
+
+            // pair of (sym . value)
+            auto pair = make_cons(sym, get_op(0));
+            pop_op();      // pop value
+            push_op(pair); // store pair
+
+            lexical_frame_store(pair);
+            pop_op();
+            break;
+        }
+
+        case LexicalFramePush::op(): {
+            read<LexicalFramePush>(code, pc);
+            lexical_frame_push();
+            ++nested_scope;
+            break;
+        }
+
+        case LexicalFramePop::op(): {
+            read<LexicalFramePop>(code, pc);
+            lexical_frame_pop();
+            --nested_scope;
             break;
         }
 

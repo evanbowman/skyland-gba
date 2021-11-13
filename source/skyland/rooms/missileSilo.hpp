@@ -52,6 +52,12 @@ public:
     }
 
 
+    static Health full_health()
+    {
+        return 200;
+    }
+
+
     static Coins cost()
     {
         return 1400;

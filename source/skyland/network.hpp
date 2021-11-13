@@ -238,9 +238,7 @@ struct OpponentBulkheadChanged {
 struct BlockTransferStart {
     Header header_;
 
-    enum class Category : u8 {
-        null
-    } category_;
+    enum class Category : u8 { null } category_;
 
     host_u16 length_;
 

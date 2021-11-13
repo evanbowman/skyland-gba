@@ -1,8 +1,8 @@
 #pragma once
 
+#include "platform/platform.hpp"
 #include "player.hpp"
 #include "script/lisp.hpp"
-#include "platform/platform.hpp"
 
 
 
@@ -45,4 +45,4 @@ private:
 
 
 
-}
+} // namespace skyland

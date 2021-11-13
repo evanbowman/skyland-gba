@@ -1,7 +1,7 @@
 #include "save.hpp"
+#include "flag.hpp"
 #include "platform/platform.hpp"
 #include "script/lisp.hpp"
-#include "flag.hpp"
 
 
 
@@ -26,8 +26,6 @@ struct SaveData {
 static_assert(std::is_trivially_copyable<SaveData>::value,
               "SaveData will be memcpy'd to the output destination, and "
               "therefore must be trivially copyable.");
-
-
 
 
 
@@ -159,7 +157,7 @@ bool load(Platform& pfrm, PersistentData& d)
         lisp::eval(lisp::get_op(0)); // eval result of read() (3)
 
         auto fn = lisp::get_op(0);
-        if (fn->type_ == lisp::Value::Type::function) {
+        if (fn->type() == lisp::Value::Type::function) {
             lisp::push_op(arg); // pass save data buffer on stack
             funcall(fn, 1);     // one argument (the save data)
             lisp::pop_op();     // funcall result

@@ -13,13 +13,11 @@ namespace skyland {
 namespace detail {
 class _Module : public Scene {
 public:
-
     static ScenePtr<Scene> load(Platform&, const char* name);
 
 
     class Factory {
     public:
-
         Factory()
         {
             next_ = _Module::factories_;
@@ -58,7 +56,7 @@ public:
 
     static Factory* factories_;
 };
-}
+} // namespace detail
 
 
 inline ScenePtr<Scene> load_module(Platform& pfrm, const char* name)
@@ -68,13 +66,10 @@ inline ScenePtr<Scene> load_module(Platform& pfrm, const char* name)
 
 
 
-template <typename T>
-class Module : public detail::_Module {
+template <typename T> class Module : public detail::_Module {
 public:
-
     class Factory : public _Module::Factory {
     public:
-
         virtual const char* name() override
         {
             return T::module_name();
@@ -92,9 +87,8 @@ public:
             return scene_pool::alloc<T>();
         }
     };
-
 };
 
 
 
-}
+} // namespace skyland

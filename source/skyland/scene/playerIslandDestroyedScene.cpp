@@ -108,13 +108,17 @@ void PlayerIslandDestroyedScene::display(Platform& pfrm, App& app)
             spr_.set_position({c.x_, c.y_});
             spr_.set_size(Sprite::Size::w16_h32);
             spr_.set_mix({[&] {
-                switch (c.clr_) {
-                default:
-                case 0: return ColorConstant::spanish_crimson;
-                case 1: return custom_color(0xbdef84);
-                case 2: return custom_color(0x006bff);
-                }
-            }(), 255});
+                              switch (c.clr_) {
+                              default:
+                              case 0:
+                                  return ColorConstant::spanish_crimson;
+                              case 1:
+                                  return custom_color(0xbdef84);
+                              case 2:
+                                  return custom_color(0x006bff);
+                              }
+                          }(),
+                          255});
             spr_.set_texture_index(c.img_ + c.anim_ * 4);
             pfrm.screen().draw(spr_);
         }
@@ -134,8 +138,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (confetti_ and *confetti_) {
         const auto view = pfrm.screen().get_view().get_center();
 
-        for (auto it = (**confetti_).begin();
-             it not_eq (**confetti_).end();) {
+        for (auto it = (**confetti_).begin(); it not_eq (**confetti_).end();) {
 
             auto& c = *it;
 
@@ -159,15 +162,16 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 c.y_ += c.gravity_ * delta;
 
                 if (c.fall_slower_) {
-                    c.gravity_ = interpolate(0.00075f, c.gravity_, 0.000000015f * delta);
+                    c.gravity_ =
+                        interpolate(0.00075f, c.gravity_, 0.000000015f * delta);
                 } else {
-                    c.gravity_ = interpolate(0.001f, c.gravity_, 0.000000015f * delta);
+                    c.gravity_ =
+                        interpolate(0.001f, c.gravity_, 0.000000015f * delta);
                 }
 
 
                 ++it;
             }
-
         }
     }
 
@@ -331,8 +335,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             anim_state_ = AnimState::idle;
         } else {
-            const auto amount =
-                smoothstep(0.f, fade_duration, timer_);
+            const auto amount = smoothstep(0.f, fade_duration, timer_);
             pfrm.screen().fade(amount * partial_fade_amt);
             pfrm.screen().pixelate(amount * 28, false);
         }
@@ -424,18 +427,20 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (confetti_ and *confetti_) {
                 for (int i = 0; i < 18; ++i) {
 
-                    (*confetti_)->push_back({
-                            vc.x + 3,
-                            vc.y + 140,
-                            0.00008f * (1 + rng::choice<7>(rng::utility_state)),
-                            20 + rng::choice<50>(rng::utility_state),
-                            0.00000001f * (3 + rng::choice<600>(rng::utility_state)),
-                            (u8)(107 + rng::choice<2>(rng::utility_state)),
-                            (u8)(rng::choice<3>(rng::utility_state)),
-                            0,
-                            0,
-                            (u8)(rng::choice<2>(rng::utility_state))
-                        });
+                    (*confetti_)
+                        ->push_back(
+                            {vc.x + 3,
+                             vc.y + 140,
+                             0.00008f *
+                                 (1 + rng::choice<7>(rng::utility_state)),
+                             20 + rng::choice<50>(rng::utility_state),
+                             0.00000001f *
+                                 (3 + rng::choice<600>(rng::utility_state)),
+                             (u8)(107 + rng::choice<2>(rng::utility_state)),
+                             (u8)(rng::choice<3>(rng::utility_state)),
+                             0,
+                             0,
+                             (u8)(rng::choice<2>(rng::utility_state))});
                 }
             }
         }
@@ -456,19 +461,19 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.camera().shake(3);
 
             for (int i = 0; i < 18; ++i) {
-                    (*confetti_)->push_back({
-                            vc.x + 235,
-                            vc.y + 140,
-                            0.00008f * (1 + rng::choice<7>(rng::utility_state)),
-                            90 + 20 + rng::choice<50>(rng::utility_state),
-                            0.0000009f,
-                            (u8)(107 + rng::choice<4>(rng::utility_state)),
-                            (u8)(rng::choice<3>(rng::utility_state)),
-                            0,
-                            0,
-                            (u8)(rng::choice<2>(rng::utility_state))
-                        });
-                }
+                (*confetti_)
+                    ->push_back(
+                        {vc.x + 235,
+                         vc.y + 140,
+                         0.00008f * (1 + rng::choice<7>(rng::utility_state)),
+                         90 + 20 + rng::choice<50>(rng::utility_state),
+                         0.0000009f,
+                         (u8)(107 + rng::choice<4>(rng::utility_state)),
+                         (u8)(rng::choice<3>(rng::utility_state)),
+                         0,
+                         0,
+                         (u8)(rng::choice<2>(rng::utility_state))});
+            }
         }
         break;
 

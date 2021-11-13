@@ -249,6 +249,8 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
 
         characters().clear();
 
+        app.player().on_room_plundered(pfrm, app, *this);
+
         std::optional<RoomPtr<Room>> self;
 
         // Detach ourself from the parent island's room list:

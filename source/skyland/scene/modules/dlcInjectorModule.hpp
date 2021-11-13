@@ -5,7 +5,6 @@
 
 
 
-
 namespace skyland {
 
 
@@ -29,4 +28,4 @@ public:
 
 
 
-}
+} // namespace skyland

@@ -26,6 +26,7 @@ struct RoomMeta {
         virtual Conditions::Value conditions() const = 0;
         virtual Room::Icon icon() const = 0;
         virtual Room::Icon unsel_icon() const = 0;
+        virtual Health full_health() const = 0;
     };
 
     template <typename T> struct BoxImpl : public Box {
@@ -74,6 +75,11 @@ struct RoomMeta {
         virtual Conditions::Value conditions() const override
         {
             return T::conditions();
+        }
+
+        virtual Health full_health() const override
+        {
+            return T::full_health();
         }
     };
 

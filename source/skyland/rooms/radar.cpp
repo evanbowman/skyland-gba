@@ -8,7 +8,7 @@ namespace skyland {
 
 
 Radar::Radar(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(30))
+    : Room(parent, name(), size(), position, Health(full_health()))
 {
 }
 

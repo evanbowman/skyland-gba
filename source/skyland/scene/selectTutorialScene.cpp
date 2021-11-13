@@ -74,12 +74,12 @@ void SelectTutorialScene::show_options(Platform& pfrm)
     int start_index = page_ * 5;
 
     lisp::foreach (*tutorials_, [&](lisp::Value* val) {
-        if (val->type_ not_eq lisp::Value::Type::cons) {
+        if (val->type() not_eq lisp::Value::Type::cons) {
             pfrm.fatal("tutorial list format invalid");
         }
 
-        auto name = val->cons_.car();
-        if (name->type_ not_eq lisp::Value::Type::string) {
+        auto name = val->cons().car();
+        if (name->type() not_eq lisp::Value::Type::string) {
             pfrm.fatal("tutorial list format invalid");
         }
 
@@ -88,7 +88,7 @@ void SelectTutorialScene::show_options(Platform& pfrm)
         }
 
         text_.emplace_back(pfrm,
-                           name->string_.value(),
+                           name->string().value(),
                            OverlayCoord{4, u8(4 + text_.size() * 2)});
     });
 
@@ -216,13 +216,13 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
             auto index = page_ * 5 + cursor_;
             auto choice = lisp::get_list(*tutorials_, index);
 
-            auto file_name = choice->cons_.cdr();
-            if (file_name->type_ not_eq lisp::Value::Type::string) {
+            auto file_name = choice->cons().cdr();
+            if (file_name->type() not_eq lisp::Value::Type::string) {
                 pfrm.fatal("tutorial list format invalid");
             }
 
             if (auto script = pfrm.load_file_contents(
-                    "scripts", file_name->string_.value())) {
+                    "scripts", file_name->string().value())) {
                 lisp::dostring(script, [&pfrm](lisp::Value& err) {
                     lisp::DefaultPrinter p;
                     lisp::format(&err, p);
@@ -237,7 +237,7 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
                 return scene_pool::alloc<FadeInScene>();
             } else {
                 StringBuffer<32> err("file ");
-                err += file_name->string_.value();
+                err += file_name->string().value();
                 err += " missing";
                 pfrm.fatal(err.c_str());
             }

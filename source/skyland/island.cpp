@@ -609,15 +609,20 @@ void Island::repaint(Platform& pfrm)
                         }
                     }
                 }
-                if (not placed_chimney_this_tile and show_flag_ and
-                    not placed_flag) {
-                    placed_flag = true;
-                    pfrm.set_tile(layer_, x, y, Tile::roof_flag);
-                    pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);
-                    if (layer_ == Layer::map_0_ext) {
-                        pfrm.set_palette(layer_, x, y - 1, 12);
+                // NOTE: when placing a flag, we need to make sure that the slot
+                // above the current tile is empty, because the flag is two
+                // tiles tall.
+                if (y > 0 and matrix[x][y - 1] == 0) {
+                    if (not placed_chimney_this_tile and show_flag_ and
+                        not placed_flag) {
+                        placed_flag = true;
+                        pfrm.set_tile(layer_, x, y, Tile::roof_flag);
+                        pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);
+                        if (layer_ == Layer::map_0_ext) {
+                            pfrm.set_palette(layer_, x, y - 1, 12);
+                        }
+                        flag_pos_ = {x, u8(y - 1)};
                     }
-                    flag_pos_ = {x, u8(y - 1)};
                 }
             } else if (y == 14 and matrix[x][y] == 0 and
                        x < (int)terrain_.size()) {
@@ -634,18 +639,20 @@ void Island::repaint(Platform& pfrm)
                         }
                     }
                 }
-                if (not placed_chimney_this_tile and show_flag_ and
-                    not placed_flag and y > 1 and matrix[x][y - 1] == 0) {
-                    if (auto room = get_room({x, (u8)(y + 1)})) {
-                        if (str_cmp((*room->metaclass())->name(), "hull") ==
-                            0) {
-                            placed_flag = true;
-                            pfrm.set_tile(layer_, x, y, Tile::flag_mount);
-                            pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);
-                            if (layer_ == Layer::map_0_ext) {
-                                pfrm.set_palette(layer_, x, y - 1, 12);
+                if (y > 0 and matrix[x][y - 1] == 0) {
+                    if (not placed_chimney_this_tile and show_flag_ and
+                        not placed_flag and y > 1 and matrix[x][y - 1] == 0) {
+                        if (auto room = get_room({x, (u8)(y + 1)})) {
+                            if (str_cmp((*room->metaclass())->name(), "hull") ==
+                                0) {
+                                placed_flag = true;
+                                pfrm.set_tile(layer_, x, y, Tile::flag_mount);
+                                pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);
+                                if (layer_ == Layer::map_0_ext) {
+                                    pfrm.set_palette(layer_, x, y - 1, 12);
+                                }
+                                flag_pos_ = {x, u8(y - 1)};
                             }
-                            flag_pos_ = {x, u8(y - 1)};
                         }
                     }
                 }

@@ -1,7 +1,7 @@
 #include "flag.hpp"
 #include "platform/platform.hpp"
-#include "tile.hpp"
 #include "skyland/skyland.hpp"
+#include "tile.hpp"
 
 
 
@@ -84,7 +84,6 @@ void load_default_flag(Platform& pfrm, App& app)
             app.gp_.flag_img_.pixels[x][y] = data.data_[x][y + 1];
         }
     }
-
 }
 
 

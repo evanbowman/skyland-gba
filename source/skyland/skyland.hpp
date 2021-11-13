@@ -7,6 +7,8 @@
 #include "coins.hpp"
 #include "dialog.hpp"
 #include "entity/birbs/smolBirb.hpp"
+#include "flag.hpp"
+#include "gamespeed.hpp"
 #include "highscores.hpp"
 #include "island.hpp"
 #include "opponent/enemyAI.hpp"
@@ -17,8 +19,6 @@
 #include "scene.hpp"
 #include "timeTracker.hpp"
 #include "worldMap.hpp"
-#include "flag.hpp"
-#include "gamespeed.hpp"
 
 
 

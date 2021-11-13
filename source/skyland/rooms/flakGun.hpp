@@ -54,6 +54,12 @@ public:
     }
 
 
+    static Health full_health()
+    {
+        return 125;
+    }
+
+
     static Float ai_base_weight()
     {
         return 800.f;

@@ -27,7 +27,6 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (node.type_ == WorldMap::Node::Type::hostile) {
                 app.game_speed() = GameSpeed::stopped;
             }
-
         }
         pfrm.screen().fade(0.f);
         auto future_scene = scene_pool::make_deferred_scene<ReadyScene>();

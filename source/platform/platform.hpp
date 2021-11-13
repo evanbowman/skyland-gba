@@ -408,7 +408,6 @@ public:
 
     class Keyboard {
     public:
-
         using KeyStates = std::array<bool, int(Key::count)>;
 
 

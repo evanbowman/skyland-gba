@@ -15,6 +15,7 @@
 #include "gbp_logo.hpp"
 #include "graphics/overlay.hpp"
 #include "localization.hpp"
+#include "mixer.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
 #include "rumble.h"
@@ -22,8 +23,6 @@
 #include "string.hpp"
 #include "util.hpp"
 #include <algorithm>
-#include "mixer.hpp"
-
 
 
 
@@ -912,8 +911,7 @@ void Platform::Screen::draw(const Sprite& spr)
 
         oa->attribute_0 |= abs_position.y & 0x00ff;
 
-        if (not mix.amount_ and
-            screen_pixelate_amount not_eq 0) {
+        if (not mix.amount_ and screen_pixelate_amount not_eq 0) {
 
             oa->attribute_0 |= ATTR0_MOSAIC;
         }
@@ -1053,7 +1051,10 @@ Platform::TilePixels Platform::extract_tile(Layer layer, u16 tile)
     case Layer::map_0_ext:
     case Layer::map_1:
     case Layer::map_0: {
-        auto mem = (const u8*)(layer == Layer::map_0 ? current_tilesheet0->tile_data_ : current_tilesheet1->tile_data_) + vram_tile_size() * 4 * tile; // 2x2 meta tiles
+        auto mem = (const u8*)(layer == Layer::map_0
+                                   ? current_tilesheet0->tile_data_
+                                   : current_tilesheet1->tile_data_) +
+                   vram_tile_size() * 4 * tile; // 2x2 meta tiles
         for (int y = 0; y < 8; ++y) {
             for (int x = 0; x < 8; ++x) {
                 auto index = x + y * 8;
@@ -1090,7 +1091,8 @@ Platform::TilePixels Platform::extract_tile(Layer layer, u16 tile)
         fatal("unimplemented extract_tile for background layer");
 
     case Layer::overlay:
-        auto mem = (const u8*)(current_overlay_texture->tile_data_) + vram_tile_size() * tile;
+        auto mem = (const u8*)(current_overlay_texture->tile_data_) +
+                   vram_tile_size() * tile;
         for (int y = 0; y < 8; ++y) {
             for (int x = 0; x < 8; ++x) {
                 auto index = x + y * 8;
@@ -1864,7 +1866,8 @@ void Platform::Screen::fade(float amount,
             MEM_BG_PALETTE[i] = blend(from, c, amt);
         }
         for (int i = 0; i < 16; ++i) {
-            auto from = Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
+            auto from =
+                Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
             MEM_BG_PALETTE[16 * 12 + i] = blend(from, c, amt);
         }
         for (int i = 0; i < 16; ++i) {
@@ -2435,9 +2438,6 @@ void Platform::Speaker::play_note(Note n, Octave o, Channel c)
 
 
 
-
-
-
 #include "data/shadows.hpp"
 // #include "data/jazzyfrenchy.hpp"
 
@@ -2459,7 +2459,6 @@ static const u32 null_music[null_music_len] = {0};
 
 #define DEF_SOUND(__STR_NAME__, __TRACK_NAME__)                                \
     DEF_AUDIO(__STR_NAME__, __TRACK_NAME__, 1)
-
 
 
 
@@ -4332,10 +4331,10 @@ MASTER_RETRY:
         ::platform->feed_watchdog();
         delta += ::platform->delta_clock().reset();
         if (delta > seconds(20)) {
-            StringBuffer<64> err = "no valid handshake received within a reasonable window ";
+            StringBuffer<64> err =
+                "no valid handshake received within a reasonable window ";
             err += to_string<10>(multiplayer_comms.rx_message_count);
-            error(*::platform,
-                  err.c_str());
+            error(*::platform, err.c_str());
             ::platform->network_peer().disconnect();
             return;
         } else if (auto msg = ::platform->network_peer().poll_message()) {
@@ -4378,8 +4377,6 @@ MASTER_RETRY:
         }
     }
 }
-
-
 
 
 
@@ -4887,8 +4884,8 @@ void* Platform::system_call(const char* feature_name, void* arg)
         if (not get_gflag(GlobalFlag::v_parallax)) {
             auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
             for (int i = 112 - offset; i < 128 - offset; ++i) {
-                u8 temp =
-                    ((u8)(intptr_t)arg) + screen_.get_view().get_center().cast<s32>().x / 3;
+                u8 temp = ((u8)(intptr_t)arg) +
+                          screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
             }
             // Fixme: clean up this code...
@@ -4899,7 +4896,8 @@ void* Platform::system_call(const char* feature_name, void* arg)
             screen_.get_view().get_center().cast<s32>().y / 2 * 0.5f + 3;
 
         const auto x_amount =
-            ((u8)(intptr_t)arg) + (screen_.get_view().get_center().cast<s32>().x / 3) * 0.8f;
+            ((u8)(intptr_t)arg) +
+            (screen_.get_view().get_center().cast<s32>().x / 3) * 0.8f;
 
         for (int i = (112 - offset) - 5; i < 128 - offset; ++i) {
             parallax_table[i] = x_amount;
@@ -4910,8 +4908,8 @@ void* Platform::system_call(const char* feature_name, void* arg)
         if (not get_gflag(GlobalFlag::v_parallax)) {
             auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
             for (int i = 128 - offset; i < 144 - offset; ++i) {
-                u8 temp =
-                    ((u8)(intptr_t)arg) + screen_.get_view().get_center().cast<s32>().x / 3;
+                u8 temp = ((u8)(intptr_t)arg) +
+                          screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
             }
             return nullptr;
@@ -4920,8 +4918,8 @@ void* Platform::system_call(const char* feature_name, void* arg)
         auto offset =
             screen_.get_view().get_center().cast<s32>().y / 2 * 0.7f + 3;
 
-        const auto x_amount =
-            ((u8)(intptr_t)arg) + screen_.get_view().get_center().cast<s32>().x / 3;
+        const auto x_amount = ((u8)(intptr_t)arg) +
+                              screen_.get_view().get_center().cast<s32>().x / 3;
 
         for (int i = 128 - offset; i < 144 - offset; ++i) {
             parallax_table[i] = x_amount;
@@ -4973,14 +4971,11 @@ void* Platform::system_call(const char* feature_name, void* arg)
     } else if (str_cmp(feature_name, "dlc-download") == 0) {
         read_dlc(*this);
     } else if (str_cmp(feature_name, "get-flag-palette") == 0) {
-
     }
 
 
     return nullptr;
 }
-
-
 
 
 
