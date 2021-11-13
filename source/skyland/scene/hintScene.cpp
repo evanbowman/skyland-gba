@@ -16,22 +16,28 @@ struct HintInfo {
 
 
 
-std::array<HintInfo, 4> hints = {
+std::array<HintInfo, 5> hints = {
     {{"hint_infirmary", "Build an infirmary to heal your crew!"},
      {"hint_goblin",
       "Use bulkhead doors to protect your power-cores against goblins!"},
      {"hint_plunder", "Raid and plunder castles for extra coins!"},
      {"hint_damaged_core",
       "If you lose a power-core, systems may shut down til you rebalance "
-      "power."}}};
+      "power."},
+     {"<none>", "For more help, scroll right on the title screen and open the tutorial viewer!"}}};
 
 
 
 static void show_hint(Platform& pfrm, const HintInfo& info, TextView& text)
 {
-    pfrm.load_overlay_texture(info.img_name_);
-
-    text.assign(info.text_, {2, 6}, {16, 12}, 0);
+    if (str_cmp("<none>", info.img_name_) == 0) {
+        pfrm.load_overlay_texture("hint_infirmary");
+        text.assign(info.text_, {2, 4}, {26, 18}, 0);
+    } else {
+        pfrm.load_overlay_texture(info.img_name_);
+        draw_image(pfrm, 82, 18, 4, 12, 10, Layer::overlay);
+        text.assign(info.text_, {2, 6}, {16, 12}, 0);
+    }
 }
 
 
@@ -39,7 +45,6 @@ static void show_hint(Platform& pfrm, const HintInfo& info, TextView& text)
 void HintScene::enter(Platform& pfrm, App&, Scene& prev)
 {
     pfrm.fill_overlay(82);
-    draw_image(pfrm, 82, 18, 4, 12, 10, Layer::overlay);
 
     show_hint(pfrm, hints[hint_index_], *body_);
 

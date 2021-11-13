@@ -193,16 +193,16 @@ cause bulkhead doors to open. Deals significant damage to forcefields.
 <img src="imgs_for_readme/flak-gun.png"/>
 
 Fires projectiles that deal small amounts of damage to large areas of a
-castle. Deals thirteen damage at the point of impact, ten damage to grid
-locations adjacent to the point of impact, and eight damage to grid locations
+castle. Deals sixteen damage at the point of impact, twelve damage to grid
+locations adjacent to the point of impact, and ten damage to grid locations
 one-tile-removed from the impact site.
 
 ```
-          8
-       8 10  8
-    8 10 13 10 8
-       8 10  8
-          8
+         10
+      10 12 10
+   10 12 16 12 10
+      10 12 10
+         10
 
 ```
 

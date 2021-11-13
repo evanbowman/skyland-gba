@@ -25,9 +25,9 @@ public:
 
 
 
-    static const Health r1_damage = 13;
-    static const Health r2_damage = 10;
-    static const Health r3_damage = 8;
+    static const Health r1_damage = 16;
+    static const Health r2_damage = 12;
+    static const Health r3_damage = 10;
 
 private:
     Microseconds timer_ = 0;
