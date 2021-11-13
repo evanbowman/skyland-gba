@@ -9,6 +9,7 @@
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
 #include "worldScene.hpp"
+#include "lispReplScene.hpp"
 
 
 
@@ -106,6 +107,18 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (auto room = app.player_island().get_room(cursor_loc)) {
             return room->select(pfrm, app);
         }
+    }
+
+    if (app.player().key_pressed(pfrm, Key::start)) {
+        start_key_held_timer_ += delta;
+    }
+    if (app.player().key_up(pfrm, Key::start)) {
+        if (not pfrm.network_peer().is_connected()) {
+            if (start_key_held_timer_ > milliseconds(1500)) {
+                return scene_pool::alloc<LispReplScene>(pfrm);
+            }
+        }
+        start_key_held_timer_ = 0;
     }
 
     if (app.player().key_down(pfrm, Key::action_2)) {

@@ -21,7 +21,7 @@
 
 (set 'after-converge-hook
      (lambda
-       (dialog "You discover a damaged fortress. Spend 800$ in resources to rescue the survivors?")
+       (dialog "You discover a damaged fortress. Spend 800@ in resources to rescue the survivors?")
        (await-dialog-y/n)
        (set 'after-converge-hook nil)))
 

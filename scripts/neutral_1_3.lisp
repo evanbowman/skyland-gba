@@ -20,7 +20,7 @@
        (dialog
         "The goblins demand a tribute of "
         (string temp)
-        "$. Will you pay?")
+        "@. Will you pay?")
 
        (await-dialog-y/n)
        (set 'after-converge-hook nil)))
@@ -36,7 +36,7 @@
            (add-coins (- 0 temp))
            (dialog "The goblin king rejoices, having successfully extorted "
                    (string temp)
-                   "$.")
+                   "@.")
            (exit-level)))))
 
 

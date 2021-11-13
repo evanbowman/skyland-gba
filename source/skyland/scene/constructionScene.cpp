@@ -242,7 +242,7 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
     str += " ";
     str += to_string<10>(
         get_cost(app, (*available_buildings_[building_selector_])));
-    str += "$";
+    str += "@";
     str += " ";
     str += to_string<10>(
         (*available_buildings_[building_selector_])->consumes_power());

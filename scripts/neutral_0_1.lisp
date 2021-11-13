@@ -27,7 +27,7 @@
 
 (set 'after-converge-hook
      (lambda
-       (dialog "The warship requests a tribute of 300$. Will you pay?")
+       (dialog "The warship requests a tribute of 300@. Will you pay?")
 
        (await-dialog-y/n)
        (set 'after-converge-hook nil)))

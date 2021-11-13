@@ -25,7 +25,7 @@
        (set 'after-converge-hook nil)
 
        (dialog
-        "You explore, and discover " (string temp) "$ amongst the ruins!")
+        "You explore, and discover " (string temp) "@ amongst the ruins!")
 
        (add-coins temp)
 

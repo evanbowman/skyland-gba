@@ -94,7 +94,7 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
         const int y_offset = text_state_.line_ == 0 ? 4 + y_start : 2 + y_start;
         const int x_offset = text_state_.pos_ + 2;
 
-        if (cp == '$') {
+        if (cp == '@') {
             pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 146);
         } else {
             pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), t);

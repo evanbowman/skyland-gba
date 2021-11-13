@@ -154,8 +154,8 @@ static void print_char(Platform& pfrm,
                        const OverlayCoord& coord,
                        const std::optional<FontColors>& colors = {})
 {
-    if (c == '$') {
-        // Really bad hack, to show a full color coin icon in place of the '$'
+    if (c == '@') {
+        // Really bad hack, to show a full color coin icon in place of the '@'
         // char.
         pfrm.set_tile(Layer::overlay, coord.x, coord.y, 146);
         return;

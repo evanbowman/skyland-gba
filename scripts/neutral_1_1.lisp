@@ -30,7 +30,7 @@
        (if (equal (choice 2) 0)
            (progn
              (set 'temp (+ 600 (choice 300)))
-             (dialog "You explore, and salvage " (string temp) "$ from the ruins.")
+             (dialog "You explore, and salvage " (string temp) "@ from the ruins.")
              (add-coins temp)
              (exit-level))
          (progn

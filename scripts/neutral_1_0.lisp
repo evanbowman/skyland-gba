@@ -25,7 +25,7 @@
      (lambda
        (dialog "One of the mercenaries offers to join you crew, for a cost of "
                (string (* 400 (zone)))
-               "$. Accept offer?")
+               "@. Accept offer?")
 
        (await-dialog-y/n)
        (set 'after-converge-hook nil)))

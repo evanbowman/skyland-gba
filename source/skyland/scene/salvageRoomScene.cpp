@@ -53,7 +53,7 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    text += "$";
+    text += "@";
 
     text_.emplace(pfrm, text.c_str(), OverlayCoord{0, u8(st.y - 1)});
 
