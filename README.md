@@ -20,7 +20,9 @@ as LISP code.
 
 ## Controls, Mechanics, and other Info
 
-Skyland has nuanced controls and mechanics, which I will describe below.
+Skyland has nuanced controls and mechanics, which I will describe below. Additionally,
+If you scroll all the way to the right on the title screen, one of the plugin modules
+on the Extras screen provides a series of video tutorials.
 
 
 ### Islands
