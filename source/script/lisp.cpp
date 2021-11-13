@@ -2789,7 +2789,7 @@ void init(Platform& pfrm)
                     case PushSymbol::op():
                         i += 1;
                         out += "PUSH_SYMBOL(";
-                        out += to_string<10>(
+                        out += symbol_from_offset(
                             ((HostInteger<s16>*)(data->data_ + i))->get());
                         out += ")";
                         i += 2;

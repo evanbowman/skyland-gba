@@ -650,8 +650,11 @@ public:
 
     class RemoteConsole {
     public:
+#ifdef __GBA__
         using Line = StringBuffer<1956>;
-
+#else
+        using Line = StringBuffer<8000>;
+#endif
         std::optional<Line> readline();
 
         bool printline(const char* text, bool show_prompt = true);

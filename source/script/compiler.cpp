@@ -649,6 +649,14 @@ public:
                 ++index;
                 break;
 
+            case Ret::op():
+                if (depth == 0) {
+                    return;
+                }
+                --depth;
+                ++index;
+                break;
+
             case Jump::op():
                 if (((Jump*)inst)->offset_.get() > inflection_point) {
                     auto offset = ((Jump*)inst)->offset_.get();
@@ -684,9 +692,6 @@ public:
             default:
                 ++index;
                 break;
-
-            case Ret::op():
-                return;
             }
         }
     }

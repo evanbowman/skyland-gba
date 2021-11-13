@@ -22,3 +22,15 @@ add_executable(LISP
 
 target_compile_options(LISP PRIVATE
   -g3)
+
+
+add_executable(LISPC
+  vm.cpp
+  lisp.cpp
+  commandlineCompiler.cpp
+  compiler.cpp
+  bootstrap.cpp)
+
+
+target_compile_options(LISPC PRIVATE
+  -g3)
