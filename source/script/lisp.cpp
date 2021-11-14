@@ -2786,10 +2786,28 @@ void init(Platform& pfrm)
                         i += 2;
                         break;
 
+                    case LoadVarRelocatable::op():
+                        i += 1;
+                        out += "LOAD_VAR_RELOCATABLE(";
+                        out += to_string<10>(
+                            ((HostInteger<s16>*)(data->data_ + i))->get());
+                        out += ")";
+                        i += 2;
+                        break;
+
                     case PushSymbol::op():
                         i += 1;
                         out += "PUSH_SYMBOL(";
                         out += symbol_from_offset(
+                            ((HostInteger<s16>*)(data->data_ + i))->get());
+                        out += ")";
+                        i += 2;
+                        break;
+
+                    case PushSymbolRelocatable::op():
+                        i += 1;
+                        out += "PUSH_SYMBOL_RELOCATABLE(";
+                        out += to_string<10>(
                             ((HostInteger<s16>*)(data->data_ + i))->get());
                         out += ")";
                         i += 2;
@@ -3002,6 +3020,15 @@ void init(Platform& pfrm)
                         i += sizeof(LexicalDef);
                         break;
 
+                    case LexicalDefRelocatable::op():
+                        out += LexicalDefRelocatable::name();
+                        out += "(";
+                        out += to_string<10>(
+                            ((HostInteger<s16>*)(data->data_ + i + 1))->get());
+                        out += ")";
+                        i += sizeof(LexicalDefRelocatable);
+                        break;
+
                     case LexicalFramePush::op():
                         out += LexicalFramePush::name();
                         i += sizeof(LexicalFramePush);
@@ -3060,6 +3087,97 @@ void init(Platform& pfrm)
             }
         }));
 }
+
+
+
+void load_module(Module* module)
+{
+    Protected buffer(make_databuffer(bound_context->pfrm_));
+    Protected zero(make_integer(0));
+
+    Protected bytecode(make_cons(zero, buffer));
+    push_op(make_bytecode_function(bytecode)); // result on stack
+
+    auto load_module_symbol = [&](int sym) {
+        auto search = (const char*)module + sizeof(Module::Header);
+
+        for (int i = 0;;) {
+            if (sym == 0) {
+                return search + i;
+            } else {
+                while (search[i] not_eq '\0') {
+                    ++i;
+                }
+                ++i;
+                --sym;
+            }
+        }
+    };
+
+    auto sbr = buffer->data_buffer().value();
+
+    auto data = load_module_symbol(module->header_.symbol_count_.get());
+    memcpy(sbr->data_, data, module->header_.bytecode_length_.get());
+
+    int depth = 0;
+    int index = 0;
+
+    while (true) {
+        auto inst = instruction::load_instruction(*sbr, index);
+
+        switch (inst->op_) {
+        case instruction::PushLambda::op():
+            ++depth;
+            ++index;
+            break;
+
+        case instruction::Ret::op():
+            if (depth == 0) {
+                return;
+            }
+            --depth;
+            ++index;
+            break;
+
+        case instruction::LoadVarRelocatable::op(): {
+            auto sym_num = ((instruction::LoadVarRelocatable*)inst)->name_offset_.get();
+            auto str = load_module_symbol(sym_num);
+            ((instruction::LoadVar*)inst)->name_offset_
+                .set(symbol_offset(intern(str)));
+            inst->op_ = instruction::LoadVar::op();
+            ++index;
+            break;
+        }
+
+        case instruction::PushSymbolRelocatable::op(): {
+            auto sym_num = ((instruction::PushSymbolRelocatable*)inst)->name_offset_.get();
+            auto str = load_module_symbol(sym_num);
+            ((instruction::PushSymbol*)inst)->name_offset_
+                .set(symbol_offset(intern(str)));
+            inst->op_ = instruction::PushSymbol::op();
+            ++index;
+            break;
+        }
+
+        case instruction::LexicalDefRelocatable::op(): {
+            auto sym_num = ((instruction::LexicalDefRelocatable*)inst)->name_offset_.get();
+            auto str = load_module_symbol(sym_num);
+            ((instruction::LexicalDef*)inst)->name_offset_
+                .set(symbol_offset(intern(str)));
+            inst->op_ = instruction::LexicalDef::op();
+            ++index;
+            break;
+        }
+
+        default:
+            ++index;
+            break;
+        }
+
+
+    }
+}
+
 
 
 } // namespace lisp

@@ -23,6 +23,7 @@
 #include "platform/scratch_buffer.hpp"
 #include "string.hpp"
 #include "unicode.hpp"
+#include "module.hpp"
 
 
 class Platform;
@@ -539,10 +540,16 @@ inline Value* get_var(const char* name)
 u32 read(const char* code);
 
 
+// Result on operand stack.
 void eval(Value* code);
 
 
+// Parameter should be a function. Result on operand stack.
 void compile(Platform& pfrm, Value* code);
+
+
+// Load code from a portable bytecode module. Result on operand stack.
+void load_module(Module* module);
 
 
 // Returns the result of the last expression in the string.
