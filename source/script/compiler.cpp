@@ -208,7 +208,8 @@ int compile_impl(ScratchBuffer& buffer,
 
     } else if (code->type() == Value::Type::symbol) {
 
-        if (code->symbol().name_[0] == '$') {
+        if (code->symbol().name_[0] == '$' and
+            code->symbol().name_[1] not_eq 'V') {
             s32 argn = 0;
             for (u32 i = 1; code->symbol().name_[i] not_eq '\0'; ++i) {
                 argn = argn * 10 + (code->symbol().name_[i] - '0');

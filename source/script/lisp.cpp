@@ -497,7 +497,7 @@ Value* dcompr(CompressedPtr ptr)
         (Value*)(((ptr.offset_ * sizeof(ValueMemory)) + (u8*)value_pool_data));
     return ret;
 #else
-    return ptr.ptr_;
+    return (Value*)ptr.ptr_;
 #endif // USE_COMPRESSED_PTRS
 }
 
@@ -1020,12 +1020,21 @@ Value* get_var_stable(const char* intern_str)
 Value* get_var(Value* symbol)
 {
     if (symbol->symbol().name_[0] == '$') {
-        s32 argn = 0;
-        for (u32 i = 1; symbol->symbol().name_[i] not_eq '\0'; ++i) {
-            argn = argn * 10 + (symbol->symbol().name_[i] - '0');
-        }
+        if (symbol->symbol().name_[1] == 'V') {
+            // Special case: use '$V' to access arguments as a list.
+            ListBuilder lat;
+            for (int i = bound_context->current_fn_argc_ - 1; i > -1; --i) {
+                lat.push_front(get_arg(i));
+            }
+            return lat.result();
+        } else {
+            s32 argn = 0;
+            for (u32 i = 1; symbol->symbol().name_[i] not_eq '\0'; ++i) {
+                argn = argn * 10 + (symbol->symbol().name_[i] - '0');
+            }
 
-        return get_arg(argn);
+            return get_arg(argn);
+        }
     }
 
     if (bound_context->lexical_bindings_ not_eq get_nil()) {
