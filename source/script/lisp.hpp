@@ -292,6 +292,7 @@ struct Error {
         out_of_memory,
         set_in_expression_context,
         mismatched_parentheses,
+        invalid_syntax,
     } code_;
 
     CompressedPtr context_;
@@ -315,6 +316,8 @@ struct Error {
             return "\'set\' in expr context";
         case Code::mismatched_parentheses:
             return "mismatched parentheses";
+        case Code::invalid_syntax:
+            return "invalid syntax";
         }
         return "Unknown error";
     }
@@ -490,6 +493,8 @@ int length(Value* lat);
 // order, and read in REVERSE ORDER.
 void push_op(Value* operand);
 Value* get_op(u32 operand_number);
+Value* get_op0();
+Value* get_op1();
 void pop_op();
 Value* get_arg(u16 arg);
 

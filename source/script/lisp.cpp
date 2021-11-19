@@ -150,7 +150,7 @@ static void globals_tree_insert(Value* key, Value* value)
         // The empty set of left/right children
         push_op(make_cons(get_nil(), get_nil()));
 
-        auto new_tree = make_cons(new_kvp, get_op(0));
+        auto new_tree = make_cons(new_kvp, get_op0());
         pop_op();
 
         ctx.globals_tree_ = new_tree;
@@ -191,7 +191,7 @@ static void globals_tree_insert(Value* key, Value* value)
         if (insert_left) {
             push_op(make_cons(get_nil(), get_nil()));
 
-            auto new_tree = make_cons(new_kvp, get_op(0));
+            auto new_tree = make_cons(new_kvp, get_op0());
             pop_op();
 
             prev->cons().cdr()->cons().set_car(new_tree);
@@ -199,7 +199,7 @@ static void globals_tree_insert(Value* key, Value* value)
         } else {
             push_op(make_cons(get_nil(), get_nil()));
 
-            auto new_tree = make_cons(new_kvp, get_op(0));
+            auto new_tree = make_cons(new_kvp, get_op0());
             pop_op();
 
             prev->cons().cdr()->cons().set_cdr(new_tree);
@@ -849,6 +849,20 @@ void insert_op(u32 offset, Value* operand)
 }
 
 
+Value* get_op0()
+{
+    auto& stack = bound_context->operand_stack_;
+    return stack->back();
+}
+
+
+Value* get_op1()
+{
+    auto& stack = bound_context->operand_stack_;
+    return *(stack->end() - 2);
+}
+
+
 Value* get_op(u32 offset)
 {
     auto& stack = bound_context->operand_stack_;
@@ -939,7 +953,7 @@ void funcall(Value* obj, u8 argc)
                 eval(expression_list->cons().car()); // new result
                 expression_list = expression_list->cons().cdr();
             }
-            result = get_op(0);
+            result = get_op0();
             pop_op(); // result
             pop_args();
             push_op(result);
@@ -963,7 +977,7 @@ void funcall(Value* obj, u8 argc)
                            ->integer()
                            .value_);
 
-            auto result = get_op(0);
+            auto result = get_op0();
             pop_op();
             pop_args();
             push_op(result);
@@ -1144,13 +1158,13 @@ Value* dostring(const char* code, ::Function<16, void(Value&)> on_error)
 
     while (true) {
         i += read(code + i);
-        auto reader_result = get_op(0);
+        auto reader_result = get_op0();
         if (reader_result == get_nil()) {
             pop_op();
             break;
         }
         eval(reader_result);
-        auto expr_result = get_op(0);
+        auto expr_result = get_op0();
         result.set(expr_result);
         pop_op(); // expression result
         pop_op(); // reader result
@@ -1557,7 +1571,7 @@ static u32 read_list(const char* code)
             } else {
                 dotted_pair = true;
                 i += read(code + i);
-                result->cons().set_cdr(get_op(0));
+                result->cons().set_cdr(get_op0());
                 pop_op();
             }
             break;
@@ -1593,12 +1607,12 @@ static u32 read_list(const char* code)
             i += read(code + i);
 
             if (result == get_nil()) {
-                result = make_cons(get_op(0), get_nil());
+                result = make_cons(get_op0(), get_nil());
                 pop_op(); // the result from read()
                 pop_op(); // nil
                 push_op(result);
             } else {
-                auto next = make_cons(get_op(0), get_nil());
+                auto next = make_cons(get_op0(), get_nil());
                 pop_op();
                 result->cons().set_cdr(next);
                 result = next;
@@ -1642,8 +1656,9 @@ static u32 read_symbol(const char* code)
 
     StringBuffer<64> symbol;
 
-    if (code[0] == '\'') {
-        push_op(make_symbol("'", Symbol::ModeBits::stable_pointer));
+    if (code[0] == '\'' or code[0] == '`' or code[0] == ',') {
+        symbol.push_back(code[0]);
+        push_op(make_symbol(symbol.c_str()));
         return 1;
     }
 
@@ -1764,7 +1779,7 @@ u32 read(const char* code)
                 ++i;
                 pop_op(); // nil
                 i += read_number(code + i);
-                get_op(0)->integer().value_ *= -1;
+                get_op0()->integer().value_ *= -1;
                 return i;
             } else {
                 goto READ_SYMBOL;
@@ -1808,13 +1823,14 @@ u32 read(const char* code)
             // a cons, where the car holds the quote symbol, and the cdr holds
             // the value. Not sure how else to support top-level quoted
             // values outside of s-expressions.
-            if (get_op(0)->type() == Value::Type::symbol and
-                str_cmp(get_op(0)->symbol().name_, "'") == 0) {
+            if (get_op0()->type() == Value::Type::symbol and
+                (str_cmp(get_op0()->symbol().name_, "'") == 0 or
+                 str_cmp(get_op0()->symbol().name_, "`") == 0)) {
 
-                auto pair = make_cons(get_op(0), get_nil());
+                auto pair = make_cons(get_op0(), get_nil());
                 push_op(pair);
                 i += read(code + i);
-                pair->cons().set_cdr(get_op(0));
+                pair->cons().set_cdr(get_op0());
                 pop_op(); // result of read()
                 pop_op(); // pair
                 pop_op(); // symbol
@@ -1857,7 +1873,7 @@ static void eval_let(Value* code)
                     bind->type() == Value::Type::cons) {
 
                     eval(bind->cons().car());
-                    binding_list_builder.push_back(make_cons(sym, get_op(0)));
+                    binding_list_builder.push_back(make_cons(sym, get_op0()));
 
                     pop_op();
 
@@ -1890,7 +1906,7 @@ static void eval_let(Value* code)
 
     foreach (code->cons().cdr(), [&](Value* val) {
         eval(val);
-        result.set(get_op(0));
+        result.set(get_op0());
         pop_op();
     })
         ;
@@ -1923,13 +1939,13 @@ static void eval_if(Value* code)
     }
 
     eval(cond);
-    if (is_boolean_true(get_op(0))) {
+    if (is_boolean_true(get_op0())) {
         eval(true_branch);
     } else {
         eval(false_branch);
     }
 
-    auto result = get_op(0);
+    auto result = get_op0();
     pop_op(); // result
     pop_op(); // cond
     push_op(result);
@@ -1941,6 +1957,40 @@ static void eval_lambda(Value* code)
     // todo: argument list...
 
     push_op(make_lisp_function(code));
+}
+
+
+static void eval_quasiquote(Value* code)
+{
+    ListBuilder builder;
+
+    while (code not_eq get_nil()) {
+        if (code->cons().car()->type() == Value::Type::symbol and
+            str_cmp(code->cons().car()->symbol().name_, ",") == 0) {
+
+            code = code->cons().cdr();
+
+            if (code == get_nil()) {
+                push_op(make_error(Error::Code::invalid_syntax,
+                                   make_string(bound_context->pfrm_,
+                                               "extraneous unquote")));
+                return;
+            }
+
+            eval(code->cons().car());
+            auto result = get_op0();
+            pop_op();
+
+            builder.push_back(result);
+
+        } else {
+            builder.push_back(code->cons().car());
+        }
+
+        code = code->cons().cdr();
+    }
+
+    push_op(builder.result());
 }
 
 
@@ -1960,7 +2010,7 @@ void eval(Value* code)
         if (form->type() == Value::Type::symbol) {
             if (str_cmp(form->symbol().name_, "if") == 0) {
                 eval_if(code->cons().cdr());
-                auto result = get_op(0);
+                auto result = get_op0();
                 pop_op(); // result
                 pop_op(); // code
                 push_op(result);
@@ -1968,7 +2018,7 @@ void eval(Value* code)
                 return;
             } else if (str_cmp(form->symbol().name_, "lambda") == 0) {
                 eval_lambda(code->cons().cdr());
-                auto result = get_op(0);
+                auto result = get_op0();
                 pop_op(); // result
                 pop_op(); // code
                 push_op(result);
@@ -1979,9 +2029,17 @@ void eval(Value* code)
                 push_op(code->cons().cdr());
                 --bound_context->interp_entry_count_;
                 return;
+            } else if (str_cmp(form->symbol().name_, "`") == 0) {
+                eval_quasiquote(code->cons().cdr());
+                auto result = get_op0();
+                pop_op(); // result
+                pop_op(); // code
+                push_op(result);
+                --bound_context->interp_entry_count_;
+                return;
             } else if (str_cmp(form->symbol().name_, "let") == 0) {
                 eval_let(code->cons().cdr());
-                auto result = get_op(0);
+                auto result = get_op0();
                 pop_op();
                 pop_op();
                 push_op(result);
@@ -1991,7 +2049,7 @@ void eval(Value* code)
         }
 
         eval(code->cons().car());
-        auto function = get_op(0);
+        auto function = get_op0();
         pop_op();
 
         int argc = 0;
@@ -2023,7 +2081,7 @@ void eval(Value* code)
         }
 
         funcall(function, argc);
-        auto result = get_op(0);
+        auto result = get_op0();
         if (result->type() == Value::Type::error and
             dcompr(result->error().context_) == L_NIL) {
             result->error().context_ = compr(code);
@@ -2065,6 +2123,11 @@ void init(Platform& pfrm)
 
     bound_context->string_buffer_ = bound_context->nil_;
 
+    // Push a few nil onto the operand stack. Allows us to access the first few
+    // elements of the operand stack without performing size checks.
+    push_op(get_nil());
+    push_op(get_nil());
+
     if (dcompr(compr(get_nil())) not_eq get_nil()) {
         error(pfrm, "pointer compression test failed");
         while (true)
@@ -2079,15 +2142,15 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 2);
                 L_EXPECT_OP(1, symbol);
 
-                lisp::set_var(get_op(1), get_op(0));
+                lisp::set_var(get_op1(), get_op0());
 
                 return L_NIL;
             }));
 
     set_var("cons", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 2);
-                auto car = get_op(1);
-                auto cdr = get_op(0);
+                auto car = get_op1();
+                auto cdr = get_op0();
 
                 if (car->type() == lisp::Value::Type::error) {
                     return car;
@@ -2097,19 +2160,19 @@ void init(Platform& pfrm)
                     return cdr;
                 }
 
-                return make_cons(get_op(1), get_op(0));
+                return make_cons(get_op1(), get_op0());
             }));
 
     set_var("car", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, cons);
-                return get_op(0)->cons().car();
+                return get_op0()->cons().car();
             }));
 
     set_var("cdr", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, cons);
-                return get_op(0)->cons().cdr();
+                return get_op0()->cons().cdr();
             }));
 
     set_var("list", make_function([](int argc) {
@@ -2127,7 +2190,7 @@ void init(Platform& pfrm)
     set_var("arg", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, integer);
-                return get_arg(get_op(0)->integer().value_);
+                return get_arg(get_op0()->integer().value_);
             }));
 
     set_var(
@@ -2138,7 +2201,7 @@ void init(Platform& pfrm)
             //
             // Drawbacks: (1) Defining progn takes up a small amount of memory for
             // the function object. (2) Extra use of the operand stack.
-            return get_op(0);
+            return get_op0();
         }));
 
     set_var("any-true", make_function([](int argc) {
@@ -2161,22 +2224,22 @@ void init(Platform& pfrm)
 
     set_var("not", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
-                return make_integer(not is_boolean_true(get_op(0)));
+                return make_integer(not is_boolean_true(get_op0()));
             }));
 
     set_var(
         "equal", make_function([](int argc) {
             L_EXPECT_ARGC(argc, 2);
 
-            if (get_op(0)->type() not_eq get_op(1)->type()) {
+            if (get_op0()->type() not_eq get_op1()->type()) {
                 return make_integer(0);
             }
 
             return make_integer([] {
-                switch (get_op(0)->type()) {
+                switch (get_op0()->type()) {
                 case Value::Type::integer:
-                    return get_op(0)->integer().value_ ==
-                           get_op(1)->integer().value_;
+                    return get_op0()->integer().value_ ==
+                           get_op1()->integer().value_;
 
                 case Value::Type::cons:
                     // TODO!
@@ -2190,22 +2253,22 @@ void init(Platform& pfrm)
                 case Value::Type::heap_node:
                 case Value::Type::data_buffer:
                 case Value::Type::function:
-                    return get_op(0) == get_op(1);
+                    return get_op0() == get_op1();
 
                 case Value::Type::error:
                     break;
 
                 case Value::Type::symbol:
-                    return get_op(0)->symbol().name_ ==
-                           get_op(1)->symbol().name_;
+                    return get_op0()->symbol().name_ ==
+                           get_op1()->symbol().name_;
 
                 case Value::Type::user_data:
-                    return get_op(0)->user_data().obj_ ==
-                           get_op(1)->user_data().obj_;
+                    return get_op0()->user_data().obj_ ==
+                           get_op1()->user_data().obj_;
 
                 case Value::Type::string:
-                    return str_cmp(get_op(0)->string().value(),
-                                   get_op(1)->string().value()) == 0;
+                    return str_cmp(get_op0()->string().value(),
+                                   get_op1()->string().value()) == 0;
                 }
                 return false;
             }());
@@ -2216,8 +2279,8 @@ void init(Platform& pfrm)
                 L_EXPECT_OP(0, cons);
                 L_EXPECT_OP(1, function);
 
-                auto lat = get_op(0);
-                auto fn = get_op(1);
+                auto lat = get_op0();
+                auto fn = get_op1();
 
                 int apply_argc = 0;
                 while (lat not_eq get_nil()) {
@@ -2233,7 +2296,7 @@ void init(Platform& pfrm)
 
                 funcall(fn, apply_argc);
 
-                auto result = get_op(0);
+                auto result = get_op0();
                 pop_op();
 
                 return result;
@@ -2243,9 +2306,9 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 2);
                 L_EXPECT_OP(1, integer);
 
-                auto result = make_list(get_op(1)->integer().value_);
-                for (int i = 0; i < get_op(1)->integer().value_; ++i) {
-                    set_list(result, i, get_op(0));
+                auto result = make_list(get_op1()->integer().value_);
+                for (int i = 0; i < get_op1()->integer().value_; ++i) {
+                    set_list(result, i, get_op0());
                 }
 
                 return result;
@@ -2255,14 +2318,14 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 2);
                 L_EXPECT_OP(1, integer);
 
-                auto result = make_list(get_op(1)->integer().value_);
-                auto fn = get_op(0);
-                const int count = get_op(1)->integer().value_;
+                auto result = make_list(get_op1()->integer().value_);
+                auto fn = get_op0();
+                const int count = get_op1()->integer().value_;
                 push_op(result);
                 for (int i = 0; i < count; ++i) {
                     push_op(make_integer(i));
                     funcall(fn, 1);
-                    set_list(result, i, get_op(0));
+                    set_list(result, i, get_op0());
                     pop_op(); // result from funcall
                 }
                 pop_op(); // result
@@ -2272,29 +2335,29 @@ void init(Platform& pfrm)
     set_var("length", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
 
-                if (get_op(0)->type() == Value::Type::nil) {
+                if (get_op0()->type() == Value::Type::nil) {
                     return make_integer(0);
                 }
 
                 L_EXPECT_OP(0, cons);
 
-                return make_integer(length(get_op(0)));
+                return make_integer(length(get_op0()));
             }));
 
     set_var("<", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 2);
                 L_EXPECT_OP(0, integer);
                 L_EXPECT_OP(1, integer);
-                return make_integer(get_op(1)->integer().value_ <
-                                    get_op(0)->integer().value_);
+                return make_integer(get_op1()->integer().value_ <
+                                    get_op0()->integer().value_);
             }));
 
     set_var(">", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 2);
                 L_EXPECT_OP(0, integer);
                 L_EXPECT_OP(1, integer);
-                return make_integer(get_op(1)->integer().value_ >
-                                    get_op(0)->integer().value_);
+                return make_integer(get_op1()->integer().value_ >
+                                    get_op0()->integer().value_);
             }));
 
     set_var("+", make_function([](int argc) {
@@ -2310,8 +2373,8 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 2);
                 L_EXPECT_OP(1, integer);
                 L_EXPECT_OP(0, integer);
-                return make_integer(get_op(1)->integer().value_ -
-                                    get_op(0)->integer().value_);
+                return make_integer(get_op1()->integer().value_ -
+                                    get_op0()->integer().value_);
             }));
 
     set_var("*", make_function([](int argc) {
@@ -2327,8 +2390,8 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 2);
                 L_EXPECT_OP(1, integer);
                 L_EXPECT_OP(0, integer);
-                return make_integer(get_op(1)->integer().value_ /
-                                    get_op(0)->integer().value_);
+                return make_integer(get_op1()->integer().value_ /
+                                    get_op0()->integer().value_);
             }));
 
     set_var("interp-stat", make_function([](int argc) {
@@ -2390,13 +2453,20 @@ void init(Platform& pfrm)
                 int end = 0;
                 int incr = 1;
 
-                if (argc == 2) {
+                if (argc == 1) {
+
+                    L_EXPECT_OP(0, integer);
+
+                    start = 0;
+                    end = get_op0()->integer().value_;
+
+                } else if (argc == 2) {
 
                     L_EXPECT_OP(1, integer);
                     L_EXPECT_OP(0, integer);
 
-                    start = get_op(1)->integer().value_;
-                    end = get_op(0)->integer().value_;
+                    start = get_op1()->integer().value_;
+                    end = get_op0()->integer().value_;
 
                 } else if (argc == 3) {
 
@@ -2405,8 +2475,8 @@ void init(Platform& pfrm)
                     L_EXPECT_OP(0, integer);
 
                     start = get_op(2)->integer().value_;
-                    end = get_op(1)->integer().value_;
-                    incr = get_op(0)->integer().value_;
+                    end = get_op1()->integer().value_;
+                    incr = get_op0()->integer().value_;
                 } else {
                     return lisp::make_error(lisp::Error::Code::invalid_argc,
                                             L_NIL);
@@ -2416,22 +2486,20 @@ void init(Platform& pfrm)
                     return get_nil();
                 }
 
-                auto lat = make_list((end - start) / incr);
+                ListBuilder lat;
 
                 for (int i = start; i < end; i += incr) {
-                    push_op(lat);
-                    set_list(lat, (i - start) / incr, make_integer(i));
-                    pop_op();
+                    lat.push_back(make_integer(i));
                 }
 
-                return lat;
+                return lat.result();
             }));
 
     set_var("unbind", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, symbol);
 
-                globals_tree_erase(get_op(0));
+                globals_tree_erase(get_op0());
 
                 return get_nil();
             }));
@@ -2441,14 +2509,14 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, string);
 
-                return make_symbol(get_op(0)->string().value());
+                return make_symbol(get_op0()->string().value());
             }));
 
     set_var("type", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
                 return make_symbol([] {
                     // clang-format off
-                    switch (get_op(0)->type()) {
+                    switch (get_op0()->type()) {
             case Value::Type::nil: return "nil";
             case Value::Type::integer: return "integer";
             case Value::Type::cons: return "pair";
@@ -2493,7 +2561,7 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, symbol);
 
-                auto found = globals_tree_find(get_op(0));
+                auto found = globals_tree_find(get_op0());
                 return make_integer(found not_eq get_nil() and
                                     found->type() not_eq
                                         lisp::Value::Type::error);
@@ -2505,17 +2573,17 @@ void init(Platform& pfrm)
                 L_EXPECT_OP(0, cons);
                 L_EXPECT_OP(1, function);
 
-                auto fn = get_op(1);
+                auto fn = get_op1();
                 Value* result = make_cons(L_NIL, L_NIL);
                 auto prev = result;
                 auto current = result;
 
-                foreach (get_op(0), [&](Value* val) {
+                foreach (get_op0(), [&](Value* val) {
                     push_op(result); // gc protect
 
                     push_op(val);
                     funcall(fn, 1);
-                    auto funcall_result = get_op(0);
+                    auto funcall_result = get_op0();
 
                     if (is_boolean_true(funcall_result)) {
                         current->cons().set_car(val);
@@ -2597,7 +2665,7 @@ void init(Platform& pfrm)
                 }
                 funcall(fn, inp_lats.size());
 
-                set_list(result, index, get_op(0));
+                set_list(result, index, get_op0());
                 pop_op();
 
                 ++index;
@@ -2613,7 +2681,7 @@ void init(Platform& pfrm)
                 L_EXPECT_OP(0, cons);
 
                 Value* result = get_nil();
-                foreach (get_op(0), [&](Value* car) {
+                foreach (get_op0(), [&](Value* car) {
                     push_op(result);
                     result = make_cons(car, result);
                     pop_op();
@@ -2628,13 +2696,13 @@ void init(Platform& pfrm)
                 L_EXPECT_OP(0, cons);
                 L_EXPECT_OP(1, cons);
 
-                const auto len = length(get_op(0));
-                if (not len or len not_eq length(get_op(1))) {
+                const auto len = length(get_op0());
+                if (not len or len not_eq length(get_op1())) {
                     return get_nil();
                 }
 
-                auto input_list = get_op(1);
-                auto selection_list = get_op(0);
+                auto input_list = get_op1();
+                auto selection_list = get_op0();
 
                 auto result = get_nil();
                 for (int i = len - 1; i > -1; --i) {
@@ -2657,15 +2725,15 @@ void init(Platform& pfrm)
                 L_EXPECT_OP(1, cons);
                 L_EXPECT_OP(0, integer);
 
-                return get_list(get_op(1), get_op(0)->integer().value_);
+                return get_list(get_op1(), get_op0()->integer().value_);
             }));
 
 
     set_var("read", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, string);
-                read(get_op(0)->string().value());
-                auto result = get_op(0);
+                read(get_op0()->string().value());
+                auto result = get_op0();
                 pop_op();
                 return result;
             }));
@@ -2677,8 +2745,8 @@ void init(Platform& pfrm)
                                             L_NIL);
                 }
 
-                eval(get_op(0));
-                auto result = get_op(0);
+                eval(get_op0());
+                auto result = get_op0();
                 pop_op(); // result
 
                 return result;
@@ -2725,15 +2793,15 @@ void init(Platform& pfrm)
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, function);
 
-                if (get_op(0)->hdr_.mode_bits_ ==
+                if (get_op0()->hdr_.mode_bits_ ==
                     Function::ModeBits::lisp_function) {
                     compile(*pfrm,
-                            dcompr(get_op(0)->function().lisp_impl_.code_));
-                    auto ret = get_op(0);
+                            dcompr(get_op0()->function().lisp_impl_.code_));
+                    auto ret = get_op0();
                     pop_op();
                     return ret;
                 } else {
-                    return get_op(0);
+                    return get_op0();
                 }
             }));
 
@@ -2742,18 +2810,18 @@ void init(Platform& pfrm)
             L_EXPECT_ARGC(argc, 1);
             L_EXPECT_OP(0, function);
 
-            if (get_op(0)->hdr_.mode_bits_ ==
+            if (get_op0()->hdr_.mode_bits_ ==
                 Function::ModeBits::lisp_bytecode_function) {
 
                 Platform::RemoteConsole::Line out;
 
                 u8 depth = 0;
 
-                auto buffer = get_op(0)->function().bytecode_impl_.databuffer();
+                auto buffer = get_op0()->function().bytecode_impl_.databuffer();
 
                 auto data = buffer->data_buffer().value();
 
-                const auto start_offset = get_op(0)
+                const auto start_offset = get_op0()
                                               ->function()
                                               .bytecode_impl_.bytecode_offset()
                                               ->integer()
@@ -3069,10 +3137,10 @@ void init(Platform& pfrm)
                     out += "\r\n";
                 }
                 return get_nil();
-            } else if (get_op(0)->hdr_.mode_bits_ ==
+            } else if (get_op0()->hdr_.mode_bits_ ==
                        Function::ModeBits::lisp_function) {
                 auto expression_list =
-                    dcompr(get_op(0)->function().lisp_impl_.code_);
+                    dcompr(get_op0()->function().lisp_impl_.code_);
 
                 DefaultPrinter p;
                 format(expression_list, p);
