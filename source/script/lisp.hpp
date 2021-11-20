@@ -19,11 +19,11 @@
 
 
 #include "function.hpp"
+#include "module.hpp"
 #include "number/numeric.hpp"
 #include "platform/scratch_buffer.hpp"
 #include "string.hpp"
 #include "unicode.hpp"
-#include "module.hpp"
 
 
 class Platform;
@@ -622,9 +622,7 @@ public:
 
     virtual ~ProtectedBase();
 
-
     virtual void gc_mark() = 0;
-
 
     ProtectedBase* next() const
     {

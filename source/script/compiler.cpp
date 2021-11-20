@@ -321,7 +321,8 @@ int compile_impl(ScratchBuffer& buffer,
                 compile_quoted(buffer, write_pos, lat->cons().cdr(), tail_expr);
         } else if (fn->type() == Value::Type::symbol and
                    str_cmp(fn->symbol().name_, "`") == 0) {
-            while (true) ;
+            while (true)
+                ;
             // TODO: Implement quasiquote for compiled code.
         } else {
             u8 argc = 0;
@@ -740,7 +741,8 @@ void compile(Platform& pfrm, Value* code)
         *fn->function().bytecode_impl_.databuffer()->data_buffer().value(),
         write_pos);
 
-    // std::cout << "compilation finished, bytes used: " << write_pos << std::endl;
+    // std::cout << "compilation finished, bytes used: " << write_pos <<
+    // std::endl;
 
     // OK, so now, we've successfully compiled our function into the scratch
     // buffer. But, what about all the extra space in the buffer!? So we're

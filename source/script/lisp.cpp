@@ -119,6 +119,7 @@ struct Context {
     Value* globals_tree_ = nullptr;
 
     Value* lexical_bindings_ = nullptr;
+    Value* macros_ = nullptr;
 
     const IntegralConstant* constants_ = nullptr;
     u16 constants_count_ = 0;
@@ -357,6 +358,18 @@ static Value* globals_tree_find(Value* key)
 
     return make_error(Error::Code::undefined_variable_access,
                       make_string(bound_context->pfrm_, hint.c_str()));
+}
+
+
+static bool is_list(Value* val)
+{
+    while (val not_eq get_nil()) {
+        if (val->type() not_eq Value::Type::cons) {
+            return false;
+        }
+        val = val->cons().cdr();
+    }
+    return true;
 }
 
 
@@ -1754,11 +1767,137 @@ FINAL:
 }
 
 
-// Argument: list on stack
-// result: list on stack
+static void eval_let(Value* code);
+
+
+static void macroexpand();
+
+
+// Argument: list on operand stack
+// result: list on operand stack
+static void macroexpand_macro()
+{
+    // Ok, so this warrants some explanation: When calling this function, we've
+    // just expanded a macro, but the macro expansion itself may contain macros,
+    // so we'll want to iterate through the expanded expression and expand any
+    // nested macros.
+
+    // FIXME: If the macro has no nested macro expressions, we create a whole
+    // bunch of garbage. Not an actual issue, but puts pressure on the gc.
+
+    ListBuilder result;
+
+    auto lat = get_op0();
+    for (; lat not_eq get_nil(); lat = lat->cons().cdr()) {
+        if (is_list(lat->cons().car())) {
+            push_op(lat->cons().car());
+            macroexpand_macro();
+            macroexpand();
+            result.push_back(get_op0());
+            pop_op();
+        } else {
+            result.push_back(lat->cons().car());
+        }
+    }
+
+    pop_op();
+    push_op(result.result());
+}
+
+
+// Argument: list on operand stack
+// result: list on operand stack
 static void macroexpand()
 {
-    // TODO...
+    // NOTE: I know this function looks complicated. But it's really not too
+    // bad.
+
+    auto lat = get_op0();
+
+    if (lat->cons().car()->type() == Value::Type::symbol) {
+
+        auto macros = bound_context->macros_;
+        for (; macros not_eq get_nil(); macros = macros->cons().cdr()) {
+
+            // if Symbol matches?
+            if (macros->cons().car()->cons().car()->symbol().name_ ==
+                lat->cons().car()->symbol().name_) {
+
+                auto supplied_macro_args = lat->cons().cdr();
+
+                auto macro = macros->cons().car()->cons().cdr();
+                auto macro_args = macro->cons().car();
+
+                if (length(macro_args) > length(supplied_macro_args)) {
+                    pop_op();
+                    push_op(make_error(Error::Code::invalid_syntax,
+                                       make_string(bound_context->pfrm_,
+                                                   "invalid arguments "
+                                                   "passed to marcro")));
+                    return;
+                }
+
+                Protected quote(make_symbol("'"));
+
+                // Ok, so I should explain what's going on here. For code reuse
+                // purposes, we basically generate a let expression from the
+                // macro parameter list, which binds the quoted macro arguments
+                // to the unevaluated macro parameters.
+                //
+                // So, (macro foo (a b c) ...),
+                // instantiated as (foo (+ 1 2) 5 6) becomes:
+                //
+                // (let ((a '(+ 1 2)) (b '5) (c '(6))) ...)
+                //
+                // Then, we just eval the let expression.
+                // NOTE: The final macro argument will _always_ be a list. We
+                // need to allow for variadic arguments in macro expressions,
+                // and for the sake of generality, we may as well make the final
+                // parameter in a macro a list in all cases, if it will need to
+                // be a list in some cases.
+
+                ListBuilder builder;
+                while (macro_args not_eq get_nil()) {
+
+                    ListBuilder assoc;
+
+                    if (macro_args->cons().cdr() == get_nil()) {
+
+                        assoc.push_front(make_cons(quote, supplied_macro_args));
+
+                    } else {
+
+                        assoc.push_front(make_cons(
+                            quote, supplied_macro_args->cons().car()));
+                    }
+
+                    assoc.push_front(macro_args->cons().car());
+                    builder.push_back(assoc.result());
+
+                    macro_args = macro_args->cons().cdr();
+                    supplied_macro_args = supplied_macro_args->cons().cdr();
+                }
+
+                ListBuilder synthetic_let;
+                synthetic_let.push_front(macro->cons().cdr()->cons().car());
+                synthetic_let.push_front(builder.result());
+
+                eval_let(synthetic_let.result());
+
+                auto result = get_op0();
+                pop_op(); // result of eval_let()
+                pop_op(); // input list
+                push_op(result);
+
+                // OK, so... we want to allow users to recursively instantiate
+                // macros, so we aren't done!
+                macroexpand_macro();
+                return;
+            } else {
+                std::cout << "no match" << std::endl;
+            }
+        }
+    }
 }
 
 
@@ -1939,11 +2078,11 @@ static void eval_let(Value* code)
 static void eval_macro(Value* code)
 {
     if (code->cons().car()->type() == Value::Type::symbol) {
-        // bound_context->macros_ = make_cons(code, bound_context->macros_);
-        // std::cout << code->cons().car()->symbol().name_ << std::endl;
+        bound_context->macros_ = make_cons(code, bound_context->macros_);
     } else {
         // TODO: raise error!
-        while (true) ;
+        while (true)
+            ;
     }
 }
 
@@ -1990,18 +2129,6 @@ static void eval_lambda(Value* code)
 }
 
 
-static bool is_list(Value* val)
-{
-    while (val not_eq get_nil()) {
-        if (val->type() not_eq Value::Type::cons) {
-            return false;
-        }
-        val = val->cons().cdr();
-    }
-    return true;
-}
-
-
 static void eval_quasiquote(Value* code)
 {
     ListBuilder builder;
@@ -2013,9 +2140,9 @@ static void eval_quasiquote(Value* code)
             code = code->cons().cdr();
 
             if (code == get_nil()) {
-                push_op(make_error(Error::Code::invalid_syntax,
-                                   make_string(bound_context->pfrm_,
-                                               "extraneous unquote")));
+                push_op(make_error(
+                    Error::Code::invalid_syntax,
+                    make_string(bound_context->pfrm_, "extraneous unquote")));
                 return;
             }
 
@@ -2048,7 +2175,14 @@ static void eval_quasiquote(Value* code)
             }
 
         } else {
-            builder.push_back(code->cons().car());
+            if (is_list(code->cons().car())) {
+                // NOTE: because we need to expand unquotes in nested lists.
+                eval_quasiquote(code->cons().car());
+                builder.push_back(get_op0());
+                pop_op();
+            } else {
+                builder.push_back(code->cons().car());
+            }
         }
 
         code = code->cons().cdr();
@@ -2192,6 +2326,8 @@ void init(Platform& pfrm)
     bound_context->oom_->error().context_ = compr(bound_context->nil_);
 
     bound_context->string_buffer_ = bound_context->nil_;
+    bound_context->macros_ = bound_context->nil_;
+
 
     // Push a few nil onto the operand stack. Allows us to access the first few
     // elements of the operand stack without performing size checks.
@@ -2273,24 +2409,6 @@ void init(Platform& pfrm)
             // the function object. (2) Extra use of the operand stack.
             return get_op0();
         }));
-
-    set_var("any-true", make_function([](int argc) {
-                for (int i = 0; i < argc; ++i) {
-                    if (is_boolean_true(get_op(i))) {
-                        return get_op(i);
-                    }
-                }
-                return L_NIL;
-            }));
-
-    set_var("all-true", make_function([](int argc) {
-                for (int i = 0; i < argc; ++i) {
-                    if (not is_boolean_true(get_op(i))) {
-                        return L_NIL;
-                    }
-                }
-                return make_integer(1);
-            }));
 
     set_var("not", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
@@ -3227,7 +3345,6 @@ void init(Platform& pfrm)
 }
 
 
-
 void load_module(Module* module)
 {
     Protected buffer(make_databuffer(bound_context->pfrm_));
@@ -3278,30 +3395,33 @@ void load_module(Module* module)
             break;
 
         case instruction::LoadVarRelocatable::op(): {
-            auto sym_num = ((instruction::LoadVarRelocatable*)inst)->name_offset_.get();
+            auto sym_num =
+                ((instruction::LoadVarRelocatable*)inst)->name_offset_.get();
             auto str = load_module_symbol(sym_num);
-            ((instruction::LoadVar*)inst)->name_offset_
-                .set(symbol_offset(intern(str)));
+            ((instruction::LoadVar*)inst)
+                ->name_offset_.set(symbol_offset(intern(str)));
             inst->op_ = instruction::LoadVar::op();
             ++index;
             break;
         }
 
         case instruction::PushSymbolRelocatable::op(): {
-            auto sym_num = ((instruction::PushSymbolRelocatable*)inst)->name_offset_.get();
+            auto sym_num =
+                ((instruction::PushSymbolRelocatable*)inst)->name_offset_.get();
             auto str = load_module_symbol(sym_num);
-            ((instruction::PushSymbol*)inst)->name_offset_
-                .set(symbol_offset(intern(str)));
+            ((instruction::PushSymbol*)inst)
+                ->name_offset_.set(symbol_offset(intern(str)));
             inst->op_ = instruction::PushSymbol::op();
             ++index;
             break;
         }
 
         case instruction::LexicalDefRelocatable::op(): {
-            auto sym_num = ((instruction::LexicalDefRelocatable*)inst)->name_offset_.get();
+            auto sym_num =
+                ((instruction::LexicalDefRelocatable*)inst)->name_offset_.get();
             auto str = load_module_symbol(sym_num);
-            ((instruction::LexicalDef*)inst)->name_offset_
-                .set(symbol_offset(intern(str)));
+            ((instruction::LexicalDef*)inst)
+                ->name_offset_.set(symbol_offset(intern(str)));
             inst->op_ = instruction::LexicalDef::op();
             ++index;
             break;
@@ -3311,11 +3431,8 @@ void load_module(Module* module)
             ++index;
             break;
         }
-
-
     }
 }
-
 
 
 } // namespace lisp
