@@ -8,8 +8,5 @@
 (eval-other-file "stdlib.lisp")
 
 
-
-(set 'locale-string
-     (compile
-      (lambda
-        (get-line-of-file (string "strings/" language '.txt) $0))))
+(defn-c 'locale-string
+  (get-line-of-file (string "strings/" language '.txt) $0))

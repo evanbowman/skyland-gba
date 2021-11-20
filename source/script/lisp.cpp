@@ -99,9 +99,7 @@ struct Context {
           interns_(allocate_dynamic<Interns>(pfrm)), pfrm_(pfrm)
     {
         if (not operand_stack_ or not interns_) {
-
-            while (true)
-                ; // FIXME: raise error
+            pfrm_.fatal("pointer compression test failed");
         }
     }
 
@@ -398,11 +396,6 @@ const char* symbol_from_offset(u16 offset)
 
 Value* get_nil()
 {
-    if (not bound_context->nil_) {
-        // Someone has likely called git_nil() before calling init().
-        while (true)
-            ;
-    }
     return bound_context->nil_;
 }
 
@@ -459,8 +452,7 @@ const char* intern(const char* string)
     if (len + 1 >
         string_intern_table_size - bound_context->string_intern_pos_) {
 
-        while (true)
-            ; // TODO: raise error, table full...
+        bound_context->pfrm_.fatal("string intern table full");
     }
 
     auto& ctx = bound_context;
@@ -843,14 +835,7 @@ void pop_op()
 
 void push_op(Value* operand)
 {
-#ifdef UNHOSTED
-    if (not bound_context->operand_stack_->push_back(operand)) {
-        while (true)
-            ; // TODO: raise error
-    }
-#else
     bound_context->operand_stack_->push_back(operand);
-#endif
 }
 
 
@@ -1212,8 +1197,7 @@ void format_impl(Value* value, Printer& p, int depth)
     switch ((lisp::Value::Type)value->type()) {
     case lisp::Value::Type::heap_node:
         // We should never reach here.
-        while (true)
-            ;
+        bound_context->pfrm_.fatal("direct access to heap node");
         break;
 
     case lisp::Value::Type::nil:
@@ -1419,6 +1403,7 @@ static void gc_mark()
     gc_mark_value(bound_context->nil_);
     gc_mark_value(bound_context->oom_);
     gc_mark_value(bound_context->lexical_bindings_);
+    gc_mark_value(bound_context->macros_);
 
     auto& ctx = bound_context;
 
@@ -1894,7 +1879,7 @@ static void macroexpand()
                 macroexpand_macro();
                 return;
             } else {
-                std::cout << "no match" << std::endl;
+                // ... no match ...
             }
         }
     }
@@ -2079,10 +2064,10 @@ static void eval_macro(Value* code)
 {
     if (code->cons().car()->type() == Value::Type::symbol) {
         bound_context->macros_ = make_cons(code, bound_context->macros_);
+        push_op(get_nil());
     } else {
         // TODO: raise error!
-        while (true)
-            ;
+        bound_context->pfrm_.fatal("invalid macro format");
     }
 }
 
@@ -2335,9 +2320,7 @@ void init(Platform& pfrm)
     push_op(get_nil());
 
     if (dcompr(compr(get_nil())) not_eq get_nil()) {
-        error(pfrm, "pointer compression test failed");
-        while (true)
-            ;
+        bound_context->pfrm_.fatal("pointer compression test failed");
     }
 
     lisp::set_var("*pfrm*", lisp::make_userdata(&pfrm));

@@ -25,27 +25,32 @@
    1))
 
 
+;; Some useful macros for defining functions
+;; Defines a function.
+(macro defn (name body) `(set ,name (lambda ,@body)))
+;; Defines a bytecode-compiled function.
+(macro defn-c (name body) `(set ,name (compile (lambda ,@body))))
+
+
 ;; TODO: remove builtin progn function, use a macro instead.
 ;; (macro progn (body) `(let () ,@body))
 
 
-(set 'acons
-     (compile
-      (lambda
-        (cons (cons $0 $1) $2))))
+(defn-c 'acons
+  (cons (cons $0 $1) $2))
 
 
-(set 'assoc
-     (compile
-      (lambda
-        (let ((temp $0))
-          (get (filter
-                (lambda (equal (car $0) temp))
-                $1)
-               0)))))
+(defn-c 'assoc
+  (let ((temp $0))
+    (get (filter (lambda (equal (car $0) temp))
+                 $1)
+         0)))
 
 
-(set 'append (lambda `(,@$0 ,@$1)))
+(defn 'append
+  ;; Not the most efficient way to implement append, but this implementation
+  ;; with unquote-splicing is quite compact.
+  `(,@$0 ,@$1))
 
 
 (set 'bisect
@@ -62,22 +67,19 @@
        (lambda (impl $0 $0 '()))))
 
 
-(set 'merge
-     (compile
-      (lambda
-        (if (not $0)
-            $1
-          (if (not $1)
-              $0
-            (if (< (car $0) (car $1))
-                (cons (car $0) ((this) (cdr $0) $1))
-              (cons (car $1) ((this) $0 (cdr $1)))))))))
+(defn-c 'merge
+  (if (not $0)
+      $1
+    (if (not $1)
+        $0
+      (if (< (car $0) (car $1))
+          (cons (car $0) ((this) (cdr $0) $1))
+        (cons (car $1) ((this) $0 (cdr $1)))))))
 
 
-(set 'sort
-     (lambda
-       (if (not (cdr $0))
-           $0
-         (let ((temp (bisect $0)))
-           (merge (sort (car temp))
-                  (sort (cdr temp)))))))
+(defn 'sort
+  (if (not (cdr $0))
+      $0
+    (let ((temp (bisect $0)))
+      (merge (sort (car temp))
+             (sort (cdr temp))))))
