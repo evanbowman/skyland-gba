@@ -9,6 +9,7 @@
 #ifdef __GBA__
 #define HEAP_DATA __attribute__((section(".ewram")))
 #else
+#include <iostream>
 #define HEAP_DATA
 #endif
 
@@ -118,7 +119,6 @@ struct Context {
     Value* globals_tree_ = nullptr;
 
     Value* lexical_bindings_ = nullptr;
-
 
     const IntegralConstant* constants_ = nullptr;
     u16 constants_count_ = 0;
@@ -1665,7 +1665,7 @@ static u32 read_symbol(const char* code)
 
     StringBuffer<64> symbol;
 
-    if (code[0] == '\'' or code[0] == '`' or code[0] == ',') {
+    if (code[0] == '\'' or code[0] == '`' or code[0] == ',' or code[0] == '@') {
         symbol.push_back(code[0]);
         push_op(make_symbol(symbol.c_str()));
         return 1;
@@ -1754,6 +1754,14 @@ FINAL:
 }
 
 
+// Argument: list on stack
+// result: list on stack
+static void macroexpand()
+{
+    // TODO...
+}
+
+
 u32 read(const char* code)
 {
     int i = 0;
@@ -1770,6 +1778,7 @@ u32 read(const char* code)
             ++i;
             pop_op(); // nil
             i += read_list(code + i);
+            macroexpand();
             // list now at stack top.
             return i;
 
@@ -1927,6 +1936,18 @@ static void eval_let(Value* code)
 }
 
 
+static void eval_macro(Value* code)
+{
+    if (code->cons().car()->type() == Value::Type::symbol) {
+        // bound_context->macros_ = make_cons(code, bound_context->macros_);
+        // std::cout << code->cons().car()->symbol().name_ << std::endl;
+    } else {
+        // TODO: raise error!
+        while (true) ;
+    }
+}
+
+
 static void eval_if(Value* code)
 {
     if (code->type() not_eq Value::Type::cons) {
@@ -1969,6 +1990,18 @@ static void eval_lambda(Value* code)
 }
 
 
+static bool is_list(Value* val)
+{
+    while (val not_eq get_nil()) {
+        if (val->type() not_eq Value::Type::cons) {
+            return false;
+        }
+        val = val->cons().cdr();
+    }
+    return true;
+}
+
+
 static void eval_quasiquote(Value* code)
 {
     ListBuilder builder;
@@ -1986,11 +2019,33 @@ static void eval_quasiquote(Value* code)
                 return;
             }
 
-            eval(code->cons().car());
-            auto result = get_op0();
-            pop_op();
+            if (code->cons().car()->type() == Value::Type::symbol and
+                str_cmp(code->cons().car()->symbol().name_, "@") == 0) {
 
-            builder.push_back(result);
+                code = code->cons().cdr(); // skip over @ symbol
+
+                eval(code->cons().car());
+                auto result = get_op0();
+
+                if (is_list(result)) {
+                    // Quote splicing
+                    while (result not_eq get_nil()) {
+                        builder.push_back(result->cons().car());
+                        result = result->cons().cdr();
+                    }
+                } else {
+                    builder.push_back(result);
+                }
+
+                pop_op(); // result
+
+            } else {
+                eval(code->cons().car());
+                auto result = get_op0();
+                pop_op();
+
+                builder.push_back(result);
+            }
 
         } else {
             builder.push_back(code->cons().car());
@@ -2052,6 +2107,12 @@ void eval(Value* code)
                 pop_op();
                 pop_op();
                 push_op(result);
+                --bound_context->interp_entry_count_;
+                return;
+            } else if (str_cmp(form->symbol().name_, "macro") == 0) {
+                eval_macro(code->cons().cdr());
+                pop_op();
+                // TODO: store macro!
                 --bound_context->interp_entry_count_;
                 return;
             }

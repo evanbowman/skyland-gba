@@ -319,6 +319,10 @@ int compile_impl(ScratchBuffer& buffer,
 
             write_pos =
                 compile_quoted(buffer, write_pos, lat->cons().cdr(), tail_expr);
+        } else if (fn->type() == Value::Type::symbol and
+                   str_cmp(fn->symbol().name_, "`") == 0) {
+            while (true) ;
+            // TODO: Implement quasiquote for compiled code.
         } else {
             u8 argc = 0;
 
