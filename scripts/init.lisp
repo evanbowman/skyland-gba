@@ -28,14 +28,7 @@
                0)))))
 
 
-(set 'append
-     (let ((impl (compile
-                  (lambda
-                    (if $0
-                        ((this) (cdr $0) (cons (car $0) $1))
-                      $1)))))
-       ;; (append <list 1> <list 2>)
-       (lambda (impl (reverse $0) $1))))
+(set 'append (lambda `(,@$0 ,@$1)))
 
 
 (set 'bisect

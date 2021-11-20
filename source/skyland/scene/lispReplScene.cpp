@@ -133,7 +133,7 @@ void LispReplScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     entry_.emplace(pfrm, OverlayCoord{0, u8(screen_tiles.y - 1)});
 
-    const char* version_text = "BlindJump LISP v01";
+    const char* version_text = "Skyland LISP v03";
 
     for (int i = 0; i < 31; ++i) {
         pfrm.set_tile(Layer::overlay, i, 0, 112);
