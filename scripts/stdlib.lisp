@@ -32,6 +32,25 @@
 (macro defn-c (name body) `(set ,name (compile (lambda ,@body))))
 
 
+;; Because we're running lisp in an embedded system (a gameboy) with limited
+;; memory, we need to be really careful about symbol table usage, which is why,
+;; traditionally, we only support numbered arguments for lambdas. But this
+;; function macro allows you to declare functions with named arguments:
+(macro fn (args body)
+ (if (not args)
+     `(lambda ,@body)
+   `(lambda
+     (let ,((lambda
+             (if (not $0)
+                 $1
+               ((this)
+                (cdr $0)
+                (cons (list (car $0) (symbol (string "$" $2))) $1)
+                (+ $2 1))))
+            args nil 0)
+       ,@body))))
+
+
 ;; TODO: remove builtin progn function, use a macro instead.
 ;; (macro progn (body) `(let () ,@body))
 
