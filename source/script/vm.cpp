@@ -420,12 +420,14 @@ TOP:
 
         case PushList::op(): {
             auto list_size = read<PushList>(code, pc)->element_count_;
-            ListBuilder lat;
+            Protected lat(make_list(list_size));
             for (int i = 0; i < list_size; ++i) {
-                lat.push_front(get_op0());
+                set_list(lat, i, get_op((list_size - 1) - i));
+            }
+            for (int i = 0; i < list_size; ++i) {
                 pop_op();
             }
-            push_op(lat.result());
+            push_op(lat);
             break;
         }
 
