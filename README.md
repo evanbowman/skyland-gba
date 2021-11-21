@@ -242,3 +242,7 @@ See here: https://github.com/evanbowman/skyland/releases
 3) `cd build && ./set-gameboy-advance-toolchain.sh` (a shortcut for running cmake with the correct toolchain file)
 4) run `make`
 5) run `./bundle.sh`. The bundle script creates Skyland.gba by appending the game's scripts and resources to the compiled engine ROM.
+
+## Skyland LISP
+
+The Skyland symbolic expression evaluator generally uses the same syntax as described [here](https://github.com/evanbowman/blind-jump-portable#lisp). A Scheme inspired functional programming language, with CommonLisp-styled macros, and some general gba-related weirdness thrown in.
