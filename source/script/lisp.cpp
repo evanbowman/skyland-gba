@@ -10,6 +10,7 @@
 #define HEAP_DATA __attribute__((section(".ewram")))
 #else
 #include <iostream>
+#include <fstream>
 #define HEAP_DATA
 #endif
 
@@ -2983,6 +2984,24 @@ void init(Platform& pfrm)
                     return get_op0();
                 }
             }));
+
+#ifndef __GBA__
+    set_var("file-lines", make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, string);
+
+        std::string line;
+        std::ifstream file(get_op0()->string().value());
+
+        ListBuilder result;
+
+        while (std::getline(file, line)) {
+            result.push_back(make_string(bound_context->pfrm_, line.c_str()));
+        }
+
+        return result.result();
+    }));
+#endif
 
     set_var(
         "disassemble", make_function([](int argc) {

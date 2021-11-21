@@ -6,23 +6,27 @@
 
 
 (macro or (expr)
- (if expr
-     `(if ,(car expr)
-          1
-        ,(if (cdr expr)
-             (cons 'or (cdr expr))
-           0))
-   0))
+ `(if ,(car expr)
+      1
+    ,(if (cdr expr)
+         (cons 'or (cdr expr))
+       0)))
 
 
 (macro and (expr)
- (if expr
-     `(if (not ,(car expr))
-          0
-        ,(if (cdr expr)
-             (cons 'and (cdr expr))
-           1))
-   1))
+ `(if (not ,(car expr))
+      0
+    ,(if (cdr expr)
+         (cons 'and (cdr expr))
+       1)))
+
+
+(macro cond (expr)
+ `(if ,(car (car expr))
+      ,(car (cdr (car expr)))
+    ,(if (cdr expr)
+         (cons 'cond (cdr expr))
+       nil)))
 
 
 ;; Some useful macros for defining functions
