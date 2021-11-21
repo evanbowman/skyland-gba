@@ -8,17 +8,17 @@
 
 (if (not (equal (zone) last-zone))
     (progn
-      (set 'friendlies-seen '())
-      (set 'enemies-seen '())))
+      (def friendlies-seen '())
+      (def enemies-seen '())))
 
 
-(set 'last-zone (zone))
+(def last-zone (zone))
 
 
-(set 'avail-levels ;; list of unvisited levels
+(def avail-levels ;; list of unvisited levels
      (filter
       (lambda
-        (set 'temp $0)
+        (def temp $0)
         (not (length (filter
                       (lambda (equal temp $0))
                       friendlies-seen))))
@@ -28,17 +28,17 @@
 
 
 (if (equal (length avail-levels) 1)
-    (set 'friendlies-seen '()))
+    (def friendlies-seen '()))
 
 
-(set 'lv-num (get avail-levels (choice (length avail-levels))))
+(def lv-num (get avail-levels (choice (length avail-levels))))
 
 
-(set 'friendlies-seen (cons lv-num friendlies-seen))
+(def friendlies-seen (cons lv-num friendlies-seen))
 
 
 (eval-other-file (string 'neutral '_ (zone) '_ lv-num '.lisp))
 
 
-(set 'avail-levels '())
+(def avail-levels '())
 (gc)

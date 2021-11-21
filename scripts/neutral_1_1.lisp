@@ -18,18 +18,18 @@
    (workshop 3 13)))
 
 
-(set 'after-converge-hook
+(def after-converge-hook
      (lambda
        (dialog "The fortress appears to be empty, but you cannot be certain. Attempt to board?")
-       (set 'after-converge-hook '())
+       (def after-converge-hook '())
        (await-dialog-y/n)))
 
 
-(set 'after-dialog-accepted-hook
+(def after-dialog-accepted-hook
      (lambda
        (if (equal (choice 2) 0)
            (progn
-             (set 'temp (+ 600 (choice 300)))
+             (def temp (+ 600 (choice 300)))
              (dialog "You explore, and salvage " (string temp) "@ from the ruins.")
              (add-coins temp)
              (exit-level))
@@ -46,7 +46,7 @@
            (dialog "It's a trap!")))))
 
 
-(set 'after-dialog-declined-hook
+(def after-dialog-declined-hook
      (lambda
        (dialog "The fortress sinks back into the clouds, its contents remain an unresolved mystery.")
        (exit-level)))

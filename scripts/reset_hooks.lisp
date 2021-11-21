@@ -3,23 +3,23 @@
 ;;;
 
 
-(set 'after-fadein-hook '())
-(set 'after-converge-hook '())
-(set 'after-dialog-accepted-hook '())
-(set 'after-dialog-declined-hook '())
-(set 'hostile-transition-hook '())
+(def after-fadein-hook '())
+(def after-converge-hook '())
+(def after-dialog-accepted-hook '())
+(def after-dialog-declined-hook '())
+(def hostile-transition-hook '())
 
 
 (if (not (bound 'last-zone))
-    (set 'last-zone (zone)))
+    (def last-zone (zone)))
 
 
 (if (not (bound 'enemies-seen))
-    (set 'enemies-seen '()))
+    (def enemies-seen '()))
 
 
 (if (not (bound 'friendlies-seen))
-    (set 'friendlies-seen '()))
+    (def friendlies-seen '()))
 
 
 (gc)

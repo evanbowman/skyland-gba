@@ -21,37 +21,37 @@
 (add-chr (opponent) 2 14 'neutral 0)
 
 
-(set 'after-converge-hook
+(def after-converge-hook
      (lambda
        (dialog "One of the mercenaries offers to join you crew, for a cost of "
                (string (* 400 (zone)))
                "@. Accept offer?")
 
        (await-dialog-y/n)
-       (set 'after-converge-hook nil)))
+       (def after-converge-hook nil)))
 
 
-(set 'after-dialog-accepted-hook
+(def after-dialog-accepted-hook
      (lambda
 
-       (set 'temp (chr-slots (player)))
+       (def temp (chr-slots (player)))
 
        (if (> (* 400 (zone)) (coins))
            (dialog "You cannot afford to pay. The mercenaries become frustrated, and cut the transmission.")
          (if temp
              (progn
                (add-coins (- 0 (* 400 (zone))))
-               (set 'temp (get temp (choice (length temp))))
+               (def temp (get temp (choice (length temp))))
                (add-chr (player) (car temp) (cdr temp) 'neutral 0)
                (rem-chr (opponent) 1 14)
-               (set 'temp (nil))
+               (def temp (nil))
                (dialog "The mercenary joined your crew!"))
            (dialog "Sadly, there's no room...")))
 
        (exit-level)))
 
 
-(set 'after-dialog-declined-hook
+(def after-dialog-declined-hook
      (lambda
        (dialog "The mercenaries became angry, and cut the transmission.")
        (exit-level)))

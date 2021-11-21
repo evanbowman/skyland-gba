@@ -10,16 +10,16 @@
 
 (if (not (equal (zone) last-zone))
     (progn
-      (set 'friendlies-seen '())
-      (set 'enemies-seen '())))
+      (def friendlies-seen '())
+      (def enemies-seen '())))
 
 
-(set 'last-zone (zone))
+(def last-zone (zone))
 
 
 (let ((avail-levels (filter
                      (lambda
-                       (set 'temp $0)
+                       (def temp $0)
                        (not (length (filter
                                      (lambda (equal temp $0))
                                      enemies-seen))))
@@ -34,12 +34,12 @@
     ;; level scenarios (which shouldn't really happen, anyway), we should clear
     ;; the list of seen enemies, so that next time we won't end up with nil.
     (if (equal (length avail-levels) 1)
-        (set 'enemies-seen '()))
+        (def enemies-seen '()))
 
     (if (equal (length enemies-seen) 0)
         (if (equal (zone) 0)
-            (set 'lv-num 0)))
+            (def lv-num 0)))
 
-    (set 'enemies-seen (cons lv-num enemies-seen))
+    (def enemies-seen (cons lv-num enemies-seen))
 
     (eval-other-file (string 'hostile '_ (zone) '_ lv-num '.lisp))))

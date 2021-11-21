@@ -18,11 +18,11 @@
    (workshop 3 13)))
 
 
-(set 'after-converge-hook
+(def after-converge-hook
      (lambda
-       (set 'temp (+ 400 (choice 900)))
+       (def temp (+ 400 (choice 900)))
 
-       (set 'after-converge-hook nil)
+       (def after-converge-hook nil)
 
        (dialog
         "You explore, and discover " (string temp) "@ amongst the ruins!")

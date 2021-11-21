@@ -1025,6 +1025,9 @@ Value* get_var(Value* symbol)
                 lat.push_front(get_arg(i));
             }
             return lat.result();
+        } else if (symbol->symbol().name_[1] == 'q') {
+            // A shortcut to allow you to refer to the quote symbol.
+            return make_symbol("'");
         } else {
             s32 argn = 0;
             for (u32 i = 1; symbol->symbol().name_[i] not_eq '\0'; ++i) {
@@ -1772,6 +1775,11 @@ static void macroexpand_macro()
 
     ListBuilder result;
 
+    // Macroexpand top level (the original list), in case the result of the
+    // prior macroexpand introduced a new macro in the first position of the
+    // outermost list.
+    macroexpand();
+
     auto lat = get_op0();
     for (; lat not_eq get_nil(); lat = lat->cons().cdr()) {
         if (is_list(lat->cons().car())) {
@@ -2323,9 +2331,9 @@ void init(Platform& pfrm)
         bound_context->pfrm_.fatal("pointer compression test failed");
     }
 
-    lisp::set_var("*pfrm*", lisp::make_userdata(&pfrm));
-
     intern("'");
+
+    lisp::set_var("*pfrm*", lisp::make_userdata(&pfrm));
 
     set_var("set", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 2);

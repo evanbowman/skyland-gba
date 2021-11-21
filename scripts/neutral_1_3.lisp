@@ -14,19 +14,19 @@
 
 
 
-(set 'after-converge-hook
+(def after-converge-hook
      (lambda
-       (set 'temp (+ 500 (choice 500)))
+       (def temp (+ 500 (choice 500)))
        (dialog
         "The goblins demand a tribute of "
         (string temp)
         "@. Will you pay?")
 
        (await-dialog-y/n)
-       (set 'after-converge-hook nil)))
+       (def after-converge-hook nil)))
 
 
-(set 'after-dialog-accepted-hook
+(def after-dialog-accepted-hook
      (lambda
        (if (> 500 (coins))
            (progn
@@ -40,13 +40,13 @@
            (exit-level)))))
 
 
-(set 'after-dialog-declined-hook
+(def after-dialog-declined-hook
      (lambda
        (swap-opponent 'hostile)
        (dialog "Prepare to be boarded!")))
 
 
-(set 'hostile-transition-hook
+(def hostile-transition-hook
      (lambda
        ;; when the island is preemtively attacked, skip all of the dialog and
        ;; other hooks.

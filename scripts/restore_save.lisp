@@ -31,7 +31,7 @@
                    (chr-hp (player) (get $0 0) (get $0 1) (get $0 2))))
              (load 'chrs))
 
-            (set 'enemies-seen (load 'enemies-seen))
-            (set 'frendlies-seen (load 'friendlies-seen))
+            (def enemies-seen (load 'enemies-seen))
+            (def frendlies-seen (load 'friendlies-seen))
 
-            (set 'last-zone (load 'last-zone)))))))
+            (def last-zone (load 'last-zone)))))))

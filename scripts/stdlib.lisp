@@ -26,10 +26,15 @@
 
 
 ;; Some useful macros for defining functions
+
 ;; Defines a function.
-(macro defn (name body) `(set ,name (lambda ,@body)))
+(macro defn (name body) `(def ,name (lambda ,@body)))
 ;; Defines a bytecode-compiled function.
-(macro defn-c (name body) `(set ,name (compile (lambda ,@body))))
+(macro defn/c (name body) `(def ,name (compile (lambda ,@body))))
+
+
+(macro def (name expr)
+ `(set ,(cons $q name) ,@expr))
 
 
 ;; Because we're running lisp in an embedded system (a gameboy) with limited
@@ -55,24 +60,24 @@
 ;; (macro progn (body) `(let () ,@body))
 
 
-(defn-c 'acons
+(defn/c acons
   (cons (cons $0 $1) $2))
 
 
-(defn-c 'assoc
+(defn/c assoc
   (let ((temp $0))
     (get (filter (lambda (equal (car $0) temp))
                  $1)
          0)))
 
 
-(defn 'append
+(defn append
   ;; Not the most efficient way to implement append, but this implementation
   ;; with unquote-splicing is quite compact.
   `(,@$0 ,@$1))
 
 
-(set 'bisect
+(def bisect
      (let ((impl (compile
                   (lambda
                     (if (not $1)
@@ -86,7 +91,7 @@
        (lambda (impl $0 $0 '()))))
 
 
-(defn-c 'merge
+(defn/c merge
   (if (not $0)
       $1
     (if (not $1)
@@ -96,7 +101,7 @@
         (cons (car $1) ((this) $0 (cdr $1)))))))
 
 
-(defn 'sort
+(defn sort
   (if (not (cdr $0))
       $0
     (let ((temp (bisect $0)))
