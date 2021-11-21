@@ -235,6 +235,10 @@ count.
 See here: https://github.com/evanbowman/skyland/releases
 
 
-## Hacking
+## Building
 
-If you want to mod the game, you can either manually build the SkylandEngine ROM from this repository, and then run the bundle script to attach the lisp code, or you can find the pre-compiled engine ROM here: https://github.com/evanbowman/skyland-baserom
+1) Install all of the standard devkitpro libgba stuff.
+2) Install cmake
+3) `cd build && ./set-gameboy-advance-toolchain.sh` (a shortcut for running cmake with the correct toolchain file)
+4) run `make`
+5) run `./bundle.sh`. The bundle script creates Skyland.gba by appending the game's scripts and resources to the compiled engine ROM.
