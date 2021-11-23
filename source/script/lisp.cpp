@@ -2010,6 +2010,8 @@ static void eval_let(Value* code)
 
     Protected result(get_nil());
 
+    bool has_bindings = false;
+
     {
         ListBuilder binding_list_builder;
 
@@ -2025,6 +2027,8 @@ static void eval_let(Value* code)
 
                     eval(bind->cons().car());
                     binding_list_builder.push_back(make_cons(sym, get_op0()));
+
+                    has_bindings = true;
 
                     pop_op();
 
@@ -2044,14 +2048,16 @@ static void eval_let(Value* code)
             return;
         }
 
-        auto new_binding_list = make_cons(binding_list_builder.result(),
-                                          bound_context->lexical_bindings_);
+        if (has_bindings) {
+            auto new_binding_list = make_cons(binding_list_builder.result(),
+                                              bound_context->lexical_bindings_);
 
-        if (new_binding_list->type() == Value::Type::error) {
-            push_op(new_binding_list);
-            return;
-        } else {
-            bound_context->lexical_bindings_ = new_binding_list;
+            if (new_binding_list->type() == Value::Type::error) {
+                push_op(new_binding_list);
+                return;
+            } else {
+                bound_context->lexical_bindings_ = new_binding_list;
+            }
         }
     }
 
@@ -2062,8 +2068,10 @@ static void eval_let(Value* code)
     })
         ;
 
-    bound_context->lexical_bindings_ =
-        bound_context->lexical_bindings_->cons().cdr();
+    if (has_bindings) {
+        bound_context->lexical_bindings_ =
+            bound_context->lexical_bindings_->cons().cdr();
+    }
 
     push_op(result);
 }
@@ -2390,17 +2398,6 @@ void init(Platform& pfrm)
                 L_EXPECT_OP(0, integer);
                 return get_arg(get_op0()->integer().value_);
             }));
-
-    set_var(
-        "progn", make_function([](int argc) {
-            // I could have defined progn at the language level, but because all of
-            // the expressions are evaluated anyway, much easier to define progn as
-            // a function.
-            //
-            // Drawbacks: (1) Defining progn takes up a small amount of memory for
-            // the function object. (2) Extra use of the operand stack.
-            return get_op0();
-        }));
 
     set_var("not", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);

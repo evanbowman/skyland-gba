@@ -60,8 +60,16 @@
        ,@body))))
 
 
-;; TODO: remove builtin progn function, use a macro instead.
-;; (macro progn (body) `(let () ,@body))
+(macro while (expr body)
+ `((lambda
+     (if ,expr
+         (let ()
+           ,@body
+           ((this)))))))
+
+
+(macro progn (body)
+ `(let () ,@body))
 
 
 (defn/c acons

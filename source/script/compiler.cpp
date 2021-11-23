@@ -125,7 +125,11 @@ int compile_let(ScratchBuffer& buffer,
         // TODO: raise error
     }
 
-    append<instruction::LexicalFramePush>(buffer, write_pos);
+    const auto binding_count = length(code->cons().car());
+
+    if (binding_count not_eq 0) {
+        append<instruction::LexicalFramePush>(buffer, write_pos);
+    }
 
     foreach (code->cons().car(), [&](Value* val) {
         if (val->type() == Value::Type::cons) {
@@ -156,7 +160,9 @@ int compile_let(ScratchBuffer& buffer,
         code = code->cons().cdr();
     }
 
-    append<instruction::LexicalFramePop>(buffer, write_pos);
+    if (binding_count not_eq 0) {
+        append<instruction::LexicalFramePop>(buffer, write_pos);
+    }
 
     return write_pos;
 }
