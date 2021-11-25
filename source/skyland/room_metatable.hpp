@@ -4,6 +4,7 @@
 #include "coins.hpp"
 #include "island.hpp"
 #include "room.hpp"
+#include "rooms/pluginRoom.hpp"
 
 
 
@@ -27,6 +28,73 @@ struct RoomMeta {
         virtual Room::Icon icon() const = 0;
         virtual Room::Icon unsel_icon() const = 0;
         virtual Health full_health() const = 0;
+    };
+
+    struct PluginBox : public Box {
+        RoomMeta* mt_;
+
+        PluginBox(RoomMeta* mt) : mt_(mt)
+        {
+        }
+
+        void create(Platform& pfrm,
+                    Island* parent,
+                    const Vec2<u8>& position) const override
+        {
+            parent->add_room<PluginRoom>(pfrm, position, mt_);
+        }
+
+        virtual const char* name() const
+        {
+            return "TODO";
+        }
+
+        virtual Vec2<u8> size() const
+        {
+            // TODO...
+            return {1, 1};
+        }
+
+        virtual Coins cost() const
+        {
+            // TODO...
+            return 1;
+        }
+
+        virtual Float ai_base_weight() const
+        {
+            // TODO...
+            return 100.f;
+        }
+
+        virtual Power consumes_power() const
+        {
+            // TODO...
+            return 100.f;
+        }
+
+        virtual Conditions::Value conditions() const
+        {
+            return Conditions::plugin;
+        }
+
+        virtual Room::Icon icon() const
+        {
+            // TODO...
+            return 0;
+        }
+
+        virtual Room::Icon unsel_icon() const
+        {
+            // TODO...
+            return 0;
+        }
+
+        virtual Health full_health() const
+        {
+            // TODO...
+            return 100;
+        }
     };
 
     template <typename T> struct BoxImpl : public Box {
@@ -85,7 +153,7 @@ struct RoomMeta {
 
     static constexpr int align = 8;
 
-    alignas(align) u8 buffer_[8];
+    alignas(align) u8 buffer_[16];
 
 
     template <typename T> void init()
@@ -95,6 +163,13 @@ struct RoomMeta {
 
         new (buffer_) BoxImpl<T>();
     }
+
+
+    void init_plugin()
+    {
+        new (buffer_) PluginBox(this);
+    }
+
 
     RoomMeta()
     {
@@ -119,7 +194,9 @@ struct RoomMeta {
 };
 
 
-template <typename... Rooms> struct RoomMetatable {
+// NOTE: I wanted users to be able to script their own room objects. The plugin
+// slots represent room metaclasses defined as lisp scripts.
+template <int plugin_slots, typename... Rooms> struct RoomMetatable {
 public:
     template <size_t i, typename First, typename... Rest> void init()
     {
@@ -133,6 +210,10 @@ public:
     RoomMetatable()
     {
         init<0, Rooms...>();
+
+        for (int i = 0; i < plugin_slots; ++i) {
+            table_[sizeof...(Rooms) + i].init_plugin();
+        }
     }
 
     constexpr int size()
@@ -140,7 +221,7 @@ public:
         return sizeof...(Rooms);
     }
 
-    RoomMeta table_[sizeof...(Rooms)];
+    RoomMeta table_[sizeof...(Rooms) + plugin_slots];
 };
 
 

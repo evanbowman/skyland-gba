@@ -26,7 +26,8 @@ namespace skyland {
 
 static auto& __metatable()
 {
-    static RoomMetatable<Hull,
+    static RoomMetatable<8,
+                         Hull,
                          Forcefield,
                          Cannon,
                          IonCannon,
