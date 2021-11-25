@@ -24,7 +24,8 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             auto current = app.current_map_location();
             auto& node = app.world_map().matrix_[current.x][current.y];
-            if (node.type_ == WorldMap::Node::Type::hostile) {
+            if (node.type_ == WorldMap::Node::Type::hostile or
+                node.type_ == WorldMap::Node::Type::storm_hostile) {
                 app.game_speed() = GameSpeed::stopped;
             }
         }
