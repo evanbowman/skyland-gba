@@ -3182,8 +3182,14 @@ Platform::Platform()
     } else {
         ram_filesystem::initialize(*this);
 
-        const auto data = "hello, world!";
-        ram_filesystem::store_file_data(*this, "/test_file.txt", data, str_len(data));
+        char data[512];
+        __builtin_memset(data, 'c', 512);
+        __builtin_memset(data, 'a', 100);
+        __builtin_memset(data + 100, 'b', 200);
+        ram_filesystem::store_file_data(*this,
+                                        "/test_file.txt",
+                                        data,
+                                        sizeof(data));
     }
 
     glyph_table.emplace(allocate_dynamic<GlyphTable>(*this));
