@@ -5,6 +5,8 @@
 #include "island.hpp"
 #include "room.hpp"
 #include "rooms/pluginRoom.hpp"
+#include "script/lisp.hpp"
+
 
 
 
@@ -12,6 +14,8 @@ namespace skyland {
 
 
 
+// Why metaclasses? We need to be able to request info about a room before
+// instantiating one, so mostly an organizational choice.
 struct RoomMeta {
     struct Box {
         virtual ~Box()
@@ -30,12 +34,17 @@ struct RoomMeta {
         virtual Health full_health() const = 0;
     };
 
+    // A metatable entry backed by a lisp datastructure, allowing users to
+    // define their own rooms via scripts.
     struct PluginBox : public Box {
         RoomMeta* mt_;
+        mutable std::optional<lisp::Protected> info_;
+
 
         PluginBox(RoomMeta* mt) : mt_(mt)
         {
         }
+
 
         void create(Platform& pfrm,
                     Island* parent,
@@ -44,33 +53,57 @@ struct RoomMeta {
             parent->add_room<PluginRoom>(pfrm, position, mt_);
         }
 
+
+        struct PluginInfo {
+            enum Tag {
+                size,
+                update,
+                name,
+                ai_weight,
+                coins,
+                power,
+                full_health,
+            };
+        };
+
+
+        template <PluginInfo::Tag info, typename T>
+        T& fetch_info() const
+        {
+            if (info_) {
+                return lisp::get_list(*info_, info)->expect<T>();
+            }
+
+            Platform::fatal("plugin room info unassigned");
+        }
+
+
         virtual const char* name() const
         {
-            return "TODO";
+            return fetch_info<PluginInfo::name, lisp::Symbol>().name_;
         }
+
 
         virtual Vec2<u8> size() const
         {
-            // TODO...
-            return {1, 1};
+            auto& pair = fetch_info<PluginInfo::size, lisp::Cons>();
+            return {(u8)pair.car()->expect<lisp::Integer>().value_,
+                    (u8)pair.cdr()->expect<lisp::Integer>().value_};
         }
 
         virtual Coins cost() const
         {
-            // TODO...
-            return 1;
+            return fetch_info<PluginInfo::coins, lisp::Integer>().value_;
         }
 
         virtual Float ai_base_weight() const
         {
-            // TODO...
-            return 100.f;
+            return fetch_info<PluginInfo::ai_weight, lisp::Integer>().value_;
         }
 
         virtual Power consumes_power() const
         {
-            // TODO...
-            return 100.f;
+            return fetch_info<PluginInfo::power, lisp::Integer>().value_;
         }
 
         virtual Conditions::Value conditions() const
@@ -92,8 +125,7 @@ struct RoomMeta {
 
         virtual Health full_health() const
         {
-            // TODO...
-            return 100;
+            return fetch_info<PluginInfo::full_health, lisp::Integer>().value_;
         }
     };
 
@@ -153,7 +185,7 @@ struct RoomMeta {
 
     static constexpr int align = 8;
 
-    alignas(align) u8 buffer_[16];
+    alignas(align) u8 buffer_[sizeof(PluginBox)];
 
 
     template <typename T> void init()

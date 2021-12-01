@@ -127,7 +127,8 @@ public:
     // simple to reset a process back to its original state at time of creation,
     // so it's easier in those cases to just exit. In any event, fatal() does
     // not return.
-    [[noreturn]] void fatal(const char* message);
+    [[noreturn]] static void fatal(const char* message);
+
 
     // Enable platform specific features. NOP if unsupported.
     void* system_call(const char* feature_name, void* arg);

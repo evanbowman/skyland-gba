@@ -214,6 +214,15 @@ public:
     virtual bool description_visible();
 
 
+protected:
+
+
+    void set_metaclass(RoomMeta* metaclass)
+    {
+        metaclass_ = metaclass;
+    }
+
+
 private:
     Island* parent_;
     RoomMeta* metaclass_;

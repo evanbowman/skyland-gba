@@ -23,6 +23,7 @@
 #include "string.hpp"
 #include "util.hpp"
 #include <algorithm>
+#include "ram_filesystem.hpp"
 
 
 
@@ -1693,10 +1694,10 @@ void Platform::fatal(const char* msg)
     irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
 
 
-    screen().fade(1.f, bkg_color);
-    fill_overlay(0);
-    load_overlay_texture("overlay");
-    enable_glyph_mode(true);
+    ::platform->screen().fade(1.f, bkg_color);
+    ::platform->fill_overlay(0);
+    ::platform->load_overlay_texture("overlay");
+    ::platform->enable_glyph_mode(true);
 
     static const Text::OptColors text_colors{
         {custom_color(0xffffff), bkg_color}};
@@ -1704,7 +1705,7 @@ void Platform::fatal(const char* msg)
     static const Text::OptColors text_colors_inv{
         {text_colors->background_, text_colors->foreground_}};
 
-    Text text(*this, {1, 1});
+    Text text(*::platform, {1, 1});
     text.append("fatal error:", text_colors_inv);
 
     std::optional<Text> text2;
@@ -1718,14 +1719,14 @@ void Platform::fatal(const char* msg)
     auto show_default_scrn = [&] {
         irqEnable(IRQ_VBLANK);
 
-        screen().clear();
+        ::platform->screen().clear();
 
         verbose_error.reset();
 
-        screen().display();
-        screen().clear();
+        ::platform->screen().display();
+        ::platform->screen().clear();
 
-        text2.emplace(*this, OverlayCoord{1, 3});
+        text2.emplace(*::platform, OverlayCoord{1, 3});
 
         const auto msg_len = str_len(msg);
         if (msg_len > 26) {
@@ -1744,7 +1745,8 @@ void Platform::fatal(const char* msg)
         auto render_line = [&](const char* line,
                                int spacing,
                                Text::OptColors colors) {
-            line_buffer.emplace_back(*this, OverlayCoord{1, u8(6 + offset)});
+            line_buffer.emplace_back(*::platform,
+                                     OverlayCoord{1, u8(6 + offset)});
             line_buffer.back().append(line, colors);
             offset += spacing;
         };
@@ -1756,41 +1758,41 @@ void Platform::fatal(const char* msg)
         render_line("  GND ---------------> GND", 2, text_colors);
         render_line("    3.3 volts, 9600 baud    ", 2, text_colors_inv);
 
-        Text text3(*this, {1, 18});
+        Text text3(*::platform, {1, 18});
         text3.append("L+R+START+SELECT reset...", text_colors);
 
-        screen().display();
+        ::platform->screen().display();
 
         irqDisable(IRQ_VBLANK);
     };
 
     show_default_scrn();
 
-    lisp::init(*this);
+    lisp::init(*::platform);
 
     auto show_verbose_msg = [&] {
         irqEnable(IRQ_VBLANK);
 
-        screen().clear();
+        ::platform->screen().clear();
 
         text2.reset();
         line_buffer.clear();
 
-        screen().display();
-        screen().clear();
+        ::platform->screen().display();
+        ::platform->screen().clear();
 
-        verbose_error.emplace(*this);
+        verbose_error.emplace(*::platform);
         verbose_error->assign(msg, {1, 3}, {28, 14}, 0, text_colors);
 
-        screen().display();
+        ::platform->screen().display();
 
         irqDisable(IRQ_VBLANK);
     };
 
     while (true) {
 
-        if (auto line = remote_console().readline()) {
-            RemoteConsoleLispPrinter printer(*this);
+        if (auto line = ::platform->remote_console().readline()) {
+            RemoteConsoleLispPrinter printer(*::platform);
 
             lisp::read(line->c_str());
             lisp::eval(lisp::get_op(0));
@@ -1799,12 +1801,12 @@ void Platform::fatal(const char* msg)
             lisp::pop_op();
             lisp::pop_op();
 
-            remote_console().printline(printer.fmt_.c_str());
+            ::platform->remote_console().printline(printer.fmt_.c_str());
         }
 
-        keyboard().poll();
+        ::platform->keyboard().poll();
 
-        if (keyboard().down_transition<Key::action_2>()) {
+        if (::platform->keyboard().down_transition<Key::action_2>()) {
 
             if (not verbose_error) {
                 show_verbose_msg();
@@ -2300,8 +2302,8 @@ SynchronizedBase::~SynchronizedBase()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-static const u32 initial_log_write_loc = 16000;
-static u32 log_write_loc = initial_log_write_loc;
+// static const u32 initial_log_write_loc = 16000;
+// static u32 log_write_loc = initial_log_write_loc;
 
 
 Platform::Logger::Logger()
@@ -2341,11 +2343,11 @@ static void mgba_log(const char* msg)
 
 void Platform::Logger::log(Severity level, const char* msg)
 {
-    // We don't want to wear out the flash chip! The code below still works on
-    // flash though, if you just comment out the if statement below.
-    if (get_gflag(GlobalFlag::save_using_flash)) {
-        return;
-    }
+    // // We don't want to wear out the flash chip! The code below still works on
+    // // flash though, if you just comment out the if statement below.
+    // if (get_gflag(GlobalFlag::save_using_flash)) {
+    //     return;
+    // }
 
     std::array<char, 400> buffer;
 
@@ -2392,18 +2394,19 @@ void Platform::Logger::log(Severity level, const char* msg)
               // the end of the log, in the case where the log wraps
               // around.
 
-    if (log_write_loc + prefix_size + msg_size + 2 >= 64000) {
-        // Out of loggin space! We could wrap around to the beginning...
-        // log_write_loc = initial_log_write_loc;
-    } else {
-        if (get_gflag(GlobalFlag::save_using_flash)) {
-            flash_save(buffer.data(), log_write_loc, buffer.size());
-        } else {
-            sram_save(buffer.data(), log_write_loc, buffer.size());
-        }
-    }
+    // I once used sram as a logfile.
+    // if (log_write_loc + prefix_size + msg_size + 2 >= 64000) {
+    //     // Out of loggin space! We could wrap around to the beginning...
+    //     // log_write_loc = initial_log_write_loc;
+    // } else {
+    //     if (get_gflag(GlobalFlag::save_using_flash)) {
+    //         flash_save(buffer.data(), log_write_loc, buffer.size());
+    //     } else {
+    //         sram_save(buffer.data(), log_write_loc, buffer.size());
+    //     }
+    // }
 
-    log_write_loc += msg_size + prefix_size + 1;
+    // log_write_loc += msg_size + prefix_size + 1;
 
     mgba_log(buffer.data());
 }
@@ -2411,11 +2414,11 @@ void Platform::Logger::log(Severity level, const char* msg)
 
 void Platform::Logger::read(void* buffer, u32 start_offset, u32 num_bytes)
 {
-    if (get_gflag(GlobalFlag::save_using_flash)) {
-        flash_load(buffer, initial_log_write_loc + start_offset, num_bytes);
-    } else {
-        sram_load(buffer, initial_log_write_loc + start_offset, num_bytes);
-    }
+    // if (get_gflag(GlobalFlag::save_using_flash)) {
+    //     flash_load(buffer, initial_log_write_loc + start_offset, num_bytes);
+    // } else {
+    //     sram_load(buffer, initial_log_write_loc + start_offset, num_bytes);
+    // }
 }
 
 
@@ -3164,14 +3167,23 @@ Platform::Platform()
     // attempt to save, and if the save fails, assume flash. I don't really know
     // anything about the EEPROM hardware interface...
     static const int sram_test_const = 0xAAAAAAAA;
-    sram_save(&sram_test_const, log_write_loc, sizeof sram_test_const);
+    sram_save(&sram_test_const,
+              ram_filesystem::fs_offset() - sizeof sram_test_const,
+              sizeof sram_test_const);
 
     int sram_test_result = 0;
-    sram_load(&sram_test_result, log_write_loc, sizeof sram_test_result);
+    sram_load(&sram_test_result,
+              ram_filesystem::fs_offset() - sizeof sram_test_const,
+              sizeof sram_test_result);
 
     if (sram_test_result not_eq sram_test_const) {
         set_gflag(GlobalFlag::save_using_flash, true);
         info(*this, "SRAM write failed, falling back to FLASH");
+    } else {
+        ram_filesystem::initialize(*this);
+
+        const auto data = "hello, world!";
+        ram_filesystem::store_file_data(*this, "/test_file.txt", data, str_len(data));
     }
 
     glyph_table.emplace(allocate_dynamic<GlyphTable>(*this));
