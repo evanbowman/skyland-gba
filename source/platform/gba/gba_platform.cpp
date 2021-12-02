@@ -3190,6 +3190,17 @@ Platform::Platform()
                                         "/test_file.txt",
                                         data,
                                         sizeof(data));
+
+        auto sbr = make_scratch_buffer();
+        ram_filesystem::read_file_data(*this,
+                                       "/test_file.txt",
+                                       sbr);
+
+        for (int i = 0; i < 512; ++i) {
+            if (data[i] not_eq sbr->data_[i]) {
+                fatal("SRAM filesystem broken!");
+            }
+        }
     }
 
     glyph_table.emplace(allocate_dynamic<GlyphTable>(*this));
