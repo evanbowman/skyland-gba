@@ -133,8 +133,9 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/multiplayerConnectScene.cpp
   ${SOURCE_DIR}/skyland/scene/replicatorSelectionScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp)
+  ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp)
 
 
 set(SOURCES

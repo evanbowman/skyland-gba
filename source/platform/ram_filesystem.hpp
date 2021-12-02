@@ -247,6 +247,34 @@ inline void free_file(Platform& pfrm, u16 file)
 
 
 template <typename F>
+void walk(Platform& pfrm, F&& callback)
+{
+    auto root = load_root(pfrm);
+
+    auto offset = fs_offset() + sizeof(Root);
+
+    for (int i = 0; i < root.file_count_.get(); ++i) {
+        FileInfo info;
+        pfrm.read_save_data(&info, sizeof info, offset);
+
+        if (auto file = info.file_contents_.get()) {
+            char path_buffer[max_path + 1];
+            path_buffer[max_path] = '\0';
+
+            pfrm.read_save_data(path_buffer,
+                                max_path,
+                                fs_contents_offset() + file * block_size
+                                + sizeof(FileContents::Header));
+
+            callback(path_buffer);
+        }
+
+        offset += sizeof info;
+    }
+}
+
+
+template <typename F>
 void with_file(Platform& pfrm, const char* path, F&& callback)
 {
     auto root = load_root(pfrm);
