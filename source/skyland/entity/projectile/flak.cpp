@@ -129,15 +129,7 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
         if (x >= 0 and x < 16 and y >= 0 and y < 16) {
             if (auto room = island->get_room({u8(x), u8(y)})) {
                 room->apply_damage(pfrm, app, damage);
-            } else {
-                info(pfrm, "a");
-                info(pfrm, to_string<10>(x).c_str());
-                info(pfrm, to_string<10>(y).c_str());
             }
-        } else {
-            info(pfrm, "b");
-            info(pfrm, to_string<10>(x).c_str());
-            info(pfrm, to_string<10>(y).c_str());
         }
     };
 

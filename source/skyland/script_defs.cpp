@@ -320,9 +320,7 @@ void App::init_scripts(Platform& pfrm)
             if (auto c = load_metaclass(name)) {
                 (*c)->create(*pfrm, island, Vec2<u8>{x, y});
             } else {
-                info(*pfrm, name);
-                while (true)
-                    ;
+                Platform::fatal(name);
             }
 
             return L_NIL;

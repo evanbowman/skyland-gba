@@ -29,6 +29,8 @@ enum {
     // smaller block size often ultimately saves more space, as a large block
     // size does not efficiently store small files.
     block_size = 200,
+
+    ram_size = 32000,
 };
 
 
@@ -82,6 +84,40 @@ inline Root load_root(Platform& pfrm)
 }
 
 
+
+struct Statistics {
+    u16 blocks_used_;
+    u16 blocks_available_;
+};
+
+
+inline Statistics statistics(Platform& pfrm)
+{
+    const auto block_count = (ram_size - fs_offset()) / block_size;
+
+    Statistics stats;
+    stats.blocks_available_ = 0;
+
+    auto root = load_root(pfrm);
+    auto freelist = root.freelist_.get();
+
+    while (freelist) {
+        FileContents::Header header;
+        pfrm.read_save_data(&header,
+                            sizeof header,
+                            fs_contents_offset() + freelist * block_size);
+
+        ++stats.blocks_available_;
+
+        freelist = header.next_.get();
+    }
+
+    stats.blocks_used_ = block_count - stats.blocks_available_;
+
+    return stats;
+}
+
+
 inline void store_root(Platform& pfrm, const Root& root)
 {
     pfrm.write_save_data(&root, sizeof root, fs_offset());
@@ -113,7 +149,7 @@ inline void initialize(Platform& pfrm)
 
     // Construct the freelist. Only needs to be done once, the first time that
     // the game boots, as the filesystem persists in SRAM.
-    const auto block_count = (32000 - fs_offset()) / block_size;
+    const auto block_count = (ram_size - fs_offset()) / block_size;
     auto offset = fs_contents_offset();
     for (int i = 1; i < block_count; ++i) {
         FileContents::Header header;
