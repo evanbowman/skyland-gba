@@ -176,43 +176,72 @@ inline bool store_file_data(Platform& pfrm,
                             const char* data,
                             const s16 length)
 {
-    const auto path_len = str_len(path);
+    const u16 path_len = str_len(path);
+    u16 remaining = length + path_len + 1;
 
-    u16 tail = 0;
+    const auto file_begin = allocate_file_chunk(pfrm);
+    auto file = file_begin;
+    if (file == 0) {
+        return false;
+    }
 
-    u16 bytes_written = 0;
+    FileContents contents;
+    __builtin_memset(&contents, 0, sizeof contents);
 
-    while (bytes_written not_eq length) {
+    memcpy(contents.data_, path, path_len + 1);
+    remaining -= path_len + 1;
 
-        auto file = allocate_file_chunk(pfrm);
-        if (file == 0) {
-            free_file(pfrm, tail);
-            return false;
-        }
+    const auto initial_data_copy =
+        std::min((int)FileContents::capacity - (path_len + 1),
+                 (int)length);
 
-        FileContents contents;
-        __builtin_memset(&contents, 0, sizeof contents);
+    memcpy(contents.data_ + (path_len + 1),
+           data,
+           initial_data_copy);
 
-        const u16 remaining = length - bytes_written;
-        if (remaining >= FileContents::capacity) {
-            memcpy(contents.data_,
-                   (data + length) - (bytes_written + FileContents::capacity),
-                   FileContents::capacity);
-            bytes_written += FileContents::capacity;
-        } else {
-            memcpy(contents.data_,
-                   data,
-                   remaining);
-            bytes_written += remaining;
-        }
+    data += initial_data_copy;
+    remaining -= initial_data_copy;
 
-        contents.header_.next_.set(tail);
-        tail = file;
-
+    auto store_chunk = [&] {
         pfrm.write_save_data((u8*)&contents,
                              sizeof contents,
                              fs_contents_offset() + file * block_size);
+    };
+
+    if (remaining == 0) {
+        store_chunk();
+        return true;
     }
+
+    while (remaining) {
+        auto next_file = allocate_file_chunk(pfrm);
+        if (next_file == 0) {
+            free_file(pfrm, file_begin);
+            return false;
+        }
+        contents.header_.next_.set(next_file);
+
+        store_chunk();
+
+        __builtin_memset(&contents, 0, sizeof contents);
+
+        file = next_file;
+
+        const auto copy_len = std::min((int)FileContents::capacity,
+                                       (int)remaining);
+
+        memcpy(contents.data_,
+               data,
+               copy_len);
+
+        data += copy_len;
+        remaining -= copy_len;
+    }
+
+    store_chunk();
+
+
+
 
     return true;
 }
