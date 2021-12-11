@@ -43,6 +43,27 @@ bool is_mounted()
 
 
 
+void walk(Function<16, void(const char* path)> callback)
+{
+    const char* current = &__rom_end__;
+    current += sizeof(Root);
+
+    const auto root = get_root();
+
+    u32 files_remaining = root->file_count_.get();
+
+
+    while (files_remaining) {
+        auto hdr = (FileHeader*)current;
+
+        callback(hdr->path_);
+
+        --files_remaining;
+        current += sizeof(FileHeader) + hdr->size_.get();
+    }
+}
+
+
 FileContents load(FilePath path)
 {
     const char* current = &__rom_end__;

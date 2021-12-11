@@ -281,6 +281,9 @@ public:
                                    const char* filename) const;
 
 
+    void walk_filesystem(Function<16, void(const char* path)>);
+
+
     // Scratch buffers are sort of a blunt instrument. Designed for uncommon
     // scenarios where you need a lot of memory. The platform provides one
     // hundred scratch buffers to work with. The Rc wrapper will automatically

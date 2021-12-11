@@ -2,6 +2,14 @@
 #include "flag.hpp"
 #include "platform/platform.hpp"
 #include "script/lisp.hpp"
+#include "platform/ram_filesystem.hpp"
+
+
+
+// NOTE: saving is a bit of a mess. Originally, we wrote stuff to fixed
+// locations in SRAM. Now, we implement a filesystem in SRAM, but some things
+// still need to be written to fixed locations at the beginning of SRAM, so that
+// we don't break backwards compatibility.
 
 
 
@@ -10,34 +18,8 @@ namespace save {
 
 
 
-struct SaveData {
-    HostInteger<u32> magic_;
-    PersistentData data_;
-
-    // We have some persistent data used by the application (above). But, we
-    // also want to serialize a bunch of data used by the lisp interpreter,
-    // and just eval it later.
-    HostInteger<u32> script_length_;
-    // u8 script_[...]; variable-sized data to follow...
-};
-
-
-
-static_assert(std::is_trivially_copyable<SaveData>::value,
-              "SaveData will be memcpy'd to the output destination, and "
-              "therefore must be trivially copyable.");
-
-
-
 static const u32 save_data_magic = 0xABCD + 2;
 static const u32 global_save_data_magic = 0xABCD;
-
-
-
-struct GlobalSaveData {
-    HostInteger<u32> magic_;
-    GlobalPersistentData data_;
-};
 
 
 
@@ -98,7 +80,11 @@ void store(Platform& pfrm, const PersistentData& d)
 
     SaveData save_data;
     save_data.magic_.set(save_data_magic);
-    save_data.script_length_.set(p.fmt_.length());
+
+    // Assigned zero, so that save files produced by newer versions of the game
+    // do not break when loaded into older versions.
+    save_data.script_length_.set(0);
+
     memcpy(&save_data.data_, &d, sizeof d);
 
     u32 offset = sizeof(GlobalSaveData);
@@ -107,7 +93,10 @@ void store(Platform& pfrm, const PersistentData& d)
 
     offset += sizeof save_data;
 
-    pfrm.write_save_data(p.fmt_.c_str(), p.fmt_.length(), offset);
+    ram_filesystem::store_file_data(pfrm,
+                                    "/save/data.lisp",
+                                    p.fmt_.c_str(),
+                                    p.fmt_.length());
 }
 
 
@@ -125,23 +114,24 @@ bool load(Platform& pfrm, PersistentData& d)
         return false;
     }
 
-    static const int buffer_size = 1024;
-    char buffer[buffer_size];
-    __builtin_memset(buffer, '\0', sizeof buffer);
 
-    if (buffer_size > save_data.script_length_.get()) {
-        pfrm.read_save_data(&buffer, save_data.script_length_.get(), offset);
+    auto sbr = pfrm.make_scratch_buffer();
 
+    __builtin_memset(sbr->data_, 0, sizeof sbr->data_);
 
-    } else {
+    auto bytes = ram_filesystem::read_file_data(pfrm,
+                                                "/save/data.lisp",
+                                                sbr);
+
+    if (bytes == 0) {
+        pfrm.fatal("failed to load save");
         return false;
     }
 
     memcpy(&d, &save_data.data_, sizeof d);
 
-    lisp::read(buffer);          // (0)
+    lisp::read(sbr->data_);      // (0)
     lisp::eval(lisp::get_op(0)); // (1)
-
 
     // Sorry if all the pushes and pops are hard to follow. My lisp interpreter
     // has a very strict garbage collector, and everything that isn't stored in

@@ -2926,6 +2926,14 @@ const char* Platform::load_file_contents(const char* folder,
 }
 
 
+
+void Platform::walk_filesystem(Function<16, void(const char* path)> callback)
+{
+    filesystem::walk(callback);
+}
+
+
+
 static void enable_watchdog()
 {
     irqEnable(IRQ_TIMER2);
@@ -3179,28 +3187,6 @@ Platform::Platform()
     if (sram_test_result not_eq sram_test_const) {
         set_gflag(GlobalFlag::save_using_flash, true);
         info(*this, "SRAM write failed, falling back to FLASH");
-    } else {
-        ram_filesystem::initialize(*this);
-
-        char data[512];
-        __builtin_memset(data, 'c', 512);
-        __builtin_memset(data, 'a', 100);
-        __builtin_memset(data + 100, 'b', 200);
-        ram_filesystem::store_file_data(*this,
-                                        "/test_file.txt",
-                                        data,
-                                        sizeof(data));
-
-        auto sbr = make_scratch_buffer();
-        ram_filesystem::read_file_data(*this,
-                                       "/test_file.txt",
-                                       sbr);
-
-        for (int i = 0; i < 512; ++i) {
-            if (data[i] not_eq sbr->data_[i]) {
-                fatal("SRAM filesystem broken!");
-            }
-        }
     }
 
     glyph_table.emplace(allocate_dynamic<GlyphTable>(*this));

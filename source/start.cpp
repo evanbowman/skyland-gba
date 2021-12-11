@@ -1,6 +1,9 @@
 #include "globals.hpp"
 #include "skyland/skyland.hpp"
 #include "transformGroup.hpp"
+#include "platform/ram_filesystem.hpp"
+#include "skyland/save.hpp"
+
 
 
 // clang-format off
@@ -50,7 +53,11 @@ void skyland_main_loop(Platform& pf)
 }
 
 
-void start(Platform& pf)
+void start(Platform& pfrm)
 {
-    return skyland_main_loop(pf);
+    ram_filesystem::initialize(pfrm,
+                               sizeof(skyland::save::GlobalSaveData) +
+                               sizeof(skyland::save::SaveData));
+
+    return skyland_main_loop(pfrm);
 }
