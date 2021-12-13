@@ -59,5 +59,24 @@ void start(Platform& pfrm)
                                sizeof(skyland::save::GlobalSaveData) +
                                sizeof(skyland::save::SaveData));
 
+
+    const char* test_file = ";;;\n"
+        ";;; init.lisp\n"
+        ";;;\n"
+        "\n"
+        "\n"
+        "(eval-other-file \"stdlib.lisp\")\n"
+        "\n"
+        "\n"
+        "(def language 'english)\n"
+        "\n"
+        "(defn/c locale-string\n"
+        "  (get-line-of-file (string \"strings/\" language '.txt) $0))\n"
+        "";
+
+    ram_filesystem::store_file_data(pfrm,
+                                    "/scripts/init.lisp",
+                                    test_file, str_len(test_file));
+
     return skyland_main_loop(pfrm);
 }

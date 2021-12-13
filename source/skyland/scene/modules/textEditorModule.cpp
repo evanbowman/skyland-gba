@@ -3,6 +3,7 @@
 #include "skyland/skyland.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
+#include "script/lisp.hpp"
 
 
 
@@ -33,15 +34,13 @@ void TextEditorModule::show_status(Platform& pfrm)
     if (mode_ == Mode::edit) {
         status_->assign("edit: ", status_colors);
     } else {
-        status_->assign("line ", status_colors);
+        status_->assign("nav: line ", status_colors);
         status_->append(cursor_.y + 1, status_colors);
         status_->append("/", status_colors);
         status_->append(line_count_ + 1, status_colors);
         status_->append(" col ", status_colors);
         status_->append(cursor_.x + 1, status_colors);
     }
-
-
 
     while (status_->len() not_eq 30) {
         status_->append(" ", status_colors);
@@ -83,6 +82,52 @@ void TextEditorModule::render_keyboard(Platform& pfrm)
 
 
 
+void TextEditorModule::render_completions(Platform& pfrm)
+{
+    char c = ' ';
+    const u16 space = pfrm.map_glyph(c, *locale_texture_map()(c));
+
+    int line = 13;
+    for (auto& cpl : completions_) {
+
+        auto colors = status_colors;
+        if (line - 13 == selected_completion_) {
+            colors = FontColors{
+                custom_color(0xffffff), ColorConstant::aerospace_orange
+            };
+        }
+
+        u32 x;
+        for (x = 0; x < 30 and x < cpl.length(); ++x) {
+            char c = cpl[x];
+            auto mapping_info = locale_texture_map()(c);
+            const u16 t = pfrm.map_glyph(c, *mapping_info);
+
+            auto prefix_colors = colors;
+
+            if (x < current_word_.length() and line - 13 not_eq selected_completion_) {
+                prefix_colors.foreground_ = custom_color(0x4646d2);
+            }
+
+            pfrm.set_tile(x, line, t, prefix_colors);
+        }
+
+        for (; x < 30; ++x) {
+            pfrm.set_tile(x, line, space, colors);
+        }
+
+        ++line;
+    }
+
+    for (; line < 20; ++line) {
+        for (int x = 0; x < 30; ++x) {
+            pfrm.set_tile(x, line, space, status_colors);
+        }
+    }
+}
+
+
+
 void TextEditorModule::render(Platform& pfrm, int start_line)
 {
     int x = 0;
@@ -104,7 +149,59 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
 
     int skipped = 0;
 
+    bool comment = false;
+    bool quotation = false;
+    bool endquote = false;
+    bool keyword = false;
+
+    auto handle_char = [&](char c) {
+        if (c == ';') {
+            comment = true;
+        } else if (c == '"') {
+            if (not quotation) {
+                quotation = true;
+            } else {
+                endquote = true;
+            }
+        } else if (c == ' ' or c == ')' or c == '(') {
+            keyword = false;
+
+            auto seek = data + 1;
+            StringBuffer<32> word;
+
+            while (*seek not_eq '\0' and
+                   *seek not_eq ' ' and
+                   *seek not_eq '(' and
+                   *seek not_eq ')' and
+                   *seek not_eq '\n') {
+                word.push_back(*seek);
+                ++seek;
+            }
+
+            if (word == "def" or
+                word == "defn/c" or
+                word == "let" or
+                word == "lambda" or
+                word == "if" or
+                word == "or" or
+                word == "and" or
+                word == "cond" or
+                word == "progn") {
+                keyword = true;
+            }
+        }
+    };
+
     while (*data not_eq '\0' and y not_eq y_max) {
+
+        endquote = false;
+
+        auto on_newline = [&] {
+            x = 0;
+            skipped = 0;
+            comment = false;
+            quotation = false;
+        };
 
         if (x == 30) {
             while (*data not_eq '\n') {
@@ -115,8 +212,7 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
             }
             ++data;
             ++y;
-            x = 0;
-            skipped = 0;
+            on_newline();
             continue;
         }
 
@@ -132,8 +228,7 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
                 ++x;
             }
 
-            x = 0;
-            skipped = 0;
+            on_newline();
 
             ++data;
             ++y;
@@ -143,18 +238,36 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
 
         if (skipped < column_offset_) {
             ++skipped;
+            handle_char(*data);
             ++data;
             continue;
         }
 
         const char c = *data;
 
+        handle_char(c);
+
         auto mapping_info = locale_texture_map()(c);
 
         if (mapping_info) {
             u16 t = pfrm.map_glyph(c, *mapping_info);
-            pfrm.set_tile(Layer::overlay, x, y, t);
+            if (comment or quotation) {
+                pfrm.set_tile(x, y, t, FontColors{
+                        custom_color(0x6eb98e), custom_color(0x110731)
+                    });
+            } else if (keyword and c not_eq '(') {
+                pfrm.set_tile(x, y, t, FontColors{
+                        custom_color(0xde2f79), custom_color(0x110731)
+                    });
+            } else {
+                pfrm.set_tile(Layer::overlay, x, y, t);
+            }
         }
+
+        if (endquote) {
+            quotation = false;
+        }
+
 
         ++data;
         ++x;
@@ -181,6 +294,45 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
     if (show_keyboard_) {
         render_keyboard(pfrm);
     }
+
+    if (show_completions_) {
+        render_completions(pfrm);
+    }
+}
+
+
+
+StringBuffer<32> TextEditorModule::current_word()
+{
+    auto begin = (*text_buffer_)->data_;
+    auto data = insert_pos();
+
+    --data;
+
+    auto is_delim = [](char c)
+    {
+        return c == '\n' or c == ' ' or c == '(' or c == ')';
+    };
+
+    while (data not_eq begin and not is_delim(*data)) {
+        --data;
+    }
+
+    if (is_delim(*data)) {
+        ++data;
+    }
+
+    // StringBuffer<32> result;
+    // while (*data not_eq '\0' and data not_eq pos) {
+    //     result.push_back(*(data++));
+    // }
+
+    StringBuffer<32> result;
+    while (*data not_eq '\0' and not is_delim(*data)) {
+        result.push_back(*(data++));
+    }
+
+    return result;
 }
 
 
@@ -286,7 +438,7 @@ void TextEditorModule::enter(Platform& pfrm, App&, Scene& prev)
     pfrm.load_overlay_texture("overlay_editor");
 
     header_.emplace(pfrm, OverlayCoord{});
-    header_->assign("  text editor                 ", FontColors{
+    header_->assign("  text editor  (lisp mode)    ", FontColors{
             custom_color(0x000010), custom_color(0xffffff)
         });
 
@@ -372,16 +524,65 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
             }
         }
 
-        if (app.player().key_down(pfrm, Key::up) and cursor_.y > 0) {
+        if (app.player().key_pressed(pfrm, Key::up)) {
+            key_held_timer_[0] += delta;
+        } else {
+            key_held_timer_[0] = 0;
+        }
+
+        if (app.player().key_pressed(pfrm, Key::down)) {
+            key_held_timer_[1] += delta;
+        } else {
+            key_held_timer_[1] = 0;
+        }
+
+        if (app.player().key_pressed(pfrm, Key::left)) {
+            key_held_timer_[2] += delta;
+        } else {
+            key_held_timer_[2] = 0;
+        }
+
+        if (app.player().key_pressed(pfrm, Key::right)) {
+            key_held_timer_[3] += delta;
+        } else {
+            key_held_timer_[3] = 0;
+        }
+
+        if (app.player().key_pressed(pfrm, Key::alt_1)) {
+            if (app.player().key_down(pfrm, Key::action_1)) {
+                insert_char('\n');
+                cursor_.x = 0;
+                cursor_.y += 1;
+                render(pfrm, start_line_);
+                shade_cursor();
+            } else if (app.player().key_down(pfrm, Key::action_2)) {
+                // TODO: refactor this copy-pasted code
+                erase_char();
+                cursor_.x -= 1;
+                if (cursor_.x == -1) {
+                    cursor_.y -= 1;
+                    cursor_.x = line_length();
+                }
+                if (cursor_.x < column_offset_) {
+                    column_offset_ = cursor_.x;
+                }
+                while (cursor_.x > column_offset_ + 29) {
+                    ++column_offset_;
+                }
+                render(pfrm, start_line_);
+                shade_cursor();
+            }
+        } else if ((app.player().key_down(pfrm, Key::up) or
+             (app.player().key_pressed(pfrm, Key::up) and
+              key_held_timer_[0] > milliseconds(400))) and cursor_.y > 0) {
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
             --cursor_.y;
 
-            bool do_render = true;
+            key_held_timer_[0] -= milliseconds(80);
 
             if (cursor_.y < start_line_) {
                 --start_line_;
-                do_render = true;
             }
             cursor_.x = ideal_cursor_right_;
 
@@ -391,30 +592,28 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                 if (cursor_.x < column_offset_) {
                     column_offset_ = cursor_.x;
                 }
-                do_render = true;
             }
 
             while (cursor_.x > column_offset_ + 29) {
                 ++column_offset_;
-                do_render = true;
             }
 
-            if (do_render) {
-                render(pfrm, start_line_);
-            }
+            render(pfrm, start_line_);
 
             shade_cursor();
             show_status(pfrm);
-        } else if (app.player().key_down(pfrm, Key::down) and cursor_.y < line_count_) {
+        } else if ((app.player().key_down(pfrm, Key::down) or
+                    (app.player().key_pressed(pfrm, Key::down) and
+                     key_held_timer_[1] > milliseconds(400)))
+                   and cursor_.y < line_count_) {
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
             ++cursor_.y;
 
-            bool do_render = false;
+            key_held_timer_[1] -= milliseconds(80);
 
             if (cursor_.y > start_line_ + 17) {
                 ++start_line_;
-                do_render = true;
             }
             cursor_.x = ideal_cursor_right_;
 
@@ -424,21 +623,21 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                 if (cursor_.x < column_offset_) {
                     column_offset_ = cursor_.x;
                 }
-                do_render = true;
             }
 
             while (cursor_.x > column_offset_ + 29) {
                 ++column_offset_;
-                do_render = true;
             }
 
-            if (do_render) {
-                render(pfrm, start_line_);
-            }
-
+            render(pfrm, start_line_);
             shade_cursor();
             show_status(pfrm);
-        } else if (app.player().key_down(pfrm, Key::right)) {
+        } else if (app.player().key_down(pfrm, Key::right) or
+                   (app.player().key_pressed(pfrm, Key::right) and
+                    key_held_timer_[3] > milliseconds(400))) {
+
+            key_held_timer_[3] -= milliseconds(80);
+
             if (line_length() > cursor_.x) {
                 unshade_cursor();
                 cursor_flicker_timer_ = -seconds(1);
@@ -447,6 +646,7 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                 // } else {
                     ++cursor_.x;
                 // }
+
                 ideal_cursor_right_ = cursor_.x;
                 while (cursor_.x > column_offset_ + 29) {
                     ++column_offset_;
@@ -455,7 +655,13 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                 shade_cursor();
                 show_status(pfrm);
             }
-        } else if (app.player().key_down(pfrm, Key::left) and cursor_.x > 0) {
+        } else if ((app.player().key_down(pfrm, Key::left) or
+                    (app.player().key_pressed(pfrm, Key::left) and
+                     key_held_timer_[2] > milliseconds(400)))
+                   and cursor_.x > 0) {
+
+            key_held_timer_[2] -= milliseconds(80);
+
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
             // if (app.player().key_pressed(pfrm, Key::alt_1)) {
@@ -531,29 +737,103 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                     ++column_offset_;
                 }
             } else {
+                auto do_insert = [&](char c) {
+                    insert_char(c);
+                    if (c == '\n') {
+                        cursor_.x = 0;
+                        cursor_.y += 1;
+                    } else {
+                        cursor_.x += 1;
+                    }
+
+                    if (cursor_.x > column_offset_ + 29) {
+                        ++column_offset_;
+                    }
+                    if (cursor_.x < column_offset_) {
+                        column_offset_ = cursor_.x;
+                    }
+                    ideal_cursor_right_ = cursor_.x;
+                };
                 char c = keyboard[keyboard_cursor_.y][keyboard_cursor_.x][0];
-                insert_char(c);
-                if (c == '\n') {
-                    cursor_.x = 0;
-                    cursor_.y += 1;
-                } else {
-                    cursor_.x += 1;
+                do_insert(c);
+
+                if (c == '(') {
+                    do_insert(')');
+                    --cursor_.x;
+                } else if (c == '"') {
+                    do_insert('"');
+                    --cursor_.x;
+                }
+            }
+            render(pfrm, start_line_);
+            shade_cursor();
+        } else if (app.player().key_down(pfrm, Key::alt_1)) {
+
+            current_word_ = current_word();
+            completions_.clear();
+
+            // completions_.push_back(current_word_.c_str());
+
+            lisp::get_interns([&](const char* intern) {
+                if (completions_.full()) {
+                    return;
                 }
 
-                if (cursor_.x > column_offset_ + 29) {
-                    ++column_offset_;
+                const auto intern_len = str_len(intern);
+                if (intern_len <= current_word_.length()) {
+                    return;
                 }
-                if (cursor_.x < column_offset_) {
-                    column_offset_ = cursor_.x;
+
+                for (u32 i = 0; i < current_word_.length(); ++i) {
+                    if (current_word_[i] not_eq intern[i]) {
+                        return;
+                    }
                 }
-                ideal_cursor_right_ = cursor_.x;
-            }
+
+                completions_.push_back(intern);
+            });
+
+            mode_ = Mode::autocomplete;
+            show_keyboard_ = false;
+            show_completions_ = true;
+            selected_completion_ = 0;
             render(pfrm, start_line_);
             shade_cursor();
         }
         break;
 
     case Mode::autocomplete:
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            mode_ = Mode::edit;
+            show_keyboard_ = true;
+            show_completions_ = false;
+            render(pfrm, start_line_);
+            shade_cursor();
+        } else if (app.player().key_down(pfrm, Key::up)) {
+            if (selected_completion_ > 0) {
+                --selected_completion_;
+                render_completions(pfrm);
+            }
+        } else if (app.player().key_down(pfrm, Key::down)) {
+            if (selected_completion_ < (int)completions_.size() - 1) {
+                ++selected_completion_;
+                render_completions(pfrm);
+            }
+        } else if (app.player().key_down(pfrm, Key::action_1)) {
+            mode_ = Mode::edit;
+
+            auto cpl = completions_[selected_completion_];
+            for (u32 i = current_word_.length(); i < cpl.length(); ++i) {
+                insert_char(cpl[i]);
+                ++cursor_.x;
+            }
+
+            show_completions_ = false;
+            show_keyboard_ = true;
+            render(pfrm, start_line_);
+            shade_cursor();
+        }
+
         break;
     }
 
@@ -646,7 +926,7 @@ void TextEditorModule::insert_char(char c)
 
 
 
-TextEditorModule::Factory TextEditorModule::factory_;
+// TextEditorModule::Factory TextEditorModule::factory_;
 
 
 

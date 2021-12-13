@@ -54,6 +54,7 @@ private:
 
     void render(Platform& pfrm, int start_line);
     void render_keyboard(Platform& pfrm);
+    void render_completions(Platform& pfrm);
 
     char* insert_pos();
     void insert_char(char c);
@@ -72,19 +73,32 @@ private:
     int skip_word();
     int back_word();
 
+    StringBuffer<32> current_word();
 
-    int start_line_ = 0;
-    int column_offset_ = 0;
-    int line_count_ = 0;
-    int ideal_cursor_right_ = 0;
+
+    int key_held_timer_[4] = {0, 0, 0, 0};
+
+
+    u16 start_line_ = 0;
+    u16 column_offset_ = 0;
+    u16 line_count_ = 0;
+    u16 ideal_cursor_right_ = 0;
+
+    u8 stashed_palette_ = 0;
 
     bool show_keyboard_ = false;
+    bool show_completions_ = false;
 
     Vec2<int> cursor_;
     Vec2<int> keyboard_cursor_;
+    int selected_completion_ = 0;
 
     Microseconds cursor_flicker_timer_ = 0;
     bool cursor_shaded_ = false;
+
+
+    StringBuffer<32> current_word_;
+    Buffer<StringBuffer<20>, 6> completions_;
 
 
     std::optional<Text> header_;

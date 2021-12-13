@@ -3679,7 +3679,7 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
 // available extra palettes, so let's just allocate four of them toward custom
 // text colors for now...
 static const PaletteBank custom_text_palette_begin = 3;
-static const PaletteBank custom_text_palette_end = 7;
+static const PaletteBank custom_text_palette_end = 9;
 static const auto custom_text_palette_count =
     custom_text_palette_end - custom_text_palette_begin;
 
