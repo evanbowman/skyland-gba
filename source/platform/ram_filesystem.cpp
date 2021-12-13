@@ -230,6 +230,19 @@ void with_file(Platform& pfrm, const char* path, F&& callback)
 
 
 
+bool file_exists(Platform& pfrm, const char* path)
+{
+    bool found = false;
+
+    with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
+        found = true;
+    });
+
+    return found;
+}
+
+
+
 void unlink_file(Platform& pfrm, const char* path)
 {
     with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {

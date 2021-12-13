@@ -22,7 +22,7 @@ public:
 
     static u16 icon()
     {
-        return 952;
+        return 1000;
     }
 
 

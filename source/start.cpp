@@ -78,5 +78,13 @@ void start(Platform& pfrm)
                                     "/scripts/init.lisp",
                                     test_file, str_len(test_file));
 
+    if (not ram_filesystem::file_exists(pfrm, "/patches/patch.lisp")) {
+        const char* patch_file = ";; load patches here! \n\n";
+
+        ram_filesystem::store_file_data(pfrm,
+                                        "/patches/patch.lisp",
+                                        patch_file, str_len(patch_file));
+    }
+
     return skyland_main_loop(pfrm);
 }

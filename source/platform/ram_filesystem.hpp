@@ -65,6 +65,10 @@ void unlink_file(Platform& pfrm, const char* path);
 
 
 
+bool file_exists(Platform& pfrm, const char* path);
+
+
+
 size_t read_file_data(Platform& pfrm,
                       const char* path,
                       ScratchBufferPtr output_buffer);

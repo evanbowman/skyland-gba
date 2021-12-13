@@ -883,6 +883,11 @@ void TextEditorModule::erase_char()
     }
 
     auto begin = insert_pos() - 1;
+
+    if (*begin == '\n') {
+        --line_count_;
+    }
+
     auto remaining = str_len(begin);
     auto end = begin + remaining;
 
