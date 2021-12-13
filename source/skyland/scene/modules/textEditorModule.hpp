@@ -48,6 +48,7 @@ private:
     enum class Mode {
         explore,
         edit,
+        autocomplete,
     } mode_ = Mode::explore;
 
 
@@ -67,6 +68,9 @@ private:
 
     const char* current_line() const;
     int line_length() const;
+
+    int skip_word();
+    int back_word();
 
 
     int start_line_ = 0;

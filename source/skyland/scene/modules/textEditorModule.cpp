@@ -26,6 +26,9 @@ static const auto status_colors = FontColors{
 
 void TextEditorModule::show_status(Platform& pfrm)
 {
+    if (mode_ == Mode::autocomplete) {
+        return;
+    }
 
     if (mode_ == Mode::edit) {
         status_->assign("edit: ", status_colors);
@@ -53,7 +56,7 @@ static const char* keyboard[7][7] = {{"z", "y", "g", "f", "v", "q", ";"},
                                      {"w", "a", "o", "e", "u", "k", "/"},
                                      {"p", "h", "t", "n", "s", "r", "_"},
                                      {"x", "c", "(", ")", "-", " ", "."},
-                                     {"$", "'", "0", "1", "2", "3", ","},
+                                     {"$", "'", "0", "1", "2", "3", "\n"},
                                      {"4", "5", "6", "7", "8", "9", "_"}};
 
 
@@ -178,6 +181,43 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
     if (show_keyboard_) {
         render_keyboard(pfrm);
     }
+}
+
+
+
+int TextEditorModule::skip_word()
+{
+    auto data = insert_pos();
+
+    int count = 0;
+    while (*data not_eq '\0' and *data not_eq '\n' and *data not_eq ' ') {
+        ++count;
+        ++data;
+    }
+    if (count == 0) {
+        count = 1;
+    }
+    return count;
+}
+
+
+
+int TextEditorModule::back_word()
+{
+    auto begin = (*text_buffer_)->data_;
+
+    auto data = insert_pos();
+
+    int count = 0;
+    while (data not_eq begin and
+           *data not_eq '\0' and *data not_eq '\n' and *data not_eq ' ') {
+        ++count;
+        --data;
+    }
+    if (count == 0) {
+        count = 1;
+    }
+    return count;
 }
 
 
@@ -402,9 +442,13 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
             if (line_length() > cursor_.x) {
                 unshade_cursor();
                 cursor_flicker_timer_ = -seconds(1);
-                ++cursor_.x;
+                // if (app.player().key_pressed(pfrm, Key::alt_1)) {
+                //     cursor_.x += skip_word();
+                // } else {
+                    ++cursor_.x;
+                // }
                 ideal_cursor_right_ = cursor_.x;
-                if (cursor_.x > column_offset_ + 29) {
+                while (cursor_.x > column_offset_ + 29) {
                     ++column_offset_;
                 }
                 render(pfrm, start_line_);
@@ -414,12 +458,15 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
         } else if (app.player().key_down(pfrm, Key::left) and cursor_.x > 0) {
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
-            --cursor_.x;
+            // if (app.player().key_pressed(pfrm, Key::alt_1)) {
+            //     cursor_.x -= back_word();
+            // } else {
+                --cursor_.x;
+            // }
             ideal_cursor_right_ = cursor_.x;
-            if (cursor_.x < column_offset_) {
+            while (cursor_.x < column_offset_) {
                 --column_offset_;
             }
-
             render(pfrm, start_line_);
             shade_cursor();
             show_status(pfrm);
@@ -477,15 +524,36 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                     cursor_.y -= 1;
                     cursor_.x = line_length();
                 }
+                if (cursor_.x < column_offset_) {
+                    column_offset_ = cursor_.x;
+                }
+                while (cursor_.x > column_offset_ + 29) {
+                    ++column_offset_;
+                }
             } else {
                 char c = keyboard[keyboard_cursor_.y][keyboard_cursor_.x][0];
                 insert_char(c);
-                cursor_.x += 1;
-                // TODO: scroll if necessary.
+                if (c == '\n') {
+                    cursor_.x = 0;
+                    cursor_.y += 1;
+                } else {
+                    cursor_.x += 1;
+                }
+
+                if (cursor_.x > column_offset_ + 29) {
+                    ++column_offset_;
+                }
+                if (cursor_.x < column_offset_) {
+                    column_offset_ = cursor_.x;
+                }
+                ideal_cursor_right_ = cursor_.x;
             }
             render(pfrm, start_line_);
             shade_cursor();
         }
+        break;
+
+    case Mode::autocomplete:
         break;
     }
 
@@ -555,6 +623,10 @@ void TextEditorModule::insert_char(char c)
     if (current_bytes == SCRATCH_BUFFER_SIZE - 1) {
         // TODO: raise error
         return;
+    }
+
+    if (c == '\n') {
+        ++line_count_;
     }
 
     auto begin = insert_pos();
