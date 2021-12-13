@@ -117,7 +117,15 @@ public:
         return *this;
     }
 
-    const StringBuffer& operator=(StringBuffer&&) = delete;
+    const StringBuffer& operator=(StringBuffer&& other)
+    {
+        clear();
+
+        for (auto it = other.begin(); it not_eq other.end(); ++it) {
+            push_back(*it);
+        }
+        return *this;
+    }
 
     char& operator[](int pos)
     {

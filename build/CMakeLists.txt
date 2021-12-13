@@ -134,6 +134,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/replicatorSelectionScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/textEditorModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
   ${SOURCE_DIR}/skyland/scene/selectTutorialScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp)
@@ -221,6 +222,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay_island_destroyed.s
     ${DATA_DIR}/overlay_challenges.s
     ${DATA_DIR}/overlay_gamespeed.s
+    ${DATA_DIR}/overlay_editor.s
     ${DATA_DIR}/hint_infirmary.s
     ${DATA_DIR}/hint_goblin.s
     ${DATA_DIR}/hint_plunder.s
@@ -490,6 +492,7 @@ if(GAMEBOY_ADVANCE)
     add_tilesheet(zone_image_3 0 0 YES NO)
     add_overlay(overlay 0 0 NO NO)
     add_overlay(overlay_gamespeed 0 0 NO NO)
+    add_overlay(overlay_editor 0 0 NO NO)
     add_overlay(overlay_dialog 0 0 NO NO)
     add_overlay(charset 0 0 NO NO)
     add_overlay(overlay_world_map 0 0 NO NO)

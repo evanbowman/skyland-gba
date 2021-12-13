@@ -211,6 +211,7 @@ standard_texture_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"#"): return 105;
         case UTF8_GETCHR(u8"_"): return 186;
         case UTF8_GETCHR(u8"$"): return 2151;
+        case UTF8_GETCHR(u8";"): return 2152;
 
         // Cyrillic Characters
         case UTF8_GETCHR(u8"А"): return 2085;
