@@ -18,23 +18,64 @@ static const int y_max = 19;
 
 
 
+static const auto status_colors = FontColors{
+    custom_color(0x000010), custom_color(0xffffff)
+};
+
+
+
 void TextEditorModule::show_status(Platform& pfrm)
 {
-    const auto status_colors = FontColors{
-        custom_color(0x000010), custom_color(0xffffff)
-    };
 
-    status_->assign("line ", status_colors);
-    status_->append(cursor_.y + 1, status_colors);
-    status_->append("/", status_colors);
-    status_->append(line_count_ + 1, status_colors);
-    status_->append(" col ", status_colors);
-    status_->append(cursor_.x + 1, status_colors);
+    if (mode_ == Mode::edit) {
+        status_->assign("edit: ", status_colors);
+    } else {
+        status_->assign("line ", status_colors);
+        status_->append(cursor_.y + 1, status_colors);
+        status_->append("/", status_colors);
+        status_->append(line_count_ + 1, status_colors);
+        status_->append(" col ", status_colors);
+        status_->append(cursor_.x + 1, status_colors);
+    }
+
+
 
     while (status_->len() not_eq 30) {
         status_->append(" ", status_colors);
     }
 
+}
+
+
+
+static const char* keyboard[7][7] = {{"z", "y", "g", "f", "v", "q", ";"},
+                                     {"m", "b", "i", "d", "l", "j", "\""},
+                                     {"w", "a", "o", "e", "u", "k", "/"},
+                                     {"p", "h", "t", "n", "s", "r", "_"},
+                                     {"x", "c", "(", ")", "-", " ", "."},
+                                     {"$", "'", "0", "1", "2", "3", ","},
+                                     {"4", "5", "6", "7", "8", "9", "_"}};
+
+
+
+void TextEditorModule::render_keyboard(Platform& pfrm)
+{
+    for (int x = 0; x < 7; ++x) {
+        for (int y = 0; y < 7; ++y) {
+            const char c = keyboard[y][x][0];
+            auto mapping_info = locale_texture_map()(c);
+            const u16 t = pfrm.map_glyph(c, *mapping_info);
+
+            auto colors = status_colors;
+            if (x == keyboard_cursor_.x and y == keyboard_cursor_.y) {
+                colors = FontColors{
+                    custom_color(0xffffff), ColorConstant::aerospace_orange
+                };
+            }
+
+            pfrm.set_tile((30 - 8) + x, (19 - 6) + y, t, colors);
+        }
+    }
 }
 
 
@@ -133,6 +174,10 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
     }
 
     show_status(pfrm);
+
+    if (show_keyboard_) {
+        render_keyboard(pfrm);
+    }
 }
 
 
@@ -273,9 +318,9 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
         pfrm.set_tile(x, y, t, highlight_colors);
     };
 
-
     switch (mode_) {
     case Mode::explore:
+
         cursor_flicker_timer_ += delta;
         if (cursor_flicker_timer_ > milliseconds(200)) {
             cursor_flicker_timer_ = 0;
@@ -380,14 +425,151 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
             show_status(pfrm);
         } else if (app.player().key_down(pfrm, Key::action_2)) {
             return scene_pool::alloc<TitleScreenScene>();
+        } else if (app.player().key_down(pfrm, Key::action_1)) {
+            start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+            show_keyboard_ = true;
+            mode_ = Mode::edit;
+            keyboard_cursor_ = {5, 4};
+            render(pfrm, start_line_);
+            shade_cursor();
         }
         break;
 
     case Mode::edit:
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            mode_ = Mode::explore;
+            show_keyboard_ = false;
+            render(pfrm, start_line_);
+            shade_cursor();
+        } else if (app.player().key_down(pfrm, Key::left)) {
+            if (keyboard_cursor_.x == 0) {
+                keyboard_cursor_.x = 6;
+            } else {
+                --keyboard_cursor_.x;
+            }
+            render_keyboard(pfrm);
+        } else if (app.player().key_down(pfrm, Key::right)) {
+            if (keyboard_cursor_.x == 6) {
+                keyboard_cursor_.x = 0;
+            } else {
+                ++keyboard_cursor_.x;
+            }
+            render_keyboard(pfrm);
+        } else if (app.player().key_down(pfrm, Key::up)) {
+            if (keyboard_cursor_.y == 0) {
+                keyboard_cursor_.y = 6;
+            } else {
+                --keyboard_cursor_.y;
+            }
+            render_keyboard(pfrm);
+        } else if (app.player().key_down(pfrm, Key::down)) {
+            if (keyboard_cursor_.y == 6) {
+                keyboard_cursor_.y = 0;
+            } else {
+                ++keyboard_cursor_.y;
+            }
+            render_keyboard(pfrm);
+        } else if (app.player().key_down(pfrm, Key::action_1)) {
+            if (keyboard_cursor_.y == 6 and keyboard_cursor_.x == 6) {
+                erase_char();
+                cursor_.x -= 1;
+                if (cursor_.x == -1) {
+                    cursor_.y -= 1;
+                    cursor_.x = line_length();
+                }
+            } else {
+                char c = keyboard[keyboard_cursor_.y][keyboard_cursor_.x][0];
+                insert_char(c);
+                cursor_.x += 1;
+                // TODO: scroll if necessary.
+            }
+            render(pfrm, start_line_);
+            shade_cursor();
+        }
         break;
     }
 
     return null_scene();
+}
+
+
+
+char* TextEditorModule::insert_pos()
+{
+    auto data = (*text_buffer_)->data_;
+
+    int line = cursor_.y;
+    int offset = cursor_.x;
+
+    while (line) {
+        if (*data == '\0') {
+            break;
+        }
+
+        if (*data == '\n') {
+            --line;
+        }
+
+        ++data;
+    }
+
+    while (offset) {
+        if (*data == '\0' or *data == '\n') {
+            break;
+        }
+
+        --offset;
+        ++data;
+    }
+
+    return data;
+}
+
+
+
+void TextEditorModule::erase_char()
+{
+    if (cursor_.x == 0 and cursor_.y == 0) {
+        // Nothing left to delete.
+        return;
+    }
+
+    auto begin = insert_pos() - 1;
+    auto remaining = str_len(begin);
+    auto end = begin + remaining;
+
+    for (; begin not_eq end; ++begin) {
+        if (begin + 1 not_eq end) {
+            *begin = *(begin + 1);
+        }
+    }
+
+    *end = '\0';
+}
+
+
+
+void TextEditorModule::insert_char(char c)
+{
+    const auto current_bytes = str_len((*text_buffer_)->data_);
+    if (current_bytes == SCRATCH_BUFFER_SIZE - 1) {
+        // TODO: raise error
+        return;
+    }
+
+    auto begin = insert_pos();
+
+    // Bytes following the insert point that we'll need to shift over.
+    auto remaining = str_len(begin);
+
+    auto end = begin + remaining;
+
+    for (auto it = end - 1; it not_eq begin - 1; --it) {
+        *(it + 1) = *it;
+    }
+
+    *begin = c;
+    *(end + 1) = '\0';
 }
 
 

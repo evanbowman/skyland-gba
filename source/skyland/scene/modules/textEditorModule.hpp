@@ -52,6 +52,11 @@ private:
 
 
     void render(Platform& pfrm, int start_line);
+    void render_keyboard(Platform& pfrm);
+
+    char* insert_pos();
+    void insert_char(char c);
+    void erase_char();
 
 
     void show_status(Platform& pfrm);
@@ -69,7 +74,10 @@ private:
     int line_count_ = 0;
     int ideal_cursor_right_ = 0;
 
+    bool show_keyboard_ = false;
+
     Vec2<int> cursor_;
+    Vec2<int> keyboard_cursor_;
 
     Microseconds cursor_flicker_timer_ = 0;
     bool cursor_shaded_ = false;
