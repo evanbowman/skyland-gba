@@ -155,4 +155,29 @@ void walk(Platform& pfrm, F&& callback)
 
 
 
+inline void import_file_from_rom(Platform& pfrm,
+                                 const char* dest_path,
+                                 const char* src_path)
+{
+    if (auto data = pfrm.load_file_contents("scripts", src_path)) {
+        store_file_data(pfrm,
+                        dest_path,
+                        data,
+                        str_len(data));
+    }
+}
+
+
+
+inline void import_file_from_rom_if_not_exists(Platform& pfrm,
+                                               const char* dest_path,
+                                               const char* src_path)
+{
+    if (not file_exists(pfrm, dest_path)) {
+        import_file_from_rom(pfrm, dest_path, src_path);
+    }
+}
+
+
+
 } // ram_filesystem

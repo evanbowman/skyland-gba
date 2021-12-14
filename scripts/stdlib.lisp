@@ -119,3 +119,7 @@
     (let ((temp (bisect $0)))
       (merge (sort (car temp))
              (sort (cdr temp))))))
+
+
+(defn/c locale-string
+  (get-line-of-file (string "strings/" language '.txt) $0))
