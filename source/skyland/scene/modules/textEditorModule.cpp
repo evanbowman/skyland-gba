@@ -186,7 +186,8 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
                 word == "or" or
                 word == "and" or
                 word == "cond" or
-                word == "progn") {
+                word == "progn" or
+                word[0] == '$') {
                 keyword = true;
             }
         }

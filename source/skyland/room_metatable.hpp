@@ -32,6 +32,12 @@ struct RoomMeta {
         virtual Room::Icon icon() const = 0;
         virtual Room::Icon unsel_icon() const = 0;
         virtual Health full_health() const = 0;
+
+        virtual void configure(Health health,
+                               Coins cost,
+                               Power power)
+        {
+        }
     };
 
     // A metatable entry backed by a lisp datastructure, allowing users to
@@ -130,6 +136,13 @@ struct RoomMeta {
     };
 
     template <typename T> struct BoxImpl : public Box {
+        BoxImpl() :
+            health_(T::full_health()),
+            cost_(T::cost()),
+            power_(T::consumes_power())
+        {
+        }
+
         void create(Platform& pfrm,
                     Island* parent,
                     const Vec2<u8>& position) const override
@@ -152,35 +165,46 @@ struct RoomMeta {
             return T::unsel_icon();
         }
 
-        virtual Vec2<u8> size() const override
+        Vec2<u8> size() const override
         {
             return T::size();
         }
 
-        virtual Coins cost() const override
+        Coins cost() const override
         {
-            return T::cost();
+            return cost_;
         }
 
-        virtual Float ai_base_weight() const override
+        Float ai_base_weight() const override
         {
             return T::ai_base_weight();
         }
 
-        virtual Power consumes_power() const override
+        Power consumes_power() const override
         {
-            return T::consumes_power();
+            return power_;
         }
 
-        virtual Conditions::Value conditions() const override
+        Conditions::Value conditions() const override
         {
             return T::conditions();
         }
 
-        virtual Health full_health() const override
+        Health full_health() const override
         {
-            return T::full_health();
+            return health_;
         }
+
+        void configure(Health health, Coins cost, Power power) override
+        {
+            health_ = health;
+            cost_ = cost;
+            power_ = power;
+        }
+
+        s16 health_;
+        s16 cost_;
+        s16 power_;
     };
 
     static constexpr int align = 8;

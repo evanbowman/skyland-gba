@@ -27,11 +27,12 @@ void FileBrowserModule::enter(Platform& pfrm, App&, Scene& prev)
 
 
 
-void FileBrowserModule::exit(Platform&, App&, Scene& next)
+void FileBrowserModule::exit(Platform& pfrm, App&, Scene& next)
 {
     lines_.clear();
     info_.reset();
     path_text_.reset();
+    pfrm.fill_overlay(0);
 }
 
 
@@ -182,6 +183,28 @@ void FileBrowserModule::repaint(Platform& pfrm)
 }
 
 
+
+static StringBuffer<16> get_extension(const StringBuffer<200>& cwd)
+{
+    StringBuffer<16> result;
+
+    bool found_extension = false;
+
+    for (auto c : cwd) {
+        if (c == '.') {
+            found_extension = true;
+        }
+
+        if (found_extension) {
+            result.push_back(c);
+        }
+    }
+
+    return result;
+}
+
+
+
 ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
                                           App& app,
                                           Microseconds delta)
@@ -250,7 +273,12 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
                     auto path = this->cwd();
                     path += selected;
 
-                    return scene_pool::alloc<TextEditorModule>(pfrm, path.c_str());
+                    const auto ext = get_extension(path);
+
+                    if (ext == ".lisp") {
+                        return scene_pool::alloc<TextEditorModule>(pfrm, path.c_str());
+                    }
+
 
                     // ram_filesystem::unlink_file(pfrm, path.c_str());
                     // scroll_index_ = 0;

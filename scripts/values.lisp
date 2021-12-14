@@ -18,7 +18,7 @@
    (stairwell    60  500  5)
    (bulkhead     100 500  10)
    (workshop     60  2000 10)
-   (infirmary    60  800  10)
+   (infirmary    60  1000 10)
    (radar        30  300  64)
    (transporter  100 999  40)
    (replicator   80  2500 80)))

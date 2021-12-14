@@ -10,6 +10,7 @@
 #include "script/listBuilder.hpp"
 #include "serial.hpp"
 #include "skyland.hpp"
+#include "platform/ram_filesystem.hpp"
 
 
 
@@ -531,12 +532,55 @@ void App::init_scripts(Platform& pfrm)
                       return L_NIL;
                   }));
 
+
+    lisp::set_var("configure-rooms", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(1, cons);
+
+        lisp::foreach(lisp::get_op(0), [](lisp::Value* val) {
+            if (val->type() not_eq lisp::Value::Type::cons) {
+                return;
+            }
+
+            auto name_sym = val->cons().car();
+            if (name_sym->type() not_eq lisp::Value::Type::symbol) {
+                return;
+            }
+
+            val = val->cons().cdr();
+
+            if (auto c = load_metaclass(name_sym->symbol().name_)) {
+                auto health = val->cons().car()->integer().value_;
+                val = val->cons().cdr();
+                auto cost = val->cons().car()->integer().value_;
+                val = val->cons().cdr();
+                auto power = val->cons().car()->integer().value_;
+                (*c)->configure(health, cost, power);
+            } else {
+                auto pfrm = lisp::interp_get_pfrm();
+                pfrm->fatal("invalid room type symbol");
+            }
+        });
+
+        return L_NIL;
+    }));
+
+
     lisp::dostring(pfrm.load_file_contents("scripts", "init.lisp"),
                    [&pfrm](lisp::Value& err) {
                        lisp::DefaultPrinter p;
                        lisp::format(&err, p);
                        pfrm.fatal(p.fmt_.c_str());
                    });
+
+    auto data = pfrm.make_scratch_buffer();
+    if (ram_filesystem::read_file_data(pfrm, "/config/values.lisp", data)) {
+        lisp::dostring(data->data_, [&pfrm](lisp::Value& err) {
+                lisp::DefaultPrinter p;
+                lisp::format(&err, p);
+                pfrm.fatal(p.fmt_.c_str());
+            });
+    }
 }
 
 
