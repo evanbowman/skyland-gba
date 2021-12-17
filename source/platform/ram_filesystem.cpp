@@ -37,7 +37,7 @@ Root load_root(Platform& pfrm)
 
 Statistics statistics(Platform& pfrm)
 {
-    const auto block_count = (ram_size - fs_offset()) / block_size;
+    const auto block_count = (pfrm.save_capacity() - fs_offset()) / block_size;
 
     Statistics stats;
     stats.blocks_available_ = 0;
@@ -97,7 +97,7 @@ void initialize(Platform& pfrm, int fs_begin_offset)
 
     // Construct the freelist. Only needs to be done once, the first time that
     // the game boots, as the filesystem persists in SRAM.
-    const auto block_count = (ram_size - fs_offset()) / block_size;
+    const auto block_count = (pfrm.save_capacity() - fs_offset()) / block_size;
     auto offset = fs_contents_offset();
     for (int i = 1; i < block_count; ++i) {
         FileContents::Header header;

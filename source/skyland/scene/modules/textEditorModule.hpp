@@ -64,7 +64,7 @@ private:
     void show_status(Platform& pfrm);
 
 
-    std::optional<ScratchBufferPtr> text_buffer_;
+    ScratchBufferPtr text_buffer_;
 
 
     const char* current_line() const;
@@ -74,6 +74,15 @@ private:
     int back_word();
 
     StringBuffer<32> current_word();
+
+
+    struct State {
+        StringBuffer<64> file_path_;
+        bool modified_;
+    };
+
+    DynamicMemory<State> state_;
+
 
 
     int key_held_timer_[4] = {0, 0, 0, 0};
@@ -97,7 +106,7 @@ private:
     bool cursor_shaded_ = false;
 
 
-    StringBuffer<32> current_word_;
+    StringBuffer<24> current_word_;
     Buffer<StringBuffer<20>, 6> completions_;
 
 

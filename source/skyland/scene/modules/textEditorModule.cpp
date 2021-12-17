@@ -2,7 +2,7 @@
 #include "localization.hpp"
 #include "skyland/skyland.hpp"
 #include "platform/ram_filesystem.hpp"
-#include "skyland/scene/titleScreenScene.hpp"
+#include "fileBrowserModule.hpp"
 #include "script/lisp.hpp"
 
 
@@ -133,7 +133,7 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
     int x = 0;
     int y = 1;
 
-    const char* data = (*text_buffer_)->data_;
+    const char* data = text_buffer_->data_;
 
     while (start_line) {
         if (*data == '\0') {
@@ -305,7 +305,7 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
 
 StringBuffer<32> TextEditorModule::current_word()
 {
-    auto begin = (*text_buffer_)->data_;
+    auto begin = text_buffer_->data_;
     auto data = insert_pos();
 
     --data;
@@ -357,7 +357,7 @@ int TextEditorModule::skip_word()
 
 int TextEditorModule::back_word()
 {
-    auto begin = (*text_buffer_)->data_;
+    auto begin = text_buffer_->data_;
 
     auto data = insert_pos();
 
@@ -377,7 +377,7 @@ int TextEditorModule::back_word()
 
 const char* TextEditorModule::current_line() const
 {
-    const char* data = (*text_buffer_)->data_;
+    const char* data = text_buffer_->data_;
 
     int line = 0;
     while (*data not_eq '\0' and line not_eq cursor_.y) {
@@ -409,11 +409,13 @@ int TextEditorModule::line_length() const
 
 
 
-TextEditorModule::TextEditorModule(Platform& pfrm, const char* ram_file_path)
+TextEditorModule::TextEditorModule(Platform& pfrm, const char* ram_file_path) :
+    text_buffer_(pfrm.make_scratch_buffer()),
+    state_(allocate_dynamic<State>(pfrm))
 {
-    text_buffer_ = pfrm.make_scratch_buffer();
+    state_->file_path_ = ram_file_path;
 
-    ram_filesystem::read_file_data(pfrm, ram_file_path, *text_buffer_);
+    ram_filesystem::read_file_data(pfrm, ram_file_path, text_buffer_);
 }
 
 
@@ -447,17 +449,7 @@ void TextEditorModule::enter(Platform& pfrm, App&, Scene& prev)
     status_.emplace(pfrm, OverlayCoord{0, 19});
 
 
-    if (not text_buffer_) {
-        text_buffer_ = pfrm.make_scratch_buffer();
-
-        auto data = test_file;
-        int i = 0;
-        while (*data not_eq '\0') {
-            (*text_buffer_)->data_[i++] = *(data++);
-        }
-    }
-
-    auto data = (*text_buffer_)->data_;
+    auto data = text_buffer_->data_;
     while (*data not_eq '\0') {
         if (*data == '\n') {
             ++line_count_;
@@ -479,6 +471,7 @@ void TextEditorModule::exit(Platform& pfrm, App&, Scene& next)
     status_.reset();
 
     pfrm.fill_overlay(0);
+    pfrm.load_overlay_texture("overlay");
 }
 
 
@@ -495,6 +488,8 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
 
         const auto t = pfrm.get_tile(Layer::overlay, x, y);
         pfrm.set_tile(Layer::overlay, x, y, t);
+
+        pfrm.set_palette(Layer::overlay, x, y, stashed_palette_);
     };
 
     auto shade_cursor = [&] {
@@ -506,6 +501,8 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
         static const auto highlight_colors = FontColors{
             custom_color(0x000010), ColorConstant::aerospace_orange
         };
+
+        stashed_palette_ = pfrm.get_palette(Layer::overlay, x, y);
 
         const auto t = pfrm.get_tile(Layer::overlay, x, y);
         pfrm.set_tile(x, y, t, highlight_colors);
@@ -580,10 +577,13 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
             cursor_flicker_timer_ = -seconds(1);
             --cursor_.y;
 
-            key_held_timer_[0] -= milliseconds(80);
+            key_held_timer_[0] -= milliseconds(60);
+
+            bool do_render = false;
 
             if (cursor_.y < start_line_) {
                 --start_line_;
+                do_render = true;
             }
             cursor_.x = ideal_cursor_right_;
 
@@ -592,14 +592,18 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                 cursor_.x = len;
                 if (cursor_.x < column_offset_) {
                     column_offset_ = cursor_.x;
+                    do_render = true;
                 }
             }
 
             while (cursor_.x > column_offset_ + 29) {
+                do_render = true;
                 ++column_offset_;
             }
 
-            render(pfrm, start_line_);
+            if (do_render) {
+                render(pfrm, start_line_);
+            }
 
             shade_cursor();
             show_status(pfrm);
@@ -611,10 +615,13 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
             cursor_flicker_timer_ = -seconds(1);
             ++cursor_.y;
 
-            key_held_timer_[1] -= milliseconds(80);
+            bool do_render = false;
+
+            key_held_timer_[1] -= milliseconds(60);
 
             if (cursor_.y > start_line_ + 17) {
                 ++start_line_;
+                do_render = true;
             }
             cursor_.x = ideal_cursor_right_;
 
@@ -623,21 +630,26 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                 cursor_.x = len;
                 if (cursor_.x < column_offset_) {
                     column_offset_ = cursor_.x;
+                    do_render = true;
                 }
             }
 
             while (cursor_.x > column_offset_ + 29) {
                 ++column_offset_;
+                do_render = true;
             }
 
-            render(pfrm, start_line_);
+            if (do_render) {
+                render(pfrm, start_line_);
+            }
+
             shade_cursor();
             show_status(pfrm);
         } else if (app.player().key_down(pfrm, Key::right) or
                    (app.player().key_pressed(pfrm, Key::right) and
                     key_held_timer_[3] > milliseconds(400))) {
 
-            key_held_timer_[3] -= milliseconds(80);
+            key_held_timer_[3] -= milliseconds(60);
 
             if (line_length() > cursor_.x) {
                 unshade_cursor();
@@ -648,11 +660,18 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                     ++cursor_.x;
                 // }
 
+                bool do_render = false;
+
                 ideal_cursor_right_ = cursor_.x;
                 while (cursor_.x > column_offset_ + 29) {
                     ++column_offset_;
+                    do_render = true;
                 }
-                render(pfrm, start_line_);
+
+                if (do_render) {
+                    render(pfrm, start_line_);
+                }
+
                 shade_cursor();
                 show_status(pfrm);
             }
@@ -661,7 +680,9 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                      key_held_timer_[2] > milliseconds(400)))
                    and cursor_.x > 0) {
 
-            key_held_timer_[2] -= milliseconds(80);
+            bool do_render = false;
+
+            key_held_timer_[2] -= milliseconds(60);
 
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
@@ -673,12 +694,23 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
             ideal_cursor_right_ = cursor_.x;
             while (cursor_.x < column_offset_) {
                 --column_offset_;
+                do_render = true;
             }
-            render(pfrm, start_line_);
+
+            if (do_render) {
+                render(pfrm, start_line_);
+            }
+
             shade_cursor();
             show_status(pfrm);
         } else if (app.player().key_down(pfrm, Key::action_2)) {
-            return scene_pool::alloc<TitleScreenScene>();
+            if (state_->modified_) {
+                ram_filesystem::store_file_data(pfrm,
+                                                state_->file_path_.c_str(),
+                                                text_buffer_->data_,
+                                                str_len(text_buffer_->data_));
+            }
+            return scene_pool::alloc<FileBrowserModule>();
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
             show_keyboard_ = true;
@@ -845,7 +877,7 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
 
 char* TextEditorModule::insert_pos()
 {
-    auto data = (*text_buffer_)->data_;
+    auto data = text_buffer_->data_;
 
     int line = cursor_.y;
     int offset = cursor_.x;
@@ -883,6 +915,8 @@ void TextEditorModule::erase_char()
         return;
     }
 
+    state_->modified_ = true;
+
     auto begin = insert_pos() - 1;
 
     if (*begin == '\n') {
@@ -905,11 +939,13 @@ void TextEditorModule::erase_char()
 
 void TextEditorModule::insert_char(char c)
 {
-    const auto current_bytes = str_len((*text_buffer_)->data_);
+    const auto current_bytes = str_len(text_buffer_->data_);
     if (current_bytes == SCRATCH_BUFFER_SIZE - 1) {
         // TODO: raise error
         return;
     }
+
+    state_->modified_ = true;
 
     if (c == '\n') {
         ++line_count_;

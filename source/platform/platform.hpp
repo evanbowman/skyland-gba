@@ -211,6 +211,7 @@ public:
 
 
     void set_palette(Layer layer, u16 x, u16 y, u16 palette);
+    u16 get_palette(Layer layer, u16 x, u16 y);
 
 
     void set_scroll(Layer layer, u16 x, u16 y);
@@ -272,6 +273,9 @@ public:
 
     bool write_save_data(const void* data, u32 length, u32 offset);
     bool read_save_data(void* buffer, u32 data_length, u32 offset);
+
+    int save_capacity();
+
 
 
     // For historical reasons, allows you to specify a folder and filename

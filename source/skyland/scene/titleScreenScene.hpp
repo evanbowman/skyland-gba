@@ -32,6 +32,9 @@ private:
     bool selector_shaded_ = false;
 
 
+    void run_init_scripts(Platform& pfrm, App& app, bool allow_mods);
+
+
     void show_module_icons(Platform&, int page);
 
     std::optional<Vec2<u8>> module_cursor_;

@@ -572,15 +572,6 @@ void App::init_scripts(Platform& pfrm)
                        lisp::format(&err, p);
                        pfrm.fatal(p.fmt_.c_str());
                    });
-
-    auto data = pfrm.make_scratch_buffer();
-    if (ram_filesystem::read_file_data(pfrm, "/config/values.lisp", data)) {
-        lisp::dostring(data->data_, [&pfrm](lisp::Value& err) {
-                lisp::DefaultPrinter p;
-                lisp::format(&err, p);
-                pfrm.fatal(p.fmt_.c_str());
-            });
-    }
 }
 
 

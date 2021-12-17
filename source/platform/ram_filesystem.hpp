@@ -32,8 +32,6 @@ enum {
     // smaller block size often ultimately saves more space, as a large block
     // size does not efficiently store small files.
     block_size = 200,
-
-    ram_size = 32000,
 };
 
 

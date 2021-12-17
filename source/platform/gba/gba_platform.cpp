@@ -2176,6 +2176,15 @@ flash_bytecpy(void* in_dst, const void* in_src, unsigned int length, bool write)
 }
 
 
+int save_capacity = 32000;
+
+
+int Platform::save_capacity()
+{
+    return ::save_capacity;
+}
+
+
 static void set_flash_bank(u32 bankID)
 {
     if (bankID < 2) {
@@ -3174,19 +3183,32 @@ Platform::Platform()
     // something else. An sram write will fail if the cartridge ram is flash, so
     // attempt to save, and if the save fails, assume flash. I don't really know
     // anything about the EEPROM hardware interface...
-    static const int sram_test_const = 0xAAAAAAAA;
+
+    // NOTE: we don't want to trash whatever was in SRAM. So read the previous
+    // value, test functionality, then write back the old value.
+    u32 old_value;
+    sram_load(&old_value,
+              0,
+              sizeof old_value);
+
+    static const u32 sram_test_const = 0xABCD;
     sram_save(&sram_test_const,
-              ram_filesystem::fs_offset() - sizeof sram_test_const,
+              0,
               sizeof sram_test_const);
 
     int sram_test_result = 0;
     sram_load(&sram_test_result,
-              ram_filesystem::fs_offset() - sizeof sram_test_const,
+              0,
               sizeof sram_test_result);
+
+    sram_save(&old_value,
+              0,
+              sizeof old_value);
 
     if (sram_test_result not_eq sram_test_const) {
         set_gflag(GlobalFlag::save_using_flash, true);
         info(*this, "SRAM write failed, falling back to FLASH");
+        ::save_capacity = 64000;
     }
 
     glyph_table.emplace(allocate_dynamic<GlyphTable>(*this));
@@ -3798,6 +3820,16 @@ void Platform::set_palette(Layer layer, u16 x, u16 y, u16 palette)
         set_overlay_tile(*this, x, y, t, palette);
     }
 }
+
+
+u16 Platform::get_palette(Layer layer, u16 x, u16 y)
+{
+    if (layer == Layer::overlay) {
+        return (overlay_back_buffer[x + y * 32] & (SE_PALBANK_MASK)) >> SE_PALBANK_SHIFT;
+    }
+    fatal("unimplemented get_palette for requested layer");
+}
+
 
 
 void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)

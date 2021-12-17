@@ -5,6 +5,7 @@
 #include "save.hpp"
 #include "script/lisp.hpp"
 #include "serial.hpp"
+#include "platform/ram_filesystem.hpp"
 
 
 
@@ -190,6 +191,59 @@ void init_clouds(Platform& pfrm)
         pfrm.set_tile(Layer::background, i, 20, 7);
         pfrm.set_tile(Layer::background, i, 21, 7);
         pfrm.set_tile(Layer::background, i, 22, 7);
+    }
+}
+
+
+
+void App::safe_invoke_ram_script(Platform& pfrm,
+                                 const char* ram_fs_path,
+                                 const char* rom_fs_fallback_path)
+{
+    ram_filesystem::import_file_from_rom_if_not_exists(pfrm,
+                                                       ram_fs_path,
+                                                       rom_fs_fallback_path);
+
+    auto data = pfrm.make_scratch_buffer();
+    if (ram_filesystem::read_file_data(pfrm, ram_fs_path, data)) {
+        lisp::dostring(data->data_, [&pfrm](lisp::Value& err) {
+                lisp::DefaultPrinter p;
+                lisp::format(&err, p);
+                pfrm.fatal(p.fmt_.c_str());
+            });
+    } else {
+        lisp::dostring(pfrm.load_file_contents("scripts", rom_fs_fallback_path),
+                       [&pfrm](lisp::Value& err) {
+                           lisp::DefaultPrinter p;
+                           lisp::format(&err, p);
+                           pfrm.fatal(p.fmt_.c_str());
+                       });
+    }
+}
+
+
+
+void App::conditional_invoke_script(Platform& pfrm,
+                                    const char* ram_fs_path,
+                                    const char* rom_fs_path,
+                                    bool load_from_rom)
+{
+    if (load_from_rom) {
+
+        // We still want to make sure that the scripts are loaded, even if
+        // we are not going to currently execute them.
+        ram_filesystem::import_file_from_rom_if_not_exists(pfrm,
+                                                           ram_fs_path,
+                                                           rom_fs_path);
+
+        lisp::dostring(pfrm.load_file_contents("scripts", rom_fs_path),
+                       [&pfrm](lisp::Value& err) {
+                           lisp::DefaultPrinter p;
+                           lisp::format(&err, p);
+                           pfrm.fatal(p.fmt_.c_str());
+                       });
+    } else {
+        safe_invoke_ram_script(pfrm, ram_fs_path, rom_fs_path);
     }
 }
 

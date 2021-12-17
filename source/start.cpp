@@ -59,37 +59,44 @@ void start(Platform& pfrm)
                                sizeof(skyland::save::GlobalSaveData) +
                                sizeof(skyland::save::SaveData));
 
-
-    const char* test_file = ";;;\n"
+    const char* test_file =
+        ";;;\n"
         ";;; init.lisp\n"
         ";;;\n"
+        ";;; The game will run this\n"
+        ";;; script upon startup.\n"
+        ";;; Create scripts in the\n"
+        ";;; mods dir, and load them\n"
+        ";;; here.\n"
+        ";;;\n"
         "\n"
-        "\n"
-        "(eval-other-file \"stdlib.lisp\")\n"
-        "\n"
-        "\n"
-        "(def language 'english)\n"
-        "\n"
-        "(defn/c locale-string\n"
-        "  (get-line-of-file (string \"strings/\" language '.txt) $0))\n"
-        "";
+        ";; example:\n"
+        "(eval-other-file \"mods/example.lisp\")\n";
 
-    ram_filesystem::store_file_data(pfrm,
-                                    "/scripts/init.lisp",
-                                    test_file, str_len(test_file));
+    if (not ram_filesystem::file_exists(pfrm, "/mods/init.lisp")) {
+        ram_filesystem::store_file_data(pfrm,
+                                        "/mods/init.lisp",
+                                        test_file, str_len(test_file));
+    }
 
-    // if (not ram_filesystem::file_exists(pfrm, "/patches/patch.lisp")) {
-    //     const char* patch_file = ";; load patches here! \n\n";
 
-    //     ram_filesystem::store_file_data(pfrm,
-    //                                     "/patches/patch.lisp",
-    //                                     patch_file, str_len(patch_file));
-    // }
+    if (not ram_filesystem::file_exists(pfrm, "/readme.lisp")) {
+        const char* data =
+            ";; You may edit any files in\n"
+            ";; the sram filesystem. If\n"
+            ";; you manage to break stuff,\n"
+            ";; simply delete a file, and\n"
+            ";; the game will restore a\n"
+            ";; cached copy from the rom.\n";
+
+        ram_filesystem::store_file_data(pfrm,
+                                        "/readme.lisp",
+                                        data, str_len(data));
+    }
 
     ram_filesystem::import_file_from_rom_if_not_exists(pfrm,
-                                                       "/config/values.lisp",
-                                                       "values.lisp");
-
+                                                       "/config/challenge.lisp",
+                                                       "challenge.lisp");
 
     return skyland_main_loop(pfrm);
 }

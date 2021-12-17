@@ -259,6 +259,16 @@ public:
     }
 
 
+    void safe_invoke_ram_script(Platform& pfrm,
+                                const char* ram_fs_path,
+                                const char* rom_fs_fallback_path);
+
+
+    void conditional_invoke_script(Platform& pfrm,
+                                   const char* ram_fs_path,
+                                   const char* rom_fs_path,
+                                   bool load_from_rom);
+
 
 private:
     PersistentData persistent_data_;
