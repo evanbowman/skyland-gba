@@ -180,6 +180,7 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
 
             if (word == "def" or
                 word == "defn/c" or
+                word == "defn" or
                 word == "let" or
                 word == "lambda" or
                 word == "if" or
@@ -458,15 +459,14 @@ void TextEditorModule::enter(Platform& pfrm, App&, Scene& prev)
     }
 
     render(pfrm, 0);
-
-    pfrm.screen().fade(0.f);
-
 }
 
 
 
 void TextEditorModule::exit(Platform& pfrm, App&, Scene& next)
 {
+    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+
     header_.reset();
     status_.reset();
 
@@ -674,35 +674,97 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
 
                 shade_cursor();
                 show_status(pfrm);
+            } else if (cursor_.y < line_count_) {
+                // We're at the end of the line, jump to the beginning of the
+                // next one.
+                unshade_cursor();
+                cursor_flicker_timer_ = -seconds(1);
+                cursor_.x = 0;
+                const auto old_column_offset = column_offset_;
+                column_offset_ = 0;
+
+                bool do_render = false;
+
+                if (cursor_.x < old_column_offset or
+                    old_column_offset not_eq 0) {
+                    do_render = true;
+                }
+
+                ++cursor_.y;
+
+                if (cursor_.y > start_line_ + 17) {
+                    ++start_line_;
+                    do_render = true;
+                }
+
+                if (do_render) {
+                    render(pfrm, start_line_);
+                }
+
+                shade_cursor();
+                show_status(pfrm);
             }
-        } else if ((app.player().key_down(pfrm, Key::left) or
-                    (app.player().key_pressed(pfrm, Key::left) and
-                     key_held_timer_[2] > milliseconds(400)))
-                   and cursor_.x > 0) {
+        } else if (app.player().key_down(pfrm, Key::left) or
+                   (app.player().key_pressed(pfrm, Key::left) and
+                    key_held_timer_[2] > milliseconds(400))) {
 
-            bool do_render = false;
+            if (cursor_.x > 0) {
+                bool do_render = false;
 
-            key_held_timer_[2] -= milliseconds(60);
+                key_held_timer_[2] -= milliseconds(60);
 
-            unshade_cursor();
-            cursor_flicker_timer_ = -seconds(1);
-            // if (app.player().key_pressed(pfrm, Key::alt_1)) {
-            //     cursor_.x -= back_word();
-            // } else {
+                unshade_cursor();
+                cursor_flicker_timer_ = -seconds(1);
+                // if (app.player().key_pressed(pfrm, Key::alt_1)) {
+                //     cursor_.x -= back_word();
+                // } else {
                 --cursor_.x;
-            // }
-            ideal_cursor_right_ = cursor_.x;
-            while (cursor_.x < column_offset_) {
-                --column_offset_;
-                do_render = true;
+                // }
+                ideal_cursor_right_ = cursor_.x;
+                while (cursor_.x < column_offset_) {
+                    --column_offset_;
+                    do_render = true;
+                }
+
+                if (do_render) {
+                    render(pfrm, start_line_);
+                }
+
+                shade_cursor();
+                show_status(pfrm);
+            } else if (cursor_.y > 0) {
+                unshade_cursor();
+                cursor_flicker_timer_ = -seconds(1);
+
+                --cursor_.y;
+                cursor_.x = line_length();
+
+                ideal_cursor_right_ = cursor_.x;
+
+                bool do_render = false;
+
+                if (cursor_.x < column_offset_) {
+                    column_offset_ = cursor_.x;
+                    do_render = true;
+                }
+                while (cursor_.x > column_offset_ + 29) {
+                    ++column_offset_;
+                    do_render = true;
+                }
+
+                if (cursor_.y < start_line_) {
+                    --start_line_;
+                    do_render = true;
+                }
+
+                if (do_render) {
+                    render(pfrm, start_line_);
+                }
+
+                shade_cursor();
+                show_status(pfrm);
             }
 
-            if (do_render) {
-                render(pfrm, start_line_);
-            }
-
-            shade_cursor();
-            show_status(pfrm);
         } else if (app.player().key_down(pfrm, Key::action_2)) {
             if (state_->modified_) {
                 ram_filesystem::store_file_data(pfrm,
@@ -710,7 +772,8 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                                                 text_buffer_->data_,
                                                 str_len(text_buffer_->data_));
             }
-            return scene_pool::alloc<FileBrowserModule>();
+            return scene_pool::alloc<FileBrowserModule>(pfrm,
+                                                        state_->file_path_.c_str());
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
             show_keyboard_ = true;

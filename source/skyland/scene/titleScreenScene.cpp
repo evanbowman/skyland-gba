@@ -249,7 +249,9 @@ void TitleScreenScene::run_init_scripts(Platform& pfrm,
                                   "values.lisp",
                                   use_rom_fs);
 
-
+    if (allow_mods) {
+        app.invoke_ram_script(pfrm, "/mods/init.lisp");
+    }
 }
 
 

@@ -476,7 +476,32 @@ void App::init_scripts(Platform& pfrm)
             L_EXPECT_OP(0, string);
 
             if (auto pfrm = lisp::interp_get_pfrm()) {
+
+                auto app = interp_get_app();
+                if (app == nullptr) {
+                    return L_NIL;
+                }
+
                 auto str = lisp::get_op(0)->string().value();
+
+                if (not pfrm->network_peer().is_connected() and
+                    not app->tutorial_mode()) {
+
+                    // First, try to load a file from SRAM. If it doesn't exist,
+                    // load from ROM instead.
+
+                    auto data = pfrm->make_scratch_buffer();
+                    if (ram_filesystem::read_file_data(*pfrm, str, data)) {
+                        lisp::dostring(data->data_, [&pfrm](lisp::Value& err) {
+                                lisp::DefaultPrinter p;
+                                lisp::format(&err, p);
+                                pfrm->fatal(p.fmt_.c_str());
+                            });
+
+                        return L_NIL;
+                    }
+                }
+
                 if (auto contents = pfrm->load_file_contents("scripts", str)) {
                     lisp::dostring(contents, [pfrm](lisp::Value& err) {
                         lisp::DefaultPrinter p;

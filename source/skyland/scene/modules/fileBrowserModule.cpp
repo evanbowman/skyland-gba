@@ -7,16 +7,43 @@
 
 
 
+Platform::TextureCpMapper locale_texture_map();
+
+
+
 namespace skyland {
+
+
+
+FileBrowserModule::FileBrowserModule(Platform& pfrm, const char* path)
+{
+    path_ = allocate_dynamic<PathBuffer>(pfrm);
+
+    StringBuffer<max_folder_name> temp;
+    u32 path_len = str_len(path);
+
+    for (u32 i = 0; i < path_len; ++i) {
+        temp.push_back(path[i]);
+
+        if (path[i] == '/') {
+            (*path_)->push_back(temp);
+            temp.clear();
+        }
+    }
+
+    selected_filesystem_ = SelectedFilesystem::sram;
+}
 
 
 
 void FileBrowserModule::enter(Platform& pfrm, App&, Scene& prev)
 {
-    path_ = allocate_dynamic<PathBuffer>(pfrm);
     cwd_names_ = allocate_dynamic<CwdNames>(pfrm);
 
-    (*path_)->push_back("/");
+    if (not path_) {
+        path_ = allocate_dynamic<PathBuffer>(pfrm);
+        (*path_)->push_back("/");
+    }
 
     pfrm.screen().fade(0.f);
 
@@ -31,7 +58,6 @@ void FileBrowserModule::exit(Platform& pfrm, App&, Scene& next)
 {
     lines_.clear();
     info_.reset();
-    path_text_.reset();
     pfrm.fill_overlay(0);
 }
 
@@ -49,14 +75,19 @@ StringBuffer<200> FileBrowserModule::cwd() const
 
 void FileBrowserModule::repaint(Platform& pfrm)
 {
+    // Cover text with black during transition
+    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+    faded_ = true;
+
     lines_.clear();
     info_.reset();
 
     (*cwd_names_)->clear();
 
-    path_text_.reset();
+    for (int y = 1; y < 20; ++y) {
+        pfrm.set_tile(Layer::overlay, 1, y, 112);
+    }
 
-    pfrm.fill_overlay(112);
 
     StringBuffer<200> path;
     for (u32 i = 0; i < (*path_)->size(); ++i) {
@@ -171,10 +202,14 @@ void FileBrowserModule::repaint(Platform& pfrm)
         path.push_back(' ');
     }
 
-    path_text_.emplace(pfrm, OverlayCoord{1, 0});
-    path_text_->append(path.c_str(), FontColors{
+    for (u32 i = 0; i < path.length(); ++i) {
+        auto mapping_info = locale_texture_map()(path[i]);
+            const u16 t = pfrm.map_glyph(path[i], *mapping_info);
+
+        pfrm.set_tile(i + 1, 0, t, FontColors{
             custom_color(0x000010), custom_color(0xffffff)
         });
+    }
 
     pfrm.set_tile(Layer::overlay, 1, 3, 475);
 
@@ -209,6 +244,14 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
                                           App& app,
                                           Microseconds delta)
 {
+    if (faded_) {
+        faded_ = false;
+        pfrm.screen().fade(0.f); // Reset the fade parameters
+
+        // Black background behind the text.
+        pfrm.screen().fade(1.f);
+    }
+
     auto scroll_down = [&] {
         pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
         ++scroll_index_;
@@ -326,9 +369,8 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
 
 
 
-void FileBrowserModule::display(Platform&, App&)
+void FileBrowserModule::display(Platform& pfrm, App&)
 {
-
 }
 
 

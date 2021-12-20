@@ -68,10 +68,7 @@ void start(Platform& pfrm)
         ";;; Create scripts in the\n"
         ";;; mods dir, and load them\n"
         ";;; here.\n"
-        ";;;\n"
-        "\n"
-        ";; example:\n"
-        "(eval-other-file \"mods/example.lisp\")\n";
+        ";;;\n";
 
     if (not ram_filesystem::file_exists(pfrm, "/mods/init.lisp")) {
         ram_filesystem::store_file_data(pfrm,

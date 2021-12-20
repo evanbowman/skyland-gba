@@ -26,6 +26,10 @@ public:
     }
 
 
+    FileBrowserModule() = default;
+    FileBrowserModule(Platform& pfrm, const char* path);
+
+
     void enter(Platform&, App&, Scene& prev) override;
     void exit(Platform&, App&, Scene& next) override;
 
@@ -39,7 +43,9 @@ public:
 private:
     Buffer<Text, 15> lines_;
     std::optional<Text> info_;
-    std::optional<Text> path_text_;
+
+
+    bool faded_ = false;
 
 
     StringBuffer<200> cwd() const;

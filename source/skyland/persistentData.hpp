@@ -33,7 +33,7 @@ struct PersistentData {
     HostInteger<s32> score_;
 
     enum Flags0 {
-        enable_mods = (1 << 0),
+        developer_mode = (1 << 0),
     };
 
     u8 flags0_ = 0;

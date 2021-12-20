@@ -196,10 +196,38 @@ void init_clouds(Platform& pfrm)
 
 
 
+void App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
+{
+    if (not is_developer_mode()) {
+        return;
+    }
+
+    auto data = pfrm.make_scratch_buffer();
+    if (ram_filesystem::read_file_data(pfrm, ram_fs_path, data)) {
+        lisp::dostring(data->data_, [&pfrm](lisp::Value& err) {
+                lisp::DefaultPrinter p;
+                lisp::format(&err, p);
+                pfrm.fatal(p.fmt_.c_str());
+            });
+    }
+}
+
+
+
 void App::safe_invoke_ram_script(Platform& pfrm,
                                  const char* ram_fs_path,
                                  const char* rom_fs_fallback_path)
 {
+    if (not is_developer_mode()) {
+        lisp::dostring(pfrm.load_file_contents("scripts", rom_fs_fallback_path),
+                       [&pfrm](lisp::Value& err) {
+                           lisp::DefaultPrinter p;
+                           lisp::format(&err, p);
+                           pfrm.fatal(p.fmt_.c_str());
+                       });
+        return;
+    }
+
     ram_filesystem::import_file_from_rom_if_not_exists(pfrm,
                                                        ram_fs_path,
                                                        rom_fs_fallback_path);
@@ -223,12 +251,20 @@ void App::safe_invoke_ram_script(Platform& pfrm,
 
 
 
+bool App::is_developer_mode()
+{
+    // return persistent_data_.flags0_ & PersistentData::Flags0::developer_mode;
+    return true;
+}
+
+
+
 void App::conditional_invoke_script(Platform& pfrm,
                                     const char* ram_fs_path,
                                     const char* rom_fs_path,
                                     bool load_from_rom)
 {
-    if (load_from_rom) {
+    if (load_from_rom or not is_developer_mode()) {
 
         // We still want to make sure that the scripts are loaded, even if
         // we are not going to currently execute them.

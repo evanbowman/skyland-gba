@@ -10,6 +10,10 @@ int fs_begin_offset;
 
 
 
+std::optional<ScratchBufferPtr> path_cache_;
+
+
+
 int fs_offset()
 {
     return fs_begin_offset;
@@ -66,6 +70,18 @@ Statistics statistics(Platform& pfrm)
 void store_root(Platform& pfrm, const Root& root)
 {
     pfrm.write_save_data(&root, sizeof root, fs_offset());
+}
+
+
+
+void destroy(Platform& pfrm)
+{
+    char buffer[block_size * 2];
+    __builtin_memset(buffer, 0, sizeof buffer);
+
+    pfrm.write_save_data(buffer, sizeof buffer, fs_offset());
+
+    initialize(pfrm, fs_begin_offset);
 }
 
 

@@ -67,6 +67,10 @@ bool file_exists(Platform& pfrm, const char* path);
 
 
 
+void destroy(Platform& pfrm);
+
+
+
 size_t read_file_data(Platform& pfrm,
                       const char* path,
                       ScratchBufferPtr output_buffer);
