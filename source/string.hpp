@@ -228,6 +228,19 @@ private:
 
 
 template <u32 Capacity>
+bool is_numeric(const StringBuffer<Capacity>& buf)
+{
+    for (auto c : buf) {
+        if (c < '0' or c > '9') {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+template <u32 Capacity>
 bool operator==(StringBuffer<Capacity> buf, const char* str)
 {
     return str_cmp(str, buf.c_str()) == 0;

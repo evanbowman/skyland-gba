@@ -55,8 +55,8 @@ static const char* keyboard[7][7] = {{"z", "y", "g", "f", "v", "q", ";"},
                                      {"w", "a", "o", "e", "u", "k", "/"},
                                      {"p", "h", "t", "n", "s", "r", "_"},
                                      {"x", "c", "(", ")", "-", " ", "."},
-                                     {"$", "'", "0", "1", "2", "3", "\n"},
-                                     {"4", "5", "6", "7", "8", "9", "_"}};
+                                     {"$", "'", "0", "1", "2", "3", "X"},
+                                     {"4", "5", "6", "7", "8", "9", "\n"}};
 
 
 
@@ -128,6 +128,99 @@ void TextEditorModule::render_completions(Platform& pfrm)
 
 
 
+struct ParserState {
+    bool comment = false;
+    bool quotation = false;
+    bool endquote = false;
+    bool keyword = false;
+
+    StringBuffer<32> parse_word_;
+};
+
+
+
+static void handle_char(const char* data,
+                        char c,
+                        ParserState& ps)
+{
+    ps.parse_word_.clear();
+
+    if (c == ';') {
+        ps.comment = true;
+    } else if (c == '"') {
+        if (not ps.quotation) {
+            ps.quotation = true;
+        } else {
+            ps.endquote = true;
+        }
+    } else if (c == '\n' or c == ' ' or c == ')' or c == '(') {
+        ps.keyword = false;
+
+        auto seek = data + 1;
+        auto& word = ps.parse_word_;
+
+        while (*seek not_eq '\0' and
+               *seek not_eq ' ' and
+               *seek not_eq '(' and
+               *seek not_eq ')' and
+               *seek not_eq '\n') {
+            word.push_back(*seek);
+            ++seek;
+        }
+
+        if (word.empty()) {
+            return;
+        }
+
+        if (word == "def" or
+            word == "defn/c" or
+            word == "defn" or
+            word == "let" or
+            word == "lambda" or
+            word == "if" or
+            word == "or" or
+            word == "and" or
+            word == "cond" or
+            word == "progn" or
+            word[0] == '$') {
+            ps.keyword = true;
+        }
+    }
+}
+
+
+
+template <typename F>
+void parse_words(const char* data, F&& callback)
+{
+    ParserState ps;
+
+    while (*data not_eq '\0') {
+
+        ps.endquote = false;
+
+        if (*data == '\n') {
+            ps = ParserState{};
+        } else {
+            handle_char(data, *data, ps);
+        }
+
+        if (ps.endquote) {
+            ps.quotation = false;
+        }
+
+        if (not ps.parse_word_.empty() and
+            not ps.comment and
+            not ps.quotation) {
+            callback(ps.parse_word_);
+        }
+
+        ++data;
+    }
+}
+
+
+
 void TextEditorModule::render(Platform& pfrm, int start_line)
 {
     int x = 0;
@@ -149,60 +242,18 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
 
     int skipped = 0;
 
-    bool comment = false;
-    bool quotation = false;
-    bool endquote = false;
-    bool keyword = false;
+    ParserState ps;
 
-    auto handle_char = [&](char c) {
-        if (c == ';') {
-            comment = true;
-        } else if (c == '"') {
-            if (not quotation) {
-                quotation = true;
-            } else {
-                endquote = true;
-            }
-        } else if (c == ' ' or c == ')' or c == '(') {
-            keyword = false;
-
-            auto seek = data + 1;
-            StringBuffer<32> word;
-
-            while (*seek not_eq '\0' and
-                   *seek not_eq ' ' and
-                   *seek not_eq '(' and
-                   *seek not_eq ')' and
-                   *seek not_eq '\n') {
-                word.push_back(*seek);
-                ++seek;
-            }
-
-            if (word == "def" or
-                word == "defn/c" or
-                word == "defn" or
-                word == "let" or
-                word == "lambda" or
-                word == "if" or
-                word == "or" or
-                word == "and" or
-                word == "cond" or
-                word == "progn" or
-                word[0] == '$') {
-                keyword = true;
-            }
-        }
-    };
 
     while (*data not_eq '\0' and y not_eq y_max) {
 
-        endquote = false;
+        ps.endquote = false;
 
         auto on_newline = [&] {
             x = 0;
             skipped = 0;
-            comment = false;
-            quotation = false;
+            ps.comment = false;
+            ps.quotation = false;
         };
 
         if (x == 30) {
@@ -240,24 +291,24 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
 
         if (skipped < column_offset_) {
             ++skipped;
-            handle_char(*data);
+            handle_char(data, *data, ps);
             ++data;
             continue;
         }
 
         const char c = *data;
 
-        handle_char(c);
+        handle_char(data, c, ps);
 
         auto mapping_info = locale_texture_map()(c);
 
         if (mapping_info) {
             u16 t = pfrm.map_glyph(c, *mapping_info);
-            if (comment or quotation) {
+            if (ps.comment or ps.quotation) {
                 pfrm.set_tile(x, y, t, FontColors{
                         custom_color(0x6eb98e), custom_color(0x110731)
                     });
-            } else if (keyword and c not_eq '(') {
+            } else if (ps.keyword and c not_eq '(') {
                 pfrm.set_tile(x, y, t, FontColors{
                         custom_color(0xde2f79), custom_color(0x110731)
                     });
@@ -266,8 +317,8 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
             }
         }
 
-        if (endquote) {
-            quotation = false;
+        if (ps.endquote) {
+            ps.quotation = false;
         }
 
 
@@ -819,7 +870,7 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
             }
             render_keyboard(pfrm);
         } else if (app.player().key_down(pfrm, Key::action_1)) {
-            if (keyboard_cursor_.y == 6 and keyboard_cursor_.x == 6) {
+            if (keyboard_cursor_.y == 5 and keyboard_cursor_.x == 6) {
                 erase_char();
                 cursor_.x -= 1;
                 if (cursor_.x == -1) {
@@ -870,24 +921,43 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
 
             // completions_.push_back(current_word_.c_str());
 
-            lisp::get_interns([&](const char* intern) {
+            auto handle_completion_word = [&](const char* word) {
                 if (completions_.full()) {
                     return;
                 }
 
-                const auto intern_len = str_len(intern);
+                const auto intern_len = str_len(word);
                 if (intern_len <= current_word_.length()) {
                     return;
                 }
 
                 for (u32 i = 0; i < current_word_.length(); ++i) {
-                    if (current_word_[i] not_eq intern[i]) {
+                    if (current_word_[i] not_eq word[i]) {
                         return;
                     }
                 }
 
-                completions_.push_back(intern);
+                completions_.push_back(word);
+            };
+
+
+            parse_words(text_buffer_->data_, [&](auto& word) {
+                if (current_word_.empty() and is_numeric(word)) {
+                    // Just out of personal preference, do not add integers from
+                    // the current text buffer to the list of completions if the
+                    // user has not yet entered any text to complete. Kind of an
+                    // obscure edge case, but I just think it looks weird if you
+                    // hit autocomplete, even with your cursor surrounded on
+                    // both sides by whitespace, and see integers in the
+                    // autocomplete window.
+                    return;
+                }
+
+                handle_completion_word(word.c_str());
             });
+
+
+            lisp::get_interns(handle_completion_word);
 
             mode_ = Mode::autocomplete;
             show_keyboard_ = false;
