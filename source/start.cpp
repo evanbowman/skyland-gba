@@ -91,9 +91,9 @@ void start(Platform& pfrm)
                                         data, str_len(data));
     }
 
-    ram_filesystem::import_file_from_rom_if_not_exists(pfrm,
-                                                       "/config/challenge.lisp",
-                                                       "challenge.lisp");
+    // ram_filesystem::import_file_from_rom_if_not_exists(pfrm,
+    //                                                    "/config/challenge.lisp",
+    //                                                    "challenge.lisp");
 
     return skyland_main_loop(pfrm);
 }

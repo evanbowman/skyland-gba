@@ -240,6 +240,8 @@ void TitleScreenScene::run_init_scripts(Platform& pfrm,
                                         App& app,
                                         bool allow_mods)
 {
+    lisp::set_var("lv-onload-hooks", lisp::get_nil());
+
     // For some stuff, like the tutorial viewer, or multiplayer games,
     // everything would get messed up if we allowed users to run modded scripts.
     const bool use_rom_fs = (allow_mods == false);
