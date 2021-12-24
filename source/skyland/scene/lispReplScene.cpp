@@ -1,6 +1,6 @@
 #include "lispReplScene.hpp"
-#include "skyland/scene_pool.hpp"
 #include "skyland/scene/readyScene.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 
@@ -8,9 +8,9 @@ namespace skyland {
 
 
 
-LispReplScene::LispReplScene(Platform& pfrm) :
-    command_(allocate_dynamic<Command>(pfrm)),
-    cpl_(allocate_dynamic<Completions>(pfrm))
+LispReplScene::LispReplScene(Platform& pfrm)
+    : command_(allocate_dynamic<Command>(pfrm)),
+      cpl_(allocate_dynamic<Completions>(pfrm))
 {
 }
 
@@ -223,7 +223,8 @@ void LispReplScene::repaint_completions(Platform& pfrm)
 }
 
 
-ScenePtr<Scene> LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     constexpr auto fade_duration = milliseconds(700);
     if (timer_ < fade_duration) {
@@ -232,8 +233,7 @@ ScenePtr<Scene> LispReplScene::update(Platform& pfrm, App& app, Microseconds del
         }
         timer_ += delta;
 
-        const auto amount =
-            0.34f * smoothstep(0.f, fade_duration, timer_);
+        const auto amount = 0.34f * smoothstep(0.f, fade_duration, timer_);
 
         if (timer_ < fade_duration) {
             pfrm.screen().fade(amount);
@@ -258,8 +258,8 @@ ScenePtr<Scene> LispReplScene::update(Platform& pfrm, App& app, Microseconds del
             cpl_->completions_.clear();
             display_mode_ = DisplayMode::entry;
         } else if (pfrm.keyboard().down_transition<Key::action_1>()) {
-            *command_ +=
-                (cpl_->completion_strs_[cpl_->completion_cursor_] + cpl_->completion_prefix_len_);
+            *command_ += (cpl_->completion_strs_[cpl_->completion_cursor_] +
+                          cpl_->completion_prefix_len_);
             repaint_entry(pfrm);
             cpl_->completion_strs_.clear();
             cpl_->completions_.clear();
@@ -422,4 +422,4 @@ ScenePtr<Scene> LispReplScene::update(Platform& pfrm, App& app, Microseconds del
 
 
 
-}
+} // namespace skyland

@@ -1,8 +1,8 @@
 #pragma once
 
+#include "graphics/overlay.hpp"
 #include "skyland/scene.hpp"
 #include "string.hpp"
-#include "graphics/overlay.hpp"
 
 
 
@@ -18,8 +18,7 @@ namespace skyland {
 
 class SramFileWritebackScene : public Scene {
 public:
-    SramFileWritebackScene(const char* path,
-                           ScratchBufferPtr text_buffer);
+    SramFileWritebackScene(const char* path, ScratchBufferPtr text_buffer);
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
@@ -38,4 +37,4 @@ private:
 
 
 
-}
+} // namespace skyland

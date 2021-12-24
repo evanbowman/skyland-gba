@@ -1,8 +1,8 @@
 #include "save.hpp"
 #include "flag.hpp"
 #include "platform/platform.hpp"
-#include "script/lisp.hpp"
 #include "platform/ram_filesystem.hpp"
+#include "script/lisp.hpp"
 
 
 
@@ -93,10 +93,8 @@ void store(Platform& pfrm, const PersistentData& d)
 
     offset += sizeof save_data;
 
-    ram_filesystem::store_file_data(pfrm,
-                                    "/save/data.lisp",
-                                    p.fmt_.c_str(),
-                                    p.fmt_.length());
+    ram_filesystem::store_file_data(
+        pfrm, "/save/data.lisp", p.fmt_.c_str(), p.fmt_.length());
 }
 
 
@@ -119,9 +117,7 @@ bool load(Platform& pfrm, PersistentData& d)
 
     __builtin_memset(sbr->data_, 0, sizeof sbr->data_);
 
-    auto bytes = ram_filesystem::read_file_data(pfrm,
-                                                "/save/data.lisp",
-                                                sbr);
+    auto bytes = ram_filesystem::read_file_data(pfrm, "/save/data.lisp", sbr);
 
     if (bytes == 0) {
         pfrm.fatal("failed to load save");

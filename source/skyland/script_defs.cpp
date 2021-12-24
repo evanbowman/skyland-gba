@@ -3,6 +3,7 @@
 #include "bulkAllocator.hpp"
 #include "configure_island.hpp"
 #include "opponent/friendlyAI.hpp"
+#include "platform/ram_filesystem.hpp"
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
 #include "scene/scriptHookScene.hpp"
@@ -10,7 +11,6 @@
 #include "script/listBuilder.hpp"
 #include "serial.hpp"
 #include "skyland.hpp"
-#include "platform/ram_filesystem.hpp"
 
 
 
@@ -470,24 +470,23 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
-    lisp::set_var(
-        "eval-other-file", lisp::make_function([](int argc) {
-            L_EXPECT_ARGC(argc, 1);
-            L_EXPECT_OP(0, string);
+    lisp::set_var("eval-other-file", lisp::make_function([](int argc) {
+                      L_EXPECT_ARGC(argc, 1);
+                      L_EXPECT_OP(0, string);
 
-            if (auto pfrm = lisp::interp_get_pfrm()) {
+                      if (auto pfrm = lisp::interp_get_pfrm()) {
 
-                auto app = interp_get_app();
-                if (app == nullptr) {
-                    return L_NIL;
-                }
+                          auto app = interp_get_app();
+                          if (app == nullptr) {
+                              return L_NIL;
+                          }
 
-                auto str = lisp::get_op(0)->string().value();
+                          auto str = lisp::get_op(0)->string().value();
 
-                app->invoke_script(*pfrm, str);
-            }
-            return L_NIL;
-        }));
+                          app->invoke_script(*pfrm, str);
+                      }
+                      return L_NIL;
+                  }));
 
 
     lisp::set_var("choice", lisp::make_function([](int argc) {
@@ -529,37 +528,38 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
-    lisp::set_var("configure-rooms", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(1, cons);
+    lisp::set_var(
+        "configure-rooms", lisp::make_function([](int argc) {
+            L_EXPECT_ARGC(argc, 1);
+            L_EXPECT_OP(1, cons);
 
-        lisp::foreach(lisp::get_op(0), [](lisp::Value* val) {
-            if (val->type() not_eq lisp::Value::Type::cons) {
-                return;
-            }
+            lisp::foreach (lisp::get_op(0), [](lisp::Value* val) {
+                if (val->type() not_eq lisp::Value::Type::cons) {
+                    return;
+                }
 
-            auto name_sym = val->cons().car();
-            if (name_sym->type() not_eq lisp::Value::Type::symbol) {
-                return;
-            }
+                auto name_sym = val->cons().car();
+                if (name_sym->type() not_eq lisp::Value::Type::symbol) {
+                    return;
+                }
 
-            val = val->cons().cdr();
-
-            if (auto c = load_metaclass(name_sym->symbol().name_)) {
-                auto health = val->cons().car()->integer().value_;
                 val = val->cons().cdr();
-                auto cost = val->cons().car()->integer().value_;
-                val = val->cons().cdr();
-                auto power = val->cons().car()->integer().value_;
-                (*c)->configure(health, cost, power);
-            } else {
-                auto pfrm = lisp::interp_get_pfrm();
-                pfrm->fatal("invalid room type symbol");
-            }
-        });
 
-        return L_NIL;
-    }));
+                if (auto c = load_metaclass(name_sym->symbol().name_)) {
+                    auto health = val->cons().car()->integer().value_;
+                    val = val->cons().cdr();
+                    auto cost = val->cons().car()->integer().value_;
+                    val = val->cons().cdr();
+                    auto power = val->cons().car()->integer().value_;
+                    (*c)->configure(health, cost, power);
+                } else {
+                    auto pfrm = lisp::interp_get_pfrm();
+                    pfrm->fatal("invalid room type symbol");
+                }
+            });
+
+            return L_NIL;
+        }));
 
 
     lisp::dostring(pfrm.load_file_contents("scripts", "init.lisp"),

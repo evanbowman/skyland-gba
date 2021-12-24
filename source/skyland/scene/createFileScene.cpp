@@ -1,7 +1,7 @@
 #include "createFileScene.hpp"
+#include "modules/textEditorModule.hpp"
 #include "platform/platform.hpp"
 #include "skyland/skyland.hpp"
-#include "modules/textEditorModule.hpp"
 
 
 
@@ -13,8 +13,8 @@ namespace skyland {
 
 
 
-CreateFileScene::CreateFileScene(const char* ram_file_path) :
-    file_path_(ram_file_path)
+CreateFileScene::CreateFileScene(const char* ram_file_path)
+    : file_path_(ram_file_path)
 {
 }
 
@@ -29,15 +29,13 @@ static const char* keyboard[7][7] = {{"z", "y", "g", "f", "v", "q", ";"},
 
 
 
-static const FontColors text_entry_colors {
-    custom_color(0xffffff), custom_color(0x181835)
-};
+static const FontColors text_entry_colors{custom_color(0xffffff),
+                                          custom_color(0x181835)};
 
 
 
-ScenePtr<Scene> CreateFileScene::update(Platform& pfrm,
-                                        App& app,
-                                        Microseconds delta)
+ScenePtr<Scene>
+CreateFileScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::left)) {
         if (keyboard_cursor_.x > 0) {
@@ -92,9 +90,8 @@ ScenePtr<Scene> CreateFileScene::update(Platform& pfrm,
             StringBuffer<100> full_path_(file_path_.c_str());
             full_path_ += path_;
 
-            return scene_pool::alloc<TextEditorModule>(pfrm,
-                                                       full_path_.c_str(),
-                                                       TextEditorModule::FileMode::create);
+            return scene_pool::alloc<TextEditorModule>(
+                pfrm, full_path_.c_str(), TextEditorModule::FileMode::create);
         }
     }
 
@@ -102,9 +99,8 @@ ScenePtr<Scene> CreateFileScene::update(Platform& pfrm,
 }
 
 
-static const auto status_colors = FontColors{
-    custom_color(0x000010), custom_color(0xffffff)
-};
+static const auto status_colors =
+    FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
 
 void CreateFileScene::render_keyboard(Platform& pfrm)
@@ -117,9 +113,8 @@ void CreateFileScene::render_keyboard(Platform& pfrm)
 
             auto colors = status_colors;
             if (x == keyboard_cursor_.x and y == keyboard_cursor_.y) {
-                colors = FontColors{
-                    custom_color(0xffffff), ColorConstant::aerospace_orange
-                };
+                colors = FontColors{custom_color(0xffffff),
+                                    ColorConstant::aerospace_orange};
             }
 
             pfrm.set_tile((30 - 8) + x, (19 - 6) + y, t, colors);
@@ -128,9 +123,7 @@ void CreateFileScene::render_keyboard(Platform& pfrm)
 }
 
 
-void CreateFileScene::enter(Platform& pfrm,
-                            App& app,
-                            Scene& prev)
+void CreateFileScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     render_keyboard(pfrm);
 
@@ -141,9 +134,7 @@ void CreateFileScene::enter(Platform& pfrm,
 
 
 
-void CreateFileScene::exit(Platform& pfrm,
-                           App& app,
-                           Scene& next)
+void CreateFileScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     title_text_.reset();
     entry_.reset();
@@ -153,4 +144,4 @@ void CreateFileScene::exit(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

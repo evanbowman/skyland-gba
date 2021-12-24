@@ -18,12 +18,12 @@
 #include "mixer.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
+#include "platform/ram_filesystem.hpp"
 #include "rumble.h"
 #include "script/lisp.hpp"
 #include "string.hpp"
 #include "util.hpp"
 #include <algorithm>
-#include "platform/ram_filesystem.hpp"
 
 
 
@@ -1742,14 +1742,13 @@ void Platform::fatal(const char* msg)
 
         int offset = 0;
 
-        auto render_line = [&](const char* line,
-                               int spacing,
-                               Text::OptColors colors) {
-            line_buffer.emplace_back(*::platform,
-                                     OverlayCoord{1, u8(6 + offset)});
-            line_buffer.back().append(line, colors);
-            offset += spacing;
-        };
+        auto render_line =
+            [&](const char* line, int spacing, Text::OptColors colors) {
+                line_buffer.emplace_back(*::platform,
+                                         OverlayCoord{1, u8(6 + offset)});
+                line_buffer.back().append(line, colors);
+                offset += spacing;
+            };
 
         render_line("uart console available", 2, text_colors);
         render_line("link port        rs232 cable", 2, text_colors_inv);
@@ -3187,23 +3186,15 @@ Platform::Platform()
     // NOTE: we don't want to trash whatever was in SRAM. So read the previous
     // value, test functionality, then write back the old value.
     u32 old_value;
-    sram_load(&old_value,
-              0,
-              sizeof old_value);
+    sram_load(&old_value, 0, sizeof old_value);
 
     static const u32 sram_test_const = 0xABCD;
-    sram_save(&sram_test_const,
-              0,
-              sizeof sram_test_const);
+    sram_save(&sram_test_const, 0, sizeof sram_test_const);
 
     int sram_test_result = 0;
-    sram_load(&sram_test_result,
-              0,
-              sizeof sram_test_result);
+    sram_load(&sram_test_result, 0, sizeof sram_test_result);
 
-    sram_save(&old_value,
-              0,
-              sizeof old_value);
+    sram_save(&old_value, 0, sizeof old_value);
 
     if (sram_test_result not_eq sram_test_const) {
         set_gflag(GlobalFlag::save_using_flash, true);
@@ -3825,7 +3816,8 @@ void Platform::set_palette(Layer layer, u16 x, u16 y, u16 palette)
 u16 Platform::get_palette(Layer layer, u16 x, u16 y)
 {
     if (layer == Layer::overlay) {
-        return (overlay_back_buffer[x + y * 32] & (SE_PALBANK_MASK)) >> SE_PALBANK_SHIFT;
+        return (overlay_back_buffer[x + y * 32] & (SE_PALBANK_MASK)) >>
+               SE_PALBANK_SHIFT;
     }
     fatal("unimplemented get_palette for requested layer");
 }

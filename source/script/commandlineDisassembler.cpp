@@ -1,12 +1,11 @@
-#include "lisp.hpp"
 #include "bytecode.hpp"
+#include "lisp.hpp"
 #include "platform/platform.hpp"
 #include <fstream>
-#include <sstream>
 #include <iostream>
-#include <vector>
+#include <sstream>
 #include <string>
-
+#include <vector>
 
 
 int main(int argc, char** argv)

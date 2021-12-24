@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include "skyland/scene/module.hpp"
-#include "memory/buffer.hpp"
-#include "graphics/overlay.hpp"
 #include "bulkAllocator.hpp"
+#include "graphics/overlay.hpp"
+#include "memory/buffer.hpp"
+#include "skyland/scene/module.hpp"
 
 
 
@@ -27,7 +27,9 @@ public:
 
 
     FileBrowserModule() = default;
-    FileBrowserModule(Platform& pfrm, const char* path, bool is_rom_path = false);
+    FileBrowserModule(Platform& pfrm,
+                      const char* path,
+                      bool is_rom_path = false);
 
 
     void enter(Platform&, App&, Scene& prev) override;
@@ -86,4 +88,4 @@ private:
 
 
 
-}
+} // namespace skyland

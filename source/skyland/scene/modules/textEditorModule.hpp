@@ -1,10 +1,10 @@
 #pragma once
 
 
-#include "skyland/scene/module.hpp"
-#include "memory/buffer.hpp"
-#include "graphics/overlay.hpp"
 #include "bulkAllocator.hpp"
+#include "graphics/overlay.hpp"
+#include "memory/buffer.hpp"
+#include "skyland/scene/module.hpp"
 
 
 
@@ -14,23 +14,15 @@ namespace skyland {
 
 class TextEditorModule : public Module<TextEditorModule> {
 public:
-
-
     TextEditorModule() = default;
 
 
 
-    enum class FileMode {
-        create,
-        update
-    };
+    enum class FileMode { create, update };
 
 
 
-    enum class FileSystem : u8 {
-        sram,
-        rom
-    };
+    enum class FileSystem : u8 { sram, rom };
 
 
 
@@ -61,7 +53,6 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 private:
-
     enum class Mode {
         explore,
         edit,
@@ -138,4 +129,4 @@ private:
 
 
 
-}
+} // namespace skyland

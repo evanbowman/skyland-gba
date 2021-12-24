@@ -234,8 +234,7 @@ private:
 };
 
 
-template <u32 Capacity>
-bool is_numeric(const StringBuffer<Capacity>& buf)
+template <u32 Capacity> bool is_numeric(const StringBuffer<Capacity>& buf)
 {
     for (auto c : buf) {
         if (c < '0' or c > '9') {

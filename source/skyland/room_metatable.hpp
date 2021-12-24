@@ -9,7 +9,6 @@
 
 
 
-
 namespace skyland {
 
 
@@ -33,9 +32,7 @@ struct RoomMeta {
         virtual Room::Icon unsel_icon() const = 0;
         virtual Health full_health() const = 0;
 
-        virtual void configure(Health health,
-                               Coins cost,
-                               Power power)
+        virtual void configure(Health health, Coins cost, Power power)
         {
         }
     };
@@ -73,8 +70,7 @@ struct RoomMeta {
         };
 
 
-        template <PluginInfo::Tag info, typename T>
-        T& fetch_info() const
+        template <PluginInfo::Tag info, typename T> T& fetch_info() const
         {
             if (info_) {
                 return lisp::get_list(*info_, info)->expect<T>();
@@ -136,10 +132,9 @@ struct RoomMeta {
     };
 
     template <typename T> struct BoxImpl : public Box {
-        BoxImpl() :
-            health_(T::full_health()),
-            cost_(T::cost()),
-            power_(T::consumes_power())
+        BoxImpl()
+            : health_(T::full_health()), cost_(T::cost()),
+              power_(T::consumes_power())
         {
         }
 

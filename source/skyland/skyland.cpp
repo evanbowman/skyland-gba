@@ -2,10 +2,10 @@
 #include "globals.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
+#include "platform/ram_filesystem.hpp"
 #include "save.hpp"
 #include "script/lisp.hpp"
 #include "serial.hpp"
-#include "platform/ram_filesystem.hpp"
 
 
 
@@ -205,10 +205,10 @@ void App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
     auto data = pfrm.make_scratch_buffer();
     if (ram_filesystem::read_file_data(pfrm, ram_fs_path, data)) {
         lisp::dostring(data->data_, [&pfrm](lisp::Value& err) {
-                lisp::DefaultPrinter p;
-                lisp::format(&err, p);
-                pfrm.fatal(p.fmt_.c_str());
-            });
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
     }
 }
 
@@ -228,17 +228,16 @@ void App::safe_invoke_ram_script(Platform& pfrm,
         return;
     }
 
-    ram_filesystem::import_file_from_rom_if_not_exists(pfrm,
-                                                       ram_fs_path,
-                                                       rom_fs_fallback_path);
+    ram_filesystem::import_file_from_rom_if_not_exists(
+        pfrm, ram_fs_path, rom_fs_fallback_path);
 
     auto data = pfrm.make_scratch_buffer();
     if (ram_filesystem::read_file_data(pfrm, ram_fs_path, data)) {
         lisp::dostring(data->data_, [&pfrm](lisp::Value& err) {
-                lisp::DefaultPrinter p;
-                lisp::format(&err, p);
-                pfrm.fatal(p.fmt_.c_str());
-            });
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
     } else {
         lisp::dostring(pfrm.load_file_contents("scripts", rom_fs_fallback_path),
                        [&pfrm](lisp::Value& err) {
@@ -267,8 +266,7 @@ void App::invoke_script(Platform& pfrm, const char* path)
         pfrm.fatal(p.fmt_.c_str());
     };
 
-    if (is_developer_mode() and
-        not pfrm.network_peer().is_connected() and
+    if (is_developer_mode() and not pfrm.network_peer().is_connected() and
         not tutorial_mode()) {
 
         auto data = pfrm.make_scratch_buffer();
@@ -303,9 +301,8 @@ void App::conditional_invoke_script(Platform& pfrm,
 
         // We still want to make sure that the scripts are loaded, even if
         // we are not going to currently execute them.
-        ram_filesystem::import_file_from_rom_if_not_exists(pfrm,
-                                                           ram_fs_path,
-                                                           rom_fs_path);
+        ram_filesystem::import_file_from_rom_if_not_exists(
+            pfrm, ram_fs_path, rom_fs_path);
 
         lisp::dostring(pfrm.load_file_contents("scripts", rom_fs_path),
                        [&pfrm](lisp::Value& err) {

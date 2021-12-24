@@ -94,10 +94,8 @@ void initialize(Platform& pfrm, int fs_begin_offset)
 
     pfrm.read_save_data(&root, sizeof root, fs_offset());
 
-    if (root.magic_[0] == '_' and
-        root.magic_[1] == 'F' and
-        root.magic_[2] == 'S' and
-        root.magic_[3] == '_') {
+    if (root.magic_[0] == '_' and root.magic_[1] == 'F' and
+        root.magic_[2] == 'S' and root.magic_[3] == '_') {
 
         // Already initialized previously.
         return;
@@ -193,18 +191,16 @@ void free_file(Platform& pfrm, u16 file)
 
     while (file) {
         FileContents::Header header;
-        pfrm.read_save_data(&header,
-                            sizeof header,
-                            fs_contents_offset() + file * block_size);
+        pfrm.read_save_data(
+            &header, sizeof header, fs_contents_offset() + file * block_size);
 
         auto freelist = root.freelist_.get();
         root.freelist_.set(file);
         auto next_file = header.next_.get();
         header.next_.set(freelist);
 
-        pfrm.write_save_data(&header,
-                             sizeof header,
-                             fs_contents_offset() + file * block_size);
+        pfrm.write_save_data(
+            &header, sizeof header, fs_contents_offset() + file * block_size);
 
         file = next_file;
     }
@@ -231,8 +227,8 @@ void with_file(Platform& pfrm, const char* path, F&& callback)
 
             pfrm.read_save_data(path_buffer,
                                 max_path,
-                                fs_contents_offset() + file * block_size
-                                + sizeof(FileContents::Header));
+                                fs_contents_offset() + file * block_size +
+                                    sizeof(FileContents::Header));
 
             if (str_cmp(path_buffer, path) == 0) {
                 callback(info, file, offset);
@@ -273,24 +269,21 @@ void unlink_file(Platform& pfrm, const char* path)
 
 
 
-size_t read_file_data(Platform& pfrm,
-                             const char* path,
-                             ScratchBufferPtr output_buffer)
+size_t
+read_file_data(Platform& pfrm, const char* path, ScratchBufferPtr output_buffer)
 {
     const auto path_len = str_len(path);
 
-    __builtin_memset(output_buffer->data_,
-                     0,
-                     sizeof output_buffer->data_);
+    __builtin_memset(output_buffer->data_, 0, sizeof output_buffer->data_);
 
 
     int write_pos = 0;
 
     with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
-
         FileContents contents;
 
-        pfrm.read_save_data(&contents, sizeof contents,
+        pfrm.read_save_data(&contents,
+                            sizeof contents,
                             fs_contents_offset() + file * block_size);
 
         for (u16 i = path_len + 1; i < FileContents::capacity; ++i) {
@@ -300,7 +293,8 @@ size_t read_file_data(Platform& pfrm,
         file = contents.header_.next_.get();
 
         while (file) {
-            pfrm.read_save_data(&contents, sizeof contents,
+            pfrm.read_save_data(&contents,
+                                sizeof contents,
                                 fs_contents_offset() + file * block_size);
 
             for (u16 i = 0; i < FileContents::capacity; ++i) {
@@ -321,9 +315,9 @@ size_t read_file_data(Platform& pfrm,
 
 
 bool store_file_data(Platform& pfrm,
-                            const char* path,
-                            const char* data,
-                            const s16 length)
+                     const char* path,
+                     const char* data,
+                     const s16 length)
 {
     unlink_file(pfrm, path);
 
@@ -348,12 +342,9 @@ bool store_file_data(Platform& pfrm,
     remaining -= path_len + 1;
 
     const auto initial_data_copy =
-        std::min((int)FileContents::capacity - (path_len + 1),
-                 (int)length);
+        std::min((int)FileContents::capacity - (path_len + 1), (int)length);
 
-    memcpy(contents.data_ + (path_len + 1),
-           data,
-           initial_data_copy);
+    memcpy(contents.data_ + (path_len + 1), data, initial_data_copy);
 
     data += initial_data_copy;
     remaining -= initial_data_copy;
@@ -384,12 +375,10 @@ bool store_file_data(Platform& pfrm,
 
         file = next_file;
 
-        const auto copy_len = std::min((int)FileContents::capacity,
-                                       (int)remaining);
+        const auto copy_len =
+            std::min((int)FileContents::capacity, (int)remaining);
 
-        memcpy(contents.data_,
-               data,
-               copy_len);
+        memcpy(contents.data_, data, copy_len);
 
         data += copy_len;
         remaining -= copy_len;
@@ -406,4 +395,4 @@ bool store_file_data(Platform& pfrm,
 
 
 
-}
+} // namespace ram_filesystem

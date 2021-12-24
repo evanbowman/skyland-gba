@@ -24,7 +24,9 @@ std::array<HintInfo, 5> hints = {
      {"hint_damaged_core",
       "If you lose a power-core, systems may shut down til you rebalance "
       "power."},
-     {"<none>", "For more help, scroll right on the title screen and open the tutorial viewer!"}}};
+     {"<none>",
+      "For more help, scroll right on the title screen and open the tutorial "
+      "viewer!"}}};
 
 
 

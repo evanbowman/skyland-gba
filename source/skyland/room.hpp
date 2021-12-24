@@ -33,7 +33,7 @@ struct Conditions {
         none = 0,
         workshop_required = (1 << 0),
         not_constructible = (1 << 1),
-        plugin            = (1 << 2),
+        plugin = (1 << 2),
     };
 };
 
@@ -215,8 +215,6 @@ public:
 
 
 protected:
-
-
     void set_metaclass(RoomMeta* metaclass)
     {
         metaclass_ = metaclass;

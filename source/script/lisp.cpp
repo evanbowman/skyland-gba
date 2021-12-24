@@ -9,8 +9,8 @@
 #ifdef __GBA__
 #define HEAP_DATA __attribute__((section(".ewram")))
 #else
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #define HEAP_DATA
 #endif
 
@@ -2984,20 +2984,21 @@ void init(Platform& pfrm)
 
 #ifndef __GBA__
     set_var("file-lines", make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, string);
+                L_EXPECT_ARGC(argc, 1);
+                L_EXPECT_OP(0, string);
 
-        std::string line;
-        std::ifstream file(get_op0()->string().value());
+                std::string line;
+                std::ifstream file(get_op0()->string().value());
 
-        ListBuilder result;
+                ListBuilder result;
 
-        while (std::getline(file, line)) {
-            result.push_back(make_string(bound_context->pfrm_, line.c_str()));
-        }
+                while (std::getline(file, line)) {
+                    result.push_back(
+                        make_string(bound_context->pfrm_, line.c_str()));
+                }
 
-        return result.result();
-    }));
+                return result.result();
+            }));
 #endif
 
     set_var(

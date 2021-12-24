@@ -610,7 +610,6 @@ public:
 void format(Value* value, Printer& p);
 
 
-
 // Protected objects will not be collected until the Protected wrapper goes out
 // of scope.
 class ProtectedBase {
@@ -638,7 +637,6 @@ protected:
     ProtectedBase* prev_;
     ProtectedBase* next_;
 };
-
 
 
 class Protected : public ProtectedBase {
@@ -673,7 +671,6 @@ public:
 protected:
     Value* val_;
 };
-
 
 
 template <typename F> void foreach (Value* list, F && fn)

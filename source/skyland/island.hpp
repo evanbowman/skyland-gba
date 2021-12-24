@@ -34,14 +34,11 @@ public:
     }
 
 
-    template <typename T, typename ...Args>
-    bool add_room(Platform& pfrm,
-                  const Vec2<u8>& position,
-                  Args&& ...args)
+    template <typename T, typename... Args>
+    bool add_room(Platform& pfrm, const Vec2<u8>& position, Args&&... args)
     {
-        if (auto room = room_pool::alloc<T>(this,
-                                            position,
-                                            std::forward<Args>(args)...)) {
+        if (auto room = room_pool::alloc<T>(
+                this, position, std::forward<Args>(args)...)) {
             if (rooms_.push_back({room.release(), room_pool::deleter})) {
                 repaint(pfrm);
                 recalculate_power_usage();

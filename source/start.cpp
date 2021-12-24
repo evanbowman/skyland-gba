@@ -1,8 +1,8 @@
 #include "globals.hpp"
-#include "skyland/skyland.hpp"
-#include "transformGroup.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "skyland/save.hpp"
+#include "skyland/skyland.hpp"
+#include "transformGroup.hpp"
 
 
 
@@ -57,38 +57,34 @@ void start(Platform& pfrm)
 {
     ram_filesystem::initialize(pfrm,
                                sizeof(skyland::save::GlobalSaveData) +
-                               sizeof(skyland::save::SaveData));
+                                   sizeof(skyland::save::SaveData));
 
-    const char* test_file =
-        ";;;\n"
-        ";;; init.lisp\n"
-        ";;;\n"
-        ";;; The game will run this\n"
-        ";;; script upon startup.\n"
-        ";;; Create scripts in the\n"
-        ";;; mods dir, and load them\n"
-        ";;; here.\n"
-        ";;;\n";
+    const char* test_file = ";;;\n"
+                            ";;; init.lisp\n"
+                            ";;;\n"
+                            ";;; The game will run this\n"
+                            ";;; script upon startup.\n"
+                            ";;; Create scripts in the\n"
+                            ";;; mods dir, and load them\n"
+                            ";;; here.\n"
+                            ";;;\n";
 
     if (not ram_filesystem::file_exists(pfrm, "/mods/init.lisp")) {
-        ram_filesystem::store_file_data(pfrm,
-                                        "/mods/init.lisp",
-                                        test_file, str_len(test_file));
+        ram_filesystem::store_file_data(
+            pfrm, "/mods/init.lisp", test_file, str_len(test_file));
     }
 
 
     if (not ram_filesystem::file_exists(pfrm, "/readme.lisp")) {
-        const char* data =
-            ";; You may edit any files in\n"
-            ";; the sram filesystem. If\n"
-            ";; you manage to break stuff,\n"
-            ";; simply delete a file, and\n"
-            ";; the game will restore a\n"
-            ";; cached copy from the rom.\n";
+        const char* data = ";; You may edit any files in\n"
+                           ";; the sram filesystem. If\n"
+                           ";; you manage to break stuff,\n"
+                           ";; simply delete a file, and\n"
+                           ";; the game will restore a\n"
+                           ";; cached copy from the rom.\n";
 
-        ram_filesystem::store_file_data(pfrm,
-                                        "/readme.lisp",
-                                        data, str_len(data));
+        ram_filesystem::store_file_data(
+            pfrm, "/readme.lisp", data, str_len(data));
     }
 
     // ram_filesystem::import_file_from_rom_if_not_exists(pfrm,

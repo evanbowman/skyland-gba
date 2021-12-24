@@ -1,10 +1,10 @@
 #pragma once
 
-#include "skyland/scene.hpp"
-#include "string.hpp"
+#include "bulkAllocator.hpp"
 #include "graphics/overlay.hpp"
 #include "script/lisp.hpp"
-#include "bulkAllocator.hpp"
+#include "skyland/scene.hpp"
+#include "string.hpp"
 
 
 namespace skyland {
@@ -17,12 +17,12 @@ public:
     void enter(Platform& pfrm, App& app, Scene& prev) override;
     void exit(Platform& pfrm, App& app, Scene& next) override;
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override;
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override;
 
     using Command = StringBuffer<256>;
 
 private:
-
     enum class DisplayMode {
         entry,
         show_result,
@@ -60,4 +60,4 @@ private:
 };
 
 
-}
+} // namespace skyland

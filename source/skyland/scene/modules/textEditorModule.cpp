@@ -1,10 +1,10 @@
 #include "textEditorModule.hpp"
-#include "localization.hpp"
-#include "skyland/skyland.hpp"
-#include "platform/ram_filesystem.hpp"
 #include "fileBrowserModule.hpp"
+#include "localization.hpp"
+#include "platform/ram_filesystem.hpp"
 #include "script/lisp.hpp"
 #include "skyland/scene/sramFileWritebackScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -20,9 +20,8 @@ static const int y_max = 19;
 
 
 
-static const auto status_colors = FontColors{
-    custom_color(0x000010), custom_color(0xffffff)
-};
+static const auto status_colors =
+    FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
 
 
@@ -46,7 +45,6 @@ void TextEditorModule::show_status(Platform& pfrm)
     while (status_->len() not_eq 30) {
         status_->append(" ", status_colors);
     }
-
 }
 
 
@@ -71,9 +69,8 @@ void TextEditorModule::render_keyboard(Platform& pfrm)
 
             auto colors = status_colors;
             if (x == keyboard_cursor_.x and y == keyboard_cursor_.y) {
-                colors = FontColors{
-                    custom_color(0xffffff), ColorConstant::aerospace_orange
-                };
+                colors = FontColors{custom_color(0xffffff),
+                                    ColorConstant::aerospace_orange};
             }
 
             pfrm.set_tile((30 - 8) + x, (19 - 6) + y, t, colors);
@@ -93,9 +90,8 @@ void TextEditorModule::render_completions(Platform& pfrm)
 
         auto colors = status_colors;
         if (line - 13 == selected_completion_) {
-            colors = FontColors{
-                custom_color(0xffffff), ColorConstant::aerospace_orange
-            };
+            colors = FontColors{custom_color(0xffffff),
+                                ColorConstant::aerospace_orange};
         }
 
         u32 x;
@@ -106,7 +102,8 @@ void TextEditorModule::render_completions(Platform& pfrm)
 
             auto prefix_colors = colors;
 
-            if (x < current_word_.length() and line - 13 not_eq selected_completion_) {
+            if (x < current_word_.length() and
+                line - 13 not_eq selected_completion_) {
                 prefix_colors.foreground_ = custom_color(0x4646d2);
             }
 
@@ -140,9 +137,7 @@ struct ParserState {
 
 
 
-static void handle_char(const char* data,
-                        char c,
-                        ParserState& ps)
+static void handle_char(const char* data, char c, ParserState& ps)
 {
     ps.parse_word_.clear();
 
@@ -160,11 +155,8 @@ static void handle_char(const char* data,
         auto seek = data + 1;
         auto& word = ps.parse_word_;
 
-        while (*seek not_eq '\0' and
-               *seek not_eq ' ' and
-               *seek not_eq '(' and
-               *seek not_eq ')' and
-               *seek not_eq '\n') {
+        while (*seek not_eq '\0' and *seek not_eq ' ' and *seek not_eq '(' and
+               *seek not_eq ')' and *seek not_eq '\n') {
             word.push_back(*seek);
             ++seek;
         }
@@ -173,16 +165,9 @@ static void handle_char(const char* data,
             return;
         }
 
-        if (word == "def" or
-            word == "defn/c" or
-            word == "defn" or
-            word == "let" or
-            word == "lambda" or
-            word == "if" or
-            word == "or" or
-            word == "and" or
-            word == "cond" or
-            word == "progn" or
+        if (word == "def" or word == "defn/c" or word == "defn" or
+            word == "let" or word == "lambda" or word == "if" or word == "or" or
+            word == "and" or word == "cond" or word == "progn" or
             word[0] == '$') {
             ps.keyword = true;
         }
@@ -191,8 +176,7 @@ static void handle_char(const char* data,
 
 
 
-template <typename F>
-void parse_words(const char* data, F&& callback)
+template <typename F> void parse_words(const char* data, F&& callback)
 {
     ParserState ps;
 
@@ -210,8 +194,7 @@ void parse_words(const char* data, F&& callback)
             ps.quotation = false;
         }
 
-        if (not ps.parse_word_.empty() and
-            not ps.comment and
+        if (not ps.parse_word_.empty() and not ps.comment and
             not ps.quotation) {
             callback(ps.parse_word_);
         }
@@ -306,13 +289,17 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
         if (mapping_info) {
             u16 t = pfrm.map_glyph(c, *mapping_info);
             if (ps.comment or ps.quotation) {
-                pfrm.set_tile(x, y, t, FontColors{
-                        custom_color(0x6eb98e), custom_color(0x110731)
-                    });
+                pfrm.set_tile(
+                    x,
+                    y,
+                    t,
+                    FontColors{custom_color(0x6eb98e), custom_color(0x110731)});
             } else if (ps.keyword and c not_eq '(') {
-                pfrm.set_tile(x, y, t, FontColors{
-                        custom_color(0xde2f79), custom_color(0x110731)
-                    });
+                pfrm.set_tile(
+                    x,
+                    y,
+                    t,
+                    FontColors{custom_color(0xde2f79), custom_color(0x110731)});
             } else {
                 pfrm.set_tile(Layer::overlay, x, y, t);
             }
@@ -327,7 +314,7 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
         ++x;
     }
 
- FILL:
+FILL:
 
     const char c = ' ';
 
@@ -363,8 +350,7 @@ StringBuffer<32> TextEditorModule::current_word()
 
     --data;
 
-    auto is_delim = [](char c)
-    {
+    auto is_delim = [](char c) {
         return c == '\n' or c == ' ' or c == '(' or c == ')';
     };
 
@@ -415,8 +401,8 @@ int TextEditorModule::back_word()
     auto data = insert_pos();
 
     int count = 0;
-    while (data not_eq begin and
-           *data not_eq '\0' and *data not_eq '\n' and *data not_eq ' ') {
+    while (data not_eq begin and *data not_eq '\0' and *data not_eq '\n' and
+           *data not_eq ' ') {
         ++count;
         --data;
     }
@@ -465,10 +451,9 @@ int TextEditorModule::line_length() const
 TextEditorModule::TextEditorModule(Platform& pfrm,
                                    const char* file_path,
                                    FileMode file_mode,
-                                   FileSystem filesystem) :
-    text_buffer_(pfrm.make_scratch_buffer()),
-    state_(allocate_dynamic<State>(pfrm)),
-    filesystem_(filesystem)
+                                   FileSystem filesystem)
+    : text_buffer_(pfrm.make_scratch_buffer()),
+      state_(allocate_dynamic<State>(pfrm)), filesystem_(filesystem)
 {
     state_->file_path_ = file_path;
 
@@ -496,7 +481,8 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
 
 
 
-const char* test_file = ";;;\n"
+const char* test_file =
+    ";;;\n"
     ";;; init.lisp\n"
     ";;;\n"
     "\n"
@@ -517,9 +503,8 @@ void TextEditorModule::enter(Platform& pfrm, App&, Scene& prev)
     pfrm.load_overlay_texture("overlay_editor");
 
     header_.emplace(pfrm, OverlayCoord{});
-    header_->assign("  text editor  (lisp mode)    ", FontColors{
-            custom_color(0x000010), custom_color(0xffffff)
-        });
+    header_->assign("  text editor  (lisp mode)    ",
+                    FontColors{custom_color(0x000010), custom_color(0xffffff)});
 
 
     status_.emplace(pfrm, OverlayCoord{0, 19});
@@ -551,9 +536,8 @@ void TextEditorModule::exit(Platform& pfrm, App&, Scene& next)
 
 
 
-ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
-                                         App& app,
-                                         Microseconds delta)
+ScenePtr<Scene>
+TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto unshade_cursor = [&] {
         cursor_shaded_ = false;
@@ -573,9 +557,8 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
         const auto x = cursor_.x - column_offset_;
         const auto y = (cursor_.y - start_line_) + 1;
 
-        static const auto highlight_colors = FontColors{
-            custom_color(0x000010), ColorConstant::aerospace_orange
-        };
+        static const auto highlight_colors =
+            FontColors{custom_color(0x000010), ColorConstant::aerospace_orange};
 
         stashed_palette_ = pfrm.get_palette(Layer::overlay, x, y);
 
@@ -646,8 +629,9 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                 shade_cursor();
             }
         } else if ((app.player().key_down(pfrm, Key::up) or
-             (app.player().key_pressed(pfrm, Key::up) and
-              key_held_timer_[0] > milliseconds(400))) and cursor_.y > 0) {
+                    (app.player().key_pressed(pfrm, Key::up) and
+                     key_held_timer_[0] > milliseconds(400))) and
+                   cursor_.y > 0) {
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
             --cursor_.y;
@@ -684,8 +668,8 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
             show_status(pfrm);
         } else if ((app.player().key_down(pfrm, Key::down) or
                     (app.player().key_pressed(pfrm, Key::down) and
-                     key_held_timer_[1] > milliseconds(400)))
-                   and cursor_.y < line_count_) {
+                     key_held_timer_[1] > milliseconds(400))) and
+                   cursor_.y < line_count_) {
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
             ++cursor_.y;
@@ -732,7 +716,7 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                 // if (app.player().key_pressed(pfrm, Key::alt_1)) {
                 //     cursor_.x += skip_word();
                 // } else {
-                    ++cursor_.x;
+                ++cursor_.x;
                 // }
 
                 bool do_render = false;
@@ -843,17 +827,20 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
         } else if (app.player().key_down(pfrm, Key::action_2)) {
             if (state_->modified_) {
                 if (filesystem_ == FileSystem::sram) {
-                    ram_filesystem::store_file_data(pfrm,
-                                                    state_->file_path_.c_str(),
-                                                    text_buffer_->data_,
-                                                    str_len(text_buffer_->data_));
+                    ram_filesystem::store_file_data(
+                        pfrm,
+                        state_->file_path_.c_str(),
+                        text_buffer_->data_,
+                        str_len(text_buffer_->data_));
                 } else {
-                    return scene_pool::alloc<SramFileWritebackScene>(state_->file_path_.c_str(), text_buffer_);
+                    return scene_pool::alloc<SramFileWritebackScene>(
+                        state_->file_path_.c_str(), text_buffer_);
                 }
             }
-            return scene_pool::alloc<FileBrowserModule>(pfrm,
-                                                        state_->file_path_.c_str(),
-                                                        filesystem_ == FileSystem::rom);
+            return scene_pool::alloc<FileBrowserModule>(
+                pfrm,
+                state_->file_path_.c_str(),
+                filesystem_ == FileSystem::rom);
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
             show_keyboard_ = true;
@@ -1134,4 +1121,4 @@ void TextEditorModule::insert_char(char c)
 
 
 
-}
+} // namespace skyland

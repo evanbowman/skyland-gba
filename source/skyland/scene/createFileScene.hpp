@@ -1,8 +1,8 @@
 #pragma once
 
+#include "graphics/overlay.hpp"
 #include "skyland/scene.hpp"
 #include "string.hpp"
-#include "graphics/overlay.hpp"
 
 
 
@@ -37,4 +37,4 @@ private:
 
 
 
-}
+} // namespace skyland

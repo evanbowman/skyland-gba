@@ -1,10 +1,10 @@
 #include "fileBrowserModule.hpp"
-#include "platform/ram_filesystem.hpp"
-#include "skyland/skyland.hpp"
 #include "localization.hpp"
-#include "skyland/scene/titleScreenScene.hpp"
-#include "textEditorModule.hpp"
+#include "platform/ram_filesystem.hpp"
 #include "skyland/scene/createFileScene.hpp"
+#include "skyland/scene/titleScreenScene.hpp"
+#include "skyland/skyland.hpp"
+#include "textEditorModule.hpp"
 
 
 
@@ -16,7 +16,9 @@ namespace skyland {
 
 
 
-FileBrowserModule::FileBrowserModule(Platform& pfrm, const char* path, bool is_rom_path)
+FileBrowserModule::FileBrowserModule(Platform& pfrm,
+                                     const char* path,
+                                     bool is_rom_path)
 {
     path_ = allocate_dynamic<PathBuffer>(pfrm);
 
@@ -159,21 +161,18 @@ void FileBrowserModule::repaint(Platform& pfrm)
 
         (*cwd_names_)->push_back(path + i);
 
-        lines_.emplace_back(pfrm,
-                            path + i,
-                            OverlayCoord{2, (u8)(lines_.size() + 3)});
+        lines_.emplace_back(
+            pfrm, path + i, OverlayCoord{2, (u8)(lines_.size() + 3)});
     };
 
 
     switch (selected_filesystem_) {
     case SelectedFilesystem::none:
-        lines_.emplace_back(pfrm,
-                            "sram",
-                            OverlayCoord{2, (u8)(lines_.size() + 3)});
+        lines_.emplace_back(
+            pfrm, "sram", OverlayCoord{2, (u8)(lines_.size() + 3)});
 
-        lines_.emplace_back(pfrm,
-                            "rom",
-                            OverlayCoord{2, (u8)(lines_.size() + 3)});
+        lines_.emplace_back(
+            pfrm, "rom", OverlayCoord{2, (u8)(lines_.size() + 3)});
         break;
 
 
@@ -186,8 +185,8 @@ void FileBrowserModule::repaint(Platform& pfrm)
         info_->append("used: ");
         info_->append(stats.blocks_used_ * ram_filesystem::block_size);
         info_->append("/");
-        info_->append((stats.blocks_available_ + stats.blocks_used_)
-                       * ram_filesystem::block_size);
+        info_->append((stats.blocks_available_ + stats.blocks_used_) *
+                      ram_filesystem::block_size);
         info_->append(" bytes");
         break;
     }
@@ -209,11 +208,13 @@ void FileBrowserModule::repaint(Platform& pfrm)
 
     for (u32 i = 0; i < path.length(); ++i) {
         auto mapping_info = locale_texture_map()(path[i]);
-            const u16 t = pfrm.map_glyph(path[i], *mapping_info);
+        const u16 t = pfrm.map_glyph(path[i], *mapping_info);
 
-        pfrm.set_tile(i + 1, 0, t, FontColors{
-            custom_color(0x000010), custom_color(0xffffff)
-        });
+        pfrm.set_tile(
+            i + 1,
+            0,
+            t,
+            FontColors{custom_color(0x000010), custom_color(0xffffff)});
     }
 
     pfrm.set_tile(Layer::overlay, 1, 3, 475);
@@ -250,9 +251,7 @@ void FileBrowserModule::show_opts(Platform& pfrm)
     info_->assign("file: ");
 
     auto highlight_colors =
-        FontColors{
-            custom_color(0x000010), custom_color(0xffffff)
-        };
+        FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
     if (opt_index_ == 0) {
         info_->append("create", highlight_colors);
@@ -280,9 +279,8 @@ void FileBrowserModule::show_opts(Platform& pfrm)
 
 
 
-ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
-                                          App& app,
-                                          Microseconds delta)
+ScenePtr<Scene>
+FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (faded_) {
         faded_ = false;
@@ -347,7 +345,8 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
     case SelectedFilesystem::none:
         if (app.player().key_down(pfrm, Key::up) and scroll_index_ > 0) {
             scroll_up();
-        } else if (app.player().key_down(pfrm, Key::down) and scroll_index_ == 0) {
+        } else if (app.player().key_down(pfrm, Key::down) and
+                   scroll_index_ == 0) {
             scroll_down();
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             switch (scroll_index_) {
@@ -378,8 +377,7 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
                 (*path_)->pop_back();
                 repaint(pfrm);
             }
-        } else if (app.player().key_down(pfrm, Key::up) and
-                   scroll_index_ > 0) {
+        } else if (app.player().key_down(pfrm, Key::up) and scroll_index_ > 0) {
             scroll_up();
         } else if (app.player().key_down(pfrm, Key::down) and
                    scroll_index_ < (int)(*cwd_names_)->size() - 1) {
@@ -398,7 +396,8 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
                     const auto ext = get_extension(path);
 
                     if (ext == ".lisp") {
-                        return scene_pool::alloc<TextEditorModule>(pfrm, path.c_str());
+                        return scene_pool::alloc<TextEditorModule>(
+                            pfrm, path.c_str());
                     }
                 }
             }
@@ -420,8 +419,7 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
                 (*path_)->pop_back();
                 repaint(pfrm);
             }
-        } else if (app.player().key_down(pfrm, Key::up) and
-                   scroll_index_ > 0) {
+        } else if (app.player().key_down(pfrm, Key::up) and scroll_index_ > 0) {
             scroll_up();
         } else if (app.player().key_down(pfrm, Key::down) and
                    scroll_index_ < (int)(*cwd_names_)->size() - 1) {
@@ -437,10 +435,11 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
                     auto path = this->cwd();
                     path += selected;
 
-                    return scene_pool::alloc<TextEditorModule>(pfrm,
-                                                               path.c_str(),
-                                                               TextEditorModule::FileMode::update,
-                                                               TextEditorModule::FileSystem::rom);
+                    return scene_pool::alloc<TextEditorModule>(
+                        pfrm,
+                        path.c_str(),
+                        TextEditorModule::FileMode::update,
+                        TextEditorModule::FileSystem::rom);
                 }
             }
         }
@@ -462,4 +461,4 @@ FileBrowserModule::Factory FileBrowserModule::factory_;
 
 
 
-}
+} // namespace skyland

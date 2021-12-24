@@ -1,9 +1,9 @@
 #pragma once
 
-#include "number/int.h"
 #include "number/endian.hpp"
-#include <utility>
+#include "number/int.h"
 #include "platform/platform.hpp"
+#include <utility>
 
 
 
@@ -92,7 +92,6 @@ int fs_contents_offset();
 
 
 
-
 struct Root {
     char magic_[4];
     host_u16 file_count_;
@@ -117,7 +116,8 @@ struct FileContents {
     static constexpr const auto capacity = block_size - sizeof header_;
 
     char data_[capacity];
-}; static_assert(sizeof(FileContents) == block_size);
+};
+static_assert(sizeof(FileContents) == block_size);
 
 
 static_assert(max_path < FileContents::capacity);
@@ -128,8 +128,7 @@ Root load_root(Platform& pfrm);
 
 
 
-template <typename F>
-void walk(Platform& pfrm, F&& callback)
+template <typename F> void walk(Platform& pfrm, F&& callback)
 {
     auto root = load_root(pfrm);
 
@@ -145,8 +144,8 @@ void walk(Platform& pfrm, F&& callback)
 
             pfrm.read_save_data(path_buffer,
                                 max_path,
-                                fs_contents_offset() + file * block_size
-                                + sizeof(FileContents::Header));
+                                fs_contents_offset() + file * block_size +
+                                    sizeof(FileContents::Header));
 
             callback(path_buffer);
         }
@@ -162,10 +161,7 @@ inline void import_file_from_rom(Platform& pfrm,
                                  const char* src_path)
 {
     if (auto data = pfrm.load_file_contents("scripts", src_path)) {
-        store_file_data(pfrm,
-                        dest_path,
-                        data,
-                        str_len(data));
+        store_file_data(pfrm, dest_path, data, str_len(data));
     }
 }
 
@@ -182,4 +178,4 @@ inline void import_file_from_rom_if_not_exists(Platform& pfrm,
 
 
 
-} // ram_filesystem
+} // namespace ram_filesystem
