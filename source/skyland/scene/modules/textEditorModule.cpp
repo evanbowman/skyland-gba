@@ -461,13 +461,20 @@ int TextEditorModule::line_length() const
 
 
 
-TextEditorModule::TextEditorModule(Platform& pfrm, const char* ram_file_path) :
+TextEditorModule::TextEditorModule(Platform& pfrm,
+                                   const char* ram_file_path,
+                                   FileMode file_mode) :
     text_buffer_(pfrm.make_scratch_buffer()),
     state_(allocate_dynamic<State>(pfrm))
 {
     state_->file_path_ = ram_file_path;
 
-    ram_filesystem::read_file_data(pfrm, ram_file_path, text_buffer_);
+    if (file_mode == FileMode::update) {
+        ram_filesystem::read_file_data(pfrm, ram_file_path, text_buffer_);
+    } else {
+        __builtin_memset(text_buffer_->data_, '\0', SCRATCH_BUFFER_SIZE);
+        text_buffer_->data_[0] = '\n';
+    }
 }
 
 

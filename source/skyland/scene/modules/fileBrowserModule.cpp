@@ -4,6 +4,7 @@
 #include "localization.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "textEditorModule.hpp"
+#include "skyland/scene/createFileScene.hpp"
 
 
 
@@ -312,7 +313,7 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             switch (opt_index_) {
             case 0: // create
-                // TODO!
+                return scene_pool::alloc<CreateFileScene>(cwd().c_str());
                 break;
 
             case 1: // delete
@@ -395,14 +396,10 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
                     if (ext == ".lisp") {
                         return scene_pool::alloc<TextEditorModule>(pfrm, path.c_str());
                     }
-
-
-                    // ram_filesystem::unlink_file(pfrm, path.c_str());
-                    // scroll_index_ = 0;
-                    // repaint(pfrm);
                 }
             }
-        } else if (app.player().key_down(pfrm, Key::start)) {
+        } else if (app.player().key_down(pfrm, Key::start) or
+                   app.player().key_down(pfrm, Key::select)) {
             mode_ = Mode::options;
             opt_index_ = 0;
             show_opts(pfrm);

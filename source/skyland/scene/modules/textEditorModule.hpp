@@ -20,7 +20,16 @@ public:
 
 
 
-    TextEditorModule(Platform& pfrm, const char* ram_file_path);
+    enum class FileMode {
+        create,
+        update
+    };
+
+
+
+    TextEditorModule(Platform& pfrm,
+                     const char* ram_file_path,
+                     FileMode file_mode = FileMode::update);
 
 
 

@@ -117,6 +117,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/zoneImageScene.cpp
   ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
   ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
+  ${SOURCE_DIR}/skyland/scene/createFileScene.cpp
   ${SOURCE_DIR}/skyland/scene/loadModuleScene.cpp
   ${SOURCE_DIR}/skyland/scene/boxedDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
