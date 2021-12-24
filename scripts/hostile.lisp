@@ -45,4 +45,7 @@
     (eval-other-file (string 'hostile '_ (zone) '_ lv-num '.lisp))))
 
 
+(eval-other-file "lv-onload.lisp")
+
+
 (gc)

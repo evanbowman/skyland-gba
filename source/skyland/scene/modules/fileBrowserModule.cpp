@@ -240,6 +240,41 @@ static StringBuffer<16> get_extension(const StringBuffer<200>& cwd)
 
 
 
+void FileBrowserModule::show_opts(Platform& pfrm)
+{
+    info_->assign("file: ");
+
+    auto highlight_colors =
+        FontColors{
+            custom_color(0x000010), custom_color(0xffffff)
+        };
+
+    if (opt_index_ == 0) {
+        info_->append("create", highlight_colors);
+    } else {
+        info_->append("create");
+    }
+    info_->append(" ");
+
+
+    if (opt_index_ == 1) {
+        info_->append("delete", highlight_colors);
+    } else {
+        info_->append("delete");
+    }
+    info_->append(" ");
+
+
+    if (opt_index_ == 2) {
+        info_->append("cancel", highlight_colors);
+    } else {
+        info_->append("cancel");
+    }
+    info_->append(" ");
+}
+
+
+
 ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
                                           App& app,
                                           Microseconds delta)
@@ -263,6 +298,45 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
         --scroll_index_;
         pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
     };
+
+    if (mode_ == Mode::options) {
+        if (app.player().key_down(pfrm, Key::left) and opt_index_ > 0) {
+            --opt_index_;
+            show_opts(pfrm);
+        } else if (app.player().key_down(pfrm, Key::right) and opt_index_ < 2) {
+            ++opt_index_;
+            show_opts(pfrm);
+        } else if (app.player().key_down(pfrm, Key::action_2)) {
+            mode_ = Mode::browse;
+            repaint(pfrm);
+        } else if (app.player().key_down(pfrm, Key::action_1)) {
+            switch (opt_index_) {
+            case 0: // create
+                // TODO!
+                break;
+
+            case 1: // delete
+                if ((**cwd_names_).size() not_eq 0) {
+                    auto selected = (**cwd_names_)[scroll_index_];
+                    if (selected[selected.length() - 1] == '/') {
+                        // Do not allow deletion of a directory...
+                    } else {
+                        auto path = this->cwd();
+                        path += selected;
+                        ram_filesystem::unlink_file(pfrm, path.c_str());
+                        scroll_index_ = 0;
+                    }
+                }
+                break;
+
+            case 2: // cancel
+                break;
+            }
+            mode_ = Mode::browse;
+            repaint(pfrm);
+        }
+        return null_scene();
+    }
 
     switch (selected_filesystem_) {
     case SelectedFilesystem::none:
@@ -328,6 +402,10 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
                     // repaint(pfrm);
                 }
             }
+        } else if (app.player().key_down(pfrm, Key::start)) {
+            mode_ = Mode::options;
+            opt_index_ = 0;
+            show_opts(pfrm);
         }
         break;
 

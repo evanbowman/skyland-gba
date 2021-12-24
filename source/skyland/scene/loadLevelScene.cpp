@@ -120,7 +120,6 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.fatal("world map mem corrupt");
     }
 
-
     prep_level(pfrm, app);
 
     pfrm.delta_clock().reset(); // skip large dt from loading lisp scripts...

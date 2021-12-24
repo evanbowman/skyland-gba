@@ -35,4 +35,7 @@
     (eval-other-file (string 'neutral '_ (zone) '_ lv-num '.lisp))))
 
 
+(eval-other-file "lv-onload.lisp")
+
+
 (gc)

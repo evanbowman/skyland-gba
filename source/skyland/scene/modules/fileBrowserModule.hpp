@@ -61,9 +61,18 @@ private:
         rom,
     } selected_filesystem_ = SelectedFilesystem::none;
 
+    enum Mode {
+        browse,
+        options,
+    } mode_ = Mode::browse;
+
     void repaint(Platform& pfrm);
 
     int scroll_index_ = 0;
+
+    u8 opt_index_ = 0;
+
+    void show_opts(Platform& pfrm);
 
 
     static const int max_folder_name = 20;
