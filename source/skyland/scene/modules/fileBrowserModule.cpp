@@ -16,7 +16,7 @@ namespace skyland {
 
 
 
-FileBrowserModule::FileBrowserModule(Platform& pfrm, const char* path)
+FileBrowserModule::FileBrowserModule(Platform& pfrm, const char* path, bool is_rom_path)
 {
     path_ = allocate_dynamic<PathBuffer>(pfrm);
 
@@ -32,7 +32,11 @@ FileBrowserModule::FileBrowserModule(Platform& pfrm, const char* path)
         }
     }
 
-    selected_filesystem_ = SelectedFilesystem::sram;
+    if (is_rom_path) {
+        selected_filesystem_ = SelectedFilesystem::rom;
+    } else {
+        selected_filesystem_ = SelectedFilesystem::sram;
+    }
 }
 
 
@@ -432,7 +436,11 @@ ScenePtr<Scene> FileBrowserModule::update(Platform& pfrm,
                 } else {
                     auto path = this->cwd();
                     path += selected;
-                    // TODO...
+
+                    return scene_pool::alloc<TextEditorModule>(pfrm,
+                                                               path.c_str(),
+                                                               TextEditorModule::FileMode::update,
+                                                               TextEditorModule::FileSystem::rom);
                 }
             }
         }

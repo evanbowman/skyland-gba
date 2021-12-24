@@ -27,9 +27,17 @@ public:
 
 
 
+    enum class FileSystem : u8 {
+        sram,
+        rom
+    };
+
+
+
     TextEditorModule(Platform& pfrm,
-                     const char* ram_file_path,
-                     FileMode file_mode = FileMode::update);
+                     const char* file_path,
+                     FileMode file_mode = FileMode::update,
+                     FileSystem filesystem = FileSystem::sram);
 
 
 
@@ -103,6 +111,8 @@ private:
     u16 ideal_cursor_right_ = 0;
 
     u8 stashed_palette_ = 0;
+
+    FileSystem filesystem_ = FileSystem::sram;
 
     bool show_keyboard_ = false;
     bool show_completions_ = false;

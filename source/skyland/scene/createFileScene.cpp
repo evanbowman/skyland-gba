@@ -28,6 +28,13 @@ static const char* keyboard[7][7] = {{"z", "y", "g", "f", "v", "q", ";"},
                                      {"4", "5", "6", "7", "8", "9", "\n"}};
 
 
+
+static const FontColors text_entry_colors {
+    custom_color(0xffffff), custom_color(0x181835)
+};
+
+
+
 ScenePtr<Scene> CreateFileScene::update(Platform& pfrm,
                                         App& app,
                                         Microseconds delta)
@@ -63,11 +70,20 @@ ScenePtr<Scene> CreateFileScene::update(Platform& pfrm,
     } else if (app.player().key_down(pfrm, Key::action_1)) {
         const char c = keyboard[keyboard_cursor_.y][keyboard_cursor_.x][0];
         path_.push_back(c);
-        entry_->assign(path_.c_str());
+        auto temp = path_;
+        while (not temp.full()) {
+            temp.push_back(' ');
+        }
+        entry_->assign(temp.c_str(), text_entry_colors);
+
     } else if (app.player().key_down(pfrm, Key::action_2)) {
         if (not path_.empty()) {
             path_.pop_back();
-            entry_->assign(path_.c_str());
+            auto temp = path_;
+            while (not temp.full()) {
+                temp.push_back(' ');
+            }
+            entry_->assign(temp.c_str(), text_entry_colors);
         } else {
             // TODO: exit
         }
@@ -120,6 +136,7 @@ void CreateFileScene::enter(Platform& pfrm,
 
     title_text_.emplace(pfrm, "create file:", OverlayCoord{1, 1});
     entry_.emplace(pfrm, OverlayCoord{1, 4});
+    entry_->assign(StringBuffer<28>(' ', 28).c_str(), text_entry_colors);
 }
 
 

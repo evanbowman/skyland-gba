@@ -70,6 +70,13 @@ public:
         (*this) += init;
     }
 
+    StringBuffer(char c, u32 count)
+    {
+        while (count--) {
+            mem_.push_back(c);
+        }
+    }
+
     StringBuffer()
     {
         mem_.push_back('\0');

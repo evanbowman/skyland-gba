@@ -462,15 +462,28 @@ int TextEditorModule::line_length() const
 
 
 TextEditorModule::TextEditorModule(Platform& pfrm,
-                                   const char* ram_file_path,
-                                   FileMode file_mode) :
+                                   const char* file_path,
+                                   FileMode file_mode,
+                                   FileSystem filesystem) :
     text_buffer_(pfrm.make_scratch_buffer()),
-    state_(allocate_dynamic<State>(pfrm))
+    state_(allocate_dynamic<State>(pfrm)),
+    filesystem_(filesystem)
 {
-    state_->file_path_ = ram_file_path;
+    state_->file_path_ = file_path;
 
     if (file_mode == FileMode::update) {
-        ram_filesystem::read_file_data(pfrm, ram_file_path, text_buffer_);
+        if (filesystem_ == FileSystem::sram) {
+            ram_filesystem::read_file_data(pfrm, file_path, text_buffer_);
+        } else {
+            auto data = pfrm.load_file_contents("scripts", "neutral_0_4.lisp");
+            if (str_len(data) < SCRATCH_BUFFER_SIZE + 1) {
+                auto dest = text_buffer_->data_;
+                while (*data not_eq '\0') {
+                    *(dest++) = *(data++);
+                }
+                *dest = '\0';
+            }
+        }
     } else {
         __builtin_memset(text_buffer_->data_, '\0', SCRATCH_BUFFER_SIZE);
         text_buffer_->data_[0] = '\n';
@@ -825,13 +838,21 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
 
         } else if (app.player().key_down(pfrm, Key::action_2)) {
             if (state_->modified_) {
-                ram_filesystem::store_file_data(pfrm,
-                                                state_->file_path_.c_str(),
-                                                text_buffer_->data_,
-                                                str_len(text_buffer_->data_));
+                if (filesystem_ == FileSystem::sram) {
+                    ram_filesystem::store_file_data(pfrm,
+                                                    state_->file_path_.c_str(),
+                                                    text_buffer_->data_,
+                                                    str_len(text_buffer_->data_));
+                } else {
+                    // We cannot save a file back to ROM. Hopefully, the reasons
+                    // for this are obvious. But... we could instead create a
+                    // copy of the edited file in SRAM, thus overriding the
+                    // version of the file in ROM... Hmm...
+                }
             }
             return scene_pool::alloc<FileBrowserModule>(pfrm,
-                                                        state_->file_path_.c_str());
+                                                        state_->file_path_.c_str(),
+                                                        filesystem_ == FileSystem::rom);
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
             show_keyboard_ = true;

@@ -27,7 +27,7 @@ public:
 
 
     FileBrowserModule() = default;
-    FileBrowserModule(Platform& pfrm, const char* path);
+    FileBrowserModule(Platform& pfrm, const char* path, bool is_rom_path = false);
 
 
     void enter(Platform&, App&, Scene& prev) override;
