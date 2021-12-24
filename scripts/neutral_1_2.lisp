@@ -4,5 +4,5 @@
 
 
 (if (choice 2)
-    (eval-other-file "neutral_2_1.lisp")
-  (eval-other-file "neutral_0_2.lisp"))
+    (eval-other-file "/scripts/neutral_2_1.lisp")
+  (eval-other-file "/scripts/neutral_0_2.lisp"))

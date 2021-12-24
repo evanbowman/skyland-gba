@@ -3,7 +3,7 @@
 ;;;
 
 
-(eval-other-file "reset_hooks.lisp")
+(eval-other-file "/scripts/reset_hooks.lisp")
 
 
 (add-coins (- 0 999999))

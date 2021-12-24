@@ -2,6 +2,6 @@
 ;;; init.lisp
 ;;;
 
-(eval-other-file "stdlib.lisp")
+(eval-other-file "/scripts/stdlib.lisp")
 
 (def language 'english)

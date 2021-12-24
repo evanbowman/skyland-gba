@@ -475,7 +475,10 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
         if (filesystem_ == FileSystem::sram) {
             ram_filesystem::read_file_data(pfrm, file_path, text_buffer_);
         } else {
-            auto data = pfrm.load_file_contents("scripts", "neutral_0_4.lisp");
+            if (file_path[0] == '/') {
+                ++file_path;
+            }
+            auto data = pfrm.load_file_contents("", file_path);
             if (str_len(data) < SCRATCH_BUFFER_SIZE + 1) {
                 auto dest = text_buffer_->data_;
                 while (*data not_eq '\0') {
@@ -497,7 +500,7 @@ const char* test_file = ";;;\n"
     ";;;\n"
     "\n"
     "\n"
-    "(eval-other-file \"stdlib.lisp\")\n"
+    "(eval-other-file \"/scripts/stdlib.lisp\")\n"
     "\n"
     "\n"
     "(def language 'english)\n"
@@ -848,6 +851,10 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                     // for this are obvious. But... we could instead create a
                     // copy of the edited file in SRAM, thus overriding the
                     // version of the file in ROM... Hmm...
+                    ram_filesystem::store_file_data(pfrm,
+                                                    state_->file_path_.c_str(),
+                                                    text_buffer_->data_,
+                                                    str_len(text_buffer_->data_));
                 }
             }
             return scene_pool::alloc<FileBrowserModule>(pfrm,

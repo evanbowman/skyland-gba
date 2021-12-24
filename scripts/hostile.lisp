@@ -5,7 +5,7 @@
 ;;;
 
 
-(eval-other-file "reset_hooks.lisp")
+(eval-other-file "/scripts/reset_hooks.lisp")
 
 
 (if (not (equal (zone) last-zone))
@@ -42,10 +42,10 @@
 
     (def enemies-seen (cons lv-num enemies-seen))
 
-    (eval-other-file (string 'hostile '_ (zone) '_ lv-num '.lisp))))
+    (eval-other-file (string "/scripts/" 'hostile '_ (zone) '_ lv-num '.lisp))))
 
 
-(eval-other-file "lv-onload.lisp")
+(eval-other-file "/scripts/lv-onload.lisp")
 
 
 (gc)

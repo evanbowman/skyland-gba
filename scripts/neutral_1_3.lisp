@@ -7,7 +7,7 @@
 
 
 
-(eval-other-file "hostile_2_2.lisp")
+(eval-other-file "/scripts/hostile_2_2.lisp")
 
 
 (swap-opponent 'neutral)
@@ -50,4 +50,4 @@
      (lambda
        ;; when the island is preemtively attacked, skip all of the dialog and
        ;; other hooks.
-       (eval-other-file "reset_hooks.lisp")))
+       (eval-other-file "/scripts/reset_hooks.lisp")))

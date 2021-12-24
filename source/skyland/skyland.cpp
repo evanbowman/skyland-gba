@@ -259,6 +259,41 @@ bool App::is_developer_mode()
 
 
 
+void App::invoke_script(Platform& pfrm, const char* path)
+{
+    auto on_err = [&pfrm](lisp::Value& err) {
+        lisp::DefaultPrinter p;
+        lisp::format(&err, p);
+        pfrm.fatal(p.fmt_.c_str());
+    };
+
+    if (is_developer_mode() and
+        not pfrm.network_peer().is_connected() and
+        not tutorial_mode()) {
+
+        auto data = pfrm.make_scratch_buffer();
+        if (ram_filesystem::read_file_data(pfrm, path, data)) {
+            lisp::dostring(data->data_, on_err);
+            return;
+        }
+    }
+
+    if (path[0] == '/') {
+        ++path;
+    }
+
+    if (auto contents = pfrm.load_file_contents("", path)) {
+        lisp::dostring(contents, on_err);
+    } else {
+        StringBuffer<100> err("script '");
+        err += path;
+        err += "' missing";
+        pfrm.fatal(err.c_str());
+    }
+}
+
+
+
 void App::conditional_invoke_script(Platform& pfrm,
                                     const char* ram_fs_path,
                                     const char* rom_fs_path,

@@ -273,6 +273,9 @@ public:
                                    bool load_from_rom);
 
 
+    void invoke_script(Platform& pfrm, const char* path);
+
+
     bool is_developer_mode();
 
 
