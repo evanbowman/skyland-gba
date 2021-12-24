@@ -4,6 +4,7 @@
 #include "platform/ram_filesystem.hpp"
 #include "fileBrowserModule.hpp"
 #include "script/lisp.hpp"
+#include "skyland/scene/sramFileWritebackScene.hpp"
 
 
 
@@ -847,14 +848,7 @@ ScenePtr<Scene> TextEditorModule::update(Platform& pfrm,
                                                     text_buffer_->data_,
                                                     str_len(text_buffer_->data_));
                 } else {
-                    // We cannot save a file back to ROM. Hopefully, the reasons
-                    // for this are obvious. But... we could instead create a
-                    // copy of the edited file in SRAM, thus overriding the
-                    // version of the file in ROM... Hmm...
-                    ram_filesystem::store_file_data(pfrm,
-                                                    state_->file_path_.c_str(),
-                                                    text_buffer_->data_,
-                                                    str_len(text_buffer_->data_));
+                    return scene_pool::alloc<SramFileWritebackScene>(state_->file_path_.c_str(), text_buffer_);
                 }
             }
             return scene_pool::alloc<FileBrowserModule>(pfrm,

@@ -130,6 +130,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/fullscreenDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/recoverCharacterScene.cpp
+  ${SOURCE_DIR}/skyland/scene/sramFileWritebackScene.cpp
   ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerConnectScene.cpp
   ${SOURCE_DIR}/skyland/scene/replicatorSelectionScene.cpp
