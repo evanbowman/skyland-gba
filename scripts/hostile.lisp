@@ -42,10 +42,7 @@
 
     (def enemies-seen (cons lv-num enemies-seen))
 
-    (eval-other-file (string "/scripts/" 'hostile '_ (zone) '_ lv-num '.lisp))))
-
-
-(eval-other-file "/scripts/lv-onload.lisp")
+    (eval-other-file (string "/scripts/event/" 'hostile '_ (zone) '_ lv-num '.lisp))))
 
 
 (gc)

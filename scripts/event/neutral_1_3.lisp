@@ -7,7 +7,7 @@
 
 
 
-(eval-other-file "/scripts/hostile_2_2.lisp")
+(eval-other-file "/scripts/event/hostile_2_2.lisp")
 
 
 (swap-opponent 'neutral)

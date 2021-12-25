@@ -32,10 +32,7 @@
   (let ((lv-num (get avail-levels (choice (length avail-levels)))))
     (def friendlies-seen (cons lv-num friendlies-seen))
 
-    (eval-other-file (string "/scripts/" 'neutral '_ (zone) '_ lv-num '.lisp))))
-
-
-(eval-other-file "/scripts/lv-onload.lisp")
+    (eval-other-file (string "/scripts/event/" 'neutral '_ (zone) '_ lv-num '.lisp))))
 
 
 (gc)

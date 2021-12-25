@@ -19,6 +19,7 @@
 #include "scene.hpp"
 #include "timeTracker.hpp"
 #include "worldMap.hpp"
+#include "script/lisp.hpp"
 
 
 
@@ -267,7 +268,7 @@ public:
                                 const char* rom_fs_fallback_path);
 
 
-    void
+    lisp::Value*
     invoke_script(Platform& pfrm, const char* path, bool rom_fs_only = false);
 
 

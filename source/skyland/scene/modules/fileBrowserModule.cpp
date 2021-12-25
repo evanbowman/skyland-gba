@@ -86,7 +86,23 @@ void FileBrowserModule::repaint(Platform& pfrm)
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
     faded_ = true;
 
-    lines_.clear();
+    // If we clear all the lines, the engine will deallocate all of the tile
+    // glyphs from vram, and they'll need to be reloaded, which may result in
+    // some graphical artifacts. So we want to refresh existing lines instead,
+    // and near the end of this function, clean up any unused text lines.
+    u32 line_count = 0;
+    auto enq_line = [&](const char* text) {
+        if (lines_.size() > line_count) {
+            lines_[line_count++].assign(text);
+        } else {
+            lines_.emplace_back(pfrm,
+                                text,
+                                OverlayCoord{2, (u8)(lines_.size() + 3)});
+            ++line_count;
+        }
+    };
+
+    // lines_.clear();
     info_.reset();
 
     (*cwd_names_)->clear();
@@ -119,7 +135,11 @@ void FileBrowserModule::repaint(Platform& pfrm)
     auto folders = allocate_dynamic<PathBuffer>(pfrm);
 
 
+
+    int skip = line_offset_;
+
     auto walk_fs = [&](const char* path) {
+
         auto path_len = str_len(path);
         if (path_len < cwd.length()) {
             return;
@@ -150,29 +170,33 @@ void FileBrowserModule::repaint(Platform& pfrm)
 
                 (*cwd_names_)->push_back(subfolder.c_str());
 
-                subfolder.pop_back(); // Do not display the trailing '/'.
+                // subfolder.pop_back(); // Do not display the trailing '/'.
 
-                lines_.emplace_back(pfrm,
-                                    subfolder.c_str(),
-                                    OverlayCoord{2, (u8)(lines_.size() + 3)});
+                if (skip > 0) {
+                    --skip;
+                } else {
+                    enq_line(subfolder.c_str());
+                }
                 return;
             }
         }
 
         (*cwd_names_)->push_back(path + i);
 
-        lines_.emplace_back(
-            pfrm, path + i, OverlayCoord{2, (u8)(lines_.size() + 3)});
+        if (skip > 0) {
+            --skip;
+        } else {
+            enq_line(path + i);
+        }
     };
 
 
     switch (selected_filesystem_) {
     case SelectedFilesystem::none:
-        lines_.emplace_back(
-            pfrm, "sram", OverlayCoord{2, (u8)(lines_.size() + 3)});
-
-        lines_.emplace_back(
-            pfrm, "rom", OverlayCoord{2, (u8)(lines_.size() + 3)});
+        enq_line("sram/");
+        enq_line("rom/");
+        (*cwd_names_)->push_back("sram/");
+        (*cwd_names_)->push_back("rom/");
         break;
 
 
@@ -217,10 +241,14 @@ void FileBrowserModule::repaint(Platform& pfrm)
             FontColors{custom_color(0x000010), custom_color(0xffffff)});
     }
 
-    pfrm.set_tile(Layer::overlay, 1, 3, 475);
+    pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
 
     pfrm.set_tile(Layer::overlay, 0, 0, 401);
     pfrm.set_tile(Layer::overlay, 29, 0, 411);
+
+    while (line_count < lines_.size()) {
+        lines_.pop_back();
+    }
 }
 
 
@@ -290,16 +318,34 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.screen().fade(1.f);
     }
 
+    auto on_dir_changed = [&] {
+        scroll_index_ = 0;
+        line_offset_ = 0;
+    };
+
     auto scroll_down = [&] {
-        pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
-        ++scroll_index_;
-        pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
+        if (scroll_index_ == 14 and
+            scroll_index_ + line_offset_ < (int)(*cwd_names_)->size()) {
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
+            ++line_offset_;
+            repaint(pfrm);
+        } else if (scroll_index_ + line_offset_ < (int)(*cwd_names_)->size()) {
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
+            ++scroll_index_;
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
+        }
     };
 
     auto scroll_up = [&] {
-        pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
-        --scroll_index_;
-        pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
+        if (scroll_index_ == 0 and line_offset_ > 0) {
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
+            --line_offset_;
+            repaint(pfrm);
+        } else if (scroll_index_ > 0) {
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
+            --scroll_index_;
+            pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
+        }
     };
 
     if (mode_ == Mode::options) {
@@ -327,7 +373,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                         auto path = this->cwd();
                         path += selected;
                         ram_filesystem::unlink_file(pfrm, path.c_str());
-                        scroll_index_ = 0;
+                        on_dir_changed();
                     }
                 }
                 break;
@@ -343,7 +389,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (selected_filesystem_) {
     case SelectedFilesystem::none:
-        if (app.player().key_down(pfrm, Key::up) and scroll_index_ > 0) {
+        if (app.player().key_down(pfrm, Key::up)) {
             scroll_up();
         } else if (app.player().key_down(pfrm, Key::down) and
                    scroll_index_ == 0) {
@@ -351,13 +397,13 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             switch (scroll_index_) {
             case 0:
-                scroll_index_ = 0;
+                on_dir_changed();
                 selected_filesystem_ = SelectedFilesystem::sram;
                 repaint(pfrm);
                 break;
 
             case 1:
-                scroll_index_ = 0;
+                on_dir_changed();
                 selected_filesystem_ = SelectedFilesystem::rom;
                 repaint(pfrm);
                 break;
@@ -369,7 +415,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     case SelectedFilesystem::sram:
         if (app.player().key_down(pfrm, Key::action_2)) {
-            scroll_index_ = 0;
+            on_dir_changed();
             if ((*path_)->size() == 1) {
                 selected_filesystem_ = SelectedFilesystem::none;
                 repaint(pfrm);
@@ -377,7 +423,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                 (*path_)->pop_back();
                 repaint(pfrm);
             }
-        } else if (app.player().key_down(pfrm, Key::up) and scroll_index_ > 0) {
+        } else if (app.player().key_down(pfrm, Key::up)) {
             scroll_up();
         } else if (app.player().key_down(pfrm, Key::down) and
                    scroll_index_ < (int)(*cwd_names_)->size() - 1) {
@@ -386,7 +432,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
             if ((**cwd_names_).size() not_eq 0) {
                 auto selected = (**cwd_names_)[scroll_index_];
                 if (selected[selected.length() - 1] == '/') {
-                    scroll_index_ = 0;
+                    on_dir_changed();
                     (*path_)->push_back(selected);
                     repaint(pfrm);
                 } else {
@@ -411,7 +457,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     case SelectedFilesystem::rom:
         if (app.player().key_down(pfrm, Key::action_2)) {
-            scroll_index_ = 0;
+            on_dir_changed();
             if ((*path_)->size() == 1) {
                 selected_filesystem_ = SelectedFilesystem::none;
                 repaint(pfrm);
@@ -419,16 +465,17 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                 (*path_)->pop_back();
                 repaint(pfrm);
             }
-        } else if (app.player().key_down(pfrm, Key::up) and scroll_index_ > 0) {
+        } else if (app.player().key_down(pfrm, Key::up)) {
             scroll_up();
         } else if (app.player().key_down(pfrm, Key::down) and
                    scroll_index_ < (int)(*cwd_names_)->size() - 1) {
             scroll_down();
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             if ((**cwd_names_).size() not_eq 0) {
-                auto selected = (**cwd_names_)[scroll_index_];
+                int entry = scroll_index_ + line_offset_;
+                auto selected = (**cwd_names_)[entry];
                 if (selected[selected.length() - 1] == '/') {
-                    scroll_index_ = 0;
+                    on_dir_changed();
                     (*path_)->push_back(selected);
                     repaint(pfrm);
                 } else {

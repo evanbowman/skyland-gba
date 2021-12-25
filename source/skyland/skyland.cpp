@@ -263,7 +263,9 @@ bool App::is_developer_mode()
 
 
 
-void App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
+lisp::Value* App::invoke_script(Platform& pfrm,
+                                const char* path,
+                                bool rom_fs_only)
 {
     auto on_err = [&pfrm](lisp::Value& err) {
         lisp::DefaultPrinter p;
@@ -277,8 +279,7 @@ void App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
         Vector<char> buffer(pfrm);
         if (ram_filesystem::read_file_data(pfrm, path, buffer)) {
             lisp::VectorCharSequence seq(buffer);
-            lisp::dostring(seq, on_err);
-            return;
+            return lisp::dostring(seq, on_err);
         }
     }
 
@@ -288,7 +289,7 @@ void App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
 
     if (auto contents = pfrm.load_file_contents("", path)) {
         lisp::BasicCharSequence seq(contents);
-        lisp::dostring(seq, on_err);
+        return lisp::dostring(seq, on_err);
     } else {
         StringBuffer<100> err("script '");
         err += path;

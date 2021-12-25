@@ -285,7 +285,7 @@ public:
                                    const char* filename) const;
 
 
-    void walk_filesystem(Function<16, void(const char* path)>);
+    void walk_filesystem(Function<32, void(const char* path)>);
 
 
     // Scratch buffers are sort of a blunt instrument. Designed for uncommon

@@ -2936,7 +2936,7 @@ const char* Platform::load_file_contents(const char* folder,
 
 
 
-void Platform::walk_filesystem(Function<16, void(const char* path)> callback)
+void Platform::walk_filesystem(Function<32, void(const char* path)> callback)
 {
     filesystem::walk(callback);
 }

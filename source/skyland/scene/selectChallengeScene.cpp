@@ -14,26 +14,19 @@ static const Float default_fade = 0.6f;
 
 
 
-void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
+void SelectChallengeScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.load_overlay_texture("overlay_challenges");
 
     pfrm.system_call("v-parallax", (void*)false);
 
-    if (auto script = pfrm.load_file_contents("scripts", "challenge.lisp")) {
-        lisp::BasicCharSequence seq(script);
-        auto result = lisp::dostring(seq, [&pfrm](lisp::Value& err) {
-            lisp::DefaultPrinter p;
-            lisp::format(&err, p);
-            pfrm.fatal(p.fmt_.c_str());
-        });
-        challenges_ = result;
-        const auto challenge_count = lisp::length(result);
-        page_count_ = challenge_count / 5 + (challenge_count % 5 ? 1 : 0);
+    challenges_ = app.invoke_script(pfrm, "/scripts/challenge.lisp");
+    // lisp::DefaultPrinter p;
+    // lisp::format(*challenges_, p);
+    // pfrm.fatal(p.fmt_.c_str());
 
-    } else {
-        pfrm.fatal("missing file challenge.lisp");
-    }
+    const auto challenge_count = lisp::length(*challenges_);
+    page_count_ = challenge_count / 5 + (challenge_count % 5 ? 1 : 0);
 
     show_options(pfrm);
 
@@ -214,24 +207,13 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.fatal("challenge list format invalid");
             }
 
-            if (auto script = pfrm.load_file_contents(
-                    "scripts", file_name->string().value())) {
-                lisp::BasicCharSequence seq(script);
-                lisp::dostring(seq, [&pfrm](lisp::Value& err) {
-                    lisp::DefaultPrinter p;
-                    lisp::format(&err, p);
-                    pfrm.fatal(p.fmt_.c_str());
-                });
-                prep_level(pfrm, app);
-                app.player_island().repaint(pfrm);
+            StringBuffer<100> path("/scripts/");
+            path += file_name->string().value();
+            app.invoke_script(pfrm, path.c_str());
 
-                return scene_pool::alloc<FadeInScene>();
-            } else {
-                StringBuffer<32> err("file ");
-                err += file_name->string().value();
-                err += " missing";
-                pfrm.fatal(err.c_str());
-            }
+            prep_level(pfrm, app);
+            app.player_island().repaint(pfrm);
+            return scene_pool::alloc<FadeInScene>();
 
         } else {
             const auto amount =

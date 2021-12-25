@@ -46,6 +46,7 @@ private:
     Buffer<Text, 15> lines_;
     std::optional<Text> info_;
 
+    int line_offset_ = 0;
 
     bool faded_ = false;
 
