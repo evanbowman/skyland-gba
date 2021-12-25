@@ -22,7 +22,7 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
     text_.emplace(pfrm, "session connecting...", OverlayCoord{1, 1});
 
     const char* str =
-        pfrm.load_file_contents("scripts", "multiplayer_init.lisp");
+        pfrm.load_file_contents("scripts", "multi_init.lisp");
     lisp::BasicCharSequence seq(str);
     lisp::dostring(seq, [&pfrm](lisp::Value& err) {
         lisp::DefaultPrinter p;

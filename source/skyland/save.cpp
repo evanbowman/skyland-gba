@@ -120,7 +120,6 @@ bool load(Platform& pfrm, PersistentData& d)
     auto bytes = ram_filesystem::read_file_data(pfrm, "/save/data.lisp", data);
 
     if (bytes == 0) {
-        pfrm.fatal("failed to load save");
         return false;
     }
 

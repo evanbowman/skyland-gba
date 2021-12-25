@@ -1,5 +1,5 @@
 ;;;
-;;; multiplayer_init.lisp
+;;; multi_init.lisp
 ;;;
 
 

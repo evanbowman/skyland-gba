@@ -34,13 +34,8 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (save::load(pfrm, app.persistent_data())) {
         save::erase(pfrm);
     } else {
-        auto str = pfrm.load_file_contents("scripts", "newgame.lisp");
-        lisp::BasicCharSequence seq(str);
-        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
-            lisp::DefaultPrinter p;
-            lisp::format(&err, p);
-            pfrm.fatal(p.fmt_.c_str());
-        });
+
+        app.invoke_script(pfrm, "/scripts/newgame.lisp");
 
         app.current_map_location() = {0, 1};
         app.world_map().generate();
