@@ -158,7 +158,8 @@ void App::init_scripts(Platform& pfrm)
 
                       auto island = (Island*)lisp::get_op(0)->user_data().obj_;
                       auto result = serialize(*pfrm, *island);
-                      lisp::read(result->c_str());
+                      lisp::BasicCharSequence seq(result->c_str());
+                      lisp::read(seq);
                       auto ret = lisp::get_op(0);
                       lisp::pop_op();
                       return ret;
@@ -478,12 +479,15 @@ void App::init_scripts(Platform& pfrm)
 
                           auto app = interp_get_app();
                           if (app == nullptr) {
+                              while (true) ;
                               return L_NIL;
                           }
 
                           auto str = lisp::get_op(0)->string().value();
 
                           app->invoke_script(*pfrm, str);
+                      } else {
+                          while (true);
                       }
                       return L_NIL;
                   }));
@@ -562,7 +566,9 @@ void App::init_scripts(Platform& pfrm)
         }));
 
 
-    lisp::dostring(pfrm.load_file_contents("scripts", "init.lisp"),
+    auto str = pfrm.load_file_contents("scripts", "init.lisp");
+    lisp::BasicCharSequence seq(str);
+    lisp::dostring(seq,
                    [&pfrm](lisp::Value& err) {
                        lisp::DefaultPrinter p;
                        lisp::format(&err, p);

@@ -80,8 +80,23 @@ size_t read_file_data(Platform& pfrm,
 
 bool store_file_data(Platform& pfrm,
                      const char* path,
-                     const char* data,
-                     const s16 length);
+                     Vector<char>& data);
+
+
+
+inline bool store_file_data(Platform& pfrm,
+                     const char* path,
+                     const char* ptr,
+                     u32 length)
+{
+    Vector<char> buffer(pfrm);
+    for (u32 i = 0; i < length; ++i) {
+        buffer.push_back(ptr[i]);
+    }
+    buffer.push_back('\0');
+
+    return store_file_data(pfrm, path, buffer);
+}
 
 
 
@@ -162,7 +177,12 @@ inline void import_file_from_rom(Platform& pfrm,
                                  const char* src_path)
 {
     if (auto data = pfrm.load_file_contents("scripts", src_path)) {
-        store_file_data(pfrm, dest_path, data, str_len(data));
+        Vector<char> vec(pfrm);
+        while (*data not_eq '\0') {
+            vec.push_back(*data);
+        }
+        vec.push_back('\0');
+        store_file_data(pfrm, dest_path, vec);
     }
 }
 

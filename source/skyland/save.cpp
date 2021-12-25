@@ -71,7 +71,8 @@ void store(Platform& pfrm, const PersistentData& d)
 {
     LispPrinter p(pfrm);
     if (auto script = pfrm.load_file_contents("scripts", "save.lisp")) {
-        lisp::read(script);
+        lisp::BasicCharSequence seq(script);
+        lisp::read(seq);
         lisp::eval(lisp::get_op(0));
         lisp::format(lisp::get_op(0), p);
         lisp::pop_op(); // result of eval()
@@ -113,11 +114,10 @@ bool load(Platform& pfrm, PersistentData& d)
     }
 
 
-    auto sbr = pfrm.make_scratch_buffer();
 
-    __builtin_memset(sbr->data_, 0, sizeof sbr->data_);
+    Vector<char> data(pfrm);
 
-    auto bytes = ram_filesystem::read_file_data(pfrm, "/save/data.lisp", sbr);
+    auto bytes = ram_filesystem::read_file_data(pfrm, "/save/data.lisp", data);
 
     if (bytes == 0) {
         pfrm.fatal("failed to load save");
@@ -126,7 +126,8 @@ bool load(Platform& pfrm, PersistentData& d)
 
     memcpy(&d, &save_data.data_, sizeof d);
 
-    lisp::read(sbr->data_);      // (0)
+    lisp::VectorCharSequence seq(data);
+    lisp::read(seq);             // (0)
     lisp::eval(lisp::get_op(0)); // (1)
 
     // Sorry if all the pushes and pops are hard to follow. My lisp interpreter
@@ -139,7 +140,8 @@ bool load(Platform& pfrm, PersistentData& d)
     auto arg = lisp::get_op(0); // result of eval()
 
     if (auto script = pfrm.load_file_contents("scripts", "restore_save.lisp")) {
-        lisp::read(script);          // leaves result on stack (2)
+        lisp::BasicCharSequence seq(script);
+        lisp::read(seq);             // leaves result on stack (2)
         lisp::eval(lisp::get_op(0)); // eval result of read() (3)
 
         auto fn = lisp::get_op(0);

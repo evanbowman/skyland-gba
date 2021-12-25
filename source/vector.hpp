@@ -33,8 +33,11 @@ private:
         static void initialize(ScratchBufferPtr source, Chunk* prev)
         {
             new (source->data_) Chunk();
-            ((Chunk*)source->data_)->prev_ = prev;
+            ((Chunk*)source->data_)->header_.prev_ = prev;
         }
+
+
+        Chunk() = default;
 
 
         Chunk(const Chunk& other) = delete;
@@ -43,7 +46,7 @@ private:
         ~Chunk()
         {
             if (header_.next_) {
-                ((Chunk*)header_->next_->data_)->~Chunk();
+                ((Chunk*)(*header_.next_)->data_)->~Chunk();
             }
         }
 
@@ -105,6 +108,14 @@ public:
         T& operator*()
         {
             return (chunk_->array())[chunk_index_];
+        }
+
+
+        Iterator operator++(int)
+        {
+            Iterator temp = *this;
+            ++(*this);
+            return temp;
         }
 
 
@@ -222,6 +233,18 @@ public:
     }
 
 
+    Vector(Vector&& other) :
+        pfrm_(other.pfrm_),
+        data_(other.data_),
+        size_(other.size_)
+    {
+        other.size_ = 0; // Should be sufficient to invalidate the other
+                         // vector. It will hold onto its scratch buffer, which
+                         // cannot be null, but it's just a reference count and
+                         // will be decremented eventually.
+    }
+
+
     Vector(const Vector& other) = delete;
 
 
@@ -280,7 +303,7 @@ public:
         while (size_ > Chunk::elems()) {
             pop_back();
         }
-        ((Chunk*)data_)->~Chunk();
+        ((Chunk*)data_->data_)->~Chunk();
     }
 
 

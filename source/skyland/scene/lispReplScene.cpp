@@ -350,7 +350,8 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             pfrm.speaker().play_sound("tw_bell", 2);
 
-            lisp::read(command_->c_str());
+            lisp::BasicCharSequence seq(command_->c_str());
+            lisp::read(seq);
             lisp::eval(lisp::get_op(0));
 
             command_->clear();

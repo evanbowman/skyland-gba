@@ -34,7 +34,9 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (save::load(pfrm, app.persistent_data())) {
         save::erase(pfrm);
     } else {
-        lisp::dostring(pfrm.load_file_contents("scripts", "newgame.lisp"),
+        auto str = pfrm.load_file_contents("scripts", "newgame.lisp");
+        lisp::BasicCharSequence seq(str);
+        lisp::dostring(seq,
                        [&pfrm](lisp::Value& err) {
                            lisp::DefaultPrinter p;
                            lisp::format(&err, p);

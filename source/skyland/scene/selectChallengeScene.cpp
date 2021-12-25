@@ -21,7 +21,8 @@ void SelectChallengeScene::enter(Platform& pfrm, App&, Scene& prev)
     pfrm.system_call("v-parallax", (void*)false);
 
     if (auto script = pfrm.load_file_contents("scripts", "challenge.lisp")) {
-        auto result = lisp::dostring(script, [&pfrm](lisp::Value& err) {
+        lisp::BasicCharSequence seq(script);
+        auto result = lisp::dostring(seq, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
             pfrm.fatal(p.fmt_.c_str());
@@ -215,7 +216,8 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (auto script = pfrm.load_file_contents(
                     "scripts", file_name->string().value())) {
-                lisp::dostring(script, [&pfrm](lisp::Value& err) {
+                lisp::BasicCharSequence seq(script);
+                lisp::dostring(seq, [&pfrm](lisp::Value& err) {
                     lisp::DefaultPrinter p;
                     lisp::format(&err, p);
                     pfrm.fatal(p.fmt_.c_str());

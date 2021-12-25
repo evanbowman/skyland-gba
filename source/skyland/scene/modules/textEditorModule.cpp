@@ -86,7 +86,7 @@ void TextEditorModule::render_completions(Platform& pfrm)
     const u16 space = pfrm.map_glyph(c, *locale_texture_map()(c));
 
     int line = 13;
-    for (auto& cpl : completions_) {
+    for (auto& cpl : state_->completions_) {
 
         auto colors = status_colors;
         if (line - 13 == selected_completion_) {
@@ -102,7 +102,7 @@ void TextEditorModule::render_completions(Platform& pfrm)
 
             auto prefix_colors = colors;
 
-            if (x < current_word_.length() and
+            if (x < state_->current_word_.length() and
                 line - 13 not_eq selected_completion_) {
                 prefix_colors.foreground_ = custom_color(0x4646d2);
             }
@@ -137,7 +137,7 @@ struct ParserState {
 
 
 
-static void handle_char(const char* data, char c, ParserState& ps)
+static void handle_char(Vector<char>::Iterator data, char c, ParserState& ps)
 {
     ps.parse_word_.clear();
 
@@ -152,7 +152,9 @@ static void handle_char(const char* data, char c, ParserState& ps)
     } else if (c == '\n' or c == ' ' or c == ')' or c == '(') {
         ps.keyword = false;
 
-        auto seek = data + 1;
+        auto seek = data;
+        ++seek;
+
         auto& word = ps.parse_word_;
 
         while (*seek not_eq '\0' and *seek not_eq ' ' and *seek not_eq '(' and
@@ -176,7 +178,7 @@ static void handle_char(const char* data, char c, ParserState& ps)
 
 
 
-template <typename F> void parse_words(const char* data, F&& callback)
+template <typename F> void parse_words(Vector<char>::Iterator data, F&& callback)
 {
     ParserState ps;
 
@@ -210,7 +212,7 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
     int x = 0;
     int y = 1;
 
-    const char* data = text_buffer_->data_;
+    auto data = text_buffer_.begin();
 
     while (start_line) {
         if (*data == '\0') {
@@ -345,7 +347,7 @@ FILL:
 
 StringBuffer<32> TextEditorModule::current_word()
 {
-    auto begin = text_buffer_->data_;
+    auto begin = text_buffer_.begin();
     auto data = insert_pos();
 
     --data;
@@ -396,7 +398,7 @@ int TextEditorModule::skip_word()
 
 int TextEditorModule::back_word()
 {
-    auto begin = text_buffer_->data_;
+    auto begin = text_buffer_.begin();
 
     auto data = insert_pos();
 
@@ -414,9 +416,9 @@ int TextEditorModule::back_word()
 
 
 
-const char* TextEditorModule::current_line() const
+Vector<char>::Iterator TextEditorModule::current_line()
 {
-    const char* data = text_buffer_->data_;
+    auto data = text_buffer_.begin();
 
     int line = 0;
     while (*data not_eq '\0' and line not_eq cursor_.y) {
@@ -432,7 +434,7 @@ const char* TextEditorModule::current_line() const
 
 
 
-int TextEditorModule::line_length() const
+int TextEditorModule::line_length()
 {
     auto data = current_line();
 
@@ -452,7 +454,7 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
                                    const char* file_path,
                                    FileMode file_mode,
                                    FileSystem filesystem)
-    : text_buffer_(pfrm.make_scratch_buffer()),
+    : text_buffer_(pfrm),
       state_(allocate_dynamic<State>(pfrm)), filesystem_(filesystem)
 {
     state_->file_path_ = file_path;
@@ -466,16 +468,14 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
             }
             auto data = pfrm.load_file_contents("", file_path);
             if (str_len(data) < SCRATCH_BUFFER_SIZE + 1) {
-                auto dest = text_buffer_->data_;
                 while (*data not_eq '\0') {
-                    *(dest++) = *(data++);
+                    text_buffer_.push_back(*(data++));
                 }
-                *dest = '\0';
+                text_buffer_.push_back('\0');
             }
         }
     } else {
-        __builtin_memset(text_buffer_->data_, '\0', SCRATCH_BUFFER_SIZE);
-        text_buffer_->data_[0] = '\n';
+        text_buffer_.push_back('\n');
     }
 }
 
@@ -510,12 +510,10 @@ void TextEditorModule::enter(Platform& pfrm, App&, Scene& prev)
     status_.emplace(pfrm, OverlayCoord{0, 19});
 
 
-    auto data = text_buffer_->data_;
-    while (*data not_eq '\0') {
-        if (*data == '\n') {
+    for (char c : text_buffer_) {
+        if (c == '\n') {
             ++line_count_;
         }
-        ++data;
     }
 
     render(pfrm, 0);
@@ -830,11 +828,10 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     ram_filesystem::store_file_data(
                         pfrm,
                         state_->file_path_.c_str(),
-                        text_buffer_->data_,
-                        str_len(text_buffer_->data_));
+                        text_buffer_);
                 } else {
                     return scene_pool::alloc<SramFileWritebackScene>(
-                        state_->file_path_.c_str(), text_buffer_);
+                                                                     state_->file_path_.c_str(), std::move(text_buffer_));
                 }
             }
             return scene_pool::alloc<FileBrowserModule>(
@@ -932,33 +929,33 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             shade_cursor();
         } else if (app.player().key_down(pfrm, Key::alt_1)) {
 
-            current_word_ = current_word();
-            completions_.clear();
+            state_->current_word_ = current_word();
+            state_->completions_.clear();
 
-            // completions_.push_back(current_word_.c_str());
+            // state_->completions_.push_back(state_->current_word_.c_str());
 
             auto handle_completion_word = [&](const char* word) {
-                if (completions_.full()) {
+                if (state_->completions_.full()) {
                     return;
                 }
 
                 const auto intern_len = str_len(word);
-                if (intern_len <= current_word_.length()) {
+                if (intern_len <= state_->current_word_.length()) {
                     return;
                 }
 
-                for (u32 i = 0; i < current_word_.length(); ++i) {
-                    if (current_word_[i] not_eq word[i]) {
+                for (u32 i = 0; i < state_->current_word_.length(); ++i) {
+                    if (state_->current_word_[i] not_eq word[i]) {
                         return;
                     }
                 }
 
-                completions_.push_back(word);
+                state_->completions_.push_back(word);
             };
 
 
-            parse_words(text_buffer_->data_, [&](auto& word) {
-                if (current_word_.empty() and is_numeric(word)) {
+            parse_words(text_buffer_.begin(), [&](auto& word) {
+                if (state_->current_word_.empty() and is_numeric(word)) {
                     // Just out of personal preference, do not add integers from
                     // the current text buffer to the list of completions if the
                     // user has not yet entered any text to complete. Kind of an
@@ -997,15 +994,15 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 render_completions(pfrm);
             }
         } else if (app.player().key_down(pfrm, Key::down)) {
-            if (selected_completion_ < (int)completions_.size() - 1) {
+            if (selected_completion_ < (int)state_->completions_.size() - 1) {
                 ++selected_completion_;
                 render_completions(pfrm);
             }
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             mode_ = Mode::edit;
 
-            auto cpl = completions_[selected_completion_];
-            for (u32 i = current_word_.length(); i < cpl.length(); ++i) {
+            auto cpl = state_->completions_[selected_completion_];
+            for (u32 i = state_->current_word_.length(); i < cpl.length(); ++i) {
                 insert_char(cpl[i]);
                 ++cursor_.x;
             }
@@ -1024,9 +1021,9 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-char* TextEditorModule::insert_pos()
+Vector<char>::Iterator TextEditorModule::insert_pos()
 {
-    auto data = text_buffer_->data_;
+    auto data = text_buffer_.begin();
 
     int line = cursor_.y;
     int offset = cursor_.x;
@@ -1066,34 +1063,20 @@ void TextEditorModule::erase_char()
 
     state_->modified_ = true;
 
-    auto begin = insert_pos() - 1;
+    auto begin = insert_pos();
+    --begin; // Erase the character before the cursor
 
     if (*begin == '\n') {
         --line_count_;
     }
 
-    auto remaining = str_len(begin);
-    auto end = begin + remaining;
-
-    for (; begin not_eq end; ++begin) {
-        if (begin + 1 not_eq end) {
-            *begin = *(begin + 1);
-        }
-    }
-
-    *end = '\0';
+    text_buffer_.erase(begin);
 }
 
 
 
 void TextEditorModule::insert_char(char c)
 {
-    const auto current_bytes = str_len(text_buffer_->data_);
-    if (current_bytes == SCRATCH_BUFFER_SIZE - 1) {
-        // TODO: raise error
-        return;
-    }
-
     state_->modified_ = true;
 
     if (c == '\n') {
@@ -1102,17 +1085,7 @@ void TextEditorModule::insert_char(char c)
 
     auto begin = insert_pos();
 
-    // Bytes following the insert point that we'll need to shift over.
-    auto remaining = str_len(begin);
-
-    auto end = begin + remaining;
-
-    for (auto it = end - 1; it not_eq begin - 1; --it) {
-        *(it + 1) = *it;
-    }
-
-    *begin = c;
-    *(end + 1) = '\0';
+    text_buffer_.insert(begin, c);
 }
 
 

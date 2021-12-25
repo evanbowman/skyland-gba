@@ -67,7 +67,8 @@ COLD void on_remote_console_text(Platform& pfrm,
 {
     RemoteConsoleLispPrinter printer(pfrm);
 
-    lisp::read(str.c_str());
+    lisp::BasicCharSequence seq(str.c_str());
+    lisp::read(seq);
     lisp::eval(lisp::get_op(0));
     format(lisp::get_op(0), printer);
 
@@ -202,9 +203,10 @@ void App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
         return;
     }
 
-    auto data = pfrm.make_scratch_buffer();
-    if (ram_filesystem::read_file_data(pfrm, ram_fs_path, data)) {
-        lisp::dostring(data->data_, [&pfrm](lisp::Value& err) {
+    Vector<char> buffer(pfrm);
+    if (ram_filesystem::read_file_data(pfrm, ram_fs_path, buffer)) {
+        lisp::VectorCharSequence seq(buffer);
+        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
             pfrm.fatal(p.fmt_.c_str());
@@ -219,7 +221,9 @@ void App::safe_invoke_ram_script(Platform& pfrm,
                                  const char* rom_fs_fallback_path)
 {
     if (not is_developer_mode()) {
-        lisp::dostring(pfrm.load_file_contents("scripts", rom_fs_fallback_path),
+        auto str = pfrm.load_file_contents("scripts", rom_fs_fallback_path);
+        lisp::BasicCharSequence seq(str);
+        lisp::dostring(seq,
                        [&pfrm](lisp::Value& err) {
                            lisp::DefaultPrinter p;
                            lisp::format(&err, p);
@@ -231,15 +235,18 @@ void App::safe_invoke_ram_script(Platform& pfrm,
     ram_filesystem::import_file_from_rom_if_not_exists(
         pfrm, ram_fs_path, rom_fs_fallback_path);
 
-    auto data = pfrm.make_scratch_buffer();
-    if (ram_filesystem::read_file_data(pfrm, ram_fs_path, data)) {
-        lisp::dostring(data->data_, [&pfrm](lisp::Value& err) {
+    Vector<char> buffer(pfrm);
+    if (ram_filesystem::read_file_data(pfrm, ram_fs_path, buffer)) {
+        lisp::VectorCharSequence seq(buffer);
+        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
             pfrm.fatal(p.fmt_.c_str());
         });
     } else {
-        lisp::dostring(pfrm.load_file_contents("scripts", rom_fs_fallback_path),
+        auto str = pfrm.load_file_contents("scripts", rom_fs_fallback_path);
+        lisp::BasicCharSequence seq(str);
+        lisp::dostring(seq,
                        [&pfrm](lisp::Value& err) {
                            lisp::DefaultPrinter p;
                            lisp::format(&err, p);
@@ -269,9 +276,10 @@ void App::invoke_script(Platform& pfrm, const char* path)
     if (is_developer_mode() and not pfrm.network_peer().is_connected() and
         not tutorial_mode()) {
 
-        auto data = pfrm.make_scratch_buffer();
-        if (ram_filesystem::read_file_data(pfrm, path, data)) {
-            lisp::dostring(data->data_, on_err);
+        Vector<char> buffer(pfrm);
+        if (ram_filesystem::read_file_data(pfrm, path, buffer)) {
+            lisp::VectorCharSequence seq(buffer);
+            lisp::dostring(seq, on_err);
             return;
         }
     }
@@ -281,7 +289,8 @@ void App::invoke_script(Platform& pfrm, const char* path)
     }
 
     if (auto contents = pfrm.load_file_contents("", path)) {
-        lisp::dostring(contents, on_err);
+        lisp::BasicCharSequence seq(contents);
+        lisp::dostring(seq, on_err);
     } else {
         StringBuffer<100> err("script '");
         err += path;
@@ -304,7 +313,9 @@ void App::conditional_invoke_script(Platform& pfrm,
         ram_filesystem::import_file_from_rom_if_not_exists(
             pfrm, ram_fs_path, rom_fs_path);
 
-        lisp::dostring(pfrm.load_file_contents("scripts", rom_fs_path),
+        auto str = pfrm.load_file_contents("scripts", rom_fs_path);
+        lisp::BasicCharSequence seq(str);
+        lisp::dostring(seq,
                        [&pfrm](lisp::Value& err) {
                            lisp::DefaultPrinter p;
                            lisp::format(&err, p);

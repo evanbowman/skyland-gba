@@ -114,26 +114,29 @@ void start(Platform& pfrm)
     //     }
     // }
 
-    Vector<int> vec(pfrm);
-    for (int i = 0; i < 20; ++i) {
-        vec.push_back(i);
-    }
+    // Vector<int> vec(pfrm);
+    // for (int i = 0; i < 20; ++i) {
+    //     vec.push_back(i);
+    // }
 
-    auto it = vec.begin();
-    while (true) {
-        if (*it == 10) {
-            vec.insert(it, 12);
-            break;
-        }
-        ++it;
-    }
+    // auto it = vec.begin();
+    // while (true) {
+    //     if (*it == 10) {
+    //         vec.insert(it, 12);
+    //         break;
+    //     }
+    //     ++it;
+    // }
+    // --it;
+    // --it;
+    // *it = 42;
 
-    StringBuffer<200> test;
-    for (int elem : vec) {
-        test += to_string<10>(elem);
-        test += " ";
-    }
-    pfrm.fatal(test.c_str());
+    // StringBuffer<200> test;
+    // for (int elem : vec) {
+    //     test += to_string<10>(elem);
+    //     test += " ";
+    // }
+    // pfrm.fatal(test.c_str());
 
 
 

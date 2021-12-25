@@ -1793,7 +1793,8 @@ void Platform::fatal(const char* msg)
         if (auto line = ::platform->remote_console().readline()) {
             RemoteConsoleLispPrinter printer(*::platform);
 
-            lisp::read(line->c_str());
+            lisp::BasicCharSequence seq(line->c_str());
+            lisp::read(seq);
             lisp::eval(lisp::get_op(0));
             format(lisp::get_op(0), printer);
 

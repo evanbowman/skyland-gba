@@ -276,9 +276,6 @@ read_file_data(Platform& pfrm,
 {
     const auto path_len = str_len(path);
 
-
-    int write_pos = 0;
-
     with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
         FileContents contents;
 
@@ -298,10 +295,6 @@ read_file_data(Platform& pfrm,
                                 fs_contents_offset() + file * block_size);
 
             for (u16 i = 0; i < FileContents::capacity; ++i) {
-                if (write_pos == SCRATCH_BUFFER_SIZE) {
-                    write_pos = 0;
-                    return;
-                }
                 output.push_back(contents.data_[i]);
             }
 
@@ -309,17 +302,18 @@ read_file_data(Platform& pfrm,
         }
     });
 
+    auto result = output.size();
+
     output.push_back('\0');
 
-    return output.size();
+    return result;
 }
 
 
 
 bool store_file_data(Platform& pfrm,
                      const char* path,
-                     const char* data,
-                     const s16 length)
+                     Vector<char>& data)
 {
     unlink_file(pfrm, path);
 
@@ -329,6 +323,7 @@ bool store_file_data(Platform& pfrm,
         return false;
     }
 
+    const int length = data.size() - 1;
     u16 remaining = length + path_len + 1;
 
     const auto file_begin = allocate_file_chunk(pfrm);
@@ -346,9 +341,12 @@ bool store_file_data(Platform& pfrm,
     const auto initial_data_copy =
         std::min((int)FileContents::capacity - (path_len + 1), (int)length);
 
-    memcpy(contents.data_ + (path_len + 1), data, initial_data_copy);
+    for (int i = 0; i < initial_data_copy; ++i) {
+        contents.data_[i] = data[i];
+    }
 
-    data += initial_data_copy;
+    int offset = initial_data_copy;
+
     remaining -= initial_data_copy;
 
     auto store_chunk = [&] {
@@ -380,9 +378,11 @@ bool store_file_data(Platform& pfrm,
         const auto copy_len =
             std::min((int)FileContents::capacity, (int)remaining);
 
-        memcpy(contents.data_, data, copy_len);
+        for (int i = 0; i < copy_len; ++i) {
+            contents.data_[i] = data[offset + i];
+        }
 
-        data += copy_len;
+        offset += copy_len;
         remaining -= copy_len;
     }
 

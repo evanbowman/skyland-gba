@@ -5,6 +5,7 @@
 #include "graphics/overlay.hpp"
 #include "memory/buffer.hpp"
 #include "skyland/scene/module.hpp"
+#include "vector.hpp"
 
 
 
@@ -64,7 +65,7 @@ private:
     void render_keyboard(Platform& pfrm);
     void render_completions(Platform& pfrm);
 
-    char* insert_pos();
+    Vector<char>::Iterator insert_pos();
     void insert_char(char c);
     void erase_char();
 
@@ -72,11 +73,11 @@ private:
     void show_status(Platform& pfrm);
 
 
-    ScratchBufferPtr text_buffer_;
+    Vector<char> text_buffer_;
 
 
-    const char* current_line() const;
-    int line_length() const;
+    Vector<char>::Iterator current_line();
+    int line_length();
 
     int skip_word();
     int back_word();
@@ -87,6 +88,9 @@ private:
     struct State {
         StringBuffer<64> file_path_;
         bool modified_;
+
+        StringBuffer<24> current_word_;
+        Buffer<StringBuffer<20>, 6> completions_;
     };
 
     DynamicMemory<State> state_;
@@ -114,10 +118,6 @@ private:
 
     Microseconds cursor_flicker_timer_ = 0;
     bool cursor_shaded_ = false;
-
-
-    StringBuffer<24> current_word_;
-    Buffer<StringBuffer<20>, 6> completions_;
 
 
     std::optional<Text> header_;

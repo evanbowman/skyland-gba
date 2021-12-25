@@ -9,8 +9,8 @@ namespace skyland {
 
 
 SramFileWritebackScene::SramFileWritebackScene(const char* path,
-                                               ScratchBufferPtr text_buffer)
-    : path_(path), text_buffer_(text_buffer)
+                                               Vector<char>&& text_buffer)
+    : path_(path), text_buffer_(std::move(text_buffer))
 {
 }
 
@@ -19,8 +19,7 @@ SramFileWritebackScene::SramFileWritebackScene(const char* path,
 ScenePtr<Scene>
 SramFileWritebackScene::update(Platform& pfrm, App&, Microseconds delta)
 {
-    ram_filesystem::store_file_data(
-        pfrm, path_.c_str(), text_buffer_->data_, str_len(text_buffer_->data_));
+    ram_filesystem::store_file_data(pfrm, path_.c_str(), text_buffer_);
 
     return scene_pool::alloc<FileBrowserModule>(pfrm, path_.c_str(), true);
 }

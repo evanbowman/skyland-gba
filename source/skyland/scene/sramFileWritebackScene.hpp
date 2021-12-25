@@ -3,6 +3,7 @@
 #include "graphics/overlay.hpp"
 #include "skyland/scene.hpp"
 #include "string.hpp"
+#include "vector.hpp"
 
 
 
@@ -18,7 +19,7 @@ namespace skyland {
 
 class SramFileWritebackScene : public Scene {
 public:
-    SramFileWritebackScene(const char* path, ScratchBufferPtr text_buffer);
+    SramFileWritebackScene(const char* path, Vector<char>&& text_buffer);
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
@@ -30,7 +31,7 @@ public:
 
 private:
     StringBuffer<64> path_;
-    ScratchBufferPtr text_buffer_;
+    Vector<char> text_buffer_;
 
     std::optional<TextView> menu_text_;
 };
