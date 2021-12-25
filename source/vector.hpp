@@ -124,6 +124,26 @@ public:
         }
 
 
+        const Iterator& operator--()
+        {
+            --chunk_index_;
+            --index_;
+
+            if (index_ == 0) {
+                chunk_index_ = 0;
+                index_ = 0;
+                return *this;
+            }
+
+            if (chunk_index_ < 0) {
+                chunk_index_ = Chunk::elems() - 1;
+                chunk_ = chunk_->header_.prev_;
+            }
+
+            return *this;
+        }
+
+
         int index() const
         {
             return index_;
