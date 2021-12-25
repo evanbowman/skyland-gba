@@ -3,6 +3,8 @@
 #include "skyland/save.hpp"
 #include "skyland/skyland.hpp"
 #include "transformGroup.hpp"
+#include "vector.hpp"
+#include "localization.hpp"
 
 
 
@@ -90,6 +92,50 @@ void start(Platform& pfrm)
     // ram_filesystem::import_file_from_rom_if_not_exists(pfrm,
     //                                                    "/config/challenge.lisp",
     //                                                    "challenge.lisp");
+
+
+    // Vector<int> vec(pfrm);
+    // for (int i = 0; i < 2000; ++i) {
+    //     vec.push_back(i);
+    // }
+
+    // auto it = vec.begin();
+    // while (true) {
+    //     if (*it == 499) {
+    //         vec.erase(it);
+    //         break;
+    //     }
+    //     ++it;
+    // }
+
+    // for (int i = 0; i < 2000; ++i) {
+    //     if (vec[i] not_eq i) {
+    //         pfrm.fatal(to_string<20>(i).c_str());
+    //     }
+    // }
+
+    Vector<int> vec(pfrm);
+    for (int i = 0; i < 20; ++i) {
+        vec.push_back(i);
+    }
+
+    auto it = vec.begin();
+    while (true) {
+        if (*it == 10) {
+            vec.insert(it, 12);
+            break;
+        }
+        ++it;
+    }
+
+    StringBuffer<200> test;
+    for (int elem : vec) {
+        test += to_string<10>(elem);
+        test += " ";
+    }
+    pfrm.fatal(test.c_str());
+
+
 
     return skyland_main_loop(pfrm);
 }

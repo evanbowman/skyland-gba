@@ -270,11 +270,11 @@ void unlink_file(Platform& pfrm, const char* path)
 
 
 size_t
-read_file_data(Platform& pfrm, const char* path, ScratchBufferPtr output_buffer)
+read_file_data(Platform& pfrm,
+               const char* path,
+               Vector<char>& output)
 {
     const auto path_len = str_len(path);
-
-    __builtin_memset(output_buffer->data_, 0, sizeof output_buffer->data_);
 
 
     int write_pos = 0;
@@ -287,7 +287,7 @@ read_file_data(Platform& pfrm, const char* path, ScratchBufferPtr output_buffer)
                             fs_contents_offset() + file * block_size);
 
         for (u16 i = path_len + 1; i < FileContents::capacity; ++i) {
-            output_buffer->data_[write_pos++] = contents.data_[i];
+            output.push_back(contents.data_[i]);
         }
 
         file = contents.header_.next_.get();
@@ -302,14 +302,16 @@ read_file_data(Platform& pfrm, const char* path, ScratchBufferPtr output_buffer)
                     write_pos = 0;
                     return;
                 }
-                output_buffer->data_[write_pos++] = contents.data_[i];
+                output.push_back(contents.data_[i]);
             }
 
             file = contents.header_.next_.get();
         }
     });
 
-    return write_pos;
+    output.push_back('\0');
+
+    return output.size();
 }
 
 

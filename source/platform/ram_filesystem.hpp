@@ -4,6 +4,7 @@
 #include "number/int.h"
 #include "platform/platform.hpp"
 #include <utility>
+#include "vector.hpp"
 
 
 
@@ -73,7 +74,7 @@ void destroy(Platform& pfrm);
 
 size_t read_file_data(Platform& pfrm,
                       const char* path,
-                      ScratchBufferPtr output_buffer);
+                      Vector<char>& output);
 
 
 

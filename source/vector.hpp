@@ -20,6 +20,7 @@ private:
     struct Chunk {
         struct Header {
             std::optional<ScratchBufferPtr> next_;
+            Chunk* prev_;
         };
 
         static constexpr u32 elems()
@@ -29,10 +30,14 @@ private:
         }
 
 
-        static void initialize(ScratchBufferPtr source)
+        static void initialize(ScratchBufferPtr source, Chunk* prev)
         {
             new (source->data_) Chunk();
+            ((Chunk*)source->data_)->prev_ = prev;
         }
+
+
+        Chunk(const Chunk& other) = delete;
 
 
         ~Chunk()
@@ -174,14 +179,6 @@ public:
 
     void insert(Iterator position, const T& elem)
     {
-        // I implemented it this way because it was simply easiest, because with
-        // our list of allocated chunks, reverse iteration would require some
-        // changes. Store the newly inserted element at the end. For each
-        // element, swap current with last. This effectively shifts the elements
-        // to the right, using the final element as a placeholder, and using the
-        // existing logic in push_back() to handle reallocations. Feels sort of
-        // clever, although I can't be the first person who's thought of this.
-
         push_back(elem);
 
         auto last = Iterator(size_ - 1, [this] {
@@ -201,8 +198,11 @@ public:
         pfrm_(pfrm),
         data_(pfrm.make_scratch_buffer())
     {
-        Chunk::initialize(data_);
+        Chunk::initialize(data_, nullptr);
     }
+
+
+    Vector(const Vector& other) = delete;
 
 
     void push_back(const T& elem)
@@ -215,7 +215,7 @@ public:
 
         if (size == Chunk::elems() and not current->header_.next_) {
             auto sbr = pfrm_.make_scratch_buffer();
-            Chunk::initialize(sbr);
+            Chunk::initialize(sbr, current);
             current->header_.next_ = sbr;
             current = (Chunk*)(*current->header_.next_)->data_;
             size = 0;
@@ -255,15 +255,24 @@ public:
 
     ~Vector()
     {
+        // TODO: Don't bother to pop anything if elements are trivially
+        // destructible.
         while (size_ > Chunk::elems()) {
-            // TODO... delete stuff.
+            pop_back();
         }
+        ((Chunk*)data_)->~Chunk();
     }
 
 
     int chunks_used()
     {
         return size_ / Chunk::elems() + (size_ % Chunk::elems() > 0);
+    }
+
+
+    u32 size() const
+    {
+        return size_;
     }
 
 
