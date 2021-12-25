@@ -139,6 +139,20 @@ void start(Platform& pfrm)
     // pfrm.fatal(test.c_str());
 
 
+    // const int before = pfrm.scratch_buffers_remaining();
+
+    // {
+    //     Vector<int> test(pfrm);
+
+    //     for (int i = 0; i < 2000; ++i) {
+    //         test.push_back(i);
+    //     }
+    // }
+
+    // if (pfrm.scratch_buffers_remaining() not_eq before) {
+    //     pfrm.fatal("dealloc failure");
+    // }
+
 
     return skyland_main_loop(pfrm);
 }
