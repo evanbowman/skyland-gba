@@ -36,12 +36,11 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     } else {
         auto str = pfrm.load_file_contents("scripts", "newgame.lisp");
         lisp::BasicCharSequence seq(str);
-        lisp::dostring(seq,
-                       [&pfrm](lisp::Value& err) {
-                           lisp::DefaultPrinter p;
-                           lisp::format(&err, p);
-                           pfrm.fatal(p.fmt_.c_str());
-                       });
+        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
 
         app.current_map_location() = {0, 1};
         app.world_map().generate();

@@ -21,14 +21,14 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.screen().fade(1.f);
     text_.emplace(pfrm, "session connecting...", OverlayCoord{1, 1});
 
-    const char* str = pfrm.load_file_contents("scripts", "multiplayer_init.lisp");
+    const char* str =
+        pfrm.load_file_contents("scripts", "multiplayer_init.lisp");
     lisp::BasicCharSequence seq(str);
-    lisp::dostring(seq,
-                   [&pfrm](lisp::Value& err) {
-                       lisp::DefaultPrinter p;
-                       lisp::format(&err, p);
-                       pfrm.fatal(p.fmt_.c_str());
-                   });
+    lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+        lisp::DefaultPrinter p;
+        lisp::format(&err, p);
+        pfrm.fatal(p.fmt_.c_str());
+    });
 
     if (app.opponent_island()) {
         set_island_positions(app.player_island(), *app.opponent_island());

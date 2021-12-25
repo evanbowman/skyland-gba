@@ -1155,8 +1155,7 @@ bool is_executing()
 }
 
 
-Value* dostring(CharSequence& code,
-                ::Function<16, void(Value&)> on_error)
+Value* dostring(CharSequence& code, ::Function<16, void(Value&)> on_error)
 {
     ++bound_context->interp_entry_count_;
 
@@ -1586,8 +1585,7 @@ static u32 read_list(CharSequence& code, int offset)
 
         case ';':
             while (true) {
-                if (code[offset + i] == '\0' or
-                    code[offset + i] == '\r' or
+                if (code[offset + i] == '\0' or code[offset + i] == '\r' or
                     code[offset + i] == '\n') {
                     break;
                 } else {
@@ -1664,9 +1662,7 @@ static u32 read_symbol(CharSequence& code, int offset)
 
     StringBuffer<64> symbol;
 
-    if (code[offset] == '\'' or
-        code[offset] == '`' or
-        code[offset] == ',' or
+    if (code[offset] == '\'' or code[offset] == '`' or code[offset] == ',' or
         code[offset] == '@') {
         symbol.push_back(code[offset]);
         push_op(make_symbol(symbol.c_str()));
@@ -1917,8 +1913,7 @@ u32 read(CharSequence& code, int offset)
 
         case ';':
             while (true) {
-                if (code[offset + i] == '\0' or
-                    code[offset + i] == '\r' or
+                if (code[offset + i] == '\0' or code[offset + i] == '\r' or
                     code[offset + i] == '\n') {
                     break;
                 } else {
@@ -1928,8 +1923,7 @@ u32 read(CharSequence& code, int offset)
             break;
 
         case '-':
-            if (code[offset + i + 1] >= '0' and
-                code[offset + i + 1] <= '9') {
+            if (code[offset + i + 1] >= '0' and code[offset + i + 1] <= '9') {
                 ++i;
                 pop_op(); // nil
                 i += read_number(code, offset + i);

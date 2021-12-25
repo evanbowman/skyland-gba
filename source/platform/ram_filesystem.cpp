@@ -269,10 +269,7 @@ void unlink_file(Platform& pfrm, const char* path)
 
 
 
-size_t
-read_file_data(Platform& pfrm,
-               const char* path,
-               Vector<char>& output)
+size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 {
     const auto path_len = str_len(path);
 
@@ -311,9 +308,7 @@ read_file_data(Platform& pfrm,
 
 
 
-bool store_file_data(Platform& pfrm,
-                     const char* path,
-                     Vector<char>& data)
+bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 {
     unlink_file(pfrm, path);
 
@@ -323,7 +318,7 @@ bool store_file_data(Platform& pfrm,
         return false;
     }
 
-    const int length = data.size() - 1;
+    const int length = data.size() - 1; // -1 for the assumed null terminator.
     u16 remaining = length + path_len + 1;
 
     const auto file_begin = allocate_file_chunk(pfrm);
@@ -341,8 +336,9 @@ bool store_file_data(Platform& pfrm,
     const auto initial_data_copy =
         std::min((int)FileContents::capacity - (path_len + 1), (int)length);
 
+
     for (int i = 0; i < initial_data_copy; ++i) {
-        contents.data_[i] = data[i];
+        contents.data_[i + path_len + 1] = data[i];
     }
 
     int offset = initial_data_copy;

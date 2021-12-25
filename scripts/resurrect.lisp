@@ -1,31 +1,125 @@
 ;;;
-;;; resurrect.lisp
+;;; stdlib.lisp
 ;;;
-;;; Resurrect a snapshot of one of the player's previously-destroyed castles.
+;;; A small standard library
 ;;;
 
 
-;; Look into the array of snapshots per zone
-(def temp (get snapshots (zone)))
+(macro or (expr)
+ `(if ,(car expr)
+      1
+    ,(if (cdr expr)
+         (cons 'or (cdr expr))
+       0)))
 
 
-;; Pick a random snapshot
-(def temp (get temp (choice (length temp))))
+(macro and (expr)
+ `(if (not ,(car expr))
+      0
+    ,(if (cdr expr)
+         (cons 'and (cdr expr))
+       1)))
 
 
-;; Find the highest x-value in the room data (We want to mirror the room over
-;; the y-axis).
-(def max-x 0)
-(map (lambda
-       (if (> (get $0 1) max-x)
-           (def max-x (get $0 1))))
-     temp)
+(macro cond (expr)
+ `(if ,(car (car expr))
+      ,(car (cdr (car expr)))
+    ,(if (cdr expr)
+         (cons 'cond (cdr expr))
+       nil)))
 
 
-;; Flip the room (the enemy must face the player)
-(def temp
-     (map (lambda
-            (list (get $0 0)
-                  (- highest (get $0 1))
-                  (get $0 2)))
-          temp))
+;; Some useful macros for defining functions
+
+;; Defines a function.
+(macro defn (name body) `(def ,name (lambda ,@body)))
+;; Defines a bytecode-compiled function.
+(macro defn/c (name body) `(def ,name (compile (lambda ,@body))))
+
+
+(macro def (name expr)
+ `(set ,(cons $q name) ,@expr))
+
+
+;; Because we're running lisp in an embedded system (a gameboy) with limited
+;; memory, we need to be really careful about symbol table usage, which is why,
+;; traditionally, we only support numbered arguments for lambdas. But this
+;; function macro allows you to declare functions with named arguments:
+(macro fn (args body)
+ (if (not args)
+     `(lambda ,@body)
+   `(lambda
+     (let ,((lambda
+             (if (not $0)
+                 $1
+               ((this)
+                (cdr $0)
+                (cons (list (car $0) (symbol (string "$" $2))) $1)
+                (+ $2 1))))
+            args nil 0)
+       ,@body))))
+
+
+(macro while (expr body)
+ `((lambda
+     (if ,expr
+         (let ()
+           ,@body
+           ((this)))))))
+
+
+(macro progn (body)
+ `(let () ,@body))
+
+
+(defn/c acons
+  (cons (cons $0 $1) $2))
+
+
+(defn/c assoc
+  (let ((temp $0))
+    (get (filter (lambda (equal (car $0) temp))
+                 $1)
+         0)))
+
+
+(defn append
+  ;; Not the most efficient way to implement append, but this implementation
+  ;; with unquote-splicing is quite compact.
+  `(,@$0 ,@$1))
+
+
+(def bisect
+     (let ((impl (compile
+                  (lambda
+                    (if (not $1)
+                        (cons (reverse $2) $0)
+                      (if (not (cdr $1))
+                          (cons (reverse $2) $0)
+                        ((this)
+                         (cdr $0)
+                         (cdr (cdr $1))
+                         (cons (car $0) $2))))))))
+       (lambda (impl $0 $0 '()))))
+
+
+(defn/c merge
+  (if (not $0)
+      $1
+    (if (not $1)
+        $0
+      (if (< (car $0) (car $1))
+          (cons (car $0) ((this) (cdr $0) $1))
+        (cons (car $1) ((this) $0 (cdr $1)))))))
+
+
+(defn sort
+  (if (not (cdr $0))
+      $0
+    (let ((temp (bisect $0)))
+      (merge (sort (car temp))
+             (sort (cdr temp))))))
+
+
+(defn/c locale-string
+  (get-line-of-file (string "strings/" language '.txt) $0))

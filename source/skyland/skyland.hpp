@@ -267,13 +267,8 @@ public:
                                 const char* rom_fs_fallback_path);
 
 
-    void conditional_invoke_script(Platform& pfrm,
-                                   const char* ram_fs_path,
-                                   const char* rom_fs_path,
-                                   bool load_from_rom);
-
-
-    void invoke_script(Platform& pfrm, const char* path);
+    void
+    invoke_script(Platform& pfrm, const char* path, bool rom_fs_only = false);
 
 
     bool is_developer_mode();

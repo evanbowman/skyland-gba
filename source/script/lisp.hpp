@@ -544,7 +544,9 @@ inline Value* get_var(const char* name)
 
 class CharSequence {
 public:
-    virtual ~CharSequence() {}
+    virtual ~CharSequence()
+    {
+    }
 
     virtual char operator[](int index) = 0;
 };

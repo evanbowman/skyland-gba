@@ -479,7 +479,8 @@ void App::init_scripts(Platform& pfrm)
 
                           auto app = interp_get_app();
                           if (app == nullptr) {
-                              while (true) ;
+                              while (true)
+                                  ;
                               return L_NIL;
                           }
 
@@ -487,7 +488,8 @@ void App::init_scripts(Platform& pfrm)
 
                           app->invoke_script(*pfrm, str);
                       } else {
-                          while (true);
+                          while (true)
+                              ;
                       }
                       return L_NIL;
                   }));
@@ -568,12 +570,11 @@ void App::init_scripts(Platform& pfrm)
 
     auto str = pfrm.load_file_contents("scripts", "init.lisp");
     lisp::BasicCharSequence seq(str);
-    lisp::dostring(seq,
-                   [&pfrm](lisp::Value& err) {
-                       lisp::DefaultPrinter p;
-                       lisp::format(&err, p);
-                       pfrm.fatal(p.fmt_.c_str());
-                   });
+    lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+        lisp::DefaultPrinter p;
+        lisp::format(&err, p);
+        pfrm.fatal(p.fmt_.c_str());
+    });
 }
 
 

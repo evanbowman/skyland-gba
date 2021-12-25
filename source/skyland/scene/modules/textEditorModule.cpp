@@ -178,7 +178,8 @@ static void handle_char(Vector<char>::Iterator data, char c, ParserState& ps)
 
 
 
-template <typename F> void parse_words(Vector<char>::Iterator data, F&& callback)
+template <typename F>
+void parse_words(Vector<char>::Iterator data, F&& callback)
 {
     ParserState ps;
 
@@ -454,8 +455,8 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
                                    const char* file_path,
                                    FileMode file_mode,
                                    FileSystem filesystem)
-    : text_buffer_(pfrm),
-      state_(allocate_dynamic<State>(pfrm)), filesystem_(filesystem)
+    : text_buffer_(pfrm), state_(allocate_dynamic<State>(pfrm)),
+      filesystem_(filesystem)
 {
     state_->file_path_ = file_path;
 
@@ -472,7 +473,6 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
                 text_buffer_.push_back(*(data++));
             }
             text_buffer_.push_back('\0');
-
         }
     } else {
         text_buffer_.push_back('\n');
@@ -639,7 +639,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             bool do_render = false;
 
             if (cursor_.y < start_line_) {
-                --start_line_;
+                start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
                 do_render = true;
             }
             cursor_.x = ideal_cursor_right_;
@@ -677,7 +677,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             key_held_timer_[1] -= milliseconds(60);
 
             if (cursor_.y > start_line_ + 17) {
-                ++start_line_;
+                start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
                 do_render = true;
             }
             cursor_.x = ideal_cursor_right_;
@@ -826,12 +826,10 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             if (state_->modified_) {
                 if (filesystem_ == FileSystem::sram) {
                     ram_filesystem::store_file_data(
-                        pfrm,
-                        state_->file_path_.c_str(),
-                        text_buffer_);
+                        pfrm, state_->file_path_.c_str(), text_buffer_);
                 } else {
                     return scene_pool::alloc<SramFileWritebackScene>(
-                                                                     state_->file_path_.c_str(), std::move(text_buffer_));
+                        state_->file_path_.c_str(), std::move(text_buffer_));
                 }
             }
             return scene_pool::alloc<FileBrowserModule>(
@@ -1002,7 +1000,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             mode_ = Mode::edit;
 
             auto cpl = state_->completions_[selected_completion_];
-            for (u32 i = state_->current_word_.length(); i < cpl.length(); ++i) {
+            for (u32 i = state_->current_word_.length(); i < cpl.length();
+                 ++i) {
                 insert_char(cpl[i]);
                 ++cursor_.x;
             }

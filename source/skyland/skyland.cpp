@@ -223,12 +223,11 @@ void App::safe_invoke_ram_script(Platform& pfrm,
     if (not is_developer_mode()) {
         auto str = pfrm.load_file_contents("scripts", rom_fs_fallback_path);
         lisp::BasicCharSequence seq(str);
-        lisp::dostring(seq,
-                       [&pfrm](lisp::Value& err) {
-                           lisp::DefaultPrinter p;
-                           lisp::format(&err, p);
-                           pfrm.fatal(p.fmt_.c_str());
-                       });
+        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
         return;
     }
 
@@ -246,12 +245,11 @@ void App::safe_invoke_ram_script(Platform& pfrm,
     } else {
         auto str = pfrm.load_file_contents("scripts", rom_fs_fallback_path);
         lisp::BasicCharSequence seq(str);
-        lisp::dostring(seq,
-                       [&pfrm](lisp::Value& err) {
-                           lisp::DefaultPrinter p;
-                           lisp::format(&err, p);
-                           pfrm.fatal(p.fmt_.c_str());
-                       });
+        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
     }
 }
 
@@ -265,7 +263,7 @@ bool App::is_developer_mode()
 
 
 
-void App::invoke_script(Platform& pfrm, const char* path)
+void App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
 {
     auto on_err = [&pfrm](lisp::Value& err) {
         lisp::DefaultPrinter p;
@@ -274,7 +272,7 @@ void App::invoke_script(Platform& pfrm, const char* path)
     };
 
     if (is_developer_mode() and not pfrm.network_peer().is_connected() and
-        not tutorial_mode()) {
+        not tutorial_mode() and not rom_fs_only) {
 
         Vector<char> buffer(pfrm);
         if (ram_filesystem::read_file_data(pfrm, path, buffer)) {
@@ -298,34 +296,6 @@ void App::invoke_script(Platform& pfrm, const char* path)
         pfrm.fatal(err.c_str());
     }
 }
-
-
-
-void App::conditional_invoke_script(Platform& pfrm,
-                                    const char* ram_fs_path,
-                                    const char* rom_fs_path,
-                                    bool load_from_rom)
-{
-    if (load_from_rom or not is_developer_mode()) {
-
-        // We still want to make sure that the scripts are loaded, even if
-        // we are not going to currently execute them.
-        ram_filesystem::import_file_from_rom_if_not_exists(
-            pfrm, ram_fs_path, rom_fs_path);
-
-        auto str = pfrm.load_file_contents("scripts", rom_fs_path);
-        lisp::BasicCharSequence seq(str);
-        lisp::dostring(seq,
-                       [&pfrm](lisp::Value& err) {
-                           lisp::DefaultPrinter p;
-                           lisp::format(&err, p);
-                           pfrm.fatal(p.fmt_.c_str());
-                       });
-    } else {
-        safe_invoke_ram_script(pfrm, ram_fs_path, rom_fs_path);
-    }
-}
-
 
 
 } // namespace skyland

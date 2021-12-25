@@ -3,8 +3,8 @@
 #include "number/endian.hpp"
 #include "number/int.h"
 #include "platform/platform.hpp"
-#include <utility>
 #include "vector.hpp"
+#include <utility>
 
 
 
@@ -72,22 +72,16 @@ void destroy(Platform& pfrm);
 
 
 
-size_t read_file_data(Platform& pfrm,
-                      const char* path,
-                      Vector<char>& output);
+size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output);
 
 
 
-bool store_file_data(Platform& pfrm,
-                     const char* path,
-                     Vector<char>& data);
+bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data);
 
 
 
-inline bool store_file_data(Platform& pfrm,
-                     const char* path,
-                     const char* ptr,
-                     u32 length)
+inline bool
+store_file_data(Platform& pfrm, const char* path, const char* ptr, u32 length)
 {
     Vector<char> buffer(pfrm);
     for (u32 i = 0; i < length; ++i) {

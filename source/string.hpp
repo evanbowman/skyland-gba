@@ -62,17 +62,17 @@ template <u32 Capacity, typename Memory> class StringAdapter {
 public:
     using Buffer = Memory;
 
-    template <typename ...MemArgs>
-    StringAdapter(const char* init, MemArgs&& ...mem_args) :
-        mem_(std::forward<MemArgs>(mem_args)...)
+    template <typename... MemArgs>
+    StringAdapter(const char* init, MemArgs&&... mem_args)
+        : mem_(std::forward<MemArgs>(mem_args)...)
     {
         mem_.push_back('\0');
         (*this) += init;
     }
 
-    template <typename ...MemArgs>
-    StringAdapter(char c, u32 count, MemArgs&& ...mem_args) :
-        mem_(std::forward<MemArgs>(mem_args)...)
+    template <typename... MemArgs>
+    StringAdapter(char c, u32 count, MemArgs&&... mem_args)
+        : mem_(std::forward<MemArgs>(mem_args)...)
     {
         while (count--) {
             mem_.push_back(c);
@@ -128,7 +128,8 @@ public:
     }
 
     template <u32 OtherCapacity, typename OtherMem>
-    const StringAdapter& operator=(const StringAdapter<OtherCapacity, OtherMem>& other)
+    const StringAdapter&
+    operator=(const StringAdapter<OtherCapacity, OtherMem>& other)
     {
         clear();
 
@@ -182,7 +183,8 @@ public:
     }
 
     template <u32 OtherCapacity, typename OtherMem>
-    StringAdapter& operator+=(const StringAdapter<OtherCapacity, OtherMem>& other)
+    StringAdapter&
+    operator+=(const StringAdapter<OtherCapacity, OtherMem>& other)
     {
         (*this) += other.c_str();
         return *this;
@@ -240,8 +242,6 @@ private:
 
 template <u32 Capacity>
 using StringBuffer = StringAdapter<Capacity, Buffer<char, Capacity + 1>>;
-
-
 
 
 
