@@ -467,12 +467,12 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
                 ++file_path;
             }
             auto data = pfrm.load_file_contents("", file_path);
-            if (str_len(data) < SCRATCH_BUFFER_SIZE + 1) {
-                while (*data not_eq '\0') {
-                    text_buffer_.push_back(*(data++));
-                }
-                text_buffer_.push_back('\0');
+
+            while (*data not_eq '\0') {
+                text_buffer_.push_back(*(data++));
             }
+            text_buffer_.push_back('\0');
+
         }
     } else {
         text_buffer_.push_back('\n');

@@ -7,9 +7,11 @@
 
 // A Vector implementation backed by ScratchBuffers.
 
-// Our program allocates memory only as reference-counted 2k buffers. Here, we
-// provide an implementation of a Dynamic Array compatible with our atypical
-// memory allocators.
+// Our program allocates memory only as reference-counted 2k buffers. We have a
+// realtime program that runs on an embedded system with limited ram, and we
+// want to avoid malloc. Here, we provide an implementation of a Dynamic Array
+// compatible with our atypical memory allocators. No, this cannot be
+// implemented instead as an allocator for std::vector.
 
 
 
