@@ -57,6 +57,7 @@ with open('fs.bin', 'wb') as filesystem:
 
     collect_paths(files_list, "scripts")
     collect_paths(files_list, "strings")
+    collect_paths(files_list, "help")
 
     fs_count = len(files_list)
     print("encoding %d files..." % fs_count)

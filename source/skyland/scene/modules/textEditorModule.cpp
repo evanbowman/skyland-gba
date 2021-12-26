@@ -389,6 +389,10 @@ int TextEditorModule::skip_word()
         ++count;
         ++data;
     }
+    while (*data == ' ') {
+        ++count;
+        ++data;
+    }
     if (count == 0) {
         count = 1;
     }
@@ -406,6 +410,10 @@ int TextEditorModule::back_word()
     int count = 0;
     while (data not_eq begin and *data not_eq '\0' and *data not_eq '\n' and
            *data not_eq ' ') {
+        ++count;
+        --data;
+    }
+    while (*data == ' ') {
         ++count;
         --data;
     }
@@ -602,7 +610,33 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             key_held_timer_[3] = 0;
         }
 
-        if (app.player().key_pressed(pfrm, Key::alt_1)) {
+        if (app.player().key_pressed(pfrm, Key::alt_2)) {
+            if (app.player().key_down(pfrm, Key::right)) {
+                cursor_.x += skip_word();
+                cursor_.x = std::min(cursor_.x, line_length());
+                ideal_cursor_right_ = cursor_.x;
+                if (cursor_.x < column_offset_) {
+                    column_offset_ = cursor_.x;
+                }
+                while (cursor_.x > column_offset_ + 29) {
+                    ++column_offset_;
+                }
+                render(pfrm, start_line_);
+                shade_cursor();
+            } else if (app.player().key_down(pfrm, Key::left)) {
+                cursor_.x -= back_word();
+                cursor_.x = std::max(cursor_.x, 0);
+                ideal_cursor_right_ = cursor_.x;
+                if (cursor_.x > column_offset_ + 29) {
+                    ++column_offset_;
+                }
+                if (cursor_.x < column_offset_) {
+                    column_offset_ = cursor_.x;
+                }
+                render(pfrm, start_line_);
+                shade_cursor();
+            }
+        } else if (app.player().key_pressed(pfrm, Key::alt_1)) {
             if (app.player().key_down(pfrm, Key::action_1)) {
                 insert_char('\n');
                 cursor_.x = 0;
@@ -622,6 +656,28 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 }
                 while (cursor_.x > column_offset_ + 29) {
                     ++column_offset_;
+                }
+                render(pfrm, start_line_);
+                shade_cursor();
+            } else if (app.player().key_down(pfrm, Key::right)) {
+                cursor_.x = line_length();
+                ideal_cursor_right_ = cursor_.x;
+                if (cursor_.x < column_offset_) {
+                    column_offset_ = cursor_.x;
+                }
+                while (cursor_.x > column_offset_ + 29) {
+                    ++column_offset_;
+                }
+                render(pfrm, start_line_);
+                shade_cursor();
+            } else if (app.player().key_down(pfrm, Key::left)) {
+                cursor_.x = 0;
+                ideal_cursor_right_ = cursor_.x;
+                if (cursor_.x > column_offset_ + 29) {
+                    ++column_offset_;
+                }
+                if (cursor_.x < column_offset_) {
+                    column_offset_ = cursor_.x;
                 }
                 render(pfrm, start_line_);
                 shade_cursor();
@@ -711,11 +767,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             if (line_length() > cursor_.x) {
                 unshade_cursor();
                 cursor_flicker_timer_ = -seconds(1);
-                // if (app.player().key_pressed(pfrm, Key::alt_1)) {
-                //     cursor_.x += skip_word();
-                // } else {
+
                 ++cursor_.x;
-                // }
 
                 bool do_render = false;
 
@@ -772,11 +825,9 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
                 unshade_cursor();
                 cursor_flicker_timer_ = -seconds(1);
-                // if (app.player().key_pressed(pfrm, Key::alt_1)) {
-                //     cursor_.x -= back_word();
-                // } else {
+
                 --cursor_.x;
-                // }
+
                 ideal_cursor_right_ = cursor_.x;
                 while (cursor_.x < column_offset_) {
                     --column_offset_;
