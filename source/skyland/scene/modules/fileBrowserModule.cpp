@@ -325,11 +325,11 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto scroll_down = [&] {
         if (scroll_index_ == 14 and
-            scroll_index_ + line_offset_ < (int)(*cwd_names_)->size()) {
+            scroll_index_ + line_offset_ < (int)(*cwd_names_)->size() - 1) {
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
             ++line_offset_;
             repaint(pfrm);
-        } else if (scroll_index_ + line_offset_ < (int)(*cwd_names_)->size()) {
+        } else if (scroll_index_ + line_offset_ < (int)(*cwd_names_)->size() - 1) {
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
             ++scroll_index_;
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
