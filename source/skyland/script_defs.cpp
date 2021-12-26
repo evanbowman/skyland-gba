@@ -568,6 +568,10 @@ void App::init_scripts(Platform& pfrm)
         }));
 
 
+    // NOTE: we need
+    const bool was_developer_mode = is_developer_mode();
+    set_developer_mode(false);
+
     auto str = pfrm.load_file_contents("scripts", "init.lisp");
     lisp::BasicCharSequence seq(str);
     lisp::dostring(seq, [&pfrm](lisp::Value& err) {
@@ -575,6 +579,8 @@ void App::init_scripts(Platform& pfrm)
         lisp::format(&err, p);
         pfrm.fatal(p.fmt_.c_str());
     });
+
+    set_developer_mode(was_developer_mode);
 }
 
 

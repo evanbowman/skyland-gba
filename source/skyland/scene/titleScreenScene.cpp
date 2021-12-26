@@ -10,6 +10,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
+#include "modules/fileBrowserModule.hpp"
 
 
 
@@ -644,7 +645,16 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm.speaker().stop_music();
                     app.challenge_mode() = false;
                     app.tutorial_mode() = false;
-                    run_init_scripts(pfrm, app, false);
+
+                    run_init_scripts(pfrm,
+                                     app,
+                                     // Yes, custom code must be disabled when
+                                     // running modules. The file browser module
+                                     // and text editor could become completely
+                                     // inaccessible if a user put an invalid
+                                     // expression into one of the init scripts.
+                                     false);
+
                     return f->create(pfrm);
                 }
             }

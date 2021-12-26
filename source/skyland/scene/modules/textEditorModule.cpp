@@ -542,6 +542,10 @@ void TextEditorModule::exit(Platform& pfrm, App&, Scene& next)
 
 
 
+// NOTE: while the text editor code in general isn't too bad, this function in
+// particular is a cluttered mess of copy-pasted code, mainly due to related but
+// slightly differing behavior in all of the different keyboard shortcuts and
+// editing modes.
 ScenePtr<Scene>
 TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -584,7 +588,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
     switch (mode_) {
-    case Mode::explore:
+    case Mode::nav:
         cursor_flicker_timer_ += delta;
         if (cursor_flicker_timer_ > milliseconds(200)) {
             cursor_flicker_timer_ = 0;
@@ -651,6 +655,82 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 }
                 render(pfrm, start_line_);
                 shade_cursor();
+            } else if (app.player().key_down(pfrm, Key::down)) {
+                cursor_.x = 0;
+
+                if (cursor_shaded_) {
+                    unshade_cursor();
+                }
+
+                while (*insert_pos() == '\n') {
+                    ++cursor_.y;
+                }
+
+                while (cursor_.y not_eq line_count_) {
+                    ++cursor_.y;
+                    if (*insert_pos() == '\n') {
+                        break;
+                    }
+                }
+
+                bool do_render = false;
+
+                if (cursor_.y > start_line_ + 17) {
+                    start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+                    do_render = true;
+                }
+
+                if (cursor_.x < column_offset_) {
+                    column_offset_ = 0;
+                    do_render = true;
+                }
+
+                if (do_render) {
+                    render(pfrm, start_line_);
+                } else {
+                    show_status(pfrm);
+                }
+
+                shade_cursor();
+
+            } else if (app.player().key_down(pfrm, Key::up)) {
+
+                if (cursor_shaded_) {
+                    unshade_cursor();
+                }
+
+                cursor_.x = 0;
+
+                while (*insert_pos() == '\n') {
+                    --cursor_.y;
+                }
+
+                while (cursor_.y not_eq 0) {
+                    --cursor_.y;
+                    if (*insert_pos() == '\n') {
+                        break;
+                    }
+                }
+
+                bool do_render = false;
+
+                if (cursor_.y < start_line_) {
+                    start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+                    do_render = true;
+                }
+
+                if (cursor_.x < column_offset_) {
+                    column_offset_ = 0;
+                    do_render = true;
+                }
+
+                if (do_render) {
+                    render(pfrm, start_line_);
+                } else {
+                    show_status(pfrm);
+                }
+
+                shade_cursor();
             }
         } else if (app.player().key_pressed(pfrm, Key::alt_1)) {
             if (app.player().key_down(pfrm, Key::action_1)) {
@@ -695,6 +775,20 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 if (cursor_.x < column_offset_) {
                     column_offset_ = cursor_.x;
                 }
+                render(pfrm, start_line_);
+                shade_cursor();
+            } else if (app.player().key_down(pfrm, Key::down)) {
+                cursor_.x = 0;
+                cursor_.y = line_count_;
+                column_offset_ = 0;
+                start_line_ = std::max(0, line_count_ - 17);
+                render(pfrm, start_line_);
+                shade_cursor();
+            } else if (app.player().key_down(pfrm, Key::up)) {
+                cursor_.x = 0;
+                cursor_.y = 0;
+                column_offset_ = 0;
+                start_line_ = 0;
                 render(pfrm, start_line_);
                 shade_cursor();
             }
@@ -915,7 +1009,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     case Mode::edit:
         if (app.player().key_down(pfrm, Key::action_2)) {
-            mode_ = Mode::explore;
+            mode_ = Mode::nav;
             show_keyboard_ = false;
             render(pfrm, start_line_);
             shade_cursor();

@@ -273,6 +273,7 @@ public:
 
 
     bool is_developer_mode();
+    void set_developer_mode(bool value);
 
 
 private:

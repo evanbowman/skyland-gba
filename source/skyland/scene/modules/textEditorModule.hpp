@@ -55,10 +55,10 @@ public:
 
 private:
     enum class Mode {
-        explore,
+        nav,
         edit,
         autocomplete,
-    } mode_ = Mode::explore;
+    } mode_ = Mode::nav;
 
 
     void render(Platform& pfrm, int start_line);

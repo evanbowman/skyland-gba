@@ -61,11 +61,15 @@
 
 
 (macro while (expr body)
- `((lambda
-     (if ,expr
-         (let ()
-           ,@body
-           ((this)))))))
+ ;; The vm only performs TCO on compiled lambdas, so we need to enforce
+ ;; compilation here, unfortunately. Quite slow, but then, how often do you
+ ;; really _need_ a while loop in lisp?
+ `((compile
+    (lambda
+      (if ,expr
+          (let ()
+            ,@body
+            ((this))))))))
 
 
 (macro progn (body)

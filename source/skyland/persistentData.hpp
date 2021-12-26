@@ -36,7 +36,7 @@ struct PersistentData {
         developer_mode = (1 << 0),
     };
 
-    u8 flags0_ = 0;
+    u8 flags0_ = developer_mode;
     u8 flags1_ = 0;
     u8 flags2_ = 0;
     u8 flags3_ = 0;
