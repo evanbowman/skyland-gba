@@ -572,9 +572,19 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.set_tile(x, y, t, highlight_colors);
     };
 
+    auto center_view = [&] {
+        start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+        if (cursor_.x > 15) {
+            column_offset_ = cursor_.x - 15;
+        } else {
+            column_offset_ = 0;
+        }
+        render(pfrm, start_line_);
+        shade_cursor();
+    };
+
     switch (mode_) {
     case Mode::explore:
-
         cursor_flicker_timer_ += delta;
         if (cursor_flicker_timer_ > milliseconds(200)) {
             cursor_flicker_timer_ = 0;
@@ -610,8 +620,14 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             key_held_timer_[3] = 0;
         }
 
-        if (app.player().key_pressed(pfrm, Key::alt_2)) {
-            if (app.player().key_down(pfrm, Key::right)) {
+        if (app.player().key_down(pfrm, Key::alt_2)) {
+            if (app.player().key_pressed(pfrm, Key::alt_1)) {
+                center_view();
+            }
+        } else if (app.player().key_pressed(pfrm, Key::alt_2)) {
+            if (app.player().key_down(pfrm, Key::alt_1)) {
+                center_view();
+            } else if (app.player().key_down(pfrm, Key::right)) {
                 cursor_.x += skip_word();
                 cursor_.x = std::min(cursor_.x, line_length());
                 ideal_cursor_right_ = cursor_.x;

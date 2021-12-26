@@ -81,8 +81,12 @@ private:
 
     int skip_word();
     int back_word();
+    int skip_paragraph();
+    int back_paragraph();
 
     StringBuffer<32> current_word();
+
+    void center_view(Platform& pfrm);
 
 
     struct State {

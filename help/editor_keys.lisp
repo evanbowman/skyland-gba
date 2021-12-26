@@ -13,6 +13,8 @@
 ;; LBumper+B: backspace
 ;; LBumper+Right-D-pad: jump to end of line
 ;; LBumper+Left-D-pad: jump to start of line
+;; RBumper+LBumper: center the view over the cursor
+;; LBumper+RBumper: center the view over the cursor
 ;; RBumper+Right-D-pad: cursor forwards one word
 ;; RBumper+Left-D-pad: cursor backwards one word
 ;; A: switch to edit-mode
