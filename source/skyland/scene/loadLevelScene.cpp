@@ -97,13 +97,13 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     switch (node.type_) {
     case WorldMap::Node::Type::storm_clear:
     case WorldMap::Node::Type::clear: {
-        app.invoke_script(pfrm, "/scripts/neutral.lisp");
+        app.invoke_script(pfrm, "/scripts/event/neutral.lisp");
         break;
     }
 
     case WorldMap::Node::Type::storm_hostile:
     case WorldMap::Node::Type::hostile: {
-        app.invoke_script(pfrm, "/scripts/hostile.lisp");
+        app.invoke_script(pfrm, "/scripts/event/hostile.lisp");
         break;
     }
 

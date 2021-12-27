@@ -1109,6 +1109,12 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
 
+                for (auto& existing : state_->completions_) {
+                    if (existing == word) {
+                        return;
+                    }
+                }
+
                 state_->completions_.push_back(word);
             };
 

@@ -230,9 +230,12 @@ void FileBrowserModule::repaint(Platform& pfrm)
         path.push_back(' ');
     }
 
-    for (u32 i = 0; i < path.length(); ++i) {
-        auto mapping_info = locale_texture_map()(path[i]);
-        const u16 t = pfrm.map_glyph(path[i], *mapping_info);
+    int path_scroll = (path.length() > 28) ? path.length() - 28 : 0;
+    auto str = path.c_str() + path_scroll;
+
+    for (u32 i = 0; *str not_eq '\0'; ++i, ++str) {
+        auto mapping_info = locale_texture_map()(*str);
+        const u16 t = pfrm.map_glyph(*str, *mapping_info);
 
         pfrm.set_tile(
             i + 1,
