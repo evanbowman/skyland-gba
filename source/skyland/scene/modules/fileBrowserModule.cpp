@@ -95,9 +95,8 @@ void FileBrowserModule::repaint(Platform& pfrm)
         if (lines_.size() > line_count) {
             lines_[line_count++].assign(text);
         } else {
-            lines_.emplace_back(pfrm,
-                                text,
-                                OverlayCoord{2, (u8)(lines_.size() + 3)});
+            lines_.emplace_back(
+                pfrm, text, OverlayCoord{2, (u8)(lines_.size() + 3)});
             ++line_count;
         }
     };
@@ -139,7 +138,6 @@ void FileBrowserModule::repaint(Platform& pfrm)
     int skip = line_offset_;
 
     auto walk_fs = [&](const char* path) {
-
         auto path_len = str_len(path);
         if (path_len < cwd.length()) {
             return;
@@ -332,7 +330,8 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
             ++line_offset_;
             repaint(pfrm);
-        } else if (scroll_index_ + line_offset_ < (int)(*cwd_names_)->size() - 1) {
+        } else if (scroll_index_ + line_offset_ <
+                   (int)(*cwd_names_)->size() - 1) {
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
             ++scroll_index_;
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);

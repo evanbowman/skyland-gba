@@ -1,6 +1,7 @@
 #include "titleScreenScene.hpp"
 #include "loadModuleScene.hpp"
 #include "module.hpp"
+#include "modules/fileBrowserModule.hpp"
 #include "multiplayerConnectScene.hpp"
 #include "newgameScene.hpp"
 #include "script/lisp.hpp"
@@ -10,7 +11,6 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
-#include "modules/fileBrowserModule.hpp"
 
 
 

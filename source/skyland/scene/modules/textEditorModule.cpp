@@ -24,6 +24,10 @@ static const auto status_colors =
     FontColors{custom_color(0x000010), custom_color(0xffffff)};
 
 
+static const auto highlight_colors =
+    FontColors{custom_color(0x000010), ColorConstant::aerospace_orange};
+
+
 
 void TextEditorModule::show_status(Platform& pfrm)
 {
@@ -40,6 +44,10 @@ void TextEditorModule::show_status(Platform& pfrm)
         status_->append(line_count_ + 1, status_colors);
         status_->append(" col ", status_colors);
         status_->append(cursor_.x + 1, status_colors);
+
+        if (state_->sel_begin_) {
+            status_->append(" (sel)", status_colors);
+        }
     }
 
     while (status_->len() not_eq 30) {
@@ -256,6 +264,12 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
             continue;
         }
 
+        bool within_sel = false;
+        if (state_->sel_begin_) {
+            within_sel =
+                data >= *state_->sel_begin_ and data <= *state_->sel_end_;
+        }
+
         if (*data == '\n') {
 
             const char c = ' ';
@@ -291,7 +305,9 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
 
         if (mapping_info) {
             u16 t = pfrm.map_glyph(c, *mapping_info);
-            if (ps.comment or ps.quotation) {
+            if (within_sel) {
+                pfrm.set_tile(x, y, t, highlight_colors);
+            } else if (ps.comment or ps.quotation) {
                 pfrm.set_tile(
                     x,
                     y,
@@ -567,13 +583,33 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
         const auto x = cursor_.x - column_offset_;
         const auto y = (cursor_.y - start_line_) + 1;
 
-        static const auto highlight_colors =
-            FontColors{custom_color(0x000010), ColorConstant::aerospace_orange};
-
         stashed_palette_ = pfrm.get_palette(Layer::overlay, x, y);
 
         const auto t = pfrm.get_tile(Layer::overlay, x, y);
         pfrm.set_tile(x, y, t, highlight_colors);
+    };
+
+    auto selected = [&]() -> bool {
+        return static_cast<bool>(state_->sel_begin_);
+    };
+
+    auto sel_forward = [&](bool& do_render) {
+        if (selected()) {
+            state_->sel_end_ = insert_pos();
+            do_render = true;
+        }
+    };
+
+    auto sel_backward = [&](bool& do_render) {
+        if (selected()) {
+            auto pos = insert_pos();
+            if (pos < state_->sel_begin_) {
+                state_->sel_begin_ = pos;
+            } else {
+                state_->sel_end_ = pos;
+            }
+            do_render = true;
+        }
     };
 
     auto center_view = [&] {
@@ -586,6 +622,22 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
         render(pfrm, start_line_);
         shade_cursor();
     };
+
+    auto deselect = [&] {
+        state_->sel_begin_.reset();
+        state_->sel_end_.reset();
+        render(pfrm, start_line_);
+        shade_cursor();
+    };
+
+    if (app.player().key_down(pfrm, Key::select)) {
+        if (selected()) {
+            deselect();
+        } else {
+            state_->sel_begin_ = insert_pos();
+            state_->sel_end_ = state_->sel_begin_;
+        }
+    }
 
     switch (mode_) {
     case Mode::nav:
@@ -632,35 +684,50 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             if (app.player().key_down(pfrm, Key::alt_1)) {
                 center_view();
             } else if (app.player().key_down(pfrm, Key::right)) {
+                unshade_cursor();
+                bool do_render = false;
                 cursor_.x += skip_word();
                 cursor_.x = std::min(cursor_.x, line_length());
                 ideal_cursor_right_ = cursor_.x;
                 if (cursor_.x < column_offset_) {
                     column_offset_ = cursor_.x;
+                    do_render = true;
                 }
                 while (cursor_.x > column_offset_ + 29) {
                     ++column_offset_;
+                    do_render = true;
                 }
-                render(pfrm, start_line_);
+                sel_forward(do_render);
+                if (do_render) {
+                    render(pfrm, start_line_);
+                }
                 shade_cursor();
             } else if (app.player().key_down(pfrm, Key::left)) {
+                unshade_cursor();
+                bool do_render = false;
                 cursor_.x -= back_word();
                 cursor_.x = std::max(cursor_.x, 0);
                 ideal_cursor_right_ = cursor_.x;
                 if (cursor_.x > column_offset_ + 29) {
                     ++column_offset_;
+                    do_render = true;
                 }
                 if (cursor_.x < column_offset_) {
                     column_offset_ = cursor_.x;
+                    do_render = true;
                 }
-                render(pfrm, start_line_);
+                sel_backward(do_render);
+                if (do_render) {
+                    render(pfrm, start_line_);
+                }
                 shade_cursor();
             } else if (app.player().key_down(pfrm, Key::down)) {
-                cursor_.x = 0;
 
                 if (cursor_shaded_) {
                     unshade_cursor();
                 }
+
+                cursor_.x = 0;
 
                 while (*insert_pos() == '\n') {
                     ++cursor_.y;
@@ -684,6 +751,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     column_offset_ = 0;
                     do_render = true;
                 }
+
+                sel_forward(do_render);
 
                 if (do_render) {
                     render(pfrm, start_line_);
@@ -723,6 +792,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     column_offset_ = 0;
                     do_render = true;
                 }
+
+                sel_backward(do_render);
 
                 if (do_render) {
                     render(pfrm, start_line_);
@@ -764,6 +835,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 while (cursor_.x > column_offset_ + 29) {
                     ++column_offset_;
                 }
+                bool dummy;
+                sel_forward(dummy);
                 render(pfrm, start_line_);
                 shade_cursor();
             } else if (app.player().key_down(pfrm, Key::left)) {
@@ -775,6 +848,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 if (cursor_.x < column_offset_) {
                     column_offset_ = cursor_.x;
                 }
+                bool dummy;
+                sel_backward(dummy);
                 render(pfrm, start_line_);
                 shade_cursor();
             } else if (app.player().key_down(pfrm, Key::down)) {
@@ -782,6 +857,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_.y = line_count_;
                 column_offset_ = 0;
                 start_line_ = std::max(0, line_count_ - 17);
+                bool dummy;
+                sel_forward(dummy);
                 render(pfrm, start_line_);
                 shade_cursor();
             } else if (app.player().key_down(pfrm, Key::up)) {
@@ -789,6 +866,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_.y = 0;
                 column_offset_ = 0;
                 start_line_ = 0;
+                bool dummy;
+                sel_backward(dummy);
                 render(pfrm, start_line_);
                 shade_cursor();
             }
@@ -823,6 +902,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 do_render = true;
                 ++column_offset_;
             }
+
+            sel_backward(do_render);
 
             if (do_render) {
                 render(pfrm, start_line_);
@@ -862,6 +943,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 do_render = true;
             }
 
+            sel_forward(do_render);
+
             if (do_render) {
                 render(pfrm, start_line_);
             }
@@ -887,6 +970,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     ++column_offset_;
                     do_render = true;
                 }
+
+                sel_forward(do_render);
 
                 if (do_render) {
                     render(pfrm, start_line_);
@@ -917,6 +1002,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     do_render = true;
                 }
 
+                sel_forward(do_render);
+
                 if (do_render) {
                     render(pfrm, start_line_);
                 }
@@ -943,6 +1030,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     --column_offset_;
                     do_render = true;
                 }
+
+                sel_backward(do_render);
 
                 if (do_render) {
                     render(pfrm, start_line_);
@@ -975,6 +1064,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     do_render = true;
                 }
 
+                sel_backward(do_render);
+
                 if (do_render) {
                     render(pfrm, start_line_);
                 }
@@ -984,19 +1075,24 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
         } else if (app.player().key_down(pfrm, Key::action_2)) {
-            if (state_->modified_) {
-                if (filesystem_ == FileSystem::sram) {
-                    ram_filesystem::store_file_data(
-                        pfrm, state_->file_path_.c_str(), text_buffer_);
-                } else {
-                    return scene_pool::alloc<SramFileWritebackScene>(
-                        state_->file_path_.c_str(), std::move(text_buffer_));
+            if (selected()) {
+                deselect();
+            } else {
+                if (state_->modified_) {
+                    if (filesystem_ == FileSystem::sram) {
+                        ram_filesystem::store_file_data(
+                            pfrm, state_->file_path_.c_str(), text_buffer_);
+                    } else {
+                        return scene_pool::alloc<SramFileWritebackScene>(
+                            state_->file_path_.c_str(),
+                            std::move(text_buffer_));
+                    }
                 }
+                return scene_pool::alloc<FileBrowserModule>(
+                    pfrm,
+                    state_->file_path_.c_str(),
+                    filesystem_ == FileSystem::rom);
             }
-            return scene_pool::alloc<FileBrowserModule>(
-                pfrm,
-                state_->file_path_.c_str(),
-                filesystem_ == FileSystem::rom);
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
             show_keyboard_ = true;
@@ -1241,12 +1337,78 @@ void TextEditorModule::erase_char()
 
 
 
+void TextEditorModule::delete_selection()
+{
+    int cursor_y_shift = 0;
+
+    while (*state_->sel_end_ not_eq *state_->sel_begin_) {
+        if (**state_->sel_end_ == '\n') {
+            --line_count_;
+            ++cursor_y_shift;
+        }
+        // FIXME: erase range instead, this repeated erase call is very slow.
+        text_buffer_.erase(*state_->sel_end_);
+        --(*state_->sel_end_);
+    }
+    if (**state_->sel_end_ == '\n') {
+        --line_count_;
+        ++cursor_y_shift;
+    }
+
+    int cursor_x = -1;
+    auto temp = *state_->sel_begin_;
+    while (temp not_eq text_buffer_.begin() and *temp not_eq '\n') {
+        // Seek backwards to the beginning of the current line.
+        --temp;
+        ++cursor_x;
+    }
+
+    text_buffer_.erase(*state_->sel_begin_);
+    state_->sel_begin_.reset();
+    state_->sel_end_.reset();
+
+    cursor_.x = cursor_x;
+    cursor_.y -= cursor_y_shift;
+
+    if (cursor_.y > start_line_ + 17 or cursor_.y < start_line_) {
+        start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+    }
+
+    if (cursor_.x < column_offset_) {
+        column_offset_ = cursor_.x;
+    }
+    while (cursor_.x > column_offset_ + 29) {
+        ++column_offset_;
+    }
+}
+
+
+
+void TextEditorModule::save_selection(Vector<char>& output)
+{
+    auto begin = *state_->sel_begin_;
+    auto end = *state_->sel_end_;
+
+    while (begin not_eq end) {
+        output.push_back(*begin);
+        ++begin;
+    }
+
+    output.push_back(*end);
+}
+
+
+
 void TextEditorModule::insert_char(char c)
 {
     state_->modified_ = true;
 
     if (c == '\n') {
         ++line_count_;
+    }
+
+    if (state_->sel_begin_) {
+        delete_selection();
     }
 
     auto begin = insert_pos();

@@ -95,6 +95,36 @@ public:
         }
 
 
+        bool operator<(const Iterator& other) const
+        {
+            return index_ < other.index_;
+        }
+
+
+        bool operator>(const Iterator& other) const
+        {
+            return index_ > other.index_;
+        }
+
+
+        bool operator>=(const Iterator& other) const
+        {
+            return index_ >= other.index_;
+        }
+
+
+        bool operator<=(const Iterator& other) const
+        {
+            return index_ <= other.index_;
+        }
+
+
+        int operator-(const Iterator& other) const
+        {
+            return index_ - other.index_;
+        }
+
+
         bool operator not_eq(const Iterator& other) const
         {
             return index_ not_eq other.index_;

@@ -70,6 +70,10 @@ private:
     void erase_char();
 
 
+    void delete_selection();
+    void save_selection(Vector<char>& output);
+
+
     void show_status(Platform& pfrm);
 
 
@@ -95,6 +99,9 @@ private:
 
         StringBuffer<24> current_word_;
         Buffer<StringBuffer<20>, 6> completions_;
+
+        std::optional<Vector<char>::Iterator> sel_begin_;
+        std::optional<Vector<char>::Iterator> sel_end_;
     };
 
     DynamicMemory<State> state_;

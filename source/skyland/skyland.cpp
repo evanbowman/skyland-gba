@@ -273,9 +273,8 @@ void App::set_developer_mode(bool value)
 
 
 
-lisp::Value* App::invoke_script(Platform& pfrm,
-                                const char* path,
-                                bool rom_fs_only)
+lisp::Value*
+App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
 {
     auto on_err = [&pfrm](lisp::Value& err) {
         lisp::DefaultPrinter p;
