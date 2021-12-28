@@ -21,39 +21,39 @@
 (add-chr (opponent) 1 14 'neutral 0)
 
 
-(def after-converge-hook
-     (lambda
-       (dialog "You see a survivor amongst the wreckage. You cannot be sure whether the"
-               " survivor is trustworthy. Invite survivor aboard?")
+(setq after-converge-hook
+      (lambda
+        (dialog "You see a survivor amongst the wreckage. You cannot be sure whether the"
+                " survivor is trustworthy. Invite survivor aboard?")
 
-       (await-dialog-y/n)
-       (def after-converge-hook nil)))
-
-
-(def after-dialog-accepted-hook
-     (lambda
-
-       (def temp (chr-slots (player)))
-       (def temp (get temp (choice (length temp))))
+        (await-dialog-y/n)
+        (setq after-converge-hook nil)))
 
 
-       (if temp
-           (progn
-             (rem-chr (opponent) 1 14)
-             (if (equal (choice 2) 0)
-                 (progn
-                   (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-                   (dialog "The survivor joined your crew!")
-                   (exit-level))
-               (progn
-                 (add-chr (player) (car temp) (cdr temp) 'hostile 0)
-                 (dialog "The survivor turned out to be a vicious goblin!"))))
-         (progn
-           (dialog "Sadly, there's no room...")
-           (exit-level)))))
+(setq after-dialog-accepted-hook
+      (lambda
+
+        (setq temp (chr-slots (player)))
+        (setq temp (get temp (choice (length temp))))
 
 
-(def after-dialog-declined-hook
-     (lambda
-       ;; TODO...
-       (exit-level)))
+        (if temp
+            (progn
+              (rem-chr (opponent) 1 14)
+              (if (equal (choice 2) 0)
+                  (progn
+                    (add-chr (player) (car temp) (cdr temp) 'neutral 0)
+                    (dialog "The survivor joined your crew!")
+                    (exit-level))
+                (progn
+                  (add-chr (player) (car temp) (cdr temp) 'hostile 0)
+                  (dialog "The survivor turned out to be a vicious goblin!"))))
+          (progn
+            (dialog "Sadly, there's no room...")
+            (exit-level)))))
+
+
+(setq after-dialog-declined-hook
+      (lambda
+        ;; TODO...
+        (exit-level)))

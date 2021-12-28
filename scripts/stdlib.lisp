@@ -32,12 +32,12 @@
 ;; Some useful macros for defining functions
 
 ;; Defines a function.
-(macro defn (name body) `(def ,name (lambda ,@body)))
+(macro defn (name body) `(setq ,name (lambda ,@body)))
 ;; Defines a bytecode-compiled function.
-(macro defn/c (name body) `(def ,name (compile (lambda ,@body))))
+(macro defn/c (name body) `(setq ,name (compile (lambda ,@body))))
 
 
-(macro def (name expr)
+(macro setq (name expr)
  `(set ,(cons $q name) ,@expr))
 
 
@@ -93,7 +93,7 @@
   `(,@$0 ,@$1))
 
 
-(def bisect
+(setq bisect
      (let ((impl (compile
                   (lambda
                     (if (not $1)

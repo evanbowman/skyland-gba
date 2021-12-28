@@ -7,11 +7,13 @@
 
 (eval-other-file "/scripts/reset_hooks.lisp")
 
-(def last-zone 0)
+(setq last-zone 0)
 
-(def enemies-seen '())
-(def friendlies-seen '())
+(setq enemies-seen '())
+(setq friendlies-seen '())
 
+
+(add-coins 2500)
 
 
 (terrain (player) 4)

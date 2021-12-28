@@ -19,4 +19,4 @@
 
 (eval-other-file "/scripts/stdlib.lisp")
 
-(def language 'english)
+(setq language 'english)

@@ -1,7 +1,6 @@
 ;;;
-;;; The game invokes this script when loading a save file. The script should
-;;; contain a single s-expression, a lambda, which will receive data written by
-;;; save.lisp.
+;;; The game invokes this script when loading a save file. The script must
+;;; return a function, which receives and processes the save data.
 ;;;
 
 
@@ -31,7 +30,7 @@
                    (chr-hp (player) (get $0 0) (get $0 1) (get $0 2))))
              (load 'chrs))
 
-            (def enemies-seen (load 'enemies-seen))
-            (def frendlies-seen (load 'friendlies-seen))
+            (setq enemies-seen (load 'enemies-seen))
+            (setq frendlies-seen (load 'friendlies-seen))
 
-            (def last-zone (load 'last-zone)))))))
+            (setq last-zone (load 'last-zone)))))))

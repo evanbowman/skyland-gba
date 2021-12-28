@@ -19,39 +19,39 @@
 (add-chr (opponent) 2 14 'neutral 0)
 
 
-(def after-converge-hook
-     (lambda
-       (dialog "You discover a damaged fortress. Spend 800@ in resources to rescue the survivors?")
-       (await-dialog-y/n)
-       (def after-converge-hook nil)))
+(setq after-converge-hook
+      (lambda
+        (dialog "You discover a damaged fortress. Spend 800@ in resources to rescue the survivors?")
+        (await-dialog-y/n)
+        (setq after-converge-hook nil)))
 
 
-(def after-dialog-accepted-hook
-     (lambda
-       (def temp (chr-slots (player)))
+(setq after-dialog-accepted-hook
+      (lambda
+        (setq temp (chr-slots (player)))
 
-       (if temp
-           (progn
-             (add-coins (- 0 800))
-             (def temp (get temp (choice (length temp))))
-             (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-             (rem-chr (opponent) 1 14)
+        (if temp
+            (progn
+              (add-coins (- 0 800))
+              (setq temp (get temp (choice (length temp))))
+              (add-chr (player) (car temp) (cdr temp) 'neutral 0)
+              (rem-chr (opponent) 1 14)
 
-             (def temp (chr-slots (player)))
-             (if temp
-                 (progn
-                   (def temp (get temp (choice (length temp))))
-                   (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-                   (rem-chr (opponent) 2 14)
-                   (dialog "Two survivors joined your crew!"))
-               (dialog "You rescue one of the survivors. The other survivor decides "
-                       "that your castle is too crowded and declines to come aboard.")))
-         (dialog "Sadly, there's no room in your castle for anyone else"))
+              (setq temp (chr-slots (player)))
+              (if temp
+                  (progn
+                    (setq temp (get temp (choice (length temp))))
+                    (add-chr (player) (car temp) (cdr temp) 'neutral 0)
+                    (rem-chr (opponent) 2 14)
+                    (dialog "Two survivors joined your crew!"))
+                (dialog "You rescue one of the survivors. The other survivor decides "
+                        "that your castle is too crowded and declines to come aboard.")))
+          (dialog "Sadly, there's no room in your castle for anyone else"))
 
-       (exit-level)))
+        (exit-level)))
 
 
-(def after-dialog-declined-hook
-     (lambda
-       ;; TODO...
-       (exit-level)))
+(setq after-dialog-declined-hook
+      (lambda
+        ;; TODO...
+        (exit-level)))

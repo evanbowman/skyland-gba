@@ -175,7 +175,7 @@ static void handle_char(Vector<char>::Iterator data, char c, ParserState& ps)
             return;
         }
 
-        if (word == "def" or word == "defn/c" or word == "defn" or
+        if (word == "setq" or word == "defn/c" or word == "defn" or
             word == "let" or word == "lambda" or word == "if" or word == "or" or
             word == "and" or word == "cond" or word == "progn" or
             word[0] == '$') {

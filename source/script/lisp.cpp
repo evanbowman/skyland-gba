@@ -790,6 +790,17 @@ Value* make_string(Platform& pfrm, const char* string)
 }
 
 
+Value* make_character(utf8::Codepoint cp)
+{
+    if (auto val = alloc_value()) {
+        val->hdr_.type_ = Value::Type::user_data;
+        val->character().cp_ = cp;
+        return val;
+    }
+    return bound_context->oom_;
+}
+
+
 void set_list(Value* list, u32 position, Value* value)
 {
     while (position--) {

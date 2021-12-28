@@ -17,32 +17,32 @@
 (add-chr (opponent) 1 14 'neutral 0)
 
 
-(def after-converge-hook
-     (lambda
-       (dialog "Invite castaway aboard?")
+(setq after-converge-hook
+      (lambda
+        (dialog "Invite castaway aboard?")
 
-       (await-dialog-y/n)
-       (def after-converge-hook nil)))
-
-
-(def after-dialog-accepted-hook
-     (lambda
-
-       (def temp (chr-slots (player)))
-
-       (if temp
-           (progn
-             (def temp (get temp (choice (length temp))))
-             (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-             (rem-chr (opponent) 1 14)
-             (def temp '())
-             (dialog "The castaway joined your crew!"))
-         (dialog "Sadly, there's no room..."))
-
-       (exit-level)))
+        (await-dialog-y/n)
+        (setq after-converge-hook nil)))
 
 
-(def after-dialog-declined-hook
-     (lambda
-       ;; TODO...
-       (exit-level)))
+(setq after-dialog-accepted-hook
+      (lambda
+
+        (setq temp (chr-slots (player)))
+
+        (if temp
+            (progn
+              (setq temp (get temp (choice (length temp))))
+              (add-chr (player) (car temp) (cdr temp) 'neutral 0)
+              (rem-chr (opponent) 1 14)
+              (setq temp '())
+              (dialog "The castaway joined your crew!"))
+          (dialog "Sadly, there's no room..."))
+
+        (exit-level)))
+
+
+(setq after-dialog-declined-hook
+      (lambda
+        ;; TODO...
+        (exit-level)))

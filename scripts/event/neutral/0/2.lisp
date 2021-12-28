@@ -18,15 +18,15 @@
    (workshop 3 13)))
 
 
-(def after-converge-hook
-     (lambda
-       (def temp (+ 400 (choice 900)))
+(setq after-converge-hook
+      (lambda
+        (setq temp (+ 400 (choice 900)))
 
-       (def after-converge-hook nil)
+        (setq after-converge-hook nil)
 
-       (dialog
-        "You explore, and discover " (string temp) "@ amongst the ruins!")
+        (dialog
+         "You explore, and discover " (string temp) "@ amongst the ruins!")
 
-       (add-coins temp)
+        (add-coins temp)
 
-       (exit-level)))
+        (exit-level)))

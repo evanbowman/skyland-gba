@@ -21,37 +21,37 @@
 (add-chr (opponent) 2 14 'neutral 0)
 
 
-(def after-converge-hook
-     (lambda
-       (dialog "One of the mercenaries offers to join you crew, for a cost of "
-               (string (* 400 (zone)))
-               "@. Accept offer?")
+(setq after-converge-hook
+      (lambda
+        (dialog "One of the mercenaries offers to join you crew, for a cost of "
+                (string (* 400 (zone)))
+                "@. Accept offer?")
 
-       (await-dialog-y/n)
-       (def after-converge-hook nil)))
-
-
-(def after-dialog-accepted-hook
-     (lambda
-
-       (def temp (chr-slots (player)))
-
-       (if (> (* 400 (zone)) (coins))
-           (dialog "You cannot afford to pay. The mercenaries become frustrated, and cut the transmission.")
-         (if temp
-             (progn
-               (add-coins (- 0 (* 400 (zone))))
-               (def temp (get temp (choice (length temp))))
-               (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-               (rem-chr (opponent) 1 14)
-               (def temp (nil))
-               (dialog "The mercenary joined your crew!"))
-           (dialog "Sadly, there's no room...")))
-
-       (exit-level)))
+        (await-dialog-y/n)
+        (setq after-converge-hook nil)))
 
 
-(def after-dialog-declined-hook
-     (lambda
-       (dialog "The mercenaries became angry, and cut the transmission.")
-       (exit-level)))
+(setq after-dialog-accepted-hook
+      (lambda
+
+        (setq temp (chr-slots (player)))
+
+        (if (> (* 400 (zone)) (coins))
+            (dialog "You cannot afford to pay. The mercenaries become frustrated, and cut the transmission.")
+          (if temp
+              (progn
+                (add-coins (- 0 (* 400 (zone))))
+                (setq temp (get temp (choice (length temp))))
+                (add-chr (player) (car temp) (cdr temp) 'neutral 0)
+                (rem-chr (opponent) 1 14)
+                (setq temp (nil))
+                (dialog "The mercenary joined your crew!"))
+            (dialog "Sadly, there's no room...")))
+
+        (exit-level)))
+
+
+(setq after-dialog-declined-hook
+      (lambda
+        (dialog "The mercenaries became angry, and cut the transmission.")
+        (exit-level)))

@@ -78,39 +78,6 @@ void start(Platform& pfrm)
     }
 
 
-    if (not ram_filesystem::file_exists(pfrm, "/readme.lisp")) {
-        const char* data = "; You may edit any files in\n"
-                           "; the sram filesystem. If\n"
-                           "; you manage to break stuff,\n"
-                           "; simply delete a file, and\n"
-                           "; the game will restore a\n"
-                           "; cached copy from the rom.\n\n"
-                           "; You may also edit files in\n"
-                           "; rom! The game will create a\n"
-                           "; copy of the edited file in\n"
-                           "; sram, and load the sram file\n"
-                           "; instead. All files in sram\n"
-                           "; will be loaded\n"
-                           "; preferentially, so\n"
-                           "; creating an sram file can\n"
-                           "; effectively override a rom\n"
-                           "; file with the same path.\n\n"
-                           "; Recommendation: if you're\n"
-                           "; just getting started, try\n"
-                           "; playing around with the\n"
-                           "; files in \n"
-                           "; /rom/scripts/config/\n\n"
-                           "; One final note: the game\n"
-                           "; will only run scripts from\n"
-                           "; rom during multiplayer mode.\n"
-                           "; Things wouldn't work right\n"
-                           "; if both games were running\n"
-                           "; custom code.\n";
-
-        ram_filesystem::store_file_data(
-            pfrm, "/readme.lisp", data, str_len(data));
-    }
-
     // ram_filesystem::import_file_from_rom_if_not_exists(pfrm,
     //                                                    "/config/challenge.lisp",
     //                                                    "challenge.lisp");

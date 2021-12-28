@@ -25,35 +25,35 @@
 
 
 
-(def after-converge-hook
-     (lambda
-       (dialog "The warship requests a tribute of 300@. Will you pay?")
+(setq after-converge-hook
+      (lambda
+        (dialog "The warship requests a tribute of 300@. Will you pay?")
 
-       (await-dialog-y/n)
-       (def after-converge-hook nil)))
-
-
-(def after-dialog-accepted-hook
-     (lambda
-       (if (< (coins) 300)
-           (progn
-             (dialog "You do not have enough resources to pay! The fortress begins charging its weapons...")
-             (swap-opponent 'hostile))
-         (progn
-           (add-coins (- 0 300))
-           (dialog "The fortress' captain peers smugly from behind her spectacles. "
-                   "She's glad that you understand the nature of the situation.")
-           (exit-level)))))
+        (await-dialog-y/n)
+        (setq after-converge-hook nil)))
 
 
-(def after-dialog-declined-hook
-     (lambda
-       (swap-opponent 'hostile)
-       (dialog "The fortress begins charging its weapons...")))
+(setq after-dialog-accepted-hook
+      (lambda
+        (if (< (coins) 300)
+            (progn
+              (dialog "You do not have enough resources to pay! The fortress begins charging its weapons...")
+              (swap-opponent 'hostile))
+          (progn
+            (add-coins (- 0 300))
+            (dialog "The fortress' captain peers smugly from behind her spectacles. "
+                    "She's glad that you understand the nature of the situation.")
+            (exit-level)))))
 
 
-(def hostile-transition-hook
-     (lambda
-       ;; when the island is preemtively attacked, skip all of the dialog and
-       ;; other hooks.
-       (eval-other-file "/scripts/reset_hooks.lisp")))
+(setq after-dialog-declined-hook
+      (lambda
+        (swap-opponent 'hostile)
+        (dialog "The fortress begins charging its weapons...")))
+
+
+(setq hostile-transition-hook
+      (lambda
+        ;; when the island is preemtively attacked, skip all of the dialog and
+        ;; other hooks.
+        (eval-other-file "/scripts/reset_hooks.lisp")))

@@ -9,6 +9,11 @@ class Platform;
 
 
 namespace skyland {
+
+
+class App;
+
+
 namespace save {
 
 
@@ -45,11 +50,11 @@ void store_global_data(Platform&, const GlobalPersistentData&);
 
 
 
-void store(Platform& pfrm, const PersistentData& d);
+void store(Platform& pfrm, App& app, const PersistentData& d);
 
 
 
-bool load(Platform& pfrm, PersistentData& d);
+bool load(Platform& pfrm, App& app, PersistentData& d);
 
 
 

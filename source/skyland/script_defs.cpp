@@ -568,7 +568,8 @@ void App::init_scripts(Platform& pfrm)
         }));
 
 
-    // NOTE: we need
+    // NOTE: we need to disable custom scripts during startup, otherwise,
+    // someone could irreversibly mess up a game.
     const bool was_developer_mode = is_developer_mode();
     set_developer_mode(false);
 

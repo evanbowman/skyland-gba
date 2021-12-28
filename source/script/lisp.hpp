@@ -127,9 +127,17 @@ struct Integer {
 };
 
 
+struct Float {
+    ValueHeader hdr_;
+    float value_;
+
+    // TODO... we do not support floating point at the moment.
+};
+
+
 struct Character {
     ValueHeader hdr_;
-    utf8::Codepoint cp;
+    utf8::Codepoint cp_;
 
     static ValueHeader::Type type()
     {
@@ -474,7 +482,7 @@ Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
 Value* make_databuffer(Platform& pfrm);
 Value* make_string(Platform& pfrm, const char* str);
-Value* make_character(Platform& pfrm, utf8::Codepoint cp);
+Value* make_character(utf8::Codepoint cp);
 
 
 void get_interns(::Function<24, void(const char*)> callback);

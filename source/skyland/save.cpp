@@ -3,6 +3,7 @@
 #include "platform/platform.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "script/lisp.hpp"
+#include "skyland.hpp"
 
 
 
@@ -67,17 +68,11 @@ public:
 
 
 
-void store(Platform& pfrm, const PersistentData& d)
+void store(Platform& pfrm, App& app, const PersistentData& d)
 {
     LispPrinter p(pfrm);
-    if (auto script = pfrm.load_file_contents("scripts", "save.lisp")) {
-        lisp::BasicCharSequence seq(script);
-        lisp::read(seq);
-        lisp::eval(lisp::get_op(0));
-        lisp::format(lisp::get_op(0), p);
-        lisp::pop_op(); // result of eval()
-        lisp::pop_op(); // result of read()
-    }
+    auto val = app.invoke_script(pfrm, "/scripts/save.lisp");
+    lisp::format(val, p);
 
     SaveData save_data;
     save_data.magic_.set(save_data_magic);
@@ -100,7 +95,7 @@ void store(Platform& pfrm, const PersistentData& d)
 
 
 
-bool load(Platform& pfrm, PersistentData& d)
+bool load(Platform& pfrm, App& app, PersistentData& d)
 {
     u32 offset = sizeof(GlobalSaveData);
 
@@ -138,22 +133,13 @@ bool load(Platform& pfrm, PersistentData& d)
 
     auto arg = lisp::get_op(0); // result of eval()
 
-    if (auto script = pfrm.load_file_contents("scripts", "restore_save.lisp")) {
-        lisp::BasicCharSequence seq(script);
-        lisp::read(seq);             // leaves result on stack (2)
-        lisp::eval(lisp::get_op(0)); // eval result of read() (3)
-
-        auto fn = lisp::get_op(0);
-        if (fn->type() == lisp::Value::Type::function) {
-            lisp::push_op(arg); // pass save data buffer on stack
-            funcall(fn, 1);     // one argument (the save data)
-            lisp::pop_op();     // funcall result
-        } else {
-            pfrm.fatal("not function!");
-        }
-
-        lisp::pop_op(); // result of eval() (3)
-        lisp::pop_op(); // result of read() (2)
+    auto fn = app.invoke_script(pfrm, "/scripts/restore_save.lisp");
+    if (fn->type() == lisp::Value::Type::function) {
+        lisp::push_op(arg); // pass save data buffer on stack
+        funcall(fn, 1);     // one argument (the save data)
+        lisp::pop_op();     // funcall result
+    } else {
+        pfrm.fatal("not function!");
     }
 
     lisp::pop_op(); // result of eval() (1)
