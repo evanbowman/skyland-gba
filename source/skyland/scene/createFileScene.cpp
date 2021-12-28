@@ -90,8 +90,10 @@ CreateFileScene::update(Platform& pfrm, App& app, Microseconds delta)
             StringBuffer<100> full_path_(file_path_.c_str());
             full_path_ += path_;
 
+            UserContext ctx;
+
             return scene_pool::alloc<TextEditorModule>(
-                pfrm, full_path_.c_str(), TextEditorModule::FileMode::create);
+                pfrm, std::move(ctx), full_path_.c_str(), TextEditorModule::FileMode::create);
         }
     }
 

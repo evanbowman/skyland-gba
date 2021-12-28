@@ -6,6 +6,7 @@
 #include "memory/buffer.hpp"
 #include "skyland/scene/module.hpp"
 #include "vector.hpp"
+#include "userContext.hpp"
 
 
 
@@ -28,6 +29,7 @@ public:
 
 
     TextEditorModule(Platform& pfrm,
+                     UserContext&& context,
                      const char* file_path,
                      FileMode file_mode = FileMode::update,
                      FileSystem filesystem = FileSystem::sram);
@@ -65,13 +67,15 @@ private:
     void render_keyboard(Platform& pfrm);
     void render_completions(Platform& pfrm);
 
+
     Vector<char>::Iterator insert_pos();
-    void insert_char(char c);
+    void insert_char(char c, std::optional<Vector<char>::Iterator> insert_hint = {});
     void erase_char();
 
 
     void delete_selection();
     void save_selection(Vector<char>& output);
+    void paste_selection(Platform& pfrm, Vector<char>& source);
 
 
     void show_status(Platform& pfrm);
@@ -102,10 +106,13 @@ private:
 
         std::optional<Vector<char>::Iterator> sel_begin_;
         std::optional<Vector<char>::Iterator> sel_end_;
+        std::optional<Vector<char>::Iterator> sel_center_;
     };
 
     DynamicMemory<State> state_;
 
+
+    UserContext user_context_;
 
 
     int key_held_timer_[4] = {0, 0, 0, 0};

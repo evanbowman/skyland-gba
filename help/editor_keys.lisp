@@ -33,6 +33,9 @@
 ;; RBumper+Down-D-pad: cursor forwards one paragraph
 ;; RBumper+Up-D-pad: cursor backwards one paragraph
 ;;
+;; RBumper+A: copy selection
+;; RBumper+B: paste selection
+;;
 ;; A: switch to edit-mode
 
 ;; ---------------------------

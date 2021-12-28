@@ -4,6 +4,7 @@
 #include "skyland/scene.hpp"
 #include "string.hpp"
 #include "vector.hpp"
+#include "modules/userContext.hpp"
 
 
 
@@ -19,7 +20,9 @@ namespace skyland {
 
 class SramFileWritebackScene : public Scene {
 public:
-    SramFileWritebackScene(const char* path, Vector<char>&& text_buffer);
+    SramFileWritebackScene(const char* path,
+                           Vector<char>&& text_buffer,
+                           UserContext&& user_context);
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
@@ -32,6 +35,9 @@ public:
 private:
     StringBuffer<64> path_;
     Vector<char> text_buffer_;
+
+    UserContext user_context_;
+
 
     std::optional<TextView> menu_text_;
 };

@@ -5,6 +5,7 @@
 #include "graphics/overlay.hpp"
 #include "memory/buffer.hpp"
 #include "skyland/scene/module.hpp"
+#include "userContext.hpp"
 
 
 
@@ -28,6 +29,7 @@ public:
 
     FileBrowserModule() = default;
     FileBrowserModule(Platform& pfrm,
+                      UserContext&& user_context,
                       const char* path,
                       bool is_rom_path = false);
 
@@ -49,6 +51,9 @@ private:
     int line_offset_ = 0;
 
     bool faded_ = false;
+
+
+    UserContext user_context_;
 
 
     StringBuffer<200> cwd() const;

@@ -476,10 +476,12 @@ int TextEditorModule::line_length()
 
 
 TextEditorModule::TextEditorModule(Platform& pfrm,
+                                   UserContext&& user_context,
                                    const char* file_path,
                                    FileMode file_mode,
                                    FileSystem filesystem)
     : text_buffer_(pfrm), state_(allocate_dynamic<State>(pfrm)),
+      user_context_(std::move(user_context)),
       filesystem_(filesystem)
 {
     state_->file_path_ = file_path;
@@ -500,6 +502,7 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
         }
     } else {
         text_buffer_.push_back('\n');
+        text_buffer_.push_back('\0');
     }
 }
 
@@ -547,6 +550,8 @@ void TextEditorModule::enter(Platform& pfrm, App&, Scene& prev)
 
 void TextEditorModule::exit(Platform& pfrm, App&, Scene& next)
 {
+    pfrm.sleep(1);
+    pfrm.screen().fade(0.9f, ColorConstant::rich_black, {}, true, true);
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
     header_.reset();
@@ -595,7 +600,15 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto sel_forward = [&](bool& do_render) {
         if (selected()) {
-            state_->sel_end_ = insert_pos();
+            auto pos = insert_pos();
+            if (state_->sel_center_ < pos) {
+                state_->sel_end_ = pos;
+                state_->sel_begin_ = state_->sel_center_;
+            } else {
+                state_->sel_end_ = state_->sel_center_;
+                state_->sel_begin_ = pos;
+            }
+
             do_render = true;
         }
     };
@@ -603,10 +616,12 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
     auto sel_backward = [&](bool& do_render) {
         if (selected()) {
             auto pos = insert_pos();
-            if (pos < state_->sel_begin_) {
-                state_->sel_begin_ = pos;
-            } else {
+            if (state_->sel_center_ < pos) {
                 state_->sel_end_ = pos;
+                state_->sel_begin_ = state_->sel_center_;
+            } else {
+                state_->sel_end_ = state_->sel_center_;
+                state_->sel_begin_ = pos;
             }
             do_render = true;
         }
@@ -626,6 +641,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
     auto deselect = [&] {
         state_->sel_begin_.reset();
         state_->sel_end_.reset();
+        state_->sel_center_.reset();
         render(pfrm, start_line_);
         shade_cursor();
     };
@@ -636,6 +652,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             state_->sel_begin_ = insert_pos();
             state_->sel_end_ = state_->sel_begin_;
+            state_->sel_center_ = state_->sel_begin_;
         }
     }
 
@@ -802,6 +819,18 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 }
 
                 shade_cursor();
+            } else if (app.player().key_down(pfrm, Key::action_1)) {
+                user_context_.yank_buffer_.reset();
+                if (state_->sel_begin_) {
+                    user_context_.yank_buffer_.emplace(pfrm);
+                    save_selection(*user_context_.yank_buffer_);
+                    deselect();
+                }
+            } else if (app.player().key_down(pfrm, Key::action_2)) {
+                if (user_context_.yank_buffer_) {
+                    paste_selection(pfrm, *user_context_.yank_buffer_);
+                    render(pfrm, start_line_);
+                }
             }
         } else if (app.player().key_pressed(pfrm, Key::alt_1)) {
             if (app.player().key_down(pfrm, Key::action_1)) {
@@ -811,9 +840,13 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 render(pfrm, start_line_);
                 shade_cursor();
             } else if (app.player().key_down(pfrm, Key::action_2)) {
-                // TODO: refactor this copy-pasted code
-                erase_char();
-                cursor_.x -= 1;
+                if (selected()) {
+                    delete_selection();
+                } else {
+                    erase_char();
+                    cursor_.x -= 1;
+                }
+
                 if (cursor_.x == -1) {
                     cursor_.y -= 1;
                     cursor_.x = line_length();
@@ -1085,11 +1118,13 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     } else {
                         return scene_pool::alloc<SramFileWritebackScene>(
                             state_->file_path_.c_str(),
-                            std::move(text_buffer_));
+                            std::move(text_buffer_),
+                            std::move(user_context_));
                     }
                 }
                 return scene_pool::alloc<FileBrowserModule>(
                     pfrm,
+                    std::move(user_context_),
                     state_->file_path_.c_str(),
                     filesystem_ == FileSystem::rom);
             }
@@ -1263,10 +1298,12 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             mode_ = Mode::edit;
 
             auto cpl = state_->completions_[selected_completion_];
+            auto insert = insert_pos();
             for (u32 i = state_->current_word_.length(); i < cpl.length();
                  ++i) {
-                insert_char(cpl[i]);
+                insert_char(cpl[i], insert);
                 ++cursor_.x;
+                ++insert;
             }
 
             show_completions_ = false;
@@ -1346,7 +1383,7 @@ void TextEditorModule::delete_selection()
             --line_count_;
             ++cursor_y_shift;
         }
-        // FIXME: erase range instead, this repeated erase call is very slow.
+        // TODO: erase range instead, this repeated erase call is very slow.
         text_buffer_.erase(*state_->sel_end_);
         --(*state_->sel_end_);
     }
@@ -1384,10 +1421,45 @@ void TextEditorModule::delete_selection()
 
 
 
+void TextEditorModule::paste_selection(Platform& pfrm, Vector<char>& source)
+{
+    if (state_->sel_begin_) {
+        delete_selection();
+    }
+
+    auto insert = insert_pos();
+
+    for (char c : source) {
+        pfrm.feed_watchdog();
+        insert_char(c, insert);
+        if (c == '\n') {
+            ++cursor_.y;
+            cursor_.x = 0;
+            // Because we jumped down a line, we want to re-adjust the insert
+            // pos?
+            insert = insert_pos();
+        } else {
+            ++cursor_.x;
+            ++insert;
+        }
+    }
+}
+
+
+
 void TextEditorModule::save_selection(Vector<char>& output)
 {
+    if (not state_->sel_begin_ or not state_->sel_end_) {
+        return;
+    }
+
     auto begin = *state_->sel_begin_;
     auto end = *state_->sel_end_;
+
+    if (begin >= end) {
+        // Raise error? Should never happen...
+        return;
+    }
 
     while (begin not_eq end) {
         output.push_back(*begin);
@@ -1399,7 +1471,7 @@ void TextEditorModule::save_selection(Vector<char>& output)
 
 
 
-void TextEditorModule::insert_char(char c)
+void TextEditorModule::insert_char(char c, std::optional<Vector<char>::Iterator> hint)
 {
     state_->modified_ = true;
 
@@ -1411,7 +1483,7 @@ void TextEditorModule::insert_char(char c)
         delete_selection();
     }
 
-    auto begin = insert_pos();
+    auto begin = hint ? *hint : insert_pos();
 
     text_buffer_.insert(begin, c);
 }
