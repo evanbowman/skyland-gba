@@ -1353,7 +1353,7 @@ Vector<char>::Iterator TextEditorModule::insert_pos()
 
 
 
-void TextEditorModule::erase_char()
+void TextEditorModule::erase_char(std::optional<Vector<char>::Iterator> hint)
 {
     if (cursor_.x == 0 and cursor_.y == 0) {
         // Nothing left to delete.
@@ -1362,8 +1362,7 @@ void TextEditorModule::erase_char()
 
     state_->modified_ = true;
 
-    auto begin = insert_pos();
-    --begin; // Erase the character before the cursor
+    auto begin = hint ? *hint : --(insert_pos());
 
     if (*begin == '\n') {
         --line_count_;
@@ -1380,15 +1379,13 @@ void TextEditorModule::delete_selection()
 
     while (*state_->sel_end_ not_eq *state_->sel_begin_) {
         if (**state_->sel_end_ == '\n') {
-            --line_count_;
             ++cursor_y_shift;
         }
         // TODO: erase range instead, this repeated erase call is very slow.
-        text_buffer_.erase(*state_->sel_end_);
+        erase_char(*state_->sel_end_);
         --(*state_->sel_end_);
     }
     if (**state_->sel_end_ == '\n') {
-        --line_count_;
         ++cursor_y_shift;
     }
 
@@ -1400,7 +1397,7 @@ void TextEditorModule::delete_selection()
         ++cursor_x;
     }
 
-    text_buffer_.erase(*state_->sel_begin_);
+    erase_char(*state_->sel_begin_);
     state_->sel_begin_.reset();
     state_->sel_end_.reset();
 

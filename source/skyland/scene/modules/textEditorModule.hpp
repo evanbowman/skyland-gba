@@ -70,7 +70,7 @@ private:
 
     Vector<char>::Iterator insert_pos();
     void insert_char(char c, std::optional<Vector<char>::Iterator> insert_hint = {});
-    void erase_char();
+    void erase_char(std::optional<Vector<char>::Iterator> erase_hint = {});
 
 
     void delete_selection();
