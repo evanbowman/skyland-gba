@@ -44,9 +44,16 @@ public:
     }
 
 
+    void set_target(const Vec2<u8>& target)
+    {
+        target_ = target;
+    }
+
+
 private:
     Island* parent_;
     Vec2<u8> grid_pos_;
+    Vec2<u8> target_;
 };
 
 

@@ -99,7 +99,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                     room->set_target(target_room->position());
                     sync();
                 } else if (auto drone = app.player_island().get_drone(weapon_loc_)) {
-                    // TODO: drone set target...
+                    (*drone)->set_target(target_room->position());
                     sync();
                 }
                 return scene_pool::alloc<ReadyScene>();
