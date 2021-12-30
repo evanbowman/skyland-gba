@@ -1,11 +1,20 @@
 #include "moveDroneScene.hpp"
 #include "readyScene.hpp"
+#include "skyland/entity/drones/attackDrone.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/skyland.hpp"
 
 
 
 namespace skyland {
+
+
+
+// template<int s> struct Wow;
+// struct foo {
+//     int a,b;
+// };
+// Wow<sizeof(Drone)> wow;
 
 
 
@@ -36,9 +45,8 @@ void MoveDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
         far_camera();
     }
 
-    message_.emplace(pfrm,
-                     "launch drone: select position",
-                     OverlayCoord{0, 19});
+    message_.emplace(
+        pfrm, "launch drone: select position", OverlayCoord{0, 19});
 
     for (int i = 0; i < message_->len(); ++i) {
         pfrm.set_tile(Layer::overlay, i, 18, 425);
@@ -63,10 +71,25 @@ void MoveDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
+    for (auto& drone_wp : island->drones()) {
+        if (auto drone_sp = drone_wp.upgrade()) {
+            (*matrix_)[(*drone_sp)->position().x][(*drone_sp)->position().y] =
+                false;
+        }
+    }
+
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             if (x >= (int)island->terrain().size()) {
                 (*matrix_)[x][y] = false;
+            }
+            if (not near_) {
+                // Limit drone placement around enemy's castle. Drones would be
+                // overpowered if you could place them within empty gaps inside
+                // an enemy's perimeter.
+                if (x < (int)island->terrain().size() - 1 and x > 0 and y > 6) {
+                    (*matrix_)[x][y] = false;
+                }
             }
             if (y > 14) {
                 (*matrix_)[x][y] = false;
@@ -90,12 +113,6 @@ void MoveDroneScene::exit(Platform& pfrm, App& app, Scene& next)
     Island* island = &app.player_island();
     if (not near_ and app.opponent_island()) {
         island = &*app.opponent_island();
-    }
-
-    for (int x = 0; x < 16; ++x) {
-        for (int y = 0; y < 15; ++y) {
-            pfrm.set_tile(island->layer(), x, y, 0);
-        }
     }
 
     island->repaint(pfrm);
@@ -168,7 +185,7 @@ MoveDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
         if ((*matrix_)[cursor_loc->x][cursor_loc->y]) {
             if (auto room = app.player_island().get_room(origin_)) {
                 if (auto db = dynamic_cast<DroneBay*>(room)) {
-                    if (auto drone = alloc_shared_entity<Drone>(
+                    if (auto drone = alloc_shared_entity<AttackDrone, Drone>(
                             room->parent(),
                             island,
                             Vec2<u8>{origin_.x, u8(origin_.y - 1)})) {
@@ -187,7 +204,8 @@ MoveDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (cursor_loc->x > 0) {
             --cursor_loc->x;
         } else if (not near_) {
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y = cursor_loc->y;
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y =
+                cursor_loc->y;
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_.x =
                 app.player_island().terrain().size() - 1;
             return scene_pool::alloc<MoveDroneScene>(pfrm, origin_, true);
@@ -198,7 +216,8 @@ MoveDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (cursor_loc->x < island->terrain().size() - 1) {
             ++cursor_loc->x;
         } else if (near_) {
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y = cursor_loc->y;
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y =
+                cursor_loc->y;
             std::get<SkylandGlobalData>(globals()).far_cursor_loc_.x = 0;
             return scene_pool::alloc<MoveDroneScene>(pfrm, origin_, false);
         }

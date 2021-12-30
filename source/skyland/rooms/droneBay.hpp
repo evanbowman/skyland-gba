@@ -22,8 +22,8 @@ public:
 
 
 
-    void render_interior(Platform& pfrm, Layer layer) override;
-    void render_exterior(Platform& pfrm, Layer layer) override;
+    void render_interior(u8 buffer[16][16]) override;
+    void render_exterior(u8 buffer[16][16]) override;
 
 
     bool has_roof() override
@@ -92,6 +92,12 @@ public:
     void attach_drone(SharedEntityRef<Drone> drone)
     {
         drone_ = drone;
+    }
+
+
+    void disconnect_drone()
+    {
+        drone_.reset();
     }
 
 

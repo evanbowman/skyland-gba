@@ -2,6 +2,7 @@
 #include "platform/platform.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -19,11 +20,8 @@ static Vec2<Float> calc_pos(Island* island, const Vec2<u8>& grid_coord)
 
 
 
-Drone::Drone(Island* parent,
-             Island* destination,
-             const Vec2<u8>& grid_pos)
-    : Entity({{10, 10}, {8, 8}}), parent_(parent),
-      destination_(destination),
+Drone::Drone(Island* parent, Island* destination, const Vec2<u8>& grid_pos)
+    : Entity({{10, 10}, {8, 8}}), parent_(parent), destination_(destination),
       grid_pos_({grid_pos.x, u8(grid_pos.y)})
 {
     sprite_.set_texture_index(64);
@@ -33,33 +31,68 @@ Drone::Drone(Island* parent,
 
     auto o = calc_pos(parent_, grid_pos);
     sprite_.set_position(o);
-    anchor_ = o;
+    anchor_ = o.cast<s16>();
 }
 
 
 
-void Drone::update(Platform& pfrm, App&, Microseconds delta)
+void Drone::set_movement_target(const Vec2<u8>& position)
+{
+    auto old_pos = grid_pos_;
+    grid_pos_ = position;
+
+    auto v1 = calc_pos(parent_, old_pos);
+    auto v2 = calc_pos(destination_, grid_pos_);
+
+    auto dist = distance(v1, v2);
+
+    auto speed = 0.0002f;
+
+    duration_ = dist / speed;
+}
+
+
+
+void Drone::update_sprite(App& app)
+{
+    auto o = calc_pos(destination_, grid_pos_);
+    sprite_.set_position(o);
+    if (target_) {
+        if (destination() == &app.player_island()) {
+            sprite_.set_flip({false, false});
+        } else if (target_->x < grid_pos_.x) {
+            sprite_.set_flip({true, false});
+        } else {
+            sprite_.set_flip({false, false});
+        }
+    }
+}
+
+
+
+void Drone::update(Platform& pfrm, App& app, Microseconds delta)
 {
     switch (state_) {
     case State::launch: {
-        static const auto launch_duration = seconds(1);
         timer_ += delta;
-        if (timer_ >= launch_duration) {
+        if (timer_ >= duration_) {
             timer_ = 0;
             state_ = State::ready;
-            grid_pos_ = movement_target_;
             break;
         }
-        auto amount = smoothstep(0.f, launch_duration, timer_);
-        auto dest = calc_pos(destination_, movement_target_);
-        auto pos = interpolate(dest, anchor_, amount);
+        auto amount = smoothstep(0.f, duration_, timer_);
+        auto dest = calc_pos(destination_, grid_pos_);
+        auto pos = interpolate(dest, anchor_.cast<Float>(), amount);
         sprite_.set_position(pos);
+
+        if (parent() not_eq &app.player_island()) {
+            sprite_.set_flip({true, false});
+        }
         break;
     }
 
     case State::ready:
-        auto o = calc_pos(destination_, grid_pos_);
-        sprite_.set_position(o);
+        update_sprite(app);
         break;
     }
 }

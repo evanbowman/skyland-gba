@@ -63,8 +63,8 @@ public:
     }
 
 
-    virtual void render_interior(Platform& pfrm, Layer layer) = 0;
-    virtual void render_exterior(Platform& pfrm, Layer layer) = 0;
+    virtual void render_interior(u8 buffer[16][16]) = 0;
+    virtual void render_exterior(u8 buffer[16][16]) = 0;
 
 
     void set_injured(Platform& pfrm);

@@ -35,19 +35,18 @@ void DroneBay::display(Platform::Screen& screen)
 
 
 
-void DroneBay::render_interior(Platform& pfrm, Layer layer)
+void DroneBay::render_interior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::drone_bay_1);
-    pfrm.set_tile(layer, position().x + 1, position().y, Tile::drone_bay_2);
+    buffer[position().x][position().y] = Tile::drone_bay_1;
+    buffer[position().x + 1][position().y] = Tile::drone_bay_2;
 }
 
 
 
-void DroneBay::render_exterior(Platform& pfrm, Layer layer)
+void DroneBay::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, InteriorTile::drone_bay_1);
-    pfrm.set_tile(
-        layer, position().x + 1, position().y, InteriorTile::drone_bay_2);
+    buffer[position().x][position().y] = InteriorTile::drone_bay_1;
+    buffer[position().x + 1][position().y] = InteriorTile::drone_bay_2;
 }
 
 

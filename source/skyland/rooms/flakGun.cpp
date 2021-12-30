@@ -87,19 +87,18 @@ ScenePtr<Scene> FlakGun::select(Platform& pfrm, App& app)
 
 
 
-void FlakGun::render_exterior(Platform& pfrm, Layer layer)
+void FlakGun::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, InteriorTile::flak_gun_1);
-    pfrm.set_tile(
-        layer, position().x + 1, position().y, InteriorTile::flak_gun_2);
+    buffer[position().x][position().y] = InteriorTile::flak_gun_1;
+    buffer[position().x + 1][position().y] = InteriorTile::flak_gun_2;
 }
 
 
 
-void FlakGun::render_interior(Platform& pfrm, Layer layer)
+void FlakGun::render_interior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::flak_gun_1);
-    pfrm.set_tile(layer, position().x + 1, position().y, Tile::flak_gun_2);
+    buffer[position().x][position().y] = Tile::flak_gun_1;
+    buffer[position().x + 1][position().y] = Tile::flak_gun_2;
 }
 
 

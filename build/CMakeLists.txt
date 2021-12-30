@@ -126,6 +126,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/titleScreenScene.cpp
   ${SOURCE_DIR}/skyland/scene/introCreditsScene.cpp
+  ${SOURCE_DIR}/skyland/scene/salvageDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
   ${SOURCE_DIR}/skyland/scene/setGamespeedScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp

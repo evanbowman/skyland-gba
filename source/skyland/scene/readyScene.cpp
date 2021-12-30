@@ -5,6 +5,7 @@
 #include "inspectP2Scene.hpp"
 #include "lispReplScene.hpp"
 #include "platform/platform.hpp"
+#include "salvageDroneScene.hpp"
 #include "salvageRoomScene.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
@@ -78,9 +79,17 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             ++cursor_loc.x;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
-        } else if (mt_prep_seconds == 0) {
-            // Do not allow the player to inspect the other island if we're in
+        } else if ( // Do not allow the player to inspect the other island if we're in
             // the multiplayer waiting room.
+            mt_prep_seconds == 0) {
+
+            auto& cursor_loc =
+                std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+            cursor_loc.x = 0;
+            cursor_loc.y =
+                std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
+
             return scene_pool::alloc<InspectP2Scene>();
         }
     }
@@ -115,14 +124,22 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // attached, jump the cursor to the drone's location.
                     camera_update_timer_ = milliseconds(500);
                     clear_room_description(pfrm, room_description_);
-                    cursor_loc = (*drone)->position();
+                    if ((*drone)->destination() == &app.player_island()) {
+                        cursor_loc = (*drone)->position();
+                    } else {
+                        std::get<SkylandGlobalData>(globals()).far_cursor_loc_ =
+                            (*drone)->position();
+                        return scene_pool::alloc<InspectP2Scene>();
+                    }
                 }
             } else {
                 return null_scene();
             }
         } else if (auto drone = app.player_island().get_drone(cursor_loc)) {
-            return scene_pool::alloc<WeaponSetTargetScene>(
-                (*drone)->position());
+            if ((*drone)->parent() == &app.player_island()) {
+                return scene_pool::alloc<WeaponSetTargetScene>(
+                    (*drone)->position());
+            }
         }
     }
 
@@ -142,8 +159,9 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player_island().get_room(cursor_loc)) {
             return scene_pool::alloc<SalvageRoomScene>();
         } else if (auto drone = app.player_island().get_drone(cursor_loc)) {
-            // TODO: create option menu
-            (*drone)->kill();
+            if ((*drone)->parent() == &app.player_island()) {
+                return scene_pool::alloc<SalvageDroneScene>(*drone);
+            }
         }
     }
 
@@ -235,7 +253,9 @@ void describe_room(Platform& pfrm,
                 pfrm, OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
             Text::OptColors opts = {
                 {custom_color(0x3d84e7), ColorConstant::rich_black}};
-            room_description->append("(drone) ", opts);
+            room_description->append("(", opts);
+            room_description->append((*drone)->name(), opts);
+            room_description->append(") ", opts);
             room_description->append((*drone)->health());
         }
     }

@@ -22,16 +22,16 @@ void Hull::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Hull::render_interior(Platform& pfrm, Layer layer)
+void Hull::render_interior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, InteriorTile::hull);
+    buffer[position().x][position().y] = InteriorTile::hull;
 }
 
 
 
-void Hull::render_exterior(Platform& pfrm, Layer layer)
+void Hull::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::hull);
+    buffer[position().x][position().y] = Tile::hull;
 }
 
 

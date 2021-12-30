@@ -1,7 +1,9 @@
 #include "inspectP2Scene.hpp"
 #include "globals.hpp"
 #include "readyScene.hpp"
+#include "salvageDroneScene.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -13,11 +15,6 @@ namespace skyland {
 void InspectP2Scene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
-
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
-
-    cursor_loc.x = 0;
-    cursor_loc.y = std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
 
     far_camera();
 }
@@ -107,6 +104,19 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.player().key_down(pfrm, Key::action_1)) {
         if (auto room = app.opponent_island()->get_room(cursor_loc)) {
             return room->select(pfrm, app);
+        } else if (auto drone = app.opponent_island()->get_drone(cursor_loc)) {
+            if ((*drone)->parent() == &app.player_island()) {
+                return scene_pool::alloc<WeaponSetTargetScene>(
+                    (*drone)->position(), false);
+            }
+        }
+    }
+
+    if (app.player().key_down(pfrm, Key::action_2)) {
+        if (auto drone = app.opponent_island()->get_drone(cursor_loc)) {
+            if ((*drone)->parent() == &app.player_island()) {
+                return scene_pool::alloc<SalvageDroneScene>(*drone);
+            }
         }
     }
 

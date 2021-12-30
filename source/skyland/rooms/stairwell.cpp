@@ -18,26 +18,21 @@ void Stairwell::update(Platform& pfrm, App& app, Microseconds delta)
 }
 
 
-void Stairwell::render_interior(Platform& pfrm, Layer layer)
+void Stairwell::render_interior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, InteriorTile::ladder_top);
-    pfrm.set_tile(
-        layer, position().x, position().y + 1, InteriorTile::ladder_mid_2);
-    pfrm.set_tile(
-        layer, position().x, position().y + 2, InteriorTile::ladder_mid);
-    pfrm.set_tile(
-        layer, position().x, position().y + 3, InteriorTile::ladder_base);
+    buffer[position().x][position().y] = InteriorTile::ladder_top;
+    buffer[position().x][position().y + 1] = InteriorTile::ladder_mid_2;
+    buffer[position().x][position().y + 2] = InteriorTile::ladder_mid;
+    buffer[position().x][position().y + 3] = InteriorTile::ladder_base;
 }
 
 
-void Stairwell::render_exterior(Platform& pfrm, Layer layer)
+void Stairwell::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::wall_window_1);
-    pfrm.set_tile(
-        layer, position().x, position().y + 1, Tile::wall_window_middle_2);
-    pfrm.set_tile(
-        layer, position().x, position().y + 2, Tile::wall_window_middle_1);
-    pfrm.set_tile(layer, position().x, position().y + 3, Tile::wall_window_2);
+    buffer[position().x][position().y] = Tile::wall_window_1;
+    buffer[position().x][position().y + 1] = Tile::wall_window_middle_2;
+    buffer[position().x][position().y + 2] = Tile::wall_window_middle_1;
+    buffer[position().x][position().y + 3] = Tile::wall_window_2;
 }
 
 

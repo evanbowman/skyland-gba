@@ -15,9 +15,7 @@ class Island;
 
 class Drone : public Entity, public IntrusiveRcControlBlock<Drone> {
 public:
-    Drone(Island* parent,
-          Island* destination,
-          const Vec2<u8>& grid_pos);
+    Drone(Island* parent, Island* destination, const Vec2<u8>& grid_pos);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -29,10 +27,8 @@ public:
     }
 
 
-    void set_movement_target(const Vec2<u8>& position)
-    {
-        movement_target_ = position;
-    }
+    void set_movement_target(const Vec2<u8>& position);
+
 
 
     void set_target(const Vec2<u8>& target)
@@ -40,22 +36,43 @@ public:
         target_ = target;
     }
 
+
+    Island* parent() const
+    {
+        return parent_;
+    }
+
+
+    Island* destination() const
+    {
+        return destination_;
+    }
+
+
+    virtual const char* name() const = 0;
+
+
 protected:
-    enum class State {
+    enum State : u8 {
         launch,
         ready,
-    } state_ = State::launch;
+    };
+
+    u8 state_ = State::launch;
+
+    Microseconds timer_ = 0;
+    Microseconds duration_ = 0;
+
+    void update_sprite(App& app);
 
 private:
     Island* parent_;
     Island* destination_;
     Vec2<u8> grid_pos_;
-    Vec2<u8> movement_target_;
+    Vec2<s16> anchor_;
+
+protected:
     std::optional<Vec2<u8>> target_;
-
-    Vec2<Float> anchor_;
-
-    Microseconds timer_ = 0;
 };
 
 

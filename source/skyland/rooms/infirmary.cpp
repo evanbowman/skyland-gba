@@ -44,25 +44,21 @@ void Infirmary::update(Platform& pfrm, App& app, Microseconds delta)
 }
 
 
-void Infirmary::render_interior(Platform& pfrm, Layer layer)
+void Infirmary::render_interior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, InteriorTile::infirmary_1);
-    pfrm.set_tile(
-        layer, position().x, position().y + 1, InteriorTile::infirmary_2);
-    pfrm.set_tile(
-        layer, position().x + 1, position().y, InteriorTile::infirmary_3);
-    pfrm.set_tile(
-        layer, position().x + 1, position().y + 1, InteriorTile::infirmary_4);
+    buffer[position().x][position().y] = InteriorTile::infirmary_1;
+    buffer[position().x][position().y + 1] = InteriorTile::infirmary_2;
+    buffer[position().x + 1][position().y] = InteriorTile::infirmary_3;
+    buffer[position().x + 1][position().y + 1] = InteriorTile::infirmary_4;
 }
 
 
-void Infirmary::render_exterior(Platform& pfrm, Layer layer)
+void Infirmary::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::wall_window_1);
-    pfrm.set_tile(layer, position().x, position().y + 1, Tile::wall_window_2);
-    pfrm.set_tile(layer, position().x + 1, position().y, Tile::wall_plain_1);
-    pfrm.set_tile(
-        layer, position().x + 1, position().y + 1, Tile::wall_plain_2);
+    buffer[position().x][position().y] = Tile::wall_window_1;
+    buffer[position().x][position().y + 1] = Tile::wall_window_2;
+    buffer[position().x + 1][position().y] = Tile::wall_plain_1;
+    buffer[position().x + 1][position().y + 1] = Tile::wall_plain_2;
 }
 
 

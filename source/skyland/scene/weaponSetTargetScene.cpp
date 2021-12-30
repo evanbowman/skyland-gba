@@ -2,6 +2,7 @@
 #include "globals.hpp"
 #include "readyScene.hpp"
 #include "skyland/network.hpp"
+#include "skyland/scene/inspectP2Scene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 
@@ -24,8 +25,9 @@ void clear_room_description(Platform& pfrm,
 
 
 
-WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc)
-    : weapon_loc_(weapon_loc)
+WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc,
+                                           bool near)
+    : weapon_loc_(weapon_loc), near_(near)
 {
 }
 
@@ -98,12 +100,26 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (auto room = app.player_island().get_room(weapon_loc_)) {
                     room->set_target(target_room->position());
                     sync();
-                } else if (auto drone =
-                               app.player_island().get_drone(weapon_loc_)) {
-                    (*drone)->set_target(target_room->position());
-                    sync();
+                } else {
+                    if (near_) {
+                        if (auto drone =
+                                app.player_island().get_drone(weapon_loc_)) {
+                            (*drone)->set_target(target_room->position());
+                            sync();
+                        }
+                    } else {
+                        if (auto drone =
+                                app.opponent_island()->get_drone(weapon_loc_)) {
+                            (*drone)->set_target(target_room->position());
+                            sync();
+                        }
+                    }
                 }
-                return scene_pool::alloc<ReadyScene>();
+                if (near_) {
+                    return scene_pool::alloc<ReadyScene>();
+                } else {
+                    return scene_pool::alloc<InspectP2Scene>();
+                }
             }
         }
     } else {
