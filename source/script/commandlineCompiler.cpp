@@ -1,11 +1,11 @@
-#include "lisp.hpp"
 #include "bytecode.hpp"
+#include "lisp.hpp"
 #include "platform/platform.hpp"
 #include <fstream>
-#include <sstream>
 #include <iostream>
-#include <vector>
+#include <sstream>
 #include <string>
+#include <vector>
 
 
 // Purpose:
@@ -28,7 +28,7 @@ public:
 
 
 namespace lisp {
-    const char* symbol_from_offset(u16 offset);
+const char* symbol_from_offset(u16 offset);
 }
 
 
@@ -85,8 +85,10 @@ SymbolTable make_relocatable(ScratchBuffer& bytecode)
             break;
 
         case lisp::instruction::LoadVar::op(): {
-            auto symbol_offset = ((lisp::instruction::LoadVar*)inst)->name_offset_.get();
-            auto sym_num = register_symbol(lisp::symbol_from_offset(symbol_offset));
+            auto symbol_offset =
+                ((lisp::instruction::LoadVar*)inst)->name_offset_.get();
+            auto sym_num =
+                register_symbol(lisp::symbol_from_offset(symbol_offset));
             lisp::instruction::LoadVarRelocatable reloc;
             reloc.name_offset_.set(sym_num);
             reloc.header_.op_ = lisp::instruction::LoadVarRelocatable::op();
@@ -96,8 +98,10 @@ SymbolTable make_relocatable(ScratchBuffer& bytecode)
         }
 
         case lisp::instruction::PushSymbol::op(): {
-            auto symbol_offset = ((lisp::instruction::PushSymbol*)inst)->name_offset_.get();
-            auto sym_num = register_symbol(lisp::symbol_from_offset(symbol_offset));
+            auto symbol_offset =
+                ((lisp::instruction::PushSymbol*)inst)->name_offset_.get();
+            auto sym_num =
+                register_symbol(lisp::symbol_from_offset(symbol_offset));
             lisp::instruction::PushSymbolRelocatable reloc;
             reloc.name_offset_.set(sym_num);
             reloc.header_.op_ = lisp::instruction::PushSymbolRelocatable::op();
@@ -107,8 +111,10 @@ SymbolTable make_relocatable(ScratchBuffer& bytecode)
         }
 
         case lisp::instruction::LexicalDef::op(): {
-            auto symbol_offset = ((lisp::instruction::LexicalDef*)inst)->name_offset_.get();
-            auto sym_num = register_symbol(lisp::symbol_from_offset(symbol_offset));
+            auto symbol_offset =
+                ((lisp::instruction::LexicalDef*)inst)->name_offset_.get();
+            auto sym_num =
+                register_symbol(lisp::symbol_from_offset(symbol_offset));
             lisp::instruction::LexicalDefRelocatable reloc;
             reloc.name_offset_.set(sym_num);
             reloc.header_.op_ = lisp::instruction::LexicalDefRelocatable::op();
@@ -142,7 +148,8 @@ int main(int argc, char** argv)
 
     // Wrap code with (lambda ... ). The compile function expects a lambda as an
     // argument.
-    lisp::read(("(lambda " + buffer.str() + ")").c_str()); // result on operand stack
+    lisp::read(
+        ("(lambda " + buffer.str() + ")").c_str()); // result on operand stack
     lisp::eval(lisp::get_op(0));
 
     lisp::funcall(lisp::get_var("compile"), 1);
@@ -158,9 +165,11 @@ int main(int argc, char** argv)
     // lisp::funcall(lisp::get_var("disassemble"), 1);
     // lisp::pop_op();
 
-    auto code_buffer = lisp::get_op(0)->function().bytecode_impl_
-        .databuffer()
-        ->data_buffer().value();
+    auto code_buffer = lisp::get_op(0)
+                           ->function()
+                           .bytecode_impl_.databuffer()
+                           ->data_buffer()
+                           .value();
 
     auto sym = make_relocatable(*code_buffer);
 

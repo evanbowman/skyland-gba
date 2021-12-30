@@ -24,6 +24,7 @@
 #include "platform/scratch_buffer.hpp"
 #include "string.hpp"
 #include "unicode.hpp"
+#include "vector.hpp"
 
 
 class Platform;
@@ -126,9 +127,17 @@ struct Integer {
 };
 
 
+struct Float {
+    ValueHeader hdr_;
+    float value_;
+
+    // TODO... we do not support floating point at the moment.
+};
+
+
 struct Character {
     ValueHeader hdr_;
-    utf8::Codepoint cp;
+    utf8::Codepoint cp_;
 
     static ValueHeader::Type type()
     {
@@ -473,7 +482,7 @@ Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
 Value* make_databuffer(Platform& pfrm);
 Value* make_string(Platform& pfrm, const char* str);
-Value* make_character(Platform& pfrm, utf8::Codepoint cp);
+Value* make_character(utf8::Codepoint cp);
 
 
 void get_interns(::Function<24, void(const char*)> callback);
@@ -541,8 +550,50 @@ inline Value* get_var(const char* name)
 }
 
 
+class CharSequence {
+public:
+    virtual ~CharSequence()
+    {
+    }
+
+    virtual char operator[](int index) = 0;
+};
+
+
+class BasicCharSequence : public CharSequence {
+public:
+    BasicCharSequence(const char* ptr) : ptr_(ptr)
+    {
+    }
+
+    char operator[](int index) override
+    {
+        return ptr_[index];
+    }
+
+private:
+    const char* ptr_;
+};
+
+
+class VectorCharSequence : public CharSequence {
+public:
+    VectorCharSequence(Vector<char>& v) : v_(v)
+    {
+    }
+
+    char operator[](int index) override
+    {
+        return v_[index];
+    }
+
+private:
+    Vector<char>& v_;
+};
+
+
 // Read an S-expression, leaving the result at the top of the operand stack.
-u32 read(const char* code);
+u32 read(CharSequence& code, int offset = 0);
 
 
 // Result on operand stack.
@@ -558,7 +609,7 @@ void load_module(Module* module);
 
 
 // Returns the result of the last expression in the string.
-Value* dostring(const char* code, ::Function<16, void(Value&)> on_error);
+Value* dostring(CharSequence& code, ::Function<16, void(Value&)> on_error);
 
 
 bool is_executing();
@@ -610,7 +661,6 @@ public:
 void format(Value* value, Printer& p);
 
 
-
 // Protected objects will not be collected until the Protected wrapper goes out
 // of scope.
 class ProtectedBase {
@@ -638,7 +688,6 @@ protected:
     ProtectedBase* prev_;
     ProtectedBase* next_;
 };
-
 
 
 class Protected : public ProtectedBase {
@@ -673,7 +722,6 @@ public:
 protected:
     Value* val_;
 };
-
 
 
 template <typename F> void foreach (Value* list, F && fn)

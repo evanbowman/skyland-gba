@@ -31,21 +31,17 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     vram_write_flag(pfrm, app.gp_.flag_img_);
 
-
-    if (save::load(pfrm, app.persistent_data())) {
+    if (save::load(pfrm, app, app.persistent_data())) {
         save::erase(pfrm);
     } else {
-        lisp::dostring(pfrm.load_file_contents("scripts", "newgame.lisp"),
-                       [&pfrm](lisp::Value& err) {
-                           lisp::DefaultPrinter p;
-                           lisp::format(&err, p);
-                           pfrm.fatal(p.fmt_.c_str());
-                       });
+        app.coins() = 0;
+
+        app.invoke_script(pfrm, "/scripts/newgame.lisp");
 
         app.current_map_location() = {0, 1};
         app.world_map().generate();
 
-        app.coins() = 2500;
+
         app.terrain_cost() = 500;
 
         app.zone() = 1;

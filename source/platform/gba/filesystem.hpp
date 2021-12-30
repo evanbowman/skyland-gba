@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include "function.hpp"
 #include "number/endian.hpp"
 #include "number/int.h"
 
@@ -35,6 +36,9 @@ bool is_mounted();
 
 
 FileContents load(FilePath path);
+
+
+void walk(Function<32, void(const char* path)> callback);
 
 
 

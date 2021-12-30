@@ -127,7 +127,8 @@ public:
     // simple to reset a process back to its original state at time of creation,
     // so it's easier in those cases to just exit. In any event, fatal() does
     // not return.
-    [[noreturn]] void fatal(const char* message);
+    [[noreturn]] static void fatal(const char* message);
+
 
     // Enable platform specific features. NOP if unsupported.
     void* system_call(const char* feature_name, void* arg);
@@ -210,6 +211,7 @@ public:
 
 
     void set_palette(Layer layer, u16 x, u16 y, u16 palette);
+    u16 get_palette(Layer layer, u16 x, u16 y);
 
 
     void set_scroll(Layer layer, u16 x, u16 y);
@@ -272,12 +274,18 @@ public:
     bool write_save_data(const void* data, u32 length, u32 offset);
     bool read_save_data(void* buffer, u32 data_length, u32 offset);
 
+    int save_capacity();
+
+
 
     // For historical reasons, allows you to specify a folder and filename
     // separately. If you do not care for this behavior, supply an empty string
     // in the folder argument, and the path in the filename argument.
     const char* load_file_contents(const char* folder,
                                    const char* filename) const;
+
+
+    void walk_filesystem(Function<32, void(const char* path)>);
 
 
     // Scratch buffers are sort of a blunt instrument. Designed for uncommon

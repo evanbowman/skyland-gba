@@ -4,6 +4,8 @@
 #include "coins.hpp"
 #include "island.hpp"
 #include "room.hpp"
+#include "rooms/pluginRoom.hpp"
+#include "script/lisp.hpp"
 
 
 
@@ -11,6 +13,8 @@ namespace skyland {
 
 
 
+// Why metaclasses? We need to be able to request info about a room before
+// instantiating one, so mostly an organizational choice.
 struct RoomMeta {
     struct Box {
         virtual ~Box()
@@ -27,9 +31,113 @@ struct RoomMeta {
         virtual Room::Icon icon() const = 0;
         virtual Room::Icon unsel_icon() const = 0;
         virtual Health full_health() const = 0;
+
+        virtual void configure(Health health, Coins cost, Power power)
+        {
+        }
+    };
+
+    // A metatable entry backed by a lisp datastructure, allowing users to
+    // define their own rooms via scripts.
+    struct PluginBox : public Box {
+        RoomMeta* mt_;
+        mutable std::optional<lisp::Protected> info_;
+
+
+        PluginBox(RoomMeta* mt) : mt_(mt)
+        {
+        }
+
+
+        void create(Platform& pfrm,
+                    Island* parent,
+                    const Vec2<u8>& position) const override
+        {
+            parent->add_room<PluginRoom>(pfrm, position, mt_);
+        }
+
+
+        struct PluginInfo {
+            enum Tag {
+                size,
+                update,
+                name,
+                ai_weight,
+                coins,
+                power,
+                full_health,
+            };
+        };
+
+
+        template <PluginInfo::Tag info, typename T> T& fetch_info() const
+        {
+            if (info_) {
+                return lisp::get_list(*info_, info)->expect<T>();
+            }
+
+            Platform::fatal("plugin room info unassigned");
+        }
+
+
+        virtual const char* name() const
+        {
+            return fetch_info<PluginInfo::name, lisp::Symbol>().name_;
+        }
+
+
+        virtual Vec2<u8> size() const
+        {
+            auto& pair = fetch_info<PluginInfo::size, lisp::Cons>();
+            return {(u8)pair.car()->expect<lisp::Integer>().value_,
+                    (u8)pair.cdr()->expect<lisp::Integer>().value_};
+        }
+
+        virtual Coins cost() const
+        {
+            return fetch_info<PluginInfo::coins, lisp::Integer>().value_;
+        }
+
+        virtual Float ai_base_weight() const
+        {
+            return fetch_info<PluginInfo::ai_weight, lisp::Integer>().value_;
+        }
+
+        virtual Power consumes_power() const
+        {
+            return fetch_info<PluginInfo::power, lisp::Integer>().value_;
+        }
+
+        virtual Conditions::Value conditions() const
+        {
+            return Conditions::plugin;
+        }
+
+        virtual Room::Icon icon() const
+        {
+            // TODO...
+            return 0;
+        }
+
+        virtual Room::Icon unsel_icon() const
+        {
+            // TODO...
+            return 0;
+        }
+
+        virtual Health full_health() const
+        {
+            return fetch_info<PluginInfo::full_health, lisp::Integer>().value_;
+        }
     };
 
     template <typename T> struct BoxImpl : public Box {
+        BoxImpl()
+            : health_(T::full_health()), cost_(T::cost()),
+              power_(T::consumes_power())
+        {
+        }
+
         void create(Platform& pfrm,
                     Island* parent,
                     const Vec2<u8>& position) const override
@@ -52,40 +160,51 @@ struct RoomMeta {
             return T::unsel_icon();
         }
 
-        virtual Vec2<u8> size() const override
+        Vec2<u8> size() const override
         {
             return T::size();
         }
 
-        virtual Coins cost() const override
+        Coins cost() const override
         {
-            return T::cost();
+            return cost_;
         }
 
-        virtual Float ai_base_weight() const override
+        Float ai_base_weight() const override
         {
             return T::ai_base_weight();
         }
 
-        virtual Power consumes_power() const override
+        Power consumes_power() const override
         {
-            return T::consumes_power();
+            return power_;
         }
 
-        virtual Conditions::Value conditions() const override
+        Conditions::Value conditions() const override
         {
             return T::conditions();
         }
 
-        virtual Health full_health() const override
+        Health full_health() const override
         {
-            return T::full_health();
+            return health_;
         }
+
+        void configure(Health health, Coins cost, Power power) override
+        {
+            health_ = health;
+            cost_ = cost;
+            power_ = power;
+        }
+
+        s16 health_;
+        s16 cost_;
+        s16 power_;
     };
 
     static constexpr int align = 8;
 
-    alignas(align) u8 buffer_[8];
+    alignas(align) u8 buffer_[sizeof(PluginBox)];
 
 
     template <typename T> void init()
@@ -95,6 +214,13 @@ struct RoomMeta {
 
         new (buffer_) BoxImpl<T>();
     }
+
+
+    void init_plugin()
+    {
+        new (buffer_) PluginBox(this);
+    }
+
 
     RoomMeta()
     {
@@ -119,7 +245,9 @@ struct RoomMeta {
 };
 
 
-template <typename... Rooms> struct RoomMetatable {
+// NOTE: I wanted users to be able to script their own room objects. The plugin
+// slots represent room metaclasses defined as lisp scripts.
+template <int plugin_slots, typename... Rooms> struct RoomMetatable {
 public:
     template <size_t i, typename First, typename... Rest> void init()
     {
@@ -133,6 +261,10 @@ public:
     RoomMetatable()
     {
         init<0, Rooms...>();
+
+        for (int i = 0; i < plugin_slots; ++i) {
+            table_[sizeof...(Rooms) + i].init_plugin();
+        }
     }
 
     constexpr int size()
@@ -140,7 +272,7 @@ public:
         return sizeof...(Rooms);
     }
 
-    RoomMeta table_[sizeof...(Rooms)];
+    RoomMeta table_[sizeof...(Rooms) + plugin_slots];
 };
 
 

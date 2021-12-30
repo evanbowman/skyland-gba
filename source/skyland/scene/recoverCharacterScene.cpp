@@ -58,19 +58,11 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().key_down(pfrm, Key::action_1)) {
         if (auto room = app.opponent_island()->get_room(cursor_loc)) {
-            info(pfrm, "found other room");
             if (length(room->characters())) {
-                info(pfrm, "found chrs");
                 if (auto origin =
                         app.player_island().get_room(transporter_loc_)) {
-                    info(pfrm, "origin exists");
-                    StringBuffer<32> str;
-                    str += to_string<10>(transporter_loc_.x);
-                    str += ",";
-                    str += to_string<10>(transporter_loc_.y);
-                    info(pfrm, str.c_str());
+
                     if (auto transporter = dynamic_cast<Transporter*>(origin)) {
-                        info(pfrm, "origin is transporter");
                         transporter->recover_character(pfrm, app, cursor_loc);
                         return scene_pool::alloc<ReadyScene>();
                     }

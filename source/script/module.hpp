@@ -3,7 +3,6 @@
 #include "number/endian.hpp"
 
 
-
 namespace lisp {
 
 

@@ -277,7 +277,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > fade_duration) {
             timer_ = 0;
             state_ = State::print_saved_text;
-            save::store(pfrm, app.persistent_data());
+            save::store(pfrm, app, app.persistent_data());
             pfrm.fill_overlay(0);
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

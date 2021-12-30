@@ -45,6 +45,7 @@ configure_file(dirlocals.in ${SOURCE_DIR}/.dir-locals.el)
 
 
 set(SOURCES
+  ${SOURCE_DIR}/platform/ram_filesystem.cpp
   ${SOURCE_DIR}/graphics/overlay.cpp
   ${SOURCE_DIR}/graphics/sprite.cpp
   ${SOURCE_DIR}/number/numeric.cpp
@@ -116,6 +117,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/zoneImageScene.cpp
   ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
   ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
+  ${SOURCE_DIR}/skyland/scene/createFileScene.cpp
   ${SOURCE_DIR}/skyland/scene/loadModuleScene.cpp
   ${SOURCE_DIR}/skyland/scene/boxedDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
@@ -124,17 +126,20 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
   ${SOURCE_DIR}/skyland/scene/setGamespeedScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
-  ${SOURCE_DIR}/skyland/scene/selectTutorialScene.cpp
   ${SOURCE_DIR}/skyland/scene/selectChallengeScene.cpp
   ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/fullscreenDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/recoverCharacterScene.cpp
+  ${SOURCE_DIR}/skyland/scene/sramFileWritebackScene.cpp
   ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerConnectScene.cpp
   ${SOURCE_DIR}/skyland/scene/replicatorSelectionScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp)
+  ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/textEditorModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
+  ${SOURCE_DIR}/skyland/scene/selectTutorialScene.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp)
 
 
 set(SOURCES
@@ -219,6 +224,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay_island_destroyed.s
     ${DATA_DIR}/overlay_challenges.s
     ${DATA_DIR}/overlay_gamespeed.s
+    ${DATA_DIR}/overlay_editor.s
     ${DATA_DIR}/hint_infirmary.s
     ${DATA_DIR}/hint_goblin.s
     ${DATA_DIR}/hint_plunder.s
@@ -488,6 +494,7 @@ if(GAMEBOY_ADVANCE)
     add_tilesheet(zone_image_3 0 0 YES NO)
     add_overlay(overlay 0 0 NO NO)
     add_overlay(overlay_gamespeed 0 0 NO NO)
+    add_overlay(overlay_editor 0 0 NO NO)
     add_overlay(overlay_dialog 0 0 NO NO)
     add_overlay(charset 0 0 NO NO)
     add_overlay(overlay_world_map 0 0 NO NO)

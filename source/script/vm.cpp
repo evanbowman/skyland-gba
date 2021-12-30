@@ -1,7 +1,7 @@
 #include "bytecode.hpp"
 #include "lisp.hpp"
-#include "number/endian.hpp"
 #include "listBuilder.hpp"
+#include "number/endian.hpp"
 
 
 namespace lisp {

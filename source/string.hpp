@@ -5,15 +5,6 @@
 #include "number/numeric.hpp"
 
 
-// For embedded systems, we cannot pull in all of libc, and we do not want to
-// use the standard implementations of the libc functions, because we do not
-// know how large or complex the implementations of those functions will be, in
-// terms of code footprint. Necessary libc string functions will be provided in
-
-// this header, along with other non-standard string functions. The game itself
-// does not need complex logic for manipulating strings--instead, the overlay
-// code has plenty of classes for displaying formatted text.
-
 
 inline u32 str_len(const char* str)
 {
@@ -59,23 +50,41 @@ inline int str_cmp(const char* p1, const char* p2)
 }
 
 
-// A not great, but satisfactory implementation of a string class.
-template <u32 Capacity> class StringBuffer {
+// NOTE: Capacity is a holdover from before StringAdapter was a template,
+// originally, the class was backed by a Buffer<>. Eventually maybe I'll
+// refactor out the parameter.
+//
+// NOTE: Capacity ideally wouldn't be a template parameter, but I haven't
+// removed it yet, as we do want to be able to copy a string with a smaller
+// capacity into a larger one, without compiler errors due to mismatched
+// types. Of course, there are solutions, but I have to make some changes.
+template <u32 Capacity, typename Memory> class StringAdapter {
 public:
-    using Buffer = ::Buffer<char, Capacity + 1>;
+    using Buffer = Memory;
 
-    StringBuffer(const char* init)
+    template <typename... MemArgs>
+    StringAdapter(const char* init, MemArgs&&... mem_args)
+        : mem_(std::forward<MemArgs>(mem_args)...)
     {
         mem_.push_back('\0');
         (*this) += init;
     }
 
-    StringBuffer()
+    template <typename... MemArgs>
+    StringAdapter(char c, u32 count, MemArgs&&... mem_args)
+        : mem_(std::forward<MemArgs>(mem_args)...)
+    {
+        while (count--) {
+            mem_.push_back(c);
+        }
+    }
+
+    StringAdapter()
     {
         mem_.push_back('\0');
     }
 
-    StringBuffer(const StringBuffer& other)
+    StringAdapter(const StringAdapter& other)
     {
         clear();
 
@@ -84,8 +93,30 @@ public:
         }
     }
 
-    template <u32 OtherCapacity>
-    StringBuffer(const StringBuffer<OtherCapacity>& other)
+    const StringAdapter& operator=(const StringAdapter& other)
+    {
+        clear();
+
+        for (auto it = other.begin(); it not_eq other.end(); ++it) {
+            push_back(*it);
+        }
+        return *this;
+    }
+
+
+    const StringAdapter& operator=(StringAdapter&& other)
+    {
+        clear();
+
+        for (auto it = other.begin(); it not_eq other.end(); ++it) {
+            push_back(*it);
+        }
+        return *this;
+    }
+
+
+    template <u32 OtherCapacity, typename OtherMem>
+    StringAdapter(const StringAdapter<OtherCapacity, OtherMem>& other)
     {
         static_assert(OtherCapacity <= Capacity);
 
@@ -96,7 +127,9 @@ public:
         }
     }
 
-    const StringBuffer& operator=(const StringBuffer& other)
+    template <u32 OtherCapacity, typename OtherMem>
+    const StringAdapter&
+    operator=(const StringAdapter<OtherCapacity, OtherMem>& other)
     {
         clear();
 
@@ -105,19 +138,6 @@ public:
         }
         return *this;
     }
-
-    template <u32 OtherCapacity>
-    const StringBuffer& operator=(const StringBuffer<OtherCapacity>& other)
-    {
-        clear();
-
-        for (auto it = other.begin(); it not_eq other.end(); ++it) {
-            push_back(*it);
-        }
-        return *this;
-    }
-
-    const StringBuffer& operator=(StringBuffer&&) = delete;
 
     char& operator[](int pos)
     {
@@ -154,7 +174,7 @@ public:
         return mem_.insert(pos, val);
     }
 
-    StringBuffer& operator+=(const char* str)
+    StringAdapter& operator+=(const char* str)
     {
         while (*str not_eq '\0') {
             push_back(*(str++));
@@ -162,14 +182,15 @@ public:
         return *this;
     }
 
-    template <u32 OtherCapacity>
-    StringBuffer& operator+=(const StringBuffer<OtherCapacity>& other)
+    template <u32 OtherCapacity, typename OtherMem>
+    StringAdapter&
+    operator+=(const StringAdapter<OtherCapacity, OtherMem>& other)
     {
         (*this) += other.c_str();
         return *this;
     }
 
-    StringBuffer& operator=(const char* str)
+    StringAdapter& operator=(const char* str)
     {
         this->clear();
 
@@ -220,7 +241,25 @@ private:
 
 
 template <u32 Capacity>
-bool operator==(StringBuffer<Capacity> buf, const char* str)
+using StringBuffer = StringAdapter<Capacity, Buffer<char, Capacity + 1>>;
+
+
+
+template <u32 Capacity, typename Mem>
+bool is_numeric(const StringAdapter<Capacity, Mem>& buf)
+{
+    for (auto c : buf) {
+        if (c < '0' or c > '9') {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+template <u32 Capacity, typename Mem>
+bool operator==(StringAdapter<Capacity, Mem> buf, const char* str)
 {
     return str_cmp(str, buf.c_str()) == 0;
 }

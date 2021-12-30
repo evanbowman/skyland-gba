@@ -1,6 +1,7 @@
 #include "titleScreenScene.hpp"
 #include "loadModuleScene.hpp"
 #include "module.hpp"
+#include "modules/fileBrowserModule.hpp"
 #include "multiplayerConnectScene.hpp"
 #include "newgameScene.hpp"
 #include "script/lisp.hpp"
@@ -232,6 +233,24 @@ void TitleScreenScene::put_menu_text(Platform& pfrm)
 
     pfrm.set_tile(Layer::overlay, menu_selection_start_ - 4, st.y - 2, 375);
     pfrm.set_tile(Layer::overlay, menu_selection_stop_ - 1, st.y - 2, 376);
+}
+
+
+
+void TitleScreenScene::run_init_scripts(Platform& pfrm,
+                                        App& app,
+                                        bool allow_mods)
+{
+    // For some stuff, like the tutorial viewer, or multiplayer games,
+    // everything would get messed up if we allowed users to run modded scripts.
+
+    const bool use_rom_fs = (allow_mods == false);
+
+    app.invoke_script(pfrm, "/scripts/config/rooms.lisp", use_rom_fs);
+
+    if (allow_mods) {
+        app.invoke_ram_script(pfrm, "/mods/init.lisp");
+    }
 }
 
 
@@ -504,23 +523,24 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             case 0:
                 app.challenge_mode() = false;
                 app.tutorial_mode() = false;
+                run_init_scripts(pfrm, app, true);
                 return scene_pool::alloc<NewgameScene>();
 
             case 1: {
                 app.challenge_mode() = true;
                 app.tutorial_mode() = false;
+                run_init_scripts(pfrm, app, true);
                 return scene_pool::alloc<SelectChallengeScene>();
             }
 
             case 2:
                 app.challenge_mode() = false;
                 app.tutorial_mode() = false;
+                run_init_scripts(pfrm, app, false);
                 return scene_pool::alloc<MultiplayerConnectScene>();
 
             case 3:
-                app.challenge_mode() = false;
-                app.tutorial_mode() = true;
-                return scene_pool::alloc<LoadModuleScene>();
+                pfrm.fatal("logic error, this should be unreachable");
             }
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
@@ -623,6 +643,18 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm.screen().fade(
                         1.f, ColorConstant::rich_black, {}, true, true);
                     pfrm.speaker().stop_music();
+                    app.challenge_mode() = false;
+                    app.tutorial_mode() = false;
+
+                    run_init_scripts(pfrm,
+                                     app,
+                                     // Yes, custom code must be disabled when
+                                     // running modules. The file browser module
+                                     // and text editor could become completely
+                                     // inaccessible if a user put an invalid
+                                     // expression into one of the init scripts.
+                                     false);
+
                     return f->create(pfrm);
                 }
             }

@@ -17,6 +17,7 @@
 #include "playerP1.hpp"
 #include "rumble.hpp"
 #include "scene.hpp"
+#include "script/lisp.hpp"
 #include "timeTracker.hpp"
 #include "worldMap.hpp"
 
@@ -258,6 +259,21 @@ public:
         pixelate_timer_ = pixelate_duration;
     }
 
+
+    void invoke_ram_script(Platform& pfrm, const char* ram_fs_path);
+
+
+    void safe_invoke_ram_script(Platform& pfrm,
+                                const char* ram_fs_path,
+                                const char* rom_fs_fallback_path);
+
+
+    lisp::Value*
+    invoke_script(Platform& pfrm, const char* path, bool rom_fs_only = false);
+
+
+    bool is_developer_mode();
+    void set_developer_mode(bool value);
 
 
 private:

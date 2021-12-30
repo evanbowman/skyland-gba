@@ -1,6 +1,11 @@
 #include "globals.hpp"
+#include "localization.hpp"
+#include "platform/ram_filesystem.hpp"
+#include "skyland/save.hpp"
 #include "skyland/skyland.hpp"
 #include "transformGroup.hpp"
+#include "vector.hpp"
+
 
 
 // clang-format off
@@ -50,7 +55,28 @@ void skyland_main_loop(Platform& pf)
 }
 
 
-void start(Platform& pf)
+void start(Platform& pfrm)
 {
-    return skyland_main_loop(pf);
+    ram_filesystem::initialize(pfrm,
+                               sizeof(skyland::save::GlobalSaveData) +
+                                   sizeof(skyland::save::SaveData));
+
+    const char* test_file = ";;;\n"
+                            ";;; init.lisp\n"
+                            ";;;\n"
+                            ";;; The game will run this\n"
+                            ";;; script upon entering\n"
+                            ";;; a game session."
+                            ";;; Create scripts in the\n"
+                            ";;; mods dir, and load them\n"
+                            ";;; here.\n"
+                            ";;;\n";
+
+    if (not ram_filesystem::file_exists(pfrm, "/mods/init.lisp")) {
+        ram_filesystem::store_file_data(
+            pfrm, "/mods/init.lisp", test_file, str_len(test_file));
+    }
+
+
+    return skyland_main_loop(pfrm);
 }

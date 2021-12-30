@@ -47,6 +47,8 @@
 //;
 #include "data/overlay_gamespeed.h"
 //;
+#include "data/overlay_editor.h"
+//;
 #include "data/overlay_dialog.h"
 //;
 #include "data/charset.h"
@@ -127,6 +129,8 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(overlay),
 //;
     TEXTURE_INFO(overlay_gamespeed),
+//;
+    TEXTURE_INFO(overlay_editor),
 //;
     TEXTURE_INFO(overlay_dialog),
 //;

@@ -31,6 +31,17 @@ struct PersistentData {
     HostInteger<u32> total_pauses_;
     HostInteger<u16> replicants_created_;
     HostInteger<s32> score_;
+
+    enum Flags0 {
+        developer_mode = (1 << 0),
+    };
+
+    u8 flags0_ = developer_mode;
+    u8 flags1_ = 0;
+    u8 flags2_ = 0;
+    u8 flags3_ = 0;
+
+    u8 unused_[64];
 };
 
 

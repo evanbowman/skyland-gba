@@ -3,6 +3,7 @@
 #include "bulkAllocator.hpp"
 #include "configure_island.hpp"
 #include "opponent/friendlyAI.hpp"
+#include "platform/ram_filesystem.hpp"
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
 #include "scene/scriptHookScene.hpp"
@@ -157,7 +158,8 @@ void App::init_scripts(Platform& pfrm)
 
                       auto island = (Island*)lisp::get_op(0)->user_data().obj_;
                       auto result = serialize(*pfrm, *island);
-                      lisp::read(result->c_str());
+                      lisp::BasicCharSequence seq(result->c_str());
+                      lisp::read(seq);
                       auto ret = lisp::get_op(0);
                       lisp::pop_op();
                       return ret;
@@ -320,9 +322,7 @@ void App::init_scripts(Platform& pfrm)
             if (auto c = load_metaclass(name)) {
                 (*c)->create(*pfrm, island, Vec2<u8>{x, y});
             } else {
-                info(*pfrm, name);
-                while (true)
-                    ;
+                Platform::fatal(name);
             }
 
             return L_NIL;
@@ -471,28 +471,28 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
-    lisp::set_var(
-        "eval-other-file", lisp::make_function([](int argc) {
-            L_EXPECT_ARGC(argc, 1);
-            L_EXPECT_OP(0, string);
+    lisp::set_var("eval-other-file", lisp::make_function([](int argc) {
+                      L_EXPECT_ARGC(argc, 1);
+                      L_EXPECT_OP(0, string);
 
-            if (auto pfrm = lisp::interp_get_pfrm()) {
-                auto str = lisp::get_op(0)->string().value();
-                if (auto contents = pfrm->load_file_contents("scripts", str)) {
-                    lisp::dostring(contents, [pfrm](lisp::Value& err) {
-                        lisp::DefaultPrinter p;
-                        lisp::format(&err, p);
-                        pfrm->fatal(p.fmt_.c_str());
-                    });
-                } else {
-                    StringBuffer<32> err("script '");
-                    err += str;
-                    err += "' missing";
-                    pfrm->fatal(err.c_str());
-                }
-            }
-            return L_NIL;
-        }));
+                      if (auto pfrm = lisp::interp_get_pfrm()) {
+
+                          auto app = interp_get_app();
+                          if (app == nullptr) {
+                              while (true)
+                                  ;
+                              return L_NIL;
+                          }
+
+                          auto str = lisp::get_op(0)->string().value();
+
+                          app->invoke_script(*pfrm, str);
+                      } else {
+                          while (true)
+                              ;
+                      }
+                      return L_NIL;
+                  }));
 
 
     lisp::set_var("choice", lisp::make_function([](int argc) {
@@ -533,12 +533,55 @@ void App::init_scripts(Platform& pfrm)
                       return L_NIL;
                   }));
 
-    lisp::dostring(pfrm.load_file_contents("scripts", "init.lisp"),
-                   [&pfrm](lisp::Value& err) {
-                       lisp::DefaultPrinter p;
-                       lisp::format(&err, p);
-                       pfrm.fatal(p.fmt_.c_str());
-                   });
+
+    lisp::set_var(
+        "configure-rooms", lisp::make_function([](int argc) {
+            L_EXPECT_ARGC(argc, 1);
+            L_EXPECT_OP(1, cons);
+
+            lisp::foreach (lisp::get_op(0), [](lisp::Value* val) {
+                if (val->type() not_eq lisp::Value::Type::cons) {
+                    return;
+                }
+
+                auto name_sym = val->cons().car();
+                if (name_sym->type() not_eq lisp::Value::Type::symbol) {
+                    return;
+                }
+
+                val = val->cons().cdr();
+
+                if (auto c = load_metaclass(name_sym->symbol().name_)) {
+                    auto health = val->cons().car()->integer().value_;
+                    val = val->cons().cdr();
+                    auto cost = val->cons().car()->integer().value_;
+                    val = val->cons().cdr();
+                    auto power = val->cons().car()->integer().value_;
+                    (*c)->configure(health, cost, power);
+                } else {
+                    auto pfrm = lisp::interp_get_pfrm();
+                    pfrm->fatal("invalid room type symbol");
+                }
+            });
+
+            return L_NIL;
+        }));
+
+
+    // NOTE: we need to disable custom scripts during startup, otherwise,
+    // someone could irreversibly mess up a game.
+    const bool was_developer_mode = is_developer_mode();
+    set_developer_mode(false);
+
+    auto str = pfrm.load_file_contents("scripts", "init.lisp");
+    lisp::BasicCharSequence seq(str);
+    lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+        lisp::DefaultPrinter p;
+        lisp::format(&err, p);
+        pfrm.fatal(p.fmt_.c_str());
+    });
+
+    set_developer_mode(was_developer_mode);
 }
 
 

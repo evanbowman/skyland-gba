@@ -32,13 +32,19 @@ def encode_file(path, real_name, out):
 
 def collect_paths(paths_list, subdir):
     for root, dirs, files in os.walk(os.path.join(project_root_path, subdir), topdown=False):
+
+        if dirs:
+            dirs.sort()
+        if files:
+            files.sort()
+
+        for sdir in dirs:
+            collect_paths(paths_list, subdir + '/' + sdir)
         for name in files:
             if os.path.basename(root) == subdir.split('/')[-1]:
                 full = os.path.join('/' + subdir, name)
                 if not '~' in full:
                     paths_list.append(['/' + subdir + '/' + name, os.path.join(root, name)])
-        for sdir in dirs:
-            collect_paths(paths_list, subdir + '/' + sdir)
 
 
 
@@ -51,6 +57,9 @@ with open('fs.bin', 'wb') as filesystem:
 
     collect_paths(files_list, "scripts")
     collect_paths(files_list, "strings")
+    collect_paths(files_list, "help")
+
+    files_list.append(["/readme.lisp", os.path.join(project_root_path, "readme.lisp")])
 
     fs_count = len(files_list)
     print("encoding %d files..." % fs_count)

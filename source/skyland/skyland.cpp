@@ -2,6 +2,7 @@
 #include "globals.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
+#include "platform/ram_filesystem.hpp"
 #include "save.hpp"
 #include "script/lisp.hpp"
 #include "serial.hpp"
@@ -64,11 +65,10 @@ public:
 COLD void on_remote_console_text(Platform& pfrm,
                                  const Platform::RemoteConsole::Line& str)
 {
-    info(pfrm, str.c_str());
-
     RemoteConsoleLispPrinter printer(pfrm);
 
-    lisp::read(str.c_str());
+    lisp::BasicCharSequence seq(str.c_str());
+    lisp::read(seq);
     lisp::eval(lisp::get_op(0));
     format(lisp::get_op(0), printer);
 
@@ -195,6 +195,117 @@ void init_clouds(Platform& pfrm)
     }
 }
 
+
+
+void App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
+{
+    if (not is_developer_mode()) {
+        return;
+    }
+
+    Vector<char> buffer(pfrm);
+    if (ram_filesystem::read_file_data(pfrm, ram_fs_path, buffer)) {
+        lisp::VectorCharSequence seq(buffer);
+        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
+    }
+}
+
+
+
+void App::safe_invoke_ram_script(Platform& pfrm,
+                                 const char* ram_fs_path,
+                                 const char* rom_fs_fallback_path)
+{
+    if (not is_developer_mode()) {
+        auto str = pfrm.load_file_contents("scripts", rom_fs_fallback_path);
+        lisp::BasicCharSequence seq(str);
+        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
+        return;
+    }
+
+    ram_filesystem::import_file_from_rom_if_not_exists(
+        pfrm, ram_fs_path, rom_fs_fallback_path);
+
+    Vector<char> buffer(pfrm);
+    if (ram_filesystem::read_file_data(pfrm, ram_fs_path, buffer)) {
+        lisp::VectorCharSequence seq(buffer);
+        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
+    } else {
+        auto str = pfrm.load_file_contents("scripts", rom_fs_fallback_path);
+        lisp::BasicCharSequence seq(str);
+        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
+    }
+}
+
+
+
+bool App::is_developer_mode()
+{
+    return persistent_data_.flags0_ & PersistentData::Flags0::developer_mode;
+}
+
+
+
+void App::set_developer_mode(bool value)
+{
+    if (value) {
+        persistent_data_.flags0_ |= PersistentData::Flags0::developer_mode;
+    } else {
+        persistent_data_.flags0_ &= ~PersistentData::Flags0::developer_mode;
+    }
+}
+
+
+
+lisp::Value*
+App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
+{
+    auto on_err = [&pfrm](lisp::Value& err) {
+        lisp::DefaultPrinter p;
+        lisp::format(&err, p);
+        pfrm.fatal(p.fmt_.c_str());
+    };
+
+    if (is_developer_mode() and not pfrm.network_peer().is_connected() and
+        not tutorial_mode() and not rom_fs_only) {
+
+        Vector<char> buffer(pfrm);
+        if (ram_filesystem::read_file_data(pfrm, path, buffer)) {
+            lisp::VectorCharSequence seq(buffer);
+            return lisp::dostring(seq, on_err);
+        }
+    }
+
+    if (path[0] == '/') {
+        ++path;
+    }
+
+    if (auto contents = pfrm.load_file_contents("", path)) {
+        lisp::BasicCharSequence seq(contents);
+        return lisp::dostring(seq, on_err);
+    } else {
+        StringBuffer<100> err("script '");
+        err += path;
+        err += "' missing";
+        pfrm.fatal(err.c_str());
+    }
+}
 
 
 } // namespace skyland

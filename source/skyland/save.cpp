@@ -1,7 +1,16 @@
 #include "save.hpp"
 #include "flag.hpp"
 #include "platform/platform.hpp"
+#include "platform/ram_filesystem.hpp"
 #include "script/lisp.hpp"
+#include "skyland.hpp"
+
+
+
+// NOTE: saving is a bit of a mess. Originally, we wrote stuff to fixed
+// locations in SRAM. Now, we implement a filesystem in SRAM, but some things
+// still need to be written to fixed locations at the beginning of SRAM, so that
+// we don't break backwards compatibility.
 
 
 
@@ -10,34 +19,8 @@ namespace save {
 
 
 
-struct SaveData {
-    HostInteger<u32> magic_;
-    PersistentData data_;
-
-    // We have some persistent data used by the application (above). But, we
-    // also want to serialize a bunch of data used by the lisp interpreter,
-    // and just eval it later.
-    HostInteger<u32> script_length_;
-    // u8 script_[...]; variable-sized data to follow...
-};
-
-
-
-static_assert(std::is_trivially_copyable<SaveData>::value,
-              "SaveData will be memcpy'd to the output destination, and "
-              "therefore must be trivially copyable.");
-
-
-
 static const u32 save_data_magic = 0xABCD + 2;
 static const u32 global_save_data_magic = 0xABCD;
-
-
-
-struct GlobalSaveData {
-    HostInteger<u32> magic_;
-    GlobalPersistentData data_;
-};
 
 
 
@@ -85,20 +68,19 @@ public:
 
 
 
-void store(Platform& pfrm, const PersistentData& d)
+void store(Platform& pfrm, App& app, const PersistentData& d)
 {
     LispPrinter p(pfrm);
-    if (auto script = pfrm.load_file_contents("scripts", "save.lisp")) {
-        lisp::read(script);
-        lisp::eval(lisp::get_op(0));
-        lisp::format(lisp::get_op(0), p);
-        lisp::pop_op(); // result of eval()
-        lisp::pop_op(); // result of read()
-    }
+    auto val = app.invoke_script(pfrm, "/scripts/save.lisp");
+    lisp::format(val, p);
 
     SaveData save_data;
     save_data.magic_.set(save_data_magic);
-    save_data.script_length_.set(p.fmt_.length());
+
+    // Assigned zero, so that save files produced by newer versions of the game
+    // do not break when loaded into older versions.
+    save_data.script_length_.set(0);
+
     memcpy(&save_data.data_, &d, sizeof d);
 
     u32 offset = sizeof(GlobalSaveData);
@@ -107,12 +89,13 @@ void store(Platform& pfrm, const PersistentData& d)
 
     offset += sizeof save_data;
 
-    pfrm.write_save_data(p.fmt_.c_str(), p.fmt_.length(), offset);
+    ram_filesystem::store_file_data(
+        pfrm, "/save/data.lisp", p.fmt_.c_str(), p.fmt_.length());
 }
 
 
 
-bool load(Platform& pfrm, PersistentData& d)
+bool load(Platform& pfrm, App& app, PersistentData& d)
 {
     u32 offset = sizeof(GlobalSaveData);
 
@@ -125,23 +108,21 @@ bool load(Platform& pfrm, PersistentData& d)
         return false;
     }
 
-    static const int buffer_size = 1024;
-    char buffer[buffer_size];
-    __builtin_memset(buffer, '\0', sizeof buffer);
-
-    if (buffer_size > save_data.script_length_.get()) {
-        pfrm.read_save_data(&buffer, save_data.script_length_.get(), offset);
 
 
-    } else {
+    Vector<char> data(pfrm);
+
+    auto bytes = ram_filesystem::read_file_data(pfrm, "/save/data.lisp", data);
+
+    if (bytes == 0) {
         return false;
     }
 
     memcpy(&d, &save_data.data_, sizeof d);
 
-    lisp::read(buffer);          // (0)
+    lisp::VectorCharSequence seq(data);
+    lisp::read(seq);             // (0)
     lisp::eval(lisp::get_op(0)); // (1)
-
 
     // Sorry if all the pushes and pops are hard to follow. My lisp interpreter
     // has a very strict garbage collector, and everything that isn't stored in
@@ -152,21 +133,13 @@ bool load(Platform& pfrm, PersistentData& d)
 
     auto arg = lisp::get_op(0); // result of eval()
 
-    if (auto script = pfrm.load_file_contents("scripts", "restore_save.lisp")) {
-        lisp::read(script);          // leaves result on stack (2)
-        lisp::eval(lisp::get_op(0)); // eval result of read() (3)
-
-        auto fn = lisp::get_op(0);
-        if (fn->type() == lisp::Value::Type::function) {
-            lisp::push_op(arg); // pass save data buffer on stack
-            funcall(fn, 1);     // one argument (the save data)
-            lisp::pop_op();     // funcall result
-        } else {
-            pfrm.fatal("not function!");
-        }
-
-        lisp::pop_op(); // result of eval() (3)
-        lisp::pop_op(); // result of read() (2)
+    auto fn = app.invoke_script(pfrm, "/scripts/restore_save.lisp");
+    if (fn->type() == lisp::Value::Type::function) {
+        lisp::push_op(arg); // pass save data buffer on stack
+        funcall(fn, 1);     // one argument (the save data)
+        lisp::pop_op();     // funcall result
+    } else {
+        pfrm.fatal("not function!");
     }
 
     lisp::pop_op(); // result of eval() (1)

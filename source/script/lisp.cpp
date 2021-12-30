@@ -9,8 +9,8 @@
 #ifdef __GBA__
 #define HEAP_DATA __attribute__((section(".ewram")))
 #else
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #define HEAP_DATA
 #endif
 
@@ -790,6 +790,17 @@ Value* make_string(Platform& pfrm, const char* string)
 }
 
 
+Value* make_character(utf8::Codepoint cp)
+{
+    if (auto val = alloc_value()) {
+        val->hdr_.type_ = Value::Type::user_data;
+        val->character().cp_ = cp;
+        return val;
+    }
+    return bound_context->oom_;
+}
+
+
 void set_list(Value* list, u32 position, Value* value)
 {
     while (position--) {
@@ -1155,12 +1166,8 @@ bool is_executing()
 }
 
 
-Value* dostring(const char* code, ::Function<16, void(Value&)> on_error)
+Value* dostring(CharSequence& code, ::Function<16, void(Value&)> on_error)
 {
-    if (code == nullptr) {
-        on_error(*L_NIL);
-    }
-
     ++bound_context->interp_entry_count_;
 
     int i = 0;
@@ -1168,7 +1175,7 @@ Value* dostring(const char* code, ::Function<16, void(Value&)> on_error)
     Protected result(get_nil());
 
     while (true) {
-        i += read(code + i);
+        i += read(code, i);
         auto reader_result = get_op0();
         if (reader_result == get_nil()) {
             pop_op();
@@ -1555,7 +1562,7 @@ template <typename F> void foreach_string_intern(F&& fn)
 }
 
 
-static u32 read_list(const char* code)
+static u32 read_list(CharSequence& code, int offset)
 {
     int i = 0;
 
@@ -1565,7 +1572,7 @@ static u32 read_list(const char* code)
     bool dotted_pair = false;
 
     while (true) {
-        switch (code[i]) {
+        switch (code[offset + i]) {
         case '\r':
         case '\n':
         case '\t':
@@ -1581,7 +1588,7 @@ static u32 read_list(const char* code)
                 return i;
             } else {
                 dotted_pair = true;
-                i += read(code + i);
+                i += read(code, offset + i);
                 result->cons().set_cdr(get_op0());
                 pop_op();
             }
@@ -1589,7 +1596,8 @@ static u32 read_list(const char* code)
 
         case ';':
             while (true) {
-                if (code[i] == '\0' or code[i] == '\r' or code[i] == '\n') {
+                if (code[offset + i] == '\0' or code[offset + i] == '\r' or
+                    code[offset + i] == '\n') {
                     break;
                 } else {
                     ++i;
@@ -1615,7 +1623,7 @@ static u32 read_list(const char* code)
                                          L_NIL));
                 return i;
             }
-            i += read(code + i);
+            i += read(code, offset + i);
 
             if (result == get_nil()) {
                 result = make_cons(get_op0(), get_nil());
@@ -1634,25 +1642,23 @@ static u32 read_list(const char* code)
 }
 
 
-static u32 read_string(const char* code)
+static u32 read_string(CharSequence& code, int offset)
 {
     auto temp = bound_context->pfrm_.make_scratch_buffer();
     auto write = temp->data_;
 
     int i = 0;
-    while (*code not_eq '"') {
-        if (*code == '\0' or i == SCRATCH_BUFFER_SIZE - 1) {
+    while (code[offset + i] not_eq '"') {
+        if (code[offset + i] == '\0' or i == SCRATCH_BUFFER_SIZE - 1) {
             // FIXME: correct error code.
             push_op(
                 lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
         }
-        *(write++) = *(code++);
-        i++;
+        *(write++) = code[offset + i++];
     }
 
-    if (*code == '"') {
+    if (code[offset + i] == '"') {
         ++i;
-        ++code;
     }
 
     push_op(make_string(bound_context->pfrm_, temp->data_));
@@ -1661,20 +1667,21 @@ static u32 read_string(const char* code)
 }
 
 
-static u32 read_symbol(const char* code)
+static u32 read_symbol(CharSequence& code, int offset)
 {
     int i = 0;
 
     StringBuffer<64> symbol;
 
-    if (code[0] == '\'' or code[0] == '`' or code[0] == ',' or code[0] == '@') {
-        symbol.push_back(code[0]);
+    if (code[offset] == '\'' or code[offset] == '`' or code[offset] == ',' or
+        code[offset] == '@') {
+        symbol.push_back(code[offset]);
         push_op(make_symbol(symbol.c_str()));
         return 1;
     }
 
     while (true) {
-        switch (code[i]) {
+        switch (code[offset + i]) {
         case '[':
         case ']':
         case '(':
@@ -1688,7 +1695,7 @@ static u32 read_symbol(const char* code)
             goto FINAL;
 
         default:
-            symbol.push_back(code[i++]);
+            symbol.push_back(code[offset + i++]);
             break;
         }
     }
@@ -1705,14 +1712,14 @@ FINAL:
 }
 
 
-static u32 read_number(const char* code)
+static u32 read_number(CharSequence& code, int offset)
 {
     int i = 0;
 
     StringBuffer<64> num_str;
 
     while (true) {
-        switch (code[i]) {
+        switch (code[offset + i]) {
         case 'x':
         case 'a':
         case 'b':
@@ -1730,7 +1737,7 @@ static u32 read_number(const char* code)
         case '7':
         case '8':
         case '9':
-            num_str.push_back(code[i++]);
+            num_str.push_back(code[offset + i++]);
             break;
 
         default:
@@ -1895,14 +1902,14 @@ static void macroexpand()
 }
 
 
-u32 read(const char* code)
+u32 read(CharSequence& code, int offset)
 {
     int i = 0;
 
     push_op(get_nil());
 
     while (true) {
-        switch (code[i]) {
+        switch (code[offset + i]) {
         case '\0':
             return i;
 
@@ -1910,14 +1917,15 @@ u32 read(const char* code)
         case '(':
             ++i;
             pop_op(); // nil
-            i += read_list(code + i);
+            i += read_list(code, offset + i);
             macroexpand();
             // list now at stack top.
             return i;
 
         case ';':
             while (true) {
-                if (code[i] == '\0' or code[i] == '\r' or code[i] == '\n') {
+                if (code[offset + i] == '\0' or code[offset + i] == '\r' or
+                    code[offset + i] == '\n') {
                     break;
                 } else {
                     ++i;
@@ -1926,10 +1934,10 @@ u32 read(const char* code)
             break;
 
         case '-':
-            if (code[i + 1] >= '0' and code[i + 1] <= '9') {
+            if (code[offset + i + 1] >= '0' and code[offset + i + 1] <= '9') {
                 ++i;
                 pop_op(); // nil
-                i += read_number(code + i);
+                i += read_number(code, offset + i);
                 get_op0()->integer().value_ *= -1;
                 return i;
             } else {
@@ -1948,7 +1956,7 @@ u32 read(const char* code)
         case '8':
         case '9':
             pop_op(); // nil
-            i += read_number(code + i);
+            i += read_number(code, offset + i);
             // number now at stack top.
             return i;
 
@@ -1961,13 +1969,13 @@ u32 read(const char* code)
 
         case '"':
             pop_op(); // nil
-            i += read_string(code + i + 1);
+            i += read_string(code, offset + i + 1);
             return i + 1;
 
         READ_SYMBOL:
         default:
             pop_op(); // nil
-            i += read_symbol(code + i);
+            i += read_symbol(code, offset + i);
             // symbol now at stack top.
 
             // Ok, so for quoted expressions, we're going to put the value into
@@ -1980,7 +1988,7 @@ u32 read(const char* code)
 
                 auto pair = make_cons(get_op0(), get_nil());
                 push_op(pair);
-                i += read(code + i);
+                i += read(code, offset + i);
                 pair->cons().set_cdr(get_op0());
                 pop_op(); // result of read()
                 pop_op(); // pair
@@ -2909,7 +2917,8 @@ void init(Platform& pfrm)
     set_var("read", make_function([](int argc) {
                 L_EXPECT_ARGC(argc, 1);
                 L_EXPECT_OP(0, string);
-                read(get_op0()->string().value());
+                BasicCharSequence seq(get_op0()->string().value());
+                read(seq);
                 auto result = get_op0();
                 pop_op();
                 return result;
@@ -2984,20 +2993,21 @@ void init(Platform& pfrm)
 
 #ifndef __GBA__
     set_var("file-lines", make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, string);
+                L_EXPECT_ARGC(argc, 1);
+                L_EXPECT_OP(0, string);
 
-        std::string line;
-        std::ifstream file(get_op0()->string().value());
+                std::string line;
+                std::ifstream file(get_op0()->string().value());
 
-        ListBuilder result;
+                ListBuilder result;
 
-        while (std::getline(file, line)) {
-            result.push_back(make_string(bound_context->pfrm_, line.c_str()));
-        }
+                while (std::getline(file, line)) {
+                    result.push_back(
+                        make_string(bound_context->pfrm_, line.c_str()));
+                }
 
-        return result.result();
-    }));
+                return result.result();
+            }));
 #endif
 
     set_var(

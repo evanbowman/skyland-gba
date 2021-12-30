@@ -647,7 +647,8 @@ void Island::repaint(Platform& pfrm)
                                 0) {
                                 placed_flag = true;
                                 pfrm.set_tile(layer_, x, y, Tile::flag_mount);
-                                pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);
+                                pfrm.set_tile(
+                                    layer_, x, y - 1, Tile::flag_start);
                                 if (layer_ == Layer::map_0_ext) {
                                     pfrm.set_palette(layer_, x, y - 1, 12);
                                 }

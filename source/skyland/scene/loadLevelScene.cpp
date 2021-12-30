@@ -94,24 +94,16 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     const auto loc = app.current_map_location();
     auto& node = app.world_map().matrix_[loc.x][loc.y];
 
-    auto on_lisp_error = [&pfrm](lisp::Value& err) {
-        lisp::DefaultPrinter p;
-        lisp::format(&err, p);
-        pfrm.fatal(p.fmt_.c_str());
-    };
-
     switch (node.type_) {
     case WorldMap::Node::Type::storm_clear:
     case WorldMap::Node::Type::clear: {
-        lisp::dostring(pfrm.load_file_contents("scripts", "neutral.lisp"),
-                       on_lisp_error);
+        app.invoke_script(pfrm, "/scripts/event/neutral.lisp");
         break;
     }
 
     case WorldMap::Node::Type::storm_hostile:
     case WorldMap::Node::Type::hostile: {
-        lisp::dostring(pfrm.load_file_contents("scripts", "hostile.lisp"),
-                       on_lisp_error);
+        app.invoke_script(pfrm, "/scripts/event/hostile.lisp");
         break;
     }
 
@@ -119,7 +111,6 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     case WorldMap::Node::Type::null:
         pfrm.fatal("world map mem corrupt");
     }
-
 
     prep_level(pfrm, app);
 

@@ -681,7 +681,8 @@ struct LoadVarRelocatable : public LoadVar {
     {
         return 43;
     }
-}; static_assert(sizeof(LoadVarRelocatable) == sizeof(LoadVar));
+};
+static_assert(sizeof(LoadVarRelocatable) == sizeof(LoadVar));
 
 
 struct PushSymbolRelocatable : public PushSymbol {
@@ -694,7 +695,8 @@ struct PushSymbolRelocatable : public PushSymbol {
     {
         return 44;
     }
-}; static_assert(sizeof(PushSymbolRelocatable) == sizeof(PushSymbol));
+};
+static_assert(sizeof(PushSymbolRelocatable) == sizeof(PushSymbol));
 
 
 struct LexicalDefRelocatable : public LexicalDef {
@@ -707,8 +709,8 @@ struct LexicalDefRelocatable : public LexicalDef {
     {
         return 45;
     }
-}; static_assert(sizeof(LexicalDefRelocatable) == sizeof(LexicalDef));
-
+};
+static_assert(sizeof(LexicalDefRelocatable) == sizeof(LexicalDef));
 
 
 // Just a utility intended for the compiler, not to be used by the vm.
@@ -727,7 +729,7 @@ inline Header* load_instruction(ScratchBuffer& buffer, int index)
             } else {
                 index--;
                 offset += sizeof(PushString) +
-                    ((PushString*)(buffer.data_ + offset))->length_;
+                          ((PushString*)(buffer.data_ + offset))->length_;
             }
             break;
 

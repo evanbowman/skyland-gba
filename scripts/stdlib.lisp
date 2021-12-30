@@ -32,12 +32,12 @@
 ;; Some useful macros for defining functions
 
 ;; Defines a function.
-(macro defn (name body) `(def ,name (lambda ,@body)))
+(macro defn (name body) `(setq ,name (lambda ,@body)))
 ;; Defines a bytecode-compiled function.
-(macro defn/c (name body) `(def ,name (compile (lambda ,@body))))
+(macro defn/c (name body) `(setq ,name (compile (lambda ,@body))))
 
 
-(macro def (name expr)
+(macro setq (name expr)
  `(set ,(cons $q name) ,@expr))
 
 
@@ -61,11 +61,15 @@
 
 
 (macro while (expr body)
- `((lambda
-     (if ,expr
-         (let ()
-           ,@body
-           ((this)))))))
+ ;; The vm only performs TCO on compiled lambdas, so we need to enforce
+ ;; compilation here, unfortunately. Quite slow, but then, how often do you
+ ;; really _need_ a while loop in lisp?
+ `((compile
+    (lambda
+      (if ,expr
+          (let ()
+            ,@body
+            ((this))))))))
 
 
 (macro progn (body)
@@ -89,7 +93,7 @@
   `(,@$0 ,@$1))
 
 
-(def bisect
+(setq bisect
      (let ((impl (compile
                   (lambda
                     (if (not $1)
@@ -119,3 +123,7 @@
     (let ((temp (bisect $0)))
       (merge (sort (car temp))
              (sort (cdr temp))))))
+
+
+(defn/c locale-string
+  (get-line-of-file (string "strings/" language '.txt) $0))
