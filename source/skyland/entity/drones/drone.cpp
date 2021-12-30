@@ -56,7 +56,15 @@ void Drone::set_movement_target(const Vec2<u8>& position)
 void Drone::update_sprite(App& app)
 {
     auto o = calc_pos(destination_, grid_pos_);
+
+    const Float offset = 3 *
+        float(sine(4 * 3.14f * 0.0005f * duration_ + 180)) /
+        std::numeric_limits<s16>::max();
+
+    o.y += offset;
+
     sprite_.set_position(o);
+
     if (target_) {
         if (destination() == &app.player_island()) {
             sprite_.set_flip({false, false});

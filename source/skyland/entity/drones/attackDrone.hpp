@@ -39,6 +39,7 @@ public:
             break;
 
         case State::wait:
+            duration_ += delta;
             update_sprite(app);
             timer_ += delta;
             if (timer_ > milliseconds(3200)) {
