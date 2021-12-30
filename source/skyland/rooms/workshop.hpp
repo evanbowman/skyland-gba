@@ -33,12 +33,6 @@ public:
     }
 
 
-    static Health full_health()
-    {
-        return 60;
-    }
-
-
     static Icon icon()
     {
         return 776;
@@ -54,12 +48,6 @@ public:
     static Float ai_base_weight()
     {
         return 700.f;
-    }
-
-
-    static Coins cost()
-    {
-        return 2000;
     }
 };
 

@@ -53,8 +53,7 @@ public:
     Room(Island* parent,
          const char* name,
          const Vec2<u8>& size,
-         const Vec2<u8>& position,
-         Health health);
+         const Vec2<u8>& position);
 
 
     virtual bool add_occupant(EntityRef<BasicCharacter> entity)
@@ -72,6 +71,8 @@ public:
 
 
     virtual void update(Platform& pfrm, App&, Microseconds delta);
+
+    virtual void display(Platform::Screen& screen);
 
 
     Island* other_island(App&);

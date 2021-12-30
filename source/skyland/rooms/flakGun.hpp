@@ -48,18 +48,6 @@ public:
     }
 
 
-    static Coins cost()
-    {
-        return 1900;
-    }
-
-
-    static Health full_health()
-    {
-        return 125;
-    }
-
-
     static Float ai_base_weight()
     {
         return 800.f;
@@ -84,12 +72,6 @@ public:
     void plot_walkable_zones(bool matrix[16][16]) override
     {
         // characters cannot walk through a flak gun.
-    }
-
-
-    static Power consumes_power()
-    {
-        return 34;
     }
 
 

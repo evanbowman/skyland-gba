@@ -9,6 +9,7 @@
 #include "room.hpp"
 #include "roomPool.hpp"
 #include "skyland/tile.hpp"
+#include "entity/drones/drone.hpp"
 
 
 
@@ -76,6 +77,9 @@ public:
 
 
     Room* get_room(const Vec2<u8>& coord);
+
+
+    std::optional<SharedEntityRef<Drone>> get_drone(const Vec2<u8>& coord);
 
 
     void destroy_room(Platform& pfrm, const Vec2<u8>& coord);
@@ -222,6 +226,12 @@ public:
     void on_layout_changed(const Vec2<u8>& room_added_removed_coord);
 
 
+    WeakEntityList<Drone>& drones()
+    {
+        return drones_;
+    }
+
+
 private:
     void recalculate_power_usage();
 
@@ -256,6 +266,7 @@ private:
 
     EntityList<BasicCharacter> characters_;
     EntityList<Entity> projectiles_;
+    WeakEntityList<Drone> drones_;
 
     Player* owner_;
 

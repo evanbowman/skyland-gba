@@ -31,18 +31,6 @@ public:
     }
 
 
-    static Health full_health()
-    {
-        return 30;
-    }
-
-
-    static Coins cost()
-    {
-        return 300;
-    }
-
-
     bool description_visible() override
     {
         return true;
@@ -52,12 +40,6 @@ public:
     static Float ai_base_weight()
     {
         return 400.f;
-    }
-
-
-    static Power consumes_power()
-    {
-        return 64;
     }
 
 

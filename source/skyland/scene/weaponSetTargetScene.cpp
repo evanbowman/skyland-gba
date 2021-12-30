@@ -85,15 +85,22 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::action_1)) {
             if (auto target_room =
                     app.opponent_island()->get_room(cursor_loc)) {
-                if (auto room = app.player_island().get_room(weapon_loc_)) {
-                    room->set_target(target_room->position());
 
+                auto sync = [&] {
                     network::packet::WeaponSetTarget packet;
                     packet.weapon_x_ = weapon_loc_.x;
                     packet.weapon_y_ = weapon_loc_.y;
                     packet.target_x_ = target_room->position().x;
                     packet.target_y_ = target_room->position().y;
                     network::transmit(pfrm, packet);
+                };
+
+                if (auto room = app.player_island().get_room(weapon_loc_)) {
+                    room->set_target(target_room->position());
+                    sync();
+                } else if (auto drone = app.player_island().get_drone(weapon_loc_)) {
+                    // TODO: drone set target...
+                    sync();
                 }
                 return scene_pool::alloc<ReadyScene>();
             }

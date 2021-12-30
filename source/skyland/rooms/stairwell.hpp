@@ -42,24 +42,6 @@ public:
     }
 
 
-    static Health full_health()
-    {
-        return 60;
-    }
-
-
-    static Coins cost()
-    {
-        return 500;
-    }
-
-
-    static Power consumes_power()
-    {
-        return 5;
-    }
-
-
     static Icon icon()
     {
         return 616;

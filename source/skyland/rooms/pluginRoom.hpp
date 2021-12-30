@@ -10,7 +10,7 @@ namespace skyland {
 class PluginRoom : public Room {
 public:
     PluginRoom(Island* parent, const Vec2<u8>& position, RoomMeta* metaclass)
-        : Room(parent, "__metaclass_lookup_deferred__", {1, 1}, position, 100)
+        : Room(parent, nullptr, {1, 1}, position)
     {
         set_metaclass(metaclass);
     }

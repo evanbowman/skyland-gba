@@ -3,6 +3,7 @@
 
 #include "skyland/coins.hpp"
 #include "skyland/room.hpp"
+#include "skyland/entity/drones/drone.hpp"
 
 
 
@@ -10,12 +11,15 @@ namespace skyland {
 
 
 
-class IonCannon : public Room {
+class DroneBay : public Room {
 public:
-    IonCannon(Island* parent, const Vec2<u8>& position);
+    DroneBay(Island* parent, const Vec2<u8>& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
+
+    void display(Platform::Screen& screen) override;
+
 
 
     void render_interior(Platform& pfrm, Layer layer) override;
@@ -36,40 +40,58 @@ public:
 
     static Vec2<u8> size()
     {
-        return {1, 1};
+        return {2, 1};
     }
 
 
     static const char* name()
     {
-        return "ion-cannon";
+        return "drone-bay";
+    }
+
+
+    static Coins cost()
+    {
+        return 2200;
+    }
+
+
+    static Health full_health()
+    {
+        return 200;
     }
 
 
     static Float ai_base_weight()
     {
-        return 800.f;
+        return 1200.f;
     }
 
 
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
-    void set_target(const Vec2<u8>& target) override
-    {
-        target_ = target;
-    }
-
-
-    void unset_target() override
-    {
-        target_.reset();
-    }
-
-
     void plot_walkable_zones(bool matrix[16][16]) override
     {
         // one cannot walk through this tile, intentionally do nothing.
+    }
+
+
+    static Power consumes_power()
+    {
+        return 34;
+    }
+
+
+    static Icon icon()
+    {
+        return 1032;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 1016;
     }
 
 
@@ -79,20 +101,23 @@ public:
     }
 
 
-    static Icon icon()
+    std::optional<SharedEntityRef<Drone>> drone() const
     {
-        return 840;
+        return drone_;
     }
 
 
-    static Icon unsel_icon()
+    void attach_drone(SharedEntityRef<Drone> drone)
     {
-        return 824;
+        drone_ = drone;
     }
 
 
 private:
     static constexpr const Microseconds reload_time = milliseconds(3500);
+
+
+    std::optional<SharedEntityRef<Drone>> drone_;
 
 
     Microseconds reload_ = reload_time;

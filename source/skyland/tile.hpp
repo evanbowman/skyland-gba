@@ -51,6 +51,8 @@ struct Tile {
         reserved_21,
         flak_gun_1,
         flak_gun_2,
+        drone_bay_1,
+        drone_bay_2,
         flag_start = 105,
         flag_end = 108,
         roof_flag = 109,
@@ -106,5 +108,7 @@ struct InteriorTile {
         replicator_4,
         flak_gun_1,
         flak_gun_2,
+        drone_bay_1,
+        drone_bay_2,
     };
 };

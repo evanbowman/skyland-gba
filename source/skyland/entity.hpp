@@ -79,6 +79,12 @@ public:
     }
 
 
+    Health health() const
+    {
+        return health_;
+    }
+
+
 protected:
     Sprite sprite_;
     HitBox hitbox_;
@@ -145,6 +151,14 @@ template <typename T> using EntityRef = std::unique_ptr<T, void (*)(Entity*)>;
 
 
 
+template <typename T>
+using SharedEntityRef = Rc<T, IntrusiveRcControlBlock<T>>;
+
+template <typename T>
+using WeakEntityRef = Weak<T, IntrusiveRcControlBlock<T>>;
+
+
+
 using EntityNode = BiNode<EntityRef<Entity>>;
 
 
@@ -156,6 +170,15 @@ using EntityNodePool = Pool<sizeof(EntityNode), Capacity, alignof(Entity)>;
 
 template <typename T>
 using EntityList = List<EntityRef<T>, EntityNodePool<entity_pool_size>>;
+
+
+
+template <typename T>
+using SharedEntityList = List<SharedEntityRef<T>, EntityNodePool<entity_pool_size>>;
+
+
+template <typename T>
+using WeakEntityList = List<WeakEntityRef<T>, EntityNodePool<entity_pool_size>>;
 
 
 

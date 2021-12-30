@@ -37,6 +37,8 @@ protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;
 
+    Microseconds camera_update_timer_ = 0;
+
     void reset_gamespeed(Platform& pfrm, App& app);
     void set_gamespeed(Platform& pfrm, App& app, GameSpeed speed);
 
@@ -45,7 +47,6 @@ private:
 
     bool persistent_ui_ = false;
     Microseconds coin_hide_timer_ = 0;
-    Microseconds camera_update_timer_ = 0;
     Microseconds power_hide_timer_ = 0;
     Microseconds set_gamespeed_keyheld_timer_ = 0;
     Coins last_coins_ = 0;

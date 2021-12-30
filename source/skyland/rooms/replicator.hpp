@@ -34,27 +34,9 @@ public:
     }
 
 
-    static Health full_health()
-    {
-        return 80;
-    }
-
-
     static Float ai_base_weight()
     {
         return 800.f;
-    }
-
-
-    static Coins cost()
-    {
-        return 2500;
-    }
-
-
-    static Power consumes_power()
-    {
-        return 80;
     }
 
 

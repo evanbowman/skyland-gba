@@ -45,24 +45,6 @@ public:
     }
 
 
-    static Health full_health()
-    {
-        return 20;
-    }
-
-
-    static Coins cost()
-    {
-        return 30;
-    }
-
-
-    static Power consumes_power()
-    {
-        return 0;
-    }
-
-
     static Conditions::Value conditions()
     {
         return Conditions::not_constructible;

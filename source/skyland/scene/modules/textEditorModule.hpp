@@ -5,8 +5,8 @@
 #include "graphics/overlay.hpp"
 #include "memory/buffer.hpp"
 #include "skyland/scene/module.hpp"
-#include "vector.hpp"
 #include "userContext.hpp"
+#include "vector.hpp"
 
 
 
@@ -69,7 +69,8 @@ private:
 
 
     Vector<char>::Iterator insert_pos();
-    void insert_char(char c, std::optional<Vector<char>::Iterator> insert_hint = {});
+    void insert_char(char c,
+                     std::optional<Vector<char>::Iterator> insert_hint = {});
     void erase_char(std::optional<Vector<char>::Iterator> erase_hint = {});
 
 

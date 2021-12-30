@@ -10,6 +10,8 @@
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
 #include "worldScene.hpp"
+#include "skyland/rooms/droneBay.hpp"
+#include "skyland/scene/weaponSetTargetScene.hpp"
 
 
 
@@ -105,7 +107,20 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().key_down(pfrm, Key::action_1)) {
         if (auto room = app.player_island().get_room(cursor_loc)) {
-            return room->select(pfrm, app);
+            if (auto scene = room->select(pfrm, app)) {
+                return scene;
+            } else if (auto db = dynamic_cast<DroneBay*>(room)) {
+                if (auto drone = db->drone()) {
+                    // If a user selects a drone bay with a drone already
+                    // attached, jump the cursor to the drone's location.
+                    camera_update_timer_ = milliseconds(500);
+                    cursor_loc = (*drone)->position();
+                }
+            } else {
+                return null_scene();
+            }
+        } else if (auto drone = app.player_island().get_drone(cursor_loc)) {
+            return scene_pool::alloc<WeaponSetTargetScene>((*drone)->position());
         }
     }
 
@@ -124,6 +139,9 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.player().key_down(pfrm, Key::action_2)) {
         if (app.player_island().get_room(cursor_loc)) {
             return scene_pool::alloc<SalvageRoomScene>();
+        } else if (auto drone = app.player_island().get_drone(cursor_loc)) {
+            // TODO: create option menu
+            (*drone)->kill();
         }
     }
 
@@ -208,6 +226,15 @@ void describe_room(Platform& pfrm,
             room_description->assign("(??"); // Split to avoid trigraph
             room_description->append("?) ??");
             room_description->append("?/???");
+        }
+    } else {
+        if (auto drone = island->get_drone(cursor_loc)) {
+            room_description.emplace(
+                pfrm, OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+            Text::OptColors opts = {{custom_color(0x3d84e7),
+                    ColorConstant::rich_black}};
+            room_description->append("(drone) ", opts);
+            room_description->append((*drone)->health());
         }
     }
 

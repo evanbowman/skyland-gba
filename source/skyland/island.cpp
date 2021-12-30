@@ -42,6 +42,7 @@ Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
     : layer_(layer), timer_(0), interior_visible_(false),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       projectiles_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
+      drones_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       owner_(&owner)
 {
     init_terrain(pfrm, width);
@@ -136,8 +137,6 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         }
     }
 
-    // owner_->update(pfrm, app, dt);
-
     if (chimney_loc_) {
         chimney_spawn_timer_ += dt;
 
@@ -193,6 +192,23 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             }
         }
     };
+
+
+    for (auto it = drones_.begin(); it not_eq drones_.end();) {
+        if (auto ptr = (*it).upgrade()) {
+            if (not (*ptr)->alive()) {
+
+                // TODO: network transmit!
+
+                it = drones_.erase(it);
+            } else {
+                (*ptr)->update(pfrm, app, dt);
+                ++it;
+            }
+        } else {
+            it = drones_.erase(it);
+        }
+    }
 
 
     for (auto it = rooms_.begin(); it not_eq rooms_.end();) {
@@ -323,15 +339,9 @@ void Island::display(Platform& pfrm)
         pfrm.screen().draw(p->sprite());
     }
 
-    if (interior_visible()) {
-        for (auto& room : rooms_) {
-            for (auto& c : room->characters()) {
-                const auto& pos = c->sprite().get_position();
-                if (pos.y < screen_limit_y) {
-                    pfrm.screen().draw(c->sprite());
-                }
-            }
-        }
+
+    for (auto& room : rooms_) {
+        room->display(pfrm.screen());
     }
 }
 
@@ -674,6 +684,21 @@ void Island::set_drift(Float drift)
 Vec2<Float> Island::origin() const
 {
     return {position_.x, position_.y + ambient_movement_};
+}
+
+
+
+std::optional<SharedEntityRef<Drone>> Island::get_drone(const Vec2<u8>& coord)
+{
+    for (auto& drone_wp : drones()) {
+        if (auto drone_sp = drone_wp.upgrade();
+            drone_sp and
+            (*drone_sp)->position() == coord) {
+            return *drone_sp;
+        }
+    }
+
+    return {};
 }
 
 

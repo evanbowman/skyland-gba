@@ -3,6 +3,7 @@
 
 
 #include "globals.hpp"
+#include "memory/rc.hpp"
 
 
 
@@ -55,6 +56,29 @@ EntityRef<T> alloc_entity(Args&&... args)
     }
 
     return {nullptr, entity_deleter};
+}
+
+
+
+template <typename T, typename ...Args>
+std::optional<SharedEntityRef<T>> alloc_shared_entity(Args&& ...args)
+{
+    auto& pool = std::get<SkylandGlobalData>(globals()).entity_pools_;
+
+    if (auto mem = reinterpret_cast<T*>(pool.get())) {
+        new (mem) T(std::forward<Args>(args)...);
+
+        mem->finalizer_hook_ = [](IntrusiveRcControlBlock<T>* cb) {
+            auto& pools = std::get<SkylandGlobalData>(globals()).entity_pools_;
+            pools.post(reinterpret_cast<byte*>(cb->data_));
+        };
+
+        mem->data_ = mem;
+
+        return SharedEntityRef<T>(static_cast<IntrusiveRcControlBlock<T>*>(mem));
+    }
+
+    return {};
 }
 
 

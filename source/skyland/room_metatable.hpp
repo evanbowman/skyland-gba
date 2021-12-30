@@ -133,8 +133,9 @@ struct RoomMeta {
 
     template <typename T> struct BoxImpl : public Box {
         BoxImpl()
-            : health_(T::full_health()), cost_(T::cost()),
-              power_(T::consumes_power())
+            // NOTE: the game will fill in these parameters from configuration
+            // later on.
+            : health_(10), cost_(10), power_(10)
         {
         }
 
