@@ -174,7 +174,7 @@ MoveDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
                             Vec2<u8>{origin_.x, u8(origin_.y - 1)})) {
                         (*drone)->set_movement_target(*cursor_loc);
                         db->attach_drone(*drone);
-                        room->parent()->drones().push(*drone);
+                        island->drones().push(*drone);
 
                         return scene_pool::alloc<ReadyScene>();
                     }
