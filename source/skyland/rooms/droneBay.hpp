@@ -50,18 +50,6 @@ public:
     }
 
 
-    static Coins cost()
-    {
-        return 2200;
-    }
-
-
-    static Health full_health()
-    {
-        return 200;
-    }
-
-
     static Float ai_base_weight()
     {
         return 1200.f;
@@ -74,12 +62,6 @@ public:
     void plot_walkable_zones(bool matrix[16][16]) override
     {
         // one cannot walk through this tile, intentionally do nothing.
-    }
-
-
-    static Power consumes_power()
-    {
-        return 34;
     }
 
 
