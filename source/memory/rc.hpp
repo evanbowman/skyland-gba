@@ -21,72 +21,66 @@
 
 namespace detail {
 
-    // The default control block: requires that the reference counted object was
-    // allocated from a pool. Kind of limiting, but as we do not have a malloc
-    // implementation, this is the best we can really do for a general purpose
-    // allocator.
-    template <typename T, u32 Count>
-    struct PooledControlBlock {
-        template <typename... Args>
-        PooledControlBlock(ObjectPool<PooledControlBlock, Count>* pool,
-                           void (*finalizer_hook)(PooledControlBlock*),
-                           Args&&... args)
-            : data_(std::forward<Args>(args)...), pool_(pool),
-              finalizer_hook_(finalizer_hook), strong_count_(0), weak_count_(0)
-        {
-            if (finalizer_hook_ == nullptr) {
-                finalizer_hook_ = [](PooledControlBlock* ctrl) {
-                    ctrl->pool_->post(ctrl);
-                };
-            }
+// The default control block: requires that the reference counted object was
+// allocated from a pool. Kind of limiting, but as we do not have a malloc
+// implementation, this is the best we can really do for a general purpose
+// allocator.
+template <typename T, u32 Count> struct PooledControlBlock {
+    template <typename... Args>
+    PooledControlBlock(ObjectPool<PooledControlBlock, Count>* pool,
+                       void (*finalizer_hook)(PooledControlBlock*),
+                       Args&&... args)
+        : data_(std::forward<Args>(args)...), pool_(pool),
+          finalizer_hook_(finalizer_hook), strong_count_(0), weak_count_(0)
+    {
+        if (finalizer_hook_ == nullptr) {
+            finalizer_hook_ = [](PooledControlBlock* ctrl) {
+                ctrl->pool_->post(ctrl);
+            };
         }
+    }
 
-        T& data()
-        {
-            return data_;
-        }
+    T& data()
+    {
+        return data_;
+    }
 
-        T data_;
-        ObjectPool<PooledControlBlock, Count>* pool_;
-        // Because the pool is an input parameter, I do not see much reason to
-        // allow custom finalizers, but in any event, having the option to
-        // customize deallocation might be useful in some unforseen way.
-        void (*finalizer_hook_)(PooledControlBlock*);
-        Atomic<u32> strong_count_;
-        Atomic<u32> weak_count_;
-    };
+    T data_;
+    ObjectPool<PooledControlBlock, Count>* pool_;
+    // Because the pool is an input parameter, I do not see much reason to
+    // allow custom finalizers, but in any event, having the option to
+    // customize deallocation might be useful in some unforseen way.
+    void (*finalizer_hook_)(PooledControlBlock*);
+    Atomic<u32> strong_count_;
+    Atomic<u32> weak_count_;
+};
 
 
-    template <typename T>
-    class IntrusiveControlBlock {
-    public:
-        IntrusiveControlBlock() :
-            data_(nullptr),
-            finalizer_hook_(nullptr),
-            strong_count_(0),
-            weak_count_(0)
-        {
-        }
+template <typename T> class IntrusiveControlBlock {
+public:
+    IntrusiveControlBlock()
+        : data_(nullptr), finalizer_hook_(nullptr), strong_count_(0),
+          weak_count_(0)
+    {
+    }
 
-        IntrusiveControlBlock(void (*finalizer_hook)(IntrusiveControlBlock*)) :
-            data_(nullptr),
-            finalizer_hook_(finalizer_hook),
-            strong_count_(0),
-            weak_count_(0)
-        {
-        }
+    IntrusiveControlBlock(void (*finalizer_hook)(IntrusiveControlBlock*))
+        : data_(nullptr), finalizer_hook_(finalizer_hook), strong_count_(0),
+          weak_count_(0)
+    {
+    }
 
-        T& data()
-        {
-            return *data_;
-        }
+    T& data()
+    {
+        return *data_;
+    }
 
-        T* data_;
-        void (*finalizer_hook_)(IntrusiveControlBlock*);
-        Atomic<u32> strong_count_;
-        Atomic<u32> weak_count_;
-    };
-}
+    T* data_;
+    void (*finalizer_hook_)(IntrusiveControlBlock*);
+    Atomic<u32> strong_count_;
+    Atomic<u32> weak_count_;
+};
+} // namespace detail
 
 
 
@@ -144,8 +138,8 @@ protected:
 };
 
 
-template <typename T, typename ControlBlockImpl> class Rc :
-    public RcBase<ControlBlockImpl> {
+template <typename T, typename ControlBlockImpl>
+class Rc : public RcBase<ControlBlockImpl> {
 public:
     using Super = RcBase<ControlBlockImpl>;
 
@@ -194,8 +188,8 @@ private:
 
 
 
-template <typename T, typename ControlBlockImpl> class Weak :
-    public RcBase<ControlBlockImpl> {
+template <typename T, typename ControlBlockImpl>
+class Weak : public RcBase<ControlBlockImpl> {
 public:
     using Super = RcBase<ControlBlockImpl>;
 
@@ -228,8 +222,7 @@ create_pooled_rc(ObjectPool<PooledRcControlBlock<T, PoolSize>, PoolSize>* pool,
                  void (*finalizer_hook)(PooledRcControlBlock<T, PoolSize>*),
                  Args&&... args)
 {
-    auto ctrl =
-        pool->get(pool, finalizer_hook, std::forward<Args>(args)...);
+    auto ctrl = pool->get(pool, finalizer_hook, std::forward<Args>(args)...);
     if (ctrl) {
         return Rc<T, PooledRcControlBlock<T, PoolSize>>(ctrl);
     } else {

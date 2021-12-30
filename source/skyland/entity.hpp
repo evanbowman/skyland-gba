@@ -151,11 +151,9 @@ template <typename T> using EntityRef = std::unique_ptr<T, void (*)(Entity*)>;
 
 
 
-template <typename T>
-using SharedEntityRef = Rc<T, IntrusiveRcControlBlock<T>>;
+template <typename T> using SharedEntityRef = Rc<T, IntrusiveRcControlBlock<T>>;
 
-template <typename T>
-using WeakEntityRef = Weak<T, IntrusiveRcControlBlock<T>>;
+template <typename T> using WeakEntityRef = Weak<T, IntrusiveRcControlBlock<T>>;
 
 
 
@@ -174,7 +172,8 @@ using EntityList = List<EntityRef<T>, EntityNodePool<entity_pool_size>>;
 
 
 template <typename T>
-using SharedEntityList = List<SharedEntityRef<T>, EntityNodePool<entity_pool_size>>;
+using SharedEntityList =
+    List<SharedEntityRef<T>, EntityNodePool<entity_pool_size>>;
 
 
 template <typename T>

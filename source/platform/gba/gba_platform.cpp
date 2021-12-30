@@ -1961,7 +1961,8 @@ std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 
     for (u8 i = 0; i < dynamic_texture_count; ++i) {
         if (not dynamic_texture_mappings[i].reserved_) {
-            auto dt = create_pooled_rc<DynamicTexture, dynamic_texture_count>(&dynamic_texture_pool, finalizer, i);
+            auto dt = create_pooled_rc<DynamicTexture, dynamic_texture_count>(
+                &dynamic_texture_pool, finalizer, i);
             if (dt) {
                 dynamic_texture_mappings[i].reserved_ = true;
                 return *dt;
@@ -2976,7 +2977,8 @@ ScratchBufferPtr Platform::make_scratch_buffer()
             ctrl->pool_->post(ctrl);
         };
 
-    auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(&scratch_buffer_pool, finalizer);
+    auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(
+        &scratch_buffer_pool, finalizer);
     if (maybe_buffer) {
         ++scratch_buffers_in_use;
         if (scratch_buffers_in_use > scratch_buffer_highwater) {

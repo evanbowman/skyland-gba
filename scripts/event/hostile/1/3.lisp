@@ -4,7 +4,7 @@
 
 
 
-(init-opponent 9 'hostile)
+(init-opponent 7 'hostile)
 
 
 (configure-player

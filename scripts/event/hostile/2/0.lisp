@@ -24,6 +24,7 @@
    (missile-silo 1 11)
    (transporter 6 13)
    (missile-silo 6 11)
+   (hull 5 10)
    (forcefield 6 10)))
 
 

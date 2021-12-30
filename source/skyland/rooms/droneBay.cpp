@@ -1,8 +1,8 @@
 #include "droneBay.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/island.hpp"
 #include "skyland/scene/moveDroneScene.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -19,7 +19,7 @@ DroneBay::DroneBay(Island* parent, const Vec2<u8>& position)
 
 void DroneBay::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (drone_ and not (*drone_)->alive()) {
+    if (drone_ and not(*drone_)->alive()) {
         drone_.reset();
     }
 }

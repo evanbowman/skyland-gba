@@ -1,7 +1,7 @@
 #pragma once
 
-#include "skyland/entity.hpp"
 #include "memory/rc.hpp"
+#include "skyland/entity.hpp"
 
 
 
@@ -15,18 +15,9 @@ class Island;
 
 class Drone : public Entity, public IntrusiveRcControlBlock<Drone> {
 public:
-
     Drone(Island* parent,
-          const Vec2<u8>& grid_pos) :
-        Entity({{10, 10}, {8, 8}}),
-        parent_(parent),
-        grid_pos_({grid_pos.x, u8(grid_pos.y)})
-    {
-        sprite_.set_texture_index(64);
-        sprite_.set_size(Sprite::Size::w16_h32);
-
-        health_ = 40;
-    }
+          Island* destination,
+          const Vec2<u8>& grid_pos);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -38,9 +29,9 @@ public:
     }
 
 
-    void set_movement_path(const Vec2<u8>& position)
+    void set_movement_target(const Vec2<u8>& position)
     {
-        grid_pos_ = position;
+        movement_target_ = position;
     }
 
 
@@ -49,13 +40,24 @@ public:
         target_ = target;
     }
 
+protected:
+    enum class State {
+        launch,
+        ready,
+    } state_ = State::launch;
 
 private:
     Island* parent_;
+    Island* destination_;
     Vec2<u8> grid_pos_;
-    Vec2<u8> target_;
+    Vec2<u8> movement_target_;
+    std::optional<Vec2<u8>> target_;
+
+    Vec2<Float> anchor_;
+
+    Microseconds timer_ = 0;
 };
 
 
 
-}
+} // namespace skyland

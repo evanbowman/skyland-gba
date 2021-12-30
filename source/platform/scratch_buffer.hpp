@@ -17,5 +17,5 @@ struct ScratchBuffer {
 
 static constexpr const int scratch_buffer_count = 90;
 using ScratchBufferPtr =
-    Rc<ScratchBuffer, PooledRcControlBlock<ScratchBuffer,
-                                           scratch_buffer_count>>;
+    Rc<ScratchBuffer,
+       PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>>;

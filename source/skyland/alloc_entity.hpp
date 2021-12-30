@@ -60,8 +60,8 @@ EntityRef<T> alloc_entity(Args&&... args)
 
 
 
-template <typename T, typename ...Args>
-std::optional<SharedEntityRef<T>> alloc_shared_entity(Args&& ...args)
+template <typename T, typename... Args>
+std::optional<SharedEntityRef<T>> alloc_shared_entity(Args&&... args)
 {
     auto& pool = std::get<SkylandGlobalData>(globals()).entity_pools_;
 
@@ -75,7 +75,8 @@ std::optional<SharedEntityRef<T>> alloc_shared_entity(Args&& ...args)
 
         mem->data_ = mem;
 
-        return SharedEntityRef<T>(static_cast<IntrusiveRcControlBlock<T>*>(mem));
+        return SharedEntityRef<T>(
+            static_cast<IntrusiveRcControlBlock<T>*>(mem));
     }
 
     return {};

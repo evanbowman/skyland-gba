@@ -4,6 +4,7 @@
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/core.hpp"
+#include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/hull.hpp"
@@ -16,7 +17,6 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
-#include "skyland/rooms/droneBay.hpp"
 
 
 

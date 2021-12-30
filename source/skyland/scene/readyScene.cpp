@@ -6,12 +6,12 @@
 #include "lispReplScene.hpp"
 #include "platform/platform.hpp"
 #include "salvageRoomScene.hpp"
+#include "skyland/rooms/droneBay.hpp"
+#include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
 #include "worldScene.hpp"
-#include "skyland/rooms/droneBay.hpp"
-#include "skyland/scene/weaponSetTargetScene.hpp"
 
 
 
@@ -114,13 +114,15 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // If a user selects a drone bay with a drone already
                     // attached, jump the cursor to the drone's location.
                     camera_update_timer_ = milliseconds(500);
+                    clear_room_description(pfrm, room_description_);
                     cursor_loc = (*drone)->position();
                 }
             } else {
                 return null_scene();
             }
         } else if (auto drone = app.player_island().get_drone(cursor_loc)) {
-            return scene_pool::alloc<WeaponSetTargetScene>((*drone)->position());
+            return scene_pool::alloc<WeaponSetTargetScene>(
+                (*drone)->position());
         }
     }
 
@@ -231,8 +233,8 @@ void describe_room(Platform& pfrm,
         if (auto drone = island->get_drone(cursor_loc)) {
             room_description.emplace(
                 pfrm, OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
-            Text::OptColors opts = {{custom_color(0x3d84e7),
-                    ColorConstant::rich_black}};
+            Text::OptColors opts = {
+                {custom_color(0x3d84e7), ColorConstant::rich_black}};
             room_description->append("(drone) ", opts);
             room_description->append((*drone)->health());
         }

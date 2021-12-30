@@ -196,7 +196,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
     for (auto it = drones_.begin(); it not_eq drones_.end();) {
         if (auto ptr = (*it).upgrade()) {
-            if (not (*ptr)->alive()) {
+            if (not(*ptr)->alive()) {
 
                 // TODO: network transmit!
 
@@ -557,6 +557,14 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
             matrix[x][14] = true;
         }
     }
+
+    for (auto& drone : drones_) {
+        if (auto sp = drone.upgrade()) {
+            auto pos = (*sp)->position();
+            matrix[pos.x][pos.y] = false;
+            matrix[pos.x][pos.y + 1] = false;
+        }
+    }
 }
 
 
@@ -692,8 +700,7 @@ std::optional<SharedEntityRef<Drone>> Island::get_drone(const Vec2<u8>& coord)
 {
     for (auto& drone_wp : drones()) {
         if (auto drone_sp = drone_wp.upgrade();
-            drone_sp and
-            (*drone_sp)->position() == coord) {
+            drone_sp and (*drone_sp)->position() == coord) {
             return *drone_sp;
         }
     }

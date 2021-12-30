@@ -185,8 +185,8 @@ public:
     };
 
     using DynamicTexturePtr =
-        Rc<DynamicTexture, PooledRcControlBlock<DynamicTexture,
-                                                dynamic_texture_count>>;
+        Rc<DynamicTexture,
+           PooledRcControlBlock<DynamicTexture, dynamic_texture_count>>;
 
 
     std::optional<DynamicTexturePtr> make_dynamic_texture();
