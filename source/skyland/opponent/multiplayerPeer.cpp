@@ -92,6 +92,15 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 void MultiplayerPeer::receive(Platform& pfrm,
                               App& app,
+                              const network::packet::DroneSetTarget& packet)
+{
+    pfrm.fatal("TODO: handle DroneSetTarget network event");
+}
+
+
+
+void MultiplayerPeer::receive(Platform& pfrm,
+                              App& app,
                               const network::packet::RoomDestroyed& packet)
 {
     Island* island = nullptr;
@@ -306,6 +315,24 @@ void MultiplayerPeer::receive(Platform& pfrm,
         chr->transported();
         app.opponent_island()->add_character(std::move(chr));
     }
+}
+
+
+
+void MultiplayerPeer::receive(Platform& pfrm,
+                              App& app,
+                              const network::packet::DroneSpawn& packet)
+{
+    pfrm.fatal("TODO: handle DroneSpawn network event");
+}
+
+
+
+void MultiplayerPeer::receive(Platform& pfrm,
+                              App& app,
+                              const network::packet::DroneDestroyed& packet)
+{
+    pfrm.fatal("TODO: handle DroneDestroyed network event");
 }
 
 

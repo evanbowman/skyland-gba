@@ -198,7 +198,13 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         if (auto ptr = (*it).upgrade()) {
             if (not(*ptr)->alive()) {
 
-                // TODO: network transmit!
+                network::packet::DroneDestroyed destroyed;
+                destroyed.drone_x_ = (*ptr)->position().x;
+                destroyed.drone_y_ = (*ptr)->position().y;
+                destroyed.destination_near_ = (*ptr)->destination()
+                    == &app.player_island();
+
+                network::transmit(pfrm, destroyed);
 
                 big_explosion(pfrm, app, (*ptr)->sprite().get_position());
                 it = drones_.erase(it);

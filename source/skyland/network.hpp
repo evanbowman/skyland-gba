@@ -32,6 +32,9 @@ struct Header {
         program_version,
         block_transfer_start,
         block_transfer,
+        drone_set_target,
+        drone_spawn,
+        drone_destroyed,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -100,6 +103,25 @@ struct WeaponSetTarget {
     u8 unused_[1];
 
     static const auto mt = Header::MessageType::weapon_set_target;
+};
+
+
+
+struct DroneSetTarget {
+    Header header_;
+
+    u8 drone_x_ : 4;
+    u8 drone_y_ : 4;
+    u8 target_x_ : 4;
+    u8 target_y_ : 4;
+
+    u8 drone_near_ : 1;
+    u8 target_near_ : 1;
+    u8 reserved_ : 6;
+
+    u8 unused_[2];
+
+    static const auto mt = Header::MessageType::drone_set_target;
 };
 
 
@@ -220,6 +242,39 @@ struct ReplicantCreated {
 
 
 
+struct DroneSpawn {
+    Header header_;
+    u8 origin_x_ : 4;
+    u8 origin_y_ : 4;
+
+    u8 deploy_x_ : 4;
+    u8 deploy_y_ : 4;
+
+    u8 destination_near_ : 1;
+    u8 reserved_ : 7;
+
+    u8 unused_[2];
+
+    static const auto mt = Header::MessageType::drone_spawn;
+};
+
+
+
+struct DroneDestroyed {
+    Header header_;
+    u8 drone_x_ : 4;
+    u8 drone_y_ : 4;
+
+    u8 destination_near_ : 1;
+    u8 reserved_ : 7;
+
+    u8 unused_[3];
+
+    static const auto mt = Header::MessageType::drone_destroyed;
+};
+
+
+
 struct OpponentBulkheadChanged {
     Header header_;
 
@@ -290,6 +345,11 @@ public:
     }
 
 
+    virtual void receive(Platform&, App&, const packet::DroneSetTarget&)
+    {
+    }
+
+
     virtual void receive(Platform&, App&, const packet::CharacterSetTarget&)
     {
     }
@@ -337,6 +397,16 @@ public:
 
 
     virtual void receive(Platform&, App&, const packet::BlockTransfer&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::DroneSpawn&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::DroneDestroyed&)
     {
     }
 };

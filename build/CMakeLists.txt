@@ -88,6 +88,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/entity/projectile/ionBurst.cpp
   ${SOURCE_DIR}/skyland/entity/character/basicCharacter.cpp
   ${SOURCE_DIR}/skyland/entity/drones/drone.cpp
+  ${SOURCE_DIR}/skyland/entity/drones/droneMeta.cpp
   ${SOURCE_DIR}/skyland/rooms/core.cpp
   ${SOURCE_DIR}/skyland/rooms/hull.cpp
   ${SOURCE_DIR}/skyland/rooms/radar.cpp
@@ -117,7 +118,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/inspectP2Scene.cpp
   ${SOURCE_DIR}/skyland/scene/loadLevelScene.cpp
   ${SOURCE_DIR}/skyland/scene/zoneImageScene.cpp
-  ${SOURCE_DIR}/skyland/scene/moveDroneScene.cpp
+  ${SOURCE_DIR}/skyland/scene/placeDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
   ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
   ${SOURCE_DIR}/skyland/scene/createFileScene.cpp

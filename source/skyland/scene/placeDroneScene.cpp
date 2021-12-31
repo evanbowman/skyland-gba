@@ -1,8 +1,9 @@
-#include "moveDroneScene.hpp"
+#include "placeDroneScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/entity/drones/attackDrone.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/network.hpp"0
 
 
 
@@ -18,9 +19,12 @@ namespace skyland {
 
 
 
-MoveDroneScene::MoveDroneScene(Platform& pfrm, Vec2<u8> origin, bool near)
+PlaceDroneScene::PlaceDroneScene(Platform& pfrm,
+                                 Vec2<u8> origin,
+                                 DroneMeta* drone_class,
+                                 bool near)
     : matrix_(allocate_dynamic<bool[16][16]>(pfrm)), origin_(origin),
-      near_(near)
+      near_(near), drone_class_(drone_class)
 {
     if (not matrix_) {
         pfrm.fatal("MDS: buffers exhausted");
@@ -37,7 +41,7 @@ MoveDroneScene::MoveDroneScene(Platform& pfrm, Vec2<u8> origin, bool near)
 
 
 
-void MoveDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
+void PlaceDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     ActiveWorldScene::enter(pfrm, app, prev);
 
@@ -103,7 +107,7 @@ void MoveDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void MoveDroneScene::exit(Platform& pfrm, App& app, Scene& next)
+void PlaceDroneScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     ActiveWorldScene::exit(pfrm, app, next);
 
@@ -120,7 +124,7 @@ void MoveDroneScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-void MoveDroneScene::display(Platform& pfrm, App& app)
+void PlaceDroneScene::display(Platform& pfrm, App& app)
 {
     ActiveWorldScene::display(pfrm, app);
 
@@ -153,7 +157,7 @@ void MoveDroneScene::display(Platform& pfrm, App& app)
 
 
 ScenePtr<Scene>
-MoveDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
+PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto new_scene = WorldScene::update(pfrm, app, delta)) {
         return new_scene;
@@ -185,13 +189,28 @@ MoveDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
         if ((*matrix_)[cursor_loc->x][cursor_loc->y]) {
             if (auto room = app.player_island().get_room(origin_)) {
                 if (auto db = dynamic_cast<DroneBay*>(room)) {
-                    if (auto drone = alloc_shared_entity<AttackDrone, Drone>(
-                            room->parent(),
-                            island,
-                            Vec2<u8>{origin_.x, u8(origin_.y - 1)})) {
+                    if (auto drone =
+                            (*drone_class_)
+                                ->create(
+                                    room->parent(),
+                                    island,
+                                    Vec2<u8>{origin_.x, u8(origin_.y - 1)})) {
                         (*drone)->set_movement_target(*cursor_loc);
                         db->attach_drone(*drone);
                         island->drones().push(*drone);
+
+                        network::packet::DroneSpawn spawn;
+                        spawn.origin_x_ = origin_.x;
+                        spawn.origin_y_ = origin_.y - 1;
+
+                        spawn.deploy_x_ = cursor_loc->x;
+                        spawn.deploy_y_ = cursor_loc->y;
+
+                        spawn.destination_near_ =
+                            island == &app.player_island();
+
+                        network::transmit(pfrm, spawn);
+
 
                         return scene_pool::alloc<ReadyScene>();
                     }
@@ -208,7 +227,8 @@ MoveDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_loc->y;
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_.x =
                 app.player_island().terrain().size() - 1;
-            return scene_pool::alloc<MoveDroneScene>(pfrm, origin_, true);
+            return scene_pool::alloc<PlaceDroneScene>(
+                pfrm, origin_, drone_class_, true);
         }
     }
 
@@ -219,7 +239,8 @@ MoveDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
             std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y =
                 cursor_loc->y;
             std::get<SkylandGlobalData>(globals()).far_cursor_loc_.x = 0;
-            return scene_pool::alloc<MoveDroneScene>(pfrm, origin_, false);
+            return scene_pool::alloc<PlaceDroneScene>(
+                pfrm, origin_, drone_class_, false);
         }
     }
 

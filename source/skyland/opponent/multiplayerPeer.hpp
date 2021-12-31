@@ -32,6 +32,11 @@ public:
 
     void receive(Platform& pfrm,
                  App& app,
+                 const network::packet::DroneSetTarget& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
                  const network::packet::RoomDestroyed& packet) override;
 
 
@@ -58,6 +63,16 @@ public:
     void receive(Platform& pfrm,
                  App& app,
                  const network::packet::ReplicantCreated& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::DroneSpawn& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::DroneDestroyed& packet) override;
 
 
     void

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "worldScene.hpp"
+#include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/room_metatable.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -11,7 +12,6 @@ namespace skyland {
 
 class ConstructDroneScene : public ActiveWorldScene {
 public:
-
     ConstructDroneScene(Vec2<u8> position) : position_(position)
     {
     }
@@ -31,10 +31,8 @@ private:
     Vec2<u8> position_;
     std::optional<Text> text_;
     int selector_ = 0;
-
-    Buffer<const RoomMeta*, 20> available_buildings_;
 };
 
 
 
-}
+} // namespace skyland

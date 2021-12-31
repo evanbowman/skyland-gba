@@ -4,6 +4,7 @@
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -77,6 +78,15 @@ SalvageDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
                         medium_explosion(
                             pfrm, app, (*found)->sprite().get_position());
                         db->disconnect_drone();
+
+                        network::packet::DroneDestroyed destroyed;
+                        destroyed.drone_x_ = (*drone_sp)->position().x;
+                        destroyed.drone_y_ = (*drone_sp)->position().y;
+                        destroyed.destination_near_ = (*drone_sp)->destination()
+                            == &app.player_island();
+
+                        network::transmit(pfrm, destroyed);
+
                         break;
                     }
                 }

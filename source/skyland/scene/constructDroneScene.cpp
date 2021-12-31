@@ -1,17 +1,11 @@
 #include "constructDroneScene.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/scene/moveDroneScene.hpp"
 #include "readyScene.hpp"
+#include "skyland/scene/placeDroneScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
 namespace skyland {
-
-
-
-struct DroneInfo {
-    const char* name_;
-};
 
 
 
@@ -20,9 +14,15 @@ void ConstructDroneScene::draw(Platform& pfrm, App& app)
     auto st = calc_screen_tiles(pfrm);
 
 
-    StringBuffer<30> message = "launch drone: ";
+    auto [templates, template_count] = drone_metatable();
 
-    text_.emplace(pfrm, message.c_str(), OverlayCoord{0, u8(st.y - 1)});
+    StringBuffer<30> message = "deploy: ";
+    message += templates[selector_]->name();
+
+    if (not text_) {
+        text_.emplace(pfrm, OverlayCoord{0, u8(st.y - 1)});
+    }
+    text_->assign(message.c_str());
 
     const int count = st.x - text_->len();
     for (int i = 0; i < count; ++i) {
@@ -53,14 +53,14 @@ void ConstructDroneScene::draw(Platform& pfrm, App& app)
     {
         int index = selector_;
         if (index - 2 < -1) {
-            index = available_buildings_.size() - 2;
+            index = template_count - 2;
         } else if (index - 2 < 0) {
-            index = available_buildings_.size() - 1;
+            index = template_count - 1;
         } else {
             index = index - 2;
         }
 
-        auto icon = (*available_buildings_[index])->unsel_icon();
+        auto icon = (templates[index])->unsel_icon();
         draw_image(pfrm, 258, st.x - 25, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(258, icon, 16);
@@ -69,19 +69,19 @@ void ConstructDroneScene::draw(Platform& pfrm, App& app)
     {
         int index = selector_;
         if (index - 1 < 0) {
-            index = available_buildings_.size() - 1;
+            index = template_count - 1;
         } else {
             index = index - 1;
         }
 
-        auto icon = (*available_buildings_[index])->unsel_icon();
+        auto icon = (templates[index])->unsel_icon();
         draw_image(pfrm, 181, st.x - 21, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(181, icon, 16);
     }
 
     {
-        auto icon = (*available_buildings_[selector_])->icon();
+        auto icon = (templates[selector_])->icon();
         draw_image(pfrm, 197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(197, icon, 16);
@@ -89,13 +89,13 @@ void ConstructDroneScene::draw(Platform& pfrm, App& app)
 
     {
         int index = selector_;
-        if (index + 1 >= (int)available_buildings_.size()) {
+        if (index + 1 >= (int)template_count) {
             index = 0;
         } else {
             index = index + 1;
         }
 
-        auto icon = (*available_buildings_[index])->unsel_icon();
+        auto icon = (templates[index])->unsel_icon();
         draw_image(pfrm, 213, st.x - 13, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(213, icon, 16);
@@ -103,15 +103,15 @@ void ConstructDroneScene::draw(Platform& pfrm, App& app)
 
     {
         int index = selector_;
-        if (index + 1 >= (int)available_buildings_.size()) {
+        if (index + 1 >= (int)template_count) {
             index = 1;
-        } else if (index + 2 >= (int)available_buildings_.size()) {
+        } else if (index + 2 >= (int)template_count) {
             index = 0;
         } else {
             index = index + 2;
         }
 
-        auto icon = (*available_buildings_[index])->unsel_icon();
+        auto icon = (templates[index])->unsel_icon();
         draw_image(pfrm, 274, st.x - 9, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(274, icon, 16);
@@ -122,10 +122,6 @@ void ConstructDroneScene::draw(Platform& pfrm, App& app)
 
 void ConstructDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    available_buildings_.push_back(forcefield_mt);
-    available_buildings_.push_back(cannon_mt);
-    available_buildings_.push_back(missile_silo_mt);
-
     draw(pfrm, app);
 }
 
@@ -139,16 +135,18 @@ void ConstructDroneScene::exit(Platform& pfrm, App&, Scene& next)
 
 
 
-ScenePtr<Scene> ConstructDroneScene::update(Platform& pfrm,
-                                            App& app,
-                                            Microseconds delta)
+ScenePtr<Scene>
+ConstructDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    auto [templates, template_count] = drone_metatable();
+
     if (app.player().key_down(pfrm, Key::action_1)) {
-        return scene_pool::alloc<MoveDroneScene>(pfrm, position_);
+        return scene_pool::alloc<PlaceDroneScene>(
+            pfrm, position_, &templates[selector_]);
     }
 
     if (app.player().key_down(pfrm, Key::right)) {
-        if (selector_ < (int)available_buildings_.size() - 1) {
+        if (selector_ < (int)template_count - 1) {
             ++selector_;
             draw(pfrm, app);
         } else {
@@ -162,7 +160,7 @@ ScenePtr<Scene> ConstructDroneScene::update(Platform& pfrm,
             --selector_;
             draw(pfrm, app);
         } else {
-            selector_ = available_buildings_.size() - 1;
+            selector_ = template_count - 1;
             draw(pfrm, app);
         }
     }
@@ -176,4 +174,4 @@ ScenePtr<Scene> ConstructDroneScene::update(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

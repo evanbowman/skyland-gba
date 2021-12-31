@@ -1,8 +1,8 @@
 #include "droneBay.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/island.hpp"
-#include "skyland/scene/moveDroneScene.hpp"
 #include "skyland/scene/constructDroneScene.hpp"
+#include "skyland/scene/placeDroneScene.hpp"
 #include "skyland/tile.hpp"
 
 

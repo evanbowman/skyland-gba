@@ -19,9 +19,29 @@ public:
     }
 
 
-    const char* name() const
+    static const char* get_name()
     {
         return "cannon-drone";
+    }
+
+
+    const char* name() const override
+    {
+        return get_name();
+    }
+
+
+    static u16 icon()
+    {
+        // TODO...
+        return 1048;
+    }
+
+
+    static u16 unsel_icon()
+    {
+        // TODO...
+        return 512;
     }
 
 
@@ -44,7 +64,10 @@ public:
             timer_ += delta;
             if (timer_ > milliseconds(3200)) {
                 if (target_) {
-                    if (auto room = destination()->get_room(*target_)) {
+                    if (not app.opponent_island()) {
+                        return;
+                    }
+                    if (auto room = app.opponent_island()->get_room(*target_)) {
 
                         auto start = sprite_.get_position();
                         start.x += 8;
@@ -54,6 +77,7 @@ public:
                         auto c = alloc_entity<Cannonball>(
                             start, target, parent(), position());
                         if (c) {
+                            app.camera().shake(4);
                             parent()->projectiles().push(std::move(c));
                         }
                     }

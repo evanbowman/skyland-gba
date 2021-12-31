@@ -3,6 +3,7 @@
 #include "bulkAllocator.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/entity/drones/drone.hpp"
+#include "skyland/entity/drones/droneMeta.hpp"
 #include "worldScene.hpp"
 
 
@@ -11,9 +12,12 @@ namespace skyland {
 
 
 
-class MoveDroneScene : public ActiveWorldScene {
+class PlaceDroneScene : public ActiveWorldScene {
 public:
-    MoveDroneScene(Platform& pfrm, Vec2<u8> origin, bool near = true);
+    PlaceDroneScene(Platform& pfrm,
+                    Vec2<u8> origin,
+                    DroneMeta* drone_class,
+                    bool near = true);
 
 
     void enter(Platform&, App&, Scene& prev) override;
@@ -34,6 +38,7 @@ private:
     bool near_;
 
     std::optional<Text> message_;
+    DroneMeta* drone_class_;
 };
 
 
