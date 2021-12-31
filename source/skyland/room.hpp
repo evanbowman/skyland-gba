@@ -127,6 +127,12 @@ public:
     }
 
 
+    virtual Microseconds reload_time_remaining() const
+    {
+        return 0;
+    }
+
+
     void on_collision(Platform& pfrm, App& app, Entity& entity);
 
 

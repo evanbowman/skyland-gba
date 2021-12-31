@@ -7,6 +7,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
+#include "skyland/entity/drones/drone.hpp"
 
 
 
@@ -67,6 +68,27 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
     medium_explosion(pfrm, app, sprite_.get_position());
 
     room.apply_damage(pfrm, app, 40);
+}
+
+
+
+void Cannonball::on_collision(Platform& pfrm, App& app, Entity& entity)
+{
+    // FIXME: Probably slow... but then... in most cases it only happens once,
+    // as the Cannonball explodes upon collision.
+    if (auto drone = dynamic_cast<Drone*>(&entity)) {
+        if (drone->position() == origin_tile_ and
+            drone->parent() == source_) {
+            // Do not shoot ourself.
+            return;
+        }
+    }
+
+    kill();
+    app.camera().shake(8);
+    medium_explosion(pfrm, app, sprite_.get_position());
+
+    entity.apply_damage(40);
 }
 
 

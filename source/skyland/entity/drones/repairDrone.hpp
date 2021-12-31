@@ -43,6 +43,14 @@ public:
         return 512;
     }
 
+
+    ScenePtr<Scene> select(Platform& pfrm, App&) override
+    {
+        // TODO...
+        return null_scene();
+    }
+
+
 private:
     // ...
 };

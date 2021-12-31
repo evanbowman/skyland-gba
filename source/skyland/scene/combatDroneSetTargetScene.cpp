@@ -1,0 +1,159 @@
+#include "combatDroneSetTargetScene.hpp"
+#include "skyland/skyland.hpp"
+#include "skyland/scene/readyScene.hpp"
+#include "skyland/scene/inspectP2Scene.hpp"
+
+
+
+namespace skyland {
+
+
+
+ScenePtr<Scene> CombatDroneSetTargetScene::update(Platform& pfrm,
+                                                  App& app,
+                                                  Microseconds delta)
+{
+    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
+        return new_scene;
+    }
+
+    auto drone_sp = drone_.upgrade();
+    if (not drone_sp) {
+        return null_scene();
+    }
+
+    if (targets_.empty()) {
+        return null_scene();
+    }
+
+    if (app.player().key_down(pfrm, Key::action_2)) {
+        if ((*drone_sp)->parent() == &app.player_island()) {
+            return scene_pool::alloc<ReadyScene>();
+        } else {
+            return scene_pool::alloc<InspectP2Scene>();
+        }
+    }
+
+    if (app.player().key_down(pfrm, Key::action_1)) {
+        (*drone_sp)->set_target(cursor_loc_, near_);
+        if ((*drone_sp)->parent() == &app.player_island()) {
+            return scene_pool::alloc<ReadyScene>();
+        } else {
+            return scene_pool::alloc<InspectP2Scene>();
+        }
+    }
+
+    if (app.player().key_down(pfrm, Key::right)) {
+        ++selector_;
+        if (selector_ >= (int)targets_.size()) {
+            selector_ = 0;
+        }
+    }
+
+    if (app.player().key_down(pfrm, Key::left)) {
+        --selector_;
+        if (selector_ < 0) {
+            selector_ = targets_.size() - 1;
+        }
+    }
+
+    if (auto target_sp = targets_[selector_].upgrade()) {
+        auto loc = (*target_sp)->position();
+        cursor_loc_ = loc;
+
+        if ((*target_sp)->destination() == &app.player_island()) {
+            near_camera();
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_ = loc;
+            near_ = true;
+        } else {
+            far_camera();
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = loc;
+            near_ = false;
+        }
+    }
+
+
+    return null_scene();
+}
+
+
+
+void CombatDroneSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
+{
+    ActiveWorldScene::enter(pfrm, app, prev);
+
+    auto drone = drone_.upgrade();
+
+    auto collect = [&](auto& list) {
+        for (auto& drone_wp : list) {
+            if (auto drone_sp = drone_wp.upgrade()) {
+                if (drone_sp->get() == drone->get()) {
+                    continue;
+                }
+                // if ((*drone_sp)->parent() not_eq (*drone)->parent()) {
+                targets_.push_back(*drone_sp);
+                // }
+            }
+        }
+    };
+
+    if (near_) {
+        if (app.opponent_island()) {
+            collect(app.opponent_island()->drones());
+        }
+        collect(app.player_island().drones());
+    } else {
+        collect(app.player_island().drones());
+        if (app.opponent_island()) {
+            collect(app.opponent_island()->drones());
+        }
+    }
+}
+
+
+
+void CombatDroneSetTargetScene::exit(Platform& pfrm, App& app, Scene& next)
+{
+    ActiveWorldScene::exit(pfrm, app, next);
+}
+
+
+
+void CombatDroneSetTargetScene::display(Platform& pfrm, App& app)
+{
+    if (targets_.empty()) {
+        pfrm.fatal("hkdlsf");
+        return;
+    }
+
+    if (not app.opponent_island()) {
+        return;
+    }
+
+    Island* island;
+    if (near_) {
+        island = &app.player_island();
+    } else {
+        island = &*app.opponent_island();
+    }
+
+    auto origin = island->origin();
+
+    origin.x += cursor_loc_.x * 16;
+    origin.y += cursor_loc_.y * 16;
+
+    Sprite sprite;
+    sprite.set_position(origin);
+    sprite.set_texture_index(17);
+    sprite.set_size(Sprite::Size::w16_h32);
+
+    pfrm.screen().draw(sprite);
+
+    WorldScene::display(pfrm, app);
+
+
+}
+
+
+
+}

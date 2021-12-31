@@ -2,6 +2,7 @@
 
 #include "memory/rc.hpp"
 #include "skyland/entity.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -31,9 +32,10 @@ public:
 
 
 
-    void set_target(const Vec2<u8>& target)
+    void set_target(const Vec2<u8>& target, bool target_near = false)
     {
         target_ = target;
+        target_near_ = target_near;
     }
 
 
@@ -50,6 +52,9 @@ public:
 
 
     virtual const char* name() const = 0;
+
+
+    virtual ScenePtr<Scene> select(Platform& pfrm, App&) = 0;
 
 
 protected:
@@ -73,6 +78,7 @@ private:
 
 protected:
     std::optional<Vec2<u8>> target_;
+    bool target_near_ : 1;
 };
 
 

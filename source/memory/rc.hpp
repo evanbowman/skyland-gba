@@ -19,6 +19,12 @@
 //
 
 
+
+template <typename T, typename ControlBlockImpl>
+class Rc;
+
+
+
 namespace detail {
 
 // The default control block: requires that the reference counted object was
@@ -79,6 +85,17 @@ public:
     void (*finalizer_hook_)(IntrusiveControlBlock*);
     Atomic<u32> strong_count_;
     Atomic<u32> weak_count_;
+
+
+    Rc<T, IntrusiveControlBlock> shared_from_this()
+    {
+        // Because the standard practice for an intrusive block is to inherit
+        // from the control block itself, we can implement shared_from_this in a
+        // really straightforward way.
+        return Rc<T, IntrusiveControlBlock>(this);
+    }
+
+
 };
 } // namespace detail
 

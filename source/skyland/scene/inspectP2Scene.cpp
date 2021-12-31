@@ -106,8 +106,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             return room->select(pfrm, app);
         } else if (auto drone = app.opponent_island()->get_drone(cursor_loc)) {
             if ((*drone)->parent() == &app.player_island()) {
-                return scene_pool::alloc<WeaponSetTargetScene>(
-                    (*drone)->position(), false);
+                return (*drone)->select(pfrm, app);
             }
         }
     }

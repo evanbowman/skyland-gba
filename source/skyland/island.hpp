@@ -232,6 +232,10 @@ public:
     }
 
 
+
+    HitBox hitbox() const;
+
+
 private:
     void recalculate_power_usage();
 

@@ -101,14 +101,26 @@ public:
     }
 
 
+    void start_reload()
+    {
+        reload_ = reload_time;
+    }
+
+
+    Microseconds reload_time_remaining() const override
+    {
+        return reload_;
+    }
+
+
 private:
-    static constexpr const Microseconds reload_time = milliseconds(3500);
+    static constexpr const Microseconds reload_time = seconds(20);
 
 
     std::optional<SharedEntityRef<Drone>> drone_;
 
 
-    Microseconds reload_ = reload_time;
+    Microseconds reload_ = 0;
 
     std::optional<Vec2<u8>> target_;
 };

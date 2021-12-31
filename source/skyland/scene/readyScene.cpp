@@ -137,8 +137,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         } else if (auto drone = app.player_island().get_drone(cursor_loc)) {
             if ((*drone)->parent() == &app.player_island()) {
-                return scene_pool::alloc<WeaponSetTargetScene>(
-                    (*drone)->position());
+                return (*drone)->select(pfrm, app);
             }
         }
     }
@@ -237,6 +236,15 @@ void describe_room(Platform& pfrm,
                 room_description->append(" ");
                 room_description->append((*metac)->consumes_power());
                 room_description->append("`");
+
+                if (auto tm = room->reload_time_remaining()) {
+                    if (tm > 0) {
+                        StringBuffer<2> temp(" ");
+                        temp.push_back((char)17); // using ascii DC1 for clock img
+                        room_description->append(temp.c_str());
+                        room_description->append(1 + tm / seconds(1));
+                    }
+                }
             }
 
         } else {

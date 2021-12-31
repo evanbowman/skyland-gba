@@ -33,6 +33,9 @@ public:
     void far_camera();
 
 
+    void near_camera();
+
+
 protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;

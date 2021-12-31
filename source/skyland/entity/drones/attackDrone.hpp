@@ -4,6 +4,7 @@
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
 #include "skyland/island.hpp"
+#include "skyland/scene/weaponSetTargetScene.hpp"
 
 
 
@@ -42,6 +43,13 @@ public:
     {
         // TODO...
         return 512;
+    }
+
+
+    ScenePtr<Scene> select(Platform& pfrm, App& app) override
+    {
+        return scene_pool::alloc<WeaponSetTargetScene>(position(),
+                                                       destination() == &app.player_island());
     }
 
 

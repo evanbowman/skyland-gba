@@ -25,6 +25,16 @@ void DroneBay::update(Platform& pfrm, App& app, Microseconds delta)
     if (drone_ and not(*drone_)->alive()) {
         drone_.reset();
     }
+
+    if (parent()->power_supply() < parent()->power_drain()) {
+        if (drone_) {
+            (*drone_)->kill();
+        }
+    }
+
+    if (reload_ > 0) {
+        reload_ -= delta;
+    }
 }
 
 
@@ -56,6 +66,10 @@ void DroneBay::render_exterior(u8 buffer[16][16])
 
 ScenePtr<Scene> DroneBay::select(Platform& pfrm, App& app)
 {
+    if (reload_ > 0) {
+        return null_scene();
+    }
+
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
 
@@ -64,6 +78,25 @@ ScenePtr<Scene> DroneBay::select(Platform& pfrm, App& app)
     }
 
     if (not drone_) {
+        auto pos = position();
+        bool free[2] = {true, true};
+        pos.y -= 1;
+        if (auto room = parent()->get_room(pos)) {
+            if (room->metaclass() not_eq forcefield_mt) {
+                free[0] = false;
+            }
+        }
+        pos.x += 1;
+        if (auto room = parent()->get_room(pos)) {
+            if (room->metaclass() not_eq forcefield_mt) {
+                free[1] = false;
+            }
+        }
+        if (not free[0] and not free[1]) {
+            // TODO: push a message indicating that the drone bay is covered and
+            // cannot launch anything.
+            return null_scene();
+        }
         return scene_pool::alloc<ConstructDroneScene>(position());
     }
     return null_scene();

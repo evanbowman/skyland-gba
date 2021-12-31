@@ -21,7 +21,7 @@ static Vec2<Float> calc_pos(Island* island, const Vec2<u8>& grid_coord)
 
 
 Drone::Drone(Island* parent, Island* destination, const Vec2<u8>& grid_pos)
-    : Entity({{10, 10}, {8, 8}}), parent_(parent), destination_(destination),
+    : Entity({{16, 16}, {0, 0}}), parent_(parent), destination_(destination),
       grid_pos_({grid_pos.x, u8(grid_pos.y)})
 {
     sprite_.set_texture_index(64);
@@ -32,6 +32,8 @@ Drone::Drone(Island* parent, Island* destination, const Vec2<u8>& grid_pos)
     auto o = calc_pos(parent_, grid_pos);
     sprite_.set_position(o);
     anchor_ = o.cast<s16>();
+
+    target_near_ = false;
 }
 
 
@@ -66,6 +68,7 @@ void Drone::update_sprite(App& app)
     sprite_.set_position(o);
 
     if (target_) {
+        // FIX this logic, incorporate target_near_
         if (destination() == &app.player_island()) {
             sprite_.set_flip({false, false});
         } else if (target_->x < grid_pos_.x) {

@@ -354,6 +354,18 @@ void Island::display(Platform& pfrm)
 
 
 
+HitBox Island::hitbox() const
+{
+    Vec2<Float> hitbox_pos = this->origin();
+    HitBox island_hitbox;
+    island_hitbox.position_ = &hitbox_pos;
+    island_hitbox.dimension_.size_.x = terrain_.size() * 16;
+    island_hitbox.dimension_.size_.y = 16 * 16;
+    return island_hitbox;
+}
+
+
+
 void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
 {
     // First, check whether the hitbox for the entity intersects with the
@@ -389,6 +401,15 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
                 entity.on_collision(pfrm, app, *room);
                 room->on_collision(pfrm, app, entity);
                 return;
+            }
+        }
+
+        for (auto& drone_wp : drones_) {
+            if (auto drone_sp = drone_wp.upgrade()) {
+                if (entity.hitbox().overlapping((*drone_sp)->hitbox())) {
+                    entity.on_collision(pfrm, app, **drone_sp);
+                    (*drone_sp)->on_collision(pfrm, app, entity);
+                }
             }
         }
     }

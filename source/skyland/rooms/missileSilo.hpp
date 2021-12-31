@@ -91,6 +91,12 @@ public:
     }
 
 
+    Microseconds reload_time_remaining() const override
+    {
+        return load_;
+    }
+
+
 private:
     static constexpr const Microseconds load_time = seconds(7);
 

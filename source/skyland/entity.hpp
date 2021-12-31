@@ -73,9 +73,20 @@ public:
     }
 
 
+    virtual void on_collision(Platform& pfrm, App& app, Entity& other)
+    {
+    }
+
+
     void kill()
     {
         health_ = 0;
+    }
+
+
+    void apply_damage(Health amount)
+    {
+        health_ = std::max(0, health_ - amount);
     }
 
 
