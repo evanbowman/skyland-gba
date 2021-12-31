@@ -56,6 +56,13 @@ void DroneBay::render_exterior(u8 buffer[16][16])
 
 ScenePtr<Scene> DroneBay::select(Platform& pfrm, App& app)
 {
+    const auto& mt_prep_seconds =
+        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+
+    if (mt_prep_seconds) {
+        return null_scene();
+    }
+
     if (not drone_) {
         return scene_pool::alloc<ConstructDroneScene>(position());
     }
