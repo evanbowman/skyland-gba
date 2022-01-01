@@ -2,6 +2,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/scene/inspectP2Scene.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -35,6 +36,16 @@ ScenePtr<Scene> CombatDroneSetTargetScene::update(Platform& pfrm,
     }
 
     if (app.player().key_down(pfrm, Key::action_1)) {
+
+        network::packet::DroneSetTarget packet;
+        packet.drone_x_ = (*drone_sp)->position().x;
+        packet.drone_y_ = (*drone_sp)->position().y;
+        packet.target_x_ = cursor_loc_.x;
+        packet.target_y_ = cursor_loc_.y;
+        packet.drone_near_ = (*drone_sp)->destination() == &app.player_island();
+        packet.target_near_ = near_;
+        network::transmit(pfrm, packet);
+
         (*drone_sp)->set_target(cursor_loc_, near_);
         if ((*drone_sp)->parent() == &app.player_island()) {
             return scene_pool::alloc<ReadyScene>();

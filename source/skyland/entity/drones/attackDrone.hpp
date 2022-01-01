@@ -69,13 +69,20 @@ public:
         case State::wait:
             duration_ += delta;
             update_sprite(app);
-            timer_ += delta;
             if (timer_ > milliseconds(3200)) {
                 if (target_) {
                     if (not app.opponent_island()) {
                         return;
                     }
-                    if (auto room = app.opponent_island()->get_room(*target_)) {
+
+                    Island* target_island;
+                    if (parent() == &app.player_island()) {
+                        target_island = &*app.opponent_island();
+                    } else {
+                        target_island = &app.player_island();
+                    }
+
+                    if (auto room = target_island->get_room(*target_)) {
 
                         auto start = sprite_.get_position();
                         start.x += 8;
@@ -89,9 +96,11 @@ public:
                             parent()->projectiles().push(std::move(c));
                         }
                     }
+                    timer_ = 0;
+                    state_ = Drone::State::ready;
                 }
-                timer_ = 0;
-                state_ = Drone::State::ready;
+            } else {
+                timer_ += delta;
             }
 
             break;

@@ -5,6 +5,8 @@
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
+#include "skyland/entity/drones/droneMeta.hpp"
+#include "skyland/rooms/droneBay.hpp"
 
 
 
@@ -94,7 +96,23 @@ void MultiplayerPeer::receive(Platform& pfrm,
                               App& app,
                               const network::packet::DroneSetTarget& packet)
 {
-    pfrm.fatal("TODO: handle DroneSetTarget network event");
+    if (not app.opponent_island()) {
+        return;
+    }
+
+    Island* island = nullptr;
+
+    if (packet.drone_near_) {
+        island = &*app.opponent_island();
+    } else {
+        island = &app.player_island();
+    }
+
+    const auto drone_x = invert_axis(app, packet.drone_x_);
+    if (auto drone = island->get_drone({drone_x, packet.drone_y_})) {
+        (*drone)->set_target({invert_axis(app, packet.target_x_), packet.target_y_},
+                             not packet.target_near_);
+    }
 }
 
 
@@ -323,7 +341,49 @@ void MultiplayerPeer::receive(Platform& pfrm,
                               App& app,
                               const network::packet::DroneSpawn& packet)
 {
-    pfrm.fatal("TODO: handle DroneSpawn network event");
+    if (not app.opponent_island()) {
+        return;
+    }
+
+    Island* island = nullptr;
+    if (packet.destination_near_) {
+        island = &*app.opponent_island();
+    } else {
+        island = &app.player_island();
+    }
+
+    const auto x_origin = invert_axis(app, packet.origin_x_);
+
+    auto [dt, ds] = drone_metatable();
+    if (packet.drone_class_ >= ds) {
+        StringBuffer<32> err("invalid index! ");
+        err += to_string<10>(packet.drone_class_);
+        pfrm.fatal(err.c_str());
+    }
+    auto drone_meta = &dt[packet.drone_class_];
+    if (auto drone = (*drone_meta)->create(&*app.opponent_island(),
+                                           island,
+                                           Vec2<u8>{x_origin,
+                                                    packet.origin_y_})) {
+
+        const Vec2<u8> drone_bay_pos = {
+            x_origin,
+            u8(packet.origin_y_ + 1)
+        };
+
+        if (auto room = app.opponent_island()->get_room(drone_bay_pos)) {
+            if (auto db = dynamic_cast<DroneBay*>(room)) {
+                db->attach_drone(*drone);
+                db->start_reload();
+                island->drones().push(*drone);
+                (*drone)->set_movement_target(Vec2<u8>{
+                        invert_axis(app, packet.deploy_x_),
+                        packet.deploy_y_
+                    });
+            }
+        }
+
+    }
 }
 
 
@@ -332,7 +392,22 @@ void MultiplayerPeer::receive(Platform& pfrm,
                               App& app,
                               const network::packet::DroneDestroyed& packet)
 {
-    pfrm.fatal("TODO: handle DroneDestroyed network event");
+    Island* island = nullptr;
+    if (packet.destination_near_) {
+        island = &*app.opponent_island();
+    } else {
+        island = &app.player_island();
+    }
+
+    Vec2<u8> pos;
+    pos.x = invert_axis(app, packet.drone_x_);
+    pos.y = packet.drone_y_;
+
+    if (auto drone = island->get_drone(pos)) {
+        if (drone) {
+            (*drone)->kill();
+        }
+    }
 }
 
 

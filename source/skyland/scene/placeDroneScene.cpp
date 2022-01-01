@@ -210,6 +210,15 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
                         spawn.destination_near_ =
                             island == &app.player_island();
 
+                        auto [dt, ds] = drone_metatable();
+                        spawn.drone_class_ = 0;
+                        for (u8 i = 0; i < ds; ++i) {
+                            if (str_cmp(dt[i]->name(), (*drone_class_)->name()) == 0) {
+                                spawn.drone_class_ = i;
+                                break;
+                            }
+                        }
+
                         network::transmit(pfrm, spawn);
 
 

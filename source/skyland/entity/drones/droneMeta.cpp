@@ -9,7 +9,7 @@ namespace skyland {
 
 
 
-static DroneMetatable<10, AttackDrone, RepairDrone, CombatDrone>
+static DroneMetatable<10, AttackDrone, CombatDrone>
     __drone_metatable;
 
 

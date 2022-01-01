@@ -253,7 +253,9 @@ struct DroneSpawn {
     u8 destination_near_ : 1;
     u8 reserved_ : 7;
 
-    u8 unused_[2];
+    u8 drone_class_;
+
+    u8 unused_[1];
 
     static const auto mt = Header::MessageType::drone_spawn;
 };

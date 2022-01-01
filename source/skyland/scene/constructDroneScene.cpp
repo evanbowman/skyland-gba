@@ -138,6 +138,10 @@ void ConstructDroneScene::exit(Platform& pfrm, App&, Scene& next)
 ScenePtr<Scene>
 ConstructDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+        return scene;
+    }
+
     auto [templates, template_count] = drone_metatable();
 
     if (app.player().key_down(pfrm, Key::action_1)) {

@@ -105,7 +105,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                         packet.drone_y_ = drone.position().y;
                         packet.target_x_ = target_room->position().x;
                         packet.target_y_ = target_room->position().y;
-                        packet.drone_near_ = drone.parent() == &app.player_island();
+                        packet.drone_near_ = drone.destination() == &app.player_island();
                         packet.target_near_ = false;
                         network::transmit(pfrm, packet);
                     };

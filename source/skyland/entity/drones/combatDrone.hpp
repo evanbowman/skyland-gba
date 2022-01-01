@@ -41,7 +41,6 @@ public:
         case State::wait:
             duration_ += delta;
             update_sprite(app);
-            timer_ += delta;
             if (timer_ > milliseconds(3200)) {
                 if (target_) {
                     if (not app.opponent_island()) {
@@ -69,9 +68,11 @@ public:
                             parent()->projectiles().push(std::move(c));
                         }
                     }
+                    timer_ = 0;
+                    state_ = Drone::State::ready;
                 }
-                timer_ = 0;
-                state_ = Drone::State::ready;
+            } else {
+                timer_ += delta;
             }
 
             break;
