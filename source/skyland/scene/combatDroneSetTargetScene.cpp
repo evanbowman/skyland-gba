@@ -18,7 +18,7 @@ ScenePtr<Scene> CombatDroneSetTargetScene::update(Platform& pfrm,
         return new_scene;
     }
 
-    auto drone_sp = drone_.upgrade();
+    auto drone_sp = drone_.promote();
     if (not drone_sp) {
         return scene_pool::alloc<ReadyScene>();
     }
@@ -72,7 +72,7 @@ ScenePtr<Scene> CombatDroneSetTargetScene::update(Platform& pfrm,
         }
     }
 
-    if (auto target_sp = targets_[selector_].upgrade()) {
+    if (auto target_sp = targets_[selector_].promote()) {
         auto loc = (*target_sp)->position();
         cursor_loc_ = loc;
 
@@ -97,11 +97,11 @@ void CombatDroneSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     ActiveWorldScene::enter(pfrm, app, prev);
 
-    auto drone = drone_.upgrade();
+    auto drone = drone_.promote();
 
     auto collect = [&](auto& list) {
         for (auto& drone_wp : list) {
-            if (auto drone_sp = drone_wp.upgrade()) {
+            if (auto drone_sp = drone_wp.promote()) {
                 if (drone_sp->get() == drone->get()) {
                     continue;
                 }

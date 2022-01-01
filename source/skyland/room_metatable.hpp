@@ -299,6 +299,7 @@ extern const RoomMeta* cannon_mt;
 extern const RoomMeta* missile_silo_mt;
 extern const RoomMeta* ion_cannon_mt;
 extern const RoomMeta* bulkhead_mt;
+extern const RoomMeta* drone_bay_mt;
 
 
 } // namespace skyland

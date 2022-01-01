@@ -195,7 +195,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
 
     for (auto it = drones_.begin(); it not_eq drones_.end();) {
-        if (auto ptr = (*it).upgrade()) {
+        if (auto ptr = (*it).promote()) {
             if (not(*ptr)->alive()) {
 
                 network::packet::DroneDestroyed destroyed;
@@ -405,7 +405,7 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
         }
 
         for (auto& drone_wp : drones_) {
-            if (auto drone_sp = drone_wp.upgrade()) {
+            if (auto drone_sp = drone_wp.promote()) {
                 if (entity.hitbox().overlapping((*drone_sp)->hitbox())) {
                     entity.on_collision(pfrm, app, **drone_sp);
                     (*drone_sp)->on_collision(pfrm, app, entity);
@@ -558,7 +558,7 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
     }
 
     for (auto& drone : drones_) {
-        if (auto sp = drone.upgrade()) {
+        if (auto sp = drone.promote()) {
             auto pos = (*sp)->position();
             matrix[pos.x][pos.y] = false;
             matrix[pos.x][pos.y + 1] = false;
@@ -737,7 +737,7 @@ Vec2<Float> Island::origin() const
 std::optional<SharedEntityRef<Drone>> Island::get_drone(const Vec2<u8>& coord)
 {
     for (auto& drone_wp : drones()) {
-        if (auto drone_sp = drone_wp.upgrade();
+        if (auto drone_sp = drone_wp.promote();
             drone_sp and (*drone_sp)->position() == coord) {
             return *drone_sp;
         }

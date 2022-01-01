@@ -13,7 +13,7 @@ namespace skyland {
 class RepairDrone : public Drone {
 public:
     RepairDrone(Island* parent, Island* destination, const Vec2<u8>& grid_pos)
-        : Drone(parent, destination, grid_pos)
+        : Drone(get_name(), parent, destination, grid_pos)
     {
     }
 

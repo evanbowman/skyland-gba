@@ -217,7 +217,7 @@ public:
         Super::add_weak(other.control_);
     }
 
-    std::optional<Rc<T, ControlBlockImpl>> upgrade()
+    std::optional<Rc<T, ControlBlockImpl>> promote()
     {
         if (Super::control_->strong_count_) {
             return Rc<T, ControlBlockImpl>(Super::control_);

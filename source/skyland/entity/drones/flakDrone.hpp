@@ -16,7 +16,7 @@ namespace skyland {
 class FlakDrone : public Drone {
 public:
     FlakDrone(Island* parent, Island* destination, const Vec2<u8>& grid_pos)
-        : Drone(parent, destination, grid_pos)
+        : Drone(get_name(), parent, destination, grid_pos)
     {
         sprite_.set_texture_index(66);
     }

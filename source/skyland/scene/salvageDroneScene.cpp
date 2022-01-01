@@ -70,7 +70,7 @@ SalvageDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_down(pfrm, Key::action_1)) {
-        if (auto drone_sp = drone_.upgrade()) {
+        if (auto drone_sp = drone_.promote()) {
             for (auto& room : (*drone_sp)->parent()->rooms()) {
                 if (auto db = dynamic_cast<DroneBay*>(room.get())) {
                     auto found = db->drone();

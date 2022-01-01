@@ -11,6 +11,7 @@
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/entity/drones/droneMeta.hpp"
 
 
 
@@ -657,14 +658,217 @@ void EnemyAI::set_target(Platform& pfrm,
 
 
 
-void EnemyAI::update_room(Platform&,
-                          App&,
-                          const u8 matrix[16][16], DroneBay& db)
+void get_drone_slots(bool slots[16][16],
+                     Island* dest_island,
+                     Island* parent);
+
+
+
+void EnemyAI::update_room(Platform& pfrm,
+                          App& app,
+                          const u8 matrix[16][16],
+                          DroneBay& db)
 {
-    if (db.reload_time_remaining()) {
+    if (db.reload_time_remaining() > 0) {
         return;
     }
 
+    auto current_drone = db.drone();
+
+    auto [dt, ds] = drone_metatable();
+
+    static const int weight_array_size = 32;
+    Float weights[weight_array_size];
+    for (auto& w : weights) {
+        w = 0.f;
+    }
+
+    if (weight_array_size < ds) {
+        pfrm.fatal("drone weight array insufficiently sized");
+    }
+
+    const auto combat_drone_index = DroneMeta::index("combat-drone");
+    const auto cannon_drone_index = DroneMeta::index("cannon-drone");
+    const auto flak_drone_index = DroneMeta::index("flak-drone");
+
+    // We want to ideally place flak-drones with a greater likelihood than
+    // cannon drones, unless certain conditions arise (see below).
+    weights[flak_drone_index] = 24.f;
+    weights[cannon_drone_index] = 16.f;
+
+    bool player_missile_silos[16];
+    bool opponent_missile_silos[16];
+    for (int i = 0; i < 16; ++i) {
+        player_missile_silos[i] = 0;
+        opponent_missile_silos[16] = 0;
+    }
+
+
+    auto ai_controlled = [&](Drone& d)
+    {
+        return d.parent() == &*app.opponent_island();
+    };
+
+    for (auto& room : app.opponent_island()->rooms()) {
+        if (room->metaclass() == missile_silo_mt) {
+            opponent_missile_silos[room->position().x] = true;
+        }
+    }
+
+    for (auto& room : app.player_island().rooms()) {
+        // NOTE: this loop assumes that the initial weight for combat drones is
+        // zeroe'd.
+        if (room->metaclass() == drone_bay_mt) {
+            // If the player has drone bays, he/she may deploy drones, in which
+            // case, we might want to think about proactively deploying a combat
+            // drone of our own.
+            if (weights[combat_drone_index] == 0.f) {
+                weights[combat_drone_index] = 14.f;
+            } else {
+                // For each DroneBay controlled by the player, it becomes
+                // increasingly likely that the player will be deploying drones,
+                // in which case, we'll want to be able to defend ourself.
+                weights[combat_drone_index] *= 2.f;
+            }
+        } else if (room->metaclass() == missile_silo_mt) {
+            // DroneBay rooms quite are vulnerable to missiles, so we want to
+            // preferentially deploy cannon drones rather than flak drones if
+            // the player has a lot of missile silos.
+            weights[cannon_drone_index] += 8.f;
+
+            // We want to keep track of which of the player's grid coordinates
+            // contains a missile silo, as we wouldn't want to place a drone
+            // directly in the path of a weapon.
+            player_missile_silos[room->position().x] = true;
+        }
+    }
+
+    auto update_weights = [&](Drone& d) {
+        const auto metac = d.metaclass_index();
+        if (ai_controlled(d)) {
+            if (metac == combat_drone_index) {
+                // If we have a combat drone already, we have less reason to
+                // place another one. In fact, if the player has no combat
+                // drones, we should think about potentially dropping our combat
+                // drone.
+                weights[combat_drone_index] -= 16.f;
+            }
+        } else {
+            if (metac == combat_drone_index) {
+                // If the player has a combat drone, any drone that we place
+                // would be particularly vulnerable, so we need to take out the
+                // player's drone first.
+                weights[combat_drone_index] += 32.f;
+            }
+        }
+    };
+
+    for (auto& drone_wp : app.player_island().drones()) {
+        if (auto drone_sp = drone_wp.promote()) {
+            update_weights(**drone_sp);
+        }
+    }
+
+    for (auto& drone_wp : app.opponent_island()->drones()) {
+        if (auto drone_sp = drone_wp.promote()) {
+            update_weights(**drone_sp);
+        }
+    }
+
+    int highest_weight_index = 0;
+    for (int i = 0; i < weight_array_size; ++i) {
+        if (weights[i] > weights[highest_weight_index]) {
+            highest_weight_index = i;
+        }
+    }
+
+    // Ok, at this point, we've determined which type of drone that we want to
+    // deploy. But now, which grid location to place the drone into...
+
+
+    if (current_drone) {
+        if ((*current_drone)->metaclass_index() == highest_weight_index) {
+            // The currently-deployed drone is the same as the highest-weighted
+            // one, so no reason to make any changes.
+            return;
+        }
+    }
+
+    bool slots[16][16];
+    for (int y = 0; y < 16; ++y) {
+        for (int x = 0; x < 16; ++x) {
+            slots[x][y] = y > 5;
+        }
+    }
+
+
+    db.start_reload();
+
+
+    auto create_pos = db.position();
+    create_pos.y -= 1;
+
+    if (highest_weight_index == cannon_drone_index) {
+
+        get_drone_slots(slots, &app.player_island(), &*app.opponent_island());
+
+        for (u8 y = 0; y < 16; ++y) {
+            for (u8 x = 0; x < 16; ++x) {
+                if (slots[x][y] and not player_missile_silos[x]) {
+                    auto drone = dt[cannon_drone_index]->create(&*app.opponent_island(),
+                                                                &app.player_island(),
+                                                                create_pos);
+                    if (drone) {
+                        (*drone)->set_movement_target({x, y});
+                        db.attach_drone(*drone);
+                        app.player_island().drones().push(*drone);
+                        return;
+                    }
+                }
+            }
+        }
+
+    } else if (highest_weight_index == combat_drone_index) {
+
+        get_drone_slots(slots, &*app.opponent_island(), &*app.opponent_island());
+
+        for (u8 y = 0; y < 16; ++y) {
+            for (u8 x = 0; x < 16; ++x) {
+                if (slots[x][y] and not opponent_missile_silos[x]) {
+                    auto drone = dt[combat_drone_index]->create(&*app.opponent_island(),
+                                                                &*app.opponent_island(),
+                                                                create_pos);
+                    if (drone) {
+                        (*drone)->set_movement_target({x, y});
+                        db.attach_drone(*drone);
+                        app.opponent_island()->drones().push(*drone);
+                        return;
+                    }
+                }
+            }
+        }
+
+    } else if (highest_weight_index == flak_drone_index) {
+
+        get_drone_slots(slots, &app.player_island(), &*app.opponent_island());
+
+        for (u8 y = 0; y < 16; ++y) {
+            for (u8 x = 0; x < 16; ++x) {
+                if (slots[x][y] and not player_missile_silos[x]) {
+                    auto drone = dt[flak_drone_index]->create(&*app.opponent_island(),
+                                                              &app.player_island(),
+                                                              create_pos);
+                    if (drone) {
+                        (*drone)->set_movement_target({x, y});
+                        db.attach_drone(*drone);
+                        app.player_island().drones().push(*drone);
+                        return;
+                    }
+                }
+            }
+        }
+
+    }
 
 }
 

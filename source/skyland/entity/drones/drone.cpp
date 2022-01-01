@@ -3,6 +3,7 @@
 #include "skyland/island.hpp"
 #include "skyland/room.hpp"
 #include "skyland/skyland.hpp"
+#include "droneMeta.hpp"
 
 
 
@@ -20,7 +21,10 @@ static Vec2<Float> calc_pos(Island* island, const Vec2<u8>& grid_coord)
 
 
 
-Drone::Drone(Island* parent, Island* destination, const Vec2<u8>& grid_pos)
+Drone::Drone(const char* name,
+             Island* parent,
+             Island* destination,
+             const Vec2<u8>& grid_pos)
     : Entity({{16, 16}, {0, 0}}), parent_(parent), destination_(destination),
       grid_pos_({grid_pos.x, u8(grid_pos.y)})
 {
@@ -34,6 +38,8 @@ Drone::Drone(Island* parent, Island* destination, const Vec2<u8>& grid_pos)
     anchor_ = o.cast<s16>();
 
     target_near_ = false;
+
+    metaclass_index_ = DroneMeta::index(name);
 }
 
 

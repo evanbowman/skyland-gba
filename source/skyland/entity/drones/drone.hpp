@@ -16,7 +16,10 @@ class Island;
 
 class Drone : public Entity, public IntrusiveRcControlBlock<Drone> {
 public:
-    Drone(Island* parent, Island* destination, const Vec2<u8>& grid_pos);
+    Drone(const char* name,
+          Island* parent,
+          Island* destination,
+          const Vec2<u8>& grid_pos);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -60,6 +63,12 @@ public:
     virtual Microseconds reload_time_remaining() const = 0;
 
 
+    u8 metaclass_index() const
+    {
+        return metaclass_index_;
+    }
+
+
 protected:
     enum State : u8 {
         launch,
@@ -82,6 +91,9 @@ private:
 protected:
     std::optional<Vec2<u8>> target_;
     u8 target_near_ : 1;
+
+private:
+    u8 metaclass_index_ : 7;
 };
 
 

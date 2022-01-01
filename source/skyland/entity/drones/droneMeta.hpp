@@ -16,6 +16,9 @@ struct DroneMeta {
     static DroneMeta* load(const char* name);
 
 
+    static int index(const char* name);
+
+
     struct Box {
         virtual ~Box()
         {

@@ -35,4 +35,17 @@ DroneMeta* DroneMeta::load(const char* name)
 
 
 
+int DroneMeta::index(const char* name)
+{
+    auto [dt, ds] = drone_metatable();
+    for (u8 i = 0; i < ds; ++i) {
+        if (str_cmp(dt[i]->name(), name) == 0) {
+            return i;
+        }
+    }
+    return 0;
+}
+
+
+
 } // namespace skyland
