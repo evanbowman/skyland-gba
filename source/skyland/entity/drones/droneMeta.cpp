@@ -2,6 +2,7 @@
 #include "attackDrone.hpp"
 #include "combatDrone.hpp"
 #include "repairDrone.hpp"
+#include "flakDrone.hpp"
 
 
 
@@ -9,7 +10,7 @@ namespace skyland {
 
 
 
-static DroneMetatable<10, AttackDrone, CombatDrone>
+static DroneMetatable<10, AttackDrone, CombatDrone, FlakDrone>
     __drone_metatable;
 
 

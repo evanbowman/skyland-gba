@@ -25,6 +25,18 @@ public:
     }
 
 
+    static const auto reload_time = milliseconds(3000);
+
+
+    Microseconds reload_time_remaining() const override
+    {
+        if (state_ == Drone::State::launch) {
+            return reload_time;
+        }
+        return reload_time - timer_;
+    }
+
+
     void update(Platform& pfrm, App& app, Microseconds delta) override
     {
         switch (state_) {
@@ -41,7 +53,7 @@ public:
         case State::wait:
             duration_ += delta;
             update_sprite(app);
-            if (timer_ > milliseconds(3200)) {
+            if (timer_ > reload_time) {
                 if (target_) {
                     if (not app.opponent_island()) {
                         return;
@@ -94,15 +106,13 @@ public:
 
     static u16 icon()
     {
-        // TODO...
-        return 512;
+        return 1080;
     }
 
 
     static u16 unsel_icon()
     {
-        // TODO...
-        return 512;
+        return 1096;
     }
 
 

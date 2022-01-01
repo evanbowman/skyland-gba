@@ -20,11 +20,15 @@ ScenePtr<Scene> CombatDroneSetTargetScene::update(Platform& pfrm,
 
     auto drone_sp = drone_.upgrade();
     if (not drone_sp) {
-        return null_scene();
+        return scene_pool::alloc<ReadyScene>();
     }
 
     if (targets_.empty()) {
-        return null_scene();
+        if ((*drone_sp)->parent() == &app.player_island()) {
+            return scene_pool::alloc<ReadyScene>();
+        } else {
+            return scene_pool::alloc<InspectP2Scene>();
+        }
     }
 
     if (app.player().key_down(pfrm, Key::action_2)) {
@@ -101,9 +105,9 @@ void CombatDroneSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
                 if (drone_sp->get() == drone->get()) {
                     continue;
                 }
-                // if ((*drone_sp)->parent() not_eq (*drone)->parent()) {
-                targets_.push_back(*drone_sp);
-                // }
+                if ((*drone_sp)->parent() not_eq (*drone)->parent()) {
+                    targets_.push_back(*drone_sp);
+                }
             }
         }
     };
@@ -133,11 +137,12 @@ void CombatDroneSetTargetScene::exit(Platform& pfrm, App& app, Scene& next)
 void CombatDroneSetTargetScene::display(Platform& pfrm, App& app)
 {
     if (targets_.empty()) {
-        pfrm.fatal("hkdlsf");
+        WorldScene::display(pfrm, app);
         return;
     }
 
     if (not app.opponent_island()) {
+        WorldScene::display(pfrm, app);
         return;
     }
 
@@ -161,8 +166,6 @@ void CombatDroneSetTargetScene::display(Platform& pfrm, App& app)
     pfrm.screen().draw(sprite);
 
     WorldScene::display(pfrm, app);
-
-
 }
 
 

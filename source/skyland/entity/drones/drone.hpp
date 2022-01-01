@@ -57,6 +57,9 @@ public:
     virtual ScenePtr<Scene> select(Platform& pfrm, App&) = 0;
 
 
+    virtual Microseconds reload_time_remaining() const = 0;
+
+
 protected:
     enum State : u8 {
         launch,
@@ -78,7 +81,7 @@ private:
 
 protected:
     std::optional<Vec2<u8>> target_;
-    bool target_near_ : 1;
+    u8 target_near_ : 1;
 };
 
 

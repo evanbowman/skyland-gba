@@ -122,13 +122,17 @@ void ConstructDroneScene::draw(Platform& pfrm, App& app)
 
 void ConstructDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    ActiveWorldScene::enter(pfrm, app, prev);
+
     draw(pfrm, app);
 }
 
 
 
-void ConstructDroneScene::exit(Platform& pfrm, App&, Scene& next)
+void ConstructDroneScene::exit(Platform& pfrm, App& app, Scene& next)
 {
+    ActiveWorldScene::exit(pfrm, app, next);
+
     text_.reset();
     pfrm.fill_overlay(0);
 }

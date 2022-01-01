@@ -42,7 +42,7 @@ public:
     static u16 unsel_icon()
     {
         // TODO...
-        return 512;
+        return 1064;
     }
 
 
@@ -50,6 +50,18 @@ public:
     {
         return scene_pool::alloc<WeaponSetTargetScene>(position(),
                                                        destination() == &app.player_island());
+    }
+
+
+    static const auto reload_time = milliseconds(3200);
+
+
+    Microseconds reload_time_remaining() const override
+    {
+        if (state_ == Drone::State::launch) {
+            return reload_time;
+        }
+        return reload_time - timer_;
     }
 
 
@@ -69,7 +81,7 @@ public:
         case State::wait:
             duration_ += delta;
             update_sprite(app);
-            if (timer_ > milliseconds(3200)) {
+            if (timer_ > reload_time) {
                 if (target_) {
                     if (not app.opponent_island()) {
                         return;

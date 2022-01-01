@@ -264,6 +264,15 @@ void describe_room(Platform& pfrm,
             room_description->append((*drone)->name(), opts);
             room_description->append(") ", opts);
             room_description->append((*drone)->health());
+
+            if (auto tm = (*drone)->reload_time_remaining()) {
+                if (tm > 0) {
+                    StringBuffer<2> temp(" ");
+                    temp.push_back((char)17); // using ascii DC1 for clock img
+                    room_description->append(temp.c_str());
+                    room_description->append(1 + tm / seconds(1));
+                }
+            }
         }
     }
 
