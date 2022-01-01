@@ -9,6 +9,7 @@
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/transporter.hpp"
+#include "skyland/rooms/droneBay.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -85,6 +86,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                     set_target(pfrm, app, matrix, *flak_gun);
                 } else if (auto ion_cannon = dynamic_cast<IonCannon*>(&*room)) {
                     set_target(pfrm, app, matrix, *ion_cannon);
+                } else if (auto db = dynamic_cast<DroneBay*>(&*room)) {
+                    update_room(pfrm, app, matrix, *db);
                 } else if (auto transporter =
                                dynamic_cast<Transporter*>(&*room)) {
                     if (length(transporter->characters()) and
@@ -650,6 +653,19 @@ void EnemyAI::set_target(Platform& pfrm,
     if (highest_weighted_room) {
         ion_cannon.set_target(highest_weighted_room->position());
     }
+}
+
+
+
+void EnemyAI::update_room(Platform&,
+                          App&,
+                          const u8 matrix[16][16], DroneBay& db)
+{
+    if (db.reload_time_remaining()) {
+        return;
+    }
+
+
 }
 
 
