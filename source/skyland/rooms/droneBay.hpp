@@ -114,7 +114,7 @@ public:
 
 
 private:
-    static constexpr const Microseconds reload_time = seconds(20);
+    static constexpr const Microseconds reload_time = seconds(25);
 
 
     std::optional<SharedEntityRef<Drone>> drone_;

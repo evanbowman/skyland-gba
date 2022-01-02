@@ -696,13 +696,11 @@ static void place_offensive_drone(DroneBay& db,
         if (slot[0][y]) {
             Vec2<u8> cursor{1, u8(y + 1)};
             while (cursor.x < 16 and cursor.y < 15) {
-
                 if (auto room = player_island.get_room(cursor)) {
                     left_column_weights[y] =
                         (*room->metaclass())->ai_base_weight();
                     break;
                 }
-
                 ++cursor.x;
                 ++cursor.y;
             }
@@ -959,7 +957,6 @@ void EnemyAI::update_room(Platform& pfrm,
                               *app.opponent_island());
 
     }
-
 }
 
 
