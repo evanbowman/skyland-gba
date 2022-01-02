@@ -72,6 +72,12 @@ public:
     bool ready() const;
 
 
+    Microseconds reload_time_remaining() const override
+    {
+        return recharge_;
+    }
+
+
 private:
     Microseconds recharge_ = recharge_time;
 };

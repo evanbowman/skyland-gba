@@ -93,6 +93,12 @@ public:
     }
 
 
+    Microseconds reload_time_remaining() const override
+    {
+        return reload_;
+    }
+
+
 private:
     static constexpr const Microseconds reload_time = milliseconds(4500);
 

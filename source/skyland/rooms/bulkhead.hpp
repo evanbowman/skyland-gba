@@ -72,6 +72,12 @@ public:
     }
 
 
+    Microseconds reload_time_remaining() const override
+    {
+        return cooldown_;
+    }
+
+
 private:
     bool open_ = true;
     bool interior_visible_ = false;
