@@ -92,7 +92,7 @@ ScenePtr<Scene> DroneBay::select(Platform& pfrm, App& app)
                 free[1] = false;
             }
         }
-        if (not free[0] and not free[1]) {
+        if (not free[0] or not free[1]) {
             // TODO: push a message indicating that the drone bay is covered and
             // cannot launch anything.
             return null_scene();
