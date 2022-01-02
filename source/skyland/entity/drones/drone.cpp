@@ -74,13 +74,16 @@ void Drone::update_sprite(App& app)
     sprite_.set_position(o);
 
     if (target_) {
-        // FIX this logic, incorporate target_near_
-        if (destination() == &app.player_island()) {
-            sprite_.set_flip({false, false});
-        } else if (target_->x < grid_pos_.x) {
+        if (destination() == &*app.opponent_island() and target_near_) {
             sprite_.set_flip({true, false});
-        } else {
+        } else if (destination() == &app.player_island() and not target_near_) {
             sprite_.set_flip({false, false});
+        } else {
+            if (target_->x < grid_pos_.x) {
+                sprite_.set_flip({true, false});
+            } else {
+                sprite_.set_flip({false, false});
+            }
         }
     }
 }
