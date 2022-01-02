@@ -912,7 +912,7 @@ void EnemyAI::update_room(Platform& pfrm,
         }
     }
 
-    auto update_weights = [&](Drone& d) {
+    auto update_weights = [&](Drone& d, bool local) {
         const auto metac = d.metaclass_index();
         if (ai_controlled(d)) {
             if (metac == combat_drone_index) {
@@ -933,19 +933,22 @@ void EnemyAI::update_room(Platform& pfrm,
                 // If the player has a couple of offensive drones, we may want
                 // to react defensively.
                 weights[combat_drone_index] += 8.f;
+                if (local) {
+                    weights[combat_drone_index] += 16.f;
+                }
             }
         }
     };
 
     for (auto& drone_wp : app.player_island().drones()) {
         if (auto drone_sp = drone_wp.promote()) {
-            update_weights(**drone_sp);
+            update_weights(**drone_sp, false);
         }
     }
 
     for (auto& drone_wp : app.opponent_island()->drones()) {
         if (auto drone_sp = drone_wp.promote()) {
-            update_weights(**drone_sp);
+            update_weights(**drone_sp, true);
         }
     }
 
