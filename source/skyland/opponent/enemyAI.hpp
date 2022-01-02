@@ -72,6 +72,7 @@ private:
     Coins coins_ = 0;
 
     Microseconds score_subtract_timer_ = 0;
+    Microseconds total_time_ = 0;
 };
 
 

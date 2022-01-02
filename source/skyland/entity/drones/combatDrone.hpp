@@ -39,6 +39,10 @@ public:
 
     void update(Platform& pfrm, App& app, Microseconds delta) override
     {
+        if (parent() == &*app.opponent_island()) {
+            sprite_.set_texture_index(68);
+        }
+
         switch (state_) {
         case Drone::State::launch:
             Drone::update(pfrm, app, delta);
@@ -70,8 +74,8 @@ public:
                         start.y += 8;
                         auto target = island->origin();
 
-                        target.x += (*drone)->position().x * 16;
-                        target.y += (*drone)->position().y * 16;
+                        target.x += (*drone)->position().x * 16 + 8;
+                        target.y += (*drone)->position().y * 16 + 8;
 
                         auto c = alloc_entity<Cannonball>(
                             start, target, parent(), position());

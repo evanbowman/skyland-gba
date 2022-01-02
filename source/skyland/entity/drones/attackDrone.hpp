@@ -67,6 +67,10 @@ public:
 
     void update(Platform& pfrm, App& app, Microseconds delta) override
     {
+        if (parent() == &*app.opponent_island()) {
+            sprite_.set_texture_index(67);
+        }
+
         switch (state_) {
         case Drone::State::launch:
             Drone::update(pfrm, app, delta);
