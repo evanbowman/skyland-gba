@@ -97,7 +97,7 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     for (auto& room : app.player_island().rooms()) {
         if (auto db = dynamic_cast<DroneBay*>(room.get())) {
-            db->disconnect_drone();
+            db->detach_drone(pfrm, app, true);
         }
     }
 

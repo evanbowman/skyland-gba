@@ -89,16 +89,10 @@ public:
     }
 
 
-    void attach_drone(SharedEntityRef<Drone> drone)
-    {
-        drone_ = drone;
-    }
+    void attach_drone(Platform& pfrm, App& app, SharedEntityRef<Drone> drone);
 
 
-    void disconnect_drone()
-    {
-        drone_.reset();
-    }
+    void detach_drone(Platform& pfrm, App& app, bool quiet = false);
 
 
     void start_reload()

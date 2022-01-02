@@ -698,7 +698,9 @@ void EnemyAI::set_target(Platform& pfrm,
 
 
 
-static void place_offensive_drone(DroneBay& db,
+static void place_offensive_drone(Platform& pfrm,
+                                  App& app,
+                                  DroneBay& db,
                                   bool slot[16][16],
                                   const u8 player_rooms[16][16],
                                   bool restrict_columns[16],
@@ -816,7 +818,7 @@ static void place_offensive_drone(DroneBay& db,
         auto drone = (*metac)->create(&ai_island, &player_island, create_pos);
         if (drone) {
             (*drone)->set_movement_target(*ideal_coord);
-            db.attach_drone(*drone);
+            db.attach_drone(pfrm, app, *drone);
             player_island.drones().push(*drone);
         }
     }
@@ -989,7 +991,9 @@ void EnemyAI::update_room(Platform& pfrm,
 
         get_drone_slots(slots, &app.player_island(), &*app.opponent_island());
 
-        place_offensive_drone(db,
+        place_offensive_drone(pfrm,
+                              app,
+                              db,
                               slots,
                               matrix,
                               player_missile_silos,
@@ -1009,7 +1013,7 @@ void EnemyAI::update_room(Platform& pfrm,
                                                                 create_pos);
                     if (drone) {
                         (*drone)->set_movement_target({x, y});
-                        db.attach_drone(*drone);
+                        db.attach_drone(pfrm, app, *drone);
                         app.opponent_island()->drones().push(*drone);
                         return;
                     }
@@ -1021,7 +1025,9 @@ void EnemyAI::update_room(Platform& pfrm,
 
         get_drone_slots(slots, &app.player_island(), &*app.opponent_island());
 
-        place_offensive_drone(db,
+        place_offensive_drone(pfrm,
+                              app,
+                              db,
                               slots,
                               matrix,
                               player_missile_silos,

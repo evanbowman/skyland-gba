@@ -111,9 +111,11 @@ public:
                             app.camera().shake(4);
                             parent()->projectiles().push(std::move(c));
                         }
+                        timer_ = 0;
+                        state_ = Drone::State::ready;
+                    } else {
+                        target_.reset();
                     }
-                    timer_ = 0;
-                    state_ = Drone::State::ready;
                 }
             } else {
                 timer_ += delta;

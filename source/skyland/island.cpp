@@ -206,7 +206,6 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
                 network::transmit(pfrm, destroyed);
 
-                big_explosion(pfrm, app, (*ptr)->sprite().get_position());
                 it = drones_.erase(it);
             } else {
                 (*ptr)->update(pfrm, app, dt);

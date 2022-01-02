@@ -203,7 +203,7 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
                                     island,
                                     Vec2<u8>{origin_.x, u8(origin_.y - 1)})) {
                         (*drone)->set_movement_target(*cursor_loc);
-                        db->attach_drone(*drone);
+                        db->attach_drone(pfrm, app, *drone);
                         db->start_reload();
                         island->drones().push(*drone);
 

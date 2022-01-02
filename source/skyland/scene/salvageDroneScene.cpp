@@ -75,9 +75,7 @@ SalvageDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (auto db = dynamic_cast<DroneBay*>(room.get())) {
                     auto found = db->drone();
                     if (found and (*found).get() == drone_sp->get()) {
-                        medium_explosion(
-                            pfrm, app, (*found)->sprite().get_position());
-                        db->disconnect_drone();
+                        db->detach_drone(pfrm, app);
 
                         network::packet::DroneDestroyed destroyed;
                         destroyed.drone_x_ = (*drone_sp)->position().x;

@@ -373,7 +373,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
         if (auto room = app.opponent_island()->get_room(drone_bay_pos)) {
             if (auto db = dynamic_cast<DroneBay*>(room)) {
-                db->attach_drone(*drone);
+                db->attach_drone(pfrm, app, *drone);
                 db->start_reload();
                 island->drones().push(*drone);
                 (*drone)->set_movement_target(Vec2<u8>{

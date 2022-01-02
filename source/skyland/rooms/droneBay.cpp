@@ -4,6 +4,7 @@
 #include "skyland/scene/constructDroneScene.hpp"
 #include "skyland/scene/placeDroneScene.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/entity/explosion/explosion.hpp"
 
 
 
@@ -23,7 +24,7 @@ void DroneBay::update(Platform& pfrm, App& app, Microseconds delta)
     Room::update(pfrm, app, delta);
 
     if (drone_ and not(*drone_)->alive()) {
-        drone_.reset();
+        detach_drone(pfrm, app);
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
@@ -100,6 +101,29 @@ ScenePtr<Scene> DroneBay::select(Platform& pfrm, App& app)
         return scene_pool::alloc<ConstructDroneScene>(position());
     }
     return null_scene();
+}
+
+
+
+void DroneBay::attach_drone(Platform& pfrm,
+                            App& app,
+                            SharedEntityRef<Drone> drone)
+{
+    if (drone_) {
+        detach_drone(pfrm, app);
+    }
+    drone_ = drone;
+}
+
+
+
+void DroneBay::detach_drone(Platform& pfrm, App& app, bool quiet)
+{
+    if (drone_ and not quiet) {
+        medium_explosion(pfrm, app, (*drone_)->sprite().get_position());
+    }
+
+    drone_.reset();
 }
 
 
