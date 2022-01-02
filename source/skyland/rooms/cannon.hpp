@@ -18,8 +18,8 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(Platform& pfrm, Layer layer) override;
-    void render_exterior(Platform& pfrm, Layer layer) override;
+    void render_interior(u8 buffer[16][16]) override;
+    void render_exterior(u8 buffer[16][16]) override;
 
 
     bool has_roof() override
@@ -43,18 +43,6 @@ public:
     static const char* name()
     {
         return "cannon";
-    }
-
-
-    static Coins cost()
-    {
-        return 1000;
-    }
-
-
-    static Health full_health()
-    {
-        return 200;
     }
 
 
@@ -85,12 +73,6 @@ public:
     }
 
 
-    static Power consumes_power()
-    {
-        return 34;
-    }
-
-
     static Icon icon()
     {
         return 552;
@@ -100,6 +82,12 @@ public:
     static Icon unsel_icon()
     {
         return 536;
+    }
+
+
+    Microseconds reload_time_remaining() const override
+    {
+        return reload_;
     }
 
 

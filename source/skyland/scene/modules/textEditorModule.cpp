@@ -481,8 +481,7 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
                                    FileMode file_mode,
                                    FileSystem filesystem)
     : text_buffer_(pfrm), state_(allocate_dynamic<State>(pfrm)),
-      user_context_(std::move(user_context)),
-      filesystem_(filesystem)
+      user_context_(std::move(user_context)), filesystem_(filesystem)
 {
     state_->file_path_ = file_path;
 
@@ -781,6 +780,10 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
             } else if (app.player().key_down(pfrm, Key::up)) {
 
+                if (cursor_.y == 0) {
+                    return null_scene();
+                }
+
                 if (cursor_shaded_) {
                     unshade_cursor();
                 }
@@ -834,9 +837,27 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             }
         } else if (app.player().key_pressed(pfrm, Key::alt_1)) {
             if (app.player().key_down(pfrm, Key::action_1)) {
-                insert_char('\n');
-                cursor_.x = 0;
+                auto pos = insert_pos();
+                insert_char('\n', pos);
+                cursor_.x = 0; // newline
                 cursor_.y += 1;
+                ++pos;
+                int paren_balance = 0;
+                auto begin = text_buffer_.begin();
+                while (begin not_eq pos) {
+                    if (*begin == '(') {
+                        ++paren_balance;
+                    }
+                    if (*begin == ')') {
+                        --paren_balance;
+                    }
+                    ++begin;
+                }
+                while (paren_balance) {
+                    insert_char(' ', pos++);
+                    ++cursor_.x;
+                    --paren_balance;
+                }
                 render(pfrm, start_line_);
                 shade_cursor();
             } else if (app.player().key_down(pfrm, Key::action_2)) {
@@ -1468,7 +1489,8 @@ void TextEditorModule::save_selection(Vector<char>& output)
 
 
 
-void TextEditorModule::insert_char(char c, std::optional<Vector<char>::Iterator> hint)
+void TextEditorModule::insert_char(char c,
+                                   std::optional<Vector<char>::Iterator> hint)
 {
     state_->modified_ = true;
 

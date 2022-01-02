@@ -106,4 +106,15 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
 
 
 
+void Missile::on_collision(Platform& pfrm, App& app, Entity& entity)
+{
+    kill();
+    app.camera().shake(18);
+    big_explosion(pfrm, app, sprite_.get_position());
+
+    entity.apply_damage(Missile::deals_damage);
+}
+
+
+
 } // namespace skyland

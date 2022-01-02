@@ -17,8 +17,8 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(Platform& pfrm, Layer layer) override;
-    void render_exterior(Platform& pfrm, Layer layer) override;
+    void render_interior(u8 buffer[16][16]) override;
+    void render_exterior(u8 buffer[16][16]) override;
 
 
     static Vec2<u8> size()
@@ -30,12 +30,6 @@ public:
     static const char* name()
     {
         return "workshop";
-    }
-
-
-    static Health full_health()
-    {
-        return 60;
     }
 
 
@@ -54,12 +48,6 @@ public:
     static Float ai_base_weight()
     {
         return 700.f;
-    }
-
-
-    static Coins cost()
-    {
-        return 2000;
     }
 };
 

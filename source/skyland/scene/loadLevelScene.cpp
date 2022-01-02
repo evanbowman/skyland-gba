@@ -9,6 +9,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/rooms/droneBay.hpp"
 
 
 
@@ -93,6 +94,12 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     const auto loc = app.current_map_location();
     auto& node = app.world_map().matrix_[loc.x][loc.y];
+
+    for (auto& room : app.player_island().rooms()) {
+        if (auto db = dynamic_cast<DroneBay*>(room.get())) {
+            db->detach_drone(pfrm, app, true);
+        }
+    }
 
     switch (node.type_) {
     case WorldMap::Node::Type::storm_clear:

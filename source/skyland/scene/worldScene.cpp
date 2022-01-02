@@ -505,6 +505,13 @@ void WorldScene::far_camera()
 
 
 
+void WorldScene::near_camera()
+{
+    far_camera_ = false;
+}
+
+
+
 void WorldScene::set_pause_icon(Platform& pfrm, u16 icon)
 {
     auto st = calc_screen_tiles(pfrm);

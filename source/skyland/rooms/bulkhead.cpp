@@ -11,7 +11,7 @@ namespace skyland {
 
 
 Bulkhead::Bulkhead(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(full_health()))
+    : Room(parent, name(), size(), position)
 {
 }
 
@@ -32,20 +32,15 @@ void Bulkhead::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Bulkhead::render_interior(Platform& pfrm, Layer layer)
+void Bulkhead::render_interior(u8 buffer[16][16])
 {
     if (open_) {
-        pfrm.set_tile(
-            layer, position().x, position().y, InteriorTile::bulkhead_open_1);
-        pfrm.set_tile(
-            layer, position().x, position().y + 1, InteriorTile::plain_floor);
+        buffer[position().x][position().y] = InteriorTile::bulkhead_open_1;
+        buffer[position().x][position().y + 1] = InteriorTile::plain_floor;
     } else {
-        pfrm.set_tile(
-            layer, position().x, position().y, InteriorTile::bulkhead_closed_1);
-        pfrm.set_tile(layer,
-                      position().x,
-                      position().y + 1,
-                      InteriorTile::bulkhead_closed_2);
+        buffer[position().x][position().y] = InteriorTile::bulkhead_closed_1;
+        buffer[position().x][position().y + 1] =
+            InteriorTile::bulkhead_closed_2;
     }
 
     interior_visible_ = true;
@@ -53,10 +48,10 @@ void Bulkhead::render_interior(Platform& pfrm, Layer layer)
 
 
 
-void Bulkhead::render_exterior(Platform& pfrm, Layer layer)
+void Bulkhead::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::wall_plain_1);
-    pfrm.set_tile(layer, position().x, position().y + 1, Tile::wall_plain_2);
+    buffer[position().x][position().y] = Tile::wall_plain_1;
+    buffer[position().x][position().y + 1] = Tile::wall_plain_2;
 
     interior_visible_ = false;
 }
@@ -70,11 +65,7 @@ void Bulkhead::set_open(Platform& pfrm, bool open)
     cooldown_ = seconds(4);
 
     if (parent()->interior_visible()) {
-        if (open_) {
-            render_interior(pfrm, parent()->layer());
-        } else {
-            render_interior(pfrm, parent()->layer());
-        }
+        parent()->repaint(pfrm);
     }
     parent()->on_layout_changed({position().x, u8(position().y + 1)});
 }

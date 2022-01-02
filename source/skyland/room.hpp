@@ -53,8 +53,7 @@ public:
     Room(Island* parent,
          const char* name,
          const Vec2<u8>& size,
-         const Vec2<u8>& position,
-         Health health);
+         const Vec2<u8>& position);
 
 
     virtual bool add_occupant(EntityRef<BasicCharacter> entity)
@@ -64,14 +63,16 @@ public:
     }
 
 
-    virtual void render_interior(Platform& pfrm, Layer layer) = 0;
-    virtual void render_exterior(Platform& pfrm, Layer layer) = 0;
+    virtual void render_interior(u8 buffer[16][16]) = 0;
+    virtual void render_exterior(u8 buffer[16][16]) = 0;
 
 
     void set_injured(Platform& pfrm);
 
 
     virtual void update(Platform& pfrm, App&, Microseconds delta);
+
+    virtual void display(Platform::Screen& screen);
 
 
     Island* other_island(App&);
@@ -123,6 +124,12 @@ public:
 
     virtual void unset_target()
     {
+    }
+
+
+    virtual Microseconds reload_time_remaining() const
+    {
+        return 0;
     }
 
 

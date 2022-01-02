@@ -8,24 +8,25 @@ namespace skyland {
 
 
 Radar::Radar(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(full_health()))
+    : Room(parent, name(), size(), position)
 {
 }
 
 
 
-void Radar::render_interior(Platform& pfrm, Layer layer)
+void Radar::render_interior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, InteriorTile::radar_1);
-    pfrm.set_tile(layer, position().x, position().y + 1, InteriorTile::radar_2);
+
+    buffer[position().x][position().y] = InteriorTile::radar_1;
+    buffer[position().x][position().y + 1] = InteriorTile::radar_2;
 }
 
 
 
-void Radar::render_exterior(Platform& pfrm, Layer layer)
+void Radar::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::radar_1);
-    pfrm.set_tile(layer, position().x, position().y + 1, Tile::radar_2);
+    buffer[position().x][position().y] = Tile::radar_1;
+    buffer[position().x][position().y + 1] = Tile::radar_2;
 }
 
 

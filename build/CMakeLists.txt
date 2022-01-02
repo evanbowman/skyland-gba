@@ -87,6 +87,8 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/ionBurst.cpp
   ${SOURCE_DIR}/skyland/entity/character/basicCharacter.cpp
+  ${SOURCE_DIR}/skyland/entity/drones/drone.cpp
+  ${SOURCE_DIR}/skyland/entity/drones/droneMeta.cpp
   ${SOURCE_DIR}/skyland/rooms/core.cpp
   ${SOURCE_DIR}/skyland/rooms/hull.cpp
   ${SOURCE_DIR}/skyland/rooms/radar.cpp
@@ -95,6 +97,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
   ${SOURCE_DIR}/skyland/rooms/infestor.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
+  ${SOURCE_DIR}/skyland/rooms/droneBay.cpp
   ${SOURCE_DIR}/skyland/rooms/infirmary.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
   ${SOURCE_DIR}/skyland/rooms/ionCannon.cpp
@@ -115,6 +118,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/inspectP2Scene.cpp
   ${SOURCE_DIR}/skyland/scene/loadLevelScene.cpp
   ${SOURCE_DIR}/skyland/scene/zoneImageScene.cpp
+  ${SOURCE_DIR}/skyland/scene/placeDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
   ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
   ${SOURCE_DIR}/skyland/scene/createFileScene.cpp
@@ -123,9 +127,11 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/titleScreenScene.cpp
   ${SOURCE_DIR}/skyland/scene/introCreditsScene.cpp
+  ${SOURCE_DIR}/skyland/scene/salvageDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
   ${SOURCE_DIR}/skyland/scene/setGamespeedScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
+  ${SOURCE_DIR}/skyland/scene/constructDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/selectChallengeScene.cpp
   ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/fullscreenDialogScene.cpp
@@ -134,6 +140,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerConnectScene.cpp
   ${SOURCE_DIR}/skyland/scene/replicatorSelectionScene.cpp
+  ${SOURCE_DIR}/skyland/scene/combatDroneSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/textEditorModule.cpp

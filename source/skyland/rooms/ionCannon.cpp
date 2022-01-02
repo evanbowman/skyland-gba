@@ -13,7 +13,7 @@ namespace skyland {
 
 
 IonCannon::IonCannon(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(full_health()))
+    : Room(parent, name(), size(), position)
 {
 }
 
@@ -71,17 +71,16 @@ void IonCannon::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void IonCannon::render_interior(Platform& pfrm, Layer layer)
+void IonCannon::render_interior(u8 buffer[16][16])
 {
-    pfrm.set_tile(
-        layer, position().x, position().y, InteriorTile::particle_gun);
+    buffer[position().x][position().y] = InteriorTile::particle_gun;
 }
 
 
 
-void IonCannon::render_exterior(Platform& pfrm, Layer layer)
+void IonCannon::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::particle_gun);
+    buffer[position().x][position().y] = Tile::particle_gun;
 }
 
 

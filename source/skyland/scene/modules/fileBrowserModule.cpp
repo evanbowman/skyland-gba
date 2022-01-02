@@ -19,8 +19,8 @@ namespace skyland {
 FileBrowserModule::FileBrowserModule(Platform& pfrm,
                                      UserContext&& user_context,
                                      const char* path,
-                                     bool is_rom_path) :
-    user_context_(std::move(user_context))
+                                     bool is_rom_path)
+    : user_context_(std::move(user_context))
 {
     path_ = allocate_dynamic<PathBuffer>(pfrm);
 
@@ -447,7 +447,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
 
                     if (ext == ".lisp") {
                         return scene_pool::alloc<TextEditorModule>(
-                                                                   pfrm, std::move(user_context_), path.c_str());
+                            pfrm, std::move(user_context_), path.c_str());
                     }
                 }
             }

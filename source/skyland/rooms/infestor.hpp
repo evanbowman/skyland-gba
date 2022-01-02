@@ -18,8 +18,8 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(Platform& pfrm, Layer layer) override;
-    void render_exterior(Platform& pfrm, Layer layer) override;
+    void render_interior(u8 buffer[16][16]) override;
+    void render_exterior(u8 buffer[16][16]) override;
 
 
     bool has_roof() override
@@ -43,18 +43,6 @@ public:
     static const char* name()
     {
         return "infestor";
-    }
-
-
-    static Health full_health()
-    {
-        return 200;
-    }
-
-
-    static Coins cost()
-    {
-        return 1000;
     }
 
 
@@ -82,12 +70,6 @@ public:
     void plot_walkable_zones(bool matrix[16][16]) override
     {
         // one cannot walk through this tile, intentionally do nothing.
-    }
-
-
-    static Power consumes_power()
-    {
-        return 34;
     }
 
 

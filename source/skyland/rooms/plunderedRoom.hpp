@@ -17,8 +17,8 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(Platform& pfrm, Layer layer) override;
-    void render_exterior(Platform& pfrm, Layer layer) override;
+    void render_interior(u8 buffer[16][16]) override;
+    void render_exterior(u8 buffer[16][16]) override;
 
 
     bool description_visible() override
@@ -42,24 +42,6 @@ public:
     static const char* name()
     {
         return "plundered-room";
-    }
-
-
-    static Health full_health()
-    {
-        return 20;
-    }
-
-
-    static Coins cost()
-    {
-        return 30;
-    }
-
-
-    static Power consumes_power()
-    {
-        return 0;
     }
 
 

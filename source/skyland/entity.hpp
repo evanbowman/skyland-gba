@@ -73,9 +73,26 @@ public:
     }
 
 
+    virtual void on_collision(Platform& pfrm, App& app, Entity& other)
+    {
+    }
+
+
     void kill()
     {
         health_ = 0;
+    }
+
+
+    void apply_damage(Health amount)
+    {
+        health_ = std::max(0, health_ - amount);
+    }
+
+
+    Health health() const
+    {
+        return health_;
     }
 
 
@@ -145,6 +162,12 @@ template <typename T> using EntityRef = std::unique_ptr<T, void (*)(Entity*)>;
 
 
 
+template <typename T> using SharedEntityRef = Rc<T, IntrusiveRcControlBlock<T>>;
+
+template <typename T> using WeakEntityRef = Weak<T, IntrusiveRcControlBlock<T>>;
+
+
+
 using EntityNode = BiNode<EntityRef<Entity>>;
 
 
@@ -156,6 +179,16 @@ using EntityNodePool = Pool<sizeof(EntityNode), Capacity, alignof(Entity)>;
 
 template <typename T>
 using EntityList = List<EntityRef<T>, EntityNodePool<entity_pool_size>>;
+
+
+
+template <typename T>
+using SharedEntityList =
+    List<SharedEntityRef<T>, EntityNodePool<entity_pool_size>>;
+
+
+template <typename T>
+using WeakEntityList = List<WeakEntityRef<T>, EntityNodePool<entity_pool_size>>;
 
 
 

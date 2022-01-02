@@ -93,7 +93,10 @@ CreateFileScene::update(Platform& pfrm, App& app, Microseconds delta)
             UserContext ctx;
 
             return scene_pool::alloc<TextEditorModule>(
-                pfrm, std::move(ctx), full_path_.c_str(), TextEditorModule::FileMode::create);
+                pfrm,
+                std::move(ctx),
+                full_path_.c_str(),
+                TextEditorModule::FileMode::create);
         }
     }
 

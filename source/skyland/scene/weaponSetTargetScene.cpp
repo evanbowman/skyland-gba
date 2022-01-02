@@ -2,6 +2,7 @@
 #include "globals.hpp"
 #include "readyScene.hpp"
 #include "skyland/network.hpp"
+#include "skyland/scene/inspectP2Scene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 
@@ -24,8 +25,9 @@ void clear_room_description(Platform& pfrm,
 
 
 
-WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc)
-    : weapon_loc_(weapon_loc)
+WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc,
+                                           bool near)
+    : weapon_loc_(weapon_loc), near_(near)
 {
 }
 
@@ -85,17 +87,48 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::action_1)) {
             if (auto target_room =
                     app.opponent_island()->get_room(cursor_loc)) {
+
+
                 if (auto room = app.player_island().get_room(weapon_loc_)) {
                     room->set_target(target_room->position());
-
                     network::packet::WeaponSetTarget packet;
                     packet.weapon_x_ = weapon_loc_.x;
                     packet.weapon_y_ = weapon_loc_.y;
                     packet.target_x_ = target_room->position().x;
                     packet.target_y_ = target_room->position().y;
                     network::transmit(pfrm, packet);
+                } else {
+
+                    auto sync = [&](Drone& drone) {
+                        network::packet::DroneSetTarget packet;
+                        packet.drone_x_ = drone.position().x;
+                        packet.drone_y_ = drone.position().y;
+                        packet.target_x_ = target_room->position().x;
+                        packet.target_y_ = target_room->position().y;
+                        packet.drone_near_ = drone.destination() == &app.player_island();
+                        packet.target_near_ = false;
+                        network::transmit(pfrm, packet);
+                    };
+
+                    if (near_) {
+                        if (auto drone =
+                                app.player_island().get_drone(weapon_loc_)) {
+                            (*drone)->set_target(target_room->position());
+                            sync(**drone);
+                        }
+                    } else {
+                        if (auto drone =
+                                app.opponent_island()->get_drone(weapon_loc_)) {
+                            (*drone)->set_target(target_room->position());
+                            sync(**drone);
+                        }
+                    }
                 }
-                return scene_pool::alloc<ReadyScene>();
+                if (near_) {
+                    return scene_pool::alloc<ReadyScene>();
+                } else {
+                    return scene_pool::alloc<InspectP2Scene>();
+                }
             }
         }
     } else {

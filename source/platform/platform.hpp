@@ -184,7 +184,9 @@ public:
         u8 mapping_index_;
     };
 
-    using DynamicTexturePtr = Rc<DynamicTexture, dynamic_texture_count>;
+    using DynamicTexturePtr =
+        Rc<DynamicTexture,
+           PooledRcControlBlock<DynamicTexture, dynamic_texture_count>>;
 
 
     std::optional<DynamicTexturePtr> make_dynamic_texture();

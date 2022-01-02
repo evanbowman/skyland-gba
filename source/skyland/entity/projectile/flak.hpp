@@ -24,8 +24,7 @@ public:
     void on_collision(Platform& pfrm, App& app, Room&) override;
 
 
-
-    static const Health r1_damage = 16;
+    static const Health r1_damage = 20;
     static const Health r2_damage = 12;
     static const Health r3_damage = 10;
 

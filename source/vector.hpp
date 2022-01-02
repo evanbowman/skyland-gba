@@ -15,10 +15,8 @@
 
 
 
-template <typename T>
-class Vector {
+template <typename T> class Vector {
 private:
-
     struct Chunk {
         struct Header {
             std::optional<ScratchBufferPtr> next_;
@@ -27,8 +25,9 @@ private:
 
         static constexpr u32 elems()
         {
-            return ((SCRATCH_BUFFER_SIZE - sizeof(Chunk::Header))
-                    - alignof(T)) / sizeof(T);
+            return ((SCRATCH_BUFFER_SIZE - sizeof(Chunk::Header)) -
+                    alignof(T)) /
+                   sizeof(T);
         }
 
 
@@ -78,13 +77,9 @@ private:
 
 
 public:
-
-
     struct Iterator {
-        Iterator(int index, Chunk* chunk) :
-            chunk_(chunk),
-            index_(index),
-            chunk_index_(index % Chunk::elems())
+        Iterator(int index, Chunk* chunk)
+            : chunk_(chunk), index_(index), chunk_index_(index % Chunk::elems())
         {
         }
 
@@ -257,18 +252,14 @@ public:
     }
 
 
-    Vector(Platform& pfrm) :
-        pfrm_(pfrm),
-        data_(pfrm.make_scratch_buffer())
+    Vector(Platform& pfrm) : pfrm_(pfrm), data_(pfrm.make_scratch_buffer())
     {
         Chunk::initialize(data_, nullptr);
     }
 
 
-    Vector(Vector&& other) :
-        pfrm_(other.pfrm_),
-        data_(other.data_),
-        size_(other.size_)
+    Vector(Vector&& other)
+        : pfrm_(other.pfrm_), data_(other.data_), size_(other.size_)
     {
         other.size_ = 0; // Should be sufficient to invalidate the other
                          // vector. It will hold onto its scratch buffer, which

@@ -14,12 +14,15 @@ namespace skyland {
 Room::Room(Island* parent,
            const char* name,
            const Vec2<u8>& size,
-           const Vec2<u8>& position,
-           Health health)
+           const Vec2<u8>& position)
     : parent_(parent),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      size_(size), position_(position), health_(health), max_health_(health)
+      size_(size), position_(position), health_(1), max_health_(1)
 {
+    if (name == nullptr) {
+        return;
+    }
+
     auto metatable = room_metatable();
 
     for (int i = 0; i < metatable.second; ++i) {
@@ -27,6 +30,9 @@ Room::Room(Island* parent,
 
         if (str_cmp(name, current->name()) == 0) {
             metaclass_ = &current;
+
+            health_ = (*metaclass_)->full_health();
+            max_health_ = health_;
             return;
         }
     }
@@ -59,6 +65,20 @@ void Room::set_injured(Platform& pfrm)
     }
 
     injured_timer_ = milliseconds(250);
+}
+
+
+
+void Room::display(Platform::Screen& screen)
+{
+    if (parent_->interior_visible()) {
+        for (auto& c : characters()) {
+            const auto& pos = c->sprite().get_position();
+            if (pos.y < 700) {
+                screen.draw(c->sprite());
+            }
+        }
+    }
 }
 
 

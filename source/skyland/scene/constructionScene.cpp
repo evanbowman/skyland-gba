@@ -17,7 +17,7 @@ namespace skyland {
 
 
 
-int construction_zone_min_y = 7;
+int construction_zone_min_y = 6;
 
 
 

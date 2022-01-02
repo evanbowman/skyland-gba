@@ -18,8 +18,8 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(Platform& pfrm, Layer layer) override;
-    void render_exterior(Platform& pfrm, Layer layer) override;
+    void render_interior(u8 buffer[16][16]) override;
+    void render_exterior(u8 buffer[16][16]) override;
 
 
     void plot_walkable_zones(bool matrix[16][16]) override
@@ -63,24 +63,6 @@ public:
     static const char* name()
     {
         return "forcefield";
-    }
-
-
-    static Health full_health()
-    {
-        return 240;
-    }
-
-
-    static Coins cost()
-    {
-        return 300;
-    }
-
-
-    static Power consumes_power()
-    {
-        return 40;
     }
 
 

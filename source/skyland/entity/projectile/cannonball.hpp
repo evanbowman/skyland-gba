@@ -24,6 +24,9 @@ public:
     void on_collision(Platform& pfrm, App& app, Room&) override;
 
 
+    void on_collision(Platform& pfrm, App& app, Entity&) override;
+
+
 private:
     Microseconds timer_ = 0;
     Vec2<Float> step_vector_;

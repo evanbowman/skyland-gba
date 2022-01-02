@@ -1936,8 +1936,8 @@ void Platform::Screen::pixelate(u8 amount,
 }
 
 
-static ObjectPool<RcBase<Platform::DynamicTexture,
-                         Platform::dynamic_texture_count>::ControlBlock,
+static ObjectPool<PooledRcControlBlock<Platform::DynamicTexture,
+                                       Platform::dynamic_texture_count>,
                   Platform::dynamic_texture_count>
     dynamic_texture_pool;
 
@@ -1953,8 +1953,7 @@ void Platform::DynamicTexture::remap(u16 spritesheet_offset)
 std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 {
     auto finalizer =
-        [](RcBase<Platform::DynamicTexture,
-                  Platform::dynamic_texture_count>::ControlBlock* ctrl) {
+        [](PooledRcControlBlock<DynamicTexture, dynamic_texture_count>* ctrl) {
             dynamic_texture_mappings[ctrl->data_.mapping_index()].reserved_ =
                 false;
             dynamic_texture_pool.post(ctrl);
@@ -1962,8 +1961,8 @@ std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 
     for (u8 i = 0; i < dynamic_texture_count; ++i) {
         if (not dynamic_texture_mappings[i].reserved_) {
-            auto dt =
-                DynamicTexturePtr::create(&dynamic_texture_pool, finalizer, i);
+            auto dt = create_pooled_rc<DynamicTexture, dynamic_texture_count>(
+                &dynamic_texture_pool, finalizer, i);
             if (dt) {
                 dynamic_texture_mappings[i].reserved_ = true;
                 return *dt;
@@ -2961,7 +2960,7 @@ bool use_optimized_waitstates = true;
 // the buffer to ~100K in size. One could theoretically make the buffer almost
 // 256kB, because I am using none of EWRAM as far as I know...
 static EWRAM_DATA
-    ObjectPool<RcBase<ScratchBuffer, scratch_buffer_count>::ControlBlock,
+    ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
                scratch_buffer_count>
         scratch_buffer_pool;
 
@@ -2973,12 +2972,12 @@ static int scratch_buffer_highwater = 0;
 ScratchBufferPtr Platform::make_scratch_buffer()
 {
     auto finalizer =
-        [](RcBase<ScratchBuffer, scratch_buffer_count>::ControlBlock* ctrl) {
+        [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
             --scratch_buffers_in_use;
             ctrl->pool_->post(ctrl);
         };
 
-    auto maybe_buffer = Rc<ScratchBuffer, scratch_buffer_count>::create(
+    auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(
         &scratch_buffer_pool, finalizer);
     if (maybe_buffer) {
         ++scratch_buffers_in_use;

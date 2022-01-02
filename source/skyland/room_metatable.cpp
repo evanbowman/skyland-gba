@@ -4,10 +4,10 @@
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/core.hpp"
+#include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/hull.hpp"
-#include "skyland/rooms/infestor.hpp"
 #include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/missileSilo.hpp"
@@ -33,7 +33,6 @@ static auto& __metatable()
                          IonCannon,
                          FlakGun,
                          MissileSilo,
-                         // Infestor,
                          Stairwell,
                          Bulkhead,
                          Workshop,
@@ -42,7 +41,8 @@ static auto& __metatable()
                          Radar,
                          PlunderedRoom,
                          Transporter,
-                         Replicator>
+                         Replicator,
+                         DroneBay>
         __room_metatable;
 
     return __room_metatable;
@@ -55,6 +55,7 @@ const RoomMeta* cannon_mt = load_metaclass(Cannon::name());
 const RoomMeta* missile_silo_mt = load_metaclass(MissileSilo::name());
 const RoomMeta* ion_cannon_mt = load_metaclass(IonCannon::name());
 const RoomMeta* bulkhead_mt = load_metaclass(Bulkhead::name());
+const RoomMeta* drone_bay_mt = load_metaclass(DroneBay::name());
 
 
 

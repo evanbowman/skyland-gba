@@ -42,6 +42,7 @@ Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
     : layer_(layer), timer_(0), interior_visible_(false),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       projectiles_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
+      drones_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       owner_(&owner)
 {
     init_terrain(pfrm, width);
@@ -136,8 +137,6 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         }
     }
 
-    // owner_->update(pfrm, app, dt);
-
     if (chimney_loc_) {
         chimney_spawn_timer_ += dt;
 
@@ -193,6 +192,29 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             }
         }
     };
+
+
+    for (auto it = drones_.begin(); it not_eq drones_.end();) {
+        if (auto ptr = (*it).promote()) {
+            if (not(*ptr)->alive()) {
+
+                network::packet::DroneDestroyed destroyed;
+                destroyed.drone_x_ = (*ptr)->position().x;
+                destroyed.drone_y_ = (*ptr)->position().y;
+                destroyed.destination_near_ = (*ptr)->destination()
+                    == &app.player_island();
+
+                network::transmit(pfrm, destroyed);
+
+                it = drones_.erase(it);
+            } else {
+                (*ptr)->update(pfrm, app, dt);
+                ++it;
+            }
+        } else {
+            it = drones_.erase(it);
+        }
+    }
 
 
     for (auto it = rooms_.begin(); it not_eq rooms_.end();) {
@@ -323,16 +345,22 @@ void Island::display(Platform& pfrm)
         pfrm.screen().draw(p->sprite());
     }
 
-    if (interior_visible()) {
-        for (auto& room : rooms_) {
-            for (auto& c : room->characters()) {
-                const auto& pos = c->sprite().get_position();
-                if (pos.y < screen_limit_y) {
-                    pfrm.screen().draw(c->sprite());
-                }
-            }
-        }
+
+    for (auto& room : rooms_) {
+        room->display(pfrm.screen());
     }
+}
+
+
+
+HitBox Island::hitbox() const
+{
+    Vec2<Float> hitbox_pos = this->origin();
+    HitBox island_hitbox;
+    island_hitbox.position_ = &hitbox_pos;
+    island_hitbox.dimension_.size_.x = terrain_.size() * 16;
+    island_hitbox.dimension_.size_.y = 16 * 16;
+    return island_hitbox;
 }
 
 
@@ -374,6 +402,15 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
                 return;
             }
         }
+
+        for (auto& drone_wp : drones_) {
+            if (auto drone_sp = drone_wp.promote()) {
+                if (entity.hitbox().overlapping((*drone_sp)->hitbox())) {
+                    entity.on_collision(pfrm, app, **drone_sp);
+                    (*drone_sp)->on_collision(pfrm, app, entity);
+                }
+            }
+        }
     }
 }
 
@@ -404,47 +441,18 @@ void Island::set_position(const Vec2<Float>& position)
 
 void Island::render_interior(Platform& pfrm)
 {
-    for (auto& room : rooms()) {
-        room->render_interior(pfrm, layer_);
-    }
-
     interior_visible_ = true;
+
+    repaint(pfrm);
 }
 
 
 
 void Island::render_exterior(Platform& pfrm)
 {
-    for (auto& room : rooms()) {
-        room->render_exterior(pfrm, layer_);
-    }
-
-    for (int x = 0; x < 16; ++x) {
-        for (int y = 0; y < 15; ++y) {
-            auto t1 = pfrm.get_tile(layer_, x, y);
-            auto t2 = pfrm.get_tile(layer_, x, y + 1);
-
-            if (t1 == Tile::wall_window_2) {
-                if (t2 == Tile::wall_window_1) {
-                    pfrm.set_tile(layer_, x, y, Tile::wall_window_middle_2);
-                    pfrm.set_tile(layer_, x, y + 1, Tile::wall_window_middle_1);
-                } else if (t2 == Tile::wall_plain_1) {
-                    pfrm.set_tile(layer_, x, y, Tile::wall_window_middle_2);
-                    pfrm.set_tile(layer_, x, y + 1, Tile::wall_plain_middle);
-                }
-            } else if (t1 == Tile::wall_plain_2) {
-                if (t2 == Tile::wall_window_1) {
-                    pfrm.set_tile(layer_, x, y, Tile::wall_plain_middle);
-                    pfrm.set_tile(layer_, x, y + 1, Tile::wall_window_middle_1);
-                } else if (t2 == Tile::wall_plain_1) {
-                    pfrm.set_tile(layer_, x, y, Tile::wall_plain_middle);
-                    pfrm.set_tile(layer_, x, y + 1, Tile::wall_plain_middle);
-                }
-            }
-        }
-    }
-
     interior_visible_ = false;
+
+    repaint(pfrm);
 }
 
 
@@ -547,6 +555,14 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
             matrix[x][14] = true;
         }
     }
+
+    for (auto& drone : drones_) {
+        if (auto sp = drone.promote()) {
+            auto pos = (*sp)->position();
+            matrix[pos.x][pos.y] = false;
+            matrix[pos.x][pos.y + 1] = false;
+        }
+    }
 }
 
 
@@ -554,21 +570,24 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
 void Island::repaint(Platform& pfrm)
 {
     u8 matrix[16][16];
-
-    flag_pos_.reset();
+    u8 buffer[16][16]; // TODO: move this off of the stack!?
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
-            pfrm.set_tile(layer_, x, y, 0);
+            buffer[x][y] = 0;
         }
     }
 
-    render_terrain(pfrm);
+    flag_pos_.reset();
 
     if (interior_visible_) {
-        render_interior(pfrm);
+        for (auto& room : rooms()) {
+            room->render_interior(buffer);
+        }
     } else {
-        render_exterior(pfrm);
+        for (auto& room : rooms()) {
+            room->render_exterior(buffer);
+        }
     }
 
     plot_rooms(matrix);
@@ -594,15 +613,17 @@ void Island::repaint(Platform& pfrm)
     bool placed_flag = false;
     bool placed_chimney = false;
 
+    std::optional<Vec2<u8>> flag_loc;
+
     for (u8 x = 0; x < 16; ++x) {
         for (int y = 15; y > -1; --y) {
             if (matrix[x][y] == 0 and y < 15 and matrix[x][y + 1] == 1) {
-                pfrm.set_tile(layer_, x, y, Tile::roof_plain);
+                buffer[x][y] = Tile::roof_plain;
                 bool placed_chimney_this_tile = false;
                 if (not placed_chimney) {
                     for (auto& loc : chimney_locs) {
                         if (loc == x) {
-                            pfrm.set_tile(layer_, x, y, Tile::roof_chimney);
+                            buffer[x][y] = Tile::roof_chimney;
                             chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
                             placed_chimney = true;
                             placed_chimney_this_tile = true;
@@ -616,23 +637,20 @@ void Island::repaint(Platform& pfrm)
                     if (not placed_chimney_this_tile and show_flag_ and
                         not placed_flag) {
                         placed_flag = true;
-                        pfrm.set_tile(layer_, x, y, Tile::roof_flag);
-                        pfrm.set_tile(layer_, x, y - 1, Tile::flag_start);
-                        if (layer_ == Layer::map_0_ext) {
-                            pfrm.set_palette(layer_, x, y - 1, 12);
-                        }
+                        buffer[x][y] = Tile::roof_flag;
+                        buffer[x][y - 1] = Tile::flag_start;
                         flag_pos_ = {x, u8(y - 1)};
                     }
                 }
             } else if (y == 14 and matrix[x][y] == 0 and
                        x < (int)terrain_.size()) {
-                pfrm.set_tile(layer_, x, y, Tile::grass);
+                buffer[x][y] = Tile::grass;
             } else if (matrix[x][y] == 0 and matrix[x][y + 1] == 2) {
                 bool placed_chimney_this_tile = false;
                 if (not placed_chimney) {
                     for (auto& loc : chimney_locs) {
                         if (loc == x) {
-                            pfrm.set_tile(layer_, x, y, Tile::tin_chimney);
+                            buffer[x][y] = Tile::tin_chimney;
                             placed_chimney = true;
                             chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
                             placed_chimney_this_tile = true;
@@ -646,12 +664,8 @@ void Island::repaint(Platform& pfrm)
                             if (str_cmp((*room->metaclass())->name(), "hull") ==
                                 0) {
                                 placed_flag = true;
-                                pfrm.set_tile(layer_, x, y, Tile::flag_mount);
-                                pfrm.set_tile(
-                                    layer_, x, y - 1, Tile::flag_start);
-                                if (layer_ == Layer::map_0_ext) {
-                                    pfrm.set_palette(layer_, x, y - 1, 12);
-                                }
+                                buffer[x][y] = Tile::flag_mount;
+                                buffer[x][y - 1] = Tile::flag_start;
                                 flag_pos_ = {x, u8(y - 1)};
                             }
                         }
@@ -660,6 +674,47 @@ void Island::repaint(Platform& pfrm)
             }
         }
     }
+
+    if (not interior_visible_) {
+        // Clean up connections between stacked rooms
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 15; ++y) {
+                auto t1 = buffer[x][y];
+                auto t2 = buffer[x][y + 1];
+
+                if (t1 == Tile::wall_window_2) {
+                    if (t2 == Tile::wall_window_1) {
+                        buffer[x][y] = Tile::wall_window_middle_2;
+                        buffer[x][y + 1] = Tile::wall_window_middle_1;
+                    } else if (t2 == Tile::wall_plain_1) {
+                        buffer[x][y] = Tile::wall_window_middle_2;
+                        buffer[x][y + 1] = Tile::wall_plain_middle;
+                    }
+                } else if (t1 == Tile::wall_plain_2) {
+                    if (t2 == Tile::wall_window_1) {
+                        buffer[x][y] = Tile::wall_plain_middle;
+                        buffer[x][y + 1] = Tile::wall_window_middle_1;
+                    } else if (t2 == Tile::wall_plain_1) {
+                        buffer[x][y] = Tile::wall_plain_middle;
+                        buffer[x][y + 1] = Tile::wall_plain_middle;
+                    }
+                }
+            }
+        }
+    }
+
+
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 16; ++y) {
+            pfrm.set_tile(layer_, x, y, buffer[x][y]);
+        }
+    }
+
+    if (layer_ == Layer::map_0_ext and flag_pos_) {
+        pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y - 1, 12);
+    }
+
+    render_terrain(pfrm);
 }
 
 
@@ -674,6 +729,20 @@ void Island::set_drift(Float drift)
 Vec2<Float> Island::origin() const
 {
     return {position_.x, position_.y + ambient_movement_};
+}
+
+
+
+std::optional<SharedEntityRef<Drone>> Island::get_drone(const Vec2<u8>& coord)
+{
+    for (auto& drone_wp : drones()) {
+        if (auto drone_sp = drone_wp.promote();
+            drone_sp and (*drone_sp)->position() == coord) {
+            return *drone_sp;
+        }
+    }
+
+    return {};
 }
 
 

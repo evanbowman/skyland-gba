@@ -17,7 +17,7 @@ namespace skyland {
 
 
 Transporter::Transporter(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(full_health()))
+    : Room(parent, name(), size(), position)
 {
 }
 
@@ -33,7 +33,7 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
         if (recharge_ < 0) {
             recharge_ = 0;
             if (parent()->interior_visible()) {
-                render_interior(pfrm, parent()->layer());
+                parent()->repaint(pfrm);
             }
         }
     }
@@ -48,7 +48,7 @@ void Transporter::recover_character(Platform& pfrm,
     recharge_ = recharge_time;
 
     if (parent()->interior_visible()) {
-        render_interior(pfrm, parent()->layer());
+        parent()->repaint(pfrm);
     }
 
     auto island = other_island(app);
@@ -105,7 +105,7 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
     recharge_ = recharge_time;
 
     if (parent()->interior_visible()) {
-        render_interior(pfrm, parent()->layer());
+        parent()->repaint(pfrm);
     }
 
     auto chr = characters().begin();
@@ -219,27 +219,22 @@ ScenePtr<Scene> Transporter::select(Platform& pfrm, App& app)
 }
 
 
-void Transporter::render_interior(Platform& pfrm, Layer layer)
+void Transporter::render_interior(u8 buffer[16][16])
 {
     if (recharge_) {
-        pfrm.set_tile(layer,
-                      position().x,
-                      position().y,
-                      InteriorTile::transporter_recharge);
+        buffer[position().x][position().y] = InteriorTile::transporter_recharge;
     } else {
-        pfrm.set_tile(
-            layer, position().x, position().y, InteriorTile::transporter_1);
+        buffer[position().x][position().y] = InteriorTile::transporter_1;
     }
-    pfrm.set_tile(
-        layer, position().x, position().y + 1, InteriorTile::transporter_2);
+    buffer[position().x][position().y + 1] = InteriorTile::transporter_2;
 }
 
 
 
-void Transporter::render_exterior(Platform& pfrm, Layer layer)
+void Transporter::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::wall_window_1);
-    pfrm.set_tile(layer, position().x, position().y + 1, Tile::wall_window_2);
+    buffer[position().x][position().y] = Tile::wall_window_1;
+    buffer[position().x][position().y + 1] = Tile::wall_window_2;
 }
 
 

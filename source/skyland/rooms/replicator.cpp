@@ -14,7 +14,7 @@ namespace skyland {
 
 
 Replicator::Replicator(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(full_health()))
+    : Room(parent, name(), size(), position)
 {
 }
 
@@ -107,43 +107,40 @@ ScenePtr<Scene> Replicator::select(Platform& pfrm, App& app)
 
 
 
-void Replicator::render_interior(Platform& pfrm, Layer layer)
+void Replicator::render_interior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, InteriorTile::empty);
-    pfrm.set_tile(layer, position().x + 1, position().y, InteriorTile::empty);
+    auto x = position().x;
+    auto y = position().y;
 
-    pfrm.set_tile(
-        layer, position().x, position().y + 1, InteriorTile::replicator_1);
-    pfrm.set_tile(
-        layer, position().x, position().y + 2, InteriorTile::replicator_3);
-    pfrm.set_tile(
-        layer, position().x + 1, position().y + 1, InteriorTile::replicator_2);
-    pfrm.set_tile(
-        layer, position().x + 1, position().y + 2, InteriorTile::replicator_4);
-    pfrm.set_tile(
-        layer, position().x, position().y + 3, InteriorTile::plain_floor);
-    pfrm.set_tile(
-        layer, position().x + 1, position().y + 3, InteriorTile::plain_floor);
+    buffer[x][y] = InteriorTile::empty;
+    buffer[x + 1][y] = InteriorTile::empty;
+
+    buffer[x][y + 1] = InteriorTile::replicator_1;
+    buffer[x][y + 2] = InteriorTile::replicator_3;
+
+    buffer[x + 1][y + 1] = InteriorTile::replicator_2;
+    buffer[x + 1][y + 2] = InteriorTile::replicator_4;
+
+    buffer[x][y + 3] = InteriorTile::plain_floor;
+    buffer[x + 1][y + 3] = InteriorTile::plain_floor;
 }
 
 
 
-void Replicator::render_exterior(Platform& pfrm, Layer layer)
+void Replicator::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::wall_window_1);
-    pfrm.set_tile(
-        layer, position().x, position().y + 1, Tile::wall_window_middle_2);
-    pfrm.set_tile(
-        layer, position().x, position().y + 2, Tile::wall_window_middle_1);
-    pfrm.set_tile(layer, position().x, position().y + 3, Tile::wall_window_2);
+    auto x = position().x;
+    auto y = position().y;
 
-    pfrm.set_tile(layer, position().x + 1, position().y, Tile::wall_window_1);
-    pfrm.set_tile(
-        layer, position().x + 1, position().y + 1, Tile::wall_window_middle_2);
-    pfrm.set_tile(
-        layer, position().x + 1, position().y + 2, Tile::wall_window_middle_1);
-    pfrm.set_tile(
-        layer, position().x + 1, position().y + 3, Tile::wall_window_2);
+    buffer[x][y] = Tile::wall_window_1;
+    buffer[x][y + 1] = Tile::wall_window_middle_2;
+    buffer[x][y + 2] = Tile::wall_window_middle_1;
+    buffer[x][y + 3] = Tile::wall_window_2;
+
+    buffer[x + 1][y] = Tile::wall_window_1;
+    buffer[x + 1][y + 1] = Tile::wall_window_middle_2;
+    buffer[x + 1][y + 2] = Tile::wall_window_middle_1;
+    buffer[x + 1][y + 3] = Tile::wall_window_2;
 }
 
 

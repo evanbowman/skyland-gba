@@ -21,8 +21,7 @@
 
 
 
-(init-opponent 10 'hostile)
-
+(init-opponent 9 'hostile)
 
 
 (configure-player
@@ -55,6 +54,8 @@
    (hull 5 8)
    (hull 6 8)
    (hull 7 12)
+   (hull 7 11)
+   (hull 7 10)
    (hull 8 12)))
 
 

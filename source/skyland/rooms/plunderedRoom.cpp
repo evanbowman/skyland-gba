@@ -9,7 +9,7 @@ namespace skyland {
 
 
 PlunderedRoom::PlunderedRoom(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(full_health()))
+    : Room(parent, name(), size(), position)
 {
 }
 
@@ -21,20 +21,18 @@ void PlunderedRoom::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void PlunderedRoom::render_interior(Platform& pfrm, Layer layer)
+void PlunderedRoom::render_interior(u8 buffer[16][16])
 {
-    pfrm.set_tile(
-        layer, position().x, position().y, InteriorTile::plundered_room);
-    pfrm.set_tile(
-        layer, position().x, position().y + 1, InteriorTile::plundered_room);
+    buffer[position().x][position().y] = InteriorTile::plundered_room;
+    buffer[position().x][position().y + 1] = InteriorTile::plundered_room;
 }
 
 
 
-void PlunderedRoom::render_exterior(Platform& pfrm, Layer layer)
+void PlunderedRoom::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::plundered_room);
-    pfrm.set_tile(layer, position().x, position().y + 1, Tile::plundered_room);
+    buffer[position().x][position().y] = Tile::plundered_room;
+    buffer[position().x][position().y + 1] = Tile::plundered_room;
 }
 
 

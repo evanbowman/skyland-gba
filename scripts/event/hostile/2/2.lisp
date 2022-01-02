@@ -35,7 +35,8 @@
    (hull 4 10)
    (hull 6 10)
    (hull 2 9)
-   (hull 3 9)))
+   (hull 3 9)
+   (hull 7 11)))
 
 
 (show-flag (opponent))

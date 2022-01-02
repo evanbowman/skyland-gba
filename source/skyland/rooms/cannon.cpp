@@ -14,7 +14,7 @@ namespace skyland {
 
 
 Cannon::Cannon(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(full_health()))
+    : Room(parent, name(), size(), position)
 {
 }
 
@@ -73,16 +73,16 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Cannon::render_interior(Platform& pfrm, Layer layer)
+void Cannon::render_interior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::cannon_1);
+    buffer[position().x][position().y] = Tile::cannon_1;
 }
 
 
 
-void Cannon::render_exterior(Platform& pfrm, Layer layer)
+void Cannon::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::cannon_1);
+    buffer[position().x][position().y] = Tile::cannon_1;
 }
 
 

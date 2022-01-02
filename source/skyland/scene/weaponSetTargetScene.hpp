@@ -15,7 +15,7 @@ class Room;
 
 class WeaponSetTargetScene : public ActiveWorldScene {
 public:
-    WeaponSetTargetScene(const Vec2<u8>& weapon_loc);
+    WeaponSetTargetScene(const Vec2<u8>& weapon_loc, bool near = true);
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
@@ -45,6 +45,8 @@ private:
     Microseconds describe_room_timer_ = milliseconds(400);
     std::optional<Text> room_description_;
     bool freeform_ = true;
+
+    bool near_;
 };
 
 

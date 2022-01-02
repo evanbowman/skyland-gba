@@ -9,7 +9,7 @@ namespace skyland {
 
 
 Forcefield::Forcefield(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position, Health(full_health()))
+    : Room(parent, name(), size(), position)
 {
 }
 
@@ -22,16 +22,16 @@ void Forcefield::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Forcefield::render_interior(Platform& pfrm, Layer layer)
+void Forcefield::render_interior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, InteriorTile::forcefield);
+    buffer[position().x][position().y] = InteriorTile::forcefield;
 }
 
 
 
-void Forcefield::render_exterior(Platform& pfrm, Layer layer)
+void Forcefield::render_exterior(u8 buffer[16][16])
 {
-    pfrm.set_tile(layer, position().x, position().y, Tile::forcefield);
+    buffer[position().x][position().y] = Tile::forcefield;
 }
 
 
