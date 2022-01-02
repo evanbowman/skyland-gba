@@ -93,7 +93,9 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                     // Don't spawn drones until the level's been running for a
                     // bit.
                     if (total_time_ > seconds(8)) {
-                        update_room(pfrm, app, matrix, *db);
+                        if (app.game_speed() not_eq GameSpeed::stopped) {
+                            update_room(pfrm, app, matrix, *db);
+                        }
                     }
                 } else if (auto transporter =
                                dynamic_cast<Transporter*>(&*room)) {
@@ -182,6 +184,34 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                                 transporter->recover_character(
                                     pfrm, app, *recover_pos);
                             }
+                        }
+                    }
+                }
+            }
+
+            // const auto combat_drone_index = DroneMeta::index("combat-drone");
+            const auto cannon_drone_index = DroneMeta::index("cannon-drone");
+            const auto flak_drone_index = DroneMeta::index("flak-drone");
+
+            for (auto& drone : app.player_island().drones()) {
+                if (auto drone_sp = drone.promote()) {
+                    if ((*drone_sp)->parent() == &*app.opponent_island()) {
+                        if ((*drone_sp)->metaclass_index() == cannon_drone_index
+                            or (*drone_sp)->metaclass_index() == flak_drone_index) {
+
+                            offensive_drone_set_target(pfrm, app, matrix, **drone_sp);
+                        }
+                    }
+                }
+            }
+
+            for (auto& drone : app.opponent_island()->drones()) {
+                if (auto drone_sp = drone.promote()) {
+                    if ((*drone_sp)->parent() == &*app.opponent_island()) {
+                        if ((*drone_sp)->metaclass_index() == cannon_drone_index
+                            or (*drone_sp)->metaclass_index() == flak_drone_index) {
+
+                            offensive_drone_set_target(pfrm, app, matrix, **drone_sp);
                         }
                     }
                 }
@@ -666,6 +696,7 @@ void EnemyAI::set_target(Platform& pfrm,
 
 static void place_offensive_drone(DroneBay& db,
                                   bool slot[16][16],
+                                  const u8 player_rooms[16][16],
                                   bool restrict_columns[16],
                                   DroneMeta* metac,
                                   Island& player_island,
@@ -676,57 +707,91 @@ static void place_offensive_drone(DroneBay& db,
         val = 0.f;
     }
 
+    for (auto& drone : player_island.drones()) {
+        if (auto drone_sp = drone.promote()) {
+            // Don't stack drones in the same column, or we could end up
+            // shooting one of our other drones.
+            if (drone_sp and (*drone_sp)->parent() == &ai_island) {
+                restrict_columns[(*drone_sp)->position().x] = true;
+            }
+        }
+    }
+
+    Float top_row_weights[16];
+    for (int i = 0; i < 16; ++i) {
+        if (restrict_columns[i]) {
+            top_row_weights[i] = -10000.f;
+        } else {
+            top_row_weights[i] = 0.f;
+        }
+    }
+
     // 9-14 range: check immediately rightwards.
     if (not restrict_columns[0]) {
-        for (u8 y = 8; y < 11; ++y) {
+        for (u8 y = 9; y < 14; ++y) {
             if (slot[0][y]) {
                 for (u8 x = 1; x < 16; ++x) {
-                    if (auto room = player_island.get_room({x, y})) {
-                        left_column_weights[y] =
-                            (*room->metaclass())->ai_base_weight();
-                        break;
+                    if (player_rooms[x][y]) {
+                        if (auto room = player_island.get_room({x, y})) {
+                            left_column_weights[y] =
+                                (*room->metaclass())->ai_base_weight();
+                            break;
+                        }
                     }
+                }
+                if (left_column_weights[y] == 0.f) {
+                    left_column_weights[y] = 0.5f;
                 }
             }
         }
     }
 
     // range 6-10: check diagonally right/down
-    for (u8 y = 6; y < 8; ++y) {
-        if (slot[0][y]) {
-            Vec2<u8> cursor{1, u8(y + 1)};
-            while (cursor.x < 16 and cursor.y < 15) {
-                if (auto room = player_island.get_room(cursor)) {
-                    left_column_weights[y] =
-                        (*room->metaclass())->ai_base_weight();
-                    break;
+    if (not restrict_columns[0]) {
+        for (u8 y = 7; y < 9; ++y) {
+            if (slot[0][y]) {
+                Vec2<u8> cursor{1, u8(y + 1)};
+                while (cursor.x < 16 and cursor.y < 15) {
+                    if (player_rooms[cursor.x][cursor.y]) {
+                        if (auto room = player_island.get_room(cursor)) {
+                            left_column_weights[y] =
+                                (*room->metaclass())->ai_base_weight();
+                            break;
+                        }
+                    }
+                    ++cursor.x;
+                    ++cursor.y;
                 }
-                ++cursor.x;
-                ++cursor.y;
+                if (left_column_weights[y] == 0.f) {
+                    left_column_weights[y] = 0.5f;
+                }
             }
         }
     }
 
-    Float top_row_weights[16];
-    for (auto& val : top_row_weights) {
-        val = 0;
-    }
-
     // top row: check vertically down
-    for (u8 x = 0; x < 16; ++x) {
+    // NOTE: += 2 because we don't want to place two drones directly adjacent,
+    // as they might accidentally shoot eachother.
+    for (u8 x = 0; x < 16; x += 2) {
         if (slot[x][6] and not restrict_columns[x]) {
             for (u8 y = 6; y < 15; ++y) {
-                if (auto room = player_island.get_room({x, y})) {
-                    top_row_weights[x] = (*room->metaclass())->ai_base_weight();
+                if (player_rooms[x][y]) {
+                    if (auto room = player_island.get_room({x, y})) {
+                        top_row_weights[x] =
+                            (*room->metaclass())->ai_base_weight();
+                    }
                     break;
                 }
+            }
+            if (top_row_weights[x] == 0.f) {
+                top_row_weights[x] = 0.5f;
             }
         }
     }
 
     std::optional<Vec2<u8>> ideal_coord;
     Float max_weight = 0.f;
-    for (u8 y = 0; y < 16; ++y) {
+    for (u8 y = 6; y < 15; ++y) {
         if (left_column_weights[y] > max_weight) {
             ideal_coord = {0, y};
             max_weight = left_column_weights[y];
@@ -770,6 +835,11 @@ void EnemyAI::update_room(Platform& pfrm,
         return;
     }
 
+    const auto combat_drone_index = DroneMeta::index("combat-drone");
+    const auto cannon_drone_index = DroneMeta::index("cannon-drone");
+    const auto flak_drone_index = DroneMeta::index("flak-drone");
+
+
     auto current_drone = db.drone();
     auto [dt, ds] = drone_metatable();
 
@@ -782,10 +852,6 @@ void EnemyAI::update_room(Platform& pfrm,
     if (weight_array_size < ds) {
         pfrm.fatal("drone weight array insufficiently sized");
     }
-
-    const auto combat_drone_index = DroneMeta::index("combat-drone");
-    const auto cannon_drone_index = DroneMeta::index("cannon-drone");
-    const auto flak_drone_index = DroneMeta::index("flak-drone");
 
     // We want to ideally place flak-drones with a greater likelihood than
     // cannon drones, unless certain conditions arise (see below).
@@ -848,7 +914,7 @@ void EnemyAI::update_room(Platform& pfrm,
                 // place another one. In fact, if the player has no combat
                 // drones, we should think about potentially dropping our combat
                 // drone.
-                weights[combat_drone_index] -= 16.f;
+                weights[combat_drone_index] -= 48.f;
             }
         } else {
             if (metac == combat_drone_index) {
@@ -856,6 +922,11 @@ void EnemyAI::update_room(Platform& pfrm,
                 // would be particularly vulnerable, so we need to take out the
                 // player's drone first.
                 weights[combat_drone_index] += 32.f;
+            } else if (metac == cannon_drone_index or
+                       metac == flak_drone_index) {
+                // If the player has a couple of offensive drones, we may want
+                // to react defensively.
+                weights[combat_drone_index] += 8.f;
             }
         }
     };
@@ -888,10 +959,6 @@ void EnemyAI::update_room(Platform& pfrm,
             // The currently-deployed drone is the same as the highest-weighted
             // one, so no reason to make any changes.
             return;
-        } else if ((*current_drone)->reload_time_remaining() < seconds(2)) {
-            // It doesn't make sense to scrap a drone if it's just finished
-            // reloading.
-            return;
         }
     }
 
@@ -920,6 +987,7 @@ void EnemyAI::update_room(Platform& pfrm,
 
         place_offensive_drone(db,
                               slots,
+                              matrix,
                               player_missile_silos,
                               &dt[cannon_drone_index],
                               app.player_island(),
@@ -951,11 +1019,131 @@ void EnemyAI::update_room(Platform& pfrm,
 
         place_offensive_drone(db,
                               slots,
+                              matrix,
                               player_missile_silos,
                               &dt[flak_drone_index],
                               app.player_island(),
                               *app.opponent_island());
 
+    }
+}
+
+
+
+void EnemyAI::offensive_drone_set_target(Platform& pfrm,
+                                         App& app,
+                                         const u8 matrix[16][16],
+                                         Drone& drone)
+{
+    // Calculate a few radial line-of-sight paths based on the drone's position,
+    // and select a target based on what we believe to be visible.
+
+    // We cannot do very intensive raycasting to determine an ideal target
+    // without potentially affecting performance on the gameboy, if the enemy
+    // has deployed a lot of drones.
+
+    std::optional<Vec2<u8>> ideal_pos;
+    Float highest_weight = 0.f;
+
+    const auto drone_pos = drone.position();
+
+    Vec2<u8> cursor = drone_pos;
+
+    const auto width = app.player_island().terrain().size();
+
+    auto enqueue = [&] {
+        if (auto room = app.player_island().get_room(cursor)) {
+            auto weight = (*room->metaclass())->ai_base_weight();
+            if (weight > highest_weight) {
+                ideal_pos = cursor;
+            }
+        }
+    };
+
+    // seek left
+    while (cursor.x > 0) {
+        if (matrix[cursor.x][cursor.y]) {
+            enqueue();
+            break;
+        }
+        --cursor.x;
+    }
+
+    cursor = drone_pos;
+
+    // seek right
+    while (cursor.x < width) {
+        if (matrix[cursor.x][cursor.y]) {
+            enqueue();
+            break;
+        }
+        ++cursor.x;
+    }
+
+    cursor = drone_pos;
+
+    // seek down
+    while (cursor.y < 15) {
+        if (matrix[cursor.x][cursor.y]) {
+            enqueue();
+            break;
+        }
+        ++cursor.y;
+    }
+
+    cursor = drone_pos;
+
+    // seek diagonally, with slope -1
+    while (cursor.x < width and cursor.y < 15) {
+        if (matrix[cursor.x][cursor.y]) {
+            enqueue();
+            break;
+        }
+        ++cursor.x;
+        ++cursor.y;
+    }
+
+    cursor = drone_pos;
+
+    // seek diagonally, with slope = 1
+    while (cursor.x > 0 and cursor.y < 15) {
+        if (matrix[cursor.x][cursor.y]) {
+            enqueue();
+            break;
+        }
+        --cursor.x;
+        ++cursor.y;
+    }
+
+    cursor = drone_pos;
+
+    // seek diagonally, with slope = -2
+    while (cursor.x < width and cursor.y < 15) {
+        if (matrix[cursor.x][cursor.y]) {
+            enqueue();
+            break;
+        }
+        ++cursor.x;
+        cursor.y += 2;
+    }
+
+    cursor = drone_pos;
+
+    // seek diagonally, with slope = 2
+    while (cursor.x > 0 and cursor.y < 15) {
+        if (matrix[cursor.x][cursor.y]) {
+            enqueue();
+            break;
+        }
+        --cursor.x;
+        cursor.y += 2;
+    }
+
+    // Ok, we might want to think about casting a few trajectories diagonally
+    // upwards, but for now, let's stick with what we've done so far.
+
+    if (ideal_pos) {
+        drone.set_target(*ideal_pos);
     }
 }
 
