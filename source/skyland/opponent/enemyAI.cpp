@@ -189,7 +189,7 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
 
-            // const auto combat_drone_index = DroneMeta::index("combat-drone");
+            const auto combat_drone_index = DroneMeta::index("combat-drone");
             const auto cannon_drone_index = DroneMeta::index("cannon-drone");
             const auto flak_drone_index = DroneMeta::index("flak-drone");
 
@@ -200,6 +200,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                             or (*drone_sp)->metaclass_index() == flak_drone_index) {
 
                             offensive_drone_set_target(pfrm, app, matrix, **drone_sp);
+                        } else if ((*drone_sp)->metaclass_index() == combat_drone_index) {
+                            combat_drone_set_target(pfrm, app, matrix, **drone_sp);
                         }
                     }
                 }
@@ -212,6 +214,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                             or (*drone_sp)->metaclass_index() == flak_drone_index) {
 
                             offensive_drone_set_target(pfrm, app, matrix, **drone_sp);
+                        } else if ((*drone_sp)->metaclass_index() == combat_drone_index) {
+                            combat_drone_set_target(pfrm, app, matrix, **drone_sp);
                         }
                     }
                 }
@@ -997,8 +1001,8 @@ void EnemyAI::update_room(Platform& pfrm,
 
         get_drone_slots(slots, &*app.opponent_island(), &*app.opponent_island());
 
-        for (u8 y = 0; y < 16; ++y) {
-            for (u8 x = 0; x < 16; ++x) {
+        for (u8 y = 0; y < 16; y += 2) {
+            for (u8 x = 0; x < 16; x += 2) {
                 if (slots[x][y] and not opponent_missile_silos[x]) {
                     auto drone = dt[combat_drone_index]->create(&*app.opponent_island(),
                                                                 &*app.opponent_island(),
@@ -1025,6 +1029,30 @@ void EnemyAI::update_room(Platform& pfrm,
                               app.player_island(),
                               *app.opponent_island());
 
+    }
+}
+
+
+
+void EnemyAI::combat_drone_set_target(Platform& pfrm,
+                                      App& app,
+                                      u8 matrix[16][16],
+                                      Drone& drone)
+{
+    for (auto& drone_wp : app.player_island().drones()) {
+        if (auto drone_sp = drone_wp.promote()) {
+            if ((*drone_sp)->parent() == &app.player_island()) {
+                drone.set_target((*drone_sp)->position(), true);
+            }
+        }
+    }
+
+    for (auto& drone_wp : app.opponent_island()->drones()) {
+        if (auto drone_sp = drone_wp.promote()) {
+            if ((*drone_sp)->parent() == &app.player_island()) {
+                drone.set_target((*drone_sp)->position(), false);
+            }
+        }
     }
 }
 
