@@ -136,6 +136,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/weaponSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/fullscreenDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/recoverCharacterScene.cpp
+  ${SOURCE_DIR}/skyland/scene/repairDroneRangeScene.cpp
   ${SOURCE_DIR}/skyland/scene/sramFileWritebackScene.cpp
   ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerConnectScene.cpp
@@ -468,7 +469,16 @@ if(GAMEBOY_ADVANCE)
   add_library(ARM_ROUTINES ${SOURCE_DIR}/platform/gba/gba_arm_routines.cpp)
 
   target_compile_options(ARM_ROUTINES PRIVATE
-    ${SHARED_COMPILE_OPTIONS})
+    -g
+    -O3
+    -Wall
+    -Werror
+    -pedantic
+    -nostdlib
+    -ffast-math
+    -fno-math-errno
+    -Wdouble-promotion
+    -fomit-frame-pointer)
 
   target_compile_options(ARM_ROUTINES PRIVATE
     -marm

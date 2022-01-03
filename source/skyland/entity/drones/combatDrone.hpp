@@ -98,6 +98,12 @@ public:
     }
 
 
+    static Coins cost()
+    {
+        return 0;
+    }
+
+
     static const char* get_name()
     {
         return "combat-drone";

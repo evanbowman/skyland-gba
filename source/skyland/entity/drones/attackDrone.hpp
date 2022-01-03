@@ -65,6 +65,12 @@ public:
     }
 
 
+    static Coins cost()
+    {
+        return 0;
+    }
+
+
     void update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (parent() == &*app.opponent_island()) {

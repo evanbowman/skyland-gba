@@ -3,6 +3,7 @@
 #include "drone.hpp"
 #include "script/lisp.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/coins.hpp"
 
 
 
@@ -42,6 +43,9 @@ struct DroneMeta {
         virtual void configure(/* TODO... */)
         {
         }
+
+
+        virtual Coins cost() const = 0;
     };
 
 
@@ -70,6 +74,12 @@ struct DroneMeta {
 
 
         u16 unsel_icon() const override
+        {
+            return 0;
+        }
+
+
+        Coins cost() const override
         {
             return 0;
         }
@@ -107,6 +117,12 @@ struct DroneMeta {
         u16 unsel_icon() const override
         {
             return T::unsel_icon();
+        }
+
+
+        Coins cost() const override
+        {
+            return T::cost();
         }
 
 

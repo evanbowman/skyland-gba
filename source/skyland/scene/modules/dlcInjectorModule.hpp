@@ -23,6 +23,9 @@ public:
     }
 
 
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+
     static Factory factory_;
 };
 

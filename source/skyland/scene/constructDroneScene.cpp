@@ -2,6 +2,7 @@
 #include "readyScene.hpp"
 #include "skyland/scene/placeDroneScene.hpp"
 #include "skyland/skyland.hpp"
+#include "localization.hpp"
 
 
 
@@ -18,6 +19,9 @@ void ConstructDroneScene::draw(Platform& pfrm, App& app)
 
     StringBuffer<30> message = "deploy: ";
     message += templates[selector_]->name();
+    message += " ";
+    message += to_string<10>(templates[selector_]->cost());
+    message += "@";
 
     if (not text_) {
         text_.emplace(pfrm, OverlayCoord{0, u8(st.y - 1)});
@@ -124,6 +128,8 @@ void ConstructDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     ActiveWorldScene::enter(pfrm, app, prev);
 
+    persist_ui();
+
     draw(pfrm, app);
 }
 
@@ -149,8 +155,11 @@ ConstructDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
     auto [templates, template_count] = drone_metatable();
 
     if (app.player().key_down(pfrm, Key::action_1)) {
-        return scene_pool::alloc<PlaceDroneScene>(
-            pfrm, position_, &templates[selector_]);
+        const auto cost = templates[selector_]->cost();
+        if (app.coins() >= cost) {
+            return scene_pool::alloc<PlaceDroneScene>(
+                pfrm, position_, &templates[selector_]);
+        }
     }
 
     if (app.player().key_down(pfrm, Key::right)) {

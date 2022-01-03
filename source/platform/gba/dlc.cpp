@@ -1,6 +1,7 @@
 #include "gba.h"
 #include "memory/buffer.hpp"
 #include "platform/platform.hpp"
+#include "platform/ram_filesystem.hpp"
 
 
 
@@ -112,15 +113,25 @@ StringBuffer<1024>* receive_data;
 
 
 
+enum class DLCReceiveState {
+    rcv_file_count,
+    rcv_file_name_length,
+    rcv_file_name,
+    rcv_file_size,
+    rcv_file_data,
+};
+
+
+
 static void multi_serial_isr()
 {
     if (multiplayer_is_master()) {
-        receive_data->push_back(REG_SIOMULTI1 & 0x00ff);
         receive_data->push_back((REG_SIOMULTI1 & 0xff00) >> 8);
+        receive_data->push_back(REG_SIOMULTI1 & 0x00ff);
         multi_serial_master_init_timer();
     } else {
-        receive_data->push_back(REG_SIOMULTI0 & 0x00ff);
         receive_data->push_back((REG_SIOMULTI0 & 0xff00) >> 8);
+        receive_data->push_back(REG_SIOMULTI0 & 0x00ff);
     }
 }
 
@@ -208,6 +219,11 @@ void read_dlc(Platform& pfrm)
         pfrm.feed_watchdog();
     }
 
+    Vector<char> data(pfrm);
+    for (char c : receive_data) {
+        data.push_back(c);
+    }
+    data.push_back('\0');
 
-    info(pfrm, receive_data.c_str());
+    ram_filesystem::store_file_data(pfrm, "/test/dlc.lisp", data);
 }
