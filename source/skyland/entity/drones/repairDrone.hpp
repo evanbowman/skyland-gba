@@ -37,7 +37,7 @@ public:
     void update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (parent() == &*app.opponent_island()) {
-            sprite_.set_texture_index(68);
+            sprite_.set_texture_index(71);
         }
 
         switch (state_) {
