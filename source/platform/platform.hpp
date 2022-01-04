@@ -130,6 +130,9 @@ public:
     [[noreturn]] static void fatal(const char* message);
 
 
+    [[noreturn]] static void restart();
+
+
     // Enable platform specific features. NOP if unsupported.
     void* system_call(const char* feature_name, void* arg);
 
@@ -262,8 +265,8 @@ public:
     // more than ten seconds in the watchdog handler!).
     void feed_watchdog();
 
-    using WatchdogCallback = Function<16, void(Platform& pfrm)>;
-    void on_watchdog_timeout(WatchdogCallback callback);
+    using UnrecoverrableErrorCallback = Function<16, void(Platform& pfrm)>;
+    void on_unrecoverrable_error(UnrecoverrableErrorCallback callback);
 
 
     // Not implemented for all platforms. If unimplemented, the funciton will

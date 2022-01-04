@@ -79,8 +79,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             ++cursor_loc.x;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
-        } else if (// Do not allow the player to inspect the other island if we're in
-                   // the multiplayer waiting room.
+        } else if ( // Do not allow the player to inspect the other island if we're in
+                    // the multiplayer waiting room.
             mt_prep_seconds == 0) {
             auto& cursor_loc =
                 std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
@@ -142,6 +142,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_pressed(pfrm, Key::start)) {
+        while (true)
+            ;
         start_key_held_timer_ += delta;
     }
     if (app.player().key_up(pfrm, Key::start)) {
@@ -239,7 +241,8 @@ void describe_room(Platform& pfrm,
                 if (auto tm = room->reload_time_remaining()) {
                     if (tm > 0) {
                         StringBuffer<2> temp(" ");
-                        temp.push_back((char)17); // using ascii DC1 for clock img
+                        temp.push_back(
+                            (char)17); // using ascii DC1 for clock img
                         room_description->append(temp.c_str());
                         room_description->append(1 + tm / seconds(1));
                     }

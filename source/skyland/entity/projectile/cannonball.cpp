@@ -2,12 +2,12 @@
 
 
 #include "cannonball.hpp"
+#include "skyland/entity/drones/drone.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/room.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
-#include "skyland/entity/drones/drone.hpp"
 
 
 
@@ -77,8 +77,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Entity& entity)
     // FIXME: Probably slow... but then... in most cases it only happens once,
     // as the Cannonball explodes upon collision.
     if (auto drone = dynamic_cast<Drone*>(&entity)) {
-        if (drone->position() == origin_tile_ and
-            drone->parent() == source_) {
+        if (drone->position() == origin_tile_ and drone->parent() == source_) {
             // Do not shoot ourself.
             return;
         }

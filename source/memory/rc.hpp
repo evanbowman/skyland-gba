@@ -20,8 +20,7 @@
 
 
 
-template <typename T, typename ControlBlockImpl>
-class Rc;
+template <typename T, typename ControlBlockImpl> class Rc;
 
 
 
@@ -94,8 +93,6 @@ public:
         // really straightforward way.
         return Rc<T, IntrusiveControlBlock>(this);
     }
-
-
 };
 } // namespace detail
 

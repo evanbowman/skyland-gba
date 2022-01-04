@@ -1,8 +1,8 @@
 #include "constructDroneScene.hpp"
+#include "localization.hpp"
 #include "readyScene.hpp"
 #include "skyland/scene/placeDroneScene.hpp"
 #include "skyland/skyland.hpp"
-#include "localization.hpp"
 
 
 

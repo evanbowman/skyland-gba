@@ -1,12 +1,12 @@
 #include "multiplayerPeer.hpp"
 #include "localization.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/bulkhead.hpp"
+#include "skyland/rooms/droneBay.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
-#include "skyland/entity/drones/droneMeta.hpp"
-#include "skyland/rooms/droneBay.hpp"
 
 
 
@@ -110,8 +110,9 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
     const auto drone_x = invert_axis(app, packet.drone_x_);
     if (auto drone = island->get_drone({drone_x, packet.drone_y_})) {
-        (*drone)->set_target({invert_axis(app, packet.target_x_), packet.target_y_},
-                             not packet.target_near_);
+        (*drone)->set_target(
+            {invert_axis(app, packet.target_x_), packet.target_y_},
+            not packet.target_near_);
     }
 }
 
@@ -361,15 +362,12 @@ void MultiplayerPeer::receive(Platform& pfrm,
         pfrm.fatal(err.c_str());
     }
     auto drone_meta = &dt[packet.drone_class_];
-    if (auto drone = (*drone_meta)->create(&*app.opponent_island(),
-                                           island,
-                                           Vec2<u8>{x_origin,
-                                                    packet.origin_y_})) {
+    if (auto drone = (*drone_meta)
+                         ->create(&*app.opponent_island(),
+                                  island,
+                                  Vec2<u8>{x_origin, packet.origin_y_})) {
 
-        const Vec2<u8> drone_bay_pos = {
-            x_origin,
-            u8(packet.origin_y_ + 1)
-        };
+        const Vec2<u8> drone_bay_pos = {x_origin, u8(packet.origin_y_ + 1)};
 
         if (auto room = app.opponent_island()->get_room(drone_bay_pos)) {
             if (auto db = dynamic_cast<DroneBay*>(room)) {
@@ -377,12 +375,9 @@ void MultiplayerPeer::receive(Platform& pfrm,
                 db->start_reload();
                 island->drones().push(*drone);
                 (*drone)->set_movement_target(Vec2<u8>{
-                        invert_axis(app, packet.deploy_x_),
-                        packet.deploy_y_
-                    });
+                    invert_axis(app, packet.deploy_x_), packet.deploy_y_});
             }
         }
-
     }
 }
 

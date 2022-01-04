@@ -94,6 +94,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.set_scroll(Layer::map_1_ext, 0, -offset + 8);
 
     pfrm.set_overlay_origin(0, 4);
+
+    app.delete_backup();
 }
 
 

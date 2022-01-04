@@ -48,8 +48,8 @@ public:
 
     ScenePtr<Scene> select(Platform& pfrm, App& app) override
     {
-        return scene_pool::alloc<WeaponSetTargetScene>(position(),
-                                                       destination() == &app.player_island());
+        return scene_pool::alloc<WeaponSetTargetScene>(
+            position(), destination() == &app.player_island());
     }
 
 

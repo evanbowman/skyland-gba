@@ -1,7 +1,7 @@
 #include "repairDroneRangeScene.hpp"
+#include "readyScene.hpp"
 #include "skyland/island.hpp"
 #include "skyland/skyland.hpp"
-#include "readyScene.hpp"
 
 
 
@@ -9,18 +9,16 @@ namespace skyland {
 
 
 
-ScenePtr<Scene> RepairDroneRangeScene::update(Platform& pfrm,
-                                              App& app,
-                                              Microseconds delta)
+ScenePtr<Scene>
+RepairDroneRangeScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return scene;
     }
 
     if (not description_) {
-        description_.emplace(pfrm,
-                             "showing: repair range",
-                             OverlayCoord{0, 19});
+        description_.emplace(
+            pfrm, "showing: repair range", OverlayCoord{0, 19});
 
         for (int i = 0; i < description_->len(); ++i) {
             pfrm.set_tile(Layer::overlay, i, 18, 425);
@@ -52,20 +50,16 @@ void RepairDroneRangeScene::display(Platform& pfrm, App& app)
         sprite.set_texture_index(13);
 
         for (int x = pos.x - 2; x < pos.x + 3; ++x) {
-            sprite.set_position({
-                    origin.x + x * 16,
-                    origin.y + (pos.y - 2) * 16
-                });
+            sprite.set_position(
+                {origin.x + x * 16, origin.y + (pos.y - 2) * 16});
             pfrm.screen().draw(sprite);
 
 
             if (x not_eq pos.x) {
                 sprite.set_texture_index(14);
 
-                sprite.set_position({
-                        origin.x + x * 16,
-                        origin.y + (pos.y - 1) * 16
-                    });
+                sprite.set_position(
+                    {origin.x + x * 16, origin.y + (pos.y - 1) * 16});
 
                 pfrm.screen().draw(sprite);
 
@@ -73,18 +67,14 @@ void RepairDroneRangeScene::display(Platform& pfrm, App& app)
             }
 
 
-            sprite.set_position({
-                    origin.x + x * 16,
-                    origin.y + (pos.y + 1) * 16
-                });
+            sprite.set_position(
+                {origin.x + x * 16, origin.y + (pos.y + 1) * 16});
 
             pfrm.screen().draw(sprite);
         }
     }
-
-
 }
 
 
 
-}
+} // namespace skyland

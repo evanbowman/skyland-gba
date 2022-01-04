@@ -1,10 +1,10 @@
 #include "droneBay.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/island.hpp"
 #include "skyland/scene/constructDroneScene.hpp"
 #include "skyland/scene/placeDroneScene.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/entity/explosion/explosion.hpp"
 
 
 

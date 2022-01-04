@@ -1,9 +1,9 @@
 #include "drone.hpp"
+#include "droneMeta.hpp"
 #include "platform/platform.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room.hpp"
 #include "skyland/skyland.hpp"
-#include "droneMeta.hpp"
 
 
 

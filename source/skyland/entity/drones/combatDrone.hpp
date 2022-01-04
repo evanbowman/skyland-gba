@@ -2,10 +2,10 @@
 
 #include "drone.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/entity/projectile/cannonball.hpp"
 #include "skyland/island.hpp"
 #include "skyland/scene/combatDroneSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/entity/projectile/cannonball.hpp"
 
 
 
@@ -15,7 +15,6 @@ namespace skyland {
 
 class CombatDrone : public Drone {
 public:
-
     CombatDrone(Island* parent, Island* destination, const Vec2<u8>& grid_pos)
         : Drone(get_name(), parent, destination, grid_pos)
     {
@@ -63,9 +62,8 @@ public:
                         return;
                     }
 
-                    auto island = target_near_ ?
-                        &app.player_island() :
-                        &*app.opponent_island();
+                    auto island = target_near_ ? &app.player_island()
+                                               : &*app.opponent_island();
 
                     if (auto drone = island->get_drone(*target_)) {
 

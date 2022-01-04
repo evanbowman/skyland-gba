@@ -1,7 +1,7 @@
 #pragma once
 
-#include "worldScene.hpp"
 #include "skyland/entity/drones/drone.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -11,10 +11,8 @@ namespace skyland {
 
 class CombatDroneSetTargetScene : public ActiveWorldScene {
 public:
-
     CombatDroneSetTargetScene(SharedEntityRef<Drone> drone)
-        : drone_(drone),
-          near_(true)
+        : drone_(drone), near_(true)
     {
     }
 
@@ -46,4 +44,4 @@ private:
 
 
 
-}
+} // namespace skyland

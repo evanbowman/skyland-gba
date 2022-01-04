@@ -68,6 +68,40 @@ public:
 
 
 
+void EmergencyBackup::init(Platform& pfrm, App& app)
+{
+    persistent_data_ = app.persistent_data();
+
+    LispPrinter p(pfrm);
+    auto val = app.invoke_script(pfrm, "/scripts/save.lisp");
+    lisp::format(val, p);
+
+    lisp_data_ = p.fmt_;
+
+    valid_ = true;
+}
+
+
+
+void EmergencyBackup::store(Platform& pfrm)
+{
+    SaveData save_data;
+    save_data.magic_.set(save_data_magic);
+
+    save_data.script_length_.set(0);
+
+    save_data.data_ = persistent_data_;
+
+    u32 offset = sizeof(GlobalSaveData);
+
+    pfrm.write_save_data(&save_data, sizeof save_data, offset);
+
+    ram_filesystem::store_file_data(
+        pfrm, "/save/data.lisp", lisp_data_.c_str(), lisp_data_.length());
+}
+
+
+
 void store(Platform& pfrm, App& app, const PersistentData& d)
 {
     LispPrinter p(pfrm);
@@ -86,8 +120,6 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
     u32 offset = sizeof(GlobalSaveData);
 
     pfrm.write_save_data(&save_data, sizeof save_data, offset);
-
-    offset += sizeof save_data;
 
     ram_filesystem::store_file_data(
         pfrm, "/save/data.lisp", p.fmt_.c_str(), p.fmt_.length());

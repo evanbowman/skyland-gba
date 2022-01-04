@@ -65,7 +65,8 @@ public:
                         if (x < 0 or y < 0) {
                             continue;
                         }
-                        if (auto room = destination()->get_room({u8(x), u8(y)})) {
+                        if (auto room =
+                                destination()->get_room({u8(x), u8(y)})) {
                             const bool found = [&] {
                                 for (auto pushed : heal_queue) {
                                     if (pushed == room) {

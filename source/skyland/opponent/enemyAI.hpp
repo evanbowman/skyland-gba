@@ -46,7 +46,8 @@ private:
     void set_target(Platform&, App&, const u8 matrix[16][16], FlakGun& gun);
 
 
-    void combat_drone_set_target(Platform&, App&, u8 matrix[16][16], Drone& drone);
+    void
+    combat_drone_set_target(Platform&, App&, u8 matrix[16][16], Drone& drone);
 
 
     void offensive_drone_set_target(Platform&,

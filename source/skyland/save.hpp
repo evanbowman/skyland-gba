@@ -1,6 +1,7 @@
 #pragma once
 
 #include "persistentData.hpp"
+#include "string.hpp"
 
 
 
@@ -15,6 +16,19 @@ class App;
 
 
 namespace save {
+
+
+
+struct EmergencyBackup {
+    PersistentData persistent_data_;
+    StringBuffer<1024> lisp_data_;
+    bool valid_ = false;
+
+    void init(Platform& pfrm, App& app);
+
+    void store(Platform& pfrm);
+};
+
 
 
 struct SaveData {

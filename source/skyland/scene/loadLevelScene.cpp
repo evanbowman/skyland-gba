@@ -7,9 +7,9 @@
 #include "script/lisp.hpp"
 #include "skyland/configure_island.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/rooms/droneBay.hpp"
 
 
 

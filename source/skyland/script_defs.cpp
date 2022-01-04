@@ -109,8 +109,9 @@ void App::init_scripts(Platform& pfrm)
     lisp::set_var("opponent", lisp::make_function([](int argc) {
                       auto app = interp_get_app();
                       if (not app->opponent_island()) {
-                          while (true)
-                              ;
+                          if (auto pfrm = lisp::interp_get_pfrm()) {
+                              pfrm->fatal("opponent unassigned");
+                          }
                       }
                       return lisp::make_userdata(&*app->opponent_island());
                   }));

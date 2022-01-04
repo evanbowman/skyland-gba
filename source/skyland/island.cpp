@@ -201,8 +201,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 network::packet::DroneDestroyed destroyed;
                 destroyed.drone_x_ = (*ptr)->position().x;
                 destroyed.drone_y_ = (*ptr)->position().y;
-                destroyed.destination_near_ = (*ptr)->destination()
-                    == &app.player_island();
+                destroyed.destination_near_ =
+                    (*ptr)->destination() == &app.player_island();
 
                 network::transmit(pfrm, destroyed);
 

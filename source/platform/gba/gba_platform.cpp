@@ -1233,6 +1233,7 @@ void Platform::set_scroll(Layer layer, u16 x, u16 y)
 }
 
 
+
 [[noreturn]] static void restart()
 {
     // NOTE: I am clearing almost everything, because when I did not clear all
@@ -1242,6 +1243,7 @@ void Platform::set_scroll(Layer layer, u16 x, u16 y)
                      RESET_SOUND | RESET_OTHER);
     SoftReset(ROM_RESTART), __builtin_unreachable();
 }
+
 
 
 static void keypad_isr()
@@ -1687,8 +1689,25 @@ u16 Platform::get_tile(Layer layer, u16 x, u16 y)
 }
 
 
+
+void Platform::restart()
+{
+    ::restart();
+}
+
+
+
+static std::optional<Platform::UnrecoverrableErrorCallback>
+    unrecoverrable_error_callback;
+
+
+
 void Platform::fatal(const char* msg)
 {
+    if (::platform and ::unrecoverrable_error_callback) {
+        (*::unrecoverrable_error_callback)(*platform);
+    }
+
     const auto bkg_color = custom_color(0xcb1500);
 
     irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
@@ -2881,9 +2900,6 @@ void Platform::soft_exit()
 static Microseconds watchdog_counter;
 
 
-static std::optional<Platform::WatchdogCallback> watchdog_callback;
-
-
 static void watchdog_update_isr()
 {
     // NOTE: The watchdog timer is configured to have a period of 61.04
@@ -2895,8 +2911,8 @@ static void watchdog_update_isr()
 
         ::platform->speaker().stop_music();
 
-        if (::platform and ::watchdog_callback) {
-            (*::watchdog_callback)(*platform);
+        if (::platform and ::unrecoverrable_error_callback) {
+            (*::unrecoverrable_error_callback)(*platform);
         }
 
         // this seems not to work :(
@@ -2912,9 +2928,9 @@ void Platform::feed_watchdog()
 }
 
 
-void Platform::on_watchdog_timeout(WatchdogCallback callback)
+void Platform::on_unrecoverrable_error(UnrecoverrableErrorCallback callback)
 {
-    ::watchdog_callback.emplace(callback);
+    ::unrecoverrable_error_callback.emplace(callback);
 }
 
 

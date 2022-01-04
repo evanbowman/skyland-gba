@@ -22,7 +22,7 @@ App::App(Platform& pfrm)
       current_scene_(null_scene()), next_scene_(null_scene()),
       effects_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       birbs_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      level_timer_(0)
+      level_timer_(0), backup_(allocate_dynamic<save::EmergencyBackup>(pfrm))
 {
     current_scene_ = initial_scene();
     next_scene_ = initial_scene();
@@ -41,6 +41,26 @@ App::App(Platform& pfrm)
             score.set(0);
         }
     }
+
+    pfrm.on_unrecoverrable_error([this](Platform& pfrm) {
+        if (backup_->valid_) {
+            backup_->store(pfrm);
+        }
+    });
+}
+
+
+
+void App::create_backup(Platform& pfrm)
+{
+    backup_->init(pfrm, *this);
+}
+
+
+
+void App::delete_backup()
+{
+    backup_->valid_ = false;
 }
 
 

@@ -1,8 +1,8 @@
 #include "combatDroneSetTargetScene.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/scene/readyScene.hpp"
-#include "skyland/scene/inspectP2Scene.hpp"
 #include "skyland/network.hpp"
+#include "skyland/scene/inspectP2Scene.hpp"
+#include "skyland/scene/readyScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -10,9 +10,8 @@ namespace skyland {
 
 
 
-ScenePtr<Scene> CombatDroneSetTargetScene::update(Platform& pfrm,
-                                                  App& app,
-                                                  Microseconds delta)
+ScenePtr<Scene>
+CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return new_scene;
@@ -170,4 +169,4 @@ void CombatDroneSetTargetScene::display(Platform& pfrm, App& app)
 
 
 
-}
+} // namespace skyland

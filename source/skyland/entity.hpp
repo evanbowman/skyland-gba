@@ -146,10 +146,8 @@ public:
                 return;
             }
         }
-        while (true) {
-            // hmm... someone did something very bad. This entity wasn't
-            // allocated from a pool in the first place...
-        }
+
+        Platform::fatal("attempt to free entity not allocated from pool");
     }
 
 

@@ -246,6 +246,10 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(1200);
         if (timer_ > fade_duration) {
+            // Create a backup before entering a level. If the game encounters
+            // an unrecoverrable error, it will create a save from the backup
+            // data before crashing.
+            app.create_backup(pfrm);
             return scene_pool::alloc<LoadLevelScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

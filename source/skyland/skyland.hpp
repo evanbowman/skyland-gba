@@ -16,6 +16,7 @@
 #include "platform/platform.hpp"
 #include "playerP1.hpp"
 #include "rumble.hpp"
+#include "save.hpp"
 #include "scene.hpp"
 #include "script/lisp.hpp"
 #include "timeTracker.hpp"
@@ -276,6 +277,10 @@ public:
     void set_developer_mode(bool value);
 
 
+    void create_backup(Platform& pfrm);
+    void delete_backup();
+
+
 private:
     PersistentData persistent_data_;
     Island player_island_;
@@ -312,6 +317,11 @@ private:
 
     Boxed<Player, PlayerP1, 100> player_;
     Boxed<Opponent, EnemyAI, 64> opponent_;
+
+
+    // In the unlikely event that the game freezes for some reason, the software
+    // stores a backup of the last state before entering the current level.
+    DynamicMemory<save::EmergencyBackup> backup_;
 };
 
 

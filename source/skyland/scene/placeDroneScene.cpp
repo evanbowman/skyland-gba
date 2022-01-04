@@ -1,9 +1,9 @@
 #include "placeDroneScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/entity/drones/attackDrone.hpp"
+#include "skyland/network.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/network.hpp"
 
 
 
@@ -33,9 +33,7 @@ PlaceDroneScene::PlaceDroneScene(Platform& pfrm,
 
 
 
-void get_drone_slots(bool slots[16][16],
-                     Island* dest_island,
-                     Island* parent)
+void get_drone_slots(bool slots[16][16], Island* dest_island, Island* parent)
 {
     for (auto& room : dest_island->rooms()) {
         auto pos = room->position();
@@ -53,8 +51,7 @@ void get_drone_slots(bool slots[16][16],
 
     for (auto& drone_wp : dest_island->drones()) {
         if (auto drone_sp = drone_wp.promote()) {
-            slots[(*drone_sp)->position().x][(*drone_sp)->position().y] =
-                false;
+            slots[(*drone_sp)->position().x][(*drone_sp)->position().y] = false;
         }
     }
 
@@ -63,11 +60,12 @@ void get_drone_slots(bool slots[16][16],
             if (x >= (int)dest_island->terrain().size()) {
                 slots[x][y] = false;
             }
-            if (not (dest_island == parent)) {
+            if (not(dest_island == parent)) {
                 // Limit drone placement around enemy's castle. Drones would be
                 // overpowered if you could place them within empty gaps inside
                 // an enemy's perimeter.
-                if (x < (int)dest_island->terrain().size() - 1 and x > 0 and y > 6) {
+                if (x < (int)dest_island->terrain().size() - 1 and x > 0 and
+                    y > 6) {
                     slots[x][y] = false;
                 }
             }
@@ -219,7 +217,8 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
                         spawn.destination_near_ =
                             island == &app.player_island();
 
-                        spawn.drone_class_ = DroneMeta::index((*drone_class_)->name());
+                        spawn.drone_class_ =
+                            DroneMeta::index((*drone_class_)->name());
 
                         network::transmit(pfrm, spawn);
 
