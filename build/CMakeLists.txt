@@ -471,7 +471,7 @@ if(GAMEBOY_ADVANCE)
 
   target_compile_options(ARM_ROUTINES PRIVATE
     -g
-    -O3
+    -Os
     -Wall
     -Werror
     -pedantic

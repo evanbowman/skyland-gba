@@ -35,6 +35,8 @@ struct Header {
         drone_set_target,
         drone_spawn,
         drone_destroyed,
+        game_match_parameter_update,
+        game_match_begin,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -316,6 +318,25 @@ struct BlockTransfer {
 
 
 
+struct GameMatchParameterUpdate {
+    Header header_;
+    u8 parameter_id_;
+    host_s32 value_;
+
+    static const auto mt = Header::MessageType::game_match_parameter_update;
+};
+
+
+
+struct GameMatchBegin {
+    Header header_;
+    u8 unused_[5];
+
+    static const auto mt = Header::MessageType::game_match_begin;
+};
+
+
+
 } // namespace packet
 
 
@@ -409,6 +430,16 @@ public:
 
 
     virtual void receive(Platform&, App&, const packet::DroneDestroyed&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::GameMatchParameterUpdate&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::GameMatchBegin&)
     {
     }
 };
