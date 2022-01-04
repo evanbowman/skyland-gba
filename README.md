@@ -8,9 +8,6 @@
 The production version of SKYLAND for gameboy advance.
 
 
-<img src="imgs_for_readme/skyland-fight-x2.gif"/>
-
-
 ## Building
 
 1) Install all of the standard devkitpro libgba stuff.
