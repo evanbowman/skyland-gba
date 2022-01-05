@@ -142,8 +142,6 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_pressed(pfrm, Key::start)) {
-        while (true)
-            ;
         start_key_held_timer_ += delta;
     }
     if (app.player().key_up(pfrm, Key::start)) {
