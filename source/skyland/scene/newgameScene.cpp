@@ -41,9 +41,6 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.current_map_location() = {0, 1};
         app.world_map().generate();
 
-
-        app.terrain_cost() = 500;
-
         app.zone() = 1;
 
         app.persistent_data().total_pauses_.set(0);

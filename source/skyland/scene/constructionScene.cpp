@@ -85,7 +85,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // Special case: we want to add to the terrain level, not
                 // construct a building.
                 state_ = State::add_terrain;
-                msg(pfrm, ":build :add-terrain");
+                StringBuffer<30> temp(":build :add-terrain ");
+                temp += to_string<10>(app.terrain_cost());
+                temp += "@";
+                msg(pfrm, temp.c_str());
 
             } else {
                 collect_available_buildings(pfrm, app);

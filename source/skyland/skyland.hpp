@@ -52,10 +52,7 @@ public:
     }
 
 
-    Coins& terrain_cost()
-    {
-        return terrain_cost_;
-    }
+    Coins terrain_cost();
 
 
     Camera& camera()

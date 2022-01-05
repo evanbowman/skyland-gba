@@ -50,6 +50,25 @@ App::App(Platform& pfrm)
 }
 
 
+Coins App::terrain_cost()
+{
+    Coins terrain_cost_table[Island::Terrain::capacity()] = {
+        200,
+        300,
+        400,
+        500,
+        600,
+        800,
+        1200,
+        2000,
+        3000,
+        4000,
+        4000,
+    };
+
+    return terrain_cost_table[player_island_.terrain().size() - 1];
+}
+
 
 void App::create_backup(Platform& pfrm)
 {
