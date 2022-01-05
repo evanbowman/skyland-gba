@@ -1,6 +1,6 @@
 #include "multiplayerConnectScene.hpp"
-#include "fadeInScene.hpp"
 #include "globals.hpp"
+#include "multiplayerSettingsScene.hpp"
 #include "script/lisp.hpp"
 #include "skyland/opponent/multiplayerPeer.hpp"
 #include "skyland/scene_pool.hpp"
@@ -10,6 +10,7 @@
 
 
 namespace skyland {
+
 
 
 void set_island_positions(Island& left_island, Island& right_island);
@@ -87,7 +88,7 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         app.swap_opponent<MultiplayerPeer>();
         rng::critical_state = 42;
-        return scene_pool::alloc<FadeInScene>();
+        return scene_pool::alloc<MultiplayerSettingsScene>();
     }
 
     return null_scene();

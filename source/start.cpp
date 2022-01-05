@@ -66,7 +66,7 @@ void start(Platform& pfrm)
                             ";;;\n"
                             ";;; The game will run this\n"
                             ";;; script upon entering\n"
-                            ";;; a game session."
+                            ";;; a game session.\n"
                             ";;; Create scripts in the\n"
                             ";;; mods dir, and load them\n"
                             ";;; here.\n"

@@ -55,7 +55,8 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::DroneSpawn)
             HANDLE_MESSAGE(packet::DroneDestroyed)
             HANDLE_MESSAGE(packet::GameMatchParameterUpdate)
-            HANDLE_MESSAGE(packet::GameMatchBegin)
+            HANDLE_MESSAGE(packet::GameMatchSettingsCursor)
+            HANDLE_MESSAGE(packet::GameMatchReady)
         }
 
         error(pfrm, "garbled message!?");

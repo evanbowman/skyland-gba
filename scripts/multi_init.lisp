@@ -6,8 +6,7 @@
 (eval-other-file "/scripts/reset_hooks.lisp")
 
 
-(add-coins (- 0 999999))
-(add-coins 17500)
+(add-coins -999999)
 
 
 (terrain (player) 8)

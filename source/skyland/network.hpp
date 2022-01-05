@@ -36,6 +36,7 @@ struct Header {
         drone_spawn,
         drone_destroyed,
         game_match_parameter_update,
+        game_match_settings_cursor,
         game_match_begin,
     } message_type_;
 };
@@ -328,7 +329,18 @@ struct GameMatchParameterUpdate {
 
 
 
-struct GameMatchBegin {
+struct GameMatchSettingsCursor {
+    Header header_;
+    u8 cursor_line_;
+
+    u8 unused_[4];
+
+    static const auto mt = Header::MessageType::game_match_settings_cursor;
+};
+
+
+
+struct GameMatchReady {
     Header header_;
     u8 unused_[5];
 
@@ -434,12 +446,18 @@ public:
     }
 
 
-    virtual void receive(Platform&, App&, const packet::GameMatchParameterUpdate&)
+    virtual void
+    receive(Platform&, App&, const packet::GameMatchParameterUpdate&)
     {
     }
 
 
-    virtual void receive(Platform&, App&, const packet::GameMatchBegin&)
+    virtual void receive(Platform&, App&, const packet::GameMatchSettingsCursor&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::GameMatchReady&)
     {
     }
 };

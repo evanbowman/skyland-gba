@@ -90,6 +90,8 @@ private:
     Microseconds sync_micros_ = 0;
     int sync_seconds_ = 0;
 
+    bool ready_ = false;
+
     static const auto timekeeper_sync_rate = seconds(2);
     Microseconds next_timekeeper_sync_ = timekeeper_sync_rate;
 };
