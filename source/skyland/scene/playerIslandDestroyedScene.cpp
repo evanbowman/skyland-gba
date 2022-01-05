@@ -8,6 +8,7 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
+#include "skyland/rooms/droneBay.hpp"
 
 
 
@@ -256,6 +257,18 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                             ++it;
                         }
                     }
+                }
+            }
+
+            for (auto& room : app.player_island().rooms()) {
+                if (auto db = dynamic_cast<DroneBay*>(room.get())) {
+                    db->detach_drone(pfrm, app, true);
+                }
+            }
+
+            for (auto& room : app.opponent_island()->rooms()) {
+                if (auto db = dynamic_cast<DroneBay*>(room.get())) {
+                    db->detach_drone(pfrm, app, true);
                 }
             }
         }
