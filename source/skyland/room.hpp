@@ -34,6 +34,7 @@ struct Conditions {
         workshop_required = (1 << 0),
         not_constructible = (1 << 1),
         plugin = (1 << 2),
+        foundry_required = (1 << 3),
     };
 };
 

@@ -15,7 +15,9 @@ class Room;
 
 class WeaponSetTargetScene : public ActiveWorldScene {
 public:
-    WeaponSetTargetScene(const Vec2<u8>& weapon_loc, bool near = true);
+    WeaponSetTargetScene(const Vec2<u8>& weapon_loc,
+                         bool near = true,
+                         Vec2<u8> restrict_rows = {0, 15});
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
@@ -47,6 +49,8 @@ private:
     bool freeform_ = true;
 
     bool near_;
+
+    Vec2<u8> restrict_rows_;
 };
 
 

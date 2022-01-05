@@ -1,7 +1,7 @@
 #include "multiplayerSettingsScene.hpp"
+#include "fadeInScene.hpp"
 #include "localization.hpp"
 #include "skyland/skyland.hpp"
-#include "fadeInScene.hpp"
 
 
 
@@ -34,9 +34,10 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     const char* msg = "Ready? Press start!";
-    msg_.emplace(pfrm,
-                 msg,
-                 OverlayCoord{(u8)centered_text_margins(pfrm, str_len(msg)), 18});
+    msg_.emplace(
+        pfrm,
+        msg,
+        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(msg)), 18});
 
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
@@ -222,9 +223,10 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         network::transmit(pfrm, r);
 
         const char* msg = "Waiting for other player...";
-        msg_.emplace(pfrm,
-                     msg,
-                     OverlayCoord{(u8)centered_text_margins(pfrm, str_len(msg)), 18});
+        msg_.emplace(
+            pfrm,
+            msg,
+            OverlayCoord{(u8)centered_text_margins(pfrm, str_len(msg)), 18});
 
 
         return null_scene();

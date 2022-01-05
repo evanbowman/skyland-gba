@@ -4,7 +4,7 @@
 
 
 (add-coins (- 0 1000000))
-(add-coins 6000)
+(add-coins 60000)
 
 
 (terrain (player) 8)

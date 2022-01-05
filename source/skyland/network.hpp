@@ -452,7 +452,8 @@ public:
     }
 
 
-    virtual void receive(Platform&, App&, const packet::GameMatchSettingsCursor&)
+    virtual void
+    receive(Platform&, App&, const packet::GameMatchSettingsCursor&)
     {
     }
 

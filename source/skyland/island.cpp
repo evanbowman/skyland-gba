@@ -163,6 +163,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
     is_boarded_ = false;
 
+
     auto update_characters = [&](auto& chr_list) {
         for (auto it = chr_list.begin(); it not_eq chr_list.end();) {
             if (not(*it)->alive()) {
@@ -194,17 +195,31 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     };
 
 
+    static const auto sync_delay = milliseconds(100);
+
+
     for (auto it = drones_.begin(); it not_eq drones_.end();) {
         if (auto ptr = (*it).promote()) {
             if (not(*ptr)->alive()) {
 
-                network::packet::DroneDestroyed destroyed;
-                destroyed.drone_x_ = (*ptr)->position().x;
-                destroyed.drone_y_ = (*ptr)->position().y;
-                destroyed.destination_near_ =
-                    (*ptr)->destination() == &app.player_island();
+                auto sync = [x = (*ptr)->position().x,
+                             y = (*ptr)->position().y,
+                             near = (*ptr)->destination() == &app.player_island()]
+                    (Platform& pfrm, App& app) {
 
-                network::transmit(pfrm, destroyed);
+                    network::packet::DroneDestroyed destroyed;
+                    destroyed.drone_x_ = x;
+                    destroyed.drone_y_ = y;
+                    destroyed.destination_near_ = near;
+
+                    network::transmit(pfrm, destroyed);
+                };
+
+                if (pfrm.network_peer().is_connected()) {
+                    if (not app.on_timeout(pfrm, sync_delay, sync)) {
+                        sync(pfrm, app);
+                    }
+                }
 
                 it = drones_.erase(it);
             } else {
@@ -223,13 +238,44 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             const auto pos = (*it)->position();
 
-            network::packet::RoomDestroyed packet;
-            packet.room_x_ = pos.x;
-            packet.room_y_ = pos.y;
-            packet.near_island_ = &owner() not_eq &app.player();
-            packet.metaclass_index_.set(
-                metaclass_index((*(*it)->metaclass())->name()));
-            network::transmit(pfrm, packet);
+            auto sync = [x = pos.x,
+                         y = pos.y,
+                         near = &owner() not_eq &app.player(),
+                         mt = metaclass_index((*(*it)->metaclass())->name())](
+                            Platform& pfrm, App& app) {
+                network::packet::RoomDestroyed packet;
+                packet.room_x_ = x;
+                packet.room_y_ = y;
+                packet.near_island_ = near;
+                packet.metaclass_index_.set(mt);
+                network::transmit(pfrm, packet);
+            };
+
+            if (pfrm.network_peer().is_connected()) {
+                if (not app.on_timeout(pfrm, sync_delay, sync)) {
+                    // Explanation: we don't want to transmit the room destroyed
+                    // packet right away. We only transmit room destroyed
+                    // packets in the first place to keep games in sync. If one
+                    // game happens to be a frame or two ahead of another game,
+                    // we might end up destroying a room before it is hit by a
+                    // projectile that it was already hit by in the other game,
+                    // in which case, the projectile might keep going and
+                    // destroy an additional room, appearing to the other player
+                    // as though the projectile did twice as much damage as it
+                    // should have. So, instead, we attempt to enqueue a
+                    // deferred callback, which transmits the RoomDestroyed
+                    // packet at some point a frame or two in the future, at
+                    // which case, both games should already be synchronized,
+                    // and there is in fact nothing to destroy. If we fail to
+                    // enqueue the deferred callback for some reason, invoke
+                    // immediately. I want to stress: we only transmit the
+                    // room-destroyed packet as a last resort, in case the games
+                    // somehow got out of sync. This packet should in almost all
+                    // cases be meaningless to the other game.
+                    sync(pfrm, app);
+                }
+            }
+
 
             app.player().on_room_destroyed(pfrm, app, **it);
 

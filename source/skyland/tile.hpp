@@ -53,6 +53,9 @@ struct Tile {
         flak_gun_2,
         drone_bay_1,
         drone_bay_2,
+        decimator_1,
+        decimator_2,
+        reserved_22,
         flag_start = 105,
         flag_end = 108,
         roof_flag = 109,
@@ -110,5 +113,8 @@ struct InteriorTile {
         flak_gun_2,
         drone_bay_1,
         drone_bay_2,
+        decimator_1,
+        decimator_2,
+        decimator_int,
     };
 };

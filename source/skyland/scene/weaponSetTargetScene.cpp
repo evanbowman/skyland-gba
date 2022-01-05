@@ -26,8 +26,9 @@ void clear_room_description(Platform& pfrm,
 
 
 WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc,
-                                           bool near)
-    : weapon_loc_(weapon_loc), near_(near)
+                                           bool near,
+                                           Vec2<u8> restrict_rows)
+    : weapon_loc_(weapon_loc), near_(near), restrict_rows_(restrict_rows)
 {
 }
 

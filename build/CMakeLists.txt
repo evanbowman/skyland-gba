@@ -86,6 +86,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/ionBurst.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/decimatorBurst.cpp
   ${SOURCE_DIR}/skyland/entity/character/basicCharacter.cpp
   ${SOURCE_DIR}/skyland/entity/drones/drone.cpp
   ${SOURCE_DIR}/skyland/entity/drones/droneMeta.cpp
@@ -94,11 +95,13 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/radar.cpp
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
   ${SOURCE_DIR}/skyland/rooms/flakGun.cpp
+  ${SOURCE_DIR}/skyland/rooms/foundry.cpp
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
   ${SOURCE_DIR}/skyland/rooms/infestor.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
   ${SOURCE_DIR}/skyland/rooms/droneBay.cpp
   ${SOURCE_DIR}/skyland/rooms/infirmary.cpp
+  ${SOURCE_DIR}/skyland/rooms/decimator.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
   ${SOURCE_DIR}/skyland/rooms/ionCannon.cpp
   ${SOURCE_DIR}/skyland/rooms/replicator.cpp

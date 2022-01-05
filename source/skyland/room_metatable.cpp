@@ -4,9 +4,11 @@
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/core.hpp"
+#include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/forcefield.hpp"
+#include "skyland/rooms/foundry.hpp"
 #include "skyland/rooms/hull.hpp"
 #include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/ionCannon.hpp"
@@ -42,7 +44,10 @@ static auto& __metatable()
                          PlunderedRoom,
                          Transporter,
                          Replicator,
-                         DroneBay>
+                         DroneBay// ,
+                         // Foundry,
+                         // Decimator
+                         >
         __room_metatable;
 
     return __room_metatable;

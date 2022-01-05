@@ -309,7 +309,7 @@ private:
 
     std::optional<Island> opponent_island_;
 
-    Buffer<std::pair<DeferredCallback, Microseconds>, 10> deferred_callbacks_;
+    Buffer<std::pair<DeferredCallback, Microseconds>, 20> deferred_callbacks_;
 
 
     Boxed<Player, PlayerP1, 100> player_;
