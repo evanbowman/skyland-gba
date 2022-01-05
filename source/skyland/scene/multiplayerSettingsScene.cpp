@@ -48,6 +48,7 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
             parameters_.push_back(0);
         }
 
+        // Defaults
         parameters_[0] = 120;
         parameters_[1] = 17500;
     }
