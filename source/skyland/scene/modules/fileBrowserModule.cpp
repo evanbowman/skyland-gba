@@ -277,6 +277,18 @@ static StringBuffer<16> get_extension(const StringBuffer<200>& cwd)
 
 
 
+TextEditorModule::SyntaxMode file_edit_mode(const StringBuffer<200>& path)
+{
+    auto ext = get_extension(path);
+    if (ext == ".lisp") {
+        return TextEditorModule::SyntaxMode::lisp;
+    } else {
+        return TextEditorModule::SyntaxMode::plain_text;
+    }
+}
+
+
+
 void FileBrowserModule::show_opts(Platform& pfrm)
 {
     info_->assign("file: ");
@@ -443,12 +455,11 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                     auto path = this->cwd();
                     path += selected;
 
-                    const auto ext = get_extension(path);
-
-                    if (ext == ".lisp") {
-                        return scene_pool::alloc<TextEditorModule>(
-                            pfrm, std::move(user_context_), path.c_str());
-                    }
+                    return scene_pool::alloc<TextEditorModule>(
+                        pfrm,
+                        std::move(user_context_),
+                        path.c_str(),
+                        file_edit_mode(path));
                 }
             }
         } else if (app.player().key_down(pfrm, Key::start) or
@@ -490,6 +501,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                         pfrm,
                         std::move(user_context_),
                         path.c_str(),
+                        file_edit_mode(path),
                         TextEditorModule::FileMode::update,
                         TextEditorModule::FileSystem::rom);
                 }

@@ -134,52 +134,48 @@ void TextEditorModule::render_completions(Platform& pfrm)
 
 
 
-struct ParserState {
-    bool comment = false;
-    bool quotation = false;
-    bool endquote = false;
-    bool keyword = false;
-
-    StringBuffer<32> parse_word_;
-};
-
-
-
-static void handle_char(Vector<char>::Iterator data, char c, ParserState& ps)
+void TextEditorModule::handle_char(Vector<char>::Iterator data,
+                                   char c,
+                                   ParserState& ps)
 {
     ps.parse_word_.clear();
 
-    if (c == ';') {
-        ps.comment = true;
-    } else if (c == '"') {
-        if (not ps.quotation) {
-            ps.quotation = true;
-        } else {
-            ps.endquote = true;
-        }
-    } else if (c == '\n' or c == ' ' or c == ')' or c == '(') {
-        ps.keyword = false;
+    if (syntax_mode_ == SyntaxMode::plain_text) {
+        return;
+    } else if (syntax_mode_ == SyntaxMode::lisp) {
+        if (c == ';') {
+            ps.comment = true;
+        } else if (c == '"') {
+            if (not ps.quotation) {
+                ps.quotation = true;
+            } else {
+                ps.endquote = true;
+            }
+        } else if (c == '\n' or c == ' ' or c == ')' or c == '(') {
+            ps.keyword = false;
 
-        auto seek = data;
-        ++seek;
-
-        auto& word = ps.parse_word_;
-
-        while (*seek not_eq '\0' and *seek not_eq ' ' and *seek not_eq '(' and
-               *seek not_eq ')' and *seek not_eq '\n') {
-            word.push_back(*seek);
+            auto seek = data;
             ++seek;
-        }
 
-        if (word.empty()) {
-            return;
-        }
+            auto& word = ps.parse_word_;
 
-        if (word == "setq" or word == "defn/c" or word == "defn" or
-            word == "let" or word == "lambda" or word == "if" or word == "or" or
-            word == "and" or word == "cond" or word == "progn" or
-            word[0] == '$') {
-            ps.keyword = true;
+            while (*seek not_eq '\0' and *seek not_eq ' ' and
+                   *seek not_eq '(' and *seek not_eq ')' and
+                   *seek not_eq '\n') {
+                word.push_back(*seek);
+                ++seek;
+            }
+
+            if (word.empty()) {
+                return;
+            }
+
+            if (word == "setq" or word == "defn/c" or word == "defn" or
+                word == "let" or word == "lambda" or word == "if" or
+                word == "or" or word == "and" or word == "cond" or
+                word == "progn" or word[0] == '$') {
+                ps.keyword = true;
+            }
         }
     }
 }
@@ -187,18 +183,18 @@ static void handle_char(Vector<char>::Iterator data, char c, ParserState& ps)
 
 
 template <typename F>
-void parse_words(Vector<char>::Iterator data, F&& callback)
+void parse_words(TextEditorModule& m, Vector<char>::Iterator data, F&& callback)
 {
-    ParserState ps;
+    TextEditorModule::ParserState ps;
 
     while (*data not_eq '\0') {
 
         ps.endquote = false;
 
         if (*data == '\n') {
-            ps = ParserState{};
+            ps = TextEditorModule::ParserState{};
         } else {
-            handle_char(data, *data, ps);
+            m.handle_char(data, *data, ps);
         }
 
         if (ps.endquote) {
@@ -478,10 +474,12 @@ int TextEditorModule::line_length()
 TextEditorModule::TextEditorModule(Platform& pfrm,
                                    UserContext&& user_context,
                                    const char* file_path,
+                                   SyntaxMode syntax_mode,
                                    FileMode file_mode,
                                    FileSystem filesystem)
     : text_buffer_(pfrm), state_(allocate_dynamic<State>(pfrm)),
-      user_context_(std::move(user_context)), filesystem_(filesystem)
+      user_context_(std::move(user_context)), filesystem_(filesystem),
+      syntax_mode_(syntax_mode)
 {
     state_->file_path_ = file_path;
 
@@ -507,29 +505,23 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
 
 
 
-const char* test_file =
-    ";;;\n"
-    ";;; init.lisp\n"
-    ";;;\n"
-    "\n"
-    "\n"
-    "(eval-other-file \"/scripts/stdlib.lisp\")\n"
-    "\n"
-    "\n"
-    "(def language 'english)\n"
-    "\n"
-    "(defn/c locale-string\n"
-    "  (get-line-of-file (string \"strings/\" language '.txt) $0))\n"
-    "";
-
-
-
 void TextEditorModule::enter(Platform& pfrm, App&, Scene& prev)
 {
     pfrm.load_overlay_texture("overlay_editor");
 
     header_.emplace(pfrm, OverlayCoord{});
-    header_->assign("  text editor  (lisp mode)    ",
+    StringBuffer<32> temp("  text editor  ");
+    switch (syntax_mode_) {
+    case SyntaxMode::lisp:
+        temp += "(lisp mode)";
+        break;
+
+    case SyntaxMode::plain_text:
+        temp += "(text mode)";
+        break;
+    }
+    temp += "    ";
+    header_->assign(temp.c_str(),
                     FontColors{custom_color(0x000010), custom_color(0xffffff)});
 
 
@@ -1271,7 +1263,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             };
 
 
-            parse_words(text_buffer_.begin(), [&](auto& word) {
+            parse_words(*this, text_buffer_.begin(), [&](auto& word) {
                 if (state_->current_word_.empty() and is_numeric(word)) {
                     // Just out of personal preference, do not add integers from
                     // the current text buffer to the list of completions if the

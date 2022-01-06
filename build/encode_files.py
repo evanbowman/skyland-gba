@@ -58,6 +58,7 @@ with open('fs.bin', 'wb') as filesystem:
     collect_paths(files_list, "scripts")
     collect_paths(files_list, "strings")
     collect_paths(files_list, "help")
+    collect_paths(files_list, "misc")
 
     files_list.append(["/readme.lisp", os.path.join(project_root_path, "readme.lisp")])
 

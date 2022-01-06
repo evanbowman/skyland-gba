@@ -34,6 +34,10 @@ static const FontColors text_entry_colors{custom_color(0xffffff),
 
 
 
+TextEditorModule::SyntaxMode file_edit_mode(const StringBuffer<200>& path);
+
+
+
 ScenePtr<Scene>
 CreateFileScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -96,6 +100,7 @@ CreateFileScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm,
                 std::move(ctx),
                 full_path_.c_str(),
+                file_edit_mode(full_path_),
                 TextEditorModule::FileMode::create);
         }
     }

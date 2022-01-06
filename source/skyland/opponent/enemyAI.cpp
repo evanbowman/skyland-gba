@@ -329,18 +329,30 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     // Should we board the player's castle? Well, if we have no weapons
     // remaining, a boarding party is the only way that we can deal damage,
     // so...
+    int weapon_count = 0;
     int cannon_count = 0;
     int missile_count = 0;
 
+    int player_weapon_count = 0;
     int player_cannon_count = 0;
     int player_missile_count = 0;
 
+
+    auto decimator_mt = load_metaclass("decimator");
+    auto flak_gun_mt = load_metaclass("flak-gun");
+
+
     for (auto& room : app.opponent_island()->rooms()) {
         if (room->metaclass() == cannon_mt) {
+            ++weapon_count;
             ++cannon_count;
-        }
-        if (room->metaclass() == missile_silo_mt) {
+        } else if (room->metaclass() == missile_silo_mt) {
+            ++weapon_count;
             ++missile_count;
+        } else if (room->metaclass() == decimator_mt) {
+            ++weapon_count;
+        } else if (room->metaclass() == flak_gun_mt) {
+            ++weapon_count;
         }
         for (auto& other : room->characters()) {
             if (other->owner() == this and other.get() not_eq &character) {
@@ -360,10 +372,15 @@ void EnemyAI::assign_local_character(Platform& pfrm,
 
     for (auto& room : app.player_island().rooms()) {
         if (room->metaclass() == cannon_mt) {
+            ++player_weapon_count;
             ++player_cannon_count;
-        }
-        if (room->metaclass() == missile_silo_mt) {
+        } else if (room->metaclass() == missile_silo_mt) {
+            ++player_weapon_count;
             ++player_missile_count;
+        } else if (room->metaclass() == decimator_mt) {
+            ++player_weapon_count;
+        } else if (room->metaclass() == flak_gun_mt) {
+            ++player_weapon_count;
         }
         for (auto& chr : room->characters()) {
             if (chr->owner() == this) {
@@ -461,7 +478,6 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                         slot.ai_weight_ -= 250.f * (player_characters_local -
                                                     ai_characters_local);
                     }
-                    const auto weapon_count = cannon_count + missile_count;
                     if (weapon_count == 0) {
                         // If we don't have any remaining weapons, potentially
                         // board the player's castle, even if doing so would be
@@ -476,6 +492,12 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                     }
                 } else {
                     slot.ai_weight_ -= 300;
+                }
+            }
+
+            if (weapon_count < player_weapon_count) {
+                if (room->metaclass() == decimator_mt) {
+                    slot.ai_weight_ += 500.f;
                 }
             }
         }

@@ -487,7 +487,7 @@ void App::init_scripts(Platform& pfrm)
 
                           auto str = lisp::get_op(0)->string().value();
 
-                          app->invoke_script(*pfrm, str);
+                          return app->invoke_script(*pfrm, str);
                       } else {
                           while (true)
                               ;

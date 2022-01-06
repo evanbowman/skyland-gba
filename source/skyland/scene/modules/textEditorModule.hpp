@@ -28,9 +28,14 @@ public:
 
 
 
+    enum class SyntaxMode : u8 { lisp, plain_text };
+
+
+
     TextEditorModule(Platform& pfrm,
                      UserContext&& context,
                      const char* file_path,
+                     SyntaxMode syntax_mode,
                      FileMode file_mode = FileMode::update,
                      FileSystem filesystem = FileSystem::sram);
 
@@ -54,6 +59,20 @@ public:
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+
+    struct ParserState {
+        bool comment = false;
+        bool quotation = false;
+        bool endquote = false;
+        bool keyword = false;
+
+        StringBuffer<32> parse_word_;
+    };
+
+
+    void handle_char(Vector<char>::Iterator data, char c, ParserState& ps);
+
 
 private:
     enum class Mode {
@@ -127,6 +146,7 @@ private:
     u8 stashed_palette_ = 0;
 
     FileSystem filesystem_ = FileSystem::sram;
+    SyntaxMode syntax_mode_;
 
     bool show_keyboard_ = false;
     bool show_completions_ = false;
