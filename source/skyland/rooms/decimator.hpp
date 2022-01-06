@@ -54,13 +54,19 @@ public:
 
     static Float ai_base_weight()
     {
-        return 1100.f;
+        return 1500.f;
     }
 
 
     bool has_roof() override
     {
         return false;
+    }
+
+
+    bool description_visible() override
+    {
+        return true;
     }
 
 
@@ -77,7 +83,7 @@ public:
 
 
 private:
-    static constexpr const Microseconds reload_time = seconds(30);
+    static constexpr const Microseconds reload_time = seconds(26);
     int counter_ = 0;
 
 

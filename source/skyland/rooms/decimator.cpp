@@ -64,7 +64,12 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             auto target = center();
-            target.x += 100.f;
+            if (parent() == &app.player_island()) {
+                target.x += 100.f;
+            } else {
+                target.x -= 100.f;
+            }
+
 
             auto c = alloc_entity<DecimatorBurst>(
                 start, target, parent(), position());
@@ -89,7 +94,12 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 void Decimator::plot_walkable_zones(App& app, bool matrix[16][16])
 {
     auto pos = position();
-    matrix[pos.x][pos.y + 1] = true;
+
+    if (parent() == &app.player_island()) {
+        matrix[pos.x][pos.y + 1] = true;
+    } else {
+        matrix[pos.x + 1][pos.y + 1] = true;
+    }
 }
 
 
@@ -97,10 +107,19 @@ void Decimator::plot_walkable_zones(App& app, bool matrix[16][16])
 void Decimator::render_interior(App& app, u8 buffer[16][16])
 {
     auto pos = position();
-    buffer[pos.x + 1][pos.y] = InteriorTile::decimator_1;
-    buffer[pos.x + 1][pos.y + 1] = InteriorTile::decimator_2;
-    buffer[pos.x][pos.y + 1] = InteriorTile::plain_floor;
-    buffer[pos.x][pos.y] = InteriorTile::decimator_int;
+
+    if (parent() == &app.player_island()) {
+        buffer[pos.x + 1][pos.y] = InteriorTile::decimator_1;
+        buffer[pos.x + 1][pos.y + 1] = InteriorTile::decimator_2;
+        buffer[pos.x][pos.y + 1] = InteriorTile::plain_floor;
+        buffer[pos.x][pos.y] = InteriorTile::decimator_int;
+    } else {
+        buffer[pos.x][pos.y] = InteriorTile::decimator_1;
+        buffer[pos.x][pos.y + 1] = InteriorTile::decimator_2;
+        buffer[pos.x + 1][pos.y + 1] = InteriorTile::plain_floor;
+        buffer[pos.x + 1][pos.y] = InteriorTile::decimator_int;
+    }
+
 }
 
 
@@ -108,10 +127,18 @@ void Decimator::render_interior(App& app, u8 buffer[16][16])
 void Decimator::render_exterior(App& app, u8 buffer[16][16])
 {
     auto pos = position();
-    buffer[pos.x + 1][pos.y] = Tile::decimator_1;
-    buffer[pos.x + 1][pos.y + 1] = Tile::decimator_2;
-    buffer[pos.x][pos.y] = Tile::armored_wall_1;
-    buffer[pos.x][pos.y + 1] = Tile::wall_plain_2;
+
+    if (parent() == &app.player_island()) {
+        buffer[pos.x + 1][pos.y] = Tile::decimator_1;
+        buffer[pos.x + 1][pos.y + 1] = Tile::decimator_2;
+        buffer[pos.x][pos.y] = Tile::armored_wall_1;
+        buffer[pos.x][pos.y + 1] = Tile::wall_plain_2;
+    } else {
+        buffer[pos.x][pos.y] = Tile::decimator_1;
+        buffer[pos.x][pos.y + 1] = Tile::decimator_2;
+        buffer[pos.x + 1][pos.y] = Tile::armored_wall_1;
+        buffer[pos.x + 1][pos.y + 1] = Tile::wall_plain_2;
+    }
 }
 
 

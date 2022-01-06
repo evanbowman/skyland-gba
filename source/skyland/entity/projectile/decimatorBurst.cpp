@@ -31,11 +31,15 @@ DecimatorBurst::DecimatorBurst(const Vec2<Float>& position,
 
 
 
-void DecimatorBurst::update(Platform&, App&, Microseconds delta)
+void DecimatorBurst::update(Platform&, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + Float(delta) * step_vector_;
     sprite_.set_position(pos);
+
+    if (source_ not_eq &app.player_island()) {
+        sprite_.set_flip({true, false});
+    }
 
     timer_ += delta;
 
