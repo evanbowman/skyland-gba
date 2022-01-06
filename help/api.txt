@@ -1,0 +1,222 @@
+
+ api.lisp
+
+ Describes all available
+ SKYLAND API calls.
+
+
+o----------------------------o
+
+ (player) -> island
+
+ Returns a reference to the
+ player's island.
+
+
+o----------------------------o
+
+ (opponent) -> island
+
+ Returns a reference to the
+ opponent's island.
+
+
+o----------------------------o
+
+ (dialog strings ...)
+
+ Composes a dialog message
+ from the list of input
+ strings. The game will
+ open a dialog box with the
+ message next time it
+ reaches a state where it
+ can display dialog.
+
+
+o----------------------------o
+
+ (await-dialog-y/n)
+
+ Tells the dialog system
+ to open a y/n message box
+ after playing the dialog.
+ Depending on the player's
+ selection, the engine will
+ either invoke the function
+ bound to
+ after-dialog-accepted-hook
+ or to
+ after-dialog-declined-hook.
+
+
+o----------------------------o
+
+ (rooms island)
+
+ Returns a list describing
+ the rooms associated with
+ island.
+
+
+o----------------------------o
+
+ (chrs island)
+
+ Returns a list describing
+ all of the inhabitants of
+ an island.
+
+
+o----------------------------o
+
+ (chr-slots island)
+
+ Returns a list of coords
+ into which a character can
+ be inserted.
+
+
+o----------------------------o
+
+ (swap-opponent mode-sym)
+
+ If mode sym is 'hostile,
+ the opponent island will
+ run a hostile AI algorithm,
+ if the mode sym is
+ 'neutral, the opponent
+ will not attack unless
+ attacked by the player.
+
+
+o----------------------------o
+
+ (init-opponent
+    terrain-size
+    mode-sym)
+
+ Create an island for the
+ opponent, with
+ terrain-size. See
+ swap-opponent for
+ description of mode-sym.
+
+
+o----------------------------o
+
+ (terrain island size)
+
+ Sets the terrain size of
+ island to size.
+
+
+o----------------------------o
+
+ (add-room island desc)
+
+ Add a room to island,
+ where desc is a list of
+ (room-sym room-x room-y)
+
+
+o----------------------------o
+
+ (add-chr
+   island
+   x
+   y
+   mode-sym
+   is-replicant)
+
+ Add character to island at
+ (x, y).
+
+
+o----------------------------o
+
+ (rem-chr island x y)
+
+ Remove character from
+ from slot (x, y).
+
+
+o----------------------------o
+
+ (chr-hp island x y)
+
+ Returns health of
+ character at (x, y).
+
+
+o----------------------------o
+
+ (configure-player
+    island
+    room-desc-list)
+
+ Configure rooms for and
+ island.
+
+
+o----------------------------o
+
+ (show-flag island)
+
+ Display a flag.
+
+
+o----------------------------o
+
+ (zone)
+
+ Return the current zone.
+
+
+o----------------------------o
+
+ (exit-level)
+
+ Exit the current level.
+
+
+o----------------------------o
+
+ (coins)
+
+ Return the player's coin
+ count.
+
+
+o----------------------------o
+
+ (add-coins integer)
+
+ Add integer coins to the
+ player's coint count.
+
+
+o----------------------------o
+
+ (eval-other-file path)
+
+ Evaluate code in another
+ script, given by path.
+
+
+o----------------------------o
+
+ (choice n)
+
+ Returns a random number
+ between 0 and n.
+
+
+o----------------------------o
+
+ (configure-rooms config)
+
+ See
+ /scripts/configr/rooms.lisp
+ for usage.
+
