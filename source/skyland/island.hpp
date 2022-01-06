@@ -158,10 +158,17 @@ public:
     }
 
 
-    int workshop_count()
+    u8 workshop_count()
     {
         return workshop_count_;
     }
+
+
+    u8 foundry_count() const
+    {
+        return foundry_count_;
+    }
+
 
 
     EntityList<Entity>& projectiles()
@@ -257,7 +264,8 @@ private:
 
     bool has_radar_ = false;
     bool is_boarded_ = false;
-    int workshop_count_ = 0;
+    u8 workshop_count_ = 0;
+    u8 foundry_count_ = 0;
 
     bool destroyed_ = false;
     bool all_characters_awaiting_movement_ = false;

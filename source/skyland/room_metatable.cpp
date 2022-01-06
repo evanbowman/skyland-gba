@@ -45,7 +45,6 @@ static auto& __metatable()
                          Transporter,
                          Replicator,
                          DroneBay,
-                         // Foundry,
                          Decimator>
         __room_metatable;
 

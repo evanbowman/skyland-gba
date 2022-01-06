@@ -119,7 +119,6 @@ void Decimator::render_interior(App& app, u8 buffer[16][16])
         buffer[pos.x + 1][pos.y + 1] = InteriorTile::plain_floor;
         buffer[pos.x + 1][pos.y] = InteriorTile::decimator_int;
     }
-
 }
 
 

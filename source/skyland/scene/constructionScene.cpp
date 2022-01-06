@@ -24,7 +24,9 @@ int construction_zone_min_y = 6;
 static Coins get_cost(App& app, const RoomMeta& meta)
 {
     Coins cost = meta->cost();
-    for (int i = 0; i < app.player_island().workshop_count(); ++i) {
+    for (int i = 0; i < app.player_island().workshop_count() +
+                            app.player_island().foundry_count();
+         ++i) {
         cost *= 0.9f;
     }
     if (cost < meta->cost() * salvage_factor) {
@@ -493,7 +495,10 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 
     const int avail_y_space = current.y - construction_zone_min_y;
 
-    const auto w_count = app.player_island().workshop_count();
+    const auto w_count = app.player_island().workshop_count() +
+                         app.player_island().foundry_count();
+
+    const auto f_count = app.player_island().foundry_count();
 
     auto metatable = room_metatable();
     for (int i = 0; i < metatable.second; ++i) {
@@ -502,8 +507,12 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         const bool workshop_required =
             (meta->conditions() & Conditions::workshop_required);
 
+        const bool foundry_required =
+            (meta->conditions() & Conditions::foundry_required);
+
         if (meta->size().x <= avail_space and
             meta->size().y <= avail_y_space and
+            (not foundry_required or (foundry_required and f_count > 0)) and
             (not workshop_required or (workshop_required and w_count > 0)) and
             not(meta->conditions() & Conditions::not_constructible)) {
             available_buildings_.push_back(&meta);
