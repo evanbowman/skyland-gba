@@ -83,14 +83,14 @@ public:
             break;
 
         case Drone::State::ready:
-            update_sprite(app);
+            update_sprite(pfrm, app);
             state_ = State::wait;
             timer_ = 0;
             break;
 
         case State::wait:
             duration_ += delta;
-            update_sprite(app);
+            update_sprite(pfrm, app);
             if (timer_ > reload_time) {
                 if (target_) {
                     if (not app.opponent_island()) {

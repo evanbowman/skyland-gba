@@ -46,14 +46,14 @@ public:
             break;
 
         case Drone::State::ready:
-            update_sprite(app);
+            update_sprite(pfrm, app);
             state_ = State::active;
             timer_ = 0;
             break;
 
         case State::active:
             duration_ += delta;
-            update_sprite(app);
+            update_sprite(pfrm, app);
             if (timer_ > reload_time) {
 
                 Buffer<Room*, 16> heal_queue;

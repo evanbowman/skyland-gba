@@ -80,7 +80,7 @@ protected:
     Microseconds timer_ = 0;
     Microseconds duration_ = 0;
 
-    void update_sprite(App& app);
+    void update_sprite(Platform& pfrm, App& app);
 
 private:
     Island* parent_;

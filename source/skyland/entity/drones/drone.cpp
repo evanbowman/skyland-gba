@@ -61,13 +61,21 @@ void Drone::set_movement_target(const Vec2<u8>& position)
 
 
 
-void Drone::update_sprite(App& app)
+void Drone::update_sprite(Platform& pfrm, App& app)
 {
     auto o = calc_pos(destination_, grid_pos_);
 
-    const Float offset = 3 *
-                         float(sine(4 * 3.14f * 0.0005f * duration_ + 180)) /
-                         std::numeric_limits<s16>::max();
+    Float offset = 3 *
+        float(sine(4 * 3.14f * 0.0005f * duration_ + 180)) /
+        std::numeric_limits<s16>::max();
+
+    if (pfrm.network_peer().is_connected()) {
+        // The floating movement complicates proper collision checking, as
+        // minute differences in the game clocks in multiplayer mode can result
+        // in different collision results in each game, if the drone moves
+        // subtly up and down.
+        offset = 0;
+    }
 
     o.y += offset;
 
@@ -112,7 +120,7 @@ void Drone::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::ready:
-        update_sprite(app);
+        update_sprite(pfrm, app);
         break;
     }
 }

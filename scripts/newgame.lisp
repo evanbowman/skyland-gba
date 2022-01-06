@@ -13,7 +13,7 @@
 (setq friendlies-seen '())
 
 
-(add-coins 12500)
+(add-coins 2500)
 
 
 (terrain (player) 4)
