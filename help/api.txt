@@ -1,5 +1,5 @@
 
- api.lisp
+ api.txt
 
  Describes all available
  SKYLAND API calls.

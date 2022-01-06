@@ -14,6 +14,12 @@ namespace skyland {
 
 
 
+SHARED_VARIABLE(flak_r1_damage);
+SHARED_VARIABLE(flak_r2_damage);
+SHARED_VARIABLE(flak_r3_damage);
+
+
+
 Flak::Flak(const Vec2<Float>& position,
            const Vec2<Float>& target,
            Island* source,
@@ -142,21 +148,21 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
     //
     // More damage at center of explosion.
 
-    apply_damage(0, 0, r1_damage);
+    apply_damage(0, 0, flak_r1_damage);
 
-    apply_damage(1, 0, r2_damage);
-    apply_damage(-1, 0, r2_damage);
-    apply_damage(0, 1, r2_damage);
-    apply_damage(0, -1, r2_damage);
+    apply_damage(1, 0, flak_r2_damage);
+    apply_damage(-1, 0, flak_r2_damage);
+    apply_damage(0, 1, flak_r2_damage);
+    apply_damage(0, -1, flak_r2_damage);
 
-    apply_damage(2, 0, r3_damage);
-    apply_damage(1, -1, r3_damage);
-    apply_damage(0, -2, r3_damage);
-    apply_damage(-1, -1, r3_damage);
-    apply_damage(-2, 0, r3_damage);
-    apply_damage(-1, 1, r3_damage);
-    apply_damage(0, 2, r3_damage);
-    apply_damage(1, 1, r3_damage);
+    apply_damage(2, 0, flak_r3_damage);
+    apply_damage(1, -1, flak_r3_damage);
+    apply_damage(0, -2, flak_r3_damage);
+    apply_damage(-1, -1, flak_r3_damage);
+    apply_damage(-2, 0, flak_r3_damage);
+    apply_damage(-1, 1, flak_r3_damage);
+    apply_damage(0, 2, flak_r3_damage);
+    apply_damage(1, 1, flak_r3_damage);
 
     destroyed_ = true;
 }

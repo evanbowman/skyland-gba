@@ -3,10 +3,15 @@
 
 
 #include "skyland/room.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
 namespace skyland {
+
+
+
+extern SharedVariable decimator_reload_ms;
 
 
 
@@ -83,11 +88,11 @@ public:
 
 
 private:
-    static constexpr const Microseconds reload_time = seconds(26);
+
     int counter_ = 0;
 
 
-    Microseconds reload_ = reload_time;
+    Microseconds reload_ = 1000 * decimator_reload_ms;
 };
 
 

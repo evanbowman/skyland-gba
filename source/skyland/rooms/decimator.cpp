@@ -10,6 +10,10 @@ namespace skyland {
 
 
 
+SHARED_VARIABLE(decimator_reload_ms);
+
+
+
 Decimator::Decimator(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {
@@ -82,7 +86,7 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
                 ++counter_;
                 reload_ = milliseconds(200);
             } else {
-                reload_ = reload_time;
+                reload_ = 1000 * decimator_reload_ms;
                 counter_ = 0;
             }
         }

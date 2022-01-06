@@ -80,6 +80,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/opponent/enemyAI.cpp
   ${SOURCE_DIR}/skyland/opponent/multiplayerPeer.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
+  ${SOURCE_DIR}/skyland/sharedVariable.cpp
   ${SOURCE_DIR}/skyland/room_metatable.cpp
   ${SOURCE_DIR}/skyland/entity/explosion/explosion.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/flak.cpp

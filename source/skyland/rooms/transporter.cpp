@@ -16,6 +16,10 @@ namespace skyland {
 
 
 
+SHARED_VARIABLE(transporter_reload_ms);
+
+
+
 Transporter::Transporter(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {
@@ -45,7 +49,7 @@ void Transporter::recover_character(Platform& pfrm,
                                     App& app,
                                     const Vec2<u8>& position)
 {
-    recharge_ = recharge_time;
+    recharge_ = 1000 * transporter_reload_ms;
 
     if (parent()->interior_visible()) {
         parent()->repaint(pfrm, app);
@@ -102,7 +106,7 @@ void Transporter::recover_character(Platform& pfrm,
 
 void Transporter::random_transport_occupant(Platform& pfrm, App& app)
 {
-    recharge_ = recharge_time;
+    recharge_ = 1000 * transporter_reload_ms;
 
     if (parent()->interior_visible()) {
         parent()->repaint(pfrm, app);

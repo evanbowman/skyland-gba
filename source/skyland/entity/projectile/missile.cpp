@@ -12,6 +12,10 @@ namespace skyland {
 
 
 
+SHARED_VARIABLE(missile_damage);
+
+
+
 Missile::Missile(const Vec2<Float>& position,
                  const Vec2<Float>& target,
                  Island* source)
@@ -98,9 +102,9 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
     auto metac = room.metaclass();
 
     if (str_cmp((*metac)->name(), "hull") == 0) {
-        room.apply_damage(pfrm, app, Missile::deals_damage * 0.9f);
+        room.apply_damage(pfrm, app, missile_damage * 0.9f);
     } else {
-        room.apply_damage(pfrm, app, Missile::deals_damage);
+        room.apply_damage(pfrm, app, missile_damage);
     }
 }
 
@@ -112,7 +116,7 @@ void Missile::on_collision(Platform& pfrm, App& app, Entity& entity)
     app.camera().shake(18);
     big_explosion(pfrm, app, sprite_.get_position());
 
-    entity.apply_damage(Missile::deals_damage);
+    entity.apply_damage(missile_damage);
 }
 
 

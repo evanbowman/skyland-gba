@@ -4,10 +4,15 @@
 #include "skyland/coins.hpp"
 #include "skyland/entity/drones/drone.hpp"
 #include "skyland/room.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
 namespace skyland {
+
+
+
+extern SharedVariable drone_bay_reload_ms;
 
 
 
@@ -97,7 +102,7 @@ public:
 
     void start_reload()
     {
-        reload_ = reload_time;
+        reload_ = 1000 * drone_bay_reload_ms;
     }
 
 
@@ -108,8 +113,6 @@ public:
 
 
 private:
-    static constexpr const Microseconds reload_time = seconds(25);
-
 
     std::optional<SharedEntityRef<Drone>> drone_;
 

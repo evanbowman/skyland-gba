@@ -1708,6 +1708,8 @@ void Platform::fatal(const char* msg)
         (*::unrecoverrable_error_callback)(*platform);
     }
 
+    ::platform->screen().fade(0.f);
+
     const auto bkg_color = custom_color(0xcb1500);
 
     irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);

@@ -2,10 +2,15 @@
 
 #include "skyland/coins.hpp"
 #include "skyland/room.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
 namespace skyland {
+
+
+
+extern SharedVariable transporter_reload_ms;
 
 
 
@@ -66,9 +71,6 @@ public:
     }
 
 
-    static const Microseconds recharge_time = seconds(18);
-
-
     bool ready() const;
 
 
@@ -79,7 +81,7 @@ public:
 
 
 private:
-    Microseconds recharge_ = recharge_time;
+    Microseconds recharge_ = 1000 * transporter_reload_ms;
 };
 
 

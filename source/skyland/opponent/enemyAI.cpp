@@ -1274,7 +1274,7 @@ void EnemyAI::set_target(Platform& pfrm,
 
         // Give the room some extra weight, if firing a missile into it would be
         // really destructive.
-        if (w > 400 and room->health() <= Missile::deals_damage) {
+        if (w > 400 and room->health() <= missile_damage) {
             w += 300.f;
         }
 

@@ -3,10 +3,15 @@
 
 #include "skyland/coins.hpp"
 #include "skyland/room.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
 namespace skyland {
+
+
+
+extern SharedVariable flak_gun_reload_ms;
 
 
 
@@ -100,9 +105,7 @@ public:
 
 
 private:
-    static constexpr const Microseconds reload_time = milliseconds(4500);
-
-    Microseconds reload_ = reload_time;
+    Microseconds reload_ = 1000 * flak_gun_reload_ms;
 
 
     std::optional<Vec2<u8>> target_;

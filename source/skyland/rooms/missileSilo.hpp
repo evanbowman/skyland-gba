@@ -3,10 +3,15 @@
 
 #include "skyland/coins.hpp"
 #include "skyland/room.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
 namespace skyland {
+
+
+
+extern SharedVariable missile_silo_reload_ms;
 
 
 
@@ -98,10 +103,7 @@ public:
 
 
 private:
-    static constexpr const Microseconds load_time = seconds(7);
-
-
-    Microseconds load_ = load_time;
+    Microseconds load_ = 1000 * missile_silo_reload_ms;
 
     std::optional<Vec2<u8>> target_;
 };

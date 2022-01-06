@@ -5,10 +5,15 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
 namespace skyland {
+
+
+
+static SHARED_VARIABLE(decimator_burst_damage);
 
 
 
@@ -70,7 +75,7 @@ void DecimatorBurst::on_collision(Platform& pfrm, App& app, Room& room)
     app.camera().shake(26);
     big_explosion(pfrm, app, sprite_.get_position());
 
-    room.apply_damage(pfrm, app, 200);
+    room.apply_damage(pfrm, app, decimator_burst_damage);
 }
 
 
@@ -81,7 +86,7 @@ void DecimatorBurst::on_collision(Platform& pfrm, App& app, Entity& entity)
 
     app.camera().shake(4);
 
-    entity.apply_damage(40);
+    entity.apply_damage(decimator_burst_damage);
 }
 
 

@@ -3,6 +3,7 @@
 
 #include "projectile.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
@@ -24,10 +25,6 @@ public:
     void on_collision(Platform& pfrm, App& app, Room&) override;
 
 
-    static const Health r1_damage = 20;
-    static const Health r2_damage = 12;
-    static const Health r3_damage = 10;
-
 private:
     Microseconds timer_ = 0;
     Vec2<Float> step_vector_;
@@ -41,6 +38,12 @@ private:
     // shooting themselves.
     Vec2<u8> origin_tile_;
 };
+
+
+
+extern SharedVariable flak_r1_damage;
+extern SharedVariable flak_r2_damage;
+extern SharedVariable flak_r3_damage;
 
 
 

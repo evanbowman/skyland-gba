@@ -2,6 +2,7 @@
 
 
 #include "projectile.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
@@ -29,9 +30,6 @@ public:
     void on_collision(Platform& pfrm, App& app, Entity& entity) override;
 
 
-    static const Health deals_damage = 100;
-
-
 private:
     Microseconds timer_ = 0;
     Float speed_;
@@ -45,6 +43,10 @@ private:
         falling,
     } state_ = State::rising;
 };
+
+
+
+extern SharedVariable missile_damage;
 
 
 

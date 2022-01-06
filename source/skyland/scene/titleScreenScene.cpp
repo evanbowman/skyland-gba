@@ -249,6 +249,8 @@ void TitleScreenScene::run_init_scripts(Platform& pfrm,
     const bool use_rom_fs = (allow_mods == false);
 
     app.invoke_script(pfrm, "/scripts/config/rooms.lisp", use_rom_fs);
+    app.invoke_script(pfrm, "/scripts/config/damage.lisp", use_rom_fs);
+    app.invoke_script(pfrm, "/scripts/config/timing.lisp", use_rom_fs);
 
     if (allow_mods) {
         app.invoke_ram_script(pfrm, "/mods/init.lisp");

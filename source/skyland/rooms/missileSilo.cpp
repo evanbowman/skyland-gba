@@ -13,6 +13,10 @@ namespace skyland {
 
 
 
+SHARED_VARIABLE(missile_silo_reload_ms);
+
+
+
 MissileSilo::MissileSilo(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {
@@ -41,7 +45,7 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
                         start.y -= 24;
 
                         app.camera().shake(6);
-                        load_ = load_time;
+                        load_ = 1000 * missile_silo_reload_ms;
                         auto m = app.alloc_entity<Missile>(
                             pfrm, start, room->center(), parent());
 

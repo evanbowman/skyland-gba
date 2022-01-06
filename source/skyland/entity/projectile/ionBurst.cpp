@@ -4,10 +4,15 @@
 #include "skyland/room.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/bulkhead.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
 namespace skyland {
+
+
+
+static SHARED_VARIABLE(ion_burst_damage);
 
 
 
@@ -79,7 +84,7 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
     app.camera().shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
-    room.apply_damage(pfrm, app, 160);
+    room.apply_damage(pfrm, app, ion_burst_damage);
 }
 
 

@@ -8,10 +8,15 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
 namespace skyland {
+
+
+
+static SHARED_VARIABLE(cannonball_damage);
 
 
 
@@ -67,7 +72,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
     app.camera().shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
-    room.apply_damage(pfrm, app, 40);
+    room.apply_damage(pfrm, app, cannonball_damage);
 }
 
 
@@ -87,7 +92,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Entity& entity)
     app.camera().shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
-    entity.apply_damage(40);
+    entity.apply_damage(cannonball_damage);
 }
 
 

@@ -13,6 +13,10 @@ namespace skyland {
 
 
 
+SHARED_VARIABLE(cannon_reload_ms);
+
+
+
 Cannon::Cannon(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {
@@ -63,7 +67,7 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
                     parent()->projectiles().push(std::move(c));
                 }
 
-                reload_ = reload_time;
+                reload_ = 1000 * cannon_reload_ms;
             } else {
                 target_.reset();
             }

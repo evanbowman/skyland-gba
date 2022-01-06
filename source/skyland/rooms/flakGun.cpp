@@ -13,6 +13,10 @@ namespace skyland {
 
 
 
+SHARED_VARIABLE(flak_gun_reload_ms);
+
+
+
 FlakGun::FlakGun(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {
@@ -63,7 +67,7 @@ void FlakGun::update(Platform& pfrm, App& app, Microseconds delta)
                 }
 
 
-                reload_ = reload_time;
+                reload_ = 1000 * flak_gun_reload_ms;
             } else {
                 target_.reset();
             }

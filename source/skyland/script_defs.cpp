@@ -11,6 +11,7 @@
 #include "script/listBuilder.hpp"
 #include "serial.hpp"
 #include "skyland.hpp"
+#include "sharedVariable.hpp"
 
 
 
@@ -538,7 +539,7 @@ void App::init_scripts(Platform& pfrm)
     lisp::set_var(
         "configure-rooms", lisp::make_function([](int argc) {
             L_EXPECT_ARGC(argc, 1);
-            L_EXPECT_OP(1, cons);
+            L_EXPECT_OP(0, cons);
 
             lisp::foreach (lisp::get_op(0), [](lisp::Value* val) {
                 if (val->type() not_eq lisp::Value::Type::cons) {
@@ -560,13 +561,46 @@ void App::init_scripts(Platform& pfrm)
                     auto power = val->cons().car()->integer().value_;
                     (*c)->configure(health, cost, power);
                 } else {
-                    auto pfrm = lisp::interp_get_pfrm();
-                    pfrm->fatal("invalid room type symbol");
+                    Platform::fatal("invalid room type symbol");
                 }
             });
 
             return L_NIL;
         }));
+
+
+    lisp::set_var("getvar", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, string);
+
+        if (auto v = SharedVariable::load(lisp::get_op(0)->string().value())) {
+            return lisp::make_integer(v->get());
+        }
+
+        StringBuffer<96> error("access to invalid shared variable '");
+        error += lisp::get_op(0)->string().value();
+        error += "'";
+
+        Platform::fatal(error.c_str());
+    }));
+
+
+    lisp::set_var("setvar", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(1, string);
+        L_EXPECT_OP(0, integer);
+
+        if (auto v = SharedVariable::load(lisp::get_op(1)->string().value())) {
+            v->set(lisp::get_op(0)->integer().value_);
+            return L_NIL;
+        }
+
+        StringBuffer<96> error("access to invalid shared variable '");
+        error += lisp::get_op(1)->string().value();
+        error += "'";
+
+        Platform::fatal(error.c_str());
+    }));
 
 
     // NOTE: we need to disable custom scripts during startup, otherwise,
