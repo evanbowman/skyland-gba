@@ -60,7 +60,7 @@ with open('fs.bin', 'wb') as filesystem:
     collect_paths(files_list, "help")
     collect_paths(files_list, "misc")
 
-    files_list.append(["/readme.lisp", os.path.join(project_root_path, "readme.lisp")])
+    files_list.append(["/readme.txt", os.path.join(project_root_path, "readme.txt")])
 
     fs_count = len(files_list)
     print("encoding %d files..." % fs_count)

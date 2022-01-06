@@ -7,12 +7,13 @@
 
 o---------------------------o
  All modes:
-o---------------------------o
+
  Select: open/close text selection.
+
 
 o---------------------------o
  nav-mode
-o---------------------------o
+
  D-pad: move cursor
  B: save and quit
 
@@ -37,9 +38,10 @@ o---------------------------o
 
  A: switch to edit-mode
 
+
 o---------------------------o
  edit-mode
-o---------------------------o
+
  B: back to nav-mode
  D-pad: move keyboard cursor
  A: insert character
@@ -48,7 +50,7 @@ o---------------------------o
 
 o---------------------------o
  autocomplete-mode
-o---------------------------o
+
  D-pad: move completion cursor
  A: insert completion, switch to edit-mode
  B: cancel, switch to edit mode
