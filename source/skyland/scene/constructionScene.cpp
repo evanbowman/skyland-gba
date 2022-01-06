@@ -170,7 +170,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             const auto sz = target->size().y;
             const u8 dest_x = construction_sites_[selector_].x;
             const u8 dest_y = construction_sites_[selector_].y - (sz - 1);
-            target->create(pfrm, &app.player_island(), {dest_x, dest_y});
+            target->create(pfrm, app, &app.player_island(), {dest_x, dest_y});
 
             app.player().rooms_built_++;
 

@@ -59,9 +59,9 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
 
     app.player_island().init_terrain(pfrm, 4);
     configure_island_from_codestring(
-        pfrm, app.player_island(), "'((power-core 1 13))");
+        pfrm, app, app.player_island(), "'((power-core 1 13))");
 
-    app.player_island().repaint(pfrm);
+    app.player_island().repaint(pfrm, app);
     app.player_island().set_position({152, 370});
 
 

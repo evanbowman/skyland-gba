@@ -21,7 +21,7 @@ void Foundry::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Foundry::render_interior(u8 buffer[16][16])
+void Foundry::render_interior(App& app, u8 buffer[16][16])
 {
     auto pos = position();
     buffer[pos.x + 1][pos.y] = InteriorTile::decimator_1;
@@ -32,7 +32,7 @@ void Foundry::render_interior(u8 buffer[16][16])
 
 
 
-void Foundry::render_exterior(u8 buffer[16][16])
+void Foundry::render_exterior(App& app, u8 buffer[16][16])
 {
     auto pos = position();
     buffer[pos.x + 1][pos.y] = Tile::decimator_1;

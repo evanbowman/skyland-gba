@@ -124,7 +124,7 @@ void PlaceDroneScene::exit(Platform& pfrm, App& app, Scene& next)
         island = &*app.opponent_island();
     }
 
-    island->repaint(pfrm);
+    island->repaint(pfrm, app);
 }
 
 

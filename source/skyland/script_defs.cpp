@@ -207,7 +207,7 @@ void App::init_scripts(Platform& pfrm)
 
             auto island = (Island*)lisp::get_op(0)->user_data().obj_;
 
-            island->plot_walkable_zones(matrix);
+            island->plot_walkable_zones(*interp_get_app(), matrix);
 
             lisp::Value* ret = lisp::get_nil();
 
@@ -321,7 +321,7 @@ void App::init_scripts(Platform& pfrm)
             u8 y = lisp::get_list(lisp::get_op(0), 2)->integer().value_;
 
             if (auto c = load_metaclass(name)) {
-                (*c)->create(*pfrm, island, Vec2<u8>{x, y});
+                (*c)->create(*pfrm, *app, island, Vec2<u8>{x, y});
             } else {
                 Platform::fatal(name);
             }
@@ -425,7 +425,7 @@ void App::init_scripts(Platform& pfrm)
                       auto [app, pfrm] = interp_get_context();
                       auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-                      configure_island(*pfrm, *island, lisp::get_op(0));
+                      configure_island(*pfrm, *app, *island, lisp::get_op(0));
 
                       return L_NIL;
                   }));

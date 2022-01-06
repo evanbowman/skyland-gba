@@ -41,7 +41,7 @@ void MoveCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
         island = &*app.opponent_island();
     }
 
-    island->render_interior(pfrm);
+    island->render_interior(pfrm, app);
     // island->repaint()
     // app.player_island().render_interior(pfrm);
     // app.player_island().repaint(pfrm);
@@ -65,7 +65,7 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
         island = &*app.opponent_island();
     }
 
-    island->plot_walkable_zones(*matrix_);
+    island->plot_walkable_zones(app, *matrix_);
 
     // Now, we want to do a bfs walk, to find all connected parts of the
     // walkable areas.
@@ -239,7 +239,8 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
 
-            auto path = find_path(pfrm, island, initial_cursor_, *cursor_loc);
+            auto path =
+                find_path(pfrm, app, island, initial_cursor_, *cursor_loc);
 
             if (path and *path) {
                 sel_chr->set_movement_path(std::move(*path));

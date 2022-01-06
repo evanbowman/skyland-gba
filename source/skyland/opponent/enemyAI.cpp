@@ -376,7 +376,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
 
     DynamicMemory<bool[16][16]> matrix_ = allocate_dynamic<bool[16][16]>(pfrm);
 
-    app.opponent_island()->plot_walkable_zones(*matrix_);
+    app.opponent_island()->plot_walkable_zones(app, *matrix_);
 
     u8 matrix[16][16];
     for (int x = 0; x < 16; ++x) {
@@ -504,7 +504,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     auto target = slots.back();
 
     if (auto path = find_path(
-            pfrm, &*app.opponent_island(), current_pos, target.coord_)) {
+            pfrm, app, &*app.opponent_island(), current_pos, target.coord_)) {
         if (not((*path)->size() == 1 and
                 (**path)[0] == character.grid_position())) {
             // Don't waste a path buffer on an entity if the ideal path
@@ -557,7 +557,7 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 
     DynamicMemory<bool[16][16]> matrix_ = allocate_dynamic<bool[16][16]>(pfrm);
 
-    app.player_island().plot_walkable_zones(*matrix_);
+    app.player_island().plot_walkable_zones(app, *matrix_);
 
     u8 matrix[16][16];
     for (int x = 0; x < 16; ++x) {
@@ -652,8 +652,8 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 
     auto target = slots.back();
 
-    if (auto path =
-            find_path(pfrm, &app.player_island(), current_pos, target.coord_)) {
+    if (auto path = find_path(
+            pfrm, app, &app.player_island(), current_pos, target.coord_)) {
         if (not((*path)->size() == 1 and
                 (**path)[0] == character.grid_position())) {
             // Don't waste a path buffer on an entity if the ideal path

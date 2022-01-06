@@ -209,7 +209,7 @@ ScenePtr<Scene> Room::select(Platform& pfrm, App& app)
 
 
 
-void Room::plot_walkable_zones(bool matrix[16][16])
+void Room::plot_walkable_zones(App& app, bool matrix[16][16])
 {
     // By default, treat every cell in the lowest row of a room as walkable for
     // NPCs. A few rooms, like staircases, cannons, walls, etc. will need to
@@ -303,7 +303,7 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
                     u8(position_.x + x),
                     u8(position_.y + y),
                 };
-                (*plunder_metac)->create(pfrm, parent_, pos);
+                (*plunder_metac)->create(pfrm, app, parent_, pos);
             }
         }
 

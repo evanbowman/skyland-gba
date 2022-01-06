@@ -128,7 +128,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     app.coins() += salvage_value(*room);
 
-                    app.player_island().destroy_room(pfrm, cursor_loc);
+                    app.player_island().destroy_room(pfrm, app, cursor_loc);
                     exit_countdown_ = milliseconds(500);
 
                     network::packet::RoomSalvaged packet;

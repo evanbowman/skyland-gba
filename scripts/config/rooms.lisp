@@ -23,5 +23,4 @@
    (transporter  100 999  40)
    (replicator   80  2500 80)
    (drone-bay    200 2100 36)
-   ;; (decimator    140 3400 70)
-   ))
+   (decimator    140 3800 70)))

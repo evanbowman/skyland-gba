@@ -8,6 +8,7 @@ namespace skyland {
 
 
 void configure_island(Platform& pfrm,
+                      App& app,
                       Island& island,
                       lisp::Value* island_desc_lat)
 {
@@ -27,7 +28,7 @@ void configure_island(Platform& pfrm,
             u8 y = lisp::get_list(val, 2)->integer().value_;
 
             if (auto c = load_metaclass(name_symb->symbol().name_)) {
-                (*c)->create(pfrm, &island, Vec2<u8>{x, y});
+                (*c)->create(pfrm, app, &island, Vec2<u8>{x, y});
             }
 
             // Optionally, the schema for saving rooms will include a health
@@ -41,19 +42,20 @@ void configure_island(Platform& pfrm,
         }
     });
 
-    island.repaint(pfrm);
+    island.repaint(pfrm, app);
 }
 
 
 
 void configure_island_from_codestring(Platform& pfrm,
+                                      App& app,
                                       Island& island,
                                       const char* lisp_data)
 {
     lisp::BasicCharSequence seq(lisp_data);
     lisp::read(seq); // leaves result of (read) at top of operand stack.
 
-    configure_island(pfrm, island, lisp::get_op(0));
+    configure_island(pfrm, app, island, lisp::get_op(0));
 
     lisp::pop_op();
 }

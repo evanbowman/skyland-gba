@@ -44,10 +44,9 @@ static auto& __metatable()
                          PlunderedRoom,
                          Transporter,
                          Replicator,
-                         DroneBay// ,
+                         DroneBay,
                          // Foundry,
-                         // Decimator
-                         >
+                         Decimator>
         __room_metatable;
 
     return __room_metatable;

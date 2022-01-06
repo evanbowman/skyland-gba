@@ -23,19 +23,6 @@ ScenePtr<Scene> Decimator::select(Platform& pfrm, App& app)
         return scene;
     }
 
-    // if (characters().empty()) {
-    //     return null_scene();
-    // }
-
-    // const auto& mt_prep_seconds =
-    //     std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
-
-    // if (mt_prep_seconds) {
-    //     return null_scene();
-    // }
-
-    // return scene_pool::alloc<WeaponSetTargetScene>(position());
-
     return null_scene();
 }
 
@@ -99,7 +86,7 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Decimator::plot_walkable_zones(bool matrix[16][16])
+void Decimator::plot_walkable_zones(App& app, bool matrix[16][16])
 {
     auto pos = position();
     matrix[pos.x][pos.y + 1] = true;
@@ -107,7 +94,7 @@ void Decimator::plot_walkable_zones(bool matrix[16][16])
 
 
 
-void Decimator::render_interior(u8 buffer[16][16])
+void Decimator::render_interior(App& app, u8 buffer[16][16])
 {
     auto pos = position();
     buffer[pos.x + 1][pos.y] = InteriorTile::decimator_1;
@@ -118,7 +105,7 @@ void Decimator::render_interior(u8 buffer[16][16])
 
 
 
-void Decimator::render_exterior(u8 buffer[16][16])
+void Decimator::render_exterior(App& app, u8 buffer[16][16])
 {
     auto pos = position();
     buffer[pos.x + 1][pos.y] = Tile::decimator_1;

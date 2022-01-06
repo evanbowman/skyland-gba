@@ -57,7 +57,7 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void MissileSilo::render_interior(u8 buffer[16][16])
+void MissileSilo::render_interior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::missile_silo_1;
     buffer[position().x][position().y + 1] = Tile::missile_silo_2;
@@ -65,7 +65,7 @@ void MissileSilo::render_interior(u8 buffer[16][16])
 
 
 
-void MissileSilo::render_exterior(u8 buffer[16][16])
+void MissileSilo::render_exterior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::missile_silo_1;
     buffer[position().x][position().y + 1] = Tile::missile_silo_2;

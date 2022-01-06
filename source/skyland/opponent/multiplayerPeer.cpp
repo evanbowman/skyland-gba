@@ -58,7 +58,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
         pos.x = ((app.opponent_island()->terrain().size() - 1) - pos.x) -
                 (size.x - 1);
 
-        (*metac)->create(pfrm, &*app.opponent_island(), pos);
+        (*metac)->create(pfrm, app, &*app.opponent_island(), pos);
     }
 }
 
@@ -70,7 +70,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 {
     if (app.opponent_island()) {
         app.opponent_island()->destroy_room(
-            pfrm, {invert_axis(app, packet.x_), packet.y_});
+            pfrm, app, {invert_axis(app, packet.x_), packet.y_});
     }
 }
 
@@ -179,7 +179,8 @@ void MultiplayerPeer::receive(Platform& pfrm,
                 if (chr->grid_position() == src_coord and
                     chr->owner() not_eq &app.player()) {
 
-                    auto path = find_path(pfrm, island, src_coord, dst_coord);
+                    auto path =
+                        find_path(pfrm, app, island, src_coord, dst_coord);
 
                     if (path and *path) {
                         chr->set_movement_path(std::move(*path));
@@ -420,7 +421,7 @@ void MultiplayerPeer::receive(
 
     if (auto room = app.opponent_island()->get_room(loc)) {
         if (auto bulkhead = dynamic_cast<Bulkhead*>(room)) {
-            bulkhead->set_open(pfrm, packet.open_);
+            bulkhead->set_open(pfrm, app, packet.open_);
         }
     }
 }

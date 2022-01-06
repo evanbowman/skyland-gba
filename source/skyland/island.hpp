@@ -25,10 +25,10 @@ public:
     using Rooms = Buffer<RoomPtr<Room>, 70>;
 
 
-    bool add_room(Platform& pfrm, RoomPtr<Room> insert)
+    bool add_room(Platform& pfrm, App& app, RoomPtr<Room> insert)
     {
         auto result = rooms_.push_back(std::move(insert));
-        repaint(pfrm);
+        repaint(pfrm, app);
         recalculate_power_usage();
         on_layout_changed(insert->position());
         return result;
@@ -36,12 +36,13 @@ public:
 
 
     template <typename T, typename... Args>
-    bool add_room(Platform& pfrm, const Vec2<u8>& position, Args&&... args)
+    bool
+    add_room(Platform& pfrm, App& app, const Vec2<u8>& position, Args&&... args)
     {
         if (auto room = room_pool::alloc<T>(
                 this, position, std::forward<Args>(args)...)) {
             if (rooms_.push_back({room.release(), room_pool::deleter})) {
-                repaint(pfrm);
+                repaint(pfrm, app);
                 recalculate_power_usage();
                 on_layout_changed(position);
                 return true;
@@ -82,7 +83,7 @@ public:
     std::optional<SharedEntityRef<Drone>> get_drone(const Vec2<u8>& coord);
 
 
-    void destroy_room(Platform& pfrm, const Vec2<u8>& coord);
+    void destroy_room(Platform& pfrm, App& app, const Vec2<u8>& coord);
 
 
     u8 get_ambient_movement()
@@ -97,13 +98,10 @@ public:
     }
 
 
-    void flip(Platform& pfrm);
+    void render_interior(Platform& pfrm, App& app);
 
 
-    void render_interior(Platform& pfrm);
-
-
-    void render_exterior(Platform& pfrm);
+    void render_exterior(Platform& pfrm, App& app);
 
 
     void plot_rooms(u8 matrix[16][16]) const;
@@ -112,13 +110,13 @@ public:
     void plot_construction_zones(bool matrix[16][16]) const;
 
 
-    void plot_walkable_zones(bool matrix[16][16]) const;
+    void plot_walkable_zones(App& app, bool matrix[16][16]) const;
 
 
     BasicCharacter* character_at_location(const Vec2<u8>& loc);
 
 
-    void repaint(Platform& pfrm);
+    void repaint(Platform& pfrm, App& app);
 
 
     bool interior_visible() const

@@ -65,9 +65,8 @@ void Drone::update_sprite(Platform& pfrm, App& app)
 {
     auto o = calc_pos(destination_, grid_pos_);
 
-    Float offset = 3 *
-        float(sine(4 * 3.14f * 0.0005f * duration_ + 180)) /
-        std::numeric_limits<s16>::max();
+    Float offset = 3 * float(sine(4 * 3.14f * 0.0005f * duration_ + 180)) /
+                   std::numeric_limits<s16>::max();
 
     if (pfrm.network_peer().is_connected()) {
         // The floating movement complicates proper collision checking, as

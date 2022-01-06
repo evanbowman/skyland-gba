@@ -237,13 +237,13 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
 
-            app.opponent_island()->render_interior(pfrm);
+            app.opponent_island()->render_interior(pfrm, app);
         } else if (app.opponent_island()->interior_visible() and
                    not show_opponent_interior) {
 
             pfrm.load_tile1_texture("tilesheet_enemy_0");
 
-            app.opponent_island()->render_exterior(pfrm);
+            app.opponent_island()->render_exterior(pfrm, app);
         }
 
         // Hey, I threw this code together in a panic for a game jam, I know
@@ -315,11 +315,11 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.player().key_down(pfrm, Key::select)) {
         if (app.player_island().interior_visible()) {
             pfrm.load_tile0_texture("tilesheet");
-            app.player_island().render_exterior(pfrm);
+            app.player_island().render_exterior(pfrm, app);
             vram_write_flag(pfrm, app.gp_.flag_img_);
         } else {
             pfrm.load_tile0_texture("tilesheet_interior");
-            app.player_island().render_interior(pfrm);
+            app.player_island().render_interior(pfrm, app);
             vram_write_flag(pfrm, app.gp_.flag_img_);
         }
     }

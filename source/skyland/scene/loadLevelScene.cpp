@@ -62,7 +62,7 @@ void prep_level(Platform& pfrm, App& app)
     if (app.opponent_island()) {
         app.opponent_island()->set_drift(-0.000025f);
 
-        app.opponent_island()->repaint(pfrm);
+        app.opponent_island()->repaint(pfrm, app);
 
         set_island_positions(app.player_island(), *app.opponent_island());
 
@@ -83,7 +83,7 @@ void prep_level(Platform& pfrm, App& app)
             }
         }
 
-        app.opponent_island()->repaint(pfrm);
+        app.opponent_island()->repaint(pfrm, app);
     }
 }
 

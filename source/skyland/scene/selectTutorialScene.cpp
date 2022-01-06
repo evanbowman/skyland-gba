@@ -231,8 +231,8 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm.fatal(p.fmt_.c_str());
                 });
                 prep_level(pfrm, app);
-                app.player_island().repaint(pfrm);
-                app.player_island().render_exterior(pfrm);
+                app.player_island().repaint(pfrm, app);
+                app.player_island().render_exterior(pfrm, app);
 
                 rng::critical_state = 42;
 

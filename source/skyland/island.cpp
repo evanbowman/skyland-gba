@@ -101,25 +101,6 @@ BasicCharacter* Island::character_at_location(const Vec2<u8>& loc)
 
 
 
-void Island::flip(Platform& pfrm)
-{
-    int max = 0;
-    for (auto& room : rooms_) {
-        if (max < room->position().x) {
-            max = room->position().x;
-        }
-    }
-
-    for (auto& room : rooms_) {
-        room->__position().x =
-            (room->position().x - max) - (room->size().x - 1);
-    }
-
-    repaint(pfrm);
-}
-
-
-
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;
@@ -204,9 +185,9 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
                 auto sync = [x = (*ptr)->position().x,
                              y = (*ptr)->position().y,
-                             near = (*ptr)->destination() == &app.player_island()]
-                    (Platform& pfrm, App& app) {
-
+                             near = (*ptr)->destination() ==
+                                    &app.player_island()](Platform& pfrm,
+                                                          App& app) {
                     network::packet::DroneDestroyed destroyed;
                     destroyed.drone_x_ = x;
                     destroyed.drone_y_ = y;
@@ -298,7 +279,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             recalculate_power_usage();
 
-            repaint(pfrm);
+            repaint(pfrm, app);
         } else {
             if (dt not_eq 0) {
                 // Do not update a room if the game is stopped.
@@ -485,20 +466,20 @@ void Island::set_position(const Vec2<Float>& position)
 
 
 
-void Island::render_interior(Platform& pfrm)
+void Island::render_interior(Platform& pfrm, App& app)
 {
     interior_visible_ = true;
 
-    repaint(pfrm);
+    repaint(pfrm, app);
 }
 
 
 
-void Island::render_exterior(Platform& pfrm)
+void Island::render_exterior(Platform& pfrm, App& app)
 {
     interior_visible_ = false;
 
-    repaint(pfrm);
+    repaint(pfrm, app);
 }
 
 
@@ -562,7 +543,7 @@ bool Island::add_character(EntityRef<BasicCharacter> character)
 
 
 
-void Island::plot_walkable_zones(bool matrix[16][16]) const
+void Island::plot_walkable_zones(App& app, bool matrix[16][16]) const
 {
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -573,7 +554,7 @@ void Island::plot_walkable_zones(bool matrix[16][16]) const
     // TODO: label outdoor grass areas as walkable.
 
     for (auto& room : rooms_) {
-        room->plot_walkable_zones(matrix);
+        room->plot_walkable_zones(app, matrix);
     }
 }
 
@@ -613,7 +594,7 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
 
 
 
-void Island::repaint(Platform& pfrm)
+void Island::repaint(Platform& pfrm, App& app)
 {
     u8 matrix[16][16];
     u8 buffer[16][16]; // TODO: move this off of the stack!?
@@ -628,11 +609,11 @@ void Island::repaint(Platform& pfrm)
 
     if (interior_visible_) {
         for (auto& room : rooms()) {
-            room->render_interior(buffer);
+            room->render_interior(app, buffer);
         }
     } else {
         for (auto& room : rooms()) {
-            room->render_exterior(buffer);
+            room->render_exterior(app, buffer);
         }
     }
 
@@ -809,7 +790,7 @@ Room* Island::get_room(const Vec2<u8>& coord)
 
 
 
-void Island::destroy_room(Platform& pfrm, const Vec2<u8>& coord)
+void Island::destroy_room(Platform& pfrm, App& app, const Vec2<u8>& coord)
 {
     for (auto& room : rooms_) {
         if (coord.x >= room->position().x and coord.y >= room->position().y and
@@ -821,7 +802,7 @@ void Island::destroy_room(Platform& pfrm, const Vec2<u8>& coord)
 
             on_layout_changed(coord);
 
-            repaint(pfrm);
+            repaint(pfrm, app);
             recalculate_power_usage();
             return;
         }

@@ -107,7 +107,7 @@ ScenePtr<Scene> Replicator::select(Platform& pfrm, App& app)
 
 
 
-void Replicator::render_interior(u8 buffer[16][16])
+void Replicator::render_interior(App& app, u8 buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;
@@ -127,7 +127,7 @@ void Replicator::render_interior(u8 buffer[16][16])
 
 
 
-void Replicator::render_exterior(u8 buffer[16][16])
+void Replicator::render_exterior(App& app, u8 buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;

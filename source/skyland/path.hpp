@@ -10,6 +10,7 @@ namespace skyland {
 
 
 
+class App;
 class Island;
 
 
@@ -19,6 +20,7 @@ using Path = DynamicMemory<PathBuffer>;
 
 
 std::optional<Path> find_path(Platform& pfrm,
+                              App& app,
                               Island* island,
                               const Vec2<u8>& start,
                               const Vec2<u8>& end);

@@ -33,7 +33,7 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
         if (recharge_ < 0) {
             recharge_ = 0;
             if (parent()->interior_visible()) {
-                parent()->repaint(pfrm);
+                parent()->repaint(pfrm, app);
             }
         }
     }
@@ -48,7 +48,7 @@ void Transporter::recover_character(Platform& pfrm,
     recharge_ = recharge_time;
 
     if (parent()->interior_visible()) {
-        parent()->repaint(pfrm);
+        parent()->repaint(pfrm, app);
     }
 
     auto island = other_island(app);
@@ -105,7 +105,7 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
     recharge_ = recharge_time;
 
     if (parent()->interior_visible()) {
-        parent()->repaint(pfrm);
+        parent()->repaint(pfrm, app);
     }
 
     auto chr = characters().begin();
@@ -116,7 +116,7 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
     }
 
     bool matrix[16][16];
-    island->plot_walkable_zones(matrix);
+    island->plot_walkable_zones(app, matrix);
 
     Buffer<Vec2<u8>, 32> slots;
 
@@ -219,7 +219,7 @@ ScenePtr<Scene> Transporter::select(Platform& pfrm, App& app)
 }
 
 
-void Transporter::render_interior(u8 buffer[16][16])
+void Transporter::render_interior(App& app, u8 buffer[16][16])
 {
     if (recharge_) {
         buffer[position().x][position().y] = InteriorTile::transporter_recharge;
@@ -231,7 +231,7 @@ void Transporter::render_interior(u8 buffer[16][16])
 
 
 
-void Transporter::render_exterior(u8 buffer[16][16])
+void Transporter::render_exterior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_window_1;
     buffer[position().x][position().y + 1] = Tile::wall_window_2;

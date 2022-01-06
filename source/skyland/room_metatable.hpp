@@ -21,7 +21,8 @@ struct RoomMeta {
         {
         }
 
-        virtual void create(Platform&, Island*, const Vec2<u8>&) const = 0;
+        virtual void
+        create(Platform&, App&, Island*, const Vec2<u8>&) const = 0;
         virtual const char* name() const = 0;
         virtual Vec2<u8> size() const = 0;
         virtual Coins cost() const = 0;
@@ -50,10 +51,11 @@ struct RoomMeta {
 
 
         void create(Platform& pfrm,
+                    App& app,
                     Island* parent,
                     const Vec2<u8>& position) const override
         {
-            parent->add_room<PluginRoom>(pfrm, position, mt_);
+            parent->add_room<PluginRoom>(pfrm, app, position, mt_);
         }
 
 
@@ -140,10 +142,11 @@ struct RoomMeta {
         }
 
         void create(Platform& pfrm,
+                    App& app,
                     Island* parent,
                     const Vec2<u8>& position) const override
         {
-            parent->add_room<T>(pfrm, position);
+            parent->add_room<T>(pfrm, app, position);
         }
 
         const char* name() const override

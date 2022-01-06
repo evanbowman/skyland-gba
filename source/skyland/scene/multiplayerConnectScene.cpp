@@ -33,12 +33,12 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (app.opponent_island()) {
         set_island_positions(app.player_island(), *app.opponent_island());
 
-        app.opponent_island()->repaint(pfrm);
+        app.opponent_island()->repaint(pfrm, app);
     } else {
         pfrm.fatal("multi missing opp island");
     }
 
-    app.player_island().repaint(pfrm);
+    app.player_island().repaint(pfrm, app);
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
     cursor_loc.x = 0;

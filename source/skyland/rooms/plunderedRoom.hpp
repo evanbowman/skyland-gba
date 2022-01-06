@@ -17,8 +17,8 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(u8 buffer[16][16]) override;
-    void render_exterior(u8 buffer[16][16]) override;
+    void render_interior(App& app, u8 buffer[16][16]) override;
+    void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
     bool description_visible() override

@@ -22,14 +22,14 @@ void Forcefield::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Forcefield::render_interior(u8 buffer[16][16])
+void Forcefield::render_interior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::forcefield;
 }
 
 
 
-void Forcefield::render_exterior(u8 buffer[16][16])
+void Forcefield::render_exterior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::forcefield;
 }

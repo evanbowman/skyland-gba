@@ -32,7 +32,7 @@ void Bulkhead::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Bulkhead::render_interior(u8 buffer[16][16])
+void Bulkhead::render_interior(App& app, u8 buffer[16][16])
 {
     if (open_) {
         buffer[position().x][position().y] = InteriorTile::bulkhead_open_1;
@@ -48,7 +48,7 @@ void Bulkhead::render_interior(u8 buffer[16][16])
 
 
 
-void Bulkhead::render_exterior(u8 buffer[16][16])
+void Bulkhead::render_exterior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_plain_1;
     buffer[position().x][position().y + 1] = Tile::wall_plain_2;
@@ -58,14 +58,14 @@ void Bulkhead::render_exterior(u8 buffer[16][16])
 
 
 
-void Bulkhead::set_open(Platform& pfrm, bool open)
+void Bulkhead::set_open(Platform& pfrm, App& app, bool open)
 {
     open_ = open;
 
     cooldown_ = seconds(4);
 
     if (parent()->interior_visible()) {
-        parent()->repaint(pfrm);
+        parent()->repaint(pfrm, app);
     }
     parent()->on_layout_changed({position().x, u8(position().y + 1)});
 }
@@ -83,7 +83,7 @@ ScenePtr<Scene> Bulkhead::select(Platform& pfrm, App& app)
 
     open_ = not open_;
 
-    set_open(pfrm, open_);
+    set_open(pfrm, app, open_);
 
     if (&parent()->owner() == &app.player()) {
         network::packet::OpponentBulkheadChanged packet;

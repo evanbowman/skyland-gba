@@ -18,7 +18,7 @@ void Core::update(Platform& pfrm, App& app, Microseconds delta)
 }
 
 
-void Core::render_interior(u8 buffer[16][16])
+void Core::render_interior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::core_1;
     buffer[position().x][position().y + 1] = InteriorTile::core_2;
@@ -27,7 +27,7 @@ void Core::render_interior(u8 buffer[16][16])
 }
 
 
-void Core::render_exterior(u8 buffer[16][16])
+void Core::render_exterior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_window_1;
     buffer[position().x][position().y + 1] = Tile::wall_window_2;
