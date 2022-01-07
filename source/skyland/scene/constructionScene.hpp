@@ -69,6 +69,7 @@ private:
     int building_selector_ = 0;
 
     Buffer<RoomMeta*, 20> available_buildings_;
+    const RoomMeta* last_constructed_building_ = nullptr;
 };
 
 

@@ -96,6 +96,28 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 collect_available_buildings(pfrm, app);
 
                 if (not available_buildings_.empty()) {
+
+                    if (last_constructed_building_ and
+                        (available_buildings_[building_selector_] not_eq
+                         last_constructed_building_)) {
+
+                        // Ok, so if we constructed a building, and the cursor
+                        // advanced into a narrower slot, we may have fewer
+                        // options for stuff to build. i.e. the
+                        // available_buildings array was effectively
+                        // re-indexed. If our former selection still exists in
+                        // the list, adjust the selector accordingly. This isn't
+                        // strictly necessary, it just makes the UI feel nicer to
+                        // the player.
+
+                        for (u32 i = 0; i < available_buildings_.size(); ++i) {
+                            if (available_buildings_[i] == last_constructed_building_) {
+                                building_selector_ = i;
+                                break;
+                            }
+                        }
+                    }
+
                     state_ = State::choose_building;
                     show_current_building_text(pfrm, app);
                 }
@@ -173,6 +195,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             const u8 dest_x = construction_sites_[selector_].x;
             const u8 dest_y = construction_sites_[selector_].y - (sz - 1);
             target->create(pfrm, app, &app.player_island(), {dest_x, dest_y});
+            last_constructed_building_ = &target;
 
             app.player().rooms_built_++;
 
