@@ -291,8 +291,6 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
                 not is_delimiter((*command_)[command_->length() - 1])) {
                 std::optional<int> ident_start;
 
-                error(pfrm, "checking for ident start");
-
                 for (int i = command_->length() - 1; i >= 0; --i) {
                     if (is_delimiter((*command_)[i])) {
                         ident_start = i + 1;
@@ -338,8 +336,6 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
                         repaint_completions(pfrm);
                         repaint_entry(pfrm, false);
                     }
-                } else {
-                    error(pfrm, "autocomplete did not find ident start");
                 }
             } else {
                 error(pfrm, "command empty or recent delimiter");

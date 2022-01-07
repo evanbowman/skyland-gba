@@ -27,6 +27,12 @@ public:
     }
 
 
+    static bool run_scripts()
+    {
+        return false;
+    }
+
+
     FileBrowserModule() = default;
     FileBrowserModule(Platform& pfrm,
                       UserContext&& user_context,

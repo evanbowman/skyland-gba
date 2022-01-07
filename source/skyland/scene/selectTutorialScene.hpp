@@ -24,6 +24,12 @@ public:
     void display(Platform&, App&) override;
 
 
+    static bool run_scripts()
+    {
+        return true;
+    }
+
+
     static const char* module_name()
     {
         return "Tutorials";

@@ -54,7 +54,7 @@ void FileBrowserModule::enter(Platform& pfrm, App&, Scene& prev)
         (*path_)->push_back("/");
     }
 
-    pfrm.screen().fade(0.9f);
+    pfrm.screen().fade(0.95f);
 
     pfrm.fill_overlay(112);
 
@@ -327,7 +327,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (faded_) {
         faded_ = false;
-        pfrm.screen().fade(0.f); // Reset the fade parameters
+        pfrm.screen().fade(0.95f); // Reset the fade parameters
 
         // Black background behind the text.
         pfrm.screen().fade(1.f);

@@ -157,6 +157,13 @@ static u32 format_power_fraction(Power avail, Power used)
 
 ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (not pfrm.network_peer().is_connected()) {
+        // We scale game updates based on frame delta. But if the game starts to
+        // lag a lot, the logic can start to get screwed up, so at some point,
+        // the player will in fact start to notice the lag.
+        delta = std::min(delta, seconds(1) / 10);
+    }
+
     Microseconds world_delta = delta;
     apply_gamespeed(app, world_delta);
 

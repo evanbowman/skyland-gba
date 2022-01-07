@@ -81,7 +81,7 @@ public:
             pop();
     }
 
-    bool empty()
+    bool empty() const
     {
         return begin_ == nullptr;
     }

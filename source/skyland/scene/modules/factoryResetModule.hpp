@@ -24,6 +24,12 @@ public:
     }
 
 
+    static bool run_scripts()
+    {
+        return false;
+    }
+
+
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 

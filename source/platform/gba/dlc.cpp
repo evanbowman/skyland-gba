@@ -178,8 +178,6 @@ void read_dlc(Platform& pfrm)
 
                 // ...
 
-                info(pfrm, "dlc provider detected!");
-
                 multi_serial_init();
                 break;
 
@@ -208,7 +206,6 @@ void read_dlc(Platform& pfrm)
             // If we've received a start command from the master, now let's set
             // up the multiplayer session.
             if (REG_SIOMULTI0 == MULTI_DEVICE_START) {
-                info(pfrm, "dlc provider detected!");
                 multi_serial_init();
                 break;
             }

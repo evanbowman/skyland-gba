@@ -154,11 +154,6 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
         return;
     }
 
-    // auto log = to_string<40>(dest->x);
-    // log += ",";
-    // log += to_string<10>(dest->y);
-    // info(pfrm, log.c_str());
-
     if (auto room = island->get_room(*dest)) {
 
         if (&parent()->owner() == &app.player()) {

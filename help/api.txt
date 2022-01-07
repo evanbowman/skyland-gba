@@ -149,6 +149,23 @@ o----------------------------o
 
 o----------------------------o
 
+ (log obj)
+
+ Writes obj to SKYLAND's
+ system logfile.
+
+
+o----------------------------o
+
+ (log-flush)
+
+ Writes the contents of
+ SKYLAND's system logfile
+ to /log.txt in sram.
+
+
+o----------------------------o
+
  (opponent) -> island
 
  Returns a reference to the

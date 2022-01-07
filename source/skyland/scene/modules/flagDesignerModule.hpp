@@ -34,6 +34,12 @@ public:
     void display(Platform&, App&) override;
 
 
+    static bool run_scripts()
+    {
+        return false;
+    }
+
+
 private:
     Microseconds cursor_move_tic_ = 0;
 

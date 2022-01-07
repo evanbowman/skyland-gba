@@ -36,6 +36,9 @@ public:
         }
 
 
+        virtual bool run_scripts() = 0;
+
+
         static Factory* get(int index)
         {
             auto current = factories_;
@@ -70,15 +73,21 @@ template <typename T> class Module : public detail::_Module {
 public:
     class Factory : public _Module::Factory {
     public:
-        virtual const char* name() override
+        const char* name() override
         {
             return T::module_name();
         }
 
 
-        virtual u16 icon() override
+        u16 icon() override
         {
             return T::icon();
+        }
+
+
+        bool run_scripts() override
+        {
+            return T::run_scripts();
         }
 
 

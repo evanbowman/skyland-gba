@@ -40,6 +40,11 @@ public:
                      FileSystem filesystem = FileSystem::sram);
 
 
+    static bool run_scripts()
+    {
+        return false;
+    }
+
 
     static const char* module_name()
     {

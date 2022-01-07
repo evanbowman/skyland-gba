@@ -85,7 +85,11 @@ ScenePtr<Scene> MissileSilo::select(Platform& pfrm, App& app)
         return null_scene();
     }
 
-    return scene_pool::alloc<WeaponSetTargetScene>(position());
+    if (parent() == &app.player_island()) {
+        return scene_pool::alloc<WeaponSetTargetScene>(position());
+    }
+
+    return null_scene();
 }
 
 

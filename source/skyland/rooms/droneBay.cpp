@@ -5,6 +5,7 @@
 #include "skyland/scene/constructDroneScene.hpp"
 #include "skyland/scene/placeDroneScene.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -72,6 +73,10 @@ void DroneBay::render_exterior(App& app, u8 buffer[16][16])
 ScenePtr<Scene> DroneBay::select(Platform& pfrm, App& app)
 {
     if (reload_ > 0) {
+        return null_scene();
+    }
+
+    if (parent() not_eq &app.player_island()) {
         return null_scene();
     }
 

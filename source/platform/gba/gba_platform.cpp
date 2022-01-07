@@ -21,10 +21,10 @@
 #include "platform/ram_filesystem.hpp"
 #include "rumble.h"
 #include "script/lisp.hpp"
-#include "skyland/sharedVariable.hpp"
 #include "string.hpp"
 #include "util.hpp"
 #include <algorithm>
+#include "vector.hpp"
 
 
 
@@ -202,8 +202,6 @@ int main(int argc, char** argv)
     gflags.clear();
 
     Platform pf;
-    ::platform = &pf;
-
     start(pf);
 }
 
@@ -2350,96 +2348,62 @@ void Platform::Logger::set_threshold(Severity severity)
 }
 
 
-static void mgba_log(const char* msg)
-{
-    *reinterpret_cast<uint16_t*>(0x4FFF780) = 0xC0DE;
+// static void mgba_log(const char* msg)
+// {
+//     *reinterpret_cast<uint16_t*>(0x4FFF780) = 0xC0DE;
 
-    int max_characters_per_line = 256;
-    auto reg_debug_string = reinterpret_cast<char*>(0x4FFF600);
-    int characters_left = str_len(msg);
+//     int max_characters_per_line = 256;
+//     auto reg_debug_string = reinterpret_cast<char*>(0x4FFF600);
+//     int characters_left = str_len(msg);
 
-    while (characters_left > 0) {
-        volatile u16& reg_debug_flags = *reinterpret_cast<u16*>(0x4FFF700);
+//     while (characters_left > 0) {
+//         volatile u16& reg_debug_flags = *reinterpret_cast<u16*>(0x4FFF700);
 
-        int characters_to_write =
-            std::min(characters_left, max_characters_per_line);
-        __builtin_memcpy(reg_debug_string, msg, characters_to_write);
-        reg_debug_flags = 2 | 0x100;
-        msg += characters_to_write;
-        characters_left -= characters_to_write;
-    }
-}
+//         int characters_to_write =
+//             std::min(characters_left, max_characters_per_line);
+//         __builtin_memcpy(reg_debug_string, msg, characters_to_write);
+//         reg_debug_flags = 2 | 0x100;
+//         msg += characters_to_write;
+//         characters_left -= characters_to_write;
+//     }
+// }
+
+
+std::optional<Vector<char>> log_data_;
 
 
 void Platform::Logger::log(Severity level, const char* msg)
 {
-    // // We don't want to wear out the flash chip! The code below still works on
-    // // flash though, if you just comment out the if statement below.
-    // if (get_gflag(GlobalFlag::save_using_flash)) {
-    //     return;
-    // }
-
-    std::array<char, 400> buffer;
-
-    buffer[1] = ':';
-
-    switch (level) {
-    case Severity::debug:
-        buffer[0] = 'd';
-        break;
-
-    case Severity::info:
-        buffer[0] = 'i';
-        break;
-
-    case Severity::warning:
-        buffer[0] = 'w';
-        break;
-
-    case Severity::error:
-        buffer[0] = 'E';
-        break;
-
-    case Severity::fatal:
-        buffer[0] = 'f';
-        break;
-
-    case Severity::count:
+    if (::platform == nullptr) {
         return;
     }
 
-    const auto msg_size = str_len(msg);
-
-    u32 i;
-    constexpr size_t prefix_size = 2;
-
-    for (i = 0;
-         i < std::min(size_t(msg_size), buffer.size() - (prefix_size + 1));
-         ++i) {
-        buffer[i + prefix_size] = msg[i];
+    if (not log_data_) {
+        log_data_.emplace(*::platform);
     }
-    buffer[i + prefix_size] = '\n';
-    buffer[i + prefix_size + 1] =
-        '\n'; // This char will be overwritten, meant to identify
-              // the end of the log, in the case where the log wraps
-              // around.
 
-    // I once used sram as a logfile.
-    // if (log_write_loc + prefix_size + msg_size + 2 >= 64000) {
-    //     // Out of loggin space! We could wrap around to the beginning...
-    //     // log_write_loc = initial_log_write_loc;
-    // } else {
-    //     if (get_gflag(GlobalFlag::save_using_flash)) {
-    //         flash_save(buffer.data(), log_write_loc, buffer.size());
-    //     } else {
-    //         sram_save(buffer.data(), log_write_loc, buffer.size());
-    //     }
-    // }
+    while (*msg not_eq '\0') {
+        log_data_->push_back(*msg);
+        ++msg;
+    }
 
-    // log_write_loc += msg_size + prefix_size + 1;
-
-    mgba_log(buffer.data());
+    log_data_->push_back('\n');
 }
+
+
+
+void Platform::Logger::flush()
+{
+    if (not log_data_) {
+        return;
+    }
+
+    log_data_->push_back('\0');
+    ram_filesystem::store_file_data(*::platform, "/log.txt", *log_data_);
+
+    log_data_.reset();
+}
+
 
 
 void Platform::Logger::read(void* buffer, u32 start_offset, u32 num_bytes)
@@ -2984,7 +2948,7 @@ static EWRAM_DATA
         scratch_buffer_pool;
 
 
-static skyland::SharedVariable scratch_buffers_in_use("scratch_buffers_in_use");
+static int scratch_buffers_in_use = 0;
 static int scratch_buffer_highwater = 0;
 
 
@@ -2992,22 +2956,22 @@ ScratchBufferPtr Platform::make_scratch_buffer()
 {
     auto finalizer =
         [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
-            scratch_buffers_in_use.set(scratch_buffers_in_use - 1);
+            --scratch_buffers_in_use;
             ctrl->pool_->post(ctrl);
         };
 
     auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(
         &scratch_buffer_pool, finalizer);
     if (maybe_buffer) {
-        scratch_buffers_in_use.set(scratch_buffers_in_use + 1);
+        ++scratch_buffers_in_use;
         if (scratch_buffers_in_use > scratch_buffer_highwater) {
             scratch_buffer_highwater = scratch_buffers_in_use;
 
-            StringBuffer<60> str = "sbr highwater: ";
+            // StringBuffer<60> str = "sbr highwater: ";
 
-            str += to_string<10>(scratch_buffer_highwater).c_str();
+            // str += to_string<10>(scratch_buffer_highwater).c_str();
 
-            info(*::platform, str.c_str());
+            // info(*::platform, str.c_str());
         }
         return *maybe_buffer;
     } else {
@@ -3158,6 +3122,8 @@ extern char __rom_end__;
 
 Platform::Platform()
 {
+    ::platform = this;
+
     // NOTE: these colors were a custom hack I threw in during the GBA game jam,
     // when I wanted background tiles to flicker between a few different colors.
     for (int i = 0; i < 16; ++i) {

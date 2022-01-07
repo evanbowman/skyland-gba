@@ -90,14 +90,27 @@ void App::init_scripts(Platform& pfrm)
 
     lisp::set_var("log", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 1);
-                      L_EXPECT_OP(0, string);
 
                       if (auto pfrm = lisp::interp_get_pfrm()) {
-                          debug(*pfrm, lisp::get_op(0)->string().value());
+                          if (lisp::get_op(0)->type() == lisp::Value::Type::string) {
+                              debug(*pfrm, lisp::get_op(0)->string().value());
+                          } else {
+                              lisp::DefaultPrinter p;
+                              format(lisp::get_op(0), p);
+                              debug(*pfrm, p.fmt_.c_str());
+                          }
                       }
 
                       return L_NIL;
                   }));
+
+
+    lisp::set_var("log-flush", lisp::make_function([](int argc) {
+        if (auto pfrm = lisp::interp_get_pfrm()) {
+            pfrm->logger().flush();
+        }
+        return L_NIL;
+    }));
 
 
 
