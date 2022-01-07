@@ -404,41 +404,79 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
     island_hitbox.dimension_.size_.x = terrain_.size() * 16;
     island_hitbox.dimension_.size_.y = 16 * 16;
 
-    if (island_hitbox.overlapping(entity.hitbox())) {
-        // Now, the Entity must be within the larger bounding box for the
-        // island. Lets scan through each of the island's rooms until we find a
-        // collision.
-        for (auto& room : rooms_) {
+    // Calculate the position of the entity in terms of the island's grid
+    // coordinates.
+    auto entity_pos = (entity.sprite().get_position() - this->origin()).cast<int>();
+    entity_pos.x /= 16;
+    entity_pos.y /= 16;
 
-            static const int tile_size = 16;
-
-            hitbox_pos = this->origin();
-            hitbox_pos.x += room->position().x * tile_size;
-            hitbox_pos.y += room->position().y * tile_size;
-
-            HitBox room_hitbox;
-            room_hitbox.position_ = &hitbox_pos;
-            room_hitbox.dimension_.size_.x = room->size().x * tile_size;
-            room_hitbox.dimension_.size_.y = room->size().y * tile_size;
-
-            if (room_hitbox.overlapping(entity.hitbox())) {
-                // TODO: deliver collisions to room and to entity.
-                // TODO: actually test this code to see if it even works.
-                entity.on_collision(pfrm, app, *room);
-                room->on_collision(pfrm, app, entity);
-                return;
+    for (int x = entity_pos.x - 1; x < entity_pos.x + 2; ++x) {
+        for (int y = entity_pos.y - 1; y < entity_pos.y + 2; ++y) {
+            if (x < 0 or y < 0 or x > 15 or y > 15) {
+                continue;
             }
-        }
 
-        for (auto& drone_wp : drones_) {
-            if (auto drone_sp = drone_wp.promote()) {
-                if (entity.hitbox().overlapping((*drone_sp)->hitbox())) {
-                    entity.on_collision(pfrm, app, **drone_sp);
-                    (*drone_sp)->on_collision(pfrm, app, entity);
+            if (rooms_plot_.get(x, y)) {
+                if (auto room = get_room({(u8)x, (u8)y})) {
+                    static const int tile_size = 16;
+
+                    hitbox_pos = this->origin();
+                    hitbox_pos.x += room->position().x * tile_size;
+                    hitbox_pos.y += room->position().y * tile_size;
+
+                    HitBox room_hitbox;
+                    room_hitbox.position_ = &hitbox_pos;
+                    room_hitbox.dimension_.size_.x = room->size().x * tile_size;
+                    room_hitbox.dimension_.size_.y = room->size().y * tile_size;
+
+                    if (room_hitbox.overlapping(entity.hitbox())) {
+                        // TODO: deliver collisions to room and to entity.
+                        // TODO: actually test this code to see if it even works.
+                        entity.on_collision(pfrm, app, *room);
+                        room->on_collision(pfrm, app, entity);
+                        return;
+                    }
                 }
             }
         }
     }
+
+
+    // if (island_hitbox.overlapping(entity.hitbox())) {
+    //     // Now, the Entity must be within the larger bounding box for the
+    //     // island. Lets scan through each of the island's rooms until we find a
+    //     // collision.
+    //     for (auto& room : rooms_) {
+
+    //         static const int tile_size = 16;
+
+    //         hitbox_pos = this->origin();
+    //         hitbox_pos.x += room->position().x * tile_size;
+    //         hitbox_pos.y += room->position().y * tile_size;
+
+    //         HitBox room_hitbox;
+    //         room_hitbox.position_ = &hitbox_pos;
+    //         room_hitbox.dimension_.size_.x = room->size().x * tile_size;
+    //         room_hitbox.dimension_.size_.y = room->size().y * tile_size;
+
+    //         if (room_hitbox.overlapping(entity.hitbox())) {
+    //             // TODO: deliver collisions to room and to entity.
+    //             // TODO: actually test this code to see if it even works.
+    //             entity.on_collision(pfrm, app, *room);
+    //             room->on_collision(pfrm, app, entity);
+    //             return;
+    //         }
+    //     }
+
+    //     for (auto& drone_wp : drones_) {
+    //         if (auto drone_sp = drone_wp.promote()) {
+    //             if (entity.hitbox().overlapping((*drone_sp)->hitbox())) {
+    //                 entity.on_collision(pfrm, app, **drone_sp);
+    //                 (*drone_sp)->on_collision(pfrm, app, entity);
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 
@@ -645,8 +683,13 @@ void Island::repaint(Platform& pfrm, App& app)
 
     std::optional<Vec2<u8>> flag_loc;
 
+    rooms_plot_.clear();
+
     for (u8 x = 0; x < 16; ++x) {
         for (int y = 15; y > -1; --y) {
+
+            rooms_plot_.set(x, y, matrix[x][y]);
+
             if (matrix[x][y] == 0 and y < 15 and matrix[x][y + 1] == 1) {
                 buffer[x][y] = Tile::roof_plain;
                 bool placed_chimney_this_tile = false;

@@ -270,6 +270,10 @@ private:
     bool destroyed_ = false;
     bool all_characters_awaiting_movement_ = false;
 
+    // During repaint(), the game caches the results of plot_rooms() in this
+    // matrix of bitflags. We use the result to speed up collision checking.
+    Bitmatrix<16, 16> rooms_plot_;
+
     std::optional<Vec2<u8>> flag_pos_;
     Microseconds flag_anim_timer_ = 0;
     int flag_anim_index_ = Tile::flag_start;
