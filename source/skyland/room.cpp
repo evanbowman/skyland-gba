@@ -313,7 +313,7 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
             parent_->add_character(std::move(chr));
         }
 
-        parent_->rooms().push_back(std::move(*self));
+        parent_->add_room(pfrm, app, std::move(*self));
     }
 }
 
