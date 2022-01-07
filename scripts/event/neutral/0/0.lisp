@@ -6,22 +6,22 @@
 (dialog "In the distance, you see an island inhabited by a lone castaway...")
 
 
-(init-opponent 5 'neutral)
+(opponent-init 5 'neutral)
 
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 3 13)))
 
 
-(add-chr (opponent) 1 14 'neutral 0)
+(chr-add (opponent) 1 14 'neutral 0)
 
 
 (setq after-converge-hook
       (lambda
         (dialog "Invite castaway aboard?")
 
-        (await-dialog-y/n)
+        (dialog-await-y/n)
         (setq after-converge-hook nil)))
 
 
@@ -33,8 +33,8 @@
         (if temp
             (progn
               (setq temp (get temp (choice (length temp))))
-              (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-              (rem-chr (opponent) 1 14)
+              (chr-add (player) (car temp) (cdr temp) 'neutral 0)
+              (chr-rem (opponent) 1 14)
               (setq temp '())
               (dialog "The castaway joined your crew!"))
           (dialog "Sadly, there's no room..."))

@@ -11,8 +11,7 @@ static SharedVariable* __shared_variables = nullptr;
 
 
 
-SharedVariable::SharedVariable(const char* name)
-    : name_(name), value_(0)
+SharedVariable::SharedVariable(const char* name) : name_(name), value_(0)
 {
     next_ = __shared_variables;
     __shared_variables = this;
@@ -61,4 +60,4 @@ SharedVariable::~SharedVariable()
 
 
 
-}
+} // namespace skyland

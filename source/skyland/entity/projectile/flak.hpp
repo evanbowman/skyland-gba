@@ -2,8 +2,8 @@
 
 
 #include "projectile.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/skyland.hpp"
 
 
 

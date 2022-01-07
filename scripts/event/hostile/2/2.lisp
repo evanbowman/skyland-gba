@@ -8,11 +8,11 @@
 ;; give unprepared players some serious trouble.
 
 
-(init-opponent 8 'hostile)
+(opponent-init 8 'hostile)
 
 
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 4 13)
    (power-core 4 11)
@@ -44,7 +44,7 @@
 
 (map
  (lambda
-   (add-chr (opponent) (car $0) (cdr $0) 'hostile 0))
+   (chr-add (opponent) (car $0) (cdr $0) 'hostile 0))
  '((4 . 14)
    (5 . 14)
    (4 . 12)

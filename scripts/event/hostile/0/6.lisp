@@ -3,13 +3,13 @@
 ;;;
 
 
-(init-opponent 3 'hostile)
+(opponent-init 3 'hostile)
 
 
 (show-flag (opponent))
 
 
-(configure-player
+(island-configure
  (opponent)
  '((missile-silo 0 13)
    (power-core 1 13)))

@@ -3,28 +3,28 @@
 ;;;
 
 (terrain (player) 6)
-(configure-player
+(island-configure
  (player)
  '((power-core 1 13)
    (replicator 3 11)
    (stairwell 5 11)))
 
 
-(add-chr (player) 1 14 'neutral 0)
+(chr-add (player) 1 14 'neutral 0)
 
 
 
-(add-coins 20000)
+(coins-add 20000)
 
 
-(init-opponent 4 'hostile)
+(opponent-init 4 'hostile)
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 1 13)
    (stairwell 3 11)))
 
-(add-chr (opponent) 1 14 'hostile 0)
+(chr-add (opponent) 1 14 'hostile 0)
 
 
 (autopilot

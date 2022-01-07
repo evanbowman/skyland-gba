@@ -11,7 +11,7 @@
 (eval-other-file "/scripts/event/hostile/3/0.lisp")
 
 
-(swap-opponent 'neutral)
+(opponent-mode 'neutral)
 
 
 
@@ -23,7 +23,7 @@
          (string temp)
          "@ and make crude gestures. Will you pay?")
 
-        (await-dialog-y/n)
+        (dialog-await-y/n)
         (setq after-converge-hook nil)))
 
 
@@ -31,17 +31,17 @@
       (lambda
         (if (> 500 (coins))
             (progn
-              (swap-opponent 'hostile)
+              (opponent-mode 'hostile)
               (dialog "You cannot afford to pay. Prepare for heavy damage..."))
           (progn
-            (add-coins (- 0 temp))
+            (coins-add (- temp))
             (dialog "The pirates accept your bribe and move on.")
             (exit-level)))))
 
 
 (setq after-dialog-declined-hook
       (lambda
-        (swap-opponent 'hostile)
+        (opponent-mode 'hostile)
         (dialog "Prepare for attack!")))
 
 

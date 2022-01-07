@@ -7,10 +7,10 @@
 
 
 
-(init-opponent 5 'hostile)
+(opponent-init 5 'hostile)
 
 
-(configure-player
+(island-configure
  (opponent)
  '((hull 0 14)
    (power-core 1 13)
@@ -22,7 +22,7 @@
       (lambda
         (dialog "The fortress appears to be empty, but you cannot be certain. Attempt to board?")
         (setq after-converge-hook '())
-        (await-dialog-y/n)))
+        (dialog-await-y/n)))
 
 
 (setq after-dialog-accepted-hook
@@ -31,10 +31,10 @@
             (progn
               (setq temp (+ 600 (choice 300)))
               (dialog "You explore, and salvage " (string temp) "@ from the ruins.")
-              (add-coins temp)
+              (coins-add temp)
               (exit-level))
           (progn
-            (configure-player
+            (island-configure
              (opponent)
              '((hull 0 14)
                (cannon 0 13)

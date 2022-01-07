@@ -6,9 +6,9 @@
 (dialog "A heavily armed fortress approaches. Its captain demands to speak with you.")
 
 
-(init-opponent 5 'neutral)
+(opponent-init 5 'neutral)
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 3 13)
    (cannon 0 14)
@@ -29,7 +29,7 @@
       (lambda
         (dialog "The warship requests a tribute of 300@. Will you pay?")
 
-        (await-dialog-y/n)
+        (dialog-await-y/n)
         (setq after-converge-hook nil)))
 
 
@@ -38,9 +38,9 @@
         (if (< (coins) 300)
             (progn
               (dialog "You do not have enough resources to pay! The fortress begins charging its weapons...")
-              (swap-opponent 'hostile))
+              (opponent-mode 'hostile))
           (progn
-            (add-coins (- 0 300))
+            (coins-add -300)
             (dialog "The fortress' captain peers smugly from behind her spectacles. "
                     "She's glad that you understand the nature of the situation.")
             (exit-level)))))
@@ -48,7 +48,7 @@
 
 (setq after-dialog-declined-hook
       (lambda
-        (swap-opponent 'hostile)
+        (opponent-mode 'hostile)
         (dialog "The fortress begins charging its weapons...")))
 
 

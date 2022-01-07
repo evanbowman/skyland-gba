@@ -97,7 +97,6 @@ public:
 
 
 private:
-
     Microseconds reload_ = 1000 * cannon_reload_ms;
 
     std::optional<Vec2<u8>> target_;

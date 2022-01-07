@@ -13,16 +13,16 @@
 (setq friendlies-seen '())
 
 
-(add-coins 2500)
+(coins-add 2500)
 
 
 (terrain (player) 4)
 
 ;; Initial setup for player's island
-(configure-player
+(island-configure
  (player)
  '((power-core 1 13)))
 
 
 
-(add-chr (player) 2 14 'neutral 0)
+(chr-add (player) 2 14 'neutral 0)

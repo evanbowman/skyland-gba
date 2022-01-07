@@ -14,11 +14,11 @@
           (progn
             (terrain (player) (load 'terrain))
 
-            (configure-player (player) (load 'rooms))
+            (island-configure (player) (load 'rooms))
 
             (map
              (lambda
-               (add-chr (player)
+               (chr-add (player)
                         (get $0 0) ;; x
                         (get $0 1) ;; y
                         'neutral

@@ -6,23 +6,23 @@
 (dialog "A distress signal sounds over your radio. You change course to investigate...")
 
 
-(init-opponent 5 'neutral)
+(opponent-init 5 'neutral)
 
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 3 13)
    (hull 0 14)))
 
 
-(add-chr (opponent) 1 14 'neutral 0)
-(add-chr (opponent) 2 14 'neutral 0)
+(chr-add (opponent) 1 14 'neutral 0)
+(chr-add (opponent) 2 14 'neutral 0)
 
 
 (setq after-converge-hook
       (lambda
         (dialog "You discover a damaged fortress. Spend 800@ in resources to rescue the survivors?")
-        (await-dialog-y/n)
+        (dialog-await-y/n)
         (setq after-converge-hook nil)))
 
 
@@ -32,17 +32,17 @@
 
         (if temp
             (progn
-              (add-coins (- 0 800))
+              (coins-add -800)
               (setq temp (get temp (choice (length temp))))
-              (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-              (rem-chr (opponent) 1 14)
+              (chr-add (player) (car temp) (cdr temp) 'neutral 0)
+              (chr-rem (opponent) 1 14)
 
               (setq temp (chr-slots (player)))
               (if temp
                   (progn
                     (setq temp (get temp (choice (length temp))))
-                    (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-                    (rem-chr (opponent) 2 14)
+                    (chr-add (player) (car temp) (cdr temp) 'neutral 0)
+                    (chr-rem (opponent) 2 14)
                     (dialog "Two survivors joined your crew!"))
                 (dialog "You rescue one of the survivors. The other survivor decides "
                         "that your castle is too crowded and declines to come aboard.")))

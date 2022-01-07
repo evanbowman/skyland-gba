@@ -5,22 +5,22 @@
 
 
 (terrain (player) 6)
-(configure-player
+(island-configure
  (player)
  '((power-core 1 13)
    (workshop 1 11)))
 
 
-(add-chr (player) 1 14 'neutral 0)
+(chr-add (player) 1 14 'neutral 0)
 
 
 
-(add-coins 20000)
+(coins-add 20000)
 
 
-(init-opponent 7 'hostile)
+(opponent-init 7 'hostile)
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 2 13)
    (hull 0 14)
@@ -35,7 +35,7 @@
    (hull 2 11)
    (forcefield 3 12)))
 
-(add-chr (opponent) 3 14 'hostile 0)
+(chr-add (opponent) 3 14 'hostile 0)
 
 
 (autopilot

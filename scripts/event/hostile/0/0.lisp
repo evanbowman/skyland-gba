@@ -3,7 +3,7 @@
 ;;;
 
 
-(init-opponent 3 'hostile)
+(opponent-init 3 'hostile)
 
 
 (dialog
@@ -14,7 +14,7 @@
 (show-flag (opponent))
 
 
-(configure-player
+(island-configure
  (opponent)
  (if (choice 2)
      '((cannon 0 13)

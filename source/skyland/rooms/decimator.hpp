@@ -88,7 +88,6 @@ public:
 
 
 private:
-
     int counter_ = 0;
 
 

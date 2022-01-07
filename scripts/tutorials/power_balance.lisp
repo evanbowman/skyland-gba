@@ -4,7 +4,7 @@
 
 
 (terrain (player) 6)
-(configure-player
+(island-configure
  (player)
  '((power-core 1 13)
    (power-core 3 13)
@@ -17,12 +17,12 @@
    (hull 2 12)))
 
 
-(add-chr (player) 1 14 'neutral 0)
+(chr-add (player) 1 14 'neutral 0)
 
 
-(init-opponent 6 'hostile)
+(opponent-init 6 'hostile)
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 2 13)
    (missile-silo 4 13)

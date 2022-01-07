@@ -3,17 +3,17 @@
 ;;;
 
 
-(add-coins 2300)
+(coins-add 2300)
 
 (terrain (player) 4)
-(configure-player
+(island-configure
  (player)
  '((power-core 1 13)))
 
 
-(init-opponent 4 'hostile)
+(opponent-init 4 'hostile)
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 1 13)
    (missile-silo 0 13)))

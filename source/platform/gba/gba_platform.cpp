@@ -21,6 +21,7 @@
 #include "platform/ram_filesystem.hpp"
 #include "rumble.h"
 #include "script/lisp.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "string.hpp"
 #include "util.hpp"
 #include <algorithm>
@@ -2983,7 +2984,7 @@ static EWRAM_DATA
         scratch_buffer_pool;
 
 
-static int scratch_buffers_in_use = 0;
+static skyland::SharedVariable scratch_buffers_in_use("scratch_buffers_in_use");
 static int scratch_buffer_highwater = 0;
 
 
@@ -2991,14 +2992,14 @@ ScratchBufferPtr Platform::make_scratch_buffer()
 {
     auto finalizer =
         [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
-            --scratch_buffers_in_use;
+            scratch_buffers_in_use.set(scratch_buffers_in_use - 1);
             ctrl->pool_->post(ctrl);
         };
 
     auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(
         &scratch_buffer_pool, finalizer);
     if (maybe_buffer) {
-        ++scratch_buffers_in_use;
+        scratch_buffers_in_use.set(scratch_buffers_in_use + 1);
         if (scratch_buffers_in_use > scratch_buffer_highwater) {
             scratch_buffer_highwater = scratch_buffers_in_use;
 

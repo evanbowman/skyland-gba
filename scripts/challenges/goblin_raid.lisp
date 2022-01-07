@@ -4,12 +4,12 @@
 
 
 
-(add-coins (- 0 1000000))
-(add-coins 8500)
+(coins-add -1000000)
+(coins-add 8500)
 
 
 (terrain (player) 8)
-(configure-player
+(island-configure
  (player)
  '((stairwell 0 11)
    (power-core 1 13)
@@ -18,15 +18,15 @@
    (radar 5 13)))
 
 
-(add-chr (player) 2 14 'neutral 0)
+(chr-add (player) 2 14 'neutral 0)
 
 
 
-(init-opponent 11 'hostile)
+(opponent-init 11 'hostile)
 
 
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 3 13)
    (stairwell 5 11)
@@ -84,7 +84,7 @@
 
 (map
  (lambda
-   (add-chr (opponent) (car $0) (cdr $0) 'hostile 0))
+   (chr-add (opponent) (car $0) (cdr $0) 'hostile 0))
  '((3 . 14)
    (4 . 14)
    (5 . 14)

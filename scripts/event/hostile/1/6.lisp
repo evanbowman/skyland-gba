@@ -3,10 +3,10 @@
 ;;;
 
 
-(init-opponent 7 'hostile)
+(opponent-init 7 'hostile)
 
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 3 13)
    (drone-bay 1 14)

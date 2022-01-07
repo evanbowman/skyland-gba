@@ -4,10 +4,10 @@
 
 
 
-(init-opponent 7 'hostile)
+(opponent-init 7 'hostile)
 
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 2 13)
    (power-core 5 13)
@@ -29,6 +29,6 @@
 
 (show-flag (opponent))
 
-(add-chr (opponent) 2 14 'hostile 0)
-(add-chr (opponent) 3 14 'hostile 0)
-(add-chr (opponent) 5 14 'hostile 0)
+(chr-add (opponent) 2 14 'hostile 0)
+(chr-add (opponent) 3 14 'hostile 0)
+(chr-add (opponent) 5 14 'hostile 0)

@@ -22,12 +22,11 @@
                                      (lambda (equal temp $0))
                                      friendlies-seen))))
                      (gen
-                      (get '(4 4 2 1) (zone)) ;; number of levels to select from
+                      (get '(4 4 3 1) (zone)) ;; number of levels to select from
                       ;; based on current zone
                       (lambda $0)))))
   (if (equal (length avail-levels) 1)
       (setq friendlies-seen '()))
-
 
   (let ((lv-num (get avail-levels (choice (length avail-levels)))))
     (setq friendlies-seen (cons lv-num friendlies-seen))

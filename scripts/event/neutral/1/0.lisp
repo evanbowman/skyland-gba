@@ -6,10 +6,10 @@
 (dialog "You discover a fortress inhabited by some mercenaries...")
 
 
-(init-opponent 8 'neutral)
+(opponent-init 8 'neutral)
 
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 3 13)
    (missile-silo 5 13)
@@ -17,8 +17,8 @@
    (missile-silo 7 13)))
 
 
-(add-chr (opponent) 1 14 'neutral 0)
-(add-chr (opponent) 2 14 'neutral 0)
+(chr-add (opponent) 1 14 'neutral 0)
+(chr-add (opponent) 2 14 'neutral 0)
 
 
 (setq after-converge-hook
@@ -27,7 +27,7 @@
                 (string (* 400 (zone)))
                 "@. Accept offer?")
 
-        (await-dialog-y/n)
+        (dialog-await-y/n)
         (setq after-converge-hook nil)))
 
 
@@ -40,10 +40,10 @@
             (dialog "You cannot afford to pay. The mercenaries become frustrated, and cut the transmission.")
           (if temp
               (progn
-                (add-coins (- 0 (* 400 (zone))))
+                (coins-add (* -400 (zone)))
                 (setq temp (get temp (choice (length temp))))
-                (add-chr (player) (car temp) (cdr temp) 'neutral 0)
-                (rem-chr (opponent) 1 14)
+                (chr-add (player) (car temp) (cdr temp) 'neutral 0)
+                (chr-rem (opponent) 1 14)
                 (setq temp (nil))
                 (dialog "The mercenary joined your crew!"))
             (dialog "Sadly, there's no room...")))

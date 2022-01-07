@@ -2555,11 +2555,16 @@ void init(Platform& pfrm)
             }));
 
     set_var("-", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                L_EXPECT_OP(1, integer);
-                L_EXPECT_OP(0, integer);
-                return make_integer(get_op1()->integer().value_ -
-                                    get_op0()->integer().value_);
+                if (argc == 1) {
+                    L_EXPECT_OP(0, integer);
+                    return make_integer(-get_op0()->integer().value_);
+                } else {
+                    L_EXPECT_ARGC(argc, 2);
+                    L_EXPECT_OP(1, integer);
+                    L_EXPECT_OP(0, integer);
+                    return make_integer(get_op1()->integer().value_ -
+                                        get_op0()->integer().value_);
+                }
             }));
 
     set_var("*", make_function([](int argc) {

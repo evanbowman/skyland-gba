@@ -7,10 +7,10 @@
 
 
 
-(init-opponent 5 'neutral)
+(opponent-init 5 'neutral)
 
 
-(configure-player
+(island-configure
  (opponent)
  '((hull 0 14)
    (power-core 1 13)
@@ -27,6 +27,6 @@
         (dialog
          "You explore, and discover " (string temp) "@ amongst the ruins!")
 
-        (add-coins temp)
+        (coins-add temp)
 
         (exit-level)))

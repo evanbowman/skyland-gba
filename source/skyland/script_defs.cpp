@@ -10,8 +10,8 @@
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
 #include "serial.hpp"
-#include "skyland.hpp"
 #include "sharedVariable.hpp"
+#include "skyland.hpp"
 
 
 
@@ -88,7 +88,7 @@ void App::init_scripts(Platform& pfrm)
     __app = this;
 
 
-    lisp::set_var("print", lisp::make_function([](int argc) {
+    lisp::set_var("log", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, string);
 
@@ -118,7 +118,7 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
-    lisp::set_var("await-dialog-y/n", lisp::make_function([](int argc) {
+    lisp::set_var("dialog-await-y/n", lisp::make_function([](int argc) {
                       auto app = interp_get_app();
                       app->dialog_expects_answer_ = true;
                       return L_NIL;
@@ -238,7 +238,7 @@ void App::init_scripts(Platform& pfrm)
         }));
 
 
-    lisp::set_var("swap-opponent", lisp::make_function([](int argc) {
+    lisp::set_var("opponent-mode", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, symbol);
 
@@ -261,7 +261,7 @@ void App::init_scripts(Platform& pfrm)
 
 
     lisp::set_var(
-        "init-opponent", lisp::make_function([](int argc) {
+        "opponent-init", lisp::make_function([](int argc) {
             L_EXPECT_ARGC(argc, 2);
             L_EXPECT_OP(1, integer);
             L_EXPECT_OP(0, symbol);
@@ -309,7 +309,7 @@ void App::init_scripts(Platform& pfrm)
 
 
     lisp::set_var(
-        "add-room", lisp::make_function([](int argc) {
+        "room-add", lisp::make_function([](int argc) {
             L_EXPECT_ARGC(argc, 2);
             L_EXPECT_OP(0, cons);
             L_EXPECT_OP(1, user_data);
@@ -331,7 +331,7 @@ void App::init_scripts(Platform& pfrm)
         }));
 
 
-    lisp::set_var("rem-chr", lisp::make_function([](int argc) {
+    lisp::set_var("chr-rem", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 3);
                       L_EXPECT_OP(0, integer); // y
                       L_EXPECT_OP(1, integer); // x
@@ -376,7 +376,7 @@ void App::init_scripts(Platform& pfrm)
 
 
     lisp::set_var(
-        "add-chr", lisp::make_function([](int argc) {
+        "chr-add", lisp::make_function([](int argc) {
             L_EXPECT_ARGC(argc, 5);
             L_EXPECT_OP(0, integer);
             L_EXPECT_OP(1, symbol);
@@ -418,7 +418,7 @@ void App::init_scripts(Platform& pfrm)
         }));
 
 
-    lisp::set_var("configure-player", lisp::make_function([](int argc) {
+    lisp::set_var("island-configure", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 2);
                       L_EXPECT_OP(0, cons);
                       L_EXPECT_OP(1, user_data);
@@ -460,7 +460,7 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
-    lisp::set_var("add-coins", lisp::make_function([](int argc) {
+    lisp::set_var("coins-add", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 1);
                       L_EXPECT_OP(0, integer);
 
@@ -569,38 +569,42 @@ void App::init_scripts(Platform& pfrm)
         }));
 
 
-    lisp::set_var("getvar", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, string);
+    lisp::set_var(
+        "getvar", lisp::make_function([](int argc) {
+            L_EXPECT_ARGC(argc, 1);
+            L_EXPECT_OP(0, string);
 
-        if (auto v = SharedVariable::load(lisp::get_op(0)->string().value())) {
-            return lisp::make_integer(v->get());
-        }
+            if (auto v =
+                    SharedVariable::load(lisp::get_op(0)->string().value())) {
+                return lisp::make_integer(v->get());
+            }
 
-        StringBuffer<96> error("access to invalid shared variable '");
-        error += lisp::get_op(0)->string().value();
-        error += "'";
+            StringBuffer<96> error("access to invalid shared variable '");
+            error += lisp::get_op(0)->string().value();
+            error += "'";
 
-        Platform::fatal(error.c_str());
-    }));
+            Platform::fatal(error.c_str());
+        }));
 
 
-    lisp::set_var("setvar", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(1, string);
-        L_EXPECT_OP(0, integer);
+    lisp::set_var(
+        "setvar", lisp::make_function([](int argc) {
+            L_EXPECT_ARGC(argc, 2);
+            L_EXPECT_OP(1, string);
+            L_EXPECT_OP(0, integer);
 
-        if (auto v = SharedVariable::load(lisp::get_op(1)->string().value())) {
-            v->set(lisp::get_op(0)->integer().value_);
-            return L_NIL;
-        }
+            if (auto v =
+                    SharedVariable::load(lisp::get_op(1)->string().value())) {
+                v->set(lisp::get_op(0)->integer().value_);
+                return L_NIL;
+            }
 
-        StringBuffer<96> error("access to invalid shared variable '");
-        error += lisp::get_op(1)->string().value();
-        error += "'";
+            StringBuffer<96> error("access to invalid shared variable '");
+            error += lisp::get_op(1)->string().value();
+            error += "'";
 
-        Platform::fatal(error.c_str());
-    }));
+            Platform::fatal(error.c_str());
+        }));
 
 
     // NOTE: we need to disable custom scripts during startup, otherwise,

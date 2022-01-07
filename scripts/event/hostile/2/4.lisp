@@ -6,10 +6,10 @@
 ;; This one's pretty tough...
 
 
-(init-opponent 10 'hostile)
+(opponent-init 10 'hostile)
 
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 2 13)
    (power-core 4 13)
@@ -47,8 +47,8 @@
 (show-flag (opponent))
 
 
-(add-chr (opponent) 2 14 'hostile 0)
-(add-chr (opponent) 3 14 'hostile 0)
-(add-chr (opponent) 4 14 'hostile 0)
-(add-chr (opponent) 5 14 'hostile 0)
-(add-chr (opponent) 6 14 'hostile 0)
+(chr-add (opponent) 2 14 'hostile 0)
+(chr-add (opponent) 3 14 'hostile 0)
+(chr-add (opponent) 4 14 'hostile 0)
+(chr-add (opponent) 5 14 'hostile 0)
+(chr-add (opponent) 6 14 'hostile 0)

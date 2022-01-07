@@ -103,7 +103,6 @@ public:
 
 
 private:
-
     Microseconds reload_ = 1000 * ion_cannon_reload_ms;
 
     std::optional<Vec2<u8>> target_;

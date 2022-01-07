@@ -4,10 +4,10 @@
 
 
 
-(init-opponent 7 'hostile)
+(opponent-init 7 'hostile)
 
 
-(configure-player
+(island-configure
  (opponent)
  '((flak-gun 1 14)
    (flak-gun 1 13)
@@ -28,4 +28,4 @@
 (show-flag (opponent))
 
 
-(add-chr (opponent) 3 14 'hostile 0)
+(chr-add (opponent) 3 14 'hostile 0)

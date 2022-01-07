@@ -113,7 +113,6 @@ public:
 
 
 private:
-
     std::optional<SharedEntityRef<Drone>> drone_;
 
 

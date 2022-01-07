@@ -3,28 +3,28 @@
 ;;;
 
 
-(add-coins (- 0 1000000))
-(add-coins 6000)
+(coins-add -1000000)
+(coins-add 6000)
 
 
 (terrain (player) 8)
-(configure-player
+(island-configure
  (player)
  '((power-core 1 13)
    (workshop 1 11)))
 
 
-(add-chr (player) 1 14 'neutral 0)
-(add-chr (player) 2 14 'neutral 0)
-(add-chr (player) 1 12 'neutral 0)
-(add-chr (player) 2 12 'neutral 0)
+(chr-add (player) 1 14 'neutral 0)
+(chr-add (player) 2 14 'neutral 0)
+(chr-add (player) 1 12 'neutral 0)
+(chr-add (player) 2 12 'neutral 0)
 
 
 
-(init-opponent 9 'hostile)
+(opponent-init 9 'hostile)
 
 
-(configure-player
+(island-configure
  (opponent)
  '((power-core 3 10)
    (hull 3 12)
@@ -59,4 +59,4 @@
    (hull 8 12)))
 
 
-(add-chr (opponent) 3 14 'hostile 0)
+(chr-add (opponent) 3 14 'hostile 0)

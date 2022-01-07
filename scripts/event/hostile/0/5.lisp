@@ -3,13 +3,13 @@
 ;;;
 
 
-(init-opponent 3 'hostile)
+(opponent-init 3 'hostile)
 
 
 (show-flag (opponent))
 
 
-(configure-player
+(island-configure
  (opponent)
  '((cannon 0 12)
    (hull 0 11)
