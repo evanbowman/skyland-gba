@@ -22,20 +22,24 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (targets_.empty()) {
-        if ((*drone_sp)->parent() == &app.player_island()) {
+    auto exit_scene = [&]() -> ScenePtr<Scene> {
+        if ((*drone_sp)->destination() == &app.player_island()) {
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_ =
+                (*drone_sp)->position();
             return scene_pool::alloc<ReadyScene>();
         } else {
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ =
+                (*drone_sp)->position();
             return scene_pool::alloc<InspectP2Scene>();
         }
+    };
+
+    if (targets_.empty()) {
+        return exit_scene();
     }
 
     if (app.player().key_down(pfrm, Key::action_2)) {
-        if ((*drone_sp)->destination() == &app.player_island()) {
-            return scene_pool::alloc<ReadyScene>();
-        } else {
-            return scene_pool::alloc<InspectP2Scene>();
-        }
+        return exit_scene();
     }
 
     if (app.player().key_down(pfrm, Key::action_1)) {
@@ -50,11 +54,8 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         network::transmit(pfrm, packet);
 
         (*drone_sp)->set_target(cursor_loc_, near_);
-        if ((*drone_sp)->parent() == &app.player_island()) {
-            return scene_pool::alloc<ReadyScene>();
-        } else {
-            return scene_pool::alloc<InspectP2Scene>();
-        }
+
+        return exit_scene();
     }
 
     if (app.player().key_down(pfrm, Key::right)) {
