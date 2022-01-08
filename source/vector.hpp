@@ -7,12 +7,25 @@
 
 // A Vector implementation backed by ScratchBuffers.
 
-// Our program allocates memory only as reference-counted 2k buffers. We have a
-// realtime program that runs on an embedded system with limited ram, and we
-// want to avoid malloc. Here, we provide an implementation of a Dynamic Array
-// compatible with our atypical memory allocators. No, this cannot be
-// implemented instead as an allocator for std::vector.
-
+// For many types of data, SKYLAND allocates objects from pools. Consequently,
+// we rarely have a reason to perform large-sized allocations. For general
+// purpose allocations, our program allocates memory only as reference-counted
+// 2k scratch buffers. We have a realtime program that runs on an embedded
+// system with limited ram, and we want to avoid malloc. Here, we provide an
+// implementation of a Dynamic Array compatible with our atypical memory
+// allocators. No, this cannot be implemented instead as an allocator for
+// std::vector, because we are unable to allocate large contiguous blocks of
+// memory.
+//
+// Vector<> maintains a list of scratch buffers, each containing an array of
+// elements. The class performs caching to make pushes to the end more
+// efficient.
+//
+// I originally implemented Vector when I needed a datastructure capable of
+// holding a lot of bytes for storing script data while implementing a text
+// editor.
+//
+// Other features, such as logging, also leverage the Vector class.
 
 
 template <typename T> class Vector {
