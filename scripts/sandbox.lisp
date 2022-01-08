@@ -6,6 +6,16 @@
 (eval-file "/scripts/reset_hooks.lisp")
 
 
+(if (not (bound 'sandbox-msg))
+    (progn
+      (task
+       1000
+       (lambda
+         (dialog "Welcome to the SKYLAND Battle Sandbox! Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own! You may also reposition your opponent's characters!")))
+      (setq sandbox-msg 1)))
+
+
+
 (coins-add 10000000)
 
 

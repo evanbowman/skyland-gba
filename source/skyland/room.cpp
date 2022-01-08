@@ -195,10 +195,13 @@ ScenePtr<Scene> Room::select(Platform& pfrm, App& app)
             }
 
             for (auto& character : characters_) {
-                if (character->grid_position() == cursor_loc and
-                    character->owner() == &app.player()) {
+                if (character->grid_position() == cursor_loc) {
 
-                    return scene_pool::alloc<MoveCharacterScene>(pfrm, near);
+                    if (character->owner() == &app.player() or
+                        (character->owner() == &app.opponent() and
+                         app.game_mode() == App::GameMode::sandbox)) {
+                        return scene_pool::alloc<MoveCharacterScene>(pfrm, near);
+                    }
                 }
             }
         }

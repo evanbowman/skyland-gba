@@ -204,8 +204,20 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                 for (auto it = room->characters().begin();
                      it not_eq room->characters().end();
                      ++it) {
+                    // Either the player owns the character, or the character
+                    // belongs to the AI and we're in sandbox mode and the
+                    // player has no characters in the same room.
                     if ((*it)->grid_position() == initial_cursor_ and
-                        (*it)->owner() == &app.player()) {
+                        ((*it)->owner() == &app.player() or
+                         (app.game_mode() == App::GameMode::sandbox
+                          and [&] {
+                              for (auto& chr : room->characters()) {
+                                  if (chr->owner() == &app.player()) {
+                                      return false;
+                                  }
+                              }
+                              return true;
+                          }()))) {
 
                         return it->get();
                     }
