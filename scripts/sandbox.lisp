@@ -11,8 +11,13 @@
       (task
        1000
        (lambda
-         (dialog "Welcome to the SKYLAND Battle Sandbox! Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own! You may also reposition your opponent's characters!")))
-      (setq sandbox-msg 1)))
+         (setq sandbox-msg 1)
+         (dialog "Welcome to the Battle Sandbox! Want any help?")
+         (dialog-await-y/n)
+         (setq after-dialog-accepted-hook
+               (lambda
+                 (dialog "Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own! You may also reposition your opponent's characters! You're free to do whatever you want here, try out strategies, or just play around!")))
+         (setq after-dialog-declined-hook (lambda '()))))))
 
 
 
