@@ -10,6 +10,7 @@
 #include "room.hpp"
 #include "roomPool.hpp"
 #include "skyland/tile.hpp"
+#include "roomTable.hpp"
 
 
 
@@ -22,12 +23,12 @@ public:
     Island(const Island&) = delete;
 
 
-    using Rooms = Buffer<RoomPtr<Room>, 70>;
+    using Rooms = RoomTable<70, 16>;
 
 
     bool add_room(Platform& pfrm, App& app, RoomPtr<Room> insert)
     {
-        auto result = rooms_.push_back(std::move(insert));
+        auto result = rooms_.insert_room(std::move(insert));
         repaint(pfrm, app);
         recalculate_power_usage();
         on_layout_changed(insert->position());
@@ -41,7 +42,7 @@ public:
     {
         if (auto room = room_pool::alloc<T>(
                 this, position, std::forward<Args>(args)...)) {
-            if (rooms_.push_back({room.release(), room_pool::deleter})) {
+            if (rooms_.insert_room({room.release(), room_pool::deleter})) {
                 repaint(pfrm, app);
                 recalculate_power_usage();
                 on_layout_changed(position);

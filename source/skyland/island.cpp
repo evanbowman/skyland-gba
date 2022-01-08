@@ -796,16 +796,7 @@ std::optional<SharedEntityRef<Drone>> Island::get_drone(const Vec2<u8>& coord)
 
 Room* Island::get_room(const Vec2<u8>& coord)
 {
-    for (auto& room : rooms_) {
-        if (coord.x >= room->position().x and coord.y >= room->position().y and
-            coord.x < room->position().x + room->size().x and
-            coord.y < room->position().y + room->size().y) {
-
-            return room.get();
-        }
-    }
-
-    return nullptr;
+    return rooms_.get_room(coord);
 }
 
 
