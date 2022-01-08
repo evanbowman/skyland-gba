@@ -137,16 +137,18 @@ void App::update(Platform& pfrm, Microseconds delta)
 
     level_timer_.count_up(delta);
 
-    for (auto it = deferred_callbacks_.begin();
-         it not_eq deferred_callbacks_.end();) {
+    if (game_speed() not_eq GameSpeed::stopped) {
+        for (auto it = deferred_callbacks_.begin();
+             it not_eq deferred_callbacks_.end();) {
 
-        it->second -= delta;
+            it->second -= delta;
 
-        if (not(it->second > 0)) {
-            it->first(pfrm, *this);
-            it = deferred_callbacks_.erase(it);
-        } else {
-            ++it;
+            if (not(it->second > 0)) {
+                it->first(pfrm, *this);
+                it = deferred_callbacks_.erase(it);
+            } else {
+                ++it;
+            }
         }
     }
 
