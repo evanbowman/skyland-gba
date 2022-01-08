@@ -76,6 +76,13 @@ public:
         return config_;
     }
 
+    // After calling __detach(), the text element will not clear its contents
+    // from the screen when destroyed.
+    void __detach()
+    {
+        len_ = 0;
+    }
+
 private:
     void resize(u32 len);
 

@@ -97,6 +97,12 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (selector_ < construction_sites_.size() - 1) {
                 ++selector_;
             } else if (near_ and app.game_mode() == App::GameMode::sandbox) {
+                auto& cursor_loc =
+                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+                cursor_loc.x = 0;
+                cursor_loc.y =
+                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
                 return scene_pool::alloc<ConstructionScene>(false);
             }
         }
@@ -105,6 +111,12 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (selector_ > 0) {
                 --selector_;
             } else if (not near_ and app.game_mode() == App::GameMode::sandbox) {
+                auto& cursor_loc =
+                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+                cursor_loc.x = app.player_island().terrain().size();
+                cursor_loc.y =
+                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y;
                 return scene_pool::alloc<ConstructionScene>(true);
             }
         }
@@ -632,8 +644,16 @@ void ConstructionScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     WorldScene::exit(pfrm, app, next);
 
-    text_.reset();
-    pfrm.fill_overlay(0);
+    if (dynamic_cast<ConstructionScene*>(&next)) {
+        // We do not want the menus to flicker between scenes when we switch
+        // between two construction scenes, so disable cleanup for text. Only
+        // really happens in sandbox mode, where you can build on either your
+        // own castle or the opponent's.
+        text_->__detach();
+    } else {
+        text_.reset();
+        pfrm.fill_overlay(0);
+    }
 }
 
 
