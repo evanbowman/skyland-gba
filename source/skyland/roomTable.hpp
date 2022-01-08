@@ -34,6 +34,12 @@ public:
     using Rooms = Buffer<RoomPtr<Room>, room_count>;
 
 
+    bool full() const
+    {
+        return rooms_.full();
+    }
+
+
     typename Rooms::Iterator begin()
     {
         return rooms_.begin();
@@ -90,6 +96,9 @@ public:
             Platform::fatal("access to room outside of map grid!");
         }
 
+        // We skip to the known location of where rooms with a given
+        // x-coordinate start in the buffer, so we essentially have bins of
+        // rooms by x coordinate.
         u32 i = x_jump_table_[coord.x];
         for (; i < rooms_.size(); ++i) {
             Room* room = rooms_[i].get();
@@ -129,6 +138,13 @@ private:
     // re_sort parameter: When erasing a room, the rooms_ buffer remains sorted.
     void reindex(bool re_sort)
     {
+        if (rooms_.empty()) {
+            for (auto& elem : x_jump_table_) {
+                elem = 0;
+            }
+            return;
+        }
+
         static const auto uninit_index = std::numeric_limits<IndexType>::max();
 
         for (auto& elem : x_jump_table_) {

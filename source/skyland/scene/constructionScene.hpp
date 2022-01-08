@@ -42,7 +42,7 @@ private:
         select_loc,
         choose_building,
         add_terrain,
-        insufficent_funds,
+        insufficient_funds,
     };
 
 

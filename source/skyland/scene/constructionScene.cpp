@@ -201,8 +201,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             const auto& target = *available_buildings_[building_selector_];
 
             if (app.coins() < get_cost(island(app), target)) {
-                msg(pfrm, "insufficent funds!");
-                state_ = State::insufficent_funds;
+                msg(pfrm, "insufficient funds!");
+                state_ = State::insufficient_funds;
                 break;
             }
 
@@ -210,7 +210,14 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                     island(app)->power_drain() <
                 target->consumes_power()) {
                 msg(pfrm, "insufficient power supply!");
-                state_ = State::insufficent_funds;
+                state_ = State::insufficient_funds;
+                break;
+            }
+
+            if (room_pool::pool_->remaining() == 0 or
+                island(app)->rooms().full()) {
+                msg(pfrm, "too many rooms");
+                state_ = State::insufficient_funds;
                 break;
             }
 
@@ -239,7 +246,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
 
-    case State::insufficent_funds:
+    case State::insufficient_funds:
         if (app.player().key_down(pfrm, Key::action_2) or
             app.player().key_down(pfrm, Key::action_1)) {
             find_construction_sites(pfrm, app);
@@ -258,8 +265,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             if (app.coins() < app.terrain_cost()) {
-                msg(pfrm, "insufficent funds!");
-                state_ = State::insufficent_funds;
+                msg(pfrm, "insufficient funds!");
+                state_ = State::insufficient_funds;
                 break;
             }
 
@@ -403,7 +410,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
     }
 
     switch (state_) {
-    case State::insufficent_funds:
+    case State::insufficient_funds:
         break;
 
     case State::select_loc:
