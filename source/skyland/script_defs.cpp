@@ -620,6 +620,20 @@ void App::init_scripts(Platform& pfrm)
         }));
 
 
+    // lisp::set_var("task", lisp::make_function([](int argc) {
+    //     L_EXPECT_ARGC(argc, 2);
+    //     L_EXPECT_OP(1, integer);
+    //     L_EXPECT_OP(0, function);
+
+    //     interp_get_app()->on_timeout(*lisp::interp_get_pfrm(),
+    //                                  1000 * lisp::get_op(0)->integer().value_,
+    //                                  [v = lisp::Protected(L_NIL)]
+    //                                  (Platform& pfrm, App& app) {
+
+    //                                  });
+    // }));
+
+
     // NOTE: we need to disable custom scripts during startup, otherwise,
     // someone could irreversibly mess up a game.
     const bool was_developer_mode = is_developer_mode();

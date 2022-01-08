@@ -1392,10 +1392,14 @@ ProtectedBase::ProtectedBase() : next_(nullptr)
     plist = this;
 }
 
+
 ProtectedBase::~ProtectedBase()
 {
     if (next_) {
         next_->prev_ = prev_;
+    } else {
+        // If next_ is null, then we're at the head of the list.
+        __protected_values = nullptr;
     }
     if (prev_) {
         prev_->next_ = next_;
