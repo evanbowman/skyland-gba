@@ -214,7 +214,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            if (room_pool::pool_->remaining() == 0 or
+            if (room_pool::pool_->empty() or
                 island(app)->rooms().full()) {
                 msg(pfrm, "too many rooms");
                 state_ = State::insufficient_funds;
