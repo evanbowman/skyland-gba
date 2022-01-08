@@ -31,6 +31,6 @@
              (load 'chrs))
 
             (setq enemies-seen (load 'enemies-seen))
-            (setq frendlies-seen (load 'friendlies-seen))
+            (setq friendlies-seen (load 'friendlies-seen))
 
             (setq last-zone (load 'last-zone)))))))

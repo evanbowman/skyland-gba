@@ -246,6 +246,15 @@ o----------------------------o
 
 o----------------------------o
 
+ (task milliseconds function)
+
+ The game will call function
+ after integer milliseconds
+ elapse.
+
+
+o----------------------------o
+
  (terrain island size)
 
  Sets the terrain size of

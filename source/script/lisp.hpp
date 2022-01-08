@@ -667,7 +667,8 @@ class ProtectedBase {
 public:
     ProtectedBase();
 
-    ProtectedBase(const ProtectedBase&) = delete;
+    ProtectedBase(const ProtectedBase&);
+
     ProtectedBase(ProtectedBase&&) = delete;
 
     virtual ~ProtectedBase();
@@ -696,6 +697,12 @@ public:
     {
     }
 
+    Protected(const Protected& other) :
+        ProtectedBase(other),
+        val_(other.val_)
+    {
+    }
+
     void gc_mark() override;
 
     Protected& operator=(Value* val)
@@ -710,6 +717,11 @@ public:
     }
 
     operator Value*()
+    {
+        return val_;
+    }
+
+    Value* get() const
     {
         return val_;
     }

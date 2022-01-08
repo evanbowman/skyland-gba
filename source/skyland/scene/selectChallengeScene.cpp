@@ -214,7 +214,7 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.invoke_script(pfrm, path.c_str());
 
             prep_level(pfrm, app);
-            app.player_island().repaint(pfrm, app);
+            app.player_island().render_exterior(pfrm, app);
             return scene_pool::alloc<FadeInScene>();
 
         } else {

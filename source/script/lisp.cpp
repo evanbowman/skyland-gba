@@ -1393,6 +1393,19 @@ ProtectedBase::ProtectedBase() : next_(nullptr)
 }
 
 
+ProtectedBase::ProtectedBase(const ProtectedBase&) : next_(nullptr)
+{
+    auto plist = __protected_values;
+    if (plist) {
+        plist->next_ = this;
+        prev_ = plist;
+    } else {
+        prev_ = nullptr;
+    }
+    plist = this;
+}
+
+
 ProtectedBase::~ProtectedBase()
 {
     if (next_) {
