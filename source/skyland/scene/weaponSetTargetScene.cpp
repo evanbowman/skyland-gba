@@ -41,6 +41,18 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return new_scene;
     }
 
+    auto drone_exit_scene = [&](Drone* drone) -> ScenePtr<Scene> {
+        if (drone->destination() == &app.player_island()) {
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_ =
+                drone->position();
+            return scene_pool::alloc<ReadyScene>();
+        } else {
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ =
+                drone->position();
+            return scene_pool::alloc<InspectP2Scene>();
+        }
+    };
+
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
 
@@ -98,6 +110,12 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                     packet.target_x_ = target_room->position().x;
                     packet.target_y_ = target_room->position().y;
                     network::transmit(pfrm, packet);
+
+                    if (near_) {
+                        return scene_pool::alloc<ReadyScene>();
+                    } else {
+                        return scene_pool::alloc<InspectP2Scene>();
+                    }
                 } else {
 
                     auto sync = [&](Drone& drone) {
@@ -117,19 +135,18 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                                 app.player_island().get_drone(weapon_loc_)) {
                             (*drone)->set_target(target_room->position());
                             sync(**drone);
+
+                            return drone_exit_scene(drone->get());
                         }
                     } else {
                         if (auto drone =
                                 app.opponent_island()->get_drone(weapon_loc_)) {
                             (*drone)->set_target(target_room->position());
                             sync(**drone);
+
+                            return drone_exit_scene(drone->get());
                         }
                     }
-                }
-                if (near_) {
-                    return scene_pool::alloc<ReadyScene>();
-                } else {
-                    return scene_pool::alloc<InspectP2Scene>();
                 }
             }
         }
@@ -185,6 +202,17 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (app.player().key_down(pfrm, Key::action_2)) {
+        if (near_) {
+            if (auto drone =
+                app.player_island().get_drone(weapon_loc_)) {
+                return drone_exit_scene(drone->get());
+            }
+        } else {
+            if (auto drone =
+                app.opponent_island()->get_drone(weapon_loc_)) {
+                return drone_exit_scene(drone->get());
+            }
+        }
         return scene_pool::alloc<ReadyScene>();
     }
 
