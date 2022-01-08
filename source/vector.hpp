@@ -203,6 +203,10 @@ public:
 
     Iterator end()
     {
+        if (end_cache_) {
+            return Iterator(size_, end_cache_);
+        }
+
         int size = size_;
         Chunk* current = (Chunk*)data_->data_;
         seek_chunk(current, size);
@@ -237,6 +241,8 @@ public:
 
     void insert(Iterator position, const T& elem)
     {
+        end_cache_ = nullptr;
+
         push_back(elem);
 
         auto last = Iterator(size_ - 1, [this] {
@@ -277,7 +283,12 @@ public:
 
         int size = size_;
 
-        seek_chunk(current, size);
+        if (end_cache_) {
+            current = end_cache_;
+            size = end_chunk_size_;
+        } else {
+            seek_chunk(current, size);
+        }
 
         if (size == Chunk::elems() and not current->header_.next_) {
             auto sbr = pfrm_.make_scratch_buffer();
@@ -287,6 +298,9 @@ public:
             size = 0;
         }
 
+        end_cache_ = current;
+        end_chunk_size_ = size + 1;
+
         new (current->array() + size) T(elem);
 
         ++size_;
@@ -295,6 +309,8 @@ public:
 
     void pop_back()
     {
+        end_cache_ = nullptr;
+
         Chunk* current = (Chunk*)data_->data_;
 
         int size = size_;
@@ -303,7 +319,6 @@ public:
 
         --size_;
         (current->array() + (size - 1))->~T();
-        *(current->array() + (size - 1)) = 0; // TODO: Remove this line!
     }
 
 
@@ -347,4 +362,9 @@ private:
     ScratchBufferPtr data_;
 
     u32 size_ = 0;
+
+    // Improves the performance of push_back() and end() and other operations
+    // dealing with the end of the vector.
+    Chunk* end_cache_ = nullptr;
+    u16 end_chunk_size_ = 0;
 };
