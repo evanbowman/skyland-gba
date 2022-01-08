@@ -5,7 +5,7 @@
 
 
 (lambda
-  (eval-other-file "/scripts/reset_hooks.lisp")
+  (eval-file "/scripts/reset_hooks.lisp")
 
   (let ((data $0))
     (let ((load (lambda (cdr (assoc $0 data)))))

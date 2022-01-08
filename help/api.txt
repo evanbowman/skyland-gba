@@ -116,7 +116,7 @@ o----------------------------o
 
 o----------------------------o
 
- (eval-other-file path)
+ (eval-file path)
 
  Evaluate code in another
  script, given by path.

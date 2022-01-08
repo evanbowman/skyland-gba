@@ -45,3 +45,25 @@
  right, and y indices
  increase from top to
  bottom.
+
+ One final note: in addition
+ to manually defining a room
+ layout in the script editor, 
+ you may also use the
+ Battle Sandbox. Build
+ and enemy castle, then hold
+ and release start to open
+ a lisp repl, and run the
+ command:
+
+ (log (rooms (opponent)))
+
+ Now, the system log contains
+ a description of the enemy
+ castle that you built in the
+ sandbox. Run (log-flush) to
+ save the system log to sram,
+ and then copy the result
+ out of /log.txt with the
+ text editor's select/copy/
+ paste shortcuts.

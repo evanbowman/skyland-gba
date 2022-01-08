@@ -2,7 +2,7 @@
 ;;; challenge.lisp
 ;;;
 
-(eval-other-file "/scripts/reset_hooks.lisp")
+(eval-file "/scripts/reset_hooks.lisp")
 
 (gc)
 

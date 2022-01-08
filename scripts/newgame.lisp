@@ -5,7 +5,7 @@
 ;;;
 
 
-(eval-other-file "/scripts/reset_hooks.lisp")
+(eval-file "/scripts/reset_hooks.lisp")
 
 (setq last-zone 0)
 

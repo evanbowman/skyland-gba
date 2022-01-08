@@ -17,6 +17,6 @@
 ;; a cartridge flasher to
 ;; manually erase sram.
 
-(eval-other-file "/scripts/stdlib.lisp")
+(eval-file "/scripts/stdlib.lisp")
 
 (setq language 'english)

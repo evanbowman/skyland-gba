@@ -394,16 +394,6 @@ HitBox Island::hitbox() const
 
 void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
 {
-    // First, check whether the hitbox for the entity intersects with the
-    // x-value range of the island. If not, then there's no need to check
-    // collisions with individual rooms.
-
-    Vec2<Float> hitbox_pos = this->origin();
-    HitBox island_hitbox;
-    island_hitbox.position_ = &hitbox_pos;
-    island_hitbox.dimension_.size_.x = terrain_.size() * 16;
-    island_hitbox.dimension_.size_.y = 16 * 16;
-
     // Calculate the position of the entity in terms of the island's grid
     // coordinates.
     auto entity_pos = (entity.sprite().get_position() - this->origin()).cast<int>();
@@ -420,7 +410,7 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
                 if (auto room = get_room({(u8)x, (u8)y})) {
                     static const int tile_size = 16;
 
-                    hitbox_pos = this->origin();
+                    auto hitbox_pos = this->origin();
                     hitbox_pos.x += room->position().x * tile_size;
                     hitbox_pos.y += room->position().y * tile_size;
 
@@ -430,8 +420,6 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
                     room_hitbox.dimension_.size_.y = room->size().y * tile_size;
 
                     if (room_hitbox.overlapping(entity.hitbox())) {
-                        // TODO: deliver collisions to room and to entity.
-                        // TODO: actually test this code to see if it even works.
                         entity.on_collision(pfrm, app, *room);
                         room->on_collision(pfrm, app, entity);
                         return;
@@ -441,42 +429,22 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
         }
     }
 
+    Vec2<Float> hitbox_pos = this->origin();
+    HitBox island_hitbox;
+    island_hitbox.position_ = &hitbox_pos;
+    island_hitbox.dimension_.size_.x = terrain_.size() * 16;
+    island_hitbox.dimension_.size_.y = 16 * 16;
 
-    // if (island_hitbox.overlapping(entity.hitbox())) {
-    //     // Now, the Entity must be within the larger bounding box for the
-    //     // island. Lets scan through each of the island's rooms until we find a
-    //     // collision.
-    //     for (auto& room : rooms_) {
-
-    //         static const int tile_size = 16;
-
-    //         hitbox_pos = this->origin();
-    //         hitbox_pos.x += room->position().x * tile_size;
-    //         hitbox_pos.y += room->position().y * tile_size;
-
-    //         HitBox room_hitbox;
-    //         room_hitbox.position_ = &hitbox_pos;
-    //         room_hitbox.dimension_.size_.x = room->size().x * tile_size;
-    //         room_hitbox.dimension_.size_.y = room->size().y * tile_size;
-
-    //         if (room_hitbox.overlapping(entity.hitbox())) {
-    //             // TODO: deliver collisions to room and to entity.
-    //             // TODO: actually test this code to see if it even works.
-    //             entity.on_collision(pfrm, app, *room);
-    //             room->on_collision(pfrm, app, entity);
-    //             return;
-    //         }
-    //     }
-
-    //     for (auto& drone_wp : drones_) {
-    //         if (auto drone_sp = drone_wp.promote()) {
-    //             if (entity.hitbox().overlapping((*drone_sp)->hitbox())) {
-    //                 entity.on_collision(pfrm, app, **drone_sp);
-    //                 (*drone_sp)->on_collision(pfrm, app, entity);
-    //             }
-    //         }
-    //     }
-    // }
+    if (island_hitbox.overlapping(entity.hitbox())) {
+        for (auto& drone_wp : drones_) {
+            if (auto drone_sp = drone_wp.promote()) {
+                if (entity.hitbox().overlapping((*drone_sp)->hitbox())) {
+                    entity.on_collision(pfrm, app, **drone_sp);
+                    (*drone_sp)->on_collision(pfrm, app, entity);
+                }
+            }
+        }
+    }
 }
 
 
@@ -485,6 +453,10 @@ void Island::render_terrain(Platform& pfrm)
 {
     for (u32 i = 0; i < terrain_.size(); ++i) {
         pfrm.set_tile(layer_, i, 15, terrain_[i]);
+    }
+
+    for (int i = terrain_.size(); i < 16; ++i) {
+        pfrm.set_tile(layer_, i, 15, 0);
     }
 }
 
@@ -778,7 +750,9 @@ void Island::repaint(Platform& pfrm, App& app)
 
 
     for (int x = 0; x < 16; ++x) {
-        for (int y = 0; y < 16; ++y) {
+        // NOTE: only handle 15 rows because render_terrain() takes care of the
+        // last row.
+        for (int y = 0; y < 15; ++y) {
             pfrm.set_tile(layer_, x, y, buffer[x][y]);
         }
     }

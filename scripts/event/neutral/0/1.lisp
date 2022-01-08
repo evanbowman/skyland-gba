@@ -56,4 +56,4 @@
       (lambda
         ;; when the island is preemtively attacked, skip all of the dialog and
         ;; other hooks.
-        (eval-other-file "/scripts/reset_hooks.lisp")))
+        (eval-file "/scripts/reset_hooks.lisp")))

@@ -3,7 +3,7 @@
 ;;;
 
 
-(eval-other-file "/scripts/reset_hooks.lisp")
+(eval-file "/scripts/reset_hooks.lisp")
 
 
 (if (not (equal (zone) last-zone))
@@ -31,7 +31,7 @@
   (let ((lv-num (get avail-levels (choice (length avail-levels)))))
     (setq friendlies-seen (cons lv-num friendlies-seen))
 
-    (eval-other-file (string "/scripts/event/neutral/" (zone) "/" lv-num ".lisp"))))
+    (eval-file (string "/scripts/event/neutral/" (zone) "/" lv-num ".lisp"))))
 
 
 (gc)
