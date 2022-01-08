@@ -146,7 +146,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
     if (app.player().key_up(pfrm, Key::start)) {
         if (not pfrm.network_peer().is_connected()) {
-            if (start_key_held_timer_ > milliseconds(1500)) {
+            if (start_key_held_timer_ > seconds(1)) {
                 return scene_pool::alloc<LispReplScene>(pfrm);
             }
         }

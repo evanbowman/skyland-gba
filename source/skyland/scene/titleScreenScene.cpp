@@ -650,12 +650,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     if (f->run_scripts()) {
                         run_init_scripts(pfrm,
                                          app,
-                                         // Yes, custom code must be disabled when
-                                         // running modules. The file browser module
-                                         // and text editor could become completely
-                                         // inaccessible if a user put an invalid
-                                         // expression into one of the init scripts.
-                                         false);
+                                         f->enable_custom_scripts());
                     }
 
 

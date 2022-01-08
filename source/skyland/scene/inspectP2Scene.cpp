@@ -1,10 +1,13 @@
 #include "inspectP2Scene.hpp"
 #include "globals.hpp"
+#include "constructionScene.hpp"
 #include "readyScene.hpp"
 #include "salvageDroneScene.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
+#include "lispReplScene.hpp"
+#include "salvageRoomScene.hpp"
 
 
 
@@ -116,7 +119,27 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             if ((*drone)->parent() == &app.player_island()) {
                 return scene_pool::alloc<SalvageDroneScene>(*drone);
             }
+        } else if (app.game_mode() == App::GameMode::sandbox and
+                   app.opponent_island()->get_room(cursor_loc)) {
+            return scene_pool::alloc<SalvageRoomScene>(false);
         }
+    }
+
+    if (app.game_mode() == App::GameMode::sandbox and
+        app.player().key_down(pfrm, Key::alt_2)) {
+        return scene_pool::alloc<ConstructionScene>(false);
+    }
+
+    if (app.player().key_pressed(pfrm, Key::start)) {
+        start_key_held_timer_ += delta;
+    }
+    if (app.player().key_up(pfrm, Key::start)) {
+        if (not pfrm.network_peer().is_connected()) {
+            if (start_key_held_timer_ > seconds(1)) {
+                return scene_pool::alloc<LispReplScene>(pfrm);
+            }
+        }
+        start_key_held_timer_ = 0;
     }
 
     if (describe_room_timer_ > 0) {

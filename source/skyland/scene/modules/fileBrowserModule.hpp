@@ -33,6 +33,25 @@ public:
     }
 
 
+    static bool enable_custom_scripts()
+    {
+        // IMPORTANT!!!!!!
+        // This can NEVER BE SET TO TRUE, EVER.
+        //
+        // If a user were allowed to run custom scripts before entering the file
+        // browser, they could brick the system, if a script raised a fatal
+        // error, they wouldn't be able to get into the file browser to fix
+        // it. You would have to run the factory reset module and lose all of
+        // your data.
+        //
+        // Currently, run_scripts() returns false, so this module does not
+        // invoke any scripts before running anyway. But just to future-proof
+        // this stuff, I want to very explicitly define the return value here to
+        // false.
+        return false;
+    }
+
+
     FileBrowserModule() = default;
     FileBrowserModule(Platform& pfrm,
                       UserContext&& user_context,

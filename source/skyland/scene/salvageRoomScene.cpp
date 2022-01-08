@@ -5,6 +5,7 @@
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
+#include "inspectP2Scene.hpp"
 
 
 
@@ -20,19 +21,43 @@ static Coins salvage_value(Room& room)
 
 
 
+Island* SalvageRoomScene::island(App& app)
+{
+    if (near_) {
+        return &app.player_island();
+    } else if (app.opponent_island()) {
+        return &*app.opponent_island();
+    } else {
+        return nullptr;
+    }
+}
+
+
+
 void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
 
+    if (not island(app)) {
+        return;
+    }
+
+    if (not near_) {
+        far_camera();
+    }
+
     auto st = calc_screen_tiles(pfrm);
     StringBuffer<30> text("really salvage?  +");
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-    if (auto room = app.player_island().get_room(cursor_loc)) {
+    auto& cursor_loc = near_ ?
+        std::get<SkylandGlobalData>(globals()).near_cursor_loc_ :
+        std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+    if (auto room = island(app)->get_room(cursor_loc)) {
         if (auto mt = room->metaclass()) {
             if (str_cmp((*mt)->name(), "power-core") == 0) {
                 int core_count = 0;
-                for (auto& room : app.player_island().rooms()) {
+                for (auto& room : island(app)->rooms()) {
                     if (str_cmp((*room->metaclass())->name(), "power-core") ==
                         0) {
                         core_count++;
@@ -110,17 +135,33 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
         return next;
     }
 
+
+    auto exit_scene = [this]() -> ScenePtr<Scene> {
+        if (near_) {
+            return scene_pool::alloc<ReadyScene>();
+        } else {
+            return scene_pool::alloc<InspectP2Scene>();
+        }
+    };
+
+
+    if (island(app) == nullptr) {
+        return exit_scene();
+    }
+
+
     if (exit_countdown_) {
         exit_countdown_ -= delta;
         if (exit_countdown_ <= 0) {
-            return scene_pool::alloc<ReadyScene>();
+            return exit_scene();
         }
     } else {
-        auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        auto& cursor_loc = near_ ?
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_ :
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
         if (app.player().key_down(pfrm, Key::action_1)) {
-            if (auto room = app.player_island().get_room(cursor_loc)) {
+            if (auto room = island(app)->get_room(cursor_loc)) {
 
                 // You cannot salvage an occupied room, doing so would destroy
                 // all of the characters inside.
@@ -128,7 +169,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     app.coins() += salvage_value(*room);
 
-                    app.player_island().destroy_room(pfrm, app, cursor_loc);
+                    island(app)->destroy_room(pfrm, app, cursor_loc);
                     exit_countdown_ = milliseconds(500);
 
                     network::packet::RoomSalvaged packet;
@@ -137,7 +178,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                     network::transmit(pfrm, packet);
                 }
             } else {
-                return scene_pool::alloc<ReadyScene>();
+                return exit_scene();
             }
         }
     }
@@ -145,7 +186,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (app.player().key_down(pfrm, Key::action_2)) {
-        return scene_pool::alloc<ReadyScene>();
+        return exit_scene();
     }
 
     return null_scene();

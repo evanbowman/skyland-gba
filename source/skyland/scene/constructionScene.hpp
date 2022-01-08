@@ -14,7 +14,8 @@ namespace skyland {
 
 class ConstructionScene : public ActiveWorldScene {
 public:
-    ConstructionScene()
+    ConstructionScene(bool near = true) :
+        near_(near)
     {
     }
 
@@ -45,6 +46,9 @@ private:
     };
 
 
+    Island* island(App& app);
+
+
     void collect_available_buildings(Platform&, App&);
 
 
@@ -70,6 +74,8 @@ private:
 
     Buffer<RoomMeta*, 20> available_buildings_;
     const RoomMeta* last_constructed_building_ = nullptr;
+
+    bool near_;
 };
 
 

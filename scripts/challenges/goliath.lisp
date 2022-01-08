@@ -3,7 +3,6 @@
 ;;;
 
 
-(coins-add -1000000)
 (coins-add 6000)
 
 

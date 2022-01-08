@@ -19,7 +19,7 @@ FactoryResetModule::update(Platform& pfrm, App& app, Microseconds delta)
         text_.emplace(pfrm);
         text_->assign("Reset the game to factory settings? "
                       "Press B to cancel. Press A five times "
-                      "to continue.",
+                      "while holding select to continue.",
                       {1, 1},
                       {28, 8});
     }
@@ -29,7 +29,8 @@ FactoryResetModule::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<TitleScreenScene>();
     }
 
-    if (app.player().key_down(pfrm, Key::action_1)) {
+    if (app.player().key_pressed(pfrm, Key::select) and
+        app.player().key_down(pfrm, Key::action_1)) {
         ++key_count_;
         if (key_count_ == 5) {
             save::GlobalSaveData save;

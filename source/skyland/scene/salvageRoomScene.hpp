@@ -11,9 +11,14 @@ namespace skyland {
 
 
 
+class Island;
+
+
+
 class SalvageRoomScene : public ActiveWorldScene {
 public:
-    SalvageRoomScene()
+    SalvageRoomScene(bool near = true) :
+        near_(near)
     {
     }
 
@@ -28,10 +33,16 @@ public:
 
 
 private:
+
+
+    Island* island(App& app);
+
+
     std::optional<Text> text_;
     std::optional<Text> yes_text_;
     std::optional<Text> no_text_;
     Microseconds exit_countdown_ = 0;
+    bool near_;
 };
 
 

@@ -83,6 +83,7 @@ public:
         adventure,
         challenge,
         tutorial,
+        sandbox,
     };
 
 

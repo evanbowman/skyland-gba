@@ -3,6 +3,7 @@
 #include "localization.hpp"
 #include "platform/platform.hpp"
 #include "readyScene.hpp"
+#include "inspectP2Scene.hpp"
 #include "salvageRoomScene.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
@@ -21,11 +22,24 @@ int construction_zone_min_y = 6;
 
 
 
-static Coins get_cost(App& app, const RoomMeta& meta)
+Island* ConstructionScene::island(App& app)
+{
+    if (near_) {
+        return &app.player_island();
+    } else if (app.opponent_island()) {
+        return &*app.opponent_island();
+    } else {
+        return nullptr;
+    }
+}
+
+
+
+static Coins get_cost(Island* island, const RoomMeta& meta)
 {
     Coins cost = meta->cost();
-    for (int i = 0; i < app.player_island().workshop_count() +
-                            app.player_island().foundry_count();
+    for (int i = 0; i < island->workshop_count() +
+                            island->foundry_count();
          ++i) {
         cost *= 0.9f;
     }
@@ -46,20 +60,35 @@ static bool show_construction_icons = true;
 ScenePtr<Scene>
 ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    auto exit_scene = [this]() -> ScenePtr<Scene> {
+        if (near_) {
+            return scene_pool::alloc<ReadyScene>();
+        } else {
+            return scene_pool::alloc<InspectP2Scene>();
+        }
+    };
+
     if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return new_scene;
     }
 
+    if (not island(app)) {
+        return exit_scene();
+    }
+
+    auto& cursor_loc = near_ ?
+        std::get<SkylandGlobalData>(globals()).near_cursor_loc_ :
+        std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+
     if (app.player().key_down(pfrm, Key::alt_2) or
         (state_ == State::select_loc and
          app.player().key_down(pfrm, Key::action_2))) {
-        auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
         if (not construction_sites_.empty()) {
             cursor_loc.x = construction_sites_[selector_].x;
             cursor_loc.y = construction_sites_[selector_].y;
         }
-        return scene_pool::alloc<ReadyScene>();
+        return exit_scene();
     }
 
     switch (state_) {
@@ -74,8 +103,6 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (not construction_sites_.empty()) {
-            auto& cursor_loc =
-                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
             cursor_loc.x = construction_sites_[selector_].x;
             cursor_loc.y = construction_sites_[selector_].y;
         }
@@ -173,28 +200,28 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::action_1)) {
             const auto& target = *available_buildings_[building_selector_];
 
-            if (app.coins() < get_cost(app, target)) {
+            if (app.coins() < get_cost(island(app), target)) {
                 msg(pfrm, "insufficent funds!");
                 state_ = State::insufficent_funds;
                 break;
             }
 
-            if (app.player_island().power_supply() -
-                    app.player_island().power_drain() <
+            if (island(app)->power_supply() -
+                    island(app)->power_drain() <
                 target->consumes_power()) {
                 msg(pfrm, "insufficient power supply!");
                 state_ = State::insufficent_funds;
                 break;
             }
 
-            const auto diff = get_cost(app, target);
+            const auto diff = get_cost(island(app), target);
             app.coins() -= diff;
             app.level_coins_spent() += diff;
 
             const auto sz = target->size().y;
             const u8 dest_x = construction_sites_[selector_].x;
             const u8 dest_y = construction_sites_[selector_].y - (sz - 1);
-            target->create(pfrm, app, &app.player_island(), {dest_x, dest_y});
+            target->create(pfrm, app, island(app), {dest_x, dest_y});
             last_constructed_building_ = &target;
 
             app.player().rooms_built_++;
@@ -238,15 +265,15 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             app.coins() -= app.terrain_cost();
 
-            auto& terrain = app.player_island().terrain();
+            auto& terrain = island(app)->terrain();
             terrain.pop_back(); // the old edge tile
             terrain.push_back(Tile::terrain_middle);
             terrain.push_back(Tile::terrain_right);
 
-            app.player_island().render_terrain(pfrm);
+            island(app)->render_terrain(pfrm);
 
             network::packet::TerrainConstructed packet;
-            packet.new_terrain_size_ = app.player_island().terrain().size();
+            packet.new_terrain_size_ = island(app)->terrain().size();
             network::transmit(pfrm, packet);
 
 
@@ -269,7 +296,7 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
     str += (*available_buildings_[building_selector_])->name();
     str += " ";
     str += to_string<10>(
-        get_cost(app, (*available_buildings_[building_selector_])));
+        get_cost(island(app), (*available_buildings_[building_selector_])));
     str += "@";
     str += " ";
     str += to_string<10>(
@@ -371,13 +398,17 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 {
     WorldScene::display(pfrm, app);
 
+    if (not island(app)) {
+        return;
+    }
+
     switch (state_) {
     case State::insufficent_funds:
         break;
 
     case State::select_loc:
         if (not construction_sites_.empty()) {
-            auto origin = app.player_island().origin();
+            auto origin = island(app)->origin();
 
             origin.x += construction_sites_[selector_].x * 16;
             origin.y += (construction_sites_[selector_].y) * 16;
@@ -398,7 +429,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             const auto& meta = *available_buildings_[building_selector_];
             const auto sz = meta->size();
 
-            auto origin = app.player_island().origin();
+            auto origin = island(app)->origin();
             origin.x += construction_sites_[selector_].x * 16;
             origin.y += (construction_sites_[selector_].y - (sz.y - 1)) * 16;
 
@@ -434,9 +465,9 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
 
     case State::add_terrain: {
-        auto& terrain = app.player_island().terrain();
+        auto& terrain = island(app)->terrain();
         const Vec2<u8> loc = {u8(terrain.size()), 15};
-        auto origin = app.player_island().origin();
+        auto origin = island(app)->origin();
         origin.x += loc.x * 16;
         origin.y -= 32;
         Sprite sprite;
@@ -457,7 +488,7 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
 
     bool matrix[16][16];
 
-    app.player_island().plot_construction_zones(matrix);
+    island(app)->plot_construction_zones(matrix);
 
     for (u8 x = 0; x < 16; ++x) {
         for (u8 y = 0; y < 16; ++y) {
@@ -467,7 +498,7 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
         }
     }
 
-    auto& terrain = app.player_island().terrain();
+    auto& terrain = island(app)->terrain();
     if (not terrain.full() and not pfrm.network_peer().is_connected()) {
         construction_sites_.push_back({u8(terrain.size()), 15});
     }
@@ -518,10 +549,10 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 
     const int avail_y_space = current.y - construction_zone_min_y;
 
-    const auto w_count = app.player_island().workshop_count() +
-                         app.player_island().foundry_count();
+    const auto w_count = island(app)->workshop_count() +
+                         island(app)->foundry_count();
 
-    const auto f_count = app.player_island().foundry_count();
+    const auto f_count = island(app)->foundry_count();
 
     auto metatable = room_metatable();
     for (int i = 0; i < metatable.second; ++i) {
@@ -553,13 +584,18 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
 
+    if (not near_) {
+        far_camera();
+    }
+
     persist_ui();
 
     find_construction_sites(pfrm, app);
 
     if (not construction_sites_.empty()) {
-        auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        auto& cursor_loc = near_ ?
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_ :
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
         for (u32 i = 0; i < construction_sites_.size(); ++i) {
             if (construction_sites_[i].x == cursor_loc.x) {

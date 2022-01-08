@@ -39,6 +39,9 @@ public:
         virtual bool run_scripts() = 0;
 
 
+        virtual bool enable_custom_scripts() = 0;
+
+
         static Factory* get(int index)
         {
             auto current = factories_;
@@ -71,6 +74,14 @@ inline ScenePtr<Scene> load_module(Platform& pfrm, const char* name)
 
 template <typename T> class Module : public detail::_Module {
 public:
+
+
+    static bool enable_custom_scripts()
+    {
+        return false;
+    }
+
+
     class Factory : public _Module::Factory {
     public:
         const char* name() override
@@ -88,6 +99,12 @@ public:
         bool run_scripts() override
         {
             return T::run_scripts();
+        }
+
+
+        bool enable_custom_scripts() override
+        {
+            return T::enable_custom_scripts();
         }
 
 
