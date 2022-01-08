@@ -56,6 +56,9 @@ private:
     Power last_power_supplied_ = 0;
     Power last_power_used_ = 0;
     bool far_camera_ = false;
+
+protected:
+    bool power_fraction_opponent_island_ = false;
 };
 
 

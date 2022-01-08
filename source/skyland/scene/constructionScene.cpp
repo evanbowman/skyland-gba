@@ -93,13 +93,20 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (state_) {
     case State::select_loc:
-        if (app.player().key_down(pfrm, Key::right) and
-            selector_ < construction_sites_.size() - 1) {
-            ++selector_;
+        if (app.player().key_down(pfrm, Key::right)) {
+            if (selector_ < construction_sites_.size() - 1) {
+                ++selector_;
+            } else if (near_ and app.game_mode() == App::GameMode::sandbox) {
+                return scene_pool::alloc<ConstructionScene>(false);
+            }
         }
 
-        if (app.player().key_down(pfrm, Key::left) and selector_ > 0) {
-            --selector_;
+        if (app.player().key_down(pfrm, Key::left)) {
+            if (selector_ > 0) {
+                --selector_;
+            } else if (not near_ and app.game_mode() == App::GameMode::sandbox) {
+                return scene_pool::alloc<ConstructionScene>(true);
+            }
         }
 
         if (not construction_sites_.empty()) {
@@ -589,6 +596,10 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 
 void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    if (not near_) {
+        power_fraction_opponent_island_ = true;
+    }
+
     WorldScene::enter(pfrm, app, prev);
 
     if (not near_) {
