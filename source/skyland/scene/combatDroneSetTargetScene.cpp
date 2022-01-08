@@ -31,7 +31,7 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_down(pfrm, Key::action_2)) {
-        if ((*drone_sp)->parent() == &app.player_island()) {
+        if ((*drone_sp)->destination() == &app.player_island()) {
             return scene_pool::alloc<ReadyScene>();
         } else {
             return scene_pool::alloc<InspectP2Scene>();
@@ -110,6 +110,13 @@ void CombatDroneSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
             }
         }
     };
+
+    if (drone) {
+        near_ = (*drone)->destination() == &app.player_island();
+        if (not near_) {
+            far_camera();
+        }
+    }
 
     if (near_) {
         if (app.opponent_island()) {
