@@ -79,15 +79,16 @@ public:
     }
 
 
-    bool& challenge_mode()
-    {
-        return challenge_mode_;
-    }
+    enum class GameMode {
+        adventure,
+        challenge,
+        tutorial,
+    };
 
 
-    bool& tutorial_mode()
+    GameMode& game_mode()
     {
-        return tutorial_mode_;
+        return game_mode_;
     }
 
 
@@ -296,8 +297,7 @@ private:
     std::optional<DialogBuffer> dialog_buffer_;
     bool dialog_expects_answer_ = false;
     bool exit_level_ = false;
-    bool challenge_mode_ = false;
-    bool tutorial_mode_ = false;
+    GameMode game_mode_ = GameMode::adventure;
 
     EntityList<Entity> effects_;
     EntityList<SmolBirb> birbs_;

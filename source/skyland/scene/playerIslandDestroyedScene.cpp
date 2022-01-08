@@ -382,7 +382,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm.network_peer().disconnect();
                     return scene_pool::alloc<TitleScreenScene>();
                 }
-                if (app.challenge_mode()) {
+                if (app.game_mode() == App::GameMode::challenge) {
                     return scene_pool::alloc<SelectChallengeScene>();
                 } else {
                     return scene_pool::alloc<ZoneImageScene>();
@@ -392,7 +392,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm.network_peer().disconnect();
                     return scene_pool::alloc<TitleScreenScene>();
                 }
-                if (app.challenge_mode()) {
+                if (app.game_mode() == App::GameMode::challenge) {
                     return scene_pool::alloc<SelectChallengeScene>();
                 } else {
                     return scene_pool::alloc<HighscoresScene>();

@@ -22,6 +22,8 @@ class BasicCharacter;
 
 class EnemyAI : public Opponent {
 public:
+
+
     void update(Platform&, App&, Microseconds delta) override;
 
 

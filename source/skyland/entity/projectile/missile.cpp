@@ -63,7 +63,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
             auto pos = sprite_.get_position();
             pos.x = target_x_;
             if (not pfrm.network_peer().is_connected() and
-                not app.tutorial_mode()) {
+                app.game_mode() not_eq App::GameMode::tutorial) {
                 pos.x = rng::sample<5>(pos.x, rng::critical_state);
             }
             sprite_.set_position(pos);

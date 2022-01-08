@@ -22,7 +22,9 @@
 ;; Captured with a keylogger that I hacked into playerP1.cpp (commented out)
 (autopilot
  '((2000 nil)
-   (100 "An enemy approaches! Let's pause the game and look around. The d-pad moves the cursor. The L button pauses the game.")
+   (100 "Welcome to SKYLAND! Your adventures may take you through hostile pirate territory, and there are a few things you should learn about how to build structures and operate weapons and such.")
+   (100 nil)
+   (100 "Speaking of dangers, an enemy approaches!!! Let's pause the game and look around. The d-pad moves the cursor. The L button pauses the game.")
    (901 L)
    (1067 Right)
    (1233 Right)

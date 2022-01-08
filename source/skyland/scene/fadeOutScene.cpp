@@ -21,7 +21,7 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
     constexpr auto fade_duration = milliseconds(800);
     if (timer_ > fade_duration) {
         pfrm.screen().fade(1.f);
-        if (app.tutorial_mode()) {
+        if (app.game_mode() == App::GameMode::tutorial) {
             return scene_pool::alloc<SelectTutorialScene>();
         } else {
             return scene_pool::alloc<ZoneImageScene>();

@@ -26,7 +26,7 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.system_call("v-parallax", (void*)false);
 
-    app.tutorial_mode() = true;
+    app.game_mode() = App::GameMode::tutorial;
 
     if (auto script = pfrm.load_file_contents("scripts", "tutorials.lisp")) {
         lisp::BasicCharSequence seq(script);

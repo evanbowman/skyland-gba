@@ -322,7 +322,7 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
     };
 
     if (is_developer_mode() and not pfrm.network_peer().is_connected() and
-        not tutorial_mode() and not rom_fs_only) {
+        game_mode_ not_eq GameMode::tutorial and not rom_fs_only) {
 
         Vector<char> buffer(pfrm);
         if (ram_filesystem::read_file_data(pfrm, path, buffer)) {

@@ -13,7 +13,7 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
 {
     // Really dumb keylogger, for the tutorial levels. Dump lisp code to SRAM.
 
-    if (app.tutorial_mode()) {
+    if (app.game_mode() == App::GameMode::tutorial) {
         StringBuffer<48> out = "(";
 
         if (pfrm.keyboard().down_transition<Key::left>()) {

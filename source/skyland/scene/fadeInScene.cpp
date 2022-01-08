@@ -19,14 +19,14 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     constexpr auto fade_duration = milliseconds(800);
     if (timer_ > fade_duration) {
-        if (not app.tutorial_mode() and
+        if (app.game_mode() not_eq App::GameMode::tutorial and
             not pfrm.network_peer().is_connected()) {
 
             auto current = app.current_map_location();
             auto& node = app.world_map().matrix_[current.x][current.y];
             if (node.type_ == WorldMap::Node::Type::hostile or
                 node.type_ == WorldMap::Node::Type::storm_hostile or
-                app.challenge_mode()) {
+                app.game_mode() == App::GameMode::challenge) {
                 app.game_speed() = GameSpeed::stopped;
             }
         }

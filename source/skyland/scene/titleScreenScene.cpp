@@ -525,21 +525,19 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             text_.reset();
             switch (menu_selection_) {
             case 0:
-                app.challenge_mode() = false;
-                app.tutorial_mode() = false;
+                app.game_mode() = App::GameMode::adventure;
                 run_init_scripts(pfrm, app, true);
                 return scene_pool::alloc<NewgameScene>();
 
             case 1: {
-                app.challenge_mode() = true;
-                app.tutorial_mode() = false;
+                app.game_mode() = App::GameMode::challenge;
                 run_init_scripts(pfrm, app, true);
                 return scene_pool::alloc<SelectChallengeScene>();
             }
 
             case 2:
-                app.challenge_mode() = false;
-                app.tutorial_mode() = false;
+                // TODO: add a multiplayer gamemode enumeration?
+                app.game_mode() = App::GameMode::adventure;
                 run_init_scripts(pfrm, app, false);
                 return scene_pool::alloc<MultiplayerConnectScene>();
 
@@ -647,8 +645,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm.screen().fade(
                         1.f, ColorConstant::rich_black, {}, true, true);
                     pfrm.speaker().stop_music();
-                    app.challenge_mode() = false;
-                    app.tutorial_mode() = false;
+                    app.game_mode() = App::GameMode::challenge;
 
                     if (f->run_scripts()) {
                         run_init_scripts(pfrm,
