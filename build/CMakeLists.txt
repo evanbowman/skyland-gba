@@ -261,7 +261,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/spritesheet.s
     ${DATA_DIR}/spritesheet_title_screen.s
     ${DATA_DIR}/music_unaccompanied_wind.s
-    ${DATA_DIR}/music_sb_whatwedontsay.s
+    ${DATA_DIR}/music_sb_solecism.s
     ${DATA_DIR}/shadows.s
     ${DATA_DIR}/sound_msg.s
     ${DATA_DIR}/sound_pop.s

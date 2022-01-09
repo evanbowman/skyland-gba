@@ -111,6 +111,7 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     case WorldMap::Node::Type::storm_hostile:
     case WorldMap::Node::Type::hostile: {
         app.invoke_script(pfrm, "/scripts/event/hostile.lisp");
+        pfrm.speaker().play_music("sb_solecism", 0);
         break;
     }
 

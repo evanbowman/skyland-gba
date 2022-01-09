@@ -18,7 +18,7 @@ ScenePtr<Scene> SandboxLoaderModule::update(Platform& pfrm,
 {
     app.invoke_script(pfrm, "/scripts/sandbox.lisp");
 
-    pfrm.speaker().play_music("sb_whatwedontsay", 0);
+    pfrm.speaker().play_music("sb_solecism", 0);
 
     prep_level(pfrm, app);
     app.player_island().render_exterior(pfrm, app);

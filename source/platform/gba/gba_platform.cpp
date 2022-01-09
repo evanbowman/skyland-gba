@@ -2442,7 +2442,7 @@ void Platform::Speaker::play_note(Note n, Octave o, Channel c)
 
 #include "data/shadows.hpp"
 #include "data/music_unaccompanied_wind.hpp"
-#include "data/music_sb_whatwedontsay.hpp"
+#include "data/music_sb_solecism.hpp"
 
 
 static const int null_music_len = AudioBuffer::sample_count * 2;
@@ -2474,7 +2474,7 @@ struct AudioTrack {
 } music_tracks[] = {
     DEF_MUSIC(shadows, shadows),
     DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
-    DEF_MUSIC(sb_whatwedontsay, music_sb_whatwedontsay),
+    DEF_MUSIC(sb_solecism, music_sb_solecism),
 };
 
 

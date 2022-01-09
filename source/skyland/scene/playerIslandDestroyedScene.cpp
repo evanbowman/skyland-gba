@@ -206,7 +206,6 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     switch (anim_state_) {
     case AnimState::init: {
         pfrm.speaker().clear_sounds();
-        pfrm.speaker().stop_music();
         pfrm.speaker().play_music("unaccompanied_wind", 0);
 
         pfrm.speaker().play_sound("explosion1", 3);
