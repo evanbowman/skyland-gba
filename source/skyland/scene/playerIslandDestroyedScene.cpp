@@ -9,6 +9,7 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
+#include "sandboxResetScene.hpp"
 
 
 
@@ -398,6 +399,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 case App::GameMode::adventure:
                     return scene_pool::alloc<ZoneImageScene>();
 
+                case App::GameMode::sandbox:
+                    return scene_pool::alloc<SandboxResetScene>();
+
                 default:
                     return scene_pool::alloc<TitleScreenScene>(3);
                 }
@@ -413,6 +417,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 case App::GameMode::adventure:
                     return scene_pool::alloc<HighscoresScene>();
+
+                case App::GameMode::sandbox:
+                    return scene_pool::alloc<SandboxResetScene>();
 
                 default:
                     return scene_pool::alloc<TitleScreenScene>(3);
