@@ -247,6 +247,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             const auto sz = target->size().y;
             const u8 dest_x = construction_sites_[selector_].x;
             const u8 dest_y = construction_sites_[selector_].y - (sz - 1);
+
+            pfrm.speaker().play_sound("build0", 4);
+
             target->create(pfrm, app, island(app), {dest_x, dest_y});
             last_constructed_building_ = &target;
 
@@ -441,7 +444,15 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
             Sprite sprite;
             sprite.set_position(origin);
-            sprite.set_texture_index(12);
+
+            if (construction_sites_[selector_].y == 15) {
+                // Display a different icon when constructing terrain, as a hint
+                // to the player that he/she can expand an island's terrain.
+                sprite.set_texture_index(73);
+            } else {
+                sprite.set_texture_index(12);
+            }
+
             sprite.set_size(Sprite::Size::w16_h32);
 
 

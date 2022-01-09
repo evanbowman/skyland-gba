@@ -205,7 +205,11 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (anim_state_) {
     case AnimState::init: {
-        // pfrm.speaker().stop_music();
+        pfrm.speaker().clear_sounds();
+        pfrm.speaker().stop_music();
+        pfrm.speaker().play_music("unaccompanied_wind", 0);
+
+        pfrm.speaker().play_sound("explosion1", 3);
 
         big_explosion(pfrm, app, origin);
 
@@ -225,6 +229,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case AnimState::explosion_wait1:
         if (timer_ > milliseconds(300)) {
+
+            pfrm.speaker().play_sound("explosion1", 3);
+
             big_explosion(pfrm, app, origin);
             const auto off = -50.f;
 
@@ -242,6 +249,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             anim_state_ = AnimState::fade;
             app.rumble().activate(pfrm, milliseconds(190));
+
+            pfrm.speaker().play_sound("explosion2", 4);
 
             // If we destroyed the other island, erase all of the goblins on our
             // own island. We're doing this here, because the screen's faded to

@@ -1169,26 +1169,31 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 // scaled-back audio mixer in the vblank handler.
 static volatile bool audio_update_fallback = false;
 static volatile bool vbl_mixed_audio = false;
+AudioBuffer* buffer_needs_sfx = nullptr;
 
 
+// static void vblank_isr()
+// {
+//     if (audio_update_fallback) {
+//         buffer_needs_sfx = audio_mix_music_only();
+//     }
 
-static void vblank_isr()
-{
-    if (audio_update_fallback) {
-        audio_mix_music_only();
-    }
-
-    rumble_update();
-}
+//     rumble_update();
+// }
 
 
 
 void Platform::Screen::clear()
 {
     audio_update_fallback = false;
+    buffer_needs_sfx = nullptr;
 
     // VSync
     VBlankIntrWait();
+
+    if (buffer_needs_sfx) {
+        audio_buffer_mixin_sfx(buffer_needs_sfx);
+    }
 
     audio_update_fallback = true;
 
@@ -2436,7 +2441,8 @@ void Platform::Speaker::play_note(Note n, Octave o, Channel c)
 
 
 #include "data/shadows.hpp"
-// #include "data/jazzyfrenchy.hpp"
+#include "data/music_unaccompanied_wind.hpp"
+#include "data/music_sb_whatwedontsay.hpp"
 
 
 static const int null_music_len = AudioBuffer::sample_count * 2;
@@ -2467,6 +2473,8 @@ struct AudioTrack {
                  // but for sounds, length_ reprepresents bytes.
 } music_tracks[] = {
     DEF_MUSIC(shadows, shadows),
+    DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
+    DEF_MUSIC(sb_whatwedontsay, music_sb_whatwedontsay),
 };
 
 
@@ -2493,8 +2501,8 @@ static const AudioTrack* find_music(const char* name)
 // #include "data/sound_creak.hpp"
 // #include "data/sound_dodge.hpp"
 // #include "data/sound_dropitem.hpp"
-// #include "data/sound_explosion1.hpp"
-// #include "data/sound_explosion2.hpp"
+#include "data/sound_explosion1.hpp"
+#include "data/sound_explosion2.hpp"
 // #include "data/sound_footstep1.hpp"
 // #include "data/sound_footstep2.hpp"
 // #include "data/sound_footstep3.hpp"
@@ -2510,10 +2518,13 @@ static const AudioTrack* find_music(const char* name)
 // #include "data/sound_thud.hpp"
 // #include "data/sound_tw_bell.hpp"
 // #include "data/sound_typewriter.hpp"
+#include "data/sound_build0.hpp"
 
 
-static const AudioTrack sounds[] = { // DEF_SOUND(explosion1, sound_explosion1),
-    // DEF_SOUND(explosion2, sound_explosion2),
+static const AudioTrack sounds[] = {
+    DEF_SOUND(explosion1, sound_explosion1),
+    DEF_SOUND(explosion2, sound_explosion2),
+    DEF_SOUND(build0, sound_build0),
     // DEF_SOUND(typewriter, sound_typewriter),
     // DEF_SOUND(footstep1, sound_footstep1),
     // DEF_SOUND(footstep2, sound_footstep2),
@@ -2534,7 +2545,6 @@ static const AudioTrack sounds[] = { // DEF_SOUND(explosion1, sound_explosion1),
     // DEF_SOUND(thud, sound_thud),
     // DEF_SOUND(coin, sound_coin),
     // DEF_SOUND(bell, sound_bell),
-    // DEF_SOUND(pop, sound_pop),
     DEF_SOUND(msg, sound_msg)};
 
 
@@ -2697,6 +2707,13 @@ static Vec2<Float> spatialized_audio_listener_pos;
 void Platform::Speaker::set_position(const Vec2<Float>& position)
 {
     spatialized_audio_listener_pos = position;
+}
+
+
+
+void Platform::Speaker::clear_sounds()
+{
+    modify_audio([&] { snd_ctx.active_sounds.clear(); });
 }
 
 
@@ -3043,10 +3060,42 @@ void Platform::enable_expanded_glyph_mode(bool enabled)
 }
 
 
+#define REG_SGFIFOA *(volatile u32*)0x40000A0
+
+
+static void audio_update_fast_isr()
+{
+    alignas(4) AudioSample mixing_buffer[4];
+
+    // NOTE: audio tracks in ROM should therefore have four byte alignment!
+    *((u32*)mixing_buffer) =
+        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+
+    if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
+        snd_ctx.music_track_pos = 0;
+    }
+
+    for (auto it = snd_ctx.active_sounds.begin();
+         it not_eq snd_ctx.active_sounds.end();) {
+        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+            it = snd_ctx.active_sounds.erase(it);
+        } else {
+            for (int i = 0; i < 4; ++i) {
+                mixing_buffer[i] += (u8)it->data_[it->position_];
+                ++it->position_;
+            }
+            ++it;
+        }
+    }
+
+    REG_SGFIFOA = *((u32*)mixing_buffer);
+}
+
+
+
 [[maybe_unused]] static void audio_start()
 {
     clear_music();
-
 
     REG_SOUNDCNT_H =
         0x0B0F; //DirectSound A + fifo reset + max volume to L and R
@@ -3060,23 +3109,20 @@ void Platform::enable_expanded_glyph_mode(bool enabled)
 
 
     irqEnable(IRQ_TIMER1);
-    irqSet(IRQ_TIMER1, audio_update_isr);
-    irqSet(IRQ_VBLANK, vblank_isr);
+    irqSet(IRQ_TIMER1, audio_update_fast_isr);
 
     REG_TM0CNT_L = 0xffff;
     REG_TM1CNT_L = 0xffff - 3; // I think that this is correct, but I'm not
                                // certain... so we want to play four samples at
                                // a time, which means that by subtracting three
                                // from the initial count, the timer will
-                               // overflow at the correct rate, right?*
-    // * now I'm playing back audio slower, because the audio interrupts mess
-    // * with the hblank handler. It's definitely less noticeable when dropping
-    // * from 16k to 8k.
+                               // overflow at the correct rate, right?
 
     // While it may look like TM0 is unused, it is in fact used for setting the
     // sample rate for the digital audio chip.
     REG_TM0CNT_H = 0x0083;
     REG_TM1CNT_H = 0x00C3;
+
 }
 
 

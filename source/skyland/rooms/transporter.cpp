@@ -35,6 +35,7 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
         recharge_ -= delta;
 
         if (recharge_ < 0) {
+            recharge_ = 0;
             if (parent()->interior_visible()) {
                 parent()->repaint(pfrm, app);
             }
@@ -48,7 +49,7 @@ void Transporter::recover_character(Platform& pfrm,
                                     App& app,
                                     const Vec2<u8>& position)
 {
-    recharge_ += 1000 * transporter_reload_ms;
+    recharge_ = 1000 * transporter_reload_ms;
 
     if (parent()->interior_visible()) {
         parent()->repaint(pfrm, app);
@@ -105,7 +106,7 @@ void Transporter::recover_character(Platform& pfrm,
 
 void Transporter::random_transport_occupant(Platform& pfrm, App& app)
 {
-    recharge_ += 1000 * transporter_reload_ms;
+    recharge_ = 1000 * transporter_reload_ms;
 
     if (parent()->interior_visible()) {
         parent()->repaint(pfrm, app);

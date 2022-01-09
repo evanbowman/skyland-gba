@@ -55,7 +55,7 @@ static void audio_buffer_cp_music(AudioBuffer* mixing_buffer)
 
 
 
-static void audio_buffer_mixin_sfx(AudioBuffer* mixing_buffer)
+void audio_buffer_mixin_sfx(AudioBuffer* mixing_buffer)
 {
     for (int i = 0; i < AudioBuffer::sample_count * 4; i += 4) {
         for (auto it = snd_ctx.active_sounds.begin();
@@ -75,7 +75,7 @@ static void audio_buffer_mixin_sfx(AudioBuffer* mixing_buffer)
 
 
 
-void audio_mix_music_only()
+AudioBuffer* audio_mix_music_only()
 {
     auto start = (audio_front_buffer + 1) % audio_buffer_count;
     for (int i = 0; i < 2; ++i) {
@@ -83,13 +83,15 @@ void audio_mix_music_only()
         if (audio_buffers_consumed[index]) {
             audio_buffer_cp_music(&audio_buffers[index]);
             audio_buffers_consumed[index] = false;
+            return &audio_buffers[index];
         }
     }
+    return nullptr;
 }
 
 
 
-void audio_mix()
+AudioBuffer* audio_mix()
 {
     auto start = (audio_front_buffer + 1) % audio_buffer_count;
     for (int i = 0; i < 2; ++i) {
@@ -98,8 +100,10 @@ void audio_mix()
             audio_buffer_cp_music(&audio_buffers[index]);
             audio_buffer_mixin_sfx(&audio_buffers[index]);
             audio_buffers_consumed[index] = false;
+            return &audio_buffers[index];
         }
     }
+    return nullptr;
 }
 
 

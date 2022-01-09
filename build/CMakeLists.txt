@@ -233,7 +233,6 @@ if(GAMEBOY_ADVANCE)
 
     # Data files below. Because the gameboy advance does not have a filesystem,
     # all of the sounds and images need to be compiled into the ROM.
-    ${DATA_DIR}/music_chantiers_navals_412.s
     ${DATA_DIR}/overlay.s
     ${DATA_DIR}/overlay_dialog.s
     ${DATA_DIR}/overlay_world_map.s
@@ -261,6 +260,8 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/zone_image_3_flattened.s
     ${DATA_DIR}/spritesheet.s
     ${DATA_DIR}/spritesheet_title_screen.s
+    ${DATA_DIR}/music_unaccompanied_wind.s
+    ${DATA_DIR}/music_sb_whatwedontsay.s
     ${DATA_DIR}/shadows.s
     ${DATA_DIR}/sound_msg.s
     ${DATA_DIR}/sound_pop.s
@@ -271,6 +272,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/sound_heart.s
     ${DATA_DIR}/sound_dodge.s
     ${DATA_DIR}/sound_creak.s
+    ${DATA_DIR}/sound_build0.s
     ${DATA_DIR}/sound_dropitem.s
     ${DATA_DIR}/sound_scroll.s
     ${DATA_DIR}/sound_laser1.s

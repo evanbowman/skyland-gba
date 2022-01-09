@@ -14,8 +14,12 @@ extern SoundContext snd_ctx;
 
 
 
-void audio_mix();
+AudioBuffer* audio_mix();
 
 
 
-void audio_mix_music_only();
+AudioBuffer* audio_mix_music_only();
+
+
+
+void audio_buffer_mixin_sfx(AudioBuffer* mixing_buffer);

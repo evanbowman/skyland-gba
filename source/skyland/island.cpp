@@ -234,6 +234,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 network::transmit(pfrm, packet);
             };
 
+            pfrm.speaker().play_sound("explosion1", 2);
+
             if (pfrm.network_peer().is_connected()) {
                 if (not app.on_timeout(pfrm, sync_delay, sync)) {
                     // Explanation: we don't want to transmit the room destroyed

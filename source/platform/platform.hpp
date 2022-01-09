@@ -575,6 +575,8 @@ public:
                         std::optional<Vec2<Float>> position = {});
         bool is_sound_playing(const char* name);
 
+        void clear_sounds();
+
         // Updates the listener position for spatialized audio, if supported.
         void set_position(const Vec2<Float>& position);
 
