@@ -39,19 +39,25 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             if (island) {
+
                 if (target_) {
-                    if (auto room = island->get_room(*target_)) {
-                        auto start = center();
-                        start.y -= 24;
 
-                        app.camera().shake(6);
-                        load_ = 1000 * missile_silo_reload_ms;
-                        auto m = app.alloc_entity<Missile>(
-                            pfrm, start, room->center(), parent());
+                    Vec2<Float> target;
 
-                        if (m) {
-                            parent()->projectiles().push(std::move(m));
-                        }
+                    auto origin = island->origin();
+                    origin.x += target_->x * 16 + 8;
+                    origin.y += target_->y * 16 + 8;
+                    target = origin;
+
+                    auto start = center();
+                    start.y -= 24;
+
+                    app.camera().shake(6);
+                    load_ = 1000 * missile_silo_reload_ms;
+                    auto m = app.alloc_entity<Missile>(pfrm, start, target, parent());
+
+                    if (m) {
+                        parent()->projectiles().push(std::move(m));
                     }
                 }
             }

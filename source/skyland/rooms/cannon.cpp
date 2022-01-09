@@ -40,37 +40,38 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
         auto island = other_island(app);
 
         if (island and not island->is_destroyed()) {
-            if (auto room = island->get_room(*target_)) {
-                app.camera().shake(4);
 
-                auto start = center();
+            Vec2<Float> target;
 
-                // This just makes it a bit less likely for cannonballs to
-                // run into the player's own buildings, especially around
-                // corners.
-                if (island == &app.player_island()) {
-                    start.x -= 6;
-                } else {
-                    start.x += 6;
-                }
+            auto origin = island->origin();
+            origin.x += target_->x * 16 + 8;
+            origin.y += target_->y * 16 + 8;
+            target = origin;
 
-                auto target = room->center();
+            app.camera().shake(4);
 
-                if (not pfrm.network_peer().is_connected() and
-                    app.game_mode() not_eq App::GameMode::tutorial) {
-                    target = rng::sample<6>(target, rng::critical_state);
-                }
+            auto start = center();
 
-                auto c = alloc_entity<Cannonball>(
-                    start, target, parent(), position());
-                if (c) {
-                    parent()->projectiles().push(std::move(c));
-                }
-
-                reload_ = 1000 * cannon_reload_ms;
+            // This just makes it a bit less likely for cannonballs to
+            // run into the player's own buildings, especially around
+            // corners.
+            if (island == &app.player_island()) {
+                start.x -= 6;
             } else {
-                target_.reset();
+                start.x += 6;
             }
+
+            if (not pfrm.network_peer().is_connected() and
+                app.game_mode() not_eq App::GameMode::tutorial) {
+                target = rng::sample<6>(target, rng::critical_state);
+            }
+
+            auto c = alloc_entity<Cannonball>(start, target, parent(), position());
+            if (c) {
+                parent()->projectiles().push(std::move(c));
+            }
+
+            reload_ = 1000 * cannon_reload_ms;
         }
     }
 }
