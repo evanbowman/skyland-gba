@@ -25,11 +25,11 @@
 
 (island-configure
  (opponent)
- '((power-core 3 10)
+ '((power-core 3 8)
    (hull 3 12)
    (hull 4 12)
    (power-core 3 13)
-   (power-core 3 8)
+   (workshop 3 10)
    (stairwell 6 11)
    (transporter 6 9)
    (transporter 5 13)
@@ -46,15 +46,14 @@
    (hull 2 11)
    (hull 2 10)
    (hull 2 9)
-   (workshop 7 13)
+   (power-core 7 13)
+   (hull 3 6)
    (hull 4 6)
    (hull 3 7)
    (hull 4 7)
    (hull 5 8)
    (hull 6 8)
    (hull 7 12)
-   (hull 7 11)
-   (hull 7 10)
    (hull 8 12)))
 
 
