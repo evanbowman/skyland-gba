@@ -167,6 +167,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // all of the characters inside.
                 if (length(room->characters()) == 0) {
 
+                    pfrm.speaker().play_sound("coin", 2);
                     app.coins() += salvage_value(*room);
 
                     island(app)->destroy_room(pfrm, app, cursor_loc);

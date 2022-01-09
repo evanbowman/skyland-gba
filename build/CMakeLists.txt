@@ -67,6 +67,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/room.cpp
   ${SOURCE_DIR}/skyland/path.cpp
   ${SOURCE_DIR}/skyland/save.cpp
+  ${SOURCE_DIR}/skyland/sound.cpp
   ${SOURCE_DIR}/skyland/island.cpp
   ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/serial.cpp
@@ -274,6 +275,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/sound_dodge.s
     ${DATA_DIR}/sound_creak.s
     ${DATA_DIR}/sound_build0.s
+    ${DATA_DIR}/sound_cannon.s
     ${DATA_DIR}/sound_dropitem.s
     ${DATA_DIR}/sound_scroll.s
     ${DATA_DIR}/sound_laser1.s

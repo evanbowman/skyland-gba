@@ -6,6 +6,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/sound.hpp"
 
 
 
@@ -14,6 +15,10 @@ namespace skyland {
 
 
 SHARED_VARIABLE(cannon_reload_ms);
+
+
+
+static Sound cannon_sound("cannon");
 
 
 
@@ -65,6 +70,8 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
                 app.game_mode() not_eq App::GameMode::tutorial) {
                 target = rng::sample<6>(target, rng::critical_state);
             }
+
+            cannon_sound.play(pfrm, 3);
 
             auto c = alloc_entity<Cannonball>(start, target, parent(), position());
             if (c) {

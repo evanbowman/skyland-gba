@@ -250,6 +250,7 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
     if (health_ == 0) {
         if (parent() not_eq &app.player_island()) {
             // You get some coins for plundering a room
+            pfrm.speaker().play_sound("coin", 2);
             app.coins() += (*metaclass())->cost() * 0.3f;
         }
 

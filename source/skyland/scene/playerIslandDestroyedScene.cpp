@@ -317,6 +317,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case AnimState::add_score: {
+        pfrm.speaker().play_sound("coin", 2);
         app.coins() += app.victory_coins();
         app.victory_coins() = 0;
         anim_state_ = AnimState::wait_2;

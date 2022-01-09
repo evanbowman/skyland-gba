@@ -6,6 +6,7 @@
 #include "save.hpp"
 #include "script/lisp.hpp"
 #include "serial.hpp"
+#include "sound.hpp"
 
 
 
@@ -127,6 +128,8 @@ void App::update(Platform& pfrm, Microseconds delta)
 
         current_scene_ = std::move(next_scene_);
     }
+
+    Sound::update_all(delta);
 
     auto line = pfrm.remote_console().readline();
     if (UNLIKELY(static_cast<bool>(line))) {
