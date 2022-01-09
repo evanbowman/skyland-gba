@@ -55,6 +55,7 @@ void skyland_main_loop(Platform& pf)
 }
 
 
+
 void start(Platform& pfrm)
 {
     ram_filesystem::initialize(pfrm,
@@ -77,7 +78,6 @@ void start(Platform& pfrm)
         ram_filesystem::store_file_data(
             pfrm, "/mods/init.lisp", test_file, str_len(test_file));
     }
-
 
     return skyland_main_loop(pfrm);
 }

@@ -434,7 +434,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
     case State::select_loc:
         if (not construction_sites_.empty()) {
-            auto origin = island(app)->origin();
+            auto origin = island(app)->visual_origin();
 
             origin.x += construction_sites_[selector_].x * 16;
             origin.y += (construction_sites_[selector_].y) * 16;
@@ -455,7 +455,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
             const auto& meta = *available_buildings_[building_selector_];
             const auto sz = meta->size();
 
-            auto origin = island(app)->origin();
+            auto origin = island(app)->visual_origin();
             origin.x += construction_sites_[selector_].x * 16;
             origin.y += (construction_sites_[selector_].y - (sz.y - 1)) * 16;
 
@@ -493,7 +493,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
     case State::add_terrain: {
         auto& terrain = island(app)->terrain();
         const Vec2<u8> loc = {u8(terrain.size()), 15};
-        auto origin = island(app)->origin();
+        auto origin = island(app)->visual_origin();
         origin.x += loc.x * 16;
         origin.y -= 32;
         Sprite sprite;

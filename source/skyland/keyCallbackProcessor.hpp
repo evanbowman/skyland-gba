@@ -18,8 +18,15 @@ class App;
 class KeyCallbackProcessor {
 public:
 
+
+    static const int seq_max = 11;
+
+
     struct MatchSeq {
-        Key seq_[8] = {
+        Key seq_[seq_max] = {
+            Key::count,
+            Key::count,
+            Key::count,
             Key::count,
             Key::count,
             Key::count,
@@ -49,7 +56,7 @@ public:
 
     void update(Platform& pfrm)
     {
-        if (seek_state() == 7) {
+        if (seek_state() == seq_max - 1) {
             return;
         }
 

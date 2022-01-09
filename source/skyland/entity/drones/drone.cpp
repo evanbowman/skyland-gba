@@ -13,7 +13,7 @@ namespace skyland {
 
 static Vec2<Float> calc_pos(Island* island, const Vec2<u8>& grid_coord)
 {
-    auto o = island->origin();
+    auto o = island->visual_origin();
     o.x += grid_coord.x * 16;
     o.y += grid_coord.y * 16;
     return o;

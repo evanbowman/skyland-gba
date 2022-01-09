@@ -280,7 +280,12 @@ size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
                             sizeof contents,
                             fs_contents_offset() + file * block_size);
 
-        for (u16 i = path_len + 1; i < FileContents::capacity; ++i) {
+        const auto len = info.file_size_.get() - (path_len + 1);
+
+        for (u16 i = path_len + 1;
+             i < FileContents::capacity and output.size() not_eq len;
+             ++i) {
+
             output.push_back(contents.data_[i]);
         }
 
@@ -291,7 +296,10 @@ size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
                                 sizeof contents,
                                 fs_contents_offset() + file * block_size);
 
-            for (u16 i = 0; i < FileContents::capacity; ++i) {
+            for (u16 i = 0;
+                 i < FileContents::capacity and output.size() not_eq len;
+                 ++i) {
+
                 output.push_back(contents.data_[i]);
             }
 

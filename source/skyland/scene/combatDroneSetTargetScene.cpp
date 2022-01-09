@@ -160,7 +160,7 @@ void CombatDroneSetTargetScene::display(Platform& pfrm, App& app)
         island = &*app.opponent_island();
     }
 
-    auto origin = island->origin();
+    auto origin = island->visual_origin();
 
     origin.x += cursor_loc_.x * 16;
     origin.y += cursor_loc_.y * 16;

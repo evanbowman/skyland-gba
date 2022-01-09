@@ -162,7 +162,7 @@ void InspectP2Scene::display(Platform& pfrm, App& app)
         cursor.set_size(Sprite::Size::w16_h32);
         cursor.set_texture_index(15 + cursor_anim_frame_);
 
-        auto origin = app.opponent_island()->origin();
+        auto origin = app.opponent_island()->visual_origin();
 
         auto& cursor_loc =
             std::get<SkylandGlobalData>(globals()).far_cursor_loc_;

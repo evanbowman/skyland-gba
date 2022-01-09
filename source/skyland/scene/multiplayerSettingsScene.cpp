@@ -16,6 +16,7 @@ MultiplayerSettingsScene::ParamBuffer MultiplayerSettingsScene::parameters_;
 const MultiplayerSettingsScene::ParameterInfo
     MultiplayerSettingsScene::param_info[decltype(parameters_)::capacity()] = {
         {"prep seconds", 5, 20, 10000},
+        {"unhide prep ", 1, 0, 1},
         {"coins", 100, 1000, 10000000},
 };
 
@@ -51,7 +52,8 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
         // Defaults
         parameters_[0] = 120;
-        parameters_[1] = 17500;
+        parameters_[1] = 0;
+        parameters_[2] = 17500;
     }
 
 
@@ -76,7 +78,18 @@ void MultiplayerSettingsScene::update_parameter(u8 line_num)
     temp += param_info[line_num].name_;
     temp += " ";
 
-    const auto int_text_len = integer_text_length(parameters_[line_num]);
+    const bool is_boolean_field =
+        param_info[line_num].lower_limit_ == 0 and
+        param_info[line_num].upper_limit_ == 1;
+
+    auto int_text_len = integer_text_length(parameters_[line_num]);
+    if (is_boolean_field) {
+        if (parameters_[line_num]) {
+            int_text_len = str_len("yes");
+        } else {
+            int_text_len = str_len("no");
+        }
+    }
 
     for (u32 i = temp.length(); i < 28 - int_text_len - 2; ++i) {
         if (i % 2 == 0) {
@@ -86,7 +99,11 @@ void MultiplayerSettingsScene::update_parameter(u8 line_num)
         }
     }
 
-    temp += to_string<10>(parameters_[line_num]);
+    if (is_boolean_field) {
+        temp += parameters_[line_num] ? "yes" : "no";
+    } else {
+        temp += to_string<10>(parameters_[line_num]);
+    }
 
     settings_text_[line_num].assign(temp.c_str());
 }
@@ -105,7 +122,10 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
     std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ =
         parameters_[0];
 
-    app.coins() = parameters_[1];
+    std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_ =
+        parameters_[1];
+
+    app.coins() = parameters_[2];
 }
 
 

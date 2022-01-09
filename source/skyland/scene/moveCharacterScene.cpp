@@ -292,10 +292,10 @@ void MoveCharacterScene::display(Platform& pfrm, App& app)
 
     Vec2<Float> origin;
     if (near_) {
-        origin = app.player_island().origin();
+        origin = app.player_island().visual_origin();
     } else {
         if (app.opponent_island()) {
-            origin = app.opponent_island()->origin();
+            origin = app.opponent_island()->visual_origin();
         }
     }
 

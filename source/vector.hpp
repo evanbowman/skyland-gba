@@ -280,10 +280,7 @@ public:
     Vector(Vector&& other)
         : pfrm_(other.pfrm_), data_(other.data_), size_(other.size_)
     {
-        other.size_ = 0; // Should be sufficient to invalidate the other
-                         // vector. It will hold onto its scratch buffer, which
-                         // cannot be null, but it's just a reference count and
-                         // will be decremented eventually.
+        other.valid_ = false;
     }
 
 
@@ -349,12 +346,14 @@ public:
 
     ~Vector()
     {
-        // TODO: Don't bother to pop anything if elements are trivially
-        // destructible.
-        while (size_ > Chunk::elems()) {
-            pop_back();
+        if (valid_) {
+            if constexpr (not std::is_trivially_destructible<T>()) {
+                while (size_ > Chunk::elems()) {
+                    pop_back();
+                }
+            }
+            ((Chunk*)data_->data_)->~Chunk();
         }
-        ((Chunk*)data_->data_)->~Chunk();
     }
 
 
@@ -373,7 +372,7 @@ public:
 private:
     Platform& pfrm_;
     ScratchBufferPtr data_;
-
+    bool valid_ = true;
     u32 size_ = 0;
 
     // Improves the performance of push_back() and end() and other operations

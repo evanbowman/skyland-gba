@@ -36,6 +36,13 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
+    const auto& mt_prep_seconds =
+        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+
+    if (mt_prep_seconds) {
+        return;
+    }
+
     bool has_pilot = false;
     for (auto& chr : characters()) {
         if (chr->parent() == parent()) {

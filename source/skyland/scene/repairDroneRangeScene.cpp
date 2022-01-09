@@ -43,7 +43,7 @@ void RepairDroneRangeScene::display(Platform& pfrm, App& app)
     if (auto drone_sp = drone_.promote()) {
         auto pos = (*drone_sp)->position();
 
-        auto origin = (*drone_sp)->destination()->origin();
+        auto origin = (*drone_sp)->destination()->visual_origin();
 
         Sprite sprite;
         sprite.set_size(Sprite::Size::w16_h32);

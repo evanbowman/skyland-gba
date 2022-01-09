@@ -66,7 +66,7 @@ private:
     u8 player_cursor_ = 0;
     u8 opponent_cursor_ = 0;
 
-    Buffer<Text, 2> settings_text_;
+    Buffer<Text, 3> settings_text_;
     using ParamBuffer = Buffer<int, decltype(settings_text_)::capacity()>;
     static ParamBuffer parameters_;
 

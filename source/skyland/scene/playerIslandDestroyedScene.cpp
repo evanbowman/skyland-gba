@@ -184,7 +184,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     island_->set_position(pos);
 
 
-    auto origin = island_->origin();
+    auto origin = island_->visual_origin();
     origin.x += 16 * (island_->terrain().size() / 2);
 
     timer_ += delta;

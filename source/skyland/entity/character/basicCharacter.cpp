@@ -30,7 +30,7 @@ BasicCharacter::BasicCharacter(Island* parent,
     sprite_.set_texture_index(40);
     sprite_.set_size(Sprite::Size::w16_h32);
 
-    auto o = parent_->origin();
+    auto o = parent_->visual_origin();
     o.x += grid_position_.x * 16;
     o.y += grid_position_.y * 16 - 3;
 
@@ -65,7 +65,7 @@ void BasicCharacter::transported()
 
 void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    auto o = parent_->origin();
+    auto o = parent_->visual_origin();
     o.x += grid_position_.x * 16;
     o.y += grid_position_.y * 16 - 3;
 
@@ -274,7 +274,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
 
 void BasicCharacter::update_attack(Microseconds delta, App& app)
 {
-    auto o = parent_->origin();
+    auto o = parent_->visual_origin();
     o.x += grid_position_.x * 16;
     o.y += grid_position_.y * 16 - 3;
 
@@ -324,7 +324,7 @@ void BasicCharacter::update_attack(Microseconds delta, App& app)
 
 void BasicCharacter::movement_step(Microseconds delta)
 {
-    auto o = parent_->origin();
+    auto o = parent_->visual_origin();
     o.x += grid_position_.x * 16;
     o.y += grid_position_.y * 16 - 3;
 
@@ -336,7 +336,7 @@ void BasicCharacter::movement_step(Microseconds delta)
 
     if (not(*movement_path_)->empty()) {
         auto dest_grid_pos = (*movement_path_)->back();
-        auto dest = parent_->origin();
+        auto dest = parent_->visual_origin();
         dest.x += dest_grid_pos.x * 16;
         dest.y += dest_grid_pos.y * 16 - 3; // floor is two pixels thick
 

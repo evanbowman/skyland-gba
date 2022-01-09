@@ -161,8 +161,8 @@ void App::init_scripts(Platform& pfrm)
         int i = 0;
         auto str = lisp::get_op(1)->string().value();
         while (*str not_eq '\0') {
-            if (i == 7) {
-                Platform::fatal("too many keys in key-bind expr, max 7");
+            if (i == KeyCallbackProcessor::seq_max - 1) {
+                Platform::fatal("too many keys in key-bind expr, max 10");
             }
             if (*str == '-') {
                 ++str;

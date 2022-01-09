@@ -36,7 +36,9 @@ void TextEditorModule::show_status(Platform& pfrm)
     }
 
     if (mode_ == Mode::edit) {
-        status_->assign("edit: ", status_colors);
+        status_->assign("edit: (size ", status_colors);
+        status_->append(text_buffer_.size(), status_colors);
+        status_->append(")", status_colors);
     } else {
         status_->assign("nav: line ", status_colors);
         status_->append(cursor_.y + 1, status_colors);

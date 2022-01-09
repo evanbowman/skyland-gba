@@ -82,7 +82,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             describe_room_timer_ = milliseconds(300);
         } else if ( // Do not allow the player to inspect the other island if we're in
                     // the multiplayer waiting room.
-            mt_prep_seconds == 0) {
+            mt_prep_seconds == 0 or
+            std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_) {
             auto& cursor_loc =
                 std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
@@ -298,7 +299,7 @@ void ReadyScene::display(Platform& pfrm, App& app)
     cursor.set_size(Sprite::Size::w16_h32);
     cursor.set_texture_index(15 + cursor_anim_frame_);
 
-    auto origin = app.player_island().origin();
+    auto origin = app.player_island().visual_origin();
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 

@@ -48,7 +48,7 @@ ScenePtr<Scene> KeyComboScene::update(Platform& pfrm,
     }
 
     if (app.player().key_down(pfrm, Key::start) or
-        key_callback_processor.seek_state() == 7) {
+        key_callback_processor.seek_state() == KeyCallbackProcessor::seq_max - 1) {
 
         if (auto binding = key_callback_processor.match()) {
             binding->callback_(pfrm, app);

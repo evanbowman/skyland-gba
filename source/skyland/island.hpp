@@ -126,7 +126,15 @@ public:
     }
 
 
+    // The origin used for collision checking and important stuff.
     Vec2<Float> origin() const;
+
+
+    // The origin with some added ambient movement, looks nice, but not
+    // sufficient for calculating collision checking or anything like that,
+    // mostly due to multiplayer, continuously moving things can get out of
+    // sync.
+    Vec2<Float> visual_origin() const;
 
 
     using Terrain = Buffer<u8, 11>;

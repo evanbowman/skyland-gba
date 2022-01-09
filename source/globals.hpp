@@ -41,6 +41,8 @@ struct SkylandGlobalData {
     std::optional<Text> multiplayer_prep_text_;
     Microseconds multiplayer_prep_timer_ = 0;
     u16 multiplayer_prep_seconds_ = 0;
+
+    bool unhide_multiplayer_prep_ = false;
 };
 
 

@@ -135,16 +135,11 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         }
     }
 
-    ambient_movement_ = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
-                        std::numeric_limits<s16>::max();
+    u8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
+        std::numeric_limits<s16>::max();
 
+    ambient_movement_ = ambient_offset;
 
-    if (pfrm.network_peer().is_connected()) {
-        // Due to tiny signal propagation delays in the cable, the ambient
-        // movement effect can be the difference between a collision happening
-        // and not happening, so we'll need to disable the effect.
-        ambient_movement_ = 0.f;
-    }
 
     const bool movement_ready = all_characters_awaiting_movement_;
     all_characters_awaiting_movement_ = true;
@@ -311,7 +306,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
     pfrm.set_scroll(layer(),
                     -get_position().cast<u16>().x,
-                    -get_position().cast<u16>().y - get_ambient_movement());
+                    -get_position().cast<u16>().y - ambient_offset);
 }
 
 
@@ -781,6 +776,13 @@ void Island::set_drift(Float drift)
 
 
 Vec2<Float> Island::origin() const
+{
+    return {position_.x, position_.y};
+}
+
+
+
+Vec2<Float> Island::visual_origin() const
 {
     return {position_.x, position_.y + ambient_movement_};
 }

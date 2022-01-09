@@ -92,7 +92,7 @@ void RecoverCharacterScene::display(Platform& pfrm, App& app)
     cursor.set_size(Sprite::Size::w16_h32);
     cursor.set_texture_index(17);
 
-    auto origin = app.opponent_island()->origin();
+    auto origin = app.opponent_island()->visual_origin();
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
