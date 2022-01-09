@@ -84,9 +84,9 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (counter_ < 6) {
                 ++counter_;
-                reload_ = milliseconds(200);
+                reload_ += milliseconds(200);
             } else {
-                reload_ = 1000 * decimator_reload_ms;
+                reload_ += 1000 * decimator_reload_ms;
                 counter_ = 0;
             }
         }

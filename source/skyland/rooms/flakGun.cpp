@@ -73,7 +73,7 @@ void FlakGun::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
 
-            reload_ = 1000 * flak_gun_reload_ms;
+            reload_ += 1000 * flak_gun_reload_ms;
 
         }
     }

@@ -62,7 +62,7 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
                     start.y -= 24;
 
                     app.camera().shake(6);
-                    load_ = 1000 * missile_silo_reload_ms;
+                    load_ += 1000 * missile_silo_reload_ms;
                     auto m = app.alloc_entity<Missile>(pfrm,
                                                        start,
                                                        target,

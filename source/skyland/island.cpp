@@ -139,6 +139,13 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                         std::numeric_limits<s16>::max();
 
 
+    if (pfrm.network_peer().is_connected()) {
+        // Due to tiny signal propagation delays in the cable, the ambient
+        // movement effect can be the difference between a collision happening
+        // and not happening, so we'll need to disable the effect.
+        ambient_movement_ = 0.f;
+    }
+
     const bool movement_ready = all_characters_awaiting_movement_;
     all_characters_awaiting_movement_ = true;
 

@@ -71,7 +71,7 @@ void IonCannon::update(Platform& pfrm, App& app, Microseconds delta)
                 parent()->projectiles().push(std::move(c));
             }
 
-            reload_ = 1000 * ion_cannon_reload_ms;
+            reload_ += 1000 * ion_cannon_reload_ms;
         }
     }
 }
