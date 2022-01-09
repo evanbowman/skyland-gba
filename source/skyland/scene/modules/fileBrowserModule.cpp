@@ -31,7 +31,7 @@ FileBrowserModule::FileBrowserModule(Platform& pfrm,
         temp.push_back(path[i]);
 
         if (path[i] == '/') {
-            (*path_)->push_back(temp);
+            (*path_)->emplace_back(temp);
             temp.clear();
         }
     }
@@ -166,7 +166,7 @@ void FileBrowserModule::repaint(Platform& pfrm)
                     }
                 }
 
-                folders->push_back(subfolder);
+                folders->emplace_back(subfolder);
 
                 (*cwd_names_)->push_back(subfolder.c_str());
 
@@ -449,7 +449,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                 auto selected = (**cwd_names_)[scroll_index_];
                 if (selected[selected.length() - 1] == '/') {
                     on_dir_changed();
-                    (*path_)->push_back(selected);
+                    (*path_)->emplace_back(selected);
                     repaint(pfrm);
                 } else {
                     auto path = this->cwd();
@@ -491,7 +491,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                 auto selected = (**cwd_names_)[entry];
                 if (selected[selected.length() - 1] == '/') {
                     on_dir_changed();
-                    (*path_)->push_back(selected);
+                    (*path_)->emplace_back(selected);
                     repaint(pfrm);
                 } else {
                     auto path = this->cwd();

@@ -152,7 +152,8 @@ void App::init_scripts(Platform& pfrm)
 
         KeyCallbackProcessor::Binding b {
             KeyCallbackProcessor::MatchSeq{},
-            [v = lisp::Protected(lisp::get_op(0))](Platform& pfrm, App& app) {
+            [v = lisp::Protected(lisp::get_op(0))
+             ](Platform& pfrm, App& app) {
                 lisp::funcall(v.get(), 0);
             }
         };
@@ -685,9 +686,12 @@ void App::init_scripts(Platform& pfrm)
         interp_get_app()->on_timeout(*lisp::interp_get_pfrm(),
                                      milliseconds(lisp::get_op(1)->integer().value_),
                                      [v = lisp::Protected(lisp::get_op(0))]
-                                     (Platform& pfrm, App& app) {
-                                         lisp::funcall(v.get(), 0);
-                                     });
+            (Platform& pfrm, App& app) {
+                lisp::funcall(v.get(), 0);
+        });
+
+        info(*lisp::interp_get_pfrm(), "exit stack");
+
         return L_NIL;
     }));
 

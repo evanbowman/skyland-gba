@@ -1380,8 +1380,11 @@ static void gc_mark_value(Value* value)
 static ProtectedBase* __protected_values = nullptr;
 
 
-ProtectedBase::ProtectedBase() : prev_(nullptr), next_(__protected_values)
+ProtectedBase::ProtectedBase()
 {
+    prev_ = nullptr;
+    next_ = __protected_values;
+
     if (__protected_values) {
         __protected_values->prev_ = this;
     }
@@ -1390,9 +1393,11 @@ ProtectedBase::ProtectedBase() : prev_(nullptr), next_(__protected_values)
 }
 
 
-ProtectedBase::ProtectedBase(const ProtectedBase&) :
-    prev_(nullptr), next_(__protected_values)
+ProtectedBase::ProtectedBase(const ProtectedBase&)
 {
+    prev_ = nullptr;
+    next_ = __protected_values;
+
     if (__protected_values) {
         __protected_values->prev_ = this;
     }

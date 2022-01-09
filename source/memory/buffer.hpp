@@ -55,7 +55,9 @@ public:
 
     ~Buffer()
     {
-        Buffer::clear();
+        if constexpr (not std::is_trivially_destructible<T>()) {
+            Buffer::clear();
+        }
     }
 
 
@@ -114,6 +116,7 @@ public:
 
     bool push_back(const T& elem)
     {
+        static_assert(std::is_trivially_destructible<T>());
         if (Buffer::size() < Buffer::capacity()) {
             new (end_) T(elem);
             ++end_;

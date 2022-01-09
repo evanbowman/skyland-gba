@@ -43,7 +43,7 @@ public:
 
     void push_binding(const Binding& binding)
     {
-        bindings_.push_back(binding);
+        bindings_.emplace_back(binding);
     }
 
 

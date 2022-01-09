@@ -121,7 +121,7 @@ public:
                     Microseconds expire_time,
                     const DeferredCallback& callback)
     {
-        if (not deferred_callbacks_.push_back({callback, expire_time})) {
+        if (not deferred_callbacks_.emplace_back(callback, expire_time)) {
             warning(pfrm, "failed to enq timeout");
             return false;
         }

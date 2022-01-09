@@ -73,9 +73,9 @@ void prep_level(Platform& pfrm, App& app)
 
         for (auto& room : app.opponent_island()->rooms()) {
             if (app.zone() < 2) {
-                app.victory_coins() += 0.55f * (*room->metaclass())->cost();
+                app.victory_coins() += 0.52f * (*room->metaclass())->cost();
             } else if (app.zone() < 3) {
-                app.victory_coins() += 0.4f * (*room->metaclass())->cost();
+                app.victory_coins() += 0.38f * (*room->metaclass())->cost();
             } else if (app.zone() < 4) {
                 app.victory_coins() += 0.2f * (*room->metaclass())->cost();
             } else {
