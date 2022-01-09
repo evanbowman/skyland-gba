@@ -14,7 +14,7 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     pfrm.system_call("dlc-download", nullptr);
 
-    return scene_pool::alloc<TitleScreenScene>();
+    return scene_pool::alloc<TitleScreenScene>(3);
 }
 
 

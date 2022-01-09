@@ -1380,42 +1380,38 @@ static void gc_mark_value(Value* value)
 static ProtectedBase* __protected_values = nullptr;
 
 
-ProtectedBase::ProtectedBase() : next_(nullptr)
+ProtectedBase::ProtectedBase() : prev_(nullptr), next_(__protected_values)
 {
-    auto plist = __protected_values;
-    if (plist) {
-        plist->next_ = this;
-        prev_ = plist;
-    } else {
-        prev_ = nullptr;
+    if (__protected_values) {
+        __protected_values->prev_ = this;
     }
-    plist = this;
+
+    __protected_values = this;
 }
 
 
-ProtectedBase::ProtectedBase(const ProtectedBase&) : next_(nullptr)
+ProtectedBase::ProtectedBase(const ProtectedBase&) :
+    prev_(nullptr), next_(__protected_values)
 {
-    auto plist = __protected_values;
-    if (plist) {
-        plist->next_ = this;
-        prev_ = plist;
-    } else {
-        prev_ = nullptr;
+    if (__protected_values) {
+        __protected_values->prev_ = this;
     }
-    plist = this;
+
+    __protected_values = this;
 }
 
 
 ProtectedBase::~ProtectedBase()
 {
+    if (prev_ == nullptr) {
+        // We're the list head!
+        __protected_values = next_;
+    } else {
+        prev_->next_ = next_;
+    }
+
     if (next_) {
         next_->prev_ = prev_;
-    } else {
-        // If next_ is null, then we're at the head of the list.
-        __protected_values = nullptr;
-    }
-    if (prev_) {
-        prev_->next_ = next_;
     }
 }
 

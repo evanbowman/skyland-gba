@@ -189,7 +189,7 @@ FlagDesignerModule::update(Platform& pfrm, App& app, Microseconds delta)
     }
     if (app.player().key_down(pfrm, Key::action_2)) {
         save::store_global_data(pfrm, app.gp_);
-        return scene_pool::alloc<TitleScreenScene>();
+        return scene_pool::alloc<TitleScreenScene>(3);
     }
     if (app.player().key_down(pfrm, Key::start)) {
         ready_ = true;

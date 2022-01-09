@@ -38,6 +38,7 @@ struct Header {
         game_match_parameter_update,
         game_match_settings_cursor,
         game_match_begin,
+        heartbeat,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -58,6 +59,15 @@ struct ProgramVersion {
     u8 revision_;
 
     static const auto mt = Header::MessageType::program_version;
+};
+
+
+
+struct Heartbeat {
+    Header header_;
+    u8 unused_[5];
+
+    static const auto mt = Header::MessageType::heartbeat;
 };
 
 
@@ -459,6 +469,11 @@ public:
 
 
     virtual void receive(Platform&, App&, const packet::GameMatchReady&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::Heartbeat&)
     {
     }
 };

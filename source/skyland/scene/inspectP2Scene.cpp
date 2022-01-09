@@ -130,16 +130,9 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ConstructionScene>(false);
     }
 
-    if (app.player().key_pressed(pfrm, Key::start)) {
-        start_key_held_timer_ += delta;
-    }
-    if (app.player().key_up(pfrm, Key::start)) {
-        if (not pfrm.network_peer().is_connected()) {
-            if (start_key_held_timer_ > seconds(1)) {
-                return scene_pool::alloc<LispReplScene>(pfrm);
-            }
-        }
-        start_key_held_timer_ = 0;
+    if (not pfrm.network_peer().is_connected() and app.launch_repl()) {
+        app.launch_repl() = false;
+        return scene_pool::alloc<LispReplScene>(pfrm);
     }
 
     if (describe_room_timer_ > 0) {

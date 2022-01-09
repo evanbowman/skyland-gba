@@ -25,8 +25,6 @@ private:
     Microseconds describe_room_timer_ = seconds(1);
     u8 cursor_anim_frame_;
     std::optional<Text> room_description_;
-
-    Microseconds start_key_held_timer_ = 0;
 };
 
 

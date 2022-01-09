@@ -12,6 +12,8 @@ namespace skyland {
 
 class TitleScreenScene : public Scene {
 public:
+    TitleScreenScene(int start_page = 1);
+
     void enter(Platform&, App&, Scene& prev) override;
     void exit(Platform&, App&, Scene& next) override;
 
@@ -73,6 +75,8 @@ private:
         fade_modules_1,
         show_modules,
         fade_modules_backout,
+        resume_end,
+        resume_challenges,
     } state_ = State::fade_in;
 
     int menu_selection_ = 0;

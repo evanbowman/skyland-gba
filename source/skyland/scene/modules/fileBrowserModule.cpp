@@ -425,7 +425,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
         } else if (app.player().key_down(pfrm, Key::action_2)) {
-            return scene_pool::alloc<TitleScreenScene>();
+            return scene_pool::alloc<TitleScreenScene>(3);
         }
         break;
 

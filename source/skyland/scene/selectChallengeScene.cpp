@@ -136,7 +136,7 @@ ScenePtr<Scene>
 SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (exit_) {
-        return scene_pool::alloc<TitleScreenScene>();
+        return scene_pool::alloc<TitleScreenScene>(2);
     }
 
     timer_ += delta;

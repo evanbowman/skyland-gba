@@ -151,7 +151,7 @@ ScenePtr<Scene>
 SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (exit_) {
-        return scene_pool::alloc<TitleScreenScene>();
+        return scene_pool::alloc<TitleScreenScene>(3);
     }
 
     timer_ += delta;

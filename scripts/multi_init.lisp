@@ -5,6 +5,8 @@
 
 (eval-file "/scripts/reset_hooks.lisp")
 
+(key-reset)
+
 
 (coins-add -999999)
 

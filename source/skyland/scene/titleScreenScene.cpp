@@ -11,6 +11,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
+#include "skyland/keyCallbackProcessor.hpp"
 
 
 
@@ -49,6 +50,24 @@ void __draw_image(Platform& pfrm,
 
 
 
+TitleScreenScene::TitleScreenScene(int start_page)
+{
+    switch (start_page) {
+    case 1:
+        return;
+
+    case 2:
+        state_ = State::resume_challenges;
+        break;
+
+    case 3:
+        state_ = State::resume_end;
+        break;
+    }
+}
+
+
+
 void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.screen().fade(1.f);
@@ -58,6 +77,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     init_clouds2(pfrm);
     pfrm.system_call("v-parallax", (void*)false);
+
+    key_callback_processor.reset();
 
     auto view = pfrm.screen().get_view();
     auto c = view.get_center();
@@ -330,6 +351,20 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     switch (state_) {
+    case State::resume_challenges:
+        state_ = State::fade_in;
+        menu_selection_ = 1;
+        x_scroll_ = 240;
+        break;
+
+    case State::resume_end:
+        state_ = State::fade_in;
+        menu_selection_ = 3;
+        pfrm.load_tile0_texture("skyland_title_3_flattened");
+        window_image_hack(pfrm, 130);
+        x_scroll_ = 480;
+        break;
+
     case State::fade_in: {
         timer_ += delta;
 

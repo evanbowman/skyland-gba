@@ -349,4 +349,9 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
 }
 
 
+
+KeyCallbackProcessor key_callback_processor;
+
+
+
 } // namespace skyland

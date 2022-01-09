@@ -21,6 +21,7 @@
 #include "script/lisp.hpp"
 #include "timeTracker.hpp"
 #include "worldMap.hpp"
+#include "keyCallbackProcessor.hpp"
 
 
 
@@ -219,6 +220,12 @@ public:
     }
 
 
+    bool& launch_repl()
+    {
+        return launch_repl_;
+    }
+
+
     PersistentData& persistent_data()
     {
         return persistent_data_;
@@ -298,6 +305,7 @@ private:
     std::optional<DialogBuffer> dialog_buffer_;
     bool dialog_expects_answer_ = false;
     bool exit_level_ = false;
+    bool launch_repl_ = false;
     GameMode game_mode_ = GameMode::adventure;
 
     EntityList<Entity> effects_;

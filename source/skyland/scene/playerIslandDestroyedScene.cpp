@@ -391,7 +391,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<ZoneImageScene>();
 
                 default:
-                    return scene_pool::alloc<TitleScreenScene>();
+                    return scene_pool::alloc<TitleScreenScene>(3);
                 }
             } else {
                 if (pfrm.network_peer().is_connected()) {
@@ -407,7 +407,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<HighscoresScene>();
 
                 default:
-                    return scene_pool::alloc<TitleScreenScene>();
+                    return scene_pool::alloc<TitleScreenScene>(3);
                 }
             }
         } else {

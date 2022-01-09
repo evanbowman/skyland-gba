@@ -13,6 +13,7 @@
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
 #include "worldScene.hpp"
+#include "keyComboScene.hpp"
 
 
 
@@ -141,16 +142,13 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_pressed(pfrm, Key::start)) {
-        start_key_held_timer_ += delta;
+    if (not pfrm.network_peer().is_connected() and app.launch_repl()) {
+        app.launch_repl() = false;
+        return scene_pool::alloc<LispReplScene>(pfrm);
     }
-    if (app.player().key_up(pfrm, Key::start)) {
-        if (not pfrm.network_peer().is_connected()) {
-            if (start_key_held_timer_ > seconds(1)) {
-                return scene_pool::alloc<LispReplScene>(pfrm);
-            }
-        }
-        start_key_held_timer_ = 0;
+
+    if (app.player().key_down(pfrm, Key::start)) {
+        return scene_pool::alloc<KeyComboScene>(true);
     }
 
     if (app.player().key_down(pfrm, Key::action_2)) {

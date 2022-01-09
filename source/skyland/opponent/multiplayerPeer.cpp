@@ -19,15 +19,21 @@ void MultiplayerPeer::update(Platform& pfrm, App& app, Microseconds delta)
     if (pfrm.network_peer().is_connected()) {
         network::poll_messages(pfrm, app, *this);
     } else {
-        pfrm.fatal("connection lost");
-        // app.swap_opponent<EnemyAI>();
-        return;
+        pfrm.fatal("connection interrupted");
     }
 
-    sync_micros_ += delta;
-    if (sync_micros_ > seconds(1)) {
-        sync_micros_ -= seconds(1);
-        ++sync_seconds_;
+    heartbeat_send_counter_ += delta;
+    heartbeat_recv_counter_ += delta;
+
+    if (heartbeat_send_counter_ > heartbeat_interval) {
+        heartbeat_send_counter_ = 0;
+
+        network::packet::Heartbeat heartbeat;
+        network::transmit(pfrm, heartbeat);
+    }
+
+    if (heartbeat_recv_counter_ > heartbeat_interval * 2) {
+        pfrm.fatal("connection interrupted");
     }
 }
 
@@ -449,6 +455,14 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
         pfrm.fatal(err.c_str());
     }
+}
+
+
+void MultiplayerPeer::receive(Platform& pfrm,
+                              App& app,
+                              const network::packet::Heartbeat& packet)
+{
+    heartbeat_recv_counter_ = 0;
 }
 
 

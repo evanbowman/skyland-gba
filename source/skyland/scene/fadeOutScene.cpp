@@ -29,8 +29,12 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
         case App::GameMode::adventure:
             return scene_pool::alloc<ZoneImageScene>();
 
-        default:
-            return scene_pool::alloc<TitleScreenScene>();
+        case App::GameMode::challenge:
+            return scene_pool::alloc<TitleScreenScene>(2);
+
+        case App::GameMode::sandbox:
+            return scene_pool::alloc<TitleScreenScene>(3);
+
         }
     } else {
         const auto amount = smoothstep(0.f, fade_duration, timer_);

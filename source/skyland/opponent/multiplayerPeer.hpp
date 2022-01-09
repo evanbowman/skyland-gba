@@ -86,14 +86,16 @@ public:
                  const network::packet::ProgramVersion& packet) override;
 
 
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::Heartbeat& packet) override;
+
+
 private:
-    Microseconds sync_micros_ = 0;
-    int sync_seconds_ = 0;
 
-    bool ready_ = false;
-
-    static const auto timekeeper_sync_rate = seconds(2);
-    Microseconds next_timekeeper_sync_ = timekeeper_sync_rate;
+    static const auto heartbeat_interval = seconds(5);
+    Microseconds heartbeat_send_counter_ = 0;
+    Microseconds heartbeat_recv_counter_ = 0;
 };
 
 

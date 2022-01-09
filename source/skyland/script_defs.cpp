@@ -138,6 +138,63 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
+    lisp::set_var("repl", lisp::make_function([](int argc) {
+                      auto app = interp_get_app();
+                      app->launch_repl() = true;
+                      return L_NIL;
+                  }));
+
+
+    lisp::set_var("key-bind", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(1, string);
+        L_EXPECT_OP(0, function);
+
+        KeyCallbackProcessor::Binding b {
+            KeyCallbackProcessor::MatchSeq{},
+            [v = lisp::Protected(lisp::get_op(0))](Platform& pfrm, App& app) {
+                lisp::funcall(v.get(), 0);
+            }
+        };
+
+        int i = 0;
+        auto str = lisp::get_op(1)->string().value();
+        while (*str not_eq '\0') {
+            if (i == 7) {
+                Platform::fatal("too many keys in key-bind expr, max 7");
+            }
+            if (*str == '-') {
+                ++str;
+                continue;
+            }
+            b.key_seq_.seq_[i] = [&] {
+                switch (*str) {
+                case 'u': return Key::up;
+                case 'd': return Key::down;
+                case 'l': return Key::left;
+                case 'r': return Key::right;
+                case 'a': return Key::action_1;
+                case 'b': return Key::action_2;
+                default:
+                    Platform::fatal("invalid char in key-bind argument.");
+                }
+            }();
+            ++i;
+            ++str;
+        }
+
+        key_callback_processor.push_binding(b);
+
+        return L_NIL;
+    }));
+
+
+    lisp::set_var("key-reset", lisp::make_function([](int argc) {
+        key_callback_processor.reset();
+        return L_NIL;
+    }));
+
+
     lisp::set_var(
         "dialog", lisp::make_function([](int argc) {
             auto app = interp_get_app();
