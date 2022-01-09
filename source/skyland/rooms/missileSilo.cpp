@@ -44,17 +44,29 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
 
                     Vec2<Float> target;
 
-                    auto origin = island->origin();
-                    origin.x += target_->x * 16 + 8;
-                    origin.y += target_->y * 16 + 8;
-                    target = origin;
+                    if (auto room = island->get_room(*target_)) {
+                        target = room->center();
+                    } else {
+                        auto origin = island->origin();
+                        origin.x += target_->x * 16 + 8;
+                        origin.y += target_->y * 16 + 8;
+                        target = origin;
+                    }
+
+                    if (not pfrm.network_peer().is_connected() and
+                        app.game_mode() not_eq App::GameMode::tutorial) {
+                        target = rng::sample<10>(target, rng::critical_state);
+                    }
 
                     auto start = center();
                     start.y -= 24;
 
                     app.camera().shake(6);
                     load_ = 1000 * missile_silo_reload_ms;
-                    auto m = app.alloc_entity<Missile>(pfrm, start, target, parent());
+                    auto m = app.alloc_entity<Missile>(pfrm,
+                                                       start,
+                                                       target,
+                                                       parent());
 
                     if (m) {
                         parent()->projectiles().push(std::move(m));
