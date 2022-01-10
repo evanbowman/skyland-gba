@@ -3,8 +3,8 @@
 #include "skyland/autopilotPlayer.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "zoneImageScene.hpp"
 #include "titleScreenScene.hpp"
+#include "zoneImageScene.hpp"
 
 
 
@@ -34,7 +34,6 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         case App::GameMode::sandbox:
             return scene_pool::alloc<TitleScreenScene>(3);
-
         }
     } else {
         const auto amount = smoothstep(0.f, fade_duration, timer_);

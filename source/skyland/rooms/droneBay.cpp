@@ -4,8 +4,8 @@
 #include "skyland/island.hpp"
 #include "skyland/scene/constructDroneScene.hpp"
 #include "skyland/scene/placeDroneScene.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/tile.hpp"
 
 
 

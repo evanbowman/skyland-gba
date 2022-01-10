@@ -203,13 +203,11 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().key_down(pfrm, Key::action_2)) {
         if (near_) {
-            if (auto drone =
-                app.player_island().get_drone(weapon_loc_)) {
+            if (auto drone = app.player_island().get_drone(weapon_loc_)) {
                 return drone_exit_scene(drone->get());
             }
         } else {
-            if (auto drone =
-                app.opponent_island()->get_drone(weapon_loc_)) {
+            if (auto drone = app.opponent_island()->get_drone(weapon_loc_)) {
                 return drone_exit_scene(drone->get());
             }
         }

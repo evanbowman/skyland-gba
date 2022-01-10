@@ -23,8 +23,8 @@
 #include "script/lisp.hpp"
 #include "string.hpp"
 #include "util.hpp"
-#include <algorithm>
 #include "vector.hpp"
+#include <algorithm>
 
 
 
@@ -2440,9 +2440,9 @@ void Platform::Speaker::play_note(Note n, Octave o, Channel c)
 
 
 
-#include "data/shadows.hpp"
-#include "data/music_unaccompanied_wind.hpp"
 #include "data/music_sb_solecism.hpp"
+#include "data/music_unaccompanied_wind.hpp"
+#include "data/shadows.hpp"
 
 
 static const int null_music_len = AudioBuffer::sample_count * 2;
@@ -2496,7 +2496,7 @@ static const AudioTrack* find_music(const char* name)
 // sound to the sounds array, it's just too tedious to keep working this way...
 // #include "data/sound_bell.hpp"
 // #include "data/sound_blaster.hpp"
-// #include "data/sound_click.hpp"
+#include "data/sound_click.hpp"
 #include "data/sound_coin.hpp"
 // #include "data/sound_creak.hpp"
 // #include "data/sound_dodge.hpp"
@@ -2511,9 +2511,9 @@ static const AudioTrack* find_music(const char* name)
 // #include "data/sound_laser1.hpp"
 #include "data/sound_msg.hpp"
 // #include "data/sound_open_book.hpp"
-// #include "data/sound_openbag.hpp"
+#include "data/sound_openbag.hpp"
 // #include "data/sound_pop.hpp"
-// #include "data/sound_scroll.hpp"
+#include "data/sound_scroll.hpp"
 // #include "data/sound_select.hpp"
 // #include "data/sound_thud.hpp"
 // #include "data/sound_tw_bell.hpp"
@@ -2521,36 +2521,41 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_build0.hpp"
 #include "data/sound_cannon.hpp"
 #include "data/sound_missile.hpp"
+#include "data/sound_missile_explosion.hpp"
+#include "data/sound_fizzle.hpp"
+#include "data/sound_gravel.hpp"
 
 
 
-static const AudioTrack sounds[] = {
-    DEF_SOUND(explosion1, sound_explosion1),
-    DEF_SOUND(explosion2, sound_explosion2),
-    DEF_SOUND(build0, sound_build0),
-    DEF_SOUND(missile, sound_missile),
-    // DEF_SOUND(typewriter, sound_typewriter),
-    // DEF_SOUND(footstep1, sound_footstep1),
-    // DEF_SOUND(footstep2, sound_footstep2),
-    // DEF_SOUND(footstep3, sound_footstep3),
-    // DEF_SOUND(footstep4, sound_footstep4),
-    // DEF_SOUND(open_book, sound_open_book),
-    // DEF_SOUND(dropitem, sound_dropitem),
-    // DEF_SOUND(openbag, sound_openbag),
-    // DEF_SOUND(blaster, sound_blaster),
-    // DEF_SOUND(tw_bell, sound_tw_bell),
-    // DEF_SOUND(select, sound_select),
-    // DEF_SOUND(laser1, sound_laser1),
-    // DEF_SOUND(scroll, sound_scroll),
-    // DEF_SOUND(creak, sound_creak),
-    // DEF_SOUND(dodge, sound_dodge),
-    // DEF_SOUND(heart, sound_heart),
-    // DEF_SOUND(click, sound_click),
-    // DEF_SOUND(thud, sound_thud),
-    DEF_SOUND(cannon, sound_cannon),
-    DEF_SOUND(coin, sound_coin),
-    // DEF_SOUND(bell, sound_bell),
-    DEF_SOUND(msg, sound_msg)};
+static const AudioTrack sounds[] = {DEF_SOUND(explosion1, sound_explosion1),
+                                    DEF_SOUND(explosion2, sound_explosion2),
+                                    DEF_SOUND(build0, sound_build0),
+                                    DEF_SOUND(missile, sound_missile),
+                                    DEF_SOUND(impact, sound_missile_explosion),
+                                    DEF_SOUND(fizzle, sound_fizzle),
+                                    DEF_SOUND(gravel, sound_gravel),
+                                    // DEF_SOUND(typewriter, sound_typewriter),
+                                    // DEF_SOUND(footstep1, sound_footstep1),
+                                    // DEF_SOUND(footstep2, sound_footstep2),
+                                    // DEF_SOUND(footstep3, sound_footstep3),
+                                    // DEF_SOUND(footstep4, sound_footstep4),
+                                    // DEF_SOUND(open_book, sound_open_book),
+                                    // DEF_SOUND(dropitem, sound_dropitem),
+                                    DEF_SOUND(openbag, sound_openbag),
+                                    // DEF_SOUND(blaster, sound_blaster),
+                                    // DEF_SOUND(tw_bell, sound_tw_bell),
+                                    // DEF_SOUND(select, sound_select),
+                                    // DEF_SOUND(laser1, sound_laser1),
+                                    // DEF_SOUND(scroll, sound_scroll),
+                                    // DEF_SOUND(creak, sound_creak),
+                                    // DEF_SOUND(dodge, sound_dodge),
+                                    // DEF_SOUND(heart, sound_heart),
+                                    DEF_SOUND(click, sound_scroll),
+                                    // DEF_SOUND(thud, sound_thud),
+                                    DEF_SOUND(cannon, sound_cannon),
+                                    DEF_SOUND(coin, sound_coin),
+                                    // DEF_SOUND(bell, sound_bell),
+                                    DEF_SOUND(msg, sound_msg)};
 
 
 static const AudioTrack* get_sound(const char* name)
@@ -3127,7 +3132,6 @@ static void audio_update_fast_isr()
     // sample rate for the digital audio chip.
     REG_TM0CNT_H = 0x0083;
     REG_TM1CNT_H = 0x00C3;
-
 }
 
 

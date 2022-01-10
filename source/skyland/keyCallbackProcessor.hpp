@@ -1,9 +1,9 @@
 #pragma once
 
 
+#include "function.hpp"
 #include "platform/key.hpp"
 #include "platform/platform.hpp"
-#include "function.hpp"
 
 
 
@@ -17,8 +17,6 @@ class App;
 
 class KeyCallbackProcessor {
 public:
-
-
     static const int seq_max = 11;
 
 
@@ -69,14 +67,13 @@ public:
             }
         }
 
-        if (found == Key::count or
-            found == Key::start or
-            found == Key::alt_1 or
+        if (found == Key::count or found == Key::start or found == Key::alt_1 or
             found == Key::alt_2) {
             return;
         }
 
-        for (auto it = possibilities_.begin(); it not_eq possibilities_.end();) {
+        for (auto it = possibilities_.begin();
+             it not_eq possibilities_.end();) {
             if (bindings_[*it].key_seq_.seq_[seek_state_] == found) {
                 ++it;
             } else {
@@ -129,4 +126,4 @@ extern KeyCallbackProcessor key_callback_processor;
 
 
 
-}
+} // namespace skyland

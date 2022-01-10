@@ -92,7 +92,6 @@ public:
 
 
 private:
-
     static const auto heartbeat_interval = seconds(5);
     Microseconds heartbeat_send_counter_ = 0;
     Microseconds heartbeat_recv_counter_ = 0;

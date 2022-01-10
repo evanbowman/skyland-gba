@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "skyland/scene.hpp"
 #include "graphics/overlay.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -12,7 +12,6 @@ namespace skyland {
 
 class SandboxResetScene : public Scene {
 public:
-
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
     void enter(Platform&, App&, Scene& prev) override;
@@ -29,4 +28,4 @@ private:
 
 
 
-}
+} // namespace skyland

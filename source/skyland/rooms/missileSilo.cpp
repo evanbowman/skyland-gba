@@ -5,8 +5,8 @@
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/sound.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -68,10 +68,8 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
 
                     app.camera().shake(6);
                     load_ += 1000 * missile_silo_reload_ms;
-                    auto m = app.alloc_entity<Missile>(pfrm,
-                                                       start,
-                                                       target,
-                                                       parent());
+                    auto m = app.alloc_entity<Missile>(
+                        pfrm, start, target, parent());
 
                     missile_sound.play(pfrm, 3, milliseconds(400));
 
@@ -111,9 +109,8 @@ ScenePtr<Scene> MissileSilo::select(Platform& pfrm, App& app)
     }
 
     if (parent() == &app.player_island()) {
-        return scene_pool::alloc<WeaponSetTargetScene>(position(),
-                                                       true,
-                                                       target_);
+        return scene_pool::alloc<WeaponSetTargetScene>(
+            position(), true, target_);
     }
 
     return null_scene();

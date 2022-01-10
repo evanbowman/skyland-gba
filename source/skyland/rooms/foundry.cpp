@@ -23,22 +23,20 @@ void Foundry::update(Platform& pfrm, App& app, Microseconds delta)
 
 void Foundry::render_interior(App& app, u8 buffer[16][16])
 {
-    auto pos = position();
-    buffer[pos.x + 1][pos.y] = InteriorTile::decimator_1;
-    buffer[pos.x + 1][pos.y + 1] = InteriorTile::decimator_2;
-    buffer[pos.x][pos.y + 1] = InteriorTile::plain_floor;
-    buffer[pos.x][pos.y] = InteriorTile::decimator_int;
+    buffer[position().x][position().y] = InteriorTile::workshop_1;
+    buffer[position().x][position().y + 1] = InteriorTile::workshop_2;
+    buffer[position().x + 1][position().y] = InteriorTile::workshop_3;
+    buffer[position().x + 1][position().y + 1] = InteriorTile::workshop_4;
 }
 
 
 
 void Foundry::render_exterior(App& app, u8 buffer[16][16])
 {
-    auto pos = position();
-    buffer[pos.x + 1][pos.y] = Tile::decimator_1;
-    buffer[pos.x + 1][pos.y + 1] = Tile::decimator_2;
-    buffer[pos.x][pos.y] = Tile::armored_wall_1;
-    buffer[pos.x][pos.y + 1] = Tile::wall_plain_2;
+    buffer[position().x][position().y] = Tile::wall_window_1;
+    buffer[position().x][position().y + 1] = Tile::wall_window_2;
+    buffer[position().x + 1][position().y] = Tile::wall_plain_1;
+    buffer[position().x + 1][position().y + 1] = Tile::wall_plain_2;
 }
 
 

@@ -36,6 +36,12 @@ public:
     void near_camera();
 
 
+    void force_show_coins()
+    {
+        last_coins_ = 0;
+    }
+
+
 protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;

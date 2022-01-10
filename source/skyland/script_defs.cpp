@@ -92,7 +92,8 @@ void App::init_scripts(Platform& pfrm)
                       L_EXPECT_ARGC(argc, 1);
 
                       if (auto pfrm = lisp::interp_get_pfrm()) {
-                          if (lisp::get_op(0)->type() == lisp::Value::Type::string) {
+                          if (lisp::get_op(0)->type() ==
+                              lisp::Value::Type::string) {
                               debug(*pfrm, lisp::get_op(0)->string().value());
                           } else {
                               lisp::DefaultPrinter p;
@@ -106,11 +107,11 @@ void App::init_scripts(Platform& pfrm)
 
 
     lisp::set_var("log-flush", lisp::make_function([](int argc) {
-        if (auto pfrm = lisp::interp_get_pfrm()) {
-            pfrm->logger().flush();
-        }
-        return L_NIL;
-    }));
+                      if (auto pfrm = lisp::interp_get_pfrm()) {
+                          pfrm->logger().flush();
+                      }
+                      return L_NIL;
+                  }));
 
 
 
@@ -145,55 +146,59 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
-    lisp::set_var("key-bind", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(1, string);
-        L_EXPECT_OP(0, function);
+    lisp::set_var(
+        "key-bind", lisp::make_function([](int argc) {
+            L_EXPECT_ARGC(argc, 2);
+            L_EXPECT_OP(1, string);
+            L_EXPECT_OP(0, function);
 
-        KeyCallbackProcessor::Binding b {
-            KeyCallbackProcessor::MatchSeq{},
-            [v = lisp::Protected(lisp::get_op(0))
-             ](Platform& pfrm, App& app) {
-                lisp::funcall(v.get(), 0);
-            }
-        };
+            KeyCallbackProcessor::Binding b{
+                KeyCallbackProcessor::MatchSeq{},
+                [v = lisp::Protected(lisp::get_op(0))](
+                    Platform& pfrm, App& app) { lisp::funcall(v.get(), 0); }};
 
-        int i = 0;
-        auto str = lisp::get_op(1)->string().value();
-        while (*str not_eq '\0') {
-            if (i == KeyCallbackProcessor::seq_max - 1) {
-                Platform::fatal("too many keys in key-bind expr, max 10");
-            }
-            if (*str == '-') {
-                ++str;
-                continue;
-            }
-            b.key_seq_.seq_[i] = [&] {
-                switch (*str) {
-                case 'u': return Key::up;
-                case 'd': return Key::down;
-                case 'l': return Key::left;
-                case 'r': return Key::right;
-                case 'a': return Key::action_1;
-                case 'b': return Key::action_2;
-                default:
-                    Platform::fatal("invalid char in key-bind argument.");
+            int i = 0;
+            auto str = lisp::get_op(1)->string().value();
+            while (*str not_eq '\0') {
+                if (i == KeyCallbackProcessor::seq_max - 1) {
+                    Platform::fatal("too many keys in key-bind expr, max 10");
                 }
-            }();
-            ++i;
-            ++str;
-        }
+                if (*str == '-') {
+                    ++str;
+                    continue;
+                }
+                b.key_seq_.seq_[i] = [&] {
+                    switch (*str) {
+                    case 'u':
+                        return Key::up;
+                    case 'd':
+                        return Key::down;
+                    case 'l':
+                        return Key::left;
+                    case 'r':
+                        return Key::right;
+                    case 'a':
+                        return Key::action_1;
+                    case 'b':
+                        return Key::action_2;
+                    default:
+                        Platform::fatal("invalid char in key-bind argument.");
+                    }
+                }();
+                ++i;
+                ++str;
+            }
 
-        key_callback_processor.push_binding(b);
+            key_callback_processor.push_binding(b);
 
-        return L_NIL;
-    }));
+            return L_NIL;
+        }));
 
 
     lisp::set_var("key-reset", lisp::make_function([](int argc) {
-        key_callback_processor.reset();
-        return L_NIL;
-    }));
+                      key_callback_processor.reset();
+                      return L_NIL;
+                  }));
 
 
     lisp::set_var(
@@ -679,21 +684,22 @@ void App::init_scripts(Platform& pfrm)
 
 
     lisp::set_var("task", lisp::make_function([](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(1, integer);
-        L_EXPECT_OP(0, function);
+                      L_EXPECT_ARGC(argc, 2);
+                      L_EXPECT_OP(1, integer);
+                      L_EXPECT_OP(0, function);
 
-        interp_get_app()->on_timeout(*lisp::interp_get_pfrm(),
-                                     milliseconds(lisp::get_op(1)->integer().value_),
-                                     [v = lisp::Protected(lisp::get_op(0))]
-            (Platform& pfrm, App& app) {
-                lisp::funcall(v.get(), 0);
-        });
+                      interp_get_app()->on_timeout(
+                          *lisp::interp_get_pfrm(),
+                          milliseconds(lisp::get_op(1)->integer().value_),
+                          [v = lisp::Protected(lisp::get_op(0))](Platform& pfrm,
+                                                                 App& app) {
+                              lisp::funcall(v.get(), 0);
+                          });
 
-        info(*lisp::interp_get_pfrm(), "exit stack");
+                      info(*lisp::interp_get_pfrm(), "exit stack");
 
-        return L_NIL;
-    }));
+                      return L_NIL;
+                  }));
 
 
     // NOTE: we need to disable custom scripts during startup, otherwise,

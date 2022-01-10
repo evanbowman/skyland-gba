@@ -11,7 +11,6 @@ namespace skyland {
 
 class SandboxLoaderModule : public Module<SandboxLoaderModule> {
 public:
-
     static const char* module_name()
     {
         return "Battle Sandbox";

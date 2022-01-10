@@ -1,9 +1,9 @@
 #include "constructionScene.hpp"
 #include "globals.hpp"
+#include "inspectP2Scene.hpp"
 #include "localization.hpp"
 #include "platform/platform.hpp"
 #include "readyScene.hpp"
-#include "inspectP2Scene.hpp"
 #include "salvageRoomScene.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
@@ -11,6 +11,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "worldScene.hpp"
+#include "skyland/sound.hpp"
 
 
 
@@ -35,11 +36,14 @@ Island* ConstructionScene::island(App& app)
 
 
 
+static Sound sound_openbag("openbag");
+
+
+
 static Coins get_cost(Island* island, const RoomMeta& meta)
 {
     Coins cost = meta->cost();
-    for (int i = 0; i < island->workshop_count() +
-                            island->foundry_count();
+    for (int i = 0; i < island->workshop_count() + island->foundry_count();
          ++i) {
         cost *= 0.9f;
     }
@@ -76,9 +80,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         return exit_scene();
     }
 
-    auto& cursor_loc = near_ ?
-        std::get<SkylandGlobalData>(globals()).near_cursor_loc_ :
-        std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+    auto& cursor_loc =
+        near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
+              : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
 
     if (app.player().key_down(pfrm, Key::alt_2) or
@@ -110,9 +114,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::left)) {
             if (selector_ > 0) {
                 --selector_;
-            } else if (not near_ and app.game_mode() == App::GameMode::sandbox) {
+            } else if (not near_ and
+                       app.game_mode() == App::GameMode::sandbox) {
                 auto& cursor_loc =
-                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
                 cursor_loc.x = app.player_island().terrain().size();
                 cursor_loc.y =
@@ -157,7 +162,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                         // the player.
 
                         for (u32 i = 0; i < available_buildings_.size(); ++i) {
-                            if (available_buildings_[i] == last_constructed_building_) {
+                            if (available_buildings_[i] ==
+                                last_constructed_building_) {
                                 building_selector_ = i;
                                 break;
                             }
@@ -165,6 +171,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
 
                     state_ = State::choose_building;
+                    sound_openbag.play(pfrm, 1, seconds(2));
+                    sound_openbag.reset();
                     show_current_building_text(pfrm, app);
                 }
             }
@@ -197,6 +205,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.player().key_down(pfrm, Key::right)) {
+            pfrm.speaker().play_sound("click", 1);
             if (building_selector_ < (int)available_buildings_.size() - 1) {
                 ++building_selector_;
                 show_current_building_text(pfrm, app);
@@ -207,6 +216,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.player().key_down(pfrm, Key::left)) {
+            pfrm.speaker().play_sound("click", 1);
             if (building_selector_ > 0) {
                 --building_selector_;
                 show_current_building_text(pfrm, app);
@@ -225,16 +235,14 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            if (island(app)->power_supply() -
-                    island(app)->power_drain() <
+            if (island(app)->power_supply() - island(app)->power_drain() <
                 target->consumes_power()) {
                 msg(pfrm, "insufficient power supply!");
                 state_ = State::insufficient_funds;
                 break;
             }
 
-            if (room_pool::pool_->empty() or
-                island(app)->rooms().full()) {
+            if (room_pool::pool_->empty() or island(app)->rooms().full()) {
                 msg(pfrm, "too many rooms");
                 state_ = State::insufficient_funds;
                 break;
@@ -298,6 +306,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             terrain.pop_back(); // the old edge tile
             terrain.push_back(Tile::terrain_middle);
             terrain.push_back(Tile::terrain_right);
+
+            pfrm.speaker().play_sound("gravel", 4);
 
             island(app)->render_terrain(pfrm);
 
@@ -586,8 +596,8 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 
     const int avail_y_space = current.y - construction_zone_min_y;
 
-    const auto w_count = island(app)->workshop_count() +
-                         island(app)->foundry_count();
+    const auto w_count =
+        island(app)->workshop_count() + island(app)->foundry_count();
 
     const auto f_count = island(app)->foundry_count();
 
@@ -623,6 +633,10 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
         power_fraction_opponent_island_ = true;
     }
 
+    // if (not dynamic_cast<ConstructionScene*>(&prev)) {
+    //     pfrm.speaker().play_sound("openbag", 1);
+    // }
+
     WorldScene::enter(pfrm, app, prev);
 
     if (not near_) {
@@ -634,9 +648,9 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
     find_construction_sites(pfrm, app);
 
     if (not construction_sites_.empty()) {
-        auto& cursor_loc = near_ ?
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_ :
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        auto& cursor_loc =
+            near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
+                  : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
         for (u32 i = 0; i < construction_sites_.size(); ++i) {
             if (construction_sites_[i].x == cursor_loc.x) {

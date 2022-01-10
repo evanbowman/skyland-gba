@@ -697,9 +697,7 @@ public:
     {
     }
 
-    Protected(const Protected& other) :
-        ProtectedBase(other),
-        val_(other.val_)
+    Protected(const Protected& other) : ProtectedBase(other), val_(other.val_)
     {
     }
 

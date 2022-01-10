@@ -78,9 +78,8 @@ void MultiplayerSettingsScene::update_parameter(u8 line_num)
     temp += param_info[line_num].name_;
     temp += " ";
 
-    const bool is_boolean_field =
-        param_info[line_num].lower_limit_ == 0 and
-        param_info[line_num].upper_limit_ == 1;
+    const bool is_boolean_field = param_info[line_num].lower_limit_ == 0 and
+                                  param_info[line_num].upper_limit_ == 1;
 
     auto int_text_len = integer_text_length(parameters_[line_num]);
     if (is_boolean_field) {

@@ -6,6 +6,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/sound.hpp"
 
 
 
@@ -14,6 +15,10 @@ namespace skyland {
 
 
 SHARED_VARIABLE(flak_gun_reload_ms);
+
+
+
+extern Sound cannon_sound;
 
 
 
@@ -66,15 +71,15 @@ void FlakGun::update(Platform& pfrm, App& app, Microseconds delta)
                 target = rng::sample<6>(target, rng::critical_state);
             }
 
-            auto c =
-                alloc_entity<Flak>(start, target, parent(), position());
+            cannon_sound.play(pfrm, 3);
+
+            auto c = alloc_entity<Flak>(start, target, parent(), position());
             if (c) {
                 parent()->projectiles().push(std::move(c));
             }
 
 
             reload_ += 1000 * flak_gun_reload_ms;
-
         }
     }
 }
@@ -91,9 +96,8 @@ ScenePtr<Scene> FlakGun::select(Platform& pfrm, App& app)
     }
 
     if (parent() == &app.player_island()) {
-        return scene_pool::alloc<WeaponSetTargetScene>(position(),
-                                                       true,
-                                                       target_);
+        return scene_pool::alloc<WeaponSetTargetScene>(
+            position(), true, target_);
     }
     return null_scene();
 }

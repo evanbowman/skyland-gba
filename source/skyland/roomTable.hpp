@@ -21,10 +21,8 @@ namespace skyland {
 
 
 
-template <u32 room_count, int map_width>
-class RoomTable {
+template <u32 room_count, int map_width> class RoomTable {
 public:
-
     RoomTable()
     {
         reindex(true);
@@ -102,7 +100,8 @@ public:
         u32 i = x_jump_table_[coord.x];
         for (; i < rooms_.size(); ++i) {
             Room* room = rooms_[i].get();
-            if (coord.x >= room->position().x and coord.y >= room->position().y and
+            if (coord.x >= room->position().x and
+                coord.y >= room->position().y and
                 coord.x < room->position().x + room->size().x and
                 coord.y < room->position().y + room->size().y) {
 
@@ -130,8 +129,6 @@ public:
 
 
 private:
-
-
     using IndexType = u16;
 
 
@@ -153,11 +150,9 @@ private:
         }
 
         if (re_sort) {
-            std::sort(rooms_.begin(),
-                      rooms_.end(),
-                      [](auto& lhs, auto& rhs) {
-                          return lhs->position().x < rhs->position().x;
-                      });
+            std::sort(rooms_.begin(), rooms_.end(), [](auto& lhs, auto& rhs) {
+                return lhs->position().x < rhs->position().x;
+            });
         }
 
         for (u32 i = 0; i < rooms_.size(); ++i) {
@@ -194,5 +189,4 @@ private:
 
 
 
-
-}
+} // namespace skyland

@@ -15,7 +15,6 @@ template <std::size_t storage, typename T> class Function {
 template <std::size_t storage, typename R, typename... Args>
 class Function<storage, R(Args...)> {
 public:
-
     void* data()
     {
         return internal_storage_.data();
@@ -34,8 +33,7 @@ public:
           construct_policy_(
               reinterpret_cast<ConstructPolicy>(constructImpl<Functor>)),
           move_policy_(reinterpret_cast<MovePolicy>(moveImpl<Functor>)),
-          destroy_policy_(
-              reinterpret_cast<DestroyPolicy>(destroyImpl<Functor>))
+          destroy_policy_(reinterpret_cast<DestroyPolicy>(destroyImpl<Functor>))
     {
         static_assert(storage >= sizeof(Functor));
         static_assert(alignof(Functor) <= alignof(Functor),
@@ -99,7 +97,8 @@ private:
 
 
     template <typename Functor>
-    static void constructImpl(Functor* construct_dst, const Functor* construct_src)
+    static void constructImpl(Functor* construct_dst,
+                              const Functor* construct_src)
     {
         new (construct_dst) Functor(*construct_src);
     }

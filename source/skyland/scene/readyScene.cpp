@@ -3,6 +3,7 @@
 #include "fadeOutScene.hpp"
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
+#include "keyComboScene.hpp"
 #include "lispReplScene.hpp"
 #include "platform/platform.hpp"
 #include "salvageDroneScene.hpp"
@@ -13,7 +14,6 @@
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
 #include "worldScene.hpp"
-#include "keyComboScene.hpp"
 
 
 

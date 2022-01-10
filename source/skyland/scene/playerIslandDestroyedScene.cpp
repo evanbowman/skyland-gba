@@ -1,6 +1,7 @@
 #include "playerIslandDestroyedScene.hpp"
 #include "highscoresScene.hpp"
 #include "localization.hpp"
+#include "sandboxResetScene.hpp"
 #include "selectChallengeScene.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/rooms/droneBay.hpp"
@@ -9,7 +10,6 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
-#include "sandboxResetScene.hpp"
 
 
 
@@ -319,6 +319,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::add_score: {
         pfrm.speaker().play_sound("coin", 2);
         app.coins() += app.victory_coins();
+        force_show_coins();
         app.victory_coins() = 0;
         anim_state_ = AnimState::wait_2;
         break;

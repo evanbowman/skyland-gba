@@ -8,10 +8,10 @@
 #include "selectChallengeScene.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/birbs/smolBirb.hpp"
+#include "skyland/keyCallbackProcessor.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
-#include "skyland/keyCallbackProcessor.hpp"
 
 
 
@@ -272,6 +272,7 @@ void TitleScreenScene::run_init_scripts(Platform& pfrm,
     app.invoke_script(pfrm, "/scripts/config/rooms.lisp", use_rom_fs);
     app.invoke_script(pfrm, "/scripts/config/damage.lisp", use_rom_fs);
     app.invoke_script(pfrm, "/scripts/config/timing.lisp", use_rom_fs);
+    app.invoke_script(pfrm, "/scripts/config/score.lisp", use_rom_fs);
 
     if (allow_mods) {
         app.invoke_ram_script(pfrm, "/mods/init.lisp");
@@ -407,7 +408,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (menu_selection_ == 3) {
                 state_ = State::fade_modules_1;
             } else {
-                pfrm.speaker().stop_music();
+                pfrm.speaker().play_music("unaccompanied_wind", 0);
             }
         }
 
@@ -683,9 +684,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     app.game_mode() = App::GameMode::challenge;
 
                     if (f->run_scripts()) {
-                        run_init_scripts(pfrm,
-                                         app,
-                                         f->enable_custom_scripts());
+                        run_init_scripts(pfrm, app, f->enable_custom_scripts());
                     }
 
 

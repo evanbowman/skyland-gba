@@ -43,6 +43,7 @@ struct SkylandGlobalData {
     u16 multiplayer_prep_seconds_ = 0;
 
     bool unhide_multiplayer_prep_ = false;
+    int levels_since_music_ = 0;
 };
 
 

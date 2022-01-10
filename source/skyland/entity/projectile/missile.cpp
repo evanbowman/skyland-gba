@@ -5,6 +5,7 @@
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
 
 
 
@@ -85,6 +86,10 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+extern Sound sound_impact;
+
+
+
 void Missile::on_collision(Platform& pfrm, App& app, Room& room)
 {
     if (source_ == room.parent() and room.metaclass() == missile_silo_mt) {
@@ -105,6 +110,10 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
         room.apply_damage(pfrm, app, missile_damage * 0.9f);
     } else {
         room.apply_damage(pfrm, app, missile_damage);
+    }
+
+    if (room.health()) {
+        sound_impact.play(pfrm, 1);
     }
 }
 

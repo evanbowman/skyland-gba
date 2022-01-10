@@ -74,8 +74,6 @@ inline ScenePtr<Scene> load_module(Platform& pfrm, const char* name)
 
 template <typename T> class Module : public detail::_Module {
 public:
-
-
     static bool enable_custom_scripts()
     {
         return false;

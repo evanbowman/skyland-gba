@@ -38,8 +38,13 @@ public:
     }
 
 
-private:
+    void reset()
+    {
+        last_played_ = 0;
+    }
 
+
+private:
     void update(Microseconds delta)
     {
         last_played_ += delta;
@@ -53,4 +58,4 @@ private:
 
 
 
-}
+} // namespace skyland

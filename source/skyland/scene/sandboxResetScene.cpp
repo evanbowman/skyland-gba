@@ -1,7 +1,7 @@
 #include "sandboxResetScene.hpp"
-#include "titleScreenScene.hpp"
 #include "modules/sandboxLoaderModule.hpp"
 #include "skyland/skyland.hpp"
+#include "titleScreenScene.hpp"
 
 
 
@@ -14,9 +14,8 @@ static const auto sel_colors =
 
 
 
-ScenePtr<Scene> SandboxResetScene::update(Platform& pfrm,
-                                          App& app,
-                                          Microseconds delta)
+ScenePtr<Scene>
+SandboxResetScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::up)) {
         selection_ = true;
@@ -62,4 +61,4 @@ void SandboxResetScene::exit(Platform&, App&, Scene& next)
 
 
 
-}
+} // namespace skyland

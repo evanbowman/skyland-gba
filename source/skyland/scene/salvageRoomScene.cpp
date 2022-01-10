@@ -1,11 +1,11 @@
 #include "salvageRoomScene.hpp"
 #include "globals.hpp"
+#include "inspectP2Scene.hpp"
 #include "localization.hpp"
 #include "readyScene.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
-#include "inspectP2Scene.hpp"
 
 
 
@@ -49,9 +49,9 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
     auto st = calc_screen_tiles(pfrm);
     StringBuffer<30> text("really salvage?  +");
 
-    auto& cursor_loc = near_ ?
-        std::get<SkylandGlobalData>(globals()).near_cursor_loc_ :
-        std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+    auto& cursor_loc =
+        near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
+              : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
     if (auto room = island(app)->get_room(cursor_loc)) {
         if (auto mt = room->metaclass()) {
@@ -156,9 +156,9 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             return exit_scene();
         }
     } else {
-        auto& cursor_loc = near_ ?
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_ :
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        auto& cursor_loc =
+            near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
+                  : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             if (auto room = island(app)->get_room(cursor_loc)) {

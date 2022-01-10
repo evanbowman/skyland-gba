@@ -136,7 +136,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     }
 
     u8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
-        std::numeric_limits<s16>::max();
+                        std::numeric_limits<s16>::max();
 
     ambient_movement_ = ambient_offset;
 
@@ -400,7 +400,8 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
 {
     // Calculate the position of the entity in terms of the island's grid
     // coordinates.
-    auto entity_pos = (entity.sprite().get_position() - this->origin()).cast<int>();
+    auto entity_pos =
+        (entity.sprite().get_position() - this->origin()).cast<int>();
     entity_pos.x /= 16;
     entity_pos.y /= 16;
 

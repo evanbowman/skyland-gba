@@ -41,6 +41,13 @@ void LoadLevelScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
+static SHARED_VARIABLE(zone1_coin_yield);
+static SHARED_VARIABLE(zone2_coin_yield);
+static SHARED_VARIABLE(zone3_coin_yield);
+static SHARED_VARIABLE(zone4_coin_yield);
+
+
+
 void prep_level(Platform& pfrm, App& app)
 {
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
@@ -73,13 +80,17 @@ void prep_level(Platform& pfrm, App& app)
 
         for (auto& room : app.opponent_island()->rooms()) {
             if (app.zone() < 2) {
-                app.victory_coins() += 0.52f * (*room->metaclass())->cost();
+                app.victory_coins() +=
+                    (0.01f * zone1_coin_yield) * (*room->metaclass())->cost();
             } else if (app.zone() < 3) {
-                app.victory_coins() += 0.38f * (*room->metaclass())->cost();
+                app.victory_coins() +=
+                    (0.01f * zone2_coin_yield) * (*room->metaclass())->cost();
             } else if (app.zone() < 4) {
-                app.victory_coins() += 0.2f * (*room->metaclass())->cost();
+                app.victory_coins() +=
+                    (0.01f * zone3_coin_yield) * (*room->metaclass())->cost();
             } else {
-                app.victory_coins() += 0.1f * (*room->metaclass())->cost();
+                app.victory_coins() +=
+                    (0.01f * zone4_coin_yield) * (*room->metaclass())->cost();
             }
         }
 
@@ -111,13 +122,31 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     case WorldMap::Node::Type::storm_hostile:
     case WorldMap::Node::Type::hostile: {
         app.invoke_script(pfrm, "/scripts/event/hostile.lisp");
-        pfrm.speaker().play_music("sb_solecism", 0);
         break;
     }
 
 
     case WorldMap::Node::Type::null:
         pfrm.fatal("world map mem corrupt");
+    }
+
+    if (not pfrm.speaker().is_music_playing("sb_solecism")) {
+        auto& levels_since_music =
+            std::get<SkylandGlobalData>(globals()).levels_since_music_;
+
+        // Don't start the music back up upon every level, it gets
+        // annoying. Give the player a bit of silence for one level, before
+        // starting it back up.
+
+        if (levels_since_music > 0 or
+            node.type_ == WorldMap::Node::Type::clear or
+            node.type_ == WorldMap::Node::Type::storm_clear) {
+
+            pfrm.speaker().play_music("sb_solecism", 0);
+            levels_since_music = 0;
+        } else {
+            ++levels_since_music;
+        }
     }
 
     prep_level(pfrm, app);

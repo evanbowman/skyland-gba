@@ -65,8 +65,7 @@ void IonCannon::update(Platform& pfrm, App& app, Microseconds delta)
                 target = rng::sample<6>(target, rng::critical_state);
             }
 
-            auto c =
-                app.alloc_entity<IonBurst>(pfrm, start, target, parent());
+            auto c = app.alloc_entity<IonBurst>(pfrm, start, target, parent());
             if (c) {
                 parent()->projectiles().push(std::move(c));
             }
@@ -102,9 +101,8 @@ ScenePtr<Scene> IonCannon::select(Platform& pfrm, App& app)
     }
 
     if (parent() == &app.player_island()) {
-        return scene_pool::alloc<WeaponSetTargetScene>(position(),
-                                                       true,
-                                                       target_);
+        return scene_pool::alloc<WeaponSetTargetScene>(
+            position(), true, target_);
     }
     return null_scene();
 }

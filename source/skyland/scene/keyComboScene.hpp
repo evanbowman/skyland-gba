@@ -12,9 +12,7 @@ namespace skyland {
 
 class KeyComboScene : public ActiveWorldScene {
 public:
-
-    KeyComboScene(bool near) :
-        near_(near)
+    KeyComboScene(bool near) : near_(near)
     {
     }
 
@@ -36,4 +34,4 @@ private:
 
 
 
-}
+} // namespace skyland

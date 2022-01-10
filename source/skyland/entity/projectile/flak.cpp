@@ -6,6 +6,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
+#include "skyland/sound.hpp"
 
 #include "localization.hpp"
 
@@ -17,6 +18,10 @@ namespace skyland {
 SHARED_VARIABLE(flak_r1_damage);
 SHARED_VARIABLE(flak_r2_damage);
 SHARED_VARIABLE(flak_r3_damage);
+
+
+
+static Sound sound_fizzle("fizzle");
 
 
 
@@ -165,6 +170,8 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
     apply_damage(1, 1, flak_r3_damage);
 
     destroyed_ = true;
+
+    // sound_fizzle.play(pfrm, 1);
 }
 
 

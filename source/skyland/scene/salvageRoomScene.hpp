@@ -17,8 +17,7 @@ class Island;
 
 class SalvageRoomScene : public ActiveWorldScene {
 public:
-    SalvageRoomScene(bool near = true) :
-        near_(near)
+    SalvageRoomScene(bool near = true) : near_(near)
     {
     }
 
@@ -33,8 +32,6 @@ public:
 
 
 private:
-
-
     Island* island(App& app);
 
 

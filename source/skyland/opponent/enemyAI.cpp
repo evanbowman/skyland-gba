@@ -1371,8 +1371,7 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     if (app.game_mode() not_eq App::GameMode::tutorial and
-        visible_rooms.size() > 1 and
-        rng::choice<3>(rng::utility_state) == 0) {
+        visible_rooms.size() > 1 and rng::choice<3>(rng::utility_state) == 0) {
         highest_weighted_room = visible_rooms[1].room_;
     }
 
@@ -1419,8 +1418,7 @@ void EnemyAI::set_target(Platform& pfrm,
     // Potentially attack the second highest weighted visible room, just to keep
     // things interesting.
     if (app.game_mode() not_eq App::GameMode::tutorial and
-        visible_rooms.size() > 1 and
-        rng::choice<3>(rng::utility_state) == 0) {
+        visible_rooms.size() > 1 and rng::choice<3>(rng::utility_state) == 0) {
         highest_weighted_room = visible_rooms[1];
     }
 

@@ -364,6 +364,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                           st.y - (7 + y_start + 2 * (not choice_sel_)),
                           110);
             choice_sel_ = not choice_sel_;
+            pfrm.speaker().play_sound("click", 1);
         }
 
         if (key_down<Key::action_1>(pfrm)) {
@@ -373,6 +374,9 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                 invoke_hook(pfrm, "after-dialog-declined-hook");
             }
 
+            display_mode_ = DisplayMode::animate_out;
+        } else if (key_down<Key::action_2>(pfrm)) {
+            invoke_hook(pfrm, "after-dialog-declined-hook");
             display_mode_ = DisplayMode::animate_out;
         }
         break;

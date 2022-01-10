@@ -9,6 +9,7 @@
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/sound.hpp"
 
 
 
@@ -53,6 +54,10 @@ void Cannonball::update(Platform&, App&, Microseconds delta)
 
 
 
+Sound sound_impact("impact");
+
+
+
 void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
 {
     if (source_ == room.parent()) {
@@ -73,6 +78,10 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
     medium_explosion(pfrm, app, sprite_.get_position());
 
     room.apply_damage(pfrm, app, cannonball_damage);
+
+    if (room.health()) {
+        sound_impact.play(pfrm, 1);
+    }
 }
 
 

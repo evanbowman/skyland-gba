@@ -14,8 +14,7 @@ namespace skyland {
 
 class ConstructionScene : public ActiveWorldScene {
 public:
-    ConstructionScene(bool near = true) :
-        near_(near)
+    ConstructionScene(bool near = true) : near_(near)
     {
     }
 

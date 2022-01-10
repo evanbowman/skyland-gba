@@ -200,7 +200,8 @@ ScenePtr<Scene> Room::select(Platform& pfrm, App& app)
                     if (character->owner() == &app.player() or
                         (character->owner() == &app.opponent() and
                          app.game_mode() == App::GameMode::sandbox)) {
-                        return scene_pool::alloc<MoveCharacterScene>(pfrm, near);
+                        return scene_pool::alloc<MoveCharacterScene>(pfrm,
+                                                                     near);
                     }
                 }
             }

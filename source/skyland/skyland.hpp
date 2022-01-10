@@ -11,6 +11,7 @@
 #include "gamespeed.hpp"
 #include "highscores.hpp"
 #include "island.hpp"
+#include "keyCallbackProcessor.hpp"
 #include "opponent/enemyAI.hpp"
 #include "persistentData.hpp"
 #include "platform/platform.hpp"
@@ -21,7 +22,6 @@
 #include "script/lisp.hpp"
 #include "timeTracker.hpp"
 #include "worldMap.hpp"
-#include "keyCallbackProcessor.hpp"
 
 
 

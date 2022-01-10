@@ -362,9 +362,10 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    Island* disp_power = power_fraction_opponent_island_ ?
-        (app.opponent_island() ? &*app.opponent_island() : &app.player_island())
-        : &app.player_island();
+    Island* disp_power = power_fraction_opponent_island_
+                             ? (app.opponent_island() ? &*app.opponent_island()
+                                                      : &app.player_island())
+                             : &app.player_island();
 
     if (last_power_supplied_ not_eq disp_power->power_supply() or
         last_power_used_ not_eq disp_power->power_drain()) {
@@ -388,14 +389,13 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     } else {
         if (persistent_ui_) {
-            power_.emplace(
-                pfrm,
-                OverlayCoord{1, 1},
-                147,
-                format_power_fraction(disp_power->power_supply(),
-                                      disp_power->power_drain()),
-                UIMetric::Align::left,
-                UIMetric::Format::fraction);
+            power_.emplace(pfrm,
+                           OverlayCoord{1, 1},
+                           147,
+                           format_power_fraction(disp_power->power_supply(),
+                                                 disp_power->power_drain()),
+                           UIMetric::Align::left,
+                           UIMetric::Format::fraction);
         }
     }
 
@@ -478,20 +478,21 @@ void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
                            UIMetric::Align::left);
         }
 
-        Island* disp_power = power_fraction_opponent_island_ ?
-        (app.opponent_island() ? &*app.opponent_island() : &app.player_island())
-        : &app.player_island();
+        Island* disp_power =
+            power_fraction_opponent_island_
+                ? (app.opponent_island() ? &*app.opponent_island()
+                                         : &app.player_island())
+                : &app.player_island();
 
 
         if (last->power_) {
-            power_.emplace(
-                pfrm,
-                OverlayCoord{1, 1},
-                147,
-                format_power_fraction(disp_power->power_supply(),
-                                      disp_power->power_drain()),
-                UIMetric::Align::left,
-                UIMetric::Format::fraction);
+            power_.emplace(pfrm,
+                           OverlayCoord{1, 1},
+                           147,
+                           format_power_fraction(disp_power->power_supply(),
+                                                 disp_power->power_drain()),
+                           UIMetric::Align::left,
+                           UIMetric::Format::fraction);
         }
 
         if (power_fraction_opponent_island_) {
@@ -501,7 +502,6 @@ void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
             last_power_supplied_ = last->last_power_supplied_;
             last_power_used_ = last->last_power_used_;
         }
-
     }
 }
 

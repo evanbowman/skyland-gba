@@ -5,8 +5,8 @@
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/sound.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -18,7 +18,7 @@ SHARED_VARIABLE(cannon_reload_ms);
 
 
 
-static Sound cannon_sound("cannon");
+Sound cannon_sound("cannon");
 
 
 
@@ -73,7 +73,8 @@ void Cannon::update(Platform& pfrm, App& app, Microseconds delta)
 
             cannon_sound.play(pfrm, 3);
 
-            auto c = alloc_entity<Cannonball>(start, target, parent(), position());
+            auto c =
+                alloc_entity<Cannonball>(start, target, parent(), position());
             if (c) {
                 parent()->projectiles().push(std::move(c));
             }
@@ -109,9 +110,8 @@ ScenePtr<Scene> Cannon::select(Platform& pfrm, App& app)
     }
 
     if (parent() == &app.player_island()) {
-        return scene_pool::alloc<WeaponSetTargetScene>(position(),
-                                                       true,
-                                                       target_);
+        return scene_pool::alloc<WeaponSetTargetScene>(
+            position(), true, target_);
     }
     return null_scene();
 }

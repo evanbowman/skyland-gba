@@ -209,15 +209,14 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // player has no characters in the same room.
                     if ((*it)->grid_position() == initial_cursor_ and
                         ((*it)->owner() == &app.player() or
-                         (app.game_mode() == App::GameMode::sandbox
-                          and [&] {
-                              for (auto& chr : room->characters()) {
-                                  if (chr->owner() == &app.player()) {
-                                      return false;
-                                  }
-                              }
-                              return true;
-                          }()))) {
+                         (app.game_mode() == App::GameMode::sandbox and [&] {
+                             for (auto& chr : room->characters()) {
+                                 if (chr->owner() == &app.player()) {
+                                     return false;
+                                 }
+                             }
+                             return true;
+                         }()))) {
 
                         return it->get();
                     }

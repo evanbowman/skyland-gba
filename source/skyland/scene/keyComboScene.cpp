@@ -1,7 +1,7 @@
 #include "keyComboScene.hpp"
+#include "readyScene.hpp"
 #include "skyland/keyCallbackProcessor.hpp"
 #include "skyland/skyland.hpp"
-#include "readyScene.hpp"
 
 
 
@@ -39,16 +39,16 @@ void KeyComboScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-ScenePtr<Scene> KeyComboScene::update(Platform& pfrm,
-                                      App& app,
-                                      Microseconds delta)
+ScenePtr<Scene>
+KeyComboScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
         return next;
     }
 
     if (app.player().key_down(pfrm, Key::start) or
-        key_callback_processor.seek_state() == KeyCallbackProcessor::seq_max - 1) {
+        key_callback_processor.seek_state() ==
+            KeyCallbackProcessor::seq_max - 1) {
 
         if (auto binding = key_callback_processor.match()) {
             binding->callback_(pfrm, app);
@@ -68,8 +68,7 @@ ScenePtr<Scene> KeyComboScene::update(Platform& pfrm,
         }
     }
 
-    if (found not_eq Key::count and
-        found not_eq Key::alt_1) {
+    if (found not_eq Key::count and found not_eq Key::alt_1) {
 
         text_data_ += [found] {
             switch (found) {
@@ -108,4 +107,4 @@ ScenePtr<Scene> KeyComboScene::update(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

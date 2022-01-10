@@ -41,7 +41,7 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
     app.player_island().repaint(pfrm, app);
 
     app.opponent_island()->set_float_timer(
-            std::numeric_limits<Microseconds>::max() / 2);
+        std::numeric_limits<Microseconds>::max() / 2);
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
     cursor_loc.x = 0;
