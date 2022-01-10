@@ -87,6 +87,11 @@ ScenePtr<Scene> Replicator::select(Platform& pfrm, App& app)
         return next;
     }
 
+    if (parent() == &*app.opponent_island() and
+        app.game_mode() not_eq App::GameMode::sandbox) {
+        return null_scene();
+    }
+
     int character_count = 0;
 
     BasicCharacter* found_chr = nullptr;
@@ -99,7 +104,8 @@ ScenePtr<Scene> Replicator::select(Platform& pfrm, App& app)
     }
 
     if (found_chr) {
-        return scene_pool::alloc<ReplicatorSelectionScene>();
+        return scene_pool::alloc<ReplicatorSelectionScene>(
+            parent() == &app.player_island());
     }
 
     return null_scene();

@@ -131,22 +131,7 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (not pfrm.speaker().is_music_playing("sb_solecism")) {
-        auto& levels_since_music =
-            std::get<SkylandGlobalData>(globals()).levels_since_music_;
-
-        // Don't start the music back up upon every level, it gets
-        // annoying. Give the player a bit of silence for one level, before
-        // starting it back up.
-
-        if (levels_since_music > 0 or
-            node.type_ == WorldMap::Node::Type::clear or
-            node.type_ == WorldMap::Node::Type::storm_clear) {
-
-            pfrm.speaker().play_music("sb_solecism", 0);
-            levels_since_music = 0;
-        } else {
-            ++levels_since_music;
-        }
+        pfrm.speaker().play_music("sb_solecism", 0);
     }
 
     prep_level(pfrm, app);

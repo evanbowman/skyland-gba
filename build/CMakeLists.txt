@@ -152,12 +152,13 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/combatDroneSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/sandboxLoaderModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/textEditorModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/sandboxLoaderModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/textEditorModule.cpp
   ${SOURCE_DIR}/skyland/scene/selectTutorialScene.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp)
+  ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/shopModule.cpp)
 
 
 set(SOURCES

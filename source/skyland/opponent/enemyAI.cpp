@@ -47,7 +47,7 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                 // destroying an AI's rooms, and loses score for each second
                 // spent in the level.
                 score_subtract_timer_ -= seconds(1);
-                app.score().set(app.score().get() - 2);
+                app.score().set(app.score().get() - 1);
             }
         }
     }
@@ -1228,11 +1228,24 @@ void EnemyAI::set_target(Platform& pfrm,
 
     Buffer<Room*, 32> visible_rooms;
 
+    // In many cases, the player will have covered the entire surface of his/her
+    // castle with hull blocks. Peek into the y + 1 tile, in case we get to a
+    // point where we only see hull blocks.
+    Buffer<Room*, 32> second_tier;
+
     for (int x = 0; x < 16; ++x) {
-        for (int y = 0; y < 16; ++y) {
+        for (int y = 0; y < 15; ++y) {
             if (matrix[x][y]) {
                 if (auto room = app.player_island().get_room({u8(x), u8(y)})) {
                     visible_rooms.push_back(room);
+                    if (matrix[x][y + 1]) {
+                        if (auto st_room = app.player_island().get_room({
+                                    u8(x),
+                                    u8(y + 1)
+                                })) {
+                            second_tier.push_back(st_room);
+                        }
+                    }
                 }
                 break;
             }
@@ -1250,6 +1263,24 @@ void EnemyAI::set_target(Platform& pfrm,
         if (room->metaclass() == cannon_metac) {
             cannons_remaining = true;
             break;
+        }
+    }
+
+    Room* highest_weighted_second_tier = nullptr;
+    Float highest_second_tier_weight = 3E-5;
+    for (auto& room : second_tier) {
+        auto meta_c = room->metaclass();
+        auto w = (*meta_c)->ai_base_weight();
+
+        // We don't have any cannons left, but the other player does. Try to
+        // take out some of those cannons with missiles.
+        if (meta_c == cannon_metac and not cannons_remaining) {
+            w += 200.f;
+        }
+
+        if (w > highest_second_tier_weight) {
+            highest_second_tier_weight = w;
+            highest_weighted_second_tier = room;
         }
     }
 
@@ -1291,6 +1322,20 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     if (highest_weighted_room) {
+
+        Room* target = highest_weighted_room;
+
+        if (highest_weighted_second_tier) {
+            if (highest_second_tier_weight > highest_weight and
+                highest_weight < 9.f) {
+                // If a second-tier room has a weight significantly higher than
+                // the upper-layer's visible room, use the second tier room
+                // instead. Relevant in cases where the player has covered the
+                // top layer of his castle with hull blocks.
+                target = highest_weighted_second_tier;
+            }
+        }
+
         if (app.game_mode() not_eq App::GameMode::tutorial and
             visible_rooms.size() > 1 and
             rng::choice<4>(rng::utility_state) == 0) {
@@ -1298,7 +1343,7 @@ void EnemyAI::set_target(Platform& pfrm,
                                                       rng::utility_state)]
                                 ->position());
         } else {
-            silo.set_target(highest_weighted_room->position());
+            silo.set_target(target->position());
         }
     }
 }
@@ -1387,15 +1432,20 @@ void EnemyAI::set_target(Platform& pfrm,
                          const u8 matrix[16][16],
                          Cannon& cannon)
 {
-    // Ok, lets start by finding all of the line-of-sight targets:
-    // (FIXME: actually draw the line-of-sight correctly...)
     Buffer<Room*, 32> visible_rooms;
+    Buffer<Room*, 32> second_tier;
 
     for (u8 y = 0; y < 16; ++y) {
         for (int x = 15; x > -1; --x) {
             if (matrix[x][y]) {
                 if (auto room = app.player_island().get_room({u8(x), y})) {
                     visible_rooms.push_back(room);
+
+                    if (x > 0 and matrix[x - 1][y]) {
+                        if (auto st_room = app.player_island().get_room({u8(x - 1), y})) {
+                            second_tier.push_back(st_room);
+                        }
+                    }
                 }
                 break;
             }
@@ -1404,6 +1454,19 @@ void EnemyAI::set_target(Platform& pfrm,
 
     Room* highest_weighted_room = nullptr;
     Float highest_weight = 3E-5;
+
+    Room* highest_weighted_second_tier_room = nullptr;
+    Float highest_second_tier_weight = 3E-5;
+
+    for (auto& room : second_tier) {
+        auto meta_c = room->metaclass();
+        auto w = (*meta_c)->ai_base_weight();
+
+        if (w > highest_second_tier_weight) {
+            highest_weighted_second_tier_room = room;
+            highest_second_tier_weight = w;
+        }
+    }
 
     for (auto room : visible_rooms) {
         auto meta_c = room->metaclass();
@@ -1423,7 +1486,14 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     if (highest_weighted_room) {
-        cannon.set_target(highest_weighted_room->position());
+        auto target = highest_weighted_room;
+        if (highest_weighted_second_tier_room and
+            highest_weight < 9.f and
+            highest_second_tier_weight > highest_weight) {
+            target = highest_weighted_second_tier_room;
+        }
+
+        cannon.set_target(target->position());
     }
 }
 

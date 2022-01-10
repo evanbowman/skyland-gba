@@ -6,10 +6,15 @@
 #include "skyland/island.hpp"
 #include "skyland/scene/combatDroneSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
 
 
 
 namespace skyland {
+
+
+
+extern Sound cannon_sound;
 
 
 
@@ -74,6 +79,8 @@ public:
 
                         target.x += (*drone)->position().x * 16 + 8;
                         target.y += (*drone)->position().y * 16 + 8;
+
+                        cannon_sound.play(pfrm, 3);
 
                         auto c = alloc_entity<Cannonball>(
                             start, target, parent(), position());

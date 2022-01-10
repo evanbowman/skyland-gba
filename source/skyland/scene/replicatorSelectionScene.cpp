@@ -21,6 +21,10 @@ void ReplicatorSelectionScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
 
+    if (not near_) {
+        far_camera();
+    }
+
     auto st = calc_screen_tiles(pfrm);
     StringBuffer<30> text("create replicant? -");
     text += to_string<10>(replicator_fee);
@@ -89,11 +93,14 @@ ReplicatorSelectionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     } else {
         auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
+                  : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+        Island* island = near_ ? &app.player_island() : &*app.opponent_island();
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             exit_countdown_ = milliseconds(500);
-            if (auto room = app.player_island().get_room(cursor_loc)) {
+            if (auto room = island->get_room(cursor_loc)) {
                 if (auto r = dynamic_cast<Replicator*>(room)) {
                     if (r->create_replicant(pfrm, app)) {
                         app.coins() -= replicator_fee;

@@ -291,6 +291,9 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
         if (skipped < column_offset_) {
             ++skipped;
             handle_char(data, *data, ps);
+            if (ps.endquote) {
+                ps.quotation = false;
+            }
             ++data;
             continue;
         }

@@ -11,10 +11,7 @@ static Sound* __sounds = nullptr;
 
 
 
-Sound::Sound(const char* name) :
-    next_(__sounds),
-    name_(name),
-    last_played_(0)
+Sound::Sound(const char* name) : next_(__sounds), name_(name), last_played_(0)
 {
     __sounds = this;
 }
@@ -33,9 +30,7 @@ void Sound::update_all(Microseconds delta)
 
 
 
-void Sound::play(Platform& pfrm,
-                 int priority,
-                 Microseconds max_overlap)
+void Sound::play(Platform& pfrm, int priority, Microseconds max_overlap)
 {
     if ((u32)max_overlap < last_played_) {
         pfrm.speaker().play_sound(name_, priority);

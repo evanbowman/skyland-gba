@@ -5,10 +5,15 @@
 #include "skyland/entity/projectile/cannonball.hpp"
 #include "skyland/island.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
+#include "skyland/sound.hpp"
 
 
 
 namespace skyland {
+
+
+
+extern Sound cannon_sound;
 
 
 
@@ -111,6 +116,8 @@ public:
                         start.x += 8;
                         start.y += 8;
                         auto target = room->center();
+
+                        cannon_sound.play(pfrm, 3);
 
                         auto c = alloc_entity<Cannonball>(
                             start, target, parent(), position());

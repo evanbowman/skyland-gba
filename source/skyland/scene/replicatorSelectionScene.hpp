@@ -13,6 +13,11 @@ namespace skyland {
 
 class ReplicatorSelectionScene : public ActiveWorldScene {
 public:
+    ReplicatorSelectionScene(bool near) : near_(near)
+    {
+    }
+
+
     void enter(Platform&, App&, Scene& prev) override;
 
 
@@ -27,6 +32,7 @@ private:
     std::optional<Text> yes_text_;
     std::optional<Text> no_text_;
     Microseconds exit_countdown_ = 0;
+    bool near_ = true;
 };
 
 

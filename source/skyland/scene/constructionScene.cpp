@@ -9,9 +9,9 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "worldScene.hpp"
-#include "skyland/sound.hpp"
 
 
 

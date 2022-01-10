@@ -2518,13 +2518,13 @@ static const AudioTrack* find_music(const char* name)
 // #include "data/sound_thud.hpp"
 // #include "data/sound_tw_bell.hpp"
 // #include "data/sound_typewriter.hpp"
-#include "data/sound_drone_beep.hpp"
 #include "data/sound_build0.hpp"
 #include "data/sound_cannon.hpp"
-#include "data/sound_missile.hpp"
-#include "data/sound_missile_explosion.hpp"
+#include "data/sound_drone_beep.hpp"
 #include "data/sound_fizzle.hpp"
 #include "data/sound_gravel.hpp"
+#include "data/sound_missile.hpp"
+#include "data/sound_missile_explosion.hpp"
 
 
 
