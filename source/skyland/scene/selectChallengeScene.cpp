@@ -215,6 +215,8 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             prep_level(pfrm, app);
             app.player_island().render_exterior(pfrm, app);
+
+            pfrm.speaker().play_music("sb_solecism", 0);
             return scene_pool::alloc<FadeInScene>();
 
         } else {

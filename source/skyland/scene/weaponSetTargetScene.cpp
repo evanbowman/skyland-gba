@@ -27,8 +27,8 @@ void clear_room_description(Platform& pfrm,
 
 WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc,
                                            bool near,
-                                           Vec2<u8> restrict_rows)
-    : weapon_loc_(weapon_loc), near_(near), restrict_rows_(restrict_rows)
+                                           std::optional<Vec2<u8>> initial_pos)
+    : weapon_loc_(weapon_loc), near_(near), initial_pos_(initial_pos)
 {
 }
 
@@ -284,6 +284,10 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
             std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
         cursor_loc.x = targets_[selector_].x;
         cursor_loc.y = targets_[selector_].y;
+
+        if (initial_pos_) {
+            cursor_loc = *initial_pos_;
+        }
     }
 
     far_camera();

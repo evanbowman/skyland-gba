@@ -17,7 +17,7 @@ class WeaponSetTargetScene : public ActiveWorldScene {
 public:
     WeaponSetTargetScene(const Vec2<u8>& weapon_loc,
                          bool near = true,
-                         Vec2<u8> restrict_rows = {0, 15});
+                         std::optional<Vec2<u8>> initial_pos = {});
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
@@ -50,7 +50,7 @@ private:
 
     bool near_;
 
-    Vec2<u8> restrict_rows_;
+    std::optional<Vec2<u8>> initial_pos_;
 };
 
 

@@ -2520,12 +2520,15 @@ static const AudioTrack* find_music(const char* name)
 // #include "data/sound_typewriter.hpp"
 #include "data/sound_build0.hpp"
 #include "data/sound_cannon.hpp"
+#include "data/sound_missile.hpp"
+
 
 
 static const AudioTrack sounds[] = {
     DEF_SOUND(explosion1, sound_explosion1),
     DEF_SOUND(explosion2, sound_explosion2),
     DEF_SOUND(build0, sound_build0),
+    DEF_SOUND(missile, sound_missile),
     // DEF_SOUND(typewriter, sound_typewriter),
     // DEF_SOUND(footstep1, sound_footstep1),
     // DEF_SOUND(footstep2, sound_footstep2),

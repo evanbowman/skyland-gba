@@ -6,6 +6,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/sound.hpp"
 
 
 
@@ -14,6 +15,10 @@ namespace skyland {
 
 
 SHARED_VARIABLE(missile_silo_reload_ms);
+
+
+
+static Sound missile_sound("missile");
 
 
 
@@ -68,6 +73,8 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
                                                        target,
                                                        parent());
 
+                    missile_sound.play(pfrm, 3, milliseconds(400));
+
                     if (m) {
                         parent()->projectiles().push(std::move(m));
                     }
@@ -104,7 +111,9 @@ ScenePtr<Scene> MissileSilo::select(Platform& pfrm, App& app)
     }
 
     if (parent() == &app.player_island()) {
-        return scene_pool::alloc<WeaponSetTargetScene>(position());
+        return scene_pool::alloc<WeaponSetTargetScene>(position(),
+                                                       true,
+                                                       target_);
     }
 
     return null_scene();

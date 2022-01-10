@@ -276,6 +276,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/sound_creak.s
     ${DATA_DIR}/sound_build0.s
     ${DATA_DIR}/sound_cannon.s
+    ${DATA_DIR}/sound_missile.s
     ${DATA_DIR}/sound_dropitem.s
     ${DATA_DIR}/sound_scroll.s
     ${DATA_DIR}/sound_laser1.s

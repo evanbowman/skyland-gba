@@ -12,6 +12,11 @@ namespace skyland {
 
 
 
+// This sound class keeps track of the last time you played the sound, to
+// mitigate clipping from overlapping sound effects.
+
+
+
 class Sound {
 public:
     Sound(const char* name);

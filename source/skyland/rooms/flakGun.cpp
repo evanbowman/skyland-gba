@@ -91,7 +91,9 @@ ScenePtr<Scene> FlakGun::select(Platform& pfrm, App& app)
     }
 
     if (parent() == &app.player_island()) {
-        return scene_pool::alloc<WeaponSetTargetScene>(position());
+        return scene_pool::alloc<WeaponSetTargetScene>(position(),
+                                                       true,
+                                                       target_);
     }
     return null_scene();
 }
