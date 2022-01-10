@@ -48,6 +48,7 @@ public:
 
     ScenePtr<Scene> select(Platform& pfrm, App& app) override
     {
+        pfrm.speaker().play_sound("drone_beep", 1);
         return scene_pool::alloc<WeaponSetTargetScene>(
             position(), destination() == &app.player_island());
     }

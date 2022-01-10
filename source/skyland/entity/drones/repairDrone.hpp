@@ -120,6 +120,7 @@ public:
 
     ScenePtr<Scene> select(Platform& pfrm, App&) override
     {
+        pfrm.speaker().play_sound("drone_beep", 1);
         return scene_pool::alloc<RepairDroneRangeScene>(shared_from_this());
     }
 

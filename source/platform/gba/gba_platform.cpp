@@ -2518,6 +2518,7 @@ static const AudioTrack* find_music(const char* name)
 // #include "data/sound_thud.hpp"
 // #include "data/sound_tw_bell.hpp"
 // #include "data/sound_typewriter.hpp"
+#include "data/sound_drone_beep.hpp"
 #include "data/sound_build0.hpp"
 #include "data/sound_cannon.hpp"
 #include "data/sound_missile.hpp"
@@ -2534,6 +2535,7 @@ static const AudioTrack sounds[] = {DEF_SOUND(explosion1, sound_explosion1),
                                     DEF_SOUND(impact, sound_missile_explosion),
                                     DEF_SOUND(fizzle, sound_fizzle),
                                     DEF_SOUND(gravel, sound_gravel),
+                                    DEF_SOUND(drone_beep, sound_drone_beep),
                                     // DEF_SOUND(typewriter, sound_typewriter),
                                     // DEF_SOUND(footstep1, sound_footstep1),
                                     // DEF_SOUND(footstep2, sound_footstep2),
