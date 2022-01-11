@@ -33,6 +33,12 @@ public:
     }
 
 
+    bool disallow_chimney() override
+    {
+        return true;
+    }
+
+
     bool description_visible() override
     {
         return true;

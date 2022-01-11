@@ -950,6 +950,8 @@ void EnemyAI::update_room(Platform& pfrm,
                 // drones, we should think about potentially dropping our combat
                 // drone.
                 weights[combat_drone_index] -= 48.f;
+            } else if (metac == cannon_drone_index) {
+                weights[cannon_drone_index] -= 8.f;
             }
         } else {
             if (metac == combat_drone_index) {
