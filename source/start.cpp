@@ -72,7 +72,7 @@ void start(Platform& pfrm)
                             ";;; mods dir, and load them\n"
                             ";;; here.\n"
                             ";;;\n"
-                            "; (key-bind \"u\" repl)\n";
+                            "\n(key-bind \"ud\" repl)\n";
 
     if (not ram_filesystem::file_exists(pfrm, "/mods/init.lisp")) {
         ram_filesystem::store_file_data(

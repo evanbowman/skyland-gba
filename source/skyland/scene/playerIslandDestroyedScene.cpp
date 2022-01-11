@@ -203,11 +203,19 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    static const auto music_fadeback_seconds = seconds(4);
+
+    if (music_fadeback_timer_ > 0) {
+        music_fadeback_timer_ -= delta;
+        auto amount = interpolate(1, 12, Float(music_fadeback_timer_) / music_fadeback_seconds);
+        pfrm.speaker().set_music_volume(amount);
+    }
 
     switch (anim_state_) {
     case AnimState::init: {
         pfrm.speaker().clear_sounds();
-        pfrm.speaker().play_music("unaccompanied_wind", 0);
+        pfrm.speaker().set_music_volume(1);
+        // pfrm.speaker().play_music("unaccompanied_wind", 0);
 
         pfrm.speaker().play_sound("explosion1", 3);
 
@@ -241,6 +249,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             anim_state_ = AnimState::explosion_wait2;
 
             timer_ = 0;
+            music_fadeback_timer_ = music_fadeback_seconds;
         }
         break;
 
@@ -534,6 +543,7 @@ void PlayerIslandDestroyedScene::exit(Platform& pfrm, App& app, Scene& next)
     lines_.clear();
     pfrm.load_overlay_texture("overlay");
     pfrm.screen().pixelate(0);
+    pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 }
 
 

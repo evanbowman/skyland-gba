@@ -3075,6 +3075,45 @@ void Platform::enable_expanded_glyph_mode(bool enabled)
 #define REG_SGFIFOA *(volatile u32*)0x40000A0
 
 
+
+static const VolumeScaleLUT* music_volume_lut = &volume_scale_LUTs[0];
+
+
+
+static void audio_update_music_volume_isr()
+{
+    alignas(4) AudioSample mixing_buffer[4];
+
+    // NOTE: audio tracks in ROM should therefore have four byte alignment!
+    *((u32*)mixing_buffer) =
+        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+
+    if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
+        snd_ctx.music_track_pos = 0;
+    }
+
+    for (AudioSample& s : mixing_buffer) {
+        s = (*music_volume_lut)[s];
+    }
+
+    for (auto it = snd_ctx.active_sounds.begin();
+         it not_eq snd_ctx.active_sounds.end();) {
+        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+            it = snd_ctx.active_sounds.erase(it);
+        } else {
+            for (int i = 0; i < 4; ++i) {
+                mixing_buffer[i] += (u8)it->data_[it->position_];
+                ++it->position_;
+            }
+            ++it;
+        }
+    }
+
+    REG_SGFIFOA = *((u32*)mixing_buffer);
+}
+
+
+
 static void audio_update_fast_isr()
 {
     alignas(4) AudioSample mixing_buffer[4];
@@ -3101,6 +3140,22 @@ static void audio_update_fast_isr()
     }
 
     REG_SGFIFOA = *((u32*)mixing_buffer);
+}
+
+
+
+void Platform::Speaker::set_music_volume(u8 volume)
+{
+    if (volume >= volume_scale_LUTs.size()) {
+        return;
+    }
+
+    if (volume == volume_scale_LUTs.size() - 1) {
+        irqSet(IRQ_TIMER1, audio_update_fast_isr);
+    } else {
+        music_volume_lut = &volume_scale_LUTs[volume];
+        irqSet(IRQ_TIMER1, audio_update_music_volume_isr);
+    }
 }
 
 
@@ -5052,8 +5107,8 @@ void* Platform::system_call(const char* feature_name, void* arg)
     } else if (str_cmp(feature_name, "dlc-download") == 0) {
         read_dlc(*this);
     } else if (str_cmp(feature_name, "get-flag-palette") == 0) {
-    }
 
+    }
 
     return nullptr;
 }

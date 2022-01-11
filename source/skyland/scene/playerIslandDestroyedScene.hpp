@@ -83,6 +83,7 @@ private:
     } confetti_state_ = ConfettiState::dormant;
 
     Microseconds confetti_timer_ = 0;
+    Microseconds music_fadeback_timer_ = 0;
 };
 
 

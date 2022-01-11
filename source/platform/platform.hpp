@@ -560,6 +560,13 @@ public:
         void play_music(const char* name, Microseconds offset);
         void stop_music();
 
+        // By convention, volume ranges from zero to nineteen (twenty volume
+        // levels). Maximum performance when volume is zero or nineteen.
+
+        static const u8 music_volume_max = 19;
+
+        void set_music_volume(u8 volume);
+
         bool is_music_playing(const char* name);
 
         // A platform's speaker may only have the resources to handle a limited

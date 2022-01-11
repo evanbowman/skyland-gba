@@ -23,6 +23,5 @@
    (transporter  100 999  40)
    (replicator   80  2500 80)
    (drone-bay    200 2100 36)
-   (foundry      100 3000 20)
    (decimator    140 3600 80)
    (plundered-room 20 30 0)))
