@@ -98,17 +98,15 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
         if (app.player().key_down(pfrm, Key::action_1)) {
-            if (auto target_room =
-                    app.opponent_island()->get_room(cursor_loc)) {
-
+            if (app.opponent_island()->get_room(cursor_loc)) {
 
                 if (auto room = app.player_island().get_room(weapon_loc_)) {
-                    room->set_target(target_room->position());
+                    room->set_target(cursor_loc);
                     network::packet::WeaponSetTarget packet;
                     packet.weapon_x_ = weapon_loc_.x;
                     packet.weapon_y_ = weapon_loc_.y;
-                    packet.target_x_ = target_room->position().x;
-                    packet.target_y_ = target_room->position().y;
+                    packet.target_x_ = cursor_loc.x;
+                    packet.target_y_ = cursor_loc.y;
                     network::transmit(pfrm, packet);
 
                     if (near_) {
@@ -122,8 +120,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                         network::packet::DroneSetTarget packet;
                         packet.drone_x_ = drone.position().x;
                         packet.drone_y_ = drone.position().y;
-                        packet.target_x_ = target_room->position().x;
-                        packet.target_y_ = target_room->position().y;
+                        packet.target_x_ = cursor_loc.x;
+                        packet.target_y_ = cursor_loc.y;
                         packet.drone_near_ =
                             drone.destination() == &app.player_island();
                         packet.target_near_ = false;
@@ -133,7 +131,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                     if (near_) {
                         if (auto drone =
                                 app.player_island().get_drone(weapon_loc_)) {
-                            (*drone)->set_target(target_room->position());
+                            (*drone)->set_target(cursor_loc);
                             sync(**drone);
 
                             return drone_exit_scene(drone->get());
@@ -141,7 +139,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                     } else {
                         if (auto drone =
                                 app.opponent_island()->get_drone(weapon_loc_)) {
-                            (*drone)->set_target(target_room->position());
+                            (*drone)->set_target(cursor_loc);
                             sync(**drone);
 
                             return drone_exit_scene(drone->get());

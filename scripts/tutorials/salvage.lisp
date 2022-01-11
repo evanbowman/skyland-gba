@@ -3,6 +3,9 @@
 ;;;
 
 
+(coins-add 200)
+
+
 (terrain (player) 6)
 (island-configure
  (player)

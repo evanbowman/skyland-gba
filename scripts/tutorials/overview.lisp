@@ -90,8 +90,8 @@
    (1749 Down)
    (349 Down)
    (400 Down)
-   (433 A)
-   (1000 A)
+   (100 nil)
+   (100 "Now you know the basics of construction and combat!")
    (3000 nil)))
 
 
