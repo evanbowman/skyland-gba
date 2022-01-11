@@ -1,5 +1,6 @@
 #include "inspectP2Scene.hpp"
 #include "constructionScene.hpp"
+#include "keyComboScene.hpp"
 #include "globals.hpp"
 #include "lispReplScene.hpp"
 #include "readyScene.hpp"
@@ -123,6 +124,10 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                    app.opponent_island()->get_room(cursor_loc)) {
             return scene_pool::alloc<SalvageRoomScene>(false);
         }
+    }
+
+    if (app.player().key_down(pfrm, Key::start)) {
+        return scene_pool::alloc<KeyComboScene>(false);
     }
 
     if (app.game_mode() == App::GameMode::sandbox and

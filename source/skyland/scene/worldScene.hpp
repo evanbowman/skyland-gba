@@ -42,6 +42,12 @@ public:
     }
 
 
+    bool is_far_camera()
+    {
+        return far_camera_;
+    }
+
+
 protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;

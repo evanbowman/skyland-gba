@@ -48,7 +48,15 @@ Statistics statistics(Platform& pfrm);
 
 
 
-void initialize(Platform& pfrm, int fs_begin_offset);
+enum InitStatus {
+    initialized,
+    already_initialized,
+    failed,
+};
+
+
+// Returns true if filesystem initialized for the first time.
+InitStatus initialize(Platform& pfrm, int fs_begin_offset);
 
 
 

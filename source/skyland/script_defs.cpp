@@ -451,6 +451,44 @@ void App::init_scripts(Platform& pfrm)
                   }));
 
 
+    lisp::set_var("chr-move", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 5);
+        L_EXPECT_OP(0, integer); // y2
+        L_EXPECT_OP(1, integer); // x2
+        L_EXPECT_OP(2, integer); // y1
+        L_EXPECT_OP(3, integer); // x1
+        L_EXPECT_OP(4, user_data); // island
+
+        auto island = (Island*)lisp::get_op(4)->user_data().obj_;
+
+        u8 startx = lisp::get_op(3)->integer().value_;
+        u8 starty = lisp::get_op(2)->integer().value_;
+
+        u8 destx = lisp::get_op(1)->integer().value_;
+        u8 desty = lisp::get_op(0)->integer().value_;
+
+        if (auto room = island->get_room({startx, starty})) {
+            for (auto& chr : room->characters()) {
+                if (chr->owner() == &room->parent()->owner()) {
+
+                    auto path = find_path(*lisp::interp_get_pfrm(),
+                                          *interp_get_app(),
+                                          island,
+                                          {startx, starty},
+                                          {destx, desty});
+
+                    if (path and *path) {
+                        chr->set_movement_path(std::move(*path));
+                    }
+
+                    break;
+                }
+            }
+        }
+        return L_NIL;
+    }));
+
+
     lisp::set_var(
         "chr-add", lisp::make_function([](int argc) {
             L_EXPECT_ARGC(argc, 5);
@@ -492,6 +530,56 @@ void App::init_scripts(Platform& pfrm)
 
             return L_NIL;
         }));
+
+
+    lisp::set_var("sel", lisp::make_function([](int argc) {
+        if (auto app = interp_get_app()) {
+
+            Island* island = &app->player_island();
+            Vec2<u8> sel = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+            if (auto ws = dynamic_cast<WorldScene*>(&app->scene())) {
+                if (ws->is_far_camera()) {
+                    sel = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+                    if (app->opponent_island()) {
+                        island = &*app->opponent_island();
+                    }
+                }
+            }
+
+            lisp::ListBuilder lb;
+            lb.push_back(lisp::make_userdata(island));
+            lb.push_back(lisp::make_integer(sel.x));
+            lb.push_back(lisp::make_integer(sel.y));
+            return lb.result();
+        }
+        return L_NIL;
+    }));
+
+
+    lisp::set_var("sel-move", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 3);
+        L_EXPECT_OP(0, integer);
+        L_EXPECT_OP(1, integer);
+        L_EXPECT_OP(2, user_data);
+
+        if (auto app = interp_get_app()) {
+            Vec2<u8>& sel = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+            if (auto ws = dynamic_cast<WorldScene*>(&app->scene())) {
+                if (lisp::get_op(2)->user_data().obj_ == &app->player_island()) {
+                    sel = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+                    ws->near_camera();
+                } else {
+                    ws->far_camera();
+                }
+            }
+
+            sel.x = lisp::get_op(1)->integer().value_;
+            sel.y = lisp::get_op(0)->integer().value_;
+        }
+        return L_NIL;
+    }));
 
 
     lisp::set_var("island-configure", lisp::make_function([](int argc) {

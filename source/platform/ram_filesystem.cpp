@@ -86,7 +86,7 @@ void destroy(Platform& pfrm)
 
 
 
-void initialize(Platform& pfrm, int fs_begin_offset)
+InitStatus initialize(Platform& pfrm, int fs_begin_offset)
 {
     ram_filesystem::fs_begin_offset = fs_begin_offset;
 
@@ -100,7 +100,7 @@ void initialize(Platform& pfrm, int fs_begin_offset)
         root.magic_[2] == 'S' and root.magic_[3] == fs_version) {
 
         // Already initialized previously.
-        return;
+        return InitStatus::already_initialized;
     }
 
     root.magic_[0] = '_';
@@ -127,6 +127,8 @@ void initialize(Platform& pfrm, int fs_begin_offset)
     }
 
     store_root(pfrm, root);
+
+    return InitStatus::initialized;
 }
 
 

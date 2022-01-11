@@ -282,6 +282,12 @@ public:
     void delete_backup();
 
 
+    Scene& scene()
+    {
+        return *current_scene_;
+    }
+
+
 private:
     PersistentData persistent_data_;
     Island player_island_;

@@ -1,5 +1,6 @@
 #include "keyComboScene.hpp"
 #include "readyScene.hpp"
+#include "inspectP2Scene.hpp"
 #include "skyland/keyCallbackProcessor.hpp"
 #include "skyland/skyland.hpp"
 
@@ -12,6 +13,10 @@ namespace skyland {
 void KeyComboScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     ActiveWorldScene::enter(pfrm, app, prev);
+
+    if (not near_) {
+        far_camera();
+    }
 
     text_data_ = "shortcut: ";
 
@@ -54,7 +59,12 @@ KeyComboScene::update(Platform& pfrm, App& app, Microseconds delta)
             binding->callback_(pfrm, app);
         }
         key_callback_processor.reset();
-        return scene_pool::alloc<ReadyScene>();
+
+        if (is_far_camera()) {
+            return scene_pool::alloc<InspectP2Scene>();
+        } else {
+            return scene_pool::alloc<ReadyScene>();
+        }
     }
 
     key_callback_processor.update(pfrm);

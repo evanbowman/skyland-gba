@@ -28,18 +28,31 @@ o----------------------------o
 
 o----------------------------o
 
- (chr-rem island x y)
-
- Remove character from
- from slot (x, y).
-
-
-o----------------------------o
-
  (chr-hp island x y hp)
 
  Set health of character at
  (x, y).
+
+
+o----------------------------o
+
+ (chr-move
+   island
+   x
+   y
+   dest-x
+   dest-y)
+
+ Move character from (x, y)
+ to (dest-x, dest-y).
+
+
+o----------------------------o
+
+ (chr-rem island x y)
+
+ Remove character from
+ from slot (x, y).
 
 
 o----------------------------o
@@ -275,6 +288,22 @@ o----------------------------o
  Add a room to island,
  where desc is a list of
  (room-sym room-x room-y)
+
+
+o----------------------------o
+
+ (sel)
+
+ Returns the coordinates of
+ the cursor as (island x y)
+
+
+o----------------------------o
+
+ (sel-move island x y)
+
+ Move the cursor to island:
+ x, y.
 
 
 o----------------------------o

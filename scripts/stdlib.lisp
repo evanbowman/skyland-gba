@@ -41,6 +41,10 @@
  `(set ,(cons $q name) ,@expr))
 
 
+;; For our onscreen keyboard, which has no + key
+(setq add +)
+
+
 ;; Because we're running lisp in an embedded system (a gameboy) with limited
 ;; memory, we need to be really careful about symbol table usage, which is why,
 ;; traditionally, we only support numbered arguments for lambdas. But this
