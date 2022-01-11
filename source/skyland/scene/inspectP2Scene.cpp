@@ -126,6 +126,11 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    if (not is_far_camera()) {
+        return scene_pool::alloc<ReadyScene>();
+    }
+
+
     if (app.player().key_down(pfrm, Key::start)) {
         return scene_pool::alloc<KeyComboScene>(false);
     }

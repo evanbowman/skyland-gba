@@ -336,7 +336,10 @@ o----------------------------o
  (terrain island size)
 
  Sets the terrain size of
- island to size.
+ island to size. If called
+ without the size argument,
+ returns terrain size of
+ island.
 
 
 o----------------------------o

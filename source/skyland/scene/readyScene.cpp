@@ -95,6 +95,10 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    if (is_far_camera()) {
+        return scene_pool::alloc<InspectP2Scene>();
+    }
+
     if (app.player().key_down(pfrm, Key::up)) {
         if (cursor_loc.y > 6) {
             --cursor_loc.y;

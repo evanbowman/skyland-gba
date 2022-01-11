@@ -9,7 +9,7 @@ namespace skyland {
 
 
 
-class ReadyScene : public ActiveWorldScene {
+class ReadyScene final : public ActiveWorldScene {
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 

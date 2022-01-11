@@ -62,7 +62,9 @@ private:
 
     using Coord = Vec2<u8>;
 
-    Buffer<Coord, 12> construction_sites_;
+    // NOTE: while the terrain isn't quite so large, due to holes in a player's
+    // island, we may need more construction sites than there are x-coordinates.
+    Buffer<Coord, 22> construction_sites_;
     u32 selector_ = 0;
 
     std::optional<Text> text_;

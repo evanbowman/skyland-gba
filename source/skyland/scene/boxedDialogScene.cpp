@@ -2,6 +2,7 @@
 #include "graphics/overlay.hpp"
 #include "localization.hpp"
 #include "readyScene.hpp"
+#include "inspectP2Scene.hpp"
 #include "scriptHookScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -183,6 +184,12 @@ void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
     text_state_.timer_ = 0;
     text_state_.line_ = 0;
     text_state_.pos_ = 0;
+
+    if (auto ws = dynamic_cast<WorldScene*>(&prev)) {
+        if (ws->is_far_camera()) {
+            far_camera();
+        }
+    }
 }
 
 
@@ -387,7 +394,12 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case DisplayMode::clear:
-        return scene_pool::alloc<ReadyScene>();
+        if (is_far_camera()) {
+            return scene_pool::alloc<InspectP2Scene>();
+        } else {
+            return scene_pool::alloc<ReadyScene>();
+        }
+
     }
 
     return null_scene();
