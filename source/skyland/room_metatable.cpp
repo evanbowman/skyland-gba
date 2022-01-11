@@ -35,18 +35,18 @@ static auto& __metatable()
                          IonCannon,
                          FlakGun,
                          MissileSilo,
+                         Decimator,
                          Stairwell,
                          Bulkhead,
                          Workshop,
                          Infirmary,
                          Core,
+                         Foundry,
                          Radar,
                          PlunderedRoom,
                          Transporter,
                          Replicator,
-                         DroneBay,
-        //Foundry,
-                         Decimator>
+                         DroneBay>
         __room_metatable;
 
     return __room_metatable;

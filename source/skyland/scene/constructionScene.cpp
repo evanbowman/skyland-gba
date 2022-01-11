@@ -613,8 +613,10 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 
         if (meta->size().x <= avail_space and
             meta->size().y <= avail_y_space and
-            (not foundry_required or (foundry_required and f_count > 0)) and
-            (not workshop_required or (workshop_required and w_count > 0)) and
+            (not foundry_required or (foundry_required and f_count > 0) or
+             app.game_mode() == App::GameMode::sandbox) and
+            (not workshop_required or (workshop_required and w_count > 0) or
+             app.game_mode() == App::GameMode::sandbox) and
             not(meta->conditions() & Conditions::not_constructible)) {
             available_buildings_.push_back(&meta);
         }
