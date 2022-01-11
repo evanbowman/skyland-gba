@@ -270,11 +270,6 @@ public:
     void invoke_ram_script(Platform& pfrm, const char* ram_fs_path);
 
 
-    void safe_invoke_ram_script(Platform& pfrm,
-                                const char* ram_fs_path,
-                                const char* rom_fs_fallback_path);
-
-
     lisp::Value*
     invoke_script(Platform& pfrm, const char* path, bool rom_fs_only = false);
 

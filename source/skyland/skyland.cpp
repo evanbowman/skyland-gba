@@ -260,45 +260,6 @@ void App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
 
 
 
-void App::safe_invoke_ram_script(Platform& pfrm,
-                                 const char* ram_fs_path,
-                                 const char* rom_fs_fallback_path)
-{
-    if (not is_developer_mode()) {
-        auto str = pfrm.load_file_contents("scripts", rom_fs_fallback_path);
-        lisp::BasicCharSequence seq(str);
-        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
-            lisp::DefaultPrinter p;
-            lisp::format(&err, p);
-            pfrm.fatal(p.fmt_.c_str());
-        });
-        return;
-    }
-
-    ram_filesystem::import_file_from_rom_if_not_exists(
-        pfrm, ram_fs_path, rom_fs_fallback_path);
-
-    Vector<char> buffer(pfrm);
-    if (ram_filesystem::read_file_data(pfrm, ram_fs_path, buffer)) {
-        lisp::VectorCharSequence seq(buffer);
-        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
-            lisp::DefaultPrinter p;
-            lisp::format(&err, p);
-            pfrm.fatal(p.fmt_.c_str());
-        });
-    } else {
-        auto str = pfrm.load_file_contents("scripts", rom_fs_fallback_path);
-        lisp::BasicCharSequence seq(str);
-        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
-            lisp::DefaultPrinter p;
-            lisp::format(&err, p);
-            pfrm.fatal(p.fmt_.c_str());
-        });
-    }
-}
-
-
-
 bool App::is_developer_mode()
 {
     return persistent_data_.flags0_ & PersistentData::Flags0::developer_mode;

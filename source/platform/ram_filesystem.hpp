@@ -52,14 +52,6 @@ void initialize(Platform& pfrm, int fs_begin_offset);
 
 
 
-void link_file(Platform& pfrm, u16 file, u16 length);
-
-
-
-void free_file(Platform& pfrm, u16 file);
-
-
-
 void unlink_file(Platform& pfrm, const char* path);
 
 
@@ -179,17 +171,6 @@ inline void import_file_from_rom(Platform& pfrm,
         }
         vec.push_back('\0');
         store_file_data(pfrm, dest_path, vec);
-    }
-}
-
-
-
-inline void import_file_from_rom_if_not_exists(Platform& pfrm,
-                                               const char* dest_path,
-                                               const char* src_path)
-{
-    if (not file_exists(pfrm, dest_path)) {
-        import_file_from_rom(pfrm, dest_path, src_path);
     }
 }
 
