@@ -94,8 +94,10 @@ void initialize(Platform& pfrm, int fs_begin_offset)
 
     pfrm.read_save_data(&root, sizeof root, fs_offset());
 
+    static const char fs_version = '1';
+
     if (root.magic_[0] == '_' and root.magic_[1] == 'F' and
-        root.magic_[2] == 'S' and root.magic_[3] == '_') {
+        root.magic_[2] == 'S' and root.magic_[3] == fs_version) {
 
         // Already initialized previously.
         return;
@@ -104,7 +106,7 @@ void initialize(Platform& pfrm, int fs_begin_offset)
     root.magic_[0] = '_';
     root.magic_[1] = 'F';
     root.magic_[2] = 'S';
-    root.magic_[3] = '_';
+    root.magic_[3] = fs_version;
 
     root.file_count_.set(0);
     root.freelist_.set(0);
@@ -269,6 +271,18 @@ void unlink_file(Platform& pfrm, const char* path)
 
 
 
+static u8 checksum(const FileContents& contents)
+{
+    u8 result = 0;
+
+    for (u32 i = 0; i < FileContents::capacity; ++i) {
+        result += contents.data_[i];
+    }
+
+    return result;
+}
+
+
 size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 {
     const auto path_len = str_len(path);
@@ -279,6 +293,20 @@ size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
         pfrm.read_save_data(&contents,
                             sizeof contents,
                             fs_contents_offset() + file * block_size);
+
+        auto on_corruption = [&] {
+            output.clear();
+            const char* msg = "DISK_CORRUPTION";
+            const auto msg_len = str_len(msg);
+            for (u32 i = 0; i < msg_len; ++i) {
+                output.push_back(msg[i]);
+            }
+        };
+
+        if (checksum(contents) not_eq contents.header_.checksum_) {
+            on_corruption();
+            return;
+        }
 
         const auto len = info.file_size_.get() - (path_len + 1);
 
@@ -295,6 +323,11 @@ size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
             pfrm.read_save_data(&contents,
                                 sizeof contents,
                                 fs_contents_offset() + file * block_size);
+
+            if (checksum(contents) not_eq contents.header_.checksum_) {
+                on_corruption();
+                return;
+            }
 
             for (u16 i = 0;
                  i < FileContents::capacity and output.size() not_eq len;
@@ -354,6 +387,7 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
     remaining -= initial_data_copy;
 
     auto store_chunk = [&] {
+        contents.header_.checksum_ = checksum(contents);
         pfrm.write_save_data((u8*)&contents,
                              sizeof contents,
                              fs_contents_offset() + file * block_size);

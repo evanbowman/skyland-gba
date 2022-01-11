@@ -120,7 +120,9 @@ struct FileInfo {
 
 struct FileContents {
     struct Header {
-        host_u16 next_; // zero if no more blocks
+        // NOTE: therefore, max filesystem size is 200 * 65535
+        host_u16 next_; // Zero if no more blocks
+        u8 checksum_;   // To check for file corruption
     } header_;
 
     static constexpr const auto capacity = block_size - sizeof header_;

@@ -348,11 +348,17 @@ public:
     {
         if (valid_) {
             if constexpr (not std::is_trivially_destructible<T>()) {
-                while (size_ > Chunk::elems()) {
-                    pop_back();
-                }
+                clear();
             }
             ((Chunk*)data_->data_)->~Chunk();
+        }
+    }
+
+
+    void clear()
+    {
+        while (size_) {
+            pop_back();
         }
     }
 
