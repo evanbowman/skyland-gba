@@ -215,7 +215,10 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::init: {
         pfrm.speaker().clear_sounds();
         pfrm.speaker().set_music_volume(1);
-        // pfrm.speaker().play_music("unaccompanied_wind", 0);
+
+        if (app.game_mode() not_eq App::GameMode::adventure) {
+            pfrm.speaker().play_music("unaccompanied_wind", 0);
+        }
 
         pfrm.speaker().play_sound("explosion1", 3);
 
