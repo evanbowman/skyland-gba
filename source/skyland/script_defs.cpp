@@ -196,7 +196,7 @@ void App::init_scripts(Platform& pfrm)
 
 
     lisp::set_var("key-reset", lisp::make_function([](int argc) {
-                      key_callback_processor.reset();
+                      key_callback_processor.clear();
                       return L_NIL;
                   }));
 

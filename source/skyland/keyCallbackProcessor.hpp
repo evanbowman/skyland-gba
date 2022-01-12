@@ -94,6 +94,13 @@ public:
     }
 
 
+    void clear()
+    {
+        bindings_.clear();
+        reset();
+    }
+
+
     int seek_state() const
     {
         return seek_state_;

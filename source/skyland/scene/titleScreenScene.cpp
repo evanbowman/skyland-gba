@@ -70,7 +70,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     init_clouds(pfrm);
     pfrm.system_call("v-parallax", (void*)false);
 
-    key_callback_processor.reset();
+    key_callback_processor.clear();
 
     auto view = pfrm.screen().get_view();
     auto c = view.get_center();

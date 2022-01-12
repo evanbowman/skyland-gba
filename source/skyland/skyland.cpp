@@ -45,6 +45,7 @@ App::App(Platform& pfrm)
         if (backup_->valid_) {
             backup_->store(pfrm);
         }
+        pfrm.logger().flush();
     });
 }
 
