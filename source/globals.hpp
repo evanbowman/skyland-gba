@@ -29,7 +29,7 @@ struct ExampleGlobalData {
 
 
 struct SkylandGlobalData {
-    skyland::room_pool::_Pool room_pool_;
+    // skyland::room_pool::_Pool room_pool_;
     skyland::scene_pool::_Pool scene_pool_;
 
     Vec2<u8> near_cursor_loc_;
@@ -37,6 +37,7 @@ struct SkylandGlobalData {
 
     skyland::EntityNodePool<skyland::entity_pool_size> entity_node_pool_;
     skyland::EntityPools entity_pools_;
+    skyland::room_pool::RoomPools room_pools_;
 
     std::optional<Text> multiplayer_prep_text_;
     Microseconds multiplayer_prep_timer_ = 0;

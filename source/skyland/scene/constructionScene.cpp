@@ -242,7 +242,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            if (room_pool::pool_->empty() or island(app)->rooms().full()) {
+            if (std::get<SkylandGlobalData>(globals()).room_pools_.empty() or
+                island(app)->rooms().full()) {
                 msg(pfrm, "too many rooms");
                 state_ = State::insufficient_funds;
                 break;

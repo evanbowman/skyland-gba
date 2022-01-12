@@ -20,17 +20,17 @@ const char* console_header =
 // clang-format on
 
 
+
 void skyland_main_loop(Platform& pf)
 {
     pf.remote_console().printline(::console_header);
 
     globals().emplace<SkylandGlobalData>();
-    skyland::room_pool::pool_ =
-        &std::get<SkylandGlobalData>(globals()).room_pool_;
     skyland::scene_pool::pool_ =
         &std::get<SkylandGlobalData>(globals()).scene_pool_;
 
     std::get<SkylandGlobalData>(globals()).entity_pools_.init(pf);
+    std::get<SkylandGlobalData>(globals()).room_pools_.init(pf);
 
     skyland::App app(pf);
 

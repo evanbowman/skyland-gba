@@ -8,7 +8,7 @@
 #include "player.hpp"
 #include "power.hpp"
 #include "room.hpp"
-#include "roomPool.hpp"
+#include "room_alloc.hpp"
 #include "roomTable.hpp"
 #include "skyland/tile.hpp"
 

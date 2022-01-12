@@ -1205,9 +1205,26 @@ AudioBuffer* buffer_needs_sfx = nullptr;
 // }
 
 
+static int scratch_buffers_in_use = 0;
+static int scratch_buffer_highwater = 0;
+
 
 void Platform::Screen::clear()
 {
+    // NOTE: because our logging vector is backed by scratch buffers,
+    // alloc_scratch_buffer cannot itself log anything, or else you have
+    // infinite mutual recursion in expanding the vector basically.
+    if (scratch_buffers_in_use > scratch_buffer_highwater) {
+        scratch_buffer_highwater = scratch_buffers_in_use;
+
+        StringBuffer<60> str = "sbr highwater: ";
+
+        str += to_string<10>(scratch_buffer_highwater).c_str();
+
+        info(*::platform, str.c_str());
+    }
+
+
     audio_update_fallback = false;
     buffer_needs_sfx = nullptr;
 
@@ -1384,6 +1401,7 @@ void Platform::Screen::display()
 }
 
 
+
 Vec2<u32> Platform::Screen::size() const
 {
     static const Vec2<u32> gba_widescreen{240, 160};
@@ -1400,7 +1418,6 @@ static u16 sprite_palette[16];
 static u16 tilesheet_0_palette[16];
 static u16 tilesheet_1_palette[16];
 static u16 overlay_palette[16];
-static u16 background_palette[16];
 
 
 // We use base_contrast as the starting point for all contrast calculations. In
@@ -1921,7 +1938,7 @@ void Platform::Screen::fade(float amount,
             MEM_BG_PALETTE[32 + i] = blend(from, c, amt);
         }
         for (int i = 0; i < 16; ++i) {
-            auto from = Color::from_bgr_hex_555(background_palette[i]);
+            auto from = Color::from_bgr_hex_555(background_textures[0].palette_data_[i]);
             MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, amt);
         }
         // Overlay palette
@@ -2151,16 +2168,16 @@ void Platform::load_background_texture(const char* name)
 
             current_background = &info;
 
-            init_palette(current_background, background_palette, false);
+            // init_palette(current_background, background_palette, false);
 
-            const auto c = nightmode_adjust(real_color(last_color));
-            for (int i = 0; i < 16; ++i) {
-                auto from = Color::from_bgr_hex_555(background_palette[i]);
-                MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, last_fade_amt);
-            }
+            // const auto c = nightmode_adjust(real_color(last_color));
+            // for (int i = 0; i < 16; ++i) {
+            //     auto from = Color::from_bgr_hex_555(background_palette[i]);
+            //     MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, last_fade_amt);
+            // }
 
-            if (validate_background_texture_size(*this, // info.tile_data_length_
-                                                 0)) {
+            if (validate_background_texture_size(*this,
+                                                 info.tile_data_length_)) {
                 memcpy16((void*)&MEM_SCREENBLOCKS[sbb_background_texture][0],
                          info.tile_data_,
                          (sizeof(ScreenBlock) * 2) / 2);
@@ -3037,10 +3054,6 @@ static EWRAM_DATA
         scratch_buffer_pool;
 
 
-static int scratch_buffers_in_use = 0;
-static int scratch_buffer_highwater = 0;
-
-
 ScratchBufferPtr Platform::make_scratch_buffer()
 {
     auto finalizer =
@@ -3053,15 +3066,6 @@ ScratchBufferPtr Platform::make_scratch_buffer()
         &scratch_buffer_pool, finalizer);
     if (maybe_buffer) {
         ++scratch_buffers_in_use;
-        if (scratch_buffers_in_use > scratch_buffer_highwater) {
-            scratch_buffer_highwater = scratch_buffers_in_use;
-
-            // StringBuffer<60> str = "sbr highwater: ";
-
-            // str += to_string<10>(scratch_buffer_highwater).c_str();
-
-            // info(*::platform, str.c_str());
-        }
         return *maybe_buffer;
     } else {
         screen().fade(1.f, ColorConstant::electric_blue);
@@ -3372,10 +3376,6 @@ Platform::Platform()
 
         used = "ewram used: ";
         used += to_string<10>(&__eheap_start - &__ewram_start);
-        info(*this, used.c_str());
-
-        used = "text end: ";
-        used += to_string<20>((intptr_t)&__rom_end__);
         info(*this, used.c_str());
     }
 

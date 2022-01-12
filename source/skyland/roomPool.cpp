@@ -5,7 +5,7 @@ namespace skyland {
 
 namespace room_pool {
 
-_Pool* pool_ = nullptr;
+// _Pool* pool_ = nullptr;
 
 }
 
