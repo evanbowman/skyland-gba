@@ -44,4 +44,10 @@ static const TextureData overlay_textures[] = {
 @IMAGE_OVERLAY_STUBS@
 };
 
+
+static const TextureData background_textures[] = {
+@IMAGE_BACKGROUND_STUBS@
+};
+
+
 // clang-format on

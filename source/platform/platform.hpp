@@ -247,6 +247,8 @@ public:
     void load_tile0_texture(const char* name);
     void load_tile1_texture(const char* name);
     bool load_overlay_texture(const char* name);
+    void load_background_texture(const char* name);
+
 
     bool overlay_texture_exists(const char* name);
 

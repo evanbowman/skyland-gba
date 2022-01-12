@@ -179,8 +179,34 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     auto pos = island_->get_position();
-    if (pos.y < 700) {
+    if (pos.y < 600) {
         pos.y += sink_speed_ * delta;
+
+        // Now, because some platforms implement automatic background wrapping
+        // in hardware, we need to clear out tiles as they scroll outside the
+        // view of the screen. On platforms where background mapping doesn't
+        // matter, there's no harm in zeroing tiles as they scroll offscreen.
+
+        // I originally forked the code from another of my projects as a
+        // starting point for SKYLAND. BlindJump used larger tilemaps, so none
+        // of this wrapping mattered early in development. Later, when I was
+        // certain that SKYLAND would not use maps larger than 16x16, I decided
+        // to free up some VRAM by making the background tile maps smaller. I
+        // ended up throwing in this simple hack (below) as the most
+        // straightforward way to deal with the wrapping issue. The only time
+        // that a layer scrolls into wrapping territory is when a player
+        // destroys an island, so I haven't bothered to clean this code up.
+
+        const auto layer = island_->layer();
+
+        for (int y = 15; y > 0; --y) {
+            const auto y_pos = pos.y + y * 16;
+            if (y_pos > 700) {
+                for (int x = 0; x < 16; ++x) {
+                    pfrm.set_tile(layer, x, y, 0);
+                }
+            }
+        }
     }
     island_->set_position(pos);
 

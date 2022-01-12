@@ -262,6 +262,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/zone_image_2_flattened.s
     ${DATA_DIR}/zone_image_3_flattened.s
     ${DATA_DIR}/spritesheet.s
+    ${DATA_DIR}/background.s
     ${DATA_DIR}/spritesheet_title_screen.s
     ${DATA_DIR}/music_unaccompanied_wind.s
     ${DATA_DIR}/music_sb_solecism.s
@@ -319,6 +320,8 @@ set(IMAGE_INCLUDES "")
 set(IMAGE_SPR_STUBS "")
 set(IMAGE_TILE_STUBS "")
 set(IMAGE_OVERLAY_STUBS "")
+set(IMAGE_BACKGROUND_STUBS "")
+
 
 macro(add_spritesheet filename mw mh flatten)
 
@@ -360,6 +363,23 @@ macro(add_overlay filename mw mh flatten)
     "\n#include \"data/${filename}${FLATTENED_SUFFIX}.h\"\n//")
 
   set(IMAGE_OVERLAY_STUBS ${IMAGE_OVERLAY_STUBS}
+    "\n    TEXTURE_INFO(${filename}${FLATTENED_SUFFIX}),\n//")
+
+  compile_image(${filename} ${mw} ${mh} ${flatten} 4 NO)
+endmacro()
+
+
+macro(add_background filename mw mh flatten)
+  if(${flatten} STREQUAL "YES")
+    set(FLATTENED_SUFFIX "_flattened")
+  else()
+    set(FLATTENED_SUFFIX "")
+  endif()
+
+  set(IMAGE_INCLUDES ${IMAGE_INCLUDES}
+    "\n#include \"data/${filename}${FLATTENED_SUFFIX}.h\"\n//")
+
+  set(IMAGE_BACKGROUND_STUBS ${IMAGE_BACKGROUND_STUBS}
     "\n    TEXTURE_INFO(${filename}${FLATTENED_SUFFIX}),\n//")
 
   compile_image(${filename} ${mw} ${mh} ${flatten} 4 NO)
@@ -528,6 +548,7 @@ if(GAMEBOY_ADVANCE)
     add_tilesheet(zone_image_1 0 0 YES NO)
     add_tilesheet(zone_image_2 0 0 YES NO)
     add_tilesheet(zone_image_3 0 0 YES NO)
+    add_tilesheet(background 0 0 NO NO)
     add_overlay(overlay 0 0 NO NO)
     add_overlay(overlay_gamespeed 0 0 NO NO)
     add_overlay(overlay_editor 0 0 NO NO)

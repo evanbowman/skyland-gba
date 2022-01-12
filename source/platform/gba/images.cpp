@@ -43,6 +43,8 @@
 //;
 #include "data/zone_image_3_flattened.h"
 //;
+#include "data/background.h"
+//;
 #include "data/overlay.h"
 //;
 #include "data/overlay_gamespeed.h"
@@ -120,6 +122,8 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(zone_image_2_flattened),
 //;
     TEXTURE_INFO(zone_image_3_flattened),
+//;
+    TEXTURE_INFO(background),
 //
 };
 
@@ -151,5 +155,11 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(hint_damaged_core),
 //
 };
+
+
+// static const TextureData background_textures[] = {
+
+// };
+
 
 // clang-format on

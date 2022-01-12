@@ -19,6 +19,15 @@ namespace skyland {
 
 void set_island_positions(Island& left_island, Island& right_island)
 {
+    // Now, you may be wondering, why did I put the player and opponent islands
+    // at strange y-positions like 374? I forked one of my other GBA projects
+    // when developing the jam version of SKYLAND. The engine from BlindJump
+    // used larger background maps, so a y of 300 was more centrally located. In
+    // any event, the starting y position will always be some weird constant no
+    // matter what I do. I suppose I could have started the number at zero, but
+    // I didn't know how big the islands were going to be originally, so I gave
+    // myself extra space to work with.
+
     left_island.set_position({10, 374});
     // Pretty much as far away as possible, without wrapping across the screen.
     right_island.set_position(

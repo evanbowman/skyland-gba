@@ -32,8 +32,6 @@ App::App(Platform& pfrm)
 
     init_clouds(pfrm);
 
-    player_island_.show_flag(true);
-
     pfrm.screen().fade(1.f);
 
     if (not save::load_global_data(pfrm, gp_)) {

@@ -13,6 +13,9 @@
 (setq friendlies-seen '())
 
 
+(show-flag (player))
+
+
 (coins-add 2500)
 
 

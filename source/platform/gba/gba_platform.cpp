@@ -137,7 +137,7 @@ __attribute__((section(".iwram"), long_call)) void audio_update_isr();
 //        charblock 0                      charblock 1
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // o============================================================
-// |  t0 texture   | overlay mem |   t1 texture   |   bg mem   |
+// |  t0 texture   |   free!!!   |   t1 texture   |  free!!!   |
 // | len 7 (0 - 6) |  len 1 (7)  | len 7 (8 - 14) | len 1 (15) | ...
 // o============================================================
 //
@@ -145,28 +145,50 @@ __attribute__((section(".iwram"), long_call)) void audio_update_isr();
 //     ~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //     ======================================================o
 //     | overlay texture |     t0 mem      |     t1 mem      |
-// ... | len 8 (16 - 23) | len 4 (24 - 27) | len 4 (28 - 31) |
+// ... | len 8 (16 - 23) | len 2 (26 - 27) | len 2 (28 - 29) | ...
 //     ======================================================o
 //
+//                        charblock 3 (contd.)
+//      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     ========================================================o
+//     |  free!!!   |  free!!!   |  overlay mem  |   bg mem    |
+// ... | len 1 (24) | len 1 (25) |  len 1 (30)   | len 1 (31)  |
+//     ========================================================o
+//
+// NOTE: The above comment fell out of date between the transition of the
+// code from BlindJump to SKYLAND. We have some memory to spare. TODO:
+// currently, backgrounds share memory with the t0 texture. Instead, I'd
+// like to give backgrounds their own dedicated texture memory, using two
+// of the unused screenblocks in charblock 3 (24 and 25).
+//
+// To summarize: the t0 and t1 textures will have an entire dedicated charblock.
+// All of the map data lives in the latter three quarters of charblock
+// three. Charblock two dedicated to the overlay texture.
+//
+
 
 static constexpr const int sbb_per_cbb = 8; // ScreenBaseBlock per CharBaseBlock
 
-static constexpr const int sbb_overlay_tiles = 7;
-static constexpr const int sbb_bg_tiles = 15;
-static constexpr const int sbb_t0_tiles = 24;
+static constexpr const int charblock_size = sizeof(ScreenBlock) * sbb_per_cbb;
+
+static constexpr const int sbb_t0_tiles = 26;
 static constexpr const int sbb_t1_tiles = 28;
+static constexpr const int sbb_overlay_tiles = 30;
+static constexpr const int sbb_bg_tiles = 31;
+
+static constexpr const int sbb_background_texture = 24;
+static constexpr const int cbb_background_texture =
+    sbb_background_texture / sbb_per_cbb;
 
 static constexpr const int sbb_overlay_texture = 16;
 static constexpr const int sbb_t0_texture = 0;
 static constexpr const int sbb_t1_texture = 8;
-static constexpr const int sbb_bg_texture = sbb_t0_texture;
 
 static constexpr const int cbb_overlay_texture =
     sbb_overlay_texture / sbb_per_cbb;
 
 static constexpr const int cbb_t0_texture = sbb_t0_texture / sbb_per_cbb;
 static constexpr const int cbb_t1_texture = sbb_t1_texture / sbb_per_cbb;
-static constexpr const int cbb_bg_texture = sbb_bg_texture / sbb_per_cbb;
 
 
 //
@@ -188,6 +210,7 @@ static const TextureData* current_spritesheet = &sprite_textures[0];
 static const TextureData* current_tilesheet0 = &tile_textures[0];
 static const TextureData* current_tilesheet1 = &tile_textures[1];
 static const TextureData* current_overlay_texture = &overlay_textures[1];
+static const TextureData* current_background = &tile_textures[0];
 
 
 void start(Platform&);
@@ -525,14 +548,14 @@ static void init_video(Platform::Screen& screen)
 
     // Tilemap layer 0
     *bg0_control = BG_CBB(cbb_t0_texture) | BG_SBB(sbb_t0_tiles) |
-                   BG_REG_64x64 | BG_PRIORITY(2) | BG_MOSAIC;
+                   BG_REG_64x32 | BG_PRIORITY(2) | BG_MOSAIC;
 
     // Tilemap layer 1
     *bg3_control = BG_CBB(cbb_t1_texture) | BG_SBB(sbb_t1_tiles) |
-                   BG_REG_64x64 | BG_PRIORITY(2) | BG_MOSAIC;
+                   BG_REG_64x32 | BG_PRIORITY(2) | BG_MOSAIC;
 
-    // The starfield background
-    *bg1_control = BG_CBB(cbb_bg_texture) | BG_SBB(sbb_bg_tiles) |
+    // The background
+    *bg1_control = BG_CBB(cbb_t0_texture) | BG_SBB(sbb_bg_tiles) |
                    BG_PRIORITY(3) | BG_MOSAIC;
 
     // The overlay
@@ -1377,6 +1400,7 @@ static u16 sprite_palette[16];
 static u16 tilesheet_0_palette[16];
 static u16 tilesheet_1_palette[16];
 static u16 overlay_palette[16];
+static u16 background_palette[16];
 
 
 // We use base_contrast as the starting point for all contrast calculations. In
@@ -1462,7 +1486,6 @@ void Platform::Screen::set_contrast(Contrast c)
 
 static bool validate_tilemap_texture_size(Platform& pfrm, size_t size)
 {
-    constexpr auto charblock_size = sizeof(ScreenBlock) * 7;
     if (size > charblock_size) {
         pfrm.fatal("tileset exceeds charblock size");
         return false;
@@ -1471,12 +1494,11 @@ static bool validate_tilemap_texture_size(Platform& pfrm, size_t size)
 }
 
 
-[[maybe_unused]] static bool validate_overlay_texture_size(Platform& pfrm,
-                                                           size_t size)
+
+static bool validate_background_texture_size(Platform& pfrm, size_t size)
 {
-    constexpr auto charblock_size = sizeof(ScreenBlock) * 8;
-    if (size > charblock_size) {
-        pfrm.fatal("tileset exceeds charblock size");
+    if (size > sizeof(ScreenBlock) * 2) {
+        pfrm.fatal("background exceeds screenblock size x 2");
         return false;
     }
     return true;
@@ -1502,15 +1524,8 @@ static void set_map_tile_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
     auto ref = [](u16 x_, u16 y_) { return x_ * 2 + y_ * 32 * 2; };
 
     auto screen_block = [&]() -> u16 {
-        if (x > 15 and y > 15) {
+        if (x > 15) {
             x %= 16;
-            y %= 16;
-            return base + 3;
-        } else if (y > 15) {
-            y %= 16;
-            return base + 2;
-        } else if (x > 15) {
-            x %= 15;
             return base + 1;
         } else {
             return base;
@@ -1675,7 +1690,7 @@ u16 Platform::get_tile(Layer layer, u16 x, u16 y)
         if (x > 31 or y > 31) {
             return 0;
         }
-        return MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32];
+        return MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32] & ~(SE_PALBANK_MASK);
 
     case Layer::map_1_ext:
         return get_map_tile_16p(sbb_t1_tiles, x, y, 2);
@@ -1884,23 +1899,32 @@ void Platform::Screen::fade(float amount,
     const auto c = nightmode_adjust(real_color(k));
 
     if (not base) {
+        // Sprite palette
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(sprite_palette[i]);
             MEM_PALETTE[i] = blend(from, c, include_sprites ? amt : 0);
         }
+        // Tile0 palette
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
             MEM_BG_PALETTE[i] = blend(from, c, amt);
         }
+        // Custom flag palette?
         for (int i = 0; i < 16; ++i) {
             auto from =
                 Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
             MEM_BG_PALETTE[16 * 12 + i] = blend(from, c, amt);
         }
+        // Tile1 palette
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
             MEM_BG_PALETTE[32 + i] = blend(from, c, amt);
         }
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(background_palette[i]);
+            MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, amt);
+        }
+        // Overlay palette
         if (include_overlay or overlay_was_faded) {
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(overlay_palette[i]);
@@ -2104,6 +2128,42 @@ void Platform::load_tile1_texture(const char* name)
                 memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0],
                          info.tile_data_,
                          info.tile_data_length_ / 2);
+            } else {
+                StringBuffer<45> buf = "unable to load: ";
+                buf += name;
+
+                error(*this, buf.c_str());
+            }
+
+            return;
+        }
+    }
+
+    fatal(name);
+}
+
+
+void Platform::load_background_texture(const char* name)
+{
+    for (auto& info : tile_textures) {
+
+        if (str_cmp(name, info.name_) == 0) {
+
+            current_background = &info;
+
+            init_palette(current_background, background_palette, false);
+
+            const auto c = nightmode_adjust(real_color(last_color));
+            for (int i = 0; i < 16; ++i) {
+                auto from = Color::from_bgr_hex_555(background_palette[i]);
+                MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, last_fade_amt);
+            }
+
+            if (validate_background_texture_size(*this, // info.tile_data_length_
+                                                 0)) {
+                memcpy16((void*)&MEM_SCREENBLOCKS[sbb_background_texture][0],
+                         info.tile_data_,
+                         (sizeof(ScreenBlock) * 2) / 2);
             } else {
                 StringBuffer<45> buf = "unable to load: ";
                 buf += name;
@@ -3867,7 +3927,12 @@ static void set_map_tile_16p_palette(u8 base, u16 x, u16 y, int palette)
 {
     auto ref = [](u16 x_, u16 y_) { return x_ * 2 + y_ * 32 * 2; };
 
-    auto screen_block = [&]() -> u16 { return base; }();
+    auto screen_block = [&]() -> u16 {
+        // FIXME: technically, our background is 32x16 16p tiles, so we should
+        // be adjusting sb index here for x > 15. In practice, SKYLAND uses
+        // 16x16 tile maps, so it doesn't matter.
+        return base;
+    }();
 
     u16 val = 0;
 
@@ -3968,7 +4033,8 @@ void Platform::set_tile(Layer layer, u16 x, u16 y, u16 val)
         if (x > 31 or y > 32) {
             return;
         }
-        MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32] = val;
+        MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32] = val // | SE_PALBANK(11)
+            ;
         break;
     }
 }
