@@ -122,8 +122,6 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(zone_image_2_flattened),
 //;
     TEXTURE_INFO(zone_image_3_flattened),
-//;
-    TEXTURE_INFO(background),
 //
 };
 
@@ -157,9 +155,11 @@ static const TextureData overlay_textures[] = {
 };
 
 
-// static const TextureData background_textures[] = {
+static const TextureData background_textures[] = {
 
-// };
+    TEXTURE_INFO(background),
+//
+};
 
 
 // clang-format on

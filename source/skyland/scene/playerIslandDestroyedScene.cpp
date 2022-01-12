@@ -202,6 +202,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         for (int y = 15; y > 0; --y) {
             const auto y_pos = pos.y + y * 16;
             if (y_pos > 700) {
+                if (island_->flag_pos() and island_->flag_pos()->y >= y) {
+                    island_->show_flag(false);
+                }
                 for (int x = 0; x < 16; ++x) {
                     pfrm.set_tile(layer, x, y, 0);
                 }

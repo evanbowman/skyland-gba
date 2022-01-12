@@ -250,6 +250,12 @@ public:
     HitBox hitbox() const;
 
 
+    std::optional<Vec2<u8>> flag_pos()
+    {
+        return flag_pos_;
+    }
+
+
 private:
     void recalculate_power_usage();
 

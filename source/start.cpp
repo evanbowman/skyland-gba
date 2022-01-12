@@ -41,7 +41,7 @@ void skyland_main_loop(Platform& pf)
     pf.enable_glyph_mode(true);
     pf.load_overlay_texture("overlay_world_map");
     pf.load_sprite_texture("spritesheet");
-    pf.load_background_texture("tilesheet");
+    pf.load_background_texture("background");
 
     while (pf.is_running()) {
         pf.keyboard().poll();

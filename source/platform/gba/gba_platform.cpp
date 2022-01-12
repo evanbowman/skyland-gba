@@ -555,7 +555,7 @@ static void init_video(Platform::Screen& screen)
                    BG_REG_64x32 | BG_PRIORITY(2) | BG_MOSAIC;
 
     // The background
-    *bg1_control = BG_CBB(cbb_t0_texture) | BG_SBB(sbb_bg_tiles) |
+    *bg1_control = BG_CBB(cbb_background_texture) | BG_SBB(sbb_bg_tiles) |
                    BG_PRIORITY(3) | BG_MOSAIC;
 
     // The overlay
@@ -2145,7 +2145,7 @@ void Platform::load_tile1_texture(const char* name)
 
 void Platform::load_background_texture(const char* name)
 {
-    for (auto& info : tile_textures) {
+    for (auto& info : background_textures) {
 
         if (str_cmp(name, info.name_) == 0) {
 
@@ -4033,7 +4033,7 @@ void Platform::set_tile(Layer layer, u16 x, u16 y, u16 val)
         if (x > 31 or y > 32) {
             return;
         }
-        MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32] = val // | SE_PALBANK(11)
+        MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32] = val | SE_PALBANK(11)
             ;
         break;
     }

@@ -23,14 +23,6 @@ void init_clouds(Platform& pfrm);
 
 
 
-// I needed to cram the cloud texture into a little gap in another one of the
-// textures, which meant adjusting the positions of certain vram tiles. I ended
-// up copy pasting the other function and changing the tile indices, because I'm
-// making this for a game jam and I'm running out of time.
-static void init_clouds2(Platform& pfrm);
-
-
-
 void __draw_image(Platform& pfrm,
                   TileDesc start_tile,
                   u16 start_x,
@@ -75,7 +67,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     app.swap_player<PlayerP1>();
 
-    init_clouds2(pfrm);
+    init_clouds(pfrm);
     pfrm.system_call("v-parallax", (void*)false);
 
     key_callback_processor.reset();
@@ -832,85 +824,6 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
              ambient_movement_ + 60 + 8 + 64.f * module_cursor_->y + 40 -
                  (selector_shaded_ ? 1 : 0)});
         pfrm.screen().draw(sprite);
-    }
-}
-
-
-
-static void init_clouds2(Platform& pfrm)
-{
-    // Some of the worst code I've ever written. Again, this is for a game
-    // jam. I keep adding misc. comments apologizing for the quality of the code
-    // throughout the project. I am embarassed by my work here, but what to do?
-    // Deadlines looming...
-
-    pfrm.system_call("parallax-clouds", (void*)true);
-
-    for (int i = 0; i < 32; ++i) {
-        for (int j = 0; j < 32; ++j) {
-            pfrm.set_tile(Layer::background, i, j, 248);
-        }
-    }
-
-    for (int i = 0; i < 32; ++i) {
-        pfrm.set_tile(Layer::background, i, 18, 222);
-        pfrm.set_tile(Layer::background, i, 19, 222);
-    }
-
-    auto put_cloud_block = [&](int x, int y, int offset) {
-        int start_offset = offset;
-        pfrm.set_tile(Layer::background, x, y, offset++);
-        pfrm.set_tile(Layer::background, x + 1, y, offset++);
-        if (start_offset < 205 and offset > 204) {
-            offset += 12;
-        }
-        pfrm.set_tile(Layer::background, x, y + 1, offset++);
-        pfrm.set_tile(Layer::background, x + 1, y + 1, offset);
-    };
-
-    auto put_cloud_block2 = [&](int x, int y, int offset) {
-        int start_offset = offset;
-        if (start_offset <= 235 and offset > 234) {
-            offset += 12;
-        }
-        pfrm.set_tile(Layer::background, x, y, offset++);
-        pfrm.set_tile(Layer::background, x + 1, y, offset++);
-        if (offset == 249) {
-            offset = 277;
-        }
-        pfrm.set_tile(Layer::background, x, y + 1, offset++);
-        pfrm.set_tile(Layer::background, x + 1, y + 1, offset);
-    };
-
-    auto put_fg_cloud_type_n = [&](int x, int type) {
-        const int start = 187 + type * 4;
-        int offset = start;
-        if (offset > 204) {
-            offset += 12;
-        }
-        put_cloud_block(x * 2, 16, offset);
-    };
-
-    auto put_bg_cloud_type_n = [&](int x, int type) {
-        put_cloud_block2(x * 2, 14, 223 + type * 4);
-    };
-
-    for (int i = 0; i < 4; ++i) {
-        const int offset = i * 6;
-        put_fg_cloud_type_n(offset + 0, 0);
-        put_fg_cloud_type_n(offset + 1, 1);
-        put_fg_cloud_type_n(offset + 2, 2);
-        put_fg_cloud_type_n(offset + 3, 3);
-        put_fg_cloud_type_n(offset + 4, 4);
-        put_fg_cloud_type_n(offset + 5, 5);
-    }
-
-    for (int i = 0; i < 4; ++i) {
-        const int offset = i * 4;
-        put_bg_cloud_type_n(offset + 0, 0);
-        put_bg_cloud_type_n(offset + 1, 1);
-        put_bg_cloud_type_n(offset + 2, 2);
-        put_bg_cloud_type_n(offset + 3, 3);
     }
 }
 
