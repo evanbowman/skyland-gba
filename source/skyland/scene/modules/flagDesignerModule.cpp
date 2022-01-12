@@ -27,6 +27,8 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.fill_overlay(0);
     pfrm.screen().fade(1.f);
 
+    app.player_island().show_flag(true);
+
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
             pfrm.set_tile(

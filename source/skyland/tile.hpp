@@ -3,6 +3,12 @@
 
 struct Tile {
     enum {
+        null,
+        airborne_selection = 1,
+        flag_start = 2,
+        flag_end = 5,
+        roof_flag,
+        flag_mount,
         terrain_middle = 12,
         terrain_left,
         terrain_right,
@@ -56,16 +62,18 @@ struct Tile {
         decimator_1,
         decimator_2,
         reserved_22,
-        flag_start = 105,
-        flag_end = 108,
-        roof_flag = 109,
-        flag_mount
     };
 };
 
 
 struct InteriorTile {
     enum {
+        null,
+        airborne_selection = 1,
+        flag_start = 2,
+        flag_end = 5,
+        roof_flag,
+        flag_mount,
         core_1 = 15,
         core_2,
         core_3,

@@ -87,6 +87,7 @@ public:
     void reset()
     {
         seek_state_ = 0;
+        possibilities_.clear();
         for (u32 i = 0; i < bindings_.size(); ++i) {
             possibilities_.push_back(i);
         }
@@ -108,6 +109,12 @@ public:
             }
         }
         return nullptr;
+    }
+
+
+    u32 possibilities()
+    {
+        return possibilities_.size();
     }
 
 

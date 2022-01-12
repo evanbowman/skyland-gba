@@ -582,6 +582,11 @@ void App::init_scripts(Platform& pfrm)
     }));
 
 
+    // lisp::set_var("sel-input", lisp::make_function([](int argc) {
+    //     TODO...
+    // }))
+
+
     lisp::set_var("island-configure", lisp::make_function([](int argc) {
                       L_EXPECT_ARGC(argc, 2);
                       L_EXPECT_OP(0, cons);

@@ -78,7 +78,7 @@ void load_default_flag(Platform& pfrm, App& app)
 {
     pfrm.load_tile0_texture("tilesheet");
 
-    auto data = pfrm.extract_tile(Layer::map_0, 105);
+    auto data = pfrm.extract_tile(Layer::map_0, Tile::flag_start);
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
             app.gp_.flag_img_.pixels[x][y] = data.data_[x][y + 1];

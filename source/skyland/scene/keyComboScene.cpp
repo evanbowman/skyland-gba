@@ -53,7 +53,9 @@ KeyComboScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().key_down(pfrm, Key::start) or
         key_callback_processor.seek_state() ==
-            KeyCallbackProcessor::seq_max - 1) {
+            KeyCallbackProcessor::seq_max - 1 or
+        (key_callback_processor.possibilities() == 1 and
+         key_callback_processor.match())) {
 
         if (auto binding = key_callback_processor.match()) {
             binding->callback_(pfrm, app);

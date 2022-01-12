@@ -104,7 +104,7 @@ void PlaceDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             if ((*matrix_)[x][y] == true) {
-                pfrm.set_tile(island->layer(), x, y, 103);
+                pfrm.set_tile(island->layer(), x, y, Tile::airborne_selection);
             }
         }
     }
