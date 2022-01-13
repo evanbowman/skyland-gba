@@ -292,6 +292,11 @@ public:
                                    const char* filename) const;
 
 
+    // On supported platforms, performs a stack overflow check. Otherwise, a
+    // no-op.
+    static void stackcheck();
+
+
     void walk_filesystem(Function<32, void(const char* path)>);
 
 

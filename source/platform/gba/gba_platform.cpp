@@ -1300,6 +1300,16 @@ static int scratch_buffers_in_use = 0;
 static int scratch_buffer_highwater = 0;
 
 
+
+void Platform::stackcheck()
+{
+    if (not canary_check()) {
+        longjmp(stack_overflow_resume_context, 1);
+    }
+}
+
+
+
 void Platform::Screen::clear()
 {
     // NOTE: because our logging vector is backed by scratch buffers,

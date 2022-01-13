@@ -946,6 +946,7 @@ void funcall(Value* obj, u8 argc)
         }
 
         case Function::ModeBits::lisp_function: {
+            Platform::stackcheck();
             auto& ctx = *bound_context;
             ctx.lexical_bindings_ =
                 dcompr(obj->function().lisp_impl_.lexical_bindings_);
@@ -972,6 +973,7 @@ void funcall(Value* obj, u8 argc)
         }
 
         case Function::ModeBits::lisp_bytecode_function: {
+            Platform::stackcheck();
             auto& ctx = *bound_context;
             const auto break_loc = ctx.operand_stack_->size() - 1;
             ctx.arguments_break_loc_ = break_loc;
