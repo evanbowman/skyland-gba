@@ -445,6 +445,11 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 case App::GameMode::sandbox:
                     return scene_pool::alloc<SandboxResetScene>();
 
+                case App::GameMode::multiplayer:
+                    // TODO: default to the multiplayer page of the Title
+                    // screen.
+                    return scene_pool::alloc<TitleScreenScene>();
+
                 default:
                     return scene_pool::alloc<TitleScreenScene>(3);
                 }
@@ -463,6 +468,11 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 case App::GameMode::sandbox:
                     return scene_pool::alloc<SandboxResetScene>();
+
+                case App::GameMode::multiplayer:
+                    // TODO: default to the multiplayer page of the Title
+                    // screen.
+                    return scene_pool::alloc<TitleScreenScene>();
 
                 default:
                     return scene_pool::alloc<TitleScreenScene>(3);

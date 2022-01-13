@@ -91,6 +91,9 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         app.swap_opponent<MultiplayerPeer>();
         rng::critical_state = 42;
+
+        app.game_mode() = App::GameMode::multiplayer;
+
         return scene_pool::alloc<MultiplayerSettingsScene>();
     }
 

@@ -85,6 +85,7 @@ public:
         challenge,
         tutorial,
         sandbox,
+        multiplayer,
     };
 
 
