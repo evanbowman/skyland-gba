@@ -414,6 +414,14 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
+    if (disp_power->power_drain() >
+        disp_power->power_supply()) {
+        // If the player's island power drain exceeds supply, make the UI
+        // sticky, so the player knows why his/her weapons aren't doing
+        // anything.
+        persist_ui();
+    }
+
     if (last_coins_ not_eq app.coins()) {
         coins_.emplace(pfrm,
                        OverlayCoord{1, 2},
