@@ -64,6 +64,8 @@ Coins App::terrain_cost()
         3000,
         4000,
         4000,
+        4000,
+        4000,
     };
 
     return terrain_cost_table[player_island_.terrain().size() - 1];

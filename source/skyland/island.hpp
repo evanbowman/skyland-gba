@@ -137,7 +137,7 @@ public:
     Vec2<Float> visual_origin() const;
 
 
-    using Terrain = Buffer<u8, 12>;
+    using Terrain = Buffer<u8, 13>;
 
 
     Terrain& terrain()
