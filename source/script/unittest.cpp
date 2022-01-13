@@ -157,7 +157,8 @@ int main(int argc, char** argv)
 
     lisp::init(pfrm);
 
-    lisp::dostring(utilities, [](lisp::Value& err) {});
+    lisp::BasicCharSequence ut_seq(utilities);
+    lisp::dostring(ut_seq, [](lisp::Value& err) {});
 
     const char* prompt = ">> ";
 
@@ -165,7 +166,8 @@ int main(int argc, char** argv)
     std::cout << prompt;
     while (std::getline(std::cin, line)) {
         if (not line.empty()) {
-            lisp::read(line.c_str());
+            lisp::BasicCharSequence seq(line.c_str());
+            lisp::read(seq);
             Printer p;
             auto result = lisp::get_op(0);
             // format(result, p);

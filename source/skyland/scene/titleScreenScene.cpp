@@ -264,7 +264,6 @@ void TitleScreenScene::run_init_scripts(Platform& pfrm,
     app.invoke_script(pfrm, "/scripts/config/rooms.lisp", use_rom_fs);
     app.invoke_script(pfrm, "/scripts/config/damage.lisp", use_rom_fs);
     app.invoke_script(pfrm, "/scripts/config/timing.lisp", use_rom_fs);
-    app.invoke_script(pfrm, "/scripts/config/score.lisp", use_rom_fs);
 
     if (allow_mods) {
         app.invoke_ram_script(pfrm, "/mods/init.lisp");
@@ -564,8 +563,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             case 2:
-                // TODO: add a multiplayer gamemode enumeration?
-                app.game_mode() = App::GameMode::adventure;
+                app.game_mode() = App::GameMode::multiplayer;
                 run_init_scripts(pfrm, app, false);
                 return scene_pool::alloc<MultiplayerConnectScene>();
 

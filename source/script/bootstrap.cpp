@@ -2,40 +2,44 @@
 #include "memory/rc.hpp"
 #include "platform/platform.hpp"
 #include <iostream>
+#include "number/random.hpp"
 
 
 // This file should contain the minimal subset of platform code necessary for
 // running the interpreter.
 
 
-ObjectPool<RcBase<ScratchBuffer, scratch_buffer_count>::ControlBlock,
-           scratch_buffer_count>
-    scratch_buffer_pool;
-
-
 static int scratch_buffers_in_use = 0;
-static int scratch_buffer_highwater = 0;
+
+
+rng::Value rng::get(LinearGenerator& gen)
+{
+    gen = 1664525 * gen + 1013904223;
+    return (gen >> 16) & 0x7FFF;
+}
+
+
+ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
+               scratch_buffer_count>
+        scratch_buffer_pool;
 
 
 ScratchBufferPtr Platform::make_scratch_buffer()
 {
     auto finalizer =
-        [](RcBase<ScratchBuffer, scratch_buffer_count>::ControlBlock* ctrl) {
+        [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
             --scratch_buffers_in_use;
             ctrl->pool_->post(ctrl);
         };
 
-    auto maybe_buffer = Rc<ScratchBuffer, scratch_buffer_count>::create(
+    auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(
         &scratch_buffer_pool, finalizer);
     if (maybe_buffer) {
         ++scratch_buffers_in_use;
-        if (scratch_buffers_in_use > scratch_buffer_highwater) {
-            scratch_buffer_highwater = scratch_buffers_in_use;
-        }
         return *maybe_buffer;
     } else {
-        while (true)
-            ;
+        // screen().fade(1.f, ColorConstant::electric_blue);
+        fatal("scratch buffer pool exhausted");
     }
 }
 

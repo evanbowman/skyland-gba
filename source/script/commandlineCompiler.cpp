@@ -148,8 +148,10 @@ int main(int argc, char** argv)
 
     // Wrap code with (lambda ... ). The compile function expects a lambda as an
     // argument.
-    lisp::read(
-        ("(lambda " + buffer.str() + ")").c_str()); // result on operand stack
+
+    auto wrapped = ("(lambda " + buffer.str() + ")");
+    lisp::BasicCharSequence seq(wrapped.c_str());
+    lisp::read(seq); // result on operand stack
     lisp::eval(lisp::get_op(0));
 
     lisp::funcall(lisp::get_var("compile"), 1);

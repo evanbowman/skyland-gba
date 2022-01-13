@@ -5,6 +5,7 @@
 #include "localization.hpp"
 #include "memory/buffer.hpp"
 #include "memory/pool.hpp"
+#include "number/random.hpp"
 #include <complex>
 #ifdef __GBA__
 #define HEAP_DATA __attribute__((section(".ewram")))
@@ -2333,105 +2334,63 @@ Platform* interp_get_pfrm()
 }
 
 
-void init(Platform& pfrm)
-{
-    if (bound_context) {
-        return;
-    }
+static const Binding builtins[] = {
+    {"set",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, symbol);
 
-    bound_context.emplace(pfrm);
+         lisp::set_var(get_op1(), get_op0());
 
-    value_pool_init();
-    bound_context->nil_ = alloc_value();
-    bound_context->nil_->hdr_.type_ = Value::Type::nil;
-    bound_context->globals_tree_ = bound_context->nil_;
-    bound_context->this_ = bound_context->nil_;
-    bound_context->lexical_bindings_ = bound_context->nil_;
+         return L_NIL;
+     }},
+    {"cons", [](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        auto car = get_op1();
+        auto cdr = get_op0();
 
-    bound_context->oom_ = alloc_value();
-    bound_context->oom_->hdr_.type_ = Value::Type::error;
-    bound_context->oom_->error().code_ = Error::Code::out_of_memory;
-    bound_context->oom_->error().context_ = compr(bound_context->nil_);
+        if (car->type() == lisp::Value::Type::error) {
+            return car;
+        }
 
-    bound_context->string_buffer_ = bound_context->nil_;
-    bound_context->macros_ = bound_context->nil_;
+        if (cdr->type() == lisp::Value::Type::error) {
+            return cdr;
+        }
 
-
-    // Push a few nil onto the operand stack. Allows us to access the first few
-    // elements of the operand stack without performing size checks.
-    push_op(get_nil());
-    push_op(get_nil());
-
-    if (dcompr(compr(get_nil())) not_eq get_nil()) {
-        bound_context->pfrm_.fatal("pointer compression test failed");
-    }
-
-    intern("'");
-
-    lisp::set_var("*pfrm*", lisp::make_userdata(&pfrm));
-
-    set_var("set", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                L_EXPECT_OP(1, symbol);
-
-                lisp::set_var(get_op1(), get_op0());
-
-                return L_NIL;
-            }));
-
-    set_var("cons", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                auto car = get_op1();
-                auto cdr = get_op0();
-
-                if (car->type() == lisp::Value::Type::error) {
-                    return car;
-                }
-
-                if (cdr->type() == lisp::Value::Type::error) {
-                    return cdr;
-                }
-
-                return make_cons(get_op1(), get_op0());
-            }));
-
-    set_var("car", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, cons);
-                return get_op0()->cons().car();
-            }));
-
-    set_var("cdr", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, cons);
-                return get_op0()->cons().cdr();
-            }));
-
-    set_var("list", make_function([](int argc) {
-                auto lat = make_list(argc);
-                for (int i = 0; i < argc; ++i) {
-                    auto val = get_op((argc - 1) - i);
-                    if (val->type() == Value::Type::error) {
-                        return val;
-                    }
-                    set_list(lat, i, val);
-                }
-                return lat;
-            }));
-
-    set_var("arg", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, integer);
-                return get_arg(get_op0()->integer().value_);
-            }));
-
-    set_var("not", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                return make_integer(not is_boolean_true(get_op0()));
-            }));
-
-    set_var(
-        "equal", make_function([](int argc) {
+        return make_cons(get_op1(), get_op0());
+    }},
+    {"car", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, cons);
+        return get_op0()->cons().car();
+    }},
+    {"cdr", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, cons);
+        return get_op0()->cons().cdr();
+    }},
+    {"list", [](int argc) {
+        auto lat = make_list(argc);
+        for (int i = 0; i < argc; ++i) {
+            auto val = get_op((argc - 1) - i);
+            if (val->type() == Value::Type::error) {
+                return val;
+            }
+            set_list(lat, i, val);
+        }
+        return lat;
+    }},
+    {"arg", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, integer);
+        return get_arg(get_op0()->integer().value_);
+    }},
+    {"not", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        return make_integer(not is_boolean_true(get_op0()));
+    }},
+    {
+        "equal", [](int argc) {
             L_EXPECT_ARGC(argc, 2);
 
             if (get_op0()->type() not_eq get_op1()->type()) {
@@ -2442,7 +2401,7 @@ void init(Platform& pfrm)
                 switch (get_op0()->type()) {
                 case Value::Type::integer:
                     return get_op0()->integer().value_ ==
-                           get_op1()->integer().value_;
+                        get_op1()->integer().value_;
 
                 case Value::Type::cons:
                     // TODO!
@@ -2463,11 +2422,11 @@ void init(Platform& pfrm)
 
                 case Value::Type::symbol:
                     return get_op0()->symbol().name_ ==
-                           get_op1()->symbol().name_;
+                        get_op1()->symbol().name_;
 
                 case Value::Type::user_data:
                     return get_op0()->user_data().obj_ ==
-                           get_op1()->user_data().obj_;
+                        get_op1()->user_data().obj_;
 
                 case Value::Type::string:
                     return str_cmp(get_op0()->string().value(),
@@ -2475,256 +2434,240 @@ void init(Platform& pfrm)
                 }
                 return false;
             }());
-        }));
+        }},
+    {"apply", [](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(0, cons);
+        L_EXPECT_OP(1, function);
 
-    set_var("apply", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                L_EXPECT_OP(0, cons);
-                L_EXPECT_OP(1, function);
+        auto lat = get_op0();
+        auto fn = get_op1();
 
-                auto lat = get_op0();
-                auto fn = get_op1();
+        int apply_argc = 0;
+        while (lat not_eq get_nil()) {
+            if (lat->type() not_eq Value::Type::cons) {
+                return make_error(Error::Code::invalid_argument_type,
+                                  lat);
+            }
+            ++apply_argc;
+            push_op(lat->cons().car());
 
-                int apply_argc = 0;
-                while (lat not_eq get_nil()) {
-                    if (lat->type() not_eq Value::Type::cons) {
-                        return make_error(Error::Code::invalid_argument_type,
-                                          lat);
-                    }
-                    ++apply_argc;
-                    push_op(lat->cons().car());
+            lat = lat->cons().cdr();
+        }
 
-                    lat = lat->cons().cdr();
-                }
+        funcall(fn, apply_argc);
 
-                funcall(fn, apply_argc);
+        auto result = get_op0();
+        pop_op();
 
-                auto result = get_op0();
-                pop_op();
+        return result;
+    }},
+    {"fill", [](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(1, integer);
 
-                return result;
-            }));
+        auto result = make_list(get_op1()->integer().value_);
+        for (int i = 0; i < get_op1()->integer().value_; ++i) {
+            set_list(result, i, get_op0());
+        }
 
-    set_var("fill", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                L_EXPECT_OP(1, integer);
+        return result;
+    }},
+    {"gen", [](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(1, integer);
 
-                auto result = make_list(get_op1()->integer().value_);
-                for (int i = 0; i < get_op1()->integer().value_; ++i) {
-                    set_list(result, i, get_op0());
-                }
+        auto result = make_list(get_op1()->integer().value_);
+        auto fn = get_op0();
+        const int count = get_op1()->integer().value_;
+        push_op(result);
+        for (int i = 0; i < count; ++i) {
+            push_op(make_integer(i));
+            funcall(fn, 1);
+            set_list(result, i, get_op0());
+            pop_op(); // result from funcall
+        }
+        pop_op(); // result
+        return result;
+    }},
+    {"length", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
 
-                return result;
-            }));
+        if (get_op0()->type() == Value::Type::nil) {
+            return make_integer(0);
+        }
 
-    set_var("gen", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                L_EXPECT_OP(1, integer);
+        L_EXPECT_OP(0, cons);
 
-                auto result = make_list(get_op1()->integer().value_);
-                auto fn = get_op0();
-                const int count = get_op1()->integer().value_;
-                push_op(result);
-                for (int i = 0; i < count; ++i) {
-                    push_op(make_integer(i));
-                    funcall(fn, 1);
-                    set_list(result, i, get_op0());
-                    pop_op(); // result from funcall
-                }
-                pop_op(); // result
-                return result;
-            }));
+        return make_integer(length(get_op0()));
+    }},
+    {"<", [](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(0, integer);
+        L_EXPECT_OP(1, integer);
+        return make_integer(get_op1()->integer().value_ <
+                            get_op0()->integer().value_);
+    }},
+    {">", [](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(0, integer);
+        L_EXPECT_OP(1, integer);
+        return make_integer(get_op1()->integer().value_ >
+                            get_op0()->integer().value_);
+    }},
+    {"+", [](int argc) {
+        int accum = 0;
+        for (int i = 0; i < argc; ++i) {
+            L_EXPECT_OP(i, integer);
+            accum += get_op(i)->integer().value_;
+        }
+        return make_integer(accum);
+    }},
+    {"-", [](int argc) {
+        if (argc == 1) {
+            L_EXPECT_OP(0, integer);
+            return make_integer(-get_op0()->integer().value_);
+        } else {
+            L_EXPECT_ARGC(argc, 2);
+            L_EXPECT_OP(1, integer);
+            L_EXPECT_OP(0, integer);
+            return make_integer(get_op1()->integer().value_ -
+                                get_op0()->integer().value_);
+        }
+    }},
+    {"*", [](int argc) {
+        int accum = 1;
+        for (int i = 0; i < argc; ++i) {
+            L_EXPECT_OP(i, integer);
+            accum *= get_op(i)->integer().value_;
+        }
+        return make_integer(accum);
+    }},
+    {"/", [](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(1, integer);
+        L_EXPECT_OP(0, integer);
+        return make_integer(get_op1()->integer().value_ /
+                            get_op0()->integer().value_);
+    }},
+    {"interp-stat", [](int argc) {
+        auto& ctx = bound_context;
 
-    set_var("length", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
+        int values_remaining = 0;
+        Value* current = value_pool;
+        while (current) {
+            ++values_remaining;
+            current = current->heap_node().next_;
+        }
 
-                if (get_op0()->type() == Value::Type::nil) {
-                    return make_integer(0);
-                }
+        ListBuilder lat;
 
-                L_EXPECT_OP(0, cons);
+        auto make_stat = [&](const char* name, int value) {
+            auto c = make_cons(get_nil(), get_nil());
+            if (c == bound_context->oom_) {
+                return c;
+            }
+            push_op(c); // gc protect
 
-                return make_integer(length(get_op0()));
-            }));
+            c->cons().set_car(
+                              make_symbol(name, Symbol::ModeBits::stable_pointer));
+            c->cons().set_cdr(make_integer(value));
 
-    set_var("<", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                L_EXPECT_OP(0, integer);
-                L_EXPECT_OP(1, integer);
-                return make_integer(get_op1()->integer().value_ <
-                                    get_op0()->integer().value_);
-            }));
+            pop_op(); // gc unprotect
+            return c;
+        };
 
-    set_var(">", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                L_EXPECT_OP(0, integer);
-                L_EXPECT_OP(1, integer);
-                return make_integer(get_op1()->integer().value_ >
-                                    get_op0()->integer().value_);
-            }));
+        lat.push_front(make_stat("vars", [&] {
+            int symb_tab_used = 0;
+            globals_tree_traverse(
+                                  ctx->globals_tree_,
+                                  [&symb_tab_used](Value&, Value&) { ++symb_tab_used; });
+            return symb_tab_used;
+        }()));
 
-    set_var("+", make_function([](int argc) {
-                int accum = 0;
-                for (int i = 0; i < argc; ++i) {
-                    L_EXPECT_OP(i, integer);
-                    accum += get_op(i)->integer().value_;
-                }
-                return make_integer(accum);
-            }));
+        lat.push_front(make_stat("stk", ctx->operand_stack_->size()));
+        lat.push_front(make_stat("internb", ctx->string_intern_pos_));
+        lat.push_front(make_stat("free", values_remaining));
 
-    set_var("-", make_function([](int argc) {
-                if (argc == 1) {
-                    L_EXPECT_OP(0, integer);
-                    return make_integer(-get_op0()->integer().value_);
-                } else {
-                    L_EXPECT_ARGC(argc, 2);
-                    L_EXPECT_OP(1, integer);
-                    L_EXPECT_OP(0, integer);
-                    return make_integer(get_op1()->integer().value_ -
-                                        get_op0()->integer().value_);
-                }
-            }));
+        int databuffers = 0;
 
-    set_var("*", make_function([](int argc) {
-                int accum = 1;
-                for (int i = 0; i < argc; ++i) {
-                    L_EXPECT_OP(i, integer);
-                    accum *= get_op(i)->integer().value_;
-                }
-                return make_integer(accum);
-            }));
+        for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
+            Value* val = (Value*)&value_pool_data[i];
+            if (val->hdr_.alive_ and
+                val->hdr_.type_ == Value::Type::data_buffer) {
+                ++databuffers;
+            }
+        }
 
-    set_var("/", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                L_EXPECT_OP(1, integer);
-                L_EXPECT_OP(0, integer);
-                return make_integer(get_op1()->integer().value_ /
-                                    get_op0()->integer().value_);
-            }));
+        lat.push_front(make_stat("sbr", databuffers));
 
-    set_var("interp-stat", make_function([](int argc) {
-                auto& ctx = bound_context;
+        return lat.result();
+    }},
+    {"range", [](int argc) {
+        int start = 0;
+        int end = 0;
+        int incr = 1;
 
-                int values_remaining = 0;
-                Value* current = value_pool;
-                while (current) {
-                    ++values_remaining;
-                    current = current->heap_node().next_;
-                }
+        if (argc == 1) {
 
-                ListBuilder lat;
+            L_EXPECT_OP(0, integer);
 
-                auto make_stat = [&](const char* name, int value) {
-                    auto c = make_cons(get_nil(), get_nil());
-                    if (c == bound_context->oom_) {
-                        return c;
-                    }
-                    push_op(c); // gc protect
+            start = 0;
+            end = get_op0()->integer().value_;
 
-                    c->cons().set_car(
-                        make_symbol(name, Symbol::ModeBits::stable_pointer));
-                    c->cons().set_cdr(make_integer(value));
+        } else if (argc == 2) {
 
-                    pop_op(); // gc unprotect
-                    return c;
-                };
+            L_EXPECT_OP(1, integer);
+            L_EXPECT_OP(0, integer);
 
-                lat.push_front(make_stat("vars", [&] {
-                    int symb_tab_used = 0;
-                    globals_tree_traverse(
-                        ctx->globals_tree_,
-                        [&symb_tab_used](Value&, Value&) { ++symb_tab_used; });
-                    return symb_tab_used;
-                }()));
+            start = get_op1()->integer().value_;
+            end = get_op0()->integer().value_;
 
-                lat.push_front(make_stat("stk", ctx->operand_stack_->size()));
-                lat.push_front(make_stat("internb", ctx->string_intern_pos_));
-                lat.push_front(make_stat("free", values_remaining));
+        } else if (argc == 3) {
 
-                int databuffers = 0;
+            L_EXPECT_OP(2, integer);
+            L_EXPECT_OP(1, integer);
+            L_EXPECT_OP(0, integer);
 
-                for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
-                    Value* val = (Value*)&value_pool_data[i];
-                    if (val->hdr_.alive_ and
-                        val->hdr_.type_ == Value::Type::data_buffer) {
-                        ++databuffers;
-                    }
-                }
+            start = get_op(2)->integer().value_;
+            end = get_op1()->integer().value_;
+            incr = get_op0()->integer().value_;
+        } else {
+            return lisp::make_error(lisp::Error::Code::invalid_argc,
+                                    L_NIL);
+        }
 
-                lat.push_front(make_stat("sbr", databuffers));
+        if (incr == 0) {
+            return get_nil();
+        }
 
-                return lat.result();
-            }));
+        ListBuilder lat;
 
-    set_var("range", make_function([](int argc) {
-                int start = 0;
-                int end = 0;
-                int incr = 1;
+        for (int i = start; i < end; i += incr) {
+            lat.push_back(make_integer(i));
+        }
 
-                if (argc == 1) {
+        return lat.result();
+    }},
+    {"unbind", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, symbol);
 
-                    L_EXPECT_OP(0, integer);
+        globals_tree_erase(get_op0());
 
-                    start = 0;
-                    end = get_op0()->integer().value_;
+        return get_nil();
+    }},
+    {"symbol", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, string);
 
-                } else if (argc == 2) {
-
-                    L_EXPECT_OP(1, integer);
-                    L_EXPECT_OP(0, integer);
-
-                    start = get_op1()->integer().value_;
-                    end = get_op0()->integer().value_;
-
-                } else if (argc == 3) {
-
-                    L_EXPECT_OP(2, integer);
-                    L_EXPECT_OP(1, integer);
-                    L_EXPECT_OP(0, integer);
-
-                    start = get_op(2)->integer().value_;
-                    end = get_op1()->integer().value_;
-                    incr = get_op0()->integer().value_;
-                } else {
-                    return lisp::make_error(lisp::Error::Code::invalid_argc,
-                                            L_NIL);
-                }
-
-                if (incr == 0) {
-                    return get_nil();
-                }
-
-                ListBuilder lat;
-
-                for (int i = start; i < end; i += incr) {
-                    lat.push_back(make_integer(i));
-                }
-
-                return lat.result();
-            }));
-
-    set_var("unbind", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, symbol);
-
-                globals_tree_erase(get_op0());
-
-                return get_nil();
-            }));
-
-
-    set_var("symbol", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, string);
-
-                return make_symbol(get_op0()->string().value());
-            }));
-
-    set_var("type", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                return make_symbol([] {
-                    // clang-format off
-                    switch (get_op0()->type()) {
+        return make_symbol(get_op0()->string().value());
+    }},
+    {"type", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        return make_symbol([] {
+            // clang-format off
+            switch (get_op0()->type()) {
             case Value::Type::nil: return "nil";
             case Value::Type::integer: return "integer";
             case Value::Type::cons: return "pair";
@@ -2740,95 +2683,88 @@ void init(Platform& pfrm)
             case Value::Type::heap_node:
                 break;
             }
-                    // clang-format on
-                    return "???";
-                }());
-            }));
+            // clang-format on
+            return "???";
+        }());
+    }},
+    {"string", [](int argc) {
+        EvalBuffer b;
+        EvalPrinter p(b);
 
+        for (int i = argc - 1; i > -1; --i) {
+            auto val = get_op(i);
+            if (val->type() == Value::Type::string) {
+                p.put_str(val->string().value());
+            } else {
+                format_impl(val, p, 0);
+            }
+        }
 
-    set_var("string", make_function([](int argc) {
-                EvalBuffer b;
-                EvalPrinter p(b);
+        if (auto pfrm = interp_get_pfrm()) {
+            return make_string(*pfrm, b.c_str());
+        }
+        return L_NIL;
+    }},
+    {"bound", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, symbol);
 
-                for (int i = argc - 1; i > -1; --i) {
-                    auto val = get_op(i);
-                    if (val->type() == Value::Type::string) {
-                        p.put_str(val->string().value());
-                    } else {
-                        format_impl(val, p, 0);
-                    }
+        auto found = globals_tree_find(get_op0());
+        return make_integer(found not_eq get_nil() and
+                            found->type() not_eq
+                            lisp::Value::Type::error);
+    }},
+    {"filter", [](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(0, cons);
+        L_EXPECT_OP(1, function);
+
+        auto fn = get_op1();
+        Value* result = make_cons(L_NIL, L_NIL);
+        auto prev = result;
+        auto current = result;
+
+        foreach (get_op0(), [&](Value* val) {
+            push_op(result); // gc protect
+
+            push_op(val);
+            funcall(fn, 1);
+            auto funcall_result = get_op0();
+
+            if (is_boolean_true(funcall_result)) {
+                current->cons().set_car(val);
+                auto next = make_cons(L_NIL, L_NIL);
+                if (next == bound_context->oom_) {
+                    current = result;
+                    return;
                 }
+                current->cons().set_cdr(next);
+                prev = current;
+                current = next;
+            }
+            pop_op(); // funcall result
 
-                if (auto pfrm = interp_get_pfrm()) {
-                    return make_string(*pfrm, b.c_str());
-                }
-                return L_NIL;
-            }));
+            pop_op(); // gc unprotect
+        })
+            ;
 
-    set_var("bound", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, symbol);
+        if (current == result) {
+            return L_NIL;
+        }
 
-                auto found = globals_tree_find(get_op0());
-                return make_integer(found not_eq get_nil() and
-                                    found->type() not_eq
-                                        lisp::Value::Type::error);
-            }));
+        prev->cons().set_cdr(L_NIL);
 
-
-    set_var("filter", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                L_EXPECT_OP(0, cons);
-                L_EXPECT_OP(1, function);
-
-                auto fn = get_op1();
-                Value* result = make_cons(L_NIL, L_NIL);
-                auto prev = result;
-                auto current = result;
-
-                foreach (get_op0(), [&](Value* val) {
-                    push_op(result); // gc protect
-
-                    push_op(val);
-                    funcall(fn, 1);
-                    auto funcall_result = get_op0();
-
-                    if (is_boolean_true(funcall_result)) {
-                        current->cons().set_car(val);
-                        auto next = make_cons(L_NIL, L_NIL);
-                        if (next == bound_context->oom_) {
-                            current = result;
-                            return;
-                        }
-                        current->cons().set_cdr(next);
-                        prev = current;
-                        current = next;
-                    }
-                    pop_op(); // funcall result
-
-                    pop_op(); // gc unprotect
-                })
-                    ;
-
-                if (current == result) {
-                    return L_NIL;
-                }
-
-                prev->cons().set_cdr(L_NIL);
-
-                return result;
-            }));
-
-
-    set_var(
-        "map", make_function([](int argc) {
+        return result;
+    }},
+    {
+        "map", [](int argc) {
             if (argc < 2) {
                 return get_nil();
             }
             if (lisp::get_op(argc - 1)->type() not_eq Value::Type::function and
                 lisp::get_op(argc - 1)->type() not_eq Value::Type::cons) {
                 return lisp::make_error(
-                    lisp::Error::Code::invalid_argument_type, L_NIL);
+                                        lisp::Error::Code::invalid_argument_type, L_NIL);
             }
 
             // I've never seen map used with so many input lists, but who knows,
@@ -2882,159 +2818,126 @@ void init(Platform& pfrm)
             pop_op(); // the protected result list
 
             return result;
-        }));
+        }},
+    {"reverse", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, cons);
 
-    set_var("reverse", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, cons);
+        Value* result = get_nil();
+        foreach (get_op0(), [&](Value* car) {
+            push_op(result);
+            result = make_cons(car, result);
+            pop_op();
+        })
+            ;
 
-                Value* result = get_nil();
-                foreach (get_op0(), [&](Value* car) {
-                    push_op(result);
-                    result = make_cons(car, result);
-                    pop_op();
-                })
-                    ;
+        return result;
+    }},
+    {"select", [](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(0, cons);
+        L_EXPECT_OP(1, cons);
 
-                return result;
-            }));
+        const auto len = length(get_op0());
+        if (not len or len not_eq length(get_op1())) {
+            return get_nil();
+        }
 
-    set_var("select", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                L_EXPECT_OP(0, cons);
-                L_EXPECT_OP(1, cons);
+        auto input_list = get_op1();
+        auto selection_list = get_op0();
 
-                const auto len = length(get_op0());
-                if (not len or len not_eq length(get_op1())) {
-                    return get_nil();
-                }
-
-                auto input_list = get_op1();
-                auto selection_list = get_op0();
-
-                auto result = get_nil();
-                for (int i = len - 1; i > -1; --i) {
-                    if (is_boolean_true(get_list(selection_list, i))) {
-                        push_op(result);
-                        auto next = make_cons(get_list(input_list, i), result);
-                        result = next;
-                        pop_op(); // result
-                    }
-                }
-
-                return result;
-            }));
-
-    set_var("gc",
-            make_function([](int argc) { return make_integer(run_gc()); }));
-
-    set_var("get", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 2);
-                L_EXPECT_OP(1, cons);
-                L_EXPECT_OP(0, integer);
-
-                return get_list(get_op1(), get_op0()->integer().value_);
-            }));
-
-
-    set_var("read", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, string);
-                BasicCharSequence seq(get_op0()->string().value());
-                read(seq);
-                auto result = get_op0();
-                pop_op();
-                return result;
-            }));
-
-
-    set_var("eval", make_function([](int argc) {
-                if (argc < 1) {
-                    return lisp::make_error(lisp::Error::Code::invalid_argc,
-                                            L_NIL);
-                }
-
-                eval(get_op0());
-                auto result = get_op0();
+        auto result = get_nil();
+        for (int i = len - 1; i > -1; --i) {
+            if (is_boolean_true(get_list(selection_list, i))) {
+                push_op(result);
+                auto next = make_cons(get_list(input_list, i), result);
+                result = next;
                 pop_op(); // result
+            }
+        }
 
-                return result;
-            }));
+        return result;
+    }},
+    {"gc",
+     [](int argc) { return make_integer(run_gc()); }},
+    {"get", [](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(1, cons);
+        L_EXPECT_OP(0, integer);
 
-    set_var("globals", make_function([](int argc) {
-                return bound_context->globals_tree_;
-            }));
+        return get_list(get_op1(), get_op0()->integer().value_);
+    }},
+    {"read", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, string);
+        BasicCharSequence seq(get_op0()->string().value());
+        read(seq);
+        auto result = get_op0();
+        pop_op();
+        return result;
+    }},
+    {"eval", [](int argc) {
+        if (argc < 1) {
+            return lisp::make_error(lisp::Error::Code::invalid_argc,
+                                    L_NIL);
+        }
 
-    set_var("this",
-            make_function([](int argc) { return bound_context->this_; }));
+        eval(get_op0());
+        auto result = get_op0();
+        pop_op(); // result
 
-    set_var("argc", make_function([](int argc) {
-                // NOTE: This works because native functions do not assign
-                // current_fn_argc_.
-                return make_integer(bound_context->current_fn_argc_);
-            }));
+        return result;
+    }},
+    {"globals", [](int argc) {
+        return bound_context->globals_tree_;
+    }},
+    {"this",
+     [](int argc) { return bound_context->this_; }},
+    {"argc", [](int argc) {
+        // NOTE: This works because native functions do not assign
+        // current_fn_argc_.
+        return make_integer(bound_context->current_fn_argc_);
+    }},
+    {"env", [](int argc) {
+        auto pfrm = interp_get_pfrm();
 
-    set_var("env", make_function([](int argc) {
-                auto pfrm = interp_get_pfrm();
+        Value* result = make_cons(get_nil(), get_nil());
+        push_op(result); // protect from the gc
 
-                Value* result = make_cons(get_nil(), get_nil());
-                push_op(result); // protect from the gc
+        Value* current = result;
 
-                Value* current = result;
+        get_env([&current, pfrm](const char* str) {
+            current->cons().set_car(intern_to_symbol(str));
+            auto next = make_cons(get_nil(), get_nil());
+            if (next not_eq bound_context->oom_) {
+                current->cons().set_cdr(next);
+                current = next;
+            }
+        });
 
-                get_env([&current, pfrm](const char* str) {
-                    current->cons().set_car(intern_to_symbol(str));
-                    auto next = make_cons(get_nil(), get_nil());
-                    if (next not_eq bound_context->oom_) {
-                        current->cons().set_cdr(next);
-                        current = next;
-                    }
-                });
+        pop_op(); // result
 
-                pop_op(); // result
+        return result;
+    }},
+    {"compile", [](int argc) {
+        auto pfrm = interp_get_pfrm();
 
-                return result;
-            }));
+        L_EXPECT_ARGC(argc, 1);
+        L_EXPECT_OP(0, function);
 
-    set_var("compile", make_function([](int argc) {
-                auto pfrm = interp_get_pfrm();
-
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, function);
-
-                if (get_op0()->hdr_.mode_bits_ ==
-                    Function::ModeBits::lisp_function) {
-                    compile(*pfrm,
-                            dcompr(get_op0()->function().lisp_impl_.code_));
-                    auto ret = get_op0();
-                    pop_op();
-                    return ret;
-                } else {
-                    return get_op0();
-                }
-            }));
-
-#ifndef __GBA__
-    set_var("file-lines", make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, string);
-
-                std::string line;
-                std::ifstream file(get_op0()->string().value());
-
-                ListBuilder result;
-
-                while (std::getline(file, line)) {
-                    result.push_back(
-                        make_string(bound_context->pfrm_, line.c_str()));
-                }
-
-                return result.result();
-            }));
-#endif
-
-    set_var(
-        "disassemble", make_function([](int argc) {
+        if (get_op0()->hdr_.mode_bits_ ==
+            Function::ModeBits::lisp_function) {
+            compile(*pfrm,
+                    dcompr(get_op0()->function().lisp_impl_.code_));
+            auto ret = get_op0();
+            pop_op();
+            return ret;
+        } else {
+            return get_op0();
+        }
+    }},
+    {
+        "disassemble", [](int argc) {
             L_EXPECT_ARGC(argc, 1);
             L_EXPECT_OP(0, function);
 
@@ -3050,10 +2953,10 @@ void init(Platform& pfrm)
                 auto data = buffer->data_buffer().value();
 
                 const auto start_offset = get_op0()
-                                              ->function()
-                                              .bytecode_impl_.bytecode_offset()
-                                              ->integer()
-                                              .value_;
+                    ->function()
+                    .bytecode_impl_.bytecode_offset()
+                    ->integer()
+                    .value_;
 
                 for (int i = start_offset; i < SCRATCH_BUFFER_SIZE;) {
 
@@ -3077,7 +2980,7 @@ void init(Platform& pfrm)
                         i += 1;
                         out += "LOAD_VAR(";
                         out += symbol_from_offset(
-                            ((HostInteger<s16>*)(data->data_ + i))->get());
+                                                  ((HostInteger<s16>*)(data->data_ + i))->get());
                         out += ")";
                         i += 2;
                         break;
@@ -3086,7 +2989,7 @@ void init(Platform& pfrm)
                         i += 1;
                         out += "LOAD_VAR_RELOCATABLE(";
                         out += to_string<10>(
-                            ((HostInteger<s16>*)(data->data_ + i))->get());
+                                             ((HostInteger<s16>*)(data->data_ + i))->get());
                         out += ")";
                         i += 2;
                         break;
@@ -3095,7 +2998,7 @@ void init(Platform& pfrm)
                         i += 1;
                         out += "PUSH_SYMBOL(";
                         out += symbol_from_offset(
-                            ((HostInteger<s16>*)(data->data_ + i))->get());
+                                                  ((HostInteger<s16>*)(data->data_ + i))->get());
                         out += ")";
                         i += 2;
                         break;
@@ -3104,7 +3007,7 @@ void init(Platform& pfrm)
                         i += 1;
                         out += "PUSH_SYMBOL_RELOCATABLE(";
                         out += to_string<10>(
-                            ((HostInteger<s16>*)(data->data_ + i))->get());
+                                             ((HostInteger<s16>*)(data->data_ + i))->get());
                         out += ")";
                         i += 2;
                         break;
@@ -3144,7 +3047,7 @@ void init(Platform& pfrm)
                         i += 1;
                         out += "PUSH_INTEGER(";
                         out += to_string<10>(
-                            ((HostInteger<s32>*)(data->data_ + i))->get());
+                                             ((HostInteger<s32>*)(data->data_ + i))->get());
                         out += ")";
                         i += 4;
                         break;
@@ -3159,7 +3062,7 @@ void init(Platform& pfrm)
                     case JumpIfFalse::op():
                         out += "JUMP_IF_FALSE(";
                         out += to_string<10>(
-                            ((HostInteger<u16>*)(data->data_ + i + 1))->get());
+                                             ((HostInteger<u16>*)(data->data_ + i + 1))->get());
                         out += ")";
                         i += 3;
                         break;
@@ -3167,7 +3070,7 @@ void init(Platform& pfrm)
                     case Jump::op():
                         out += "JUMP(";
                         out += to_string<10>(
-                            ((HostInteger<u16>*)(data->data_ + i + 1))->get());
+                                             ((HostInteger<u16>*)(data->data_ + i + 1))->get());
                         out += ")";
                         i += 3;
                         break;
@@ -3189,7 +3092,7 @@ void init(Platform& pfrm)
                     case PushLambda::op():
                         out += "PUSH_LAMBDA(";
                         out += to_string<10>(
-                            ((HostInteger<u16>*)(data->data_ + i + 1))->get());
+                                             ((HostInteger<u16>*)(data->data_ + i + 1))->get());
                         out += ")";
                         i += 3;
                         ++depth;
@@ -3311,7 +3214,7 @@ void init(Platform& pfrm)
                         out += LexicalDef::name();
                         out += "(";
                         out += symbol_from_offset(
-                            ((HostInteger<s16>*)(data->data_ + i + 1))->get());
+                                                  ((HostInteger<s16>*)(data->data_ + i + 1))->get());
                         out += ")";
                         i += sizeof(LexicalDef);
                         break;
@@ -3320,7 +3223,7 @@ void init(Platform& pfrm)
                         out += LexicalDefRelocatable::name();
                         out += "(";
                         out += to_string<10>(
-                            ((HostInteger<s16>*)(data->data_ + i + 1))->get());
+                                             ((HostInteger<s16>*)(data->data_ + i + 1))->get());
                         out += ")";
                         i += sizeof(LexicalDefRelocatable);
                         break;
@@ -3358,7 +3261,7 @@ void init(Platform& pfrm)
 
                     default:
                         interp_get_pfrm()->remote_console().printline(
-                            out.c_str(), false);
+                                                                      out.c_str(), false);
                         interp_get_pfrm()->sleep(80);
                         return get_nil();
                     }
@@ -3381,7 +3284,108 @@ void init(Platform& pfrm)
             } else {
                 return get_nil();
             }
-        }));
+        }}
+};
+
+
+
+void bind_functions(const Binding* bindings, int count)
+{
+    // TODO: I haven't implemented balancing code for the global variable tree
+    // yet. Because we use a pointer comparison based on a node's symbol intern
+    // ponter when comparing keys in the tree, if we intern a symbol and insert
+    // it into the globals tree immediately afterwards, and do that in a loop,
+    // we'll end up with a linear list, rather than a tree structure (if every
+    // iteration of the loop interns a new symbol, its address will always be
+    // ahead of the last node inserted into the tree). Until I find some spare
+    // time to implement tree balancing, instead, do a preliminary pass over the
+    // builtin function table and intern the symbols in random order.
+
+    const Binding* current = bindings;
+    int pos = 0;
+    while (pos < count) {
+        Buffer<const char*, 64> temp;
+        while (not temp.full() and pos < count) {
+            temp.push_back(current->name_);
+            ++pos;
+            ++current;
+        }
+
+        rng::LinearGenerator generator = 42;
+        for (u32 i = 0; i < temp.size(); ++i) {
+            std::swap(temp[i], temp[rng::get(generator) % temp.size()]);
+        }
+
+        for (auto& name : temp) {
+            intern(name);
+        }
+    }
+
+    for (int i = 0; i < count; ++i) {
+        set_var(bindings[i].name_, lisp::make_function(bindings[i].function_));
+    }
+}
+
+
+
+void init(Platform& pfrm)
+{
+    if (bound_context) {
+        return;
+    }
+
+    bound_context.emplace(pfrm);
+
+    value_pool_init();
+    bound_context->nil_ = alloc_value();
+    bound_context->nil_->hdr_.type_ = Value::Type::nil;
+    bound_context->globals_tree_ = bound_context->nil_;
+    bound_context->this_ = bound_context->nil_;
+    bound_context->lexical_bindings_ = bound_context->nil_;
+
+    bound_context->oom_ = alloc_value();
+    bound_context->oom_->hdr_.type_ = Value::Type::error;
+    bound_context->oom_->error().code_ = Error::Code::out_of_memory;
+    bound_context->oom_->error().context_ = compr(bound_context->nil_);
+
+    bound_context->string_buffer_ = bound_context->nil_;
+    bound_context->macros_ = bound_context->nil_;
+
+
+    // Push a few nil onto the operand stack. Allows us to access the first few
+    // elements of the operand stack without performing size checks.
+    push_op(get_nil());
+    push_op(get_nil());
+
+    if (dcompr(compr(get_nil())) not_eq get_nil()) {
+        bound_context->pfrm_.fatal("pointer compression test failed");
+    }
+
+    intern("'");
+
+    lisp::set_var("*pfrm*", lisp::make_userdata(&pfrm));
+
+    bind_functions(builtins, sizeof(builtins) / sizeof(builtins[0]));
+
+
+#ifndef __GBA__
+    set_var("file-lines", lisp::make_function([](int argc) {
+                L_EXPECT_ARGC(argc, 1);
+                L_EXPECT_OP(0, string);
+
+                std::string line;
+                std::ifstream file(get_op0()->string().value());
+
+                ListBuilder result;
+
+                while (std::getline(file, line)) {
+                    result.push_back(
+                        make_string(bound_context->pfrm_, line.c_str()));
+                }
+
+                return result.result();
+    }));
+#endif
 }
 
 

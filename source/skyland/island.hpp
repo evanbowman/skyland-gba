@@ -137,7 +137,7 @@ public:
     Vec2<Float> visual_origin() const;
 
 
-    using Terrain = Buffer<u8, 11>;
+    using Terrain = Buffer<u8, 12>;
 
 
     Terrain& terrain()
@@ -265,14 +265,11 @@ private:
 
     Rooms rooms_;
     const Layer layer_;
-    Buffer<u8, 11> terrain_;
+    Terrain terrain_;
     Vec2<Float> position_;
     u8 ambient_movement_;
     Microseconds timer_;
     Float drift_ = 0;
-
-    int power_available_ = 0;
-    int power_used_ = 0;
 
     bool interior_visible_;
     bool show_flag_ = false;

@@ -28,6 +28,8 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
+    app.invoke_script(pfrm, "/scripts/config/score.lisp");
+
 
     vram_write_flag(pfrm, app.gp_.flag_img_);
 

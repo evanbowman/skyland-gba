@@ -485,6 +485,17 @@ Value* make_string(Platform& pfrm, const char* str);
 Value* make_character(utf8::Codepoint cp);
 
 
+struct Binding {
+    const char* name_;
+    Value* (*function_)(int argc);
+};
+
+
+// A convenience method for efficiently binding C functions to lisp global
+// variables.
+void bind_functions(const Binding* bindings, int count);
+
+
 void get_interns(::Function<24, void(const char*)> callback);
 void get_env(::Function<24, void(const char*)> callback);
 
