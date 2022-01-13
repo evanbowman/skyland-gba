@@ -12,6 +12,7 @@
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "selInputScene.hpp"
 
 
 
@@ -99,6 +100,19 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         return new_scene;
     }
 
+
+    if (app.game_mode() not_eq App::GameMode::multiplayer and
+        app.input_setup_info()) {
+
+        auto next = scene_pool::alloc<SelInputScene>(*app.input_setup_info(),
+                                                     not is_far_camera());
+
+        app.input_setup_info().reset();
+
+        return next;
+    }
+
+
     apply_gamespeed(app, delta);
 
     if (app.player_island().is_destroyed()) {
@@ -163,6 +177,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         // the player will in fact start to notice the lag.
         delta = std::min(delta, seconds(1) / 10);
     }
+
 
     Microseconds world_delta = delta;
     apply_gamespeed(app, world_delta);

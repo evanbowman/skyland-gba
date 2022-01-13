@@ -582,9 +582,20 @@ void App::init_scripts(Platform& pfrm)
     }));
 
 
-    // lisp::set_var("sel-input", lisp::make_function([](int argc) {
-    //     TODO...
-    // }))
+    lisp::set_var("sel-input", lisp::make_function([](int argc) {
+        L_EXPECT_ARGC(argc, 2);
+        L_EXPECT_OP(0, function);
+        L_EXPECT_OP(1, string);
+
+        if (auto app = interp_get_app()) {
+            auto bundle = lisp::make_cons(lisp::get_op(1), lisp::get_op(0));
+            if (bundle->type() == lisp::Value::Type::cons) {
+                app->setup_input(bundle);
+            }
+        }
+
+        return L_NIL;
+    }));
 
 
     lisp::set_var("island-configure", lisp::make_function([](int argc) {

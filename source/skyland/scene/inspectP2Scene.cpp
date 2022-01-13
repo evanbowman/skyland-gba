@@ -18,7 +18,7 @@ namespace skyland {
 
 void InspectP2Scene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    WorldScene::enter(pfrm, app, prev);
+    ActiveWorldScene::enter(pfrm, app, prev);
 
     far_camera();
 }
@@ -32,7 +32,7 @@ void clear_room_description(Platform& pfrm,
 
 void InspectP2Scene::exit(Platform& pfrm, App& app, Scene& next)
 {
-    WorldScene::exit(pfrm, app, next);
+    ActiveWorldScene::exit(pfrm, app, next);
 
     clear_room_description(pfrm, room_description_);
 }

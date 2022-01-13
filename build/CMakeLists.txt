@@ -119,6 +119,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/fadeOutScene.cpp
   ${SOURCE_DIR}/skyland/scene/newgameScene.cpp
   ${SOURCE_DIR}/skyland/scene/lispReplScene.cpp
+  ${SOURCE_DIR}/skyland/scene/selInputScene.cpp
   ${SOURCE_DIR}/skyland/scene/worldMapScene.cpp
   ${SOURCE_DIR}/skyland/scene/keyComboScene.cpp
   ${SOURCE_DIR}/skyland/scene/inspectP2Scene.cpp

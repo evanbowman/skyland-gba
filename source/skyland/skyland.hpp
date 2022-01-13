@@ -289,6 +289,18 @@ public:
     }
 
 
+    void setup_input(lisp::Value* msg_callback_pair)
+    {
+        input_setup_info_ = msg_callback_pair;
+    }
+
+
+    std::optional<lisp::Protected>& input_setup_info()
+    {
+        return input_setup_info_;
+    }
+
+
 private:
     PersistentData persistent_data_;
     Island player_island_;
@@ -308,7 +320,10 @@ private:
     bool dialog_expects_answer_ = false;
     bool exit_level_ = false;
     bool launch_repl_ = false;
+    bool launch_input_ = false;
     GameMode game_mode_ = GameMode::adventure;
+
+    std::optional<lisp::Protected> input_setup_info_;
 
     EntityList<Entity> effects_;
     EntityList<SmolBirb> birbs_;
