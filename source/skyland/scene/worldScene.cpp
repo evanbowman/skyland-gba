@@ -6,13 +6,13 @@
 #include "number/random.hpp"
 #include "platform/platform.hpp"
 #include "scriptHookScene.hpp"
+#include "selInputScene.hpp"
 #include "setGamespeedScene.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/birbs/smolBirb.hpp"
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "selInputScene.hpp"
 
 
 
@@ -414,8 +414,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (disp_power->power_drain() >
-        disp_power->power_supply()) {
+    if (disp_power->power_drain() > disp_power->power_supply()) {
         // If the player's island power drain exceeds supply, make the UI
         // sticky, so the player knows why his/her weapons aren't doing
         // anything.

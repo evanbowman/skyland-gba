@@ -236,7 +236,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (music_fadeback_timer_ > 0) {
         music_fadeback_timer_ -= delta;
-        auto amount = interpolate(1, 12, Float(music_fadeback_timer_) / music_fadeback_seconds);
+        auto amount = interpolate(
+            1, 12, Float(music_fadeback_timer_) / music_fadeback_seconds);
         pfrm.speaker().set_music_volume(amount);
     }
 

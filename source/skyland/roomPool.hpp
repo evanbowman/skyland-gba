@@ -25,8 +25,7 @@ public:
     static const auto pool_count = pool_capacity / rooms_per_pool;
 
 
-    using RoomPool =
-        Pool<max_room_size, rooms_per_pool, entity_pool_align>;
+    using RoomPool = Pool<max_room_size, rooms_per_pool, entity_pool_align>;
 
 
     void init(Platform& pfrm)

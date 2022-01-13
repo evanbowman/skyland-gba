@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "worldScene.hpp"
 #include "script/lisp.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -17,13 +17,8 @@ namespace skyland {
 
 class SelInputScene : public ActiveWorldScene {
 public:
-
-
-    SelInputScene(lisp::Value* parameters,
-                  bool near) :
-        parameters_(parameters),
-        near_(near),
-        started_near_(near)
+    SelInputScene(lisp::Value* parameters, bool near)
+        : parameters_(parameters), near_(near), started_near_(near)
     {
     }
 
@@ -34,9 +29,8 @@ public:
     void exit(Platform& pfrm, App& app, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override;
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
     void display(Platform&, App&) override;
@@ -57,4 +51,4 @@ private:
 
 
 
-}
+} // namespace skyland

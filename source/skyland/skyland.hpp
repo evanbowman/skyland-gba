@@ -301,6 +301,9 @@ public:
     }
 
 
+    bool dialog_expects_answer_ = false;
+
+
 private:
     PersistentData persistent_data_;
     Island player_island_;
@@ -317,7 +320,6 @@ private:
     Rumble rumble_;
 
     std::optional<DialogBuffer> dialog_buffer_;
-    bool dialog_expects_answer_ = false;
     bool exit_level_ = false;
     bool launch_repl_ = false;
     bool launch_input_ = false;

@@ -1,7 +1,7 @@
 #include "inspectP2Scene.hpp"
 #include "constructionScene.hpp"
-#include "keyComboScene.hpp"
 #include "globals.hpp"
+#include "keyComboScene.hpp"
 #include "lispReplScene.hpp"
 #include "readyScene.hpp"
 #include "salvageDroneScene.hpp"

@@ -1241,10 +1241,8 @@ void EnemyAI::set_target(Platform& pfrm,
                 if (auto room = app.player_island().get_room({u8(x), u8(y)})) {
                     visible_rooms.push_back(room);
                     if (matrix[x][y + 1]) {
-                        if (auto st_room = app.player_island().get_room({
-                                    u8(x),
-                                    u8(y + 1)
-                                })) {
+                        if (auto st_room = app.player_island().get_room(
+                                {u8(x), u8(y + 1)})) {
                             second_tier.push_back(st_room);
                         }
                     }
@@ -1444,7 +1442,8 @@ void EnemyAI::set_target(Platform& pfrm,
                     visible_rooms.push_back(room);
 
                     if (x > 0 and matrix[x - 1][y]) {
-                        if (auto st_room = app.player_island().get_room({u8(x - 1), y})) {
+                        if (auto st_room =
+                                app.player_island().get_room({u8(x - 1), y})) {
                             second_tier.push_back(st_room);
                         }
                     }
@@ -1489,8 +1488,7 @@ void EnemyAI::set_target(Platform& pfrm,
 
     if (highest_weighted_room) {
         auto target = highest_weighted_room;
-        if (highest_weighted_second_tier_room and
-            highest_weight < 9.f and
+        if (highest_weighted_second_tier_room and highest_weight < 9.f and
             highest_second_tier_weight > highest_weight) {
             target = highest_weighted_second_tier_room;
         }

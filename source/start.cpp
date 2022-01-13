@@ -62,26 +62,23 @@ void start(Platform& pfrm)
     auto stat =
         ram_filesystem::initialize(pfrm,
                                    sizeof(skyland::save::GlobalSaveData) +
-                                   sizeof(skyland::save::SaveData));
+                                       sizeof(skyland::save::SaveData));
 
     if (stat == ram_filesystem::InitStatus::initialized) {
-        const char* user_init_file =
-            ";;;\n"
-            ";;; init.lisp\n"
-            ";;;\n"
-            ";;; The game will run this\n"
-            ";;; script upon entering\n"
-            ";;; a game session.\n"
-            ";;; Create scripts in the\n"
-            ";;; mods dir, and load them\n"
-            ";;; here.\n"
-            ";;;\n"
-            "\n(key-bind \"ud\" repl)\n";
+        const char* user_init_file = ";;;\n"
+                                     ";;; init.lisp\n"
+                                     ";;;\n"
+                                     ";;; The game will run this\n"
+                                     ";;; script upon entering\n"
+                                     ";;; a game session.\n"
+                                     ";;; Create scripts in the\n"
+                                     ";;; mods dir, and load them\n"
+                                     ";;; here.\n"
+                                     ";;;\n"
+                                     "\n(key-bind \"ud\" repl)\n";
 
         ram_filesystem::store_file_data(
-            pfrm, "/mods/init.lisp",
-            user_init_file,
-            str_len(user_init_file));
+            pfrm, "/mods/init.lisp", user_init_file, str_len(user_init_file));
     }
 
     return skyland_main_loop(pfrm);

@@ -21,8 +21,7 @@ inline void deleter(Room* room)
 
 
 
-template <typename T, typename... Args>
-RoomPtr<T> alloc(Args&&... args)
+template <typename T, typename... Args> RoomPtr<T> alloc(Args&&... args)
 {
     auto& pool = std::get<SkylandGlobalData>(globals()).room_pools_;
 
@@ -40,6 +39,5 @@ RoomPtr<T> alloc(Args&&... args)
 
 
 
-
-}
-}
+} // namespace room_pool
+} // namespace skyland

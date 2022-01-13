@@ -2346,329 +2346,347 @@ static const Binding builtins[] = {
 
          return L_NIL;
      }},
-    {"cons", [](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        auto car = get_op1();
-        auto cdr = get_op0();
+    {"cons",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         auto car = get_op1();
+         auto cdr = get_op0();
 
-        if (car->type() == lisp::Value::Type::error) {
-            return car;
-        }
+         if (car->type() == lisp::Value::Type::error) {
+             return car;
+         }
 
-        if (cdr->type() == lisp::Value::Type::error) {
-            return cdr;
-        }
+         if (cdr->type() == lisp::Value::Type::error) {
+             return cdr;
+         }
 
-        return make_cons(get_op1(), get_op0());
-    }},
-    {"car", [](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, cons);
-        return get_op0()->cons().car();
-    }},
-    {"cdr", [](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, cons);
-        return get_op0()->cons().cdr();
-    }},
-    {"list", [](int argc) {
-        auto lat = make_list(argc);
-        for (int i = 0; i < argc; ++i) {
-            auto val = get_op((argc - 1) - i);
-            if (val->type() == Value::Type::error) {
-                return val;
-            }
-            set_list(lat, i, val);
-        }
-        return lat;
-    }},
-    {"arg", [](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, integer);
-        return get_arg(get_op0()->integer().value_);
-    }},
-    {"not", [](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        return make_integer(not is_boolean_true(get_op0()));
-    }},
-    {
-        "equal", [](int argc) {
-            L_EXPECT_ARGC(argc, 2);
+         return make_cons(get_op1(), get_op0());
+     }},
+    {"car",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, cons);
+         return get_op0()->cons().car();
+     }},
+    {"cdr",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, cons);
+         return get_op0()->cons().cdr();
+     }},
+    {"list",
+     [](int argc) {
+         auto lat = make_list(argc);
+         for (int i = 0; i < argc; ++i) {
+             auto val = get_op((argc - 1) - i);
+             if (val->type() == Value::Type::error) {
+                 return val;
+             }
+             set_list(lat, i, val);
+         }
+         return lat;
+     }},
+    {"arg",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+         return get_arg(get_op0()->integer().value_);
+     }},
+    {"not",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         return make_integer(not is_boolean_true(get_op0()));
+     }},
+    {"equal",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
 
-            if (get_op0()->type() not_eq get_op1()->type()) {
-                return make_integer(0);
-            }
+         if (get_op0()->type() not_eq get_op1()->type()) {
+             return make_integer(0);
+         }
 
-            return make_integer([] {
-                switch (get_op0()->type()) {
-                case Value::Type::integer:
-                    return get_op0()->integer().value_ ==
+         return make_integer([] {
+             switch (get_op0()->type()) {
+             case Value::Type::integer:
+                 return get_op0()->integer().value_ ==
                         get_op1()->integer().value_;
 
-                case Value::Type::cons:
-                    // TODO!
-                    // This comparison needs to be done as efficiently as possible...
-                    break;
+             case Value::Type::cons:
+                 // TODO!
+                 // This comparison needs to be done as efficiently as possible...
+                 break;
 
-                case Value::Type::count:
-                case Value::Type::__reserved:
-                case Value::Type::character:
-                case Value::Type::nil:
-                case Value::Type::heap_node:
-                case Value::Type::data_buffer:
-                case Value::Type::function:
-                    return get_op0() == get_op1();
+             case Value::Type::count:
+             case Value::Type::__reserved:
+             case Value::Type::character:
+             case Value::Type::nil:
+             case Value::Type::heap_node:
+             case Value::Type::data_buffer:
+             case Value::Type::function:
+                 return get_op0() == get_op1();
 
-                case Value::Type::error:
-                    break;
+             case Value::Type::error:
+                 break;
 
-                case Value::Type::symbol:
-                    return get_op0()->symbol().name_ ==
-                        get_op1()->symbol().name_;
+             case Value::Type::symbol:
+                 return get_op0()->symbol().name_ == get_op1()->symbol().name_;
 
-                case Value::Type::user_data:
-                    return get_op0()->user_data().obj_ ==
+             case Value::Type::user_data:
+                 return get_op0()->user_data().obj_ ==
                         get_op1()->user_data().obj_;
 
-                case Value::Type::string:
-                    return str_cmp(get_op0()->string().value(),
-                                   get_op1()->string().value()) == 0;
-                }
-                return false;
-            }());
-        }},
-    {"apply", [](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(0, cons);
-        L_EXPECT_OP(1, function);
+             case Value::Type::string:
+                 return str_cmp(get_op0()->string().value(),
+                                get_op1()->string().value()) == 0;
+             }
+             return false;
+         }());
+     }},
+    {"apply",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, cons);
+         L_EXPECT_OP(1, function);
 
-        auto lat = get_op0();
-        auto fn = get_op1();
+         auto lat = get_op0();
+         auto fn = get_op1();
 
-        int apply_argc = 0;
-        while (lat not_eq get_nil()) {
-            if (lat->type() not_eq Value::Type::cons) {
-                return make_error(Error::Code::invalid_argument_type,
-                                  lat);
-            }
-            ++apply_argc;
-            push_op(lat->cons().car());
+         int apply_argc = 0;
+         while (lat not_eq get_nil()) {
+             if (lat->type() not_eq Value::Type::cons) {
+                 return make_error(Error::Code::invalid_argument_type, lat);
+             }
+             ++apply_argc;
+             push_op(lat->cons().car());
 
-            lat = lat->cons().cdr();
-        }
+             lat = lat->cons().cdr();
+         }
 
-        funcall(fn, apply_argc);
+         funcall(fn, apply_argc);
 
-        auto result = get_op0();
-        pop_op();
+         auto result = get_op0();
+         pop_op();
 
-        return result;
-    }},
-    {"fill", [](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(1, integer);
+         return result;
+     }},
+    {"fill",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, integer);
 
-        auto result = make_list(get_op1()->integer().value_);
-        for (int i = 0; i < get_op1()->integer().value_; ++i) {
-            set_list(result, i, get_op0());
-        }
+         auto result = make_list(get_op1()->integer().value_);
+         for (int i = 0; i < get_op1()->integer().value_; ++i) {
+             set_list(result, i, get_op0());
+         }
 
-        return result;
-    }},
-    {"gen", [](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(1, integer);
+         return result;
+     }},
+    {"gen",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, integer);
 
-        auto result = make_list(get_op1()->integer().value_);
-        auto fn = get_op0();
-        const int count = get_op1()->integer().value_;
-        push_op(result);
-        for (int i = 0; i < count; ++i) {
-            push_op(make_integer(i));
-            funcall(fn, 1);
-            set_list(result, i, get_op0());
-            pop_op(); // result from funcall
-        }
-        pop_op(); // result
-        return result;
-    }},
-    {"length", [](int argc) {
-        L_EXPECT_ARGC(argc, 1);
+         auto result = make_list(get_op1()->integer().value_);
+         auto fn = get_op0();
+         const int count = get_op1()->integer().value_;
+         push_op(result);
+         for (int i = 0; i < count; ++i) {
+             push_op(make_integer(i));
+             funcall(fn, 1);
+             set_list(result, i, get_op0());
+             pop_op(); // result from funcall
+         }
+         pop_op(); // result
+         return result;
+     }},
+    {"length",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
 
-        if (get_op0()->type() == Value::Type::nil) {
-            return make_integer(0);
-        }
+         if (get_op0()->type() == Value::Type::nil) {
+             return make_integer(0);
+         }
 
-        L_EXPECT_OP(0, cons);
+         L_EXPECT_OP(0, cons);
 
-        return make_integer(length(get_op0()));
-    }},
-    {"<", [](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(0, integer);
-        L_EXPECT_OP(1, integer);
-        return make_integer(get_op1()->integer().value_ <
-                            get_op0()->integer().value_);
-    }},
-    {">", [](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(0, integer);
-        L_EXPECT_OP(1, integer);
-        return make_integer(get_op1()->integer().value_ >
-                            get_op0()->integer().value_);
-    }},
-    {"+", [](int argc) {
-        int accum = 0;
-        for (int i = 0; i < argc; ++i) {
-            L_EXPECT_OP(i, integer);
-            accum += get_op(i)->integer().value_;
-        }
-        return make_integer(accum);
-    }},
-    {"-", [](int argc) {
-        if (argc == 1) {
-            L_EXPECT_OP(0, integer);
-            return make_integer(-get_op0()->integer().value_);
-        } else {
-            L_EXPECT_ARGC(argc, 2);
-            L_EXPECT_OP(1, integer);
-            L_EXPECT_OP(0, integer);
-            return make_integer(get_op1()->integer().value_ -
-                                get_op0()->integer().value_);
-        }
-    }},
-    {"*", [](int argc) {
-        int accum = 1;
-        for (int i = 0; i < argc; ++i) {
-            L_EXPECT_OP(i, integer);
-            accum *= get_op(i)->integer().value_;
-        }
-        return make_integer(accum);
-    }},
-    {"/", [](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(1, integer);
-        L_EXPECT_OP(0, integer);
-        return make_integer(get_op1()->integer().value_ /
-                            get_op0()->integer().value_);
-    }},
-    {"interp-stat", [](int argc) {
-        auto& ctx = bound_context;
+         return make_integer(length(get_op0()));
+     }},
+    {"<",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, integer);
+         return make_integer(get_op1()->integer().value_ <
+                             get_op0()->integer().value_);
+     }},
+    {">",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, integer);
+         return make_integer(get_op1()->integer().value_ >
+                             get_op0()->integer().value_);
+     }},
+    {"+",
+     [](int argc) {
+         int accum = 0;
+         for (int i = 0; i < argc; ++i) {
+             L_EXPECT_OP(i, integer);
+             accum += get_op(i)->integer().value_;
+         }
+         return make_integer(accum);
+     }},
+    {"-",
+     [](int argc) {
+         if (argc == 1) {
+             L_EXPECT_OP(0, integer);
+             return make_integer(-get_op0()->integer().value_);
+         } else {
+             L_EXPECT_ARGC(argc, 2);
+             L_EXPECT_OP(1, integer);
+             L_EXPECT_OP(0, integer);
+             return make_integer(get_op1()->integer().value_ -
+                                 get_op0()->integer().value_);
+         }
+     }},
+    {"*",
+     [](int argc) {
+         int accum = 1;
+         for (int i = 0; i < argc; ++i) {
+             L_EXPECT_OP(i, integer);
+             accum *= get_op(i)->integer().value_;
+         }
+         return make_integer(accum);
+     }},
+    {"/",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(0, integer);
+         return make_integer(get_op1()->integer().value_ /
+                             get_op0()->integer().value_);
+     }},
+    {"interp-stat",
+     [](int argc) {
+         auto& ctx = bound_context;
 
-        int values_remaining = 0;
-        Value* current = value_pool;
-        while (current) {
-            ++values_remaining;
-            current = current->heap_node().next_;
-        }
+         int values_remaining = 0;
+         Value* current = value_pool;
+         while (current) {
+             ++values_remaining;
+             current = current->heap_node().next_;
+         }
 
-        ListBuilder lat;
+         ListBuilder lat;
 
-        auto make_stat = [&](const char* name, int value) {
-            auto c = make_cons(get_nil(), get_nil());
-            if (c == bound_context->oom_) {
-                return c;
-            }
-            push_op(c); // gc protect
+         auto make_stat = [&](const char* name, int value) {
+             auto c = make_cons(get_nil(), get_nil());
+             if (c == bound_context->oom_) {
+                 return c;
+             }
+             push_op(c); // gc protect
 
-            c->cons().set_car(
-                              make_symbol(name, Symbol::ModeBits::stable_pointer));
-            c->cons().set_cdr(make_integer(value));
+             c->cons().set_car(
+                 make_symbol(name, Symbol::ModeBits::stable_pointer));
+             c->cons().set_cdr(make_integer(value));
 
-            pop_op(); // gc unprotect
-            return c;
-        };
+             pop_op(); // gc unprotect
+             return c;
+         };
 
-        lat.push_front(make_stat("vars", [&] {
-            int symb_tab_used = 0;
-            globals_tree_traverse(
-                                  ctx->globals_tree_,
-                                  [&symb_tab_used](Value&, Value&) { ++symb_tab_used; });
-            return symb_tab_used;
-        }()));
+         lat.push_front(make_stat("vars", [&] {
+             int symb_tab_used = 0;
+             globals_tree_traverse(
+                 ctx->globals_tree_,
+                 [&symb_tab_used](Value&, Value&) { ++symb_tab_used; });
+             return symb_tab_used;
+         }()));
 
-        lat.push_front(make_stat("stk", ctx->operand_stack_->size()));
-        lat.push_front(make_stat("internb", ctx->string_intern_pos_));
-        lat.push_front(make_stat("free", values_remaining));
+         lat.push_front(make_stat("stk", ctx->operand_stack_->size()));
+         lat.push_front(make_stat("internb", ctx->string_intern_pos_));
+         lat.push_front(make_stat("free", values_remaining));
 
-        int databuffers = 0;
+         int databuffers = 0;
 
-        for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
-            Value* val = (Value*)&value_pool_data[i];
-            if (val->hdr_.alive_ and
-                val->hdr_.type_ == Value::Type::data_buffer) {
-                ++databuffers;
-            }
-        }
+         for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
+             Value* val = (Value*)&value_pool_data[i];
+             if (val->hdr_.alive_ and
+                 val->hdr_.type_ == Value::Type::data_buffer) {
+                 ++databuffers;
+             }
+         }
 
-        lat.push_front(make_stat("sbr", databuffers));
+         lat.push_front(make_stat("sbr", databuffers));
 
-        return lat.result();
-    }},
-    {"range", [](int argc) {
-        int start = 0;
-        int end = 0;
-        int incr = 1;
+         return lat.result();
+     }},
+    {"range",
+     [](int argc) {
+         int start = 0;
+         int end = 0;
+         int incr = 1;
 
-        if (argc == 1) {
+         if (argc == 1) {
 
-            L_EXPECT_OP(0, integer);
+             L_EXPECT_OP(0, integer);
 
-            start = 0;
-            end = get_op0()->integer().value_;
+             start = 0;
+             end = get_op0()->integer().value_;
 
-        } else if (argc == 2) {
+         } else if (argc == 2) {
 
-            L_EXPECT_OP(1, integer);
-            L_EXPECT_OP(0, integer);
+             L_EXPECT_OP(1, integer);
+             L_EXPECT_OP(0, integer);
 
-            start = get_op1()->integer().value_;
-            end = get_op0()->integer().value_;
+             start = get_op1()->integer().value_;
+             end = get_op0()->integer().value_;
 
-        } else if (argc == 3) {
+         } else if (argc == 3) {
 
-            L_EXPECT_OP(2, integer);
-            L_EXPECT_OP(1, integer);
-            L_EXPECT_OP(0, integer);
+             L_EXPECT_OP(2, integer);
+             L_EXPECT_OP(1, integer);
+             L_EXPECT_OP(0, integer);
 
-            start = get_op(2)->integer().value_;
-            end = get_op1()->integer().value_;
-            incr = get_op0()->integer().value_;
-        } else {
-            return lisp::make_error(lisp::Error::Code::invalid_argc,
-                                    L_NIL);
-        }
+             start = get_op(2)->integer().value_;
+             end = get_op1()->integer().value_;
+             incr = get_op0()->integer().value_;
+         } else {
+             return lisp::make_error(lisp::Error::Code::invalid_argc, L_NIL);
+         }
 
-        if (incr == 0) {
-            return get_nil();
-        }
+         if (incr == 0) {
+             return get_nil();
+         }
 
-        ListBuilder lat;
+         ListBuilder lat;
 
-        for (int i = start; i < end; i += incr) {
-            lat.push_back(make_integer(i));
-        }
+         for (int i = start; i < end; i += incr) {
+             lat.push_back(make_integer(i));
+         }
 
-        return lat.result();
-    }},
-    {"unbind", [](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, symbol);
+         return lat.result();
+     }},
+    {"unbind",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, symbol);
 
-        globals_tree_erase(get_op0());
+         globals_tree_erase(get_op0());
 
-        return get_nil();
-    }},
-    {"symbol", [](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, string);
+         return get_nil();
+     }},
+    {"symbol",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, string);
 
-        return make_symbol(get_op0()->string().value());
-    }},
-    {"type", [](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        return make_symbol([] {
-            // clang-format off
+         return make_symbol(get_op0()->string().value());
+     }},
+    {"type",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         return make_symbol([] {
+             // clang-format off
             switch (get_op0()->type()) {
             case Value::Type::nil: return "nil";
             case Value::Type::integer: return "integer";
@@ -2685,610 +2703,609 @@ static const Binding builtins[] = {
             case Value::Type::heap_node:
                 break;
             }
-            // clang-format on
-            return "???";
-        }());
-    }},
-    {"string", [](int argc) {
-        EvalBuffer b;
-        EvalPrinter p(b);
-
-        for (int i = argc - 1; i > -1; --i) {
-            auto val = get_op(i);
-            if (val->type() == Value::Type::string) {
-                p.put_str(val->string().value());
-            } else {
-                format_impl(val, p, 0);
-            }
-        }
-
-        if (auto pfrm = interp_get_pfrm()) {
-            return make_string(*pfrm, b.c_str());
-        }
-        return L_NIL;
-    }},
-    {"bound", [](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, symbol);
-
-        auto found = globals_tree_find(get_op0());
-        return make_integer(found not_eq get_nil() and
-                            found->type() not_eq
-                            lisp::Value::Type::error);
-    }},
-    {"filter", [](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(0, cons);
-        L_EXPECT_OP(1, function);
-
-        auto fn = get_op1();
-        Value* result = make_cons(L_NIL, L_NIL);
-        auto prev = result;
-        auto current = result;
-
-        foreach (get_op0(), [&](Value* val) {
-            push_op(result); // gc protect
-
-            push_op(val);
-            funcall(fn, 1);
-            auto funcall_result = get_op0();
-
-            if (is_boolean_true(funcall_result)) {
-                current->cons().set_car(val);
-                auto next = make_cons(L_NIL, L_NIL);
-                if (next == bound_context->oom_) {
-                    current = result;
-                    return;
-                }
-                current->cons().set_cdr(next);
-                prev = current;
-                current = next;
-            }
-            pop_op(); // funcall result
-
-            pop_op(); // gc unprotect
-        })
-            ;
-
-        if (current == result) {
-            return L_NIL;
-        }
-
-        prev->cons().set_cdr(L_NIL);
-
-        return result;
-    }},
-    {
-        "map", [](int argc) {
-            if (argc < 2) {
-                return get_nil();
-            }
-            if (lisp::get_op(argc - 1)->type() not_eq Value::Type::function and
-                lisp::get_op(argc - 1)->type() not_eq Value::Type::cons) {
-                return lisp::make_error(
-                                        lisp::Error::Code::invalid_argument_type, L_NIL);
-            }
-
-            // I've never seen map used with so many input lists, but who knows,
-            // someone might try to call this with more than six inputs...
-            Buffer<Value*, 6> inp_lats;
-
-            if (argc < static_cast<int>(inp_lats.size())) {
-                return get_nil(); // TODO: return error
-            }
-
-            for (int i = 0; i < argc - 1; ++i) {
-                L_EXPECT_OP(i, cons);
-                inp_lats.push_back(get_op(i));
-            }
-
-            const auto len = length(inp_lats[0]);
-            if (len == 0) {
-                return get_nil();
-            }
-            for (auto& l : inp_lats) {
-                if (length(l) not_eq len) {
-                    return get_nil(); // return error instead!
-                }
-            }
-
-            auto fn = get_op(argc - 1);
-
-            int index = 0;
-
-            Value* result = make_list(len);
-            push_op(result); // protect from the gc
-
-            // Because the length function returned a non-zero value, we've
-            // already succesfully scanned the list, so we don't need to do any
-            // type checking.
-
-            while (index < len) {
-
-                for (auto& lat : reversed(inp_lats)) {
-                    push_op(lat->cons().car());
-                    lat = lat->cons().cdr();
-                }
-                funcall(fn, inp_lats.size());
-
-                set_list(result, index, get_op0());
-                pop_op();
-
-                ++index;
-            }
-
-            pop_op(); // the protected result list
-
-            return result;
-        }},
-    {"reverse", [](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, cons);
-
-        Value* result = get_nil();
-        foreach (get_op0(), [&](Value* car) {
-            push_op(result);
-            result = make_cons(car, result);
-            pop_op();
-        })
-            ;
-
-        return result;
-    }},
-    {"select", [](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(0, cons);
-        L_EXPECT_OP(1, cons);
-
-        const auto len = length(get_op0());
-        if (not len or len not_eq length(get_op1())) {
-            return get_nil();
-        }
-
-        auto input_list = get_op1();
-        auto selection_list = get_op0();
-
-        auto result = get_nil();
-        for (int i = len - 1; i > -1; --i) {
-            if (is_boolean_true(get_list(selection_list, i))) {
-                push_op(result);
-                auto next = make_cons(get_list(input_list, i), result);
-                result = next;
-                pop_op(); // result
-            }
-        }
-
-        return result;
-    }},
-    {"gc",
-     [](int argc) { return make_integer(run_gc()); }},
-    {"get", [](int argc) {
-        L_EXPECT_ARGC(argc, 2);
-        L_EXPECT_OP(1, cons);
-        L_EXPECT_OP(0, integer);
-
-        return get_list(get_op1(), get_op0()->integer().value_);
-    }},
-    {"read", [](int argc) {
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, string);
-        BasicCharSequence seq(get_op0()->string().value());
-        read(seq);
-        auto result = get_op0();
-        pop_op();
-        return result;
-    }},
-    {"eval", [](int argc) {
-        if (argc < 1) {
-            return lisp::make_error(lisp::Error::Code::invalid_argc,
-                                    L_NIL);
-        }
-
-        eval(get_op0());
-        auto result = get_op0();
-        pop_op(); // result
-
-        return result;
-    }},
-    {"globals", [](int argc) {
-        return bound_context->globals_tree_;
-    }},
-    {"this",
-     [](int argc) { return bound_context->this_; }},
-    {"argc", [](int argc) {
-        // NOTE: This works because native functions do not assign
-        // current_fn_argc_.
-        return make_integer(bound_context->current_fn_argc_);
-    }},
-    {"env", [](int argc) {
-        auto pfrm = interp_get_pfrm();
-
-        Value* result = make_cons(get_nil(), get_nil());
-        push_op(result); // protect from the gc
-
-        Value* current = result;
-
-        get_env([&current, pfrm](const char* str) {
-            current->cons().set_car(intern_to_symbol(str));
-            auto next = make_cons(get_nil(), get_nil());
-            if (next not_eq bound_context->oom_) {
-                current->cons().set_cdr(next);
-                current = next;
-            }
-        });
-
-        pop_op(); // result
-
-        return result;
-    }},
-    {"compile", [](int argc) {
-        auto pfrm = interp_get_pfrm();
-
-        L_EXPECT_ARGC(argc, 1);
-        L_EXPECT_OP(0, function);
-
-        if (get_op0()->hdr_.mode_bits_ ==
-            Function::ModeBits::lisp_function) {
-            compile(*pfrm,
-                    dcompr(get_op0()->function().lisp_impl_.code_));
-            auto ret = get_op0();
-            pop_op();
-            return ret;
-        } else {
-            return get_op0();
-        }
-    }},
-    {
-        "disassemble", [](int argc) {
-            L_EXPECT_ARGC(argc, 1);
-            L_EXPECT_OP(0, function);
-
-            if (get_op0()->hdr_.mode_bits_ ==
-                Function::ModeBits::lisp_bytecode_function) {
-
-                Platform::RemoteConsole::Line out;
-
-                u8 depth = 0;
-
-                auto buffer = get_op0()->function().bytecode_impl_.databuffer();
-
-                auto data = buffer->data_buffer().value();
-
-                const auto start_offset = get_op0()
-                    ->function()
-                    .bytecode_impl_.bytecode_offset()
-                    ->integer()
-                    .value_;
-
-                for (int i = start_offset; i < SCRATCH_BUFFER_SIZE;) {
-
-                    const auto offset = to_string<10>(i - start_offset);
-                    if (offset.length() < 4) {
-                        for (u32 i = 0; i < 4 - offset.length(); ++i) {
-                            out.push_back('0');
-                        }
-                    }
-
-                    out += offset;
-                    out += ": ";
-
-                    using namespace instruction;
-
-                    switch ((Opcode)(*data).data_[i]) {
-                    case Fatal::op():
-                        return get_nil();
-
-                    case LoadVar::op():
-                        i += 1;
-                        out += "LOAD_VAR(";
-                        out += symbol_from_offset(
-                                                  ((HostInteger<s16>*)(data->data_ + i))->get());
-                        out += ")";
-                        i += 2;
-                        break;
-
-                    case LoadVarRelocatable::op():
-                        i += 1;
-                        out += "LOAD_VAR_RELOCATABLE(";
-                        out += to_string<10>(
-                                             ((HostInteger<s16>*)(data->data_ + i))->get());
-                        out += ")";
-                        i += 2;
-                        break;
-
-                    case PushSymbol::op():
-                        i += 1;
-                        out += "PUSH_SYMBOL(";
-                        out += symbol_from_offset(
-                                                  ((HostInteger<s16>*)(data->data_ + i))->get());
-                        out += ")";
-                        i += 2;
-                        break;
-
-                    case PushSymbolRelocatable::op():
-                        i += 1;
-                        out += "PUSH_SYMBOL_RELOCATABLE(";
-                        out += to_string<10>(
-                                             ((HostInteger<s16>*)(data->data_ + i))->get());
-                        out += ")";
-                        i += 2;
-                        break;
-
-                    case PushString::op(): {
-                        i += 1;
-                        out += PushString::name();
-                        out += "(\"";
-                        u8 len = *(data->data_ + (i++));
-                        out += data->data_ + i;
-                        out += "\")";
-                        i += len;
-                        break;
-                    }
-
-                    case PushNil::op():
-                        out += "PUSH_NIL";
-                        i += 1;
-                        break;
-
-                    case Push0::op():
-                        i += 1;
-                        out += "PUSH_0";
-                        break;
-
-                    case Push1::op():
-                        i += 1;
-                        out += "PUSH_1";
-                        break;
-
-                    case Push2::op():
-                        i += 1;
-                        out += "PUSH_2";
-                        break;
-
-                    case PushInteger::op():
-                        i += 1;
-                        out += "PUSH_INTEGER(";
-                        out += to_string<10>(
-                                             ((HostInteger<s32>*)(data->data_ + i))->get());
-                        out += ")";
-                        i += 4;
-                        break;
-
-                    case PushSmallInteger::op():
-                        out += "PUSH_SMALL_INTEGER(";
-                        out += to_string<10>(*(data->data_ + i + 1));
-                        out += ")";
-                        i += 2;
-                        break;
-
-                    case JumpIfFalse::op():
-                        out += "JUMP_IF_FALSE(";
-                        out += to_string<10>(
-                                             ((HostInteger<u16>*)(data->data_ + i + 1))->get());
-                        out += ")";
-                        i += 3;
-                        break;
-
-                    case Jump::op():
-                        out += "JUMP(";
-                        out += to_string<10>(
-                                             ((HostInteger<u16>*)(data->data_ + i + 1))->get());
-                        out += ")";
-                        i += 3;
-                        break;
-
-                    case SmallJumpIfFalse::op():
-                        out += "SMALL_JUMP_IF_FALSE(";
-                        out += to_string<10>(*(data->data_ + i + 1));
-                        out += ")";
-                        i += 2;
-                        break;
-
-                    case SmallJump::op():
-                        out += "SMALL_JUMP(";
-                        out += to_string<10>(*(data->data_ + i + 1));
-                        out += ")";
-                        i += 2;
-                        break;
-
-                    case PushLambda::op():
-                        out += "PUSH_LAMBDA(";
-                        out += to_string<10>(
-                                             ((HostInteger<u16>*)(data->data_ + i + 1))->get());
-                        out += ")";
-                        i += 3;
-                        ++depth;
-                        break;
-
-                    case PushThis::op():
-                        out += PushThis::name();
-                        i += sizeof(PushThis);
-                        break;
-
-                    case Arg::op():
-                        out += Arg::name();
-                        i += sizeof(Arg);
-                        break;
-
-                    case Arg0::op():
-                        out += Arg0::name();
-                        i += sizeof(Arg0);
-                        break;
-
-                    case Arg1::op():
-                        out += Arg1::name();
-                        i += sizeof(Arg1);
-                        break;
-
-                    case Arg2::op():
-                        out += Arg2::name();
-                        i += sizeof(Arg2);
-                        break;
-
-                    case TailCall::op():
-                        out += TailCall::name();
-                        out += "(";
-                        out += to_string<10>(*(data->data_ + i + 1));
-                        out += ")";
-                        i += 2;
-                        break;
-
-                    case TailCall1::op():
-                        out += TailCall1::name();
-                        ++i;
-                        break;
-
-                    case TailCall2::op():
-                        out += TailCall2::name();
-                        ++i;
-                        break;
-
-                    case TailCall3::op():
-                        out += TailCall3::name();
-                        ++i;
-                        break;
-
-                    case Funcall::op():
-                        out += "FUNCALL(";
-                        out += to_string<10>(*(data->data_ + i + 1));
-                        out += ")";
-                        i += 2;
-                        break;
-
-                    case PushList::op():
-                        out += "PUSH_LIST(";
-                        out += to_string<10>(*(data->data_ + i + 1));
-                        out += ")";
-                        i += 2;
-                        break;
-
-                    case Funcall1::op():
-                        out += "FUNCALL_1";
-                        i += 1;
-                        break;
-
-                    case Funcall2::op():
-                        out += "FUNCALL_2";
-                        i += 1;
-                        break;
-
-                    case Funcall3::op():
-                        out += "FUNCALL_3";
-                        i += 1;
-                        break;
-
-                    case Pop::op():
-                        out += "POP";
-                        i += 1;
-                        break;
-
-                    case MakePair::op():
-                        out += "MAKE_PAIR";
-                        i += 1;
-                        break;
-
-                    case Not::op():
-                        out += Not::name();
-                        i += sizeof(Not);
-                        break;
-
-                    case First::op():
-                        out += First::name();
-                        i += sizeof(First);
-                        break;
-
-                    case Rest::op():
-                        out += Rest::name();
-                        i += sizeof(Rest);
-                        break;
-
-                    case Dup::op():
-                        out += Dup::name();
-                        i += 1;
-                        break;
-
-                    case EarlyRet::op():
-                        out += EarlyRet::name();
-                        i += sizeof(EarlyRet);
-                        break;
-
-                    case LexicalDef::op():
-                        out += LexicalDef::name();
-                        out += "(";
-                        out += symbol_from_offset(
-                                                  ((HostInteger<s16>*)(data->data_ + i + 1))->get());
-                        out += ")";
-                        i += sizeof(LexicalDef);
-                        break;
-
-                    case LexicalDefRelocatable::op():
-                        out += LexicalDefRelocatable::name();
-                        out += "(";
-                        out += to_string<10>(
-                                             ((HostInteger<s16>*)(data->data_ + i + 1))->get());
-                        out += ")";
-                        i += sizeof(LexicalDefRelocatable);
-                        break;
-
-                    case LexicalFramePush::op():
-                        out += LexicalFramePush::name();
-                        i += sizeof(LexicalFramePush);
-                        break;
-
-                    case LexicalFramePop::op():
-                        out += LexicalFramePop::name();
-                        i += sizeof(LexicalFramePop);
-                        break;
-
-                    case LexicalVarLoad::op():
-                        out += LexicalVarLoad::name();
-                        i += sizeof(LexicalVarLoad);
-                        break;
-
-                    case Ret::op(): {
-                        if (depth == 0) {
-                            out += "RET\r\n";
-                            auto pfrm = interp_get_pfrm();
-                            pfrm->remote_console().printline(out.c_str(),
-                                                             false);
-                            ((Platform*)pfrm)->sleep(80);
-                            return get_nil();
-                        } else {
-                            --depth;
-                            out += "RET";
-                            i += 1;
-                        }
-                        break;
-                    }
-
-                    default:
-                        interp_get_pfrm()->remote_console().printline(
-                                                                      out.c_str(), false);
-                        interp_get_pfrm()->sleep(80);
-                        return get_nil();
-                    }
-                    out += "\r\n";
-                }
-                return get_nil();
-            } else if (get_op0()->hdr_.mode_bits_ ==
-                       Function::ModeBits::lisp_function) {
-                auto expression_list =
-                    dcompr(get_op0()->function().lisp_impl_.code_);
-
-                DefaultPrinter p;
-                format(expression_list, p);
-
-                interp_get_pfrm()->remote_console().printline(p.fmt_.c_str(),
-                                                              false);
-                interp_get_pfrm()->sleep(80);
-                return get_nil();
-
-            } else {
-                return get_nil();
-            }
-        }}
-};
-
+             // clang-format on
+             return "???";
+         }());
+     }},
+    {"string",
+     [](int argc) {
+         EvalBuffer b;
+         EvalPrinter p(b);
+
+         for (int i = argc - 1; i > -1; --i) {
+             auto val = get_op(i);
+             if (val->type() == Value::Type::string) {
+                 p.put_str(val->string().value());
+             } else {
+                 format_impl(val, p, 0);
+             }
+         }
+
+         if (auto pfrm = interp_get_pfrm()) {
+             return make_string(*pfrm, b.c_str());
+         }
+         return L_NIL;
+     }},
+    {"bound",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, symbol);
+
+         auto found = globals_tree_find(get_op0());
+         return make_integer(found not_eq get_nil() and
+                             found->type() not_eq lisp::Value::Type::error);
+     }},
+    {"filter",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, cons);
+         L_EXPECT_OP(1, function);
+
+         auto fn = get_op1();
+         Value* result = make_cons(L_NIL, L_NIL);
+         auto prev = result;
+         auto current = result;
+
+         foreach (get_op0(), [&](Value* val) {
+             push_op(result); // gc protect
+
+             push_op(val);
+             funcall(fn, 1);
+             auto funcall_result = get_op0();
+
+             if (is_boolean_true(funcall_result)) {
+                 current->cons().set_car(val);
+                 auto next = make_cons(L_NIL, L_NIL);
+                 if (next == bound_context->oom_) {
+                     current = result;
+                     return;
+                 }
+                 current->cons().set_cdr(next);
+                 prev = current;
+                 current = next;
+             }
+             pop_op(); // funcall result
+
+             pop_op(); // gc unprotect
+         })
+             ;
+
+         if (current == result) {
+             return L_NIL;
+         }
+
+         prev->cons().set_cdr(L_NIL);
+
+         return result;
+     }},
+    {"map",
+     [](int argc) {
+         if (argc < 2) {
+             return get_nil();
+         }
+         if (lisp::get_op(argc - 1)->type() not_eq Value::Type::function and
+             lisp::get_op(argc - 1)->type() not_eq Value::Type::cons) {
+             return lisp::make_error(lisp::Error::Code::invalid_argument_type,
+                                     L_NIL);
+         }
+
+         // I've never seen map used with so many input lists, but who knows,
+         // someone might try to call this with more than six inputs...
+         Buffer<Value*, 6> inp_lats;
+
+         if (argc < static_cast<int>(inp_lats.size())) {
+             return get_nil(); // TODO: return error
+         }
+
+         for (int i = 0; i < argc - 1; ++i) {
+             L_EXPECT_OP(i, cons);
+             inp_lats.push_back(get_op(i));
+         }
+
+         const auto len = length(inp_lats[0]);
+         if (len == 0) {
+             return get_nil();
+         }
+         for (auto& l : inp_lats) {
+             if (length(l) not_eq len) {
+                 return get_nil(); // return error instead!
+             }
+         }
+
+         auto fn = get_op(argc - 1);
+
+         int index = 0;
+
+         Value* result = make_list(len);
+         push_op(result); // protect from the gc
+
+         // Because the length function returned a non-zero value, we've
+         // already succesfully scanned the list, so we don't need to do any
+         // type checking.
+
+         while (index < len) {
+
+             for (auto& lat : reversed(inp_lats)) {
+                 push_op(lat->cons().car());
+                 lat = lat->cons().cdr();
+             }
+             funcall(fn, inp_lats.size());
+
+             set_list(result, index, get_op0());
+             pop_op();
+
+             ++index;
+         }
+
+         pop_op(); // the protected result list
+
+         return result;
+     }},
+    {"reverse",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, cons);
+
+         Value* result = get_nil();
+         foreach (get_op0(), [&](Value* car) {
+             push_op(result);
+             result = make_cons(car, result);
+             pop_op();
+         })
+             ;
+
+         return result;
+     }},
+    {"select",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, cons);
+         L_EXPECT_OP(1, cons);
+
+         const auto len = length(get_op0());
+         if (not len or len not_eq length(get_op1())) {
+             return get_nil();
+         }
+
+         auto input_list = get_op1();
+         auto selection_list = get_op0();
+
+         auto result = get_nil();
+         for (int i = len - 1; i > -1; --i) {
+             if (is_boolean_true(get_list(selection_list, i))) {
+                 push_op(result);
+                 auto next = make_cons(get_list(input_list, i), result);
+                 result = next;
+                 pop_op(); // result
+             }
+         }
+
+         return result;
+     }},
+    {"gc", [](int argc) { return make_integer(run_gc()); }},
+    {"get",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, cons);
+         L_EXPECT_OP(0, integer);
+
+         return get_list(get_op1(), get_op0()->integer().value_);
+     }},
+    {"read",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, string);
+         BasicCharSequence seq(get_op0()->string().value());
+         read(seq);
+         auto result = get_op0();
+         pop_op();
+         return result;
+     }},
+    {"eval",
+     [](int argc) {
+         if (argc < 1) {
+             return lisp::make_error(lisp::Error::Code::invalid_argc, L_NIL);
+         }
+
+         eval(get_op0());
+         auto result = get_op0();
+         pop_op(); // result
+
+         return result;
+     }},
+    {"globals", [](int argc) { return bound_context->globals_tree_; }},
+    {"this", [](int argc) { return bound_context->this_; }},
+    {"argc",
+     [](int argc) {
+         // NOTE: This works because native functions do not assign
+         // current_fn_argc_.
+         return make_integer(bound_context->current_fn_argc_);
+     }},
+    {"env",
+     [](int argc) {
+         auto pfrm = interp_get_pfrm();
+
+         Value* result = make_cons(get_nil(), get_nil());
+         push_op(result); // protect from the gc
+
+         Value* current = result;
+
+         get_env([&current, pfrm](const char* str) {
+             current->cons().set_car(intern_to_symbol(str));
+             auto next = make_cons(get_nil(), get_nil());
+             if (next not_eq bound_context->oom_) {
+                 current->cons().set_cdr(next);
+                 current = next;
+             }
+         });
+
+         pop_op(); // result
+
+         return result;
+     }},
+    {"compile",
+     [](int argc) {
+         auto pfrm = interp_get_pfrm();
+
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, function);
+
+         if (get_op0()->hdr_.mode_bits_ == Function::ModeBits::lisp_function) {
+             compile(*pfrm, dcompr(get_op0()->function().lisp_impl_.code_));
+             auto ret = get_op0();
+             pop_op();
+             return ret;
+         } else {
+             return get_op0();
+         }
+     }},
+    {"disassemble", [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, function);
+
+         if (get_op0()->hdr_.mode_bits_ ==
+             Function::ModeBits::lisp_bytecode_function) {
+
+             Platform::RemoteConsole::Line out;
+
+             u8 depth = 0;
+
+             auto buffer = get_op0()->function().bytecode_impl_.databuffer();
+
+             auto data = buffer->data_buffer().value();
+
+             const auto start_offset = get_op0()
+                                           ->function()
+                                           .bytecode_impl_.bytecode_offset()
+                                           ->integer()
+                                           .value_;
+
+             for (int i = start_offset; i < SCRATCH_BUFFER_SIZE;) {
+
+                 const auto offset = to_string<10>(i - start_offset);
+                 if (offset.length() < 4) {
+                     for (u32 i = 0; i < 4 - offset.length(); ++i) {
+                         out.push_back('0');
+                     }
+                 }
+
+                 out += offset;
+                 out += ": ";
+
+                 using namespace instruction;
+
+                 switch ((Opcode)(*data).data_[i]) {
+                 case Fatal::op():
+                     return get_nil();
+
+                 case LoadVar::op():
+                     i += 1;
+                     out += "LOAD_VAR(";
+                     out += symbol_from_offset(
+                         ((HostInteger<s16>*)(data->data_ + i))->get());
+                     out += ")";
+                     i += 2;
+                     break;
+
+                 case LoadVarRelocatable::op():
+                     i += 1;
+                     out += "LOAD_VAR_RELOCATABLE(";
+                     out += to_string<10>(
+                         ((HostInteger<s16>*)(data->data_ + i))->get());
+                     out += ")";
+                     i += 2;
+                     break;
+
+                 case PushSymbol::op():
+                     i += 1;
+                     out += "PUSH_SYMBOL(";
+                     out += symbol_from_offset(
+                         ((HostInteger<s16>*)(data->data_ + i))->get());
+                     out += ")";
+                     i += 2;
+                     break;
+
+                 case PushSymbolRelocatable::op():
+                     i += 1;
+                     out += "PUSH_SYMBOL_RELOCATABLE(";
+                     out += to_string<10>(
+                         ((HostInteger<s16>*)(data->data_ + i))->get());
+                     out += ")";
+                     i += 2;
+                     break;
+
+                 case PushString::op(): {
+                     i += 1;
+                     out += PushString::name();
+                     out += "(\"";
+                     u8 len = *(data->data_ + (i++));
+                     out += data->data_ + i;
+                     out += "\")";
+                     i += len;
+                     break;
+                 }
+
+                 case PushNil::op():
+                     out += "PUSH_NIL";
+                     i += 1;
+                     break;
+
+                 case Push0::op():
+                     i += 1;
+                     out += "PUSH_0";
+                     break;
+
+                 case Push1::op():
+                     i += 1;
+                     out += "PUSH_1";
+                     break;
+
+                 case Push2::op():
+                     i += 1;
+                     out += "PUSH_2";
+                     break;
+
+                 case PushInteger::op():
+                     i += 1;
+                     out += "PUSH_INTEGER(";
+                     out += to_string<10>(
+                         ((HostInteger<s32>*)(data->data_ + i))->get());
+                     out += ")";
+                     i += 4;
+                     break;
+
+                 case PushSmallInteger::op():
+                     out += "PUSH_SMALL_INTEGER(";
+                     out += to_string<10>(*(data->data_ + i + 1));
+                     out += ")";
+                     i += 2;
+                     break;
+
+                 case JumpIfFalse::op():
+                     out += "JUMP_IF_FALSE(";
+                     out += to_string<10>(
+                         ((HostInteger<u16>*)(data->data_ + i + 1))->get());
+                     out += ")";
+                     i += 3;
+                     break;
+
+                 case Jump::op():
+                     out += "JUMP(";
+                     out += to_string<10>(
+                         ((HostInteger<u16>*)(data->data_ + i + 1))->get());
+                     out += ")";
+                     i += 3;
+                     break;
+
+                 case SmallJumpIfFalse::op():
+                     out += "SMALL_JUMP_IF_FALSE(";
+                     out += to_string<10>(*(data->data_ + i + 1));
+                     out += ")";
+                     i += 2;
+                     break;
+
+                 case SmallJump::op():
+                     out += "SMALL_JUMP(";
+                     out += to_string<10>(*(data->data_ + i + 1));
+                     out += ")";
+                     i += 2;
+                     break;
+
+                 case PushLambda::op():
+                     out += "PUSH_LAMBDA(";
+                     out += to_string<10>(
+                         ((HostInteger<u16>*)(data->data_ + i + 1))->get());
+                     out += ")";
+                     i += 3;
+                     ++depth;
+                     break;
+
+                 case PushThis::op():
+                     out += PushThis::name();
+                     i += sizeof(PushThis);
+                     break;
+
+                 case Arg::op():
+                     out += Arg::name();
+                     i += sizeof(Arg);
+                     break;
+
+                 case Arg0::op():
+                     out += Arg0::name();
+                     i += sizeof(Arg0);
+                     break;
+
+                 case Arg1::op():
+                     out += Arg1::name();
+                     i += sizeof(Arg1);
+                     break;
+
+                 case Arg2::op():
+                     out += Arg2::name();
+                     i += sizeof(Arg2);
+                     break;
+
+                 case TailCall::op():
+                     out += TailCall::name();
+                     out += "(";
+                     out += to_string<10>(*(data->data_ + i + 1));
+                     out += ")";
+                     i += 2;
+                     break;
+
+                 case TailCall1::op():
+                     out += TailCall1::name();
+                     ++i;
+                     break;
+
+                 case TailCall2::op():
+                     out += TailCall2::name();
+                     ++i;
+                     break;
+
+                 case TailCall3::op():
+                     out += TailCall3::name();
+                     ++i;
+                     break;
+
+                 case Funcall::op():
+                     out += "FUNCALL(";
+                     out += to_string<10>(*(data->data_ + i + 1));
+                     out += ")";
+                     i += 2;
+                     break;
+
+                 case PushList::op():
+                     out += "PUSH_LIST(";
+                     out += to_string<10>(*(data->data_ + i + 1));
+                     out += ")";
+                     i += 2;
+                     break;
+
+                 case Funcall1::op():
+                     out += "FUNCALL_1";
+                     i += 1;
+                     break;
+
+                 case Funcall2::op():
+                     out += "FUNCALL_2";
+                     i += 1;
+                     break;
+
+                 case Funcall3::op():
+                     out += "FUNCALL_3";
+                     i += 1;
+                     break;
+
+                 case Pop::op():
+                     out += "POP";
+                     i += 1;
+                     break;
+
+                 case MakePair::op():
+                     out += "MAKE_PAIR";
+                     i += 1;
+                     break;
+
+                 case Not::op():
+                     out += Not::name();
+                     i += sizeof(Not);
+                     break;
+
+                 case First::op():
+                     out += First::name();
+                     i += sizeof(First);
+                     break;
+
+                 case Rest::op():
+                     out += Rest::name();
+                     i += sizeof(Rest);
+                     break;
+
+                 case Dup::op():
+                     out += Dup::name();
+                     i += 1;
+                     break;
+
+                 case EarlyRet::op():
+                     out += EarlyRet::name();
+                     i += sizeof(EarlyRet);
+                     break;
+
+                 case LexicalDef::op():
+                     out += LexicalDef::name();
+                     out += "(";
+                     out += symbol_from_offset(
+                         ((HostInteger<s16>*)(data->data_ + i + 1))->get());
+                     out += ")";
+                     i += sizeof(LexicalDef);
+                     break;
+
+                 case LexicalDefRelocatable::op():
+                     out += LexicalDefRelocatable::name();
+                     out += "(";
+                     out += to_string<10>(
+                         ((HostInteger<s16>*)(data->data_ + i + 1))->get());
+                     out += ")";
+                     i += sizeof(LexicalDefRelocatable);
+                     break;
+
+                 case LexicalFramePush::op():
+                     out += LexicalFramePush::name();
+                     i += sizeof(LexicalFramePush);
+                     break;
+
+                 case LexicalFramePop::op():
+                     out += LexicalFramePop::name();
+                     i += sizeof(LexicalFramePop);
+                     break;
+
+                 case LexicalVarLoad::op():
+                     out += LexicalVarLoad::name();
+                     i += sizeof(LexicalVarLoad);
+                     break;
+
+                 case Ret::op(): {
+                     if (depth == 0) {
+                         out += "RET\r\n";
+                         auto pfrm = interp_get_pfrm();
+                         pfrm->remote_console().printline(out.c_str(), false);
+                         ((Platform*)pfrm)->sleep(80);
+                         return get_nil();
+                     } else {
+                         --depth;
+                         out += "RET";
+                         i += 1;
+                     }
+                     break;
+                 }
+
+                 default:
+                     interp_get_pfrm()->remote_console().printline(out.c_str(),
+                                                                   false);
+                     interp_get_pfrm()->sleep(80);
+                     return get_nil();
+                 }
+                 out += "\r\n";
+             }
+             return get_nil();
+         } else if (get_op0()->hdr_.mode_bits_ ==
+                    Function::ModeBits::lisp_function) {
+             auto expression_list =
+                 dcompr(get_op0()->function().lisp_impl_.code_);
+
+             DefaultPrinter p;
+             format(expression_list, p);
+
+             interp_get_pfrm()->remote_console().printline(p.fmt_.c_str(),
+                                                           false);
+             interp_get_pfrm()->sleep(80);
+             return get_nil();
+
+         } else {
+             return get_nil();
+         }
+     }}};
 
 
 void bind_functions(const Binding* bindings, int count)
@@ -3327,7 +3344,6 @@ void bind_functions(const Binding* bindings, int count)
         set_var(bindings[i].name_, lisp::make_function(bindings[i].function_));
     }
 }
-
 
 
 void init(Platform& pfrm)
@@ -3386,7 +3402,7 @@ void init(Platform& pfrm)
                 }
 
                 return result.result();
-    }));
+            }));
 #endif
 }
 

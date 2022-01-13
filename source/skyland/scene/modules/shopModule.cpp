@@ -1,10 +1,10 @@
 #include "shopModule.hpp"
-#include "skyland/scene/titleScreenScene.hpp"
+#include "localization.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/room_metatable.hpp"
-#include "skyland/skyland.hpp"
-#include "localization.hpp"
+#include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -39,15 +39,11 @@ static const ShopItem shop_items[shop_item_count] = {
     {
         ShopItem::Type::room,
         metaclass_index("decimator"),
-    }
-};
+    }};
 
 
 
-static const Coins shop_item_costs[shop_item_count] = {
-    10000,
-    1000000
-};
+static const Coins shop_item_costs[shop_item_count] = {10000, 1000000};
 
 
 
@@ -66,7 +62,9 @@ void ShopModule::repaint(Platform& pfrm, App& app)
     auto name = [&](int index) {
         switch (shop_items[index].type_) {
         case ShopItem::Type::drone:
-            return drone_metatable().first[shop_items[index].class_index_]->name();
+            return drone_metatable()
+                .first[shop_items[index].class_index_]
+                ->name();
 
         case ShopItem::Type::room:
             return (*load_metaclass(shop_items[index].class_index_))->name();
@@ -114,7 +112,9 @@ void ShopModule::repaint(Platform& pfrm, App& app)
     auto sel_icon = [&](int index) {
         switch (shop_items[index].type_) {
         case ShopItem::Type::drone:
-            return drone_metatable().first[shop_items[index].class_index_]->icon();
+            return drone_metatable()
+                .first[shop_items[index].class_index_]
+                ->icon();
 
         case ShopItem::Type::room:
             return (*load_metaclass(shop_items[index].class_index_))->icon();
@@ -125,10 +125,13 @@ void ShopModule::repaint(Platform& pfrm, App& app)
     auto unsel_icon = [&](int index) {
         switch (shop_items[index].type_) {
         case ShopItem::Type::drone:
-            return drone_metatable().first[shop_items[index].class_index_]->unsel_icon();
+            return drone_metatable()
+                .first[shop_items[index].class_index_]
+                ->unsel_icon();
 
         case ShopItem::Type::room:
-            return (*load_metaclass(shop_items[index].class_index_))->unsel_icon();
+            return (*load_metaclass(shop_items[index].class_index_))
+                ->unsel_icon();
         }
         return u16(0);
     };
@@ -212,8 +215,7 @@ void ShopModule::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-ScenePtr<Scene>
-ShopModule::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> ShopModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Module::update(pfrm, app, delta);
 
@@ -244,7 +246,7 @@ ShopModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-    // ShopModule::Factory ShopModule::factory_;
+// ShopModule::Factory ShopModule::factory_;
 
 
 

@@ -323,7 +323,8 @@ static inline void on_stack_overflow()
     memcpy32(MEM_SCREENBLOCKS[sbb_overlay_tiles],
              overlay_back_buffer,
              (sizeof(u16) * (21 * 32)) / 4);
-    while (true) ;
+    while (true)
+        ;
 }
 
 
@@ -2040,7 +2041,8 @@ void Platform::Screen::fade(float amount,
             MEM_BG_PALETTE[32 + i] = blend(from, c, amt);
         }
         for (int i = 0; i < 16; ++i) {
-            auto from = Color::from_bgr_hex_555(background_textures[0].palette_data_[i]);
+            auto from = Color::from_bgr_hex_555(
+                background_textures[0].palette_data_[i]);
             MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, amt);
         }
         // Overlay palette
@@ -3095,7 +3097,7 @@ static void watchdog_update_isr()
             on_stack_overflow();
         } else {
             if (::platform and ::unrecoverrable_error_callback) {
-            (*::unrecoverrable_error_callback)(*platform);
+                (*::unrecoverrable_error_callback)(*platform);
             }
         }
 
@@ -4146,8 +4148,7 @@ void Platform::set_tile(Layer layer, u16 x, u16 y, u16 val)
         if (x > 31 or y > 32) {
             return;
         }
-        MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32] = val | SE_PALBANK(11)
-            ;
+        MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32] = val | SE_PALBANK(11);
         break;
     }
 }
@@ -5286,7 +5287,6 @@ void* Platform::system_call(const char* feature_name, void* arg)
     } else if (str_cmp(feature_name, "dlc-download") == 0) {
         read_dlc(*this);
     } else if (str_cmp(feature_name, "get-flag-palette") == 0) {
-
     }
 
     return nullptr;

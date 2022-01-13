@@ -1,8 +1,8 @@
 #include "selInputScene.hpp"
 #include "globals.hpp"
-#include "skyland/skyland.hpp"
-#include "readyScene.hpp"
 #include "inspectP2Scene.hpp"
+#include "readyScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -30,7 +30,8 @@ void SelInputScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
     }
 
-    cached_near_cursor_ = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    cached_near_cursor_ =
+        std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
     cached_far_cursor_ = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 }
 
@@ -47,9 +48,8 @@ void SelInputScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-ScenePtr<Scene> SelInputScene::update(Platform& pfrm,
-                                      App& app,
-                                      Microseconds delta)
+ScenePtr<Scene>
+SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return scene;
@@ -67,7 +67,8 @@ ScenePtr<Scene> SelInputScene::update(Platform& pfrm,
 
         near_camera();
 
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
         if (app.player().key_down(pfrm, Key::left)) {
             if (cursor_loc.x > 0) {
@@ -107,7 +108,8 @@ ScenePtr<Scene> SelInputScene::update(Platform& pfrm,
 
         far_camera();
 
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
         if (app.player().key_down(pfrm, Key::left)) {
             if (cursor_loc.x > 0) {
@@ -146,8 +148,8 @@ ScenePtr<Scene> SelInputScene::update(Platform& pfrm,
             near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
                   : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
-        lisp::push_op(lisp::make_userdata(near_ ? &app.player_island() :
-                                          &*app.opponent_island()));
+        lisp::push_op(lisp::make_userdata(near_ ? &app.player_island()
+                                                : &*app.opponent_island()));
 
         lisp::push_op(lisp::make_integer(cursor_loc.x));
         lisp::push_op(lisp::make_integer(cursor_loc.y));
@@ -155,8 +157,10 @@ ScenePtr<Scene> SelInputScene::update(Platform& pfrm,
         lisp::funcall(parameters_->cons().cdr(), 3);
         lisp::pop_op(); // TODO: check for lisp::Error.
 
-        std::get<SkylandGlobalData>(globals()).near_cursor_loc_ = cached_near_cursor_;
-        std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = cached_far_cursor_;
+        std::get<SkylandGlobalData>(globals()).near_cursor_loc_ =
+            cached_near_cursor_;
+        std::get<SkylandGlobalData>(globals()).far_cursor_loc_ =
+            cached_far_cursor_;
 
         if (started_near_) {
             return scene_pool::alloc<ReadyScene>();
@@ -181,7 +185,8 @@ void SelInputScene::display(Platform& pfrm, App& app)
     if (near_) {
         auto origin = app.player_island().visual_origin();
 
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
         origin.x += cursor_loc.x * 16;
         origin.y += cursor_loc.y * 16;
@@ -190,7 +195,8 @@ void SelInputScene::display(Platform& pfrm, App& app)
     } else if (app.opponent_island()) {
         auto origin = app.opponent_island()->visual_origin();
 
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
         origin.x += cursor_loc.x * 16;
         origin.y += cursor_loc.y * 16;
@@ -203,4 +209,4 @@ void SelInputScene::display(Platform& pfrm, App& app)
 
 
 
-}
+} // namespace skyland

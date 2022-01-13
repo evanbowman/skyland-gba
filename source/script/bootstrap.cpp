@@ -1,8 +1,8 @@
 #include "memory/pool.hpp"
 #include "memory/rc.hpp"
+#include "number/random.hpp"
 #include "platform/platform.hpp"
 #include <iostream>
-#include "number/random.hpp"
 
 
 // This file should contain the minimal subset of platform code necessary for
@@ -20,8 +20,8 @@ rng::Value rng::get(LinearGenerator& gen)
 
 
 ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
-               scratch_buffer_count>
-        scratch_buffer_pool;
+           scratch_buffer_count>
+    scratch_buffer_pool;
 
 
 ScratchBufferPtr Platform::make_scratch_buffer()

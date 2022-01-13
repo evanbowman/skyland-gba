@@ -1,8 +1,8 @@
 #include "boxedDialogScene.hpp"
 #include "graphics/overlay.hpp"
+#include "inspectP2Scene.hpp"
 #include "localization.hpp"
 #include "readyScene.hpp"
-#include "inspectP2Scene.hpp"
 #include "scriptHookScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -399,7 +399,6 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             return scene_pool::alloc<ReadyScene>();
         }
-
     }
 
     return null_scene();

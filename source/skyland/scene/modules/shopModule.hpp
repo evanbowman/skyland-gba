@@ -38,7 +38,6 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 private:
-
     void repaint(Platform&, App&);
 
     int selector_ = 0;
