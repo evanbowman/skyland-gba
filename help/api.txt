@@ -308,6 +308,28 @@ o----------------------------o
 
 o----------------------------o
 
+ (sel-input msg callback)
+
+ Opens up a selection prompt
+ ingame, with string msg.
+ When the user presses the A
+ button, the game will invoke
+ function callback with
+ parameters island, x, y.
+
+ For example:
+
+(sel-input "pick a coord:"
+ (lambda
+  (log (string
+        "user entered "
+        $0
+        $1
+        $2))))
+
+
+o----------------------------o
+
  (setvar name value)
 
  Set SKYLAND system variable
