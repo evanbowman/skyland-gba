@@ -150,7 +150,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                                 [&]() -> std::optional<Vec2<u8>> {
                                 for (auto it = boarded_ai_characters.begin();
                                      it not_eq boarded_ai_characters.end();) {
-                                    if ((*it).first->health() < 25) {
+                                    if ((*it).first->health() < 25 and not
+                                        (*it).first->is_replicant()) {
                                         it = boarded_ai_characters.erase(it);
                                         return (*it).first->grid_position();
                                     } else {
@@ -454,7 +455,9 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 // If our health is really low, we probably want to go to the
                 // infirmary. If our health is just kinda low, we maybe want to
                 // go to the infirmary.
-                if (character.health() < 25) {
+                if (character.is_replicant()) {
+                    // Replicants cannot heal, so don't bother.
+                } else if (character.health() < 25) {
                     slot.ai_weight_ += 2000.f;
                 } else if (character.health() < 200 and
                            not player_characters_local) {
