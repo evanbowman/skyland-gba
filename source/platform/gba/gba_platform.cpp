@@ -25,10 +25,41 @@
 #include "util.hpp"
 #include "vector.hpp"
 #include <algorithm>
+#include <setjmp.h>
+
+
+extern char __iwram_overlay_end;
 
 
 
-void english__to_string(int num, char* buffer, int base);
+static const char* stack_canary_value = "（・θ・）";
+
+
+
+static void canary_init()
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+
+    __builtin_memcpy(&__iwram_overlay_end, stack_canary_value, 16);
+
+#pragma GCC diagnostic pop
+}
+
+
+
+static inline bool canary_check()
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+
+    return __builtin_memcmp(&__iwram_overlay_end, stack_canary_value, 16) == 0;
+
+#pragma GCC diagnostic pop
+}
+
 
 
 #include "gba.h"
@@ -54,7 +85,13 @@ public:
 } // namespace
 
 
+
+static ScreenBlock overlay_back_buffer alignas(u32);
+static bool overlay_back_buffer_changed = false;
+
+
 static int overlay_y = 0;
+
 
 
 enum class GlobalFlag {
@@ -219,12 +256,30 @@ void start(Platform&);
 static Platform* platform;
 
 
-// Thanks to Windows, main is technically platform specific (WinMain)
+
+// NOTE: If we encountered a stack overflow, me may not have enough stack space
+// to print out an error message without messing things up even more. So, save a
+// context from which we can safely display a stack overflow message.
+static jmp_buf stack_overflow_resume_context;
+
+
+
+static inline void on_stack_overflow();
+
+
+
 int main(int argc, char** argv)
 {
     gflags.clear();
 
     Platform pf;
+
+    const int resume = setjmp(stack_overflow_resume_context);
+    if (resume) {
+        ::platform = &pf; // In case it was corrupted.
+        on_stack_overflow();
+    }
+
     start(pf);
 }
 
@@ -235,6 +290,42 @@ const char* Platform::get_opt(char opt)
     // an operating system.
     return nullptr;
 }
+
+
+
+void print_char(Platform& pfrm,
+                utf8::Codepoint c,
+                const OverlayCoord& coord,
+                const std::optional<FontColors>& colors = {});
+
+
+
+static inline void on_stack_overflow()
+{
+    static const auto bkg_color = custom_color(0xcb1500);
+    ::platform->screen().fade(1.f, bkg_color);
+    ::platform->fill_overlay(0);
+    irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
+    static const Text::OptColors text_colors{
+        {custom_color(0xffffff), bkg_color}};
+    static const Text::OptColors text_colors_inv{
+        {text_colors->background_, text_colors->foreground_}};
+
+    u8 write_pos = 3;
+
+    const char* msg = "stack overflow detected";
+    while (*msg not_eq '\0') {
+        print_char(*::platform, *msg, {write_pos, 7}, text_colors_inv);
+        ++write_pos;
+        ++msg;
+    }
+
+    memcpy32(MEM_SCREENBLOCKS[sbb_overlay_tiles],
+             overlay_back_buffer,
+             (sizeof(u16) * (21 * 32)) / 4);
+    while (true) ;
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1228,6 +1319,10 @@ void Platform::Screen::clear()
     audio_update_fallback = false;
     buffer_needs_sfx = nullptr;
 
+    if (not canary_check()) {
+        longjmp(stack_overflow_resume_context, 1);
+    }
+
     // VSync
     VBlankIntrWait();
 
@@ -1295,9 +1390,6 @@ static void keypad_isr()
     restart();
 }
 
-
-static ScreenBlock overlay_back_buffer alignas(u32);
-static bool overlay_back_buffer_changed = false;
 
 
 void Platform::Screen::display()
@@ -2984,8 +3076,17 @@ static void watchdog_update_isr()
 
         ::platform->speaker().stop_music();
 
-        if (::platform and ::unrecoverrable_error_callback) {
+        if (not canary_check()) {
+            REG_SOUNDCNT_X = 0; // Disable the sound chip.
+            // on_stack_overflow() disables some interrupts, but we want to
+            // disable additional ones, as we will not be leaving this interrupt
+            // handler.
+            irqDisable(IRQ_TIMER1 | IRQ_SERIAL);
+            on_stack_overflow();
+        } else {
+            if (::platform and ::unrecoverrable_error_callback) {
             (*::unrecoverrable_error_callback)(*platform);
+            }
         }
 
         // this seems not to work :(
@@ -3299,6 +3400,8 @@ extern char __rom_end__;
 Platform::Platform()
 {
     ::platform = this;
+
+    canary_init();
 
     // NOTE: these colors were a custom hack I threw in during the GBA game jam,
     // when I wanted background tiles to flicker between a few different colors.

@@ -149,10 +149,10 @@ void print_double_char(Platform& pfrm,
 }
 
 
-static void print_char(Platform& pfrm,
-                       utf8::Codepoint c,
-                       const OverlayCoord& coord,
-                       const std::optional<FontColors>& colors = {})
+void print_char(Platform& pfrm,
+                utf8::Codepoint c,
+                const OverlayCoord& coord,
+                const std::optional<FontColors>& colors = {})
 {
     if (c == '@') {
         // Really bad hack, to show a full color coin icon in place of the '@'
