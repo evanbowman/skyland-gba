@@ -21,6 +21,7 @@
 #include "skyland/rooms/workshop.hpp"
 #include "skyland/rooms/reactor.hpp"
 #include "skyland/rooms/fieldHull.hpp"
+#include "skyland/rooms/ionFizzler.hpp"
 
 
 
@@ -34,6 +35,7 @@ static auto& __metatable()
                          Hull,
                          Forcefield,
                          FieldHull,
+                         IonFizzler,
                          Cannon,
                          IonCannon,
                          FlakGun,
@@ -47,10 +49,10 @@ static auto& __metatable()
                          Reactor,
                          Foundry,
                          Radar,
-                         PlunderedRoom,
                          Transporter,
                          Replicator,
-                         DroneBay>
+                         DroneBay,
+                         PlunderedRoom>
         __room_metatable;
 
     return __room_metatable;

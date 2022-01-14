@@ -48,7 +48,7 @@ public:
 
     static Float ai_base_weight()
     {
-        return 701.f;
+        return 800.f;
     }
 
 

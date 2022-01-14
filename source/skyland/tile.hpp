@@ -9,7 +9,8 @@ struct Tile {
         flag_end = 5,
         roof_flag,
         flag_mount,
-        terrain_middle = 12,
+        ion_fizzler_exterior = 11,
+        terrain_middle,
         terrain_left,
         terrain_right,
         wall_window_1,
@@ -67,6 +68,7 @@ struct Tile {
         reserved_25,
         reserved_26,
         field_hull,
+        ion_fizzler,
     };
 };
 
@@ -134,5 +136,6 @@ struct InteriorTile {
         reactor_3,
         reactor_4,
         field_hull,
+        ion_fizzler,
     };
 };

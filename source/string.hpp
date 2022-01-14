@@ -29,6 +29,21 @@ inline void str_reverse(char str[], int length)
 }
 
 
+inline bool str_eq(const char* p1, const char* p2)
+{
+    while (true) {
+        if (*p1 not_eq *p2) {
+            return false;
+        }
+        if (*p1 == '\0' or *p2 == '\0') {
+            return true;
+        }
+        ++p1;
+        ++p2;
+    }
+}
+
+
 inline int str_cmp(const char* p1, const char* p2)
 {
     const unsigned char* s1 = (const unsigned char*)p1;
