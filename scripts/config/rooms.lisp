@@ -11,6 +11,7 @@
  '((hull         240 300  0)
    (forcefield   240 300  40)
    (power-core   60  3000 -150)
+   (reactor      100 4200 -380)
    (cannon       200 1000 34)
    (ion-cannon   150 800  30)
    (flak-gun     125 2000 34)
@@ -24,4 +25,5 @@
    (replicator   80  2500 80)
    (drone-bay    200 2100 36)
    (decimator    140 3600 80)
+   (foundry      80  3000 50)
    (plundered-room 20 30 0)))

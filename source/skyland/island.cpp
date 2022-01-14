@@ -319,6 +319,8 @@ void Island::on_layout_changed(const Vec2<u8>& room_added_removed_coord)
     for (auto& room : rooms()) {
         if (str_cmp((*room->metaclass())->name(), "power-core") == 0) {
             destroyed_ = false;
+        } else if (str_cmp((*room->metaclass())->name(), "reactor") == 0) {
+            destroyed_ = false;
         }
         for (auto& chr : room->characters()) {
             if (auto path = chr->get_movement_path()) {

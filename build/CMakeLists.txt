@@ -98,6 +98,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
   ${SOURCE_DIR}/skyland/rooms/flakGun.cpp
   ${SOURCE_DIR}/skyland/rooms/foundry.cpp
+  ${SOURCE_DIR}/skyland/rooms/reactor.cpp
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
   ${SOURCE_DIR}/skyland/rooms/infestor.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp

@@ -23,6 +23,7 @@ void Foundry::update(Platform& pfrm, App& app, Microseconds delta)
 
 void Foundry::render_interior(App& app, u8 buffer[16][16])
 {
+    // TODO: custom graphics
     buffer[position().x][position().y] = InteriorTile::workshop_1;
     buffer[position().x][position().y + 1] = InteriorTile::workshop_2;
     buffer[position().x + 1][position().y] = InteriorTile::workshop_3;

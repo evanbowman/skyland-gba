@@ -19,6 +19,7 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
+#include "skyland/rooms/reactor.hpp"
 
 
 
@@ -41,6 +42,7 @@ static auto& __metatable()
                          Workshop,
                          Infirmary,
                          Core,
+                         Reactor,
                          Foundry,
                          Radar,
                          PlunderedRoom,

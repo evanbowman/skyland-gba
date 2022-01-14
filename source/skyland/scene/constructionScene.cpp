@@ -585,17 +585,47 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 {
     available_buildings_.clear();
 
-    int avail_space = 1;
+    u8 matrix[16][16];
+    island(app)->plot_rooms(matrix);
+
+    int avail_x_space = 0;
 
     const auto current = construction_sites_[selector_];
-    for (auto& site : construction_sites_) {
-        if (site.y == current.y and site.x == current.x + 1) {
-            // FIXME: buildings wider than 2, various other cases
-            avail_space = 2;
+
+
+    // Avail y space per x coordinate of the room that we're constructing.
+    u8 avail_y_space[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    for (int x = current.x; x < (int)island(app)->terrain().size(); ++x) {
+        if (matrix[x][current.y]) {
+            break;
         }
+        for (int y = current.y; y > 1; --y) {
+            if (matrix[x][y]) {
+                break;
+            }
+            ++avail_y_space[x - current.x];
+        }
+        ++avail_x_space;
     }
 
-    const int avail_y_space = current.y - construction_zone_min_y;
+    if (avail_x_space == 0) {
+        // We should have started with a construction site known to be valid, so
+        // the minimum space available should 1,1.
+        Platform::fatal("collect_avail_buildings(): logic error");
+    }
+
+
+    auto calc_avail_y_space = [&](int room_width) {
+        int min = avail_y_space[0];
+        for (int x = 0; x < room_width; ++x) {
+            if (avail_y_space[x] < min) {
+                min = avail_y_space[x];
+            }
+        }
+        return min;
+    };
+
 
     const auto w_count =
         island(app)->workshop_count() + island(app)->foundry_count();
@@ -612,8 +642,8 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         const bool foundry_required =
             (meta->conditions() & Conditions::foundry_required);
 
-        if (meta->size().x <= avail_space and
-            meta->size().y <= avail_y_space and
+        if (meta->size().x <= avail_x_space and
+            meta->size().y <= calc_avail_y_space(meta->size().x) and
             (not foundry_required or (foundry_required and f_count > 0) or
              app.game_mode() == App::GameMode::sandbox) and
             (not workshop_required or (workshop_required and w_count > 0) or
