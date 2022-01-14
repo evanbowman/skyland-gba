@@ -75,7 +75,14 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
         }
     }
 
-    if (room.metaclass() not_eq forcefield_mt) {
+    const bool is_reactor =
+        str_cmp((*room.metaclass())->name(), "reactor") == 0;
+
+    const bool is_field_hull =
+        str_cmp((*room.metaclass())->name(), "powered-hull") == 0;
+
+    if (room.metaclass() not_eq forcefield_mt and not is_field_hull and
+        not is_reactor) {
         return;
     }
 
@@ -84,7 +91,12 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
     app.camera().shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
-    room.apply_damage(pfrm, app, ion_burst_damage);
+    if (is_reactor) {
+        room.apply_damage(pfrm, app, 0.1 * ion_burst_damage);
+    } else {
+        room.apply_damage(pfrm, app, ion_burst_damage);
+    }
+
 }
 
 

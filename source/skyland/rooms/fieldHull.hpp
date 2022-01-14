@@ -1,5 +1,6 @@
 #pragma once
 
+#include "skyland/coins.hpp"
 #include "skyland/room.hpp"
 
 
@@ -8,10 +9,9 @@ namespace skyland {
 
 
 
-class Reactor : public Room {
+class FieldHull : public Room {
 public:
-
-    Reactor(Island* parent, const Vec2<u8>& position);
+    FieldHull(Island* parent, const Vec2<u8>& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -21,7 +21,20 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
-    bool has_chimney() override
+    void plot_walkable_zones(App& app, bool matrix[16][16]) override
+    {
+        // one cannot walk through this tile, intentionally do nothing.
+    }
+
+
+
+    bool has_roof() override
+    {
+        return false;
+    }
+
+
+    bool description_visible() override
     {
         return true;
     }
@@ -29,31 +42,31 @@ public:
 
     static Float ai_base_weight()
     {
-        return 1200.f;
+        return 2.f;
     }
 
 
     static Vec2<u8> size()
     {
-        return {2, 3};
+        return {1, 1};
     }
 
 
     static const char* name()
     {
-        return "reactor";
+        return "powered-hull";
     }
 
 
     static Icon icon()
     {
-        return 744;
+        return 520;
     }
 
 
     static Icon unsel_icon()
     {
-        return 728;
+        return 504;
     }
 
 
@@ -65,4 +78,4 @@ public:
 
 
 
-}
+} // namespace skyland

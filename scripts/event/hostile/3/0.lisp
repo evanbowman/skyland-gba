@@ -7,7 +7,7 @@
 
 (island-configure
  (opponent)
- '((power-core 8 13)
+ '((reactor 8 12)
    (power-core 6 13)
    (power-core 6 11)
    (forcefield 0 14)
@@ -30,10 +30,10 @@
    (ion-cannon 2 10)
    (hull 6 10)
    (hull 7 10)
-   (hull 8 12)
-   (hull 9 12)
    (hull 8 11)
    (hull 9 11)
+   (hull 8 10)
+   (hull 9 10)
    (hull 6 9)
    (hull 7 9)
    (hull 5 10)

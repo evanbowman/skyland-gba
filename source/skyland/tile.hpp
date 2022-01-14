@@ -62,6 +62,11 @@ struct Tile {
         decimator_1,
         decimator_2,
         reserved_22,
+        reserved_23,
+        reserved_24,
+        reserved_25,
+        reserved_26,
+        field_hull,
     };
 };
 
@@ -124,5 +129,10 @@ struct InteriorTile {
         decimator_1,
         decimator_2,
         decimator_int,
+        reactor_1,
+        reactor_2,
+        reactor_3,
+        reactor_4,
+        field_hull,
     };
 };

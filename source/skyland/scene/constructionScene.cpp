@@ -199,8 +199,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.player().key_down(pfrm, Key::up)) {
-            building_selector_ -= 5;
-            building_selector_ %= available_buildings_.size();
+            u32 sel = building_selector_;
+            sel -= 5;
+            sel %= available_buildings_.size();
+            building_selector_ = sel;
             show_current_building_text(pfrm, app);
         }
 
@@ -504,6 +506,15 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                     for (int y = 0; y < sz.y / 2; ++y) {
                         sprite.set_position(
                             {origin.x + x * 16, origin.y + y * 32});
+                        pfrm.screen().draw(sprite);
+                    }
+                }
+
+                if (sz.y % 2 not_eq 0) {
+                    // Odd sized room in y direction. Draw bottom row:
+                    sprite.set_texture_index(14);
+                    for (int x = 0; x < sz.x; ++x) {
+                        sprite.set_position({origin.x + x * 16, origin.y + (sz.y - 2) * 16});
                         pfrm.screen().draw(sprite);
                     }
                 }

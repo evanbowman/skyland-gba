@@ -12,4 +12,4 @@
  '((48 . "zone1_coin_yield")
    (36 . "zone2_coin_yield")
    (25 . "zone3_coin_yield")
-   (10 . "zone4_coin_yield")))
+   (20 . "zone4_coin_yield")))

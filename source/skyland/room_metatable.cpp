@@ -20,6 +20,7 @@
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
 #include "skyland/rooms/reactor.hpp"
+#include "skyland/rooms/fieldHull.hpp"
 
 
 
@@ -32,6 +33,7 @@ static auto& __metatable()
     static RoomMetatable<8,
                          Hull,
                          Forcefield,
+                         FieldHull,
                          Cannon,
                          IonCannon,
                          FlakGun,
