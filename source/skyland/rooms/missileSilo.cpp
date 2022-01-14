@@ -49,7 +49,18 @@ void MissileSilo::update(Platform& pfrm, App& app, Microseconds delta)
 
                     Vec2<Float> target;
 
-                    if (auto room = island->get_room(*target_)) {
+                    auto room = island->get_room(*target_);
+                    if (room and not pfrm.network_peer().is_connected()) {
+                        // Note: if we use the center of a room as a target, we
+                        // have issues with multiplayer games, where a missile
+                        // targets a 2x2 room covered by 1x1 hull blocks for
+                        // example. Because the multiplayer coordinate system is
+                        // sort of mirrored over the y-axis, a missile aimed at
+                        // the border between two 1x1 blocks might hit the left
+                        // block in one game and the right block in another. So
+                        // missiles really should be constrained to columns for
+                        // multiplayer games. Just trying to explain the
+                        // network_peer().is_connected() check above.
                         target = room->center();
                     } else {
                         auto origin = island->origin();

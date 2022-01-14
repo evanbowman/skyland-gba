@@ -120,6 +120,8 @@ void set_island_positions(Island& left_island, Island& right_island);
 
 void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
 {
+    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+
     title_.reset();
     settings_text_.clear();
 
