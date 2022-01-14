@@ -77,7 +77,7 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
 
     const bool is_reactor = str_eq((*room.metaclass())->name(), "reactor");
 
-    const bool is_field_hull = str_eq((*room.metaclass())->name(), "powered-hull");
+    const bool is_field_hull = str_eq((*room.metaclass())->name(), "energized-hull");
 
     const bool is_ion_fizzler = str_eq((*room.metaclass())->name(), "ion-fizzler");
 

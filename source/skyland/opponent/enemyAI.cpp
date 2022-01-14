@@ -718,7 +718,7 @@ void EnemyAI::set_target(Platform& pfrm,
                    str_cmp((*meta_c)->name(), "reactor") == 0) {
             w += 3 * manhattan_length(room->origin(), ion_cannon.origin());
         } else if (meta_c not_eq forcefield_mt and
-                   str_cmp((*meta_c)->name(), "powered-hull") not_eq 0) {
+                   str_cmp((*meta_c)->name(), "energized-hull") not_eq 0) {
             continue;
         } else {
             w += 3 * manhattan_length(room->origin(), ion_cannon.origin());

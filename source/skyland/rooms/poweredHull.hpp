@@ -59,7 +59,7 @@ public:
 
     static const char* name()
     {
-        return "powered-hull";
+        return "energized-hull";
     }
 
 
