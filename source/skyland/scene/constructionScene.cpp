@@ -660,7 +660,10 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             (not workshop_required or (workshop_required and w_count > 0) or
              app.game_mode() == App::GameMode::sandbox) and
             not(meta->conditions() & Conditions::not_constructible)) {
-            available_buildings_.push_back(&meta);
+            if (not available_buildings_.push_back(&meta)) {
+                Platform::fatal("TODO: available buildings buffer "
+                                "needs more memory");
+            }
         }
     }
 

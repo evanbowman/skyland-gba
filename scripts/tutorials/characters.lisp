@@ -77,8 +77,6 @@
    (150 Left)
    (549 Left)
    (183 A)
-   (783 Left)
-   (250 Left)
    (199 Left)
    (183 Left)
    (183 Left)

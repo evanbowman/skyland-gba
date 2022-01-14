@@ -9,9 +9,9 @@ namespace skyland {
 
 
 
-class FieldHull : public Room {
+class PoweredHull : public Room {
 public:
-    FieldHull(Island* parent, const Vec2<u8>& position);
+    PoweredHull(Island* parent, const Vec2<u8>& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -60,13 +60,13 @@ public:
 
     static Icon icon()
     {
-        return 520;
+        return 1208;
     }
 
 
     static Icon unsel_icon()
     {
-        return 504;
+        return 1224;
     }
 
 

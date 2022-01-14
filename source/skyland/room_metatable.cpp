@@ -20,7 +20,7 @@
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
 #include "skyland/rooms/reactor.hpp"
-#include "skyland/rooms/fieldHull.hpp"
+#include "skyland/rooms/poweredHull.hpp"
 #include "skyland/rooms/ionFizzler.hpp"
 
 
@@ -34,20 +34,20 @@ static auto& __metatable()
     static RoomMetatable<8,
                          Hull,
                          Forcefield,
-                         FieldHull,
+                         PoweredHull,
                          IonFizzler,
                          Cannon,
                          IonCannon,
                          FlakGun,
                          MissileSilo,
                          Decimator,
-                         Stairwell,
-                         Bulkhead,
                          Workshop,
-                         Infirmary,
+                         Foundry,
                          Core,
                          Reactor,
-                         Foundry,
+                         Stairwell,
+                         Bulkhead,
+                         Infirmary,
                          Radar,
                          Transporter,
                          Replicator,

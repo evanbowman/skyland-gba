@@ -16,6 +16,7 @@ namespace skyland {
 // Why metaclasses? We need to be able to request info about a room before
 // instantiating one, so mostly an organizational choice.
 struct RoomMeta {
+
     struct Box {
         virtual ~Box()
         {
@@ -32,6 +33,7 @@ struct RoomMeta {
         virtual Room::Icon icon() const = 0;
         virtual Room::Icon unsel_icon() const = 0;
         virtual Health full_health() const = 0;
+        virtual Room::Category category() const = 0;
 
         virtual void configure(Health health, Coins cost, Power power)
         {
@@ -115,6 +117,12 @@ struct RoomMeta {
             return Conditions::plugin;
         }
 
+        Room::Category category() const override
+        {
+            return Room::Category::misc; // TODO...
+        }
+
+
         virtual Room::Icon icon() const
         {
             // TODO...
@@ -187,6 +195,11 @@ struct RoomMeta {
         Conditions::Value conditions() const override
         {
             return T::conditions();
+        }
+
+        Room::Category category() const override
+        {
+            return T::category(); // TODO...
         }
 
         Health full_health() const override

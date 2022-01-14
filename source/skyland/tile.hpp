@@ -81,6 +81,7 @@ struct InteriorTile {
         flag_end = 5,
         roof_flag,
         flag_mount,
+        ion_fizzler_interior = 11,
         core_1 = 15,
         core_2,
         core_3,

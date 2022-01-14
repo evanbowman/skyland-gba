@@ -42,6 +42,20 @@ struct Conditions {
 
 class Room {
 public:
+
+
+
+    enum class Category {
+        wall,
+        weapon,
+        factory,
+        power,
+        misc,
+        count
+    };
+
+
+
     virtual ~Room()
     {
     }
@@ -131,6 +145,12 @@ public:
     virtual Microseconds reload_time_remaining() const
     {
         return 0;
+    }
+
+
+    static Category category()
+    {
+        return Category::misc;
     }
 
 

@@ -107,10 +107,10 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/decimator.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
   ${SOURCE_DIR}/skyland/rooms/ionCannon.cpp
-  ${SOURCE_DIR}/skyland/rooms/fieldHull.cpp
   ${SOURCE_DIR}/skyland/rooms/ionFizzler.cpp
   ${SOURCE_DIR}/skyland/rooms/replicator.cpp
   ${SOURCE_DIR}/skyland/rooms/forcefield.cpp
+  ${SOURCE_DIR}/skyland/rooms/poweredHull.cpp
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/transporter.cpp
   ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp
