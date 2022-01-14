@@ -3101,8 +3101,6 @@ static void watchdog_update_isr()
             }
         }
 
-        // this seems not to work :(
-        // unrecoverrable_error("game froze, watchdog not fed");
         restart();
     }
 }
