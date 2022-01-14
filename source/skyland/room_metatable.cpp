@@ -31,20 +31,28 @@ namespace skyland {
 
 static auto& __metatable()
 {
+    // NOTE: the construction menu has a feature where the menu can jump ahead
+    // to the next room of a different category. So rooms should be added to
+    // this list in order of category.
     static RoomMetatable<8,
+                         // walls
                          Hull,
                          Forcefield,
                          PoweredHull,
                          IonFizzler,
+                         // weapons
                          Cannon,
                          IonCannon,
                          FlakGun,
                          MissileSilo,
                          Decimator,
+                         // factories
                          Workshop,
                          Foundry,
+                         // power generation
                          Core,
                          Reactor,
+                         // misc
                          Stairwell,
                          Bulkhead,
                          Infirmary,

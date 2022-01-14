@@ -33,6 +33,12 @@ public:
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
+    static Category category()
+    {
+        return Category::weapon;
+    }
+
+
     static Vec2<u8> size()
     {
         return {2, 2};

@@ -27,6 +27,11 @@ public:
     }
 
 
+    static Category category()
+    {
+        return Category::wall;
+    }
+
 
     bool has_roof() override
     {

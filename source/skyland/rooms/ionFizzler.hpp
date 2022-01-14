@@ -22,6 +22,12 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
+    static Category category()
+    {
+        return Category::wall;
+    }
+
+
     // Plenty of rooms, like missile silos, and forcefields, look super awkward
     // if the game spawns chimneys over top of them.
     bool disallow_chimney() override

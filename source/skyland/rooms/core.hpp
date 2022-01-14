@@ -21,6 +21,12 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
+    static Category category()
+    {
+        return Category::power;
+    }
+
+
     bool has_chimney() override
     {
         return true;

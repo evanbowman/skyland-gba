@@ -28,6 +28,12 @@ public:
     }
 
 
+    static Category category()
+    {
+        return Category::wall;
+    }
+
+
     // Plenty of rooms, like missile silos, and forcefields, look super awkward
     // if the game spawns chimneys over top of them.
     bool disallow_chimney() override

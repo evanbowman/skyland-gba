@@ -29,6 +29,12 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
+    static Category category()
+    {
+        return Category::weapon;
+    }
+
+
     bool has_roof() override
     {
         return false;

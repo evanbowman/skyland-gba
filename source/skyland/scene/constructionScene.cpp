@@ -193,16 +193,49 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.player().key_down(pfrm, Key::down)) {
-            building_selector_ += 5;
+            pfrm.speaker().play_sound("click", 1);
+            auto current_category =
+                (*available_buildings_[building_selector_])->category();
+            // When the player presses down, jump to the next building in the
+            // list of a different category. The room metatable should be
+            // organized by room category by convention.
+            u32 i = 0;
+            for (i = 0; i < available_buildings_.size(); ++i) {
+                auto other_category =
+                    (*available_buildings_[(building_selector_ + i) % available_buildings_.size()])->category();
+                if (other_category not_eq current_category) {
+                    break;
+                }
+            }
+            building_selector_ += i;
             building_selector_ %= available_buildings_.size();
             show_current_building_text(pfrm, app);
         }
 
         if (app.player().key_down(pfrm, Key::up)) {
-            u32 sel = building_selector_;
-            sel -= 5;
-            sel %= available_buildings_.size();
-            building_selector_ = sel;
+            pfrm.speaker().play_sound("click", 1);
+            const auto current_category =
+                (*available_buildings_[building_selector_])->category();
+
+            auto target_category =
+                (Room::Category)(((u32)current_category - 1)
+                                 % (u32)Room::Category::count);
+
+            if (target_category == current_category) {
+                target_category = (Room::Category)((int)Room::Category::count - 1);
+            }
+
+            u32 i;
+            for (i = 0; i < available_buildings_.size(); ++i) {
+                if ((*available_buildings_[i])->category() == target_category) {
+                    break;
+                }
+            }
+            if (i >= available_buildings_.size()) {
+                i = 0;
+            }
+
+            building_selector_ = i;
             show_current_building_text(pfrm, app);
         }
 
