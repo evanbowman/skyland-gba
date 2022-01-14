@@ -30,19 +30,6 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.fatal(p.fmt_.c_str());
     });
 
-    if (app.opponent_island()) {
-        set_island_positions(app.player_island(), *app.opponent_island());
-
-        app.opponent_island()->repaint(pfrm, app);
-    } else {
-        pfrm.fatal("multi missing opp island");
-    }
-
-    app.player_island().repaint(pfrm, app);
-
-    app.opponent_island()->set_float_timer(
-        std::numeric_limits<Microseconds>::max() / 2);
-
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
     cursor_loc.x = 0;
     cursor_loc.y = 14;

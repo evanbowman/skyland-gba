@@ -309,34 +309,32 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
-    {
+    {"opponent-init",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(0, symbol);
 
-        "opponent-init",
-        [](int argc) {
-            L_EXPECT_ARGC(argc, 2);
-            L_EXPECT_OP(1, integer);
-            L_EXPECT_OP(0, symbol);
+         auto [app, pfrm] = interp_get_context();
 
-            auto [app, pfrm] = interp_get_context();
+         auto conf = lisp::get_op(0);
+         if (str_cmp(conf->symbol().name_, "hostile") == 0) {
+             app->swap_opponent<EnemyAI>();
+         } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
+             app->swap_opponent<FriendlyAI>();
+         } else {
+             StringBuffer<30> err("bad ai sym: '");
+             err += conf->symbol().name_;
+             pfrm->fatal(err.c_str());
+         }
 
-            auto conf = lisp::get_op(0);
-            if (str_cmp(conf->symbol().name_, "hostile") == 0) {
-                app->swap_opponent<EnemyAI>();
-            } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
-                app->swap_opponent<FriendlyAI>();
-            } else {
-                StringBuffer<30> err("bad ai sym: '");
-                err += conf->symbol().name_;
-                pfrm->fatal(err.c_str());
-            }
+         app->opponent_island().emplace(*pfrm,
+                                        Layer::map_1_ext,
+                                        lisp::get_op(1)->integer().value_,
+                                        app->opponent());
 
-            app->opponent_island().emplace(*pfrm,
-                                           Layer::map_1_ext,
-                                           lisp::get_op(1)->integer().value_,
-                                           app->opponent());
-
-            return L_NIL;
-        }},
+         return L_NIL;
+     }},
     {"terrain",
      [](int argc) {
          if (argc == 2) {

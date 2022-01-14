@@ -2,6 +2,9 @@
 #include "fadeInScene.hpp"
 #include "localization.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/rooms/core.hpp"
+#include "skyland/entity/character/basicCharacter.hpp"
+#include "skyland/alloc_entity.hpp"
 
 
 
@@ -18,6 +21,7 @@ const MultiplayerSettingsScene::ParameterInfo
         {"prep seconds", 5, 20, 10000},
         {"unhide prep ", 1, 0, 1},
         {"coins", 100, 1000, 10000000},
+        {"terrain size", 1, 3, 13},
 };
 
 
@@ -54,6 +58,7 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
         parameters_[0] = 120;
         parameters_[1] = 0;
         parameters_[2] = 17500;
+        parameters_[3] = 8;
     }
 
 
@@ -109,6 +114,10 @@ void MultiplayerSettingsScene::update_parameter(u8 line_num)
 
 
 
+void set_island_positions(Island& left_island, Island& right_island);
+
+
+
 void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     title_.reset();
@@ -125,6 +134,64 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
         parameters_[1];
 
     app.coins() = parameters_[2];
+
+
+    app.player_island().init_terrain(pfrm, parameters_[3]);
+
+    // Now that we know the size of the terrain for the multiplayer match, we
+    // can create and position the two islands.
+    app.opponent_island().emplace(pfrm,
+                                  Layer::map_1_ext,
+                                  parameters_[3],
+                                  app.opponent());
+
+
+    app.opponent_island()->set_float_timer(
+        std::numeric_limits<Microseconds>::max() / 2);
+
+    set_island_positions(app.player_island(), *app.opponent_island());
+
+
+    app.player_island().rooms().clear();
+
+
+    // Unless the island configured size is really tiny, leave a one-tile gap to
+    // the left of the starting position of the power core.
+    const u8 player_start_x = parameters_[3] > 3 ? 1 : 0;
+    app.player_island().add_room<Core>(pfrm, app, {player_start_x, 13});
+
+    auto add_player_chr = [&app](u8 x, u8 y) {
+        app.player_island()
+            .add_character(alloc_entity<BasicCharacter>(&app.player_island(),
+                                                        &app.player(),
+                                                        Vec2<u8>{x, y},
+                                                        false));
+    };
+
+    add_player_chr(player_start_x, 14);
+    add_player_chr(player_start_x + 1, 14);
+
+
+    const u8 opponent_start_x =
+        parameters_[3] > 3 ? parameters_[3] - 3 : parameters_[3] - 2;
+    app.opponent_island()->add_room<Core>(pfrm, app, {opponent_start_x, 13});
+
+    auto add_opponent_chr = [&app](u8 x, u8 y) {
+        app.opponent_island()
+            ->add_character(alloc_entity<BasicCharacter>(&*app.opponent_island(),
+                                                         &app.opponent(),
+                                                         Vec2<u8>{x, y},
+                                                         false));
+    };
+
+    add_opponent_chr(opponent_start_x, 14);
+    add_opponent_chr(opponent_start_x + 1, 14);
+
+
+    app.player_island().repaint(pfrm, app);
+    app.opponent_island()->repaint(pfrm, app);
+
+    // TODO: place characters
 }
 
 

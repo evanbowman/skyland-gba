@@ -44,8 +44,10 @@ void MultiplayerPeer::update(Platform& pfrm, App& app, Microseconds delta)
 // transform the other console's coordinate system to our own coordinate system.
 static u8 invert_axis(App& app, u8 x_coord)
 {
-    // NOTE: Terrain is guaranteed to be the same size for each multiplayer
-    // peer.
+    // NOTE: Terrain should be guaranteed to be the same size for each
+    // multiplayer peer. Our multiplayer setup code syncs the configured terrain
+    // size between games, and players are not allowed to build terrain in
+    // multiplayer mode.
     return (app.player_island().terrain().size() - 1) - x_coord;
 }
 
