@@ -10,7 +10,7 @@
                ; (1) (2)  (3)
  '((hull         240 300  0)
    (forcefield   240 300  40)
-   (powered-hull   320 300  20)
+   (powered-hull 410 500  20)
    (power-core   60  3000 -150)
    (reactor      120 4000 -400)
    (cannon       200 1000 34)
