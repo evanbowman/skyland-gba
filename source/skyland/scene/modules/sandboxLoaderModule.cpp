@@ -111,8 +111,6 @@ void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     for (u32 i = 0; i < parameters_.capacity(); ++i) {
         update_parameter(i);
     }
-
-    pfrm.screen().fade(0.6f, ColorConstant::rich_black, {}, false, false);
 }
 
 
@@ -168,6 +166,12 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.player().key_down(pfrm, Key::action_1)) {
         pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<FadeInScene>();
+    }
+
+    if (unveil_) {
+        pfrm.screen().fade(0.6f, ColorConstant::rich_black, {}, false, false);
+    } else {
+        unveil_ = true;
     }
 
     if (app.player().key_pressed(pfrm, Key::left)) {

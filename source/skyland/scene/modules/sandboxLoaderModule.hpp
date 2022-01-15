@@ -53,6 +53,7 @@ private:
 
     u32 cursor_ = 0;
 
+    bool unveil_ = false;
 
     std::optional<Text> title_;
     std::optional<Text> help_;
