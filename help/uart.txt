@@ -1,0 +1,110 @@
+
+ SKYLAND UART Console info
+
+ In addition to providing an
+ onscreen lisp repl when
+ calling the repl function,
+ SKYLAND offers a repl via
+ uart.
+
+ Using the uart terminal
+ requires some familiarity
+ with soldering. But fear
+ not, there's no need to open
+ up your gba! you just need
+ to splice a link cable into
+ an rs232 cable.
+
+ Before proceeding, make
+ absolutely certain that your
+ rs232 adapter operates at
+ 3.3 volts, the voltage of
+ the gameboy link port.
+
+
+ Figure 1:
+ diagram of a gba link cable
+  _______
+ / 1 3 5 \
+ | 2 4 6 |
+ '-------'
+
+ 1      VCC 
+ 2      SO  
+ 3      SI  
+ 4      SD  
+ 5      SC  
+ 6      GND 
+
+
+ First, you'll want to cut
+ the end off of a cheap
+ aftermarket link cable.
+ As you do this, take careful
+ note of which colored wires
+ correspond to which pins
+ in the above diagram of the
+ cable plug.
+
+ Aside: Please don't ruin an
+ original gba link cable from
+ back in the day, it's
+ sort of a historical
+ artifact at this point, and
+ expensive besides.
+
+ Next, you'll need to solder
+ the gba link cable's SO
+ line into the rs232 cable's
+ RxD line.
+ 
+ Solder the link cable's SI
+ line into the rs232 cable's
+ TxD line.
+
+ And solder ground to ground.
+ By ground, I mean earth, if
+ you learned your circuits
+ terms in the UK.
+
+ You do not need to connect
+ the flow control lines.
+
+ I typically use picocom
+ in linux to connect to
+ SKYLAND.
+
+ To launch picocom, figure
+ out which file linux mapped
+ your serial cable to, and
+ run the picocom program,
+ like so (on my computer,
+ the file is called
+ /dev/ttyUSB0):
+
+ picocom /dev/ttyUSB0
+
+ SKYLAND uses a transmission
+ frequency of 9600 baud,
+ which at time of writing,
+ is the default in picocom.
+
+ Toggle local echo with
+ shortcut ctrl-a ctrl-c.
+ You'll want local echo, as
+ SKYLAND does not render your
+ keystrokes onscreen, it
+ handles uart in the
+ background, so you can
+ run commands without
+ pausing the game.
+
+ Ok, you should be all set
+ up! Restart skyland, and
+ the game should print
+ a command prompt into
+ picocom.
+
+ All of the functions in
+ /help/api.txt are of course
+ available in the console!
