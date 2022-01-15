@@ -403,8 +403,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (app.player().key_down(pfrm, Key::right) or
-            app.player().key_down(pfrm, Key::down)) {
+        if (app.player().key_pressed(pfrm, Key::right) or
+            app.player().key_pressed(pfrm, Key::down)) {
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
                 put_menu_text(pfrm);
@@ -426,8 +426,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 window_image_hack(pfrm, 130);
             }
         }
-        if (app.player().key_down(pfrm, Key::left) or
-            app.player().key_down(pfrm, Key::up)) {
+        if (app.player().key_pressed(pfrm, Key::left) or
+            app.player().key_pressed(pfrm, Key::up)) {
             if (menu_selection_ == 1) {
                 menu_selection_ = 0;
                 put_menu_text(pfrm);
