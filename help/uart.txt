@@ -26,8 +26,8 @@
  diagram of a gba link cable
   _______
  / 1 3 5 \
- | 2 4 6 |
- '-------'
+ l 2 4 6 l
+ l-------l
 
  1      VCC 
  2      SO  

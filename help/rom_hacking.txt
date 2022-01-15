@@ -1,0 +1,71 @@
+
+ This document assumes that
+ you have the SKYLAND engine
+ ROM separated from its
+ filesystem, and you're
+ designing levels.
+
+ This document also assumes
+ that you're a hacker who
+ wants to mod SKYLAND.
+
+ I build SKYLAND in two
+ separate parts: the engine,
+ a finely-tuned C++
+ application, and LISP
+ scripts. If you find the
+ _FS symbol in the ROM,
+ you can split the ROM in
+ two, before _FS, yielding
+ the engine and filesystem
+ as two separate parts.
+
+ You should find the
+ filesystem exceedingly
+ simple in structure.
+
+ The filesystem begins with
+ a Root block. In C:
+
+ struct Root {
+     char magic_[4];
+     host_u32 file_count_;
+ };
+
+ magic_ contains the
+ aforementioned _FS text,
+ along with a version number.
+
+ file_count_ represents the
+ number of files in the
+ archive.
+
+ NOTE: file_count_ is a
+ thirty-two bit integer, in
+ host byte order.
+
+ After the Root structure,
+ you'll find a FileHeader
+ structure.
+
+ struct FileHeader {
+     char path_[64];
+     host_u32 size_;
+ };
+
+ path_ should contain a
+ null terminated string
+ representing a file path.
+ size_ store the size of
+ the file, in bytes. Each
+ file must be null-
+ terminated, regardless
+ of the file contents.
+
+ After the file header,
+ you'll find the fine data.
+
+ So, you'll find FileHeader
+ followed by file data
+ repeatedly, for each
+ file in the archive.

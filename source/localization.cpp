@@ -204,6 +204,7 @@ standard_texture_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"+"): return 98;
         case UTF8_GETCHR(u8"-"): return 99;
         case UTF8_GETCHR(u8"/"): return 100;
+        case UTF8_GETCHR(u8"\\"): return 2156;
         case UTF8_GETCHR(u8"*"): return 101;
         case UTF8_GETCHR(u8"="): return 102;
         case UTF8_GETCHR(u8"<"): return 103;
