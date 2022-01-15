@@ -210,7 +210,7 @@ macro(add_file prefix file suffix)
 
     add_custom_target(convert_${file}_file DEPENDS ${FILE_OUT})
 
-    add_dependencies(SkylandEngine convert_${file}_file)
+    add_dependencies(SkyEngine convert_${file}_file)
 
     list(APPEND FILES_SOURCE_LIST "${DATA_DIR}file_${file}.cpp")
 
@@ -591,7 +591,7 @@ if(GAMEBOY_ADVANCE)
     # NOTE: using DrillDozer's ROM id code for testing purposes, because many
     # emulator developers do not give you the option to manually override which
     # gamepacks support gpio rumble. SkylandEngine's actual ROM code was originally CBJE.
-    COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSkylandEngine -cV49E -r0 -mEB SkylandEngine.gba)
+    COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSkyEngine -cV49E -r0 -mEB SkylandEngine.gba)
 
   target_compile_options(SkylandEngine PRIVATE
     -D__GBA__)

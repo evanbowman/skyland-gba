@@ -5,6 +5,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/sound.hpp"
 
 
 
@@ -61,6 +62,10 @@ void IonBurst::update(Platform&, App&, Microseconds delta)
 
 
 
+Sound sound_fizzle("fizzle");
+
+
+
 void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
 {
     if (source_ == room.parent() and room.metaclass() == ion_cannon_mt) {
@@ -95,6 +100,8 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
 
     if (not is_ion_fizzler) {
         room.apply_damage(pfrm, app, ion_burst_damage);
+    } else {
+        sound_fizzle.play(pfrm, 1);
     }
 }
 

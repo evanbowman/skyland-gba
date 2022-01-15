@@ -33,7 +33,7 @@
 
 
 (chr-add (player) 1 14 'neutral 0)
-
+(show-flag (player))
 
 
 
