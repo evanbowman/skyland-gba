@@ -4,7 +4,7 @@
 
 
 (map (lambda (setvar (cdr $0) (car $0)))
- '((26000 . "decimator_reload_ms")
+ '((21000 . "decimator_reload_ms")
    (25000 . "drone_bay_reload_ms")
    (18000 . "transporter_reload_ms")
    (3500 . "cannon_reload_ms")

@@ -24,8 +24,8 @@
                                      (lambda (equal temp $0))
                                      enemies-seen))))
                      (gen
-                      (get '(8 7 6 1) (zone)) ;; number of levels to select from
-                      ;; based on current zone
+                      (get '(8 7 6 2) (zone)) ;; number of levels to select from
+                                              ;; based on current zone
                       (lambda $0)))))
 
   (let ((lv-num (get avail-levels (choice (length avail-levels)))))

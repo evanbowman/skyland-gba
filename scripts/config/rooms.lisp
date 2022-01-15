@@ -27,5 +27,5 @@
    (transporter  100 999  40)
    (replicator   80  2500 80)
    (drone-bay    200 2100 36)
-   (energized-hull 400 450 20)
+   (energized-hull 380 450 20)
    (plundered-room 20  30  0)))
