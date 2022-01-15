@@ -338,7 +338,7 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (app.player().key_down(pfrm, Key::right) or
+     if (app.player().key_down(pfrm, Key::right) or
         key_held_timers_[3] > milliseconds(500)) {
         if (parameters_[player_cursor_] <
             param_info[player_cursor_].upper_limit_) {

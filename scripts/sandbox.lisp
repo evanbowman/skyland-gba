@@ -20,13 +20,6 @@
          (setq after-dialog-declined-hook (lambda '()))))))
 
 
-
-(coins-add 10000000)
-
-
-(terrain (player) 4)
-
-
 (island-configure
  (player)
  '((power-core 1 13)))
@@ -37,16 +30,20 @@
 
 
 
-(opponent-init 4 'hostile)
+(opponent-init (terrain (player)) 'hostile)
 
 
 (show-flag (opponent))
 
 
-(island-configure
- (opponent)
- '((power-core 1 13)))
+;; Note: prior to running this script, the game
+;; sets the size of the player island's
+;; terrain. Retrieve the value, and make the
+;; opponent island the same size.
+(let ((temp (terrain (player))))
+  (island-configure
+   (opponent)
+   `((power-core ,(- temp 3) 13)))
 
-
-(chr-add (opponent) 1 14 'hostile 0)
-(chr-add (opponent) 2 14 'hostile 0)
+  (chr-add (opponent) (- temp 3) 14 'hostile 0)
+  (chr-add (opponent) (- temp 2) 14 'hostile 0))

@@ -53,7 +53,7 @@ private:
 
 
     Vec2<u8> cursor_;
-    int color_ = 0;
+    u32 color_ = 0;
 
 
     static Factory factory_;
