@@ -1,0 +1,50 @@
+
+ When developing new levels
+ for SKYLAND, I actually build
+ the enemies on the GBA
+ itself.
+
+ I usually open up the battle
+ sandbox, create the enemy,
+ and then, in a uart console
+ (see /help/uart.txt),
+ run (rooms (opponent)) and
+ then (chrs (opponent)),
+ and copy past the result
+ from the terminal window
+ into a local file.
+
+ I didn't bother to create a
+ level editor for skyland.
+
+ The gameboy is the level
+ editor!
+
+ Sometimes, on long trips, I
+ don't have a laptop or a
+ uart->gba cable handy. In 
+ those cases, I basically
+ just open up an onscreen
+ repl, and run
+ (log (rooms (opponent))),
+ followed by (log-flush).
+
+ I would then go into log.txt
+ in sram, copy the data with
+ the skyland text editor, and
+ paste it into another file.
+ Or, if I was planning on
+ creating multiple levels,
+ I wouldn't bother to flush
+ the log, I'd just create a
+ few levels, flush the log,
+ and turn of the gba.
+
+ Basically, I'm just writing
+ this for posterity, in case
+ someday anyone is interested
+ in my process. I did indeed
+ develop the levels for
+ skyland on my gameboy :)
+ 
+ 
