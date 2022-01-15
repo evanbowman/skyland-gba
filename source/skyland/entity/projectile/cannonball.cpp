@@ -17,7 +17,7 @@ namespace skyland {
 
 
 
-static SHARED_VARIABLE(cannonball_damage);
+SHARED_VARIABLE(cannonball_damage);
 
 
 

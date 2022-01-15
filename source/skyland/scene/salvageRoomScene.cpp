@@ -55,11 +55,12 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     if (auto room = island(app)->get_room(cursor_loc)) {
         if (auto mt = room->metaclass()) {
-            if (str_cmp((*mt)->name(), "power-core") == 0) {
+            if (str_eq((*mt)->name(), "power-core") or
+                str_eq((*mt)->name(), "reactor")) {
                 int core_count = 0;
                 for (auto& room : island(app)->rooms()) {
-                    if (str_cmp((*room->metaclass())->name(), "power-core") ==
-                        0) {
+                    if (str_eq((*room->metaclass())->name(), "power-core") or
+                        str_eq((*room->metaclass())->name(), "reactor")) {
                         core_count++;
                     }
                 }

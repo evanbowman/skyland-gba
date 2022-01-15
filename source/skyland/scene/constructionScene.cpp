@@ -12,6 +12,7 @@
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "worldScene.hpp"
+#include "modules/glossaryViewerModule.hpp"
 
 
 
@@ -74,6 +75,17 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return new_scene;
+    }
+
+    if (app.player().key_down(pfrm, Key::start)) {
+        auto next = scene_pool::alloc<GlossaryViewerModule>();
+        if (next) {
+            const bool near = near_;
+            next->set_next_scene([near]() {
+                return scene_pool::alloc<ConstructionScene>(near);
+            });
+            return next;
+        }
     }
 
     if (not island(app)) {
@@ -185,11 +197,6 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::select_loc;
             msg(pfrm, ":build");
             break;
-        }
-
-        if (app.player().key_down(pfrm, Key::start)) {
-            show_construction_icons = not show_construction_icons;
-            show_current_building_text(pfrm, app);
         }
 
         if (app.player().key_down(pfrm, Key::down)) {
@@ -712,6 +719,8 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (not near_) {
         power_fraction_opponent_island_ = true;
     }
+
+    pfrm.screen().fade(0.f);
 
     // if (not dynamic_cast<ConstructionScene*>(&prev)) {
     //     pfrm.speaker().play_sound("openbag", 1);

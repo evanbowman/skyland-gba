@@ -12,7 +12,7 @@ namespace skyland {
 
 
 
-static SHARED_VARIABLE(ion_burst_damage);
+SHARED_VARIABLE(ion_burst_damage);
 
 
 

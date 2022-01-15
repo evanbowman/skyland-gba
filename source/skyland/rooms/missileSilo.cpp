@@ -7,6 +7,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
+#include "localization.hpp"
 
 
 
@@ -14,6 +15,7 @@ namespace skyland {
 
 
 
+extern SharedVariable missile_damage;
 SHARED_VARIABLE(missile_silo_reload_ms);
 
 
@@ -25,7 +27,14 @@ static Sound missile_sound("missile");
 void MissileSilo::format_description(StringBuffer<512>& buffer)
 {
     buffer += "A weapon for targeting the roof of an enemy fortress. "
-        "Slow and sometimes inaccurate, but highly damaging. ";
+        "Deals ";
+    buffer += to_string<10>(missile_damage);
+    buffer += " damage every ";
+    auto secs = missile_silo_reload_ms / 1000;
+    buffer += to_string<10>(secs);
+    buffer += ".";
+    buffer += to_string<10>((missile_silo_reload_ms / 100 - secs * 10));
+    buffer += " seconds.";
 }
 
 

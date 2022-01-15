@@ -26,6 +26,7 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
         item_name_.emplace(pfrm, OverlayCoord{6, 1});
     }
 
+
     StringBuffer<30> temp;
     temp += mt[page]->name();
     temp += " (";
@@ -102,6 +103,9 @@ ScenePtr<Scene> GlossaryViewerModule::update(Platform& pfrm,
     }
 
     if (app.player().key_down(pfrm, Key::action_2)) {
+        if (next_scene_) {
+            return (*next_scene_)();
+        }
         return scene_pool::alloc<TitleScreenScene>(3);
     }
 

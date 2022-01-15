@@ -461,7 +461,7 @@ const char* intern(const char* string)
 
     const char* search = *ctx->interns_;
     for (int i = 0; i < ctx->string_intern_pos_;) {
-        if (str_cmp(search + i, string) == 0) {
+        if (str_eq(search + i, string)) {
             return search + i;
         } else {
             while (search[i] not_eq '\0') {
@@ -1080,7 +1080,7 @@ Value* get_var(Value* symbol)
     } else {
         for (u16 i = 0; i < bound_context->constants_count_; ++i) {
             const auto& k = bound_context->constants_[i];
-            if (str_cmp(k.name_, symbol->symbol().name_) == 0) {
+            if (str_eq(k.name_, symbol->symbol().name_)) {
                 return lisp::make_integer(k.value_);
             }
         }
@@ -2237,7 +2237,7 @@ void eval(Value* code)
     } else if (code->type() == Value::Type::cons) {
         auto form = code->cons().car();
         if (form->type() == Value::Type::symbol) {
-            if (str_cmp(form->symbol().name_, "if") == 0) {
+            if (str_eq(form->symbol().name_, "if")) {
                 eval_if(code->cons().cdr());
                 auto result = get_op0();
                 pop_op(); // result
@@ -2245,7 +2245,7 @@ void eval(Value* code)
                 push_op(result);
                 --bound_context->interp_entry_count_;
                 return;
-            } else if (str_cmp(form->symbol().name_, "lambda") == 0) {
+            } else if (str_eq(form->symbol().name_, "lambda")) {
                 eval_lambda(code->cons().cdr());
                 auto result = get_op0();
                 pop_op(); // result
@@ -2253,12 +2253,12 @@ void eval(Value* code)
                 push_op(result);
                 --bound_context->interp_entry_count_;
                 return;
-            } else if (str_cmp(form->symbol().name_, "'") == 0) {
+            } else if (str_eq(form->symbol().name_, "'")) {
                 pop_op(); // code
                 push_op(code->cons().cdr());
                 --bound_context->interp_entry_count_;
                 return;
-            } else if (str_cmp(form->symbol().name_, "`") == 0) {
+            } else if (str_eq(form->symbol().name_, "`")) {
                 eval_quasiquote(code->cons().cdr());
                 auto result = get_op0();
                 pop_op(); // result
@@ -2266,7 +2266,7 @@ void eval(Value* code)
                 push_op(result);
                 --bound_context->interp_entry_count_;
                 return;
-            } else if (str_cmp(form->symbol().name_, "let") == 0) {
+            } else if (str_eq(form->symbol().name_, "let")) {
                 eval_let(code->cons().cdr());
                 auto result = get_op0();
                 pop_op();
@@ -2274,7 +2274,7 @@ void eval(Value* code)
                 push_op(result);
                 --bound_context->interp_entry_count_;
                 return;
-            } else if (str_cmp(form->symbol().name_, "macro") == 0) {
+            } else if (str_eq(form->symbol().name_, "macro")) {
                 eval_macro(code->cons().cdr());
                 pop_op();
                 // TODO: store macro!

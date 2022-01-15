@@ -8,6 +8,14 @@ namespace skyland {
 
 
 
+void Workshop::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "Slightly lowers the construction cost of all rooms. "
+        "Allows you to build new types of structures.";
+}
+
+
+
 Workshop::Workshop(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

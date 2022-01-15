@@ -7,6 +7,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
+#include "localization.hpp"
 
 
 
@@ -14,6 +15,7 @@ namespace skyland {
 
 
 
+extern SharedVariable cannonball_damage;
 SHARED_VARIABLE(cannon_reload_ms);
 
 
@@ -24,7 +26,14 @@ Sound cannon_sound("cannon");
 
 void Cannon::format_description(StringBuffer<512>& buffer)
 {
-    buffer += "A reliable artillery weapon.";
+    buffer += "A reliable artillery weapon. Deals ";
+    buffer += to_string<10>(cannonball_damage);
+    buffer += " damage every ";
+    auto secs = cannon_reload_ms / 1000;
+    buffer += to_string<10>(secs);
+    buffer += ".";
+    buffer += to_string<10>((cannon_reload_ms / 100 - secs * 10));
+    buffer += " seconds.";
 }
 
 

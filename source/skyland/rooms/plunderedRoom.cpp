@@ -8,6 +8,14 @@ namespace skyland {
 
 
 
+void PlunderedRoom::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "A placeholder structure created after a character destroys a "
+        "room by plundering.";
+}
+
+
+
 PlunderedRoom::PlunderedRoom(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

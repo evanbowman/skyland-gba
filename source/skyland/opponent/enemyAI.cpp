@@ -270,6 +270,12 @@ void EnemyAI::resolve_insufficient_power(Platform& pfrm, App& app)
     Float lowest_weight = 2000000.f;
 
     for (auto& room : app.opponent_island()->rooms()) {
+        auto name = (*room->metaclass())->name();
+        if (str_eq(name, "reactor") or str_eq(name, "power-core")) {
+            // We certainly won't restore power by scrapping our remaining power
+            // supply.
+            continue;
+        }
         auto pwr = (*room->metaclass())->consumes_power();
         if (pwr > 0) {
             auto w = (*room->metaclass())->ai_base_weight();

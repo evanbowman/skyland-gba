@@ -19,7 +19,7 @@ public:
 
     static u16 icon()
     {
-        return 1000;
+        return 1304;
     }
 
 
@@ -38,6 +38,12 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    void set_next_scene(DeferredScene next)
+    {
+        next_scene_.emplace(next);
+    }
+
+
 private:
 
     void load_page(Platform& pfrm, int page);
@@ -46,6 +52,9 @@ private:
     std::optional<Text> item_name_;
     std::optional<Text> item_details_;
     std::optional<TextView> item_description_;
+
+
+    std::optional<DeferredScene> next_scene_;
 
 
     int page_ = 0;

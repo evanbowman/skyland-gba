@@ -667,16 +667,15 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (app.player().key_down(pfrm, Key::action_1)) {
                 auto index = module_cursor_->x + module_cursor_->y * 3;
                 if (auto f = detail::_Module::Factory::get(index)) {
+                    pfrm.speaker().play_music("unaccompanied_wind", 0);
                     pfrm.fill_overlay(0);
                     pfrm.screen().fade(
                         1.f, ColorConstant::rich_black, {}, true, true);
-                    pfrm.speaker().stop_music();
                     app.game_mode() = App::GameMode::challenge;
 
                     if (f->run_scripts()) {
                         run_init_scripts(pfrm, app, f->enable_custom_scripts());
                     }
-
 
                     return f->create(pfrm);
                 }
