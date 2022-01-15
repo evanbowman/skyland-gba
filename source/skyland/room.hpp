@@ -43,8 +43,6 @@ struct Conditions {
 class Room {
 public:
 
-
-
     enum class Category {
         wall,
         weapon,
@@ -217,6 +215,12 @@ public:
     static Icon unsel_icon()
     {
         return 450;
+    }
+
+
+    static void format_description(StringBuffer<512>& buffer)
+    {
+        // TODO...
     }
 
 

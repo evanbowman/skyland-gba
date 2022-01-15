@@ -16,6 +16,15 @@ SHARED_VARIABLE(ion_cannon_reload_ms);
 
 
 
+void IonCannon::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "Deals ion damage. Ion bursts pass harmlessly through most "
+        "rooms, but deal heavy damage to forcefields and reactors. Requires "
+        "a workshop to build.";
+}
+
+
+
 IonCannon::IonCannon(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

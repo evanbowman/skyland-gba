@@ -23,21 +23,31 @@ void Foundry::update(Platform& pfrm, App& app, Microseconds delta)
 
 void Foundry::render_interior(App& app, u8 buffer[16][16])
 {
-    // TODO: custom graphics
-    buffer[position().x][position().y] = InteriorTile::workshop_1;
-    buffer[position().x][position().y + 1] = InteriorTile::workshop_2;
-    buffer[position().x + 1][position().y] = InteriorTile::workshop_3;
-    buffer[position().x + 1][position().y + 1] = InteriorTile::workshop_4;
+    auto x = position().x;
+    auto y = position().y;
+
+    buffer[x][y] = InteriorTile::foundry_1;
+    buffer[x + 1][y] = InteriorTile::foundry_2;
+    buffer[x + 2][y] = InteriorTile::foundry_3;
+
+    buffer[x][y + 1] = InteriorTile::foundry_4;
+    buffer[x + 1][y + 1] = InteriorTile::foundry_5;
+    buffer[x + 2][y + 1] = InteriorTile::plain_floor;
 }
 
 
 
 void Foundry::render_exterior(App& app, u8 buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::wall_window_1;
-    buffer[position().x][position().y + 1] = Tile::wall_window_2;
-    buffer[position().x + 1][position().y] = Tile::wall_plain_1;
-    buffer[position().x + 1][position().y + 1] = Tile::wall_plain_2;
+    auto x = position().x;
+    auto y = position().y;
+
+    buffer[x][y] = Tile::wall_window_1;
+    buffer[x][y + 1] = Tile::wall_window_2;
+    buffer[x + 1][y] = Tile::wall_plain_1;
+    buffer[x + 1][y + 1] = Tile::wall_plain_2;
+    buffer[x + 2][y] = Tile::wall_window_1;
+    buffer[x + 2][y + 1] = Tile::wall_window_2;
 }
 
 

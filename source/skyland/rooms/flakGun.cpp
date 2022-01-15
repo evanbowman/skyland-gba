@@ -22,6 +22,15 @@ extern Sound cannon_sound;
 
 
 
+void FlakGun::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "Deals low damage, but spread over large areas. "
+        "Highly destructive when used in groups against castles "
+        "with thin hull. Requires a workshop.";
+}
+
+
+
 FlakGun::FlakGun(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

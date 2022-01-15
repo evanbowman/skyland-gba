@@ -69,6 +69,11 @@ struct Tile {
         reserved_26,
         field_hull,
         ion_fizzler,
+        reserved_27,
+        reserved_28,
+        reserved_29,
+        reserved_30,
+        reserved_31,
     };
 };
 
@@ -138,5 +143,10 @@ struct InteriorTile {
         reactor_4,
         field_hull,
         ion_fizzler,
+        foundry_1,
+        foundry_2,
+        foundry_3,
+        foundry_4,
+        foundry_5,
     };
 };

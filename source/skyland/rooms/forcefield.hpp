@@ -28,6 +28,9 @@ public:
     }
 
 
+    static void format_description(StringBuffer<512>& buffer);
+
+
     static Category category()
     {
         return Category::wall;

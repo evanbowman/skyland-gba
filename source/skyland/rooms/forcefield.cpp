@@ -8,6 +8,14 @@ namespace skyland {
 
 
 
+void Forcefield::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "Blocks enemy projectiles, but allows your own weapons to shoot "
+        "through. Vulnerable to ion damage. Requires a workshop to build.";
+}
+
+
+
 Forcefield::Forcefield(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

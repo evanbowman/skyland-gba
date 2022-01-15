@@ -22,7 +22,7 @@
    (infirmary    60  1000 10)
    (power-core   60  3000 -150)
    (reactor      140 4200 -400)
-   (foundry      80  4500 50)
+   (foundry      80  4500 30)
    (radar        30  300  80)
    (transporter  100 999  40)
    (replicator   80  2500 80)

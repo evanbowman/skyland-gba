@@ -22,6 +22,15 @@ static Sound missile_sound("missile");
 
 
 
+void MissileSilo::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "A weapon for targeting the roof of an enemy fortress. "
+        "Slow and sometimes inaccurate, but highly damaging. ";
+}
+
+
+
+
 MissileSilo::MissileSilo(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

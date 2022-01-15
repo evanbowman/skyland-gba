@@ -14,6 +14,15 @@ SHARED_VARIABLE(decimator_reload_ms);
 
 
 
+void Decimator::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "A massively destructive weapon with a sluggish recharge. "
+        "Reloads and fires only when inhabited by a character. Requires "
+        "a foundry to build.";
+}
+
+
+
 Decimator::Decimator(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

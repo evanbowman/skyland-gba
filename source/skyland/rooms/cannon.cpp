@@ -22,6 +22,13 @@ Sound cannon_sound("cannon");
 
 
 
+void Cannon::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "A reliable artillery weapon.";
+}
+
+
+
 Cannon::Cannon(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

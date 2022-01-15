@@ -8,6 +8,14 @@ namespace skyland {
 
 
 
+void PoweredHull::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "Upgraded hull. Much more durable, but succeptible "
+        "to ion damage. Requires a foundry to build.";
+}
+
+
+
 PoweredHull::PoweredHull(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

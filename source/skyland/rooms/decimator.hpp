@@ -20,6 +20,9 @@ public:
     Decimator(Island* parent, const Vec2<u8>& position);
 
 
+    static void format_description(StringBuffer<512>& buffer);
+
+
     void update(Platform&, App&, Microseconds delta);
 
 
