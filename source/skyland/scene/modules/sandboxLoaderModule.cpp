@@ -136,6 +136,8 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_tile1_texture("tilesheet_enemy_0");
     app.player_island().render_exterior(pfrm, app);
 
+    vram_write_flag(pfrm, app.gp_.flag_img_);
+
     pfrm.load_overlay_texture("overlay");
     pfrm.system_call("v-parallax", (void*)true);
 
