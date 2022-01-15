@@ -56,7 +56,7 @@
  path_ should contain a
  null terminated string
  representing a file path.
- size_ store the size of
+ size_ stores the size of
  the file, in bytes. Each
  file must be null-
  terminated, regardless
@@ -72,7 +72,7 @@
 
  Due to the simplicity
  of the format, you should
- be able to unpack the format
+ be able to unpack the files
  without much trouble. But
  just in case, here's my own
  script for encoding files.
