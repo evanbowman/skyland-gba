@@ -157,13 +157,11 @@ private:
 
         for (u32 i = 0; i < rooms_.size(); ++i) {
             int room_min_x = rooms_[i]->position().x;
-            int room_max_x =
-                rooms_[i]->position().x + (rooms_[i]->size().x - 1);
-            if (x_jump_table_[room_max_x] > i) {
-                x_jump_table_[room_max_x] = i;
-            }
-            if (x_jump_table_[room_min_x] > i) {
-                x_jump_table_[room_min_x] = i;
+
+            for (int x = room_min_x; x < room_min_x + rooms_[i]->size().x; ++x) {
+                if (x_jump_table_[x] > i) {
+                    x_jump_table_[x] = i;
+                }
             }
         }
 
