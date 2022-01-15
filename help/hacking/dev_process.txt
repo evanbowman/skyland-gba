@@ -10,7 +10,7 @@
  (see /help/uart.txt),
  run (rooms (opponent)) and
  then (chrs (opponent)),
- and copy past the result
+ and copy paste the result
  from the terminal window
  into a local file.
 
@@ -36,8 +36,10 @@
  Or, if I was planning on
  creating multiple levels,
  I wouldn't bother to flush
- the log, I'd just create a
- few levels, flush the log,
+ the log each time,
+ I'd just create a
+ few levels, log each one,
+ and finally, flush the log,
  and turn of the gba.
 
  Basically, I'm just writing
@@ -46,5 +48,3 @@
  in my process. I did indeed
  develop the levels for
  skyland on my gameboy :)
- 
- 
