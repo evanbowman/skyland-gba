@@ -2684,9 +2684,9 @@ static const AudioTrack* find_music(const char* name)
 // #include "data/sound_dropitem.hpp"
 #include "data/sound_explosion1.hpp"
 #include "data/sound_explosion2.hpp"
-// #include "data/sound_footstep1.hpp"
-// #include "data/sound_footstep2.hpp"
-// #include "data/sound_footstep3.hpp"
+#include "data/sound_footstep1.hpp"
+#include "data/sound_footstep2.hpp"
+#include "data/sound_footstep3.hpp"
 // #include "data/sound_footstep4.hpp"
 // #include "data/sound_heart.hpp"
 // #include "data/sound_laser1.hpp"
@@ -2718,9 +2718,9 @@ static const AudioTrack sounds[] = {DEF_SOUND(explosion1, sound_explosion1),
                                     DEF_SOUND(gravel, sound_gravel),
                                     DEF_SOUND(drone_beep, sound_drone_beep),
                                     // DEF_SOUND(typewriter, sound_typewriter),
-                                    // DEF_SOUND(footstep1, sound_footstep1),
-                                    // DEF_SOUND(footstep2, sound_footstep2),
-                                    // DEF_SOUND(footstep3, sound_footstep3),
+                                    DEF_SOUND(footstep1, sound_footstep1),
+                                    DEF_SOUND(footstep2, sound_footstep2),
+                                    DEF_SOUND(footstep3, sound_footstep3),
                                     // DEF_SOUND(footstep4, sound_footstep4),
                                     // DEF_SOUND(open_book, sound_open_book),
                                     // DEF_SOUND(dropitem, sound_dropitem),
@@ -3052,8 +3052,8 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
     // disabling the audio interrupts when queueing a new sound effect cause
     // audio artifacts, because the sound chip is not receiving samples?
     play_sound("footstep1", 0);
-    play_sound("footstep2", 0);
-    play_sound("footstep3", 0);
+    // play_sound("footstep2", 0);
+    // play_sound("footstep3", 0);
 }
 
 

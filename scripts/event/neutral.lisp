@@ -18,12 +18,12 @@
 (let ((avail-levels (filter
                      (lambda
                        (setq temp $0)
-                       (not (length (filter
-                                     (lambda (equal temp $0))
-                                     friendlies-seen))))
+                       (not (filter
+                             (lambda (equal temp $0))
+                             friendlies-seen)))
                      (gen
                       (get '(4 4 3 1) (zone)) ;; number of levels to select from
-                      ;; based on current zone
+                                              ;; based on current zone
                       (lambda $0)))))
   (if (equal (length avail-levels) 1)
       (setq friendlies-seen '()))

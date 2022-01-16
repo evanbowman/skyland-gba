@@ -557,6 +557,8 @@ static Value* alloc_value()
         return init_val(val);
     }
 
+    Platform::fatal("LISP out of memory");
+
     return nullptr;
 }
 
@@ -848,7 +850,12 @@ void pop_op()
 
 void push_op(Value* operand)
 {
-    bound_context->operand_stack_->push_back(operand);
+    bound_context->
+        operand_stack_->push_back(operand,
+                                  nullptr,
+                                  [](void*) {
+                                      Platform::fatal("LISP stack overflow.");
+                                  });
 }
 
 

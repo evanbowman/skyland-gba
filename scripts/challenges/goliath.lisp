@@ -19,8 +19,8 @@
 (chr-add (player) 2 12 'neutral 0)
 
 
-
-;; (eval-file "/scripts/event/hostile/3/1.lisp")
+;; testing...
+;; (eval-file "/scripts/event/hostile/3/2.lisp")
 
 
 (opponent-init 9 'hostile)
