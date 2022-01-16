@@ -12,6 +12,7 @@
 #include "serial.hpp"
 #include "sharedVariable.hpp"
 #include "skyland.hpp"
+#include "rooms/cargoBay.hpp"
 
 
 
@@ -742,7 +743,49 @@ static const lisp::Binding script_api[] = {
          info(*lisp::interp_get_pfrm(), "exit stack");
 
          return L_NIL;
-     }}};
+    }},
+    {"cargo", [](int argc) {
+        L_EXPECT_ARGC(argc, 3);
+        L_EXPECT_OP(0, integer); // y
+        L_EXPECT_OP(1, integer); // x
+        L_EXPECT_OP(2, user_data);
+
+        auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+        const u8 x = lisp::get_op(1)->integer().value_;
+        const u8 y = lisp::get_op(0)->integer().value_;
+
+        if (auto room = island->get_room({x, y})) {
+            if (auto cb = dynamic_cast<CargoBay*>(room)) {
+                if (*cb->cargo() not_eq '\0') {
+                    return lisp::make_string(*lisp::interp_get_pfrm(),
+                                             cb->cargo());
+                }
+            } else {
+                Platform::fatal("Requested cargo from "
+                                "non cargo-bay room.");
+            }
+        }
+        return L_NIL;
+    }},
+    {"cargo-set", [](int argc) {
+        L_EXPECT_ARGC(argc, 4);
+        L_EXPECT_OP(0, string);  // cargo
+        L_EXPECT_OP(1, integer); // y
+        L_EXPECT_OP(2, integer); // x
+        L_EXPECT_OP(3, user_data);
+
+        auto island = (Island*)lisp::get_op(3)->user_data().obj_;
+        const u8 x = lisp::get_op(2)->integer().value_;
+        const u8 y = lisp::get_op(1)->integer().value_;
+
+        if (auto room = island->get_room({x, y})) {
+            if (auto cb = dynamic_cast<CargoBay*>(room)) {
+                cb->set_cargo(lisp::get_op(0)->string().value());
+            }
+        }
+
+        return L_NIL;
+    }}};
 
 
 

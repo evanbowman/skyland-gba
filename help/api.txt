@@ -7,6 +7,29 @@
 
 o----------------------------o
 
+ (cargo island x y)
+
+ Returns a string describing
+ the contents of cargo-bay
+ room at (x, y). Returns nil
+ if the cargo-bay does not
+ contain cargo. Raises a
+ fatal error if the room at
+ (x, y) is not a cargo bay.
+
+
+o----------------------------o
+
+ (cargo-set island x y value)
+
+ Store string value in
+ cargo-bay on island at
+ (x, y). Maximum nineteen
+ characters.
+
+
+o----------------------------o
+
  (choice n)
 
  Returns a random number

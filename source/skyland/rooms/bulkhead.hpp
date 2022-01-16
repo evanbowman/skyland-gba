@@ -33,6 +33,9 @@ public:
     ScenePtr<Scene> select(Platform& pfrm, App& app);
 
 
+    static void format_description(StringBuffer<512>& buffer);
+
+
     static Float ai_base_weight()
     {
         return 20.f;
@@ -47,7 +50,7 @@ public:
 
     static const char* name()
     {
-        return "bulkhead";
+        return "bulkhead-door";
     }
 
 

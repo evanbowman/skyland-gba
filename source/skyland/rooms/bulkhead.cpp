@@ -10,6 +10,16 @@ namespace skyland {
 
 
 
+void Bulkhead::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "An openable/closable door. "
+        "Used for restricting the movement of enemies who may board your "
+        "island.";
+}
+
+
+
+
 Bulkhead::Bulkhead(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

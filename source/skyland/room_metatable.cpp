@@ -22,6 +22,7 @@
 #include "skyland/rooms/reactor.hpp"
 #include "skyland/rooms/poweredHull.hpp"
 #include "skyland/rooms/ionFizzler.hpp"
+#include "skyland/rooms/cargoBay.hpp"
 
 
 
@@ -56,6 +57,7 @@ static auto& __metatable()
                          Stairwell,
                          Bulkhead,
                          Infirmary,
+                         CargoBay,
                          Radar,
                          Transporter,
                          Replicator,

@@ -3298,16 +3298,13 @@ static const Binding builtins[] = {
              return get_nil();
          } else if (get_op0()->hdr_.mode_bits_ ==
                     Function::ModeBits::lisp_function) {
+
              auto expression_list =
                  dcompr(get_op0()->function().lisp_impl_.code_);
 
-             DefaultPrinter p;
-             format(expression_list, p);
+             Protected sym(make_symbol("lambda"));
 
-             interp_get_pfrm()->remote_console().printline(p.fmt_.c_str(),
-                                                           false);
-             interp_get_pfrm()->sleep(80);
-             return get_nil();
+             return make_cons(sym, expression_list);
 
          } else {
              return get_nil();

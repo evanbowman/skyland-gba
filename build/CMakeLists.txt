@@ -103,6 +103,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/infestor.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
   ${SOURCE_DIR}/skyland/rooms/droneBay.cpp
+  ${SOURCE_DIR}/skyland/rooms/cargoBay.cpp
   ${SOURCE_DIR}/skyland/rooms/infirmary.cpp
   ${SOURCE_DIR}/skyland/rooms/decimator.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp

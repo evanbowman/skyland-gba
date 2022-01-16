@@ -20,3 +20,17 @@
 (eval-file "/scripts/stdlib.lisp")
 
 (setq language 'english)
+
+;; Let's define some useful
+;; builtin functions:
+
+(defn/c cargo-bays
+  (let ((rooms (rooms $0)))
+    (map
+     (lambda
+       (cons
+        (car (cdr $0))
+        (car (cdr (cdr $0)))))
+     (filter
+      (lambda (equal (car $0) 'cargo-bay))
+      rooms))))

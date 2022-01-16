@@ -64,7 +64,8 @@ private:
 
     // NOTE: while the terrain isn't quite so large, due to holes in a player's
     // island, we may need more construction sites than there are x-coordinates.
-    Buffer<Coord, 22> construction_sites_;
+    // TODO: increase the size of the construction_sites_ buffer.
+    Buffer<Coord, 18> construction_sites_;
     u32 selector_ = 0;
 
     std::optional<Text> text_;
@@ -73,7 +74,7 @@ private:
 
     int building_selector_ = 0;
 
-    Buffer<RoomMeta*, 20> available_buildings_;
+    Buffer<RoomMeta*, 21> available_buildings_;
     const RoomMeta* last_constructed_building_ = nullptr;
 
     bool near_;

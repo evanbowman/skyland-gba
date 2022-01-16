@@ -13,7 +13,7 @@ namespace skyland {
 namespace room_pool {
 
 
-static constexpr const int max_room_size = 48;
+static constexpr const int max_room_size = 52;
 static constexpr const int pool_capacity = 140;
 static constexpr const int alignment = 8;
 
@@ -21,8 +21,12 @@ static constexpr const int alignment = 8;
 
 struct RoomPools {
 public:
-    static const auto rooms_per_pool = 35;
+    static const auto rooms_per_pool = 32;
     static const auto pool_count = pool_capacity / rooms_per_pool;
+
+    static_assert(pool_count < 5,
+                  "Just a sanity check. We want to understand memory usage "
+                  "in the room pool.");
 
 
     using RoomPool = Pool<max_room_size, rooms_per_pool, entity_pool_align>;
