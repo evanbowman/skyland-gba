@@ -21,6 +21,10 @@ namespace skyland {
 
 
 
+static const auto node_death_sequence_time = seconds(2);
+
+
+
 // TODO: create a worldGraph.cpp and move this function there.
 void WorldGraph::generate()
 {
@@ -627,6 +631,15 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     case State::show_node_death_icons:
+        if (dead_nodes_.empty()) {
+            state_ = State::deselected;
+        } else {
+            timer_ += delta;
+            if (timer_ > node_death_sequence_time) {
+                timer_ = 0;
+                state_ = State::deselected;
+            }
+        }
         break;
 
 
@@ -635,7 +648,8 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = milliseconds(1500);
         if (storm_scroll_timer_ > fade_duration) {
             storm_scroll_timer_ = 0;
-            state_ = State::deselected;
+            state_ = State::show_node_death_icons;
+            timer_ = 0;
             show_map(pfrm, app.world_graph(), app.world_graph().storm_depth_);
             update_storm_frontier(pfrm, app.world_graph(), 0);
         } else {
@@ -652,7 +666,8 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = milliseconds(1500);
         if (storm_scroll_timer_ > fade_duration) {
             storm_scroll_timer_ = 0;
-            state_ = State::deselected;
+            state_ = State::show_node_death_icons;
+            timer_ = 0;
             show_map(pfrm, app.world_graph(), app.world_graph().storm_depth_);
             update_storm_frontier(pfrm, app.world_graph(), 0);
         } else {
@@ -821,6 +836,15 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         cursor.set_texture_index(26 + cursor_keyframe_);
         cursor.set_position({184, 128});
         pfrm.screen().draw(cursor);
+    } else if (state_ == State::show_node_death_icons) {
+        cursor.set_texture_index(77);
+        const int offset = interpolate(9, 0, Float(timer_) / node_death_sequence_time);
+        for (auto& node : dead_nodes_) {
+            cursor.set_position({});
+            cursor.set_position({(node.x + map_start_x) * Float(8) - 1,
+                    (node.y + map_start_y) * Float(8) - (4 + offset)});
+            pfrm.screen().draw(cursor);
+        }
     }
 }
 
@@ -901,6 +925,8 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 
 void WorldMapScene::show_map(Platform& pfrm, WorldGraph& map, int storm_depth)
 {
+    dead_nodes_.clear();
+
     for (auto& node : map.nodes_) {
         if (node.type_ == WorldGraph::Node::Type::null) {
             continue;
@@ -909,6 +935,9 @@ void WorldMapScene::show_map(Platform& pfrm, WorldGraph& map, int storm_depth)
 
             if (node.type_ == WorldGraph::Node::Type::exit) {
                 exit_label_.reset();
+            }
+            if (node.type_ not_eq WorldGraph::Node::Type::corrupted) {
+                dead_nodes_.push_back(node.coord_);
             }
             node.type_ = WorldGraph::Node::Type::corrupted;
 
