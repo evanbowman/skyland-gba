@@ -255,15 +255,13 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             for (int x = current.coord_.x - 4; x < current.coord_.x + 5; ++x) {
                 for (int y = current.coord_.y - 4; y < current.coord_.y + 5; ++y) {
                     for (auto& node : app.world_graph().nodes_) {
-                        if (node.coord_ not_eq current.coord_ and
+                        if (node.type_ not_eq WorldGraph::Node::Type::corrupted and
+                            node.coord_ not_eq current.coord_ and
                             node.coord_ == Vec2<s8>{s8(x), s8(y)}) {
-                            movement_targets_.push_back(node.coord_);
+                            movement_targets_.insert(movement_targets_.begin(),
+                                                     node.coord_);
                         }
                     }
-                    // pfrm.set_tile(Layer::overlay,
-                    //                       map_start_x + x,
-                    //                       map_start_y + y,
-                    //                       146);
                 }
             }
         }
@@ -273,7 +271,6 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::explore_paths:
         if (app.player().key_down(pfrm, Key::action_1)) {
             storm_depth_ += 1;
-            // pfrm.set_scroll(Layer::map_1_ext, storm_depth_ * 16, 0);
             state_ = State::storm_advance;
         }
         break;
@@ -429,15 +426,29 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                 show_map(pfrm, app.world_graph());
                 cmix_ = {};
             }
-            if (pfrm.keyboard().down_transition<Key::right, Key::down>()) {
-                ++movement_cursor_;
-                movement_cursor_ %= movement_targets_.size();
-            }
-            if (pfrm.keyboard().down_transition<Key::left, Key::up>()) {
-                --movement_cursor_;
+            // auto current = movement_targets_[movement_cursor_];
+            if (app.player().key_down(pfrm, Key::right)) {
+                movement_cursor_++;
+                if ((u32)movement_cursor_ == movement_targets_.size()) {
+                    movement_cursor_ = 0;
+                }
+                // for (u32 i = 0; i < movement_targets_.size(); ++i) {
+                //     if (movement_targets_[i].x > current.x) {
+                //         movement_cursor_ = i;
+                //         break;
+                //     }
+                // }
+            } else if (app.player().key_down(pfrm, Key::left)) {
+                movement_cursor_--;
                 if (movement_cursor_ < 0) {
                     movement_cursor_ = movement_targets_.size() - 1;
                 }
+                // for (u32 i = 0; i < movement_targets_.size(); ++i) {
+                //     if (movement_targets_[i].x < current.x) {
+                //         movement_cursor_ = i;
+                //         break;
+                //     }
+                // }
             }
             break;
     }
