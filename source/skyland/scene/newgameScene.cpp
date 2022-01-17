@@ -40,8 +40,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         app.invoke_script(pfrm, "/scripts/newgame.lisp");
 
-        app.current_map_location() = {0, 1};
-        app.world_map().generate();
+        app.current_world_location() = 0;
         app.world_graph().generate();
 
         app.zone() = 1;

@@ -45,6 +45,7 @@ public:
 
 
     Node nodes_[18];
+    u8 storm_depth_ = 1;
 };
 
 

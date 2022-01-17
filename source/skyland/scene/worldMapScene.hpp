@@ -39,7 +39,7 @@ private:
     // void show_move_arrows(Platform&, App&);
 
 
-    void update_storm_frontier(Platform& pfrm);
+    void update_storm_frontier(Platform& pfrm, WorldGraph& map, int offset);
 
 
     enum class State {
@@ -47,7 +47,6 @@ private:
         storm_scroll_in,
         storm_advance,
         deselected,
-        explore_paths,
         move,
         wait,
         save_selected,
@@ -75,7 +74,6 @@ private:
     Buffer<Vec2<s8>, 10> movement_targets_;
 
     Microseconds storm_scroll_timer_ = 0;
-    int storm_depth_ = 1;
 
     std::optional<Text> heading_;
     std::optional<Text> warning_;

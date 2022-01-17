@@ -21,7 +21,6 @@
 #include "scene.hpp"
 #include "script/lisp.hpp"
 #include "timeTracker.hpp"
-#include "worldMap.hpp"
 
 
 
@@ -179,21 +178,15 @@ public:
     }
 
 
-    WorldMap& world_map()
-    {
-        return persistent_data_.world_map_;
-    }
-
-
     WorldGraph& world_graph()
     {
         return persistent_data_.world_graph_;
     }
 
 
-    Vec2<u8>& current_map_location()
+    int& current_world_location()
     {
-        return persistent_data_.current_map_location_;
+        return persistent_data_.current_world_location_;
     }
 
 

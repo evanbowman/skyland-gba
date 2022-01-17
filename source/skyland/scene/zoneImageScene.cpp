@@ -28,8 +28,7 @@ void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.set_scroll(Layer::map_1_ext, 0, 8);
     pfrm.set_scroll(Layer::map_0_ext, 0, 0);
 
-    if (not(app.current_map_location().x == 0 and
-            app.current_map_location().y == 1)) {
+    if (not app.current_world_location() == 0) {
         return;
     }
 
@@ -112,8 +111,7 @@ void ZoneImageScene::exit(Platform& pfrm, App& app, Scene& next)
 ScenePtr<Scene>
 ZoneImageScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (not(app.current_map_location().x == 0 and
-            app.current_map_location().y == 1)) {
+    if (not app.current_world_location() == 0) {
         return scene_pool::alloc<WorldMapScene>();
     } else if (app.zone() == 5) {
         return scene_pool::alloc<HighscoresScene>();

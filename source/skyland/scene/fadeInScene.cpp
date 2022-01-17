@@ -22,13 +22,15 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.game_mode() not_eq App::GameMode::tutorial and
             not pfrm.network_peer().is_connected()) {
 
-            auto current = app.current_map_location();
-            auto& node = app.world_map().matrix_[current.x][current.y];
-            if (node.type_ == WorldMap::Node::Type::hostile or
-                node.type_ == WorldMap::Node::Type::storm_hostile or
+            const auto loc = app.current_world_location();
+            auto& node = app.world_graph().nodes_[loc];
+
+            if (node.type_ == WorldGraph::Node::Type::hostile or
+                node.type_ == WorldGraph::Node::Type::corrupted or
                 app.game_mode() == App::GameMode::challenge) {
                 app.game_speed() = GameSpeed::stopped;
             }
+            // FIXME!!!!!!!
         }
         pfrm.screen().fade(0.f);
         auto future_scene = scene_pool::make_deferred_scene<ReadyScene>();

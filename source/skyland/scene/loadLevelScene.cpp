@@ -116,8 +116,8 @@ void prep_level(Platform& pfrm, App& app)
 ScenePtr<Scene>
 LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    const auto loc = app.current_map_location();
-    auto& node = app.world_map().matrix_[loc.x][loc.y];
+    const auto loc = app.current_world_location();
+    auto& node = app.world_graph().nodes_[loc];
 
     for (auto& room : app.player_island().rooms()) {
         if (auto db = dynamic_cast<DroneBay*>(room.get())) {
@@ -126,22 +126,19 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     switch (node.type_) {
-    case WorldMap::Node::Type::storm_clear:
-    case WorldMap::Node::Type::clear: {
+    case WorldGraph::Node::Type::neutral:
+    default: {
         app.invoke_script(pfrm, "/scripts/event/neutral.lisp");
         break;
     }
 
-    case WorldMap::Node::Type::storm_hostile:
-    case WorldMap::Node::Type::hostile: {
+    case WorldGraph::Node::Type::exit:
+    case WorldGraph::Node::Type::hostile: {
         app.invoke_script(pfrm, "/scripts/event/hostile.lisp");
         break;
     }
-
-
-    case WorldMap::Node::Type::null:
-        pfrm.fatal("world map mem corrupt");
     }
+
 
     if (not pfrm.speaker().is_music_playing("sb_solecism")) {
         pfrm.speaker().play_music("sb_solecism", 0);
