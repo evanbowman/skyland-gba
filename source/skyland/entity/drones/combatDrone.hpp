@@ -90,8 +90,6 @@ public:
                         }
                         state_ = Drone::State::ready;
                         timer_ = 0;
-                    } else {
-                        target_.reset();
                     }
                 }
             } else {
