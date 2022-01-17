@@ -14,6 +14,7 @@
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
 #include "worldScene.hpp"
+#include "skyland/rooms/cargoBay.hpp"
 
 
 
@@ -227,17 +228,38 @@ void describe_room(Platform& pfrm,
 
             if (i == 0) {
                 auto metac = room->metaclass();
-                StringBuffer<32> desc;
-                desc += "(";
-                desc += (*metac)->name();
-                desc += ") ";
-                room_description->assign(desc.c_str());
-                room_description->append(room->health());
-                room_description->append("/");
-                room_description->append(room->max_health());
-                room_description->append(" ");
-                room_description->append((*metac)->consumes_power());
-                room_description->append("`");
+
+                bool skip = false;
+
+                if (str_eq((*metac)->name(), "cargo-bay")) {
+                    if (auto cb = dynamic_cast<CargoBay*>(room)) {
+                        if (cb->position().y == cursor_loc.y - 1) {
+                            room_description->assign("cargo: ");
+                            if (*cb->cargo() not_eq '\0') {
+                                room_description->append(cb->cargo());
+                            } else {
+                                room_description->append("none");
+                            }
+                            skip = true;
+                        }
+                    }
+                }
+
+                if (not skip) {
+                    StringBuffer<32> desc;
+                    desc += "(";
+                    desc += (*metac)->name();
+                    desc += ") ";
+                    room_description->assign(desc.c_str());
+                    room_description->append(room->health());
+
+                    room_description->append("/");
+                    room_description->append(room->max_health());
+                    room_description->append(" ");
+                    room_description->append((*metac)->consumes_power());
+                    room_description->append("`");
+                }
+
 
                 if (auto tm = room->reload_time_remaining()) {
                     if (tm > 0) {
