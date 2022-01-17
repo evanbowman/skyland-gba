@@ -10,6 +10,6 @@
  ;; after defeating an
  ;; enemy.
  '((44 . "zone1_coin_yield")
-   (34 . "zone2_coin_yield")
+   (35 . "zone2_coin_yield")
    (30 . "zone3_coin_yield")
    (28 . "zone4_coin_yield")))

@@ -18,8 +18,8 @@ CargoBay::CargoBay(Island* parent, const Vec2<u8>& position)
 
 void CargoBay::format_description(StringBuffer<512>& buffer)
 {
-    buffer += "Stores one unit of cargo. Building a cargo bay enables quests "
-              "in adventure mode!";
+    buffer += "Stores one unit of cargo. Required for trading and quests in "
+        "adventure mode!";
 }
 
 
@@ -52,20 +52,16 @@ void CargoBay::update(Platform& pfrm, App& app, Microseconds delta)
 
 void CargoBay::render_interior(App& app, u8 buffer[16][16])
 {
-    buffer[position().x][position().y] = InteriorTile::workshop_1;
-    buffer[position().x][position().y + 1] = InteriorTile::workshop_2;
-    buffer[position().x + 1][position().y] = InteriorTile::workshop_3;
-    buffer[position().x + 1][position().y + 1] = InteriorTile::workshop_4;
+    buffer[position().x][position().y] = InteriorTile::cargo_bay;
+    buffer[position().x][position().y + 1] = InteriorTile::plain_floor;
 }
 
 
 
 void CargoBay::render_exterior(App& app, u8 buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::wall_window_1;
-    buffer[position().x][position().y + 1] = Tile::wall_window_2;
-    buffer[position().x + 1][position().y] = Tile::wall_plain_1;
-    buffer[position().x + 1][position().y + 1] = Tile::wall_plain_2;
+    buffer[position().x][position().y] = Tile::wall_plain_1;
+    buffer[position().x][position().y + 1] = Tile::wall_plain_2;
 }
 
 

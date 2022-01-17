@@ -36,7 +36,7 @@ public:
 
     static Vec2<u8> size()
     {
-        return {2, 2};
+        return {1, 2};
     }
 
 
@@ -48,13 +48,13 @@ public:
 
     static Icon icon()
     {
-        return 776;
+        return 1320;
     }
 
 
     static Icon unsel_icon()
     {
-        return 760;
+        return 1336;
     }
 
 
