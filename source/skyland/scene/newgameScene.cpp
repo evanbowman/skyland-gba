@@ -42,6 +42,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         app.current_map_location() = {0, 1};
         app.world_map().generate();
+        app.world_graph().generate();
 
         app.zone() = 1;
 

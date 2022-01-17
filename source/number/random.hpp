@@ -47,6 +47,17 @@ template <u32 offset> Float sample(Float n, LinearGenerator& gen)
 }
 
 
+template <u32 offset> int sample(int n, LinearGenerator& gen)
+{
+    if (choice<2>(gen)) {
+        return n + choice<offset>(gen);
+
+    } else {
+        return n - choice<offset>(gen);
+    }
+}
+
+
 template <u32 offset>
 Vec2<Float> sample(const Vec2<Float>& position, LinearGenerator& gen)
 {

@@ -7,6 +7,8 @@
 #include "highscores.hpp"
 #include "number/endian.hpp"
 #include "worldMap.hpp"
+#include "worldGraph.hpp"
+
 
 
 
@@ -24,6 +26,8 @@ struct GlobalPersistentData {
 struct PersistentData {
     Coins coins_ = 0; // TODO: use HostInteger<> here?
     WorldMap world_map_;
+    WorldGraph world_graph_;
+    int current_graph_location_ = 0;
     Vec2<u8> current_map_location_ = {0, 1};
     int zone_ = 0;
 

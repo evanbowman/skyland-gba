@@ -3,6 +3,7 @@
 
 #include "graphics/overlay.hpp"
 #include "skyland/scene.hpp"
+#include "skyland/worldGraph.hpp"
 
 
 
@@ -29,17 +30,22 @@ public:
 
 
 private:
-    void update_tree(Platform&, WorldMap& map);
+    // void update_tree(Platform&, WorldMap& map);
 
 
-    void show_map(Platform&, WorldMap& map);
+    void show_map(Platform&, WorldGraph& map);
 
 
-    void show_move_arrows(Platform&, App&);
+    // void show_move_arrows(Platform&, App&);
+
+
+    void update_storm_frontier(Platform& pfrm);
 
 
     enum class State {
         fade_in,
+        storm_scroll_in,
+        storm_advance,
         deselected,
         explore_paths,
         move,
@@ -59,14 +65,22 @@ private:
 
     bool move_arrow_sel_[3] = {false, true, false};
 
-    Vec2<u8> cursor_ = {0, 1};
+    int cursor_ = 0;
     u8 cursor_keyframe_ = 0;
     Microseconds cursor_anim_timer_ = 0;
     Microseconds timer_ = 0;
     ColorMix cmix_;
 
+    int movement_cursor_ = 0;
+    Buffer<Vec2<s8>, 10> movement_targets_;
+
+    Microseconds storm_scroll_timer_ = 0;
+    int storm_depth_ = 1;
+
     std::optional<Text> heading_;
-    std::optional<Text> key_[3];
+    std::optional<Text> warning_;
+    std::optional<Text> exit_label_;
+    // std::optional<Text> key_[3];
     std::optional<MediumIcon> save_icon_;
     std::optional<MediumIcon> help_icon_;
 };

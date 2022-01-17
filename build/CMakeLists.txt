@@ -245,6 +245,7 @@ if(GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay.s
     ${DATA_DIR}/overlay_dialog.s
     ${DATA_DIR}/overlay_world_map.s
+    ${DATA_DIR}/tilesheet_world_map_backdrop.s
     ${DATA_DIR}/overlay_island_destroyed.s
     ${DATA_DIR}/overlay_challenges.s
     ${DATA_DIR}/overlay_gamespeed.s
@@ -545,7 +546,7 @@ if(GAMEBOY_ADVANCE)
     add_tilesheet(tilesheet_enemy_0 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
     add_tilesheet(tilesheet_interior 2 2 NO NO)
-    add_tilesheet(tilesheet_top 4 3 NO NO)
+    add_tilesheet(tilesheet_world_map_backdrop 2 2 NO NO)
     add_tilesheet(skyland_title_3 0 0 YES NO)
     add_tilesheet(skyland_title_2 0 0 YES NO)
     add_tilesheet(skyland_title_1 0 0 YES NO)

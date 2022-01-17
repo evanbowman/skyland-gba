@@ -185,6 +185,12 @@ public:
     }
 
 
+    WorldGraph& world_graph()
+    {
+        return persistent_data_.world_graph_;
+    }
+
+
     Vec2<u8>& current_map_location()
     {
         return persistent_data_.current_map_location_;

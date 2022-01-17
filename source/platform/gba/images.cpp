@@ -25,7 +25,7 @@
 //;
 #include "data/tilesheet_interior.h"
 //;
-#include "data/tilesheet_top.h"
+#include "data/tilesheet_world_map_backdrop.h"
 //;
 #include "data/skyland_title_3_flattened.h"
 //;
@@ -105,7 +105,7 @@ static const TextureData tile_textures[] = {
 //;
     TEXTURE_INFO(tilesheet_interior),
 //;
-    TEXTURE_INFO(tilesheet_top),
+    TEXTURE_INFO(tilesheet_world_map_backdrop),
 //;
     TEXTURE_INFO(skyland_title_3_flattened),
 //;
