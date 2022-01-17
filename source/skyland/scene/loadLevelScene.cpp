@@ -132,6 +132,10 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
     }
 
+    case WorldGraph::Node::Type::quest:
+        app.invoke_script(pfrm, "/scripts/event/quest.lisp");
+        break;
+
     case WorldGraph::Node::Type::exit:
     case WorldGraph::Node::Type::hostile: {
         app.invoke_script(pfrm, "/scripts/event/hostile.lisp");

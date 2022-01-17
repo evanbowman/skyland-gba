@@ -30,13 +30,9 @@ public:
 
 
 private:
-    // void update_tree(Platform&, WorldMap& map);
 
 
     void show_map(Platform&, WorldGraph& map);
-
-
-    // void show_move_arrows(Platform&, App&);
 
 
     void update_storm_frontier(Platform& pfrm, WorldGraph& map, int offset);
