@@ -28,7 +28,19 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
-    app.invoke_script(pfrm, "/scripts/config/score.lisp");
+    switch (app.persistent_data().difficulty_) {
+    case PersistentData::Difficulty::beginner:
+        app.invoke_script(pfrm, "/scripts/config/easy/score.lisp");
+        break;
+
+    case PersistentData::Difficulty::experienced:
+        app.invoke_script(pfrm, "/scripts/config/normal/score.lisp");
+        break;
+
+    case PersistentData::Difficulty::expert:
+        app.invoke_script(pfrm, "/scripts/config/hard/score.lisp");
+        break;
+    }
 
 
     vram_write_flag(pfrm, app.gp_.flag_img_);
@@ -39,6 +51,10 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.coins() = 0;
 
         app.invoke_script(pfrm, "/scripts/newgame.lisp");
+
+        if (app.persistent_data().difficulty_ == PersistentData::Difficulty::beginner) {
+            app.coins() += 1000;
+        }
 
         app.current_world_location() = 0;
         app.world_graph().generate();

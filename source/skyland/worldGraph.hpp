@@ -38,13 +38,15 @@ public:
             exit,
             quest,
             hub,
+            hostile_hidden,
+            neutral_hidden,
         } type_;
 
         Vec2<s8> coord_;
     };
 
 
-    Node nodes_[18];
+    Node nodes_[20];
     u8 storm_depth_ = 1;
 };
 

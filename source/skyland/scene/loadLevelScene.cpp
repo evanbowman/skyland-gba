@@ -129,6 +129,7 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (node.type_) {
     case WorldGraph::Node::Type::neutral:
+    case WorldGraph::Node::Type::neutral_hidden:
     default: {
         app.invoke_script(pfrm, "/scripts/event/neutral.lisp");
         break;
@@ -139,7 +140,8 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case WorldGraph::Node::Type::exit:
-    case WorldGraph::Node::Type::hostile: {
+    case WorldGraph::Node::Type::hostile:
+    case WorldGraph::Node::Type::hostile_hidden: {
         app.invoke_script(pfrm, "/scripts/event/hostile.lisp");
         break;
     }

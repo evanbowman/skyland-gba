@@ -43,6 +43,7 @@ private:
         storm_scroll_in,
         storm_advance,
         deselected,
+        selected,
         move,
         wait,
         save_selected,
@@ -71,9 +72,12 @@ private:
 
     Microseconds storm_scroll_timer_ = 0;
 
+    void render_map_key(Platform& pfrm, App&);
+
     std::optional<Text> heading_;
     std::optional<Text> warning_;
     std::optional<Text> exit_label_;
+    std::optional<Text> map_key_;
     // std::optional<Text> key_[3];
     std::optional<MediumIcon> save_icon_;
     std::optional<MediumIcon> help_icon_;

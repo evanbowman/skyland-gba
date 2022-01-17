@@ -33,12 +33,13 @@ void WorldGraph::generate()
     // levels lie along the guaranteed path from start to finish. We convert one
     // graph node outside of the central path to a quest level.
 
-    int walk_point = 0;
-    nodes_[0].coord_ = {0, s8(4 + rng::choice(height - 8, rng::critical_state))};
-
     for (auto& node : nodes_) {
         node.type_ = WorldGraph::Node::Type::neutral;
+        node.coord_ = {0, 0};
     }
+
+    int walk_point = 0;
+    nodes_[0].coord_ = {0, s8(4 + rng::choice(height - 8, rng::critical_state))};
 
     while (true) {
         if (nodes_[walk_point].coord_.x > (width - (max_movement_distance - 3))) {
@@ -121,7 +122,36 @@ void WorldGraph::generate()
                 break;
             }
         }
+        if (tries == 255) {
+            nodes_[i].type_ = Node::Type::null;
+        }
     }
+
+    for (int i = 18; i < 20; ++i) {
+
+        // Place two trading hubs, somewhere in the map.
+
+        int tries = 0;
+        while ((++tries) < 255) {
+            auto x = rng::choice(width, rng::critical_state);
+            auto y = rng::choice(height, rng::critical_state);
+
+            if (placement_map[x][y]) {
+                nodes_[i].coord_.x = x;
+                nodes_[i].coord_.y = y;
+                nodes_[i].type_ = WorldGraph::Node::Type::hub;
+                invalidate_zones();
+                break;
+            }
+        }
+        if (tries == 255
+            // FIXME: actually implement trading hubs
+            or true) {
+            nodes_[i].type_ = WorldGraph::Node::Type::null;
+        }
+    }
+
+
 
     int hostile_levels = 6;
     int hostile_levels_critical_path = 0;
@@ -155,9 +185,29 @@ void WorldGraph::generate()
         }
     }
 
+    int hidden_levels = 6;
+    while (hidden_levels) {
+        for (int i = exit_node + 1; i < 18; ++i) {
+            if (hidden_levels == 0) {
+                break;
+            }
+
+            if (rng::choice<2>(rng::critical_state)) {
+                if (nodes_[i].type_ == Node::Type::hostile) {
+                    nodes_[i].type_ = Node::Type::hostile_hidden;
+                    --hidden_levels;
+                } else if (nodes_[i].type_ == Node::Type::neutral) {
+                    nodes_[i].type_ = Node::Type::neutral_hidden;
+                    --hidden_levels;
+                }
+            }
+        }
+    }
+
+
     int place_quest_levels = 1;
     while (place_quest_levels) {
-        for (int i = exit_node; i < 18; ++i) {
+        for (int i = exit_node + 2; i < 18; ++i) {
             if (place_quest_levels == 0) {
                 break;
             }
@@ -247,6 +297,69 @@ static const int map_start_y = 3;
 
 
 
+void WorldMapScene::render_map_key(Platform& pfrm, App& app)
+{
+    const char* text_ = "error";
+
+    WorldGraph::Node* node = nullptr;
+    for (auto& n : app.world_graph().nodes_) {
+        if (n.coord_ == movement_targets_[movement_cursor_]) {
+            node = &n;
+            break;
+        }
+    }
+
+    if (not node) {
+        return;
+    }
+
+    switch (node->type_) {
+    case WorldGraph::Node::Type::visited:
+        text_ = "visited";
+        break;
+
+    case WorldGraph::Node::Type::neutral:
+        text_ = "neutral";
+        break;
+
+    case WorldGraph::Node::Type::hostile:
+        text_ = "hostile";
+        break;
+
+    case WorldGraph::Node::Type::corrupted:
+        text_ = "storm";
+        break;
+
+    case WorldGraph::Node::Type::exit:
+        text_ = "";
+        break;
+
+    case WorldGraph::Node::Type::quest:
+        text_ = "quest";
+        break;
+
+    case WorldGraph::Node::Type::hub:
+        text_ = "outpost";
+        break;
+
+    case WorldGraph::Node::Type::hostile_hidden:
+    case WorldGraph::Node::Type::neutral_hidden:
+        text_ = "uncharted";
+        break;
+
+    case WorldGraph::Node::Type::null:
+        break;
+    }
+
+    if (not map_key_) {
+        map_key_.emplace(pfrm, OverlayCoord{11, 18});
+    }
+    map_key_->assign(text_);
+    update_storm_frontier(pfrm, app.world_graph(), 0);
+}
+
+
+
 ScenePtr<Scene>
 WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -267,6 +380,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             for (int y = current.coord_.y - 4; y < current.coord_.y + 5; ++y) {
                 for (auto& node : app.world_graph().nodes_) {
                     if (node.type_ not_eq WorldGraph::Node::Type::corrupted and
+                        node.type_ not_eq WorldGraph::Node::Type::null and
                         node.coord_ not_eq current.coord_ and
                         node.coord_ == Vec2<s8>{s8(x), s8(y)}) {
                         movement_targets_.insert(movement_targets_.begin(),
@@ -275,6 +389,8 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
         }
+
+        render_map_key(pfrm, app);
     };
 
 
@@ -286,14 +402,26 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                                  Key::up,
                                  Key::down,
                                  Key::action_1>()) {
+            state_ = State::selected;
+        }
+        break;
+
+    case State::selected:
+        if (app.player().key_down(pfrm, Key::action_1)) {
             to_move_state();
+        }
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            state_ = State::deselected;
+        }
+        if (app.player().key_down(pfrm, Key::down)) {
+            state_ = State::save_selected;
         }
         break;
 
     case State::save_selected:
         if (app.player().key_down(pfrm, Key::up) or
             app.player().key_down(pfrm, Key::action_2)) {
-            to_move_state();
+            state_ = State::selected;
         } else if (app.player().key_down(pfrm, Key::left)) {
             state_ = State::help_selected;
         }
@@ -309,7 +437,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::help_selected:
         if (app.player().key_down(pfrm, Key::up) or
             app.player().key_down(pfrm, Key::action_2)) {
-            to_move_state();
+            state_ = State::selected;
         } else if (app.player().key_down(pfrm, Key::right)) {
             state_ = State::save_selected;
         }
@@ -378,13 +506,16 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                 WorldGraph::Node::Type::visited) {
                 draw_stormcloud_background(pfrm, app, app.world_graph().storm_depth_, false);
                 state_ = State::storm_advance;
+                map_key_.reset();
             } else {
                 state_ = State::wait;
                 cmix_ = {ColorConstant::stil_de_grain, 200};
+                map_key_.reset();
             }
 
         } else if (app.player().key_down(pfrm, Key::action_2)) {
-            state_ = State::deselected;
+            state_ = State::selected;
+            map_key_.reset();
             show_map(pfrm, app.world_graph());
             cmix_ = {};
         }
@@ -394,13 +525,13 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             if ((u32)movement_cursor_ == movement_targets_.size()) {
                 movement_cursor_ = 0;
             }
+            render_map_key(pfrm, app);
         } else if (app.player().key_down(pfrm, Key::right)) {
             movement_cursor_--;
             if (movement_cursor_ < 0) {
                 movement_cursor_ = movement_targets_.size() - 1;
             }
-        } else if (app.player().key_down(pfrm, Key::down)) {
-            state_ = State::save_selected;
+            render_map_key(pfrm, app);
         }
         break;
     }
@@ -611,8 +742,15 @@ void WorldMapScene::display(Platform& pfrm, App& app)
     cursor.set_mix({});
 
 
-
-    if (state_ == State::move) {
+    if (state_ == State::selected) {
+        auto current = app.world_graph().nodes_[cursor_].coord_;
+        cursor.set_texture_index(15 + cursor_keyframe_);
+        cursor.set_position({
+                (current.x + map_start_x) * Float(8) - 4,
+                (current.y + map_start_y) * Float(8) - 4
+            });
+        pfrm.screen().draw(cursor);
+    } else if (state_ == State::move) {
 
         auto target = movement_targets_[movement_cursor_];
         cursor.set_texture_index(15 + cursor_keyframe_);
@@ -745,6 +883,9 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 void WorldMapScene::show_map(Platform& pfrm, WorldGraph& map)
 {
     for (auto& node : map.nodes_) {
+        if (node.type_ == WorldGraph::Node::Type::null) {
+            continue;
+        }
         if ((map_start_x + node.coord_.x) * 8 < (map.storm_depth_ + 1) * 16) {
 
             if (node.type_ == WorldGraph::Node::Type::exit) {

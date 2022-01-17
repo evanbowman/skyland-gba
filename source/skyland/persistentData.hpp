@@ -29,6 +29,12 @@ struct PersistentData {
     int current_world_location_ = 0;
     int zone_ = 0;
 
+    enum class Difficulty : u8 {
+        beginner,
+        experienced,
+        expert,
+    } difficulty_ = Difficulty::experienced;
+
     HostInteger<u32> total_seconds_;
     HostInteger<u32> total_pauses_;
     HostInteger<u16> replicants_created_;
