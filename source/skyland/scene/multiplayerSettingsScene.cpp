@@ -1,10 +1,10 @@
 #include "multiplayerSettingsScene.hpp"
 #include "fadeInScene.hpp"
 #include "localization.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/rooms/core.hpp"
-#include "skyland/entity/character/basicCharacter.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/entity/character/basicCharacter.hpp"
+#include "skyland/rooms/core.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -142,10 +142,8 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
 
     // Now that we know the size of the terrain for the multiplayer match, we
     // can create and position the two islands.
-    app.opponent_island().emplace(pfrm,
-                                  Layer::map_1_ext,
-                                  parameters_[3],
-                                  app.opponent());
+    app.opponent_island().emplace(
+        pfrm, Layer::map_1_ext, parameters_[3], app.opponent());
 
 
     app.opponent_island()->set_float_timer(
@@ -163,11 +161,8 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
     app.player_island().add_room<Core>(pfrm, app, {player_start_x, 13});
 
     auto add_player_chr = [&app](u8 x, u8 y) {
-        app.player_island()
-            .add_character(alloc_entity<BasicCharacter>(&app.player_island(),
-                                                        &app.player(),
-                                                        Vec2<u8>{x, y},
-                                                        false));
+        app.player_island().add_character(alloc_entity<BasicCharacter>(
+            &app.player_island(), &app.player(), Vec2<u8>{x, y}, false));
     };
 
     add_player_chr(player_start_x, 14);
@@ -179,11 +174,8 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
     app.opponent_island()->add_room<Core>(pfrm, app, {opponent_start_x, 13});
 
     auto add_opponent_chr = [&app](u8 x, u8 y) {
-        app.opponent_island()
-            ->add_character(alloc_entity<BasicCharacter>(&*app.opponent_island(),
-                                                         &app.opponent(),
-                                                         Vec2<u8>{x, y},
-                                                         false));
+        app.opponent_island()->add_character(alloc_entity<BasicCharacter>(
+            &*app.opponent_island(), &app.opponent(), Vec2<u8>{x, y}, false));
     };
 
     add_opponent_chr(opponent_start_x, 14);
@@ -338,7 +330,7 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-     if (app.player().key_down(pfrm, Key::right) or
+    if (app.player().key_down(pfrm, Key::right) or
         key_held_timers_[3] > milliseconds(500)) {
         if (parameters_[player_cursor_] <
             param_info[player_cursor_].upper_limit_) {

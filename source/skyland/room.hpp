@@ -42,15 +42,7 @@ struct Conditions {
 
 class Room {
 public:
-
-    enum class Category {
-        wall,
-        weapon,
-        factory,
-        power,
-        misc,
-        count
-    };
+    enum class Category { wall, weapon, factory, power, misc, count };
 
 
 

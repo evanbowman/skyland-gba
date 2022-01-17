@@ -850,12 +850,9 @@ void pop_op()
 
 void push_op(Value* operand)
 {
-    bound_context->
-        operand_stack_->push_back(operand,
-                                  nullptr,
-                                  [](void*) {
-                                      Platform::fatal("LISP stack overflow.");
-                                  });
+    bound_context->operand_stack_->push_back(operand, nullptr, [](void*) {
+        Platform::fatal("LISP stack overflow.");
+    });
 }
 
 

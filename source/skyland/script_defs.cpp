@@ -5,6 +5,7 @@
 #include "opponent/friendlyAI.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "room_metatable.hpp"
+#include "rooms/cargoBay.hpp"
 #include "rooms/core.hpp"
 #include "scene/scriptHookScene.hpp"
 #include "script/lisp.hpp"
@@ -12,7 +13,6 @@
 #include "serial.hpp"
 #include "sharedVariable.hpp"
 #include "skyland.hpp"
-#include "rooms/cargoBay.hpp"
 
 
 
@@ -187,29 +187,29 @@ static const lisp::Binding script_api[] = {
      }},
     {"dialog",
      [](int argc) {
-            auto app = interp_get_app();
-            auto pfrm = lisp::interp_get_pfrm();
+         auto app = interp_get_app();
+         auto pfrm = lisp::interp_get_pfrm();
 
-            for (int i = argc - 1; i > -1; --i) {
-                if (not app->dialog_buffer()) {
-                    app->dialog_buffer().emplace(
-                        allocate_dynamic<DialogString>(*pfrm));
-                }
+         for (int i = argc - 1; i > -1; --i) {
+             if (not app->dialog_buffer()) {
+                 app->dialog_buffer().emplace(
+                     allocate_dynamic<DialogString>(*pfrm));
+             }
 
-                if (lisp::get_op(i)->type() not_eq lisp::Value::Type::string) {
-                    if (lisp::get_op((i)) == L_NIL) {
-                        return lisp::get_op((i));
-                    } else {
-                        return lisp::make_error(
-                            lisp::Error::Code::invalid_argument_type, L_NIL);
-                    }
-                }
+             if (lisp::get_op(i)->type() not_eq lisp::Value::Type::string) {
+                 if (lisp::get_op((i)) == L_NIL) {
+                     return lisp::get_op((i));
+                 } else {
+                     return lisp::make_error(
+                         lisp::Error::Code::invalid_argument_type, L_NIL);
+                 }
+             }
 
-                **app->dialog_buffer() += lisp::get_op(i)->string().value();
-            }
+             **app->dialog_buffer() += lisp::get_op(i)->string().value();
+         }
 
-            return L_NIL;
-        }},
+         return L_NIL;
+     }},
     {"rooms",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);
@@ -728,7 +728,8 @@ static const lisp::Binding script_api[] = {
 
          Platform::fatal(error.c_str());
      }},
-    {"task", [](int argc) {
+    {"task",
+     [](int argc) {
          L_EXPECT_ARGC(argc, 2);
          L_EXPECT_OP(1, integer);
          L_EXPECT_OP(0, function);
@@ -743,49 +744,50 @@ static const lisp::Binding script_api[] = {
          info(*lisp::interp_get_pfrm(), "exit stack");
 
          return L_NIL;
-    }},
-    {"cargo", [](int argc) {
-        L_EXPECT_ARGC(argc, 3);
-        L_EXPECT_OP(0, integer); // y
-        L_EXPECT_OP(1, integer); // x
-        L_EXPECT_OP(2, user_data);
+     }},
+    {"cargo",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 3);
+         L_EXPECT_OP(0, integer); // y
+         L_EXPECT_OP(1, integer); // x
+         L_EXPECT_OP(2, user_data);
 
-        auto island = (Island*)lisp::get_op(2)->user_data().obj_;
-        const u8 x = lisp::get_op(1)->integer().value_;
-        const u8 y = lisp::get_op(0)->integer().value_;
+         auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+         const u8 x = lisp::get_op(1)->integer().value_;
+         const u8 y = lisp::get_op(0)->integer().value_;
 
-        if (auto room = island->get_room({x, y})) {
-            if (auto cb = dynamic_cast<CargoBay*>(room)) {
-                if (*cb->cargo() not_eq '\0') {
-                    return lisp::make_string(*lisp::interp_get_pfrm(),
-                                             cb->cargo());
-                }
-            } else {
-                Platform::fatal("Requested cargo from "
-                                "non cargo-bay room.");
-            }
-        }
-        return L_NIL;
-    }},
+         if (auto room = island->get_room({x, y})) {
+             if (auto cb = dynamic_cast<CargoBay*>(room)) {
+                 if (*cb->cargo() not_eq '\0') {
+                     return lisp::make_string(*lisp::interp_get_pfrm(),
+                                              cb->cargo());
+                 }
+             } else {
+                 Platform::fatal("Requested cargo from "
+                                 "non cargo-bay room.");
+             }
+         }
+         return L_NIL;
+     }},
     {"cargo-set", [](int argc) {
-        L_EXPECT_ARGC(argc, 4);
-        L_EXPECT_OP(0, string);  // cargo
-        L_EXPECT_OP(1, integer); // y
-        L_EXPECT_OP(2, integer); // x
-        L_EXPECT_OP(3, user_data);
+         L_EXPECT_ARGC(argc, 4);
+         L_EXPECT_OP(0, string);  // cargo
+         L_EXPECT_OP(1, integer); // y
+         L_EXPECT_OP(2, integer); // x
+         L_EXPECT_OP(3, user_data);
 
-        auto island = (Island*)lisp::get_op(3)->user_data().obj_;
-        const u8 x = lisp::get_op(2)->integer().value_;
-        const u8 y = lisp::get_op(1)->integer().value_;
+         auto island = (Island*)lisp::get_op(3)->user_data().obj_;
+         const u8 x = lisp::get_op(2)->integer().value_;
+         const u8 y = lisp::get_op(1)->integer().value_;
 
-        if (auto room = island->get_room({x, y})) {
-            if (auto cb = dynamic_cast<CargoBay*>(room)) {
-                cb->set_cargo(lisp::get_op(0)->string().value());
-            }
-        }
+         if (auto room = island->get_room({x, y})) {
+             if (auto cb = dynamic_cast<CargoBay*>(room)) {
+                 cb->set_cargo(lisp::get_op(0)->string().value());
+             }
+         }
 
-        return L_NIL;
-    }}};
+         return L_NIL;
+     }}};
 
 
 

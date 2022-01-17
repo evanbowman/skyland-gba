@@ -1,11 +1,11 @@
 #include "ionCannon.hpp"
+#include "localization.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
-#include "localization.hpp"
 
 
 
@@ -21,7 +21,7 @@ SHARED_VARIABLE(ion_cannon_reload_ms);
 void IonCannon::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Deals ion damage. Ion bursts pass harmlessly through most "
-        "rooms, but deals ";
+              "rooms, but deals ";
     buffer += to_string<10>(ion_burst_damage);
     buffer += " damage every ";
     auto secs = ion_cannon_reload_ms / 1000;
@@ -29,7 +29,7 @@ void IonCannon::format_description(StringBuffer<512>& buffer)
     buffer += ".";
     buffer += to_string<10>((ion_cannon_reload_ms / 100 - secs * 10));
     buffer += "s to forcefields, reactors, etc.. Requires "
-        "a workshop to build.";
+              "a workshop to build.";
 }
 
 

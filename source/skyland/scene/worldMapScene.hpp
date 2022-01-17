@@ -30,9 +30,7 @@ public:
 
 
 private:
-
-
-    void show_map(Platform&, WorldGraph& map);
+    void show_map(Platform&, WorldGraph& map, int storm_depth);
 
 
     void update_storm_frontier(Platform& pfrm, WorldGraph& map, int offset);
@@ -52,11 +50,16 @@ private:
         help_selected,
         help_button_depressed,
         help_button_released_wait,
+        settings_selected,
+        settings_button_depressed,
+        settings_button_released_wait,
         fade_out,
         fade_out_saved,
         fade_out_help,
+        fade_out_settings,
         print_saved_text,
         show_saved_text,
+        show_node_death_icons,
     } state_ = State::fade_in;
 
     bool move_arrow_sel_[3] = {false, true, false};
@@ -69,6 +72,7 @@ private:
 
     int movement_cursor_ = 0;
     Buffer<Vec2<s8>, 10> movement_targets_;
+    Buffer<Vec2<s8>, 10> dead_nodes_;
 
     Microseconds storm_scroll_timer_ = 0;
 
@@ -81,6 +85,7 @@ private:
     // std::optional<Text> key_[3];
     std::optional<MediumIcon> save_icon_;
     std::optional<MediumIcon> help_icon_;
+    std::optional<MediumIcon> settings_icon_;
 };
 
 

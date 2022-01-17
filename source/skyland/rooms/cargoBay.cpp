@@ -1,6 +1,6 @@
 #include "cargoBay.hpp"
-#include <string.h>
 #include "skyland/tile.hpp"
+#include <string.h>
 
 
 
@@ -19,7 +19,7 @@ CargoBay::CargoBay(Island* parent, const Vec2<u8>& position)
 void CargoBay::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Stores one unit of cargo. Building a cargo bay enables quests "
-        "in adventure mode!";
+              "in adventure mode!";
 }
 
 
@@ -70,4 +70,4 @@ void CargoBay::render_exterior(App& app, u8 buffer[16][16])
 
 
 
-}
+} // namespace skyland

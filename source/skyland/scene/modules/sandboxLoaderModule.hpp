@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "skyland/scene/module.hpp"
 #include "graphics/overlay.hpp"
+#include "skyland/scene/module.hpp"
 
 
 
@@ -39,7 +39,7 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
-    void display(Platform& , App&) override;
+    void display(Platform&, App&) override;
 
 
     static bool enable_custom_scripts()

@@ -1,8 +1,8 @@
 #include "glossaryViewerModule.hpp"
-#include "skyland/room_metatable.hpp"
-#include "skyland/skyland.hpp"
 #include "localization.hpp"
+#include "skyland/room_metatable.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -60,9 +60,8 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
         item_description_.emplace(pfrm);
     }
 
-    item_description_->assign(description.c_str(),
-                              OverlayCoord{1, 7},
-                              OverlayCoord{28, 12});
+    item_description_->assign(
+        description.c_str(), OverlayCoord{1, 7}, OverlayCoord{28, 12});
 }
 
 
@@ -87,9 +86,8 @@ void GlossaryViewerModule::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-ScenePtr<Scene> GlossaryViewerModule::update(Platform& pfrm,
-                                             App& app,
-                                             Microseconds delta)
+ScenePtr<Scene>
+GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto [mt, ms] = room_metatable();
 
@@ -119,4 +117,4 @@ GlossaryViewerModule::Factory GlossaryViewerModule::factory_;
 
 
 
-}
+} // namespace skyland

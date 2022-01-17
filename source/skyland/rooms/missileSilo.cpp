@@ -1,4 +1,5 @@
 #include "missileSilo.hpp"
+#include "localization.hpp"
 #include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/projectile/missile.hpp"
@@ -7,7 +8,6 @@
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
-#include "localization.hpp"
 
 
 
@@ -27,7 +27,7 @@ static Sound missile_sound("missile");
 void MissileSilo::format_description(StringBuffer<512>& buffer)
 {
     buffer += "A weapon for targeting the roof of an enemy fortress. "
-        "Deals ";
+              "Deals ";
     buffer += to_string<10>(missile_damage);
     buffer += " damage every ";
     auto secs = missile_silo_reload_ms / 1000;
@@ -36,7 +36,6 @@ void MissileSilo::format_description(StringBuffer<512>& buffer)
     buffer += to_string<10>((missile_silo_reload_ms / 100 - secs * 10));
     buffer += " seconds.";
 }
-
 
 
 

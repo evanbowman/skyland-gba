@@ -62,7 +62,7 @@ void HintScene::exit(Platform& pfrm, App&, Scene& next)
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
     heading_.reset();
     body_.reset();
-    pfrm.fill_overlay(82);
+    pfrm.fill_overlay(0);
 }
 
 

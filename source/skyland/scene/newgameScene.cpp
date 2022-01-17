@@ -52,7 +52,8 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         app.invoke_script(pfrm, "/scripts/newgame.lisp");
 
-        if (app.persistent_data().difficulty_ == PersistentData::Difficulty::beginner) {
+        if (app.persistent_data().difficulty_ ==
+            PersistentData::Difficulty::beginner) {
             app.coins() += 1000;
         }
 

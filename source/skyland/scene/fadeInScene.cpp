@@ -27,6 +27,7 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (node.type_ == WorldGraph::Node::Type::hostile or
                 node.type_ == WorldGraph::Node::Type::corrupted or
+                node.type_ == WorldGraph::Node::Type::hostile_hidden or
                 app.game_mode() == App::GameMode::challenge) {
                 app.game_speed() = GameSpeed::stopped;
             }

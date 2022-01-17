@@ -6,9 +6,8 @@
 #include "flag.hpp"
 #include "highscores.hpp"
 #include "number/endian.hpp"
-#include "worldMap.hpp"
 #include "worldGraph.hpp"
-
+#include "worldMap.hpp"
 
 
 

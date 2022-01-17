@@ -2,6 +2,7 @@
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
 #include "localization.hpp"
+#include "modules/glossaryViewerModule.hpp"
 #include "platform/platform.hpp"
 #include "readyScene.hpp"
 #include "salvageRoomScene.hpp"
@@ -12,7 +13,6 @@
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "worldScene.hpp"
-#include "modules/glossaryViewerModule.hpp"
 
 
 
@@ -209,7 +209,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             u32 i = 0;
             for (i = 0; i < available_buildings_.size(); ++i) {
                 auto other_category =
-                    (*available_buildings_[(building_selector_ + i) % available_buildings_.size()])->category();
+                    (*available_buildings_[(building_selector_ + i) %
+                                           available_buildings_.size()])
+                        ->category();
                 if (other_category not_eq current_category) {
                     break;
                 }
@@ -224,12 +226,12 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             const auto current_category =
                 (*available_buildings_[building_selector_])->category();
 
-            auto target_category =
-                (Room::Category)(((u32)current_category - 1)
-                                 % (u32)Room::Category::count);
+            auto target_category = (Room::Category)(
+                ((u32)current_category - 1) % (u32)Room::Category::count);
 
             if (target_category == current_category) {
-                target_category = (Room::Category)((int)Room::Category::count - 1);
+                target_category =
+                    (Room::Category)((int)Room::Category::count - 1);
             }
 
             u32 i;
@@ -554,7 +556,8 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                     // Odd sized room in y direction. Draw bottom row:
                     sprite.set_texture_index(14);
                     for (int x = 0; x < sz.x; ++x) {
-                        sprite.set_position({origin.x + x * 16, origin.y + (sz.y - 2) * 16});
+                        sprite.set_position(
+                            {origin.x + x * 16, origin.y + (sz.y - 2) * 16});
                         pfrm.screen().draw(sprite);
                     }
                 }

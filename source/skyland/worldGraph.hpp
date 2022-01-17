@@ -11,7 +11,6 @@ namespace skyland {
 
 class WorldGraph {
 public:
-
     static const int width = 21;
     static const int height = 12;
 
@@ -52,4 +51,4 @@ public:
 
 
 
-}
+} // namespace skyland

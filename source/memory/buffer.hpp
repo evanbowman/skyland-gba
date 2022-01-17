@@ -114,9 +114,10 @@ public:
         }
     }
 
-    bool push_back(const T& elem,
-                   void* overflow_callback_data = nullptr,
-                   void (*overflow_callback)(void*) = [](void*) {})
+    bool push_back(
+        const T& elem,
+        void* overflow_callback_data = nullptr,
+        void (*overflow_callback)(void*) = [](void*) {})
     {
         static_assert(std::is_trivially_destructible<T>());
         if (Buffer::size() < Buffer::capacity()) {

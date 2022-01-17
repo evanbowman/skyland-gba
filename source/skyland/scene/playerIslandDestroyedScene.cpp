@@ -412,8 +412,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = milliseconds(350);
         if (timer_ > fade_duration) {
             if (island_ not_eq &app.player_island()) {
-                if (app.world_graph().nodes_[app.current_world_location()].type_
-                    == WorldGraph::Node::Type::exit) {
+                if (app.world_graph()
+                        .nodes_[app.current_world_location()]
+                        .type_ == WorldGraph::Node::Type::exit) {
                     // We're at the exit node. Let's adjust stuff, so that we're at
                     // the beginning of the next zone.
                     app.current_world_location() = 0;

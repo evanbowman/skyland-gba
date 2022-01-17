@@ -1,7 +1,7 @@
 #pragma once
 
-#include "skyland/scene/module.hpp"
 #include "graphics/overlay.hpp"
+#include "skyland/scene/module.hpp"
 
 
 
@@ -45,7 +45,6 @@ public:
 
 
 private:
-
     void load_page(Platform& pfrm, int page);
 
 
@@ -65,4 +64,4 @@ private:
 
 
 
-}
+} // namespace skyland

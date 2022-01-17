@@ -1,9 +1,9 @@
 #include "decimator.hpp"
+#include "localization.hpp"
 #include "skyland/entity/projectile/decimatorBurst.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
-#include "localization.hpp"
 
 
 
@@ -23,8 +23,8 @@ void Decimator::format_description(StringBuffer<512>& buffer)
     buffer += ".";
     buffer += to_string<10>((decimator_reload_ms / 100 - secs * 10));
     buffer += " second recharge. "
-        "Reloads and fires only when inhabited by a character. Requires "
-        "a foundry to build.";
+              "Reloads and fires only when inhabited by a character. Requires "
+              "a foundry to build.";
 }
 
 

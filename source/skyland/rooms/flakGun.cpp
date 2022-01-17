@@ -25,8 +25,8 @@ extern Sound cannon_sound;
 void FlakGun::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Deals low damage, but spread over large areas. "
-        "Highly destructive when used in groups against castles "
-        "with thin hull. Requires a workshop.";
+              "Highly destructive when used in groups against castles "
+              "with thin hull. Requires a workshop.";
 }
 
 

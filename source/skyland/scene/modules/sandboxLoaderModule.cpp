@@ -1,7 +1,7 @@
 #include "sandboxLoaderModule.hpp"
+#include "localization.hpp"
 #include "skyland/scene/fadeInScene.hpp"
 #include "skyland/skyland.hpp"
-#include "localization.hpp"
 
 
 
@@ -18,7 +18,7 @@ void prep_level(Platform& pfrm, App& app);
 
 
 const SandboxLoaderModule::ParameterInfo
-SandboxLoaderModule::param_info[decltype(parameters_)::capacity()] = {
+    SandboxLoaderModule::param_info[decltype(parameters_)::capacity()] = {
         {"coins", 1000, 1000, 100000000},
         {"terrain size", 1, 4, 13},
 };
@@ -193,14 +193,11 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().key_down(pfrm, Key::right) or
         key_held_timers_[3] > milliseconds(500)) {
-        if (parameters_[cursor_] <
-            param_info[cursor_].upper_limit_) {
-            parameters_[cursor_] +=
-                param_info[cursor_].increment_;
+        if (parameters_[cursor_] < param_info[cursor_].upper_limit_) {
+            parameters_[cursor_] += param_info[cursor_].increment_;
 
             if (long_hold_time_[0] > milliseconds(2000)) {
-                parameters_[cursor_] +=
-                    param_info[cursor_].increment_ * 9;
+                parameters_[cursor_] += param_info[cursor_].increment_ * 9;
             }
         }
         update_parameter(cursor_);
@@ -208,33 +205,28 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_down(pfrm, Key::left) or
-               key_held_timers_[2] > milliseconds(500)) {
+        key_held_timers_[2] > milliseconds(500)) {
         parameters_[cursor_] -= param_info[cursor_].increment_;
         if (long_hold_time_[1] > milliseconds(2000)) {
-                parameters_[cursor_] -=
-                    param_info[cursor_].increment_ * 9;
+            parameters_[cursor_] -= param_info[cursor_].increment_ * 9;
         }
-        if (parameters_[cursor_] <
-            param_info[cursor_].lower_limit_) {
-            parameters_[cursor_] =
-                param_info[cursor_].lower_limit_;
+        if (parameters_[cursor_] < param_info[cursor_].lower_limit_) {
+            parameters_[cursor_] = param_info[cursor_].lower_limit_;
         }
         update_parameter(cursor_);
         key_held_timers_[2] -= milliseconds(80);
 
         if (long_hold_time_[0] > milliseconds(2000)) {
-            parameters_[cursor_] +=
-                param_info[cursor_].increment_ * 3;
+            parameters_[cursor_] += param_info[cursor_].increment_ * 3;
         }
     }
 
     if (app.player().key_down(pfrm, Key::down) and
-               cursor_ < parameters_.size() - 1) {
+        cursor_ < parameters_.size() - 1) {
         ++cursor_;
 
     } else if (app.player().key_down(pfrm, Key::up) and cursor_ > 0) {
         --cursor_;
-
     }
 
 

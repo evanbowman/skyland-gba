@@ -11,7 +11,7 @@ namespace skyland {
 void PlunderedRoom::format_description(StringBuffer<512>& buffer)
 {
     buffer += "A placeholder structure created after a character destroys a "
-        "room by plundering.";
+              "room by plundering.";
 }
 
 

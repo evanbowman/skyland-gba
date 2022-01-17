@@ -10,7 +10,6 @@ namespace skyland {
 
 class Reactor : public Room {
 public:
-
     Reactor(Island* parent, const Vec2<u8>& position);
 
 
@@ -71,4 +70,4 @@ public:
 
 
 
-}
+} // namespace skyland

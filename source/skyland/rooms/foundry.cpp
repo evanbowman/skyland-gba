@@ -9,10 +9,9 @@ namespace skyland {
 
 void Foundry::format_description(StringBuffer<512>& buffer)
 {
-    buffer +=
-        "An upgraded workshop. "
-        "Slightly lowers the construction cost of all rooms. "
-        "Allows you to build new types of structures.";
+    buffer += "An upgraded workshop. "
+              "Slightly lowers the construction cost of all rooms. "
+              "Allows you to build new types of structures.";
 }
 
 

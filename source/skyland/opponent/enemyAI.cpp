@@ -150,8 +150,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                                 [&]() -> std::optional<Vec2<u8>> {
                                 for (auto it = boarded_ai_characters.begin();
                                      it not_eq boarded_ai_characters.end();) {
-                                    if ((*it).first->health() < 25 and not
-                                        (*it).first->is_replicant()) {
+                                    if ((*it).first->health() < 25 and
+                                        not(*it).first->is_replicant()) {
                                         it = boarded_ai_characters.erase(it);
                                         return (*it).first->grid_position();
                                     } else {
