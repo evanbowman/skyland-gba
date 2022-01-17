@@ -159,6 +159,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
+  ${SOURCE_DIR}/skyland/scene/adventureModeSettingsScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/glossaryViewerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/sandboxLoaderModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/textEditorModule.cpp
