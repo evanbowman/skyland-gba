@@ -84,7 +84,7 @@ public:
                 }
 
                 for (auto& room : heal_queue) {
-                    room->heal(8);
+                    room->heal(7);
                 }
 
                 timer_ = 0;
