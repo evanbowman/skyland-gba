@@ -39,6 +39,8 @@ void set_island_positions(Island& left_island, Island& right_island)
 void LoadLevelScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
+
+    app.player_island().repaint(pfrm, app);
 }
 
 

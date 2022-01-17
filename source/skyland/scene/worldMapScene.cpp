@@ -183,6 +183,10 @@ static void draw_stormcloud_background(Platform& pfrm,
         for (int x = 0; x < 16; ++x) {
             for (int y = 0; y < 16; ++y) {
                 pfrm.set_tile(Layer::map_1_ext, x, y, 1);
+
+                // In case the player's island overlaps with the map_1
+                // background.
+                pfrm.set_tile(Layer::map_0_ext, x, y, 0);
             }
         }
     }
@@ -195,7 +199,13 @@ static void draw_stormcloud_background(Platform& pfrm,
 
     int edge = cloud_depth;
     for (int y = 0; y < 16; ++y) {
-        pfrm.set_tile(Layer::map_1_ext, edge, y, 3 + (y % 4));
+        const auto t = 3 + (y % 4);
+        if (t == 3) {
+            pfrm.set_tile(Layer::map_1_ext, edge - 1, y, 8);
+        } else if (t == 6) {
+            pfrm.set_tile(Layer::map_1_ext, edge - 1, y, 9);
+        }
+        pfrm.set_tile(Layer::map_1_ext, edge, y, t);
     }
 }
 
