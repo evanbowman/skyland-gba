@@ -3042,8 +3042,8 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
     // disabling the audio interrupts when queueing a new sound effect cause
     // audio artifacts, because the sound chip is not receiving samples?
     play_sound("footstep1", 0);
-    // play_sound("footstep2", 0);
-    // play_sound("footstep3", 0);
+    play_sound("footstep2", 0);
+    play_sound("footstep3", 0);
 }
 
 
