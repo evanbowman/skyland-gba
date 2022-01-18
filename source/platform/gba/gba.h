@@ -742,6 +742,35 @@ typedef enum KEYPAD_BITS {
 #define S3511A_STATUS_POWER  0x80 // power on or power failure occurred
 
 
+
+//! General DMA transfer macro
+#define DMA_TRANSFER(_dst, _src, count, ch, mode)   \
+do {                                            \
+    REG_DMA[ch].cnt= 0;                         \
+    REG_DMA[ch].src= (const void*)(_src);       \
+    REG_DMA[ch].dst= (void*)(_dst);             \
+    REG_DMA[ch].cnt= (count) | (mode);          \
+} while(0)
+
+
+typedef struct DMA_REC
+{
+	const void *src;
+	void *dst;
+	u32 cnt;
+} DMA_REC;
+
+
+#define REG_DMA			((volatile DMA_REC*)(REG_BASE+0x00B0))	//!< DMA as DMA_REC array
+#define DMA_ENABLE		0x80000000	//!< Enable DMA
+#define DMA_REPEAT		0x02000000	//!< Repeat transfer at next start condition
+#define DMA_AT_HBLANK	0x20000000	//!< Start transfer at HBlank
+#define DMA_DST_RELOAD	0x00600000	//!< Increment destination, reset after full run
+
+#define DMA_HDMA	(DMA_ENABLE | DMA_REPEAT | DMA_AT_HBLANK | DMA_DST_RELOAD)
+
+
+
 #ifdef __cplusplus
 }	   // extern "C"
 #endif

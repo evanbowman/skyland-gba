@@ -19,8 +19,8 @@
 #include "mixer.hpp"
 
 
-int parallax_table[280];
-int vertical_parallax_table[280];
+s16 parallax_table[280];
+s16 vertical_parallax_table[280];
 
 
 extern "C" {

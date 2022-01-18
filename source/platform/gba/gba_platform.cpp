@@ -1126,8 +1126,8 @@ static void map_dynamic_textures()
 }
 
 
-extern int parallax_table[280];
-extern int vertical_parallax_table[280];
+extern s16 parallax_table[280];
+extern s16 vertical_parallax_table[280];
 
 
 static u16 x0_scroll = 0;
@@ -1285,16 +1285,6 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 static volatile bool audio_update_fallback = false;
 static volatile bool vbl_mixed_audio = false;
 AudioBuffer* buffer_needs_sfx = nullptr;
-
-
-// static void vblank_isr()
-// {
-//     if (audio_update_fallback) {
-//         buffer_needs_sfx = audio_mix_music_only();
-//     }
-
-//     rumble_update();
-// }
 
 
 static int scratch_buffers_in_use = 0;
@@ -3533,6 +3523,7 @@ Platform::Platform()
     irqInit(); // NOTE: Do not move these lines with respect to
                // unlock_gameboy_player(), or you could break the rumble
                // unlocking.
+
     irqEnable(IRQ_VBLANK);
 
     if (unlock_gameboy_player(*this)) {
@@ -5191,6 +5182,33 @@ void read_dlc(Platform&);
 
 
 
+// NOTE: Sometimes SKYLAND requires both vertical and horizontal scrolling the
+// background, sometimes it only uses horizontal scrolling. We use two different
+// VBlank Interrupt handlers, depending on the scrolling method. Now, at some
+// point, we may actually want to use the vblank isr for other stuff! So we
+// should really think about just setting a global function pointer and calling
+// it in a single monolithic vblank hander.
+static void vblank_full_transfer_scroll_isr()
+{
+    DMA_TRANSFER((volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
+    DMA_TRANSFER((volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, DMA_HDMA);
+}
+
+
+
+static void vblank_horizontal_transfer_scroll_isr()
+{
+    DMA_TRANSFER((volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
+    // Yeah, so the easiest thing to do is simply disable the dma transfer
+    // here. Technically, we could also disable the hblank dma whereever we
+    // assign this interrupt handler, and we wouldn't waste time in the vblank
+    // irq. But then I'd have to remember to turn off the transfer for vertical
+    // scrolls whenever I switch the handlers.
+    DMA_TRANSFER((volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
+}
+
+
+
 void* Platform::system_call(const char* feature_name, void* arg)
 {
     if (str_cmp(feature_name, "_prlx7") == 0) {
@@ -5262,8 +5280,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
         set_gflag(GlobalFlag::parallax_clouds, (bool)arg);
 
         if ((bool)arg) {
-            irqEnable(IRQ_HBLANK);
-            irqSet(IRQ_HBLANK, hblank_full_scroll_isr);
+            irqSet(IRQ_VBLANK, vblank_full_transfer_scroll_isr);
             for (int i = 0; i < 280; ++i) {
                 if (i < 140) {
                     vertical_parallax_table[i] = 200;
@@ -5271,16 +5288,14 @@ void* Platform::system_call(const char* feature_name, void* arg)
                     vertical_parallax_table[i] = 0;
                 }
             }
-        } else {
-            irqDisable(IRQ_HBLANK);
         }
     } else if (str_cmp(feature_name, "v-parallax") == 0) {
         set_gflag(GlobalFlag::v_parallax, (bool)arg);
 
         if ((bool)arg) {
-            irqSet(IRQ_HBLANK, hblank_full_scroll_isr);
+            irqSet(IRQ_VBLANK, vblank_full_transfer_scroll_isr);
         } else {
-            irqSet(IRQ_HBLANK, hblank_x_scroll_isr);
+            irqSet(IRQ_VBLANK, vblank_horizontal_transfer_scroll_isr);
         }
     } else if (str_cmp(feature_name, "dlc-download") == 0) {
         read_dlc(*this);
