@@ -1831,6 +1831,64 @@ static std::optional<Platform::UnrecoverrableErrorCallback>
 
 
 
+
+static void vblank_full_transfer_scroll_isr()
+{
+    DMA_TRANSFER((volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
+    DMA_TRANSFER((volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, DMA_HDMA);
+}
+
+
+
+static void vblank_horizontal_transfer_scroll_isr()
+{
+    DMA_TRANSFER((volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
+
+    // Disable prior transfer.
+    DMA_TRANSFER((volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
+}
+
+
+
+void (*vblank_scroll_callback)() = vblank_full_transfer_scroll_isr;
+
+
+
+static int watchdog_counter;
+
+
+
+static void vblank_isr()
+{
+    vblank_scroll_callback();
+
+    watchdog_counter += 1;
+
+    const auto ten_seconds = 60 * 10; // approx. 60 fps
+    if (UNLIKELY(::watchdog_counter > ten_seconds)) {
+        ::watchdog_counter = 0;
+
+        ::platform->speaker().stop_music();
+
+        if (not canary_check()) {
+            REG_SOUNDCNT_X = 0; // Disable the sound chip.
+            // on_stack_overflow() disables some interrupts, but we want to
+            // disable additional ones, as we will not be leaving this interrupt
+            // handler.
+            irqDisable(IRQ_TIMER1 | IRQ_SERIAL);
+            on_stack_overflow();
+        } else {
+            if (::platform and ::unrecoverrable_error_callback) {
+                (*::unrecoverrable_error_callback)(*platform);
+            }
+        }
+
+        restart();
+    }
+}
+
+
+
 void Platform::fatal(const char* msg)
 {
     if (::platform and ::unrecoverrable_error_callback) {
@@ -2506,16 +2564,15 @@ SynchronizedBase::~SynchronizedBase()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-// static const u32 initial_log_write_loc = 16000;
-// static u32 log_write_loc = initial_log_write_loc;
-
 
 Platform::Logger::Logger()
 {
 }
 
 
+
 static Severity log_threshold;
+
 
 
 void Platform::Logger::set_threshold(Severity severity)
@@ -2524,28 +2581,20 @@ void Platform::Logger::set_threshold(Severity severity)
 }
 
 
-// static void mgba_log(const char* msg)
-// {
-//     *reinterpret_cast<uint16_t*>(0x4FFF780) = 0xC0DE;
-
-//     int max_characters_per_line = 256;
-//     auto reg_debug_string = reinterpret_cast<char*>(0x4FFF600);
-//     int characters_left = str_len(msg);
-
-//     while (characters_left > 0) {
-//         volatile u16& reg_debug_flags = *reinterpret_cast<u16*>(0x4FFF700);
-
-//         int characters_to_write =
-//             std::min(characters_left, max_characters_per_line);
-//         __builtin_memcpy(reg_debug_string, msg, characters_to_write);
-//         reg_debug_flags = 2 | 0x100;
-//         msg += characters_to_write;
-//         characters_left -= characters_to_write;
-//     }
-// }
-
 
 std::optional<Vector<char>> log_data_;
+
+
+
+Vector<char>* Platform::Logger::data()
+{
+    if (log_data_) {
+        return &*log_data_;
+    }
+
+    return nullptr;
+}
+
 
 
 void Platform::Logger::log(Severity level, const char* msg)
@@ -3064,37 +3113,6 @@ void Platform::soft_exit()
 }
 
 
-static Microseconds watchdog_counter;
-
-
-static void watchdog_update_isr()
-{
-    // NOTE: The watchdog timer is configured to have a period of 61.04
-    // microseconds. 0xffff is the max counter value upon overflow.
-    ::watchdog_counter += 61 * 0xffff;
-
-    if (UNLIKELY(::watchdog_counter > seconds(10))) {
-        ::watchdog_counter = 0;
-
-        ::platform->speaker().stop_music();
-
-        if (not canary_check()) {
-            REG_SOUNDCNT_X = 0; // Disable the sound chip.
-            // on_stack_overflow() disables some interrupts, but we want to
-            // disable additional ones, as we will not be leaving this interrupt
-            // handler.
-            irqDisable(IRQ_TIMER1 | IRQ_SERIAL);
-            on_stack_overflow();
-        } else {
-            if (::platform and ::unrecoverrable_error_callback) {
-                (*::unrecoverrable_error_callback)(*platform);
-            }
-        }
-
-        restart();
-    }
-}
-
 
 void Platform::feed_watchdog()
 {
@@ -3130,16 +3148,6 @@ void Platform::walk_filesystem(Function<32, void(const char* path)> callback)
     filesystem::walk(callback);
 }
 
-
-
-static void enable_watchdog()
-{
-    irqEnable(IRQ_TIMER2);
-    irqSet(IRQ_TIMER2, watchdog_update_isr);
-
-    REG_TM2CNT_H = 0x00C3;
-    REG_TM2CNT_L = 0;
-}
 
 
 bool use_optimized_waitstates = true;
@@ -3525,6 +3533,7 @@ Platform::Platform()
                // unlocking.
 
     irqEnable(IRQ_VBLANK);
+    irqSet(IRQ_VBLANK, vblank_isr);
 
     if (unlock_gameboy_player(*this)) {
         info(*this, "gameboy player unlocked!");
@@ -3573,8 +3582,6 @@ Platform::Platform()
 
         info(*::platform, str.c_str());
     }
-
-    enable_watchdog();
 
     audio_start();
 
@@ -4770,9 +4777,7 @@ void Platform::NetworkPeer::disconnect()
         info(*::platform, "disconnected!");
         set_gflag(GlobalFlag::multiplayer_connected, false);
         irqDisable(IRQ_SERIAL);
-        if (multiplayer_is_master()) {
-            enable_watchdog();
-        }
+        irqDisable(IRQ_TIMER2);
         REG_SIOCNT = 0;
 
         auto& mc = multiplayer_comms;
@@ -5182,33 +5187,6 @@ void read_dlc(Platform&);
 
 
 
-// NOTE: Sometimes SKYLAND requires both vertical and horizontal scrolling the
-// background, sometimes it only uses horizontal scrolling. We use two different
-// VBlank Interrupt handlers, depending on the scrolling method. Now, at some
-// point, we may actually want to use the vblank isr for other stuff! So we
-// should really think about just setting a global function pointer and calling
-// it in a single monolithic vblank hander.
-static void vblank_full_transfer_scroll_isr()
-{
-    DMA_TRANSFER((volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
-    DMA_TRANSFER((volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, DMA_HDMA);
-}
-
-
-
-static void vblank_horizontal_transfer_scroll_isr()
-{
-    DMA_TRANSFER((volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
-    // Yeah, so the easiest thing to do is simply disable the dma transfer
-    // here. Technically, we could also disable the hblank dma whereever we
-    // assign this interrupt handler, and we wouldn't waste time in the vblank
-    // irq. But then I'd have to remember to turn off the transfer for vertical
-    // scrolls whenever I switch the handlers.
-    DMA_TRANSFER((volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
-}
-
-
-
 void* Platform::system_call(const char* feature_name, void* arg)
 {
     if (str_cmp(feature_name, "_prlx7") == 0) {
@@ -5280,7 +5258,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
         set_gflag(GlobalFlag::parallax_clouds, (bool)arg);
 
         if ((bool)arg) {
-            irqSet(IRQ_VBLANK, vblank_full_transfer_scroll_isr);
+            vblank_scroll_callback = vblank_full_transfer_scroll_isr;
             for (int i = 0; i < 280; ++i) {
                 if (i < 140) {
                     vertical_parallax_table[i] = 200;
@@ -5293,9 +5271,9 @@ void* Platform::system_call(const char* feature_name, void* arg)
         set_gflag(GlobalFlag::v_parallax, (bool)arg);
 
         if ((bool)arg) {
-            irqSet(IRQ_VBLANK, vblank_full_transfer_scroll_isr);
+            vblank_scroll_callback = vblank_full_transfer_scroll_isr;
         } else {
-            irqSet(IRQ_VBLANK, vblank_horizontal_transfer_scroll_isr);
+            vblank_scroll_callback = vblank_horizontal_transfer_scroll_isr;
         }
     } else if (str_cmp(feature_name, "dlc-download") == 0) {
         read_dlc(*this);

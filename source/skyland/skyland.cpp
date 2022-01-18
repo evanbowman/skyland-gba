@@ -263,7 +263,7 @@ void App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
 
 bool App::is_developer_mode()
 {
-    return persistent_data_.flags0_ & PersistentData::Flags0::developer_mode;
+    return gp_.flags0_ & GlobalPersistentData::Flags0::developer_mode;
 }
 
 
@@ -271,9 +271,9 @@ bool App::is_developer_mode()
 void App::set_developer_mode(bool value)
 {
     if (value) {
-        persistent_data_.flags0_ |= PersistentData::Flags0::developer_mode;
+        gp_.flags0_ |= GlobalPersistentData::Flags0::developer_mode;
     } else {
-        persistent_data_.flags0_ &= ~PersistentData::Flags0::developer_mode;
+        gp_.flags0_ &= ~GlobalPersistentData::Flags0::developer_mode;
     }
 }
 

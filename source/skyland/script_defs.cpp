@@ -741,8 +741,6 @@ static const lisp::Binding script_api[] = {
                  lisp::funcall(v.get(), 0);
              });
 
-         info(*lisp::interp_get_pfrm(), "exit stack");
-
          return L_NIL;
      }},
     {"cargo",

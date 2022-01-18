@@ -67,16 +67,24 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+    auto test_key = [&](Key k) {
+        return app.player().test_key(pfrm,
+                                     k,
+                                     milliseconds(500),
+                                     milliseconds(150));
+    };
+
+
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
 
-    if (app.player().key_down(pfrm, Key::left)) {
+    if (test_key(Key::left)) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
-    } else if (app.player().key_down(pfrm, Key::right)) {
+    } else if (test_key(Key::right)) {
         if (cursor_loc.x < app.player_island().terrain().size()) {
             ++cursor_loc.x;
             clear_room_description(pfrm, room_description_);
@@ -100,13 +108,13 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<InspectP2Scene>();
     }
 
-    if (app.player().key_down(pfrm, Key::up)) {
+    if (test_key(Key::up)) {
         if (cursor_loc.y > 6) {
             --cursor_loc.y;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
-    } else if (app.player().key_down(pfrm, Key::down)) {
+    } else if (test_key(Key::down)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
             clear_room_description(pfrm, room_description_);

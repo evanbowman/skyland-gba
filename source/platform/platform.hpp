@@ -28,6 +28,10 @@ struct FontColors {
 };
 
 
+template <typename T>
+class Vector;
+
+
 // Anything platform specific should be defined here.
 
 
@@ -537,6 +541,8 @@ public:
         void log(Severity severity, const char* msg);
 
         void flush();
+
+        Vector<char>* data();
 
         void read(void* buffer, u32 start_offset, u32 num_bytes);
 

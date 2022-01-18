@@ -20,7 +20,7 @@ public:
 
 
 
-    enum class FileMode { create, update };
+    enum class FileMode { create, update, readonly };
 
 
 
@@ -140,9 +140,6 @@ private:
     UserContext user_context_;
 
 
-    int key_held_timer_[4] = {0, 0, 0, 0};
-
-
     u16 start_line_ = 0;
     u16 column_offset_ = 0;
     u16 line_count_ = 0;
@@ -152,6 +149,7 @@ private:
 
     FileSystem filesystem_ = FileSystem::sram;
     SyntaxMode syntax_mode_;
+    FileMode file_mode_;
 
     bool show_keyboard_ = false;
     bool show_completions_ = false;

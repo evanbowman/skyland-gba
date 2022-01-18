@@ -67,7 +67,26 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
             debug(pfrm, out.c_str());
             last_key_ = 0;
         }
+
+        for (auto& timer : key_held_timers_) {
+            timer = 0;
+        }
+
+    } else /* not a tutorial level */ {
+
+        // Our tutorial keylogger does not log press&held, so we should not
+        // record held keys unless the keylogger is off.
+
+        for (int i = 0; i < static_cast<int>(Key::count); ++i) {
+            if (pfrm.keyboard().pressed(static_cast<Key>(i))) {
+                key_held_timers_[i] += delta;
+            } else {
+                key_held_timers_[i] = 0;
+            }
+        }
     }
+
+
 
 
     last_key_ += delta;
@@ -110,6 +129,20 @@ bool PlayerP1::key_up(Platform& pfrm, Key k)
 bool PlayerP1::key_pressed(Platform& pfrm, Key k)
 {
     return pfrm.keyboard().pressed(k);
+}
+
+
+
+bool PlayerP1::key_held(Key k, Microseconds duration)
+{
+    return key_held_timers_[static_cast<int>(k)] >= duration;
+}
+
+
+
+void PlayerP1::key_held_reset(Key k, Microseconds decrement)
+{
+    key_held_timers_[static_cast<int>(k)] -= decrement;
 }
 
 

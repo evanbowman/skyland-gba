@@ -484,7 +484,7 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
                                    FileSystem filesystem)
     : text_buffer_(pfrm), state_(allocate_dynamic<State>(pfrm)),
       user_context_(std::move(user_context)), filesystem_(filesystem),
-      syntax_mode_(syntax_mode)
+      syntax_mode_(syntax_mode), file_mode_(file_mode)
 {
     state_->file_path_ = file_path;
 
@@ -566,6 +566,8 @@ void TextEditorModule::exit(Platform& pfrm, App&, Scene& next)
 ScenePtr<Scene>
 TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    app.player().update(pfrm, app, delta);
+
     auto unshade_cursor = [&] {
         cursor_shaded_ = false;
 
@@ -663,30 +665,6 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 shade_cursor();
             }
-        }
-
-        if (app.player().key_pressed(pfrm, Key::up)) {
-            key_held_timer_[0] += delta;
-        } else {
-            key_held_timer_[0] = 0;
-        }
-
-        if (app.player().key_pressed(pfrm, Key::down)) {
-            key_held_timer_[1] += delta;
-        } else {
-            key_held_timer_[1] = 0;
-        }
-
-        if (app.player().key_pressed(pfrm, Key::left)) {
-            key_held_timer_[2] += delta;
-        } else {
-            key_held_timer_[2] = 0;
-        }
-
-        if (app.player().key_pressed(pfrm, Key::right)) {
-            key_held_timer_[3] += delta;
-        } else {
-            key_held_timer_[3] = 0;
         }
 
         if (app.player().key_down(pfrm, Key::alt_2)) {
@@ -923,14 +901,13 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 shade_cursor();
             }
         } else if ((app.player().key_down(pfrm, Key::up) or
-                    (app.player().key_pressed(pfrm, Key::up) and
-                     key_held_timer_[0] > milliseconds(400))) and
+                    (app.player().key_held(Key::up, milliseconds(400)))) and
                    cursor_.y > 0) {
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
             --cursor_.y;
 
-            key_held_timer_[0] -= milliseconds(60);
+            app.player().key_held_reset(Key::up, milliseconds(60));
 
             bool do_render = false;
 
@@ -963,8 +940,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             shade_cursor();
             show_status(pfrm);
         } else if ((app.player().key_down(pfrm, Key::down) or
-                    (app.player().key_pressed(pfrm, Key::down) and
-                     key_held_timer_[1] > milliseconds(400))) and
+                    (app.player().key_held(Key::down, milliseconds(400)))) and
                    cursor_.y < line_count_) {
             unshade_cursor();
             cursor_flicker_timer_ = -seconds(1);
@@ -972,7 +948,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
             bool do_render = false;
 
-            key_held_timer_[1] -= milliseconds(60);
+            app.player().key_held_reset(Key::down, milliseconds(60));
 
             if (cursor_.y > start_line_ + 17) {
                 start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
@@ -1003,10 +979,9 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             shade_cursor();
             show_status(pfrm);
         } else if (app.player().key_down(pfrm, Key::right) or
-                   (app.player().key_pressed(pfrm, Key::right) and
-                    key_held_timer_[3] > milliseconds(400))) {
+                   (app.player().key_held(Key::right, milliseconds(400)))) {
 
-            key_held_timer_[3] -= milliseconds(60);
+            app.player().key_held_reset(Key::right, milliseconds(60));
 
             if (line_length() > cursor_.x) {
                 unshade_cursor();
@@ -1063,13 +1038,12 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 show_status(pfrm);
             }
         } else if (app.player().key_down(pfrm, Key::left) or
-                   (app.player().key_pressed(pfrm, Key::left) and
-                    key_held_timer_[2] > milliseconds(400))) {
+                   (app.player().key_held(Key::left, milliseconds(400)))) {
 
             if (cursor_.x > 0) {
                 bool do_render = false;
 
-                key_held_timer_[2] -= milliseconds(60);
+                app.player().key_held_reset(Key::left, milliseconds(60));
 
                 unshade_cursor();
                 cursor_flicker_timer_ = -seconds(1);
@@ -1130,7 +1104,9 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 deselect();
             } else {
                 if (state_->modified_) {
-                    if (filesystem_ == FileSystem::sram) {
+                    if (file_mode_ == FileMode::readonly) {
+                        // Do not save the file
+                    } else if (filesystem_ == FileSystem::sram) {
                         ram_filesystem::store_file_data(
                             pfrm, state_->file_path_.c_str(), text_buffer_);
                     } else {

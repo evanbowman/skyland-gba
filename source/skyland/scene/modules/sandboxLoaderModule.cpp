@@ -163,6 +163,8 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     app.update_parallax(delta);
 
+    app.player().update(pfrm, app, delta);
+
     if (app.player().key_down(pfrm, Key::action_1)) {
         pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<FadeInScene>();
@@ -175,24 +177,20 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_pressed(pfrm, Key::left)) {
-        key_held_timers_[2] += delta;
         long_hold_time_[1] += delta;
     } else {
-        key_held_timers_[2] = 0;
         long_hold_time_[1] = 0;
     }
 
     if (app.player().key_pressed(pfrm, Key::right)) {
-        key_held_timers_[3] += delta;
         long_hold_time_[0] += delta;
     } else {
-        key_held_timers_[3] = 0;
         long_hold_time_[0] = 0;
     }
 
 
     if (app.player().key_down(pfrm, Key::right) or
-        key_held_timers_[3] > milliseconds(500)) {
+        app.player().key_held(Key::right, milliseconds(500))) {
         if (parameters_[cursor_] < param_info[cursor_].upper_limit_) {
             parameters_[cursor_] += param_info[cursor_].increment_;
 
@@ -201,11 +199,11 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
         update_parameter(cursor_);
-        key_held_timers_[3] -= milliseconds(80);
+        app.player().key_held_reset(Key::right, milliseconds(80));
     }
 
     if (app.player().key_down(pfrm, Key::left) or
-        key_held_timers_[2] > milliseconds(500)) {
+        app.player().key_held(Key::left, milliseconds(500))) {
         parameters_[cursor_] -= param_info[cursor_].increment_;
         if (long_hold_time_[1] > milliseconds(2000)) {
             parameters_[cursor_] -= param_info[cursor_].increment_ * 9;
@@ -214,7 +212,7 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
             parameters_[cursor_] = param_info[cursor_].lower_limit_;
         }
         update_parameter(cursor_);
-        key_held_timers_[2] -= milliseconds(80);
+        app.player().key_held_reset(Key::left, milliseconds(80));
 
         if (long_hold_time_[0] > milliseconds(2000)) {
             parameters_[cursor_] += param_info[cursor_].increment_ * 3;

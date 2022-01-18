@@ -69,8 +69,6 @@ private:
     using ParamBuffer = Buffer<int, decltype(settings_text_)::capacity()>;
     static ParamBuffer parameters_;
 
-    Microseconds key_held_timers_[4] = {0, 0, 0, 0};
-
     Microseconds long_hold_time_[2] = {0, 0};
 
 
