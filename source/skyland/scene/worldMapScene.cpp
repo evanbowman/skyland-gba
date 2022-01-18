@@ -257,6 +257,11 @@ static void draw_stormcloud_background(Platform& pfrm,
         const auto t = 3 + (y % 4);
         if (t == 3) {
             pfrm.set_tile(Layer::map_1_ext, edge - 1, y, 8);
+            pfrm.set_tile(Layer::map_1_ext, edge - 1, y + 1, 10);
+            if (edge > 1) {
+                pfrm.set_tile(Layer::map_1_ext, edge - 2, y, 12);
+                pfrm.set_tile(Layer::map_1_ext, edge - 2, y + 1, 11);
+            }
         } else if (t == 6) {
             pfrm.set_tile(Layer::map_1_ext, edge - 1, y, 9);
         }
