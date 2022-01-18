@@ -107,9 +107,18 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         return exit_scene();
     }
 
+
+    auto test_key = [&](Key k) {
+        return app.player().test_key(pfrm,
+                                     k,
+                                     milliseconds(500),
+                                     milliseconds(150));
+    };
+
+
     switch (state_) {
     case State::select_loc:
-        if (app.player().key_down(pfrm, Key::right)) {
+        if (test_key(Key::right)) {
             if (selector_ < construction_sites_.size() - 1) {
                 ++selector_;
             } else if (near_ and app.game_mode() == App::GameMode::sandbox) {
@@ -123,7 +132,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (app.player().key_down(pfrm, Key::left)) {
+        if (test_key(Key::left)) {
             if (selector_ > 0) {
                 --selector_;
             } else if (not near_ and
@@ -248,7 +257,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             show_current_building_text(pfrm, app);
         }
 
-        if (app.player().key_down(pfrm, Key::right)) {
+        if (test_key(Key::right)) {
             pfrm.speaker().play_sound("click", 1);
             if (building_selector_ < (int)available_buildings_.size() - 1) {
                 ++building_selector_;
@@ -259,7 +268,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (app.player().key_down(pfrm, Key::left)) {
+        if (test_key(Key::left)) {
             pfrm.speaker().play_sound("click", 1);
             if (building_selector_ > 0) {
                 --building_selector_;
