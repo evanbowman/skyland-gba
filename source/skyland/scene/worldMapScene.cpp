@@ -638,6 +638,10 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (timer_ > node_death_sequence_time) {
                 timer_ = 0;
                 state_ = State::deselected;
+                auto current = app.world_graph().nodes_[cursor_];
+                if (current.type_ == WorldGraph::Node::Type::corrupted) {
+                    state_ = State::fade_out;
+                }
             }
         }
         break;

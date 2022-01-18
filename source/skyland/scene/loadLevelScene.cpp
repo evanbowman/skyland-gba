@@ -139,6 +139,11 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.invoke_script(pfrm, "/scripts/event/quest.lisp");
         break;
 
+    case WorldGraph::Node::Type::corrupted:
+        app.invoke_script(pfrm, "/scripts/event/storm_king.lisp");
+        break;
+
+
     case WorldGraph::Node::Type::exit:
     case WorldGraph::Node::Type::hostile:
     case WorldGraph::Node::Type::hostile_hidden: {
@@ -147,9 +152,13 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
     }
 
+    if (node.type_ == WorldGraph::Node::Type::corrupted) {
+        pfrm.speaker().play_music("unaccompanied_wind", 0);
 
-    if (not pfrm.speaker().is_music_playing("sb_solecism")) {
-        pfrm.speaker().play_music("sb_solecism", 0);
+    } else {
+        if (not pfrm.speaker().is_music_playing("sb_solecism")) {
+            pfrm.speaker().play_music("sb_solecism", 0);
+        }
     }
 
     prep_level(pfrm, app);
