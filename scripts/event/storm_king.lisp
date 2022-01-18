@@ -10,9 +10,6 @@
 (opponent-init 13 'hostile)
 
 
-(coins-add 100000)
-
-
 (island-configure
  (opponent)
  '((forcefield 0 8)

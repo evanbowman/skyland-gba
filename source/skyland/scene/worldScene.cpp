@@ -175,7 +175,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         // We scale game updates based on frame delta. But if the game starts to
         // lag a lot, the logic can start to get screwed up, so at some point,
         // the player will in fact start to notice the lag.
-        delta = std::min(delta, seconds(1) / 10);
+        delta = std::min(delta, seconds(1) / 18);
     }
 
 
