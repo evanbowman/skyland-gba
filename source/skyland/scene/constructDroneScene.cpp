@@ -162,7 +162,16 @@ ConstructDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(pfrm, Key::right)) {
+
+    auto test_key = [&](Key k) {
+        return app.player().test_key(pfrm,
+                                     k,
+                                     milliseconds(500),
+                                     milliseconds(150));
+    };
+
+
+    if (test_key(Key::right)) {
         if (selector_ < (int)template_count - 1) {
             ++selector_;
             draw(pfrm, app);
@@ -172,7 +181,7 @@ ConstructDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_down(pfrm, Key::left)) {
+    if (test_key(Key::left)) {
         if (selector_ > 0) {
             --selector_;
             draw(pfrm, app);

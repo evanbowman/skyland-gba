@@ -70,8 +70,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     auto test_key = [&](Key k) {
         return app.player().test_key(pfrm,
                                      k,
-                                     milliseconds(500),
-                                     milliseconds(150));
+                                     milliseconds(700),
+                                     milliseconds(100));
     };
 
 
