@@ -109,10 +109,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(pfrm,
-                                     k,
-                                     milliseconds(700),
-                                     milliseconds(100));
+        return app.player().test_key(
+            pfrm, k, milliseconds(700), milliseconds(100));
     };
 
 
@@ -171,7 +169,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     if (last_constructed_building_ and
                         (available_buildings_[building_selector_] not_eq
-                         last_constructed_building_)) {
+                         *last_constructed_building_)) {
 
                         // Ok, so if we constructed a building, and the cursor
                         // advanced into a narrower slot, we may have fewer
@@ -184,7 +182,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                         for (u32 i = 0; i < available_buildings_.size(); ++i) {
                             if (available_buildings_[i] ==
-                                last_constructed_building_) {
+                                *last_constructed_building_) {
                                 building_selector_ = i;
                                 break;
                             }
@@ -211,15 +209,17 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::down)) {
             pfrm.speaker().play_sound("click", 1);
             auto current_category =
-                (*available_buildings_[building_selector_])->category();
+                (*load_metaclass(available_buildings_[building_selector_]))
+                    ->category();
             // When the player presses down, jump to the next building in the
             // list of a different category. The room metatable should be
             // organized by room category by convention.
             u32 i = 0;
             for (i = 0; i < available_buildings_.size(); ++i) {
                 auto other_category =
-                    (*available_buildings_[(building_selector_ + i) %
-                                           available_buildings_.size()])
+                    (*load_metaclass(
+                         available_buildings_[(building_selector_ + i) %
+                                              available_buildings_.size()]))
                         ->category();
                 if (other_category not_eq current_category) {
                     break;
@@ -233,7 +233,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::up)) {
             pfrm.speaker().play_sound("click", 1);
             const auto current_category =
-                (*available_buildings_[building_selector_])->category();
+                (*load_metaclass(available_buildings_[building_selector_]))
+                    ->category();
 
             auto target_category = (Room::Category)(
                 ((u32)current_category - 1) % (u32)Room::Category::count);
@@ -245,7 +246,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             u32 i;
             for (i = 0; i < available_buildings_.size(); ++i) {
-                if ((*available_buildings_[i])->category() == target_category) {
+                if ((*load_metaclass(available_buildings_[i]))->category() ==
+                    target_category) {
                     break;
                 }
             }
@@ -280,7 +282,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.player().key_down(pfrm, Key::action_1)) {
-            const auto& target = *available_buildings_[building_selector_];
+            const auto& target =
+                *load_metaclass(available_buildings_[building_selector_]);
 
             if (app.coins() < get_cost(island(app), target)) {
                 msg(pfrm, "insufficient funds!");
@@ -313,7 +316,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.speaker().play_sound("build0", 4);
 
             target->create(pfrm, app, island(app), {dest_x, dest_y});
-            last_constructed_building_ = &target;
+            last_constructed_building_ = metaclass_index(target->name());
 
             app.player().rooms_built_++;
 
@@ -386,14 +389,16 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 {
     StringBuffer<32> str = ":build :";
 
-    str += (*available_buildings_[building_selector_])->name();
+    str += (*load_metaclass(available_buildings_[building_selector_]))->name();
     str += " ";
     str += to_string<10>(
-        get_cost(island(app), (*available_buildings_[building_selector_])));
+        get_cost(island(app),
+                 (*load_metaclass(available_buildings_[building_selector_]))));
     str += "@";
     str += " ";
     str += to_string<10>(
-        (*available_buildings_[building_selector_])->consumes_power());
+        (*load_metaclass(available_buildings_[building_selector_]))
+            ->consumes_power());
     str += "`";
 
     msg(pfrm, str.c_str());
@@ -427,7 +432,8 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
             index = index - 2;
         }
 
-        auto icon = (*available_buildings_[index])->unsel_icon();
+        auto icon =
+            (*load_metaclass(available_buildings_[index]))->unsel_icon();
         draw_image(pfrm, 258, st.x - 25, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(258, icon, 16);
@@ -441,14 +447,16 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
             index = index - 1;
         }
 
-        auto icon = (*available_buildings_[index])->unsel_icon();
+        auto icon =
+            (*load_metaclass(available_buildings_[index]))->unsel_icon();
         draw_image(pfrm, 181, st.x - 21, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(181, icon, 16);
     }
 
     {
-        auto icon = (*available_buildings_[building_selector_])->icon();
+        auto icon =
+            (*load_metaclass(available_buildings_[building_selector_]))->icon();
         draw_image(pfrm, 197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(197, icon, 16);
@@ -462,7 +470,8 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
             index = index + 1;
         }
 
-        auto icon = (*available_buildings_[index])->unsel_icon();
+        auto icon =
+            (*load_metaclass(available_buildings_[index]))->unsel_icon();
         draw_image(pfrm, 213, st.x - 13, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(213, icon, 16);
@@ -478,7 +487,8 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
             index = index + 2;
         }
 
-        auto icon = (*available_buildings_[index])->unsel_icon();
+        auto icon =
+            (*load_metaclass(available_buildings_[index]))->unsel_icon();
         draw_image(pfrm, 274, st.x - 9, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(274, icon, 16);
@@ -527,7 +537,8 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
     case State::choose_building:
         if (not available_buildings_.empty()) {
-            const auto& meta = *available_buildings_[building_selector_];
+            const auto& meta =
+                *load_metaclass(available_buildings_[building_selector_]);
             const auto sz = meta->size();
 
             auto origin = island(app)->visual_origin();
@@ -712,7 +723,8 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             (not workshop_required or (workshop_required and w_count > 0) or
              app.game_mode() == App::GameMode::sandbox) and
             not(meta->conditions() & Conditions::not_constructible)) {
-            if (not available_buildings_.push_back(&meta)) {
+            auto index = metaclass_index(meta->name());
+            if (not available_buildings_.push_back(index)) {
                 Platform::fatal("TODO: available buildings buffer "
                                 "needs more memory");
             }

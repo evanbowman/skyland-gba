@@ -74,8 +74,10 @@ private:
 
     int building_selector_ = 0;
 
-    Buffer<RoomMeta*, 21> available_buildings_;
-    const RoomMeta* last_constructed_building_ = nullptr;
+    // NOTE: A metaclass pointer would be easier to work with, but metaclass
+    // indices require only two bytes, so we can make the buffer twice as large.
+    Buffer<MetaclassIndex, 30> available_buildings_;
+    std::optional<MetaclassIndex> last_constructed_building_;
 
     bool near_;
 };

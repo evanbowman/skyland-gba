@@ -75,6 +75,7 @@ struct Tile {
         reserved_30,
         reserved_31,
         reserved_32,
+        arc_gun,
     };
 };
 
@@ -150,5 +151,6 @@ struct InteriorTile {
         foundry_4,
         foundry_5,
         cargo_bay,
+        arc_gun,
     };
 };

@@ -70,10 +70,8 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     auto test_key = [&](Key k) {
-        return app.player().test_key(pfrm,
-                                     k,
-                                     milliseconds(700),
-                                     milliseconds(100));
+        return app.player().test_key(
+            pfrm, k, milliseconds(700), milliseconds(100));
     };
 
 

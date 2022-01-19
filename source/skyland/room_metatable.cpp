@@ -1,6 +1,7 @@
 #include "room_metatable.hpp"
 
 
+#include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/cargoBay.hpp"
@@ -46,6 +47,7 @@ static auto& __metatable()
                          IonCannon,
                          FlakGun,
                          MissileSilo,
+                         ArcGun,
                          Decimator,
                          // factories
                          Workshop,

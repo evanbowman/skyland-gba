@@ -847,11 +847,13 @@ void WorldMapScene::display(Platform& pfrm, App& app)
         pfrm.screen().draw(cursor);
     } else if (state_ == State::show_node_death_icons) {
         cursor.set_texture_index(77);
-        const int offset = interpolate(9, 0, Float(timer_) / node_death_sequence_time);
+        const int offset =
+            interpolate(9, 0, Float(timer_) / node_death_sequence_time);
         for (auto& node : dead_nodes_) {
             cursor.set_position({});
-            cursor.set_position({(node.x + map_start_x) * Float(8) - 1,
-                    (node.y + map_start_y) * Float(8) - (4 + offset)});
+            cursor.set_position(
+                {(node.x + map_start_x) * Float(8) - 1,
+                 (node.y + map_start_y) * Float(8) - (4 + offset)});
             pfrm.screen().draw(cursor);
         }
     }

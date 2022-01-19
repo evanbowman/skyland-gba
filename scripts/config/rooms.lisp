@@ -28,5 +28,6 @@
    (replicator   80  2500 80)
    (drone-bay    200 2100 36)
    (cargo-bay    60  300  10)
+   (arc-gun      240 1400 40)
    (energized-hull 380 450 20)
    (plundered-room 20  30  0)))

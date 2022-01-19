@@ -19,7 +19,7 @@ CargoBay::CargoBay(Island* parent, const Vec2<u8>& position)
 void CargoBay::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Stores one unit of cargo. Required for trading and quests in "
-        "adventure mode!";
+              "adventure mode!";
 }
 
 

@@ -1831,21 +1831,27 @@ static std::optional<Platform::UnrecoverrableErrorCallback>
 
 
 
-
 static void vblank_full_transfer_scroll_isr()
 {
-    DMA_TRANSFER((volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
-    DMA_TRANSFER((volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, DMA_HDMA);
+    DMA_TRANSFER(
+        (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
+    DMA_TRANSFER((volatile short*)0x4000016,
+                 &vertical_parallax_table[1],
+                 1,
+                 3,
+                 DMA_HDMA);
 }
 
 
 
 static void vblank_horizontal_transfer_scroll_isr()
 {
-    DMA_TRANSFER((volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
+    DMA_TRANSFER(
+        (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
 
     // Disable prior transfer.
-    DMA_TRANSFER((volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
+    DMA_TRANSFER(
+        (volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
 }
 
 

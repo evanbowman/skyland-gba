@@ -88,7 +88,6 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-
     last_key_ += delta;
 }
 

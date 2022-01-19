@@ -28,8 +28,7 @@ struct FontColors {
 };
 
 
-template <typename T>
-class Vector;
+template <typename T> class Vector;
 
 
 // Anything platform specific should be defined here.
