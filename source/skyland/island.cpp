@@ -215,9 +215,23 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     }
 
 
+    // Before I added the ArcGun weapon, which chains to multiple rooms, there
+    // was no reason to do any optimizations on certain operations, because only
+    // one room would be destroyed per frame, except in truely rare occasions.
+    int destroyed_count = 0;
+
+
+    bool do_repaint = false;
+
+
     for (auto it = rooms_.begin(); it not_eq rooms_.end();) {
         if ((*it)->health() == 0) {
-            big_explosion(pfrm, app, (*it)->center());
+            if (++destroyed_count < 5) {
+                // Five rooms destroyed on the same island in the same frame! If
+                // we create tons of huge explosions all at once, we'll lag the
+                // game and use lots of entities.
+                big_explosion(pfrm, app, (*it)->center());
+            }
 
             const auto pos = (*it)->position();
 
@@ -234,7 +248,9 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 network::transmit(pfrm, packet);
             };
 
-            pfrm.speaker().play_sound("explosion1", 2);
+            if (destroyed_count < 2) {
+                pfrm.speaker().play_sound("explosion1", 2);
+            }
 
             if (pfrm.network_peer().is_connected()) {
                 if (not app.on_timeout(pfrm, sync_delay, sync)) {
@@ -283,7 +299,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             recalculate_power_usage();
 
-            repaint(pfrm, app);
+            do_repaint = true;
         } else {
             if (dt not_eq 0) {
                 // Do not update a room if the game is stopped.
@@ -294,6 +310,11 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             ++it;
         }
+    }
+
+
+    if (do_repaint) {
+        repaint(pfrm, app);
     }
 
 
