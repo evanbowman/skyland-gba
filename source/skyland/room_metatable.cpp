@@ -45,9 +45,9 @@ static auto& __metatable()
                          // weapons
                          Cannon,
                          IonCannon,
+                         ArcGun,
                          FlakGun,
                          MissileSilo,
-                         ArcGun,
                          Decimator,
                          // factories
                          Workshop,

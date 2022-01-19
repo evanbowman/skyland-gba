@@ -89,19 +89,25 @@ public:
 
     static Icon icon()
     {
-        return 552;
+        return 1352;
     }
 
 
     static Icon unsel_icon()
     {
-        return 536;
+        return 1368;
     }
 
 
     Microseconds reload_time_remaining() const override
     {
         return reload_;
+    }
+
+
+    static Conditions::Value conditions()
+    {
+        return Conditions::foundry_required;
     }
 
 
