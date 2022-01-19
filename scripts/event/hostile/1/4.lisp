@@ -14,7 +14,7 @@
    (hull 2 14)
    (hull 1 14)
    (hull 0 14)
-   (cannon 2 12)
+   (arc-gun 2 12)
    (cannon 2 13)
    (forcefield 1 13)
    (forcefield 1 12)

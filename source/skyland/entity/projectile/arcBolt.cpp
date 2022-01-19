@@ -25,7 +25,7 @@ ArcBolt::ArcBolt(const Vec2<Float>& position,
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);
-    sprite_.set_texture_index(74);
+    sprite_.set_texture_index(78);
 
     sprite_.set_origin({8, 8});
 
@@ -47,10 +47,10 @@ void ArcBolt::update(Platform&, App&, Microseconds delta)
     if (anim_timer_ > milliseconds(90)) {
         anim_timer_ = 0;
         const auto kf = sprite_.get_texture_index();
-        if (kf == 74) {
-            sprite_.set_texture_index(75);
+        if (kf == 78) {
+            sprite_.set_texture_index(79);
         } else {
-            sprite_.set_texture_index(74);
+            sprite_.set_texture_index(78);
         }
     }
 

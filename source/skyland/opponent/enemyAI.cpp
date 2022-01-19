@@ -5,6 +5,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
+#include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/flakGun.hpp"
@@ -81,8 +82,9 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (app.opponent_island()) {
             for (auto& room : app.opponent_island()->rooms()) {
-                if (auto cannon = dynamic_cast<Cannon*>(&*room)) {
-                    set_target(pfrm, app, matrix, *cannon);
+                if (dynamic_cast<Cannon*>(&*room) or
+                    dynamic_cast<ArcGun*>(&*room)) {
+                    set_target(pfrm, app, matrix, *room);
                 } else if (auto silo = dynamic_cast<MissileSilo*>(&*room)) {
                     set_target(pfrm, app, matrix, *silo);
                 } else if (auto flak_gun = dynamic_cast<FlakGun*>(&*room)) {
@@ -1444,7 +1446,7 @@ void EnemyAI::set_target(Platform& pfrm,
 void EnemyAI::set_target(Platform& pfrm,
                          App& app,
                          const u8 matrix[16][16],
-                         Cannon& cannon)
+                         Room& generic_gun)
 {
     Buffer<Room*, 32> visible_rooms;
     Buffer<Room*, 32> second_tier;
@@ -1507,7 +1509,7 @@ void EnemyAI::set_target(Platform& pfrm,
             target = highest_weighted_second_tier_room;
         }
 
-        cannon.set_target(target->position());
+        generic_gun.set_target(target->position());
     }
 }
 

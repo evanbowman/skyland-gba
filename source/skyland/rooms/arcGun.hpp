@@ -27,7 +27,7 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
-    // static void format_description(StringBuffer<512>& buffer);
+    static void format_description(StringBuffer<512>& buffer);
 
 
     static Category category()
@@ -107,7 +107,7 @@ public:
 
     static Conditions::Value conditions()
     {
-        return Conditions::foundry_required;
+        return Conditions::workshop_required;
     }
 
 

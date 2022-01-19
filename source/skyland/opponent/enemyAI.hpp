@@ -35,7 +35,7 @@ public:
 
 
 private:
-    void set_target(Platform&, App&, const u8 matrix[16][16], Cannon& cannon);
+    void set_target(Platform&, App&, const u8 matrix[16][16], Room& generic_gun);
     void
     set_target(Platform&, App&, const u8 matrix[16][16], MissileSilo& silo);
 
