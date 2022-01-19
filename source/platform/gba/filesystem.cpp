@@ -77,7 +77,7 @@ FileContents load(FilePath path)
     while (files_remaining) {
         auto hdr = (FileHeader*)current;
 
-        if (str_cmp(hdr->path_, path) == 0) {
+        if (str_eq(hdr->path_, path)) {
             return current + sizeof(FileHeader);
         }
 

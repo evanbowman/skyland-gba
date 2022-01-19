@@ -60,8 +60,8 @@ void CargoBay::render_interior(App& app, u8 buffer[16][16])
 
 void CargoBay::render_exterior(App& app, u8 buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::wall_plain_1;
-    buffer[position().x][position().y + 1] = Tile::wall_plain_2;
+    buffer[position().x][position().y] = Tile::wall_window_1;
+    buffer[position().x][position().y + 1] = Tile::wall_window_2;
 }
 
 
