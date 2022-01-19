@@ -89,47 +89,48 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
     app.camera().shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
-    // room.apply_damage(pfrm, app, arcbolt_damage);
+    struct Temp {
+        u8 matrix_[16][16];
+        Buffer<Room*, 70> rooms_;
+    };
 
-    auto matrix = allocate_dynamic<u8[16][16]>(pfrm);
-    room.parent()->plot_rooms(*matrix);
+    auto state = allocate_dynamic<Temp>(pfrm);
+    room.parent()->plot_rooms(state->matrix_);
 
     // Remove any room from plot if type differs from colliding room type.
     for (u32 x = 0; x < room.parent()->terrain().size(); ++x) {
         for (int y = 0; y < 16; ++y) {
-            if ((*matrix)[x][y]) {
+            if (state->matrix_[x][y]) {
                 if (room.parent()->get_room({u8(x), u8(y)})->metaclass()
                     not_eq room.metaclass()) {
-                    (*matrix)[x][y] = 0;
+                    state->matrix_[x][y] = 0;
                 }
             }
         }
     }
 
-    flood_fill(pfrm, *matrix, 16, room.position().x, room.position().y);
-
-    auto rooms = allocate_dynamic<Buffer<Room*, 70>>(pfrm);
+    flood_fill(pfrm, state->matrix_, 16, room.position().x, room.position().y);
 
     for (u32 x = 0; x < room.parent()->terrain().size(); ++x) {
         for (int y = 0; y < 16; ++y) {
-            if ((*matrix)[x][y] == 16) {
+            if (state->matrix_[x][y] == 16) {
                 if (auto r = room.parent()->get_room({u8(x), u8(y)})) {
                     bool found = false;
-                    for (auto& room : *rooms) {
+                    for (auto& room : state->rooms_) {
                         if (room == r) {
                             found = true;
                             break;
                         }
                     }
                     if (not found) {
-                        rooms->push_back(r);
+                        state->rooms_.push_back(r);
                     }
                 }
             }
         }
     }
 
-    for (auto& room : *rooms) {
+    for (auto& room : state->rooms_) {
         room->apply_damage(pfrm, app, arcbolt_damage);
     }
 
