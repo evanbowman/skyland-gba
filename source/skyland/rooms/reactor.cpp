@@ -7,6 +7,14 @@ namespace skyland {
 
 
 
+void Reactor::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "An upgraded power-core. Supplies much more energy, but "
+        "succeptible to ion damage. Requires a foundry to build.";
+}
+
+
+
 Reactor::Reactor(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

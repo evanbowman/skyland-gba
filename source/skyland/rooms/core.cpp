@@ -6,6 +6,16 @@
 namespace skyland {
 
 
+
+void Core::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "Every flying island needs a power core to stay afloat! "
+        "Supplies power to your castle's structures. You must have a "
+        "workshop to build power cores.";
+}
+
+
+
 Core::Core(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {
