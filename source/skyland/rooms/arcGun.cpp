@@ -29,7 +29,7 @@ void ArcGun::format_description(StringBuffer<512>& buffer)
     buffer += ".";
     buffer += to_string<10>((arc_gun_reload_ms / 100 - secs * 10));
     buffer += " seconds, but unlike other weapons, damage chains"
-        " to all neighboring structures of the same type.";
+        " to all neighboring structures of the same type. Requires a foundry.";
 }
 
 

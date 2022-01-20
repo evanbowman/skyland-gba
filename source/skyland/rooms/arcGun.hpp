@@ -107,7 +107,7 @@ public:
 
     static Conditions::Value conditions()
     {
-        return Conditions::workshop_required;
+        return Conditions::foundry_required;
     }
 
 

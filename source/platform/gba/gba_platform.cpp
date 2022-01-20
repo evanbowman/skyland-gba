@@ -1870,6 +1870,8 @@ static void vblank_isr()
 
     watchdog_counter += 1;
 
+    rumble_update();
+
     const auto ten_seconds = 60 * 10; // approx. 60 fps
     if (UNLIKELY(::watchdog_counter > ten_seconds)) {
         ::watchdog_counter = 0;
