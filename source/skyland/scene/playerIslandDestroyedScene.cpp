@@ -137,6 +137,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     reset_gamespeed(pfrm, app);
 
 
+    const bool opponent_defeated = island_ not_eq &app.player_island();
+
+
     if (confetti_ and *confetti_) {
         const auto view = pfrm.screen().get_view().get_center();
 
@@ -298,7 +301,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             // own island. We're doing this here, because the screen's faded to
             // white anyway, so it won't look so bad if the characters just
             // disappear.
-            if (island_ not_eq &app.player_island()) {
+            if (opponent_defeated) {
                 for (auto& room : app.player_island().rooms()) {
                     for (auto it = room->characters().begin();
                          it not_eq room->characters().end();) {
@@ -337,7 +340,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > fade_duration) {
             pfrm.screen().fade(0.f);
             timer_ = 0;
-            if (island_ not_eq &app.player_island()) {
+            if (opponent_defeated) {
                 anim_state_ = AnimState::wait_1;
             } else {
                 anim_state_ = AnimState::fade_out;
@@ -383,7 +386,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (timer_ - delta < milliseconds(600) and timer_ > milliseconds(600)) {
             pfrm.load_overlay_texture("overlay_island_destroyed");
-            if (island_ not_eq &app.player_island()) {
+            if (opponent_defeated) {
                 draw_image(pfrm, 82, 4, 1, 22, 8, Layer::overlay);
                 confetti_state_ = ConfettiState::wait_1;
                 confetti_timer_ = 0;
@@ -411,7 +414,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         constexpr auto fade_duration = milliseconds(350);
         if (timer_ > fade_duration) {
-            if (island_ not_eq &app.player_island()) {
+            if (opponent_defeated) {
                 if (app.world_graph()
                         .nodes_[app.current_world_location()]
                         .type_ == WorldGraph::Node::Type::exit) {
@@ -497,6 +500,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             lines_.clear();
             pfrm.fill_overlay(0);
+            app.opponent_island().reset();
             anim_state_ = AnimState::fade_complete;
         }
         break;

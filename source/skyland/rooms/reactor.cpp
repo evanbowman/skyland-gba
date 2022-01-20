@@ -10,7 +10,7 @@ namespace skyland {
 void Reactor::format_description(StringBuffer<512>& buffer)
 {
     buffer += "An upgraded power-core. Supplies much more energy, but "
-        "succeptible to ion damage. Requires a foundry to build.";
+              "succeptible to ion damage. Requires a foundry to build.";
 }
 
 

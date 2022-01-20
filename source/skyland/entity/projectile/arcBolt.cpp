@@ -4,8 +4,8 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/sharedVariable.hpp"
-#include "skyland/sound.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
 
 
 
@@ -18,9 +18,9 @@ SHARED_VARIABLE(arcbolt_damage);
 
 
 ArcBolt::ArcBolt(const Vec2<Float>& position,
-                       const Vec2<Float>& target,
-                       Island* source,
-                       const Vec2<u8>& origin_tile)
+                 const Vec2<Float>& target,
+                 Island* source,
+                 const Vec2<u8>& origin_tile)
     : Projectile({{10, 10}, {8, 8}}), source_(source), origin_tile_(origin_tile)
 {
     sprite_.set_position(position);
@@ -101,8 +101,8 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
     for (u32 x = 0; x < room.parent()->terrain().size(); ++x) {
         for (int y = 0; y < 16; ++y) {
             if (state->matrix_[x][y]) {
-                if (room.parent()->get_room({u8(x), u8(y)})->metaclass()
-                    not_eq room.metaclass()) {
+                if (room.parent()->get_room({u8(x), u8(y)})->metaclass() not_eq
+                    room.metaclass()) {
                     state->matrix_[x][y] = 0;
                 }
             }

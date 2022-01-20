@@ -16,10 +16,17 @@ struct HintInfo {
 
 
 
-std::array<HintInfo, 5> hints = {
+std::array<HintInfo, 7> hints = {
     {{"hint_infirmary", "Build an infirmary to heal your crew!"},
+     {"<none>",
+      "Press and hold the pause button to set the game speed. Slow motion and "
+      "fastforward speeds available!"},
      {"hint_goblin",
       "Use bulkhead doors to protect your power-cores against goblins!"},
+     {"<none>",
+      "The Glossary, found on the title screen extras menu, describes all "
+      "structures in the game. Pressing start with the construction menu open "
+      "also opens the Glossary."},
      {"hint_plunder", "Raid and plunder castles for extra coins!"},
      {"hint_damaged_core",
       "If you lose a power-core, systems may shut down til you rebalance "

@@ -1,10 +1,10 @@
 #include "arcGun.hpp"
 #include "localization.hpp"
-#include "skyland/tile.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/sound.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
+#include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -18,7 +18,6 @@ extern SharedVariable arcbolt_damage;
 
 
 
-
 void ArcGun::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Deals ";
@@ -28,7 +27,8 @@ void ArcGun::format_description(StringBuffer<512>& buffer)
     buffer += to_string<10>(secs);
     buffer += ".";
     buffer += to_string<10>((arc_gun_reload_ms / 100 - secs * 10));
-    buffer += " seconds, but unlike other weapons, damage chains"
+    buffer +=
+        " seconds, but unlike other weapons, damage chains"
         " to all neighboring structures of the same type. Requires a foundry.";
 }
 

@@ -10,8 +10,8 @@ namespace skyland {
 void Core::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Every flying island needs a power core to stay afloat! "
-        "Supplies power to your castle's structures. You must have a "
-        "workshop to build power cores.";
+              "Supplies power to your castle's structures. You must have a "
+              "workshop to build power cores.";
 }
 
 
