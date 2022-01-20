@@ -73,7 +73,7 @@ u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y);
 void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
 {
     if (source_ == room.parent()) {
-        if (room.position().x - (room.size().x - 1) == origin_tile_.x) {
+        if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
             // Because we do not want to include collisions with the originating
             // cannon, or with any blocks directly above or below the cannon.
             return;

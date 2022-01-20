@@ -61,7 +61,7 @@ Sound sound_impact("impact");
 void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
 {
     if (source_ == room.parent()) {
-        if (room.position().x - (room.size().x - 1) == origin_tile_.x) {
+        if (room.position().x + (room.size().x - 1) == origin_tile_.x) {
             // Because we do not want to include collisions with the originating
             // cannon, or with any blocks directly above or below the cannon.
             return;
