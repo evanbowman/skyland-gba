@@ -160,6 +160,17 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     (*it)->owner() not_eq &app.player();
                 network::transmit(pfrm, packet);
 
+
+                time_stream::event::CharacterDied e;
+                e.x_ = (*it)->grid_position().x;
+                e.y_ = (*it)->grid_position().y;
+                e.owned_by_player_ =
+                    (*it)->owner() not_eq &app.player();
+                e.near_ = this == &app.player_island();
+                e.is_replicant_ = (*it)->is_replicant();
+                app.time_stream().push(pfrm, app.level_timer(), e);
+
+
                 it = chr_list.erase(it);
             } else {
                 if ((*it)->is_awaiting_movement()) {

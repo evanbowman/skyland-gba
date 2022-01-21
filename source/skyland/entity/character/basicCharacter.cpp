@@ -3,6 +3,7 @@
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -63,6 +64,19 @@ void BasicCharacter::transported()
 
 
 
+void BasicCharacter::rewind(Platform&, App&, Microseconds delta)
+{
+    auto o = parent_->visual_origin();
+    o.x += grid_position_.x * 16;
+    o.y += grid_position_.y * 16 - 3;
+
+    sprite_.set_position(o);
+
+    // TODO...
+}
+
+
+
 void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto o = parent_->visual_origin();
@@ -119,7 +133,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                 sprite_.set_position(o);
             } else {
                 timer_ += delta;
-                movement_step(delta);
+                movement_step(pfrm, app, delta);
                 anim_timer_ += delta;
                 if (anim_timer_ > milliseconds(100)) {
                     anim_timer_ = 0;
@@ -322,7 +336,7 @@ void BasicCharacter::update_attack(Microseconds delta, App& app)
 
 
 
-void BasicCharacter::movement_step(Microseconds delta)
+void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
 {
     auto o = parent_->visual_origin();
     o.x += grid_position_.x * 16;
@@ -359,6 +373,16 @@ void BasicCharacter::movement_step(Microseconds delta)
         if (not(*movement_path_)->empty()) {
             const auto current_position = (*movement_path_)->back();
 
+            time_stream::event::CharacterMoved e;
+            e.x_ = current_position.x;
+            e.y_ = current_position.y;
+            e.previous_x_ = grid_position_.x;
+            e.previous_y_ = grid_position_.y;
+            e.owned_by_player_ = owner_ == &app.player();
+            e.near_ = parent_ == &app.player_island();
+
+            app.time_stream().push(pfrm, app.level_timer(), e);
+
             // Now, we've moved to a new location. We want to re-assign
             // ourself, having (potentially) moved from one room to another.
             reassign_room(grid_position_, current_position);
@@ -368,6 +392,22 @@ void BasicCharacter::movement_step(Microseconds delta)
             movement_path_.reset();
         }
     }
+}
+
+
+
+void BasicCharacter::reposition(const Vec2<u8>& new_pos)
+{
+    // FIXME: preserve movement path? Add position back?
+    (*movement_path_)->clear();
+
+    reassign_room(grid_position_, new_pos);
+
+    state_ = State::moving_or_idle;
+    timer_ = 0;
+    awaiting_movement_ = false;
+    can_move_ = false;
+    idle_count_ = 0;
 }
 
 
@@ -397,8 +437,6 @@ void BasicCharacter::reassign_room(const Vec2<u8>& old_coord,
         }
     }
 
-    // Yup. Aliasing between member var and fn arg. You better believe the
-    // compiler isn't doing certain optimizations on my garbage code.
     grid_position_ = new_coord;
 }
 

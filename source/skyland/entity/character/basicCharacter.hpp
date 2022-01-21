@@ -28,6 +28,9 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
+    void rewind(Platform&, App&, Microseconds delta) override;
+
+
     const Vec2<u8>& grid_position() const
     {
         return grid_position_;
@@ -135,6 +138,9 @@ public:
     void set_can_move();
 
 
+    void reposition(const Vec2<u8>& new_pos);
+
+
     enum class State {
         moving_or_idle,
         fighting,
@@ -192,7 +198,7 @@ private:
     void reassign_room(const Vec2<u8>& old_coord, const Vec2<u8>& new_coord);
 
 
-    void movement_step(Microseconds delta);
+    void movement_step(Platform& pfrm, App& app, Microseconds delta);
 
     void update_attack(Microseconds delta, App&);
 };

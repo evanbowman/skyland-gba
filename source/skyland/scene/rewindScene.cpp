@@ -215,6 +215,45 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+        case time_stream::event::Type::character_moved: {
+            auto e = (time_stream::event::CharacterMoved*)end;
+            Island* island = e->near_ ?
+                &app.player_island() : &*app.opponent_island();
+
+            if (auto room = island->get_room({e->x_, e->y_})) {
+                for (auto& chr : room->characters()) {
+                    const bool player_chr = chr->owner() == &app.player();
+                    if (player_chr == e->owned_by_player_ and
+                        chr->grid_position() == Vec2<u8>{e->x_, e->y_}) {
+                        chr->reposition({e->previous_x_, e->previous_y_});
+                        break;
+                    }
+                }
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+        case time_stream::event::Type::character_died: {
+            auto e = (time_stream::event::CharacterDied*)end;
+
+            Island* island = e->near_ ?
+                &app.player_island() : &*app.opponent_island();
+
+            Player* owner = e->owned_by_player_ ?
+                &app.player() : &app.opponent();
+
+            const bool is_replicant = e->is_replicant_;
+
+            auto chr = app.alloc_entity<BasicCharacter>(pfrm,
+                                                        island,
+                                                        owner,
+                                                        Vec2<u8>{e->x_, e->y_},
+                                                        is_replicant);
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
         }
 
         if (app.time_stream().end()) {
@@ -251,10 +290,16 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
     for (auto& room : app.player_island().rooms()) {
         room->rewind(pfrm, app, delta);
+        for (auto& chr : room->characters()) {
+            chr->rewind(pfrm, app, delta);
+        }
     }
 
     for (auto& room : app.opponent_island()->rooms()) {
         room->rewind(pfrm, app, delta);
+        for (auto& chr : room->characters()) {
+            chr->rewind(pfrm, app, delta);
+        }
     }
 
 
