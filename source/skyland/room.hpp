@@ -163,6 +163,9 @@ public:
     }
 
 
+    void reset_injured_timer(Microseconds value);
+
+
     Vec2<Float> origin() const;
 
 
@@ -223,14 +226,10 @@ public:
     }
 
 
-    void heal(Health amount)
-    {
-        const Health new_health = health_ + amount;
-        health_ = std::min(max_health_, new_health);
-    }
+    void heal(Platform& pfrm, App& app, Health amount);
 
 
-    void set_health(Health amount)
+    void __set_health(Health amount)
     {
         health_ = amount;
     }

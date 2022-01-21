@@ -821,8 +821,9 @@ static Color nightmode_adjust(const Color& c)
     if (not get_gflag(GlobalFlag::night_mode)) {
         return c;
     } else {
-        return adjust_warmth(
-            Color::from_bgr_hex_555(blend(c, c.grayscale(), 190)), 2);
+        return // adjust_warmth(
+            Color::from_bgr_hex_555(blend(c, c.grayscale(), 255))// , 2)
+        ;
     }
 }
 
@@ -1511,6 +1512,8 @@ static u16 sprite_palette[16];
 static u16 tilesheet_0_palette[16];
 static u16 tilesheet_1_palette[16];
 static u16 overlay_palette[16];
+static u16 background_palette[16];
+
 
 
 // We use base_contrast as the starting point for all contrast calculations. In
@@ -1573,7 +1576,7 @@ void Platform::Screen::enable_night_mode(bool enabled)
     init_palette(current_spritesheet, sprite_palette, false);
     init_palette(current_tilesheet0, tilesheet_0_palette, false);
     init_palette(current_tilesheet1, tilesheet_1_palette, false);
-    init_palette(current_overlay_texture, overlay_palette, true);
+    init_palette(current_background, background_palette, false);
 
     // TODO: Edit code so that we don't need a specific hack here for the
     // overlay palette.
@@ -1590,7 +1593,7 @@ void Platform::Screen::set_contrast(Contrast c)
     init_palette(current_spritesheet, sprite_palette, false);
     init_palette(current_tilesheet0, tilesheet_0_palette, false);
     init_palette(current_tilesheet1, tilesheet_1_palette, false);
-    init_palette(current_overlay_texture, overlay_palette, true);
+    init_palette(current_background, background_palette, false);
 }
 
 
@@ -2097,8 +2100,7 @@ void Platform::Screen::fade(float amount,
             MEM_BG_PALETTE[32 + i] = blend(from, c, amt);
         }
         for (int i = 0; i < 16; ++i) {
-            auto from = Color::from_bgr_hex_555(
-                background_textures[0].palette_data_[i]);
+            auto from = Color::from_bgr_hex_555(background_palette[i]);
             MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, amt);
         }
         // Overlay palette
@@ -2328,13 +2330,13 @@ void Platform::load_background_texture(const char* name)
 
             current_background = &info;
 
-            // init_palette(current_background, background_palette, false);
+            init_palette(current_background, background_palette, false);
 
-            // const auto c = nightmode_adjust(real_color(last_color));
-            // for (int i = 0; i < 16; ++i) {
-            //     auto from = Color::from_bgr_hex_555(background_palette[i]);
-            //     MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, last_fade_amt);
-            // }
+            const auto c = nightmode_adjust(real_color(last_color));
+            for (int i = 0; i < 16; ++i) {
+                auto from = Color::from_bgr_hex_555(background_palette[i]);
+                MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, last_fade_amt);
+            }
 
             if (validate_background_texture_size(*this,
                                                  info.tile_data_length_)) {

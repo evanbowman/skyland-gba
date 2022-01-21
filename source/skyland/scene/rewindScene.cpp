@@ -6,6 +6,8 @@
 #include "skyland/timeStreamEvent.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
+#include "skyland/entity/projectile/arcBolt.hpp"
+#include "skyland/entity/projectile/flak.hpp"
 
 
 
@@ -16,7 +18,7 @@ namespace skyland {
 static void respawn_cannonball(Platform& pfrm,
                                App& app,
                                Island* parent,
-                               time_stream::event::CannonballDestroyed& e)
+                               time_stream::event::BasicProjectileDestroyed& e)
 {
     auto c =
         alloc_entity<Cannonball>(Vec2<Float>{
@@ -38,9 +40,59 @@ static void respawn_cannonball(Platform& pfrm,
 
 
 
+static void respawn_arcbolt(Platform& pfrm,
+                            App& app,
+                            Island* parent,
+                            time_stream::event::BasicProjectileDestroyed& e)
+{
+    auto c =
+        alloc_entity<ArcBolt>(Vec2<Float>{
+                (Float)e.x_pos_.get(),
+                (Float)e.y_pos_.get()
+            },
+            Vec2<Float>{},
+            parent,
+            Vec2<u8>{e.x_origin_, e.y_origin_});
+    if (c) {
+        Vec2<Float> step_vector;
+        memcpy(&step_vector.x, e.x_speed_, sizeof(Float));
+        memcpy(&step_vector.y, e.y_speed_, sizeof(Float));
+        c->set_step_vector(step_vector);
+        c->set_timer(e.timer_.get());
+        parent->projectiles().push(std::move(c));
+    }
+}
+
+
+
+static void respawn_flak(Platform& pfrm,
+                         App& app,
+                         Island* parent,
+                         time_stream::event::BasicProjectileDestroyed& e)
+{
+    auto c =
+        alloc_entity<Flak>(Vec2<Float>{
+                (Float)e.x_pos_.get(),
+                (Float)e.y_pos_.get()
+            },
+            Vec2<Float>{},
+            parent,
+            Vec2<u8>{e.x_origin_, e.y_origin_});
+    if (c) {
+        Vec2<Float> step_vector;
+        memcpy(&step_vector.x, e.x_speed_, sizeof(Float));
+        memcpy(&step_vector.y, e.y_speed_, sizeof(Float));
+        c->set_step_vector(step_vector);
+        c->set_timer(e.timer_.get());
+        parent->projectiles().push(std::move(c));
+    }
+}
+
+
+
 ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 {
-    // Playback history at a fixed delta of 60 fps.
+    // Playback history at a fixed delta of 120 fps.
     const auto delta = 2 * (seconds(1) / 60);
 
 
@@ -71,14 +123,14 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::player_room_created: {
             auto e = (time_stream::event::PlayerRoomCreated*)end;
             app.player_island().destroy_room(pfrm, app, {e->x_, e->y_});
-            app.time_stream().pop(sizeof(*e));
+            app.time_stream().pop(sizeof *e);
             break;
         }
 
         case time_stream::event::Type::opponent_room_created: {
             auto e = (time_stream::event::OpponentRoomCreated*)end;
             app.opponent_island()->destroy_room(pfrm, app, {e->x_, e->y_});
-            app.time_stream().pop(sizeof(*e));
+            app.time_stream().pop(sizeof *e);
             break;
         }
 
@@ -86,7 +138,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::PlayerRoomDestroyed*)end;
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, &app.player_island(), {e->x_, e->y_});
-            app.time_stream().pop(sizeof(*e));
+            app.time_stream().pop(sizeof *e);
             app.camera().shake(18);
             break;
         }
@@ -95,7 +147,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::PlayerRoomDestroyed*)end;
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, &*app.opponent_island(), {e->x_, e->y_});
-            app.time_stream().pop(sizeof(*e));
+            app.time_stream().pop(sizeof *e);
             app.camera().shake(18);
             break;
         }
@@ -103,7 +155,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::player_cannonball_destroyed: {
             auto e = (time_stream::event::PlayerCannonballDestroyed*)end;
             respawn_cannonball(pfrm, app, &app.player_island(), *e);
-            app.time_stream().pop(sizeof(*e));
+            app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
         }
@@ -111,8 +163,78 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::opponent_cannonball_destroyed: {
             auto e = (time_stream::event::OpponentCannonballDestroyed*)end;
             respawn_cannonball(pfrm, app, &*app.opponent_island(), *e);
-            app.time_stream().pop(sizeof(*e));
+            app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
+            break;
+        }
+
+        case time_stream::event::Type::player_arcbolt_destroyed: {
+            auto e = (time_stream::event::PlayerArcboltDestroyed*)end;
+            respawn_arcbolt(pfrm, app, &app.player_island(), *e);
+            app.time_stream().pop(sizeof *e);
+            app.camera().shake(8);
+            break;
+        }
+
+        case time_stream::event::Type::opponent_arcbolt_destroyed: {
+            auto e = (time_stream::event::OpponentArcboltDestroyed*)end;
+            respawn_arcbolt(pfrm, app, &*app.opponent_island(), *e);
+            app.time_stream().pop(sizeof *e);
+            app.camera().shake(8);
+            break;
+        }
+
+        case time_stream::event::Type::player_flak_destroyed: {
+            auto e = (time_stream::event::PlayerFlakDestroyed*)end;
+            respawn_flak(pfrm, app, &app.player_island(), *e);
+            app.time_stream().pop(sizeof *e);
+            app.camera().shake(8);
+            break;
+        }
+
+        case time_stream::event::Type::opponent_flak_destroyed: {
+            auto e = (time_stream::event::OpponentFlakDestroyed*)end;
+            respawn_flak(pfrm, app, &*app.opponent_island(), *e);
+            app.time_stream().pop(sizeof *e);
+            app.camera().shake(8);
+            break;
+        }
+
+        case time_stream::event::Type::player_room_damaged: {
+            auto e = (time_stream::event::PlayerRoomDamaged*)end;
+            if (auto room = app.player_island().get_room({e->x_, e->y_})) {
+                room->__set_health(e->previous_health_.get());
+                room->reset_injured_timer(1);
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+        case time_stream::event::Type::opponent_room_damaged: {
+            auto e = (time_stream::event::OpponentRoomDamaged*)end;
+            if (auto room = app.opponent_island()->get_room({e->x_, e->y_})) {
+                room->__set_health(e->previous_health_.get());
+                room->reset_injured_timer(1);
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+        case time_stream::event::Type::player_room_repaired: {
+            auto e = (time_stream::event::PlayerRoomRepaired*)end;
+            if (auto room = app.player_island().get_room({e->x_, e->y_})) {
+                room->__set_health(e->previous_health_.get());
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+        case time_stream::event::Type::opponent_room_repaired: {
+            auto e = (time_stream::event::OpponentRoomRepaired*)end;
+            if (auto room = app.opponent_island()->get_room({e->x_, e->y_})) {
+                room->__set_health(e->previous_health_.get());
+            }
+            app.time_stream().pop(sizeof *e);
             break;
         }
         }
@@ -144,13 +266,34 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
     };
 
+    rewind_entities(pfrm, app, delta, app.effects());
+
     rewind_projectiles(app.player_island());
     rewind_projectiles(*app.opponent_island());
+
+    for (auto& room : app.player_island().rooms()) {
+        room->rewind(pfrm, app, delta);
+    }
+
+    for (auto& room : app.opponent_island()->rooms()) {
+        room->rewind(pfrm, app, delta);
+    }
 
 
     return null_scene();
 }
 
+
+
+void RewindScene::enter(Platform& pfrm, App& app, Scene& prev)
+{
+}
+
+
+
+void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
+{
+}
 
 
 

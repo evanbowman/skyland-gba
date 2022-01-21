@@ -252,7 +252,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             if (auto room = parent_->get_room(grid_position_)) {
                 if (room->health() not_eq room->max_health()) {
-                    room->heal(2);
+                    room->heal(pfrm, app, 2);
                 } else {
                     idle();
                     break;

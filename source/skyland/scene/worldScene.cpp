@@ -305,6 +305,11 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.on_timeout(pfrm, milliseconds(500), [](Platform& pfrm, App&) {
                 invoke_hook(pfrm, "after-converge-hook");
             });
+
+            // Replaying history is just much more difficult if the islands are
+            // moving. TODO: allow history replay when islands are in motion.
+            // The main, actually the only, issue involves projectiles.
+            app.time_stream().clear();
         }
 
         if (app.opponent_island()->get_drift() == 0) {

@@ -40,6 +40,23 @@ public:
     }
 
 
+    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    {
+        timer_ -= delta;
+
+        if (timer_ < 0) {
+            timer_ = milliseconds(55);
+
+            auto index = sprite_.get_texture_index();
+            if (index > 0) {
+                sprite_.set_texture_index(index - 1);
+            } else {
+                kill();
+            }
+        }
+    }
+
+
 private:
     Microseconds timer_ = 0;
 };

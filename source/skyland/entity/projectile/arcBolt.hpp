@@ -30,6 +30,18 @@ public:
     void on_collision(Platform& pfrm, App& app, Room&) override;
 
 
+    void set_step_vector(const Vec2<Float>& val)
+    {
+        step_vector_ = val;
+    }
+
+
+    void set_timer(Microseconds value)
+    {
+        timer_ = value;
+    }
+
+
 private:
     Microseconds timer_ = 0;
     Microseconds anim_timer_ = 0;

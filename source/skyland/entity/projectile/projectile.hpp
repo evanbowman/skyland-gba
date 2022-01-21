@@ -19,12 +19,6 @@ public:
     virtual void rewind(Platform& pfrm, App& app, Microseconds delta)
     {
     }
-
-
-    virtual bool fully_rewound(Platform& pfrm, App& app)
-    {
-        return true;
-    }
 };
 
 

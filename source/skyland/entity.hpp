@@ -50,6 +50,12 @@ public:
     virtual void update(Platform&, App&, Microseconds delta) = 0;
 
 
+    virtual void rewind(Platform& pfrm, App& app, Microseconds delta)
+    {
+        Platform::fatal("rewind unimplemented for this entity!");
+    }
+
+
     const Sprite& sprite() const
     {
         return sprite_;
@@ -201,6 +207,24 @@ void update_entities(Platform& pfrm,
             it = lat.erase(it);
         } else {
             (*it)->update(pfrm, app, dt);
+            ++it;
+        }
+    }
+}
+
+
+
+template <typename T>
+void rewind_entities(Platform& pfrm,
+                     App& app,
+                     Microseconds dt,
+                     EntityList<T>& lat)
+{
+    for (auto it = lat.begin(); it not_eq lat.end();) {
+        if (not(*it)->alive()) {
+            it = lat.erase(it);
+        } else {
+            (*it)->rewind(pfrm, app, dt);
             ++it;
         }
     }

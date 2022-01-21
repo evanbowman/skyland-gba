@@ -7,8 +7,9 @@
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/sound.hpp"
-
+#include "skyland/timeStreamEvent.hpp"
 #include "localization.hpp"
+
 
 
 namespace skyland {
@@ -70,6 +71,32 @@ void Flak::update(Platform&, App&, Microseconds delta)
 
 
 
+void Flak::rewind(Platform&, App&, Microseconds delta)
+{
+    auto pos = sprite_.get_position();
+    pos = pos - Float(delta) * step_vector_;
+    sprite_.set_position(pos);
+
+    timer_ -= delta;
+
+    if (timer_ < 0) {
+        kill();
+    }
+
+    flicker_time_ -= delta;
+    if (flicker_time_ < 0) {
+        flicker_time_ = milliseconds(150);
+
+        if (sprite_.get_mix().amount_) {
+            sprite_.set_mix({});
+        } else {
+            sprite_.set_mix({ColorConstant::silver_white, 200});
+        }
+    }
+}
+
+
+
 void Flak::on_collision(Platform& pfrm, App& app, Room& room)
 {
     if (destroyed_) {
@@ -88,6 +115,28 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
 
     if (source_ == room.parent() and room.metaclass() == forcefield_mt) {
         return;
+    }
+
+
+    auto timestream_record = [&](time_stream::event::BasicProjectileDestroyed& c) {
+        c.x_origin_ = origin_tile_.x;
+        c.y_origin_ = origin_tile_.y;
+        c.timer_.set(timer_);
+        c.x_pos_.set(sprite_.get_position().x);
+        c.y_pos_.set(sprite_.get_position().y);
+        memcpy(&c.x_speed_, &step_vector_.x, sizeof(Float));
+        memcpy(&c.y_speed_, &step_vector_.y, sizeof(Float));
+    };
+
+
+    if (source_ == &app.player_island()) {
+        time_stream::event::PlayerFlakDestroyed c;
+        timestream_record(c);
+        app.time_stream().push(pfrm, app.level_timer(), c);
+    } else {
+        time_stream::event::OpponentFlakDestroyed c;
+        timestream_record(c);
+        app.time_stream().push(pfrm, app.level_timer(), c);
     }
 
 

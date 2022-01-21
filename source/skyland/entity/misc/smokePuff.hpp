@@ -21,6 +21,12 @@ public:
     }
 
 
+    void rewind(Platform&, App&, Microseconds delta)
+    {
+        // TODO...
+    }
+
+
     void update(Platform&, App&, Microseconds delta)
     {
         timer_ += delta;

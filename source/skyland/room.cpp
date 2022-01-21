@@ -5,6 +5,7 @@
 #include "room_metatable.hpp"
 #include "scene/moveCharacterScene.hpp"
 #include "skyland.hpp"
+#include "timeStreamEvent.hpp"
 
 
 
@@ -55,6 +56,17 @@ Room::Room(Island* parent,
 
 
 
+static const auto injured_anim_time = milliseconds(250);
+
+
+
+void Room::reset_injured_timer(Microseconds value)
+{
+    injured_timer_ = value;
+}
+
+
+
 void Room::set_injured(Platform& pfrm)
 {
     for (int x = 0; x < size().x; ++x) {
@@ -64,7 +76,7 @@ void Room::set_injured(Platform& pfrm)
         }
     }
 
-    injured_timer_ = milliseconds(250);
+    reset_injured_timer(injured_anim_time);
 }
 
 
@@ -137,7 +149,64 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
 
 void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
-    // TODO...
+    if (injured_timer_) {
+        if (injured_timer_ < injured_anim_time) {
+            const auto new_timer = injured_timer_ + delta;
+
+            if (new_timer > milliseconds(10) and
+                injured_timer_ < milliseconds(10)) {
+                for (int x = 0; x < size().x; ++x) {
+                    for (int y = 0; y < size().y; ++y) {
+                        pfrm.set_palette(parent_->layer(),
+                                         position().x + x,
+                                         position().y + y,
+                                         15);
+                    }
+                }
+            }
+
+            if (new_timer > milliseconds(210) and
+                injured_timer_ < milliseconds(210)) {
+                for (int x = 0; x < size().x; ++x) {
+                    for (int y = 0; y < size().y; ++y) {
+                        pfrm.set_palette(parent_->layer(),
+                                         position().x + x,
+                                         position().y + y,
+                                         14);
+                    }
+                }
+            }
+
+            if (new_timer > milliseconds(170) and
+                injured_timer_ < milliseconds(170)) {
+                for (int x = 0; x < size().x; ++x) {
+                    for (int y = 0; y < size().y; ++y) {
+                        pfrm.set_palette(parent_->layer(),
+                                         position().x + x,
+                                         position().y + y,
+                                         13);
+                    }
+                }
+            }
+
+
+            injured_timer_ = new_timer;
+
+            if (injured_timer_ >= injured_anim_time) {
+                injured_timer_ = 0;
+
+                for (int x = 0; x < size().x; ++x) {
+                    for (int y = 0; y < size().y; ++y) {
+                        pfrm.set_palette(
+                            parent_->layer(),
+                            position().x + x,
+                            position().y + y,
+                            parent_->layer() == Layer::map_0_ext ? 0 : 2);
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -240,6 +309,20 @@ void Room::on_collision(Platform& pfrm, App& app, Entity& entity)
 
 void Room::apply_damage(Platform& pfrm, App& app, Health damage)
 {
+    if (parent_ == &app.player_island()) {
+        time_stream::event::PlayerRoomDamaged e;
+        e.x_ = position().x;
+        e.y_ = position().y;
+        e.previous_health_.set(health_);
+        app.time_stream().push(pfrm, app.level_timer(), e);
+    } else {
+        time_stream::event::OpponentRoomDamaged e;
+        e.x_ = position().x;
+        e.y_ = position().y;
+        e.previous_health_.set(health_);
+        app.time_stream().push(pfrm, app.level_timer(), e);
+    }
+
     if (damage > health_) {
         health_ = 0;
     } else {
@@ -247,6 +330,28 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
     }
     set_injured(pfrm);
     parent_->owner().on_room_damaged(pfrm, app, *this);
+}
+
+
+
+void Room::heal(Platform& pfrm, App& app, Health amount)
+{
+    if (parent_ == &app.player_island()) {
+        time_stream::event::PlayerRoomRepaired e;
+        e.x_ = position().x;
+        e.y_ = position().y;
+        e.previous_health_.set(health_);
+        app.time_stream().push(pfrm, app.level_timer(), e);
+    } else {
+        time_stream::event::OpponentRoomRepaired e;
+        e.x_ = position().x;
+        e.y_ = position().y;
+        e.previous_health_.set(health_);
+        app.time_stream().push(pfrm, app.level_timer(), e);
+    }
+
+    const Health new_health = health_ + amount;
+    health_ = std::min(max_health_, new_health);
 }
 
 

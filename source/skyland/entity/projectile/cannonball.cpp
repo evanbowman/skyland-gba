@@ -89,7 +89,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
     }
 
 
-    auto timestream_record = [&](time_stream::event::CannonballDestroyed& c) {
+    auto timestream_record = [&](time_stream::event::BasicProjectileDestroyed& c) {
         c.x_origin_ = origin_tile_.x;
         c.y_origin_ = origin_tile_.y;
         c.timer_.set(timer_);

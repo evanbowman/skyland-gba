@@ -36,7 +36,7 @@ void configure_island(Platform& pfrm,
             if (len >= 4) {
                 const auto health = lisp::get_list(val, 3)->integer().value_;
                 if (auto room = island.get_room({x, y})) {
-                    room->set_health(health);
+                    room->__set_health(health);
                 }
             }
         }
