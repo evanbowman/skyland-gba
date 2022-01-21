@@ -56,6 +56,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.exit_level()) {
         set_gamespeed(pfrm, app, GameSpeed::normal);
         app.exit_level() = false;
+        app.time_stream().clear();
         return scene_pool::alloc<FadeOutScene>();
     }
 

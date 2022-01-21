@@ -139,8 +139,6 @@ void App::update(Platform& pfrm, Microseconds delta)
 
     rumble_.update(pfrm, delta);
 
-    level_timer_.count_up(delta);
-
     if (game_speed() not_eq GameSpeed::stopped) {
         for (auto it = deferred_callbacks_.begin();
              it not_eq deferred_callbacks_.end();) {

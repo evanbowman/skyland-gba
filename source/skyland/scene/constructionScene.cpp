@@ -13,6 +13,7 @@
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 #include "worldScene.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -320,11 +321,27 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             app.player().rooms_built_++;
 
+            auto mt_index = metaclass_index(target->name());
+
             network::packet::RoomConstructed packet;
-            packet.metaclass_index_.set(metaclass_index(target->name()));
+            packet.metaclass_index_.set(mt_index);
             packet.x_ = dest_x;
             packet.y_ = dest_y;
             network::transmit(pfrm, packet);
+
+
+            if (near_) {
+                time_stream::event::PlayerRoomCreated p;
+                p.x_ = dest_x;
+                p.y_ = dest_y;
+                app.time_stream().push(pfrm, app.level_timer(), p);
+            } else {
+                time_stream::event::OpponentRoomCreated p;
+                p.x_ = dest_x;
+                p.y_ = dest_y;
+                app.time_stream().push(pfrm, app.level_timer(), p);
+            }
+
 
             find_construction_sites(pfrm, app);
 

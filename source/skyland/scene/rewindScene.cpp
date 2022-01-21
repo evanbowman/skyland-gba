@@ -5,10 +5,36 @@
 #include "localization.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/entity/projectile/cannonball.hpp"
 
 
 
 namespace skyland {
+
+
+
+static void respawn_cannonball(Platform& pfrm,
+                               App& app,
+                               Island* parent,
+                               time_stream::event::CannonballDestroyed& e)
+{
+    auto c =
+        alloc_entity<Cannonball>(Vec2<Float>{
+                (Float)e.x_pos_.get(),
+                (Float)e.y_pos_.get()
+            },
+            Vec2<Float>{},
+            parent,
+            Vec2<u8>{e.x_origin_, e.y_origin_});
+    if (c) {
+        Vec2<Float> step_vector;
+        memcpy(&step_vector.x, e.x_speed_, sizeof(Float));
+        memcpy(&step_vector.y, e.y_speed_, sizeof(Float));
+        c->set_step_vector(step_vector);
+        c->set_timer(e.timer_.get());
+        parent->projectiles().push(std::move(c));
+    }
+}
 
 
 
@@ -19,6 +45,12 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
 
     app.level_timer().count_down(delta);
+
+
+    auto& cursor_loc =
+                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    app.camera().update(
+                pfrm, app.player_island(), cursor_loc, delta, true);
 
 
     const auto current_timestamp = app.level_timer().total();
@@ -35,7 +67,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
     while (end_timestamp and *end_timestamp > current_timestamp) {
         auto end = app.time_stream().end();
-        switch (end->type_) {
+        switch ((time_stream::event::Type)end->type_) {
         case time_stream::event::Type::player_room_created: {
             auto e = (time_stream::event::PlayerRoomCreated*)end;
             app.player_island().destroy_room(pfrm, app, {e->x_, e->y_});
@@ -55,6 +87,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, &app.player_island(), {e->x_, e->y_});
             app.time_stream().pop(sizeof(*e));
+            app.camera().shake(18);
             break;
         }
 
@@ -63,6 +96,23 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, &*app.opponent_island(), {e->x_, e->y_});
             app.time_stream().pop(sizeof(*e));
+            app.camera().shake(18);
+            break;
+        }
+
+        case time_stream::event::Type::player_cannonball_destroyed: {
+            auto e = (time_stream::event::PlayerCannonballDestroyed*)end;
+            respawn_cannonball(pfrm, app, &app.player_island(), *e);
+            app.time_stream().pop(sizeof(*e));
+            app.camera().shake(8);
+            break;
+        }
+
+        case time_stream::event::Type::opponent_cannonball_destroyed: {
+            auto e = (time_stream::event::OpponentCannonballDestroyed*)end;
+            respawn_cannonball(pfrm, app, &*app.opponent_island(), *e);
+            app.time_stream().pop(sizeof(*e));
+            app.camera().shake(8);
             break;
         }
         }

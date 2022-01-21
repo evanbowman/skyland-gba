@@ -2,6 +2,7 @@
 #include "readyScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "rewindScene.hpp"
 
 
 
@@ -25,8 +26,14 @@ SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_up(pfrm, Key::alt_1)) {
-        set_gamespeed(pfrm, app, (GameSpeed)selection_);
-        return scene_pool::alloc<ReadyScene>();
+        if ((GameSpeed)selection_ == GameSpeed::rewind) {
+            set_gamespeed(pfrm, app, (GameSpeed)selection_);
+            return scene_pool::alloc<RewindScene>();
+        } else {
+            set_gamespeed(pfrm, app, (GameSpeed)selection_);
+            return scene_pool::alloc<ReadyScene>();
+        }
+
     }
 
     return null_scene();

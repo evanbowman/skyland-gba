@@ -83,6 +83,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene_pool.cpp
   ${SOURCE_DIR}/skyland/sharedVariable.cpp
   ${SOURCE_DIR}/skyland/room_metatable.cpp
+  ${SOURCE_DIR}/skyland/timeStream.cpp
   ${SOURCE_DIR}/skyland/entity/explosion/explosion.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/flak.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
@@ -122,6 +123,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
   ${SOURCE_DIR}/skyland/scene/readyScene.cpp
   ${SOURCE_DIR}/skyland/scene/fadeInScene.cpp
+  ${SOURCE_DIR}/skyland/scene/rewindScene.cpp
   ${SOURCE_DIR}/skyland/scene/fadeOutScene.cpp
   ${SOURCE_DIR}/skyland/scene/newgameScene.cpp
   ${SOURCE_DIR}/skyland/scene/lispReplScene.cpp

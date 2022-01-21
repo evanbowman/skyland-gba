@@ -10,6 +10,7 @@
 #include "rooms/core.hpp"
 #include "skyland.hpp"
 #include "tile.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -235,10 +236,12 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             const auto pos = (*it)->position();
 
+            auto mt = metaclass_index((*(*it)->metaclass())->name());
+
             auto sync = [x = pos.x,
                          y = pos.y,
                          near = &owner() not_eq &app.player(),
-                         mt = metaclass_index((*(*it)->metaclass())->name())](
+                         mt](
                             Platform& pfrm, App& app) {
                 network::packet::RoomDestroyed packet;
                 packet.room_x_ = x;
@@ -247,6 +250,22 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 packet.metaclass_index_.set(mt);
                 network::transmit(pfrm, packet);
             };
+
+
+            if (&owner() == &app.player()) {
+                time_stream::event::PlayerRoomDestroyed p;
+                p.x_ = pos.x;
+                p.y_ = pos.y;
+                p.type_ = mt;
+                app.time_stream().push(pfrm, app.level_timer(), p);
+            } else {
+                time_stream::event::OpponentRoomDestroyed p;
+                p.x_ = pos.x;
+                p.y_ = pos.y;
+                p.type_ = mt;
+                app.time_stream().push(pfrm, app.level_timer(), p);
+            }
+
 
             if (destroyed_count < 2) {
                 pfrm.speaker().play_sound("explosion1", 2);

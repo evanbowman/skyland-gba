@@ -26,7 +26,6 @@ align(size_t __align, size_t __size, void*& __ptr, size_t& __space) noexcept
 // better to use a bulk allocator, and share the underlying scratch buffer with
 // other stuff.
 template <typename T> struct DynamicMemory {
-    static_assert(sizeof(T) + alignof(T) <= sizeof ScratchBuffer::data_);
     ScratchBufferPtr memory_;
     std::unique_ptr<T, void (*)(T*)> obj_;
 
@@ -50,6 +49,8 @@ template <typename T> struct DynamicMemory {
 template <typename T, typename... Args>
 DynamicMemory<T> allocate_dynamic(Platform& pfrm, Args&&... args)
 {
+    static_assert(sizeof(T) + alignof(T) <= sizeof ScratchBuffer::data_);
+
     auto sc_buf = pfrm.make_scratch_buffer();
 
     auto deleter = [](T* val) {

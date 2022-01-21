@@ -6,44 +6,43 @@
 
 class TimeTracker {
 public:
-    TimeTracker(u32 seconds) : whole_seconds_(seconds), fractional_time_(0)
+    TimeTracker(u32 secs) :
+        time_(seconds(secs))
     {
     }
 
-    int whole_seconds() const
+    u32 whole_seconds() const
     {
-        return whole_seconds_.get();
+        return time_.get() / seconds(1);
     }
 
     void count_up(Microseconds delta)
     {
-        fractional_time_.set(fractional_time_.get() + delta);
-
-        if (fractional_time_.get() > seconds(1)) {
-            fractional_time_.set(fractional_time_.get() - seconds(1));
-            whole_seconds_.set(whole_seconds_.get() + 1);
+        if (delta < 0) {
+            return;
         }
+        time_.set(time_.get() + delta);
     }
 
     void count_down(Microseconds delta)
     {
-        fractional_time_.set(fractional_time_.get() + delta);
-
-        if (fractional_time_.get() > seconds(1)) {
-            fractional_time_.set(fractional_time_.get() - seconds(1));
-            if (whole_seconds_.get() > 0) {
-                whole_seconds_.set(whole_seconds_.get() - 1);
-            }
+        if ((u32)delta < time_.get()) {
+            time_.set(time_.get() - delta);
         }
     }
 
-    void reset(u32 seconds)
+
+    u64 total() const
     {
-        whole_seconds_.set(seconds);
-        fractional_time_.set(0);
+        return time_.get();
+    }
+
+
+    void reset(u32 secs)
+    {
+        time_.set(seconds(secs));
     }
 
 private:
-    HostInteger<u32> whole_seconds_;
-    HostInteger<Microseconds> fractional_time_;
+    HostInteger<u64> time_;
 };

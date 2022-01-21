@@ -38,6 +38,11 @@ static void apply_gamespeed(App& app, Microseconds& delta)
         delta = 0;
         break;
 
+    // NOTE: we shouldn't even be in this scene if we're rewinding.
+    case GameSpeed::rewind:
+        delta = 0;
+        break;
+
     case GameSpeed::count:
         // ... raise error?
         break;
@@ -60,6 +65,9 @@ u16 gamespeed_icon(GameSpeed speed)
 
     case GameSpeed::stopped:
         return 177;
+
+    case GameSpeed::rewind:
+        return 366;
 
     default:
         break;
@@ -117,6 +125,8 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player_island().is_destroyed()) {
         reset_gamespeed(pfrm, app);
+
+        app.time_stream().clear();
 
         auto& cursor_loc =
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
@@ -183,6 +193,10 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     apply_gamespeed(app, world_delta);
 
     app.update_parallax(world_delta);
+
+
+    app.level_timer().count_up(world_delta);
+    app.time_stream().update(world_delta);
 
 
     auto& mt_prep_timer =

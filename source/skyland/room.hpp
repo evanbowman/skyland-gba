@@ -76,6 +76,7 @@ public:
 
 
     virtual void update(Platform& pfrm, App&, Microseconds delta);
+    virtual void rewind(Platform& pfrm, App&, Microseconds delta);
 
     virtual void display(Platform::Screen& screen);
 

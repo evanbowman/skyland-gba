@@ -24,6 +24,9 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
+    void rewind(Platform&, App&, Microseconds delta) override;
+
+
     void on_collision(Platform& pfrm, App& app, Room&) override;
 
 

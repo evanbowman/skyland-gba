@@ -35,6 +35,33 @@ ArcBolt::ArcBolt(const Vec2<Float>& position,
 
 
 
+void ArcBolt::rewind(Platform&, App&, Microseconds delta)
+{
+    auto pos = sprite_.get_position();
+    pos = pos - Float(delta) * step_vector_;
+    sprite_.set_position(pos);
+
+    timer_ -= delta;
+
+    anim_timer_ -= delta;
+    if (anim_timer_ < 0) {
+        anim_timer_ = milliseconds(90);
+        const auto kf = sprite_.get_texture_index();
+        if (kf == 78) {
+            sprite_.set_texture_index(79);
+        } else {
+            sprite_.set_texture_index(78);
+        }
+    }
+
+
+    if (timer_ < seconds(0)) {
+        kill();
+    }
+}
+
+
+
 void ArcBolt::update(Platform&, App&, Microseconds delta)
 {
     auto pos = sprite_.get_position();

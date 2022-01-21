@@ -21,6 +21,7 @@
 #include "scene.hpp"
 #include "script/lisp.hpp"
 #include "timeTracker.hpp"
+#include "timeStream.hpp"
 
 
 
@@ -303,6 +304,12 @@ public:
     bool dialog_expects_answer_ = false;
 
 
+    time_stream::TimeStream& time_stream()
+    {
+        return time_stream_;
+    }
+
+
 private:
     PersistentData persistent_data_;
     Island player_island_;
@@ -346,6 +353,8 @@ private:
     // In the unlikely event that the game freezes for some reason, the software
     // stores a backup of the last state before entering the current level.
     DynamicMemory<save::EmergencyBackup> backup_;
+
+    time_stream::TimeStream time_stream_;
 };
 
 
