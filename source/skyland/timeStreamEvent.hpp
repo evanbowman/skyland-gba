@@ -50,6 +50,9 @@ enum Type : u8 {
     character_died,
     character_health_changed,
     character_transported,
+
+    player_room_salvaged,
+    opponent_room_salvaged,
 };
 
 
@@ -92,6 +95,27 @@ struct OpponentRoomDestroyed {
     u8 type_;
 
     static constexpr const auto t = Type::opponent_room_destroyed;
+};
+
+
+
+struct RoomSalvaged {
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 type_;
+};
+
+
+
+struct PlayerRoomSalvaged : RoomSalvaged {
+    static constexpr const auto t = Type::player_room_salvaged;
+};
+
+
+
+struct OpponentRoomSalvaged : RoomSalvaged {
+    static constexpr const auto t = Type::opponent_room_salvaged;
 };
 
 

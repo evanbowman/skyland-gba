@@ -106,6 +106,22 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+        case time_stream::event::Type::player_room_salvaged: {
+            auto e = (time_stream::event::PlayerRoomSalvaged*)end;
+            (*load_metaclass(e->type_))
+                ->create(pfrm, app, &app.player_island(), {e->x_, e->y_});
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+        case time_stream::event::Type::opponent_room_salvaged: {
+            auto e = (time_stream::event::OpponentRoomSalvaged*)end;
+            (*load_metaclass(e->type_))
+                ->create(pfrm, app, &*app.opponent_island(), {e->x_, e->y_});
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
         case time_stream::event::Type::player_cannonball_destroyed: {
             auto e = (time_stream::event::PlayerCannonballDestroyed*)end;
             respawn_basic_projectile<Cannonball>(pfrm, app, &app.player_island(), *e);
@@ -210,7 +226,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::coins_changed: {
             auto e = (time_stream::event::CoinsChanged*)end;
-            // app.set_coins(pfrm, e->previous_value_.get(), false);
+            app.set_coins(pfrm, e->previous_value_.get(), false);
             app.time_stream().pop(sizeof *e);
             break;
         }

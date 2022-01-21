@@ -6,6 +6,7 @@
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -173,6 +174,24 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                                   app.coins() + salvage_value(*room),
                                   true);
 
+                    if (auto room = island(app)->get_room(cursor_loc)) {
+                        auto mt_index = metaclass_index((*room->metaclass())->name());
+                        auto setup = [&](time_stream::event::RoomSalvaged& e) {
+                            e.x_ = cursor_loc.x;
+                            e.y_ = cursor_loc.y;
+                            e.type_ = mt_index;
+                        };
+                        if (island(app) == &app.player_island()) {
+                            time_stream::event::PlayerRoomSalvaged e;
+                            setup(e);
+                            app.time_stream().push(pfrm, app.level_timer(), e);
+                        } else {
+                            time_stream::event::OpponentRoomSalvaged e;
+                            setup(e);
+                            app.time_stream().push(pfrm, app.level_timer(), e);
+                        }
+                    }
+
                     island(app)->destroy_room(pfrm, app, cursor_loc);
                     exit_countdown_ = milliseconds(500);
 
@@ -180,6 +199,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                     packet.x_ = cursor_loc.x;
                     packet.y_ = cursor_loc.y;
                     network::transmit(pfrm, packet);
+
                 }
             } else {
                 return exit_scene();

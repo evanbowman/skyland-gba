@@ -96,10 +96,9 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
         }
     }
 
-
     // TODO: we want to do some sort of interpolation, so that the character
     // does not apper to jump from one location to another when replaying
-    // history.
+    // history. Easier said than done.
 }
 
 
