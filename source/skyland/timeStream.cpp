@@ -88,4 +88,4 @@ std::optional<u64> TimeStream::end_timestamp()
 
 
 
-}
+} // namespace skyland::time_stream

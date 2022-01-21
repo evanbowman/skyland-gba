@@ -1,11 +1,11 @@
 #pragma once
 
-#include "number/numeric.hpp"
-#include "number/endian.hpp"
-#include "memory/buffer.hpp"
-#include "timeTracker.hpp"
 #include "bulkAllocator.hpp"
+#include "memory/buffer.hpp"
+#include "number/endian.hpp"
+#include "number/numeric.hpp"
 #include "timeStreamHeader.hpp"
+#include "timeTracker.hpp"
 
 
 
@@ -24,8 +24,7 @@ struct TimeBuffer {
     Microseconds elapsed_ = 0;
 
 
-    TimeBuffer(TimeTracker& begin)
-        : time_window_begin_(begin.total())
+    TimeBuffer(TimeTracker& begin) : time_window_begin_(begin.total())
     {
     }
 
@@ -40,8 +39,7 @@ struct TimeBuffer {
     char* end_ = data_ + sizeof data_;
 
 
-    template <typename T>
-    bool push(T& elem)
+    template <typename T> bool push(T& elem)
     {
         static_assert(std::is_standard_layout<T>());
         static_assert(std::is_pod<T>());
@@ -89,15 +87,11 @@ struct TimeBuffer {
 
 class TimeStream {
 public:
-
-
     static const auto max_buffers = 4;
 
 
     template <typename T>
-    void push(Platform& pfrm,
-              TimeTracker& current,
-              T& event)
+    void push(Platform& pfrm, TimeTracker& current, T& event)
     {
         if (not buffers_) {
             buffers_ = allocate_dynamic<TimeBuffer>(pfrm, current);
@@ -113,7 +107,7 @@ public:
 
         if (buffer_count_ == max_buffers) {
             --buffer_count_;
-            if (not buffers_ or not (*buffers_)->next_) {
+            if (not buffers_ or not(*buffers_)->next_) {
                 Platform::fatal("timestream logic error!");
             }
             // Unlink the first element in the chain, thus dropping the oldest
@@ -142,7 +136,6 @@ public:
 
 
 private:
-
     std::optional<DynamicMemory<TimeBuffer>> buffers_;
     TimeBuffer* end_ = nullptr;
     u8 buffer_count_ = 0;
@@ -150,4 +143,4 @@ private:
 
 
 
-}
+} // namespace skyland::time_stream

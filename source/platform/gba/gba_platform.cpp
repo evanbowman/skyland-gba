@@ -822,8 +822,8 @@ static Color nightmode_adjust(const Color& c)
         return c;
     } else {
         return // adjust_warmth(
-            Color::from_bgr_hex_555(blend(c, c.grayscale(), 255))// , 2)
-        ;
+            Color::from_bgr_hex_555(blend(c, c.grayscale(), 255)) // , 2)
+            ;
     }
 }
 

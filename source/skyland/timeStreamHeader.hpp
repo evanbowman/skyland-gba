@@ -1,7 +1,7 @@
 #pragma once
 
-#include "number/numeric.hpp"
 #include "number/endian.hpp"
+#include "number/numeric.hpp"
 
 
 
@@ -24,8 +24,8 @@ struct Header {
 
 
 
-}
+} // namespace event
 
 
 
-}
+} // namespace skyland::time_stream

@@ -113,15 +113,16 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
     }
 
 
-    auto timestream_record = [&](time_stream::event::BasicProjectileDestroyed& e) {
-        e.x_origin_ = origin_tile_.x;
-        e.y_origin_ = origin_tile_.y;
-        e.timer_.set(timer_);
-        e.x_pos_.set(sprite_.get_position().x);
-        e.y_pos_.set(sprite_.get_position().y);
-        memcpy(&e.x_speed_, &step_vector_.x, sizeof(Float));
-        memcpy(&e.y_speed_, &step_vector_.y, sizeof(Float));
-    };
+    auto timestream_record =
+        [&](time_stream::event::BasicProjectileDestroyed& e) {
+            e.x_origin_ = origin_tile_.x;
+            e.y_origin_ = origin_tile_.y;
+            e.timer_.set(timer_);
+            e.x_pos_.set(sprite_.get_position().x);
+            e.y_pos_.set(sprite_.get_position().y);
+            memcpy(&e.x_speed_, &step_vector_.x, sizeof(Float));
+            memcpy(&e.y_speed_, &step_vector_.y, sizeof(Float));
+        };
 
 
     if (source_ == &app.player_island()) {

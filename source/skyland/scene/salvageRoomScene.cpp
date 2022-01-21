@@ -170,12 +170,12 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (length(room->characters()) == 0) {
 
                     pfrm.speaker().play_sound("coin", 2);
-                    app.set_coins(pfrm,
-                                  app.coins() + salvage_value(*room),
-                                  true);
+                    app.set_coins(
+                        pfrm, app.coins() + salvage_value(*room), true);
 
                     if (auto room = island(app)->get_room(cursor_loc)) {
-                        auto mt_index = metaclass_index((*room->metaclass())->name());
+                        auto mt_index =
+                            metaclass_index((*room->metaclass())->name());
                         auto setup = [&](time_stream::event::RoomSalvaged& e) {
                             e.x_ = cursor_loc.x;
                             e.y_ = cursor_loc.y;
@@ -199,7 +199,6 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                     packet.x_ = cursor_loc.x;
                     packet.y_ = cursor_loc.y;
                     network::transmit(pfrm, packet);
-
                 }
             } else {
                 return exit_scene();

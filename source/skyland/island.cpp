@@ -9,8 +9,8 @@
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
 #include "skyland.hpp"
-#include "tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "tile.hpp"
 
 
 
@@ -253,8 +253,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             auto sync = [x = pos.x,
                          y = pos.y,
                          near = &owner() not_eq &app.player(),
-                         mt](
-                            Platform& pfrm, App& app) {
+                         mt](Platform& pfrm, App& app) {
                 network::packet::RoomDestroyed packet;
                 packet.room_x_ = x;
                 packet.room_y_ = y;

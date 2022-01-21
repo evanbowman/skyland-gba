@@ -10,8 +10,6 @@ namespace skyland {
 
 class RewindScene : public Scene {
 public:
-
-
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
@@ -20,10 +18,8 @@ public:
 
 
     void display(Platform&, App&) override;
-
-
 };
 
 
 
-}
+} // namespace skyland

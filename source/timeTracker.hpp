@@ -6,8 +6,7 @@
 
 class TimeTracker {
 public:
-    TimeTracker(u32 secs) :
-        time_(seconds(secs))
+    TimeTracker(u32 secs) : time_(seconds(secs))
     {
     }
 

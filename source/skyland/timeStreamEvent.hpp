@@ -1,7 +1,7 @@
 #pragma once
 
-#include "timeStreamHeader.hpp"
 #include "coins.hpp"
+#include "timeStreamHeader.hpp"
 
 
 
@@ -284,4 +284,4 @@ struct CharacterTransported {
 
 
 
-}
+} // namespace skyland::time_stream::event

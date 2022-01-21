@@ -1,8 +1,8 @@
 #include "setGamespeedScene.hpp"
 #include "readyScene.hpp"
+#include "rewindScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "rewindScene.hpp"
 
 
 
@@ -33,7 +33,6 @@ SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
             set_gamespeed(pfrm, app, (GameSpeed)selection_);
             return scene_pool::alloc<ReadyScene>();
         }
-
     }
 
     return null_scene();

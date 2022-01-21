@@ -1,14 +1,14 @@
 #include "rewindScene.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/entity/projectile/projectile.hpp"
-#include "readyScene.hpp"
 #include "localization.hpp"
-#include "skyland/timeStreamEvent.hpp"
-#include "skyland/room_metatable.hpp"
-#include "skyland/entity/projectile/cannonball.hpp"
+#include "readyScene.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
+#include "skyland/entity/projectile/cannonball.hpp"
 #include "skyland/entity/projectile/flak.hpp"
 #include "skyland/entity/projectile/ionBurst.hpp"
+#include "skyland/entity/projectile/projectile.hpp"
+#include "skyland/room_metatable.hpp"
+#include "skyland/skyland.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -22,14 +22,11 @@ void respawn_basic_projectile(Platform& pfrm,
                               Island* parent,
                               time_stream::event::BasicProjectileDestroyed& e)
 {
-    auto c =
-        alloc_entity<T>(Vec2<Float>{
-                (Float)e.x_pos_.get(),
-                (Float)e.y_pos_.get()
-            },
-            Vec2<Float>{},
-            parent,
-            Vec2<u8>{e.x_origin_, e.y_origin_});
+    auto c = alloc_entity<T>(
+        Vec2<Float>{(Float)e.x_pos_.get(), (Float)e.y_pos_.get()},
+        Vec2<Float>{},
+        parent,
+        Vec2<u8>{e.x_origin_, e.y_origin_});
     if (c) {
         Vec2<Float> step_vector;
         memcpy(&step_vector.x, e.x_speed_, sizeof(Float));
@@ -51,17 +48,14 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     app.level_timer().count_down(delta);
 
 
-    auto& cursor_loc =
-                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-    app.camera().update(
-                pfrm, app.player_island(), cursor_loc, delta, true);
+    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    app.camera().update(pfrm, app.player_island(), cursor_loc, delta, true);
 
 
     const auto current_timestamp = app.level_timer().total();
     auto end_timestamp = app.time_stream().end_timestamp();
 
-    if (not app.opponent_island() or
-        not end_timestamp or
+    if (not app.opponent_island() or not end_timestamp or
         app.level_timer().whole_seconds() == 0 or
         app.player().key_down(pfrm, Key::alt_1)) {
 
@@ -124,7 +118,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_cannonball_destroyed: {
             auto e = (time_stream::event::PlayerCannonballDestroyed*)end;
-            respawn_basic_projectile<Cannonball>(pfrm, app, &app.player_island(), *e);
+            respawn_basic_projectile<Cannonball>(
+                pfrm, app, &app.player_island(), *e);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -132,7 +127,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_cannonball_destroyed: {
             auto e = (time_stream::event::OpponentCannonballDestroyed*)end;
-            respawn_basic_projectile<Cannonball>(pfrm, app, &*app.opponent_island(), *e);
+            respawn_basic_projectile<Cannonball>(
+                pfrm, app, &*app.opponent_island(), *e);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -140,7 +136,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_arcbolt_destroyed: {
             auto e = (time_stream::event::PlayerArcboltDestroyed*)end;
-            respawn_basic_projectile<ArcBolt>(pfrm, app, &app.player_island(), *e);
+            respawn_basic_projectile<ArcBolt>(
+                pfrm, app, &app.player_island(), *e);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -148,7 +145,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_arcbolt_destroyed: {
             auto e = (time_stream::event::OpponentArcboltDestroyed*)end;
-            respawn_basic_projectile<ArcBolt>(pfrm, app, &*app.opponent_island(), *e);
+            respawn_basic_projectile<ArcBolt>(
+                pfrm, app, &*app.opponent_island(), *e);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -164,7 +162,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_flak_destroyed: {
             auto e = (time_stream::event::OpponentFlakDestroyed*)end;
-            respawn_basic_projectile<Flak>(pfrm, app, &*app.opponent_island(), *e);
+            respawn_basic_projectile<Flak>(
+                pfrm, app, &*app.opponent_island(), *e);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -172,7 +171,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_ionburst_destroyed: {
             auto e = (time_stream::event::PlayerIonBurstDestroyed*)end;
-            respawn_basic_projectile<IonBurst>(pfrm, app, &app.player_island(), *e);
+            respawn_basic_projectile<IonBurst>(
+                pfrm, app, &app.player_island(), *e);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -180,7 +180,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_ionburst_destroyed: {
             auto e = (time_stream::event::OpponentIonBurstDestroyed*)end;
-            respawn_basic_projectile<IonBurst>(pfrm, app, &*app.opponent_island(), *e);
+            respawn_basic_projectile<IonBurst>(
+                pfrm, app, &*app.opponent_island(), *e);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -233,8 +234,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::character_moved: {
             auto e = (time_stream::event::CharacterMoved*)end;
-            Island* island = e->near_ ?
-                &app.player_island() : &*app.opponent_island();
+            Island* island =
+                e->near_ ? &app.player_island() : &*app.opponent_island();
 
             if (auto room = island->get_room({e->x_, e->y_})) {
                 for (auto& chr : room->characters()) {
@@ -253,19 +254,16 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::character_died: {
             auto e = (time_stream::event::CharacterDied*)end;
 
-            Island* island = e->near_ ?
-                &app.player_island() : &*app.opponent_island();
+            Island* island =
+                e->near_ ? &app.player_island() : &*app.opponent_island();
 
-            Player* owner = e->owned_by_player_ ?
-                &app.player() : &app.opponent();
+            Player* owner =
+                e->owned_by_player_ ? &app.player() : &app.opponent();
 
             const bool is_replicant = e->is_replicant_;
 
-            auto chr = app.alloc_entity<BasicCharacter>(pfrm,
-                                                        island,
-                                                        owner,
-                                                        Vec2<u8>{e->x_, e->y_},
-                                                        is_replicant);
+            auto chr = app.alloc_entity<BasicCharacter>(
+                pfrm, island, owner, Vec2<u8>{e->x_, e->y_}, is_replicant);
 
             island->add_character(std::move(chr));
 
@@ -276,8 +274,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::character_health_changed: {
             auto e = (time_stream::event::CharacterHealthChanged*)end;
 
-            Island* island = e->near_ ?
-                &app.player_island() : &*app.opponent_island();
+            Island* island =
+                e->near_ ? &app.player_island() : &*app.opponent_island();
 
             if (auto room = island->get_room({e->x_, e->y_})) {
                 for (auto& chr : room->characters()) {
@@ -297,32 +295,32 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::character_transported: {
             auto e = (time_stream::event::CharacterTransported*)end;
 
-            Island* source_island = e->source_near_ ?
-                &app.player_island() : &*app.opponent_island();
+            Island* source_island = e->source_near_ ? &app.player_island()
+                                                    : &*app.opponent_island();
 
-            Island* dest_island = not e->source_near_ ?
-                &app.player_island() : &*app.opponent_island();
+            Island* dest_island = not e->source_near_ ? &app.player_island()
+                                                      : &*app.opponent_island();
 
             // Ok, so here, we want to revert the transport. Find the
             // transported character at the destination island, and move it back
             // to the original location at the source island.
 
-            if (auto dest_room = dest_island->get_room({e->dest_x_, e->dest_y_})) {
+            if (auto dest_room =
+                    dest_island->get_room({e->dest_x_, e->dest_y_})) {
                 for (auto it = dest_room->characters().begin();
                      it not_eq dest_room->characters().end();) {
 
                     const bool player_chr = (*it)->owner() == &app.player();
                     if (player_chr == e->owned_by_player_ and
-                        (*it)->grid_position() == Vec2<u8>{e->dest_x_, e->dest_y_}) {
+                        (*it)->grid_position() ==
+                            Vec2<u8>{e->dest_x_, e->dest_y_}) {
                         auto detached = std::move(*it);
                         dest_room->characters().erase(it);
                         detached->set_grid_position({e->start_x_, e->start_y_});
                         detached->set_parent(source_island);
                         detached->drop_movement_path();
-                        if (auto source_room = source_island->get_room({
-                                    e->start_x_,
-                                    e->start_y_
-                                })) {
+                        if (auto source_room = source_island->get_room(
+                                {e->start_x_, e->start_y_})) {
                             source_room->characters().push(std::move(detached));
                         } else {
                             Platform::fatal("fatal error when rewinding "
@@ -334,13 +332,13 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     }
                 }
             } else {
-                Platform::fatal("error rewinding transport: dest room missing.");
+                Platform::fatal(
+                    "error rewinding transport: dest room missing.");
             }
 
             app.time_stream().pop(sizeof *e);
             break;
         }
-
         }
 
         if (app.time_stream().end()) {
@@ -397,12 +395,18 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
 void RewindScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    // pfrm.screen().enable_night_mode(true);
+    // pfrm.screen().fade(0.1f);
+    // pfrm.screen().fade(0.f);
 }
 
 
 
 void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
 {
+    // pfrm.screen().enable_night_mode(false);
+    // pfrm.screen().fade(0.1f);
+    // pfrm.screen().fade(0.f);
 }
 
 
@@ -418,4 +422,4 @@ void RewindScene::display(Platform& pfrm, App& app)
 
 
 
-}
+} // namespace skyland
