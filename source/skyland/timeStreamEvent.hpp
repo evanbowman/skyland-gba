@@ -48,7 +48,7 @@ enum Type : u8 {
 
     character_moved,
     character_died,
-    // character_health_changed,
+    character_health_changed,
 };
 
 
@@ -230,15 +230,17 @@ struct CharacterDied {
 
 
 
-// struct CharacterHealthChanged {
-//     Header header_;
-//     u8 x_ : 4;
-//     u8 y_ : 4;
-//     u8 owned_by_player_ : 1;
-//     u8 near_ : 1;
-//     u8 unused_ : 6;
-//     host_u16 health_;
-// };
+struct CharacterHealthChanged {
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 owned_by_player_ : 1;
+    u8 near_ : 1;
+    u8 unused_ : 6;
+    host_u16 previous_health_;
+
+    static constexpr const auto t = Type::character_health_changed;
+};
 
 
 

@@ -254,6 +254,27 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+        case time_stream::event::Type::character_health_changed: {
+            auto e = (time_stream::event::CharacterHealthChanged*)end;
+
+            Island* island = e->near_ ?
+                &app.player_island() : &*app.opponent_island();
+
+            if (auto room = island->get_room({e->x_, e->y_})) {
+                for (auto& chr : room->characters()) {
+                    const bool player_chr = chr->owner() == &app.player();
+                    if (player_chr == e->owned_by_player_ and
+                        chr->grid_position() == Vec2<u8>{e->x_, e->y_}) {
+                        chr->__set_health(e->previous_health_.get());
+                        break;
+                    }
+                }
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
         }
 
         if (app.time_stream().end()) {
@@ -323,6 +344,10 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
 void RewindScene::display(Platform& pfrm, App& app)
 {
     app.player_island().display(pfrm);
+
+    if (app.opponent_island()) {
+        app.opponent_island()->display(pfrm);
+    }
 }
 
 

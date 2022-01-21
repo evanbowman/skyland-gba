@@ -36,7 +36,7 @@ void Infirmary::update(Platform& pfrm, App& app, Microseconds delta)
             for (auto& character : characters()) {
                 if (character->owner() == &parent()->owner() and
                     character->state() not_eq BasicCharacter::State::fighting) {
-                    character->heal(distribute_health);
+                    character->heal(pfrm, app, distribute_health);
                 }
             }
         }

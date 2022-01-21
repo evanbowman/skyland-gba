@@ -103,22 +103,13 @@ public:
     }
 
 
-    void heal(int amount)
-    {
-        if (is_replicant_) {
-            // Replicants cannot heal
-            return;
-        }
-
-        if (health_ + amount > 255) {
-            health_ = 255;
-        } else {
-            health_ += amount;
-        }
-    }
+    void heal(Platform& pfrm, App& app, int amount);
 
 
-    void set_health(Health amount)
+    void apply_damage(Platform& pfrm, App& app, Health damage);
+
+
+    void __set_health(Health amount)
     {
         health_ = amount;
     }
@@ -156,19 +147,6 @@ public:
     }
 
 
-    void apply_damage(Health damage)
-    {
-        int current = health_;
-        current -= damage;
-
-        if (current < 0) {
-            health_ = 0;
-        } else {
-            health_ = current;
-        }
-    }
-
-
     bool is_replicant() const
     {
         return is_replicant_;
@@ -200,7 +178,7 @@ private:
 
     void movement_step(Platform& pfrm, App& app, Microseconds delta);
 
-    void update_attack(Microseconds delta, App&);
+    void update_attack(Platform& pfrm, App& app, Microseconds delta);
 };
 
 

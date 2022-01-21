@@ -411,7 +411,7 @@ static const lisp::Binding script_api[] = {
 
          if (auto chr = island->character_at_location(coord)) {
              if (arg0->type() == lisp::Value::Type::integer) {
-                 chr->set_health(arg0->integer().value_);
+                 chr->__set_health(arg0->integer().value_);
              }
              return lisp::make_integer(chr->health());
          }

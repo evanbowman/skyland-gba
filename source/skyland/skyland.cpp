@@ -190,7 +190,7 @@ void App::set_coins(Platform& pfrm, Coins coins, bool sequenced)
         time_stream_.push(pfrm, level_timer_, e);
     }
 
-    persistent_data_.coins_ += coins;
+    persistent_data_.coins_ = coins;
 }
 
 

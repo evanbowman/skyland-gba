@@ -105,7 +105,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
     switch (state_) {
     case State::fighting:
         sprite_.set_flip({});
-        update_attack(delta, app);
+        update_attack(pfrm, app, delta);
         break;
 
     case State::after_transport: {
@@ -286,7 +286,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
 }
 
 
-void BasicCharacter::update_attack(Microseconds delta, App& app)
+void BasicCharacter::update_attack(Platform& pfrm, App& app, Microseconds delta)
 {
     auto o = parent_->visual_origin();
     o.x += grid_position_.x * 16;
@@ -311,7 +311,7 @@ void BasicCharacter::update_attack(Microseconds delta, App& app)
         };
 
         if (auto chr = get_opponent()) {
-            chr->apply_damage(4);
+            chr->apply_damage(pfrm, app, 4);
         } else {
             sprite_.set_texture_index(base_frame(this, app) + 5);
             state_ = State::moving_or_idle;
@@ -408,6 +408,52 @@ void BasicCharacter::reposition(const Vec2<u8>& new_pos)
     awaiting_movement_ = false;
     can_move_ = false;
     idle_count_ = 0;
+}
+
+
+
+void BasicCharacter::heal(Platform& pfrm, App& app, int amount)
+{
+    if (is_replicant_) {
+        // Replicants cannot heal
+        return;
+    }
+
+    time_stream::event::CharacterHealthChanged e;
+    e.x_ = grid_position_.x;
+    e.y_ = grid_position_.y;
+    e.owned_by_player_ = owner_ == &app.player();
+    e.near_ = parent_ == &app.player_island();
+    e.previous_health_.set(health_);
+    app.time_stream().push(pfrm, app.level_timer(), e);
+
+    if (health_ + amount > 255) {
+        health_ = 255;
+    } else {
+        health_ += amount;
+    }
+}
+
+
+
+void BasicCharacter::apply_damage(Platform& pfrm, App& app, Health damage)
+{
+    int current = health_;
+    current -= damage;
+
+    time_stream::event::CharacterHealthChanged e;
+    e.x_ = grid_position_.x;
+    e.y_ = grid_position_.y;
+    e.owned_by_player_ = owner_ == &app.player();
+    e.near_ = parent_ == &app.player_island();
+    e.previous_health_.set(health_);
+    app.time_stream().push(pfrm, app.level_timer(), e);
+
+    if (current < 0) {
+        health_ = 0;
+    } else {
+        health_ = current;
+    }
 }
 
 

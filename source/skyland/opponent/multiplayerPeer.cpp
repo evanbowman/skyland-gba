@@ -313,7 +313,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
                     // happens to be walking to be walking through the slot at
                     // the same that the character dies. Eventually, we should
                     // associate unique identifiers with all characters.
-                    (*it)->apply_damage(20);
+                    (*it)->apply_damage(pfrm, app, 20);
                     return;
                 } else {
                     ++it;
@@ -339,7 +339,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
         &*app.opponent_island(), &app.opponent(), loc, true);
 
     if (chr) {
-        chr->apply_damage(255 - packet.health_);
+        chr->apply_damage(pfrm, app, 255 - packet.health_);
         chr->transported();
         app.opponent_island()->add_character(std::move(chr));
     }

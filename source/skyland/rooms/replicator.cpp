@@ -67,7 +67,7 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
             network::transmit(pfrm, packet);
 
 
-            chr->apply_damage(255 - replicant_health);
+            chr->apply_damage(pfrm, app, 255 - replicant_health);
             chr->transported();
             characters().push(std::move(chr));
         }
