@@ -398,8 +398,14 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
 
 void BasicCharacter::reposition(const Vec2<u8>& new_pos)
 {
-    // FIXME: preserve movement path? Add position back?
+    // TODO: preserve movement path? Add position back?
     (*movement_path_)->clear();
+
+    if (new_pos.x < grid_position_.x) {
+        sprite_.set_flip({false, false});
+    } else if (new_pos.x > grid_position_.x) {
+        sprite_.set_flip({true, false});
+    }
 
     reassign_room(grid_position_, new_pos);
 

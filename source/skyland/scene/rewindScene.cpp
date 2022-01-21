@@ -275,6 +275,53 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+        case time_stream::event::Type::character_transported: {
+            auto e = (time_stream::event::CharacterTransported*)end;
+
+            Island* source_island = e->source_near_ ?
+                &app.player_island() : &*app.opponent_island();
+
+            Island* dest_island = not e->source_near_ ?
+                &app.player_island() : &*app.opponent_island();
+
+            // Ok, so here, we want to revert the transport. Find the
+            // transported character at the destination island, and move it back
+            // to the original location at the source island.
+
+            if (auto dest_room = dest_island->get_room({e->dest_x_, e->dest_y_})) {
+                for (auto it = dest_room->characters().begin();
+                     it not_eq dest_room->characters().end();) {
+
+                    const bool player_chr = (*it)->owner() == &app.player();
+                    if (player_chr == e->owned_by_player_ and
+                        (*it)->grid_position() == Vec2<u8>{e->dest_x_, e->dest_y_}) {
+                        auto detached = std::move(*it);
+                        dest_room->characters().erase(it);
+                        detached->set_grid_position({e->start_x_, e->start_y_});
+                        detached->set_parent(source_island);
+                        detached->drop_movement_path();
+                        if (auto source_room = source_island->get_room({
+                                    e->start_x_,
+                                    e->start_y_
+                                })) {
+                            source_room->characters().push(std::move(detached));
+                        } else {
+                            Platform::fatal("fatal error when rewinding "
+                                            "transport: source room missing.");
+                        }
+                        break;
+                    } else {
+                        ++it;
+                    }
+                }
+            } else {
+                Platform::fatal("error rewinding transport: dest room missing.");
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
         }
 
         if (app.time_stream().end()) {

@@ -9,6 +9,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -164,6 +165,15 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
             packet.dst_y_ = dest->y;
             network::transmit(pfrm, packet);
         }
+
+        time_stream::event::CharacterTransported e;
+        e.start_x_ = (*chr)->grid_position().x;
+        e.start_y_ = (*chr)->grid_position().y;
+        e.dest_x_ = dest->x;
+        e.dest_y_ = dest->y;
+        e.owned_by_player_ = (*chr)->owner() == &app.player();
+        e.source_near_ = &parent()->owner() == &app.player();
+        app.time_stream().push(pfrm, app.level_timer(), e);
 
         (*chr)->set_grid_position(*dest);
         (*chr)->set_parent(island);
