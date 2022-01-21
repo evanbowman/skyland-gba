@@ -1,6 +1,7 @@
 #pragma once
 
 #include "timeStreamHeader.hpp"
+#include "coins.hpp"
 
 
 
@@ -24,11 +25,16 @@ enum Type : u8 {
     player_flak_destroyed,
     opponent_flak_destroyed,
 
+    player_ionburst_destroyed,
+    opponent_ionburst_destroyed,
+
     player_room_damaged,
     opponent_room_damaged,
 
     player_room_repaired,
     opponent_room_repaired,
+
+    coins_changed,
 };
 
 
@@ -124,6 +130,18 @@ struct OpponentFlakDestroyed : BasicProjectileDestroyed {
 
 
 
+struct PlayerIonBurstDestroyed : BasicProjectileDestroyed {
+    static constexpr const auto t = Type::player_ionburst_destroyed;
+};
+
+
+
+struct OpponentIonBurstDestroyed : BasicProjectileDestroyed {
+    static constexpr const auto t = Type::opponent_ionburst_destroyed;
+};
+
+
+
 struct RoomHealthChanged {
     Header header_;
     u8 x_ : 4;
@@ -156,6 +174,15 @@ struct PlayerRoomRepaired : RoomHealthChanged {
 
 struct OpponentRoomRepaired : RoomHealthChanged {
     static constexpr const auto t = Type::opponent_room_repaired;
+};
+
+
+
+struct CoinsChanged {
+    Header header_;
+    HostInteger<u32> previous_value_;
+
+    static constexpr const auto t = Type::coins_changed;
 };
 
 

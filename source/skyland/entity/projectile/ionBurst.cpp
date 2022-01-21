@@ -19,7 +19,8 @@ SHARED_VARIABLE(ion_burst_damage);
 
 IonBurst::IonBurst(const Vec2<Float>& position,
                    const Vec2<Float>& target,
-                   Island* source)
+                   Island* source,
+                   const Vec2<u8>&)
     : Projectile({{10, 10}, {8, 8}}), source_(source)
 {
     sprite_.set_position(position);
@@ -56,6 +57,34 @@ void IonBurst::update(Platform&, App&, Microseconds delta)
 
 
     if (timer_ > seconds(3)) {
+        kill();
+    }
+}
+
+
+
+void IonBurst::rewind(Platform&, App&, Microseconds delta)
+{
+    auto pos = sprite_.get_position();
+    pos = pos - Float(delta) * step_vector_;
+    sprite_.set_position(pos);
+
+    timer_ -= delta;
+
+
+    anim_timer_ -= delta;
+    if (anim_timer_ < 0) {
+        anim_timer_ = milliseconds(90);
+        const auto kf = sprite_.get_texture_index();
+        if (kf < 58) {
+            sprite_.set_texture_index(kf + 1);
+        } else {
+            sprite_.set_texture_index(56);
+        }
+    }
+
+
+    if (timer_ < 0) {
         kill();
     }
 }

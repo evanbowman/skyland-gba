@@ -7,6 +7,7 @@
 #include "script/lisp.hpp"
 #include "serial.hpp"
 #include "sound.hpp"
+#include "timeStreamEvent.hpp"
 
 
 
@@ -177,6 +178,17 @@ void App::render(Platform& pfrm)
     pfrm.system_call("_prlx8", (void*)(intptr_t)(u8)cloud_scroll_2_);
 
     current_scene_->display(pfrm, *this);
+}
+
+
+
+void App::set_coins(Platform& pfrm, Coins coins)
+{
+    time_stream::event::CoinsChanged e;
+    e.previous_value_.set(persistent_data_.coins_);
+    time_stream_.push(pfrm, level_timer_, e);
+
+    persistent_data_.coins_ += coins;
 }
 
 

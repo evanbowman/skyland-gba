@@ -205,7 +205,7 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
                         db->start_reload();
                         island->drones().push(*drone);
 
-                        app.coins() -= (*drone_class_)->cost();
+                        app.set_coins(pfrm, app.coins() - (*drone_class_)->cost());
 
                         network::packet::DroneSpawn spawn;
                         spawn.origin_x_ = origin_.x;

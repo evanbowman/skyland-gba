@@ -47,10 +47,13 @@ public:
 
 
 
-    Coins& coins()
+    Coins coins() const
     {
         return persistent_data_.coins_;
     }
+
+
+    void set_coins(Platform&, Coins coins);
 
 
     Coins terrain_cost();

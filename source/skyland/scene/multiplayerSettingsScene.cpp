@@ -135,7 +135,7 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
     std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_ =
         parameters_[1];
 
-    app.coins() = parameters_[2];
+    app.set_coins(pfrm, parameters_[2]);
 
 
     app.player_island().init_terrain(pfrm, parameters_[3]);

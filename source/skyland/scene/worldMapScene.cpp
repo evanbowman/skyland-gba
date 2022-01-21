@@ -876,6 +876,8 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
     view.set_center({});
     pfrm.screen().set_view(view);
 
+    app.time_stream().clear();
+
     auto& current = app.world_graph().nodes_[cursor_];
     current.type_ = WorldGraph::Node::Type::visited;
 

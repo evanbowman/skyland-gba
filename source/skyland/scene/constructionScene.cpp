@@ -307,7 +307,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             const auto diff = get_cost(island(app), target);
-            app.coins() -= diff;
+            app.set_coins(pfrm, app.coins() - diff);
             app.level_coins_spent() += diff;
 
             const auto sz = target->size().y;
@@ -374,7 +374,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            app.coins() -= app.terrain_cost();
+            app.set_coins(pfrm, app.coins() - app.terrain_cost());
 
             auto& terrain = island(app)->terrain();
             terrain.pop_back(); // the old edge tile

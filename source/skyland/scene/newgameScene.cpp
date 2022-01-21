@@ -48,13 +48,13 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (save::load(pfrm, app, app.persistent_data())) {
         save::erase(pfrm);
     } else {
-        app.coins() = 0;
+        app.set_coins(pfrm, 0);
 
         app.invoke_script(pfrm, "/scripts/newgame.lisp");
 
         if (app.persistent_data().difficulty_ ==
             PersistentData::Difficulty::beginner) {
-            app.coins() += 1000;
+            app.set_coins(pfrm, 0);
         }
 
         app.current_world_location() = 0;
