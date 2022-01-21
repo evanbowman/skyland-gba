@@ -250,6 +250,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                                                         owner,
                                                         Vec2<u8>{e->x_, e->y_},
                                                         is_replicant);
+
+            island->add_character(std::move(chr));
+
             app.time_stream().pop(sizeof *e);
             break;
         }

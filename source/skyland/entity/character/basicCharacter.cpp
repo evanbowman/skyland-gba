@@ -64,7 +64,7 @@ void BasicCharacter::transported()
 
 
 
-void BasicCharacter::rewind(Platform&, App&, Microseconds delta)
+void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
 {
     auto o = parent_->visual_origin();
     o.x += grid_position_.x * 16;
@@ -72,7 +72,34 @@ void BasicCharacter::rewind(Platform&, App&, Microseconds delta)
 
     sprite_.set_position(o);
 
-    // TODO...
+    sprite_.set_texture_index(base_frame(this, app) + 5);
+
+    auto has_opponent = [&](Room* room) {
+        for (auto& character : room->characters()) {
+            if (character->owner() not_eq owner() and
+                character->grid_position() == grid_position_) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    if (auto room = parent_->get_room(grid_position_)) {
+        if (has_opponent(room)) {
+            sprite_.set_texture_index(base_frame(this, app));
+            sprite_.set_flip({});
+        } else if (room->health() not_eq room->max_health()) {
+            sprite_.set_texture_index(base_frame(this, app) + 1);
+            sprite_.set_flip({});
+        } else {
+            sprite_.set_texture_index(base_frame(this, app) + 5);
+        }
+    }
+
+
+    // TODO: we want to do some sort of interpolation, so that the character
+    // does not apper to jump from one location to another when replaying
+    // history.
 }
 
 

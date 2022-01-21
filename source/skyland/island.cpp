@@ -155,6 +155,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 network::packet::CharacterDied packet;
                 packet.chr_x_ = (*it)->grid_position().x;
                 packet.chr_y_ = (*it)->grid_position().y;
+                // NOTE: some fields intentionally inverted, everything is sort
+                // of flipped from the receiver's perspective.
                 packet.near_island_ = &owner() not_eq &app.player();
                 packet.chr_owned_by_player_ =
                     (*it)->owner() not_eq &app.player();
@@ -164,8 +166,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 time_stream::event::CharacterDied e;
                 e.x_ = (*it)->grid_position().x;
                 e.y_ = (*it)->grid_position().y;
-                e.owned_by_player_ =
-                    (*it)->owner() not_eq &app.player();
+                e.owned_by_player_ = (*it)->owner() == &app.player();
                 e.near_ = this == &app.player_island();
                 e.is_replicant_ = (*it)->is_replicant();
                 app.time_stream().push(pfrm, app.level_timer(), e);
