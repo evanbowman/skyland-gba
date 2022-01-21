@@ -237,16 +237,12 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             Island* island =
                 e->near_ ? &app.player_island() : &*app.opponent_island();
 
-            if (auto room = island->get_room({e->x_, e->y_})) {
-                for (auto& chr : room->characters()) {
-                    const bool player_chr = chr->owner() == &app.player();
-                    if (player_chr == e->owned_by_player_ and
-                        chr->grid_position() == Vec2<u8>{e->x_, e->y_}) {
-                        chr->reposition({e->previous_x_, e->previous_y_});
-                        break;
-                    }
-                }
+            if (auto chr = island->find_character_by_id(e->id_.get()).first) {
+                chr->reposition({e->previous_x_, e->previous_y_});
+            } else {
+                Platform::fatal("rewind chr moved: invalid chr id!");
             }
+
             app.time_stream().pop(sizeof *e);
             break;
         }
@@ -265,8 +261,38 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto chr = app.alloc_entity<BasicCharacter>(
                 pfrm, island, owner, Vec2<u8>{e->x_, e->y_}, is_replicant);
 
+            chr->__assign_id(e->id_.get());
+
             island->add_character(std::move(chr));
 
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+        case time_stream::event::Type::replicant_created: {
+            auto e = (time_stream::event::ReplicantCreated*)end;
+
+            Island* island =
+                e->near_ ? &app.player_island() : &*app.opponent_island();
+
+            if (auto room = island->get_room({e->x_, e->y_})) {
+                for (auto it = room->characters().begin();
+                     it not_eq room->characters().end();) {
+                    const bool player_chr = (*it)->owner() == &app.player();
+                    if (player_chr == e->owned_by_player_ and
+                        (*it)->grid_position() == Vec2<u8>{e->x_, e->y_}) {
+                        if ((*it)->is_replicant()) {
+                            room->characters().erase(it);
+                        } else {
+                            Platform::fatal("rewind error: rewind replicant"
+                                            "is not replicant?!");
+                        }
+                        break;
+                    } else {
+                        ++it;
+                    }
+                }
+            }
             app.time_stream().pop(sizeof *e);
             break;
         }
@@ -277,17 +303,39 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             Island* island =
                 e->near_ ? &app.player_island() : &*app.opponent_island();
 
-            if (auto room = island->get_room({e->x_, e->y_})) {
-                for (auto& chr : room->characters()) {
-                    const bool player_chr = chr->owner() == &app.player();
-                    if (player_chr == e->owned_by_player_ and
-                        chr->grid_position() == Vec2<u8>{e->x_, e->y_}) {
-                        chr->__set_health(e->previous_health_.get());
-                        break;
-                    }
-                }
+            if (auto chr = island->find_character_by_id(e->id_.get()).first) {
+                chr->__set_health(e->previous_health_.get());
+            } else {
+                Platform::fatal("rewind chr health changed: invalid chr id!");
             }
 
+            // StringBuffer<64> temp;
+
+            // if (auto room = island->get_room({e->x_, e->y_})) {
+            //     for (auto& chr : room->characters()) {
+            //         const bool player_chr = chr->owner() == &app.player();
+            //         if (player_chr == e->owned_by_player_ and
+            //             chr->grid_position() == Vec2<u8>{e->x_, e->y_}) {
+            //             chr->__set_health(e->previous_health_.get());
+            //             goto here;
+            //         } else {
+            //             temp += to_string<10>(chr->grid_position().x);
+            //             temp += ", ";
+            //             temp += to_string<10>(chr->grid_position().y);
+            //             temp += "; ";
+            //         }
+            //     }
+            // } else {
+            //     Platform::fatal("chc: room does not exist!");
+            // }
+
+            // temp += "!";
+            // temp += to_string<10>(e->x_);
+            // temp += ", ";
+            // temp += to_string<10>(e->y_);
+            // Platform::fatal(temp.c_str());
+
+            // here:
             app.time_stream().pop(sizeof *e);
             break;
         }
@@ -305,22 +353,24 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             // transported character at the destination island, and move it back
             // to the original location at the source island.
 
-            if (auto dest_room =
-                    dest_island->get_room({e->dest_x_, e->dest_y_})) {
+            auto chr_info = dest_island->find_character_by_id(e->id_.get());
+            if (chr_info.first == nullptr) {
+                Platform::fatal("rewind chr_transported: Invalid character id!");
+            }
+
+            auto dest_room = chr_info.second;
+            if (dest_room) {
                 for (auto it = dest_room->characters().begin();
                      it not_eq dest_room->characters().end();) {
 
-                    const bool player_chr = (*it)->owner() == &app.player();
-                    if (player_chr == e->owned_by_player_ and
-                        (*it)->grid_position() ==
-                            Vec2<u8>{e->dest_x_, e->dest_y_}) {
+                    if ((*it).get() == chr_info.first) {
                         auto detached = std::move(*it);
                         dest_room->characters().erase(it);
-                        detached->set_grid_position({e->start_x_, e->start_y_});
+                        detached->set_grid_position({e->previous_x_, e->previous_y_});
                         detached->set_parent(source_island);
                         detached->drop_movement_path();
                         if (auto source_room = source_island->get_room(
-                                {e->start_x_, e->start_y_})) {
+                                {e->previous_x_, e->previous_y_})) {
                             source_room->characters().push(std::move(detached));
                         } else {
                             Platform::fatal("fatal error when rewinding "
@@ -339,6 +389,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             app.time_stream().pop(sizeof *e);
             break;
         }
+
+        default:
+            Platform::fatal("invalid event from time stream");
         }
 
         if (app.time_stream().end()) {

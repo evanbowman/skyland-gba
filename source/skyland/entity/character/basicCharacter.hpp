@@ -1,10 +1,9 @@
 #pragma once
 
-
-
 #include "memory/buffer.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/path.hpp"
+#include "skyland/characterId.hpp"
 
 
 
@@ -159,6 +158,18 @@ public:
     }
 
 
+    CharacterId id() const
+    {
+        return id_;
+    }
+
+
+    void __assign_id(CharacterId id)
+    {
+        id_ = id;
+    }
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -170,6 +181,8 @@ private:
     bool is_replicant_ : 1;
     State state_ = State::moving_or_idle;
     u16 idle_count_ = 0;
+
+    CharacterId id_;
 
     std::optional<Path> movement_path_;
 

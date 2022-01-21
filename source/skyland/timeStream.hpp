@@ -87,7 +87,7 @@ struct TimeBuffer {
 
 class TimeStream {
 public:
-    static const auto max_buffers = 4;
+    static const auto max_buffers = 8;
 
 
     template <typename T>

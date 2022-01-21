@@ -2,6 +2,7 @@
 
 #include "coins.hpp"
 #include "timeStreamHeader.hpp"
+#include "characterId.hpp"
 
 
 
@@ -53,6 +54,8 @@ enum Type : u8 {
 
     player_room_salvaged,
     opponent_room_salvaged,
+
+    replicant_created,
 };
 
 
@@ -226,15 +229,26 @@ struct CoinsChanged {
 
 
 
-struct CharacterMoved {
+struct ReplicantCreated {
     Header header_;
     u8 x_ : 4;
     u8 y_ : 4;
-    u8 previous_x_ : 4;
-    u8 previous_y_ : 4;
     u8 owned_by_player_ : 1;
     u8 near_ : 1;
     u8 unused_ : 6;
+
+    static constexpr const auto t = Type::replicant_created;
+};
+
+
+
+struct CharacterMoved {
+    Header header_;
+    HostInteger<CharacterId> id_;
+    u8 previous_x_ : 4;
+    u8 previous_y_ : 4;
+    u8 near_ : 1;
+    u8 unused_ : 7;
 
     static constexpr const auto t = Type::character_moved;
 };
@@ -243,6 +257,7 @@ struct CharacterMoved {
 
 struct CharacterDied {
     Header header_;
+    HostInteger<CharacterId> id_;
     u8 x_ : 4;
     u8 y_ : 4;
     u8 owned_by_player_ : 1;
@@ -257,8 +272,7 @@ struct CharacterDied {
 
 struct CharacterHealthChanged {
     Header header_;
-    u8 x_ : 4;
-    u8 y_ : 4;
+    HostInteger<CharacterId> id_;
     u8 owned_by_player_ : 1;
     u8 near_ : 1;
     u8 unused_ : 6;
@@ -271,13 +285,11 @@ struct CharacterHealthChanged {
 
 struct CharacterTransported {
     Header header_;
-    u8 start_x_ : 4;
-    u8 start_y_ : 4;
-    u8 dest_x_ : 4;
-    u8 dest_y_ : 4;
-    u8 owned_by_player_ : 1;
+    HostInteger<CharacterId> id_;
+    u8 previous_x_ : 4;
+    u8 previous_y_ : 4;
     u8 source_near_ : 1;
-    u8 unused_ : 6;
+    u8 unused_ : 7;
 
     static constexpr const auto t = Type::character_transported;
 };

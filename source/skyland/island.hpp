@@ -117,6 +117,9 @@ public:
     BasicCharacter* character_at_location(const Vec2<u8>& loc);
 
 
+    std::pair<BasicCharacter*, Room*> find_character_by_id(CharacterId id);
+
+
     void repaint(Platform& pfrm, App& app);
 
 

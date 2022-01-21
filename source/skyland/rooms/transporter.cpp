@@ -167,11 +167,9 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
         }
 
         time_stream::event::CharacterTransported e;
-        e.start_x_ = (*chr)->grid_position().x;
-        e.start_y_ = (*chr)->grid_position().y;
-        e.dest_x_ = dest->x;
-        e.dest_y_ = dest->y;
-        e.owned_by_player_ = (*chr)->owner() == &app.player();
+        e.previous_x_ = (*chr)->grid_position().x;
+        e.previous_y_ = (*chr)->grid_position().y;
+        e.id_.set((*chr)->id());
         e.source_near_ = &parent()->owner() == &app.player();
         app.time_stream().push(pfrm, app.level_timer(), e);
 

@@ -6,6 +6,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -65,6 +66,14 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
             packet.src_y_ = dst.y;
             packet.health_ = replicant_health;
             network::transmit(pfrm, packet);
+
+
+            time_stream::event::ReplicantCreated e;
+            e.x_ = dst.x;
+            e.y_ = dst.y;
+            e.near_ = parent() == &app.player_island();
+            e.owned_by_player_ = found_chr->owner() == &app.player();
+            app.time_stream().push(pfrm, app.level_timer(), e);
 
 
             chr->apply_damage(pfrm, app, 255 - replicant_health);

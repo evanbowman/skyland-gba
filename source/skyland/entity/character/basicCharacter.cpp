@@ -22,11 +22,23 @@ static u16 base_frame(BasicCharacter* character, App& app)
 
 
 
+static CharacterId character_id_generator = 1;
+
+
+
+static CharacterId alloc_character_id()
+{
+    return character_id_generator++;
+}
+
+
+
 BasicCharacter::BasicCharacter(Island* parent,
                                Player* owner,
                                const Vec2<u8>& position,
                                bool is_replicant)
-    : Entity({{}, {}}), parent_(parent), owner_(owner), grid_position_(position)
+    : Entity({{}, {}}), parent_(parent), owner_(owner), grid_position_(position),
+      id_(alloc_character_id())
 {
     sprite_.set_texture_index(40);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -400,11 +412,9 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
             const auto current_position = (*movement_path_)->back();
 
             time_stream::event::CharacterMoved e;
-            e.x_ = current_position.x;
-            e.y_ = current_position.y;
+            e.id_.set(id_);
             e.previous_x_ = grid_position_.x;
             e.previous_y_ = grid_position_.y;
-            e.owned_by_player_ = owner_ == &app.player();
             e.near_ = parent_ == &app.player_island();
 
             app.time_stream().push(pfrm, app.level_timer(), e);
@@ -452,8 +462,7 @@ void BasicCharacter::heal(Platform& pfrm, App& app, int amount)
     }
 
     time_stream::event::CharacterHealthChanged e;
-    e.x_ = grid_position_.x;
-    e.y_ = grid_position_.y;
+    e.id_.set(id_);
     e.owned_by_player_ = owner_ == &app.player();
     e.near_ = parent_ == &app.player_island();
     e.previous_health_.set(health_);
@@ -470,16 +479,15 @@ void BasicCharacter::heal(Platform& pfrm, App& app, int amount)
 
 void BasicCharacter::apply_damage(Platform& pfrm, App& app, Health damage)
 {
-    int current = health_;
-    current -= damage;
-
     time_stream::event::CharacterHealthChanged e;
-    e.x_ = grid_position_.x;
-    e.y_ = grid_position_.y;
+    e.id_.set(id_);
     e.owned_by_player_ = owner_ == &app.player();
     e.near_ = parent_ == &app.player_island();
     e.previous_health_.set(health_);
     app.time_stream().push(pfrm, app.level_timer(), e);
+
+    int current = health_;
+    current -= damage;
 
     if (current < 0) {
         health_ = 0;

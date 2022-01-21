@@ -102,6 +102,20 @@ BasicCharacter* Island::character_at_location(const Vec2<u8>& loc)
 
 
 
+std::pair<BasicCharacter*, Room*> Island::find_character_by_id(CharacterId id)
+{
+    for (auto& room : rooms_) {
+        for (auto& character : room->characters()) {
+            if (character->id() == id) {
+                return {character.get(), room.get()};
+            }
+        }
+    }
+    return {nullptr, nullptr};
+}
+
+
+
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;
@@ -166,6 +180,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 time_stream::event::CharacterDied e;
                 e.x_ = (*it)->grid_position().x;
                 e.y_ = (*it)->grid_position().y;
+                e.id_.set((*it)->id());
                 e.owned_by_player_ = (*it)->owner() == &app.player();
                 e.near_ = this == &app.player_island();
                 e.is_replicant_ = (*it)->is_replicant();
