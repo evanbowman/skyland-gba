@@ -53,7 +53,7 @@ public:
     }
 
 
-    void set_coins(Platform&, Coins coins);
+    void set_coins(Platform&, Coins coins, bool sequenced);
 
 
     Coins terrain_cost();

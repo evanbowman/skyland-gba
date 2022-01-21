@@ -207,7 +207,7 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.fatal("challenge list format invalid");
             }
 
-            app.set_coins(pfrm, 0);
+            app.set_coins(pfrm, 0, false);
 
             StringBuffer<100> path("/scripts/");
             path += file_name->string().value();

@@ -69,6 +69,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         return scene_pool::alloc<ReadyScene>();
     }
 
+    // NOTE: IMPORTANT: any code called in this loop should not push a
+    // time_stream event! You could get stuck in an endless loop!
     while (end_timestamp and *end_timestamp > current_timestamp) {
         auto end = app.time_stream().end();
         switch ((time_stream::event::Type)end->type_) {
@@ -208,7 +210,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::coins_changed: {
             auto e = (time_stream::event::CoinsChanged*)end;
-            app.set_coins(pfrm, e->previous_value_.get());
+            // app.set_coins(pfrm, e->previous_value_.get(), false);
+            app.time_stream().pop(sizeof *e);
             break;
         }
 

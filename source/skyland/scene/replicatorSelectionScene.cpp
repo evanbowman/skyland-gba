@@ -103,7 +103,7 @@ ReplicatorSelectionScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (auto room = island->get_room(cursor_loc)) {
                 if (auto r = dynamic_cast<Replicator*>(room)) {
                     if (r->create_replicant(pfrm, app)) {
-                        app.set_coins(pfrm, app.coins() - replicator_fee);
+                        app.set_coins(pfrm, app.coins() - replicator_fee, true);
                     }
                     return scene_pool::alloc<ReadyScene>();
                 }
