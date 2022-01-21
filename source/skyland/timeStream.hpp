@@ -1,0 +1,153 @@
+#pragma once
+
+#include "number/numeric.hpp"
+#include "number/endian.hpp"
+#include "memory/buffer.hpp"
+#include "timeTracker.hpp"
+#include "bulkAllocator.hpp"
+#include "timeStreamHeader.hpp"
+
+
+
+// Implements a generational queue of events in time. Used to implement rewind
+// functionality in SKYLAND.
+
+
+
+namespace skyland::time_stream {
+
+
+
+struct TimeBuffer {
+
+    u64 time_window_begin_;
+    Microseconds elapsed_ = 0;
+
+
+    TimeBuffer(TimeTracker& begin)
+        : time_window_begin_(begin.total())
+    {
+    }
+
+
+    void update(Microseconds delta)
+    {
+        elapsed_ += delta;
+    }
+
+
+    char data_[1900];
+    char* end_ = data_ + sizeof data_;
+
+
+    template <typename T>
+    bool push(T& elem)
+    {
+        static_assert(std::is_standard_layout<T>());
+        static_assert(std::is_pod<T>());
+        static_assert(alignof(T) == 1);
+
+        elem.header_.type_ = T::t;
+        elem.header_.timestamp_.set(elapsed_);
+
+        // NOTE: we allocate at higher addresses, and decrement the end_
+        // pointer. As all elements will be cast by the caller from a Header*,
+        // it's most convenient this way.
+
+        if (end_ - sizeof elem >= data_) {
+            auto alloc = end_ - sizeof elem;
+            memcpy(alloc, &elem, sizeof elem);
+            end_ = alloc;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    void pop(u32 bytes)
+    {
+        if (end_ + bytes <= data_ + sizeof data_) {
+            end_ += bytes;
+        }
+    }
+
+
+    event::Header* end()
+    {
+        if (end_ == data_ + sizeof data_) {
+            return nullptr;
+        }
+        return reinterpret_cast<event::Header*>(end_);
+    }
+
+
+    std::optional<DynamicMemory<TimeBuffer>> next_;
+};
+
+
+
+class TimeStream {
+public:
+
+
+    static const auto max_buffers = 4;
+
+
+    template <typename T>
+    void push(Platform& pfrm,
+              TimeTracker& current,
+              T& event)
+    {
+        if (not buffers_) {
+            buffers_ = allocate_dynamic<TimeBuffer>(pfrm, current);
+            ++buffer_count_;
+            end_ = &**buffers_;
+        }
+
+        while (not end_->push(event)) {
+            end_->next_ = allocate_dynamic<TimeBuffer>(pfrm, current);
+            end_ = &**end_->next_;
+            ++buffer_count_;
+        }
+
+        if (buffer_count_ == max_buffers) {
+            --buffer_count_;
+            if (not buffers_ or not (*buffers_)->next_) {
+                Platform::fatal("timestream logic error!");
+            }
+            // Unlink the first element in the chain, thus dropping the oldest
+            // history.
+            buffers_ = std::move(*(*buffers_)->next_);
+        }
+    }
+
+
+    event::Header* end();
+
+
+    u64 begin_timestamp();
+
+
+    std::optional<u64> end_timestamp();
+
+
+    void pop(u32 bytes);
+
+
+    void update(Microseconds delta);
+
+
+    void clear();
+
+
+private:
+
+    std::optional<DynamicMemory<TimeBuffer>> buffers_;
+    TimeBuffer* end_ = nullptr;
+    u8 buffer_count_ = 0;
+};
+
+
+
+}
