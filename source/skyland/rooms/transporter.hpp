@@ -20,6 +20,12 @@ public:
 
 
     void update(Platform&, App&, Microseconds delta) override;
+    void rewind(Platform&, App&, Microseconds delta) override;
+
+    void ___rewind___finished_reload() override;
+
+    void ___rewind___ability_used() override;
+
 
 
     void render_interior(App& app, u8 buffer[16][16]) override;

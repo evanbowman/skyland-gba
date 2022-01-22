@@ -415,6 +415,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         if (auto source_room = source_island->get_room(
                                 {e->previous_x_, e->previous_y_})) {
                             source_room->characters().push(std::move(detached));
+
+                            // Give the transport back to the transporter, as
+                            // we've reverted it.
+                            source_room->___rewind___ability_used();
+
                         } else {
                             Platform::fatal("fatal error when rewinding "
                                             "transport: source room missing.");

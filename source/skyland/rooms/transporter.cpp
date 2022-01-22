@@ -37,11 +37,51 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (recharge_ < 0) {
             recharge_ = 0;
+
+            if (parent() == &app.player_island()) {
+                time_stream::event::PlayerRoomReloadComplete e;
+                e.room_x_ = position().x;
+                e.room_y_ = position().y;
+                app.time_stream().push(pfrm, app.level_timer(), e);
+            } else {
+                time_stream::event::OpponentRoomReloadComplete e;
+                e.room_x_ = position().x;
+                e.room_y_ = position().y;
+                app.time_stream().push(pfrm, app.level_timer(), e);
+            }
+
             if (parent()->interior_visible()) {
                 parent()->repaint(pfrm, app);
             }
         }
     }
+}
+
+
+
+void Transporter::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::rewind(pfrm, app, delta);
+
+    if (recharge_ <= 0) {
+        // Fully recharged.
+    } else if (recharge_ < 1000 * transporter_reload_ms) {
+        recharge_ += delta;
+    }
+}
+
+
+
+void Transporter::___rewind___finished_reload()
+{
+    recharge_ = 1;
+}
+
+
+
+void Transporter::___rewind___ability_used()
+{
+    recharge_ = 0;
 }
 
 
