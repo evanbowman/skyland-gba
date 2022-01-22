@@ -56,6 +56,11 @@ enum Type : u8 {
     opponent_room_salvaged,
 
     replicant_created,
+
+    weapon_set_target,
+
+    player_room_reload_complete,
+    opponent_room_reload_complete,
 };
 
 
@@ -292,6 +297,50 @@ struct CharacterTransported {
     u8 unused_ : 7;
 
     static constexpr const auto t = Type::character_transported;
+};
+
+
+
+struct WeaponSetTarget {
+    Header header_;
+    u8 room_x_ : 4;
+    u8 room_y_ : 4;
+    u8 previous_target_x_ : 4;
+    u8 previous_target_y_ : 4;
+
+    u8 has_previous_target_ : 1;
+    u8 near_ : 1;
+    u8 unused_ : 6;
+
+    static constexpr const auto t = Type::weapon_set_target;
+};
+
+
+
+struct RoomReloadComplete {
+    Header header_;
+    u8 room_x_ : 4;
+    u8 room_y_ : 4;
+};
+
+
+
+struct PlayerRoomReloadComplete : RoomReloadComplete {
+    static constexpr const auto t = Type::player_room_reload_complete;
+};
+
+
+
+struct OpponentRoomReloadComplete : RoomReloadComplete {
+    static constexpr const auto t = Type::opponent_room_reload_complete;
+};
+
+
+
+struct RoomAbilityUsed {
+    Header header_;
+    u8 room_x_ : 4;
+    u8 room_y_ : 4;
 };
 
 

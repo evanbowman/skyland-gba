@@ -120,15 +120,28 @@ public:
     }
 
 
-    virtual ScenePtr<Scene> select(Platform& pfrm, App&);
-
-
-    virtual void set_target(const Vec2<u8>& target)
+    // A special method intended mainly for the rewind implementation. Invoked
+    // when the rewind logic encounters an event indicating that a room finished
+    // reloading.
+    virtual void ___rewind___finished_reload()
     {
     }
 
 
-    virtual void unset_target()
+    virtual ScenePtr<Scene> select(Platform& pfrm, App&);
+
+
+    virtual void set_target(Platform& pfrm,
+                            App& app,
+                            const Vec2<u8>& target,
+                            bool sequenced)
+    {
+    }
+
+
+    virtual void unset_target(Platform& pfrm,
+                              App& app,
+                              bool sequenced)
     {
     }
 

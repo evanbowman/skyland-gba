@@ -29,14 +29,6 @@ Bulkhead::Bulkhead(Island* parent, const Vec2<u8>& position)
 void Bulkhead::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
-
-    if (cooldown_ > 0) {
-        cooldown_ -= delta;
-
-        if (cooldown_ < 0) {
-            cooldown_ = 0;
-        }
-    }
 }
 
 
@@ -71,8 +63,6 @@ void Bulkhead::set_open(Platform& pfrm, App& app, bool open)
 {
     open_ = open;
 
-    cooldown_ = seconds(4);
-
     if (parent()->interior_visible()) {
         parent()->repaint(pfrm, app);
     }
@@ -84,10 +74,6 @@ ScenePtr<Scene> Bulkhead::select(Platform& pfrm, App& app)
 {
     if (length(characters())) {
         return Room::select(pfrm, app);
-    }
-
-    if (cooldown_ > 0) {
-        return null_scene();
     }
 
     open_ = not open_;

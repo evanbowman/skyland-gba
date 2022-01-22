@@ -2,8 +2,8 @@
 
 
 #include "skyland/coins.hpp"
-#include "skyland/room.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "weapon.hpp"
 
 
 
@@ -15,12 +15,13 @@ extern SharedVariable cannon_reload_ms;
 
 
 
-class Cannon : public Room {
+class Cannon : public Weapon {
 public:
     Cannon(Island* parent, const Vec2<u8>& position);
 
 
-    void update(Platform&, App&, Microseconds delta) override;
+    void fire(Platform& pfrm, App& app) override;
+    Microseconds reload() const override;
 
 
     void render_interior(App& app, u8 buffer[16][16]) override;
@@ -72,21 +73,6 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm, App&) override;
-
-
-    void set_target(const Vec2<u8>& target) override
-    {
-        target_ = target;
-    }
-
-
-    void unset_target() override
-    {
-        target_.reset();
-    }
-
-
     void plot_walkable_zones(App& app, bool matrix[16][16]) override
     {
         // one cannot walk through this tile, intentionally do nothing.
@@ -103,18 +89,6 @@ public:
     {
         return 536;
     }
-
-
-    Microseconds reload_time_remaining() const override
-    {
-        return reload_;
-    }
-
-
-private:
-    Microseconds reload_ = 1000 * cannon_reload_ms;
-
-    std::optional<Vec2<u8>> target_;
 };
 
 

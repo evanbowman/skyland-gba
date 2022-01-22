@@ -41,8 +41,8 @@ void respawn_basic_projectile(Platform& pfrm,
 
 ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 {
-    // Playback history at a fixed delta of 120 fps.
-    const auto delta = 2 * (seconds(1) / 60);
+    // Playback history at a fixed delta.
+    const Microseconds delta = 2 * (seconds(1) / 60);
 
 
     app.level_timer().count_down(delta);
@@ -68,6 +68,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     while (end_timestamp and *end_timestamp > current_timestamp) {
         auto end = app.time_stream().end();
         switch ((time_stream::event::Type)end->type_) {
+
         case time_stream::event::Type::player_room_created: {
             auto e = (time_stream::event::PlayerRoomCreated*)end;
             app.player_island().destroy_room(pfrm, app, {e->x_, e->y_});
@@ -75,12 +76,14 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::opponent_room_created: {
             auto e = (time_stream::event::OpponentRoomCreated*)end;
             app.opponent_island()->destroy_room(pfrm, app, {e->x_, e->y_});
             app.time_stream().pop(sizeof *e);
             break;
         }
+
 
         case time_stream::event::Type::player_room_destroyed: {
             auto e = (time_stream::event::PlayerRoomDestroyed*)end;
@@ -91,6 +94,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::opponent_room_destroyed: {
             auto e = (time_stream::event::PlayerRoomDestroyed*)end;
             (*load_metaclass(e->type_))
@@ -100,6 +104,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::player_room_salvaged: {
             auto e = (time_stream::event::PlayerRoomSalvaged*)end;
             (*load_metaclass(e->type_))
@@ -108,6 +113,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::opponent_room_salvaged: {
             auto e = (time_stream::event::OpponentRoomSalvaged*)end;
             (*load_metaclass(e->type_))
@@ -115,6 +121,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             app.time_stream().pop(sizeof *e);
             break;
         }
+
 
         case time_stream::event::Type::player_cannonball_destroyed: {
             auto e = (time_stream::event::PlayerCannonballDestroyed*)end;
@@ -125,6 +132,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::opponent_cannonball_destroyed: {
             auto e = (time_stream::event::OpponentCannonballDestroyed*)end;
             respawn_basic_projectile<Cannonball>(
@@ -133,6 +141,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             app.camera().shake(8);
             break;
         }
+
 
         case time_stream::event::Type::player_arcbolt_destroyed: {
             auto e = (time_stream::event::PlayerArcboltDestroyed*)end;
@@ -143,6 +152,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::opponent_arcbolt_destroyed: {
             auto e = (time_stream::event::OpponentArcboltDestroyed*)end;
             respawn_basic_projectile<ArcBolt>(
@@ -152,6 +162,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::player_flak_destroyed: {
             auto e = (time_stream::event::PlayerFlakDestroyed*)end;
             respawn_basic_projectile<Flak>(pfrm, app, &app.player_island(), *e);
@@ -159,6 +170,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             app.camera().shake(8);
             break;
         }
+
 
         case time_stream::event::Type::opponent_flak_destroyed: {
             auto e = (time_stream::event::OpponentFlakDestroyed*)end;
@@ -169,6 +181,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::player_ionburst_destroyed: {
             auto e = (time_stream::event::PlayerIonBurstDestroyed*)end;
             respawn_basic_projectile<IonBurst>(
@@ -178,6 +191,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::opponent_ionburst_destroyed: {
             auto e = (time_stream::event::OpponentIonBurstDestroyed*)end;
             respawn_basic_projectile<IonBurst>(
@@ -186,6 +200,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             app.camera().shake(8);
             break;
         }
+
 
         case time_stream::event::Type::player_room_damaged: {
             auto e = (time_stream::event::PlayerRoomDamaged*)end;
@@ -197,6 +212,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::opponent_room_damaged: {
             auto e = (time_stream::event::OpponentRoomDamaged*)end;
             if (auto room = app.opponent_island()->get_room({e->x_, e->y_})) {
@@ -207,6 +223,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::player_room_repaired: {
             auto e = (time_stream::event::PlayerRoomRepaired*)end;
             if (auto room = app.player_island().get_room({e->x_, e->y_})) {
@@ -215,6 +232,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             app.time_stream().pop(sizeof *e);
             break;
         }
+
 
         case time_stream::event::Type::opponent_room_repaired: {
             auto e = (time_stream::event::OpponentRoomRepaired*)end;
@@ -225,12 +243,14 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::coins_changed: {
             auto e = (time_stream::event::CoinsChanged*)end;
             app.set_coins(pfrm, e->previous_value_.get(), false);
             app.time_stream().pop(sizeof *e);
             break;
         }
+
 
         case time_stream::event::Type::character_moved: {
             auto e = (time_stream::event::CharacterMoved*)end;
@@ -246,6 +266,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             app.time_stream().pop(sizeof *e);
             break;
         }
+
 
         case time_stream::event::Type::character_died: {
             auto e = (time_stream::event::CharacterDied*)end;
@@ -268,6 +289,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             app.time_stream().pop(sizeof *e);
             break;
         }
+
 
         case time_stream::event::Type::replicant_created: {
             auto e = (time_stream::event::ReplicantCreated*)end;
@@ -297,6 +319,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             break;
         }
 
+
         case time_stream::event::Type::character_health_changed: {
             auto e = (time_stream::event::CharacterHealthChanged*)end;
 
@@ -309,36 +332,10 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 Platform::fatal("rewind chr health changed: invalid chr id!");
             }
 
-            // StringBuffer<64> temp;
-
-            // if (auto room = island->get_room({e->x_, e->y_})) {
-            //     for (auto& chr : room->characters()) {
-            //         const bool player_chr = chr->owner() == &app.player();
-            //         if (player_chr == e->owned_by_player_ and
-            //             chr->grid_position() == Vec2<u8>{e->x_, e->y_}) {
-            //             chr->__set_health(e->previous_health_.get());
-            //             goto here;
-            //         } else {
-            //             temp += to_string<10>(chr->grid_position().x);
-            //             temp += ", ";
-            //             temp += to_string<10>(chr->grid_position().y);
-            //             temp += "; ";
-            //         }
-            //     }
-            // } else {
-            //     Platform::fatal("chc: room does not exist!");
-            // }
-
-            // temp += "!";
-            // temp += to_string<10>(e->x_);
-            // temp += ", ";
-            // temp += to_string<10>(e->y_);
-            // Platform::fatal(temp.c_str());
-
-            // here:
             app.time_stream().pop(sizeof *e);
             break;
         }
+
 
         case time_stream::event::Type::character_transported: {
             auto e = (time_stream::event::CharacterTransported*)end;
@@ -389,6 +386,47 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             app.time_stream().pop(sizeof *e);
             break;
         }
+
+
+        case time_stream::event::Type::weapon_set_target: {
+            auto e = (time_stream::event::WeaponSetTarget*)end;
+
+            Island* island =
+                e->near_ ? &app.player_island() : &*app.opponent_island();
+
+            if (auto room = island->get_room({e->room_x_, e->room_y_})) {
+                if (e->has_previous_target_) {
+                    room->set_target(pfrm, app, Vec2<u8>{
+                        e->previous_target_x_,
+                        e->previous_target_y_
+                    }, false);
+                } else {
+                    room->unset_target(pfrm, app, false);
+                }
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_room_reload_complete: {
+            auto e = (time_stream::event::PlayerRoomReloadComplete*)end;
+            if (auto room = app.player_island().get_room({e->room_x_, e->room_y_})) {
+                room->___rewind___finished_reload();
+            }
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_room_reload_complete: {
+            auto e = (time_stream::event::OpponentRoomReloadComplete*)end;
+            if (auto room = app.opponent_island()->get_room({e->room_x_, e->room_y_})) {
+                room->___rewind___finished_reload();
+            }
+            break;
+        }
+
 
         default:
             Platform::fatal("invalid event from time stream");

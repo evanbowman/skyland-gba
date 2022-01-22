@@ -264,7 +264,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ = 0;
 
         for (auto& room : app.player_island().rooms()) {
-            room->unset_target();
+            room->unset_target(pfrm, app, true);
         }
 
         anim_state_ = AnimState::explosion_wait1;
