@@ -23,7 +23,24 @@ public:
 
     void rewind(Platform&, App&, Microseconds delta)
     {
-        // TODO...
+        timer_ -= delta;
+
+        if (timer_ < 0) {
+            kill();
+            return;
+        }
+
+        auto pos = sprite_.get_position();
+
+        pos.x += +Float(delta) * 0.00001f;
+        pos.y += +Float(delta) * 0.00001f;
+
+        const s16 shrink_amount =
+            interpolate(-450, -24, Float(timer_) / seconds(3));
+
+        sprite_.set_scale({shrink_amount, shrink_amount});
+
+        sprite_.set_position(pos);
     }
 
 

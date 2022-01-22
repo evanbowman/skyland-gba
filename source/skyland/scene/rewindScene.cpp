@@ -614,6 +614,10 @@ void RewindScene::display(Platform& pfrm, App& app)
     if (app.opponent_island()) {
         app.opponent_island()->display(pfrm);
     }
+
+    for (auto& effect : app.effects()) {
+        pfrm.screen().draw(effect->sprite());
+    }
 }
 
 
