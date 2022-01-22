@@ -3,6 +3,7 @@
 #include "characterId.hpp"
 #include "coins.hpp"
 #include "timeStreamHeader.hpp"
+#include "number/random.hpp"
 
 
 
@@ -81,6 +82,8 @@ enum Type : u8 {
     drone_deployed,
     drone_health_changed,
     drone_destroyed,
+
+    rng_changed,
 };
 
 
@@ -493,6 +496,15 @@ struct DroneDestroyed {
     host_s32 duration_;
 
     static constexpr const auto t = Type::drone_destroyed;
+};
+
+
+
+struct RngChanged {
+    Header header_;
+    HostInteger<rng::LinearGenerator> previous_state_;
+
+    static constexpr const auto t = Type::rng_changed;
 };
 
 

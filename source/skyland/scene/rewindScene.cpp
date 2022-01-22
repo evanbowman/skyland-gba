@@ -566,6 +566,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         detached->set_grid_position(pos);
                         detached->set_parent(source_island);
                         detached->drop_movement_path();
+                        detached->set_idle(app);
                         if (auto source_room = source_island->get_room(pos)) {
                             source_room->characters().push(std::move(detached));
                         } else {
@@ -747,6 +748,14 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::rng_changed: {
+            auto e = (time_stream::event::RngChanged*)end;
+            rng::critical_state = e->previous_state_.get();
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         default:
             Platform::fatal("invalid event from time stream");
         }
@@ -788,6 +797,8 @@ void RewindScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
 {
+    // Score penalty: you lose accumulated score for a level when you rewind.
+    app.score().set(app.level_begin_score());
 }
 
 

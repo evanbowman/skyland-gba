@@ -29,8 +29,6 @@ App::App(Platform& pfrm)
     current_scene_ = initial_scene();
     next_scene_ = initial_scene();
 
-    rng::get(rng::critical_state);
-
     init_clouds(pfrm);
 
     pfrm.screen().fade(1.f);
@@ -125,6 +123,8 @@ COLD void on_remote_console_text(Platform& pfrm,
 
 void App::update(Platform& pfrm, Microseconds delta)
 {
+    const auto previous_rng = rng::critical_state;
+
     if (next_scene_) {
         next_scene_->enter(pfrm, *this, *current_scene_);
 
@@ -159,6 +159,13 @@ void App::update(Platform& pfrm, Microseconds delta)
 
     if (next_scene_) {
         current_scene_->exit(pfrm, *this, *next_scene_);
+    }
+
+    if (rng::critical_state not_eq previous_rng) {
+        time_stream::event::RngChanged e;
+        e.previous_state_.set(previous_rng);
+
+        time_stream_.push(pfrm, level_timer_, e);
     }
 }
 

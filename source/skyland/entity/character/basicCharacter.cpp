@@ -115,19 +115,22 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
 
 
 
+void BasicCharacter::set_idle(App& app)
+{
+    sprite_.set_texture_index(base_frame(this, app) + 5);
+    state_ = State::moving_or_idle;
+    timer_ = 0;
+    idle_count_ = 0;
+}
+
+
+
 void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto o = parent_->visual_origin();
     o.x += grid_position_.x * 16;
     o.y += grid_position_.y * 16 - 3;
 
-
-    auto idle = [&] {
-        sprite_.set_texture_index(base_frame(this, app) + 5);
-        state_ = State::moving_or_idle;
-        timer_ = 0;
-        idle_count_ = 0;
-    };
 
     auto has_opponent = [&](Room* room) {
         for (auto& character : room->characters()) {
@@ -228,7 +231,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
         sprite_.set_position(o);
 
         if (movement_path_) {
-            idle();
+            this->set_idle(app);
             break;
         }
 
@@ -256,7 +259,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
 
                 if (is_plundered) { // We've successfully ransacked the room,
                                     // let's try moving on to somewhere else.
-                    idle();
+                    this->set_idle(app);
                     break;
                 }
 
@@ -295,7 +298,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (movement_path_) {
-            idle();
+            this->set_idle(app);
             break;
         }
 
@@ -306,7 +309,7 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                 if (room->health() not_eq room->max_health()) {
                     room->heal(pfrm, app, 2);
                 } else {
-                    idle();
+                    this->set_idle(app);
                     break;
                 }
 

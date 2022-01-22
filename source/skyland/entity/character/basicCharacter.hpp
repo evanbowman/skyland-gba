@@ -114,6 +114,9 @@ public:
     }
 
 
+    void set_idle(App& app);
+
+
     // The character will post an awaiting movement flag when it's either idle,
     // or when it's finished moving to the next coordinate in its path. We wait
     // for all characters on an island to be awaiting movement before allowing

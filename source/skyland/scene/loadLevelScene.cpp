@@ -81,6 +81,9 @@ void prep_level(Platform& pfrm, App& app)
         std::max((s32)0, app.persistent_data().score_.get()));
 
 
+    app.level_begin_score() = app.persistent_data().score_.get();
+
+
     if (app.opponent_island()) {
         app.opponent_island()->set_drift(pfrm, app, -0.000025f);
 

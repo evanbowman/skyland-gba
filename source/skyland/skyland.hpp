@@ -206,6 +206,12 @@ public:
     }
 
 
+    s32& level_begin_score()
+    {
+        return level_begin_score_;
+    }
+
+
     std::optional<DialogBuffer>& dialog_buffer()
     {
         return dialog_buffer_;
@@ -327,6 +333,8 @@ private:
     GameSpeed game_speed_ = GameSpeed::normal;
     int pause_count_ = 0;
     Rumble rumble_;
+
+    s32 level_begin_score_ = 0;
 
     std::optional<DialogBuffer> dialog_buffer_;
     bool exit_level_ = false;
