@@ -11,6 +11,7 @@
 #include "skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
+#include "entity/projectile/projectile.hpp"
 
 
 
@@ -112,6 +113,54 @@ std::pair<BasicCharacter*, Room*> Island::find_character_by_id(CharacterId id)
         }
     }
     return {nullptr, nullptr};
+}
+
+
+
+void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    if (chimney_loc_) {
+        chimney_spawn_timer_ -= delta;
+
+        if (chimney_spawn_timer_ < 0) {
+            chimney_spawn_timer_ = milliseconds(600);
+
+            auto o = origin();
+
+            o.x += chimney_loc_->x * 16 + 8;
+            o.y += chimney_loc_->y * 16 - 4;
+
+            if (auto e = app.alloc_entity<SmokePuff>(pfrm, o)) {
+                e->jump_to_end();
+                app.effects().push(std::move(e));
+            }
+        }
+    }
+
+    auto& projectiles = this->projectiles();
+    for (auto it = projectiles.begin(); it not_eq projectiles.end();) {
+        if ((*it)->health() == 0) {
+            it = projectiles.erase(it);
+        } else {
+            // FIXME: I was casting before Entity implemented
+            // rewind(). Projectile implemented an interface for rewind() before
+            // Entity did. Now, this check is unnecessary.
+            if (auto p = dynamic_cast<Projectile*>(&**it)) {
+                p->rewind(pfrm, app, delta);
+            } else {
+                // Raise error: why is a non-projectile in the island's
+                // projectile list?
+            }
+            ++it;
+        }
+    }
+
+    for (auto& room : rooms_) {
+        room->rewind(pfrm, app, delta);
+        for (auto& chr : room->characters()) {
+            chr->rewind(pfrm, app, delta);
+        }
+    }
 }
 
 

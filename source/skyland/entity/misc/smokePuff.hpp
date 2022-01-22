@@ -21,6 +21,26 @@ public:
     }
 
 
+    // Used during rewind. It's simply wasteful to store data for effects like
+    // this in memory. So jump the animation to its endpoint, ad rewind.
+    void jump_to_end()
+    {
+        timer_ = seconds(3);
+
+        auto pos = sprite_.get_position();
+
+        pos.x -= +Float(seconds(3)) * 0.00001f;
+        pos.y -= +Float(seconds(3)) * 0.00001f;
+
+        const s16 shrink_amount =
+            interpolate(-450, -24, Float(timer_) / seconds(3));
+
+        sprite_.set_scale({shrink_amount, shrink_amount});
+
+        sprite_.set_position(pos);
+    }
+
+
     void rewind(Platform&, App&, Microseconds delta)
     {
         timer_ -= delta;

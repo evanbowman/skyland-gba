@@ -544,45 +544,19 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
     }
 
-
     app.update_parallax(-delta);
 
-    auto rewind_projectiles = [&](Island& island) {
-        auto& projectiles = island.projectiles();
-        for (auto it = projectiles.begin(); it not_eq projectiles.end();) {
-            if ((*it)->health() == 0) {
-                it = projectiles.erase(it);
-            } else {
-                if (auto p = dynamic_cast<Projectile*>(&**it)) {
-                    p->rewind(pfrm, app, delta);
-                } else {
-                    // Raise error: why is a non-projectile in the island's
-                    // projectile list?
-                }
-                ++it;
-            }
-        }
-    };
-
     rewind_entities(pfrm, app, delta, app.effects());
-
-    rewind_projectiles(app.player_island());
-    rewind_projectiles(*app.opponent_island());
-
-    for (auto& room : app.player_island().rooms()) {
-        room->rewind(pfrm, app, delta);
-        for (auto& chr : room->characters()) {
-            chr->rewind(pfrm, app, delta);
-        }
+    for (auto& entity : app.effects()) {
+        // Yeah, this is kind of terrible. Until late into development, I didn't
+        // realize that I was mistakenly update the effects list twice. I need
+        // to go through the effects and update the timers, so that I don't need
+        // to keep doing this.
+        entity->rewind(pfrm, app, delta);
     }
 
-    for (auto& room : app.opponent_island()->rooms()) {
-        room->rewind(pfrm, app, delta);
-        for (auto& chr : room->characters()) {
-            chr->rewind(pfrm, app, delta);
-        }
-    }
-
+    app.player_island().rewind(pfrm, app, delta);
+    app.opponent_island()->rewind(pfrm, app, delta);
 
     return null_scene();
 }

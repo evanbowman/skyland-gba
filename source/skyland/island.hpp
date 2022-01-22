@@ -69,6 +69,9 @@ public:
     void update(Platform&, App&, Microseconds delta);
 
 
+    void rewind(Platform&, App&, Microseconds delta);
+
+
     void display(Platform&);
 
 
