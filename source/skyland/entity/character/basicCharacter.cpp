@@ -37,8 +37,8 @@ BasicCharacter::BasicCharacter(Island* parent,
                                Player* owner,
                                const Vec2<u8>& position,
                                bool is_replicant)
-    : Entity({{}, {}}), parent_(parent), owner_(owner), grid_position_(position),
-      id_(alloc_character_id())
+    : Entity({{}, {}}), parent_(parent), owner_(owner),
+      grid_position_(position), id_(alloc_character_id())
 {
     sprite_.set_texture_index(40);
     sprite_.set_size(Sprite::Size::w16_h32);

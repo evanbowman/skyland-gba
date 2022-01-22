@@ -9,7 +9,6 @@ namespace skyland {
 
 class Weapon : public Room {
 public:
-
     Weapon(Island* parent,
            const char* name,
            const Vec2<u8>& size,
@@ -40,13 +39,10 @@ public:
     void ___rewind___ability_used(Platform&, App&) override;
 
 
-    void set_target(Platform& pfrm,
-                    App& app,
-                    const Vec2<u8>& target) override;
+    void set_target(Platform& pfrm, App& app, const Vec2<u8>& target) override;
 
 
-    void unset_target(Platform& pfrm,
-                      App& app) override;
+    void unset_target(Platform& pfrm, App& app) override;
 
 
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
@@ -59,4 +55,4 @@ protected:
 
 
 
-}
+} // namespace skyland

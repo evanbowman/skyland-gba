@@ -6,8 +6,8 @@
 #include "skyland/entity/projectile/decimatorBurst.hpp"
 #include "skyland/entity/projectile/flak.hpp"
 #include "skyland/entity/projectile/ionBurst.hpp"
-#include "skyland/entity/projectile/projectile.hpp"
 #include "skyland/entity/projectile/missile.hpp"
+#include "skyland/entity/projectile/projectile.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
@@ -46,10 +46,8 @@ void respawn_missile(Platform& pfrm,
                      Island* parent,
                      time_stream::event::MissileDestroyed& e)
 {
-    auto m = alloc_entity<Missile>(Vec2<Float>{
-            (Float)e.x_pos_.get(),
-            (Float)e.y_pos_.get()
-        },
+    auto m = alloc_entity<Missile>(
+        Vec2<Float>{(Float)e.x_pos_.get(), (Float)e.y_pos_.get()},
         Vec2<Float>{
             (Float)e.target_x_.get(),
             0.f // TODO: change target parameter to simple float, y unused.
@@ -155,6 +153,72 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::OpponentRoomSalvaged*)end;
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, &*app.opponent_island(), {e->x_, e->y_});
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_room_plundered:
+        case time_stream::event::Type::opponent_room_plundered: {
+            auto e = (time_stream::event::RoomPlundered*)end;
+            Buffer<EntityRef<BasicCharacter>, 16> chrs;
+
+            Island* island =
+                (time_stream::event::Type)end->type_ ==
+                        time_stream::event::Type::player_room_plundered
+                    ? &app.player_island()
+                    : &*app.opponent_island();
+
+            // NOTE: the plundered room was already technically re-created, by
+            // the room destroyed event issued by the zero-health room after it
+            // was pundered. But we want to splice characters back into the
+            // original room, and the easiest way is to destroy everything and
+            // re-create it.
+
+            // First, we want to remove all characters inhabiting the
+            // plundered-room structures that comprise the room. Cache them in
+            // buffer chrs.
+            auto meta = load_metaclass(e->type_);
+            for (u8 x = e->x_; x < e->x_ + (*meta)->size().x; ++x) {
+                for (u8 y = e->y_; y < e->y_ + (*meta)->size().y; ++y) {
+                    // NOTE: scan rooms manually, because both the
+                    // plundered-room structures and the original room currently
+                    // exist.
+                    for (auto& room : island->rooms()) {
+                        if (room->position().x == x and
+                            room->position().y == y) {
+                            for (auto& chr : room->characters()) {
+                                chrs.push_back(std::move(chr));
+                                room->characters().clear();
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Destroy plundered-room structures in the location where we want
+            // to re-create the original room.
+            for (u8 x = e->x_; x < e->x_ + (*meta)->size().x; ++x) {
+                for (u8 y = e->y_; y < e->y_ + (*meta)->size().y; ++y) {
+                    if (island->get_room({x, y})) {
+                        island->destroy_room(pfrm, app, {x, y});
+                    }
+                }
+            }
+
+            // Re-create the original room.
+            (*meta)->create(pfrm, app, island, Vec2<u8>{e->x_, e->y_});
+
+            // Add characters back.
+            if (auto room = island->get_room({e->x_, e->y_})) {
+                for (auto& chr : chrs) {
+                    room->characters().push(std::move(chr));
+                }
+            } else {
+                Platform::fatal("rewind salvage: attempt to re-attach character"
+                                " to non-existent room.");
+            }
+
             app.time_stream().pop(sizeof *e);
             break;
         }
@@ -427,7 +491,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
             auto chr_info = dest_island->find_character_by_id(e->id_.get());
             if (chr_info.first == nullptr) {
-                Platform::fatal("rewind chr_transported: Invalid character id!");
+                Platform::fatal(
+                    "rewind chr_transported: Invalid character id!");
             }
 
             auto dest_room = chr_info.second;
@@ -438,7 +503,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     if ((*it).get() == chr_info.first) {
                         auto detached = std::move(*it);
                         dest_room->characters().erase(it);
-                        detached->set_grid_position({e->previous_x_, e->previous_y_});
+                        detached->set_grid_position(
+                            {e->previous_x_, e->previous_y_});
                         detached->set_parent(source_island);
                         detached->drop_movement_path();
                         if (auto source_room = source_island->get_room(
@@ -471,11 +537,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::character_disembark: {
             auto e = (time_stream::event::CharacterDisembark*)end;
 
-            Island* source_island = e->chr_near_ ?
-                &app.player_island() : &*app.opponent_island();
+            Island* source_island =
+                e->chr_near_ ? &app.player_island() : &*app.opponent_island();
 
-            Island* dest_island = not e->chr_near_ ?
-                &app.player_island() : &*app.opponent_island();
+            Island* dest_island = not e->chr_near_ ? &app.player_island()
+                                                   : &*app.opponent_island();
 
             auto chr_info = dest_island->find_character_by_id(e->id_.get());
             if (chr_info.first == nullptr) {
@@ -485,7 +551,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto dest_room = chr_info.second;
             if (dest_room) {
                 for (auto it = dest_room->characters().begin();
-                     it not_eq dest_room->characters().end(); ) {
+                     it not_eq dest_room->characters().end();) {
 
                     if ((*it).get() == chr_info.first) {
 
@@ -528,10 +594,10 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
             if (auto room = island->get_room({e->room_x_, e->room_y_})) {
                 if (e->has_previous_target_) {
-                    room->set_target(pfrm, app, Vec2<u8>{
-                        e->previous_target_x_,
-                        e->previous_target_y_
-                    });
+                    room->set_target(
+                        pfrm,
+                        app,
+                        Vec2<u8>{e->previous_target_x_, e->previous_target_y_});
                 } else {
                     room->unset_target(pfrm, app);
                 }
@@ -544,7 +610,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_room_reload_complete: {
             auto e = (time_stream::event::PlayerRoomReloadComplete*)end;
-            if (auto room = app.player_island().get_room({e->room_x_, e->room_y_})) {
+            if (auto room =
+                    app.player_island().get_room({e->room_x_, e->room_y_})) {
                 room->___rewind___finished_reload(pfrm, app);
             }
             app.time_stream().pop(sizeof *e);
@@ -554,7 +621,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_room_reload_complete: {
             auto e = (time_stream::event::OpponentRoomReloadComplete*)end;
-            if (auto room = app.opponent_island()->get_room({e->room_x_, e->room_y_})) {
+            if (auto room =
+                    app.opponent_island()->get_room({e->room_x_, e->room_y_})) {
                 room->___rewind___finished_reload(pfrm, app);
             }
             app.time_stream().pop(sizeof *e);

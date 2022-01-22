@@ -740,9 +740,7 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     if (highest_weighted_room) {
-        ion_cannon.set_target(pfrm,
-                              app,
-                              highest_weighted_room->position());
+        ion_cannon.set_target(pfrm, app, highest_weighted_room->position());
     }
 }
 
@@ -1361,11 +1359,9 @@ void EnemyAI::set_target(Platform& pfrm,
                             app,
                             visible_rooms[rng::choice(visible_rooms.size(),
                                                       rng::utility_state)]
-                            ->position());
+                                ->position());
         } else {
-            silo.set_target(pfrm,
-                            app,
-                            target->position());
+            silo.set_target(pfrm, app, target->position());
         }
     }
 }

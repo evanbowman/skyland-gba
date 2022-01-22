@@ -290,7 +290,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             timer_ = 0;
             music_fadeback_timer_ = music_fadeback_seconds;
-       }
+        }
         break;
 
     case AnimState::explosion_wait2:

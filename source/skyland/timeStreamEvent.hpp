@@ -1,8 +1,8 @@
 #pragma once
 
+#include "characterId.hpp"
 #include "coins.hpp"
 #include "timeStreamHeader.hpp"
-#include "characterId.hpp"
 
 
 
@@ -21,6 +21,8 @@ namespace skyland::time_stream::event {
 
 
 enum Type : u8 {
+    __reserved,
+
     player_room_created,
     opponent_room_created,
 
@@ -72,6 +74,9 @@ enum Type : u8 {
     opponent_island_drift_changed,
 
     island_terrain_changed,
+
+    player_room_plundered,
+    opponent_room_plundered,
 };
 
 
@@ -114,6 +119,27 @@ struct OpponentRoomDestroyed {
     u8 type_;
 
     static constexpr const auto t = Type::opponent_room_destroyed;
+};
+
+
+
+struct RoomPlundered {
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 type_;
+};
+
+
+
+struct PlayerRoomPlundered : RoomPlundered {
+    static constexpr const auto t = Type::player_room_plundered;
+};
+
+
+
+struct OpponentRoomPlundered : RoomPlundered {
+    static constexpr const auto t = Type::opponent_room_plundered;
 };
 
 

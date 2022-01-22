@@ -1,6 +1,6 @@
 #include "weapon.hpp"
-#include "skyland/scene/weaponSetTargetScene.hpp"
 #include "globals.hpp"
+#include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
@@ -14,8 +14,8 @@ Weapon::Weapon(Island* parent,
                const char* name,
                const Vec2<u8>& size,
                const Vec2<u8>& position,
-               Microseconds reload_time) :
-    Room(parent, name, size, position)
+               Microseconds reload_time)
+    : Room(parent, name, size, position)
 {
     reload_timer_ = reload_time;
 }
@@ -107,9 +107,7 @@ void Weapon::___rewind___ability_used(Platform&, App&)
 
 
 
-void Weapon::set_target(Platform& pfrm,
-                        App& app,
-                        const Vec2<u8>& target)
+void Weapon::set_target(Platform& pfrm, App& app, const Vec2<u8>& target)
 {
     time_stream::event::WeaponSetTarget e;
     e.room_x_ = position().x;
@@ -134,8 +132,7 @@ void Weapon::set_target(Platform& pfrm,
 
 
 
-void Weapon::unset_target(Platform& pfrm,
-                          App& app)
+void Weapon::unset_target(Platform& pfrm, App& app)
 {
     time_stream::event::WeaponSetTarget e;
     e.room_x_ = position().x;
@@ -178,5 +175,4 @@ ScenePtr<Scene> Weapon::select(Platform& pfrm, App& app)
 
 
 
-
-}
+} // namespace skyland

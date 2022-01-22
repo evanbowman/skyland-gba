@@ -21,4 +21,4 @@ using CharacterId = u16;
 
 
 
-}
+} // namespace skyland

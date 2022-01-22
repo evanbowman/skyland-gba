@@ -74,7 +74,6 @@ void FlakGun::fire(Platform& pfrm, App& app)
     if (c) {
         parent()->projectiles().push(std::move(c));
     }
-
 }
 
 

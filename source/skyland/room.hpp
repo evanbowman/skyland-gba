@@ -139,15 +139,12 @@ public:
     virtual ScenePtr<Scene> select(Platform& pfrm, App&);
 
 
-    virtual void set_target(Platform& pfrm,
-                            App& app,
-                            const Vec2<u8>& target)
+    virtual void set_target(Platform& pfrm, App& app, const Vec2<u8>& target)
     {
     }
 
 
-    virtual void unset_target(Platform& pfrm,
-                              App& app)
+    virtual void unset_target(Platform& pfrm, App& app)
     {
     }
 

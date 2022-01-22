@@ -364,8 +364,20 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
         if (parent() not_eq &app.player_island()) {
             // You get some coins for plundering a room
             pfrm.speaker().play_sound("coin", 2);
-            app.set_coins(
-                pfrm, app.coins() + (*metaclass())->cost() * 0.3f);
+            app.set_coins(pfrm, app.coins() + (*metaclass())->cost() * 0.3f);
+
+            time_stream::event::OpponentRoomPlundered e;
+            e.x_ = position().x;
+            e.y_ = position().y;
+            e.type_ = metaclass_index((*metaclass_)->name());
+            app.time_stream().push(pfrm, app.level_timer(), e);
+
+        } else {
+            time_stream::event::PlayerRoomPlundered e;
+            e.x_ = position().x;
+            e.y_ = position().y;
+            e.type_ = metaclass_index((*metaclass_)->name());
+            app.time_stream().push(pfrm, app.level_timer(), e);
         }
 
         // Ok, so when a character plunders a room, we don't actually want to

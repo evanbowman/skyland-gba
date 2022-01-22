@@ -2,6 +2,7 @@
 #include "alloc_entity.hpp"
 #include "entity/explosion/explosion.hpp"
 #include "entity/misc/smokePuff.hpp"
+#include "entity/projectile/projectile.hpp"
 #include "globals.hpp"
 #include "network.hpp"
 #include "number/random.hpp"
@@ -11,7 +12,6 @@
 #include "skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
-#include "entity/projectile/projectile.hpp"
 
 
 
@@ -910,8 +910,7 @@ void Island::repaint(Platform& pfrm, App& app)
 
 void Island::set_drift(Platform& pfrm, App& app, Float drift)
 {
-    if (app.opponent_island() and
-        this == &*app.opponent_island()) {
+    if (app.opponent_island() and this == &*app.opponent_island()) {
 
         time_stream::event::OpponentIslandDriftChanged e;
         memcpy(e.previous_speed_, &drift_, sizeof drift_);

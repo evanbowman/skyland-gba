@@ -1,9 +1,9 @@
 #pragma once
 
 #include "memory/buffer.hpp"
+#include "skyland/characterId.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/path.hpp"
-#include "skyland/characterId.hpp"
 
 
 
