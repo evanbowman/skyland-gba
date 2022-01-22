@@ -19,8 +19,12 @@ SHARED_VARIABLE(missile_damage);
 
 Missile::Missile(const Vec2<Float>& position,
                  const Vec2<Float>& target,
+                 u8 source_x,
                  Island* source)
-    : Projectile({{10, 10}, {8, 8}}), target_x_(target.x), source_(source)
+    : Projectile({{10, 10}, {8, 8}}),
+      target_x_(target.x),
+      source_(source),
+      source_x_(source_x)
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -28,6 +32,55 @@ Missile::Missile(const Vec2<Float>& position,
 
     sprite_.set_origin({8, 16});
 }
+
+
+
+void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    if (sprite_.get_position().y < 450) {
+        sprite_.set_alpha(Sprite::Alpha::transparent);
+    } else {
+        sprite_.set_alpha(Sprite::Alpha::opaque);
+    }
+
+    timer_ -= delta;
+
+    switch (state_) {
+    case State::falling: {
+        if (timer_ < 0) {
+            timer_ = seconds(2);
+            state_ = State::wait;
+        }
+        auto pos = sprite_.get_position();
+        pos.y -= delta * 0.00041f;
+        sprite_.set_position(pos);
+        break;
+    }
+
+    case State::wait:
+        if (timer_ < 0) {
+            timer_ = milliseconds(400);
+            state_ = State::rising;
+
+            auto pos = sprite_.get_position();
+            pos.x = (source_x_ * 16) + 8 + source_->origin().x;
+            sprite_.set_position(pos);
+            sprite_.set_flip({false, false});
+        }
+        break;
+
+    case State::rising: {
+        if (timer_ < 0) {
+            kill();
+        }
+        auto pos = sprite_.get_position();
+        pos.y += delta * 0.0003f;
+        sprite_.set_position(pos);
+        break;
+    }
+    }
+}
+
 
 
 void Missile::update(Platform& pfrm, App& app, Microseconds delta)

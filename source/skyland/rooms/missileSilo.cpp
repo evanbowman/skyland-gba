@@ -82,7 +82,11 @@ void MissileSilo::fire(Platform& pfrm, App& app)
 
     app.camera().shake(6);
 
-    auto m = app.alloc_entity<Missile>(pfrm, start, target, parent());
+    auto m = app.alloc_entity<Missile>(pfrm,
+                                       start,
+                                       target,
+                                       position().x,
+                                       parent());
 
     missile_sound.play(pfrm, 3, milliseconds(400));
 

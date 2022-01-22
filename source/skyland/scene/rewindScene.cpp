@@ -415,6 +415,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             if (auto room = app.player_island().get_room({e->room_x_, e->room_y_})) {
                 room->___rewind___finished_reload();
             }
+            app.time_stream().pop(sizeof *e);
             break;
         }
 
@@ -424,6 +425,27 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             if (auto room = app.opponent_island()->get_room({e->room_x_, e->room_y_})) {
                 room->___rewind___finished_reload();
             }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_room_ability_used: {
+            auto e = (time_stream::event::PlayerRoomAbilityUsed*)end;
+            if (auto room = app.player_island().get_room({e->room_x_, e->room_y_})) {
+                room->___rewind___ability_used();
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_room_ability_used: {
+            auto e = (time_stream::event::OpponentRoomAbilityUsed*)end;
+            if (auto room = app.opponent_island()->get_room({e->room_x_, e->room_y_})) {
+                room->___rewind___ability_used();
+            }
+            app.time_stream().pop(sizeof *e);
             break;
         }
 

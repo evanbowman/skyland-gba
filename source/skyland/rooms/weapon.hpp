@@ -37,6 +37,8 @@ public:
 
     void ___rewind___finished_reload() override;
 
+    void ___rewind___ability_used() override;
+
 
     void set_target(Platform& pfrm,
                     App& app,

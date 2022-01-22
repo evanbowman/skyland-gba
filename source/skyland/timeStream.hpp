@@ -126,6 +126,9 @@ public:
     std::optional<u64> end_timestamp();
 
 
+    // NOTE: this function rolls back elapsed_ time on the end_ block to that of
+    // the timestamp of the popped event. This function is not intended to be
+    // called unless you're actually rewinding time.
     void pop(u32 bytes);
 
 

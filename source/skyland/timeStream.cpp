@@ -9,6 +9,12 @@ namespace skyland::time_stream {
 void TimeStream::pop(u32 bytes)
 {
     if (end_) {
+        if (auto hdr = end_->end()) {
+            // We're rolling back the times stream, let's make sure that we
+            // update the highest timestamp in the block.
+            end_->elapsed_ = hdr->timestamp_.get();
+        }
+
         end_->pop(bytes);
 
         if (end_->end() == nullptr) {

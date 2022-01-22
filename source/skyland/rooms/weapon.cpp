@@ -58,6 +58,19 @@ void Weapon::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (island and not island->is_destroyed()) {
             fire(pfrm, app);
+
+            if (parent() == &app.player_island()) {
+                time_stream::event::PlayerRoomAbilityUsed e;
+                e.room_x_ = position().x;
+                e.room_y_ = position().y;
+                app.time_stream().push(pfrm, app.level_timer(), e);
+            } else {
+                time_stream::event::OpponentRoomAbilityUsed e;
+                e.room_x_ = position().x;
+                e.room_y_ = position().y;
+                app.time_stream().push(pfrm, app.level_timer(), e);
+            }
+
             reload_timer_ += reload();
         }
     }
@@ -74,7 +87,7 @@ void Weapon::rewind(Platform& pfrm, App& app, Microseconds delta)
     } else if (reload_timer_ < reload()) {
         // Ok, so a weapon was in the process of reloading, but the reload timer
         // is not yet zero, so we want to increment the timer until it reaches
-        // the reload interval.
+        // the reload interval. Remember, we're going back in time.
         reload_timer_ += delta;
     }
 }
@@ -87,6 +100,18 @@ void Weapon::___rewind___finished_reload()
     // reload timer is greater than zero. A bit hacky, but better than wasting
     // memory with a state variable for this relatively simple purpose.
     reload_timer_ = 1;
+}
+
+
+
+void Weapon::___rewind___ability_used()
+{
+    // NOTE: the weapon just fired, i.e. before it fired, its reload timer must
+    // have been either zero or near zero. We could technically store the exact
+    // value of the timer, but doing so would use more memory, and,
+    // realistically, the timer value would only have been negative by some
+    // small number of bytes; at most, one frame.
+    reload_timer_ = 0;
 }
 
 

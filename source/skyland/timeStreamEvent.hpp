@@ -39,6 +39,9 @@ enum Type : u8 {
     player_ionburst_destroyed,
     opponent_ionburst_destroyed,
 
+    player_missile_destroyed,
+    opponent_missile_destroyed,
+
     player_room_damaged,
     opponent_room_damaged,
 
@@ -61,6 +64,9 @@ enum Type : u8 {
 
     player_room_reload_complete,
     opponent_room_reload_complete,
+
+    player_room_ability_used,
+    opponent_room_ability_used,
 };
 
 
@@ -185,6 +191,35 @@ struct PlayerIonBurstDestroyed : BasicProjectileDestroyed {
 
 struct OpponentIonBurstDestroyed : BasicProjectileDestroyed {
     static constexpr const auto t = Type::opponent_ionburst_destroyed;
+};
+
+
+
+struct MissileDestroyed {
+    Header header_;
+
+    host_s32 timer_;
+
+    host_s16 x_pos_;
+    host_s16 y_pos_;
+
+    host_s16 target_x_;
+
+    u8 source_x_ : 4;
+    u8 state_ : 3;
+    u8 source_near_ : 1;
+};
+
+
+
+struct PlayerMissileDestroyed : MissileDestroyed {
+    static constexpr const auto t = Type::player_missile_destroyed;
+};
+
+
+
+struct OpponentMissileDestroyed : MissileDestroyed {
+    static constexpr const auto t = Type::opponent_missile_destroyed;
 };
 
 
@@ -341,6 +376,18 @@ struct RoomAbilityUsed {
     Header header_;
     u8 room_x_ : 4;
     u8 room_y_ : 4;
+};
+
+
+
+struct PlayerRoomAbilityUsed : RoomAbilityUsed {
+    static constexpr const auto t = Type::player_room_ability_used;
+};
+
+
+
+struct OpponentRoomAbilityUsed : RoomAbilityUsed {
+    static constexpr const auto t = Type::opponent_room_ability_used;
 };
 
 
