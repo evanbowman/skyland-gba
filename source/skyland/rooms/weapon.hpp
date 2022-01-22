@@ -35,9 +35,9 @@ public:
     void rewind(Platform& pfrm, App& app, Microseconds delta) override;
 
 
-    void ___rewind___finished_reload() override;
+    void ___rewind___finished_reload(Platform&, App&) override;
 
-    void ___rewind___ability_used() override;
+    void ___rewind___ability_used(Platform&, App&) override;
 
 
     void set_target(Platform& pfrm,

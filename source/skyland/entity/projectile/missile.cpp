@@ -80,7 +80,7 @@ void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
                 // arise, where players with quick reflexes might be able to
                 // clone projectiles by exploiting inaccuracies in the rewind
                 // clock.
-                room->___rewind___ability_used();
+                room->___rewind___ability_used(pfrm, app);
             }
             kill();
         }

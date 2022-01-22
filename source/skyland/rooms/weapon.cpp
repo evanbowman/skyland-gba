@@ -81,7 +81,7 @@ void Weapon::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Weapon::___rewind___finished_reload()
+void Weapon::___rewind___finished_reload(Platform&, App&)
 {
     // NOTE: the reload logic, above, increments the reload counter if the
     // reload timer is greater than zero. A bit hacky, but better than wasting
@@ -91,7 +91,7 @@ void Weapon::___rewind___finished_reload()
 
 
 
-void Weapon::___rewind___ability_used()
+void Weapon::___rewind___ability_used(Platform&, App&)
 {
     // NOTE: the weapon just fired, i.e. before it fired, its reload timer must
     // have been either zero or near zero. We could technically store the exact

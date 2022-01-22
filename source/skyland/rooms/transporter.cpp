@@ -72,16 +72,24 @@ void Transporter::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Transporter::___rewind___finished_reload()
+void Transporter::___rewind___finished_reload(Platform& pfrm, App& app)
 {
     recharge_ = 1;
+
+    if (parent()->interior_visible()) {
+        parent()->repaint(pfrm, app);
+    }
 }
 
 
 
-void Transporter::___rewind___ability_used()
+void Transporter::___rewind___ability_used(Platform& pfrm, App& app)
 {
     recharge_ = 0;
+
+    if (parent()->interior_visible()) {
+        parent()->repaint(pfrm, app);
+    }
 }
 
 

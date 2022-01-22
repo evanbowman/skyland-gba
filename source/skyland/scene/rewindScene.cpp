@@ -418,7 +418,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
                             // Give the transport back to the transporter, as
                             // we've reverted it.
-                            source_room->___rewind___ability_used();
+                            source_room->___rewind___ability_used(pfrm, app);
 
                         } else {
                             Platform::fatal("fatal error when rewinding "
@@ -463,7 +463,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         // If the character disembarked, it must have ended up
                         // in a transporter. As we're rewinding things, give the
                         // transporter back its transport.
-                        dest_room->___rewind___ability_used();
+                        dest_room->___rewind___ability_used(pfrm, app);
 
                         auto detached = std::move(*it);
                         dest_room->characters().erase(it);
@@ -516,7 +516,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::player_room_reload_complete: {
             auto e = (time_stream::event::PlayerRoomReloadComplete*)end;
             if (auto room = app.player_island().get_room({e->room_x_, e->room_y_})) {
-                room->___rewind___finished_reload();
+                room->___rewind___finished_reload(pfrm, app);
             }
             app.time_stream().pop(sizeof *e);
             break;
@@ -526,7 +526,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::opponent_room_reload_complete: {
             auto e = (time_stream::event::OpponentRoomReloadComplete*)end;
             if (auto room = app.opponent_island()->get_room({e->room_x_, e->room_y_})) {
-                room->___rewind___finished_reload();
+                room->___rewind___finished_reload(pfrm, app);
             }
             app.time_stream().pop(sizeof *e);
             break;

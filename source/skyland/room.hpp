@@ -123,7 +123,7 @@ public:
     // A special method intended mainly for the rewind implementation. Invoked
     // when the rewind logic encounters an event indicating that a room finished
     // reloading.
-    virtual void ___rewind___finished_reload()
+    virtual void ___rewind___finished_reload(Platform&, App&)
     {
     }
 
@@ -131,7 +131,7 @@ public:
     // A special method intended mainly for the rewind implementation. Invoked
     // when the rewind logic encounters an event indicating that a room used
     // its special ability. Required to correctly set reload timers.
-    virtual void ___rewind___ability_used()
+    virtual void ___rewind___ability_used(Platform&, App&)
     {
     }
 

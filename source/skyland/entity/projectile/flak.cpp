@@ -71,7 +71,7 @@ void Flak::update(Platform&, App&, Microseconds delta)
 
 
 
-void Flak::rewind(Platform&, App&, Microseconds delta)
+void Flak::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - Float(delta) * step_vector_;
@@ -81,7 +81,7 @@ void Flak::rewind(Platform&, App&, Microseconds delta)
 
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
-            room->___rewind___ability_used();
+            room->___rewind___ability_used(pfrm, app);
         }
         kill();
     }

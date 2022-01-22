@@ -70,14 +70,14 @@ void DroneBay::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void DroneBay::___rewind___finished_reload()
+void DroneBay::___rewind___finished_reload(Platform&, App&)
 {
     reload_ = 1;
 }
 
 
 
-void DroneBay::___rewind___ability_used()
+void DroneBay::___rewind___ability_used(Platform&, App&)
 {
     reload_ = 0;
 }
