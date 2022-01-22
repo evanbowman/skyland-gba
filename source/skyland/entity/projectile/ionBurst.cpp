@@ -6,6 +6,7 @@
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/sound.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -124,6 +125,29 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
     if (room.metaclass() not_eq forcefield_mt and not is_field_hull and
         not is_ion_fizzler and not is_reactor) {
         return;
+    }
+
+
+    auto timestream_record =
+        [&](time_stream::event::BasicProjectileDestroyed& c) {
+            c.x_origin_ = origin_tile_.x;
+            c.y_origin_ = origin_tile_.y;
+            c.timer_.set(timer_);
+            c.x_pos_.set(sprite_.get_position().x);
+            c.y_pos_.set(sprite_.get_position().y);
+            memcpy(&c.x_speed_, &step_vector_.x, sizeof(Float));
+            memcpy(&c.y_speed_, &step_vector_.y, sizeof(Float));
+        };
+
+
+    if (source_ == &app.player_island()) {
+        time_stream::event::PlayerIonBurstDestroyed c;
+        timestream_record(c);
+        app.time_stream().push(pfrm, app.level_timer(), c);
+    } else {
+        time_stream::event::OpponentIonBurstDestroyed c;
+        timestream_record(c);
+        app.time_stream().push(pfrm, app.level_timer(), c);
     }
 
 
