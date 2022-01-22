@@ -15,9 +15,7 @@ public:
     IonBurst(const Vec2<Float>& position,
              const Vec2<Float>& target,
              Island* source,
-             // Last parameter defined for a function template, most other
-             // projectiles accept a tile coordinate as their fourth argument.
-             const Vec2<u8>& origin_tile = {});
+             const Vec2<u8>& origin_tile);
 
 
     void set_step_vector(const Vec2<Float>& val)
@@ -46,6 +44,7 @@ private:
     Microseconds anim_timer_ = 0;
     Vec2<Float> step_vector_;
     Island* source_;
+    Vec2<u8> origin_tile_;
 };
 
 

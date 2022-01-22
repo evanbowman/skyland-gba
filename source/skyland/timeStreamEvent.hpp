@@ -64,9 +64,6 @@ enum Type : u8 {
 
     player_room_reload_complete,
     opponent_room_reload_complete,
-
-    player_room_ability_used,
-    opponent_room_ability_used,
 };
 
 
@@ -206,8 +203,8 @@ struct MissileDestroyed {
     host_s16 target_x_;
 
     u8 source_x_ : 4;
-    u8 state_ : 3;
-    u8 source_near_ : 1;
+    u8 source_y_ : 4;
+    u8 state_ : 4;
 };
 
 
@@ -368,26 +365,6 @@ struct PlayerRoomReloadComplete : RoomReloadComplete {
 
 struct OpponentRoomReloadComplete : RoomReloadComplete {
     static constexpr const auto t = Type::opponent_room_reload_complete;
-};
-
-
-
-struct RoomAbilityUsed {
-    Header header_;
-    u8 room_x_ : 4;
-    u8 room_y_ : 4;
-};
-
-
-
-struct PlayerRoomAbilityUsed : RoomAbilityUsed {
-    static constexpr const auto t = Type::player_room_ability_used;
-};
-
-
-
-struct OpponentRoomAbilityUsed : RoomAbilityUsed {
-    static constexpr const auto t = Type::opponent_room_ability_used;
 };
 
 

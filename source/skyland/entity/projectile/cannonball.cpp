@@ -64,6 +64,9 @@ void Cannonball::rewind(Platform&, App&, Microseconds delta)
     timer_ -= delta;
 
     if (timer_ < 0) {
+        if (auto room = source_->get_room(origin_tile_)) {
+            room->___rewind___ability_used();
+        }
         kill();
     }
 }

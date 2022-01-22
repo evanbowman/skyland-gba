@@ -86,6 +86,7 @@ void MissileSilo::fire(Platform& pfrm, App& app)
                                        start,
                                        target,
                                        position().x,
+                                       position().y,
                                        parent());
 
     missile_sound.play(pfrm, 3, milliseconds(400));

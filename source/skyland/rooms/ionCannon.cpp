@@ -71,7 +71,7 @@ void IonCannon::fire(Platform& pfrm, App& app)
         target = rng::sample<6>(target, rng::critical_state);
     }
 
-    auto c = app.alloc_entity<IonBurst>(pfrm, start, target, parent());
+    auto c = app.alloc_entity<IonBurst>(pfrm, start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }

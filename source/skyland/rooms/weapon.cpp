@@ -58,19 +58,6 @@ void Weapon::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (island and not island->is_destroyed()) {
             fire(pfrm, app);
-
-            if (parent() == &app.player_island()) {
-                time_stream::event::PlayerRoomAbilityUsed e;
-                e.room_x_ = position().x;
-                e.room_y_ = position().y;
-                app.time_stream().push(pfrm, app.level_timer(), e);
-            } else {
-                time_stream::event::OpponentRoomAbilityUsed e;
-                e.room_x_ = position().x;
-                e.room_y_ = position().y;
-                app.time_stream().push(pfrm, app.level_timer(), e);
-            }
-
             reload_timer_ += reload();
         }
     }
@@ -111,6 +98,10 @@ void Weapon::___rewind___ability_used()
     // value of the timer, but doing so would use more memory, and,
     // realistically, the timer value would only have been negative by some
     // small number of bytes; at most, one frame.
+    //
+    // Generally, for weapons, the projectile itself is responsible for calling
+    // this function, when it's clock rewinds past zero.
+    //
     reload_timer_ = 0;
 }
 

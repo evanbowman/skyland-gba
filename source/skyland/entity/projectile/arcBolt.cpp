@@ -57,6 +57,9 @@ void ArcBolt::rewind(Platform&, App&, Microseconds delta)
 
 
     if (timer_ < seconds(0)) {
+        if (auto room = source_->get_room(origin_tile_)) {
+            room->___rewind___ability_used();
+        }
         kill();
     }
 }

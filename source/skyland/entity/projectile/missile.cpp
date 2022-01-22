@@ -6,6 +6,7 @@
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -20,11 +21,13 @@ SHARED_VARIABLE(missile_damage);
 Missile::Missile(const Vec2<Float>& position,
                  const Vec2<Float>& target,
                  u8 source_x,
+                 u8 source_y,
                  Island* source)
     : Projectile({{10, 10}, {8, 8}}),
       target_x_(target.x),
       source_(source),
-      source_x_(source_x)
+      source_x_(source_x),
+      source_y_(source_y)
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -71,6 +74,14 @@ void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     case State::rising: {
         if (timer_ < 0) {
+            if (auto room = source_->get_room({source_x_, source_y_})) {
+                // The missile being fully rewound needs to be the factor that
+                // triggers a reload in the missile-silo. Otherwise, bugs might
+                // arise, where players with quick reflexes might be able to
+                // clone projectiles by exploiting inaccuracies in the rewind
+                // clock.
+                room->___rewind___ability_used();
+            }
             kill();
         }
         auto pos = sprite_.get_position();
@@ -151,6 +162,26 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
 
     if (source_ == room.parent() and room.metaclass() == forcefield_mt) {
         return;
+    }
+
+    auto setup_event = [&](time_stream::event::MissileDestroyed& e) {
+        e.timer_.set(timer_);
+        e.x_pos_.set(sprite_.get_position().x);
+        e.y_pos_.set(sprite_.get_position().y);
+        e.target_x_.set(target_x_);
+        e.source_x_ = source_x_;
+        e.source_y_ = source_y_;
+        e.state_ = (u8)state_;
+    };
+
+    if (source_ == &app.player_island()) {
+        time_stream::event::PlayerMissileDestroyed e;
+        setup_event(e);
+        app.time_stream().push(pfrm, app.level_timer(), e);
+    } else {
+        time_stream::event::OpponentMissileDestroyed e;
+        setup_event(e);
+        app.time_stream().push(pfrm, app.level_timer(), e);
     }
 
     kill();

@@ -19,10 +19,11 @@ public:
     Missile(const Vec2<Float>& position,
             const Vec2<Float>& target,
             u8 source_x,
+            u8 source_y,
             Island* source);
 
 
-    enum class State {
+    enum class State : u8 {
         rising,
         wait,
         falling,
@@ -59,6 +60,7 @@ private:
 
     Island* source_;
     u8 source_x_;
+    u8 source_y_;
 
     State state_ = State::rising;
 };
