@@ -4,6 +4,7 @@
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -36,17 +37,6 @@ Decimator::Decimator(Island* parent, const Vec2<u8>& position)
 
 
 
-ScenePtr<Scene> Decimator::select(Platform& pfrm, App& app)
-{
-    if (auto scene = Room::select(pfrm, app)) {
-        return scene;
-    }
-
-    return null_scene();
-}
-
-
-
 void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
@@ -67,6 +57,21 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (has_pilot and reload_ > 0) {
         reload_ -= delta;
+
+        if (reload_ < 0) {
+            if (parent() == &app.player_island()) {
+                time_stream::event::PlayerRoomReloadComplete e;
+                e.room_x_ = position().x;
+                e.room_y_ = position().y;
+                app.time_stream().push(pfrm, app.level_timer(), e);
+            } else {
+                time_stream::event::OpponentRoomReloadComplete e;
+                e.room_x_ = position().x;
+                e.room_y_ = position().y;
+                app.time_stream().push(pfrm, app.level_timer(), e);
+            }
+        }
+
     } else if (has_pilot) {
 
         if (parent()->power_supply() < parent()->power_drain()) {
@@ -113,6 +118,39 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
     }
+}
+
+
+
+void Decimator::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::rewind(pfrm, app, delta);
+
+    if (reload_ <= 0) {
+        // Reloaded.
+    } else if (reload_ < 1000 * decimator_reload_ms) {
+        reload_ += delta;
+    }
+}
+
+
+
+void Decimator::___rewind___finished_reload(Platform&, App&)
+{
+    reload_ = 1;
+}
+
+
+
+void Decimator::___rewind___ability_used(Platform&, App&)
+{
+    reload_ = 0;
+
+    if (counter_ > 1) {
+        --counter_;
+    }
+
+    // FIXME: Adjust counter correctly.
 }
 
 

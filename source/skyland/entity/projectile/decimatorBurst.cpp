@@ -6,6 +6,7 @@
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -55,6 +56,28 @@ void DecimatorBurst::update(Platform&, App& app, Microseconds delta)
 
 
 
+void DecimatorBurst::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    auto pos = sprite_.get_position();
+    pos = pos - Float(delta) * step_vector_;
+    sprite_.set_position(pos);
+
+    timer_ -= delta;
+
+    if (source_ not_eq &app.player_island()) {
+        sprite_.set_flip({true, false});
+    }
+
+    if (timer_ < 0) {
+        if (auto room = source_->get_room(origin_tile_)) {
+            room->___rewind___ability_used(pfrm, app);
+        }
+        kill();
+    }
+}
+
+
+
 void DecimatorBurst::on_collision(Platform& pfrm, App& app, Room& room)
 {
     if (source_ == room.parent()) {
@@ -68,6 +91,29 @@ void DecimatorBurst::on_collision(Platform& pfrm, App& app, Room& room)
 
     if (source_ == room.parent() and room.metaclass() == forcefield_mt) {
         return;
+    }
+
+
+    auto timestream_record =
+        [&](time_stream::event::BasicProjectileDestroyed& e) {
+            e.x_origin_ = origin_tile_.x;
+            e.y_origin_ = origin_tile_.y;
+            e.timer_.set(timer_);
+            e.x_pos_.set(sprite_.get_position().x);
+            e.y_pos_.set(sprite_.get_position().y);
+            memcpy(&e.x_speed_, &step_vector_.x, sizeof(Float));
+            memcpy(&e.y_speed_, &step_vector_.y, sizeof(Float));
+        };
+
+
+    if (source_ == &app.player_island()) {
+        time_stream::event::PlayerDecimatorBurstDestroyed e;
+        timestream_record(e);
+        app.time_stream().push(pfrm, app.level_timer(), e);
+    } else {
+        time_stream::event::OpponentDecimatorBurstDestroyed e;
+        timestream_record(e);
+        app.time_stream().push(pfrm, app.level_timer(), e);
     }
 
 

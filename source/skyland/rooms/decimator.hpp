@@ -23,7 +23,15 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    void update(Platform&, App&, Microseconds delta);
+    void update(Platform&, App&, Microseconds delta) override;
+
+
+    void rewind(Platform&, App&, Microseconds delta);
+
+
+    void ___rewind___finished_reload(Platform&, App&) override;
+
+    void ___rewind___ability_used(Platform&, App&) override;
 
 
     void render_interior(App& app, u8 buffer[16][16]) override;
@@ -31,9 +39,6 @@ public:
 
 
     void plot_walkable_zones(App& app, bool matrix[16][16]) override;
-
-
-    ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
     static Category category()

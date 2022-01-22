@@ -3,6 +3,7 @@
 #include "readyScene.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
+#include "skyland/entity/projectile/decimatorBurst.hpp"
 #include "skyland/entity/projectile/flak.hpp"
 #include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/entity/projectile/projectile.hpp"
@@ -226,6 +227,26 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 pfrm, app, &*app.opponent_island(), *e);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_decimator_burst_destroyed: {
+            auto e = (time_stream::event::PlayerDecimatorBurstDestroyed*)end;
+            respawn_basic_projectile<DecimatorBurst>(
+                pfrm, app, &app.player_island(), *e);
+            app.time_stream().pop(sizeof *e);
+            app.camera().shake(26);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_decimator_burst_destroyed: {
+            auto e = (time_stream::event::OpponentDecimatorBurstDestroyed*)end;
+            respawn_basic_projectile<DecimatorBurst>(
+                pfrm, app, &*app.opponent_island(), *e);
+            app.time_stream().pop(sizeof *e);
+            app.camera().shake(26);
             break;
         }
 
@@ -550,6 +571,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 e->near_ ? &app.player_island() : &*app.opponent_island();
 
             island->init_terrain(pfrm, e->previous_terrain_size_);
+            island->repaint(pfrm, app);
 
             app.time_stream().pop(sizeof *e);
             break;

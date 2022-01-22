@@ -277,6 +277,9 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
     for (auto it = drones_.begin(); it not_eq drones_.end();) {
         if (auto ptr = (*it).promote()) {
+
+            Platform::fatal("TODO: implement rewind for drones!");
+
             if (not(*ptr)->alive()) {
 
                 auto sync = [x = (*ptr)->position().x,
