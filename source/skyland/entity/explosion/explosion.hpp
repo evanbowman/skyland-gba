@@ -48,7 +48,7 @@ public:
             timer_ = milliseconds(55);
 
             auto index = sprite_.get_texture_index();
-            if (index > 0) {
+            if (index > start_index) {
                 sprite_.set_texture_index(index - 1);
             } else {
                 kill();
