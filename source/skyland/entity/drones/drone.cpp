@@ -118,6 +118,10 @@ void Drone::rewind(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
     }
+
+    default:
+        update_sprite(pfrm, app);
+        break;
     }
 }
 
