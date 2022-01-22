@@ -20,6 +20,8 @@ public:
 private:
     void repaint_selector(Platform& pfrm);
 
+    std::optional<Text> speed_text_;
+
     int selection_ = 0;
 };
 

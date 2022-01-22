@@ -10,6 +10,21 @@ namespace skyland {
 
 
 
+static const char* gamespeed_text(GameSpeed speed)
+{
+    switch (speed) {
+    case GameSpeed::stopped: return "paused";
+    case GameSpeed::slow: return "slow";
+    case GameSpeed::normal: return "regular";
+    case GameSpeed::fast: return "fast";
+    case GameSpeed::rewind: return "rewind";
+    case GameSpeed::count: return "ERROR";
+    }
+    return "ERROR";
+}
+
+
+
 ScenePtr<Scene>
 SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -83,6 +98,7 @@ void SetGamespeedScene::repaint_selector(Platform& pfrm)
         pfrm.set_tile(Layer::overlay, start - i * 2 + 1, 3, 119);
     }
 
+
     pfrm.set_tile(
         Layer::overlay, (st.x - 5) - 2 * ((int)GameSpeed::count - 1), 1, 424);
 
@@ -103,6 +119,23 @@ void SetGamespeedScene::repaint_selector(Platform& pfrm)
     pfrm.set_tile(Layer::overlay, (st.x - 4), 2, 379);
 
     pfrm.set_tile(Layer::overlay, (st.x - 4), 3, 119);
+
+    if (not speed_text_) {
+        speed_text_.emplace(pfrm, OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+    }
+    StringBuffer<30> temp("speed: ");
+    temp += gamespeed_text((GameSpeed)selection_);
+    speed_text_->assign(temp.c_str());
+
+    const u8 y = calc_screen_tiles(pfrm).y - 2;
+
+    for (int i = 0; i < 30; ++i) {
+        pfrm.set_tile(Layer::overlay, i, y, 0);
+    }
+
+    for (int i = 0; i < speed_text_->len(); ++i) {
+        pfrm.set_tile(Layer::overlay, i, y, 425);
+    }
 }
 
 
@@ -110,6 +143,7 @@ void SetGamespeedScene::repaint_selector(Platform& pfrm)
 void SetGamespeedScene::exit(Platform& pfrm, App& app, Scene&)
 {
     pfrm.load_overlay_texture("overlay");
+    speed_text_.reset();
     pfrm.fill_overlay(0);
     set_gamespeed(pfrm, app, (GameSpeed)selection_);
 }

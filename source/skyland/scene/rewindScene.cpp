@@ -689,19 +689,12 @@ void RewindScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (not app.time_stream().pushes_enabled()) {
         Platform::fatal("entering rewind scene with recording disabled");
     }
-
-    // pfrm.screen().enable_night_mode(true);
-    // pfrm.screen().fade(0.1f);
-    // pfrm.screen().fade(0.f);
 }
 
 
 
 void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
 {
-    // pfrm.screen().enable_night_mode(false);
-    // pfrm.screen().fade(0.1f);
-    // pfrm.screen().fade(0.f);
 }
 
 
