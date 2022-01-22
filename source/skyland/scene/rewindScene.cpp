@@ -101,6 +101,16 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         app.time_stream().enable_pushes(true);
 
+        if (not end_timestamp) {
+            // If we've rewound all of the way, enqueue another Initial event.
+            // The event really contains nothing at all, but designates the
+            // beginning of the event sequence, giving us something to rewind
+            // to. Our implementation only allows rewinding until the earliest
+            // existing event.
+            time_stream::event::Initial e;
+            app.time_stream().push(pfrm, app.level_timer(), e);
+        }
+
         app.game_speed() = GameSpeed::stopped;
         return scene_pool::alloc<ReadyScene>();
     }
@@ -110,6 +120,12 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     while (end_timestamp and *end_timestamp > current_timestamp) {
         auto end = app.time_stream().end();
         switch ((time_stream::event::Type)end->type_) {
+
+        case time_stream::event::Type::initial: {
+            app.time_stream().pop(sizeof(time_stream::event::Initial));
+            break;
+        }
+
 
         case time_stream::event::Type::player_room_created: {
             auto e = (time_stream::event::PlayerRoomCreated*)end;

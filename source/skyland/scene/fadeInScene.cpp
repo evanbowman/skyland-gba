@@ -3,6 +3,7 @@
 #include "scriptHookScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -37,6 +38,9 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.game_mode() == App::GameMode::adventure) {
             app.time_stream().enable_pushes(true);
             app.time_stream().clear();
+
+            time_stream::event::Initial e;
+            app.time_stream().push(pfrm, app.level_timer(), e);
         }
 
         pfrm.screen().fade(0.f);

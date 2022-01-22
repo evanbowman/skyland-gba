@@ -132,9 +132,14 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
             o.x += chimney_loc_->x * 16 + 8;
             o.y += chimney_loc_->y * 16 - 4;
 
-            if (auto e = app.alloc_entity<SmokePuff>(pfrm, o)) {
-                e->jump_to_end();
-                app.effects().push(std::move(e));
+            if (drift_ == 0.f) {
+                // FIXME: faking the rewound smoke effects doesn't work if the
+                // island is moving. So just don't spawn them. We'll need to
+                // think of another way.
+                if (auto e = app.alloc_entity<SmokePuff>(pfrm, o)) {
+                    e->jump_to_end();
+                    app.effects().push(std::move(e));
+                }
             }
         }
     }

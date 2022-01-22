@@ -24,6 +24,8 @@ namespace skyland::time_stream::event {
 enum Type : u8 {
     __reserved,
 
+    initial,
+
     player_room_created,
     opponent_room_created,
 
@@ -84,6 +86,14 @@ enum Type : u8 {
     drone_destroyed,
 
     rng_changed,
+};
+
+
+
+struct Initial {
+    Header header_;
+
+    static constexpr const auto t = Type::initial;
 };
 
 
