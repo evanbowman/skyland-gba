@@ -126,6 +126,13 @@ void Transporter::recover_character(Platform& pfrm,
                     network::transmit(pfrm, packet);
                 }
 
+                time_stream::event::CharacterDisembark e;
+                e.id_.set(unlinked->id());
+                e.previous_x_ = unlinked->grid_position().x;
+                e.previous_y_ = unlinked->grid_position().y;
+                e.chr_near_ = unlinked->parent() == &app.player_island();
+                app.time_stream().push(pfrm, app.level_timer(), e);
+
                 // Again, the character is warping to a new location, let's
                 // update its position.
                 unlinked->set_grid_position(dst);

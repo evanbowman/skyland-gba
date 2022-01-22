@@ -439,6 +439,58 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::Type::character_disembark: {
+            auto e = (time_stream::event::CharacterDisembark*)end;
+
+            Island* source_island = e->chr_near_ ?
+                &app.player_island() : &*app.opponent_island();
+
+            Island* dest_island = not e->chr_near_ ?
+                &app.player_island() : &*app.opponent_island();
+
+            auto chr_info = dest_island->find_character_by_id(e->id_.get());
+            if (chr_info.first == nullptr) {
+                Platform::fatal("rewind chr_disembark: Invalid character id!");
+            }
+
+            auto dest_room = chr_info.second;
+            if (dest_room) {
+                for (auto it = dest_room->characters().begin();
+                     it not_eq dest_room->characters().end(); ) {
+
+                    if ((*it).get() == chr_info.first) {
+
+                        // If the character disembarked, it must have ended up
+                        // in a transporter. As we're rewinding things, give the
+                        // transporter back its transport.
+                        dest_room->___rewind___ability_used();
+
+                        auto detached = std::move(*it);
+                        dest_room->characters().erase(it);
+                        const Vec2<u8> pos{e->previous_x_, e->previous_y_};
+                        detached->set_grid_position(pos);
+                        detached->set_parent(source_island);
+                        detached->drop_movement_path();
+                        if (auto source_room = source_island->get_room(pos)) {
+                            source_room->characters().push(std::move(detached));
+                        } else {
+                            Platform::fatal("fata error when rewinding "
+                                            "disembark: source room missing");
+                        }
+                        break;
+                    } else {
+                        ++it;
+                    }
+                }
+            } else {
+                Platform::fatal("error rewinding disembark: dest room missing");
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::weapon_set_target: {
             auto e = (time_stream::event::WeaponSetTarget*)end;
 
