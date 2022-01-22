@@ -82,7 +82,7 @@ void prep_level(Platform& pfrm, App& app)
 
 
     if (app.opponent_island()) {
-        app.opponent_island()->set_drift(-0.000025f);
+        app.opponent_island()->set_drift(pfrm, app, -0.000025f, false);
 
         app.opponent_island()->repaint(pfrm, app);
 

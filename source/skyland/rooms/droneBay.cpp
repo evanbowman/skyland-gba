@@ -6,6 +6,7 @@
 #include "skyland/scene/placeDroneScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -40,7 +41,45 @@ void DroneBay::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (reload_ > 0) {
         reload_ -= delta;
+        if (reload_ < 0) {
+            if (parent() == &app.player_island()) {
+                time_stream::event::PlayerRoomReloadComplete e;
+                e.room_x_ = position().x;
+                e.room_y_ = position().y;
+                app.time_stream().push(pfrm, app.level_timer(), e);
+            } else {
+                time_stream::event::OpponentRoomReloadComplete e;
+                e.room_x_ = position().x;
+                e.room_y_ = position().y;
+                app.time_stream().push(pfrm, app.level_timer(), e);
+            }
+        }
     }
+}
+
+
+
+void DroneBay::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    if (reload_ <= 0) {
+        // fully reloaded
+    } else if (reload_ < 1000 * drone_bay_reload_ms) {
+        reload_ += delta;
+    }
+}
+
+
+
+void DroneBay::___rewind___finished_reload()
+{
+    reload_ = 1;
+}
+
+
+
+void DroneBay::___rewind___ability_used()
+{
+    reload_ = 0;
 }
 
 

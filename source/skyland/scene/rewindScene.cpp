@@ -533,6 +533,29 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::Type::opponent_island_drift_changed: {
+            auto e = (time_stream::event::OpponentIslandDriftChanged*)end;
+            Float val;
+            memcpy(&val, e->previous_speed_, sizeof val);
+            app.opponent_island()->set_drift(pfrm, app, val, false);
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::island_terrain_changed: {
+            auto e = (time_stream::event::IslandTerrainChanged*)end;
+
+            Island* island =
+                e->near_ ? &app.player_island() : &*app.opponent_island();
+
+            island->init_terrain(pfrm, e->previous_terrain_size_);
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         default:
             Platform::fatal("invalid event from time stream");
         }

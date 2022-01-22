@@ -376,6 +376,12 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             app.set_coins(pfrm, app.coins() - app.terrain_cost(), true);
 
+            time_stream::event::IslandTerrainChanged e;
+            e.previous_terrain_size_ = island(app)->terrain().size();
+            e.near_ = island(app) == &app.player_island();
+            app.time_stream().push(pfrm, app.level_timer(), e);
+
+
             auto& terrain = island(app)->terrain();
             terrain.pop_back(); // the old edge tile
             terrain.push_back(Tile::terrain_middle);

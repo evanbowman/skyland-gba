@@ -119,6 +119,8 @@ std::pair<BasicCharacter*, Room*> Island::find_character_by_id(CharacterId id)
 
 void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
+    timer_ -= delta;
+
     if (chimney_loc_) {
         chimney_spawn_timer_ -= delta;
 
@@ -161,6 +163,21 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
             chr->rewind(pfrm, app, delta);
         }
     }
+
+    if (drift_) {
+        position_.x -= drift_ * delta;
+    }
+
+
+    u8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
+                        std::numeric_limits<s16>::max();
+
+    ambient_movement_ = ambient_offset;
+
+
+    pfrm.set_scroll(layer(),
+                    -get_position().cast<u16>().x,
+                    -get_position().cast<u16>().y - ambient_offset);
 }
 
 
@@ -888,8 +905,26 @@ void Island::repaint(Platform& pfrm, App& app)
 
 
 
-void Island::set_drift(Float drift)
+void Island::set_drift(Platform& pfrm,
+                       App& app,
+                       Float drift,
+                       bool sequenced)
 {
+    if (sequenced) {
+        if (app.opponent_island() and
+            this == &*app.opponent_island()) {
+
+            time_stream::event::OpponentIslandDriftChanged e;
+            memcpy(e.previous_speed_, &drift_, sizeof drift_);
+
+            app.time_stream().push(pfrm, app.level_timer(), e);
+        }
+    }
+
+    if (this == &app.player_island()) {
+        Platform::fatal("player island not intended to change position");
+    }
+
     drift_ = drift;
 }
 

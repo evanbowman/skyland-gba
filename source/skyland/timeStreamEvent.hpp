@@ -65,6 +65,10 @@ enum Type : u8 {
 
     player_room_reload_complete,
     opponent_room_reload_complete,
+
+    opponent_island_drift_changed,
+
+    island_terrain_changed,
 };
 
 
@@ -379,6 +383,26 @@ struct PlayerRoomReloadComplete : RoomReloadComplete {
 
 struct OpponentRoomReloadComplete : RoomReloadComplete {
     static constexpr const auto t = Type::opponent_room_reload_complete;
+};
+
+
+
+struct OpponentIslandDriftChanged {
+    Header header_;
+    u8 previous_speed_[sizeof(Float)];
+
+    static constexpr const auto t = Type::opponent_island_drift_changed;
+};
+
+
+
+struct IslandTerrainChanged {
+    Header header_;
+    u8 previous_terrain_size_ : 4;
+    u8 near_ : 1;
+    u8 unused_ : 3;
+
+    static constexpr const auto t = Type::island_terrain_changed;
 };
 
 

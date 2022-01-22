@@ -164,7 +164,10 @@ public:
     }
 
 
-    void set_drift(Float drift);
+    void set_drift(Platform& pfrm,
+                   App& app,
+                   Float drift,
+                   bool sequenced);
 
 
     Float get_drift() const

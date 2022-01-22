@@ -253,8 +253,6 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             set_gamespeed(pfrm, app, GameSpeed::normal);
         }
     } else if (app.player().key_pressed(pfrm, Key::alt_1)) {
-        // TODO: keep a timer, then, after some time, go to a state where the
-        // player can select from a range of game speeds.
         set_gamespeed_keyheld_timer_ += delta;
         if (set_gamespeed_keyheld_timer_ > milliseconds(300)) {
             return scene_pool::alloc<SetGamespeedScene>();
@@ -300,7 +298,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.opponent_island()->set_position(
                 {(Float)app.player_island().terrain().size() * 16 + 48,
                  app.opponent_island()->get_position().y});
-            app.opponent_island()->set_drift(0);
+            app.opponent_island()->set_drift(pfrm, app, 0, true);
 
             app.on_timeout(pfrm, milliseconds(500), [](Platform& pfrm, App&) {
                 invoke_hook(pfrm, "after-converge-hook");
@@ -310,13 +308,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.opponent_island()->get_drift() == 0) {
             if ((int)app.opponent_island()->get_position().x <
                 (int)app.player_island().terrain().size() * 16 + 48) {
-                app.opponent_island()->set_drift(0.00003f);
+                app.opponent_island()->set_drift(pfrm, app, 0.00003f, true);
             }
-        } else {
-            // Replaying history is just much more difficult if the islands are
-            // moving. TODO: allow history replay when islands are in motion.
-            // The main, actually the only, issue involves projectiles.
-            app.time_stream().clear();
         }
     }
 
