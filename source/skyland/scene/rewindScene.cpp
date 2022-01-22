@@ -13,6 +13,7 @@
 #include "skyland/timeStreamEvent.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/entity/explosion/explosion.hpp"
 
 
 
@@ -20,11 +21,12 @@ namespace skyland {
 
 
 
-template <typename T>
+template <typename T, typename F>
 void respawn_basic_projectile(Platform& pfrm,
                               App& app,
                               Island* parent,
-                              time_stream::event::BasicProjectileDestroyed& e)
+                              time_stream::event::BasicProjectileDestroyed& e,
+                              F&& explosion_function)
 {
     auto c = alloc_entity<T>(
         Vec2<Float>{(Float)e.x_pos_.get(), (Float)e.y_pos_.get()},
@@ -37,6 +39,7 @@ void respawn_basic_projectile(Platform& pfrm,
         memcpy(&step_vector.y, e.y_speed_, sizeof(Float));
         c->set_step_vector(step_vector);
         c->set_timer(e.timer_.get());
+        explosion_function(pfrm, app, c->sprite().get_position());
         parent->projectiles().push(std::move(c));
     }
 }
@@ -61,6 +64,8 @@ void respawn_missile(Platform& pfrm,
     if (m) {
         m->set_timer(e.timer_.get());
         m->set_state((Missile::State)e.state_);
+
+        medium_explosion_inv(pfrm, app, m->sprite().get_position());
 
         parent->projectiles().push(std::move(m));
     }
@@ -126,18 +131,22 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::PlayerRoomDestroyed*)end;
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, &app.player_island(), {e->x_, e->y_});
+            if (auto room = app.player_island().get_room({e->x_, e->y_})) {
+                medium_explosion_inv(pfrm, app, room->origin());
+            }
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(18);
             break;
         }
 
 
         case time_stream::event::Type::opponent_room_destroyed: {
-            auto e = (time_stream::event::PlayerRoomDestroyed*)end;
+            auto e = (time_stream::event::OpponentRoomDestroyed*)end;
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, &*app.opponent_island(), {e->x_, e->y_});
+            if (auto room = app.opponent_island()->get_room({e->x_, e->y_})) {
+                medium_explosion_inv(pfrm, app, room->origin());
+            }
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(18);
             break;
         }
 
@@ -228,8 +237,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_cannonball_destroyed: {
             auto e = (time_stream::event::PlayerCannonballDestroyed*)end;
-            respawn_basic_projectile<Cannonball>(
-                pfrm, app, &app.player_island(), *e);
+            respawn_basic_projectile<Cannonball>(pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -238,8 +246,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_cannonball_destroyed: {
             auto e = (time_stream::event::OpponentCannonballDestroyed*)end;
-            respawn_basic_projectile<Cannonball>(
-                pfrm, app, &*app.opponent_island(), *e);
+            respawn_basic_projectile<Cannonball>(pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -248,8 +255,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_arcbolt_destroyed: {
             auto e = (time_stream::event::PlayerArcboltDestroyed*)end;
-            respawn_basic_projectile<ArcBolt>(
-                pfrm, app, &app.player_island(), *e);
+            respawn_basic_projectile<ArcBolt>(pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -258,8 +264,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_arcbolt_destroyed: {
             auto e = (time_stream::event::OpponentArcboltDestroyed*)end;
-            respawn_basic_projectile<ArcBolt>(
-                pfrm, app, &*app.opponent_island(), *e);
+            respawn_basic_projectile<ArcBolt>(pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -268,7 +273,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_flak_destroyed: {
             auto e = (time_stream::event::PlayerFlakDestroyed*)end;
-            respawn_basic_projectile<Flak>(pfrm, app, &app.player_island(), *e);
+            respawn_basic_projectile<Flak>(pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -277,8 +282,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_flak_destroyed: {
             auto e = (time_stream::event::OpponentFlakDestroyed*)end;
-            respawn_basic_projectile<Flak>(
-                pfrm, app, &*app.opponent_island(), *e);
+            respawn_basic_projectile<Flak>(pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -287,8 +291,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_ionburst_destroyed: {
             auto e = (time_stream::event::PlayerIonBurstDestroyed*)end;
-            respawn_basic_projectile<IonBurst>(
-                pfrm, app, &app.player_island(), *e);
+            respawn_basic_projectile<IonBurst>(pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -297,8 +300,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_ionburst_destroyed: {
             auto e = (time_stream::event::OpponentIonBurstDestroyed*)end;
-            respawn_basic_projectile<IonBurst>(
-                pfrm, app, &*app.opponent_island(), *e);
+            respawn_basic_projectile<IonBurst>(pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -307,8 +309,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_decimator_burst_destroyed: {
             auto e = (time_stream::event::PlayerDecimatorBurstDestroyed*)end;
-            respawn_basic_projectile<DecimatorBurst>(
-                pfrm, app, &app.player_island(), *e);
+            respawn_basic_projectile<DecimatorBurst>(pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(26);
             break;
@@ -317,8 +318,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_decimator_burst_destroyed: {
             auto e = (time_stream::event::OpponentDecimatorBurstDestroyed*)end;
-            respawn_basic_projectile<DecimatorBurst>(
-                pfrm, app, &*app.opponent_island(), *e);
+            respawn_basic_projectile<DecimatorBurst>(pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(26);
             break;
@@ -329,7 +329,6 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::PlayerMissileDestroyed*)end;
             respawn_missile(pfrm, app, &app.player_island(), *e);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(18);
             break;
         }
 
@@ -338,7 +337,6 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::OpponentMissileDestroyed*)end;
             respawn_missile(pfrm, app, &*app.opponent_island(), *e);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(18);
             break;
         }
 

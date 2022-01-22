@@ -57,6 +57,13 @@ public:
     }
 
 
+    void seek_end()
+    {
+        timer_ = milliseconds(55);
+        sprite_.set_texture_index(start_index + 5);
+    }
+
+
 private:
     Microseconds timer_ = 0;
 };
@@ -64,10 +71,11 @@ private:
 
 
 void medium_explosion(Platform& pfrm, App& app, const Vec2<Float>& position);
-
+void medium_explosion_inv(Platform& pfrm, App& app, const Vec2<Float>& position);
 
 
 void big_explosion(Platform& pfrm, App& app, const Vec2<Float>& position);
+void big_explosion_inv(Platform& pfrm, App& app, const Vec2<Float>& position);
 
 
 
