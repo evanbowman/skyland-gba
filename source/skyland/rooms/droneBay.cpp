@@ -7,6 +7,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "localization.hpp"
 
 
 
@@ -61,6 +62,11 @@ void DroneBay::update(Platform& pfrm, App& app, Microseconds delta)
 
 void DroneBay::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (drone_ and not(*drone_)->alive()) {
+        ___rewind___ability_used(pfrm, app);
+        detach_drone(pfrm, app);
+    }
+
     if (reload_ <= 0) {
         // fully reloaded
     } else if (reload_ < 1000 * drone_bay_reload_ms) {
@@ -170,6 +176,20 @@ void DroneBay::detach_drone(Platform& pfrm, App& app, bool quiet)
     if (drone_ and not quiet) {
         medium_explosion(pfrm, app, (*drone_)->sprite().get_position());
     }
+
+    time_stream::event::DroneDestroyed e;
+    e.x_pos_ = (*drone_)->position().x;
+    e.y_pos_ = (*drone_)->position().y;
+    e.destination_near_ = (*drone_)->destination() == &app.player_island();
+    e.parent_near_ = (*drone_)->parent() == &app.player_island();
+    e.type_ = (*drone_)->metaclass_index();
+    e.state_ = (*drone_)->state();
+    e.timer_.set((*drone_)->timer());
+    e.duration_.set((*drone_)->duration());
+    e.db_x_pos_ = position().x;
+    e.db_y_pos_ = position().y;
+    app.time_stream().push(pfrm, app.level_timer(), e);
+
 
     drone_.reset();
 }

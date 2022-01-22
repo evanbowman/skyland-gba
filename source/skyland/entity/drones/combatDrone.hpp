@@ -41,6 +41,14 @@ public:
     }
 
 
+    void ___rewind___ability_used(Platform& pfrm, App& app) override
+    {
+        if (state_ not_eq Drone::State::launch) {
+            timer_ = reload_time;
+        }
+    }
+
+
     void update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (parent() == &*app.opponent_island()) {

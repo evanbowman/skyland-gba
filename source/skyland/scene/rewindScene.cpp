@@ -11,6 +11,8 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/entity/drones/droneMeta.hpp"
+#include "skyland/rooms/droneBay.hpp"
 
 
 
@@ -648,6 +650,99 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
             island->init_terrain(pfrm, e->previous_terrain_size_);
             island->repaint(pfrm, app);
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::drone_deployed: {
+            auto e = (time_stream::event::DroneDeployed*)end;
+
+            Island* dest_island =
+                e->destination_near_ ? &app.player_island() : &*app.opponent_island();
+
+            for (auto& drone : dest_island->drones()) {
+                if (auto drone_sp = drone.promote()) {
+                    if ((*drone_sp)->position().x == e->x_pos_ and
+                        (*drone_sp)->position().y == e->y_pos_) {
+
+                        (*drone_sp)->__override_state(Drone::State::launch,
+                                                      e->duration_.get(),
+                                                      e->duration_.get());
+                        break;
+                    }
+                }
+
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::drone_health_changed: {
+            auto e = (time_stream::event::DroneHealthChanged*)end;
+
+            Island* dest_island =
+                e->destination_near_ ? &app.player_island() : &*app.opponent_island();
+
+            for (auto& drone : dest_island->drones()) {
+                if (auto drone_sp = drone.promote()) {
+                    if ((*drone_sp)->position().x == e->x_pos_ and
+                        (*drone_sp)->position().y == e->y_pos_) {
+
+                        (*drone_sp)->__set_health(e->previous_health_.get());
+                        break;
+                    }
+                }
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::drone_destroyed: {
+            auto e = (time_stream::event::DroneDestroyed*)end;
+
+            Island* dest_island =
+                e->destination_near_ ? &app.player_island() : &*app.opponent_island();
+
+            Island* parent_island =
+                e->parent_near_ ? &app.player_island() : &*app.opponent_island();
+
+            auto drone_class = &drone_metatable().first[e->type_];
+            if (auto drone = (*drone_class)->create(parent_island,
+                                                    dest_island,
+                                                    Vec2<u8>{
+                                                        e->db_x_pos_,
+                                                        u8(e->db_y_pos_ - 1)})) {
+
+                (*drone)->set_movement_target(Vec2<u8>{e->x_pos_, e->y_pos_});
+
+                (*drone)->__override_state((Drone::State)e->state_,
+                                           e->duration_.get(),
+                                           e->timer_.get());
+
+                if (auto room = parent_island->get_room({e->db_x_pos_, e->db_y_pos_})) {
+                    if (auto db = dynamic_cast<DroneBay*>(room)) {
+                        db->attach_drone(pfrm, app, *drone);
+                        dest_island->drones().push(*drone);
+                    } else {
+                        Platform::fatal("rewind: attempt to attach drone to non"
+                                        " drone-bay");
+                    }
+                } else {
+                    StringBuffer<64> fmt = "rewind: drone attachment point dne: ";
+                    fmt += to_string<10>(e->db_x_pos_);
+                    fmt += ", ";
+                    fmt += to_string<10>(e->db_y_pos_);
+                    Platform::fatal(fmt.c_str());
+                }
+            } else {
+                Platform::fatal("rewind: failed to alloc drone");
+            }
 
             app.time_stream().pop(sizeof *e);
             break;

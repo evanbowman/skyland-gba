@@ -169,6 +169,21 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    for (auto it = drones_.begin(); it not_eq drones_.end();) {
+        if (auto ptr = (*it).promote()) {
+
+            if (not(*ptr)->alive()) {
+                it = drones_.erase(it);
+            } else {
+                (*ptr)->rewind(pfrm, app, delta);
+                ++it;
+            }
+        } else {
+            it = drones_.erase(it);
+        }
+    }
+
+
     u8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
                         std::numeric_limits<s16>::max();
 
@@ -277,8 +292,6 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
     for (auto it = drones_.begin(); it not_eq drones_.end();) {
         if (auto ptr = (*it).promote()) {
-
-            Platform::fatal("TODO: implement rewind for drones!");
 
             if (not(*ptr)->alive()) {
 

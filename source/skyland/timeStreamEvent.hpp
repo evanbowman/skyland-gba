@@ -77,6 +77,10 @@ enum Type : u8 {
 
     player_room_plundered,
     opponent_room_plundered,
+
+    drone_deployed,
+    drone_health_changed,
+    drone_destroyed,
 };
 
 
@@ -444,6 +448,51 @@ struct IslandTerrainChanged {
     u8 unused_ : 3;
 
     static constexpr const auto t = Type::island_terrain_changed;
+};
+
+
+
+// Event occurs after a drone finishes moving to its deployment point.  When we
+// see this event, we know to set the drone to its launch state, and rewind.
+struct DroneDeployed {
+    Header header_;
+    u8 x_pos_ : 4;
+    u8 y_pos_ : 4;
+    u8 parent_near_ : 1;
+    u8 destination_near_ : 1;
+    host_s32 duration_;
+
+    static constexpr const auto t = Type::drone_deployed;
+};
+
+
+
+struct DroneHealthChanged {
+    Header header_;
+    u8 x_pos_ : 4;
+    u8 y_pos_ : 4;
+    u8 destination_near_ : 1;
+    host_u16 previous_health_;
+
+    static constexpr const auto t = Type::drone_health_changed;
+};
+
+
+
+struct DroneDestroyed {
+    Header header_;
+    u8 x_pos_ : 4;
+    u8 y_pos_ : 4;
+    u8 destination_near_ : 1;
+    u8 parent_near_ : 1;
+    u8 db_x_pos_ : 4;
+    u8 db_y_pos_ : 4;
+    u8 type_;
+    u8 state_;
+    host_s32 timer_;
+    host_s32 duration_;
+
+    static constexpr const auto t = Type::drone_destroyed;
 };
 
 

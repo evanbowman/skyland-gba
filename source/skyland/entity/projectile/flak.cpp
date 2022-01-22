@@ -82,6 +82,8 @@ void Flak::rewind(Platform& pfrm, App& app, Microseconds delta)
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
             room->___rewind___ability_used(pfrm, app);
+        } else if (auto drone = source_->get_drone(origin_tile_)) {
+            (*drone)->___rewind___ability_used(pfrm, app);
         }
         kill();
     }

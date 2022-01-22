@@ -90,7 +90,7 @@ public:
     }
 
 
-    void apply_damage(Health amount)
+    virtual void apply_damage(Platform& pfrm, App& app, Health amount)
     {
         health_ = std::max(0, health_ - amount);
     }

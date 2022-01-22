@@ -25,6 +25,44 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
+    void rewind(Platform&, App&, Microseconds delta) override;
+
+
+
+    virtual void ___rewind___ability_used(Platform& pfrm, App& app)
+    {
+    }
+
+
+    enum State : u8 {
+        launch,
+        ready,
+    };
+
+
+    u8 state() const
+    {
+        return state_;
+    }
+
+
+    // Intended for the rewind logic, nothing more. Generally, do not call.
+    void __override_state(State state,
+                          Microseconds duration,
+                          Microseconds timer)
+    {
+        state_ = state;
+        duration_ = duration;
+        timer_ = timer;
+    }
+
+
+    void __set_health(Health health)
+    {
+        health_ = health;
+    }
+
+
     const Vec2<u8>& position() const
     {
         return grid_pos_;
@@ -69,11 +107,22 @@ public:
     }
 
 
+    void apply_damage(Platform& pfrm, App& app, Health amount) override;
+
+
+    Microseconds timer() const
+    {
+        return timer_;
+    }
+
+
+    Microseconds duration() const
+    {
+        return duration_;
+    }
+
+
 protected:
-    enum State : u8 {
-        launch,
-        ready,
-    };
 
     u8 state_ = State::launch;
 

@@ -206,7 +206,7 @@ void Missile::on_collision(Platform& pfrm, App& app, Entity& entity)
     app.camera().shake(18);
     big_explosion(pfrm, app, sprite_.get_position());
 
-    entity.apply_damage(missile_damage);
+    entity.apply_damage(pfrm, app, missile_damage);
 }
 
 

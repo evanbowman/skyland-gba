@@ -71,6 +71,8 @@ void get_drone_slots(bool slots[16][16], Island* dest_island, Island* parent)
             }
             if (y > 14) {
                 slots[x][y] = false;
+            } else if (y < 6) {
+                slots[x][y] = false;
             }
         }
     }

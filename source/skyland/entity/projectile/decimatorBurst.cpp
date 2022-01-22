@@ -132,7 +132,7 @@ void DecimatorBurst::on_collision(Platform& pfrm, App& app, Entity& entity)
 
     app.camera().shake(4);
 
-    entity.apply_damage(decimator_burst_damage);
+    entity.apply_damage(pfrm, app, decimator_burst_damage);
 }
 
 

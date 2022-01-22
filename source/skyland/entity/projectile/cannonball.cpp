@@ -66,6 +66,8 @@ void Cannonball::rewind(Platform& pfrm, App& app, Microseconds delta)
     if (timer_ < 0) {
         if (auto room = source_->get_room(origin_tile_)) {
             room->___rewind___ability_used(pfrm, app);
+        } else if (auto drone = source_->get_drone(origin_tile_)) {
+            (*drone)->___rewind___ability_used(pfrm, app);
         }
         kill();
     }
@@ -139,11 +141,36 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Entity& entity)
         }
     }
 
+
+    auto timestream_record =
+        [&](time_stream::event::BasicProjectileDestroyed& c) {
+            c.x_origin_ = origin_tile_.x;
+            c.y_origin_ = origin_tile_.y;
+            c.timer_.set(timer_);
+            c.x_pos_.set(sprite_.get_position().x);
+            c.y_pos_.set(sprite_.get_position().y);
+            memcpy(&c.x_speed_, &step_vector_.x, sizeof(Float));
+            memcpy(&c.y_speed_, &step_vector_.y, sizeof(Float));
+        };
+
+
+    if (source_ == &app.player_island()) {
+        time_stream::event::PlayerCannonballDestroyed c;
+        timestream_record(c);
+        app.time_stream().push(pfrm, app.level_timer(), c);
+    } else {
+        time_stream::event::OpponentCannonballDestroyed c;
+        timestream_record(c);
+        app.time_stream().push(pfrm, app.level_timer(), c);
+    }
+
+
+
     kill();
     app.camera().shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
-    entity.apply_damage(cannonball_damage);
+    entity.apply_damage(pfrm, app, cannonball_damage);
 }
 
 

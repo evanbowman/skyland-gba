@@ -4,6 +4,7 @@
 #include "skyland/island.hpp"
 #include "skyland/room.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -97,6 +98,45 @@ void Drone::update_sprite(Platform& pfrm, App& app)
 
 
 
+void Drone::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    switch (state_) {
+    case State::launch: {
+        timer_ -= delta;
+        if (timer_ < 0) {
+            kill();
+            // TODO: reset timer of parent drone-bay.
+        } else {
+            auto amount = smoothstep(0.f, duration_, timer_);
+            auto dest = calc_pos(destination_, grid_pos_);
+            auto pos = interpolate(dest, anchor_.cast<Float>(), amount);
+            sprite_.set_position(pos);
+
+            if (parent() not_eq &app.player_island()) {
+                sprite_.set_flip({true, false});
+            }
+        }
+        break;
+    }
+    }
+}
+
+
+
+void Drone::apply_damage(Platform& pfrm, App& app, Health amount)
+{
+    time_stream::event::DroneHealthChanged e;
+    e.x_pos_ = grid_pos_.x;
+    e.y_pos_ = grid_pos_.y;
+    e.destination_near_ = destination_ == &app.player_island();
+    e.previous_health_.set(health());
+    app.time_stream().push(pfrm, app.level_timer(), e);
+
+    Entity::apply_damage(pfrm, app, amount);
+}
+
+
+
 void Drone::update(Platform& pfrm, App& app, Microseconds delta)
 {
     switch (state_) {
@@ -105,6 +145,14 @@ void Drone::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ >= duration_) {
             timer_ = 0;
             state_ = State::ready;
+
+            time_stream::event::DroneDeployed e;
+            e.x_pos_ = grid_pos_.x;
+            e.y_pos_ = grid_pos_.y;
+            e.parent_near_ = parent_ == &app.player_island();
+            e.destination_near_ = destination_ == &app.player_island();
+            e.duration_.set(duration_);
+            app.time_stream().push(pfrm, app.level_timer(), e);
             break;
         }
         auto amount = smoothstep(0.f, duration_, timer_);
