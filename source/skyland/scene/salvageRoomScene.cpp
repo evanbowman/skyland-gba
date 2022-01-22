@@ -171,7 +171,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     pfrm.speaker().play_sound("coin", 2);
                     app.set_coins(
-                        pfrm, app.coins() + salvage_value(*room), true);
+                        pfrm, app.coins() + salvage_value(*room));
 
                     if (auto room = island(app)->get_room(cursor_loc)) {
                         auto mt_index =

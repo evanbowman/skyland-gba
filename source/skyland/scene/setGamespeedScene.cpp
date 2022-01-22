@@ -27,8 +27,13 @@ SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().key_up(pfrm, Key::alt_1)) {
         if ((GameSpeed)selection_ == GameSpeed::rewind) {
-            set_gamespeed(pfrm, app, (GameSpeed)selection_);
-            return scene_pool::alloc<RewindScene>();
+            if (app.time_stream().pushes_enabled()) {
+                set_gamespeed(pfrm, app, GameSpeed::stopped);
+                return scene_pool::alloc<RewindScene>();
+            } else {
+                set_gamespeed(pfrm, app, GameSpeed::rewind);
+                return scene_pool::alloc<RewindScene>();
+            }
         } else {
             set_gamespeed(pfrm, app, (GameSpeed)selection_);
             return scene_pool::alloc<ReadyScene>();

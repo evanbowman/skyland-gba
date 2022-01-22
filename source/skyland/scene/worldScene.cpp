@@ -298,7 +298,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.opponent_island()->set_position(
                 {(Float)app.player_island().terrain().size() * 16 + 48,
                  app.opponent_island()->get_position().y});
-            app.opponent_island()->set_drift(pfrm, app, 0, true);
+            app.opponent_island()->set_drift(pfrm, app, 0);
 
             app.on_timeout(pfrm, milliseconds(500), [](Platform& pfrm, App&) {
                 invoke_hook(pfrm, "after-converge-hook");
@@ -308,7 +308,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.opponent_island()->get_drift() == 0) {
             if ((int)app.opponent_island()->get_position().x <
                 (int)app.player_island().terrain().size() * 16 + 48) {
-                app.opponent_island()->set_drift(pfrm, app, 0.00003f, true);
+                app.opponent_island()->set_drift(pfrm, app, 0.00003f);
             }
         }
     }

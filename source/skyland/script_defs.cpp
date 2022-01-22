@@ -607,8 +607,7 @@ static const lisp::Binding script_api[] = {
          app->set_coins(
              *lisp::interp_get_pfrm(),
              std::max(0,
-                      (int)(lisp::get_op(0)->integer().value_ + app->coins())),
-             false);
+                      (int)(lisp::get_op(0)->integer().value_ + app->coins())));
 
          return L_NIL;
      }},

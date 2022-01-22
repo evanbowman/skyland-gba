@@ -31,8 +31,14 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.game_mode() == App::GameMode::challenge) {
                 app.game_speed() = GameSpeed::stopped;
             }
-            // FIXME!!!!!!!
         }
+
+        if (app.game_mode() == App::GameMode::sandbox or
+            app.game_mode() == App::GameMode::adventure) {
+            app.time_stream().enable_pushes(true);
+            app.time_stream().clear();
+        }
+
         pfrm.screen().fade(0.f);
         auto future_scene = scene_pool::make_deferred_scene<ReadyScene>();
         return scene_pool::alloc<ScriptHookScene>("after-fadein-hook",

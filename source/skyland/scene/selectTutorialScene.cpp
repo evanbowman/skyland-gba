@@ -16,7 +16,7 @@ static const Float default_fade = 0.6f;
 
 void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    app.set_coins(pfrm, 0, false);
+    app.set_coins(pfrm, 0);
 
     app.player_island().projectiles().clear();
 

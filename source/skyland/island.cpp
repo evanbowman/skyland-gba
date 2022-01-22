@@ -908,20 +908,15 @@ void Island::repaint(Platform& pfrm, App& app)
 
 
 
-void Island::set_drift(Platform& pfrm,
-                       App& app,
-                       Float drift,
-                       bool sequenced)
+void Island::set_drift(Platform& pfrm, App& app, Float drift)
 {
-    if (sequenced) {
-        if (app.opponent_island() and
-            this == &*app.opponent_island()) {
+    if (app.opponent_island() and
+        this == &*app.opponent_island()) {
 
-            time_stream::event::OpponentIslandDriftChanged e;
-            memcpy(e.previous_speed_, &drift_, sizeof drift_);
+        time_stream::event::OpponentIslandDriftChanged e;
+        memcpy(e.previous_speed_, &drift_, sizeof drift_);
 
-            app.time_stream().push(pfrm, app.level_timer(), e);
-        }
+        app.time_stream().push(pfrm, app.level_timer(), e);
     }
 
     if (this == &app.player_island()) {

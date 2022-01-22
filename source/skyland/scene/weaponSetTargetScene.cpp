@@ -103,7 +103,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 if (auto room = app.player_island().get_room(weapon_loc_)) {
 
-                    room->set_target(pfrm, app, cursor_loc, true);
+                    room->set_target(pfrm, app, cursor_loc);
                     network::packet::WeaponSetTarget packet;
                     packet.weapon_x_ = weapon_loc_.x;
                     packet.weapon_y_ = weapon_loc_.y;
@@ -187,7 +187,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::action_1)) {
             const auto target = targets_[selector_];
             if (auto room = app.player_island().get_room(weapon_loc_)) {
-                room->set_target(pfrm, app, target, true);
+                room->set_target(pfrm, app, target);
 
                 network::packet::WeaponSetTarget packet;
                 packet.weapon_x_ = weapon_loc_.x;

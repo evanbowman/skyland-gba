@@ -121,7 +121,7 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
     help_.reset();
     settings_text_.clear();
 
-    app.set_coins(pfrm, parameters_[0], false);
+    app.set_coins(pfrm, parameters_[0]);
     app.player_island().init_terrain(pfrm, parameters_[1]);
 
     pfrm.speaker().play_music("sb_solecism", 0);

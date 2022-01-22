@@ -307,7 +307,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             const auto diff = get_cost(island(app), target);
-            app.set_coins(pfrm, app.coins() - diff, true);
+            app.set_coins(pfrm, app.coins() - diff);
             app.level_coins_spent() += diff;
 
             const auto sz = target->size().y;
@@ -374,7 +374,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            app.set_coins(pfrm, app.coins() - app.terrain_cost(), true);
+            app.set_coins(pfrm, app.coins() - app.terrain_cost());
 
             time_stream::event::IslandTerrainChanged e;
             e.previous_terrain_size_ = island(app)->terrain().size();

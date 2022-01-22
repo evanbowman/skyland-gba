@@ -93,8 +93,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
                 {invert_axis(app, packet.weapon_x_), packet.weapon_y_})) {
 
             room->set_target(pfrm, app,
-                             {invert_axis(app, packet.target_x_), packet.target_y_},
-                             true);
+                             {invert_axis(app, packet.target_x_), packet.target_y_});
         }
     }
 }

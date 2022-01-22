@@ -42,13 +42,11 @@ public:
 
     void set_target(Platform& pfrm,
                     App& app,
-                    const Vec2<u8>& target,
-                    bool sequenced) override;
+                    const Vec2<u8>& target) override;
 
 
     void unset_target(Platform& pfrm,
-                      App& app,
-                      bool sequenced) override;
+                      App& app) override;
 
 
     ScenePtr<Scene> select(Platform& pfrm, App&) override;

@@ -19,6 +19,9 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     timer_ += delta;
 
+    app.time_stream().enable_pushes(false);
+    app.time_stream().clear();
+
     constexpr auto fade_duration = milliseconds(800);
     if (timer_ > fade_duration) {
         pfrm.screen().fade(1.f);

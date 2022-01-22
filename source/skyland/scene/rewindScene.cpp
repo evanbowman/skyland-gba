@@ -74,6 +74,12 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     const Microseconds delta = 2.5f * (seconds(1) / 60);
 
 
+    // Some functions called in this block may try to call other functions that
+    // push events to the time stream, which we don't want to do, as we're
+    // rewinding.
+    app.time_stream().enable_pushes(false);
+
+
     app.level_timer().count_down(delta);
 
 
@@ -87,6 +93,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     if (not app.opponent_island() or not end_timestamp or
         app.level_timer().whole_seconds() == 0 or
         app.player().key_down(pfrm, Key::alt_1)) {
+
+        app.time_stream().enable_pushes(true);
 
         app.game_speed() = GameSpeed::stopped;
         return scene_pool::alloc<ReadyScene>();
@@ -313,7 +321,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::coins_changed: {
             auto e = (time_stream::event::CoinsChanged*)end;
-            app.set_coins(pfrm, e->previous_value_.get(), false);
+            app.set_coins(pfrm, e->previous_value_.get());
             app.time_stream().pop(sizeof *e);
             break;
         }
@@ -523,9 +531,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     room->set_target(pfrm, app, Vec2<u8>{
                         e->previous_target_x_,
                         e->previous_target_y_
-                    }, false);
+                    });
                 } else {
-                    room->unset_target(pfrm, app, false);
+                    room->unset_target(pfrm, app);
                 }
             }
 
@@ -558,7 +566,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::OpponentIslandDriftChanged*)end;
             Float val;
             memcpy(&val, e->previous_speed_, sizeof val);
-            app.opponent_island()->set_drift(pfrm, app, val, false);
+            app.opponent_island()->set_drift(pfrm, app, val);
             app.time_stream().pop(sizeof *e);
             break;
         }
@@ -610,6 +618,10 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
 void RewindScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    if (not app.time_stream().pushes_enabled()) {
+        Platform::fatal("entering rewind scene with recording disabled");
+    }
+
     // pfrm.screen().enable_night_mode(true);
     // pfrm.screen().fade(0.1f);
     // pfrm.screen().fade(0.f);

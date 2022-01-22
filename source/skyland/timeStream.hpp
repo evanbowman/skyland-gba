@@ -93,6 +93,10 @@ public:
     template <typename T>
     void push(Platform& pfrm, TimeTracker& current, T& event)
     {
+        if (not enabled_pushes_) {
+            return;
+        }
+
         if (not buffers_) {
             buffers_ = allocate_dynamic<TimeBuffer>(pfrm, current);
             ++buffer_count_;
@@ -138,10 +142,23 @@ public:
     void clear();
 
 
+    void enable_pushes(bool enabled)
+    {
+        enabled_pushes_ = enabled;
+    }
+
+
+    bool pushes_enabled() const
+    {
+        return enabled_pushes_;
+    }
+
+
 private:
     std::optional<DynamicMemory<TimeBuffer>> buffers_;
     TimeBuffer* end_ = nullptr;
     u8 buffer_count_ = 0;
+    bool enabled_pushes_ = false;
 };
 
 

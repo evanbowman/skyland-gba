@@ -72,6 +72,11 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     key_callback_processor.clear();
 
+    // By default, we do not allow recording for rewind. Enabled based on game
+    // mode when fading into a level.
+    app.time_stream().enable_pushes(false);
+    app.time_stream().clear();
+
     auto view = pfrm.screen().get_view();
     auto c = view.get_center();
     c.x = 0;

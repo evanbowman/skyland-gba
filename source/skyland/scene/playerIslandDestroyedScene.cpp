@@ -137,6 +137,10 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     reset_gamespeed(pfrm, app);
 
 
+    app.time_stream().enable_pushes(false);
+    app.time_stream().clear();
+
+
     const bool opponent_defeated = island_ not_eq &app.player_island();
 
 
@@ -264,7 +268,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ = 0;
 
         for (auto& room : app.player_island().rooms()) {
-            room->unset_target(pfrm, app, true);
+            room->unset_target(pfrm, app);
         }
 
         anim_state_ = AnimState::explosion_wait1;
@@ -286,7 +290,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             timer_ = 0;
             music_fadeback_timer_ = music_fadeback_seconds;
-        }
+       }
         break;
 
     case AnimState::explosion_wait2:
@@ -363,7 +367,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case AnimState::add_score: {
         pfrm.speaker().play_sound("coin", 2);
-        app.set_coins(pfrm, app.coins() + app.victory_coins(), false);
+        app.set_coins(pfrm, app.coins() + app.victory_coins());
         force_show_coins();
         app.victory_coins() = 0;
         anim_state_ = AnimState::wait_2;

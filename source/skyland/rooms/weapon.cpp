@@ -109,8 +109,7 @@ void Weapon::___rewind___ability_used(Platform&, App&)
 
 void Weapon::set_target(Platform& pfrm,
                         App& app,
-                        const Vec2<u8>& target,
-                        bool sequenced)
+                        const Vec2<u8>& target)
 {
     time_stream::event::WeaponSetTarget e;
     e.room_x_ = position().x;
@@ -128,9 +127,7 @@ void Weapon::set_target(Platform& pfrm,
         e.has_previous_target_ = false;
     }
 
-    if (sequenced) {
-        app.time_stream().push(pfrm, app.level_timer(), e);
-    }
+    app.time_stream().push(pfrm, app.level_timer(), e);
 
     target_ = target;
 }
@@ -138,8 +135,7 @@ void Weapon::set_target(Platform& pfrm,
 
 
 void Weapon::unset_target(Platform& pfrm,
-                          App& app,
-                          bool sequenced)
+                          App& app)
 {
     time_stream::event::WeaponSetTarget e;
     e.room_x_ = position().x;
@@ -157,9 +153,7 @@ void Weapon::unset_target(Platform& pfrm,
         e.has_previous_target_ = false;
     }
 
-    if (sequenced) {
-        app.time_stream().push(pfrm, app.level_timer(), e);
-    }
+    app.time_stream().push(pfrm, app.level_timer(), e);
 
     target_.reset();
 }
