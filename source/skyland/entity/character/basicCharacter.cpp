@@ -100,7 +100,7 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
         return false;
     };
 
-    if (movement_path_ and not (*movement_path_)->empty()) {
+    if (movement_path_ and not(*movement_path_)->empty()) {
         auto dest_grid_pos = (*movement_path_)->back();
         auto dest = parent_->visual_origin();
         dest.x += dest_grid_pos.x * 16;
@@ -115,7 +115,20 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
         timer_ -= delta;
 
         if (timer_ > 0) {
-            sprite_.set_position(interpolate(dest, o, Float(timer_) / movement_step_duration));
+            sprite_.set_position(
+                interpolate(dest, o, Float(timer_) / movement_step_duration));
+        }
+
+        anim_timer_ -= delta;
+        if (anim_timer_ < 0) {
+            anim_timer_ = milliseconds(100);
+            auto index = sprite_.get_texture_index();
+            if (index == base_frame(this, app) + 5) {
+                index = base_frame(this, app) + 4;
+            } else {
+                index = base_frame(this, app) + 5;
+            }
+            sprite_.set_texture_index(index);
         }
 
     } else {
