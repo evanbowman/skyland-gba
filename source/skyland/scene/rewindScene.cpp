@@ -417,7 +417,6 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
-
         case time_stream::event::Type::character_movement_path_assigned: {
             auto e = (time_stream::event::CharacterMovementPathAssigned*)end;
             Island* island =
@@ -432,7 +431,6 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             app.time_stream().pop(sizeof *e);
             break;
         }
-
 
 
         case time_stream::event::Type::character_moved: {
