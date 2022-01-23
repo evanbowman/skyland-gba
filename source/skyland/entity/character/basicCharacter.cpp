@@ -11,6 +11,10 @@ namespace skyland {
 
 
 
+static const auto movement_step_duration = milliseconds(300);
+
+
+
 static u16 base_frame(BasicCharacter* character, App& app)
 {
     if (character->owner() == &app.player()) {
@@ -96,21 +100,37 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
         return false;
     };
 
-    if (auto room = parent_->get_room(grid_position_)) {
-        if (has_opponent(room)) {
-            sprite_.set_texture_index(base_frame(this, app));
-            sprite_.set_flip({});
-        } else if (room->health() not_eq room->max_health()) {
-            sprite_.set_texture_index(base_frame(this, app) + 1);
-            sprite_.set_flip({});
-        } else {
-            sprite_.set_texture_index(base_frame(this, app) + 5);
+    if (movement_path_ and not (*movement_path_)->empty()) {
+        auto dest_grid_pos = (*movement_path_)->back();
+        auto dest = parent_->visual_origin();
+        dest.x += dest_grid_pos.x * 16;
+        dest.y += dest_grid_pos.y * 16 - 3; // floor is two pixels thick
+
+        if (dest_grid_pos.x < grid_position_.x) {
+            sprite_.set_flip({false, false});
+        } else if (dest_grid_pos.x > grid_position_.x) {
+            sprite_.set_flip({true, false});
+        }
+
+        timer_ -= delta;
+
+        if (timer_ > 0) {
+            sprite_.set_position(interpolate(dest, o, Float(timer_) / movement_step_duration));
+        }
+
+    } else {
+        if (auto room = parent_->get_room(grid_position_)) {
+            if (has_opponent(room)) {
+                sprite_.set_texture_index(base_frame(this, app));
+                sprite_.set_flip({});
+            } else if (room->health() not_eq room->max_health()) {
+                sprite_.set_texture_index(base_frame(this, app) + 1);
+                sprite_.set_flip({});
+            } else {
+                sprite_.set_texture_index(base_frame(this, app) + 5);
+            }
         }
     }
-
-    // TODO: we want to do some sort of interpolation, so that the character
-    // does not apper to jump from one location to another when replaying
-    // history. Easier said than done.
 }
 
 
@@ -386,8 +406,6 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
     awaiting_movement_ = false;
     can_move_ = false;
 
-    static const auto movement_step_duration = milliseconds(300);
-
 
     if (not(*movement_path_)->empty()) {
         auto dest_grid_pos = (*movement_path_)->back();
@@ -465,7 +483,7 @@ void BasicCharacter::rewind_movement_step(Platform& pfrm,
     reassign_room(grid_position_, new_pos);
 
     state_ = State::moving_or_idle;
-    timer_ = 0;
+    timer_ = movement_step_duration;
     awaiting_movement_ = false;
     can_move_ = false;
     idle_count_ = 0;
