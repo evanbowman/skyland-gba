@@ -6,6 +6,7 @@
 #include "skyland/entity/projectile/flak.hpp"
 #include "skyland/island.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -134,6 +135,14 @@ public:
                 }
             } else {
                 timer_ += delta;
+
+                if (timer_ > reload_time) {
+                    time_stream::event::DroneReloadComplete e;
+                    e.x_pos_ = position().x;
+                    e.y_pos_ = position().y;
+                    e.destination_near_ = destination() == &app.player_island();
+                    app.time_stream().push(pfrm, app.level_timer(), e);
+                }
             }
 
             break;

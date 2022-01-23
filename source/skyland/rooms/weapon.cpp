@@ -109,6 +109,12 @@ void Weapon::___rewind___ability_used(Platform&, App&)
 
 void Weapon::set_target(Platform& pfrm, App& app, const Vec2<u8>& target)
 {
+    if (target_ and *target_ == target) {
+        // No need to waste space in rewind memory if the target does not
+        // change.
+        return;
+    }
+
     time_stream::event::WeaponSetTarget e;
     e.room_x_ = position().x;
     e.room_y_ = position().y;
@@ -134,6 +140,11 @@ void Weapon::set_target(Platform& pfrm, App& app, const Vec2<u8>& target)
 
 void Weapon::unset_target(Platform& pfrm, App& app)
 {
+    if (not target_) {
+        // Already uninitialized.
+        return;
+    }
+
     time_stream::event::WeaponSetTarget e;
     e.room_x_ = position().x;
     e.room_y_ = position().y;

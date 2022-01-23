@@ -16,6 +16,16 @@
 // necessary for rewind are unnecessary for multiplayer.
 
 
+// Note to anyone who might be reading this code:
+// I know bitfields are not portable, but these datastructures are not meant to
+// be permanently recorded or sent to other devices over a network. And I'm
+// using the endian classes below simply because they store their data as arrays
+// of char, so I don't need to worry about losing memory due to alignment, not
+// because I care about portability for the data. In summary, bitfields are
+// simply convenient, accesses don't need to be fast as event read/write is very
+// infrequent, I decided in favor of the more convenient syntax.
+
+
 
 namespace skyland::time_stream::event {
 
@@ -84,6 +94,9 @@ enum Type : u8 {
     drone_deployed,
     drone_health_changed,
     drone_destroyed,
+
+    drone_set_target,
+    drone_reload_complete,
 
     rng_changed,
 };
@@ -506,6 +519,33 @@ struct DroneDestroyed {
     host_s32 duration_;
 
     static constexpr const auto t = Type::drone_destroyed;
+};
+
+
+
+struct DroneSetTarget {
+    Header header_;
+    u8 x_pos_ : 4;
+    u8 y_pos_ : 4;
+    u8 previous_target_x_ : 4;
+    u8 previous_target_y_ : 4;
+    u8 previous_target_near_ : 1;
+    u8 has_previous_target_ : 1;
+    u8 destination_near_ : 1;
+    u8 unused_ : 5;
+
+    static constexpr const auto t = Type::drone_set_target;
+};
+
+
+
+struct DroneReloadComplete {
+    Header header_;
+    u8 x_pos_ : 4;
+    u8 y_pos_ : 4;
+    u8 destination_near_ : 1;
+
+    static constexpr const auto t = Type::drone_reload_complete;
 };
 
 

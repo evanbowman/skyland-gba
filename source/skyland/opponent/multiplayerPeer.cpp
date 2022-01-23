@@ -120,7 +120,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
     const auto drone_x = invert_axis(app, packet.drone_x_);
     if (auto drone = island->get_drone({drone_x, packet.drone_y_})) {
-        (*drone)->set_target(
+        (*drone)->set_target(pfrm, app,
             {invert_axis(app, packet.target_x_), packet.target_y_},
             not packet.target_near_);
     }

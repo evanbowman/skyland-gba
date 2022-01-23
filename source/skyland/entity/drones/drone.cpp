@@ -121,8 +121,56 @@ void Drone::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     default:
         update_sprite(pfrm, app);
+        if (timer_ > 0) {
+            timer_ -= delta;
+        }
         break;
     }
+}
+
+
+
+void Drone::set_target(Platform& pfrm,
+                       App& app,
+                       const Vec2<u8>& target,
+                       bool target_near)
+{
+    if (target_) {
+        if (*target_ == target and target_near_ == target_near) {
+            // Optimization to save space in the rewind buffer.
+            return;
+        }
+    }
+
+    time_stream::event::DroneSetTarget e;
+    e.x_pos_ = grid_pos_.x;
+    e.y_pos_ = grid_pos_.y;
+    if (target_) {
+        e.has_previous_target_ = true;
+        e.previous_target_x_ = target_->x;
+        e.previous_target_y_ = target_->y;
+    } else {
+        e.has_previous_target_ = false;
+    }
+    e.previous_target_near_ = target_near_;
+    e.destination_near_ = destination_ == &app.player_island();
+    app.time_stream().push(pfrm, app.level_timer(), e);
+
+    target_ = target;
+    target_near_ = target_near;
+}
+
+
+
+void Drone::drop_target(Platform& pfrm, App& app)
+{
+    if (app.time_stream().pushes_enabled()) {
+        Platform::fatal("drop_target intended to be called only during rewind, "
+                        "as we do not push a time stream event in this message "
+                        "for rolling back a drop_target().");
+    }
+
+    target_.reset();
 }
 
 

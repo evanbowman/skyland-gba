@@ -53,7 +53,7 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         packet.target_near_ = near_;
         network::transmit(pfrm, packet);
 
-        (*drone_sp)->set_target(cursor_loc_, near_);
+        (*drone_sp)->set_target(pfrm, app, cursor_loc_, near_);
 
         return exit_scene();
     }

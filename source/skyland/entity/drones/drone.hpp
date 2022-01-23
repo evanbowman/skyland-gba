@@ -34,6 +34,12 @@ public:
     }
 
 
+    virtual void ___rewind___finished_reload(Platform& pfrm, App& app)
+    {
+        ___rewind___ability_used(pfrm, app);
+    }
+
+
     enum State : u8 {
         launch,
         ready,
@@ -73,11 +79,13 @@ public:
 
 
 
-    void set_target(const Vec2<u8>& target, bool target_near = false)
-    {
-        target_ = target;
-        target_near_ = target_near;
-    }
+    void set_target(Platform& pfrm,
+                    App& app,
+                    const Vec2<u8>& target,
+                    bool target_near = false);
+
+
+    void drop_target(Platform& pfrm, App& app);
 
 
     Island* parent() const

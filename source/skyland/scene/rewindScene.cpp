@@ -718,6 +718,58 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::Type::drone_set_target: {
+            auto e = (time_stream::event::DroneSetTarget*)end;
+
+            Island* dest_island =
+                e->destination_near_ ? &app.player_island() : &*app.opponent_island();
+
+            for (auto& drone : dest_island->drones()) {
+                if (auto drone_sp = drone.promote()) {
+                    if ((*drone_sp)->position().x == e->x_pos_ and
+                        (*drone_sp)->position().y == e->y_pos_) {
+
+                        if (e->has_previous_target_) {
+                            (*drone_sp)->set_target(pfrm,
+                                                    app,
+                                                    {e->previous_target_x_,
+                                                     e->previous_target_y_},
+                                                    e->previous_target_near_);
+                        } else {
+                            (*drone_sp)->drop_target(pfrm, app);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::drone_reload_complete: {
+            auto e = (time_stream::event::DroneReloadComplete*)end;
+
+            Island* dest_island =
+                e->destination_near_ ? &app.player_island() : &*app.opponent_island();
+
+            for (auto& drone : dest_island->drones()) {
+                if (auto drone_sp = drone.promote()) {
+                    if ((*drone_sp)->position().x == e->x_pos_ and
+                        (*drone_sp)->position().y == e->y_pos_) {
+
+                        (*drone_sp)->___rewind___finished_reload(pfrm, app);
+                        break;
+                    }
+                }
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::drone_destroyed: {
             auto e = (time_stream::event::DroneDestroyed*)end;
 

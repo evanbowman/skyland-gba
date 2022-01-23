@@ -35,7 +35,7 @@ struct TimeBuffer {
     }
 
 
-    char data_[1900];
+    char data_[1960];
     char* end_ = data_ + sizeof data_;
 
 

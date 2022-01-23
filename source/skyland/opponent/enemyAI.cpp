@@ -1099,7 +1099,7 @@ void EnemyAI::combat_drone_set_target(Platform& pfrm,
     for (auto& drone_wp : app.player_island().drones()) {
         if (auto drone_sp = drone_wp.promote()) {
             if ((*drone_sp)->parent() == &app.player_island()) {
-                drone.set_target((*drone_sp)->position(), true);
+                drone.set_target(pfrm, app, (*drone_sp)->position(), true);
             }
         }
     }
@@ -1107,7 +1107,7 @@ void EnemyAI::combat_drone_set_target(Platform& pfrm,
     for (auto& drone_wp : app.opponent_island()->drones()) {
         if (auto drone_sp = drone_wp.promote()) {
             if ((*drone_sp)->parent() == &app.player_island()) {
-                drone.set_target((*drone_sp)->position(), false);
+                drone.set_target(pfrm, app, (*drone_sp)->position(), false);
             }
         }
     }
@@ -1228,7 +1228,7 @@ void EnemyAI::offensive_drone_set_target(Platform& pfrm,
     // upwards, but for now, let's stick with what we've done so far.
 
     if (ideal_pos) {
-        drone.set_target(*ideal_pos);
+        drone.set_target(pfrm, app, *ideal_pos);
     }
 }
 
