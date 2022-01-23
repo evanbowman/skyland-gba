@@ -58,7 +58,7 @@ void SandboxLoaderModule::update_parameter(u8 line_num)
     if (is_boolean_field) {
         temp += parameters_[line_num] ? "yes" : "no";
     } else {
-        temp += to_string<10>(parameters_[line_num]);
+        temp += stringify(parameters_[line_num]);
     }
 
     settings_text_[line_num].assign(temp.c_str());

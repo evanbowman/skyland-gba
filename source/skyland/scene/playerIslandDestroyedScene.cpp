@@ -89,9 +89,9 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
 
     case 3:
         StringBuffer<24> fmt;
-        fmt += to_string<10>(app.player().rooms_built_);
+        fmt += stringify(app.player().rooms_built_);
         fmt += "/";
-        fmt += to_string<10>(app.player().rooms_lost_);
+        fmt += stringify(app.player().rooms_lost_);
         print_metric_impl("rooms built/lost ", fmt.c_str());
         break;
     }

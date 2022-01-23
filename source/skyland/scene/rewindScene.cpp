@@ -73,6 +73,44 @@ void respawn_missile(Platform& pfrm,
 
 
 
+void RewindScene::print_timestamp(Platform& pfrm, App& app)
+{
+    if (not text_) {
+        text_.emplace(pfrm, OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+    }
+    const auto level_seconds = app.level_timer().whole_seconds();
+    int hours = 0;
+    int minutes = 0;
+    int seconds = level_seconds;
+    while (seconds > 60 * 60) {
+        seconds -= 60 * 60;
+        ++hours;
+    }
+    while (seconds > 60) {
+        seconds -= 60;
+        ++minutes;
+    }
+    StringBuffer<30> fmt;
+    if (hours < 10) {
+        fmt += "0";
+    }
+    fmt += stringify(hours);
+    fmt += ":";
+    if (minutes < 10) {
+        fmt += "0";
+    }
+    fmt += stringify(minutes);
+    fmt += ":";
+    if (seconds < 10) {
+        fmt += "0";
+    }
+    fmt += stringify(seconds);
+
+    text_->assign(fmt.c_str());
+}
+
+
+
 ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 {
     // Playback history at a fixed delta.
@@ -86,6 +124,10 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
 
     app.level_timer().count_down(delta);
+
+
+    print_timestamp(pfrm, app);
+
 
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;

@@ -20,9 +20,9 @@ void Decimator::format_description(StringBuffer<512>& buffer)
 {
     buffer += "A massively destructive weapon with a sluggish ";
     auto secs = decimator_reload_ms / 1000;
-    buffer += to_string<10>(secs);
+    buffer += stringify(secs);
     buffer += ".";
-    buffer += to_string<10>((decimator_reload_ms / 100 - secs * 10));
+    buffer += stringify((decimator_reload_ms / 100 - secs * 10));
     buffer += " second recharge. "
               "Reloads and fires only when inhabited by a character. Requires "
               "a foundry to build.";

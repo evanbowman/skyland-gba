@@ -159,7 +159,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // construct a building.
                 state_ = State::add_terrain;
                 StringBuffer<30> temp(":build :add-terrain ");
-                temp += to_string<10>(app.terrain_cost());
+                temp += stringify(app.terrain_cost());
                 temp += "@";
                 msg(pfrm, temp.c_str());
 
@@ -414,12 +414,12 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 
     str += (*load_metaclass(available_buildings_[building_selector_]))->name();
     str += " ";
-    str += to_string<10>(
+    str += stringify(
         get_cost(island(app),
                  (*load_metaclass(available_buildings_[building_selector_]))));
     str += "@";
     str += " ";
-    str += to_string<10>(
+    str += stringify(
         (*load_metaclass(available_buildings_[building_selector_]))
             ->consumes_power());
     str += "`";

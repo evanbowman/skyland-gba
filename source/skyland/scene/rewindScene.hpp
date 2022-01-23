@@ -1,6 +1,7 @@
 #pragma once
 
 #include "skyland/scene.hpp"
+#include "graphics/overlay.hpp"
 
 
 
@@ -18,6 +19,14 @@ public:
 
 
     void display(Platform&, App&) override;
+
+
+private:
+
+    void print_timestamp(Platform& pfrm, App& app);
+
+
+    std::optional<Text> text_;
 };
 
 

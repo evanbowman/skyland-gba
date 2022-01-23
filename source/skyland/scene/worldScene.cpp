@@ -218,13 +218,13 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
 
                 StringBuffer<30> msg = "get ready! 0";
-                msg += to_string<10>(mt_prep_seconds / 60);
+                msg += stringify(mt_prep_seconds / 60);
                 msg += ":";
                 const auto rem = mt_prep_seconds % 60;
                 if (rem < 10) {
                     msg += "0";
                 }
-                msg += to_string<10>(rem);
+                msg += stringify(rem);
 
                 const u8 margin = centered_text_margins(pfrm, msg.length());
 

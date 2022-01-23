@@ -22,12 +22,12 @@ void IonCannon::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Deals ion damage. Ion bursts pass harmlessly through most "
               "rooms, but deals ";
-    buffer += to_string<10>(ion_burst_damage);
+    buffer += stringify(ion_burst_damage);
     buffer += " damage every ";
     auto secs = ion_cannon_reload_ms / 1000;
-    buffer += to_string<10>(secs);
+    buffer += stringify(secs);
     buffer += ".";
-    buffer += to_string<10>((ion_cannon_reload_ms / 100 - secs * 10));
+    buffer += stringify((ion_cannon_reload_ms / 100 - secs * 10));
     buffer += "s to forcefields, reactors, etc.. Requires "
               "a workshop to build.";
 }

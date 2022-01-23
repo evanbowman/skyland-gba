@@ -26,12 +26,12 @@ Sound cannon_sound("cannon");
 void Cannon::format_description(StringBuffer<512>& buffer)
 {
     buffer += "A reliable artillery weapon. Deals ";
-    buffer += to_string<10>(cannonball_damage);
+    buffer += stringify(cannonball_damage);
     buffer += " damage every ";
     auto secs = cannon_reload_ms / 1000;
-    buffer += to_string<10>(secs);
+    buffer += stringify(secs);
     buffer += ".";
-    buffer += to_string<10>((cannon_reload_ms / 100 - secs * 10));
+    buffer += stringify((cannon_reload_ms / 100 - secs * 10));
     buffer += " seconds.";
 }
 

@@ -28,12 +28,12 @@ void MissileSilo::format_description(StringBuffer<512>& buffer)
 {
     buffer += "A weapon for targeting the roof of an enemy fortress. "
               "Deals ";
-    buffer += to_string<10>(missile_damage);
+    buffer += stringify(missile_damage);
     buffer += " damage every ";
     auto secs = missile_silo_reload_ms / 1000;
-    buffer += to_string<10>(secs);
+    buffer += stringify(secs);
     buffer += ".";
-    buffer += to_string<10>((missile_silo_reload_ms / 100 - secs * 10));
+    buffer += stringify((missile_silo_reload_ms / 100 - secs * 10));
     buffer += " seconds.";
 }
 

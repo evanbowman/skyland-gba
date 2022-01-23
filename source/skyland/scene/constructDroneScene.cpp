@@ -20,7 +20,7 @@ void ConstructDroneScene::draw(Platform& pfrm, App& app)
     StringBuffer<30> message = "deploy: ";
     message += templates[selector_]->name();
     message += " ";
-    message += to_string<10>(templates[selector_]->cost());
+    message += stringify(templates[selector_]->cost());
     message += "@";
 
     if (not text_) {

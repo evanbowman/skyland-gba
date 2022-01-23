@@ -30,9 +30,9 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
     StringBuffer<30> temp;
     temp += mt[page]->name();
     temp += " (";
-    temp += to_string<10>(mt[page]->size().x);
+    temp += stringify(mt[page]->size().x);
     temp += ",";
-    temp += to_string<10>(mt[page]->size().y);
+    temp += stringify(mt[page]->size().y);
     temp += ")";
 
     item_name_->assign(temp.c_str());
@@ -44,11 +44,11 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
         item_details_.emplace(pfrm, OverlayCoord{6, 3});
     }
 
-    temp += to_string<10>(mt[page]->cost());
+    temp += stringify(mt[page]->cost());
     temp += "@ ";
-    temp += to_string<10>(mt[page]->consumes_power());
+    temp += stringify(mt[page]->consumes_power());
     temp += "` ";
-    temp += to_string<10>(mt[page]->full_health());
+    temp += stringify(mt[page]->full_health());
     temp += "hp";
 
     item_details_->assign(temp.c_str());

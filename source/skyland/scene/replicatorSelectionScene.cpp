@@ -27,7 +27,7 @@ void ReplicatorSelectionScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto st = calc_screen_tiles(pfrm);
     StringBuffer<30> text("create replicant? -");
-    text += to_string<10>(replicator_fee);
+    text += stringify(replicator_fee);
     text += "@";
 
     text_.emplace(pfrm, text.c_str(), OverlayCoord{0, u8(st.y - 1)});

@@ -71,7 +71,7 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
                     exit_countdown_ = 1;
                 }
             }
-            text += to_string<10>(salvage_value(*room));
+            text += stringify(salvage_value(*room));
         } else {
             text += "0";
         }

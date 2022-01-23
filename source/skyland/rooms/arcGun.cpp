@@ -20,12 +20,12 @@ extern SharedVariable arcbolt_damage;
 void ArcGun::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Deals ";
-    buffer += to_string<10>(arcbolt_damage);
+    buffer += stringify(arcbolt_damage);
     buffer += " damage every ";
     auto secs = arc_gun_reload_ms / 1000;
-    buffer += to_string<10>(secs);
+    buffer += stringify(secs);
     buffer += ".";
-    buffer += to_string<10>((arc_gun_reload_ms / 100 - secs * 10));
+    buffer += stringify((arc_gun_reload_ms / 100 - secs * 10));
     buffer +=
         " seconds, but unlike other weapons, damage chains"
         " to all neighboring structures of the same type. Requires a foundry.";

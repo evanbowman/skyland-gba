@@ -75,7 +75,7 @@ void ShopModule::repaint(Platform& pfrm, App& app)
     StringBuffer<30> message = "unlock: ";
     message += name(selector_);
     message += " ";
-    message += to_string<10>(shop_item_costs[selector_]);
+    message += stringify(shop_item_costs[selector_]);
     message += "@";
 
     if (not text_) {

@@ -280,6 +280,11 @@ bool operator==(StringAdapter<Capacity, Mem> buf, const char* str)
 }
 
 
+
+StringBuffer<12> stringify(s32 num);
+
+
+
 // I was trying to track down certain bugs, where invalid strings were being
 // passed to str_len.
 inline bool validate_str(const char* str)

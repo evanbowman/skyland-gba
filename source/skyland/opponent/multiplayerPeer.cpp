@@ -371,7 +371,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
     auto [dt, ds] = drone_metatable();
     if (packet.drone_class_ >= ds) {
         StringBuffer<32> err("invalid index! ");
-        err += to_string<10>(packet.drone_class_);
+        err += stringify(packet.drone_class_);
         pfrm.fatal(err.c_str());
     }
     auto drone_meta = &dt[packet.drone_class_];
