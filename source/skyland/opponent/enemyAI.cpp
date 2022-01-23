@@ -917,7 +917,6 @@ void EnemyAI::update_room(Platform& pfrm,
         opponent_missile_silos[16] = 0;
     }
 
-    (void)player_missile_silos;
 
     auto ai_controlled = [&](Drone& d) {
         return d.parent() == &*app.opponent_island();

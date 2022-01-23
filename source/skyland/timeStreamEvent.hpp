@@ -199,7 +199,7 @@ struct BasicProjectileDestroyed {
     Header header_;
     u8 x_origin_ : 4;
     u8 y_origin_ : 4;
-    host_s32 timer_;
+    HostInteger<Microseconds> timer_;
     host_s16 x_pos_;
     host_s16 y_pos_;
     u8 x_speed_[sizeof(Float)];
@@ -271,7 +271,7 @@ struct OpponentDecimatorBurstDestroyed : BasicProjectileDestroyed {
 struct MissileDestroyed {
     Header header_;
 
-    host_s32 timer_;
+    HostInteger<Microseconds> timer_;
 
     host_s16 x_pos_;
     host_s16 y_pos_;
@@ -486,7 +486,7 @@ struct DroneDeployed {
     u8 y_pos_ : 4;
     u8 parent_near_ : 1;
     u8 destination_near_ : 1;
-    host_s32 duration_;
+    HostInteger<Microseconds> duration_;
 
     static constexpr const auto t = Type::drone_deployed;
 };
@@ -515,8 +515,8 @@ struct DroneDestroyed {
     u8 db_y_pos_ : 4;
     u8 type_;
     u8 state_;
-    host_s32 timer_;
-    host_s32 duration_;
+    HostInteger<Microseconds> timer_;
+    HostInteger<Microseconds> duration_;
 
     static constexpr const auto t = Type::drone_destroyed;
 };
