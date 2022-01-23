@@ -1,6 +1,8 @@
 #include "rewindScene.hpp"
 #include "localization.hpp"
 #include "readyScene.hpp"
+#include "skyland/entity/drones/droneMeta.hpp"
+#include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
 #include "skyland/entity/projectile/decimatorBurst.hpp"
@@ -9,11 +11,9 @@
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/entity/projectile/projectile.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/rooms/droneBay.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/entity/drones/droneMeta.hpp"
-#include "skyland/rooms/droneBay.hpp"
-#include "skyland/entity/explosion/explosion.hpp"
 
 
 
@@ -253,7 +253,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_cannonball_destroyed: {
             auto e = (time_stream::event::PlayerCannonballDestroyed*)end;
-            respawn_basic_projectile<Cannonball>(pfrm, app, &app.player_island(), *e, medium_explosion_inv);
+            respawn_basic_projectile<Cannonball>(
+                pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -262,7 +263,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_cannonball_destroyed: {
             auto e = (time_stream::event::OpponentCannonballDestroyed*)end;
-            respawn_basic_projectile<Cannonball>(pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
+            respawn_basic_projectile<Cannonball>(
+                pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -271,7 +273,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_arcbolt_destroyed: {
             auto e = (time_stream::event::PlayerArcboltDestroyed*)end;
-            respawn_basic_projectile<ArcBolt>(pfrm, app, &app.player_island(), *e, medium_explosion_inv);
+            respawn_basic_projectile<ArcBolt>(
+                pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -280,7 +283,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_arcbolt_destroyed: {
             auto e = (time_stream::event::OpponentArcboltDestroyed*)end;
-            respawn_basic_projectile<ArcBolt>(pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
+            respawn_basic_projectile<ArcBolt>(
+                pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -289,7 +293,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_flak_destroyed: {
             auto e = (time_stream::event::PlayerFlakDestroyed*)end;
-            respawn_basic_projectile<Flak>(pfrm, app, &app.player_island(), *e, medium_explosion_inv);
+            respawn_basic_projectile<Flak>(
+                pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -298,7 +303,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_flak_destroyed: {
             auto e = (time_stream::event::OpponentFlakDestroyed*)end;
-            respawn_basic_projectile<Flak>(pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
+            respawn_basic_projectile<Flak>(
+                pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -307,7 +313,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_ionburst_destroyed: {
             auto e = (time_stream::event::PlayerIonBurstDestroyed*)end;
-            respawn_basic_projectile<IonBurst>(pfrm, app, &app.player_island(), *e, medium_explosion_inv);
+            respawn_basic_projectile<IonBurst>(
+                pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -316,7 +323,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_ionburst_destroyed: {
             auto e = (time_stream::event::OpponentIonBurstDestroyed*)end;
-            respawn_basic_projectile<IonBurst>(pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
+            respawn_basic_projectile<IonBurst>(
+                pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(8);
             break;
@@ -325,7 +333,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::player_decimator_burst_destroyed: {
             auto e = (time_stream::event::PlayerDecimatorBurstDestroyed*)end;
-            respawn_basic_projectile<DecimatorBurst>(pfrm, app, &app.player_island(), *e, medium_explosion_inv);
+            respawn_basic_projectile<DecimatorBurst>(
+                pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(26);
             break;
@@ -334,7 +343,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_decimator_burst_destroyed: {
             auto e = (time_stream::event::OpponentDecimatorBurstDestroyed*)end;
-            respawn_basic_projectile<DecimatorBurst>(pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
+            respawn_basic_projectile<DecimatorBurst>(
+                pfrm, app, &*app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera().shake(26);
             break;
@@ -407,13 +417,32 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+
+        case time_stream::event::Type::character_movement_path_assigned: {
+            auto e = (time_stream::event::CharacterMovementPathAssigned*)end;
+            Island* island =
+                e->near_ ? &app.player_island() : &*app.opponent_island();
+
+            if (auto chr = island->find_character_by_id(e->id_.get()).first) {
+                chr->drop_movement_path();
+            } else {
+                Platform::fatal("rewind chr mv path asgn: invalid chr id!");
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+
         case time_stream::event::Type::character_moved: {
             auto e = (time_stream::event::CharacterMoved*)end;
             Island* island =
                 e->near_ ? &app.player_island() : &*app.opponent_island();
 
             if (auto chr = island->find_character_by_id(e->id_.get()).first) {
-                chr->reposition({e->previous_x_, e->previous_y_});
+                chr->rewind_movement_step(pfrm,
+                                          {e->previous_x_, e->previous_y_});
             } else {
                 Platform::fatal("rewind chr moved: invalid chr id!");
             }
@@ -674,8 +703,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::drone_deployed: {
             auto e = (time_stream::event::DroneDeployed*)end;
 
-            Island* dest_island =
-                e->destination_near_ ? &app.player_island() : &*app.opponent_island();
+            Island* dest_island = e->destination_near_
+                                      ? &app.player_island()
+                                      : &*app.opponent_island();
 
             for (auto& drone : dest_island->drones()) {
                 if (auto drone_sp = drone.promote()) {
@@ -688,7 +718,6 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         break;
                     }
                 }
-
             }
 
             app.time_stream().pop(sizeof *e);
@@ -699,8 +728,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::drone_health_changed: {
             auto e = (time_stream::event::DroneHealthChanged*)end;
 
-            Island* dest_island =
-                e->destination_near_ ? &app.player_island() : &*app.opponent_island();
+            Island* dest_island = e->destination_near_
+                                      ? &app.player_island()
+                                      : &*app.opponent_island();
 
             for (auto& drone : dest_island->drones()) {
                 if (auto drone_sp = drone.promote()) {
@@ -721,8 +751,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::drone_set_target: {
             auto e = (time_stream::event::DroneSetTarget*)end;
 
-            Island* dest_island =
-                e->destination_near_ ? &app.player_island() : &*app.opponent_island();
+            Island* dest_island = e->destination_near_
+                                      ? &app.player_island()
+                                      : &*app.opponent_island();
 
             for (auto& drone : dest_island->drones()) {
                 if (auto drone_sp = drone.promote()) {
@@ -730,11 +761,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                         (*drone_sp)->position().y == e->y_pos_) {
 
                         if (e->has_previous_target_) {
-                            (*drone_sp)->set_target(pfrm,
-                                                    app,
-                                                    {e->previous_target_x_,
-                                                     e->previous_target_y_},
-                                                    e->previous_target_near_);
+                            (*drone_sp)->set_target(
+                                pfrm,
+                                app,
+                                {e->previous_target_x_, e->previous_target_y_},
+                                e->previous_target_near_);
                         } else {
                             (*drone_sp)->drop_target(pfrm, app);
                         }
@@ -751,8 +782,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::drone_reload_complete: {
             auto e = (time_stream::event::DroneReloadComplete*)end;
 
-            Island* dest_island =
-                e->destination_near_ ? &app.player_island() : &*app.opponent_island();
+            Island* dest_island = e->destination_near_
+                                      ? &app.player_island()
+                                      : &*app.opponent_island();
 
             for (auto& drone : dest_island->drones()) {
                 if (auto drone_sp = drone.promote()) {
@@ -773,18 +805,19 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::drone_destroyed: {
             auto e = (time_stream::event::DroneDestroyed*)end;
 
-            Island* dest_island =
-                e->destination_near_ ? &app.player_island() : &*app.opponent_island();
+            Island* dest_island = e->destination_near_
+                                      ? &app.player_island()
+                                      : &*app.opponent_island();
 
-            Island* parent_island =
-                e->parent_near_ ? &app.player_island() : &*app.opponent_island();
+            Island* parent_island = e->parent_near_ ? &app.player_island()
+                                                    : &*app.opponent_island();
 
             auto drone_class = &drone_metatable().first[e->type_];
-            if (auto drone = (*drone_class)->create(parent_island,
-                                                    dest_island,
-                                                    Vec2<u8>{
-                                                        e->db_x_pos_,
-                                                        u8(e->db_y_pos_ - 1)})) {
+            if (auto drone = (*drone_class)
+                                 ->create(parent_island,
+                                          dest_island,
+                                          Vec2<u8>{e->db_x_pos_,
+                                                   u8(e->db_y_pos_ - 1)})) {
 
                 (*drone)->set_movement_target(Vec2<u8>{e->x_pos_, e->y_pos_});
 
@@ -792,7 +825,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                                            e->duration_.get(),
                                            e->timer_.get());
 
-                if (auto room = parent_island->get_room({e->db_x_pos_, e->db_y_pos_})) {
+                if (auto room =
+                        parent_island->get_room({e->db_x_pos_, e->db_y_pos_})) {
                     if (auto db = dynamic_cast<DroneBay*>(room)) {
                         db->attach_drone(pfrm, app, *drone);
                         dest_island->drones().push(*drone);
@@ -801,7 +835,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                                         " drone-bay");
                     }
                 } else {
-                    StringBuffer<64> fmt = "rewind: drone attachment point dne: ";
+                    StringBuffer<64> fmt =
+                        "rewind: drone attachment point dne: ";
                     fmt += to_string<10>(e->db_x_pos_);
                     fmt += ", ";
                     fmt += to_string<10>(e->db_y_pos_);

@@ -445,7 +445,9 @@ static const lisp::Binding script_api[] = {
                                            {destx, desty});
 
                      if (path and *path) {
-                         chr->set_movement_path(std::move(*path));
+                         chr->set_movement_path(*lisp::interp_get_pfrm(),
+                                                *interp_get_app(),
+                                                std::move(*path));
                      }
 
                      break;

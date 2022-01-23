@@ -13,12 +13,18 @@ namespace skyland {
 static const char* gamespeed_text(GameSpeed speed)
 {
     switch (speed) {
-    case GameSpeed::stopped: return "paused";
-    case GameSpeed::slow: return "slow";
-    case GameSpeed::normal: return "regular";
-    case GameSpeed::fast: return "fast";
-    case GameSpeed::rewind: return "rewind";
-    case GameSpeed::count: return "ERROR";
+    case GameSpeed::stopped:
+        return "paused";
+    case GameSpeed::slow:
+        return "slow";
+    case GameSpeed::normal:
+        return "regular";
+    case GameSpeed::fast:
+        return "fast";
+    case GameSpeed::rewind:
+        return "rewind";
+    case GameSpeed::count:
+        return "ERROR";
     }
     return "ERROR";
 }
@@ -121,7 +127,8 @@ void SetGamespeedScene::repaint_selector(Platform& pfrm)
     pfrm.set_tile(Layer::overlay, (st.x - 4), 3, 119);
 
     if (not speed_text_) {
-        speed_text_.emplace(pfrm, OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+        speed_text_.emplace(pfrm,
+                            OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
     }
     StringBuffer<30> temp("speed: ");
     temp += gamespeed_text((GameSpeed)selection_);

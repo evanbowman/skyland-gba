@@ -2,8 +2,8 @@
 
 #include "characterId.hpp"
 #include "coins.hpp"
-#include "timeStreamHeader.hpp"
 #include "number/random.hpp"
+#include "timeStreamHeader.hpp"
 
 
 
@@ -73,6 +73,8 @@ enum Type : u8 {
     character_health_changed,
     character_transported,
     character_disembark,
+    character_movement_path_assigned,
+
 
     player_room_salvaged,
     opponent_room_salvaged,
@@ -364,6 +366,17 @@ struct CharacterMoved {
     u8 unused_ : 7;
 
     static constexpr const auto t = Type::character_moved;
+};
+
+
+
+struct CharacterMovementPathAssigned {
+    Header header_;
+    HostInteger<CharacterId> id_;
+    u8 near_ : 1;
+    u8 unused_ : 7;
+
+    static constexpr const auto t = Type::character_movement_path_assigned;
 };
 
 

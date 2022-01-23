@@ -542,7 +542,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 (**path)[0] == character.grid_position())) {
             // Don't waste a path buffer on an entity if the ideal path
             // represents a single node with the character's current position.
-            character.set_movement_path(std::move(*path));
+            character.set_movement_path(pfrm, app, std::move(*path));
         }
     }
 }
@@ -691,7 +691,7 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
                 (**path)[0] == character.grid_position())) {
             // Don't waste a path buffer on an entity if the ideal path
             // represents a single node with the character's current position.
-            character.set_movement_path(std::move(*path));
+            character.set_movement_path(pfrm, app, std::move(*path));
         }
     }
 }

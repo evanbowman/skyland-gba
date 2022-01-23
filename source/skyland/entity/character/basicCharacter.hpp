@@ -42,10 +42,7 @@ public:
     }
 
 
-    void set_movement_path(Path path)
-    {
-        movement_path_ = std::move(path);
-    }
+    void set_movement_path(Platform& pfrm, App& app, Path path);
 
 
     bool has_movement_path() const
@@ -131,7 +128,7 @@ public:
     void set_can_move();
 
 
-    void reposition(const Vec2<u8>& new_pos);
+    void rewind_movement_step(Platform& pfrm, const Vec2<u8>& new_pos);
 
 
     enum class State {

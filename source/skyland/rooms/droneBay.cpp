@@ -1,4 +1,5 @@
 #include "droneBay.hpp"
+#include "localization.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/island.hpp"
@@ -7,7 +8,6 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "localization.hpp"
 
 
 

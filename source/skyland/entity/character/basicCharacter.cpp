@@ -435,10 +435,26 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void BasicCharacter::reposition(const Vec2<u8>& new_pos)
+void BasicCharacter::set_movement_path(Platform& pfrm, App& app, Path path)
 {
-    // TODO: preserve movement path? Add position back?
-    (*movement_path_)->clear();
+    time_stream::event::CharacterMovementPathAssigned e;
+    e.id_.set(id_);
+    e.near_ = parent_ == &app.player_island();
+    app.time_stream().push(pfrm, app.level_timer(), e);
+
+    movement_path_ = std::move(path);
+}
+
+
+
+void BasicCharacter::rewind_movement_step(Platform& pfrm,
+                                          const Vec2<u8>& new_pos)
+{
+    if (not movement_path_) {
+        movement_path_.emplace(allocate_dynamic<PathBuffer>(pfrm));
+    }
+
+    (*movement_path_)->push_back(grid_position_);
 
     if (new_pos.x < grid_position_.x) {
         sprite_.set_flip({false, false});

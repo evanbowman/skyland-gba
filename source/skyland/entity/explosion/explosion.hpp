@@ -71,7 +71,9 @@ private:
 
 
 void medium_explosion(Platform& pfrm, App& app, const Vec2<Float>& position);
-void medium_explosion_inv(Platform& pfrm, App& app, const Vec2<Float>& position);
+void medium_explosion_inv(Platform& pfrm,
+                          App& app,
+                          const Vec2<Float>& position);
 
 
 void big_explosion(Platform& pfrm, App& app, const Vec2<Float>& position);

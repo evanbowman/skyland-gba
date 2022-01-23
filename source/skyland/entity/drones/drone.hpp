@@ -53,9 +53,8 @@ public:
 
 
     // Intended for the rewind logic, nothing more. Generally, do not call.
-    void __override_state(State state,
-                          Microseconds duration,
-                          Microseconds timer)
+    void
+    __override_state(State state, Microseconds duration, Microseconds timer)
     {
         state_ = state;
         duration_ = duration;
@@ -131,7 +130,6 @@ public:
 
 
 protected:
-
     u8 state_ = State::launch;
 
     Microseconds timer_ = 0;

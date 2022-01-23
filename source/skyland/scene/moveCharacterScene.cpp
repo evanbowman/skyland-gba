@@ -254,7 +254,7 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                 find_path(pfrm, app, island, initial_cursor_, *cursor_loc);
 
             if (path and *path) {
-                sel_chr->set_movement_path(std::move(*path));
+                sel_chr->set_movement_path(pfrm, app, std::move(*path));
 
                 network::packet::CharacterSetTarget packet;
                 packet.src_x_ = initial_cursor_.x;
