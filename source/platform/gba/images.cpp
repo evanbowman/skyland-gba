@@ -45,6 +45,8 @@
 //;
 #include "data/background.h"
 //;
+#include "data/background_title_screen.h"
+//;
 #include "data/overlay.h"
 //;
 #include "data/overlay_gamespeed.h"
@@ -158,6 +160,8 @@ static const TextureData overlay_textures[] = {
 static const TextureData background_textures[] = {
 
     TEXTURE_INFO(background),
+//;
+    TEXTURE_INFO(background_title_screen),
 //
 };
 

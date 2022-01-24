@@ -88,6 +88,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_tile1_texture("skyland_title_1_flattened");
     pfrm.load_tile0_texture("skyland_title_0_flattened");
     pfrm.load_sprite_texture("spritesheet_title_screen");
+    pfrm.load_background_texture("background_title_screen");
 
     if (not pfrm.speaker().is_music_playing("shadows")) {
         pfrm.speaker().play_music("shadows", true);
@@ -169,7 +170,7 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.load_tile0_texture("tilesheet");
     pfrm.load_tile1_texture("tilesheet_enemy_0");
     pfrm.load_sprite_texture("spritesheet");
-
+    pfrm.load_background_texture("background");
 
     vram_write_flag(pfrm, app.gp_.flag_img_);
 
