@@ -98,7 +98,7 @@ ScenePtr<Scene> Bulkhead::select(Platform& pfrm, App& app)
         return Room::select(pfrm, app);
     }
 
-    open_ = not open_;
+    set_open(pfrm, app, not open_);
 
     if (&parent()->owner() == &app.player()) {
         network::packet::OpponentBulkheadChanged packet;
@@ -106,8 +106,6 @@ ScenePtr<Scene> Bulkhead::select(Platform& pfrm, App& app)
         packet.room_y_ = position().y;
         packet.open_ = open_;
         network::transmit(pfrm, packet);
-
-        set_open(pfrm, app, open_);
     }
 
     return null_scene();
