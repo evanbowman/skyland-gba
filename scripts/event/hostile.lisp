@@ -22,7 +22,7 @@
                        (setq temp $0)
                        (not (filter (lambda (equal temp $0)) enemies-seen)))
                      (gen
-                      (get '(8 7 6 3) (zone)) ;; number of levels to select from
+                      (get '(8 8 6 3) (zone)) ;; number of levels to select from
                                               ;; based on current zone
                       (lambda $0)))))
 
