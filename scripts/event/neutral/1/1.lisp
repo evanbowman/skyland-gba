@@ -36,8 +36,9 @@
           (progn
             (island-configure
              (opponent)
-             '((hull 0 14)
+             '((hull 2 12)
                (cannon 0 13)
+               (arc-gun 0 14)
                (power-core 1 13)
                (hull 1 12)
                (missile-silo 3 13)
