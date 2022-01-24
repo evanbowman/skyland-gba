@@ -52,6 +52,17 @@ void TimeStream::update(Microseconds delta)
 
 
 
+void TimeStream::rewind(Microseconds delta)
+{
+    if (end_) {
+        end_->rewind(delta);
+        if (end_->elapsed_ < 0) {
+            end_->elapsed_ = 0;
+        }
+    }
+}
+
+
 void TimeStream::clear()
 {
     buffers_.reset();

@@ -35,6 +35,12 @@ struct TimeBuffer {
     }
 
 
+    void rewind(Microseconds delta)
+    {
+        elapsed_ -= delta;
+    }
+
+
     char data_[1960];
     char* end_ = data_ + sizeof data_;
 
@@ -137,6 +143,9 @@ public:
 
 
     void update(Microseconds delta);
+
+
+    void rewind(Microseconds delta);
 
 
     void clear();

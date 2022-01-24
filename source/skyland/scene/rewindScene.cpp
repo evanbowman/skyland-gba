@@ -123,6 +123,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
 
     app.level_timer().count_down(delta);
+    app.time_stream().rewind(delta);
 
 
     print_timestamp(pfrm, app);
