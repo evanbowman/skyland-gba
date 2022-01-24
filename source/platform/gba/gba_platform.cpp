@@ -5283,7 +5283,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
         if (not get_gflag(GlobalFlag::v_parallax)) {
             auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
-            for (int i = 128 - offset; i < 144 - offset; ++i) {
+            for (int i = 128 - offset; i < 160 - offset; ++i) {
                 u8 temp = ((u8)(intptr_t)arg) +
                           screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
@@ -5297,7 +5297,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
         const auto x_amount = ((u8)(intptr_t)arg) +
                               screen_.get_view().get_center().cast<s32>().x / 3;
 
-        for (int i = 128 - offset; i < 144 - offset; ++i) {
+        for (int i = 128 - offset; i < 160 - offset; ++i) {
             parallax_table[i] = x_amount;
             vertical_parallax_table[i] = offset;
         }

@@ -1,6 +1,7 @@
 #include "scriptHookScene.hpp"
 #include "script/lisp.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -34,6 +35,9 @@ void invoke_hook(Platform& pfrm, App& app, const char* lisp_hook_name)
         // Not worth trying to roll back lisp code, do not allow rewind if we've
         // run a script.
         app.time_stream().clear();
+        time_stream::event::Initial e;
+        app.time_stream().push(pfrm, app.level_timer(), e);
+
 
         auto result = lisp::get_op(0);
         if (result->type() == lisp::Value::Type::error) {

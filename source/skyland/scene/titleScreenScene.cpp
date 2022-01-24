@@ -591,7 +591,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > fade_duration) {
             put_menu_text(pfrm);
 
-            pfrm.screen().fade(0.f);
+            pfrm.screen().schedule_fade(0.f);
 
             state_ = State::wait;
 
@@ -673,8 +673,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (auto f = detail::_Module::Factory::get(index)) {
                     pfrm.speaker().play_music("unaccompanied_wind", 0);
                     pfrm.fill_overlay(0);
-                    pfrm.screen().schedule_fade(
-                        1.f, ColorConstant::rich_black, true, true);
+                    pfrm.screen().fade(
+                        1.f, ColorConstant::rich_black, {}, true, true);
                     app.game_mode() = App::GameMode::challenge;
 
                     if (f->run_scripts()) {

@@ -224,6 +224,7 @@ void init_clouds(Platform& pfrm)
 
     auto put_fg_cloud_type_n = [&](int x, int type) {
         put_cloud_block(x * 2, 16, 8 + type * 4);
+        put_cloud_block(x * 2, 18, 48 + type * 4);
     };
 
     auto put_bg_cloud_type_n = [&](int x, int type) {
@@ -249,7 +250,9 @@ void init_clouds(Platform& pfrm)
     }
 
     // This is just a band of tiles to fill the vertical gap between rows when
-    // parallax-scrolling the the cloud layers.
+    // parallax-scrolling the the cloud layers. The implementation uses raster
+    // lines from these rows, scrolled up into the gaps between tiles created by
+    // vertical parallax scrolling.
     for (int i = 0; i < 32; ++i) {
         pfrm.set_tile(Layer::background, i, 20, 7);
         pfrm.set_tile(Layer::background, i, 21, 7);

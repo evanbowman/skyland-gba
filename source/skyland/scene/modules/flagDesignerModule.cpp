@@ -79,6 +79,7 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
 void FlagDesignerModule::exit(Platform& pfrm, App&, Scene& next)
 {
     pfrm.fill_overlay(0);
+    pfrm.screen().fade(1.f);
 }
 
 
