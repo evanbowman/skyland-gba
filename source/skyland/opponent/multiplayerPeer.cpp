@@ -1,5 +1,4 @@
 #include "multiplayerPeer.hpp"
-#include "localization.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/room_metatable.hpp"
@@ -451,13 +450,13 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
         StringBuffer<48> err;
         err += "got incompatible program version ";
-        err += to_string<8>(packet.major_.get());
+        err += stringify(packet.major_.get());
         err += ".";
-        err += to_string<8>(packet.minor_);
+        err += stringify(packet.minor_);
         err += ".";
-        err += to_string<8>(packet.subminor_);
+        err += stringify(packet.subminor_);
         err += ".";
-        err += to_string<8>(packet.revision_);
+        err += stringify(packet.revision_);
 
         pfrm.fatal(err.c_str());
     }

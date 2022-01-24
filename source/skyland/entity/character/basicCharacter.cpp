@@ -1,5 +1,4 @@
 #include "basicCharacter.hpp"
-#include "localization.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"

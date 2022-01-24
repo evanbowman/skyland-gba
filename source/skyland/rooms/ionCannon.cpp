@@ -1,5 +1,4 @@
 #include "ionCannon.hpp"
-#include "localization.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"

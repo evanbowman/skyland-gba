@@ -1,7 +1,6 @@
 #include "boxedDialogScene.hpp"
 #include "graphics/overlay.hpp"
 #include "inspectP2Scene.hpp"
-#include "localization.hpp"
 #include "readyScene.hpp"
 #include "scriptHookScene.hpp"
 #include "skyland/scene_pool.hpp"

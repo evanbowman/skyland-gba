@@ -1,6 +1,5 @@
 #include "textEditorModule.hpp"
 #include "fileBrowserModule.hpp"
-#include "localization.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "script/lisp.hpp"
 #include "skyland/scene/sramFileWritebackScene.hpp"

@@ -1,5 +1,4 @@
 #include "highscoresScene.hpp"
-#include "localization.hpp"
 #include "skyland/save.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -61,7 +60,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
                             int num,
                             const char* suffix = "",
                             bool highlight = false) {
-        print_metric_impl(str, to_string<20>(num), suffix, highlight);
+        print_metric_impl(str, stringify(num), suffix, highlight);
     };
 
     auto& highscores = app.gp_.highscores_;
@@ -89,7 +88,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
     bool highlighted = false;
     for (int i = 0; i < Highscores::count; ++i) {
         StringBuffer<24> str;
-        str += to_string<12>(i + 1);
+        str += stringify(i + 1);
         str += " ";
         bool highlight =
             not highlighted and highscores.values_[i].get() == (u32)score;

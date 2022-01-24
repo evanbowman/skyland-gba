@@ -2,7 +2,6 @@
 #include "fadeInScene.hpp"
 #include "fullscreenDialogScene.hpp"
 #include "globals.hpp"
-#include "localization.hpp"
 #include "platform/platform.hpp"
 #include "script/lisp.hpp"
 #include "skyland/configure_island.hpp"

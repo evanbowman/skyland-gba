@@ -283,6 +283,45 @@ bool operator==(StringAdapter<Capacity, Mem> buf, const char* str)
 
 StringBuffer<12> stringify(s32 num);
 
+// passthrough stringify just defined for convenience in function templates.
+inline const char* stringify(const char* arg)
+{
+    return arg;
+}
+
+
+
+template <u32 size, typename Arg, typename ...Args>
+void make_format(StringBuffer<size>& output,
+                 const char* fmt_str,
+                 Arg&& arg,
+                 Args&& ...args)
+{
+    while (*fmt_str not_eq '\0') {
+        if (*fmt_str == '%') {
+            output += stringify(arg);
+            if constexpr (sizeof...(args)) {
+                make_format(output, ++fmt_str, std::forward<Args>(args)...);
+                break;
+            }
+        } else {
+            output.push_back(*fmt_str);
+        }
+        ++fmt_str;
+    }
+}
+
+
+
+template <u32 size = 128, typename ...Args>
+StringBuffer<size> format(const char* fmt_str, Args&& ...args)
+{
+    StringBuffer<size> result;
+    format_impl(result, fmt_str, std::forward<Args>(args)...);
+
+    return result;
+}
+
 
 
 // I was trying to track down certain bugs, where invalid strings were being

@@ -1,6 +1,5 @@
 #include "recoverCharacterScene.hpp"
 #include "globals.hpp"
-#include "localization.hpp"
 #include "readyScene.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/scene_pool.hpp"

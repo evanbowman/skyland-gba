@@ -1,6 +1,5 @@
 #include "multiplayerSettingsScene.hpp"
 #include "fadeInScene.hpp"
-#include "localization.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/character/basicCharacter.hpp"
 #include "skyland/rooms/core.hpp"

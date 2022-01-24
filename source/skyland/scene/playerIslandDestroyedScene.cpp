@@ -1,6 +1,5 @@
 #include "playerIslandDestroyedScene.hpp"
 #include "highscoresScene.hpp"
-#include "localization.hpp"
 #include "sandboxResetScene.hpp"
 #include "selectChallengeScene.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
@@ -70,7 +69,7 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
                             int num,
                             const char* suffix = "",
                             bool highlight = false) {
-        print_metric_impl(str, to_string<20>(num), suffix, highlight);
+        print_metric_impl(str, stringify(num), suffix, highlight);
     };
 
     switch (lines_.size()) {

@@ -1,6 +1,5 @@
 #include "transporter.hpp"
 #include "globals.hpp"
-#include "localization.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
 #include "skyland/island.hpp"

@@ -1,5 +1,4 @@
 #include "arcGun.hpp"
-#include "localization.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"

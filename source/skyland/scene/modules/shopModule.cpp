@@ -1,5 +1,4 @@
 #include "shopModule.hpp"
-#include "localization.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/titleScreenScene.hpp"

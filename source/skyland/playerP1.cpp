@@ -1,5 +1,4 @@
 #include "playerP1.hpp"
-#include "localization.hpp"
 #include "room_metatable.hpp"
 #include "skyland.hpp"
 
@@ -17,52 +16,52 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
         StringBuffer<48> out = "(";
 
         if (pfrm.keyboard().down_transition<Key::left>()) {
-            out += to_string<20>(last_key_ / 1000);
+            out += stringify(last_key_ / 1000);
             out += " Left)";
             debug(pfrm, out.c_str());
             last_key_ = 0;
         } else if (pfrm.keyboard().down_transition<Key::right>()) {
-            out += to_string<20>(last_key_ / 1000);
+            out += stringify(last_key_ / 1000);
             out += " Right)";
             debug(pfrm, out.c_str());
             last_key_ = 0;
         } else if (pfrm.keyboard().down_transition<Key::up>()) {
-            out += to_string<20>(last_key_ / 1000);
+            out += stringify(last_key_ / 1000);
             out += " Up)";
             debug(pfrm, out.c_str());
             last_key_ = 0;
         } else if (pfrm.keyboard().down_transition<Key::down>()) {
-            out += to_string<20>(last_key_ / 1000);
+            out += stringify(last_key_ / 1000);
             out += " Down)";
             debug(pfrm, out.c_str());
             last_key_ = 0;
         } else if (pfrm.keyboard().down_transition<Key::action_1>()) {
-            out += to_string<20>(last_key_ / 1000);
+            out += stringify(last_key_ / 1000);
             out += " A)";
             debug(pfrm, out.c_str());
             last_key_ = 0;
         } else if (pfrm.keyboard().down_transition<Key::action_2>()) {
-            out += to_string<20>(last_key_ / 1000);
+            out += stringify(last_key_ / 1000);
             out += " B)";
             debug(pfrm, out.c_str());
             last_key_ = 0;
         } else if (pfrm.keyboard().down_transition<Key::alt_1>()) {
-            out += to_string<20>(last_key_ / 1000);
+            out += stringify(last_key_ / 1000);
             out += " L)";
             debug(pfrm, out.c_str());
             last_key_ = 0;
         } else if (pfrm.keyboard().down_transition<Key::alt_2>()) {
-            out += to_string<20>(last_key_ / 1000);
+            out += stringify(last_key_ / 1000);
             out += " R)";
             debug(pfrm, out.c_str());
             last_key_ = 0;
         } else if (pfrm.keyboard().down_transition<Key::start>()) {
-            out += to_string<20>(last_key_ / 1000);
+            out += stringify(last_key_ / 1000);
             out += " Start)";
             debug(pfrm, out.c_str());
             last_key_ = 0;
         } else if (pfrm.keyboard().down_transition<Key::select>()) {
-            out += to_string<20>(last_key_ / 1000);
+            out += stringify(last_key_ / 1000);
             out += " Select)";
             debug(pfrm, out.c_str());
             last_key_ = 0;

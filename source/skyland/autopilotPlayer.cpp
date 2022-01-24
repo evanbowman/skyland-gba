@@ -1,5 +1,4 @@
 #include "autopilotPlayer.hpp"
-#include "localization.hpp"
 #include "skyland.hpp"
 
 

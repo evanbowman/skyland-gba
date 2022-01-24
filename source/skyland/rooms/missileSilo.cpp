@@ -1,5 +1,4 @@
 #include "missileSilo.hpp"
-#include "localization.hpp"
 #include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/projectile/missile.hpp"

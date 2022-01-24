@@ -9,7 +9,6 @@
 
 
 #include "graphics/overlay.hpp"
-#include "localization.hpp"
 #include "platform/platform.hpp"
 #include <chrono>
 #include <memory>

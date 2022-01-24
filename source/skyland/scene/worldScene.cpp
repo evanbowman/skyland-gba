@@ -1,7 +1,6 @@
 #include "worldScene.hpp"
 #include "boxedDialogScene.hpp"
 #include "globals.hpp"
-#include "localization.hpp"
 #include "multiplayerReadyScene.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"

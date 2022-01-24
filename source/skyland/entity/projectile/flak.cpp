@@ -1,5 +1,4 @@
 #include "flak.hpp"
-#include "localization.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"

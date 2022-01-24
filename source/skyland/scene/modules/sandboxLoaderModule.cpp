@@ -1,5 +1,4 @@
 #include "sandboxLoaderModule.hpp"
-#include "localization.hpp"
 #include "skyland/scene/fadeInScene.hpp"
 #include "skyland/skyland.hpp"
 

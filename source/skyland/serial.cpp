@@ -1,6 +1,5 @@
 #include "serial.hpp"
 #include "island.hpp"
-#include "localization.hpp"
 #include "room_metatable.hpp"
 
 
@@ -24,13 +23,13 @@ DynamicMemory<SerialString> serialize(Platform& pfrm, Island& island)
         str->push_back('(');
         (*str) += (*metac)->name();
         str->push_back(' ');
-        (*str) += to_string<24>(room->position().x);
+        (*str) += stringify(room->position().x);
         str->push_back(' ');
-        (*str) += to_string<24>(room->position().y);
+        (*str) += stringify(room->position().y);
 
         if (room->health() not_eq room->max_health()) {
             str->push_back(' ');
-            (*str) += to_string<24>(room->health());
+            (*str) += stringify(room->health());
         }
 
         str->push_back(')');

@@ -1,7 +1,6 @@
 #include "fullscreenDialogScene.hpp"
 #include "fadeInScene.hpp"
 #include "graphics/overlay.hpp"
-#include "localization.hpp"
 #include "skyland/scene_pool.hpp"
 
 

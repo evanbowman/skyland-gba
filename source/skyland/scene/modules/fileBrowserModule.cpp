@@ -1,5 +1,4 @@
 #include "fileBrowserModule.hpp"
-#include "localization.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "skyland/scene/createFileScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"

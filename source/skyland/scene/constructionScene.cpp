@@ -1,7 +1,6 @@
 #include "constructionScene.hpp"
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
-#include "localization.hpp"
 #include "modules/glossaryViewerModule.hpp"
 #include "platform/platform.hpp"
 #include "readyScene.hpp"

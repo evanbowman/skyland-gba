@@ -1312,7 +1312,7 @@ void Platform::Screen::clear()
 
         StringBuffer<60> str = "sbr highwater: ";
 
-        str += to_string<10>(scratch_buffer_highwater).c_str();
+        str += stringify(scratch_buffer_highwater).c_str();
 
         info(*::platform, str.c_str());
     }
@@ -3492,11 +3492,11 @@ Platform::Platform()
 
     {
         StringBuffer<32> used("iwram used: ");
-        used += to_string<10>(&__data_end__ - &__iwram_start__);
+        used += stringify(&__data_end__ - &__iwram_start__);
         info(*this, used.c_str());
 
         used = "ewram used: ";
-        used += to_string<10>(&__eheap_start - &__ewram_start);
+        used += stringify(&__eheap_start - &__ewram_start);
         info(*this, used.c_str());
     }
 
@@ -4655,7 +4655,7 @@ MASTER_RETRY:
         if (delta > seconds(20)) {
             StringBuffer<64> err =
                 "no valid handshake received within a reasonable window ";
-            err += to_string<10>(multiplayer_comms.rx_message_count);
+            err += stringify(multiplayer_comms.rx_message_count);
             error(*::platform, err.c_str());
             ::platform->network_peer().disconnect();
             return;

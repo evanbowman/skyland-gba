@@ -1,5 +1,4 @@
 #include "rewindScene.hpp"
-#include "localization.hpp"
 #include "readyScene.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
@@ -877,9 +876,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 } else {
                     StringBuffer<64> fmt =
                         "rewind: drone attachment point dne: ";
-                    fmt += to_string<10>(e->db_x_pos_);
+                    fmt += stringify(e->db_x_pos_);
                     fmt += ", ";
-                    fmt += to_string<10>(e->db_y_pos_);
+                    fmt += stringify(e->db_y_pos_);
                     Platform::fatal(fmt.c_str());
                 }
             } else {

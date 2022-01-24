@@ -1,5 +1,4 @@
 #include "glossaryViewerModule.hpp"
-#include "localization.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"

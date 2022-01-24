@@ -1,5 +1,4 @@
 #include "decimator.hpp"
-#include "localization.hpp"
 #include "skyland/entity/projectile/decimatorBurst.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"

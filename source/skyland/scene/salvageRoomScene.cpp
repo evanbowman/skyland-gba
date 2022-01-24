@@ -1,7 +1,6 @@
 #include "salvageRoomScene.hpp"
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
-#include "localization.hpp"
 #include "readyScene.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
