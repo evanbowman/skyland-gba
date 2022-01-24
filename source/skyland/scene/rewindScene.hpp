@@ -1,7 +1,7 @@
 #pragma once
 
-#include "skyland/scene.hpp"
 #include "graphics/overlay.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -22,7 +22,6 @@ public:
 
 
 private:
-
     void print_timestamp(Platform& pfrm, App& app);
 
 

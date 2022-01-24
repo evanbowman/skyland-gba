@@ -291,11 +291,11 @@ inline const char* stringify(const char* arg)
 
 
 
-template <u32 size, typename Arg, typename ...Args>
+template <u32 size, typename Arg, typename... Args>
 void make_format(StringBuffer<size>& output,
                  const char* fmt_str,
                  Arg&& arg,
-                 Args&& ...args)
+                 Args&&... args)
 {
     while (*fmt_str not_eq '\0') {
         if (*fmt_str == '%') {
@@ -313,8 +313,8 @@ void make_format(StringBuffer<size>& output,
 
 
 
-template <u32 size = 128, typename ...Args>
-StringBuffer<size> format(const char* fmt_str, Args&& ...args)
+template <u32 size = 128, typename... Args>
+StringBuffer<size> format(const char* fmt_str, Args&&... args)
 {
     StringBuffer<size> result;
     format_impl(result, fmt_str, std::forward<Args>(args)...);

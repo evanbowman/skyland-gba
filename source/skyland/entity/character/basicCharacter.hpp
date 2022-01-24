@@ -57,7 +57,7 @@ public:
     }
 
 
-    const PathBuffer* get_movement_path() const
+    PathBuffer* get_movement_path()
     {
         if (movement_path_) {
             return movement_path_->obj_.get();

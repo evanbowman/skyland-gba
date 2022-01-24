@@ -31,7 +31,7 @@ public:
         auto result = rooms_.insert_room(std::move(insert));
         repaint(pfrm, app);
         recalculate_power_usage();
-        on_layout_changed(insert->position());
+        on_layout_changed(app, insert->position());
         return result;
     }
 
@@ -45,7 +45,7 @@ public:
             if (rooms_.insert_room({room.release(), room_pool::deleter})) {
                 repaint(pfrm, app);
                 recalculate_power_usage();
-                on_layout_changed(position);
+                on_layout_changed(app, position);
                 return true;
             }
         }
@@ -243,7 +243,7 @@ public:
     }
 
 
-    void on_layout_changed(const Vec2<u8>& room_added_removed_coord);
+    void on_layout_changed(App& app, const Vec2<u8>& room_added_removed_coord);
 
 
     WeakEntityList<Drone>& drones()

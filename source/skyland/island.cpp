@@ -416,7 +416,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             owner().rooms_lost_++;
 
-            on_layout_changed(pos);
+            on_layout_changed(app, pos);
 
             bool has_core = false;
             for (auto& room : rooms_) {
@@ -466,8 +466,11 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
 
 
-void Island::on_layout_changed(const Vec2<u8>& room_added_removed_coord)
+void Island::on_layout_changed(App& app,
+                               const Vec2<u8>& room_added_removed_coord)
 {
+    bool buffer[16][16];
+    plot_walkable_zones(app, buffer);
 
     for (auto& room : rooms()) {
         if (str_cmp((*room->metaclass())->name(), "power-core") == 0) {
@@ -477,18 +480,23 @@ void Island::on_layout_changed(const Vec2<u8>& room_added_removed_coord)
         }
         for (auto& chr : room->characters()) {
             if (auto path = chr->get_movement_path()) {
+                int pos = 0;
                 for (auto& node : *path) {
-                    if (get_room(node) == nullptr) {
+                    if (get_room(node) == nullptr or
+                        not buffer[node.x][node.y]) {
                         // Ok, a character is moving, but the room in the
-                        // character's movement path no longer exists. We should
-                        // remove the movement path, otherwise, the character
-                        // will try to walk into a non-existing room, fail to
-                        // re-attach itself to a new room structure, and be
-                        // deallocated.
-                        chr->drop_movement_path();
+                        // character's movement path no longer exists. We want
+                        // to crop the path after the nonexistent point.
+                        ++pos;
+                        while (pos) {
+                            --pos;
+                            path->erase(path->begin());
+                        }
                         break; // NOTE: we just deallocated the path, so we
                                // cannot run the enclosing loop over the path
                                // nodes anymore.
+                    } else {
+                        ++pos;
                     }
                 }
             }
@@ -990,7 +998,7 @@ void Island::destroy_room(Platform& pfrm, App& app, const Vec2<u8>& coord)
             rooms_.erase(&room);
             owner().rooms_lost_++;
 
-            on_layout_changed(coord);
+            on_layout_changed(app, coord);
 
             repaint(pfrm, app);
             recalculate_power_usage();

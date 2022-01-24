@@ -25,15 +25,14 @@ static Sound missile_sound("missile");
 
 void MissileSilo::format_description(StringBuffer<512>& buffer)
 {
-    buffer += "A weapon for targeting the roof of an enemy fortress. "
-              "Deals ";
-    buffer += stringify(missile_damage);
-    buffer += " damage every ";
     auto secs = missile_silo_reload_ms / 1000;
-    buffer += stringify(secs);
-    buffer += ".";
-    buffer += stringify((missile_silo_reload_ms / 100 - secs * 10));
-    buffer += " seconds.";
+
+    make_format(buffer,
+                "A weapon for targeting the roof of an enemy fortress. "
+                "Deals % damage every %.% seconds.",
+                missile_damage,
+                secs,
+                (missile_silo_reload_ms / 100 - secs * 10));
 }
 
 

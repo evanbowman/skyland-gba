@@ -3,6 +3,7 @@
 #include "skyland/network.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -49,6 +50,13 @@ void Bulkhead::render_interior(App& app, u8 buffer[16][16])
 
 
 
+void Bulkhead::___rewind___finished_reload(Platform& pfrm, App& app)
+{
+    set_open(pfrm, app, not open_);
+}
+
+
+
 void Bulkhead::render_exterior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_plain_1;
@@ -61,12 +69,26 @@ void Bulkhead::render_exterior(App& app, u8 buffer[16][16])
 
 void Bulkhead::set_open(Platform& pfrm, App& app, bool open)
 {
+    if (open_ not_eq open) {
+        if (parent() == &app.player_island()) {
+            time_stream::event::PlayerRoomReloadComplete e;
+            e.room_x_ = position().x;
+            e.room_y_ = position().y;
+            app.time_stream().push(pfrm, app.level_timer(), e);
+        } else {
+            time_stream::event::OpponentRoomReloadComplete e;
+            e.room_x_ = position().x;
+            e.room_y_ = position().y;
+            app.time_stream().push(pfrm, app.level_timer(), e);
+        }
+    }
+
     open_ = open;
 
     if (parent()->interior_visible()) {
         parent()->repaint(pfrm, app);
     }
-    parent()->on_layout_changed({position().x, u8(position().y + 1)});
+    parent()->on_layout_changed(app, {position().x, u8(position().y + 1)});
 }
 
 

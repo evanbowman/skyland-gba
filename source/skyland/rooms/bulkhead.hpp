@@ -36,6 +36,9 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
+    void ___rewind___finished_reload(Platform&, App&) override;
+
+
     static Float ai_base_weight()
     {
         return 20.f;

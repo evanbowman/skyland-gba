@@ -418,9 +418,8 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
                  (*load_metaclass(available_buildings_[building_selector_]))));
     str += "@";
     str += " ";
-    str += stringify(
-        (*load_metaclass(available_buildings_[building_selector_]))
-            ->consumes_power());
+    str += stringify((*load_metaclass(available_buildings_[building_selector_]))
+                         ->consumes_power());
     str += "`";
 
     msg(pfrm, str.c_str());
