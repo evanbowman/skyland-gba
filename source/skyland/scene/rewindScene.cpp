@@ -942,6 +942,10 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     // Score penalty: you lose accumulated score for a level when you rewind.
     app.score().set(app.level_begin_score());
+
+    if (not app.time_stream().pushes_enabled()) {
+        Platform::fatal("sanity check: exit rewind scene, pushes not enabled");
+    }
 }
 
 
