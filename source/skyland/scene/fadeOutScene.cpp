@@ -43,7 +43,7 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     } else {
         const auto amount = smoothstep(0.f, fade_duration, timer_);
-        pfrm.screen().fade(amount);
+        pfrm.screen().schedule_fade(amount);
     }
 
     return null_scene();

@@ -28,7 +28,7 @@ private:
 
 
 
-void invoke_hook(Platform& pfrm, const char* lisp_hook_name);
+void invoke_hook(Platform& pfrm, App& app, const char* lisp_hook_name);
 
 
 

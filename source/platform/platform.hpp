@@ -403,11 +403,23 @@ public:
         // Blend color into sprite existing screen colors, unless a base color
         // is specified, in which case, computes the resulting color from the
         // base color blended with the color parameter.
+        // DEPRECATED:
+        // The fade function fades the screen immediately. Being able to do a
+        // screen fade right away serves a useful purpose, but causes tearing
+        // when used for smooth screen fades. You should use the other fade
+        // function, I'm retiring this one.
         void fade(float amount,
                   ColorConstant color = ColorConstant::rich_black,
                   std::optional<ColorConstant> base = {},
                   bool include_sprites = true,
                   bool include_overlay = false);
+
+
+        void schedule_fade(Float amount,
+                           ColorConstant color = ColorConstant::rich_black,
+                           bool include_sprites = true,
+                           bool include_overlay = false);
+
 
         void pixelate(u8 amount,
                       bool include_overlay = true,

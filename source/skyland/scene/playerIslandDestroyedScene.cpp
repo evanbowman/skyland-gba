@@ -351,7 +351,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(amount, ColorConstant::silver_white);
+            pfrm.screen().schedule_fade(amount, ColorConstant::silver_white);
         }
         break;
     }
@@ -405,7 +405,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             anim_state_ = AnimState::idle;
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(amount * partial_fade_amt);
+            pfrm.screen().schedule_fade(amount * partial_fade_amt);
             pfrm.screen().pixelate(amount * 28, false);
         }
         break;
@@ -491,7 +491,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             const auto amount =
                 partial_fade_amt + (1.f - partial_fade_amt) *
                                        smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(amount);
+            pfrm.screen().schedule_fade(amount);
         }
         break;
     }

@@ -62,7 +62,7 @@ TitleScreenScene::TitleScreenScene(int start_page)
 
 void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    pfrm.screen().fade(1.f);
+    pfrm.screen().schedule_fade(1.f);
     const int offset = 64;
 
     app.swap_player<PlayerP1>();
@@ -367,14 +367,14 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         constexpr auto fade_duration = milliseconds(800);
         if (timer_ > fade_duration) {
-            pfrm.screen().fade(0.f);
+            pfrm.screen().schedule_fade(0.f);
             state_ = State::wait;
             put_menu_text(pfrm);
             timer_ = 0;
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(
-                amount, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().schedule_fade(
+                amount, ColorConstant::rich_black, true, true);
         }
         break;
     }
@@ -578,8 +578,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
 
-            pfrm.screen().fade(
-                amount, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().schedule_fade(
+                amount, ColorConstant::rich_black, true, true);
         }
         break;
     }
@@ -598,11 +598,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
 
-            pfrm.screen().fade(0.7f - 0.7f * amount,
-                               ColorConstant::rich_black,
-                               {},
-                               true,
-                               true);
+            pfrm.screen().schedule_fade(0.7f - 0.7f * amount,
+                                        ColorConstant::rich_black,
+                                        true,
+                                        true);
         }
         break;
     }
@@ -615,7 +614,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             show_module_icons(pfrm, 0);
             state_ = State::show_modules;
 
-            pfrm.screen().fade(0.7f, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().schedule_fade(0.7f, ColorConstant::rich_black, true, true);
 
             module_cursor_ = {0, 0};
 
@@ -624,8 +623,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
 
-            pfrm.screen().fade(
-                0.7f * amount, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().schedule_fade(
+                0.7f * amount, ColorConstant::rich_black, true, true);
         }
         break;
     }
@@ -639,7 +638,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             selector_shaded_ = not selector_shaded_;
         }
 
-        pfrm.screen().fade(0.69f, ColorConstant::rich_black, {}, false, false);
+        pfrm.screen().schedule_fade(0.69f, ColorConstant::rich_black, false, false);
         if (app.player().key_down(pfrm, Key::action_2)) {
             state_ = State::fade_modules_backout;
             timer_ = 0;
@@ -674,8 +673,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (auto f = detail::_Module::Factory::get(index)) {
                     pfrm.speaker().play_music("unaccompanied_wind", 0);
                     pfrm.fill_overlay(0);
-                    pfrm.screen().fade(
-                        1.f, ColorConstant::rich_black, {}, true, true);
+                    pfrm.screen().schedule_fade(
+                        1.f, ColorConstant::rich_black, true, true);
                     app.game_mode() = App::GameMode::challenge;
 
                     if (f->run_scripts()) {

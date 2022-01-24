@@ -375,14 +375,14 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (key_down<Key::action_1>(pfrm)) {
             if (choice_sel_) {
-                invoke_hook(pfrm, "after-dialog-accepted-hook");
+                invoke_hook(pfrm, app, "after-dialog-accepted-hook");
             } else {
-                invoke_hook(pfrm, "after-dialog-declined-hook");
+                invoke_hook(pfrm, app, "after-dialog-declined-hook");
             }
 
             display_mode_ = DisplayMode::animate_out;
         } else if (key_down<Key::action_2>(pfrm)) {
-            invoke_hook(pfrm, "after-dialog-declined-hook");
+            invoke_hook(pfrm, app, "after-dialog-declined-hook");
             display_mode_ = DisplayMode::animate_out;
         }
         break;

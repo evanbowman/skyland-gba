@@ -90,6 +90,13 @@ static ScreenBlock overlay_back_buffer alignas(u32);
 static bool overlay_back_buffer_changed = false;
 
 
+
+alignas(4) static EWRAM_DATA u16 sp_palette_back_buffer[16];
+alignas(4) static EWRAM_DATA u16 bg_palette_back_buffer[256];
+
+
+
+
 static int overlay_y = 0;
 
 
@@ -103,6 +110,7 @@ enum class GlobalFlag {
     glyph_mode,
     parallax_clouds,
     v_parallax,
+    palette_sync,
     count
 };
 
@@ -1281,13 +1289,6 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 
 
 
-// If the game lags and an update takes longer than one frame, perform a
-// scaled-back audio mixer in the vblank handler.
-static volatile bool audio_update_fallback = false;
-static volatile bool vbl_mixed_audio = false;
-AudioBuffer* buffer_needs_sfx = nullptr;
-
-
 static int scratch_buffers_in_use = 0;
 static int scratch_buffer_highwater = 0;
 
@@ -1318,9 +1319,6 @@ void Platform::Screen::clear()
     }
 
 
-    audio_update_fallback = false;
-    buffer_needs_sfx = nullptr;
-
     if (not canary_check()) {
         longjmp(stack_overflow_resume_context, 1);
     }
@@ -1328,13 +1326,6 @@ void Platform::Screen::clear()
     // VSync
     VBlankIntrWait();
 
-    if (buffer_needs_sfx) {
-        audio_buffer_mixin_sfx(buffer_needs_sfx);
-    }
-
-    audio_update_fallback = true;
-
-    audio_mix();
 
 
     // We want to do the dynamic texture remapping near the screen clear, to
@@ -1396,8 +1387,6 @@ static void keypad_isr()
 
 void Platform::Screen::display()
 {
-    // platform->stopwatch().start();
-
     if (overlay_back_buffer_changed) {
         overlay_back_buffer_changed = false;
 
@@ -1414,6 +1403,23 @@ void Platform::Screen::display()
                      overlay_back_buffer,
                      (sizeof overlay_back_buffer) / 4);
         }
+    }
+
+    if (get_gflag(GlobalFlag::palette_sync)) {
+
+        memcpy32(MEM_PALETTE,
+                 sp_palette_back_buffer,
+                 8);
+
+        memcpy32(MEM_BG_PALETTE,
+                 bg_palette_back_buffer,
+                 24); // word count
+
+        memcpy32(MEM_BG_PALETTE + 16 * 11,
+                 bg_palette_back_buffer + 16 * 11,
+                 16); // 16 words, both the background palette and the flag palette.
+
+        set_gflag(GlobalFlag::palette_sync, false);
     }
 
     for (u32 i = oam_write_index; i < last_oam_write_index; ++i) {
@@ -1490,8 +1496,6 @@ void Platform::Screen::display()
     } else {
         *bg1_y_scroll = view_offset.y / 2;
     }
-
-    vbl_mixed_audio = false;
 }
 
 
@@ -2099,6 +2103,7 @@ void Platform::Screen::fade(float amount,
             auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
             MEM_BG_PALETTE[32 + i] = blend(from, c, amt);
         }
+        // Custom flag palette
         for (int i = 0; i < 16; ++i) {
             auto from = Color::from_bgr_hex_555(background_palette[i]);
             MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, amt);
@@ -2130,6 +2135,64 @@ void Platform::Screen::fade(float amount,
         }
     }
 }
+
+
+
+void Platform::Screen::schedule_fade(Float amount,
+                                     ColorConstant k,
+                                     bool include_sprites,
+                                     bool include_overlay)
+{
+    const u8 amt = amount * 255;
+
+    if (amt == last_fade_amt and k == last_color and
+        last_fade_include_sprites == include_sprites) {
+        return;
+    }
+
+    last_fade_amt = amt;
+    last_color = k;
+    last_fade_include_sprites = include_sprites;
+
+    const auto c = nightmode_adjust(real_color(k));
+
+
+    set_gflag(GlobalFlag::palette_sync, true);
+
+
+    // Sprite palette
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(sprite_palette[i]);
+        sp_palette_back_buffer[i] = blend(from, c, include_sprites ? amt : 0);
+    }
+    // Tile0 palette
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
+        bg_palette_back_buffer[i] = blend(from, c, amt);
+    }
+    // Custom flag palette?
+    for (int i = 0; i < 16; ++i) {
+        auto from =
+            Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
+        bg_palette_back_buffer[16 * 12 + i] = blend(from, c, amt);
+    }
+    // Tile1 palette
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
+        bg_palette_back_buffer[32 + i] = blend(from, c, amt);
+    }
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(background_palette[i]);
+        bg_palette_back_buffer[16 * 11 + i] = blend(from, c, amt);
+    }
+    // Overlay palette
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(overlay_palette[i]);
+        bg_palette_back_buffer[16 + i] =
+            blend(from, c, include_overlay ? amt : 0);
+    }
+}
+
 
 
 void Platform::Screen::pixelate(u8 amount,
@@ -3238,12 +3301,12 @@ struct GlyphTable {
     GlyphMapping mappings_[glyph_mapping_count + glyph_expanded_count];
 };
 
-static std::optional<DynamicMemory<GlyphTable>> glyph_table;
+static EWRAM_DATA GlyphTable glyph_table;
 
 
 void Platform::enable_expanded_glyph_mode(bool enabled)
 {
-    for (auto& gm : ::glyph_table->obj_->mappings_) {
+    for (auto& gm : ::glyph_table.mappings_) {
         gm.reference_count_ = -1;
     }
 
@@ -3484,12 +3547,6 @@ Platform::Platform()
         ::save_capacity = 64000;
     }
 
-    glyph_table.emplace(allocate_dynamic<GlyphTable>(*this));
-    if (not glyph_table) {
-        error(*this, "failed to allocate glyph table");
-        restart();
-    }
-
     {
         StringBuffer<32> used("iwram used: ");
         used += stringify(&__data_end__ - &__iwram_start__);
@@ -3623,7 +3680,7 @@ Platform::Platform()
 void Platform::enable_glyph_mode(bool enabled)
 {
     if (enabled) {
-        for (auto& gm : ::glyph_table->obj_->mappings_) {
+        for (auto& gm : ::glyph_table.mappings_) {
             gm.reference_count_ = -1;
         }
     }
@@ -3727,7 +3784,7 @@ bool Platform::load_overlay_texture(const char* name)
             // }
 
             if (get_gflag(GlobalFlag::glyph_mode)) {
-                for (auto& gm : ::glyph_table->obj_->mappings_) {
+                for (auto& gm : ::glyph_table.mappings_) {
                     gm.reference_count_ = -1;
                 }
             }
@@ -3785,7 +3842,7 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
     // }
 
     for (TileDesc tile = 0; tile < glyph_table_size; ++tile) {
-        auto& gm = ::glyph_table->obj_->mappings_[tile];
+        auto& gm = ::glyph_table.mappings_[tile];
         if (gm.valid() and gm.mapper_offset_ == mapping_info.offset_) {
             return glyph_start_offset + tile;
         }
@@ -3810,7 +3867,7 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
                     continue;
                 }
 
-                auto& gm = ::glyph_table->obj_->mappings_[t];
+                auto& gm = ::glyph_table.mappings_[t];
                 if (not gm.valid()) {
                     gm.mapper_offset_ = mapping_info.offset_;
                     gm.reference_count_ = 0;
@@ -3902,7 +3959,7 @@ void Platform::fill_overlay(u16 tile)
     }
 
     if (get_gflag(GlobalFlag::glyph_mode)) {
-        for (auto& gm : ::glyph_table->obj_->mappings_) {
+        for (auto& gm : ::glyph_table.mappings_) {
             gm.reference_count_ = -1;
         }
     }
@@ -3921,8 +3978,7 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
         const auto old_tile = pfrm.get_tile(Layer::overlay, x, y);
         if (old_tile not_eq val) {
             if (is_glyph(old_tile)) {
-                auto& gm = ::glyph_table->obj_
-                               ->mappings_[old_tile - glyph_start_offset];
+                auto& gm = ::glyph_table.mappings_[old_tile - glyph_start_offset];
                 if (gm.valid()) {
                     gm.reference_count_ -= 1;
 
@@ -3944,7 +4000,7 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
 
             if (is_glyph(val)) {
                 auto& gm =
-                    ::glyph_table->obj_->mappings_[val - glyph_start_offset];
+                    ::glyph_table.mappings_[val - glyph_start_offset];
                 if (not gm.valid()) {
                     // Not clear exactly what to do here... Somehow we've
                     // gotten into an erroneous state, but not a permanently
