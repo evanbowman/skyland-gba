@@ -29,3 +29,6 @@
    (stairwell 6 11)
    (hull 6 10)
    (hull 6 9)))
+
+(chr-add (opponent) 4 14 'hostile 0)
+(chr-add (opponent) 5 14 'hostile 0)
