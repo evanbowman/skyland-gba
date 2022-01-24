@@ -146,6 +146,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/salvageDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructionScene.cpp
   ${SOURCE_DIR}/skyland/scene/setGamespeedScene.cpp
+  ${SOURCE_DIR}/skyland/scene/notificationScene.cpp
   ${SOURCE_DIR}/skyland/scene/moveCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/constructDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/selectChallengeScene.cpp

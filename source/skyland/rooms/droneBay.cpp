@@ -7,6 +7,8 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/scene/notificationScene.hpp"
+#include "skyland/scene/readyScene.hpp"
 
 
 
@@ -147,9 +149,11 @@ ScenePtr<Scene> DroneBay::select(Platform& pfrm, App& app)
             }
         }
         if (not free[0] or not free[1]) {
-            // TODO: push a message indicating that the drone bay is covered and
-            // cannot launch anything.
-            return null_scene();
+            auto future_scene = []() {
+                return scene_pool::alloc<ReadyScene>();
+            };
+            return scene_pool::alloc<NotificationScene>("drone-bay covered!",
+                                                        future_scene);
         }
         return scene_pool::alloc<ConstructDroneScene>(position());
     }
