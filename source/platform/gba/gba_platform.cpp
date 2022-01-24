@@ -260,7 +260,7 @@ static Platform* platform;
 // NOTE: If we encountered a stack overflow, me may not have enough stack space
 // to print out an error message without messing things up even more. So, save a
 // context from which we can safely display a stack overflow message.
-static jmp_buf stack_overflow_resume_context;
+static EWRAM_DATA jmp_buf stack_overflow_resume_context;
 
 
 

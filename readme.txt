@@ -68,28 +68,3 @@
  up when people are running
  different code would just
  be too difficult.
-
-
-
- P.S.: I developed SKYLAND
- while islolated alone in an
- apartment in Boston during a
- year of quarantine. I spent
- thousands of hours on this
- project. I think, in a way,
- SKYLAND was the only thing
- that kept me sane during
- these difficult times.
- Hard to believe that I was
- 24 years old when this all
- started. Anyway, I put
- everything into this, it
- isn't perfect, but making
- a game by yourself is tons
- of work, and I hope at least
- a few people enjoy it.
-
-
- Regards,
-
- -- Evan
