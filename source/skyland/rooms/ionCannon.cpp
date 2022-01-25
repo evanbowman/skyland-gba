@@ -20,7 +20,7 @@ SHARED_VARIABLE(ion_cannon_reload_ms);
 void IonCannon::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Deals ion damage. Ion bursts pass harmlessly through most "
-              "rooms, but deals ";
+              "rooms, but deal ";
     buffer += stringify(ion_burst_damage);
     buffer += " damage every ";
     auto secs = ion_cannon_reload_ms / 1000;

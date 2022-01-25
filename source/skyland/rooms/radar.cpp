@@ -7,6 +7,16 @@ namespace skyland {
 
 
 
+void Radar::format_description(StringBuffer<512>& buffer)
+{
+    buffer +=
+        "Allows you to see the interior of an opponent's castle. "
+        "Transporters let you select an exact destination if you've "
+        "built a radar. Requires a workshop.";
+}
+
+
+
 Radar::Radar(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {

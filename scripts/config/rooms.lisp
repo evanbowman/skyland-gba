@@ -10,7 +10,7 @@
                ; (1) (2)  (3)
  '((hull         240 300  0)
    (forcefield   240 300  40)
-   (ion-fizzler  40  100  20)
+   (ion-fizzler  40  200  20)
    (cannon       200 1000 34)
    (ion-cannon   150 800  30)
    (flak-gun     125 2000 34)

@@ -21,6 +21,15 @@ SHARED_VARIABLE(transporter_reload_ms);
 
 
 
+void Transporter::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "Transport your crew into an enemy castle! Selects a random "
+        "destination in the enemy fortress, unless you have a radar. "
+        "Requires a workshop to build.";
+}
+
+
+
 Transporter::Transporter(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {
