@@ -16,11 +16,14 @@ struct HintInfo {
 
 
 
-std::array<HintInfo, 7> hints = {
+std::array<HintInfo, 8> hints = {
     {{"<none>",
       "Press and hold the pause button to set the game speed. Slow motion and "
       "fastforward speeds available! You can even rewind!"},
      {"hint_infirmary", "Build an infirmary to heal your crew!"},
+     {"<none>",
+      "In the construction menu, the up/down buttons scroll through "
+      "categories: defenses, weapons, workshops, power, misc."},
      {"hint_goblin",
       "Use bulkhead doors to protect your power-cores against goblins!"},
      {"<none>",
