@@ -8,7 +8,6 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/worldGraph.hpp"
-#include "skyland/worldMap.hpp"
 #include "titleScreenScene.hpp"
 
 
