@@ -50,6 +50,7 @@ static_assert(std::is_trivially_copyable<SaveData>::value,
 
 
 struct GlobalSaveData {
+    u32 reserved_;
     HostInteger<u32> magic_;
     GlobalPersistentData data_;
 };

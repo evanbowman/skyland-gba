@@ -12,6 +12,8 @@
 #define OBJ_MAP_1D 0x40
 #define OBJ_ENABLE 0x1000
 #define REG_WAITCNT *(u16*)0x4000204
+#define WS_SRAM_8		0x0003
+
 
 #define	REG_VCOUNT (*(volatile u16*)0x4000006)
 

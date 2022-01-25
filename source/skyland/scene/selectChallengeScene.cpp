@@ -104,6 +104,8 @@ void SelectChallengeScene::exit(Platform& pfrm, App&, Scene& next)
     pfrm.load_overlay_texture("overlay");
 
     pfrm.system_call("v-parallax", (void*)true);
+
+    pfrm.screen().fade(1.f);
 }
 
 

@@ -210,6 +210,21 @@ void init_clouds(Platform& pfrm)
         }
     }
 
+    for (int x = 0; x < 32; ++x) {
+        for (int y = 0; y < 2; ++y) {
+            pfrm.set_tile(Layer::background, x, y, 72);
+        }
+        for (int y = 2; y < 4; ++y) {
+            pfrm.set_tile(Layer::background, x, y, 73);
+        }
+        for (int y = 4; y < 6; ++y) {
+            pfrm.set_tile(Layer::background, x, y, 74);
+        }
+        for (int y = 6; y < 8; ++y) {
+            pfrm.set_tile(Layer::background, x, y, 75);
+        }
+    }
+
     for (int i = 0; i < 32; ++i) {
         pfrm.set_tile(Layer::background, i, 18, 5);
         pfrm.set_tile(Layer::background, i, 19, 5);

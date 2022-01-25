@@ -65,6 +65,16 @@ static inline bool canary_check()
 #include "gba.h"
 
 
+
+static void __attribute__((noinline)) busy_wait(unsigned max)
+{
+    for (unsigned i = 0; i < max; i++) {
+        __asm__ volatile("" : "+g"(i) : :);
+    }
+}
+
+
+
 namespace {
 
 class RemoteConsoleLispPrinter : public lisp::Printer {
@@ -2521,13 +2531,6 @@ static void set_flash_bank(u32 bankID)
     }
 }
 
-// FIXME: Lets be nice to the flash an not write to the same memory
-// location every single time! What about a list? Each new save will
-// have a unique id. On startup, scan through memory until you reach
-// the highest unique id. Then start writing new saves at that
-// point. NOTE: My everdrive uses SRAM for Flash writes anyway, so
-// it's probably not going to wear out, but I like to pretend that I'm
-// developing a real gba game.
 
 
 COLD static bool flash_save(const void* data, u32 flash_offset, u32 length)
@@ -2543,6 +2546,81 @@ COLD static bool flash_save(const void* data, u32 flash_offset, u32 length)
     return flash_byteverify(
         (void*)(cartridge_ram + flash_offset), data, length);
 }
+
+
+
+#define MEM_FLASH 0x0E000000
+#define flash_mem ((volatile u8*)MEM_FLASH)
+
+#define FLASH_CMD_BEGIN flash_mem[0x5555] = 0xAA; flash_mem[0x2AAA] = 0x55;
+#define FLASH_CMD(cmd) FLASH_CMD_BEGIN; flash_mem[0x5555] = (cmd) << 4;
+
+
+
+enum FlashCmd {
+    FLASH_CMD_ERASE_CHIP = 1,
+    FLASH_CMD_ERASE_SECTOR = 3,
+    FLASH_CMD_ERASE = 8,
+    FLASH_CMD_ENTER_ID_MODE = 9,
+    FLASH_CMD_WRITE = 0xA,
+    FLASH_CMD_SWITCH_BANK = 0xB,
+    FLASH_CMD_LEAVE_ID_MODE = 0xF,
+};
+
+
+
+enum FlashManufacturer {
+    FLASH_MFR_ATMEL = 0x1F,
+    FLASH_MFR_PANASONIC = 0x32,
+    FLASH_MFR_SANYO = 0x62,
+    FLASH_MFR_SST = 0xBF,
+    FLASH_MFR_MACRONIX = 0xC2,
+};
+
+
+
+enum FlashDevice {
+    FLASH_DEV_MX29L010 = 0x09,
+    FLASH_DEV_LE26FV10N1TS = 0x13,
+    FLASH_DEV_MN63F805MNP = 0x1B,
+    FLASH_DEV_MX29L512 = 0x1C,
+    FLASH_DEV_AT29LV512 = 0x3D,
+    FLASH_DEV_LE39FW512 = 0xD4,
+};
+
+
+
+static u32 flash_capacity(Platform& pfrm)
+{
+    REG_WAITCNT |= WS_SRAM_8;
+
+    FLASH_CMD(FLASH_CMD_ENTER_ID_MODE);
+
+    busy_wait(20000);
+
+    auto device = *(&flash_mem[1]);
+    auto manufacturer = *(&flash_mem[0]);
+
+    FLASH_CMD(FLASH_CMD_LEAVE_ID_MODE);
+
+    busy_wait(20000);
+
+    if (manufacturer == FLASH_MFR_SANYO) {
+        flash_mem[0x5555] = FLASH_CMD_LEAVE_ID_MODE << 4;
+    }
+
+    if ((manufacturer == FLASH_MFR_MACRONIX and
+         device == FLASH_DEV_MX29L010) or
+            (manufacturer == FLASH_MFR_SANYO and
+             device == FLASH_DEV_LE26FV10N1TS)) {
+
+        info(pfrm, "detected 128kb flash chip. Bank switching unimplemented, using 64kb.");
+    }
+
+    info(pfrm, "detected 64kb flash chip");
+    return 64000;
+}
+
 
 
 static void flash_load(void* dest, u32 flash_offset, u32 length)
@@ -3518,9 +3596,8 @@ Platform::Platform()
 
     keyboard().poll();
     if (keyboard().pressed<Key::alt_1>() and
-        keyboard().pressed<Key::alt_1>() and
+        keyboard().pressed<Key::alt_2>() and
         keyboard().pressed<Key::action_1>()) {
-        logger().set_threshold(Severity::debug);
     }
 
     // Not sure how else to determine whether the cartridge has sram, flash, or
@@ -3528,23 +3605,19 @@ Platform::Platform()
     // attempt to save, and if the save fails, assume flash. I don't really know
     // anything about the EEPROM hardware interface...
 
-    // NOTE: we don't want to trash whatever was in SRAM. So read the previous
-    // value, test functionality, then write back the old value.
-    u32 old_value;
-    sram_load(&old_value, 0, sizeof old_value);
 
-    static const u32 sram_test_const = 0xABCD;
+    static const u32 sram_test_const = 0xAAAAAAAA;
     sram_save(&sram_test_const, 0, sizeof sram_test_const);
 
-    int sram_test_result = 0;
+    u32 sram_test_result = 0;
     sram_load(&sram_test_result, 0, sizeof sram_test_result);
 
-    sram_save(&old_value, 0, sizeof old_value);
 
     if (sram_test_result not_eq sram_test_const) {
         set_gflag(GlobalFlag::save_using_flash, true);
         info(*this, "SRAM write failed, falling back to FLASH");
-        ::save_capacity = 64000;
+
+        ::save_capacity = flash_capacity(*this);
     }
 
     {
@@ -3688,43 +3761,12 @@ void Platform::enable_glyph_mode(bool enabled)
 }
 
 
-static u8* overlay_vram_tile_data(u16 tile_index)
+u8* overlay_vram_tile_data(u16 tile_index)
 {
     return (u8*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0] +
            ((tile_index)*vram_tile_size());
 }
 
-
-// Clever pirates will ultimately find ways of removing the text, but we can
-// still make things a bit more difficult. At least we can prevent clueless
-// unsophisticated pirates from selling the game.
-//
-// The translator for the chinese edition of the game told me that unless there
-// is some in-game text indicating that the game is freeware and not meant for
-// commercial use, it will be pirated and sold. I'm not too concerned about
-// people selling the game actually, it doesn't bother me, but I want to protect
-// ordinary folks who may be tricked into buying a free game.
-[[maybe_unused]] static int chinese_noncommercial_text_checksum()
-{
-    int checksum = 0;
-
-    int last = 0;
-
-    for (int i = 368; i < 373; ++i) {
-        u8* t = overlay_vram_tile_data(i);
-
-        for (int j = 0; j < vram_tile_size(); ++j) {
-            checksum += t[j];
-        }
-        int result = checksum ^ last;
-
-        last = checksum;
-
-        checksum = result;
-    }
-
-    return checksum;
-}
 
 
 static volatile int chinese_checksum_1 = 900;
@@ -4644,13 +4686,6 @@ void Platform::NetworkPeer::poll_consume(u32 size)
 }
 
 
-static void __attribute__((noinline)) busy_wait(unsigned max)
-{
-    for (unsigned i = 0; i < max; i++) {
-        __asm__ volatile("" : "+g"(i) : :);
-    }
-}
-
 
 static void multiplayer_init()
 {
@@ -5264,6 +5299,11 @@ void* Platform::system_call(const char* feature_name, void* arg)
                           screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
             }
+
+            for (int i = 0; i < 112 - offset; ++i) {
+                parallax_table[i] = 0;
+            }
+
             // Fixme: clean up this code...
             return nullptr;
         }
@@ -5275,9 +5315,31 @@ void* Platform::system_call(const char* feature_name, void* arg)
             ((u8)(intptr_t)arg) +
             (screen_.get_view().get_center().cast<s32>().x / 3) * 0.8f;
 
-        for (int i = (112 - offset) - 5; i < 128 - offset; ++i) {
+        for (int i = (112 - offset) - 20; i < 128 - offset; ++i) {
             parallax_table[i] = x_amount;
             vertical_parallax_table[i] = offset;
+        }
+
+        if (not get_gflag(GlobalFlag::palette_sync)) {
+            // NOTE: The palette sync is costly, don't bother to scroll this
+            // stuff if we're about to copy over the palette back buffer. During
+            // fades, the palettes are copied infrequently anyway.
+
+            s16 far_x_offset =
+                screen_.get_view().get_center().cast<s32>().x / 2 * 0.5f + 3;
+
+            s16 v_scroll = (offset * 3) / 2;
+
+            for (int i = 0; i < (112 - offset) - 20; ++i) {
+                parallax_table[i] = far_x_offset / 4;
+                if (i < 12) {
+                    // Just a hack, fixme. We scrolled stuff down, fill in the
+                    // gap with the first twelve rows, unscrolled.
+                    vertical_parallax_table[i] = 0;
+                } else {
+                    vertical_parallax_table[i] = v_scroll;
+                }
+            }
         }
     } else if (str_cmp(feature_name, "_prlx8") == 0) {
 
