@@ -15,7 +15,7 @@ struct ScratchBuffer {
     char data_[SCRATCH_BUFFER_SIZE];
 };
 
-static constexpr const int scratch_buffer_count = 90;
+static constexpr const int scratch_buffer_count = 88;
 using ScratchBufferPtr =
     Rc<ScratchBuffer,
        PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>>;

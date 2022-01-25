@@ -22,7 +22,7 @@ namespace lisp {
 static int run_gc();
 
 
-static const u32 string_intern_table_size = 1999;
+static const u32 string_intern_table_size = 4000;
 
 
 #define VALUE_POOL_SIZE 9000
@@ -52,6 +52,10 @@ static_assert(sizeof(ValueMemory) == 8);
 
 static HEAP_DATA ValueMemory value_pool_data[VALUE_POOL_SIZE];
 static Value* value_pool = nullptr;
+
+
+static HEAP_DATA char symbol_intern_table[string_intern_table_size];
+
 
 
 void value_pool_init()
@@ -94,19 +98,17 @@ void value_pool_free(Value* value)
 struct Context {
     using OperandStack = Buffer<Value*, 497>;
 
-    using Interns = char[string_intern_table_size];
 
     Context(Platform& pfrm)
         : operand_stack_(allocate_dynamic<OperandStack>(pfrm)),
-          interns_(allocate_dynamic<Interns>(pfrm)), pfrm_(pfrm)
+          pfrm_(pfrm)
     {
-        if (not operand_stack_ or not interns_) {
+        if (not operand_stack_) {
             pfrm_.fatal("pointer compression test failed");
         }
     }
 
     DynamicMemory<OperandStack> operand_stack_;
-    DynamicMemory<Interns> interns_;
 
     u16 arguments_break_loc_;
     u8 current_fn_argc_ = 0;
@@ -386,13 +388,13 @@ void set_constants(const IntegralConstant* constants, u16 count)
 
 u16 symbol_offset(const char* symbol)
 {
-    return symbol - *bound_context->interns_;
+    return symbol - symbol_intern_table;
 }
 
 
 const char* symbol_from_offset(u16 offset)
 {
-    return *bound_context->interns_ + offset;
+    return symbol_intern_table + offset;
 }
 
 
@@ -406,7 +408,7 @@ void get_interns(::Function<24, void(const char*)> callback)
 {
     auto& ctx = bound_context;
 
-    const char* search = *ctx->interns_;
+    const char* search = symbol_intern_table;
     for (int i = 0; i < ctx->string_intern_pos_;) {
         callback(search + i);
         while (search[i] not_eq '\0') {
@@ -447,6 +449,20 @@ Value* get_arg(u16 n)
 }
 
 
+
+void gc_symbols()
+{
+    // TODO:
+
+    // For each symbol in the string intern table, check if any live symbol
+    // objects point to the intern memory. If not, shift everything over, and,
+    // fix all pointers by subtracting the intern pointers in symbols by the
+    // freed offset if the intern pointer address is higher than the freed
+    // address.
+}
+
+
+
 const char* intern(const char* string)
 {
     const auto len = str_len(string);
@@ -459,7 +475,7 @@ const char* intern(const char* string)
 
     auto& ctx = bound_context;
 
-    const char* search = *ctx->interns_;
+    const char* search = symbol_intern_table;
     for (int i = 0; i < ctx->string_intern_pos_;) {
         if (str_eq(search + i, string)) {
             return search + i;
@@ -471,12 +487,12 @@ const char* intern(const char* string)
         }
     }
 
-    auto result = *ctx->interns_ + ctx->string_intern_pos_;
+    auto result = symbol_intern_table + ctx->string_intern_pos_;
 
     for (u32 i = 0; i < len; ++i) {
-        (*ctx->interns_)[ctx->string_intern_pos_++] = string[i];
+        (symbol_intern_table)[ctx->string_intern_pos_++] = string[i];
     }
-    (*ctx->interns_)[ctx->string_intern_pos_++] = '\0';
+    (symbol_intern_table)[ctx->string_intern_pos_++] = '\0';
 
     return result;
 }
@@ -1572,7 +1588,7 @@ private:
 
 template <typename F> void foreach_string_intern(F&& fn)
 {
-    char* const interns = *bound_context->interns_;
+    char* const interns = symbol_intern_table;
     char* str = interns;
 
     while (static_cast<u32>(str - interns) < string_intern_table_size and
