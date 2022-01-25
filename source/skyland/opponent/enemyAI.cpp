@@ -130,8 +130,7 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                                                ->get_movement_path())[0] ==
                                          (*transport_chr)->grid_position())))) {
 
-                                transporter->random_transport_occupant(pfrm,
-                                                                       app);
+                                transporter->transport_occupant(pfrm, app);
                             }
                         }
                     } else if (transporter->ready()) {

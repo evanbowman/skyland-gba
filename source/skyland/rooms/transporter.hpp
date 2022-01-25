@@ -35,7 +35,11 @@ public:
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
-    void random_transport_occupant(Platform& pfrm, App& app);
+    void transport_occupant(Platform& pfrm,
+                            App& app,
+                            // NOTE: if you do not pass a destination, the
+                            // transporter logic will select a random one.
+                            std::optional<Vec2<u8>> destination = {});
 
 
     void recover_character(Platform&, App& app, const Vec2<u8>& pos);

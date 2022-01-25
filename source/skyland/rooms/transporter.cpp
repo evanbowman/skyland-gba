@@ -9,6 +9,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/scene/transportCharacterScene.hpp"
 
 
 
@@ -159,7 +160,9 @@ void Transporter::recover_character(Platform& pfrm,
 
 
 
-void Transporter::random_transport_occupant(Platform& pfrm, App& app)
+void Transporter::transport_occupant(Platform& pfrm,
+                                     App& app,
+                                     std::optional<Vec2<u8>> destination)
 {
     recharge_ = 1000 * transporter_reload_ms;
 
@@ -174,34 +177,38 @@ void Transporter::random_transport_occupant(Platform& pfrm, App& app)
         return;
     }
 
-    bool matrix[16][16];
-    island->plot_walkable_zones(app, matrix);
-
-    Buffer<Vec2<u8>, 32> slots;
-
-    for (u8 x = 0; x < 16; ++x) {
-        for (u8 y = 0; y < 16; ++y) {
-            if (matrix[x][y]) {
-                slots.push_back({x, y});
-            }
-        }
-    }
-
     std::optional<Vec2<u8>> dest;
 
-    while (not slots.empty()) {
-        const auto index = rng::choice(slots.size(), rng::critical_state);
-        auto slot = &slots[index];
+    if (not destination) {
+        bool matrix[16][16];
+        island->plot_walkable_zones(app, matrix);
 
-        auto existing = island->character_at_location(*slot);
-        if (existing and existing->owner() == &parent()->owner()) {
-            // Do not transport into a slot containing one of your own
-            // characters.
-            slots.erase(slot);
-        } else {
-            dest = *slot;
-            break;
+        Buffer<Vec2<u8>, 32> slots;
+
+        for (u8 x = 0; x < 16; ++x) {
+            for (u8 y = 0; y < 16; ++y) {
+                if (matrix[x][y]) {
+                    slots.push_back({x, y});
+                }
+            }
         }
+
+        while (not slots.empty()) {
+            const auto index = rng::choice(slots.size(), rng::critical_state);
+            auto slot = &slots[index];
+
+            auto existing = island->character_at_location(*slot);
+            if (existing and existing->owner() == &parent()->owner()) {
+                // Do not transport into a slot containing one of your own
+                // characters.
+                slots.erase(slot);
+            } else {
+                dest = *slot;
+                break;
+            }
+        }
+    } else {
+        dest = destination;
     }
 
     if (not dest) {
@@ -265,12 +272,10 @@ ScenePtr<Scene> Transporter::select(Platform& pfrm, App& app)
             return null_scene();
         }
 
-        if (parent()->has_radar()) {
-            // TODO: When the player has a radar, should be able to select which
-            // room that they want to transport the character into.
-            random_transport_occupant(pfrm, app);
+        if (parent()->has_radar() and parent() == &app.player_island()) {
+            return scene_pool::alloc<TransportCharacterScene>(position());
         } else {
-            random_transport_occupant(pfrm, app);
+            transport_occupant(pfrm, app);
         }
 
         return null_scene();
