@@ -38,7 +38,7 @@ void Camera::update(Platform& pfrm,
         target_.x = clamp(target_.x,
                           (int)target.get_position().x - 48,
                           (int)target.get_position().x + 256);
-        target_.x -= 125;
+        target_.x -= 100;
     }
 
 
