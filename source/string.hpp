@@ -317,7 +317,7 @@ template <u32 size = 128, typename... Args>
 StringBuffer<size> format(const char* fmt_str, Args&&... args)
 {
     StringBuffer<size> result;
-    format_impl(result, fmt_str, std::forward<Args>(args)...);
+    make_format(result, fmt_str, std::forward<Args>(args)...);
 
     return result;
 }
