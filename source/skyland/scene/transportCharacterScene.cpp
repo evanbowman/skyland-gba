@@ -168,6 +168,8 @@ ScenePtr<Scene> TransportCharacterScene::update(Platform& pfrm,
             if (auto transporter = dynamic_cast<Transporter*>(room)) {
                 transporter->transport_occupant(pfrm, app, *cursor_loc);
                 return scene_pool::alloc<InspectP2Scene>();
+            } else {
+                return scene_pool::alloc<ReadyScene>();
             }
         }
     }
