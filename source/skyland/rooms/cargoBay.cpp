@@ -45,7 +45,7 @@ bool CargoBay::set_cargo(const char* cargo)
 
 void CargoBay::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    // ...
+    Room::update(pfrm, app, delta);
 }
 
 

@@ -18,7 +18,7 @@ Room::Room(Island* parent,
            const Vec2<u8>& position)
     : parent_(parent),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      size_(size), position_(position), health_(1), max_health_(1)
+      size_(size), position_(position), health_(1)
 {
     if (name == nullptr) {
         return;
@@ -33,7 +33,6 @@ Room::Room(Island* parent,
             metaclass_ = &current;
 
             health_ = (*metaclass_)->full_health();
-            max_health_ = health_;
             return;
         }
     }
@@ -98,6 +97,7 @@ void Room::display(Platform::Screen& screen)
 void Room::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (injured_timer_) {
+
         if (injured_timer_ > 0) {
             const auto new_timer = injured_timer_ - delta;
 
@@ -351,7 +351,7 @@ void Room::heal(Platform& pfrm, App& app, Health amount)
     }
 
     const Health new_health = health_ + amount;
-    health_ = std::min(max_health_, new_health);
+    health_ = std::min((*metaclass_)->full_health(), new_health);
 }
 
 
@@ -445,6 +445,13 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
 
         parent_->add_room(pfrm, app, std::move(*self));
     }
+}
+
+
+
+Health Room::max_health() const
+{
+    return (*metaclass_)->full_health();
 }
 
 

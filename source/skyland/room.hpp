@@ -244,10 +244,7 @@ public:
     }
 
 
-    Health max_health() const
-    {
-        return max_health_;
-    }
+    Health max_health() const;
 
 
     void heal(Platform& pfrm, App& app, Health amount);
@@ -276,7 +273,7 @@ private:
     Vec2<u8> size_;
     Vec2<u8> position_;
     Health health_;
-    Health max_health_;
+
     Microseconds injured_timer_;
 };
 

@@ -9,6 +9,8 @@ struct Tile {
         flag_end = 5,
         roof_flag,
         flag_mount,
+        palm_1,
+        palm_2,
         ion_fizzler_exterior = 11,
         terrain_middle,
         terrain_left,
@@ -76,8 +78,6 @@ struct Tile {
         reserved_31,
         reserved_32,
         arc_gun,
-        palm_1,
-        palm_2,
     };
 };
 
@@ -90,6 +90,8 @@ struct InteriorTile {
         flag_end = 5,
         roof_flag,
         flag_mount,
+        palm_1,
+        palm_2,
         ion_fizzler_interior = 11,
         core_1 = 15,
         core_2,
@@ -154,7 +156,5 @@ struct InteriorTile {
         foundry_5,
         cargo_bay,
         arc_gun,
-        palm_1,
-        palm_2,
     };
 };
