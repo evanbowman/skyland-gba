@@ -6,6 +6,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/scene/notificationScene.hpp"
 
 
 
@@ -74,9 +75,6 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
         } else {
             text += "0";
         }
-        if (length(room->characters()) > 0) {
-            exit_countdown_ = 1;
-        }
     }
 
     text += "@";
@@ -137,13 +135,33 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    auto exit_scene = [this]() -> ScenePtr<Scene> {
-        if (near_) {
+    auto exit_scene = [near = near_]() -> ScenePtr<Scene> {
+        if (near) {
             return scene_pool::alloc<ReadyScene>();
         } else {
             return scene_pool::alloc<InspectP2Scene>();
         }
     };
+
+
+    auto& cursor_loc =
+        near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
+        : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+
+    if (auto room = island(app)->get_room(cursor_loc)) {
+        if (length(room->characters()) > 0) {
+            auto future_scene = [exit_scene]() {
+                return exit_scene();
+            };
+            const char* msg = "cannot salvage populated room!";
+            return scene_pool::alloc<NotificationScene>(msg,
+                                                        future_scene);
+        }
+    } else {
+        return exit_scene();
+    }
+
 
 
     if (island(app) == nullptr) {
@@ -157,9 +175,6 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             return exit_scene();
         }
     } else {
-        auto& cursor_loc =
-            near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
-                  : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             if (auto room = island(app)->get_room(cursor_loc)) {

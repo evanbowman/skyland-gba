@@ -428,7 +428,13 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
         }
 
         for (int x = 0; x < size_.x; x += (*plunder_metac)->size().x) {
-            for (int y = 0; y < size_.y; y += (*plunder_metac)->size().y) {
+            int y = 0;
+            if (size_.y % 2 not_eq 0) {
+                // NOTE: plundered-room occupies two tiles vertically. For an
+                // odd-sized room height, start at 1.
+                y = 1;
+            }
+            for (; y < size_.y; y += (*plunder_metac)->size().y) {
                 const Vec2<u8> pos = {
                     u8(position_.x + x),
                     u8(position_.y + y),

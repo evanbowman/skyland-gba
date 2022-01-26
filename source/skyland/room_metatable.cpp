@@ -65,9 +65,9 @@ static auto& __metatable()
                          Transporter,
                          Replicator,
                          DroneBay,
-                         PlunderedRoom,
                          // decoration
-                         Palm>
+                         Palm,
+                         PlunderedRoom>
         __room_metatable;
 
     return __room_metatable;

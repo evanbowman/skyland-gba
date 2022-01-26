@@ -420,7 +420,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             bool has_core = false;
             for (auto& room : rooms_) {
-                if (dynamic_cast<Core*>(&*room)) {
+                if ((*room->metaclass())->category() == Room::Category::power) {
                     has_core = true;
                     break;
                 }
@@ -473,11 +473,6 @@ void Island::on_layout_changed(App& app,
     plot_walkable_zones(app, buffer);
 
     for (auto& room : rooms()) {
-        if (str_cmp((*room->metaclass())->name(), "power-core") == 0) {
-            destroyed_ = false;
-        } else if (str_cmp((*room->metaclass())->name(), "reactor") == 0) {
-            destroyed_ = false;
-        }
         for (auto& chr : room->characters()) {
             if (auto path = chr->get_movement_path()) {
                 int pos = 0;
