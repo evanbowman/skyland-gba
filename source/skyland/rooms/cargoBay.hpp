@@ -58,17 +58,24 @@ public:
     }
 
 
-    const char* cargo()
+    const char* cargo() const
     {
         return cargo_;
     }
 
 
-    bool set_cargo(const char* cargo);
+    u8 cargo_count() const
+    {
+        return count_;
+    }
+
+
+    bool set_cargo(const char* cargo, u8 count);
 
 
 private:
-    char cargo_[20];
+    char cargo_[19];
+    u8 count_;
 };
 
 

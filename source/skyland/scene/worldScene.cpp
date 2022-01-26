@@ -132,6 +132,10 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         cursor_loc.x = 0;
 
+        if (app.game_mode() not_eq App::GameMode::multiplayer) {
+            pfrm.sleep(4);
+        }
+
         app.effects().clear();
         return scene_pool::alloc<PlayerIslandDestroyedScene>(
             &app.player_island());

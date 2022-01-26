@@ -83,11 +83,10 @@ ScenePtr<Scene> HintScene::update(Platform& pfrm, App& app, Microseconds delta)
         static const auto fade_duration = milliseconds(400);
         timer_ += delta;
         if (timer_ < fade_duration) {
-            pfrm.screen().fade(1.f - smoothstep(0.f, fade_duration, timer_),
-                               ColorConstant::rich_black,
-                               {},
-                               true,
-                               true);
+            pfrm.screen().schedule_fade(1.f - smoothstep(0.f, fade_duration, timer_),
+                                        ColorConstant::rich_black,
+                                        true,
+                                        true);
         } else {
             pfrm.screen().fade(0.f);
             timer_ = 0;

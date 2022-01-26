@@ -11,7 +11,7 @@ namespace skyland {
 CargoBay::CargoBay(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), size(), position)
 {
-    set_cargo("");
+    set_cargo("", 0);
 }
 
 
@@ -24,11 +24,13 @@ void CargoBay::format_description(StringBuffer<512>& buffer)
 
 
 
-bool CargoBay::set_cargo(const char* cargo)
+bool CargoBay::set_cargo(const char* cargo, u8 count)
 {
     if (str_len(cargo) + 1 > sizeof cargo_) {
         return false;
     }
+
+    count_ = count;
 
     auto dest = cargo_;
     auto src = cargo;

@@ -30,5 +30,6 @@
    (cargo-bay    60  300  10)
    (arc-gun      240 1700 40)
    (coconut-palm 1   1    0)
+   (shrubbery    1   1    0)
    (energized-hull 380 450 20)
    (plundered-room 20  30  0)))

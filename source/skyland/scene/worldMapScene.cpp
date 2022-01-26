@@ -627,8 +627,8 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             // pfrm.screen().fade(1.f, custom_color(0x6057b1), {}, false, false);
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(
-                amount, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().schedule_fade(
+                amount, ColorConstant::rich_black, true, true);
         }
         break;
     }

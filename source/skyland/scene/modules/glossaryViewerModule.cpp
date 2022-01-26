@@ -9,6 +9,10 @@ namespace skyland {
 
 
 
+u16 room_category_icon(Room::Category category);
+
+
+
 void GlossaryViewerModule::load_page(Platform& pfrm, int page)
 {
     auto [mt, ms] = room_metatable();
@@ -25,6 +29,9 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
         item_name_.emplace(pfrm, OverlayCoord{6, 1});
     }
 
+
+    pfrm.set_tile(Layer::overlay, 28, 1,
+                  room_category_icon(mt[page]->category()));
 
     StringBuffer<30> temp;
     temp += mt[page]->name();

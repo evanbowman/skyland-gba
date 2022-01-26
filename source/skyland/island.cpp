@@ -348,6 +348,11 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 big_explosion(pfrm, app, (*it)->center());
             }
 
+            if (destroyed_count < 2 and app.game_mode()
+                not_eq App::GameMode::multiplayer) {
+                pfrm.sleep(2);
+            }
+
             const auto pos = (*it)->position();
 
             auto mt = metaclass_index((*(*it)->metaclass())->name());

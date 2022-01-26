@@ -127,8 +127,8 @@ ZoneImageScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(
-                amount, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().schedule_fade(
+                amount, ColorConstant::rich_black, true, true);
         }
         break;
     }
@@ -146,11 +146,12 @@ ZoneImageScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = milliseconds(1300);
         if (timer_ > fade_duration) {
             text_.reset();
+            pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
             return scene_pool::alloc<WorldMapScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().fade(
-                amount, ColorConstant::rich_black, {}, true, true);
+            pfrm.screen().schedule_fade(
+                amount, ColorConstant::rich_black, true, true);
         }
         break;
     }

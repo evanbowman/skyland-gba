@@ -783,7 +783,7 @@ static const lisp::Binding script_api[] = {
 
          if (auto room = island->get_room({x, y})) {
              if (auto cb = dynamic_cast<CargoBay*>(room)) {
-                 cb->set_cargo(lisp::get_op(0)->string().value());
+                 cb->set_cargo(lisp::get_op(0)->string().value(), 1);
              }
          }
 

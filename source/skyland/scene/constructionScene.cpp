@@ -24,6 +24,13 @@ int construction_zone_min_y = 6;
 
 
 
+u16 room_category_icon(Room::Category category)
+{
+    return 379 + static_cast<u16>(category);
+}
+
+
+
 Island* ConstructionScene::island(App& app)
 {
     if (near_) {
@@ -479,6 +486,21 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
         auto icon =
             (*load_metaclass(available_buildings_[building_selector_]))->icon();
         draw_image(pfrm, 197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);
+
+        // Not sure whether I like the visual representation of the item
+        // category. I might add it back at some point.
+        // pfrm.set_tile(Layer::overlay, 29, 17,
+        //               room_category_icon((*load_metaclass(available_buildings_[building_selector_]))->category()));
+
+        // pfrm.set_tile(Layer::overlay, 29, 15, 425);
+        // pfrm.set_tile(Layer::overlay, 29, 16, 398);
+        // pfrm.set_tile(Layer::overlay, 29, 18, 399);
+
+        // pfrm.set_tile(Layer::overlay, 28, 16, 128);
+        // pfrm.set_tile(Layer::overlay, 28, 17, 128);
+        // pfrm.set_tile(Layer::overlay, 28, 18, 419);
+
+
 
         pfrm.load_overlay_chunk(197, icon, 16);
     }
