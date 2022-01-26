@@ -5,7 +5,7 @@ Sprite::Sprite()
     : alpha_(Alpha::opaque), size_(Size::w32_h32), flip_x_(false),
       flip_y_(false)
 {
-    // priority_ = 1;
+    priority_ = 1;
 }
 
 

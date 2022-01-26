@@ -161,6 +161,11 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
+    if ((*room.metaclass())->category() == Room::Category::decoration) {
+        room.apply_damage(pfrm, app, 10000);
+        return;
+    }
+
     auto setup_event = [&](time_stream::event::MissileDestroyed& e) {
         e.timer_.set(timer_);
         e.x_pos_.set(sprite_.get_position().x);

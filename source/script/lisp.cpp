@@ -57,7 +57,6 @@ static Value* value_pool = nullptr;
 static HEAP_DATA char symbol_intern_table[string_intern_table_size];
 
 
-
 void value_pool_init()
 {
     for (int i = 0; i < VALUE_POOL_SIZE; ++i) {
@@ -100,8 +99,7 @@ struct Context {
 
 
     Context(Platform& pfrm)
-        : operand_stack_(allocate_dynamic<OperandStack>(pfrm)),
-          pfrm_(pfrm)
+        : operand_stack_(allocate_dynamic<OperandStack>(pfrm)), pfrm_(pfrm)
     {
         if (not operand_stack_) {
             pfrm_.fatal("pointer compression test failed");
@@ -449,7 +447,6 @@ Value* get_arg(u16 n)
 }
 
 
-
 void gc_symbols()
 {
     // TODO:
@@ -460,7 +457,6 @@ void gc_symbols()
     // freed offset if the intern pointer address is higher than the freed
     // address.
 }
-
 
 
 const char* intern(const char* string)

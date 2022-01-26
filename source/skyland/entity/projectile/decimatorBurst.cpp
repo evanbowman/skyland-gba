@@ -89,6 +89,11 @@ void DecimatorBurst::on_collision(Platform& pfrm, App& app, Room& room)
         }
     }
 
+    if ((*room.metaclass())->category() == Room::Category::decoration) {
+        room.apply_damage(pfrm, app, 10000);
+        return;
+    }
+
     if (source_ == room.parent() and room.metaclass() == forcefield_mt) {
         return;
     }

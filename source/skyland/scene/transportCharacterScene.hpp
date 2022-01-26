@@ -11,7 +11,6 @@ namespace skyland {
 
 class TransportCharacterScene : public NotificationScene {
 public:
-
     TransportCharacterScene(Vec2<u8> origin);
 
 
@@ -36,4 +35,4 @@ private:
 
 
 
-}
+} // namespace skyland

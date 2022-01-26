@@ -299,9 +299,10 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                  app.opponent_island()->get_position().y});
             app.opponent_island()->set_drift(pfrm, app, 0);
 
-            app.on_timeout(pfrm, milliseconds(500), [](Platform& pfrm, App& app) {
-                invoke_hook(pfrm, app, "after-converge-hook");
-            });
+            app.on_timeout(
+                pfrm, milliseconds(500), [](Platform& pfrm, App& app) {
+                    invoke_hook(pfrm, app, "after-converge-hook");
+                });
         }
 
         if (app.opponent_island()->get_drift() == 0) {

@@ -107,6 +107,11 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
+    if ((*room.metaclass())->category() == Room::Category::decoration) {
+        room.apply_damage(pfrm, app, 10000);
+        return;
+    }
+
     if (source_ == room.parent()) {
         if (room.position().x == origin_tile_.x or
             room.position().x + 1 == origin_tile_.x or

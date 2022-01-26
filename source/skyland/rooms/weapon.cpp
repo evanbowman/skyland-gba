@@ -1,10 +1,10 @@
 #include "weapon.hpp"
 #include "globals.hpp"
+#include "skyland/scene/notificationScene.hpp"
+#include "skyland/scene/readyScene.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/scene/readyScene.hpp"
-#include "skyland/scene/notificationScene.hpp"
 
 
 
@@ -180,9 +180,7 @@ ScenePtr<Scene> Weapon::select(Platform& pfrm, App& app)
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
-        auto future_scene = []() {
-            return scene_pool::alloc<ReadyScene>();
-        };
+        auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
         return scene_pool::alloc<NotificationScene>("power outage!",
                                                     future_scene);
     }

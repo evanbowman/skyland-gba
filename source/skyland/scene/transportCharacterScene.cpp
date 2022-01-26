@@ -1,9 +1,9 @@
 #include "transportCharacterScene.hpp"
-#include "readyScene.hpp"
-#include "skyland/skyland.hpp"
 #include "globals.hpp"
-#include "skyland/rooms/transporter.hpp"
 #include "inspectP2Scene.hpp"
+#include "readyScene.hpp"
+#include "skyland/rooms/transporter.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -11,12 +11,10 @@ namespace skyland {
 
 
 
-TransportCharacterScene::TransportCharacterScene(Vec2<u8> origin) :
-    NotificationScene("select a destination:",
-                      [] {
-                          return scene_pool::alloc<ReadyScene>();
-                      }),
-    origin_(origin)
+TransportCharacterScene::TransportCharacterScene(Vec2<u8> origin)
+    : NotificationScene("select a destination:",
+                        [] { return scene_pool::alloc<ReadyScene>(); }),
+      origin_(origin)
 {
 }
 
@@ -42,8 +40,8 @@ void TransportCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
         for (u8 y = 0; y < 16; ++y) {
             if ((**matrix_)[x][y]) {
                 if (not set_cursor) {
-                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_ =
-                        {x, y};
+                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {
+                        x, y};
                     set_cursor = true;
                 }
                 pfrm.set_tile(app.opponent_island()->layer(), x, y, 34);
@@ -67,8 +65,6 @@ void TransportCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
 
 void TransportCharacterScene::display(Platform& pfrm, App& app)
 {
-    WorldScene::display(pfrm, app);
-
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h32);
     cursor.set_texture_index(15 + cursor_anim_frame_);
@@ -87,13 +83,14 @@ void TransportCharacterScene::display(Platform& pfrm, App& app)
     cursor.set_position(origin);
 
     pfrm.screen().draw(cursor);
+
+    WorldScene::display(pfrm, app);
 }
 
 
 
-ScenePtr<Scene> TransportCharacterScene::update(Platform& pfrm,
-                                                App& app,
-                                                Microseconds delta)
+ScenePtr<Scene>
+TransportCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
         return next;
@@ -179,4 +176,4 @@ ScenePtr<Scene> TransportCharacterScene::update(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

@@ -7,9 +7,8 @@ namespace skyland {
 
 
 
-ScenePtr<Scene> NotificationScene::update(Platform& pfrm,
-                                          App& app,
-                                          Microseconds delta)
+ScenePtr<Scene>
+NotificationScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
         return next;
@@ -34,10 +33,8 @@ void NotificationScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     ActiveWorldScene::enter(pfrm, app, prev);
 
-    description_.emplace(pfrm, OverlayCoord{
-            0,
-            u8(calc_screen_tiles(pfrm).y - 1)
-        });
+    description_.emplace(pfrm,
+                         OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
 
     description_->assign(msg_.c_str());
 
@@ -58,4 +55,4 @@ void NotificationScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-}
+} // namespace skyland

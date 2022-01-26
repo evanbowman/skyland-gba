@@ -106,7 +106,6 @@ alignas(4) static EWRAM_DATA u16 bg_palette_back_buffer[256];
 
 
 
-
 static int overlay_y = 0;
 
 
@@ -1417,17 +1416,15 @@ void Platform::Screen::display()
 
     if (get_gflag(GlobalFlag::palette_sync)) {
 
-        memcpy32(MEM_PALETTE,
-                 sp_palette_back_buffer,
-                 8);
+        memcpy32(MEM_PALETTE, sp_palette_back_buffer, 8);
 
-        memcpy32(MEM_BG_PALETTE,
-                 bg_palette_back_buffer,
+        memcpy32(MEM_BG_PALETTE, bg_palette_back_buffer,
                  24); // word count
 
-        memcpy32(MEM_BG_PALETTE + 16 * 11,
-                 bg_palette_back_buffer + 16 * 11,
-                 16); // 16 words, both the background palette and the flag palette.
+        memcpy32(
+            MEM_BG_PALETTE + 16 * 11,
+            bg_palette_back_buffer + 16 * 11,
+            16); // 16 words, both the background palette and the flag palette.
 
         set_gflag(GlobalFlag::palette_sync, false);
     }
@@ -2184,8 +2181,7 @@ void Platform::Screen::schedule_fade(Float amount,
     }
     // Custom flag palette?
     for (int i = 0; i < 16; ++i) {
-        auto from =
-            Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
+        auto from = Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
         bg_palette_back_buffer[16 * 12 + i] = blend(from, c, amt);
     }
     // Tile1 palette
@@ -2554,8 +2550,12 @@ COLD static bool flash_save(const void* data, u32 flash_offset, u32 length)
 #define MEM_FLASH 0x0E000000
 #define flash_mem ((volatile u8*)MEM_FLASH)
 
-#define FLASH_CMD_BEGIN flash_mem[0x5555] = 0xAA; flash_mem[0x2AAA] = 0x55;
-#define FLASH_CMD(cmd) FLASH_CMD_BEGIN; flash_mem[0x5555] = (cmd) << 4;
+#define FLASH_CMD_BEGIN                                                        \
+    flash_mem[0x5555] = 0xAA;                                                  \
+    flash_mem[0x2AAA] = 0x55;
+#define FLASH_CMD(cmd)                                                         \
+    FLASH_CMD_BEGIN;                                                           \
+    flash_mem[0x5555] = (cmd) << 4;
 
 
 
@@ -2611,12 +2611,13 @@ static u32 flash_capacity(Platform& pfrm)
         flash_mem[0x5555] = FLASH_CMD_LEAVE_ID_MODE << 4;
     }
 
-    if ((manufacturer == FLASH_MFR_MACRONIX and
-         device == FLASH_DEV_MX29L010) or
-            (manufacturer == FLASH_MFR_SANYO and
-             device == FLASH_DEV_LE26FV10N1TS)) {
+    if ((manufacturer == FLASH_MFR_MACRONIX and device == FLASH_DEV_MX29L010) or
+        (manufacturer == FLASH_MFR_SANYO and
+         device == FLASH_DEV_LE26FV10N1TS)) {
 
-        info(pfrm, "detected 128kb flash chip. Bank switching unimplemented, using 64kb.");
+        info(pfrm,
+             "detected 128kb flash chip. Bank switching unimplemented, using "
+             "64kb.");
     }
 
     info(pfrm, "detected 64kb flash chip");
@@ -4022,7 +4023,8 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
         const auto old_tile = pfrm.get_tile(Layer::overlay, x, y);
         if (old_tile not_eq val) {
             if (is_glyph(old_tile)) {
-                auto& gm = ::glyph_table.mappings_[old_tile - glyph_start_offset];
+                auto& gm =
+                    ::glyph_table.mappings_[old_tile - glyph_start_offset];
                 if (gm.valid()) {
                     gm.reference_count_ -= 1;
 
@@ -4043,8 +4045,7 @@ static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
             }
 
             if (is_glyph(val)) {
-                auto& gm =
-                    ::glyph_table.mappings_[val - glyph_start_offset];
+                auto& gm = ::glyph_table.mappings_[val - glyph_start_offset];
                 if (not gm.valid()) {
                     // Not clear exactly what to do here... Somehow we've
                     // gotten into an erroneous state, but not a permanently

@@ -5,11 +5,11 @@
 #include "skyland/island.hpp"
 #include "skyland/network.hpp"
 #include "skyland/scene/recoverCharacterScene.hpp"
+#include "skyland/scene/transportCharacterScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/scene/transportCharacterScene.hpp"
 
 
 
@@ -24,8 +24,8 @@ SHARED_VARIABLE(transporter_reload_ms);
 void Transporter::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Transport your crew into an enemy castle! Selects a random "
-        "destination in the enemy fortress, unless you have a radar. "
-        "Requires a workshop to build.";
+              "destination in the enemy fortress, unless you have a radar. "
+              "Requires a workshop to build.";
 }
 
 

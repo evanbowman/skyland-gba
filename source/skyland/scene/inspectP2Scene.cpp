@@ -171,8 +171,6 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void InspectP2Scene::display(Platform& pfrm, App& app)
 {
-    WorldScene::display(pfrm, app);
-
     if (app.opponent_island()) {
         Sprite cursor;
         cursor.set_size(Sprite::Size::w16_h32);
@@ -190,6 +188,8 @@ void InspectP2Scene::display(Platform& pfrm, App& app)
 
         pfrm.screen().draw(cursor);
     }
+
+    WorldScene::display(pfrm, app);
 }
 
 

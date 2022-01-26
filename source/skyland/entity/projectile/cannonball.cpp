@@ -93,6 +93,11 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
+    if ((*room.metaclass())->category() == Room::Category::decoration) {
+        room.apply_damage(pfrm, app, 10000);
+        return;
+    }
+
 
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {

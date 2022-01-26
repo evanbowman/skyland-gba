@@ -325,8 +325,6 @@ void describe_room(Platform& pfrm,
 
 void ReadyScene::display(Platform& pfrm, App& app)
 {
-    WorldScene::display(pfrm, app);
-
     Sprite cursor;
     cursor.set_size(Sprite::Size::w16_h32);
     cursor.set_texture_index(15 + cursor_anim_frame_);
@@ -341,6 +339,8 @@ void ReadyScene::display(Platform& pfrm, App& app)
     cursor.set_position(origin);
 
     pfrm.screen().draw(cursor);
+
+    WorldScene::display(pfrm, app);
 }
 
 

@@ -12,16 +12,14 @@ namespace skyland {
 
 class NotificationScene : public ActiveWorldScene {
 public:
-
-    NotificationScene(const StringBuffer<30>& msg,
-                      DeferredScene next_scene) :
-        next_scene_(next_scene),
-        msg_(msg)
+    NotificationScene(const StringBuffer<30>& msg, DeferredScene next_scene)
+        : next_scene_(next_scene), msg_(msg)
     {
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override;
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
     void enter(Platform& pfrm, App& app, Scene& prev) override;

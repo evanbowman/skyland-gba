@@ -600,10 +600,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
 
-            pfrm.screen().schedule_fade(0.7f - 0.7f * amount,
-                                        ColorConstant::rich_black,
-                                        true,
-                                        true);
+            pfrm.screen().schedule_fade(
+                0.7f - 0.7f * amount, ColorConstant::rich_black, true, true);
         }
         break;
     }
@@ -616,7 +614,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             show_module_icons(pfrm, 0);
             state_ = State::show_modules;
 
-            pfrm.screen().schedule_fade(0.7f, ColorConstant::rich_black, true, true);
+            pfrm.screen().schedule_fade(
+                0.7f, ColorConstant::rich_black, true, true);
 
             module_cursor_ = {0, 0};
 
@@ -640,7 +639,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             selector_shaded_ = not selector_shaded_;
         }
 
-        pfrm.screen().schedule_fade(0.69f, ColorConstant::rich_black, false, false);
+        pfrm.screen().schedule_fade(
+            0.69f, ColorConstant::rich_black, false, false);
         if (app.player().key_down(pfrm, Key::action_2)) {
             state_ = State::fade_modules_backout;
             timer_ = 0;
