@@ -1504,7 +1504,9 @@ void Platform::Screen::display()
         *bg1_x_scroll = view_offset.x * 0.3f;
         *bg1_y_scroll = view_offset.y * 0.3f;
     } else {
-        *bg1_y_scroll = view_offset.y / 2;
+        if (not get_gflag(GlobalFlag::v_parallax)) {
+            *bg1_y_scroll = view_offset.y / 2;
+        }
     }
 }
 
@@ -5315,7 +5317,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
             ((u8)(intptr_t)arg) +
             (screen_.get_view().get_center().cast<s32>().x / 3) * 0.8f;
 
-        for (int i = (112 - offset) - 20; i < 128 - offset; ++i) {
+        for (int i = (112 - offset) - 30; i < 128 - offset; ++i) {
             parallax_table[i] = x_amount;
             vertical_parallax_table[i] = offset;
         }
@@ -5328,17 +5330,11 @@ void* Platform::system_call(const char* feature_name, void* arg)
             s16 far_x_offset =
                 screen_.get_view().get_center().cast<s32>().x / 2 * 0.5f + 3;
 
-            s16 v_scroll = (offset * 3) / 2;
+            s16 v_scroll = (offset * 6) / 2 + 24;
 
-            for (int i = 0; i < (112 - offset) - 20; ++i) {
+            for (int i = 0; i < (112 - offset) - 30; ++i) {
                 parallax_table[i] = far_x_offset / 4;
-                if (i < 12) {
-                    // Just a hack, fixme. We scrolled stuff down, fill in the
-                    // gap with the first twelve rows, unscrolled.
-                    vertical_parallax_table[i] = 0;
-                } else {
-                    vertical_parallax_table[i] = v_scroll;
-                }
+                vertical_parallax_table[i] = v_scroll;
             }
         }
     } else if (str_cmp(feature_name, "_prlx8") == 0) {
