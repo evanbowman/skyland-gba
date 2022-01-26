@@ -62,11 +62,6 @@
  line into the rs232 cable's
  TxD line.
 
- And solder ground to ground.
- By ground, I mean earth, if
- you learned your circuits
- terms in the UK.
-
  You do not need to connect
  the flow control lines.
 
