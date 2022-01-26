@@ -595,6 +595,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.screen().schedule_fade(0.f);
 
             state_ = State::wait;
+            timer_ = 0;
 
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
