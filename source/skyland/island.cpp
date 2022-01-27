@@ -874,8 +874,8 @@ void Island::repaint(Platform& pfrm, App& app)
                     if (not placed_chimney_this_tile and show_flag_ and
                         not placed_flag and y > 1 and matrix[x][y - 1] == 0) {
                         if (auto room = get_room({x, (u8)(y + 1)})) {
-                            if (str_cmp((*room->metaclass())->name(), "hull") ==
-                                0) {
+                            if (str_eq((*room->metaclass())->name(), "hull") or
+                                str_eq((*room->metaclass())->name(), "masonry")) {
                                 placed_flag = true;
                                 buffer[x][y] = Tile::flag_mount;
                                 buffer[x][y - 1] = Tile::flag_start;

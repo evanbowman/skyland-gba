@@ -26,6 +26,7 @@
 #include "skyland/rooms/workshop.hpp"
 #include "skyland/rooms/palm.hpp"
 #include "skyland/rooms/shrubbery.hpp"
+#include "skyland/rooms/masonry.hpp"
 
 
 
@@ -67,6 +68,7 @@ static auto& __metatable()
                          Replicator,
                          DroneBay,
                          // decoration
+                         Masonry,
                          Shrubbery,
                          Palm,
                          PlunderedRoom>

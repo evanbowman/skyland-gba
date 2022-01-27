@@ -15,96 +15,11 @@ void memcpy16(void* dst, const void* src, uint hwcount);
 
 
 
-AudioBuffer audio_buffers[audio_buffer_count];
-
-int audio_front_buffer;
-volatile bool audio_buffers_consumed[audio_buffer_count];
-
-
 SoundContext snd_ctx;
 
 
 
-static void audio_buffer_cp_music(AudioBuffer* mixing_buffer)
-{
-    if (UNLIKELY(snd_ctx.music_track_pos + AudioBuffer::sample_count >=
-                 snd_ctx.music_track_length)) {
-        const auto first_batch =
-            snd_ctx.music_track_length - snd_ctx.music_track_pos;
-        memcpy32(mixing_buffer->samples_,
-                 ((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos,
-                 first_batch);
-
-        const auto remaining = AudioBuffer::sample_count - first_batch;
-        snd_ctx.music_track_pos = remaining;
-
-        if (remaining) {
-            memcpy32(mixing_buffer->samples_ + first_batch,
-                     ((u32*)(snd_ctx.music_track)),
-                     remaining);
-        }
-
-    } else {
-        memcpy32(mixing_buffer->samples_,
-                 ((u32*)(snd_ctx.music_track)) + snd_ctx.music_track_pos,
-                 AudioBuffer::sample_count);
-
-        snd_ctx.music_track_pos += AudioBuffer::sample_count;
-    }
-}
-
-
-
-void audio_buffer_mixin_sfx(AudioBuffer* mixing_buffer)
-{
-    for (int i = 0; i < AudioBuffer::sample_count * 4; i += 4) {
-        for (auto it = snd_ctx.active_sounds.begin();
-             it not_eq snd_ctx.active_sounds.end();) {
-            if (UNLIKELY(it->position_ + 4 >= it->length_)) {
-                it = snd_ctx.active_sounds.erase(it);
-            } else {
-                for (int j = 0; j < 4; ++j) {
-                    ((AudioSample*)mixing_buffer->samples_)[i + j] +=
-                        (AudioSample)it->data_[it->position_++];
-                }
-                ++it;
-            }
-        }
-    }
-}
-
-
-
-AudioBuffer* audio_mix_music_only()
-{
-    auto start = (audio_front_buffer + 1) % audio_buffer_count;
-    for (int i = 0; i < 2; ++i) {
-        auto index = (start + i) % audio_buffer_count;
-        if (audio_buffers_consumed[index]) {
-            audio_buffer_cp_music(&audio_buffers[index]);
-            audio_buffers_consumed[index] = false;
-            return &audio_buffers[index];
-        }
-    }
-    return nullptr;
-}
-
-
-
-AudioBuffer* audio_mix()
-{
-    auto start = (audio_front_buffer + 1) % audio_buffer_count;
-    for (int i = 0; i < 2; ++i) {
-        auto index = (start + i) % audio_buffer_count;
-        if (audio_buffers_consumed[index]) {
-            audio_buffer_cp_music(&audio_buffers[index]);
-            audio_buffer_mixin_sfx(&audio_buffers[index]);
-            audio_buffers_consumed[index] = false;
-            return &audio_buffers[index];
-        }
-    }
-    return nullptr;
-}
+// NOTE: I got rid of this version of the mixer.
 
 
 

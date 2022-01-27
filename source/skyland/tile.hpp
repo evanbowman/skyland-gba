@@ -79,6 +79,7 @@ struct Tile {
         reserved_31,
         reserved_32,
         arc_gun,
+        masonry,
     };
 };
 
@@ -105,7 +106,7 @@ struct InteriorTile {
         ladder_base,
         ladder_mid,
         roof_3,
-        ladder_mid_2,
+        __unused__,
         ladder_top,
         grass,
         empty,
@@ -158,5 +159,6 @@ struct InteriorTile {
         foundry_5,
         cargo_bay,
         arc_gun,
+        masonry,
     };
 };

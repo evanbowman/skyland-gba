@@ -29,7 +29,7 @@ void Stairwell::update(Platform& pfrm, App& app, Microseconds delta)
 void Stairwell::render_interior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::ladder_top;
-    buffer[position().x][position().y + 1] = InteriorTile::ladder_mid_2;
+    buffer[position().x][position().y + 1] = InteriorTile::ladder_mid;
     buffer[position().x][position().y + 2] = InteriorTile::ladder_mid;
     buffer[position().x][position().y + 3] = InteriorTile::ladder_base;
 }

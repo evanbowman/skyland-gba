@@ -89,8 +89,9 @@ void DecimatorBurst::on_collision(Platform& pfrm, App& app, Room& room)
         }
     }
 
-    if ((*room.metaclass())->category() == Room::Category::decoration) {
-        room.apply_damage(pfrm, app, 10000);
+    if ((*room.metaclass())->category() == Room::Category::decoration and
+        room.health() < decimator_burst_damage) {
+        room.apply_damage(pfrm, app, 9999);
         return;
     }
 

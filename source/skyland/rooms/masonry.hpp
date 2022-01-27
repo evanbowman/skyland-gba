@@ -10,10 +10,10 @@ namespace skyland {
 
 
 
-class Shrubbery : public Decoration {
+class Masonry : public Decoration {
 public:
 
-    Shrubbery(Island* parent, const Vec2<u8>& position) :
+    Masonry(Island* parent, const Vec2<u8>& position) :
         Decoration(parent, name(), size(), position)
     {
     }
@@ -21,25 +21,33 @@ public:
 
     static void format_description(StringBuffer<512>& buffer)
     {
-        buffer += "Ni!";
+        buffer += "While ineffective against modern weaponry, "
+            "villagers in skyland still build structures with stone, because "
+            "it looks nice.";
     }
 
 
     void render_interior(App& app, u8 buffer[16][16]) override
     {
-        buffer[position().x][position().y] = Tile::shrubbery;
+        buffer[position().x][position().y] = InteriorTile::masonry;
     }
 
 
     void render_exterior(App& app, u8 buffer[16][16]) override
     {
-        buffer[position().x][position().y] = Tile::shrubbery;
+        buffer[position().x][position().y] = Tile::masonry;
+    }
+
+
+    bool disallow_chimney() override
+    {
+        return false;
     }
 
 
     static const char* name()
     {
-        return "shrubbery";
+        return "masonry";
     }
 
 

@@ -107,8 +107,9 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
-    if ((*room.metaclass())->category() == Room::Category::decoration) {
-        room.apply_damage(pfrm, app, 10000);
+    if ((*room.metaclass())->category() == Room::Category::decoration and
+        room.health() < flak_r1_damage) {
+        room.apply_damage(pfrm, app, 9999);
         return;
     }
 

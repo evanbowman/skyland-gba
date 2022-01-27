@@ -115,11 +115,11 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
-    if ((*room.metaclass())->category() == Room::Category::decoration) {
-        room.apply_damage(pfrm, app, 10000);
+    if ((*room.metaclass())->category() == Room::Category::decoration and
+        room.health() < arcbolt_damage) {
+        room.apply_damage(pfrm, app, 9999);
         return;
     }
-
 
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& e) {

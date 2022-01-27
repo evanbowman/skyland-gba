@@ -169,10 +169,6 @@ extern "C" {
 __attribute__((section(".iwram"), long_call)) void
 memcpy32(void* dst, const void* src, uint wcount);
 void memcpy16(void* dst, const void* src, uint hwcount);
-
-__attribute__((section(".iwram"), long_call)) void hblank_full_scroll_isr();
-__attribute__((section(".iwram"), long_call)) void hblank_x_scroll_isr();
-__attribute__((section(".iwram"), long_call)) void audio_update_isr();
 }
 
 
@@ -184,40 +180,29 @@ __attribute__((section(".iwram"), long_call)) void audio_update_isr();
 // tightly packed. Here's a chart representing the layout:
 //
 // All units of length are in screen blocks, followed by the screen block
-// indices in parentheses. The texture data needs to be aligned to char block
-// boundaries (eight screen blocks in a char block), which is why there is
-// tilemap data packed into the screen blocks between sets of texture data.
+// indices in parentheses.
 //
-//        charblock 0                      charblock 1
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// o============================================================
-// |  t0 texture   |   free!!!   |   t1 texture   |  free!!!   |
-// | len 7 (0 - 6) |  len 1 (7)  | len 7 (8 - 14) | len 1 (15) | ...
-// o============================================================
+//     charblock 0        charblock 1      charblock 2
+// ~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~
+// o======================================================
+// |    t0 texture    |   t1 texture   | overlay texture |
+// |   len 8 (0 - 7)  | len 8 (8 - 15) | len 8 (16 - 23) | ...
+// o======================================================
 //
-//        charblock 2                 charblock 3
-//     ~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//     ======================================================o
-//     | overlay texture |     t0 mem      |     t1 mem      |
-// ... | len 8 (16 - 23) | len 2 (26 - 27) | len 2 (28 - 29) | ...
-//     ======================================================o
+//                  charblock 3
+//      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     ====================================o
+//     |     t0 mem      |     t1 mem      |
+// ... | len 2 (26 - 27) | len 2 (28 - 29) | ...
+//     ====================================o
 //
 //                        charblock 3 (contd.)
 //      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //     ========================================================o
-//     |  free!!!   |  free!!!   |  overlay mem  |   bg mem    |
-// ... | len 1 (24) | len 1 (25) |  len 1 (30)   | len 1 (31)  |
+//     |   background texture    |  overlay mem  |   bg mem    |
+// ... |    len 1 (24 - 25)      |  len 1 (30)   | len 1 (31)  |
 //     ========================================================o
 //
-// NOTE: The above comment fell out of date between the transition of the
-// code from BlindJump to SKYLAND. We have some memory to spare. TODO:
-// currently, backgrounds share memory with the t0 texture. Instead, I'd
-// like to give backgrounds their own dedicated texture memory, using two
-// of the unused screenblocks in charblock 3 (24 and 25).
-//
-// To summarize: the t0 and t1 textures will have an entire dedicated charblock.
-// All of the map data lives in the latter three quarters of charblock
-// three. Charblock two dedicated to the overlay texture.
 //
 
 
