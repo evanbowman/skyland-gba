@@ -237,34 +237,35 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             show_current_building_text(pfrm, app);
         }
 
-        if (app.player().key_down(pfrm, Key::up)) {
-            pfrm.speaker().play_sound("click", 1);
-            const auto current_category =
-                (*load_metaclass(available_buildings_[building_selector_]))
-                    ->category();
+        // FIXME: this code doesn't work!
+        // if (app.player().key_down(pfrm, Key::up)) {
+        //     pfrm.speaker().play_sound("click", 1);
+        //     const auto current_category =
+        //         (*load_metaclass(available_buildings_[building_selector_]))
+        //             ->category();
 
-            auto target_category = (Room::Category)(
-                ((u32)current_category - 1) % (u32)Room::Category::count);
+        //     auto target_category = (Room::Category)(
+        //         ((u32)current_category - 1) % (u32)Room::Category::count);
 
-            if (target_category == current_category) {
-                target_category =
-                    (Room::Category)((int)Room::Category::count - 1);
-            }
+        //     if (target_category == current_category) {
+        //         target_category =
+        //             (Room::Category)((int)Room::Category::count - 1);
+        //     }
 
-            u32 i;
-            for (i = 0; i < available_buildings_.size(); ++i) {
-                if ((*load_metaclass(available_buildings_[i]))->category() ==
-                    target_category) {
-                    break;
-                }
-            }
-            if (i >= available_buildings_.size()) {
-                i = 0;
-            }
+        //     u32 i;
+        //     for (i = 0; i < available_buildings_.size(); ++i) {
+        //         if ((*load_metaclass(available_buildings_[i]))->category() ==
+        //             target_category) {
+        //             break;
+        //         }
+        //     }
+        //     if (i >= available_buildings_.size()) {
+        //         i = 0;
+        //     }
 
-            building_selector_ = i;
-            show_current_building_text(pfrm, app);
-        }
+        //     building_selector_ = i;
+        //     show_current_building_text(pfrm, app);
+        // }
 
         if (test_key(Key::right)) {
             pfrm.speaker().play_sound("click", 1);

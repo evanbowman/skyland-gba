@@ -80,6 +80,8 @@ struct Tile {
         reserved_32,
         arc_gun,
         masonry,
+        statue_1,
+        statue_2,
     };
 };
 
@@ -160,5 +162,7 @@ struct InteriorTile {
         cargo_bay,
         arc_gun,
         masonry,
+        statue_1,
+        statue_2,
     };
 };
