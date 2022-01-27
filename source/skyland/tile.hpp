@@ -82,6 +82,7 @@ struct Tile {
         masonry,
         statue_1,
         statue_2,
+        bridge,
     };
 };
 
@@ -164,5 +165,6 @@ struct InteriorTile {
         masonry,
         statue_1,
         statue_2,
+        bridge,
     };
 };

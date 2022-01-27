@@ -237,12 +237,14 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                     anim_timer_ = 0;
                 } else {
                     const bool is_plundered =
-                        str_cmp((*metac)->name(), "plundered-room") == 0;
+                        str_eq((*metac)->name(), "plundered-room");
                     const bool is_stairwell =
-                        str_cmp((*metac)->name(), "stairwell") == 0;
+                        str_eq((*metac)->name(), "stairwell");
+                    const bool is_bridge =
+                        str_eq((*metac)->name(), "bridge");
 
                     if (&room->parent()->owner() not_eq owner() and
-                        not is_plundered and not is_stairwell) {
+                        not is_plundered and not is_stairwell and not is_bridge) {
                         state_ = State::plunder_room;
                         timer_ = 0;
                     } else if (&room->parent()->owner() == owner() and

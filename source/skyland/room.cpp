@@ -253,35 +253,43 @@ bool Room::description_visible()
 
 
 
-ScenePtr<Scene> Room::select(Platform& pfrm, App& app)
+ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
 {
-    if (parent_->interior_visible()) {
-        if (length(characters_)) {
+    if (length(characters_)) {
 
-            const bool near = parent() == &app.player_island();
+        const bool near = parent() == &app.player_island();
 
-            Vec2<u8> cursor_loc;
+        Vec2<u8> cursor_loc;
 
-            if (near) {
-                cursor_loc =
-                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-            } else {
-                cursor_loc =
-                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
-            }
+        if (near) {
+            cursor_loc =
+                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        } else {
+            cursor_loc =
+                std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        }
 
-            for (auto& character : characters_) {
-                if (character->grid_position() == cursor_loc) {
+        for (auto& character : characters_) {
+            if (character->grid_position() == cursor_loc) {
 
-                    if (character->owner() == &app.player() or
-                        (character->owner() == &app.opponent() and
-                         app.game_mode() == App::GameMode::sandbox)) {
-                        return scene_pool::alloc<MoveCharacterScene>(pfrm,
-                                                                     near);
-                    }
+                if (character->owner() == &app.player() or
+                    (character->owner() == &app.opponent() and
+                     app.game_mode() == App::GameMode::sandbox)) {
+                    return scene_pool::alloc<MoveCharacterScene>(pfrm,
+                                                                 near);
                 }
             }
         }
+    }
+    return null_scene();
+}
+
+
+
+ScenePtr<Scene> Room::select(Platform& pfrm, App& app)
+{
+    if (parent_->interior_visible()) {
+        return do_select(pfrm, app);
     }
 
     return null_scene();

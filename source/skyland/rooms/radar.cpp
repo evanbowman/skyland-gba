@@ -9,9 +9,9 @@ namespace skyland {
 
 void Radar::format_description(StringBuffer<512>& buffer)
 {
-    buffer += "Allows you to see the interior of an opponent's castle. "
-              "Transporters let you select an exact destination if you've "
-              "built a radar. Requires a workshop.";
+    buffer += "Scans the interior of other castles! Radars improve transporter "
+        "accuracy, allowing transporters to select an exact position on another"
+        " island.";
 }
 
 

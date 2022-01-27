@@ -14,8 +14,7 @@ namespace skyland {
 void Bulkhead::format_description(StringBuffer<512>& buffer)
 {
     buffer += "An openable/closable door. "
-              "Used for restricting the movement of enemies who may board your "
-              "island.";
+              "Used for restricting the movement of enemy boarding parties";
 }
 
 

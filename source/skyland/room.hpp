@@ -266,6 +266,9 @@ protected:
     }
 
 
+    ScenePtr<Scene> do_select(Platform& pfrm, App& app);
+
+
 private:
     Island* parent_;
     RoomMeta* metaclass_;

@@ -28,6 +28,7 @@
 #include "skyland/rooms/shrubbery.hpp"
 #include "skyland/rooms/masonry.hpp"
 #include "skyland/rooms/statue.hpp"
+#include "skyland/rooms/bridge.hpp"
 
 
 
@@ -70,6 +71,7 @@ static auto& __metatable()
                          DroneBay,
                          // decoration
                          Statue,
+                         Bridge,
                          Palm,
                          Shrubbery,
                          Masonry,

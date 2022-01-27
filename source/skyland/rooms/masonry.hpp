@@ -21,7 +21,7 @@ public:
 
     static void format_description(StringBuffer<512>& buffer)
     {
-        buffer += "While ineffective against modern weaponry, "
+        buffer += "While ineffective against most modern weaponry, "
             "villagers in skyland still build structures with stone, because "
             "it looks nice.";
     }

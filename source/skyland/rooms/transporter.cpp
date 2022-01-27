@@ -23,8 +23,8 @@ SHARED_VARIABLE(transporter_reload_ms);
 
 void Transporter::format_description(StringBuffer<512>& buffer)
 {
-    buffer += "Transport your crew into an enemy castle! Selects a random "
-              "destination in the enemy fortress, unless you have a radar. "
+    buffer += "Transport boarding parties into an enemy castle! Selects a random "
+              "destination, unless you have a radar. "
               "Requires a workshop to build.";
 }
 

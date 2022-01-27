@@ -76,6 +76,24 @@ u16 gamespeed_icon(GameSpeed speed)
 
 
 
+void show_island_interior(Platform& pfrm, App& app, Island* island)
+{
+    if (island == &app.player_island()) {
+        pfrm.load_tile0_texture("tilesheet_interior");
+
+    } else {
+        pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
+    }
+
+    island->render_interior(pfrm, app);
+
+    if (island == &app.player_island()) {
+        vram_write_flag(pfrm, app.gp_.flag_img_);
+    }
+}
+
+
+
 void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
 {
     app.game_speed() = speed;
@@ -275,9 +293,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (not app.opponent_island()->interior_visible() and
             show_opponent_interior) {
 
-            pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
+            show_island_interior(pfrm, app, &*app.opponent_island());
 
-            app.opponent_island()->render_interior(pfrm, app);
         } else if (app.opponent_island()->interior_visible() and
                    not show_opponent_interior) {
 
@@ -359,9 +376,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.player_island().render_exterior(pfrm, app);
             vram_write_flag(pfrm, app.gp_.flag_img_);
         } else {
-            pfrm.load_tile0_texture("tilesheet_interior");
-            app.player_island().render_interior(pfrm, app);
-            vram_write_flag(pfrm, app.gp_.flag_img_);
+            show_island_interior(pfrm, app, &app.player_island());
         }
     }
 
