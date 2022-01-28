@@ -121,6 +121,19 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     timer_ -= delta;
 
+    if (show_flag_ and flag_pos_) {
+        flag_anim_timer_ -= delta;
+        if (flag_anim_timer_ < 0) {
+            flag_anim_timer_ = milliseconds(80);
+            auto current = flag_anim_index_;
+            if (current > Tile::flag_start) {
+                --flag_anim_index_;
+            } else {
+                flag_anim_index_ = Tile::flag_end;
+            }
+        }
+    }
+
     if (chimney_loc_) {
         chimney_spawn_timer_ -= delta;
 
@@ -198,6 +211,23 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
     pfrm.set_scroll(layer(),
                     -get_position().cast<u16>().x,
                     -get_position().cast<u16>().y - ambient_offset);
+}
+
+
+
+void Island::check_destroyed()
+{
+    destroyed_ = false;
+    bool has_core = false;
+    for (auto& room : rooms_) {
+        if ((*room->metaclass())->category() == Room::Category::power) {
+            has_core = true;
+            break;
+        }
+    }
+    if (not has_core) {
+        destroyed_ = true;
+    }
 }
 
 
@@ -423,17 +453,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             on_layout_changed(app, pos);
 
-            destroyed_ = false;
-            bool has_core = false;
-            for (auto& room : rooms_) {
-                if ((*room->metaclass())->category() == Room::Category::power) {
-                    has_core = true;
-                    break;
-                }
-            }
-            if (not has_core) {
-                destroyed_ = true;
-            }
+            check_destroyed();
 
             recalculate_power_usage();
 
@@ -475,6 +495,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 void Island::on_layout_changed(App& app,
                                const Vec2<u8>& room_added_removed_coord)
 {
+    check_destroyed();
+
     bool buffer[16][16];
     plot_walkable_zones(app, buffer);
 

@@ -266,6 +266,9 @@ private:
     void recalculate_power_usage();
 
 
+    void check_destroyed();
+
+
     Power power_supply_ = 0;
     Power power_drain_ = 0;
 
