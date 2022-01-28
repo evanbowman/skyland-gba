@@ -423,6 +423,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             on_layout_changed(app, pos);
 
+            destroyed_ = false;
             bool has_core = false;
             for (auto& room : rooms_) {
                 if ((*room->metaclass())->category() == Room::Category::power) {
