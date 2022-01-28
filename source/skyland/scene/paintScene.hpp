@@ -58,6 +58,8 @@ public:
 
     ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
     {
+        pfrm.screen().schedule_fade(0.f);
+
         if (app.player().key_down(pfrm, Key::action_2)) {
             Vector<char> output(pfrm);
             for (u32 i = 0; i < sizeof texture_; ++i) {

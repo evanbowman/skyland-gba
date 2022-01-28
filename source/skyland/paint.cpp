@@ -43,8 +43,6 @@ void Paint::init(Platform& pfrm, App& app)
     show(pfrm, app);
 
     draw_rulers(pfrm);
-
-    pfrm.screen().fade(0.f);
 }
 
 

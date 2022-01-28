@@ -64,7 +64,8 @@ void AdventureModeSettingsScene::exit(Platform& pfrm, App& app, Scene& prev)
 ScenePtr<Scene>
 AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (app.player().key_down(pfrm, Key::action_1)) {
+    // TODO: implement settings menu, allow switching settings.
+    if (true or app.player().key_down(pfrm, Key::action_1)) {
         switch (app.persistent_data().difficulty_) {
         case PersistentData::Difficulty::beginner:
             app.invoke_script(pfrm, "/scripts/config/easy/score.lisp");
