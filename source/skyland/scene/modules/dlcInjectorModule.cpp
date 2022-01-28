@@ -3,6 +3,7 @@
 #include "vector.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "skyland/dlc.hpp"
+#include "skyland/scene/fullscreenDialogScene.hpp"
 
 
 
@@ -72,6 +73,27 @@ static void store_dlc(Platform& pfrm, Vector<char>& data)
 ScenePtr<Scene>
 DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (not begin_load_) {
+        auto future_scene = [] {
+            return scene_pool::alloc<DlcInjectorModule>(true);
+        };
+
+        auto buffer = allocate_dynamic<DialogString>(pfrm);
+
+        if (pfrm.device_name() == "GameboyAdvance") {
+            *buffer =
+                "The system will now accept software updates from another "
+                "gameboy advance console. If you have a SKYLAND software update"
+                " ROM, or an e-Reader card, connect a link cable to install "
+                " updates.";
+        } else {
+            return scene_pool::alloc<TitleScreenScene>(3);
+        }
+
+        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
+                                                        future_scene);
+    }
+
     Module::update(pfrm, app, delta);
 
     Vector<char> result(pfrm);

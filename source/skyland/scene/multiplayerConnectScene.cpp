@@ -6,6 +6,8 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
+#include "titleScreenScene.hpp"
+#include "fullscreenDialogScene.hpp"
 
 
 
@@ -19,8 +21,9 @@ void set_island_positions(Island& left_island, Island& right_island);
 
 void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    pfrm.screen().fade(1.f);
-    text_.emplace(pfrm, "session connecting...", OverlayCoord{1, 1});
+    pfrm.screen().schedule_fade(1.f);
+    text_.emplace(pfrm, OverlayCoord{1, 1});
+    text_->assign("session connecting...");
 
     const char* str = pfrm.load_file_contents("scripts", "multi_init.lisp");
     lisp::BasicCharSequence seq(str);
@@ -61,12 +64,17 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
         ready_ = true;
         return null_scene();
     }
-    // pfrm.enable_feature("dlc-download", 0);
 
     pfrm.network_peer().listen();
 
     if (not pfrm.network_peer().is_connected()) {
-        pfrm.fatal("failed to connect to multiplayer peer");
+        auto future_scene = [] {
+            return scene_pool::alloc<TitleScreenScene>();
+        };
+        auto buffer = allocate_dynamic<DialogString>(pfrm);
+        *buffer = "Failed to connect to multiplayer peer!";
+        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
+                                                        future_scene);
     } else {
         network::packet::ProgramVersion packet;
         packet.major_.set(PROGRAM_MAJOR_VERSION);

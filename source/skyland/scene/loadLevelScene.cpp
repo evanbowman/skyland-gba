@@ -171,7 +171,11 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto buffer = std::move(*app.dialog_buffer());
         app.dialog_buffer().reset();
 
-        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer));
+        auto future_scene = [] {
+            return scene_pool::alloc<FadeInScene>();
+        };
+        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
+                                                        future_scene);
     }
 
     return scene_pool::alloc<FadeInScene>();

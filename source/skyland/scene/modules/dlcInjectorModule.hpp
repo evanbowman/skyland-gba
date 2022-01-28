@@ -11,9 +11,16 @@ namespace skyland {
 
 class DlcInjectorModule : public Module<DlcInjectorModule> {
 public:
+
+    DlcInjectorModule(bool begin_load = false) :
+        begin_load_(begin_load)
+    {
+    }
+
+
     static const char* module_name()
     {
-        return "DLC Loader";
+        return "Update Loader";
     }
 
 
@@ -30,6 +37,9 @@ public:
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+
+    bool begin_load_;
 
 
     static Factory factory_;

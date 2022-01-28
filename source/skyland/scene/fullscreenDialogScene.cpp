@@ -1,5 +1,4 @@
 #include "fullscreenDialogScene.hpp"
-#include "fadeInScene.hpp"
 #include "graphics/overlay.hpp"
 #include "skyland/scene_pool.hpp"
 
@@ -251,7 +250,7 @@ FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case DisplayMode::clear:
-        return scene_pool::alloc<FadeInScene>();
+        return next_scene_();
     }
 
     return null_scene();
