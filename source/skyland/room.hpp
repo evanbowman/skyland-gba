@@ -265,12 +265,6 @@ public:
 
 
 protected:
-    void set_metaclass(RoomMeta* metaclass)
-    {
-        metaclass_ = metaclass;
-    }
-
-
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 
 

@@ -790,7 +790,8 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
-    {"register-tile", [](int argc) {
+    {"register-tile",
+     [](int argc) {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, string);
 
@@ -817,6 +818,16 @@ static const lisp::Binding script_api[] = {
              StringBuffer<64> err = "invalid texture path or contents: ";
              err += path;
              Platform::fatal(err.c_str());
+         }
+
+         return L_NIL;
+     }},
+    {"register-room", [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, cons);
+
+         if (not plugin_room_register(lisp::get_op(0))) {
+             info(*lisp::interp_get_pfrm(), "failed to register plugin room");
          }
 
          return L_NIL;

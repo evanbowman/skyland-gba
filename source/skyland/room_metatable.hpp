@@ -50,6 +50,10 @@ struct RoomMeta {
         RoomMeta* mt_;
         mutable std::optional<lisp::Protected> info_;
 
+        s16 health_ = 10;
+        s16 cost_ = 10;
+        s16 power_ = 10;
+
 
         PluginBox(RoomMeta* mt) : mt_(mt)
         {
@@ -69,11 +73,8 @@ struct RoomMeta {
             enum Tag {
                 name,
                 size,
+                graphics_list,
                 update,
-                ai_weight,
-                coins,
-                power,
-                full_health,
             };
         };
 
@@ -103,17 +104,18 @@ struct RoomMeta {
 
         virtual Coins cost() const
         {
-            return fetch_info<PluginInfo::coins, lisp::Integer>().value_;
+            return cost_;
         }
 
         virtual Float ai_base_weight() const
         {
-            return fetch_info<PluginInfo::ai_weight, lisp::Integer>().value_;
+            // FIXME!
+            return 2;
         }
 
         virtual Power consumes_power() const
         {
-            return fetch_info<PluginInfo::power, lisp::Integer>().value_;
+            return power_;
         }
 
         virtual Conditions::Value conditions() const
@@ -133,9 +135,8 @@ struct RoomMeta {
 
         void format_description(StringBuffer<512>&) const override
         {
-            // TODO...
+            Platform::fatal("attempt to fetch desciption for a plugin room.");
         }
-
 
         virtual Room::Icon icon() const
         {
@@ -151,9 +152,10 @@ struct RoomMeta {
 
         virtual Health full_health() const
         {
-            return fetch_info<PluginInfo::full_health, lisp::Integer>().value_;
+            return health_;
         }
     };
+
 
     template <typename T> struct BoxImpl : public Box {
         BoxImpl()
