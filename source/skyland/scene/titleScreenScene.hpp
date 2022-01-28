@@ -39,6 +39,7 @@ private:
 
     void show_module_icons(Platform&, int page);
 
+    u8 module_page_ = 0;
     std::optional<Vec2<u8>> module_cursor_;
 
 

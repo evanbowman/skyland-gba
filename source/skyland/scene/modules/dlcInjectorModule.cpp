@@ -29,7 +29,6 @@ std::optional<T> read_dlc_struct(Vector<char>& data, Vector<char>::Iterator& it)
 
 
 
-[[maybe_unused]]
 static void store_dlc(Platform& pfrm, Vector<char>& data)
 {
     auto it = data.begin();
@@ -45,7 +44,7 @@ static void store_dlc(Platform& pfrm, Vector<char>& data)
             Platform::fatal("dlc archive missing file description!");
         }
 
-        StringBuffer<64> file_name("/patch/");
+        StringBuffer<64> file_name;
         for (int i = 0; i < desc->name_length_; ++i) {
             if (it == data.end()) {
                 Platform::fatal("dlc archive file name cropped!");
@@ -80,8 +79,7 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
     pfrm.system_call("dlc-download", &result);
 
     if (result.size() not_eq 0) {
-        // store_dlc(pfrm, result);
-        ram_filesystem::store_file_data(pfrm, "/test/dcl.lisp", result);
+        store_dlc(pfrm, result);
     }
 
     return scene_pool::alloc<TitleScreenScene>(3);

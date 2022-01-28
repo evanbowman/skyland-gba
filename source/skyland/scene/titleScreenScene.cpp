@@ -203,16 +203,23 @@ static const char* menu_text[4]{
 
 
 
+static const int modules_per_row = 3;
+static const int modules_per_page = modules_per_row * 2;
+
+
+
 void TitleScreenScene::put_module_text(Platform& pfrm)
 {
     text_.reset();
     redraw_margins(pfrm);
-    show_module_icons(pfrm, 0); // TODO: page
+    show_module_icons(pfrm, module_page_);
 
     const auto st = calc_screen_tiles(pfrm);
     StringBuffer<32> buffer;
     if (module_cursor_) {
-        const auto index = module_cursor_->x + module_cursor_->y * 3;
+        const auto index =
+            module_page_ * modules_per_page +
+            module_cursor_->x + module_cursor_->y * modules_per_row;
         if (auto factory = detail::_Module::Factory::get(index)) {
             buffer += factory->name();
         } else {
@@ -274,6 +281,33 @@ void TitleScreenScene::run_init_scripts(Platform& pfrm,
     if (allow_mods) {
         app.invoke_ram_script(pfrm, "/mods/init.lisp");
     }
+}
+
+
+
+static int module_count()
+{
+    int count = 0;
+
+    auto current = detail::_Module::factories_;
+    while (current) {
+        ++count;
+        current = current->next_;
+    }
+
+    return count;
+}
+
+
+
+static int module_page_count()
+{
+    const int count = module_count();
+
+    int full_pages = count / modules_per_page;
+    int partial_pages = count % modules_per_page;
+
+    return full_pages + partial_pages;
 }
 
 
@@ -609,9 +643,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::fade_modules_1: {
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(500);
+
         if (timer_ > fade_duration) {
             redraw_margins(pfrm);
-            show_module_icons(pfrm, 0);
+            show_module_icons(pfrm, module_page_);
             state_ = State::show_modules;
 
             pfrm.screen().schedule_fade(
@@ -649,14 +684,26 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             module_cursor_.reset();
         }
         if (module_cursor_) {
-            if (app.player().key_down(pfrm, Key::right) and
-                module_cursor_->x < 2) {
-                module_cursor_->x += 1;
+            if (app.player().key_down(pfrm, Key::right)) {
+                if (module_cursor_->x < 2) {
+                    module_cursor_->x += 1;
+                } else if (module_page_ < module_page_count() - 1) {
+                    pfrm.fill_overlay(0);
+                    redraw_margins(pfrm);
+                    module_cursor_->x = 0;
+                    module_page_++;
+                }
                 put_module_text(pfrm);
             }
-            if (app.player().key_down(pfrm, Key::left) and
-                module_cursor_->x > 0) {
-                module_cursor_->x -= 1;
+            if (app.player().key_down(pfrm, Key::left)) {
+                if (module_cursor_->x > 0) {
+                    module_cursor_->x -= 1;
+                } else if (module_page_ > 0) {
+                    pfrm.fill_overlay(0);
+                    redraw_margins(pfrm);
+                    module_cursor_->x = 2;
+                    --module_page_;
+                }
                 put_module_text(pfrm);
             }
             if (app.player().key_down(pfrm, Key::up) and
@@ -671,7 +718,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             if (app.player().key_down(pfrm, Key::action_1)) {
-                auto index = module_cursor_->x + module_cursor_->y * 3;
+                auto index =
+                    module_page_ * modules_per_page +
+                    module_cursor_->x + module_cursor_->y * modules_per_row;
                 if (auto f = detail::_Module::Factory::get(index)) {
                     pfrm.speaker().play_music("unaccompanied_wind", 0);
                     pfrm.fill_overlay(0);
@@ -700,6 +749,15 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
 {
+    // left arrow icon
+    pfrm.set_tile(Layer::overlay, 1, 8,
+                  module_page_ == 0 ? 175 : 173);
+
+    // right arrow icon
+    pfrm.set_tile(Layer::overlay, 28, 8,
+                  module_page_ == module_page_count() - 1 ? 174 : 172);
+
+
     auto icon_vram = 181;
 
     auto alloc_icon = [&] {
@@ -729,7 +787,7 @@ void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
         auto x_start = 4 + x * 8;
         auto y_start = 2 + y * 8;
 
-        const auto index = x + y * 3;
+        const auto index = page * modules_per_page + x + y * modules_per_row;
         if (auto f = detail::_Module::Factory::get(index)) {
 
             for (int x = 0; x < 6; ++x) {
