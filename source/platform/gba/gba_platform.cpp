@@ -2770,28 +2770,13 @@ void Platform::Logger::flush()
 
 
 
-void Platform::Logger::read(void* buffer, u32 start_offset, u32 num_bytes)
-{
-    // if (get_gflag(GlobalFlag::save_using_flash)) {
-    //     flash_load(buffer, initial_log_write_loc + start_offset, num_bytes);
-    // } else {
-    //     sram_load(buffer, initial_log_write_loc + start_offset, num_bytes);
-    // }
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Speaker
 //
 // For music, the Speaker class uses the GameBoy's direct sound chip to play
-// 8-bit signed raw audio, at 8kHz.
+// 8-bit signed raw audio, at 16kHz.
 //
 ////////////////////////////////////////////////////////////////////////////////
-
-
-void Platform::Speaker::play_note(Note n, Octave o, Channel c)
-{
-}
 
 
 

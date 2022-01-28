@@ -2,6 +2,7 @@
 #include "modules/textEditorModule.hpp"
 #include "platform/platform.hpp"
 #include "skyland/skyland.hpp"
+#include "paintScene.hpp"
 
 
 
@@ -35,6 +36,10 @@ static const FontColors text_entry_colors{custom_color(0xffffff),
 
 
 TextEditorModule::SyntaxMode file_edit_mode(const StringBuffer<200>& path);
+
+
+
+StringBuffer<16> get_extension(const StringBuffer<200>& cwd);
 
 
 
@@ -94,14 +99,18 @@ CreateFileScene::update(Platform& pfrm, App& app, Microseconds delta)
             StringBuffer<100> full_path_(file_path_.c_str());
             full_path_ += path_;
 
-            UserContext ctx;
+            if (get_extension(full_path_) == ".img") {
+                return scene_pool::alloc<PaintScene>(full_path_.c_str(), true);
+            } else {
+                UserContext ctx;
 
-            return scene_pool::alloc<TextEditorModule>(
-                pfrm,
-                std::move(ctx),
-                full_path_.c_str(),
-                file_edit_mode(full_path_),
-                TextEditorModule::FileMode::create);
+                return scene_pool::alloc<TextEditorModule>(
+                    pfrm,
+                    std::move(ctx),
+                    full_path_.c_str(),
+                    file_edit_mode(full_path_),
+                    TextEditorModule::FileMode::create);
+            }
         }
     }
 

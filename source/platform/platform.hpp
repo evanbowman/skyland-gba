@@ -555,8 +555,6 @@ public:
 
         Vector<char>* data();
 
-        void read(void* buffer, u32 start_offset, u32 num_bytes);
-
         void set_threshold(Severity severity);
 
     private:
@@ -574,8 +572,6 @@ public:
     class Speaker {
     public:
         using Channel = int;
-
-        void play_note(Note n, Octave o, Channel c);
 
         // NOTE: All music will loop. It's just more efficient to implement the
         // music such that all tracks are either looped or non-looping, and I

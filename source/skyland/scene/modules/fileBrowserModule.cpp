@@ -4,6 +4,7 @@
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
 #include "textEditorModule.hpp"
+#include "skyland/scene/paintScene.hpp"
 
 
 
@@ -255,7 +256,7 @@ void FileBrowserModule::repaint(Platform& pfrm)
 
 
 
-static StringBuffer<16> get_extension(const StringBuffer<200>& cwd)
+StringBuffer<16> get_extension(const StringBuffer<200>& cwd)
 {
     StringBuffer<16> result;
 
@@ -454,11 +455,15 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                     auto path = this->cwd();
                     path += selected;
 
-                    return scene_pool::alloc<TextEditorModule>(
-                        pfrm,
-                        std::move(user_context_),
-                        path.c_str(),
-                        file_edit_mode(path));
+                    if (get_extension(path) == ".img") {
+                        return scene_pool::alloc<PaintScene>(path.c_str(), false);
+                    } else {
+                        return scene_pool::alloc<TextEditorModule>(
+                            pfrm,
+                            std::move(user_context_),
+                            path.c_str(),
+                            file_edit_mode(path));
+                    }
                 }
             }
         } else if (app.player().key_down(pfrm, Key::start) or
