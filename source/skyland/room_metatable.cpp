@@ -145,22 +145,46 @@ void set_enabled(MetaclassIndex index, bool enabled)
 
 
 
-void unregister_plugins()
+void plugin_rooms_unregister()
 {
     for (int i = plugin_rooms_begin(); i < __metatable().size(); ++i) {
         __metatable().enabled_rooms_.set(i, false);
 
-        if (auto b = dynamic_cast<RoomMeta::PluginBox*>(__metatable().table_[i].box())) {
+        if (auto b = dynamic_cast<RoomMeta::PluginBox*>(
+                __metatable().table_[i].box())) {
             b->info_.reset();
         } else {
-            Platform::fatal("Metaclass Boxed in plugin sector is not a PluginBox?");
+            Platform::fatal(
+                "Metaclass Boxed in plugin sector is not a PluginBox?");
         }
     }
 }
 
 
 
-bool register_plugin(lisp::Value* config);
+bool plugin_room_register(lisp::Value* config)
+{
+    for (int i = plugin_rooms_begin(); i < __metatable().size(); ++i) {
+        if (not __metatable().enabled_rooms_.get(i)) {
+            // We've found an unused slot, where we can register a new plugin
+            // room.
+
+            // Lock the slot.
+            __metatable().enabled_rooms_.set(i, true);
+
+            if (auto b = dynamic_cast<RoomMeta::PluginBox*>(
+                    __metatable().table_[i].box())) {
+                b->info_ = config;
+            } else {
+                Platform::fatal("program logic error: metaclass"
+                                "in plugin sector is not a plugin.");
+            }
+
+            return true;
+        }
+    }
+    return false;
+}
 
 
 

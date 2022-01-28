@@ -60,7 +60,7 @@ TitleScreenScene::TitleScreenScene(int start_page)
 
 
 
-void unregister_plugins();
+void plugin_rooms_unregister();
 
 
 
@@ -78,7 +78,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     app.custom_tile_mapper().clear();
 
     // Back to the title screen! DLC plugins need to be unloaded...
-    unregister_plugins();
+    plugin_rooms_unregister();
 
     // By default, we do not allow recording for rewind. Enabled based on game
     // mode when fading into a level.

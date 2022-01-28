@@ -1,12 +1,12 @@
 #pragma once
 
 
+#include "bitvector.hpp"
 #include "coins.hpp"
 #include "island.hpp"
 #include "room.hpp"
 #include "rooms/pluginRoom.hpp"
 #include "script/lisp.hpp"
-#include "bitvector.hpp"
 
 
 
@@ -312,11 +312,11 @@ void set_enabled(MetaclassIndex index, bool enabled);
 
 
 
-void unregister_plugins();
+void plugin_rooms_unregister();
 
 
 
-bool register_plugin(lisp::Value* config);
+bool plugin_room_register(lisp::Value* config);
 
 
 
