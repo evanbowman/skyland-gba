@@ -11,9 +11,8 @@ namespace skyland {
 
 class Palm : public Decoration {
 public:
-
-    Palm(Island* parent, const Vec2<u8>& position) :
-        Decoration(parent, name(), size(), position)
+    Palm(Island* parent, const Vec2<u8>& position)
+        : Decoration(parent, name(), position)
     {
     }
 
@@ -54,9 +53,8 @@ public:
     {
         return 1400;
     }
-
 };
 
 
 
-}
+} // namespace skyland

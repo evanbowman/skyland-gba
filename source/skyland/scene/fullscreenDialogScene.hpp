@@ -11,10 +11,8 @@ namespace skyland {
 
 class FullscreenDialogScene : public Scene {
 public:
-    FullscreenDialogScene(DialogBuffer buffer,
-                          DeferredScene next_scene) :
-        buffer_(std::move(buffer)),
-        next_scene_(next_scene)
+    FullscreenDialogScene(DialogBuffer buffer, DeferredScene next_scene)
+        : buffer_(std::move(buffer)), next_scene_(next_scene)
     {
     }
 

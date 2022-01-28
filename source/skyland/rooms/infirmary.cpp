@@ -9,7 +9,7 @@ namespace skyland {
 
 
 Infirmary::Infirmary(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position)
+    : Room(parent, name(), position)
 {
 }
 

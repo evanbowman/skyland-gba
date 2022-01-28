@@ -38,7 +38,7 @@ void MissileSilo::format_description(StringBuffer<512>& buffer)
 
 
 MissileSilo::MissileSilo(Island* parent, const Vec2<u8>& position)
-    : Weapon(parent, name(), size(), position, 1000 * missile_silo_reload_ms)
+    : Weapon(parent, name(), position, 1000 * missile_silo_reload_ms)
 {
 }
 

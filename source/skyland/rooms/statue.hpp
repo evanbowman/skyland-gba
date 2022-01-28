@@ -11,9 +11,8 @@ namespace skyland {
 
 class Statue : public Decoration {
 public:
-
-    Statue(Island* parent, const Vec2<u8>& position) :
-        Decoration(parent, name(), size(), position)
+    Statue(Island* parent, const Vec2<u8>& position)
+        : Decoration(parent, name(), position)
     {
     }
 
@@ -54,9 +53,8 @@ public:
     {
         return 1496;
     }
-
 };
 
 
 
-}
+} // namespace skyland

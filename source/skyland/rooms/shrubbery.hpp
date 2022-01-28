@@ -12,9 +12,8 @@ namespace skyland {
 
 class Shrubbery : public Decoration {
 public:
-
-    Shrubbery(Island* parent, const Vec2<u8>& position) :
-        Decoration(parent, name(), size(), position)
+    Shrubbery(Island* parent, const Vec2<u8>& position)
+        : Decoration(parent, name(), position)
     {
     }
 
@@ -59,9 +58,8 @@ public:
     {
         return 1432;
     }
-
 };
 
 
 
-}
+} // namespace skyland

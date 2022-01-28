@@ -1,13 +1,13 @@
 #include "multiplayerConnectScene.hpp"
+#include "fullscreenDialogScene.hpp"
 #include "globals.hpp"
 #include "multiplayerSettingsScene.hpp"
 #include "script/lisp.hpp"
 #include "skyland/opponent/multiplayerPeer.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "version.hpp"
 #include "titleScreenScene.hpp"
-#include "fullscreenDialogScene.hpp"
+#include "version.hpp"
 
 
 

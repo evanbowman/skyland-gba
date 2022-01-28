@@ -60,6 +60,10 @@ TitleScreenScene::TitleScreenScene(int start_page)
 
 
 
+void unregister_plugins();
+
+
+
 void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.screen().schedule_fade(1.f);
@@ -71,6 +75,10 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.system_call("v-parallax", (void*)false);
 
     key_callback_processor.clear();
+    app.custom_tile_mapper().clear();
+
+    // Back to the title screen! DLC plugins need to be unloaded...
+    unregister_plugins();
 
     // By default, we do not allow recording for rewind. Enabled based on game
     // mode when fading into a level.
@@ -218,9 +226,8 @@ void TitleScreenScene::put_module_text(Platform& pfrm)
     const auto st = calc_screen_tiles(pfrm);
     StringBuffer<32> buffer;
     if (module_cursor_) {
-        const auto index =
-            module_page_ * modules_per_page +
-            module_cursor_->x + module_cursor_->y * modules_per_row;
+        const auto index = module_page_ * modules_per_page + module_cursor_->x +
+                           module_cursor_->y * modules_per_row;
         if (auto factory = detail::_Module::Factory::get(index)) {
             buffer += factory->name();
         } else {
@@ -719,9 +726,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             if (app.player().key_down(pfrm, Key::action_1)) {
-                auto index =
-                    module_page_ * modules_per_page +
-                    module_cursor_->x + module_cursor_->y * modules_per_row;
+                auto index = module_page_ * modules_per_page +
+                             module_cursor_->x +
+                             module_cursor_->y * modules_per_row;
                 if (auto f = detail::_Module::Factory::get(index)) {
                     pfrm.speaker().play_music("unaccompanied_wind", 0);
                     pfrm.fill_overlay(0);
@@ -751,11 +758,12 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
 {
     // left arrow icon
-    pfrm.set_tile(Layer::overlay, 1, 8,
-                  module_page_ == 0 ? 175 : 173);
+    pfrm.set_tile(Layer::overlay, 1, 8, module_page_ == 0 ? 175 : 173);
 
     // right arrow icon
-    pfrm.set_tile(Layer::overlay, 28, 8,
+    pfrm.set_tile(Layer::overlay,
+                  28,
+                  8,
                   module_page_ == module_page_count() - 1 ? 174 : 172);
 
 

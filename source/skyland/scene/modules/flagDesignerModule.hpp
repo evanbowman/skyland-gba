@@ -2,8 +2,8 @@
 
 
 #include "skyland/flag.hpp"
-#include "skyland/scene/module.hpp"
 #include "skyland/paint.hpp"
+#include "skyland/scene/module.hpp"
 
 
 
@@ -11,12 +11,9 @@ namespace skyland {
 
 
 
-class FlagDesignerModule :
-        public Module<FlagDesignerModule>,
-        public Paint {
+class FlagDesignerModule : public Module<FlagDesignerModule>, public Paint {
 
 public:
-
     static const char* module_name()
     {
         return "Flag Designer";

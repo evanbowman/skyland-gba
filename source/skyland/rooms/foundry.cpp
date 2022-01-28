@@ -17,7 +17,7 @@ void Foundry::format_description(StringBuffer<512>& buffer)
 
 
 Foundry::Foundry(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position)
+    : Room(parent, name(), position)
 {
 }
 

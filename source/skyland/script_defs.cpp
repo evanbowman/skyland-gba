@@ -770,7 +770,8 @@ static const lisp::Binding script_api[] = {
          }
          return L_NIL;
      }},
-    {"cargo-set", [](int argc) {
+    {"cargo-set",
+     [](int argc) {
          L_EXPECT_ARGC(argc, 4);
          L_EXPECT_OP(0, string);  // cargo
          L_EXPECT_OP(1, integer); // y
@@ -785,6 +786,37 @@ static const lisp::Binding script_api[] = {
              if (auto cb = dynamic_cast<CargoBay*>(room)) {
                  cb->set_cargo(lisp::get_op(0)->string().value(), 1);
              }
+         }
+
+         return L_NIL;
+     }},
+    {"register-tile", [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, string);
+
+         img::Image texture;
+
+         Vector<char> data(*lisp::interp_get_pfrm());
+
+         const char* path = lisp::get_op(0)->string().value();
+
+         ram_filesystem::read_file_data(*lisp::interp_get_pfrm(), path, data);
+
+         if (data.size() >= sizeof texture) {
+             auto it = data.begin();
+             for (u32 i = 0; i < sizeof texture; ++i) {
+                 ((u8*)&texture)[i] = *it;
+                 ++it;
+             }
+
+             auto result = interp_get_app()->custom_tile_mapper().map_image(
+                 *lisp::interp_get_pfrm(), texture);
+
+             return lisp::make_integer(result);
+         } else {
+             StringBuffer<64> err = "invalid texture path or contents: ";
+             err += path;
+             Platform::fatal(err.c_str());
          }
 
          return L_NIL;

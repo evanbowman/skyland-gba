@@ -79,4 +79,4 @@ struct Image {
 
 
 
-}
+} // namespace skyland::img

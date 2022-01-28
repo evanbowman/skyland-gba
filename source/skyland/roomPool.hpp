@@ -13,7 +13,11 @@ namespace skyland {
 namespace room_pool {
 
 
+#ifdef __GBA__
 static constexpr const int max_room_size = 52;
+#else
+static constexpr const int max_room_size = 128;
+#endif
 static constexpr const int pool_capacity = 140;
 static constexpr const int alignment = 8;
 

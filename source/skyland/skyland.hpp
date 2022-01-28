@@ -5,6 +5,7 @@
 #include "boxed.hpp"
 #include "camera.hpp"
 #include "coins.hpp"
+#include "customTileMapper.hpp"
 #include "dialog.hpp"
 #include "entity/birbs/smolBirb.hpp"
 #include "flag.hpp"
@@ -319,6 +320,12 @@ public:
     }
 
 
+    CustomTileMapper& custom_tile_mapper()
+    {
+        return custom_tile_mapper_;
+    }
+
+
 private:
     PersistentData persistent_data_;
     Island player_island_;
@@ -366,6 +373,7 @@ private:
     DynamicMemory<save::EmergencyBackup> backup_;
 
     time_stream::TimeStream time_stream_;
+    CustomTileMapper custom_tile_mapper_;
 };
 
 

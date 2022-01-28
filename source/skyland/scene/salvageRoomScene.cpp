@@ -4,9 +4,9 @@
 #include "readyScene.hpp"
 #include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/scene/notificationScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/scene/notificationScene.hpp"
 
 
 
@@ -146,17 +146,14 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto& cursor_loc =
         near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
-        : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+              : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
 
     if (auto room = island(app)->get_room(cursor_loc)) {
         if (length(room->characters()) > 0) {
-            auto future_scene = [exit_scene]() {
-                return exit_scene();
-            };
+            auto future_scene = [exit_scene]() { return exit_scene(); };
             const char* msg = "cannot salvage populated room!";
-            return scene_pool::alloc<NotificationScene>(msg,
-                                                        future_scene);
+            return scene_pool::alloc<NotificationScene>(msg, future_scene);
         }
     } else {
         return exit_scene();

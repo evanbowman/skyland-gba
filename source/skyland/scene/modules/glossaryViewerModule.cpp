@@ -30,8 +30,8 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
     }
 
 
-    pfrm.set_tile(Layer::overlay, 28, 1,
-                  room_category_icon(mt[page]->category()));
+    pfrm.set_tile(
+        Layer::overlay, 28, 1, room_category_icon(mt[page]->category()));
 
     StringBuffer<30> temp;
     temp += mt[page]->name();
@@ -98,7 +98,9 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
     auto [mt, ms] = room_metatable();
 
 
-    if (app.player().key_down(pfrm, Key::right) and page_ < ms - 1) {
+    if (app.player().key_down(pfrm, Key::right)
+        and page_ < ms - 1
+        and page_ < plugin_rooms_begin() - 1) {
         load_page(pfrm, ++page_);
     }
 

@@ -1,10 +1,10 @@
 #include "fileBrowserModule.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "skyland/scene/createFileScene.hpp"
+#include "skyland/scene/paintScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
 #include "textEditorModule.hpp"
-#include "skyland/scene/paintScene.hpp"
 
 
 
@@ -456,7 +456,8 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                     path += selected;
 
                     if (get_extension(path) == ".img") {
-                        return scene_pool::alloc<PaintScene>(path.c_str(), false);
+                        return scene_pool::alloc<PaintScene>(path.c_str(),
+                                                             false);
                     } else {
                         return scene_pool::alloc<TextEditorModule>(
                             pfrm,

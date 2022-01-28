@@ -2,8 +2,8 @@
 
 
 #include "decoration.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -17,9 +17,8 @@ void show_island_interior(Platform& pfrm, App& app, Island* island);
 
 class Bridge : public Decoration {
 public:
-
-    Bridge(Island* parent, const Vec2<u8>& position) :
-        Decoration(parent, name(), size(), position)
+    Bridge(Island* parent, const Vec2<u8>& position)
+        : Decoration(parent, name(), position)
     {
     }
 
@@ -67,8 +66,7 @@ public:
         // Unlike most rooms, the bridge shows inhabitants while viewing a
         // castle's exterior. If selecting a character, we want to show the
         // interior representation of the castle.
-        if (not characters().empty() and
-            not parent()->interior_visible()) {
+        if (not characters().empty() and not parent()->interior_visible()) {
 
             show_island_interior(pfrm, app, parent());
         }
@@ -99,9 +97,8 @@ public:
     {
         return 1432;
     }
-
 };
 
 
 
-}
+} // namespace skyland

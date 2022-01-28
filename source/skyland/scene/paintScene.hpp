@@ -1,12 +1,12 @@
 #pragma once
 
-#include "skyland/scene.hpp"
-#include "skyland/paint.hpp"
-#include "string.hpp"
-#include "platform/ram_filesystem.hpp"
-#include "skyland/skyland.hpp"
 #include "modules/fileBrowserModule.hpp"
+#include "platform/ram_filesystem.hpp"
 #include "skyland/img.hpp"
+#include "skyland/paint.hpp"
+#include "skyland/scene.hpp"
+#include "skyland/skyland.hpp"
+#include "string.hpp"
 
 
 
@@ -16,16 +16,13 @@ namespace skyland {
 
 class PaintScene : public Scene, public Paint {
 public:
-
-
     static const int canvas_width = 16;
     static const int canvas_height = 16;
 
 
-    PaintScene(const char* file_path, bool create) :
-        Paint(canvas_width, canvas_height, 1, 1),
-        file_path_(file_path),
-        create_(create)
+    PaintScene(const char* file_path, bool create)
+        : Paint(canvas_width, canvas_height, 1, 1), file_path_(file_path),
+          create_(create)
     {
     }
 
@@ -56,7 +53,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         pfrm.screen().schedule_fade(0.f);
 
@@ -102,4 +100,4 @@ private:
 
 
 
-}
+} // namespace skyland

@@ -751,8 +751,20 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
     const auto f_count = island(app)->foundry_count();
 
     auto metatable = room_metatable();
-    for (int i = 0; i < metatable.second; ++i) {
+    for (MetaclassIndex i = 0; i < metatable.second; ++i) {
         auto& meta = metatable.first[i];
+
+        if (app.game_mode() == App::GameMode::multiplayer or
+            app.game_mode() == App::GameMode::tutorial) {
+            if (i >= plugin_rooms_begin()) {
+                // We disable plugin (dlc) rooms during certain game modes.
+                break;
+            }
+        }
+
+        if (not is_enabled(i)) {
+            continue;
+        }
 
         const bool workshop_required =
             (meta->conditions() & Conditions::workshop_required);
@@ -773,8 +785,8 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             not(meta->conditions() & Conditions::not_constructible)) {
 
             // Do not show decorations in the building list in tutorial mode.
-            if (not (app.game_mode() == App::GameMode::tutorial and
-                     meta->category() == Room::Category::decoration)) {
+            if (not(app.game_mode() == App::GameMode::tutorial and
+                    meta->category() == Room::Category::decoration)) {
 
                 auto index = metaclass_index(meta->name());
                 if (not available_buildings_.push_back(index)) {
@@ -782,7 +794,6 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
                                     "needs more memory");
                 }
             }
-
         }
     }
 

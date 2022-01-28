@@ -8,6 +8,7 @@
 #include "serial.hpp"
 #include "sound.hpp"
 #include "timeStreamEvent.hpp"
+#include "room_metatable.hpp"
 
 
 

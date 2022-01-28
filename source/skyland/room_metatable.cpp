@@ -2,6 +2,7 @@
 
 
 #include "skyland/rooms/arcGun.hpp"
+#include "skyland/rooms/bridge.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/cargoBay.hpp"
@@ -15,20 +16,19 @@
 #include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/ionFizzler.hpp"
+#include "skyland/rooms/masonry.hpp"
 #include "skyland/rooms/missileSilo.hpp"
+#include "skyland/rooms/palm.hpp"
 #include "skyland/rooms/plunderedRoom.hpp"
 #include "skyland/rooms/poweredHull.hpp"
 #include "skyland/rooms/radar.hpp"
 #include "skyland/rooms/reactor.hpp"
 #include "skyland/rooms/replicator.hpp"
+#include "skyland/rooms/shrubbery.hpp"
 #include "skyland/rooms/stairwell.hpp"
+#include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
-#include "skyland/rooms/palm.hpp"
-#include "skyland/rooms/shrubbery.hpp"
-#include "skyland/rooms/masonry.hpp"
-#include "skyland/rooms/statue.hpp"
-#include "skyland/rooms/bridge.hpp"
 
 
 
@@ -36,49 +36,137 @@ namespace skyland {
 
 
 
+template <int plugin_slots, typename... Rooms> struct RoomMetatable {
+public:
+    template <size_t i, typename First, typename... Rest> void init()
+    {
+        table_[i].template init<First>();
+
+        if constexpr (sizeof...(Rest) > 0) {
+            init<i + 1, Rest...>();
+        }
+    }
+
+    RoomMetatable()
+    {
+        init<0, Rooms...>();
+
+        for (int i = 0; i < plugin_slots; ++i) {
+            table_[sizeof...(Rooms) + i].init_plugin();
+        }
+
+        for (MetaclassIndex i = 0; i < plugin_rooms_begin(); ++i) {
+            if (table_[i]->unlocked_by_default()) {
+                enabled_rooms_.set(i, true);
+            }
+        }
+    }
+
+    int size()
+    {
+        return sizeof...(Rooms) + plugin_slots;
+    }
+
+    // Returns the number of builtin rooms. Relevant because we may want to
+    // disable plugin (dlc) rooms for certain game modes.
+    static constexpr int builtin_slots_end()
+    {
+        return sizeof...(Rooms);
+    }
+
+    RoomMeta table_[sizeof...(Rooms) + plugin_slots];
+    Bitvector<sizeof...(Rooms) + plugin_slots> enabled_rooms_;
+};
+
+
+
+using RoomMetatableType = RoomMetatable<8,
+                                        // walls
+                                        Hull,
+                                        Forcefield,
+                                        PoweredHull,
+                                        IonFizzler,
+                                        // weapons
+                                        Cannon,
+                                        IonCannon,
+                                        ArcGun,
+                                        FlakGun,
+                                        MissileSilo,
+                                        Decimator,
+                                        // factories
+                                        Workshop,
+                                        Foundry,
+                                        // power generation
+                                        Core,
+                                        Reactor,
+                                        // misc
+                                        Stairwell,
+                                        Bulkhead,
+                                        Infirmary,
+                                        CargoBay,
+                                        Radar,
+                                        Transporter,
+                                        Replicator,
+                                        DroneBay,
+                                        // decoration
+                                        Statue,
+                                        Bridge,
+                                        Palm,
+                                        Shrubbery,
+                                        Masonry,
+                                        PlunderedRoom>;
+
+
+
 static auto& __metatable()
 {
-    // NOTE: the construction menu has a feature where the menu can jump ahead
-    // to the next room of a different category. So rooms should be added to
-    // this list in order of category.
-    static RoomMetatable<8,
-                         // walls
-                         Hull,
-                         Forcefield,
-                         PoweredHull,
-                         IonFizzler,
-                         // weapons
-                         Cannon,
-                         IonCannon,
-                         ArcGun,
-                         FlakGun,
-                         MissileSilo,
-                         Decimator,
-                         // factories
-                         Workshop,
-                         Foundry,
-                         // power generation
-                         Core,
-                         Reactor,
-                         // misc
-                         Stairwell,
-                         Bulkhead,
-                         Infirmary,
-                         CargoBay,
-                         Radar,
-                         Transporter,
-                         Replicator,
-                         DroneBay,
-                         // decoration
-                         Statue,
-                         Bridge,
-                         Palm,
-                         Shrubbery,
-                         Masonry,
-                         PlunderedRoom>
-        __room_metatable;
+    static RoomMetatableType __room_metatable;
 
     return __room_metatable;
+}
+
+
+
+bool is_enabled(MetaclassIndex index)
+{
+    return __metatable().enabled_rooms_.get(index);
+}
+
+
+
+void set_enabled(MetaclassIndex index, bool enabled)
+{
+    if (index >= plugin_rooms_begin()) {
+        Platform::fatal("Attempt to manually set enabled bit for plugin room!");
+    }
+
+    __metatable().enabled_rooms_.set(index, enabled);
+}
+
+
+
+void unregister_plugins()
+{
+    for (int i = plugin_rooms_begin(); i < __metatable().size(); ++i) {
+        __metatable().enabled_rooms_.set(i, false);
+
+        if (auto b = dynamic_cast<RoomMeta::PluginBox*>(__metatable().table_[i].box())) {
+            b->info_.reset();
+        } else {
+            Platform::fatal("Metaclass Boxed in plugin sector is not a PluginBox?");
+        }
+    }
+}
+
+
+
+bool register_plugin(lisp::Value* config);
+
+
+
+MetaclassIndex plugin_rooms_begin()
+{
+    return RoomMetatableType::builtin_slots_end();
 }
 
 

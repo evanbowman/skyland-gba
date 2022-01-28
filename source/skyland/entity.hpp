@@ -112,7 +112,12 @@ protected:
 
 static constexpr const int entity_pool_size = 64;
 static constexpr const int entity_pool_align = 8;
+
+#ifdef __GBA__
 static constexpr const int max_entity_size = 100;
+#else
+static constexpr const int max_entity_size = 200;
+#endif
 
 
 struct EntityPools {

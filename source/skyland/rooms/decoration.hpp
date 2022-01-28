@@ -10,7 +10,6 @@ namespace skyland {
 
 class Decoration : public Room {
 public:
-
     using Room::Room;
 
 
@@ -37,6 +36,14 @@ public:
     }
 
 
+    static bool unlocked_by_default()
+    {
+        // Should probably be false, as the whole purpose of decorations is to
+        // reward the player for achievements.
+        return true;
+    }
+
+
     static Float ai_base_weight()
     {
         return 1.f;
@@ -51,4 +58,4 @@ public:
 
 
 
-}
+} // namespace skyland

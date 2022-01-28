@@ -63,10 +63,15 @@ public:
 
 
 
-    Room(Island* parent,
-         const char* name,
-         const Vec2<u8>& size,
-         const Vec2<u8>& position);
+    Room(Island* parent, const char* name, const Vec2<u8>& position);
+
+
+
+    static bool unlocked_by_default()
+    {
+        return true;
+    }
+
 
 
     virtual bool add_occupant(EntityRef<BasicCharacter> entity)

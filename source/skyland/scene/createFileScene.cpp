@@ -1,8 +1,8 @@
 #include "createFileScene.hpp"
 #include "modules/textEditorModule.hpp"
+#include "paintScene.hpp"
 #include "platform/platform.hpp"
 #include "skyland/skyland.hpp"
-#include "paintScene.hpp"
 
 
 

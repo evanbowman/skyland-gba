@@ -12,13 +12,10 @@
 namespace skyland {
 
 
-Room::Room(Island* parent,
-           const char* name,
-           const Vec2<u8>& size,
-           const Vec2<u8>& position)
+Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
     : parent_(parent),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      size_(size), position_(position), health_(1)
+      position_(position), health_(1)
 {
     if (name == nullptr) {
         return;
@@ -32,6 +29,7 @@ Room::Room(Island* parent,
         if (str_cmp(name, current->name()) == 0) {
             metaclass_ = &current;
 
+            size_ = (*metaclass_)->size();
             health_ = (*metaclass_)->full_health();
             return;
         }
@@ -265,8 +263,7 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
             cursor_loc =
                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
         } else {
-            cursor_loc =
-                std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+            cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
         }
 
         for (auto& character : characters_) {
@@ -275,8 +272,7 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
                 if (character->owner() == &app.player() or
                     (character->owner() == &app.opponent() and
                      app.game_mode() == App::GameMode::sandbox)) {
-                    return scene_pool::alloc<MoveCharacterScene>(pfrm,
-                                                                 near);
+                    return scene_pool::alloc<MoveCharacterScene>(pfrm, near);
                 }
             }
         }

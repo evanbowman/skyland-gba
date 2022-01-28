@@ -9,16 +9,10 @@ namespace skyland {
 
 class PluginRoom : public Room {
 public:
-    PluginRoom(Island* parent, const Vec2<u8>& position, RoomMeta* metaclass)
-        : Room(parent, nullptr, {1, 1}, position)
-    {
-        set_metaclass(metaclass);
-    }
+    PluginRoom(Island* parent, const Vec2<u8>& position, RoomMeta* metaclass);
 
 
-    void update(Platform&, App&, Microseconds delta) override
-    {
-    }
+    void update(Platform&, App&, Microseconds delta) override;
 
 
     void render_interior(App& app, u8 buffer[16][16]) override

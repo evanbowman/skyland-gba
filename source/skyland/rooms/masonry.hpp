@@ -12,16 +12,16 @@ namespace skyland {
 
 class Masonry : public Decoration {
 public:
-
-    Masonry(Island* parent, const Vec2<u8>& position) :
-        Decoration(parent, name(), size(), position)
+    Masonry(Island* parent, const Vec2<u8>& position)
+        : Decoration(parent, name(), position)
     {
     }
 
 
     static void format_description(StringBuffer<512>& buffer)
     {
-        buffer += "While ineffective against most modern weaponry, "
+        buffer +=
+            "While ineffective against most modern weaponry, "
             "villagers in skyland still build structures with stone, because "
             "it looks nice.";
     }
@@ -67,9 +67,8 @@ public:
     {
         return 1464;
     }
-
 };
 
 
 
-}
+} // namespace skyland

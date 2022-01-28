@@ -240,11 +240,11 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                         str_eq((*metac)->name(), "plundered-room");
                     const bool is_stairwell =
                         str_eq((*metac)->name(), "stairwell");
-                    const bool is_bridge =
-                        str_eq((*metac)->name(), "bridge");
+                    const bool is_bridge = str_eq((*metac)->name(), "bridge");
 
                     if (&room->parent()->owner() not_eq owner() and
-                        not is_plundered and not is_stairwell and not is_bridge) {
+                        not is_plundered and not is_stairwell and
+                        not is_bridge) {
                         state_ = State::plunder_room;
                         timer_ = 0;
                     } else if (&room->parent()->owner() == owner() and

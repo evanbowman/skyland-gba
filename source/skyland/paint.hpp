@@ -14,17 +14,13 @@ namespace skyland {
 
 class Paint {
 public:
-
     Paint(u8 canvas_width = 13,
           u8 canvas_height = 11,
           u8 canvas_origin_x = 3,
           u8 canvas_origin_y = 3,
-          int view_shift = -18) :
-        view_shift_(view_shift),
-        width_(canvas_width),
-        height_(canvas_height),
-        origin_x_(canvas_origin_x),
-        origin_y_(canvas_origin_y)
+          int view_shift = -18)
+        : view_shift_(view_shift), width_(canvas_width), height_(canvas_height),
+          origin_x_(canvas_origin_x), origin_y_(canvas_origin_y)
     {
     }
 
@@ -79,9 +75,8 @@ private:
     u8 height_;
     u8 origin_x_;
     u8 origin_y_;
-
 };
 
 
 
-}
+} // namespace skyland

@@ -78,8 +78,8 @@ void Camera::update(Platform& pfrm,
             }
         }
 
-        view.set_center({current_.x, clamp(current_.y + offset,
-                                           (Float)view_y_min, 0.f)});
+        view.set_center(
+            {current_.x, clamp(current_.y + offset, (Float)view_y_min, 0.f)});
     } else {
         view.set_center(current_);
     }

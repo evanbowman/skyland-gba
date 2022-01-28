@@ -9,7 +9,8 @@ namespace skyland {
 
 void Radar::format_description(StringBuffer<512>& buffer)
 {
-    buffer += "Scans the interior of other castles! Radars improve transporter "
+    buffer +=
+        "Scans the interior of other castles! Radars improve transporter "
         "accuracy, allowing transporters to select an exact position on another"
         " island.";
 }
@@ -17,7 +18,7 @@ void Radar::format_description(StringBuffer<512>& buffer)
 
 
 Radar::Radar(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), size(), position)
+    : Room(parent, name(), position)
 {
 }
 

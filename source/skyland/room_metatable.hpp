@@ -6,6 +6,7 @@
 #include "room.hpp"
 #include "rooms/pluginRoom.hpp"
 #include "script/lisp.hpp"
+#include "bitvector.hpp"
 
 
 
@@ -35,6 +36,8 @@ struct RoomMeta {
         virtual Health full_health() const = 0;
         virtual Room::Category category() const = 0;
         virtual void format_description(StringBuffer<512>& buffer) const = 0;
+        virtual bool unlocked_by_default() const = 0;
+
 
         virtual void configure(Health health, Coins cost, Power power)
         {
@@ -64,9 +67,9 @@ struct RoomMeta {
 
         struct PluginInfo {
             enum Tag {
+                name,
                 size,
                 update,
-                name,
                 ai_weight,
                 coins,
                 power,
@@ -123,6 +126,10 @@ struct RoomMeta {
             return Room::Category::misc; // TODO...
         }
 
+        bool unlocked_by_default() const override
+        {
+            return false;
+        }
 
         void format_description(StringBuffer<512>&) const override
         {
@@ -182,6 +189,11 @@ struct RoomMeta {
         Vec2<u8> size() const override
         {
             return T::size();
+        }
+
+        bool unlocked_by_default() const override
+        {
+            return T::unlocked_by_default();
         }
 
         Coins cost() const override
@@ -267,6 +279,11 @@ struct RoomMeta {
         return reinterpret_cast<const Box*>(buffer_);
     }
 
+    Box* box()
+    {
+        return reinterpret_cast<Box*>(buffer_);
+    }
+
     ~RoomMeta()
     {
         reinterpret_cast<Box*>(buffer_)->~Box();
@@ -274,42 +291,32 @@ struct RoomMeta {
 };
 
 
-// NOTE: I wanted users to be able to script their own room objects. The plugin
-// slots represent room metaclasses defined as lisp scripts.
-template <int plugin_slots, typename... Rooms> struct RoomMetatable {
-public:
-    template <size_t i, typename First, typename... Rest> void init()
-    {
-        table_[i].template init<First>();
-
-        if constexpr (sizeof...(Rest) > 0) {
-            init<i + 1, Rest...>();
-        }
-    }
-
-    RoomMetatable()
-    {
-        init<0, Rooms...>();
-
-        for (int i = 0; i < plugin_slots; ++i) {
-            table_[sizeof...(Rooms) + i].init_plugin();
-        }
-    }
-
-    constexpr int size()
-    {
-        return sizeof...(Rooms);
-    }
-
-    RoomMeta table_[sizeof...(Rooms) + plugin_slots];
-};
-
 
 std::pair<RoomMeta*, int> room_metatable();
 
 
 
 using MetaclassIndex = u16;
+
+
+
+MetaclassIndex plugin_rooms_begin();
+
+
+
+bool is_enabled(MetaclassIndex index);
+
+
+
+void set_enabled(MetaclassIndex index, bool enabled);
+
+
+
+void unregister_plugins();
+
+
+
+bool register_plugin(lisp::Value* config);
 
 
 

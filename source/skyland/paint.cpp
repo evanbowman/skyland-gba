@@ -1,5 +1,5 @@
-#include "platform/platform.hpp"
 #include "paint.hpp"
+#include "platform/platform.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -50,10 +50,16 @@ void Paint::init(Platform& pfrm, App& app)
 void Paint::draw_rulers(Platform& pfrm)
 {
     for (int i = 0; i < width_; ++i) {
-        pfrm.set_tile(Layer::overlay, (origin_x_) + i, origin_y_ - 1, i == cursor_.x ? 474 : 472);
+        pfrm.set_tile(Layer::overlay,
+                      (origin_x_) + i,
+                      origin_y_ - 1,
+                      i == cursor_.x ? 474 : 472);
     }
     for (int i = 0; i < height_; ++i) {
-        pfrm.set_tile(Layer::overlay, origin_x_ + width(), origin_y_ + i, i == cursor_.y ? 473 : 471);
+        pfrm.set_tile(Layer::overlay,
+                      origin_x_ + width(),
+                      origin_y_ + i,
+                      i == cursor_.y ? 473 : 471);
     }
 }
 
@@ -68,18 +74,15 @@ void Paint::show(Platform& pfrm, App& app)
                 Platform::fatal("pixel is not 4bit indexed color!");
             }
             const auto t = palette_[val];
-            pfrm.set_tile(
-                Layer::overlay, x + origin_x_, y + origin_y_, t);
-            pfrm.set_palette(
-                Layer::overlay, x + origin_x_, y + origin_y_, 0);
+            pfrm.set_tile(Layer::overlay, x + origin_x_, y + origin_y_, t);
+            pfrm.set_palette(Layer::overlay, x + origin_x_, y + origin_y_, 0);
         }
     }
 }
 
 
 
-ScenePtr<Scene>
-Paint::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> Paint::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::alt_1)) {
         color_--;
@@ -101,7 +104,8 @@ Paint::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
     if (cursor_move_ready) {
-        if (app.player().key_pressed(pfrm, Key::right) and cursor_.x < (width_ - 1)) {
+        if (app.player().key_pressed(pfrm, Key::right) and
+            cursor_.x < (width_ - 1)) {
             ++cursor_.x;
             ready_ = true;
             cursor_move_tic_ = milliseconds(90);
@@ -119,14 +123,16 @@ Paint::update(Platform& pfrm, App& app, Microseconds delta)
             cursor_move_tic_ = milliseconds(90);
             draw_rulers(pfrm);
         }
-        if (app.player().key_pressed(pfrm, Key::down) and cursor_.y < (height_ - 1)) {
+        if (app.player().key_pressed(pfrm, Key::down) and
+            cursor_.y < (height_ - 1)) {
             ++cursor_.y;
             ready_ = true;
             cursor_move_tic_ = milliseconds(90);
             draw_rulers(pfrm);
         }
     } else {
-        if (app.player().key_down(pfrm, Key::right) and cursor_.x < (width_ - 1)) {
+        if (app.player().key_down(pfrm, Key::right) and
+            cursor_.x < (width_ - 1)) {
             ++cursor_.x;
             ready_ = true;
             cursor_move_tic_ = milliseconds(400);
@@ -144,7 +150,8 @@ Paint::update(Platform& pfrm, App& app, Microseconds delta)
             cursor_move_tic_ = milliseconds(400);
             draw_rulers(pfrm);
         }
-        if (app.player().key_down(pfrm, Key::down) and cursor_.y < (height_ - 1)) {
+        if (app.player().key_down(pfrm, Key::down) and
+            cursor_.y < (height_ - 1)) {
             ++cursor_.y;
             ready_ = true;
             cursor_move_tic_ = milliseconds(400);
@@ -223,4 +230,4 @@ void Paint::display(Platform& pfrm, App& app)
 
 
 
-}
+} // namespace skyland

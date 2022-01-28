@@ -77,6 +77,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/roomPool.cpp
   ${SOURCE_DIR}/skyland/script_defs.cpp
   ${SOURCE_DIR}/skyland/configure_island.cpp
+  ${SOURCE_DIR}/skyland/customTileMapper.cpp
   ${SOURCE_DIR}/skyland/playerP1.cpp
   ${SOURCE_DIR}/skyland/autopilotPlayer.cpp
   ${SOURCE_DIR}/skyland/opponent/enemyAI.cpp
@@ -114,6 +115,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/ionCannon.cpp
   ${SOURCE_DIR}/skyland/rooms/ionFizzler.cpp
   ${SOURCE_DIR}/skyland/rooms/replicator.cpp
+  ${SOURCE_DIR}/skyland/rooms/pluginRoom.cpp
   ${SOURCE_DIR}/skyland/rooms/forcefield.cpp
   ${SOURCE_DIR}/skyland/rooms/poweredHull.cpp
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp

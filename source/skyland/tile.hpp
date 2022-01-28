@@ -1,6 +1,7 @@
 #pragma once
 
 
+
 struct Tile {
     enum {
         null,
@@ -83,8 +84,12 @@ struct Tile {
         statue_1,
         statue_2,
         bridge,
+
+        // All tile indices below are reserved for DLC content.
+        dlc_tiles_begin = 113,
     };
 };
+
 
 
 struct InteriorTile {
@@ -166,5 +171,8 @@ struct InteriorTile {
         statue_1,
         statue_2,
         bridge,
+
+        // All tile indices below are reserved for DLC content.
+        dlc_tiles_begin = 113,
     };
 };

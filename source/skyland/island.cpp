@@ -378,8 +378,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 big_explosion(pfrm, app, (*it)->center());
             }
 
-            if (destroyed_count < 2 and app.game_mode()
-                not_eq App::GameMode::multiplayer) {
+            if (destroyed_count < 2 and
+                app.game_mode() not_eq App::GameMode::multiplayer) {
                 pfrm.sleep(2);
             }
 
@@ -898,7 +898,8 @@ void Island::repaint(Platform& pfrm, App& app)
                         not placed_flag and y > 1 and matrix[x][y - 1] == 0) {
                         if (auto room = get_room({x, (u8)(y + 1)})) {
                             if (str_eq((*room->metaclass())->name(), "hull") or
-                                str_eq((*room->metaclass())->name(), "masonry")) {
+                                str_eq((*room->metaclass())->name(),
+                                       "masonry")) {
                                 placed_flag = true;
                                 buffer[x][y] = Tile::flag_mount;
                                 buffer[x][y - 1] = Tile::flag_start;
@@ -939,12 +940,14 @@ void Island::repaint(Platform& pfrm, App& app)
         }
     }
 
-
     for (int x = 0; x < 16; ++x) {
         // NOTE: only handle 15 rows because render_terrain() takes care of the
         // last row.
         for (int y = 0; y < 15; ++y) {
             pfrm.set_tile(layer_, x, y, buffer[x][y]);
+            if (buffer[x][y] >= Tile::dlc_tiles_begin) {
+                pfrm.set_palette(layer_, x, y, 12);
+            }
         }
     }
 

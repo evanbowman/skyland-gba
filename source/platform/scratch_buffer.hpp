@@ -5,7 +5,7 @@
 #ifdef __GBA__
 #define SCRATCH_BUFFER_SIZE 2000
 #else
-#define SCRATCH_BUFFER_SIZE 4000
+#define SCRATCH_BUFFER_SIZE 8000
 #endif // __GBA__
 
 

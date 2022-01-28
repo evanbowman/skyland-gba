@@ -3529,22 +3529,21 @@ extern char __rom_end__;
 
 
 
-namespace
-{
-    __attribute__((section(".ewram"))) int _ewram_static_data = 0;
+namespace {
+__attribute__((section(".ewram"))) int _ewram_static_data = 0;
 }
 
 
 void ram_overclock()
 {
-    volatile unsigned& memctrl_register = *reinterpret_cast<unsigned*>(0x4000800);
+    volatile unsigned& memctrl_register =
+        *reinterpret_cast<unsigned*>(0x4000800);
     memctrl_register = 0x0E000020;
 
     volatile int& ewram_static_data = _ewram_static_data;
     ewram_static_data = 1;
 
-    if(ewram_static_data != 1)
-    {
+    if (ewram_static_data != 1) {
         memctrl_register = 0x0D000020;
     }
 }

@@ -11,7 +11,6 @@ class Weapon : public Room {
 public:
     Weapon(Island* parent,
            const char* name,
-           const Vec2<u8>& size,
            const Vec2<u8>& position,
            Microseconds reload_time);
 

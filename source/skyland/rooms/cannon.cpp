@@ -37,7 +37,7 @@ void Cannon::format_description(StringBuffer<512>& buffer)
 
 
 Cannon::Cannon(Island* parent, const Vec2<u8>& position)
-    : Weapon(parent, name(), size(), position, 1000 * cannon_reload_ms)
+    : Weapon(parent, name(), position, 1000 * cannon_reload_ms)
 {
 }
 
