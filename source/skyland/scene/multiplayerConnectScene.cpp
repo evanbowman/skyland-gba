@@ -68,6 +68,9 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
     pfrm.network_peer().listen();
 
     if (not pfrm.network_peer().is_connected()) {
+
+        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 0;
+
         auto future_scene = [] {
             return scene_pool::alloc<TitleScreenScene>();
         };
