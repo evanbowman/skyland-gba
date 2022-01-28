@@ -85,7 +85,7 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 "The system will now accept software updates from another "
                 "gameboy advance console. If you have a SKYLAND software update"
                 " ROM, or an e-Reader card, connect a link cable to install "
-                " updates.";
+                " updates. Press A when ready...";
         } else {
             return scene_pool::alloc<TitleScreenScene>(3);
         }
