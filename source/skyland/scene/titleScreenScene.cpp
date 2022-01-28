@@ -118,6 +118,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 }
 
 
+
 void TitleScreenScene::window_image_hack(Platform& pfrm, u16 empty_tile)
 {
     // We needed to cram the textures for the scrolling background image into
