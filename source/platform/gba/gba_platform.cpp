@@ -3544,9 +3544,36 @@ extern char __rom_end__;
 
 
 
+namespace
+{
+    __attribute__((section(".ewram"))) int _ewram_static_data = 0;
+}
+
+
+void ram_overclock()
+{
+    volatile unsigned& memctrl_register = *reinterpret_cast<unsigned*>(0x4000800);
+    memctrl_register = 0x0E000020;
+
+    volatile int& ewram_static_data = _ewram_static_data;
+    ewram_static_data = 1;
+
+    if(ewram_static_data != 1)
+    {
+        memctrl_register = 0x0D000020;
+    }
+}
+
+
+
 Platform::Platform()
 {
     ::platform = this;
+
+    // TODO: uncomment this after I finish development. Wouldn't want to build
+    // something that doesn't work on some gba consoles, but speeding up the
+    // ones that do work would be nice.
+    // ram_overclock();
 
     canary_init();
 
@@ -5272,7 +5299,7 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 
 
 
-void read_dlc(Platform&);
+void download_dlc_blob(Platform&, Vector<char>&);
 
 
 
@@ -5386,7 +5413,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
             vblank_scroll_callback = vblank_horizontal_transfer_scroll_isr;
         }
     } else if (str_cmp(feature_name, "dlc-download") == 0) {
-        read_dlc(*this);
+        download_dlc_blob(*this, *(Vector<char>*)arg);
     } else if (str_cmp(feature_name, "get-flag-palette") == 0) {
     }
 

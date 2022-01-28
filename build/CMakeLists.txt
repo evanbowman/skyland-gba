@@ -244,7 +244,7 @@ if(GAMEBOY_ADVANCE)
 
     ${SOURCE_DIR}/platform/gba/rumble.c
     ${SOURCE_DIR}/platform/gba/co_thread.c
-    ${SOURCE_DIR}/platform/gba/dlc.cpp
+    ${SOURCE_DIR}/platform/gba/dlc_download.cpp
 
     # Data files below. Because the gameboy advance does not have a filesystem,
     # all of the sounds and images need to be compiled into the ROM.
