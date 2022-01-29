@@ -3,6 +3,7 @@
 
 #include "opponent.hpp"
 #include "skyland/coins.hpp"
+#include "bulkAllocator.hpp"
 
 
 
@@ -35,29 +36,32 @@ public:
 
 
 private:
-    void
-    set_target(Platform&, App&, const u8 matrix[16][16], Room& generic_gun);
-    void
-    set_target(Platform&, App&, const u8 matrix[16][16], MissileSilo& silo);
+
+    void update_room(Platform&, App&, Room& room, const Bitmatrix<16, 16>& matrix);
 
     void
-    set_target(Platform&, App&, const u8 matrix[16][16], IonCannon& cannon);
+    set_target(Platform&, App&, const Bitmatrix<16, 16>& matrix, Room& generic_gun);
+    void
+    set_target(Platform&, App&, const Bitmatrix<16, 16>& matrix, MissileSilo& silo);
+
+    void
+    set_target(Platform&, App&, const Bitmatrix<16, 16>& matrix, IonCannon& cannon);
 
 
-    void set_target(Platform&, App&, const u8 matrix[16][16], FlakGun& gun);
+    void set_target(Platform&, App&, const Bitmatrix<16, 16>& matrix, FlakGun& gun);
 
 
     void
-    combat_drone_set_target(Platform&, App&, u8 matrix[16][16], Drone& drone);
+    combat_drone_set_target(Platform&, App&, const Bitmatrix<16, 16>& matrix, Drone& drone);
 
 
     void offensive_drone_set_target(Platform&,
                                     App&,
-                                    const u8 matrix[16][16],
+                                    const Bitmatrix<16, 16>& matrix,
                                     Drone& drone);
 
 
-    void update_room(Platform&, App&, const u8 matrix[16][16], DroneBay& db);
+    void update_room(Platform&, App&, const Bitmatrix<16, 16>& matrix, DroneBay& db);
 
 
     void assign_boarded_character(Platform&, App&, BasicCharacter& character);
@@ -79,8 +83,13 @@ private:
 
     Coins coins_ = 0;
 
+    static const auto drone_update_timeout_ = seconds(1);
+    Microseconds drone_update_timer_ = 0;
+
     Microseconds score_subtract_timer_ = 0;
     Microseconds total_time_ = 0;
+
+    u32 room_update_index_ = 0;
 };
 
 

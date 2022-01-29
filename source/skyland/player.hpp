@@ -14,6 +14,7 @@ namespace skyland {
 
 
 
+class Island;
 class Room;
 class App;
 
@@ -31,6 +32,11 @@ public:
 
 
     virtual void update(Platform&, App&, Microseconds delta)
+    {
+    }
+
+
+    virtual void on_layout_changed(Platform& pfrm, App& app, Island& island)
     {
     }
 

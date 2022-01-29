@@ -262,6 +262,12 @@ public:
     }
 
 
+    const Bitmatrix<16, 16>& rooms_plot() const
+    {
+        return rooms_plot_;
+    }
+
+
 private:
     void recalculate_power_usage();
 

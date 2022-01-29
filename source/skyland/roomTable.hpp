@@ -32,6 +32,12 @@ public:
     using Rooms = Buffer<RoomPtr<Room>, room_count>;
 
 
+    RoomPtr<Room>& operator[](int index)
+    {
+        return rooms_[index];
+    }
+
+
     bool full() const
     {
         return rooms_.full();
