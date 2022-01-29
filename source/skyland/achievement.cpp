@@ -1,0 +1,203 @@
+#include "achievement.hpp"
+#include "skyland.hpp"
+#include "save.hpp"
+#include "room_metatable.hpp"
+
+
+
+namespace skyland::achievements {
+
+
+
+struct AchievementInfo {
+    const char* name_;
+    const char* description_;
+    const char* reward_;
+
+    bool (*match_)(Platform&, App&);
+    void (*award_)(Platform&, App&);
+};
+
+
+
+static const AchievementInfo info[Achievement::count] = {
+    {"none",
+     "none",
+     "none",
+     [](Platform&, App&) { return false; },
+     [](Platform&, App&) { }},
+
+    {"Builder",
+     "Build an island with more than ten structures!",
+     "masonry",
+     [](Platform&, App& app) {
+         return app.player_island().rooms().size() > 10;
+     },
+     [](Platform&, App&) {
+         set_enabled(metaclass_index(info[builder].reward_), true);
+     }
+    },
+
+    {"Architect",
+     "Build an island with more than twenty structures!",
+     "bridge",
+     [](Platform&, App& app) {
+         return app.player_island().rooms().size() > 20;
+     },
+     [](Platform&, App&) {
+         set_enabled(metaclass_index(info[architect].reward_), true);
+     }
+    },
+
+    {"Explorer",
+     "Reach zone 2!",
+     "coconut-palm",
+     [](Platform&, App& app) {
+         return app.zone() > 1;
+     },
+     [](Platform&, App&) {
+         set_enabled(metaclass_index(info[explorer].reward_), true);
+     }
+    },
+
+    {"Strategist",
+     "Reach zone 3!",
+     "statue",
+     [](Platform&, App& app) {
+         return app.zone() > 2;
+     },
+     [](Platform&, App&) {
+         set_enabled(metaclass_index(info[strategist].reward_), true);
+     }
+    },
+
+    {"Borrowed tech",
+     "Destroy a decimator by plundering!",
+     "decimator",
+     [](Platform&, App& app) {
+         // Yeah, this is a pretty bad hack. When the PlayerP1 class receives a
+         // notification that the player plundered a room, it immediately
+         // enables the decimator item if the player plundered a
+         // decimator. Then, this code sees the signal and raises an alert. Sort
+         // of a backwards way of doing things. We could unlock() the
+         // achievement from the player class, but then the player would be
+         // responsible for creating a notification scene, which just isn't
+         // realistic, because the player isn't supposed to have control over
+         // the scene transition logic.
+         return is_enabled(metaclass_index(info[strategist].reward_));
+     },
+     [](Platform&, App&) {
+         set_enabled(metaclass_index(info[ancient_weapon].reward_), true);
+     }
+    }
+};
+
+
+
+void init(Platform& pfrm, App& app)
+{
+    auto flags = app.gp_.achievement_flags_;
+
+    for (int i = 0; i < Achievement::count; ++i) {
+        const u64 flag = 1 << i;
+
+        if (flags & flag) {
+            info[i].award_(pfrm, app);
+        }
+    }
+}
+
+
+
+// For efficiency/scalability, only check one achievement per update call. Store
+// the last checked achievement in a variable. Round-robin through the
+// achievements, one check per frame.
+static Achievement last_achievement = (Achievement)((int)Achievement::none + 1);
+
+
+
+Achievement update(Platform& pfrm, App& app)
+{
+    auto check_achievement = last_achievement + 1;
+    if (check_achievement == Achievement::count) {
+        check_achievement = (Achievement)((int)Achievement::none + 1);
+    }
+
+    last_achievement = (Achievement)check_achievement;
+
+    auto& flags = app.gp_.achievement_flags_;
+
+    const u64 flag = 1 << check_achievement;
+
+    static_assert(Achievement::count < sizeof(flag * 8),
+                  "More than 64 achievements, i.e. achievement bit does not "
+                  "fit in a u64.o");
+
+    if (not (flags & flag)) {
+        if (info[check_achievement].match_(pfrm, app)) {
+            flags |= flag;
+            save::store_global_data(pfrm, app.gp_);
+            return static_cast<Achievement>(check_achievement);
+        }
+    }
+
+    return Achievement::none;
+}
+
+
+
+bool unlock(Platform& pfrm, App& app, Achievement achievement)
+{
+    auto& flags = app.gp_.achievement_flags_;
+    const u64 flag = 1 << achievement;
+
+    if (not (flags & flag)) {
+        flags |= flag;
+        save::store_global_data(pfrm, app.gp_);
+        return true;
+    }
+
+    return false;
+}
+
+
+
+void award(Platform& pfrm, App& app, Achievement achievement)
+{
+    info[achievement].award_(pfrm, app);
+}
+
+
+
+bool is_unlocked(App& app, Achievement achievement)
+{
+    auto& flags = app.gp_.achievement_flags_;
+    const u64 flag = 1 << achievement;
+
+    return flags & flag;
+}
+
+
+
+const char* description(Achievement achievement)
+{
+    return info[achievement].description_;
+}
+
+
+
+const char* name(Achievement achievement)
+{
+    return info[achievement].name_;
+}
+
+
+
+const char* reward(Achievement achievement)
+{
+    return info[achievement].reward_;
+}
+
+
+
+}
