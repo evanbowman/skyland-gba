@@ -106,14 +106,12 @@ public:
 
     static u16 icon()
     {
-        // TODO...
         return 1144;
     }
 
 
     static u16 unsel_icon()
     {
-        // TODO...
         return 1160;
     }
 
