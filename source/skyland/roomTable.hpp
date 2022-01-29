@@ -128,6 +128,12 @@ public:
     }
 
 
+    u32 size() const
+    {
+        return rooms_.size();
+    }
+
+
 private:
     using IndexType = u16;
 

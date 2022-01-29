@@ -101,6 +101,12 @@ public:
     }
 
 
+    static bool unlocked_by_default()
+    {
+        return false;
+    }
+
+
 private:
     int counter_ = 0;
 

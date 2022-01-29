@@ -105,6 +105,12 @@ void PlayerP1::on_room_plundered(Platform& pfrm, App& app, Room& room)
 {
     if (room.parent() not_eq &app.player_island()) {
         app.score().set(app.score().get() + 1.2f * (*room.metaclass())->cost());
+
+        // Unlock the decimator structure if the player plunders it from an
+        // opponent castle.
+        if (str_eq((*room.metaclass())->name(), "decimator")) {
+            set_enabled(metaclass_index("decimator"), true);
+        }
     }
 }
 

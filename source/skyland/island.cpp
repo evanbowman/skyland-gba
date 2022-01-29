@@ -278,6 +278,18 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     is_boarded_ = false;
 
 
+    auto record_character_died = [&](BasicCharacter& c) {
+        time_stream::event::CharacterDied e;
+        e.x_ = c.grid_position().x;
+        e.y_ = c.grid_position().y;
+        e.id_.set(c.id());
+        e.owned_by_player_ = c.owner() == &app.player();
+        e.near_ = this == &app.player_island();
+        e.is_replicant_ = c.is_replicant();
+        app.time_stream().push(pfrm, app.level_timer(), e);
+    };
+
+
     auto update_characters = [&](auto& chr_list) {
         for (auto it = chr_list.begin(); it not_eq chr_list.end();) {
             if (not(*it)->alive()) {
@@ -292,16 +304,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     (*it)->owner() not_eq &app.player();
                 network::transmit(pfrm, packet);
 
-
-                time_stream::event::CharacterDied e;
-                e.x_ = (*it)->grid_position().x;
-                e.y_ = (*it)->grid_position().y;
-                e.id_.set((*it)->id());
-                e.owned_by_player_ = (*it)->owner() == &app.player();
-                e.near_ = this == &app.player_island();
-                e.is_replicant_ = (*it)->is_replicant();
-                app.time_stream().push(pfrm, app.level_timer(), e);
-
+                record_character_died(**it);
 
                 it = chr_list.erase(it);
             } else {
@@ -399,6 +402,10 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 network::transmit(pfrm, packet);
             };
 
+            for (auto& chr : (*it)->characters()) {
+                // The room was destroyed, along with any inhabitants.
+                record_character_died(*chr);
+            }
 
             if (&owner() == &app.player()) {
                 time_stream::event::PlayerRoomDestroyed p;

@@ -40,7 +40,9 @@ public:
     {
         // Should probably be false, as the whole purpose of decorations is to
         // reward the player for achievements.
-        return true;
+        // // return true;
+
+        return false;
     }
 
 

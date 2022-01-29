@@ -9,6 +9,7 @@
 #include "serial.hpp"
 #include "sound.hpp"
 #include "timeStreamEvent.hpp"
+#include "achievement.hpp"
 
 
 
@@ -65,7 +66,11 @@ App::App(Platform& pfrm)
 
         time_stream_.clear();
     });
+
+
+    achievements::init(pfrm, *this);
 }
+
 
 
 Coins App::terrain_cost()
@@ -88,6 +93,7 @@ Coins App::terrain_cost()
 
     return terrain_cost_table[player_island_.terrain().size() - 1];
 }
+
 
 
 void App::create_backup(Platform& pfrm)

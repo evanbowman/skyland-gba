@@ -76,6 +76,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/network.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
   ${SOURCE_DIR}/skyland/script_defs.cpp
+  ${SOURCE_DIR}/skyland/achievement.cpp
   ${SOURCE_DIR}/skyland/configure_island.cpp
   ${SOURCE_DIR}/skyland/customTileMapper.cpp
   ${SOURCE_DIR}/skyland/playerP1.cpp
@@ -165,8 +166,9 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/combatDroneSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/achievementViewerModule.cpp
   ${SOURCE_DIR}/skyland/scene/adventureModeSettingsScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/glossaryViewerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/sandboxLoaderModule.cpp

@@ -7,6 +7,7 @@
 #include "highscores.hpp"
 #include "number/endian.hpp"
 #include "worldGraph.hpp"
+#include "achievement.hpp"
 
 
 
@@ -24,6 +25,8 @@ struct GlobalPersistentData {
     u8 flags1_ = 0;
     u8 flags2_ = 0;
     u8 flags3_ = 0;
+
+    u64 achievement_flags_ = 0;
 };
 
 
