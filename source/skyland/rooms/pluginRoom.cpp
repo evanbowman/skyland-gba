@@ -64,7 +64,11 @@ void PluginRoom::update(Platform& pfrm, App& app, Microseconds delta)
         auto& fn = b->fetch_info<RoomMeta::PluginBox::PluginInfo::update,
                                  lisp::Function>();
 
-        lisp::funcall((lisp::Value*)&fn, 0);
+        lisp::push_op(lisp::make_integer(position().y));
+        lisp::push_op(lisp::make_integer(position().x));
+        lisp::push_op(lisp::make_userdata(parent()));
+
+        lisp::funcall((lisp::Value*)&fn, 3);
         lisp::pop_op(); // funcall result
     }
 }

@@ -288,6 +288,71 @@ o----------------------------o
 
 o----------------------------o
 
+ (register-tile file-path)
+
+ Allocate and map tile
+ graphics from a file into
+ video memory. Returns the
+ index of the tile upon
+ success. Upon failure,
+ returns -1.
+
+ You may register up to
+ fifteen custom tiles.
+
+
+o----------------------------o
+
+ (register-room config-list)
+
+ Used for defining custom
+ rooms!
+
+ For example:
+
+ (defn update
+   nil)
+
+ (let ((t (register-tile "/mytile.img")))
+  (register-room
+   (list
+    'room-name
+    '(1 . 1)   ;; room size
+    (list t)   ;; tile graphics
+    1          ;; update freq (seconds)
+    update)))  ;; update function
+
+ The above code registers a
+ room called room-name, size
+ 1x1, with time image sourced
+ from /mytile.img in sram.
+
+ At the moment, all custom
+ rooms must be 1x1, but the
+ function accepts tiles as
+ a list, as I intend to
+ support larger custom rooms
+ consisting of multiple tiles
+ in the future.
+
+ Creating a file with a .img
+ extension in the file
+ browser will launch a paint
+ program.
+
+ The example code (above)
+ calls the update function
+ once per second.
+
+ The engine will invoke update
+ with three parameters:
+ island, room-x, room-y.
+
+ You may register up to
+ fifteen custom rooms.
+
+o----------------------------o
+
  (repl)
 
  The game will launch a repl
