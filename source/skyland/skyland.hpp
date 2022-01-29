@@ -177,12 +177,6 @@ public:
     }
 
 
-    Microseconds& birb_counter()
-    {
-        return birb_counter_;
-    }
-
-
     WorldGraph& world_graph()
     {
         return persistent_data_.world_graph_;
@@ -354,7 +348,6 @@ private:
     EntityList<Entity> effects_;
     EntityList<SmolBirb> birbs_;
 
-    Microseconds birb_counter_;
     TimeTracker level_timer_;
 
     Microseconds pixelate_timer_ = 0;
