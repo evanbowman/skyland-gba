@@ -313,6 +313,13 @@ public:
     // scratch space anyway...).
     ScratchBufferPtr make_scratch_buffer();
 
+
+    // An emergency function to invoke when the system runs out of scratch
+    // buffers. This function should, if possible, drop any non-essential
+    // references to scratch buffers.
+    void set_scratch_buffer_oom_handler(Function<16, void()> callback);
+
+
     int scratch_buffers_remaining();
 
 

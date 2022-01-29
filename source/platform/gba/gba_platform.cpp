@@ -3274,7 +3274,7 @@ void Platform::walk_filesystem(Function<32, void(const char* path)> callback)
 
 
 
-bool use_optimized_waitstates = true;
+static const bool use_optimized_waitstates = true;
 
 
 // EWRAM is large, but has a narrower bus. The platform offers a window into
@@ -3287,8 +3287,30 @@ static EWRAM_DATA
         scratch_buffer_pool;
 
 
+
+std::optional<Function<16, void()>> scratch_buffer_oom_handler;
+
+
+
+void Platform::set_scratch_buffer_oom_handler(Function<16, void()> callback)
+{
+    scratch_buffer_oom_handler.emplace(callback);
+}
+
+
+
 ScratchBufferPtr Platform::make_scratch_buffer()
 {
+    if (not scratch_buffers_remaining()) {
+        if (scratch_buffer_oom_handler) {
+            (*scratch_buffer_oom_handler)();
+
+            if (not scratch_buffers_remaining()) {
+                log_data_.reset();
+            }
+        }
+    }
+
     auto finalizer =
         [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
             --scratch_buffers_in_use;

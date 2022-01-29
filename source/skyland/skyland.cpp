@@ -41,11 +41,29 @@ App::App(Platform& pfrm)
         }
     }
 
+    // On unrecoverrable errors: try to store a backup, and flush the system log
+    // to sram.
     pfrm.on_unrecoverrable_error([this](Platform& pfrm) {
         if (backup_->valid_) {
             backup_->store(pfrm);
         }
         pfrm.logger().flush();
+    });
+
+
+    // If the platform runs out of scratch buffers, try to do anything that we
+    // can to free up non-essential or potentially unused buffers. NOTE: I
+    // technically haven't tested this code, because the application still has
+    // at least 120kb of unused RAM in the worst case, so I'm not on the verge
+    // of running out.
+    pfrm.set_scratch_buffer_oom_handler([this] {
+        auto var = lisp::get_var("gc");
+        if (var->type() == lisp::Value::Type::function) {
+            lisp::funcall(var, 0);
+            lisp::pop_op();
+        }
+
+        time_stream_.clear();
     });
 }
 
