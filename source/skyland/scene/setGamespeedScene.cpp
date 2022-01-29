@@ -3,6 +3,7 @@
 #include "rewindScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "notificationScene.hpp"
 
 
 
@@ -52,8 +53,13 @@ SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 set_gamespeed(pfrm, app, GameSpeed::stopped);
                 return scene_pool::alloc<RewindScene>();
             } else {
-                set_gamespeed(pfrm, app, GameSpeed::rewind);
-                return scene_pool::alloc<RewindScene>();
+                set_gamespeed(pfrm, app, GameSpeed::stopped);
+                selection_ = (int)GameSpeed::stopped;
+                repaint_selector(pfrm);
+
+                auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+                const char* msg = "rewind disabled!";
+                return scene_pool::alloc<NotificationScene>(msg, future_scene);
             }
         } else {
             set_gamespeed(pfrm, app, (GameSpeed)selection_);
