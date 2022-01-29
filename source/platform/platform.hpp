@@ -212,7 +212,11 @@ public:
     // tiles, where each tiles is 8x8 pixels. The overlay and the background
     // wrap when scrolled. Map tiles, on the other hand, are 32x24 pixels, and
     // the whole map consists of 64x64 8x8 pixel tiles.
-    void set_tile(Layer layer, u16 x, u16 y, TileDesc val);
+    void set_tile(Layer layer,
+                  u16 x,
+                  u16 y,
+                  TileDesc val,
+                  std::optional<u16> palette = {});
 
 
     void set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val);

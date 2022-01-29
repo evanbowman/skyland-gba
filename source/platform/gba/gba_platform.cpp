@@ -4237,7 +4237,11 @@ void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
 
 
 
-void Platform::set_tile(Layer layer, u16 x, u16 y, u16 val)
+void Platform::set_tile(Layer layer,
+                        u16 x,
+                        u16 y,
+                        u16 val,
+                        std::optional<u16> palette)
 {
     switch (layer) {
     case Layer::overlay:
@@ -4248,11 +4252,11 @@ void Platform::set_tile(Layer layer, u16 x, u16 y, u16 val)
         break;
 
     case Layer::map_1_ext:
-        set_map_tile_16p(sbb_t1_tiles, x, y, val, 2);
+        set_map_tile_16p(sbb_t1_tiles, x, y, val, palette ? *palette : 2);
         break;
 
     case Layer::map_0_ext:
-        set_map_tile_16p(sbb_t0_tiles, x, y, val, 0);
+        set_map_tile_16p(sbb_t0_tiles, x, y, val, palette ? *palette : 0);
         break;
 
     case Layer::map_1:

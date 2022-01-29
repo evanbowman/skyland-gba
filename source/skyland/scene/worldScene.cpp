@@ -37,9 +37,9 @@ static void apply_gamespeed(App& app, Microseconds& delta)
         delta = 0;
         break;
 
-    // NOTE: we shouldn't even be in this scene if we're rewinding.
     case GameSpeed::rewind:
-        delta = 0;
+        // NOTE: we shouldn't even be in this scene if we're rewinding.
+        Platform::fatal("gamespeed set to rewind in incompatible scene.");
         break;
 
     case GameSpeed::count:
@@ -481,7 +481,6 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    // if (app.game_speed() == App::GameSpeed::normal) {
     if (app.opponent_island()) {
         for (auto& projectile : app.player_island().projectiles()) {
             app.opponent_island()->test_collision(pfrm, app, *projectile);
@@ -499,7 +498,6 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.opponent_island()->test_collision(pfrm, app, *projectile);
         }
     }
-    // }
 
     return null_scene();
 }
