@@ -963,7 +963,7 @@ void Island::repaint(Platform& pfrm, App& app)
     }
 
     if (layer_ == Layer::map_0_ext and flag_pos_) {
-        pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y - 1, 12);
+        pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y, 12);
     }
 
     render_terrain(pfrm);
