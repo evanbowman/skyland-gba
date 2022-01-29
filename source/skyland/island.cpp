@@ -290,7 +290,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     };
 
 
-    auto update_characters = [&](auto& chr_list) {
+    auto update_characters = [&](auto& chr_list, bool exterior) {
         for (auto it = chr_list.begin(); it not_eq chr_list.end();) {
             if (not(*it)->alive()) {
 
@@ -316,7 +316,9 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     all_characters_awaiting_movement_ = false;
                 }
                 if ((*it)->owner() not_eq &owner()) {
-                    is_boarded_ = true;
+                    if (not exterior) {
+                        is_boarded_ = true;
+                    }
                 }
                 (*it)->update(pfrm, app, dt);
                 ++it;
@@ -471,7 +473,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 (*it)->update(pfrm, app, dt);
             }
 
-            update_characters((*it)->characters());
+            update_characters((*it)->characters(), false);
 
             ++it;
         }
@@ -483,7 +485,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     }
 
 
-    update_characters(characters_);
+    update_characters(characters_, true);
 
 
     update_entities(pfrm, app, dt, projectiles_);

@@ -6,12 +6,13 @@
 (dialog "In the distance, you see an island inhabited by a lone castaway...")
 
 
-(opponent-init 5 'neutral)
+(opponent-init 6 'neutral)
 
 
 (island-configure
  (opponent)
- '((power-core 3 13)))
+ '((power-core 3 13)
+   (coconut-palm 5 13)))
 
 
 (chr-add (opponent) 1 14 'neutral 0)
@@ -19,7 +20,7 @@
 
 (setq after-converge-hook
       (lambda
-        (dialog "Invite castaway aboard?")
+        (dialog "He seems harmless, invite him aboard?")
 
         (dialog-await-y/n)
         (setq after-converge-hook nil)))
