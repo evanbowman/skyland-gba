@@ -74,6 +74,7 @@ struct RoomMeta {
                 name,
                 size,
                 graphics_list,
+                update_frequency,
                 update,
             };
         };
@@ -89,36 +90,36 @@ struct RoomMeta {
         }
 
 
-        virtual const char* name() const
+        const char* name() const override
         {
             return fetch_info<PluginInfo::name, lisp::Symbol>().name_;
         }
 
 
-        virtual Vec2<u8> size() const
+        Vec2<u8> size() const override
         {
             auto& pair = fetch_info<PluginInfo::size, lisp::Cons>();
             return {(u8)pair.car()->expect<lisp::Integer>().value_,
                     (u8)pair.cdr()->expect<lisp::Integer>().value_};
         }
 
-        virtual Coins cost() const
+        Coins cost() const override
         {
             return cost_;
         }
 
-        virtual Float ai_base_weight() const
+        Float ai_base_weight() const override
         {
             // FIXME!
             return 2;
         }
 
-        virtual Power consumes_power() const
+        Power consumes_power() const override
         {
             return power_;
         }
 
-        virtual Conditions::Value conditions() const
+        Conditions::Value conditions() const override
         {
             return Conditions::plugin;
         }
@@ -138,19 +139,17 @@ struct RoomMeta {
             Platform::fatal("attempt to fetch desciption for a plugin room.");
         }
 
-        virtual Room::Icon icon() const
+        Room::Icon icon() const override
         {
-            // TODO...
-            return 0;
+            return PluginRoom::icon();
         }
 
-        virtual Room::Icon unsel_icon() const
+        Room::Icon unsel_icon() const override
         {
-            // TODO...
-            return 0;
+            return PluginRoom::unsel_icon();
         }
 
-        virtual Health full_health() const
+        Health full_health() const override
         {
             return health_;
         }

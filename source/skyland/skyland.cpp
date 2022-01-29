@@ -86,6 +86,14 @@ void App::delete_backup()
 
 
 
+void write_custom_graphics(Platform& pfrm, App& app)
+{
+    vram_write_flag(pfrm, app.gp_.flag_img_);
+    app.custom_tile_mapper().write_images(pfrm);
+}
+
+
+
 class RemoteConsoleLispPrinter : public lisp::Printer {
 public:
     RemoteConsoleLispPrinter(Platform& pfrm) : pfrm_(pfrm)

@@ -85,13 +85,9 @@ void show_island_interior(Platform& pfrm, App& app, Island* island)
         pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
     }
 
-    app.custom_tile_mapper().write_images(pfrm);
-
     island->render_interior(pfrm, app);
 
-    if (island == &app.player_island()) {
-        vram_write_flag(pfrm, app.gp_.flag_img_);
-    }
+    write_custom_graphics(pfrm, app);
 }
 
 
@@ -376,8 +372,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player_island().interior_visible()) {
             pfrm.load_tile0_texture("tilesheet");
             app.player_island().render_exterior(pfrm, app);
-            vram_write_flag(pfrm, app.gp_.flag_img_);
-            app.custom_tile_mapper().write_images(pfrm);
+            write_custom_graphics(pfrm, app);
         } else {
             show_island_interior(pfrm, app, &app.player_island());
         }

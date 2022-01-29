@@ -64,6 +64,13 @@ FlagDesignerModule::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<TitleScreenScene>(3);
     }
 
+    app.player_island().update(pfrm, app, delta);
+
+    update_entities(pfrm, app, delta, app.effects());
+    for (auto& effect : app.effects()) {
+        effect->update(pfrm, app, delta);
+    }
+
     return Paint::update(pfrm, app, delta);
 }
 

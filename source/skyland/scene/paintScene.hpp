@@ -29,6 +29,8 @@ public:
 
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
+        app.effects().clear();
+
         if (not create_) {
             Vector<char> data(pfrm);
             ram_filesystem::read_file_data(pfrm, file_path_.c_str(), data);

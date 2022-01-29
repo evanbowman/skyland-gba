@@ -80,7 +80,7 @@ public:
 
 
 
-using RoomMetatableType = RoomMetatable<8,
+using RoomMetatableType = RoomMetatable<15,
                                         // walls
                                         Hull,
                                         Forcefield,

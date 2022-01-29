@@ -190,13 +190,6 @@ ScenePtr<Scene> Paint::update(Platform& pfrm, App& app, Microseconds delta)
 
     app.update_parallax(delta);
 
-    app.player_island().update(pfrm, app, delta);
-
-    update_entities(pfrm, app, delta, app.effects());
-    for (auto& effect : app.effects()) {
-        effect->update(pfrm, app, delta);
-    }
-
     return null_scene();
 }
 

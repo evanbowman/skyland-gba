@@ -74,6 +74,9 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     init_clouds(pfrm);
     pfrm.system_call("v-parallax", (void*)false);
 
+    app.player_island().rooms().clear();
+    app.opponent_island().reset();
+
     key_callback_processor.clear();
     app.custom_tile_mapper().clear();
 
@@ -181,7 +184,7 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.load_sprite_texture("spritesheet");
     pfrm.load_background_texture("background");
 
-    vram_write_flag(pfrm, app.gp_.flag_img_);
+    write_custom_graphics(pfrm, app);
 
 
     for (int x = 0; x < 16; ++x) {

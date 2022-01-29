@@ -15,6 +15,9 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
+    void rewind(Platform&, App&, Microseconds delta) override;
+
+
     void render_interior(App& app, u8 buffer[16][16]);
 
 
@@ -25,6 +28,34 @@ public:
     {
         // one cannot walk through this tile, intentionally do nothing.
     }
+
+
+    bool has_roof() override
+    {
+        return false;
+    }
+
+
+    bool disallow_chimney() override
+    {
+        return true;
+    }
+
+
+    static Icon icon()
+    {
+        return 1512;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 1528;
+    }
+
+
+private:
+    Microseconds timer_ = 0;
 };
 
 

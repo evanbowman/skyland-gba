@@ -1,5 +1,6 @@
 #include "pluginRoom.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -49,9 +50,41 @@ void PluginRoom::render_exterior(App& app, u8 buffer[16][16])
 
 
 
-void PluginRoom::update(Platform&, App&, Microseconds delta)
+void PluginRoom::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    // ...
+    auto b = static_cast<RoomMeta::PluginBox*>(this->metaclass()->box());
+
+    auto& v = b->fetch_info<RoomMeta::PluginBox::PluginInfo::update_frequency,
+                            lisp::Integer>();
+
+    timer_ += delta;
+    if (timer_ >= seconds(v.value_)) {
+        timer_ -= seconds(v.value_);
+
+        auto& fn = b->fetch_info<RoomMeta::PluginBox::PluginInfo::update,
+                                 lisp::Function>();
+
+        lisp::funcall((lisp::Value*)&fn, 0);
+        lisp::pop_op(); // funcall result
+    }
+}
+
+
+
+void PluginRoom::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::rewind(pfrm, app, delta);
+
+    auto b = static_cast<RoomMeta::PluginBox*>(this->metaclass()->box());
+
+    auto& v = b->fetch_info<RoomMeta::PluginBox::PluginInfo::update_frequency,
+                            lisp::Integer>();
+
+    if (timer_ > 0) {
+        timer_ -= delta;
+    } else {
+        timer_ += seconds(v.value_);
+    }
 }
 
 

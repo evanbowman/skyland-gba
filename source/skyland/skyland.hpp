@@ -378,4 +378,8 @@ private:
 
 
 
+void write_custom_graphics(Platform& pfrm, App& app);
+
+
+
 } // namespace skyland
