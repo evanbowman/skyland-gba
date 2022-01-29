@@ -124,7 +124,7 @@ void FullscreenDialogScene::clear_textbox(Platform& pfrm)
 
 void FullscreenDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    pfrm.load_overlay_texture("overlay_dialog");
+    pfrm.load_overlay_texture("overlay_dialog_fullscreen");
 
     pfrm.fill_overlay(0);
 
