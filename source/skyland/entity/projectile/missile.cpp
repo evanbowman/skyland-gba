@@ -23,7 +23,7 @@ Missile::Missile(const Vec2<Float>& position,
                  u8 source_x,
                  u8 source_y,
                  Island* source)
-    : Projectile({{10, 10}, {8, 8}}), target_x_(target.x), source_(source),
+    : Projectile({{10, 26}, {8, 16}}), target_x_(target.x), source_(source),
       source_x_(source_x), source_y_(source_y)
 {
     sprite_.set_position(position);
