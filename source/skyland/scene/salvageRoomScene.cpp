@@ -187,8 +187,8 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                         auto mt_index =
                             metaclass_index((*room->metaclass())->name());
                         auto setup = [&](time_stream::event::RoomSalvaged& e) {
-                            e.x_ = cursor_loc.x;
-                            e.y_ = cursor_loc.y;
+                            e.x_ = room->position().x;
+                            e.y_ = room->position().y;
                             e.type_ = mt_index;
                         };
                         if (island(app) == &app.player_island()) {

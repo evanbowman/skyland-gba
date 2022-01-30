@@ -80,8 +80,6 @@ void destroy(Platform& pfrm)
     __builtin_memset(buffer, 0, sizeof buffer);
 
     pfrm.write_save_data(buffer, sizeof buffer, fs_offset());
-
-    initialize(pfrm, fs_begin_offset);
 }
 
 

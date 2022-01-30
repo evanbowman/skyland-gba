@@ -207,7 +207,7 @@ void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
 
         character_name_text_->assign(
             character_name_.c_str(),
-            Text::OptColors{{custom_color(0xcaeb3b), custom_color(0x232390)}});
+            Text::OptColors{{custom_color(0xf3ea55), custom_color(0x232390)}});
     }
 
     clear_textbox(pfrm);
