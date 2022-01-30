@@ -262,6 +262,23 @@ o----------------------------o
 
 o----------------------------o
 
+ (on-fadein)
+ (on-converge)
+ (on-dialog-accepted)
+ (on-dialog-declined)
+ (on-dialog-closed)
+ (on-hostile-transition)
+
+ A set of event functions,
+ called by the engine for
+ various scenarios. You may
+ override any of these
+ functions with custom
+ behavior.
+
+
+o----------------------------o
+
  (opponent) -> island
 
  Returns a reference to the
