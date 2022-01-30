@@ -544,6 +544,9 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                     cursor_ = i;
                 }
             }
+            // In case anything goes wrong: create an emergency backup!
+            app.create_backup(pfrm);
+
             app.current_world_location() = cursor_;
             show_map(pfrm, app.world_graph(), app.world_graph().storm_depth_);
             cmix_ = {};
@@ -607,7 +610,6 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             // Create a backup before entering a level. If the game encounters
             // an unrecoverrable error, it will create a save from the backup
             // data before crashing.
-            app.create_backup(pfrm);
             return scene_pool::alloc<LoadLevelScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
