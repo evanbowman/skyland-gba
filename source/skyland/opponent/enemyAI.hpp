@@ -1,9 +1,9 @@
 #pragma once
 
 
+#include "bulkAllocator.hpp"
 #include "opponent.hpp"
 #include "skyland/coins.hpp"
-#include "bulkAllocator.hpp"
 
 
 
@@ -36,23 +36,32 @@ public:
 
 
 private:
+    void
+    update_room(Platform&, App&, Room& room, const Bitmatrix<16, 16>& matrix);
 
-    void update_room(Platform&, App&, Room& room, const Bitmatrix<16, 16>& matrix);
+    void set_target(Platform&,
+                    App&,
+                    const Bitmatrix<16, 16>& matrix,
+                    Room& generic_gun);
+    void set_target(Platform&,
+                    App&,
+                    const Bitmatrix<16, 16>& matrix,
+                    MissileSilo& silo);
+
+    void set_target(Platform&,
+                    App&,
+                    const Bitmatrix<16, 16>& matrix,
+                    IonCannon& cannon);
+
 
     void
-    set_target(Platform&, App&, const Bitmatrix<16, 16>& matrix, Room& generic_gun);
-    void
-    set_target(Platform&, App&, const Bitmatrix<16, 16>& matrix, MissileSilo& silo);
-
-    void
-    set_target(Platform&, App&, const Bitmatrix<16, 16>& matrix, IonCannon& cannon);
+    set_target(Platform&, App&, const Bitmatrix<16, 16>& matrix, FlakGun& gun);
 
 
-    void set_target(Platform&, App&, const Bitmatrix<16, 16>& matrix, FlakGun& gun);
-
-
-    void
-    combat_drone_set_target(Platform&, App&, const Bitmatrix<16, 16>& matrix, Drone& drone);
+    void combat_drone_set_target(Platform&,
+                                 App&,
+                                 const Bitmatrix<16, 16>& matrix,
+                                 Drone& drone);
 
 
     void offensive_drone_set_target(Platform&,
@@ -61,7 +70,8 @@ private:
                                     Drone& drone);
 
 
-    void update_room(Platform&, App&, const Bitmatrix<16, 16>& matrix, DroneBay& db);
+    void
+    update_room(Platform&, App&, const Bitmatrix<16, 16>& matrix, DroneBay& db);
 
 
     void assign_boarded_character(Platform&, App&, BasicCharacter& character);

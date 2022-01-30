@@ -16,8 +16,12 @@ namespace skyland {
 
 class BoxedDialogScene : public WorldScene {
 public:
-    BoxedDialogScene(DialogBuffer buffer, bool expects_answer_y_n)
-        : buffer_(std::move(buffer)), expects_answer_y_n_(expects_answer_y_n)
+    BoxedDialogScene(DialogBuffer buffer,
+                     bool expects_answer_y_n,
+                     StringBuffer<10> character_name,
+                     int character_image)
+        : buffer_(std::move(buffer)), expects_answer_y_n_(expects_answer_y_n),
+          character_image_(character_image), character_name_(character_name)
     {
     }
 
@@ -63,7 +67,12 @@ private:
     std::optional<Text> yes_text_;
     std::optional<Text> no_text_;
     std::optional<UIMetric> coins_;
+    std::optional<Text> character_name_text_;
     bool choice_sel_ = true;
+
+    u16 character_image_;
+
+    StringBuffer<12> character_name_;
 };
 
 

@@ -1,4 +1,5 @@
 #include "readyScene.hpp"
+#include "boxedDialogScene.hpp"
 #include "constructionScene.hpp"
 #include "fadeOutScene.hpp"
 #include "globals.hpp"
@@ -338,7 +339,11 @@ void ReadyScene::display(Platform& pfrm, App& app)
 
     cursor.set_position(origin);
 
-    pfrm.screen().draw(cursor);
+    if (not(app.next_scene() and
+            dynamic_cast<BoxedDialogScene*>(app.next_scene().get()))) {
+        pfrm.screen().draw(cursor);
+    }
+
 
     WorldScene::display(pfrm, app);
 }

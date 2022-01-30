@@ -126,6 +126,18 @@ static const lisp::Binding script_api[] = {
          app->dialog_expects_answer_ = true;
          return L_NIL;
      }},
+    {"dialog-decor",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, string);
+         L_EXPECT_OP(0, integer);
+         auto app = interp_get_app();
+         app->dialog_decoration().character_image_ =
+             lisp::get_op(0)->integer().value_;
+         app->dialog_decoration().character_name_ =
+             lisp::get_op(1)->string().value();
+         return L_NIL;
+     }},
     {"repl",
      [](int argc) {
          auto app = interp_get_app();

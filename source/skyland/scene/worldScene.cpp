@@ -2,8 +2,10 @@
 #include "boxedDialogScene.hpp"
 #include "globals.hpp"
 #include "multiplayerReadyScene.hpp"
+#include "notificationScene.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
+#include "readyScene.hpp"
 #include "scriptHookScene.hpp"
 #include "selInputScene.hpp"
 #include "setGamespeedScene.hpp"
@@ -13,8 +15,6 @@
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "readyScene.hpp"
-#include "notificationScene.hpp"
 
 
 
@@ -402,7 +402,12 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.dialog_buffer().reset();
         const bool answer = app.dialog_expects_answer();
         app.dialog_expects_answer() = false;
-        return scene_pool::alloc<BoxedDialogScene>(std::move(buffer), answer);
+        const auto chr_image = app.dialog_decoration().character_image_;
+        const auto chr_name = app.dialog_decoration().character_name_;
+        app.dialog_decoration().character_image_ = 0;
+        app.dialog_decoration().character_name_.clear();
+        return scene_pool::alloc<BoxedDialogScene>(
+            std::move(buffer), answer, chr_name, chr_image);
     }
 
 

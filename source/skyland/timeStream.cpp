@@ -29,8 +29,9 @@ void TimeStream::pop(u32 bytes)
                         buffers_.reset();
                     }
                     if (buffer_count_ == 0) {
-                        Platform::fatal("logic error: freed a timestream buffer,"
-                                        "but buffer count is zero!");
+                        Platform::fatal(
+                            "logic error: freed a timestream buffer,"
+                            "but buffer count is zero!");
                     }
                     --buffer_count_;
                     break;

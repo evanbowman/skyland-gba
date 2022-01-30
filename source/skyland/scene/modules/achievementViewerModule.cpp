@@ -1,8 +1,8 @@
 #include "achievementViewerModule.hpp"
+#include "skyland/achievement.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/achievement.hpp"
 
 
 
@@ -56,7 +56,8 @@ void AchievementViewerModule::load_page(Platform& pfrm, App& app, int page)
 
     temp.clear();
 
-    pfrm.set_tile(Layer::overlay, 28, 15, room_category_icon((*mt)->category()));
+    pfrm.set_tile(
+        Layer::overlay, 28, 15, room_category_icon((*mt)->category()));
 
     temp += (*mt)->name();
     temp += " (";

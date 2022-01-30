@@ -64,11 +64,15 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
         // At this point, we know the length of the next space-delimited word in
         // the string. Now we can print stuff...
 
+        static const int character_graphics_width = 4;
+
         const auto st = calc_screen_tiles(pfrm);
         static const auto margin_sum = 4;
         const auto text_box_width = st.x - margin_sum;
-        const auto remaining = (text_box_width - text_state_.pos_) -
-                               (text_state_.line_ == 0 ? 0 : 2);
+        const auto remaining =
+            ((text_box_width - text_state_.pos_) -
+             (text_state_.line_ == 0 ? 0 : 2)) -
+            (character_image_ ? character_graphics_width : 0);
 
         if (remaining < text_state_.current_word_remaining_) {
             if (text_state_.line_ == 0) {
@@ -92,7 +96,8 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
         }
 
         const int y_offset = text_state_.line_ == 0 ? 4 + y_start : 2 + y_start;
-        const int x_offset = text_state_.pos_ + 2;
+        const int x_offset = text_state_.pos_ + 2 +
+                             (character_image_ ? character_graphics_width : 0);
 
         if (cp == '@') {
             pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 146);
@@ -163,6 +168,25 @@ void BoxedDialogScene::clear_textbox(Platform& pfrm)
 
     text_state_.line_ = 0;
     text_state_.pos_ = 0;
+
+    if (character_image_) {
+        const auto img = 200 + (character_image_ - 1) * 16;
+        draw_image(pfrm, img, 1, st.y - 6, 4, 4, Layer::overlay);
+
+        for (int i = 4; i < character_name_text_->len() + 1; ++i) {
+            pfrm.set_tile(Layer::overlay, 1 + i, st.y - 6, 113);
+        }
+
+        for (int i = 1; i < character_name_text_->len() + 1; ++i) {
+            pfrm.set_tile(Layer::overlay, i, st.y - 8, 114);
+        }
+
+        pfrm.set_tile(
+            Layer::overlay, character_name_text_->len() + 1, st.y - 6, 115);
+
+        pfrm.set_tile(
+            Layer::overlay, 1 + character_name_text_->len(), st.y - 7, 112);
+    }
 }
 
 
@@ -171,10 +195,17 @@ void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.fill_overlay(0);
 
-    pfrm.screen().clear();
-    pfrm.screen().display();
-
     pfrm.load_overlay_texture("overlay_dialog");
+
+    if (character_image_) {
+        auto st = calc_screen_tiles(pfrm);
+
+        character_name_text_.emplace(pfrm, OverlayCoord{1, u8(st.y - 7)});
+
+        character_name_text_->assign(
+            character_name_.c_str(),
+            Text::OptColors{{custom_color(0xcaeb3b), custom_color(0x232390)}});
+    }
 
     clear_textbox(pfrm);
 
@@ -199,6 +230,7 @@ void BoxedDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.load_overlay_texture("overlay");
     coins_.reset();
+    character_name_text_.reset();
 }
 
 

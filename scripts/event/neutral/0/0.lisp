@@ -20,9 +20,19 @@
 
 (setq after-converge-hook
       (lambda
-        (dialog "He seems harmless, invite him aboard?")
+        (dialog
+         "Fancy meeting you here! I've been marooned on this island... "
+         "who knows how long! Looks like a nasty storm's brewing, mind "
+         "if I hitch a ride?")
 
-        (dialog-await-y/n)
+        (dialog-decor "castaway" 1)
+
+        (task
+         1000
+         (lambda
+           (dialog "He seems harmless, invite him aboard?")
+           (dialog-await-y/n)))
+
         (setq after-converge-hook nil)))
 
 
@@ -38,12 +48,12 @@
               (chr-rem (opponent) 1 14)
               (setq temp '())
               (dialog "The castaway joined your crew!"))
-          (dialog "Sadly, there's no room..."))
+          (progn
+            (dialog "Sadly, there's no room...")))
 
         (exit-level)))
 
 
 (setq after-dialog-declined-hook
       (lambda
-        ;; TODO...
         (exit-level)))

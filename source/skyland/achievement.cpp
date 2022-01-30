@@ -1,7 +1,7 @@
 #include "achievement.hpp"
-#include "skyland.hpp"
-#include "save.hpp"
 #include "room_metatable.hpp"
+#include "save.hpp"
+#include "skyland.hpp"
 
 
 
@@ -25,7 +25,7 @@ static const AchievementInfo info[Achievement::count] = {
      "none",
      "none",
      [](Platform&, App&) { return false; },
-     [](Platform&, App&) { }},
+     [](Platform&, App&) {}},
 
     {"Builder",
      "Build an island with more than ten structures!",
@@ -35,8 +35,7 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform&, App&) {
          set_enabled(metaclass_index(info[builder].reward_), true);
-     }
-    },
+     }},
 
     {"Architect",
      "Build an island with more than twenty structures!",
@@ -46,30 +45,23 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform&, App&) {
          set_enabled(metaclass_index(info[architect].reward_), true);
-     }
-    },
+     }},
 
     {"Explorer",
      "Reach zone 2!",
      "coconut-palm",
-     [](Platform&, App& app) {
-         return app.zone() > 1;
-     },
+     [](Platform&, App& app) { return app.zone() > 1; },
      [](Platform&, App&) {
          set_enabled(metaclass_index(info[explorer].reward_), true);
-     }
-    },
+     }},
 
     {"Strategist",
      "Reach zone 3!",
      "statue",
-     [](Platform&, App& app) {
-         return app.zone() > 2;
-     },
+     [](Platform&, App& app) { return app.zone() > 2; },
      [](Platform&, App&) {
          set_enabled(metaclass_index(info[strategist].reward_), true);
-     }
-    },
+     }},
 
     {"Borrowed tech",
      "Destroy a decimator by plundering!",
@@ -88,9 +80,7 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform&, App&) {
          set_enabled(metaclass_index(info[ancient_weapon].reward_), true);
-     }
-    }
-};
+     }}};
 
 
 
@@ -133,7 +123,7 @@ Achievement update(Platform& pfrm, App& app)
                   "More than 64 achievements, i.e. achievement bit does not "
                   "fit in a u64.o");
 
-    if (not (flags & flag)) {
+    if (not(flags & flag)) {
         if (info[check_achievement].match_(pfrm, app)) {
             flags |= flag;
             save::store_global_data(pfrm, app.gp_);
@@ -151,7 +141,7 @@ bool unlock(Platform& pfrm, App& app, Achievement achievement)
     auto& flags = app.gp_.achievement_flags_;
     const u64 flag = 1 << achievement;
 
-    if (not (flags & flag)) {
+    if (not(flags & flag)) {
         flags |= flag;
         save::store_global_data(pfrm, app.gp_);
         return true;
@@ -200,4 +190,4 @@ const char* reward(Achievement achievement)
 
 
 
-}
+} // namespace skyland::achievements

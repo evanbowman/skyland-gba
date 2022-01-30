@@ -320,7 +320,26 @@ public:
     }
 
 
+    struct DialogDecoration {
+        u16 character_image_ = 0;
+        StringBuffer<10> character_name_;
+    };
+
+    DialogDecoration& dialog_decoration()
+    {
+        return dialog_decoration_;
+    }
+
+
+    const ScenePtr<Scene>& next_scene() const
+    {
+        return next_scene_;
+    }
+
+
 private:
+    DialogDecoration dialog_decoration_;
+
     PersistentData persistent_data_;
     Island player_island_;
     Float cloud_scroll_1_;

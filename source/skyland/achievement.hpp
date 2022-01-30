@@ -74,4 +74,4 @@ const char* reward(Achievement achievement);
 
 
 
-}
+} // namespace skyland::achievements

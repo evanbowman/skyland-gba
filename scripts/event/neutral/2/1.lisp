@@ -47,7 +47,12 @@
                     (exit-level))
                 (progn
                   (chr-add (player) (car temp) (cdr temp) 'hostile 0)
-                  (dialog "The survivor turned out to be a vicious goblin!"))))
+                  (dialog "The survivor turned out to be a vicious goblin!")
+                  (task
+                   1000
+                   (lambda
+                     (dialog "Die humansss!")
+                     (dialog-decor "goblin" 2))))))
           (progn
             (dialog "Sadly, there's no room...")
             (exit-level)))))
