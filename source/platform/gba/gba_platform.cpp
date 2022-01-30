@@ -270,6 +270,12 @@ static inline void on_stack_overflow();
 
 
 
+EWRAM_DATA
+static std::optional<Platform::UnrecoverrableErrorCallback>
+   unrecoverrable_error_callback;
+
+
+
 int main(int argc, char** argv)
 {
     gflags.clear();
@@ -279,6 +285,10 @@ int main(int argc, char** argv)
     const int resume = setjmp(stack_overflow_resume_context);
     if (resume) {
         ::platform = &pf; // In case it was corrupted.
+
+        if (unrecoverrable_error_callback) {
+            (*unrecoverrable_error_callback)(pf);
+        }
         on_stack_overflow();
     }
 
@@ -1824,11 +1834,6 @@ void Platform::restart()
 {
     ::restart();
 }
-
-
-
-static std::optional<Platform::UnrecoverrableErrorCallback>
-    unrecoverrable_error_callback;
 
 
 
