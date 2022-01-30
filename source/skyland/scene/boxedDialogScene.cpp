@@ -185,6 +185,9 @@ void BoxedDialogScene::clear_textbox(Platform& pfrm)
             Layer::overlay, character_name_text_->len() + 1, st.y - 6, 115);
 
         pfrm.set_tile(
+            Layer::overlay, character_name_text_->len() + 1, st.y - 8, 116);
+
+        pfrm.set_tile(
             Layer::overlay, 1 + character_name_text_->len(), st.y - 7, 112);
     }
 }

@@ -322,7 +322,7 @@ public:
 
     struct DialogDecoration {
         u16 character_image_ = 0;
-        StringBuffer<10> character_name_;
+        StringBuffer<12> character_name_;
     };
 
     DialogDecoration& dialog_decoration()

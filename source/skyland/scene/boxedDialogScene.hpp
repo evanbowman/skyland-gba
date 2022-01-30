@@ -18,7 +18,7 @@ class BoxedDialogScene : public WorldScene {
 public:
     BoxedDialogScene(DialogBuffer buffer,
                      bool expects_answer_y_n,
-                     StringBuffer<10> character_name,
+                     const StringBuffer<12>& character_name,
                      int character_image)
         : buffer_(std::move(buffer)), expects_answer_y_n_(expects_answer_y_n),
           character_image_(character_image), character_name_(character_name)

@@ -18,10 +18,11 @@
       (lambda
         (setq temp (+ 500 (choice 500)))
         (dialog
-         "The goblins demand a tribute of "
+         "*cackle* You're tresspasssing in my territory! I demand a tribute of "
          (string temp)
-         "@. Will you pay?")
+         "@! Pay!")
 
+        (dialog-decor "goblin king" 3)
         (dialog-await-y/n)
         (setq after-converge-hook nil)))
 
@@ -31,7 +32,8 @@
         (if (> 500 (coins))
             (progn
               (opponent-mode 'hostile)
-              (dialog "You cannot afford to pay. Prepare to be boarded!"))
+              (dialog "Thatsss not enough! Letss ssee if theress anything we can take!!")
+              (dialog-decor "goblin king" 3))
           (progn
             (coins-add (- temp))
             (dialog "The goblin king rejoices, having successfully extorted "
@@ -43,7 +45,8 @@
 (setq after-dialog-declined-hook
       (lambda
         (opponent-mode 'hostile)
-        (dialog "Prepare to be boarded!")))
+        (dialog "YARRRGG!!! PREPARE FOR BOARDING!!!")
+        (dialog-decor "goblin king" 3)))
 
 
 (setq hostile-transition-hook
