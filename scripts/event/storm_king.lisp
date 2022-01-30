@@ -7,11 +7,11 @@
  "The storm overtakes your castle... A massive fortress emerges from the tempest... There is little hope of survival...")
 
 
-(setq after-converge-hook
+(setq after-fadein-hook
       (lambda
         (dialog "Mwhahaha... prepare to... die!!!")
         (dialog-decor "storm king" 4)
-        (setq after-converge-hook nil)))
+        (setq after-fadein-hook nil)))
 
 
 

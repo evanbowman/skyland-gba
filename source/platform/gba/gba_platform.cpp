@@ -703,8 +703,8 @@ static bool unlock_gameboy_player(Platform& pfrm)
     memcpy16((u16*)0x6008000, gbp_logo_pixels, (sizeof gbp_logo_pixels) / 2);
     memcpy16((u16*)0x6000000, gbp_logo_tiles, (sizeof gbp_logo_tiles) / 2);
 
-    static const int fadein_frames = 40;
-    static const int fadeout_frames = 25;
+    static const int fadein_frames = 20;
+    static const int fadeout_frames = 15;
 
     // The fadein/out effects are not required for gbp unlocking. Just looks
     // clean.
@@ -723,7 +723,7 @@ static bool unlock_gameboy_player(Platform& pfrm)
     push_palette(ColorConstant::rich_black, 0);
 
     using Frames = int;
-    static const Frames splashscreen_duration(125);
+    static const Frames splashscreen_duration(60);
 
     for (Frames i = 0; i < splashscreen_duration; ++i) {
         // If the gameboy player hardware/software accepted our spash screen,
