@@ -18,11 +18,11 @@
    (workshop 3 13)))
 
 
-(setq after-converge-hook
+(setq on-converge
       (lambda
         (setq temp (+ 400 (choice 900)))
 
-        (setq after-converge-hook nil)
+        (setq on-converge nil)
 
         (dialog
          "You explore, and discover " (string temp) "@ amongst the ruins!")

@@ -25,15 +25,15 @@
 
 
 
-(setq after-converge-hook
+(setq on-converge
       (lambda
         (dialog "The warship requests a tribute of 300@. Will you pay?")
 
         (dialog-await-y/n)
-        (setq after-converge-hook nil)))
+        (setq on-converge nil)))
 
 
-(setq after-dialog-accepted-hook
+(setq on-dialog-accepted
       (lambda
         (if (< (coins) 300)
             (progn
@@ -46,13 +46,13 @@
             (exit-level)))))
 
 
-(setq after-dialog-declined-hook
+(setq on-dialog-declined
       (lambda
         (opponent-mode 'hostile)
         (dialog "The fortress begins charging its weapons...")))
 
 
-(setq hostile-transition-hook
+(setq on-hostile-transition
       (lambda
         ;; when the island is preemtively attacked, skip all of the dialog and
         ;; other hooks.

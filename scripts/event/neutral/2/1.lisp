@@ -21,16 +21,16 @@
 (chr-add (opponent) 1 14 'neutral 0)
 
 
-(setq after-converge-hook
+(setq on-converge
       (lambda
         (dialog "You see a survivor amongst the wreckage. You cannot be sure whether the"
                 " survivor is trustworthy. Invite survivor aboard?")
 
         (dialog-await-y/n)
-        (setq after-converge-hook nil)))
+        (setq on-converge nil)))
 
 
-(setq after-dialog-accepted-hook
+(setq on-dialog-accepted
       (lambda
 
         (setq temp (chr-slots (player)))
@@ -58,7 +58,7 @@
             (exit-level)))))
 
 
-(setq after-dialog-declined-hook
+(setq on-dialog-declined
       (lambda
         ;; TODO...
         (exit-level)))

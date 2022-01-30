@@ -166,8 +166,6 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     prep_level(pfrm, app);
 
-    pfrm.delta_clock().reset(); // skip large dt from loading lisp scripts...
-
     if (app.dialog_buffer()) {
         auto buffer = std::move(*app.dialog_buffer());
         app.dialog_buffer().reset();

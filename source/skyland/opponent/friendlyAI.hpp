@@ -29,7 +29,7 @@ public:
         // What!? The player attacked us! We're no longer a friendly AI.
         app.swap_opponent<EnemyAI>();
 
-        invoke_hook(pfrm, app, "hostile-transition-hook");
+        invoke_hook(pfrm, app, "on-hostile-transition");
     }
 };
 

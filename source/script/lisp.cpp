@@ -22,7 +22,7 @@ namespace lisp {
 static int run_gc();
 
 
-static const u32 string_intern_table_size = 4000;
+static const u32 string_intern_table_size = 3000;
 
 
 #define VALUE_POOL_SIZE 9000

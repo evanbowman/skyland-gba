@@ -73,9 +73,6 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     app.player_island().set_position({10, 374});
 
-    // Because interpreting all those lisp scripts ran up a high frame latency.
-    pfrm.delta_clock().reset();
-
 
     return scene_pool::alloc<ZoneImageScene>();
 }

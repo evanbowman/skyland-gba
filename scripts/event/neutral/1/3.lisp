@@ -14,7 +14,7 @@
 
 
 
-(setq after-converge-hook
+(setq on-converge
       (lambda
         (setq temp (+ 500 (choice 500)))
         (dialog
@@ -24,10 +24,10 @@
 
         (dialog-decor "goblin king" 3)
         (dialog-await-y/n)
-        (setq after-converge-hook nil)))
+        (setq on-converge nil)))
 
 
-(setq after-dialog-accepted-hook
+(setq on-dialog-accepted
       (lambda
         (if (> 500 (coins))
             (progn
@@ -42,14 +42,14 @@
             (exit-level)))))
 
 
-(setq after-dialog-declined-hook
+(setq on-dialog-declined
       (lambda
         (opponent-mode 'hostile)
         (dialog "YARRRGG!!! PREPARE FOR BOARDING!!!")
         (dialog-decor "goblin king" 3)))
 
 
-(setq hostile-transition-hook
+(setq on-hostile-transition
       (lambda
         ;; when the island is preemtively attacked, skip all of the dialog and
         ;; other hooks.

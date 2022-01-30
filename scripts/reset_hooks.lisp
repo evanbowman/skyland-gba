@@ -3,11 +3,12 @@
 ;;;
 
 
-(setq after-fadein-hook '())
-(setq after-converge-hook '())
-(setq after-dialog-accepted-hook '())
-(setq after-dialog-declined-hook '())
-(setq hostile-transition-hook '())
+(setq on-fadein '())
+(setq on-converge '())
+(setq on-dialog-accepted '())
+(setq on-dialog-declined '())
+(setq on-dialog-closed '())
+(setq on-hostile-transition '())
 
 
 (if (not (bound 'last-zone))

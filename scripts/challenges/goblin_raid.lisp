@@ -6,6 +6,20 @@
 (coins-add 8500)
 
 
+(setq on-fadein
+      (lambda
+        (dialog "Hey King, we've found a defensselesss cassstle!")
+        (dialog-decor "goblin" 2)
+
+        (setq on-dialog-closed
+              (lambda
+                (dialog "*cackle* minionsss, pepare for boarding!")
+                (dialog-decor "goblin king" 3)
+                (setq on-dialog-closed '())))))
+
+
+
+
 (terrain (player) 8)
 (island-configure
  (player)

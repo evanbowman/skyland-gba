@@ -20,15 +20,15 @@
 
 
 
-(setq after-converge-hook
+(setq on-converge
       (lambda
         (dialog "Would you like to carry this cargo for me?")
         (dialog-await-y/n)
 
-        (setq after-dialog-accepted-hook
+        (setq on-dialog-accepted
               (lambda
                 ((eval-file "/scripts/utils/build_cargo_bay.lisp")
                  (lambda
                    (dialog (string $0))))))
 
-        (setq after-dialog-declined-hook exit-level)))
+        (setq on-dialog-declined exit-level)))

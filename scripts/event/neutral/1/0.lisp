@@ -21,17 +21,17 @@
 (chr-add (opponent) 2 14 'neutral 0)
 
 
-(setq after-converge-hook
+(setq on-converge
       (lambda
         (dialog "One of the mercenaries offers to join you crew, for a cost of "
                 (string (* 400 (zone)))
                 "@. Accept offer?")
 
         (dialog-await-y/n)
-        (setq after-converge-hook nil)))
+        (setq on-converge nil)))
 
 
-(setq after-dialog-accepted-hook
+(setq on-dialog-accepted
       (lambda
 
         (setq temp (chr-slots (player)))
@@ -51,7 +51,7 @@
         (exit-level)))
 
 
-(setq after-dialog-declined-hook
+(setq on-dialog-declined
       (lambda
         (dialog "The mercenaries became angry, and cut the transmission.")
         (exit-level)))

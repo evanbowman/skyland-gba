@@ -126,7 +126,6 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
     pfrm.speaker().play_music("sb_solecism", 0);
 
     app.invoke_script(pfrm, "/scripts/sandbox.lisp");
-    pfrm.delta_clock().reset();
 
     prep_level(pfrm, app);
     pfrm.load_tile0_texture("tilesheet");

@@ -22,7 +22,7 @@
            (progn
              (dialog "You have no empty cargo bays, want some time to build one now?")
              (dialog-await-y/n)
-             (setq after-dialog-accepted-hook
+             (setq on-dialog-accepted
                    (lambda
                      (task 30000 retry)))
-             (setq after-dialog-declined-hook exit-level))))))))
+             (setq on-dialog-declined exit-level))))))))

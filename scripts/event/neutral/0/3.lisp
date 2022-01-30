@@ -19,14 +19,14 @@
 (chr-add (opponent) 2 14 'neutral 0)
 
 
-(setq after-converge-hook
+(setq on-converge
       (lambda
         (dialog "You discover a damaged fortress. Spend 800@ in resources to rescue the survivors?")
         (dialog-await-y/n)
-        (setq after-converge-hook nil)))
+        (setq on-converge nil)))
 
 
-(setq after-dialog-accepted-hook
+(setq on-dialog-accepted
       (lambda
         (setq temp (chr-slots (player)))
 
@@ -53,7 +53,7 @@
         (exit-level)))
 
 
-(setq after-dialog-declined-hook
+(setq on-dialog-declined
       (lambda
         ;; TODO...
         (exit-level)))

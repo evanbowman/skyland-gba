@@ -44,7 +44,7 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         pfrm.screen().fade(0.f);
         auto future_scene = scene_pool::make_deferred_scene<ReadyScene>();
-        return scene_pool::alloc<ScriptHookScene>("after-fadein-hook",
+        return scene_pool::alloc<ScriptHookScene>("on-fadein",
                                                   future_scene);
     } else {
         const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);

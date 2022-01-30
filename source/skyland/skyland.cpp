@@ -362,7 +362,10 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
         Vector<char> buffer(pfrm);
         if (ram_filesystem::read_file_data(pfrm, path, buffer)) {
             lisp::VectorCharSequence seq(buffer);
-            return lisp::dostring(seq, on_err);
+            auto result = lisp::dostring(seq, on_err);
+            // In case the script took a bit to execute.
+            pfrm.delta_clock().reset();
+            return result;
         }
     }
 
@@ -372,7 +375,9 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
 
     if (auto contents = pfrm.load_file_contents("", path)) {
         lisp::BasicCharSequence seq(contents);
-        return lisp::dostring(seq, on_err);
+        auto result = lisp::dostring(seq, on_err);
+        pfrm.delta_clock().reset();
+        return result;
     } else {
         StringBuffer<100> err("script '");
         err += path;

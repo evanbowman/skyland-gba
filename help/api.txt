@@ -145,9 +145,9 @@ o----------------------------o
  selection, the engine will
  either invoke the function
  bound to
- after-dialog-accepted-hook
+ on-dialog-accepted
  or to
- after-dialog-declined-hook.
+ on-dialog-declined.
 
 
 o----------------------------o

@@ -18,14 +18,14 @@
    (workshop 3 13)))
 
 
-(setq after-converge-hook
+(setq on-converge
       (lambda
         (dialog "The fortress appears to be empty, but you cannot be certain. Attempt to board?")
-        (setq after-converge-hook '())
+        (setq on-converge '())
         (dialog-await-y/n)))
 
 
-(setq after-dialog-accepted-hook
+(setq on-dialog-accepted
       (lambda
         (if (equal (choice 2) 0)
             (progn
@@ -47,7 +47,7 @@
             (dialog "It's a trap!")))))
 
 
-(setq after-dialog-declined-hook
+(setq on-dialog-declined
       (lambda
         (dialog "The fortress sinks back into the clouds, its contents remain an unresolved mystery.")
         (exit-level)))
