@@ -27,11 +27,11 @@
 
         (dialog-decor "castaway" 1)
 
-        (task
-         1000
-         (lambda
-           (dialog "He seems harmless, invite him aboard?")
-           (dialog-await-y/n)))
+        (setq on-dialog-closed
+              (lambda
+                (dialog "He seems harmless, invite him aboard?")
+                (dialog-await-y/n)
+                (setq on-dialog-closed '())))
 
         (setq on-converge nil)))
 

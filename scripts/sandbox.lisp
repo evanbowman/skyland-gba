@@ -7,17 +7,15 @@
 
 
 (if (not (bound 'sandbox-msg))
-    (progn
-      (task
-       1000
-       (lambda
-         (setq sandbox-msg 1)
-         (dialog "Welcome to the Battle Sandbox! Want any help?")
-         (dialog-await-y/n)
-         (setq on-dialog-accepted
-               (lambda
-                 (dialog "Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own! You may also reposition your opponent's characters! Try out strategies, or just play around!")))
-         (setq on-dialog-declined (lambda '()))))))
+    (setq on-fadein
+          (lambda
+            (setq sandbox-msg 1)
+            (dialog "Welcome to the Battle Sandbox! Want any help?")
+            (dialog-await-y/n)
+            (setq on-dialog-accepted
+                  (lambda
+                    (dialog "Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own! You may also reposition your opponent's characters! Try out strategies, or just play around!")))
+            (setq on-dialog-declined nil))))
 
 
 (island-configure
