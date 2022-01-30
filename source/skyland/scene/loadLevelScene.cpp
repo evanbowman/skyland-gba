@@ -111,7 +111,8 @@ void prep_level(Platform& pfrm, App& app)
             }
         }
 
-        app.opponent_island()->repaint(pfrm, app);
+        pfrm.load_tile1_texture("tilesheet_enemy_0");
+        app.opponent_island()->render_exterior(pfrm, app);
     }
 }
 
