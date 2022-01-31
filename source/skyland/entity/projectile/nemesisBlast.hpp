@@ -10,9 +10,9 @@ namespace skyland {
 
 
 
-class VendettaBlast : public Projectile {
+class NemesisBlast : public Projectile {
 public:
-    VendettaBlast(const Vec2<Float>& position,
+    NemesisBlast(const Vec2<Float>& position,
                   const Vec2<Float>& target,
                   Island* source,
                   const Vec2<u8>& origin_tile);

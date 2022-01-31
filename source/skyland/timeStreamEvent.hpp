@@ -60,8 +60,8 @@ enum Type : u8 {
     player_decimator_burst_destroyed,
     opponent_decimator_burst_destroyed,
 
-    player_vendetta_blast_destroyed,
-    opponent_vendetta_blast_destroyed,
+    player_nemesis_blast_destroyed,
+    opponent_nemesis_blast_destroyed,
 
     player_room_damaged,
     opponent_room_damaged,
@@ -273,7 +273,7 @@ struct OpponentDecimatorBurstDestroyed : BasicProjectileDestroyed {
 
 
 
-struct VendettaBlastDestroyed {
+struct NemesisBlastDestroyed {
     Header header_;
     u8 x_origin_ : 4;
     u8 y_origin_ : 4;
@@ -287,14 +287,14 @@ struct VendettaBlastDestroyed {
 
 
 
-struct PlayerVendettaBlastDestroyed : VendettaBlastDestroyed {
-    static constexpr const auto t = Type::player_vendetta_blast_destroyed;
+struct PlayerNemesisBlastDestroyed : NemesisBlastDestroyed {
+    static constexpr const auto t = Type::player_nemesis_blast_destroyed;
 };
 
 
 
-struct OpponentVendettaBlastDestroyed : VendettaBlastDestroyed {
-    static constexpr const auto t = Type::opponent_vendetta_blast_destroyed;
+struct OpponentNemesisBlastDestroyed : NemesisBlastDestroyed {
+    static constexpr const auto t = Type::opponent_nemesis_blast_destroyed;
 };
 
 

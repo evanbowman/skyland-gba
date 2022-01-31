@@ -9,7 +9,7 @@
 #include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/entity/projectile/projectile.hpp"
-#include "skyland/entity/projectile/vendettaBlast.hpp"
+#include "skyland/entity/projectile/nemesisBlast.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/skyland.hpp"
@@ -297,9 +297,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
-        case time_stream::event::Type::player_vendetta_blast_destroyed: {
-            auto e = (time_stream::event::PlayerVendettaBlastDestroyed*)end;
-            if (auto v = respawn_basic_projectile<VendettaBlast>(
+        case time_stream::event::Type::player_nemesis_blast_destroyed: {
+            auto e = (time_stream::event::PlayerNemesisBlastDestroyed*)end;
+            if (auto v = respawn_basic_projectile<NemesisBlast>(
                     pfrm,
                     app,
                     &app.player_island(),
@@ -313,9 +313,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
-        case time_stream::event::Type::opponent_vendetta_blast_destroyed: {
-            auto e = (time_stream::event::PlayerVendettaBlastDestroyed*)end;
-            if (auto v = respawn_basic_projectile<VendettaBlast>(
+        case time_stream::event::Type::opponent_nemesis_blast_destroyed: {
+            auto e = (time_stream::event::PlayerNemesisBlastDestroyed*)end;
+            if (auto v = respawn_basic_projectile<NemesisBlast>(
                     pfrm,
                     app,
                     &*app.opponent_island(),

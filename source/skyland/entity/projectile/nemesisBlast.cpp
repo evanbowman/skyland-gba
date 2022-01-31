@@ -10,7 +10,7 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "vendettaBlast.hpp"
+#include "nemesisBlast.hpp"
 
 
 
@@ -18,11 +18,11 @@ namespace skyland {
 
 
 
-SHARED_VARIABLE(vendetta_blast_damage);
+SHARED_VARIABLE(nemesis_blast_damage);
 
 
 
-VendettaBlast::VendettaBlast(const Vec2<Float>& position,
+NemesisBlast::NemesisBlast(const Vec2<Float>& position,
                              const Vec2<Float>& target,
                              Island* source,
                              const Vec2<u8>& origin_tile)
@@ -39,7 +39,7 @@ VendettaBlast::VendettaBlast(const Vec2<Float>& position,
 
 
 
-void VendettaBlast::update(Platform&, App&, Microseconds delta)
+void NemesisBlast::update(Platform&, App&, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + Float(delta) * step_vector_;
@@ -56,7 +56,7 @@ void VendettaBlast::update(Platform&, App&, Microseconds delta)
 
 
 
-void VendettaBlast::rewind(Platform& pfrm, App& app, Microseconds delta)
+void NemesisBlast::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos - Float(delta) * step_vector_;
@@ -82,7 +82,7 @@ extern Sound sound_impact;
 
 
 
-void VendettaBlast::on_collision(Platform& pfrm, App& app, Room& room)
+void NemesisBlast::on_collision(Platform& pfrm, App& app, Room& room)
 {
     if (source_ == room.parent()) {
         if (room.position().x == origin_tile_.x or
@@ -125,7 +125,7 @@ void VendettaBlast::on_collision(Platform& pfrm, App& app, Room& room)
 
 
 
-void VendettaBlast::on_collision(Platform& pfrm, App& app, Entity& entity)
+void NemesisBlast::on_collision(Platform& pfrm, App& app, Entity& entity)
 {
     timestream_record_destroyed(pfrm, app);
 
@@ -138,27 +138,27 @@ void VendettaBlast::on_collision(Platform& pfrm, App& app, Entity& entity)
 
 
 
-Health VendettaBlast::damage() const
+Health NemesisBlast::damage() const
 {
     switch (variant_) {
     default:
     case 0:
-        return vendetta_blast_damage;
+        return nemesis_blast_damage;
 
     case 1:
-        return vendetta_blast_damage * 2;
+        return nemesis_blast_damage * 2;
 
     case 2:
-        return vendetta_blast_damage * 4;
+        return nemesis_blast_damage * 4;
     }
 }
 
 
 
-void VendettaBlast::timestream_record_destroyed(Platform& pfrm, App& app)
+void NemesisBlast::timestream_record_destroyed(Platform& pfrm, App& app)
 {
     auto timestream_record =
-        [&](time_stream::event::VendettaBlastDestroyed& c) {
+        [&](time_stream::event::NemesisBlastDestroyed& c) {
             c.x_origin_ = origin_tile_.x;
             c.y_origin_ = origin_tile_.y;
             c.timer_.set(timer_);
@@ -170,12 +170,12 @@ void VendettaBlast::timestream_record_destroyed(Platform& pfrm, App& app)
 
 
     if (source_ == &app.player_island()) {
-        time_stream::event::PlayerVendettaBlastDestroyed e;
+        time_stream::event::PlayerNemesisBlastDestroyed e;
         timestream_record(e);
         e.variant_ = variant_;
         app.time_stream().push(pfrm, app.level_timer(), e);
     } else {
-        time_stream::event::PlayerVendettaBlastDestroyed e;
+        time_stream::event::PlayerNemesisBlastDestroyed e;
         timestream_record(e);
         e.variant_ = variant_;
         app.time_stream().push(pfrm, app.level_timer(), e);

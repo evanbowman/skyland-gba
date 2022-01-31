@@ -84,8 +84,8 @@ struct Tile {
         statue_1,
         statue_2,
         bridge,
-        vendetta_1,
-        vendetta_2,
+        nemesis_1,
+        nemesis_2,
         bronze,
 
         // All tile indices below are reserved for DLC content.
@@ -174,8 +174,8 @@ struct InteriorTile {
         statue_1,
         statue_2,
         bridge,
-        vendetta_1,
-        vendetta_2,
+        nemesis_1,
+        nemesis_2,
         bronze,
 
         // All tile indices below are reserved for DLC content.

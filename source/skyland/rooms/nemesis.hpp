@@ -11,13 +11,13 @@ namespace skyland {
 
 
 
-extern SharedVariable vendetta_reload_ms;
+extern SharedVariable nemesis_reload_ms;
 
 
 
-class Vendetta : public Weapon {
+class Nemesis : public Weapon {
 public:
-    Vendetta(Island* parent, const Vec2<u8>& position);
+    Nemesis(Island* parent, const Vec2<u8>& position);
 
 
     void fire(Platform& pfrm, App& app) override;
@@ -57,7 +57,7 @@ public:
 
     static const char* name()
     {
-        return "vendetta";
+        return "nemesis";
     }
 
 
