@@ -173,6 +173,14 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::Type::achievement: {
+            auto e = (time_stream::event::Achievement*)end;
+            achievements::lock(pfrm, app, e->which_);
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::player_room_created: {
             auto e = (time_stream::event::PlayerRoomCreated*)end;
             app.player_island().destroy_room(pfrm, app, {e->x_, e->y_});

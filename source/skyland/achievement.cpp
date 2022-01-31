@@ -2,6 +2,7 @@
 #include "room_metatable.hpp"
 #include "save.hpp"
 #include "skyland.hpp"
+#include "timeStreamEvent.hpp"
 
 
 
@@ -15,7 +16,7 @@ struct AchievementInfo {
     const char* reward_;
 
     bool (*match_)(Platform&, App&);
-    void (*award_)(Platform&, App&);
+    void (*award_)(Platform&, App&, bool);
 };
 
 
@@ -25,7 +26,7 @@ static const AchievementInfo info[Achievement::count] = {
      "none",
      "none",
      [](Platform&, App&) { return false; },
-     [](Platform&, App&) {}},
+     [](Platform&, App&, bool) {}},
 
     {"Builder",
      "Build an island with more than ten structures!",
@@ -33,8 +34,8 @@ static const AchievementInfo info[Achievement::count] = {
      [](Platform&, App& app) {
          return app.player_island().rooms().size() > 10;
      },
-     [](Platform&, App&) {
-         set_enabled(metaclass_index(info[builder].reward_), true);
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[builder].reward_), awarded);
      }},
 
     {"Architect",
@@ -43,24 +44,24 @@ static const AchievementInfo info[Achievement::count] = {
      [](Platform&, App& app) {
          return app.player_island().rooms().size() > 20;
      },
-     [](Platform&, App&) {
-         set_enabled(metaclass_index(info[architect].reward_), true);
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[architect].reward_), awarded);
      }},
 
     {"Explorer",
      "Reach zone 2!",
      "coconut-palm",
      [](Platform&, App& app) { return app.zone() > 1; },
-     [](Platform&, App&) {
-         set_enabled(metaclass_index(info[explorer].reward_), true);
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[explorer].reward_), awarded);
      }},
 
     {"Strategist",
      "Reach zone 3!",
      "statue",
      [](Platform&, App& app) { return app.zone() > 2; },
-     [](Platform&, App&) {
-         set_enabled(metaclass_index(info[strategist].reward_), true);
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[strategist].reward_), awarded);
      }},
 
     {"Borrowed tech",
@@ -76,10 +77,10 @@ static const AchievementInfo info[Achievement::count] = {
          // responsible for creating a notification scene, which just isn't
          // realistic, because the player isn't supposed to have control over
          // the scene transition logic.
-         return is_enabled(metaclass_index(info[strategist].reward_));
+         return is_enabled(metaclass_index(info[ancient_weapon].reward_));
      },
-     [](Platform&, App&) {
-         set_enabled(metaclass_index(info[ancient_weapon].reward_), true);
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[ancient_weapon].reward_), awarded);
      }}};
 
 
@@ -92,7 +93,7 @@ void init(Platform& pfrm, App& app)
         const u64 flag = 1 << i;
 
         if (flags & flag) {
-            info[i].award_(pfrm, app);
+            info[i].award_(pfrm, app, true);
         }
     }
 }
@@ -136,6 +137,20 @@ Achievement update(Platform& pfrm, App& app)
 
 
 
+void lock(Platform& pfrm, App& app, Achievement achievement)
+{
+    auto& flags = app.gp_.achievement_flags_;
+    const u64 flag = 1 << achievement;
+
+    flags &= ~flag;
+
+    save::store_global_data(pfrm, app.gp_);
+
+    info[achievement].award_(pfrm, app, false);
+}
+
+
+
 bool unlock(Platform& pfrm, App& app, Achievement achievement)
 {
     auto& flags = app.gp_.achievement_flags_;
@@ -154,7 +169,11 @@ bool unlock(Platform& pfrm, App& app, Achievement achievement)
 
 void award(Platform& pfrm, App& app, Achievement achievement)
 {
-    info[achievement].award_(pfrm, app);
+    info[achievement].award_(pfrm, app, true);
+
+    time_stream::event::Achievement e;
+    e.which_ = achievement;
+    app.time_stream().push(pfrm, app.level_timer(), e);
 }
 
 

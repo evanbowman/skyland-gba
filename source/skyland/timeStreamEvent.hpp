@@ -4,6 +4,7 @@
 #include "coins.hpp"
 #include "number/random.hpp"
 #include "timeStreamHeader.hpp"
+#include "achievement.hpp"
 
 
 
@@ -104,6 +105,8 @@ enum Type : u8 {
     drone_reload_complete,
 
     rng_changed,
+
+    achievement,
 };
 
 
@@ -597,6 +600,16 @@ struct RngChanged {
     HostInteger<rng::LinearGenerator> previous_state_;
 
     static constexpr const auto t = Type::rng_changed;
+};
+
+
+
+struct Achievement {
+    Header header_;
+    achievements::Achievement which_;
+    static_assert(sizeof(which_) == 1);
+
+    static constexpr const auto t = Type::achievement;
 };
 
 

@@ -51,6 +51,9 @@ Achievement update(Platform& pfrm, App& app);
 bool unlock(Platform& pfrm, App& app, Achievement achievement);
 
 
+// Re-lock the achievement. Really just needed for implementing rewind.
+void lock(Platform& pfrm, App& app, Achievement achievement);
+
 
 // update() or unlock() return an achievement, or true (respectively), call
 // award to award the achievement item to the player.
