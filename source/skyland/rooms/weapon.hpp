@@ -27,6 +27,12 @@ public:
     }
 
 
+    static Category category()
+    {
+        return Category::weapon;
+    }
+
+
     void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 

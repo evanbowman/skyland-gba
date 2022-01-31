@@ -31,12 +31,6 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    static Category category()
-    {
-        return Category::weapon;
-    }
-
-
     bool has_roof() override
     {
         return false;
