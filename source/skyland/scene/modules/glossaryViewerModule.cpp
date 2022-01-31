@@ -102,13 +102,20 @@ GlossaryViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto [mt, ms] = room_metatable();
 
+    app.player().update(pfrm, app, delta);
 
-    if (app.player().key_down(pfrm, Key::right) and page_ < ms - 1 and
+    auto test_key = [&](Key k) {
+        return app.player().test_key(
+            pfrm, k, milliseconds(500), milliseconds(100));
+    };
+
+
+    if (test_key(Key::right) and page_ < ms - 1 and
         page_ < plugin_rooms_begin() - 1) {
         load_page(pfrm, ++page_);
     }
 
-    if (app.player().key_down(pfrm, Key::left) and page_ > 0) {
+    if (test_key(Key::left) and page_ > 0) {
         load_page(pfrm, --page_);
     }
 
