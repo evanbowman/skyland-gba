@@ -91,6 +91,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/entity/projectile/flak.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/vendettaBlast.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/arcBolt.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/ionBurst.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/decimatorBurst.cpp

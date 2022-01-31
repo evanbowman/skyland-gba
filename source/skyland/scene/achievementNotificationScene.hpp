@@ -1,7 +1,7 @@
 #pragma once
 
-#include "worldScene.hpp"
 #include "skyland/achievement.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -11,9 +11,8 @@ namespace skyland {
 
 class AchievementNotificationScene : public WorldScene {
 public:
-
-    AchievementNotificationScene(achievements::Achievement achievement) :
-        achievement_(achievement)
+    AchievementNotificationScene(achievements::Achievement achievement)
+        : achievement_(achievement)
     {
     }
 
@@ -28,7 +27,6 @@ public:
 
 
 private:
-
     enum class State {
         fade_in,
         animate_box_sweep,
@@ -51,4 +49,4 @@ private:
 
 
 
-}
+} // namespace skyland

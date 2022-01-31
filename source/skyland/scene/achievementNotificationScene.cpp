@@ -1,7 +1,7 @@
 #include "achievementNotificationScene.hpp"
 #include "readyScene.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -98,7 +98,8 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
         } else {
 
             const int total = st.y - 7;
-            const int progress = total * smoothstep(0.f, sweep_duration, timer_);
+            const int progress =
+                total * smoothstep(0.f, sweep_duration, timer_);
 
             for (int x = 3; x < st.x - 3; ++x) {
                 for (int y = 3; y < st.y - 4; ++y) {
@@ -143,9 +144,7 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
 
 
 
-void AchievementNotificationScene::enter(Platform& pfrm,
-                                         App& app,
-                                         Scene& prev)
+void AchievementNotificationScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
 
@@ -154,13 +153,11 @@ void AchievementNotificationScene::enter(Platform& pfrm,
 
 
 
-void AchievementNotificationScene::exit(Platform& pfrm,
-                                        App& app,
-                                        Scene& next)
+void AchievementNotificationScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     WorldScene::exit(pfrm, app, next);
 }
 
 
 
-}
+} // namespace skyland

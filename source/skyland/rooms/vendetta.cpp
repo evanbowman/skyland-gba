@@ -1,7 +1,7 @@
 #include "vendetta.hpp"
 #include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
-#include "skyland/entity/projectile/cannonball.hpp"
+#include "skyland/entity/projectile/vendettaBlast.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
@@ -18,7 +18,6 @@ extern Sound cannon_sound;
 
 
 SHARED_VARIABLE(vendetta_reload_ms);
-
 
 
 
@@ -51,13 +50,10 @@ void Vendetta::fire(Platform& pfrm, App& app)
 
     auto start = center();
 
-    // This just makes it a bit less likely for cannonballs to
-    // run into the player's own buildings, especially around
-    // corners.
     if (island == &app.player_island()) {
-        start.x -= 6;
+        start.x -= 22;
     } else {
-        start.x += 6;
+        start.x += 22;
     }
 
     if (not pfrm.network_peer().is_connected() and
@@ -67,10 +63,16 @@ void Vendetta::fire(Platform& pfrm, App& app)
 
     cannon_sound.play(pfrm, 3);
 
-    // auto c = alloc_entity<Cannonball>(start, target, parent(), position());
-    // if (c) {
-    //     parent()->projectiles().push(std::move(c));
-    // }
+    auto v = alloc_entity<VendettaBlast>(start, target, parent(), position());
+    if (v) {
+        if (health() < max_health() / 4) {
+            v->set_variant(2);
+        } else if (health() < max_health() / 2) {
+            v->set_variant(1);
+        }
+
+        parent()->projectiles().push(std::move(v));
+    }
 }
 
 

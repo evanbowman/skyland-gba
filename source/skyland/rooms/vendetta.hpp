@@ -37,6 +37,12 @@ public:
     }
 
 
+    // static bool unlocked_by_default()
+    // {
+    //     return false;
+    // }
+
+
     bool description_visible() override
     {
         return true;
@@ -58,6 +64,12 @@ public:
     static Float ai_base_weight()
     {
         return 12.f;
+    }
+
+
+    static Category category()
+    {
+        return Category::weapon;
     }
 
 
@@ -83,7 +95,6 @@ public:
     {
         return Conditions::foundry_required;
     }
-
 };
 
 

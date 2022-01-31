@@ -28,8 +28,8 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/transporter.hpp"
-#include "skyland/rooms/workshop.hpp"
 #include "skyland/rooms/vendetta.hpp"
+#include "skyland/rooms/workshop.hpp"
 
 
 

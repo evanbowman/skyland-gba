@@ -7,6 +7,7 @@
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/core.hpp"
+#include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/ionCannon.hpp"
@@ -178,6 +179,14 @@ void EnemyAI::update_room(Platform& pfrm,
                           Room& room,
                           const Bitmatrix<16, 16>& matrix)
 {
+    const auto category = (*room.metaclass())->category();
+
+    if (category == Room::Category::wall) {
+        // The AI shouldn't need to care about giving directions to rooms
+        // categorized as walls, because the don't really do anything special.
+        return;
+    }
+
     // NOTE: there should never be as many as 8 boarded ai characters at
     // once! I doubt that the game can realistically run AI code and
     // pathfinding for all of those entities. Of course, the game _can_
@@ -192,14 +201,18 @@ void EnemyAI::update_room(Platform& pfrm,
         }
     }
 
-    if (dynamic_cast<Cannon*>(&room) or dynamic_cast<ArcGun*>(&room)) {
-        set_target(pfrm, app, matrix, room);
+    if (dynamic_cast<Decimator*>(&room)) {
+        // Do nothing.
     } else if (auto silo = dynamic_cast<MissileSilo*>(&room)) {
         set_target(pfrm, app, matrix, *silo);
     } else if (auto flak_gun = dynamic_cast<FlakGun*>(&room)) {
         set_target(pfrm, app, matrix, *flak_gun);
     } else if (auto ion_cannon = dynamic_cast<IonCannon*>(&room)) {
         set_target(pfrm, app, matrix, *ion_cannon);
+    } else if (category == Room::Category::weapon) {
+        // NOTE: if we haven't hit any of the cases above, assume that the
+        // weapon is a generic cannon-type weapon.
+        set_target(pfrm, app, matrix, room);
     } else if (auto db = dynamic_cast<DroneBay*>(&room)) {
         // Don't spawn drones until the level's been running for a
         // bit.

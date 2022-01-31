@@ -272,7 +272,7 @@ static inline void on_stack_overflow();
 
 EWRAM_DATA
 static std::optional<Platform::UnrecoverrableErrorCallback>
-   unrecoverrable_error_callback;
+    unrecoverrable_error_callback;
 
 
 

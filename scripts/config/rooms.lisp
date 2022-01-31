@@ -29,6 +29,7 @@
    (drone-bay    200 2100 36)
    (cargo-bay    60  300  10)
    (arc-gun      240 1700 40)
+   (vendetta     200 1800 40)
    (coconut-palm 1   1    0)
    (shrubbery    1   1    0)
    (masonry      30  30   0)

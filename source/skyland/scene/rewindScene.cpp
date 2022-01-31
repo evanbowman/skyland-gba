@@ -9,6 +9,7 @@
 #include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/entity/projectile/projectile.hpp"
+#include "skyland/entity/projectile/vendettaBlast.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/skyland.hpp"
@@ -20,12 +21,12 @@ namespace skyland {
 
 
 
-template <typename T, typename F>
-void respawn_basic_projectile(Platform& pfrm,
-                              App& app,
-                              Island* parent,
-                              time_stream::event::BasicProjectileDestroyed& e,
-                              F&& explosion_function)
+template <typename T, typename E, typename F>
+T* respawn_basic_projectile(Platform& pfrm,
+                            App& app,
+                            Island* parent,
+                            const E& e,
+                            F&& explosion_function)
 {
     auto c = alloc_entity<T>(
         Vec2<Float>{(Float)e.x_pos_.get(), (Float)e.y_pos_.get()},
@@ -39,8 +40,11 @@ void respawn_basic_projectile(Platform& pfrm,
         c->set_step_vector(step_vector);
         c->set_timer(e.timer_.get());
         explosion_function(pfrm, app, c->sprite().get_position());
+        auto ret = c.get();
         parent->projectiles().push(std::move(c));
+        return ret;
     }
+    return nullptr;
 }
 
 
@@ -288,6 +292,38 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                                 " to non-existent room.");
             }
 
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_vendetta_blast_destroyed: {
+            auto e = (time_stream::event::PlayerVendettaBlastDestroyed*)end;
+            if (auto v = respawn_basic_projectile<VendettaBlast>(
+                    pfrm,
+                    app,
+                    &app.player_island(),
+                    *e,
+                    medium_explosion_inv)) {
+                v->set_variant(e->variant_);
+                app.camera().shake(8);
+            }
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_vendetta_blast_destroyed: {
+            auto e = (time_stream::event::PlayerVendettaBlastDestroyed*)end;
+            if (auto v = respawn_basic_projectile<VendettaBlast>(
+                    pfrm,
+                    app,
+                    &*app.opponent_island(),
+                    *e,
+                    medium_explosion_inv)) {
+                v->set_variant(e->variant_);
+                app.camera().shake(8);
+            }
             app.time_stream().pop(sizeof *e);
             break;
         }
