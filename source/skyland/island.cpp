@@ -330,9 +330,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             auto sync = [x = (*it)->position().x,
                          y = (*it)->position().y,
-                         near = (*it)->destination() ==
-                         &app.player_island()](Platform& pfrm,
-                                               App& app) {
+                         near = (*it)->destination() == &app.player_island()](
+                            Platform& pfrm, App& app) {
                 network::packet::DroneDestroyed destroyed;
                 destroyed.drone_x_ = x;
                 destroyed.drone_y_ = y;

@@ -101,8 +101,8 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
 
-            auto c = alloc_entity<DecimatorBurst>(
-                start, target, parent(), position());
+            auto c = app.alloc_entity<DecimatorBurst>(
+                pfrm, start, target, parent(), position());
 
             if (c) {
                 parent()->projectiles().push(std::move(c));

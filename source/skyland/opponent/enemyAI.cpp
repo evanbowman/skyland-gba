@@ -48,7 +48,6 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                 insufficent_power_resolve_timer_ = 0;
                 resolve_insufficient_power(pfrm, app);
             }
-
         }
 
 
@@ -90,17 +89,10 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                     drone_sp->metaclass_index() == flak_drone_index) {
 
                     offensive_drone_set_target(
-                                               pfrm,
-                                               app,
-                                               app.player_island().rooms_plot(),
-                                               *drone_sp);
-                } else if (drone_sp->metaclass_index() ==
-                           combat_drone_index) {
+                        pfrm, app, app.player_island().rooms_plot(), *drone_sp);
+                } else if (drone_sp->metaclass_index() == combat_drone_index) {
                     combat_drone_set_target(
-                                            pfrm,
-                                            app,
-                                            app.player_island().rooms_plot(),
-                                            *drone_sp);
+                        pfrm, app, app.player_island().rooms_plot(), *drone_sp);
                 }
             }
         }
@@ -111,17 +103,10 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                     drone_sp->metaclass_index() == flak_drone_index) {
 
                     offensive_drone_set_target(
-                                               pfrm,
-                                               app,
-                                               app.player_island().rooms_plot(),
-                                               *drone_sp);
-                } else if (drone_sp->metaclass_index() ==
-                           combat_drone_index) {
+                        pfrm, app, app.player_island().rooms_plot(), *drone_sp);
+                } else if (drone_sp->metaclass_index() == combat_drone_index) {
                     combat_drone_set_target(
-                                            pfrm,
-                                            app,
-                                            app.player_island().rooms_plot(),
-                                            *drone_sp);
+                        pfrm, app, app.player_island().rooms_plot(), *drone_sp);
                 }
             }
         }

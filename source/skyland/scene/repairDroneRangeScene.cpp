@@ -56,7 +56,8 @@ void RepairDroneRangeScene::display(Platform& pfrm, App& app)
         if (x not_eq pos.x) {
             sprite.set_texture_index(14);
 
-            sprite.set_position({origin.x + x * 16, origin.y + (pos.y - 1) * 16});
+            sprite.set_position(
+                {origin.x + x * 16, origin.y + (pos.y - 1) * 16});
 
             pfrm.screen().draw(sprite);
 

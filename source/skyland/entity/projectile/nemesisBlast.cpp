@@ -1,6 +1,7 @@
 #include "projectile.hpp"
 
 
+#include "nemesisBlast.hpp"
 #include "skyland/entity/drones/drone.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/room.hpp"
@@ -10,7 +11,6 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "nemesisBlast.hpp"
 
 
 
@@ -23,9 +23,9 @@ SHARED_VARIABLE(nemesis_blast_damage);
 
 
 NemesisBlast::NemesisBlast(const Vec2<Float>& position,
-                             const Vec2<Float>& target,
-                             Island* source,
-                             const Vec2<u8>& origin_tile)
+                           const Vec2<Float>& target,
+                           Island* source,
+                           const Vec2<u8>& origin_tile)
     : Projectile({{10, 10}, {8, 8}}), source_(source), origin_tile_(origin_tile)
 {
     sprite_.set_position(position);
@@ -157,16 +157,15 @@ Health NemesisBlast::damage() const
 
 void NemesisBlast::timestream_record_destroyed(Platform& pfrm, App& app)
 {
-    auto timestream_record =
-        [&](time_stream::event::NemesisBlastDestroyed& c) {
-            c.x_origin_ = origin_tile_.x;
-            c.y_origin_ = origin_tile_.y;
-            c.timer_.set(timer_);
-            c.x_pos_.set(sprite_.get_position().x);
-            c.y_pos_.set(sprite_.get_position().y);
-            memcpy(&c.x_speed_, &step_vector_.x, sizeof(Float));
-            memcpy(&c.y_speed_, &step_vector_.y, sizeof(Float));
-        };
+    auto timestream_record = [&](time_stream::event::NemesisBlastDestroyed& c) {
+        c.x_origin_ = origin_tile_.x;
+        c.y_origin_ = origin_tile_.y;
+        c.timer_.set(timer_);
+        c.x_pos_.set(sprite_.get_position().x);
+        c.y_pos_.set(sprite_.get_position().y);
+        memcpy(&c.x_speed_, &step_vector_.x, sizeof(Float));
+        memcpy(&c.y_speed_, &step_vector_.y, sizeof(Float));
+    };
 
 
     if (source_ == &app.player_island()) {

@@ -121,8 +121,8 @@ public:
                         start.y += 8;
                         auto target = room->center();
 
-                        auto c = alloc_entity<Flak>(
-                            start, target, parent(), position());
+                        auto c = app.alloc_entity<Flak>(
+                            pfrm, start, target, parent(), position());
                         if (c) {
                             app.camera().shake(4);
                             parent()->projectiles().push(std::move(c));

@@ -70,7 +70,8 @@ void ArcGun::fire(Platform& pfrm, App& app)
 
     cannon_sound.play(pfrm, 3);
 
-    auto ab = alloc_entity<ArcBolt>(start, target, parent(), position());
+    auto ab =
+        app.alloc_entity<ArcBolt>(pfrm, start, target, parent(), position());
     if (ab) {
         parent()->projectiles().push(std::move(ab));
     }

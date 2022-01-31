@@ -338,8 +338,8 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
     const Vec2<u8> loc = {invert_axis(app, packet.src_x_), packet.src_y_};
 
-    auto chr = alloc_entity<BasicCharacter>(
-        &*app.opponent_island(), &app.opponent(), loc, true);
+    auto chr = app.alloc_entity<BasicCharacter>(
+        pfrm, &*app.opponent_island(), &app.opponent(), loc, true);
 
     if (chr) {
         chr->apply_damage(pfrm, app, 255 - packet.health_);

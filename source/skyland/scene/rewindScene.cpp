@@ -8,8 +8,8 @@
 #include "skyland/entity/projectile/flak.hpp"
 #include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/entity/projectile/missile.hpp"
-#include "skyland/entity/projectile/projectile.hpp"
 #include "skyland/entity/projectile/nemesisBlast.hpp"
+#include "skyland/entity/projectile/projectile.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/skyland.hpp"
@@ -28,7 +28,8 @@ T* respawn_basic_projectile(Platform& pfrm,
                             const E& e,
                             F&& explosion_function)
 {
-    auto c = alloc_entity<T>(
+    auto c = app.alloc_entity<T>(
+        pfrm,
         Vec2<Float>{(Float)e.x_pos_.get(), (Float)e.y_pos_.get()},
         Vec2<Float>{},
         parent,
@@ -54,7 +55,8 @@ void respawn_missile(Platform& pfrm,
                      Island* parent,
                      time_stream::event::MissileDestroyed& e)
 {
-    auto m = alloc_entity<Missile>(
+    auto m = app.alloc_entity<Missile>(
+        pfrm,
         Vec2<Float>{(Float)e.x_pos_.get(), (Float)e.y_pos_.get()},
         Vec2<Float>{
             (Float)e.target_x_.get(),
@@ -792,13 +794,13 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                                       : &*app.opponent_island();
 
             for (auto& drone_sp : dest_island->drones()) {
-                    if (drone_sp->position().x == e->x_pos_ and
-                        drone_sp->position().y == e->y_pos_) {
+                if (drone_sp->position().x == e->x_pos_ and
+                    drone_sp->position().y == e->y_pos_) {
 
-                        drone_sp->__override_state(Drone::State::launch,
-                                                   e->duration_.get(),
-                                                   e->duration_.get());
-                        break;
+                    drone_sp->__override_state(Drone::State::launch,
+                                               e->duration_.get(),
+                                               e->duration_.get());
+                    break;
                 }
             }
 
@@ -840,10 +842,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     drone->position().y == e->y_pos_) {
 
                     if (e->has_previous_target_) {
-                        drone->set_target(pfrm,
-                                          app,
-                                          {e->previous_target_x_, e->previous_target_y_},
-                                          e->previous_target_near_);
+                        drone->set_target(
+                            pfrm,
+                            app,
+                            {e->previous_target_x_, e->previous_target_y_},
+                            e->previous_target_near_);
                     } else {
                         drone->drop_target(pfrm, app);
                     }

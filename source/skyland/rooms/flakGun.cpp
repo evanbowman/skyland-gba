@@ -70,7 +70,7 @@ void FlakGun::fire(Platform& pfrm, App& app)
 
     cannon_sound.play(pfrm, 3);
 
-    auto c = alloc_entity<Flak>(start, target, parent(), position());
+    auto c = app.alloc_entity<Flak>(pfrm, start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }

@@ -74,7 +74,8 @@ void Cannon::fire(Platform& pfrm, App& app)
 
     cannon_sound.play(pfrm, 3);
 
-    auto c = alloc_entity<Cannonball>(start, target, parent(), position());
+    auto c =
+        app.alloc_entity<Cannonball>(pfrm, start, target, parent(), position());
     if (c) {
         parent()->projectiles().push(std::move(c));
     }

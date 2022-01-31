@@ -18,6 +18,7 @@
 #include "skyland/rooms/ionFizzler.hpp"
 #include "skyland/rooms/masonry.hpp"
 #include "skyland/rooms/missileSilo.hpp"
+#include "skyland/rooms/nemesis.hpp"
 #include "skyland/rooms/palm.hpp"
 #include "skyland/rooms/plunderedRoom.hpp"
 #include "skyland/rooms/poweredHull.hpp"
@@ -28,7 +29,6 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/transporter.hpp"
-#include "skyland/rooms/nemesis.hpp"
 #include "skyland/rooms/workshop.hpp"
 
 

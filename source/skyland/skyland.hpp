@@ -85,10 +85,8 @@ public:
     {
         reset_opponent_island(pfrm);
 
-        opponent_island_.emplace(pfrm,
-                                 Layer::map_1_ext,
-                                 terrain_size,
-                                 opponent());
+        opponent_island_.emplace(
+            pfrm, Layer::map_1_ext, terrain_size, opponent());
     }
 
 

@@ -13,9 +13,9 @@ namespace skyland {
 class NemesisBlast : public Projectile {
 public:
     NemesisBlast(const Vec2<Float>& position,
-                  const Vec2<Float>& target,
-                  Island* source,
-                  const Vec2<u8>& origin_tile);
+                 const Vec2<Float>& target,
+                 Island* source,
+                 const Vec2<u8>& origin_tile);
 
 
     void set_step_vector(const Vec2<Float>& val)

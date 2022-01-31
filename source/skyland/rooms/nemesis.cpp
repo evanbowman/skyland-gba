@@ -36,7 +36,6 @@ void Nemesis::format_description(StringBuffer<512>& buffer)
         nemesis_blast_damage * 4,
         secs,
         (nemesis_reload_ms / 100 - secs * 10));
-
 }
 
 
@@ -76,7 +75,8 @@ void Nemesis::fire(Platform& pfrm, App& app)
 
     cannon_sound.play(pfrm, 3);
 
-    auto v = alloc_entity<NemesisBlast>(start, target, parent(), position());
+    auto v = app.alloc_entity<NemesisBlast>(
+        pfrm, start, target, parent(), position());
     if (v) {
         if (health() < max_health() / 4) {
             v->set_variant(2);
