@@ -783,16 +783,14 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                                       ? &app.player_island()
                                       : &*app.opponent_island();
 
-            for (auto& drone : dest_island->drones()) {
-                if (auto drone_sp = drone.promote()) {
-                    if ((*drone_sp)->position().x == e->x_pos_ and
-                        (*drone_sp)->position().y == e->y_pos_) {
+            for (auto& drone_sp : dest_island->drones()) {
+                    if (drone_sp->position().x == e->x_pos_ and
+                        drone_sp->position().y == e->y_pos_) {
 
-                        (*drone_sp)->__override_state(Drone::State::launch,
-                                                      e->duration_.get(),
-                                                      e->duration_.get());
+                        drone_sp->__override_state(Drone::State::launch,
+                                                   e->duration_.get(),
+                                                   e->duration_.get());
                         break;
-                    }
                 }
             }
 
@@ -809,13 +807,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                                       : &*app.opponent_island();
 
             for (auto& drone : dest_island->drones()) {
-                if (auto drone_sp = drone.promote()) {
-                    if ((*drone_sp)->position().x == e->x_pos_ and
-                        (*drone_sp)->position().y == e->y_pos_) {
+                if (drone->position().x == e->x_pos_ and
+                    drone->position().y == e->y_pos_) {
 
-                        (*drone_sp)->__set_health(e->previous_health_.get());
-                        break;
-                    }
+                    drone->__set_health(e->previous_health_.get());
+                    break;
                 }
             }
 
@@ -832,21 +828,18 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                                       : &*app.opponent_island();
 
             for (auto& drone : dest_island->drones()) {
-                if (auto drone_sp = drone.promote()) {
-                    if ((*drone_sp)->position().x == e->x_pos_ and
-                        (*drone_sp)->position().y == e->y_pos_) {
+                if (drone->position().x == e->x_pos_ and
+                    drone->position().y == e->y_pos_) {
 
-                        if (e->has_previous_target_) {
-                            (*drone_sp)->set_target(
-                                pfrm,
-                                app,
-                                {e->previous_target_x_, e->previous_target_y_},
-                                e->previous_target_near_);
-                        } else {
-                            (*drone_sp)->drop_target(pfrm, app);
-                        }
-                        break;
+                    if (e->has_previous_target_) {
+                        drone->set_target(pfrm,
+                                          app,
+                                          {e->previous_target_x_, e->previous_target_y_},
+                                          e->previous_target_near_);
+                    } else {
+                        drone->drop_target(pfrm, app);
                     }
+                    break;
                 }
             }
 
@@ -863,13 +856,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                                       : &*app.opponent_island();
 
             for (auto& drone : dest_island->drones()) {
-                if (auto drone_sp = drone.promote()) {
-                    if ((*drone_sp)->position().x == e->x_pos_ and
-                        (*drone_sp)->position().y == e->y_pos_) {
+                if (drone->position().x == e->x_pos_ and
+                    drone->position().y == e->y_pos_) {
 
-                        (*drone_sp)->___rewind___finished_reload(pfrm, app);
-                        break;
-                    }
+                    drone->___rewind___finished_reload(pfrm, app);
+                    break;
                 }
             }
 

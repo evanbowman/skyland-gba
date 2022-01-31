@@ -71,48 +71,45 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         const auto cannon_drone_index = DroneMeta::index("cannon-drone");
         const auto flak_drone_index = DroneMeta::index("flak-drone");
 
-        for (auto& drone : app.player_island().drones()) {
-            if (auto drone_sp = drone.promote()) {
-                if ((*drone_sp)->parent() == &*app.opponent_island()) {
-                    if ((*drone_sp)->metaclass_index() == cannon_drone_index or
-                        (*drone_sp)->metaclass_index() == flak_drone_index) {
+        for (auto& drone_sp : app.player_island().drones()) {
 
-                        offensive_drone_set_target(
-                            pfrm,
-                            app,
-                            app.player_island().rooms_plot(),
-                            **drone_sp);
-                    } else if ((*drone_sp)->metaclass_index() ==
-                               combat_drone_index) {
-                        combat_drone_set_target(
-                            pfrm,
-                            app,
-                            app.player_island().rooms_plot(),
-                            **drone_sp);
-                    }
+            if (drone_sp->parent() == &*app.opponent_island()) {
+                if (drone_sp->metaclass_index() == cannon_drone_index or
+                    drone_sp->metaclass_index() == flak_drone_index) {
+
+                    offensive_drone_set_target(
+                                               pfrm,
+                                               app,
+                                               app.player_island().rooms_plot(),
+                                               *drone_sp);
+                } else if (drone_sp->metaclass_index() ==
+                           combat_drone_index) {
+                    combat_drone_set_target(
+                                            pfrm,
+                                            app,
+                                            app.player_island().rooms_plot(),
+                                            *drone_sp);
                 }
             }
         }
 
-        for (auto& drone : app.opponent_island()->drones()) {
-            if (auto drone_sp = drone.promote()) {
-                if ((*drone_sp)->parent() == &*app.opponent_island()) {
-                    if ((*drone_sp)->metaclass_index() == cannon_drone_index or
-                        (*drone_sp)->metaclass_index() == flak_drone_index) {
+        for (auto& drone_sp : app.opponent_island()->drones()) {
+            if (drone_sp->parent() == &*app.opponent_island()) {
+                if (drone_sp->metaclass_index() == cannon_drone_index or
+                    drone_sp->metaclass_index() == flak_drone_index) {
 
-                        offensive_drone_set_target(
-                            pfrm,
-                            app,
-                            app.player_island().rooms_plot(),
-                            **drone_sp);
-                    } else if ((*drone_sp)->metaclass_index() ==
-                               combat_drone_index) {
-                        combat_drone_set_target(
-                            pfrm,
-                            app,
-                            app.player_island().rooms_plot(),
-                            **drone_sp);
-                    }
+                    offensive_drone_set_target(
+                                               pfrm,
+                                               app,
+                                               app.player_island().rooms_plot(),
+                                               *drone_sp);
+                } else if (drone_sp->metaclass_index() ==
+                           combat_drone_index) {
+                    combat_drone_set_target(
+                                            pfrm,
+                                            app,
+                                            app.player_island().rooms_plot(),
+                                            *drone_sp);
                 }
             }
         }
@@ -806,13 +803,11 @@ static void place_offensive_drone(Platform& pfrm,
         val = 0.f;
     }
 
-    for (auto& drone : player_island.drones()) {
-        if (auto drone_sp = drone.promote()) {
-            // Don't stack drones in the same column, or we could end up
-            // shooting one of our other drones.
-            if (drone_sp and (*drone_sp)->parent() == &ai_island) {
-                restrict_columns[(*drone_sp)->position().x] = true;
-            }
+    for (auto& drone_sp : player_island.drones()) {
+        // Don't stack drones in the same column, or we could end up
+        // shooting one of our other drones.
+        if (drone_sp->parent() == &ai_island) {
+            restrict_columns[drone_sp->position().x] = true;
         }
     }
 
@@ -1031,16 +1026,12 @@ void EnemyAI::update_room(Platform& pfrm,
         }
     };
 
-    for (auto& drone_wp : app.player_island().drones()) {
-        if (auto drone_sp = drone_wp.promote()) {
-            update_weights(**drone_sp, false);
-        }
+    for (auto& drone_sp : app.player_island().drones()) {
+        update_weights(*drone_sp, false);
     }
 
-    for (auto& drone_wp : app.opponent_island()->drones()) {
-        if (auto drone_sp = drone_wp.promote()) {
-            update_weights(**drone_sp, true);
-        }
+    for (auto& drone_sp : app.opponent_island()->drones()) {
+        update_weights(*drone_sp, true);
     }
 
     int highest_weight_index = 0;
@@ -1140,19 +1131,15 @@ void EnemyAI::combat_drone_set_target(Platform& pfrm,
                                       const Bitmatrix<16, 16>& matrix,
                                       Drone& drone)
 {
-    for (auto& drone_wp : app.player_island().drones()) {
-        if (auto drone_sp = drone_wp.promote()) {
-            if ((*drone_sp)->parent() == &app.player_island()) {
-                drone.set_target(pfrm, app, (*drone_sp)->position(), true);
-            }
+    for (auto& drone_sp : app.player_island().drones()) {
+        if (drone_sp->parent() == &app.player_island()) {
+            drone.set_target(pfrm, app, drone_sp->position(), true);
         }
     }
 
-    for (auto& drone_wp : app.opponent_island()->drones()) {
-        if (auto drone_sp = drone_wp.promote()) {
-            if ((*drone_sp)->parent() == &app.player_island()) {
-                drone.set_target(pfrm, app, (*drone_sp)->position(), false);
-            }
+    for (auto& drone_sp : app.opponent_island()->drones()) {
+        if (drone_sp->parent() == &app.player_island()) {
+            drone.set_target(pfrm, app, drone_sp->position(), false);
         }
     }
 }

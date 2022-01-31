@@ -17,19 +17,14 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return new_scene;
     }
 
-    auto drone_sp = drone_.promote();
-    if (not drone_sp) {
-        return scene_pool::alloc<ReadyScene>();
-    }
-
     auto exit_scene = [&]() -> ScenePtr<Scene> {
-        if ((*drone_sp)->destination() == &app.player_island()) {
+        if (drone_->destination() == &app.player_island()) {
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_ =
-                (*drone_sp)->position();
+                drone_->position();
             return scene_pool::alloc<ReadyScene>();
         } else {
             std::get<SkylandGlobalData>(globals()).far_cursor_loc_ =
-                (*drone_sp)->position();
+                drone_->position();
             return scene_pool::alloc<InspectP2Scene>();
         }
     };
@@ -45,15 +40,15 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.player().key_down(pfrm, Key::action_1)) {
 
         network::packet::DroneSetTarget packet;
-        packet.drone_x_ = (*drone_sp)->position().x;
-        packet.drone_y_ = (*drone_sp)->position().y;
+        packet.drone_x_ = drone_->position().x;
+        packet.drone_y_ = drone_->position().y;
         packet.target_x_ = cursor_loc_.x;
         packet.target_y_ = cursor_loc_.y;
-        packet.drone_near_ = (*drone_sp)->destination() == &app.player_island();
+        packet.drone_near_ = drone_->destination() == &app.player_island();
         packet.target_near_ = near_;
         network::transmit(pfrm, packet);
 
-        (*drone_sp)->set_target(pfrm, app, cursor_loc_, near_);
+        drone_->set_target(pfrm, app, cursor_loc_, near_);
 
         return exit_scene();
     }
@@ -72,21 +67,19 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (auto target_sp = targets_[selector_].promote()) {
-        auto loc = (*target_sp)->position();
-        cursor_loc_ = loc;
+    auto target = targets_[selector_];
+    auto loc = target->position();
+    cursor_loc_ = loc;
 
-        if ((*target_sp)->destination() == &app.player_island()) {
-            near_camera();
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_ = loc;
-            near_ = true;
-        } else {
-            far_camera();
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = loc;
-            near_ = false;
-        }
+    if (target->destination() == &app.player_island()) {
+        near_camera();
+        std::get<SkylandGlobalData>(globals()).near_cursor_loc_ = loc;
+        near_ = true;
+    } else {
+        far_camera();
+        std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = loc;
+        near_ = false;
     }
-
 
     return null_scene();
 }
@@ -97,26 +90,21 @@ void CombatDroneSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     ActiveWorldScene::enter(pfrm, app, prev);
 
-    auto drone = drone_.promote();
-
     auto collect = [&](auto& list) {
-        for (auto& drone_wp : list) {
-            if (auto drone_sp = drone_wp.promote()) {
-                if (drone_sp->get() == drone->get()) {
-                    continue;
-                }
-                if ((*drone_sp)->parent() not_eq (*drone)->parent()) {
-                    targets_.push_back(*drone_sp);
-                }
+        for (auto& drone_sp : list) {
+            if (drone_sp.get() == drone_.get()) {
+                continue;
+            }
+            if (drone_sp->parent() not_eq drone_->parent()) {
+                targets_.emplace_back(drone_sp);
             }
         }
     };
 
-    if (drone) {
-        near_ = (*drone)->destination() == &app.player_island();
-        if (not near_) {
-            far_camera();
-        }
+
+    near_ = drone_->destination() == &app.player_island();
+    if (not near_) {
+        far_camera();
     }
 
     if (near_) {

@@ -246,7 +246,7 @@ public:
     void on_layout_changed(App& app, const Vec2<u8>& room_added_removed_coord);
 
 
-    WeakEntityList<Drone>& drones()
+    SharedEntityList<Drone>& drones()
     {
         return drones_;
     }
@@ -307,7 +307,7 @@ private:
 
     EntityList<BasicCharacter> characters_;
     EntityList<Entity> projectiles_;
-    WeakEntityList<Drone> drones_;
+    SharedEntityList<Drone> drones_;
 
     Player* owner_;
 

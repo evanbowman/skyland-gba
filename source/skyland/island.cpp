@@ -188,16 +188,11 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
     for (auto it = drones_.begin(); it not_eq drones_.end();) {
-        if (auto ptr = (*it).promote()) {
-
-            if (not(*ptr)->alive()) {
-                it = drones_.erase(it);
-            } else {
-                (*ptr)->rewind(pfrm, app, delta);
-                ++it;
-            }
-        } else {
+        if (not(*it)->alive()) {
             it = drones_.erase(it);
+        } else {
+            (*it)->rewind(pfrm, app, delta);
+            ++it;
         }
     }
 
@@ -331,36 +326,31 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
 
     for (auto it = drones_.begin(); it not_eq drones_.end();) {
-        if (auto ptr = (*it).promote()) {
+        if (not(*it)->alive()) {
 
-            if (not(*ptr)->alive()) {
+            auto sync = [x = (*it)->position().x,
+                         y = (*it)->position().y,
+                         near = (*it)->destination() ==
+                         &app.player_island()](Platform& pfrm,
+                                               App& app) {
+                network::packet::DroneDestroyed destroyed;
+                destroyed.drone_x_ = x;
+                destroyed.drone_y_ = y;
+                destroyed.destination_near_ = near;
 
-                auto sync = [x = (*ptr)->position().x,
-                             y = (*ptr)->position().y,
-                             near = (*ptr)->destination() ==
-                                    &app.player_island()](Platform& pfrm,
-                                                          App& app) {
-                    network::packet::DroneDestroyed destroyed;
-                    destroyed.drone_x_ = x;
-                    destroyed.drone_y_ = y;
-                    destroyed.destination_near_ = near;
+                network::transmit(pfrm, destroyed);
+            };
 
-                    network::transmit(pfrm, destroyed);
-                };
-
-                if (pfrm.network_peer().is_connected()) {
-                    if (not app.on_timeout(pfrm, sync_delay, sync)) {
-                        sync(pfrm, app);
-                    }
+            if (pfrm.network_peer().is_connected()) {
+                if (not app.on_timeout(pfrm, sync_delay, sync)) {
+                    sync(pfrm, app);
                 }
-
-                it = drones_.erase(it);
-            } else {
-                (*ptr)->update(pfrm, app, dt);
-                ++it;
             }
-        } else {
+
             it = drones_.erase(it);
+        } else {
+            (*it)->update(pfrm, app, dt);
+            ++it;
         }
     }
 
@@ -640,12 +630,10 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
     island_hitbox.dimension_.size_.y = 16 * 16;
 
     if (island_hitbox.overlapping(entity.hitbox())) {
-        for (auto& drone_wp : drones_) {
-            if (auto drone_sp = drone_wp.promote()) {
-                if (entity.hitbox().overlapping((*drone_sp)->hitbox())) {
-                    entity.on_collision(pfrm, app, **drone_sp);
-                    (*drone_sp)->on_collision(pfrm, app, entity);
-                }
+        for (auto& drone_sp : drones_) {
+            if (entity.hitbox().overlapping((drone_sp)->hitbox())) {
+                entity.on_collision(pfrm, app, *drone_sp);
+                (drone_sp)->on_collision(pfrm, app, entity);
             }
         }
     }
@@ -797,12 +785,10 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
         }
     }
 
-    for (auto& drone : drones_) {
-        if (auto sp = drone.promote()) {
-            auto pos = (*sp)->position();
-            matrix[pos.x][pos.y] = false;
-            matrix[pos.x][pos.y + 1] = false;
-        }
+    for (auto& sp : drones_) {
+        auto pos = sp->position();
+        matrix[pos.x][pos.y] = false;
+        matrix[pos.x][pos.y + 1] = false;
     }
 }
 
@@ -1008,10 +994,9 @@ Vec2<Float> Island::visual_origin() const
 
 std::optional<SharedEntityRef<Drone>> Island::get_drone(const Vec2<u8>& coord)
 {
-    for (auto& drone_wp : drones()) {
-        if (auto drone_sp = drone_wp.promote();
-            drone_sp and (*drone_sp)->position() == coord) {
-            return *drone_sp;
+    for (auto& drone_sp : drones()) {
+        if (drone_sp->position() == coord) {
+            return drone_sp;
         }
     }
 

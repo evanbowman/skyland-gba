@@ -49,10 +49,8 @@ void get_drone_slots(bool slots[16][16], Island* dest_island, Island* parent)
         }
     }
 
-    for (auto& drone_wp : dest_island->drones()) {
-        if (auto drone_sp = drone_wp.promote()) {
-            slots[(*drone_sp)->position().x][(*drone_sp)->position().y] = false;
-        }
+    for (auto& drone_sp : dest_island->drones()) {
+        slots[drone_sp->position().x][drone_sp->position().y] = false;
     }
 
     for (int x = 0; x < 16; ++x) {

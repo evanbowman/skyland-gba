@@ -177,22 +177,21 @@ void DroneBay::attach_drone(Platform& pfrm,
 void DroneBay::detach_drone(Platform& pfrm, App& app, bool quiet)
 {
     if (drone_ and not quiet) {
-        medium_explosion(pfrm, app, (*drone_)->sprite().get_position());
+        (*drone_)->kill();
+
+        time_stream::event::DroneDestroyed e;
+        e.x_pos_ = (*drone_)->position().x;
+        e.y_pos_ = (*drone_)->position().y;
+        e.destination_near_ = (*drone_)->destination() == &app.player_island();
+        e.parent_near_ = (*drone_)->parent() == &app.player_island();
+        e.type_ = (*drone_)->metaclass_index();
+        e.state_ = (*drone_)->state();
+        e.timer_.set((*drone_)->timer());
+        e.duration_.set((*drone_)->duration());
+        e.db_x_pos_ = position().x;
+        e.db_y_pos_ = position().y;
+        app.time_stream().push(pfrm, app.level_timer(), e);
     }
-
-    time_stream::event::DroneDestroyed e;
-    e.x_pos_ = (*drone_)->position().x;
-    e.y_pos_ = (*drone_)->position().y;
-    e.destination_near_ = (*drone_)->destination() == &app.player_island();
-    e.parent_near_ = (*drone_)->parent() == &app.player_island();
-    e.type_ = (*drone_)->metaclass_index();
-    e.state_ = (*drone_)->state();
-    e.timer_.set((*drone_)->timer());
-    e.duration_.set((*drone_)->duration());
-    e.db_x_pos_ = position().x;
-    e.db_y_pos_ = position().y;
-    app.time_stream().push(pfrm, app.level_timer(), e);
-
 
     drone_.reset();
 }

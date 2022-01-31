@@ -27,7 +27,7 @@ public:
 
 
 private:
-    WeakEntityRef<Drone> drone_;
+    SharedEntityRef<Drone> drone_;
 
     std::optional<Text> text_;
     std::optional<Text> yes_text_;

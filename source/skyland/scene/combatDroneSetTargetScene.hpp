@@ -30,9 +30,9 @@ public:
 
 
 private:
-    WeakEntityRef<Drone> drone_;
+    SharedEntityRef<Drone> drone_;
 
-    Buffer<WeakEntityRef<Drone>, 20> targets_;
+    Buffer<SharedEntityRef<Drone>, 20> targets_;
 
     Vec2<u8> cursor_loc_;
     bool near_;

@@ -70,23 +70,21 @@ SalvageDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_down(pfrm, Key::action_1)) {
-        if (auto drone_sp = drone_.promote()) {
-            for (auto& room : (*drone_sp)->parent()->rooms()) {
-                if (auto db = dynamic_cast<DroneBay*>(room.get())) {
-                    auto found = db->drone();
-                    if (found and (*found).get() == drone_sp->get()) {
-                        db->detach_drone(pfrm, app);
+        for (auto& room : drone_->parent()->rooms()) {
+            if (auto db = dynamic_cast<DroneBay*>(room.get())) {
+                auto found = db->drone();
+                if (found and (*found).get() == drone_.get()) {
+                    db->detach_drone(pfrm, app);
 
-                        network::packet::DroneDestroyed destroyed;
-                        destroyed.drone_x_ = (*drone_sp)->position().x;
-                        destroyed.drone_y_ = (*drone_sp)->position().y;
-                        destroyed.destination_near_ =
-                            (*drone_sp)->destination() == &app.player_island();
+                    network::packet::DroneDestroyed destroyed;
+                    destroyed.drone_x_ = drone_->position().x;
+                    destroyed.drone_y_ = drone_->position().y;
+                    destroyed.destination_near_ =
+                        drone_->destination() == &app.player_island();
 
-                        network::transmit(pfrm, destroyed);
+                    network::transmit(pfrm, destroyed);
 
-                        break;
-                    }
+                    break;
                 }
             }
         }

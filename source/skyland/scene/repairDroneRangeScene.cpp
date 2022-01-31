@@ -25,7 +25,7 @@ RepairDroneRangeScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (not drone_.promote() or app.player().key_down(pfrm, Key::action_2)) {
+    if (app.player().key_down(pfrm, Key::action_2)) {
         description_.reset();
         pfrm.fill_overlay(0);
         return scene_pool::alloc<ReadyScene>();
@@ -40,38 +40,33 @@ void RepairDroneRangeScene::display(Platform& pfrm, App& app)
 {
     WorldScene::display(pfrm, app);
 
-    if (auto drone_sp = drone_.promote()) {
-        auto pos = (*drone_sp)->position();
+    auto pos = drone_->position();
 
-        auto origin = (*drone_sp)->destination()->visual_origin();
+    auto origin = drone_->destination()->visual_origin();
 
-        Sprite sprite;
-        sprite.set_size(Sprite::Size::w16_h32);
-        sprite.set_texture_index(13);
+    Sprite sprite;
+    sprite.set_size(Sprite::Size::w16_h32);
+    sprite.set_texture_index(13);
 
-        for (int x = pos.x - 2; x < pos.x + 3; ++x) {
-            sprite.set_position(
-                {origin.x + x * 16, origin.y + (pos.y - 2) * 16});
-            pfrm.screen().draw(sprite);
+    for (int x = pos.x - 2; x < pos.x + 3; ++x) {
+        sprite.set_position({origin.x + x * 16, origin.y + (pos.y - 2) * 16});
+        pfrm.screen().draw(sprite);
 
 
-            if (x not_eq pos.x) {
-                sprite.set_texture_index(14);
+        if (x not_eq pos.x) {
+            sprite.set_texture_index(14);
 
-                sprite.set_position(
-                    {origin.x + x * 16, origin.y + (pos.y - 1) * 16});
-
-                pfrm.screen().draw(sprite);
-
-                sprite.set_texture_index(13);
-            }
-
-
-            sprite.set_position(
-                {origin.x + x * 16, origin.y + (pos.y + 1) * 16});
+            sprite.set_position({origin.x + x * 16, origin.y + (pos.y - 1) * 16});
 
             pfrm.screen().draw(sprite);
+
+            sprite.set_texture_index(13);
         }
+
+
+        sprite.set_position({origin.x + x * 16, origin.y + (pos.y + 1) * 16});
+
+        pfrm.screen().draw(sprite);
     }
 }
 
