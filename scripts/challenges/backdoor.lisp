@@ -3,7 +3,7 @@
 ;;;
 
 
-(coins-add 5000)
+(coins-add 5300)
 
 
 (terrain (player) 6)
@@ -58,3 +58,5 @@
    (hull 7 10)
    (hull 7 9)
    (hull 7 8)))
+
+(chr-add (opponent) 5 11 'hostile 0)
