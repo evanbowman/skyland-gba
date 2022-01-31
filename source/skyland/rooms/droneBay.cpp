@@ -198,4 +198,13 @@ void DroneBay::detach_drone(Platform& pfrm, App& app, bool quiet)
 
 
 
+void DroneBay::finalize(Platform& pfrm, App& app)
+{
+    Room::finalize(pfrm, app);
+
+    detach_drone(pfrm, app);
+}
+
+
+
 } // namespace skyland

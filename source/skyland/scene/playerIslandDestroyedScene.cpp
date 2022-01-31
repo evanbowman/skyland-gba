@@ -428,7 +428,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     app.zone() += 1;
                 }
 
-                app.opponent_island().reset();
+                app.reset_opponent_island(pfrm);
 
                 app.persistent_data().total_seconds_.set(
                     (u32)(app.persistent_data().total_seconds_.get() +
@@ -503,7 +503,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             lines_.clear();
             pfrm.fill_overlay(0);
-            app.opponent_island().reset();
+            app.reset_opponent_island(pfrm);
             anim_state_ = AnimState::fade_complete;
         }
         break;

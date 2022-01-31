@@ -347,6 +347,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 }
             }
 
+            medium_explosion(pfrm, app, (*it)->sprite().get_position());
+
             it = drones_.erase(it);
         } else {
             (*it)->update(pfrm, app, dt);
@@ -398,6 +400,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 // The room was destroyed, along with any inhabitants.
                 record_character_died(*chr);
             }
+
+            (*it)->finalize(pfrm, app);
 
             if (&owner() == &app.player()) {
                 time_stream::event::PlayerRoomDestroyed p;
@@ -1019,6 +1023,7 @@ void Island::destroy_room(Platform& pfrm, App& app, const Vec2<u8>& coord)
             coord.x < room->position().x + room->size().x and
             coord.y < room->position().y + room->size().y) {
 
+            room->finalize(pfrm, app);
             rooms_.erase(&room);
             owner().rooms_lost_++;
 
@@ -1029,6 +1034,17 @@ void Island::destroy_room(Platform& pfrm, App& app, const Vec2<u8>& coord)
             return;
         }
     }
+}
+
+
+
+void Island::clear_rooms(Platform& pfrm, App& app)
+{
+    for (auto& room : rooms_) {
+        room->finalize(pfrm, app);
+    }
+
+    rooms_.clear();
 }
 
 

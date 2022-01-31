@@ -54,9 +54,8 @@ public:
 
 
 
-    virtual ~Room()
-    {
-    }
+    virtual ~Room();
+
 
 
     using Icon = u16;
@@ -127,9 +126,9 @@ public:
     }
 
 
-    const Vec2<u8>& size() const
+    Vec2<u8> size() const
     {
-        return size_;
+        return {size_x_, size_y_};
     }
 
 
@@ -172,6 +171,9 @@ public:
     {
         return Category::misc;
     }
+
+
+    virtual void finalize(Platform& pfrm, App& app);
 
 
     void on_collision(Platform& pfrm, App& app, Entity& entity);
@@ -272,7 +274,18 @@ private:
     Island* parent_;
     RoomMeta* metaclass_;
     EntityList<BasicCharacter> characters_;
-    Vec2<u8> size_;
+
+    // NOTE: we're a little tight on memory on some consoles, especially when
+    // players create a lot of rooms. Given the game's mechanics, there's
+    // practically no reason to support rooms larger than 7x7. No room structure
+    // in the game even comes close to this size.
+    u8 size_x_ : 3;
+    u8 size_y_ : 3;
+
+    u8 finalized_ : 1;
+    u8 reserved_flags1_ : 1;
+    u8 reserved_flags0_ : 8;
+
     Vec2<u8> position_;
     Health health_;
 

@@ -141,9 +141,7 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
 
     // Now that we know the size of the terrain for the multiplayer match, we
     // can create and position the two islands.
-    app.opponent_island().emplace(
-        pfrm, Layer::map_1_ext, parameters_[3], app.opponent());
-
+    app.create_opponent_island(pfrm, parameters_[3]);
 
     app.opponent_island()->set_float_timer(
         std::numeric_limits<Microseconds>::max() / 2);
@@ -151,7 +149,7 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
     set_island_positions(app.player_island(), *app.opponent_island());
 
 
-    app.player_island().rooms().clear();
+    app.player_island().clear_rooms(pfrm, app);
 
 
     // Unless the island configured size is really tiny, leave a one-tile gap to

@@ -21,6 +21,8 @@ Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
         return;
     }
 
+    finalized_ = 0;
+
     auto metatable = room_metatable();
 
     for (int i = 0; i < metatable.second; ++i) {
@@ -29,7 +31,12 @@ Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
         if (str_cmp(name, current->name()) == 0) {
             metaclass_ = &current;
 
-            size_ = (*metaclass_)->size();
+            auto mt_size = (*metaclass_)->size();
+            if (mt_size.x > 7 or mt_size.y > 7) {
+                Platform::fatal("Room size too large!");
+            }
+            size_x_ = mt_size.x;
+            size_y_ = mt_size.y;
             health_ = (*metaclass_)->full_health();
             return;
         }
@@ -236,8 +243,8 @@ Vec2<Float> Room::origin() const
 Vec2<Float> Room::center() const
 {
     auto o = origin();
-    o.x += (size_.x * 0.5f) * 16;
-    o.y += (size_.y * 0.5f) * 16;
+    o.x += (size_x_ * 0.5f) * 16;
+    o.y += (size_y_ * 0.5f) * 16;
 
     return o;
 }
@@ -298,8 +305,8 @@ void Room::plot_walkable_zones(App& app, bool matrix[16][16])
     // By default, treat every cell in the lowest row of a room as walkable for
     // NPCs. A few rooms, like staircases, cannons, walls, etc. will need to
     // provide different implementations.
-    for (int x = 0; x < size_.x; ++x) {
-        matrix[position_.x + x][position_.y + size_.y - 1] = true;
+    for (int x = 0; x < size_x_; ++x) {
+        matrix[position_.x + x][position_.y + size_y_ - 1] = true;
     }
 }
 
@@ -431,14 +438,14 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
             return;
         }
 
-        for (int x = 0; x < size_.x; x += (*plunder_metac)->size().x) {
+        for (int x = 0; x < size_x_; x += (*plunder_metac)->size().x) {
             int y = 0;
-            if (size_.y % 2 not_eq 0) {
+            if (size_y_ % 2 not_eq 0) {
                 // NOTE: plundered-room occupies two tiles vertically. For an
                 // odd-sized room height, start at 1.
                 y = 1;
             }
-            for (; y < size_.y; y += (*plunder_metac)->size().y) {
+            for (; y < size_y_; y += (*plunder_metac)->size().y) {
                 const Vec2<u8> pos = {
                     u8(position_.x + x),
                     u8(position_.y + y),
@@ -462,6 +469,22 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
 Health Room::max_health() const
 {
     return (*metaclass_)->full_health();
+}
+
+
+
+void Room::finalize(Platform& pfrm, App& app)
+{
+    finalized_ = true;
+}
+
+
+
+Room::~Room()
+{
+    if (not finalized_) {
+        Platform::fatal("room destroyed without invoking finalizer!");
+    }
 }
 
 

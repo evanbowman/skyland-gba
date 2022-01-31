@@ -12,7 +12,7 @@ void configure_island(Platform& pfrm,
                       Island& island,
                       lisp::Value* island_desc_lat)
 {
-    island.rooms().clear();
+    island.clear_rooms(pfrm, app);
 
     lisp::foreach (island_desc_lat, [&](lisp::Value* val) {
         auto name_symb = lisp::get_list(val, 0);

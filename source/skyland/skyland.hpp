@@ -72,9 +72,32 @@ public:
     }
 
 
-    std::optional<Island>& opponent_island()
+    Island* opponent_island()
     {
-        return opponent_island_;
+        if (opponent_island_) {
+            return &*opponent_island_;
+        }
+        return nullptr;
+    }
+
+
+    void create_opponent_island(Platform& pfrm, int terrain_size)
+    {
+        reset_opponent_island(pfrm);
+
+        opponent_island_.emplace(pfrm,
+                                 Layer::map_1_ext,
+                                 terrain_size,
+                                 opponent());
+    }
+
+
+    void reset_opponent_island(Platform& pfrm)
+    {
+        if (opponent_island_) {
+            opponent_island_->clear_rooms(pfrm, *this);
+            opponent_island_.reset();
+        }
     }
 
 

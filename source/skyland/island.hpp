@@ -66,6 +66,9 @@ public:
     Rooms& rooms();
 
 
+    void clear_rooms(Platform&, App&);
+
+
     void update(Platform&, App&, Microseconds delta);
 
 

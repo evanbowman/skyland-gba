@@ -74,8 +74,11 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     init_clouds(pfrm);
     pfrm.system_call("v-parallax", (void*)false);
 
-    app.player_island().rooms().clear();
-    app.opponent_island().reset();
+    app.player_island().clear_rooms(pfrm, app);
+
+    if (app.opponent_island()) {
+        app.reset_opponent_island(pfrm);
+    }
 
     key_callback_processor.clear();
     app.custom_tile_mapper().clear();

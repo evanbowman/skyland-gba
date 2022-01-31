@@ -34,6 +34,8 @@ public:
     void display(Platform::Screen& screen) override;
 
 
+    void finalize(Platform&, App&) override;
+
 
     void render_interior(App& app, u8 buffer[16][16]) override;
     void render_exterior(App& app, u8 buffer[16][16]) override;

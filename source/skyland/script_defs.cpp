@@ -341,10 +341,7 @@ static const lisp::Binding script_api[] = {
              pfrm->fatal(err.c_str());
          }
 
-         app->opponent_island().emplace(*pfrm,
-                                        Layer::map_1_ext,
-                                        lisp::get_op(1)->integer().value_,
-                                        app->opponent());
+         app->create_opponent_island(*pfrm, lisp::get_op(1)->integer().value_);
 
          return L_NIL;
      }},
