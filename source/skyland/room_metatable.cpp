@@ -89,12 +89,12 @@ using RoomMetatableType = RoomMetatable<15,
                                         IonFizzler,
                                         // weapons
                                         Cannon,
+                                        Vendetta,
                                         IonCannon,
                                         ArcGun,
                                         FlakGun,
                                         MissileSilo,
                                         Decimator,
-                                        Vendetta,
                                         // factories
                                         Workshop,
                                         Foundry,

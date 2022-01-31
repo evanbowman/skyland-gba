@@ -18,12 +18,25 @@ extern Sound cannon_sound;
 
 
 SHARED_VARIABLE(vendetta_reload_ms);
+extern SharedVariable vendetta_blast_damage;
 
 
 
 void Vendetta::format_description(StringBuffer<512>& buffer)
 {
-    // TODO...
+    auto secs = vendetta_reload_ms / 1000;
+
+    make_format(
+        buffer,
+        "An unusual cannon-type weapon. Damage starts at %, and rises to "
+        "% when health drops to 1/2, % when health drops below 1/4. "
+        "%.% sec reload. Foundry needed.",
+        vendetta_blast_damage,
+        vendetta_blast_damage * 2,
+        vendetta_blast_damage * 4,
+        secs,
+        (vendetta_reload_ms / 100 - secs * 10));
+
 }
 
 
