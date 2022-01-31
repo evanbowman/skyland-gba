@@ -15,6 +15,7 @@
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "achievementNotificationScene.hpp"
 
 
 
@@ -130,15 +131,9 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.game_mode() == App::GameMode::adventure) {
         const auto achievement = achievements::update(pfrm, app);
         if (achievement not_eq achievements::Achievement::none) {
-            // TODO: postpone award() call, show scene
             achievements::award(pfrm, app, achievement);
 
-            // Just for debugging purposes:
-            auto future_scene = []() {
-                return scene_pool::alloc<ReadyScene>();
-            };
-            return scene_pool::alloc<NotificationScene>("achievement unlocked!",
-                                                        future_scene);
+            return scene_pool::alloc<AchievementNotificationScene>(achievement);
         }
     }
 
