@@ -24,8 +24,6 @@ struct Header {
         room_destroyed,
         character_boarded,
         character_disembark,
-        // game_paused TODO...
-        // game unpaused TODO...
         character_died,
         replicant_created,
         bulkhead_changed,
