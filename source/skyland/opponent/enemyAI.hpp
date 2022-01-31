@@ -93,6 +93,10 @@ private:
 
     Coins coins_ = 0;
 
+    static const auto insufficent_power_resolve_timeout = (milliseconds(100));
+
+    Microseconds insufficent_power_resolve_timer_ = 0;
+
     static const auto drone_update_timeout_ = seconds(1);
     Microseconds drone_update_timer_ = 0;
 

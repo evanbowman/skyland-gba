@@ -36,7 +36,19 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.opponent_island()) {
         if (app.opponent_island()->power_supply() <
             app.opponent_island()->power_drain()) {
-            resolve_insufficient_power(pfrm, app);
+
+            // The AI will destroy the least important power-consuming rooms
+            // until power balance allows it to attack again. If we destroy the
+            // rooms all at once, looks kinda bad, so stagger them a bit.
+
+            insufficent_power_resolve_timer_ += delta;
+            if (insufficent_power_resolve_timer_ >
+                insufficent_power_resolve_timeout) {
+
+                insufficent_power_resolve_timer_ = 0;
+                resolve_insufficient_power(pfrm, app);
+            }
+
         }
 
 
