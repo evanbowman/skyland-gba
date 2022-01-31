@@ -29,6 +29,7 @@
 #include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
+#include "skyland/rooms/vendetta.hpp"
 
 
 
@@ -93,6 +94,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         FlakGun,
                                         MissileSilo,
                                         Decimator,
+                                        Vendetta,
                                         // factories
                                         Workshop,
                                         Foundry,

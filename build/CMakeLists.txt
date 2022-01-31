@@ -107,6 +107,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/foundry.cpp
   ${SOURCE_DIR}/skyland/rooms/reactor.cpp
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
+  ${SOURCE_DIR}/skyland/rooms/vendetta.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
   ${SOURCE_DIR}/skyland/rooms/droneBay.cpp
   ${SOURCE_DIR}/skyland/rooms/cargoBay.cpp

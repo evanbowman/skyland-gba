@@ -8,6 +8,7 @@
    (25000 . "drone_bay_reload_ms")
    (18000 . "transporter_reload_ms")
    (3500 . "cannon_reload_ms")
+   (3500 . "vendetta_reload_ms")
    (7000 . "missile_silo_reload_ms")
    (4500 . "flak_gun_reload_ms")
    (3500 . "ion_cannon_reload_ms")
