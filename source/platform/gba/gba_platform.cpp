@@ -1330,7 +1330,20 @@ void Platform::Screen::clear()
     // VSync
     VBlankIntrWait();
 
+    if (get_gflag(GlobalFlag::palette_sync)) {
 
+        memcpy32(MEM_PALETTE, sp_palette_back_buffer, 8);
+
+        memcpy32(MEM_BG_PALETTE, bg_palette_back_buffer,
+                 24); // word count
+
+        memcpy32(
+            MEM_BG_PALETTE + 16 * 11,
+            bg_palette_back_buffer + 16 * 11,
+            16); // 16 words, both the background palette and the flag palette.
+
+        set_gflag(GlobalFlag::palette_sync, false);
+    }
 
     // We want to do the dynamic texture remapping near the screen clear, to
     // reduce tearing. Most of the other changes that we make to vram, like the
@@ -1407,21 +1420,6 @@ void Platform::Screen::display()
                      overlay_back_buffer,
                      (sizeof overlay_back_buffer) / 4);
         }
-    }
-
-    if (get_gflag(GlobalFlag::palette_sync)) {
-
-        memcpy32(MEM_PALETTE, sp_palette_back_buffer, 8);
-
-        memcpy32(MEM_BG_PALETTE, bg_palette_back_buffer,
-                 24); // word count
-
-        memcpy32(
-            MEM_BG_PALETTE + 16 * 11,
-            bg_palette_back_buffer + 16 * 11,
-            16); // 16 words, both the background palette and the flag palette.
-
-        set_gflag(GlobalFlag::palette_sync, false);
     }
 
     for (u32 i = oam_write_index; i < last_oam_write_index; ++i) {
