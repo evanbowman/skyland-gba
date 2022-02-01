@@ -5361,6 +5361,13 @@ void* Platform::system_call(const char* feature_name, void* arg)
             for (int i = 0; i < (112 - offset) - 30; ++i) {
                 parallax_table[i] = far_x_offset / 4;
                 if (i < -v_scroll) {
+                    // For scroll wrapping: We're doing a gradient effect here,
+                    // if the dithered tile gradient scrolls such that the
+                    // scroll wraps, then fill in the wrapped rows with the
+                    // pixels with zero offset scanlines, which use the darkest
+                    // gradient color. NOTE: this works because the amount of
+                    // background scrolling for the gradient does not exceed the
+                    // width of the darkest band of tiles in the gradient.
                     vertical_parallax_table[i] = 0;
                 } else {
                     vertical_parallax_table[i] = v_scroll;
