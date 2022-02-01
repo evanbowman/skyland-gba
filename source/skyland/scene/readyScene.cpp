@@ -73,6 +73,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm, k, milliseconds(500), milliseconds(100));
     };
 
+    app.player().key_held_distribute(pfrm);
+
 
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;

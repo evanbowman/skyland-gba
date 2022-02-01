@@ -40,6 +40,9 @@ public:
     void key_held_reset(Key k, Microseconds decrement) override;
 
 
+    void key_held_distribute(Platform& pfrm) override;
+
+
 private:
     Microseconds last_key_ = 0;
 

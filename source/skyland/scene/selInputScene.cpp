@@ -68,6 +68,8 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm, k, milliseconds(500), milliseconds(150));
     };
 
+    app.player().key_held_distribute(pfrm);
+
 
     if (near_) {
 

@@ -74,6 +74,8 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm, k, milliseconds(500), milliseconds(100));
     };
 
+    app.player().key_held_distribute(pfrm);
+
 
     if (test_key(Key::left)) {
         if (cursor_loc.x > 0) {

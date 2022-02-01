@@ -151,4 +151,23 @@ void PlayerP1::key_held_reset(Key k, Microseconds decrement)
 
 
 
+void PlayerP1::key_held_distribute(Platform& pfrm)
+{
+    int max = 0;
+    for (auto tm : key_held_timers_) {
+        if (tm > max) {
+            max = tm;
+        }
+    }
+
+
+    for (int i = 0; i < static_cast<int>(Key::count); ++i) {
+        if (pfrm.keyboard().pressed(static_cast<Key>(i))) {
+            key_held_timers_[i] = max;
+        }
+    }
+}
+
+
+
 } // namespace skyland
