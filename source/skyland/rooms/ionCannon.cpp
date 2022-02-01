@@ -27,8 +27,7 @@ void IonCannon::format_description(StringBuffer<512>& buffer)
     buffer += stringify(secs);
     buffer += ".";
     buffer += stringify((ion_cannon_reload_ms / 100 - secs * 10));
-    buffer += "s to forcefields, reactors, etc.. Requires "
-              "a workshop to build.";
+    buffer += "s to forcefields, reactors, etc..";
 }
 
 

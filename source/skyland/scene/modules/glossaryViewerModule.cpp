@@ -45,6 +45,23 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
 
     temp.clear();
 
+    if (not dependency_text_) {
+        dependency_text_.emplace(pfrm, OverlayCoord{1, 18});
+    }
+
+    const auto cond = mt[page]->conditions();
+    if (cond & Conditions::workshop_required) {
+        dependency_text_->assign("(requires workshop)",
+                                 FontColors{ColorConstant::med_blue_gray,
+                                     ColorConstant::rich_black});
+    } else if (cond & Conditions::foundry_required) {
+        dependency_text_->assign("(requires manufactory)",
+                                 FontColors{ColorConstant::med_blue_gray,
+                                     ColorConstant::rich_black});
+    } else {
+        dependency_text_.reset();
+    }
+
 
     if (not item_details_) {
         item_details_.emplace(pfrm, OverlayCoord{6, 3});
@@ -71,8 +88,9 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
         item_description_.emplace(pfrm);
     }
 
-    item_description_->assign(
-        description.c_str(), OverlayCoord{1, 7}, OverlayCoord{28, 12});
+    item_description_->assign(description.c_str(),
+                              OverlayCoord{1, 6},
+        OverlayCoord{28, 11});
 }
 
 

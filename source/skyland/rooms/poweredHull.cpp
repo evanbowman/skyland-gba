@@ -11,7 +11,7 @@ namespace skyland {
 void PoweredHull::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Upgraded hull. Much more durable, but succeptible "
-              "to ion damage. Requires a foundry to build.";
+              "to ion damage.";
 }
 
 

@@ -23,8 +23,7 @@ void Decimator::format_description(StringBuffer<512>& buffer)
     buffer += ".";
     buffer += stringify((decimator_reload_ms / 100 - secs * 10));
     buffer += " second recharge. "
-              "Reloads and fires only when inhabited by a character. Requires "
-              "a foundry to build.";
+              "Reloads and fires only when inhabited by a character.";
 }
 
 

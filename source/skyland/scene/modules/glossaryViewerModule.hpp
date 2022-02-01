@@ -51,6 +51,7 @@ private:
     std::optional<Text> item_name_;
     std::optional<Text> item_details_;
     std::optional<TextView> item_description_;
+    std::optional<Text> dependency_text_;
 
 
     std::optional<DeferredScene> next_scene_;

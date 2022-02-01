@@ -30,7 +30,7 @@ void Nemesis::format_description(StringBuffer<512>& buffer)
         buffer,
         "An unusual cannon-type weapon. Damage starts at %, and rises to "
         "% when health drops to 1/2, % when health drops below 1/4. "
-        "%.% sec reload. Foundry needed.",
+        "%.% sec reload.",
         nemesis_blast_damage,
         nemesis_blast_damage * 2,
         nemesis_blast_damage * 4,

@@ -836,7 +836,7 @@ void Island::repaint(Platform& pfrm, App& app)
             has_radar_ = true;
         } else if (str_cmp((*metac)->name(), "workshop") == 0) {
             ++workshop_count_;
-        } else if (str_cmp((*metac)->name(), "foundry") == 0) {
+        } else if (str_cmp((*metac)->name(), "manufactory") == 0) {
             ++foundry_count_;
         }
     }

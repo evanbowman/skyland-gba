@@ -39,7 +39,7 @@ public:
 
     static const char* name()
     {
-        return "foundry";
+        return "manufactory";
     }
 
 

@@ -25,8 +25,7 @@ void Transporter::format_description(StringBuffer<512>& buffer)
 {
     buffer +=
         "Transport boarding parties into an enemy castle! Selects a random "
-        "destination, unless you have a radar. "
-        "Requires a workshop to build.";
+        "destination, unless you have a radar.";
 }
 
 

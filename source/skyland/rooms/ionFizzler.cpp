@@ -12,7 +12,7 @@ void IonFizzler::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Cancels all ion damage on contact. Useful for protecting "
               "vulnerable structures, such as reactors or forcefields,"
-              " from ion cannons. Requires a foundry.";
+              " from ion cannons.";
 }
 
 
