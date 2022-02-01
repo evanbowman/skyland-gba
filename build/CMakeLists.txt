@@ -7,7 +7,7 @@ set(SOURCE_DIR ${ROOT_DIR}/source)
 set(IMAGE_DIR ${ROOT_DIR}/images)
 
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_language(ASM)
 

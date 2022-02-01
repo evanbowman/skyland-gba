@@ -2207,17 +2207,17 @@ void Platform::Screen::pixelate(u8 amount,
                                include_sprites ? amount >> 4 : 0);
 
         if (include_overlay) {
-            *bg2_control |= BG_MOSAIC;
+            *bg2_control = *bg2_control | BG_MOSAIC;
         } else {
-            *bg2_control &= ~BG_MOSAIC;
+            *bg2_control = *bg2_control & ~BG_MOSAIC;
         }
 
         if (include_background) {
-            *bg0_control |= BG_MOSAIC;
-            *bg1_control |= BG_MOSAIC;
+            *bg0_control = *bg0_control | BG_MOSAIC;
+            *bg1_control = *bg1_control | BG_MOSAIC;
         } else {
-            *bg0_control &= ~BG_MOSAIC;
-            *bg1_control &= ~BG_MOSAIC;
+            *bg0_control = *bg0_control & ~BG_MOSAIC;
+            *bg1_control = *bg1_control & ~BG_MOSAIC;
         }
     }
 }
@@ -4624,7 +4624,7 @@ static void multiplayer_schedule_master_tx()
         } else {
             irqDisable(IRQ_TIMER2);
             multiplayer_tx_send();
-            REG_SIOCNT |= SIO_START;
+            REG_SIOCNT = REG_SIOCNT | SIO_START;
         }
     });
 }
@@ -4726,7 +4726,7 @@ MASTER_RETRY:
 
     REG_RCNT = R_MULTI;
     REG_SIOCNT = SIO_MULTI;
-    REG_SIOCNT |= SIO_IRQ | SIO_115200;
+    REG_SIOCNT = REG_SIOCNT | SIO_IRQ | SIO_115200;
 
     irqEnable(IRQ_SERIAL);
     irqSet(IRQ_SERIAL, multiplayer_serial_isr);

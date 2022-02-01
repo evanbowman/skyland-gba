@@ -39,16 +39,16 @@ StringBuffer<32> format_time(u32 seconds, bool include_hours)
 
 class str_const {
 private:
-    const char* const p_;
+    const char8_t* const p_;
     const size_t sz_;
 
 public:
     template <size_t N>
-    constexpr str_const(const char (&a)[N]) : p_(a), sz_(N - 1)
+    constexpr str_const(const char8_t (&a)[N]) : p_(a), sz_(N - 1)
     {
     }
 
-    constexpr char operator[](std::size_t n)
+    constexpr char8_t operator[](std::size_t n)
     {
         return n < sz_ ? p_[n] : '0';
     }

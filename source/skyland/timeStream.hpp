@@ -48,7 +48,7 @@ struct TimeBuffer {
     template <typename T> bool push(T& elem)
     {
         static_assert(std::is_standard_layout<T>());
-        static_assert(std::is_pod<T>());
+        static_assert(std::is_trivial<T>());
         static_assert(alignof(T) == 1);
 
         elem.header_.type_ = T::t;

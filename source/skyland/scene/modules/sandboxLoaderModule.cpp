@@ -40,9 +40,9 @@ void SandboxLoaderModule::update_parameter(u8 line_num)
     auto int_text_len = integer_text_length(parameters_[line_num]);
     if (is_boolean_field) {
         if (parameters_[line_num]) {
-            int_text_len = str_len("yes");
+            int_text_len = utf8::len("yes");
         } else {
-            int_text_len = str_len("no");
+            int_text_len = utf8::len("no");
         }
     }
 

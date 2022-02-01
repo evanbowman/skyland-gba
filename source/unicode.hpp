@@ -74,7 +74,12 @@ inline bool scan(Callback&& callback, const char* data, size_t len)
 // for creating codepoint literals from strings. Unfortunately, C++ doesn't
 // offer unicode character literals... I guess I could specify them in hex, but
 // that's no fun (and not so easy for other people to read).
-inline Codepoint getc(const char* data, int* consumed = nullptr)
+//
+// NOTE: about CharType template:
+// C++20 changed the default underlying type of utf8 literals from char to
+// char8_t.
+template <typename CharType>
+inline Codepoint getc(const CharType* data, int* consumed = nullptr)
 {
     std::optional<Codepoint> front;
     scan(
@@ -86,8 +91,8 @@ inline Codepoint getc(const char* data, int* consumed = nullptr)
                 }
             }
         },
-        data,
-        str_len(data));
+        reinterpret_cast<const char*>(data),
+        str_len(reinterpret_cast<const char*>(data)));
 
     if (front) {
         return *front;
