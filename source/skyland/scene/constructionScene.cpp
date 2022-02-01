@@ -778,11 +778,16 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             (not workshop_required or (workshop_required and w_count > 0) or
              app.game_mode() == App::GameMode::sandbox);
 
+        const bool explicitly_disabled =
+            (app.game_mode() == App::GameMode::tutorial and
+             meta->conditions() & Conditions::disabled_in_tutorials) or
+            (meta->conditions() & Conditions::not_constructible);
 
-        if (meta->size().x <= avail_x_space and
+
+        if (not explicitly_disabled and
+            meta->size().x <= avail_x_space and
             meta->size().y <= calc_avail_y_space(meta->size().x) and
-            dependencies_satisfied and
-            not(meta->conditions() & Conditions::not_constructible)) {
+            dependencies_satisfied) {
 
             // Do not show decorations in the building list in tutorial mode.
             if (not(app.game_mode() == App::GameMode::tutorial and

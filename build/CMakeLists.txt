@@ -120,6 +120,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/rooms/replicator.cpp
   ${SOURCE_DIR}/skyland/rooms/pluginRoom.cpp
   ${SOURCE_DIR}/skyland/rooms/forcefield.cpp
+  ${SOURCE_DIR}/skyland/rooms/bronzeHull.cpp
   ${SOURCE_DIR}/skyland/rooms/poweredHull.cpp
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/transporter.cpp

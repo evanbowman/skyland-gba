@@ -35,6 +35,7 @@ struct Conditions {
         not_constructible = (1 << 1),
         plugin = (1 << 2),
         foundry_required = (1 << 3),
+        disabled_in_tutorials = (1 << 4),
     };
 };
 

@@ -11,7 +11,7 @@ namespace skyland {
 
 class Hull : public Room {
 public:
-    Hull(Island* parent, const Vec2<u8>& position);
+    Hull(Island* parent, const Vec2<u8>& position, const char* n = name());
 
 
     void update(Platform&, App&, Microseconds delta) override;

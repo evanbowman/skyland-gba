@@ -30,6 +30,7 @@
 #include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
+#include "skyland/rooms/bronzeHull.hpp"
 
 
 
@@ -84,6 +85,7 @@ public:
 using RoomMetatableType = RoomMetatable<15,
                                         // walls
                                         Hull,
+                                        BronzeHull,
                                         Forcefield,
                                         PoweredHull,
                                         IonFizzler,
