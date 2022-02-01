@@ -5360,7 +5360,11 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
             for (int i = 0; i < (112 - offset) - 30; ++i) {
                 parallax_table[i] = far_x_offset / 4;
-                vertical_parallax_table[i] = v_scroll;
+                if (i < -v_scroll) {
+                    vertical_parallax_table[i] = 0;
+                } else {
+                    vertical_parallax_table[i] = v_scroll;
+                }
             }
         }
     } else if (str_cmp(feature_name, "_prlx8") == 0) {
