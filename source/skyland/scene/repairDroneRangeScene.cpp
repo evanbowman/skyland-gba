@@ -1,6 +1,6 @@
 #include "repairDroneRangeScene.hpp"
-#include "readyScene.hpp"
 #include "inspectP2Scene.hpp"
+#include "readyScene.hpp"
 #include "skyland/island.hpp"
 #include "skyland/skyland.hpp"
 

@@ -28,6 +28,17 @@
 #include <setjmp.h>
 
 
+
+
+
+void __stack_chk_fail(void)
+{
+    Platform::fatal("Stack smashing detected.");
+}
+
+
+
+
 extern char __iwram_overlay_end;
 
 
@@ -106,6 +117,7 @@ alignas(4) static EWRAM_DATA u16 bg_palette_back_buffer[256];
 
 
 
+
 static int overlay_y = 0;
 
 
@@ -114,7 +126,6 @@ enum class GlobalFlag {
     rtc_faulty,
     gbp_unlocked,
     multiplayer_connected,
-    night_mode,
     save_using_flash,
     glyph_mode,
     parallax_clouds,
@@ -828,16 +839,89 @@ Color adjust_warmth(const Color& c, int amount)
 }
 
 
-static Color nightmode_adjust(const Color& c)
+
+ColorConstant grayscale_shader(int palette, ColorConstant k, int arg)
 {
-    if (not get_gflag(GlobalFlag::night_mode)) {
-        return c;
-    } else {
-        return // adjust_warmth(
-            Color::from_bgr_hex_555(blend(c, c.grayscale(), 255)) // , 2)
-            ;
+    return Color::from_bgr_hex_555(blend(Color(k), Color(k).grayscale(), (u8)arg)).hex();
+}
+
+
+
+ColorConstant contrast_shader(int palette, ColorConstant k, int arg)
+{
+    const Float f = (259.f * ((s8)arg + 255)) / (255 * (259 - (s8)arg));
+
+    const Color c(k);
+
+    const auto r = clamp(f * (Color::upsample(c.r_) - 128) + 128, 0.f, 255.f);
+    const auto g = clamp(f * (Color::upsample(c.g_) - 128) + 128, 0.f, 255.f);
+    const auto b = clamp(f * (Color::upsample(c.b_) - 128) + 128, 0.f, 255.f);
+
+    return Color(Color::downsample(r),
+                 Color::downsample(g),
+                 Color::downsample(b)).hex();
+}
+
+
+
+ColorConstant passthrough_shader(int palette, ColorConstant k, int arg)
+{
+    return k;
+}
+
+
+
+static Platform::Screen::Shader shader = passthrough_shader;
+static int shader_argument = 0;
+
+
+
+void Platform::Screen::set_shader(Shader shader)
+{
+    ::shader = shader;
+    set_shader_argument(0);
+}
+
+
+
+static Color invoke_shader(const Color& c, int palette)
+{
+    return shader(palette, c.hex(), shader_argument);
+}
+
+
+
+static u16 sprite_palette[16];
+static u16 tilesheet_0_palette[16];
+static u16 tilesheet_1_palette[16];
+static u16 overlay_palette[16];
+static u16 background_palette[16];
+
+
+
+static void
+init_palette(const TextureData* td, u16* palette, int palette_id)
+{
+    for (int i = 0; i < 16; ++i) {
+        palette[i] =
+            invoke_shader(Color::from_bgr_hex_555(td->palette_data_[i]), palette_id)
+            .bgr_hex_555();
+
     }
 }
+
+
+
+void Platform::Screen::set_shader_argument(int arg)
+{
+    shader_argument = arg;
+
+    init_palette(current_spritesheet, sprite_palette, 16);
+    init_palette(current_tilesheet0, tilesheet_0_palette, 0);
+    init_palette(current_tilesheet1, tilesheet_1_palette, 2);
+    init_palette(current_background, background_palette, 11);
+}
+
 
 
 // For the purpose of saving cpu cycles. The color_mix function scans a list of
@@ -918,7 +1002,7 @@ static PaletteBank color_mix(ColorConstant k, u8 amount)
         }
     }
 
-    const auto c = nightmode_adjust(real_color(k));
+    const auto c = invoke_shader(real_color(k), 0);
 
     if (amount not_eq 255) {
         for (int i = 0; i < 16; ++i) {
@@ -1514,20 +1598,13 @@ Vec2<u32> Platform::Screen::size() const
 ////////////////////////////////////////////////////////////////////////////////
 
 
-static u16 sprite_palette[16];
-static u16 tilesheet_0_palette[16];
-static u16 tilesheet_1_palette[16];
-static u16 overlay_palette[16];
-static u16 background_palette[16];
-
-
 
 // We use base_contrast as the starting point for all contrast calculations. In
 // most screen modes, the base contrast will be zero, but in some situations,
 // like when we have night mode enabled, the base contrast will be decreased,
 // and then further contrast adjustments will be calculated according to the
 // shifted base value.
-static Contrast base_contrast = 0;
+// static Contrast base_contrast = 0;
 static Contrast contrast = 0;
 
 
@@ -1537,69 +1614,38 @@ Contrast Platform::Screen::get_contrast() const
 }
 
 
-static void
-init_palette(const TextureData* td, u16* palette, bool skip_contrast)
-{
-    const auto adj_cr = contrast + base_contrast;
 
-    for (int i = 0; i < 16; ++i) {
-        if (not skip_contrast and adj_cr not_eq 0) {
-            const Float f = (259.f * (adj_cr + 255)) / (255 * (259 - adj_cr));
-            const auto c =
-                nightmode_adjust(Color::from_bgr_hex_555(td->palette_data_[i]));
+// void Platform::Screen::enable_night_mode(bool enabled)
+// {
+//     set_gflag(GlobalFlag::night_mode, enabled);
 
-            const auto r =
-                clamp(f * (Color::upsample(c.r_) - 128) + 128, 0.f, 255.f);
-            const auto g =
-                clamp(f * (Color::upsample(c.g_) - 128) + 128, 0.f, 255.f);
-            const auto b =
-                clamp(f * (Color::upsample(c.b_) - 128) + 128, 0.f, 255.f);
+//     if (enabled) {
+//         ::base_contrast = -10;
+//     } else {
+//         ::base_contrast = 0;
+//     }
 
-            palette[i] = Color(Color::downsample(r),
-                               Color::downsample(g),
-                               Color::downsample(b))
-                             .bgr_hex_555();
+//     init_palette(current_spritesheet, sprite_palette, false);
+//     init_palette(current_tilesheet0, tilesheet_0_palette, false);
+//     init_palette(current_tilesheet1, tilesheet_1_palette, false);
+//     init_palette(current_background, background_palette, false);
 
-        } else {
-            palette[i] =
-                nightmode_adjust(Color::from_bgr_hex_555(td->palette_data_[i]))
-                    .bgr_hex_555();
-        }
-    }
-}
-
-
-void Platform::Screen::enable_night_mode(bool enabled)
-{
-    set_gflag(GlobalFlag::night_mode, enabled);
-
-    if (enabled) {
-        ::base_contrast = -12;
-    } else {
-        ::base_contrast = 0;
-    }
-
-    init_palette(current_spritesheet, sprite_palette, false);
-    init_palette(current_tilesheet0, tilesheet_0_palette, false);
-    init_palette(current_tilesheet1, tilesheet_1_palette, false);
-    init_palette(current_background, background_palette, false);
-
-    // TODO: Edit code so that we don't need a specific hack here for the
-    // overlay palette.
-    for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[16 + i] = overlay_palette[i];
-    }
-}
+//     // TODO: Edit code so that we don't need a specific hack here for the
+//     // overlay palette.
+//     for (int i = 0; i < 16; ++i) {
+//         MEM_BG_PALETTE[16 + i] = overlay_palette[i];
+//     }
+// }
 
 
 void Platform::Screen::set_contrast(Contrast c)
 {
     ::contrast = c;
 
-    init_palette(current_spritesheet, sprite_palette, false);
-    init_palette(current_tilesheet0, tilesheet_0_palette, false);
-    init_palette(current_tilesheet1, tilesheet_1_palette, false);
-    init_palette(current_background, background_palette, false);
+    init_palette(current_spritesheet, sprite_palette, 16);
+    init_palette(current_tilesheet0, tilesheet_0_palette, 0);
+    init_palette(current_tilesheet1, tilesheet_1_palette, 2);
+    init_palette(current_background, background_palette, 11);
 }
 
 
@@ -2076,7 +2122,7 @@ void Platform::Screen::fade(float amount,
     last_color = k;
     last_fade_include_sprites = include_sprites;
 
-    const auto c = nightmode_adjust(real_color(k));
+    const auto c = invoke_shader(real_color(k), 0);
 
     if (not base) {
         // Sprite palette
@@ -2115,7 +2161,7 @@ void Platform::Screen::fade(float amount,
         }
         overlay_was_faded = include_overlay;
     } else {
-        const auto bc = nightmode_adjust(real_color(*base));
+        const auto bc = invoke_shader(real_color(*base), 0);
         for (int i = 0; i < 16; ++i) {
             MEM_PALETTE[i] = blend(bc, c, include_sprites ? amt : 0);
             MEM_BG_PALETTE[i] = blend(bc, c, amt);
@@ -2151,7 +2197,7 @@ void Platform::Screen::schedule_fade(Float amount,
     last_color = k;
     last_fade_include_sprites = include_sprites;
 
-    const auto c = nightmode_adjust(real_color(k));
+    const auto c = invoke_shader(real_color(k), 0);
 
 
     set_gflag(GlobalFlag::palette_sync, true);
@@ -2274,7 +2320,7 @@ void Platform::load_sprite_texture(const char* name)
 
             current_spritesheet = &info;
 
-            init_palette(current_spritesheet, sprite_palette, false);
+            init_palette(current_spritesheet, sprite_palette, 16);
 
 
             // NOTE: There are four tile blocks, so index four points to the
@@ -2285,7 +2331,7 @@ void Platform::load_sprite_texture(const char* name)
 
             // We need to do this, otherwise whatever screen fade is currently
             // active will be overwritten by the copy.
-            const auto c = nightmode_adjust(real_color(last_color));
+            const auto c = invoke_shader(real_color(last_color), 16);
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(sprite_palette[i]);
                 MEM_PALETTE[i] = blend(from, c, last_fade_amt);
@@ -2307,7 +2353,7 @@ void Platform::load_tile0_texture(const char* name)
 
             current_tilesheet0 = &info;
 
-            init_palette(current_tilesheet0, tilesheet_0_palette, false);
+            init_palette(current_tilesheet0, tilesheet_0_palette, 0);
 
 
             // We don't want to load the whole palette into memory, we might
@@ -2315,7 +2361,7 @@ void Platform::load_tile0_texture(const char* name)
             //
             // Also, like the sprite texture, we need to apply the currently
             // active screen fade while modifying the color palette.
-            const auto c = nightmode_adjust(real_color(last_color));
+            const auto c = invoke_shader(real_color(last_color), 0);
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
                 MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
@@ -2348,7 +2394,7 @@ void Platform::load_tile1_texture(const char* name)
 
             current_tilesheet1 = &info;
 
-            init_palette(current_tilesheet1, tilesheet_1_palette, false);
+            init_palette(current_tilesheet1, tilesheet_1_palette, 2);
 
 
             // We don't want to load the whole palette into memory, we might
@@ -2356,7 +2402,7 @@ void Platform::load_tile1_texture(const char* name)
             //
             // Also, like the sprite texture, we need to apply the currently
             // active screen fade while modifying the color palette.
-            const auto c = nightmode_adjust(real_color(last_color));
+            const auto c = invoke_shader(real_color(last_color), 2);
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
                 MEM_BG_PALETTE[32 + i] = blend(from, c, last_fade_amt);
@@ -2389,9 +2435,9 @@ void Platform::load_background_texture(const char* name)
 
             current_background = &info;
 
-            init_palette(current_background, background_palette, false);
+            init_palette(current_background, background_palette, 11);
 
-            const auto c = nightmode_adjust(real_color(last_color));
+            const auto c = invoke_shader(real_color(last_color), 11);
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(background_palette[i]);
                 MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, last_fade_amt);
@@ -3819,14 +3865,14 @@ bool Platform::load_overlay_texture(const char* name)
 
             current_overlay_texture = &info;
 
-            init_palette(current_overlay_texture, overlay_palette, true);
+            init_palette(current_overlay_texture, overlay_palette, 1);
 
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(overlay_palette[i]);
                 if (not overlay_was_faded) {
                     MEM_BG_PALETTE[16 + i] = from.bgr_hex_555();
                 } else {
-                    const auto c = nightmode_adjust(real_color(last_color));
+                    const auto c = invoke_shader(real_color(last_color), 1);
                     MEM_BG_PALETTE[16 + i] = blend(from, c, last_fade_amt);
                 }
             }
@@ -4126,10 +4172,10 @@ void Platform::set_tile(u16 x, u16 y, TileDesc glyph, const FontColors& colors)
     const auto default_colors = font_color_indices();
 
     const auto fg_color_hash =
-        nightmode_adjust(real_color(colors.foreground_)).bgr_hex_555();
+        invoke_shader(real_color(colors.foreground_), 1).bgr_hex_555();
 
     const auto bg_color_hash =
-        nightmode_adjust(real_color(colors.background_)).bgr_hex_555();
+        invoke_shader(real_color(colors.background_), 1).bgr_hex_555();
 
     auto existing_mapping = [&]() -> std::optional<PaletteBank> {
         for (auto i = custom_text_palette_begin; i < custom_text_palette_end;

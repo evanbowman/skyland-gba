@@ -19,6 +19,15 @@ public:
         b_ >>= 3;
     }
 
+    ColorConstant hex() const
+    {
+        auto r = r_ << 3;
+        auto g = g_ << 3;
+        auto b = b_ << 3;
+
+        return static_cast<ColorConstant>(r << 16 | g << 8 | b);
+    }
+
     Color(u8 r, u8 g, u8 b) : r_(r), g_(g), b_(b)
     {
     }

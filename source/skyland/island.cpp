@@ -730,7 +730,8 @@ void Island::plot_rooms(u8 matrix[16][16]) const
         auto sz = room->size();
 
         int val = 2;
-        if (not((*room->metaclass())->properties() & RoomProperties::roof_hidden)) {
+        if (not((*room->metaclass())->properties() &
+                RoomProperties::roof_hidden)) {
             val = 1;
         } else if ((*room->metaclass())->properties() &
                    RoomProperties::disallow_chimney) {

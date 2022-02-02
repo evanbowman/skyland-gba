@@ -58,7 +58,8 @@ public:
         }
 
         for (MetaclassIndex i = 0; i < plugin_rooms_begin(); ++i) {
-            if (not(table_[i]->properties() & RoomProperties::locked_by_default)) {
+            if (not(table_[i]->properties() &
+                    RoomProperties::locked_by_default)) {
                 enabled_rooms_.set(i, true);
             }
         }

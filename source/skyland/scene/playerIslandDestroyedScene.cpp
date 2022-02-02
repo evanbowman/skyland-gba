@@ -596,6 +596,8 @@ void PlayerIslandDestroyedScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.load_overlay_texture("overlay");
     pfrm.screen().pixelate(0);
     pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+
+    pfrm.screen().set_shader(passthrough_shader);
 }
 
 

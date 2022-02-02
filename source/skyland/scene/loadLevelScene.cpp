@@ -170,7 +170,23 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto buffer = std::move(*app.dialog_buffer());
         app.dialog_buffer().reset();
 
-        auto future_scene = [] { return scene_pool::alloc<FadeInScene>(); };
+        auto future_scene = [&pfrm,
+                             storm_king = node.type_ ==
+                                          WorldGraph::Node::Type::corrupted] {
+            if (storm_king) {
+                pfrm.screen().set_shader([](int p, ColorConstant k, int) {
+                    if (p == 1) {
+                        return grayscale_shader(p, k, 76);
+                    } else {
+                        auto k1 = contrast_shader(p, k, -10);
+                        auto k2 = grayscale_shader(p, k1, 128);
+                        return k2;
+                    }
+                });
+            }
+
+            return scene_pool::alloc<FadeInScene>();
+        };
         return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
                                                         future_scene);
     }

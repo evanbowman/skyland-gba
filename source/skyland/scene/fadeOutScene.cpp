@@ -24,6 +24,7 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     constexpr auto fade_duration = milliseconds(800);
     if (timer_ > fade_duration) {
+        pfrm.screen().set_shader(passthrough_shader);
         pfrm.screen().fade(1.f);
         switch (app.game_mode()) {
         case App::GameMode::tutorial:

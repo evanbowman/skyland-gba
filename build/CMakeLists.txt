@@ -457,7 +457,7 @@ if(APPLE OR UNIX OR GAMEBOY_ADVANCE)
 
   set(SHARED_COMPILE_OPTIONS
     -g
-    -Os
+    -O2
     -Wall
     -Werror
     -pedantic
@@ -466,6 +466,7 @@ if(APPLE OR UNIX OR GAMEBOY_ADVANCE)
     -fno-math-errno
     -Wdouble-promotion
     -fomit-frame-pointer
+    -fstack-protector-strong
     -D__BLINDJUMP_ENABLE_LOGS)
 
   if(GAMEBOY_ADVANCE)

@@ -122,7 +122,8 @@ struct RoomMeta {
         u32 properties() const override
         {
             return RoomProperties::plugin | RoomProperties::disallow_chimney |
-                   RoomProperties::roof_hidden | RoomProperties::locked_by_default;
+                   RoomProperties::roof_hidden |
+                   RoomProperties::locked_by_default;
         }
 
         Room::Category category() const override

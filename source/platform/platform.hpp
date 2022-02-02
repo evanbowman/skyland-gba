@@ -399,7 +399,11 @@ public:
 
         Contrast get_contrast() const;
 
-        void enable_night_mode(bool enabled);
+        using Shader = ColorConstant (*)(int, ColorConstant, int);
+
+        void set_shader(Shader shader);
+
+        void set_shader_argument(int value);
 
         void set_view(const View& view)
         {
@@ -752,6 +756,13 @@ private:
     Logger logger_;
     Data* data_ = nullptr;
 };
+
+
+
+ColorConstant passthrough_shader(int palette, ColorConstant k, int arg);
+ColorConstant grayscale_shader(int palette, ColorConstant k, int arg);
+ColorConstant contrast_shader(int palette, ColorConstant k, int arg);
+
 
 
 class SynchronizedBase {

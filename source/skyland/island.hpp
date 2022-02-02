@@ -278,8 +278,6 @@ public:
 
 
 private:
-
-
     void resolve_cancelled_dispatch();
 
 

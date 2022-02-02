@@ -69,8 +69,8 @@ public:
 
     static u32 properties()
     {
-        return RoomProperties::foundry_required | RoomProperties::disallow_chimney |
-               RoomProperties::roof_hidden;
+        return RoomProperties::foundry_required |
+               RoomProperties::disallow_chimney | RoomProperties::roof_hidden;
     }
 };
 
