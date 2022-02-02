@@ -523,7 +523,11 @@ Room::~Room()
         Platform::fatal("room destroyed without invoking finalizer!");
     }
 
-    parent_->cancel_dispatch(this);
+    // Because the dispatch list uses plain unchecked raw pointers, we want to
+    // be extra careful. Now, we could scan an island's entire dispatch list and
+    // remove ourself, but instead, tell the island to drop its dispatch list
+    // and update all rooms on the next update step.
+    parent_->cancel_dispatch();
 }
 
 

@@ -39,7 +39,7 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
-    ready();
+    Room::ready();
 
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;

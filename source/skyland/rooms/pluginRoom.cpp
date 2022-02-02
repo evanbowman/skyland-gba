@@ -54,7 +54,7 @@ void PluginRoom::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
-    ready();
+    Room::ready();
 
     auto b = static_cast<RoomMeta::PluginBox*>(this->metaclass()->box());
 

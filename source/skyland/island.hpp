@@ -274,10 +274,13 @@ public:
     void dispatch_room(Room* room);
 
 
-    void cancel_dispatch(Room* room);
+    void cancel_dispatch();
 
 
 private:
+
+
+    void resolve_cancelled_dispatch();
 
 
     void recalculate_power_usage();
@@ -300,6 +303,7 @@ private:
 
     bool interior_visible_;
     bool show_flag_ = false;
+    bool dispatch_cancelled_ = false;
 
     bool has_radar_ = false;
     bool is_boarded_ = false;

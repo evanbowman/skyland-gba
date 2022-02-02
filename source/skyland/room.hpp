@@ -285,6 +285,8 @@ public:
     }
 
 
+    // IMPORTANT: only rooms that call ready() during their prior update call
+    // will have their update() and display() member function invoked.
     void ready();
 
 

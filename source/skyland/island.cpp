@@ -366,6 +366,9 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     bool do_repaint = false;
 
 
+    resolve_cancelled_dispatch();
+
+
     Room* room = dispatch_list_;
     dispatch_list_ = nullptr;
 
@@ -590,8 +593,12 @@ void Island::display(Platform& pfrm)
     }
 
 
-    for (auto& room : rooms_) {
+    resolve_cancelled_dispatch();
+
+    Room* room = dispatch_list_;
+    while (room) {
         room->display(pfrm.screen());
+        room = room->dispatch_next();
     }
 }
 
@@ -1067,23 +1074,24 @@ void Island::dispatch_room(Room* room)
 
 
 
-void Island::cancel_dispatch(Room* room)
+void Island::cancel_dispatch()
 {
-    if (dispatch_list_ == room) {
-        // Unlink
-        dispatch_list_ = dispatch_list_->dispatch_next();
-        return;
-    }
+    dispatch_cancelled_ = true;
+}
 
-    auto list = dispatch_list_;
 
-    while (list) {
-        if (list->dispatch_next() == room) {
-            // Unlink
-            list->dispatch_update(room->dispatch_next());
-            return;
+
+void Island::resolve_cancelled_dispatch()
+{
+    // If a room was destroyed, we could try to fix dangling pointer issues
+    // around the dispatch list, but it's simpler just to destroy the list and
+    // recreate it.
+    if (UNLIKELY(dispatch_cancelled_)) {
+        dispatch_list_ = nullptr;
+        for (auto& room : rooms_) {
+            dispatch_room(room.get());
         }
-        list = list->dispatch_next();
+        dispatch_cancelled_ = false;
     }
 }
 
@@ -1094,6 +1102,8 @@ void Island::clear_rooms(Platform& pfrm, App& app)
     for (auto& room : rooms_) {
         room->finalize(pfrm, app);
     }
+
+    cancel_dispatch();
 
     rooms_.clear();
 }

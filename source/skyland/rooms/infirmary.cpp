@@ -18,7 +18,7 @@ void Infirmary::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
-    ready();
+    Room::ready();
 
     int characters_healing = 0;
 

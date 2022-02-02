@@ -41,7 +41,7 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
-    ready();
+    Room::ready();
 
     if (recharge_ > 0) {
         recharge_ -= delta;

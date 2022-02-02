@@ -986,18 +986,11 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
     }
 
 
-    // I'm not sure if this is necessary, but we might as well mark all rooms as
-    // ready after coming out of a rewind, to make sure that none of them are
-    // sleeping.
-
-    for (auto& room : app.player_island().rooms()) {
-        room->ready();
-    }
+    // Reset update dispatch when coming out of a rewind. Perhaps unnecessary.
+    app.player_island().cancel_dispatch();
 
     if (app.opponent_island()) {
-        for (auto& room : app.opponent_island()->rooms()) {
-            room->ready();
-        }
+        app.opponent_island()->cancel_dispatch();
     }
 }
 
