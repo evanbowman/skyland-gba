@@ -9,6 +9,7 @@
 (configure-rooms
                ; (1) (2)  (3)
  '((hull         240 300  0)
+   (bronze-hull  240 300  0)
    (forcefield   240 300  40)
    (ion-fizzler  40  200  20)
    (cannon       200 1000 34)
@@ -29,7 +30,7 @@
    (drone-bay    200 2100 36)
    (cargo-bay    60  300  10)
    (arc-gun      240 1700 40)
-   (nemesis     200 1800 40)
+   (nemesis      200 1800 40)
    (coconut-palm 1   1    0)
    (shrubbery    1   1    0)
    (masonry      30  30   0)

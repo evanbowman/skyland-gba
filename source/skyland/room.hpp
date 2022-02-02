@@ -93,6 +93,7 @@ public:
 
     virtual bool add_occupant(EntityRef<BasicCharacter> entity)
     {
+        ready();
         characters_.push(std::move(entity));
         return true;
     }
@@ -112,12 +113,6 @@ public:
 
 
     Island* other_island(App&);
-
-
-    virtual bool disallow_chimney()
-    {
-        return false;
-    }
 
 
     const Vec2<u8>& position() const

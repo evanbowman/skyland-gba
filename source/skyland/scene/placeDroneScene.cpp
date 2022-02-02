@@ -164,7 +164,7 @@ void PlaceDroneScene::display(Platform& pfrm, App& app)
 ScenePtr<Scene>
 PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (auto new_scene = WorldScene::update(pfrm, app, delta)) {
+    if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return new_scene;
     }
 

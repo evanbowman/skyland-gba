@@ -23,9 +23,27 @@ public:
     }
 
 
+    static void format_description(StringBuffer<512>& buffer)
+    {
+        buffer += "";
+    }
+
+
     static u32 properties()
     {
         return Hull::properties() | RoomProperties::disabled_in_tutorials;
+    }
+
+
+    static Icon icon()
+    {
+        return 1624;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 1640;
     }
 
 

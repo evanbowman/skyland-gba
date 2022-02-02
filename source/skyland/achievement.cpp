@@ -64,6 +64,17 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[strategist].reward_), awarded);
      }},
 
+    {"Sidequest",
+     "Complete any quest!",
+     "shrubbery",
+     [](Platform&, App& app) {
+         // TODO!
+         return false;
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[sidequest].reward_), awarded);
+     }},
+
     {"Borrowed tech",
      "Destroy a decimator by plundering!",
      "decimator",
@@ -77,6 +88,7 @@ static const AchievementInfo info[Achievement::count] = {
          // responsible for creating a notification scene, which just isn't
          // realistic, because the player isn't supposed to have control over
          // the scene transition logic.
+         // Please excuse this spaghetti code.
          return is_enabled(metaclass_index(info[ancient_weapon].reward_));
      },
      [](Platform&, App&, bool awarded) {

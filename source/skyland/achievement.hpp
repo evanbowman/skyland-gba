@@ -31,6 +31,7 @@ enum Achievement : u8 {
     architect,
     explorer,
     strategist,
+    sidequest,
     ancient_weapon,
     count
 };

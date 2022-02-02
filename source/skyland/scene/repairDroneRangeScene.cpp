@@ -1,5 +1,6 @@
 #include "repairDroneRangeScene.hpp"
 #include "readyScene.hpp"
+#include "inspectP2Scene.hpp"
 #include "skyland/island.hpp"
 #include "skyland/skyland.hpp"
 
@@ -12,6 +13,10 @@ namespace skyland {
 ScenePtr<Scene>
 RepairDroneRangeScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (drone_->destination() not_eq &app.player_island()) {
+        far_camera();
+    }
+
     if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return scene;
     }
@@ -28,7 +33,12 @@ RepairDroneRangeScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.player().key_down(pfrm, Key::action_2)) {
         description_.reset();
         pfrm.fill_overlay(0);
-        return scene_pool::alloc<ReadyScene>();
+
+        if (is_far_camera()) {
+            return scene_pool::alloc<InspectP2Scene>();
+        } else {
+            return scene_pool::alloc<ReadyScene>();
+        }
     }
 
     return null_scene();
