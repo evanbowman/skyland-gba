@@ -984,6 +984,21 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
     if (not app.time_stream().pushes_enabled()) {
         Platform::fatal("sanity check: exit rewind scene, pushes not enabled");
     }
+
+
+    // I'm not sure if this is necessary, but we might as well mark all rooms as
+    // ready after coming out of a rewind, to make sure that none of them are
+    // sleeping.
+
+    for (auto& room : app.player_island().rooms()) {
+        room->ready();
+    }
+
+    if (app.opponent_island()) {
+        for (auto& room : app.opponent_island()->rooms()) {
+            room->ready();
+        }
+    }
 }
 
 

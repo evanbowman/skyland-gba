@@ -52,6 +52,10 @@ void PluginRoom::render_exterior(App& app, u8 buffer[16][16])
 
 void PluginRoom::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    Room::update(pfrm, app, delta);
+
+    ready();
+
     auto b = static_cast<RoomMeta::PluginBox*>(this->metaclass()->box());
 
     auto& v = b->fetch_info<RoomMeta::PluginBox::PluginInfo::update_frequency,

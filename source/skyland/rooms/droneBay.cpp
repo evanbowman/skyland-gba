@@ -31,6 +31,8 @@ void DroneBay::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
+    ready();
+
     if (drone_ and not(*drone_)->alive()) {
         detach_drone(pfrm, app);
     }
