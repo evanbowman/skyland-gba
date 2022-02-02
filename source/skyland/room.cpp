@@ -30,7 +30,7 @@ Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
     for (MetaclassIndex i = 0; i < metatable.second; ++i) {
         auto& current = metatable.first[i];
 
-        if (str_cmp(name, current->name()) == 0) {
+        if (str_eq(name, current->name())) {
             metaclass_index_ = i;
 
             auto mt_size = current->size();
