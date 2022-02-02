@@ -48,9 +48,9 @@ public:
     }
 
 
-    static Conditions::Value conditions()
+    static RoomProperties::Value properties()
     {
-        return Conditions::not_constructible;
+        return RoomProperties::not_constructible;
     }
 };
 

@@ -356,6 +356,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     }
 
 
+
     // Before I added the ArcGun weapon, which chains to multiple rooms, there
     // was no reason to do any optimizations on certain operations, because only
     // one room would be destroyed per frame, except in truely rare occasions.
@@ -365,13 +366,20 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     bool do_repaint = false;
 
 
-    for (auto it = rooms_.begin(); it not_eq rooms_.end();) {
-        if ((*it)->health() == 0) {
+    Room* room = dispatch_list_;
+    dispatch_list_ = nullptr;
+
+
+    while (room) {
+        const auto next = room->dispatch_next();
+
+        if (room->health() == 0) {
+
             if (++destroyed_count < 5) {
                 // Five rooms destroyed on the same island in the same frame! If
                 // we create tons of huge explosions all at once, we'll lag the
                 // game and use lots of entities.
-                big_explosion(pfrm, app, (*it)->center());
+                big_explosion(pfrm, app, room->center());
             }
 
             if (destroyed_count < 2 and
@@ -379,9 +387,9 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 pfrm.sleep(2);
             }
 
-            const auto pos = (*it)->position();
+            const auto pos = room->position();
 
-            auto mt = metaclass_index((*(*it)->metaclass())->name());
+            auto mt = room->metaclass_index();
 
             auto sync = [x = pos.x,
                          y = pos.y,
@@ -395,12 +403,12 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 network::transmit(pfrm, packet);
             };
 
-            for (auto& chr : (*it)->characters()) {
+            for (auto& chr : room->characters()) {
                 // The room was destroyed, along with any inhabitants.
                 record_character_died(*chr);
             }
 
-            (*it)->finalize(pfrm, app);
+            room->finalize(pfrm, app);
 
             if (&owner() == &app.player()) {
                 time_stream::event::PlayerRoomDestroyed p;
@@ -447,9 +455,17 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             }
 
 
-            app.player().on_room_destroyed(pfrm, app, **it);
+            app.player().on_room_destroyed(pfrm, app, *room);
 
-            it = rooms_.erase(it);
+            [&] {
+                for (auto it = rooms_.begin(); it not_eq rooms_.end(); ++it) {
+                    if (it->get() == room) {
+                        rooms_.erase(it);
+                        return;
+                    }
+                }
+                Platform::fatal("dispatch list erase room not in roomsTable");
+            }();
 
             owner().rooms_lost_++;
 
@@ -460,16 +476,21 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             recalculate_power_usage();
 
             do_repaint = true;
+
         } else {
             if (dt not_eq 0) {
                 // Do not update a room if the game is stopped.
-                (*it)->update(pfrm, app, dt);
+                room->update(pfrm, app, dt);
+            } else {
+                // If a room was ready, and we didn't update it, then it's still
+                // ready.
+                dispatch_room(room);
             }
 
-            update_characters((*it)->characters(), false);
-
-            ++it;
+            update_characters(room->characters(), false);
         }
+
+        room = next;
     }
 
 
@@ -702,9 +723,10 @@ void Island::plot_rooms(u8 matrix[16][16]) const
         auto sz = room->size();
 
         int val = 2;
-        if (room->has_roof()) {
+        if (not((*room->metaclass())->properties() & RoomProperties::roof_hidden)) {
             val = 1;
-        } else if (room->disallow_chimney()) {
+        } else if ((*room->metaclass())->properties() &
+                   RoomProperties::disallow_chimney) {
             val = 3;
         }
 
@@ -828,7 +850,7 @@ void Island::repaint(Platform& pfrm, App& app)
     foundry_count_ = 0;
     workshop_count_ = 0;
     for (auto& room : rooms_) {
-        if (room->has_chimney()) {
+        if ((*room->metaclass())->properties() & RoomProperties::has_chimney) {
             chimney_locs.push_back(room->position().x);
         }
         auto metac = room->metaclass();
@@ -1032,6 +1054,36 @@ void Island::destroy_room(Platform& pfrm, App& app, const Vec2<u8>& coord)
             recalculate_power_usage();
             return;
         }
+    }
+}
+
+
+
+void Island::dispatch_room(Room* room)
+{
+    room->dispatch_update(dispatch_list_);
+    dispatch_list_ = room;
+}
+
+
+
+void Island::cancel_dispatch(Room* room)
+{
+    if (dispatch_list_ == room) {
+        // Unlink
+        dispatch_list_ = dispatch_list_->dispatch_next();
+        return;
+    }
+
+    auto list = dispatch_list_;
+
+    while (list) {
+        if (list->dispatch_next() == room) {
+            // Unlink
+            list->dispatch_update(room->dispatch_next());
+            return;
+        }
+        list = list->dispatch_next();
     }
 }
 

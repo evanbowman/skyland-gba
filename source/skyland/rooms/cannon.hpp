@@ -37,15 +37,9 @@ public:
     }
 
 
-    bool has_roof() override
+    static u32 properties()
     {
-        return false;
-    }
-
-
-    bool disallow_chimney() override
-    {
-        return true;
+        return RoomProperties::disallow_chimney | RoomProperties::roof_hidden;
     }
 
 

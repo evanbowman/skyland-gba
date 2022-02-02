@@ -30,18 +30,6 @@ public:
     }
 
 
-    bool has_roof() override
-    {
-        return false;
-    }
-
-
-    bool disallow_chimney() override
-    {
-        return true;
-    }
-
-
     static Icon icon()
     {
         return 1512;

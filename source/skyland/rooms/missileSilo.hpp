@@ -37,19 +37,7 @@ public:
     }
 
 
-    bool has_roof() override
-    {
-        return false;
-    }
-
-
     bool description_visible() override
-    {
-        return true;
-    }
-
-
-    virtual bool disallow_chimney()
     {
         return true;
     }
@@ -82,6 +70,12 @@ public:
     static Icon unsel_icon()
     {
         return 568;
+    }
+
+
+    static u32 properties()
+    {
+        return RoomProperties::disallow_chimney | RoomProperties::roof_hidden;
     }
 
 

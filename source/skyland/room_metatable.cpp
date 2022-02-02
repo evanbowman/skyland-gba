@@ -3,6 +3,7 @@
 
 #include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/bridge.hpp"
+#include "skyland/rooms/bronzeHull.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/cargoBay.hpp"
@@ -30,7 +31,6 @@
 #include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
-#include "skyland/rooms/bronzeHull.hpp"
 
 
 
@@ -58,7 +58,7 @@ public:
         }
 
         for (MetaclassIndex i = 0; i < plugin_rooms_begin(); ++i) {
-            if (table_[i]->unlocked_by_default()) {
+            if (not(table_[i]->properties() & RoomProperties::locked_by_default)) {
                 enabled_rooms_.set(i, true);
             }
         }

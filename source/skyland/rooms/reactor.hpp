@@ -29,12 +29,6 @@ public:
     }
 
 
-    bool has_chimney() override
-    {
-        return true;
-    }
-
-
     static Float ai_base_weight()
     {
         return 1200.f;
@@ -65,9 +59,9 @@ public:
     }
 
 
-    static Conditions::Value conditions()
+    static u32 properties()
     {
-        return Conditions::foundry_required;
+        return RoomProperties::foundry_required | RoomProperties::has_chimney;
     }
 };
 

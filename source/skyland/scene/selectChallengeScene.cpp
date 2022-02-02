@@ -39,7 +39,8 @@ void SelectChallengeScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.screen().set_view({});
 
-    pfrm.screen().schedule_fade(default_fade, ColorConstant::rich_black, {}, false);
+    pfrm.screen().schedule_fade(
+        default_fade, ColorConstant::rich_black, {}, false);
 }
 
 

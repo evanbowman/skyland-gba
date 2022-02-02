@@ -37,20 +37,6 @@ public:
     }
 
 
-    // Plenty of rooms, like missile silos, and forcefields, look super awkward
-    // if the game spawns chimneys over top of them.
-    bool disallow_chimney() override
-    {
-        return true;
-    }
-
-
-    bool has_roof() override
-    {
-        return false;
-    }
-
-
     bool description_visible() override
     {
         return true;
@@ -87,9 +73,10 @@ public:
     }
 
 
-    static Conditions::Value conditions()
+    static u32 properties()
     {
-        return Conditions::workshop_required;
+        return RoomProperties::workshop_required | RoomProperties::disallow_chimney |
+               RoomProperties::roof_hidden;
     }
 };
 

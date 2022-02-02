@@ -10,9 +10,8 @@ namespace skyland {
 
 void Forcefield::format_description(StringBuffer<512>& buffer)
 {
-    buffer +=
-        "Blocks enemy projectiles, but allows your own weapons to shoot "
-        "through. Vulnerable to ion damage.";
+    buffer += "Blocks enemy projectiles, but allows your own weapons to shoot "
+              "through. Vulnerable to ion damage.";
 }
 
 

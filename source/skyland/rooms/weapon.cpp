@@ -27,6 +27,8 @@ void Weapon::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
+    ready();
+
     if (reload_timer_ > 0) {
         reload_timer_ -= delta;
         if (reload_timer_ < 0) {

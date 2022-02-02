@@ -4,6 +4,7 @@
 #include "bitvector.hpp"
 #include "coins.hpp"
 #include "island.hpp"
+#include "metaclassIndex.hpp"
 #include "room.hpp"
 #include "rooms/pluginRoom.hpp"
 #include "script/lisp.hpp"
@@ -30,13 +31,12 @@ struct RoomMeta {
         virtual Coins cost() const = 0;
         virtual Float ai_base_weight() const = 0;
         virtual Power consumes_power() const = 0;
-        virtual Conditions::Value conditions() const = 0;
+        virtual u32 properties() const = 0;
         virtual Room::Icon icon() const = 0;
         virtual Room::Icon unsel_icon() const = 0;
         virtual Health full_health() const = 0;
         virtual Room::Category category() const = 0;
         virtual void format_description(StringBuffer<512>& buffer) const = 0;
-        virtual bool unlocked_by_default() const = 0;
 
 
         virtual void configure(Health health, Coins cost, Power power)
@@ -119,19 +119,15 @@ struct RoomMeta {
             return power_;
         }
 
-        Conditions::Value conditions() const override
+        u32 properties() const override
         {
-            return Conditions::plugin;
+            return RoomProperties::plugin | RoomProperties::disallow_chimney |
+                   RoomProperties::roof_hidden | RoomProperties::locked_by_default;
         }
 
         Room::Category category() const override
         {
             return Room::Category::misc; // TODO...
-        }
-
-        bool unlocked_by_default() const override
-        {
-            return false;
         }
 
         void format_description(StringBuffer<512>&) const override
@@ -192,11 +188,6 @@ struct RoomMeta {
             return T::size();
         }
 
-        bool unlocked_by_default() const override
-        {
-            return T::unlocked_by_default();
-        }
-
         Coins cost() const override
         {
             return cost_;
@@ -212,9 +203,9 @@ struct RoomMeta {
             return power_;
         }
 
-        Conditions::Value conditions() const override
+        u32 properties() const override
         {
-            return T::conditions();
+            return T::properties();
         }
 
         Room::Category category() const override
@@ -294,10 +285,6 @@ struct RoomMeta {
 
 
 std::pair<RoomMeta*, int> room_metatable();
-
-
-
-using MetaclassIndex = u16;
 
 
 

@@ -570,6 +570,7 @@ void BasicCharacter::reassign_room(const Vec2<u8>& old_coord,
         if (self) {
             if (auto room = parent_->get_room(new_coord)) {
                 room->characters().push(std::move(*self));
+                room->ready();
             }
         }
     }

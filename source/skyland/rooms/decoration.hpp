@@ -18,31 +18,16 @@ public:
     }
 
 
-    bool disallow_chimney() override
+    static u32 properties()
     {
-        return true;
-    }
-
-
-    bool has_roof() override
-    {
-        return false;
+        return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
+               RoomProperties::locked_by_default;
     }
 
 
     bool description_visible() override
     {
         return true;
-    }
-
-
-    static bool unlocked_by_default()
-    {
-        // Should probably be false, as the whole purpose of decorations is to
-        // reward the player for achievements.
-        // // return true;
-
-        return false;
     }
 
 

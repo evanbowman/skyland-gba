@@ -41,11 +41,6 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
-    bool has_roof() override
-    {
-        return false;
-    }
-
 
     bool description_visible() override
     {
@@ -92,9 +87,9 @@ public:
     }
 
 
-    static Conditions::Value conditions()
+    static u32 properties()
     {
-        return Conditions::workshop_required;
+        return RoomProperties::workshop_required | RoomProperties::roof_hidden;
     }
 
 

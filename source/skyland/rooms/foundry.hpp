@@ -61,9 +61,9 @@ public:
     }
 
 
-    static Conditions::Value conditions()
+    static RoomProperties::Value properties()
     {
-        return Conditions::workshop_required;
+        return RoomProperties::workshop_required;
     }
 };
 

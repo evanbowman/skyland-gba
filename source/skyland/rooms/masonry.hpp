@@ -39,9 +39,9 @@ public:
     }
 
 
-    bool disallow_chimney() override
+    static u32 properties()
     {
-        return false;
+        return Decoration::properties() & ~RoomProperties::disallow_chimney;
     }
 
 

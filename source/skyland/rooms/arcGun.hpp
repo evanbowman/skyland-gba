@@ -37,12 +37,6 @@ public:
     }
 
 
-    bool has_roof() override
-    {
-        return false;
-    }
-
-
     bool description_visible() override
     {
         return true;
@@ -85,9 +79,9 @@ public:
     }
 
 
-    static Conditions::Value conditions()
+    static u32 properties()
     {
-        return Conditions::foundry_required;
+        return RoomProperties::foundry_required | RoomProperties::roof_hidden;
     }
 };
 

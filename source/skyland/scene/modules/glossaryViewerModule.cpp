@@ -49,15 +49,15 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
         dependency_text_.emplace(pfrm, OverlayCoord{1, 18});
     }
 
-    const auto cond = mt[page]->conditions();
-    if (cond & Conditions::workshop_required) {
+    const auto cond = mt[page]->properties();
+    if (cond & RoomProperties::workshop_required) {
         dependency_text_->assign("(requires workshop)",
                                  FontColors{ColorConstant::med_blue_gray,
-                                     ColorConstant::rich_black});
-    } else if (cond & Conditions::foundry_required) {
+                                            ColorConstant::rich_black});
+    } else if (cond & RoomProperties::foundry_required) {
         dependency_text_->assign("(requires manufactory)",
                                  FontColors{ColorConstant::med_blue_gray,
-                                     ColorConstant::rich_black});
+                                            ColorConstant::rich_black});
     } else {
         dependency_text_.reset();
     }
@@ -88,9 +88,8 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
         item_description_.emplace(pfrm);
     }
 
-    item_description_->assign(description.c_str(),
-                              OverlayCoord{1, 6},
-        OverlayCoord{28, 11});
+    item_description_->assign(
+        description.c_str(), OverlayCoord{1, 6}, OverlayCoord{28, 11});
 }
 
 

@@ -12,32 +12,36 @@
 namespace skyland {
 
 
+
 Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
     : parent_(parent),
       characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      position_(position), health_(1)
+      position_(position), health_(1), dispatch_list_(nullptr)
 {
     if (name == nullptr) {
         return;
     }
 
     finalized_ = 0;
+    dispatch_queued_ = 0;
 
     auto metatable = room_metatable();
 
-    for (int i = 0; i < metatable.second; ++i) {
+    for (MetaclassIndex i = 0; i < metatable.second; ++i) {
         auto& current = metatable.first[i];
 
         if (str_cmp(name, current->name()) == 0) {
-            metaclass_ = &current;
+            metaclass_index_ = i;
 
-            auto mt_size = (*metaclass_)->size();
+            auto mt_size = current->size();
             if (mt_size.x > 7 or mt_size.y > 7) {
                 Platform::fatal("Room size too large!");
             }
             size_x_ = mt_size.x;
             size_y_ = mt_size.y;
-            health_ = (*metaclass_)->full_health();
+            health_ = current->full_health();
+
+            ready();
             return;
         }
     }
@@ -85,6 +89,20 @@ void Room::set_injured(Platform& pfrm)
 
 
 
+RoomMeta* Room::metaclass() const
+{
+    return &room_metatable().first[metaclass_index_];
+}
+
+
+
+MetaclassIndex Room::metaclass_index() const
+{
+    return metaclass_index_;
+}
+
+
+
 void Room::display(Platform::Screen& screen)
 {
     if (parent_->interior_visible()) {
@@ -101,7 +119,15 @@ void Room::display(Platform::Screen& screen)
 
 void Room::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    dispatch_queued_ = false;
+
+    if (not characters().empty()) {
+        ready();
+    }
+
     if (injured_timer_) {
+
+        ready();
 
         if (injured_timer_ > 0) {
             const auto new_timer = injured_timer_ - delta;
@@ -341,6 +367,8 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
     }
     set_injured(pfrm);
     parent_->owner().on_room_damaged(pfrm, app, *this);
+
+    ready();
 }
 
 
@@ -362,7 +390,7 @@ void Room::heal(Platform& pfrm, App& app, Health amount)
     }
 
     const Health new_health = health_ + amount;
-    health_ = std::min((*metaclass_)->full_health(), new_health);
+    health_ = std::min((*metaclass())->full_health(), new_health);
 }
 
 
@@ -380,14 +408,14 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
             time_stream::event::OpponentRoomPlundered e;
             e.x_ = position().x;
             e.y_ = position().y;
-            e.type_ = metaclass_index((*metaclass_)->name());
+            e.type_ = metaclass_index_;
             app.time_stream().push(pfrm, app.level_timer(), e);
 
         } else {
             time_stream::event::PlayerRoomPlundered e;
             e.x_ = position().x;
             e.y_ = position().y;
-            e.type_ = metaclass_index((*metaclass_)->name());
+            e.type_ = metaclass_index_;
             app.time_stream().push(pfrm, app.level_timer(), e);
         }
 
@@ -468,7 +496,7 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
 
 Health Room::max_health() const
 {
-    return (*metaclass_)->full_health();
+    return (*metaclass())->full_health();
 }
 
 
@@ -480,11 +508,22 @@ void Room::finalize(Platform& pfrm, App& app)
 
 
 
+void Room::ready()
+{
+    if (not dispatch_queued_) {
+        parent_->dispatch_room(this);
+    }
+}
+
+
+
 Room::~Room()
 {
     if (not finalized_) {
         Platform::fatal("room destroyed without invoking finalizer!");
     }
+
+    parent_->cancel_dispatch(this);
 }
 
 

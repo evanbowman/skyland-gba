@@ -55,9 +55,9 @@ public:
     }
 
 
-    bool has_roof() override
+    static u32 properties()
     {
-        return true;
+        return Decoration::properties() & ~RoomProperties::roof_hidden;
     }
 
 

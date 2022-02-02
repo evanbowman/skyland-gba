@@ -60,21 +60,16 @@ public:
     }
 
 
-    static Conditions::Value conditions()
+    static u32 properties()
     {
-        return Conditions::workshop_required;
+        return RoomProperties::workshop_required | RoomProperties::disallow_chimney |
+               RoomProperties::roof_hidden;
     }
 
 
     void plot_walkable_zones(App& app, bool matrix[16][16]) override
     {
         // one cannot walk through this tile, intentionally do nothing.
-    }
-
-
-    bool has_roof() override
-    {
-        return false;
     }
 };
 

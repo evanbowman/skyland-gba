@@ -77,21 +77,16 @@ public:
     }
 
 
-    bool has_roof() override
-    {
-        return false;
-    }
-
-
     bool description_visible() override
     {
         return true;
     }
 
 
-    static Conditions::Value conditions()
+    static u32 properties()
     {
-        return Conditions::foundry_required;
+        return RoomProperties::foundry_required | RoomProperties::roof_hidden |
+               RoomProperties::locked_by_default;
     }
 
 
@@ -100,11 +95,6 @@ public:
         return reload_;
     }
 
-
-    static bool unlocked_by_default()
-    {
-        return false;
-    }
 
 
 private:

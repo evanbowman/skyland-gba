@@ -6,8 +6,8 @@ namespace skyland {
 
 
 
-BronzeHull::BronzeHull(Island* parent, const Vec2<u8>& position) :
-    Hull(parent, position, name())
+BronzeHull::BronzeHull(Island* parent, const Vec2<u8>& position)
+    : Hull(parent, position, name())
 {
 }
 
@@ -27,4 +27,4 @@ void BronzeHull::render_exterior(App& app, u8 buffer[16][16])
 
 
 
-}
+} // namespace skyland

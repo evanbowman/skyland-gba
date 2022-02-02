@@ -767,10 +767,10 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         }
 
         const bool workshop_required =
-            (meta->conditions() & Conditions::workshop_required);
+            (meta->properties() & RoomProperties::workshop_required);
 
         const bool foundry_required =
-            (meta->conditions() & Conditions::foundry_required);
+            (meta->properties() & RoomProperties::foundry_required);
 
         const bool dependencies_satisfied =
             (not foundry_required or (foundry_required and f_count > 0) or
@@ -780,12 +780,11 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 
         const bool explicitly_disabled =
             (app.game_mode() == App::GameMode::tutorial and
-             meta->conditions() & Conditions::disabled_in_tutorials) or
-            (meta->conditions() & Conditions::not_constructible);
+             meta->properties() & RoomProperties::disabled_in_tutorials) or
+            (meta->properties() & RoomProperties::not_constructible);
 
 
-        if (not explicitly_disabled and
-            meta->size().x <= avail_x_space and
+        if (not explicitly_disabled and meta->size().x <= avail_x_space and
             meta->size().y <= calc_avail_y_space(meta->size().x) and
             dependencies_satisfied) {
 

@@ -271,7 +271,15 @@ public:
     }
 
 
+    void dispatch_room(Room* room);
+
+
+    void cancel_dispatch(Room* room);
+
+
 private:
+
+
     void recalculate_power_usage();
 
 
@@ -282,6 +290,7 @@ private:
     Power power_drain_ = 0;
 
     Rooms rooms_;
+    Room* dispatch_list_ = nullptr;
     const Layer layer_;
     Terrain terrain_;
     Vec2<Float> position_;

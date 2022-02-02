@@ -41,6 +41,8 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
+    ready();
+
     if (recharge_ > 0) {
         recharge_ -= delta;
 
@@ -158,7 +160,7 @@ void Transporter::recover_character(Platform& pfrm,
                 unlinked->transported();
 
                 characters().push(std::move(unlinked));
-
+                ready();
                 return;
             } else {
                 ++it;
@@ -248,6 +250,7 @@ void Transporter::transport_occupant(Platform& pfrm,
         (*chr)->transported();
 
         room->characters().push(std::move(*chr));
+        room->ready();
     } else {
         return;
     }

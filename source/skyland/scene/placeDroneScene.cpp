@@ -42,7 +42,7 @@ void get_drone_slots(bool slots[16][16], Island* dest_island, Island* parent)
                 slots[pos.x + x][pos.y + y] = false;
             }
         }
-        if (room->has_roof()) {
+        if (not((*room->metaclass())->properties() & RoomProperties::roof_hidden)) {
             for (int x = 0; x < room->size().x; ++x) {
                 slots[pos.x + x][pos.y - 1] = false;
             }

@@ -3,6 +3,7 @@
 #include "entity.hpp"
 #include "entity/character/basicCharacter.hpp"
 #include "health.hpp"
+#include "metaclassIndex.hpp"
 #include "number/numeric.hpp"
 #include "platform/layer.hpp"
 #include "power.hpp"
@@ -28,14 +29,37 @@ class BasicCharacter;
 
 
 
-struct Conditions {
+struct RoomProperties {
     enum Value : u32 {
         none = 0,
+
+        // Workshop required to build this room
         workshop_required = (1 << 0),
+
+        // Room not shown on the construction menu
         not_constructible = (1 << 1),
+
+        // Room is a plugin, i.e. implemented as DLC
         plugin = (1 << 2),
+
+        // Foundry required to build this room
         foundry_required = (1 << 3),
+
+        // Do not show this room in the construction menu for tutorial mode
         disabled_in_tutorials = (1 << 4),
+
+        // Locked unless you complete an achievement
+        locked_by_default = (1 << 5),
+
+        // Do not render a roof tile above this room
+        roof_hidden = (1 << 6),
+
+        // Render a chimney above this room, or above the highest room sitting
+        // atop of this one
+        has_chimney = (1 << 7),
+
+        // Do not render a chimney above this room in any circumstances
+        disallow_chimney = (1 << 8),
     };
 };
 
@@ -67,13 +91,6 @@ public:
 
 
 
-    static bool unlocked_by_default()
-    {
-        return true;
-    }
-
-
-
     virtual bool add_occupant(EntityRef<BasicCharacter> entity)
     {
         characters_.push(std::move(entity));
@@ -97,19 +114,7 @@ public:
     Island* other_island(App&);
 
 
-    virtual bool has_roof()
-    {
-        return true;
-    }
-
-
     virtual bool disallow_chimney()
-    {
-        return false;
-    }
-
-
-    virtual bool has_chimney()
     {
         return false;
     }
@@ -189,10 +194,10 @@ public:
     virtual void plot_walkable_zones(App& app, bool matrix[16][16]);
 
 
-    RoomMeta* metaclass()
-    {
-        return metaclass_;
-    }
+    RoomMeta* metaclass() const;
+
+
+    MetaclassIndex metaclass_index() const;
 
 
     void reset_injured_timer(Microseconds value);
@@ -228,9 +233,9 @@ public:
     }
 
 
-    static Conditions::Value conditions()
+    static RoomProperties::Value properties()
     {
-        return Conditions::none;
+        return RoomProperties::none;
     }
 
 
@@ -267,13 +272,28 @@ public:
     virtual bool description_visible();
 
 
+    void dispatch_update(Room* next)
+    {
+        dispatch_list_ = next;
+        dispatch_queued_ = true;
+    }
+
+
+    Room* dispatch_next() const
+    {
+        return dispatch_list_;
+    }
+
+
+    void ready();
+
+
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 
 
 private:
     Island* parent_;
-    RoomMeta* metaclass_;
     EntityList<BasicCharacter> characters_;
 
     // NOTE: we're a little tight on memory on some consoles, especially when
@@ -284,13 +304,18 @@ private:
     u8 size_y_ : 3;
 
     u8 finalized_ : 1;
-    u8 reserved_flags1_ : 1;
+    u8 dispatch_queued_ : 1;
     u8 reserved_flags0_ : 8;
 
     Vec2<u8> position_;
     Health health_;
+    MetaclassIndex metaclass_index_;
 
     Microseconds injured_timer_;
+
+    // Many rooms sit around doing nothing most of the time. Each island
+    // maintains a dispatch list of rooms, for which it'll run update code.
+    Room* dispatch_list_;
 };
 
 

@@ -31,16 +31,11 @@ public:
     static void format_description(StringBuffer<512>& buffer);
 
 
-    bool has_roof() override
+    static u32 properties()
     {
-        return false;
+        return Weapon::properties() | RoomProperties::roof_hidden |
+               RoomProperties::foundry_required;
     }
-
-
-    // static bool unlocked_by_default()
-    // {
-    //     return false;
-    // }
 
 
     bool description_visible() override
@@ -89,13 +84,8 @@ public:
     {
         return 1608;
     }
-
-
-    static Conditions::Value conditions()
-    {
-        return Conditions::foundry_required;
-    }
 };
+
 
 
 } // namespace skyland
