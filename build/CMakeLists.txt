@@ -142,7 +142,6 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/zoneImageScene.cpp
   ${SOURCE_DIR}/skyland/scene/placeDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
-  ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
   ${SOURCE_DIR}/skyland/scene/createFileScene.cpp
   ${SOURCE_DIR}/skyland/scene/loadModuleScene.cpp
   ${SOURCE_DIR}/skyland/scene/boxedDialogScene.cpp
@@ -171,6 +170,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
+  ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
   ${SOURCE_DIR}/skyland/scene/achievementNotificationScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/achievementViewerModule.cpp
   ${SOURCE_DIR}/skyland/scene/adventureModeSettingsScene.cpp

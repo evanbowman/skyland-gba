@@ -10,11 +10,31 @@ namespace skyland {
 
 
 
+HighscoresScene::HighscoresScene() :
+    show_current_score_(false),
+    disable_writeback_(true)
+{
+}
+
+
+
+HighscoresScene::HighscoresScene(bool show_current_score) :
+    show_current_score_(show_current_score),
+    disable_writeback_(show_current_score == false)
+{
+}
+
+
+
 void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    pfrm.screen().schedule_fade(0.95f);
+    pfrm.screen().schedule_fade(1.f);
+
     const auto screen_tiles = calc_screen_tiles(pfrm);
 
     int metrics_y_offset_ = -5;
+
 
     const auto dot = ".";
 
@@ -51,7 +71,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
     };
 
 
-    int score = app.persistent_data().score_.get();
+    int score = show_current_score_ ? app.persistent_data().score_.get() : 0;
     if (score < 0) {
         score = 0;
     }
@@ -77,7 +97,9 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         std::end(highscores.values_),
         [](const auto& lhs, const auto& rhs) { return lhs.get() > rhs.get(); });
 
-    print_metric("score ", score);
+    if (show_current_score_) {
+        print_metric("score ", score);
+    }
 
     lines_.emplace_back(
         pfrm, Vec2<u8>{7, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
@@ -91,6 +113,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         str += stringify(i + 1);
         str += " ";
         bool highlight =
+            show_current_score_ and
             not highlighted and highscores.values_[i].get() == (u32)score;
         print_metric(str.c_str(), highscores.values_[i].get(), "", highlight);
 
@@ -99,7 +122,9 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    save::store_global_data(pfrm, app.gp_);
+    if (not disable_writeback_) {
+        save::store_global_data(pfrm, app.gp_);
+    }
 }
 
 
@@ -110,14 +135,19 @@ void HighscoresScene::exit(Platform& pfrm, App& app, Scene& prev)
 }
 
 
+
 ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
 {
     if (app.player().key_down(pfrm, Key::action_1) or
         app.player().key_down(pfrm, Key::action_2)) {
-        return scene_pool::alloc<TitleScreenScene>();
+        return scene_pool::alloc<TitleScreenScene>(show_current_score_ ? 1 : 3);
     }
     return null_scene();
 }
+
+
+
+HighscoresScene::Factory HighscoresScene::factory_;
 
 
 

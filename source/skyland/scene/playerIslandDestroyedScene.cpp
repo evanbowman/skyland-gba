@@ -472,7 +472,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<SelectChallengeScene>();
 
                 case App::GameMode::adventure:
-                    return scene_pool::alloc<HighscoresScene>();
+                    return scene_pool::alloc<HighscoresScene>(true);
 
                 case App::GameMode::sandbox:
                     return scene_pool::alloc<SandboxResetScene>();

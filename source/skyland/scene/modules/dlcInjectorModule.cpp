@@ -109,8 +109,8 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-// NOTE: uncomment when we actually implement this module.
 DlcInjectorModule::Factory DlcInjectorModule::factory_;
+
 
 
 } // namespace skyland

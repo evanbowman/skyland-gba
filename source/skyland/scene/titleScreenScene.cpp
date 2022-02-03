@@ -319,9 +319,9 @@ static int module_page_count()
     const int count = module_count();
 
     int full_pages = count / modules_per_page;
-    int partial_pages = count % modules_per_page;
+    int partial_page = (count % modules_per_page) not_eq 0;
 
-    return full_pages + partial_pages;
+    return full_pages + partial_page;
 }
 
 
