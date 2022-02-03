@@ -94,7 +94,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
     }
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
-        room.health() < cannonball_damage) {
+        room.max_health() < cannonball_damage) {
         room.apply_damage(pfrm, app, 9999);
         return;
     }

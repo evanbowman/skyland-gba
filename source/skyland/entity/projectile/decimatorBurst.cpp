@@ -90,7 +90,7 @@ void DecimatorBurst::on_collision(Platform& pfrm, App& app, Room& room)
     }
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
-        room.health() < decimator_burst_damage) {
+        room.max_health() < decimator_burst_damage) {
         room.apply_damage(pfrm, app, 9999);
         return;
     }

@@ -108,7 +108,7 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
     }
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
-        room.health() < flak_r1_damage) {
+        room.max_health() < flak_r1_damage) {
         room.apply_damage(pfrm, app, 9999);
         return;
     }
