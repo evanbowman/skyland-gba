@@ -905,8 +905,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
                 if (auto room =
                         parent_island->get_room({e->db_x_pos_, e->db_y_pos_})) {
-                    if (auto db = dynamic_cast<DroneBay*>(room)) {
-                        db->attach_drone(pfrm, app, *drone);
+                    if (room->attach_drone(pfrm, app, *drone)) {
                         dest_island->drones().push(*drone);
                     } else {
                         Platform::fatal("rewind: attempt to attach drone to non"
@@ -971,6 +970,12 @@ void RewindScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     if (not app.time_stream().pushes_enabled()) {
         Platform::fatal("entering rewind scene with recording disabled");
+    }
+
+    if (auto p = dynamic_cast<WorldScene*>(&prev)) {
+        p->set_gamespeed(pfrm, app, GameSpeed::rewind);
+    } else {
+        Platform::fatal("entering rewind scene from non-overworld scene");
     }
 }
 

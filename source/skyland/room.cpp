@@ -89,6 +89,13 @@ void Room::set_injured(Platform& pfrm)
 
 
 
+const char* Room::name() const
+{
+    return (*metaclass())->name();
+}
+
+
+
 RoomMeta* Room::metaclass() const
 {
     return &room_metatable().first[metaclass_index_];
@@ -338,12 +345,6 @@ void Room::plot_walkable_zones(App& app, bool matrix[16][16])
 
 
 
-void Room::on_collision(Platform& pfrm, App& app, Entity& entity)
-{
-}
-
-
-
 void Room::apply_damage(Platform& pfrm, App& app, Health damage)
 {
     if (parent_ == &app.player_island()) {
@@ -513,6 +514,33 @@ void Room::ready()
     if (not dispatch_queued_) {
         parent_->dispatch_room(this);
     }
+}
+
+
+
+bool Room::attach_drone(Platform& pfrm, App&, SharedEntityRef<Drone>)
+{
+    warning(pfrm,
+            format("Attach drone to incompatible room %", name()).c_str());
+
+    return false;
+}
+
+
+
+void Room::detach_drone(Platform&, App&, bool quiet)
+{
+    // Unimplemented.
+}
+
+
+
+std::optional<SharedEntityRef<Drone>> Room::drone() const
+{
+    // Unimplemented.
+    // TODO: raise fatal error?
+
+    return {};
 }
 
 

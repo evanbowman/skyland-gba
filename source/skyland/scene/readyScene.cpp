@@ -343,6 +343,9 @@ void ReadyScene::display(Platform& pfrm, App& app)
 
     if (not(app.next_scene() and
             dynamic_cast<BoxedDialogScene*>(app.next_scene().get()))) {
+        // Don't draw the cursor if we're going into a dialog box. If we did,
+        // the cursor would flicker in and out for one frame during the scene in
+        // between two dialog boxes.
         pfrm.screen().draw(cursor);
     }
 

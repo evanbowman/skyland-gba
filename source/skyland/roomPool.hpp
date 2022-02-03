@@ -10,7 +10,9 @@
 namespace skyland {
 
 
+
 namespace room_pool {
+
 
 
 #ifdef __GBA__
@@ -25,12 +27,21 @@ static constexpr const int alignment = 8;
 
 struct RoomPools {
 public:
-    static const auto rooms_per_pool = 32;
+    // NOTE: each room occupies 52 bytes, plus a four byte freelist pointer, so
+    // 56 bytes, i.e. ~35 rooms fit in each pool, as pools are reified as
+    // scratch buffers (2k pages).
+    static const auto rooms_per_pool = 35;
     static const auto pool_count = pool_capacity / rooms_per_pool;
 
     static_assert(pool_count < 5,
                   "Just a sanity check. We want to understand memory usage "
                   "in the room pool.");
+
+
+    static constexpr int capacity()
+    {
+        return pool_count * rooms_per_pool;
+    }
 
 
     using RoomPool = Pool<max_room_size, rooms_per_pool, entity_pool_align>;
@@ -86,6 +97,7 @@ private:
 
 
 } // namespace room_pool
+
 
 
 } // namespace skyland

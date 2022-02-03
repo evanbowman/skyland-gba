@@ -108,6 +108,7 @@ void GlossaryViewerModule::exit(Platform& pfrm, App& app, Scene& next)
     item_name_.reset();
     item_details_.reset();
     item_description_.reset();
+    dependency_text_.reset();
 
     pfrm.fill_overlay(0);
 }

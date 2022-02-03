@@ -31,7 +31,8 @@ public:
 
     static u32 properties()
     {
-        return Hull::properties() | RoomProperties::disabled_in_tutorials;
+        return Hull::properties() | RoomProperties::disabled_in_tutorials |
+               RoomProperties::locked_by_default;
     }
 
 

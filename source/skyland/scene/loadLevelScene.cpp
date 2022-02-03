@@ -125,10 +125,10 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     auto& node = app.world_graph().nodes_[loc];
 
     for (auto& room : app.player_island().rooms()) {
-        if (auto db = dynamic_cast<DroneBay*>(room.get())) {
-            db->detach_drone(pfrm, app, true);
-        }
+        room->detach_drone(pfrm, app, true);
     }
+    app.player_island().drones().clear();
+
 
     switch (node.type_) {
     case WorldGraph::Node::Type::neutral:

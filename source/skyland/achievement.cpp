@@ -64,6 +64,14 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[strategist].reward_), awarded);
      }},
 
+    {"Stronghold",
+     "Build a castle with at least four power cores!",
+     "bronze-hull",
+     [](Platform&, App& app) { return app.player_island().core_count() > 3; },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[stronghold].reward_), awarded);
+     }},
+
     {"Sidequest",
      "Complete any quest!",
      "shrubbery",
@@ -132,7 +140,7 @@ Achievement update(Platform& pfrm, App& app)
 
     const u64 flag = 1 << check_achievement;
 
-    static_assert(Achievement::count < sizeof(flag * 8),
+    static_assert(Achievement::count < (sizeof(flag)  * 8),
                   "More than 64 achievements, i.e. achievement bit does not "
                   "fit in a u64.o");
 

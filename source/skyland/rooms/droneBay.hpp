@@ -93,16 +93,18 @@ public:
     }
 
 
-    std::optional<SharedEntityRef<Drone>> drone() const
+    std::optional<SharedEntityRef<Drone>> drone() const override
     {
         return drone_;
     }
 
 
-    void attach_drone(Platform& pfrm, App& app, SharedEntityRef<Drone> drone);
+    bool attach_drone(Platform& pfrm,
+                      App& app,
+                      SharedEntityRef<Drone> drone) override;
 
 
-    void detach_drone(Platform& pfrm, App& app, bool quiet = false);
+    void detach_drone(Platform& pfrm, App& app, bool quiet) override;
 
 
     void start_reload()

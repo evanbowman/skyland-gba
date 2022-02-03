@@ -4,6 +4,7 @@
 #include "rewindScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "swapOverlayTextureScene.hpp"
 
 
 
@@ -51,21 +52,29 @@ SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
         if ((GameSpeed)selection_ == GameSpeed::rewind) {
             if (app.time_stream().pushes_enabled()) {
                 set_gamespeed(pfrm, app, GameSpeed::stopped);
-                return scene_pool::alloc<RewindScene>();
+
+                return scene_pool::alloc<SwapOverlayTextureScene>(
+                    "overlay", scene_pool::make_deferred_scene<RewindScene>());
             } else {
                 set_gamespeed(pfrm, app, GameSpeed::stopped);
                 selection_ = (int)GameSpeed::stopped;
                 repaint_selector(pfrm);
 
-                auto future_scene = []() {
-                    return scene_pool::alloc<ReadyScene>();
-                };
-                const char* msg = "rewind disabled!";
-                return scene_pool::alloc<NotificationScene>(msg, future_scene);
+                return scene_pool::alloc<SwapOverlayTextureScene>(
+                    "overlay", [] {
+                        auto future_scene = []() {
+                            return scene_pool::alloc<ReadyScene>();
+                        };
+                        const char* msg = "rewind disabled!";
+                        return scene_pool::alloc<NotificationScene>(
+                            msg, future_scene);
+                    });
             }
         } else {
             set_gamespeed(pfrm, app, (GameSpeed)selection_);
-            return scene_pool::alloc<ReadyScene>();
+
+            return scene_pool::alloc<SwapOverlayTextureScene>(
+                "overlay", scene_pool::make_deferred_scene<ReadyScene>());
         }
     }
 
@@ -157,10 +166,8 @@ void SetGamespeedScene::repaint_selector(Platform& pfrm)
 
 void SetGamespeedScene::exit(Platform& pfrm, App& app, Scene&)
 {
-    pfrm.load_overlay_texture("overlay");
     speed_text_.reset();
     pfrm.fill_overlay(0);
-    set_gamespeed(pfrm, app, (GameSpeed)selection_);
 }
 
 

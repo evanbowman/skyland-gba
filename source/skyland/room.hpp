@@ -24,8 +24,8 @@ class App;
 class Entity;
 class Island;
 class RoomMeta;
-class Cannonball;
 class BasicCharacter;
+class Drone;
 
 
 
@@ -60,6 +60,16 @@ struct RoomProperties {
 
         // Do not render a chimney above this room in any circumstances
         disallow_chimney = (1 << 8),
+
+        // Takes ion damage
+        accepts_ion_damage = (1 << 9),
+
+        // Fizzles ion damage
+        cancels_ion_damage = (1 << 10),
+
+        // The engine is allowed to render a flagpole on top of this room
+        flag_mount = (1 << 11),
+
     };
 };
 
@@ -177,13 +187,33 @@ public:
     virtual void finalize(Platform& pfrm, App& app);
 
 
-    void on_collision(Platform& pfrm, App& app, Entity& entity);
+    Health health() const
+    {
+        return health_;
+    }
+
+
+    Health max_health() const;
+
+
+    void heal(Platform& pfrm, App& app, Health amount);
+
+
+    // DO NOT CALL __set_health()! Intended for rewind, multiplayer, and very
+    // niche purposes.
+    void __set_health(Health amount)
+    {
+        health_ = amount;
+    }
 
 
     void apply_damage(Platform&, App&, Health damage);
 
 
     void plunder(Platform&, App&, Health damage);
+
+
+    void reset_injured_timer(Microseconds value);
 
 
     virtual void plot_walkable_zones(App& app, bool matrix[16][16]);
@@ -195,7 +225,7 @@ public:
     MetaclassIndex metaclass_index() const;
 
 
-    void reset_injured_timer(Microseconds value);
+    const char* name() const;
 
 
     Vec2<Float> origin() const;
@@ -213,12 +243,6 @@ public:
     EntityList<BasicCharacter>& characters()
     {
         return characters_;
-    }
-
-
-    Health health() const
-    {
-        return health_;
     }
 
 
@@ -252,18 +276,6 @@ public:
     }
 
 
-    Health max_health() const;
-
-
-    void heal(Platform& pfrm, App& app, Health amount);
-
-
-    void __set_health(Health amount)
-    {
-        health_ = amount;
-    }
-
-
     virtual bool description_visible();
 
 
@@ -285,6 +297,11 @@ public:
     void ready();
 
 
+    virtual bool attach_drone(Platform&, App&, SharedEntityRef<Drone>);
+    virtual void detach_drone(Platform&, App&, bool quiet);
+    virtual std::optional<SharedEntityRef<Drone>> drone() const;
+
+
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 
@@ -302,6 +319,10 @@ private:
 
     u8 finalized_ : 1;
     u8 dispatch_queued_ : 1;
+
+    // NOTE: These flags are reserved for stuff unique to a specific instance of
+    // a room. If you want to set properties for an entire class of rooms, use
+    // RoomProperties, and retrieve the field from the metaclass.
     u8 reserved_flags0_ : 8;
 
     Vec2<u8> position_;

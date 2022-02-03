@@ -38,7 +38,7 @@ public:
 
     static u32 properties()
     {
-        return RoomProperties::roof_hidden;
+        return RoomProperties::roof_hidden | RoomProperties::flag_mount;
     }
 
 

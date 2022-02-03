@@ -856,7 +856,9 @@ void ConstructionScene::exit(Platform& pfrm, App& app, Scene& next)
         // We do not want the menus to flicker between scenes when we switch
         // between two construction scenes, so disable cleanup for text. Only
         // really happens in sandbox mode, where you can build on either your
-        // own castle or the opponent's.
+        // own castle or the opponent's. dynamic_cast<> because it's such an
+        // obscure edge case and I don't have time to fix it correctly right
+        // now.
         text_->__detach();
     } else {
         text_.reset();

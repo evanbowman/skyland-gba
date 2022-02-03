@@ -29,13 +29,10 @@
 
 
 
-
-
 void __stack_chk_fail(void)
 {
     Platform::fatal("Stack smashing detected.");
 }
-
 
 
 
@@ -114,7 +111,6 @@ static bool overlay_back_buffer_changed = false;
 
 alignas(4) static EWRAM_DATA u16 sp_palette_back_buffer[16];
 alignas(4) static EWRAM_DATA u16 bg_palette_back_buffer[256];
-
 
 
 
@@ -842,7 +838,9 @@ Color adjust_warmth(const Color& c, int amount)
 
 ColorConstant grayscale_shader(int palette, ColorConstant k, int arg)
 {
-    return Color::from_bgr_hex_555(blend(Color(k), Color(k).grayscale(), (u8)arg)).hex();
+    return Color::from_bgr_hex_555(
+               blend(Color(k), Color(k).grayscale(), (u8)arg))
+        .hex();
 }
 
 
@@ -857,9 +855,9 @@ ColorConstant contrast_shader(int palette, ColorConstant k, int arg)
     const auto g = clamp(f * (Color::upsample(c.g_) - 128) + 128, 0.f, 255.f);
     const auto b = clamp(f * (Color::upsample(c.b_) - 128) + 128, 0.f, 255.f);
 
-    return Color(Color::downsample(r),
-                 Color::downsample(g),
-                 Color::downsample(b)).hex();
+    return Color(
+               Color::downsample(r), Color::downsample(g), Color::downsample(b))
+        .hex();
 }
 
 
@@ -899,14 +897,13 @@ static u16 background_palette[16];
 
 
 
-static void
-init_palette(const TextureData* td, u16* palette, int palette_id)
+static void init_palette(const TextureData* td, u16* palette, int palette_id)
 {
     for (int i = 0; i < 16; ++i) {
         palette[i] =
-            invoke_shader(Color::from_bgr_hex_555(td->palette_data_[i]), palette_id)
-            .bgr_hex_555();
-
+            invoke_shader(Color::from_bgr_hex_555(td->palette_data_[i]),
+                          palette_id)
+                .bgr_hex_555();
     }
 }
 

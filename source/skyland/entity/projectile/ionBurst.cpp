@@ -113,19 +113,10 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
         }
     }
 
-    const bool is_reactor = str_eq((*room.metaclass())->name(), "reactor");
-
-    const bool is_field_hull =
-        str_eq((*room.metaclass())->name(), "energized-hull");
-
-    const bool is_ion_fizzler =
-        str_eq((*room.metaclass())->name(), "ion-fizzler");
-
-    if (room.metaclass() not_eq forcefield_mt and not is_field_hull and
-        not is_ion_fizzler and not is_reactor) {
+    if (not((*room.metaclass())->properties() &
+            RoomProperties::accepts_ion_damage)) {
         return;
     }
-
 
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -154,10 +145,11 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
     app.camera().shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
-    if (not is_ion_fizzler) {
-        room.apply_damage(pfrm, app, ion_burst_damage);
-    } else {
+    if ((*room.metaclass())->properties() &
+        RoomProperties::cancels_ion_damage) {
         sound_fizzle.play(pfrm, 1);
+    } else {
+        room.apply_damage(pfrm, app, ion_burst_damage);
     }
 }
 

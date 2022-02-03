@@ -194,39 +194,37 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.player().key_down(pfrm, Key::action_1)) {
         if ((*matrix_)[cursor_loc->x][cursor_loc->y]) {
             if (auto room = app.player_island().get_room(origin_)) {
-                if (auto db = dynamic_cast<DroneBay*>(room)) {
-                    if (auto drone =
-                            (*drone_class_)
-                                ->create(
-                                    room->parent(),
-                                    island,
-                                    Vec2<u8>{origin_.x, u8(origin_.y - 1)})) {
-                        (*drone)->set_movement_target(*cursor_loc);
-                        db->attach_drone(pfrm, app, *drone);
-                        db->start_reload();
-                        island->drones().push(*drone);
+                if (auto drone =
+                        (*drone_class_)
+                            ->create(room->parent(),
+                                     island,
+                                     Vec2<u8>{origin_.x, u8(origin_.y - 1)})) {
+                    (*drone)->set_movement_target(*cursor_loc);
 
-                        app.set_coins(pfrm,
-                                      app.coins() - (*drone_class_)->cost());
-
-                        network::packet::DroneSpawn spawn;
-                        spawn.origin_x_ = origin_.x;
-                        spawn.origin_y_ = origin_.y - 1;
-
-                        spawn.deploy_x_ = cursor_loc->x;
-                        spawn.deploy_y_ = cursor_loc->y;
-
-                        spawn.destination_near_ =
-                            island == &app.player_island();
-
-                        spawn.drone_class_ =
-                            DroneMeta::index((*drone_class_)->name());
-
-                        network::transmit(pfrm, spawn);
-
-
+                    if (not room->attach_drone(pfrm, app, *drone)) {
                         return scene_pool::alloc<ReadyScene>();
                     }
+
+                    island->drones().push(*drone);
+
+                    app.set_coins(pfrm, app.coins() - (*drone_class_)->cost());
+
+                    network::packet::DroneSpawn spawn;
+                    spawn.origin_x_ = origin_.x;
+                    spawn.origin_y_ = origin_.y - 1;
+
+                    spawn.deploy_x_ = cursor_loc->x;
+                    spawn.deploy_y_ = cursor_loc->y;
+
+                    spawn.destination_near_ = island == &app.player_island();
+
+                    spawn.drone_class_ =
+                        DroneMeta::index((*drone_class_)->name());
+
+                    network::transmit(pfrm, spawn);
+
+
+                    return scene_pool::alloc<ReadyScene>();
                 }
             }
         }

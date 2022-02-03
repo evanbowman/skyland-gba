@@ -23,6 +23,7 @@ private:
     std::optional<Text> speed_text_;
 
     int selection_ = 0;
+    bool cleared = false;
 };
 
 

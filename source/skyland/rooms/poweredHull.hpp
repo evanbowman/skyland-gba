@@ -74,7 +74,8 @@ public:
 
     static u32 properties()
     {
-        return RoomProperties::foundry_required | RoomProperties::roof_hidden;
+        return RoomProperties::foundry_required | RoomProperties::roof_hidden |
+               RoomProperties::accepts_ion_damage;
     }
 };
 

@@ -318,16 +318,15 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             for (auto& room : app.player_island().rooms()) {
-                if (auto db = dynamic_cast<DroneBay*>(room.get())) {
-                    db->detach_drone(pfrm, app, true);
-                }
+                room->detach_drone(pfrm, app, true);
             }
 
             for (auto& room : app.opponent_island()->rooms()) {
-                if (auto db = dynamic_cast<DroneBay*>(room.get())) {
-                    db->detach_drone(pfrm, app, true);
-                }
+                room->detach_drone(pfrm, app, true);
             }
+
+            app.player_island().drones().clear();
+            app.opponent_island()->drones().clear();
         }
         break;
 

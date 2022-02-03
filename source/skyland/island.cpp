@@ -646,7 +646,6 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
 
                     if (room_hitbox.overlapping(entity.hitbox())) {
                         entity.on_collision(pfrm, app, *room);
-                        room->on_collision(pfrm, app, entity);
                         return;
                     }
                 }
@@ -857,6 +856,7 @@ void Island::repaint(Platform& pfrm, App& app)
     has_radar_ = false;
     foundry_count_ = 0;
     workshop_count_ = 0;
+    core_count_ = 0;
     for (auto& room : rooms_) {
         if ((*room->metaclass())->properties() & RoomProperties::has_chimney) {
             chimney_locs.push_back(room->position().x);
@@ -868,6 +868,8 @@ void Island::repaint(Platform& pfrm, App& app)
             ++workshop_count_;
         } else if (str_cmp((*metac)->name(), "manufactory") == 0) {
             ++foundry_count_;
+        } else if ((*room->metaclass())->category() == Room::Category::power) {
+            ++core_count_;
         }
     }
 
@@ -929,9 +931,8 @@ void Island::repaint(Platform& pfrm, App& app)
                     if (not placed_chimney_this_tile and show_flag_ and
                         not placed_flag and y > 1 and matrix[x][y - 1] == 0) {
                         if (auto room = get_room({x, (u8)(y + 1)})) {
-                            if (str_eq((*room->metaclass())->name(), "hull") or
-                                str_eq((*room->metaclass())->name(),
-                                       "masonry")) {
+                            if ((*room->metaclass())->properties() &
+                                RoomProperties::flag_mount) {
                                 placed_flag = true;
                                 buffer[x][y] = Tile::flag_mount;
                                 buffer[x][y - 1] = Tile::flag_start;

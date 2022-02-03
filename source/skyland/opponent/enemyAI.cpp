@@ -18,6 +18,13 @@
 
 
 // I wrote this AI code frantically for a game jam. I know it's kind of a mess.
+// P.S.:
+// A few months after the game jam: realistically, I'm not going to rewrite this
+// code, because it works just fine and I have a deadline. But really, some of
+// the worst code I've ever written.
+// Really, this is write-once throwaway code.
+// It's just embarassing though, I'm a professional, this is my job, and I write
+// something like this. Oh well. Sometimes you have to ship something. :)
 
 
 

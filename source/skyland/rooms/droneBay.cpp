@@ -34,7 +34,7 @@ void DroneBay::update(Platform& pfrm, App& app, Microseconds delta)
     Room::ready();
 
     if (drone_ and not(*drone_)->alive()) {
-        detach_drone(pfrm, app);
+        detach_drone(pfrm, app, false);
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
@@ -67,7 +67,7 @@ void DroneBay::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     if (drone_ and not(*drone_)->alive()) {
         ___rewind___ability_used(pfrm, app);
-        detach_drone(pfrm, app);
+        detach_drone(pfrm, app, false);
     }
 
     if (reload_ <= 0) {
@@ -164,14 +164,18 @@ ScenePtr<Scene> DroneBay::select(Platform& pfrm, App& app)
 
 
 
-void DroneBay::attach_drone(Platform& pfrm,
+bool DroneBay::attach_drone(Platform& pfrm,
                             App& app,
                             SharedEntityRef<Drone> drone)
 {
     if (drone_) {
-        detach_drone(pfrm, app);
+        detach_drone(pfrm, app, false);
     }
     drone_ = drone;
+
+    start_reload();
+
+    return true;
 }
 
 
@@ -204,7 +208,7 @@ void DroneBay::finalize(Platform& pfrm, App& app)
 {
     Room::finalize(pfrm, app);
 
-    detach_drone(pfrm, app);
+    detach_drone(pfrm, app, false);
 }
 
 

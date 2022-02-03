@@ -48,6 +48,9 @@ public:
     }
 
 
+    void set_gamespeed(Platform& pfrm, App& app, GameSpeed speed);
+
+
 protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;
@@ -55,7 +58,6 @@ protected:
     Microseconds camera_update_timer_ = 0;
 
     void reset_gamespeed(Platform& pfrm, App& app);
-    void set_gamespeed(Platform& pfrm, App& app, GameSpeed speed);
 
 private:
     void set_pause_icon(Platform& pfrm, u16 icon);
