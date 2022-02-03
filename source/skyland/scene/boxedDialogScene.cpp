@@ -239,8 +239,6 @@ void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 void BoxedDialogScene::exit(Platform& pfrm, App& app, Scene& prev)
 {
-    invoke_hook(pfrm, app, "on-dialog-closed");
-
     pfrm.fill_overlay(0);
 
     pfrm.load_overlay_texture("overlay");
@@ -380,6 +378,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         animate_moretext_icon();
         if (key_down<Key::action_2>(pfrm) or key_down<Key::action_1>(pfrm)) {
+            invoke_hook(pfrm, app, "on-dialog-closed");
             display_mode_ = DisplayMode::animate_out;
         }
         break;
