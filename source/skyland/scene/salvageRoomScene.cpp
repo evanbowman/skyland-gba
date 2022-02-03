@@ -56,20 +56,11 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     if (auto room = island(app)->get_room(cursor_loc)) {
         if (auto mt = room->metaclass()) {
-            if (str_eq((*mt)->name(), "power-core") or
-                str_eq((*mt)->name(), "reactor")) {
-                int core_count = 0;
-                for (auto& room : island(app)->rooms()) {
-                    if (str_eq((*room->metaclass())->name(), "power-core") or
-                        str_eq((*room->metaclass())->name(), "reactor")) {
-                        core_count++;
-                    }
-                }
-                if (core_count == 1) {
-                    // That would be suicide! You can't salvage your island's
-                    // only power core.
-                    exit_countdown_ = 1;
-                }
+            if ((*mt)->category() == Room::Category::power and
+                island(app)->core_count() == 1) {
+                // That would be suicide! You can't salvage your island's
+                // only power core.
+                exit_countdown_ = 1;
             }
             text += stringify(salvage_value(*room));
         } else {

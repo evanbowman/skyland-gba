@@ -162,15 +162,7 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
         if ((*it)->health() == 0) {
             it = projectiles.erase(it);
         } else {
-            // FIXME: I was casting before Entity implemented
-            // rewind(). Projectile implemented an interface for rewind() before
-            // Entity did. Now, this check is unnecessary.
-            if (auto p = dynamic_cast<Projectile*>(&**it)) {
-                p->rewind(pfrm, app, delta);
-            } else {
-                // Raise error: why is a non-projectile in the island's
-                // projectile list?
-            }
+            (*it)->rewind(pfrm, app, delta);
             ++it;
         }
     }
