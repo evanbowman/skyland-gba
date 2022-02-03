@@ -61,7 +61,7 @@ public:
 
     static u32 properties()
     {
-        return RoomProperties::foundry_required | RoomProperties::has_chimney |
+        return RoomProperties::manufactory_required | RoomProperties::has_chimney |
                RoomProperties::accepts_ion_damage;
     }
 };

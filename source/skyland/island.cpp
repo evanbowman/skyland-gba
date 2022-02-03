@@ -846,7 +846,7 @@ void Island::repaint(Platform& pfrm, App& app)
     Buffer<u8, terrain_.capacity()> chimney_locs;
 
     has_radar_ = false;
-    foundry_count_ = 0;
+    manufactory_count_ = 0;
     workshop_count_ = 0;
     core_count_ = 0;
     for (auto& room : rooms_) {
@@ -859,7 +859,7 @@ void Island::repaint(Platform& pfrm, App& app)
         } else if (str_cmp((*metac)->name(), "workshop") == 0) {
             ++workshop_count_;
         } else if (str_cmp((*metac)->name(), "manufactory") == 0) {
-            ++foundry_count_;
+            ++manufactory_count_;
         } else if ((*room->metaclass())->category() == Room::Category::power) {
             ++core_count_;
         }

@@ -51,7 +51,7 @@ static Sound sound_openbag("openbag");
 static Coins get_cost(Island* island, const RoomMeta& meta)
 {
     Coins cost = meta->cost();
-    for (int i = 0; i < island->workshop_count() + island->foundry_count();
+    for (int i = 0; i < island->workshop_count() + island->manufactory_count();
          ++i) {
         cost *= 0.9f;
     }
@@ -746,9 +746,9 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 
 
     const auto w_count =
-        island(app)->workshop_count() + island(app)->foundry_count();
+        island(app)->workshop_count() + island(app)->manufactory_count();
 
-    const auto f_count = island(app)->foundry_count();
+    const auto f_count = island(app)->manufactory_count();
 
     auto metatable = room_metatable();
     for (MetaclassIndex i = 0; i < metatable.second; ++i) {
@@ -769,11 +769,11 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         const bool workshop_required =
             (meta->properties() & RoomProperties::workshop_required);
 
-        const bool foundry_required =
-            (meta->properties() & RoomProperties::foundry_required);
+        const bool manufactory_required =
+            (meta->properties() & RoomProperties::manufactory_required);
 
         const bool dependencies_satisfied =
-            (not foundry_required or (foundry_required and f_count > 0) or
+            (not manufactory_required or (manufactory_required and f_count > 0) or
              app.game_mode() == App::GameMode::sandbox) and
             (not workshop_required or (workshop_required and w_count > 0) or
              app.game_mode() == App::GameMode::sandbox);

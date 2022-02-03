@@ -182,9 +182,9 @@ public:
     }
 
 
-    u8 foundry_count() const
+    u8 manufactory_count() const
     {
-        return foundry_count_;
+        return manufactory_count_;
     }
 
 
@@ -311,7 +311,7 @@ private:
     bool has_radar_ = false;
     bool is_boarded_ = false;
     u8 workshop_count_ = 0;
-    u8 foundry_count_ = 0;
+    u8 manufactory_count_ = 0;
     u8 core_count_ = 0;
 
     bool destroyed_ = false;

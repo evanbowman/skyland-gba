@@ -34,7 +34,7 @@ public:
     static u32 properties()
     {
         return Weapon::properties() | RoomProperties::roof_hidden |
-               RoomProperties::foundry_required;
+               RoomProperties::manufactory_required;
     }
 
 

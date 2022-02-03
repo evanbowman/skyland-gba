@@ -81,7 +81,7 @@ public:
 
     static u32 properties()
     {
-        return RoomProperties::foundry_required | RoomProperties::roof_hidden;
+        return RoomProperties::manufactory_required | RoomProperties::roof_hidden;
     }
 };
 

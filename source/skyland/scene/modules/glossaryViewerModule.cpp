@@ -54,7 +54,7 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
         dependency_text_->assign("(requires workshop)",
                                  FontColors{ColorConstant::med_blue_gray,
                                             ColorConstant::rich_black});
-    } else if (cond & RoomProperties::foundry_required) {
+    } else if (cond & RoomProperties::manufactory_required) {
         dependency_text_->assign("(requires manufactory)",
                                  FontColors{ColorConstant::med_blue_gray,
                                             ColorConstant::rich_black});

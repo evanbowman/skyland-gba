@@ -172,7 +172,6 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
   ${SOURCE_DIR}/skyland/rooms/weapon.cpp
   ${SOURCE_DIR}/skyland/rooms/flakGun.cpp
-  ${SOURCE_DIR}/skyland/rooms/foundry.cpp
   ${SOURCE_DIR}/skyland/rooms/reactor.cpp
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
   ${SOURCE_DIR}/skyland/rooms/nemesis.cpp
@@ -189,6 +188,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/forcefield.cpp
   ${SOURCE_DIR}/skyland/rooms/bronzeHull.cpp
   ${SOURCE_DIR}/skyland/rooms/poweredHull.cpp
+  ${SOURCE_DIR}/skyland/rooms/manufactory.cpp
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
   ${SOURCE_DIR}/skyland/rooms/transporter.cpp
   ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp

@@ -12,7 +12,7 @@
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/forcefield.hpp"
-#include "skyland/rooms/foundry.hpp"
+#include "skyland/rooms/manufactory.hpp"
 #include "skyland/rooms/hull.hpp"
 #include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/ionCannon.hpp"
@@ -100,7 +100,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         MissileSilo,
                                         // factories
                                         Workshop,
-                                        Foundry,
+                                        Manufactory,
                                         // power generation
                                         Core,
                                         Reactor,

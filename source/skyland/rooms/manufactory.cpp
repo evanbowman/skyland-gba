@@ -1,4 +1,4 @@
-#include "foundry.hpp"
+#include "manufactory.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -7,7 +7,7 @@ namespace skyland {
 
 
 
-void Foundry::format_description(StringBuffer<512>& buffer)
+void Manufactory::format_description(StringBuffer<512>& buffer)
 {
     buffer += "An upgraded workshop. "
               "Slightly lowers the construction cost of all rooms. ";
@@ -15,37 +15,37 @@ void Foundry::format_description(StringBuffer<512>& buffer)
 
 
 
-Foundry::Foundry(Island* parent, const Vec2<u8>& position)
+Manufactory::Manufactory(Island* parent, const Vec2<u8>& position)
     : Room(parent, name(), position)
 {
 }
 
 
 
-void Foundry::update(Platform& pfrm, App& app, Microseconds delta)
+void Manufactory::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 }
 
 
 
-void Foundry::render_interior(App& app, u8 buffer[16][16])
+void Manufactory::render_interior(App& app, u8 buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;
 
-    buffer[x][y] = InteriorTile::foundry_1;
-    buffer[x + 1][y] = InteriorTile::foundry_2;
-    buffer[x + 2][y] = InteriorTile::foundry_3;
+    buffer[x][y] = InteriorTile::manufactory_1;
+    buffer[x + 1][y] = InteriorTile::manufactory_2;
+    buffer[x + 2][y] = InteriorTile::manufactory_3;
 
-    buffer[x][y + 1] = InteriorTile::foundry_4;
-    buffer[x + 1][y + 1] = InteriorTile::foundry_5;
+    buffer[x][y + 1] = InteriorTile::manufactory_4;
+    buffer[x + 1][y + 1] = InteriorTile::manufactory_5;
     buffer[x + 2][y + 1] = InteriorTile::plain_floor;
 }
 
 
 
-void Foundry::render_exterior(App& app, u8 buffer[16][16])
+void Manufactory::render_exterior(App& app, u8 buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;

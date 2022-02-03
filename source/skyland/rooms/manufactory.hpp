@@ -10,9 +10,9 @@ namespace skyland {
 
 
 
-class Foundry : public Room {
+class Manufactory : public Room {
 public:
-    Foundry(Island* parent, const Vec2<u8>& position);
+    Manufactory(Island* parent, const Vec2<u8>& position);
 
 
     void update(Platform&, App&, Microseconds delta);

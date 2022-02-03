@@ -42,8 +42,8 @@ struct RoomProperties {
         // Room is a plugin, i.e. implemented as DLC
         plugin = (1 << 2),
 
-        // Foundry required to build this room
-        foundry_required = (1 << 3),
+        // Manufactory required to build this room
+        manufactory_required = (1 << 3),
 
         // Do not show this room in the construction menu for tutorial mode
         disabled_in_tutorials = (1 << 4),

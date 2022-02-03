@@ -144,9 +144,8 @@ Root load_root(Platform& pfrm);
 
 
 
-template <typename F> void walk_directory(Platform& pfrm,
-                                          const char* directory,
-                                          F callback)
+template <typename F>
+void walk_directory(Platform& pfrm, const char* directory, F callback)
 {
     walk(pfrm, [callback, directory](const char* path) {
         auto remainder = starts_with(directory, StringBuffer<max_path>(path));
