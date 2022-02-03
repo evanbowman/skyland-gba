@@ -100,12 +100,10 @@ ReplicatorSelectionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::action_1)) {
             exit_countdown_ = milliseconds(500);
             if (auto room = island->get_room(cursor_loc)) {
-                if (auto r = dynamic_cast<Replicator*>(room)) {
-                    if (r->create_replicant(pfrm, app)) {
-                        app.set_coins(pfrm, app.coins() - replicator_fee);
-                    }
-                    return scene_pool::alloc<ReadyScene>();
+                if (room->create_replicant(pfrm, app)) {
+                    app.set_coins(pfrm, app.coins() - replicator_fee);
                 }
+                return scene_pool::alloc<ReadyScene>();
             }
         }
     }

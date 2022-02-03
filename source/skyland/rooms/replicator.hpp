@@ -55,7 +55,7 @@ public:
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
-    bool create_replicant(Platform& pfrm, App& app);
+    bool create_replicant(Platform& pfrm, App& app) override;
 
 
     static RoomProperties::Value properties()

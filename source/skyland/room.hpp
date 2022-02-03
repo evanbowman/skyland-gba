@@ -302,6 +302,12 @@ public:
     virtual std::optional<SharedEntityRef<Drone>> drone() const;
 
 
+    virtual bool create_replicant(Platform& pfrm, App& app)
+    {
+        return false;
+    }
+
+
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 
