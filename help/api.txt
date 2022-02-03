@@ -150,6 +150,17 @@ o----------------------------o
  on-dialog-declined.
 
 
+ NOTE: if you call
+ dialog-await-y/n, the
+ on-dialog-closed hook will
+ not be called when closing
+ the current dialog.
+ Otherwise, it wouldn't be
+ possible to create a new
+ and distinct dialog from an
+ on-dialog-accepted hook!
+
+
 o----------------------------o
 
  (dialog-decor name icon)
