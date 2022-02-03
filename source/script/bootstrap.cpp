@@ -12,6 +12,12 @@
 static int scratch_buffers_in_use = 0;
 
 
+void Platform::stackcheck()
+{
+    // ...
+}
+
+
 rng::Value rng::get(LinearGenerator& gen)
 {
     gen = 1664525 * gen + 1013904223;

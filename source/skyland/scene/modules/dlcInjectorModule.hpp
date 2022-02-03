@@ -37,7 +37,7 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
-    bool begin_load_;
+    bool begin_load_ = false;
 
 
     static Factory factory_;

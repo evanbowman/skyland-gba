@@ -87,6 +87,7 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 " ROM, or an e-Reader card, connect a link cable to install "
                 " updates. Press A when ready...";
         } else {
+            Platform::fatal(stringify(pfrm.device_name().length()).c_str());
             return scene_pool::alloc<TitleScreenScene>(3);
         }
 

@@ -21,7 +21,8 @@ add_executable(LISP
 
 
 target_compile_options(LISP PRIVATE
-  -g3)
+  -g3
+  -O3)
 
 
 add_executable(LISPC

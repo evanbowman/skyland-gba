@@ -182,15 +182,28 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/shopModule.cpp)
 
 
-set(SOURCES
-  ${SOURCES}
+
+set(LISP_SOURCES
   ${SOURCE_DIR}/script/lisp.cpp
   ${SOURCE_DIR}/script/compiler.cpp
   ${SOURCE_DIR}/script/vm.cpp)
 
 
-set(SOURCES
-  ${SOURCES})
+add_library(LISP ${LISP_SOURCES})
+
+
+target_compile_options(LISP PRIVATE
+  -g
+  -O3
+  -Wall
+  -Werror
+  -pedantic
+  -nostdlib
+  -ffast-math
+  -fno-math-errno
+  -Wdouble-promotion
+  -fstack-protector-strong
+  -fomit-frame-pointer)
 
 
 
@@ -530,6 +543,8 @@ if(GAMEBOY_ADVANCE)
   # other variables set in the toolchain file seem to be persistent...
   set(CMAKE_AR $ENV{DEVKITARM}/bin/arm-none-eabi-ar)
 
+
+
   add_library(ARM_ROUTINES ${SOURCE_DIR}/platform/gba/gba_arm_routines.cpp)
 
   target_compile_options(ARM_ROUTINES PRIVATE
@@ -597,6 +612,13 @@ if(GAMEBOY_ADVANCE)
     "-mthumb -mthumb-interwork -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"
     CACHE INTERNAL "" FORCE)
 
+  target_compile_options(LISP PRIVATE
+    -mthumb
+    -mthumb-interwork
+    -mcpu=arm7tdmi
+    -mtune=arm7tdmi
+    -D__GBA__)
+
   target_link_libraries(SkylandEngine PRIVATE
     # ${DEVKITPRO}/libgba/lib/libgba.a
     ARM_ROUTINES)
@@ -612,8 +634,8 @@ if(GAMEBOY_ADVANCE)
     COMMAND ${DEVKITARM}/bin/arm-none-eabi-objcopy -O binary SkylandEngine SkylandEngine.gba
     # NOTE: using DrillDozer's ROM id code for testing purposes, because many
     # emulator developers do not give you the option to manually override which
-    # gamepacks support gpio rumble. SkylandEngine's actual ROM code was originally CBJE.
-    COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSkyEngine -cV49E -r0 -mEB SkylandEngine.gba)
+    # gamepacks support gpio rumble.
+    COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSkyEngine2 -cV49E -r0 -mEB SkylandEngine.gba)
 
   target_compile_options(SkylandEngine PRIVATE
     -D__GBA__)
@@ -654,6 +676,10 @@ endif()
 
 target_compile_options(SkylandEngine PRIVATE
   ${SHARED_COMPILE_OPTIONS})
+
+
+
+target_link_libraries(SkylandEngine PRIVATE LISP)
 
 
 

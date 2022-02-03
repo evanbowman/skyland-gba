@@ -154,19 +154,12 @@ struct BiosVersion {
 };
 
 
+
 Platform::DeviceName Platform::device_name() const
 {
-    switch (BiosCheckSum()) {
-    case BiosVersion::NDS:
-        return "NintendoDS";
-
-    case BiosVersion::GBA:
-        return "GameboyAdvance";
-
-    default:
-        return "Unknown";
-    }
+    return "GameboyAdvance";
 }
+
 
 
 // These word and halfword versions of memcpy are written in assembly. They use
