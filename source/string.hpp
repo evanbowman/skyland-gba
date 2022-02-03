@@ -77,21 +77,26 @@ template <u32 Capacity, typename Memory> class StringAdapter {
 public:
     using Buffer = Memory;
 
-    template <typename... MemArgs>
-    StringAdapter(const char* init, MemArgs&&... mem_args)
-        : mem_(std::forward<MemArgs>(mem_args)...)
+    StringAdapter(const char* init)
     {
+        while (*init not_eq '\0') {
+            mem_.push_back(*init);
+            ++init;
+        }
+
+        if (mem_.full()) {
+            mem_.pop_back();
+        }
+
         mem_.push_back('\0');
-        (*this) += init;
     }
 
-    template <typename... MemArgs>
-    StringAdapter(char c, u32 count, MemArgs&&... mem_args)
-        : mem_(std::forward<MemArgs>(mem_args)...)
+    StringAdapter(char c, int fill_count)
     {
-        while (count--) {
+        for (int i = 0; i < std::min((int)Capacity - 1, fill_count); ++i) {
             mem_.push_back(c);
         }
+        mem_.push_back('\0');
     }
 
     StringAdapter()
@@ -119,15 +124,15 @@ public:
     }
 
 
-    const StringAdapter& operator=(StringAdapter&& other)
-    {
-        clear();
+    // const StringAdapter& operator=(StringAdapter&& other)
+    // {
+    //     clear();
 
-        for (auto it = other.begin(); it not_eq other.end(); ++it) {
-            push_back(*it);
-        }
-        return *this;
-    }
+    //     for (auto it = other.begin(); it not_eq other.end(); ++it) {
+    //         push_back(*it);
+    //     }
+    //     return *this;
+    // }
 
 
     template <u32 OtherCapacity, typename OtherMem>
@@ -209,7 +214,10 @@ public:
     {
         this->clear();
 
-        *this += str;
+        while (*str not_eq '\0') {
+            push_back(*str);
+            ++str;
+        }
 
         return *this;
     }
@@ -255,8 +263,67 @@ private:
 };
 
 
+
 template <u32 Capacity>
 using StringBuffer = StringAdapter<Capacity, Buffer<char, Capacity + 1>>;
+
+
+
+//
+// Returns a pointer to the trailing text, if finds the match string. Otherwise,
+// returns nullptr;
+//
+template <u32 Capacity>
+const char* starts_with(const char* match, const StringBuffer<Capacity>& buffer)
+{
+    auto it = buffer.begin();
+    while (*match not_eq '\0' and it not_eq buffer.end()) {
+        if (*match not_eq *it) {
+            return nullptr;
+        }
+
+        ++match;
+        ++it;
+    }
+
+    if (*match not_eq '\0') {
+        return nullptr;
+    }
+
+    if (it == buffer.end()) {
+        return nullptr;
+    }
+
+    return it;
+}
+
+
+
+template <u32 Capacity, u32 MatchCapacity>
+bool ends_with(const StringBuffer<MatchCapacity>& match,
+               const StringBuffer<Capacity>& buffer)
+{
+    if (buffer.empty()) {
+        return false;
+    }
+
+    if (buffer.length() <= match.length()) {
+        return false;
+    }
+
+    auto it1 = buffer.end() - 1;
+    auto it2 = match.end() - 1;
+    while (it2 not_eq match.begin()) {
+        if (*it1 not_eq *it2) {
+            return false;
+        }
+
+        --it1;
+        --it2;
+    }
+
+    return true;
+}
 
 
 

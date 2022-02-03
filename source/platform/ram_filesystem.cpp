@@ -10,6 +10,17 @@ int fs_begin_offset;
 
 
 
+static bool mounted = false;
+
+
+
+bool is_mounted()
+{
+    return mounted;
+}
+
+
+
 std::optional<ScratchBufferPtr> path_cache_;
 
 
@@ -67,9 +78,9 @@ Statistics statistics(Platform& pfrm)
 
 
 
-void store_root(Platform& pfrm, const Root& root)
+bool store_root(Platform& pfrm, const Root& root)
 {
-    pfrm.write_save_data(&root, sizeof root, fs_offset());
+    return pfrm.write_save_data(&root, sizeof root, fs_offset());
 }
 
 
@@ -96,6 +107,8 @@ InitStatus initialize(Platform& pfrm, int fs_begin_offset)
 
     if (root.magic_[0] == '_' and root.magic_[1] == 'F' and
         root.magic_[2] == 'S' and root.magic_[3] == fs_version) {
+
+        ::ram_filesystem::mounted = true;
 
         // Already initialized previously.
         return InitStatus::already_initialized;
@@ -124,14 +137,17 @@ InitStatus initialize(Platform& pfrm, int fs_begin_offset)
         offset += block_size;
     }
 
-    store_root(pfrm, root);
+    if (store_root(pfrm, root)) {
+        ::ram_filesystem::mounted = true;
+        return InitStatus::initialized;
+    }
 
-    return InitStatus::initialized;
+    return InitStatus::failed;
 }
 
 
 
-u16 allocate_file_chunk(Platform& pfrm)
+static u16 allocate_file_chunk(Platform& pfrm)
 {
     auto root = load_root(pfrm);
 
@@ -246,6 +262,10 @@ void with_file(Platform& pfrm, const char* path, F&& callback)
 
 bool file_exists(Platform& pfrm, const char* path)
 {
+    if (not ::ram_filesystem::mounted) {
+        return false;
+    }
+
     bool found = false;
 
     with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
@@ -259,6 +279,10 @@ bool file_exists(Platform& pfrm, const char* path)
 
 void unlink_file(Platform& pfrm, const char* path)
 {
+    if (not ::ram_filesystem::mounted) {
+        return;
+    }
+
     with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
         // Unbind the existing file
         info.file_size_.set(0);
@@ -285,6 +309,10 @@ static u8 checksum(const FileContents& contents)
 
 size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 {
+    if (not ::ram_filesystem::mounted) {
+        return 0;
+    }
+
     const auto path_len = str_len(path);
 
     with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
@@ -351,6 +379,10 @@ size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 
 bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 {
+    if (not ::ram_filesystem::mounted) {
+        return false;
+    }
+
     unlink_file(pfrm, path);
 
     const u16 path_len = str_len(path);

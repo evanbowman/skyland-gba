@@ -7,7 +7,7 @@ set(SOURCE_DIR ${ROOT_DIR}/source)
 set(IMAGE_DIR ${ROOT_DIR}/images)
 
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_language(ASM)
 
@@ -44,6 +44,19 @@ configure_file(dirlocals.in ${SOURCE_DIR}/.dir-locals.el)
 
 
 
+set(G_COMPILE_FLAGS
+  -Wall
+  -Werror
+  -pedantic
+  -nostdlib
+  -ffast-math
+  -fno-math-errno
+  -Wdouble-promotion
+  -fomit-frame-pointer
+  -fstack-protector-strong)
+
+
+
 set(SOURCES
   ${SOURCE_DIR}/platform/ram_filesystem.cpp
   ${SOURCE_DIR}/graphics/overlay.cpp
@@ -69,7 +82,6 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/save.cpp
   ${SOURCE_DIR}/skyland/paint.cpp
   ${SOURCE_DIR}/skyland/sound.cpp
-  ${SOURCE_DIR}/skyland/island.cpp
   ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/serial.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
@@ -88,43 +100,9 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/room_metatable.cpp
   ${SOURCE_DIR}/skyland/timeStream.cpp
   ${SOURCE_DIR}/skyland/entity/explosion/explosion.cpp
-  ${SOURCE_DIR}/skyland/entity/projectile/flak.cpp
-  ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
-  ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
-  ${SOURCE_DIR}/skyland/entity/projectile/nemesisBlast.cpp
-  ${SOURCE_DIR}/skyland/entity/projectile/arcBolt.cpp
-  ${SOURCE_DIR}/skyland/entity/projectile/ionBurst.cpp
-  ${SOURCE_DIR}/skyland/entity/projectile/decimatorBurst.cpp
   ${SOURCE_DIR}/skyland/entity/character/basicCharacter.cpp
   ${SOURCE_DIR}/skyland/entity/drones/drone.cpp
   ${SOURCE_DIR}/skyland/entity/drones/droneMeta.cpp
-  ${SOURCE_DIR}/skyland/rooms/core.cpp
-  ${SOURCE_DIR}/skyland/rooms/hull.cpp
-  ${SOURCE_DIR}/skyland/rooms/radar.cpp
-  ${SOURCE_DIR}/skyland/rooms/arcGun.cpp
-  ${SOURCE_DIR}/skyland/rooms/cannon.cpp
-  ${SOURCE_DIR}/skyland/rooms/weapon.cpp
-  ${SOURCE_DIR}/skyland/rooms/flakGun.cpp
-  ${SOURCE_DIR}/skyland/rooms/foundry.cpp
-  ${SOURCE_DIR}/skyland/rooms/reactor.cpp
-  ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
-  ${SOURCE_DIR}/skyland/rooms/nemesis.cpp
-  ${SOURCE_DIR}/skyland/rooms/workshop.cpp
-  ${SOURCE_DIR}/skyland/rooms/droneBay.cpp
-  ${SOURCE_DIR}/skyland/rooms/cargoBay.cpp
-  ${SOURCE_DIR}/skyland/rooms/infirmary.cpp
-  ${SOURCE_DIR}/skyland/rooms/decimator.cpp
-  ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
-  ${SOURCE_DIR}/skyland/rooms/ionCannon.cpp
-  ${SOURCE_DIR}/skyland/rooms/ionFizzler.cpp
-  ${SOURCE_DIR}/skyland/rooms/replicator.cpp
-  ${SOURCE_DIR}/skyland/rooms/pluginRoom.cpp
-  ${SOURCE_DIR}/skyland/rooms/forcefield.cpp
-  ${SOURCE_DIR}/skyland/rooms/bronzeHull.cpp
-  ${SOURCE_DIR}/skyland/rooms/poweredHull.cpp
-  ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
-  ${SOURCE_DIR}/skyland/rooms/transporter.cpp
-  ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp
   ${SOURCE_DIR}/skyland/scene/module.cpp
   ${SOURCE_DIR}/skyland/scene/hintScene.cpp
   ${SOURCE_DIR}/skyland/scene/worldScene.cpp
@@ -183,6 +161,54 @@ set(SOURCES
 
 
 
+# All of these sources are critical to the game code, and should be compiled
+# with the highest optimization settings.
+add_library(FASTPATH
+  ${SOURCE_DIR}/skyland/island.cpp
+  ${SOURCE_DIR}/skyland/rooms/core.cpp
+  ${SOURCE_DIR}/skyland/rooms/hull.cpp
+  ${SOURCE_DIR}/skyland/rooms/radar.cpp
+  ${SOURCE_DIR}/skyland/rooms/arcGun.cpp
+  ${SOURCE_DIR}/skyland/rooms/cannon.cpp
+  ${SOURCE_DIR}/skyland/rooms/weapon.cpp
+  ${SOURCE_DIR}/skyland/rooms/flakGun.cpp
+  ${SOURCE_DIR}/skyland/rooms/foundry.cpp
+  ${SOURCE_DIR}/skyland/rooms/reactor.cpp
+  ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
+  ${SOURCE_DIR}/skyland/rooms/nemesis.cpp
+  ${SOURCE_DIR}/skyland/rooms/workshop.cpp
+  ${SOURCE_DIR}/skyland/rooms/droneBay.cpp
+  ${SOURCE_DIR}/skyland/rooms/cargoBay.cpp
+  ${SOURCE_DIR}/skyland/rooms/infirmary.cpp
+  ${SOURCE_DIR}/skyland/rooms/decimator.cpp
+  ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
+  ${SOURCE_DIR}/skyland/rooms/ionCannon.cpp
+  ${SOURCE_DIR}/skyland/rooms/ionFizzler.cpp
+  ${SOURCE_DIR}/skyland/rooms/replicator.cpp
+  ${SOURCE_DIR}/skyland/rooms/pluginRoom.cpp
+  ${SOURCE_DIR}/skyland/rooms/forcefield.cpp
+  ${SOURCE_DIR}/skyland/rooms/bronzeHull.cpp
+  ${SOURCE_DIR}/skyland/rooms/poweredHull.cpp
+  ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp
+  ${SOURCE_DIR}/skyland/rooms/transporter.cpp
+  ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/flak.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/nemesisBlast.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/arcBolt.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/ionBurst.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/decimatorBurst.cpp)
+
+
+
+target_compile_options(FASTPATH PRIVATE
+  -O3
+  ${G_COMPILE_FLAGS})
+
+
+
+
 set(LISP_SOURCES
   ${SOURCE_DIR}/script/lisp.cpp
   ${SOURCE_DIR}/script/compiler.cpp
@@ -194,16 +220,8 @@ add_library(LISP ${LISP_SOURCES})
 
 target_compile_options(LISP PRIVATE
   -g
-  -O3
-  -Wall
-  -Werror
-  -pedantic
-  -nostdlib
-  -ffast-math
-  -fno-math-errno
-  -Wdouble-promotion
-  -fstack-protector-strong
-  -fomit-frame-pointer)
+  -O3 # Script execution is a bit of a bottleneck
+  ${G_COMPILE_FLAGS})
 
 
 
@@ -469,17 +487,9 @@ endfunction()
 if(APPLE OR UNIX OR GAMEBOY_ADVANCE)
 
   set(SHARED_COMPILE_OPTIONS
-    -g
     -O2
-    -Wall
-    -Werror
-    -pedantic
-    -nostdlib
-    -ffast-math
-    -fno-math-errno
-    -Wdouble-promotion
-    -fomit-frame-pointer
-    -fstack-protector-strong
+    -g
+    ${G_COMPILE_FLAGS}
     -D__BLINDJUMP_ENABLE_LOGS)
 
   if(GAMEBOY_ADVANCE)
@@ -550,14 +560,7 @@ if(GAMEBOY_ADVANCE)
   target_compile_options(ARM_ROUTINES PRIVATE
     -g
     -Os
-    -Wall
-    -Werror
-    -pedantic
-    -nostdlib
-    -ffast-math
-    -fno-math-errno
-    -Wdouble-promotion
-    -fomit-frame-pointer)
+    ${G_COMPILE_FLAGS})
 
   target_compile_options(ARM_ROUTINES PRIVATE
     -marm
@@ -613,6 +616,13 @@ if(GAMEBOY_ADVANCE)
     CACHE INTERNAL "" FORCE)
 
   target_compile_options(LISP PRIVATE
+    -mthumb
+    -mthumb-interwork
+    -mcpu=arm7tdmi
+    -mtune=arm7tdmi
+    -D__GBA__)
+
+  target_compile_options(FASTPATH PRIVATE
     -mthumb
     -mthumb-interwork
     -mcpu=arm7tdmi
@@ -679,7 +689,9 @@ target_compile_options(SkylandEngine PRIVATE
 
 
 
-target_link_libraries(SkylandEngine PRIVATE LISP)
+target_link_libraries(SkylandEngine PRIVATE
+  LISP
+  FASTPATH)
 
 
 

@@ -57,6 +57,12 @@ static void canary_init()
 
 
 
+void* stack_end()
+{
+    return &__iwram_overlay_end;
+}
+
+
 static inline bool canary_check()
 {
 #pragma GCC diagnostic push

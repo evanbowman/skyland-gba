@@ -60,6 +60,10 @@ InitStatus initialize(Platform& pfrm, int fs_begin_offset);
 
 
 
+bool is_mounted();
+
+
+
 void unlink_file(Platform& pfrm, const char* path);
 
 
@@ -140,8 +144,26 @@ Root load_root(Platform& pfrm);
 
 
 
+template <typename F> void walk_directory(Platform& pfrm,
+                                          const char* directory,
+                                          F callback)
+{
+    walk(pfrm, [callback, directory](const char* path) {
+        auto remainder = starts_with(directory, StringBuffer<max_path>(path));
+        if (remainder) {
+            callback(remainder);
+        }
+    });
+}
+
+
+
 template <typename F> void walk(Platform& pfrm, F&& callback)
 {
+    if (not is_mounted()) {
+        return;
+    }
+
     auto root = load_root(pfrm);
 
     auto offset = fs_offset() + sizeof(Root);
@@ -163,22 +185,6 @@ template <typename F> void walk(Platform& pfrm, F&& callback)
         }
 
         offset += sizeof info;
-    }
-}
-
-
-
-inline void import_file_from_rom(Platform& pfrm,
-                                 const char* dest_path,
-                                 const char* src_path)
-{
-    if (auto data = pfrm.load_file_contents("scripts", src_path)) {
-        Vector<char> vec(pfrm);
-        while (*data not_eq '\0') {
-            vec.push_back(*data);
-        }
-        vec.push_back('\0');
-        store_file_data(pfrm, dest_path, vec);
     }
 }
 

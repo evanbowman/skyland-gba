@@ -12,6 +12,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
+#include "platform/ram_filesystem.hpp"
 
 
 
@@ -279,6 +280,7 @@ void TitleScreenScene::put_menu_text(Platform& pfrm)
 
 
 
+
 void TitleScreenScene::run_init_scripts(Platform& pfrm,
                                         App& app,
                                         bool allow_mods)
@@ -294,6 +296,22 @@ void TitleScreenScene::run_init_scripts(Platform& pfrm,
 
     if (allow_mods) {
         app.invoke_ram_script(pfrm, "/mods/init.lisp");
+
+
+        auto on_match = [&](const char* const path) {
+            StringBuffer<64> path_str(path);
+            StringBuffer<16> init_filename("init.lisp");
+
+            if (ends_with(init_filename, path_str)) {
+                StringBuffer<ram_filesystem::max_path> full_path("/dlc/");
+                full_path += path_str;
+                app.invoke_ram_script(pfrm, full_path.c_str());
+            } else {
+                info(pfrm, path);
+            }
+        };
+
+        ram_filesystem::walk_directory(pfrm, "/dlc/", on_match);
     }
 }
 
