@@ -70,6 +70,9 @@ struct RoomProperties {
         // The engine is allowed to render a flagpole on top of this room
         flag_mount = (1 << 11),
 
+        // If hit by a weapon with damage that exceeds the room's health, the
+        // colliding projectile will not be destroyed.
+        fragile = (1 << 12),
     };
 };
 

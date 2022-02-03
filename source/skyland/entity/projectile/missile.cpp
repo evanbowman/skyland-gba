@@ -161,7 +161,7 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
-    if ((*room.metaclass())->category() == Room::Category::decoration and
+    if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.health() < missile_damage) {
         room.apply_damage(pfrm, app, 9999);
         return;

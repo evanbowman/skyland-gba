@@ -21,7 +21,7 @@ public:
     static u32 properties()
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::locked_by_default;
+               RoomProperties::locked_by_default | RoomProperties::fragile;
     }
 
 
