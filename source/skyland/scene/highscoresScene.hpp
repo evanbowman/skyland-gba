@@ -11,7 +11,6 @@ namespace skyland {
 
 class HighscoresScene : public Module<HighscoresScene> {
 public:
-
     HighscoresScene();
 
 

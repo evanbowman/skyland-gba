@@ -85,8 +85,8 @@ public:
 
     static u32 properties()
     {
-        return RoomProperties::manufactory_required | RoomProperties::roof_hidden |
-               RoomProperties::locked_by_default;
+        return RoomProperties::manufactory_required |
+               RoomProperties::roof_hidden | RoomProperties::locked_by_default;
     }
 
 

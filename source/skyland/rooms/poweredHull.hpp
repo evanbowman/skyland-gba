@@ -74,8 +74,8 @@ public:
 
     static u32 properties()
     {
-        return RoomProperties::manufactory_required | RoomProperties::roof_hidden |
-               RoomProperties::accepts_ion_damage;
+        return RoomProperties::manufactory_required |
+               RoomProperties::roof_hidden | RoomProperties::accepts_ion_damage;
     }
 };
 

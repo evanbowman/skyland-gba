@@ -140,7 +140,7 @@ Achievement update(Platform& pfrm, App& app)
 
     const u64 flag = 1 << check_achievement;
 
-    static_assert(Achievement::count < (sizeof(flag)  * 8),
+    static_assert(Achievement::count < (sizeof(flag) * 8),
                   "More than 64 achievements, i.e. achievement bit does not "
                   "fit in a u64.o");
 

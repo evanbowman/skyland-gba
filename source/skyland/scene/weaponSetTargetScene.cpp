@@ -168,8 +168,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             freeform_ = true;
         }
 
-        if (test_key(Key::right) or
-            test_key(Key::down)) {
+        if (test_key(Key::right) or test_key(Key::down)) {
 
             if (selector_ < (int)targets_.size() - 1) {
                 selector_++;
@@ -181,8 +180,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             describe_room_timer_ = milliseconds(300);
         }
 
-        if (test_key(Key::left) or
-            test_key(Key::up)) {
+        if (test_key(Key::left) or test_key(Key::up)) {
 
             if (selector_ > 0) {
                 --selector_;

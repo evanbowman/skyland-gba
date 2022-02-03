@@ -773,7 +773,8 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             (meta->properties() & RoomProperties::manufactory_required);
 
         const bool dependencies_satisfied =
-            (not manufactory_required or (manufactory_required and f_count > 0) or
+            (not manufactory_required or
+             (manufactory_required and f_count > 0) or
              app.game_mode() == App::GameMode::sandbox) and
             (not workshop_required or (workshop_required and w_count > 0) or
              app.game_mode() == App::GameMode::sandbox);

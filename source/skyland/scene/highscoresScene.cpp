@@ -10,17 +10,16 @@ namespace skyland {
 
 
 
-HighscoresScene::HighscoresScene() :
-    show_current_score_(false),
-    disable_writeback_(true)
+HighscoresScene::HighscoresScene()
+    : show_current_score_(false), disable_writeback_(true)
 {
 }
 
 
 
-HighscoresScene::HighscoresScene(bool show_current_score) :
-    show_current_score_(show_current_score),
-    disable_writeback_(show_current_score == false)
+HighscoresScene::HighscoresScene(bool show_current_score)
+    : show_current_score_(show_current_score),
+      disable_writeback_(show_current_score == false)
 {
 }
 
@@ -112,9 +111,8 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         StringBuffer<24> str;
         str += stringify(i + 1);
         str += " ";
-        bool highlight =
-            show_current_score_ and
-            not highlighted and highscores.values_[i].get() == (u32)score;
+        bool highlight = show_current_score_ and not highlighted and
+                         highscores.values_[i].get() == (u32)score;
         print_metric(str.c_str(), highscores.values_[i].get(), "", highlight);
 
         if (highlight) {
