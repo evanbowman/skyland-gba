@@ -22,7 +22,8 @@ void init_clouds(Platform& pfrm);
 
 
 App::App(Platform& pfrm)
-    : islands_(allocate_dynamic<Islands>(pfrm, pfrm, Layer::map_0_ext, 5, player())),
+    : islands_(
+          allocate_dynamic<Islands>(pfrm, pfrm, Layer::map_0_ext, 5, player())),
       current_scene_(null_scene()), next_scene_(null_scene()),
       effects_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       birbs_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),

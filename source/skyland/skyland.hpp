@@ -364,9 +364,8 @@ private:
     // NOTE: As islands take a lot of memory, and App is created on the stack, I
     // ended up moving them into a scratch buffer.
     struct Islands {
-        template <typename ...Args>
-        Islands(Args&& ...args) :
-            player_(std::forward<Args>(args)...)
+        template <typename... Args>
+        Islands(Args&&... args) : player_(std::forward<Args>(args)...)
         {
         }
 

@@ -210,7 +210,8 @@ void EnemyAI::update_room(Platform& pfrm,
         set_target(pfrm, app, matrix, *flak_gun);
     } else if (auto ion_cannon = dynamic_cast<IonCannon*>(&room)) {
         set_target(pfrm, app, matrix, *ion_cannon);
-    } else if (category == Room::Category::weapon) {
+    } else if (category == Room::Category::weapon or
+               (*room.metaclass())->properties() & RoomProperties::plugin) {
         // NOTE: if we haven't hit any of the cases above, assume that the
         // weapon is a generic cannon-type weapon.
         set_target(pfrm, app, matrix, room);

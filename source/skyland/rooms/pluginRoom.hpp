@@ -30,6 +30,15 @@ public:
     }
 
 
+    void set_target(Platform& pfrm, App& app, const Vec2<u8>& target) override;
+
+
+    void unset_target(Platform& pfrm, App& app) override;
+
+
+    ScenePtr<Scene> select(Platform& pfrm, App&) override;
+
+
     static Icon icon()
     {
         return 1512;

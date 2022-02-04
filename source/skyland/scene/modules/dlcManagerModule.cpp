@@ -91,28 +91,23 @@ void DlcManagerModule::exit(Platform& pfrm, App& app, Scene& next)
 
 void DlcManagerModule::show(Platform& pfrm)
 {
-    static const auto heading_colors = Text::OptColors{{
-            ColorConstant::silver_white,
-            custom_color(0x193a77)}};
+    static const auto heading_colors =
+        Text::OptColors{{ColorConstant::silver_white, custom_color(0x193a77)}};
 
 
-    static const auto alt_colors = Text::OptColors{{
-            ColorConstant::silver_white,
-            custom_color(0x8988b8)}};
+    static const auto alt_colors =
+        Text::OptColors{{ColorConstant::silver_white, custom_color(0x8988b8)}};
 
 
-    static const auto text_colors = Text::OptColors{{
-            custom_color(0x193a77),
-            ColorConstant::silver_white}};
+    static const auto text_colors =
+        Text::OptColors{{custom_color(0x193a77), ColorConstant::silver_white}};
 
-    static const auto text_colors_alt = Text::OptColors{{
-            custom_color(0x8988b8),
-            ColorConstant::silver_white}};
+    static const auto text_colors_alt =
+        Text::OptColors{{custom_color(0x8988b8), ColorConstant::silver_white}};
 
 
 
-    patch_name_.emplace(pfrm,
-                        OverlayCoord{1, 1});
+    patch_name_.emplace(pfrm, OverlayCoord{1, 1});
 
     StringBuffer<30> heading;
 
@@ -209,10 +204,10 @@ DlcManagerModule::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.player().key_down(pfrm, Key::action_1)) {
         if (not erase_text_) {
             erase_text_.emplace(pfrm, OverlayCoord{7, 10});
-            erase_text_->assign("hold A to erase!",
-                                Text::OptColors{{
-                                        ColorConstant::silver_white,
-                                        ColorConstant::spanish_crimson}});
+            erase_text_->assign(
+                "hold A to erase!",
+                Text::OptColors{{ColorConstant::silver_white,
+                                 ColorConstant::spanish_crimson}});
         }
     }
 
