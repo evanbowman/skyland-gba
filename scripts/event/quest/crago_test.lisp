@@ -16,7 +16,7 @@
  '((power-core 3 13)))
 
 
-(chr-add (opponent) 1 14 'neutral 0)
+(chr-new (opponent) 1 14 'neutral 0)
 
 
 

@@ -17,7 +17,7 @@
    (hull 2 12)))
 
 
-(chr-add (player) 1 14 'neutral 0)
+(chr-new (player) 1 14 'neutral 0)
 
 
 (opponent-init 6 'hostile)

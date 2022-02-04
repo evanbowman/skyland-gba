@@ -9,7 +9,7 @@
  '((power-core 1 13)))
 
 
-(chr-add (player) 1 14 'neutral 0)
+(chr-new (player) 1 14 'neutral 0)
 (chr-hp (player) 1 14 50)
 
 

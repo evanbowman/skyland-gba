@@ -11,7 +11,7 @@
    (workshop 3 11 30)))
 
 
-(chr-add (player) 1 14 'neutral 0)
+(chr-new (player) 1 14 'neutral 0)
 (chr-hp (player) 1 14 50)
 
 

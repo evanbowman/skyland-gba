@@ -305,8 +305,6 @@ void TitleScreenScene::run_init_scripts(Platform& pfrm,
                 StringBuffer<ram_filesystem::max_path> full_path("/dlc/");
                 full_path += path_str;
                 app.invoke_ram_script(pfrm, full_path.c_str());
-            } else {
-                info(pfrm, path);
             }
         };
 

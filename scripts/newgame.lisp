@@ -30,4 +30,4 @@
 
 
 
-(chr-add (player) 2 14 'neutral 0)
+(chr-new (player) 2 14 'neutral 0)

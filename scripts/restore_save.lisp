@@ -20,7 +20,7 @@
 
             (map
              (lambda
-               (chr-add (player)
+               (chr-new (player)
                         (get $0 0) ;; x
                         (get $0 1) ;; y
                         'neutral

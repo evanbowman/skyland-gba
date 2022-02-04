@@ -40,7 +40,7 @@ public:
 
     Island& player_island()
     {
-        return player_island_;
+        return islands_->player_;
     }
 
 
@@ -74,8 +74,8 @@ public:
 
     Island* opponent_island()
     {
-        if (opponent_island_) {
-            return &*opponent_island_;
+        if (islands_->opponent_) {
+            return &*islands_->opponent_;
         }
         return nullptr;
     }
@@ -85,16 +85,16 @@ public:
     {
         reset_opponent_island(pfrm);
 
-        opponent_island_.emplace(
+        islands_->opponent_.emplace(
             pfrm, Layer::map_1_ext, terrain_size, opponent());
     }
 
 
     void reset_opponent_island(Platform& pfrm)
     {
-        if (opponent_island_) {
-            opponent_island_->clear_rooms(pfrm, *this);
-            opponent_island_.reset();
+        if (islands_->opponent_) {
+            islands_->opponent_->clear_rooms(pfrm, *this);
+            islands_->opponent_.reset();
         }
     }
 
@@ -361,13 +361,25 @@ public:
 private:
     DialogDecoration dialog_decoration_;
 
+    // NOTE: As islands take a lot of memory, and App is created on the stack, I
+    // ended up moving them into a scratch buffer.
+    struct Islands {
+        template <typename ...Args>
+        Islands(Args&& ...args) :
+            player_(std::forward<Args>(args)...)
+        {
+        }
+
+        Island player_;
+        std::optional<Island> opponent_;
+    };
+
     PersistentData persistent_data_;
-    Island player_island_;
+    DynamicMemory<Islands> islands_;
     Float cloud_scroll_1_;
     Float cloud_scroll_2_;
     ScenePtr<Scene> current_scene_;
     ScenePtr<Scene> next_scene_;
-    Coins terrain_cost_ = 0;
     Coins victory_coins_ = 0;
     Coins level_coins_spent_ = 0;
     Camera camera_;
@@ -391,8 +403,6 @@ private:
     TimeTracker level_timer_;
 
     Microseconds pixelate_timer_ = 0;
-
-    std::optional<Island> opponent_island_;
 
     Buffer<std::pair<DeferredCallback, Microseconds>, 20> deferred_callbacks_;
 

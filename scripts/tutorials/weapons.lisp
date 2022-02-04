@@ -11,7 +11,7 @@
    (workshop 1 11)))
 
 
-(chr-add (player) 1 14 'neutral 0)
+(chr-new (player) 1 14 'neutral 0)
 
 
 
@@ -35,7 +35,7 @@
    (hull 2 11)
    (forcefield 3 12)))
 
-(chr-add (opponent) 3 14 'hostile 0)
+(chr-new (opponent) 3 14 'hostile 0)
 
 
 (autopilot

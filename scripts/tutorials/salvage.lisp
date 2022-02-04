@@ -14,7 +14,7 @@
    (workshop 3 11)))
 
 
-(chr-add (player) 1 14 'neutral 0)
+(chr-new (player) 1 14 'neutral 0)
 
 
 (opponent-init 4 'hostile)

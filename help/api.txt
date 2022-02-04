@@ -38,7 +38,7 @@ o----------------------------o
 
 o----------------------------o
 
- (chr-add
+ (chr-new
    island
    x
    y
@@ -375,26 +375,30 @@ o----------------------------o
  1x1, with time image sourced
  from /mytile.img in sram.
 
- At the moment, all custom
- rooms must be 1x1, but the
- function accepts tiles as
- a list, as I intend to
- support larger custom rooms
- consisting of multiple tiles
- in the future.
-
  Creating a file with a .img
  extension in the file
  browser will launch a paint
  program.
+
+ The tile graphics list
+ should contain a list of tile
+ indices, metatiled based
+ on the room size (first row,
+ followed by the second row,
+ etc. in a flat list).
 
  The example code (above)
  calls the update function
  once per second.
 
  The engine will invoke update
- with three parameters:
- island, room-x, room-y.
+ with four parameters:
+ island, room-x, room-y target
+
+ If the room is a weapon, the
+ fourth parameter will contain
+ '(target-x . target-y) or
+ nill. Otherwise, nil.
 
  You may register up to
  fifteen custom rooms.
@@ -419,7 +423,7 @@ o----------------------------o
 
 o----------------------------o
 
- (room-add island desc)
+ (room-new island desc)
 
  Add a room to island,
  where desc is a list of

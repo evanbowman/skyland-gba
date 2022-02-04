@@ -23,7 +23,7 @@
  '((power-core 1 13)))
 
 
-(chr-add (player) 1 14 'neutral 0)
+(chr-new (player) 1 14 'neutral 0)
 (show-flag (player))
 
 
@@ -43,5 +43,5 @@
    (opponent)
    `((power-core ,(- temp 3) 13)))
 
-  (chr-add (opponent) (- temp 3) 14 'hostile 0)
-  (chr-add (opponent) (- temp 2) 14 'hostile 0))
+  (chr-new (opponent) (- temp 3) 14 'hostile 0)
+  (chr-new (opponent) (- temp 2) 14 'hostile 0))

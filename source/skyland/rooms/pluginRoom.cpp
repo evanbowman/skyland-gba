@@ -29,8 +29,13 @@ void PluginRoom::render_interior(App& app, u8 buffer[16][16])
     auto& l = b->fetch_info<RoomMeta::PluginBox::PluginInfo::graphics_list,
                             lisp::Cons>();
 
-    if (l.car()->type() == lisp::Value::Type::integer) {
-        buffer[position().x][position().y] = l.car()->integer().value_;
+    for (int x = 0; x < size().x; ++x) {
+        for (int y = 0; y < size().y; ++y) {
+            auto v = lisp::get_list((lisp::Value*)&l, x + y * size().x);
+            if (v->type() == lisp::Value::Type::integer) {
+                buffer[position().x + x][position().y + y] = v->integer().value_;
+            }
+        }
     }
 }
 
@@ -43,8 +48,13 @@ void PluginRoom::render_exterior(App& app, u8 buffer[16][16])
     auto& l = b->fetch_info<RoomMeta::PluginBox::PluginInfo::graphics_list,
                             lisp::Cons>();
 
-    if (l.car()->type() == lisp::Value::Type::integer) {
-        buffer[position().x][position().y] = l.car()->integer().value_;
+    for (int x = 0; x < size().x; ++x) {
+        for (int y = 0; y < size().y; ++y) {
+            auto v = lisp::get_list((lisp::Value*)&l, x + y * size().x);
+            if (v->type() == lisp::Value::Type::integer) {
+                buffer[position().x + x][position().y + y] = v->integer().value_;
+            }
+        }
     }
 }
 
@@ -68,11 +78,28 @@ void PluginRoom::update(Platform& pfrm, App& app, Microseconds delta)
         auto& fn = b->fetch_info<RoomMeta::PluginBox::PluginInfo::update,
                                  lisp::Function>();
 
-        lisp::push_op(lisp::make_integer(position().y));
-        lisp::push_op(lisp::make_integer(position().x));
         lisp::push_op(lisp::make_userdata(parent()));
+        lisp::push_op(lisp::make_integer(position().x));
+        lisp::push_op(lisp::make_integer(position().y));
 
-        lisp::funcall((lisp::Value*)&fn, 3);
+        if (target_) {
+            lisp::Protected x(lisp::make_integer(target_->x));
+            lisp::Protected y(lisp::make_integer(target_->y));
+            lisp::push_op(lisp::make_cons(x, y));
+        } else {
+            lisp::push_op(L_NIL);
+        }
+
+        lisp::funcall((lisp::Value*)&fn, 4);
+
+        auto result = lisp::get_op(0);
+
+        if (result->type() == lisp::Value::Type::error) {
+            lisp::DefaultPrinter p;
+            lisp::format(result, p);
+            pfrm.fatal(p.fmt_.c_str());
+        }
+
         lisp::pop_op(); // funcall result
     }
 }

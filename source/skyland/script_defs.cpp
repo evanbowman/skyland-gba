@@ -13,6 +13,14 @@
 #include "serial.hpp"
 #include "sharedVariable.hpp"
 #include "skyland.hpp"
+#include "skyland/entity/projectile/arcBolt.hpp"
+#include "skyland/entity/projectile/cannonball.hpp"
+#include "skyland/entity/projectile/decimatorBurst.hpp"
+#include "skyland/entity/projectile/flak.hpp"
+#include "skyland/entity/projectile/ionBurst.hpp"
+#include "skyland/entity/projectile/missile.hpp"
+#include "skyland/entity/projectile/nemesisBlast.hpp"
+
 
 
 
@@ -363,7 +371,7 @@ static const lisp::Binding script_api[] = {
          }
          return L_NIL;
      }},
-    {"room-add",
+    {"room-new",
      [](int argc) {
          L_EXPECT_ARGC(argc, 2);
          L_EXPECT_OP(0, cons);
@@ -465,7 +473,7 @@ static const lisp::Binding script_api[] = {
          }
          return L_NIL;
      }},
-    {"chr-add",
+    {"chr-new",
      [](int argc) {
          L_EXPECT_ARGC(argc, 5);
          L_EXPECT_OP(0, integer);
@@ -842,7 +850,101 @@ static const lisp::Binding script_api[] = {
          }
 
          return L_NIL;
-     }}};
+    }},
+    {"fatal", [](int argc) {
+        L_EXPECT_ARGC(argc, 1);
+
+        lisp::DefaultPrinter p;
+        format(lisp::get_op(0), p);
+        Platform::fatal(p.fmt_.c_str());
+
+        return L_NIL;
+    }},
+    {"emit", [](int argc) {
+        L_EXPECT_ARGC(argc, 6);
+        L_EXPECT_OP(5, symbol);
+        L_EXPECT_OP(4, user_data);
+        L_EXPECT_OP(3, integer);
+        L_EXPECT_OP(2, integer);
+        L_EXPECT_OP(1, integer);
+        L_EXPECT_OP(0, integer);
+
+        auto& app = *interp_get_app();
+        auto& pfrm = *lisp::interp_get_pfrm();
+
+        auto name = lisp::get_op(5)->symbol().name_;
+        auto island = (Island*)lisp::get_op(4)->user_data().obj_;
+
+        const u8 x1 = lisp::get_op(3)->integer().value_;
+        const u8 y1 = lisp::get_op(2)->integer().value_;
+
+        auto room = island->get_room({x1, y1});
+        if (not room) {
+            Platform::fatal(format("cannot emit % from (%,%), "
+                                   "which is not a room!",
+                                   name,
+                                   x1,
+                                   y1).c_str());
+        }
+
+        auto start = room->center();
+
+        const u8 x2 = lisp::get_op(1)->integer().value_;
+        const u8 y2 = lisp::get_op(0)->integer().value_;
+
+        auto other_island = room->other_island(app);
+        if (not other_island) {
+            return L_NIL;
+        }
+
+        if (room->other_island(app) == app.opponent_island()) {
+            Platform::fatal("fjdslk");
+        }
+
+        auto target = room->other_island(app)->origin();
+        target.x += x2 * 16 + 8;
+        target.y += y2 * 16 + 8;
+
+#define MAKE_PROJECTILE(NAME, CLASS) \
+        if (str_eq(name, NAME)) { \
+            auto c = \
+                app.alloc_entity<CLASS>(pfrm, \
+                                        start, \
+                                        target, \
+                                        room->parent(), \
+                                        room->position()); \
+            if (c) { \
+                room->parent()->projectiles().push(std::move(c)); \
+            } \
+        } \
+
+        app.camera().shake(4);
+
+        MAKE_PROJECTILE("cannonball", Cannonball)
+        else MAKE_PROJECTILE("arcbolt", ArcBolt)
+        else MAKE_PROJECTILE("decimator-burst", DecimatorBurst)
+        else MAKE_PROJECTILE("flak", Flak)
+        else MAKE_PROJECTILE("ion-burst", IonBurst)
+        else MAKE_PROJECTILE("nemesis-blast", NemesisBlast)
+        else if (str_eq(name, "missile")) {
+            auto c =
+                app.alloc_entity<Missile>(pfrm,
+                                          start,
+                                          target,
+                                          room->position().x,
+                                          room->position().y,
+                                          room->parent());
+            if (c) {
+                room->parent()->projectiles().push(std::move(c));
+            }
+        } else {
+            Platform::fatal(format("cannot make projectile of type %",
+                                   name).c_str());
+        }
+#undef MAKE_PROJECTILE
+
+        return L_NIL;
+    }}};
 
 
 

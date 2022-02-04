@@ -18,7 +18,7 @@
    (hull 4 12)))
 
 
-(chr-add (opponent) 1 14 'neutral 0)
+(chr-new (opponent) 1 14 'neutral 0)
 
 
 (setq on-converge
@@ -42,11 +42,11 @@
               (chr-rem (opponent) 1 14)
               (if (equal (choice 2) 0)
                   (progn
-                    (chr-add (player) (car temp) (cdr temp) 'neutral 0)
+                    (chr-new (player) (car temp) (cdr temp) 'neutral 0)
                     (dialog "The survivor joined your crew!")
                     (exit-level))
                 (progn
-                  (chr-add (player) (car temp) (cdr temp) 'hostile 0)
+                  (chr-new (player) (car temp) (cdr temp) 'hostile 0)
                   (dialog "The survivor turned out to be a vicious goblin!")
                   (setq on-dialog-closed
                         (lambda

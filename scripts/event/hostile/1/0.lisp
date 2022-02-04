@@ -24,4 +24,4 @@
    (hull 2 12)))
 
 
-(chr-add (opponent) 4 14 'hostile 0)
+(chr-new (opponent) 4 14 'hostile 0)

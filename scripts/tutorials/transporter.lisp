@@ -11,8 +11,8 @@
    (transporter 4 13)))
 
 
-(chr-add (player) 1 14 'neutral 0)
-(chr-add (player) 2 14 'neutral 0)
+(chr-new (player) 1 14 'neutral 0)
+(chr-new (player) 2 14 'neutral 0)
 
 
 
@@ -26,7 +26,7 @@
  '((power-core 1 13)
    (stairwell 3 11)))
 
-(chr-add (opponent) 1 14 'hostile 0)
+(chr-new (opponent) 1 14 'hostile 0)
 
 
 (autopilot

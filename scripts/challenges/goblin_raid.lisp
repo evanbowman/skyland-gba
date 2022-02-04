@@ -30,7 +30,7 @@
    (radar 5 13)))
 
 
-(chr-add (player) 2 14 'neutral 0)
+(chr-new (player) 2 14 'neutral 0)
 
 
 
@@ -96,7 +96,7 @@
 
 (map
  (lambda
-   (chr-add (opponent) (car $0) (cdr $0) 'hostile 0))
+   (chr-new (opponent) (car $0) (cdr $0) 'hostile 0))
  '((3 . 14)
    (4 . 14)
    (5 . 14)

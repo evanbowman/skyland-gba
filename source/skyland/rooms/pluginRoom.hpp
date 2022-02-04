@@ -44,6 +44,7 @@ public:
 
 private:
     Microseconds timer_ = 0;
+    std::optional<Vec2<u8>> target_;
 };
 
 

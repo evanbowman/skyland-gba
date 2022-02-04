@@ -15,7 +15,7 @@
    (coconut-palm 5 13)))
 
 
-(chr-add (opponent) 1 14 'neutral 0)
+(chr-new (opponent) 1 14 'neutral 0)
 
 
 (setq on-converge
@@ -44,7 +44,7 @@
         (if temp
             (progn
               (setq temp (get temp (choice (length temp))))
-              (chr-add (player) (car temp) (cdr temp) 'neutral 0)
+              (chr-new (player) (car temp) (cdr temp) 'neutral 0)
               (chr-rem (opponent) 1 14)
               (setq temp '())
               (dialog "The castaway joined your crew!"))

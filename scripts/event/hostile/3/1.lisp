@@ -50,7 +50,7 @@
 (show-flag (opponent))
 
 
-(chr-add (opponent) 2 13 'hostile 0)
-(chr-add (opponent) 3 11 'hostile 0)
-(chr-add (opponent) 6 14 'hostile 0)
-(chr-add (opponent) 7 14 'hostile 0)
+(chr-new (opponent) 2 13 'hostile 0)
+(chr-new (opponent) 3 11 'hostile 0)
+(chr-new (opponent) 6 14 'hostile 0)
+(chr-new (opponent) 7 14 'hostile 0)

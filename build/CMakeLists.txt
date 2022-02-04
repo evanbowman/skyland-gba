@@ -52,8 +52,7 @@ set(G_COMPILE_FLAGS
   -ffast-math
   -fno-math-errno
   -Wdouble-promotion
-  -fomit-frame-pointer
-  -fstack-protector-strong)
+  -fomit-frame-pointer)
 
 
 
@@ -222,6 +221,7 @@ add_library(LISP ${LISP_SOURCES})
 target_compile_options(LISP PRIVATE
   -g
   -O3 # Script execution is a bit of a bottleneck
+  -fstack-protector-strong
   ${G_COMPILE_FLAGS})
 
 
