@@ -293,7 +293,7 @@ public:
     }
 
 
-    void invoke_ram_script(Platform& pfrm, const char* ram_fs_path);
+    lisp::Value* invoke_ram_script(Platform& pfrm, const char* ram_fs_path);
 
 
     lisp::Value*

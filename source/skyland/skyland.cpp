@@ -310,21 +310,23 @@ void init_clouds(Platform& pfrm)
 
 
 
-void App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
+lisp::Value* App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
 {
     if (not is_developer_mode()) {
-        return;
+        return L_NIL;
     }
 
     Vector<char> buffer(pfrm);
     if (ram_filesystem::read_file_data(pfrm, ram_fs_path, buffer)) {
         lisp::VectorCharSequence seq(buffer);
-        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+        return lisp::dostring(seq, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
             pfrm.fatal(p.fmt_.c_str());
         });
     }
+
+    return L_NIL;
 }
 
 
