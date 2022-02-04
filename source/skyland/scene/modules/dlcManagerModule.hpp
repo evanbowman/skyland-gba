@@ -58,6 +58,16 @@ private:
     u32 index_ = 0;
 
     std::optional<Text> patch_name_;
+    std::optional<Text> tiles_text_;
+    std::optional<Text> sprites_text_;
+
+    std::optional<Text> total_tiles_;
+    std::optional<Text> total_sprites_;
+
+    std::optional<Text> total_tiles_label_;
+    std::optional<Text> total_sprites_label_;
+
+    std::optional<Text> erase_text_;
 
     std::optional<DynamicMemory<PatchList>> patches_;
 
