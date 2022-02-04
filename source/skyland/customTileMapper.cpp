@@ -44,6 +44,9 @@ void CustomTileMapper::write_images(Platform& pfrm)
 
             pfrm.overwrite_t0_tile(Tile::dlc_tiles_begin + i,
                                    pfrm.encode_tile(buffer));
+
+            pfrm.overwrite_t1_tile(Tile::dlc_tiles_begin + i,
+                                   pfrm.encode_tile(buffer));
         }
     }
 }

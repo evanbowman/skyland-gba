@@ -39,6 +39,12 @@ public:
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
+    bool description_visible() override
+    {
+        return true;
+    }
+
+
     static Icon icon()
     {
         return 1512;
