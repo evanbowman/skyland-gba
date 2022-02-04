@@ -940,14 +940,15 @@ static const lisp::Binding
 
                  app.camera().shake(4);
 
+                 // clang-format off
+
                  MAKE_PROJECTILE("cannonball", Cannonball)
-                 else MAKE_PROJECTILE("arcbolt", ArcBolt) else MAKE_PROJECTILE("decimator-burst", DecimatorBurst) else MAKE_PROJECTILE(
-                     "flak",
-                     Flak) else MAKE_PROJECTILE("ion-burst",
-                                                IonBurst) else MAKE_PROJECTILE("nemesis-blast",
-                                                                               NemesisBlast) else if (str_eq(name,
-                                                                                                             "missile"))
-                 {
+                 else MAKE_PROJECTILE("arcbolt", ArcBolt)
+                 else MAKE_PROJECTILE("decimator-burst", DecimatorBurst)
+                 else MAKE_PROJECTILE("flak", Flak)
+                 else MAKE_PROJECTILE("ion-burst", IonBurst)
+                 else MAKE_PROJECTILE("nemesis-blast", NemesisBlast)
+                 else if (str_eq(name, "missile")) {
                      auto c = app.alloc_entity<Missile>(pfrm,
                                                         start,
                                                         target,
@@ -957,13 +958,14 @@ static const lisp::Binding
                      if (c) {
                          room->parent()->projectiles().push(std::move(c));
                      }
-                 }
-                 else
-                 {
+                 } else {
                      Platform::fatal(
                          format("cannot make projectile of type %", name)
                              .c_str());
                  }
+
+    // clang-format on
+
 #undef MAKE_PROJECTILE
 
                  return L_NIL;

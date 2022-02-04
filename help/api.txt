@@ -183,6 +183,26 @@ o----------------------------o
 
 o----------------------------o
 
+ (emit
+  symbol
+  island
+  x1
+  y1
+  x2
+  y2)
+
+ Emit a projectile defined by
+ symbol, from room at (x1,y1)
+ on island, with target
+ (x2,y2) on opposite island.
+
+ Symbol may be:
+ 'cannonball
+ '
+
+
+o----------------------------o
+
  (eval-file path)
 
  Evaluate code in another
