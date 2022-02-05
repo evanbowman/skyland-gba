@@ -184,7 +184,7 @@ o----------------------------o
 o----------------------------o
 
  (emit
-  symbol
+  symbol-or-list
   island
   x1
   y1
@@ -198,7 +198,20 @@ o----------------------------o
 
  Symbol may be:
  'cannonball
- '
+ 'flak
+ 'arcbolt
+ 'decimator-burst
+ 'nemesis-blast
+ 'missile
+ 'ion-burst
+
+ Instead of a symbol, you may
+ specify a custom projectile
+ via a description list,
+ consisting of integers:
+ '(sprite-tile
+   damage
+   sprite-horizontal-flip)
 
 
 o----------------------------o

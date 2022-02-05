@@ -9,6 +9,7 @@
 #include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/entity/projectile/nemesisBlast.hpp"
+#include "skyland/entity/projectile/pluginProjectile.hpp"
 #include "skyland/entity/projectile/projectile.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/droneBay.hpp"
@@ -46,6 +47,33 @@ T* respawn_basic_projectile(Platform& pfrm,
         return ret;
     }
     return nullptr;
+}
+
+
+
+void respawn_plugin_projectile(Platform& pfrm,
+                               App& app,
+                               Island* parent,
+                               const time_stream::event::PluginProjectileDestroyed& e)
+{
+    auto c = app.alloc_entity<PluginProjectile>(
+        pfrm,
+        Vec2<Float>{(Float)e.x_pos_.get(), (Float)e.y_pos_.get()},
+        Vec2<Float>{},
+        parent,
+        Vec2<u8>{e.x_origin_, e.y_origin_},
+        e.tile_.get(),
+        e.damage_.get(),
+        e.hflip_);
+    if (c) {
+        Vec2<Float> step_vector;
+        memcpy(&step_vector.x, e.x_speed_, sizeof(Float));
+        memcpy(&step_vector.y, e.y_speed_, sizeof(Float));
+        c->set_step_vector(step_vector);
+        c->set_timer(e.timer_.get());
+        medium_explosion_inv(pfrm, app, c->sprite().get_position());
+        parent->projectiles().push(std::move(c));
+    }
 }
 
 
@@ -335,6 +363,24 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 app.camera().shake(8);
             }
             app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_plugin_projectile_destroyed: {
+            auto e = (time_stream::event::PlayerPluginProjectileDestroyed*)end;
+            respawn_plugin_projectile(pfrm, app, &app.player_island(), *e);
+            app.time_stream().pop(sizeof *e);
+            app.camera().shake(8);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_plugin_projectile_destroyed: {
+            auto e = (time_stream::event::OpponentPluginProjectileDestroyed*)end;
+            respawn_plugin_projectile(pfrm, app, app.opponent_island(), *e);
+            app.time_stream().pop(sizeof *e);
+            app.camera().shake(8);
             break;
         }
 

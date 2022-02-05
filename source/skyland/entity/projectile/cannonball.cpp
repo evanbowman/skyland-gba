@@ -87,6 +87,11 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
             // cannon, or with any blocks directly above or below the cannon.
             return;
         }
+        if (auto origin = source_->get_room(origin_tile_)) {
+            if (origin == &room) {
+                return;
+            }
+        }
     }
 
     if (source_ == room.parent() and room.metaclass() == forcefield_mt) {

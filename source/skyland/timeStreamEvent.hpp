@@ -64,6 +64,9 @@ enum Type : u8 {
     player_nemesis_blast_destroyed,
     opponent_nemesis_blast_destroyed,
 
+    player_plugin_projectile_destroyed,
+    opponent_plugin_projectile_destroyed,
+
     player_room_damaged,
     opponent_room_damaged,
 
@@ -298,6 +301,35 @@ struct PlayerNemesisBlastDestroyed : NemesisBlastDestroyed {
 
 struct OpponentNemesisBlastDestroyed : NemesisBlastDestroyed {
     static constexpr const auto t = Type::opponent_nemesis_blast_destroyed;
+};
+
+
+
+struct PluginProjectileDestroyed {
+    Header header_;
+    u8 x_origin_ : 4;
+    u8 y_origin_ : 4;
+    HostInteger<Microseconds> timer_;
+    host_s16 x_pos_;
+    host_s16 y_pos_;
+    u8 x_speed_[sizeof(Float)];
+    u8 y_speed_[sizeof(Float)];
+    u8 variant_;
+    host_u16 tile_;
+    HostInteger<s16> damage_;
+    bool hflip_;
+};
+
+
+
+struct PlayerPluginProjectileDestroyed : PluginProjectileDestroyed {
+    static constexpr const auto t = Type::player_plugin_projectile_destroyed;
+};
+
+
+
+struct OpponentPluginProjectileDestroyed : PluginProjectileDestroyed {
+    static constexpr const auto t = Type::opponent_plugin_projectile_destroyed;
 };
 
 

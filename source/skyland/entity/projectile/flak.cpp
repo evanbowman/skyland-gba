@@ -114,6 +114,11 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
     }
 
     if (source_ == room.parent()) {
+        if (auto origin = source_->get_room(origin_tile_)) {
+            if (origin == &room) {
+                return;
+            }
+        }
         if (room.position().x == origin_tile_.x or
             room.position().x + 1 == origin_tile_.x or
             room.position().x + (room.size().x - 1) == origin_tile_.x) {

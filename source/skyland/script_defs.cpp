@@ -20,6 +20,7 @@
 #include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/entity/projectile/nemesisBlast.hpp"
+#include "skyland/entity/projectile/pluginProjectile.hpp"
 
 
 
@@ -889,7 +890,6 @@ static const lisp::Binding
              }},
             {"emit", [](int argc) {
                  L_EXPECT_ARGC(argc, 6);
-                 L_EXPECT_OP(5, symbol);
                  L_EXPECT_OP(4, user_data);
                  L_EXPECT_OP(3, integer);
                  L_EXPECT_OP(2, integer);
@@ -899,7 +899,6 @@ static const lisp::Binding
                  auto& app = *interp_get_app();
                  auto& pfrm = *lisp::interp_get_pfrm();
 
-                 auto name = lisp::get_op(5)->symbol().name_;
                  auto island = (Island*)lisp::get_op(4)->user_data().obj_;
 
                  const u8 x1 = lisp::get_op(3)->integer().value_;
@@ -907,9 +906,8 @@ static const lisp::Binding
 
                  auto room = island->get_room({x1, y1});
                  if (not room) {
-                     Platform::fatal(format("cannot emit % from (%,%), "
+                     Platform::fatal(format("cannot emit from (%,%), "
                                             "which is not a room!",
-                                            name,
                                             x1,
                                             y1)
                                          .c_str());
@@ -928,6 +926,43 @@ static const lisp::Binding
                  auto target = room->other_island(app)->origin();
                  target.x += x2 * 16 + 8;
                  target.y += y2 * 16 + 8;
+
+                 if (lisp::get_op(5)->type() == lisp::Value::Type::cons) {
+                     auto tile = lisp::get_list(lisp::get_op(5), 0);
+                     if (tile->type() not_eq lisp::Value::Type::integer) {
+                         Platform::fatal("Projectile param list expected type "
+                                         "integer in slot zero");
+                     }
+                     auto damage = lisp::get_list(lisp::get_op(5), 1);
+                     if (tile->type() not_eq lisp::Value::Type::integer) {
+                         Platform::fatal("Projectile param list expected type "
+                                         "integer in slot one");
+                     }
+                     auto flip = lisp::get_list(lisp::get_op(5), 2);
+                     if (tile->type() not_eq lisp::Value::Type::integer) {
+                         Platform::fatal("Projectile param list expected tyep "
+                                         "integer in slot one");
+                     }
+                     auto c =
+                         app.alloc_entity<PluginProjectile>(pfrm,
+                                                            start,
+                                                            target,
+                                                            room->parent(),
+                                                            room->position(),
+                                                            (u16)tile->integer().value_,
+                                                            (Health)damage->integer().value_,
+                                                            (bool)flip->integer().value_);
+                     if (c) {
+                         room->parent()->projectiles().push(std::move(c));
+                     }
+                     return L_NIL;
+                 } else if (lisp::get_op(5)->type() not_eq lisp::Value::Type::symbol) {
+                     Platform::fatal("Invalid argument for (emit): "
+                                     "first arg should be a symbol or "
+                                     "a list.");
+                 }
+
+                 auto name = lisp::get_op(5)->symbol().name_;
 
 #define MAKE_PROJECTILE(NAME, CLASS)                                           \
     if (str_eq(name, NAME)) {                                                  \
