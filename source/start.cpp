@@ -21,7 +21,7 @@ const char* console_header =
 
 
 
-void skyland_main_loop(Platform& pf)
+static inline void skyland_main_loop(Platform& pf)
 {
     pf.remote_console().printline(::console_header);
 
@@ -40,7 +40,6 @@ void skyland_main_loop(Platform& pf)
 
     pf.enable_glyph_mode(true);
     pf.load_overlay_texture("overlay_world_map");
-    pf.load_sprite_texture("spritesheet");
     pf.load_background_texture("background");
 
     while (pf.is_running()) {

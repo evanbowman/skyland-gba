@@ -11,7 +11,6 @@
 
 #include "bulkAllocator.hpp"
 #include "filesystem.hpp"
-#include "gba_color.hpp"
 #include "gbp_logo.hpp"
 #include "graphics/overlay.hpp"
 #include "localization.hpp"
@@ -26,6 +25,7 @@
 #include "vector.hpp"
 #include <algorithm>
 #include <setjmp.h>
+#include "platform/color.hpp"
 
 
 

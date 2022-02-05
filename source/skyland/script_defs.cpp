@@ -770,23 +770,6 @@ static const lisp::Binding
 
                  Platform::fatal(error.c_str());
              }},
-            // Banished! Created mysterious bugs, maybe the gc was collecting the protected
-            // functions somehow?
-            // {"task",
-            //  [](int argc) {
-            //      L_EXPECT_ARGC(argc, 2);
-            //      L_EXPECT_OP(1, integer);
-            //      L_EXPECT_OP(0, function);
-
-            //      interp_get_app()->on_timeout(
-            //          *lisp::interp_get_pfrm(),
-            //          milliseconds(lisp::get_op(1)->integer().value_),
-            //          [v = lisp::Protected(lisp::get_op(0))](Platform& pfrm, App& app) {
-            //              lisp::funcall(v.get(), 0);
-            //          });
-
-            //      return L_NIL;
-            //  }},
             {"cargo",
              [](int argc) {
                  L_EXPECT_ARGC(argc, 3);

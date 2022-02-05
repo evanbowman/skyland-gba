@@ -9,6 +9,7 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
+#include "platform/color.hpp"
 
 
 
@@ -332,12 +333,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case AnimState::fade: {
         constexpr auto fade_duration = seconds(3) + milliseconds(500);
-        // if (timer_ > seconds(1) + milliseconds(700) and
-        //     not pushed_notification_) {
-        //     pushed_notification_ = true;
-        //     push_notification(
-        //         pfrm, this, locale_string(pfrm, defeated_text_)->c_str());
-        // }
+
         sink_speed_ += 0.0000013f;
         if (timer_ > fade_duration) {
             pfrm.screen().fade(0.f);
@@ -345,6 +341,25 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (opponent_defeated) {
                 anim_state_ = AnimState::wait_1;
             } else {
+                pfrm.screen().set_shader([](int p, ColorConstant k, int var) {
+                    if (p == 1) {
+                        // Do not apply the redden effect to the overlay.
+                        return k;
+                    }
+
+                    auto k1 = contrast_shader(p, k, std::max(-(var / 2),
+                                                             -64));
+
+                    static const Color ao(ColorConstant::aerospace_orange);
+                    const Color input(k1);
+
+                    Color result(fast_interpolate(ao.r_, input.r_, var),
+                                 fast_interpolate(ao.g_, input.g_, var),
+                                 fast_interpolate(ao.b_, input.b_, var));
+
+
+                    return result.hex();
+                });
                 anim_state_ = AnimState::fade_out;
             }
 
@@ -404,6 +419,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             anim_state_ = AnimState::idle;
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
+            if (not opponent_defeated) {
+                pfrm.screen().set_shader_argument(amount * 200);
+            }
             pfrm.screen().schedule_fade(amount * partial_fade_amt);
             pfrm.screen().pixelate(amount * 28, false);
         }
@@ -462,6 +480,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<TitleScreenScene>(3);
                 }
             } else {
+
+                pfrm.screen().set_shader(passthrough_shader);
+                pfrm.screen().set_shader_argument(0);
+                pfrm.sleep(1);
+                pfrm.screen().fade(1.f);
+
                 if (pfrm.network_peer().is_connected()) {
                     pfrm.network_peer().disconnect();
                     return scene_pool::alloc<TitleScreenScene>();

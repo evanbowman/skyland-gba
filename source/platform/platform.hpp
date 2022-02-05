@@ -759,6 +759,13 @@ private:
 
 
 
+// NOTE: technically, nothing platform-specific in these shader functions. They
+// could be easily defined outside of the platform class. But a platform may
+// know specific things about hardware color representation, allowing certain
+// color effects to be computed more quickly in a platform-specific way. For
+// example: one of the build targets, the Gameboy Advance, uses five-bit bgr,
+// and there's no need to convert to a 32-bit color constant (eight bits per
+// color) and back to five bit color again.
 ColorConstant passthrough_shader(int palette, ColorConstant k, int arg);
 ColorConstant grayscale_shader(int palette, ColorConstant k, int arg);
 ColorConstant contrast_shader(int palette, ColorConstant k, int arg);
