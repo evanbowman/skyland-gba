@@ -32,7 +32,7 @@
               (setq temp (+ 600 (choice 300)))
               (dialog "You explore, and salvage " (string temp) "@ from the ruins.")
               (coins-add temp)
-              (exit-level))
+              (exit))
           (progn
             (island-configure
              (opponent)
@@ -50,4 +50,4 @@
 (setq on-dialog-declined
       (lambda
         (dialog "The fortress sinks back into the clouds, its contents remain an unresolved mystery.")
-        (exit-level)))
+        (exit)))

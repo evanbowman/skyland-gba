@@ -44,7 +44,7 @@
                   (progn
                     (chr-new (player) (car temp) (cdr temp) 'neutral 0)
                     (dialog "The survivor joined your crew!")
-                    (exit-level))
+                    (exit))
                 (progn
                   (chr-new (player) (car temp) (cdr temp) 'hostile 0)
                   (dialog "The survivor turned out to be a vicious goblin!")
@@ -55,10 +55,10 @@
                           (setq on-dialog-closed '()))))))
           (progn
             (dialog "Sadly, there's no room...")
-            (exit-level)))))
+            (exit)))))
 
 
 (setq on-dialog-declined
       (lambda
         ;; TODO...
-        (exit-level)))
+        (exit)))

@@ -51,9 +51,9 @@
           (progn
             (dialog "Sadly, there's no room...")))
 
-        (exit-level)))
+        (exit)))
 
 
 (setq on-dialog-declined
       (lambda
-        (exit-level)))
+        (exit)))

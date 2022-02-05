@@ -50,10 +50,10 @@
                           "that your castle is too crowded and declines to come aboard.")))
             (dialog "Sadly, there's no room in your castle for anyone else")))
 
-        (exit-level)))
+        (exit)))
 
 
 (setq on-dialog-declined
       (lambda
         ;; TODO...
-        (exit-level)))
+        (exit)))

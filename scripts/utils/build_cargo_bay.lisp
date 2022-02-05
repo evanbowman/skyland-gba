@@ -25,4 +25,4 @@
              (setq on-dialog-accepted
                    (lambda
                      (task 30000 retry)))
-             (setq on-dialog-declined exit-level))))))))
+             (setq on-dialog-declined exit))))))))

@@ -48,10 +48,10 @@
                 (dialog "The mercenary joined your crew!"))
             (dialog "Sadly, there's no room...")))
 
-        (exit-level)))
+        (exit)))
 
 
 (setq on-dialog-declined
       (lambda
         (dialog "The mercenaries became angry, and cut the transmission.")
-        (exit-level)))
+        (exit)))

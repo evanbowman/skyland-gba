@@ -43,7 +43,7 @@
             (coins-add -300)
             (dialog "The fortress' captain peers smugly from behind her spectacles. "
                     "She's glad that you understand the nature of the situation.")
-            (exit-level)))))
+            (exit)))))
 
 
 (setq on-dialog-declined

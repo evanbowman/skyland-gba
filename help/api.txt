@@ -213,6 +213,14 @@ o----------------------------o
    damage
    sprite-horizontal-flip)
 
+ The engine doesn't yet
+ support custom sprites, but
+ eventually, the api will
+ include a register-sprite
+ function similar to
+ register-tile, for custom
+ projectile graphics.
+
 
 o----------------------------o
 
@@ -224,7 +232,7 @@ o----------------------------o
 
 o----------------------------o
 
- (exit-level)
+ (exit)
 
  Exit the current level.
 
@@ -391,8 +399,6 @@ o----------------------------o
 
  For example:
 
- (defn update
-   nil)
 
  (let ((t (register-tile "/mytile.img")))
   (register-room
@@ -401,11 +407,11 @@ o----------------------------o
     '(1 . 1)   ;; room size
     (list t)   ;; tile graphics
     1          ;; update freq (seconds)
-    update)))  ;; update function
+    update)))  ;; update function (see below)
 
  The above code registers a
  room called room-name, size
- 1x1, with time image sourced
+ 1x1, with tile image sourced
  from /mytile.img in sram.
 
  Creating a file with a .img
@@ -432,6 +438,18 @@ o----------------------------o
  fourth parameter will contain
  '(target-x . target-y) or
  nill. Otherwise, nil.
+
+ For example:
+
+ (defn update
+  (if $3        ;; if target passed
+   (emit
+    'flak       ;; projectile type
+    $0          ;; island
+    $1          ;; origin-room-x
+    $2          ;; origin-room-y
+    (car $3)    ;; target-room-x
+    (cdr $3)))) ;; target-room-y
 
  You may register up to
  fifteen custom rooms.

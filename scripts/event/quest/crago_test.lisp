@@ -31,4 +31,4 @@
                  (lambda
                    (dialog (string $0))))))
 
-        (setq on-dialog-declined exit-level)))
+        (setq on-dialog-declined exit)))

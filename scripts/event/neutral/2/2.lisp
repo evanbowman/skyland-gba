@@ -36,7 +36,7 @@
           (progn
             (coins-add (- temp))
             (dialog "The pirates accept your bribe and move on.")
-            (exit-level)))))
+            (exit)))))
 
 
 (setq on-dialog-declined

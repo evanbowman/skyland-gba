@@ -29,4 +29,4 @@
 
         (coins-add temp)
 
-        (exit-level)))
+        (exit)))

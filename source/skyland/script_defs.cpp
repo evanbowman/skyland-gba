@@ -623,7 +623,7 @@ static const lisp::Binding
              [](int argc) {
                  return lisp::make_integer(interp_get_app()->zone() - 1);
              }},
-            {"exit-level",
+            {"exit",
              [](int argc) {
                  interp_get_app()->exit_level() = true;
                  return L_NIL;

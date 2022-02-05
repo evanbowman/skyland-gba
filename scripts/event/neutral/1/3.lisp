@@ -39,7 +39,7 @@
             (dialog "The goblin king rejoices, having successfully extorted "
                     (string temp)
                     "@.")
-            (exit-level)))))
+            (exit)))))
 
 
 (setq on-dialog-declined
