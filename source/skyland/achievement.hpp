@@ -32,7 +32,6 @@ enum Achievement : u8 {
     explorer,
     strategist,
     stronghold,
-    sidequest,
     ancient_weapon,
     count
 };

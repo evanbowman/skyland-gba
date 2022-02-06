@@ -23,7 +23,7 @@ public:
     Island(const Island&) = delete;
 
 
-    using Rooms = RoomTable<70, 16>;
+    using Rooms = RoomTable<90, 16>;
 
 
     bool add_room(Platform& pfrm, App& app, RoomPtr<Room> insert)

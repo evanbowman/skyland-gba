@@ -72,17 +72,6 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[stronghold].reward_), awarded);
      }},
 
-    {"Sidequest",
-     "Complete any quest!",
-     "shrubbery",
-     [](Platform&, App& app) {
-         // TODO!
-         return false;
-     },
-     [](Platform&, App&, bool awarded) {
-         set_enabled(metaclass_index(info[sidequest].reward_), awarded);
-     }},
-
     {"Borrowed tech",
      "Destroy a decimator by plundering!",
      "decimator",
