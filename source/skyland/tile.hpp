@@ -182,3 +182,10 @@ struct InteriorTile {
         dlc_tiles_begin = 113,
     };
 };
+
+
+struct SpriteTile {
+    enum {
+        custom_sprite_tile_begin = 110,
+    };
+};

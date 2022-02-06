@@ -83,6 +83,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     key_callback_processor.clear();
     app.custom_tile_mapper().clear();
+    app.custom_sprite_mapper().clear();
 
     // Back to the title screen! DLC plugins need to be unloaded...
     plugin_rooms_unregister();
@@ -189,6 +190,7 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.load_background_texture("background");
 
     write_custom_graphics(pfrm, app);
+    app.custom_sprite_mapper().publish_as_sprites(pfrm);
 
 
     for (int x = 0; x < 16; ++x) {

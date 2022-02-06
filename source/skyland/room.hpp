@@ -311,11 +311,15 @@ public:
     }
 
 
+    u8 default_palette();
+
+
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 
 
 private:
+
     Island* parent_;
     EntityList<BasicCharacter> characters_;
 

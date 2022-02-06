@@ -115,7 +115,7 @@ static bool overlay_back_buffer_changed = false;
 
 
 
-alignas(4) static EWRAM_DATA u16 sp_palette_back_buffer[16];
+alignas(4) static EWRAM_DATA u16 sp_palette_back_buffer[32];
 alignas(4) static EWRAM_DATA u16 bg_palette_back_buffer[256];
 
 
@@ -815,7 +815,7 @@ Color real_color(ColorConstant k)
 
 
 using PaletteBank = int;
-constexpr PaletteBank available_palettes = 3;
+constexpr PaletteBank available_palettes = 4;
 constexpr PaletteBank palette_count = 16;
 
 static PaletteBank palette_counter = available_palettes;
@@ -1053,7 +1053,8 @@ void Platform::Screen::draw(const Sprite& spr)
 
     const auto& mix = spr.get_mix();
 
-    const auto pb = [&]() -> PaletteBank {
+
+    auto pb = [&]() -> PaletteBank {
         if (UNLIKELY(mix.color_ not_eq ColorConstant::null)) {
             if (const auto pal_bank = color_mix(mix.color_, mix.amount_)) {
                 return ATTR2_PALBANK(pal_bank);
@@ -1064,6 +1065,10 @@ void Platform::Screen::draw(const Sprite& spr)
             return 0;
         }
     }();
+
+    if (spr.palette()) {
+        pb = ATTR2_PALBANK(spr.palette());
+    }
 
     auto draw_sprite = [&](int tex_off, int x_off, int scale) {
         if (UNLIKELY(oam_write_index == oam_count)) {
@@ -1250,6 +1255,16 @@ void Platform::overwrite_t1_tile(u16 index, const EncodedTile& t)
 
 
 
+void Platform::overwrite_sprite_tile(u16 index, const EncodedTile& t)
+{
+    // NOTE: Sprites occupy 16x32 pixels, i.e. 8 8x8 pixel tiles.
+    u8* p = ((u8*)&MEM_TILE[4][1]) + index * (vram_tile_size() * 8);
+
+    memcpy16(p, &t, (sizeof t) / 2);
+}
+
+
+
 Platform::TilePixels Platform::extract_tile(Layer layer, u16 tile)
 {
     TilePixels result;
@@ -1412,7 +1427,7 @@ void Platform::Screen::clear()
 
     if (get_gflag(GlobalFlag::palette_sync)) {
 
-        memcpy32(MEM_PALETTE, sp_palette_back_buffer, 8);
+        memcpy32(MEM_PALETTE, sp_palette_back_buffer, 16);
 
         memcpy32(MEM_BG_PALETTE, bg_palette_back_buffer,
                  24); // word count
@@ -2209,10 +2224,12 @@ void Platform::Screen::schedule_fade(Float amount,
         auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
         bg_palette_back_buffer[i] = blend(from, c, amt);
     }
-    // Custom flag palette?
+    // Custom flag/tile/sprite palette:
     for (int i = 0; i < 16; ++i) {
         auto from = Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
-        bg_palette_back_buffer[16 * 12 + i] = blend(from, c, amt);
+        auto val = blend(from, c, amt);
+        bg_palette_back_buffer[16 * 12 + i] = val;
+        sp_palette_back_buffer[16 + i] = val;
     }
     // Tile1 palette
     for (int i = 0; i < 16; ++i) {
@@ -3650,6 +3667,11 @@ Platform::Platform()
     load_tile0_texture("tilesheet");
     for (int i = 0; i < 16; ++i) {
         MEM_BG_PALETTE[(12 * 16) + i] = MEM_BG_PALETTE[i];
+
+        // When we started allowing players to design custom sprites, we needed
+        // to reserve a sprite palette and fill it with the same color values as
+        // the image editor uses for custom tile graphics.
+        MEM_PALETTE[16 + i] = MEM_BG_PALETTE[i];
     }
 
 

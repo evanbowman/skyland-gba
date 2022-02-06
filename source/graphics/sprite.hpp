@@ -96,6 +96,18 @@ public:
     }
 
 
+    void set_palette(u8 palette)
+    {
+        palette_ = palette;
+    }
+
+
+    u8 palette() const
+    {
+        return palette_;
+    }
+
+
 private:
     // For the gameboy advance edition of the game, all the data for the engine
     // is designed to fit within IWRAM, so we need to be careful about
@@ -109,7 +121,8 @@ private:
     // Extra flags reserved for future use.
     u8 flags1_ : 3;
     u8 priority_ : 2;
-    u8 reserved_ : 3;
+    u8 palette_ : 1;
+    u8 reserved_ : 2;
 
     // Because sprites are only 16x32 or 32x32, 16bits for the origin field is
     // quite generous...

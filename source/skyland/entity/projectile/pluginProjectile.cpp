@@ -7,6 +7,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -27,6 +28,10 @@ PluginProjectile::PluginProjectile(const Vec2<Float>& position,
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);
     sprite_.set_texture_index(graphics_tile);
+
+    if (sprite_.get_texture_index() >= SpriteTile::custom_sprite_tile_begin) {
+        sprite_.set_palette(1);
+    }
 
     sprite_.set_origin({8, 8});
 

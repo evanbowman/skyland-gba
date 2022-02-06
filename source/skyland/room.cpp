@@ -124,6 +124,17 @@ void Room::display(Platform::Screen& screen)
 
 
 
+u8 Room::default_palette()
+{
+    if ((*metaclass())->properties() & RoomProperties::plugin) {
+        return 12;
+    } else {
+        return parent_->layer() == Layer::map_0_ext ? 0 : 2;
+    }
+}
+
+
+
 void Room::update(Platform& pfrm, App& app, Microseconds delta)
 {
     dispatch_queued_ = false;
@@ -175,7 +186,7 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
                             parent_->layer(),
                             position().x + x,
                             position().y + y,
-                            parent_->layer() == Layer::map_0_ext ? 0 : 2);
+                            default_palette());
                     }
                 }
             }
@@ -239,7 +250,7 @@ void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
                             parent_->layer(),
                             position().x + x,
                             position().y + y,
-                            parent_->layer() == Layer::map_0_ext ? 0 : 2);
+                            default_palette());
                     }
                 }
             }

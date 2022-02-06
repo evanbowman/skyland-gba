@@ -559,7 +559,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                              20 + rng::choice<50>(rng::utility_state),
                              0.00000001f *
                                  (3 + rng::choice<600>(rng::utility_state)),
-                             (u8)(107 + rng::choice<2>(rng::utility_state)),
+                             (u8)(102 + rng::choice<2>(rng::utility_state)),
                              (u8)(rng::choice<3>(rng::utility_state)),
                              0,
                              0,
@@ -591,7 +591,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                          0.00008f * (1 + rng::choice<7>(rng::utility_state)),
                          90 + 20 + rng::choice<50>(rng::utility_state),
                          0.0000009f,
-                         (u8)(107 + rng::choice<4>(rng::utility_state)),
+                         (u8)(102 + rng::choice<4>(rng::utility_state)),
                          (u8)(rng::choice<3>(rng::utility_state)),
                          0,
                          0,

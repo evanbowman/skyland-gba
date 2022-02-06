@@ -341,6 +341,12 @@ public:
     }
 
 
+    CustomTileMapper& custom_sprite_mapper()
+    {
+        return custom_sprite_mapper_;
+    }
+
+
     struct DialogDecoration {
         u16 character_image_ = 0;
         StringBuffer<12> character_name_;
@@ -416,6 +422,7 @@ private:
 
     time_stream::TimeStream time_stream_;
     CustomTileMapper custom_tile_mapper_;
+    CustomTileMapper custom_sprite_mapper_;
 };
 
 

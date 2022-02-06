@@ -814,6 +814,42 @@ static const lisp::Binding
 
                  return L_NIL;
              }},
+            {"register-sprite",
+             [](int argc) {
+                 L_EXPECT_ARGC(argc, 1);
+                 L_EXPECT_OP(0, string);
+
+                 img::Image texture;
+
+                 Vector<char> data(*lisp::interp_get_pfrm());
+
+                 const char* path = lisp::get_op(0)->string().value();
+
+                 ram_filesystem::read_file_data(*lisp::interp_get_pfrm(),
+                                                path,
+                                                data);
+
+                 if (data.size() >= sizeof texture) {
+                     auto it = data.begin();
+                     for (u32 i = 0; i < sizeof texture; ++i) {
+                         ((u8*)&texture)[i] = *it;
+                         ++it;
+                     }
+
+                     auto result =
+                         interp_get_app()->custom_sprite_mapper()
+                         .map_image(*lisp::interp_get_pfrm(), texture);
+                     return lisp::make_integer(SpriteTile::custom_sprite_tile_begin
+                                               + result);
+                 } else {
+                     StringBuffer<64> err =
+                         "invalid sprite path or contents: ";
+                     err += path;
+                     Platform::fatal(err.c_str());
+                 }
+
+                 return L_NIL;
+             }},
             {"register-tile",
              [](int argc) {
                  L_EXPECT_ARGC(argc, 1);
@@ -839,7 +875,8 @@ static const lisp::Binding
                          interp_get_app()->custom_tile_mapper().map_image(
                              *lisp::interp_get_pfrm(), texture);
 
-                     return lisp::make_integer(result);
+                     return lisp::make_integer(Tile::dlc_tiles_begin +
+                                               result);
                  } else {
                      StringBuffer<64> err =
                          "invalid texture path or contents: ";

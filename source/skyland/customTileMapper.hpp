@@ -19,8 +19,10 @@ public:
     int map_image(Platform& pfrm, const img::Image& image);
 
 
-    // Push all mapped images to video memory.
-    void write_images(Platform& pfrm);
+    // Push all mapped images to video memory
+    void publish_as_tiles(Platform& pfrm);
+
+    void publish_as_sprites(Platform& pfrm);
 
 
     void clear()

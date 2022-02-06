@@ -6,6 +6,7 @@ Sprite::Sprite()
       flip_y_(false)
 {
     priority_ = 1;
+    palette_ = 0;
 }
 
 
