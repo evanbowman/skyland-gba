@@ -213,13 +213,8 @@ o----------------------------o
    damage
    sprite-horizontal-flip)
 
- The engine doesn't yet
- support custom sprites, but
- eventually, the api will
- include a register-sprite
- function similar to
- register-tile, for custom
- projectile graphics.
+ For sprite-tile, see
+ (register-sprite).
 
 
 o----------------------------o
@@ -235,6 +230,15 @@ o----------------------------o
  (exit)
 
  Exit the current level.
+
+
+o----------------------------o
+
+ (fatal value)
+
+ Terminate the game, and
+ display fatal error message
+ containing value.
 
 
 o----------------------------o
@@ -388,6 +392,21 @@ o----------------------------o
 
  You may register up to
  fifteen custom tiles.
+
+
+o----------------------------o
+
+ (register-sprite file-path)
+
+ Allocate and map sprite
+ graphics from a file into
+ video memory. Returns the
+ index of the tile upon
+ success. Upon failure,
+ returns -1.
+
+ You may register up to
+ fifteen custom sprites.
 
 
 o----------------------------o
