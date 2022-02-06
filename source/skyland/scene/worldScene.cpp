@@ -311,6 +311,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                    not show_opponent_interior) {
 
             pfrm.load_tile1_texture("tilesheet_enemy_0");
+            write_custom_graphics(pfrm, app);
 
             app.opponent_island()->render_exterior(pfrm, app);
         }

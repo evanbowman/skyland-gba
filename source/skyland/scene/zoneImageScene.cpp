@@ -94,9 +94,9 @@ void ZoneImageScene::exit(Platform& pfrm, App& app, Scene& next)
         // pfrm.overwrite_t0_tile(105, t);
     }
 
-    write_custom_graphics(pfrm, app);
-
     pfrm.load_tile1_texture("tilesheet_enemy_0");
+
+    write_custom_graphics(pfrm, app);
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
