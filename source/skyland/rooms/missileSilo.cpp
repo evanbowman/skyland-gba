@@ -19,7 +19,7 @@ SHARED_VARIABLE(missile_silo_reload_ms);
 
 
 
-static Sound missile_sound("missile");
+Sound missile_sound("missile");
 
 
 

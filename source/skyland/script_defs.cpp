@@ -21,6 +21,7 @@
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/entity/projectile/nemesisBlast.hpp"
 #include "skyland/entity/projectile/pluginProjectile.hpp"
+#include "skyland/sound.hpp"
 
 
 
@@ -40,6 +41,11 @@ static App* interp_get_app()
 {
     return __app;
 }
+
+
+
+extern Sound cannon_sound;
+extern Sound missile_sound;
 
 
 
@@ -963,6 +969,11 @@ static const lisp::Binding
                          Platform::fatal("Projectile param list expected tyep "
                                          "integer in slot one");
                      }
+
+                     app.camera().shake(4);
+
+                     cannon_sound.play(pfrm, 3);
+
                      auto c =
                          app.alloc_entity<PluginProjectile>(pfrm,
                                                             start,
@@ -984,11 +995,12 @@ static const lisp::Binding
 
                  auto name = lisp::get_op(5)->symbol().name_;
 
-#define MAKE_PROJECTILE(NAME, CLASS)                                           \
+#define MAKE_PROJECTILE(NAME, CLASS, SOUND)                                    \
     if (str_eq(name, NAME)) {                                                  \
         auto c = app.alloc_entity<CLASS>(                                      \
             pfrm, start, target, room->parent(), room->position());            \
         if (c) {                                                               \
+            SOUND.play(pfrm, 3);                                               \
             room->parent()->projectiles().push(std::move(c));                  \
         }                                                                      \
     }
@@ -997,13 +1009,14 @@ static const lisp::Binding
 
                  // clang-format off
 
-                 MAKE_PROJECTILE("cannonball", Cannonball)
-                 else MAKE_PROJECTILE("arcbolt", ArcBolt)
-                 else MAKE_PROJECTILE("decimator-burst", DecimatorBurst)
-                 else MAKE_PROJECTILE("flak", Flak)
-                 else MAKE_PROJECTILE("ion-burst", IonBurst)
-                 else MAKE_PROJECTILE("nemesis-blast", NemesisBlast)
+                 MAKE_PROJECTILE("cannonball", Cannonball, cannon_sound)
+                 else MAKE_PROJECTILE("arcbolt", ArcBolt, cannon_sound)
+                 else MAKE_PROJECTILE("decimator-burst", DecimatorBurst, cannon_sound)
+                 else MAKE_PROJECTILE("flak", Flak, cannon_sound)
+                 else MAKE_PROJECTILE("ion-burst", IonBurst, cannon_sound)
+                 else MAKE_PROJECTILE("nemesis-blast", NemesisBlast, cannon_sound)
                  else if (str_eq(name, "missile")) {
+                     missile_sound.play(pfrm, 3);
                      auto c = app.alloc_entity<Missile>(pfrm,
                                                         start,
                                                         target,
