@@ -128,11 +128,9 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
     app.invoke_script(pfrm, "/scripts/sandbox.lisp");
 
     prep_level(pfrm, app);
-    pfrm.load_tile0_texture("tilesheet");
-    pfrm.load_tile1_texture("tilesheet_enemy_0");
-    app.player_island().render_exterior(pfrm, app);
 
-    write_custom_graphics(pfrm, app);
+    show_island_exterior(pfrm, app, &app.player_island());
+    show_island_exterior(pfrm, app, app.opponent_island());
 
     pfrm.load_overlay_texture("overlay");
     pfrm.system_call("v-parallax", (void*)true);

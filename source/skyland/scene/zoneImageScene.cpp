@@ -78,25 +78,9 @@ void ZoneImageScene::exit(Platform& pfrm, App& app, Scene& next)
         pfrm.load_tile0_texture("tilesheet_interior");
     } else {
         pfrm.load_tile0_texture("tilesheet");
-
-        u8 test[16][16];
-        for (int i = 0; i < 16; ++i) {
-            for (int j = 0; j < 16; ++j) {
-                if (j % 2) {
-                    test[i][j] = 1;
-                } else {
-                    test[i][j] = 4;
-                }
-            }
-        }
-
-        pfrm.encode_tile(test);
-        // pfrm.overwrite_t0_tile(105, t);
     }
 
-    pfrm.load_tile1_texture("tilesheet_enemy_0");
-
-    write_custom_graphics(pfrm, app);
+    show_island_exterior(pfrm, app, app.opponent_island());
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {

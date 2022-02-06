@@ -230,7 +230,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (app.opponent_island()) {
                 describe_room(pfrm,
                               app,
-                              &*app.opponent_island(),
+                              app.opponent_island(),
                               cursor_loc,
                               room_description_);
             }

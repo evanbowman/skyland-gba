@@ -80,22 +80,6 @@ u16 gamespeed_icon(GameSpeed speed)
 
 
 
-void show_island_interior(Platform& pfrm, App& app, Island* island)
-{
-    if (island == &app.player_island()) {
-        pfrm.load_tile0_texture("tilesheet_interior");
-
-    } else {
-        pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
-    }
-
-    island->render_interior(pfrm, app);
-
-    write_custom_graphics(pfrm, app);
-}
-
-
-
 void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
 {
     app.game_speed() = speed;
@@ -182,7 +166,7 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         app.effects().clear();
         return scene_pool::alloc<PlayerIslandDestroyedScene>(
-            &*app.opponent_island());
+            app.opponent_island());
     }
 
     return null_scene();
@@ -305,13 +289,12 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (not app.opponent_island()->interior_visible() and
             show_opponent_interior) {
 
-            show_island_interior(pfrm, app, &*app.opponent_island());
+            show_island_interior(pfrm, app, app.opponent_island());
 
         } else if (app.opponent_island()->interior_visible() and
                    not show_opponent_interior) {
 
-            pfrm.load_tile1_texture("tilesheet_enemy_0");
-            write_custom_graphics(pfrm, app);
+            show_island_exterior(pfrm, app, app.opponent_island());
 
             app.opponent_island()->render_exterior(pfrm, app);
         }
@@ -385,9 +368,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().key_down(pfrm, Key::select)) {
         if (app.player_island().interior_visible()) {
-            pfrm.load_tile0_texture("tilesheet");
-            app.player_island().render_exterior(pfrm, app);
-            write_custom_graphics(pfrm, app);
+            show_island_exterior(pfrm, app, &app.player_island());
         } else {
             show_island_interior(pfrm, app, &app.player_island());
         }
@@ -427,7 +408,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     Island* disp_power = power_fraction_opponent_island_
-                             ? (app.opponent_island() ? &*app.opponent_island()
+                             ? (app.opponent_island() ? app.opponent_island()
                                                       : &app.player_island())
                              : &app.player_island();
 
@@ -549,7 +530,7 @@ void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
 
         Island* disp_power =
             power_fraction_opponent_island_
-                ? (app.opponent_island() ? &*app.opponent_island()
+                ? (app.opponent_island() ? app.opponent_island()
                                          : &app.player_island())
                 : &app.player_island();
 

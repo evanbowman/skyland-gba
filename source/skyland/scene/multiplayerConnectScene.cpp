@@ -38,11 +38,9 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
     cursor_loc.y = 14;
 
     pfrm.delta_clock().reset();
-    pfrm.load_tile0_texture("tilesheet");
 
-    write_custom_graphics(pfrm, app);
-
-    pfrm.load_tile1_texture("tilesheet_enemy_0");
+    show_island_exterior(pfrm, app, &app.player_island());
+    show_island_exterior(pfrm, app, app.opponent_island());
 
     std::get<SkylandGlobalData>(globals()).multiplayer_prep_timer_ = 0;
     std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 120;

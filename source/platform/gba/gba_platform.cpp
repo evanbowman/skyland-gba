@@ -16,6 +16,7 @@
 #include "localization.hpp"
 #include "mixer.hpp"
 #include "number/random.hpp"
+#include "platform/color.hpp"
 #include "platform/platform.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "rumble.h"
@@ -25,7 +26,6 @@
 #include "vector.hpp"
 #include <algorithm>
 #include <setjmp.h>
-#include "platform/color.hpp"
 
 
 

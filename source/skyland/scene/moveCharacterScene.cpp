@@ -37,7 +37,7 @@ void MoveCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
     if (near_) {
         island = &app.player_island();
     } else if (app.opponent_island()) {
-        island = &*app.opponent_island();
+        island = app.opponent_island();
     }
 
     island->render_interior(pfrm, app);
@@ -61,7 +61,7 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (near_) {
         island = &app.player_island();
     } else if (app.opponent_island()) {
-        island = &*app.opponent_island();
+        island = app.opponent_island();
     }
 
     island->plot_walkable_zones(app, *matrix_);
@@ -141,7 +141,7 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (near_) {
         island = &app.player_island();
     } else if (app.opponent_island()) {
-        island = &*app.opponent_island();
+        island = app.opponent_island();
     }
 
     Vec2<u8>* cursor_loc = nullptr;

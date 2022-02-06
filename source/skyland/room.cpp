@@ -182,11 +182,10 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
 
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
-                        pfrm.set_palette(
-                            parent_->layer(),
-                            position().x + x,
-                            position().y + y,
-                            default_palette());
+                        pfrm.set_palette(parent_->layer(),
+                                         position().x + x,
+                                         position().y + y,
+                                         default_palette());
                     }
                 }
             }
@@ -246,11 +245,10 @@ void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
 
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
-                        pfrm.set_palette(
-                            parent_->layer(),
-                            position().x + x,
-                            position().y + y,
-                            default_palette());
+                        pfrm.set_palette(parent_->layer(),
+                                         position().x + x,
+                                         position().y + y,
+                                         default_palette());
                     }
                 }
             }

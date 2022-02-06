@@ -95,905 +95,874 @@ get_line_from_file(Platform& pfrm, const char* file_name, int line)
 
 
 
-static const lisp::Binding
-    script_api[] =
-        {
-            {"log",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
+static const lisp::Binding script_api[] = {
+    {"log",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
 
-                 if (auto pfrm = lisp::interp_get_pfrm()) {
-                     if (lisp::get_op(0)->type() == lisp::Value::Type::string) {
-                         debug(*pfrm, lisp::get_op(0)->string().value());
-                     } else {
-                         lisp::DefaultPrinter p;
-                         format(lisp::get_op(0), p);
-                         debug(*pfrm, p.fmt_.c_str());
-                     }
+         if (auto pfrm = lisp::interp_get_pfrm()) {
+             if (lisp::get_op(0)->type() == lisp::Value::Type::string) {
+                 debug(*pfrm, lisp::get_op(0)->string().value());
+             } else {
+                 lisp::DefaultPrinter p;
+                 format(lisp::get_op(0), p);
+                 debug(*pfrm, p.fmt_.c_str());
+             }
+         }
+
+         return L_NIL;
+     }},
+    {"log-flush",
+     [](int argc) {
+         if (auto pfrm = lisp::interp_get_pfrm()) {
+             pfrm->logger().flush();
+         }
+         return L_NIL;
+     }},
+    {"player",
+     [](int argc) {
+         auto app = interp_get_app();
+         return lisp::make_userdata(&app->player_island());
+     }},
+    {"opponent",
+     [](int argc) {
+         auto app = interp_get_app();
+         if (not app->opponent_island()) {
+             if (auto pfrm = lisp::interp_get_pfrm()) {
+                 pfrm->fatal("opponent unassigned");
+             }
+         }
+         return lisp::make_userdata(app->opponent_island());
+     }},
+    {"dialog-await-y/n",
+     [](int argc) {
+         auto app = interp_get_app();
+         app->dialog_expects_answer_ = true;
+         return L_NIL;
+     }},
+    {"dialog-decor",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, string);
+         L_EXPECT_OP(0, integer);
+         auto app = interp_get_app();
+         app->dialog_decoration().character_image_ =
+             lisp::get_op(0)->integer().value_;
+         app->dialog_decoration().character_name_ =
+             lisp::get_op(1)->string().value();
+         return L_NIL;
+     }},
+    {"repl",
+     [](int argc) {
+         auto app = interp_get_app();
+         app->launch_repl() = true;
+         return L_NIL;
+     }},
+    {"key-bind",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, string);
+         L_EXPECT_OP(0, function);
+
+         KeyCallbackProcessor::Binding b{
+             KeyCallbackProcessor::MatchSeq{},
+             [v = lisp::Protected(lisp::get_op(0))](Platform& pfrm, App& app) {
+                 lisp::funcall(v.get(), 0);
+             }};
+
+         int i = 0;
+         auto str = lisp::get_op(1)->string().value();
+         while (*str not_eq '\0') {
+             if (i == KeyCallbackProcessor::seq_max - 1) {
+                 Platform::fatal("too many keys in key-bind expr, max 10");
+             }
+             if (*str == '-') {
+                 ++str;
+                 continue;
+             }
+             b.key_seq_.seq_[i] = [&] {
+                 switch (*str) {
+                 case 'u':
+                     return Key::up;
+                 case 'd':
+                     return Key::down;
+                 case 'l':
+                     return Key::left;
+                 case 'r':
+                     return Key::right;
+                 case 'a':
+                     return Key::action_1;
+                 case 'b':
+                     return Key::action_2;
+                 default:
+                     Platform::fatal("invalid char in key-bind argument.");
                  }
+             }();
+             ++i;
+             ++str;
+         }
 
-                 return L_NIL;
-             }},
-            {"log-flush",
-             [](int argc) {
-                 if (auto pfrm = lisp::interp_get_pfrm()) {
-                     pfrm->logger().flush();
-                 }
-                 return L_NIL;
-             }},
-            {"player",
-             [](int argc) {
-                 auto app = interp_get_app();
-                 return lisp::make_userdata(&app->player_island());
-             }},
-            {"opponent",
-             [](int argc) {
-                 auto app = interp_get_app();
-                 if (not app->opponent_island()) {
-                     if (auto pfrm = lisp::interp_get_pfrm()) {
-                         pfrm->fatal("opponent unassigned");
-                     }
-                 }
-                 return lisp::make_userdata(&*app->opponent_island());
-             }},
-            {"dialog-await-y/n",
-             [](int argc) {
-                 auto app = interp_get_app();
-                 app->dialog_expects_answer_ = true;
-                 return L_NIL;
-             }},
-            {"dialog-decor",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 2);
-                 L_EXPECT_OP(1, string);
-                 L_EXPECT_OP(0, integer);
-                 auto app = interp_get_app();
-                 app->dialog_decoration().character_image_ =
-                     lisp::get_op(0)->integer().value_;
-                 app->dialog_decoration().character_name_ =
-                     lisp::get_op(1)->string().value();
-                 return L_NIL;
-             }},
-            {"repl",
-             [](int argc) {
-                 auto app = interp_get_app();
-                 app->launch_repl() = true;
-                 return L_NIL;
-             }},
-            {"key-bind",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 2);
-                 L_EXPECT_OP(1, string);
-                 L_EXPECT_OP(0, function);
+         key_callback_processor.push_binding(b);
 
-                 KeyCallbackProcessor::Binding b{
-                     KeyCallbackProcessor::MatchSeq{},
-                     [v = lisp::Protected(lisp::get_op(0))](Platform& pfrm,
-                                                            App& app) {
-                         lisp::funcall(v.get(), 0);
-                     }};
+         return L_NIL;
+     }},
+    {"key-reset",
+     [](int argc) {
+         key_callback_processor.clear();
+         return L_NIL;
+     }},
+    {"dialog",
+     [](int argc) {
+         auto app = interp_get_app();
+         auto pfrm = lisp::interp_get_pfrm();
 
-                 int i = 0;
-                 auto str = lisp::get_op(1)->string().value();
-                 while (*str not_eq '\0') {
-                     if (i == KeyCallbackProcessor::seq_max - 1) {
-                         Platform::fatal(
-                             "too many keys in key-bind expr, max 10");
-                     }
-                     if (*str == '-') {
-                         ++str;
-                         continue;
-                     }
-                     b.key_seq_.seq_[i] = [&] {
-                         switch (*str) {
-                         case 'u':
-                             return Key::up;
-                         case 'd':
-                             return Key::down;
-                         case 'l':
-                             return Key::left;
-                         case 'r':
-                             return Key::right;
-                         case 'a':
-                             return Key::action_1;
-                         case 'b':
-                             return Key::action_2;
-                         default:
-                             Platform::fatal(
-                                 "invalid char in key-bind argument.");
-                         }
-                     }();
-                     ++i;
-                     ++str;
-                 }
+         for (int i = argc - 1; i > -1; --i) {
+             if (not app->dialog_buffer()) {
+                 app->dialog_buffer().emplace(
+                     allocate_dynamic<DialogString>(*pfrm));
+             }
 
-                 key_callback_processor.push_binding(b);
-
-                 return L_NIL;
-             }},
-            {"key-reset",
-             [](int argc) {
-                 key_callback_processor.clear();
-                 return L_NIL;
-             }},
-            {"dialog",
-             [](int argc) {
-                 auto app = interp_get_app();
-                 auto pfrm = lisp::interp_get_pfrm();
-
-                 for (int i = argc - 1; i > -1; --i) {
-                     if (not app->dialog_buffer()) {
-                         app->dialog_buffer().emplace(
-                             allocate_dynamic<DialogString>(*pfrm));
-                     }
-
-                     if (lisp::get_op(i)->type() not_eq
-                         lisp::Value::Type::string) {
-                         if (lisp::get_op((i)) == L_NIL) {
-                             return lisp::get_op((i));
-                         } else {
-                             return lisp::make_error(
-                                 lisp::Error::Code::invalid_argument_type,
-                                 L_NIL);
-                         }
-                     }
-
-                     **app->dialog_buffer() +=
-                         lisp::get_op(i)->string().value();
-                 }
-
-                 return L_NIL;
-             }},
-            {"rooms",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, user_data);
-
-                 auto pfrm = lisp::interp_get_pfrm();
-
-                 auto island = (Island*)lisp::get_op(0)->user_data().obj_;
-                 auto result = serialize(*pfrm, *island);
-                 lisp::BasicCharSequence seq(result->c_str());
-                 lisp::read(seq);
-                 auto ret = lisp::get_op(0);
-                 lisp::pop_op();
-                 return ret;
-             }},
-            {"chrs",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, user_data);
-
-                 auto island = (Island*)lisp::get_op(0)->user_data().obj_;
-
-                 lisp::ListBuilder list;
-
-                 for (auto& room : island->rooms()) {
-                     for (auto& chr : room->characters()) {
-                         if (chr->owner() == &island->owner()) {
-                             lisp::ListBuilder chr_info;
-                             chr_info.push_back(
-                                 lisp::make_integer(chr->grid_position().x));
-                             chr_info.push_back(
-                                 lisp::make_integer(chr->grid_position().y));
-                             if (chr->health() not_eq 255) {
-                                 chr_info.push_back(
-                                     lisp::make_integer(chr->health()));
-                             }
-                             if (chr->is_replicant()) {
-                                 chr_info.push_back(lisp::make_integer(1));
-                             }
-                             list.push_front(chr_info.result());
-                         }
-                     }
-                 }
-                 return list.result();
-             }},
-            {"chr-slots",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, user_data);
-
-                 bool matrix[16][16];
-
-                 auto island = (Island*)lisp::get_op(0)->user_data().obj_;
-
-                 island->plot_walkable_zones(*interp_get_app(), matrix);
-
-                 lisp::Value* ret = lisp::get_nil();
-
-                 // FIXME: this could in theory return such a large list that we end up
-                 // with oom errors. But in practice... seems unlikely.
-
-                 for (u8 x = 0; x < 16; ++x) {
-                     for (u8 y = 0; y < 16; ++y) {
-                         if (matrix[x][y]) {
-                             if (not island->character_at_location({x, y})) {
-                                 lisp::push_op(ret);
-                                 {
-                                     auto cell = lisp::make_cons(L_NIL, L_NIL);
-                                     lisp::push_op(cell);
-                                     cell->cons().set_car(
-                                         lisp::make_integer(x));
-                                     cell->cons().set_cdr(
-                                         lisp::make_integer(y));
-                                     ret = lisp::make_cons(cell, ret);
-                                     lisp::pop_op(); // cell
-                                 }
-                                 lisp::pop_op(); // ret
-                             }
-                         }
-                     }
-                 }
-                 return ret;
-             }},
-            {"opponent-mode",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, symbol);
-
-                 auto [app, pfrm] = interp_get_context();
-
-                 auto conf = lisp::get_op(0);
-                 if (str_cmp(conf->symbol().name_, "hostile") == 0) {
-                     app->swap_opponent<EnemyAI>();
-                 } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
-                     app->swap_opponent<FriendlyAI>();
+             if (lisp::get_op(i)->type() not_eq lisp::Value::Type::string) {
+                 if (lisp::get_op((i)) == L_NIL) {
+                     return lisp::get_op((i));
                  } else {
-                     StringBuffer<30> err("bad ai sym: '");
-                     err += conf->symbol().name_;
-                     pfrm->fatal(err.c_str());
+                     return lisp::make_error(
+                         lisp::Error::Code::invalid_argument_type, L_NIL);
                  }
+             }
 
-                 return L_NIL;
-             }},
-            {"opponent-init",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 2);
-                 L_EXPECT_OP(1, integer);
-                 L_EXPECT_OP(0, symbol);
+             **app->dialog_buffer() += lisp::get_op(i)->string().value();
+         }
 
-                 auto [app, pfrm] = interp_get_context();
+         return L_NIL;
+     }},
+    {"rooms",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, user_data);
 
-                 auto conf = lisp::get_op(0);
-                 if (str_cmp(conf->symbol().name_, "hostile") == 0) {
-                     app->swap_opponent<EnemyAI>();
-                 } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
-                     app->swap_opponent<FriendlyAI>();
-                 } else {
-                     StringBuffer<30> err("bad ai sym: '");
-                     err += conf->symbol().name_;
-                     pfrm->fatal(err.c_str());
-                 }
+         auto pfrm = lisp::interp_get_pfrm();
 
-                 app->create_opponent_island(*pfrm,
-                                             lisp::get_op(1)->integer().value_);
+         auto island = (Island*)lisp::get_op(0)->user_data().obj_;
+         auto result = serialize(*pfrm, *island);
+         lisp::BasicCharSequence seq(result->c_str());
+         lisp::read(seq);
+         auto ret = lisp::get_op(0);
+         lisp::pop_op();
+         return ret;
+     }},
+    {"chrs",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, user_data);
 
-                 return L_NIL;
-             }},
-            {"terrain",
-             [](int argc) {
-                 if (argc == 2) {
-                     L_EXPECT_OP(0, integer);
-                     L_EXPECT_OP(1, user_data);
+         auto island = (Island*)lisp::get_op(0)->user_data().obj_;
 
-                     auto island = (Island*)lisp::get_op(1)->user_data().obj_;
-                     island->init_terrain(*lisp::interp_get_pfrm(),
-                                          lisp::get_op(0)->integer().value_);
+         lisp::ListBuilder list;
 
-                 } else if (argc == 1) {
-                     L_EXPECT_OP(0, user_data);
-
-                     auto island = (Island*)lisp::get_op(0)->user_data().obj_;
-                     return lisp::make_integer(island->terrain().size());
-                 }
-                 return L_NIL;
-             }},
-            {"room-new",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 2);
-                 L_EXPECT_OP(0, cons);
-                 L_EXPECT_OP(1, user_data);
-
-                 auto [app, pfrm] = interp_get_context();
-
-                 auto island = (Island*)lisp::get_op(1)->user_data().obj_;
-                 auto name = lisp::get_list(lisp::get_op(0), 0)->symbol().name_;
-                 u8 x = lisp::get_list(lisp::get_op(0), 1)->integer().value_;
-                 u8 y = lisp::get_list(lisp::get_op(0), 2)->integer().value_;
-
-                 if (auto c = load_metaclass(name)) {
-                     (*c)->create(*pfrm, *app, island, Vec2<u8>{x, y});
-                 } else {
-                     Platform::fatal(name);
-                 }
-
-                 return L_NIL;
-             }},
-            {"chr-rem",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 3);
-                 L_EXPECT_OP(0, integer); // y
-                 L_EXPECT_OP(1, integer); // x
-                 L_EXPECT_OP(2, user_data);
-
-                 auto island = (Island*)lisp::get_op(2)->user_data().obj_;
-
-                 auto coord = Vec2<u8>{
-                     (u8)lisp::get_op(1)->integer().value_,
-                     (u8)lisp::get_op(0)->integer().value_,
-                 };
-
-                 island->remove_character(coord);
-
-                 return L_NIL;
-             }},
-            {"chr-hp",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 4);
-                 L_EXPECT_OP(1, integer); // y
-                 L_EXPECT_OP(2, integer); // x
-                 L_EXPECT_OP(3, user_data);
-
-                 auto island = (Island*)lisp::get_op(3)->user_data().obj_;
-
-                 auto coord = Vec2<u8>{
-                     (u8)lisp::get_op(2)->integer().value_,
-                     (u8)lisp::get_op(1)->integer().value_,
-                 };
-
-                 auto arg0 = lisp::get_op(0);
-
-                 if (auto chr = island->character_at_location(coord)) {
-                     if (arg0->type() == lisp::Value::Type::integer) {
-                         chr->__set_health(arg0->integer().value_);
+         for (auto& room : island->rooms()) {
+             for (auto& chr : room->characters()) {
+                 if (chr->owner() == &island->owner()) {
+                     lisp::ListBuilder chr_info;
+                     chr_info.push_back(
+                         lisp::make_integer(chr->grid_position().x));
+                     chr_info.push_back(
+                         lisp::make_integer(chr->grid_position().y));
+                     if (chr->health() not_eq 255) {
+                         chr_info.push_back(lisp::make_integer(chr->health()));
                      }
-                     return lisp::make_integer(chr->health());
+                     if (chr->is_replicant()) {
+                         chr_info.push_back(lisp::make_integer(1));
+                     }
+                     list.push_front(chr_info.result());
                  }
-                 return L_NIL;
-             }},
-            {"chr-move",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 5);
-                 L_EXPECT_OP(0, integer);   // y2
-                 L_EXPECT_OP(1, integer);   // x2
-                 L_EXPECT_OP(2, integer);   // y1
-                 L_EXPECT_OP(3, integer);   // x1
-                 L_EXPECT_OP(4, user_data); // island
+             }
+         }
+         return list.result();
+     }},
+    {"chr-slots",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, user_data);
 
-                 auto island = (Island*)lisp::get_op(4)->user_data().obj_;
+         bool matrix[16][16];
 
-                 u8 startx = lisp::get_op(3)->integer().value_;
-                 u8 starty = lisp::get_op(2)->integer().value_;
+         auto island = (Island*)lisp::get_op(0)->user_data().obj_;
 
-                 u8 destx = lisp::get_op(1)->integer().value_;
-                 u8 desty = lisp::get_op(0)->integer().value_;
+         island->plot_walkable_zones(*interp_get_app(), matrix);
 
-                 if (auto room = island->get_room({startx, starty})) {
-                     for (auto& chr : room->characters()) {
-                         if (chr->owner() == &room->parent()->owner()) {
+         lisp::Value* ret = lisp::get_nil();
 
-                             auto path = find_path(*lisp::interp_get_pfrm(),
-                                                   *interp_get_app(),
-                                                   island,
-                                                   {startx, starty},
-                                                   {destx, desty});
+         // FIXME: this could in theory return such a large list that we end up
+         // with oom errors. But in practice... seems unlikely.
 
-                             if (path and *path) {
-                                 chr->set_movement_path(
-                                     *lisp::interp_get_pfrm(),
-                                     *interp_get_app(),
-                                     std::move(*path));
-                             }
-
-                             break;
+         for (u8 x = 0; x < 16; ++x) {
+             for (u8 y = 0; y < 16; ++y) {
+                 if (matrix[x][y]) {
+                     if (not island->character_at_location({x, y})) {
+                         lisp::push_op(ret);
+                         {
+                             auto cell = lisp::make_cons(L_NIL, L_NIL);
+                             lisp::push_op(cell);
+                             cell->cons().set_car(lisp::make_integer(x));
+                             cell->cons().set_cdr(lisp::make_integer(y));
+                             ret = lisp::make_cons(cell, ret);
+                             lisp::pop_op(); // cell
                          }
+                         lisp::pop_op(); // ret
                      }
                  }
-                 return L_NIL;
-             }},
-            {"chr-new",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 5);
-                 L_EXPECT_OP(0, integer);
-                 L_EXPECT_OP(1, symbol);
-                 L_EXPECT_OP(2, integer); // y
-                 L_EXPECT_OP(3, integer); // x
-                 L_EXPECT_OP(4, user_data);
+             }
+         }
+         return ret;
+     }},
+    {"opponent-mode",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, symbol);
 
-                 auto island = (Island*)lisp::get_op(4)->user_data().obj_;
+         auto [app, pfrm] = interp_get_context();
 
-                 auto app = interp_get_app();
+         auto conf = lisp::get_op(0);
+         if (str_cmp(conf->symbol().name_, "hostile") == 0) {
+             app->swap_opponent<EnemyAI>();
+         } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
+             app->swap_opponent<FriendlyAI>();
+         } else {
+             StringBuffer<30> err("bad ai sym: '");
+             err += conf->symbol().name_;
+             pfrm->fatal(err.c_str());
+         }
 
+         return L_NIL;
+     }},
+    {"opponent-init",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(0, symbol);
 
-                 auto coord = Vec2<u8>{
-                     (u8)lisp::get_op(3)->integer().value_,
-                     (u8)lisp::get_op(2)->integer().value_,
-                 };
+         auto [app, pfrm] = interp_get_context();
 
-                 const bool is_replicant = lisp::get_op(0)->integer().value_;
+         auto conf = lisp::get_op(0);
+         if (str_cmp(conf->symbol().name_, "hostile") == 0) {
+             app->swap_opponent<EnemyAI>();
+         } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
+             app->swap_opponent<FriendlyAI>();
+         } else {
+             StringBuffer<30> err("bad ai sym: '");
+             err += conf->symbol().name_;
+             pfrm->fatal(err.c_str());
+         }
 
-                 auto conf = lisp::get_op(1);
-                 if (str_cmp(conf->symbol().name_, "hostile") == 0) {
-                     app->swap_opponent<EnemyAI>();
-                     auto chr = ::skyland::alloc_entity<BasicCharacter>(
-                         island, &app->opponent(), coord, is_replicant);
+         app->create_opponent_island(*pfrm, lisp::get_op(1)->integer().value_);
 
-                     if (chr) {
-                         island->add_character(std::move(chr));
+         return L_NIL;
+     }},
+    {"terrain",
+     [](int argc) {
+         if (argc == 2) {
+             L_EXPECT_OP(0, integer);
+             L_EXPECT_OP(1, user_data);
+
+             auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+             island->init_terrain(*lisp::interp_get_pfrm(),
+                                  lisp::get_op(0)->integer().value_);
+
+         } else if (argc == 1) {
+             L_EXPECT_OP(0, user_data);
+
+             auto island = (Island*)lisp::get_op(0)->user_data().obj_;
+             return lisp::make_integer(island->terrain().size());
+         }
+         return L_NIL;
+     }},
+    {"room-new",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, cons);
+         L_EXPECT_OP(1, user_data);
+
+         auto [app, pfrm] = interp_get_context();
+
+         auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+         auto name = lisp::get_list(lisp::get_op(0), 0)->symbol().name_;
+         u8 x = lisp::get_list(lisp::get_op(0), 1)->integer().value_;
+         u8 y = lisp::get_list(lisp::get_op(0), 2)->integer().value_;
+
+         if (auto c = load_metaclass(name)) {
+             (*c)->create(*pfrm, *app, island, Vec2<u8>{x, y});
+         } else {
+             Platform::fatal(name);
+         }
+
+         return L_NIL;
+     }},
+    {"chr-rem",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 3);
+         L_EXPECT_OP(0, integer); // y
+         L_EXPECT_OP(1, integer); // x
+         L_EXPECT_OP(2, user_data);
+
+         auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+
+         auto coord = Vec2<u8>{
+             (u8)lisp::get_op(1)->integer().value_,
+             (u8)lisp::get_op(0)->integer().value_,
+         };
+
+         island->remove_character(coord);
+
+         return L_NIL;
+     }},
+    {"chr-hp",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 4);
+         L_EXPECT_OP(1, integer); // y
+         L_EXPECT_OP(2, integer); // x
+         L_EXPECT_OP(3, user_data);
+
+         auto island = (Island*)lisp::get_op(3)->user_data().obj_;
+
+         auto coord = Vec2<u8>{
+             (u8)lisp::get_op(2)->integer().value_,
+             (u8)lisp::get_op(1)->integer().value_,
+         };
+
+         auto arg0 = lisp::get_op(0);
+
+         if (auto chr = island->character_at_location(coord)) {
+             if (arg0->type() == lisp::Value::Type::integer) {
+                 chr->__set_health(arg0->integer().value_);
+             }
+             return lisp::make_integer(chr->health());
+         }
+         return L_NIL;
+     }},
+    {"chr-move",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 5);
+         L_EXPECT_OP(0, integer);   // y2
+         L_EXPECT_OP(1, integer);   // x2
+         L_EXPECT_OP(2, integer);   // y1
+         L_EXPECT_OP(3, integer);   // x1
+         L_EXPECT_OP(4, user_data); // island
+
+         auto island = (Island*)lisp::get_op(4)->user_data().obj_;
+
+         u8 startx = lisp::get_op(3)->integer().value_;
+         u8 starty = lisp::get_op(2)->integer().value_;
+
+         u8 destx = lisp::get_op(1)->integer().value_;
+         u8 desty = lisp::get_op(0)->integer().value_;
+
+         if (auto room = island->get_room({startx, starty})) {
+             for (auto& chr : room->characters()) {
+                 if (chr->owner() == &room->parent()->owner()) {
+
+                     auto path = find_path(*lisp::interp_get_pfrm(),
+                                           *interp_get_app(),
+                                           island,
+                                           {startx, starty},
+                                           {destx, desty});
+
+                     if (path and *path) {
+                         chr->set_movement_path(*lisp::interp_get_pfrm(),
+                                                *interp_get_app(),
+                                                std::move(*path));
                      }
-                 } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
-                     auto chr = ::skyland::alloc_entity<BasicCharacter>(
-                         island, &app->player(), coord, is_replicant);
 
-                     if (chr) {
-                         island->add_character(std::move(chr));
+                     break;
+                 }
+             }
+         }
+         return L_NIL;
+     }},
+    {"chr-new",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 5);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, symbol);
+         L_EXPECT_OP(2, integer); // y
+         L_EXPECT_OP(3, integer); // x
+         L_EXPECT_OP(4, user_data);
+
+         auto island = (Island*)lisp::get_op(4)->user_data().obj_;
+
+         auto app = interp_get_app();
+
+
+         auto coord = Vec2<u8>{
+             (u8)lisp::get_op(3)->integer().value_,
+             (u8)lisp::get_op(2)->integer().value_,
+         };
+
+         const bool is_replicant = lisp::get_op(0)->integer().value_;
+
+         auto conf = lisp::get_op(1);
+         if (str_cmp(conf->symbol().name_, "hostile") == 0) {
+             app->swap_opponent<EnemyAI>();
+             auto chr = ::skyland::alloc_entity<BasicCharacter>(
+                 island, &app->opponent(), coord, is_replicant);
+
+             if (chr) {
+                 island->add_character(std::move(chr));
+             }
+         } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
+             auto chr = ::skyland::alloc_entity<BasicCharacter>(
+                 island, &app->player(), coord, is_replicant);
+
+             if (chr) {
+                 island->add_character(std::move(chr));
+             }
+         }
+
+         return L_NIL;
+     }},
+    {"sel",
+     [](int argc) {
+         if (auto app = interp_get_app()) {
+
+             Island* island = &app->player_island();
+             Vec2<u8> sel =
+                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+             if (auto ws = dynamic_cast<WorldScene*>(&app->scene())) {
+                 if (ws->is_far_camera()) {
+                     sel =
+                         std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+                     if (app->opponent_island()) {
+                         island = app->opponent_island();
                      }
                  }
+             }
 
-                 return L_NIL;
-             }},
-            {"sel",
-             [](int argc) {
-                 if (auto app = interp_get_app()) {
+             lisp::ListBuilder lb;
+             lb.push_back(lisp::make_userdata(island));
+             lb.push_back(lisp::make_integer(sel.x));
+             lb.push_back(lisp::make_integer(sel.y));
+             return lb.result();
+         }
+         return L_NIL;
+     }},
+    {"sel-move",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 3);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(2, user_data);
 
-                     Island* island = &app->player_island();
-                     Vec2<u8> sel = std::get<SkylandGlobalData>(globals())
-                                        .near_cursor_loc_;
+         if (auto app = interp_get_app()) {
+             Vec2<u8>& sel =
+                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
-                     if (auto ws = dynamic_cast<WorldScene*>(&app->scene())) {
-                         if (ws->is_far_camera()) {
-                             sel = std::get<SkylandGlobalData>(globals())
-                                       .far_cursor_loc_;
-                             if (app->opponent_island()) {
-                                 island = &*app->opponent_island();
-                             }
-                         }
-                     }
-
-                     lisp::ListBuilder lb;
-                     lb.push_back(lisp::make_userdata(island));
-                     lb.push_back(lisp::make_integer(sel.x));
-                     lb.push_back(lisp::make_integer(sel.y));
-                     return lb.result();
-                 }
-                 return L_NIL;
-             }},
-            {"sel-move",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 3);
-                 L_EXPECT_OP(0, integer);
-                 L_EXPECT_OP(1, integer);
-                 L_EXPECT_OP(2, user_data);
-
-                 if (auto app = interp_get_app()) {
-                     Vec2<u8>& sel = std::get<SkylandGlobalData>(globals())
-                                         .near_cursor_loc_;
-
-                     if (auto ws = dynamic_cast<WorldScene*>(&app->scene())) {
-                         if (lisp::get_op(2)->user_data().obj_ ==
-                             &app->player_island()) {
-                             sel = std::get<SkylandGlobalData>(globals())
-                                       .far_cursor_loc_;
-                             ws->near_camera();
-                         } else {
-                             ws->far_camera();
-                         }
-                     }
-
-                     sel.x = lisp::get_op(1)->integer().value_;
-                     sel.y = lisp::get_op(0)->integer().value_;
-                 }
-                 return L_NIL;
-             }},
-            {"sel-input",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 2);
-                 L_EXPECT_OP(0, function);
-                 L_EXPECT_OP(1, string);
-
-                 if (auto app = interp_get_app()) {
-                     auto bundle =
-                         lisp::make_cons(lisp::get_op(1), lisp::get_op(0));
-                     if (bundle->type() == lisp::Value::Type::cons) {
-                         app->setup_input(bundle);
-                     }
-                 }
-
-                 return L_NIL;
-             }},
-            {"island-configure",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 2);
-                 L_EXPECT_OP(0, cons);
-                 L_EXPECT_OP(1, user_data);
-
-                 auto [app, pfrm] = interp_get_context();
-                 auto island = (Island*)lisp::get_op(1)->user_data().obj_;
-
-                 configure_island(*pfrm, *app, *island, lisp::get_op(0));
-
-                 return L_NIL;
-             }},
-            {"show-flag",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, user_data);
-
-                 auto island = (Island*)lisp::get_op(0)->user_data().obj_;
-                 island->show_flag(true);
-
-                 return L_NIL;
-             }},
-            {"zone",
-             [](int argc) {
-                 return lisp::make_integer(interp_get_app()->zone() - 1);
-             }},
-            {"exit",
-             [](int argc) {
-                 interp_get_app()->exit_level() = true;
-                 return L_NIL;
-             }},
-            {"coins",
-             [](int argc) {
-                 auto app = interp_get_app();
-                 return lisp::make_integer(app->coins());
-             }},
-            {"coins-add",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, integer);
-
-                 auto app = interp_get_app();
-                 app->set_coins(
-                     *lisp::interp_get_pfrm(),
-                     std::max(0,
-                              (int)(lisp::get_op(0)->integer().value_ +
-                                    app->coins())));
-
-                 return L_NIL;
-             }},
-            {"eval-file",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, string);
-
-                 if (auto pfrm = lisp::interp_get_pfrm()) {
-
-                     auto app = interp_get_app();
-                     if (app == nullptr) {
-                         while (true)
-                             ;
-                         return L_NIL;
-                     }
-
-                     auto str = lisp::get_op(0)->string().value();
-
-                     return app->invoke_script(*pfrm, str);
+             if (auto ws = dynamic_cast<WorldScene*>(&app->scene())) {
+                 if (lisp::get_op(2)->user_data().obj_ ==
+                     &app->player_island()) {
+                     sel =
+                         std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+                     ws->near_camera();
                  } else {
-                     while (true)
-                         ;
+                     ws->far_camera();
                  }
+             }
+
+             sel.x = lisp::get_op(1)->integer().value_;
+             sel.y = lisp::get_op(0)->integer().value_;
+         }
+         return L_NIL;
+     }},
+    {"sel-input",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, function);
+         L_EXPECT_OP(1, string);
+
+         if (auto app = interp_get_app()) {
+             auto bundle = lisp::make_cons(lisp::get_op(1), lisp::get_op(0));
+             if (bundle->type() == lisp::Value::Type::cons) {
+                 app->setup_input(bundle);
+             }
+         }
+
+         return L_NIL;
+     }},
+    {"island-configure",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, cons);
+         L_EXPECT_OP(1, user_data);
+
+         auto [app, pfrm] = interp_get_context();
+         auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+
+         configure_island(*pfrm, *app, *island, lisp::get_op(0));
+
+         return L_NIL;
+     }},
+    {"show-flag",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, user_data);
+
+         auto island = (Island*)lisp::get_op(0)->user_data().obj_;
+         island->show_flag(true);
+
+         return L_NIL;
+     }},
+    {"zone",
+     [](int argc) { return lisp::make_integer(interp_get_app()->zone() - 1); }},
+    {"exit",
+     [](int argc) {
+         interp_get_app()->exit_level() = true;
+         return L_NIL;
+     }},
+    {"coins",
+     [](int argc) {
+         auto app = interp_get_app();
+         return lisp::make_integer(app->coins());
+     }},
+    {"coins-add",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+
+         auto app = interp_get_app();
+         app->set_coins(
+             *lisp::interp_get_pfrm(),
+             std::max(0,
+                      (int)(lisp::get_op(0)->integer().value_ + app->coins())));
+
+         return L_NIL;
+     }},
+    {"eval-file",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, string);
+
+         if (auto pfrm = lisp::interp_get_pfrm()) {
+
+             auto app = interp_get_app();
+             if (app == nullptr) {
+                 while (true)
+                     ;
                  return L_NIL;
-             }},
-            {"choice",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, integer);
-                 return lisp::make_integer(rng::choice(
-                     lisp::get_op(0)->integer().value_, rng::critical_state));
-             }},
-            {"autopilot",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, cons);
+             }
 
-                 interp_get_app()->swap_player<AutopilotPlayer>(
-                     lisp::get_op(0));
+             auto str = lisp::get_op(0)->string().value();
 
-                 return L_NIL;
-             }},
-            {"get-line-of-file",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 2);
-                 L_EXPECT_OP(1, string);
-                 L_EXPECT_OP(0, integer);
+             return app->invoke_script(*pfrm, str);
+         } else {
+             while (true)
+                 ;
+         }
+         return L_NIL;
+     }},
+    {"choice",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+         return lisp::make_integer(rng::choice(
+             lisp::get_op(0)->integer().value_, rng::critical_state));
+     }},
+    {"autopilot",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, cons);
 
-                 auto line =
-                     get_line_from_file(*lisp::interp_get_pfrm(),
+         interp_get_app()->swap_player<AutopilotPlayer>(lisp::get_op(0));
+
+         return L_NIL;
+     }},
+    {"get-line-of-file",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, string);
+         L_EXPECT_OP(0, integer);
+
+         auto line = get_line_from_file(*lisp::interp_get_pfrm(),
                                         lisp::get_op(1)->string().value(),
                                         lisp::get_op(0)->integer().value_);
 
-                 if (line) {
+         if (line) {
+             return lisp::make_string(*lisp::interp_get_pfrm(), line->c_str());
+         }
+
+         return L_NIL;
+     }},
+    {"configure-rooms",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, cons);
+
+         lisp::foreach (lisp::get_op(0), [](lisp::Value* val) {
+             if (val->type() not_eq lisp::Value::Type::cons) {
+                 return;
+             }
+
+             auto name_sym = val->cons().car();
+             if (name_sym->type() not_eq lisp::Value::Type::symbol) {
+                 return;
+             }
+
+             val = val->cons().cdr();
+
+             if (auto c = load_metaclass(name_sym->symbol().name_)) {
+                 auto health = val->cons().car()->integer().value_;
+                 val = val->cons().cdr();
+                 auto cost = val->cons().car()->integer().value_;
+                 val = val->cons().cdr();
+                 auto power = val->cons().car()->integer().value_;
+                 (*c)->configure(health, cost, power);
+             } else {
+                 Platform::fatal("invalid room type symbol");
+             }
+         });
+
+         return L_NIL;
+     }},
+    {"getvar",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, string);
+
+         if (auto v = SharedVariable::load(lisp::get_op(0)->string().value())) {
+             return lisp::make_integer(v->get());
+         }
+
+         StringBuffer<96> error("access to invalid shared variable '");
+         error += lisp::get_op(0)->string().value();
+         error += "'";
+
+         Platform::fatal(error.c_str());
+     }},
+    {"setvar",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, string);
+         L_EXPECT_OP(0, integer);
+
+         if (auto v = SharedVariable::load(lisp::get_op(1)->string().value())) {
+             v->set(lisp::get_op(0)->integer().value_);
+             return L_NIL;
+         }
+
+         StringBuffer<96> error("access to invalid shared variable '");
+         error += lisp::get_op(1)->string().value();
+         error += "'";
+
+         Platform::fatal(error.c_str());
+     }},
+    {"cargo",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 3);
+         L_EXPECT_OP(0, integer); // y
+         L_EXPECT_OP(1, integer); // x
+         L_EXPECT_OP(2, user_data);
+
+         auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+         const u8 x = lisp::get_op(1)->integer().value_;
+         const u8 y = lisp::get_op(0)->integer().value_;
+
+         if (auto room = island->get_room({x, y})) {
+             if (auto cb = dynamic_cast<CargoBay*>(room)) {
+                 if (*cb->cargo() not_eq '\0') {
                      return lisp::make_string(*lisp::interp_get_pfrm(),
-                                              line->c_str());
+                                              cb->cargo());
                  }
+             } else {
+                 Platform::fatal("Requested cargo from "
+                                 "non cargo-bay room.");
+             }
+         }
+         return L_NIL;
+     }},
+    {"cargo-set",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 4);
+         L_EXPECT_OP(0, string);  // cargo
+         L_EXPECT_OP(1, integer); // y
+         L_EXPECT_OP(2, integer); // x
+         L_EXPECT_OP(3, user_data);
 
-                 return L_NIL;
-             }},
-            {"configure-rooms",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, cons);
+         auto island = (Island*)lisp::get_op(3)->user_data().obj_;
+         const u8 x = lisp::get_op(2)->integer().value_;
+         const u8 y = lisp::get_op(1)->integer().value_;
 
-                 lisp::foreach (lisp::get_op(0), [](lisp::Value* val) {
-                     if (val->type() not_eq lisp::Value::Type::cons) {
-                         return;
-                     }
+         if (auto room = island->get_room({x, y})) {
+             if (auto cb = dynamic_cast<CargoBay*>(room)) {
+                 cb->set_cargo(lisp::get_op(0)->string().value(), 1);
+             }
+         }
 
-                     auto name_sym = val->cons().car();
-                     if (name_sym->type() not_eq lisp::Value::Type::symbol) {
-                         return;
-                     }
+         return L_NIL;
+     }},
+    {"register-sprite",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, string);
 
-                     val = val->cons().cdr();
+         img::Image texture;
 
-                     if (auto c = load_metaclass(name_sym->symbol().name_)) {
-                         auto health = val->cons().car()->integer().value_;
-                         val = val->cons().cdr();
-                         auto cost = val->cons().car()->integer().value_;
-                         val = val->cons().cdr();
-                         auto power = val->cons().car()->integer().value_;
-                         (*c)->configure(health, cost, power);
-                     } else {
-                         Platform::fatal("invalid room type symbol");
-                     }
-                 });
+         Vector<char> data(*lisp::interp_get_pfrm());
 
-                 return L_NIL;
-             }},
-            {"getvar",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, string);
+         const char* path = lisp::get_op(0)->string().value();
 
-                 if (auto v = SharedVariable::load(
-                         lisp::get_op(0)->string().value())) {
-                     return lisp::make_integer(v->get());
-                 }
+         ram_filesystem::read_file_data(*lisp::interp_get_pfrm(), path, data);
 
-                 StringBuffer<96> error("access to invalid shared variable '");
-                 error += lisp::get_op(0)->string().value();
-                 error += "'";
+         if (data.size() >= sizeof texture) {
+             auto it = data.begin();
+             for (u32 i = 0; i < sizeof texture; ++i) {
+                 ((u8*)&texture)[i] = *it;
+                 ++it;
+             }
 
-                 Platform::fatal(error.c_str());
-             }},
-            {"setvar",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 2);
-                 L_EXPECT_OP(1, string);
-                 L_EXPECT_OP(0, integer);
+             auto result = interp_get_app()->custom_sprite_mapper().map_image(
+                 *lisp::interp_get_pfrm(), texture);
+             return lisp::make_integer(SpriteTile::custom_sprite_tile_begin +
+                                       result);
+         } else {
+             StringBuffer<64> err = "invalid sprite path or contents: ";
+             err += path;
+             Platform::fatal(err.c_str());
+         }
 
-                 if (auto v = SharedVariable::load(
-                         lisp::get_op(1)->string().value())) {
-                     v->set(lisp::get_op(0)->integer().value_);
-                     return L_NIL;
-                 }
+         return L_NIL;
+     }},
+    {"register-tile",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, string);
 
-                 StringBuffer<96> error("access to invalid shared variable '");
-                 error += lisp::get_op(1)->string().value();
-                 error += "'";
+         img::Image texture;
 
-                 Platform::fatal(error.c_str());
-             }},
-            {"cargo",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 3);
-                 L_EXPECT_OP(0, integer); // y
-                 L_EXPECT_OP(1, integer); // x
-                 L_EXPECT_OP(2, user_data);
+         Vector<char> data(*lisp::interp_get_pfrm());
 
-                 auto island = (Island*)lisp::get_op(2)->user_data().obj_;
-                 const u8 x = lisp::get_op(1)->integer().value_;
-                 const u8 y = lisp::get_op(0)->integer().value_;
+         const char* path = lisp::get_op(0)->string().value();
 
-                 if (auto room = island->get_room({x, y})) {
-                     if (auto cb = dynamic_cast<CargoBay*>(room)) {
-                         if (*cb->cargo() not_eq '\0') {
-                             return lisp::make_string(*lisp::interp_get_pfrm(),
-                                                      cb->cargo());
-                         }
-                     } else {
-                         Platform::fatal("Requested cargo from "
-                                         "non cargo-bay room.");
-                     }
-                 }
-                 return L_NIL;
-             }},
-            {"cargo-set",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 4);
-                 L_EXPECT_OP(0, string);  // cargo
-                 L_EXPECT_OP(1, integer); // y
-                 L_EXPECT_OP(2, integer); // x
-                 L_EXPECT_OP(3, user_data);
+         ram_filesystem::read_file_data(*lisp::interp_get_pfrm(), path, data);
 
-                 auto island = (Island*)lisp::get_op(3)->user_data().obj_;
-                 const u8 x = lisp::get_op(2)->integer().value_;
-                 const u8 y = lisp::get_op(1)->integer().value_;
+         if (data.size() >= sizeof texture) {
+             auto it = data.begin();
+             for (u32 i = 0; i < sizeof texture; ++i) {
+                 ((u8*)&texture)[i] = *it;
+                 ++it;
+             }
 
-                 if (auto room = island->get_room({x, y})) {
-                     if (auto cb = dynamic_cast<CargoBay*>(room)) {
-                         cb->set_cargo(lisp::get_op(0)->string().value(), 1);
-                     }
-                 }
+             auto result = interp_get_app()->custom_tile_mapper().map_image(
+                 *lisp::interp_get_pfrm(), texture);
 
-                 return L_NIL;
-             }},
-            {"register-sprite",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, string);
+             return lisp::make_integer(Tile::dlc_tiles_begin + result);
+         } else {
+             StringBuffer<64> err = "invalid texture path or contents: ";
+             err += path;
+             Platform::fatal(err.c_str());
+         }
 
-                 img::Image texture;
+         return L_NIL;
+     }},
+    {"register-room",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, cons);
 
-                 Vector<char> data(*lisp::interp_get_pfrm());
+         if (not plugin_room_register(lisp::get_op(0))) {
+             info(*lisp::interp_get_pfrm(), "failed to register plugin room");
+         }
 
-                 const char* path = lisp::get_op(0)->string().value();
+         return L_NIL;
+     }},
+    {"fatal",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
 
-                 ram_filesystem::read_file_data(*lisp::interp_get_pfrm(),
-                                                path,
-                                                data);
+         lisp::DefaultPrinter p;
+         format(lisp::get_op(0), p);
+         Platform::fatal(p.fmt_.c_str());
 
-                 if (data.size() >= sizeof texture) {
-                     auto it = data.begin();
-                     for (u32 i = 0; i < sizeof texture; ++i) {
-                         ((u8*)&texture)[i] = *it;
-                         ++it;
-                     }
+         return L_NIL;
+     }},
+    {"emit", [](int argc) {
+         L_EXPECT_ARGC(argc, 6);
+         L_EXPECT_OP(4, user_data);
+         L_EXPECT_OP(3, integer);
+         L_EXPECT_OP(2, integer);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(0, integer);
 
-                     auto result =
-                         interp_get_app()->custom_sprite_mapper()
-                         .map_image(*lisp::interp_get_pfrm(), texture);
-                     return lisp::make_integer(SpriteTile::custom_sprite_tile_begin
-                                               + result);
-                 } else {
-                     StringBuffer<64> err =
-                         "invalid sprite path or contents: ";
-                     err += path;
-                     Platform::fatal(err.c_str());
-                 }
+         auto& app = *interp_get_app();
+         auto& pfrm = *lisp::interp_get_pfrm();
 
-                 return L_NIL;
-             }},
-            {"register-tile",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, string);
+         auto island = (Island*)lisp::get_op(4)->user_data().obj_;
 
-                 img::Image texture;
+         const u8 x1 = lisp::get_op(3)->integer().value_;
+         const u8 y1 = lisp::get_op(2)->integer().value_;
 
-                 Vector<char> data(*lisp::interp_get_pfrm());
+         auto room = island->get_room({x1, y1});
+         if (not room) {
+             Platform::fatal(format("cannot emit from (%,%), "
+                                    "which is not a room!",
+                                    x1,
+                                    y1)
+                                 .c_str());
+         }
 
-                 const char* path = lisp::get_op(0)->string().value();
+         auto start = room->center();
 
-                 ram_filesystem::read_file_data(
-                     *lisp::interp_get_pfrm(), path, data);
+         const u8 x2 = lisp::get_op(1)->integer().value_;
+         const u8 y2 = lisp::get_op(0)->integer().value_;
 
-                 if (data.size() >= sizeof texture) {
-                     auto it = data.begin();
-                     for (u32 i = 0; i < sizeof texture; ++i) {
-                         ((u8*)&texture)[i] = *it;
-                         ++it;
-                     }
+         auto other_island = room->other_island(app);
+         if (not other_island) {
+             return L_NIL;
+         }
 
-                     auto result =
-                         interp_get_app()->custom_tile_mapper().map_image(
-                             *lisp::interp_get_pfrm(), texture);
+         auto target = room->other_island(app)->origin();
+         target.x += x2 * 16 + 8;
+         target.y += y2 * 16 + 8;
 
-                     return lisp::make_integer(Tile::dlc_tiles_begin +
-                                               result);
-                 } else {
-                     StringBuffer<64> err =
-                         "invalid texture path or contents: ";
-                     err += path;
-                     Platform::fatal(err.c_str());
-                 }
+         if (lisp::get_op(5)->type() == lisp::Value::Type::cons) {
+             auto tile = lisp::get_list(lisp::get_op(5), 0);
+             if (tile->type() not_eq lisp::Value::Type::integer) {
+                 Platform::fatal("Projectile param list expected type "
+                                 "integer in slot zero");
+             }
+             auto damage = lisp::get_list(lisp::get_op(5), 1);
+             if (tile->type() not_eq lisp::Value::Type::integer) {
+                 Platform::fatal("Projectile param list expected type "
+                                 "integer in slot one");
+             }
+             auto flip = lisp::get_list(lisp::get_op(5), 2);
+             if (tile->type() not_eq lisp::Value::Type::integer) {
+                 Platform::fatal("Projectile param list expected tyep "
+                                 "integer in slot one");
+             }
 
-                 return L_NIL;
-             }},
-            {"register-room",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
-                 L_EXPECT_OP(0, cons);
+             app.camera().shake(4);
 
-                 if (not plugin_room_register(lisp::get_op(0))) {
-                     info(*lisp::interp_get_pfrm(),
-                          "failed to register plugin room");
-                 }
+             cannon_sound.play(pfrm, 3);
 
-                 return L_NIL;
-             }},
-            {"fatal",
-             [](int argc) {
-                 L_EXPECT_ARGC(argc, 1);
+             auto c = app.alloc_entity<PluginProjectile>(
+                 pfrm,
+                 start,
+                 target,
+                 room->parent(),
+                 room->position(),
+                 (u16)tile->integer().value_,
+                 (Health)damage->integer().value_,
+                 (bool)flip->integer().value_);
+             if (c) {
+                 room->parent()->projectiles().push(std::move(c));
+             }
+             return L_NIL;
+         } else if (lisp::get_op(5)->type() not_eq lisp::Value::Type::symbol) {
+             Platform::fatal("Invalid argument for (emit): "
+                             "first arg should be a symbol or "
+                             "a list.");
+         }
 
-                 lisp::DefaultPrinter p;
-                 format(lisp::get_op(0), p);
-                 Platform::fatal(p.fmt_.c_str());
-
-                 return L_NIL;
-             }},
-            {"emit", [](int argc) {
-                 L_EXPECT_ARGC(argc, 6);
-                 L_EXPECT_OP(4, user_data);
-                 L_EXPECT_OP(3, integer);
-                 L_EXPECT_OP(2, integer);
-                 L_EXPECT_OP(1, integer);
-                 L_EXPECT_OP(0, integer);
-
-                 auto& app = *interp_get_app();
-                 auto& pfrm = *lisp::interp_get_pfrm();
-
-                 auto island = (Island*)lisp::get_op(4)->user_data().obj_;
-
-                 const u8 x1 = lisp::get_op(3)->integer().value_;
-                 const u8 y1 = lisp::get_op(2)->integer().value_;
-
-                 auto room = island->get_room({x1, y1});
-                 if (not room) {
-                     Platform::fatal(format("cannot emit from (%,%), "
-                                            "which is not a room!",
-                                            x1,
-                                            y1)
-                                         .c_str());
-                 }
-
-                 auto start = room->center();
-
-                 const u8 x2 = lisp::get_op(1)->integer().value_;
-                 const u8 y2 = lisp::get_op(0)->integer().value_;
-
-                 auto other_island = room->other_island(app);
-                 if (not other_island) {
-                     return L_NIL;
-                 }
-
-                 auto target = room->other_island(app)->origin();
-                 target.x += x2 * 16 + 8;
-                 target.y += y2 * 16 + 8;
-
-                 if (lisp::get_op(5)->type() == lisp::Value::Type::cons) {
-                     auto tile = lisp::get_list(lisp::get_op(5), 0);
-                     if (tile->type() not_eq lisp::Value::Type::integer) {
-                         Platform::fatal("Projectile param list expected type "
-                                         "integer in slot zero");
-                     }
-                     auto damage = lisp::get_list(lisp::get_op(5), 1);
-                     if (tile->type() not_eq lisp::Value::Type::integer) {
-                         Platform::fatal("Projectile param list expected type "
-                                         "integer in slot one");
-                     }
-                     auto flip = lisp::get_list(lisp::get_op(5), 2);
-                     if (tile->type() not_eq lisp::Value::Type::integer) {
-                         Platform::fatal("Projectile param list expected tyep "
-                                         "integer in slot one");
-                     }
-
-                     app.camera().shake(4);
-
-                     cannon_sound.play(pfrm, 3);
-
-                     auto c =
-                         app.alloc_entity<PluginProjectile>(pfrm,
-                                                            start,
-                                                            target,
-                                                            room->parent(),
-                                                            room->position(),
-                                                            (u16)tile->integer().value_,
-                                                            (Health)damage->integer().value_,
-                                                            (bool)flip->integer().value_);
-                     if (c) {
-                         room->parent()->projectiles().push(std::move(c));
-                     }
-                     return L_NIL;
-                 } else if (lisp::get_op(5)->type() not_eq lisp::Value::Type::symbol) {
-                     Platform::fatal("Invalid argument for (emit): "
-                                     "first arg should be a symbol or "
-                                     "a list.");
-                 }
-
-                 auto name = lisp::get_op(5)->symbol().name_;
+         auto name = lisp::get_op(5)->symbol().name_;
 
 #define MAKE_PROJECTILE(NAME, CLASS, SOUND)                                    \
     if (str_eq(name, NAME)) {                                                  \
@@ -1005,9 +974,9 @@ static const lisp::Binding
         }                                                                      \
     }
 
-                 app.camera().shake(4);
+         app.camera().shake(4);
 
-                 // clang-format off
+         // clang-format off
 
                  MAKE_PROJECTILE("cannonball", Cannonball, cannon_sound)
                  else MAKE_PROJECTILE("arcbolt", ArcBolt, cannon_sound)
@@ -1036,8 +1005,8 @@ static const lisp::Binding
 
 #undef MAKE_PROJECTILE
 
-                 return L_NIL;
-             }}};
+         return L_NIL;
+     }}};
 
 
 

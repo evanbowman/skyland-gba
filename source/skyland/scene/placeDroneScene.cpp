@@ -96,7 +96,7 @@ void PlaceDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     Island* island = &app.player_island();
     if (not near_ and app.opponent_island()) {
-        island = &*app.opponent_island();
+        island = app.opponent_island();
     }
 
 
@@ -122,7 +122,7 @@ void PlaceDroneScene::exit(Platform& pfrm, App& app, Scene& next)
 
     Island* island = &app.player_island();
     if (not near_ and app.opponent_island()) {
-        island = &*app.opponent_island();
+        island = app.opponent_island();
     }
 
     island->repaint(pfrm, app);
@@ -140,7 +140,7 @@ void PlaceDroneScene::display(Platform& pfrm, App& app)
 
     Island* island = &app.player_island();
     if (not near_ and app.opponent_island()) {
-        island = &*app.opponent_island();
+        island = app.opponent_island();
     }
 
     Vec2<Float> origin = island->visual_origin();
@@ -181,7 +181,7 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     Island* island = &app.player_island();
     if (not near_ and app.opponent_island()) {
-        island = &*app.opponent_island();
+        island = app.opponent_island();
     }
 
     Vec2<u8>* cursor_loc;

@@ -95,7 +95,7 @@ ReplicatorSelectionScene::update(Platform& pfrm, App& app, Microseconds delta)
             near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
                   : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
-        Island* island = near_ ? &app.player_island() : &*app.opponent_island();
+        Island* island = near_ ? &app.player_island() : app.opponent_island();
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             exit_countdown_ = milliseconds(500);

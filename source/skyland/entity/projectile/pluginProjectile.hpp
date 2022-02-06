@@ -46,7 +46,6 @@ public:
 
 
 private:
-
     void timestream_record_destroyed(Platform& pfrm, App& app);
 
     Microseconds timer_ = 0;

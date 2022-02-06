@@ -172,7 +172,7 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
 
     auto add_opponent_chr = [&app](u8 x, u8 y) {
         app.opponent_island()->add_character(alloc_entity<BasicCharacter>(
-            &*app.opponent_island(), &app.opponent(), Vec2<u8>{x, y}, false));
+            app.opponent_island(), &app.opponent(), Vec2<u8>{x, y}, false));
     };
 
     add_opponent_chr(opponent_start_x, 14);

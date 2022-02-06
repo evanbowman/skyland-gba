@@ -1,5 +1,6 @@
 #include "playerIslandDestroyedScene.hpp"
 #include "highscoresScene.hpp"
+#include "platform/color.hpp"
 #include "sandboxResetScene.hpp"
 #include "selectChallengeScene.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
@@ -9,7 +10,6 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
-#include "platform/color.hpp"
 
 
 
@@ -347,8 +347,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                         return k;
                     }
 
-                    auto k1 = contrast_shader(p, k, std::max(-(var / 2),
-                                                             -64));
+                    auto k1 = contrast_shader(p, k, std::max(-(var / 2), -64));
 
                     static const Color ao(ColorConstant::aerospace_orange);
                     const Color input(k1);

@@ -987,7 +987,7 @@ void Island::repaint(Platform& pfrm, App& app)
 
 void Island::set_drift(Platform& pfrm, App& app, Float drift)
 {
-    if (app.opponent_island() and this == &*app.opponent_island()) {
+    if (app.opponent_island() and this == app.opponent_island()) {
 
         time_stream::event::OpponentIslandDriftChanged e;
         memcpy(e.previous_speed_, &drift_, sizeof drift_);
@@ -1107,6 +1107,41 @@ void Island::clear_rooms(Platform& pfrm, App& app)
 void Island::set_float_timer(Microseconds value)
 {
     timer_ = value;
+}
+
+
+
+void show_island_interior(Platform& pfrm, App& app, Island* island)
+{
+    if (island == &app.player_island()) {
+        pfrm.load_tile0_texture("tilesheet_interior");
+
+    } else {
+        pfrm.load_tile1_texture("tilesheet_enemy_0_interior");
+    }
+
+    if (island) {
+        island->render_interior(pfrm, app);
+    }
+
+    write_custom_graphics(pfrm, app);
+}
+
+
+
+void show_island_exterior(Platform& pfrm, App& app, Island* island)
+{
+    if (island == &app.player_island()) {
+        pfrm.load_tile0_texture("tilesheet");
+    } else {
+        pfrm.load_tile1_texture("tilesheet_enemy_0");
+    }
+
+    if (island) {
+        island->render_exterior(pfrm, app);
+    }
+
+    write_custom_graphics(pfrm, app);
 }
 
 

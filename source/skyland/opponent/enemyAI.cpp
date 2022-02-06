@@ -91,7 +91,7 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
         for (auto& drone_sp : app.player_island().drones()) {
 
-            if (drone_sp->parent() == &*app.opponent_island()) {
+            if (drone_sp->parent() == app.opponent_island()) {
                 if (drone_sp->metaclass_index() == cannon_drone_index or
                     drone_sp->metaclass_index() == flak_drone_index) {
 
@@ -105,7 +105,7 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         for (auto& drone_sp : app.opponent_island()->drones()) {
-            if (drone_sp->parent() == &*app.opponent_island()) {
+            if (drone_sp->parent() == app.opponent_island()) {
                 if (drone_sp->metaclass_index() == cannon_drone_index or
                     drone_sp->metaclass_index() == flak_drone_index) {
 
@@ -584,7 +584,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     auto target = slots.back();
 
     if (auto path = find_path(
-            pfrm, app, &*app.opponent_island(), current_pos, target.coord_)) {
+            pfrm, app, app.opponent_island(), current_pos, target.coord_)) {
         if (not((*path)->size() == 1 and
                 (**path)[0] == character.grid_position())) {
             // Don't waste a path buffer on an entity if the ideal path
@@ -964,7 +964,7 @@ void EnemyAI::update_room(Platform& pfrm,
 
 
     auto ai_controlled = [&](Drone& d) {
-        return d.parent() == &*app.opponent_island();
+        return d.parent() == app.opponent_island();
     };
 
     for (auto& room : app.opponent_island()->rooms()) {
@@ -1079,7 +1079,7 @@ void EnemyAI::update_room(Platform& pfrm,
 
     if (highest_weight_index == cannon_drone_index) {
 
-        get_drone_slots(slots, &app.player_island(), &*app.opponent_island());
+        get_drone_slots(slots, &app.player_island(), app.opponent_island());
 
         place_offensive_drone(pfrm,
                               app,
@@ -1093,15 +1093,14 @@ void EnemyAI::update_room(Platform& pfrm,
 
     } else if (highest_weight_index == combat_drone_index) {
 
-        get_drone_slots(
-            slots, &*app.opponent_island(), &*app.opponent_island());
+        get_drone_slots(slots, app.opponent_island(), &*app.opponent_island());
 
         for (u8 y = 0; y < 16; y += 2) {
             for (u8 x = 0; x < 16; x += 2) {
                 if (slots[x][y] and not opponent_missile_silos[x]) {
                     auto drone =
-                        dt[combat_drone_index]->create(&*app.opponent_island(),
-                                                       &*app.opponent_island(),
+                        dt[combat_drone_index]->create(app.opponent_island(),
+                                                       app.opponent_island(),
                                                        create_pos);
                     if (drone) {
                         (*drone)->set_movement_target({x, y});
@@ -1115,7 +1114,7 @@ void EnemyAI::update_room(Platform& pfrm,
 
     } else if (highest_weight_index == flak_drone_index) {
 
-        get_drone_slots(slots, &app.player_island(), &*app.opponent_island());
+        get_drone_slots(slots, &app.player_island(), app.opponent_island());
 
         place_offensive_drone(pfrm,
                               app,

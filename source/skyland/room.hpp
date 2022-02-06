@@ -319,7 +319,6 @@ protected:
 
 
 private:
-
     Island* parent_;
     EntityList<BasicCharacter> characters_;
 

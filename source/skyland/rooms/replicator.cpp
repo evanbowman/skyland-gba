@@ -96,7 +96,7 @@ ScenePtr<Scene> Replicator::select(Platform& pfrm, App& app)
         return next;
     }
 
-    if (parent() == &*app.opponent_island() and
+    if (parent() == app.opponent_island() and
         app.game_mode() not_eq App::GameMode::sandbox) {
         return null_scene();
     }

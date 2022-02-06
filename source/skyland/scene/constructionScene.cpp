@@ -36,7 +36,7 @@ Island* ConstructionScene::island(App& app)
     if (near_) {
         return &app.player_island();
     } else if (app.opponent_island()) {
-        return &*app.opponent_island();
+        return app.opponent_island();
     } else {
         return nullptr;
     }

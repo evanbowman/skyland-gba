@@ -145,7 +145,7 @@ void CombatDroneSetTargetScene::display(Platform& pfrm, App& app)
     if (near_) {
         island = &app.player_island();
     } else {
-        island = &*app.opponent_island();
+        island = app.opponent_island();
     }
 
     auto origin = island->visual_origin();

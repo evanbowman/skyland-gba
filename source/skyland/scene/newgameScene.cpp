@@ -23,8 +23,8 @@ namespace skyland {
 ScenePtr<Scene>
 NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    pfrm.load_tile0_texture("tilesheet");
-    pfrm.load_tile1_texture("tilesheet_enemy_0");
+    show_island_exterior(pfrm, app, &app.player_island());
+    show_island_exterior(pfrm, app, app.opponent_island());
 
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
@@ -41,9 +41,6 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.invoke_script(pfrm, "/scripts/config/hard/score.lisp");
         break;
     }
-
-
-    write_custom_graphics(pfrm, app);
 
     if (save::load(pfrm, app, app.persistent_data())) {
         save::erase(pfrm);

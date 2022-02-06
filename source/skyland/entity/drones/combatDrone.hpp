@@ -52,7 +52,7 @@ public:
 
     void update(Platform& pfrm, App& app, Microseconds delta) override
     {
-        if (parent() == &*app.opponent_island()) {
+        if (parent() == app.opponent_island()) {
             sprite_.set_texture_index(68);
         }
 
@@ -77,7 +77,7 @@ public:
                     }
 
                     auto island = target_near_ ? &app.player_island()
-                                               : &*app.opponent_island();
+                                               : app.opponent_island();
 
                     if (auto drone = island->get_drone(*target_)) {
 

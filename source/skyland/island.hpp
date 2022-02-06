@@ -337,4 +337,9 @@ private:
 
 
 
+void show_island_interior(Platform& pfrm, App& app, Island* island);
+void show_island_exterior(Platform& pfrm, App& app, Island* island);
+
+
+
 } // namespace skyland

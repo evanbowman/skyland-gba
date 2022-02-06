@@ -972,7 +972,7 @@ void WorldMapScene::show_map(Platform& pfrm, WorldGraph& map, int storm_depth)
 
 
 
-void WorldMapScene::exit(Platform& pfrm, App&, Scene& next_scene)
+void WorldMapScene::exit(Platform& pfrm, App& app, Scene& next_scene)
 {
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
@@ -987,7 +987,7 @@ void WorldMapScene::exit(Platform& pfrm, App&, Scene& next_scene)
 
     pfrm.load_overlay_texture("overlay");
 
-    pfrm.load_tile1_texture("tilesheet_enemy_0");
+    show_island_exterior(pfrm, app, app.opponent_island());
 }
 
 

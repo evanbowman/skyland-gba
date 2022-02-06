@@ -82,7 +82,7 @@ void Drone::update_sprite(Platform& pfrm, App& app)
     sprite_.set_position(o);
 
     if (target_) {
-        if (destination() == &*app.opponent_island() and target_near_) {
+        if (destination() == app.opponent_island() and target_near_) {
             sprite_.set_flip({true, false});
         } else if (destination() == &app.player_island() and not target_near_) {
             sprite_.set_flip({false, false});

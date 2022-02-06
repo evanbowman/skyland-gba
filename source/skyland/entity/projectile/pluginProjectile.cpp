@@ -6,8 +6,8 @@
 #include "skyland/room.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/sound.hpp"
-#include "skyland/timeStreamEvent.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -22,8 +22,8 @@ PluginProjectile::PluginProjectile(const Vec2<Float>& position,
                                    u16 graphics_tile,
                                    Health damage,
                                    bool flip)
-    : Projectile({{10, 10}, {8, 8}}), source_(source), origin_tile_(origin_tile),
-      damage_(damage)
+    : Projectile({{10, 10}, {8, 8}}), source_(source),
+      origin_tile_(origin_tile), damage_(damage)
 {
     sprite_.set_position(position);
     sprite_.set_size(Sprite::Size::w16_h32);

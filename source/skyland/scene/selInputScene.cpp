@@ -157,7 +157,7 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
                   : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
         lisp::push_op(lisp::make_userdata(near_ ? &app.player_island()
-                                                : &*app.opponent_island()));
+                                                : app.opponent_island()));
 
         lisp::push_op(lisp::make_integer(cursor_loc.x));
         lisp::push_op(lisp::make_integer(cursor_loc.y));

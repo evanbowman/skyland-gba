@@ -65,7 +65,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
         pos.x = ((app.opponent_island()->terrain().size() - 1) - pos.x) -
                 (size.x - 1);
 
-        (*metac)->create(pfrm, app, &*app.opponent_island(), pos);
+        (*metac)->create(pfrm, app, app.opponent_island(), pos);
     }
 }
 
@@ -112,7 +112,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
     Island* island = nullptr;
 
     if (packet.drone_near_) {
-        island = &*app.opponent_island();
+        island = app.opponent_island();
     } else {
         island = &app.player_island();
     }
@@ -139,7 +139,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
         island = &app.player_island();
     } else {
         if (app.opponent_island()) {
-            island = &*app.opponent_island();
+            island = app.opponent_island();
         }
     }
 
@@ -175,7 +175,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
         island = &app.player_island();
     } else {
         if (app.opponent_island()) {
-            island = &*app.opponent_island();
+            island = app.opponent_island();
         }
     }
 
@@ -270,7 +270,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
                 room->characters().erase(it);
 
                 unlinked->set_grid_position(dst);
-                unlinked->set_parent(&*app.opponent_island());
+                unlinked->set_parent(app.opponent_island());
                 unlinked->transported();
 
                 if (auto dst_room = app.opponent_island()->get_room(dst)) {
@@ -297,7 +297,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
         island = &app.player_island();
     } else {
         if (app.opponent_island()) {
-            island = &*app.opponent_island();
+            island = app.opponent_island();
         }
     }
 
@@ -339,7 +339,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
     const Vec2<u8> loc = {invert_axis(app, packet.src_x_), packet.src_y_};
 
     auto chr = app.alloc_entity<BasicCharacter>(
-        pfrm, &*app.opponent_island(), &app.opponent(), loc, true);
+        pfrm, app.opponent_island(), &app.opponent(), loc, true);
 
     if (chr) {
         chr->apply_damage(pfrm, app, 255 - packet.health_);
@@ -360,7 +360,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
     Island* island = nullptr;
     if (packet.destination_near_) {
-        island = &*app.opponent_island();
+        island = app.opponent_island();
     } else {
         island = &app.player_island();
     }
@@ -375,7 +375,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
     }
     auto drone_meta = &dt[packet.drone_class_];
     if (auto drone = (*drone_meta)
-                         ->create(&*app.opponent_island(),
+                         ->create(app.opponent_island(),
                                   island,
                                   Vec2<u8>{x_origin, packet.origin_y_})) {
 
@@ -401,7 +401,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 {
     Island* island = nullptr;
     if (packet.destination_near_) {
-        island = &*app.opponent_island();
+        island = app.opponent_island();
     } else {
         island = &app.player_island();
     }
