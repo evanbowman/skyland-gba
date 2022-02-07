@@ -2,8 +2,9 @@
 
 
 
-#include "worldScene.hpp"
+#include "confetti.hpp"
 #include "graphics/overlay.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -13,9 +14,10 @@ namespace skyland {
 
 class LevelCompleteOptionsScene : public WorldScene {
 public:
-
-
-    LevelCompleteOptionsScene(bool fade_in = false)
+    LevelCompleteOptionsScene(
+        bool fade_in = false,
+        std::optional<DynamicMemory<ConfettiBuffer>> confetti = {})
+        : confetti_(std::move(confetti))
     {
         if (fade_in) {
             state_ = State::fade_in;
@@ -23,15 +25,18 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override;
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
     void enter(Platform& pfrm, App& app, Scene& prev) override;
     void exit(Platform& pfrm, App& app, Scene& prev) override;
 
 
-private:
+    void display(Platform& pfrm, App& app) override;
 
+
+private:
     void show_cursor(Platform& pfrm);
 
 
@@ -44,10 +49,12 @@ private:
 
     int cursor_ = 0;
 
+    std::optional<DynamicMemory<ConfettiBuffer>> confetti_;
+
     Buffer<Text, 3> options_;
     Microseconds timer_ = 0;
 };
 
 
 
-}
+} // namespace skyland

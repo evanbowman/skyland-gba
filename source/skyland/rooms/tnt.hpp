@@ -12,7 +12,6 @@ namespace skyland {
 
 class TNT : public Room {
 public:
-
     TNT(Island* parent, const Vec2<u8>& position);
 
 
@@ -44,7 +43,7 @@ public:
     static u32 properties()
     {
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
-            RoomProperties::disabled_in_tutorials;
+               RoomProperties::disabled_in_tutorials;
     }
 
 
@@ -84,4 +83,4 @@ private:
 
 
 
-}
+} // namespace skyland

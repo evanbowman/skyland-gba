@@ -1,7 +1,7 @@
 #include "tnt.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -79,8 +79,9 @@ void TNT::finalize(Platform& pfrm, App& app)
 
     app.on_timeout(pfrm,
                    milliseconds(190),
-                   [pos = center(), flak_smoke](
-                       Platform& pf, App& app) { flak_smoke(pf, app, pos); });
+                   [pos = center(), flak_smoke](Platform& pf, App& app) {
+                       flak_smoke(pf, app, pos);
+                   });
 
     auto targets = allocate_dynamic<Buffer<Room*, 300>>(pfrm);
 
@@ -90,9 +91,8 @@ void TNT::finalize(Platform& pfrm, App& app)
                 position().x + x > 15 or position().y + y > 15) {
                 continue;
             }
-            if (auto room = parent()->get_room({
-                        u8(position().x + x),
-                        u8(position().y + y)})) {
+            if (auto room = parent()->get_room(
+                    {u8(position().x + x), u8(position().y + y)})) {
                 bool found = false;
                 for (auto& target : *targets) {
                     if (target == room) {
@@ -114,4 +114,4 @@ void TNT::finalize(Platform& pfrm, App& app)
 
 
 
-}
+} // namespace skyland

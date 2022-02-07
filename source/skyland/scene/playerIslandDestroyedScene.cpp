@@ -1,5 +1,6 @@
 #include "playerIslandDestroyedScene.hpp"
 #include "highscoresScene.hpp"
+#include "levelCompleteOptionsScene.hpp"
 #include "platform/color.hpp"
 #include "sandboxResetScene.hpp"
 #include "selectChallengeScene.hpp"
@@ -10,7 +11,6 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
-#include "levelCompleteOptionsScene.hpp"
 
 
 
@@ -130,6 +130,52 @@ void PlayerIslandDestroyedScene::display(Platform& pfrm, App& app)
 
 
 
+void update_confetti(Platform& pfrm,
+                     App& app,
+                     ConfettiBuffer& confetti,
+                     Microseconds delta)
+{
+    const auto view = pfrm.screen().get_view().get_center();
+
+    for (auto it = confetti.begin(); it not_eq confetti.end();) {
+
+        auto& c = *it;
+
+        c.kf_++;
+        if (c.kf_ == 5) {
+            c.kf_ = 0;
+            c.anim_ = !c.anim_;
+        }
+
+        if (c.y_ > view.y + 170) {
+            it = confetti.erase(it);
+        } else {
+            auto step_vec = rotate({1, 0}, -c.angle_);
+            step_vec.x *= c.speed_;
+            step_vec.y *= c.speed_;
+            c.x_ += step_vec.x * delta;
+            c.y_ += step_vec.y * delta;
+
+            c.speed_ = interpolate(0.000004f, c.speed_, 0.0000025f * delta);
+
+            c.y_ += c.gravity_ * delta;
+
+            if (c.fall_slower_) {
+                c.gravity_ =
+                    interpolate(0.00075f, c.gravity_, 0.000000015f * delta);
+            } else {
+                c.gravity_ =
+                    interpolate(0.001f, c.gravity_, 0.000000015f * delta);
+            }
+
+
+            ++it;
+        }
+    }
+}
+
+
+
 ScenePtr<Scene>
 PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -146,43 +192,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (confetti_ and *confetti_) {
-        const auto view = pfrm.screen().get_view().get_center();
-
-        for (auto it = (**confetti_).begin(); it not_eq (**confetti_).end();) {
-
-            auto& c = *it;
-
-            c.kf_++;
-            if (c.kf_ == 5) {
-                c.kf_ = 0;
-                c.anim_ = !c.anim_;
-            }
-
-            if (c.y_ > view.y + 170) {
-                it = (**confetti_).erase(it);
-            } else {
-                auto step_vec = rotate({1, 0}, -c.angle_);
-                step_vec.x *= c.speed_;
-                step_vec.y *= c.speed_;
-                c.x_ += step_vec.x * delta;
-                c.y_ += step_vec.y * delta;
-
-                c.speed_ = interpolate(0.000004f, c.speed_, 0.0000025f * delta);
-
-                c.y_ += c.gravity_ * delta;
-
-                if (c.fall_slower_) {
-                    c.gravity_ =
-                        interpolate(0.00075f, c.gravity_, 0.000000015f * delta);
-                } else {
-                    c.gravity_ =
-                        interpolate(0.001f, c.gravity_, 0.000000015f * delta);
-                }
-
-
-                ++it;
-            }
-        }
+        update_confetti(pfrm, app, **confetti_, delta);
     }
 
 
@@ -536,13 +546,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 anim_state_ = AnimState::fade_complete;
             }
-
         }
         break;
 
 
     case AnimState::show_options:
-        return scene_pool::alloc<LevelCompleteOptionsScene>();
+        return scene_pool::alloc<LevelCompleteOptionsScene>(
+            false, std::move(confetti_));
     }
 
     switch (confetti_state_) {
