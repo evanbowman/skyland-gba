@@ -77,14 +77,8 @@ void TNT::apply_damage(Platform& pfrm, App& app, Health damage)
 
 
 
-void TNT::finalize(Platform& pfrm, App& app)
+void TNT::ignite(Platform& pfrm, App& app, int range, Health damage)
 {
-    Room::finalize(pfrm, app);
-
-    if (not ignition_) {
-        return;
-    }
-
     auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Float>& pos) {
         auto e = app.alloc_entity<SmokePuff>(
             pfrm, rng::sample<48>(pos, rng::utility_state), 61);
@@ -105,8 +99,8 @@ void TNT::finalize(Platform& pfrm, App& app)
 
     auto targets = allocate_dynamic<Buffer<Room*, 300>>(pfrm);
 
-    for (int x = -tnt_range; x < tnt_range + 1; ++x) {
-        for (int y = -tnt_range; y < tnt_range + 1; ++y) {
+    for (int x = -range; x < range + 1; ++x) {
+        for (int y = -range; y < range + 1; ++y) {
             if (position().x + x < 0 or position().y + y < 0 or
                 position().x + x > 15 or position().y + y > 15) {
                 continue;
@@ -128,7 +122,20 @@ void TNT::finalize(Platform& pfrm, App& app)
     }
 
     for (auto& room : *targets) {
-        room->apply_damage(pfrm, app, tnt_damage);
+        room->apply_damage(pfrm, app, damage);
+    }
+}
+
+
+
+void TNT::finalize(Platform& pfrm, App& app)
+{
+    Room::finalize(pfrm, app);
+
+    if (not ignition_) {
+        return;
+    } else {
+        ignite(pfrm, app, tnt_range, tnt_damage);
     }
 }
 
