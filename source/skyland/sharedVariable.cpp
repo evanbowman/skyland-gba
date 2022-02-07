@@ -19,6 +19,15 @@ SharedVariable::SharedVariable(const char* name) : name_(name), value_(0)
 
 
 
+SharedVariable::SharedVariable(const char* name, int initial) :
+    name_(name), value_(initial)
+{
+    next_ = __shared_variables;
+    __shared_variables = this;
+}
+
+
+
 SharedVariable* SharedVariable::load(const char* name)
 {
     auto list = __shared_variables;

@@ -103,6 +103,8 @@ public:
     Room(Island* parent, const char* name, const Vec2<u8>& position);
 
 
+    Room(const Room&) = delete;
+
 
     virtual bool add_occupant(EntityRef<BasicCharacter> entity)
     {

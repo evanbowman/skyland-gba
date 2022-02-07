@@ -165,6 +165,7 @@ set(SOURCES
 # with the highest optimization settings.
 add_library(FASTPATH
   ${SOURCE_DIR}/skyland/island.cpp
+  ${SOURCE_DIR}/skyland/rooms/tnt.cpp
   ${SOURCE_DIR}/skyland/rooms/core.cpp
   ${SOURCE_DIR}/skyland/rooms/hull.cpp
   ${SOURCE_DIR}/skyland/rooms/radar.cpp

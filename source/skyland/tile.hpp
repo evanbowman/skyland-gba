@@ -87,6 +87,7 @@ struct Tile {
         nemesis_1,
         nemesis_2,
         bronze,
+        tnt,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -177,6 +178,7 @@ struct InteriorTile {
         nemesis_1,
         nemesis_2,
         bronze,
+        tnt,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

@@ -31,6 +31,7 @@
 #include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
+#include "skyland/rooms/tnt.hpp"
 
 
 
@@ -109,6 +110,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Bulkhead,
                                         Infirmary,
                                         CargoBay,
+                                        TNT,
                                         Radar,
                                         Transporter,
                                         Replicator,
