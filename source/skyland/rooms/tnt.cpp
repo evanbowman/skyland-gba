@@ -22,6 +22,7 @@ void TNT::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (health() not_eq max_health()) {
         Room::ready();
+        ignition_ = true;
 
         damage_timer_ += delta;
         if (damage_timer_ > milliseconds(200)) {
@@ -35,7 +36,13 @@ void TNT::update(Platform& pfrm, App& app, Microseconds delta)
 
 ScenePtr<Scene> TNT::select(Platform& pfrm, App& app)
 {
+    if (parent() not_eq &app.player_island()) {
+        return null_scene();
+    }
+
     Room::apply_damage(pfrm, app, 1);
+
+    ignition_ = true;
 
     return null_scene();
 }
@@ -61,9 +68,22 @@ static SharedVariable tnt_range("tnt_range", 1);
 
 
 
+void TNT::apply_damage(Platform& pfrm, App& app, Health damage)
+{
+    Room::apply_damage(pfrm, app, damage);
+
+    ignition_ = true;
+}
+
+
+
 void TNT::finalize(Platform& pfrm, App& app)
 {
     Room::finalize(pfrm, app);
+
+    if (not ignition_) {
+        return;
+    }
 
     auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Float>& pos) {
         auto e = app.alloc_entity<SmokePuff>(

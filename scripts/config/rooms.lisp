@@ -36,6 +36,6 @@
    (masonry      30  30   0)
    (statue       1   1    0)
    (bridge       30  30   0)
-   (tnt          40  10   0)
+   (dynamite     40  10   0)
    (energized-hull 380 450 20)
    (plundered-room 20  30  0)))

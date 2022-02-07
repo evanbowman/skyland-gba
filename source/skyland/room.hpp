@@ -212,7 +212,7 @@ public:
     }
 
 
-    void apply_damage(Platform&, App&, Health damage);
+    virtual void apply_damage(Platform&, App&, Health damage);
 
 
     void plunder(Platform&, App&, Health damage);

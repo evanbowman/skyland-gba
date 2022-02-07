@@ -61,7 +61,7 @@ public:
 
     static const char* name()
     {
-        return "tnt";
+        return "dynamite";
     }
 
 
@@ -77,8 +77,15 @@ public:
     }
 
 
+    void apply_damage(Platform& pfrm, App& app, Health damage) override;
+
+
+    void ignite(Platform& pfrm, App& app, int range, Health damage);
+
+
 private:
     Microseconds damage_timer_ = 0;
+    bool ignition_ = false;
 };
 
 
