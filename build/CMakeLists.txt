@@ -143,6 +143,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/multiplayerSettingsScene.cpp
   ${SOURCE_DIR}/skyland/scene/replicatorSelectionScene.cpp
   ${SOURCE_DIR}/skyland/scene/combatDroneSetTargetScene.cpp
+  ${SOURCE_DIR}/skyland/scene/levelCompleteOptionsScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp

@@ -10,6 +10,7 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
+#include "levelCompleteOptionsScene.hpp"
 
 
 
@@ -518,6 +519,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
     }
 
+
     case AnimState::idle:
         coins_.reset();
         power_.reset();
@@ -526,9 +528,21 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             lines_.clear();
             pfrm.fill_overlay(0);
             app.reset_opponent_island(pfrm);
-            anim_state_ = AnimState::fade_complete;
+
+            if (opponent_defeated and
+                app.game_mode() == App::GameMode::adventure) {
+                anim_state_ = AnimState::show_options;
+
+            } else {
+                anim_state_ = AnimState::fade_complete;
+            }
+
         }
         break;
+
+
+    case AnimState::show_options:
+        return scene_pool::alloc<LevelCompleteOptionsScene>();
     }
 
     switch (confetti_state_) {

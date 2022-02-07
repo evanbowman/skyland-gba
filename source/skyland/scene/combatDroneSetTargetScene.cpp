@@ -17,6 +17,10 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return new_scene;
     }
 
+    if (not app.opponent_island()) {
+        return scene_pool::alloc<ReadyScene>();
+    }
+
     auto exit_scene = [&]() -> ScenePtr<Scene> {
         if (drone_->destination() == &app.player_island()) {
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_ =
@@ -148,17 +152,19 @@ void CombatDroneSetTargetScene::display(Platform& pfrm, App& app)
         island = app.opponent_island();
     }
 
-    auto origin = island->visual_origin();
+    if (island) {
+        auto origin = island->visual_origin();
 
-    origin.x += cursor_loc_.x * 16;
-    origin.y += cursor_loc_.y * 16;
+        origin.x += cursor_loc_.x * 16;
+        origin.y += cursor_loc_.y * 16;
 
-    Sprite sprite;
-    sprite.set_position(origin);
-    sprite.set_texture_index(17);
-    sprite.set_size(Sprite::Size::w16_h32);
+        Sprite sprite;
+        sprite.set_position(origin);
+        sprite.set_texture_index(17);
+        sprite.set_size(Sprite::Size::w16_h32);
 
-    pfrm.screen().draw(sprite);
+        pfrm.screen().draw(sprite);
+    }
 
     WorldScene::display(pfrm, app);
 }

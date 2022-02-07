@@ -71,6 +71,7 @@ private:
         fade_out,
         idle,
         fade_complete,
+        show_options,
     } anim_state_ = AnimState::init;
 
     enum class ConfettiState {

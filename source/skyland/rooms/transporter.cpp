@@ -275,6 +275,11 @@ ScenePtr<Scene> Transporter::select(Platform& pfrm, App& app)
     }
 
 
+    if (not other_island(app)) {
+        return null_scene();
+    }
+
+
     if (recharge_) {
         return null_scene();
     } else if (length(characters())) {

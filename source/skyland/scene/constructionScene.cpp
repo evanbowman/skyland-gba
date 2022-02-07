@@ -126,7 +126,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::right)) {
             if (selector_ < construction_sites_.size() - 1) {
                 ++selector_;
-            } else if (near_ and app.game_mode() == App::GameMode::sandbox) {
+            } else if (near_ and app.game_mode() == App::GameMode::sandbox
+                       and app.opponent_island()) {
                 auto& cursor_loc =
                     std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 

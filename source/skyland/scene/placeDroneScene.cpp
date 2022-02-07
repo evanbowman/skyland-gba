@@ -254,7 +254,7 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (test_key(Key::right)) {
         if (cursor_loc->x < island->terrain().size() - 1) {
             ++cursor_loc->x;
-        } else if (near_) {
+        } else if (near_ and app.opponent_island()) {
             std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y =
                 cursor_loc->y;
             std::get<SkylandGlobalData>(globals()).far_cursor_loc_.x = 0;

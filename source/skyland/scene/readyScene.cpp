@@ -16,6 +16,7 @@
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
 #include "worldScene.hpp"
+#include "levelCompleteOptionsScene.hpp"
 
 
 
@@ -92,8 +93,9 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             describe_room_timer_ = milliseconds(300);
         } else if ( // Do not allow the player to inspect the other island if we're in
                     // the multiplayer waiting room.
-            mt_prep_seconds == 0 or
-            std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_) {
+                   app.opponent_island() and
+                   (mt_prep_seconds == 0 or
+                   std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_)) {
             auto& cursor_loc =
                 std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
@@ -102,6 +104,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
 
             return scene_pool::alloc<InspectP2Scene>();
+        } else if (not app.opponent_island()) {
+            return scene_pool::alloc<LevelCompleteOptionsScene>(true);
         }
     }
 
@@ -351,6 +355,20 @@ void ReadyScene::display(Platform& pfrm, App& app)
 
 
     WorldScene::display(pfrm, app);
+
+    if (not is_far_camera() and not app.opponent_island()) {
+        origin = app.player_island().visual_origin();
+
+        Sprite exit_hint;
+        exit_hint.set_size(Sprite::Size::w16_h32);
+        exit_hint.set_texture_index(31);
+        exit_hint.set_alpha(Sprite::Alpha::translucent);
+
+        exit_hint.set_position({origin.x + app.player_island().terrain().size() * 16 + 16,
+            origin.y + 13 * 16});
+
+        pfrm.screen().draw(exit_hint);
+    }
 }
 
 
