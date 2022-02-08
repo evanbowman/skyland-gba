@@ -10,9 +10,11 @@ namespace skyland {
 
 
 
-class TNT : public Room {
+class Explosive : public Room {
 public:
-    TNT(Island* parent, const Vec2<u8>& position);
+    Explosive(Island* parent,
+           const Vec2<u8>& position,
+           const char* class_name = name());
 
 
     void finalize(Platform& pfrm, App& app) override;
@@ -83,9 +85,61 @@ public:
     void ignite(Platform& pfrm, App& app, int range, Health damage);
 
 
+protected:
+
+    bool ignition_ = false;
+
 private:
     Microseconds damage_timer_ = 0;
-    bool ignition_ = false;
+
+};
+
+
+
+class TNT : public Explosive {
+public:
+
+
+    TNT(Island* parent, const Vec2<u8>& position) :
+        Explosive(parent, position, name())
+    {
+    }
+
+
+    void finalize(Platform& pfrm, App& app) override
+    {
+        Room::finalize(pfrm, app);
+
+        if (not ignition_) {
+            return;
+        } else {
+            ignite(pfrm, app, 2, 200);
+        }
+    }
+
+
+    static const char* name()
+    {
+        return "dynamite-II";
+    }
+
+
+    static Icon icon()
+    {
+        return 1704;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 1720;
+    }
+
+
+    void render_interior(App& app, u8 buffer[16][16]) override;
+    void render_exterior(App& app, u8 buffer[16][16]) override;
+
+
 };
 
 

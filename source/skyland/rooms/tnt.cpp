@@ -9,14 +9,14 @@ namespace skyland {
 
 
 
-TNT::TNT(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), position)
+Explosive::Explosive(Island* parent, const Vec2<u8>& position, const char* class_name)
+    : Room(parent, class_name, position)
 {
 }
 
 
 
-void TNT::update(Platform& pfrm, App& app, Microseconds delta)
+void Explosive::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
@@ -34,7 +34,7 @@ void TNT::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene> TNT::select(Platform& pfrm, App& app)
+ScenePtr<Scene> Explosive::select(Platform& pfrm, App& app)
 {
     if (parent() not_eq &app.player_island()) {
         return null_scene();
@@ -49,26 +49,26 @@ ScenePtr<Scene> TNT::select(Platform& pfrm, App& app)
 
 
 
-void TNT::render_interior(App& app, u8 buffer[16][16])
+void Explosive::render_interior(App& app, u8 buffer[16][16])
 {
-    buffer[position().x][position().y] = InteriorTile::tnt;
+    buffer[position().x][position().y] = InteriorTile::dynamite;
 }
 
 
 
-void TNT::render_exterior(App& app, u8 buffer[16][16])
+void Explosive::render_exterior(App& app, u8 buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::tnt;
+    buffer[position().x][position().y] = Tile::dynamite;
 }
 
 
 
-static SharedVariable tnt_damage("tnt_damage", 30);
-static SharedVariable tnt_range("tnt_range", 1);
+static SharedVariable tnt_damage("dynamite_damage", 30);
+static SharedVariable tnt_range("dynamite_range", 1);
 
 
 
-void TNT::apply_damage(Platform& pfrm, App& app, Health damage)
+void Explosive::apply_damage(Platform& pfrm, App& app, Health damage)
 {
     Room::apply_damage(pfrm, app, damage);
 
@@ -77,7 +77,7 @@ void TNT::apply_damage(Platform& pfrm, App& app, Health damage)
 
 
 
-void TNT::ignite(Platform& pfrm, App& app, int range, Health damage)
+void Explosive::ignite(Platform& pfrm, App& app, int range, Health damage)
 {
     auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Float>& pos) {
         auto e = app.alloc_entity<SmokePuff>(
@@ -105,8 +105,10 @@ void TNT::ignite(Platform& pfrm, App& app, int range, Health damage)
                 position().x + x > 15 or position().y + y > 15) {
                 continue;
             }
-            if (auto room = parent()->get_room(
-                    {u8(position().x + x), u8(position().y + y)})) {
+
+            auto pos = Vec2<u8> {u8(position().x + x), u8(position().y + y)};
+
+            if (auto room = parent()->get_room(pos)) {
                 bool found = false;
                 for (auto& target : *targets) {
                     if (target == room) {
@@ -117,6 +119,8 @@ void TNT::ignite(Platform& pfrm, App& app, int range, Health damage)
                 if (not found) {
                     targets->push_back(room);
                 }
+            } else if (auto drone = parent()->get_drone(pos)) {
+                (*drone)->apply_damage(pfrm, app, damage);
             }
         }
     }
@@ -128,7 +132,7 @@ void TNT::ignite(Platform& pfrm, App& app, int range, Health damage)
 
 
 
-void TNT::finalize(Platform& pfrm, App& app)
+void Explosive::finalize(Platform& pfrm, App& app)
 {
     Room::finalize(pfrm, app);
 
@@ -137,6 +141,20 @@ void TNT::finalize(Platform& pfrm, App& app)
     } else {
         ignite(pfrm, app, tnt_range, tnt_damage);
     }
+}
+
+
+
+void TNT::render_interior(App& app, u8 buffer[16][16])
+{
+    buffer[position().x][position().y] = InteriorTile::tnt;
+}
+
+
+
+void TNT::render_exterior(App& app, u8 buffer[16][16])
+{
+    buffer[position().x][position().y] = Tile::tnt;
 }
 
 
