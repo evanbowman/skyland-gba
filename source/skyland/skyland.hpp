@@ -111,6 +111,7 @@ public:
         tutorial,
         sandbox,
         multiplayer,
+        continuous,
     };
 
 

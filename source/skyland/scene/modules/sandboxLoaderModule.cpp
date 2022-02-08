@@ -1,6 +1,7 @@
 #include "sandboxLoaderModule.hpp"
 #include "skyland/scene/fadeInScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/opponent/procgenEnemyAI.hpp"
 
 
 
@@ -67,7 +68,7 @@ void SandboxLoaderModule::update_parameter(u8 line_num)
 
 void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    app.game_mode() = App::GameMode::sandbox;
+    app.game_mode() = App::GameMode::continuous;
 
     app.camera().reset();
     pfrm.screen().set_view({});
@@ -128,6 +129,11 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
     app.invoke_script(pfrm, "/scripts/sandbox.lisp");
 
     prep_level(pfrm, app);
+    app.player_island().set_position({10, 374});
+
+    app.reset_opponent_island(pfrm);
+    app.swap_opponent<ProcgenEnemyAI>();
+
 
     show_island_exterior(pfrm, app, &app.player_island());
     show_island_exterior(pfrm, app, app.opponent_island());

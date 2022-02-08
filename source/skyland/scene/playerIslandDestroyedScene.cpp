@@ -11,6 +11,7 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
+#include "readyScene.hpp"
 
 
 
@@ -400,9 +401,15 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::wait_2: {
         if (timer_ > milliseconds(2000)) {
             timer_ = 0;
-            anim_state_ = AnimState::fade_out;
             coins_.reset();
             power_.reset();
+
+            if (app.game_mode() == App::GameMode::continuous) {
+                app.reset_opponent_island(pfrm);
+                return scene_pool::alloc<ReadyScene>();
+            } else {
+                anim_state_ = AnimState::fade_out;
+            }
         }
         break;
     }
@@ -480,6 +487,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 case App::GameMode::sandbox:
                     return scene_pool::alloc<SandboxResetScene>();
+
+                case App::GameMode::continuous:
+                    return scene_pool::alloc<ReadyScene>();
 
                 case App::GameMode::multiplayer:
                     // TODO: default to the multiplayer page of the Title

@@ -93,6 +93,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/playerP1.cpp
   ${SOURCE_DIR}/skyland/autopilotPlayer.cpp
   ${SOURCE_DIR}/skyland/opponent/enemyAI.cpp
+  ${SOURCE_DIR}/skyland/opponent/procgenEnemyAI.cpp
   ${SOURCE_DIR}/skyland/opponent/multiplayerPeer.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
   ${SOURCE_DIR}/skyland/sharedVariable.cpp
