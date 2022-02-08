@@ -9,7 +9,6 @@ namespace skyland {
 
 
 void prep_level(Platform& pfrm, App& app);
-void set_island_positions(Island& left_island, Island& right_island);
 
 
 
@@ -31,8 +30,9 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
         (void)room;
     }
 
+    pfrm.set_scroll(Layer::map_1_ext, -250, -374);
+
     app.create_opponent_island(pfrm, 4);
-    set_island_positions(app.player_island(), *app.opponent_island());
 
     app.opponent_island()->add_room<Core>(pfrm, app, {1, 13});
 

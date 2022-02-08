@@ -150,6 +150,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcManagerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/continuous.cpp
   ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
   ${SOURCE_DIR}/skyland/scene/achievementNotificationScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/achievementViewerModule.cpp
