@@ -7,6 +7,13 @@
 
 o----------------------------o
 
+ (achieve integer)
+
+ Unlock achievement.
+
+
+o----------------------------o
+
  (cargo island x y)
 
  Returns a string describing

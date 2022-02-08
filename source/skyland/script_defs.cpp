@@ -883,6 +883,30 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"achieve",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+
+         const auto achievement =
+             (achievements::Achievement)(lisp::get_op(0)->integer().value_);
+
+         if ((int)achievement >= (int)achievements::Achievement::count) {
+             return L_NIL;
+         }
+
+         if (achievements::unlock(*lisp::interp_get_pfrm(),
+                                  *interp_get_app(),
+                                  achievement)) {
+
+             achievements::award(*lisp::interp_get_pfrm(),
+                                 *interp_get_app(),
+                                 achievement);
+
+         }
+
+         return L_NIL;
+     }},
     {"emit", [](int argc) {
          L_EXPECT_ARGC(argc, 6);
          L_EXPECT_OP(4, user_data);
