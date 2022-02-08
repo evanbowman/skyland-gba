@@ -120,7 +120,7 @@ public:
 
     static const char* name()
     {
-        return "dynamite-II";
+        return "dynamite-ii";
     }
 
 
