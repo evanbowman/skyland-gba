@@ -118,6 +118,12 @@ public:
     }
 
 
+    static u32 properties()
+    {
+        return Explosive::properties() | RoomProperties::manufactory_required;
+    }
+
+
     static const char* name()
     {
         return "dynamite-ii";
