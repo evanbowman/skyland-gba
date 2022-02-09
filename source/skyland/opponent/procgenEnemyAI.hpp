@@ -2,6 +2,7 @@
 
 
 #include "enemyAI.hpp"
+#include "skyland/island.hpp"
 
 
 
@@ -21,6 +22,29 @@ private:
 
     void generate_level(Platform& pfrm, App& app);
 
+
+    void generate_power_sources(Platform& pfrm, App& app);
+    void generate_stairwells(Platform& pfrm, App& app);
+    void generate_secondary_rooms(Platform& pfrm, App& app);
+    void generate_foundation(Platform& pfrm, App& app);
+    void generate_hull(Platform& pfrm, App& app);
+    void generate_weapons(Platform& pfrm, App& app, int max);
+
+
+    bool has_space(App& app, const Vec2<u8>& loc, const Vec2<u8>& sz);
+
+
+    Power power_remaining(App& app) const;
+
+
+    void place_room_random_loc(Platform& pfrm,
+                               App& app,
+                               int x_start,
+                               const char* room_name);
+
+
+    Vec2<u8> levelgen_size_;
+    int levelgen_enemy_count_ = 0;
 };
 
 

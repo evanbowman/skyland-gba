@@ -234,6 +234,16 @@ MetaclassIndex metaclass_index(const char* name)
 
 
 
+RoomMeta& require_metaclass(const char* name)
+{
+    if (auto mt = load_metaclass(name)) {
+        return *mt;
+    }
+    Platform::fatal(format("missing class %", name).c_str());
+}
+
+
+
 RoomMeta* load_metaclass(const char* name)
 {
     auto [mt, ms] = room_metatable();

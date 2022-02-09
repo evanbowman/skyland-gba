@@ -26,6 +26,8 @@ struct RoomMeta {
 
         virtual void
         create(Platform&, App&, Island*, const Vec2<u8>&) const = 0;
+        virtual RoomPtr<Room>
+        create(Platform&, Island*, const Vec2<u8>&) const = 0;
         virtual const char* name() const = 0;
         virtual Vec2<u8> size() const = 0;
         virtual Coins cost() const = 0;
@@ -66,6 +68,14 @@ struct RoomMeta {
                     const Vec2<u8>& position) const override
         {
             parent->add_room<PluginRoom>(pfrm, app, position, mt_);
+        }
+
+
+        RoomPtr<Room> create(Platform& pfrm,
+                             Island* parent,
+                             const Vec2<u8>& position) const override
+        {
+            return room_pool::alloc<PluginRoom>(parent, position, mt_);
         }
 
 
@@ -167,6 +177,13 @@ struct RoomMeta {
                     const Vec2<u8>& position) const override
         {
             parent->add_room<T>(pfrm, app, position);
+        }
+
+        RoomPtr<Room> create(Platform& pfrm,
+                             Island* parent,
+                             const Vec2<u8>& position) const override
+        {
+            return room_pool::alloc<T>(parent, position);
         }
 
         const char* name() const override
@@ -314,6 +331,7 @@ MetaclassIndex metaclass_index(const char* name);
 
 
 RoomMeta* load_metaclass(const char* name);
+RoomMeta& require_metaclass(const char* name);
 RoomMeta* load_metaclass(MetaclassIndex index);
 
 

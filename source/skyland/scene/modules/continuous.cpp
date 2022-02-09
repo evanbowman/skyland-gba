@@ -22,12 +22,12 @@ void Continuous::enter(Platform& pfrm, App& app, Scene& prev)
 
 void Continuous::exit(Platform& pfrm, App& app, Scene& prev)
 {
-    app.set_coins(pfrm, 10000);
+    app.set_coins(pfrm, 0);
     app.player_island().init_terrain(pfrm, 4);
 
     pfrm.speaker().play_music("sb_solecism", 0);
 
-    app.invoke_script(pfrm, "/scripts/sandbox.lisp");
+    app.invoke_script(pfrm, "/scripts/continuous.lisp");
 
     prep_level(pfrm, app);
     app.player_island().set_position({10, 374});
