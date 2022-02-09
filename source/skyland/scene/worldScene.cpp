@@ -112,7 +112,8 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (app.game_mode() == App::GameMode::adventure) {
+    if (app.game_mode() == App::GameMode::adventure or
+        app.game_mode() == App::GameMode::skyland_forever) {
         const auto achievement = achievements::update(pfrm, app);
         if (achievement not_eq achievements::Achievement::none) {
             achievements::award(pfrm, app, achievement);
