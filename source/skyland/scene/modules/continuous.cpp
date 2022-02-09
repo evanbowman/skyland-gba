@@ -1,7 +1,7 @@
 #include "continuous.hpp"
+#include "skyland/opponent/procgenEnemyAI.hpp"
 #include "skyland/scene/fadeInScene.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/opponent/procgenEnemyAI.hpp"
 
 
 
@@ -25,6 +25,8 @@ void Continuous::exit(Platform& pfrm, App& app, Scene& prev)
     app.set_coins(pfrm, 0);
     app.player_island().init_terrain(pfrm, 4);
 
+    app.persistent_data().score_.set(0);
+
     pfrm.speaker().play_music("sb_solecism", 0);
 
     app.invoke_script(pfrm, "/scripts/continuous.lisp");
@@ -47,8 +49,7 @@ void Continuous::exit(Platform& pfrm, App& app, Scene& prev)
 
 
 
-ScenePtr<Scene>
-Continuous::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene> Continuous::update(Platform& pfrm, App& app, Microseconds delta)
 {
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
     return scene_pool::alloc<FadeInScene>();

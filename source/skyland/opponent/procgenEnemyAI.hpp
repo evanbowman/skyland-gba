@@ -10,16 +10,12 @@ namespace skyland {
 
 
 
-
 class ProcgenEnemyAI : public EnemyAI {
 public:
-
-
     void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
 private:
-
     void generate_level(Platform& pfrm, App& app);
 
 
@@ -29,6 +25,7 @@ private:
     void generate_foundation(Platform& pfrm, App& app);
     void generate_hull(Platform& pfrm, App& app);
     void generate_weapons(Platform& pfrm, App& app, int max);
+    void generate_forcefields(Platform& pfrm, App& app);
 
 
     bool has_space(App& app, const Vec2<u8>& loc, const Vec2<u8>& sz);
@@ -44,10 +41,11 @@ private:
 
 
     Vec2<u8> levelgen_size_;
-    int levelgen_enemy_count_ = 0;
+    int levelgen_enemy_count_ = 12;
+
+    int core_count_ = 0;
 };
 
 
 
-
-}
+} // namespace skyland

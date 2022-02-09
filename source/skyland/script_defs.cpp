@@ -895,14 +895,11 @@ static const lisp::Binding script_api[] = {
              return L_NIL;
          }
 
-         if (achievements::unlock(*lisp::interp_get_pfrm(),
-                                  *interp_get_app(),
-                                  achievement)) {
+         if (achievements::unlock(
+                 *lisp::interp_get_pfrm(), *interp_get_app(), achievement)) {
 
-             achievements::award(*lisp::interp_get_pfrm(),
-                                 *interp_get_app(),
-                                 achievement);
-
+             achievements::award(
+                 *lisp::interp_get_pfrm(), *interp_get_app(), achievement);
          }
 
          return L_NIL;

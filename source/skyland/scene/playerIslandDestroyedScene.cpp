@@ -2,6 +2,7 @@
 #include "highscoresScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
 #include "platform/color.hpp"
+#include "readyScene.hpp"
 #include "sandboxResetScene.hpp"
 #include "selectChallengeScene.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
@@ -11,7 +12,6 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
-#include "readyScene.hpp"
 
 
 
@@ -525,6 +525,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // TODO: default to the multiplayer page of the Title
                     // screen.
                     return scene_pool::alloc<TitleScreenScene>();
+
+                case App::GameMode::continuous:
+                    return scene_pool::alloc<HighscoresScene>(true);
 
                 default:
                     return scene_pool::alloc<TitleScreenScene>(3);

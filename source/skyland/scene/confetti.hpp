@@ -28,4 +28,4 @@ using ConfettiBuffer = Buffer<Confetti, 60>;
 
 
 
-}
+} // namespace skyland

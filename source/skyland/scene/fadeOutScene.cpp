@@ -42,7 +42,6 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         case App::GameMode::multiplayer:
             return scene_pool::alloc<TitleScreenScene>();
-
         }
     } else {
         const auto amount = smoothstep(0.f, fade_duration, timer_);

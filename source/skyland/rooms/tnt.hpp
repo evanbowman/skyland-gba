@@ -13,8 +13,8 @@ namespace skyland {
 class Explosive : public Room {
 public:
     Explosive(Island* parent,
-           const Vec2<u8>& position,
-           const char* class_name = name());
+              const Vec2<u8>& position,
+              const char* class_name = name());
 
 
     void finalize(Platform& pfrm, App& app) override;
@@ -86,22 +86,18 @@ public:
 
 
 protected:
-
     bool ignition_ = false;
 
 private:
     Microseconds damage_timer_ = 0;
-
 };
 
 
 
 class TNT : public Explosive {
 public:
-
-
-    TNT(Island* parent, const Vec2<u8>& position) :
-        Explosive(parent, position, name())
+    TNT(Island* parent, const Vec2<u8>& position)
+        : Explosive(parent, position, name())
     {
     }
 
@@ -144,8 +140,6 @@ public:
 
     void render_interior(App& app, u8 buffer[16][16]) override;
     void render_exterior(App& app, u8 buffer[16][16]) override;
-
-
 };
 
 

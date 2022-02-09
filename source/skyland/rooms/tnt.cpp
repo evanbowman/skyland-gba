@@ -9,7 +9,9 @@ namespace skyland {
 
 
 
-Explosive::Explosive(Island* parent, const Vec2<u8>& position, const char* class_name)
+Explosive::Explosive(Island* parent,
+                     const Vec2<u8>& position,
+                     const char* class_name)
     : Room(parent, class_name, position)
 {
 }
@@ -106,7 +108,7 @@ void Explosive::ignite(Platform& pfrm, App& app, int range, Health damage)
                 continue;
             }
 
-            auto pos = Vec2<u8> {u8(position().x + x), u8(position().y + y)};
+            auto pos = Vec2<u8>{u8(position().x + x), u8(position().y + y)};
 
             if (auto room = parent()->get_room(pos)) {
                 bool found = false;

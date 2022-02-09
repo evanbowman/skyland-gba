@@ -11,8 +11,7 @@
 
 (island-configure
  (player)
- '((radar 0 13)
-   (power-core 1 13)))
+ '((power-core 1 13)))
 
 
 (chr-new (player) 1 14 'neutral 0)

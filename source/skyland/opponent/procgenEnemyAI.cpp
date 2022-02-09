@@ -1,9 +1,9 @@
 #include "procgenEnemyAI.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/rooms/core.hpp"
-#include "skyland/room_metatable.hpp"
 #include "bulkAllocator.hpp"
 #include "skyland/roomTable.hpp"
+#include "skyland/room_metatable.hpp"
+#include "skyland/rooms/core.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -79,10 +79,21 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     generate_hull(pfrm, app);
 
-    // generate_weapons(pfrm, app, levelgen_enemy_count_ < 3 ? 2 : 1000);
-    // if (levelgen_enemy_count_ > 4) {
-    // generate_hull(pfrm, app);
-    // }
+    int weapon_limit = 0;
+    if (levelgen_enemy_count_ < 1) {
+        weapon_limit = 1;
+    } else if (levelgen_enemy_count_ < 2) {
+        weapon_limit = 2;
+    } else if (core_count_ < 2) {
+        weapon_limit = 3;
+    } else if (core_count_ < 3) {
+        weapon_limit = 5;
+    } else {
+        weapon_limit = 7;
+    }
+    generate_weapons(pfrm, app, weapon_limit);
+    generate_forcefields(pfrm, app);
+
     generate_foundation(pfrm, app);
 
 
@@ -96,29 +107,49 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
     ++levelgen_enemy_count_;
 
     for (auto& room : app.opponent_island()->rooms()) {
-        app.victory_coins() += 0.2f * (*room->metaclass())->cost();
+
+        auto frac = 0.4f;
+
+        if (levelgen_enemy_count_ > 40) {
+            frac = 0.05f;
+        } else if (levelgen_enemy_count_ > 32) {
+            frac = 0.1f;
+        } else if (levelgen_enemy_count_ > 16) {
+            frac = 0.2f;
+        } else if (levelgen_enemy_count_ > 7) {
+            frac = 0.3f;
+        }
+        app.victory_coins() += frac * (*room->metaclass())->cost();
     }
+
+    app.time_stream().enable_pushes(true);
+    app.time_stream().clear();
 }
+
+
+
+static const int level_threshold_two_powercores = 4;
 
 
 
 void ProcgenEnemyAI::generate_power_sources(Platform& pfrm, App& app)
 {
-    int core_count = 0;
+    core_count_ = 0;
     // int reactor_count = 0;
 
-    if (levelgen_enemy_count_ < 4) {
-        core_count = 1;
+    if (levelgen_enemy_count_ < level_threshold_two_powercores) {
+        core_count_ = 1;
     } else if (levelgen_enemy_count_ < 10) {
-        core_count = 2;
+        core_count_ = 2;
     } else {
-        core_count = 3;
+        core_count_ = 3;
     }
 
-    for (int i = 0; i < core_count; ++i) {
-        place_room_random_loc(pfrm, app,
-                              levelgen_size_.x < 4 ? 1 :
-                              levelgen_size_.x / 2 - 1,
+    for (int i = 0; i < core_count_; ++i) {
+        place_room_random_loc(pfrm,
+                              app,
+                              levelgen_size_.x < 4 ? 1
+                                                   : levelgen_size_.x / 2 - 1,
                               "power-core");
     }
 }
@@ -128,7 +159,7 @@ void ProcgenEnemyAI::generate_power_sources(Platform& pfrm, App& app)
 Power ProcgenEnemyAI::power_remaining(App& app) const
 {
     return app.opponent_island()->power_supply() -
-        app.opponent_island()->power_drain();
+           app.opponent_island()->power_drain();
 }
 
 
@@ -146,7 +177,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     int ion_cannon_count = 0;
 
     for (auto& room : app.player_island().rooms()) {
-        const auto category = room->category();
+        const auto category = (*room->metaclass())->category();
 
         if (str_eq(room->name(), "missile-silo")) {
             ++missile_count;
@@ -169,12 +200,16 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         }
     }
 
+
+    int generic_cannon_count =
+        cannon_count + flak_count + arc_count + misc_cannon_count;
+
     int player_avg_roof_hull_thickness = 0;
 
     for (u8 x = 0; x < (int)app.player_island().terrain().size(); ++x) {
         for (u8 y = 6; y < 15; ++y) {
             if (auto room = app.player_island().get_room({x, y})) {
-                if (room->category() == Room::Category::wall) {
+                if ((*room->metaclass())->category() == Room::Category::wall) {
                     ++player_avg_roof_hull_thickness;
                 } else {
                     break;
@@ -193,7 +228,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     for (u8 y = 6; y < 15; ++y) {
         for (u8 x = (int)app.player_island().terrain().size() - 1; x > 1; --x) {
             if (auto room = app.player_island().get_room({x, y})) {
-                if (room->category() == Room::Category::wall) {
+                if ((*room->metaclass())->category() == Room::Category::wall) {
                     min_present_y = std::min(min_present_y, (int)y);
                     ++player_avg_forward_hull_thickness;
                 } else {
@@ -216,10 +251,20 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
             Float probability_;
         };
 
+        bool invalidated_missile_cells_[16][16];
+        bool invalidated_cannon_cells_[16][16];
+
         Buffer<Pair, 30> pairs_;
     };
 
     auto c = allocate_dynamic<Context>(pfrm);
+
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 16; ++y) {
+            c->invalidated_cannon_cells_[x][y] = false;
+            c->invalidated_missile_cells_[x][y] = false;
+        }
+    }
 
     auto enq_prob = [&](const char* mt_name, Float prob) {
         c->pairs_.push_back({mt_name, prob});
@@ -227,11 +272,9 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
     enq_prob("cannon", 100.f);
 
-    enq_prob("missile-silo", 100.f);
-
-    if (levelgen_enemy_count_ > 5) {
+    if (levelgen_enemy_count_ > 4) {
         Float flak_prob = 100.f;
-        flak_prob += (player_avg_forward_hull_thickness < 2 ? 50.f : -50.f);
+        flak_prob += (player_avg_forward_hull_thickness < 2 ? 25.f : -25.f);
         if (nemesis_count) {
             flak_prob += 100.f;
         }
@@ -239,7 +282,20 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     }
 
     if (forcefield_count) {
-        enq_prob("ion-cannon", 40.f + forcefield_count * 30.f);
+        enq_prob("ion-cannon", 40.f + forcefield_count * 20.f);
+    }
+
+    if (levelgen_enemy_count_ > 8) {
+        enq_prob("arc-gun", 120.f);
+        enq_prob("nemesis", 120.f);
+
+        enq_prob("missile-silo",
+                 300.f + 10.f * missile_count + 10 * generic_cannon_count +
+                     50.f * drone_count);
+    } else {
+        enq_prob("missile-silo",
+                 90.f + 10.f * missile_count + 10 * generic_cannon_count +
+                     50.f * drone_count);
     }
 
     Float total_prob = 0.f;
@@ -262,67 +318,236 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     auto place_missile_silo = [&](RoomMeta* mt) {
         Buffer<Vec2<u8>, 16> slots;
         for (u8 x = 0; x < 16; ++x) {
-            for (u8 y = 5; y < 14; ++y) {
-                if (auto room = app.opponent_island()->get_room({x, u8(y + 2)})) {
-                    if (not str_eq(room->name(), "missile-silo") and
-                        has_space(app, {x, y}, {1, 2})) {
-                        slots.push_back({x, y});
-                    }
-                }
-            }
-        }
-        rng::shuffle(slots, rng::critical_state);
-        if (not slots.empty()) {
-            (*mt)->create(pfrm, app, app.opponent_island(), slots[0]);
-        }
-    };
+            for (u8 y = 6; y < 14; ++y) {
+                auto room = app.opponent_island()->get_room({x, u8(y + 2)});
+                if ((y == 13 or room) and has_space(app, {x, y}, {1, 2}) and
+                    not c->invalidated_missile_cells_[x][y] and
+                    not c->invalidated_missile_cells_[x][y + 1]) {
 
-    auto place_cannon = [&](RoomMeta* mt, u8 width, u8 height) {
-        Buffer<Vec2<u8>, 16> slots;
-        for (u8 y = 7; y < 15; ++y) {
-            bool existing_weapon = false;
-            bool seen_room = false;
-            for (u8 x = 0; x < (int)app.opponent_island()->terrain().size(); ++x) {
-                if (auto room = app.opponent_island()->get_room({x, y})) {
-                    seen_room = true;
-                    if (room->category() == Room::Category::weapon) {
-                        existing_weapon = true;
-                        break;
-                    }
-                }
-            }
-            if (existing_weapon) {
-                break;
-            }
-
-            for (u8 x = 0; x < app.opponent_island()->terrain().size(); ++x) {
-                if (seen_room and
-                    has_space(app, {x, y}, {width, height})) {
                     slots.push_back({x, y});
-                } else if (app.opponent_island()->get_room({x, y})) {
+                    break;
+                } else if (room) {
+                    // If we've seen a room, we shouldn't place a missile-silo
+                    // under it!
                     break;
                 }
             }
         }
+
         rng::shuffle(slots, rng::critical_state);
+
         if (not slots.empty()) {
-            (*mt)->create(pfrm, app, app.opponent_island(), slots[0]);
+            auto s = slots[0];
+            (*mt)->create(pfrm, app, app.opponent_island(), {s.x, s.y});
+
+            for (int yy = 0; yy < s.y; ++yy) {
+                c->invalidated_missile_cells_[s.x][yy] = true;
+                c->invalidated_cannon_cells_[s.x][yy] = true;
+            }
         }
     };
 
-    while (max) {
+    auto place_cannon = [&](RoomMeta* mt) {
+        Buffer<Vec2<u8>, 16> slots;
+
+
+        for (u8 y = 6; y < 14; ++y) {
+            for (u8 x = 0; x < 15; ++x) {
+
+                auto room = app.opponent_island()->get_room(
+                    {u8(x + (*mt)->size().x), y});
+
+                bool invalid = false;
+                for (int xx = x; xx < x + (*mt)->size().x; ++xx) {
+                    if (c->invalidated_cannon_cells_[xx][y]) {
+                        invalid = true;
+                    }
+                }
+
+                if ((room or
+                     app.opponent_island()->get_room({x, u8(y + 1)})) and
+                    has_space(app, {x, y}, (*mt)->size()) and not invalid) {
+
+                    slots.push_back({x, y});
+                    break;
+                } else if (room) {
+                    // If we've seen a room, we shouldn't place a missile-silo
+                    // under it!
+                    break;
+                }
+            }
+        }
+
+        rng::shuffle(slots, rng::critical_state);
+
+        // Placing weapons nearer to the leftmost position reduces the chances
+        // of placing cannons in the path of other cannons.
+        std::sort(slots.begin(), slots.end(), [](auto& lhs, auto& rhs) {
+            return lhs.x < rhs.x;
+        });
+
+        if (not slots.empty()) {
+            auto s = slots[0];
+            (*mt)->create(pfrm, app, app.opponent_island(), {s.x, s.y});
+
+            for (int xx = 0; xx < 15; ++xx) {
+                c->invalidated_cannon_cells_[xx][s.y] = true;
+            }
+
+            // Only invalidate the slots in front of the cannon, i.e. it's fine
+            // to place missile-silos behind a cannon-type weapon.
+            for (int xx = 0; xx < s.x; ++xx) {
+                c->invalidated_missile_cells_[xx][s.y] = true;
+            }
+        }
+    };
+
+    int place_missile_count = 0;
+
+    for (int i = 0; i < max; ++i) {
         auto sel = c->distribution_[rng::choice(c->distribution_.size(),
                                                 rng::critical_state)];
 
-        if (power_remaining(app) >= (*sel)->consumes_power()) {
-            --max;
+        if (power_remaining(app) > (*sel)->consumes_power()) {
+
             if (str_eq((*sel)->name(), "missile-silo")) {
-                place_missile_silo(sel);
+                ++place_missile_count;
             } else {
-                place_cannon(sel, (*sel)->size().x, (*sel)->size().y);
+                place_cannon(sel);
             }
+
         } else {
             break;
+        }
+    }
+
+    for (int i = 0; i < place_missile_count; ++i) {
+        place_missile_silo(&require_metaclass("missile-silo"));
+    }
+}
+
+
+
+void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
+{
+    struct Context {
+        struct Slot {
+            Vec2<u8> coord_;
+            Float weight_;
+        };
+
+        Buffer<Slot, 60> slots_;
+    };
+
+    auto c = allocate_dynamic<Context>(pfrm);
+
+
+    auto find_ideal_forcefield_locs = [&] {
+        c->slots_.clear();
+
+        int player_missile_count = 0;
+        int player_cannon_count = 0;
+        for (auto& room : app.player_island().rooms()) {
+            if ((*room->metaclass())->category() == Room::Category::weapon) {
+                if (str_eq(room->name(), "missile-silo")) {
+                    ++player_missile_count;
+                } else {
+                    ++player_cannon_count;
+                }
+            }
+        }
+
+        int opponent_missile_count = 0;
+        int opponent_cannon_count = 0;
+        for (auto& room : app.opponent_island()->rooms()) {
+            if ((*room->metaclass())->category() == Room::Category::weapon) {
+                if (str_eq(room->name(), "missile-silo")) {
+                    ++opponent_missile_count;
+                } else {
+                    ++opponent_cannon_count;
+                }
+            }
+        }
+
+        for (u8 x = 0; x < 15; ++x) {
+            for (u8 y = 0; y < 15; ++y) {
+                Float weight = 0.f;
+
+                auto get_room = [&](u8 x, u8 y) {
+                    return app.opponent_island()->get_room({x, y});
+                };
+
+                if (x < 15) {
+                    if (app.opponent_island()->rooms_plot().get(x + 1, y)) {
+                        if (auto room = get_room(x + 1, y)) {
+                            if ((not str_eq(room->name(), "missile-silo")) and
+                                (*room->metaclass())->category() ==
+                                    Room::Category::weapon) {
+
+                                if (opponent_cannon_count >
+                                    player_cannon_count) {
+                                    weight += 150.f;
+                                } else {
+                                    weight += 100.f;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (y < 15) {
+                    if (app.opponent_island()->rooms_plot().get(x, y + 1)) {
+                        if (auto room = get_room(1, y + 1)) {
+                            if (str_eq(room->name(), "missile-silo")) {
+                                if (opponent_missile_count >
+                                    player_missile_count) {
+                                    weight += 150.f;
+                                } else {
+                                    weight += 100.f;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (weight not_eq 0.f) {
+                    c->slots_.push_back({{x, y}, weight});
+                }
+            }
+        }
+
+        rng::shuffle(c->slots_, rng::critical_state);
+
+        std::sort(c->slots_.begin(), c->slots_.end(), [](auto& lhs, auto& rhs) {
+            return lhs.weight_ > rhs.weight_;
+        });
+    };
+
+
+    auto& mt = require_metaclass("forcefield");
+
+    while (true) {
+        const auto power = power_remaining(app);
+        if (power < mt->consumes_power()) {
+            return;
+        }
+
+        find_ideal_forcefield_locs();
+
+        if (not c->slots_.empty()) {
+            bool placed = false;
+            for (auto& slot : c->slots_) {
+                if (has_space(app, slot.coord_, {1, 1})) {
+                    placed = true;
+                    mt->create(pfrm, app, app.opponent_island(), slot.coord_);
+                    break;
+                }
+            }
+            if (not placed) {
+                return;
+            }
+        } else {
+            return;
         }
     }
 }
@@ -335,25 +560,16 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
 
     for (u8 x = 0; x < 15; ++x) {
 
-        bool missile_in_column = false;
-        for (u8 yy = 0; yy < 15; ++yy) {
-            if (auto room = app.opponent_island()->get_room({x, yy})) {
-                if (str_eq(room->name(), "missile-silo")) {
-                    missile_in_column = true;
-                    break;
-                }
-            }
-        }
-
-        if (missile_in_column) {
-            continue;
-        }
-
         for (u8 y = 0; y < 14; ++y) {
 
             if (app.opponent_island()->rooms_plot().get(x, y + 1)) {
-                if (not app.opponent_island()->rooms_plot().get(x, y)) {
-                    hull->create(pfrm, app, app.opponent_island(), {x, y});
+                auto below = app.opponent_island()->get_room({x, u8(y + 1)});
+
+                if (below and (*below->metaclass())->category() not_eq
+                                  Room::Category::wall) {
+                    if (not app.opponent_island()->rooms_plot().get(x, y)) {
+                        hull->create(pfrm, app, app.opponent_island(), {x, y});
+                    }
                 }
             }
         }
@@ -362,27 +578,20 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
     for (u8 x = 0; x < 15; ++x) {
         for (u8 y = 0; y < 15; ++y) {
 
-            bool missile_in_column = false;
-            for (u8 yy = 0; yy < 15; ++yy) {
-                if (auto room = app.opponent_island()->get_room({x, yy})) {
-                    if (str_eq(room->name(), "missile-silo")) {
-                        missile_in_column = true;
-                        break;
-                    }
-                }
-            }
-
-            if (missile_in_column) {
-                continue;
-            }
-
             if (app.opponent_island()->rooms_plot().get(x + 1, y)) {
                 auto right = app.opponent_island()->get_room({u8(x + 1), y});
-                if (right->category() == Room::Category::weapon and
+                if (not right) {
+                    continue;
+                }
+                if ((*right->metaclass())->category() ==
+                        Room::Category::weapon and
                     not str_eq(right->name(), "missile-silo")) {
                     continue;
                 }
-                if (not app.opponent_island()->rooms_plot().get(x, y)) {
+
+                if ((*right->metaclass())->category() not_eq
+                        Room::Category::wall and
+                    not app.opponent_island()->rooms_plot().get(x, y)) {
                     hull->create(pfrm, app, app.opponent_island(), {x, y});
                 }
             }
@@ -588,8 +797,7 @@ void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
         }
     };
 
-    if (levelgen_enemy_count_ > 6 and
-        rng::choice<2>(rng::critical_state)) {
+    if (levelgen_enemy_count_ > 6 and rng::choice<2>(rng::critical_state)) {
         auto& mt = require_metaclass("infirmary");
 
         find_connected_slots(mt->size().y);
@@ -597,8 +805,7 @@ void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
         try_place_room(mt);
     }
 
-    if (levelgen_enemy_count_ > 6 and
-        rng::choice<2>(rng::critical_state)) {
+    if (levelgen_enemy_count_ > 6 and rng::choice<2>(rng::critical_state)) {
 
         auto& mt = require_metaclass("transporter");
 
@@ -607,7 +814,6 @@ void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
             try_place_room(mt);
         }
     }
-
 }
 
 
@@ -617,23 +823,39 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
     // Generate filler structures to ensure that no rooms are floating.
 
     auto& mt = require_metaclass("masonry");
-    auto& hull = require_metaclass("hull");
     auto& dynamite = require_metaclass("dynamite");
     auto& dynamite_ii = require_metaclass("dynamite-ii");
 
     for (u8 x = 0; x < (int)app.opponent_island()->terrain().size(); ++x) {
         for (u8 y = 0; y < 15; ++y) {
             if (app.opponent_island()->rooms_plot().get(x, y)) {
+                if (auto room = app.opponent_island()->get_room({x, y})) {
+                    if (str_eq(room->name(), "forcefield")) {
+                        // Don't put foundation blocks beneath a forcefield
+                        continue;
+                    }
+                }
                 for (u8 yy = y; yy < 15; ++yy) {
                     if (not app.opponent_island()->rooms_plot().get(x, yy)) {
+                        if (auto room = app.opponent_island()->get_room(
+                                {u8(x + 1), yy})) {
+                            if ((*room->metaclass())->category() ==
+                                    Room::Category::weapon and
+                                not str_eq(room->name(), "missile-silo")) {
+                                // Don't put a foundation block to the left of a
+                                // cannon-type weapon.
+                                continue;
+                            }
+                        }
                         if (rng::choice<20>(rng::critical_state) == 0) {
-                            dynamite->create(pfrm, app, app.opponent_island(), {x, yy});
+                            dynamite->create(
+                                pfrm, app, app.opponent_island(), {x, yy});
                         } else if (rng::choice<40>(rng::critical_state) == 0) {
-                            dynamite_ii->create(pfrm, app, app.opponent_island(), {x, yy});
-                        } else if (app.opponent_island()->rooms_plot().get(x, yy + 1)) {
-                            hull->create(pfrm, app, app.opponent_island(), {x, yy});
+                            dynamite_ii->create(
+                                pfrm, app, app.opponent_island(), {x, yy});
                         } else {
-                            mt->create(pfrm, app, app.opponent_island(), {x, yy});
+                            mt->create(
+                                pfrm, app, app.opponent_island(), {x, yy});
                         }
                     }
                 }
@@ -661,7 +883,8 @@ void ProcgenEnemyAI::place_room_random_loc(Platform& pfrm,
 
     int tries = 0;
     while (tries < 255) {
-        u8 x = x_start + rng::choice((levelgen_size_.x - x_start), rng::critical_state);
+        u8 x = x_start +
+               rng::choice((levelgen_size_.x - x_start), rng::critical_state);
         u8 y = 14 - rng::choice(levelgen_size_.y, rng::critical_state);
 
         if (has_space(app, {x, y}, (*mt)->size())) {
@@ -684,8 +907,7 @@ bool ProcgenEnemyAI::has_space(App& app,
             if (loc.y + y >= 15 or loc.x + x >= levelgen_size_.x) {
                 return false;
             }
-            if (app.opponent_island()->rooms_plot().get(loc.x + x,
-                                                        loc.y + y)) {
+            if (app.opponent_island()->rooms_plot().get(loc.x + x, loc.y + y)) {
                 return false;
             }
         }
@@ -696,4 +918,4 @@ bool ProcgenEnemyAI::has_space(App& app,
 
 
 
-}
+} // namespace skyland

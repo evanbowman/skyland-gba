@@ -14,7 +14,7 @@ class Continuous : public Module<Continuous> {
 public:
     static const char* module_name()
     {
-        return "Continuous Mode";
+        return "SKYLAND Forever";
     }
 
 
@@ -46,8 +46,6 @@ public:
 
 
 private:
-
-
     static Factory factory_;
 };
 
