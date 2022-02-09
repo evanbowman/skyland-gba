@@ -32,6 +32,7 @@ enum Achievement : u8 {
     explorer,
     strategist,
     stronghold,
+    triage,
     ancient_weapon,
     count
 };

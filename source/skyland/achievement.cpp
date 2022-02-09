@@ -72,6 +72,16 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[stronghold].reward_), awarded);
      }},
 
+    {"Triage",
+     "Destroy a room full of invading goblins with dynamite!",
+     "dynamite-ii",
+     [](Platform&, App& app) {
+         return is_enabled(metaclass_index(info[triage].reward_));
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[triage].reward_), awarded);
+     }},
+
     {"Borrowed tech",
      "Destroy a decimator by plundering!",
      "decimator",
