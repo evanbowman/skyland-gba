@@ -12,6 +12,7 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
+#include "skyland/opponent/friendlyAI.hpp"
 
 
 
@@ -265,7 +266,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.speaker().clear_sounds();
         pfrm.speaker().set_music_volume(1);
 
-        if (app.game_mode() not_eq App::GameMode::adventure) {
+        if (app.game_mode() not_eq App::GameMode::adventure and
+            app.game_mode() not_eq App::GameMode::skyland_forever) {
             pfrm.speaker().play_music("unaccompanied_wind", 0);
         }
 
@@ -328,6 +330,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                         }
                     }
                 }
+            } else {
+                app.swap_opponent<FriendlyAI>();
             }
 
             for (auto& room : app.player_island().rooms()) {
@@ -404,7 +408,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             coins_.reset();
             power_.reset();
 
-            if (app.game_mode() == App::GameMode::continuous) {
+            if (app.game_mode() == App::GameMode::skyland_forever) {
                 app.reset_opponent_island(pfrm);
                 return scene_pool::alloc<ReadyScene>();
             } else {
@@ -488,7 +492,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 case App::GameMode::sandbox:
                     return scene_pool::alloc<SandboxResetScene>();
 
-                case App::GameMode::continuous:
+                case App::GameMode::skyland_forever:
                     return scene_pool::alloc<ReadyScene>();
 
                 case App::GameMode::multiplayer:
@@ -516,7 +520,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<SelectChallengeScene>();
 
                 case App::GameMode::adventure:
-                    return scene_pool::alloc<HighscoresScene>(true);
+                    return scene_pool::alloc<HighscoresScene>(true, 1);
 
                 case App::GameMode::sandbox:
                     return scene_pool::alloc<SandboxResetScene>();
@@ -526,8 +530,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // screen.
                     return scene_pool::alloc<TitleScreenScene>();
 
-                case App::GameMode::continuous:
-                    return scene_pool::alloc<HighscoresScene>(true);
+                case App::GameMode::skyland_forever:
+                    return scene_pool::alloc<HighscoresScene>(true, 3);
 
                 default:
                     return scene_pool::alloc<TitleScreenScene>(3);

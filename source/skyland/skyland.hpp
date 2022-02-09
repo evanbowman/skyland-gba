@@ -111,7 +111,7 @@ public:
         tutorial,
         sandbox,
         multiplayer,
-        continuous,
+        skyland_forever,
     };
 
 
@@ -414,7 +414,7 @@ private:
 
 
     Boxed<Player, PlayerP1, 100> player_;
-    Boxed<Opponent, EnemyAI, 64> opponent_;
+    Boxed<Opponent, EnemyAI, 100> opponent_;
 
 
     // In the unlikely event that the game freezes for some reason, the software

@@ -1,4 +1,4 @@
-#include "continuous.hpp"
+#include "skylandForever.hpp"
 #include "skyland/opponent/procgenEnemyAI.hpp"
 #include "skyland/scene/fadeInScene.hpp"
 #include "skyland/skyland.hpp"
@@ -13,14 +13,14 @@ void prep_level(Platform& pfrm, App& app);
 
 
 
-void Continuous::enter(Platform& pfrm, App& app, Scene& prev)
+void SkylandForever::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    app.game_mode() = App::GameMode::continuous;
+    app.game_mode() = App::GameMode::skyland_forever;
 }
 
 
 
-void Continuous::exit(Platform& pfrm, App& app, Scene& prev)
+void SkylandForever::exit(Platform& pfrm, App& app, Scene& prev)
 {
     app.set_coins(pfrm, 0);
     app.player_island().init_terrain(pfrm, 4);
@@ -29,7 +29,7 @@ void Continuous::exit(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.speaker().play_music("sb_solecism", 0);
 
-    app.invoke_script(pfrm, "/scripts/continuous.lisp");
+    app.invoke_script(pfrm, "/scripts/skyland_forever.lisp");
 
     prep_level(pfrm, app);
     app.player_island().set_position({10, 374});
@@ -49,7 +49,8 @@ void Continuous::exit(Platform& pfrm, App& app, Scene& prev)
 
 
 
-ScenePtr<Scene> Continuous::update(Platform& pfrm, App& app, Microseconds delta)
+ScenePtr<Scene>
+SkylandForever::update(Platform& pfrm, App& app, Microseconds delta)
 {
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
     return scene_pool::alloc<FadeInScene>();
@@ -57,7 +58,7 @@ ScenePtr<Scene> Continuous::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-Continuous::Factory Continuous::factory_;
+SkylandForever::Factory SkylandForever::factory_;
 
 
 

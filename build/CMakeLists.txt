@@ -158,7 +158,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/glossaryViewerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/sandboxLoaderModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/textEditorModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/continuous.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/skylandForever.cpp
   ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/shopModule.cpp)
 

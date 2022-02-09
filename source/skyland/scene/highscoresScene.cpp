@@ -11,15 +11,18 @@ namespace skyland {
 
 
 HighscoresScene::HighscoresScene()
-    : show_current_score_(false), disable_writeback_(true)
+    : show_current_score_(false), disable_writeback_(true),
+      title_screen_page_(3)
 {
 }
 
 
 
-HighscoresScene::HighscoresScene(bool show_current_score)
+HighscoresScene::HighscoresScene(bool show_current_score,
+                                 int title_screen_page)
     : show_current_score_(show_current_score),
-      disable_writeback_(show_current_score == false)
+      disable_writeback_(show_current_score == false),
+      title_screen_page_(title_screen_page)
 {
 }
 
@@ -138,7 +141,7 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
 {
     if (app.player().key_down(pfrm, Key::action_1) or
         app.player().key_down(pfrm, Key::action_2)) {
-        return scene_pool::alloc<TitleScreenScene>(show_current_score_ ? 1 : 3);
+        return scene_pool::alloc<TitleScreenScene>(title_screen_page_);
     }
     return null_scene();
 }

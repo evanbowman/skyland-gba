@@ -10,7 +10,7 @@ namespace skyland {
 
 
 
-class Continuous : public Module<Continuous> {
+class SkylandForever : public Module<SkylandForever> {
 public:
     static const char* module_name()
     {

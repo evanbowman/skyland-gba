@@ -97,7 +97,7 @@ ZoneImageScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (not app.current_world_location() == 0) {
         return scene_pool::alloc<WorldMapScene>();
     } else if (app.zone() == 4) {
-        return scene_pool::alloc<HighscoresScene>(true);
+        return scene_pool::alloc<HighscoresScene>(true, 1);
     }
 
     switch (state_) {

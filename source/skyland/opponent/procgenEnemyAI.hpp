@@ -46,6 +46,8 @@ private:
     int levelgen_enemy_count_ = 0;
 
     int core_count_ = 0;
+
+    std::optional<Text> level_text_;
 };
 
 

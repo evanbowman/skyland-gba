@@ -3,11 +3,19 @@
 #include "skyland/roomTable.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/core.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 
 
 
 namespace skyland {
+
+
+
+static SHARED_VARIABLE(sf_p1_coin_yield);
+static SHARED_VARIABLE(sf_p2_coin_yield);
+static SHARED_VARIABLE(sf_p3_coin_yield);
+static SHARED_VARIABLE(sf_p4_coin_yield);
 
 
 
@@ -21,6 +29,14 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         generate_level(pfrm, app);
     } else {
         EnemyAI::update(pfrm, app, delta);
+    }
+
+    if (not app.opponent_island() or app.player_island().is_destroyed()) {
+        level_text_.reset();
+    } else if (not level_text_) {
+        level_text_.emplace(pfrm, OverlayCoord{29, 0});
+    } else {
+        level_text_->assign(levelgen_enemy_count_);
     }
 }
 
@@ -117,19 +133,26 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
         auto frac = 0.4f;
 
         if (levelgen_enemy_count_ > 24) {
-            frac = 0.1f;
+            frac = sf_p4_coin_yield * 0.01;
         } else if (levelgen_enemy_count_ > 16) {
-            frac = 0.15f;
+            frac = sf_p3_coin_yield * 0.01;
         } else if (levelgen_enemy_count_ > 12) {
-            frac = 0.25f;
+            frac = sf_p2_coin_yield * 0.01;
         } else if (levelgen_enemy_count_ > 7) {
-            frac = 0.35f;
+            frac = sf_p1_coin_yield * 0.01;
         }
         app.victory_coins() += frac * (*room->metaclass())->cost();
     }
 
     app.time_stream().enable_pushes(true);
     app.time_stream().clear();
+
+    if (not level_text_) {
+        level_text_.emplace(
+            pfrm,
+            OverlayCoord{u8(30 - integer_text_length(levelgen_enemy_count_)),
+                         0});
+    }
 }
 
 
@@ -808,7 +831,8 @@ void ProcgenEnemyAI::generate_decorations(Platform& pfrm, App& app)
         for (y = 6; y < 14; ++y) {
             if (app.opponent_island()->rooms_plot().get(x, y)) {
                 if (auto room = app.opponent_island()->get_room({x, y})) {
-                    if ((*room->metaclass())->category() == Room::Category::decoration) {
+                    if ((*room->metaclass())->category() ==
+                        Room::Category::decoration) {
                         empty_column = false;
                         y -= 1;
                         break;

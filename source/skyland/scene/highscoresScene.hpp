@@ -14,7 +14,7 @@ public:
     HighscoresScene();
 
 
-    HighscoresScene(bool show_current_score);
+    HighscoresScene(bool show_current_score, int title_screen_page);
 
     void enter(Platform& pfrm, App& app, Scene& prev) override;
     void exit(Platform& pfrm, App& app, Scene& next) override;
@@ -44,6 +44,7 @@ private:
     Buffer<Text, 8> lines_;
     bool show_current_score_;
     bool disable_writeback_;
+    int title_screen_page_;
 
     static Factory factory_;
 };
