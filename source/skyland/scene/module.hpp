@@ -6,6 +6,13 @@
 
 
 
+// The Module class defines a plugin interface through which applets on the
+// title screen extras menu may be instantiated. A module is also child class of
+// Scene, so modules may be instantiated by other scenes without needing to use
+// the Module interface.
+
+
+
 namespace skyland {
 
 
