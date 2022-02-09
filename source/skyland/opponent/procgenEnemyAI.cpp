@@ -96,6 +96,9 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     generate_foundation(pfrm, app);
 
+    generate_characters(pfrm, app);
+    generate_decorations(pfrm, app);
+
 
     prep_level(pfrm, app);
     show_island_exterior(pfrm, app, app.opponent_island());
@@ -505,6 +508,10 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
                                 } else {
                                     weight += 100.f;
                                 }
+                            } else if (str_eq(room->name(), "drone-bay")) {
+                                if (player_missile_count) {
+                                    weight += 110.f;
+                                }
                             }
                         }
                     }
@@ -706,6 +713,20 @@ void ProcgenEnemyAI::generate_stairwells(Platform& pfrm, App& app)
         find_ideal_stairwell_slots();
         ++tries;
     }
+}
+
+
+
+void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
+{
+    // ...
+}
+
+
+
+void ProcgenEnemyAI::generate_decorations(Platform& pfrm, App& app)
+{
+    // ...
 }
 
 

@@ -150,7 +150,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcManagerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/continuous.cpp
+  ${SOURCE_DIR}/skyland/scene/selectTutorialScene.cpp
   ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
   ${SOURCE_DIR}/skyland/scene/achievementNotificationScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/achievementViewerModule.cpp
@@ -158,7 +158,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/glossaryViewerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/sandboxLoaderModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/textEditorModule.cpp
-  ${SOURCE_DIR}/skyland/scene/selectTutorialScene.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/continuous.cpp
   ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/shopModule.cpp)
 
