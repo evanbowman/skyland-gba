@@ -54,7 +54,7 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
         } else if (levelgen_enemy_count_ < 12) {
             return 50;
         } else {
-            return 60;
+            return 70;
         }
     }();
 
@@ -68,6 +68,7 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
 
     app.create_opponent_island(pfrm, levelgen_size_.x);
+    app.opponent_island()->show_flag(true);
 
     generate_power_sources(pfrm, app);
 
@@ -88,8 +89,10 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
         weapon_limit = 3;
     } else if (core_count_ < 3) {
         weapon_limit = 5;
-    } else {
+    } else if (core_count_ < 4) {
         weapon_limit = 7;
+    } else {
+        weapon_limit = 11;
     }
     generate_weapons(pfrm, app, weapon_limit);
     generate_forcefields(pfrm, app);
@@ -113,14 +116,14 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
         auto frac = 0.4f;
 
-        if (levelgen_enemy_count_ > 30) {
-            frac = 0.05f;
-        } else if (levelgen_enemy_count_ > 20) {
+        if (levelgen_enemy_count_ > 24) {
             frac = 0.1f;
         } else if (levelgen_enemy_count_ > 16) {
-            frac = 0.2f;
+            frac = 0.15f;
+        } else if (levelgen_enemy_count_ > 12) {
+            frac = 0.25f;
         } else if (levelgen_enemy_count_ > 7) {
-            frac = 0.3f;
+            frac = 0.35f;
         }
         app.victory_coins() += frac * (*room->metaclass())->cost();
     }
@@ -138,14 +141,17 @@ static const int level_threshold_two_powercores = 4;
 void ProcgenEnemyAI::generate_power_sources(Platform& pfrm, App& app)
 {
     core_count_ = 0;
-    // int reactor_count = 0;
+    int reactor_count = 0;
 
     if (levelgen_enemy_count_ < level_threshold_two_powercores) {
         core_count_ = 1;
     } else if (levelgen_enemy_count_ < 10) {
         core_count_ = 2;
+    } else if (levelgen_enemy_count_ < 14) {
+        core_count_ = 3;
     } else {
         core_count_ = 3;
+        reactor_count = 1;
     }
 
     for (int i = 0; i < core_count_; ++i) {
@@ -155,6 +161,16 @@ void ProcgenEnemyAI::generate_power_sources(Platform& pfrm, App& app)
                                                    : levelgen_size_.x / 2 - 1,
                               "power-core");
     }
+
+    for (int i = 0; i < reactor_count; ++i) {
+        place_room_random_loc(pfrm,
+                              app,
+                              levelgen_size_.x < 4 ? 1
+                                                   : levelgen_size_.x / 2 - 1,
+                              "reactor");
+    }
+
+    core_count_ += reactor_count;
 }
 
 
@@ -784,7 +800,40 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
 
 void ProcgenEnemyAI::generate_decorations(Platform& pfrm, App& app)
 {
-    // ...
+    auto& shrubbery_mt = require_metaclass("shrubbery");
+
+    for (u8 x = 0; x < (int)app.opponent_island()->terrain().size(); ++x) {
+        bool empty_column = true;
+        u8 y;
+        for (y = 6; y < 14; ++y) {
+            if (app.opponent_island()->rooms_plot().get(x, y)) {
+                if (auto room = app.opponent_island()->get_room({x, y})) {
+                    if ((*room->metaclass())->category() == Room::Category::decoration) {
+                        empty_column = false;
+                        y -= 1;
+                        break;
+                    }
+                    y -= 1;
+                    break;
+                }
+            }
+        }
+
+
+        if (empty_column and y > 6) {
+            switch (rng::choice<5>(rng::critical_state)) {
+            case 0:
+            case 1:
+            case 2:
+                break;
+
+            case 3:
+            case 4:
+                shrubbery_mt->create(pfrm, app, app.opponent_island(), {x, y});
+                break;
+            }
+        }
+    }
 }
 
 
@@ -888,7 +937,12 @@ void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
 
         auto& mt = require_metaclass("transporter");
 
-        for (int i = 0; i < rng::choice<3>(rng::critical_state); ++i) {
+        int count = rng::choice<3>(rng::critical_state);
+        if (core_count_ == 4) {
+            count++;
+        }
+
+        for (int i = 0; i < count; ++i) {
             find_connected_slots(mt->size().y);
             try_place_room(mt);
         }
@@ -926,10 +980,10 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
                                 continue;
                             }
                         }
-                        if (rng::choice<20>(rng::critical_state) == 0) {
+                        if (rng::choice<18>(rng::critical_state) == 0) {
                             dynamite->create(
                                 pfrm, app, app.opponent_island(), {x, yy});
-                        } else if (rng::choice<40>(rng::critical_state) == 0) {
+                        } else if (rng::choice<35>(rng::critical_state) == 0) {
                             dynamite_ii->create(
                                 pfrm, app, app.opponent_island(), {x, yy});
                         } else {

@@ -27,6 +27,12 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
+    bool description_visible() override
+    {
+        return true;
+    }
+
+
     void plot_walkable_zones(App& app, bool matrix[16][16]) override
     {
         // one cannot walk through this tile, intentionally do nothing.
