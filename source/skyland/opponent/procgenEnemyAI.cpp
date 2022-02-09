@@ -113,9 +113,9 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
         auto frac = 0.4f;
 
-        if (levelgen_enemy_count_ > 40) {
+        if (levelgen_enemy_count_ > 30) {
             frac = 0.05f;
-        } else if (levelgen_enemy_count_ > 32) {
+        } else if (levelgen_enemy_count_ > 20) {
             frac = 0.1f;
         } else if (levelgen_enemy_count_ > 16) {
             frac = 0.2f;
@@ -473,7 +473,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
         }
 
         for (u8 x = 0; x < 15; ++x) {
-            for (u8 y = 0; y < 15; ++y) {
+            for (u8 y = 6; y < 15; ++y) {
                 Float weight = 0.f;
 
                 auto get_room = [&](u8 x, u8 y) {
@@ -719,7 +719,65 @@ void ProcgenEnemyAI::generate_stairwells(Platform& pfrm, App& app)
 
 void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
 {
-    // ...
+    int transporter_count = 0;
+    for (auto& room : app.opponent_island()->rooms()) {
+        if (str_eq(room->name(), "transporter")) {
+            ++transporter_count;
+        }
+    }
+
+    const int chr_count =
+        core_count_ + rng::choice(transporter_count, rng::critical_state);
+
+    struct Context {
+        struct Slot {
+            Vec2<u8> coord_;
+            Float weight_;
+        };
+
+        Buffer<Slot, 30> slots_;
+
+        bool matrix_[16][16];
+    };
+
+    auto c = allocate_dynamic<Context>(pfrm);
+
+    for (int i = 0; i < chr_count; ++i) {
+        app.opponent_island()->plot_walkable_zones(app, c->matrix_);
+
+        c->slots_.clear();
+
+        for (u8 x = 0; x < 15; ++x) {
+            for (u8 y = 0; y < 15; ++y) {
+                if (c->matrix_[x][y]) {
+                    if (auto room = app.opponent_island()->get_room({x, y})) {
+                        c->slots_.push_back(
+                            {{x, y}, (*room->metaclass())->ai_base_weight()});
+                    }
+                }
+            }
+        }
+
+        rng::shuffle(c->slots_, rng::critical_state);
+
+        std::sort(c->slots_.begin(), c->slots_.end(), [](auto& lhs, auto& rhs) {
+            return lhs.weight_ > rhs.weight_;
+        });
+
+        if (not c->slots_.empty()) {
+            for (auto& slot : c->slots_) {
+                if (app.opponent_island()->character_at_location(slot.coord_)) {
+                    continue;
+                }
+                app.opponent_island()->add_character(
+                    alloc_entity<BasicCharacter>(app.opponent_island(),
+                                                 &app.opponent(),
+                                                 slot.coord_,
+                                                 false));
+                break;
+            }
+        }
+    }
 }
 
 
