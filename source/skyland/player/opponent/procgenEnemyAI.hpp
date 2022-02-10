@@ -12,6 +12,10 @@ namespace skyland {
 
 class ProcgenEnemyAI : public EnemyAI {
 public:
+
+    ProcgenEnemyAI(u8 difficulty);
+
+
     void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
@@ -42,6 +46,8 @@ private:
                                int x_start,
                                const char* room_name);
 
+
+    u8 difficulty_ = 1;
 
     Vec2<u8> levelgen_size_;
     int levelgen_enemy_count_ = 0;

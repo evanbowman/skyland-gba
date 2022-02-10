@@ -106,7 +106,7 @@ void SkylandForever::exit(Platform& pfrm, App& app, Scene& prev)
     app.player_island().set_position({10, 374});
 
     app.reset_opponent_island(pfrm);
-    app.swap_opponent<ProcgenEnemyAI>();
+    app.swap_opponent<ProcgenEnemyAI>(parameters_[0]);
 
 
     show_island_exterior(pfrm, app, &app.player_island());

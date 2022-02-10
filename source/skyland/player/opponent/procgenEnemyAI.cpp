@@ -23,6 +23,13 @@ void prep_level(Platform& pfrm, App& app);
 
 
 
+ProcgenEnemyAI::ProcgenEnemyAI(u8 difficulty) :
+    difficulty_(difficulty)
+{
+}
+
+
+
 void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (not app.opponent_island()) {
@@ -327,11 +334,11 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         enq_prob("ion-cannon", 40.f + forcefield_count * 20.f);
     }
 
-    if (levelgen_enemy_count_ > 6) {
+    if (levelgen_enemy_count_ > 9 and difficulty_ > 0) {
         if (missile_count < 5) {
             enq_prob("drone-bay",
                      (50.f - missile_count * 10.f) +
-                     drone_count * 10.f);
+                     drone_count * 20.f);
         }
     }
 
