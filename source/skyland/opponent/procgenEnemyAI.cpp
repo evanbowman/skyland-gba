@@ -34,7 +34,10 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
     if (not app.opponent_island() or app.player_island().is_destroyed()) {
         level_text_.reset();
     } else if (not level_text_) {
-        level_text_.emplace(pfrm, OverlayCoord{29, 0});
+        level_text_.emplace(
+            pfrm,
+            OverlayCoord{u8(30 - integer_text_length(levelgen_enemy_count_)),
+                         0});
     } else {
         level_text_->assign(levelgen_enemy_count_);
     }
@@ -132,7 +135,7 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
         auto frac = 0.4f;
 
-        if (levelgen_enemy_count_ > 24) {
+        if (levelgen_enemy_count_ > 20) {
             frac = sf_p4_coin_yield * 0.01;
         } else if (levelgen_enemy_count_ > 16) {
             frac = sf_p3_coin_yield * 0.01;
@@ -147,12 +150,9 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
     app.time_stream().enable_pushes(true);
     app.time_stream().clear();
 
-    if (not level_text_) {
-        level_text_.emplace(
-            pfrm,
+    level_text_.emplace(pfrm,
             OverlayCoord{u8(30 - integer_text_length(levelgen_enemy_count_)),
                          0});
-    }
 }
 
 

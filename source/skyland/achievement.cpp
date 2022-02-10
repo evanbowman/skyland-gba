@@ -73,7 +73,7 @@ static const AchievementInfo info[Achievement::count] = {
      }},
 
     {"Triage",
-     "Destroy a room full of invading goblins with dynamite!",
+     "Destroy invading goblins with dynamite!",
      "dynamite-ii",
      [](Platform&, App& app) {
          return is_enabled(metaclass_index(info[triage].reward_));

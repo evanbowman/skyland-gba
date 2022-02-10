@@ -122,8 +122,8 @@ public:
 
     static u32 properties()
     {
-        return Explosive::properties() |
-            RoomProperties::manufactory_required | RoomProperties::locked_by_default;
+        return Explosive::properties() | RoomProperties::manufactory_required |
+               RoomProperties::locked_by_default;
     }
 
 

@@ -18,8 +18,7 @@ HighscoresScene::HighscoresScene()
 
 
 
-HighscoresScene::HighscoresScene(bool show_current_score,
-                                 int title_screen_page)
+HighscoresScene::HighscoresScene(bool show_current_score, int title_screen_page)
     : show_current_score_(show_current_score),
       disable_writeback_(show_current_score == false),
       title_screen_page_(title_screen_page)

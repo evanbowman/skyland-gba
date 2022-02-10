@@ -1,8 +1,8 @@
 #include "tnt.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"
+#include "skyland/room_metatable.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/room_metatable.hpp"
 
 
 
@@ -136,7 +136,8 @@ void Explosive::ignite(Platform& pfrm, App& app, int range, Health damage)
         if (room->parent() == &app.player_island() and room->health() == 0) {
             for (auto& chr : room->characters()) {
                 if (chr->owner() == &app.opponent()) {
-                    set_enabled(::skyland::metaclass_index("dynamite-ii"), true);
+                    set_enabled(::skyland::metaclass_index("dynamite-ii"),
+                                true);
                     break;
                 }
             }

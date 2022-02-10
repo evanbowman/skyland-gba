@@ -1,5 +1,6 @@
 #include "sandboxLoaderModule.hpp"
 #include "skyland/scene/fadeInScene.hpp"
+#include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -164,6 +165,9 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.player().key_down(pfrm, Key::action_1)) {
         pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<FadeInScene>();
+    } else if (app.player().key_down(pfrm, Key::action_2)) {
+        pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+        return scene_pool::alloc<TitleScreenScene>(3);
     }
 
     if (unveil_) {
