@@ -8,4 +8,4 @@
  '((26 . "sf_p1_coin_yield")
    (18 . "sf_p2_coin_yield")
    (10 . "sf_p3_coin_yield")
-   (6  . "sf_p4_coin_yield")))
+   (7  . "sf_p4_coin_yield")))
