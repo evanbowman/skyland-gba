@@ -1,6 +1,6 @@
 #include "room_metatable.hpp"
 
-
+#include "roomPluginInfo.hpp"
 #include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/bridge.hpp"
 #include "skyland/rooms/bronzeHull.hpp"
@@ -36,6 +36,118 @@
 
 
 namespace skyland {
+
+
+
+template <typename T> struct InfoImpl : public RoomMeta::Info {
+    InfoImpl()
+        // NOTE: the game will fill in these parameters from configuration
+        // later on.
+        : health_(10), cost_(10), power_(10)
+    {
+    }
+
+    void create(Platform& pfrm,
+                App& app,
+                Island* parent,
+                const Vec2<u8>& position) const override
+    {
+        parent->add_room<T>(pfrm, app, position);
+    }
+
+    RoomPtr<Room> create(Platform& pfrm,
+                         Island* parent,
+                         const Vec2<u8>& position) const override
+    {
+        return room_pool::alloc<T>(parent, position);
+    }
+
+    const char* name() const override
+    {
+        return T::name();
+    }
+
+    Room::Icon icon() const override
+    {
+        return T::icon();
+    }
+
+    Room::Icon unsel_icon() const override
+    {
+        return T::unsel_icon();
+    }
+
+    Vec2<u8> size() const override
+    {
+        return T::size();
+    }
+
+    Coins cost() const override
+    {
+        return cost_;
+    }
+
+    Float ai_base_weight() const override
+    {
+        return T::ai_base_weight();
+    }
+
+    Power consumes_power() const override
+    {
+        return power_;
+    }
+
+    u32 properties() const override
+    {
+        return T::properties();
+    }
+
+    Room::Category category() const override
+    {
+        return T::category(); // TODO...
+    }
+
+    void format_description(StringBuffer<512>& buffer) const override
+    {
+        return T::format_description(buffer);
+    }
+
+    Health full_health() const override
+    {
+        return health_;
+    }
+
+    void configure(Health health, Coins cost, Power power) override
+    {
+        health_ = health;
+        cost_ = cost;
+        power_ = power;
+    }
+
+    s16 health_;
+    s16 cost_;
+    s16 power_;
+};
+
+
+
+template <typename T> void RoomMeta::init()
+{
+    static_assert(sizeof buffer_ >= sizeof(InfoImpl<T>));
+    static_assert(align >= alignof(InfoImpl<T>));
+
+    new (buffer_) InfoImpl<T>();
+}
+
+
+
+void RoomMeta::init_plugin()
+{
+    static_assert(sizeof buffer_ >= sizeof(RoomPluginInfo));
+    static_assert(align >= alignof(RoomPluginInfo));
+
+    new (buffer_) RoomPluginInfo(this);
+}
 
 
 
@@ -158,12 +270,12 @@ void plugin_rooms_unregister()
     for (int i = plugin_rooms_begin(); i < __metatable().size(); ++i) {
         __metatable().enabled_rooms_.set(i, false);
 
-        if (auto b = dynamic_cast<RoomMeta::PluginBox*>(
+        if (auto b = dynamic_cast<RoomPluginInfo*>(
                 __metatable().table_[i].box())) {
             b->info_.reset();
         } else {
             Platform::fatal(
-                "Metaclass Boxed in plugin sector is not a PluginBox?");
+                "Metaclass Boxed in plugin sector is not a PluginInfo?");
         }
     }
 }
@@ -180,7 +292,7 @@ bool plugin_room_register(lisp::Value* config)
             // Lock the slot.
             __metatable().enabled_rooms_.set(i, true);
 
-            if (auto b = dynamic_cast<RoomMeta::PluginBox*>(
+            if (auto b = dynamic_cast<RoomPluginInfo*>(
                     __metatable().table_[i].box())) {
                 b->info_ = config;
             } else {

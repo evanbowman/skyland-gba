@@ -5,6 +5,7 @@
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/roomPluginInfo.hpp"
 
 
 
@@ -17,7 +18,7 @@ PluginRoom::PluginRoom(Island* parent,
                        RoomMeta* metaclass)
     : Room(parent, (*metaclass)->name(), position)
 {
-    if (not dynamic_cast<RoomMeta::PluginBox*>(this->metaclass()->box())) {
+    if (not dynamic_cast<RoomPluginInfo*>(this->metaclass()->box())) {
         // By checking things upon creation, we can skip the slow cast
         // elsewhere, as Room::metaclass_ cannont change (private var).
         Platform::fatal("Plugin room assigned a non-plugin metaclass");
@@ -28,9 +29,9 @@ PluginRoom::PluginRoom(Island* parent,
 
 void PluginRoom::render_interior(App& app, u8 buffer[16][16])
 {
-    auto b = static_cast<RoomMeta::PluginBox*>(this->metaclass()->box());
+    auto b = static_cast<RoomPluginInfo*>(this->metaclass()->box());
 
-    auto& l = b->fetch_info<RoomMeta::PluginBox::PluginInfo::graphics_list,
+    auto& l = b->fetch_info<RoomPluginInfo::FieldTag::graphics_list,
                             lisp::Cons>();
 
     for (int x = 0; x < size().x; ++x) {
@@ -48,9 +49,9 @@ void PluginRoom::render_interior(App& app, u8 buffer[16][16])
 
 void PluginRoom::render_exterior(App& app, u8 buffer[16][16])
 {
-    auto b = static_cast<RoomMeta::PluginBox*>(this->metaclass()->box());
+    auto b = static_cast<RoomPluginInfo*>(this->metaclass()->box());
 
-    auto& l = b->fetch_info<RoomMeta::PluginBox::PluginInfo::graphics_list,
+    auto& l = b->fetch_info<RoomPluginInfo::FieldTag::graphics_list,
                             lisp::Cons>();
 
     for (int x = 0; x < size().x; ++x) {
@@ -76,16 +77,16 @@ void PluginRoom::update(Platform& pfrm, App& app, Microseconds delta)
         return;
     }
 
-    auto b = static_cast<RoomMeta::PluginBox*>(this->metaclass()->box());
+    auto b = static_cast<RoomPluginInfo*>(this->metaclass()->box());
 
-    auto& v = b->fetch_info<RoomMeta::PluginBox::PluginInfo::update_frequency,
+    auto& v = b->fetch_info<RoomPluginInfo::FieldTag::update_frequency,
                             lisp::Integer>();
 
     timer_ += delta;
     if (timer_ >= seconds(v.value_)) {
         timer_ -= seconds(v.value_);
 
-        auto& fn = b->fetch_info<RoomMeta::PluginBox::PluginInfo::update,
+        auto& fn = b->fetch_info<RoomPluginInfo::FieldTag::update,
                                  lisp::Function>();
 
         lisp::push_op(lisp::make_userdata(parent()));
@@ -120,9 +121,9 @@ void PluginRoom::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::rewind(pfrm, app, delta);
 
-    auto b = static_cast<RoomMeta::PluginBox*>(this->metaclass()->box());
+    auto b = static_cast<RoomPluginInfo*>(this->metaclass()->box());
 
-    auto& v = b->fetch_info<RoomMeta::PluginBox::PluginInfo::update_frequency,
+    auto& v = b->fetch_info<RoomPluginInfo::FieldTag::update_frequency,
                             lisp::Integer>();
 
     if (timer_ > 0) {
