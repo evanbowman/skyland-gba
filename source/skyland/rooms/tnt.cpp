@@ -3,6 +3,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -44,6 +45,11 @@ ScenePtr<Scene> Explosive::select(Platform& pfrm, App& app)
     }
 
     Room::apply_damage(pfrm, app, 1);
+
+    network::packet::DynamiteActivated packet;
+    packet.x_ = position().x;
+    packet.y_ = position().y;
+    network::transmit(pfrm, packet);
 
     ignition_ = true;
 

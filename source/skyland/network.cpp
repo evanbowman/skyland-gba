@@ -58,6 +58,7 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::GameMatchSettingsCursor)
             HANDLE_MESSAGE(packet::GameMatchReady)
             HANDLE_MESSAGE(packet::Heartbeat)
+            HANDLE_MESSAGE(packet::DynamiteActivated)
         }
 
         error(pfrm, "garbled message!?");

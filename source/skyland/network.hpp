@@ -37,6 +37,7 @@ struct Header {
         game_match_settings_cursor,
         game_match_begin,
         heartbeat,
+        dynamite_activated,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -100,6 +101,18 @@ struct RoomSalvaged {
     u8 unused_[3];
 
     static const auto mt = Header::MessageType::room_salvaged;
+};
+
+
+
+struct DynamiteActivated {
+    Header header_;
+    u8 x_;
+    u8 y_;
+
+    u8 unused_[3];
+
+    static const auto mt = Header::MessageType::dynamite_activated;
 };
 
 
@@ -472,6 +485,11 @@ public:
 
 
     virtual void receive(Platform&, App&, const packet::Heartbeat&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::DynamiteActivated&)
     {
     }
 };

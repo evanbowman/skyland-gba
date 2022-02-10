@@ -4,6 +4,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/rooms/tnt.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
 
@@ -468,6 +469,31 @@ void MultiplayerPeer::receive(Platform& pfrm,
                               const network::packet::Heartbeat& packet)
 {
     heartbeat_recv_counter_ = 0;
+}
+
+
+
+void MultiplayerPeer::receive(Platform& pfrm,
+                              App& app,
+                              const network::packet::DynamiteActivated& packet)
+{
+    if (app.opponent_island()) {
+        Vec2<u8> pos{invert_axis(app, packet.x_), packet.y_};
+
+        if (auto room = app.opponent_island()->get_room(pos)) {
+            // We technically don't really need to do a cast here, as we don't
+            // need anything from the Explosive class. Just a sanity check, as
+            // we shouldn't simply blindly trust whatever the linked game tells
+            // us.
+            if (dynamic_cast<Explosive*>(room)) {
+                // Selecting an explosive starts off a countdown by applying one
+                // damage point. We want to do the same thing here.
+                room->apply_damage(pfrm, app, 1);
+            } else {
+                // TODO: fatal error?
+            }
+        }
+    }
 }
 
 
