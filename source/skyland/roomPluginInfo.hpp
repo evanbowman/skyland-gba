@@ -74,7 +74,7 @@ struct RoomPluginInfo : public RoomMeta::Info {
     {
         auto& pair = fetch_info<FieldTag::size, lisp::Cons>();
         return {(u8)pair.car()->expect<lisp::Integer>().value_,
-            (u8)pair.cdr()->expect<lisp::Integer>().value_};
+                (u8)pair.cdr()->expect<lisp::Integer>().value_};
     }
 
     Coins cost() const override
@@ -96,8 +96,7 @@ struct RoomPluginInfo : public RoomMeta::Info {
     u32 properties() const override
     {
         return RoomProperties::plugin | RoomProperties::disallow_chimney |
-            RoomProperties::roof_hidden |
-            RoomProperties::locked_by_default;
+               RoomProperties::roof_hidden | RoomProperties::locked_by_default;
     }
 
     Room::Category category() const override
@@ -128,4 +127,4 @@ struct RoomPluginInfo : public RoomMeta::Info {
 
 
 
-}
+} // namespace skyland

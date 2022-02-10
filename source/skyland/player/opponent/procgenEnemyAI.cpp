@@ -23,8 +23,7 @@ void prep_level(Platform& pfrm, App& app);
 
 
 
-ProcgenEnemyAI::ProcgenEnemyAI(u8 difficulty) :
-    difficulty_(difficulty)
+ProcgenEnemyAI::ProcgenEnemyAI(u8 difficulty) : difficulty_(difficulty)
 {
 }
 
@@ -157,9 +156,9 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
     app.time_stream().enable_pushes(true);
     app.time_stream().clear();
 
-    level_text_.emplace(pfrm,
-            OverlayCoord{u8(30 - integer_text_length(levelgen_enemy_count_)),
-                         0});
+    level_text_.emplace(
+        pfrm,
+        OverlayCoord{u8(30 - integer_text_length(levelgen_enemy_count_)), 0});
 }
 
 
@@ -337,8 +336,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     if (levelgen_enemy_count_ > 9 and difficulty_ > 0) {
         if (missile_count < 5) {
             enq_prob("drone-bay",
-                     (50.f - missile_count * 10.f) +
-                     drone_count * 20.f);
+                     (50.f - missile_count * 10.f) + drone_count * 20.f);
         }
     }
 
@@ -460,7 +458,6 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     };
 
     auto place_drone_bay = [&](RoomMeta* mt) {
-
         // We mostly treat a drone bay as if it were simply a differently-shaped
         // missile-silo.
 
@@ -502,7 +499,6 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
                 c->invalidated_missile_cells_[s.x + 1][yy] = true;
             }
         }
-
     };
 
     int place_missile_count = 0;

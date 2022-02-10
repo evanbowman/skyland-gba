@@ -1,9 +1,9 @@
 #include "tnt.hpp"
 #include "skyland/entity/misc/smokePuff.hpp"
+#include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/network.hpp"
 
 
 

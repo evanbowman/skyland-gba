@@ -270,8 +270,8 @@ void plugin_rooms_unregister()
     for (int i = plugin_rooms_begin(); i < __metatable().size(); ++i) {
         __metatable().enabled_rooms_.set(i, false);
 
-        if (auto b = dynamic_cast<RoomPluginInfo*>(
-                __metatable().table_[i].box())) {
+        if (auto b =
+                dynamic_cast<RoomPluginInfo*>(__metatable().table_[i].box())) {
             b->info_.reset();
         } else {
             Platform::fatal(

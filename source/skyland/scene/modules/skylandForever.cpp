@@ -33,7 +33,8 @@ void SkylandForever::enter(Platform& pfrm, App& app, Scene& prev)
 
     msg_.emplace(pfrm);
     msg_->assign("Endless new levels! Survive as long as possible!",
-                 OverlayCoord{1, 4}, OverlayCoord{28, 6});
+                 OverlayCoord{1, 4},
+                 OverlayCoord{28, 6});
 
 
     app.game_mode() = App::GameMode::skyland_forever;
@@ -41,7 +42,8 @@ void SkylandForever::enter(Platform& pfrm, App& app, Scene& prev)
     parameters_.push_back(1);
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
-        settings_text_.emplace_back(pfrm, OverlayCoord{2, u8(settings_start + i * 2)});
+        settings_text_.emplace_back(
+            pfrm, OverlayCoord{2, u8(settings_start + i * 2)});
     }
 
     for (u32 i = 0; i < parameters_.capacity(); ++i) {
@@ -92,7 +94,6 @@ void SkylandForever::exit(Platform& pfrm, App& app, Scene& prev)
         app.invoke_script(pfrm, "/scripts/config/forever/hard.lisp");
         break;
     }
-
 
     app.player_island().init_terrain(pfrm, 4);
 

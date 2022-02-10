@@ -1,7 +1,7 @@
 #include "friendlyAI.hpp"
+#include "enemyAI.hpp"
 #include "skyland/scene/scriptHookScene.hpp"
 #include "skyland/skyland.hpp"
-#include "enemyAI.hpp"
 
 
 
@@ -19,4 +19,4 @@ void FriendlyAI::on_room_damaged(Platform& pfrm, App& app, Room&)
 
 
 
-}
+} // namespace skyland

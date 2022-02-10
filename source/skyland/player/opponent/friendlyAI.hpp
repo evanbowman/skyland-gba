@@ -23,7 +23,6 @@ public:
 
 
     void on_room_damaged(Platform& pfrm, App& app, Room&) override;
-
 };
 
 

@@ -10,10 +10,10 @@
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/birbs/smolBirb.hpp"
 #include "skyland/keyCallbackProcessor.hpp"
+#include "skyland/player/playerP1.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
-#include "skyland/player/playerP1.hpp"
 
 
 

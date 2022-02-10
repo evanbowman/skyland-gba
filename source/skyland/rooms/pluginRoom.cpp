@@ -1,11 +1,11 @@
 #include "pluginRoom.hpp"
+#include "skyland/roomPluginInfo.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/notificationScene.hpp"
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/roomPluginInfo.hpp"
 
 
 
@@ -31,8 +31,8 @@ void PluginRoom::render_interior(App& app, u8 buffer[16][16])
 {
     auto b = static_cast<RoomPluginInfo*>(this->metaclass()->box());
 
-    auto& l = b->fetch_info<RoomPluginInfo::FieldTag::graphics_list,
-                            lisp::Cons>();
+    auto& l =
+        b->fetch_info<RoomPluginInfo::FieldTag::graphics_list, lisp::Cons>();
 
     for (int x = 0; x < size().x; ++x) {
         for (int y = 0; y < size().y; ++y) {
@@ -51,8 +51,8 @@ void PluginRoom::render_exterior(App& app, u8 buffer[16][16])
 {
     auto b = static_cast<RoomPluginInfo*>(this->metaclass()->box());
 
-    auto& l = b->fetch_info<RoomPluginInfo::FieldTag::graphics_list,
-                            lisp::Cons>();
+    auto& l =
+        b->fetch_info<RoomPluginInfo::FieldTag::graphics_list, lisp::Cons>();
 
     for (int x = 0; x < size().x; ++x) {
         for (int y = 0; y < size().y; ++y) {
@@ -86,8 +86,8 @@ void PluginRoom::update(Platform& pfrm, App& app, Microseconds delta)
     if (timer_ >= seconds(v.value_)) {
         timer_ -= seconds(v.value_);
 
-        auto& fn = b->fetch_info<RoomPluginInfo::FieldTag::update,
-                                 lisp::Function>();
+        auto& fn =
+            b->fetch_info<RoomPluginInfo::FieldTag::update, lisp::Function>();
 
         lisp::push_op(lisp::make_userdata(parent()));
         lisp::push_op(lisp::make_integer(position().x));

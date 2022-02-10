@@ -12,7 +12,6 @@ namespace skyland {
 
 class ProcgenEnemyAI : public EnemyAI {
 public:
-
     ProcgenEnemyAI(u8 difficulty);
 
 

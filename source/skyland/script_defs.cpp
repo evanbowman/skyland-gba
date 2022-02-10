@@ -1,10 +1,11 @@
 #include "alloc_entity.hpp"
-#include "player/autopilotPlayer.hpp"
 #include "bulkAllocator.hpp"
 #include "configure_island.hpp"
-#include "player/opponent/friendlyAI.hpp"
-#include "player/opponent/enemyAI.hpp"
+#include "eternal/eternal.hpp"
 #include "platform/ram_filesystem.hpp"
+#include "player/autopilotPlayer.hpp"
+#include "player/opponent/enemyAI.hpp"
+#include "player/opponent/friendlyAI.hpp"
 #include "room_metatable.hpp"
 #include "rooms/cargoBay.hpp"
 #include "rooms/core.hpp"
@@ -23,6 +24,12 @@
 #include "skyland/entity/projectile/nemesisBlast.hpp"
 #include "skyland/entity/projectile/pluginProjectile.hpp"
 #include "skyland/sound.hpp"
+#include "version.hpp"
+
+
+#if not MAPBOX_ETERNAL_IS_CONSTEXPR
+#error "NON-Constexpr lookup table!"
+#endif
 
 
 
@@ -33,6 +40,49 @@ Platform* interp_get_pfrm();
 
 
 namespace skyland {
+
+
+
+using Syscall = lisp::Value* (*)(int);
+
+
+
+MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
+    mapbox::eternal::map<mapbox::eternal::string, Syscall>(
+        {{"setvar",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 2);
+              L_EXPECT_OP(1, string);
+              L_EXPECT_OP(0, integer);
+
+              if (auto v =
+                      SharedVariable::load(lisp::get_op(1)->string().value())) {
+                  v->set(lisp::get_op(0)->integer().value_);
+                  return L_NIL;
+              }
+
+              StringBuffer<96> error("access to invalid shared variable '");
+              error += lisp::get_op(1)->string().value();
+              error += "'";
+
+              Platform::fatal(error.c_str());
+          }},
+         {"getvar", [](int argc) {
+              L_EXPECT_ARGC(argc, 1);
+              L_EXPECT_OP(0, string);
+
+              if (auto v =
+                      SharedVariable::load(lisp::get_op(0)->string().value())) {
+                  return lisp::make_integer(v->get());
+              }
+
+              StringBuffer<96> error("access to invalid shared variable '");
+              error += lisp::get_op(0)->string().value();
+              error += "'";
+
+              Platform::fatal(error.c_str());
+          }}});
+
 
 
 App* __app = nullptr;
@@ -723,37 +773,41 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
-    {"getvar",
+    {"syscall",
      [](int argc) {
-         L_EXPECT_ARGC(argc, 1);
-         L_EXPECT_OP(0, string);
+         if (argc < 1) {
+             Platform::fatal("invalid argc passed to syscall");
+         }
+         L_EXPECT_OP(argc - 1, string);
 
-         if (auto v = SharedVariable::load(lisp::get_op(0)->string().value())) {
-             return lisp::make_integer(v->get());
+
+         auto name = lisp::get_op(argc - 1)->string().value();
+
+
+         Buffer<lisp::Value*, 10> args;
+         for (int i = argc - 2; i > -1; --i) {
+             args.push_back(lisp::get_op(i));
          }
 
-         StringBuffer<96> error("access to invalid shared variable '");
-         error += lisp::get_op(0)->string().value();
-         error += "'";
-
-         Platform::fatal(error.c_str());
-     }},
-    {"setvar",
-     [](int argc) {
-         L_EXPECT_ARGC(argc, 2);
-         L_EXPECT_OP(1, string);
-         L_EXPECT_OP(0, integer);
-
-         if (auto v = SharedVariable::load(lisp::get_op(1)->string().value())) {
-             v->set(lisp::get_op(0)->integer().value_);
-             return L_NIL;
+         for (auto& arg : args) {
+             lisp::push_op(arg);
          }
 
-         StringBuffer<96> error("access to invalid shared variable '");
-         error += lisp::get_op(1)->string().value();
-         error += "'";
+         auto result = L_NIL;
 
-         Platform::fatal(error.c_str());
+         auto found_syscall = syscall_table.find(name);
+         if (found_syscall not_eq syscall_table.end()) {
+             result = found_syscall->second(args.size());
+         } else {
+             Platform::fatal("syscall function lookup failed!");
+         }
+
+         for (auto& arg : args) {
+             (void)arg;
+             lisp::pop_op();
+         }
+
+         return result;
      }},
     {"cargo",
      [](int argc) {

@@ -3,7 +3,7 @@
 ;;;
 
 
-(map (lambda (setvar (cdr $0) (car $0)))
+(map (lambda (syscall "setvar" (cdr $0) (car $0)))
  '((190 . "decimator_burst_damage")
    (25  . "nemesis_blast_damage")
    (40  . "cannonball_damage")
