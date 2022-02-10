@@ -70,7 +70,6 @@ App::App(Platform& pfrm)
         time_stream_.clear();
     });
 
-
     achievements::init(pfrm, *this);
 }
 

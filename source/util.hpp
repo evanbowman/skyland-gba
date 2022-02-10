@@ -12,7 +12,7 @@
 #include <iterator>
 
 
-#ifdef __GBA__
+#if defined(__GBA__) or defined(__NDS__)
 #define READ_ONLY_DATA __attribute__((section(".rodata")))
 #else
 #define READ_ONLY_DATA

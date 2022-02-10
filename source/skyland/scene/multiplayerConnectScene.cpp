@@ -26,12 +26,16 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
     text_->assign("session connecting...");
 
     const char* str = pfrm.load_file_contents("scripts", "multi_init.lisp");
-    lisp::BasicCharSequence seq(str);
-    lisp::dostring(seq, [&pfrm](lisp::Value& err) {
-        lisp::DefaultPrinter p;
-        lisp::format(&err, p);
-        pfrm.fatal(p.fmt_.c_str());
-    });
+    if (str) {
+        lisp::BasicCharSequence seq(str);
+        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
+    } else {
+        Platform::fatal("missing multi init script!");
+    }
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
     cursor_loc.x = 0;

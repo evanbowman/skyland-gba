@@ -46,7 +46,7 @@ Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
         }
     }
 
-#ifdef __GBA__
+#if defined(__GBA__) or defined(__NDS__)
     static_assert(sizeof(Room) < 33,
                   "Not actually a hard requirement, just put"
                   "this here as a reminder to keep rooms small."

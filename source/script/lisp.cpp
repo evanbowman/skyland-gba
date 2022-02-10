@@ -7,7 +7,9 @@
 #include "memory/pool.hpp"
 #include "number/random.hpp"
 #include <complex>
-#ifdef __GBA__
+#if defined(__NDS__)
+#define HEAP_DATA
+#elif defined(__GBA__)
 #define HEAP_DATA __attribute__((section(".ewram")))
 #else
 #include <fstream>
@@ -45,7 +47,7 @@ union ValueMemory {
 };
 
 
-#ifdef __GBA__
+#if defined(__GBA__) or defined(__NDS__)
 static_assert(sizeof(ValueMemory) == 8);
 #endif
 
@@ -3397,26 +3399,6 @@ void init(Platform& pfrm)
     lisp::set_var("*pfrm*", lisp::make_userdata(&pfrm));
 
     bind_functions(builtins, sizeof(builtins) / sizeof(builtins[0]));
-
-
-#ifndef __GBA__
-    set_var("file-lines", lisp::make_function([](int argc) {
-                L_EXPECT_ARGC(argc, 1);
-                L_EXPECT_OP(0, string);
-
-                std::string line;
-                std::ifstream file(get_op0()->string().value());
-
-                ListBuilder result;
-
-                while (std::getline(file, line)) {
-                    result.push_back(
-                        make_string(bound_context->pfrm_, line.c_str()));
-                }
-
-                return result.result();
-            }));
-#endif
 }
 
 

@@ -653,7 +653,7 @@ public:
         bool is_host() const;
 
         struct Message {
-            const byte* data_;
+            const u8* data_;
             u32 length_;
         };
 
@@ -711,7 +711,7 @@ public:
 
     class RemoteConsole {
     public:
-#ifdef __GBA__
+#if defined(__GBA__) or defined(__NDS__)
         using Line = StringBuffer<1956>;
 #else
         using Line = StringBuffer<8000>;
@@ -836,10 +836,6 @@ template <Key k> bool key_down(Platform& pfrm)
 }
 
 
-#ifdef __BLINDJUMP_ENABLE_LOGS
-#ifdef __GBA__
-// #pragma message "Warning: logging can wear down Flash memory, be careful using this on physical hardware!"
-#endif
 inline void debug(Platform& pf, const char* msg)
 {
     pf.logger().log(Severity::debug, msg);
@@ -856,17 +852,3 @@ inline void error(Platform& pf, const char* msg)
 {
     pf.logger().log(Severity::error, msg);
 }
-#else
-inline void debug(Platform&, const char*)
-{
-}
-inline void info(Platform&, const char*)
-{
-}
-inline void warning(Platform&, const char*)
-{
-}
-inline void error(Platform&, const char*)
-{
-}
-#endif // __BLINDJUMP_ENABLE_LOGS

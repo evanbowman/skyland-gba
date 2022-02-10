@@ -4,15 +4,13 @@
 #include <ciso646> // For MSVC. What an inept excuse for a compiler.
 
 
-#ifdef __GBA__
+#if defined(__GBA__) or defined(__NDS__)
 template <typename T> using Atomic = T;
 #else
 #include <atomic>
 template <typename T> using Atomic = std::atomic<T>;
 #endif
 
-
-enum class byte : u8 {};
 
 
 template <typename T> struct Vec2 {

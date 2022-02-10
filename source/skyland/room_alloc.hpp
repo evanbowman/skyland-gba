@@ -15,7 +15,7 @@ inline void deleter(Room* room)
     if (room) {
         room->~Room();
         auto& pools = std::get<SkylandGlobalData>(globals()).room_pools_;
-        pools.post(reinterpret_cast<byte*>(room));
+        pools.post(reinterpret_cast<u8*>(room));
     }
 }
 

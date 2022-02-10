@@ -2056,7 +2056,7 @@ Platform::NetworkPeer::poll_message()
         return {};
     }
 
-    return Message{(byte*)&receive_buffer[impl->poll_consume_position_],
+    return Message{(u8*)&receive_buffer[impl->poll_consume_position_],
                    (u32)receive_buffer.size() - impl->poll_consume_position_};
 }
 

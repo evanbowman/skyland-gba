@@ -2,11 +2,11 @@
 
 #include "memory/rc.hpp"
 
-#ifdef __GBA__
+#if defined(__GBA__) or defined(__NDS__)
 #define SCRATCH_BUFFER_SIZE 2000
 #else
 #define SCRATCH_BUFFER_SIZE 8000
-#endif // __GBA__
+#endif
 
 
 struct ScratchBuffer {

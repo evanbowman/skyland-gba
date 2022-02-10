@@ -32,7 +32,7 @@
      (((x)&0x00000000000000ffull) << 56))
 
 
-#ifdef __GBA__
+#if defined(__GBA__) or defined(__NDS__)
 inline bool is_little_endian()
 {
     return true;

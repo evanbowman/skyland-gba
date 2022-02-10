@@ -120,7 +120,10 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
         weapon_limit = 11;
     }
     generate_weapons(pfrm, app, weapon_limit);
-    generate_forcefields(pfrm, app);
+
+    if (core_count_ >= 2 or difficulty_ >= 2) {
+        generate_forcefields(pfrm, app);
+    }
 
     generate_foundation(pfrm, app);
 

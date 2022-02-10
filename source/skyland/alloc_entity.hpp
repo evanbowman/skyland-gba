@@ -16,7 +16,7 @@ inline void entity_deleter(Entity* entity)
     if (entity) {
         entity->~Entity();
         auto& pools = std::get<SkylandGlobalData>(globals()).entity_pools_;
-        pools.post(reinterpret_cast<byte*>(entity));
+        pools.post(reinterpret_cast<u8*>(entity));
     }
 }
 
@@ -80,7 +80,7 @@ std::optional<SharedEntityRef<Base>> alloc_shared_entity(Args&&... args)
         mem->finalizer_hook_ = [](IntrusiveRcControlBlock<Base>* cb) {
             cb->data_->~Base();
             auto& pools = std::get<SkylandGlobalData>(globals()).entity_pools_;
-            pools.post(reinterpret_cast<byte*>(cb->data_));
+            pools.post(reinterpret_cast<u8*>(cb->data_));
         };
 
         mem->data_ = mem;

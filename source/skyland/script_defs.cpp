@@ -67,7 +67,8 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               Platform::fatal(error.c_str());
           }},
-         {"getvar", [](int argc) {
+         {"getvar",
+          [](int argc) {
               L_EXPECT_ARGC(argc, 1);
               L_EXPECT_OP(0, string);
 
@@ -81,7 +82,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               error += "'";
 
               Platform::fatal(error.c_str());
-         }},
+          }},
          {"log",
           [](int argc) {
               L_EXPECT_ARGC(argc, 1);
@@ -97,10 +98,8 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               }
 
               return L_NIL;
-          }
-         },
-         {"log-flush",
-          [](int argc) {
+          }},
+         {"log-flush", [](int argc) {
               if (auto pfrm = lisp::interp_get_pfrm()) {
                   pfrm->logger().flush();
               }
@@ -1102,12 +1101,14 @@ void App::init_scripts(Platform& pfrm)
     set_developer_mode(false);
 
     auto str = pfrm.load_file_contents("scripts", "init.lisp");
-    lisp::BasicCharSequence seq(str);
-    lisp::dostring(seq, [&pfrm](lisp::Value& err) {
-        lisp::DefaultPrinter p;
-        lisp::format(&err, p);
-        pfrm.fatal(p.fmt_.c_str());
-    });
+    if (str) {
+        lisp::BasicCharSequence seq(str);
+        lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+            lisp::DefaultPrinter p;
+            lisp::format(&err, p);
+            pfrm.fatal(p.fmt_.c_str());
+        });
+    }
 
     set_developer_mode(was_developer_mode);
 }

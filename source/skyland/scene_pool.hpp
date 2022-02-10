@@ -12,7 +12,7 @@ namespace skyland {
 namespace scene_pool {
 
 
-#ifdef __GBA__
+#if defined(__GBA__) or defined(__NDS__)
 static constexpr const int max_scene_size = 350;
 #else
 static constexpr const int max_scene_size = 700;
@@ -31,7 +31,7 @@ inline void deleter(Scene* scene)
 {
     if (scene) {
         scene->~Scene();
-        pool_->post(reinterpret_cast<byte*>(scene));
+        pool_->post(reinterpret_cast<u8*>(scene));
     }
 }
 

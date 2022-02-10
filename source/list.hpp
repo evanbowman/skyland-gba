@@ -66,7 +66,7 @@ public:
             auto popped = begin_;
 
             popped->~Node();
-            pool_->post(reinterpret_cast<byte*>(popped));
+            pool_->post(reinterpret_cast<u8*>(popped));
 
             begin_ = begin_->right_;
             if (begin_) {
@@ -141,7 +141,7 @@ public:
         auto next = it.node_->right_;
 
         it.node_->~Node();
-        pool_->post(reinterpret_cast<byte*>(it.node_));
+        pool_->post(reinterpret_cast<u8*>(it.node_));
 
         return Iterator(next);
     }

@@ -113,7 +113,7 @@ protected:
 static constexpr const int entity_pool_size = 64;
 static constexpr const int entity_pool_align = 8;
 
-#ifdef __GBA__
+#if defined(__GBA__) or defined(__NDS__)
 static constexpr const int max_entity_size = 100;
 #else
 static constexpr const int max_entity_size = 200;
@@ -153,7 +153,7 @@ public:
     {
         for (auto& pl : pools_) {
             if (e >= pl->cells().begin() and e < pl->cells().end()) {
-                pl->post((byte*)e);
+                pl->post((u8*)e);
                 return;
             }
         }

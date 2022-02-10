@@ -70,7 +70,6 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     app.player_island().set_position({10, 374});
 
-
     return scene_pool::alloc<ZoneImageScene>();
 }
 

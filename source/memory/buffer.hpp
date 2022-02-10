@@ -240,7 +240,7 @@ public:
 
 
 private:
-    alignas(T) std::array<byte, Capacity * sizeof(T)> mem_;
+    alignas(T) std::array<u8, Capacity * sizeof(T)> mem_;
     Iterator begin_;
     Iterator end_;
 };

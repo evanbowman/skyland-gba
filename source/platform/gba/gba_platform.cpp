@@ -2522,7 +2522,7 @@ bool Platform::is_running() const
 }
 
 
-static byte* const cartridge_ram = (byte*)0x0E000000;
+static u8* const cartridge_ram = (byte*)0x0E000000;
 
 
 static bool
@@ -4758,7 +4758,7 @@ Platform::NetworkPeer::poll_message()
         }
         mc.poller_current_message = msg;
         return Platform::NetworkPeer::Message{
-            reinterpret_cast<byte*>(msg->data_),
+            reinterpret_cast<u8*>(msg->data_),
             static_cast<int>(sizeof(WireMessage::data_))};
     }
     return {};
@@ -4824,7 +4824,7 @@ MASTER_RETRY:
     set_gflag(GlobalFlag::multiplayer_connected, true);
 
     ::platform->network_peer().send_message(
-        {(byte*)handshake, sizeof handshake});
+        {(u8*)handshake, sizeof handshake});
 
     multiplayer_schedule_tx();
 

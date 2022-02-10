@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 
+# Oh cmake... what a mess.
+
+
 project(SkylandEngine)
 
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
@@ -14,6 +17,7 @@ enable_language(ASM)
 
 
 option(GAMEBOY_ADVANCE "GameboyAdvance" ON)
+option(NINTENDO_DS "NintendoDS" OFF)
 option(GBA_AUTOBUILD_IMG "AutobuildImg" OFF)
 option(GBA_AUTOBUILD_CONF "AutobuildConf" OFF)
 
@@ -21,11 +25,20 @@ option(GBA_AUTOBUILD_CONF "AutobuildConf" OFF)
 if(GAMEBOY_ADVANCE AND NOT DEVKITARM)
   message(WARNING "Note: GAMEBOY_ADVANCE option is ON by default.")
   message(FATAL_ERROR "GAMEBOY_ADVANCE option is set, but missing ARM toolchain.")
+elseif(NINTENDO_DS AND NOT DEVKITARM)
+  message(WARNING "Note: NINTENDO_DS option is ON by default.")
+  message(FATAL_ERROR "NINTENDO_DS option is set, but missing ARM toolchain.")
 endif()
 
 
 if(GAMEBOY_ADVANCE AND WIN32)
   message(FATAL_ERROR "Gameboy Advance builds not supported in windows")
+endif()
+
+
+if(GAMEBOY_ADVANCE AND NINTENDO_DS)
+  message(FATAL_ERROR
+    "Cannot build Gameboy Advance and NintendoDS roms with a single toolchain!")
 endif()
 
 
@@ -272,7 +285,10 @@ macro(add_file prefix file suffix)
 endmacro()
 
 
-if(GAMEBOY_ADVANCE)
+if(NINTENDO_DS)
+  set(SOURCES
+    ${SOURCES})
+elseif(GAMEBOY_ADVANCE)
 
   set(DATA_DIR ${SOURCE_DIR}/data/)
 
@@ -491,7 +507,7 @@ function(compile_image filename mw mh flatten bpp compr)
 endfunction()
 
 
-if(APPLE OR UNIX OR GAMEBOY_ADVANCE)
+if(APPLE OR UNIX OR GAMEBOY_ADVANCE OR NINTENDO_DS)
 
   set(SHARED_COMPILE_OPTIONS
     -O2
@@ -499,7 +515,7 @@ if(APPLE OR UNIX OR GAMEBOY_ADVANCE)
     ${G_COMPILE_FLAGS}
     -D__BLINDJUMP_ENABLE_LOGS)
 
-  if(GAMEBOY_ADVANCE)
+  if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     set(SHARED_COMPILE_OPTIONS
       ${SHARED_COMPILE_OPTIONS}
       -fno-exceptions)
@@ -553,7 +569,62 @@ elseif(WIN32)
 endif()
 
 
-if(GAMEBOY_ADVANCE)
+
+if(NINTENDO_DS)
+
+  set(CMAKE_AR $ENV{DEVKITARM}/bin/arm-none-eabi-ar)
+
+  set(ARM9_FLAGS
+    -mthumb
+    -mthumb-interwork
+    -march=armv5te
+    -mtune=arm946e-s
+    -D__NDS9__
+    -D__NDS__)
+
+
+  add_library(PLATFORM
+    ${SOURCE_DIR}/platform/nds/nds_platform.cpp)
+
+  # libnds does a whole bunch of unfortunate things that're incompatible with
+  # the -pedantic flag. I ended up needing to move the platform source file to a
+  # separate static library and give it special (less restrictive) compilation
+  # flags.
+  target_compile_options(PLATFORM PRIVATE
+    -O2
+    -Wall
+    -I/opt/devkitpro/libnds/include
+    -DARM9
+    ${ARM9_FLAGS})
+
+  target_link_libraries(PLATFORM PRIVATE
+    "${DEVKITPRO}/libnds/lib/libnds9.a")
+
+  target_link_libraries(SkylandEngine PRIVATE
+    PLATFORM)
+
+  target_compile_options(LISP PRIVATE
+    ${ARM9_FLAGS})
+
+  target_compile_options(FASTPATH PRIVATE
+    ${ARM9_FLAGS})
+
+  target_compile_options(SkylandEngine PRIVATE
+    ${ARM9_FLAGS})
+
+
+  set(CMAKE_EXE_LINKER_FLAGS
+    "-L/opt/devkitpro/libnds/lib/ -mthumb -mthumb-interwork -Wl,-Map,SkylandEngine.elf.map -specs=ds_arm9.specs"
+    CACHE INTERNAL "" FORCE)
+
+
+  add_custom_command(TARGET SkylandEngine POST_BUILD
+    COMMENT "building cartridge"
+    COMMAND ${DEVKITARM}/bin/arm-none-eabi-objcopy -O binary SkylandEngine SkylandEngine.gba
+    COMMAND ${DEVKITPRO}/tools/bin/ndstool -c Skyland.nds -9 SkylandEngine.gba)
+
+
+elseif(GAMEBOY_ADVANCE)
 
   # I am setting CMAKE_AR in the toolchain file, but for some reason, the
   # variable no longer exists within the cmakelists... which is strange, because
@@ -644,7 +715,8 @@ if(GAMEBOY_ADVANCE)
     -mthumb
     -mthumb-interwork
     -mcpu=arm7tdmi
-    -mtune=arm7tdmi)
+    -mtune=arm7tdmi
+    -D__GBA__)
 
   add_custom_command(TARGET SkylandEngine POST_BUILD
     COMMENT "building cartridge"
@@ -653,9 +725,6 @@ if(GAMEBOY_ADVANCE)
     # emulator developers do not give you the option to manually override which
     # gamepacks support gpio rumble.
     COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSkyEngine2 -cV49E -r0 -mEB SkylandEngine.gba)
-
-  target_compile_options(SkylandEngine PRIVATE
-    -D__GBA__)
 
 elseif(APPLE)
   target_link_libraries(SkylandEngine

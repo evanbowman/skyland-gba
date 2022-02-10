@@ -14,7 +14,7 @@
 template <u32 size, u32 count, u32 align = size> class Pool {
 public:
     struct Cell {
-        alignas(align) std::array<byte, size> mem_;
+        alignas(align) std::array<u8, size> mem_;
         Cell* next_;
     };
 
@@ -40,18 +40,18 @@ public:
 
     Pool(const Pool&) = delete;
 
-    byte* get()
+    u8* get()
     {
         if (freelist_) {
             const auto ret = freelist_;
             freelist_ = freelist_->next_;
-            return (byte*)ret;
+            return (u8*)ret;
         } else {
             return nullptr;
         }
     }
 
-    void post(byte* mem)
+    void post(u8* mem)
     {
         auto cell = (Cell*)mem;
         cell->next_ = freelist_;
@@ -111,7 +111,7 @@ public:
     void post(T* obj)
     {
         obj->~T();
-        pool_.post((byte*)obj);
+        pool_.post((u8*)obj);
     }
 
     u32 remaining() const

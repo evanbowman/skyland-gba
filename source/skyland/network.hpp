@@ -508,7 +508,7 @@ template <typename T> void transmit(Platform& pfrm, T& message)
 
     while (
         pfrm.network_peer().is_connected() and
-        not pfrm.network_peer().send_message({(byte*)&message, sizeof message}))
+        not pfrm.network_peer().send_message({(u8*)&message, sizeof message}))
         ;
 }
 

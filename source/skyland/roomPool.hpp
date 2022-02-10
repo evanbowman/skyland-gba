@@ -15,7 +15,7 @@ namespace room_pool {
 
 
 
-#ifdef __GBA__
+#if defined(__GBA__) or defined(__NDS__)
 static constexpr const int max_room_size = 52;
 #else
 static constexpr const int max_room_size = 128;
@@ -81,7 +81,7 @@ public:
     {
         for (auto& pl : pools_) {
             if (r >= pl->cells().begin() and r < pl->cells().end()) {
-                pl->post((byte*)r);
+                pl->post((u8*)r);
                 return;
             }
         }
