@@ -1,0 +1,34 @@
+
+o----------------------------o
+
+ (syscall "log" val)
+
+ Write a value to the
+ system log.
+
+
+o----------------------------o
+
+ (syscall "log-flush")
+
+ Store the system log in
+ sram/log.txt.
+
+
+o----------------------------o
+
+ (syscall "setvar" string int)
+
+ Configure a SKYLAND engine
+ variable.
+
+
+o----------------------------o
+
+ (syscall "getvar" string)
+
+ Retrieve a SKYLAND engine
+ variable.
+
+
+o----------------------------o

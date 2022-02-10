@@ -56,12 +56,12 @@
  a lisp repl, and run the
  command:
 
- (log (rooms (opponent)))
+ (syscall "log" (rooms (opponent)))
 
  Now, the system log contains
  a description of the enemy
  castle that you built in the
- sandbox. Run (log-flush) to
+ sandbox. Run (syscall "log-flush") to
  save the system log to sram,
  and then copy the result
  out of /log.txt with the

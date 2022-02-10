@@ -81,6 +81,30 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               error += "'";
 
               Platform::fatal(error.c_str());
+         }},
+         {"log",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 1);
+
+              if (auto pfrm = lisp::interp_get_pfrm()) {
+                  if (lisp::get_op(0)->type() == lisp::Value::Type::string) {
+                      debug(*pfrm, lisp::get_op(0)->string().value());
+                  } else {
+                      lisp::DefaultPrinter p;
+                      format(lisp::get_op(0), p);
+                      debug(*pfrm, p.fmt_.c_str());
+                  }
+              }
+
+              return L_NIL;
+          }
+         },
+         {"log-flush",
+          [](int argc) {
+              if (auto pfrm = lisp::interp_get_pfrm()) {
+                  pfrm->logger().flush();
+              }
+              return L_NIL;
           }}});
 
 
@@ -147,29 +171,6 @@ get_line_from_file(Platform& pfrm, const char* file_name, int line)
 
 
 static const lisp::Binding script_api[] = {
-    {"log",
-     [](int argc) {
-         L_EXPECT_ARGC(argc, 1);
-
-         if (auto pfrm = lisp::interp_get_pfrm()) {
-             if (lisp::get_op(0)->type() == lisp::Value::Type::string) {
-                 debug(*pfrm, lisp::get_op(0)->string().value());
-             } else {
-                 lisp::DefaultPrinter p;
-                 format(lisp::get_op(0), p);
-                 debug(*pfrm, p.fmt_.c_str());
-             }
-         }
-
-         return L_NIL;
-     }},
-    {"log-flush",
-     [](int argc) {
-         if (auto pfrm = lisp::interp_get_pfrm()) {
-             pfrm->logger().flush();
-         }
-         return L_NIL;
-     }},
     {"player",
      [](int argc) {
          auto app = interp_get_app();

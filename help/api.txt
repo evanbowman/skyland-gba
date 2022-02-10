@@ -250,14 +250,6 @@ o----------------------------o
 
 o----------------------------o
 
- (getvar name)
-
- Retrieve SKYLAND system
- variable with string name.
-
-
-o----------------------------o
-
  (island-configure
     island
     room-desc-list)
@@ -304,23 +296,6 @@ o----------------------------o
 
  Clear all existing bindings
  created by key-bind.
-
-
-o----------------------------o
-
- (log obj)
-
- Writes obj to SKYLAND's
- system logfile.
-
-
-o----------------------------o
-
- (log-flush)
-
- Writes the contents of
- SKYLAND's system logfile
- to /log.txt in sram.
 
 
 o----------------------------o
@@ -538,20 +513,12 @@ o----------------------------o
 
 (sel-input "pick a coord:"
  (lambda
-  (log (string
-        "user entered "
-        $0
-        $1
-        $2))))
-
-
-o----------------------------o
-
- (setvar name value)
-
- Set SKYLAND system variable
- with string name to integer
- value.
+  (syscall "log"
+           (string
+            "user entered "
+            $0
+            $1
+            $2))))
 
 
 o----------------------------o
@@ -559,6 +526,22 @@ o----------------------------o
  (show-flag island)
 
  Display a flag.
+
+
+o----------------------------o
+
+ (syscall string ...)
+
+ Invoke a skyland engine
+ system call. In addition to
+ the standard lisp engine
+ functions provided here,
+ the engine provides a large
+ number of low-level
+ functions via syscall.
+
+ See syscall.txt for
+ documentation.
 
 
 o----------------------------o
