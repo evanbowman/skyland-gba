@@ -19,7 +19,6 @@ enable_language(ASM)
 option(GAMEBOY_ADVANCE "GameboyAdvance" ON)
 option(NINTENDO_DS "NintendoDS" OFF)
 option(GBA_AUTOBUILD_IMG "AutobuildImg" OFF)
-option(GBA_AUTOBUILD_CONF "AutobuildConf" OFF)
 
 
 if(GAMEBOY_ADVANCE AND NOT DEVKITARM)
@@ -245,70 +244,15 @@ target_compile_options(LISP PRIVATE
 
 
 
-# Ok, I should explain... For each call to add_file, the cmake script creates a
-# build dependency for the executable, converts the file to an array of bytes
-# with xxd, outputs a .cpp file, and adds the name of the .cpp file to a list of
-# files, which are then compiled into a static library and linked with the
-# executable. Maybe this sounds complicated, but now adding files to the project
-# is as easy as `add_file(...)` (see below).
-set(FILES_DIR ${SOURCE_DIR}/../)
-set(FILES "")
-set(FILE_DECLS "")
-set(FILES_SOURCE_LIST)
-
-
-
-macro(add_file prefix file suffix)
-
-  set(FILES ${FILES} "\n    {\"${prefix}\", \"${file}.${suffix}\", file_${file}},\n//")
-  set(FILE_DECLS ${FILE_DECLS}
-    "\nextern const unsigned char file_${file}[];\n//")
-
-  if(GBA_AUTOBUILD_CONF)
-
-    set(FILE_IN ${FILES_DIR}/${prefix}/${file}.${suffix})
-    set(FILE_OUT ${SOURCE_DIR}/data/file_${file}.cpp)
-
-    add_custom_command(OUTPUT ${FILE_OUT}
-      COMMAND echo "extern const unsigned char file_${file}[] = {" > ${FILE_OUT}
-      COMMAND cat ${FILE_IN} | xxd -i | tee -a ${FILE_OUT} > /dev/null
-      COMMAND echo ", 0x00}\;" | tee -a ${FILE_OUT}
-      DEPENDS ${FILE_IN})
-
-    add_custom_target(convert_${file}_file DEPENDS ${FILE_OUT})
-
-    add_dependencies(SkyEngine convert_${file}_file)
-
-    list(APPEND FILES_SOURCE_LIST "${DATA_DIR}file_${file}.cpp")
-
-  endif()
-endmacro()
-
-
-if(NINTENDO_DS)
-  set(SOURCES
-    ${SOURCES})
-elseif(GAMEBOY_ADVANCE)
+if(NINTENDO_DS OR GAMEBOY_ADVANCE)
 
   set(DATA_DIR ${SOURCE_DIR}/data/)
 
+
+  # NOTE: The nintendo ds uses pretty much the same image format as GBA. I
+  # didn't bother to change the asset build pipeline when porting the game.
   set(SOURCES
     ${SOURCES}
-    ${SOURCE_DIR}/platform/gba/mixer.cpp
-    ${SOURCE_DIR}/platform/gba/gba_platform.cpp
-    ${SOURCE_DIR}/platform/gba/gbp_logo.cpp
-    ${SOURCE_DIR}/platform/gba/memcpy.s
-    ${SOURCE_DIR}/platform/gba/filesystem.cpp
-
-    ${ROOT_DIR}/external/libgba/interrupt.c
-    ${ROOT_DIR}/external/libgba/interrupt_dispatch.s
-    ${ROOT_DIR}/external/libgba/bios_math.s
-    ${ROOT_DIR}/external/libgba/reset.s
-
-    ${SOURCE_DIR}/platform/gba/rumble.c
-    ${SOURCE_DIR}/platform/gba/co_thread.c
-    ${SOURCE_DIR}/platform/gba/dlc_download.cpp
-
     # Data files below. Because the gameboy advance does not have a filesystem,
     # all of the sounds and images need to be compiled into the ROM.
     ${DATA_DIR}/overlay.s
@@ -376,6 +320,31 @@ elseif(GAMEBOY_ADVANCE)
     ${DATA_DIR}/sound_explosion1.s
     ${DATA_DIR}/sound_typewriter.s
     ${DATA_DIR}/sound_explosion2.s)
+endif()
+
+
+if(NINTENDO_DS)
+  set(SOURCES
+    ${SOURCES})
+elseif(GAMEBOY_ADVANCE)
+
+  set(SOURCES
+    ${SOURCES}
+    ${SOURCE_DIR}/platform/gba/mixer.cpp
+    ${SOURCE_DIR}/platform/gba/gba_platform.cpp
+    ${SOURCE_DIR}/platform/gba/gbp_logo.cpp
+    ${SOURCE_DIR}/platform/gba/memcpy.s
+    ${SOURCE_DIR}/platform/gba/filesystem.cpp
+
+    ${ROOT_DIR}/external/libgba/interrupt.c
+    ${ROOT_DIR}/external/libgba/interrupt_dispatch.s
+    ${ROOT_DIR}/external/libgba/bios_math.s
+    ${ROOT_DIR}/external/libgba/reset.s
+
+    ${SOURCE_DIR}/platform/gba/rumble.c
+    ${SOURCE_DIR}/platform/gba/co_thread.c
+    ${SOURCE_DIR}/platform/gba/dlc_download.cpp)
+
 else()
   set(SOURCES
     ${SOURCES}
@@ -569,6 +538,46 @@ elseif(WIN32)
 endif()
 
 
+if(GAMEBOY_ADVANCE OR NINTENDO_DS)
+  if(GBA_AUTOBUILD_IMG)
+    add_spritesheet(spritesheet 2 4 NO)
+    add_spritesheet(spritesheet_title_screen 2 4 NO)
+    add_tilesheet(tilesheet 2 2 NO NO)
+    add_tilesheet(tilesheet_enemy_0 2 2 NO NO)
+    add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
+    add_tilesheet(tilesheet_interior 2 2 NO NO)
+    add_tilesheet(tilesheet_world_map_backdrop 2 2 NO NO)
+    add_tilesheet(skyland_title_3 0 0 YES NO)
+    add_tilesheet(skyland_title_2 0 0 YES NO)
+    add_tilesheet(skyland_title_1 0 0 YES NO)
+    add_tilesheet(skyland_title_0 0 0 YES NO)
+    add_tilesheet(zone_image_0 0 0 YES NO)
+    add_tilesheet(zone_image_1 0 0 YES NO)
+    add_tilesheet(zone_image_2 0 0 YES NO)
+    add_tilesheet(zone_image_3 0 0 YES NO)
+    add_background(background 0 0 NO NO)
+    add_background(background_title_screen 0 0 NO NO)
+    add_overlay(overlay 0 0 NO NO)
+    add_overlay(overlay_gamespeed 0 0 NO NO)
+    add_overlay(overlay_editor 0 0 NO NO)
+    add_overlay(overlay_dialog 0 0 NO NO)
+    add_overlay(overlay_dialog_fullscreen 0 0 NO NO)
+    add_overlay(charset 0 0 NO NO)
+    add_overlay(overlay_world_map 0 0 NO NO)
+    add_overlay(overlay_island_destroyed 0 0 NO NO)
+    add_overlay(overlay_challenges 0 0 NO NO)
+    add_overlay(hint_infirmary 0 0 NO NO)
+    add_overlay(hint_goblin 0 0 NO NO)
+    add_overlay(hint_plunder 0 0 NO NO)
+    add_overlay(hint_damaged_core 0 0 NO NO)
+
+    configure_file(images.cpp.in ${SOURCE_DIR}/platform/gba/images.cpp)
+    configure_file(images.cpp.in ${SOURCE_DIR}/platform/nds/images.cpp)
+  endif()
+
+endif()
+
+
 
 if(NINTENDO_DS)
 
@@ -646,48 +655,6 @@ elseif(GAMEBOY_ADVANCE)
     -mthumb-interwork
     -mcpu=arm7tdmi
     -mtune=arm7tdmi)
-
-
-
-  if(GBA_AUTOBUILD_CONF)
-    configure_file(files.cpp.in ${SOURCE_DIR}/platform/gba/files.cpp)
-  endif()
-
-  if(GBA_AUTOBUILD_IMG)
-    add_spritesheet(spritesheet 2 4 NO)
-    add_spritesheet(spritesheet_title_screen 2 4 NO)
-    add_tilesheet(tilesheet 2 2 NO NO)
-    add_tilesheet(tilesheet_enemy_0 2 2 NO NO)
-    add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
-    add_tilesheet(tilesheet_interior 2 2 NO NO)
-    add_tilesheet(tilesheet_world_map_backdrop 2 2 NO NO)
-    add_tilesheet(skyland_title_3 0 0 YES NO)
-    add_tilesheet(skyland_title_2 0 0 YES NO)
-    add_tilesheet(skyland_title_1 0 0 YES NO)
-    add_tilesheet(skyland_title_0 0 0 YES NO)
-    add_tilesheet(zone_image_0 0 0 YES NO)
-    add_tilesheet(zone_image_1 0 0 YES NO)
-    add_tilesheet(zone_image_2 0 0 YES NO)
-    add_tilesheet(zone_image_3 0 0 YES NO)
-    add_background(background 0 0 NO NO)
-    add_background(background_title_screen 0 0 NO NO)
-    add_overlay(overlay 0 0 NO NO)
-    add_overlay(overlay_gamespeed 0 0 NO NO)
-    add_overlay(overlay_editor 0 0 NO NO)
-    add_overlay(overlay_dialog 0 0 NO NO)
-    add_overlay(overlay_dialog_fullscreen 0 0 NO NO)
-    add_overlay(charset 0 0 NO NO)
-    add_overlay(overlay_world_map 0 0 NO NO)
-    add_overlay(overlay_island_destroyed 0 0 NO NO)
-    add_overlay(overlay_challenges 0 0 NO NO)
-    add_overlay(hint_infirmary 0 0 NO NO)
-    add_overlay(hint_goblin 0 0 NO NO)
-    add_overlay(hint_plunder 0 0 NO NO)
-    add_overlay(hint_damaged_core 0 0 NO NO)
-
-
-    configure_file(images.cpp.in ${SOURCE_DIR}/platform/gba/images.cpp)
-  endif()
 
   set(CMAKE_EXE_LINKER_FLAGS
     "-mthumb -mthumb-interwork -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"

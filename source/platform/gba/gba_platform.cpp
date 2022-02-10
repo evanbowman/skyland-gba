@@ -248,8 +248,6 @@ static constexpr int vram_tile_size()
 }
 
 
-#include "images.cpp"
-
 
 static const TextureData* current_spritesheet = &sprite_textures[0];
 static const TextureData* current_tilesheet0 = &tile_textures[0];

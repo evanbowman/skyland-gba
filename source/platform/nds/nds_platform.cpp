@@ -28,7 +28,8 @@
 
 #include "platform/platform.hpp"
 #include "/opt/devkitpro/libnds/include/nds.h"
-#include "/opt/devkitpro/libnds/include/nds/arm9/console.h"
+#include "images.cpp"
+#include "platform/color.hpp"
 
 
 
@@ -111,6 +112,8 @@ const char* Platform::get_opt(char opt)
 
 void Platform::fatal(const char* message)
 {
+    consoleDemoInit();
+
     iprintf(message);
 
     while (true) {
@@ -172,24 +175,6 @@ void Platform::enable_expanded_glyph_mode(bool enabled)
 
 
 
-void Platform::set_tile(Layer layer,
-                        u16 x,
-                        u16 y,
-                        TileDesc val,
-                        std::optional<u16> palette)
-{
-    // TODO...
-}
-
-
-
-void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
-{
-    // TODO...
-}
-
-
-
 void Platform::set_palette(Layer layer, u16 x, u16 y, u16 palette)
 {
     // TODO...
@@ -205,9 +190,32 @@ u16 Platform::get_palette(Layer layer, u16 x, u16 y)
 
 
 
+static u16 x0_scroll = 0;
+static u16 y0_scroll = 0;
+static u16 x3_scroll = 0;
+static u16 y3_scroll = 0;
+
+
+
 void Platform::set_scroll(Layer layer, u16 x, u16 y)
 {
-    // TODO...
+    switch (layer) {
+    case Layer::background:
+    case Layer::overlay:
+        break;
+
+    case Layer::map_0_ext:
+    case Layer::map_0:
+        x0_scroll = x;
+        y0_scroll = y;
+        break;
+
+    case Layer::map_1_ext:
+    case Layer::map_1:
+        x3_scroll = x;
+        y3_scroll = y;
+        break;
+    }
 }
 
 
@@ -227,13 +235,6 @@ TileDesc Platform::get_tile(Layer layer, u16 x, u16 y)
 
 
 
-u8 Platform::get_pixel(Layer layer, u16 tile, u16 x, u16 y)
-{
-    return 0;
-}
-
-
-
 void Platform::fill_overlay(u16 TileDesc)
 {
 
@@ -242,41 +243,6 @@ void Platform::fill_overlay(u16 TileDesc)
 
 
 void Platform::set_overlay_origin(Float x, Float y)
-{
-
-}
-
-
-
-void Platform::load_sprite_texture(const char* name)
-{
-
-}
-
-
-
-void Platform::load_tile0_texture(const char* name)
-{
-
-}
-
-
-
-void Platform::load_tile1_texture(const char* name)
-{
-
-}
-
-
-
-bool Platform::load_overlay_texture(const char* name)
-{
-    return true;
-}
-
-
-
-void Platform::load_background_texture(const char* name)
 {
 
 }
@@ -422,13 +388,6 @@ Platform::SystemClock::SystemClock()
 
 
 
-Platform::DeltaClock::DeltaClock()
-{
-
-}
-
-
-
 Platform::DeltaClock::~DeltaClock()
 {
 
@@ -436,9 +395,43 @@ Platform::DeltaClock::~DeltaClock()
 
 
 
+#define REG_TM3CNT_L *(volatile u16*)(0x04000000 + 0x10c)
+#define REG_TM3CNT_H *(volatile u16*)(0x04000000 + 0x10e)
+
+
+
+static size_t delta_total;
+
+
+
+static int delta_read_tics()
+{
+    return REG_TM3CNT_L + delta_total;
+}
+
+
+
+static Microseconds delta_convert_tics(int tics)
+{
+    return ((tics * (59.59f / 60.f)) * 60.f) / 1000.f;
+}
+
+
+
 Microseconds Platform::DeltaClock::reset()
 {
-    return 16777;
+    irqDisable(IRQ_TIMER3);
+    const auto tics = delta_read_tics();
+    REG_TM3CNT_H = 0;
+
+    irqEnable(IRQ_TIMER3);
+
+    delta_total = 0;
+
+    REG_TM3CNT_L = 0;
+    REG_TM3CNT_H = 1 << 7 | 1 << 6;
+
+    return delta_convert_tics(tics);
 }
 
 
@@ -446,6 +439,20 @@ Microseconds Platform::DeltaClock::reset()
 Platform::DeltaClock::TimePoint Platform::DeltaClock::sample() const
 {
     return 0;
+}
+
+
+
+Platform::DeltaClock::DeltaClock()
+{
+    irqEnable(IRQ_TIMER3);
+    irqSet(IRQ_TIMER3, [] {
+        delta_total += 0xffff;
+
+        REG_TM3CNT_H = 0;
+        REG_TM3CNT_L = 0;
+        REG_TM3CNT_H = 1 << 7 | 1 << 6;
+    });
 }
 
 
@@ -460,6 +467,13 @@ void Platform::Screen::draw(const Sprite& spr)
 void Platform::Screen::clear()
 {
     swiWaitForVBlank();
+
+    auto view_offset = view_.get_center().cast<s32>();
+    REG_BG0HOFS = x0_scroll + view_offset.x;
+    REG_BG0VOFS = y0_scroll + view_offset.y;
+
+    REG_BG3HOFS = x3_scroll + view_offset.x;
+    REG_BG3VOFS = y3_scroll + view_offset.y;
 }
 
 
@@ -535,9 +549,95 @@ void Platform::Screen::pixelate(u8 amount,
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// I borrowed the diagram below from the GBA edition of SKYLAND. There's no
+// significant difference on the NDS in 2D mode.
+//
+////////////////////////////////////////////////////////////////////////////////
+//
+// Tile Memory Layout:
+//
+// The game uses every single available screen block, so the data is fairly
+// tightly packed. Here's a chart representing the layout:
+//
+// All units of length are in screen blocks, followed by the screen block
+// indices in parentheses.
+//
+//     charblock 0        charblock 1      charblock 2
+// ~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~
+// o======================================================
+// |    t0 texture    |   t1 texture   | overlay texture |
+// |   len 8 (0 - 7)  | len 8 (8 - 15) | len 8 (16 - 23) | ...
+// o======================================================
+//
+//                  charblock 3
+//      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     ====================================o
+//     |     t0 mem      |     t1 mem      |
+// ... | len 2 (26 - 27) | len 2 (28 - 29) | ...
+//     ====================================o
+//
+//                        charblock 3 (contd.)
+//      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//     ========================================================o
+//     |   background texture    |  overlay mem  |   bg mem    |
+// ... |    len 1 (24 - 25)      |  len 1 (30)   | len 1 (31)  |
+//     ========================================================o
+//
+//
+
+
+static constexpr const int sbb_per_cbb = 8; // ScreenBaseBlock per CharBaseBlock
+
+static constexpr const int sbb_t0_tiles = 26;
+static constexpr const int sbb_t1_tiles = 28;
+static constexpr const int sbb_overlay_tiles = 30;
+static constexpr const int sbb_bg_tiles = 31;
+
+static constexpr const int sbb_background_texture = 24;
+static constexpr const int cbb_background_texture =
+    sbb_background_texture / sbb_per_cbb;
+
+static constexpr const int sbb_overlay_texture = 16;
+static constexpr const int sbb_t0_texture = 0;
+static constexpr const int sbb_t1_texture = 8;
+
+static constexpr const int cbb_overlay_texture =
+    sbb_overlay_texture / sbb_per_cbb;
+
+static constexpr const int cbb_t0_texture = sbb_t0_texture / sbb_per_cbb;
+static constexpr const int cbb_t1_texture = sbb_t1_texture / sbb_per_cbb;
+
+
+//
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
 Platform::Screen::Screen()
 {
+    // clang-format off
 
+    REG_DISPCNT = MODE_0_2D
+        | DISPLAY_SPR_1D_LAYOUT
+        | DISPLAY_BG0_ACTIVE
+        | DISPLAY_BG1_ACTIVE
+        //| DISPLAY_BG2_ACTIVE
+        //| DISPLAY_BG3_ACTIVE
+        | DISPLAY_SPR_ACTIVE;
+
+    bgInit(0, BgType_Text4bpp, BgSize_T_512x256, sbb_t0_tiles, cbb_t0_texture);
+    bgInit(3, BgType_Text4bpp, BgSize_T_512x256, sbb_t1_tiles, cbb_t1_texture);
+    bgInit(1, BgType_Text4bpp, BgSize_T_256x256, sbb_bg_tiles, cbb_background_texture);
+    // bgInit(2, BgType_Text4bpp, BgSize_T_256x256, sbb_overlay_tiles, cbb_overlay_texture);
+
+    View view;
+    view.set_size(size().cast<Float>());
+    set_view(view);
+
+    // clang-format on
 }
 
 
@@ -559,6 +659,168 @@ ColorConstant grayscale_shader(int palette, ColorConstant k, int arg)
 ColorConstant contrast_shader(int palette, ColorConstant k, int arg)
 {
     return k;
+}
+
+
+
+void Platform::load_sprite_texture(const char* name)
+{
+
+}
+
+
+
+static void set_map_tile_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
+{
+    auto ref = [](u16 x_, u16 y_) { return x_ * 2 + y_ * 32 * 2; };
+
+    auto screen_block = [&]() -> u16 {
+        if (x > 15) {
+            x %= 16;
+            return base + 1;
+        } else {
+            return base;
+        }
+    }();
+
+
+    ((u16*)SCREEN_BASE_BLOCK(screen_block))[0 + ref(x % 16, y)] =
+        (tile_id * 4 + 0) | TILE_PALETTE(palette);
+
+    ((u16*)SCREEN_BASE_BLOCK(screen_block))[1 + ref(x % 16, y)] =
+        (tile_id * 4 + 1) | TILE_PALETTE(palette);
+
+    ((u16*)SCREEN_BASE_BLOCK(screen_block))[0 + ref(x % 16, y) + 32] =
+        (tile_id * 4 + 2) | TILE_PALETTE(palette);
+
+    ((u16*)SCREEN_BASE_BLOCK(screen_block))[1 + ref(x % 16, y) + 32] =
+        (tile_id * 4 + 3) | TILE_PALETTE(palette);
+}
+
+
+
+void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
+{
+    if (layer == Layer::map_1) {
+        ((u16*)SCREEN_BASE_BLOCK(sbb_t1_tiles))[x + y * 32] = val | TILE_PALETTE(2);
+    } else if (layer == Layer::map_0) {
+        ((u16*)SCREEN_BASE_BLOCK(sbb_t0_tiles))[x + y * 32] = val | TILE_PALETTE(0);
+    }
+}
+
+
+
+void Platform::set_tile(Layer layer,
+                        u16 x,
+                        u16 y,
+                        TileDesc val,
+                        std::optional<u16> palette)
+{
+    switch (layer) {
+    case Layer::overlay:
+        if (x > 31 or y > 31) {
+            return;
+        }
+        bgGetMapPtr(1)[x + y * 32] = val | TILE_PALETTE(1);
+        break;
+
+    case Layer::map_0_ext:
+        set_map_tile_16p(sbb_t0_tiles, x, y, val, palette ? *palette : 0);
+        break;
+
+    case Layer::map_1_ext:
+        set_map_tile_16p(sbb_t1_tiles, x, y, val, palette ? *palette : 3);
+        break;
+
+    default:
+        // TODO...
+        break;
+    }
+}
+
+
+
+// FIXME: find a faster memcpy. I'm new to nds dev. On gba, I had a fast
+// function for this, but it's written in arm7 assembly.
+void slow_memcpy_16(u16* dest, u16* src, int halfwords)
+{
+    while (halfwords) {
+        *(dest++) = *(src++);
+        --halfwords;
+    }
+}
+
+
+
+void Platform::load_tile0_texture(const char* name)
+{
+    for (auto& info : tile_textures) {
+
+        if (str_cmp(name, info.name_) == 0) {
+
+            for (int i = 0; i < 16; ++i) {
+                BG_PALETTE[i] = info.palette_data_[i];
+            }
+
+            slow_memcpy_16(bgGetGfxPtr(0),
+                           (u16*)info.tile_data_,
+                           info.tile_data_length_ / 2);
+
+            return;
+        }
+    }
+}
+
+
+
+void Platform::load_tile1_texture(const char* name)
+{
+    for (auto& info : tile_textures) {
+
+        if (str_cmp(name, info.name_) == 0) {
+
+            for (int i = 0; i < 16; ++i) {
+                BG_PALETTE[32 + i] = info.palette_data_[i];
+            }
+
+            slow_memcpy_16(bgGetGfxPtr(3),
+                           (u16*)info.tile_data_,
+                           info.tile_data_length_ / 2);
+
+            return;
+        }
+    }
+}
+
+
+
+bool Platform::load_overlay_texture(const char* name)
+{
+    for (auto& info : tile_textures) {
+
+        if (str_cmp(name, info.name_) == 0) {
+
+            for (int i = 0; i < 16; ++i) {
+                BG_PALETTE[16 + i] = info.palette_data_[i];
+            }
+
+            slow_memcpy_16(bgGetGfxPtr(1),
+                           // (u16*)SCREEN_BASE_BLOCK(sbb_overlay_texture),
+                           (u16*)info.tile_data_,
+                           std::min((size_t)info.tile_data_length_ / 2,
+                                    (size_t)0x4000 / 2));
+            return true;
+        }
+    }
+
+    return true;
+}
+
+
+
+void Platform::load_background_texture(const char* name)
+{
+
 }
 
 
@@ -597,7 +859,7 @@ void Platform::Keyboard::poll()
 
 void Platform::Keyboard::rumble(bool enabled)
 {
-
+    // TODO: rumble pack?
 }
 
 
@@ -849,7 +1111,10 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 ////////////////////////////////////////////////////////////////////////////////
 
 
+
 volatile int frame = 0;
+
+
 
 void Vblank()
 {
@@ -862,11 +1127,9 @@ Platform::Platform()
 {
     ::platform = this;
 
-    irqSet(IRQ_VBLANK, Vblank);
-
     consoleDemoInit();
 
-    iprintf("HELLO\n");
+    irqSet(IRQ_VBLANK, Vblank);
 }
 
 

@@ -43,6 +43,7 @@ class Platform {
 public:
     class Screen;
     class Keyboard;
+    class Touch;
     class Logger;
     class Speaker;
     class NetworkPeer;
@@ -88,6 +89,11 @@ public:
     inline Keyboard& keyboard()
     {
         return keyboard_;
+    }
+
+    inline Touch& touch()
+    {
+        return touch_;
     }
 
     inline Logger& logger()
@@ -242,9 +248,6 @@ public:
     // This function is not necessarily implemented efficiently, may in fact be
     // very slow.
     TileDesc get_tile(Layer layer, u16 x, u16 y);
-
-
-    u8 get_pixel(Layer layer, u16 tile, u16 x, u16 y);
 
 
     void fill_overlay(u16 TileDesc);
@@ -560,6 +563,39 @@ public:
 
 
     ////////////////////////////////////////////////////////////////////////////
+    // Touch
+    ////////////////////////////////////////////////////////////////////////////
+
+
+    class Touch {
+    public:
+
+
+        void poll();
+
+
+        std::optional<Vec2<u32>> read() const
+        {
+            return current_;
+        }
+
+
+        std::optional<Vec2<u32>> up_transition() const
+        {
+            if (not current_ and previous_) {
+                return previous_;
+            }
+        }
+
+
+    private:
+        std::optional<Vec2<u32>> current_;
+        std::optional<Vec2<u32>> previous_;
+    };
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
     // Logger
     ////////////////////////////////////////////////////////////////////////////
 
@@ -754,6 +790,7 @@ private:
     RemoteConsole console_;
     Screen screen_;
     Keyboard keyboard_;
+    Touch touch_;
     Speaker speaker_;
     Logger logger_;
     Data* data_ = nullptr;
