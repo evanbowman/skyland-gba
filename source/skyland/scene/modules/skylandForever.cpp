@@ -1,5 +1,5 @@
 #include "skylandForever.hpp"
-#include "skyland/opponent/procgenEnemyAI.hpp"
+#include "skyland/player/opponent/procgenEnemyAI.hpp"
 #include "skyland/scene/fadeInScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"

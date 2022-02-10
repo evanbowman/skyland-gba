@@ -9,6 +9,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/worldGraph.hpp"
 #include "titleScreenScene.hpp"
+#include "skyland/player/playerP1.hpp"
 
 
 

@@ -13,10 +13,9 @@
 #include "highscores.hpp"
 #include "island.hpp"
 #include "keyCallbackProcessor.hpp"
-#include "opponent/enemyAI.hpp"
+#include "player/opponent/friendlyAI.hpp"
 #include "persistentData.hpp"
 #include "platform/platform.hpp"
-#include "playerP1.hpp"
 #include "rumble.hpp"
 #include "save.hpp"
 #include "scene.hpp"
@@ -413,8 +412,8 @@ private:
     Buffer<std::pair<DeferredCallback, Microseconds>, 20> deferred_callbacks_;
 
 
-    Boxed<Player, PlayerP1, 100> player_;
-    Boxed<Opponent, EnemyAI, 100> opponent_;
+    Boxed<Player, Player, 100> player_;
+    Boxed<Opponent, FriendlyAI, 100> opponent_;
 
 
     // In the unlikely event that the game freezes for some reason, the software

@@ -4,13 +4,13 @@
 #include "number/random.hpp"
 #include "platform/platform.hpp"
 #include "platform/ram_filesystem.hpp"
+#include "player/playerP1.hpp"
 #include "room_metatable.hpp"
 #include "save.hpp"
 #include "script/lisp.hpp"
 #include "serial.hpp"
 #include "sound.hpp"
 #include "timeStreamEvent.hpp"
-
 
 
 namespace skyland {
@@ -29,6 +29,8 @@ App::App(Platform& pfrm)
       birbs_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       level_timer_(0), backup_(allocate_dynamic<save::EmergencyBackup>(pfrm))
 {
+    player_.emplace<PlayerP1>();
+
     current_scene_ = initial_scene();
     next_scene_ = initial_scene();
 

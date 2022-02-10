@@ -5,7 +5,7 @@
 #include "entity/character/basicCharacter.hpp"
 #include "entity/drones/drone.hpp"
 #include "memory/buffer.hpp"
-#include "player.hpp"
+#include "player/player.hpp"
 #include "power.hpp"
 #include "room.hpp"
 #include "roomTable.hpp"

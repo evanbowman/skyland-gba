@@ -6,7 +6,7 @@
 #include "sandboxResetScene.hpp"
 #include "selectChallengeScene.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
-#include "skyland/opponent/friendlyAI.hpp"
+#include "skyland/player/opponent/friendlyAI.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/serial.hpp"

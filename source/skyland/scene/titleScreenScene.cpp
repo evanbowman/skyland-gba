@@ -13,6 +13,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
+#include "skyland/player/playerP1.hpp"
 
 
 

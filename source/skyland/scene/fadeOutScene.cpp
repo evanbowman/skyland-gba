@@ -1,6 +1,6 @@
 #include "fadeOutScene.hpp"
 #include "selectTutorialScene.hpp"
-#include "skyland/autopilotPlayer.hpp"
+#include "skyland/player/autopilotPlayer.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"

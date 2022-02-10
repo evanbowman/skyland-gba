@@ -3,7 +3,7 @@
 #include "globals.hpp"
 #include "multiplayerSettingsScene.hpp"
 #include "script/lisp.hpp"
-#include "skyland/opponent/multiplayerPeer.hpp"
+#include "skyland/player/opponent/multiplayerPeer.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
