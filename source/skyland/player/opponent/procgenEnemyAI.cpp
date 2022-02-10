@@ -327,6 +327,14 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         enq_prob("ion-cannon", 40.f + forcefield_count * 20.f);
     }
 
+    if (levelgen_enemy_count_ > 6) {
+        if (missile_count < 5) {
+            enq_prob("drone-bay",
+                     (50.f - missile_count * 10.f) +
+                     drone_count * 10.f);
+        }
+    }
+
     if (levelgen_enemy_count_ > 8) {
         enq_prob("arc-gun", 120.f);
         enq_prob("nemesis", 120.f);
@@ -444,6 +452,52 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         }
     };
 
+    auto place_drone_bay = [&](RoomMeta* mt) {
+
+        // We mostly treat a drone bay as if it were simply a differently-shaped
+        // missile-silo.
+
+        Buffer<Vec2<u8>, 16> slots;
+        for (u8 x = 0; x < 16; ++x) {
+            for (u8 y = 6; y < 14; ++y) {
+                auto room = app.opponent_island()->get_room({x, u8(y + 1)});
+                if ((y == 13 or room) and has_space(app, {x, y}, {2, 1}) and
+                    not c->invalidated_missile_cells_[x][y] and
+                    not c->invalidated_missile_cells_[x + 1][y]) {
+
+                    slots.push_back({x, y});
+                    break;
+                } else if (room) {
+                    // If we've seen a room, we shouldn't place a missile-silo
+                    // under it!
+                    break;
+                }
+            }
+        }
+
+        rng::shuffle(slots, rng::critical_state);
+
+        if (not slots.empty()) {
+            auto s = slots[0];
+            (*mt)->create(pfrm, app, app.opponent_island(), {s.x, s.y});
+
+            c->invalidated_cannon_cells_[s.x][s.y - 1] = true;
+            c->invalidated_cannon_cells_[s.x + 1][s.y - 1] = true;
+
+            for (int yy = 0; yy < s.y; ++yy) {
+                c->invalidated_missile_cells_[s.x][yy] = true;
+                c->invalidated_missile_cells_[s.x + 1][yy] = true;
+            }
+
+            for (int yy = s.y; yy < 15; ++yy) {
+                // Invalidate missile-silos beneath the drone bay
+                c->invalidated_missile_cells_[s.x][yy] = true;
+                c->invalidated_missile_cells_[s.x + 1][yy] = true;
+            }
+        }
+
+    };
+
     int place_missile_count = 0;
 
     for (int i = 0; i < max; ++i) {
@@ -454,6 +508,8 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
             if (str_eq((*sel)->name(), "missile-silo")) {
                 ++place_missile_count;
+            } else if (str_eq((*sel)->name(), "drone-bay")) {
+                place_drone_bay(sel);
             } else {
                 place_cannon(sel);
             }
@@ -539,8 +595,9 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
 
                 if (y < 15) {
                     if (app.opponent_island()->rooms_plot().get(x, y + 1)) {
-                        if (auto room = get_room(1, y + 1)) {
-                            if (str_eq(room->name(), "missile-silo")) {
+                        if (auto room = get_room(x, y + 1)) {
+                            if (str_eq(room->name(), "missile-silo") or
+                                str_eq(room->name(), "drone-bay")) {
                                 if (opponent_missile_count >
                                     player_missile_count) {
                                     weight += 150.f;

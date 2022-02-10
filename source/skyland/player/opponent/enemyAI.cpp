@@ -22,7 +22,6 @@
 // A few months after the game jam: realistically, I'm not going to rewrite this
 // code, because it works just fine and I have a deadline. But really, some of
 // the worst code I've ever written.
-// Really, this is write-once throwaway code.
 // It's just embarassing though, I'm a professional, this is my job, and I write
 // something like this. Oh well. Sometimes you have to ship something. :)
 
@@ -218,7 +217,7 @@ void EnemyAI::update_room(Platform& pfrm,
     } else if (auto db = dynamic_cast<DroneBay*>(&room)) {
         // Don't spawn drones until the level's been running for a
         // bit.
-        if (total_time_ > seconds(8)) {
+        if (app.opponent_island()->get_drift() == 0.f) {
             if (app.game_speed() not_eq GameSpeed::stopped) {
                 update_room(pfrm, app, matrix, *db);
             }
