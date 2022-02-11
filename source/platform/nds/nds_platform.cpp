@@ -1574,6 +1574,15 @@ void Platform::Touch::poll()
     touchPosition touch;
 
     touchRead(&touch);
+
+    previous_ = current_;
+
+    const auto keys = keysHeld();
+    if (keys & KEY_TOUCH) {
+        current_ = {touch.px, touch.py};
+    } else {
+        current_.reset();
+    }
 }
 
 
@@ -1586,15 +1595,13 @@ void Platform::Touch::poll()
 
 
 
-#define KEYS_CUR (((~REG_KEYINPUT)&0x3ff))
-
-
-
 void Platform::Keyboard::poll()
 {
     std::copy(std::begin(states_), std::end(states_), std::begin(prev_));
 
-    u16 keys = KEYS_CUR;
+    const u16 keys = keysHeld();
+
+    scanKeys();
 
     states_[(int)Key::start] = keys & KEY_START;
     states_[(int)Key::select] = keys & KEY_SELECT;

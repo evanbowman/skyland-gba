@@ -424,12 +424,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (timer_ - delta < milliseconds(600) and timer_ > milliseconds(600)) {
             pfrm.load_overlay_texture("overlay_island_destroyed");
+            const int x_start = centered_text_margins(pfrm, 22);
             if (opponent_defeated) {
-                draw_image(pfrm, 82, 4, 1, 22, 8, Layer::overlay);
+                draw_image(pfrm, 82, x_start, 1, 22, 8, Layer::overlay);
                 confetti_state_ = ConfettiState::wait_1;
                 confetti_timer_ = 0;
             } else {
-                draw_image(pfrm, 259, 4, 1, 22, 8, Layer::overlay);
+                draw_image(pfrm, 259, x_start, 1, 22, 8, Layer::overlay);
             }
             stat_timer_ = milliseconds(145);
         }
