@@ -26,6 +26,7 @@
 #include "vector.hpp"
 #include <algorithm>
 #include <setjmp.h>
+#include "images.cpp"
 
 
 
@@ -2534,7 +2535,7 @@ bool Platform::is_running() const
 }
 
 
-static u8* const cartridge_ram = (byte*)0x0E000000;
+static u8* const cartridge_ram = (u8*)0x0E000000;
 
 
 static bool
