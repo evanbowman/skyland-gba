@@ -78,6 +78,10 @@ static u16 overlay_back_buffer[1024] alignas(u32);
 static bool overlay_back_buffer_changed = false;
 
 
+static Platform::Screen::Shader shader = passthrough_shader;
+static int shader_argument = 0;
+
+
 struct GlyphMapping {
     u16 mapper_offset_;
 
@@ -323,17 +327,13 @@ void Platform::enable_expanded_glyph_mode(bool enabled)
 
 
 
-void Platform::set_palette(Layer layer, u16 x, u16 y, u16 palette)
-{
-    // TODO...
-}
-
-
-
 u16 Platform::get_palette(Layer layer, u16 x, u16 y)
 {
-    // TODO...
-    return 0;
+    if (layer == Layer::overlay) {
+        return (overlay_back_buffer[x + y * 32] & (0xF000)) >> 12;
+    }
+
+    fatal("get_palette unimplemented for input layer.");
 }
 
 
@@ -368,10 +368,15 @@ void Platform::set_scroll(Layer layer, u16 x, u16 y)
 
 
 
-void Platform::set_tile(u16 x, u16 y, TileDesc glyph, const FontColors& colors)
-{
-    // TODO...
-}
+using PaletteBank = u8;
+
+static const PaletteBank custom_text_palette_begin = 3;
+static const PaletteBank custom_text_palette_end = 9;
+static const auto custom_text_palette_count =
+    custom_text_palette_end - custom_text_palette_begin;
+
+static PaletteBank custom_text_palette_write_ptr = custom_text_palette_begin;
+static const TextureData* custom_text_palette_source_texture = nullptr;
 
 
 
@@ -406,7 +411,7 @@ void Platform::fill_overlay(u16 tile)
     u32* const mem = (u32*)overlay_back_buffer;
     overlay_back_buffer_changed = true;
 
-    for (unsigned i = 0; i < 1024 / sizeof(u32); ++i) {
+    for (unsigned i = 0; i < 2048 / sizeof(u32); ++i) {
         mem[i] = fill_word;
     }
 
@@ -767,11 +772,6 @@ ColorConstant passthrough_shader(int palette, ColorConstant k, int arg)
 
 
 
-static Platform::Screen::Shader shader = passthrough_shader;
-static int shader_argument = 0;
-
-
-
 void Platform::Screen::set_shader(Shader shader)
 {
     ::shader = shader;
@@ -1090,6 +1090,45 @@ static void set_map_tile_16p(u8 base, u16 x, u16 y, u16 tile_id, int palette)
 
 
 
+static void set_map_tile_16p_palette(u8 base, u16 x, u16 y, int palette)
+{
+    auto ref = [](u16 x_, u16 y_) { return x_ * 2 + y_ * 32 * 2; };
+
+    auto screen_block = [&]() -> u16 {
+        // FIXME: technically, our background is 32x16 16p tiles, so we should
+        // be adjusting sb index here for x > 15. In practice, SKYLAND uses
+        // 16x16 tile maps, so it doesn't matter.
+        return base;
+    }();
+
+    u16 val = 0;
+
+    val = ((u16*)SCREEN_BASE_BLOCK(screen_block))[0 + ref(x % 16, y)];
+    val &= ~(0xF000);
+    val |= TILE_PALETTE(palette);
+    ((u16*)SCREEN_BASE_BLOCK(screen_block))[0 + ref(x % 16, y)] = val;
+
+
+    val = ((u16*)SCREEN_BASE_BLOCK(screen_block))[1 + ref(x % 16, y)];
+    val &= ~(0xF000);
+    val |= TILE_PALETTE(palette);
+    ((u16*)SCREEN_BASE_BLOCK(screen_block))[1 + ref(x % 16, y)] = val;
+
+
+    val = ((u16*)SCREEN_BASE_BLOCK(screen_block))[0 + ref(x % 16, y) + 32];
+    val &= ~(0xF000);
+    val |= TILE_PALETTE(palette);
+    ((u16*)SCREEN_BASE_BLOCK(screen_block))[0 + ref(x % 16, y) + 32] = val;
+
+
+    val = ((u16*)SCREEN_BASE_BLOCK(screen_block))[1 + ref(x % 16, y) + 32];
+    val &= ~(0xF000);
+    val |= TILE_PALETTE(palette);
+    ((u16*)SCREEN_BASE_BLOCK(screen_block))[1 + ref(x % 16, y) + 32] = val;
+}
+
+
+
 void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
 {
     if (layer == Layer::map_1) {
@@ -1174,7 +1213,7 @@ void Platform::set_tile(Layer layer,
         break;
 
     case Layer::map_1_ext:
-        set_map_tile_16p(sbb_t1_tiles, x, y, val, palette ? *palette : 3);
+        set_map_tile_16p(sbb_t1_tiles, x, y, val, 2);
         break;
 
     case Layer::background:
@@ -1190,6 +1229,84 @@ void Platform::set_tile(Layer layer,
     }
 }
 
+
+
+void Platform::set_tile(u16 x, u16 y, TileDesc glyph, const FontColors& colors)
+{
+    if (not get_gflag(GlobalFlag::glyph_mode) or not is_glyph(glyph)) {
+        return;
+    }
+
+    // If the current overlay texture changed, then we'll need to clear out any
+    // palettes that we've constructed. The indices of the glyph binding sites
+    // in the palette bank may have changed when we loaded a new texture.
+    if (custom_text_palette_source_texture and
+        custom_text_palette_source_texture not_eq current_overlay_texture) {
+
+        for (auto p = custom_text_palette_begin; p < custom_text_palette_end;
+             ++p) {
+            for (int i = 0; i < 16; ++i) {
+                BG_PALETTE[p * 16 + i] = 0;
+            }
+        }
+
+        custom_text_palette_source_texture = current_overlay_texture;
+    }
+
+    const auto default_colors = font_color_indices();
+
+    const auto fg_color_hash =
+        invoke_shader(Color(colors.foreground_), 1).bgr_hex_555();
+
+    const auto bg_color_hash =
+        invoke_shader(Color(colors.background_), 1).bgr_hex_555();
+
+    auto existing_mapping = [&]() -> std::optional<PaletteBank> {
+        for (auto i = custom_text_palette_begin; i < custom_text_palette_end;
+             ++i) {
+            if (BG_PALETTE[i * 16 + default_colors.fg_] == fg_color_hash and
+                BG_PALETTE[i * 16 + default_colors.bg_] == bg_color_hash) {
+
+                return i;
+            }
+        }
+        return {};
+    }();
+
+    if (existing_mapping) {
+        set_overlay_tile(*this, x, y, glyph, *existing_mapping);
+    } else {
+        const auto target = custom_text_palette_write_ptr;
+
+        BG_PALETTE[target * 16 + default_colors.fg_] = fg_color_hash;
+        BG_PALETTE[target * 16 + default_colors.bg_] = bg_color_hash;
+
+        set_overlay_tile(*this, x, y, glyph, target);
+
+        custom_text_palette_write_ptr =
+            ((target + 1) - custom_text_palette_begin) %
+                custom_text_palette_count +
+            custom_text_palette_begin;
+
+        if (custom_text_palette_write_ptr == custom_text_palette_begin) {
+            warning(*this, "wraparound in custom text palette alloc");
+        }
+    }
+}
+
+
+
+void Platform::set_palette(Layer layer, u16 x, u16 y, u16 palette)
+{
+    if (layer == Layer::map_1_ext) {
+        set_map_tile_16p_palette(sbb_t1_tiles, x, y, palette);
+    } else if (layer == Layer::map_0_ext) {
+        set_map_tile_16p_palette(sbb_t0_tiles, x, y, palette);
+    } else if (layer == Layer::overlay) {
+        auto t = get_tile(Layer::overlay, x, y);
+        set_overlay_tile(*this, x, y, t, palette);
+    }
+}
 
 
 void Platform::load_tile0_texture(const char* name)
@@ -1743,6 +1860,29 @@ void Vblank()
 Platform::Platform()
 {
     ::platform = this;
+
+    for (int i = 0; i < 16; ++i) {
+        BG_PALETTE[(15 * 16) + i] =
+            Color(custom_color(0xef0d54)).bgr_hex_555();
+    }
+    for (int i = 0; i < 16; ++i) {
+        BG_PALETTE[(14 * 16) + i] =
+            Color(custom_color(0x103163)).bgr_hex_555();
+    }
+    for (int i = 0; i < 16; ++i) {
+        BG_PALETTE[(13 * 16) + i] =
+            Color(ColorConstant::silver_white).bgr_hex_555();
+    }
+
+    load_tile0_texture("tilesheet");
+    for (int i = 0; i < 16; ++i) {
+        BG_PALETTE[(12 * 16) + i] = BG_PALETTE[i];
+
+        // When we started allowing players to design custom sprites, we needed
+        // to reserve a sprite palette and fill it with the same color values as
+        // the image editor uses for custom tile graphics.
+        SPRITE_PALETTE[16 + i] = BG_PALETTE[i];
+    }
 
     consoleDemoInit();
 

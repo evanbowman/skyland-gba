@@ -320,7 +320,7 @@ void describe_room(Platform& pfrm,
     if (room_description) {
         const u8 y = calc_screen_tiles(pfrm).y - 2;
 
-        for (int i = 0; i < 32; ++i) {
+        for (int i = 0; i < calc_screen_tiles(pfrm).x; ++i) {
             pfrm.set_tile(Layer::overlay, i, y, 0);
         }
 

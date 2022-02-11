@@ -134,7 +134,7 @@ u8 Room::default_palette()
 }
 
 
-
+o
 void Room::update(Platform& pfrm, App& app, Microseconds delta)
 {
     dispatch_queued_ = false;
