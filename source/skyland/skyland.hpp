@@ -59,7 +59,7 @@ public:
     Coins terrain_cost();
 
 
-    Camera& camera()
+    Boxed<Camera, Camera, 48>& camera()
     {
         return camera_;
     }
@@ -387,7 +387,7 @@ private:
     ScenePtr<Scene> next_scene_;
     Coins victory_coins_ = 0;
     Coins level_coins_spent_ = 0;
-    Camera camera_;
+    Boxed<Camera, Camera, 48> camera_;
     GameSpeed game_speed_ = GameSpeed::normal;
     int pause_count_ = 0;
     Rumble rumble_;

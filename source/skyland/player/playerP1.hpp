@@ -43,9 +43,26 @@ public:
     void key_held_distribute(Platform& pfrm) override;
 
 
+    std::optional<std::tuple<Vec2<u32>, Microseconds>>
+    touch_released(Platform& pfrm) override;
+
+
+    std::optional<Vec2<u32>> touch_current(Platform& pfrm) override;
+
+
+    bool touch_held(Microseconds duration) override;
+
+
+    void touch_consume() override;
+
+
 private:
     Microseconds last_key_ = 0;
 
+    Microseconds touch_held_time_ = 0;
+    Microseconds last_touch_held_time_ = 0;
+
+    bool touch_invalidate_ = false;
 
     Microseconds key_held_timers_[static_cast<int>(Key::count)];
 };

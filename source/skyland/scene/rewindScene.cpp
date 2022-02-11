@@ -166,7 +166,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-    app.camera().update(pfrm, app.player_island(), cursor_loc, delta, true);
+    app.camera()->update(pfrm, app, app.player_island(), cursor_loc, delta, true);
 
 
     const auto current_timestamp = app.level_timer().total();
@@ -345,7 +345,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     *e,
                     medium_explosion_inv)) {
                 v->set_variant(e->variant_);
-                app.camera().shake(8);
+                app.camera()->shake(8);
             }
             app.time_stream().pop(sizeof *e);
             break;
@@ -361,7 +361,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     *e,
                     medium_explosion_inv)) {
                 v->set_variant(e->variant_);
-                app.camera().shake(8);
+                app.camera()->shake(8);
             }
             app.time_stream().pop(sizeof *e);
             break;
@@ -372,7 +372,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::PlayerPluginProjectileDestroyed*)end;
             respawn_plugin_projectile(pfrm, app, &app.player_island(), *e);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(8);
+            app.camera()->shake(8);
             break;
         }
 
@@ -382,7 +382,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 (time_stream::event::OpponentPluginProjectileDestroyed*)end;
             respawn_plugin_projectile(pfrm, app, app.opponent_island(), *e);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(8);
+            app.camera()->shake(8);
             break;
         }
 
@@ -392,7 +392,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             respawn_basic_projectile<Cannonball>(
                 pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(8);
+            app.camera()->shake(8);
             break;
         }
 
@@ -402,7 +402,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             respawn_basic_projectile<Cannonball>(
                 pfrm, app, app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(8);
+            app.camera()->shake(8);
             break;
         }
 
@@ -412,7 +412,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             respawn_basic_projectile<ArcBolt>(
                 pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(8);
+            app.camera()->shake(8);
             break;
         }
 
@@ -422,7 +422,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             respawn_basic_projectile<ArcBolt>(
                 pfrm, app, app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(8);
+            app.camera()->shake(8);
             break;
         }
 
@@ -432,7 +432,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             respawn_basic_projectile<Flak>(
                 pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(8);
+            app.camera()->shake(8);
             break;
         }
 
@@ -442,7 +442,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             respawn_basic_projectile<Flak>(
                 pfrm, app, app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(8);
+            app.camera()->shake(8);
             break;
         }
 
@@ -452,7 +452,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             respawn_basic_projectile<IonBurst>(
                 pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(8);
+            app.camera()->shake(8);
             break;
         }
 
@@ -462,7 +462,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             respawn_basic_projectile<IonBurst>(
                 pfrm, app, app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(8);
+            app.camera()->shake(8);
             break;
         }
 
@@ -472,7 +472,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             respawn_basic_projectile<DecimatorBurst>(
                 pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(26);
+            app.camera()->shake(26);
             break;
         }
 
@@ -482,7 +482,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             respawn_basic_projectile<DecimatorBurst>(
                 pfrm, app, app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
-            app.camera().shake(26);
+            app.camera()->shake(26);
             break;
         }
 

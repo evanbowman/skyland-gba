@@ -1,6 +1,7 @@
 #include "camera.hpp"
 #include "island.hpp"
 #include "platform/platform.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -13,15 +14,24 @@ static const int view_y_min = -56;
 
 
 void Camera::update(Platform& pfrm,
+                    App& app,
                     Island& target,
                     const Vec2<u8>& cursor_loc,
                     Microseconds delta,
                     bool near)
 {
     auto view = pfrm.screen().get_view();
-    // auto center = view.get_center();
 
-    target_.y = (-((15 - (cursor_loc.y + 1)) * 16) / 2);
+
+
+    int base_offset;
+    if (pfrm.screen().size().y == 160) {
+        base_offset = 15;
+    } else {
+        base_offset = pfrm.screen().size().y / 12;
+    }
+
+    target_.y = (-((base_offset - (cursor_loc.y + 1)) * 16) / 2);
     target_.y = clamp(target_.y, view_y_min, 0);
 
     // Ok, so, about the x-anchoring for the camera. If we're the near camera,

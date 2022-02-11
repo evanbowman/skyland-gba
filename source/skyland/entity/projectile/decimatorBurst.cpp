@@ -124,7 +124,7 @@ void DecimatorBurst::on_collision(Platform& pfrm, App& app, Room& room)
 
 
     kill();
-    app.camera().shake(26);
+    app.camera()->shake(26);
     big_explosion(pfrm, app, sprite_.get_position());
 
     room.apply_damage(pfrm, app, decimator_burst_damage);
@@ -136,7 +136,7 @@ void DecimatorBurst::on_collision(Platform& pfrm, App& app, Entity& entity)
 {
     // Blows through drones, does not stop.
 
-    app.camera().shake(4);
+    app.camera()->shake(4);
 
     entity.apply_damage(pfrm, app, decimator_burst_damage);
 }

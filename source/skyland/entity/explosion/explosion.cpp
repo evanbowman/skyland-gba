@@ -87,7 +87,7 @@ void big_explosion(Platform& pfrm, App& app, const Vec2<Float>& position)
             });
         });
 
-    app.camera().shake(18);
+    app.camera()->shake(18);
 }
 
 
@@ -130,7 +130,7 @@ void big_explosion_inv(Platform& pfrm, App& app, const Vec2<Float>& position)
             });
         });
 
-    app.camera().shake(18);
+    app.camera()->shake(18);
 }
 
 

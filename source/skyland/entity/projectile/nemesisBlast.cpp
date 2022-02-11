@@ -113,7 +113,7 @@ void NemesisBlast::on_collision(Platform& pfrm, App& app, Room& room)
     timestream_record_destroyed(pfrm, app);
 
     kill();
-    app.camera().shake(2 + variant_ * 6);
+    app.camera()->shake(2 + variant_ * 6);
     if (variant_ < 2) {
         medium_explosion(pfrm, app, sprite_.get_position());
     } else {
@@ -135,7 +135,7 @@ void NemesisBlast::on_collision(Platform& pfrm, App& app, Entity& entity)
     timestream_record_destroyed(pfrm, app);
 
     kill();
-    app.camera().shake(2 + variant_ * 6);
+    app.camera()->shake(2 + variant_ * 6);
     medium_explosion(pfrm, app, sprite_.get_position());
 
     entity.apply_damage(pfrm, app, damage());

@@ -47,6 +47,95 @@
 
 
 
+struct alignas(4) ObjectAttributes {
+    u16 attribute_0;
+    u16 attribute_1;
+    u16 attribute_2;
+
+    s16 affine_transform;
+};
+
+
+// See documentation. Object memory provides thirty-two matrices for affine
+// transformation; the parameters nestled between every four objects.
+struct alignas(4) ObjectAffineMatrix {
+    ObjectAttributes o0;
+    ObjectAttributes o1;
+    ObjectAttributes o2;
+    ObjectAttributes o3;
+
+    auto& pa()
+    {
+        return o0.affine_transform;
+    }
+    auto& pb()
+    {
+        return o1.affine_transform;
+    }
+    auto& pc()
+    {
+        return o2.affine_transform;
+    }
+    auto& pd()
+    {
+        return o3.affine_transform;
+    }
+
+    void identity()
+    {
+        pa() = 0x0100l;
+        pb() = 0;
+        pc() = 0;
+        pd() = 0x0100;
+    }
+
+    void scale(s16 sx, s16 sy)
+    {
+        pa() = (1 << 8) - sx;
+        pb() = 0;
+        pc() = 0;
+        pd() = (1 << 8) - sy;
+    }
+
+    void rotate(s16 degrees)
+    {
+        // I have no recollection of why the shift by seven works. I saw some
+        // libraries shift by four, but that seemed not to work from what I
+        // remember. Everyone seems to use a different sine lookup table, might
+        // be the culprit.
+        const int ss = sine(degrees) >> 7;
+        const int cc = cosine(degrees) >> 7;
+
+        pa() = cc;
+        pb() = -ss;
+        pc() = ss;
+        pd() = cc;
+    }
+
+    void rot_scale(s16 degrees, s16 x, s16 y)
+    {
+        // FIXME: This code doesn't seem to work correctly yet...
+        const int ss = sine(degrees);
+        const int cc = cosine(degrees);
+
+        pa() = cc * x >> 12;
+        pb() = -ss * x >> 12;
+        pc() = ss * y >> 12;
+        pd() = cc * y >> 12;
+    }
+};
+
+
+namespace attr0_mask {
+constexpr u16 disabled{2 << 8};
+}
+
+
+
+static bool main_on_top = false;
+
+
+
 static const TextureData* current_spritesheet = &sprite_textures[0];
 static const TextureData* current_tilesheet0 = &tile_textures[0];
 static const TextureData* current_tilesheet1 = &tile_textures[1];
@@ -76,6 +165,25 @@ alignas(4) static u16 bg_palette_back_buffer[256];
 
 static u16 overlay_back_buffer[1024] alignas(u32);
 static bool overlay_back_buffer_changed = false;
+
+
+constexpr u32 oam_count = Platform::Screen::sprite_limit;
+static u32 last_oam_write_index = 0;
+static u32 oam_write_index = 0;
+
+
+static ObjectAttributes
+    object_attribute_back_buffer[Platform::Screen::sprite_limit];
+
+
+static auto affine_transform_back_buffer =
+    reinterpret_cast<ObjectAffineMatrix*>(object_attribute_back_buffer);
+
+
+static const u32 affine_transform_limit = 32;
+static u32 affine_transform_write_index = 0;
+static u32 last_affine_transform_write_index = 0;
+
 
 
 static Platform::Screen::Shader shader = passthrough_shader;
@@ -291,10 +399,208 @@ void Platform::restart()
 }
 
 
+s16 parallax_table[SCREEN_HEIGHT + 1];
+s16 vertical_parallax_table[SCREEN_HEIGHT + 1];
+
+
+
+
+//! General DMA transfer macro
+#define DMA_TRANSFER(_dst, _src, count, ch, mode)   \
+do {                                            \
+    REG_DMA[ch].cnt= 0;                         \
+    REG_DMA[ch].src= (const void*)(_src);       \
+    REG_DMA[ch].dst= (void*)(_dst);             \
+    REG_DMA[ch].cnt= (count) | (mode);          \
+} while(0)
+
+
+typedef struct DMA_REC
+{
+	const void *src;
+	void *dst;
+	u32 cnt;
+} DMA_REC;
+
+
+#define REG_BASE 0x04000000
+#define REG_DMA			((volatile DMA_REC*)(REG_BASE+0x00B0))	//!< DMA as DMA_REC array
+// #define DMA_ENABLE		0x80000000	//!< Enable DMA
+// #define DMA_REPEAT		0x02000000	//!< Repeat transfer at next start condition
+// #define DMA_AT_HBLANK	0x20000000	//!< Start transfer at HBlank
+#define DMA_DST_RELOAD	0x00600000	//!< Increment destination, reset after full run
+// NOTE: compared to the gba, some dma parameters are in slightly different
+// parts of the register!
+#define DMA_HDMA	(DMA_ENABLE | DMA_REPEAT | DMA_START_HBL | DMA_DST_INC | DMA_DST_RESET)
+
+
+
+
+
+static void vblank_full_transfer_scroll_isr()
+{
+    DMA_TRANSFER(&REG_BG3HOFS,
+                 &parallax_table[1], 1, 0, DMA_HDMA);
+
+    DMA_TRANSFER(&REG_BG3VOFS,
+                 &vertical_parallax_table[1],
+                 1,
+                 3,
+                 DMA_HDMA);
+}
+
+
+
+static void vblank_horizontal_transfer_scroll_isr()
+{
+    DMA_TRANSFER(&REG_BG3HOFS,
+                 &parallax_table[1], 1, 0, DMA_HDMA);
+
+    DMA_TRANSFER(&REG_BG3VOFS,
+                 &vertical_parallax_table[1],
+                 1,
+                 3,
+                 0);
+}
+
+
+
+
+void (*vblank_scroll_callback)() = vblank_full_transfer_scroll_isr;
+
+
 
 void* Platform::system_call(const char* feature_name, void* arg)
 {
-    // TODO...
+    if (str_eq(feature_name, "swap-screens")) {
+        if (main_on_top) {
+            main_on_top = false;
+            lcdMainOnBottom();
+        } else {
+            main_on_top = true;
+            lcdMainOnTop();
+        }
+    } if (str_cmp(feature_name, "_prlx7") == 0) {
+
+        if (not get_gflag(GlobalFlag::v_parallax)) {
+            auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
+            for (int i = 112 - offset; i < 128 - offset; ++i) {
+                u8 temp = ((u8)(intptr_t)arg) +
+                          screen_.get_view().get_center().cast<s32>().x / 3;
+                parallax_table[i] = temp;
+            }
+
+            for (int i = 0; i < 112 - offset; ++i) {
+                parallax_table[i] = 0;
+            }
+
+            // Fixme: clean up this code...
+            return nullptr;
+        }
+
+        auto offset =
+            screen_.get_view().get_center().cast<s32>().y / 2 * 0.5f + 3;
+
+        const auto x_amount =
+            ((u8)(intptr_t)arg) +
+            (screen_.get_view().get_center().cast<s32>().x / 3) * 0.8f;
+
+        for (int i = (112 - offset) - 30; i < 128 - offset; ++i) {
+            parallax_table[i] = x_amount;
+            vertical_parallax_table[i] = offset;
+        }
+
+        if (not get_gflag(GlobalFlag::palette_sync)) {
+            // NOTE: The palette sync is costly, don't bother to scroll this
+            // stuff if we're about to copy over the palette back buffer. During
+            // fades, the palettes are copied infrequently anyway.
+
+            s16 far_x_offset =
+                screen_.get_view().get_center().cast<s32>().x / 2 * 0.5f + 3;
+
+            s16 v_scroll = (offset * 6) / 2 + 24;
+
+            for (int i = 0; i < (112 - offset) - 30; ++i) {
+                parallax_table[i] = far_x_offset / 4;
+                if (i < -v_scroll) {
+                    // For scroll wrapping: We're doing a gradient effect here,
+                    // if the dithered tile gradient scrolls such that the
+                    // scroll wraps, then fill in the wrapped rows with the
+                    // pixels with zero offset scanlines, which use the darkest
+                    // gradient color. NOTE: this works because the amount of
+                    // background scrolling for the gradient does not exceed the
+                    // width of the darkest band of tiles in the gradient.
+                    vertical_parallax_table[i] = 0;
+                } else {
+                    vertical_parallax_table[i] = v_scroll;
+                }
+            }
+        }
+    } else if (str_cmp(feature_name, "_prlx8") == 0) {
+
+        if (not get_gflag(GlobalFlag::v_parallax)) {
+            auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
+            for (int i = 128 - offset; i < 160 - offset; ++i) {
+                u8 temp = ((u8)(intptr_t)arg) +
+                          screen_.get_view().get_center().cast<s32>().x / 3;
+                parallax_table[i] = temp;
+            }
+            return nullptr;
+        }
+
+        auto offset =
+            screen_.get_view().get_center().cast<s32>().y / 2 * 0.7f + 3;
+
+        const auto x_amount = ((u8)(intptr_t)arg) +
+                              screen_.get_view().get_center().cast<s32>().x / 3;
+
+        for (int i = 128 - offset; i < 160 - offset; ++i) {
+            parallax_table[i] = x_amount;
+            vertical_parallax_table[i] = offset;
+        }
+
+        for (int i = 160 - offset; i < SCREEN_HEIGHT; ++i) {
+            vertical_parallax_table[i] = -18 + -(i - (160 - offset));
+        }
+
+        // When the two layers of parallax scrolling diverge, there is a gap of
+        // unshifted pixels between them, which we need to account for.
+        // Otherwise, certain rows that were scrolled last time will not have
+        // their y-scroll adjusted, which can create graphical glitches.
+        auto other_row_offset =
+            screen_.get_view().get_center().cast<s32>().y / 2 * 0.5f + 3;
+
+        for (int i = 128 - other_row_offset; i < (128 - offset) - 1; ++i) {
+            // We put a layer of solid-colored tiles offscreen, and we scroll
+            // them up to fill the gap.
+            vertical_parallax_table[i] = 38;
+            parallax_table[i] = x_amount;
+        }
+
+
+    } else if (str_cmp(feature_name, "parallax-clouds") == 0) {
+
+        set_gflag(GlobalFlag::parallax_clouds, (bool)arg);
+
+        if ((bool)arg) {
+            vblank_scroll_callback = vblank_full_transfer_scroll_isr;
+            for (int i = 0; i < SCREEN_HEIGHT + 1; ++i) {
+                if (i < 140) {
+                    vertical_parallax_table[i] = 200;
+                } else {
+                    vertical_parallax_table[i] = 0;
+                }
+            }
+        }
+    } else if (str_cmp(feature_name, "v-parallax") == 0) {
+        set_gflag(GlobalFlag::v_parallax, (bool)arg);
+
+        if ((bool)arg) {
+            vblank_scroll_callback = vblank_full_transfer_scroll_isr;
+        } else {
+            vblank_scroll_callback = vblank_horizontal_transfer_scroll_isr;
+        }
+    }
 
     return nullptr;
 }
@@ -649,9 +955,164 @@ Platform::DeltaClock::DeltaClock()
 
 
 
+#define SE_PALBANK_MASK 0xF000
+#define SE_PALBANK_SHIFT 12
+#define SE_PALBANK(n) ((n) << SE_PALBANK_SHIFT)
+
+#define ATTR2_PALBANK_MASK 0xF000
+#define ATTR2_PALBANK_SHIFT 12
+#define ATTR2_PALBANK(n) ((n) << ATTR2_PALBANK_SHIFT)
+
+#define ATTR2_PRIO_SHIFT 10
+#define ATTR2_PRIO(n) ((n) << ATTR2_PRIO_SHIFT)
+
+// #define OBJ_SHAPE(m) ((m) << 14)
+// #define ATTR0_COLOR_16 (0 << 13)
+// #define ATTR0_COLOR_256 (1 << 13)
+// #define ATTR0_MOSAIC (1 << 12)
+// #define ATTR0_SQUARE OBJ_SHAPE(0)
+// #define ATTR0_TALL OBJ_SHAPE(2)
+// #define ATTR0_WIDE OBJ_SHAPE(1)
+#define ATTR0_BLEND 0x0400
+// #define ATTR1_SIZE_16 (1 << 14)
+// #define ATTR1_SIZE_32 (2 << 14)
+// #define ATTR1_SIZE_64 (3 << 14)
+// #define ATTR2_PALETTE(n) ((n) << 12)
+
+
+
 void Platform::Screen::draw(const Sprite& spr)
 {
-    // ...
+    if (UNLIKELY(spr.get_alpha() == Sprite::Alpha::transparent)) {
+        return;
+    }
+
+    // const auto& mix = spr.get_mix();
+
+
+    auto pb = 0; // [&]() -> PaletteBank {
+    //     if (UNLIKELY(mix.color_ not_eq ColorConstant::null)) {
+    //         if (const auto pal_bank = color_mix(mix.color_, mix.amount_)) {
+    //             return ATTR2_PALBANK(pal_bank);
+    //         } else {
+    //             return 0;
+    //         }
+    //     } else {
+    //         return 0;
+    //     }
+    // }();
+
+    if (spr.palette()) {
+        pb = ATTR2_PALBANK(spr.palette());
+    }
+
+    auto draw_sprite = [&](int tex_off, int x_off, int scale) {
+        if (UNLIKELY(oam_write_index == oam_count)) {
+            return;
+        }
+        const auto position =
+            spr.get_position().cast<s32>() - spr.get_origin().cast<s32>();
+
+        const auto view_center = view_.get_center().cast<s32>();
+        auto oa = object_attribute_back_buffer + oam_write_index;
+        if (spr.get_alpha() not_eq Sprite::Alpha::translucent) {
+            oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL;
+        } else {
+            oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL // | ATTR0_BLEND
+                ;
+        }
+        oa->attribute_1 = ATTR1_SIZE_32; // clear attr1
+
+        auto abs_position = position - view_center;
+
+        oa->attribute_0 &= (0xff00 & ~((1 << 8) | (1 << 9))); // clear attr0
+
+        if (spr.get_rotation() or spr.get_scale().x or spr.get_scale().y) {
+            if (affine_transform_write_index not_eq affine_transform_limit) {
+                auto& affine =
+                    affine_transform_back_buffer[affine_transform_write_index];
+
+                if (spr.get_rotation() and
+                    (spr.get_scale().x or spr.get_scale().y)) {
+                    affine.rot_scale(spr.get_rotation(),
+                                     spr.get_scale().x,
+                                     spr.get_scale().y);
+                } else if (spr.get_rotation()) {
+                    affine.rotate(spr.get_rotation());
+                } else {
+                    affine.scale(spr.get_scale().x, spr.get_scale().y);
+                }
+
+                oa->attribute_0 |= 1 << 8;
+                oa->attribute_0 |= 1 << 9;
+
+                abs_position.x -= 8;
+                abs_position.y -= 16;
+
+                oa->attribute_1 |= affine_transform_write_index << 9;
+
+                affine_transform_write_index += 1;
+            }
+        } else {
+            const auto& flip = spr.get_flip();
+            oa->attribute_1 |= ((int)flip.y << 13);
+            oa->attribute_1 |= ((int)flip.x << 12);
+        }
+
+        oa->attribute_0 |= abs_position.y & 0x00ff;
+
+        // if (not mix.amount_ and screen_pixelate_amount not_eq 0) {
+
+        //     oa->attribute_0 |= ATTR0_MOSAIC;
+        // }
+
+        oa->attribute_1 |= (abs_position.x + x_off) & 0x01ff;
+
+        auto ti = spr.get_texture_index();
+        // if (w16_h32_index > 125) {
+        //     ti = find_dynamic_mapping(w16_h32_index);
+        //     if (scale == 16) {
+        //         ti /= 2;
+        //     }
+        // }
+        const auto target_index = 2 + ti * scale + tex_off;
+        oa->attribute_2 = target_index;
+        oa->attribute_2 |= pb;
+        oa->attribute_2 |= ATTR2_PRIORITY(spr.get_priority());
+        oam_write_index += 1;
+    };
+
+    switch (spr.get_size()) {
+    case Sprite::Size::w32_h32:
+        // In order to fit the spritesheet into VRAM, the game draws
+        // sprites in 32x16 pixel chunks, although several sprites are
+        // really 32x32. 32x16 is easy to meta-tile for 1D texture
+        // mapping, and a 32x32 sprite can be represented as two 32x16
+        // sprites. If all sprites were 32x32, the spritesheet would
+        // not fit into the gameboy advance's video memory. 16x16
+        // would be even more compact, but would be inconvenient to
+        // work with from a art/drawing perspective. Maybe I'll write
+        // a script to reorganize the spritesheet into a Nx16 strip,
+        // and metatile as 2x2 gba tiles... someday.
+
+        // When a sprite is flipped, each of the individual 32x16 strips are
+        // flipped, and then we need to swap the drawing X-offsets, so that the
+        // second strip will be drawn first.
+        if (not spr.get_flip().x) {
+            draw_sprite(0, 0, 16);
+            draw_sprite(8, 16, 16);
+
+        } else {
+            draw_sprite(0, 16, 16);
+            draw_sprite(8, 0, 16);
+        }
+
+        break;
+
+    case Sprite::Size::w16_h32:
+        draw_sprite(0, 0, 8);
+        break;
+    }
 }
 
 
@@ -679,6 +1140,19 @@ void memcpy16(u16* dest, u16* src, int halfwords)
 
 void Platform::Screen::clear()
 {
+    touchPosition touch;
+
+    touchRead(&touch);
+
+    touch_.previous_ = touch_.current_;
+
+    const auto keys = keysHeld();
+    if (keys & KEY_TOUCH) {
+        touch_.current_ = {touch.px, touch.py};
+    } else {
+        touch_.current_.reset();
+    }
+
     swiWaitForVBlank();
 
     auto view_offset = view_.get_center().cast<s32>();
@@ -713,6 +1187,48 @@ void Platform::Screen::display()
         memcpy16(bgGetMapPtr(0),
                  (u16*)overlay_back_buffer,
                  (sizeof overlay_back_buffer) / 2);
+    }
+
+    for (u32 i = oam_write_index; i < last_oam_write_index; ++i) {
+        // Disable affine transform for unused sprite
+        object_attribute_back_buffer[i].attribute_0 &= ~((1 << 8) | (1 << 9));
+        object_attribute_back_buffer[i].attribute_1 = 0;
+
+        object_attribute_back_buffer[i].attribute_0 |= attr0_mask::disabled;
+    }
+
+    for (u32 i = affine_transform_write_index;
+         i < last_affine_transform_write_index;
+         ++i) {
+
+        auto& affine = affine_transform_back_buffer[i];
+        affine.pa() = 0;
+        affine.pb() = 0;
+        affine.pc() = 0;
+        affine.pd() = 0;
+    }
+
+    memcpy16(OAM,
+             (u16*)object_attribute_back_buffer,
+             (sizeof object_attribute_back_buffer) / 2);
+
+
+    last_affine_transform_write_index = affine_transform_write_index;
+    affine_transform_write_index = 0;
+
+    last_oam_write_index = oam_write_index;
+    oam_write_index = 0;
+
+}
+
+
+
+const Platform::Screen::Touch* Platform::Screen::touch() const
+{
+    if (not main_on_top) {
+        return &touch_;
+    } else {
+        return nullptr;
     }
 }
 
@@ -1033,7 +1549,7 @@ Platform::Screen::Screen()
     // clang-format off
 
     REG_DISPCNT = MODE_0_2D
-        | DISPLAY_SPR_1D_LAYOUT
+        | SpriteMapping_1D_32
         | DISPLAY_BG0_ACTIVE
         | DISPLAY_BG1_ACTIVE
         | DISPLAY_BG2_ACTIVE
@@ -1045,12 +1561,12 @@ Platform::Screen::Screen()
     bgInit(2, BgType_Text4bpp, BgSize_T_512x256, sbb_t1_tiles, cbb_t1_texture);
     bgInit(3, BgType_Text4bpp, BgSize_T_256x256, sbb_bg_tiles, cbb_background_texture);
 
+
     View view;
     view.set_size(size().cast<Float>());
     set_view(view);
 
     // clang-format on
-
 
     lcdMainOnBottom();
 }
@@ -1059,7 +1575,31 @@ Platform::Screen::Screen()
 
 void Platform::load_sprite_texture(const char* name)
 {
+    for (auto& info : sprite_textures) {
 
+        if (str_cmp(name, info.name_) == 0) {
+
+            current_spritesheet = &info;
+
+            init_palette(current_spritesheet, sprite_palette, 16);
+
+            // NOTE: There are four tile blocks, so index four points to the
+            // end of the tile memory.
+            memcpy16(SPRITE_GFX,
+                     (u16*)info.tile_data_,
+                     std::min((u32)16128, info.tile_data_length_ / 2));
+
+            // We need to do this, otherwise whatever screen fade is currently
+            // active will be overwritten by the copy.
+            const auto c = invoke_shader(Color(last_color), 16);
+            for (int i = 0; i < 16; ++i) {
+                auto from = Color::from_bgr_hex_555(sprite_palette[i]);
+                SPRITE_PALETTE[i] = blend(from, c, last_fade_amt);
+            }
+
+            return;
+        }
+    }
 }
 
 
@@ -1563,32 +2103,6 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Touch
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-
-void Platform::Touch::poll()
-{
-    touchPosition touch;
-
-    touchRead(&touch);
-
-    previous_ = current_;
-
-    const auto keys = keysHeld();
-    if (keys & KEY_TOUCH) {
-        current_ = {touch.px, touch.py};
-    } else {
-        current_.reset();
-    }
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-//
 // Keyboard
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -1613,6 +2127,7 @@ void Platform::Keyboard::poll()
     states_[(int)Key::alt_2] = keys & KEY_R;
     states_[(int)Key::action_1] = keys & KEY_A;
     states_[(int)Key::action_2] = keys & KEY_B;
+    states_[(int)Key::action_4] = keys & KEY_X;
 }
 
 
@@ -1873,13 +2388,9 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 
 
 
-volatile int frame = 0;
-
-
-
-void Vblank()
+void vblank_isr()
 {
-    frame++;
+    vblank_scroll_callback();
 }
 
 
@@ -1917,7 +2428,7 @@ Platform::Platform()
         fatal("failed to mount filesystem!");
     }
 
-    irqSet(IRQ_VBLANK, Vblank);
+    irqSet(IRQ_VBLANK, vblank_isr);
 }
 
 

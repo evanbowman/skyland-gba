@@ -81,7 +81,7 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
         auto island = other_island(app);
 
         if (island and not island->is_destroyed()) {
-            app.camera().shake(4);
+            app.camera()->shake(4);
 
             auto start = center();
 

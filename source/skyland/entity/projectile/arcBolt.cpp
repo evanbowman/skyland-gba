@@ -150,7 +150,7 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
 
 
     kill();
-    app.camera().shake(8);
+    app.camera()->shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
     struct Temp {

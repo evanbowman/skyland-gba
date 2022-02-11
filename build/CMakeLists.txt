@@ -79,7 +79,6 @@ set(SOURCES
   ${SOURCE_DIR}/collision.cpp
   ${SOURCE_DIR}/tileMap.cpp
   ${SOURCE_DIR}/globals.cpp
-  ${SOURCE_DIR}/camera.cpp
   ${SOURCE_DIR}/string.cpp
   ${SOURCE_DIR}/start.cpp
   ${SOURCE_DIR}/path.cpp)
@@ -94,6 +93,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/paint.cpp
   ${SOURCE_DIR}/skyland/sound.cpp
   ${SOURCE_DIR}/skyland/camera.cpp
+  ${SOURCE_DIR}/skyland/touchscreenFreeformCamera.cpp
   ${SOURCE_DIR}/skyland/serial.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/network.cpp

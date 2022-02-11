@@ -1415,6 +1415,15 @@ void Platform::stackcheck()
 
 
 
+const Platform::Screen::Touch* Platform::Screen::touch() const
+{
+    // No touchscreen on the gba!
+    return nullptr;
+}
+
+
+
+
 void Platform::Screen::clear()
 {
     // NOTE: because our logging vector is backed by scratch buffers,

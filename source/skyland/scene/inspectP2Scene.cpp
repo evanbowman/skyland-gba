@@ -47,6 +47,20 @@ void describe_room(Platform& pfrm,
 
 
 
+std::tuple<u8, u8, Island*> touch_check_island_clicked(Platform& pfrm,
+                                                       App& app,
+                                                       const Vec2<u32>& pos);
+
+
+
+ScenePtr<Scene> player_island_onclick(Platform& pfrm,
+                                      App& app,
+                                      Microseconds& camera_update_timer,
+                                      std::optional<Text>& room_description,
+                                      const Vec2<u8>& pos);
+
+
+
 ScenePtr<Scene>
 InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -110,6 +124,58 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             ++cursor_loc.y;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
+        }
+    }
+
+
+    if (app.player().touch_held(milliseconds(200))) {
+        if (auto pos = app.player().touch_current(pfrm)) {
+            const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
+            auto island_pos = app.opponent_island()->get_position();
+            island_pos.x -= view_offset.x;
+            island_pos.y -= view_offset.y;
+
+            if (pos->x >= island_pos.x and
+                pos->x <= island_pos.x + app.opponent_island()->terrain().size() * 16) {
+
+                int x_tile = -((island_pos.x - pos->x) / 16);
+                int y_tile = -((island_pos.y - pos->y) / 16);
+
+                y_tile += 31; // FIXME!
+
+                cursor_loc = {(u8)x_tile, (u8)y_tile};
+                camera_update_timer_ = milliseconds(500);
+            }
+        }
+    }
+
+
+    if (auto pos = app.player().tap_released(pfrm)) {
+        auto [x, y, island] = touch_check_island_clicked(pfrm, app, *pos);
+
+        if (island == &app.player_island()) {
+            if (auto scene = player_island_onclick(pfrm,
+                                                   app,
+                                                   camera_update_timer_,
+                                                   room_description_,
+                                                   {x, y})) {
+                return scene;
+            } else {
+                std::get<SkylandGlobalData>(globals()).near_cursor_loc_ = {x, y};
+                return scene_pool::alloc<ReadyScene>();
+            }
+        } else if (island == app.opponent_island()) {
+            camera_update_timer_ = milliseconds(500);
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {x, y};
+        } else if (island == nullptr) {
+            const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
+            auto island_pos = app.opponent_island()->get_position();
+            island_pos.x -= view_offset.x;
+
+            if (pos->x < island_pos.x) {
+                std::get<SkylandGlobalData>(globals()).near_cursor_loc_ = {0, cursor_loc.y};
+                return scene_pool::alloc<ReadyScene>();
+            }
         }
     }
 

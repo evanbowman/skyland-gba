@@ -43,7 +43,6 @@ class Platform {
 public:
     class Screen;
     class Keyboard;
-    class Touch;
     class Logger;
     class Speaker;
     class NetworkPeer;
@@ -91,10 +90,6 @@ public:
         return keyboard_;
     }
 
-    inline Touch& touch()
-    {
-        return touch_;
-    }
 
     inline Logger& logger()
     {
@@ -388,9 +383,40 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
 
+
     class Screen {
     public:
         static constexpr u32 sprite_limit = 128;
+
+
+        class Touch {
+        public:
+
+            std::optional<Vec2<u32>> read() const
+            {
+                return current_;
+            }
+
+
+            std::optional<Vec2<u32>> up_transition() const
+            {
+                if (not current_ and previous_) {
+                    return previous_;
+                }
+
+                return {};
+            }
+
+
+        private:
+            friend class Screen;
+            std::optional<Vec2<u32>> current_;
+            std::optional<Vec2<u32>> previous_;
+        };
+
+
+        const Touch* touch() const;
+
 
         void draw(const Sprite& spr);
 
@@ -453,6 +479,7 @@ public:
 
         View view_;
         void* userdata_;
+        Touch touch_;
     };
 
 
@@ -560,39 +587,6 @@ public:
         KeyStates prev_;
         KeyStates states_;
     };
-
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Touch
-    ////////////////////////////////////////////////////////////////////////////
-
-
-    class Touch {
-    public:
-
-
-        void poll();
-
-
-        std::optional<Vec2<u32>> read() const
-        {
-            return current_;
-        }
-
-
-        std::optional<Vec2<u32>> up_transition() const
-        {
-            if (not current_ and previous_) {
-                return previous_;
-            }
-        }
-
-
-    private:
-        std::optional<Vec2<u32>> current_;
-        std::optional<Vec2<u32>> previous_;
-    };
-
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -790,7 +784,6 @@ private:
     RemoteConsole console_;
     Screen screen_;
     Keyboard keyboard_;
-    Touch touch_;
     Speaker speaker_;
     Logger logger_;
     Data* data_ = nullptr;

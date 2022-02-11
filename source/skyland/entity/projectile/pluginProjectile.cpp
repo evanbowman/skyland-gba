@@ -110,7 +110,7 @@ void PluginProjectile::on_collision(Platform& pfrm, App& app, Room& room)
     timestream_record_destroyed(pfrm, app);
 
     kill();
-    app.camera().shake(8);
+    app.camera()->shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
     room.apply_damage(pfrm, app, damage_);
@@ -157,7 +157,7 @@ void PluginProjectile::on_collision(Platform& pfrm, App& app, Entity& entity)
     timestream_record_destroyed(pfrm, app);
 
     kill();
-    app.camera().shake(8);
+    app.camera()->shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
     entity.apply_damage(pfrm, app, damage_);

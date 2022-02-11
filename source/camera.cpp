@@ -7,6 +7,7 @@ void Camera::update(Platform& pfrm,
                     Microseconds dt,
                     const Vec2<Float>& seek_pos)
 {
+
     const auto& screen_size = pfrm.screen().size();
     auto view = pfrm.screen().get_view();
 

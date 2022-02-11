@@ -88,6 +88,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.screen().schedule_fade(1.f);
     const int offset = 64;
 
+    app.camera().emplace<Camera>();
+
     app.swap_player<PlayerP1>();
 
     init_clouds(pfrm);
@@ -383,6 +385,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     hover_timer_ += delta;
 
     pong_.update();
+
+    if (app.player().key_down(pfrm, Key::action_4)) {
+        pfrm.system_call("swap-screens", nullptr);
+    }
 
     {
         ambient_movement_ =

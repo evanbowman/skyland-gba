@@ -51,7 +51,7 @@ void IonCannon::fire(Platform& pfrm, App& app)
     target = origin;
 
 
-    app.camera().shake(4);
+    app.camera()->shake(4);
 
     auto start = center();
 

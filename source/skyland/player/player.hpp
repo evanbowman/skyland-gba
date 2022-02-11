@@ -3,6 +3,7 @@
 
 #include "number/numeric.hpp"
 #include "platform/key.hpp"
+#include <tuple>
 
 
 
@@ -109,6 +110,44 @@ public:
             key_held_reset(k, held_decrement);
             return true;
         }
+        return false;
+    }
+
+
+    virtual std::optional<std::tuple<Vec2<u32>, Microseconds>>
+    touch_released(Platform& pfrm)
+    {
+        return {};
+    }
+
+
+    std::optional<Vec2<u32>> tap_released(Platform& pfrm)
+    {
+        auto info = touch_released(pfrm);
+        if (info and std::get<1>(*info) < milliseconds(350)) {
+            return std::get<0>(*info);
+        }
+        return {};
+    }
+
+
+    // This method should be implemented (if applicable) to detach whatever
+    // touch event is currently attached to the player. Used to prevent multiple
+    // codepaths from registering a touch event which already triggered some
+    // other behavior.
+    virtual void touch_consume()
+    {
+    }
+
+
+    virtual std::optional<Vec2<u32>> touch_current(Platform& pfrm)
+    {
+        return {};
+    }
+
+
+    virtual bool touch_held(Microseconds duration)
+    {
         return false;
     }
 

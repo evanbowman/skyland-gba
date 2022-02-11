@@ -1015,7 +1015,7 @@ static const lisp::Binding script_api[] = {
                                  "integer in slot one");
              }
 
-             app.camera().shake(4);
+             app.camera()->shake(4);
 
              cannon_sound.play(pfrm, 3);
 
@@ -1050,7 +1050,7 @@ static const lisp::Binding script_api[] = {
         }                                                                      \
     }
 
-         app.camera().shake(4);
+         app.camera()->shake(4);
 
          // clang-format off
 

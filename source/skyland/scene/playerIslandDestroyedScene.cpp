@@ -585,7 +585,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             auto vc = pfrm.screen().get_view().get_center();
 
-            app.camera().shake(3);
+            app.camera()->shake(3);
 
             confetti_ = allocate_dynamic<ConfettiBuffer>(pfrm);
             if (confetti_ and *confetti_) {
@@ -622,7 +622,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             auto vc = pfrm.screen().get_view().get_center();
 
-            app.camera().shake(3);
+            app.camera()->shake(3);
 
             for (int i = 0; i < 18; ++i) {
                 (*confetti_)

@@ -131,7 +131,7 @@ public:
                         auto c = app.alloc_entity<Cannonball>(
                             pfrm, start, target, parent(), position());
                         if (c) {
-                            app.camera().shake(4);
+                            app.camera()->shake(4);
                             parent()->projectiles().push(std::move(c));
                         }
                         timer_ = 0;

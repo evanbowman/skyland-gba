@@ -58,7 +58,7 @@ void Nemesis::fire(Platform& pfrm, App& app)
     origin.y += target_->y * 16 + 8;
     target = origin;
 
-    app.camera().shake(4);
+    app.camera()->shake(4);
 
     auto start = center();
 

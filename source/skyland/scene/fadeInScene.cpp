@@ -4,6 +4,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/touchscreenFreeformCamera.hpp"
 
 
 
@@ -41,6 +42,10 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
             time_stream::event::Initial e;
             app.time_stream().push(pfrm, app.level_timer(), e);
         }
+
+        // if (pfrm.screen().touch()) {
+        //     app.camera().emplace<TouchscreenFreeformCamera>();
+        // }
 
         pfrm.screen().fade(0.f);
         auto future_scene = scene_pool::make_deferred_scene<ReadyScene>();

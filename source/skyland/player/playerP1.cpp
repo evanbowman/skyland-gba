@@ -1,6 +1,7 @@
 #include "playerP1.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/touchscreenFreeformCamera.hpp"
 
 
 
@@ -73,6 +74,22 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
 
     } else /* not a tutorial level */ {
 
+        if (auto t = pfrm.screen().touch()) {
+            if (auto pos = t->read()) {
+                touch_held_time_ += delta;
+            } else {
+                last_touch_held_time_ = touch_held_time_;
+                touch_held_time_ = 0;
+            }
+        } else {
+            last_touch_held_time_ = touch_held_time_;
+            touch_held_time_ = 0;
+        }
+
+
+        touch_invalidate_ = false;
+
+
         // Our tutorial keylogger does not log press&held, so we should not
         // record held keys unless the keylogger is off.
 
@@ -83,11 +100,20 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
                 key_held_timers_[i] = 0;
             }
         }
+
+        if (pfrm.keyboard().down_transition<Key::up, Key::down, Key::left, Key::right>()) {
+            app.camera()->reset_default(app);
+        }
     }
 
-
-
     last_key_ += delta;
+}
+
+
+
+void PlayerP1::touch_consume()
+{
+    touch_invalidate_ = true;
 }
 
 
@@ -166,6 +192,48 @@ void PlayerP1::key_held_distribute(Platform& pfrm)
             key_held_timers_[i] = max;
         }
     }
+}
+
+
+
+std::optional<std::tuple<Vec2<u32>, Microseconds>>
+PlayerP1::touch_released(Platform& pfrm)
+{
+    if (touch_invalidate_) {
+        return {};
+    }
+
+    if (auto t = pfrm.screen().touch()) {
+        if (auto pos = t->up_transition()) {
+            return std::make_tuple(*pos, last_touch_held_time_);
+        }
+    }
+    return {};
+}
+
+
+
+std::optional<Vec2<u32>> PlayerP1::touch_current(Platform& pfrm)
+{
+    if (touch_invalidate_) {
+        return {};
+    }
+
+    if (auto t = pfrm.screen().touch()) {
+        return t->read();
+    }
+    return {};
+}
+
+
+
+bool PlayerP1::touch_held(Microseconds duration)
+{
+    if (touch_invalidate_) {
+        return false;
+    }
+
+    return touch_held_time_ >= duration;
 }
 
 

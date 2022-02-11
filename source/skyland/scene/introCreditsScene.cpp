@@ -51,7 +51,9 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             }
         }
     } else if (text_) {
-        if (timer_ > seconds(4) or key_down<Key::action_2>(pfrm)) {
+        auto t = pfrm.screen().touch();
+        if (timer_ > seconds(4) or key_down<Key::action_2>(pfrm) or
+            t->up_transition()) {
             text_.reset();
             timer_ = 0;
         }

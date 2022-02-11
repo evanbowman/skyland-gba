@@ -16,6 +16,7 @@
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/touchscreenFreeformCamera.hpp"
 
 
 
@@ -259,17 +260,30 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    auto tapped_topright_corner = [&] {
+        if (auto pos = app.player().tap_released(pfrm)) {
+            auto sz = pfrm.screen().size();
+            if (pos->x > sz.x - 36 and pos->y < 36) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+
     if (pfrm.network_peer().is_connected()) {
         // We don't allow pausing during multiplayer games yet. Makes things
         // simpler.
         set_gamespeed(pfrm, app, GameSpeed::normal);
-    } else if (app.player().key_up(pfrm, Key::alt_1)) {
+    } else if (app.player().key_up(pfrm, Key::alt_1) or
+               tapped_topright_corner()) {
         if (app.game_speed() not_eq GameSpeed::stopped) {
             app.pause_count()++;
             set_gamespeed(pfrm, app, GameSpeed::stopped);
         } else {
             set_gamespeed(pfrm, app, GameSpeed::normal);
         }
+        app.player().touch_consume();
     } else if (app.player().key_pressed(pfrm, Key::alt_1)) {
         set_gamespeed_keyheld_timer_ += delta;
         if (set_gamespeed_keyheld_timer_ > milliseconds(300)) {
@@ -340,7 +354,11 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         camera_update_timer_ = milliseconds(500);
     }
 
-    if (app.camera().is_shaking() or camera_update_timer_ > 0) {
+    if (app.camera()->is_shaking() or
+        camera_update_timer_ > 0 or
+        app.player().touch_current(pfrm) or
+        app.camera()->always_update(pfrm)) {
+
         camera_update_timer_ -= delta;
         camera_update_timer_ = std::max((int)camera_update_timer_, 0);
 
@@ -356,14 +374,16 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.opponent_island() and UNLIKELY(far_camera_)) {
             auto& cursor_loc =
                 std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
-            app.camera().update(
-                pfrm, *app.opponent_island(), cursor_loc, delta, false);
+            app.camera()->update(pfrm, app, *app.opponent_island(), cursor_loc, delta, false);
         } else {
             auto& cursor_loc =
                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-            app.camera().update(
-                pfrm, app.player_island(), cursor_loc, delta, true);
+            app.camera()->update(pfrm, app, app.player_island(), cursor_loc, delta, true);
         }
+    }
+
+    if (app.player().key_down(pfrm, Key::action_4)) {
+        pfrm.system_call("swap-screens", nullptr);
     }
 
 

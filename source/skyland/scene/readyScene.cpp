@@ -49,6 +49,88 @@ void clear_room_description(Platform& pfrm,
 
 
 
+std::tuple<u8, u8, Island*> touch_check_island_clicked(Platform& pfrm,
+                                                       App& app,
+                                                       const Vec2<u32>& pos)
+{
+    const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
+
+    {
+        auto island_pos = app.player_island().get_position();
+        island_pos.x -= view_offset.x;
+        island_pos.y -= view_offset.y;
+
+        if (pos.x >= island_pos.x and
+            pos.x <= island_pos.x + app.player_island().terrain().size() * 16) {
+
+            int x_tile = -((island_pos.x - pos.x) / 16);
+            int y_tile = -((island_pos.y - pos.y) / 16);
+
+            y_tile += 31; // FIXME!
+
+            return std::make_tuple((u8)x_tile, (u8)y_tile, &app.player_island());
+        }
+    }
+
+    if (app.opponent_island()) {
+        auto island_pos = app.opponent_island()->get_position();
+        island_pos.x -= view_offset.x;
+        island_pos.y -= view_offset.y;
+
+        if (pos.x >= island_pos.x and
+            pos.x <= island_pos.x + app.opponent_island()->terrain().size() * 16) {
+
+            int x_tile = -((island_pos.x - pos.x) / 16);
+            int y_tile = -((island_pos.y - pos.y) / 16);
+
+            y_tile += 31; // FIXME!
+
+            return std::make_tuple((u8)x_tile, (u8)y_tile, app.opponent_island());
+        }
+    }
+
+    return std::make_tuple(0, 0, nullptr);
+}
+
+
+
+ScenePtr<Scene> player_island_onclick(Platform& pfrm,
+                                      App& app,
+                                      Microseconds& camera_update_timer,
+                                      std::optional<Text>& room_description,
+                                      const Vec2<u8>& pos) {
+    if (auto room = app.player_island().get_room(pos)) {
+        if (auto scene = room->select(pfrm, app)) {
+            return scene;
+        } else if (auto db = dynamic_cast<DroneBay*>(room)) {
+            if (auto drone = db->drone()) {
+                // If a user selects a drone bay with a drone already
+                // attached, jump the cursor to the drone's location.
+                camera_update_timer = milliseconds(500);
+                clear_room_description(pfrm, room_description);
+                if ((*drone)->destination() == &app.player_island()) {
+                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_ =
+                        (*drone)->position();
+                } else {
+                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_ =
+                        (*drone)->position();
+                    return scene_pool::alloc<InspectP2Scene>();
+                }
+            }
+        } else {
+            return null_scene();
+        }
+    } else if (auto drone = app.player_island().get_drone(pos)) {
+        if ((*drone)->parent() == &app.player_island()) {
+            return (*drone)->select(pfrm, app);
+        }
+    }
+
+    return null_scene();
+}
+
+
+
 ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
@@ -133,31 +215,67 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         cursor_anim_frame_ = not cursor_anim_frame_;
     }
 
-    if (app.player().key_down(pfrm, Key::action_1)) {
-        if (auto room = app.player_island().get_room(cursor_loc)) {
-            if (auto scene = room->select(pfrm, app)) {
+
+    if (app.player().touch_held(milliseconds(200))) {
+        if (auto pos = app.player().touch_current(pfrm)) {
+            const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
+            auto island_pos = app.player_island().get_position();
+            island_pos.x -= view_offset.x;
+            island_pos.y -= view_offset.y;
+
+            if (pos->x >= island_pos.x and
+                pos->x <= island_pos.x + app.player_island().terrain().size() * 16) {
+
+                int x_tile = -((island_pos.x - pos->x) / 16);
+                int y_tile = -((island_pos.y - pos->y) / 16);
+
+                y_tile += 31; // FIXME!
+
+                cursor_loc = {(u8)x_tile, (u8)y_tile};
+                camera_update_timer_ = milliseconds(500);
+            } else if (pos->x > island_pos.x) {
+                std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {0, cursor_loc.y};
+                return scene_pool::alloc<InspectP2Scene>();
+            }
+        }
+    }
+
+    if (auto pos = app.player().tap_released(pfrm)) {
+        auto [x, y, island] = touch_check_island_clicked(pfrm, app, *pos);
+
+        if (island == &app.player_island()) {
+            if (auto scene = player_island_onclick(pfrm,
+                                                   app,
+                                                   camera_update_timer_,
+                                                   room_description_,
+                                                   {x, y})) {
                 return scene;
-            } else if (auto db = dynamic_cast<DroneBay*>(room)) {
-                if (auto drone = db->drone()) {
-                    // If a user selects a drone bay with a drone already
-                    // attached, jump the cursor to the drone's location.
-                    camera_update_timer_ = milliseconds(500);
-                    clear_room_description(pfrm, room_description_);
-                    if ((*drone)->destination() == &app.player_island()) {
-                        cursor_loc = (*drone)->position();
-                    } else {
-                        std::get<SkylandGlobalData>(globals()).far_cursor_loc_ =
-                            (*drone)->position();
-                        return scene_pool::alloc<InspectP2Scene>();
-                    }
-                }
             } else {
-                return null_scene();
+                cursor_loc = {x, y};
+                camera_update_timer_ = milliseconds(500);
             }
-        } else if (auto drone = app.player_island().get_drone(cursor_loc)) {
-            if ((*drone)->parent() == &app.player_island()) {
-                return (*drone)->select(pfrm, app);
+        } else if (island == app.opponent_island()) {
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {x, y};
+            return scene_pool::alloc<InspectP2Scene>();
+        } else if (island == nullptr) {
+            const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
+            auto island_pos = app.player_island().get_position();
+            island_pos.x -= view_offset.x;
+
+            if (pos->x >= island_pos.x + app.player_island().terrain().size() * 16 + 32) {
+                std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {0, cursor_loc.y};
+                return scene_pool::alloc<InspectP2Scene>();
             }
+        }
+    }
+
+    if (app.player().key_down(pfrm, Key::action_1)) {
+        if (auto scene = player_island_onclick(pfrm,
+                                               app,
+                                               camera_update_timer_,
+                                               room_description_,
+                                               cursor_loc)) {
+            return scene;
         }
     }
 

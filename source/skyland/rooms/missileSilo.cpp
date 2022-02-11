@@ -78,7 +78,7 @@ void MissileSilo::fire(Platform& pfrm, App& app)
     auto start = center();
     start.y -= 24;
 
-    app.camera().shake(6);
+    app.camera()->shake(6);
 
     auto m = app.alloc_entity<Missile>(
         pfrm, start, target, position().x, position().y, parent());

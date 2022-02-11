@@ -26,6 +26,12 @@ void clear_room_description(Platform& pfrm,
 
 
 
+std::tuple<u8, u8, Island*> touch_check_island_clicked(Platform& pfrm,
+                                                       App& app,
+                                                       const Vec2<u32>& pos);
+
+
+
 WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc,
                                            bool near,
                                            std::optional<Vec2<u8>> initial_pos)
@@ -108,7 +114,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                 describe_room_timer_ = milliseconds(300);
             }
         }
-        if (test_key(Key::action_1)) {
+
+        auto onclick = [&](Vec2<u8> cursor_loc) -> ScenePtr<Scene> {
             if (app.opponent_island()->get_room(cursor_loc)) {
 
                 if (auto room = app.player_island().get_room(weapon_loc_)) {
@@ -159,7 +166,27 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
             }
+            return null_scene();
+        };
+
+        if (test_key(Key::action_1)) {
+            if (auto scene = onclick(cursor_loc)) {
+                return scene;
+            }
         }
+        if (auto pos = app.player().tap_released(pfrm)) {
+            auto [x, y, island] = touch_check_island_clicked(pfrm, app, *pos);
+            if (island == app.opponent_island()) {
+                if (auto scene = onclick({x, y})) {
+                    return scene;
+                } else {
+                    return scene_pool::alloc<ReadyScene>();
+                }
+            } else {
+                return scene_pool::alloc<ReadyScene>();
+            }
+        }
+
     } else {
         cursor_loc.x = targets_[selector_].x;
         cursor_loc.y = targets_[selector_].y;

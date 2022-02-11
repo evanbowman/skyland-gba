@@ -12,17 +12,23 @@ namespace skyland {
 
 
 
+class App;
 class Island;
 
 
 
 class Camera {
 public:
-    void update(Platform& pfrm,
-                Island& target,
-                const Vec2<u8>& cursor_loc,
-                Microseconds delta,
-                bool near);
+
+    virtual ~Camera() {}
+
+
+    virtual void update(Platform& pfrm,
+                        App& app,
+                        Island& target,
+                        const Vec2<u8>& cursor_loc,
+                        Microseconds delta,
+                        bool near);
 
 
 
@@ -42,7 +48,18 @@ public:
     }
 
 
-private:
+    virtual bool always_update(Platform& pfrm)
+    {
+        return false;
+    }
+
+
+    virtual void reset_default(App& app)
+    {
+    }
+
+
+protected:
     Vec2<int> target_;
     Vec2<Float> current_;
 

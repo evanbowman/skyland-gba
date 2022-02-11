@@ -70,7 +70,7 @@ void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     app.game_mode() = App::GameMode::sandbox;
 
-    app.camera().reset();
+    app.camera()->reset();
     pfrm.screen().set_view({});
 
     pfrm.load_overlay_texture("overlay_challenges");

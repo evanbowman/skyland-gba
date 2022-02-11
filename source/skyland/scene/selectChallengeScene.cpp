@@ -198,7 +198,7 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::fade_out: {
         constexpr auto fade_duration = milliseconds(800);
         if (timer_ > fade_duration) {
-            app.camera().reset();
+            app.camera()->reset();
             pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
             auto index = page_ * 5 + cursor_;
             auto choice = lisp::get_list(*challenges_, index);
