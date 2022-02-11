@@ -1050,6 +1050,9 @@ Platform::Screen::Screen()
     set_view(view);
 
     // clang-format on
+
+
+    lcdMainOnBottom();
 }
 
 
@@ -1554,6 +1557,23 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
         }
     }
     return bad_glyph;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Touch
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+void Platform::Touch::poll()
+{
+    touchPosition touch;
+
+    touchRead(&touch);
 }
 
 

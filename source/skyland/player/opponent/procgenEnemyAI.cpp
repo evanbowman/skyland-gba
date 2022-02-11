@@ -42,7 +42,7 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
     } else if (not level_text_) {
         level_text_.emplace(
             pfrm,
-            OverlayCoord{u8(30 - integer_text_length(levelgen_enemy_count_)),
+            OverlayCoord{u8(calc_screen_tiles(pfrm).x - integer_text_length(levelgen_enemy_count_)),
                          0});
     } else {
         level_text_->assign(levelgen_enemy_count_);
@@ -161,7 +161,7 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     level_text_.emplace(
         pfrm,
-        OverlayCoord{u8(30 - integer_text_length(levelgen_enemy_count_)), 0});
+        OverlayCoord{u8(calc_screen_tiles(pfrm).x - integer_text_length(levelgen_enemy_count_)), 0});
 }
 
 
