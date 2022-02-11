@@ -581,6 +581,24 @@ endif()
 
 if(NINTENDO_DS)
 
+  set(NDS_SOURCE_DIR ${SOURCE_DIR}/platform/nds)
+
+  # NOTE: For the gameboy advance, I simply appended the filesystem bin to the
+  # end of the ROM, because the linker script specified a symbol for
+  # __rom_end__. I haven't figured out (or spent much time figuring out) a good
+  # solution for NDS, so I simply added a chain of custom targets, which rebuild
+  # fs.bin
+  file(GLOB_RECURSE SCRIPTS "${ROOT_DIR}/scripts/*.lisp")
+
+  add_custom_command(OUTPUT ${NDS_SOURCE_DIR}/fs.bin
+    COMMAND python3 encode_files.py
+    COMMAND cp fs.bin ${NDS_SOURCE_DIR}/fs.bin
+    DEPENDS ${SCRIPTS})
+  add_custom_target(make_fs DEPENDS ${NDS_SOURCE_DIR}/fs.bin)
+
+  add_dependencies(SkylandEngine make_fs)
+
+
   set(CMAKE_AR $ENV{DEVKITARM}/bin/arm-none-eabi-ar)
 
   set(ARM9_FLAGS
@@ -593,7 +611,8 @@ if(NINTENDO_DS)
 
 
   add_library(PLATFORM
-    ${SOURCE_DIR}/platform/nds/nds_platform.cpp)
+    ${NDS_SOURCE_DIR}/filesystem.cpp
+    ${NDS_SOURCE_DIR}/nds_platform.cpp)
 
   # libnds does a whole bunch of unfortunate things that're incompatible with
   # the -pedantic flag. I ended up needing to move the platform source file to a

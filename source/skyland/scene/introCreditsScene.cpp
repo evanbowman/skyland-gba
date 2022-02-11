@@ -38,8 +38,17 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             wait_ = false;
             timer_ = 0;
 
-            text_.emplace(pfrm, "Evan Bowman presents", OverlayCoord{4, 7});
-            pfrm.set_overlay_origin(-4, 0);
+            const char* text = "Evan Bowman presents";
+
+            const auto st = calc_screen_tiles(pfrm);
+            u8 margin = centered_text_margins(pfrm, utf8::len(text));
+
+            text_.emplace(pfrm, text, OverlayCoord{margin,
+                                                   (u8)(st.y / 2 - 3)});
+
+            if (utf8::len(text) % 2 not_eq 0) {
+                pfrm.set_overlay_origin(-4, 0);
+            }
         }
     } else if (text_) {
         if (timer_ > seconds(4) or key_down<Key::action_2>(pfrm)) {

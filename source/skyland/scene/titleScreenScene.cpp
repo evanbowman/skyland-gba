@@ -66,6 +66,23 @@ void plugin_rooms_unregister();
 
 
 
+static void set_scroll(Platform& pfrm,
+                       Layer layer,
+                       int x_scroll,
+                       int y_scroll)
+{
+    int offset = 0;
+
+    auto st = calc_screen_tiles(pfrm);
+    if (st.x > 30) {
+        offset += ((30 - st.x) / 2) * 8;
+    }
+
+    pfrm.set_scroll(layer, offset + x_scroll, y_scroll);
+}
+
+
+
 void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.screen().schedule_fade(1.f);
@@ -127,7 +144,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     window_image_hack(pfrm, 2);
 
-    pfrm.set_scroll(Layer::map_1_ext, 0, -offset + 8);
+    set_scroll(pfrm, Layer::map_1_ext, 0, -offset + 8);
 
     pfrm.set_overlay_origin(0, 4);
 
@@ -171,6 +188,17 @@ void TitleScreenScene::redraw_margins(Platform& pfrm)
         pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
         pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 256);
     }
+
+    // Our images are 240p wide. Letterbox the graphics.
+    if (screen_tiles.x > 30) {
+        int overflow = 30 - screen_tiles.x;
+        int margin = overflow / 2;
+        for (int y = 0; y < screen_tiles.y; ++y) {
+            for (int x = 0; x < margin; ++x) {
+                pfrm.set_tile(Layer::overlay, x, y, 112);
+            }
+        }
+    }
 }
 
 
@@ -205,8 +233,9 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 
     pfrm.screen().set_view(View{});
 
-    pfrm.set_scroll(Layer::map_1_ext, 0, 8);
-    pfrm.set_scroll(Layer::map_0_ext, 0, 0);
+
+    set_scroll(pfrm, Layer::map_1_ext, 0, 8);
+    set_scroll(pfrm, Layer::map_0_ext, 0, 0);
 
     app.birbs().clear();
 }
@@ -369,14 +398,14 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.screen().set_view(view);
 
         if (x_scroll_ < 0) {
-            pfrm.set_scroll(Layer::map_1_ext, x_scroll_ - 272, -offset + 8);
-            pfrm.set_scroll(Layer::map_0_ext, x_scroll_, -offset + 8);
+            set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 272, -offset + 8);
+            set_scroll(pfrm, Layer::map_0_ext, x_scroll_, -offset + 8);
         } else if (x_scroll_ > 240) {
-            pfrm.set_scroll(Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
-            pfrm.set_scroll(Layer::map_0_ext, x_scroll_ + 32, -offset + 8);
+            set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
+            set_scroll(pfrm, Layer::map_0_ext, x_scroll_ + 32, -offset + 8);
         } else {
-            pfrm.set_scroll(Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
-            pfrm.set_scroll(Layer::map_0_ext, x_scroll_, -offset + 8);
+            set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 240, -offset + 8);
+            set_scroll(pfrm, Layer::map_0_ext, x_scroll_, -offset + 8);
         }
     }
 

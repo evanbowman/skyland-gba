@@ -1,3 +1,12 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//
+// Platform Implementation for NintendoDS
+//
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
 // NOTICE: I borrowed parts of libnds from devkit pro, and for some parts I
 // wrote my own implementations. Here's the libnds license:
 //
@@ -24,16 +33,148 @@
 //  3. This notice may not be removed or altered from any source
 //     distribution.
 //
+//
+// Much of the code is also lifted from my own prior implementation for gba
+// hardware.
+//
 
 
 #include "platform/platform.hpp"
 #include "/opt/devkitpro/libnds/include/nds.h"
 #include "images.cpp"
 #include "platform/color.hpp"
+#include "filesystem.hpp"
 
 
 
-// Implementation of platform for nds
+static const TextureData* current_spritesheet = &sprite_textures[0];
+static const TextureData* current_tilesheet0 = &tile_textures[0];
+static const TextureData* current_tilesheet1 = &tile_textures[1];
+static const TextureData* current_overlay_texture = &overlay_textures[1];
+static const TextureData* current_background = &tile_textures[0];
+
+
+
+static u16 sprite_palette[16];
+static u16 tilesheet_0_palette[16];
+static u16 tilesheet_1_palette[16];
+static u16 overlay_palette[16];
+static u16 background_palette[16];
+
+
+
+static u8 last_fade_amt;
+static ColorConstant last_color;
+static bool last_fade_include_sprites;
+static bool overlay_was_faded;
+
+
+
+alignas(4) static u16 sp_palette_back_buffer[32];
+alignas(4) static u16 bg_palette_back_buffer[256];
+
+
+static u16 overlay_back_buffer[1024] alignas(u32);
+static bool overlay_back_buffer_changed = false;
+
+
+struct GlyphMapping {
+    u16 mapper_offset_;
+
+    // -1 represents unassigned. Mapping a tile into memory sets the reference
+    //  count to zero. When a call to Platform::set_tile reduces the reference
+    //  count back to zero, the tile is once again considered to be unassigned,
+    //  and will be set to -1.
+    s16 reference_count_ = -1;
+
+    bool valid() const
+    {
+        return reference_count_ > -1;
+    }
+};
+
+
+static constexpr const auto glyph_start_offset = 1;
+static constexpr const auto glyph_mapping_count = 78;
+static constexpr const auto glyph_expanded_count = 160;
+static int glyph_table_size = glyph_mapping_count;
+static const int font_color_index_tile = 81;
+static const int bad_glyph = 111;
+
+
+struct GlyphTable {
+    GlyphMapping mappings_[glyph_mapping_count + glyph_expanded_count];
+};
+
+static GlyphTable glyph_table;
+
+
+
+static bool is_glyph(u16 t)
+{
+    return t >= glyph_start_offset and
+           t - glyph_start_offset < glyph_table_size;
+}
+
+
+
+static constexpr int vram_tile_size()
+{
+    // 8 x 8 x (4 bitsperpixel / 8 bitsperbyte)
+    return 32;
+}
+
+
+
+static u8* font_index_tile()
+{
+    return (u8*)bgGetGfxPtr(0) +
+           ((font_color_index_tile)*vram_tile_size());
+}
+
+
+struct FontColorIndices {
+    int fg_;
+    int bg_;
+};
+
+
+static FontColorIndices font_color_indices()
+{
+    const auto index = font_index_tile();
+    return {index[0] & 0x0f, index[1] & 0x0f};
+}
+
+
+
+enum class GlobalFlag {
+    rtc_faulty,
+    gbp_unlocked,
+    multiplayer_connected,
+    save_using_flash,
+    glyph_mode,
+    parallax_clouds,
+    v_parallax,
+    palette_sync,
+    count
+};
+
+
+static Bitvector<static_cast<int>(GlobalFlag::count)> gflags;
+
+
+
+static void set_gflag(GlobalFlag f, bool val)
+{
+    gflags.set(static_cast<int>(f), val);
+}
+
+
+
+static bool get_gflag(GlobalFlag f)
+{
+    return gflags.get(static_cast<int>(f));
+}
 
 
 
@@ -50,6 +191,23 @@ int main(int argc, char** argv)
     Platform pfrm;
 
     start(pfrm);
+}
+
+
+
+static auto blend(const Color& c1, const Color& c2, u8 amt)
+{
+    switch (amt) {
+    case 0:
+        return c1.bgr_hex_555();
+    case 255:
+        return c2.bgr_hex_555();
+    default:
+        return Color(fast_interpolate(c2.r_, c1.r_, amt),
+                     fast_interpolate(c2.g_, c1.g_, amt),
+                     fast_interpolate(c2.b_, c1.b_, amt))
+            .bgr_hex_555();
+    }
 }
 
 
@@ -139,21 +297,6 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
 
 
-TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
-                             const TextureMapping& mapping)
-{
-    return 111;
-}
-
-
-
-void Platform::load_overlay_chunk(TileDesc dst, TileDesc src, u16 count)
-{
-    // TODO...
-}
-
-
-
 std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 {
     return {};
@@ -163,7 +306,12 @@ std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 
 void Platform::enable_glyph_mode(bool enabled)
 {
-    // TODO...
+    if (enabled) {
+        for (auto& gm : ::glyph_table.mappings_) {
+            gm.reference_count_ = -1;
+        }
+    }
+    set_gflag(GlobalFlag::glyph_mode, enabled);
 }
 
 
@@ -190,10 +338,10 @@ u16 Platform::get_palette(Layer layer, u16 x, u16 y)
 
 
 
-static u16 x0_scroll = 0;
-static u16 y0_scroll = 0;
-static u16 x3_scroll = 0;
-static u16 y3_scroll = 0;
+static u16 x1_scroll = 0;
+static u16 y1_scroll = 0;
+static u16 x2_scroll = 0;
+static u16 y2_scroll = 0;
 
 
 
@@ -206,14 +354,14 @@ void Platform::set_scroll(Layer layer, u16 x, u16 y)
 
     case Layer::map_0_ext:
     case Layer::map_0:
-        x0_scroll = x;
-        y0_scroll = y;
+        x1_scroll = x;
+        y1_scroll = y;
         break;
 
     case Layer::map_1_ext:
     case Layer::map_1:
-        x3_scroll = x;
-        y3_scroll = y;
+        x2_scroll = x;
+        y2_scroll = y;
         break;
     }
 }
@@ -229,22 +377,52 @@ void Platform::set_tile(u16 x, u16 y, TileDesc glyph, const FontColors& colors)
 
 TileDesc Platform::get_tile(Layer layer, u16 x, u16 y)
 {
-    // TODO...
-    return 0;
+    switch (layer) {
+
+    case Layer::overlay:
+        if (x > 31 or y > 31) {
+            return 0;
+        }
+        return overlay_back_buffer[x + y * 32] & ~(0xF000);
+
+    default:
+        return 0;
+    }
 }
 
 
 
-void Platform::fill_overlay(u16 TileDesc)
+void Platform::fill_overlay(u16 tile)
 {
+    if (get_gflag(GlobalFlag::glyph_mode) and is_glyph(tile)) {
+        // This is moderately complicated to implement, better off just not
+        // allowing fills for character tiles.
+        return;
+    }
 
+    const u16 tile_info = tile | TILE_PALETTE(1);
+    const u32 fill_word = tile_info | (tile_info << 16);
+
+    u32* const mem = (u32*)overlay_back_buffer;
+    overlay_back_buffer_changed = true;
+
+    for (unsigned i = 0; i < 1024 / sizeof(u32); ++i) {
+        mem[i] = fill_word;
+    }
+
+    if (get_gflag(GlobalFlag::glyph_mode)) {
+        for (auto& gm : ::glyph_table.mappings_) {
+            gm.reference_count_ = -1;
+        }
+    }
 }
 
 
 
 void Platform::set_overlay_origin(Float x, Float y)
 {
-
+    REG_BG0HOFS = static_cast<s16>(x);
+    REG_BG0VOFS = static_cast<s16>(y);
 }
 
 
@@ -308,7 +486,16 @@ int Platform::save_capacity()
 const char* Platform::load_file_contents(const char* folder,
                                          const char* filename) const
 {
-    return "";
+    StringBuffer<64> path("/");
+
+    if (str_len(folder) > 0) {
+        path += folder;
+        path += "/";
+    }
+
+    path += filename;
+
+    return filesystem::load(path.c_str());
 }
 
 
@@ -413,7 +600,7 @@ static int delta_read_tics()
 
 static Microseconds delta_convert_tics(int tics)
 {
-    return ((tics * (59.59f / 60.f)) * 60.f) / 1000.f;
+    return (((tics / 2) * (59.59f / 60.f)) * 60.f) / 1000.f;
 }
 
 
@@ -464,23 +651,64 @@ void Platform::Screen::draw(const Sprite& spr)
 
 
 
+void memcpy32(u32* dest, u32* src, int word_count)
+{
+    while (word_count--) {
+        *(dest++) = *(src++);
+    }
+}
+
+
+
+// FIXME: find a faster memcpy. I'm new to nds dev. On gba, I had a fast
+// function for this, but it's written in arm7 assembly.
+void memcpy16(u16* dest, u16* src, int halfwords)
+{
+    while (halfwords) {
+        *(dest++) = *(src++);
+        --halfwords;
+    }
+}
+
+
+
 void Platform::Screen::clear()
 {
     swiWaitForVBlank();
 
     auto view_offset = view_.get_center().cast<s32>();
-    REG_BG0HOFS = x0_scroll + view_offset.x;
-    REG_BG0VOFS = y0_scroll + view_offset.y;
+    REG_BG1HOFS = x1_scroll + view_offset.x;
+    REG_BG1VOFS = y1_scroll + view_offset.y;
 
-    REG_BG3HOFS = x3_scroll + view_offset.x;
-    REG_BG3VOFS = y3_scroll + view_offset.y;
+    REG_BG2HOFS = x2_scroll + view_offset.x;
+    REG_BG2VOFS = y2_scroll + view_offset.y;
+
+    if (get_gflag(GlobalFlag::palette_sync)) {
+
+
+        memcpy16((u16*)SPRITE_PALETTE, (u16*)sp_palette_back_buffer, 32);
+
+        memcpy16((u16*)BG_PALETTE, (u16*)bg_palette_back_buffer, 48);
+
+        memcpy16((u16*)(BG_PALETTE + 16 * 11),
+                 (u16*)bg_palette_back_buffer + 16 * 11,
+                 32); // 16 words, both the background palette and the flag palette.
+
+        set_gflag(GlobalFlag::palette_sync, false);
+    }
 }
 
 
 
 void Platform::Screen::display()
 {
+    if (overlay_back_buffer_changed) {
+        overlay_back_buffer_changed = false;
 
+        memcpy16(bgGetMapPtr(0),
+                 (u16*)overlay_back_buffer,
+                 (sizeof overlay_back_buffer) / 2);
+    }
 }
 
 
@@ -506,35 +734,219 @@ Contrast Platform::Screen::get_contrast() const
 
 
 
+ColorConstant grayscale_shader(int palette, ColorConstant k, int arg)
+{
+    return Color::from_bgr_hex_555(
+               blend(Color(k), Color(k).grayscale(), (u8)arg))
+        .hex();
+}
+
+
+
+ColorConstant contrast_shader(int palette, ColorConstant k, int arg)
+{
+    const Float f = (259.f * ((s8)arg + 255)) / (255 * (259 - (s8)arg));
+
+    const Color c(k);
+
+    const auto r = clamp(f * (Color::upsample(c.r_) - 128) + 128, 0.f, 255.f);
+    const auto g = clamp(f * (Color::upsample(c.g_) - 128) + 128, 0.f, 255.f);
+    const auto b = clamp(f * (Color::upsample(c.b_) - 128) + 128, 0.f, 255.f);
+
+    return Color(
+               Color::downsample(r), Color::downsample(g), Color::downsample(b))
+        .hex();
+}
+
+
+
+ColorConstant passthrough_shader(int palette, ColorConstant k, int arg)
+{
+    return k;
+}
+
+
+
+static Platform::Screen::Shader shader = passthrough_shader;
+static int shader_argument = 0;
+
+
+
 void Platform::Screen::set_shader(Shader shader)
 {
-
+    ::shader = shader;
+    set_shader_argument(0);
 }
 
 
-void Platform::Screen::set_shader_argument(int value)
+
+static Color invoke_shader(const Color& c, int palette)
 {
-
+    return shader(palette, c.hex(), shader_argument);
 }
+
+
+
+static void init_palette(const TextureData* td, u16* palette, int palette_id)
+{
+    for (int i = 0; i < 16; ++i) {
+        palette[i] =
+            invoke_shader(Color::from_bgr_hex_555(td->palette_data_[i]),
+                          palette_id)
+                .bgr_hex_555();
+    }
+}
+
+
+
+void Platform::Screen::set_shader_argument(int arg)
+{
+    shader_argument = arg;
+
+    init_palette(current_spritesheet, sprite_palette, 16);
+    init_palette(current_tilesheet0, tilesheet_0_palette, 0);
+    init_palette(current_tilesheet1, tilesheet_1_palette, 2);
+    init_palette(current_background, background_palette, 11);
+}
+
 
 
 void Platform::Screen::fade(float amount,
-                            ColorConstant color,
+                            ColorConstant k,
                             std::optional<ColorConstant> base,
                             bool include_sprites,
                             bool include_overlay)
 {
+    const u8 amt = amount * 255;
 
+    // if (amt < 128) {
+    //     color_mix_disabled = false;
+    // } else {
+    //     color_mix_disabled = true;
+    // }
+
+    if (amt == last_fade_amt and k == last_color and
+        last_fade_include_sprites == include_sprites) {
+        return;
+    }
+
+    last_fade_amt = amt;
+    last_color = k;
+    last_fade_include_sprites = include_sprites;
+
+    const auto c = invoke_shader(Color(k), 0);
+
+    if (not base) {
+        // Sprite palette
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(sprite_palette[i]);
+            SPRITE_PALETTE[i] = blend(from, c, include_sprites ? amt : 0);
+        }
+        // Tile0 palette
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
+            BG_PALETTE[i] = blend(from, c, amt);
+        }
+        // Custom flag palette?
+        for (int i = 0; i < 16; ++i) {
+            auto from =
+                Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
+            BG_PALETTE[16 * 12 + i] = blend(from, c, amt);
+        }
+        // Tile1 palette
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
+            BG_PALETTE[32 + i] = blend(from, c, amt);
+        }
+        // Custom flag palette
+        for (int i = 0; i < 16; ++i) {
+            auto from = Color::from_bgr_hex_555(background_palette[i]);
+            BG_PALETTE[16 * 11 + i] = blend(from, c, amt);
+        }
+        // Overlay palette
+        if (include_overlay or overlay_was_faded) {
+            for (int i = 0; i < 16; ++i) {
+                auto from = Color::from_bgr_hex_555(overlay_palette[i]);
+                BG_PALETTE[16 + i] =
+                    blend(from, c, include_overlay ? amt : 0);
+            }
+        }
+        overlay_was_faded = include_overlay;
+    } else {
+        const auto bc = invoke_shader(Color(*base), 0);
+        for (int i = 0; i < 16; ++i) {
+            SPRITE_PALETTE[i] = blend(bc, c, include_sprites ? amt : 0);
+            BG_PALETTE[i] = blend(bc, c, amt);
+            BG_PALETTE[32 + i] = blend(bc, c, amt);
+
+            if (overlay_was_faded) {
+                // FIXME!
+                for (int i = 0; i < 16; ++i) {
+                    auto from = Color::from_bgr_hex_555(overlay_palette[i]);
+                    BG_PALETTE[16 + i] = blend(from, c, 0);
+                }
+                overlay_was_faded = false;
+            }
+        }
+    }
 }
 
 
 
 void Platform::Screen::schedule_fade(Float amount,
-                                     ColorConstant color,
+                                     ColorConstant k,
                                      bool include_sprites,
                                      bool include_overlay)
 {
+    const u8 amt = amount * 255;
 
+    if (amt == last_fade_amt and k == last_color and
+        last_fade_include_sprites == include_sprites) {
+        return;
+    }
+
+    last_fade_amt = amt;
+    last_color = k;
+    last_fade_include_sprites = include_sprites;
+
+    const auto c = invoke_shader(Color(k), 0);
+
+
+    set_gflag(GlobalFlag::palette_sync, true);
+
+
+    // Sprite palette
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(sprite_palette[i]);
+        sp_palette_back_buffer[i] = blend(from, c, include_sprites ? amt : 0);
+    }
+    // Tile0 palette
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
+        bg_palette_back_buffer[i] = blend(from, c, amt);
+    }
+    // Custom flag/tile/sprite palette:
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(tile_textures[0].palette_data_[i]);
+        auto val = blend(from, c, amt);
+        bg_palette_back_buffer[16 * 12 + i] = val;
+        sp_palette_back_buffer[16 + i] = val;
+    }
+    // Tile1 palette
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
+        bg_palette_back_buffer[32 + i] = blend(from, c, amt);
+    }
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(background_palette[i]);
+        bg_palette_back_buffer[16 * 11 + i] = blend(from, c, amt);
+    }
+    // Overlay palette
+    for (int i = 0; i < 16; ++i) {
+        auto from = Color::from_bgr_hex_555(overlay_palette[i]);
+        bg_palette_back_buffer[16 + i] =
+            blend(from, c, include_overlay ? amt : 0);
+    }
 }
 
 
@@ -624,41 +1036,20 @@ Platform::Screen::Screen()
         | DISPLAY_SPR_1D_LAYOUT
         | DISPLAY_BG0_ACTIVE
         | DISPLAY_BG1_ACTIVE
-        //| DISPLAY_BG2_ACTIVE
-        //| DISPLAY_BG3_ACTIVE
+        | DISPLAY_BG2_ACTIVE
+        | DISPLAY_BG3_ACTIVE
         | DISPLAY_SPR_ACTIVE;
 
-    bgInit(0, BgType_Text4bpp, BgSize_T_512x256, sbb_t0_tiles, cbb_t0_texture);
-    bgInit(3, BgType_Text4bpp, BgSize_T_512x256, sbb_t1_tiles, cbb_t1_texture);
-    bgInit(1, BgType_Text4bpp, BgSize_T_256x256, sbb_bg_tiles, cbb_background_texture);
-    // bgInit(2, BgType_Text4bpp, BgSize_T_256x256, sbb_overlay_tiles, cbb_overlay_texture);
+    bgInit(0, BgType_Text4bpp, BgSize_T_256x256, sbb_overlay_tiles, cbb_overlay_texture);
+    bgInit(1, BgType_Text4bpp, BgSize_T_512x256, sbb_t0_tiles, cbb_t0_texture);
+    bgInit(2, BgType_Text4bpp, BgSize_T_512x256, sbb_t1_tiles, cbb_t1_texture);
+    bgInit(3, BgType_Text4bpp, BgSize_T_256x256, sbb_bg_tiles, cbb_background_texture);
 
     View view;
     view.set_size(size().cast<Float>());
     set_view(view);
 
     // clang-format on
-}
-
-
-
-ColorConstant passthrough_shader(int palette, ColorConstant k, int arg)
-{
-    return k;
-}
-
-
-
-ColorConstant grayscale_shader(int palette, ColorConstant k, int arg)
-{
-    return k;
-}
-
-
-
-ColorConstant contrast_shader(int palette, ColorConstant k, int arg)
-{
-    return k;
 }
 
 
@@ -710,6 +1101,60 @@ void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
 
 
 
+static void set_overlay_tile(Platform& pfrm, u16 x, u16 y, u16 val, int palette)
+{
+    if (get_gflag(GlobalFlag::glyph_mode)) {
+        // This is where we handle the reference count for mapped glyphs. If
+        // we are overwriting a glyph with different tile, then we can
+        // decrement a glyph's reference count. Then, we want to increment
+        // the incoming glyph's reference count if the incoming tile is
+        // within the range of the glyph table.
+
+        const auto old_tile = pfrm.get_tile(Layer::overlay, x, y);
+        if (old_tile not_eq val) {
+            if (is_glyph(old_tile)) {
+                auto& gm =
+                    ::glyph_table.mappings_[old_tile - glyph_start_offset];
+                if (gm.valid()) {
+                    gm.reference_count_ -= 1;
+
+                    if (gm.reference_count_ == 0) {
+                        gm.reference_count_ = -1;
+                        gm.mapper_offset_ = 0;
+                    }
+                } else {
+                    // I suppose this could happen if we swapped overlay
+                    // textures, without clearing out existing tiles? Not
+                    // sure. The code has been stable in the real world for
+                    // quite a while, so I'm commenting out the log line.
+                    //
+                    // error(pfrm,
+                    //       "existing tile is a glyph, but has no"
+                    //       " mapping table entry!");
+                }
+            }
+
+            if (is_glyph(val)) {
+                auto& gm = ::glyph_table.mappings_[val - glyph_start_offset];
+                if (not gm.valid()) {
+                    // Not clear exactly what to do here... Somehow we've
+                    // gotten into an erroneous state, but not a permanently
+                    // unrecoverable state (tile isn't valid, so it'll be
+                    // overwritten upon the next call to map_tile).
+                    warning(pfrm, "invalid assignment to glyph table");
+                    return;
+                }
+                gm.reference_count_++;
+            }
+        }
+    }
+
+    overlay_back_buffer[x + y * 32] = val | TILE_PALETTE(palette);
+    overlay_back_buffer_changed = true;
+}
+
+
+
 void Platform::set_tile(Layer layer,
                         u16 x,
                         u16 y,
@@ -721,7 +1166,7 @@ void Platform::set_tile(Layer layer,
         if (x > 31 or y > 31) {
             return;
         }
-        bgGetMapPtr(1)[x + y * 32] = val | TILE_PALETTE(1);
+        set_overlay_tile(*this, x, y, val, 1);
         break;
 
     case Layer::map_0_ext:
@@ -732,21 +1177,16 @@ void Platform::set_tile(Layer layer,
         set_map_tile_16p(sbb_t1_tiles, x, y, val, palette ? *palette : 3);
         break;
 
+    case Layer::background:
+        if (x > 31 or y > 32) {
+            return;
+        }
+        bgGetMapPtr(3)[x + y * 32] = val | TILE_PALETTE(11);
+        break;
+
     default:
         // TODO...
         break;
-    }
-}
-
-
-
-// FIXME: find a faster memcpy. I'm new to nds dev. On gba, I had a fast
-// function for this, but it's written in arm7 assembly.
-void slow_memcpy_16(u16* dest, u16* src, int halfwords)
-{
-    while (halfwords) {
-        *(dest++) = *(src++);
-        --halfwords;
     }
 }
 
@@ -758,13 +1198,25 @@ void Platform::load_tile0_texture(const char* name)
 
         if (str_cmp(name, info.name_) == 0) {
 
+            current_tilesheet0 = &info;
+
+            init_palette(current_tilesheet0, tilesheet_0_palette, 0);
+
+
+            // We don't want to load the whole palette into memory, we might
+            // overwrite palettes used by someone else, e.g. the overlay...
+            //
+            // Also, like the sprite texture, we need to apply the currently
+            // active screen fade while modifying the color palette.
+            const auto c = invoke_shader(Color(last_color), 0);
             for (int i = 0; i < 16; ++i) {
-                BG_PALETTE[i] = info.palette_data_[i];
+                auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
+                BG_PALETTE[i] = blend(from, c, last_fade_amt);
             }
 
-            slow_memcpy_16(bgGetGfxPtr(0),
-                           (u16*)info.tile_data_,
-                           info.tile_data_length_ / 2);
+            memcpy16(bgGetGfxPtr(1),
+                     (u16*)info.tile_data_,
+                     info.tile_data_length_ / 2);
 
             return;
         }
@@ -779,13 +1231,25 @@ void Platform::load_tile1_texture(const char* name)
 
         if (str_cmp(name, info.name_) == 0) {
 
+            current_tilesheet1 = &info;
+
+            init_palette(current_tilesheet1, tilesheet_1_palette, 2);
+
+
+            // We don't want to load the whole palette into memory, we might
+            // overwrite palettes used by someone else, e.g. the overlay...
+            //
+            // Also, like the sprite texture, we need to apply the currently
+            // active screen fade while modifying the color palette.
+            const auto c = invoke_shader(Color(last_color), 2);
             for (int i = 0; i < 16; ++i) {
-                BG_PALETTE[32 + i] = info.palette_data_[i];
+                auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
+                BG_PALETTE[32 + i] = blend(from, c, last_fade_amt);
             }
 
-            slow_memcpy_16(bgGetGfxPtr(3),
-                           (u16*)info.tile_data_,
-                           info.tile_data_length_ / 2);
+            memcpy16(bgGetGfxPtr(2),
+                     (u16*)info.tile_data_,
+                     info.tile_data_length_ / 2);
 
             return;
         }
@@ -794,21 +1258,53 @@ void Platform::load_tile1_texture(const char* name)
 
 
 
+
+void Platform::load_overlay_chunk(TileDesc dst, TileDesc src, u16 count)
+{
+    const u8* image_data = (const u8*)current_overlay_texture->tile_data_;
+    u8* overlay_vram_base_addr = (u8*)bgGetGfxPtr(0);
+
+    const auto chunk_size = vram_tile_size() * count;
+
+    memcpy16((u16*)(overlay_vram_base_addr + vram_tile_size() * dst),
+             (u16*)(image_data + vram_tile_size() * src),
+             chunk_size / 2);
+}
+
+
+
 bool Platform::load_overlay_texture(const char* name)
 {
-    for (auto& info : tile_textures) {
+    for (auto& info : overlay_textures) {
 
         if (str_cmp(name, info.name_) == 0) {
 
+            current_overlay_texture = &info;
+
+            init_palette(current_overlay_texture, overlay_palette, 1);
+
             for (int i = 0; i < 16; ++i) {
-                BG_PALETTE[16 + i] = info.palette_data_[i];
+                auto from = Color::from_bgr_hex_555(overlay_palette[i]);
+                if (not overlay_was_faded) {
+                    BG_PALETTE[16 + i] = from.bgr_hex_555();
+                } else {
+                    const auto c = invoke_shader(Color(last_color), 1);
+                    BG_PALETTE[16 + i] = blend(from, c, last_fade_amt);
+                }
             }
 
-            slow_memcpy_16(bgGetGfxPtr(1),
-                           // (u16*)SCREEN_BASE_BLOCK(sbb_overlay_texture),
-                           (u16*)info.tile_data_,
-                           std::min((size_t)info.tile_data_length_ / 2,
-                                    (size_t)0x4000 / 2));
+            memcpy16(bgGetGfxPtr(0),
+                     (u16*)info.tile_data_,
+                     std::min((size_t)info.tile_data_length_ / 2,
+                              (size_t)0x4000 / 2));
+
+
+            if (get_gflag(GlobalFlag::glyph_mode)) {
+                for (auto& gm : ::glyph_table.mappings_) {
+                    gm.reference_count_ = -1;
+                }
+            }
+
             return true;
         }
     }
@@ -820,7 +1316,127 @@ bool Platform::load_overlay_texture(const char* name)
 
 void Platform::load_background_texture(const char* name)
 {
+    for (auto& info : background_textures) {
 
+        if (str_cmp(name, info.name_) == 0) {
+
+            current_background = &info;
+
+            init_palette(current_background, background_palette, 11);
+
+            const auto c = invoke_shader(Color(last_color), 11);
+            for (int i = 0; i < 16; ++i) {
+                auto from = Color::from_bgr_hex_555(background_palette[i]);
+                BG_PALETTE[16 * 11 + i] = blend(from, c, last_fade_amt);
+            }
+
+            memcpy16(bgGetGfxPtr(3),
+                     (u16*)info.tile_data_,
+                     info.tile_data_length_ / 2);
+            return;
+        }
+    }
+
+}
+
+
+
+TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
+                             const TextureMapping& mapping_info)
+{
+    if (not get_gflag(GlobalFlag::glyph_mode)) {
+        return bad_glyph;
+    }
+
+    for (TileDesc tile = 0; tile < glyph_table_size; ++tile) {
+        auto& gm = ::glyph_table.mappings_[tile];
+        if (gm.valid() and gm.mapper_offset_ == mapping_info.offset_) {
+            return glyph_start_offset + tile;
+        }
+    }
+
+    for (auto& info : overlay_textures) {
+        if (str_cmp(mapping_info.texture_name_, info.name_) == 0) {
+            for (TileDesc t = 0; t < glyph_table_size; ++t) {
+
+                if (t == font_color_index_tile - 1) {
+                    // When I originally created the text mapping engine, I did
+                    // not expect to need to deal with languages with more than
+                    // 80 distinct font tiles onscreen at a time. So, I thought
+                    // it would be fine to put a metadata tile in index 81. But
+                    // while working on the Chinese localization, I discovered
+                    // that 80 tiles would not be nearly sufficient to display a
+                    // fullscreen block of chinese words. So I needed to build a
+                    // dynamically-expandable glyph table, which, when needed,
+                    // can expand to consume more of the available vram. So, we
+                    // need to skip over this metadata tile, to make sure that
+                    // we don't overwrite it when using a larger glyph array.
+                    continue;
+                }
+
+                auto& gm = ::glyph_table.mappings_[t];
+                if (not gm.valid()) {
+                    gm.mapper_offset_ = mapping_info.offset_;
+                    gm.reference_count_ = 0;
+
+                    // 8 x 8 x (4 bitsperpixel / 8 bitsperbyte)
+                    constexpr int tile_size = vram_tile_size();
+
+                    // u8 buffer[tile_size] = {0};
+                    // memcpy16(buffer,
+                    //          (u8*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0] +
+                    //              ((81) * tile_size),
+                    //          tile_size / 2);
+
+                    const auto colors = font_color_indices();
+
+                    // We need to know which color to use as the background
+                    // color, and which color to use as the foreground
+                    // color. Each charset needs to store a reference pixel in
+                    // the top left corner, representing the background color,
+                    // otherwise, we have no way of knowing which pixel color to
+                    // substitute where!
+                    const auto bg_color = ((u8*)info.tile_data_)[0] & 0x0f;
+
+                    alignas(2) u8 buffer[tile_size] = {0};
+                    memcpy16((u16*)buffer,
+                             (u16*)(info.tile_data_ +
+                                 ((u32)mapping_info.offset_ * tile_size) /
+                             sizeof(decltype(info.tile_data_))),
+                             tile_size / 2);
+
+                    for (int i = 0; i < tile_size; ++i) {
+                        auto c = buffer[i];
+                        if (c & bg_color) {
+                            buffer[i] = colors.bg_;
+                        } else {
+                            buffer[i] = colors.fg_;
+                        }
+                        if (c & (bg_color << 4)) {
+                            buffer[i] |= colors.bg_ << 4;
+                        } else {
+                            buffer[i] |= colors.fg_ << 4;
+                        }
+                    }
+
+                    // FIXME: Why do these magic constants work? I wish better
+                    // documentation existed for how the gba tile memory worked.
+                    // I thought, that the tile size would be 32, because we
+                    // have 4 bits per pixel, and 8x8 pixel tiles. But the
+                    // actual number of bytes in a tile seems to be half of the
+                    // expected number. Also, in vram, it seems like the tiles
+                    // do seem to be 32 bytes apart after all...
+                    memcpy16((u16*)((u8*)bgGetGfxPtr(0) +
+                             ((t + glyph_start_offset) * tile_size)),
+                             (u16*)buffer,
+                             tile_size / 2);
+
+                    return t + glyph_start_offset;
+                }
+            }
+        }
+    }
+    return bad_glyph;
 }
 
 
@@ -992,6 +1608,7 @@ Microseconds Platform::Speaker::track_length(const char* sound_or_music_name)
 ////////////////////////////////////////////////////////////////////////////////
 
 
+
 Platform::NetworkPeer::NetworkPeer()
 {
 
@@ -1128,6 +1745,10 @@ Platform::Platform()
     ::platform = this;
 
     consoleDemoInit();
+
+    if (not filesystem::is_mounted()) {
+        fatal("failed to mount filesystem!");
+    }
 
     irqSet(IRQ_VBLANK, Vblank);
 }

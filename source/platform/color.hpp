@@ -37,6 +37,11 @@ public:
         return (r_) + ((g_) << 5) + ((b_) << 10);
     }
 
+    inline u16 rgb_hex_555() const
+    {
+        return (r_ << 10) + ((g_) << 5) + ((b_) << 5);
+    }
+
     static Color from_bgr_hex_555(u16 val)
     {
         return {
