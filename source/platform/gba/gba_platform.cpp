@@ -4028,12 +4028,12 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
                     // substitute where!
                     const auto bg_color = ((u8*)info.tile_data_)[0] & 0x0f;
 
-                    u8 buffer[tile_size] = {0};
-                    memcpy16(buffer,
+                    alignas(u32) u8 buffer[tile_size] = {0};
+                    memcpy32(buffer,
                              info.tile_data_ +
                                  ((u32)mapping_info.offset_ * tile_size) /
                                      sizeof(decltype(info.tile_data_)),
-                             tile_size / 2);
+                             tile_size / 4);
 
                     for (int i = 0; i < tile_size; ++i) {
                         auto c = buffer[i];
