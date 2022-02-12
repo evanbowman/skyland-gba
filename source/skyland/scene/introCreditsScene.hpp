@@ -21,6 +21,7 @@ public:
 
 private:
     bool wait_ = true;
+    bool exit_ = false;
     std::optional<Text> text_;
     Microseconds timer_ = 0;
 };

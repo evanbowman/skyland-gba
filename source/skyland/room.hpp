@@ -316,6 +316,21 @@ public:
     u8 default_palette();
 
 
+    enum class Group {
+        none,
+        one,
+        two,
+        tree,
+        count,
+    };
+
+
+    void set_group(Group group);
+
+
+    Group group() const;
+
+
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 
@@ -334,10 +349,12 @@ private:
     u8 finalized_ : 1;
     u8 dispatch_queued_ : 1;
 
+    u8 group_ : 2;
+
     // NOTE: These flags are reserved for stuff unique to a specific instance of
     // a room. If you want to set properties for an entire class of rooms, use
     // RoomProperties, and retrieve the field from the metaclass.
-    u8 reserved_flags0_ : 8;
+    u8 reserved_flags0_ : 6;
 
     Vec2<u8> position_;
     Health health_;

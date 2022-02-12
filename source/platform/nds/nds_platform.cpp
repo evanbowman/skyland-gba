@@ -2409,19 +2409,22 @@ Platform::Platform()
     consoleDemoInit();
 
     sysSetBusOwners(true, true);
-    static u8 header1[512];
-    static u8 header2[512];
-    cardReadHeader(header1);
-    cardReadHeader(header2);
 
-    if (memcmp(header1, header2, 32) == 0) {
-        // Valid header
+    switch (cardEepromGetType()) {
+    case -1: // Error or no EEPROM
+    case 0:  // Unknown
+    case 1:  // 512 Bytes of EEPROM
+        save_chip_valid = false;
+        break;
+
+    case 3:
+
+        break;
+    }
 
         info(*this, format("save type %", cardEepromGetType()));
         info(*this, format("save size %", cardEepromGetSize()));
-    } else {
-        info(*this, "encrypted card header! saving disabled!");
-    }
+
 
     if (not filesystem::is_mounted()) {
         fatal("failed to mount filesystem!");

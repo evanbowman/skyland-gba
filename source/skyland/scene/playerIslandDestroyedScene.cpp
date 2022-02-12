@@ -4,8 +4,8 @@
 #include "platform/color.hpp"
 #include "readyScene.hpp"
 #include "sandboxResetScene.hpp"
-#include "selectChallengeScene.hpp"
 #include "scriptHookScene.hpp"
+#include "selectChallengeScene.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/player/opponent/friendlyAI.hpp"
 #include "skyland/rooms/droneBay.hpp"
@@ -566,8 +566,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.game_mode() == App::GameMode::adventure) {
 
                 if ((app.world_graph()
-                     .nodes_[app.current_world_location()]
-                     .type_ not_eq WorldGraph::Node::Type::exit)) {
+                         .nodes_[app.current_world_location()]
+                         .type_ not_eq WorldGraph::Node::Type::exit)) {
                     anim_state_ = AnimState::show_options;
                 } else {
                     anim_state_ = AnimState::fade_complete;

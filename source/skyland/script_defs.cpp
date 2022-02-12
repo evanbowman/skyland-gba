@@ -109,12 +109,13 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               return L_NIL;
           }},
-         {"log-flush", [](int argc) {
+         {"log-flush",
+          [](int argc) {
               if (auto pfrm = lisp::interp_get_pfrm()) {
                   pfrm->logger().flush();
               }
               return L_NIL;
-         }},
+          }},
          {"challenge-complete",
           [](int argc) {
               L_EXPECT_ARGC(argc, 1);
@@ -130,8 +131,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               return L_NIL;
           }},
-         {"fatal",
-          [](int argc) {
+         {"fatal", [](int argc) {
               L_EXPECT_ARGC(argc, 1);
 
               lisp::DefaultPrinter p;
@@ -965,13 +965,11 @@ static const lisp::Binding script_api[] = {
              return L_NIL;
          }
 
-         if (achievements::unlock(*lisp::interp_get_pfrm(),
-                                  *interp_get_app(),
-                                  achievement)) {
+         if (achievements::unlock(
+                 *lisp::interp_get_pfrm(), *interp_get_app(), achievement)) {
 
-             achievements::award(*lisp::interp_get_pfrm(),
-                                 *interp_get_app(),
-                                 achievement);
+             achievements::award(
+                 *lisp::interp_get_pfrm(), *interp_get_app(), achievement);
          }
 
          return L_NIL;

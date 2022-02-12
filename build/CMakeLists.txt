@@ -264,6 +264,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay_challenges.s
     ${DATA_DIR}/overlay_gamespeed.s
     ${DATA_DIR}/overlay_editor.s
+    ${DATA_DIR}/overlay_skyland_title.s
     ${DATA_DIR}/hint_infirmary.s
     ${DATA_DIR}/hint_goblin.s
     ${DATA_DIR}/hint_plunder.s
@@ -562,6 +563,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_overlay(overlay_editor 0 0 NO NO)
     add_overlay(overlay_dialog 0 0 NO NO)
     add_overlay(overlay_dialog_fullscreen 0 0 NO NO)
+    add_overlay(overlay_skyland_title 0 0 NO NO)
     add_overlay(charset 0 0 NO NO)
     add_overlay(overlay_world_map 0 0 NO NO)
     add_overlay(overlay_island_destroyed 0 0 NO NO)

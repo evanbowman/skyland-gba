@@ -91,10 +91,7 @@ static Vec2<int> spr_scale_offset(Platform& pfrm)
     if (pfrm.screen().size() == Vec2<u32>{240, 160}) {
         return scale_offset(pfrm);
     } else {
-        return {
-            scale_offset(pfrm).x,
-            scale_offset(pfrm).y + 8
-        };
+        return {scale_offset(pfrm).x, scale_offset(pfrm).y + 8};
     }
 }
 
@@ -224,7 +221,6 @@ void TitleScreenScene::redraw_margins(Platform& pfrm)
             pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 112);
             pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 5, 256);
         }
-
     }
 
     // Our images are 240p wide. Letterbox the graphics.
@@ -330,10 +326,10 @@ void TitleScreenScene::put_module_text(Platform& pfrm)
     const auto len = utf8::len(buffer.c_str());
 
     auto margin = centered_text_margins(pfrm, buffer.length());
-    text_.emplace(pfrm,
-                  buffer.c_str(),
-                  OverlayCoord{u8(st.x - (len + margin)),
-                      u8(st.y - text_offset(pfrm))});
+    text_.emplace(
+        pfrm,
+        buffer.c_str(),
+        OverlayCoord{u8(st.x - (len + margin)), u8(st.y - text_offset(pfrm))});
 }
 
 
@@ -354,16 +350,20 @@ void TitleScreenScene::put_menu_text(Platform& pfrm)
     text_.emplace(pfrm,
                   buffer.c_str(),
                   OverlayCoord{u8(st.x - (len + margin + 1)),
-                      u8(st.y - text_offset(pfrm))});
+                               u8(st.y - text_offset(pfrm))});
 
     menu_selection_start_ = margin + 1 + prefix_len + (len % 2 ? 1 : 0);
     menu_selection_stop_ = margin + 1 + buffer.length() + (len % 2 ? 1 : 0);
 
-    pfrm.set_tile(Layer::overlay, menu_selection_start_ - 4,
-                  st.y - text_offset(pfrm), 375);
+    pfrm.set_tile(Layer::overlay,
+                  menu_selection_start_ - 4,
+                  st.y - text_offset(pfrm),
+                  375);
 
-    pfrm.set_tile(Layer::overlay, menu_selection_stop_ - 1,
-                  st.y - text_offset(pfrm), 376);
+    pfrm.set_tile(Layer::overlay,
+                  menu_selection_stop_ - 1,
+                  st.y - text_offset(pfrm),
+                  376);
 }
 
 

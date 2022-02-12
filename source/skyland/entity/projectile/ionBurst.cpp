@@ -105,14 +105,6 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
-    if (room.metaclass() == bulkhead_mt) {
-        if (auto bulkhead = dynamic_cast<Bulkhead*>(&room)) {
-            if (not bulkhead->is_open()) {
-                bulkhead->select(pfrm, app);
-            }
-        }
-    }
-
     if (not((*room.metaclass())->properties() &
             RoomProperties::accepts_ion_damage)) {
         return;

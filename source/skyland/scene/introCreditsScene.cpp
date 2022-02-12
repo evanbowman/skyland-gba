@@ -12,7 +12,7 @@ namespace skyland {
 
 void IntroCreditsScene::enter(Platform& pfrm, App&, Scene& prev)
 {
-    pfrm.load_overlay_texture("overlay");
+    pfrm.load_overlay_texture("overlay_skyland_title");
 
     pfrm.screen().fade(1.f);
 
@@ -23,6 +23,10 @@ void IntroCreditsScene::enter(Platform& pfrm, App&, Scene& prev)
 
 void IntroCreditsScene::exit(Platform& pfrm, App&, Scene& next)
 {
+    pfrm.load_overlay_texture("overlay");
+
+    pfrm.set_overlay_origin(0, 0);
+
     text_.reset();
 }
 
@@ -45,15 +49,23 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
 
             text_.emplace(pfrm, text, OverlayCoord{margin, (u8)(st.y / 2 - 3)});
 
-            if (utf8::len(text) % 2 not_eq 0) {
-                pfrm.set_overlay_origin(-4, 0);
-            }
         }
     } else if (text_) {
+        if (timer_ > milliseconds(500) and timer_ < milliseconds(2000)) {
+            auto amount = smoothstep(milliseconds(500), milliseconds(2000), timer_);
+            pfrm.set_overlay_origin(0, amount * 30);
+        }
+        if (timer_ > milliseconds(2000)) {
+            pfrm.set_overlay_origin(0, 30);
+
+            draw_image(
+                pfrm, 82, 4, 9, 22, 10, Layer::overlay);
+        }
         auto t = pfrm.screen().touch();
-        if (timer_ > seconds(4) or key_down<Key::action_2>(pfrm) or
+        if (timer_ > seconds(5) or key_down<Key::action_2>(pfrm) or
             t->up_transition()) {
             text_.reset();
+            pfrm.fill_overlay(0);
             timer_ = 0;
         }
     } else {

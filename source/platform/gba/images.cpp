@@ -57,6 +57,8 @@
 //;
 #include "data/overlay_dialog_fullscreen.h"
 //;
+#include "data/overlay_skyland_title.h"
+//;
 #include "data/charset.h"
 //;
 #include "data/overlay_world_map.h"
@@ -141,6 +143,8 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(overlay_dialog),
 //;
     TEXTURE_INFO(overlay_dialog_fullscreen),
+//;
+    TEXTURE_INFO(overlay_skyland_title),
 //;
     TEXTURE_INFO(charset),
 //;

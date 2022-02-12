@@ -554,6 +554,20 @@ std::optional<SharedEntityRef<Drone>> Room::drone() const
 
 
 
+void Room::set_group(Group group)
+{
+    group_ = (u8)group;
+}
+
+
+
+Room::Group Room::group() const
+{
+    return (Group)group_;
+}
+
+
+
 Room::~Room()
 {
     if (not finalized_) {

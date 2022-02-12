@@ -73,9 +73,8 @@ bool tapped_topleft_corner(Platform& pfrm, App& app);
 
 
 
-std::optional<Vec2<u8>> get_local_tapclick(Platform& pfrm,
-                                           Island* island,
-                                           const Vec2<u32>& pos)
+std::optional<Vec2<u8>>
+get_local_tapclick(Platform& pfrm, Island* island, const Vec2<u32>& pos)
 {
     const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
 
@@ -321,7 +320,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 scroll_left();
             }
         } else if (app.player().key_down(pfrm, Key::action_2) or
-            (tapclick and *tapclick not_eq construction_sites_[selector_])) {
+                   (tapclick and
+                    *tapclick not_eq construction_sites_[selector_])) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
             msg(pfrm, ":build");

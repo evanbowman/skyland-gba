@@ -78,13 +78,16 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
             if (touch_held(milliseconds(200))) {
                 if (auto p = touch_current(pfrm)) {
                     auto last = last_touch_;
-                    auto velocity = (p->cast<s32>() - last.cast<s32>()).cast<Float>();
+                    auto velocity =
+                        (p->cast<s32>() - last.cast<s32>()).cast<Float>();
                     velocity.x /= delta;
                     velocity.y /= delta;
                     // info(pfrm, format("p__ % %", p->x, p->y));
                     // info(pfrm, format("lst % %", last.x, last.y));
-                    touch_velocity_.x = ((19 * touch_velocity_.x) + velocity.x) / 20;
-                    touch_velocity_.y = ((19 * touch_velocity_.y) + velocity.y) / 20;
+                    touch_velocity_.x =
+                        ((19 * touch_velocity_.x) + velocity.x) / 20;
+                    touch_velocity_.y =
+                        ((19 * touch_velocity_.y) + velocity.y) / 20;
 
 
                     // info(pfrm, format("vel % %",
