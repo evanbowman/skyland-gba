@@ -881,3 +881,24 @@ inline void error(Platform& pf, const char* msg)
 {
     pf.logger().log(Severity::error, msg);
 }
+
+template <u32 size>
+void debug(Platform& pf, const StringBuffer<size>& buffer)
+{
+    pf.logger().log(Severity::debug, buffer.c_str());
+}
+template <u32 size>
+void info(Platform& pf, const StringBuffer<size>& buffer)
+{
+    pf.logger().log(Severity::debug, buffer.c_str());
+}
+template <u32 size>
+void warning(Platform& pf, const StringBuffer<size>& buffer)
+{
+    pf.logger().log(Severity::debug, buffer.c_str());
+}
+template <u32 size>
+void error(Platform& pf, const StringBuffer<size>& buffer)
+{
+    pf.logger().log(Severity::debug, buffer.c_str());
+}

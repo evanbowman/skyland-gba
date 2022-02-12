@@ -15,7 +15,10 @@ namespace skyland {
 
 
 
-static const int y_max = 19;
+static int y_max(Platform& pfrm)
+{
+    return calc_screen_tiles(pfrm).y - 1;
+}
 
 
 
@@ -51,7 +54,7 @@ void TextEditorModule::show_status(Platform& pfrm)
         }
     }
 
-    while (status_->len() not_eq 30) {
+    while (status_->len() not_eq calc_screen_tiles(pfrm).x) {
         status_->append(" ", status_colors);
     }
 }
@@ -82,7 +85,7 @@ void TextEditorModule::render_keyboard(Platform& pfrm)
                                     ColorConstant::aerospace_orange};
             }
 
-            pfrm.set_tile((30 - 8) + x, (19 - 6) + y, t, colors);
+            pfrm.set_tile((calc_screen_tiles(pfrm).x - 8) + x, (u8((calc_screen_tiles(pfrm).y - 1)) - 6) + y, t, colors);
         }
     }
 }
@@ -104,7 +107,7 @@ void TextEditorModule::render_completions(Platform& pfrm)
         }
 
         u32 x;
-        for (x = 0; x < 30 and x < cpl.length(); ++x) {
+        for (x = 0; x < calc_screen_tiles(pfrm).x and x < cpl.length(); ++x) {
             char c = cpl[x];
             auto mapping_info = locale_texture_map()(c);
             const u16 t = pfrm.map_glyph(c, *mapping_info);
@@ -119,15 +122,15 @@ void TextEditorModule::render_completions(Platform& pfrm)
             pfrm.set_tile(x, line, t, prefix_colors);
         }
 
-        for (; x < 30; ++x) {
+        for (; x < calc_screen_tiles(pfrm).x; ++x) {
             pfrm.set_tile(x, line, space, colors);
         }
 
         ++line;
     }
 
-    for (; line < 20; ++line) {
-        for (int x = 0; x < 30; ++x) {
+    for (; line < calc_screen_tiles(pfrm).y; ++line) {
+        for (int x = 0; x < calc_screen_tiles(pfrm).x; ++x) {
             pfrm.set_tile(x, line, space, status_colors);
         }
     }
@@ -237,7 +240,7 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
     ParserState ps;
 
 
-    while (*data not_eq '\0' and y not_eq y_max) {
+    while (*data not_eq '\0' and y not_eq y_max(pfrm)) {
 
         ps.endquote = false;
 
@@ -248,7 +251,7 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
             ps.quotation = false;
         };
 
-        if (x == 30) {
+        if (x == calc_screen_tiles(pfrm).x) {
             while (*data not_eq '\n') {
                 if (*data == '\0') {
                     goto FILL;
@@ -274,7 +277,7 @@ void TextEditorModule::render(Platform& pfrm, int start_line)
             auto mapping_info = locale_texture_map()(c);
             const u16 t = pfrm.map_glyph(c, *mapping_info);
 
-            while (x not_eq 30) {
+            while (x not_eq calc_screen_tiles(pfrm).x) {
                 pfrm.set_tile(Layer::overlay, x, y, t);
                 ++x;
             }
@@ -340,8 +343,8 @@ FILL:
     auto mapping_info = locale_texture_map()(c);
     const u16 t = pfrm.map_glyph(c, *mapping_info);
 
-    while (y not_eq y_max) {
-        while (x not_eq 30) {
+    while (y not_eq y_max(pfrm)) {
+        while (x not_eq calc_screen_tiles(pfrm).x) {
             pfrm.set_tile(Layer::overlay, x, y, t);
             ++x;
         }
@@ -513,6 +516,10 @@ void TextEditorModule::enter(Platform& pfrm, App&, Scene& prev)
 {
     pfrm.load_overlay_texture("overlay_editor");
 
+    while (pfrm.screen().touch()) {
+        pfrm.system_call("swap-screens", nullptr);
+    }
+
     header_.emplace(pfrm, OverlayCoord{});
     StringBuffer<32> temp("  text editor  ");
     switch (syntax_mode_) {
@@ -529,7 +536,7 @@ void TextEditorModule::enter(Platform& pfrm, App&, Scene& prev)
                     FontColors{custom_color(0x000010), custom_color(0xffffff)});
 
 
-    status_.emplace(pfrm, OverlayCoord{0, 19});
+    status_.emplace(pfrm, OverlayCoord{0, u8((calc_screen_tiles(pfrm).y - 1))});
 
 
     for (char c : text_buffer_) {
@@ -625,7 +632,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
     auto center_view = [&] {
-        start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+        start_line_ = std::max(0, cursor_.y - ((y_max(pfrm) - 2) / 2));
         if (cursor_.x > 15) {
             column_offset_ = cursor_.x - 15;
         } else {
@@ -683,7 +690,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     column_offset_ = cursor_.x;
                     do_render = true;
                 }
-                while (cursor_.x > column_offset_ + 29) {
+                while (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
                     ++column_offset_;
                     do_render = true;
                 }
@@ -698,7 +705,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_.x -= back_word();
                 cursor_.x = std::max(cursor_.x, 0);
                 ideal_cursor_right_ = cursor_.x;
-                if (cursor_.x > column_offset_ + 29) {
+                if (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
                     ++column_offset_;
                     do_render = true;
                 }
@@ -732,8 +739,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
                 bool do_render = false;
 
-                if (cursor_.y > start_line_ + 17) {
-                    start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+                if (cursor_.y > start_line_ + (calc_screen_tiles(pfrm).y - 3)) {
+                    start_line_ = std::max(0, cursor_.y - ((y_max(pfrm) - 2) / 2));
                     do_render = true;
                 }
 
@@ -778,7 +785,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 bool do_render = false;
 
                 if (cursor_.y < start_line_) {
-                    start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+                    start_line_ = std::max(0, cursor_.y - ((y_max(pfrm) - 2) / 2));
                     do_render = true;
                 }
 
@@ -812,7 +819,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (app.player().key_pressed(pfrm, Key::alt_1)) {
             if (app.player().key_down(pfrm, Key::action_1)) {
                 auto pos = insert_pos();
-                insert_char('\n', pos);
+                insert_char(pfrm, '\n', pos);
                 cursor_.x = 0; // newline
                 cursor_.y += 1;
                 ++pos;
@@ -828,7 +835,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     ++begin;
                 }
                 while (paren_balance) {
-                    insert_char(' ', pos++);
+                    insert_char(pfrm, ' ', pos++);
                     ++cursor_.x;
                     --paren_balance;
                 }
@@ -836,7 +843,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 shade_cursor();
             } else if (app.player().key_down(pfrm, Key::action_2)) {
                 if (selected()) {
-                    delete_selection();
+                    delete_selection(pfrm);
                 } else {
                     erase_char();
                     cursor_.x -= 1;
@@ -849,7 +856,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 if (cursor_.x < column_offset_) {
                     column_offset_ = cursor_.x;
                 }
-                while (cursor_.x > column_offset_ + 29) {
+                while (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
                     ++column_offset_;
                 }
                 render(pfrm, start_line_);
@@ -860,7 +867,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 if (cursor_.x < column_offset_) {
                     column_offset_ = cursor_.x;
                 }
-                while (cursor_.x > column_offset_ + 29) {
+                while (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
                     ++column_offset_;
                 }
                 bool dummy;
@@ -870,7 +877,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             } else if (app.player().key_down(pfrm, Key::left)) {
                 cursor_.x = 0;
                 ideal_cursor_right_ = cursor_.x;
-                if (cursor_.x > column_offset_ + 29) {
+                if (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
                     ++column_offset_;
                 }
                 if (cursor_.x < column_offset_) {
@@ -884,7 +891,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_.x = 0;
                 cursor_.y = line_count_;
                 column_offset_ = 0;
-                start_line_ = std::max(0, line_count_ - 17);
+                start_line_ = std::max(0, line_count_ - (calc_screen_tiles(pfrm).y - 3));
                 bool dummy;
                 sel_forward(dummy);
                 render(pfrm, start_line_);
@@ -911,7 +918,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             bool do_render = false;
 
             if (cursor_.y < start_line_) {
-                start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+                start_line_ = std::max(0, cursor_.y - ((y_max(pfrm) - 2) / 2));
                 do_render = true;
             }
             cursor_.x = ideal_cursor_right_;
@@ -925,7 +932,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
 
-            while (cursor_.x > column_offset_ + 29) {
+            while (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
                 do_render = true;
                 ++column_offset_;
             }
@@ -949,8 +956,8 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
             app.player().key_held_reset(Key::down, milliseconds(60));
 
-            if (cursor_.y > start_line_ + 17) {
-                start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+            if (cursor_.y > start_line_ + (calc_screen_tiles(pfrm).y - 3)) {
+                start_line_ = std::max(0, cursor_.y - ((y_max(pfrm) - 2) / 2));
                 do_render = true;
             }
             cursor_.x = ideal_cursor_right_;
@@ -964,7 +971,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
 
-            while (cursor_.x > column_offset_ + 29) {
+            while (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
                 ++column_offset_;
                 do_render = true;
             }
@@ -991,7 +998,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 bool do_render = false;
 
                 ideal_cursor_right_ = cursor_.x;
-                while (cursor_.x > column_offset_ + 29) {
+                while (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
                     ++column_offset_;
                     do_render = true;
                 }
@@ -1022,7 +1029,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
                 ++cursor_.y;
 
-                if (cursor_.y > start_line_ + 17) {
+                if (cursor_.y > start_line_ + (calc_screen_tiles(pfrm).y - 3)) {
                     ++start_line_;
                     do_render = true;
                 }
@@ -1078,7 +1085,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     column_offset_ = cursor_.x;
                     do_render = true;
                 }
-                while (cursor_.x > column_offset_ + 29) {
+                while (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
                     ++column_offset_;
                     do_render = true;
                 }
@@ -1122,7 +1129,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     filesystem_ == FileSystem::rom);
             }
         } else if (app.player().key_down(pfrm, Key::action_1)) {
-            start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+            start_line_ = std::max(0, cursor_.y - ((y_max(pfrm) - 2) / 2));
             show_keyboard_ = true;
             mode_ = Mode::edit;
             keyboard_cursor_ = {5, 4};
@@ -1176,12 +1183,12 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                 if (cursor_.x < column_offset_) {
                     column_offset_ = cursor_.x;
                 }
-                while (cursor_.x > column_offset_ + 29) {
+                while (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
                     ++column_offset_;
                 }
             } else {
                 auto do_insert = [&](char c) {
-                    insert_char(c);
+                    insert_char(pfrm, c);
                     if (c == '\n') {
                         cursor_.x = 0;
                         cursor_.y += 1;
@@ -1189,7 +1196,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                         cursor_.x += 1;
                     }
 
-                    if (cursor_.x > column_offset_ + 29) {
+                    if (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
                         ++column_offset_;
                     }
                     if (cursor_.x < column_offset_) {
@@ -1294,7 +1301,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             auto insert = insert_pos();
             for (u32 i = state_->current_word_.length(); i < cpl.length();
                  ++i) {
-                insert_char(cpl[i], insert);
+                insert_char(pfrm, cpl[i], insert);
                 ++cursor_.x;
                 ++insert;
             }
@@ -1366,7 +1373,7 @@ void TextEditorModule::erase_char(std::optional<Vector<char>::Iterator> hint)
 
 
 
-void TextEditorModule::delete_selection()
+void TextEditorModule::delete_selection(Platform& pfrm)
 {
     int cursor_y_shift = 0;
 
@@ -1397,14 +1404,15 @@ void TextEditorModule::delete_selection()
     cursor_.x = cursor_x;
     cursor_.y -= cursor_y_shift;
 
-    if (cursor_.y > start_line_ + 17 or cursor_.y < start_line_) {
-        start_line_ = std::max(0, cursor_.y - ((y_max - 2) / 2));
+    if (cursor_.y > start_line_ + (calc_screen_tiles(pfrm).y - 3) or
+        cursor_.y < start_line_) {
+        start_line_ = std::max(0, cursor_.y - ((y_max(pfrm) - 2) / 2));
     }
 
     if (cursor_.x < column_offset_) {
         column_offset_ = cursor_.x;
     }
-    while (cursor_.x > column_offset_ + 29) {
+    while (cursor_.x > column_offset_ + (calc_screen_tiles(pfrm).x - 1)) {
         ++column_offset_;
     }
 }
@@ -1414,14 +1422,14 @@ void TextEditorModule::delete_selection()
 void TextEditorModule::paste_selection(Platform& pfrm, Vector<char>& source)
 {
     if (state_->sel_begin_) {
-        delete_selection();
+        delete_selection(pfrm);
     }
 
     auto insert = insert_pos();
 
     for (char c : source) {
         pfrm.feed_watchdog();
-        insert_char(c, insert);
+        insert_char(pfrm, c, insert);
         if (c == '\n') {
             ++cursor_.y;
             cursor_.x = 0;
@@ -1461,7 +1469,8 @@ void TextEditorModule::save_selection(Vector<char>& output)
 
 
 
-void TextEditorModule::insert_char(char c,
+void TextEditorModule::insert_char(Platform& pfrm,
+                                   char c,
                                    std::optional<Vector<char>::Iterator> hint)
 {
     state_->modified_ = true;
@@ -1471,7 +1480,7 @@ void TextEditorModule::insert_char(char c,
     }
 
     if (state_->sel_begin_) {
-        delete_selection();
+        delete_selection(pfrm);
     }
 
     auto begin = hint ? *hint : insert_pos();

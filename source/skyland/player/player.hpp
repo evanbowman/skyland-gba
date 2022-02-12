@@ -131,7 +131,7 @@ public:
     std::optional<Vec2<u32>> tap_released(Platform& pfrm)
     {
         auto info = touch_released(pfrm);
-        if (info and std::get<1>(*info) < milliseconds(350)) {
+        if (info and std::get<1>(*info) < milliseconds(100)) {
             return std::get<0>(*info);
         }
         return {};

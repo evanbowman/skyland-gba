@@ -93,12 +93,13 @@ private:
 
 
     Vector<char>::Iterator insert_pos();
-    void insert_char(char c,
+    void insert_char(Platform& pfrm,
+                     char c,
                      std::optional<Vector<char>::Iterator> insert_hint = {});
     void erase_char(std::optional<Vector<char>::Iterator> erase_hint = {});
 
 
-    void delete_selection();
+    void delete_selection(Platform& pfrm);
     void save_selection(Vector<char>& output);
     void paste_selection(Platform& pfrm, Vector<char>& source);
 

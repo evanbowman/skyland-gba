@@ -86,6 +86,20 @@ static Vec2<int> scale_offset(Platform& pfrm)
 
 
 
+static Vec2<int> spr_scale_offset(Platform& pfrm)
+{
+    if (pfrm.screen().size() == Vec2<u32>{240, 160}) {
+        return scale_offset(pfrm);
+    } else {
+        return {
+            scale_offset(pfrm).x,
+            scale_offset(pfrm).y + 8
+        };
+    }
+}
+
+
+
 static void set_scroll(Platform& pfrm, Layer layer, int x_scroll, int y_scroll)
 {
     auto offset = scale_offset(pfrm);
@@ -153,38 +167,23 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    __draw_image(pfrm, 1, 0, 3, 30, 14, Layer::map_1);
-    __draw_image(pfrm, 1, 0, 3, 30, 14, Layer::map_0);
 
-    window_image_hack(pfrm, 2);
+    if (pfrm.screen().size().y == 160) {
+        // The original graphcs, for the gba
+        __draw_image(pfrm, 31, 0, 3, 30, 14, Layer::map_1);
+        __draw_image(pfrm, 31, 0, 3, 30, 14, Layer::map_0);
+    } else {
+        // The expanded background graphics, with new rows added to the
+        // beginning and end. For the nds, with its taller screen.
+        __draw_image(pfrm, 1, 0, 3, 30, 16, Layer::map_1);
+        __draw_image(pfrm, 1, 0, 3, 30, 16, Layer::map_0);
+    }
 
     set_scroll(pfrm, Layer::map_1_ext, 0, -offset + 8);
 
     pfrm.set_overlay_origin(0, 4);
 
     app.delete_backup();
-}
-
-
-
-void TitleScreenScene::window_image_hack(Platform& pfrm, u16 empty_tile)
-{
-    // We needed to cram the textures for the scrolling background image into
-    // the texture for another background layer (in this case, into the empty
-    // space inside the window image). But, we draw the layer as an image, and
-    // we need to mask out all of the bits that we don't want to be visible.
-
-    // for (int i = 3; i < 12; ++i) {
-    //     pfrm.set_tile(Layer::map_1_ext, i, 4, empty_tile);
-    //     pfrm.set_tile(Layer::map_1_ext, i, 5, empty_tile);
-    // }
-    // pfrm.set_tile(Layer::map_1_ext, 3, 6, empty_tile);
-
-    for (int i = 3; i < 12; ++i) {
-        pfrm.set_tile(Layer::map_0_ext, i, 4, empty_tile);
-        pfrm.set_tile(Layer::map_0_ext, i, 5, empty_tile);
-    }
-    pfrm.set_tile(Layer::map_0_ext, 3, 6, empty_tile);
 }
 
 
@@ -411,6 +410,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     app.update_parallax(delta);
 
+    app.player().update(pfrm, app, delta);
+
     rng::get(rng::critical_state);
 
     hover_timer_ += delta;
@@ -493,7 +494,6 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         state_ = State::fade_in;
         menu_selection_ = 3;
         pfrm.load_tile0_texture("skyland_title_3_flattened");
-        window_image_hack(pfrm, 130);
         x_scroll_ = 480;
         break;
 
@@ -534,7 +534,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (pfrm.keyboard().pressed<Key::action_1>()) {
+        if (pfrm.keyboard().pressed<Key::action_1>() or
+            app.player().tap_released(pfrm)) {
             state_ = State::fade_out;
             if (menu_selection_ == 3) {
                 state_ = State::fade_modules_1;
@@ -544,7 +545,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.player().key_pressed(pfrm, Key::right) or
-            app.player().key_pressed(pfrm, Key::down)) {
+            app.player().key_pressed(pfrm, Key::down) or
+            (app.player().touch_held(milliseconds(200)) and
+             app.player().touch_velocity(pfrm).x and
+             app.player().touch_velocity(pfrm).x * delta < -0.2f)) {
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
                 put_menu_text(pfrm);
@@ -563,11 +567,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 timer_ = 0;
                 pfrm.sleep(1);
                 pfrm.load_tile0_texture("skyland_title_3_flattened");
-                window_image_hack(pfrm, 130);
             }
         }
         if (app.player().key_pressed(pfrm, Key::left) or
-            app.player().key_pressed(pfrm, Key::up)) {
+            app.player().key_pressed(pfrm, Key::up) or
+            app.player().touch_velocity(pfrm).x * delta > 0.2f) {
             if (menu_selection_ == 1) {
                 menu_selection_ = 0;
                 put_menu_text(pfrm);
@@ -646,7 +650,6 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             x_scroll_ = 240;
             pfrm.sleep(1);
             pfrm.load_tile0_texture("skyland_title_0_flattened");
-            window_image_hack(pfrm, 2);
         } else {
             const auto amount = smoothstep(0.f, duration, timer_);
             x_scroll_ = 480 - 240 * amount;
@@ -926,7 +929,7 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
 
         Vec2<Float> pos{Float(135 - x_scroll_ / 3) + island_offset_,
                         Float(110 - 0.25f * (240 - x_scroll_))};
-        sprite.set_position(pos + scale_offset(pfrm).cast<Float>());
+        sprite.set_position(pos + spr_scale_offset(pfrm).cast<Float>());
         sprite.set_priority(3);
 
         pfrm.screen().draw(sprite);
@@ -946,7 +949,7 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
             std::numeric_limits<s16>::max();
 
         pos.y += ambient_movement;
-        pos = pos + scale_offset(pfrm).cast<Float>();
+        pos = pos + spr_scale_offset(pfrm).cast<Float>();
 
         spr.set_position(pos);
         pfrm.screen().draw(spr);
@@ -1058,13 +1061,13 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
                 clamp(interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
                       0.f,
                       19.f)} +
-        scale_offset(pfrm).cast<Float>());
+        spr_scale_offset(pfrm).cast<Float>());
     pfrm.screen().draw(sprite);
 
     sprite.set_position(
         Vec2<Float>{(anchor.x + 24) - (240 + x_scroll),
                     anchor.y + interpolate(ball_.y, pad2_.pos_, ball_.x / 22)} +
-        scale_offset(pfrm).cast<Float>());
+        spr_scale_offset(pfrm).cast<Float>());
 
     pfrm.screen().draw(sprite);
 
@@ -1072,7 +1075,7 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
     sprite.set_texture_index(27);
     sprite.set_position(Vec2<Float>{(ball_.x + anchor.x) - (240 + x_scroll),
                                     ball_.y + anchor.y} +
-                        scale_offset(pfrm).cast<Float>());
+                        spr_scale_offset(pfrm).cast<Float>());
     pfrm.screen().draw(sprite);
 }
 

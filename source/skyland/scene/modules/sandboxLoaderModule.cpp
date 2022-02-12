@@ -162,7 +162,8 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     app.player().update(pfrm, app, delta);
 
-    if (app.player().key_down(pfrm, Key::action_1)) {
+    if (app.player().key_down(pfrm, Key::action_1) or
+        app.player().tap_released(pfrm)) {
         pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<FadeInScene>();
     } else if (app.player().key_down(pfrm, Key::action_2)) {

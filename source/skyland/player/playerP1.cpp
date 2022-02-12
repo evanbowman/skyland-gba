@@ -74,6 +74,29 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
 
     } else /* not a tutorial level */ {
 
+        if (delta > 0) {
+            if (touch_held(milliseconds(200))) {
+                if (auto p = touch_current(pfrm)) {
+                    auto last = last_touch_;
+                    auto velocity = (p->cast<s32>() - last.cast<s32>()).cast<Float>();
+                    velocity.x /= delta;
+                    velocity.y /= delta;
+                    // info(pfrm, format("p__ % %", p->x, p->y));
+                    // info(pfrm, format("lst % %", last.x, last.y));
+                    touch_velocity_.x = ((19 * touch_velocity_.x) + velocity.x) / 20;
+                    touch_velocity_.y = ((19 * touch_velocity_.y) + velocity.y) / 20;
+
+
+                    // info(pfrm, format("vel % %",
+                    //                   touch_velocity_.x,
+                    //                   touch_velocity_.y));
+                }
+            } else {
+                touch_velocity_ = {};
+            }
+        }
+
+
         if (auto t = pfrm.screen().touch()) {
             if (auto pos = t->read()) {
                 last_touch_ = *pos;
@@ -87,18 +110,6 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
             touch_held_time_ = 0;
         }
 
-
-        if (delta > 0) {
-            if (touch_held(milliseconds(200))) {
-                if (auto p = touch_current(pfrm)) {
-                    auto last = last_touch_;
-                    touch_velocity_ = (*p - last).cast<Float>();
-                    touch_velocity_.x /= delta;
-                    touch_velocity_.y /= delta;
-                    last_touch_ = *p;
-                }
-            }
-        }
 
 
         touch_invalidate_ = false;
