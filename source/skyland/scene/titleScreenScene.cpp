@@ -197,6 +197,11 @@ void TitleScreenScene::redraw_margins(Platform& pfrm)
         pfrm.set_tile(Layer::overlay, i, 1, 112);
         pfrm.set_tile(Layer::overlay, i, 2, 116);
 
+        pfrm.set_tile(Layer::overlay, i, screen_tiles.y, 112);
+        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
+        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 2, 112);
+        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
+        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 256);
 
         if (scale_offset(pfrm).y / 8 > 0) {
 
@@ -210,14 +215,16 @@ void TitleScreenScene::redraw_margins(Platform& pfrm)
             }
 
             pfrm.set_tile(Layer::overlay, i, y, 116);
+
+            // FIXME!
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y, 112);
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 2, 112);
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 112);
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 5, 256);
         }
 
-
-        pfrm.set_tile(Layer::overlay, i, screen_tiles.y, 112);
-        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 1, 112);
-        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 2, 112);
-        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
-        pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 256);
     }
 
     // Our images are 240p wide. Letterbox the graphics.
@@ -288,6 +295,18 @@ static const int modules_per_page = modules_per_row * 2;
 
 
 
+int text_offset(Platform& pfrm)
+{
+    // FIXME! Use aspect ratio instead!
+    if (pfrm.device_name() == "GameboyAdvance") {
+        return 2;
+    } else {
+        return 3;
+    }
+}
+
+
+
 void TitleScreenScene::put_module_text(Platform& pfrm)
 {
     text_.reset();
@@ -313,7 +332,8 @@ void TitleScreenScene::put_module_text(Platform& pfrm)
     auto margin = centered_text_margins(pfrm, buffer.length());
     text_.emplace(pfrm,
                   buffer.c_str(),
-                  OverlayCoord{u8(st.x - (len + margin)), u8(st.y - 2)});
+                  OverlayCoord{u8(st.x - (len + margin)),
+                      u8(st.y - text_offset(pfrm))});
 }
 
 
@@ -333,13 +353,17 @@ void TitleScreenScene::put_menu_text(Platform& pfrm)
     auto margin = centered_text_margins(pfrm, buffer.length());
     text_.emplace(pfrm,
                   buffer.c_str(),
-                  OverlayCoord{u8(st.x - (len + margin + 1)), u8(st.y - 2)});
+                  OverlayCoord{u8(st.x - (len + margin + 1)),
+                      u8(st.y - text_offset(pfrm))});
 
     menu_selection_start_ = margin + 1 + prefix_len + (len % 2 ? 1 : 0);
     menu_selection_stop_ = margin + 1 + buffer.length() + (len % 2 ? 1 : 0);
 
-    pfrm.set_tile(Layer::overlay, menu_selection_start_ - 4, st.y - 2, 375);
-    pfrm.set_tile(Layer::overlay, menu_selection_stop_ - 1, st.y - 2, 376);
+    pfrm.set_tile(Layer::overlay, menu_selection_start_ - 4,
+                  st.y - text_offset(pfrm), 375);
+
+    pfrm.set_tile(Layer::overlay, menu_selection_stop_ - 1,
+                  st.y - text_offset(pfrm), 376);
 }
 
 
@@ -522,15 +546,25 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             const auto st = calc_screen_tiles(pfrm);
             if (selector_shaded_) {
-                pfrm.set_tile(
-                    Layer::overlay, menu_selection_start_ - 4, st.y - 2, 373);
-                pfrm.set_tile(
-                    Layer::overlay, menu_selection_stop_ - 1, st.y - 2, 374);
+                pfrm.set_tile(Layer::overlay,
+                              menu_selection_start_ - 4,
+                              st.y - text_offset(pfrm),
+                              373);
+
+                pfrm.set_tile(Layer::overlay,
+                              menu_selection_stop_ - 1,
+                              st.y - text_offset(pfrm),
+                              374);
             } else {
-                pfrm.set_tile(
-                    Layer::overlay, menu_selection_start_ - 4, st.y - 2, 375);
-                pfrm.set_tile(
-                    Layer::overlay, menu_selection_stop_ - 1, st.y - 2, 376);
+                pfrm.set_tile(Layer::overlay,
+                              menu_selection_start_ - 4,
+                              st.y - text_offset(pfrm),
+                              375);
+
+                pfrm.set_tile(Layer::overlay,
+                              menu_selection_stop_ - 1,
+                              st.y - text_offset(pfrm),
+                              376);
             }
         }
 

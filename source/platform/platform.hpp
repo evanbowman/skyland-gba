@@ -80,43 +80,48 @@ public:
     // if the platform does not provide a functional clock.
     std::optional<DateTime> startup_time() const;
 
-    inline Screen& screen()
+    Screen& screen()
     {
         return screen_;
     }
 
-    inline Keyboard& keyboard()
+
+    // For devices with two screens, like the nintendo ds.
+    Screen* sub_screen();
+
+
+    Keyboard& keyboard()
     {
         return keyboard_;
     }
 
 
-    inline Logger& logger()
+    Logger& logger()
     {
         return logger_;
     }
 
-    inline Speaker& speaker()
+    Speaker& speaker()
     {
         return speaker_;
     }
 
-    inline NetworkPeer& network_peer()
+    NetworkPeer& network_peer()
     {
         return network_peer_;
     }
 
-    inline RemoteConsole& remote_console()
+    RemoteConsole& remote_console()
     {
         return console_;
     }
 
-    inline DeltaClock& delta_clock()
+    DeltaClock& delta_clock()
     {
         return delta_clock_;
     }
 
-    inline SystemClock& system_clock()
+    SystemClock& system_clock()
     {
         return system_clock_;
     }
