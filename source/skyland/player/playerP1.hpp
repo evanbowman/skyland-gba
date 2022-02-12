@@ -63,6 +63,8 @@ private:
     Microseconds last_touch_held_time_ = 0;
 
     bool touch_invalidate_ = false;
+    Vec2<u32> last_touch_;
+    Vec2<Float> touch_velocity_;
 
     Microseconds key_held_timers_[static_cast<int>(Key::count)];
 };

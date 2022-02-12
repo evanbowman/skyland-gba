@@ -27,7 +27,7 @@ void clear_room_description(Platform& pfrm,
 
 
 std::tuple<u8, u8, Island*>
-touch_check_island_clicked(Platform& pfrm, App& app, const Vec2<u32>& pos);
+check_island_tapclick(Platform& pfrm, App& app, const Vec2<u32>& pos);
 
 
 
@@ -174,7 +174,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
         if (auto pos = app.player().tap_released(pfrm)) {
-            auto [x, y, island] = touch_check_island_clicked(pfrm, app, *pos);
+            auto [x, y, island] = check_island_tapclick(pfrm, app, *pos);
             if (island == app.opponent_island()) {
                 if (auto scene = onclick({x, y})) {
                     return scene;

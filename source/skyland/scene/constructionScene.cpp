@@ -69,6 +69,36 @@ static bool show_construction_icons = true;
 
 
 
+bool tapped_topleft_corner(Platform& pfrm, App& app);
+
+
+
+std::optional<Vec2<u8>> get_local_tapclick(Platform& pfrm,
+                                           Island* island,
+                                           const Vec2<u32>& pos)
+{
+    const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
+
+    auto island_pos = island->get_position();
+    island_pos.x -= view_offset.x;
+    island_pos.y -= view_offset.y;
+
+    if (pos.x >= island_pos.x and
+        pos.x <= island_pos.x + (1 + island->terrain().size()) * 16) {
+
+        int x_tile = -((island_pos.x - pos.x) / 16);
+        int y_tile = -((island_pos.y - pos.y) / 16);
+
+        y_tile += 31; // FIXME!
+
+        return {{(u8)x_tile, (u8)y_tile}};
+    }
+
+    return {};
+}
+
+
+
 ScenePtr<Scene>
 ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -104,7 +134,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
               : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
 
-    if (app.player().key_down(pfrm, Key::alt_2) or
+    if (tapped_topleft_corner(pfrm, app) or
+        app.player().key_down(pfrm, Key::alt_2) or
         (state_ == State::select_loc and
          app.player().key_down(pfrm, Key::action_2))) {
         if (not construction_sites_.empty()) {
@@ -115,6 +146,16 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    auto tapclick = [&]() -> std::optional<Vec2<u8>> {
+        if (auto pos = app.player().tap_released(pfrm)) {
+            auto clk = get_local_tapclick(pfrm, island(app), *pos);
+
+            return clk;
+        }
+        return std::nullopt;
+    }();
+
+
     auto test_key = [&](Key k) {
         return app.player().test_key(
             pfrm, k, milliseconds(500), milliseconds(100));
@@ -123,6 +164,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (state_) {
     case State::select_loc:
+
         if (test_key(Key::right)) {
             if (selector_ < construction_sites_.size() - 1) {
                 ++selector_;
@@ -158,8 +200,11 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             cursor_loc.y = construction_sites_[selector_].y;
         }
 
-        if (app.player().key_down(pfrm, Key::action_1) and
+        if (((tapclick and *tapclick == construction_sites_[selector_]) or
+             app.player().key_down(pfrm, Key::action_1)) and
             not construction_sites_.empty()) {
+
+            tapclick.reset();
 
             if (construction_sites_[selector_].y == 15) {
                 // Special case: we want to add to the terrain level, not
@@ -201,6 +246,27 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                     sound_openbag.play(pfrm, 1, seconds(2));
                     sound_openbag.reset();
                     show_current_building_text(pfrm, app);
+                }
+            }
+        } else if (tapclick) {
+            // First try to find an exact match. If not, try a loose match based
+            // on x coordinate.
+            for (u32 i = 0; i < construction_sites_.size(); ++i) {
+                if (construction_sites_[i] == *tapclick) {
+                    tapclick.reset();
+                    selector_ = i;
+                    camera_update_timer_ = milliseconds(500);
+                    break;
+                }
+            }
+            if (tapclick) {
+                for (u32 i = 0; i < construction_sites_.size(); ++i) {
+                    if (construction_sites_[i].x == tapclick->x) {
+                        tapclick.reset();
+                        selector_ = i;
+                        camera_update_timer_ = milliseconds(500);
+                        break;
+                    }
                 }
             }
         }
@@ -290,7 +356,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
+        if (tapclick == construction_sites_[selector_] or
+            app.player().key_down(pfrm, Key::action_1)) {
             const auto& target =
                 *load_metaclass(available_buildings_[building_selector_]);
 

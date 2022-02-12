@@ -48,7 +48,7 @@ void describe_room(Platform& pfrm,
 
 
 std::tuple<u8, u8, Island*>
-touch_check_island_clicked(Platform& pfrm, App& app, const Vec2<u32>& pos);
+check_island_tapclick(Platform& pfrm, App& app, const Vec2<u32>& pos);
 
 
 
@@ -57,6 +57,10 @@ ScenePtr<Scene> player_island_onclick(Platform& pfrm,
                                       Microseconds& camera_update_timer,
                                       std::optional<Text>& room_description,
                                       const Vec2<u8>& pos);
+
+
+
+bool tapped_topleft_corner(Platform& pfrm, App& app);
 
 
 
@@ -151,8 +155,15 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    if (app.game_mode() == App::GameMode::sandbox and
+        (tapped_topleft_corner(pfrm, app) or
+         app.player().key_down(pfrm, Key::alt_2))) {
+        return scene_pool::alloc<ConstructionScene>(false);
+    }
+
+
     if (auto pos = app.player().tap_released(pfrm)) {
-        auto [x, y, island] = touch_check_island_clicked(pfrm, app, *pos);
+        auto [x, y, island] = check_island_tapclick(pfrm, app, *pos);
 
         if (island == &app.player_island()) {
             if (auto scene = player_island_onclick(pfrm,
@@ -211,11 +222,6 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().key_down(pfrm, Key::start)) {
         return scene_pool::alloc<KeyComboScene>(false);
-    }
-
-    if (app.game_mode() == App::GameMode::sandbox and
-        app.player().key_down(pfrm, Key::alt_2)) {
-        return scene_pool::alloc<ConstructionScene>(false);
     }
 
     if (not pfrm.network_peer().is_connected() and app.launch_repl()) {

@@ -534,6 +534,11 @@ void* Platform::system_call(const char* feature_name, void* arg)
                           screen_.get_view().get_center().cast<s32>().x / 3;
                 parallax_table[i] = temp;
             }
+
+            for (int i = 160 - offset; i < SCREEN_HEIGHT; ++i) {
+                vertical_parallax_table[i] = -18 + -(i - (160 - offset));
+            }
+
             return nullptr;
         }
 
@@ -546,10 +551,6 @@ void* Platform::system_call(const char* feature_name, void* arg)
         for (int i = 128 - offset; i < 160 - offset; ++i) {
             parallax_table[i] = x_amount;
             vertical_parallax_table[i] = offset;
-        }
-
-        for (int i = 160 - offset; i < SCREEN_HEIGHT; ++i) {
-            vertical_parallax_table[i] = -18 + -(i - (160 - offset));
         }
 
         // When the two layers of parallax scrolling diverge, there is a gap of
@@ -566,6 +567,9 @@ void* Platform::system_call(const char* feature_name, void* arg)
             parallax_table[i] = x_amount;
         }
 
+        for (int i = 160 - offset; i < SCREEN_HEIGHT; ++i) {
+            vertical_parallax_table[i] = -18 + -(i - (160 - offset));
+        }
 
     } else if (str_cmp(feature_name, "parallax-clouds") == 0) {
 
@@ -1566,8 +1570,8 @@ void Platform::load_sprite_texture(const char* name)
             // skipping two tiles).
             memcpy16(SPRITE_GFX + vram_tile_size(),
                      (u16*)info.tile_data_,
-                     std::min((u32)16128, info.tile_data_length_ / 2)
-                     - vram_tile_size());
+                     std::min((u32)16128, info.tile_data_length_ / 2) -
+                         vram_tile_size());
 
             // We need to do this, otherwise whatever screen fade is currently
             // active will be overwritten by the copy.

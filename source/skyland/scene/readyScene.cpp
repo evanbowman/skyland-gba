@@ -50,7 +50,7 @@ void clear_room_description(Platform& pfrm,
 
 
 std::tuple<u8, u8, Island*>
-touch_check_island_clicked(Platform& pfrm, App& app, const Vec2<u32>& pos)
+check_island_tapclick(Platform& pfrm, App& app, const Vec2<u32>& pos)
 {
     const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
 
@@ -134,6 +134,18 @@ ScenePtr<Scene> player_island_onclick(Platform& pfrm,
 
 
 
+bool tapped_topleft_corner(Platform& pfrm, App& app)
+{
+    if (auto pos = app.player().tap_released(pfrm)) {
+        if (pos->x < 36 and pos->y < 36) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
 ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
@@ -146,7 +158,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<FadeOutScene>();
     }
 
-    if (app.player().key_down(pfrm, Key::alt_2)) {
+    if (tapped_topleft_corner(pfrm, app) or
+        app.player().key_down(pfrm, Key::alt_2)) {
         return scene_pool::alloc<ConstructionScene>();
     }
 
@@ -243,7 +256,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (auto pos = app.player().tap_released(pfrm)) {
-        auto [x, y, island] = touch_check_island_clicked(pfrm, app, *pos);
+        auto [x, y, island] = check_island_tapclick(pfrm, app, *pos);
 
         if (island == &app.player_island()) {
             if (auto scene = player_island_onclick(pfrm,
@@ -253,7 +266,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                                                    {x, y})) {
                 return scene;
             } else {
-                cursor_loc = {x, y};
+                cursor_loc = {x, std::min(u8(15), y)};
                 camera_update_timer_ = milliseconds(500);
             }
         } else if (island == app.opponent_island()) {

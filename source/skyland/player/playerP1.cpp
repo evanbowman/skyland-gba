@@ -76,6 +76,7 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (auto t = pfrm.screen().touch()) {
             if (auto pos = t->read()) {
+                last_touch_ = *pos;
                 touch_held_time_ += delta;
             } else {
                 last_touch_held_time_ = touch_held_time_;
