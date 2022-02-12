@@ -27,8 +27,12 @@ static int run_gc();
 static const u32 string_intern_table_size = 3000;
 
 
+#if defined(__NDS__)
+#define VALUE_POOL_SIZE 20000
+#elif defined(__GBA__)
 #define VALUE_POOL_SIZE 9000
-
+#else
+#endif
 
 union ValueMemory {
     Value value_;

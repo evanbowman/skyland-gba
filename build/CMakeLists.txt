@@ -648,8 +648,8 @@ if(NINTENDO_DS)
 
   add_custom_command(TARGET SkylandEngine POST_BUILD
     COMMENT "building cartridge"
-    COMMAND ${DEVKITARM}/bin/arm-none-eabi-objcopy -O binary SkylandEngine SkylandEngine.gba
-    COMMAND ${DEVKITPRO}/tools/bin/ndstool -c Skyland.nds -9 SkylandEngine.gba)
+    COMMAND ${DEVKITARM}/bin/arm-none-eabi-objcopy -O binary SkylandEngine SkylandEngine.arm9
+    COMMAND ${DEVKITPRO}/tools/bin/ndstool -c Skyland.nds -9 SkylandEngine.arm9 -g YKWE 01 SKYLAND 0)
 
 
 elseif(GAMEBOY_ADVANCE)

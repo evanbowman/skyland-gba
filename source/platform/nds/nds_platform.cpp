@@ -185,6 +185,8 @@ static u32 affine_transform_write_index = 0;
 static u32 last_affine_transform_write_index = 0;
 
 
+static bool save_chip_valid = false;
+
 
 static Platform::Screen::Shader shader = passthrough_shader;
 static int shader_argument = 0;
@@ -262,7 +264,6 @@ enum class GlobalFlag {
     rtc_faulty,
     gbp_unlocked,
     multiplayer_connected,
-    save_using_flash,
     glyph_mode,
     parallax_clouds,
     v_parallax,
@@ -768,6 +769,12 @@ void Platform::on_unrecoverrable_error(UnrecoverrableErrorCallback callback)
 
 bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 {
+    if (not save_chip_valid) {
+        return false;
+    }
+
+
+
     return false;
 }
 
@@ -775,6 +782,12 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 
 bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
 {
+    if (not save_chip_valid) {
+        return false;
+    }
+
+
+
     return false;
 }
 
@@ -782,6 +795,7 @@ bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
 
 int Platform::save_capacity()
 {
+    info(*platform, format("save cap %", cardEepromGetSize()));
     return 32000;
 }
 
@@ -2370,6 +2384,7 @@ Platform::Platform()
 {
     ::platform = this;
 
+
     for (int i = 0; i < 16; ++i) {
         BG_PALETTE[(15 * 16) + i] = Color(custom_color(0xef0d54)).bgr_hex_555();
     }
@@ -2392,6 +2407,21 @@ Platform::Platform()
     }
 
     consoleDemoInit();
+
+    sysSetBusOwners(true, true);
+    static u8 header1[512];
+    static u8 header2[512];
+    cardReadHeader(header1);
+    cardReadHeader(header2);
+
+    if (memcmp(header1, header2, 32) == 0) {
+        // Valid header
+
+        info(*this, format("save type %", cardEepromGetType()));
+        info(*this, format("save size %", cardEepromGetSize()));
+    } else {
+        info(*this, "encrypted card header! saving disabled!");
+    }
 
     if (not filesystem::is_mounted()) {
         fatal("failed to mount filesystem!");
