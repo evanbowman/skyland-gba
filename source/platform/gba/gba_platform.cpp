@@ -13,6 +13,7 @@
 #include "filesystem.hpp"
 #include "gbp_logo.hpp"
 #include "graphics/overlay.hpp"
+#include "images.cpp"
 #include "localization.hpp"
 #include "mixer.hpp"
 #include "number/random.hpp"
@@ -26,7 +27,6 @@
 #include "vector.hpp"
 #include <algorithm>
 #include <setjmp.h>
-#include "images.cpp"
 
 
 
@@ -1420,7 +1420,6 @@ const Platform::Screen::Touch* Platform::Screen::touch() const
     // No touchscreen on the gba!
     return nullptr;
 }
-
 
 
 
@@ -4845,8 +4844,7 @@ MASTER_RETRY:
 
     set_gflag(GlobalFlag::multiplayer_connected, true);
 
-    ::platform->network_peer().send_message(
-        {(u8*)handshake, sizeof handshake});
+    ::platform->network_peer().send_message({(u8*)handshake, sizeof handshake});
 
     multiplayer_schedule_tx();
 

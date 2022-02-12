@@ -43,8 +43,7 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             const auto st = calc_screen_tiles(pfrm);
             u8 margin = centered_text_margins(pfrm, utf8::len(text));
 
-            text_.emplace(pfrm, text, OverlayCoord{margin,
-                                                   (u8)(st.y / 2 - 3)});
+            text_.emplace(pfrm, text, OverlayCoord{margin, (u8)(st.y / 2 - 3)});
 
             if (utf8::len(text) % 2 not_eq 0) {
                 pfrm.set_overlay_origin(-4, 0);

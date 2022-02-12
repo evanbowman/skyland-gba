@@ -49,9 +49,8 @@ void clear_room_description(Platform& pfrm,
 
 
 
-std::tuple<u8, u8, Island*> touch_check_island_clicked(Platform& pfrm,
-                                                       App& app,
-                                                       const Vec2<u32>& pos)
+std::tuple<u8, u8, Island*>
+touch_check_island_clicked(Platform& pfrm, App& app, const Vec2<u32>& pos)
 {
     const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
 
@@ -68,7 +67,8 @@ std::tuple<u8, u8, Island*> touch_check_island_clicked(Platform& pfrm,
 
             y_tile += 31; // FIXME!
 
-            return std::make_tuple((u8)x_tile, (u8)y_tile, &app.player_island());
+            return std::make_tuple(
+                (u8)x_tile, (u8)y_tile, &app.player_island());
         }
     }
 
@@ -78,14 +78,16 @@ std::tuple<u8, u8, Island*> touch_check_island_clicked(Platform& pfrm,
         island_pos.y -= view_offset.y;
 
         if (pos.x >= island_pos.x and
-            pos.x <= island_pos.x + app.opponent_island()->terrain().size() * 16) {
+            pos.x <=
+                island_pos.x + app.opponent_island()->terrain().size() * 16) {
 
             int x_tile = -((island_pos.x - pos.x) / 16);
             int y_tile = -((island_pos.y - pos.y) / 16);
 
             y_tile += 31; // FIXME!
 
-            return std::make_tuple((u8)x_tile, (u8)y_tile, app.opponent_island());
+            return std::make_tuple(
+                (u8)x_tile, (u8)y_tile, app.opponent_island());
         }
     }
 
@@ -98,7 +100,8 @@ ScenePtr<Scene> player_island_onclick(Platform& pfrm,
                                       App& app,
                                       Microseconds& camera_update_timer,
                                       std::optional<Text>& room_description,
-                                      const Vec2<u8>& pos) {
+                                      const Vec2<u8>& pos)
+{
     if (auto room = app.player_island().get_room(pos)) {
         if (auto scene = room->select(pfrm, app)) {
             return scene;
@@ -218,13 +221,15 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().touch_held(milliseconds(200))) {
         if (auto pos = app.player().touch_current(pfrm)) {
-            const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
+            const auto view_offset =
+                pfrm.screen().get_view().get_center().cast<s32>();
             auto island_pos = app.player_island().get_position();
             island_pos.x -= view_offset.x;
             island_pos.y -= view_offset.y;
 
             if (pos->x >= island_pos.x and
-                pos->x <= island_pos.x + app.player_island().terrain().size() * 16) {
+                pos->x <=
+                    island_pos.x + app.player_island().terrain().size() * 16) {
 
                 int x_tile = -((island_pos.x - pos->x) / 16);
                 int y_tile = -((island_pos.y - pos->y) / 16);
@@ -233,9 +238,6 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 cursor_loc = {(u8)x_tile, (u8)y_tile};
                 camera_update_timer_ = milliseconds(500);
-            } else if (pos->x > island_pos.x) {
-                std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {0, cursor_loc.y};
-                return scene_pool::alloc<InspectP2Scene>();
             }
         }
     }
@@ -258,12 +260,15 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {x, y};
             return scene_pool::alloc<InspectP2Scene>();
         } else if (island == nullptr) {
-            const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
+            const auto view_offset =
+                pfrm.screen().get_view().get_center().cast<s32>();
             auto island_pos = app.player_island().get_position();
             island_pos.x -= view_offset.x;
 
-            if (pos->x >= island_pos.x + app.player_island().terrain().size() * 16 + 32) {
-                std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {0, cursor_loc.y};
+            if (pos->x >=
+                island_pos.x + app.player_island().terrain().size() * 16 + 32) {
+                std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {
+                    0, cursor_loc.y};
                 return scene_pool::alloc<InspectP2Scene>();
             }
         }

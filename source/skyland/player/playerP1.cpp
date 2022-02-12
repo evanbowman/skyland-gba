@@ -101,7 +101,8 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (pfrm.keyboard().down_transition<Key::up, Key::down, Key::left, Key::right>()) {
+        if (pfrm.keyboard()
+                .down_transition<Key::up, Key::down, Key::left, Key::right>()) {
             app.camera()->reset_default(app);
         }
     }

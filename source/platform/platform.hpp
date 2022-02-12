@@ -391,7 +391,6 @@ public:
 
         class Touch {
         public:
-
             std::optional<Vec2<u32>> read() const
             {
                 return current_;

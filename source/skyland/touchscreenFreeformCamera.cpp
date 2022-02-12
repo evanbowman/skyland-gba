@@ -30,9 +30,11 @@ void TouchscreenFreeformCamera::update(Platform& pfrm,
         result.y = clamp(result.y, -56.f, 0.f);
         result.x = clamp(result.x, -50.f, [&] {
             if (app.opponent_island()) {
-                return std::min(264.f,
-                                (app.opponent_island()->get_position().x +
-                                 app.opponent_island()->terrain().size() * 8.f) - 100.f);
+                return std::min(
+                    264.f,
+                    (app.opponent_island()->get_position().x +
+                     app.opponent_island()->terrain().size() * 8.f) -
+                        100.f);
             } else {
                 return app.player_island().get_position().x - 40.f;
             }
@@ -63,4 +65,4 @@ void TouchscreenFreeformCamera::reset_default(App& app)
 
 
 
-}
+} // namespace skyland

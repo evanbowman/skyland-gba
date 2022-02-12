@@ -166,7 +166,8 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-    app.camera()->update(pfrm, app, app.player_island(), cursor_loc, delta, true);
+    app.camera()->update(
+        pfrm, app, app.player_island(), cursor_loc, delta, true);
 
 
     const auto current_timestamp = app.level_timer().total();

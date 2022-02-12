@@ -39,11 +39,11 @@
 //
 
 
-#include "platform/platform.hpp"
 #include "/opt/devkitpro/libnds/include/nds.h"
+#include "filesystem.hpp"
 #include "images.cpp"
 #include "platform/color.hpp"
-#include "filesystem.hpp"
+#include "platform/platform.hpp"
 
 
 
@@ -240,8 +240,7 @@ static constexpr int vram_tile_size()
 
 static u8* font_index_tile()
 {
-    return (u8*)bgGetGfxPtr(0) +
-           ((font_color_index_tile)*vram_tile_size());
+    return (u8*)bgGetGfxPtr(0) + ((font_color_index_tile)*vram_tile_size());
 }
 
 
@@ -395,7 +394,8 @@ void Platform::fatal(const char* message)
 
 void Platform::restart()
 {
-    while (true) ;
+    while (true)
+        ;
 }
 
 
@@ -404,65 +404,53 @@ s16 vertical_parallax_table[SCREEN_HEIGHT + 1];
 
 
 
-
 //! General DMA transfer macro
-#define DMA_TRANSFER(_dst, _src, count, ch, mode)   \
-do {                                            \
-    REG_DMA[ch].cnt= 0;                         \
-    REG_DMA[ch].src= (const void*)(_src);       \
-    REG_DMA[ch].dst= (void*)(_dst);             \
-    REG_DMA[ch].cnt= (count) | (mode);          \
-} while(0)
+#define DMA_TRANSFER(_dst, _src, count, ch, mode)                              \
+    do {                                                                       \
+        REG_DMA[ch].cnt = 0;                                                   \
+        REG_DMA[ch].src = (const void*)(_src);                                 \
+        REG_DMA[ch].dst = (void*)(_dst);                                       \
+        REG_DMA[ch].cnt = (count) | (mode);                                    \
+    } while (0)
 
 
-typedef struct DMA_REC
-{
-	const void *src;
-	void *dst;
-	u32 cnt;
+typedef struct DMA_REC {
+    const void* src;
+    void* dst;
+    u32 cnt;
 } DMA_REC;
 
 
 #define REG_BASE 0x04000000
-#define REG_DMA			((volatile DMA_REC*)(REG_BASE+0x00B0))	//!< DMA as DMA_REC array
+#define REG_DMA                                                                \
+    ((volatile DMA_REC*)(REG_BASE + 0x00B0)) //!< DMA as DMA_REC array
 // #define DMA_ENABLE		0x80000000	//!< Enable DMA
 // #define DMA_REPEAT		0x02000000	//!< Repeat transfer at next start condition
 // #define DMA_AT_HBLANK	0x20000000	//!< Start transfer at HBlank
-#define DMA_DST_RELOAD	0x00600000	//!< Increment destination, reset after full run
+#define DMA_DST_RELOAD                                                         \
+    0x00600000 //!< Increment destination, reset after full run
 // NOTE: compared to the gba, some dma parameters are in slightly different
 // parts of the register!
-#define DMA_HDMA	(DMA_ENABLE | DMA_REPEAT | DMA_START_HBL | DMA_DST_INC | DMA_DST_RESET)
-
-
+#define DMA_HDMA                                                               \
+    (DMA_ENABLE | DMA_REPEAT | DMA_START_HBL | DMA_DST_INC | DMA_DST_RESET)
 
 
 
 static void vblank_full_transfer_scroll_isr()
 {
-    DMA_TRANSFER(&REG_BG3HOFS,
-                 &parallax_table[1], 1, 0, DMA_HDMA);
+    DMA_TRANSFER(&REG_BG3HOFS, &parallax_table[1], 1, 0, DMA_HDMA);
 
-    DMA_TRANSFER(&REG_BG3VOFS,
-                 &vertical_parallax_table[1],
-                 1,
-                 3,
-                 DMA_HDMA);
+    DMA_TRANSFER(&REG_BG3VOFS, &vertical_parallax_table[1], 1, 3, DMA_HDMA);
 }
 
 
 
 static void vblank_horizontal_transfer_scroll_isr()
 {
-    DMA_TRANSFER(&REG_BG3HOFS,
-                 &parallax_table[1], 1, 0, DMA_HDMA);
+    DMA_TRANSFER(&REG_BG3HOFS, &parallax_table[1], 1, 0, DMA_HDMA);
 
-    DMA_TRANSFER(&REG_BG3VOFS,
-                 &vertical_parallax_table[1],
-                 1,
-                 3,
-                 0);
+    DMA_TRANSFER(&REG_BG3VOFS, &vertical_parallax_table[1], 1, 3, 0);
 }
-
 
 
 
@@ -480,7 +468,8 @@ void* Platform::system_call(const char* feature_name, void* arg)
             main_on_top = true;
             lcdMainOnTop();
         }
-    } if (str_cmp(feature_name, "_prlx7") == 0) {
+    }
+    if (str_cmp(feature_name, "_prlx7") == 0) {
 
         if (not get_gflag(GlobalFlag::v_parallax)) {
             auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
@@ -817,9 +806,9 @@ void Platform::stackcheck()
 
 
 
-void Platform::walk_filesystem(Function<32, void(const char* path)>)
+void Platform::walk_filesystem(Function<32, void(const char* path)> callback)
 {
-    // ...
+    filesystem::walk(callback);
 }
 
 
@@ -830,7 +819,7 @@ static int scratch_buffers_in_use = 0;
 
 static ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
                   scratch_buffer_count>
-scratch_buffer_pool;
+    scratch_buffer_pool;
 
 
 
@@ -881,14 +870,12 @@ int Platform::scratch_buffers_remaining()
 
 Platform::SystemClock::SystemClock()
 {
-
 }
 
 
 
 Platform::DeltaClock::~DeltaClock()
 {
-
 }
 
 
@@ -955,32 +942,6 @@ Platform::DeltaClock::DeltaClock()
 
 
 
-#define SE_PALBANK_MASK 0xF000
-#define SE_PALBANK_SHIFT 12
-#define SE_PALBANK(n) ((n) << SE_PALBANK_SHIFT)
-
-#define ATTR2_PALBANK_MASK 0xF000
-#define ATTR2_PALBANK_SHIFT 12
-#define ATTR2_PALBANK(n) ((n) << ATTR2_PALBANK_SHIFT)
-
-#define ATTR2_PRIO_SHIFT 10
-#define ATTR2_PRIO(n) ((n) << ATTR2_PRIO_SHIFT)
-
-// #define OBJ_SHAPE(m) ((m) << 14)
-// #define ATTR0_COLOR_16 (0 << 13)
-// #define ATTR0_COLOR_256 (1 << 13)
-// #define ATTR0_MOSAIC (1 << 12)
-// #define ATTR0_SQUARE OBJ_SHAPE(0)
-// #define ATTR0_TALL OBJ_SHAPE(2)
-// #define ATTR0_WIDE OBJ_SHAPE(1)
-#define ATTR0_BLEND 0x0400
-// #define ATTR1_SIZE_16 (1 << 14)
-// #define ATTR1_SIZE_32 (2 << 14)
-// #define ATTR1_SIZE_64 (3 << 14)
-// #define ATTR2_PALETTE(n) ((n) << 12)
-
-
-
 void Platform::Screen::draw(const Sprite& spr)
 {
     if (UNLIKELY(spr.get_alpha() == Sprite::Alpha::transparent)) {
@@ -993,7 +954,7 @@ void Platform::Screen::draw(const Sprite& spr)
     auto pb = 0; // [&]() -> PaletteBank {
     //     if (UNLIKELY(mix.color_ not_eq ColorConstant::null)) {
     //         if (const auto pal_bank = color_mix(mix.color_, mix.amount_)) {
-    //             return ATTR2_PALBANK(pal_bank);
+    //             return pal_bank;
     //         } else {
     //             return 0;
     //         }
@@ -1003,7 +964,7 @@ void Platform::Screen::draw(const Sprite& spr)
     // }();
 
     if (spr.palette()) {
-        pb = ATTR2_PALBANK(spr.palette());
+        pb = spr.palette();
     }
 
     auto draw_sprite = [&](int tex_off, int x_off, int scale) {
@@ -1018,14 +979,13 @@ void Platform::Screen::draw(const Sprite& spr)
         if (spr.get_alpha() not_eq Sprite::Alpha::translucent) {
             oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL;
         } else {
-            oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL // | ATTR0_BLEND
-                ;
+            oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL | ATTR0_TYPE_BLENDED;
         }
         oa->attribute_1 = ATTR1_SIZE_32; // clear attr1
 
         auto abs_position = position - view_center;
 
-        oa->attribute_0 &= (0xff00 & ~((1 << 8) | (1 << 9))); // clear attr0
+        // oa->attribute_0 &= (0xff00 & ~((1 << 8) | (1 << 9))); // clear attr0
 
         if (spr.get_rotation() or spr.get_scale().x or spr.get_scale().y) {
             if (affine_transform_write_index not_eq affine_transform_limit) {
@@ -1043,41 +1003,40 @@ void Platform::Screen::draw(const Sprite& spr)
                     affine.scale(spr.get_scale().x, spr.get_scale().y);
                 }
 
-                oa->attribute_0 |= 1 << 8;
-                oa->attribute_0 |= 1 << 9;
+                oa->attribute_0 |= ATTR0_ROTSCALE;
+                oa->attribute_0 |= ATTR0_ROTSCALE_DOUBLE;
 
                 abs_position.x -= 8;
                 abs_position.y -= 16;
 
-                oa->attribute_1 |= affine_transform_write_index << 9;
+                oa->attribute_1 |= ATTR1_ROTDATA(affine_transform_write_index);
 
                 affine_transform_write_index += 1;
             }
         } else {
             const auto& flip = spr.get_flip();
-            oa->attribute_1 |= ((int)flip.y << 13);
-            oa->attribute_1 |= ((int)flip.x << 12);
+            if (flip.y) {
+                oa->attribute_1 |= ATTR1_FLIP_Y;
+            }
+            if (flip.x) {
+                oa->attribute_1 |= ATTR1_FLIP_X;
+            }
         }
 
-        oa->attribute_0 |= abs_position.y & 0x00ff;
+        oa->attribute_0 |= OBJ_Y(abs_position.y);
 
         // if (not mix.amount_ and screen_pixelate_amount not_eq 0) {
 
         //     oa->attribute_0 |= ATTR0_MOSAIC;
         // }
 
-        oa->attribute_1 |= (abs_position.x + x_off) & 0x01ff;
+        oa->attribute_1 |= OBJ_X(abs_position.x + x_off);
 
         auto ti = spr.get_texture_index();
-        // if (w16_h32_index > 125) {
-        //     ti = find_dynamic_mapping(w16_h32_index);
-        //     if (scale == 16) {
-        //         ti /= 2;
-        //     }
-        // }
+
         const auto target_index = 2 + ti * scale + tex_off;
         oa->attribute_2 = target_index;
-        oa->attribute_2 |= pb;
+        oa->attribute_2 |= ATTR2_PALETTE(pb);
         oa->attribute_2 |= ATTR2_PRIORITY(spr.get_priority());
         oam_write_index += 1;
     };
@@ -1169,9 +1128,10 @@ void Platform::Screen::clear()
 
         memcpy16((u16*)BG_PALETTE, (u16*)bg_palette_back_buffer, 48);
 
-        memcpy16((u16*)(BG_PALETTE + 16 * 11),
-                 (u16*)bg_palette_back_buffer + 16 * 11,
-                 32); // 16 words, both the background palette and the flag palette.
+        memcpy16(
+            (u16*)(BG_PALETTE + 16 * 11),
+            (u16*)bg_palette_back_buffer + 16 * 11,
+            32); // 16 words, both the background palette and the flag palette.
 
         set_gflag(GlobalFlag::palette_sync, false);
     }
@@ -1218,7 +1178,6 @@ void Platform::Screen::display()
 
     last_oam_write_index = oam_write_index;
     oam_write_index = 0;
-
 }
 
 
@@ -1243,7 +1202,6 @@ Vec2<u32> Platform::Screen::size() const
 
 void Platform::Screen::set_contrast(Contrast contrast)
 {
-
 }
 
 
@@ -1383,8 +1341,7 @@ void Platform::Screen::fade(float amount,
         if (include_overlay or overlay_was_faded) {
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(overlay_palette[i]);
-                BG_PALETTE[16 + i] =
-                    blend(from, c, include_overlay ? amt : 0);
+                BG_PALETTE[16 + i] = blend(from, c, include_overlay ? amt : 0);
             }
         }
         overlay_was_faded = include_overlay;
@@ -1472,7 +1429,6 @@ void Platform::Screen::pixelate(u8 amount,
                                 bool include_background,
                                 bool include_sprites)
 {
-
 }
 
 
@@ -1561,6 +1517,11 @@ Platform::Screen::Screen()
     bgInit(2, BgType_Text4bpp, BgSize_T_512x256, sbb_t1_tiles, cbb_t1_texture);
     bgInit(3, BgType_Text4bpp, BgSize_T_256x256, sbb_bg_tiles, cbb_background_texture);
 
+    bgSetPriority(0, 0);
+    bgSetPriority(1, 2);
+    bgSetPriority(2, 2);
+    bgSetPriority(3, 3);
+
 
     View view;
     view.set_size(size().cast<Float>());
@@ -1569,6 +1530,22 @@ Platform::Screen::Screen()
     // clang-format on
 
     lcdMainOnBottom();
+
+    for (u32 i = 0; i < Screen::sprite_limit; ++i) {
+        object_attribute_back_buffer[i].attribute_2 = ATTR2_PRIORITY(3);
+        object_attribute_back_buffer[i].attribute_0 |= ATTR0_DISABLED;
+    }
+
+#define BLD_BUILD(top, bot, mode)                                              \
+    ((((bot)&63) << 8) | (((mode)&3) << 6) | ((top)&63))
+#define BLD_OBJ 0x0010
+#define BLD_BG0 0x0001
+#define BLD_BG1 0x0002
+#define BLD_BG3 0x0008
+#define BLDA_BUILD(eva, evb) (((eva)&31) | (((evb)&31) << 8))
+
+    REG_BLDCNT = BLD_BUILD(BLD_OBJ, BLD_BG0 | BLD_BG1 | BLD_BG3, 0);
+    REG_BLDALPHA = BLDA_BUILD(0x40 / 8, 0x40 / 8);
 }
 
 
@@ -1583,11 +1560,14 @@ void Platform::load_sprite_texture(const char* name)
 
             init_palette(current_spritesheet, sprite_palette, 16);
 
-            // NOTE: There are four tile blocks, so index four points to the
-            // end of the tile memory.
-            memcpy16(SPRITE_GFX,
+            // NOTE: for some reason, the sprite tiles were mis-aligned when
+            // copying directly to SPRITE_GFX. I'll have to figure this one
+            // out... eventually... (p.s. vram_tile_size() is in bytes, so we're
+            // skipping two tiles).
+            memcpy16(SPRITE_GFX + vram_tile_size(),
                      (u16*)info.tile_data_,
-                     std::min((u32)16128, info.tile_data_length_ / 2));
+                     std::min((u32)16128, info.tile_data_length_ / 2)
+                     - vram_tile_size());
 
             // We need to do this, otherwise whatever screen fade is currently
             // active will be overwritten by the copy.
@@ -1600,6 +1580,8 @@ void Platform::load_sprite_texture(const char* name)
             return;
         }
     }
+
+    Platform::fatal("missing sprite texture!");
 }
 
 
@@ -1675,9 +1657,11 @@ static void set_map_tile_16p_palette(u8 base, u16 x, u16 y, int palette)
 void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
 {
     if (layer == Layer::map_1) {
-        ((u16*)SCREEN_BASE_BLOCK(sbb_t1_tiles))[x + y * 32] = val | TILE_PALETTE(2);
+        ((u16*)SCREEN_BASE_BLOCK(sbb_t1_tiles))[x + y * 32] =
+            val | TILE_PALETTE(2);
     } else if (layer == Layer::map_0) {
-        ((u16*)SCREEN_BASE_BLOCK(sbb_t0_tiles))[x + y * 32] = val | TILE_PALETTE(0);
+        ((u16*)SCREEN_BASE_BLOCK(sbb_t0_tiles))[x + y * 32] =
+            val | TILE_PALETTE(0);
     }
 }
 
@@ -1918,7 +1902,6 @@ void Platform::load_tile1_texture(const char* name)
 
 
 
-
 void Platform::load_overlay_chunk(TileDesc dst, TileDesc src, u16 count)
 {
     const u8* image_data = (const u8*)current_overlay_texture->tile_data_;
@@ -1996,7 +1979,6 @@ void Platform::load_background_texture(const char* name)
             return;
         }
     }
-
 }
 
 
@@ -2061,8 +2043,8 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
                     alignas(2) u8 buffer[tile_size] = {0};
                     memcpy16((u16*)buffer,
                              (u16*)(info.tile_data_ +
-                                 ((u32)mapping_info.offset_ * tile_size) /
-                             sizeof(decltype(info.tile_data_))),
+                                    ((u32)mapping_info.offset_ * tile_size) /
+                                        sizeof(decltype(info.tile_data_))),
                              tile_size / 2);
 
                     for (int i = 0; i < tile_size; ++i) {
@@ -2087,7 +2069,7 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
                     // expected number. Also, in vram, it seems like the tiles
                     // do seem to be 32 bytes apart after all...
                     memcpy16((u16*)((u8*)bgGetGfxPtr(0) +
-                             ((t + glyph_start_offset) * tile_size)),
+                                    ((t + glyph_start_offset) * tile_size)),
                              (u16*)buffer,
                              tile_size / 2);
 
@@ -2155,7 +2137,6 @@ void Platform::Logger::log(Severity severity, const char* msg)
 
 void Platform::Logger::flush()
 {
-
 }
 
 
@@ -2169,14 +2150,12 @@ Vector<char>* Platform::Logger::data()
 
 void Platform::Logger::set_threshold(Severity severity)
 {
-
 }
 
 
 
 Platform::Logger::Logger()
 {
-
 }
 
 
@@ -2190,21 +2169,18 @@ Platform::Logger::Logger()
 
 void Platform::Speaker::play_music(const char* name, Microseconds offset)
 {
-
 }
 
 
 
 void Platform::Speaker::stop_music()
 {
-
 }
 
 
 
 void Platform::Speaker::set_music_volume(u8 volume)
 {
-
 }
 
 
@@ -2220,7 +2196,6 @@ void Platform::Speaker::play_sound(const char* name,
                                    int priority,
                                    std::optional<Vec2<Float>> position)
 {
-
 }
 
 
@@ -2234,21 +2209,18 @@ bool Platform::Speaker::is_sound_playing(const char* name)
 
 Platform::Speaker::Speaker()
 {
-
 }
 
 
 
 void Platform::Speaker::clear_sounds()
 {
-
 }
 
 
 
 void Platform::Speaker::set_position(const Vec2<Float>& position)
 {
-
 }
 
 
@@ -2270,28 +2242,24 @@ Microseconds Platform::Speaker::track_length(const char* sound_or_music_name)
 
 Platform::NetworkPeer::NetworkPeer()
 {
-
 }
 
 
 
 Platform::NetworkPeer::~NetworkPeer()
 {
-
 }
 
 
 
 void Platform::NetworkPeer::listen()
 {
-
 }
 
 
 
 void Platform::NetworkPeer::disconnect()
 {
-
 }
 
 
@@ -2326,12 +2294,12 @@ bool Platform::NetworkPeer::send_message(const Message& message)
 
 void Platform::NetworkPeer::update()
 {
-
 }
 
 
 
-std::optional<Platform::NetworkPeer::Message> Platform::NetworkPeer::poll_message()
+std::optional<Platform::NetworkPeer::Message>
+Platform::NetworkPeer::poll_message()
 {
     return {};
 }
@@ -2340,7 +2308,6 @@ std::optional<Platform::NetworkPeer::Message> Platform::NetworkPeer::poll_messag
 
 void Platform::NetworkPeer::poll_consume(u32 length)
 {
-
 }
 
 
@@ -2400,12 +2367,10 @@ Platform::Platform()
     ::platform = this;
 
     for (int i = 0; i < 16; ++i) {
-        BG_PALETTE[(15 * 16) + i] =
-            Color(custom_color(0xef0d54)).bgr_hex_555();
+        BG_PALETTE[(15 * 16) + i] = Color(custom_color(0xef0d54)).bgr_hex_555();
     }
     for (int i = 0; i < 16; ++i) {
-        BG_PALETTE[(14 * 16) + i] =
-            Color(custom_color(0x103163)).bgr_hex_555();
+        BG_PALETTE[(14 * 16) + i] = Color(custom_color(0x103163)).bgr_hex_555();
     }
     for (int i = 0; i < 16; ++i) {
         BG_PALETTE[(13 * 16) + i] =

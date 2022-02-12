@@ -66,10 +66,7 @@ void plugin_rooms_unregister();
 
 
 
-static void set_scroll(Platform& pfrm,
-                       Layer layer,
-                       int x_scroll,
-                       int y_scroll)
+static void set_scroll(Platform& pfrm, Layer layer, int x_scroll, int y_scroll)
 {
     int offset = 0;
 

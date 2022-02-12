@@ -26,9 +26,8 @@ void clear_room_description(Platform& pfrm,
 
 
 
-std::tuple<u8, u8, Island*> touch_check_island_clicked(Platform& pfrm,
-                                                       App& app,
-                                                       const Vec2<u32>& pos);
+std::tuple<u8, u8, Island*>
+touch_check_island_clicked(Platform& pfrm, App& app, const Vec2<u32>& pos);
 
 
 

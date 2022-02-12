@@ -14,8 +14,6 @@ namespace skyland {
 
 class TouchscreenFreeformCamera : public Camera {
 public:
-
-
     void update(Platform& pfrm,
                 App& app,
                 Island& target,
@@ -41,5 +39,4 @@ private:
 
 
 
-
-}
+} // namespace skyland

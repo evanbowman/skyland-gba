@@ -19,8 +19,9 @@ class Island;
 
 class Camera {
 public:
-
-    virtual ~Camera() {}
+    virtual ~Camera()
+    {
+    }
 
 
     virtual void update(Platform& pfrm,

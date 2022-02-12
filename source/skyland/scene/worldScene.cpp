@@ -354,10 +354,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         camera_update_timer_ = milliseconds(500);
     }
 
-    if (app.camera()->is_shaking() or
-        camera_update_timer_ > 0 or
-        app.player().touch_current(pfrm) or
-        app.camera()->always_update(pfrm)) {
+    if (app.camera()->is_shaking() or camera_update_timer_ > 0 or
+        app.player().touch_current(pfrm) or app.camera()->always_update(pfrm)) {
 
         camera_update_timer_ -= delta;
         camera_update_timer_ = std::max((int)camera_update_timer_, 0);
@@ -374,11 +372,13 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.opponent_island() and UNLIKELY(far_camera_)) {
             auto& cursor_loc =
                 std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
-            app.camera()->update(pfrm, app, *app.opponent_island(), cursor_loc, delta, false);
+            app.camera()->update(
+                pfrm, app, *app.opponent_island(), cursor_loc, delta, false);
         } else {
             auto& cursor_loc =
                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-            app.camera()->update(pfrm, app, app.player_island(), cursor_loc, delta, true);
+            app.camera()->update(
+                pfrm, app, app.player_island(), cursor_loc, delta, true);
         }
     }
 
