@@ -61,10 +61,25 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             draw_image(
                 pfrm, 82, 4, 9, 22, 10, Layer::overlay);
         }
+
+        if (timer_ > milliseconds(3000) and not copyright_text_) {
+            const char* copyright_str = "Copyright ©2022";
+            copyright_text_.emplace(pfrm,
+                                    OverlayCoord{
+                                        (u8)centered_text_margins(pfrm, utf8::len(copyright_str)),
+                                        20
+                                    });
+
+            copyright_text_->assign(copyright_str,
+                                    FontColors{ColorConstant::med_blue_gray,
+                                            ColorConstant::rich_black});
+        }
+
         auto t = pfrm.screen().touch();
-        if (timer_ > seconds(5) or key_down<Key::action_2>(pfrm) or
+        if (timer_ > milliseconds(5500) or key_down<Key::action_2>(pfrm) or
             t->up_transition()) {
             text_.reset();
+            copyright_text_.reset();
             pfrm.fill_overlay(0);
             timer_ = 0;
         }

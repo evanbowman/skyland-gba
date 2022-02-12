@@ -23,6 +23,7 @@ private:
     bool wait_ = true;
     bool exit_ = false;
     std::optional<Text> text_;
+    std::optional<Text> copyright_text_;
     Microseconds timer_ = 0;
 };
 

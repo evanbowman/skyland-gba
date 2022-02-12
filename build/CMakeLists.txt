@@ -337,11 +337,6 @@ elseif(GAMEBOY_ADVANCE)
     ${SOURCE_DIR}/platform/gba/memcpy.s
     ${SOURCE_DIR}/platform/gba/filesystem.cpp
 
-    ${ROOT_DIR}/external/libgba/interrupt.c
-    ${ROOT_DIR}/external/libgba/interrupt_dispatch.s
-    ${ROOT_DIR}/external/libgba/bios_math.s
-    ${ROOT_DIR}/external/libgba/reset.s
-
     ${SOURCE_DIR}/platform/gba/rumble.c
     ${SOURCE_DIR}/platform/gba/co_thread.c
     ${SOURCE_DIR}/platform/gba/dlc_download.cpp)
@@ -662,6 +657,45 @@ elseif(GAMEBOY_ADVANCE)
   set(CMAKE_AR $ENV{DEVKITARM}/bin/arm-none-eabi-ar)
 
 
+  set(ARM7_THUMB_FLAGS
+    -mthumb
+    -mthumb-interwork
+    -mcpu=arm7tdmi
+    -mtune=arm7tdmi
+    -D__GBA__)
+
+
+  add_library(LIBGBA
+    # NOTE: In order to use LIBGBA without gpl copyleft, the source code in
+    # these files may not be changed! LIBGBA uses a modified gpl license, where
+    # the authors waive the copyleft in cases where the build system is changed,
+    # or where the un-modified code is statically linked. I don't believe that
+    # I've made any changes that would constitute a derivative work, as I don't
+    # know ARM assembly, I couldn't possibly have changed anything.
+    #
+    # The exact text:
+    #
+    # "1. Modifications to the build scripts and makefiles by themselves to
+    # support a specific platform do not constitute a modified or derivative
+    # work."
+    #
+    # "2. Static linking of applications to the libgba library does not
+    # constitute a derivative work and does not require the author to provide
+    # source code for the application or link their applications against a
+    # user-supplied version of libgba."
+    #
+    # In summary, I changed the build system as described in 1., I am statically
+    # linking to the sources as described in 2.
+    #
+    ${ROOT_DIR}/external/libgba/interrupt.c
+    ${ROOT_DIR}/external/libgba/interrupt_dispatch.s
+    ${ROOT_DIR}/external/libgba/reset.s)
+
+
+  target_compile_options(LIBGBA PRIVATE
+    -O2
+    ${ARM7_THUMB_FLAGS})
+
 
   add_library(ARM_ROUTINES ${SOURCE_DIR}/platform/gba/gba_arm_routines.cpp)
 
@@ -682,29 +716,17 @@ elseif(GAMEBOY_ADVANCE)
     CACHE INTERNAL "" FORCE)
 
   target_compile_options(LISP PRIVATE
-    -mthumb
-    -mthumb-interwork
-    -mcpu=arm7tdmi
-    -mtune=arm7tdmi
-    -D__GBA__)
+    ${ARM7_THUMB_FLAGS})
 
   target_compile_options(FASTPATH PRIVATE
-    -mthumb
-    -mthumb-interwork
-    -mcpu=arm7tdmi
-    -mtune=arm7tdmi
-    -D__GBA__)
+    ${ARM7_THUMB_FLAGS})
 
   target_link_libraries(SkylandEngine PRIVATE
-    # ${DEVKITPRO}/libgba/lib/libgba.a
+    LIBGBA
     ARM_ROUTINES)
 
   target_compile_options(SkylandEngine PRIVATE
-    -mthumb
-    -mthumb-interwork
-    -mcpu=arm7tdmi
-    -mtune=arm7tdmi
-    -D__GBA__)
+    ${ARM7_THUMB_FLAGS})
 
   add_custom_command(TARGET SkylandEngine POST_BUILD
     COMMENT "building cartridge"
