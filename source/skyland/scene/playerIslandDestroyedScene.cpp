@@ -5,6 +5,7 @@
 #include "readyScene.hpp"
 #include "sandboxResetScene.hpp"
 #include "selectChallengeScene.hpp"
+#include "scriptHookScene.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/player/opponent/friendlyAI.hpp"
 #include "skyland/rooms/droneBay.hpp"
@@ -320,6 +321,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             // white anyway, so it won't look so bad if the characters just
             // disappear.
             if (opponent_defeated) {
+
+                invoke_hook(pfrm, app, "on-victory");
+
                 for (auto& room : app.player_island().rooms()) {
                     for (auto it = room->characters().begin();
                          it not_eq room->characters().end();) {

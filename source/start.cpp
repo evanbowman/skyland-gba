@@ -74,7 +74,7 @@ void start(Platform& pfrm)
                                      ";;; mods dir, and load them\n"
                                      ";;; here.\n"
                                      ";;;\n"
-                                     "\n(key-bind \"ud\" repl)\n";
+                                     "\n(key-bind \"du\" repl)\n";
 
         ram_filesystem::store_file_data(
             pfrm, "/mods/init.lisp", user_init_file, str_len(user_init_file));

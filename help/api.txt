@@ -241,15 +241,6 @@ o----------------------------o
 
 o----------------------------o
 
- (fatal value)
-
- Terminate the game, and
- display fatal error message
- containing value.
-
-
-o----------------------------o
-
  (island-configure
     island
     room-desc-list)

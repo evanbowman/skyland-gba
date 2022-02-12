@@ -122,7 +122,8 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (test_key(Key::down)) {
+    if (not app.player().key_pressed(pfrm, Key::start) and
+        test_key(Key::down)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
             clear_room_description(pfrm, room_description_);
@@ -220,8 +221,9 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (app.player().key_down(pfrm, Key::start)) {
-        return scene_pool::alloc<KeyComboScene>(false);
+    if (app.player().key_pressed(pfrm, Key::start) and
+        app.player().key_down(pfrm, Key::down)) {
+        return scene_pool::alloc<KeyComboScene>(true);
     }
 
     if (not pfrm.network_peer().is_connected() and app.launch_repl()) {

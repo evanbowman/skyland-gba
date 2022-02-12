@@ -217,7 +217,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
-    } else if (test_key(Key::down)) {
+    } else if (not app.player().key_pressed(pfrm, Key::start) and
+               test_key(Key::down)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
             clear_room_description(pfrm, room_description_);
@@ -302,7 +303,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<LispReplScene>(pfrm);
     }
 
-    if (app.player().key_down(pfrm, Key::start)) {
+    if (app.player().key_pressed(pfrm, Key::start) and
+        app.player().key_down(pfrm, Key::down)) {
         return scene_pool::alloc<KeyComboScene>(true);
     }
 

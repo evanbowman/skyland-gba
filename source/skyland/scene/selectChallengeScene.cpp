@@ -28,7 +28,7 @@ void SelectChallengeScene::enter(Platform& pfrm, App& app, Scene& prev)
     const auto challenge_count = lisp::length(*challenges_);
     page_count_ = challenge_count / 5 + (challenge_count % 5 ? 1 : 0);
 
-    show_options(pfrm);
+    show_options(pfrm, app);
 
     for (int i = 0; i < 16; ++i) {
         for (int j = 0; j < 16; ++j) {
@@ -45,11 +45,13 @@ void SelectChallengeScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void SelectChallengeScene::show_options(Platform& pfrm)
+void SelectChallengeScene::show_options(Platform& pfrm, App& app)
 {
     pfrm.screen().clear();
     text_.clear();
     pfrm.screen().display();
+
+    pfrm.fill_overlay(0);
 
     if (not challenges_) {
         return;
@@ -68,6 +70,8 @@ void SelectChallengeScene::show_options(Platform& pfrm)
             pfrm.fatal("challenge list format invalid");
         }
 
+        bool completed = app.gp_.challenge_flags_ & (1 << index);
+
         if (index++ < start_index) {
             return;
         }
@@ -75,6 +79,13 @@ void SelectChallengeScene::show_options(Platform& pfrm)
         text_.emplace_back(pfrm,
                            name->string().value(),
                            OverlayCoord{4, u8(4 + text_.size() * 2)});
+
+        if (completed) {
+            pfrm.set_tile(Layer::overlay,
+                          text_.back().coord().x + text_.back().len() + 1,
+                          text_.back().coord().y,
+                          84);
+        }
     });
 
 
@@ -166,7 +177,7 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::right)) {
             if (page_ < page_count_ - 1) {
                 ++page_;
-                show_options(pfrm);
+                show_options(pfrm, app);
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }
@@ -176,7 +187,7 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::left)) {
             if (page_ > 0) {
                 --page_;
-                show_options(pfrm);
+                show_options(pfrm, app);
                 if ((u32)cursor_ >= text_.size()) {
                     cursor_ = text_.size() - 1;
                 }

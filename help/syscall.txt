@@ -1,4 +1,24 @@
 
+ syscall.txt
+
+ SKYLAND System Calls
+
+ While the lisp API functions
+ generally allow programmers
+ to affect game state, some
+ lower-level engine
+ functionality does not
+ exist in the regular lisp
+ API.
+
+ We could have added these
+ functions to the lisp
+ environment, but we don't
+ want to waste symbol table
+ space for these low-level
+ infrequently used functions.
+
+
 o----------------------------o
 
  (syscall "log" val)
@@ -29,6 +49,25 @@ o----------------------------o
 
  Retrieve a SKYLAND engine
  variable.
+
+
+o----------------------------o
+
+ (syscall
+  "challenge-complete"
+  integer)
+
+ Label challenge as
+ completed.
+
+
+o----------------------------o
+
+ (syscall "fatal" value)
+
+ Terminate the game, and
+ display fatal error message
+ containing value.
 
 
 o----------------------------o

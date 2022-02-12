@@ -9,6 +9,7 @@
 (setq on-dialog-declined '())
 (setq on-dialog-closed '())
 (setq on-hostile-transition '())
+(setq on-victory '())
 
 
 (if (not (bound 'last-zone))

@@ -27,6 +27,7 @@ struct GlobalPersistentData {
     u8 flags3_ = 0;
 
     u64 achievement_flags_ = 0;
+    u64 challenge_flags_ = 0;
 };
 
 

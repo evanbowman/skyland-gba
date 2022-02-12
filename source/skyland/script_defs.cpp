@@ -43,6 +43,16 @@ namespace skyland {
 
 
 
+App* __app = nullptr;
+
+
+static App* interp_get_app()
+{
+    return __app;
+}
+
+
+
 using Syscall = lisp::Value* (*)(int);
 
 
@@ -104,17 +114,32 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
                   pfrm->logger().flush();
               }
               return L_NIL;
+         }},
+         {"challenge-complete",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 1);
+              L_EXPECT_OP(0, integer);
+
+              int challenge = lisp::get_op(0)->integer().value_;
+              u64 challenge_bitmask = 1 << challenge;
+
+              interp_get_app()->gp_.challenge_flags_ |= challenge_bitmask;
+
+              save::store_global_data(*lisp::interp_get_pfrm(),
+                                      interp_get_app()->gp_);
+
+              return L_NIL;
+          }},
+         {"fatal",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 1);
+
+              lisp::DefaultPrinter p;
+              format(lisp::get_op(0), p);
+              Platform::fatal(p.fmt_.c_str());
+
+              return L_NIL;
           }}});
-
-
-
-App* __app = nullptr;
-
-
-static App* interp_get_app()
-{
-    return __app;
-}
 
 
 
@@ -928,16 +953,6 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
-    {"fatal",
-     [](int argc) {
-         L_EXPECT_ARGC(argc, 1);
-
-         lisp::DefaultPrinter p;
-         format(lisp::get_op(0), p);
-         Platform::fatal(p.fmt_.c_str());
-
-         return L_NIL;
-     }},
     {"achieve",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);
@@ -950,11 +965,13 @@ static const lisp::Binding script_api[] = {
              return L_NIL;
          }
 
-         if (achievements::unlock(
-                 *lisp::interp_get_pfrm(), *interp_get_app(), achievement)) {
+         if (achievements::unlock(*lisp::interp_get_pfrm(),
+                                  *interp_get_app(),
+                                  achievement)) {
 
-             achievements::award(
-                 *lisp::interp_get_pfrm(), *interp_get_app(), achievement);
+             achievements::award(*lisp::interp_get_pfrm(),
+                                 *interp_get_app(),
+                                 achievement);
          }
 
          return L_NIL;
