@@ -248,36 +248,87 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                     show_current_building_text(pfrm, app);
                 }
             }
-        } else if (tapclick) {
-            // First try to find an exact match. If not, try a loose match based
-            // on x coordinate.
-            for (u32 i = 0; i < construction_sites_.size(); ++i) {
-                if (construction_sites_[i] == *tapclick) {
-                    tapclick.reset();
-                    selector_ = i;
-                    camera_update_timer_ = milliseconds(500);
-                    break;
+        } else if (tapclick or app.player().touch_held(milliseconds(200))) {
+
+            if (app.player().touch_held(milliseconds(200))) {
+                // If the player presses and holds the touch screen, scroll
+                // through available construction sites.
+                if (auto pos = app.player().touch_current(pfrm)) {
+                    tapclick = get_local_tapclick(pfrm, island(app), *pos);
                 }
             }
+
             if (tapclick) {
+                // First try to find an exact match. If not, try a loose match
+                // based on x coordinate.
                 for (u32 i = 0; i < construction_sites_.size(); ++i) {
-                    if (construction_sites_[i].x == tapclick->x) {
+                    if (construction_sites_[i] == *tapclick) {
                         tapclick.reset();
                         selector_ = i;
                         camera_update_timer_ = milliseconds(500);
                         break;
                     }
                 }
+                if (tapclick) {
+                    for (u32 i = 0; i < construction_sites_.size(); ++i) {
+                        if (construction_sites_[i].x == tapclick->x) {
+                            tapclick.reset();
+                            selector_ = i;
+                            camera_update_timer_ = milliseconds(500);
+                            break;
+                        }
+                    }
+                }
             }
         }
         break;
 
-    case State::choose_building:
-        if (app.player().key_down(pfrm, Key::action_2)) {
+    case State::choose_building: {
+        auto scroll_right = [&] {
+            pfrm.speaker().play_sound("click", 1);
+            if (building_selector_ < (int)available_buildings_.size() - 1) {
+                ++building_selector_;
+                show_current_building_text(pfrm, app);
+            } else {
+                building_selector_ = 0;
+                show_current_building_text(pfrm, app);
+            }
+        };
+        auto scroll_left = [&] {
+            pfrm.speaker().play_sound("click", 1);
+            if (building_selector_ > 0) {
+                --building_selector_;
+                show_current_building_text(pfrm, app);
+            } else {
+                building_selector_ = available_buildings_.size() - 1;
+                show_current_building_text(pfrm, app);
+            }
+        };
+        if (app.player().touch_held(milliseconds(200))) {
+            if (auto p = app.player().touch_current(pfrm)) {
+                if (last_touch_x_) {
+                    touchscroll_ += p->x - last_touch_x_;
+                    last_touch_x_ = p->x;
+                } else {
+                    last_touch_x_ = p->x;
+                }
+            }
+            if (touchscroll_ < -16) {
+                touchscroll_ = 0;
+                scroll_right();
+            } else if (touchscroll_ > 16) {
+                touchscroll_ = 0;
+                scroll_left();
+            }
+        } else if (app.player().key_down(pfrm, Key::action_2) or
+            (tapclick and *tapclick not_eq construction_sites_[selector_])) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
             msg(pfrm, ":build");
+            last_touch_x_ = 0;
             break;
+        } else {
+            last_touch_x_ = 0;
         }
 
         if (app.player().key_down(pfrm, Key::down)) {
@@ -335,25 +386,11 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         // }
 
         if (test_key(Key::right)) {
-            pfrm.speaker().play_sound("click", 1);
-            if (building_selector_ < (int)available_buildings_.size() - 1) {
-                ++building_selector_;
-                show_current_building_text(pfrm, app);
-            } else {
-                building_selector_ = 0;
-                show_current_building_text(pfrm, app);
-            }
+            scroll_right();
         }
 
         if (test_key(Key::left)) {
-            pfrm.speaker().play_sound("click", 1);
-            if (building_selector_ > 0) {
-                --building_selector_;
-                show_current_building_text(pfrm, app);
-            } else {
-                building_selector_ = available_buildings_.size() - 1;
-                show_current_building_text(pfrm, app);
-            }
+            scroll_left();
         }
 
         if (tapclick == construction_sites_[selector_] or
@@ -424,6 +461,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             msg(pfrm, ":build");
         }
         break;
+    }
 
     case State::insufficient_funds:
         if (app.player().key_down(pfrm, Key::action_2) or

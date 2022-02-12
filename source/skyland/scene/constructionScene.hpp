@@ -79,6 +79,9 @@ private:
     Buffer<MetaclassIndex, 40> available_buildings_;
     std::optional<MetaclassIndex> last_constructed_building_;
 
+    int touchscroll_ = 0;
+    int last_touch_x_ = 0;
+
     bool near_;
 };
 

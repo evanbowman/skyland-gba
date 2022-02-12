@@ -88,6 +88,19 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
 
+        if (delta > 0) {
+            if (touch_held(milliseconds(200))) {
+                if (auto p = touch_current(pfrm)) {
+                    auto last = last_touch_;
+                    touch_velocity_ = (*p - last).cast<Float>();
+                    touch_velocity_.x /= delta;
+                    touch_velocity_.y /= delta;
+                    last_touch_ = *p;
+                }
+            }
+        }
+
+
         touch_invalidate_ = false;
 
 

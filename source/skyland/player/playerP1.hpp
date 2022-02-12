@@ -56,6 +56,12 @@ public:
     void touch_consume() override;
 
 
+    Vec2<Float> touch_velocity(Platform& pfrm) override
+    {
+        return touch_velocity_;
+    }
+
+
 private:
     Microseconds last_key_ = 0;
 

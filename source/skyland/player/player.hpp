@@ -121,6 +121,13 @@ public:
     }
 
 
+    // Only valid if touch_held()
+    virtual Vec2<Float> touch_velocity(Platform& pfrm)
+    {
+        return {};
+    }
+
+
     std::optional<Vec2<u32>> tap_released(Platform& pfrm)
     {
         auto info = touch_released(pfrm);
