@@ -580,9 +580,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (app.player().key_pressed(pfrm, Key::right) or
             app.player().key_pressed(pfrm, Key::down) or
-            (app.player().touch_held(milliseconds(200)) and
+            (app.player().touch_held(milliseconds(150)) and
              app.player().touch_velocity(pfrm).x and
-             app.player().touch_velocity(pfrm).x * delta < -0.2f)) {
+             app.player().touch_velocity(pfrm).x * delta < -0.08f)) {
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
                 put_menu_text(pfrm);
@@ -605,7 +605,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         if (app.player().key_pressed(pfrm, Key::left) or
             app.player().key_pressed(pfrm, Key::up) or
-            app.player().touch_velocity(pfrm).x * delta > 0.2f) {
+            app.player().touch_velocity(pfrm).x * delta > 0.08f) {
             if (menu_selection_ == 1) {
                 menu_selection_ = 0;
                 put_menu_text(pfrm);

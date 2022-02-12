@@ -560,7 +560,14 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (opponent_defeated and
                 app.game_mode() == App::GameMode::adventure) {
-                anim_state_ = AnimState::show_options;
+
+                if ((app.world_graph()
+                     .nodes_[app.current_world_location()]
+                     .type_ not_eq WorldGraph::Node::Type::exit)) {
+                    anim_state_ = AnimState::show_options;
+                } else {
+                    anim_state_ = AnimState::fade_complete;
+                }
 
             } else {
                 anim_state_ = AnimState::fade_complete;
