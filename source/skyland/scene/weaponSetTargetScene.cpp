@@ -78,161 +78,107 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player().key_held_distribute(pfrm);
 
 
-
-    if (freeform_) {
-
-        if (test_key(Key::alt_2)) {
-            freeform_ = false;
-        }
-
-        if (test_key(Key::right)) {
-            if (cursor_loc.x < app.opponent_island()->terrain().size()) {
-                ++cursor_loc.x;
-                clear_room_description(pfrm, room_description_);
-                describe_room_timer_ = milliseconds(300);
-            }
-        }
-        if (test_key(Key::down)) {
-            if (cursor_loc.y < 14) {
-                ++cursor_loc.y;
-                clear_room_description(pfrm, room_description_);
-                describe_room_timer_ = milliseconds(300);
-            }
-        }
-        if (test_key(Key::up)) {
-            if (cursor_loc.y > 6) {
-                --cursor_loc.y;
-                clear_room_description(pfrm, room_description_);
-                describe_room_timer_ = milliseconds(300);
-            }
-        }
-        if (test_key(Key::left)) {
-            if (cursor_loc.x > 0) {
-                --cursor_loc.x;
-                clear_room_description(pfrm, room_description_);
-                describe_room_timer_ = milliseconds(300);
-            }
-        }
-
-        auto onclick = [&](Vec2<u8> cursor_loc) -> ScenePtr<Scene> {
-            if (app.opponent_island()->get_room(cursor_loc)) {
-
-                if (auto room = app.player_island().get_room(weapon_loc_)) {
-
-                    room->set_target(pfrm, app, cursor_loc);
-                    network::packet::WeaponSetTarget packet;
-                    packet.weapon_x_ = weapon_loc_.x;
-                    packet.weapon_y_ = weapon_loc_.y;
-                    packet.target_x_ = cursor_loc.x;
-                    packet.target_y_ = cursor_loc.y;
-                    network::transmit(pfrm, packet);
-
-                    if (near_) {
-                        return scene_pool::alloc<ReadyScene>();
-                    } else {
-                        return scene_pool::alloc<InspectP2Scene>();
-                    }
-                } else {
-
-                    auto sync = [&](Drone& drone) {
-                        network::packet::DroneSetTarget packet;
-                        packet.drone_x_ = drone.position().x;
-                        packet.drone_y_ = drone.position().y;
-                        packet.target_x_ = cursor_loc.x;
-                        packet.target_y_ = cursor_loc.y;
-                        packet.drone_near_ =
-                            drone.destination() == &app.player_island();
-                        packet.target_near_ = false;
-                        network::transmit(pfrm, packet);
-                    };
-
-                    if (near_) {
-                        if (auto drone =
-                                app.player_island().get_drone(weapon_loc_)) {
-                            (*drone)->set_target(pfrm, app, cursor_loc);
-                            sync(**drone);
-
-                            return drone_exit_scene(drone->get());
-                        }
-                    } else {
-                        if (auto drone =
-                                app.opponent_island()->get_drone(weapon_loc_)) {
-                            (*drone)->set_target(pfrm, app, cursor_loc);
-                            sync(**drone);
-
-                            return drone_exit_scene(drone->get());
-                        }
-                    }
-                }
-            }
-            return null_scene();
-        };
-
-        if (test_key(Key::action_1)) {
-            if (auto scene = onclick(cursor_loc)) {
-                return scene;
-            }
-        }
-        if (auto pos = app.player().tap_released(pfrm)) {
-            auto [x, y, island] = check_island_tapclick(pfrm, app, *pos);
-            if (island == app.opponent_island()) {
-                if (auto scene = onclick({x, y})) {
-                    return scene;
-                } else {
-                    return scene_pool::alloc<ReadyScene>();
-                }
-            } else {
-                return scene_pool::alloc<ReadyScene>();
-            }
-        }
-
-    } else {
-        cursor_loc.x = targets_[selector_].x;
-        cursor_loc.y = targets_[selector_].y;
-
-        if (test_key(Key::alt_2)) {
-            freeform_ = true;
-        }
-
-        if (test_key(Key::right) or test_key(Key::down)) {
-
-            if (selector_ < (int)targets_.size() - 1) {
-                selector_++;
-            } else {
-                selector_ = 0;
-            }
-
+    if (test_key(Key::right)) {
+        if (cursor_loc.x < app.opponent_island()->terrain().size()) {
+            ++cursor_loc.x;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
-
-        if (test_key(Key::left) or test_key(Key::up)) {
-
-            if (selector_ > 0) {
-                --selector_;
-            } else {
-                selector_ = targets_.size() - 1;
-            }
-
+    }
+    if (test_key(Key::down)) {
+        if (cursor_loc.y < 14) {
+            ++cursor_loc.y;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
         }
+    }
+    if (test_key(Key::up)) {
+        if (cursor_loc.y > 6) {
+            --cursor_loc.y;
+            clear_room_description(pfrm, room_description_);
+            describe_room_timer_ = milliseconds(300);
+        }
+    }
+    if (test_key(Key::left)) {
+        if (cursor_loc.x > 0) {
+            --cursor_loc.x;
+            clear_room_description(pfrm, room_description_);
+            describe_room_timer_ = milliseconds(300);
+        }
+    }
 
-        if (app.player().key_down(pfrm, Key::action_1)) {
-            const auto target = targets_[selector_];
+    auto onclick = [&](Vec2<u8> cursor_loc) -> ScenePtr<Scene> {
+        if (app.opponent_island()->get_room(cursor_loc)) {
+
             if (auto room = app.player_island().get_room(weapon_loc_)) {
-                room->set_target(pfrm, app, target);
 
+                room->set_target(pfrm, app, cursor_loc);
                 network::packet::WeaponSetTarget packet;
                 packet.weapon_x_ = weapon_loc_.x;
                 packet.weapon_y_ = weapon_loc_.y;
-                packet.target_x_ = target.x;
-                packet.target_y_ = target.y;
+                packet.target_x_ = cursor_loc.x;
+                packet.target_y_ = cursor_loc.y;
                 network::transmit(pfrm, packet);
+
+                if (near_) {
+                    return scene_pool::alloc<ReadyScene>();
+                } else {
+                    return scene_pool::alloc<InspectP2Scene>();
+                }
+            } else {
+
+                auto sync = [&](Drone& drone) {
+                    network::packet::DroneSetTarget packet;
+                    packet.drone_x_ = drone.position().x;
+                    packet.drone_y_ = drone.position().y;
+                    packet.target_x_ = cursor_loc.x;
+                    packet.target_y_ = cursor_loc.y;
+                    packet.drone_near_ =
+                        drone.destination() == &app.player_island();
+                    packet.target_near_ = false;
+                    network::transmit(pfrm, packet);
+                };
+
+                if (near_) {
+                    if (auto drone =
+                        app.player_island().get_drone(weapon_loc_)) {
+                        (*drone)->set_target(pfrm, app, cursor_loc);
+                        sync(**drone);
+
+                        return drone_exit_scene(drone->get());
+                    }
+                } else {
+                    if (auto drone =
+                        app.opponent_island()->get_drone(weapon_loc_)) {
+                        (*drone)->set_target(pfrm, app, cursor_loc);
+                        sync(**drone);
+
+                        return drone_exit_scene(drone->get());
+                    }
+                }
             }
+        }
+        return null_scene();
+    };
+
+    if (test_key(Key::action_1)) {
+        if (auto scene = onclick(cursor_loc)) {
+            return scene;
+        }
+    }
+    if (auto pos = app.player().tap_released(pfrm)) {
+        auto [x, y, island] = check_island_tapclick(pfrm, app, *pos);
+        if (island == app.opponent_island()) {
+            if (auto scene = onclick({x, y})) {
+                return scene;
+            } else {
+                return scene_pool::alloc<ReadyScene>();
+            }
+        } else {
             return scene_pool::alloc<ReadyScene>();
         }
     }
+
 
 
     if (app.player().key_down(pfrm, Key::action_2)) {
