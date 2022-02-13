@@ -1,3 +1,4 @@
+#include "assignWeaponGroupScene.hpp"
 #include "readyScene.hpp"
 #include "boxedDialogScene.hpp"
 #include "constructionScene.hpp"
@@ -158,11 +159,6 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<FadeOutScene>();
     }
 
-    if (tapped_topleft_corner(pfrm, app) or
-        app.player().key_down(pfrm, Key::alt_2)) {
-        return scene_pool::alloc<ConstructionScene>();
-    }
-
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
 
@@ -179,6 +175,12 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
 
     if (not app.player().key_pressed(pfrm, Key::start)) {
+
+        if (tapped_topleft_corner(pfrm, app) or
+            app.player().key_down(pfrm, Key::alt_2)) {
+            return scene_pool::alloc<ConstructionScene>();
+        }
+
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
@@ -222,10 +224,34 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
     } else {
-        if (app.player().key_down(pfrm, Key::down)) {
+        if (app.player().key_down(pfrm, Key::alt_2)) {
             return scene_pool::alloc<KeyComboScene>(true);
+        } else if (app.player().key_down(pfrm, Key::down)) {
+            return scene_pool::alloc<AssignWeaponGroupScene>();
+        } else if (app.player().key_down(pfrm, Key::up)) {
+            for (auto& room : app.player_island().rooms()) {
+                if (room->group() == Room::Group::one) {
+                    if (auto scene = room->select(pfrm, app)) {
+                        return scene;
+                    }
+                }
+            }
+        } else if (app.player().key_down(pfrm, Key::right)) {
+            for (auto& room : app.player_island().rooms()) {
+                if (room->group() == Room::Group::two) {
+                    if (auto scene = room->select(pfrm, app)) {
+                        return scene;
+                    }
+                }
+            }
         } else if (app.player().key_down(pfrm, Key::left)) {
-            // TODO: assign weapon groups
+            for (auto& room : app.player_island().rooms()) {
+                if (room->group() == Room::Group::three) {
+                    if (auto scene = room->select(pfrm, app)) {
+                        return scene;
+                    }
+                }
+            }
         }
     }
 

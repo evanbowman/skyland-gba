@@ -2,14 +2,11 @@
 
 
 #include "worldScene.hpp"
+#include "skyland/room.hpp"
 
 
 
 namespace skyland {
-
-
-
-class Room;
 
 
 
@@ -48,6 +45,9 @@ private:
     std::optional<Text> room_description_;
 
     bool near_;
+
+    Room::Group group_ = Room::Group::none;
+
 
     std::optional<Vec2<u8>> initial_pos_;
 };

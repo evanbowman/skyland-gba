@@ -89,6 +89,7 @@ struct Tile {
         bronze,
         dynamite,
         tnt,
+        weapon_group_sub_tiles,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -181,6 +182,7 @@ struct InteriorTile {
         bronze,
         dynamite,
         tnt,
+        weapon_group_sub_tiles,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

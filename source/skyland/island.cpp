@@ -981,6 +981,26 @@ void Island::repaint(Platform& pfrm, App& app)
     }
 
     render_terrain(pfrm);
+
+    if (show_groups_) {
+        for (auto& room : rooms_) {
+            if ((*room->metaclass())->category() == Room::Category::weapon) {
+                if (room->group() not_eq Room::Group::none) {
+                    auto pos = room->position();
+                    pos.y += room->size().y - 1;
+                    // NOTE: 8x8px tile, so start index = 4 * 16ptile + 1.
+                    // +1 to skip the none enumeration.
+                    const auto tile = 347 + (int)room->group();
+                    if (layer_ == Layer::map_0_ext) {
+                        pfrm.set_raw_tile(Layer::map_0,
+                                          pos.x * 2,
+                                          pos.y * 2 + 1,
+                                          tile);
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -1121,6 +1141,7 @@ void show_island_interior(Platform& pfrm, App& app, Island* island)
     }
 
     if (island) {
+        island->show_groups(true);
         island->render_interior(pfrm, app);
     }
 
@@ -1138,10 +1159,18 @@ void show_island_exterior(Platform& pfrm, App& app, Island* island)
     }
 
     if (island) {
+        island->show_groups(false);
         island->render_exterior(pfrm, app);
     }
 
     write_custom_graphics(pfrm, app);
+}
+
+
+
+void Island::show_groups(bool enabled)
+{
+    show_groups_ = enabled;
 }
 
 

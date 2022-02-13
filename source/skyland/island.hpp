@@ -282,6 +282,9 @@ public:
     void cancel_dispatch();
 
 
+    void show_groups(bool enabled);
+
+
 private:
     void resolve_cancelled_dispatch();
 
@@ -307,6 +310,7 @@ private:
     bool interior_visible_;
     bool show_flag_ = false;
     bool dispatch_cancelled_ = false;
+    bool show_groups_ = false;
 
     bool has_radar_ = false;
     bool is_boarded_ = false;

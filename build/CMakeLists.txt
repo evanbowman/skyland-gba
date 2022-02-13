@@ -151,6 +151,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/fullscreenDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/recoverCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/repairDroneRangeScene.cpp
+  ${SOURCE_DIR}/skyland/scene/assignWeaponGroupScene.cpp
   ${SOURCE_DIR}/skyland/scene/sramFileWritebackScene.cpp
   ${SOURCE_DIR}/skyland/scene/transportCharacterScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerConnectScene.cpp
