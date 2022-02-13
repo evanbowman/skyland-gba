@@ -134,6 +134,7 @@ void AssignWeaponGroupScene::enter(Platform& pfrm, App& app, Scene& prev)
     msg_.emplace(pfrm, "assign weapon groups:", OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
 
 
+    app.player_island().show_groups(true);
     app.player_island().repaint(pfrm, app);
 }
 
@@ -143,6 +144,9 @@ void AssignWeaponGroupScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     ActiveWorldScene::exit(pfrm, app, next);
 
+    if (not app.player_island().interior_visible()) {
+        app.player_island().show_groups(false);
+    }
     app.player_island().repaint(pfrm, app);
 }
 

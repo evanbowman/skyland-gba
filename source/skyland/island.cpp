@@ -48,8 +48,6 @@ Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
       owner_(&owner)
 {
     init_terrain(pfrm, width);
-
-    show_groups(true);
 }
 
 
@@ -1143,6 +1141,7 @@ void show_island_interior(Platform& pfrm, App& app, Island* island)
     }
 
     if (island) {
+        island->show_groups(true);
         island->render_interior(pfrm, app);
     }
 
@@ -1160,6 +1159,7 @@ void show_island_exterior(Platform& pfrm, App& app, Island* island)
     }
 
     if (island) {
+        island->show_groups(false);
         island->render_exterior(pfrm, app);
     }
 
