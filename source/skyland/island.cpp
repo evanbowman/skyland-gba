@@ -992,10 +992,8 @@ void Island::repaint(Platform& pfrm, App& app)
                     // +1 to skip the none enumeration.
                     const auto tile = 347 + (int)room->group();
                     if (layer_ == Layer::map_0_ext) {
-                        pfrm.set_raw_tile(Layer::map_0,
-                                          pos.x * 2,
-                                          pos.y * 2 + 1,
-                                          tile);
+                        pfrm.set_raw_tile(
+                            Layer::map_0, pos.x * 2, pos.y * 2 + 1, tile);
                     }
                 }
             }
@@ -1159,7 +1157,7 @@ void show_island_exterior(Platform& pfrm, App& app, Island* island)
     }
 
     if (island) {
-        island->show_groups(false);
+        // island->show_groups(false);
         island->render_exterior(pfrm, app);
     }
 

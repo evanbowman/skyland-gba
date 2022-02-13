@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include "worldScene.hpp"
 #include "skyland/room.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -33,11 +33,9 @@ private:
 
     u8 group_cursor_;
 
-    Microseconds describe_room_timer_ = milliseconds(400);
-    std::optional<Text> room_description_;
     std::optional<Text> msg_;
 };
 
 
 
-}
+} // namespace skyland

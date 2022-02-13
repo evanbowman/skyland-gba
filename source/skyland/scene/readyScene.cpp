@@ -1,5 +1,5 @@
-#include "assignWeaponGroupScene.hpp"
 #include "readyScene.hpp"
+#include "assignWeaponGroupScene.hpp"
 #include "boxedDialogScene.hpp"
 #include "constructionScene.hpp"
 #include "fadeOutScene.hpp"
@@ -452,6 +452,22 @@ void describe_room(Platform& pfrm,
                         room_description->append(temp.c_str());
                         room_description->append(1 + tm / seconds(1));
                     }
+                }
+
+                if (room->group() not_eq Room::Group::none) {
+                    const auto st = calc_screen_tiles(pfrm);
+                    if (room_description->len() + 1 == st.x) {
+                        // If we're running out of room, try to squeeze the
+                        // group icon into the last open tile slot.
+                        room_description->append(" ");
+                    } else {
+                        room_description->append("  ");
+
+                    }
+                    pfrm.set_tile(Layer::overlay,
+                                  room_description->len() - 1,
+                                  calc_screen_tiles(pfrm).y - 1,
+                                  393 + ((int)room->group() - 1));
                 }
             }
 

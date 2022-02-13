@@ -48,31 +48,30 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             u8 margin = centered_text_margins(pfrm, utf8::len(text));
 
             text_.emplace(pfrm, text, OverlayCoord{margin, (u8)(st.y / 2 - 3)});
-
         }
     } else if (text_) {
         if (timer_ > milliseconds(500) and timer_ < milliseconds(2000)) {
-            auto amount = smoothstep(milliseconds(500), milliseconds(2000), timer_);
+            auto amount =
+                smoothstep(milliseconds(500), milliseconds(2000), timer_);
             pfrm.set_overlay_origin(0, amount * 30);
         }
         if (timer_ > milliseconds(2000)) {
             pfrm.set_overlay_origin(0, 30);
 
-            draw_image(
-                pfrm, 82, 4, 9, 22, 10, Layer::overlay);
+            draw_image(pfrm, 82, 4, 9, 22, 10, Layer::overlay);
         }
 
         if (timer_ > milliseconds(3000) and not copyright_text_) {
             const char* copyright_str = "Copyright ©2022";
-            copyright_text_.emplace(pfrm,
-                                    OverlayCoord{
-                                        (u8)centered_text_margins(pfrm, utf8::len(copyright_str)),
-                                        20
-                                    });
+            copyright_text_.emplace(
+                pfrm,
+                OverlayCoord{
+                    (u8)centered_text_margins(pfrm, utf8::len(copyright_str)),
+                    20});
 
             copyright_text_->assign(copyright_str,
                                     FontColors{ColorConstant::med_blue_gray,
-                                            ColorConstant::rich_black});
+                                               ColorConstant::rich_black});
         }
 
         auto t = pfrm.screen().touch();

@@ -2422,8 +2422,8 @@ Platform::Platform()
         break;
     }
 
-        info(*this, format("save type %", cardEepromGetType()));
-        info(*this, format("save size %", cardEepromGetSize()));
+    info(*this, format("save type %", cardEepromGetType()));
+    info(*this, format("save size %", cardEepromGetSize()));
 
 
     if (not filesystem::is_mounted()) {

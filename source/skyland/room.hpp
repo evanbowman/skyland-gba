@@ -9,6 +9,7 @@
 #include "power.hpp"
 #include "scene.hpp"
 #include <memory>
+#include "block.hpp"
 
 
 
@@ -78,7 +79,7 @@ struct RoomProperties {
 
 
 
-class Room {
+class Room : public Block {
 public:
     enum class Category {
         wall,
