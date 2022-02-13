@@ -112,13 +112,29 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (auto room = app.player_island().get_room(weapon_loc_)) {
 
-                room->set_target(pfrm, app, cursor_loc);
-                network::packet::WeaponSetTarget packet;
-                packet.weapon_x_ = weapon_loc_.x;
-                packet.weapon_y_ = weapon_loc_.y;
-                packet.target_x_ = cursor_loc.x;
-                packet.target_y_ = cursor_loc.y;
-                network::transmit(pfrm, packet);
+                auto do_set_target = [&pfrm, &app, cursor_loc](Room& room) {
+                    room.set_target(pfrm, app, cursor_loc);
+                    network::packet::WeaponSetTarget packet;
+                    packet.weapon_x_ = room.position().x;
+                    packet.weapon_y_ = room.position().y;
+                    packet.target_x_ = cursor_loc.x;
+                    packet.target_y_ = cursor_loc.y;
+                    network::transmit(pfrm, packet);
+                };
+
+                const auto group = room->group();
+                if (group not_eq Room::Group::none) {
+                    // If the room has a group assigned, then assign a target
+                    // for all rooms of the same group.
+                    for (auto& r : app.player_island().rooms()) {
+                        if (r->group() == group) {
+                            do_set_target(*r);
+                        }
+                    }
+                } else {
+                    // Room not part of a group.
+                    do_set_target(*room);
+                }
 
                 if (near_) {
                     return scene_pool::alloc<ReadyScene>();

@@ -316,11 +316,17 @@ public:
     u8 default_palette();
 
 
+    // For assigning rooms to groups. In practice, I only intend to allow a few
+    // groups, but just in case, let's use a three-bit field.
     enum class Group {
         none,
         one,
         two,
         tree,
+        four,
+        five,
+        six,
+        seven,
         count,
     };
 
@@ -349,12 +355,12 @@ private:
     u8 finalized_ : 1;
     u8 dispatch_queued_ : 1;
 
-    u8 group_ : 2;
+    u8 group_ : 3;
 
     // NOTE: These flags are reserved for stuff unique to a specific instance of
     // a room. If you want to set properties for an entire class of rooms, use
     // RoomProperties, and retrieve the field from the metaclass.
-    u8 reserved_flags0_ : 6;
+    u8 reserved_flags0_ : 5;
 
     Vec2<u8> position_;
     Health health_;

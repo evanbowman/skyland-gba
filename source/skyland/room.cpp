@@ -25,6 +25,8 @@ Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
     finalized_ = 0;
     dispatch_queued_ = 0;
 
+    set_group(Room::Group::none);
+
     auto metatable = room_metatable();
 
     for (MetaclassIndex i = 0; i < metatable.second; ++i) {
