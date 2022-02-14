@@ -168,6 +168,10 @@ void print_char(Platform& pfrm,
         pfrm.set_tile(Layer::overlay, coord.x, coord.y, 422);
         return;
     }
+    if (c == (char)18) { // (device control 2 ascii char)
+        pfrm.set_tile(Layer::overlay, coord.x, coord.y, 148);
+        return;
+    }
     if (c not_eq 0) {
         auto mapping_info = locale_texture_map()(c);
 

@@ -878,7 +878,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                              module_cursor_->x +
                              module_cursor_->y * modules_per_row;
                 if (auto f = detail::_Module::Factory::get(index)) {
-                    pfrm.speaker().play_music("unaccompanied_wind", 0);
+                    if (f->stop_sound()) {
+                        pfrm.speaker().play_music("unaccompanied_wind", 0);
+                    }
                     pfrm.fill_overlay(0);
                     pfrm.screen().fade(
                         1.f, ColorConstant::rich_black, {}, true, true);

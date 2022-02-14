@@ -46,6 +46,9 @@ public:
         virtual bool run_scripts() = 0;
 
 
+        virtual bool stop_sound() = 0;
+
+
         virtual bool enable_custom_scripts() = 0;
 
 
@@ -87,6 +90,12 @@ public:
     }
 
 
+    static bool stop_sound()
+    {
+        return true;
+    }
+
+
     class Factory : public _Module::Factory {
     public:
         const char* name() override
@@ -104,6 +113,12 @@ public:
         bool run_scripts() override
         {
             return T::run_scripts();
+        }
+
+
+        bool stop_sound() override
+        {
+            return T::stop_sound();
         }
 
 

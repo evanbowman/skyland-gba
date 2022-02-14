@@ -38,10 +38,28 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    static bool stop_sound()
+    {
+        return false;
+    }
+
+
 private:
 
-    void load_page(Platform& pfrm, int page);
+    enum class State {
+        fade_in,
+        fade_out_next,
+        fade_out_exit,
+        page_swap,
+        idle,
+    } state_ = State::fade_in;
 
+
+    void load_page(Platform& pfrm, u32 page);
+
+
+    Buffer<Text, 12> lines_;
+    Microseconds timer_ = 0;
 
     int page_ = 0;
 
