@@ -6,6 +6,10 @@
 (coins-add 8500)
 
 
+(defn on-victory
+  (syscall "challenge-complete" 1))
+
+
 (setq on-fadein
       (lambda
         (dialog "Hey King, we've found a defensselesss cassstle!")

@@ -9,6 +9,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
+#include "fadeOutScene.hpp"
 
 
 
@@ -69,6 +70,13 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return new_scene;
+    }
+
+
+    if (app.exit_level()) {
+        set_gamespeed(pfrm, app, GameSpeed::normal);
+        app.exit_level() = false;
+        return scene_pool::alloc<FadeOutScene>();
     }
 
 

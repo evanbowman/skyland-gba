@@ -5,6 +5,10 @@
 
 (coins-add 5300)
 
+(defn on-victory
+  (syscall "challenge-complete" 2))
+
+
 
 (terrain (player) 6)
 (island-configure
