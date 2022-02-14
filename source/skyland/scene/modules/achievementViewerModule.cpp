@@ -112,6 +112,8 @@ void AchievementViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 
     // TODO: remove screen fade entirely, we want to show a banner across the
     // top of the achievements page.
+
+    pfrm.speaker().set_music_volume(10);
 }
 
 
@@ -127,6 +129,8 @@ void AchievementViewerModule::exit(Platform& pfrm, App& app, Scene& next)
     achievement_name_.reset();
 
     pfrm.fill_overlay(0);
+
+    pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 }
 
 

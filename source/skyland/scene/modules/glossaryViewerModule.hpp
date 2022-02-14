@@ -44,6 +44,12 @@ public:
     }
 
 
+    static bool stop_sound()
+    {
+        return false;
+    }
+
+
 private:
     void load_page(Platform& pfrm, int page);
 

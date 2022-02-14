@@ -99,6 +99,8 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
     load_page(pfrm, 0);
     pfrm.screen().fade(0.95f);
     pfrm.screen().fade(1.f);
+
+    pfrm.speaker().set_music_volume(10);
 }
 
 
@@ -111,6 +113,8 @@ void GlossaryViewerModule::exit(Platform& pfrm, App& app, Scene& next)
     dependency_text_.reset();
 
     pfrm.fill_overlay(0);
+
+    pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 }
 
 

@@ -38,6 +38,12 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    static bool stop_sound()
+    {
+        return false;
+    }
+
+
 private:
     void load_page(Platform& pfrm, App& app, int page);
 

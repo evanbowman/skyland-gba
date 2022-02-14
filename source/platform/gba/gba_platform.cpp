@@ -3502,6 +3502,36 @@ static void audio_update_music_volume_isr()
 
 
 
+static void audio_update_rewind_music_isr()
+{
+    alignas(4) AudioSample mixing_buffer[4];
+    alignas(4) AudioSample mixing_buffer2[4];
+
+    *((u32*)mixing_buffer) =
+        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos - 2];
+
+    *((u32*)mixing_buffer2) =
+        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos - 1];
+
+    // NOTE: we're dropping half of the samples and putting the other half into
+    // the ouptut buffer in reverse order, to rewind the music at 2x speed. But
+    // of course, we can't just drop the first half of the samples and keep the
+    // second half, we drop every other note. mixing_buffer[2] happens to be in
+    // the correct position already.
+    mixing_buffer[3] = mixing_buffer[0];
+    mixing_buffer[0] = mixing_buffer2[2];
+    mixing_buffer[1] = mixing_buffer2[0];
+
+    snd_ctx.music_track_pos -= 2;
+    if (snd_ctx.music_track_pos < 2) {
+        snd_ctx.music_track_pos = snd_ctx.music_track_length;
+    }
+
+    REG_SGFIFOA = *((u32*)mixing_buffer);
+}
+
+
+
 static void audio_update_fast_isr()
 {
     alignas(4) AudioSample mixing_buffer[4];
@@ -3528,6 +3558,17 @@ static void audio_update_fast_isr()
     }
 
     REG_SGFIFOA = *((u32*)mixing_buffer);
+}
+
+
+
+void Platform::Speaker::set_music_reversed(bool reversed)
+{
+    if (reversed) {
+        irqSet(IRQ_TIMER1, audio_update_rewind_music_isr);
+    } else {
+        irqSet(IRQ_TIMER1, audio_update_fast_isr);
+    }
 }
 
 

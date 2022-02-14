@@ -1021,6 +1021,8 @@ void RewindScene::enter(Platform& pfrm, App& app, Scene& prev)
     } else {
         Platform::fatal("entering rewind scene from non-overworld scene");
     }
+
+    pfrm.speaker().set_music_reversed(true);
 }
 
 
@@ -1041,6 +1043,8 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
     if (app.opponent_island()) {
         app.opponent_island()->cancel_dispatch();
     }
+
+    pfrm.speaker().set_music_reversed(false);
 }
 
 

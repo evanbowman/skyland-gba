@@ -638,6 +638,9 @@ public:
 
         void set_music_volume(u8 volume);
 
+        void set_music_reversed(bool reversed);
+
+
         bool is_music_playing(const char* name);
 
         // A platform's speaker may only have the resources to handle a limited
