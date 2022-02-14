@@ -214,6 +214,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.update_parallax(world_delta);
 
 
+    app.stat_timer().count_up(delta);
     app.level_timer().count_up(world_delta);
     app.time_stream().update(world_delta);
 

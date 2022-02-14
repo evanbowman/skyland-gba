@@ -404,9 +404,10 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             }
 
 
+            // Running a callback for each room destroyed and then resetting the
+            // delta clock would ruin multiplayer sync. We have no need to
+            // register an on-room-destroyed callback in multiplayer anyway...
             if (app.game_mode() not_eq App::GameMode::multiplayer) {
-                // This is quite expensive! But it's convenient to be able to be
-                // able to register a callback when a room's destroyed.
 
                 static auto destroyed_str = lisp::intern("on-room-destroyed");
 
@@ -418,8 +419,13 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 auto sym = lisp::make_symbol(destroyed_str,
                                              lisp::Symbol::ModeBits::stable_pointer);
 
-                lisp::Protected fn(lisp::get_var(sym));
+                // This is quite expensive! But it's convenient to be able to be
+                // able to register a callback when a room's destroyed.
+                auto fn = lisp::get_var(sym);
                 if (fn->type() == lisp::Value::Type::function) {
+                    // NOTE: fn is in a global var, as we accessed it through
+                    // get_var. So there's no need to protect fn from the gc, as
+                    // it's already attached to a gc root.
                     lisp::push_op(lisp::make_userdata(this));
                     lisp::push_op(lisp::make_symbol(room->name()));
                     lisp::push_op(lisp::make_integer(room->position().x));
@@ -434,7 +440,9 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     lisp::pop_op(); // result
 
                     // We cannot know how much latency that the custom script
-                    // added.
+                    // added. i.e. reset the clock in case some scripted code
+                    // spent too long executing custom lisp code. Otherwise
+                    // collision checking and other stuff could get messed up!
                     pfrm.delta_clock().reset();
                 }
             }

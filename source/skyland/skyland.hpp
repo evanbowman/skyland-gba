@@ -270,7 +270,17 @@ public:
     }
 
 
+    // Used as a global clock for time_stream events. May be paused, sped up, or
+    // rewound by various scenes.
     TimeTracker& level_timer()
+    {
+        return level_timer_;
+    }
+
+
+    // Used to keep track of how long that the player spent in the current
+    // level. Monotonically incrementing.
+    TimeTracker& stat_timer()
     {
         return level_timer_;
     }
@@ -406,6 +416,7 @@ private:
     EntityList<SmolBirb> birbs_;
 
     TimeTracker level_timer_;
+    TimeTracker stat_timer_;
 
     Microseconds pixelate_timer_ = 0;
 

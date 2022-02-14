@@ -80,7 +80,7 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
     switch (lines_.size()) {
     case 0:
         print_metric_impl("time ",
-                          format_time(app.level_timer().whole_seconds(), true));
+                          format_time(app.stat_timer().whole_seconds(), true));
         break;
 
     case 1:
@@ -475,7 +475,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 app.persistent_data().total_seconds_.set(
                     (u32)(app.persistent_data().total_seconds_.get() +
-                          app.level_timer().whole_seconds()));
+                          app.stat_timer().whole_seconds()));
 
                 app.persistent_data().total_pauses_.set(
                     app.persistent_data().total_pauses_.get() +
@@ -492,7 +492,15 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<SelectChallengeScene>();
 
                 case App::GameMode::adventure:
-                    return scene_pool::alloc<ZoneImageScene>();
+                    if (app.world_graph().nodes_[app.current_world_location()].type_
+                        == WorldGraph::Node::Type::corrupted) {
+                        // Defeated the storm king!
+                        app.persistent_data()
+                            .score_.set(20000 + app.persistent_data().score_.get());
+                        return scene_pool::alloc<HighscoresScene>(true, 1);
+                    } else {
+                        return scene_pool::alloc<ZoneImageScene>();
+                    }
 
                 case App::GameMode::sandbox:
                     return scene_pool::alloc<SandboxResetScene>();
@@ -508,6 +516,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 default:
                     return scene_pool::alloc<TitleScreenScene>(3);
                 }
+                Platform::fatal("fallthrough in playerIslandDestroyedScene");
             } else {
 
                 pfrm.screen().set_shader(passthrough_shader);
@@ -565,9 +574,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (opponent_defeated and
                 app.game_mode() == App::GameMode::adventure) {
 
-                if ((app.world_graph()
+                const auto node_type = app.world_graph()
                          .nodes_[app.current_world_location()]
-                         .type_ not_eq WorldGraph::Node::Type::exit)) {
+                         .type_;
+
+                if (node_type not_eq WorldGraph::Node::Type::exit and
+                    node_type not_eq WorldGraph::Node::Type::corrupted) {
                     anim_state_ = AnimState::show_options;
                 } else {
                     anim_state_ = AnimState::fade_complete;

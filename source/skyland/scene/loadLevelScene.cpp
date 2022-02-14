@@ -71,6 +71,7 @@ void prep_level(Platform& pfrm, App& app)
 
     app.victory_coins() = 0;
     app.pause_count() = 0;
+    app.stat_timer().reset(0);
     app.level_timer().reset(0);
     app.level_coins_spent() = 0;
     app.player().rooms_built_ = 0;
