@@ -509,22 +509,41 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (state_) {
     case State::resume_challenges:
-        state_ = State::fade_in;
+        state_ = State::quick_fade_in;
         menu_selection_ = 1;
         x_scroll_ = 240;
         break;
 
     case State::resume_end:
-        state_ = State::fade_in;
+        state_ = State::quick_fade_in;
         menu_selection_ = 3;
         pfrm.load_tile0_texture("skyland_title_3_flattened");
         x_scroll_ = 480;
         break;
 
+
+    case State::quick_fade_in: {
+        timer_ += delta;
+
+        constexpr auto fade_duration = milliseconds(700);
+        if (timer_ > fade_duration) {
+            pfrm.screen().schedule_fade(0.f);
+            state_ = State::wait;
+            put_menu_text(pfrm);
+            timer_ = 0;
+        } else {
+            const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
+            pfrm.screen().schedule_fade(
+                amount, ColorConstant::rich_black, true, true);
+        }
+        break;
+    }
+
+
     case State::fade_in: {
         timer_ += delta;
 
-        constexpr auto fade_duration = milliseconds(800);
+        constexpr auto fade_duration = milliseconds(1100);
         if (timer_ > fade_duration) {
             pfrm.screen().schedule_fade(0.f);
             state_ = State::wait;

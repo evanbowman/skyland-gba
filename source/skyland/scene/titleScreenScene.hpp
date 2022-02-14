@@ -64,6 +64,7 @@ private:
 
     enum class State {
         fade_in,
+        quick_fade_in,
         wait,
         fade_out,
         scroll_right,
