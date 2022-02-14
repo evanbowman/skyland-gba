@@ -79,12 +79,21 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
 
     switch (lines_.size()) {
     case 0:
-        print_metric_impl("time ",
-                          format_time(app.stat_timer().whole_seconds(), true));
+        if (app.game_mode() == App::GameMode::skyland_forever) {
+            print_metric_impl("time ",
+                              format_time(app.persistent_data().total_seconds_.get(), true));
+        } else {
+            print_metric_impl("time ",
+                              format_time(app.stat_timer().whole_seconds(), true));
+        }
         break;
 
     case 1:
-        print_metric("pauses used ", app.pause_count());
+        if (app.game_mode() == App::GameMode::skyland_forever) {
+            print_metric("pauses used ", app.persistent_data().total_pauses_.get());
+        } else {
+            print_metric("pauses used ", app.pause_count());
+        }
         break;
 
     case 2:
@@ -473,15 +482,6 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 app.reset_opponent_island(pfrm);
 
-                app.persistent_data().total_seconds_.set(
-                    (u32)(app.persistent_data().total_seconds_.get() +
-                          app.stat_timer().whole_seconds()));
-
-                app.persistent_data().total_pauses_.set(
-                    app.persistent_data().total_pauses_.get() +
-                    app.pause_count());
-
-
                 if (pfrm.network_peer().is_connected()) {
                     pfrm.network_peer().disconnect();
                     return scene_pool::alloc<TitleScreenScene>();
@@ -674,6 +674,21 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     return null_scene();
+}
+
+
+
+void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
+{
+    WorldScene::enter(pfrm, app, prev);
+
+    app.persistent_data().total_seconds_.set(
+        (u32)(app.persistent_data().total_seconds_.get() +
+              app.stat_timer().whole_seconds()));
+
+    app.persistent_data().total_pauses_.set(
+        app.persistent_data().total_pauses_.get() +
+        app.pause_count());
 }
 
 

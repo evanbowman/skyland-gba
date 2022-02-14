@@ -73,9 +73,11 @@ void prep_level(Platform& pfrm, App& app)
     app.pause_count() = 0;
     app.stat_timer().reset(0);
     app.level_timer().reset(0);
-    app.level_coins_spent() = 0;
-    app.player().rooms_built_ = 0;
-    app.player().rooms_lost_ = 0;
+
+    if (app.game_mode() not_eq App::GameMode::skyland_forever) {
+        app.player().rooms_built_ = 0;
+        app.player().rooms_lost_ = 0;
+    }
 
     app.persistent_data().score_.set(
         std::max((s32)0, app.persistent_data().score_.get()));

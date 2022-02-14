@@ -34,7 +34,8 @@ App::App(Platform& pfrm)
       current_scene_(null_scene()), next_scene_(null_scene()),
       effects_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       birbs_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      level_timer_(0), backup_(allocate_dynamic<save::EmergencyBackup>(pfrm))
+      level_timer_(0), stat_timer_(0),
+      backup_(allocate_dynamic<save::EmergencyBackup>(pfrm))
 {
     player_.emplace<PlayerP1>();
 

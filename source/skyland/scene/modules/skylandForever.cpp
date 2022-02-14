@@ -31,6 +31,9 @@ void SkylandForever::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.system_call("v-parallax", (void*)false);
 
 
+    app.level_coins_spent() = 0;
+
+
     msg_.emplace(pfrm);
     msg_->assign("Endless new levels! Survive as long as possible!",
                  OverlayCoord{1, 4},
