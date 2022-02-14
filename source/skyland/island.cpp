@@ -1173,4 +1173,18 @@ void Island::show_groups(bool enabled)
 
 
 
+Island& player_island(App& app)
+{
+    return app.player_island();
+}
+
+
+
+Island* opponent_island(App& app)
+{
+    return app.opponent_island();
+}
+
+
+
 } // namespace skyland

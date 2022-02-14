@@ -206,20 +206,29 @@ void PlayerP1::key_held_reset(Key k, Microseconds decrement)
 
 
 
-void PlayerP1::key_held_distribute(Platform& pfrm)
+void PlayerP1::key_held_distribute(Platform& pfrm, const Key* include_list)
 {
+    // If any key in the include_list is pressed, distribute that key press to
+    // all keys in the include list.
+
     int max = 0;
-    for (auto tm : key_held_timers_) {
-        if (tm > max) {
-            max = tm;
+
+    auto l = include_list;
+
+    while (*l not_eq Key::null) {
+        if (key_held_timers_[static_cast<int>(*l)] > max) {
+            max = key_held_timers_[static_cast<int>(*l)];
         }
+        ++l;
     }
 
+    l = include_list;
 
-    for (int i = 0; i < static_cast<int>(Key::count); ++i) {
-        if (pfrm.keyboard().pressed(static_cast<Key>(i))) {
-            key_held_timers_[i] = max;
+    while (*l not_eq Key::null) {
+        if (pfrm.keyboard().pressed(*l)) {
+            key_held_timers_[static_cast<int>(*l)] = max;
         }
+        ++l;
     }
 }
 

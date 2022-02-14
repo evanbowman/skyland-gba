@@ -346,4 +346,9 @@ void show_island_exterior(Platform& pfrm, App& app, Island* island);
 
 
 
+Island& player_island(App& app);
+Island* opponent_island(App& app);
+
+
+
 } // namespace skyland

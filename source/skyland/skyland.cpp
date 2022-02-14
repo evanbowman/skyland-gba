@@ -21,6 +21,13 @@ void init_clouds(Platform& pfrm);
 
 
 
+Player& player(App& app)
+{
+    return app.player();
+}
+
+
+
 App::App(Platform& pfrm)
     : islands_(
           allocate_dynamic<Islands>(pfrm, pfrm, Layer::map_0_ext, 5, player())),

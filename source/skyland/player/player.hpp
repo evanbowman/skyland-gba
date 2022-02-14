@@ -88,6 +88,15 @@ public:
     }
 
 
+    constexpr static const Key default_key_distribute_include_list[5] = {
+        Key::left,
+        Key::right,
+        Key::up,
+        Key::down,
+        Key::null
+    };
+
+
     // Should be implemented to treat all currently pressed keys as held for the
     // same amount of time as the longest held key. Used to implement smooth
     // scroll locking, where we want the scroll lock to continue in a different
@@ -96,7 +105,11 @@ public:
     // scrolling would halt until the new direction builds up enough inertia to
     // start scrolling continuously, unless we grant the new direction the same
     // scrolling inertia as the previous direction button.
-    virtual void key_held_distribute(Platform& pfrm)
+    virtual void key_held_distribute(Platform& pfrm,
+                                     // Keys to include. Must be terminated by
+                                     // Key::null.
+                                     const Key* include_list =
+                                     default_key_distribute_include_list)
     {
     }
 
@@ -172,6 +185,10 @@ public:
 private:
     MissileAmmo missile_ammo_;
 };
+
+
+
+Player& player(App& app);
 
 
 

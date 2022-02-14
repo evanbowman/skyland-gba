@@ -8,6 +8,7 @@
 #include "keyComboScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
 #include "lispReplScene.hpp"
+#include "modifierKeyHintScene.hpp"
 #include "platform/platform.hpp"
 #include "salvageDroneScene.hpp"
 #include "salvageRoomScene.hpp"
@@ -223,7 +224,12 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 describe_room_timer_ = milliseconds(300);
             }
         }
-    } else {
+    } else /* start pressed */ {
+
+        if (app.player().key_held(Key::start, milliseconds(600))) {
+            return scene_pool::alloc<ModifierKeyHintScene>();
+        }
+
         if (app.player().key_down(pfrm, Key::alt_2)) {
             return scene_pool::alloc<KeyComboScene>(true);
         } else if (app.player().key_down(pfrm, Key::down)) {

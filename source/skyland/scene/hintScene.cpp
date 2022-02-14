@@ -16,7 +16,7 @@ struct HintInfo {
 
 
 
-std::array<HintInfo, 8> hints = {
+std::array<HintInfo, 9> hints = {
     {{"<none>",
       "Press and hold the pause button to set the game speed. Slow motion and "
       "fastforward speeds available! You can even rewind!"},
@@ -26,6 +26,9 @@ std::array<HintInfo, 8> hints = {
       "categories: defenses, weapons, workshops, power, misc."},
      {"hint_goblin",
       "Use bulkhead doors to protect your power-cores against goblins!"},
+     {"<none>",
+      "You can assign groups of weapons to hotkeys! Press and hold start for "
+      "more options!"},
      {"<none>",
       "The Glossary, found on the title screen extras menu, describes all "
       "structures in the game. Pressing start with the construction menu open "

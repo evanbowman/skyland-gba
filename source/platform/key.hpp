@@ -31,5 +31,6 @@ enum class Key : u8 {
     alt_2,
 
 
-    count
+    count,
+    null
 };

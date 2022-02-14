@@ -40,7 +40,7 @@ public:
     void key_held_reset(Key k, Microseconds decrement) override;
 
 
-    void key_held_distribute(Platform& pfrm) override;
+    void key_held_distribute(Platform& pfrm, const Key* include_list) override;
 
 
     std::optional<std::tuple<Vec2<u32>, Microseconds>>
