@@ -198,6 +198,7 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::fade_out;
             timer_ = 0;
             text_.clear();
+            pfrm.fill_overlay(0);
         } else if (app.player().key_down(pfrm, Key::action_2)) {
             text_.clear();
             pfrm.fill_overlay(0);
@@ -226,7 +227,8 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.invoke_script(pfrm, path.c_str());
 
             prep_level(pfrm, app);
-            app.player_island().render_exterior(pfrm, app);
+
+            show_island_exterior(pfrm, app, &app.player_island());
 
             pfrm.speaker().play_music("sb_solecism", 0);
             return scene_pool::alloc<FadeInScene>();
