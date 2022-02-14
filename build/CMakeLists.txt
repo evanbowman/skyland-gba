@@ -161,6 +161,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/combatDroneSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/levelCompleteOptionsScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcManagerModule.cpp
@@ -478,7 +479,6 @@ if(APPLE OR UNIX OR GAMEBOY_ADVANCE OR NINTENDO_DS)
 
   set(SHARED_COMPILE_OPTIONS
     -O2
-    -g
     ${G_COMPILE_FLAGS}
     -D__BLINDJUMP_ENABLE_LOGS)
 
