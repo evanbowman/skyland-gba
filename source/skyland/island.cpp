@@ -403,6 +403,42 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 record_character_died(*chr);
             }
 
+
+            if (app.game_mode() not_eq App::GameMode::multiplayer) {
+                // This is quite expensive! But it's convenient to be able to be
+                // able to register a callback when a room's destroyed.
+
+                static auto destroyed_str = lisp::intern("on-room-destroyed");
+
+                // Creates some garbage, puts a bit of pressure on the gc, but
+                // not too much. The system supports thousands of lisp values at
+                // once, so we're unlikely to trigger the gc. Furthermore, we
+                // intentionally run the gc manually after running a level setup
+                // script, so we should have plenty of values available.
+                auto sym = lisp::make_symbol(destroyed_str,
+                                             lisp::Symbol::ModeBits::stable_pointer);
+
+                lisp::Protected fn(lisp::get_var(sym));
+                if (fn->type() == lisp::Value::Type::function) {
+                    lisp::push_op(lisp::make_userdata(this));
+                    lisp::push_op(lisp::make_symbol(room->name()));
+                    lisp::push_op(lisp::make_integer(room->position().x));
+                    lisp::push_op(lisp::make_integer(room->position().y));
+                    lisp::funcall(fn, 4);
+                    auto result = lisp::get_op(0);
+                    if (result->type() == lisp::Value::Type::error) {
+                        auto p = allocate_dynamic<lisp::DefaultPrinter>(pfrm);
+                        lisp::format(result, *p);
+                        pfrm.fatal(p->fmt_.c_str());
+                    }
+                    lisp::pop_op(); // result
+
+                    // We cannot know how much latency that the custom script
+                    // added.
+                    pfrm.delta_clock().reset();
+                }
+            }
+
             room->finalize(pfrm, app);
 
             if (&owner() == &app.player()) {

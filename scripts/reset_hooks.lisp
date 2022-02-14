@@ -10,6 +10,8 @@
 (setq on-dialog-closed '())
 (setq on-hostile-transition '())
 (setq on-victory '())
+(setq on-room-destroyed '())
+
 
 
 (if (not (bound 'last-zone))

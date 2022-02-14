@@ -111,7 +111,7 @@ public:
 
 
 
-static ScreenBlock overlay_back_buffer alignas(u32);
+static EWRAM_DATA ScreenBlock overlay_back_buffer alignas(u32);
 static bool overlay_back_buffer_changed = false;
 
 
@@ -887,11 +887,11 @@ static Color invoke_shader(const Color& c, int palette)
 
 
 
-static u16 sprite_palette[16];
-static u16 tilesheet_0_palette[16];
-static u16 tilesheet_1_palette[16];
-static u16 overlay_palette[16];
-static u16 background_palette[16];
+EWRAM_DATA u16 sprite_palette[16];
+EWRAM_DATA u16 tilesheet_0_palette[16];
+EWRAM_DATA u16 tilesheet_1_palette[16];
+EWRAM_DATA u16 overlay_palette[16];
+EWRAM_DATA u16 background_palette[16];
 
 
 

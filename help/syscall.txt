@@ -71,3 +71,16 @@ o----------------------------o
 
 
 o----------------------------o
+
+ (syscall
+  "instance-count"
+  island
+  name-sym)
+
+ Return the number of room
+ instances matching name-sym
+ that're registered with the
+ engine.
+
+
+o----------------------------o

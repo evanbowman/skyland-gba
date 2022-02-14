@@ -83,11 +83,12 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             timer_ = 0;
         }
     } else {
-        pfrm.set_overlay_origin(0, 0);
-        // if (timer_ > milliseconds(600)) {
-        info(pfrm, "going to title screen");
-        return scene_pool::alloc<TitleScreenScene>();
-        // }
+        if (timer_ > milliseconds(400)) {
+            pfrm.set_overlay_origin(0, 0);
+            info(pfrm, "going to title screen");
+            return scene_pool::alloc<TitleScreenScene>();
+        }
+
     }
 
     return null_scene();

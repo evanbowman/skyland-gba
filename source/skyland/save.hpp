@@ -2,6 +2,7 @@
 
 #include "persistentData.hpp"
 #include "string.hpp"
+#include "serial.hpp"
 
 
 
@@ -21,7 +22,7 @@ namespace save {
 
 struct EmergencyBackup {
     PersistentData persistent_data_;
-    StringBuffer<1024> lisp_data_;
+    SerialString lisp_data_;
     bool valid_ = false;
 
     void init(Platform& pfrm, App& app);

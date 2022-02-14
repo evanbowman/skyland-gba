@@ -100,18 +100,19 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
     // missile projectile, I threw in this little hack. Really, we should be
     // creating a bounding box for the view and testing intersection with the
     // missile entity. TODO. Unitl then...
-    if (sprite_.get_position().y < 450) {
-        sprite_.set_alpha(Sprite::Alpha::transparent);
-    } else {
-        sprite_.set_alpha(Sprite::Alpha::opaque);
-    }
 
     switch (state_) {
     case State::rising: {
         if (timer_ > milliseconds(400)) {
             timer_ = 0;
             state_ = State::wait;
+            sprite_.set_alpha(Sprite::Alpha::transparent);
+        } else if (sprite_.get_position().y < 450) {
+            sprite_.set_alpha(Sprite::Alpha::transparent);
+        } else {
+            sprite_.set_alpha(Sprite::Alpha::opaque);
         }
+
         auto pos = sprite_.get_position();
         pos.y -= delta * 0.0003f;
         sprite_.set_position(pos);
@@ -122,6 +123,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > seconds(2)) {
             timer_ = 0;
             state_ = State::falling;
+            sprite_.set_alpha(Sprite::Alpha::opaque);
             auto pos = sprite_.get_position();
             pos.x = target_x_;
             if (not pfrm.network_peer().is_connected() and
@@ -134,6 +136,11 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::falling:
+        if (sprite_.get_position().y < 450) {
+            sprite_.set_alpha(Sprite::Alpha::transparent);
+        } else {
+            sprite_.set_alpha(Sprite::Alpha::opaque);
+        }
         if (timer_ > milliseconds(700)) {
             timer_ = 0;
             kill();

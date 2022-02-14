@@ -17,7 +17,7 @@ class Island;
 
 
 
-using SerialString = StringBuffer<980>;
+using SerialString = StringBuffer<1600>;
 
 
 

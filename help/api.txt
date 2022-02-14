@@ -297,6 +297,7 @@ o----------------------------o
  (on-dialog-declined)
  (on-dialog-closed)
  (on-hostile-transition)
+ (on-room-destroyed)
 
  A set of event functions,
  called by the engine for
@@ -304,6 +305,12 @@ o----------------------------o
  override any of these
  functions with custom
  behavior.
+
+ NOTE: on-room-destroyed is
+ somewhat costly to register
+ a callback for. But better
+ to provide it than not at
+ all.
 
 
 o----------------------------o

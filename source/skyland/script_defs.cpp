@@ -139,7 +139,23 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               Platform::fatal(p.fmt_.c_str());
 
               return L_NIL;
-          }}});
+         }},
+         {"instance-count", [](int argc) {
+             L_EXPECT_ARGC(argc, 2);
+             L_EXPECT_OP(0, symbol);
+             L_EXPECT_OP(1, user_data);
+
+             int count = 0;
+
+             auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+             for (auto& room : island->rooms()) {
+                 if (str_eq(room->name(), lisp::get_op(0)->symbol().name_)) {
+                     ++count;
+                 }
+             }
+
+             return lisp::make_integer(count);
+         }}});
 
 
 
