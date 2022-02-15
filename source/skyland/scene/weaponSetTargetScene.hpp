@@ -45,6 +45,7 @@ private:
     std::optional<Text> room_description_;
 
     bool near_;
+    bool resume_far_ = false;
 
     Room::Group group_ = Room::Group::none;
 

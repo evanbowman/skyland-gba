@@ -40,6 +40,10 @@ void InspectP2Scene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
+ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app);
+
+
+
 void describe_room(Platform& pfrm,
                    App& app,
                    Island* island,
@@ -102,40 +106,45 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player().key_held_distribute(pfrm);
 
 
-    if (test_key(Key::left)) {
-        if (cursor_loc.x > 0) {
-            --cursor_loc.x;
-            clear_room_description(pfrm, room_description_);
-            describe_room_timer_ = milliseconds(300);
-        } else {
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y =
-                cursor_loc.y;
-            return scene_pool::alloc<ReadyScene>();
+    if (app.player().key_pressed(pfrm, Key::start)) {
+        if (auto scene = update_modifier_keys(pfrm, app)) {
+            return scene;
         }
-    }
-
-    if (test_key(Key::right)) {
-        if (cursor_loc.x < app.opponent_island()->terrain().size()) {
-            ++cursor_loc.x;
-            clear_room_description(pfrm, room_description_);
-            describe_room_timer_ = milliseconds(300);
+    } else {
+        if (test_key(Key::left)) {
+            if (cursor_loc.x > 0) {
+                --cursor_loc.x;
+                clear_room_description(pfrm, room_description_);
+                describe_room_timer_ = milliseconds(300);
+            } else {
+                std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y =
+                    cursor_loc.y;
+                return scene_pool::alloc<ReadyScene>();
+            }
         }
-    }
 
-    if (test_key(Key::up)) {
-        if (cursor_loc.y > 6) {
-            --cursor_loc.y;
-            clear_room_description(pfrm, room_description_);
-            describe_room_timer_ = milliseconds(300);
+        if (test_key(Key::right)) {
+            if (cursor_loc.x < app.opponent_island()->terrain().size()) {
+                ++cursor_loc.x;
+                clear_room_description(pfrm, room_description_);
+                describe_room_timer_ = milliseconds(300);
+            }
         }
-    }
 
-    if (not app.player().key_pressed(pfrm, Key::start) and
-        test_key(Key::down)) {
-        if (cursor_loc.y < 14) {
-            ++cursor_loc.y;
-            clear_room_description(pfrm, room_description_);
-            describe_room_timer_ = milliseconds(300);
+        if (test_key(Key::up)) {
+            if (cursor_loc.y > 6) {
+                --cursor_loc.y;
+                clear_room_description(pfrm, room_description_);
+                describe_room_timer_ = milliseconds(300);
+            }
+        }
+
+        if (test_key(Key::down)) {
+            if (cursor_loc.y < 14) {
+                ++cursor_loc.y;
+                clear_room_description(pfrm, room_description_);
+                describe_room_timer_ = milliseconds(300);
+            }
         }
     }
 
@@ -226,12 +235,6 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (not is_far_camera()) {
         return scene_pool::alloc<ReadyScene>();
-    }
-
-
-    if (app.player().key_pressed(pfrm, Key::start) and
-        app.player().key_down(pfrm, Key::down)) {
-        return scene_pool::alloc<KeyComboScene>(true);
     }
 
     if (not pfrm.network_peer().is_connected() and app.launch_repl()) {

@@ -47,6 +47,14 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         return new_scene;
     }
 
+    auto player_weapon_exit_scene = [&]() -> ScenePtr<Scene> {
+        if (resume_far_) {
+            return scene_pool::alloc<InspectP2Scene>();
+        } else {
+            return scene_pool::alloc<ReadyScene>();
+        }
+    };
+
     auto drone_exit_scene = [&](Drone* drone) -> ScenePtr<Scene> {
         if (drone->destination() == &app.player_island()) {
             std::get<SkylandGlobalData>(globals()).near_cursor_loc_ =
@@ -64,7 +72,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (targets_.empty() or not app.opponent_island() or
         mt_prep_seconds not_eq 0) {
-        return scene_pool::alloc<ReadyScene>();
+        return player_weapon_exit_scene();
     }
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
@@ -133,14 +141,14 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
 
-                return scene_pool::alloc<ReadyScene>();
+                return player_weapon_exit_scene();
 
             } else if (near_ and room) {
 
                 do_set_target(*room);
 
                 if (near_) {
-                    return scene_pool::alloc<ReadyScene>();
+                    return player_weapon_exit_scene();
                 } else {
                     return scene_pool::alloc<InspectP2Scene>();
                 }
@@ -210,7 +218,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                 return drone_exit_scene(drone->get());
             }
         }
-        return scene_pool::alloc<ReadyScene>();
+        return player_weapon_exit_scene();
     }
 
     if (describe_room_timer_ > 0) {
@@ -272,6 +280,20 @@ void WeaponSetTargetScene::exit(Platform& pfrm, App& app, Scene& next)
 
 void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    if (auto w = dynamic_cast<WorldScene*>(&prev)) {
+        // Yeah I know, this doesn't look pretty. If we came from a scene where
+        // our camera was anchored on the far island, remember to return to the
+        // far island. Originally, the WeaponSetTargetScene was only created
+        // when selecting a weapon on the player's island. But then I added key
+        // combos for assigning a weapon target while the camera was anchored on
+        // the opponent's island, so in these cases, we don't want to resume on
+        // a state where we're anchored over the player's island, as was the
+        // case previously.
+        if (w->is_far_camera()) {
+            resume_far_ = true;
+        }
+    }
+
     ActiveWorldScene::enter(pfrm, app, prev);
 
     collect_targets(pfrm, app);

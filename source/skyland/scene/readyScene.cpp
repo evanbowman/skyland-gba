@@ -148,6 +148,43 @@ bool tapped_topleft_corner(Platform& pfrm, App& app)
 
 
 
+ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
+{
+    if (app.player().key_down(pfrm, Key::alt_2)) {
+        return scene_pool::alloc<KeyComboScene>(true);
+    } else if (app.player().key_down(pfrm, Key::down)) {
+        return scene_pool::alloc<AssignWeaponGroupScene>();
+    } else if (app.player().key_down(pfrm, Key::up)) {
+        for (auto& room : app.player_island().rooms()) {
+            if (room->group() == Room::Group::one) {
+                if (auto scene = room->select(pfrm, app)) {
+                    return scene;
+                }
+            }
+        }
+    } else if (app.player().key_down(pfrm, Key::right)) {
+        for (auto& room : app.player_island().rooms()) {
+            if (room->group() == Room::Group::two) {
+                if (auto scene = room->select(pfrm, app)) {
+                    return scene;
+                }
+            }
+        }
+    } else if (app.player().key_down(pfrm, Key::left)) {
+        for (auto& room : app.player_island().rooms()) {
+            if (room->group() == Room::Group::three) {
+                if (auto scene = room->select(pfrm, app)) {
+                    return scene;
+                }
+            }
+        }
+    }
+
+    return null_scene();
+}
+
+
+
 ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
@@ -230,34 +267,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<ModifierKeyHintScene>();
         }
 
-        if (app.player().key_down(pfrm, Key::alt_2)) {
-            return scene_pool::alloc<KeyComboScene>(true);
-        } else if (app.player().key_down(pfrm, Key::down)) {
-            return scene_pool::alloc<AssignWeaponGroupScene>();
-        } else if (app.player().key_down(pfrm, Key::up)) {
-            for (auto& room : app.player_island().rooms()) {
-                if (room->group() == Room::Group::one) {
-                    if (auto scene = room->select(pfrm, app)) {
-                        return scene;
-                    }
-                }
-            }
-        } else if (app.player().key_down(pfrm, Key::right)) {
-            for (auto& room : app.player_island().rooms()) {
-                if (room->group() == Room::Group::two) {
-                    if (auto scene = room->select(pfrm, app)) {
-                        return scene;
-                    }
-                }
-            }
-        } else if (app.player().key_down(pfrm, Key::left)) {
-            for (auto& room : app.player_island().rooms()) {
-                if (room->group() == Room::Group::three) {
-                    if (auto scene = room->select(pfrm, app)) {
-                        return scene;
-                    }
-                }
-            }
+        if (auto scene = update_modifier_keys(pfrm, app)) {
+            return scene;
         }
     }
 
