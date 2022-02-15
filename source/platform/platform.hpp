@@ -622,7 +622,10 @@ public:
 
     class Speaker {
     public:
-        using Channel = int;
+
+        void play_chiptune_note(int note, int octave);
+
+
 
         // NOTE: All music will loop. It's just more efficient to implement the
         // music such that all tracks are either looped or non-looping, and I

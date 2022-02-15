@@ -3163,6 +3163,35 @@ static void add_sound(Buffer<ActiveSoundInfo, 3>& sounds,
 }
 
 
+
+// Borrowed from libtonc:
+typedef enum {
+    NOTE_C=0, NOTE_CIS, NOTE_D,   NOTE_DIS,
+    NOTE_E,   NOTE_F,   NOTE_FIS, NOTE_G,
+    NOTE_GIS, NOTE_A,   NOTE_BES, NOTE_B
+} eSndNoteId;
+
+
+
+const uint __snd_rates[12] = {
+    8013, 7566, 7144, 6742, // C , C#, D , D#
+    6362, 6005, 5666, 5346, // E , F , F#, G
+    5048, 4766, 4499, 4246  // G#, A , A#, B
+};
+
+
+
+#define SND_RATE(note, oct) ( 2048-(__snd_rates[note]>>(4+(oct))) )
+
+
+
+void Platform::Speaker::play_chiptune_note(int note, int octave)
+{
+    REG_SND1FREQ = SFREQ_RESET | SND_RATE(note, octave);
+}
+
+
+
 void Platform::Speaker::play_sound(const char* name,
                                    int priority,
                                    std::optional<Vec2<Float>> position)
@@ -3291,6 +3320,7 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
 
 Platform::Speaker::Speaker()
 {
+
 }
 
 
@@ -3589,7 +3619,7 @@ void Platform::Speaker::set_music_volume(u8 volume)
 
 
 
-[[maybe_unused]] static void audio_start()
+static void audio_start()
 {
     clear_music();
 
@@ -3618,6 +3648,23 @@ void Platform::Speaker::set_music_volume(u8 volume)
     // sample rate for the digital audio chip.
     REG_TM0CNT_H = 0x0083;
     REG_TM1CNT_H = 0x00C3;
+
+
+    // turn sound on
+    REG_SNDSTAT= SSTAT_ENABLE;
+
+    // snd1 on left/right ; both full volume
+    REG_SNDDMGCNT = SDMG_BUILD_LR(SDMG_SQR1, 7);
+
+    // DMG ratio to 100%
+    REG_SNDDSCNT |= SDS_DMG100;
+
+    // no sweep
+    REG_SND1SWEEP= SSW_OFF;
+
+    // envelope: vol=12, decay, max step time (7) ; 50% duty
+    REG_SND1CNT= SSQR_ENV_BUILD(12, 0, 7) | SSQR_DUTY1_2;
+    REG_SND1FREQ= 0;
 }
 
 
