@@ -121,6 +121,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             };
 
 
+            auto room = app.player_island().get_room(weapon_loc_);
+
             if (group_ not_eq Room::Group::none) {
 
                 // If the room has a group assigned, then assign a target
@@ -133,7 +135,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 return scene_pool::alloc<ReadyScene>();
 
-            } else if (auto room = app.player_island().get_room(weapon_loc_)) {
+            } else if (near_ and room) {
 
                 do_set_target(*room);
 
@@ -285,8 +287,10 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    if (auto room = app.player_island().get_room(weapon_loc_)) {
-        group_ = room->group();
+    if (near_) {
+        if (auto room = app.player_island().get_room(weapon_loc_)) {
+            group_ = room->group();
+        }
     }
 
     far_camera();
