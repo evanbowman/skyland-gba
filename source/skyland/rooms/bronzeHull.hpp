@@ -25,7 +25,7 @@ public:
 
     static void format_description(StringBuffer<512>& buffer)
     {
-        buffer += "";
+        buffer += "Hull, but made out of bronze! Pretty, huh?";
     }
 
 
