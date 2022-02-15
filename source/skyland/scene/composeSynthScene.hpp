@@ -33,6 +33,8 @@ private:
     std::optional<Text> heading_;
 
     Synth::Note notes_[16];
+    Synth::Command commands_[16];
+
     Vec2<u8> synth_pos_;
     bool synth_near_;
 

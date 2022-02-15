@@ -1,7 +1,7 @@
 #include "synth.hpp"
 #include "skyland/scene/composeSynthScene.hpp"
 #include "skyland/island.hpp"
-#include "bar.hpp"
+#include "measure.hpp"
 
 
 
@@ -15,6 +15,10 @@ Synth::Synth(Island* parent, const Vec2<u8>& position)
     for (auto& note : notes_) {
         note.note_ = Platform::Speaker::Note::invalid;
         note.octave_ = 0;
+    }
+
+    for (auto& command : commands_) {
+        command.value_ = 0;
     }
 
     if (not measure()) {
@@ -76,7 +80,7 @@ ScenePtr<Scene> Synth::select(Platform& pfrm, App& app)
 
 
 
-Bar* Synth::measure() const
+Measure* Synth::measure() const
 {
     for (int x = 0; x < 4; ++x) {
         int coord = position().x;
@@ -84,7 +88,7 @@ Bar* Synth::measure() const
         if (coord > 0) {
             if (auto room = parent()->get_room({u8(coord), position().y})) {
                 if (str_eq(room->name(), "measure")) {
-                    return dynamic_cast<Bar*>(room);
+                    return dynamic_cast<Measure*>(room);
                 }
             }
         }

@@ -91,7 +91,7 @@ struct Tile {
         tnt,
         weapon_group_sub_tiles,
         synth,
-        bar,
+        measure,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -186,7 +186,7 @@ struct InteriorTile {
         tnt,
         weapon_group_sub_tiles,
         synth,
-        bar,
+        measure,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

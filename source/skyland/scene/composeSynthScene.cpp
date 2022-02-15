@@ -21,6 +21,7 @@ ComposeSynthScene::ComposeSynthScene(App& app, Synth& synth) :
     channel_(synth.channel())
 {
     memcpy(notes_, synth.notes(), sizeof notes_);
+    memcpy(commands_, synth.commands(), sizeof commands_);
 }
 
 
@@ -86,12 +87,20 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
 
         if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
             if (test_key(Key::down)) {
-                notes_[cursor_.y].octave_ = ((u8)notes_[cursor_.y].octave_ + 1) % 9;
+
+                notes_[cursor_.y].octave_ += 1;
+                if (notes_[cursor_.y].octave_ > 6) {
+                    notes_[cursor_.y].octave_ = 0;
+                }
                 repaint(pfrm);
             }
 
             if (test_key(Key::up)) {
-                notes_[cursor_.y].octave_ = ((u8)notes_[cursor_.y].octave_ - 1) % 9;
+                if (notes_[cursor_.y].octave_ == 0) {
+                    notes_[cursor_.y].octave_ = 6;
+                } else {
+                    notes_[cursor_.y].octave_ -= 1;
+                }
                 repaint(pfrm);
             }
         }
@@ -117,7 +126,7 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
 void ComposeSynthScene::repaint(Platform& pfrm)
 {
     const auto st = calc_screen_tiles(pfrm);
-    int start_x = st.x / 2 - 7;
+    int start_x = st.x / 2 - 9;
     int start_y = (st.y - 16) / 2;
 
 
@@ -227,9 +236,12 @@ void ComposeSynthScene::repaint(Platform& pfrm)
         }
 
         put_char(' ', 5, y);
-        put_char(' ', 6, y);
-        put_char(' ', 7, y);
-        put_char(' ', 8, y);
+
+        // TODO: show command
+        put_char('-', 6, y);
+        put_char('0', 7, y);
+        put_char('0', 8, y);
+
         put_char(' ', 9, y);
         put_char(' ', 10, y);
         put_char(' ', 11, y);
@@ -248,7 +260,7 @@ void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.screen().schedule_fade(0.5f);
 
     const auto st = calc_screen_tiles(pfrm);
-    int start_x = st.x / 2 - 7 - 1;
+    int start_x = st.x / 2 - 10;
     int start_y = (st.y - 16) / 2 - 1;
 
     heading_.emplace(pfrm, OverlayCoord{(u8)start_x, (u8)start_y});
@@ -289,6 +301,7 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
         if (auto room = player_island(app).get_room(synth_pos_)) {
             if (auto s = dynamic_cast<Synth*>(room)) {
                 memcpy(s->notes(), notes_, sizeof notes_);
+                memcpy(s->commands(), commands_, sizeof commands_);
             }
         }
     } else {
@@ -296,6 +309,7 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
             if (auto room = opponent_island(app)->get_room(synth_pos_)) {
                 if (auto s = dynamic_cast<Synth*>(room)) {
                     memcpy(s->notes(), notes_, sizeof notes_);
+                    memcpy(s->commands(), commands_, sizeof commands_);
                 }
             }
         }

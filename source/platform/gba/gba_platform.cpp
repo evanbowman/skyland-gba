@@ -3172,7 +3172,7 @@ const uint __snd_rates[12] = {
 
 
 
-#define SND_RATE(note, oct) ( 2048-(__snd_rates[note]>>(4+(oct))) )
+#define SND_RATE(note, oct) ( 2048-(__snd_rates[note]>>((2 + oct))) )
 
 
 

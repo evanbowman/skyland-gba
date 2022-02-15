@@ -30,7 +30,7 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/synth.hpp"
-#include "skyland/rooms/bar.hpp"
+#include "skyland/rooms/measure.hpp"
 #include "skyland/rooms/tnt.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
@@ -231,8 +231,8 @@ using RoomMetatableType = RoomMetatable<15,
                                         Replicator,
                                         DroneBay,
                                         // decoration
+                                        Measure,
                                         Synth,
-                                        Bar,
                                         Statue,
                                         Bridge,
                                         Palm,

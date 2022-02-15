@@ -10,7 +10,7 @@ namespace skyland {
 
 
 
-class Bar;
+class Measure;
 
 
 
@@ -69,23 +69,31 @@ public:
     };
 
 
+    struct Command {
+        u8 value_;
+    };
+
+
     Note* notes()
     {
         return notes_;
     }
 
 
+    Command* commands()
+    {
+        return commands_;
+    }
+
+
     Platform::Speaker::Channel channel() const;
 
 
-    Bar* measure() const;
+    Measure* measure() const;
 
 
 private:
 
-    union Command {
-        u8 value_;
-    };
 
     Command commands_[16];
     Note notes_[16];
