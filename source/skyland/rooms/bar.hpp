@@ -76,21 +76,34 @@ public:
 
 private:
 
-    Synth* pulse_1() const;
-    Synth* pulse_2() const;
+    Synth* square_1() const;
+    Synth* square_2() const;
     Synth* wave() const;
     Synth* noise() const;
+
+    enum class CommandType {
+        none,
+        envelope,
+        wave,
+        vibrato,
+    };
+
+    // Two bits per command enum, 16 notes per channel, four channels
+    Bitvector<2 * 16 * 4> command_flags_;
+
+    Platform::Speaker::ChannelSettings square_1_settings_;
+    Platform::Speaker::ChannelSettings square_2_settings_;
+    Platform::Speaker::ChannelSettings noise_settings_;
+    u16 wave_settings_;
 
     // Bar currently playing
     u8 playing_ : 1;
 
-    // Number of repetitions
-    u8 repeat_ : 7;
+    u8 unused_ : 7;
 
     // Index into the list of notes, 0->16
     u8 index_ = 0;
 
-    std::optional<Vec2<u8>> next_bar_;
     Microseconds timer_ = 0;
 };
 

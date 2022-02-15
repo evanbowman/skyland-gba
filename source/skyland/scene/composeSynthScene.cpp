@@ -86,12 +86,12 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
 
         if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
             if (test_key(Key::down)) {
-                notes_[cursor_.y].octave_ = ((u8)notes_[cursor_.y].octave_ + 1) % 10;
+                notes_[cursor_.y].octave_ = ((u8)notes_[cursor_.y].octave_ + 1) % 9;
                 repaint(pfrm);
             }
 
             if (test_key(Key::up)) {
-                notes_[cursor_.y].octave_ = ((u8)notes_[cursor_.y].octave_ - 1) % 10;
+                notes_[cursor_.y].octave_ = ((u8)notes_[cursor_.y].octave_ - 1) % 9;
                 repaint(pfrm);
             }
         }
@@ -156,59 +156,55 @@ void ComposeSynthScene::repaint(Platform& pfrm)
         auto str = [&] {
             switch (note.note_) {
             case Platform::Speaker::Note::C:
-                return "C_";
+                return "C ";
 
             case Platform::Speaker::Note::CIS:
                 return "C#";
 
             case Platform::Speaker::Note::D:
-                return "D_";
+                return "D ";
 
             case Platform::Speaker::Note::DIS:
                 return "D#";
 
             case Platform::Speaker::Note::E:
-                return "E_";
+                return "E ";
 
             case Platform::Speaker::Note::F:
-                return "F_";
+                return "F ";
 
             case Platform::Speaker::Note::FIS:
                 return "F#";
 
             case Platform::Speaker::Note::G:
-                return "G_";
+                return "G ";
 
             case Platform::Speaker::Note::GIS:
                 return "G#";
 
             case Platform::Speaker::Note::A:
-                return "A_";
+                return "A ";
 
             case Platform::Speaker::Note::BES:
                 return "B#";
 
             case Platform::Speaker::Note::B:
-                return "B_";
+                return "B ";
 
             case Platform::Speaker::Note::invalid:
                 return "--";
             }
 
-            return "C_";
+            return "C ";
         }();
 
         StringBuffer<4> oct;
 
         if (note.note_ not_eq Platform::Speaker::Note::invalid) {
-            if (note.octave_ < 10) {
-                oct.push_back('0');
-            }
             oct += stringify(note.octave_);
         } else {
-            oct = "--";
+            oct = "-";
         }
-
 
         auto highlight = Text::OptColors{{
                 ColorConstant::silver_white,
@@ -217,27 +213,27 @@ void ComposeSynthScene::repaint(Platform& pfrm)
         if (cursor_.y == y and cursor_.x == 0) {
             put_char(str[0], 2, y, highlight);
             put_char(str[1], 3, y, highlight);
-
-            put_char(oct[0], 5, y);
-            put_char(oct[1], 6, y);
+            put_char(oct[0], 4, y);
 
         } else if (cursor_.y == y and cursor_.x == 1) {
             put_char(str[0], 2, y);
             put_char(str[1], 3, y);
-
-            put_char(oct[0], 5, y, highlight);
-            put_char(oct[1], 6, y, highlight);
+            put_char(oct[0], 4, y, highlight);
 
         } else {
             put_char(str[0], 2, y);
             put_char(str[1], 3, y);
-
-            put_char(oct[0], 5, y);
-            put_char(oct[1], 6, y);
+            put_char(oct[0], 4, y);
         }
 
-        put_char(' ', 4, y);
+        put_char(' ', 5, y);
+        put_char(' ', 6, y);
         put_char(' ', 7, y);
+        put_char(' ', 8, y);
+        put_char(' ', 9, y);
+        put_char(' ', 10, y);
+        put_char(' ', 11, y);
+        put_char(' ', 12, y);
     }
 }
 
@@ -259,8 +255,8 @@ void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     heading_->assign([&]() {
         switch (channel_) {
-        case Platform::Speaker::Channel::pulse_1:
-            return "pulse_1";
+        case Platform::Speaker::Channel::square_1:
+            return "tone_1";
 
         case Platform::Speaker::Channel::wave:
             return "wave";
@@ -268,8 +264,8 @@ void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
         case Platform::Speaker::Channel::noise:
             return "noise";
 
-        case Platform::Speaker::Channel::pulse_2:
-            return "pulse_2";
+        case Platform::Speaker::Channel::square_2:
+            return "tone_2";
 
         default:
         case Platform::Speaker::Channel::invalid:

@@ -16,11 +16,11 @@ namespace room_pool {
 
 
 #if defined(__GBA__) or defined(__NDS__)
-static constexpr const int max_room_size = 52;
+static constexpr const int max_room_size = 64;
 #else
 static constexpr const int max_room_size = 128;
 #endif
-static constexpr const int pool_capacity = 140;
+static constexpr const int pool_capacity = 155;
 static constexpr const int alignment = 8;
 
 
@@ -30,10 +30,10 @@ public:
     // NOTE: each room occupies 52 bytes, plus a four byte freelist pointer, so
     // 56 bytes, i.e. ~35 rooms fit in each pool, as pools are reified as
     // scratch buffers (2k pages).
-    static const auto rooms_per_pool = 35;
+    static const auto rooms_per_pool = 26;
     static const auto pool_count = pool_capacity / rooms_per_pool;
 
-    static_assert(pool_count < 5,
+    static_assert(pool_count < 6,
                   "Just a sanity check. We want to understand memory usage "
                   "in the room pool.");
 

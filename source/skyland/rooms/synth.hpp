@@ -10,6 +10,10 @@ namespace skyland {
 
 
 
+class Bar;
+
+
+
 class Synth : public Decoration {
 public:
 
@@ -74,31 +78,16 @@ public:
     Platform::Speaker::Channel channel() const;
 
 
+    Bar* measure() const;
+
+
 private:
 
-    struct Pulse1_Settings {
-        u32 reserved_;
+    union Command {
+        u8 value_;
     };
 
-    struct Pulse2_Settings {
-        u32 reserved_;
-    };
-
-    struct Wave_Settings {
-        u32 reserved_;
-    };
-
-    struct Noise_Settings {
-        u32 reserved_;
-    };
-
-    union Settings {
-        Pulse1_Settings pulse_1_;
-        Pulse2_Settings pulse_2_;
-        Wave_Settings wave_;
-        Noise_Settings noise_;
-    } settings_;
-
+    Command commands_[16];
     Note notes_[16];
 
 };

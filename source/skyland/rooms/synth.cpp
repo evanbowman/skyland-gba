@@ -1,6 +1,7 @@
 #include "synth.hpp"
 #include "skyland/scene/composeSynthScene.hpp"
 #include "skyland/island.hpp"
+#include "bar.hpp"
 
 
 
@@ -14,6 +15,11 @@ Synth::Synth(Island* parent, const Vec2<u8>& position)
     for (auto& note : notes_) {
         note.note_ = Platform::Speaker::Note::invalid;
         note.octave_ = 0;
+    }
+
+    if (not measure()) {
+        // Freestanding synth not allowed!
+        __set_health(0);
     }
 }
 
@@ -42,24 +48,7 @@ void Synth::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
-    bool attached_to_bar = false;
-
-    for (int x = 0; x < 4; ++x) {
-        int coord = position().x;
-        coord -= x + 1;
-        if (coord > 0) {
-            if (auto room = parent()->get_room({u8(coord), position().y})) {
-                if (str_eq(room->name(), "measure")) {
-                    attached_to_bar = true;
-                    break;
-                }
-            }
-        } else {
-            apply_damage(pfrm, app, 9999);
-        }
-    }
-
-    if (not attached_to_bar) {
+    if (not measure()) {
         apply_damage(pfrm, app, 9999);
     }
 }
@@ -83,6 +72,25 @@ void Synth::render_exterior(App& app, u8 buffer[16][16])
 ScenePtr<Scene> Synth::select(Platform& pfrm, App& app)
 {
     return scene_pool::alloc<ComposeSynthScene>(app, *this);
+}
+
+
+
+Bar* Synth::measure() const
+{
+    for (int x = 0; x < 4; ++x) {
+        int coord = position().x;
+        coord -= x + 1;
+        if (coord > 0) {
+            if (auto room = parent()->get_room({u8(coord), position().y})) {
+                if (str_eq(room->name(), "measure")) {
+                    return dynamic_cast<Bar*>(room);
+                }
+            }
+        }
+    }
+
+    return nullptr;
 }
 
 

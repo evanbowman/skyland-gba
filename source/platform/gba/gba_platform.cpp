@@ -3185,8 +3185,16 @@ void Platform::Speaker::play_chiptune_note(Channel channel,
     }
 
     switch (channel) {
-    case Channel::pulse_1:
+    case Channel::square_1:
         REG_SND1FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
+        break;
+
+    case Channel::square_2:
+        REG_SND2FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
+        break;
+
+    case Channel::noise:
+        REG_SND4FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
         break;
 
     default:
@@ -3692,19 +3700,66 @@ static void audio_start()
     // turn sound on
     REG_SNDSTAT= SSTAT_ENABLE;
 
-    // snd1 on left/right ; both full volume
-    REG_SNDDMGCNT = SDMG_BUILD_LR(SDMG_SQR1, 7);
+    // on left/right ; both full volume
+    REG_SNDDMGCNT = SDMG_BUILD_LR(SDMG_SQR1 | SDMG_SQR2 | SDMG_WAVE | SDMG_NOISE, 7);
 
-    // DMG ratio to 100%
+    // DMG ratio to 50%
     REG_SNDDSCNT |= SDS_DMG50;
 
     // no sweep
-    REG_SND1SWEEP= SSW_OFF;
+    REG_SND1SWEEP = SSW_OFF;
 
     // envelope: vol=12, decay, max step time (7) ; 50% duty
-    REG_SND1CNT= SSQR_ENV_BUILD(12, 0, 7) | SSQR_DUTY1_2;
-    REG_SND1FREQ= 0;
+    REG_SND1CNT = SSQR_ENV_BUILD(12, 0, 7) | SSQR_DUTY1_2;
+    REG_SND1FREQ = 0;
+
+    REG_SND2CNT = SSQR_ENV_BUILD(12, 0, 7) | SSQR_DUTY1_4;
+    REG_SND2FREQ = 0;
+
+    REG_SND4CNT = SSQR_ENV_BUILD(12, 0, 7) | SSQR_DUTY1_4;
+    REG_SND4FREQ = 0;
 }
+
+
+
+void Platform::Speaker::init_chiptune_square_1(ChannelSettings settings)
+{
+    REG_SND1CNT = SSQR_BUILD(settings.volume_,
+                             settings.envelope_direction_,
+                             settings.envelope_step_,
+                             settings.duty_,
+                             settings.length_);
+}
+
+
+
+void Platform::Speaker::init_chiptune_square_2(ChannelSettings settings)
+{
+    REG_SND2CNT = SSQR_BUILD(settings.volume_,
+                             settings.envelope_direction_,
+                             settings.envelope_step_,
+                             settings.duty_,
+                             settings.length_);
+}
+
+
+
+void Platform::Speaker::init_chiptune_wave(u16 config)
+{
+
+}
+
+
+
+void Platform::Speaker::init_chiptune_noise(ChannelSettings settings)
+{
+    REG_SND4CNT = SSQR_BUILD(settings.volume_,
+                             settings.envelope_direction_,
+                             settings.envelope_step_,
+                             settings.duty_,
+                             settings.length_);
+}
+
 
 
 // We want our code to be resiliant to cartridges lacking an RTC chip. Run the

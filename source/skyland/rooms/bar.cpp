@@ -12,8 +12,25 @@ Bar::Bar(Island* parent, const Vec2<u8>& position)
     : Decoration(parent, name(), position)
 {
     playing_ = 0;
-    repeat_ = 0;
     index_ = 0;
+
+    square_1_settings_.envelope_direction_ = 0;
+    square_1_settings_.envelope_step_ = 7;
+    square_1_settings_.volume_ = 12;
+    square_1_settings_.duty_ = 0;
+    square_1_settings_.length_ = 0;
+
+    square_2_settings_.envelope_direction_ = 0;
+    square_2_settings_.envelope_step_ = 7;
+    square_2_settings_.volume_ = 12;
+    square_2_settings_.duty_ = 0;
+    square_2_settings_.length_ = 0;
+
+    noise_settings_.envelope_direction_ = 0;
+    noise_settings_.envelope_step_ = 7;
+    noise_settings_.volume_ = 12;
+    noise_settings_.duty_ = 0;
+    noise_settings_.length_ = 0;
 }
 
 
@@ -30,6 +47,7 @@ void Bar::update(Platform& pfrm, App& app, Microseconds delta)
 
     timer_ += delta;
 
+
     if (timer_ > milliseconds(100)) {
 
         timer_ = 0;
@@ -41,13 +59,13 @@ void Bar::update(Platform& pfrm, App& app, Microseconds delta)
         };
 
 
-        if (auto p = pulse_1()) {
-            play(Platform::Speaker::Channel::pulse_1, *p);
+        if (auto p = square_1()) {
+            play(Platform::Speaker::Channel::square_1, *p);
         }
 
 
-        if (auto p = pulse_2()) {
-            play(Platform::Speaker::Channel::pulse_2, *p);
+        if (auto p = square_2()) {
+            play(Platform::Speaker::Channel::square_2, *p);
         }
 
 
@@ -62,10 +80,10 @@ void Bar::update(Platform& pfrm, App& app, Microseconds delta)
 
 
         if (index_ == 15) {
-            if (repeat_) {
-                --repeat_;
-                index_ = 0;
-            } else {
+            // if (repeat_) {
+            //     --repeat_;
+            //     index_ = 0;
+            // } else {
                 if (auto room = parent()->get_room({
                             position().x, u8(position().y + 1)
                         })) {
@@ -78,7 +96,7 @@ void Bar::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm.speaker().resume_music();
                 }
                 playing_ = false;
-            }
+            // }
         } else {
             ++index_;
         }
@@ -140,7 +158,7 @@ void Bar::play(Platform& pfrm)
 
 
 
-Synth* Bar::pulse_1() const
+Synth* Bar::square_1() const
 {
     u8 x = position().x + 1;
     u8 y = position().y;
@@ -154,7 +172,7 @@ Synth* Bar::pulse_1() const
 
 
 
-Synth* Bar::pulse_2() const
+Synth* Bar::square_2() const
 {
     u8 x = position().x + 4;
     u8 y = position().y;
@@ -240,11 +258,11 @@ void Bar::finalize(Platform& pfrm, App& app)
 {
     Room::finalize(pfrm, app);
 
-    if (auto p1 = pulse_1()) {
+    if (auto p1 = square_1()) {
         p1->apply_damage(pfrm, app, 9999);
     }
 
-    if (auto p2 = pulse_2()) {
+    if (auto p2 = square_2()) {
         p2->apply_damage(pfrm, app, 9999);
     }
 

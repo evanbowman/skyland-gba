@@ -218,7 +218,7 @@ typedef u16 ScreenBlock[1024];
 #define SSQR_ENV_BUILD(ivol, dir, time)                                        \
     (((ivol) << 12) | ((dir) << 11) | (((time)&7) << 8))
 
-#define SSQR_BUILD(_ivol, dir, step, duty, len)                                \
+#define SSQR_BUILD(ivol, dir, step, duty, len)                                \
     (SSQR_ENV_BUILD(ivol, dir, step) | (((duty)&3) << 6) | ((len)&63))
 
 

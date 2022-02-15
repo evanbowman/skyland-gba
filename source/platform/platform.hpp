@@ -642,15 +642,30 @@ public:
 
 
         enum class Channel {
-            pulse_1,
+            square_1,
             wave,
             noise,
-            pulse_2,
+            square_2,
             invalid,
         };
 
 
         void play_chiptune_note(Channel channel, Note note, u8 octave);
+
+
+        struct ChannelSettings {
+            u8 length_ : 6;
+            u8 duty_ : 2;
+            u8 envelope_step_ : 3;
+            u8 envelope_direction_ : 1;
+            u8 volume_ : 4;
+        };
+
+
+        void init_chiptune_square_1(ChannelSettings settings);
+        void init_chiptune_square_2(ChannelSettings settings);
+        void init_chiptune_wave(u16 config);
+        void init_chiptune_noise(ChannelSettings settings);
 
 
         // NOTE: All music will loop. It's just more efficient to implement the
