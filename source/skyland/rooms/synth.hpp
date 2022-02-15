@@ -2,6 +2,7 @@
 
 #include "decoration.hpp"
 #include "skyland/tile.hpp"
+#include "platform/platform.hpp"
 
 
 
@@ -13,6 +14,9 @@ class Synth : public Decoration {
 public:
 
     Synth(Island* parent, const Vec2<u8>& position);
+
+
+    void update(Platform&, App&, Microseconds delta) override;
 
 
     static u32 properties()
@@ -56,21 +60,43 @@ public:
 
 
     struct Note {
-        u8 note_ : 4;
+        Platform::Speaker::Note note_ : 4;
         u8 octave_ : 4;
     };
 
 
-    const Note* notes() const
+    Note* notes()
     {
         return notes_;
     }
 
 
+    Platform::Speaker::Channel channel() const;
+
+
 private:
 
-    struct Settings {
-        u32 reserved_ : 32;
+    struct Pulse1_Settings {
+        u32 reserved_;
+    };
+
+    struct Pulse2_Settings {
+        u32 reserved_;
+    };
+
+    struct Wave_Settings {
+        u32 reserved_;
+    };
+
+    struct Noise_Settings {
+        u32 reserved_;
+    };
+
+    union Settings {
+        Pulse1_Settings pulse_1_;
+        Pulse2_Settings pulse_2_;
+        Wave_Settings wave_;
+        Noise_Settings noise_;
     } settings_;
 
     Note notes_[16];

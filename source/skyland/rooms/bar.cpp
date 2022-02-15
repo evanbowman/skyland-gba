@@ -30,19 +30,53 @@ void Bar::update(Platform& pfrm, App& app, Microseconds delta)
 
     timer_ += delta;
 
-    if (timer_ > milliseconds(250)) {
+    if (timer_ > milliseconds(100)) {
 
         timer_ = 0;
 
-        if (index_ == 4) {
-            pfrm.speaker().play_chiptune_note(0, 1);
+        auto play = [&](Platform::Speaker::Channel ch, Synth& s) {
+            auto note = s.notes()[index_];
+            auto n = (Platform::Speaker::Note)note.note_;
+            pfrm.speaker().play_chiptune_note(ch, n, note.octave_);
+        };
+
+
+        if (auto p = pulse_1()) {
+            play(Platform::Speaker::Channel::pulse_1, *p);
         }
+
+
+        if (auto p = pulse_2()) {
+            play(Platform::Speaker::Channel::pulse_2, *p);
+        }
+
+
+        if (auto w = wave()) {
+            play(Platform::Speaker::Channel::wave, *w);
+        }
+
+
+        if (auto n = noise()) {
+            play(Platform::Speaker::Channel::noise, *n);
+        }
+
 
         if (index_ == 15) {
             if (repeat_) {
-
+                --repeat_;
+                index_ = 0;
             } else {
-                // TODO: play next bar
+                if (auto room = parent()->get_room({
+                            position().x, u8(position().y + 1)
+                        })) {
+                    if (auto b = dynamic_cast<Bar*>(room)) {
+                        b->play(pfrm);
+                    } else {
+                        pfrm.speaker().resume_music();
+                    }
+                } else {
+                    pfrm.speaker().resume_music();
+                }
                 playing_ = false;
             }
         } else {
@@ -55,39 +89,47 @@ void Bar::update(Platform& pfrm, App& app, Microseconds delta)
 
 void Bar::render_interior(App& app, u8 buffer[16][16])
 {
-    for (int x = 0; x < 4; ++x) {
-        buffer[position().x + x][position().y] = InteriorTile::bar;
-    }
-
+    buffer[position().x][position().y] = InteriorTile::bar;
 }
 
 
 
 void Bar::render_exterior(App& app, u8 buffer[16][16])
 {
-    for (int x = 0; x < 4; ++x) {
-        buffer[position().x + x][position().y] = Tile::bar;
-    }
+    buffer[position().x][position().y] = Tile::bar;
 }
 
 
 
 ScenePtr<Scene> Bar::select(Platform& pfrm, App&)
 {
-    pfrm.speaker().stop_music();
-
-    play();
+    play(pfrm);
 
     return null_scene();
 }
 
 
 
-void Bar::play()
+void Bar::reset()
+{
+    playing_ = false;
+}
+
+
+
+void Bar::play(Platform& pfrm)
 {
     if (playing_) {
         return;
     }
+
+    for (auto& room : parent()->rooms()) {
+        if (auto b = dynamic_cast<Bar*>(room.get())) {
+            b->reset();
+        }
+    }
+
+    pfrm.speaker().halt_music();
 
     Room::ready();
 
@@ -100,8 +142,8 @@ void Bar::play()
 
 Synth* Bar::pulse_1() const
 {
-    u8 x = position().x;
-    u8 y = position().y - 1;
+    u8 x = position().x + 1;
+    u8 y = position().y;
 
     if (auto room = parent()->get_room({x, y})) {
         return dynamic_cast<Synth*>(room);
@@ -114,8 +156,30 @@ Synth* Bar::pulse_1() const
 
 Synth* Bar::pulse_2() const
 {
-    u8 x = position().x + 1;
-    u8 y = position().y - 1;
+    u8 x = position().x + 4;
+    u8 y = position().y;
+
+    // I should explain: do not consider a Synth as belonging to this musical
+    // bar if there's a bar between this block and the synth. Allows players to
+    // create longer compositions, by ignoring the noise channel and the weaker
+    // pulse channel.
+    if (auto room = parent()->get_room({u8(x - 1), y})) {
+        if (str_eq(room->name(), name())) {
+            return nullptr;
+        }
+    }
+
+    if (auto room = parent()->get_room({u8(x - 2), y})) {
+        if (str_eq(room->name(), name())) {
+            return nullptr;
+        }
+    }
+
+    if (auto room = parent()->get_room({u8(x - 3), y})) {
+        if (str_eq(room->name(), name())) {
+            return nullptr;
+        }
+    }
 
     if (auto room = parent()->get_room({x, y})) {
         return dynamic_cast<Synth*>(room);
@@ -129,7 +193,13 @@ Synth* Bar::pulse_2() const
 Synth* Bar::wave() const
 {
     u8 x = position().x + 2;
-    u8 y = position().y - 1;
+    u8 y = position().y;
+
+    if (auto room = parent()->get_room({u8(x - 1), y})) {
+        if (str_eq(room->name(), name())) {
+            return nullptr;
+        }
+    }
 
     if (auto room = parent()->get_room({x, y})) {
         return dynamic_cast<Synth*>(room);
@@ -143,7 +213,19 @@ Synth* Bar::wave() const
 Synth* Bar::noise() const
 {
     u8 x = position().x + 3;
-    u8 y = position().y - 1;
+    u8 y = position().y;
+
+    if (auto room = parent()->get_room({u8(x - 1), y})) {
+        if (str_eq(room->name(), name())) {
+            return nullptr;
+        }
+    }
+
+    if (auto room = parent()->get_room({u8(x - 2), y})) {
+        if (str_eq(room->name(), name())) {
+            return nullptr;
+        }
+    }
 
     if (auto room = parent()->get_room({x, y})) {
         return dynamic_cast<Synth*>(room);
@@ -172,6 +254,10 @@ void Bar::finalize(Platform& pfrm, App& app)
 
     if (auto n = noise()) {
         n->apply_damage(pfrm, app, 9999);
+    }
+
+    if (playing_) {
+        pfrm.speaker().resume_music();
     }
 }
 

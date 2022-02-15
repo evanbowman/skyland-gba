@@ -1,4 +1,6 @@
 #include "synth.hpp"
+#include "skyland/scene/composeSynthScene.hpp"
+#include "skyland/island.hpp"
 
 
 
@@ -9,6 +11,57 @@ namespace skyland {
 Synth::Synth(Island* parent, const Vec2<u8>& position)
     : Decoration(parent, name(), position)
 {
+    for (auto& note : notes_) {
+        note.note_ = Platform::Speaker::Note::invalid;
+        note.octave_ = 0;
+    }
+}
+
+
+
+Platform::Speaker::Channel Synth::channel() const
+{
+    for (int x = 0; x < 4; ++x) {
+        int coord = position().x;
+        coord -= x + 1;
+        if (coord > 0) {
+            if (auto room = parent()->get_room({u8(coord), position().y})) {
+                if (str_eq(room->name(), "measure")) {
+                    return (Platform::Speaker::Channel)(x);
+                }
+            }
+        }
+    }
+
+    return Platform::Speaker::Channel::invalid;
+}
+
+
+
+void Synth::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::update(pfrm, app, delta);
+
+    bool attached_to_bar = false;
+
+    for (int x = 0; x < 4; ++x) {
+        int coord = position().x;
+        coord -= x + 1;
+        if (coord > 0) {
+            if (auto room = parent()->get_room({u8(coord), position().y})) {
+                if (str_eq(room->name(), "measure")) {
+                    attached_to_bar = true;
+                    break;
+                }
+            }
+        } else {
+            apply_damage(pfrm, app, 9999);
+        }
+    }
+
+    if (not attached_to_bar) {
+        apply_damage(pfrm, app, 9999);
+    }
 }
 
 
@@ -27,11 +80,9 @@ void Synth::render_exterior(App& app, u8 buffer[16][16])
 
 
 
-ScenePtr<Scene> Synth::select(Platform& pfrm, App&)
+ScenePtr<Scene> Synth::select(Platform& pfrm, App& app)
 {
-    pfrm.speaker().stop_music();
-
-    return null_scene();
+    return scene_pool::alloc<ComposeSynthScene>(app, *this);
 }
 
 

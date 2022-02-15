@@ -623,8 +623,34 @@ public:
     class Speaker {
     public:
 
-        void play_chiptune_note(int note, int octave);
 
+        enum Note : u8 {
+            C = 0,
+            CIS,
+            D,
+            DIS,
+            E,
+            F,
+            FIS,
+            G,
+            GIS,
+            A,
+            BES,
+            B,
+            invalid,
+        };
+
+
+        enum class Channel {
+            pulse_1,
+            wave,
+            noise,
+            pulse_2,
+            invalid,
+        };
+
+
+        void play_chiptune_note(Channel channel, Note note, u8 octave);
 
 
         // NOTE: All music will loop. It's just more efficient to implement the
@@ -633,6 +659,9 @@ public:
         // stop it yourself.
         void play_music(const char* name, Microseconds offset);
         void stop_music();
+
+        void halt_music();
+        void resume_music();
 
         // By convention, volume ranges from zero to nineteen (twenty volume
         // levels). Maximum performance when volume is zero or nineteen.

@@ -34,13 +34,13 @@ public:
 
     static const char* name()
     {
-        return "bar";
+        return "measure";
     }
 
 
     static Vec2<u8> size()
     {
-        return {4, 1};
+        return {1, 1};
     }
 
 
@@ -65,7 +65,10 @@ public:
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
-    void play();
+    void play(Platform& pfrm);
+
+
+    void reset();
 
 
     void finalize(Platform& pfrm, App& app) override;

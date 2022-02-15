@@ -3164,15 +3164,6 @@ static void add_sound(Buffer<ActiveSoundInfo, 3>& sounds,
 
 
 
-// Borrowed from libtonc:
-typedef enum {
-    NOTE_C=0, NOTE_CIS, NOTE_D,   NOTE_DIS,
-    NOTE_E,   NOTE_F,   NOTE_FIS, NOTE_G,
-    NOTE_GIS, NOTE_A,   NOTE_BES, NOTE_B
-} eSndNoteId;
-
-
-
 const uint __snd_rates[12] = {
     8013, 7566, 7144, 6742, // C , C#, D , D#
     6362, 6005, 5666, 5346, // E , F , F#, G
@@ -3185,9 +3176,23 @@ const uint __snd_rates[12] = {
 
 
 
-void Platform::Speaker::play_chiptune_note(int note, int octave)
+void Platform::Speaker::play_chiptune_note(Channel channel,
+                                           Note note,
+                                           u8 octave)
 {
-    REG_SND1FREQ = SFREQ_RESET | SND_RATE(note, octave);
+    if ((u8)note >= (u8)Note::invalid) {
+        return;
+    }
+
+    switch (channel) {
+    case Channel::pulse_1:
+        REG_SND1FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
+        break;
+
+    default:
+        // TODO...
+        break;
+    }
 }
 
 
@@ -3264,6 +3269,40 @@ static void stop_music()
 {
     modify_audio([] { clear_music(); });
 }
+
+
+
+const char* halted_music_track = "";
+s32 halted_music_offset = 0;
+
+
+
+
+void Platform::Speaker::halt_music()
+{
+    if (snd_ctx.music_track not_eq (AudioSample*)null_music) {
+
+        for (auto& track : music_tracks) {
+
+            if (track.data_ == snd_ctx.music_track) {
+                halted_music_track = track.name_;
+                halted_music_offset = snd_ctx.music_track_pos;
+                break;
+            }
+
+        }
+
+        stop_music();
+    }
+}
+
+
+
+void Platform::Speaker::resume_music()
+{
+    play_music(halted_music_track, halted_music_offset / 0.016f);
+}
+
 
 
 void Platform::Speaker::stop_music()
@@ -3657,7 +3696,7 @@ static void audio_start()
     REG_SNDDMGCNT = SDMG_BUILD_LR(SDMG_SQR1, 7);
 
     // DMG ratio to 100%
-    REG_SNDDSCNT |= SDS_DMG100;
+    REG_SNDDSCNT |= SDS_DMG50;
 
     // no sweep
     REG_SND1SWEEP= SSW_OFF;
