@@ -230,7 +230,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Replicator,
                                         DroneBay,
                                         // decoration
-                                        // Synth,
+                                        Synth,
                                         Statue,
                                         Bridge,
                                         Palm,
