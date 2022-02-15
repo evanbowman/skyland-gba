@@ -188,6 +188,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/core.cpp
   ${SOURCE_DIR}/skyland/rooms/hull.cpp
   ${SOURCE_DIR}/skyland/rooms/radar.cpp
+  ${SOURCE_DIR}/skyland/rooms/synth.cpp
   ${SOURCE_DIR}/skyland/rooms/arcGun.cpp
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
   ${SOURCE_DIR}/skyland/rooms/weapon.cpp

@@ -35,6 +35,7 @@
    (shrubbery    1   1    0)
    (masonry      30  30   0)
    (statue       1   1    0)
+   (synth        1   1    0)
    (bridge       30  30   0)
    (dynamite     40  10   0)
    (energized-hull 380 450 20)
