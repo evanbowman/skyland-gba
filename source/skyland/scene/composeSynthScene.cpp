@@ -53,6 +53,13 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
             pfrm, k, milliseconds(500), milliseconds(100));
     };
 
+    if (player(app).key_down(pfrm, Key::action_1)) {
+        if (cursor_.x == 0) {
+            demo_note(pfrm);
+        }
+    }
+
+
     if (not player(app).key_pressed(pfrm, Key::action_1)) {
         if (test_key(Key::down)) {
             if (cursor_.y < 15) {
@@ -130,12 +137,100 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
     } else if (cursor_.x == 3) {
         // TODO
     } else {
+
+        auto generic_update_settings =
+            [&](Platform::Speaker::ChannelSettings& s) {
+
+                if (test_key(Key::down)) {
+                    switch (cursor_.y) {
+                    case 0:
+                        if (s.envelope_step_ == 7) {
+                            s.envelope_step_ = 0;
+                        } else {
+                            s.envelope_step_ += 1;
+                        }
+                        break;
+
+                    case 1:
+                        if (s.duty_ == 3) {
+                            s.duty_ = 0;
+                        } else {
+                            s.duty_ += 1;
+                        }
+                        break;
+
+                    case 2:
+                        if (s.length_ == 63) {
+                            s.length_ = 0;
+                        } else {
+                            s.length_ += 1;
+                        }
+                        break;
+
+                    case 3:
+                        if (s.volume_ == 15) {
+                            s.volume_ = 0;
+                        } else {
+                            s.volume_ += 1;
+                        }
+                        break;
+                    }
+
+                    repaint(pfrm);
+
+                } else if (test_key(Key::up)) {
+                    switch (cursor_.y) {
+                    case 0:
+                        if (s.envelope_step_ == 0) {
+                            s.envelope_step_ = 7;
+                        } else {
+                            s.envelope_step_ -= 1;
+                        }
+                        break;
+
+                    case 1:
+                        if (s.duty_ == 0) {
+                            s.duty_ = 3;
+                        } else {
+                            s.duty_ -= 1;
+                        }
+                        break;
+
+                    case 2:
+                        if (s.length_ == 0) {
+                            s.length_ = 63;
+                        } else {
+                            s.length_ -= 1;
+                        }
+                        break;
+
+                    case 3:
+                        if (s.volume_ == 0) {
+                            s.volume_ = 15;
+                        } else {
+                            s.volume_ -= 1;
+                        }
+                        break;
+                    }
+
+                    repaint(pfrm);
+                }
+
+
+            };
+
         switch (channel_) {
         case Platform::Speaker::Channel::square_1:
-        case Platform::Speaker::Channel::square_2:
-        case Platform::Speaker::Channel::noise:
+            generic_update_settings(square_1_settings_);
             break;
 
+        case Platform::Speaker::Channel::square_2:
+            generic_update_settings(square_2_settings_);
+            break;
+
+        case Platform::Speaker::Channel::noise:
+            generic_update_settings(noise_settings_);
+            break;
 
         default:
         case Platform::Speaker::Channel::wave:
@@ -185,6 +280,11 @@ void ComposeSynthScene::repaint(Platform& pfrm)
     const auto st = calc_screen_tiles(pfrm);
     int start_x = st.x / 2 - 12;
     int start_y = (st.y - 16) / 2;
+
+
+    auto highlight = Text::OptColors{{
+            ColorConstant::silver_white,
+            ColorConstant::aerospace_orange}};
 
 
     auto put_char = [&](char c,
@@ -298,10 +398,6 @@ void ComposeSynthScene::repaint(Platform& pfrm)
             oct = "-";
         }
 
-        auto highlight = Text::OptColors{{
-                ColorConstant::silver_white,
-                ColorConstant::aerospace_orange}};
-
         if (cursor_.y == y and cursor_.x == 0) {
             put_char(str[0], 2, y, highlight);
             put_char(str[1], 3, y, highlight);
@@ -351,7 +447,7 @@ void ComposeSynthScene::repaint(Platform& pfrm)
             put_str("envelope", 10, 1);
             put_str("duty", 10, 3);
             put_str("length", 10, 5);
-            put_str("tuning", 10, 7);
+            put_str("volume", 10, 7);
             break;
 
 
@@ -361,6 +457,60 @@ void ComposeSynthScene::repaint(Platform& pfrm)
             break;
 
         }
+    }
+
+    auto show_channel_settings = [&](Platform::Speaker::ChannelSettings& s) {
+        auto str_fill = [&](u8 val) {
+            StringBuffer<2> str;
+            if (val < 10) {
+                str += "0";
+            }
+            str += stringify(val);
+            return str;
+        };
+
+        if (cursor_.x == 4 and cursor_.y == 0) {
+            put_str(str_fill(s.envelope_step_).c_str(), 19, 1, highlight);
+        } else {
+            put_str(str_fill(s.envelope_step_).c_str(), 19, 1);
+        }
+
+
+        put_str([&] {
+            switch (s.duty_) {
+            case 0: return "12";
+            case 1: return "25";
+            case 2: return "50";
+            case 3: return "75";
+            }
+        }(), 19, 3,
+            (cursor_.x == 4 and cursor_.y == 1) ? highlight : std::nullopt);
+
+        put_str(str_fill(s.length_).c_str(), 19, 5,
+                (cursor_.x == 4 and cursor_.y == 2) ? highlight : std::nullopt);
+
+        put_str(str_fill(s.volume_).c_str(), 19, 7,
+                (cursor_.x == 4 and cursor_.y == 3) ? highlight : std::nullopt);
+    };
+
+    switch (channel_) {
+    case Platform::Speaker::Channel::square_1:
+        show_channel_settings(square_1_settings_);
+        break;
+
+    case Platform::Speaker::Channel::square_2:
+        show_channel_settings(square_2_settings_);
+        break;
+
+    case Platform::Speaker::Channel::noise:
+        show_channel_settings(noise_settings_);
+        break;
+
+    default:
+    case Platform::Speaker::Channel::wave:
+        // TODO...
+        break;
+
     }
 
     init_ = false;
@@ -384,6 +534,7 @@ void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
+    island->repaint(pfrm, app);
 
 
     pfrm.screen().schedule_fade(0.5f);
