@@ -239,7 +239,7 @@ Synth* Measure::square_1() const
 
 
 
-Synth* Measure::square_2() const
+Synth* Measure::noise() const
 {
     u8 x = position().x + 4;
     u8 y = position().y;
@@ -275,7 +275,7 @@ Synth* Measure::square_2() const
 
 
 
-Synth* Measure::wave() const
+Synth* Measure::square_2() const
 {
     u8 x = position().x + 2;
     u8 y = position().y;
@@ -295,7 +295,7 @@ Synth* Measure::wave() const
 
 
 
-Synth* Measure::noise() const
+Synth* Measure::wave() const
 {
     u8 x = position().x + 3;
     u8 y = position().y;

@@ -643,9 +643,9 @@ public:
 
         enum class Channel {
             square_1,
+            square_2,
             wave,
             noise,
-            square_2,
             invalid,
         };
 

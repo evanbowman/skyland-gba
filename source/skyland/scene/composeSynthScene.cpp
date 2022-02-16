@@ -243,6 +243,7 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
     if (player(app).key_down(pfrm, Key::right) and cursor_.x < 4) {
         ++cursor_.x;
         if (cursor_.x == 4) {
+            resume_y_ = cursor_.y;
             cursor_.y = 0;
         }
         repaint(pfrm);
@@ -250,7 +251,7 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
 
     if (player(app).key_down(pfrm, Key::left) and cursor_.x > 0) {
         if (cursor_.x == 4) {
-            cursor_.y = 0;
+            cursor_.y = resume_y_;
         }
         --cursor_.x;
         repaint(pfrm);

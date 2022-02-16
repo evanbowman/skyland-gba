@@ -48,6 +48,8 @@ private:
     Platform::Speaker::ChannelSettings noise_settings_;
     u16 wave_settings_;
 
+    u8 resume_y_ = 0;
+
 
     Platform::Speaker::Channel channel_;
 };
