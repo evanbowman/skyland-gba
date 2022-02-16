@@ -3224,6 +3224,10 @@ void Platform::Speaker::stop_chiptune_note(Channel channel)
         // TODO!
         break;
     }
+
+    // Turn directsound back on!
+    REG_SOUNDCNT_H |= (1 << 9);
+    REG_SOUNDCNT_H |= (1 << 8);
 }
 
 
@@ -3235,6 +3239,10 @@ void Platform::Speaker::play_chiptune_note(Channel channel,
     if ((u8)note >= (u8)Note::invalid) {
         return;
     }
+
+    // Turn off directsound!
+    REG_SOUNDCNT_H &= ~(1 << 8);
+    REG_SOUNDCNT_H &= ~(1 << 9);
 
     switch (channel) {
     case Channel::square_1:
@@ -3446,26 +3454,26 @@ s32 halted_music_offset = 0;
 
 void Platform::Speaker::halt_music()
 {
-    if (snd_ctx.music_track not_eq (AudioSample*) null_music) {
+    // if (snd_ctx.music_track not_eq (AudioSample*) null_music) {
 
-        for (auto& track : music_tracks) {
+    //     for (auto& track : music_tracks) {
 
-            if (track.data_ == snd_ctx.music_track) {
-                halted_music_track = track.name_;
-                halted_music_offset = snd_ctx.music_track_pos;
-                break;
-            }
-        }
+    //         if (track.data_ == snd_ctx.music_track) {
+    //             halted_music_track = track.name_;
+    //             halted_music_offset = snd_ctx.music_track_pos;
+    //             break;
+    //         }
+    //     }
 
-        stop_music();
-    }
+    //     stop_music();
+    // }
 }
 
 
 
 void Platform::Speaker::resume_music()
 {
-    play_music(halted_music_track, halted_music_offset / 0.016f);
+    // play_music(halted_music_track, halted_music_offset / 0.016f);
 }
 
 
@@ -3826,9 +3834,11 @@ static void audio_start()
 {
     clear_music();
 
-    REG_SOUNDCNT_H =
-        0x0B0F; //DirectSound A + fifo reset + max volume to L and R
+    // REG_SOUNDCNT_H =
+    //     0x0B0D | SDS_DMG100; //DirectSound A + fifo reset + max volume to L and R
     REG_SOUNDCNT_X = 0x0080; //turn sound chip on
+
+    REG_SOUNDCNT_H = SDS_DMG100 | 1 << 2 | 1 << 3 | 1 << 8 | 1 << 9;
 
 
     // Required for stereo, currently unused.
@@ -3859,9 +3869,6 @@ static void audio_start()
     // on left/right ; both full volume
     REG_SNDDMGCNT =
         SDMG_BUILD_LR(SDMG_SQR1 | SDMG_SQR2 | SDMG_WAVE | SDMG_NOISE, 7);
-
-    // DMG ratio to 50%
-    REG_SNDDSCNT |= SDS_DMG50;
 
     // no sweep
     REG_SND1SWEEP = SSW_OFF;

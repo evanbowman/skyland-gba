@@ -57,9 +57,9 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
         Room::ready();
     } else if (end_music_) {
         Room::ready();
-        if (timer_ < seconds(3)) {
+        if (timer_ < milliseconds(750)) {
             timer_ += delta;
-            if (timer_ > seconds(3)) {
+            if (timer_ > milliseconds(750)) {
 
                 pfrm.speaker().stop_chiptune_note(
                     Platform::Speaker::Channel::square_1);

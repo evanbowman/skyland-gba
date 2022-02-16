@@ -206,7 +206,6 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             p.value_ |= val << 4;
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
-            demo_note(pfrm);
 
         } else if (test_key(Key::down)) {
             if (val < 15) {
@@ -218,7 +217,6 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             p.value_ |= val << 4;
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
-            demo_note(pfrm);
         }
     } else if (cursor_.x == 4) {
         auto p = effect_parameters_[cursor_.y];
@@ -233,7 +231,6 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             p.value_ |= val;
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
-            demo_note(pfrm);
 
         } else if (test_key(Key::down)) {
             if (val < 15) {
@@ -245,7 +242,6 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             p.value_ |= val;
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
-            demo_note(pfrm);
         }
     } else {
 
