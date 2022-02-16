@@ -14,6 +14,14 @@ namespace skyland {
 
 
 
+// TODO: rename this class to speaker! Originally I called the class Bar, like a
+// music bar, then I thought that measure sounded better, now I sort of feel
+// like speaker expresses the idea more clearly to the player, so the ui
+// describes the room as speaker, and I'll rename the code once again when I
+// find the time.
+
+
+
 class Measure : public Decoration {
 public:
 
@@ -21,6 +29,9 @@ public:
 
 
     void update(Platform& pfrm, App& app, Microseconds delta) override;
+
+
+    static void format_description(StringBuffer<512>& buffer);
 
 
     static u32 properties()
@@ -31,7 +42,7 @@ public:
 
     static const char* name()
     {
-        return "measure";
+        return "speaker";
     }
 
 
@@ -65,7 +76,7 @@ public:
     void play(Platform& pfrm);
 
 
-    void reset(Platform& pfrm);
+    void reset(Platform& pfrm, bool resume_music = true);
 
 
     void finalize(Platform& pfrm, App& app) override;

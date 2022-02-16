@@ -8,6 +8,15 @@ namespace skyland {
 
 
 
+void Measure::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "Plays chiptunes! Connect up to four synth blocks to the "
+        "right of the speaker block! When finished playing, activates "
+        "a speaker block placed beneath it, if any.";
+}
+
+
+
 Measure::Measure(Island* parent, const Vec2<u8>& position)
     : Decoration(parent, name(), position)
 {
@@ -128,6 +137,8 @@ void Measure::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm.speaker().resume_music();
                 }
                 playing_ = false;
+
+                parent()->repaint(pfrm, app);
             // }
         } else {
             ++index_;
@@ -146,30 +157,44 @@ Platform::Speaker::Effect Measure::load_effect(int channel)
 
 void Measure::render_interior(App& app, u8 buffer[16][16])
 {
-    buffer[position().x][position().y] = InteriorTile::measure;
+    if (playing_) {
+        buffer[position().x][position().y] = InteriorTile::speaker_active;
+    } else {
+        buffer[position().x][position().y] = InteriorTile::speaker_inactive;
+    }
 }
 
 
 
 void Measure::render_exterior(App& app, u8 buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::measure;
+    if (playing_) {
+        buffer[position().x][position().y] = InteriorTile::speaker_active;
+    } else {
+        buffer[position().x][position().y] = InteriorTile::speaker_inactive;
+    }
 }
 
 
 
-ScenePtr<Scene> Measure::select(Platform& pfrm, App&)
+ScenePtr<Scene> Measure::select(Platform& pfrm, App& app)
 {
+    bool was_playing_ = playing_;
+
     play(pfrm);
+
+    if (not was_playing_) {
+        parent()->repaint(pfrm, app);
+    }
 
     return null_scene();
 }
 
 
 
-void Measure::reset(Platform& pfrm)
+void Measure::reset(Platform& pfrm, bool resume_music)
 {
-    if (playing_) {
+    if (playing_ and resume_music) {
         pfrm.speaker().resume_music();
     }
     playing_ = false;
@@ -185,7 +210,7 @@ void Measure::play(Platform& pfrm)
 
     for (auto& room : parent()->rooms()) {
         if (auto b = dynamic_cast<Measure*>(room.get())) {
-            b->reset(pfrm);
+            b->reset(pfrm, false);
         }
     }
 

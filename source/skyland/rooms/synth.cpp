@@ -9,6 +9,16 @@ namespace skyland {
 
 
 
+void Synth::format_description(StringBuffer<512>& buffer)
+{
+    buffer += "Programmable audio block. Must be placed within four tiles "
+        "to the right of a speaker block. Distance from speaker determines "
+        " channel (+1 square, +2 wave, +3 noise, +4 square).";
+}
+
+
+
+
 Synth::Synth(Island* parent, const Vec2<u8>& position)
     : Decoration(parent, name(), position)
 {
@@ -36,7 +46,7 @@ Platform::Speaker::Channel Synth::channel() const
         coord -= x + 1;
         if (coord > 0) {
             if (auto room = parent()->get_room({u8(coord), position().y})) {
-                if (str_eq(room->name(), "measure")) {
+                if (str_eq(room->name(), "speaker")) {
                     return (Platform::Speaker::Channel)(x);
                 }
             }
@@ -87,7 +97,7 @@ Measure* Synth::measure() const
         coord -= x + 1;
         if (coord > 0) {
             if (auto room = parent()->get_room({u8(coord), position().y})) {
-                if (str_eq(room->name(), "measure")) {
+                if (str_eq(room->name(), "speaker")) {
                     return dynamic_cast<Measure*>(room);
                 }
             }

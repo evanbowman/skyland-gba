@@ -17,6 +17,10 @@ class Measure;
 class Synth : public Decoration {
 public:
 
+
+    static void format_description(StringBuffer<512>& buffer);
+
+
     Synth(Island* parent, const Vec2<u8>& position);
 
 
