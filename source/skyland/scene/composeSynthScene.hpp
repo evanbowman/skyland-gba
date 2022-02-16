@@ -2,6 +2,7 @@
 
 
 #include "skyland/rooms/synth.hpp"
+#include "skyland/rooms/measure.hpp"
 #include "worldScene.hpp"
 
 
@@ -38,6 +39,8 @@ private:
     Synth::Note notes_[16];
     Synth::EffectParameter effect_parameters_[16];
 
+    Measure::EffectFlags effect_flags_;
+
     Vec2<u8> synth_pos_;
     bool synth_near_;
 
@@ -49,6 +52,7 @@ private:
     u16 wave_settings_;
 
     u8 resume_y_ = 0;
+    u8 demo_index_ = 0;
 
 
     Platform::Speaker::Channel channel_;

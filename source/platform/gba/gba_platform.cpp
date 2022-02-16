@@ -3176,6 +3176,18 @@ const uint __snd_rates[12] = {
 
 
 
+struct AnalogChannel {
+    Platform::Speaker::Note last_note_;
+    u8 last_octave_;
+    Microseconds effect_timer_;
+};
+
+
+
+static EWRAM_DATA AnalogChannel analog_channel[4];
+
+
+
 void Platform::Speaker::play_chiptune_note(Channel channel,
                                            Note note,
                                            u8 octave)
@@ -3186,6 +3198,9 @@ void Platform::Speaker::play_chiptune_note(Channel channel,
 
     switch (channel) {
     case Channel::square_1:
+        analog_channel[0].last_note_ = note;
+        analog_channel[0].last_octave_ = octave;
+        analog_channel[0].effect_timer_ = 0;
         REG_SND1FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
         break;
 
@@ -3207,9 +3222,86 @@ void Platform::Speaker::play_chiptune_note(Channel channel,
 
 void Platform::Speaker::apply_chiptune_effect(Channel channel,
                                               Effect effect,
-                                              u8 argument)
+                                              u8 argument,
+                                              Microseconds delta)
 {
-    // TODO...
+    if (channel == Channel::invalid) {
+        return;
+    }
+
+
+    const auto ch_num = (int)channel;
+
+
+    auto apply_vibrato = [&](volatile u16* freq_register) {
+        // auto amplitude = argument & 0x0f;
+        // auto freq = (argument & 0xf0) >> 4;
+
+        // // We're using freq as a divisor.
+        // freq++;
+
+        analog_channel[ch_num].effect_timer_+= delta;
+        auto rate = SND_RATE(analog_channel[ch_num].last_note_,
+                             analog_channel[ch_num].last_octave_);
+
+
+        auto vib = float(cosine(analog_channel[ch_num]
+                                .effect_timer_ / 2)) /
+            std::numeric_limits<s16>::max();
+
+        vib *= 30;// (amplitude << 2);
+        rate += vib;
+        *freq_register &= ~SFREQ_RATE_MASK;
+        *freq_register |= rate;
+    };
+
+
+    auto cancel_effect = [&](volatile u16* freq_register) {
+        *freq_register &= ~SFREQ_RATE_MASK;
+        *freq_register |= SND_RATE(analog_channel[ch_num].last_note_,
+                                   analog_channel[ch_num].last_octave_);
+
+        analog_channel[ch_num].effect_timer_ = 0;
+    };
+
+
+    switch (channel) {
+    case Channel::square_1: {
+        switch (effect) {
+        case Effect::vibrato: {
+            apply_vibrato(&REG_SND1FREQ);
+            break;
+        }
+
+        case Effect::none: {
+            cancel_effect(&REG_SND1FREQ);
+            break;
+        }
+        }
+        break;
+    }
+
+    case Channel::square_2:
+        switch (effect) {
+        case Effect::vibrato: {
+            apply_vibrato(&REG_SND2FREQ);
+            break;
+        }
+
+        case Effect::none: {
+            cancel_effect(&REG_SND2FREQ);
+            break;
+        }
+        }
+        break;
+
+    case Channel::noise:
+        break;
+
+    default:
+        // TODO...
+        break;
+    }
 }
 
 

@@ -88,6 +88,52 @@ public:
     u16 wave_settings_;
 
 
+    using EffectVector = Bitvector<2 * 16 * 4>;
+
+
+    struct EffectFlags {
+        EffectVector vector_;
+
+
+        int index(int channel, int i) const
+        {
+            auto channel_offset = 16 * channel;
+            auto index_offset = i * 2;
+
+            return channel_offset + index_offset;
+        }
+
+
+        void store(int channel, int location, Platform::Speaker::Effect effect)
+        {
+            vector_.set(index(channel, location), (u8)effect & 1);
+            vector_.set(index(channel, location) + 1, (u8)effect & 2);
+        }
+
+
+        Platform::Speaker::Effect load(int channel, int location)
+        {
+            u8 val = 0;
+
+            if (vector_[index(channel, location)]) {
+                val |= 1;
+            }
+
+            if (vector_[index(channel, location) + 1]) {
+                val |= 2;
+            }
+
+            return (Platform::Speaker::Effect)val;
+        }
+    };
+
+
+    EffectFlags& effect_flags()
+    {
+        return effect_flags_;
+    }
+
+
 private:
 
     Synth* square_1() const;
@@ -102,15 +148,14 @@ private:
     Platform::Speaker::Effect load_effect(int channel);
 
 
-    // Two bits per command enum, 16 notes per channel, four channels
-    Bitvector<2 * 16 * 4> effect_flags_;
+    EffectFlags effect_flags_;
 
     u8 playing_ : 1;
 
     u8 unused_ : 7;
 
     // Index into the list of notes, 0->16
-    u8 index_ = 0;
+    s8 index_ = -1;
 
     Microseconds timer_ = 0;
 };

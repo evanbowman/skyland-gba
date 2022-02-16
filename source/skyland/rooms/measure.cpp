@@ -44,6 +44,10 @@ Measure::Measure(Island* parent, const Vec2<u8>& position)
 
 
 
+static const auto time_interval = milliseconds(100);
+
+
+
 void Measure::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
@@ -57,35 +61,29 @@ void Measure::update(Platform& pfrm, App& app, Microseconds delta)
     timer_ += delta;
 
 
-    if (auto p = square_1()) {
-        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::square_1,
-                                             load_effect(0),
-                                             p->effect_parameters()[index_].value_);
-    }
+    if (timer_ > time_interval) {
 
+        index_ += 1;
 
-    if (auto w = wave()) {
-        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::wave,
-                                             load_effect(0),
-                                             w->effect_parameters()[index_].value_);
-    }
+        if (index_ == 16) {
+            if (auto room = parent()->get_room({
+                        position().x, u8(position().y + 1)
+                    })) {
+                if (auto b = dynamic_cast<Measure*>(room)) {
+                    b->play(pfrm);
+                } else {
+                    pfrm.speaker().resume_music();
+                }
+            } else {
+                pfrm.speaker().resume_music();
+            }
+            playing_ = false;
 
+            parent()->repaint(pfrm, app);
 
-    if (auto n = noise()) {
-        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::noise,
-                                             load_effect(0),
-                                             n->effect_parameters()[index_].value_);
-    }
+            return;
+        }
 
-
-    if (auto p = square_2()) {
-        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::square_2,
-                                             load_effect(0),
-                                             p->effect_parameters()[index_].value_);
-    }
-
-
-    if (timer_ > milliseconds(100)) {
 
         pfrm.speaker().init_chiptune_square_1(square_1_settings_);
         pfrm.speaker().init_chiptune_square_2(square_2_settings_);
@@ -118,31 +116,43 @@ void Measure::update(Platform& pfrm, App& app, Microseconds delta)
         if (auto n = noise()) {
             play(Platform::Speaker::Channel::noise, *n);
         }
+    }
+
+    if (index_ == -1) {
+        return;
+    }
+
+    if (auto p = square_1()) {
+        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::square_1,
+                                             load_effect((int)Platform::Speaker::Channel::square_1),
+                                             p->effect_parameters()[index_].value_,
+                                             delta);
+    }
 
 
-        if (index_ == 15) {
-            // if (repeat_) {
-            //     --repeat_;
-            //     index_ = 0;
-            // } else {
-                if (auto room = parent()->get_room({
-                            position().x, u8(position().y + 1)
-                        })) {
-                    if (auto b = dynamic_cast<Measure*>(room)) {
-                        b->play(pfrm);
-                    } else {
-                        pfrm.speaker().resume_music();
-                    }
-                } else {
-                    pfrm.speaker().resume_music();
-                }
-                playing_ = false;
+    if (auto n = noise()) {
+        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::noise,
+                                             load_effect((int)Platform::Speaker::Channel::noise),
+                                             n->effect_parameters()[index_].value_,
+                                             delta);
+    }
 
-                parent()->repaint(pfrm, app);
-            // }
-        } else {
-            ++index_;
-        }
+
+
+    if (auto w = wave()) {
+        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::wave,
+                                             load_effect((int)Platform::Speaker::Channel::wave),
+                                             w->effect_parameters()[index_].value_,
+                                             delta);
+    }
+
+
+
+    if (auto p = square_2()) {
+        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::square_2,
+                                             load_effect((int)Platform::Speaker::Channel::square_2),
+                                             p->effect_parameters()[index_].value_,
+                                             delta);
     }
 }
 
@@ -150,7 +160,7 @@ void Measure::update(Platform& pfrm, App& app, Microseconds delta)
 
 Platform::Speaker::Effect Measure::load_effect(int channel)
 {
-    return Platform::Speaker::Effect::none;
+    return effect_flags_.load(channel, index_);
 }
 
 
@@ -219,8 +229,8 @@ void Measure::play(Platform& pfrm)
     Room::ready();
 
     playing_ = true;
-    timer_ = 0;
-    index_ = 0;
+    timer_ = time_interval;
+    index_ = -1;
 }
 
 

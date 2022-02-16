@@ -5,6 +5,14 @@
 
 
 
+// NOTE: I wrote this code specifically to take advantage of the DMG sound
+// channels on the GBA. This is basically throwaway code that I don't expect to
+// need to port or maintain. I don't really ever intend to emulate DMG sound
+// channels on non-gba build targets. So I made no effort to make this
+// SynthComposer Scene code neat. Written in a couple of hours.
+
+
+
 void print_char(Platform& pfrm,
                 utf8::Codepoint c,
                 const OverlayCoord& coord,
@@ -31,6 +39,8 @@ ComposeSynthScene::ComposeSynthScene(App& app, Synth& synth) :
         square_2_settings_ = measure->square_2_settings_;
         noise_settings_ = measure->noise_settings_;
         wave_settings_ = measure->wave_settings_;
+
+        effect_flags_ = measure->effect_flags();
     }
 }
 
@@ -58,6 +68,12 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
             demo_note(pfrm);
         }
     }
+
+
+    pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::square_1,
+                                         effect_flags_.load((int)Platform::Speaker::Channel::square_1, demo_index_),
+                                         effect_parameters_[demo_index_].value_,
+                                         delta);
 
 
     if (not player(app).key_pressed(pfrm, Key::action_1)) {
@@ -133,9 +149,20 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
         }
 
     } else if (cursor_.x == 2) {
-        // TODO
+        if (test_key(Key::down)) {
+            auto effect = effect_flags_.load((int)channel_, cursor_.y);
+            if ((int)effect < 3) {
+                effect = (Platform::Speaker::Effect)((int)effect + 1);
+            } else {
+                effect = (Platform::Speaker::Effect)0;
+            }
+            effect_flags_.store((int)channel_, cursor_.y, effect);
+            repaint(pfrm);
+        }
     } else if (cursor_.x == 3) {
         // TODO
+    } else if (cursor_.x == 4) {
+
     } else {
 
         auto generic_update_settings =
@@ -240,9 +267,9 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
         }
     }
 
-    if (player(app).key_down(pfrm, Key::right) and cursor_.x < 4) {
+    if (player(app).key_down(pfrm, Key::right) and cursor_.x < 5) {
         ++cursor_.x;
-        if (cursor_.x == 4) {
+        if (cursor_.x == 5) {
             resume_y_ = cursor_.y;
             cursor_.y = 0;
         }
@@ -250,7 +277,7 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
     }
 
     if (player(app).key_down(pfrm, Key::left) and cursor_.x > 0) {
-        if (cursor_.x == 4) {
+        if (cursor_.x == 5) {
             cursor_.y = resume_y_;
         }
         --cursor_.x;
@@ -265,13 +292,21 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
 
 void ComposeSynthScene::demo_note(Platform& pfrm)
 {
+    if (cursor_.x < 4) {
+        demo_index_ = cursor_.y;
+    } else {
+        // We're playing with the settings column on the right, which isn't
+        // aligned to notes. Play the note associated with our cached y-value.
+        demo_index_ = resume_y_;
+    }
+
     pfrm.speaker().init_chiptune_square_1(square_1_settings_);
     pfrm.speaker().init_chiptune_square_2(square_2_settings_);
     pfrm.speaker().init_chiptune_noise(noise_settings_);
 
     pfrm.speaker().play_chiptune_note(channel_,
-                                      notes_[cursor_.y].note_,
-                                      notes_[cursor_.y].octave_);
+                                      notes_[demo_index_].note_,
+                                      notes_[demo_index_].octave_);
 }
 
 
@@ -417,20 +452,34 @@ void ComposeSynthScene::repaint(Platform& pfrm)
 
         put_char(' ', 5, y);
 
+        auto effect_sym = [&] {
+            switch (effect_flags_.load((int)channel_, y)) {
+            default:
+            case Platform::Speaker::Effect::none:
+                return '-';
+
+            case Platform::Speaker::Effect::vibrato:
+                return 'v';
+            }
+        }();
+
         if (cursor_.y == y and cursor_.x == 2) {
-            put_char('-', 6, y, highlight);
+            put_char(effect_sym, 6, y, highlight);
         } else {
-            put_char('-', 6, y);
+            put_char(effect_sym, 6, y);
         }
 
         if (cursor_.y == y and cursor_.x == 3) {
             put_char('0', 7, y, highlight);
-            put_char('0', 8, y, highlight);
         } else {
             put_char('0', 7, y);
-            put_char('0', 8, y);
         }
 
+        if (cursor_.y == y and cursor_.x == 4) {
+            put_char('0', 8, y, highlight);
+        } else {
+            put_char('0', 8, y);
+        }
 
         if (init_) {
             for (int x = 9; x < 22; ++x) {
@@ -470,7 +519,7 @@ void ComposeSynthScene::repaint(Platform& pfrm)
             return str;
         };
 
-        if (cursor_.x == 4 and cursor_.y == 0) {
+        if (cursor_.x == 5 and cursor_.y == 0) {
             put_str(str_fill(s.envelope_step_).c_str(), 19, 1, highlight);
         } else {
             put_str(str_fill(s.envelope_step_).c_str(), 19, 1);
@@ -485,13 +534,13 @@ void ComposeSynthScene::repaint(Platform& pfrm)
             case 3: return "75";
             }
         }(), 19, 3,
-            (cursor_.x == 4 and cursor_.y == 1) ? highlight : std::nullopt);
+            (cursor_.x == 5 and cursor_.y == 1) ? highlight : std::nullopt);
 
         put_str(str_fill(s.length_).c_str(), 19, 5,
-                (cursor_.x == 4 and cursor_.y == 2) ? highlight : std::nullopt);
+                (cursor_.x == 5 and cursor_.y == 2) ? highlight : std::nullopt);
 
         put_str(str_fill(s.volume_).c_str(), 19, 7,
-                (cursor_.x == 4 and cursor_.y == 3) ? highlight : std::nullopt);
+                (cursor_.x == 5 and cursor_.y == 3) ? highlight : std::nullopt);
     };
 
     switch (channel_) {
@@ -594,6 +643,8 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
                     measure->square_2_settings_ = square_2_settings_;
                     measure->noise_settings_ = noise_settings_;
                     measure->wave_settings_ = wave_settings_;
+
+                    measure->effect_flags() = effect_flags_;
                 }
             }
         }
@@ -611,6 +662,8 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
                         measure->square_2_settings_ = square_2_settings_;
                         measure->noise_settings_ = noise_settings_;
                         measure->wave_settings_ = wave_settings_;
+
+                        measure->effect_flags() = effect_flags_;
                     }
                 }
             }

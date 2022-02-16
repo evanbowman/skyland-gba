@@ -661,7 +661,8 @@ public:
 
         void apply_chiptune_effect(Channel channel,
                                    Effect effect,
-                                   u8 argument);
+                                   u8 argument,
+                                   Microseconds delta);
 
 
         struct ChannelSettings {
