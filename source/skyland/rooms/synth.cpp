@@ -12,8 +12,8 @@ namespace skyland {
 void Synth::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Programmable audio block. Must be placed within four tiles "
-        "to the right of a speaker block. Distance from speaker determines "
-        " channel (+1 square, +2 wave, +3 noise, +4 square).";
+        "to the right of a speaker block. Position determines "
+        " channel (+1 sqr, +2 sqr, +3 wav, +4 noise).";
 }
 
 
