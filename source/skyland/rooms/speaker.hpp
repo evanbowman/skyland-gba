@@ -6,7 +6,7 @@
 
 
 
-// A musical bar, integrating four synth channels.
+// A Speaker! When selected, plays notes from attached synth blocks!
 
 
 
