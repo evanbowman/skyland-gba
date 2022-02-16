@@ -3322,6 +3322,13 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
     };
 
 
+    auto apply_duty = [&](volatile u16* ctrl_register) {
+        *ctrl_register &= ~SSQR_DUTY_MASK;
+        // (Only four possible duty cycles, hence the mask)
+        *ctrl_register |= SSQR_DUTY((argument >> 4) & 0x03);
+    };
+
+
     auto cancel_effect = [&](volatile u16* freq_register) {
         *freq_register &= ~SFREQ_RATE_MASK;
         *freq_register |= SND_RATE(analog_channel[ch_num].last_note_,
@@ -3334,30 +3341,34 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
     switch (channel) {
     case Channel::square_1: {
         switch (effect) {
-        case Effect::vibrato: {
+        case Effect::vibrato:
             apply_vibrato(&REG_SND1FREQ);
             break;
-        }
 
-        case Effect::none: {
+        case Effect::none:
             cancel_effect(&REG_SND1FREQ);
             break;
-        }
+
+        case Effect::duty:
+            apply_duty(&REG_SND1CNT);
+            break;
         }
         break;
     }
 
     case Channel::square_2:
         switch (effect) {
-        case Effect::vibrato: {
+        case Effect::vibrato:
             apply_vibrato(&REG_SND2FREQ);
             break;
-        }
 
-        case Effect::none: {
+        case Effect::none:
             cancel_effect(&REG_SND2FREQ);
             break;
-        }
+
+        case Effect::duty:
+            apply_duty(&REG_SND2CNT);
+            break;
         }
         break;
 

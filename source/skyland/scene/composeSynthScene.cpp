@@ -102,6 +102,10 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (player(app).key_down(pfrm, Key::down)) {
 
+            if (notes_[cursor_.y].note_ == Platform::Speaker::Note::invalid) {
+                notes_[cursor_.y].octave_ = last_octave_;
+            }
+
             notes_[cursor_.y].note_ =
                 (Platform::Speaker::Note)(((u8)notes_[cursor_.y].note_ + 1));
 
@@ -116,6 +120,10 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (player(app).key_down(pfrm, Key::up)) {
+
+            if (notes_[cursor_.y].note_ == Platform::Speaker::Note::invalid) {
+                notes_[cursor_.y].octave_ = last_octave_;
+            }
 
             if (notes_[cursor_.y].note_ == (Platform::Speaker::Note)0) {
                 notes_[cursor_.y].note_ = Platform::Speaker::Note::invalid;
@@ -139,6 +147,8 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                     notes_[cursor_.y].octave_ = 0;
                 }
 
+                last_octave_ = notes_[cursor_.y].octave_;
+
                 demo_note(pfrm);
 
                 repaint(pfrm);
@@ -150,6 +160,8 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                 } else {
                     notes_[cursor_.y].octave_ -= 1;
                 }
+
+                last_octave_ = notes_[cursor_.y].octave_;
 
                 demo_note(pfrm);
 
@@ -168,6 +180,10 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             case Platform::Speaker::Effect::vibrato:
                 param.value_ = 0x1e;
                 break;
+
+            case Platform::Speaker::Effect::duty:
+                param.value_ = 0;
+                break;
             }
         };
         if (test_key(Key::down)) {
@@ -180,7 +196,11 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             effect_flags_.store((int)channel_, cursor_.y, effect);
             set_effect_param_default(effect);
             repaint(pfrm);
-            demo_note(pfrm);
+
+            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+                demo_note(pfrm);
+            }
+
         } else if (test_key(Key::up)) {
             auto effect = effect_flags_.load((int)channel_, cursor_.y);
             if ((int)effect > 0) {
@@ -191,24 +211,49 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             effect_flags_.store((int)channel_, cursor_.y, effect);
             set_effect_param_default(effect);
             repaint(pfrm);
-            demo_note(pfrm);
+
+            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+                demo_note(pfrm);
+            }
         }
     } else if (cursor_.x == 3) {
+
+        int upper_limit = [&] {
+            auto e = effect_flags_.load((int)channel_, cursor_.y);
+            switch (e) {
+            case Platform::Speaker::Effect::none:
+                return 0;
+
+            case Platform::Speaker::Effect::duty:
+                return 3;
+
+            case Platform::Speaker::Effect::vibrato:
+                return 15;
+
+            default:
+                return 0;
+            }
+        }();
+
         auto p = effect_parameters_[cursor_.y];
         auto val = 0x0f & (p.value_ >> 4);
         if (test_key(Key::up)) {
             if (val > 0) {
                 val -= 1;
             } else {
-                val = 15;
+                val = upper_limit;
             }
             p.value_ &= ~0xf0;
             p.value_ |= val << 4;
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
 
+            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+                demo_note(pfrm);
+            }
+
         } else if (test_key(Key::down)) {
-            if (val < 15) {
+            if (val < upper_limit) {
                 val += 1;
             } else {
                 val = 0;
@@ -217,23 +262,49 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             p.value_ |= val << 4;
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
+
+            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+                demo_note(pfrm);
+            }
         }
     } else if (cursor_.x == 4) {
+
+        int upper_limit = [&] {
+            auto e = effect_flags_.load((int)channel_, cursor_.y);
+            switch (e) {
+            case Platform::Speaker::Effect::none:
+                return 0;
+
+            case Platform::Speaker::Effect::duty:
+                return 0;
+
+            case Platform::Speaker::Effect::vibrato:
+                return 15;
+
+            default:
+                return 0;
+            }
+        }();
+
         auto p = effect_parameters_[cursor_.y];
         auto val = 0x0f & p.value_;
         if (test_key(Key::up)) {
             if (val > 0) {
                 val -= 1;
             } else {
-                val = 15;
+                val = upper_limit;
             }
             p.value_ &= ~0x0f;
             p.value_ |= val;
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
 
+            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+                demo_note(pfrm);
+            }
+
         } else if (test_key(Key::down)) {
-            if (val < 15) {
+            if (val < upper_limit) {
                 val += 1;
             } else {
                 val = 0;
@@ -242,6 +313,10 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             p.value_ |= val;
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
+
+            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+                demo_note(pfrm);
+            }
         }
     } else {
 
@@ -541,6 +616,9 @@ void ComposeSynthScene::repaint(Platform& pfrm)
 
             case Platform::Speaker::Effect::vibrato:
                 return 'v';
+
+            case Platform::Speaker::Effect::duty:
+                return 'w';
 
             default:
                 return '?';

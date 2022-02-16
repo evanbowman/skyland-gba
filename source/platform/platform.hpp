@@ -657,6 +657,7 @@ public:
         enum class Effect {
             none,
             vibrato,
+            duty,
         };
 
 
