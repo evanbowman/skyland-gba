@@ -653,6 +653,9 @@ public:
         void play_chiptune_note(Channel channel, Note note, u8 octave);
 
 
+        void stop_chiptune_note(Channel channel);
+
+
         enum class Effect {
             none,
             vibrato,

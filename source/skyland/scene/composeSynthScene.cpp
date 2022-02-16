@@ -69,6 +69,13 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
         }
     }
 
+    if (note_demo_timer_ > 0) {
+        note_demo_timer_ -= delta;
+        if (note_demo_timer_ < 0) {
+            pfrm.speaker().stop_chiptune_note(channel_);
+        }
+    }
+
 
     pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::square_1,
                                          effect_flags_.load((int)Platform::Speaker::Channel::square_1, demo_index_),
@@ -149,6 +156,18 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
         }
 
     } else if (cursor_.x == 2) {
+        auto set_effect_param_default = [&](Platform::Speaker::Effect e) {
+            auto& param = effect_parameters_[cursor_.y];
+            switch (e) {
+            case Platform::Speaker::Effect::none:
+                param.value_ = 0;
+                break;
+
+            case Platform::Speaker::Effect::vibrato:
+                param.value_ = 0x1e;
+                break;
+            }
+        };
         if (test_key(Key::down)) {
             auto effect = effect_flags_.load((int)channel_, cursor_.y);
             if ((int)effect < 3) {
@@ -157,12 +176,75 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
                 effect = (Platform::Speaker::Effect)0;
             }
             effect_flags_.store((int)channel_, cursor_.y, effect);
+            set_effect_param_default(effect);
             repaint(pfrm);
+            demo_note(pfrm);
+        } else if (test_key(Key::up)) {
+            auto effect = effect_flags_.load((int)channel_, cursor_.y);
+            if ((int)effect > 0) {
+                effect = (Platform::Speaker::Effect)((int)effect - 1);
+            } else {
+                effect = (Platform::Speaker::Effect)3;
+            }
+            effect_flags_.store((int)channel_, cursor_.y, effect);
+            set_effect_param_default(effect);
+            repaint(pfrm);
+            demo_note(pfrm);
         }
     } else if (cursor_.x == 3) {
-        // TODO
-    } else if (cursor_.x == 4) {
+        auto p = effect_parameters_[cursor_.y];
+        auto val = 0x0f & (p.value_ >> 4);
+        if (test_key(Key::up)) {
+            if (val > 0) {
+                val -= 1;
+            } else {
+                val = 15;
+            }
+            p.value_ &= ~0xf0;
+            p.value_ |= val << 4;
+            effect_parameters_[cursor_.y] = p;
+            repaint(pfrm);
+            demo_note(pfrm);
 
+        } else if (test_key(Key::down)) {
+            if (val < 15) {
+                val += 1;
+            } else {
+                val = 0;
+            }
+            p.value_ &= ~0xf0;
+            p.value_ |= val << 4;
+            effect_parameters_[cursor_.y] = p;
+            repaint(pfrm);
+            demo_note(pfrm);
+        }
+    } else if (cursor_.x == 4) {
+        auto p = effect_parameters_[cursor_.y];
+        auto val = 0x0f & p.value_;
+        if (test_key(Key::up)) {
+            if (val > 0) {
+                val -= 1;
+            } else {
+                val = 15;
+            }
+            p.value_ &= ~0x0f;
+            p.value_ |= val;
+            effect_parameters_[cursor_.y] = p;
+            repaint(pfrm);
+            demo_note(pfrm);
+
+        } else if (test_key(Key::down)) {
+            if (val < 15) {
+                val += 1;
+            } else {
+                val = 0;
+            }
+            p.value_ &= ~0x0f;
+            p.value_ |= val;
+            effect_parameters_[cursor_.y] = p;
+            repaint(pfrm);
+            demo_note(pfrm);
+        }
     } else {
 
         auto generic_update_settings =
@@ -179,6 +261,14 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
                         break;
 
                     case 1:
+                        if (s.envelope_direction_) {
+                            s.envelope_direction_ = 0;
+                        } else {
+                            s.envelope_direction_ = 1;
+                        }
+                        break;
+
+                    case 2:
                         if (s.duty_ == 3) {
                             s.duty_ = 0;
                         } else {
@@ -186,7 +276,7 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
                         }
                         break;
 
-                    case 2:
+                    case 3:
                         if (s.length_ == 63) {
                             s.length_ = 0;
                         } else {
@@ -194,7 +284,7 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
                         }
                         break;
 
-                    case 3:
+                    case 4:
                         if (s.volume_ == 15) {
                             s.volume_ = 0;
                         } else {
@@ -216,6 +306,14 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
                         break;
 
                     case 1:
+                        if (s.envelope_direction_) {
+                            s.envelope_direction_ = 0;
+                        } else {
+                            s.envelope_direction_ = 1;
+                        }
+                        break;
+
+                    case 2:
                         if (s.duty_ == 0) {
                             s.duty_ = 3;
                         } else {
@@ -223,7 +321,7 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
                         }
                         break;
 
-                    case 2:
+                    case 3:
                         if (s.length_ == 0) {
                             s.length_ = 63;
                         } else {
@@ -231,7 +329,7 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
                         }
                         break;
 
-                    case 3:
+                    case 4:
                         if (s.volume_ == 0) {
                             s.volume_ = 15;
                         } else {
@@ -307,6 +405,8 @@ void ComposeSynthScene::demo_note(Platform& pfrm)
     pfrm.speaker().play_chiptune_note(channel_,
                                       notes_[demo_index_].note_,
                                       notes_[demo_index_].octave_);
+
+    note_demo_timer_ = seconds(3);
 }
 
 
@@ -414,7 +514,7 @@ void ComposeSynthScene::repaint(Platform& pfrm)
                 return "A ";
 
             case Platform::Speaker::Note::BES:
-                return "B#";
+                return "Bb";
 
             case Platform::Speaker::Note::B:
                 return "B ";
@@ -454,12 +554,14 @@ void ComposeSynthScene::repaint(Platform& pfrm)
 
         auto effect_sym = [&] {
             switch (effect_flags_.load((int)channel_, y)) {
-            default:
             case Platform::Speaker::Effect::none:
                 return '-';
 
             case Platform::Speaker::Effect::vibrato:
                 return 'v';
+
+            default:
+                return '?';
             }
         }();
 
@@ -469,16 +571,35 @@ void ComposeSynthScene::repaint(Platform& pfrm)
             put_char(effect_sym, 6, y);
         }
 
+        auto effect_param = effect_parameters_[y];
+        const auto p1 = [&] {
+            auto val = 0x0f & (effect_param.value_ >> 4);
+            if (val < 10) {
+                return '0' + val;
+            } else {
+                return 'a' + (val - 10);
+            }
+        }();
+
+        const auto p2 = [&] {
+            auto val = 0x0f & effect_param.value_;
+            if (val < 10) {
+                return '0' + val;
+            } else {
+                return 'a' + (val - 10);
+            }
+        }();
+
         if (cursor_.y == y and cursor_.x == 3) {
-            put_char('0', 7, y, highlight);
+            put_char(p1, 7, y, highlight);
         } else {
-            put_char('0', 7, y);
+            put_char(p1, 7, y);
         }
 
         if (cursor_.y == y and cursor_.x == 4) {
-            put_char('0', 8, y, highlight);
+            put_char(p2, 8, y, highlight);
         } else {
-            put_char('0', 8, y);
+            put_char(p2, 8, y);
         }
 
         if (init_) {
@@ -495,9 +616,10 @@ void ComposeSynthScene::repaint(Platform& pfrm)
         case Platform::Speaker::Channel::square_2:
         case Platform::Speaker::Channel::noise:
             put_str("envelope", 10, 1);
-            put_str("duty", 10, 3);
-            put_str("length", 10, 5);
-            put_str("volume", 10, 7);
+            put_str("envlp-dir", 10, 3);
+            put_str("duty", 10, 5);
+            put_str("length", 10, 7);
+            put_str("volume", 10, 9);
             break;
 
 
@@ -520,11 +642,24 @@ void ComposeSynthScene::repaint(Platform& pfrm)
         };
 
         if (cursor_.x == 5 and cursor_.y == 0) {
-            put_str(str_fill(s.envelope_step_).c_str(), 19, 1, highlight);
+            if (s.envelope_step_ == 0) {
+                put_char('8', 20, 1, highlight);
+            } else {
+                put_char(stringify(s.envelope_step_)[0], 20, 1, highlight);
+            }
         } else {
-            put_str(str_fill(s.envelope_step_).c_str(), 19, 1);
+            if (s.envelope_step_ == 0) {
+                put_char('8', 20, 1);
+            } else {
+                put_char(stringify(s.envelope_step_)[0], 20, 1);
+            }
         }
 
+        if (cursor_.x == 5 and cursor_.y == 1) {
+            put_char(stringify(s.envelope_direction_)[0], 20, 3, highlight);
+        } else {
+            put_char(stringify(s.envelope_direction_)[0], 20, 3);
+        }
 
         put_str([&] {
             switch (s.duty_) {
@@ -533,14 +668,14 @@ void ComposeSynthScene::repaint(Platform& pfrm)
             case 2: return "50";
             case 3: return "75";
             }
-        }(), 19, 3,
-            (cursor_.x == 5 and cursor_.y == 1) ? highlight : std::nullopt);
+        }(), 19, 5,
+            (cursor_.x == 5 and cursor_.y == 2) ? highlight : std::nullopt);
 
-        put_str(str_fill(s.length_).c_str(), 19, 5,
-                (cursor_.x == 5 and cursor_.y == 2) ? highlight : std::nullopt);
-
-        put_str(str_fill(s.volume_).c_str(), 19, 7,
+        put_str(str_fill(s.length_).c_str(), 19, 7,
                 (cursor_.x == 5 and cursor_.y == 3) ? highlight : std::nullopt);
+
+        put_str(str_fill(s.volume_).c_str(), 19, 9,
+                (cursor_.x == 5 and cursor_.y == 4) ? highlight : std::nullopt);
     };
 
     switch (channel_) {
@@ -627,6 +762,8 @@ void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
 void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     pfrm.fill_overlay(0);
+
+    pfrm.speaker().stop_chiptune_note(channel_);
 
     pfrm.screen().schedule_fade(0.f);
 

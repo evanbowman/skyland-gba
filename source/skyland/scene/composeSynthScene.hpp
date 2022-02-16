@@ -36,6 +36,7 @@ private:
 
     std::optional<Text> heading_;
 
+
     Synth::Note notes_[16];
     Synth::EffectParameter effect_parameters_[16];
 
@@ -53,6 +54,8 @@ private:
 
     u8 resume_y_ = 0;
     u8 demo_index_ = 0;
+
+    Microseconds note_demo_timer_ = 0;
 
 
     Platform::Speaker::Channel channel_;

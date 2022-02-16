@@ -3188,6 +3188,38 @@ static EWRAM_DATA AnalogChannel analog_channel[4];
 
 
 
+
+void Platform::Speaker::stop_chiptune_note(Channel channel)
+{
+    switch (channel) {
+    case Channel::square_1:
+        REG_SNDDMGCNT &= ~(1 << 8);
+        REG_SNDDMGCNT &= ~(1 << 0xc);
+        break;
+
+    case Channel::square_2:
+        REG_SNDDMGCNT &= ~(1 << 9);
+        REG_SNDDMGCNT &= ~(1 << 0xd);
+        break;
+
+    case Channel::noise:
+        REG_SNDDMGCNT &= ~(1 << 0xa);
+        REG_SNDDMGCNT &= ~(1 << 0xe);
+        break;
+
+    case Channel::wave:
+        REG_SNDDMGCNT &= ~(1 << 0xb);
+        REG_SNDDMGCNT &= ~(1 << 0xf);
+        break;
+
+    default:
+        // TODO!
+        break;
+    }
+}
+
+
+
 void Platform::Speaker::play_chiptune_note(Channel channel,
                                            Note note,
                                            u8 octave)
@@ -3198,18 +3230,37 @@ void Platform::Speaker::play_chiptune_note(Channel channel,
 
     switch (channel) {
     case Channel::square_1:
-        analog_channel[0].last_note_ = note;
-        analog_channel[0].last_octave_ = octave;
-        analog_channel[0].effect_timer_ = 0;
+        REG_SNDDMGCNT |= (1 << 8);
+        REG_SNDDMGCNT |= (1 << 0xc);
+        analog_channel[(int)channel].last_note_ = note;
+        analog_channel[(int)channel].last_octave_ = octave;
+        analog_channel[(int)channel].effect_timer_ = 0;
         REG_SND1FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
         break;
 
     case Channel::square_2:
+        REG_SNDDMGCNT |= (1 << 9);
+        REG_SNDDMGCNT |= (1 << 0xd);
+        analog_channel[(int)channel].last_note_ = note;
+        analog_channel[(int)channel].last_octave_ = octave;
+        analog_channel[(int)channel].effect_timer_ = 0;
         REG_SND2FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
         break;
 
     case Channel::noise:
-        // REG_SND4FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
+        REG_SNDDMGCNT |= (1 << 0xa);
+        REG_SNDDMGCNT |= (1 << 0xe);
+        analog_channel[(int)channel].last_note_ = note;
+        analog_channel[(int)channel].last_octave_ = octave;
+        analog_channel[(int)channel].effect_timer_ = 0;
+        break;
+
+    case Channel::wave:
+        REG_SNDDMGCNT |= (1 << 0xb);
+        REG_SNDDMGCNT |= (1 << 0xf);
+        analog_channel[(int)channel].last_note_ = note;
+        analog_channel[(int)channel].last_octave_ = octave;
+        analog_channel[(int)channel].effect_timer_ = 0;
         break;
 
     default:
@@ -3234,11 +3285,11 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
 
 
     auto apply_vibrato = [&](volatile u16* freq_register) {
-        // auto amplitude = argument & 0x0f;
-        // auto freq = (argument & 0xf0) >> 4;
+        auto amplitude = argument & 0x0f;
+        auto freq = (argument & 0xf0) >> 4;
 
-        // // We're using freq as a divisor.
-        // freq++;
+        // We're using freq as a divisor. Zero isn't valid
+        freq++;
 
         analog_channel[ch_num].effect_timer_+= delta;
         auto rate = SND_RATE(analog_channel[ch_num].last_note_,
@@ -3246,10 +3297,10 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
 
 
         auto vib = float(cosine(analog_channel[ch_num]
-                                .effect_timer_ / 2)) /
+                                .effect_timer_ / freq)) /
             std::numeric_limits<s16>::max();
 
-        vib *= 30;// (amplitude << 2);
+        vib *= (amplitude << 2);
         rate += vib;
         *freq_register &= ~SFREQ_RATE_MASK;
         *freq_register |= rate;

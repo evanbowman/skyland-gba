@@ -20,6 +20,7 @@ void Measure::format_description(StringBuffer<512>& buffer)
 Measure::Measure(Island* parent, const Vec2<u8>& position)
     : Decoration(parent, name(), position)
 {
+    end_music_ = 0;
     playing_ = 0;
     index_ = 0;
 
@@ -54,6 +55,19 @@ void Measure::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (playing_) {
         Room::ready();
+    } else if (end_music_) {
+        Room::ready();
+        if (timer_ < seconds(3)) {
+            timer_ += delta;
+            if (timer_ > seconds(3)) {
+                pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_1);
+                pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_2);
+                pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
+                pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
+                end_music_ = false;
+            }
+        }
+        return;
     } else {
         return;
     }
@@ -72,10 +86,12 @@ void Measure::update(Platform& pfrm, App& app, Microseconds delta)
                 if (auto b = dynamic_cast<Measure*>(room)) {
                     b->play(pfrm);
                 } else {
-                    pfrm.speaker().resume_music();
+                    reset(pfrm, true);
+                    end_music_ = true;
                 }
             } else {
-                pfrm.speaker().resume_music();
+                reset(pfrm, true);
+                end_music_ = true;
             }
             playing_ = false;
 
@@ -208,6 +224,7 @@ void Measure::reset(Platform& pfrm, bool resume_music)
         pfrm.speaker().resume_music();
     }
     playing_ = false;
+    end_music_ = false;
 }
 
 
@@ -352,6 +369,12 @@ void Measure::finalize(Platform& pfrm, App& app)
     }
 
     if (playing_) {
+
+        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_1);
+        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_2);
+        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
+        pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
+
         pfrm.speaker().resume_music();
     }
 }

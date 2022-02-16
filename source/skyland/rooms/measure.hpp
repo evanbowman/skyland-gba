@@ -151,6 +151,7 @@ private:
     EffectFlags effect_flags_;
 
     u8 playing_ : 1;
+    u8 end_music_ : 1;
 
     u8 unused_ : 7;
 
