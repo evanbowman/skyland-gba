@@ -119,7 +119,10 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (achievement not_eq achievements::Achievement::none) {
             achievements::award(pfrm, app, achievement);
 
-            return scene_pool::alloc<AchievementNotificationScene>(achievement);
+            auto next = scene_pool::make_deferred_scene<ReadyScene>();
+
+            return scene_pool::alloc<AchievementNotificationScene>(achievement,
+                                                                   next);
         }
     }
 

@@ -30,7 +30,7 @@ private:
         fade_in,
         idle,
         fade_out,
-    } state_ = State::idle;
+    } state_ = State::fade_in;
 
 
     std::optional<lisp::Protected> challenges_;

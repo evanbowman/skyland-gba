@@ -32,6 +32,8 @@ enum Achievement : u8 {
     explorer,
     strategist,
     stronghold,
+    maestro_1,
+    maestro_2,
     triage,
     ancient_weapon,
     count

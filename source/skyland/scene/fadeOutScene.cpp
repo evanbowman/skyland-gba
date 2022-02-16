@@ -5,6 +5,7 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
+#include "selectChallengeScene.hpp"
 
 
 
@@ -34,7 +35,7 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<ZoneImageScene>();
 
         case App::GameMode::challenge:
-            return scene_pool::alloc<TitleScreenScene>(2);
+            return scene_pool::alloc<SelectChallengeScene>();
 
         case App::GameMode::skyland_forever:
         case App::GameMode::sandbox:

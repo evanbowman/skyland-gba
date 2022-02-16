@@ -72,6 +72,40 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[stronghold].reward_), awarded);
      }},
 
+    {"Virtuoso (1)",
+     "Complete three challenge levels!",
+     "speaker",
+     [](Platform&, App& app) {
+         u64 v = app.gp_.challenge_flags_;
+         u32 upper;
+         u32 lower;
+         memcpy(&upper, &v, sizeof upper);
+         memcpy(&lower, (u8*)&v + 4, sizeof lower);
+
+         auto bc = count_1bits(upper) + count_1bits(lower);
+         return bc > 2;
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[maestro_1].reward_), awarded);
+     }},
+
+    {"Virtuoso (2)",
+     "Complete three challenge levels!",
+     "synth",
+     [](Platform&, App& app) {
+         u64 v = app.gp_.challenge_flags_;
+         u32 upper;
+         u32 lower;
+         memcpy(&upper, &v, sizeof upper);
+         memcpy(&lower, (u8*)&v + 4, sizeof lower);
+
+         auto bc = count_1bits(upper) + count_1bits(lower);
+         return bc > 2;
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[maestro_2].reward_), awarded);
+     }},
+
     {"Triage",
      "Destroy invading goblins with dynamite!",
      "dynamite-ii",

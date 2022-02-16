@@ -22,7 +22,9 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
 
     switch (state_) {
     case State::fade_in: {
-        if (timer_ > fade_duration) {
+        if (skip_fade_ or
+            timer_ > fade_duration) {
+            pfrm.screen().schedule_fade(0.5f);
             timer_ = 0;
             state_ = State::animate_box_sweep;
         } else {
@@ -40,7 +42,6 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
         if (timer_ > sweep_duration) {
             timer_ = 0;
             state_ = State::wait;
-            pfrm.screen().fade(0.5f);
 
             for (int x = 3; x < st.x - 3; ++x) {
                 for (int y = 3; y < st.y - 4; ++y) {
@@ -129,9 +130,12 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
         break;
 
     case State::fade_out:
+        if (skip_fade_) {
+            return next_scene_();
+        }
         if (timer_ > fade_duration) {
             pfrm.screen().fade(0.f);
-            return scene_pool::alloc<ReadyScene>();
+            return next_scene_();
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
             pfrm.screen().schedule_fade(0.5f * amount);
@@ -148,7 +152,7 @@ void AchievementNotificationScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
 
-    pfrm.screen().schedule_fade(0.5f);
+    // pfrm.screen().schedule_fade(0.5f);
 }
 
 

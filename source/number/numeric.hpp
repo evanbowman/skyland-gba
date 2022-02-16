@@ -13,6 +13,17 @@ template <typename T> using Atomic = std::atomic<T>;
 
 
 
+inline u32 count_1bits(u32 x)
+{
+    x = x - ((x >> 1) & 0x55555555);
+    x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+    x = x + (x >> 8);
+    x = x + (x >> 16);
+    return x & 0x0000003F;
+}
+
+
+
 template <typename T> struct Vec2 {
     T x = 0;
     T y = 0;

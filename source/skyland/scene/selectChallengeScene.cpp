@@ -1,3 +1,4 @@
+#include "achievementNotificationScene.hpp"
 #include "selectChallengeScene.hpp"
 #include "fadeInScene.hpp"
 #include "skyland/scene_pool.hpp"
@@ -19,6 +20,9 @@ void SelectChallengeScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_overlay_texture("overlay_challenges");
 
     pfrm.system_call("v-parallax", (void*)false);
+
+    app.player_island().clear_rooms(pfrm, app);
+    app.effects().clear();
 
     challenges_ = app.invoke_script(pfrm, "/scripts/challenge.lisp");
     // lisp::DefaultPrinter p;
@@ -155,6 +159,20 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (state_) {
     case State::fade_in:
+        for (int i = 0; i < 64; ++i) {
+            const auto achievement = achievements::update(pfrm, app);
+            if (achievement not_eq achievements::Achievement::none) {
+                achievements::award(pfrm, app, achievement);
+
+                pfrm.screen().fade(1.f);
+
+                auto next = scene_pool::make_deferred_scene<SelectChallengeScene>();
+                return scene_pool::alloc<AchievementNotificationScene>(achievement,
+                                                                       next,
+                                                                       true);
+            }
+        }
+        state_ = State::idle;
         break;
 
     case State::idle: {
