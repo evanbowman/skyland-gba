@@ -3194,13 +3194,22 @@ void Platform::Speaker::play_chiptune_note(Channel channel,
         break;
 
     case Channel::noise:
-        REG_SND4FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
+        // REG_SND4FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
         break;
 
     default:
         // TODO...
         break;
     }
+}
+
+
+
+void Platform::Speaker::apply_chiptune_effect(Channel channel,
+                                              Effect effect,
+                                              u8 argument)
+{
+    // TODO...
 }
 
 

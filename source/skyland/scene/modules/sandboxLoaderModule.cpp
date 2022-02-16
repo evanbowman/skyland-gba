@@ -21,6 +21,7 @@ const SandboxLoaderModule::ParameterInfo
     SandboxLoaderModule::param_info[decltype(parameters_)::capacity()] = {
         {"coins", 1000, 1000, 100000000},
         {"terrain size", 1, 4, 13},
+        {"music", 1, 0, 1}
 };
 
 
@@ -102,6 +103,7 @@ void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
         // Defaults
         parameters_[0] = 500000;
         parameters_[1] = 4;
+        parameters_[2] = 1;
     }
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
@@ -124,7 +126,9 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
     app.set_coins(pfrm, parameters_[0]);
     app.player_island().init_terrain(pfrm, parameters_[1]);
 
-    pfrm.speaker().play_music("sb_solecism", 0);
+    if (parameters_[2]) {
+        pfrm.speaker().play_music("sb_solecism", 0);
+    }
 
     app.invoke_script(pfrm, "/scripts/sandbox.lisp");
 

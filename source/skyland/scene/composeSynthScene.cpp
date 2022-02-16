@@ -1,6 +1,7 @@
 #include "composeSynthScene.hpp"
 #include "skyland/island.hpp"
 #include "readyScene.hpp"
+#include "skyland/rooms/measure.hpp"
 
 
 
@@ -21,7 +22,16 @@ ComposeSynthScene::ComposeSynthScene(App& app, Synth& synth) :
     channel_(synth.channel())
 {
     memcpy(notes_, synth.notes(), sizeof notes_);
-    memcpy(commands_, synth.commands(), sizeof commands_);
+    memcpy(effect_parameters_,
+           synth.effect_parameters(),
+           sizeof effect_parameters_);
+
+    if (auto measure = synth.measure()) {
+        square_1_settings_ = measure->square_1_settings_;
+        square_2_settings_ = measure->square_2_settings_;
+        noise_settings_ = measure->noise_settings_;
+        wave_settings_ = measure->wave_settings_;
+    }
 }
 
 
@@ -68,6 +78,8 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
                 notes_[cursor_.y].note_ = (Platform::Speaker::Note)0;
             }
 
+            demo_note(pfrm);
+
             repaint(pfrm);
         }
 
@@ -79,6 +91,8 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
                 notes_[cursor_.y].note_ =
                     (Platform::Speaker::Note)(((u8)notes_[cursor_.y].note_ - 1));
             }
+
+            demo_note(pfrm);
 
             repaint(pfrm);
         }
@@ -92,6 +106,9 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
                 if (notes_[cursor_.y].octave_ > 6) {
                     notes_[cursor_.y].octave_ = 0;
                 }
+
+                demo_note(pfrm);
+
                 repaint(pfrm);
             }
 
@@ -101,18 +118,45 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
                 } else {
                     notes_[cursor_.y].octave_ -= 1;
                 }
+
+                demo_note(pfrm);
+
                 repaint(pfrm);
             }
         }
 
+    } else if (cursor_.x == 2) {
+        // TODO
+    } else if (cursor_.x == 3) {
+        // TODO
+    } else {
+        switch (channel_) {
+        case Platform::Speaker::Channel::square_1:
+        case Platform::Speaker::Channel::square_2:
+        case Platform::Speaker::Channel::noise:
+            break;
+
+
+        default:
+        case Platform::Speaker::Channel::wave:
+            // TODO...
+            break;
+
+        }
     }
 
-    if (player(app).key_down(pfrm, Key::right) and cursor_.x < 1) {
+    if (player(app).key_down(pfrm, Key::right) and cursor_.x < 4) {
         ++cursor_.x;
+        if (cursor_.x == 4) {
+            cursor_.y = 0;
+        }
         repaint(pfrm);
     }
 
     if (player(app).key_down(pfrm, Key::left) and cursor_.x > 0) {
+        if (cursor_.x == 4) {
+            cursor_.y = 0;
+        }
         --cursor_.x;
         repaint(pfrm);
     }
@@ -123,10 +167,23 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
 
 
 
+void ComposeSynthScene::demo_note(Platform& pfrm)
+{
+    pfrm.speaker().init_chiptune_square_1(square_1_settings_);
+    pfrm.speaker().init_chiptune_square_2(square_2_settings_);
+    pfrm.speaker().init_chiptune_noise(noise_settings_);
+
+    pfrm.speaker().play_chiptune_note(channel_,
+                                      notes_[cursor_.y].note_,
+                                      notes_[cursor_.y].octave_);
+}
+
+
+
 void ComposeSynthScene::repaint(Platform& pfrm)
 {
     const auto st = calc_screen_tiles(pfrm);
-    int start_x = st.x / 2 - 9;
+    int start_x = st.x / 2 - 12;
     int start_y = (st.y - 16) / 2;
 
 
@@ -148,6 +205,32 @@ void ComposeSynthScene::repaint(Platform& pfrm)
                     u8(start_y + y)},
                    clr);
     };
+
+    auto put_str = [&](const char* str,
+                       int x,
+                       int y,
+                       const std::optional<FontColors>& colors = {}) {
+        auto clr = colors;
+
+        if (not colors) {
+            clr = Text::OptColors{{
+                    ColorConstant::steel_blue,
+                    ColorConstant::silver_white}};
+        }
+
+        while (*str not_eq '\0') {
+
+            print_char(pfrm,
+                       *str,
+                       {u8(start_x + x),
+                        u8(start_y + y)},
+                       clr);
+
+            ++x;
+            ++str;
+        }
+    };
+
 
     for (u8 y = 0; y < 16; ++y) {
 
@@ -237,16 +320,51 @@ void ComposeSynthScene::repaint(Platform& pfrm)
 
         put_char(' ', 5, y);
 
-        // TODO: show command
-        put_char('-', 6, y);
-        put_char('0', 7, y);
-        put_char('0', 8, y);
+        if (cursor_.y == y and cursor_.x == 2) {
+            put_char('-', 6, y, highlight);
+        } else {
+            put_char('-', 6, y);
+        }
 
-        put_char(' ', 9, y);
-        put_char(' ', 10, y);
-        put_char(' ', 11, y);
-        put_char(' ', 12, y);
+        if (cursor_.y == y and cursor_.x == 3) {
+            put_char('0', 7, y, highlight);
+            put_char('0', 8, y, highlight);
+        } else {
+            put_char('0', 7, y);
+            put_char('0', 8, y);
+        }
+
+
+        if (init_) {
+            for (int x = 9; x < 22; ++x) {
+                put_char(' ', x, y);
+            }
+        }
+
     }
+
+    if (init_) {
+        switch (channel_) {
+        case Platform::Speaker::Channel::square_1:
+        case Platform::Speaker::Channel::square_2:
+        case Platform::Speaker::Channel::noise:
+            put_str("envelope", 10, 1);
+            put_str("duty", 10, 3);
+            put_str("length", 10, 5);
+            put_str("tuning", 10, 7);
+            break;
+
+
+        default:
+        case Platform::Speaker::Channel::wave:
+            // TODO...
+            break;
+
+        }
+    }
+
+    init_ = false;
+
 }
 
 
@@ -257,10 +375,21 @@ void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     repaint(pfrm);
 
+    auto island = synth_near_ ? &player_island(app) : opponent_island(app);
+
+    for (auto& room : island->rooms()) {
+        // Stop any currently-playing chiptunes.
+        if (auto b = dynamic_cast<Measure*>(room.get())) {
+            b->reset(pfrm);
+        }
+    }
+
+
+
     pfrm.screen().schedule_fade(0.5f);
 
     const auto st = calc_screen_tiles(pfrm);
-    int start_x = st.x / 2 - 10;
+    int start_x = st.x / 2 - 13;
     int start_y = (st.y - 16) / 2 - 1;
 
     heading_.emplace(pfrm, OverlayCoord{(u8)start_x, (u8)start_y});
@@ -287,6 +416,9 @@ void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
         Text::OptColors{{
                     ColorConstant::steel_blue,
                         ColorConstant::silver_white}});
+
+
+    pfrm.speaker().set_music_volume(6);
 }
 
 
@@ -301,7 +433,16 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
         if (auto room = player_island(app).get_room(synth_pos_)) {
             if (auto s = dynamic_cast<Synth*>(room)) {
                 memcpy(s->notes(), notes_, sizeof notes_);
-                memcpy(s->commands(), commands_, sizeof commands_);
+                memcpy(s->effect_parameters(),
+                       effect_parameters_,
+                       sizeof effect_parameters_);
+
+                if (auto measure = s->measure()) {
+                    measure->square_1_settings_ = square_1_settings_;
+                    measure->square_2_settings_ = square_2_settings_;
+                    measure->noise_settings_ = noise_settings_;
+                    measure->wave_settings_ = wave_settings_;
+                }
             }
         }
     } else {
@@ -309,13 +450,23 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
             if (auto room = opponent_island(app)->get_room(synth_pos_)) {
                 if (auto s = dynamic_cast<Synth*>(room)) {
                     memcpy(s->notes(), notes_, sizeof notes_);
-                    memcpy(s->commands(), commands_, sizeof commands_);
+                    memcpy(s->effect_parameters(),
+                           effect_parameters_,
+                           sizeof effect_parameters_);
+
+                    if (auto measure = s->measure()) {
+                        measure->square_1_settings_ = square_1_settings_;
+                        measure->square_2_settings_ = square_2_settings_;
+                        measure->noise_settings_ = noise_settings_;
+                        measure->wave_settings_ = wave_settings_;
+                    }
                 }
             }
         }
     }
-}
 
+    pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+}
 
 
 

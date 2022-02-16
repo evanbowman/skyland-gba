@@ -17,8 +17,8 @@ Synth::Synth(Island* parent, const Vec2<u8>& position)
         note.octave_ = 0;
     }
 
-    for (auto& command : commands_) {
-        command.value_ = 0;
+    for (auto& p : effect_parameters_) {
+        p.value_ = 0;
     }
 
     if (not measure()) {

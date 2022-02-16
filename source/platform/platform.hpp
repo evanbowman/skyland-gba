@@ -653,6 +653,17 @@ public:
         void play_chiptune_note(Channel channel, Note note, u8 octave);
 
 
+        enum class Effect {
+            none,
+            vibrato,
+        };
+
+
+        void apply_chiptune_effect(Channel channel,
+                                   Effect effect,
+                                   u8 argument);
+
+
         struct ChannelSettings {
             u8 length_ : 6;
             u8 duty_ : 2;

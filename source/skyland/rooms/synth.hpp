@@ -69,7 +69,7 @@ public:
     };
 
 
-    struct Command {
+    struct EffectParameter {
         u8 value_;
     };
 
@@ -80,9 +80,9 @@ public:
     }
 
 
-    Command* commands()
+    EffectParameter* effect_parameters()
     {
-        return commands_;
+        return effect_parameters_;
     }
 
 
@@ -95,7 +95,7 @@ public:
 private:
 
 
-    Command commands_[16];
+    EffectParameter effect_parameters_[16];
     Note notes_[16];
 
 };

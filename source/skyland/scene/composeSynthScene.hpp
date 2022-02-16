@@ -28,15 +28,26 @@ private:
     void repaint(Platform&);
 
 
+    void demo_note(Platform&);
+
+
     Vec2<u8> cursor_;
 
     std::optional<Text> heading_;
 
     Synth::Note notes_[16];
-    Synth::Command commands_[16];
+    Synth::EffectParameter effect_parameters_[16];
 
     Vec2<u8> synth_pos_;
     bool synth_near_;
+
+    bool init_ = true;
+
+    Platform::Speaker::ChannelSettings square_1_settings_;
+    Platform::Speaker::ChannelSettings square_2_settings_;
+    Platform::Speaker::ChannelSettings noise_settings_;
+    u16 wave_settings_;
+
 
     Platform::Speaker::Channel channel_;
 };
