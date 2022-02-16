@@ -416,8 +416,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 // once, so we're unlikely to trigger the gc. Furthermore, we
                 // intentionally run the gc manually after running a level setup
                 // script, so we should have plenty of values available.
-                auto sym = lisp::make_symbol(destroyed_str,
-                                             lisp::Symbol::ModeBits::stable_pointer);
+                auto sym = lisp::make_symbol(
+                    destroyed_str, lisp::Symbol::ModeBits::stable_pointer);
 
                 // This is quite expensive! But it's convenient to be able to be
                 // able to register a callback when a room's destroyed.

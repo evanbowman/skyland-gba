@@ -21,8 +21,7 @@ const SandboxLoaderModule::ParameterInfo
     SandboxLoaderModule::param_info[decltype(parameters_)::capacity()] = {
         {"coins", 1000, 1000, 100000000},
         {"terrain size", 1, 4, 13},
-        {"music", 1, 0, 1}
-};
+        {"music", 1, 0, 1}};
 
 
 

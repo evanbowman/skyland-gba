@@ -479,7 +479,6 @@ void describe_room(Platform& pfrm,
                         room_description->append(" ");
                     } else {
                         room_description->append("  ");
-
                     }
                     pfrm.set_tile(Layer::overlay,
                                   room_description->len() - 1,

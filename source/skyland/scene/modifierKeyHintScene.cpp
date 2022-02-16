@@ -1,9 +1,9 @@
-#include "assignWeaponGroupScene.hpp"
 #include "modifierKeyHintScene.hpp"
+#include "assignWeaponGroupScene.hpp"
 #include "readyScene.hpp"
+#include "skyland/island.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene_pool.hpp"
-#include "skyland/island.hpp"
 
 
 
@@ -11,9 +11,8 @@ namespace skyland {
 
 
 
-ScenePtr<Scene> ModifierKeyHintScene::update(Platform& pfrm,
-                                             App& app,
-                                             Microseconds delta)
+ScenePtr<Scene>
+ModifierKeyHintScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto new_scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return new_scene;
@@ -78,10 +77,10 @@ void ModifierKeyHintScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.set_tile(Layer::overlay, 5, 13, 395);
 
     const char* title = "modifier keys";
-    title_.emplace(pfrm, title, OverlayCoord{
-            (u8)centered_text_margins(pfrm, utf8::len(title)),
-            4
-        });
+    title_.emplace(
+        pfrm,
+        title,
+        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title)), 4});
 
     text_.emplace_back(pfrm, "set weapon groups", OverlayCoord{7, 7});
     text_.emplace_back(pfrm, "weapon group 1", OverlayCoord{7, 9});
@@ -104,4 +103,4 @@ void ModifierKeyHintScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-}
+} // namespace skyland

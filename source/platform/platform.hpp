@@ -622,8 +622,6 @@ public:
 
     class Speaker {
     public:
-
-
         enum Note : u8 {
             C = 0,
             CIS,

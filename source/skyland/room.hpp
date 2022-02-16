@@ -1,5 +1,6 @@
 #pragma once
 
+#include "block.hpp"
 #include "entity.hpp"
 #include "entity/character/basicCharacter.hpp"
 #include "health.hpp"
@@ -9,7 +10,6 @@
 #include "power.hpp"
 #include "scene.hpp"
 #include <memory>
-#include "block.hpp"
 
 
 

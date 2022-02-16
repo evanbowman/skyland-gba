@@ -1,5 +1,6 @@
 #include "inspectP2Scene.hpp"
 #include "constructionScene.hpp"
+#include "fadeOutScene.hpp"
 #include "globals.hpp"
 #include "keyComboScene.hpp"
 #include "lispReplScene.hpp"
@@ -9,7 +10,6 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
-#include "fadeOutScene.hpp"
 
 
 

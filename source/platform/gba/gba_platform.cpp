@@ -3165,14 +3165,23 @@ static void add_sound(Buffer<ActiveSoundInfo, 3>& sounds,
 
 
 const uint __snd_rates[12] = {
-    8013, 7566, 7144, 6742, // C , C#, D , D#
-    6362, 6005, 5666, 5346, // E , F , F#, G
-    5048, 4766, 4499, 4246  // G#, A , A#, B
+    8013,
+    7566,
+    7144,
+    6742, // C , C#, D , D#
+    6362,
+    6005,
+    5666,
+    5346, // E , F , F#, G
+    5048,
+    4766,
+    4499,
+    4246 // G#, A , A#, B
 };
 
 
 
-#define SND_RATE(note, oct) ( 2048-(__snd_rates[note]>>((2 + oct))) )
+#define SND_RATE(note, oct) (2048 - (__snd_rates[note] >> ((2 + oct))))
 
 
 
@@ -3185,7 +3194,6 @@ struct AnalogChannel {
 
 
 static EWRAM_DATA AnalogChannel analog_channel[4];
-
 
 
 
@@ -3291,14 +3299,13 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
         // We're using freq as a divisor. Zero isn't valid
         freq++;
 
-        analog_channel[ch_num].effect_timer_+= delta;
+        analog_channel[ch_num].effect_timer_ += delta;
         auto rate = SND_RATE(analog_channel[ch_num].last_note_,
                              analog_channel[ch_num].last_octave_);
 
 
-        auto vib = float(cosine(analog_channel[ch_num]
-                                .effect_timer_ / freq)) /
-            std::numeric_limits<s16>::max();
+        auto vib = float(cosine(analog_channel[ch_num].effect_timer_ / freq)) /
+                   std::numeric_limits<s16>::max();
 
         vib *= (amplitude << 2);
         rate += vib;
@@ -3437,10 +3444,9 @@ s32 halted_music_offset = 0;
 
 
 
-
 void Platform::Speaker::halt_music()
 {
-    if (snd_ctx.music_track not_eq (AudioSample*)null_music) {
+    if (snd_ctx.music_track not_eq (AudioSample*) null_music) {
 
         for (auto& track : music_tracks) {
 
@@ -3449,7 +3455,6 @@ void Platform::Speaker::halt_music()
                 halted_music_offset = snd_ctx.music_track_pos;
                 break;
             }
-
         }
 
         stop_music();
@@ -3519,7 +3524,6 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
 
 Platform::Speaker::Speaker()
 {
-
 }
 
 
@@ -3850,10 +3854,11 @@ static void audio_start()
 
 
     // turn sound on
-    REG_SNDSTAT= SSTAT_ENABLE;
+    REG_SNDSTAT = SSTAT_ENABLE;
 
     // on left/right ; both full volume
-    REG_SNDDMGCNT = SDMG_BUILD_LR(SDMG_SQR1 | SDMG_SQR2 | SDMG_WAVE | SDMG_NOISE, 7);
+    REG_SNDDMGCNT =
+        SDMG_BUILD_LR(SDMG_SQR1 | SDMG_SQR2 | SDMG_WAVE | SDMG_NOISE, 7);
 
     // DMG ratio to 50%
     REG_SNDDSCNT |= SDS_DMG50;
@@ -3898,7 +3903,6 @@ void Platform::Speaker::init_chiptune_square_2(ChannelSettings settings)
 
 void Platform::Speaker::init_chiptune_wave(u16 config)
 {
-
 }
 
 

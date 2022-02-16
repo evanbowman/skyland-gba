@@ -45,7 +45,6 @@ public:
 
 
 private:
-
     enum class State {
         fade_in,
         fade_out_next,
@@ -69,4 +68,4 @@ private:
 
 
 
-}
+} // namespace skyland

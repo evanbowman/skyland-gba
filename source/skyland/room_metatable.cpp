@@ -18,6 +18,7 @@
 #include "skyland/rooms/ionFizzler.hpp"
 #include "skyland/rooms/manufactory.hpp"
 #include "skyland/rooms/masonry.hpp"
+#include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/nemesis.hpp"
 #include "skyland/rooms/palm.hpp"
@@ -30,7 +31,6 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/synth.hpp"
-#include "skyland/rooms/measure.hpp"
 #include "skyland/rooms/tnt.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/workshop.hpp"
@@ -231,7 +231,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Replicator,
                                         DroneBay,
                                         // decoration
-                                        Measure,
+                                        Speaker,
                                         Synth,
                                         Statue,
                                         Bridge,

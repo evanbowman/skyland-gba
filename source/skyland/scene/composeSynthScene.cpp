@@ -1,7 +1,7 @@
 #include "composeSynthScene.hpp"
-#include "skyland/island.hpp"
 #include "readyScene.hpp"
-#include "skyland/rooms/measure.hpp"
+#include "skyland/island.hpp"
+#include "skyland/rooms/speaker.hpp"
 
 
 
@@ -24,31 +24,30 @@ namespace skyland {
 
 
 
-ComposeSynthScene::ComposeSynthScene(App& app, Synth& synth) :
-    synth_pos_(synth.position()),
-    synth_near_(synth.parent() == &player_island(app)),
-    channel_(synth.channel())
+ComposeSynthScene::ComposeSynthScene(App& app, Synth& synth)
+    : synth_pos_(synth.position()),
+      synth_near_(synth.parent() == &player_island(app)),
+      channel_(synth.channel())
 {
     memcpy(notes_, synth.notes(), sizeof notes_);
     memcpy(effect_parameters_,
            synth.effect_parameters(),
            sizeof effect_parameters_);
 
-    if (auto measure = synth.measure()) {
-        square_1_settings_ = measure->square_1_settings_;
-        square_2_settings_ = measure->square_2_settings_;
-        noise_settings_ = measure->noise_settings_;
-        wave_settings_ = measure->wave_settings_;
+    if (auto speaker = synth.speaker()) {
+        square_1_settings_ = speaker->square_1_settings_;
+        square_2_settings_ = speaker->square_2_settings_;
+        noise_settings_ = speaker->noise_settings_;
+        wave_settings_ = speaker->wave_settings_;
 
-        effect_flags_ = measure->effect_flags();
+        effect_flags_ = speaker->effect_flags();
     }
 }
 
 
 
-ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
-                                          App& app,
-                                          Microseconds delta)
+ScenePtr<Scene>
+ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
         return scene;
@@ -77,10 +76,12 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
     }
 
 
-    pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::square_1,
-                                         effect_flags_.load((int)Platform::Speaker::Channel::square_1, demo_index_),
-                                         effect_parameters_[demo_index_].value_,
-                                         delta);
+    pfrm.speaker().apply_chiptune_effect(
+        Platform::Speaker::Channel::square_1,
+        effect_flags_.load((int)Platform::Speaker::Channel::square_1,
+                           demo_index_),
+        effect_parameters_[demo_index_].value_,
+        delta);
 
 
     if (not player(app).key_pressed(pfrm, Key::action_1)) {
@@ -104,7 +105,8 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
             notes_[cursor_.y].note_ =
                 (Platform::Speaker::Note)(((u8)notes_[cursor_.y].note_ + 1));
 
-            if ((u8)notes_[cursor_.y].note_ > (int)(Platform::Speaker::Note::invalid)) {
+            if ((u8)notes_[cursor_.y].note_ >
+                (int)(Platform::Speaker::Note::invalid)) {
                 notes_[cursor_.y].note_ = (Platform::Speaker::Note)0;
             }
 
@@ -118,8 +120,8 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
             if (notes_[cursor_.y].note_ == (Platform::Speaker::Note)0) {
                 notes_[cursor_.y].note_ = Platform::Speaker::Note::invalid;
             } else {
-                notes_[cursor_.y].note_ =
-                    (Platform::Speaker::Note)(((u8)notes_[cursor_.y].note_ - 1));
+                notes_[cursor_.y].note_ = (Platform::Speaker::Note)(
+                    ((u8)notes_[cursor_.y].note_ - 1));
             }
 
             demo_note(pfrm);
@@ -249,7 +251,6 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
 
         auto generic_update_settings =
             [&](Platform::Speaker::ChannelSettings& s) {
-
                 if (test_key(Key::down)) {
                     switch (cursor_.y) {
                     case 0:
@@ -340,8 +341,6 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
 
                     repaint(pfrm);
                 }
-
-
             };
 
         switch (channel_) {
@@ -361,7 +360,6 @@ ScenePtr<Scene> ComposeSynthScene::update(Platform& pfrm,
         case Platform::Speaker::Channel::wave:
             // TODO...
             break;
-
         }
     }
 
@@ -402,9 +400,8 @@ void ComposeSynthScene::demo_note(Platform& pfrm)
     pfrm.speaker().init_chiptune_square_2(square_2_settings_);
     pfrm.speaker().init_chiptune_noise(noise_settings_);
 
-    pfrm.speaker().play_chiptune_note(channel_,
-                                      notes_[demo_index_].note_,
-                                      notes_[demo_index_].octave_);
+    pfrm.speaker().play_chiptune_note(
+        channel_, notes_[demo_index_].note_, notes_[demo_index_].octave_);
 
     note_demo_timer_ = seconds(3);
 }
@@ -418,9 +415,8 @@ void ComposeSynthScene::repaint(Platform& pfrm)
     int start_y = (st.y - 16) / 2;
 
 
-    auto highlight = Text::OptColors{{
-            ColorConstant::silver_white,
-            ColorConstant::aerospace_orange}};
+    auto highlight = Text::OptColors{
+        {ColorConstant::silver_white, ColorConstant::aerospace_orange}};
 
 
     auto put_char = [&](char c,
@@ -430,16 +426,11 @@ void ComposeSynthScene::repaint(Platform& pfrm)
         auto clr = colors;
 
         if (not colors) {
-            clr = Text::OptColors{{
-                    ColorConstant::steel_blue,
-                    ColorConstant::silver_white}};
+            clr = Text::OptColors{
+                {ColorConstant::steel_blue, ColorConstant::silver_white}};
         }
 
-        print_char(pfrm,
-                   c,
-                   {u8(start_x + x),
-                    u8(start_y + y)},
-                   clr);
+        print_char(pfrm, c, {u8(start_x + x), u8(start_y + y)}, clr);
     };
 
     auto put_str = [&](const char* str,
@@ -449,18 +440,13 @@ void ComposeSynthScene::repaint(Platform& pfrm)
         auto clr = colors;
 
         if (not colors) {
-            clr = Text::OptColors{{
-                    ColorConstant::steel_blue,
-                    ColorConstant::silver_white}};
+            clr = Text::OptColors{
+                {ColorConstant::steel_blue, ColorConstant::silver_white}};
         }
 
         while (*str not_eq '\0') {
 
-            print_char(pfrm,
-                       *str,
-                       {u8(start_x + x),
-                        u8(start_y + y)},
-                       clr);
+            print_char(pfrm, *str, {u8(start_x + x), u8(start_y + y)}, clr);
 
             ++x;
             ++str;
@@ -607,7 +593,6 @@ void ComposeSynthScene::repaint(Platform& pfrm)
                 put_char(' ', x, y);
             }
         }
-
     }
 
     if (init_) {
@@ -627,7 +612,6 @@ void ComposeSynthScene::repaint(Platform& pfrm)
         case Platform::Speaker::Channel::wave:
             // TODO...
             break;
-
         }
     }
 
@@ -661,20 +645,31 @@ void ComposeSynthScene::repaint(Platform& pfrm)
             put_char(stringify(s.envelope_direction_)[0], 20, 3);
         }
 
-        put_str([&] {
-            switch (s.duty_) {
-            case 0: return "12";
-            case 1: return "25";
-            case 2: return "50";
-            case 3: return "75";
-            }
-        }(), 19, 5,
+        put_str(
+            [&] {
+                switch (s.duty_) {
+                case 0:
+                    return "12";
+                case 1:
+                    return "25";
+                case 2:
+                    return "50";
+                case 3:
+                    return "75";
+                }
+            }(),
+            19,
+            5,
             (cursor_.x == 5 and cursor_.y == 2) ? highlight : std::nullopt);
 
-        put_str(str_fill(s.length_).c_str(), 19, 7,
+        put_str(str_fill(s.length_).c_str(),
+                19,
+                7,
                 (cursor_.x == 5 and cursor_.y == 3) ? highlight : std::nullopt);
 
-        put_str(str_fill(s.volume_).c_str(), 19, 9,
+        put_str(str_fill(s.volume_).c_str(),
+                19,
+                9,
                 (cursor_.x == 5 and cursor_.y == 4) ? highlight : std::nullopt);
     };
 
@@ -695,11 +690,9 @@ void ComposeSynthScene::repaint(Platform& pfrm)
     case Platform::Speaker::Channel::wave:
         // TODO...
         break;
-
     }
 
     init_ = false;
-
 }
 
 
@@ -714,7 +707,7 @@ void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     for (auto& room : island->rooms()) {
         // Stop any currently-playing chiptunes.
-        if (auto b = dynamic_cast<Measure*>(room.get())) {
+        if (auto b = dynamic_cast<Speaker*>(room.get())) {
             b->reset(pfrm);
         }
     }
@@ -730,28 +723,28 @@ void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     heading_.emplace(pfrm, OverlayCoord{(u8)start_x, (u8)start_y});
 
-    heading_->assign([&]() {
-        switch (channel_) {
-        case Platform::Speaker::Channel::square_1:
-            return "tone_1";
+    heading_->assign(
+        [&]() {
+            switch (channel_) {
+            case Platform::Speaker::Channel::square_1:
+                return "tone_1";
 
-        case Platform::Speaker::Channel::wave:
-            return "wave";
+            case Platform::Speaker::Channel::wave:
+                return "wave";
 
-        case Platform::Speaker::Channel::noise:
-            return "noise";
+            case Platform::Speaker::Channel::noise:
+                return "noise";
 
-        case Platform::Speaker::Channel::square_2:
-            return "tone_2";
+            case Platform::Speaker::Channel::square_2:
+                return "tone_2";
 
-        default:
-        case Platform::Speaker::Channel::invalid:
-            return "!?";
-        }
-    }(),
-        Text::OptColors{{
-                    ColorConstant::steel_blue,
-                        ColorConstant::silver_white}});
+            default:
+            case Platform::Speaker::Channel::invalid:
+                return "!?";
+            }
+        }(),
+        Text::OptColors{
+            {ColorConstant::steel_blue, ColorConstant::silver_white}});
 
 
     pfrm.speaker().set_music_volume(6);
@@ -775,13 +768,13 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
                        effect_parameters_,
                        sizeof effect_parameters_);
 
-                if (auto measure = s->measure()) {
-                    measure->square_1_settings_ = square_1_settings_;
-                    measure->square_2_settings_ = square_2_settings_;
-                    measure->noise_settings_ = noise_settings_;
-                    measure->wave_settings_ = wave_settings_;
+                if (auto speaker = s->speaker()) {
+                    speaker->square_1_settings_ = square_1_settings_;
+                    speaker->square_2_settings_ = square_2_settings_;
+                    speaker->noise_settings_ = noise_settings_;
+                    speaker->wave_settings_ = wave_settings_;
 
-                    measure->effect_flags() = effect_flags_;
+                    speaker->effect_flags() = effect_flags_;
                 }
             }
         }
@@ -794,13 +787,13 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
                            effect_parameters_,
                            sizeof effect_parameters_);
 
-                    if (auto measure = s->measure()) {
-                        measure->square_1_settings_ = square_1_settings_;
-                        measure->square_2_settings_ = square_2_settings_;
-                        measure->noise_settings_ = noise_settings_;
-                        measure->wave_settings_ = wave_settings_;
+                    if (auto speaker = s->speaker()) {
+                        speaker->square_1_settings_ = square_1_settings_;
+                        speaker->square_2_settings_ = square_2_settings_;
+                        speaker->noise_settings_ = noise_settings_;
+                        speaker->wave_settings_ = wave_settings_;
 
-                        measure->effect_flags() = effect_flags_;
+                        speaker->effect_flags() = effect_flags_;
                     }
                 }
             }
@@ -812,4 +805,4 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-}
+} // namespace skyland

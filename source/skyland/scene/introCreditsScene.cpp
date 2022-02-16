@@ -88,7 +88,6 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             info(pfrm, "going to title screen");
             return scene_pool::alloc<TitleScreenScene>();
         }
-
     }
 
     return null_scene();

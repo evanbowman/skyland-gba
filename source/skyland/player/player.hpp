@@ -88,13 +88,8 @@ public:
     }
 
 
-    constexpr static const Key default_key_distribute_include_list[5] = {
-        Key::left,
-        Key::right,
-        Key::up,
-        Key::down,
-        Key::null
-    };
+    constexpr static const Key default_key_distribute_include_list[5] =
+        {Key::left, Key::right, Key::up, Key::down, Key::null};
 
 
     // Should be implemented to treat all currently pressed keys as held for the
@@ -105,11 +100,11 @@ public:
     // scrolling would halt until the new direction builds up enough inertia to
     // start scrolling continuously, unless we grant the new direction the same
     // scrolling inertia as the previous direction button.
-    virtual void key_held_distribute(Platform& pfrm,
-                                     // Keys to include. Must be terminated by
-                                     // Key::null.
-                                     const Key* include_list =
-                                     default_key_distribute_include_list)
+    virtual void key_held_distribute(
+        Platform& pfrm,
+        // Keys to include. Must be terminated by
+        // Key::null.
+        const Key* include_list = default_key_distribute_include_list)
     {
     }
 

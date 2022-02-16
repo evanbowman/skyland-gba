@@ -1,8 +1,8 @@
 #pragma once
 
 #include "decoration.hpp"
-#include "skyland/tile.hpp"
 #include "platform/platform.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -10,14 +10,12 @@ namespace skyland {
 
 
 
-class Measure;
+class Speaker;
 
 
 
 class Synth : public Decoration {
 public:
-
-
     static void format_description(StringBuffer<512>& buffer);
 
 
@@ -29,8 +27,7 @@ public:
 
     static u32 properties()
     {
-        return Decoration::properties() & ~RoomProperties::locked_by_default
-            ;
+        return Decoration::properties() & ~RoomProperties::locked_by_default;
     }
 
 
@@ -93,17 +90,14 @@ public:
     Platform::Speaker::Channel channel() const;
 
 
-    Measure* measure() const;
+    Speaker* speaker() const;
 
 
 private:
-
-
     EffectParameter effect_parameters_[16];
     Note notes_[16];
-
 };
 
 
 
-}
+} // namespace skyland

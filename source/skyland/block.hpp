@@ -22,9 +22,8 @@ namespace skyland {
 
 
 class Block {
-
 };
 
 
 
-}
+} // namespace skyland

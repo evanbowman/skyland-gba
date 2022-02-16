@@ -1,6 +1,6 @@
-#include "measure.hpp"
-#include "synth.hpp"
+#include "speaker.hpp"
 #include "skyland/island.hpp"
+#include "synth.hpp"
 
 
 
@@ -8,16 +8,16 @@ namespace skyland {
 
 
 
-void Measure::format_description(StringBuffer<512>& buffer)
+void Speaker::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Plays chiptunes! Connect up to four synth blocks to the "
-        "right of the speaker block! When finished playing, activates "
-        "a speaker block placed beneath it, if any.";
+              "right of the speaker block! When finished playing, activates "
+              "a speaker block placed beneath it, if any.";
 }
 
 
 
-Measure::Measure(Island* parent, const Vec2<u8>& position)
+Speaker::Speaker(Island* parent, const Vec2<u8>& position)
     : Decoration(parent, name(), position)
 {
     end_music_ = 0;
@@ -49,7 +49,7 @@ static const auto time_interval = milliseconds(100);
 
 
 
-void Measure::update(Platform& pfrm, App& app, Microseconds delta)
+void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
@@ -60,10 +60,19 @@ void Measure::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ < seconds(3)) {
             timer_ += delta;
             if (timer_ > seconds(3)) {
-                pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_1);
-                pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_2);
-                pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
-                pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
+
+                pfrm.speaker().stop_chiptune_note(
+                    Platform::Speaker::Channel::square_1);
+
+                pfrm.speaker().stop_chiptune_note(
+                    Platform::Speaker::Channel::square_2);
+
+                pfrm.speaker().stop_chiptune_note(
+                    Platform::Speaker::Channel::noise);
+
+                pfrm.speaker().stop_chiptune_note(
+                    Platform::Speaker::Channel::wave);
+
                 end_music_ = false;
             }
         }
@@ -80,10 +89,9 @@ void Measure::update(Platform& pfrm, App& app, Microseconds delta)
         index_ += 1;
 
         if (index_ == 16) {
-            if (auto room = parent()->get_room({
-                        position().x, u8(position().y + 1)
-                    })) {
-                if (auto b = dynamic_cast<Measure*>(room)) {
+            if (auto room =
+                    parent()->get_room({position().x, u8(position().y + 1)})) {
+                if (auto b = dynamic_cast<Speaker*>(room)) {
                     b->play(pfrm);
                 } else {
                     reset(pfrm, true);
@@ -139,49 +147,53 @@ void Measure::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (auto p = square_1()) {
-        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::square_1,
-                                             load_effect((int)Platform::Speaker::Channel::square_1),
-                                             p->effect_parameters()[index_].value_,
-                                             delta);
+        pfrm.speaker().apply_chiptune_effect(
+            Platform::Speaker::Channel::square_1,
+            load_effect((int)Platform::Speaker::Channel::square_1),
+            p->effect_parameters()[index_].value_,
+            delta);
     }
 
 
     if (auto n = noise()) {
-        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::noise,
-                                             load_effect((int)Platform::Speaker::Channel::noise),
-                                             n->effect_parameters()[index_].value_,
-                                             delta);
+        pfrm.speaker().apply_chiptune_effect(
+            Platform::Speaker::Channel::noise,
+            load_effect((int)Platform::Speaker::Channel::noise),
+            n->effect_parameters()[index_].value_,
+            delta);
     }
 
 
 
     if (auto w = wave()) {
-        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::wave,
-                                             load_effect((int)Platform::Speaker::Channel::wave),
-                                             w->effect_parameters()[index_].value_,
-                                             delta);
+        pfrm.speaker().apply_chiptune_effect(
+            Platform::Speaker::Channel::wave,
+            load_effect((int)Platform::Speaker::Channel::wave),
+            w->effect_parameters()[index_].value_,
+            delta);
     }
 
 
 
     if (auto p = square_2()) {
-        pfrm.speaker().apply_chiptune_effect(Platform::Speaker::Channel::square_2,
-                                             load_effect((int)Platform::Speaker::Channel::square_2),
-                                             p->effect_parameters()[index_].value_,
-                                             delta);
+        pfrm.speaker().apply_chiptune_effect(
+            Platform::Speaker::Channel::square_2,
+            load_effect((int)Platform::Speaker::Channel::square_2),
+            p->effect_parameters()[index_].value_,
+            delta);
     }
 }
 
 
 
-Platform::Speaker::Effect Measure::load_effect(int channel)
+Platform::Speaker::Effect Speaker::load_effect(int channel)
 {
     return effect_flags_.load(channel, index_);
 }
 
 
 
-void Measure::render_interior(App& app, u8 buffer[16][16])
+void Speaker::render_interior(App& app, u8 buffer[16][16])
 {
     if (playing_) {
         buffer[position().x][position().y] = InteriorTile::speaker_active;
@@ -192,7 +204,7 @@ void Measure::render_interior(App& app, u8 buffer[16][16])
 
 
 
-void Measure::render_exterior(App& app, u8 buffer[16][16])
+void Speaker::render_exterior(App& app, u8 buffer[16][16])
 {
     if (playing_) {
         buffer[position().x][position().y] = InteriorTile::speaker_active;
@@ -203,7 +215,7 @@ void Measure::render_exterior(App& app, u8 buffer[16][16])
 
 
 
-ScenePtr<Scene> Measure::select(Platform& pfrm, App& app)
+ScenePtr<Scene> Speaker::select(Platform& pfrm, App& app)
 {
     bool was_playing_ = playing_;
 
@@ -218,7 +230,7 @@ ScenePtr<Scene> Measure::select(Platform& pfrm, App& app)
 
 
 
-void Measure::reset(Platform& pfrm, bool resume_music)
+void Speaker::reset(Platform& pfrm, bool resume_music)
 {
     if (playing_ and resume_music) {
         pfrm.speaker().resume_music();
@@ -229,14 +241,14 @@ void Measure::reset(Platform& pfrm, bool resume_music)
 
 
 
-void Measure::play(Platform& pfrm)
+void Speaker::play(Platform& pfrm)
 {
     if (playing_) {
         return;
     }
 
     for (auto& room : parent()->rooms()) {
-        if (auto b = dynamic_cast<Measure*>(room.get())) {
+        if (auto b = dynamic_cast<Speaker*>(room.get())) {
             b->reset(pfrm, false);
         }
     }
@@ -252,7 +264,7 @@ void Measure::play(Platform& pfrm)
 
 
 
-Synth* Measure::square_1() const
+Synth* Speaker::square_1() const
 {
     u8 x = position().x + 1;
     u8 y = position().y;
@@ -266,13 +278,13 @@ Synth* Measure::square_1() const
 
 
 
-Synth* Measure::noise() const
+Synth* Speaker::noise() const
 {
     u8 x = position().x + 4;
     u8 y = position().y;
 
     // I should explain: do not consider a Synth as belonging to this musical
-    // bar if there's a measure between this block and the synth. Allows players
+    // bar if there's a speaker between this block and the synth. Allows players
     // to create longer compositions, by ignoring the noise channel and the
     // weaker pulse channel.
     if (auto room = parent()->get_room({u8(x - 1), y})) {
@@ -302,7 +314,7 @@ Synth* Measure::noise() const
 
 
 
-Synth* Measure::square_2() const
+Synth* Speaker::square_2() const
 {
     u8 x = position().x + 2;
     u8 y = position().y;
@@ -322,7 +334,7 @@ Synth* Measure::square_2() const
 
 
 
-Synth* Measure::wave() const
+Synth* Speaker::wave() const
 {
     u8 x = position().x + 3;
     u8 y = position().y;
@@ -348,7 +360,7 @@ Synth* Measure::wave() const
 
 
 
-void Measure::finalize(Platform& pfrm, App& app)
+void Speaker::finalize(Platform& pfrm, App& app)
 {
     Room::finalize(pfrm, app);
 
@@ -381,4 +393,4 @@ void Measure::finalize(Platform& pfrm, App& app)
 
 
 
-}
+} // namespace skyland

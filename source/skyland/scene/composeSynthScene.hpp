@@ -1,14 +1,13 @@
 #pragma once
 
 
+#include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/synth.hpp"
-#include "skyland/rooms/measure.hpp"
 #include "worldScene.hpp"
 
 
 
 namespace skyland {
-
 
 
 
@@ -25,7 +24,6 @@ public:
 
 
 private:
-
     void repaint(Platform&);
 
 
@@ -40,7 +38,7 @@ private:
     Synth::Note notes_[16];
     Synth::EffectParameter effect_parameters_[16];
 
-    Measure::EffectFlags effect_flags_;
+    Speaker::EffectFlags effect_flags_;
 
     Vec2<u8> synth_pos_;
     bool synth_near_;
@@ -63,4 +61,4 @@ private:
 
 
 
-}
+} // namespace skyland

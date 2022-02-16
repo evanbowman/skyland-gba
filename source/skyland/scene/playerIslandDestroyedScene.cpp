@@ -80,17 +80,19 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
     switch (lines_.size()) {
     case 0:
         if (app.game_mode() == App::GameMode::skyland_forever) {
-            print_metric_impl("time ",
-                              format_time(app.persistent_data().total_seconds_.get(), true));
+            print_metric_impl(
+                "time ",
+                format_time(app.persistent_data().total_seconds_.get(), true));
         } else {
-            print_metric_impl("time ",
-                              format_time(app.stat_timer().whole_seconds(), true));
+            print_metric_impl(
+                "time ", format_time(app.stat_timer().whole_seconds(), true));
         }
         break;
 
     case 1:
         if (app.game_mode() == App::GameMode::skyland_forever) {
-            print_metric("pauses used ", app.persistent_data().total_pauses_.get());
+            print_metric("pauses used ",
+                         app.persistent_data().total_pauses_.get());
         } else {
             print_metric("pauses used ", app.pause_count());
         }
@@ -492,11 +494,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<SelectChallengeScene>();
 
                 case App::GameMode::adventure:
-                    if (app.world_graph().nodes_[app.current_world_location()].type_
-                        == WorldGraph::Node::Type::corrupted) {
+                    if (app.world_graph()
+                            .nodes_[app.current_world_location()]
+                            .type_ == WorldGraph::Node::Type::corrupted) {
                         // Defeated the storm king!
-                        app.persistent_data()
-                            .score_.set(20000 + app.persistent_data().score_.get());
+                        app.persistent_data().score_.set(
+                            20000 + app.persistent_data().score_.get());
                         return scene_pool::alloc<HighscoresScene>(true, 1);
                     } else {
                         return scene_pool::alloc<ZoneImageScene>();
@@ -575,8 +578,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.game_mode() == App::GameMode::adventure) {
 
                 const auto node_type = app.world_graph()
-                         .nodes_[app.current_world_location()]
-                         .type_;
+                                           .nodes_[app.current_world_location()]
+                                           .type_;
 
                 if (node_type not_eq WorldGraph::Node::Type::exit and
                     node_type not_eq WorldGraph::Node::Type::corrupted) {
@@ -687,8 +690,7 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
               app.stat_timer().whole_seconds()));
 
     app.persistent_data().total_pauses_.set(
-        app.persistent_data().total_pauses_.get() +
-        app.pause_count());
+        app.persistent_data().total_pauses_.get() + app.pause_count());
 }
 
 

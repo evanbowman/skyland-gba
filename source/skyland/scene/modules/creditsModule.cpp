@@ -17,49 +17,41 @@ struct Page {
 };
 
 
-static const char* const page_0_lines[] = {
-    "-- Programming --",
-    "",
-    "< Lead programmer >",
-    "Evan Bowman",
-    "",
-    "interrupt dispatcher by",
-    "Dave Murphy (devkitpro)",
-    "",
-    "optimized memcpy by",
-    "Jasper Vijn (tonc)",
-    nullptr
-};
+static const char* const page_0_lines[] = {"-- Programming --",
+                                           "",
+                                           "< Lead programmer >",
+                                           "Evan Bowman",
+                                           "",
+                                           "interrupt dispatcher by",
+                                           "Dave Murphy (devkitpro)",
+                                           "",
+                                           "optimized memcpy by",
+                                           "Jasper Vijn (tonc)",
+                                           nullptr};
 
 
 
-static const char* const page_1_lines[] = {
-    "-- Design --",
-    "",
-    "Design and Artwork",
-    "Evan Bowman",
-    nullptr
-};
+static const char* const page_1_lines[] = {"-- Design --",
+                                           "",
+                                           "Design and Artwork",
+                                           "Evan Bowman",
+                                           nullptr};
 
 
 
-static const char* const page_2_lines[] = {
-    "-- Music --",
-    "",
-    "\x12 Life in Silco \x12",
-    "Scott Buckley",
-    nullptr
-};
+static const char* const page_2_lines[] = {"-- Music --",
+                                           "",
+                                           "\x12 Life in Silco \x12",
+                                           "Scott Buckley",
+                                           nullptr};
 
 
 
-std::array<Page, 3> pages_ = {
-    {
-        {page_0_lines},
-        {page_1_lines},
-        {page_2_lines},
-    }
-};
+std::array<Page, 3> pages_ = {{
+    {page_0_lines},
+    {page_1_lines},
+    {page_2_lines},
+}};
 
 
 
@@ -81,10 +73,10 @@ void CreditsModule::load_page(Platform& pfrm, u32 page)
             y += 1;
             ++data;
         }
-        lines_.emplace_back(pfrm, *data, OverlayCoord{
-                (u8)centered_text_margins(pfrm, utf8::len(*data)),
-                y
-            });
+        lines_.emplace_back(
+            pfrm,
+            *data,
+            OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(*data)), y});
         y += 2;
         ++data;
     }
@@ -113,9 +105,8 @@ void CreditsModule::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-ScenePtr<Scene> CreditsModule::update(Platform& pfrm,
-                                      App& app,
-                                      Microseconds delta)
+ScenePtr<Scene>
+CreditsModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     constexpr auto fade_duration = milliseconds(650);
 
@@ -124,7 +115,7 @@ ScenePtr<Scene> CreditsModule::update(Platform& pfrm,
     case State::idle:
         if (player(app).key_down(pfrm, Key::action_1)) {
             if (player(app).key_down(pfrm, Key::action_2) or
-                (u32)page_ + 1 == ::skyland::pages_.size()) {
+                (u32) page_ + 1 == ::skyland::pages_.size()) {
                 state_ = State::fade_out_exit;
             } else {
                 state_ = State::fade_out_next;
@@ -141,7 +132,8 @@ ScenePtr<Scene> CreditsModule::update(Platform& pfrm,
             pfrm.screen().schedule_fade(0.f);
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(amount, ColorConstant::rich_black, true, true);
+            pfrm.screen().schedule_fade(
+                amount, ColorConstant::rich_black, true, true);
         }
         break;
 
@@ -152,7 +144,8 @@ ScenePtr<Scene> CreditsModule::update(Platform& pfrm,
             state_ = State::page_swap;
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(amount, ColorConstant::rich_black, true, true);
+            pfrm.screen().schedule_fade(
+                amount, ColorConstant::rich_black, true, true);
         }
         break;
 
@@ -162,7 +155,8 @@ ScenePtr<Scene> CreditsModule::update(Platform& pfrm,
             return scene_pool::alloc<TitleScreenScene>(3);
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(amount, ColorConstant::rich_black, true, true);
+            pfrm.screen().schedule_fade(
+                amount, ColorConstant::rich_black, true, true);
         }
         break;
 
@@ -181,4 +175,4 @@ CreditsModule::Factory CreditsModule::factory_;
 
 
 
-}
+} // namespace skyland

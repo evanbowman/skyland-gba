@@ -14,18 +14,9 @@ namespace skyland {
 
 
 
-// TODO: rename this class to speaker! Originally I called the class Bar, like a
-// music bar, then I thought that measure sounded better, now I sort of feel
-// like speaker expresses the idea more clearly to the player, so the ui
-// describes the room as speaker, and I'll rename the code once again when I
-// find the time.
-
-
-
-class Measure : public Decoration {
+class Speaker : public Decoration {
 public:
-
-    Measure(Island* parent, const Vec2<u8>& position);
+    Speaker(Island* parent, const Vec2<u8>& position);
 
 
     void update(Platform& pfrm, App& app, Microseconds delta) override;
@@ -135,7 +126,6 @@ public:
 
 
 private:
-
     Synth* square_1() const;
     Synth* square_2() const;
     Synth* wave() const;
@@ -163,4 +153,4 @@ private:
 
 
 
-}
+} // namespace skyland
