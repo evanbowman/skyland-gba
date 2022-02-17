@@ -700,6 +700,12 @@ void PlayerIslandDestroyedScene::exit(Platform& pfrm, App& app, Scene& next)
     lines_.clear();
     pfrm.load_overlay_texture("overlay");
     pfrm.screen().pixelate(0);
+
+    pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_1);
+    pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_2);
+    pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
+    pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
+
     pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 
     pfrm.screen().set_shader(passthrough_shader);
