@@ -37,6 +37,7 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
         case App::GameMode::challenge:
             return scene_pool::alloc<SelectChallengeScene>();
 
+        case App::GameMode::hideout:
         case App::GameMode::skyland_forever:
         case App::GameMode::sandbox:
             return scene_pool::alloc<TitleScreenScene>(3);

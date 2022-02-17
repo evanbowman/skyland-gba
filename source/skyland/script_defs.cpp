@@ -27,6 +27,7 @@
 #include "version.hpp"
 
 
+
 #if not MAPBOX_ETERNAL_IS_CONSTEXPR
 #error "NON-Constexpr lookup table!"
 #endif
@@ -206,6 +207,62 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
          }},
          {"display", [](int argc) {
              lisp::interp_get_pfrm()->screen().display();
+             return L_NIL;
+         }},
+         {"synth-notes-store", [](int argc) {
+             L_EXPECT_ARGC(argc, 2);
+             L_EXPECT_OP(1, user_data);
+             L_EXPECT_OP(0, string);
+
+             auto pfrm = lisp::interp_get_pfrm();
+
+             auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+
+             synth_notes_store(*pfrm,
+                               *island,
+                               lisp::get_op(0)->string().value());
+
+             return L_NIL;
+         }},
+         {"synth-notes-load", [](int argc) {
+             L_EXPECT_ARGC(argc, 2);
+             L_EXPECT_OP(1, user_data);
+             L_EXPECT_OP(0, string);
+
+             auto pfrm = lisp::interp_get_pfrm();
+
+             auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+
+             synth_notes_load(*pfrm, *island, lisp::get_op(0)->string().value());
+
+             return L_NIL;
+         }},
+        {"speaker-data-store", [](int argc) {
+             L_EXPECT_ARGC(argc, 2);
+             L_EXPECT_OP(1, user_data);
+             L_EXPECT_OP(0, string);
+
+             auto pfrm = lisp::interp_get_pfrm();
+
+             auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+
+             speaker_data_store(*pfrm,
+                                *island,
+                                lisp::get_op(0)->string().value());
+
+             return L_NIL;
+         }},
+         {"speaker-data-load", [](int argc) {
+             L_EXPECT_ARGC(argc, 2);
+             L_EXPECT_OP(1, user_data);
+             L_EXPECT_OP(0, string);
+
+             auto pfrm = lisp::interp_get_pfrm();
+
+             auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+
+             speaker_data_load(*pfrm, *island, lisp::get_op(0)->string().value());
+
              return L_NIL;
          }}});
 

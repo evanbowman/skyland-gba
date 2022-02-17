@@ -73,10 +73,12 @@ public:
     void finalize(Platform& pfrm, App& app) override;
 
 
-    Platform::Speaker::ChannelSettings square_1_settings_;
-    Platform::Speaker::ChannelSettings square_2_settings_;
-    Platform::Speaker::ChannelSettings noise_settings_;
-    u16 wave_settings_;
+    struct Settings {
+        Platform::Speaker::ChannelSettings square_1_;
+        Platform::Speaker::ChannelSettings square_2_;
+        Platform::Speaker::ChannelSettings noise_;
+        u16 wave_;
+    } settings_;
 
 
     using EffectVector = Bitvector<2 * 16 * 4>;

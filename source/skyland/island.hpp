@@ -351,4 +351,27 @@ Island* opponent_island(App& app);
 
 
 
+bool synth_notes_store(Platform& pfrm,
+                       Island& island,
+                       const char* path);
+
+
+
+bool synth_notes_load(Platform& pfrm,
+                      Island& island,
+                      const char* path);
+
+
+
+bool speaker_data_store(Platform& pfrm,
+                        Island& island,
+                        const char* path);
+
+
+
+bool speaker_data_load(Platform& pfrm,
+                       Island& island,
+                       const char* path);
+
+
 } // namespace skyland

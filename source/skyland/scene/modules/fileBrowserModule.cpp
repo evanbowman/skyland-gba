@@ -455,7 +455,13 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                     auto path = this->cwd();
                     path += selected;
 
-                    if (get_extension(path) == ".img") {
+                    if (get_extension(path) == ".dat") {
+                        // FIXME: we don't want to allow the user to open .dat
+                        // files. TODO: instead, either write a hex viewer, or
+                        // show a meaningful error message, even if just by
+                        // returning a dialog scene with the error text.
+                        return scene_pool::alloc<TitleScreenScene>(3);
+                    } else if (get_extension(path) == ".img") {
                         return scene_pool::alloc<PaintScene>(path.c_str(),
                                                              false);
                     } else {

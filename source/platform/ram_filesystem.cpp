@@ -45,6 +45,7 @@ Root load_root(Platform& pfrm)
     Root root;
     pfrm.read_save_data(&root, sizeof root, fs_offset());
 
+
     return root;
 }
 

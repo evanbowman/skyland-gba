@@ -35,10 +35,10 @@ ComposeSynthScene::ComposeSynthScene(App& app, Synth& synth)
            sizeof effect_parameters_);
 
     if (auto speaker = synth.speaker()) {
-        square_1_settings_ = speaker->square_1_settings_;
-        square_2_settings_ = speaker->square_2_settings_;
-        noise_settings_ = speaker->noise_settings_;
-        wave_settings_ = speaker->wave_settings_;
+        square_1_settings_ = speaker->settings_.square_1_;
+        square_2_settings_ = speaker->settings_.square_2_;
+        noise_settings_ = speaker->settings_.noise_;
+        wave_settings_ = speaker->settings_.wave_;
 
         effect_flags_ = speaker->effect_flags();
     }
@@ -843,10 +843,10 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
                        sizeof effect_parameters_);
 
                 if (auto speaker = s->speaker()) {
-                    speaker->square_1_settings_ = square_1_settings_;
-                    speaker->square_2_settings_ = square_2_settings_;
-                    speaker->noise_settings_ = noise_settings_;
-                    speaker->wave_settings_ = wave_settings_;
+                    speaker->settings_.square_1_ = square_1_settings_;
+                    speaker->settings_.square_2_ = square_2_settings_;
+                    speaker->settings_.noise_ = noise_settings_;
+                    speaker->settings_.wave_ = wave_settings_;
 
                     speaker->effect_flags() = effect_flags_;
                 }
@@ -862,10 +862,10 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
                            sizeof effect_parameters_);
 
                     if (auto speaker = s->speaker()) {
-                        speaker->square_1_settings_ = square_1_settings_;
-                        speaker->square_2_settings_ = square_2_settings_;
-                        speaker->noise_settings_ = noise_settings_;
-                        speaker->wave_settings_ = wave_settings_;
+                        speaker->settings_.square_1_ = square_1_settings_;
+                        speaker->settings_.square_2_ = square_2_settings_;
+                        speaker->settings_.noise_ = noise_settings_;
+                        speaker->settings_.wave_ = wave_settings_;
 
                         speaker->effect_flags() = effect_flags_;
                     }

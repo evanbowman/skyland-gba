@@ -22,6 +22,13 @@ public:
     {
     }
 
+    using Data = std::array<u8, (bits / 8) + ((bits % 8) ? 1 : 0)>;
+
+    Bitvector(const Data& data)
+    {
+        data_ = data;
+    }
+
     Bitvector& operator=(const Bitvector& other)
     {
         data_ = other.data_;
@@ -65,8 +72,18 @@ public:
         }
     }
 
+    const Data* data() const
+    {
+        return &data_;
+    }
+
+    Data* data()
+    {
+        return &data_;
+    }
+
 private:
-    std::array<u8, (bits / 8) + ((bits % 8) ? 1 : 0)> data_;
+    Data data_;
 };
 
 

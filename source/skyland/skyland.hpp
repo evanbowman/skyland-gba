@@ -111,6 +111,7 @@ public:
         sandbox,
         multiplayer,
         skyland_forever,
+        hideout,
     };
 
 

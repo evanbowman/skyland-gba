@@ -24,23 +24,23 @@ Speaker::Speaker(Island* parent, const Vec2<u8>& position)
     playing_ = 0;
     index_ = 0;
 
-    square_1_settings_.envelope_direction_ = 0;
-    square_1_settings_.envelope_step_ = 7;
-    square_1_settings_.volume_ = 12;
-    square_1_settings_.duty_ = 0;
-    square_1_settings_.length_ = 0;
+    settings_.square_1_.envelope_direction_ = 0;
+    settings_.square_1_.envelope_step_ = 7;
+    settings_.square_1_.volume_ = 12;
+    settings_.square_1_.duty_ = 0;
+    settings_.square_1_.length_ = 0;
 
-    square_2_settings_.envelope_direction_ = 0;
-    square_2_settings_.envelope_step_ = 7;
-    square_2_settings_.volume_ = 12;
-    square_2_settings_.duty_ = 0;
-    square_2_settings_.length_ = 0;
+    settings_.square_2_.envelope_direction_ = 0;
+    settings_.square_2_.envelope_step_ = 7;
+    settings_.square_2_.volume_ = 12;
+    settings_.square_2_.duty_ = 0;
+    settings_.square_2_.length_ = 0;
 
-    noise_settings_.envelope_direction_ = 0;
-    noise_settings_.envelope_step_ = 7;
-    noise_settings_.volume_ = 12;
-    noise_settings_.duty_ = 0;
-    noise_settings_.length_ = 0;
+    settings_.noise_.envelope_direction_ = 0;
+    settings_.noise_.envelope_step_ = 7;
+    settings_.noise_.volume_ = 12;
+    settings_.noise_.duty_ = 0;
+    settings_.noise_.length_ = 0;
 }
 
 
@@ -109,9 +109,9 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
 
-        pfrm.speaker().init_chiptune_square_1(square_1_settings_);
-        pfrm.speaker().init_chiptune_square_2(square_2_settings_);
-        pfrm.speaker().init_chiptune_noise(noise_settings_);
+        pfrm.speaker().init_chiptune_square_1(settings_.square_1_);
+        pfrm.speaker().init_chiptune_square_2(settings_.square_2_);
+        pfrm.speaker().init_chiptune_noise(settings_.noise_);
 
         timer_ = 0;
 

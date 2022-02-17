@@ -123,6 +123,9 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
 
     ram_filesystem::store_file_data(
         pfrm, "/save/data.lisp", p.fmt_.c_str(), p.fmt_.length());
+
+    synth_notes_store(pfrm, app.player_island(), "/save/synth.dat");
+    speaker_data_store(pfrm, app.player_island(), "/save/speaker.dat");
 }
 
 
@@ -177,6 +180,9 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
     lisp::pop_op(); // result of eval() (1)
     lisp::pop_op(); // result of read() (0)
 
+
+    synth_notes_load(pfrm, app.player_island(), "/save/synth.dat");
+    speaker_data_load(pfrm, app.player_island(), "/save/speaker.dat");
 
     return true;
 }

@@ -30,10 +30,12 @@ Synth::Synth(Island* parent, const Vec2<u8>& position)
         p.value_ = 0;
     }
 
-    if (not speaker()) {
-        // Freestanding synth not allowed!
-        __set_health(0);
-    }
+    // I'd like to do the following, but doing so would impose an ordering that
+    // could be problematic when reloading rooms from saved data:
+    // if (not speaker()) {
+    //     // Freestanding synth not allowed!
+    //     __set_health(0);
+    // }
 }
 
 

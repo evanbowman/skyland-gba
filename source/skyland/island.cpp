@@ -12,6 +12,9 @@
 #include "skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
+#include "skyland/rooms/synth.hpp"
+#include "skyland/rooms/speaker.hpp"
+#include "platform/ram_filesystem.hpp"
 
 
 
@@ -1227,6 +1230,215 @@ Island& player_island(App& app)
 Island* opponent_island(App& app)
 {
     return app.opponent_island();
+}
+
+
+
+bool speaker_data_store(Platform& pfrm,
+                        Island& island,
+                        const char* path)
+{
+    Vector<char> data(pfrm);
+
+    for (auto& room : island.rooms()) {
+        if (auto speaker = dynamic_cast<Speaker*>(room.get())) {
+            u8 coord = 0;
+            coord |= (speaker->position().x << 4);
+            coord |= 0x0f & (speaker->position().y);
+            data.push_back(coord);
+
+            auto ef = speaker->effect_flags().vector_.data();
+
+            // Store coordinate, followed by effect flags bitvector.
+
+            for (u32 i = 0; i < sizeof *ef; ++i) {
+                data.push_back(((u8*)ef)[i]);
+            }
+
+            for (u32 i = 0; i < sizeof speaker->settings_; ++i) {
+                data.push_back(((u8*)&speaker->settings_)[i]);
+            }
+        }
+    }
+
+    if (not data.size() == 0) {
+        return ram_filesystem::store_file_data(pfrm, path, data);
+    }
+
+    return true;
+}
+
+
+
+bool speaker_data_load(Platform& pfrm,
+                       Island& island,
+                       const char* path)
+{
+    Vector<char> data(pfrm);
+
+    auto bytes = ram_filesystem::read_file_data(pfrm, path, data);
+
+    if (bytes) {
+        auto current = data.begin();
+        while (current not_eq data.end()) {
+            u8 coord = *current;
+            const u8 x = coord >> 4;
+            const u8 y = coord & 0x0f;
+            ++current;
+
+            // ram_filesystem library automatically appends a null byte to the
+            // end of whatever you read from it.
+            if (coord == 0) {
+                break;
+            }
+
+            if (auto room = island.get_room({x, y})) {
+                if (auto speaker = dynamic_cast<Speaker*>(room)) {
+
+                    Speaker::EffectVector v;
+
+                    for (u32 i = 0; i < sizeof v; ++i) {
+                        if (current == data.end()) {
+                            info(pfrm, "effect flags truncated!");
+                            return false;
+                        }
+
+                        ((u8*)&v)[i] = *current;
+
+                        ++current;
+                    }
+
+                    memcpy(speaker->effect_flags().vector_.data(),
+                           &v,
+                           sizeof v);
+
+
+                    Speaker::Settings settings;
+
+                    for (u32 i = 0; i < sizeof settings; ++i) {
+                        if (current == data.end()) {
+                            info(pfrm, "effect flags truncated!");
+                            return false;
+                        }
+
+                        ((u8*)&settings)[i] = *current;
+
+                        ++current;
+                    }
+
+                    speaker->settings_ = settings;
+
+                } else {
+                    info(pfrm, "target not a speaker!");
+                    return false;
+                }
+            } else {
+                info(pfrm, "room dne while loading speaker!");
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
+
+bool synth_notes_store(Platform& pfrm,
+                       Island& island,
+                       const char* path)
+{
+    Vector<char> data(pfrm);
+
+    for (auto& room : island.rooms()) {
+        if (auto synth = dynamic_cast<Synth*>(room.get())) {
+            u8 coord = 0;
+            coord |= (synth->position().x << 4);
+            coord |= 0x0f & (synth->position().y);
+            data.push_back(coord);
+
+            for (int i = 0; i < 16; ++i) {
+                u8 note = 0;
+                note |= (synth->notes()[i].note_ << 4);
+                note |= 0x0f & synth->notes()[i].octave_;
+                data.push_back(note);
+            }
+
+            for (int i = 0; i < 16; ++i) {
+                data.push_back(synth->effect_parameters()[i].value_);
+            }
+        }
+    }
+
+    if (not data.size() == 0) {
+        return ram_filesystem::store_file_data(pfrm, path, data);
+    }
+
+    return true;
+}
+
+
+
+bool synth_notes_load(Platform& pfrm,
+                      Island& island,
+                      const char* path)
+{
+    Vector<char> data(pfrm);
+
+    auto bytes = ram_filesystem::read_file_data(pfrm, path, data);
+
+    if (bytes) {
+        auto current = data.begin();
+        while (current not_eq data.end()) {
+            u8 coord = *current;
+            const u8 x = coord >> 4;
+            const u8 y = coord & 0x0f;
+            ++current;
+
+            if (coord == 0) {
+                break;
+            }
+
+            if (auto room = island.get_room({x, y})) {
+                if (auto synth = dynamic_cast<Synth*>(room)) {
+                    for (int i = 0; i < 16; ++i) {
+                        if (current == data.end()) {
+                            info(pfrm, "synth notes truncated");
+                            return false;
+                        }
+
+                        u8 val = *current;
+
+                        synth->notes()[i].note_ =
+                            (Platform::Speaker::Note)(val >> 4);
+
+                        synth->notes()[i].octave_ = 0x0f & val;
+
+                        ++current;
+                    }
+                    for (int i = 0; i < 16; ++i) {
+                        if (current == data.end()) {
+                            info(pfrm, "synth effects truncated");
+                            return false;
+                        }
+
+                        u8 val = *current;
+                        synth->effect_parameters()[i].value_ = val;
+
+                        ++current;
+                    }
+
+                } else {
+                    info(pfrm, "target not a synth!");
+                    return false;
+                }
+            } else {
+                info(pfrm, "room dne while loading synth");
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 
