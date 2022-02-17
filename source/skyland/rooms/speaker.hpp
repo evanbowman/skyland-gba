@@ -64,7 +64,8 @@ public:
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
-    void play(Platform& pfrm);
+    // If signal, the speaker will select the next block below it when finished.
+    void play(Platform& pfrm, bool signal = true);
 
 
     void reset(Platform& pfrm, bool resume_music = true);
@@ -144,8 +145,10 @@ private:
 
     u8 playing_ : 1;
     u8 end_music_ : 1;
+    u8 signal_ : 1;
+    u8 reserved_ : 5;
 
-    u8 unused_ : 7;
+    u8 unused_ : 8;
 
     // Index into the list of notes, 0->16
     s8 index_ = -1;

@@ -23,6 +23,7 @@ Speaker::Speaker(Island* parent, const Vec2<u8>& position)
     end_music_ = 0;
     playing_ = 0;
     index_ = 0;
+    signal_ = 0;
 
     settings_.square_1_.envelope_direction_ = 0;
     settings_.square_1_.envelope_step_ = 7;
@@ -91,8 +92,9 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
         if (index_ == 16) {
             if (auto room =
                     parent()->get_room({position().x, u8(position().y + 1)})) {
-                if (auto b = dynamic_cast<Speaker*>(room)) {
-                    b->play(pfrm);
+                auto s = dynamic_cast<Speaker*>(room);
+                if (s and signal_) {
+                    s->play(pfrm);
                 } else {
                     reset(pfrm, true);
                     end_music_ = true;
@@ -115,7 +117,7 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
 
         timer_ = 0;
 
-        auto play = [&](Platform::Speaker::Channel ch, Synth& s) {
+        auto play_note = [&](Platform::Speaker::Channel ch, Synth& s) {
             auto note = s.notes()[index_];
             auto n = (Platform::Speaker::Note)note.note_;
             pfrm.speaker().play_chiptune_note(ch, n, note.octave_);
@@ -123,22 +125,22 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
 
 
         if (auto p = square_1()) {
-            play(Platform::Speaker::Channel::square_1, *p);
+            play_note(Platform::Speaker::Channel::square_1, *p);
         }
 
 
         if (auto p = square_2()) {
-            play(Platform::Speaker::Channel::square_2, *p);
+            play_note(Platform::Speaker::Channel::square_2, *p);
         }
 
 
         if (auto w = wave()) {
-            play(Platform::Speaker::Channel::wave, *w);
+            play_note(Platform::Speaker::Channel::wave, *w);
         }
 
 
         if (auto n = noise()) {
-            play(Platform::Speaker::Channel::noise, *n);
+            play_note(Platform::Speaker::Channel::noise, *n);
         }
     }
 
@@ -241,11 +243,13 @@ void Speaker::reset(Platform& pfrm, bool resume_music)
 
 
 
-void Speaker::play(Platform& pfrm)
+void Speaker::play(Platform& pfrm, bool signal)
 {
     if (playing_) {
         return;
     }
+
+    signal_ = signal;
 
     for (auto& room : parent()->rooms()) {
         if (auto b = dynamic_cast<Speaker*>(room.get())) {
