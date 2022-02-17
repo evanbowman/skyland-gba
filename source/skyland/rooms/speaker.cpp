@@ -12,7 +12,7 @@ void Speaker::format_description(StringBuffer<512>& buffer)
 {
     buffer += "Plays chiptunes! Connect up to four synth blocks to the "
               "right of the speaker block! When finished playing, activates "
-              "a speaker block placed beneath it, if any.";
+              "whatever block is placed beneath it, if any.";
 }
 
 
@@ -96,6 +96,9 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
                 if (s and signal_) {
                     s->play(pfrm);
                 } else {
+                    if (signal_) {
+                        room->select(pfrm, app);
+                    }
                     reset(pfrm, true);
                     end_music_ = true;
                 }
