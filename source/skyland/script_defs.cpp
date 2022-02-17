@@ -156,7 +156,58 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               }
 
               return lisp::make_integer(count);
-          }}});
+         }},
+         {"startup-time", [](int argc) {
+             lisp::ListBuilder builder;
+             if (auto st = lisp::interp_get_pfrm()->startup_time()) {
+                 builder.push_back(lisp::make_integer(st->date_.year_));
+                 builder.push_back(lisp::make_integer(st->date_.month_));
+                 builder.push_back(lisp::make_integer(st->date_.day_));
+                 builder.push_back(lisp::make_integer(st->hour_));
+                 builder.push_back(lisp::make_integer(st->minute_));
+                 builder.push_back(lisp::make_integer(st->second_));
+             }
+             return builder.result();
+         }},
+         {"set-tile", [](int argc) {
+             L_EXPECT_ARGC(argc, 4);
+             L_EXPECT_OP(0, integer);
+             L_EXPECT_OP(1, integer);
+             L_EXPECT_OP(2, integer);
+             L_EXPECT_OP(3, integer);
+
+             lisp::interp_get_pfrm()
+                 ->set_tile((Layer)lisp::get_op(3)->integer().value_,
+                            lisp::get_op(2)->integer().value_,
+                            lisp::get_op(1)->integer().value_,
+                            lisp::get_op(0)->integer().value_);
+
+             return L_NIL;
+         }},
+         {"print", [](int argc) {
+             L_EXPECT_ARGC(argc, 3);
+             L_EXPECT_OP(2, string);
+             L_EXPECT_OP(1, integer);
+             L_EXPECT_OP(0, integer);
+
+             Text t(*lisp::interp_get_pfrm(),
+                    {(u8)lisp::get_op(1)->integer().value_,
+                     (u8)lisp::get_op(0)->integer().value_});
+
+             t.assign(lisp::get_op(2)->string().value());
+
+             t.__detach();
+
+             return L_NIL;
+         }},
+         {"clear", [](int argc) {
+             lisp::interp_get_pfrm()->screen().clear();
+             return L_NIL;
+         }},
+         {"display", [](int argc) {
+             lisp::interp_get_pfrm()->screen().display();
+             return L_NIL;
+         }}});
 
 
 

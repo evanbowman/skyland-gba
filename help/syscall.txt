@@ -84,3 +84,45 @@ o----------------------------o
 
 
 o----------------------------o
+
+ (syscall "startup-time")
+
+ If the system has a realtime
+ clock, returns:
+
+ '(yy mm dd hh mm ss)
+
+ Otherwise, returns nil
+
+
+o----------------------------o
+
+ (syscall "set-tile"
+  layer x y tile)
+
+ Undocumented.
+
+
+o----------------------------o
+
+ (syscall "print" string x y)
+
+ Print string at (x, y) in
+ the overlay layer.
+
+
+o----------------------------o
+
+ (syscall "clear")
+
+ Begin a rendering pass.
+
+
+o----------------------------o
+
+ (syscall "display")
+
+ End rendering pass.
+
+
+o----------------------------o
