@@ -122,8 +122,7 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
 
         auto play_note = [&](Platform::Speaker::Channel ch, Synth& s) {
             auto note = s.notes()[index_];
-            auto n = (Platform::Speaker::Note)note.note_;
-            pfrm.speaker().play_chiptune_note(ch, n, note.octave_);
+            pfrm.speaker().play_chiptune_note(ch, note);
         };
 
 

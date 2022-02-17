@@ -11,12 +11,10 @@ namespace skyland {
 
 class AchievementNotificationScene : public WorldScene {
 public:
-
     AchievementNotificationScene(achievements::Achievement achievement,
                                  DeferredScene next_scene,
                                  bool skip_fade = false)
-        : achievement_(achievement),
-          next_scene_(next_scene),
+        : achievement_(achievement), next_scene_(next_scene),
           skip_fade_(skip_fade)
     {
     }

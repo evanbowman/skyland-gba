@@ -623,7 +623,8 @@ public:
     class Speaker {
     public:
         enum Note : u8 {
-            C = 0,
+            invalid,
+            C,
             CIS,
             D,
             DIS,
@@ -633,9 +634,9 @@ public:
             G,
             GIS,
             A,
-            BES,
+            AIS,
             B,
-            invalid,
+            count,
         };
 
 
@@ -648,7 +649,25 @@ public:
         };
 
 
-        void play_chiptune_note(Channel channel, Note note, u8 octave);
+        struct NoteDesc {
+            struct RegularNote {
+                Platform::Speaker::Note note_ : 4;
+                u8 octave_ : 4;
+            };
+
+            struct NoiseFrequency {
+                u8 frequency_select_ : 7;
+                u8 wide_mode_ : 1;
+            };
+
+            union {
+                RegularNote regular_;
+                NoiseFrequency noise_freq_;
+            };
+        };
+
+
+        void play_chiptune_note(Channel channel, NoteDesc note);
 
 
         void stop_chiptune_note(Channel channel);
@@ -658,6 +677,7 @@ public:
             none,
             vibrato,
             duty,
+            envelope,
         };
 
 

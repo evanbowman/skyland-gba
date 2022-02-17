@@ -51,6 +51,7 @@ private:
     u16 wave_settings_;
 
     u8 last_octave_ = 0;
+    u8 last_freq_ = 0;
 
     u8 resume_y_ = 0;
     u8 demo_index_ = 0;

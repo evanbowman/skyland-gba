@@ -1,7 +1,7 @@
 #include "synth.hpp"
-#include "speaker.hpp"
 #include "skyland/island.hpp"
 #include "skyland/scene/composeSynthScene.hpp"
+#include "speaker.hpp"
 
 
 
@@ -22,12 +22,21 @@ Synth::Synth(Island* parent, const Vec2<u8>& position)
     : Decoration(parent, name(), position)
 {
     for (auto& note : notes_) {
-        note.note_ = Platform::Speaker::Note::invalid;
-        note.octave_ = 0;
+        note.regular_.note_ = Platform::Speaker::Note::invalid;
+        note.regular_.octave_ = 0;
     }
 
     for (auto& p : effect_parameters_) {
         p.value_ = 0;
+    }
+
+    if (auto s = speaker()) {
+        if (s->noise() == this) {
+            for (auto& note : notes_) {
+                note.noise_freq_.frequency_select_ = 0;
+                note.noise_freq_.wide_mode_ = 0;
+            }
+        }
     }
 
     // I'd like to do the following, but doing so would impose an ordering that

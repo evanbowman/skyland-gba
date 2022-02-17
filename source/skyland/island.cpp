@@ -6,15 +6,15 @@
 #include "globals.hpp"
 #include "network.hpp"
 #include "number/random.hpp"
+#include "platform/ram_filesystem.hpp"
 #include "roomPool.hpp"
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
 #include "skyland.hpp"
+#include "skyland/rooms/speaker.hpp"
+#include "skyland/rooms/synth.hpp"
 #include "skyland/timeStreamEvent.hpp"
 #include "tile.hpp"
-#include "skyland/rooms/synth.hpp"
-#include "skyland/rooms/speaker.hpp"
-#include "platform/ram_filesystem.hpp"
 
 
 
@@ -1234,9 +1234,7 @@ Island* opponent_island(App& app)
 
 
 
-bool speaker_data_store(Platform& pfrm,
-                        Island& island,
-                        const char* path)
+bool speaker_data_store(Platform& pfrm, Island& island, const char* path)
 {
     Vector<char> data(pfrm);
 
@@ -1270,9 +1268,7 @@ bool speaker_data_store(Platform& pfrm,
 
 
 
-bool speaker_data_load(Platform& pfrm,
-                       Island& island,
-                       const char* path)
+bool speaker_data_load(Platform& pfrm, Island& island, const char* path)
 {
     Vector<char> data(pfrm);
 
@@ -1308,9 +1304,8 @@ bool speaker_data_load(Platform& pfrm,
                         ++current;
                     }
 
-                    memcpy(speaker->effect_flags().vector_.data(),
-                           &v,
-                           sizeof v);
+                    memcpy(
+                        speaker->effect_flags().vector_.data(), &v, sizeof v);
 
 
                     Speaker::Settings settings;
@@ -1343,9 +1338,7 @@ bool speaker_data_load(Platform& pfrm,
 
 
 
-bool synth_notes_store(Platform& pfrm,
-                       Island& island,
-                       const char* path)
+bool synth_notes_store(Platform& pfrm, Island& island, const char* path)
 {
     Vector<char> data(pfrm);
 
@@ -1357,10 +1350,8 @@ bool synth_notes_store(Platform& pfrm,
             data.push_back(coord);
 
             for (int i = 0; i < 16; ++i) {
-                u8 note = 0;
-                note |= (synth->notes()[i].note_ << 4);
-                note |= 0x0f & synth->notes()[i].octave_;
-                data.push_back(note);
+                static_assert(sizeof(*synth->notes()) == sizeof(u8));
+                data.push_back(((u8*)synth->notes())[i]);
             }
 
             for (int i = 0; i < 16; ++i) {
@@ -1378,9 +1369,7 @@ bool synth_notes_store(Platform& pfrm,
 
 
 
-bool synth_notes_load(Platform& pfrm,
-                      Island& island,
-                      const char* path)
+bool synth_notes_load(Platform& pfrm, Island& island, const char* path)
 {
     Vector<char> data(pfrm);
 
@@ -1406,12 +1395,11 @@ bool synth_notes_load(Platform& pfrm,
                             return false;
                         }
 
+                        static_assert(sizeof(*synth->notes()) == sizeof(u8));
+
                         u8 val = *current;
 
-                        synth->notes()[i].note_ =
-                            (Platform::Speaker::Note)(val >> 4);
-
-                        synth->notes()[i].octave_ = 0x0f & val;
+                        ((u8*)synth->notes())[i] = val;
 
                         ++current;
                     }

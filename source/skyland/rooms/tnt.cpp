@@ -142,7 +142,8 @@ void Explosive::ignite(Platform& pfrm, App& app, int range, Health damage)
 
             // Hack added for an achievement where you unlock dynamite-ii when
             // destroying invading goblins with dynamite.
-            if (room->parent() == &app.player_island() and room->health() == 0) {
+            if (room->parent() == &app.player_island() and
+                room->health() == 0) {
                 for (auto& chr : room->characters()) {
                     if (chr->owner() == &app.opponent()) {
                         set_enabled(::skyland::metaclass_index("dynamite-ii"),

@@ -3164,24 +3164,39 @@ static void add_sound(Buffer<ActiveSoundInfo, 3>& sounds,
 
 
 
-const uint __snd_rates[12] = {
-    8013,
-    7566,
-    7144,
-    6742, // C , C#, D , D#
-    6362,
-    6005,
-    5666,
-    5346, // E , F , F#, G
-    5048,
-    4766,
-    4499,
-    4246 // G#, A , A#, B
+static const uint __snd_rates[13] = {
+    0,
+    8013, // C
+    7566, // C#
+    7144, // D
+    6742, // D#
+    6362, // E
+    6005, // F
+    5666, // F#
+    5346, // G
+    5048, // G#
+    4766, // A
+    4499, // A#
+    4246, // B
 };
 
 
-
+// 131072/(2048-n)Hz
 #define SND_RATE(note, oct) (2048 - (__snd_rates[note] >> ((2 + oct))))
+
+
+
+struct NoiseFrequencyTableEntry {
+    u8 shift_;
+    u8 ratio_;
+} noise_frequency_table_[57] = {
+    {0, 0},  {1, 0},  {2, 0},  {0, 3},  {3, 0},  {0, 5},  {1, 3},  {0, 7},
+    {4, 0},  {1, 5},  {2, 3},  {1, 7},  {5, 0},  {2, 5},  {3, 3},  {2, 7},
+    {6, 0},  {3, 5},  {4, 3},  {3, 7},  {7, 0},  {4, 5},  {5, 3},  {4, 7},
+    {8, 0},  {5, 5},  {6, 3},  {5, 7},  {9, 0},  {6, 5},  {7, 3},  {6, 7},
+    {10, 0}, {7, 5},  {8, 3},  {7, 7},  {11, 0}, {8, 5},  {9, 3},  {8, 7},
+    {12, 0}, {9, 5},  {10, 3}, {9, 7},  {13, 0}, {10, 5}, {11, 3}, {10, 7},
+    {11, 5}, {12, 3}, {11, 7}, {12, 5}, {13, 3}, {12, 7}, {13, 5}, {13, 7}};
 
 
 
@@ -3211,8 +3226,9 @@ void Platform::Speaker::stop_chiptune_note(Channel channel)
         break;
 
     case Channel::noise:
-        REG_SNDDMGCNT &= ~(1 << 0xa);
-        REG_SNDDMGCNT &= ~(1 << 0xe);
+        // FIXME!?
+        // REG_SNDDMGCNT &= ~(1 << 0xa);
+        // REG_SNDDMGCNT &= ~(1 << 0xe);
         break;
 
     case Channel::wave:
@@ -3232,13 +3248,20 @@ void Platform::Speaker::stop_chiptune_note(Channel channel)
 
 
 
-void Platform::Speaker::play_chiptune_note(Channel channel,
-                                           Note note,
-                                           u8 octave)
+void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
 {
-    if ((u8)note >= (u8)Note::invalid) {
+    auto note = note_desc.regular_.note_;
+    u8 octave = note_desc.regular_.octave_;
+
+    if (channel == Channel::noise and
+        note_desc.noise_freq_.frequency_select_ == 0) {
+        return;
+    } else if (channel not_eq Channel::noise and
+               ((u8)note >= (u8)Note::count
+                or note == Note::invalid)) {
         return;
     }
+
 
     // Turn off directsound!
     REG_SOUNDCNT_H &= ~(1 << 8);
@@ -3263,13 +3286,20 @@ void Platform::Speaker::play_chiptune_note(Channel channel,
         REG_SND2FREQ = SFREQ_RESET | SND_RATE((u8)note, octave);
         break;
 
-    case Channel::noise:
+    case Channel::noise: {
         REG_SNDDMGCNT |= (1 << 0xa);
         REG_SNDDMGCNT |= (1 << 0xe);
         analog_channel[(int)channel].last_note_ = note;
         analog_channel[(int)channel].last_octave_ = octave;
         analog_channel[(int)channel].effect_timer_ = 0;
+        auto freq = note_desc.noise_freq_.frequency_select_;
+        auto entry = noise_frequency_table_[freq];
+        REG_SND4FREQ = 0;
+        REG_SND4FREQ =
+            SFREQ_RESET | ((0x0f & entry.shift_) << 4) | (0x07 & entry.ratio_) |
+            (note_desc.noise_freq_.wide_mode_ << 3);
         break;
+    }
 
     case Channel::wave:
         REG_SNDDMGCNT |= (1 << 0xb);
@@ -3329,6 +3359,11 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
     };
 
 
+    auto apply_envelope = [&](volatile u16* ctrl_register) {
+        // TODO...
+    };
+
+
     auto cancel_effect = [&](volatile u16* freq_register) {
         *freq_register &= ~SFREQ_RATE_MASK;
         *freq_register |= SND_RATE(analog_channel[ch_num].last_note_,
@@ -3352,6 +3387,10 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
         case Effect::duty:
             apply_duty(&REG_SND1CNT);
             break;
+
+        case Effect::envelope:
+            apply_envelope(&REG_SND1CNT);
+            break;
         }
         break;
     }
@@ -3368,6 +3407,10 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
 
         case Effect::duty:
             apply_duty(&REG_SND2CNT);
+            break;
+
+        case Effect::envelope:
+            apply_envelope(&REG_SND2CNT);
             break;
         }
         break;

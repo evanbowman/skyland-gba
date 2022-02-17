@@ -1,5 +1,5 @@
-#include "achievementNotificationScene.hpp"
 #include "selectChallengeScene.hpp"
+#include "achievementNotificationScene.hpp"
 #include "fadeInScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -166,10 +166,10 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 pfrm.screen().fade(1.f);
 
-                auto next = scene_pool::make_deferred_scene<SelectChallengeScene>();
-                return scene_pool::alloc<AchievementNotificationScene>(achievement,
-                                                                       next,
-                                                                       true);
+                auto next =
+                    scene_pool::make_deferred_scene<SelectChallengeScene>();
+                return scene_pool::alloc<AchievementNotificationScene>(
+                    achievement, next, true);
             }
         }
         state_ = State::idle;

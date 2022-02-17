@@ -128,12 +128,13 @@ public:
     }
 
 
-private:
     Synth* square_1() const;
     Synth* square_2() const;
     Synth* wave() const;
     Synth* noise() const;
 
+
+private:
 
     void process_effects();
 

@@ -22,8 +22,7 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
 
     switch (state_) {
     case State::fade_in: {
-        if (skip_fade_ or
-            timer_ > fade_duration) {
+        if (skip_fade_ or timer_ > fade_duration) {
             pfrm.screen().schedule_fade(0.5f);
             timer_ = 0;
             state_ = State::animate_box_sweep;

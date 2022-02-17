@@ -142,7 +142,8 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               return L_NIL;
           }},
-         {"instance-count", [](int argc) {
+         {"instance-count",
+          [](int argc) {
               L_EXPECT_ARGC(argc, 2);
               L_EXPECT_OP(0, symbol);
               L_EXPECT_OP(1, user_data);
@@ -157,114 +158,122 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               }
 
               return lisp::make_integer(count);
-         }},
-         {"startup-time", [](int argc) {
-             lisp::ListBuilder builder;
-             if (auto st = lisp::interp_get_pfrm()->startup_time()) {
-                 builder.push_back(lisp::make_integer(st->date_.year_));
-                 builder.push_back(lisp::make_integer(st->date_.month_));
-                 builder.push_back(lisp::make_integer(st->date_.day_));
-                 builder.push_back(lisp::make_integer(st->hour_));
-                 builder.push_back(lisp::make_integer(st->minute_));
-                 builder.push_back(lisp::make_integer(st->second_));
-             }
-             return builder.result();
-         }},
-         {"set-tile", [](int argc) {
-             L_EXPECT_ARGC(argc, 4);
-             L_EXPECT_OP(0, integer);
-             L_EXPECT_OP(1, integer);
-             L_EXPECT_OP(2, integer);
-             L_EXPECT_OP(3, integer);
+          }},
+         {"startup-time",
+          [](int argc) {
+              lisp::ListBuilder builder;
+              if (auto st = lisp::interp_get_pfrm()->startup_time()) {
+                  builder.push_back(lisp::make_integer(st->date_.year_));
+                  builder.push_back(lisp::make_integer(st->date_.month_));
+                  builder.push_back(lisp::make_integer(st->date_.day_));
+                  builder.push_back(lisp::make_integer(st->hour_));
+                  builder.push_back(lisp::make_integer(st->minute_));
+                  builder.push_back(lisp::make_integer(st->second_));
+              }
+              return builder.result();
+          }},
+         {"set-tile",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 4);
+              L_EXPECT_OP(0, integer);
+              L_EXPECT_OP(1, integer);
+              L_EXPECT_OP(2, integer);
+              L_EXPECT_OP(3, integer);
 
-             lisp::interp_get_pfrm()
-                 ->set_tile((Layer)lisp::get_op(3)->integer().value_,
-                            lisp::get_op(2)->integer().value_,
-                            lisp::get_op(1)->integer().value_,
-                            lisp::get_op(0)->integer().value_);
+              lisp::interp_get_pfrm()->set_tile(
+                  (Layer)lisp::get_op(3)->integer().value_,
+                  lisp::get_op(2)->integer().value_,
+                  lisp::get_op(1)->integer().value_,
+                  lisp::get_op(0)->integer().value_);
 
-             return L_NIL;
-         }},
-         {"print", [](int argc) {
-             L_EXPECT_ARGC(argc, 3);
-             L_EXPECT_OP(2, string);
-             L_EXPECT_OP(1, integer);
-             L_EXPECT_OP(0, integer);
+              return L_NIL;
+          }},
+         {"print",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 3);
+              L_EXPECT_OP(2, string);
+              L_EXPECT_OP(1, integer);
+              L_EXPECT_OP(0, integer);
 
-             Text t(*lisp::interp_get_pfrm(),
-                    {(u8)lisp::get_op(1)->integer().value_,
-                     (u8)lisp::get_op(0)->integer().value_});
+              Text t(*lisp::interp_get_pfrm(),
+                     {(u8)lisp::get_op(1)->integer().value_,
+                      (u8)lisp::get_op(0)->integer().value_});
 
-             t.assign(lisp::get_op(2)->string().value());
+              t.assign(lisp::get_op(2)->string().value());
 
-             t.__detach();
+              t.__detach();
 
-             return L_NIL;
-         }},
-         {"clear", [](int argc) {
-             lisp::interp_get_pfrm()->screen().clear();
-             return L_NIL;
-         }},
-         {"display", [](int argc) {
-             lisp::interp_get_pfrm()->screen().display();
-             return L_NIL;
-         }},
-         {"synth-notes-store", [](int argc) {
-             L_EXPECT_ARGC(argc, 2);
-             L_EXPECT_OP(1, user_data);
-             L_EXPECT_OP(0, string);
+              return L_NIL;
+          }},
+         {"clear",
+          [](int argc) {
+              lisp::interp_get_pfrm()->screen().clear();
+              return L_NIL;
+          }},
+         {"display",
+          [](int argc) {
+              lisp::interp_get_pfrm()->screen().display();
+              return L_NIL;
+          }},
+         {"synth-notes-store",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 2);
+              L_EXPECT_OP(1, user_data);
+              L_EXPECT_OP(0, string);
 
-             auto pfrm = lisp::interp_get_pfrm();
+              auto pfrm = lisp::interp_get_pfrm();
 
-             auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+              auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-             synth_notes_store(*pfrm,
-                               *island,
-                               lisp::get_op(0)->string().value());
+              synth_notes_store(
+                  *pfrm, *island, lisp::get_op(0)->string().value());
 
-             return L_NIL;
-         }},
-         {"synth-notes-load", [](int argc) {
-             L_EXPECT_ARGC(argc, 2);
-             L_EXPECT_OP(1, user_data);
-             L_EXPECT_OP(0, string);
+              return L_NIL;
+          }},
+         {"synth-notes-load",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 2);
+              L_EXPECT_OP(1, user_data);
+              L_EXPECT_OP(0, string);
 
-             auto pfrm = lisp::interp_get_pfrm();
+              auto pfrm = lisp::interp_get_pfrm();
 
-             auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+              auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-             synth_notes_load(*pfrm, *island, lisp::get_op(0)->string().value());
+              synth_notes_load(
+                  *pfrm, *island, lisp::get_op(0)->string().value());
 
-             return L_NIL;
-         }},
-        {"speaker-data-store", [](int argc) {
-             L_EXPECT_ARGC(argc, 2);
-             L_EXPECT_OP(1, user_data);
-             L_EXPECT_OP(0, string);
+              return L_NIL;
+          }},
+         {"speaker-data-store",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 2);
+              L_EXPECT_OP(1, user_data);
+              L_EXPECT_OP(0, string);
 
-             auto pfrm = lisp::interp_get_pfrm();
+              auto pfrm = lisp::interp_get_pfrm();
 
-             auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+              auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-             speaker_data_store(*pfrm,
-                                *island,
-                                lisp::get_op(0)->string().value());
+              speaker_data_store(
+                  *pfrm, *island, lisp::get_op(0)->string().value());
 
-             return L_NIL;
-         }},
+              return L_NIL;
+          }},
          {"speaker-data-load", [](int argc) {
-             L_EXPECT_ARGC(argc, 2);
-             L_EXPECT_OP(1, user_data);
-             L_EXPECT_OP(0, string);
+              L_EXPECT_ARGC(argc, 2);
+              L_EXPECT_OP(1, user_data);
+              L_EXPECT_OP(0, string);
 
-             auto pfrm = lisp::interp_get_pfrm();
+              auto pfrm = lisp::interp_get_pfrm();
 
-             auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+              auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-             speaker_data_load(*pfrm, *island, lisp::get_op(0)->string().value());
+              speaker_data_load(
+                  *pfrm, *island, lisp::get_op(0)->string().value());
 
-             return L_NIL;
-         }}});
+              return L_NIL;
+          }}});
 
 
 

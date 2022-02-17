@@ -64,10 +64,7 @@ public:
     ScenePtr<Scene> select(Platform& pfrm, App&) override;
 
 
-    struct Note {
-        Platform::Speaker::Note note_ : 4;
-        u8 octave_ : 4;
-    };
+    using Note = Platform::Speaker::NoteDesc;
 
 
     struct EffectParameter {

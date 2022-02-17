@@ -100,18 +100,34 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     } else if (cursor_.x == 0) {
 
-        if (player(app).key_down(pfrm, Key::down)) {
+        if (test_key(Key::down)) {
 
-            if (notes_[cursor_.y].note_ == Platform::Speaker::Note::invalid) {
-                notes_[cursor_.y].octave_ = last_octave_;
-            }
+            if (channel_ == Platform::Speaker::Channel::noise) {
+                if (notes_[cursor_.y].noise_freq_.frequency_select_ == 0 and
+                    last_freq_) {
+                    notes_[cursor_.y].noise_freq_.frequency_select_ = last_freq_;
+                } else if (notes_[cursor_.y].noise_freq_.frequency_select_ < 36) {
+                    // The frequencies past table entry 36 are practically inaudible.
+                    notes_[cursor_.y].noise_freq_.frequency_select_++;
+                    last_freq_ = notes_[cursor_.y].noise_freq_.frequency_select_;
+                } else {
+                    notes_[cursor_.y].noise_freq_.frequency_select_ = 0;
+                    last_freq_ = notes_[cursor_.y].noise_freq_.frequency_select_;
+                }
+            } else {
+                if (notes_[cursor_.y].regular_.note_ ==
+                    Platform::Speaker::Note::invalid) {
+                    notes_[cursor_.y].regular_.octave_ = last_octave_;
+                }
 
-            notes_[cursor_.y].note_ =
-                (Platform::Speaker::Note)(((u8)notes_[cursor_.y].note_ + 1));
+                notes_[cursor_.y].regular_.note_ =
+                    (Platform::Speaker::Note)
+                    (((u8)notes_[cursor_.y].regular_.note_ + 1));
 
-            if ((u8)notes_[cursor_.y].note_ >
-                (int)(Platform::Speaker::Note::invalid)) {
-                notes_[cursor_.y].note_ = (Platform::Speaker::Note)0;
+                if ((u8)notes_[cursor_.y].regular_.note_ >
+                    (int)(Platform::Speaker::Note::B)) {
+                    notes_[cursor_.y].regular_.note_ = Platform::Speaker::Note::invalid;
+                }
             }
 
             demo_note(pfrm);
@@ -119,17 +135,34 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             repaint(pfrm);
         }
 
-        if (player(app).key_down(pfrm, Key::up)) {
+        if (test_key(Key::up)) {
 
-            if (notes_[cursor_.y].note_ == Platform::Speaker::Note::invalid) {
-                notes_[cursor_.y].octave_ = last_octave_;
-            }
-
-            if (notes_[cursor_.y].note_ == (Platform::Speaker::Note)0) {
-                notes_[cursor_.y].note_ = Platform::Speaker::Note::invalid;
+            if (channel_ == Platform::Speaker::Channel::noise) {
+                if (notes_[cursor_.y].noise_freq_.frequency_select_ > 0) {
+                    notes_[cursor_.y].noise_freq_.frequency_select_--;
+                    last_freq_ = notes_[cursor_.y].noise_freq_.frequency_select_;
+                } else {
+                    if (last_freq_) {
+                        notes_[cursor_.y].noise_freq_.frequency_select_ = last_freq_;
+                    } else {
+                        notes_[cursor_.y].noise_freq_.frequency_select_ = 36;
+                    }
+                }
             } else {
-                notes_[cursor_.y].note_ = (Platform::Speaker::Note)(
-                    ((u8)notes_[cursor_.y].note_ - 1));
+                if (notes_[cursor_.y].regular_.note_ ==
+                    Platform::Speaker::Note::invalid) {
+                    notes_[cursor_.y].regular_.octave_ = last_octave_;
+                }
+
+                if (notes_[cursor_.y].regular_.note_ ==
+                    Platform::Speaker::Note::invalid) {
+                    notes_[cursor_.y].regular_.note_ =
+                        Platform::Speaker::Note::B;
+                } else {
+                    notes_[cursor_.y].regular_.note_ =
+                        (Platform::Speaker::Note)
+                        (((u8)notes_[cursor_.y].regular_.note_ - 1));
+                }
             }
 
             demo_note(pfrm);
@@ -139,15 +172,22 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     } else if (cursor_.x == 1) {
 
-        if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+        if (notes_[cursor_.y].regular_.note_ not_eq
+            Platform::Speaker::Note::invalid) {
             if (test_key(Key::down)) {
 
-                notes_[cursor_.y].octave_ += 1;
-                if (notes_[cursor_.y].octave_ > 6) {
-                    notes_[cursor_.y].octave_ = 0;
-                }
+                if (channel_ == Platform::Speaker::Channel::noise) {
+                    notes_[cursor_.y].noise_freq_.wide_mode_ =
+                        not notes_[cursor_.y].noise_freq_.wide_mode_;
 
-                last_octave_ = notes_[cursor_.y].octave_;
+                } else {
+                    notes_[cursor_.y].regular_.octave_ += 1;
+                    if (notes_[cursor_.y].regular_.octave_ > 6) {
+                        notes_[cursor_.y].regular_.octave_ = 0;
+                    }
+
+                    last_octave_ = notes_[cursor_.y].regular_.octave_;
+                }
 
                 demo_note(pfrm);
 
@@ -155,13 +195,19 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             if (test_key(Key::up)) {
-                if (notes_[cursor_.y].octave_ == 0) {
-                    notes_[cursor_.y].octave_ = 6;
-                } else {
-                    notes_[cursor_.y].octave_ -= 1;
-                }
 
-                last_octave_ = notes_[cursor_.y].octave_;
+                if (channel_ == Platform::Speaker::Channel::noise) {
+                    notes_[cursor_.y].noise_freq_.wide_mode_ =
+                        not notes_[cursor_.y].noise_freq_.wide_mode_;
+                } else {
+                    if (notes_[cursor_.y].regular_.octave_ == 0) {
+                        notes_[cursor_.y].regular_.octave_ = 6;
+                    } else {
+                        notes_[cursor_.y].regular_.octave_ -= 1;
+                    }
+
+                    last_octave_ = notes_[cursor_.y].regular_.octave_;
+                }
 
                 demo_note(pfrm);
 
@@ -184,6 +230,10 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             case Platform::Speaker::Effect::duty:
                 param.value_ = 0;
                 break;
+
+            case Platform::Speaker::Effect::envelope:
+                param.value_ = 0;
+                break;
             }
         };
         if (test_key(Key::down)) {
@@ -197,7 +247,8 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             set_effect_param_default(effect);
             repaint(pfrm);
 
-            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+            if (notes_[cursor_.y].regular_.note_ not_eq
+                Platform::Speaker::Note::invalid) {
                 demo_note(pfrm);
             }
 
@@ -212,7 +263,8 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             set_effect_param_default(effect);
             repaint(pfrm);
 
-            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+            if (notes_[cursor_.y].regular_.note_ not_eq
+                Platform::Speaker::Note::invalid) {
                 demo_note(pfrm);
             }
         }
@@ -228,6 +280,9 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                 return 3;
 
             case Platform::Speaker::Effect::vibrato:
+                return 15;
+
+            case Platform::Speaker::Effect::envelope:
                 return 15;
 
             default:
@@ -248,7 +303,8 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
 
-            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+            if (notes_[cursor_.y].regular_.note_ not_eq
+                Platform::Speaker::Note::invalid) {
                 demo_note(pfrm);
             }
 
@@ -263,7 +319,8 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
 
-            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+            if (notes_[cursor_.y].regular_.note_ not_eq
+                Platform::Speaker::Note::invalid) {
                 demo_note(pfrm);
             }
         }
@@ -279,6 +336,9 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                 return 0;
 
             case Platform::Speaker::Effect::vibrato:
+                return 15;
+
+            case Platform::Speaker::Effect::envelope:
                 return 15;
 
             default:
@@ -299,7 +359,8 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
 
-            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+            if (notes_[cursor_.y].regular_.note_ not_eq
+                Platform::Speaker::Note::invalid) {
                 demo_note(pfrm);
             }
 
@@ -314,7 +375,8 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             effect_parameters_[cursor_.y] = p;
             repaint(pfrm);
 
-            if (notes_[cursor_.y].note_ not_eq Platform::Speaker::Note::invalid) {
+            if (notes_[cursor_.y].regular_.note_ not_eq
+                Platform::Speaker::Note::invalid) {
                 demo_note(pfrm);
             }
         }
@@ -471,8 +533,7 @@ void ComposeSynthScene::demo_note(Platform& pfrm)
     pfrm.speaker().init_chiptune_square_2(square_2_settings_);
     pfrm.speaker().init_chiptune_noise(noise_settings_);
 
-    pfrm.speaker().play_chiptune_note(
-        channel_, notes_[demo_index_].note_, notes_[demo_index_].octave_);
+    pfrm.speaker().play_chiptune_note(channel_, notes_[demo_index_]);
 
     note_demo_timer_ = seconds(3);
 }
@@ -539,7 +600,7 @@ void ComposeSynthScene::repaint(Platform& pfrm)
         auto note = notes_[y];
 
         auto str = [&] {
-            switch (note.note_) {
+            switch (note.regular_.note_) {
             case Platform::Speaker::Note::C:
                 return "C ";
 
@@ -570,44 +631,89 @@ void ComposeSynthScene::repaint(Platform& pfrm)
             case Platform::Speaker::Note::A:
                 return "A ";
 
-            case Platform::Speaker::Note::BES:
-                return "Bb";
+            case Platform::Speaker::Note::AIS:
+                return "A#";
 
             case Platform::Speaker::Note::B:
                 return "B ";
 
             case Platform::Speaker::Note::invalid:
                 return "--";
+
+            case Platform::Speaker::Note::count:
+                return "XX";
             }
 
             return "C ";
         }();
 
-        StringBuffer<4> oct;
 
-        if (note.note_ not_eq Platform::Speaker::Note::invalid) {
-            oct += stringify(note.octave_);
+        if (channel_ == Platform::Speaker::Channel::noise) {
+            StringBuffer<2> sel;
+            StringBuffer<1> wide;
+            if (note.noise_freq_.wide_mode_) {
+                wide = "<";
+            } else {
+                wide = ">";
+            }
+
+            if (note.noise_freq_.frequency_select_ == 0) {
+                sel = "--";
+                wide = "-";
+            } else if (note.noise_freq_.frequency_select_ < 10) {
+                sel += "0";
+                sel += stringify(note.noise_freq_.frequency_select_);
+            } else {
+                sel += stringify(note.noise_freq_.frequency_select_);
+            }
+
+            if (cursor_.y == y and cursor_.x == 0) {
+                put_char(sel[0], 2, y, highlight);
+                put_char(sel[1], 3, y, highlight);
+                put_char(wide[0], 4, y);
+
+            } else if (cursor_.y == y and cursor_.x == 1) {
+                put_char(sel[0], 2, y);
+                put_char(sel[1], 3, y);
+                put_char(wide[0], 4, y, highlight);
+
+            } else {
+                put_char(sel[0], 2, y);
+                put_char(sel[1], 3, y);
+                put_char(wide[0], 4, y);
+            }
+
+            put_char(' ', 5, y);
+
         } else {
-            oct = "-";
+            StringBuffer<4> oct;
+
+            if (note.regular_.note_ not_eq Platform::Speaker::Note::invalid) {
+                oct += stringify(note.regular_.octave_);
+            } else {
+                oct = "-";
+            }
+
+            if (cursor_.y == y and cursor_.x == 0) {
+                put_char(str[0], 2, y, highlight);
+                put_char(str[1], 3, y, highlight);
+                put_char(oct[0], 4, y);
+
+            } else if (cursor_.y == y and cursor_.x == 1) {
+                put_char(str[0], 2, y);
+                put_char(str[1], 3, y);
+                put_char(oct[0], 4, y, highlight);
+
+            } else {
+                put_char(str[0], 2, y);
+                put_char(str[1], 3, y);
+                put_char(oct[0], 4, y);
+            }
+
+            put_char(' ', 5, y);
         }
 
-        if (cursor_.y == y and cursor_.x == 0) {
-            put_char(str[0], 2, y, highlight);
-            put_char(str[1], 3, y, highlight);
-            put_char(oct[0], 4, y);
 
-        } else if (cursor_.y == y and cursor_.x == 1) {
-            put_char(str[0], 2, y);
-            put_char(str[1], 3, y);
-            put_char(oct[0], 4, y, highlight);
-
-        } else {
-            put_char(str[0], 2, y);
-            put_char(str[1], 3, y);
-            put_char(oct[0], 4, y);
-        }
-
-        put_char(' ', 5, y);
 
         auto effect_sym = [&] {
             switch (effect_flags_.load((int)channel_, y)) {
@@ -619,6 +725,9 @@ void ComposeSynthScene::repaint(Platform& pfrm)
 
             case Platform::Speaker::Effect::duty:
                 return 'w';
+
+            case Platform::Speaker::Effect::envelope:
+                return 'e';
 
             default:
                 return '?';
