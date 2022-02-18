@@ -244,7 +244,9 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 return scene_pool::alloc<InspectP2Scene>();
             } else if (not app.opponent_island()) {
-                return scene_pool::alloc<LevelCompleteOptionsScene>(true);
+                if (app.game_mode() == App::GameMode::adventure) {
+                    return scene_pool::alloc<LevelCompleteOptionsScene>(true);
+                }
             }
         }
 
@@ -559,7 +561,8 @@ void ReadyScene::display(Platform& pfrm, App& app)
     WorldScene::display(pfrm, app);
 
     if (not is_far_camera() and not app.opponent_island() and
-        cursor_loc.x > app.player_island().terrain().size() - 3) {
+        cursor_loc.x > app.player_island().terrain().size() - 3 and
+        app.game_mode() == App::GameMode::adventure) {
         origin = app.player_island().origin();
 
         Sprite exit_hint;
