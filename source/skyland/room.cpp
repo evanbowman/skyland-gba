@@ -333,6 +333,14 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
 
 
 
+ScenePtr<Scene> Room::setup(Platform& pfrm, App&)
+{
+    // ...
+    return null_scene();
+}
+
+
+
 ScenePtr<Scene> Room::select(Platform& pfrm, App& app)
 {
     if (parent_->interior_visible()) {

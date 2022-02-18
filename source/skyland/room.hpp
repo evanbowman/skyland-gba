@@ -165,6 +165,9 @@ public:
     }
 
 
+    virtual ScenePtr<Scene> setup(Platform& pfrm, App&);
+
+
     virtual ScenePtr<Scene> select(Platform& pfrm, App&);
 
 

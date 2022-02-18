@@ -455,6 +455,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
 
+            if (auto room = island(app)->get_room({dest_x, dest_y})) {
+                if (auto scene = room->setup(pfrm, app)) {
+                    return scene;
+                }
+            }
+
+
             find_construction_sites(pfrm, app);
 
             state_ = State::select_loc;

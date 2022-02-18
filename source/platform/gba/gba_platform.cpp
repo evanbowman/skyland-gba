@@ -3227,8 +3227,8 @@ void Platform::Speaker::stop_chiptune_note(Channel channel)
 
     case Channel::noise:
         // FIXME!?
-        // REG_SNDDMGCNT &= ~(1 << 0xa);
-        // REG_SNDDMGCNT &= ~(1 << 0xe);
+        REG_SNDDMGCNT &= ~SDMG_LNOISE;
+        REG_SNDDMGCNT &= ~SDMG_RNOISE;
         break;
 
     case Channel::wave:
@@ -3269,8 +3269,8 @@ void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
 
     switch (channel) {
     case Channel::square_1:
-        REG_SNDDMGCNT |= (1 << 8);
-        REG_SNDDMGCNT |= (1 << 0xc);
+        REG_SNDDMGCNT |= SDMG_LSQR1;
+        REG_SNDDMGCNT |= SDMG_RSQR1;
         analog_channel[(int)channel].last_note_ = note;
         analog_channel[(int)channel].last_octave_ = octave;
         analog_channel[(int)channel].effect_timer_ = 0;
@@ -3278,8 +3278,8 @@ void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
         break;
 
     case Channel::square_2:
-        REG_SNDDMGCNT |= (1 << 9);
-        REG_SNDDMGCNT |= (1 << 0xd);
+        REG_SNDDMGCNT |= SDMG_LSQR2;
+        REG_SNDDMGCNT |= SDMG_RSQR2;
         analog_channel[(int)channel].last_note_ = note;
         analog_channel[(int)channel].last_octave_ = octave;
         analog_channel[(int)channel].effect_timer_ = 0;
@@ -3287,8 +3287,8 @@ void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
         break;
 
     case Channel::noise: {
-        REG_SNDDMGCNT |= (1 << 0xa);
-        REG_SNDDMGCNT |= (1 << 0xe);
+        REG_SNDDMGCNT |= SDMG_LNOISE;
+        REG_SNDDMGCNT |= SDMG_RNOISE;
         analog_channel[(int)channel].last_note_ = note;
         analog_channel[(int)channel].last_octave_ = octave;
         analog_channel[(int)channel].effect_timer_ = 0;
@@ -3302,8 +3302,8 @@ void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
     }
 
     case Channel::wave:
-        REG_SNDDMGCNT |= (1 << 0xb);
-        REG_SNDDMGCNT |= (1 << 0xf);
+        REG_SNDDMGCNT |= SDMG_LWAVE;
+        REG_SNDDMGCNT |= SDMG_RWAVE;
         analog_channel[(int)channel].last_note_ = note;
         analog_channel[(int)channel].last_octave_ = octave;
         analog_channel[(int)channel].effect_timer_ = 0;
