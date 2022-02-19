@@ -31,8 +31,7 @@ std::array<HintInfo, 9> hints = {
       "more options!"},
      {"<none>",
       "The Glossary, found on the title screen extras menu, describes all "
-      "structures in the game. Pressing start with the construction menu open "
-      "also opens the Glossary."},
+      "structures in the game!"},
      {"hint_plunder", "Raid and plunder castles for extra coins!"},
      {"hint_damaged_core",
       "If you lose a power-core, systems may shut down til you rebalance "
