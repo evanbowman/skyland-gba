@@ -88,7 +88,6 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
     } else {
         if (timer_ > milliseconds(400)) {
             pfrm.set_overlay_origin(0, 0);
-            info(pfrm, "going to title screen");
             return scene_pool::alloc<TitleScreenScene>();
         }
     }

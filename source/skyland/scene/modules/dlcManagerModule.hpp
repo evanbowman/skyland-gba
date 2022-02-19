@@ -21,9 +21,9 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "DLC Manager";
+        return SystemString::module_dlc_manager;
     }
 
 

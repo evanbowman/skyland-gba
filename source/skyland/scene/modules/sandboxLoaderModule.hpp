@@ -12,9 +12,9 @@ namespace skyland {
 
 class SandboxLoaderModule : public Module<SandboxLoaderModule> {
 public:
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "Battle Sandbox";
+        return SystemString::module_sandbox;
     }
 
 

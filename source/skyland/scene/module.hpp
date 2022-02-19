@@ -3,6 +3,7 @@
 
 #include "skyland/scene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -20,8 +21,6 @@ namespace skyland {
 namespace detail {
 class _Module : public Scene {
 public:
-    static ScenePtr<Scene> load(Platform&, const char* name);
-
 
     class Factory {
     public:
@@ -32,7 +31,7 @@ public:
         }
 
 
-        virtual const char* name() = 0;
+        virtual SystemString name() = 0;
 
 
         virtual u16 icon() = 0;
@@ -75,12 +74,6 @@ public:
 } // namespace detail
 
 
-inline ScenePtr<Scene> load_module(Platform& pfrm, const char* name)
-{
-    return detail::_Module::load(pfrm, name);
-}
-
-
 
 template <typename T> class Module : public detail::_Module {
 public:
@@ -98,7 +91,7 @@ public:
 
     class Factory : public _Module::Factory {
     public:
-        const char* name() override
+        SystemString name() override
         {
             return T::module_name();
         }

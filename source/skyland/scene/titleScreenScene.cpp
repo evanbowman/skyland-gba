@@ -317,7 +317,7 @@ void TitleScreenScene::put_module_text(Platform& pfrm)
         const auto index = module_page_ * modules_per_page + module_cursor_->x +
                            module_cursor_->y * modules_per_row;
         if (auto factory = detail::_Module::Factory::get(index)) {
-            buffer += factory->name();
+            buffer += *loadstr(pfrm, factory->name());
         } else {
             return;
         }
@@ -760,7 +760,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     save::store_global_data(pfrm, app.gp_);
                     app.invoke_script(pfrm, "/scripts/reset_hooks.lisp");
                     auto dialog = allocate_dynamic<DialogString>(pfrm);
-                    *dialog = "<c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's ok... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean! <t:0>";
+                    *dialog = SYS_CSTR(dialog_tutorial_prompt);
                     auto next = scene_pool::alloc<BoxedDialogScene>(std::move(dialog),
                                                                     false);
 

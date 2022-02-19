@@ -34,9 +34,9 @@ public:
     }
 
 
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "Tutorials";
+        return SystemString::module_tutorials;
     }
 
 

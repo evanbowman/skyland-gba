@@ -12,9 +12,9 @@ namespace skyland {
 
 class SkylandForever : public Module<SkylandForever> {
 public:
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "SKYLAND Forever";
+        return SystemString::module_skyland_forever;
     }
 
 

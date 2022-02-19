@@ -22,9 +22,9 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds) override;
 
 
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "Highscores";
+        return SystemString::module_highscores;
     }
 
 

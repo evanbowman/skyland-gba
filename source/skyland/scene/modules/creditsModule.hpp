@@ -11,9 +11,9 @@ namespace skyland {
 
 class CreditsModule : public Module<CreditsModule> {
 public:
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "Credits";
+        return SystemString::module_credits;
     }
 
 

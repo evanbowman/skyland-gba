@@ -14,9 +14,9 @@ namespace skyland {
 class FlagDesignerModule : public Module<FlagDesignerModule>, public Paint {
 
 public:
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "Flag Designer";
+        return SystemString::module_flag_designer;
     }
 
 

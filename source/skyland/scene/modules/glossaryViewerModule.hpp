@@ -11,9 +11,9 @@ namespace skyland {
 
 class GlossaryViewerModule : public Module<GlossaryViewerModule> {
 public:
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "Glossary";
+        return SystemString::module_glossary;
     }
 
 

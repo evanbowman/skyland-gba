@@ -16,9 +16,9 @@ public:
     }
 
 
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "Update Loader";
+        return SystemString::module_update_loader;
     }
 
 

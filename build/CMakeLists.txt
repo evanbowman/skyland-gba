@@ -136,7 +136,6 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/placeDroneScene.cpp
   ${SOURCE_DIR}/skyland/scene/scriptHookScene.cpp
   ${SOURCE_DIR}/skyland/scene/createFileScene.cpp
-  ${SOURCE_DIR}/skyland/scene/loadModuleScene.cpp
   ${SOURCE_DIR}/skyland/scene/boxedDialogScene.cpp
   ${SOURCE_DIR}/skyland/scene/salvageRoomScene.cpp
   ${SOURCE_DIR}/skyland/scene/titleScreenScene.cpp
@@ -178,8 +177,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/sandboxLoaderModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/textEditorModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/skylandForever.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/shopModule.cpp)
+  ${SOURCE_DIR}/skyland/scene/modules/flagDesignerModule.cpp)
 
 
 

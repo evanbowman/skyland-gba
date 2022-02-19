@@ -11,9 +11,9 @@ namespace skyland {
 
 class AchievementViewerModule : public Module<AchievementViewerModule> {
 public:
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "Achievements";
+        return SystemString::module_achievements;
     }
 
 

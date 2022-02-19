@@ -15,9 +15,9 @@ namespace skyland {
 
 class FileBrowserModule : public Module<FileBrowserModule> {
 public:
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "File Browser";
+        return SystemString::module_file_browser;
     }
 
 

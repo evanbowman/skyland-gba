@@ -46,9 +46,9 @@ public:
     }
 
 
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "Text Editor";
+        return SystemString::module_text_editor;
     }
 
 

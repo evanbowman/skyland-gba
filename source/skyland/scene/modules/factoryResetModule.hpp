@@ -12,9 +12,9 @@ namespace skyland {
 
 class FactoryResetModule : public Module<FactoryResetModule> {
 public:
-    static const char* module_name()
+    static SystemString module_name()
     {
-        return "Factory Reset";
+        return SystemString::module_factory_reset;
     }
 
 
