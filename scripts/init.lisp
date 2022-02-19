@@ -34,3 +34,11 @@
      (filter
       (lambda (equal (car $0) 'cargo-bay))
       rooms))))
+
+(defn/c procgen
+  (opponent-generate
+   (cond
+    ((and (equal (zone 0)) (< (length enemies-seen) 2)) 0)
+    ((equal (zone) 0) 3)
+    ((equal (zone) 1) 6)
+    (true 12))))

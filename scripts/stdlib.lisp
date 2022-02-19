@@ -23,7 +23,7 @@
 
 (macro cond (expr)
  `(if ,(car (car expr))
-      ,(car (cdr (car expr)))
+      ,(cons 'progn (cdr (car expr)))
     ,(if (cdr expr)
          (cons 'cond (cdr expr))
        nil)))
