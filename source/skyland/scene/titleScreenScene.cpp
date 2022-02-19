@@ -342,7 +342,7 @@ void TitleScreenScene::put_menu_text(Platform& pfrm)
     redraw_margins(pfrm);
 
     const auto st = calc_screen_tiles(pfrm);
-    StringBuffer<32> buffer(SYSTR(game_title));
+    StringBuffer<32> buffer(SYS_CSTR(game_title));
     buffer += ":   ";
     const auto prefix_len = buffer.length();
     buffer += *loadstr(pfrm, menu_text[menu_selection_]);
