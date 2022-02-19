@@ -7,26 +7,20 @@ namespace ram_filesystem {
 
 
 
-std::optional<BloomFilter<256>> file_present_filter;
+static BloomFilter<512> file_present_filter;
 
 
 
 void __path_cache_insert(const char* path)
 {
-    if (file_present_filter) {
-        file_present_filter->insert(path, str_len(path));
-    }
+    file_present_filter.insert(path, str_len(path));
 }
 
 
 
 void __path_cache_create(Platform& pfrm)
 {
-    if (file_present_filter) {
-        return;
-    }
-
-    file_present_filter.emplace();
+    file_present_filter.clear();
 
     walk(pfrm, [&](const char* path) {
         __path_cache_insert(path);
@@ -37,21 +31,14 @@ void __path_cache_create(Platform& pfrm)
 
 void __path_cache_destroy()
 {
-    file_present_filter.reset();
+    file_present_filter.clear();
 }
 
 
 
 bool __path_cache_file_exists(const char* file_name)
 {
-    if (file_present_filter) {
-        return file_present_filter->exists(file_name, str_len(file_name));
-    }
-
-    // Because a bloom filter does not have false negatives, but may have false
-    // positives. If the path cache does not exist for some reason, the obvious
-    // thing to do would be to return true, i.e. the file might exist.
-    return true;
+    return file_present_filter.exists(file_name, str_len(file_name));
 }
 
 
@@ -137,7 +124,7 @@ void destroy(Platform& pfrm)
     char buffer[block_size * 2];
     __builtin_memset(buffer, 0, sizeof buffer);
 
-
+    __path_cache_destroy();
 
     pfrm.write_save_data(buffer, sizeof buffer, fs_offset());
 
