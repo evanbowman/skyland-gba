@@ -327,6 +327,21 @@ o----------------------------o
 
 o----------------------------o
 
+ (opponent-generate integer)
+
+ Allow the engine to
+ generate a level. You lose
+ the handcrafted feel, but
+ still, it keeps the game
+ feeling fresh.
+
+ Integer argument
+ undocumented. A sort of
+ difficulty rating.
+
+
+o----------------------------o
+
  (opponent-init
     terrain-size
     mode-sym)

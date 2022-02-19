@@ -1745,8 +1745,10 @@ static u32 read_symbol(CharSequence& code, int offset)
 
 FINAL:
 
-    if (symbol == "nil") {
+    if (symbol == "nil" or symbol == "false") {
         push_op(get_nil());
+    } else if (symbol == "true") {
+        push_op(make_integer(1));
     } else {
         push_op(make_symbol(symbol.c_str()));
     }

@@ -18,9 +18,13 @@ public:
     void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
-private:
     void generate_level(Platform& pfrm, App& app);
 
+
+    void set_levelgen_count(int count);
+
+
+private:
 
     void generate_power_sources(Platform& pfrm, App& app);
     void generate_stairwells(Platform& pfrm, App& app);

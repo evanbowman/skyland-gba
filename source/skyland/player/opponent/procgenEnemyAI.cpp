@@ -141,20 +141,22 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     ++levelgen_enemy_count_;
 
-    for (auto& room : app.opponent_island()->rooms()) {
+    if (app.game_mode() == App::GameMode::skyland_forever) {
+        for (auto& room : app.opponent_island()->rooms()) {
 
-        auto frac = 0.4f;
+            auto frac = 0.4f;
 
-        if (levelgen_enemy_count_ > 20) {
-            frac = sf_p4_coin_yield * 0.01;
-        } else if (levelgen_enemy_count_ > 16) {
-            frac = sf_p3_coin_yield * 0.01;
-        } else if (levelgen_enemy_count_ > 12) {
-            frac = sf_p2_coin_yield * 0.01;
-        } else if (levelgen_enemy_count_ > 7) {
-            frac = sf_p1_coin_yield * 0.01;
+            if (levelgen_enemy_count_ > 20) {
+                frac = sf_p4_coin_yield * 0.01;
+            } else if (levelgen_enemy_count_ > 16) {
+                frac = sf_p3_coin_yield * 0.01;
+            } else if (levelgen_enemy_count_ > 12) {
+                frac = sf_p2_coin_yield * 0.01;
+            } else if (levelgen_enemy_count_ > 7) {
+                frac = sf_p1_coin_yield * 0.01;
+            }
+            app.victory_coins() += frac * (*room->metaclass())->cost();
         }
-        app.victory_coins() += frac * (*room->metaclass())->cost();
     }
 
     app.time_stream().enable_pushes(true);
@@ -165,6 +167,13 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
         OverlayCoord{u8(calc_screen_tiles(pfrm).x -
                         integer_text_length(levelgen_enemy_count_)),
                      0});
+}
+
+
+
+void ProcgenEnemyAI::set_levelgen_count(int count)
+{
+    levelgen_enemy_count_ = count;
 }
 
 

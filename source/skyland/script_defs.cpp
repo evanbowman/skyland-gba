@@ -5,6 +5,7 @@
 #include "platform/ram_filesystem.hpp"
 #include "player/autopilotPlayer.hpp"
 #include "player/opponent/enemyAI.hpp"
+#include "player/opponent/procgenEnemyAI.hpp"
 #include "player/opponent/friendlyAI.hpp"
 #include "room_metatable.hpp"
 #include "rooms/cargoBay.hpp"
@@ -543,6 +544,26 @@ static const lisp::Binding script_api[] = {
              err += conf->symbol().name_;
              pfrm->fatal(err.c_str());
          }
+
+         return L_NIL;
+     }},
+    {"opponent-generate",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+
+         auto [app, pfrm] = interp_get_context();
+
+         // Swap in the procedural-generation enemy AI that we created for
+         // SKYLAND Forever, generate a level, and then swap the regular Enemy
+         // AI back in.
+         app->swap_opponent<ProcgenEnemyAI>(1);
+         if (auto p = dynamic_cast<ProcgenEnemyAI*>(&app->opponent())) {
+             p->set_levelgen_count(lisp::get_op(0)->integer().value_);
+             p->generate_level(*pfrm, *app);
+         }
+
+         app->swap_opponent<EnemyAI>();
 
          return L_NIL;
      }},
