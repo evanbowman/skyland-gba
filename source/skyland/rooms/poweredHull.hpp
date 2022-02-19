@@ -2,6 +2,7 @@
 
 #include "skyland/coins.hpp"
 #include "skyland/room.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -57,6 +58,12 @@ public:
     static const char* name()
     {
         return "energized-hull";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_energized_hull;
     }
 
 

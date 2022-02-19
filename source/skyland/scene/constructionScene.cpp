@@ -209,7 +209,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // Special case: we want to add to the terrain level, not
                 // construct a building.
                 state_ = State::add_terrain;
-                StringBuffer<30> temp(":build :add-terrain ");
+                StringBuffer<30> temp;
+                temp += *SYSTR(construction_add_terrain);
                 temp += stringify(app.terrain_cost());
                 temp += "@";
                 msg(pfrm, temp.c_str());
@@ -324,7 +325,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                     *tapclick not_eq construction_sites_[selector_])) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
-            msg(pfrm, ":build");
+            msg(pfrm, SYSTR(construction_build)->c_str());
             last_touch_x_ = 0;
             break;
         } else {
@@ -399,21 +400,21 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 *load_metaclass(available_buildings_[building_selector_]);
 
             if (app.coins() < get_cost(island(app), target)) {
-                msg(pfrm, "insufficient funds!");
+                msg(pfrm, SYSTR(construction_insufficient_funds)->c_str());
                 state_ = State::insufficient_funds;
                 break;
             }
 
             if (island(app)->power_supply() - island(app)->power_drain() <
                 target->consumes_power()) {
-                msg(pfrm, "insufficient power supply!");
+                msg(pfrm, SYSTR(construction_insufficient_power_supply)->c_str());
                 state_ = State::insufficient_funds;
                 break;
             }
 
             if (std::get<SkylandGlobalData>(globals()).room_pools_.empty() or
                 island(app)->rooms().full()) {
-                msg(pfrm, "too many rooms");
+                msg(pfrm, SYSTR(construction_too_many_rooms)->c_str());
                 state_ = State::insufficient_funds;
                 break;
             }
@@ -465,7 +466,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             find_construction_sites(pfrm, app);
 
             state_ = State::select_loc;
-            msg(pfrm, ":build");
+            msg(pfrm, SYSTR(construction_build)->c_str());
         }
         break;
     }
@@ -475,7 +476,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.player().key_down(pfrm, Key::action_1)) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
-            msg(pfrm, ":build");
+            msg(pfrm, SYSTR(construction_build)->c_str());
         }
         break;
 
@@ -483,13 +484,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::action_2)) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
-            msg(pfrm, ":build");
+            msg(pfrm, SYSTR(construction_build)->c_str());
             break;
         }
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             if (app.coins() < app.terrain_cost()) {
-                msg(pfrm, "insufficient funds!");
+                msg(pfrm, SYSTR(construction_build)->c_str());
                 state_ = State::insufficient_funds;
                 break;
             }
@@ -519,7 +520,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
 
-            msg(pfrm, ":build");
+            msg(pfrm, SYSTR(construction_build)->c_str());
         }
         break;
     }
@@ -530,9 +531,12 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 {
-    StringBuffer<32> str = ":build :";
+    StringBuffer<32> str = SYSTR(construction_build)->c_str();
+    str += " :";
 
-    str += (*load_metaclass(available_buildings_[building_selector_]))->name();
+    str += (*load_metaclass(available_buildings_[building_selector_]))
+        ->ui_name(pfrm)->c_str();
+
     str += " ";
     str += stringify(
         get_cost(island(app),
@@ -957,7 +961,7 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    msg(pfrm, ":build");
+    msg(pfrm, SYSTR(construction_build)->c_str());
 }
 
 

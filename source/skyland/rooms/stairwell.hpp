@@ -2,6 +2,7 @@
 
 #include "skyland/coins.hpp"
 #include "skyland/room.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -42,6 +43,12 @@ public:
     static const char* name()
     {
         return "stairwell";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_stairwell;
     }
 
 

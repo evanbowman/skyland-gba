@@ -8,6 +8,7 @@
 #include "room.hpp"
 #include "rooms/pluginRoom.hpp"
 #include "script/lisp.hpp"
+#include "systemString.hpp"
 
 
 
@@ -29,6 +30,7 @@ struct RoomMeta {
         virtual RoomPtr<Room>
         create(Platform&, Island*, const Vec2<u8>&) const = 0;
         virtual const char* name() const = 0;
+        virtual SystemStringBuffer ui_name(Platform& pfrm) const = 0;
         virtual Vec2<u8> size() const = 0;
         virtual Coins cost() const = 0;
         virtual Float ai_base_weight() const = 0;

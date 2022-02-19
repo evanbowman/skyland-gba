@@ -34,7 +34,7 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
         Layer::overlay, 28, 1, room_category_icon(mt[page]->category()));
 
     StringBuffer<30> temp;
-    temp += mt[page]->name();
+    temp += mt[page]->ui_name(pfrm)->c_str();
     temp += " (";
     temp += stringify(mt[page]->size().x);
     temp += ",";

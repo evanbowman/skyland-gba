@@ -74,7 +74,7 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
 
             make_format(temp,
                         "% (%,%)",
-                        (*mt)->name(),
+                        (*mt)->ui_name(pfrm)->c_str(),
                         (*mt)->size().x,
                         (*mt)->size().y);
 

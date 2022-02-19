@@ -1,5 +1,39 @@
 
 SKYLAND
+arc-gun
+bridge
+bronze-hull
+bulkhead-door
+cannon
+cargo-bay
+power-core
+decimator
+drone-bay
+flak-gun
+forcefield
+hull
+infirmary
+ion-cannon
+ion-fizzler
+manufactory
+masonry
+missile-silo
+nemesis
+coconut-palm
+plundered-room
+energized-hull
+radar
+reactor
+replicator
+shrubbery
+speaker
+stairwell
+statue
+synth
+dynamite
+dynamite-ii
+transporter
+workshop
 adventure
 challenge
 multiplayer
@@ -17,6 +51,11 @@ SKYLAND Forever
 Text Editor
 Highscores
 Tutorials
+:build
+:build :add-terrain 
+insufficient funds!
+insufficient power supply!
+too many rooms
 Evan Bowman presents
 Copyright ©2022
 <c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's ok... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean! <t:0>

@@ -2,6 +2,7 @@
 
 #include "hull.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -20,6 +21,12 @@ public:
     static const char* name()
     {
         return "bronze-hull";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_bronze_hull;
     }
 
 

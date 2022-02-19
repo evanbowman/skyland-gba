@@ -4,6 +4,7 @@
 
 #include "skyland/room.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -56,6 +57,12 @@ public:
     static const char* name()
     {
         return "decimator";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_decimator;
     }
 
 

@@ -69,6 +69,11 @@ template <typename T> struct InfoImpl : public RoomMeta::Info {
         return T::name();
     }
 
+    SystemStringBuffer ui_name(Platform& pfrm) const override
+    {
+        return loadstr(pfrm, T::ui_name());
+    }
+
     Room::Icon icon() const override
     {
         return T::icon();

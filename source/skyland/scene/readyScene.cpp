@@ -450,7 +450,7 @@ void describe_room(Platform& pfrm,
                 if (not skip) {
                     StringBuffer<32> desc;
                     desc += "(";
-                    desc += (*metac)->name();
+                    desc += (*metac)->ui_name(pfrm)->c_str();
                     desc += ") ";
                     room_description->assign(desc.c_str());
                     room_description->append(room->health());

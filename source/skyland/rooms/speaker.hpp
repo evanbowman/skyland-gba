@@ -3,6 +3,7 @@
 #include "decoration.hpp"
 #include "skyland/tile.hpp"
 #include "synth.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -34,6 +35,12 @@ public:
     static const char* name()
     {
         return "speaker";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_speaker;
     }
 
 

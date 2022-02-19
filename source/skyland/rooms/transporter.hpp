@@ -3,6 +3,7 @@
 #include "skyland/coins.hpp"
 #include "skyland/room.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -57,6 +58,12 @@ public:
     static const char* name()
     {
         return "transporter";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_transporter;
     }
 
 

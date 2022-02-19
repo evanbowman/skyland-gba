@@ -70,6 +70,14 @@ struct RoomPluginInfo : public RoomMeta::Info {
     }
 
 
+    SystemStringBuffer ui_name(Platform& pfrm) const override
+    {
+        auto ret = allocate_dynamic<StringBuffer<1900>>(pfrm);
+        *ret += name();
+        return ret;
+    }
+
+
     Vec2<u8> size() const override
     {
         auto& pair = fetch_info<FieldTag::size, lisp::Cons>();

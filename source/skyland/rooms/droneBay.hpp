@@ -5,6 +5,7 @@
 #include "skyland/entity/drones/drone.hpp"
 #include "skyland/room.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -57,6 +58,12 @@ public:
     static const char* name()
     {
         return "drone-bay";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_drone_bay;
     }
 
 

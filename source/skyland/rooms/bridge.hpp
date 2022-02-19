@@ -4,6 +4,7 @@
 #include "decoration.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -78,6 +79,12 @@ public:
     static const char* name()
     {
         return "bridge";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_bridge;
     }
 
 

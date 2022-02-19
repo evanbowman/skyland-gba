@@ -4,6 +4,7 @@
 #include "skyland/coins.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "weapon.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -53,6 +54,13 @@ public:
     {
         return "ion-cannon";
     }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_ion_cannon;
+    }
+
 
 
     static Float ai_base_weight()

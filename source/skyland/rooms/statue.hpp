@@ -2,6 +2,7 @@
 
 #include "decoration.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -34,6 +35,12 @@ public:
     static const char* name()
     {
         return "statue";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_statue;
     }
 
 

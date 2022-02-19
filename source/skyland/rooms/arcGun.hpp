@@ -4,6 +4,7 @@
 #include "skyland/coins.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "weapon.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -52,6 +53,12 @@ public:
     static const char* name()
     {
         return "arc-gun";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_arcgun;
     }
 
 

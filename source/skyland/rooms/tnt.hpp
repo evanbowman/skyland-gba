@@ -3,6 +3,7 @@
 
 
 #include "skyland/room.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -73,6 +74,12 @@ public:
     }
 
 
+    static SystemString ui_name()
+    {
+        return SystemString::block_dynamite_1;
+    }
+
+
     static Icon icon()
     {
         return 1672;
@@ -130,6 +137,12 @@ public:
     static const char* name()
     {
         return "dynamite-ii";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_dynamite_2;
     }
 
 

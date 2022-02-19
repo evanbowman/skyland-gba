@@ -1,6 +1,7 @@
 #pragma once
 
 #include "skyland/room.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -43,6 +44,12 @@ public:
     static const char* name()
     {
         return "cargo-bay";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_cargo_bay;
     }
 
 

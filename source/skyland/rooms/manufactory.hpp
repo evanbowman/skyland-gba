@@ -3,6 +3,7 @@
 
 
 #include "skyland/room.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -40,6 +41,12 @@ public:
     static const char* name()
     {
         return "manufactory";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_manufactory;
     }
 
 

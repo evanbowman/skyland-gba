@@ -3,6 +3,7 @@
 #include "decoration.hpp"
 #include "platform/platform.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -34,6 +35,12 @@ public:
     static const char* name()
     {
         return "synth";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_synth;
     }
 
 
