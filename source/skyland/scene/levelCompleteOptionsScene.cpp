@@ -172,7 +172,7 @@ void LevelCompleteOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
     auto st = calc_screen_tiles(pfrm);
 
     const char* resume = "resume";
-    const char* world_map = "world map";
+    const char* world_map = "sky map";
 
     options_.emplace_back(
         pfrm,

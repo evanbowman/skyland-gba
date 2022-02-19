@@ -87,7 +87,7 @@ ScenePtr<Scene> StartMenuScene::update(Platform& pfrm,
         case App::GameMode::adventure:
             if (app.opponent_island() == nullptr) {
                 add_option(pfrm,
-                           "world map",
+                           "sky map",
                            scene_pool::make_deferred_scene<ZoneImageScene>(),
                            cut);
             }
