@@ -97,6 +97,10 @@
   `(,@$0 ,@$1))
 
 
+(defn/c push
+  (set $0 (cons $1 $0)))
+
+
 (setq bisect
      (let ((impl (compile
                   (lambda
@@ -129,5 +133,6 @@
              (sort (cdr temp))))))
 
 
-(defn/c locale-string
-  (get-line-of-file (string "strings/" language '.txt) $0))
+;; While suboptimal, these functions have the benefit of being small.
+(defn/c min (car (sort $0)))
+(defn/c max (car (reverse (sort $0))))

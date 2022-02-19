@@ -21,7 +21,7 @@
  next
  (if (and (equal (length enemies-seen) 0) (equal (zone) 0))
      (progn
-       (setq enemies-seen (cons 0 enemies-seen))
+       (push 'enemies-seen 0)
        (lambda (eval-file "/scripts/event/hostile/0/0.lisp")))
    ;; Sometimes, procedurally generate an enemy
    (if (< (choice 100) 40)
@@ -48,7 +48,7 @@
                  (if (equal (zone) 0)
                      (setq lv-num 0)))
 
-             (setq enemies-seen (cons lv-num enemies-seen))
+             (push 'enemies-seen lv-num)
 
              (lambda
                (eval-file (string "/scripts/event/hostile/" (zone) "/" lv-num ".lisp"))))

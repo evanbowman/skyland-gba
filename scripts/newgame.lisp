@@ -13,6 +13,7 @@
 (setq friendlies-seen '())
 
 (setq quests '())
+(setq enemy-count 0)
 
 
 (show-flag (player))
