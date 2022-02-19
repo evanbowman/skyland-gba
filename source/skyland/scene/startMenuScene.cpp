@@ -85,10 +85,12 @@ ScenePtr<Scene> StartMenuScene::update(Platform& pfrm,
             break;
 
         case App::GameMode::adventure:
-            add_option(pfrm,
-                       "world map",
-                       scene_pool::make_deferred_scene<ZoneImageScene>(),
-                       cut);
+            if (app.opponent_island() == nullptr) {
+                add_option(pfrm,
+                           "world map",
+                           scene_pool::make_deferred_scene<ZoneImageScene>(),
+                           cut);
+            }
             break;
 
         case App::GameMode::skyland_forever:
