@@ -98,7 +98,7 @@
 
 
 (defn/c push
-  (set $0 (cons $1 $0)))
+  (set $0 (cons $1 (eval $0))))
 
 
 (setq bisect
