@@ -1337,17 +1337,5 @@ void english__to_string(int num, char* buffer, int base)
 
 void locale_num2str(int num, char* buffer, int base)
 {
-    // FIXME!!!
-
-    // switch (language) {
-    // case LocaleLanguage::spanish:
-    // case LocaleLanguage::english:
     english__to_string(num, buffer, base);
-    //     break;
-
-    // default:
-    // case LocaleLanguage::null:
-    // buffer[0] = '\0';
-    //     break;
-    // }
 }

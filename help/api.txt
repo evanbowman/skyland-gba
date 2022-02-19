@@ -156,6 +156,9 @@ o----------------------------o
  or to
  on-dialog-declined.
 
+ See dialog_engine.txt for
+ formatting options.
+
 
  NOTE: if you call
  dialog-await-y/n, the
@@ -166,26 +169,6 @@ o----------------------------o
  possible to create a new
  and distinct dialog from an
  on-dialog-accepted hook!
-
-
-o----------------------------o
-
- (dialog-decor name icon)
-
- Add a name label and an icon
- to the dialog box. The name
- should not exceed twelve
- characters.
-
- The icon integer represents
- a character image to draw
- from the builtin dialog
- tileset.
- 0: old man
- 1: goblin
- 2: goblin king
- 3: storm king
- ... etc.
 
 
 o----------------------------o

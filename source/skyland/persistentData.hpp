@@ -19,7 +19,10 @@ struct GlobalPersistentData {
     FlagPixels flag_img_;
     Highscores highscores_;
 
-    enum Flags0 { developer_mode = (1 << 0), tutorial_prompt };
+    enum Flags0 {
+        developer_mode = (1 << 0),
+        tutorial_prompt = (1 << 1),
+    };
 
     u8 flags0_ = developer_mode;
     u8 flags1_ = 0;

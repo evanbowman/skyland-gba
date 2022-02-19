@@ -18,6 +18,10 @@ public:
     void exit(Platform&, App&, Scene& next) override;
 
 
+    // The scene will load the tutorial and return immediately.
+    void quick_select(int tutorial_number);
+
+
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
@@ -50,6 +54,7 @@ private:
         fade_in,
         idle,
         fade_out,
+        quickselect,
     } state_ = State::idle;
 
 

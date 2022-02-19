@@ -55,8 +55,8 @@ with open('fs.bin', 'wb') as filesystem:
 
     files_list = []
 
-    collect_paths(files_list, "scripts")
     collect_paths(files_list, "strings")
+    collect_paths(files_list, "scripts")
     collect_paths(files_list, "help")
     collect_paths(files_list, "misc")
     collect_paths(files_list, "licenses")

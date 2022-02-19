@@ -8,7 +8,8 @@
 
 
 // Our network protocol includes a message type called a block transfer, used
-// for copying large amounts of data from one console to another.
+// for copying large amounts of data from one console to another. NOTE: it's not
+// currently used for anything.
 
 
 

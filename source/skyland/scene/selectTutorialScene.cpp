@@ -15,8 +15,24 @@ static const Float default_fade = 0.6f;
 
 
 
+void SelectTutorialScene::quick_select(int tutorial_number)
+{
+    while (tutorial_number > 5) {
+        tutorial_number -= 5;
+        ++page_;
+    }
+
+    cursor_ = tutorial_number;
+
+    state_ = State::quickselect;
+}
+
+
+
 void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    pfrm.speaker().play_music("unaccompanied_wind", 0);
+
     app.set_coins(pfrm, 0);
 
     app.player_island().projectiles().clear();
@@ -27,9 +43,11 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
     // player.
     app.swap_player<PlayerP1>();
 
-    pfrm.load_overlay_texture("overlay_challenges");
+    if (state_ not_eq State::quickselect) {
+        pfrm.load_overlay_texture("overlay_challenges");
 
-    pfrm.system_call("v-parallax", (void*)false);
+        pfrm.system_call("v-parallax", (void*)false);
+    }
 
     app.game_mode() = App::GameMode::tutorial;
 
@@ -48,20 +66,24 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.fatal("missing file tutorial.lisp");
     }
 
-    show_options(pfrm);
 
-    for (int i = 0; i < 16; ++i) {
-        for (int j = 0; j < 16; ++j) {
-            pfrm.set_tile(Layer::map_0_ext, i, j, 0);
-            pfrm.set_tile(Layer::map_1_ext, i, j, 0);
+    if (state_ not_eq State::quickselect) {
+        show_options(pfrm);
+
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                pfrm.set_tile(Layer::map_0_ext, i, j, 0);
+                pfrm.set_tile(Layer::map_1_ext, i, j, 0);
+            }
         }
+
+        pfrm.screen().set_view({});
+
+        pfrm.screen().fade(default_fade, ColorConstant::rich_black, {}, false);
     }
 
     pfrm.delta_clock().reset();
 
-    pfrm.screen().set_view({});
-
-    pfrm.screen().fade(default_fade, ColorConstant::rich_black, {}, false);
 }
 
 
@@ -165,6 +187,42 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::fade_in:
         break;
 
+    case State::quickselect: {
+        auto index = page_ * 5 + cursor_;
+        auto choice = lisp::get_list(*tutorials_, index);
+
+        auto file_name = choice->cons().cdr();
+        if (file_name->type() not_eq lisp::Value::Type::string) {
+            pfrm.fatal("tutorial list format invalid");
+        }
+
+        if (auto script = pfrm.load_file_contents(
+                "scripts", file_name->string().value())) {
+
+            lisp::BasicCharSequence seq(script);
+            lisp::dostring(seq, [&pfrm](lisp::Value& err) {
+                lisp::DefaultPrinter p;
+                lisp::format(&err, p);
+                pfrm.fatal(p.fmt_.c_str());
+            });
+            prep_level(pfrm, app);
+            app.player_island().repaint(pfrm, app);
+            app.player_island().render_exterior(pfrm, app);
+
+            rng::critical_state = 42;
+
+            pfrm.speaker().play_music("sb_solecism", 0);
+
+            return scene_pool::alloc<FadeInScene>();
+        } else {
+            StringBuffer<32> err("file ");
+            err += file_name->string().value();
+            err += " missing";
+            pfrm.fatal(err.c_str());
+        }
+        break;
+    }
+
     case State::idle: {
         if (not tutorials_) {
             return null_scene();
@@ -219,35 +277,8 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > fade_duration) {
             app.camera()->reset();
             pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
-            auto index = page_ * 5 + cursor_;
-            auto choice = lisp::get_list(*tutorials_, index);
 
-            auto file_name = choice->cons().cdr();
-            if (file_name->type() not_eq lisp::Value::Type::string) {
-                pfrm.fatal("tutorial list format invalid");
-            }
-
-            if (auto script = pfrm.load_file_contents(
-                    "scripts", file_name->string().value())) {
-                lisp::BasicCharSequence seq(script);
-                lisp::dostring(seq, [&pfrm](lisp::Value& err) {
-                    lisp::DefaultPrinter p;
-                    lisp::format(&err, p);
-                    pfrm.fatal(p.fmt_.c_str());
-                });
-                prep_level(pfrm, app);
-                app.player_island().repaint(pfrm, app);
-                app.player_island().render_exterior(pfrm, app);
-
-                rng::critical_state = 42;
-
-                return scene_pool::alloc<FadeInScene>();
-            } else {
-                StringBuffer<32> err("file ");
-                err += file_name->string().value();
-                err += " missing";
-                pfrm.fatal(err.c_str());
-            }
+            state_ = State::quickselect;
 
         } else {
             const auto amount =

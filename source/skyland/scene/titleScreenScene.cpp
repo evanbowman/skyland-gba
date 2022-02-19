@@ -1,3 +1,4 @@
+#include "boxedDialogScene.hpp"
 #include "titleScreenScene.hpp"
 #include "loadModuleScene.hpp"
 #include "module.hpp"
@@ -13,6 +14,7 @@
 #include "skyland/player/playerP1.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/systemString.hpp"
 #include "zoneImageScene.hpp"
 
 
@@ -277,11 +279,11 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-static const char* menu_text[4]{
-    "adventure",
-    "challenge",
-    "multiplayer",
-    "extras",
+static const SystemString menu_text[4] = {
+    SystemString::menu_text_adventure,
+    SystemString::menu_text_challenge,
+    SystemString::menu_text_multiplayer,
+    SystemString::menu_text_extras,
 };
 
 
@@ -340,9 +342,10 @@ void TitleScreenScene::put_menu_text(Platform& pfrm)
     redraw_margins(pfrm);
 
     const auto st = calc_screen_tiles(pfrm);
-    StringBuffer<32> buffer("SKYLAND:   ");
+    StringBuffer<32> buffer(SYSTR(game_title));
+    buffer += ":   ";
     const auto prefix_len = buffer.length();
-    buffer += menu_text[menu_selection_];
+    buffer += *loadstr(pfrm, menu_text[menu_selection_]);
 
     const auto len = utf8::len(buffer.c_str());
 
@@ -750,7 +753,25 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             case 0:
                 app.game_mode() = App::GameMode::adventure;
                 run_init_scripts(pfrm, app, true);
-                return scene_pool::alloc<NewgameScene>();
+                if (app.gp_.flags0_ & GlobalPersistentData::tutorial_prompt) {
+                    return scene_pool::alloc<NewgameScene>();
+                } else {
+                    app.gp_.flags0_ |= GlobalPersistentData::tutorial_prompt;
+                    save::store_global_data(pfrm, app.gp_);
+                    app.invoke_script(pfrm, "/scripts/reset_hooks.lisp");
+                    auto dialog = allocate_dynamic<DialogString>(pfrm);
+                    *dialog = "<c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's ok... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean! <t:0>";
+                    auto next = scene_pool::alloc<BoxedDialogScene>(std::move(dialog),
+                                                                    false);
+
+                    return next;
+
+                    // auto next = scene_pool::alloc<SelectTutorialScene>();
+                    // next->quick_select(0);
+
+                    // return next;
+                }
+                break;
 
             case 1: {
                 app.game_mode() = App::GameMode::challenge;

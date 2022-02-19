@@ -50,8 +50,7 @@
                   (dialog "The survivor turned out to be a vicious goblin!")
                   (setq on-dialog-closed
                         (lambda
-                          (dialog "Die humansss!")
-                          (dialog-decor "goblin" 2)
+                          (dialog "<c:goblin:2>Die humansss!")
                           (setq on-dialog-closed '()))))))
           (progn
             (dialog "Sadly, there's no room...")

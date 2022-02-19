@@ -18,11 +18,10 @@
   (setq on-converge
         (lambda
           (dialog
-           "*cackle* You're tresspasssing in my territory! I demand a tribute of "
+           "<c:goblin king:3>*cackle* You're tresspasssing in my territory! I demand a tribute of "
            (string temp)
            "@! Pay!")
 
-          (dialog-decor "goblin king" 3)
           (dialog-await-y/n)
           (setq on-converge nil)))
 
@@ -32,8 +31,7 @@
           (if (> temp (coins))
               (progn
                 (opponent-mode 'hostile)
-                (dialog "Thatsss not enough! Letss ssee if theress anything we can take!!")
-                (dialog-decor "goblin king" 3))
+                (dialog "<c:globlin king:3>Thatsss not enough! Letss ssee if theress anything we can take!!")
             (progn
               (coins-add (- temp))
               (dialog "The goblin king rejoices, having successfully extorted "
@@ -47,8 +45,7 @@
 (setq on-dialog-declined
       (lambda
         (opponent-mode 'hostile)
-        (dialog "YARRRGG!!! PREPARE FOR BOARDING!!!")
-        (dialog-decor "goblin king" 3)))
+        (dialog "<g:goblin king:3>YARRRGG!!! PREPARE FOR BOARDING!!!")))
 
 
 (setq on-hostile-transition

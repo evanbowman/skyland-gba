@@ -1,0 +1,41 @@
+
+ Dialog Commands:
+
+
+o----------------------------o
+
+ <c:NAME:ICON>
+
+ Display Character NAME, and
+ an icon referenced by integer
+ ICON.
+
+
+o----------------------------o
+
+ <s:SPEED>
+
+ Text Speed. 0 for default
+ speed. Integers 1-3 will
+ slow down the text
+ rendering.
+
+
+o----------------------------o
+
+ <d:MILLISECONDS>
+
+ Delay before printing any
+ more text.
+
+
+o----------------------------o
+
+ <t:INTEGER>
+
+ After closing the dialog,
+ jump to tutorial number
+ given by integer.
+
+
+o----------------------------o

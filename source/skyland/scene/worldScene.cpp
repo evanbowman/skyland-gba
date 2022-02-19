@@ -404,12 +404,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.dialog_buffer().reset();
         const bool answer = app.dialog_expects_answer();
         app.dialog_expects_answer() = false;
-        const auto chr_image = app.dialog_decoration().character_image_;
-        const auto chr_name = app.dialog_decoration().character_name_;
-        app.dialog_decoration().character_image_ = 0;
-        app.dialog_decoration().character_name_.clear();
         return scene_pool::alloc<BoxedDialogScene>(
-            std::move(buffer), answer, chr_name, chr_image);
+            std::move(buffer), answer);
     }
 
 

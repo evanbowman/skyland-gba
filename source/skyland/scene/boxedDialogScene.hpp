@@ -17,12 +17,11 @@ namespace skyland {
 class BoxedDialogScene : public WorldScene {
 public:
     BoxedDialogScene(DialogBuffer buffer,
-                     bool expects_answer_y_n,
-                     const StringBuffer<12>& character_name,
-                     int character_image)
+                     bool expects_answer_y_n)
         : buffer_(std::move(buffer)), expects_answer_y_n_(expects_answer_y_n),
-          character_image_(character_image), character_name_(character_name)
+          character_image_(0)
     {
+        goto_tutorial_ = 0;
     }
 
 
@@ -34,6 +33,9 @@ public:
 
 
 private:
+
+    void process_command(Platform& pfrm, App& app);
+
     bool advance_text(Platform& pfrm, App& app, Microseconds delta, bool sfx);
 
     void clear_textbox(Platform& pfrm);
@@ -44,6 +46,7 @@ private:
         u8 line_;
         u8 pos_;
         u8 current_word_remaining_;
+        u8 speed_ = 0;
     };
 
     enum class DisplayMode {
@@ -62,7 +65,8 @@ private:
 
     DialogBuffer buffer_;
 
-    bool expects_answer_y_n_;
+    u8 expects_answer_y_n_ : 1;
+    u8 goto_tutorial_ : 5;
 
     std::optional<Text> yes_text_;
     std::optional<Text> no_text_;
@@ -72,7 +76,7 @@ private:
 
     u16 character_image_;
 
-    StringBuffer<12> character_name_;
+    StringBuffer<14> character_name_;
 };
 
 

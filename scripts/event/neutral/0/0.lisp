@@ -21,11 +21,9 @@
 (setq on-converge
       (lambda
         (dialog
-         "Fancy meeting you here! I've been marooned on this island... "
+         "<c:castaway:1>Fancy meeting you here! I've been marooned on this island... "
          "who knows how long! Looks like a nasty storm's brewing, mind "
          "if I hitch a ride?")
-
-        (dialog-decor "castaway" 1)
 
         (setq on-dialog-closed
               (lambda

@@ -2,6 +2,7 @@
 #include "newgameScene.hpp"
 #include "number/random.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/systemString.hpp"
 #include "titleScreenScene.hpp"
 
 
@@ -42,12 +43,14 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             wait_ = false;
             timer_ = 0;
 
-            const char* text = "Evan Bowman presents";
+            const auto text = SYSTR(intro_credits_name);
 
             const auto st = calc_screen_tiles(pfrm);
-            u8 margin = centered_text_margins(pfrm, utf8::len(text));
+            u8 margin = centered_text_margins(pfrm, utf8::len(text->c_str()));
 
-            text_.emplace(pfrm, text, OverlayCoord{margin, (u8)(st.y / 2 - 3)});
+            text_.emplace(pfrm,
+                          text->c_str(),
+                          OverlayCoord{margin, (u8)(st.y / 2 - 3)});
         }
     } else if (text_) {
         if (timer_ > milliseconds(500) and timer_ < milliseconds(2000)) {
@@ -62,14 +65,14 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
         }
 
         if (timer_ > milliseconds(3000) and not copyright_text_) {
-            const char* copyright_str = "Copyright ©2022";
+            const auto cpystr = SYSTR(intro_credits_cpy);
             copyright_text_.emplace(
                 pfrm,
                 OverlayCoord{
-                    (u8)centered_text_margins(pfrm, utf8::len(copyright_str)),
+                    (u8)centered_text_margins(pfrm, utf8::len(cpystr->c_str())),
                     20});
 
-            copyright_text_->assign(copyright_str,
+            copyright_text_->assign(cpystr->c_str(),
                                     FontColors{ColorConstant::med_blue_gray,
                                                ColorConstant::rich_black});
         }

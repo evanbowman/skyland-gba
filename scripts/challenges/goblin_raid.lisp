@@ -12,13 +12,11 @@
 
 (setq on-fadein
       (lambda
-        (dialog "Hey King, we've found a defensselesss cassstle!")
-        (dialog-decor "goblin" 2)
+        (dialog "<c:goblin:2>Hey King, we've found a defensselesss cassstle!")
 
         (setq on-dialog-closed
               (lambda
-                (dialog "*cackle* minionsss, pepare for boarding!")
-                (dialog-decor "goblin king" 3)
+                (dialog "<c:goblin king:3>*cackle* minionsss, pepare for boarding!")
                 (setq on-dialog-closed '())))))
 
 

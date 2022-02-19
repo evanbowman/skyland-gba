@@ -3,6 +3,7 @@
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
 #include "scriptHookScene.hpp"
+#include "selectTutorialScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 
@@ -20,12 +21,126 @@ const int y_start = 1;
 
 
 
+void BoxedDialogScene::process_command(Platform& pfrm, App& app)
+{
+    ++text_state_.current_word_;
+
+    const char c = *text_state_.current_word_;
+
+    ++text_state_.current_word_;
+
+    if (*text_state_.current_word_ not_eq ':') {
+        pfrm.fatal("invalid command format!");
+    }
+
+    ++text_state_.current_word_;
+
+    auto parse_command_str = [&] {
+        StringBuffer<32> str;
+        while (*text_state_.current_word_ not_eq ':' and
+               *text_state_.current_word_ not_eq '>') {
+            if (*text_state_.current_word_ == '\0') {
+                pfrm.fatal("Unexpected null byte in command sequence!");
+            }
+            str.push_back(*text_state_.current_word_);
+            ++text_state_.current_word_;
+        }
+        ++text_state_.current_word_;
+        return str;
+    };
+
+    auto parse_command_int = [&] {
+        auto str = parse_command_str();
+        s32 result = 0;
+        for (u32 i = 0; i < str.length(); ++i) {
+            result = result * 10 + (str[i] - '0');
+        }
+        return result;
+    };
+
+    auto parse_command_noarg = [&] {
+        if (*text_state_.current_word_ not_eq '>') {
+            pfrm.fatal("invalid command format, expected >");
+        }
+
+        ++text_state_.current_word_;
+    };
+
+
+    switch (c) {
+    case '\0':
+        pfrm.fatal("Invalid null byte in command sequence!");
+
+    case 'c': {
+        character_name_ = parse_command_str();
+        character_image_ = parse_command_int();
+
+        if (character_image_) {
+            auto st = calc_screen_tiles(pfrm);
+
+            character_name_text_.emplace(pfrm, OverlayCoord{1, u8(st.y - 7)});
+
+            character_name_text_->assign(character_name_.c_str(),
+                                         Text::OptColors{{custom_color(0xf3ea55),
+                                                     custom_color(0x232390)}});
+
+            clear_textbox(pfrm);
+        }
+        break;
+    }
+
+    case 's': {
+        text_state_.speed_ = parse_command_int();
+        break;
+    }
+
+    case 'd': {
+        text_state_.timer_ = -milliseconds(parse_command_int());
+        break;
+    }
+
+    case 'r': {
+        parse_command_noarg();
+        break;
+    }
+
+    case 't': {
+        goto_tutorial_ = 1 + parse_command_int();
+        break;
+    }
+
+    default:
+        pfrm.fatal(format("Invald command %", c).c_str());
+    }
+
+    while (*text_state_.current_word_ == ' ') {
+        ++text_state_.current_word_;
+    }
+}
+
+
+
 bool BoxedDialogScene::advance_text(Platform& pfrm,
                                     App& app,
                                     Microseconds delta,
                                     bool sfx)
 {
-    const auto delay = milliseconds(80);
+    const auto delay = [&] {
+        switch (text_state_.speed_) {
+        default:
+        case 0:
+            return milliseconds(80);
+
+        case 1:
+            return milliseconds(160);
+
+        case 2:
+            return milliseconds(240);
+
+        case 3:
+            return milliseconds(320);
+        }
+    }();
 
     text_state_.timer_ += delta;
 
@@ -45,13 +160,19 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
                     text_state_.pos_ += 1;
                 }
             }
+            if (*text_state_.current_word_ == '<') {
+                process_command(pfrm, app);
+            }
+            if (text_state_.timer_ < 0) {
+                return true;
+            }
             bool done = false;
             utf8::scan(
                 [&](const utf8::Codepoint& cp, const char*, int) {
                     if (done) {
                         return;
                     }
-                    if (cp == ' ') {
+                    if (cp == ' ' or cp == '<') {
                         done = true;
                     } else {
                         text_state_.current_word_remaining_++;
@@ -122,27 +243,6 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
 void BoxedDialogScene::clear_textbox(Platform& pfrm)
 {
     const auto st = calc_screen_tiles(pfrm);
-
-
-    // Corners
-
-    // pfrm.set_tile(Layer::overlay, 1, 1, 93);
-    // pfrm.set_tile(Layer::overlay, 1, 2, 95);
-    // pfrm.set_tile(Layer::overlay, 2, 1, 94);
-
-    // pfrm.set_tile(Layer::overlay, st.x - 3, 1, 97);
-    // pfrm.set_tile(Layer::overlay, st.x - 2, 1, 98);
-    // pfrm.set_tile(Layer::overlay, st.x - 2, 2, 100);
-
-    // pfrm.set_tile(Layer::overlay, 1, st.y - 2, 103);
-    // pfrm.set_tile(Layer::overlay, 2, st.y - 2, 104);
-    // pfrm.set_tile(Layer::overlay, 1, st.y - 3, 101);
-
-    // pfrm.set_tile(Layer::overlay, st.x - 3, st.y - 2, 107);
-    // pfrm.set_tile(Layer::overlay, st.x - 2, st.y - 2, 108);
-    // pfrm.set_tile(Layer::overlay, st.x - 2, st.y - 3, 106);
-
-    // End Corners
 
 
     for (int x = 1; x < st.x - 1; ++x) {
@@ -227,6 +327,11 @@ void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
     text_state_.timer_ = 0;
     text_state_.line_ = 0;
     text_state_.pos_ = 0;
+
+    if (*text_state_.current_word_ == '<') {
+        // Advance the timer, the text buffer starts with a command!
+        text_state_.timer_ = milliseconds(81);
+    }
 
     if (auto ws = dynamic_cast<WorldScene*>(&prev)) {
         if (ws->is_far_camera()) {
@@ -441,6 +546,11 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case DisplayMode::clear:
+        if (goto_tutorial_) {
+            auto next = scene_pool::alloc<SelectTutorialScene>();
+            next->quick_select(goto_tutorial_ - 1);
+            return next;
+        }
         if (is_far_camera()) {
             return scene_pool::alloc<InspectP2Scene>();
         } else {

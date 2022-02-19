@@ -1,3 +1,4 @@
+#include "modules/glossaryViewerModule.hpp"
 #include "startMenuScene.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene_pool.hpp"
@@ -65,6 +66,17 @@ ScenePtr<Scene> StartMenuScene::update(Platform& pfrm,
                    "resume",
                    scene_pool::make_deferred_scene<ReadyScene>(),
                    kill_menu);
+
+        add_option(pfrm,
+                   "glossary",
+                   [&pfrm] {
+                       auto next = scene_pool::alloc<GlossaryViewerModule>();
+                       next->set_next_scene([&pfrm]() {
+                           return scene_pool::alloc<StartMenuScene>(pfrm, 1);
+                       });
+                       return next;
+                   },
+                   cut);
 
         switch (app.game_mode()) {
         case App::GameMode::sandbox:

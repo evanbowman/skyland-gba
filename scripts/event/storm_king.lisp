@@ -9,8 +9,7 @@
 
 (setq on-fadein
       (lambda
-        (dialog "Mwhahaha... prepare to... die!!!")
-        (dialog-decor "storm king" 4)))
+        (dialog "<c:storm king:4>Mwhahaha... prepare to... die!!!")))
 
 
 

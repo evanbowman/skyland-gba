@@ -358,17 +358,6 @@ public:
     }
 
 
-    struct DialogDecoration {
-        u16 character_image_ = 0;
-        StringBuffer<12> character_name_;
-    };
-
-    DialogDecoration& dialog_decoration()
-    {
-        return dialog_decoration_;
-    }
-
-
     const ScenePtr<Scene>& next_scene() const
     {
         return next_scene_;
@@ -376,7 +365,6 @@ public:
 
 
 private:
-    DialogDecoration dialog_decoration_;
 
     // NOTE: As islands take a lot of memory, and App is created on the stack, I
     // ended up moving them into a scratch buffer.
