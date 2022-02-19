@@ -1,8 +1,58 @@
 #include "ram_filesystem.hpp"
+#include "bloomFilter.hpp"
 
 
 
 namespace ram_filesystem {
+
+
+
+std::optional<BloomFilter<256>> file_present_filter;
+
+
+
+void __path_cache_insert(const char* path)
+{
+    if (file_present_filter) {
+        file_present_filter->insert(path, str_len(path));
+    }
+}
+
+
+
+void __path_cache_create(Platform& pfrm)
+{
+    if (file_present_filter) {
+        return;
+    }
+
+    file_present_filter.emplace();
+
+    walk(pfrm, [&](const char* path) {
+        __path_cache_insert(path);
+    });
+}
+
+
+
+void __path_cache_destroy()
+{
+    file_present_filter.reset();
+}
+
+
+
+bool __path_cache_file_exists(const char* file_name)
+{
+    if (file_present_filter) {
+        return file_present_filter->exists(file_name, str_len(file_name));
+    }
+
+    // Because a bloom filter does not have false negatives, but may have false
+    // positives. If the path cache does not exist for some reason, the obvious
+    // thing to do would be to return true, i.e. the file might exist.
+    return true;
+}
 
 
 
@@ -18,10 +68,6 @@ bool is_mounted()
 {
     return mounted;
 }
-
-
-
-std::optional<ScratchBufferPtr> path_cache_;
 
 
 
@@ -91,6 +137,8 @@ void destroy(Platform& pfrm)
     char buffer[block_size * 2];
     __builtin_memset(buffer, 0, sizeof buffer);
 
+
+
     pfrm.write_save_data(buffer, sizeof buffer, fs_offset());
 
     mounted = false;
@@ -112,6 +160,8 @@ InitStatus initialize(Platform& pfrm, int fs_begin_offset)
         root.magic_[2] == 'S' and root.magic_[3] == fs_version) {
 
         ::ram_filesystem::mounted = true;
+
+        __path_cache_create(pfrm);
 
         // Already initialized previously.
         return InitStatus::already_initialized;
@@ -142,6 +192,9 @@ InitStatus initialize(Platform& pfrm, int fs_begin_offset)
 
     if (store_root(pfrm, root)) {
         ::ram_filesystem::mounted = true;
+
+        __path_cache_create(pfrm);
+
         return InitStatus::initialized;
     }
 
@@ -269,13 +322,21 @@ bool file_exists(Platform& pfrm, const char* path)
         return false;
     }
 
-    bool found = false;
 
-    with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
-        found = true;
-    });
+    if (__path_cache_file_exists(path)) {
+        bool found = false;
 
-    return found;
+        with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
+            found = true;
+        });
+
+        return found;
+
+    } else {
+
+        return false;
+
+    }
 }
 
 
@@ -286,14 +347,27 @@ void unlink_file(Platform& pfrm, const char* path)
         return;
     }
 
+    if (not __path_cache_file_exists(path)) {
+        return;
+    }
+
+    bool freed_file = false;
+
     with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
         // Unbind the existing file
         info.file_size_.set(0);
         info.file_contents_.set(0);
         pfrm.write_save_data(&info, sizeof info, fs_offset);
 
+        freed_file = true;
+
         free_file(pfrm, file);
     });
+
+    if (freed_file) {
+        __path_cache_destroy();
+        __path_cache_create(pfrm);
+    }
 }
 
 
@@ -313,6 +387,10 @@ static u8 checksum(const FileContents& contents)
 size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 {
     if (not ::ram_filesystem::mounted) {
+        return 0;
+    }
+
+    if (not __path_cache_file_exists(path)) {
         return 0;
     }
 
@@ -430,6 +508,7 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 
     if (remaining == 0) {
         store_chunk();
+        __path_cache_insert(path);
         link_file(pfrm, file_begin, length + path_len + 1);
         return true;
     }
@@ -461,9 +540,8 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 
     store_chunk();
 
-
+    __path_cache_insert(path);
     link_file(pfrm, file_begin, length + path_len + 1);
-
 
     return true;
 }

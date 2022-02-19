@@ -9,6 +9,7 @@
 (if (not (bound 'sandbox-msg))
     (setq on-fadein
           (lambda
+            (setq on-fadein nil)
             (setq sandbox-msg 1)
             (dialog "Welcome to the Battle Sandbox! Want any help?")
             (dialog-await-y/n)

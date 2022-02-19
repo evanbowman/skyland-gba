@@ -129,7 +129,7 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
         pfrm.speaker().play_music("sb_solecism", 0);
     }
 
-    app.invoke_script(pfrm, "/scripts/sandbox.lisp");
+    app.invoke_script(pfrm, "/scripts/sandbox/new.lisp");
 
     prep_level(pfrm, app);
 

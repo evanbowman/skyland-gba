@@ -1260,7 +1260,10 @@ bool speaker_data_store(Platform& pfrm, Island& island, const char* path)
     }
 
     if (not data.size() == 0) {
+        data.push_back('\0');
         return ram_filesystem::store_file_data(pfrm, path, data);
+    } else {
+        ram_filesystem::unlink_file(pfrm, path);
     }
 
     return true;
@@ -1361,7 +1364,10 @@ bool synth_notes_store(Platform& pfrm, Island& island, const char* path)
     }
 
     if (not data.size() == 0) {
+        data.push_back('\0');
         return ram_filesystem::store_file_data(pfrm, path, data);
+    } else {
+        ram_filesystem::unlink_file(pfrm, path);
     }
 
     return true;

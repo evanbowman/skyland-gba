@@ -283,7 +283,7 @@ public:
     // level. Monotonically incrementing.
     TimeTracker& stat_timer()
     {
-        return level_timer_;
+        return stat_timer_;
     }
 
 

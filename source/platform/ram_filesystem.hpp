@@ -23,8 +23,8 @@ namespace ram_filesystem {
 
 enum {
     // Maximum supported path. Technically, the filesystem supports paths as
-    // large as the block size, but that'd be super wasteful. 64 bytes should be
-    // plenty.
+    // large as the block size, so you _could_ change this value, but that'd be
+    // super wasteful. 64 bytes should be plenty.
     max_path = 64,
 
     // Block size used for the filesystem. Files will be sliced into ~200 byte
@@ -49,13 +49,17 @@ Statistics statistics(Platform& pfrm);
 
 
 enum InitStatus {
+    // Newly initialized
     initialized,
+
+    // Previously initialized
     already_initialized,
+
     failed,
 };
 
 
-// Returns true if filesystem initialized for the first time.
+
 InitStatus initialize(Platform& pfrm, int fs_begin_offset);
 
 

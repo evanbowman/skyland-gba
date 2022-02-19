@@ -17,6 +17,7 @@
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "startMenuScene.hpp"
 #include "worldMapScene.hpp"
 #include "worldScene.hpp"
 
@@ -263,6 +264,12 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 describe_room_timer_ = milliseconds(300);
             }
         }
+
+        if (app.player().key_up(pfrm, Key::start) and
+            app.game_mode() not_eq App::GameMode::multiplayer) {
+            return scene_pool::alloc<StartMenuScene>(pfrm, 0);
+        }
+
     } else /* start pressed */ {
 
         if (app.player().key_held(Key::start, milliseconds(600))) {

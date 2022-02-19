@@ -144,7 +144,6 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
     }
 
 
-
     Vector<char> data(pfrm);
 
     auto bytes = ram_filesystem::read_file_data(pfrm, "/save/data.lisp", data);
