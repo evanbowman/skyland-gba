@@ -21,10 +21,6 @@ class App;
 
 
 
-using MissileAmmo = short int;
-
-
-
 class Player {
 public:
     virtual ~Player()
@@ -170,15 +166,6 @@ public:
     int rooms_lost_ = 0;
     int rooms_built_ = 0;
 
-
-    MissileAmmo& missile_ammo()
-    {
-        return missile_ammo_;
-    }
-
-
-private:
-    MissileAmmo missile_ammo_;
 };
 
 
