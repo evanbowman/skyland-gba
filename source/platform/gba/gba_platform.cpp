@@ -931,21 +931,15 @@ static struct PaletteInfo {
 } palette_info[palette_count] = {};
 
 
-// We want to be able to disable color mixes during a screen fade. We perform a
-// screen fade by blending a color into the base palette. If we allow sprites to
-// use other palette banks during a screen fade, they won't be faded, because
-// they are not using the first palette bank.
-static bool color_mix_disabled = false;
-
 
 // Perform a color mix between the spritesheet palette bank (bank zero), and
 // return the palette bank where the resulting mixture is stored. We can only
 // display 12 mixed colors at a time, because the first four banks are in use.
 static PaletteBank color_mix(ColorConstant k, u8 amount)
 {
-    if (UNLIKELY(color_mix_disabled)) {
-        return 0;
-    }
+    // if (UNLIKELY(color_mix_disabled)) {
+    //     return 0;
+    // }
 
     for (PaletteBank palette = available_palettes; palette < 16; ++palette) {
         auto& info = palette_info[palette];

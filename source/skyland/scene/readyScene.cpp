@@ -18,7 +18,6 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
-#include "worldMapScene.hpp"
 #include "worldScene.hpp"
 
 
@@ -244,10 +243,6 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                     std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
 
                 return scene_pool::alloc<InspectP2Scene>();
-            } else if (not app.opponent_island()) {
-                if (app.game_mode() == App::GameMode::adventure) {
-                    return scene_pool::alloc<LevelCompleteOptionsScene>(true);
-                }
             }
         }
 
@@ -371,8 +366,6 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             if ((*drone)->parent() == &app.player_island()) {
                 return scene_pool::alloc<SalvageDroneScene>(*drone);
             }
-        } else if (not app.opponent_island()) {
-            return scene_pool::alloc<LevelCompleteOptionsScene>(true);
         }
     }
 
@@ -566,30 +559,6 @@ void ReadyScene::display(Platform& pfrm, App& app)
 
 
     WorldScene::display(pfrm, app);
-
-    if (not is_far_camera() and not app.opponent_island() and
-        cursor_loc.x > app.player_island().terrain().size() - 3 and
-        app.game_mode() == App::GameMode::adventure) {
-        origin = app.player_island().origin();
-
-        Sprite exit_hint;
-        exit_hint.set_size(Sprite::Size::w16_h32);
-        exit_hint.set_texture_index(31);
-        exit_hint.set_alpha(Sprite::Alpha::translucent);
-
-        exit_hint.set_position(
-            {origin.x + app.player_island().terrain().size() * 16 + 32,
-             origin.y + 13 * 16});
-
-        pfrm.screen().draw(exit_hint);
-
-        exit_hint.set_position(
-            {origin.x + app.player_island().terrain().size() * 16 + 50,
-             origin.y + 13 * 16});
-
-        exit_hint.set_texture_index(32);
-        pfrm.screen().draw(exit_hint);
-    }
 }
 
 
