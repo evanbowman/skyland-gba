@@ -14,32 +14,34 @@
 
 
 
-(setq on-converge
-      (lambda
-        (setq temp (+ 500 (choice 500)))
-        (dialog
-         "*cackle* You're tresspasssing in my territory! I demand a tribute of "
-         (string temp)
-         "@! Pay!")
+(let ((temp (+ 500 (choice 500))))
+  (setq on-converge
+        (lambda
+          (dialog
+           "*cackle* You're tresspasssing in my territory! I demand a tribute of "
+           (string temp)
+           "@! Pay!")
 
-        (dialog-decor "goblin king" 3)
-        (dialog-await-y/n)
-        (setq on-converge nil)))
+          (dialog-decor "goblin king" 3)
+          (dialog-await-y/n)
+          (setq on-converge nil)))
 
 
-(setq on-dialog-accepted
-      (lambda
-        (if (> 500 (coins))
+  (setq on-dialog-accepted
+        (lambda
+          (if (> temp (coins))
+              (progn
+                (opponent-mode 'hostile)
+                (dialog "Thatsss not enough! Letss ssee if theress anything we can take!!")
+                (dialog-decor "goblin king" 3))
             (progn
-              (opponent-mode 'hostile)
-              (dialog "Thatsss not enough! Letss ssee if theress anything we can take!!")
-              (dialog-decor "goblin king" 3))
-          (progn
-            (coins-add (- temp))
-            (dialog "The goblin king rejoices, having successfully extorted "
-                    (string temp)
-                    "@.")
-            (exit)))))
+              (coins-add (- temp))
+              (dialog "The goblin king rejoices, having successfully extorted "
+                      (string temp)
+                      "@.")
+              (exit))))))
+
+
 
 
 (setq on-dialog-declined
