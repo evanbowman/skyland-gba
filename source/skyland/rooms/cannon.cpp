@@ -22,13 +22,13 @@ Sound cannon_sound("cannon");
 
 
 
-void Cannon::format_description(StringBuffer<512>& buffer)
+void Cannon::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
     auto secs = cannon_reload_ms / 1000;
 
     make_format(
         buffer,
-        "A reliable artillery weapon. Deals % damage every %.% seconds.",
+        SYSTR(description_cannon)->c_str(),
         cannonball_damage,
         secs,
         (cannon_reload_ms / 100 - secs * 10));

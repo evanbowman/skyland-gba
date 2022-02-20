@@ -17,17 +17,15 @@ SHARED_VARIABLE(ion_cannon_reload_ms);
 
 
 
-void IonCannon::format_description(StringBuffer<512>& buffer)
+void IonCannon::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "Deals ion damage. Ion bursts pass harmlessly through most "
-              "rooms, but deal ";
-    buffer += stringify(ion_burst_damage);
-    buffer += " damage every ";
     auto secs = ion_cannon_reload_ms / 1000;
-    buffer += stringify(secs);
-    buffer += ".";
-    buffer += stringify((ion_cannon_reload_ms / 100 - secs * 10));
-    buffer += "s to forcefields, reactors, etc..";
+
+    make_format(buffer,
+                SYSTR(description_ion_cannon)->c_str(),
+                ion_burst_damage,
+                secs,
+                ion_cannon_reload_ms / 100 - secs * 10);
 }
 
 

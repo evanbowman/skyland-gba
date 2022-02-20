@@ -23,13 +23,12 @@ Sound missile_sound("missile");
 
 
 
-void MissileSilo::format_description(StringBuffer<512>& buffer)
+void MissileSilo::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
     auto secs = missile_silo_reload_ms / 1000;
 
     make_format(buffer,
-                "A weapon for targeting the roof of an enemy fortress. "
-                "Deals % damage every %.% seconds.",
+                SYSTR(description_missile_silo)->c_str(),
                 missile_damage,
                 secs,
                 (missile_silo_reload_ms / 100 - secs * 10));

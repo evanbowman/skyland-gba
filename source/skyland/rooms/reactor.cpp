@@ -7,10 +7,9 @@ namespace skyland {
 
 
 
-void Reactor::format_description(StringBuffer<512>& buffer)
+void Reactor::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "An upgraded power-core. Supplies much more energy, but "
-              "succeptible to ion damage.";
+    buffer += SYSTR(description_reactor)->c_str();
 }
 
 

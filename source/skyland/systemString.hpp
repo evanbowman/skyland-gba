@@ -4,6 +4,11 @@
 
 
 
+// All strings required by the engine. We store the strings themselves in a
+// separate file, for localization purposes.
+
+
+
 namespace skyland {
 
 
@@ -82,6 +87,33 @@ enum class SystemString {
 
     intro_credits_name,
     intro_credits_cpy,
+
+    description_power_core,
+    description_missile_silo,
+    description_workshop,
+    description_radar,
+    description_ion_fizzler,
+    description_speaker,
+    description_shrubbery,
+    description_ion_cannon,
+    description_arc_gun,
+    description_bronze_hull,
+    description_nemesis,
+    description_hull,
+    description_forcefield,
+    description_reactor,
+    description_bulkhead_door,
+    description_transporter,
+    description_energized_hull,
+    description_flak_gun,
+    description_manufactory,
+    description_masonry,
+    description_decimator,
+    description_stairwell,
+    description_plundered_room,
+    description_synth,
+    description_cargo_bay,
+    description_cannon,
 
     dialog_tutorial_prompt,
 };

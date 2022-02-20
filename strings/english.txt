@@ -63,4 +63,30 @@ insufficient power supply!
 too many rooms
 Evan Bowman presents
 Copyright ©2022
+Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
+A weapon for targeting the roof of an enemy fortress. Deals % damage every %.% seconds.
+Slightly lowers the construction cost of all rooms.
+Scans the interior of other castles! Radars improve transporter accuracy, allowing transporters to select an exact position on another island.
+Cancels all ion damage on contact. Useful for protecting vulnerable structures, such as reactors or forcefields, from ion cannons.
+Plays chiptunes! Connect up to four synth blocks to the right of the speaker block! When finished playing, activates whatever block is placed beneath it, if any.
+Ni!
+Deals ion damage. Ion bursts pass harmlessly through most rooms, but deal % damage every %.%s to forcefields, reactors, etc..
+Deals % damage every %.% seconds, but unlike other weapons, damage chains to all neighboring structures of the same type.
+Hull, but made out of bronze! Pretty, huh?
+An unusual cannon-type weapon. Damage starts at %, and rises to % when health drops to 1/2, % when health drops below 1/4. %.% sec reload.
+An essential defensive structure.
+Blocks enemy projectiles, but allows your own weapons to shoot through. Vulnerable to ion damage.
+An upgraded power-core. Supplies much more energy, but succeptible to ion damage.
+An openable/closable door. Used for restricting the movement of enemy boarding parties.
+Transport boarding parties into an enemy castle! Selects a random destination, unless you have a radar.
+Upgraded hull. Much more durable, but succeptible to ion damage.
+Deals low damage, but spread over large areas. Highly destructive when used in groups against castles with thin hull.
+An upgraded workshop. Slightly lowers the construction cost of all rooms.
+While ineffective against most modern weaponry, villagers in skyland still build structures with stone, because it looks nice.
+A massively destructive weapon with a sluggish %.% second recharge. Reloads and fires only when inhabited by a character.
+A structure designed to bridge a large vertical distance by dividing it into smaller vertical distances, often called steps.
+A placeholder structure created after a character destroys a room by plundering.
+Programmable audio block. Must be placed within four tiles to the right of a speaker block. Position determines  channel (+1 sqr, +2 sqr, +3 wav, +4 noise).
+Stores one unit of cargo. Required for trading and quests in adventure mode!
+A reliable artillery weapon. Deals % damage every %.% seconds.
 <c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's ok... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean! <t:0>

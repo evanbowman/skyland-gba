@@ -7,10 +7,9 @@ namespace skyland {
 
 
 
-void Manufactory::format_description(StringBuffer<512>& buffer)
+void Manufactory::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "An upgraded workshop. "
-              "Slightly lowers the construction cost of all rooms. ";
+    buffer += SYSTR(description_manufactory)->c_str();
 }
 
 

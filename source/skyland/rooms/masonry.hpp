@@ -19,12 +19,9 @@ public:
     }
 
 
-    static void format_description(StringBuffer<512>& buffer)
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
     {
-        buffer +=
-            "While ineffective against most modern weaponry, "
-            "villagers in skyland still build structures with stone, because "
-            "it looks nice.";
+        buffer += SYSTR(description_masonry)->c_str();
     }
 
 

@@ -22,15 +22,13 @@ extern SharedVariable nemesis_blast_damage;
 
 
 
-void Nemesis::format_description(StringBuffer<512>& buffer)
+void Nemesis::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
     auto secs = nemesis_reload_ms / 1000;
 
     make_format(
         buffer,
-        "An unusual cannon-type weapon. Damage starts at %, and rises to "
-        "% when health drops to 1/2, % when health drops below 1/4. "
-        "%.% sec reload.",
+        SYSTR(description_nemesis)->c_str(),
         nemesis_blast_damage,
         nemesis_blast_damage * 2,
         nemesis_blast_damage * 4,

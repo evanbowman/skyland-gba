@@ -9,11 +9,9 @@ namespace skyland {
 
 
 
-void Synth::format_description(StringBuffer<512>& buffer)
+void Synth::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "Programmable audio block. Must be placed within four tiles "
-              "to the right of a speaker block. Position determines "
-              " channel (+1 sqr, +2 sqr, +3 wav, +4 noise).";
+    buffer += SYSTR(description_synth)->c_str();
 }
 
 

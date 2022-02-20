@@ -15,15 +15,14 @@ SHARED_VARIABLE(decimator_reload_ms);
 
 
 
-void Decimator::format_description(StringBuffer<512>& buffer)
+void Decimator::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "A massively destructive weapon with a sluggish ";
     auto secs = decimator_reload_ms / 1000;
-    buffer += stringify(secs);
-    buffer += ".";
-    buffer += stringify((decimator_reload_ms / 100 - secs * 10));
-    buffer += " second recharge. "
-              "Reloads and fires only when inhabited by a character.";
+
+    make_format(buffer,
+                SYSTR(description_decimator)->c_str(),
+                secs,
+                decimator_reload_ms / 100 - secs * 10);
 }
 
 

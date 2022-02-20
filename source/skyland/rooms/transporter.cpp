@@ -21,11 +21,9 @@ SHARED_VARIABLE(transporter_reload_ms);
 
 
 
-void Transporter::format_description(StringBuffer<512>& buffer)
+void Transporter::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer +=
-        "Transport boarding parties into an enemy castle! Selects a random "
-        "destination, unless you have a radar.";
+    buffer += SYSTR(description_transporter)->c_str();
 }
 
 

@@ -11,10 +11,9 @@ namespace skyland {
 
 
 
-void Bulkhead::format_description(StringBuffer<512>& buffer)
+void Bulkhead::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "An openable/closable door. "
-              "Used for restricting the movement of enemy boarding parties";
+    buffer += SYSTR(description_bulkhead_door)->c_str();
 }
 
 

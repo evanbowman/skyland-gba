@@ -79,7 +79,7 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
     StringBuffer<512> description;
 
     if (is_enabled((MetaclassIndex)page)) {
-        mt[page]->format_description(description);
+        mt[page]->format_description(pfrm, description);
     } else {
         description = "Locked! See achievements!";
     }

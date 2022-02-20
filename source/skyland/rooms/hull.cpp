@@ -8,9 +8,9 @@ namespace skyland {
 
 
 
-void Hull::format_description(StringBuffer<512>& buffer)
+void Hull::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "An essential defensive structure.";
+    buffer += SYSTR(description_hull)->c_str();
 }
 
 

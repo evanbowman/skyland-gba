@@ -16,17 +16,15 @@ extern SharedVariable arcbolt_damage;
 
 
 
-void ArcGun::format_description(StringBuffer<512>& buffer)
+void ArcGun::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "Deals ";
-    buffer += stringify(arcbolt_damage);
-    buffer += " damage every ";
     auto secs = arc_gun_reload_ms / 1000;
-    buffer += stringify(secs);
-    buffer += ".";
-    buffer += stringify((arc_gun_reload_ms / 100 - secs * 10));
-    buffer += " seconds, but unlike other weapons, damage chains"
-              " to all neighboring structures of the same type.";
+
+    make_format(buffer,
+                SYSTR(description_arc_gun)->c_str(),
+                arcbolt_damage,
+                secs,
+                arc_gun_reload_ms / 100 - secs * 10);
 }
 
 

@@ -40,7 +40,8 @@ struct RoomMeta {
         virtual Room::Icon unsel_icon() const = 0;
         virtual Health full_health() const = 0;
         virtual Room::Category category() const = 0;
-        virtual void format_description(StringBuffer<512>& buffer) const = 0;
+        virtual void format_description(Platform& pfrm,
+                                        StringBuffer<512>& buffer) const = 0;
 
 
         virtual void configure(Health health, Coins cost, Power power)

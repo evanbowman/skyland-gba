@@ -8,11 +8,9 @@ namespace skyland {
 
 
 
-void IonFizzler::format_description(StringBuffer<512>& buffer)
+void IonFizzler::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "Cancels all ion damage on contact. Useful for protecting "
-              "vulnerable structures, such as reactors or forcefields,"
-              " from ion cannons.";
+    buffer += SYSTR(description_ion_fizzler)->c_str();
 }
 
 

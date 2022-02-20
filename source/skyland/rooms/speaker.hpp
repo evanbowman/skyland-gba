@@ -23,7 +23,7 @@ public:
     void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
-    static void format_description(StringBuffer<512>& buffer);
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
     static u32 properties()

@@ -7,12 +7,9 @@ namespace skyland {
 
 
 
-void Radar::format_description(StringBuffer<512>& buffer)
+void Radar::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer +=
-        "Scans the interior of other castles! Radars improve transporter "
-        "accuracy, allowing transporters to select an exact position on another"
-        " island.";
+    buffer += SYSTR(description_radar)->c_str();
 }
 
 

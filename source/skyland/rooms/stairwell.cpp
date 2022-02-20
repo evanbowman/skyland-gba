@@ -6,11 +6,9 @@
 namespace skyland {
 
 
-void Stairwell::format_description(StringBuffer<512>& buffer)
+void Stairwell::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer +=
-        "A structure designed to bridge a large vertical distance "
-        "by dividing it into smaller vertical distances, often called steps.";
+    buffer += SYSTR(description_stairwell)->c_str();
 }
 
 

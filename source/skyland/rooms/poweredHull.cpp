@@ -8,10 +8,9 @@ namespace skyland {
 
 
 
-void PoweredHull::format_description(StringBuffer<512>& buffer)
+void PoweredHull::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "Upgraded hull. Much more durable, but succeptible "
-              "to ion damage.";
+    buffer += SYSTR(description_energized_hull)->c_str();
 }
 
 

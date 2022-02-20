@@ -3,14 +3,14 @@
 #include "skyland/tile.hpp"
 
 
+
 namespace skyland {
 
 
 
-void Core::format_description(StringBuffer<512>& buffer)
+void Core::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "Every flying island needs a power core to stay afloat! "
-              "Supplies power to your castle's structures.";
+    buffer += SYSTR(description_power_core)->c_str();
 }
 
 
@@ -21,10 +21,12 @@ Core::Core(Island* parent, const Vec2<u8>& position)
 }
 
 
+
 void Core::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 }
+
 
 
 void Core::render_interior(App& app, u8 buffer[16][16])
@@ -36,6 +38,7 @@ void Core::render_interior(App& app, u8 buffer[16][16])
 }
 
 
+
 void Core::render_exterior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_window_1;
@@ -43,6 +46,7 @@ void Core::render_exterior(App& app, u8 buffer[16][16])
     buffer[position().x + 1][position().y] = Tile::wall_plain_1;
     buffer[position().x + 1][position().y + 1] = Tile::wall_plain_2;
 }
+
 
 
 } // namespace skyland

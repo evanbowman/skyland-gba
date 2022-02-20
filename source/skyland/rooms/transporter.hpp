@@ -20,7 +20,7 @@ public:
     Transporter(Island* parent, const Vec2<u8>& position);
 
 
-    static void format_description(StringBuffer<512>& buffer);
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
     void update(Platform&, App&, Microseconds delta) override;

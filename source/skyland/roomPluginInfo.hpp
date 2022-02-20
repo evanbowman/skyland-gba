@@ -85,10 +85,12 @@ struct RoomPluginInfo : public RoomMeta::Info {
                 (u8)pair.cdr()->expect<lisp::Integer>().value_};
     }
 
+
     Coins cost() const override
     {
         return cost_;
     }
+
 
     Float ai_base_weight() const override
     {
@@ -96,10 +98,12 @@ struct RoomPluginInfo : public RoomMeta::Info {
         return 2;
     }
 
+
     Power consumes_power() const override
     {
         return power_;
     }
+
 
     u32 properties() const override
     {
@@ -107,25 +111,31 @@ struct RoomPluginInfo : public RoomMeta::Info {
                RoomProperties::roof_hidden | RoomProperties::locked_by_default;
     }
 
+
     Room::Category category() const override
     {
         return Room::Category::misc; // TODO...
     }
 
-    void format_description(StringBuffer<512>&) const override
+
+    void format_description(Platform&,
+                            StringBuffer<512>&) const override
     {
         Platform::fatal("attempt to fetch desciption for a plugin room.");
     }
+
 
     Room::Icon icon() const override
     {
         return PluginRoom::icon();
     }
 
+
     Room::Icon unsel_icon() const override
     {
         return PluginRoom::unsel_icon();
     }
+
 
     Health full_health() const override
     {

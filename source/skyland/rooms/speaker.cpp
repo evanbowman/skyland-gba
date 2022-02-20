@@ -8,11 +8,9 @@ namespace skyland {
 
 
 
-void Speaker::format_description(StringBuffer<512>& buffer)
+void Speaker::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += "Plays chiptunes! Connect up to four synth blocks to the "
-              "right of the speaker block! When finished playing, activates "
-              "whatever block is placed beneath it, if any.";
+    buffer += SYSTR(description_speaker)->c_str();
 }
 
 
