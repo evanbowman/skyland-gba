@@ -233,6 +233,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
                 if (auto dst_room = app.player_island().get_room(dst)) {
                     dst_room->characters().push(std::move(unlinked));
+                    dst_room->ready();
                 }
 
                 return;
@@ -276,6 +277,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
                 if (auto dst_room = app.opponent_island()->get_room(dst)) {
                     dst_room->characters().push(std::move(unlinked));
+                    dst_room->ready();
                 }
 
                 return;
