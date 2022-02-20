@@ -47,6 +47,10 @@ enum class SystemString {
     block_transporter,
     block_workshop,
 
+    character_label_human,
+    character_label_goblin,
+    character_label_replicant,
+
     menu_text_adventure,
     menu_text_challenge,
     menu_text_multiplayer,
@@ -65,6 +69,10 @@ enum class SystemString {
     module_text_editor,
     module_highscores,
     module_tutorials,
+
+    cargo,
+
+    none,
 
     construction_build,
     construction_add_terrain,
@@ -92,6 +100,7 @@ SystemStringBuffer loadstr(Platform& pfrm, SystemString str);
 // times.
 #define SYS_CSTR(TAG) loadstr(pfrm, SystemString::TAG)->c_str()
 #define SYSTR(TAG) loadstr(pfrm, SystemString::TAG)
+
 
 
 }

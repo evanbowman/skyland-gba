@@ -34,6 +34,9 @@ dynamite
 dynamite-ii
 transporter
 workshop
+(human) 
+(goblin) 
+(replicant) 
 adventure
 challenge
 multiplayer
@@ -51,6 +54,8 @@ SKYLAND Forever
 Text Editor
 Highscores
 Tutorials
+cargo: 
+none
 :build
 :build :add-terrain 
 insufficient funds!

@@ -411,14 +411,17 @@ void describe_room(Platform& pfrm,
                             opts = {custom_color(0xff6675),
                                     ColorConstant::rich_black};
                             if (chr->is_replicant()) {
-                                room_description->append("(replicant) ", opts);
+                                auto str = SYSTR(character_label_replicant);
+                                room_description->append(str->c_str(), opts);
                             } else {
-                                room_description->append("(human) ", opts);
+                                auto str = SYSTR(character_label_human);
+                                room_description->append(str->c_str(), opts);
                             }
                         } else {
                             opts = {custom_color(0xcf54ff),
                                     ColorConstant::rich_black};
-                            room_description->append("(goblin) ", opts);
+                            auto str = SYSTR(character_label_goblin);
+                            room_description->append(str->c_str(), opts);
                         }
                         room_description->append(chr->health() / 10);
                         room_description->append("/");
@@ -436,11 +439,11 @@ void describe_room(Platform& pfrm,
                 if (str_eq((*metac)->name(), "cargo-bay")) {
                     if (auto cb = dynamic_cast<CargoBay*>(room)) {
                         if (cb->position().y == cursor_loc.y - 1) {
-                            room_description->assign("cargo: ");
+                            room_description->assign(SYSTR(cargo)->c_str());
                             if (*cb->cargo() not_eq '\0') {
                                 room_description->append(cb->cargo());
                             } else {
-                                room_description->append("none");
+                                room_description->append(SYSTR(none)->c_str());
                             }
                             skip = true;
                         }
