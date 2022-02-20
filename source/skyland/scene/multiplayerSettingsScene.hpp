@@ -50,7 +50,14 @@ private:
     void update_parameter(u8 line_num);
 
 
+    void setup_vs_game(Platform& pfrm, App& app);
+    void setup_coop_game(Platform& pfrm, App& app);
+
+
     Microseconds parameter_sync_timer_ = seconds(1);
+
+
+    int game_mode_ = 0;
 
 
     enum class State {
@@ -66,9 +73,9 @@ private:
     u8 player_cursor_ = 0;
     u8 opponent_cursor_ = 0;
 
-    Buffer<Text, 4> settings_text_;
+    Buffer<Text, 5> settings_text_;
     using ParamBuffer = Buffer<int, decltype(settings_text_)::capacity()>;
-    static ParamBuffer parameters_;
+    static ParamBuffer vs_parameters_;
 
     bool opponent_ready_ = false;
 
@@ -81,7 +88,7 @@ private:
 
     Microseconds key_held_timers_[4] = {0, 0, 0, 0};
 
-    static const ParameterInfo param_info[decltype(parameters_)::capacity()];
+    static const ParameterInfo param_info[decltype(vs_parameters_)::capacity()];
 };
 
 

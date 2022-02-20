@@ -110,8 +110,8 @@ public:
         tutorial,
         sandbox,
         multiplayer,
+        co_op,
         skyland_forever,
-        hideout,
     };
 
 

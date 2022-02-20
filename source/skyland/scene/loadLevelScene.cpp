@@ -74,7 +74,8 @@ void prep_level(Platform& pfrm, App& app)
     app.stat_timer().reset(0);
     app.level_timer().reset(0);
 
-    if (app.game_mode() not_eq App::GameMode::skyland_forever) {
+    if (app.game_mode() not_eq App::GameMode::skyland_forever and
+        app.game_mode() not_eq App::GameMode::co_op) {
         app.player().rooms_built_ = 0;
         app.player().rooms_lost_ = 0;
     }

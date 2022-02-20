@@ -48,6 +48,9 @@ public:
     }
 
 
+    static void init(Platform& pfrm, App& app, u8 difficulty);
+
+
 private:
     void update_parameter(u8 line_num);
 

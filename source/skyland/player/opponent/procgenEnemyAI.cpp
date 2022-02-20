@@ -141,7 +141,8 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     ++levelgen_enemy_count_;
 
-    if (app.game_mode() == App::GameMode::skyland_forever) {
+    if (app.game_mode() == App::GameMode::skyland_forever or
+        app.game_mode() == App::GameMode::co_op) {
         for (auto& room : app.opponent_island()->rooms()) {
 
             auto frac = 0.4f;

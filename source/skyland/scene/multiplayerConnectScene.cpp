@@ -67,6 +67,11 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
         return null_scene();
     }
 
+
+    // TEST
+    // return scene_pool::alloc<MultiplayerSettingsScene>();
+
+
     pfrm.network_peer().listen();
 
     if (not pfrm.network_peer().is_connected()) {

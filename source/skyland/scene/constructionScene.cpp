@@ -872,7 +872,8 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         auto& meta = metatable.first[i];
 
         if (app.game_mode() == App::GameMode::multiplayer or
-            app.game_mode() == App::GameMode::tutorial) {
+            app.game_mode() == App::GameMode::tutorial or
+            app.game_mode() == App::GameMode::co_op) {
             if (i >= plugin_rooms_begin()) {
                 // We disable plugin (dlc) rooms during certain game modes.
                 break;

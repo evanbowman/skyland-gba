@@ -4,6 +4,7 @@
 #include "skyland/entity/character/basicCharacter.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/scene/modules/skylandForever.hpp"
 
 
 
@@ -11,12 +12,13 @@ namespace skyland {
 
 
 
-MultiplayerSettingsScene::ParamBuffer MultiplayerSettingsScene::parameters_;
+MultiplayerSettingsScene::ParamBuffer MultiplayerSettingsScene::vs_parameters_;
 
 
 
 const MultiplayerSettingsScene::ParameterInfo
-    MultiplayerSettingsScene::param_info[decltype(parameters_)::capacity()] = {
+    MultiplayerSettingsScene::param_info[decltype(vs_parameters_)::capacity()] = {
+        {"game mode", 1, 0, 1},
         {"prep seconds", 5, 20, 10000},
         {"unhide prep ", 1, 0, 1},
         {"coins", 100, 1000, 10000000},
@@ -48,20 +50,21 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
         settings_text_.emplace_back(pfrm, OverlayCoord{2, u8(4 + i * 2)});
     }
 
-    if (not parameters_.full()) {
-        for (u32 i = 0; i < parameters_.capacity(); ++i) {
-            parameters_.push_back(0);
+    if (not vs_parameters_.full()) {
+        for (u32 i = 0; i < vs_parameters_.capacity(); ++i) {
+            vs_parameters_.push_back(0);
         }
 
         // Defaults
-        parameters_[0] = 120;
-        parameters_[1] = 0;
-        parameters_[2] = 17500;
-        parameters_[3] = 8;
+        vs_parameters_[0] = 0;
+        vs_parameters_[1] = 120;
+        vs_parameters_[2] = 0;
+        vs_parameters_[3] = 17500;
+        vs_parameters_[4] = 8;
     }
 
 
-    for (u32 i = 0; i < parameters_.capacity(); ++i) {
+    for (u32 i = 0; i < vs_parameters_.capacity(); ++i) {
         update_parameter(i);
     }
 
@@ -74,7 +77,7 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 void MultiplayerSettingsScene::update_parameter(u8 line_num)
 {
-    if (line_num >= parameters_.capacity()) {
+    if (line_num >= vs_parameters_.capacity()) {
         return;
     }
 
@@ -85,13 +88,25 @@ void MultiplayerSettingsScene::update_parameter(u8 line_num)
     const bool is_boolean_field = param_info[line_num].lower_limit_ == 0 and
                                   param_info[line_num].upper_limit_ == 1;
 
-    auto int_text_len = integer_text_length(parameters_[line_num]);
-    if (is_boolean_field) {
-        if (parameters_[line_num]) {
-            int_text_len = str_len("yes");
+    const char* field_name;
+    if (line_num == 0) {
+        if (vs_parameters_[line_num]) {
+            field_name = "co-op";
         } else {
-            int_text_len = str_len("no");
+            field_name = "vs";
         }
+    } else {
+        if (vs_parameters_[line_num]) {
+            field_name = "yes";
+        } else {
+            field_name = "no";
+        }
+    }
+
+
+    auto int_text_len = integer_text_length(vs_parameters_[line_num]);
+    if (is_boolean_field) {
+        int_text_len = utf8::len(field_name);
     }
 
     for (u32 i = temp.length(); i < 28 - int_text_len - 2; ++i) {
@@ -103,12 +118,25 @@ void MultiplayerSettingsScene::update_parameter(u8 line_num)
     }
 
     if (is_boolean_field) {
-        temp += parameters_[line_num] ? "yes" : "no";
+        temp += field_name;
     } else {
-        temp += stringify(parameters_[line_num]);
+        temp += stringify(vs_parameters_[line_num]);
     }
 
     settings_text_[line_num].assign(temp.c_str());
+
+    if (line_num == 0) {
+        if (vs_parameters_[line_num]) {
+            for (u32 i = 1; i < settings_text_.size(); ++i) {
+                settings_text_[i].erase();
+            }
+            player_cursor_ = 0;
+        } else {
+            for (u32 i = 1; i < settings_text_.size(); ++i) {
+                update_parameter(i);
+            }
+        }
+    }
 }
 
 
@@ -128,20 +156,48 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
 
     pfrm.system_call("v-parallax", (void*)true);
 
+    if (vs_parameters_[0]) {
+        setup_coop_game(pfrm, app);
+    } else {
+        setup_vs_game(pfrm, app);
+    }
+}
+
+
+
+void prep_level(Platform& pfrm, App& app);
+
+
+
+void MultiplayerSettingsScene::setup_coop_game(Platform& pfrm, App& app)
+{
+    std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 1000;
+
+    // NOTE: A co-op game is basically just SKYLAND Forever where both players
+    // share control of a castle.
+    SkylandForever::init(pfrm, app, 1);
+
+    app.game_mode() = App::GameMode::co_op;
+}
+
+
+
+void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
+{
     std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ =
-        parameters_[0];
+        vs_parameters_[1];
 
     std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_ =
-        parameters_[1];
+        vs_parameters_[2];
 
-    app.set_coins(pfrm, parameters_[2]);
+    app.set_coins(pfrm, vs_parameters_[3]);
 
 
-    app.player_island().init_terrain(pfrm, parameters_[3]);
+    app.player_island().init_terrain(pfrm, vs_parameters_[4]);
 
     // Now that we know the size of the terrain for the multiplayer match, we
     // can create and position the two islands.
-    app.create_opponent_island(pfrm, parameters_[3]);
+    app.create_opponent_island(pfrm, vs_parameters_[4]);
 
     app.opponent_island()->set_float_timer(
         std::numeric_limits<Microseconds>::max() / 2);
@@ -154,7 +210,7 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
 
     // Unless the island configured size is really tiny, leave a one-tile gap to
     // the left of the starting position of the power core.
-    const u8 player_start_x = parameters_[3] > 3 ? 1 : 0;
+    const u8 player_start_x = vs_parameters_[4] > 3 ? 1 : 0;
     app.player_island().add_room<Core>(pfrm, app, {player_start_x, 13});
 
     auto add_player_chr = [&app](u8 x, u8 y) {
@@ -167,7 +223,7 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
     const u8 opponent_start_x =
-        parameters_[3] > 3 ? parameters_[3] - 3 : parameters_[3] - 2;
+        vs_parameters_[4] > 3 ? vs_parameters_[4] - 3 : vs_parameters_[4] - 2;
     app.opponent_island()->add_room<Core>(pfrm, app, {opponent_start_x, 13});
 
     auto add_opponent_chr = [&app](u8 x, u8 y) {
@@ -178,11 +234,8 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
     add_opponent_chr(opponent_start_x, 14);
     add_opponent_chr(opponent_start_x + 1, 14);
 
-
     app.player_island().repaint(pfrm, app);
     app.opponent_island()->repaint(pfrm, app);
-
-    // TODO: place characters
 }
 
 
@@ -210,7 +263,7 @@ void MultiplayerSettingsScene::receive(
     App& app,
     const network::packet::GameMatchParameterUpdate& packet)
 {
-    parameters_[packet.parameter_id_] = packet.value_.get();
+    vs_parameters_[packet.parameter_id_] = packet.value_.get();
     update_parameter(packet.parameter_id_);
 }
 
@@ -238,10 +291,10 @@ void MultiplayerSettingsScene::receive(
 
 void MultiplayerSettingsScene::sync_parameters(Platform& pfrm)
 {
-    for (u32 i = 0; i < parameters_.size(); ++i) {
+    for (u32 i = 0; i < vs_parameters_.size(); ++i) {
         network::packet::GameMatchParameterUpdate p;
         p.parameter_id_ = i;
-        p.value_.set(parameters_[i]);
+        p.value_.set(vs_parameters_[i]);
         network::transmit(pfrm, p);
     }
 }
@@ -327,39 +380,49 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    const bool is_boolean_field =
+        param_info[player_cursor_].lower_limit_ == 0 and
+        param_info[player_cursor_].upper_limit_ == 1;
+
+
     if (app.player().key_down(pfrm, Key::right) or
         key_held_timers_[3] > milliseconds(500)) {
-        if (parameters_[player_cursor_] <
+        if (vs_parameters_[player_cursor_] <
             param_info[player_cursor_].upper_limit_) {
-            parameters_[player_cursor_] +=
+            vs_parameters_[player_cursor_] +=
                 param_info[player_cursor_].increment_;
+        } else if (is_boolean_field) {
+            vs_parameters_[player_cursor_] = not vs_parameters_[player_cursor_];
         }
         update_parameter(player_cursor_);
         key_held_timers_[3] -= milliseconds(80);
 
         network::packet::GameMatchParameterUpdate p;
         p.parameter_id_ = player_cursor_;
-        p.value_.set(parameters_[player_cursor_]);
+        p.value_.set(vs_parameters_[player_cursor_]);
         network::transmit(pfrm, p);
 
     } else if (app.player().key_down(pfrm, Key::left) or
                key_held_timers_[2] > milliseconds(500)) {
-        parameters_[player_cursor_] -= param_info[player_cursor_].increment_;
-        if (parameters_[player_cursor_] <
+        vs_parameters_[player_cursor_] -= param_info[player_cursor_].increment_;
+        if (vs_parameters_[player_cursor_] <
             param_info[player_cursor_].lower_limit_) {
-            parameters_[player_cursor_] =
+            vs_parameters_[player_cursor_] =
                 param_info[player_cursor_].lower_limit_;
+        } else if (is_boolean_field) {
+            vs_parameters_[player_cursor_] = not vs_parameters_[player_cursor_];
         }
         update_parameter(player_cursor_);
         key_held_timers_[2] -= milliseconds(80);
 
         network::packet::GameMatchParameterUpdate p;
         p.parameter_id_ = player_cursor_;
-        p.value_.set(parameters_[player_cursor_]);
+        p.value_.set(vs_parameters_[player_cursor_]);
         network::transmit(pfrm, p);
 
     } else if (app.player().key_down(pfrm, Key::down) and
-               player_cursor_ < parameters_.size() - 1) {
+               player_cursor_ < settings_text_.size() - 1 and
+               vs_parameters_[0] == 0) {
         ++player_cursor_;
 
         network::packet::GameMatchSettingsCursor c;

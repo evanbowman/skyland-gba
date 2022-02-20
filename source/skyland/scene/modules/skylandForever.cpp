@@ -82,9 +82,21 @@ void SkylandForever::exit(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_overlay_texture("overlay");
     pfrm.system_call("v-parallax", (void*)true);
 
+    init(pfrm, app, parameters_[0]);
+
+    pfrm.load_overlay_texture("overlay");
+    pfrm.system_call("v-parallax", (void*)true);
+
+    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+}
+
+
+
+void SkylandForever::init(Platform& pfrm, App& app, u8 difficulty)
+{
     app.set_coins(pfrm, 0);
 
-    switch (parameters_[0]) {
+    switch (difficulty) {
     case 0:
         app.invoke_script(pfrm, "/scripts/config/forever/easy.lisp");
         break;
@@ -110,16 +122,11 @@ void SkylandForever::exit(Platform& pfrm, App& app, Scene& prev)
     app.player_island().set_position({10, 374});
 
     app.reset_opponent_island(pfrm);
-    app.swap_opponent<ProcgenEnemyAI>(parameters_[0]);
+    app.swap_opponent<ProcgenEnemyAI>(difficulty);
 
 
     show_island_exterior(pfrm, app, &app.player_island());
     show_island_exterior(pfrm, app, app.opponent_island());
-
-    pfrm.load_overlay_texture("overlay");
-    pfrm.system_call("v-parallax", (void*)true);
-
-    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 }
 
 

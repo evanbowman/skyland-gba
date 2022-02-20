@@ -112,6 +112,7 @@ ScenePtr<Scene> StartMenuScene::update(Platform& pfrm,
                        fade_sweep);
             break;
 
+        case App::GameMode::co_op:
         case App::GameMode::multiplayer:
             Platform::fatal("logic error: multiplayer code should "
                             "not open a start menu!");

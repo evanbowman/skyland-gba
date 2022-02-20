@@ -38,6 +38,7 @@ struct Header {
         game_match_begin,
         heartbeat,
         dynamite_activated,
+        game_mode_selected,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -64,7 +65,12 @@ struct ProgramVersion {
 
 struct Heartbeat {
     Header header_;
-    u8 unused_[5];
+
+    // Just to make sure that players don't somehow end up in different
+    // multiplayer game modes. Mostly a sanity check.
+    u8 game_mode_;
+
+    u8 unused_[4];
 
     static const auto mt = Header::MessageType::heartbeat;
 };
@@ -370,6 +376,21 @@ struct GameMatchReady {
 
 
 
+struct GameModeSelected {
+    Header header_;
+
+    // 0: none
+    // 1: vs
+    // 2: co-op
+    u8 mode_;
+
+    u8 unused_[4];
+
+    static const auto mt = Header::MessageType::game_mode_selected;
+};
+
+
+
 } // namespace packet
 
 
@@ -490,6 +511,11 @@ public:
 
 
     virtual void receive(Platform&, App&, const packet::DynamiteActivated&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::GameModeSelected&)
     {
     }
 };

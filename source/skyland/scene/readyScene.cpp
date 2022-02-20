@@ -261,7 +261,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.player().key_up(pfrm, Key::start) and
-            app.game_mode() not_eq App::GameMode::multiplayer) {
+            app.game_mode() not_eq App::GameMode::multiplayer and
+            app.game_mode() not_eq App::GameMode::co_op) {
             return scene_pool::alloc<StartMenuScene>(pfrm, 0);
         }
 

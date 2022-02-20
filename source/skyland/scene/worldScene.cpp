@@ -128,6 +128,7 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (app.game_mode() not_eq App::GameMode::multiplayer and
+        app.game_mode() not_eq App::GameMode::multiplayer and
         app.input_setup_info()) {
 
         auto next = scene_pool::alloc<SelInputScene>(*app.input_setup_info(),
@@ -151,7 +152,8 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         cursor_loc.x = 0;
 
-        if (app.game_mode() not_eq App::GameMode::multiplayer) {
+        if (app.game_mode() not_eq App::GameMode::multiplayer and
+            app.game_mode() not_eq App::GameMode::co_op) {
             pfrm.sleep(4);
         }
 

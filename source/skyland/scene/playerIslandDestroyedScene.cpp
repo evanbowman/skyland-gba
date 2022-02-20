@@ -79,7 +79,8 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
 
     switch (lines_.size()) {
     case 0:
-        if (app.game_mode() == App::GameMode::skyland_forever) {
+        if (app.game_mode() == App::GameMode::skyland_forever or
+            app.game_mode() == App::GameMode::co_op) {
             print_metric_impl(
                 "time ",
                 format_time(app.persistent_data().total_seconds_.get(), true));
@@ -90,7 +91,8 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
         break;
 
     case 1:
-        if (app.game_mode() == App::GameMode::skyland_forever) {
+        if (app.game_mode() == App::GameMode::skyland_forever or
+            app.game_mode() == App::GameMode::co_op) {
             print_metric("pauses used ",
                          app.persistent_data().total_pauses_.get());
         } else {
@@ -423,7 +425,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             coins_.reset();
             power_.reset();
 
-            if (app.game_mode() == App::GameMode::skyland_forever) {
+            if (app.game_mode() == App::GameMode::skyland_forever or
+                app.game_mode() == App::GameMode::co_op) {
                 app.reset_opponent_island(pfrm);
                 return scene_pool::alloc<ReadyScene>();
             } else {
@@ -508,6 +511,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 case App::GameMode::sandbox:
                     return scene_pool::alloc<SandboxResetScene>();
 
+                case App::GameMode::co_op:
                 case App::GameMode::skyland_forever:
                     return scene_pool::alloc<ReadyScene>();
 
@@ -547,6 +551,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // screen.
                     return scene_pool::alloc<TitleScreenScene>();
 
+                case App::GameMode::co_op:
                 case App::GameMode::skyland_forever:
                     return scene_pool::alloc<HighscoresScene>(true, 3);
 

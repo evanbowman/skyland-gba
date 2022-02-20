@@ -381,7 +381,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             }
 
             if (destroyed_count < 2 and
-                app.game_mode() not_eq App::GameMode::multiplayer) {
+                app.game_mode() not_eq App::GameMode::multiplayer and
+                app.game_mode() not_eq App::GameMode::co_op) {
                 pfrm.sleep(2);
             }
 
@@ -410,7 +411,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             // Running a callback for each room destroyed and then resetting the
             // delta clock would ruin multiplayer sync. We have no need to
             // register an on-room-destroyed callback in multiplayer anyway...
-            if (app.game_mode() not_eq App::GameMode::multiplayer) {
+            if (app.game_mode() not_eq App::GameMode::multiplayer and
+                app.game_mode() not_eq App::GameMode::co_op) {
 
                 static auto destroyed_str = lisp::intern("on-room-destroyed");
 
