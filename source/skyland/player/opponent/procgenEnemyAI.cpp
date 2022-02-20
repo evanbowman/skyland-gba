@@ -67,8 +67,6 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
 void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 {
-    app.set_coins(pfrm, 10000000);
-
     for (auto& room : app.player_island().rooms()) {
         // TODO: gather information about the layout of the player's castle.
         (void)room;
@@ -169,8 +167,22 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
             } else if (levelgen_enemy_count_ > 7) {
                 frac = sf_p1_coin_yield * 0.01;
             }
-            app.victory_coins() += frac * (*room->metaclass())->cost();
+
+            if (app.game_mode() == App::GameMode::co_op) {
+                // For co-op, our score calculation differs slightly. Give each
+                // player half of the resulting coins.
+                app.victory_coins() += (frac * (*room->metaclass())->cost()) / 2;
+            } else {
+                app.victory_coins() += frac * (*room->metaclass())->cost();
+            }
+
         }
+    }
+
+    if (app.game_mode() == App::GameMode::co_op) {
+        // Give the player a just a bit more coins in co-op mode, as the coin
+        // count is shared with the other player.
+        app.victory_coins() += 500;
     }
 
     if (app.game_mode() not_eq App::GameMode::co_op) {
