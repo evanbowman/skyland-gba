@@ -50,8 +50,6 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::ReplicantCreated)
             HANDLE_MESSAGE(packet::OpponentBulkheadChanged)
             HANDLE_MESSAGE(packet::ProgramVersion)
-            HANDLE_MESSAGE(packet::BlockTransferStart)
-            HANDLE_MESSAGE(packet::BlockTransfer)
             HANDLE_MESSAGE(packet::DroneSpawn)
             HANDLE_MESSAGE(packet::DroneDestroyed)
             HANDLE_MESSAGE(packet::GameMatchParameterUpdate)
@@ -60,6 +58,8 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::Heartbeat)
             HANDLE_MESSAGE(packet::DynamiteActivated)
             HANDLE_MESSAGE(packet::CoopCursor)
+            HANDLE_MESSAGE(packet::CoopRngSync)
+            HANDLE_MESSAGE(packet::SetWeaponGroup)
         }
 
         error(pfrm, "garbled message!?");

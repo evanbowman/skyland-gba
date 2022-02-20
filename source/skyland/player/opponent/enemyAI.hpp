@@ -83,6 +83,12 @@ private:
     void resolve_insufficient_power(Platform&, App&);
 
 
+    void assign_weapon_target(Platform&,
+                              App&,
+                              Room& weapon,
+                              const Vec2<u8>& target);
+
+
     static const auto next_action_timeout = seconds(1);
 
     Microseconds next_action_timer_ = next_action_timeout;

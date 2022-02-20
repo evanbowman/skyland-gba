@@ -267,6 +267,7 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                 packet.src_y_ = initial_cursor_.y;
                 packet.dst_x_ = cursor_loc->x;
                 packet.dst_y_ = cursor_loc->y;
+                packet.owned_by_ai_ = false;
                 packet.near_island_ = island not_eq &app.player_island();
                 network::transmit(pfrm, packet);
 

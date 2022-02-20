@@ -88,13 +88,6 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    cursor_anim_timer_ += delta;
-    if (cursor_anim_timer_ > milliseconds(200)) {
-        cursor_anim_timer_ -= milliseconds(200);
-        cursor_anim_frame_ = not cursor_anim_frame_;
-    }
-
-
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
 
@@ -104,6 +97,16 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
     app.player().key_held_distribute(pfrm);
+
+
+    auto sync_cursor =
+        [&] {
+            app.player().network_sync_cursor(pfrm,
+                                             cursor_loc,
+                                             cursor_anim_frame_,
+                                             false);
+        };
+
 
 
     if (app.player().key_pressed(pfrm, Key::start)) {
@@ -116,9 +119,17 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 --cursor_loc.x;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+
+                sync_cursor();
+
             } else {
-                std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y =
-                    cursor_loc.y;
+                auto& near_cursor =
+                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+                near_cursor.y = cursor_loc.y;
+
+                app.player().network_sync_cursor(pfrm, near_cursor, 0, true);
+
                 return scene_pool::alloc<ReadyScene>();
             }
         }
@@ -128,6 +139,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 ++cursor_loc.x;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+                sync_cursor();
             }
         }
 
@@ -136,6 +148,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 --cursor_loc.y;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+                sync_cursor();
             }
         }
 
@@ -144,8 +157,17 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 ++cursor_loc.y;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+                sync_cursor();
             }
         }
+    }
+
+
+    cursor_anim_timer_ += delta;
+    if (cursor_anim_timer_ > milliseconds(200)) {
+        cursor_anim_timer_ -= milliseconds(200);
+        cursor_anim_frame_ = not cursor_anim_frame_;
+        sync_cursor();
     }
 
 

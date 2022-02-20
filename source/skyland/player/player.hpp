@@ -163,6 +163,14 @@ public:
     }
 
 
+    virtual void network_sync_cursor(Platform& pfrm,
+                                     const Vec2<u8>& cursor,
+                                     u8 cursor_icon,
+                                     bool near)
+    {
+    }
+
+
     int rooms_lost_ = 0;
     int rooms_built_ = 0;
 

@@ -91,6 +91,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             ++cursor_loc.x;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
+
+            app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
         }
     }
     if (test_key(Key::down)) {
@@ -98,6 +100,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             ++cursor_loc.y;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
+
+            app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
         }
     }
     if (test_key(Key::up)) {
@@ -105,6 +109,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             --cursor_loc.y;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
+
+            app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
         }
     }
     if (test_key(Key::left)) {
@@ -112,6 +118,8 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             --cursor_loc.x;
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
+
+            app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
         }
     }
 
@@ -304,6 +312,8 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
             std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
         cursor_loc.x = targets_[selector_].x;
         cursor_loc.y = targets_[selector_].y;
+
+        app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
 
         if (initial_pos_) {
             cursor_loc = *initial_pos_;

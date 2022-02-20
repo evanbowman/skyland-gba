@@ -2,6 +2,7 @@
 #include "readyScene.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -62,6 +63,12 @@ AssignWeaponGroupScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                     room->set_group(group);
                     app.player_island().repaint(pfrm, app);
+
+                    network::packet::SetWeaponGroup p;
+                    p.x_ = cursor_loc.x;
+                    p.y_ = cursor_loc.y;
+                    p.group_ = (u8)group;
+                    network::transmit(pfrm, p);
                 }
             }
         }

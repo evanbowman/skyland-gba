@@ -289,7 +289,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 packet.chr_y_ = (*it)->grid_position().y;
                 // NOTE: some fields intentionally inverted, everything is sort
                 // of flipped from the receiver's perspective.
-                packet.near_island_ = &owner() not_eq &app.player();
+                packet.near_island_ = this not_eq &app.player_island();
                 packet.chr_owned_by_player_ =
                     (*it)->owner() not_eq &app.player();
                 network::transmit(pfrm, packet);

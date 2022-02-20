@@ -9,6 +9,7 @@
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/player/opponent/friendlyAI.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/network.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/serial.hpp"
 #include "skyland/skyland.hpp"
@@ -204,6 +205,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.time_stream().clear();
 
 
+    app.player().update(pfrm, app, delta);
+
+
     const bool opponent_defeated = island_ not_eq &app.player_island();
 
 
@@ -281,8 +285,15 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.speaker().set_music_volume(1);
 
         if (app.game_mode() not_eq App::GameMode::adventure and
-            app.game_mode() not_eq App::GameMode::skyland_forever) {
+            app.game_mode() not_eq App::GameMode::skyland_forever and
+            app.game_mode() not_eq App::GameMode::co_op) {
             pfrm.speaker().play_music("unaccompanied_wind", 0);
+
+            if (pfrm.network_peer().is_host()) {
+                network::packet::CoopRngSync p;
+                p.rng_state_.set(rng::critical_state);
+                network::transmit(pfrm, p);
+            }
         }
 
         pfrm.speaker().play_sound("explosion1", 3);

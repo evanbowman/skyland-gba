@@ -28,8 +28,6 @@ struct Header {
         replicant_created,
         bulkhead_changed,
         program_version,
-        block_transfer_start,
-        block_transfer,
         drone_set_target,
         drone_spawn,
         drone_destroyed,
@@ -39,6 +37,8 @@ struct Header {
         heartbeat,
         dynamite_activated,
         co_op_cursor,
+        co_op_rng_sync,
+        set_weapon_group,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -66,11 +66,7 @@ struct ProgramVersion {
 struct Heartbeat {
     Header header_;
 
-    // Just to make sure that players don't somehow end up in different
-    // multiplayer game modes. Mostly a sanity check.
-    u8 game_mode_;
-
-    u8 unused_[4];
+    u8 unused_[5];
 
     static const auto mt = Header::MessageType::heartbeat;
 };
@@ -162,7 +158,8 @@ struct CharacterSetTarget {
     u8 dst_x_;
     u8 dst_y_;
 
-    bool near_island_;
+    bool near_island_ : 1;
+    bool owned_by_ai_ : 1;
 
     static const auto mt = Header::MessageType::character_set_target;
 };
@@ -249,7 +246,7 @@ struct CharacterDisembark {
     u8 dst_x_;
     u8 dst_y_;
 
-    u8 unused_;
+    bool owned_by_ai_ : 1;
 
     static const auto mt = Header::MessageType::character_disembark;
 };
@@ -321,30 +318,6 @@ struct OpponentBulkheadChanged {
 
 
 
-struct BlockTransferStart {
-    Header header_;
-
-    enum class Category : u8 { null } category_;
-
-    host_u16 length_;
-
-    u8 unused_[2];
-
-    static const auto mt = Header::MessageType::block_transfer_start;
-};
-
-
-
-struct BlockTransfer {
-    Header header_;
-    u8 sequence_; // (a block transfer can span 256 * 4 bytes)
-    u8 data_[4];
-
-    static const auto mt = Header::MessageType::block_transfer;
-};
-
-
-
 struct GameMatchParameterUpdate {
     Header header_;
     u8 parameter_id_;
@@ -380,10 +353,35 @@ struct CoopCursor {
     u8 x_;
     u8 y_;
     bool near_;
+    u8 icon_;
+
+    u8 unused_[1];
+
+    static const auto mt = Header::MessageType::co_op_cursor;
+};
+
+
+
+struct CoopRngSync {
+    Header header_;
+    host_s32 rng_state_;
+
+    u8 unused_[1];
+
+    static const auto mt = Header::MessageType::co_op_rng_sync;
+};
+
+
+
+struct SetWeaponGroup {
+    Header header_;
+    u8 x_;
+    u8 y_;
+    u8 group_;
 
     u8 unused_[2];
 
-    static const auto mt = Header::MessageType::co_op_cursor;
+    static const auto mt = Header::MessageType::set_weapon_group;
 };
 
 
@@ -465,16 +463,6 @@ public:
     }
 
 
-    virtual void receive(Platform&, App&, const packet::BlockTransferStart&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::BlockTransfer&)
-    {
-    }
-
-
     virtual void receive(Platform&, App&, const packet::DroneSpawn&)
     {
     }
@@ -513,6 +501,16 @@ public:
 
 
     virtual void receive(Platform&, App&, const packet::CoopCursor&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::CoopRngSync&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::SetWeaponGroup&)
     {
     }
 };

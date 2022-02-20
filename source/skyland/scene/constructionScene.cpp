@@ -160,6 +160,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm, k, milliseconds(500), milliseconds(100));
     };
 
+    bool sync_cursor = false;
+
 
     switch (state_) {
     case State::select_loc:
@@ -167,6 +169,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::right)) {
             if (selector_ < construction_sites_.size() - 1) {
                 ++selector_;
+
+                sync_cursor = true;
+
             } else if (near_ and app.game_mode() == App::GameMode::sandbox and
                        app.opponent_island()) {
                 auto& cursor_loc =
@@ -182,6 +187,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::left)) {
             if (selector_ > 0) {
                 --selector_;
+
+                sync_cursor = true;
+
             } else if (not near_ and
                        app.game_mode() == App::GameMode::sandbox) {
                 auto& cursor_loc =
@@ -197,6 +205,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (not construction_sites_.empty()) {
             cursor_loc.x = construction_sites_[selector_].x;
             cursor_loc.y = construction_sites_[selector_].y;
+
+            if (sync_cursor) {
+                app.player().network_sync_cursor(pfrm, cursor_loc, 3, true);
+            }
         }
 
         if (((tapclick and *tapclick == construction_sites_[selector_]) or
@@ -782,7 +794,7 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
     }
 
     auto& terrain = island(app)->terrain();
-    if (not terrain.full() and not pfrm.network_peer().is_connected()) {
+    if (not terrain.full() and app.game_mode() not_eq App::GameMode::multiplayer) {
         construction_sites_.push_back({u8(terrain.size()), 15});
     }
 
@@ -791,6 +803,13 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
     } else if (selector_ >= construction_sites_.size()) {
         selector_--;
     }
+
+    // if (not construction_sites_.empty()) {
+    //     Vec2<u8> cursor_loc;
+    //     cursor_loc.x = construction_sites_[selector_].x;
+    //     cursor_loc.y = construction_sites_[selector_].y;
+
+    // }
 }
 
 
@@ -960,6 +979,8 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
                 selector_ = i;
             }
         }
+
+        app.player().network_sync_cursor(pfrm, cursor_loc, 3, true);
     }
 
     msg(pfrm, SYSTR(construction_build)->c_str());

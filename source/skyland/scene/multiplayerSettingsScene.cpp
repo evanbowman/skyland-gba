@@ -176,8 +176,8 @@ void prep_level(Platform& pfrm, App& app);
 
 void MultiplayerSettingsScene::setup_coop_game(Platform& pfrm, App& app)
 {
-    std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 30;
     std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_ = true;
+    std::get<SkylandGlobalData>(globals()).coop_cursor_icon_ = 15;
 
     // NOTE: A co-op game is basically just SKYLAND Forever where both players
     // share control of a castle.

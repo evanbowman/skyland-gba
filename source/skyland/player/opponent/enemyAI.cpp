@@ -2,6 +2,7 @@
 #include "number/random.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/entity/projectile/missile.hpp"
+#include "skyland/network.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/bulkhead.hpp"
@@ -128,7 +129,8 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
             // cause lag, so we instead update the target of one room per
             // iteration of the loop.
 
-            if (app.opponent_island()->rooms().size() > 20) {
+            if (app.opponent_island()->rooms().size() > 20 or
+                app.game_mode() == App::GameMode::co_op) {
                 if (room_update_index_ >=
                     app.opponent_island()->rooms().size()) {
                     room_update_index_ = 0;
@@ -170,6 +172,28 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
     }
+}
+
+
+
+void EnemyAI::assign_weapon_target(Platform& pfrm,
+                                   App& app,
+                                   Room& weapon,
+                                   const Vec2<u8>& target)
+{
+    weapon.set_target(pfrm, app, target);
+
+    // NOTE: in co-op mode, one console controls the AI, and needs to update the
+    // other console withe the AI's decisions. We _could_ have both consoles run
+    // a copy of the AI, but it's way simpler to have a single instance of the
+    // AI.
+    network::packet::WeaponSetTarget packet;
+    packet.weapon_x_ = weapon.position().x;
+    packet.weapon_y_ = weapon.position().y;
+    packet.target_x_ = target.x;
+    packet.target_y_ = target.y;
+    packet.weapon_near_ = false;
+    network::transmit(pfrm, packet);
 }
 
 
@@ -589,6 +613,18 @@ void EnemyAI::assign_local_character(Platform& pfrm,
             // Don't waste a path buffer on an entity if the ideal path
             // represents a single node with the character's current position.
             character.set_movement_path(pfrm, app, std::move(*path));
+
+            network::packet::CharacterSetTarget packet;
+            packet.src_x_ = current_pos.x;
+            packet.src_y_ = current_pos.y;
+            packet.dst_x_ = target.coord_.x;
+            packet.dst_y_ = target.coord_.x;
+            packet.owned_by_ai_ = true;
+
+            // Intentionally inverted, for historical reasons
+            packet.near_island_ = true;
+
+            network::transmit(pfrm, packet);
         }
     }
 }
@@ -738,6 +774,15 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
             // Don't waste a path buffer on an entity if the ideal path
             // represents a single node with the character's current position.
             character.set_movement_path(pfrm, app, std::move(*path));
+
+            network::packet::CharacterSetTarget packet;
+            packet.src_x_ = current_pos.x;
+            packet.src_y_ = current_pos.y;
+            packet.dst_x_ = target.coord_.x;
+            packet.dst_y_ = target.coord_.x;
+            packet.owned_by_ai_ = true;
+            packet.near_island_ = false;
+            network::transmit(pfrm, packet);
         }
     }
 }
@@ -786,7 +831,7 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     if (highest_weighted_room) {
-        ion_cannon.set_target(pfrm, app, highest_weighted_room->position());
+        assign_weapon_target(pfrm, app, ion_cannon, highest_weighted_room->position());
     }
 }
 
@@ -1389,13 +1434,14 @@ void EnemyAI::set_target(Platform& pfrm,
         if (app.game_mode() not_eq App::GameMode::tutorial and
             visible_rooms.size() > 1 and
             rng::choice<4>(rng::utility_state) == 0) {
-            silo.set_target(pfrm,
-                            app,
-                            visible_rooms[rng::choice(visible_rooms.size(),
+            assign_weapon_target(pfrm,
+                                 app,
+                                 silo,
+                                 visible_rooms[rng::choice(visible_rooms.size(),
                                                       rng::utility_state)]
-                                ->position());
+                                 ->position());
         } else {
-            silo.set_target(pfrm, app, target->position());
+            assign_weapon_target(pfrm, app, silo, target->position());
         }
     }
 }
@@ -1473,7 +1519,10 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     if (highest_weighted_room) {
-        flak_gun.set_target(pfrm, app, highest_weighted_room->position());
+        assign_weapon_target(pfrm,
+                             app,
+                             flak_gun,
+                             highest_weighted_room->position());
     }
 }
 
@@ -1545,7 +1594,10 @@ void EnemyAI::set_target(Platform& pfrm,
             target = highest_weighted_second_tier_room;
         }
 
-        generic_gun.set_target(pfrm, app, target->position());
+        assign_weapon_target(pfrm,
+                             app,
+                             generic_gun,
+                             target->position());
     }
 }
 

@@ -33,9 +33,18 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (not app.opponent_island()) {
         generate_level(pfrm, app);
+        if (app.game_mode() == App::GameMode::co_op) {
+            std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 40;
+        }
     } else {
+        auto mt_prep_seconds =
+            std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+
         if (app.game_mode() == App::GameMode::co_op) {
 
+            if (mt_prep_seconds == 0 and pfrm.network_peer().is_host()) {
+                EnemyAI::update(pfrm, app, delta);
+            }
         } else {
             EnemyAI::update(pfrm, app, delta);
         }
@@ -58,7 +67,7 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
 void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 {
-    app.victory_coins();
+    app.set_coins(pfrm, 10000000);
 
     for (auto& room : app.player_island().rooms()) {
         // TODO: gather information about the layout of the player's castle.
@@ -164,8 +173,10 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
         }
     }
 
-    app.time_stream().enable_pushes(true);
-    app.time_stream().clear();
+    if (app.game_mode() not_eq App::GameMode::co_op) {
+        app.time_stream().enable_pushes(true);
+        app.time_stream().clear();
+    }
 
     level_text_.emplace(
         pfrm,

@@ -183,6 +183,34 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void WorldScene::display(Platform& pfrm, App& app)
 {
+    if (app.game_mode() == App::GameMode::co_op) {
+        Sprite cursor;
+        cursor.set_size(Sprite::Size::w16_h32);
+        cursor.set_texture_index(std::get<SkylandGlobalData>(globals())
+                                 .coop_cursor_icon_);
+
+        auto cursor_loc = std::get<SkylandGlobalData>(globals()).coop_cursor_;
+
+        if (std::get<SkylandGlobalData>(globals()).coop_cursor_near_) {
+
+            auto origin = app.player_island().visual_origin();
+
+            origin.x += cursor_loc.x * 16;
+            origin.y += cursor_loc.y * 16;
+
+            cursor.set_position(origin);
+        } else if (app.opponent_island()) {
+            auto origin = app.opponent_island()->visual_origin();
+
+            origin.x += cursor_loc.x * 16;
+            origin.y += cursor_loc.y * 16;
+
+            cursor.set_position(origin);
+        }
+
+        pfrm.screen().draw(cursor);
+    }
+
     app.player_island().display(pfrm);
 
     if (app.opponent_island()) {

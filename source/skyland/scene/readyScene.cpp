@@ -212,6 +212,16 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
 
+
+    auto sync_cursor =
+        [&] {
+            app.player().network_sync_cursor(pfrm,
+                                             cursor_loc,
+                                             cursor_anim_frame_,
+                                             true);
+        };
+
+
     if (not app.player().key_pressed(pfrm, Key::start)) {
 
         if (tapped_topleft_corner(pfrm, app) or
@@ -224,12 +234,17 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 --cursor_loc.x;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+
+                sync_cursor();
             }
         } else if (test_key(Key::right)) {
             if (cursor_loc.x < app.player_island().terrain().size()) {
                 ++cursor_loc.x;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+
+                sync_cursor();
+
             } else if ( // Do not allow the player to inspect the other island if we're in
                 // the multiplayer waiting room.
                 app.opponent_island() and
@@ -242,6 +257,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_loc.y =
                     std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
 
+                app.player().network_sync_cursor(pfrm, cursor_loc, 0, false);
+
                 return scene_pool::alloc<InspectP2Scene>();
             }
         }
@@ -251,12 +268,16 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 --cursor_loc.y;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+
+                sync_cursor();
             }
         } else if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+
+                sync_cursor();
             }
         }
 
@@ -287,6 +308,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (cursor_anim_timer_ > milliseconds(200)) {
         cursor_anim_timer_ -= milliseconds(200);
         cursor_anim_frame_ = not cursor_anim_frame_;
+        sync_cursor();
     }
 
 

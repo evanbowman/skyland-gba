@@ -45,6 +45,10 @@ struct SkylandGlobalData {
 
     bool unhide_multiplayer_prep_ = false;
     int levels_since_music_ = 0;
+
+    Vec2<u8> coop_cursor_;
+    bool coop_cursor_near_ = true;
+    u8 coop_cursor_icon_ = 15;
 };
 
 
