@@ -238,7 +238,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                 mt_prep_timer -= seconds(1);
                 mt_prep_seconds--;
 
-                if (mt_prep_seconds == 0) {
+                if (mt_prep_seconds == 0 and
+                    app.game_mode() not_eq App::GameMode::co_op) {
                     return scene_pool::alloc<MultiplayerReadyScene>();
                 }
 

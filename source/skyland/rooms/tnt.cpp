@@ -134,11 +134,11 @@ void Explosive::ignite(Platform& pfrm, App& app, int range, Health damage)
         }
     }
 
-    if (app.game_mode() == App::GameMode::adventure or
-        app.game_mode() == App::GameMode::skyland_forever) {
+    for (auto& room : *targets) {
+        room->apply_damage(pfrm, app, damage);
 
-        for (auto& room : *targets) {
-            room->apply_damage(pfrm, app, damage);
+        if (app.game_mode() == App::GameMode::adventure or
+            app.game_mode() == App::GameMode::skyland_forever) {
 
             // Hack added for an achievement where you unlock dynamite-ii when
             // destroying invading goblins with dynamite.

@@ -125,6 +125,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
                 packet.weapon_y_ = room.position().y;
                 packet.target_x_ = cursor_loc.x;
                 packet.target_y_ = cursor_loc.y;
+                packet.weapon_near_ = true;
                 network::transmit(pfrm, packet);
             };
 

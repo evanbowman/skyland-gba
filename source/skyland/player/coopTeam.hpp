@@ -22,6 +22,11 @@ public:
 
     void receive(Platform& pfrm,
                  App& app,
+                 const network::packet::WeaponSetTarget& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
                  const network::packet::RoomSalvaged& packet) override;
 
 

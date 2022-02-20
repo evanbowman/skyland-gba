@@ -34,7 +34,11 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
     if (not app.opponent_island()) {
         generate_level(pfrm, app);
     } else {
-        EnemyAI::update(pfrm, app, delta);
+        if (app.game_mode() == App::GameMode::co_op) {
+
+        } else {
+            EnemyAI::update(pfrm, app, delta);
+        }
     }
 
     if (not app.opponent_island() or app.player_island().is_destroyed()) {

@@ -38,7 +38,7 @@ struct Header {
         game_match_begin,
         heartbeat,
         dynamite_activated,
-        game_mode_selected,
+        co_op_cursor,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -129,8 +129,7 @@ struct WeaponSetTarget {
     u8 weapon_y_;
     u8 target_x_;
     u8 target_y_;
-
-    u8 unused_[1];
+    bool weapon_near_;
 
     static const auto mt = Header::MessageType::weapon_set_target;
 };
@@ -376,17 +375,15 @@ struct GameMatchReady {
 
 
 
-struct GameModeSelected {
+struct CoopCursor {
     Header header_;
+    u8 x_;
+    u8 y_;
+    bool near_;
 
-    // 0: none
-    // 1: vs
-    // 2: co-op
-    u8 mode_;
+    u8 unused_[2];
 
-    u8 unused_[4];
-
-    static const auto mt = Header::MessageType::game_mode_selected;
+    static const auto mt = Header::MessageType::co_op_cursor;
 };
 
 
@@ -515,7 +512,7 @@ public:
     }
 
 
-    virtual void receive(Platform&, App&, const packet::GameModeSelected&)
+    virtual void receive(Platform&, App&, const packet::CoopCursor&)
     {
     }
 };

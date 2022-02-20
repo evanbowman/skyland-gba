@@ -5,6 +5,7 @@
 #include "skyland/rooms/core.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/scene/modules/skylandForever.hpp"
+#include "skyland/player/coopTeam.hpp"
 
 
 
@@ -78,6 +79,10 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
 void MultiplayerSettingsScene::update_parameter(u8 line_num)
 {
     if (line_num >= vs_parameters_.capacity()) {
+        return;
+    }
+
+    if (vs_parameters_[0] and line_num > 0) {
         return;
     }
 
@@ -171,11 +176,14 @@ void prep_level(Platform& pfrm, App& app);
 
 void MultiplayerSettingsScene::setup_coop_game(Platform& pfrm, App& app)
 {
-    std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 1000;
+    std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 30;
+    std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_ = true;
 
     // NOTE: A co-op game is basically just SKYLAND Forever where both players
     // share control of a castle.
     SkylandForever::init(pfrm, app, 1);
+
+    app.swap_player<CoopTeam>();
 
     app.game_mode() = App::GameMode::co_op;
 }

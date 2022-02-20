@@ -4986,6 +4986,20 @@ static bool multiplayer_busy()
 }
 
 
+int Platform::NetworkPeer::send_queue_size() const
+{
+    int result = 0;
+
+    for (auto ptr : multiplayer_comms.tx_ring) {
+        if (ptr) {
+            ++result;
+        }
+    }
+
+    return result;
+}
+
+
 bool Platform::NetworkPeer::send_message(const Message& message)
 {
     if (message.length_ > sizeof(TxInfo::data_)) {
