@@ -3,6 +3,7 @@
 #include "skyland/rooms/tnt.hpp"
 #include "number/random.hpp"
 #include "skyland/rooms/bulkhead.hpp"
+#include "skyland/rooms/transporter.hpp"
 
 
 
@@ -194,31 +195,18 @@ void CoopTeam::receive(Platform& pfrm,
     const auto src = Vec2<u8>{packet.src_x_, packet.src_y_};
     const auto dst = Vec2<u8>{packet.dst_x_, packet.dst_y_};
 
-    if (auto room = player_island(app).get_room(src)) {
-        for (auto it = room->characters().begin();
-             it not_eq room->characters().end();) {
+    auto source_island = packet.transporter_near_ ?
+        &player_island(app) : opponent_island(app);
 
-            if ((*it)->grid_position() == src and
-                (*it)->owner() == &player(app)) {
+    auto dest_island = packet.transporter_near_ ?
+        opponent_island(app) : &player_island(app);
 
-                auto unlinked = std::move(*it);
-                room->characters().erase(it);
-
-                unlinked->set_grid_position(dst);
-                unlinked->set_parent(opponent_island(app));
-                unlinked->transported();
-
-                if (auto dst_room = opponent_island(app)->get_room(dst)) {
-                    dst_room->characters().push(std::move(unlinked));
-                }
-
-                return;
-
-            } else {
-                ++it;
-            }
-        }
-    }
+    transport_character_impl(app,
+                             packet.owned_by_ai_,
+                             source_island,
+                             dest_island,
+                             src,
+                             dst);
 }
 
 
@@ -231,36 +219,21 @@ void CoopTeam::receive(Platform& pfrm,
         return;
     }
 
-    // TODO: pretty much identical to the code above for the CharacterBoarded
-    // event, refactor this stuff to one function.x
-
     const auto src = Vec2<u8>{packet.src_x_, packet.src_y_};
     const auto dst = Vec2<u8>{packet.dst_x_, packet.dst_y_};
 
-    if (auto room = opponent_island(app)->get_room(src)) {
-        for (auto it = room->characters().begin();
-             it not_eq room->characters().end();) {
+    auto dest_island = packet.transporter_near_ ?
+        &player_island(app) : opponent_island(app);
 
-            if ((*it)->grid_position() == src and
-                (*it)->owner() == &player(app)) {
+    auto source_island = packet.transporter_near_ ?
+        opponent_island(app) : &player_island(app);
 
-                auto unlinked = std::move(*it);
-                room->characters().erase(it);
-
-                unlinked->set_grid_position(dst);
-                unlinked->set_parent(&player_island(app));
-                unlinked->transported();
-
-                if (auto dst_room = player_island(app).get_room(dst)) {
-                    dst_room->characters().push(std::move(unlinked));
-                }
-
-                return;
-            } else {
-                ++it;
-            }
-        }
-    }
+    transport_character_impl(app,
+                             packet.owned_by_ai_,
+                             source_island,
+                             dest_island,
+                             src,
+                             dst);
 }
 
 

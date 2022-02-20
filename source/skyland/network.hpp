@@ -231,7 +231,9 @@ struct CharacterBoarded {
     u8 dst_x_;
     u8 dst_y_;
 
-    u8 unused_;
+    bool owned_by_ai_ : 1;
+    bool transporter_near_ : 1;
+    bool unused_ : 6;
 
     static const auto mt = Header::MessageType::character_boarded;
 };
@@ -247,6 +249,8 @@ struct CharacterDisembark {
     u8 dst_y_;
 
     bool owned_by_ai_ : 1;
+    bool transporter_near_ : 1;
+    bool unused_ : 6;
 
     static const auto mt = Header::MessageType::character_disembark;
 };

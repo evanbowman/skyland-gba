@@ -134,15 +134,29 @@ void Transporter::recover_character(Platform& pfrm,
                 const Vec2<u8> dst = {this->position().x,
                                       u8(this->position().y + 1)};
 
-                if (&parent()->owner() == &app.player()) {
-                    network::packet::CharacterDisembark packet;
-                    packet.src_x_ = unlinked->grid_position().x;
-                    packet.src_y_ = unlinked->grid_position().y;
-                    packet.dst_x_ = dst.x;
-                    packet.dst_y_ = dst.y;
-                    network::transmit(pfrm, packet);
-                }
+                network::packet::CharacterDisembark packet;
+                packet.src_x_ = unlinked->grid_position().x;
+                packet.src_y_ = unlinked->grid_position().y;
+                packet.dst_x_ = dst.x;
+                packet.dst_y_ = dst.y;
+                packet.transporter_near_ = &parent()->owner() == &app.player();
+                packet.owned_by_ai_ = (*unlinked).owner() not_eq &app.player();
+                network::transmit(pfrm, packet);
 
+                // Maybe you're thinking: why is he recording two separate
+                // events? Wouldn't it be better to just record a single type of
+                // event and handle them all the same way? If we had tons of
+                // memory, I wouldn't have needed to split the network events
+                // and the timestream events. But for rewinding we care about
+                // the previous state, and for multiplayer, we care about the
+                // current state, and storing them both in the same structure
+                // uses a lot more memory (limiting the amount of stuff that
+                // we're able to rewind). Furthermore, our six-byte network
+                // packets can't fit the extra data. The code looks a bit
+                // redundant, but the player will never see the code, but he/she
+                // definitely might care about the amount of stuff in a level
+                // that he/she can rewind through, so the decision here is
+                // fairly straightforward.
                 time_stream::event::CharacterDisembark e;
                 e.id_.set(unlinked->id());
                 e.previous_x_ = unlinked->grid_position().x;
@@ -227,14 +241,15 @@ void Transporter::transport_occupant(Platform& pfrm,
 
     if (auto room = island->get_room(*dest)) {
 
-        if (&parent()->owner() == &app.player()) {
-            network::packet::CharacterBoarded packet;
-            packet.src_x_ = (*chr)->grid_position().x;
-            packet.src_y_ = (*chr)->grid_position().y;
-            packet.dst_x_ = dest->x;
-            packet.dst_y_ = dest->y;
-            network::transmit(pfrm, packet);
-        }
+        network::packet::CharacterBoarded packet;
+        packet.src_x_ = (*chr)->grid_position().x;
+        packet.src_y_ = (*chr)->grid_position().y;
+        packet.dst_x_ = dest->x;
+        packet.dst_y_ = dest->y;
+        packet.transporter_near_ = &parent()->owner() == &app.player();
+        packet.owned_by_ai_ = (*chr)->owner() not_eq &app.player();
+        network::transmit(pfrm, packet);
+
 
         time_stream::event::CharacterTransported e;
         e.previous_x_ = (*chr)->grid_position().x;
@@ -324,6 +339,46 @@ bool Transporter::ready() const
 {
     return recharge_ == 0 and
            parent()->power_supply() > parent()->power_drain();
+}
+
+
+
+// TODO: use this function above. No need for transport code to be
+// duplicated across the codebase.
+void transport_character_impl(App& app,
+                              bool ai_controlled,
+                              Island* src_island,
+                              Island* dst_island,
+                              const Vec2<u8>& src,
+                              const Vec2<u8>& dst,
+                              int signal)
+{
+    if (auto room = src_island->get_room(src)) {
+        for (auto it = room->characters().begin();
+             it not_eq room->characters().end();) {
+
+            if ((*it)->grid_position() == src and
+                ((not ai_controlled) == ((*it)->owner() == &player(app)))) {
+
+                auto unlinked = std::move(*it);
+                room->characters().erase(it);
+
+                unlinked->set_grid_position(dst);
+                unlinked->set_parent(dst_island);
+                unlinked->transported();
+
+                if (auto dst_room = dst_island->get_room(dst)) {
+                    dst_room->characters().push(std::move(unlinked));
+                    dst_room->ready();
+                }
+
+                return;
+
+            } else {
+                ++it;
+            }
+        }
+    }
 }
 
 

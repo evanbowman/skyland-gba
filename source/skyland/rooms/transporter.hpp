@@ -106,4 +106,15 @@ private:
 
 
 
+void transport_character_impl(App& app,
+                              bool ai_controlled,
+                              Island* src_island,
+                              Island* dst_island,
+                              const Vec2<u8>& src,
+                              const Vec2<u8>& dst,
+                              int signal = 0);
+
+
+
+
 } // namespace skyland
