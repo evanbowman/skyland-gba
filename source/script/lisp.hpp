@@ -25,6 +25,7 @@
 #include "string.hpp"
 #include "unicode.hpp"
 #include "vector.hpp"
+#include "value.hpp"
 
 
 class Platform;

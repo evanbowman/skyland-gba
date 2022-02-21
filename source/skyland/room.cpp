@@ -6,6 +6,7 @@
 #include "scene/moveCharacterScene.hpp"
 #include "skyland.hpp"
 #include "timeStreamEvent.hpp"
+#include "script/listBuilder.hpp"
 
 
 
@@ -126,7 +127,8 @@ void Room::display(Platform::Screen& screen)
 
 
 
-void Room::display_on_hover(Platform::Screen& screen)
+void Room::display_on_hover(Platform::Screen& screen,
+                            const Vec2<u8>& cursor)
 {
 }
 
@@ -354,6 +356,32 @@ ScenePtr<Scene> Room::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
     }
 
     return null_scene();
+}
+
+
+
+lisp::Value* Room::serialize()
+{
+    lisp::ListBuilder builder;
+
+    builder.push_back(lisp::make_symbol(name()));
+    builder.push_back(lisp::make_integer(position().x));
+    builder.push_back(lisp::make_integer(position().y));
+
+    if (health() not_eq max_health()) {
+        builder.push_back(lisp::make_integer(health()));
+    }
+
+    return builder.result();
+}
+
+
+
+void Room::deserialize(lisp::Value* list)
+{
+    if (lisp::length(list) >= 4) {
+        __set_health(lisp::get_list(list, 3)->integer().value_);
+    }
 }
 
 

@@ -440,15 +440,16 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, user_data);
 
-         auto pfrm = lisp::interp_get_pfrm();
-
          auto island = (Island*)lisp::get_op(0)->user_data().obj_;
-         auto result = serialize(*pfrm, *island);
-         lisp::BasicCharSequence seq(result->c_str());
-         lisp::read(seq);
-         auto ret = lisp::get_op(0);
-         lisp::pop_op();
-         return ret;
+
+         lisp::ListBuilder result;
+         for (auto& room : island->rooms()) {
+             lisp::push_op(room->serialize()); // protect from gc.
+             result.push_back(lisp::get_op(0));
+             lisp::pop_op();
+         }
+
+         return result.result();
      }},
     {"chrs",
      [](int argc) {

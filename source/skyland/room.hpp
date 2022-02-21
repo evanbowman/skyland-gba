@@ -10,6 +10,7 @@
 #include "power.hpp"
 #include "scene.hpp"
 #include <memory>
+#include "script/value.hpp"
 
 
 
@@ -128,7 +129,8 @@ public:
     virtual void display(Platform::Screen& screen);
 
 
-    virtual void display_on_hover(Platform::Screen& screen);
+    virtual void display_on_hover(Platform::Screen& screen,
+                                  const Vec2<u8>& cursor);
 
 
     Island* other_island(App&);
@@ -199,6 +201,13 @@ public:
 
 
     virtual void finalize(Platform& pfrm, App& app);
+
+
+    // NOTE: The first three elements of the result list must be room name
+    // symbol, x, y. Subsequent entries in the list can contain whatever you
+    // want.
+    virtual lisp::Value* serialize();
+    virtual void deserialize(lisp::Value*);
 
 
     Health health() const

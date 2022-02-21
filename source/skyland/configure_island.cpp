@@ -29,14 +29,8 @@ void configure_island(Platform& pfrm,
 
             if (auto c = load_metaclass(name_symb->symbol().name_)) {
                 (*c)->create(pfrm, app, &island, Vec2<u8>{x, y});
-            }
-
-            // Optionally, the schema for saving rooms will include a health
-            // parameter.
-            if (len >= 4) {
-                const auto health = lisp::get_list(val, 3)->integer().value_;
                 if (auto room = island.get_room({x, y})) {
-                    room->__set_health(health);
+                    room->deserialize(val);
                 }
             }
         }

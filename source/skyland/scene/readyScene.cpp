@@ -589,6 +589,9 @@ void ReadyScene::display(Platform& pfrm, App& app)
         pfrm.screen().draw(cursor);
     }
 
+    if (auto room = app.player_island().get_room(cursor_loc)) {
+        room->display_on_hover(pfrm.screen(), cursor_loc);
+    }
 
     WorldScene::display(pfrm, app);
 }

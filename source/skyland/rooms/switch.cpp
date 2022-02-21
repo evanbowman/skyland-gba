@@ -61,7 +61,6 @@ void Switch::render_exterior(App& app, u8 buffer[16][16])
     } else {
         buffer[position().x + 1][position().y] = Tile::switch_off;
     }
-
 }
 
 
