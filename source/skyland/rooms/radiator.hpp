@@ -15,6 +15,9 @@ public:
     Radiator(Island* parent, const Vec2<u8>& position);
 
 
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+
+
     void update(Platform&, App&, Microseconds delta) override;
 
 
@@ -78,13 +81,13 @@ public:
 
     static Icon icon()
     {
-        return 520;
+        return 1832;
     }
 
 
     static Icon unsel_icon()
     {
-        return 504;
+        return 1848;
     }
 
 

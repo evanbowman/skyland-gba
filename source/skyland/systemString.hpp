@@ -115,6 +115,7 @@ enum class SystemString {
     description_synth,
     description_cargo_bay,
     description_cannon,
+    description_radiator,
 
     dialog_tutorial_prompt,
 

@@ -15,6 +15,13 @@ Radiator::Radiator(Island* parent, const Vec2<u8>& position) :
 
 
 
+void Radiator::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+{
+    buffer += SYSTR(description_radiator)->c_str();
+}
+
+
+
 void Radiator::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
