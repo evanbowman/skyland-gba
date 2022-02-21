@@ -15,13 +15,41 @@ namespace skyland {
 
 void CoopTeam::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    PlayerP1::update(pfrm, app, delta);
+
     if (pfrm.network_peer().is_connected()) {
         network::poll_messages(pfrm, app, *this);
     } else {
-        pfrm.fatal("connection interrupted");
+        info(pfrm, "lost connection to co-op peer!");
+
+        // Lost connection to peer player!
+        app.swap_player<PlayerP1>();
+        app.game_mode() = App::GameMode::skyland_forever;
+        return;
     }
 
-    PlayerP1::update(pfrm, app, delta);
+    heartbeat_send_counter_ += delta;
+    heartbeat_recv_counter_ += delta;
+
+    if (heartbeat_send_counter_ > heartbeat_interval) {
+        heartbeat_send_counter_ = 0;
+
+        network::packet::Heartbeat heartbeat;
+        network::transmit(pfrm, heartbeat);
+    }
+
+    if (heartbeat_recv_counter_ > heartbeat_interval * 2) {
+        pfrm.network_peer().disconnect();
+    }
+}
+
+
+
+void CoopTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::Heartbeat& packet)
+{
+    heartbeat_recv_counter_ = 0;
 }
 
 

@@ -15,6 +15,7 @@
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
+#include "coopRngSyncScene.hpp"
 
 
 
@@ -288,12 +289,6 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.game_mode() not_eq App::GameMode::skyland_forever and
             app.game_mode() not_eq App::GameMode::co_op) {
             pfrm.speaker().play_music("unaccompanied_wind", 0);
-
-            if (pfrm.network_peer().is_host()) {
-                network::packet::CoopRngSync p;
-                p.rng_state_.set(rng::critical_state);
-                network::transmit(pfrm, p);
-            }
         }
 
         pfrm.speaker().play_sound("explosion1", 3);
@@ -523,6 +518,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<SandboxResetScene>();
 
                 case App::GameMode::co_op:
+                    return scene_pool::alloc<CoopRngSyncScene>();
+
                 case App::GameMode::skyland_forever:
                     return scene_pool::alloc<ReadyScene>();
 

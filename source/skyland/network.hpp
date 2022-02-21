@@ -37,7 +37,9 @@ struct Header {
         heartbeat,
         dynamite_activated,
         co_op_cursor,
+        co_op_rng_sync_request,
         co_op_rng_sync,
+        co_op_rng_sync_ack,
         set_weapon_group,
     } message_type_;
 };
@@ -366,6 +368,17 @@ struct CoopCursor {
 
 
 
+// At the end of a level in co-op mode, the game needs to make sure that the rng
+// values are synchronized, before attempting to generate another level.
+struct CoopRngSyncRequest {
+    Header header_;
+    u8 unused_[5];
+
+    static const auto mt = Header::MessageType::co_op_rng_sync_request;
+};
+
+
+
 struct CoopRngSync {
     Header header_;
     host_s32 rng_state_;
@@ -373,6 +386,19 @@ struct CoopRngSync {
     u8 unused_[1];
 
     static const auto mt = Header::MessageType::co_op_rng_sync;
+};
+
+
+
+// After receiving an rng sync, the receiver should echo back the rng state
+// value.
+struct CoopRngSyncAck {
+    Header header_;
+    host_s32 rng_state_;
+
+    u8 unused_[1];
+
+    static const auto mt = Header::MessageType::co_op_rng_sync_ack;
 };
 
 
@@ -509,7 +535,17 @@ public:
     }
 
 
+    virtual void receive(Platform&, App&, const packet::CoopRngSyncRequest&)
+    {
+    }
+
+
     virtual void receive(Platform&, App&, const packet::CoopRngSync&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::CoopRngSyncAck&)
     {
     }
 

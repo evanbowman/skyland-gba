@@ -2,11 +2,7 @@
 
 
 
-namespace skyland {
-
-
-
-namespace network {
+namespace skyland::network {
 
 
 
@@ -58,7 +54,9 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::Heartbeat)
             HANDLE_MESSAGE(packet::DynamiteActivated)
             HANDLE_MESSAGE(packet::CoopCursor)
+            HANDLE_MESSAGE(packet::CoopRngSyncRequest)
             HANDLE_MESSAGE(packet::CoopRngSync)
+            HANDLE_MESSAGE(packet::CoopRngSyncAck)
             HANDLE_MESSAGE(packet::SetWeaponGroup)
         }
 
@@ -70,8 +68,4 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
 
 
 
-} // namespace network
-
-
-
-} // namespace skyland
+} // namespace skyland::network

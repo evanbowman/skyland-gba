@@ -17,7 +17,6 @@ public:
     // drone_set_target,
     // drone_spawn,
     // drone_destroyed,
-    // heartbeat,
 
 
     void update(Platform& pfrm, App& app, Microseconds delta) override;
@@ -113,11 +112,20 @@ public:
                  const network::packet::DroneSetTarget&) override;
 
 
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::Heartbeat& packet) override;
+
+
     void network_sync_cursor(Platform& pfrm,
                              const Vec2<u8>& cursor,
                              u8 cursor_icon,
                              bool near) override;
 
+private:
+    static const auto heartbeat_interval = seconds(5);
+    Microseconds heartbeat_send_counter_ = 0;
+    Microseconds heartbeat_recv_counter_ = 0;
 };
 
 
