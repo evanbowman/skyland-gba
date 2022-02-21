@@ -158,7 +158,13 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
             auto frac = 0.4f;
 
-            if (levelgen_enemy_count_ > 20) {
+            if (levelgen_enemy_count_ > 42) {
+                frac = 0.01f;
+            } if (levelgen_enemy_count_ > 36) {
+                frac = (sf_p4_coin_yield * 0.01) / 8;
+            } else if (levelgen_enemy_count_ > 28) {
+                frac = (sf_p4_coin_yield * 0.01) / 2;
+            } else if (levelgen_enemy_count_ > 20) {
                 frac = sf_p4_coin_yield * 0.01;
             } else if (levelgen_enemy_count_ > 16) {
                 frac = sf_p3_coin_yield * 0.01;
