@@ -40,7 +40,9 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm, App&) override;
+    ScenePtr<Scene> select(Platform& pfrm,
+                           App& app,
+                           const Vec2<u8>& cursor) override;
 
 
     static Category category()

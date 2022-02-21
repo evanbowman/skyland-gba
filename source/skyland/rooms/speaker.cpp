@@ -95,7 +95,10 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
                     s->play(pfrm);
                 } else {
                     if (signal_) {
-                        room->select(pfrm, app);
+                        room->select(pfrm,
+                                     app,
+                                     Vec2<u8>{position().x,
+                                              u8(position().y + 1)});
                     }
                     reset(pfrm, true);
                     end_music_ = true;
@@ -217,7 +220,9 @@ void Speaker::render_exterior(App& app, u8 buffer[16][16])
 
 
 
-ScenePtr<Scene> Speaker::select(Platform& pfrm, App& app)
+ScenePtr<Scene> Speaker::select(Platform& pfrm,
+                                App& app,
+                                const Vec2<u8>& cursor)
 {
     bool was_playing_ = playing_;
 

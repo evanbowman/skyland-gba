@@ -30,6 +30,7 @@ shrubbery
 speaker
 stairwell
 statue
+switch
 synth
 dynamite
 dynamite-ii

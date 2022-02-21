@@ -273,9 +273,11 @@ void Transporter::transport_occupant(Platform& pfrm,
 
 
 
-ScenePtr<Scene> Transporter::select(Platform& pfrm, App& app)
+ScenePtr<Scene> Transporter::select(Platform& pfrm,
+                                    App& app,
+                                    const Vec2<u8>& cursor)
 {
-    if (auto new_scene = Room::select(pfrm, app)) {
+    if (auto new_scene = Room::select(pfrm, app, cursor)) {
         return new_scene;
     }
 

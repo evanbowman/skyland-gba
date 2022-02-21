@@ -31,7 +31,9 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm, App& app);
+    ScenePtr<Scene> select(Platform& pfrm,
+                           App& app,
+                           const Vec2<u8>& cursor) override;
 
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);

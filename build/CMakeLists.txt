@@ -193,6 +193,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/synth.cpp
   ${SOURCE_DIR}/skyland/rooms/arcGun.cpp
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
+  ${SOURCE_DIR}/skyland/rooms/switch.cpp
   ${SOURCE_DIR}/skyland/rooms/weapon.cpp
   ${SOURCE_DIR}/skyland/rooms/speaker.cpp
   ${SOURCE_DIR}/skyland/rooms/flakGun.cpp

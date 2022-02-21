@@ -31,6 +31,7 @@
 #include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/statue.hpp"
+#include "skyland/rooms/switch.hpp"
 #include "skyland/rooms/synth.hpp"
 #include "skyland/rooms/tnt.hpp"
 #include "skyland/rooms/transporter.hpp"
@@ -240,6 +241,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         // decoration
                                         Speaker,
                                         Synth,
+                                        Switch,
                                         Statue,
                                         Bridge,
                                         Palm,

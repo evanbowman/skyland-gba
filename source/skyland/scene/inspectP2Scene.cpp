@@ -236,7 +236,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().key_down(pfrm, Key::action_1)) {
         if (auto room = app.opponent_island()->get_room(cursor_loc)) {
-            return room->select(pfrm, app);
+            return room->select(pfrm, app, cursor_loc);
         } else if (auto drone = app.opponent_island()->get_drone(cursor_loc)) {
             if ((*drone)->parent() == &app.player_island()) {
                 return (*drone)->select(pfrm, app);

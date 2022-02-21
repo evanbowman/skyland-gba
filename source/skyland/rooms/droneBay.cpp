@@ -118,7 +118,9 @@ void DroneBay::render_exterior(App& app, u8 buffer[16][16])
 
 
 
-ScenePtr<Scene> DroneBay::select(Platform& pfrm, App& app)
+ScenePtr<Scene> DroneBay::select(Platform& pfrm,
+                                 App& app,
+                                 const Vec2<u8>& cursor)
 {
     if (reload_ > 0) {
         return null_scene();

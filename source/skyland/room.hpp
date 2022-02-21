@@ -128,6 +128,9 @@ public:
     virtual void display(Platform::Screen& screen);
 
 
+    virtual void display_on_hover(Platform::Screen& screen);
+
+
     Island* other_island(App&);
 
 
@@ -168,7 +171,9 @@ public:
     virtual ScenePtr<Scene> setup(Platform& pfrm, App&);
 
 
-    virtual ScenePtr<Scene> select(Platform& pfrm, App&);
+    virtual ScenePtr<Scene> select(Platform& pfrm,
+                                   App& app,
+                                   const Vec2<u8>& cursor);
 
 
     virtual void set_target(Platform& pfrm, App& app, const Vec2<u8>& target)

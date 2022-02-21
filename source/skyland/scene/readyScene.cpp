@@ -105,7 +105,7 @@ ScenePtr<Scene> player_island_onclick(Platform& pfrm,
                                       const Vec2<u8>& pos)
 {
     if (auto room = app.player_island().get_room(pos)) {
-        if (auto scene = room->select(pfrm, app)) {
+        if (auto scene = room->select(pfrm, app, pos)) {
             return scene;
         } else if (auto db = dynamic_cast<DroneBay*>(room)) {
             if (auto drone = db->drone()) {
@@ -157,7 +157,9 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
     } else if (app.player().key_down(pfrm, Key::up)) {
         for (auto& room : app.player_island().rooms()) {
             if (room->group() == Room::Group::one) {
-                if (auto scene = room->select(pfrm, app)) {
+                if (auto scene = room->select(pfrm,
+                                              app,
+                                              room->position())) {
                     return scene;
                 }
             }
@@ -165,7 +167,9 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
     } else if (app.player().key_down(pfrm, Key::right)) {
         for (auto& room : app.player_island().rooms()) {
             if (room->group() == Room::Group::two) {
-                if (auto scene = room->select(pfrm, app)) {
+                if (auto scene = room->select(pfrm,
+                                              app,
+                                              room->position())) {
                     return scene;
                 }
             }
@@ -173,7 +177,9 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
     } else if (app.player().key_down(pfrm, Key::left)) {
         for (auto& room : app.player_island().rooms()) {
             if (room->group() == Room::Group::three) {
-                if (auto scene = room->select(pfrm, app)) {
+                if (auto scene = room->select(pfrm,
+                                              app,
+                                              room->position())) {
                     return scene;
                 }
             }

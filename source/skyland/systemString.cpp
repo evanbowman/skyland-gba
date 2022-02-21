@@ -10,7 +10,7 @@ SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
 {
     auto result = allocate_dynamic<StringBuffer<1900>>(pfrm);
 
-    const char* file = "english.txt";
+    const char* file = "strings.txt";
 
     if (auto data = pfrm.load_file_contents("strings", file)) {
         const int target_line = static_cast<int>(str);

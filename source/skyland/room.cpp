@@ -126,6 +126,12 @@ void Room::display(Platform::Screen& screen)
 
 
 
+void Room::display_on_hover(Platform::Screen& screen)
+{
+}
+
+
+
 u8 Room::default_palette()
 {
     if ((*metaclass())->properties() & RoomProperties::plugin) {
@@ -341,7 +347,7 @@ ScenePtr<Scene> Room::setup(Platform& pfrm, App&)
 
 
 
-ScenePtr<Scene> Room::select(Platform& pfrm, App& app)
+ScenePtr<Scene> Room::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 {
     if (parent_->interior_visible()) {
         return do_select(pfrm, app);

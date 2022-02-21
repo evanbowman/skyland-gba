@@ -36,7 +36,9 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
-    ScenePtr<Scene> select(Platform& pfrm, App&) override;
+    ScenePtr<Scene> select(Platform& pfrm,
+                           App& app,
+                           const Vec2<u8>& cursor) override;
 
 
     void transport_occupant(Platform& pfrm,

@@ -47,6 +47,7 @@ enum class SystemString {
     block_speaker,
     block_stairwell,
     block_statue,
+    block_switch,
     block_synth,
     block_dynamite_1,
     block_dynamite_2,

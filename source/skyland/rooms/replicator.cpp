@@ -90,9 +90,11 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene> Replicator::select(Platform& pfrm, App& app)
+ScenePtr<Scene> Replicator::select(Platform& pfrm,
+                                   App& app,
+                                   const Vec2<u8>& cursor)
 {
-    if (auto next = Room::select(pfrm, app)) {
+    if (auto next = Room::select(pfrm, app, cursor)) {
         return next;
     }
 

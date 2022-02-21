@@ -91,7 +91,9 @@ void Synth::render_exterior(App& app, u8 buffer[16][16])
 
 
 
-ScenePtr<Scene> Synth::select(Platform& pfrm, App& app)
+ScenePtr<Scene> Synth::select(Platform& pfrm,
+                              App& app,
+                              const Vec2<u8>& cursor)
 {
     return scene_pool::alloc<ComposeSynthScene>(app, *this);
 }

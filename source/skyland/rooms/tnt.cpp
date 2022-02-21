@@ -38,7 +38,9 @@ void Explosive::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene> Explosive::select(Platform& pfrm, App& app)
+ScenePtr<Scene> Explosive::select(Platform& pfrm,
+                                  App& app,
+                                  const Vec2<u8>& cursor)
 {
     if (parent() not_eq &app.player_island()) {
         return null_scene();
