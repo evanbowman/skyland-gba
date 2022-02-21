@@ -36,6 +36,10 @@ public:
                            const Vec2<u8>& cursor) override;
 
 
+    virtual lisp::Value* serialize() override;
+    virtual void deserialize(lisp::Value*) override;
+
+
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
@@ -78,6 +82,8 @@ public:
 
 private:
     bool on_ = true;
+    Vec2<u8> branch_1_;
+    Vec2<u8> branch_2_;
 };
 
 

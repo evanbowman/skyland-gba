@@ -115,6 +115,7 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     generate_secondary_rooms(pfrm, app);
     generate_characters(pfrm, app);
+    generate_radiators(pfrm, app);
 
     generate_hull(pfrm, app);
 
@@ -893,9 +894,9 @@ void ProcgenEnemyAI::generate_radiators(Platform& pfrm, App& app)
         character_count += length(room->characters());
     }
 
-    if ((player_replicator_count and player_transporter_count) or
-        (player_transporter_count > 1 and
-         player_character_count > character_count + 2)) {
+    if ((player_replicator_count and player_transporter_count > 2) or
+        (player_transporter_count > 2 and
+         player_character_count > character_count + 3)) {
 
         // If the player has a replicator and a transporter, or the player has a
         // transporter and more characters than we do, then we may be dealing

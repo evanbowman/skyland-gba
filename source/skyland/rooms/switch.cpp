@@ -1,6 +1,7 @@
 #include "switch.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/island.hpp"
+#include "script/listBuilder.hpp"
 
 
 
@@ -10,7 +11,7 @@ namespace skyland {
 
 void Switch::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += SYSTR(description_hull)->c_str();
+    buffer += SYSTR(description_switch)->c_str();
 }
 
 
@@ -35,6 +36,40 @@ ScenePtr<Scene> Switch::select(Platform& pfrm,
 Switch::Switch(Island* parent, const Vec2<u8>& position)
     : Decoration(parent, name(), position)
 {
+}
+
+
+
+lisp::Value* Switch::serialize()
+{
+    lisp::ListBuilder builder;
+
+    builder.push_back(L_SYM(name()));
+    builder.push_back(L_INT(position().x));
+    builder.push_back(L_INT(position().y));
+
+    builder.push_back(L_CONS(L_INT(branch_1_.x),
+                             L_INT(branch_1_.y)));
+
+    builder.push_back(L_CONS(L_INT(branch_2_.x),
+                             L_INT(branch_2_.y)));
+
+    if (health() not_eq max_health()) {
+        builder.push_back(lisp::make_integer(health()));
+    }
+
+    return builder.result();
+}
+
+
+
+void Switch::deserialize(lisp::Value* list)
+{
+    if (lisp::length(list) >= 6) {
+        __set_health(lisp::get_list(list, 5)->integer().value_);
+    }
+
+    // TODO: read branch_1_ and branch_2_ from list!
 }
 
 

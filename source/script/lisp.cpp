@@ -623,6 +623,20 @@ Value* make_bytecode_function(Value* bytecode)
 }
 
 
+Value* make_cons_safe(Value* car, Value* cdr)
+{
+    push_op(car);
+    push_op(cdr);
+
+    auto result = make_cons(car, cdr);
+
+    pop_op();
+    pop_op();
+
+    return result;
+}
+
+
 Value* make_cons(Value* car, Value* cdr)
 {
     if (auto val = alloc_value()) {

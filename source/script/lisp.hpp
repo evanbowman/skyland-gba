@@ -486,6 +486,20 @@ Value* make_string(Platform& pfrm, const char* str);
 Value* make_character(utf8::Codepoint cp);
 
 
+Value* make_cons_safe(Value* car, Value* cdr);
+
+
+#define L_CONS(CAR, CDR) \
+    lisp::make_cons_safe(CAR, CDR)
+
+#define L_INT(VALUE) \
+    lisp::make_integer(VALUE)
+
+#define L_SYM(NAME) \
+    lisp::make_symbol(NAME)
+
+
+
 struct Binding {
     const char* name_;
     Value* (*function_)(int argc);

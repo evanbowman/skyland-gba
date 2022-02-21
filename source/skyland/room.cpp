@@ -364,12 +364,12 @@ lisp::Value* Room::serialize()
 {
     lisp::ListBuilder builder;
 
-    builder.push_back(lisp::make_symbol(name()));
-    builder.push_back(lisp::make_integer(position().x));
-    builder.push_back(lisp::make_integer(position().y));
+    builder.push_back(L_SYM(name()));
+    builder.push_back(L_INT(position().x));
+    builder.push_back(L_INT(position().y));
 
     if (health() not_eq max_health()) {
-        builder.push_back(lisp::make_integer(health()));
+        builder.push_back(L_INT(health()));
     }
 
     return builder.result();
