@@ -23,6 +23,7 @@ coconut-palm
 plundered-room
 energized-hull
 radar
+radiator
 reactor
 replicator
 shrubbery
@@ -90,3 +91,5 @@ Programmable audio block. Must be placed within four tiles to the right of a spe
 Stores one unit of cargo. Required for trading and quests in adventure mode!
 A reliable artillery weapon. Deals % damage every %.% seconds.
 <c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's ok... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean! <t:0>
+session connecting...
+Failed to connect to multiplayer peer!

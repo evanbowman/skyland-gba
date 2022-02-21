@@ -114,6 +114,7 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
     }
 
     generate_secondary_rooms(pfrm, app);
+    generate_characters(pfrm, app);
 
     generate_hull(pfrm, app);
 
@@ -139,7 +140,6 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     generate_foundation(pfrm, app);
 
-    generate_characters(pfrm, app);
     generate_decorations(pfrm, app);
 
 
@@ -869,6 +869,51 @@ void ProcgenEnemyAI::generate_stairwells(Platform& pfrm, App& app)
 
 
 
+void ProcgenEnemyAI::generate_radiators(Platform& pfrm, App& app)
+{
+    if (difficulty_ == 0) {
+        return;
+    }
+
+    int player_character_count = 0;
+    int player_transporter_count = 0;
+    int player_replicator_count = 0;
+    int character_count = 0;
+
+    for (auto& room : app.player_island().rooms()) {
+        if (str_eq(room->name(), "replicator")) {
+            ++player_replicator_count;
+        } else if (str_eq(room->name(), "transporter")) {
+            ++player_transporter_count;
+        }
+        player_character_count += length(room->characters());
+    }
+
+    for (auto& room : app.opponent_island()->rooms()) {
+        character_count += length(room->characters());
+    }
+
+    if ((player_replicator_count and player_transporter_count) or
+        (player_transporter_count > 1 and
+         player_character_count > character_count + 2)) {
+
+        // If the player has a replicator and a transporter, or the player has a
+        // transporter and more characters than we do, then we may be dealing
+        // with a player who's offensively focused on boarding parties. Generate
+        // some radiator blocks to make things more difficult.
+
+        const int count = rng::choice<4>(rng::critical_state);
+        for (int i = 0; i < count; ++i) {
+            place_room_adjacent(pfrm, app, "radiator");
+        }
+        place_room_adjacent(pfrm, app, "infirmary");
+    }
+
+
+}
+
+
+
 void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
 {
     int transporter_count = 0;
@@ -879,7 +924,8 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
     }
 
     const int chr_count =
-        core_count_ + rng::choice(transporter_count, rng::critical_state);
+        1 + rng::choice(core_count_, rng::critical_state)
+        + rng::choice(transporter_count, rng::critical_state);
 
     struct Context {
         struct Slot {
@@ -975,7 +1021,9 @@ void ProcgenEnemyAI::generate_decorations(Platform& pfrm, App& app)
 
 
 
-void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
+void ProcgenEnemyAI::place_room_adjacent(Platform& pfrm,
+                                         App& app,
+                                         const char* room_name)
 {
     struct Slot {
         Vec2<u8> coord_;
@@ -1062,17 +1110,35 @@ void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
         }
     };
 
+    auto& mt = require_metaclass(room_name);
+
+    find_connected_slots(mt->size().y);
+    try_place_room(mt);
+}
+
+
+
+void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
+{
     if (levelgen_enemy_count_ > 6 and rng::choice<2>(rng::critical_state)) {
-        auto& mt = require_metaclass("infirmary");
 
-        find_connected_slots(mt->size().y);
+        place_room_adjacent(pfrm, app, "infirmary");
+    }
 
-        try_place_room(mt);
+    int player_char_count = 0;
+    int player_transporter_count = 0;
+    for (auto& room : app.player_island().rooms()) {
+        player_char_count += length(room->characters());
+        if (str_eq(room->name(), "transporter")) {
+            ++player_transporter_count;
+        }
+    }
+
+    if (player_char_count > 3 or player_transporter_count > 2) {
+        place_room_adjacent(pfrm, app, "infirmary");
     }
 
     if (levelgen_enemy_count_ > 6 and rng::choice<2>(rng::critical_state)) {
-
-        auto& mt = require_metaclass("transporter");
 
         int count = rng::choice<3>(rng::critical_state);
         if (core_count_ == 4) {
@@ -1080,8 +1146,7 @@ void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
         }
 
         for (int i = 0; i < count; ++i) {
-            find_connected_slots(mt->size().y);
-            try_place_room(mt);
+            place_room_adjacent(pfrm, app, "transporter");
         }
     }
 }

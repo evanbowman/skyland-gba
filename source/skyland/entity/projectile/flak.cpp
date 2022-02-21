@@ -101,6 +101,92 @@ void Flak::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+void Flak::burst(Platform& pfrm,
+                 App& app,
+                 const Vec2<Float>& position,
+                 Room& origin_room)
+{
+    app.camera()->shake(8);
+    big_explosion(pfrm, app, position);
+
+    auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Float>& pos) {
+        auto e = app.alloc_entity<SmokePuff>(
+            pfrm, rng::sample<48>(pos, rng::utility_state), 61);
+
+        if (e) {
+            app.effects().push(std::move(e));
+        }
+    };
+
+    flak_smoke(pfrm, app, position);
+    flak_smoke(pfrm, app, position);
+
+
+    app.on_timeout(pfrm,
+                   milliseconds(190),
+                   [pos = position, flak_smoke](
+                       Platform& pf, App& app) { flak_smoke(pf, app, pos); });
+
+
+
+    // Ok, so now we want to find the nearest tile with which we collided.
+    auto origin = origin_room.origin();
+    // Go from unconstrained coordinates to an index in the opponent's tile grid.
+    int y_offset = (origin.y - position.y) / 16 + 1;
+    int grid_y_start = origin_room.position().y + y_offset;
+
+    int x_offset = (origin.x - position.x) / 16;
+
+    if (origin_room.parent() == &app.player_island()) {
+        ++x_offset;
+    }
+
+    int grid_x_start = origin_room.position().x + x_offset;
+
+    // grid_x_start = clamp(x_offset, 0, 15);
+    // grid_y_start = clamp(y_offset, 0, 15);
+
+    // Alright, now we have grid coordinates at which to apply the flak damage.
+
+    auto apply_damage = [&](int x_off, int y_off, Health damage) {
+        auto island = origin_room.parent();
+        const int x = grid_x_start + x_off;
+        const int y = grid_y_start + y_off;
+        if (x >= 0 and x < 16 and y >= 0 and y < 16) {
+            if (auto room = island->get_room({u8(x), u8(y)})) {
+                room->apply_damage(pfrm, app, damage);
+            }
+        }
+    };
+
+    // Apply damage in this pattern:
+    //         *
+    //       * * *
+    //     * * * * *
+    //       * * *
+    //         *
+    //
+    // More damage at center of explosion.
+
+    apply_damage(0, 0, flak_r1_damage);
+
+    apply_damage(1, 0, flak_r2_damage);
+    apply_damage(-1, 0, flak_r2_damage);
+    apply_damage(0, 1, flak_r2_damage);
+    apply_damage(0, -1, flak_r2_damage);
+
+    apply_damage(2, 0, flak_r3_damage);
+    apply_damage(1, -1, flak_r3_damage);
+    apply_damage(0, -2, flak_r3_damage);
+    apply_damage(-1, -1, flak_r3_damage);
+    apply_damage(-2, 0, flak_r3_damage);
+    apply_damage(-1, 1, flak_r3_damage);
+    apply_damage(0, 2, flak_r3_damage);
+    apply_damage(1, 1, flak_r3_damage);
+}
+
+
+
 void Flak::on_collision(Platform& pfrm, App& app, Room& room)
 {
     if (destroyed_) {
@@ -157,83 +243,7 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
 
 
     kill();
-    app.camera()->shake(8);
-    big_explosion(pfrm, app, sprite_.get_position());
-
-    auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Float>& pos) {
-        auto e = app.alloc_entity<SmokePuff>(
-            pfrm, rng::sample<48>(pos, rng::utility_state), 61);
-
-        if (e) {
-            app.effects().push(std::move(e));
-        }
-    };
-
-    flak_smoke(pfrm, app, sprite_.get_position());
-    flak_smoke(pfrm, app, sprite_.get_position());
-
-
-    app.on_timeout(pfrm,
-                   milliseconds(190),
-                   [pos = sprite_.get_position(), flak_smoke](
-                       Platform& pf, App& app) { flak_smoke(pf, app, pos); });
-
-
-
-    // Ok, so now we want to find the nearest tile with which we collided.
-    auto origin = room.origin();
-    // Go from unconstrained coordinates to an index in the opponent's tile grid.
-    int y_offset = (origin.y - sprite_.get_position().y) / 16 + 1;
-    int grid_y_start = room.position().y + y_offset;
-
-    int x_offset = (origin.x - sprite_.get_position().x) / 16;
-
-    if (room.parent() == &app.player_island()) {
-        ++x_offset;
-    }
-
-    int grid_x_start = room.position().x + x_offset;
-
-    // grid_x_start = clamp(x_offset, 0, 15);
-    // grid_y_start = clamp(y_offset, 0, 15);
-
-    // Alright, now we have grid coordinates at which to apply the flak damage.
-
-    auto apply_damage = [&](int x_off, int y_off, Health damage) {
-        auto island = room.parent();
-        const int x = grid_x_start + x_off;
-        const int y = grid_y_start + y_off;
-        if (x >= 0 and x < 16 and y >= 0 and y < 16) {
-            if (auto room = island->get_room({u8(x), u8(y)})) {
-                room->apply_damage(pfrm, app, damage);
-            }
-        }
-    };
-
-    // Apply damage in this pattern:
-    //         *
-    //       * * *
-    //     * * * * *
-    //       * * *
-    //         *
-    //
-    // More damage at center of explosion.
-
-    apply_damage(0, 0, flak_r1_damage);
-
-    apply_damage(1, 0, flak_r2_damage);
-    apply_damage(-1, 0, flak_r2_damage);
-    apply_damage(0, 1, flak_r2_damage);
-    apply_damage(0, -1, flak_r2_damage);
-
-    apply_damage(2, 0, flak_r3_damage);
-    apply_damage(1, -1, flak_r3_damage);
-    apply_damage(0, -2, flak_r3_damage);
-    apply_damage(-1, -1, flak_r3_damage);
-    apply_damage(-2, 0, flak_r3_damage);
-    apply_damage(-1, 1, flak_r3_damage);
-    apply_damage(0, 2, flak_r3_damage);
-    apply_damage(1, 1, flak_r3_damage);
+    Flak::burst(pfrm, app, sprite_.get_position(), room);
 
     destroyed_ = true;
 

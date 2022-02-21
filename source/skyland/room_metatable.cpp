@@ -24,6 +24,7 @@
 #include "skyland/rooms/plunderedRoom.hpp"
 #include "skyland/rooms/poweredHull.hpp"
 #include "skyland/rooms/radar.hpp"
+#include "skyland/rooms/radiator.hpp"
 #include "skyland/rooms/reactor.hpp"
 #include "skyland/rooms/replicator.hpp"
 #include "skyland/rooms/shrubbery.hpp"
@@ -210,6 +211,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Forcefield,
                                         PoweredHull,
                                         IonFizzler,
+                                        Radiator,
                                         // weapons
                                         Cannon,
                                         IonCannon,

@@ -40,6 +40,12 @@ public:
     void on_collision(Platform& pfrm, App& app, Room&) override;
 
 
+    static void burst(Platform& pfrm,
+                      App& app,
+                      const Vec2<Float>& position,
+                      Room& origin_room);
+
+
 private:
     Microseconds timer_ = 0;
     Vec2<Float> step_vector_;

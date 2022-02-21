@@ -93,6 +93,7 @@ struct Tile {
         synth,
         speaker_inactive,
         speaker_active,
+        radiator,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -189,6 +190,7 @@ struct InteriorTile {
         synth,
         speaker_inactive,
         speaker_active,
+        radiator,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

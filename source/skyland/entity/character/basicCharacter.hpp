@@ -176,9 +176,12 @@ private:
     Vec2<u8> grid_position_;
     Microseconds timer_ = 0;
     Microseconds anim_timer_ = 0;
-    bool awaiting_movement_ : 1;
-    bool can_move_ : 1;
-    bool is_replicant_ : 1;
+
+    u8 awaiting_movement_ : 1;
+    u8 can_move_ : 1;
+    u8 is_replicant_ : 1;
+    u8 unused_ : 5;
+
     State state_ = State::moving_or_idle;
     u16 idle_count_ = 0;
 

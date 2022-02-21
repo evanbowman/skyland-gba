@@ -13,3 +13,5 @@
    (27 . "zone2_coin_yield")
    (22 . "zone3_coin_yield")
    (10 . "zone4_coin_yield")))
+
+(syscall "setvar" "score_multiplier" 4)

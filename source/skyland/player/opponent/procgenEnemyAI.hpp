@@ -36,6 +36,7 @@ private:
     void generate_forcefields(Platform& pfrm, App& app);
     void generate_characters(Platform& pfrm, App& app);
     void generate_decorations(Platform& pfrm, App& app);
+    void generate_radiators(Platform& pfrm, App& app);
 
 
     bool has_space(App& app, const Vec2<u8>& loc, const Vec2<u8>& sz);
@@ -48,6 +49,11 @@ private:
                                App& app,
                                int x_start,
                                const char* room_name);
+
+
+    void place_room_adjacent(Platform& pfrm,
+                             App& app,
+                             const char* room_name);
 
 
     u8 difficulty_ = 1;

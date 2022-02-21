@@ -40,6 +40,7 @@ enum class SystemString {
     block_plundered_room,
     block_energized_hull,
     block_radar,
+    block_radiator,
     block_reactor,
     block_replicator,
     block_shrubbery,
@@ -116,6 +117,9 @@ enum class SystemString {
     description_cannon,
 
     dialog_tutorial_prompt,
+
+    multi_session_connecting,
+    multi_connection_failure,
 };
 
 

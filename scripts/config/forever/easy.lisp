@@ -9,3 +9,5 @@
    (28 . "sf_p2_coin_yield")
    (20 . "sf_p3_coin_yield")
    (12 . "sf_p4_coin_yield")))
+
+(syscall "setvar" "score_multiplier" 1)

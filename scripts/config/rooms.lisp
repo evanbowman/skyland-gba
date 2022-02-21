@@ -19,6 +19,7 @@
    (decimator    140 3300 160)
    (stairwell    60  500  5)
    (bulkhead-door 100 500  10)
+   (radiator     60  400  50)
    (workshop     60  2000 10)
    (infirmary    60  1000 10)
    (power-core   60  3000 -150)

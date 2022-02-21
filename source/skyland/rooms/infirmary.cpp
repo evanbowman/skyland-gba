@@ -32,7 +32,7 @@ void Infirmary::update(Platform& pfrm, App& app, Microseconds delta)
     if (characters_healing) {
         heal_timer_ += delta;
         if (heal_timer_ > milliseconds(1000)) {
-            heal_timer_ = 0;
+            heal_timer_ -= milliseconds(1000);
             int distribute_health = 20;
             distribute_health /= characters_healing;
             for (auto& character : characters()) {

@@ -23,7 +23,7 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.screen().schedule_fade(1.f);
     text_.emplace(pfrm, OverlayCoord{1, 1});
-    text_->assign("session connecting...");
+    text_->assign(SYSTR(multi_session_connecting)->c_str());
 
     const char* str = pfrm.load_file_contents("scripts", "multi_init.lisp");
     if (str) {
@@ -82,7 +82,7 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<TitleScreenScene>();
         };
         auto buffer = allocate_dynamic<DialogString>(pfrm);
-        *buffer = "Failed to connect to multiplayer peer!";
+        *buffer = SYSTR(multi_connection_failure)->c_str();
         return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
                                                         future_scene);
     } else {
