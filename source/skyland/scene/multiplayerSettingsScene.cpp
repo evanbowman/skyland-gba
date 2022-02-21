@@ -183,6 +183,9 @@ void MultiplayerSettingsScene::setup_coop_game(Platform& pfrm, App& app)
     // share control of a castle.
     SkylandForever::init(pfrm, app, 1);
 
+
+    app.set_coins(pfrm, std::max(0, app.coins() - 1000));
+
     app.swap_player<CoopTeam>();
 
     app.game_mode() = App::GameMode::co_op;

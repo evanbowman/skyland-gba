@@ -14,16 +14,9 @@ public:
 
 
     // TODO:
-    // character_boarded,
-    // character_disembark,
-    // character_died,
-    // replicant_created,
     // drone_set_target,
     // drone_spawn,
     // drone_destroyed,
-    // game_match_parameter_update,
-    // game_match_settings_cursor,
-    // game_match_begin,
     // heartbeat,
 
 
@@ -103,6 +96,21 @@ public:
     void receive(Platform& pfrm,
                  App& app,
                  const network::packet::OpponentBulkheadChanged& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::DroneSpawn& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::DroneDestroyed&) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::DroneSetTarget&) override;
 
 
     void network_sync_cursor(Platform& pfrm,

@@ -5,6 +5,7 @@
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/entity/drones/droneMeta.hpp"
 
 
 
@@ -351,6 +352,103 @@ void CoopTeam::receive(Platform& pfrm,
         if (auto bulkhead = dynamic_cast<Bulkhead*>(room)) {
             bulkhead->set_open(pfrm, app, packet.open_);
         }
+    }
+}
+
+
+
+void CoopTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::DroneSpawn& packet)
+{
+    if (not app.opponent_island()) {
+        return;
+    }
+
+    Island* island = nullptr;
+    if (packet.destination_near_) {
+        island = &app.player_island();
+    } else {
+        island = app.opponent_island();
+    }
+
+    const auto x_origin = packet.origin_x_;
+
+    auto [dt, ds] = drone_metatable();
+    if (packet.drone_class_ >= ds) {
+        StringBuffer<32> err("invalid index! ");
+        err += stringify(packet.drone_class_);
+        pfrm.fatal(err.c_str());
+    }
+    auto drone_meta = &dt[packet.drone_class_];
+    if (auto drone = (*drone_meta)
+                         ->create(&app.player_island(),
+                                  island,
+                                  Vec2<u8>{x_origin, packet.origin_y_})) {
+
+        const Vec2<u8> drone_bay_pos = {x_origin, u8(packet.origin_y_ + 1)};
+
+        if (auto room = app.player_island().get_room(drone_bay_pos)) {
+
+            if (room->attach_drone(pfrm, app, *drone)) {
+                island->drones().push(*drone);
+            }
+
+            (*drone)->set_movement_target(Vec2<u8>{packet.deploy_x_,
+                                                   packet.deploy_y_});
+        }
+    }
+}
+
+
+
+void CoopTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::DroneDestroyed& packet)
+{
+    Island* island = nullptr;
+    if (packet.destination_near_) {
+        island = &app.player_island();
+    } else {
+        island = app.opponent_island();
+    }
+
+    Vec2<u8> pos;
+    pos.x = packet.drone_x_;
+    pos.y = packet.drone_y_;
+
+    if (auto drone = island->get_drone(pos)) {
+        if (drone) {
+            (*drone)->kill();
+        }
+    }
+}
+
+
+
+void CoopTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::DroneSetTarget& packet)
+{
+    if (not app.opponent_island()) {
+        return;
+    }
+
+    Island* island = nullptr;
+
+    if (packet.drone_near_) {
+        island = &app.player_island();
+    } else {
+        island = app.opponent_island();
+    }
+
+    const auto drone_x = packet.drone_x_;
+    if (auto drone = island->get_drone({drone_x, packet.drone_y_})) {
+        (*drone)->set_target(
+            pfrm,
+            app,
+            {packet.target_x_, packet.target_y_},
+            not packet.target_near_);
     }
 }
 

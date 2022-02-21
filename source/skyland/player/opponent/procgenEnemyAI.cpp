@@ -376,7 +376,11 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         enq_prob("ion-cannon", 40.f + forcefield_count * 20.f);
     }
 
-    if (levelgen_enemy_count_ > 9 and difficulty_ > 0) {
+    if (levelgen_enemy_count_ > 9 and difficulty_ > 0 and
+        // TODO: send network events in EnemyAI for creating/destroying
+        // drones. Until then, we need to disable drone-bays in co-op mode.
+        app.game_mode() not_eq App::GameMode::co_op) {
+
         if (missile_count < 5) {
             enq_prob("drone-bay",
                      (50.f - missile_count * 10.f) + drone_count * 20.f);
