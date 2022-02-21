@@ -4,6 +4,7 @@
 #include "number/random.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/transporter.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -269,6 +270,28 @@ void CoopTeam::receive(Platform& pfrm,
                 }
             }
         }
+    }
+}
+
+
+
+void CoopTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::ReplicantCreated& packet)
+{
+    if (not opponent_island(app)) {
+        return;
+    }
+
+    const Vec2<u8> loc = {packet.src_x_, packet.src_y_};
+
+    auto chr = app.alloc_entity<BasicCharacter>(
+        pfrm, &app.player_island(), &app.player(), loc, true);
+
+    if (chr) {
+        chr->apply_damage(pfrm, app, 255 - packet.health_);
+        chr->transported();
+        player_island(app).add_character(std::move(chr));
     }
 }
 

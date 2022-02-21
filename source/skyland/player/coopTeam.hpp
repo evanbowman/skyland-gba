@@ -82,6 +82,11 @@ public:
 
     void receive(Platform& pfrm,
                  App& app,
+                 const network::packet::ReplicantCreated& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
                  const network::packet::SetWeaponGroup& packet) override;
 
 
