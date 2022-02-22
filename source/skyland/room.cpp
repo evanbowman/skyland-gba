@@ -128,8 +128,20 @@ void Room::display(Platform::Screen& screen)
 
 
 void Room::display_on_hover(Platform::Screen& screen,
+                            App& app,
                             const Vec2<u8>& cursor)
 {
+    if (not parent_->interior_visible() and parent_ == &player_island(app)) {
+        for (auto& c : characters()) {
+            const auto& pos = c->sprite().get_position();
+            auto spr = c->sprite();
+            spr.set_mix({custom_color(0x28457b), 200});
+            spr.set_alpha(Sprite::Alpha::translucent);
+            if (pos.y < 700) {
+                screen.draw(spr);
+            }
+        }
+    }
 }
 
 
@@ -351,7 +363,19 @@ ScenePtr<Scene> Room::setup(Platform& pfrm, App&)
 
 ScenePtr<Scene> Room::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 {
-    if (parent_->interior_visible()) {
+    bool chr_at_cursor = false;
+    for (auto& chr : characters()) {
+        if (chr->grid_position() == cursor and
+            chr->owner() == &app.player()) {
+
+            chr_at_cursor = true;
+        }
+    }
+
+    if (parent_->interior_visible() or chr_at_cursor) {
+        if (not parent_->interior_visible()) {
+            show_island_interior(pfrm, app, parent_);
+        }
         return do_select(pfrm, app);
     }
 

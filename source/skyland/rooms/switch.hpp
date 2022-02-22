@@ -80,10 +80,17 @@ public:
     }
 
 
-private:
-    bool on_ = true;
+    void display_on_hover(Platform::Screen& screen,
+                          App& app,
+                          const Vec2<u8>& cursor) override;
+
     Vec2<u8> branch_1_;
     Vec2<u8> branch_2_;
+
+    bool setup_ = false;
+
+private:
+    bool on_ = true;
 };
 
 

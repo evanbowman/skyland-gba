@@ -94,14 +94,15 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
                 if (s and signal_) {
                     s->play(pfrm);
                 } else {
+                    end_music_ = true;
                     if (signal_) {
                         room->select(pfrm,
                                      app,
                                      Vec2<u8>{position().x,
                                               u8(position().y + 1)});
+                    } else {
+                        reset(pfrm, true);
                     }
-                    reset(pfrm, true);
-                    end_music_ = true;
                 }
             } else {
                 reset(pfrm, true);
@@ -239,9 +240,6 @@ ScenePtr<Scene> Speaker::select(Platform& pfrm,
 
 void Speaker::reset(Platform& pfrm, bool resume_music)
 {
-    if (playing_ and resume_music) {
-        pfrm.speaker().resume_music();
-    }
     playing_ = false;
     end_music_ = false;
 }
@@ -259,10 +257,9 @@ void Speaker::play(Platform& pfrm, bool signal)
     for (auto& room : parent()->rooms()) {
         if (auto b = dynamic_cast<Speaker*>(room.get())) {
             b->reset(pfrm, false);
+            b->end_music_ = false;
         }
     }
-
-    pfrm.speaker().halt_music();
 
     Room::ready();
 
@@ -395,8 +392,6 @@ void Speaker::finalize(Platform& pfrm, App& app)
         pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_2);
         pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
         pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
-
-        pfrm.speaker().resume_music();
     }
 }
 
