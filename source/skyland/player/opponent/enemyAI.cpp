@@ -411,6 +411,8 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     int weapon_count = 0;
     int cannon_count = 0;
     int missile_count = 0;
+    u8 decimator_count = 0;
+    u8 player_decimator_count = 0;
 
     int player_weapon_count = 0;
     int player_cannon_count = 0;
@@ -430,6 +432,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
             ++missile_count;
         } else if (room->metaclass() == decimator_mt) {
             ++weapon_count;
+            ++decimator_count;
         } else if (room->metaclass() == flak_gun_mt) {
             ++weapon_count;
         }
@@ -458,6 +461,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
             ++player_missile_count;
         } else if (room->metaclass() == decimator_mt) {
             ++player_weapon_count;
+            ++player_decimator_count;
         } else if (room->metaclass() == flak_gun_mt) {
             ++player_weapon_count;
         }
@@ -570,6 +574,9 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                     } else if (cannon_count and missile_count == 0 and
                                player_missile_count) {
                         slot.ai_weight_ += 400.f;
+                    }
+                    if (decimator_count == 0 and player_decimator_count) {
+                        slot.ai_weight_ += 600.f;
                     }
                 } else {
                     slot.ai_weight_ -= 300;
