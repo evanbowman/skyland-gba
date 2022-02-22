@@ -141,6 +141,8 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     generate_foundation(pfrm, app);
 
+    cleanup_unused_terrain(pfrm, app);
+
     generate_decorations(pfrm, app);
 
 
@@ -1197,6 +1199,25 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
                 }
             }
         }
+    }
+}
+
+
+
+void ProcgenEnemyAI::cleanup_unused_terrain(Platform& pfrm, App& app)
+{
+    while (not app.opponent_island()->terrain().empty()) {
+        const u8 x_end = app.opponent_island()->terrain().size() - 1;
+
+        for (u8 y = 0; y < 16; ++y) {
+            if (app.opponent_island()->get_room({x_end, y})) {
+                // Column contains a room, i.e. not unused.
+                return;
+            }
+        }
+
+        // Empty column, reduce terrain size by 1.
+        app.opponent_island()->init_terrain(pfrm, x_end);
     }
 }
 

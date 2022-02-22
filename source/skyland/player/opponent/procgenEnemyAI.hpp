@@ -38,6 +38,8 @@ private:
     void generate_decorations(Platform& pfrm, App& app);
     void generate_radiators(Platform& pfrm, App& app);
 
+    void cleanup_unused_terrain(Platform& pfrm, App& app);
+
 
     bool has_space(App& app, const Vec2<u8>& loc, const Vec2<u8>& sz);
 
