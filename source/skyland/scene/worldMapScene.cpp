@@ -192,7 +192,7 @@ void WorldGraph::generate()
         }
     }
 
-    int hidden_levels = 6;
+    int hidden_levels = 8;
     while (hidden_levels) {
         for (int i = exit_node + 1; i < 18; ++i) {
             if (hidden_levels == 0) {
