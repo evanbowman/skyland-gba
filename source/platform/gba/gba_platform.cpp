@@ -2805,16 +2805,18 @@ void Platform::Logger::log(Severity level, const char* msg)
         return;
     }
 
+    ScratchBuffer::Tag t = "syslog_data";
+
     if (not log_data_) {
-        log_data_.emplace(*::platform);
+        log_data_.emplace(*::platform, t);
     }
 
     while (*msg not_eq '\0') {
-        log_data_->push_back(*msg);
+        log_data_->push_back(*msg, t);
         ++msg;
     }
 
-    log_data_->push_back('\n');
+    log_data_->push_back('\n', t);
 }
 
 
@@ -3251,8 +3253,7 @@ void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
         note_desc.noise_freq_.frequency_select_ == 0) {
         return;
     } else if (channel not_eq Channel::noise and
-               ((u8)note >= (u8)Note::count
-                or note == Note::invalid)) {
+               ((u8)note >= (u8)Note::count or note == Note::invalid)) {
         return;
     }
 
@@ -3289,9 +3290,9 @@ void Platform::Speaker::play_chiptune_note(Channel channel, NoteDesc note_desc)
         auto freq = note_desc.noise_freq_.frequency_select_;
         auto entry = noise_frequency_table_[freq];
         REG_SND4FREQ = 0;
-        REG_SND4FREQ =
-            SFREQ_RESET | ((0x0f & entry.shift_) << 4) | (0x07 & entry.ratio_) |
-            (note_desc.noise_freq_.wide_mode_ << 3);
+        REG_SND4FREQ = SFREQ_RESET | ((0x0f & entry.shift_) << 4) |
+                       (0x07 & entry.ratio_) |
+                       (note_desc.noise_freq_.wide_mode_ << 3);
         break;
     }
 
@@ -3589,9 +3590,18 @@ Platform::Speaker::Speaker()
 
 
 
-void Platform::soft_exit()
+void Platform::hibernate()
 {
+    REG_KEYCNT =
+        KEY_SELECT | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
+
+    irqSet(IRQ_KEYPAD, []{});
+
     Stop();
+
+    irqSet(IRQ_KEYPAD, keypad_isr);
+    REG_KEYCNT =
+        KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
 }
 
 
@@ -3657,7 +3667,39 @@ void Platform::set_scratch_buffer_oom_handler(Function<16, void()> callback)
 
 
 
-ScratchBufferPtr Platform::make_scratch_buffer()
+int Platform::print_memory_diagnostics()
+{
+    auto output = allocate_dynamic<RemoteConsole::Line>(
+        *::platform, "sbr-annotation-buffer");
+
+    int buffer_num = 0;
+
+    for (auto& cell : scratch_buffer_pool.cells()) {
+        if (not scratch_buffer_pool.is_freed(&cell)) {
+            *output += stringify(buffer_num);
+            *output += ":";
+            *output += ((ScratchBuffer*)cell.mem_.data())->tag_;
+            *output += "\r\n";
+            ++buffer_num;
+        }
+    }
+
+    const int free_sbr = scratch_buffer_count - buffer_num;
+
+    *output += format("used: % (%kb), free: % (%kb)\r\n",
+                      buffer_num,
+                      buffer_num * 2,
+                      free_sbr,
+                      free_sbr * 2).c_str();
+
+    ::platform->remote_console().printline(output->c_str());
+
+    return 0;
+}
+
+
+
+ScratchBufferPtr Platform::make_scratch_buffer(const ScratchBuffer::Tag& tag)
 {
     if (not scratch_buffers_remaining()) {
         if (scratch_buffer_oom_handler) {
@@ -3679,6 +3721,9 @@ ScratchBufferPtr Platform::make_scratch_buffer()
         &scratch_buffer_pool, finalizer);
     if (maybe_buffer) {
         ++scratch_buffers_in_use;
+
+        (*maybe_buffer)->tag_ = tag;
+
         return *maybe_buffer;
     } else {
         screen().fade(1.f, ColorConstant::electric_blue);
@@ -4115,6 +4160,10 @@ Platform::Platform()
 
         used = "ewram used: ";
         used += stringify(&__eheap_start - &__ewram_start);
+        info(*this, used.c_str());
+
+        used = "estimated stack size: ";
+        used += stringify(32000 - (&__data_end__ - &__iwram_start__));
         info(*this, used.c_str());
     }
 
@@ -5691,7 +5740,8 @@ static void uart_serial_isr()
         }
     } else {
         if (not state.rx_in_progress_) {
-            state.rx_in_progress_ = allocate_dynamic<ConsoleLine>(*::platform);
+            state.rx_in_progress_ =
+                allocate_dynamic<ConsoleLine>(*::platform, "uart-rx-buffer");
         }
 
         if (state.rx_in_progress_) {
@@ -5705,7 +5755,8 @@ static void uart_serial_isr()
 
 static void start_remote_console(Platform& pfrm)
 {
-    ::remote_console_state = allocate_dynamic<RemoteConsoleState>(pfrm);
+    ::remote_console_state =
+        allocate_dynamic<RemoteConsoleState>(pfrm, "uart-state");
 
     irqEnable(IRQ_SERIAL);
 
@@ -5750,7 +5801,8 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
         return false;
     }
 
-    state.tx_msg_ = allocate_dynamic<ConsoleLine>(*::platform);
+    state.tx_msg_ =
+        allocate_dynamic<ConsoleLine>(*::platform, "uart-console-output");
 
     std::optional<char> first_char;
 

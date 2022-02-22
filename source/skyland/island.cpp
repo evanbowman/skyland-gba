@@ -438,7 +438,9 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     lisp::funcall(fn, 4);
                     auto result = lisp::get_op(0);
                     if (result->type() == lisp::Value::Type::error) {
-                        auto p = allocate_dynamic<lisp::DefaultPrinter>(pfrm);
+                        const char* tag = "lisp-fmt-buffer";
+                        auto p =
+                            allocate_dynamic<lisp::DefaultPrinter>(pfrm, tag);
                         lisp::format(result, *p);
                         pfrm.fatal(p->fmt_.c_str());
                     }

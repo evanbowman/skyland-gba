@@ -271,7 +271,8 @@ public:
     }
 
 
-    Vector(Platform& pfrm) : pfrm_(pfrm), data_(pfrm.make_scratch_buffer())
+    Vector(Platform& pfrm, ScratchBuffer::Tag t = "")
+        : pfrm_(pfrm), data_(pfrm.make_scratch_buffer(t))
     {
         Chunk::initialize(data_, nullptr);
     }
@@ -287,7 +288,7 @@ public:
     Vector(const Vector& other) = delete;
 
 
-    void push_back(const T& elem)
+    void push_back(const T& elem, ScratchBuffer::Tag t = "")
     {
         Chunk* current = (Chunk*)data_->data_;
 
@@ -301,7 +302,7 @@ public:
         }
 
         if (size == Chunk::elems() and not current->header_.next_) {
-            auto sbr = pfrm_.make_scratch_buffer();
+            auto sbr = pfrm_.make_scratch_buffer(t);
             Chunk::initialize(sbr, current);
             current->header_.next_ = sbr;
             current = (Chunk*)(*current->header_.next_)->data_;

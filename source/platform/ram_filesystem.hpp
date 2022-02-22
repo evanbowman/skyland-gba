@@ -130,7 +130,19 @@ struct FileContents {
     struct Header {
         // NOTE: therefore, max filesystem size is 200 * 65535
         host_u16 next_; // Zero if no more blocks
-        u8 checksum_;   // To check for file corruption
+
+
+        enum {
+            // seven bits of checksum per file block
+            checksum_mask = 0xef,
+
+            // packed bit, indicating whether a file uses a packed-ascii
+            // representation. If each character in a file is ascii (> 0),
+            // then the file will be stored using half of the memory.
+            packed_bit = 0x80,
+        };
+
+        u8 checksum_; // To check for file corruption
     } header_;
 
     static constexpr const auto capacity = block_size - sizeof header_;

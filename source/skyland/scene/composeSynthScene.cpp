@@ -105,14 +105,18 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (channel_ == Platform::Speaker::Channel::noise) {
                 if (notes_[cursor_.y].noise_freq_.frequency_select_ == 0 and
                     last_freq_) {
-                    notes_[cursor_.y].noise_freq_.frequency_select_ = last_freq_;
-                } else if (notes_[cursor_.y].noise_freq_.frequency_select_ < 36) {
+                    notes_[cursor_.y].noise_freq_.frequency_select_ =
+                        last_freq_;
+                } else if (notes_[cursor_.y].noise_freq_.frequency_select_ <
+                           36) {
                     // The frequencies past table entry 36 are practically inaudible.
                     notes_[cursor_.y].noise_freq_.frequency_select_++;
-                    last_freq_ = notes_[cursor_.y].noise_freq_.frequency_select_;
+                    last_freq_ =
+                        notes_[cursor_.y].noise_freq_.frequency_select_;
                 } else {
                     notes_[cursor_.y].noise_freq_.frequency_select_ = 0;
-                    last_freq_ = notes_[cursor_.y].noise_freq_.frequency_select_;
+                    last_freq_ =
+                        notes_[cursor_.y].noise_freq_.frequency_select_;
                 }
             } else {
                 if (notes_[cursor_.y].regular_.note_ ==
@@ -120,13 +124,13 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                     notes_[cursor_.y].regular_.octave_ = last_octave_;
                 }
 
-                notes_[cursor_.y].regular_.note_ =
-                    (Platform::Speaker::Note)
-                    (((u8)notes_[cursor_.y].regular_.note_ + 1));
+                notes_[cursor_.y].regular_.note_ = (Platform::Speaker::Note)(
+                    ((u8)notes_[cursor_.y].regular_.note_ + 1));
 
                 if ((u8)notes_[cursor_.y].regular_.note_ >
                     (int)(Platform::Speaker::Note::B)) {
-                    notes_[cursor_.y].regular_.note_ = Platform::Speaker::Note::invalid;
+                    notes_[cursor_.y].regular_.note_ =
+                        Platform::Speaker::Note::invalid;
                 }
             }
 
@@ -140,10 +144,12 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (channel_ == Platform::Speaker::Channel::noise) {
                 if (notes_[cursor_.y].noise_freq_.frequency_select_ > 0) {
                     notes_[cursor_.y].noise_freq_.frequency_select_--;
-                    last_freq_ = notes_[cursor_.y].noise_freq_.frequency_select_;
+                    last_freq_ =
+                        notes_[cursor_.y].noise_freq_.frequency_select_;
                 } else {
                     if (last_freq_) {
-                        notes_[cursor_.y].noise_freq_.frequency_select_ = last_freq_;
+                        notes_[cursor_.y].noise_freq_.frequency_select_ =
+                            last_freq_;
                     } else {
                         notes_[cursor_.y].noise_freq_.frequency_select_ = 36;
                     }
@@ -160,8 +166,8 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                         Platform::Speaker::Note::B;
                 } else {
                     notes_[cursor_.y].regular_.note_ =
-                        (Platform::Speaker::Note)
-                        (((u8)notes_[cursor_.y].regular_.note_ - 1));
+                        (Platform::Speaker::Note)(
+                            ((u8)notes_[cursor_.y].regular_.note_ - 1));
                 }
             }
 

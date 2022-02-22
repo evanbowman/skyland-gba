@@ -3,8 +3,8 @@
 
 #include "skyland/coins.hpp"
 #include "skyland/sharedVariable.hpp"
-#include "weapon.hpp"
 #include "skyland/systemString.hpp"
+#include "weapon.hpp"
 
 
 

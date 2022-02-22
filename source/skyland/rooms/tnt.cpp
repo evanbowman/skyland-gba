@@ -38,9 +38,8 @@ void Explosive::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-ScenePtr<Scene> Explosive::select(Platform& pfrm,
-                                  App& app,
-                                  const Vec2<u8>& cursor)
+ScenePtr<Scene>
+Explosive::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 {
     if (parent() not_eq &app.player_island()) {
         return null_scene();
@@ -108,7 +107,8 @@ void Explosive::ignite(Platform& pfrm, App& app, int range, Health damage)
                        flak_smoke(pf, app, pos);
                    });
 
-    auto targets = allocate_dynamic<Buffer<Room*, 300>>(pfrm);
+    auto targets =
+        allocate_dynamic<Buffer<Room*, 300>>(pfrm, "dynamite-target-bufer");
 
     for (int x = -range; x < range + 1; ++x) {
         for (int y = -range; y < range + 1; ++y) {

@@ -47,11 +47,12 @@ template <typename T> struct DynamicMemory {
 
 
 template <typename T, typename... Args>
-DynamicMemory<T> allocate_dynamic(Platform& pfrm, Args&&... args)
+DynamicMemory<T>
+allocate_dynamic(Platform& pfrm, const ScratchBuffer::Tag& tag, Args&&... args)
 {
     static_assert(sizeof(T) + alignof(T) <= sizeof ScratchBuffer::data_);
 
-    auto sc_buf = pfrm.make_scratch_buffer();
+    auto sc_buf = pfrm.make_scratch_buffer(tag);
 
     auto deleter = [](T* val) {
         if (val) {

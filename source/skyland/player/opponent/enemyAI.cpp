@@ -474,7 +474,8 @@ void EnemyAI::assign_local_character(Platform& pfrm,
         }
     }
 
-    DynamicMemory<bool[16][16]> matrix_ = allocate_dynamic<bool[16][16]>(pfrm);
+    DynamicMemory<bool[16][16]> matrix_ =
+        allocate_dynamic<bool[16][16]>(pfrm, "ai-rooms-plot");
 
     app.opponent_island()->plot_walkable_zones(app, *matrix_);
 
@@ -677,7 +678,8 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
     }
 
 
-    DynamicMemory<bool[16][16]> matrix_ = allocate_dynamic<bool[16][16]>(pfrm);
+    DynamicMemory<bool[16][16]> matrix_ =
+        allocate_dynamic<bool[16][16]>(pfrm, "ai-chr-slots");
 
     app.player_island().plot_walkable_zones(app, *matrix_);
 
@@ -838,7 +840,8 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     if (highest_weighted_room) {
-        assign_weapon_target(pfrm, app, ion_cannon, highest_weighted_room->position());
+        assign_weapon_target(
+            pfrm, app, ion_cannon, highest_weighted_room->position());
     }
 }
 
@@ -1445,8 +1448,8 @@ void EnemyAI::set_target(Platform& pfrm,
                                  app,
                                  silo,
                                  visible_rooms[rng::choice(visible_rooms.size(),
-                                                      rng::utility_state)]
-                                 ->position());
+                                                           rng::utility_state)]
+                                     ->position());
         } else {
             assign_weapon_target(pfrm, app, silo, target->position());
         }
@@ -1526,10 +1529,8 @@ void EnemyAI::set_target(Platform& pfrm,
     }
 
     if (highest_weighted_room) {
-        assign_weapon_target(pfrm,
-                             app,
-                             flak_gun,
-                             highest_weighted_room->position());
+        assign_weapon_target(
+            pfrm, app, flak_gun, highest_weighted_room->position());
     }
 }
 
@@ -1601,10 +1602,7 @@ void EnemyAI::set_target(Platform& pfrm,
             target = highest_weighted_second_tier_room;
         }
 
-        assign_weapon_target(pfrm,
-                             app,
-                             generic_gun,
-                             target->position());
+        assign_weapon_target(pfrm, app, generic_gun, target->position());
     }
 }
 

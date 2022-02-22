@@ -42,11 +42,10 @@ public:
 
     static u32 properties()
     {
-        return RoomProperties::roof_hidden
-             | RoomProperties::flag_mount
-             | RoomProperties::workshop_required
-             | RoomProperties::locked_by_default
-             | RoomProperties::disabled_in_tutorials;
+        return RoomProperties::roof_hidden | RoomProperties::flag_mount |
+               RoomProperties::workshop_required |
+               RoomProperties::locked_by_default |
+               RoomProperties::disabled_in_tutorials;
     }
 
 
@@ -93,8 +92,6 @@ public:
 
 
 private:
-
-
     void emit_radiation(Platform& pfrm, App& app);
 
 
@@ -103,4 +100,4 @@ private:
 
 
 
-}
+} // namespace skyland

@@ -1,8 +1,8 @@
 #include "playerP1.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/touchscreenFreeformCamera.hpp"
-#include "skyland/sharedVariable.hpp"
 
 
 
@@ -165,8 +165,9 @@ void PlayerP1::on_room_destroyed(Platform& pfrm, App& app, Room& room)
 void PlayerP1::on_room_plundered(Platform& pfrm, App& app, Room& room)
 {
     if (room.parent() not_eq &app.player_island()) {
-        app.score().set(score_multiplier *
-                        (app.score().get() + 1.2f * (*room.metaclass())->cost()));
+        app.score().set(
+            score_multiplier *
+            (app.score().get() + 1.2f * (*room.metaclass())->cost()));
 
         // Unlock the decimator structure if the player plunders it from an
         // opponent castle.

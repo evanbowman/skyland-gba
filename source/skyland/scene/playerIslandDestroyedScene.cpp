@@ -1,4 +1,5 @@
 #include "playerIslandDestroyedScene.hpp"
+#include "coopRngSyncScene.hpp"
 #include "highscoresScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
 #include "platform/color.hpp"
@@ -7,15 +8,14 @@
 #include "scriptHookScene.hpp"
 #include "selectChallengeScene.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
+#include "skyland/network.hpp"
 #include "skyland/player/opponent/friendlyAI.hpp"
 #include "skyland/rooms/droneBay.hpp"
-#include "skyland/network.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/serial.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
-#include "coopRngSyncScene.hpp"
 
 
 
@@ -627,7 +627,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             app.camera()->shake(3);
 
-            confetti_ = allocate_dynamic<ConfettiBuffer>(pfrm);
+            confetti_ = allocate_dynamic<ConfettiBuffer>(pfrm, "confetti");
             if (confetti_ and *confetti_) {
                 for (int i = 0; i < 18; ++i) {
 

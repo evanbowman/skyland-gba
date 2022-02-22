@@ -83,7 +83,6 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     pfrm.delta_clock().reset();
-
 }
 
 

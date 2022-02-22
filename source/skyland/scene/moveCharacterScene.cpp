@@ -14,7 +14,8 @@ namespace skyland {
 
 
 MoveCharacterScene::MoveCharacterScene(Platform& pfrm, bool near)
-    : matrix_(allocate_dynamic<bool[16][16]>(pfrm)), near_(near)
+    : matrix_(allocate_dynamic<bool[16][16]>(pfrm, "chr-movement-slots")),
+      near_(near)
 {
     if (not matrix_) {
         pfrm.fatal("MCS: buffers exhausted");

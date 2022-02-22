@@ -1,5 +1,5 @@
-#include "boxedDialogScene.hpp"
 #include "titleScreenScene.hpp"
+#include "boxedDialogScene.hpp"
 #include "loadModuleScene.hpp"
 #include "module.hpp"
 #include "modules/fileBrowserModule.hpp"
@@ -137,6 +137,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     // mode when fading into a level.
     app.time_stream().enable_pushes(false);
     app.time_stream().clear();
+
+    app.game_speed() = GameSpeed::normal;
 
     auto view = pfrm.screen().get_view();
     auto c = view.get_center();
@@ -757,12 +759,20 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<NewgameScene>();
                 } else {
                     app.gp_.flags0_ |= GlobalPersistentData::tutorial_prompt;
+
+                    // Title Screen Graphical bugfix (1)
+                    // Text box doesn't show up, need to cycle a fade to fix the
+                    // palettes.
+                    pfrm.screen().fade(0.95f);
+                    pfrm.screen().fade(1.f);
+
                     save::store_global_data(pfrm, app.gp_);
                     app.invoke_script(pfrm, "/scripts/reset_hooks.lisp");
-                    auto dialog = allocate_dynamic<DialogString>(pfrm);
+                    auto dialog =
+                        allocate_dynamic<DialogString>(pfrm, "dialog-buffer");
                     *dialog = SYS_CSTR(dialog_tutorial_prompt);
-                    auto next = scene_pool::alloc<BoxedDialogScene>(std::move(dialog),
-                                                                    false);
+                    auto next = scene_pool::alloc<BoxedDialogScene>(
+                        std::move(dialog), false);
 
                     return next;
 
@@ -789,6 +799,14 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
+
+
+            // Erase text when text fade nears completion.
+            if (amount > 0.9f) {
+                u8 count = calc_screen_tiles(pfrm).x - text_->coord().x;
+                text_->assign(StringBuffer<32>(' ', count).c_str());
+            }
+
 
             pfrm.screen().schedule_fade(
                 amount, ColorConstant::rich_black, true, true);

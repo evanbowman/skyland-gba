@@ -5,8 +5,8 @@
 #include "platform/ram_filesystem.hpp"
 #include "player/autopilotPlayer.hpp"
 #include "player/opponent/enemyAI.hpp"
-#include "player/opponent/procgenEnemyAI.hpp"
 #include "player/opponent/friendlyAI.hpp"
+#include "player/opponent/procgenEnemyAI.hpp"
 #include "room_metatable.hpp"
 #include "rooms/cargoBay.hpp"
 #include "rooms/core.hpp"
@@ -133,6 +133,11 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               return L_NIL;
           }},
+         {"hibernate",
+          [](int argc) {
+              lisp::interp_get_pfrm()->hibernate();
+              return L_NIL;
+          }},
          {"fatal",
           [](int argc) {
               L_EXPECT_ARGC(argc, 1);
@@ -214,6 +219,16 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               lisp::interp_get_pfrm()->screen().display();
               return L_NIL;
           }},
+         {"sbr-annotate",
+          [](int argc) {
+              lisp::interp_get_pfrm()->print_memory_diagnostics();
+              return L_NIL;
+          }},
+         {"world-graph-nodes",
+          [](int argc) {
+              // TODO...
+              return L_NIL;
+          }},
          {"synth-notes-store",
           [](int argc) {
               L_EXPECT_ARGC(argc, 2);
@@ -256,7 +271,8 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               return L_NIL;
           }},
-         {"speaker-data-load", [](int argc) {
+         {"speaker-data-load",
+          [](int argc) {
               L_EXPECT_ARGC(argc, 2);
               L_EXPECT_OP(1, user_data);
               L_EXPECT_OP(0, string);
@@ -269,8 +285,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               return L_NIL;
           }},
-         {"room-enable",
-          [](int argc) {
+         {"room-enable", [](int argc) {
               L_EXPECT_ARGC(argc, 2);
               L_EXPECT_OP(1, integer);
               L_EXPECT_OP(0, integer);
@@ -302,7 +317,7 @@ get_line_from_file(Platform& pfrm, const char* file_name, int line)
 {
     --line; // From the caller's perspective, file lines start from 1.
 
-    auto result = allocate_dynamic<FileLine>(pfrm);
+    auto result = allocate_dynamic<FileLine>(pfrm, "file-line");
 
     if (!result) {
         return result;
@@ -422,7 +437,7 @@ static const lisp::Binding script_api[] = {
          for (int i = argc - 1; i > -1; --i) {
              if (not app->dialog_buffer()) {
                  app->dialog_buffer().emplace(
-                     allocate_dynamic<DialogString>(*pfrm));
+                     allocate_dynamic<DialogString>(*pfrm, "dialog-buffer"));
              }
 
              if (lisp::get_op(i)->type() not_eq lisp::Value::Type::string) {

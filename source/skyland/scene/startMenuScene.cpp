@@ -1,12 +1,12 @@
-#include "modules/glossaryViewerModule.hpp"
 #include "startMenuScene.hpp"
+#include "hibernateScene.hpp"
+#include "modules/glossaryViewerModule.hpp"
+#include "readyScene.hpp"
+#include "saveSandboxScene.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene_pool.hpp"
-#include "readyScene.hpp"
 #include "skyland/skyland.hpp"
-#include "saveSandboxScene.hpp"
 #include "titleScreenScene.hpp"
-#include "highscoresScene.hpp"
 #include "zoneImageScene.hpp"
 
 
@@ -15,9 +15,9 @@ namespace skyland {
 
 
 
-StartMenuScene::StartMenuScene(Platform& pfrm, int fade_direction) :
-    data_(allocate_dynamic<Data>(pfrm)),
-    fade_direction_(fade_direction)
+StartMenuScene::StartMenuScene(Platform& pfrm, int fade_direction)
+    : data_(allocate_dynamic<Data>(pfrm, "start-menu-options-buffer")),
+      fade_direction_(fade_direction)
 {
 }
 
@@ -35,13 +35,14 @@ void StartMenuScene::add_option(Platform& pfrm,
                                 DeferredScene on_click,
                                 TransitionMode transition_mode)
 {
-    int start_y = 5;
+    int start_y = 4;
 
     u8 margin = centered_text_margins(pfrm, utf8::len(str));
 
-    data_->text_.emplace_back(pfrm, str, OverlayCoord{
-            margin, (u8)(start_y + data_->text_.size() * 2)
-        });
+    data_->text_.emplace_back(
+        pfrm,
+        str,
+        OverlayCoord{margin, (u8)(start_y + data_->text_.size() * 2)});
 
     data_->on_click_.push_back({on_click, transition_mode});
     data_->option_names_.push_back(str);
@@ -55,9 +56,8 @@ void StartMenuScene::exit(Platform& pfrm, App&, Scene& next)
 
 
 
-ScenePtr<Scene> StartMenuScene::update(Platform& pfrm,
-                                       App& app,
-                                       Microseconds delta)
+ScenePtr<Scene>
+StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     switch (state_) {
     case State::init: {
@@ -67,16 +67,22 @@ ScenePtr<Scene> StartMenuScene::update(Platform& pfrm,
                    scene_pool::make_deferred_scene<ReadyScene>(),
                    kill_menu);
 
+        add_option(
+            pfrm,
+            "glossary",
+            [&pfrm] {
+                auto next = scene_pool::alloc<GlossaryViewerModule>();
+                next->set_next_scene([&pfrm]() {
+                    return scene_pool::alloc<StartMenuScene>(pfrm, 1);
+                });
+                return next;
+            },
+            cut);
+
         add_option(pfrm,
-                   "glossary",
-                   [&pfrm] {
-                       auto next = scene_pool::alloc<GlossaryViewerModule>();
-                       next->set_next_scene([&pfrm]() {
-                           return scene_pool::alloc<StartMenuScene>(pfrm, 1);
-                       });
-                       return next;
-                   },
-                   cut);
+                   "hibernate",
+                   scene_pool::make_deferred_scene<HibernateScene>(),
+                   fade_sweep);
 
         switch (app.game_mode()) {
         case App::GameMode::sandbox:
@@ -264,7 +270,9 @@ ScenePtr<Scene> StartMenuScene::update(Platform& pfrm,
             pfrm.screen().schedule_fade(1.f);
 
             auto name = data_->option_names_[data_->cursor_];
-            Text text(pfrm, {(u8)centered_text_margins(pfrm, utf8::len(name.c_str())), 1});
+            Text text(
+                pfrm,
+                {(u8)centered_text_margins(pfrm, utf8::len(name.c_str())), 1});
             text.assign(name.c_str());
             text.__detach();
 
@@ -272,7 +280,6 @@ ScenePtr<Scene> StartMenuScene::update(Platform& pfrm,
         }
         break;
     }
-
     }
 
     return null_scene();
@@ -296,7 +303,8 @@ void StartMenuScene::display(Platform& pfrm, App& app)
     //                         std::numeric_limits<s16>::max();
 
     origin.x = ((int)(data_->text_[data_->cursor_].coord().x - 2) * 8) + view.x;
-    origin.y = (data_->text_[data_->cursor_].coord().y * 8 - y_offset_) + view.y;
+    origin.y =
+        (data_->text_[data_->cursor_].coord().y * 8 - y_offset_) + view.y;
 
     cursor.set_position(origin);
 
@@ -313,4 +321,4 @@ void StartMenuScene::display(Platform& pfrm, App& app)
 
 
 
-}
+} // namespace skyland

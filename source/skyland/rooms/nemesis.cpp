@@ -26,14 +26,13 @@ void Nemesis::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
     auto secs = nemesis_reload_ms / 1000;
 
-    make_format(
-        buffer,
-        SYSTR(description_nemesis)->c_str(),
-        nemesis_blast_damage,
-        nemesis_blast_damage * 2,
-        nemesis_blast_damage * 4,
-        secs,
-        (nemesis_reload_ms / 100 - secs * 10));
+    make_format(buffer,
+                SYSTR(description_nemesis)->c_str(),
+                nemesis_blast_damage,
+                nemesis_blast_damage * 2,
+                nemesis_blast_damage * 4,
+                secs,
+                (nemesis_reload_ms / 100 - secs * 10));
 }
 
 

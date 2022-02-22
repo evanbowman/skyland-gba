@@ -73,9 +73,8 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm,
-                           App& app,
-                           const Vec2<u8>& cursor) override;
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
 
 
     void plot_walkable_zones(App& app, bool matrix[16][16]) override

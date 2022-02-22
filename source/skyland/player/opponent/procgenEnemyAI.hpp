@@ -25,7 +25,6 @@ public:
 
 
 private:
-
     void generate_power_sources(Platform& pfrm, App& app);
     void generate_stairwells(Platform& pfrm, App& app);
     void generate_secondary_rooms(Platform& pfrm, App& app);
@@ -53,9 +52,7 @@ private:
                                const char* room_name);
 
 
-    void place_room_adjacent(Platform& pfrm,
-                             App& app,
-                             const char* room_name);
+    void place_room_adjacent(Platform& pfrm, App& app, const char* room_name);
 
 
     u8 difficulty_ = 1;

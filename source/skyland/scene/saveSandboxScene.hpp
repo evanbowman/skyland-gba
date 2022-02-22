@@ -1,15 +1,15 @@
 #pragma once
 
-#include "skyland/scene.hpp"
-#include "graphics/overlay.hpp"
-#include "startMenuScene.hpp"
-#include "skyland/scene_pool.hpp"
-#include "skyland/player/player.hpp"
-#include "titleScreenScene.hpp"
-#include "script/lisp.hpp"
-#include "skyland/skyland.hpp"
-#include "platform/ram_filesystem.hpp"
 #include "fadeInScene.hpp"
+#include "graphics/overlay.hpp"
+#include "platform/ram_filesystem.hpp"
+#include "script/lisp.hpp"
+#include "skyland/player/player.hpp"
+#include "skyland/scene.hpp"
+#include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
+#include "startMenuScene.hpp"
+#include "titleScreenScene.hpp"
 
 
 
@@ -19,8 +19,6 @@ namespace skyland {
 
 class SaveSandboxScene : public Scene {
 public:
-
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         const auto st = calc_screen_tiles(pfrm);
@@ -128,7 +126,9 @@ public:
 
 
     struct VectorPrinter : lisp::Printer {
-        VectorPrinter(Platform& pfrm) : data_(pfrm) {}
+        VectorPrinter(Platform& pfrm) : data_(pfrm)
+        {
+        }
 
         void put_str(const char* c) override
         {
@@ -151,21 +151,24 @@ public:
 
         p.data_.push_back('\0');
 
-        ram_filesystem::store_file_data(pfrm,
-                                        format("/save/sb%.lisp", cursor_).c_str(),
-                                        p.data_);
+        ram_filesystem::store_file_data(
+            pfrm, format("/save/sb%.lisp", cursor_).c_str(), p.data_);
 
-        synth_notes_store(pfrm, app.player_island(),
+        synth_notes_store(pfrm,
+                          app.player_island(),
                           format("/save/sb%_p_synth.dat", cursor()).c_str());
 
-        speaker_data_store(pfrm, app.player_island(),
+        speaker_data_store(pfrm,
+                           app.player_island(),
                            format("/save/sb%_p_speaker.dat", cursor()).c_str());
 
 
-        synth_notes_store(pfrm, *app.opponent_island(),
+        synth_notes_store(pfrm,
+                          *app.opponent_island(),
                           format("/save/sb%_o_synth.dat", cursor()).c_str());
 
-        speaker_data_store(pfrm, *app.opponent_island(),
+        speaker_data_store(pfrm,
+                           *app.opponent_island(),
                            format("/save/sb%_o_speaker.dat", cursor()).c_str());
 
 
@@ -185,15 +188,12 @@ private:
 
 class LoadSandboxScene : public SaveSandboxScene {
 public:
-
     ScenePtr<Scene> on_selected(Platform& pfrm, App& app) override
     {
         Vector<char> data(pfrm);
 
-        auto bytes = ram_filesystem::read_file_data(pfrm,
-                                                    format("/save/sb%.lisp",
-                                                           cursor()).c_str(),
-                                                    data);
+        auto bytes = ram_filesystem::read_file_data(
+            pfrm, format("/save/sb%.lisp", cursor()).c_str(), data);
 
         if (bytes == 0) {
             return null_scene();
@@ -218,17 +218,21 @@ public:
         lisp::pop_op(); // result of read() (0)
 
 
-        synth_notes_load(pfrm, app.player_island(),
+        synth_notes_load(pfrm,
+                         app.player_island(),
                          format("/save/sb%_p_synth.dat", cursor()).c_str());
 
-        speaker_data_load(pfrm, app.player_island(),
+        speaker_data_load(pfrm,
+                          app.player_island(),
                           format("/save/sb%_p_speaker.dat", cursor()).c_str());
 
 
-        synth_notes_load(pfrm, *app.opponent_island(),
+        synth_notes_load(pfrm,
+                         *app.opponent_island(),
                          format("/save/sb%_o_synth.dat", cursor()).c_str());
 
-        speaker_data_load(pfrm, *app.opponent_island(),
+        speaker_data_load(pfrm,
+                          *app.opponent_island(),
                           format("/save/sb%_o_speaker.dat", cursor()).c_str());
 
 
@@ -236,9 +240,8 @@ public:
 
         return scene_pool::alloc<FadeInScene>();
     }
-
 };
 
 
 
-}
+} // namespace skyland

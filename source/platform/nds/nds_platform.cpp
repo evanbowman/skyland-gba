@@ -841,7 +841,7 @@ static ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
 
 
 
-ScratchBufferPtr Platform::make_scratch_buffer()
+ScratchBufferPtr Platform::make_scratch_buffer(const ScratchBuffer::Tag& tag)
 {
     if (not scratch_buffers_remaining()) {
         // if (scratch_buffer_oom_handler) {

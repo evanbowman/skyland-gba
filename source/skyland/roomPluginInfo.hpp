@@ -72,7 +72,7 @@ struct RoomPluginInfo : public RoomMeta::Info {
 
     SystemStringBuffer ui_name(Platform& pfrm) const override
     {
-        auto ret = allocate_dynamic<StringBuffer<1900>>(pfrm);
+        auto ret = allocate_dynamic<StringBuffer<1900>>(pfrm, "locale-string");
         *ret += name();
         return ret;
     }
@@ -118,8 +118,7 @@ struct RoomPluginInfo : public RoomMeta::Info {
     }
 
 
-    void format_description(Platform&,
-                            StringBuffer<512>&) const override
+    void format_description(Platform&, StringBuffer<512>&) const override
     {
         Platform::fatal("attempt to fetch desciption for a plugin room.");
     }

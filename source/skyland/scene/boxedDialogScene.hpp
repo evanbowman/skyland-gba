@@ -16,8 +16,7 @@ namespace skyland {
 
 class BoxedDialogScene : public WorldScene {
 public:
-    BoxedDialogScene(DialogBuffer buffer,
-                     bool expects_answer_y_n)
+    BoxedDialogScene(DialogBuffer buffer, bool expects_answer_y_n)
         : buffer_(std::move(buffer)), expects_answer_y_n_(expects_answer_y_n),
           character_image_(0)
     {
@@ -33,7 +32,6 @@ public:
 
 
 private:
-
     void process_command(Platform& pfrm, App& app);
 
     bool advance_text(Platform& pfrm, App& app, Microseconds delta, bool sfx);

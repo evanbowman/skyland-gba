@@ -158,7 +158,7 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
         Buffer<Room*, 70> rooms_;
     };
 
-    auto state = allocate_dynamic<Temp>(pfrm);
+    auto state = allocate_dynamic<Temp>(pfrm, "arcbolt-fill-buffer");
     room.parent()->plot_rooms(state->matrix_);
 
     // Remove any room from plot if type differs from colliding room type.

@@ -9,8 +9,8 @@ namespace skyland {
 
 
 LispReplScene::LispReplScene(Platform& pfrm)
-    : command_(allocate_dynamic<Command>(pfrm)),
-      cpl_(allocate_dynamic<Completions>(pfrm))
+    : command_(allocate_dynamic<Command>(pfrm, "lisp-repl-command-buffer")),
+      cpl_(allocate_dynamic<Completions>(pfrm, "lisp-repl-completion-buffer"))
 {
 }
 

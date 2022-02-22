@@ -81,7 +81,7 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto future_scene = [] {
             return scene_pool::alloc<TitleScreenScene>();
         };
-        auto buffer = allocate_dynamic<DialogString>(pfrm);
+        auto buffer = allocate_dynamic<DialogString>(pfrm, "dialog-string");
         *buffer = SYSTR(multi_connection_failure)->c_str();
         return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
                                                         future_scene);

@@ -9,8 +9,8 @@
 #include "platform/layer.hpp"
 #include "power.hpp"
 #include "scene.hpp"
-#include <memory>
 #include "script/value.hpp"
+#include <memory>
 
 
 
@@ -174,9 +174,8 @@ public:
     virtual ScenePtr<Scene> setup(Platform& pfrm, App&);
 
 
-    virtual ScenePtr<Scene> select(Platform& pfrm,
-                                   App& app,
-                                   const Vec2<u8>& cursor);
+    virtual ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const Vec2<u8>& cursor);
 
 
     virtual void set_target(Platform& pfrm, App& app, const Vec2<u8>& target)
@@ -294,8 +293,7 @@ public:
     }
 
 
-    static void format_description(Platform& pfrm,
-                                   StringBuffer<512>& buffer)
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
     {
         // TODO...
     }

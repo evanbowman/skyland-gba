@@ -10,7 +10,7 @@ namespace skyland {
 int CustomTileMapper::map_image(Platform& pfrm, const img::Image& image)
 {
     if (not mappings_) {
-        mappings_ = allocate_dynamic<Mappings>(pfrm);
+        mappings_ = allocate_dynamic<Mappings>(pfrm, "custom-tile-mappings");
     }
 
     for (int i = 0; i < mapping_count; ++i) {

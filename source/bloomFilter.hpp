@@ -4,11 +4,8 @@
 
 
 
-template <u32 bits>
-class BloomFilter {
+template <u32 bits> class BloomFilter {
 public:
-
-
     void insert(const char* data, u32 data_length)
     {
         const u32 fnv = fnv32(data, data_length);
@@ -41,9 +38,7 @@ public:
 
 
 private:
-
-
-    u32 fnv32(const char *data, u32 len) const
+    u32 fnv32(const char* data, u32 len) const
     {
         u32 hash = 2166136261U, i;
 
@@ -56,7 +51,7 @@ private:
     }
 
 
-    u32 murmurhash (const char *key, u32 len, u32 seed) const
+    u32 murmurhash(const char* key, u32 len, u32 seed) const
     {
         // The MIT License (MIT)
 
@@ -90,16 +85,16 @@ private:
         u32 n = 0xe6546b64;
         u32 h = 0;
         u32 k = 0;
-        u8 *d = (u8*) key;
-        const u32 *chunks = NULL;
-        const u8 *tail = NULL;
+        u8* d = (u8*)key;
+        const u32* chunks = NULL;
+        const u8* tail = NULL;
         int i = 0;
         int l = len / 4;
 
         h = seed;
 
-        chunks = (const u32*) (d + l * 4);
-        tail = (const u8*) (d + l * 4);
+        chunks = (const u32*)(d + l * 4);
+        tail = (const u8*)(d + l * 4);
 
         for (i = -l; i != 0; ++i) {
             k = chunks[i];
@@ -116,8 +111,10 @@ private:
         k = 0;
 
         switch (len & 3) {
-        case 3: k ^= (tail[2] << 16);
-        case 2: k ^= (tail[1] << 8);
+        case 3:
+            k ^= (tail[2] << 16);
+        case 2:
+            k ^= (tail[1] << 8);
 
         case 1:
             k ^= tail[0];

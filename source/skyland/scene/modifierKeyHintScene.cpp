@@ -28,9 +28,7 @@ ModifierKeyHintScene::update(Platform& pfrm, App& app, Microseconds delta)
     } else if (player(app).key_down(pfrm, Key::up)) {
         for (auto& room : player_island(app).rooms()) {
             if (room->group() == Room::Group::one) {
-                if (auto scene = room->select(pfrm,
-                                              app,
-                                              room->position())) {
+                if (auto scene = room->select(pfrm, app, room->position())) {
                     player(app).key_held_reset(Key::up, milliseconds(500));
                     return scene;
                 }
@@ -39,9 +37,7 @@ ModifierKeyHintScene::update(Platform& pfrm, App& app, Microseconds delta)
     } else if (player(app).key_down(pfrm, Key::right)) {
         for (auto& room : player_island(app).rooms()) {
             if (room->group() == Room::Group::two) {
-                if (auto scene = room->select(pfrm,
-                                              app,
-                                              room->position())) {
+                if (auto scene = room->select(pfrm, app, room->position())) {
                     player(app).key_held_reset(Key::right, milliseconds(500));
                     return scene;
                 }
@@ -50,9 +46,7 @@ ModifierKeyHintScene::update(Platform& pfrm, App& app, Microseconds delta)
     } else if (player(app).key_down(pfrm, Key::left)) {
         for (auto& room : player_island(app).rooms()) {
             if (room->group() == Room::Group::three) {
-                if (auto scene = room->select(pfrm,
-                                              app,
-                                              room->position())) {
+                if (auto scene = room->select(pfrm, app, room->position())) {
                     player(app).key_held_reset(Key::left, milliseconds(500));
                     return scene;
                 }

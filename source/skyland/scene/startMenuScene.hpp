@@ -11,7 +11,6 @@ namespace skyland {
 
 class StartMenuScene : public WorldScene {
 public:
-
     StartMenuScene(Platform& pfrm, int fade_direction);
 
 
@@ -82,4 +81,4 @@ private:
 
 
 
-}
+} // namespace skyland

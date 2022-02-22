@@ -48,9 +48,8 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
             const auto st = calc_screen_tiles(pfrm);
             u8 margin = centered_text_margins(pfrm, utf8::len(text->c_str()));
 
-            text_.emplace(pfrm,
-                          text->c_str(),
-                          OverlayCoord{margin, (u8)(st.y / 2 - 3)});
+            text_.emplace(
+                pfrm, text->c_str(), OverlayCoord{margin, (u8)(st.y / 2 - 3)});
         }
     } else if (text_) {
         if (timer_ > milliseconds(500) and timer_ < milliseconds(2000)) {

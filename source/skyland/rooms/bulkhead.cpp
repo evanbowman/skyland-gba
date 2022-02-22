@@ -90,9 +90,8 @@ void Bulkhead::set_open(Platform& pfrm, App& app, bool open)
 }
 
 
-ScenePtr<Scene> Bulkhead::select(Platform& pfrm,
-                                 App& app,
-                                 const Vec2<u8>& cursor)
+ScenePtr<Scene>
+Bulkhead::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 {
     if (length(characters())) {
         return Room::select(pfrm, app, cursor);

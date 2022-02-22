@@ -2,8 +2,8 @@
 
 #include "decoration.hpp"
 #include "platform/platform.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/systemString.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -68,9 +68,8 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
-    ScenePtr<Scene> select(Platform& pfrm,
-                           App& app,
-                           const Vec2<u8>& cursor) override;
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
 
 
     using Note = Platform::Speaker::NoteDesc;

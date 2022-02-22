@@ -9,8 +9,9 @@ IncrementalPathfinder::IncrementalPathfinder(Platform& pfrm,
                                              TileMap& tiles,
                                              const PathCoord& start,
                                              const PathCoord& end)
-    : memory_(pfrm), priority_q_(allocate_dynamic<VertexBuf>(pfrm)),
-      map_matrix_(allocate_dynamic<VertexMat>(pfrm)), end_(end)
+    : memory_(pfrm),
+      priority_q_(allocate_dynamic<VertexBuf>(pfrm, "path-priority-q")),
+      map_matrix_(allocate_dynamic<VertexMat>(pfrm, "path-matrix")), end_(end)
 {
     static_assert(sizeof(PathVertexData*) <= 8,
                   "What computer are you running this on?");
@@ -97,7 +98,8 @@ IncrementalPathfinder::compute(Platform& pfrm, int max_iters, bool* incomplete)
                 return {};
             }
             if (min->coord_ == end_) {
-                auto path_mem = allocate_dynamic<PathBuffer>(pfrm);
+                auto path_mem =
+                    allocate_dynamic<PathBuffer>(pfrm, "path-buffer");
                 if (not path_mem) {
                     return {};
                 }

@@ -1,11 +1,11 @@
 #include "coopTeam.hpp"
-#include "skyland/island.hpp"
-#include "skyland/rooms/tnt.hpp"
 #include "number/random.hpp"
+#include "skyland/entity/drones/droneMeta.hpp"
+#include "skyland/island.hpp"
 #include "skyland/rooms/bulkhead.hpp"
+#include "skyland/rooms/tnt.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/entity/drones/droneMeta.hpp"
 
 
 
@@ -72,8 +72,8 @@ void CoopTeam::receive(Platform& pfrm,
                        const network::packet::WeaponSetTarget& packet)
 {
     if (packet.weapon_near_) {
-        if (auto room = player_island(app).get_room({packet.weapon_x_,
-                packet.weapon_y_})) {
+        if (auto room = player_island(app).get_room(
+                {packet.weapon_x_, packet.weapon_y_})) {
 
             room->set_target(pfrm, app, {packet.target_x_, packet.target_y_});
         }
@@ -82,8 +82,8 @@ void CoopTeam::receive(Platform& pfrm,
             // TODO: raise error?
             return;
         }
-        if (auto room = opponent_island(app)->get_room({packet.weapon_x_,
-                packet.weapon_y_})) {
+        if (auto room = opponent_island(app)->get_room(
+                {packet.weapon_x_, packet.weapon_y_})) {
 
             room->set_target(pfrm, app, {packet.target_x_, packet.target_y_});
         }
@@ -109,29 +109,28 @@ void CoopTeam::receive(Platform& pfrm,
     std::get<SkylandGlobalData>(globals()).coop_cursor_.y = packet.y_;
     std::get<SkylandGlobalData>(globals()).coop_cursor_near_ = packet.near_;
 
-    std::get<SkylandGlobalData>(globals()).coop_cursor_icon_ =
-        [&] {
-            switch (packet.icon_) {
-            default:
-                // Why not simply add an offset? I guess I could... But doing so
-                // would put some dependency on the ordering of tiles in vram,
-                // which is guaranteed to be the same, at least for now, but who
-                // knows how I might change things in the future. So anyway, I
-                // want to create a separation between what constitutes an icon
-                // and a vram tile offset.
-            case 0:
-                return 30;
+    std::get<SkylandGlobalData>(globals()).coop_cursor_icon_ = [&] {
+        switch (packet.icon_) {
+        default:
+            // Why not simply add an offset? I guess I could... But doing so
+            // would put some dependency on the ordering of tiles in vram,
+            // which is guaranteed to be the same, at least for now, but who
+            // knows how I might change things in the future. So anyway, I
+            // want to create a separation between what constitutes an icon
+            // and a vram tile offset.
+        case 0:
+            return 30;
 
-            case 1:
-                return 31;
+        case 1:
+            return 31;
 
-            case 2:
-                return 32;
+        case 2:
+            return 32;
 
-            case 3:
-                return 33;
-            }
-        }();
+        case 3:
+            return 33;
+        }
+    }();
 }
 
 
@@ -225,18 +224,14 @@ void CoopTeam::receive(Platform& pfrm,
     const auto src = Vec2<u8>{packet.src_x_, packet.src_y_};
     const auto dst = Vec2<u8>{packet.dst_x_, packet.dst_y_};
 
-    auto source_island = packet.transporter_near_ ?
-        &player_island(app) : opponent_island(app);
+    auto source_island =
+        packet.transporter_near_ ? &player_island(app) : opponent_island(app);
 
-    auto dest_island = packet.transporter_near_ ?
-        opponent_island(app) : &player_island(app);
+    auto dest_island =
+        packet.transporter_near_ ? opponent_island(app) : &player_island(app);
 
-    transport_character_impl(app,
-                             packet.owned_by_ai_,
-                             source_island,
-                             dest_island,
-                             src,
-                             dst);
+    transport_character_impl(
+        app, packet.owned_by_ai_, source_island, dest_island, src, dst);
 }
 
 
@@ -252,18 +247,14 @@ void CoopTeam::receive(Platform& pfrm,
     const auto src = Vec2<u8>{packet.src_x_, packet.src_y_};
     const auto dst = Vec2<u8>{packet.dst_x_, packet.dst_y_};
 
-    auto dest_island = packet.transporter_near_ ?
-        &player_island(app) : opponent_island(app);
+    auto dest_island =
+        packet.transporter_near_ ? &player_island(app) : opponent_island(app);
 
-    auto source_island = packet.transporter_near_ ?
-        opponent_island(app) : &player_island(app);
+    auto source_island =
+        packet.transporter_near_ ? opponent_island(app) : &player_island(app);
 
-    transport_character_impl(app,
-                             packet.owned_by_ai_,
-                             source_island,
-                             dest_island,
-                             src,
-                             dst);
+    transport_character_impl(
+        app, packet.owned_by_ai_, source_island, dest_island, src, dst);
 }
 
 
@@ -287,7 +278,8 @@ void CoopTeam::receive(Platform& pfrm,
         if (auto room = island->get_room(src_coord)) {
             for (auto& chr : room->characters()) {
                 if (chr->grid_position() == src_coord and
-                    ((not packet.owned_by_ai_) == (chr->owner() == &player(app)))) {
+                    ((not packet.owned_by_ai_) ==
+                     (chr->owner() == &player(app)))) {
 
                     auto path =
                         find_path(pfrm, app, island, src_coord, dst_coord);
@@ -422,8 +414,8 @@ void CoopTeam::receive(Platform& pfrm,
                 island->drones().push(*drone);
             }
 
-            (*drone)->set_movement_target(Vec2<u8>{packet.deploy_x_,
-                                                   packet.deploy_y_});
+            (*drone)->set_movement_target(
+                Vec2<u8>{packet.deploy_x_, packet.deploy_y_});
         }
     }
 }
@@ -472,11 +464,10 @@ void CoopTeam::receive(Platform& pfrm,
 
     const auto drone_x = packet.drone_x_;
     if (auto drone = island->get_drone({drone_x, packet.drone_y_})) {
-        (*drone)->set_target(
-            pfrm,
-            app,
-            {packet.target_x_, packet.target_y_},
-            not packet.target_near_);
+        (*drone)->set_target(pfrm,
+                             app,
+                             {packet.target_x_, packet.target_y_},
+                             not packet.target_near_);
     }
 }
 
@@ -503,4 +494,4 @@ void CoopTeam::network_sync_cursor(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

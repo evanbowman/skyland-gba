@@ -186,8 +186,8 @@ void WorldScene::display(Platform& pfrm, App& app)
     if (app.game_mode() == App::GameMode::co_op) {
         Sprite cursor;
         cursor.set_size(Sprite::Size::w16_h32);
-        cursor.set_texture_index(std::get<SkylandGlobalData>(globals())
-                                 .coop_cursor_icon_);
+        cursor.set_texture_index(
+            std::get<SkylandGlobalData>(globals()).coop_cursor_icon_);
 
         auto cursor_loc = std::get<SkylandGlobalData>(globals()).coop_cursor_;
 
@@ -435,8 +435,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.dialog_buffer().reset();
         const bool answer = app.dialog_expects_answer();
         app.dialog_expects_answer() = false;
-        return scene_pool::alloc<BoxedDialogScene>(
-            std::move(buffer), answer);
+        return scene_pool::alloc<BoxedDialogScene>(std::move(buffer), answer);
     }
 
 

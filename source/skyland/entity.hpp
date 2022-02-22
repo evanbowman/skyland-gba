@@ -133,7 +133,7 @@ public:
     void init(Platform& pfrm)
     {
         for (u32 i = 0; i < pools_.capacity(); ++i) {
-            pools_.push_back(allocate_dynamic<EntityPool>(pfrm));
+            pools_.push_back(allocate_dynamic<EntityPool>(pfrm, "entity-pool"));
         }
     }
 

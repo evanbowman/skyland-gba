@@ -2,10 +2,10 @@
 #include "fadeInScene.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/character/basicCharacter.hpp"
-#include "skyland/rooms/core.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/scene/modules/skylandForever.hpp"
 #include "skyland/player/coopTeam.hpp"
+#include "skyland/rooms/core.hpp"
+#include "skyland/scene/modules/skylandForever.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -18,12 +18,13 @@ MultiplayerSettingsScene::ParamBuffer MultiplayerSettingsScene::vs_parameters_;
 
 
 const MultiplayerSettingsScene::ParameterInfo
-    MultiplayerSettingsScene::param_info[decltype(vs_parameters_)::capacity()] = {
-        {"game mode", 1, 0, 1},
-        {"prep seconds", 5, 20, 10000},
-        {"unhide prep ", 1, 0, 1},
-        {"coins", 100, 1000, 10000000},
-        {"terrain size", 1, 3, 13},
+    MultiplayerSettingsScene::param_info[decltype(vs_parameters_)::capacity()] =
+        {
+            {"game mode", 1, 0, 1},
+            {"prep seconds", 5, 20, 10000},
+            {"unhide prep ", 1, 0, 1},
+            {"coins", 100, 1000, 10000000},
+            {"terrain size", 1, 3, 13},
 };
 
 

@@ -173,7 +173,6 @@ public:
 
     int rooms_lost_ = 0;
     int rooms_built_ = 0;
-
 };
 
 

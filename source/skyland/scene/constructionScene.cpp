@@ -419,7 +419,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (island(app)->power_supply() - island(app)->power_drain() <
                 target->consumes_power()) {
-                msg(pfrm, SYSTR(construction_insufficient_power_supply)->c_str());
+                msg(pfrm,
+                    SYSTR(construction_insufficient_power_supply)->c_str());
                 state_ = State::insufficient_funds;
                 break;
             }
@@ -547,7 +548,8 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
     str += " :";
 
     str += (*load_metaclass(available_buildings_[building_selector_]))
-        ->ui_name(pfrm)->c_str();
+               ->ui_name(pfrm)
+               ->c_str();
 
     str += " ";
     str += stringify(
@@ -794,7 +796,8 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
     }
 
     auto& terrain = island(app)->terrain();
-    if (not terrain.full() and app.game_mode() not_eq App::GameMode::multiplayer) {
+    if (not terrain.full() and
+        app.game_mode() not_eq App::GameMode::multiplayer) {
         construction_sites_.push_back({u8(terrain.size()), 15});
     }
 

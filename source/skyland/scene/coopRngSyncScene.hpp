@@ -1,9 +1,9 @@
 #pragma once
 
-#include "worldScene.hpp"
-#include "skyland/network.hpp"
-#include "readyScene.hpp"
 #include "number/random.hpp"
+#include "readyScene.hpp"
+#include "skyland/network.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -31,7 +31,6 @@ namespace skyland {
 
 class CoopRngSyncScene : public WorldScene, public network::Listener {
 public:
-
     ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta)
     {
         network::poll_messages(pfrm, app, *this);
@@ -90,4 +89,4 @@ private:
 
 
 
-}
+} // namespace skyland

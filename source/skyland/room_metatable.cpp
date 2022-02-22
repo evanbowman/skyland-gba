@@ -116,7 +116,8 @@ template <typename T> struct InfoImpl : public RoomMeta::Info {
         return T::category(); // TODO...
     }
 
-    void format_description(Platform& pfrm, StringBuffer<512>& buffer) const override
+    void format_description(Platform& pfrm,
+                            StringBuffer<512>& buffer) const override
     {
         return T::format_description(pfrm, buffer);
     }

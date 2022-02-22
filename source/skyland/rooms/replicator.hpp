@@ -59,9 +59,8 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm,
-                           App& app,
-                           const Vec2<u8>& cursor) override;
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
 
 
     bool create_replicant(Platform& pfrm, App& app) override;

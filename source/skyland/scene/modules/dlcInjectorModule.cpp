@@ -78,7 +78,7 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<DlcInjectorModule>(true);
         };
 
-        auto buffer = allocate_dynamic<DialogString>(pfrm);
+        auto buffer = allocate_dynamic<DialogString>(pfrm, "dialog-buffer");
 
         if (pfrm.device_name() == "GameboyAdvance") {
             *buffer =

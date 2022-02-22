@@ -30,7 +30,7 @@ void TransportCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
         return;
     }
 
-    matrix_ = allocate_dynamic<bool[16][16]>(pfrm);
+    matrix_ = allocate_dynamic<bool[16][16]>(pfrm, "chr-transport-matrix");
 
     app.opponent_island()->plot_walkable_zones(app, **matrix_);
 

@@ -8,8 +8,8 @@ namespace skyland {
 
 
 
-Radiator::Radiator(Island* parent, const Vec2<u8>& position) :
-    Room(parent, name(), position)
+Radiator::Radiator(Island* parent, const Vec2<u8>& position)
+    : Room(parent, name(), position)
 {
 }
 
@@ -59,13 +59,13 @@ void Radiator::emit_radiation(Platform& pfrm, App& app)
                         continue;
                     }
                     const bool found = [&] {
-                                           for (auto pushed : queue) {
-                                               if (pushed == chr.get()) {
-                                                   return true;
-                                               }
-                                           }
-                                           return false;
-                                       }();
+                        for (auto pushed : queue) {
+                            if (pushed == chr.get()) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    }();
                     if (not found) {
                         queue.push_back(chr.get());
                     }
@@ -95,4 +95,4 @@ void Radiator::render_exterior(App& app, u8 buffer[16][16])
 
 
 
-}
+} // namespace skyland

@@ -8,7 +8,8 @@ namespace skyland {
 
 
 
-void PlunderedRoom::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void PlunderedRoom::format_description(Platform& pfrm,
+                                       StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_plundered_room)->c_str();
 }

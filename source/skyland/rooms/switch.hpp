@@ -11,7 +11,6 @@ namespace skyland {
 
 class Switch : public Decoration {
 public:
-
     Switch(Island* parent, const Vec2<u8>& position);
 
 
@@ -31,9 +30,8 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform& pfrm,
-                           App& app,
-                           const Vec2<u8>& cursor) override;
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
 
 
     virtual lisp::Value* serialize() override;
@@ -95,4 +93,4 @@ private:
 
 
 
-}
+} // namespace skyland

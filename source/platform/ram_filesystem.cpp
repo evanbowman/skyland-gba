@@ -22,9 +22,7 @@ void __path_cache_create(Platform& pfrm)
 {
     file_present_filter.clear();
 
-    walk(pfrm, [&](const char* path) {
-        __path_cache_insert(path);
-    });
+    walk(pfrm, [&](const char* path) { __path_cache_insert(path); });
 }
 
 
@@ -322,7 +320,6 @@ bool file_exists(Platform& pfrm, const char* path)
     } else {
 
         return false;
-
     }
 }
 
@@ -367,7 +364,7 @@ static u8 checksum(const FileContents& contents)
         result += contents.data_[i];
     }
 
-    return result;
+    return result & FileContents::Header::checksum_mask;
 }
 
 
@@ -449,6 +446,14 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 {
     if (not ::ram_filesystem::mounted) {
         return false;
+    }
+
+    [[gnu::unused]] bool data_is_ascii_packable = true;
+    for (char c : data) {
+        if (c < 0) {
+            data_is_ascii_packable = false;
+            break;
+        }
     }
 
     unlink_file(pfrm, path);

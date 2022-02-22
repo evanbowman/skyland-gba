@@ -157,9 +157,7 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
     } else if (app.player().key_down(pfrm, Key::up)) {
         for (auto& room : app.player_island().rooms()) {
             if (room->group() == Room::Group::one) {
-                if (auto scene = room->select(pfrm,
-                                              app,
-                                              room->position())) {
+                if (auto scene = room->select(pfrm, app, room->position())) {
                     return scene;
                 }
             }
@@ -167,9 +165,7 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
     } else if (app.player().key_down(pfrm, Key::right)) {
         for (auto& room : app.player_island().rooms()) {
             if (room->group() == Room::Group::two) {
-                if (auto scene = room->select(pfrm,
-                                              app,
-                                              room->position())) {
+                if (auto scene = room->select(pfrm, app, room->position())) {
                     return scene;
                 }
             }
@@ -177,9 +173,7 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
     } else if (app.player().key_down(pfrm, Key::left)) {
         for (auto& room : app.player_island().rooms()) {
             if (room->group() == Room::Group::three) {
-                if (auto scene = room->select(pfrm,
-                                              app,
-                                              room->position())) {
+                if (auto scene = room->select(pfrm, app, room->position())) {
                     return scene;
                 }
             }
@@ -219,13 +213,10 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
 
 
-    auto sync_cursor =
-        [&] {
-            app.player().network_sync_cursor(pfrm,
-                                             cursor_loc,
-                                             cursor_anim_frame_,
-                                             true);
-        };
+    auto sync_cursor = [&] {
+        app.player().network_sync_cursor(
+            pfrm, cursor_loc, cursor_anim_frame_, true);
+    };
 
 
     if (not app.player().key_pressed(pfrm, Key::start)) {

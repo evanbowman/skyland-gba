@@ -123,6 +123,8 @@ enum class SystemString {
 
     multi_session_connecting,
     multi_connection_failure,
+
+    misc_hibernate_message,
 };
 
 
@@ -142,4 +144,4 @@ SystemStringBuffer loadstr(Platform& pfrm, SystemString str);
 
 
 
-}
+} // namespace skyland

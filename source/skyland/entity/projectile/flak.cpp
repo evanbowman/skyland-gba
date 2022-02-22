@@ -124,8 +124,9 @@ void Flak::burst(Platform& pfrm,
 
     app.on_timeout(pfrm,
                    milliseconds(190),
-                   [pos = position, flak_smoke](
-                       Platform& pf, App& app) { flak_smoke(pf, app, pos); });
+                   [pos = position, flak_smoke](Platform& pf, App& app) {
+                       flak_smoke(pf, app, pos);
+                   });
 
 
 

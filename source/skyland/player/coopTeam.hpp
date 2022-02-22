@@ -11,8 +11,6 @@ namespace skyland {
 
 class CoopTeam : public PlayerP1, public network::Listener {
 public:
-
-
     // TODO:
     // drone_set_target,
     // drone_spawn,
@@ -92,9 +90,10 @@ public:
                  const network::packet::DynamiteActivated& packet) override;
 
 
-    void receive(Platform& pfrm,
-                 App& app,
-                 const network::packet::OpponentBulkheadChanged& packet) override;
+    void
+    receive(Platform& pfrm,
+            App& app,
+            const network::packet::OpponentBulkheadChanged& packet) override;
 
 
     void receive(Platform& pfrm,
@@ -130,4 +129,4 @@ private:
 
 
 
-}
+} // namespace skyland

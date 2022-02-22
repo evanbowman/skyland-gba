@@ -105,7 +105,9 @@ struct Context {
 
 
     Context(Platform& pfrm)
-        : operand_stack_(allocate_dynamic<OperandStack>(pfrm)), pfrm_(pfrm)
+        : operand_stack_(
+              allocate_dynamic<OperandStack>(pfrm, "lisp-operand-stack")),
+          pfrm_(pfrm)
     {
         if (not operand_stack_) {
             pfrm_.fatal("pointer compression test failed");
@@ -742,7 +744,7 @@ Value* make_databuffer(Platform& pfrm)
     if (auto val = alloc_value()) {
         val->hdr_.type_ = Value::Type::data_buffer;
         new ((ScratchBufferPtr*)val->data_buffer().sbr_mem_)
-            ScratchBufferPtr(pfrm.make_scratch_buffer());
+            ScratchBufferPtr(pfrm.make_scratch_buffer("lisp-databuffer"));
         return val;
     }
     return bound_context->oom_;
@@ -1701,7 +1703,7 @@ static u32 read_list(CharSequence& code, int offset)
 
 static u32 read_string(CharSequence& code, int offset)
 {
-    auto temp = bound_context->pfrm_.make_scratch_buffer();
+    auto temp = bound_context->pfrm_.make_scratch_buffer("lisp-string-memory");
     auto write = temp->data_;
 
     int i = 0;

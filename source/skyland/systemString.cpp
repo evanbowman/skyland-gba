@@ -8,7 +8,7 @@ namespace skyland {
 
 SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
 {
-    auto result = allocate_dynamic<StringBuffer<1900>>(pfrm);
+    auto result = allocate_dynamic<StringBuffer<1900>>(pfrm, "system-string");
 
     const char* file = "strings.txt";
 
@@ -42,4 +42,4 @@ SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
 
 
 
-}
+} // namespace skyland

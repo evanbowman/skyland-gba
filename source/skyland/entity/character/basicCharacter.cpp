@@ -483,7 +483,8 @@ void BasicCharacter::rewind_movement_step(Platform& pfrm,
                                           const Vec2<u8>& new_pos)
 {
     if (not movement_path_) {
-        movement_path_.emplace(allocate_dynamic<PathBuffer>(pfrm));
+        movement_path_.emplace(
+            allocate_dynamic<PathBuffer>(pfrm, "path-buffer"));
     }
 
     (*movement_path_)->push_back(grid_position_);

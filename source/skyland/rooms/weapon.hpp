@@ -50,9 +50,8 @@ public:
     void unset_target(Platform& pfrm, App& app) override;
 
 
-    ScenePtr<Scene> select(Platform& pfrm,
-                           App& app,
-                           const Vec2<u8>& cursor) override;
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
 
 
 protected:

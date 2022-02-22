@@ -12,7 +12,7 @@ namespace skyland {
 
 void DlcManagerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    patches_ = allocate_dynamic<PatchList>(pfrm);
+    patches_ = allocate_dynamic<PatchList>(pfrm, "dlc-patch-list");
 
     auto on_match = [&](const char* const path) {
         const char* p = path;
@@ -178,7 +178,7 @@ DlcManagerModule::update(Platform& pfrm, App& app, Microseconds delta)
     app.player().update(pfrm, app, delta);
 
     if ((*patches_)->list_.empty()) {
-        auto buffer = allocate_dynamic<DialogString>(pfrm);
+        auto buffer = allocate_dynamic<DialogString>(pfrm, "dialog-buffer");
         *buffer = "You don't have any DLC installed!";
         return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer), [] {
             return scene_pool::alloc<TitleScreenScene>(3);

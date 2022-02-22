@@ -34,7 +34,8 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
     if (not app.opponent_island()) {
         generate_level(pfrm, app);
         if (app.game_mode() == App::GameMode::co_op) {
-            std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 40;
+            std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ =
+                40;
         }
     } else {
         auto mt_prep_seconds =
@@ -163,7 +164,8 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
             if (levelgen_enemy_count_ > 42) {
                 frac = 0.01f;
-            } if (levelgen_enemy_count_ > 36) {
+            }
+            if (levelgen_enemy_count_ > 36) {
                 frac = (sf_p4_coin_yield * 0.01) / 8;
             } else if (levelgen_enemy_count_ > 28) {
                 frac = (sf_p4_coin_yield * 0.01) / 2;
@@ -180,11 +182,11 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
             if (app.game_mode() == App::GameMode::co_op) {
                 // For co-op, our score calculation differs slightly. Give each
                 // player half of the resulting coins.
-                app.victory_coins() += (frac * (*room->metaclass())->cost()) / 2;
+                app.victory_coins() +=
+                    (frac * (*room->metaclass())->cost()) / 2;
             } else {
                 app.victory_coins() += frac * (*room->metaclass())->cost();
             }
-
         }
     }
 
@@ -357,7 +359,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         Buffer<Pair, 30> pairs_;
     };
 
-    auto c = allocate_dynamic<Context>(pfrm);
+    auto c = allocate_dynamic<Context>(pfrm, "procgen-buffer");
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
@@ -596,7 +598,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
         Buffer<Slot, 60> slots_;
     };
 
-    auto c = allocate_dynamic<Context>(pfrm);
+    auto c = allocate_dynamic<Context>(pfrm, "procgen-buffer");
 
 
     auto find_ideal_forcefield_locs = [&] {
@@ -782,7 +784,7 @@ void ProcgenEnemyAI::generate_stairwells(Platform& pfrm, App& app)
         Buffer<StairwellPos, 30> slots;
     };
 
-    auto c = allocate_dynamic<Context>(pfrm);
+    auto c = allocate_dynamic<Context>(pfrm, "procgen-buffer");
 
 
     auto mt = load_metaclass("stairwell");
@@ -911,8 +913,6 @@ void ProcgenEnemyAI::generate_radiators(Platform& pfrm, App& app)
         }
         place_room_adjacent(pfrm, app, "infirmary");
     }
-
-
 }
 
 
@@ -926,9 +926,8 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
         }
     }
 
-    const int chr_count =
-        1 + rng::choice(core_count_, rng::critical_state)
-        + rng::choice(transporter_count, rng::critical_state);
+    const int chr_count = 1 + rng::choice(core_count_, rng::critical_state) +
+                          rng::choice(transporter_count, rng::critical_state);
 
     struct Context {
         struct Slot {
@@ -941,7 +940,7 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
         bool matrix_[16][16];
     };
 
-    auto c = allocate_dynamic<Context>(pfrm);
+    auto c = allocate_dynamic<Context>(pfrm, "procgen-buffer");
 
     for (int i = 0; i < chr_count; ++i) {
         app.opponent_island()->plot_walkable_zones(app, c->matrix_);
@@ -1039,7 +1038,7 @@ void ProcgenEnemyAI::place_room_adjacent(Platform& pfrm,
         Buffer<Slot, 50> slots;
     };
 
-    auto c = allocate_dynamic<Context>(pfrm);
+    auto c = allocate_dynamic<Context>(pfrm, "procgen-buffer");
 
     auto find_connected_slots = [&](int room_height) {
         for (int x = 0; x < 16; ++x) {

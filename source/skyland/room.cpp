@@ -4,9 +4,9 @@
 #include "platform/platform.hpp"
 #include "room_metatable.hpp"
 #include "scene/moveCharacterScene.hpp"
+#include "script/listBuilder.hpp"
 #include "skyland.hpp"
 #include "timeStreamEvent.hpp"
-#include "script/listBuilder.hpp"
 
 
 
@@ -365,8 +365,7 @@ ScenePtr<Scene> Room::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 {
     bool chr_at_cursor = false;
     for (auto& chr : characters()) {
-        if (chr->grid_position() == cursor and
-            chr->owner() == &app.player()) {
+        if (chr->grid_position() == cursor and chr->owner() == &app.player()) {
 
             chr_at_cursor = true;
         }

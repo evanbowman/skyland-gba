@@ -21,7 +21,6 @@ namespace skyland {
 namespace detail {
 class _Module : public Scene {
 public:
-
     class Factory {
     public:
         Factory()

@@ -10,7 +10,7 @@ namespace skyland {
 
 DynamicMemory<SerialString> serialize(Platform& pfrm, Island& island)
 {
-    auto str = allocate_dynamic<SerialString>(pfrm);
+    auto str = allocate_dynamic<SerialString>(pfrm, "serial-string");
     if (not str) {
         return str;
     }

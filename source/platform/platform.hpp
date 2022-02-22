@@ -283,12 +283,7 @@ public:
     void on_unrecoverrable_error(UnrecoverrableErrorCallback callback);
 
 
-    // Not implemented for all platforms. If unimplemented, the funciton will
-    // simply return immediately. For handheld consoles without an operating
-    // system, where the only way that you can shutdown the system is by
-    // flipping the power switch, it doesn't make sense to implement an exit
-    // function.
-    void soft_exit();
+    void hibernate();
 
     bool write_save_data(const void* data, u32 length, u32 offset);
     bool read_save_data(void* buffer, u32 data_length, u32 offset);
@@ -313,14 +308,13 @@ public:
 
 
     // Scratch buffers are sort of a blunt instrument. Designed for uncommon
-    // scenarios where you need a lot of memory. The platform provides one
-    // hundred scratch buffers to work with. The Rc wrapper will automatically
-    // deallocate buffers when you're done with them. Creating a new scratch
-    // buffer when the buffer pool is exhausted will cause the system to lock
-    // up, so do not try to hold more than one hundred active references to
-    // scratch buffers (not sure why you would even need 200kB of temporary
-    // scratch space anyway...).
-    ScratchBufferPtr make_scratch_buffer();
+    // scenarios where you need a lot of memory. The Rc wrapper will
+    // automatically deallocate buffers when you're done with them. Creating a
+    // new scratch buffer when the buffer pool is exhausted will cause the
+    // system to lock up, so do not try to hold more than one hundred active
+    // references to scratch buffers (not sure why you would even need 200kB of
+    // temporary scratch space anyway...).
+    ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag = "");
 
 
     // An emergency function to invoke when the system runs out of scratch
@@ -330,6 +324,9 @@ public:
 
 
     int scratch_buffers_remaining();
+
+
+    int print_memory_diagnostics();
 
 
     ////////////////////////////////////////////////////////////////////////////

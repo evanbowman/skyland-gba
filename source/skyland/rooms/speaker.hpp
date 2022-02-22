@@ -1,9 +1,9 @@
 #pragma once
 
 #include "decoration.hpp"
+#include "skyland/systemString.hpp"
 #include "skyland/tile.hpp"
 #include "synth.hpp"
-#include "skyland/systemString.hpp"
 
 
 
@@ -68,9 +68,8 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
-    ScenePtr<Scene> select(Platform& pfrm,
-                           App& app,
-                           const Vec2<u8>& cursor) override;
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
 
 
     // If signal, the speaker will select the next block below it when finished.
@@ -144,7 +143,6 @@ public:
 
 
 private:
-
     void process_effects();
 
 

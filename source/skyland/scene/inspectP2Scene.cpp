@@ -99,13 +99,10 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player().key_held_distribute(pfrm);
 
 
-    auto sync_cursor =
-        [&] {
-            app.player().network_sync_cursor(pfrm,
-                                             cursor_loc,
-                                             cursor_anim_frame_,
-                                             false);
-        };
+    auto sync_cursor = [&] {
+        app.player().network_sync_cursor(
+            pfrm, cursor_loc, cursor_anim_frame_, false);
+    };
 
 
 

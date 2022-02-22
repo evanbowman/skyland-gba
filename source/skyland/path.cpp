@@ -100,7 +100,8 @@ std::optional<Path> find_path(Platform& pfrm,
                 return {};
             }
             if (min->coord_ == end) {
-                auto path_mem = allocate_dynamic<PathBuffer>(pfrm);
+                auto path_mem =
+                    allocate_dynamic<PathBuffer>(pfrm, "path-buffer");
                 if (not path_mem) {
                     return {};
                 }

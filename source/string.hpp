@@ -77,6 +77,7 @@ template <u32 Capacity, typename Memory> class StringAdapter {
 public:
     using Buffer = Memory;
 
+
     StringAdapter(const char* init)
     {
         while (*init not_eq '\0') {

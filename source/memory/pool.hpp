@@ -73,6 +73,18 @@ public:
         return cells_;
     }
 
+    bool is_freed(const Cell* cell) const
+    {
+        auto list = freelist_;
+        while (list) {
+            if (list == cell) {
+                return true;
+            }
+            list = list->next_;
+        }
+        return false;
+    }
+
     u32 remaining() const
     {
         const Cell* current = freelist_;
@@ -130,6 +142,11 @@ public:
     Cells& cells()
     {
         return pool_.cells();
+    }
+
+    bool is_freed(const typename _Pool::Cell* cell) const
+    {
+        return pool_.is_freed(cell);
     }
 
     template <typename F> void scan_cells(F&& callback)

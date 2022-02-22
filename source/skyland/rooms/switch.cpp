@@ -1,8 +1,8 @@
 #include "switch.hpp"
-#include "skyland/tile.hpp"
+#include "script/listBuilder.hpp"
 #include "skyland/island.hpp"
 #include "skyland/scene/setupSwitchScene.hpp"
-#include "script/listBuilder.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -51,9 +51,7 @@ void Switch::display_on_hover(Platform::Screen& screen,
 
 
 
-ScenePtr<Scene> Switch::select(Platform& pfrm,
-                               App& app,
-                               const Vec2<u8>& cursor)
+ScenePtr<Scene> Switch::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 {
     if (not setup_) {
         return scene_pool::alloc<SetupSwitchScene>(position());
@@ -83,7 +81,6 @@ ScenePtr<Scene> Switch::select(Platform& pfrm,
 
 
 
-
 Switch::Switch(Island* parent, const Vec2<u8>& position)
     : Decoration(parent, name(), position)
 {
@@ -99,11 +96,9 @@ lisp::Value* Switch::serialize()
     builder.push_back(L_INT(position().x));
     builder.push_back(L_INT(position().y));
 
-    builder.push_back(L_CONS(L_INT(branch_1_.x),
-                             L_INT(branch_1_.y)));
+    builder.push_back(L_CONS(L_INT(branch_1_.x), L_INT(branch_1_.y)));
 
-    builder.push_back(L_CONS(L_INT(branch_2_.x),
-                             L_INT(branch_2_.y)));
+    builder.push_back(L_CONS(L_INT(branch_2_.x), L_INT(branch_2_.y)));
 
     if (health() not_eq max_health()) {
         builder.push_back(lisp::make_integer(health()));
