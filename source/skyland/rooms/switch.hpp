@@ -57,13 +57,13 @@ public:
 
     static Icon icon()
     {
-        return 520;
+        return 1512;
     }
 
 
     static Icon unsel_icon()
     {
-        return 504;
+        return 1528;
     }
 
 

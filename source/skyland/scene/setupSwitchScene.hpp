@@ -39,6 +39,15 @@ public:
     }
 
 
+    void exit(Platform& pfrm, App& app, Scene& next) override
+    {
+        ActiveWorldScene::exit(pfrm, app, next);
+
+        pfrm.fill_overlay(0);
+        text_.reset();
+    }
+
+
     ScenePtr<Scene> update(Platform& pfrm,
                            App& app,
                            Microseconds delta) override
