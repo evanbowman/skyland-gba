@@ -196,11 +196,9 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               L_EXPECT_OP(1, integer);
               L_EXPECT_OP(0, integer);
 
-              Text t(*lisp::interp_get_pfrm(),
-                     {(u8)lisp::get_op(1)->integer().value_,
-                      (u8)lisp::get_op(0)->integer().value_});
+              Text t(*lisp::interp_get_pfrm(), {L_LOAD_U8(1), L_LOAD_U8(0)});
 
-              t.assign(lisp::get_op(2)->string().value());
+              t.assign(L_LOAD_STRING(2));
 
               t.__detach();
 
@@ -226,8 +224,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-              synth_notes_store(
-                  *pfrm, *island, lisp::get_op(0)->string().value());
+              synth_notes_store(*pfrm, *island, L_LOAD_STRING(0));
 
               return L_NIL;
           }},
@@ -241,8 +238,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-              synth_notes_load(
-                  *pfrm, *island, lisp::get_op(0)->string().value());
+              synth_notes_load(*pfrm, *island, L_LOAD_STRING(0));
 
               return L_NIL;
           }},
@@ -256,8 +252,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-              speaker_data_store(
-                  *pfrm, *island, lisp::get_op(0)->string().value());
+              speaker_data_store(*pfrm, *island, L_LOAD_STRING(0));
 
               return L_NIL;
           }},
@@ -270,8 +265,17 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-              speaker_data_load(
-                  *pfrm, *island, lisp::get_op(0)->string().value());
+              speaker_data_load(*pfrm, *island, L_LOAD_STRING(0));
+
+              return L_NIL;
+          }},
+         {"room-enable",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 2);
+              L_EXPECT_OP(1, integer);
+              L_EXPECT_OP(0, integer);
+
+              set_enabled((MetaclassIndex)L_LOAD_INT(1), L_LOAD_INT(0));
 
               return L_NIL;
           }}});

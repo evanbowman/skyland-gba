@@ -498,6 +498,15 @@ Value* make_cons_safe(Value* car, Value* cdr);
 #define L_SYM(NAME) \
     lisp::make_symbol(NAME)
 
+#define L_LOAD_INT(STACK_OFFSET) \
+    lisp::get_op(STACK_OFFSET)->integer().value_
+
+#define L_LOAD_U8(STACK_OFFSET) \
+    ((u8)lisp::get_op(STACK_OFFSET)->integer().value_)
+
+#define L_LOAD_STRING(STACK_OFFSET) \
+    lisp::get_op(STACK_OFFSET)->string().value()
+
 
 
 struct Binding {
