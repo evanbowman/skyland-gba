@@ -481,6 +481,27 @@ int TextEditorModule::line_length()
 
 
 
+TextEditorModule::TextEditorModule(Platform& pfrm, UserContext&& context) :
+    text_buffer_(pfrm),
+    state_(allocate_dynamic<State>(pfrm)),
+    user_context_(std::move(context)),
+    filesystem_(FileSystem::device),
+    syntax_mode_(SyntaxMode::plain_text),
+    file_mode_(FileMode::readonly)
+{
+    state_->file_path_ = "/";
+
+    if (pfrm.logger().data()) {
+        for (char c : *pfrm.logger().data()) {
+            text_buffer_.push_back(c);
+        }
+        text_buffer_.push_back('\n');
+        text_buffer_.push_back('\0');
+    }
+}
+
+
+
 TextEditorModule::TextEditorModule(Platform& pfrm,
                                    UserContext&& user_context,
                                    const char* file_path,
@@ -1136,6 +1157,9 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                             std::move(text_buffer_),
                             std::move(user_context_));
                     }
+                }
+                if (filesystem_ == FileSystem::device) {
+                    scene_pool::alloc<FileBrowserModule>();
                 }
                 return scene_pool::alloc<FileBrowserModule>(
                     pfrm,

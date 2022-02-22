@@ -195,8 +195,10 @@ void FileBrowserModule::repaint(Platform& pfrm)
     case SelectedFilesystem::none:
         enq_line("sram/");
         enq_line("rom/");
+        enq_line("*syslog*");
         (*cwd_names_)->push_back("sram/");
         (*cwd_names_)->push_back("rom/");
+        (*cwd_names_)->push_back("*syslog*");
         break;
 
 
@@ -408,7 +410,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::up)) {
             scroll_up();
         } else if (app.player().key_down(pfrm, Key::down) and
-                   scroll_index_ == 0) {
+                   scroll_index_ < 2) {
             scroll_down();
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             switch (scroll_index_) {
@@ -423,6 +425,11 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                 selected_filesystem_ = SelectedFilesystem::rom;
                 repaint(pfrm);
                 break;
+
+            case 2:
+                return scene_pool::alloc<TextEditorModule>(
+                            pfrm,
+                            std::move(user_context_));
             }
         } else if (app.player().key_down(pfrm, Key::action_2)) {
             return scene_pool::alloc<TitleScreenScene>(3);

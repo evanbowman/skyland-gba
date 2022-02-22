@@ -24,7 +24,7 @@ public:
 
 
 
-    enum class FileSystem : u8 { sram, rom };
+    enum class FileSystem : u8 { sram, rom, device };
 
 
 
@@ -38,6 +38,10 @@ public:
                      SyntaxMode syntax_mode,
                      FileMode file_mode = FileMode::update,
                      FileSystem filesystem = FileSystem::sram);
+
+
+    // A special constructor, for opening the syslog.
+    TextEditorModule(Platform& pfrm, UserContext&& context);
 
 
     static bool run_scripts()
