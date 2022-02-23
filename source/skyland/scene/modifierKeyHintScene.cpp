@@ -11,6 +11,10 @@ namespace skyland {
 
 
 
+ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app);
+
+
+
 ScenePtr<Scene>
 ModifierKeyHintScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -22,36 +26,8 @@ ModifierKeyHintScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (player(app).key_down(pfrm, Key::down)) {
-        player(app).key_held_reset(Key::down, milliseconds(1500));
-        return scene_pool::alloc<AssignWeaponGroupScene>();
-    } else if (player(app).key_down(pfrm, Key::up)) {
-        for (auto& room : player_island(app).rooms()) {
-            if (room->group() == Room::Group::one) {
-                if (auto scene = room->select(pfrm, app, room->position())) {
-                    player(app).key_held_reset(Key::up, milliseconds(500));
-                    return scene;
-                }
-            }
-        }
-    } else if (player(app).key_down(pfrm, Key::right)) {
-        for (auto& room : player_island(app).rooms()) {
-            if (room->group() == Room::Group::two) {
-                if (auto scene = room->select(pfrm, app, room->position())) {
-                    player(app).key_held_reset(Key::right, milliseconds(500));
-                    return scene;
-                }
-            }
-        }
-    } else if (player(app).key_down(pfrm, Key::left)) {
-        for (auto& room : player_island(app).rooms()) {
-            if (room->group() == Room::Group::three) {
-                if (auto scene = room->select(pfrm, app, room->position())) {
-                    player(app).key_held_reset(Key::left, milliseconds(500));
-                    return scene;
-                }
-            }
-        }
+    if (auto scene = update_modifier_keys(pfrm, app)) {
+        return scene;
     }
 
     return null_scene();
