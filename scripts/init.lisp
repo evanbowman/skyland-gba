@@ -38,7 +38,9 @@
 (defn/c procgen
   (opponent-generate
    (cond
-    ((and (equal (zone) 0) (< (length enemies-seen) 2)) 0)
+    ((and (equal (zone) 0) (< (length enemies-seen) 2))
+     (push enemies-seen 0)
+     0)
     ((equal (zone) 0) 3)
     ((equal (zone) 1) 6)
     (true 12))))

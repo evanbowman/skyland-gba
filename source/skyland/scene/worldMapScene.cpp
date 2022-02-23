@@ -541,6 +541,8 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::move: {
         if (app.player().key_down(pfrm, Key::down)) {
             state_ = State::save_selected;
+            map_key_.reset();
+            update_storm_frontier(pfrm, app.world_graph(), 0);
             break;
         }
         if (app.player().key_down(pfrm, Key::action_1)) {
