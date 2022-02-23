@@ -1308,7 +1308,7 @@ void format_impl(Value* value, Printer& p, int depth)
                         current->cons().cdr()->cons().car(), p, depth + 1);
                     current = current->cons().cdr();
                 } else if (current->cons().cdr() not_eq get_nil()) {
-                    p.put_str(" ");
+                    p.put_str(" . ");
                     format_impl(current->cons().cdr(), p, depth + 1);
                     break;
                 } else {
