@@ -26,33 +26,7 @@
    ;; Sometimes, procedurally generate an enemy. More frequently at lower levels.
    (if (< (choice 100) (get '(50 30 20 10) (zone)))
        procgen
-     (let ((avail-levels (filter
-                          (lambda
-                            (setq temp $0)
-                            (not (filter (lambda (equal temp $0)) enemies-seen)))
-                          (gen
-                           (get '(8 8 6 3) (zone)) ;; number of levels to select from
-                           ;; based on current zone
-                           (lambda $0)))))
-
-       (if avail-levels
-           (let ((lv-num (get avail-levels (choice (length avail-levels)))))
-
-             ;; Ok, so if we're at the point where we've exhausted all of the possible
-             ;; level scenarios (which shouldn't really happen, anyway), we should clear
-             ;; the list of seen enemies, so that next time we won't end up with nil.
-             (if (equal (length avail-levels) 1)
-                 (setq enemies-seen '()))
-
-             (if (equal (length enemies-seen) 0)
-                 (if (equal (zone) 0)
-                     (setq lv-num 0)))
-
-             (push 'enemies-seen lv-num)
-
-             (lambda
-               (eval-file (string "/scripts/event/hostile/" (zone) "/" lv-num ".lisp"))))
-         procgen)))))
+     (eval-file "/scripts/event/hostile_pick_template.lisp"))))
 
 
 ;; Just so we avoid evaluating another file while already evaluating a

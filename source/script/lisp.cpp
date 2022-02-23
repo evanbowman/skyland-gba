@@ -2380,6 +2380,55 @@ Platform* interp_get_pfrm()
 }
 
 
+
+bool is_equal(Value* lhs, Value* rhs)
+{
+    if (lhs->type() not_eq rhs->type()) {
+        return false;
+    }
+
+    switch (lhs->type()) {
+    case Value::Type::integer:
+        return lhs->integer().value_ ==
+            rhs->integer().value_;
+
+    case Value::Type::cons:
+        // FIXME: this is problematic for large lists! Or datastructures with
+        // cycles. Mainly intended for comparing single cons-cells.
+        return
+            is_equal(lhs->cons().car(),
+                     rhs->cons().car()) and
+            is_equal(lhs->cons().cdr(),
+                     rhs->cons().cdr());
+
+    case Value::Type::count:
+    case Value::Type::__reserved:
+    case Value::Type::character:
+    case Value::Type::nil:
+    case Value::Type::heap_node:
+    case Value::Type::data_buffer:
+    case Value::Type::function:
+        return lhs == rhs;
+
+    case Value::Type::error:
+        break;
+
+    case Value::Type::symbol:
+        return lhs->symbol().name_ == rhs->symbol().name_;
+
+    case Value::Type::user_data:
+        return lhs->user_data().obj_ ==
+            rhs->user_data().obj_;
+
+    case Value::Type::string:
+        return str_cmp(lhs->string().value(),
+                       rhs->string().value()) == 0;
+    }
+    return false;
+}
+
+
+
 static const Binding builtins[] = {
     {"set",
      [](int argc) {
@@ -2445,46 +2494,7 @@ static const Binding builtins[] = {
      [](int argc) {
          L_EXPECT_ARGC(argc, 2);
 
-         if (get_op0()->type() not_eq get_op1()->type()) {
-             return make_integer(0);
-         }
-
-         return make_integer([] {
-             switch (get_op0()->type()) {
-             case Value::Type::integer:
-                 return get_op0()->integer().value_ ==
-                        get_op1()->integer().value_;
-
-             case Value::Type::cons:
-                 // TODO!
-                 // This comparison needs to be done as efficiently as possible...
-                 break;
-
-             case Value::Type::count:
-             case Value::Type::__reserved:
-             case Value::Type::character:
-             case Value::Type::nil:
-             case Value::Type::heap_node:
-             case Value::Type::data_buffer:
-             case Value::Type::function:
-                 return get_op0() == get_op1();
-
-             case Value::Type::error:
-                 break;
-
-             case Value::Type::symbol:
-                 return get_op0()->symbol().name_ == get_op1()->symbol().name_;
-
-             case Value::Type::user_data:
-                 return get_op0()->user_data().obj_ ==
-                        get_op1()->user_data().obj_;
-
-             case Value::Type::string:
-                 return str_cmp(get_op0()->string().value(),
-                                get_op1()->string().value()) == 0;
-             }
-             return false;
-         }());
+         return make_integer(is_equal(get_op0(), get_op1()));
      }},
     {"apply",
      [](int argc) {
