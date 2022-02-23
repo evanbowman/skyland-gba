@@ -406,18 +406,21 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (state_) {
     case State::deselected:
-        if (pfrm.keyboard()
-                .down_transition<Key::right,
-                                 Key::left,
-                                 Key::up,
-                                 Key::down,
-                                 Key::action_1>()) {
+        if (app.player().key_down(pfrm, Key::action_1)) {
             state_ = State::selected;
+        }
+        if (app.player().key_down(pfrm, Key::right) or
+            app.player().key_down(pfrm, Key::left)) {
+            to_move_state();
         }
         break;
 
     case State::selected:
         if (app.player().key_down(pfrm, Key::action_1)) {
+            to_move_state();
+        }
+        if (app.player().key_down(pfrm, Key::right) or
+            app.player().key_down(pfrm, Key::left)) {
             to_move_state();
         }
         if (app.player().key_down(pfrm, Key::action_2)) {
@@ -536,6 +539,10 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     case State::move: {
+        if (app.player().key_down(pfrm, Key::down)) {
+            state_ = State::save_selected;
+            break;
+        }
         if (app.player().key_down(pfrm, Key::action_1)) {
             app.world_graph().nodes_[cursor_].type_ =
                 WorldGraph::Node::Type::visited;
