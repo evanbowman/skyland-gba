@@ -130,6 +130,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     app.custom_tile_mapper().clear();
     app.custom_sprite_mapper().clear();
 
+    app.effects().clear();
+
     // Back to the title screen! DLC plugins need to be unloaded...
     plugin_rooms_unregister();
 
