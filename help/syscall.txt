@@ -29,14 +29,6 @@ o----------------------------o
 
 o----------------------------o
 
- (syscall "log-flush")
-
- Store the system log in
- sram/log.txt.
-
-
-o----------------------------o
-
  (syscall "setvar" string int)
 
  Configure a SKYLAND engine

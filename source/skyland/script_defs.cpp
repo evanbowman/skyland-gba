@@ -111,13 +111,6 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               return L_NIL;
           }},
-         {"log-flush",
-          [](int argc) {
-              if (auto pfrm = lisp::interp_get_pfrm()) {
-                  pfrm->logger().flush();
-              }
-              return L_NIL;
-          }},
          {"challenge-complete",
           [](int argc) {
               L_EXPECT_ARGC(argc, 1);
@@ -271,11 +264,6 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               pfrm->remote_console().printline(output->c_str());
 
-              return L_NIL;
-          }},
-         {"world-graph-nodes",
-          [](int argc) {
-              // TODO...
               return L_NIL;
           }},
          {"synth-notes-store",
@@ -1184,6 +1172,22 @@ static const lisp::Binding script_api[] = {
                  *lisp::interp_get_pfrm(), *interp_get_app(), achievement);
          }
 
+         return L_NIL;
+     }},
+    {"wg-nodes",
+     [](int argc) {
+         lisp::ListBuilder builder;
+         for (auto& node : interp_get_app()->world_graph().nodes_) {
+             if (node.type_ not_eq WorldGraph::Node::Type::null) {
+                 builder.push_back(L_CONS(L_INT((int)node.type_),
+                                          L_CONS(L_INT(node.coord_.x),
+                                                 L_INT(node.coord_.y))));
+             }
+         }
+         return builder.result();
+     }},
+    {"wg-node-set",
+     [](int argc) {
          return L_NIL;
      }},
     {"emit", [](int argc) {
