@@ -21,6 +21,10 @@ void Switch::display_on_hover(Platform::Screen& screen,
                               App& app,
                               const Vec2<u8>& cursor)
 {
+    if (not setup_) {
+        return;
+    }
+
     const auto origin = parent()->visual_origin();
 
     Sprite icon;
@@ -115,7 +119,21 @@ void Switch::deserialize(lisp::Value* list)
         __set_health(lisp::get_list(list, 5)->integer().value_);
     }
 
-    // TODO: read branch_1_ and branch_2_ from list!
+    if (lisp::length(list) >= 5) {
+        auto p1 = lisp::get_list(list, 3);
+        auto p2 = lisp::get_list(list, 4);
+
+        if (p1->type() == lisp::Value::Type::cons and
+            p2->type() == lisp::Value::Type::cons) {
+
+            setup_ = true;
+            branch_1_.x = p1->cons().car()->integer().value_;
+            branch_1_.y = p1->cons().cdr()->integer().value_;
+
+            branch_2_.x = p2->cons().car()->integer().value_;
+            branch_2_.y = p2->cons().cdr()->integer().value_;
+        }
+    }
 }
 
 

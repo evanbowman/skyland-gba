@@ -72,6 +72,16 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[stronghold].reward_), awarded);
      }},
 
+    {"dynamite",
+     "Complete any challenge level!",
+     "dynamite",
+     [](Platform&, App& app) {
+         return app.gp_.challenge_flags_ not_eq 0;
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[maestro_1].reward_), awarded);
+     }},
+
     {"Virtuoso (1)",
      "Complete three challenge levels!",
      "speaker",

@@ -53,6 +53,7 @@ public:
     static u32 properties()
     {
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
+               RoomProperties::locked_by_default |
                RoomProperties::disabled_in_tutorials;
     }
 

@@ -32,6 +32,7 @@ enum Achievement : u8 {
     explorer,
     strategist,
     stronghold,
+    dynamite,
     maestro_1,
     maestro_2,
     triage,
