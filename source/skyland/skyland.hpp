@@ -253,6 +253,12 @@ public:
     }
 
 
+    bool& surrender_offered()
+    {
+        return surrender_offered_;
+    }
+
+
     PersistentData& persistent_data()
     {
         return persistent_data_;
@@ -396,6 +402,7 @@ private:
     bool exit_level_ = false;
     bool launch_repl_ = false;
     bool launch_input_ = false;
+    bool surrender_offered_ = false;
     GameMode game_mode_ = GameMode::adventure;
 
     std::optional<lisp::Protected> input_setup_info_;

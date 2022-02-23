@@ -280,6 +280,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     };
 
 
+    character_count_ = 0;
+
     auto update_characters = [&](auto& chr_list, bool exterior) {
         for (auto it = chr_list.begin(); it not_eq chr_list.end();) {
             if (not(*it)->alive()) {
@@ -309,6 +311,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     if (not exterior) {
                         is_boarded_ = true;
                     }
+                } else {
+                    ++character_count_;
                 }
                 (*it)->update(pfrm, app, dt);
                 ++it;
@@ -900,6 +904,7 @@ void Island::repaint(Platform& pfrm, App& app)
     manufactory_count_ = 0;
     workshop_count_ = 0;
     core_count_ = 0;
+    offensive_capabilities_ = 0;
     for (auto& room : rooms_) {
         if ((*room->metaclass())->properties() & RoomProperties::has_chimney) {
             chimney_locs.push_back(room->position().x);
@@ -913,6 +918,11 @@ void Island::repaint(Platform& pfrm, App& app)
             ++manufactory_count_;
         } else if ((*room->metaclass())->category() == Room::Category::power) {
             ++core_count_;
+        } else if ((*metac)->category() == Room::Category::weapon or
+                   (character_count_ and
+                    str_eq((*metac)->name(), "transporter")) or
+                   str_eq((*metac)->name(), "drone-bay")) {
+            ++offensive_capabilities_;
         }
     }
 
@@ -1176,6 +1186,20 @@ void Island::clear_rooms(Platform& pfrm, App& app)
 void Island::set_float_timer(Microseconds value)
 {
     timer_ = value;
+}
+
+
+
+u8 Island::offensive_capabilities() const
+{
+    return offensive_capabilities_;
+}
+
+
+
+u8 Island::character_count() const
+{
+    return character_count_;
 }
 
 

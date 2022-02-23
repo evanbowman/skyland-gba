@@ -285,6 +285,15 @@ public:
     void show_groups(bool enabled);
 
 
+    // The number of ways that the enemy has of attacking the player (weapons,
+    // transporters, etc.).
+    u8 offensive_capabilities() const;
+
+
+    u8 character_count() const;
+
+
+
 private:
     void resolve_cancelled_dispatch();
 
@@ -317,6 +326,9 @@ private:
     u8 workshop_count_ = 0;
     u8 manufactory_count_ = 0;
     u8 core_count_ = 0;
+
+    u8 character_count_ = 0;
+    u8 offensive_capabilities_ = 0;
 
     bool destroyed_ = false;
     bool all_characters_awaiting_movement_ = false;

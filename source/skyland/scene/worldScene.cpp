@@ -162,6 +162,19 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             &app.player_island());
     }
 
+    if (auto o = app.opponent_island()) {
+        if (not app.surrender_offered() and
+            app.game_mode() == App::GameMode::adventure) {
+            if (not app.player_island().is_boarded() and
+                o->offensive_capabilities() == 0 and
+                o->character_count() and
+                o->projectiles().empty()) {
+
+                app.surrender_offered() = true;
+                app.invoke_script(pfrm, "/scripts/event/surrender.lisp");
+            }
+        }
+    }
 
     if (app.opponent_island() and app.opponent_island()->is_destroyed()) {
         reset_gamespeed(pfrm, app);
