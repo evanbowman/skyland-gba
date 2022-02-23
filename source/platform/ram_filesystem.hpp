@@ -133,12 +133,11 @@ struct FileContents {
 
 
         enum {
-            // seven bits of checksum per file block
+            // Seven bits of checksum per file block
             checksum_mask = 0xef,
 
-            // packed bit, indicating whether a file uses a packed-ascii
-            // representation. If each character in a file is ascii (> 0),
-            // then the file will be stored using half of the memory.
+            // Pack bit. Indicates whether the file contents are compressed in
+            // some way. Currently unused.
             packed_bit = 0x80,
         };
 
