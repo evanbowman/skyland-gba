@@ -122,7 +122,7 @@ static constexpr const int max_entity_size = 200;
 
 struct EntityPools {
 public:
-    static const auto entities_per_pool = 19;
+    static const auto entities_per_pool = 18;
     static const auto pool_count = entity_pool_size / entities_per_pool;
 
 
@@ -133,7 +133,9 @@ public:
     void init(Platform& pfrm)
     {
         for (u32 i = 0; i < pools_.capacity(); ++i) {
-            pools_.push_back(allocate_dynamic<EntityPool>(pfrm, "entity-pool"));
+            pools_.push_back(allocate_dynamic<EntityPool>(pfrm,
+                                                          "entity-pool",
+                                                          "entities"));
         }
     }
 

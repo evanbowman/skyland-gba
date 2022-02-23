@@ -49,6 +49,12 @@ struct SkylandGlobalData {
     Vec2<u8> coop_cursor_;
     bool coop_cursor_near_ = true;
     u8 coop_cursor_icon_ = 15;
+
+    SkylandGlobalData() :
+        scene_pool_("scenes"),
+        entity_node_pool_("entity-list-node")
+    {
+    }
 };
 
 

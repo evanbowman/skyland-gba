@@ -2286,7 +2286,7 @@ void Platform::Screen::pixelate(u8 amount,
 static ObjectPool<PooledRcControlBlock<Platform::DynamicTexture,
                                        Platform::dynamic_texture_count>,
                   Platform::dynamic_texture_count>
-    dynamic_texture_pool;
+dynamic_texture_pool("dynamic-texture-pool");
 
 
 void Platform::DynamicTexture::remap(u16 spritesheet_offset)
@@ -3652,7 +3652,7 @@ static const bool use_optimized_waitstates = true;
 static EWRAM_DATA
     ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
                scratch_buffer_count>
-        scratch_buffer_pool;
+scratch_buffer_pool("scratch-buffers");
 
 
 
@@ -4913,6 +4913,14 @@ struct MultiplayerComms {
     bool is_host = false;
 
     RxInfo* poller_current_message = nullptr;
+
+
+    MultiplayerComms() :
+        tx_message_pool("transmit-packet-pool"),
+        rx_message_pool("receive-packet-pool")
+    {
+
+    }
 };
 
 
@@ -5688,12 +5696,12 @@ struct RemoteConsoleState {
 };
 
 
-static std::optional<DynamicMemory<RemoteConsoleState>> remote_console_state;
+static EWRAM_DATA std::optional<RemoteConsoleState> remote_console_state;
 
 
 static void uart_serial_isr()
 {
-    auto& state = **::remote_console_state;
+    auto& state = *::remote_console_state;
 
     const char data = REG_SIODATA8;
 
@@ -5712,6 +5720,7 @@ static void uart_serial_isr()
 
         REG_SIODATA8 = *((*state.tx_msg_)->end() - 1);
         (*state.tx_msg_)->pop_back();
+        state.rx_in_progress_.reset();
         return;
     } else if (state.tx_msg_ and (*state.tx_msg_)->empty()) {
         state.tx_msg_.reset();
@@ -5755,8 +5764,7 @@ static void uart_serial_isr()
 
 static void start_remote_console(Platform& pfrm)
 {
-    ::remote_console_state =
-        allocate_dynamic<RemoteConsoleState>(pfrm, "uart-state");
+    ::remote_console_state.emplace();
 
     irqEnable(IRQ_SERIAL);
 
@@ -5778,7 +5786,7 @@ static void start_remote_console(Platform& pfrm)
 
 auto Platform::RemoteConsole::readline() -> std::optional<Line>
 {
-    auto& state = **::remote_console_state;
+    auto& state = *::remote_console_state;
 
     if (not state.rx_full_lines_.empty()) {
         auto ret = std::move(*state.rx_full_lines_.begin());
@@ -5793,7 +5801,7 @@ auto Platform::RemoteConsole::readline() -> std::optional<Line>
 
 bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 {
-    auto& state = **::remote_console_state;
+    auto& state = *::remote_console_state;
 
     if (state.tx_msg_ and not(*state.tx_msg_)->empty()) {
         // TODO: add a queue for output messages! At the moment, there's already

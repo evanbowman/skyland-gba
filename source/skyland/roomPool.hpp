@@ -51,7 +51,9 @@ public:
     {
         for (u32 i = 0; i < pools_.capacity(); ++i) {
             pools_.push_back(
-                allocate_dynamic<RoomPool>(pfrm, "room-pool-memory"));
+                allocate_dynamic<RoomPool>(pfrm,
+                                           "room-pool-memory",
+                                           "rooms"));
         }
     }
 

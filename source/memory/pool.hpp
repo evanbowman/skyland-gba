@@ -11,7 +11,68 @@
 
 
 
-template <u32 size, u32 count, u32 align = size> class Pool {
+class GenericPool {
+public:
+
+    GenericPool(const char* name) : name_(name)
+    {
+        next_ = instances_;
+        instances_ = this;
+    }
+
+
+    virtual ~GenericPool()
+    {
+        GenericPool* instance_list = instances_;
+        GenericPool* prev = nullptr;
+
+        while (instance_list) {
+            if (instance_list == this) {
+                if (prev) {
+                    prev->next_ = next_;
+                } else {
+                    instances_ = next_;
+                }
+                return;
+            }
+            instance_list = instance_list->next_;
+        }
+    }
+
+
+    virtual u32 pooled_element_size() const = 0;
+    virtual u32 pooled_element_align() const = 0;
+    virtual u32 pooled_element_count() const = 0;
+    virtual u32 pooled_element_remaining() const = 0;
+
+
+    const char* name() const
+    {
+        return name_;
+    }
+
+
+    static GenericPool* instances()
+    {
+        return instances_;
+    }
+
+    GenericPool* next() const
+    {
+        return next_;
+    }
+
+private:
+    const char* name_;
+    GenericPool* next_;
+
+    static GenericPool* instances_;
+};
+
+
+
+template <u32 size, u32 count, u32 align = size>
+class Pool : public GenericPool {
 public:
     struct Cell {
         alignas(align) std::array<u8, size> mem_;
@@ -25,7 +86,33 @@ public:
 #endif
 
 
-    Pool() : freelist_(nullptr)
+    u32 pooled_element_size() const override
+    {
+        return size;
+    }
+
+
+    u32 pooled_element_align() const override
+    {
+        return align;
+    }
+
+
+    u32 pooled_element_count() const override
+    {
+        return count;
+    }
+
+
+    u32 pooled_element_remaining() const override
+    {
+        return remaining();
+    }
+
+
+    Pool(const char* name) :
+        GenericPool(name),
+        freelist_(nullptr)
     {
 #ifdef POOL_USE_HEAP
         cells_.resize(count);
@@ -118,6 +205,11 @@ public:
         } else {
             return nullptr;
         }
+    }
+
+    ObjectPool(const char* name) :
+        pool_(name)
+    {
     }
 
     void post(T* obj)

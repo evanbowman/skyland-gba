@@ -481,7 +481,7 @@ Value* make_error(Error::Code error_code, Value* context);
 Value* make_userdata(void* obj);
 Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
-Value* make_databuffer(Platform& pfrm);
+Value* make_databuffer(Platform& pfrm, const char* sbr_tag = "");
 Value* make_string(Platform& pfrm, const char* str);
 Value* make_character(utf8::Codepoint cp);
 

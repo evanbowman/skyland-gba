@@ -713,7 +713,7 @@ public:
 void compile(Platform& pfrm, Value* code)
 {
     // We will be rendering all of our compiled code into this buffer.
-    push_op(make_databuffer(pfrm));
+    push_op(make_databuffer(pfrm, "lisp-bytecode"));
     if (get_op(0)->type() not_eq Value::Type::data_buffer) {
         return;
     }

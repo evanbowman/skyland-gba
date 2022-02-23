@@ -126,3 +126,28 @@ o----------------------------o
 
 
 o----------------------------o
+
+ (syscall "pools-annotate")
+
+ Dump info about memory pools
+ over uart.
+
+
+o----------------------------o
+
+ (syscall "sbr-annotate")
+
+ Dump info about scratch
+ buffer usage over uart.
+
+
+o----------------------------o
+
+ (syscall "hibernate")
+
+ Put the system to sleep,
+ until the player presses
+ L+R+SELECT.
+
+
+o----------------------------o

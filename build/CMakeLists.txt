@@ -76,6 +76,7 @@ set(SOURCES
   ${SOURCE_DIR}/number/random.cpp
   ${SOURCE_DIR}/graphics/view.cpp
   ${SOURCE_DIR}/localization.cpp
+  ${SOURCE_DIR}/memory/pool.cpp
   ${SOURCE_DIR}/collision.cpp
   ${SOURCE_DIR}/tileMap.cpp
   ${SOURCE_DIR}/globals.cpp
@@ -94,7 +95,6 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/sound.cpp
   ${SOURCE_DIR}/skyland/camera.cpp
   ${SOURCE_DIR}/skyland/touchscreenFreeformCamera.cpp
-  ${SOURCE_DIR}/skyland/serial.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/network.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp

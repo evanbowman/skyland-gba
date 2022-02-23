@@ -734,17 +734,21 @@ Value* make_userdata(void* obj)
 }
 
 
-Value* make_databuffer(Platform& pfrm)
+Value* make_databuffer(Platform& pfrm, const char* sbr_tag)
 {
     if (not pfrm.scratch_buffers_remaining()) {
         // Collect any data buffers that may be lying around.
         run_gc();
     }
 
+    if (str_len(sbr_tag) == 0) {
+        sbr_tag = "lisp-databuffer";
+    }
+
     if (auto val = alloc_value()) {
         val->hdr_.type_ = Value::Type::data_buffer;
         new ((ScratchBufferPtr*)val->data_buffer().sbr_mem_)
-            ScratchBufferPtr(pfrm.make_scratch_buffer("lisp-databuffer"));
+            ScratchBufferPtr(pfrm.make_scratch_buffer(sbr_tag));
         return val;
     }
     return bound_context->oom_;
@@ -797,7 +801,7 @@ Value* make_string(Platform& pfrm, const char* string)
             return bound_context->oom_;
         }
     } else {
-        auto buffer = make_databuffer(pfrm);
+        auto buffer = make_databuffer(pfrm, "lisp-string-bulk-allocator");
 
         if (buffer == bound_context->oom_) {
             return bound_context->oom_;
@@ -3426,7 +3430,8 @@ void init(Platform& pfrm)
 
 void load_module(Module* module)
 {
-    Protected buffer(make_databuffer(bound_context->pfrm_));
+    Protected buffer(make_databuffer(bound_context->pfrm_,
+                                     "lisp-module"));
     Protected zero(make_integer(0));
 
     Protected bytecode(make_cons(zero, buffer));
