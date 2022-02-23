@@ -45,6 +45,10 @@ void SelectChallengeScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.screen().schedule_fade(
         default_fade, ColorConstant::rich_black, {}, false);
+
+    if (not pfrm.speaker().is_music_playing("unaccompanied_wind")) {
+        pfrm.speaker().play_music("unaccompanied_wind", 0);
+    }
 }
 
 

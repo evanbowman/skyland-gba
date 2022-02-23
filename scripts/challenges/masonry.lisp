@@ -17,7 +17,7 @@
         (if (equal $0 (opponent))
             (if (not (equal $1 'masonry))
                 (progn
-                  (dialog "<c:goblin king:3>I ssaid only masssonry! You lose!")
+                  (dialog "<c:goblin king:3>Gaahh, I ssaid only masssonry!")
                   (setq on-room-destroyed '())
                   (setq on-dialog-closed
                         (lambda

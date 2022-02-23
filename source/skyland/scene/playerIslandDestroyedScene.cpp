@@ -309,8 +309,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if ((app.game_mode() not_eq App::GameMode::adventure and
              app.game_mode() not_eq App::GameMode::skyland_forever and
-             app.game_mode() not_eq App::GameMode::co_op) or
-            island_ == &app.player_island()) {
+             app.game_mode() not_eq App::GameMode::co_op)) {
             pfrm.speaker().play_music("unaccompanied_wind", 0);
         }
 
@@ -426,10 +425,6 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::level_exit_forced:
         anim_state_ = AnimState::show_coins;
         timer_ = 0;
-
-        if (island_ == &app.player_island()) {
-            pfrm.speaker().play_music("unaccompanied_wind", 0);
-        }
 
         pfrm.screen().set_shader(redden_shader);
 
