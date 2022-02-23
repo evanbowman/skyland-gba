@@ -241,9 +241,17 @@ public:
     }
 
 
-    bool& exit_level()
+    enum class ExitCondition {
+        none,
+        misc,
+        victory,
+        defeat,
+    };
+
+
+    ExitCondition& exit_condition()
     {
-        return exit_level_;
+        return exit_condition_;
     }
 
 
@@ -399,7 +407,7 @@ private:
     s32 level_begin_score_ = 0;
 
     std::optional<DialogBuffer> dialog_buffer_;
-    bool exit_level_ = false;
+    ExitCondition exit_condition_ = ExitCondition::none;
     bool launch_repl_ = false;
     bool launch_input_ = false;
     bool surrender_offered_ = false;

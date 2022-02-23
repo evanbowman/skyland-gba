@@ -483,12 +483,8 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             break;
         }
         animate_moretext_icon();
-        if (key_down<Key::action_2>(pfrm) or key_down<Key::action_1>(pfrm)) {
-            if (key_down<Key::action_2>(pfrm)) {
-                invoke_hook(pfrm, app, "on-dialog-declined");
-            } else {
-                invoke_hook(pfrm, app, "on-dialog-closed");
-            }
+        if (key_down<Key::action_1>(pfrm) or key_down<Key::action_2>(pfrm)) {
+            invoke_hook(pfrm, app, "on-dialog-closed");
             display_mode_ = DisplayMode::animate_out;
         }
         break;
@@ -535,8 +531,6 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                 invoke_hook(pfrm, app, "on-dialog-declined");
             }
 
-            display_mode_ = DisplayMode::animate_out;
-        } else if (key_down<Key::action_2>(pfrm)) {
             display_mode_ = DisplayMode::animate_out;
         }
         break;

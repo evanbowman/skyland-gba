@@ -889,7 +889,12 @@ static const lisp::Binding script_api[] = {
      }},
     {"exit",
      [](int argc) {
-         interp_get_app()->exit_level() = true;
+         if (argc == 1) {
+             L_EXPECT_OP(0, integer);
+             interp_get_app()->exit_condition() = (App::ExitCondition)L_LOAD_INT(0);
+         } else {
+             interp_get_app()->exit_condition() = App::ExitCondition::misc;
+         }
          return L_NIL;
      }},
     {"coins",
@@ -909,6 +914,10 @@ static const lisp::Binding script_api[] = {
                       (int)(lisp::get_op(0)->integer().value_ + app->coins())));
 
          return L_NIL;
+     }},
+    {"coins-victory",
+     [](int argc) {
+         return L_INT(interp_get_app()->victory_coins());
      }},
     {"eval-file",
      [](int argc) {

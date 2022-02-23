@@ -77,9 +77,9 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (app.exit_level()) {
+    if (app.exit_condition() not_eq App::ExitCondition::none) {
         set_gamespeed(pfrm, app, GameSpeed::normal);
-        app.exit_level() = false;
+        app.exit_condition() = App::ExitCondition::none;
         return scene_pool::alloc<FadeOutScene>();
     }
 

@@ -194,6 +194,28 @@ void update_confetti(Platform& pfrm,
 
 
 
+ColorConstant redden_shader(int p, ColorConstant k, int var)
+{
+    if (p == 1) {
+        // Do not apply the redden effect to the overlay.
+        return k;
+    }
+
+    auto k1 = contrast_shader(p, k, std::max(-(var / 2), -64));
+
+    static const Color ao(ColorConstant::aerospace_orange);
+    const Color input(k1);
+
+    Color result(fast_interpolate(ao.r_, input.r_, var),
+                 fast_interpolate(ao.g_, input.g_, var),
+                 fast_interpolate(ao.b_, input.b_, var));
+
+
+    return result.hex();
+}
+
+
+
 ScenePtr<Scene>
 PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -285,9 +307,10 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.speaker().clear_sounds();
         pfrm.speaker().set_music_volume(1);
 
-        if (app.game_mode() not_eq App::GameMode::adventure and
-            app.game_mode() not_eq App::GameMode::skyland_forever and
-            app.game_mode() not_eq App::GameMode::co_op) {
+        if ((app.game_mode() not_eq App::GameMode::adventure and
+             app.game_mode() not_eq App::GameMode::skyland_forever and
+             app.game_mode() not_eq App::GameMode::co_op) or
+            island_ == &app.player_island()) {
             pfrm.speaker().play_music("unaccompanied_wind", 0);
         }
 
@@ -380,24 +403,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (opponent_defeated) {
                 anim_state_ = AnimState::wait_1;
             } else {
-                pfrm.screen().set_shader([](int p, ColorConstant k, int var) {
-                    if (p == 1) {
-                        // Do not apply the redden effect to the overlay.
-                        return k;
-                    }
-
-                    auto k1 = contrast_shader(p, k, std::max(-(var / 2), -64));
-
-                    static const Color ao(ColorConstant::aerospace_orange);
-                    const Color input(k1);
-
-                    Color result(fast_interpolate(ao.r_, input.r_, var),
-                                 fast_interpolate(ao.g_, input.g_, var),
-                                 fast_interpolate(ao.b_, input.b_, var));
-
-
-                    return result.hex();
-                });
+                pfrm.screen().set_shader(redden_shader);
                 anim_state_ = AnimState::fade_out;
             }
 
@@ -411,14 +417,58 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::wait_1: {
         if (timer_ > milliseconds(120)) {
             timer_ = 0;
-            anim_state_ = AnimState::add_score;
+            anim_state_ = AnimState::show_coins;
+            app.set_coins(pfrm, app.coins() + app.victory_coins());
         }
         break;
     }
 
-    case AnimState::add_score: {
+    case AnimState::level_exit_forced:
+        anim_state_ = AnimState::show_coins;
+        timer_ = 0;
+
+        if (island_ == &app.player_island()) {
+            pfrm.speaker().play_music("unaccompanied_wind", 0);
+        }
+
+        pfrm.screen().set_shader(redden_shader);
+
+        for (auto& room : app.player_island().rooms()) {
+            room->detach_drone(pfrm, app, true);
+        }
+
+        for (auto& room : app.opponent_island()->rooms()) {
+            room->detach_drone(pfrm, app, true);
+        }
+
+        app.player_island().drones().clear();
+        app.opponent_island()->drones().clear();
+
+        for (auto& room : app.player_island().rooms()) {
+            room->unset_target(pfrm, app);
+        }
+
+        if (island_ == &app.player_island()) {
+            invoke_hook(pfrm, app, "on-victory");
+
+            for (auto& room : app.player_island().rooms()) {
+                for (auto it = room->characters().begin();
+                     it not_eq room->characters().end();) {
+                    if ((*it)->owner() not_eq &app.player()) {
+                        it = room->characters().erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+            }
+
+        }
+
+        pfrm.speaker().set_music_volume(12);
+        break;
+
+    case AnimState::show_coins: {
         pfrm.speaker().play_sound("coin", 2);
-        app.set_coins(pfrm, app.coins() + app.victory_coins());
         force_show_coins();
         app.victory_coins() = 0;
         anim_state_ = AnimState::wait_2;
@@ -595,7 +645,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                                            .type_;
 
                 if (node_type not_eq WorldGraph::Node::Type::exit and
-                    node_type not_eq WorldGraph::Node::Type::corrupted) {
+                    node_type not_eq WorldGraph::Node::Type::corrupted and
+                    options_allowed_) {
                     anim_state_ = AnimState::show_options;
                 } else {
                     anim_state_ = AnimState::fade_complete;

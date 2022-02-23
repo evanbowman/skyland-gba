@@ -17,6 +17,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/touchscreenFreeformCamera.hpp"
+#include "surrenderWaitScene.hpp"
 
 
 
@@ -171,7 +172,7 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                 o->projectiles().empty()) {
 
                 app.surrender_offered() = true;
-                app.invoke_script(pfrm, "/scripts/event/surrender.lisp");
+                return scene_pool::alloc<SurrenderWaitScene>();
             }
         }
     }

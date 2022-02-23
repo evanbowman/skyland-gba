@@ -19,6 +19,7 @@
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
 #include "worldScene.hpp"
+#include "playerIslandDestroyedScene.hpp"
 
 
 
@@ -191,10 +192,19 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene;
     }
 
-    if (app.exit_level()) {
+    const auto exit_cond = app.exit_condition();
+    if (exit_cond not_eq App::ExitCondition::none) {
         set_gamespeed(pfrm, app, GameSpeed::normal);
-        app.exit_level() = false;
-        return scene_pool::alloc<FadeOutScene>();
+        app.exit_condition() = App::ExitCondition::none;
+        if (exit_cond == App::ExitCondition::misc) {
+            return scene_pool::alloc<FadeOutScene>();
+        } else if (exit_cond == App::ExitCondition::victory) {
+            return scene_pool::alloc<PlayerIslandDestroyedScene>(app.opponent_island(),
+                                                                 true);
+        } else if (exit_cond == App::ExitCondition::defeat) {
+            return scene_pool::alloc<PlayerIslandDestroyedScene>(&app.player_island(),
+                                                                 true);
+        }
     }
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;

@@ -221,6 +221,12 @@ o----------------------------o
 
  Exit the current level.
 
+ If you invoke (exit 1), then
+ the level will exit
+ immediately. (exit 2) shows
+ the victory screen. (exit 3)
+ shows the defeat screen.
+
 
 o----------------------------o
 

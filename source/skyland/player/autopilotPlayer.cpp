@@ -143,7 +143,7 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
 
             keys_list_.set(first->cons().cdr());
         } else {
-            app.exit_level() = true;
+            app.exit_condition() = App::ExitCondition::misc;
         }
     }
 }

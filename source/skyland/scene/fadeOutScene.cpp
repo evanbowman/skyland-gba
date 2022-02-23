@@ -26,6 +26,23 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
     constexpr auto fade_duration = milliseconds(800);
     if (timer_ > fade_duration) {
 
+
+        for (auto& room : app.player_island().rooms()) {
+            room->detach_drone(pfrm, app, true);
+        }
+
+        for (auto& room : app.opponent_island()->rooms()) {
+            room->detach_drone(pfrm, app, true);
+        }
+
+        app.player_island().drones().clear();
+        app.opponent_island()->drones().clear();
+
+        for (auto& room : app.player_island().rooms()) {
+            room->unset_target(pfrm, app);
+        }
+
+
         pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_1);
         pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::square_2);
         pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);

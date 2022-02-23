@@ -10,6 +10,14 @@
 
 
 
+// This class in particlar needs to be refactored... but not a priority right
+// now. I originally lifted this explosion code from another one of my games,
+// then I needed to graft on a feature to display the victory/defeat text
+// without displaying the explosion animation, and overall, the code is a bit
+// cluttered.
+
+
+
 namespace skyland {
 
 
@@ -20,8 +28,41 @@ class Island;
 
 class PlayerIslandDestroyedScene : public WorldScene {
 public:
-    PlayerIslandDestroyedScene(Island* island) : island_(island)
+
+    enum class AnimState {
+        init,
+        explosion_wait1,
+        explosion_wait2,
+        fade,
+        wait_1,
+        show_coins,
+        wait_2,
+        fade_out,
+        idle,
+        fade_complete,
+        show_options,
+        level_exit_forced,
+    };
+
+
+    PlayerIslandDestroyedScene(Island* island)
+        : island_(island)
     {
+    }
+
+
+    // Skip the explosion and just display the victory/defeat screen. TODO:
+    // split this class into two scenes.
+    PlayerIslandDestroyedScene(Island* island, bool victory)
+        : island_(island)
+    {
+        if (victory) {
+            anim_state_ = AnimState::level_exit_forced;
+        }
+
+        sink_speed_ = 0.f;
+
+        options_allowed_ = false;
     }
 
 
@@ -40,25 +81,15 @@ private:
 
     Buffer<Text, 5> lines_;
 
+    bool options_allowed_ = true;
+
     std::optional<DynamicMemory<ConfettiBuffer>> confetti_;
 
     void show_stats(Platform&, App&);
 
     Microseconds stat_timer_ = 0;
 
-    enum class AnimState {
-        init,
-        explosion_wait1,
-        explosion_wait2,
-        fade,
-        wait_1,
-        add_score,
-        wait_2,
-        fade_out,
-        idle,
-        fade_complete,
-        show_options,
-    } anim_state_ = AnimState::init;
+    AnimState anim_state_ = AnimState::init;
 
     enum class ConfettiState {
         dormant,
