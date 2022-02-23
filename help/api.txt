@@ -553,9 +553,48 @@ o----------------------------o
 
 o----------------------------o
 
- (zone)
+ (wg-nodes)
 
- Return the current zone.
+ Get a list of all world
+ graph nodes, i.e. nodes
+ associated with the sky
+ chart in adventure mode.
+
+ Result in format:
+
+ '((type x . y) ...)
+
+
+o----------------------------o
+
+ (wg-node-set x y type)
+
+ Assign a world graph node.
+ x y must be a valid existing
+ node (see wg-nodes).
+
+
+o----------------------------o
+
+ (wg-node-move x1 y1 x2 y2)
+
+ Relocate a world graph node
+ to a new coordinate.
+
+ Calling this function on the
+ player's currently inhabited
+ node is undefined behavior.
+
+
+o----------------------------o
+
+ (wg-pos)
+
+ Return info about the
+ player's position in the
+ world graph:
+
+ '(zone x . y)
 
 
 o----------------------------o

@@ -887,8 +887,6 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
-    {"zone",
-     [](int argc) { return lisp::make_integer(interp_get_app()->zone() - 1); }},
     {"exit",
      [](int argc) {
          interp_get_app()->exit_level() = true;
@@ -1204,6 +1202,17 @@ static const lisp::Binding script_api[] = {
          }
 
          return L_NIL;
+     }},
+    {"wg-pos",
+     [](int argc) {
+         auto app = interp_get_app();
+
+         const auto& node =
+             app->world_graph().nodes_[app->current_world_location()];
+
+         return L_CONS(L_INT(app->zone() - 1),
+                       L_CONS(L_INT(node.coord_.x),
+                              L_INT(node.coord_.y)));
      }},
     {"emit", [](int argc) {
          L_EXPECT_ARGC(argc, 6);
