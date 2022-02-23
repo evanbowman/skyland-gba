@@ -1188,6 +1188,21 @@ static const lisp::Binding script_api[] = {
      }},
     {"wg-node-set",
      [](int argc) {
+         L_EXPECT_ARGC(argc, 3);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(2, integer);
+
+         const s8 x = L_LOAD_U8(2);
+         const s8 y = L_LOAD_U8(1);
+
+         for (auto& node : interp_get_app()->world_graph().nodes_) {
+             if (node.coord_ == Vec2<s8>{x, y}) {
+                 node.type_ = (WorldGraph::Node::Type)L_LOAD_U8(0);
+                 break;
+             }
+         }
+
          return L_NIL;
      }},
     {"emit", [](int argc) {
