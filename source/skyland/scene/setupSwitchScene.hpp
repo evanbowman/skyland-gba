@@ -28,7 +28,7 @@ public:
         ActiveWorldScene::enter(pfrm, app, prev);
 
         text_.emplace(pfrm,
-                      "setup switch: connect ON:",
+                      SYSTR(switch_connect_on)->c_str(),
                       OverlayCoord{0, 19});
 
         auto st = calc_screen_tiles(pfrm);
@@ -102,7 +102,7 @@ public:
 
                 pfrm.fill_overlay(0);
                 text_.emplace(pfrm,
-                              "setup switch: connect OFF:",
+                              SYSTR(switch_connect_off)->c_str(),
                               OverlayCoord{0, 19});
 
                 auto st = calc_screen_tiles(pfrm);

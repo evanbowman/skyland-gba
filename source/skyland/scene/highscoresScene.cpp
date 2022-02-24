@@ -99,13 +99,13 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         [](const auto& lhs, const auto& rhs) { return lhs.get() > rhs.get(); });
 
     if (show_current_score_) {
-        print_metric("score ", score);
+        print_metric(SYSTR(highscores_score)->c_str(), score);
     }
 
     lines_.emplace_back(
         pfrm, Vec2<u8>{7, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
 
-    lines_.back().append("-- highscores --");
+    lines_.back().append(SYSTR(highscores_title)->c_str());
 
 
     bool highlighted = false;

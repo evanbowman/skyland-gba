@@ -2,6 +2,7 @@
 #include "readyScene.hpp"
 #include "skyland/skyland.hpp"
 #include "zoneImageScene.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -171,16 +172,18 @@ void LevelCompleteOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto st = calc_screen_tiles(pfrm);
 
-    const char* resume = "resume";
-    const char* world_map = "sky map";
+    StringBuffer<32> resume = SYSTR(start_menu_resume)->c_str();
+    StringBuffer<32> sky_map = SYSTR(start_menu_sky_map)->c_str();
 
     options_.emplace_back(
         pfrm,
-        world_map,
-        OverlayCoord{u8((st.x - utf8::len(world_map)) / 2), 5});
+        sky_map.c_str(),
+        OverlayCoord{u8((st.x - utf8::len(sky_map.c_str())) / 2), 5});
 
     options_.emplace_back(
-        pfrm, resume, OverlayCoord{u8((st.x - utf8::len(resume)) / 2), 7});
+        pfrm,
+        resume.c_str(),
+        OverlayCoord{u8((st.x - utf8::len(resume.c_str())) / 2), 7});
 
     if (state_ not_eq State::fade_in) {
         pfrm.screen().pixelate(partial_fade_amt * 28, false);

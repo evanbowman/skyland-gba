@@ -5,6 +5,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "swapOverlayTextureScene.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -12,23 +13,24 @@ namespace skyland {
 
 
 
-static const char* gamespeed_text(GameSpeed speed)
+static const SystemStringBuffer gamespeed_text(Platform& pfrm,
+                                               GameSpeed speed)
 {
     switch (speed) {
     case GameSpeed::stopped:
-        return "paused";
+        return SYSTR(gs_paused);
     case GameSpeed::slow:
-        return "slow";
+        return SYSTR(gs_slow);
     case GameSpeed::normal:
-        return "regular";
+        return SYSTR(gs_regular);
     case GameSpeed::fast:
-        return "fast";
+        return SYSTR(gs_fast);
     case GameSpeed::rewind:
-        return "rewind";
+        return SYSTR(gs_rewind);
     case GameSpeed::count:
-        return "ERROR";
+        break;
     }
-    return "ERROR";
+    return SYSTR(gs_error);
 }
 
 
@@ -147,8 +149,8 @@ void SetGamespeedScene::repaint_selector(Platform& pfrm)
         speed_text_.emplace(pfrm,
                             OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
     }
-    StringBuffer<30> temp("speed: ");
-    temp += gamespeed_text((GameSpeed)selection_);
+    StringBuffer<30> temp(SYSTR(gs_prompt)->c_str());
+    temp += gamespeed_text(pfrm, (GameSpeed)selection_)->c_str();
     speed_text_->assign(temp.c_str());
 
     const u8 y = calc_screen_tiles(pfrm).y - 2;

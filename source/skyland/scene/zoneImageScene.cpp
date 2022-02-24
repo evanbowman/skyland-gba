@@ -55,9 +55,7 @@ void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.set_overlay_origin(0, 4);
 
-    StringBuffer<32> buffer("-- zone ");
-    buffer += stringify(app.zone());
-    buffer += " --";
+    auto buffer = format<32>(SYSTR(zone_text)->c_str(), app.zone());
     auto margin = centered_text_margins(pfrm, buffer.length());
     text_.emplace(
         pfrm,

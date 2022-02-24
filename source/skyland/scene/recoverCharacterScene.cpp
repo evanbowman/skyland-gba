@@ -112,7 +112,9 @@ void RecoverCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
     far_camera();
 
     auto st = calc_screen_tiles(pfrm);
-    text_.emplace(pfrm, "recover character?", OverlayCoord{0, u8(st.y - 1)});
+    text_.emplace(pfrm,
+                  SYSTR(transporter_recover_char)->c_str(),
+                  OverlayCoord{0, u8(st.y - 1)});
 
     const int count = st.x - text_->len();
     for (int i = 0; i < count; ++i) {

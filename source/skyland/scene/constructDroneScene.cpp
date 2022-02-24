@@ -16,7 +16,7 @@ void ConstructDroneScene::draw(Platform& pfrm, App& app)
 
     auto [templates, template_count] = drone_metatable();
 
-    StringBuffer<30> message = "deploy: ";
+    StringBuffer<30> message = SYSTR(deploy_drone_prompt)->c_str();
     message += templates[selector_]->name();
     message += " ";
     message += stringify(templates[selector_]->cost());

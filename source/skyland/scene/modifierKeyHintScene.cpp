@@ -4,6 +4,7 @@
 #include "skyland/island.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -52,16 +53,28 @@ void ModifierKeyHintScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.set_tile(Layer::overlay, 5, 11, 394);
     pfrm.set_tile(Layer::overlay, 5, 13, 395);
 
-    const char* title = "modifier keys";
+    auto title = SYSTR(modifier_keys_title);
     title_.emplace(
         pfrm,
-        title,
-        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title)), 4});
+        title->c_str(),
+        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title->c_str())),
+                         4});
 
-    text_.emplace_back(pfrm, "set weapon groups", OverlayCoord{7, 7});
-    text_.emplace_back(pfrm, "weapon group 1", OverlayCoord{7, 9});
-    text_.emplace_back(pfrm, "weapon group 2", OverlayCoord{7, 11});
-    text_.emplace_back(pfrm, "weapon group 3", OverlayCoord{7, 13});
+    text_.emplace_back(pfrm,
+                       SYSTR(modifier_keys_opt_1)->c_str(),
+                       OverlayCoord{7, 7});
+
+    text_.emplace_back(pfrm,
+                       SYSTR(modifier_keys_opt_2)->c_str(),
+                       OverlayCoord{7, 9});
+
+    text_.emplace_back(pfrm,
+                       SYSTR(modifier_keys_opt_3)->c_str(),
+                       OverlayCoord{7, 11});
+
+    text_.emplace_back(pfrm,
+                       SYSTR(modifier_keys_opt_4)->c_str(),
+                       OverlayCoord{7, 13});
 
     pfrm.screen().schedule_fade(0.5f);
 }

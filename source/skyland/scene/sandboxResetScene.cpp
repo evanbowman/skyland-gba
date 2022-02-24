@@ -19,14 +19,14 @@ SandboxResetScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::up)) {
         selection_ = true;
-        yes_text_->assign("yes", sel_colors);
-        no_text_->assign("exit");
+        yes_text_->assign(SYSTR(yes)->c_str(), sel_colors);
+        no_text_->assign(SYSTR(exit)->c_str());
     }
 
     if (app.player().key_down(pfrm, Key::down)) {
         selection_ = false;
-        yes_text_->assign("yes");
-        no_text_->assign("exit", sel_colors);
+        yes_text_->assign(SYSTR(yes)->c_str());
+        no_text_->assign(SYSTR(exit)->c_str(), sel_colors);
     }
 
     if (app.player().key_down(pfrm, Key::action_1)) {
@@ -43,11 +43,11 @@ SandboxResetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void SandboxResetScene::enter(Platform& pfrm, App&, Scene& prev)
 {
-    msg_.emplace(pfrm, "Reset sandbox?", OverlayCoord{1, 1});
+    msg_.emplace(pfrm, SYSTR(reset_sandbox_query)->c_str(), OverlayCoord{1, 1});
     yes_text_.emplace(pfrm, OverlayCoord{2, 3});
-    no_text_.emplace(pfrm, "exit", OverlayCoord{2, 5});
+    no_text_.emplace(pfrm, SYSTR(exit)->c_str(), OverlayCoord{2, 5});
 
-    yes_text_->assign("yes", sel_colors);
+    yes_text_->assign(SYSTR(yes)->c_str(), sel_colors);
 }
 
 

@@ -11,8 +11,9 @@ namespace skyland {
 
 
 
-TransportCharacterScene::TransportCharacterScene(Vec2<u8> origin)
-    : NotificationScene("select a destination:",
+TransportCharacterScene::TransportCharacterScene(Platform& pfrm,
+                                                 Vec2<u8> origin)
+    : NotificationScene(SYSTR(transporter_transport_char)->c_str(),
                         [] { return scene_pool::alloc<ReadyScene>(); }),
       origin_(origin)
 {

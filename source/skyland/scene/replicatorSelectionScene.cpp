@@ -25,7 +25,7 @@ void ReplicatorSelectionScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     auto st = calc_screen_tiles(pfrm);
-    StringBuffer<30> text("create replicant? -");
+    StringBuffer<30> text(SYSTR(create_replicant)->c_str());
     text += stringify(replicator_fee);
     text += "@";
 
@@ -43,8 +43,8 @@ void ReplicatorSelectionScene::enter(Platform& pfrm, App& app, Scene& prev)
     yes_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
     no_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
 
-    yes_text_->assign("A: yes ");
-    no_text_->assign("B:  no ");
+    yes_text_->assign(SYSTR(salvage_option_A)->c_str());
+    no_text_->assign(SYSTR(salvage_option_B)->c_str());
 
     for (int i = 23; i < st.x; ++i) {
         pfrm.set_tile(Layer::overlay, i, st.y - 4, 425);

@@ -48,7 +48,7 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     auto st = calc_screen_tiles(pfrm);
-    StringBuffer<30> text("really salvage?  +");
+    StringBuffer<30> text(SYSTR(salvage_prompt)->c_str());
 
     auto& cursor_loc =
         near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
@@ -84,8 +84,8 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
     yes_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
     no_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
 
-    yes_text_->assign("A: yes ");
-    no_text_->assign("B:  no ");
+    yes_text_->assign(SYSTR(salvage_option_A)->c_str());
+    no_text_->assign(SYSTR(salvage_option_B)->c_str());
 
     for (int i = 23; i < st.x; ++i) {
         pfrm.set_tile(Layer::overlay, i, st.y - 4, 425);
@@ -143,8 +143,9 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (auto room = island(app)->get_room(cursor_loc)) {
         if (length(room->characters()) > 0) {
             auto future_scene = [exit_scene]() { return exit_scene(); };
-            const char* msg = "cannot salvage populated room!";
-            return scene_pool::alloc<NotificationScene>(msg, future_scene);
+            auto msg = SYSTR(salvage_error_populated);
+            return scene_pool::alloc<NotificationScene>(msg->c_str(),
+                                                        future_scene);
         }
     } else {
         return exit_scene();

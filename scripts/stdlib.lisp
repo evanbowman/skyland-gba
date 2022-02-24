@@ -125,7 +125,7 @@
         (cons (car $1) ((this) $0 (cdr $1)))))))
 
 
-(defn sort
+(defn/c sort
   (if (not (cdr $0))
       $0
     (let ((temp (bisect $0)))

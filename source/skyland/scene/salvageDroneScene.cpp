@@ -17,7 +17,7 @@ void SalvageDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
     ActiveWorldScene::enter(pfrm, app, prev);
 
     auto st = calc_screen_tiles(pfrm);
-    StringBuffer<30> text("scuttle drone?");
+    StringBuffer<30> text(SYSTR(salvage_drone)->c_str());
 
     text_.emplace(pfrm, text.c_str(), OverlayCoord{0, u8(st.y - 1)});
     for (int i = 0; i < st.x; ++i) {
@@ -27,8 +27,8 @@ void SalvageDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
     yes_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 3)});
     no_text_.emplace(pfrm, OverlayCoord{u8(st.x - 7), u8(st.y - 2)});
 
-    yes_text_->assign("A: yes ");
-    no_text_->assign("B:  no ");
+    yes_text_->assign(SYSTR(salvage_option_A)->c_str());
+    no_text_->assign(SYSTR(salvage_option_B)->c_str());
 
     const int count = st.x - text_->len();
     for (int i = 0; i < count; ++i) {

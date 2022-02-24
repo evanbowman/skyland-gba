@@ -304,7 +304,8 @@ Transporter::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
         }
 
         if (parent()->has_radar() and parent() == &app.player_island()) {
-            return scene_pool::alloc<TransportCharacterScene>(position());
+            return scene_pool::alloc<TransportCharacterScene>(pfrm,
+                                                              position());
         } else {
             transport_occupant(pfrm, app);
         }

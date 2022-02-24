@@ -20,8 +20,7 @@ public:
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         text_.emplace(pfrm);
-        text_->assign("The system will now enter a low-power mode. "
-                      "Press L+R+SELECT to wake!",
+        text_->assign(SYSTR(misc_hibernate_message)->c_str(),
                       {1, 4},
                       {28, 8});
     }

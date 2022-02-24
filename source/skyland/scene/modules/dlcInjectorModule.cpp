@@ -81,11 +81,7 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
         auto buffer = allocate_dynamic<DialogString>(pfrm, "dialog-buffer");
 
         if (pfrm.device_name() == "GameboyAdvance") {
-            *buffer =
-                "The system will now accept software updates from another "
-                "gameboy advance console. If you have a SKYLAND software update"
-                " ROM, or an e-Reader card, connect a link cable to install "
-                " updates. Press A when ready...";
+            *buffer = SYSTR(misc_dlc_message)->c_str();
         } else {
             Platform::fatal(stringify(pfrm.device_name().length()).c_str());
             return scene_pool::alloc<TitleScreenScene>(3);

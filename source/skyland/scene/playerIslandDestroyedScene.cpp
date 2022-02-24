@@ -84,26 +84,29 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
         if (app.game_mode() == App::GameMode::skyland_forever or
             app.game_mode() == App::GameMode::co_op) {
             print_metric_impl(
-                "time ",
+                SYSTR(level_complete_time)->c_str(),
                 format_time(app.persistent_data().total_seconds_.get(), true));
         } else {
             print_metric_impl(
-                "time ", format_time(app.stat_timer().whole_seconds(), true));
+                SYSTR(level_complete_time)->c_str(),
+                format_time(app.stat_timer().whole_seconds(), true));
         }
         break;
 
     case 1:
         if (app.game_mode() == App::GameMode::skyland_forever or
             app.game_mode() == App::GameMode::co_op) {
-            print_metric("pauses used ",
+            print_metric(SYSTR(level_complete_pauses)->c_str(),
                          app.persistent_data().total_pauses_.get());
         } else {
-            print_metric("pauses used ", app.pause_count());
+            print_metric(SYSTR(level_complete_pauses)->c_str(),
+                         app.pause_count());
         }
         break;
 
     case 2:
-        print_metric("coins spent ", app.level_coins_spent());
+        print_metric(SYSTR(level_complete_coins)->c_str(),
+                     app.level_coins_spent());
         break;
 
     case 3:
@@ -111,7 +114,8 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
         fmt += stringify(app.player().rooms_built_);
         fmt += "/";
         fmt += stringify(app.player().rooms_lost_);
-        print_metric_impl("rooms built/lost ", fmt.c_str());
+        print_metric_impl(SYSTR(level_complete_rooms)->c_str(),
+                          fmt.c_str());
         break;
     }
 }

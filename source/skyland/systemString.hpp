@@ -119,12 +119,88 @@ enum class SystemString {
     description_radiator,
     description_switch,
 
+    gs_paused,
+    gs_slow,
+    gs_regular,
+    gs_fast,
+    gs_rewind,
+    gs_error,
+    gs_prompt,
+
+    start_menu_resume,
+    start_menu_glossary,
+    start_menu_hibernate,
+    start_menu_save_sandbox,
+    start_menu_load_sandbox,
+    start_menu_quit,
+    start_menu_sky_map,
+
+    salvage_prompt,
+    salvage_option_A,
+    salvage_option_B,
+    salvage_error_populated,
+    salvage_drone,
+
+    achievement_msg_title,
+    achievement_msg_unlocked,
+
+    weapon_group_prompt,
+
+    deploy_drone_prompt,
+    drone_position_prompt,
+
+    highscores_title,
+    highscores_score,
+
+    modifier_keys_title,
+    modifier_keys_opt_1,
+    modifier_keys_opt_2,
+    modifier_keys_opt_3,
+    modifier_keys_opt_4,
+
+    key_combo_prompt,
+
+    level_complete_time,
+    level_complete_pauses,
+    level_complete_coins,
+    level_complete_rooms,
+
+    transporter_transport_char,
+    transporter_recover_char,
+
+    repair_range,
+
+    create_replicant,
+
+    reset_sandbox_query,
+    yes,
+    exit,
+
+    switch_connect_on,
+    switch_connect_off,
+
+    zone_text,
+
+    wg_visited,
+    wg_neutral,
+    wg_hostile,
+    wg_storm,
+    wg_quest,
+    wg_outpost,
+    wg_uncharted,
+    wg_quest_marker,
+    wg_saved,
+    wg_title,
+    wg_storm_label,
+    wg_exit,
+
     dialog_tutorial_prompt,
 
     multi_session_connecting,
     multi_connection_failure,
 
     misc_hibernate_message,
+    misc_dlc_message,
 };
 
 

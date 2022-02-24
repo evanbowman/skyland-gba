@@ -11,7 +11,7 @@ namespace skyland {
 
 class TransportCharacterScene : public NotificationScene {
 public:
-    TransportCharacterScene(Vec2<u8> origin);
+    TransportCharacterScene(Platform& pfrm, Vec2<u8> origin);
 
 
     void enter(Platform&, App&, Scene& prev) override;

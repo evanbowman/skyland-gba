@@ -106,7 +106,7 @@ void AssignWeaponGroupScene::enter(Platform& pfrm, App& app, Scene& prev)
     ActiveWorldScene::enter(pfrm, app, prev);
 
     msg_.emplace(pfrm,
-                 "assign weapon groups:",
+                 SYSTR(weapon_group_prompt)->c_str(),
                  OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
 
 

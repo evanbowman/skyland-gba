@@ -63,13 +63,13 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::init: {
         pfrm.load_overlay_texture("overlay_challenges");
         add_option(pfrm,
-                   "resume",
+                   SYSTR(start_menu_resume)->c_str(),
                    scene_pool::make_deferred_scene<ReadyScene>(),
                    kill_menu);
 
         add_option(
             pfrm,
-            "glossary",
+            SYSTR(start_menu_glossary)->c_str(),
             [&pfrm] {
                 auto next = scene_pool::alloc<GlossaryViewerModule>();
                 next->set_next_scene([&pfrm]() {
@@ -80,24 +80,24 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             cut);
 
         add_option(pfrm,
-                   "hibernate",
+                   SYSTR(start_menu_hibernate)->c_str(),
                    scene_pool::make_deferred_scene<HibernateScene>(),
                    fade_sweep);
 
         switch (app.game_mode()) {
         case App::GameMode::sandbox:
             add_option(pfrm,
-                       "save sandbox",
+                       SYSTR(start_menu_save_sandbox)->c_str(),
                        scene_pool::make_deferred_scene<SaveSandboxScene>(),
                        fade_sweep);
 
             add_option(pfrm,
-                       "load sandbox",
+                       SYSTR(start_menu_load_sandbox)->c_str(),
                        scene_pool::make_deferred_scene<LoadSandboxScene>(),
                        fade_sweep);
 
             add_option(pfrm,
-                       "quit",
+                       SYSTR(start_menu_quit)->c_str(),
                        scene_pool::make_deferred_scene<TitleScreenScene>(3),
                        fade_sweep);
             break;
@@ -105,7 +105,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         case App::GameMode::adventure:
             if (app.opponent_island() == nullptr) {
                 add_option(pfrm,
-                           "sky map",
+                           SYSTR(start_menu_sky_map)->c_str(),
                            scene_pool::make_deferred_scene<ZoneImageScene>(),
                            cut);
             }
@@ -113,7 +113,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         case App::GameMode::skyland_forever:
             add_option(pfrm,
-                       "quit",
+                       SYSTR(start_menu_quit)->c_str(),
                        scene_pool::make_deferred_scene<TitleScreenScene>(3),
                        fade_sweep);
             break;

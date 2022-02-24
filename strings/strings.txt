@@ -93,6 +93,66 @@ Stores one unit of cargo. Required for trading and quests in adventure mode!
 A reliable artillery weapon. Deals % damage every %.% seconds.
 Emits harmful radiation, damaging any character standing within two spaces away.
 A switch! When the lefthand side of the switch is selected, it'll select one of two targets, epending on the position of the switch.
+paused
+slow
+regular
+fast
+rewind
+error
+speed: 
+resume
+glossary
+hibernate
+save sandbox
+load sandbox
+quit
+sky map
+really salvage?  +
+A: yes 
+B:  no 
+cannot salvage populated room!
+scuttle drone?
+Achievement:
+Unlocked:
+assign weapon groups:
+deploy:
+launch drone: select position
+-- highscores --
+score
+modifier keys
+set weapon groups
+weapon group 1
+weapon group 2
+weapon group 3
+shortcut:
+time
+pauses used
+coins spent
+rooms built/lost
+select a destination:
+recover character?
+showing: repair range
+create replicant? -
+Reset sandbox?
+yes
+exit
+setup switch: connect ON:
+setup switch: connect OFF:
+-- zone % --
+visited
+neutral
+hostile
+storm
+quest
+outpost
+uncharted
+quest marker
+progress saved...
+sky map - zone %
+storm >>
+exit
 <c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's ok... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean! <t:0>
 session connecting...
 Failed to connect to multiplayer peer!
+The system will now enter a low-power mode. Press L+R+SELECT to wake!
+The system will now accept software updates from another gameboy advance console. If you have a SKYLAND software update ROM, or an e-Reader card, connect a link cable to install  updates. Press A when ready...

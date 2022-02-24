@@ -3,6 +3,7 @@
 #include "readyScene.hpp"
 #include "skyland/keyCallbackProcessor.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -18,7 +19,7 @@ void KeyComboScene::enter(Platform& pfrm, App& app, Scene& prev)
         far_camera();
     }
 
-    text_data_ = "shortcut: ";
+    text_data_ = SYSTR(key_combo_prompt)->c_str();
 
     text_.emplace(pfrm, text_data_.c_str(), OverlayCoord{0, 19});
     for (int i = text_->len(); i < 30; ++i) {

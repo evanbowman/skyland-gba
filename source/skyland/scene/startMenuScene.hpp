@@ -59,7 +59,7 @@ private:
             TransitionMode mode_;
         };
         Buffer<TransitionInfo, option_count> on_click_;
-        Buffer<StringBuffer<20>, option_count> option_names_;
+        Buffer<StringBuffer<32>, option_count> option_names_;
 
         u8 cursor_ = 0;
     };

@@ -10,6 +10,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/worldGraph.hpp"
 #include "titleScreenScene.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -309,7 +310,7 @@ static const int map_start_y = 3;
 
 void WorldMapScene::render_map_key(Platform& pfrm, App& app)
 {
-    const char* text_ = "error";
+    StringBuffer<32> text_ = "error";
 
     WorldGraph::Node* node = nullptr;
     for (auto& n : app.world_graph().nodes_) {
@@ -325,19 +326,19 @@ void WorldMapScene::render_map_key(Platform& pfrm, App& app)
 
     switch (node->type_) {
     case WorldGraph::Node::Type::visited:
-        text_ = "visited";
+        text_ = SYSTR(wg_visited)->c_str();
         break;
 
     case WorldGraph::Node::Type::neutral:
-        text_ = "neutral";
+        text_ = SYSTR(wg_neutral)->c_str();
         break;
 
     case WorldGraph::Node::Type::hostile:
-        text_ = "hostile";
+        text_ = SYSTR(wg_hostile)->c_str();
         break;
 
     case WorldGraph::Node::Type::corrupted:
-        text_ = "storm";
+        text_ = SYSTR(wg_storm)->c_str();
         break;
 
     case WorldGraph::Node::Type::exit:
@@ -345,16 +346,16 @@ void WorldMapScene::render_map_key(Platform& pfrm, App& app)
         break;
 
     case WorldGraph::Node::Type::quest:
-        text_ = "quest";
+        text_ = SYSTR(wg_quest)->c_str();
         break;
 
     case WorldGraph::Node::Type::hub:
-        text_ = "outpost";
+        text_ = SYSTR(wg_outpost)->c_str();
         break;
 
     case WorldGraph::Node::Type::hostile_hidden:
     case WorldGraph::Node::Type::neutral_hidden:
-        text_ = "uncharted";
+        text_ = SYSTR(wg_uncharted)->c_str();
         break;
 
     case WorldGraph::Node::Type::null:
@@ -364,7 +365,7 @@ void WorldMapScene::render_map_key(Platform& pfrm, App& app)
     if (not map_key_) {
         map_key_.emplace(pfrm, OverlayCoord{11, 18});
     }
-    map_key_->assign(text_);
+    map_key_->assign(text_.c_str());
     update_storm_frontier(pfrm, app.world_graph(), 0);
 }
 
@@ -749,7 +750,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::print_saved_text:
         pfrm.load_overlay_texture("overlay");
-        heading_.emplace(pfrm, "progress saved...", OverlayCoord{1, 1});
+        heading_.emplace(pfrm, SYSTR(wg_saved)->c_str(), OverlayCoord{1, 1});
         pfrm.screen().fade(1.f);
         state_ = State::show_saved_text;
         break;
@@ -919,11 +920,10 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 
     heading_.emplace(pfrm, OverlayCoord{1, 1});
 
-    heading_->assign("sky map - zone ");
-    heading_->append(app.zone());
+    heading_->assign(format(SYSTR(wg_title)->c_str(), app.zone()).c_str());
 
     warning_.emplace(pfrm, OverlayCoord{1, 18});
-    warning_->assign("storm >>");
+    warning_->assign(SYSTR(wg_storm_label)->c_str());
 
     show_map(pfrm, app.world_graph(), app.world_graph().storm_depth_ - 1);
 
@@ -935,7 +935,7 @@ void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
         if (node.type_ == WorldGraph::Node::Type::exit) {
             exit_label_.emplace(
                 pfrm,
-                "exit",
+                SYSTR(wg_exit)->c_str(),
                 OverlayCoord{u8(node.coord_.x + map_start_x),
                              u8(node.coord_.y + map_start_y - 1)});
         }
