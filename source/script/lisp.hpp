@@ -5,10 +5,10 @@
 // If defined, the system will use fixed pools, and will never call malloc.
 #define UNHOSTED
 #endif
-#define UNHOSTED
 
 
-#ifdef UNHOSTED
+
+#if defined(__GBA__) or defined(__NDS__)
 #define USE_COMPRESSED_PTRS
 #endif
 
@@ -591,17 +591,23 @@ public:
 
 class BasicCharSequence : public CharSequence {
 public:
-    BasicCharSequence(const char* ptr) : ptr_(ptr)
+    BasicCharSequence(const char* ptr) :
+        ptr_(ptr),
+        len_(str_len(ptr))
     {
     }
 
     char operator[](int index) override
     {
+        if (index < 0 or index >= (int)len_) {
+            return '\0';
+        }
         return ptr_[index];
     }
 
 private:
     const char* ptr_;
+    const u32 len_;
 };
 
 
@@ -613,6 +619,9 @@ public:
 
     char operator[](int index) override
     {
+        if (index < 0 or index >= (int)v_.size()) {
+            return '\0';
+        }
         return v_[index];
     }
 

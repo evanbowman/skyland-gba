@@ -27,10 +27,13 @@ rng::Value rng::get(LinearGenerator& gen)
 
 ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
            scratch_buffer_count>
-    scratch_buffer_pool;
+scratch_buffer_pool("sbr");
 
 
-ScratchBufferPtr Platform::make_scratch_buffer()
+GenericPool* GenericPool::instances_;
+
+
+ScratchBufferPtr Platform::make_scratch_buffer(const ScratchBuffer::Tag& tag)
 {
     auto finalizer =
         [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {

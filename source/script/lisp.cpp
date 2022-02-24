@@ -32,6 +32,7 @@ static const u32 string_intern_table_size = 3000;
 #elif defined(__GBA__)
 #define VALUE_POOL_SIZE 9000
 #else
+#define VALUE_POOL_SIZE 200000
 #endif
 
 union ValueMemory {
@@ -1711,13 +1712,40 @@ static u32 read_string(CharSequence& code, int offset)
     auto write = temp->data_;
 
     int i = 0;
-    while (code[offset + i] not_eq '"') {
-        if (code[offset + i] == '\0' or i == SCRATCH_BUFFER_SIZE - 1) {
+    while (true) {
+        const auto current = code[offset + i];
+
+        if (current == '"') {
+            break;
+        }
+
+        if (current == '\0' or i == SCRATCH_BUFFER_SIZE - 1) {
             // FIXME: correct error code.
             push_op(
                 lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
+            return i;
         }
-        *(write++) = code[offset + i++];
+
+        // UTF-8. We need special parsing, in case a utf-8 sequence contains a "
+        // character.
+        const Bitvector<8> parsed(current);
+        if ((current & 0x80) == 0) {
+            *(write++) = code[offset + i++];
+        } else if (parsed[7] == 1 and parsed[6] == 1 and parsed[5] == 0) {
+            *(write++) = code[offset + i++];
+            *(write++) = code[offset + i++];
+        } else if (parsed[7] == 1 and parsed[6] == 1 and parsed[5] == 1 and
+                   parsed[4] == 0) {
+            *(write++) = code[offset + i++];
+            *(write++) = code[offset + i++];
+            *(write++) = code[offset + i++];
+        } else if (parsed[7] == 1 and parsed[6] == 1 and parsed[5] == 1 and
+                   parsed[4] == 1 and parsed[3] == 0) {
+            *(write++) = code[offset + i++];
+            *(write++) = code[offset + i++];
+            *(write++) = code[offset + i++];
+            *(write++) = code[offset + i++];
+        }
     }
 
     if (code[offset + i] == '"') {
@@ -2551,6 +2579,8 @@ static const Binding builtins[] = {
 
          if (get_op0()->type() == Value::Type::nil) {
              return make_integer(0);
+         } else if (get_op0()->type() == Value::Type::string) {
+             return make_integer(utf8::len(get_op0()->string().value()));
          }
 
          L_EXPECT_OP(0, cons);
@@ -3419,7 +3449,7 @@ void init(Platform& pfrm)
     push_op(get_nil());
 
     if (dcompr(compr(get_nil())) not_eq get_nil()) {
-        bound_context->pfrm_.fatal("pointer compression test failed");
+        bound_context->pfrm_.fatal("pointer compression test failed 1");
     }
 
     intern("'");
