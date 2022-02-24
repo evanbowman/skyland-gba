@@ -217,6 +217,24 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               lisp::interp_get_pfrm()->print_memory_diagnostics();
               return L_NIL;
           }},
+         {"readline",
+          [](int argc) {
+              lisp::interp_get_pfrm()->feed_watchdog();
+              auto line = lisp::interp_get_pfrm()->remote_console().readline();
+              if (line) {
+                  return lisp::make_string(*lisp::interp_get_pfrm(),
+                                           line->c_str());
+              }
+              return L_NIL;
+          }},
+         {"printline",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 1);
+              lisp::interp_get_pfrm()
+                  ->remote_console().printline(L_LOAD_STRING(0),
+                                               false);
+              return L_NIL;
+          }},
          {"pools-annotate",
           [](int argc) {
               auto pool = GenericPool::instances();

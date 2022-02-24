@@ -39,6 +39,7 @@ public:
             hub,
             hostile_hidden,
             neutral_hidden,
+            quest_marker,
         } type_;
 
         Vec2<s8> coord_;

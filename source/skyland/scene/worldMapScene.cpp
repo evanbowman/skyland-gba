@@ -358,6 +358,9 @@ void WorldMapScene::render_map_key(Platform& pfrm, App& app)
         text_ = SYSTR(wg_uncharted)->c_str();
         break;
 
+    case WorldGraph::Node::Type::quest_marker:
+        text_ = SYSTR(wg_quest_marker)->c_str();
+
     case WorldGraph::Node::Type::null:
         break;
     }
