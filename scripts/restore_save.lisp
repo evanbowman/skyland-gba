@@ -35,4 +35,6 @@
             (setq enemies-seen (load 'enemies-seen))
             (setq friendlies-seen (load 'friendlies-seen))
 
+            (setq quests (load 'quests))
+
             (setq last-zone (load 'last-zone)))))))

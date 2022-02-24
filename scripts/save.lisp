@@ -14,4 +14,5 @@
  (cons 'enemies-seen enemies-seen)
  (cons 'friendlies-seen friendlies-seen)
  (cons 'last-zone last-zone)
+ (cons 'quests quests)
  (cons 'terrain (terrain (player))))
