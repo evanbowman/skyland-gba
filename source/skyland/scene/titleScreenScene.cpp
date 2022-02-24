@@ -353,14 +353,16 @@ void TitleScreenScene::put_menu_text(Platform& pfrm)
 
     const auto len = utf8::len(buffer.c_str());
 
-    auto margin = centered_text_margins(pfrm, buffer.length());
+    auto margin = centered_text_margins(pfrm, utf8::len(buffer.c_str()));
     text_.emplace(pfrm,
                   buffer.c_str(),
                   OverlayCoord{u8(st.x - (len + margin + 1)),
                                u8(st.y - text_offset(pfrm))});
 
     menu_selection_start_ = margin + 1 + prefix_len + (len % 2 ? 1 : 0);
-    menu_selection_stop_ = margin + 1 + buffer.length() + (len % 2 ? 1 : 0);
+
+    menu_selection_stop_ =
+        margin + 1 + utf8::len(buffer.c_str()) + (len % 2 ? 1 : 0);
 
     pfrm.set_tile(Layer::overlay,
                   menu_selection_start_ - 4,
