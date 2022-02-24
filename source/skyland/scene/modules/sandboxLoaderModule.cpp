@@ -84,14 +84,16 @@ void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     title_.emplace(
         pfrm,
         title.c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title.c_str())), 1});
+        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title.c_str())),
+                     1});
 
     const StringBuffer<32> help = SYSTR(sandbox_prompt)->c_str();
 
     help_.emplace(
         pfrm,
         help.c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(help.c_str())), 18});
+        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(help.c_str())),
+                     18});
 
     if (not parameters_.full()) {
         for (u32 i = 0; i < parameters_.capacity(); ++i) {

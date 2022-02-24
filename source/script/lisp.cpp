@@ -2380,7 +2380,6 @@ Platform* interp_get_pfrm()
 }
 
 
-
 bool is_equal(Value* lhs, Value* rhs)
 {
     if (lhs->type() not_eq rhs->type()) {
@@ -2389,17 +2388,13 @@ bool is_equal(Value* lhs, Value* rhs)
 
     switch (lhs->type()) {
     case Value::Type::integer:
-        return lhs->integer().value_ ==
-            rhs->integer().value_;
+        return lhs->integer().value_ == rhs->integer().value_;
 
     case Value::Type::cons:
         // FIXME: this is problematic for large lists! Or datastructures with
         // cycles. Mainly intended for comparing single cons-cells.
-        return
-            is_equal(lhs->cons().car(),
-                     rhs->cons().car()) and
-            is_equal(lhs->cons().cdr(),
-                     rhs->cons().cdr());
+        return is_equal(lhs->cons().car(), rhs->cons().car()) and
+               is_equal(lhs->cons().cdr(), rhs->cons().cdr());
 
     case Value::Type::count:
     case Value::Type::__reserved:
@@ -2417,16 +2412,13 @@ bool is_equal(Value* lhs, Value* rhs)
         return lhs->symbol().name_ == rhs->symbol().name_;
 
     case Value::Type::user_data:
-        return lhs->user_data().obj_ ==
-            rhs->user_data().obj_;
+        return lhs->user_data().obj_ == rhs->user_data().obj_;
 
     case Value::Type::string:
-        return str_cmp(lhs->string().value(),
-                       rhs->string().value()) == 0;
+        return str_cmp(lhs->string().value(), rhs->string().value()) == 0;
     }
     return false;
 }
-
 
 
 static const Binding builtins[] = {
@@ -3440,8 +3432,7 @@ void init(Platform& pfrm)
 
 void load_module(Module* module)
 {
-    Protected buffer(make_databuffer(bound_context->pfrm_,
-                                     "lisp-module"));
+    Protected buffer(make_databuffer(bound_context->pfrm_, "lisp-module"));
     Protected zero(make_integer(0));
 
     Protected bytecode(make_cons(zero, buffer));

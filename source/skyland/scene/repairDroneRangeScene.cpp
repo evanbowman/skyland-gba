@@ -23,9 +23,8 @@ RepairDroneRangeScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (not description_) {
-        description_.emplace(pfrm,
-                             SYSTR(repair_range)->c_str(),
-                             OverlayCoord{0, 19});
+        description_.emplace(
+            pfrm, SYSTR(repair_range)->c_str(), OverlayCoord{0, 19});
 
         for (int i = 0; i < description_->len(); ++i) {
             pfrm.set_tile(Layer::overlay, i, 18, 425);

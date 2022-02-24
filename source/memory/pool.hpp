@@ -13,7 +13,6 @@
 
 class GenericPool {
 public:
-
     GenericPool(const char* name) : name_(name)
     {
         next_ = instances_;
@@ -110,9 +109,7 @@ public:
     }
 
 
-    Pool(const char* name) :
-        GenericPool(name),
-        freelist_(nullptr)
+    Pool(const char* name) : GenericPool(name), freelist_(nullptr)
     {
 #ifdef POOL_USE_HEAP
         cells_.resize(count);
@@ -207,8 +204,7 @@ public:
         }
     }
 
-    ObjectPool(const char* name) :
-        pool_(name)
+    ObjectPool(const char* name) : pool_(name)
     {
     }
 

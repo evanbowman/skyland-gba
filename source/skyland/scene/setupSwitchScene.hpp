@@ -1,12 +1,12 @@
 #pragma once
 
 
-#include "worldScene.hpp"
-#include "skyland/player/player.hpp"
-#include "skyland/island.hpp"
 #include "globals.hpp"
 #include "readyScene.hpp"
+#include "skyland/island.hpp"
+#include "skyland/player/player.hpp"
 #include "skyland/rooms/switch.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -16,9 +16,8 @@ namespace skyland {
 
 class SetupSwitchScene : public ActiveWorldScene {
 public:
-
-    SetupSwitchScene(const Vec2<u8>& switch_location) :
-        switch_location_(switch_location)
+    SetupSwitchScene(const Vec2<u8>& switch_location)
+        : switch_location_(switch_location)
     {
     }
 
@@ -27,9 +26,8 @@ public:
     {
         ActiveWorldScene::enter(pfrm, app, prev);
 
-        text_.emplace(pfrm,
-                      SYSTR(switch_connect_on)->c_str(),
-                      OverlayCoord{0, 19});
+        text_.emplace(
+            pfrm, SYSTR(switch_connect_on)->c_str(), OverlayCoord{0, 19});
 
         auto st = calc_screen_tiles(pfrm);
 
@@ -48,9 +46,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
             return next;
@@ -62,23 +59,19 @@ public:
             cursor_anim_frame_ = not cursor_anim_frame_;
         }
 
-        auto test_key =
-            [&](Key k) {
-                return player(app)
-                    .test_key(pfrm,
-                              k,
-                              milliseconds(500),
-                              milliseconds(100));
-            };
+        auto test_key = [&](Key k) {
+            return player(app).test_key(
+                pfrm, k, milliseconds(500), milliseconds(100));
+        };
 
         player(app).key_held_distribute(pfrm);
 
-        auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
-
             }
         } else if (test_key(Key::right)) {
             if (cursor_loc.x < player_island(app).terrain().size()) {
@@ -166,7 +159,8 @@ public:
 
 private:
     enum class State {
-        pick_first, pick_second,
+        pick_first,
+        pick_second,
     } state_ = State::pick_first;
 
     std::optional<Text> text_;
@@ -176,9 +170,8 @@ private:
     Microseconds cursor_anim_timer_ = 0;
 
     bool cursor_anim_frame_ = false;
-
 };
 
 
 
-}
+} // namespace skyland

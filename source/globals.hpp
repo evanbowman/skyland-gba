@@ -50,9 +50,8 @@ struct SkylandGlobalData {
     bool coop_cursor_near_ = true;
     u8 coop_cursor_icon_ = 15;
 
-    SkylandGlobalData() :
-        scene_pool_("scenes"),
-        entity_node_pool_("entity-list-node")
+    SkylandGlobalData()
+        : scene_pool_("scenes"), entity_node_pool_("entity-list-node")
     {
     }
 };

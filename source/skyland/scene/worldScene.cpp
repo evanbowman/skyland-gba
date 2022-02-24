@@ -167,8 +167,7 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (not app.surrender_offered() and
             app.game_mode() == App::GameMode::adventure) {
             if (not app.player_island().is_boarded() and
-                o->offensive_capabilities() == 0 and
-                o->character_count() and
+                o->offensive_capabilities() == 0 and o->character_count() and
                 o->projectiles().empty()) {
 
                 app.surrender_offered() = true;

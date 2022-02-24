@@ -10,6 +10,7 @@
 #include "lispReplScene.hpp"
 #include "modifierKeyHintScene.hpp"
 #include "platform/platform.hpp"
+#include "playerIslandDestroyedScene.hpp"
 #include "salvageDroneScene.hpp"
 #include "salvageRoomScene.hpp"
 #include "skyland/rooms/cargoBay.hpp"
@@ -19,7 +20,6 @@
 #include "skyland/skyland.hpp"
 #include "startMenuScene.hpp"
 #include "worldScene.hpp"
-#include "playerIslandDestroyedScene.hpp"
 
 
 
@@ -199,11 +199,11 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (exit_cond == App::ExitCondition::misc) {
             return scene_pool::alloc<FadeOutScene>();
         } else if (exit_cond == App::ExitCondition::victory) {
-            return scene_pool::alloc<PlayerIslandDestroyedScene>(app.opponent_island(),
-                                                                 true);
+            return scene_pool::alloc<PlayerIslandDestroyedScene>(
+                app.opponent_island(), true);
         } else if (exit_cond == App::ExitCondition::defeat) {
-            return scene_pool::alloc<PlayerIslandDestroyedScene>(&app.player_island(),
-                                                                 true);
+            return scene_pool::alloc<PlayerIslandDestroyedScene>(
+                &app.player_island(), true);
         }
     }
 

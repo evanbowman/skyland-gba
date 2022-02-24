@@ -87,9 +87,8 @@ void PlaceDroneScene::enter(Platform& pfrm, App& app, Scene& prev)
         far_camera();
     }
 
-    message_.emplace(pfrm,
-                     SYSTR(drone_position_prompt)->c_str(),
-                     OverlayCoord{0, 19});
+    message_.emplace(
+        pfrm, SYSTR(drone_position_prompt)->c_str(), OverlayCoord{0, 19});
 
     for (int i = 0; i < message_->len(); ++i) {
         pfrm.set_tile(Layer::overlay, i, 18, 425);

@@ -58,23 +58,19 @@ void ModifierKeyHintScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm,
         title->c_str(),
         OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title->c_str())),
-                         4});
+                     4});
 
-    text_.emplace_back(pfrm,
-                       SYSTR(modifier_keys_opt_1)->c_str(),
-                       OverlayCoord{7, 7});
+    text_.emplace_back(
+        pfrm, SYSTR(modifier_keys_opt_1)->c_str(), OverlayCoord{7, 7});
 
-    text_.emplace_back(pfrm,
-                       SYSTR(modifier_keys_opt_2)->c_str(),
-                       OverlayCoord{7, 9});
+    text_.emplace_back(
+        pfrm, SYSTR(modifier_keys_opt_2)->c_str(), OverlayCoord{7, 9});
 
-    text_.emplace_back(pfrm,
-                       SYSTR(modifier_keys_opt_3)->c_str(),
-                       OverlayCoord{7, 11});
+    text_.emplace_back(
+        pfrm, SYSTR(modifier_keys_opt_3)->c_str(), OverlayCoord{7, 11});
 
-    text_.emplace_back(pfrm,
-                       SYSTR(modifier_keys_opt_4)->c_str(),
-                       OverlayCoord{7, 13});
+    text_.emplace_back(
+        pfrm, SYSTR(modifier_keys_opt_4)->c_str(), OverlayCoord{7, 13});
 
     pfrm.screen().schedule_fade(0.5f);
 }

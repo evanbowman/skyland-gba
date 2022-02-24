@@ -1,9 +1,9 @@
 #pragma once
 
 #include "graphics/overlay.hpp"
+#include "platform/platform.hpp"
 #include "skyland/scene.hpp"
 #include "skyland/scene_pool.hpp"
-#include "platform/platform.hpp"
 #include "skyland/systemString.hpp"
 #include "startMenuScene.hpp"
 
@@ -15,14 +15,10 @@ namespace skyland {
 
 class HibernateScene : public Scene {
 public:
-
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         text_.emplace(pfrm);
-        text_->assign(SYSTR(misc_hibernate_message)->c_str(),
-                      {1, 4},
-                      {28, 8});
+        text_->assign(SYSTR(misc_hibernate_message)->c_str(), {1, 4}, {28, 8});
     }
 
 
@@ -32,7 +28,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         timer_ += delta;
 
@@ -54,4 +51,4 @@ private:
 
 
 
-}
+} // namespace skyland

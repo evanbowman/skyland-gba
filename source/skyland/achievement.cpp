@@ -75,9 +75,7 @@ static const AchievementInfo info[Achievement::count] = {
     {"dynamite",
      "Complete any challenge level!",
      "dynamite",
-     [](Platform&, App& app) {
-         return app.gp_.challenge_flags_ not_eq 0;
-     },
+     [](Platform&, App& app) { return app.gp_.challenge_flags_ not_eq 0; },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[maestro_1].reward_), awarded);
      }},

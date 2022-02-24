@@ -4,8 +4,8 @@
 #include "rewindScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "swapOverlayTextureScene.hpp"
 #include "skyland/systemString.hpp"
+#include "swapOverlayTextureScene.hpp"
 
 
 
@@ -13,8 +13,7 @@ namespace skyland {
 
 
 
-static const SystemStringBuffer gamespeed_text(Platform& pfrm,
-                                               GameSpeed speed)
+static const SystemStringBuffer gamespeed_text(Platform& pfrm, GameSpeed speed)
 {
     switch (speed) {
     case GameSpeed::stopped:

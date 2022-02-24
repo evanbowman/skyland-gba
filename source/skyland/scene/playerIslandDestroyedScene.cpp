@@ -114,8 +114,7 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
         fmt += stringify(app.player().rooms_built_);
         fmt += "/";
         fmt += stringify(app.player().rooms_lost_);
-        print_metric_impl(SYSTR(level_complete_rooms)->c_str(),
-                          fmt.c_str());
+        print_metric_impl(SYSTR(level_complete_rooms)->c_str(), fmt.c_str());
         break;
     }
 }
@@ -460,7 +459,6 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
             }
-
         }
 
         pfrm.speaker().set_music_volume(12);

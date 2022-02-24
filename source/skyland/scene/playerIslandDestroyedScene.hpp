@@ -28,7 +28,6 @@ class Island;
 
 class PlayerIslandDestroyedScene : public WorldScene {
 public:
-
     enum class AnimState {
         init,
         explosion_wait1,
@@ -45,16 +44,14 @@ public:
     };
 
 
-    PlayerIslandDestroyedScene(Island* island)
-        : island_(island)
+    PlayerIslandDestroyedScene(Island* island) : island_(island)
     {
     }
 
 
     // Skip the explosion and just display the victory/defeat screen. TODO:
     // split this class into two scenes.
-    PlayerIslandDestroyedScene(Island* island, bool victory)
-        : island_(island)
+    PlayerIslandDestroyedScene(Island* island, bool victory) : island_(island)
     {
         if (victory) {
             anim_state_ = AnimState::level_exit_forced;

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "worldScene.hpp"
-#include "skyland/skyland.hpp"
 #include "readyScene.hpp"
+#include "skyland/skyland.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -12,9 +12,8 @@ namespace skyland {
 
 class SurrenderWaitScene : public WorldScene {
 public:
-
-
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (auto next = WorldScene::update(pfrm, app, delta)) {
             return next;
@@ -41,4 +40,4 @@ private:
 
 
 
-}
+} // namespace skyland

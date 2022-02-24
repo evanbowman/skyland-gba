@@ -225,7 +225,8 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
                   *pfrm, "pool-annotation-buffer");
 
               *output += "        name        |   size  |  total  |  used \r\n";
-              *output += "____________________|_________|_________|________\r\n";
+              *output +=
+                  "____________________|_________|_________|________\r\n";
               *output += "                    |         |         |";
               *output += "\r\n";
 
@@ -246,15 +247,18 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
                   auto elem_count_str = stringify(pool->pooled_element_count());
                   if (elem_count_str.length() < 7) {
-                      *output += StringBuffer<7>(' ', 7 - elem_count_str.length());
+                      *output +=
+                          StringBuffer<7>(' ', 7 - elem_count_str.length());
                   }
                   *output += elem_count_str;
                   *output += " | ";
 
-                  auto remaining_str = stringify(pool->pooled_element_count() -
-                                                 pool->pooled_element_remaining());
+                  auto remaining_str =
+                      stringify(pool->pooled_element_count() -
+                                pool->pooled_element_remaining());
                   if (remaining_str.length() < 7) {
-                      *output += StringBuffer<7>(' ', 7 - remaining_str.length());
+                      *output +=
+                          StringBuffer<7>(' ', 7 - remaining_str.length());
                   }
                   *output += remaining_str;
                   *output += "\r\n";
@@ -891,7 +895,8 @@ static const lisp::Binding script_api[] = {
      [](int argc) {
          if (argc == 1) {
              L_EXPECT_OP(0, integer);
-             interp_get_app()->exit_condition() = (App::ExitCondition)L_LOAD_INT(0);
+             interp_get_app()->exit_condition() =
+                 (App::ExitCondition)L_LOAD_INT(0);
          } else {
              interp_get_app()->exit_condition() = App::ExitCondition::misc;
          }
@@ -916,9 +921,7 @@ static const lisp::Binding script_api[] = {
          return L_NIL;
      }},
     {"coins-victory",
-     [](int argc) {
-         return L_INT(interp_get_app()->victory_coins());
-     }},
+     [](int argc) { return L_INT(interp_get_app()->victory_coins()); }},
     {"eval-file",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);
@@ -1186,9 +1189,9 @@ static const lisp::Binding script_api[] = {
          lisp::ListBuilder builder;
          for (auto& node : interp_get_app()->world_graph().nodes_) {
              if (node.type_ not_eq WorldGraph::Node::Type::null) {
-                 builder.push_back(L_CONS(L_INT((int)node.type_),
-                                          L_CONS(L_INT(node.coord_.x),
-                                                 L_INT(node.coord_.y))));
+                 builder.push_back(L_CONS(
+                     L_INT((int)node.type_),
+                     L_CONS(L_INT(node.coord_.x), L_INT(node.coord_.y))));
              }
          }
          return builder.result();
@@ -1220,8 +1223,7 @@ static const lisp::Binding script_api[] = {
              app->world_graph().nodes_[app->current_world_location()];
 
          return L_CONS(L_INT(app->zone() - 1),
-                       L_CONS(L_INT(node.coord_.x),
-                              L_INT(node.coord_.y)));
+                       L_CONS(L_INT(node.coord_.x), L_INT(node.coord_.y)));
      }},
     {"emit", [](int argc) {
          L_EXPECT_ARGC(argc, 6);

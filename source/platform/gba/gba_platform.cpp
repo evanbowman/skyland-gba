@@ -2286,7 +2286,7 @@ void Platform::Screen::pixelate(u8 amount,
 static ObjectPool<PooledRcControlBlock<Platform::DynamicTexture,
                                        Platform::dynamic_texture_count>,
                   Platform::dynamic_texture_count>
-dynamic_texture_pool("dynamic-texture-pool");
+    dynamic_texture_pool("dynamic-texture-pool");
 
 
 void Platform::DynamicTexture::remap(u16 spritesheet_offset)
@@ -3592,10 +3592,9 @@ Platform::Speaker::Speaker()
 
 void Platform::hibernate()
 {
-    REG_KEYCNT =
-        KEY_SELECT | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
+    REG_KEYCNT = KEY_SELECT | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
 
-    irqSet(IRQ_KEYPAD, []{});
+    irqSet(IRQ_KEYPAD, [] {});
 
     Stop();
 
@@ -3652,7 +3651,7 @@ static const bool use_optimized_waitstates = true;
 static EWRAM_DATA
     ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
                scratch_buffer_count>
-scratch_buffer_pool("scratch-buffers");
+        scratch_buffer_pool("scratch-buffers");
 
 
 
@@ -3690,7 +3689,8 @@ int Platform::print_memory_diagnostics()
                       buffer_num,
                       buffer_num * 2,
                       free_sbr,
-                      free_sbr * 2).c_str();
+                      free_sbr * 2)
+                   .c_str();
 
     ::platform->remote_console().printline(output->c_str());
 
@@ -4915,11 +4915,10 @@ struct MultiplayerComms {
     RxInfo* poller_current_message = nullptr;
 
 
-    MultiplayerComms() :
-        tx_message_pool("transmit-packet-pool"),
-        rx_message_pool("receive-packet-pool")
+    MultiplayerComms()
+        : tx_message_pool("transmit-packet-pool"),
+          rx_message_pool("receive-packet-pool")
     {
-
     }
 };
 
