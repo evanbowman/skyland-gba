@@ -119,7 +119,12 @@ void set_font_image(const char* font_image_name)
 
 
 std::optional<Platform::TextureMapping>
-standard_texture_map(const utf8::Codepoint& cp)
+extended_charset_map(const utf8::Codepoint& cp);
+
+
+
+std::optional<Platform::TextureMapping>
+standard_charset_map(const utf8::Codepoint& cp)
 {
     auto mapping = [&]() -> std::optional<u16> {
         switch (cp) {
@@ -285,30 +290,6 @@ standard_texture_map(const utf8::Codepoint& cp)
         case UTF8_GETCHR(u8"я"): return 2148;
         case UTF8_GETCHR(u8"ё"): return 87;
 
-
-        // A small number of tiny Chinese glyphs. We don't use too many, because
-        // they're difficult to read at this size.
-        case UTF8_GETCHR(u8"分"): return 1807;
-        case UTF8_GETCHR(u8"数"): return 1808;
-        case UTF8_GETCHR(u8"层"): return 1809;
-        case UTF8_GETCHR(u8"物"): return 1810;
-        case UTF8_GETCHR(u8"品"): return 1811;
-        case UTF8_GETCHR(u8"收"): return 1812;
-        case UTF8_GETCHR(u8"集"): return 1813;
-        case UTF8_GETCHR(u8"程"): return 1814;
-        case UTF8_GETCHR(u8"度"): return 1815;
-        case UTF8_GETCHR(u8"章"): return 1816;
-        case UTF8_GETCHR(u8"节"): return 1817;
-        case UTF8_GETCHR(u8"时"): return 1818;
-        case UTF8_GETCHR(u8"间"): return 1819;
-        case UTF8_GETCHR(u8"一"): return 1828;
-        case UTF8_GETCHR(u8"二"): return 1829;
-        case UTF8_GETCHR(u8"三"): return 1830;
-        case UTF8_GETCHR(u8"四"): return 1831;
-        case UTF8_GETCHR(u8"英"): return 1836;
-        case UTF8_GETCHR(u8"尺"): return 1837;
-        case UTF8_GETCHR(u8"米"): return 2070;
-
             // clang-format on
 
         default:
@@ -318,7 +299,7 @@ standard_texture_map(const utf8::Codepoint& cp)
     if (mapping) {
         return Platform::TextureMapping{font_image, *mapping};
     } else {
-        return {};
+        return extended_charset_map(cp);
     }
 }
 
@@ -1075,7 +1056,7 @@ static int language_id = 0;
 
 Platform::TextureCpMapper locale_texture_map()
 {
-    return standard_texture_map;
+    return standard_charset_map;
 }
 
 

@@ -76,6 +76,7 @@ set(SOURCES
   ${SOURCE_DIR}/number/random.cpp
   ${SOURCE_DIR}/graphics/view.cpp
   ${SOURCE_DIR}/localization.cpp
+  ${SOURCE_DIR}/localization_extended.cpp
   ${SOURCE_DIR}/memory/pool.cpp
   ${SOURCE_DIR}/collision.cpp
   ${SOURCE_DIR}/tileMap.cpp
@@ -279,6 +280,8 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/hint_plunder.s
     ${DATA_DIR}/hint_damaged_core.s
     ${DATA_DIR}/charset.s
+    ${DATA_DIR}/charset_extended_0.s
+    ${DATA_DIR}/charset_extended_1.s
     ${DATA_DIR}/tilesheet.s
     ${DATA_DIR}/tilesheet_enemy_0.s
     ${DATA_DIR}/tilesheet_enemy_0_interior.s
@@ -568,6 +571,8 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_overlay(overlay_dialog_fullscreen 0 0 NO NO)
     add_overlay(overlay_skyland_title 0 0 NO NO)
     add_overlay(charset 0 0 NO NO)
+    add_overlay(charset_extended_0 0 0 NO NO)
+    add_overlay(charset_extended_1 0 0 NO NO)
     add_overlay(overlay_world_map 0 0 NO NO)
     add_overlay(overlay_island_destroyed 0 0 NO NO)
     add_overlay(overlay_challenges 0 0 NO NO)

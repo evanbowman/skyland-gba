@@ -61,6 +61,10 @@
 //;
 #include "data/charset.h"
 //;
+#include "data/charset_extended_0.h"
+//;
+#include "data/charset_extended_1.h"
+//;
 #include "data/overlay_world_map.h"
 //;
 #include "data/overlay_island_destroyed.h"
@@ -147,6 +151,10 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(overlay_skyland_title),
 //;
     TEXTURE_INFO(charset),
+//;
+    TEXTURE_INFO(charset_extended_0),
+//;
+    TEXTURE_INFO(charset_extended_1),
 //;
     TEXTURE_INFO(overlay_world_map),
 //;
