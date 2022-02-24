@@ -19,32 +19,31 @@ void prep_level(Platform& pfrm, App& app);
 
 const SandboxLoaderModule::ParameterInfo
     SandboxLoaderModule::param_info[decltype(parameters_)::capacity()] = {
-        {"coins", 1000, 1000, 100000000},
-        {"terrain size", 1, 4, 13},
-        {"music", 1, 0, 1}};
+        {SystemString::sandbox_coins, 1000, 1000, 100000000},
+        {SystemString::sandbox_terrain_size, 1, 4, 13},
+        {SystemString::sandbox_music, 1, 0, 1}};
 
 
 
-void SandboxLoaderModule::update_parameter(u8 line_num)
+void SandboxLoaderModule::update_parameter(Platform& pfrm, u8 line_num)
 {
     if (line_num >= parameters_.capacity()) {
         return;
     }
 
     StringBuffer<28> temp;
-    temp += param_info[line_num].name_;
+    temp += loadstr(pfrm, param_info[line_num].name_)->c_str();
     temp += " ";
 
     const bool is_boolean_field = param_info[line_num].lower_limit_ == 0 and
                                   param_info[line_num].upper_limit_ == 1;
 
+
+    auto boolean_field_str = parameters_[line_num] ? SYSTR(yes) : SYSTR(no);
+
     auto int_text_len = integer_text_length(parameters_[line_num]);
     if (is_boolean_field) {
-        if (parameters_[line_num]) {
-            int_text_len = utf8::len("yes");
-        } else {
-            int_text_len = utf8::len("no");
-        }
+        int_text_len = utf8::len(boolean_field_str->c_str());
     }
 
     for (u32 i = temp.length(); i < 28 - int_text_len - 2; ++i) {
@@ -56,7 +55,7 @@ void SandboxLoaderModule::update_parameter(u8 line_num)
     }
 
     if (is_boolean_field) {
-        temp += parameters_[line_num] ? "yes" : "no";
+        temp += boolean_field_str->c_str();
     } else {
         temp += stringify(parameters_[line_num]);
     }
@@ -78,21 +77,21 @@ void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.system_call("v-parallax", (void*)false);
 
 
-    const char* title = "Sandbox Settings";
+    const StringBuffer<32> title = SYSTR(sandbox_title)->c_str();
 
     pfrm.load_overlay_texture("overlay_challenges");
 
     title_.emplace(
         pfrm,
-        title,
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(title)), 1});
+        title.c_str(),
+        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title.c_str())), 1});
 
-    const char* help = "Press A to begin";
+    const StringBuffer<32> help = SYSTR(sandbox_prompt)->c_str();
 
     help_.emplace(
         pfrm,
-        help,
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(title)), 18});
+        help.c_str(),
+        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(help.c_str())), 18});
 
     if (not parameters_.full()) {
         for (u32 i = 0; i < parameters_.capacity(); ++i) {
@@ -110,7 +109,7 @@ void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     for (u32 i = 0; i < parameters_.capacity(); ++i) {
-        update_parameter(i);
+        update_parameter(pfrm, i);
     }
 }
 
@@ -202,7 +201,7 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
                 parameters_[cursor_] += param_info[cursor_].increment_ * 9;
             }
         }
-        update_parameter(cursor_);
+        update_parameter(pfrm, cursor_);
         app.player().key_held_reset(Key::right, milliseconds(80));
     }
 
@@ -215,7 +214,7 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
         if (parameters_[cursor_] < param_info[cursor_].lower_limit_) {
             parameters_[cursor_] = param_info[cursor_].lower_limit_;
         }
-        update_parameter(cursor_);
+        update_parameter(pfrm, cursor_);
         app.player().key_held_reset(Key::left, milliseconds(80));
 
         if (long_hold_time_[0] > milliseconds(2000)) {

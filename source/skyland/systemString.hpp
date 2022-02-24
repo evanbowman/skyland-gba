@@ -174,6 +174,7 @@ enum class SystemString {
 
     reset_sandbox_query,
     yes,
+    no,
     exit,
 
     switch_connect_on,
@@ -193,6 +194,12 @@ enum class SystemString {
     wg_title,
     wg_storm_label,
     wg_exit,
+
+    sandbox_coins,
+    sandbox_terrain_size,
+    sandbox_music,
+    sandbox_title,
+    sandbox_prompt,
 
     dialog_tutorial_prompt,
 

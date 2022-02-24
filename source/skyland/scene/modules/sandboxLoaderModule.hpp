@@ -49,7 +49,7 @@ public:
 
 
 private:
-    void update_parameter(u8 line_num);
+    void update_parameter(Platform& pfrm, u8 line_num);
 
     u32 cursor_ = 0;
 
@@ -59,7 +59,7 @@ private:
     std::optional<Text> help_;
 
     struct ParameterInfo {
-        const char* name_;
+        SystemString name_;
         int increment_;
         int lower_limit_;
         int upper_limit_;
