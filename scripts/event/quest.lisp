@@ -3,5 +3,5 @@
 ;;;
 
 
-;; TODO: implement quest levels!
-(eval-file "/scripts/event/neutral.lisp")
+(eval-file
+ (string "/scripts/event/quest/" 0 ".lisp"))

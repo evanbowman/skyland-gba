@@ -22,7 +22,7 @@ namespace skyland {
 
 
 
-static const auto node_death_sequence_time = seconds(2);
+static const auto node_death_sequence_time = milliseconds(1500);
 
 
 
@@ -416,6 +416,9 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::right) or
             app.player().key_down(pfrm, Key::left)) {
             to_move_state();
+        }
+        if (app.player().key_down(pfrm, Key::down)) {
+            state_ = State::save_selected;
         }
         break;
 

@@ -283,7 +283,7 @@ Synth* Speaker::square_1() const
 
 
 
-Synth* Speaker::noise() const
+Synth* Speaker::wave() const
 {
     u8 x = position().x + 4;
     u8 y = position().y;
@@ -339,7 +339,7 @@ Synth* Speaker::square_2() const
 
 
 
-Synth* Speaker::wave() const
+Synth* Speaker::noise() const
 {
     u8 x = position().x + 3;
     u8 y = position().y;

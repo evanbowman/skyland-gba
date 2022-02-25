@@ -2,6 +2,8 @@
 ;;; storm_king.lisp
 ;;;
 
+(eval-file "/scripts/reset_hooks.lisp")
+
 
 (dialog
  "The storm overtakes your castle... A massive fortress emerges from the tempest... There is little hope of survival...")

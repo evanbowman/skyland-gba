@@ -10,5 +10,5 @@
     (if (chr-slots (player))
         (eval-file (string p "crew.lisp"))))
    (true
-    (if (choice 3)
+    (if (equal 0 (choice 3))
         (dialog "<c:goblin pirates:2>You pessky humannss! We'll never surrender to the likess of you!")))))
