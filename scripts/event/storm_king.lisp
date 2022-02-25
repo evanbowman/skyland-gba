@@ -11,7 +11,7 @@
 
 (setq on-fadein
       (lambda
-        (dialog "<c:storm king:4>Mwhahaha... prepare to... die!!!")))
+        (dialog "<c:storm king:4> . . .")))
 
 
 
