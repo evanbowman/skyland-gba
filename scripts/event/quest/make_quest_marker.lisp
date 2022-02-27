@@ -27,11 +27,22 @@
                       (+ 4 (car (cdr (car c))))
                     4))))
             (wg-nodes))))
+
     (if (> (length n) 4)
-        (let ((n (get n (choice (length n)))))
-          (wg-node-set
-           (car (cdr n))
-           (cdr (cdr n))
-           10)
-          n)
+        (progn
+          (setq n (sort
+                   n
+                   (lambda
+                     ;; Sort by manhattan length from current coord,
+                     ;; descending.
+                     (> (+ (abs (- (car (cdr $0)) (car (cdr p))))
+                           (abs (- (cdr (cdr $0)) (cdr (cdr p)))))
+                        (+ (abs (- (car (cdr $1)) (car (cdr p))))
+                           (abs (- (cdr (cdr $1)) (cdr (cdr p)))))))))
+          (let ((n (get n (choice 3))))
+            (wg-node-set
+             (car (cdr n))
+             (cdr (cdr n))
+             10)
+            n))
       nil)))

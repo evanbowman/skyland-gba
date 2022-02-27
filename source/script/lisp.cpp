@@ -2505,6 +2505,12 @@ static const Binding builtins[] = {
          L_EXPECT_OP(0, integer);
          return get_arg(get_op0()->integer().value_);
      }},
+    {"abs",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+         return make_integer(abs(L_LOAD_INT(0)));
+     }},
     {"not",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);

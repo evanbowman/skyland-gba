@@ -15,5 +15,5 @@
                 quests)))
     (if found
         (progn
-          (eval-file (car found)))
+          (eval-file (car (car found))))
       (syscall "fatal" "invalid quest marker!"))))
