@@ -124,7 +124,7 @@ set weapon groups
 weapon group 1
 weapon group 2
 weapon group 3
-shortcut:
+shortcut: 
 time
 pauses used
 coins spent
