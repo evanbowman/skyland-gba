@@ -207,6 +207,14 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               lisp::interp_get_pfrm()->screen().clear();
               return L_NIL;
           }},
+         {"sound",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 1);
+              L_EXPECT_OP(0, string);
+              lisp::interp_get_pfrm()->speaker().play_sound(L_LOAD_STRING(0),
+                                                            0);
+              return L_NIL;
+          }},
          {"display",
           [](int argc) {
               lisp::interp_get_pfrm()->screen().display();
@@ -1242,6 +1250,45 @@ static const lisp::Binding script_api[] = {
 
          return L_CONS(L_INT(app->zone() - 1),
                        L_CONS(L_INT(node.coord_.x), L_INT(node.coord_.y)));
+     }},
+    {"construction-sites",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, user_data);
+         L_EXPECT_OP(0, cons);
+
+         const int sx = lisp::get_op(0)->cons().car()->integer().value_;
+         const int sy = lisp::get_op(0)->cons().cdr()->integer().value_;
+
+         auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+
+         auto matrix = allocate_dynamic<bool[16][16]>(*lisp::interp_get_pfrm(),
+                                                      "construction-zones");
+
+         island->plot_construction_zones(*matrix);
+
+         lisp::ListBuilder builder;
+
+         for (int x = 0; x < 16; ++x) {
+             for (int y = 0; y < 15; ++y) {
+                 if ((*matrix)[x][y] and y - (sy - 1) > 0) {
+                     bool has_space = true;
+                     for (int xx = 0; xx < sx and x + xx < 16; ++xx) {
+                         for (int yy = 0; yy < sy and y - yy > 0; ++yy) {
+                             if (island->rooms_plot().get(x + xx, y - yy)) {
+                                 has_space = false;
+                             }
+                         }
+                     }
+                     if (has_space) {
+                         builder.push_back(L_CONS(L_INT(x),
+                                                  L_INT(y - (sy - 1))));
+                     }
+                 }
+             }
+         }
+
+         return builder.result();
      }},
     {"emit", [](int argc) {
          L_EXPECT_ARGC(argc, 6);

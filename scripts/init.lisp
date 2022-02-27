@@ -47,5 +47,3 @@
 
 (defn/c zone
   (car (wg-pos)))
-
-(setq surrender-hint '())

@@ -223,6 +223,8 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
 
         if (cp == '@') {
             pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 146);
+        } else if (cp == '*') {
+            pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 149);
         } else {
             pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), t);
         }

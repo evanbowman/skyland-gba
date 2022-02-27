@@ -116,23 +116,23 @@
 
 
 (defn/c merge
-  (if (not $0)
-      $1
-    (if (not $1)
-        $0
-      (if (< (car $0) (car $1))
-          (cons (car $0) ((this) (cdr $0) $1))
-        (cons (car $1) ((this) $0 (cdr $1)))))))
+  (cond
+   ((not $0) $1)
+   ((not $1) $0)
+   (($2 (car $0) (car $1))
+    (cons (car $0) ((this) (cdr $0) $1 $2)))
+   (true (cons (car $1) ((this) $0 (cdr $1) $2)))))
 
 
 (defn/c sort
   (if (not (cdr $0))
       $0
     (let ((temp (bisect $0)))
-      (merge (sort (car temp))
-             (sort (cdr temp))))))
+      (merge (sort (car temp) $1)
+             (sort (cdr temp) $1)
+             $1))))
 
 
 ;; While suboptimal, these functions have the benefit of being small.
-(defn/c min (car (sort $0)))
-(defn/c max (car (reverse (sort $0))))
+(defn/c min (car (sort $0 <)))
+(defn/c max (car (sort $0 >)))

@@ -64,6 +64,8 @@ private:
 
     bool move_arrow_sel_[3] = {false, true, false};
 
+    void redraw_icons(Platform& pfrm);
+
     int cursor_ = 0;
     u8 cursor_keyframe_ = 0;
     Microseconds cursor_anim_timer_ = 0;

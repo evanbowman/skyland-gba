@@ -130,6 +130,17 @@ o----------------------------o
 
 o----------------------------o
 
+ (construction-sites
+  island
+  room-size-x/y-pair)
+
+ List all coordinates on
+ island where room of size
+ '(x . y) may be constructed.
+
+
+o----------------------------o
+
  (dialog strings ...)
 
  Composes a dialog message

@@ -308,6 +308,15 @@ static const int map_start_y = 3;
 
 
 
+void WorldMapScene::redraw_icons(Platform& pfrm)
+{
+    save_icon_.emplace(pfrm, 126, OverlayCoord{27, 17});
+    help_icon_.emplace(pfrm, 134, OverlayCoord{21, 17});
+    settings_icon_.emplace(pfrm, 142, OverlayCoord{24, 17});
+}
+
+
+
 void WorldMapScene::render_map_key(Platform& pfrm, App& app)
 {
     StringBuffer<32> text_ = "error";
@@ -369,6 +378,11 @@ void WorldMapScene::render_map_key(Platform& pfrm, App& app)
         map_key_.emplace(pfrm, OverlayCoord{11, 18});
     }
     map_key_->assign(text_.c_str());
+
+    // NOTE: bugfix for icons disappearing when changing text that covers icons.
+    redraw_icons(pfrm);
+    map_key_->assign(text_.c_str());
+
     update_storm_frontier(pfrm, app.world_graph(), 0);
 }
 
@@ -549,6 +563,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::down)) {
             state_ = State::save_selected;
             map_key_.reset();
+            redraw_icons(pfrm);
             update_storm_frontier(pfrm, app.world_graph(), 0);
             break;
         }
@@ -568,6 +583,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             show_map(pfrm, app.world_graph(), app.world_graph().storm_depth_);
             cmix_ = {};
             map_key_.reset();
+            redraw_icons(pfrm);
             update_storm_frontier(pfrm, app.world_graph(), 0);
             ++app.world_graph().storm_depth_;
 
@@ -584,6 +600,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (app.player().key_down(pfrm, Key::action_2)) {
             state_ = State::selected;
             map_key_.reset();
+            redraw_icons(pfrm);
             update_storm_frontier(pfrm, app.world_graph(), 0);
             show_map(pfrm, app.world_graph(), app.world_graph().storm_depth_);
             cmix_ = {};
