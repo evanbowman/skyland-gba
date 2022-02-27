@@ -3,15 +3,17 @@
 ;;;
 
 
+(eval-file "/scripts/reset_hooks.lisp")
+
+
+
 (let ((z (zone))
       (pos (cdr (wg-pos))))
   (let ((found (filter
                 (lambda
-                  (and
-                   (equal z (car (car $0)))
-                   (equal pos (cdr (car $0)))))
+                  (equal pos (cdr (cdr $0))))
                 quests)))
     (if found
         (progn
-          (eval-file (cdr found)))
+          (eval-file (car found)))
       (syscall "fatal" "invalid quest marker!"))))

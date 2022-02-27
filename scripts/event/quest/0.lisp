@@ -27,8 +27,9 @@
                       (c (eval-file "/scripts/util/find_create_cargo_bay.lisp")))
                   (if (and m c)
                       (progn
-                        (push quests (cons "/scripts/event/quest_marker/delivery.lisp"
-                                           m))
+                        (coins-add 500)
+                        (push 'quests (cons "/scripts/event/quest_marker/delivery.lisp"
+                                            m))
                         (cargo-set (player) (car c) (cdr c) "parcel")
                         (dialog "Wonderful! I'll mark the address "
                                 "with an * on your sky chart!")

@@ -153,6 +153,9 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.invoke_script(pfrm, "/scripts/event/storm_king.lisp");
         break;
 
+    case WorldGraph::Node::Type::quest_marker:
+        app.invoke_script(pfrm, "/scripts/event/quest_marker.lisp");
+        break;
 
     case WorldGraph::Node::Type::exit:
     case WorldGraph::Node::Type::hostile:
