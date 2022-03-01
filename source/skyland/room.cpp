@@ -16,8 +16,12 @@ namespace skyland {
 
 Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
     : parent_(parent),
-      position_(position), health_(1), dispatch_list_(nullptr)
+      dispatch_list_(nullptr),
+      health_(1),
+      x_position_(position.x),
+      y_position_(position.y)
 {
+
     if (name == nullptr) {
         return;
     }
@@ -82,7 +86,7 @@ void Room::set_injured(Platform& pfrm)
     for (int x = 0; x < size().x; ++x) {
         for (int y = 0; y < size().y; ++y) {
             pfrm.set_palette(
-                parent_->layer(), position().x + x, position().y + y, 13);
+                parent_->layer(), x_position_ + x, y_position_ + y, 13);
         }
     }
 
@@ -153,7 +157,7 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
         ready();
     }
 
-    if (injured_timer_) {
+    if ((bool)injured_timer_) {
 
         ready();
 
@@ -165,8 +169,8 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
                         pfrm.set_palette(parent_->layer(),
-                                         position().x + x,
-                                         position().y + y,
+                                         x_position_ + x,
+                                         y_position_ + y,
                                          14);
                     }
                 }
@@ -177,8 +181,8 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
                         pfrm.set_palette(parent_->layer(),
-                                         position().x + x,
-                                         position().y + y,
+                                         x_position_ + x,
+                                         y_position_ + y,
                                          15);
                     }
                 }
@@ -193,8 +197,8 @@ void Room::update(Platform& pfrm, App& app, Microseconds delta)
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
                         pfrm.set_palette(parent_->layer(),
-                                         position().x + x,
-                                         position().y + y,
+                                         x_position_ + x,
+                                         y_position_ + y,
                                          default_palette());
                     }
                 }
@@ -216,8 +220,8 @@ void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
                         pfrm.set_palette(parent_->layer(),
-                                         position().x + x,
-                                         position().y + y,
+                                         x_position_ + x,
+                                         y_position_ + y,
                                          15);
                     }
                 }
@@ -228,8 +232,8 @@ void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
                         pfrm.set_palette(parent_->layer(),
-                                         position().x + x,
-                                         position().y + y,
+                                         x_position_ + x,
+                                         y_position_ + y,
                                          14);
                     }
                 }
@@ -240,8 +244,8 @@ void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
                         pfrm.set_palette(parent_->layer(),
-                                         position().x + x,
-                                         position().y + y,
+                                         x_position_ + x,
+                                         y_position_ + y,
                                          13);
                     }
                 }
@@ -256,8 +260,8 @@ void Room::rewind(Platform& pfrm, App& app, Microseconds delta)
                 for (int x = 0; x < size().x; ++x) {
                     for (int y = 0; y < size().y; ++y) {
                         pfrm.set_palette(parent_->layer(),
-                                         position().x + x,
-                                         position().y + y,
+                                         x_position_ + x,
+                                         y_position_ + y,
                                          default_palette());
                     }
                 }
@@ -285,8 +289,8 @@ Island* Room::other_island(App& app)
 Vec2<Float> Room::origin() const
 {
     auto origin = parent_->origin();
-    origin.x += position_.x * 16;
-    origin.y += position_.y * 16;
+    origin.x += x_position_ * 16;
+    origin.y += y_position_ * 16;
     return origin;
 }
 
@@ -403,7 +407,7 @@ void Room::plot_walkable_zones(App& app, bool matrix[16][16])
     // NPCs. A few rooms, like staircases, cannons, walls, etc. will need to
     // provide different implementations.
     for (int x = 0; x < size_x_; ++x) {
-        matrix[position_.x + x][position_.y + size_y_ - 1] = true;
+        matrix[x_position_ + x][y_position_ + size_y_ - 1] = true;
     }
 }
 
@@ -540,8 +544,8 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
             }
             for (; y < size_y_; y += (*plunder_metac)->size().y) {
                 const Vec2<u8> pos = {
-                    u8(position_.x + x),
-                    u8(position_.y + y),
+                    u8(x_position_ + x),
+                    u8(x_position_ + y),
                 };
                 (*plunder_metac)->create(pfrm, app, parent_, pos);
             }

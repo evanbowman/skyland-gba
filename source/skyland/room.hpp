@@ -137,15 +137,9 @@ public:
     Island* other_island(App&);
 
 
-    const Vec2<u8>& position() const
+    Vec2<u8> position() const
     {
-        return position_;
-    }
-
-
-    Vec2<u8>& __position()
-    {
-        return position_;
+        return {x_position_, y_position_};
     }
 
 
@@ -354,8 +348,47 @@ protected:
 
 
 private:
+
+    // NOTE: All of these parameters are arranged carefully to use minimal
+    // space. Do not go re-arranging things unless you understand how struct
+    // packing works. Generally, packing only matters for 32 bit systems. For 64
+    // bit build targets, ignore the comments below about field sizes, as we
+    // don't need to worry about memory usage on systems with 64 bit CPUs.
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Four byte fields (assuming 32-bit):
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
     Island* parent_;
     EntityList<BasicCharacter> characters_;
+    Microseconds injured_timer_ = 0;
+
+    // Many rooms sit around doing nothing most of the time. Each island
+    // maintains a dispatch list of rooms, for which it'll run update code.
+    Room* dispatch_list_;
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Two byte fields:
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
+    Health health_;
+    MetaclassIndex metaclass_index_;
+
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Bitfields and single bytes:
+    //
+    ////////////////////////////////////////////////////////////////////////////
+
+    // Room's position. We only support coordinates 0-16, as even castles 13
+    // tiles wide get to be too large for the game to be fun.
+    u8 x_position_ : 4;
+    u8 y_position_ : 4;
 
     // NOTE: we're a little tight on memory on some consoles, especially when
     // players create a lot of rooms. Given the game's mechanics, there's
@@ -374,15 +407,8 @@ private:
     // RoomProperties, and retrieve the field from the metaclass.
     u8 reserved_flags0_ : 6;
 
-    Vec2<u8> position_;
-    Health health_;
-    MetaclassIndex metaclass_index_;
-
-    Microseconds injured_timer_;
-
-    // Many rooms sit around doing nothing most of the time. Each island
-    // maintains a dispatch list of rooms, for which it'll run update code.
-    Room* dispatch_list_;
+    // Bytes freed up by various space optimization techniques.
+    u8 reserved_[5];
 };
 
 

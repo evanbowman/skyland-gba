@@ -89,7 +89,6 @@ set(SOURCES
 set(SOURCES
   ${SOURCES}
   ${SOURCE_DIR}/skyland/flag.cpp
-  ${SOURCE_DIR}/skyland/room.cpp
   ${SOURCE_DIR}/skyland/path.cpp
   ${SOURCE_DIR}/skyland/save.cpp
   ${SOURCE_DIR}/skyland/paint.cpp
@@ -187,6 +186,7 @@ set(SOURCES
 # All of these sources are critical to the game code, and should be compiled
 # with the highest optimization settings.
 add_library(FASTPATH
+  ${SOURCE_DIR}/skyland/room.cpp
   ${SOURCE_DIR}/skyland/island.cpp
   ${SOURCE_DIR}/skyland/rooms/tnt.cpp
   ${SOURCE_DIR}/skyland/rooms/core.cpp
