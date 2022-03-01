@@ -366,7 +366,7 @@ static Value* globals_tree_find(Value* key)
     hint += "]";
 
     return make_error(Error::Code::undefined_variable_access,
-                      make_string(bound_context->pfrm_, hint.c_str()));
+                      make_string(hint.c_str()));
 }
 
 
@@ -759,7 +759,7 @@ Value* make_databuffer(Platform& pfrm, const char* sbr_tag)
 void live_values(::Function<24, void(Value&)> callback);
 
 
-Value* make_string(Platform& pfrm, const char* string)
+Value* make_string(const char* string)
 {
     auto len = str_len(string);
 
@@ -802,7 +802,8 @@ Value* make_string(Platform& pfrm, const char* string)
             return bound_context->oom_;
         }
     } else {
-        auto buffer = make_databuffer(pfrm, "lisp-string-bulk-allocator");
+        auto buffer = make_databuffer(bound_context->pfrm_,
+                                      "lisp-string-bulk-allocator");
 
         if (buffer == bound_context->oom_) {
             return bound_context->oom_;
@@ -1752,7 +1753,7 @@ static u32 read_string(CharSequence& code, int offset)
         ++i;
     }
 
-    push_op(make_string(bound_context->pfrm_, temp->data_));
+    push_op(make_string(temp->data_));
 
     return i;
 }
@@ -1925,8 +1926,7 @@ static void macroexpand()
                 if (length(macro_args) > length(supplied_macro_args)) {
                     pop_op();
                     push_op(make_error(Error::Code::invalid_syntax,
-                                       make_string(bound_context->pfrm_,
-                                                   "invalid arguments "
+                                       make_string("invalid arguments "
                                                    "passed to marcro")));
                     return;
                 }
@@ -2245,7 +2245,7 @@ static void eval_quasiquote(Value* code)
             if (code == get_nil()) {
                 push_op(make_error(
                     Error::Code::invalid_syntax,
-                    make_string(bound_context->pfrm_, "extraneous unquote")));
+                    make_string("extraneous unquote")));
                 return;
             }
 
@@ -2803,10 +2803,7 @@ static const Binding builtins[] = {
              }
          }
 
-         if (auto pfrm = interp_get_pfrm()) {
-             return make_string(*pfrm, b.c_str());
-         }
-         return L_NIL;
+         return make_string(b.c_str());
      }},
     {"bound",
      [](int argc) {

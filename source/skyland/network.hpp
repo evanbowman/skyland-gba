@@ -41,7 +41,8 @@ struct Header {
         co_op_rng_sync,
         co_op_rng_sync_ack,
         set_weapon_group,
-    } message_type_;
+    } message_type_ : 7;
+    u8 parity_ : 1;
 };
 static_assert(sizeof(Header) == 1);
 
@@ -68,7 +69,7 @@ struct ProgramVersion {
 struct Heartbeat {
     Header header_;
 
-    u8 unused_[5];
+    u8 unused_[5] = {0};
 
     static const auto mt = Header::MessageType::heartbeat;
 };
@@ -80,7 +81,7 @@ struct RoomConstructed {
     HostInteger<MetaclassIndex> metaclass_index_;
     u8 x_;
     u8 y_;
-    u8 unused_[1];
+    u8 unused_[1] = {0};
 
     static const auto mt = Header::MessageType::room_constructed;
 };
@@ -90,7 +91,7 @@ struct RoomConstructed {
 struct TerrainConstructed {
     Header header_;
     u8 new_terrain_size_;
-    u8 unused_[4];
+    u8 unused_[4] = {0};
 
     static const auto mt = Header::MessageType::terrain_constructed;
 };
@@ -102,7 +103,7 @@ struct RoomSalvaged {
     u8 x_;
     u8 y_;
 
-    u8 unused_[3];
+    u8 unused_[3] = {0};
 
     static const auto mt = Header::MessageType::room_salvaged;
 };
@@ -114,7 +115,7 @@ struct DynamiteActivated {
     u8 x_;
     u8 y_;
 
-    u8 unused_[3];
+    u8 unused_[3] = {0};
 
     static const auto mt = Header::MessageType::dynamite_activated;
 };
@@ -146,7 +147,7 @@ struct DroneSetTarget {
     u8 target_near_ : 1;
     u8 reserved_ : 6;
 
-    u8 unused_[2];
+    u8 unused_[2] = {0};
 
     static const auto mt = Header::MessageType::drone_set_target;
 };
@@ -218,7 +219,7 @@ struct CharacterDied {
     bool near_island_;
     bool chr_owned_by_player_;
 
-    u8 unused_[1];
+    u8 unused_[1] = {0};
 
     static const auto mt = Header::MessageType::character_died;
 };
@@ -267,7 +268,7 @@ struct ReplicantCreated {
 
     u8 health_;
 
-    u8 unused_[2];
+    u8 unused_[2] = {0};
 
     static const auto mt = Header::MessageType::replicant_created;
 };
@@ -287,7 +288,7 @@ struct DroneSpawn {
 
     u8 drone_class_;
 
-    u8 unused_[1];
+    u8 unused_[1] = {0};
 
     static const auto mt = Header::MessageType::drone_spawn;
 };
@@ -302,7 +303,7 @@ struct DroneDestroyed {
     u8 destination_near_ : 1;
     u8 reserved_ : 7;
 
-    u8 unused_[3];
+    u8 unused_[3] = {0};
 
     static const auto mt = Header::MessageType::drone_destroyed;
 };
@@ -317,7 +318,7 @@ struct OpponentBulkheadChanged {
 
     bool open_;
 
-    u8 unused_[2];
+    u8 unused_[2] = {0};
 
     static const auto mt = Header::MessageType::bulkhead_changed;
 };
@@ -338,7 +339,7 @@ struct GameMatchSettingsCursor {
     Header header_;
     u8 cursor_line_;
 
-    u8 unused_[4];
+    u8 unused_[4] = {0};
 
     static const auto mt = Header::MessageType::game_match_settings_cursor;
 };
@@ -347,7 +348,7 @@ struct GameMatchSettingsCursor {
 
 struct GameMatchReady {
     Header header_;
-    u8 unused_[5];
+    u8 unused_[5] = {0};
 
     static const auto mt = Header::MessageType::game_match_begin;
 };
@@ -361,7 +362,7 @@ struct CoopCursor {
     bool near_;
     u8 icon_;
 
-    u8 unused_[1];
+    u8 unused_[1] = {0};
 
     static const auto mt = Header::MessageType::co_op_cursor;
 };
@@ -372,7 +373,7 @@ struct CoopCursor {
 // values are synchronized, before attempting to generate another level.
 struct CoopRngSyncRequest {
     Header header_;
-    u8 unused_[5];
+    u8 unused_[5] = {0};
 
     static const auto mt = Header::MessageType::co_op_rng_sync_request;
 };
@@ -383,7 +384,7 @@ struct CoopRngSync {
     Header header_;
     host_s32 rng_state_;
 
-    u8 unused_[1];
+    u8 unused_[1] = {0};
 
     static const auto mt = Header::MessageType::co_op_rng_sync;
 };
@@ -396,7 +397,7 @@ struct CoopRngSyncAck {
     Header header_;
     host_s32 rng_state_;
 
-    u8 unused_[1];
+    u8 unused_[1] = {0};
 
     static const auto mt = Header::MessageType::co_op_rng_sync_ack;
 };
@@ -409,7 +410,7 @@ struct SetWeaponGroup {
     u8 y_;
     u8 group_;
 
-    u8 unused_[2];
+    u8 unused_[2] = {0};
 
     static const auto mt = Header::MessageType::set_weapon_group;
 };
@@ -553,6 +554,11 @@ public:
     virtual void receive(Platform&, App&, const packet::SetWeaponGroup&)
     {
     }
+
+
+    virtual void error(Platform&, App&, const char* err)
+    {
+    }
 };
 
 
@@ -561,11 +567,34 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener);
 
 
 
+inline bool parity(void* message)
+{
+    unsigned char r = 0;
+
+    // NOTE: do not include first byte in parity calculation. The first message
+    // byte will contain the parity bit.
+    for (u32 i = 1; i < Platform::NetworkPeer::max_message_size; ++i) {
+        r ^= ((u8*)message)[i];
+    }
+
+    int width = 8;
+    while (width > 1) {
+        r ^= r >> (width / 2);
+        width -= width / 2;
+    }
+
+    return r % 2;
+}
+
+
+
 template <typename T> void transmit(Platform& pfrm, T& message)
 {
-    static_assert(sizeof(T) <= Platform::NetworkPeer::max_message_size);
+    static_assert(sizeof(T) == Platform::NetworkPeer::max_message_size);
+    static_assert(alignof(T) == 1);
 
     message.header_.message_type_ = T::mt;
+    message.header_.parity_ = parity(&message);
 
     while (
         pfrm.network_peer().is_connected() and

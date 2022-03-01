@@ -15,6 +15,12 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
         packet::Header header;
         memcpy(&header, message->data_, sizeof header);
 
+        if (header.parity_ not_eq parity((u8*)message->data_ + 1)) {
+            listener.error(pfrm, app, "parity check failed!");
+            pfrm.network_peer()
+                .poll_consume(Platform::NetworkPeer::max_message_size);
+        }
+
         switch (header.message_type_) {
         case packet::Header::null:
             pfrm.network_peer().poll_consume(sizeof(packet::Header));
@@ -26,10 +32,8 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
         if (message->length_ < sizeof(MESSAGE_TYPE)) {                         \
             return;                                                            \
         }                                                                      \
-        MESSAGE_TYPE m;                                                        \
-        memcpy(&m, message->data_, sizeof m);                                  \
+        listener.receive(pfrm, app, *(const MESSAGE_TYPE*)message->data_);     \
         pfrm.network_peer().poll_consume(sizeof(MESSAGE_TYPE));                \
-        listener.receive(pfrm, app, m);                                        \
         continue;                                                              \
     }
 

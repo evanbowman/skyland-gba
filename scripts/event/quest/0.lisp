@@ -16,9 +16,10 @@
 (setq on-converge
       (lambda
         (dialog
-         "We promised to deliver some cargo to our customers, but with this storm "
-         "approaching, we don't think we can make the delivery. Can you help? We'll "
-         "pay you a bit upfront, and I'm sure that they'll tip you generously.")
+         "<c:merchant:7>We promised to deliver some cargo to our customers, but with "
+         "this storm approaching, we don't think we can make the delivery. "
+         "Can you help? We'll pay you a bit upfront, and I'm sure that they'll tip "
+         "you generously.")
         (dialog-await-y/n)
 
         (setq on-dialog-accepted
@@ -31,12 +32,12 @@
                         (push 'quests (cons "/scripts/event/quest_marker/delivery.lisp"
                                             m))
                         (cargo-set (player) (car c) (cdr c) "parcel")
-                        (dialog "Wonderful! I'll mark the address "
+                        (dialog "<c:merchant:7>Wonderful! I'll mark the address "
                                 "with an * on your sky chart!")
                         (setq on-dialog-closed exit))
                     (progn
                       (dialog
-                       "Oh, I'm so sorry! I just got a call from the customer, "
+                       "<c:merchant:7>Oh, I'm so sorry! I just got a call from the customer, "
                        "she had to relocate to flee the storm. Here's 400@ for your trouble.")
                       (setq on-dialog-closed
                             (lambda
@@ -45,5 +46,5 @@
 
         (setq on-dialog-declined
               (lambda
-                (dialog "I understand... I guess we'll try to find someone else...")
+                (dialog "<c:merchant:7>I understand... I guess we'll try to find someone else...")
                 (setq on-dialog-closed exit)))))

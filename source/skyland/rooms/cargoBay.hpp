@@ -77,6 +77,10 @@ public:
     }
 
 
+    virtual lisp::Value* serialize() override;
+    virtual void deserialize(lisp::Value*) override;
+
+
     bool set_cargo(const char* cargo, u8 count);
 
 

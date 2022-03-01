@@ -150,7 +150,7 @@ TOP:
 
         case PushString::op(): {
             auto inst = read<PushString>(code, pc);
-            push_op(make_string(pfrm, code.data_ + pc));
+            push_op(make_string(code.data_ + pc));
             pc += inst->length_;
             break;
         }

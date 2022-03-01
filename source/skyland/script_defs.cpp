@@ -212,7 +212,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               L_EXPECT_ARGC(argc, 1);
               L_EXPECT_OP(0, string);
               lisp::interp_get_pfrm()->speaker().play_sound(L_LOAD_STRING(0),
-                                                            0);
+                                                            1);
               return L_NIL;
           }},
          {"display",
@@ -230,8 +230,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               lisp::interp_get_pfrm()->feed_watchdog();
               auto line = lisp::interp_get_pfrm()->remote_console().readline();
               if (line) {
-                  return lisp::make_string(*lisp::interp_get_pfrm(),
-                                           line->c_str());
+                  return lisp::make_string(line->c_str());
               }
               return L_NIL;
           }},
@@ -998,7 +997,7 @@ static const lisp::Binding script_api[] = {
                                         lisp::get_op(0)->integer().value_);
 
          if (line) {
-             return lisp::make_string(*lisp::interp_get_pfrm(), line->c_str());
+             return lisp::make_string(line->c_str());
          }
 
          return L_NIL;
@@ -1084,8 +1083,7 @@ static const lisp::Binding script_api[] = {
          if (auto room = island->get_room({x, y})) {
              if (auto cb = dynamic_cast<CargoBay*>(room)) {
                  if (*cb->cargo() not_eq '\0') {
-                     return lisp::make_string(*lisp::interp_get_pfrm(),
-                                              cb->cargo());
+                     return lisp::make_string(cb->cargo());
                  }
              } else {
                  Platform::fatal("Requested cargo from "
