@@ -187,18 +187,33 @@ using EntityNodePool = Pool<sizeof(EntityNode), Capacity, alignof(Entity)>;
 
 
 
+struct GlobalEntityListData {
+    using Pool = EntityNodePool<entity_pool_size>;
+
+    Pool& pool() const;
+};
+
+
+
 template <typename T>
-using EntityList = List<EntityRef<T>, EntityNodePool<entity_pool_size>>;
+struct GlobalEntityListDataImpl : GlobalEntityListData {
+    BiNode<T>* begin_;
+};
+
+
+
+template <typename T>
+using EntityListData = ListData<T, EntityNodePool<entity_pool_size>>;
+
+
+template <typename T>
+using EntityList = List<EntityRef<T>, GlobalEntityListDataImpl<EntityRef<T>>>;
 
 
 
 template <typename T>
 using SharedEntityList =
-    List<SharedEntityRef<T>, EntityNodePool<entity_pool_size>>;
-
-
-template <typename T>
-using WeakEntityList = List<WeakEntityRef<T>, EntityNodePool<entity_pool_size>>;
+    List<SharedEntityRef<T>, GlobalEntityListDataImpl<SharedEntityRef<T>>>;
 
 
 

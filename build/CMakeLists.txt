@@ -115,6 +115,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/sharedVariable.cpp
   ${SOURCE_DIR}/skyland/room_metatable.cpp
   ${SOURCE_DIR}/skyland/timeStream.cpp
+  ${SOURCE_DIR}/skyland/entity.cpp
   ${SOURCE_DIR}/skyland/entity/explosion/explosion.cpp
   ${SOURCE_DIR}/skyland/entity/character/basicCharacter.cpp
   ${SOURCE_DIR}/skyland/entity/drones/drone.cpp

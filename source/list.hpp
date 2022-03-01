@@ -12,23 +12,52 @@ template <typename T> struct BiNode {
 };
 
 
-template <typename T, typename Pool> class List {
+// We're trying to save bytes. We want to allow the list to optionally include a
+// pointer to a distinct memory pool if needed, or, an alternate implementation
+// of ListData could refer to a static pool instead, saving four bytes.
+template <typename T, typename _Pool>
+struct ListData {
+
+    using Pool = _Pool;
+
+    ListData(Pool& pool)
+    {
+        pool_ = &pool;
+    }
+
+    BiNode<T>* begin_;
+    Pool* pool_;
+
+    Pool& pool() const
+    {
+        return *pool_;
+    }
+
+
+};
+
+
+template <typename T, typename Data> class List {
 public:
     using Node = BiNode<T>;
     using ValueType = T;
 
-    List(Pool& pool) : begin_(nullptr), pool_(&pool)
+    using Pool = typename Data::Pool;
+
+    template <typename ...Args>
+    List(Args&& ...args) : data_(std::forward<Args>(args)...)
     {
+        data_.begin_ = nullptr;
+
         static_assert(sizeof(Node) <= Pool::element_size() and
-                          alignof(Node) <= Pool::alignment(),
+                      alignof(Node) <= Pool::alignment(),
                       "Pool incompatible");
     }
 
     List(List&& other)
     {
-        begin_ = other.begin_;
-        other.begin_ = nullptr;
-        pool_ = other.pool_;
+        data_ = other.data_;
+        other.data_.begin_ = nullptr;
     }
 
     List(const List&) = delete;
@@ -40,50 +69,50 @@ public:
 
     void push(const T& elem)
     {
-        if (auto mem = pool_->get()) {
-            new (mem) Node{begin_, nullptr, elem};
-            if (begin_) {
-                begin_->left_ = reinterpret_cast<Node*>(mem);
+        if (auto mem = data_.pool().get()) {
+            new (mem) Node{data_.begin_, nullptr, elem};
+            if (data_.begin_) {
+                data_.begin_->left_ = reinterpret_cast<Node*>(mem);
             }
-            begin_ = reinterpret_cast<Node*>(mem);
+            data_.begin_ = reinterpret_cast<Node*>(mem);
         }
     }
 
     void push(T&& elem)
     {
-        if (auto mem = pool_->get()) {
-            new (mem) Node{begin_, nullptr, std::forward<T>(elem)};
-            if (begin_) {
-                begin_->left_ = reinterpret_cast<Node*>(mem);
+        if (auto mem = data_.pool().get()) {
+            new (mem) Node{data_.begin_, nullptr, std::forward<T>(elem)};
+            if (data_.begin_) {
+                data_.begin_->left_ = reinterpret_cast<Node*>(mem);
             }
-            begin_ = reinterpret_cast<Node*>(mem);
+            data_.begin_ = reinterpret_cast<Node*>(mem);
         }
     }
 
     void pop()
     {
-        if (begin_) {
-            auto popped = begin_;
+        if (data_.begin_) {
+            auto popped = data_.begin_;
 
             popped->~Node();
-            pool_->post(reinterpret_cast<u8*>(popped));
+            data_.pool().post(reinterpret_cast<u8*>(popped));
 
-            begin_ = begin_->right_;
-            if (begin_) {
-                begin_->left_ = nullptr;
+            data_.begin_ = data_.begin_->right_;
+            if (data_.begin_) {
+                data_.begin_->left_ = nullptr;
             }
         }
     }
 
     void clear()
     {
-        while (begin_)
+        while (data_.begin_)
             pop();
     }
 
     bool empty() const
     {
-        return begin_ == nullptr;
+        return data_.begin_ == nullptr;
     }
 
     class Iterator {
@@ -134,21 +163,21 @@ public:
             it.node_->right_->left_ = it.node_->left_;
         }
 
-        if (it.node_ == begin_) {
-            begin_ = begin_->right_;
+        if (it.node_ == data_.begin_) {
+            data_.begin_ = data_.begin_->right_;
         }
 
         auto next = it.node_->right_;
 
         it.node_->~Node();
-        pool_->post(reinterpret_cast<u8*>(it.node_));
+        data_.pool().post(reinterpret_cast<u8*>(it.node_));
 
         return Iterator(next);
     }
 
     Iterator begin() const
     {
-        return Iterator(begin_);
+        return Iterator(data_.begin_);
     }
 
     Iterator end() const
@@ -159,8 +188,7 @@ public:
     }
 
 private:
-    Node* begin_;
-    Pool* pool_;
+    Data data_;
 };
 
 

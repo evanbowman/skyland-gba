@@ -45,9 +45,6 @@ void Island::init_terrain(Platform& pfrm, int width)
 
 Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
     : layer_(layer), timer_(0), interior_visible_(false),
-      characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      projectiles_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
-      drones_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       owner_(&owner)
 {
     init_terrain(pfrm, width);

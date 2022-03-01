@@ -29,7 +29,6 @@ struct ExampleGlobalData {
 
 
 struct SkylandGlobalData {
-    // skyland::room_pool::_Pool room_pool_;
     skyland::scene_pool::_Pool scene_pool_;
 
     Vec2<u8> near_cursor_loc_;

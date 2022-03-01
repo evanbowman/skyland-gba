@@ -16,7 +16,6 @@ namespace skyland {
 
 Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
     : parent_(parent),
-      characters_(std::get<SkylandGlobalData>(globals()).entity_node_pool_),
       position_(position), health_(1), dispatch_list_(nullptr)
 {
     if (name == nullptr) {
