@@ -639,7 +639,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::fade_out: {
         timer_ += delta;
-        constexpr auto fade_duration = milliseconds(1200);
+        constexpr auto fade_duration = milliseconds(700);
         if (timer_ > fade_duration) {
             // Create a backup before entering a level. If the game encounters
             // an unrecoverrable error, it will create a save from the backup
