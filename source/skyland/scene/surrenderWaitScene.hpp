@@ -19,9 +19,9 @@ public:
             return next;
         }
 
-        if (timer_ < seconds(1)) {
+        if (timer_ < milliseconds(350)) {
             timer_ += delta;
-            if (timer_ > seconds(1)) {
+            if (timer_ > milliseconds(350)) {
                 app.invoke_script(pfrm, "/scripts/event/surrender.lisp");
             }
         } else {
