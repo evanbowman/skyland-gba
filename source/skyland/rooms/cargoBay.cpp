@@ -3,6 +3,7 @@
 #include <string.h>
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
+#include "skyland/island.hpp"
 
 
 
@@ -49,6 +50,32 @@ bool CargoBay::set_cargo(const char* cargo, u8 count)
 void CargoBay::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
+
+    Room::ready();
+}
+
+
+
+void CargoBay::display(Platform::Screen& screen)
+{
+    if (parent()->interior_visible()) {
+        for (auto& c : characters()) {
+            const auto& pos = c->sprite().get_position();
+            if (pos.y < 700) {
+                screen.draw(c->sprite());
+            }
+        }
+
+        if (*cargo() not_eq '\0') {
+            Sprite sprite;
+            sprite.set_texture_index(51);
+            auto pos = origin();
+            pos.y += 16 + parent()->get_ambient_movement();
+            sprite.set_position(pos);
+            sprite.set_size(Sprite::Size::w16_h32);
+            screen.draw(sprite);
+        }
+    }
 }
 
 
@@ -90,13 +117,13 @@ lisp::Value* CargoBay::serialize()
 
 void CargoBay::deserialize(lisp::Value* list)
 {
-    auto c = lisp::get_list(list, 4);
+    auto c = lisp::get_list(list, 3);
     if (c->type() == lisp::Value::Type::string) {
         set_cargo(c->string().value(), str_len(c->string().value()));
     }
 
-    if (lisp::length(list) >= 4) {
-        __set_health(lisp::get_list(list, 5)->integer().value_);
+    if (lisp::length(list) >= 5) {
+        __set_health(lisp::get_list(list, 4)->integer().value_);
     }
 }
 

@@ -17,6 +17,9 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
+    void display(Platform::Screen&) override;
+
+
     void render_interior(App& app, u8 buffer[16][16]) override;
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
