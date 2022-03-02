@@ -67,4 +67,5 @@
                         (setq on-dialog-closed
                               (lambda
                                 (syscall "room-enable" 'banana-plant 1)
+                                (coins-add 2000)
                                 (exit 2)))))))))
