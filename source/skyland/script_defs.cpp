@@ -353,10 +353,12 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
           }},
          {"room-enable", [](int argc) {
               L_EXPECT_ARGC(argc, 2);
-              L_EXPECT_OP(1, integer);
+              L_EXPECT_OP(1, symbol);
               L_EXPECT_OP(0, integer);
 
-              set_enabled((MetaclassIndex)L_LOAD_INT(1), L_LOAD_INT(0));
+              auto mti = metaclass_index(lisp::get_op(1)->symbol().name_);
+
+              set_enabled(mti, L_LOAD_INT(0));
 
               return L_NIL;
           }}});
@@ -697,6 +699,7 @@ static const lisp::Binding script_api[] = {
 
          if (auto c = load_metaclass(name)) {
              (*c)->create(*pfrm, *app, island, Vec2<u8>{x, y});
+             island->repaint(*pfrm, *app);
          } else {
              Platform::fatal(name);
          }

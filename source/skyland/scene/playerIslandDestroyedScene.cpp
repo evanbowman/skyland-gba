@@ -1,3 +1,4 @@
+#include "achievementNotificationScene.hpp"
 #include "playerIslandDestroyedScene.hpp"
 #include "coopRngSyncScene.hpp"
 #include "highscoresScene.hpp"
@@ -428,6 +429,22 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::level_exit_forced:
         anim_state_ = AnimState::show_coins;
         timer_ = 0;
+
+        for (int i = 0; i < 64; ++i) {
+            const auto achievement = achievements::update(pfrm, app);
+            if (achievement not_eq achievements::Achievement::none) {
+                achievements::award(pfrm, app, achievement);
+
+                pfrm.screen().fade(1.f);
+
+                auto next =
+                    scene_pool::make_deferred_scene<PlayerIslandDestroyedScene>(island_, true);
+                return scene_pool::alloc<AchievementNotificationScene>(achievement,
+                                                                       next,
+                                                                       true);
+            }
+        }
+
 
         pfrm.screen().set_shader(redden_shader);
 

@@ -124,6 +124,16 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[triage].reward_), awarded);
      }},
 
+    {"Banana Man",
+     "Complete banana man's quest!",
+     "banana-plant",
+     [](Platform&, App& app) {
+         return is_enabled(metaclass_index(info[banana_man].reward_));
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[banana_man].reward_), awarded);
+     }},
+
     {"Borrowed tech",
      "Destroy a decimator by plundering!",
      "decimator",

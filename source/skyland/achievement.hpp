@@ -36,6 +36,7 @@ enum Achievement : u8 {
     maestro_1,
     maestro_2,
     triage,
+    banana_man,
     ancient_weapon,
     count
 };

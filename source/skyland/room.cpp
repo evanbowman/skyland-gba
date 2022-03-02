@@ -543,9 +543,8 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
                 y = 1;
             }
             for (; y < size_y_; y += (*plunder_metac)->size().y) {
-                const Vec2<u8> pos = {
-                    u8(x_position_ + x),
-                    u8(x_position_ + y),
+                const Vec2<u8> pos = {u8(((u8)x_position_) + x),
+                                      u8(((u8)y_position_) + y),
                 };
                 (*plunder_metac)->create(pfrm, app, parent_, pos);
             }
