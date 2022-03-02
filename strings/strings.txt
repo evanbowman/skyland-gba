@@ -1,6 +1,7 @@
 
 SKYLAND
 arc-gun
+banana-plant
 bridge
 bronze-hull
 bulkhead-door
@@ -93,6 +94,7 @@ Stores one unit of cargo. Required for trading and quests in adventure mode!
 A reliable artillery weapon. Deals % damage every %.% seconds.
 Emits harmful radiation, damaging any character standing within two spaces away.
 A switch! When the lefthand side of the switch is selected, it'll select one of two targets, epending on the position of the switch.
+B is bananas B-A-N-A-N-A-S!
 paused
 slow
 regular

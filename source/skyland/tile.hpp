@@ -97,6 +97,7 @@ struct Tile {
         switch_1,
         switch_on,
         switch_off,
+        banana_plant,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -197,6 +198,7 @@ struct InteriorTile {
         switch_1,
         switch_on,
         switch_off,
+        banana_plant,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

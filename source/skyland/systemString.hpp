@@ -18,6 +18,7 @@ enum class SystemString {
     game_title,
 
     block_arcgun,
+    block_banana_plant,
     block_bridge,
     block_bronze_hull,
     block_bulkhead_door,
@@ -118,6 +119,7 @@ enum class SystemString {
     description_cannon,
     description_radiator,
     description_switch,
+    description_banana_plant,
 
     gs_paused,
     gs_slow,
