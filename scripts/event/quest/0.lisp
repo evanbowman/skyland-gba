@@ -5,7 +5,7 @@
  "Some merchants broadcast a message asking for assistance...")
 
 
-(opponent-init 6 'neutral)
+(opponent-init 9 'neutral)
 
 (island-configure
  (opponent)
