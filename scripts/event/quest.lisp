@@ -4,4 +4,4 @@
 
 
 (eval-file
- (string "/scripts/event/quest/" 0 ".lisp"))
+ (string "/scripts/event/quest/" (choice 2) ".lisp"))
