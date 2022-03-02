@@ -239,7 +239,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               L_EXPECT_ARGC(argc, 1);
               lisp::interp_get_pfrm()
                   ->remote_console().printline(L_LOAD_STRING(0),
-                                               false);
+                                               true);
               return L_NIL;
           }},
          {"pools-annotate",

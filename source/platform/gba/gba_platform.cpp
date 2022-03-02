@@ -5698,6 +5698,7 @@ struct RemoteConsoleState {
 static EWRAM_DATA std::optional<RemoteConsoleState> remote_console_state;
 
 
+
 static void uart_serial_isr()
 {
     auto& state = *::remote_console_state;

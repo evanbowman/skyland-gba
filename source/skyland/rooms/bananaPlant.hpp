@@ -21,7 +21,7 @@ public:
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
     {
-        buffer += SYSTR(description_shrubbery)->c_str();
+        buffer += SYSTR(description_banana_plant)->c_str();
     }
 
 
@@ -63,13 +63,13 @@ public:
 
     static Icon icon()
     {
-        return 1416;
+        return 1864;
     }
 
 
     static Icon unsel_icon()
     {
-        return 1432;
+        return 1880;
     }
 };
 
