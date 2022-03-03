@@ -5,6 +5,7 @@
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/entity/birds/genericBird.hpp"
 
 
 
@@ -33,6 +34,11 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     app.player_island().repaint(pfrm, app);
     app.player_island().set_position({152, 370});
 
+
+    GenericBird::spawn(pfrm,
+                       app,
+                       app.player_island(),
+                       rng::choice<3>(rng::utility_state));
 
     pfrm.screen().fade(0);
 }

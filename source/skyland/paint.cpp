@@ -96,6 +96,8 @@ ScenePtr<Scene> Paint::update(Platform& pfrm, App& app, Microseconds delta)
     }
     bool cursor_move_ready = false;
 
+    update_entities(pfrm, app, delta, app.birds());
+
     if (cursor_move_tic_ > 0) {
         cursor_move_tic_ -= delta;
         if (cursor_move_tic_ <= 0) {
@@ -203,6 +205,9 @@ void Paint::display(Platform& pfrm, App& app)
         pfrm.screen().draw(effect->sprite());
     }
 
+    for (auto& bird : app.birds()) {
+        pfrm.screen().draw(bird->sprite());
+    }
 
     Sprite sprite;
     sprite.set_size(Sprite::Size::w16_h32);
