@@ -12,7 +12,8 @@ namespace skyland {
 
 
 
-class TouchscreenFreeformCamera : public Camera {
+class TouchscreenFreeformCamera : public Camera
+{
 public:
     void update(Platform& pfrm,
                 App& app,

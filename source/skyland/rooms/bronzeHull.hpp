@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class BronzeHull : public Hull {
+class BronzeHull : public Hull
+{
 public:
     BronzeHull(Island* parent, const Vec2<u8>& position);
 

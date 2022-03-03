@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class ComposeSynthScene : public ActiveWorldScene {
+class ComposeSynthScene : public ActiveWorldScene
+{
 public:
     ComposeSynthScene(App& app, Synth& synth);
 

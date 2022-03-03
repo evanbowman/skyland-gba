@@ -15,7 +15,8 @@ class State;
 using StatePtr = std::unique_ptr<State, void (*)(State*)>;
 using DeferredState = Function<16, StatePtr()>;
 
-class State {
+class State
+{
 public:
     virtual void enter(Platform&, Game&, State& prev_state);
     virtual void exit(Platform&, Game&, State& next_state);

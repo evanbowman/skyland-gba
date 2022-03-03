@@ -7,7 +7,8 @@ extern const unsigned char script_pre_levelgen[];
 extern const unsigned char script_post_levelgen[];
 //
 
-static const struct {
+static const struct
+{
     const char* name_;
     const unsigned char* data_;
 } scripts[] = {

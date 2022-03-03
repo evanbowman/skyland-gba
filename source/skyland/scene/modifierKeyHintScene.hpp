@@ -8,7 +8,8 @@ namespace skyland {
 
 
 
-class ModifierKeyHintScene : public ActiveWorldScene {
+class ModifierKeyHintScene : public ActiveWorldScene
+{
 public:
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override;

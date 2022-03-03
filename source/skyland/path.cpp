@@ -7,7 +7,8 @@ namespace skyland {
 
 
 
-struct PathVertexData {
+struct PathVertexData
+{
     Vec2<u8> coord_;
     u16 dist_ = std::numeric_limits<u16>::max();
     PathVertexData* prev_ = nullptr;

@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class Palm : public Decoration {
+class Palm : public Decoration
+{
 public:
     Palm(Island* parent, const Vec2<u8>& position)
         : Decoration(parent, name(), position)

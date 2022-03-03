@@ -21,7 +21,8 @@ template <typename T> using ScenePtr = std::unique_ptr<T, void (*)(Scene*)>;
 ScenePtr<Scene> null_scene();
 
 
-class Scene {
+class Scene
+{
 public:
     virtual ~Scene(){};
 

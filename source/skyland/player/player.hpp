@@ -21,7 +21,8 @@ class App;
 
 
 
-class Player {
+class Player
+{
 public:
     virtual ~Player()
     {

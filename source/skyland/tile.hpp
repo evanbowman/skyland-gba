@@ -2,7 +2,8 @@
 
 
 
-struct Tile {
+struct Tile
+{
     enum {
         null,
         airborne_selection = 1,
@@ -106,7 +107,8 @@ struct Tile {
 
 
 
-struct InteriorTile {
+struct InteriorTile
+{
     enum {
         null,
         airborne_selection = 1,
@@ -206,7 +208,8 @@ struct InteriorTile {
 };
 
 
-struct SpriteTile {
+struct SpriteTile
+{
     enum {
         custom_sprite_tile_begin = 110,
     };

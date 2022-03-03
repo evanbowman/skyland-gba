@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class WeaponSetTargetScene : public ActiveWorldScene {
+class WeaponSetTargetScene : public ActiveWorldScene
+{
 public:
     WeaponSetTargetScene(const Vec2<u8>& weapon_loc,
                          bool near = true,

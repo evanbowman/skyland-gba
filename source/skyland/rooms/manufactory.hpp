@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class Manufactory : public Room {
+class Manufactory : public Room
+{
 public:
     Manufactory(Island* parent, const Vec2<u8>& position);
 

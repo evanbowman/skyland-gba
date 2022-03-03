@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class CreditsModule : public Module<CreditsModule> {
+class CreditsModule : public Module<CreditsModule>
+{
 public:
     static SystemString module_name()
     {

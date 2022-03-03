@@ -15,7 +15,8 @@ namespace skyland {
 
 
 
-class Speaker : public Decoration {
+class Speaker : public Decoration
+{
 public:
     Speaker(Island* parent, const Vec2<u8>& position);
 
@@ -82,7 +83,8 @@ public:
     void finalize(Platform& pfrm, App& app) override;
 
 
-    struct Settings {
+    struct Settings
+    {
         Platform::Speaker::ChannelSettings square_1_;
         Platform::Speaker::ChannelSettings square_2_;
         Platform::Speaker::ChannelSettings noise_;
@@ -93,7 +95,8 @@ public:
     using EffectVector = Bitvector<2 * 16 * 4>;
 
 
-    struct EffectFlags {
+    struct EffectFlags
+    {
         EffectVector vector_;
 
 

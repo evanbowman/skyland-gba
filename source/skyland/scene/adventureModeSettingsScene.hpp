@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class AdventureModeSettingsScene : public Scene {
+class AdventureModeSettingsScene : public Scene
+{
 public:
     void enter(Platform& pfrm, App& app, Scene& prev) override;
 

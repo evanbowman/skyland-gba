@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class SkylandForever : public Module<SkylandForever> {
+class SkylandForever : public Module<SkylandForever>
+{
 public:
     static SystemString module_name()
     {
@@ -54,7 +55,8 @@ public:
 private:
     void update_parameter(u8 line_num);
 
-    struct ParameterInfo {
+    struct ParameterInfo
+    {
         const char* name_;
         int increment_;
         int lower_limit_;

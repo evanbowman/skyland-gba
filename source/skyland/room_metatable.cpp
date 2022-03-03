@@ -44,7 +44,8 @@ namespace skyland {
 
 
 
-template <typename T> struct InfoImpl : public RoomMeta::Info {
+template <typename T> struct InfoImpl : public RoomMeta::Info
+{
     InfoImpl()
         // NOTE: the game will fill in these parameters from configuration
         // later on.
@@ -162,7 +163,8 @@ void RoomMeta::init_plugin()
 
 
 
-template <int plugin_slots, typename... Rooms> struct RoomMetatable {
+template <int plugin_slots, typename... Rooms> struct RoomMetatable
+{
 public:
     template <size_t i, typename First, typename... Rest> void init()
     {

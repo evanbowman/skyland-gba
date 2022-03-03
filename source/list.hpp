@@ -5,7 +5,8 @@
 #include "memory/pool.hpp"
 
 
-template <typename T> struct BiNode {
+template <typename T> struct BiNode
+{
     BiNode* right_;
     BiNode* left_;
     T data_;
@@ -15,7 +16,8 @@ template <typename T> struct BiNode {
 // We're trying to save bytes. We want to allow the list to optionally include a
 // pointer to a distinct memory pool if needed, or, an alternate implementation
 // of ListData could refer to a static pool instead, saving four bytes.
-template <typename T, typename _Pool> struct ListData {
+template <typename T, typename _Pool> struct ListData
+{
 
     using Pool = _Pool;
 
@@ -34,7 +36,8 @@ template <typename T, typename _Pool> struct ListData {
 };
 
 
-template <typename T, typename Data> class List {
+template <typename T, typename Data> class List
+{
 public:
     using Node = BiNode<T>;
     using ValueType = T;
@@ -112,7 +115,8 @@ public:
         return data_.begin_ == nullptr;
     }
 
-    class Iterator {
+    class Iterator
+    {
     public:
         Iterator(Node* ptr) : node_(ptr)
         {

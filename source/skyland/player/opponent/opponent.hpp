@@ -17,7 +17,8 @@ class App;
 
 
 
-class Opponent : public Player {
+class Opponent : public Player
+{
 public:
     virtual ~Opponent()
     {

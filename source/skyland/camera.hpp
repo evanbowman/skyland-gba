@@ -17,7 +17,8 @@ class Island;
 
 
 
-class Camera {
+class Camera
+{
 public:
     virtual ~Camera()
     {

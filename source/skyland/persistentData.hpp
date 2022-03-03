@@ -15,7 +15,8 @@ namespace skyland {
 
 
 
-struct GlobalPersistentData {
+struct GlobalPersistentData
+{
     FlagPixels flag_img_;
     Highscores highscores_;
 
@@ -35,7 +36,8 @@ struct GlobalPersistentData {
 
 
 
-struct PersistentData {
+struct PersistentData
+{
     Coins coins_ = 0; // TODO: use HostInteger<> here?
     WorldGraph world_graph_;
     int current_world_location_ = 0;

@@ -92,7 +92,8 @@ static void __attribute__((noinline)) busy_wait(unsigned max)
 
 namespace {
 
-class RemoteConsoleLispPrinter : public lisp::Printer {
+class RemoteConsoleLispPrinter : public lisp::Printer
+{
 public:
     RemoteConsoleLispPrinter(Platform& pfrm) : pfrm_(pfrm)
     {
@@ -153,7 +154,8 @@ static bool get_gflag(GlobalFlag f)
 }
 
 
-struct BiosVersion {
+struct BiosVersion
+{
     enum {
         NDS = static_cast<long unsigned int>(-1162995584),
         GBA = static_cast<long unsigned int>(-1162995585)
@@ -484,7 +486,8 @@ void Platform::Keyboard::rumble(bool enabled)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-struct alignas(4) ObjectAttributes {
+struct alignas(4) ObjectAttributes
+{
     u16 attribute_0;
     u16 attribute_1;
     u16 attribute_2;
@@ -495,7 +498,8 @@ struct alignas(4) ObjectAttributes {
 
 // See documentation. Object memory provides thirty-two matrices for affine
 // transformation; the parameters nestled between every four objects.
-struct alignas(4) ObjectAffineMatrix {
+struct alignas(4) ObjectAffineMatrix
+{
     ObjectAttributes o0;
     ObjectAttributes o1;
     ObjectAttributes o2;
@@ -923,7 +927,8 @@ void Platform::Screen::set_shader_argument(int arg)
 // previous results, and if one matches the current blend parameters, the caller
 // will set the locked_ field to true, and return the index of the existing
 // palette bank. Each call to display() unlocks all of the palette infos.
-static struct PaletteInfo {
+static struct PaletteInfo
+{
     ColorConstant color_ = ColorConstant::null;
     u8 blend_amount_ = 0;
     bool locked_ = false;
@@ -1017,7 +1022,8 @@ static PaletteBank color_mix(ColorConstant k, u8 amount)
 }
 
 
-static struct DynamicTextureMapping {
+static struct DynamicTextureMapping
+{
     bool reserved_ = false;
     bool dirty_ = false;
     u16 spritesheet_offset_ = 0;
@@ -2875,7 +2881,8 @@ static const u32 null_music[null_music_len] = {0};
 
 
 // static const
-struct AudioTrack {
+struct AudioTrack
+{
     const char* name_;
     const AudioSample* data_;
     int length_; // NOTE: For music, this is the track length in 32 bit words,
@@ -2995,12 +3002,15 @@ Microseconds Platform::Speaker::track_length(const char* name)
 
 
 namespace detail {
-template <std::size_t... Is> struct seq {
+template <std::size_t... Is> struct seq
+{
 };
 template <std::size_t N, std::size_t... Is>
-struct gen_seq : gen_seq<N - 1, N - 1, Is...> {
+struct gen_seq : gen_seq<N - 1, N - 1, Is...>
+{
 };
-template <std::size_t... Is> struct gen_seq<0, Is...> : seq<Is...> {
+template <std::size_t... Is> struct gen_seq<0, Is...> : seq<Is...>
+{
 };
 
 
@@ -3182,7 +3192,8 @@ static const uint __snd_rates[13] = {
 
 
 
-struct NoiseFrequencyTableEntry {
+struct NoiseFrequencyTableEntry
+{
     u8 shift_;
     u8 ratio_;
 } noise_frequency_table_[57] = {
@@ -3196,7 +3207,8 @@ struct NoiseFrequencyTableEntry {
 
 
 
-struct AnalogChannel {
+struct AnalogChannel
+{
     Platform::Speaker::Note last_note_;
     u8 last_octave_;
     Microseconds effect_timer_;
@@ -3744,7 +3756,8 @@ Platform::~Platform()
 }
 
 
-struct GlyphMapping {
+struct GlyphMapping
+{
     u16 mapper_offset_;
 
     // -1 represents unassigned. Mapping a tile into memory sets the reference
@@ -3773,7 +3786,8 @@ static int glyph_table_size = glyph_mapping_count;
 static const int font_color_index_tile = 81;
 
 
-struct GlyphTable {
+struct GlyphTable
+{
     GlyphMapping mappings_[glyph_mapping_count + glyph_expanded_count];
 };
 
@@ -4390,7 +4404,8 @@ static u8* font_index_tile()
 }
 
 
-struct FontColorIndices {
+struct FontColorIndices
+{
     int fg_;
     int bg_;
 };
@@ -4858,7 +4873,8 @@ static const int message_iters =
     Platform::NetworkPeer::max_message_size / sizeof(u16);
 
 
-struct WireMessage {
+struct WireMessage
+{
     u16 data_[message_iters] = {};
 };
 
@@ -4867,7 +4883,8 @@ using TxInfo = WireMessage;
 using RxInfo = WireMessage;
 
 
-struct MultiplayerComms {
+struct MultiplayerComms
+{
     int rx_loss = 0;
     int tx_loss = 0;
 
@@ -5683,7 +5700,8 @@ void Platform::SystemClock::init(Platform& pfrm)
 using ConsoleLine = Platform::RemoteConsole::Line;
 
 
-struct RemoteConsoleState {
+struct RemoteConsoleState
+{
     // NOTE: Some of these vars should probably be volatile, but, as we're
     // dealing with keystrokes, which happen on a human timescale, the
     // probability of anything getting messed up is pretty small.

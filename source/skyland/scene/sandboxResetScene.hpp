@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class SandboxResetScene : public Scene {
+class SandboxResetScene : public Scene
+{
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 

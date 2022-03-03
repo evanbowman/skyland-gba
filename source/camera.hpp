@@ -6,7 +6,8 @@
 class Platform;
 
 
-class Camera {
+class Camera
+{
 public:
     void update(Platform& pfrm,
                 Settings::CameraMode mode,
@@ -35,7 +36,8 @@ public:
     }
 
 private:
-    struct Ballast {
+    struct Ballast
+    {
         u32 divisor_ = 0;
         Vec2<Float> center_;
     } ballast_;

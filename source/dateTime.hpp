@@ -4,14 +4,16 @@
 #include "number/int.h"
 
 
-struct Date {
+struct Date
+{
     s32 year_;
     s32 month_;
     s32 day_;
 };
 
 
-struct DateTime {
+struct DateTime
+{
     Date date_;
     s32 hour_;
     s32 minute_;

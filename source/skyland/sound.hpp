@@ -17,7 +17,8 @@ namespace skyland {
 
 
 
-class Sound {
+class Sound
+{
 public:
     Sound(const char* name);
     Sound(const Sound& other) = delete;

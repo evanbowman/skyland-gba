@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class WorldGraph {
+class WorldGraph
+{
 public:
     static const int width = 21;
     static const int height = 12;
@@ -27,7 +28,8 @@ public:
     void generate();
 
 
-    struct Node {
+    struct Node
+    {
         enum class Type : u8 {
             null,
             visited,

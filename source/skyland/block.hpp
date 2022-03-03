@@ -21,7 +21,8 @@ namespace skyland {
 
 
 
-class Block {
+class Block
+{
 };
 
 

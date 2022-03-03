@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class Radiator : public Room {
+class Radiator : public Room
+{
 public:
     Radiator(Island* parent, const Vec2<u8>& position);
 

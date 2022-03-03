@@ -4,7 +4,8 @@
 #include <array>
 
 
-struct Tile {
+struct Tile
+{
     enum : u8 {
         none,
         plate,
@@ -31,7 +32,8 @@ struct Tile {
     };
 };
 
-class TileMap {
+class TileMap
+{
 public:
     // NOTE: The tilemap constants here are sixteen and twenty, due to limits of
     // the GBA hardware, but could be bumped up for Desktop releases.

@@ -16,7 +16,8 @@ extern SharedVariable flak_gun_reload_ms;
 
 
 
-class FlakGun : public Weapon {
+class FlakGun : public Weapon
+{
 public:
     FlakGun(Island* parent, const Vec2<u8>& position);
 

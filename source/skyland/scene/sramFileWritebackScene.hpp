@@ -18,7 +18,8 @@ namespace skyland {
 
 
 
-class SramFileWritebackScene : public Scene {
+class SramFileWritebackScene : public Scene
+{
 public:
     SramFileWritebackScene(const char* path,
                            Vector<char>&& text_buffer,

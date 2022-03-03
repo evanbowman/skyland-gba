@@ -16,7 +16,8 @@ extern SharedVariable ion_cannon_reload_ms;
 
 
 
-class IonCannon : public Weapon {
+class IonCannon : public Weapon
+{
 public:
     IonCannon(Island* parent, const Vec2<u8>& position);
 

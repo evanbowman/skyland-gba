@@ -10,7 +10,8 @@ namespace skyland::achievements {
 
 
 
-struct AchievementInfo {
+struct AchievementInfo
+{
     const char* name_;
     const char* description_;
     const char* reward_;

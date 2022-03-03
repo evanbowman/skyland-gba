@@ -13,7 +13,8 @@ namespace skyland {
 
 
 
-class FileBrowserModule : public Module<FileBrowserModule> {
+class FileBrowserModule : public Module<FileBrowserModule>
+{
 public:
     static SystemString module_name()
     {

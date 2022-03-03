@@ -18,9 +18,11 @@ namespace skyland {
 
 // Why metaclasses? We need to be able to request info about a room before
 // instantiating one, so mostly an organizational choice.
-struct RoomMeta {
+struct RoomMeta
+{
 
-    struct Info {
+    struct Info
+    {
         virtual ~Info()
         {
         }

@@ -20,7 +20,8 @@
 using OverlayCoord = Vec2<u8>;
 
 
-struct FontConfiguration {
+struct FontConfiguration
+{
 
     // Double-sized text configuration added during chinese language
     // localization, when we determined that chinese glyphs would not be
@@ -33,7 +34,8 @@ struct FontConfiguration {
 using OptColors = std::optional<FontColors>;
 
 
-class Text {
+class Text
+{
 public:
     Text(Platform& pfrm,
          const char* str,
@@ -94,7 +96,8 @@ private:
 
 
 // 8x8 pixels
-class SmallIcon {
+class SmallIcon
+{
 public:
     SmallIcon(Platform& pfrm, int tile, const OverlayCoord& coord);
     SmallIcon(const SmallIcon&) = delete;
@@ -107,7 +110,8 @@ private:
 
 
 // 16x16 pixels, comprised of four 8x8 tiles
-class MediumIcon {
+class MediumIcon
+{
 public:
     MediumIcon(Platform& pfrm, int tile, const OverlayCoord& coord);
     MediumIcon(const MediumIcon&) = delete;
@@ -126,7 +130,8 @@ private:
 
 // Unlike Text, TextView understands words, reflows words onto new lines, and is
 // capable of scrolling vertically through a block of text.
-class TextView {
+class TextView
+{
 public:
     TextView(Platform& pfrm);
     TextView(const TextView&) = delete;
@@ -162,7 +167,8 @@ private:
 };
 
 
-class Border {
+class Border
+{
 public:
     Border(Platform& pfrm,
            const OverlayCoord& size,
@@ -182,7 +188,8 @@ private:
 };
 
 
-class BossHealthBar {
+class BossHealthBar
+{
 public:
     BossHealthBar(Platform& pfrm, u8 height, const OverlayCoord& position);
     BossHealthBar(const BossHealthBar&) = delete;
@@ -197,7 +204,8 @@ private:
 };
 
 
-class LoadingBar {
+class LoadingBar
+{
 public:
     LoadingBar(Platform& pfrm, u8 width, const OverlayCoord& position);
     LoadingBar(const LoadingBar&) = delete;
@@ -213,7 +221,8 @@ private:
 
 
 // Swoops in/out from the right side of the screen, based on display percentage.
-class Sidebar {
+class Sidebar
+{
 public:
     Sidebar(Platform& pfrm, u8 width, u8 height, const OverlayCoord& pos);
     Sidebar(const Sidebar&) = delete;
@@ -229,7 +238,8 @@ private:
 };
 
 
-class LeftSidebar {
+class LeftSidebar
+{
 public:
     LeftSidebar(Platform& pfrm, u8 width, u8 height, const OverlayCoord& pos);
     LeftSidebar(const Sidebar&) = delete;
@@ -245,7 +255,8 @@ private:
 };
 
 
-class HorizontalFlashAnimation {
+class HorizontalFlashAnimation
+{
 public:
     HorizontalFlashAnimation(Platform& pfrm, const OverlayCoord& position)
         : pfrm_(pfrm), position_(position), width_(0), timer_(0), index_(0)
@@ -370,7 +381,8 @@ inline void right_text_margin(Text& text, Margin margin)
 u32 integer_text_length(int n);
 
 
-class UIMetric {
+class UIMetric
+{
 public:
     enum class Align : u8 { left, right };
 

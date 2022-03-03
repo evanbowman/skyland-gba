@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class IonBurst : public Projectile {
+class IonBurst : public Projectile
+{
 public:
     IonBurst(const Vec2<Float>& position,
              const Vec2<Float>& target,

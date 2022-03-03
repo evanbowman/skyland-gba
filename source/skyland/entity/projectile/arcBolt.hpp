@@ -13,7 +13,8 @@ class Island;
 
 
 
-class ArcBolt : public Projectile {
+class ArcBolt : public Projectile
+{
 public:
     ArcBolt(const Vec2<Float>& position,
             const Vec2<Float>& target,

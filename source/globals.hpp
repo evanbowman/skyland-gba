@@ -23,12 +23,14 @@
 // };
 
 
-struct ExampleGlobalData {
+struct ExampleGlobalData
+{
     u8 buffer[2048];
 };
 
 
-struct SkylandGlobalData {
+struct SkylandGlobalData
+{
     skyland::scene_pool::_Pool scene_pool_;
 
     Vec2<u8> near_cursor_loc_;

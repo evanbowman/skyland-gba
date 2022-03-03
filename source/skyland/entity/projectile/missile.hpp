@@ -14,7 +14,8 @@ class Island;
 
 
 
-class Missile : public Projectile {
+class Missile : public Projectile
+{
 public:
     Missile(const Vec2<Float>& position,
             const Vec2<Float>& target,

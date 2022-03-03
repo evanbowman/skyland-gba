@@ -47,7 +47,8 @@
 
 
 
-struct alignas(4) ObjectAttributes {
+struct alignas(4) ObjectAttributes
+{
     u16 attribute_0;
     u16 attribute_1;
     u16 attribute_2;
@@ -58,7 +59,8 @@ struct alignas(4) ObjectAttributes {
 
 // See documentation. Object memory provides thirty-two matrices for affine
 // transformation; the parameters nestled between every four objects.
-struct alignas(4) ObjectAffineMatrix {
+struct alignas(4) ObjectAffineMatrix
+{
     ObjectAttributes o0;
     ObjectAttributes o1;
     ObjectAttributes o2;
@@ -192,7 +194,8 @@ static Platform::Screen::Shader shader = passthrough_shader;
 static int shader_argument = 0;
 
 
-struct GlyphMapping {
+struct GlyphMapping
+{
     u16 mapper_offset_;
 
     // -1 represents unassigned. Mapping a tile into memory sets the reference
@@ -216,7 +219,8 @@ static const int font_color_index_tile = 81;
 static const int bad_glyph = 111;
 
 
-struct GlyphTable {
+struct GlyphTable
+{
     GlyphMapping mappings_[glyph_mapping_count + glyph_expanded_count];
 };
 
@@ -246,7 +250,8 @@ static u8* font_index_tile()
 }
 
 
-struct FontColorIndices {
+struct FontColorIndices
+{
     int fg_;
     int bg_;
 };
@@ -415,7 +420,8 @@ s16 vertical_parallax_table[SCREEN_HEIGHT + 1];
     } while (0)
 
 
-typedef struct DMA_REC {
+typedef struct DMA_REC
+{
     const void* src;
     void* dst;
     u32 cnt;

@@ -24,7 +24,8 @@ inline u32 count_1bits(u32 x)
 
 
 
-template <typename T> struct Vec2 {
+template <typename T> struct Vec2
+{
     T x = 0;
     T y = 0;
 
@@ -42,7 +43,8 @@ template <typename T> struct Vec2 {
 };
 
 
-template <typename T, typename U = T> struct Rect {
+template <typename T, typename U = T> struct Rect
+{
     T x_off = 0;
     T y_off = 0;
     U w = 0;
@@ -77,7 +79,8 @@ inline Float sqrt_approx(const Float x)
     constexpr Float magic = 0x5f3759df;
     const Float xhalf = 0.5f * x;
 
-    union {
+    union
+    {
         float x;
         int i;
     } u;

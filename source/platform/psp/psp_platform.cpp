@@ -260,7 +260,8 @@ std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 }
 
 
-struct SpriteMemory {
+struct SpriteMemory
+{
     alignas(16) g2dColor pixels_[64 * 64];
 };
 
@@ -280,7 +281,8 @@ static SpriteMemory sprite_image_ram[sprite_image_ram_capacity];
 static SpriteMemory sprite_image_mask[sprite_image_ram_capacity];
 
 
-struct TileMemory {
+struct TileMemory
+{
     alignas(16) g2dColor pixels_[64 * 64];
 };
 
@@ -292,7 +294,8 @@ static TileMemory map0_image_ram[map_image_ram_capacity];
 static TileMemory map1_image_ram[map_image_ram_capacity];
 
 
-struct OverlayMemory {
+struct OverlayMemory
+{
     alignas(16) g2dColor pixels_[16 * 16];
 };
 

@@ -15,7 +15,8 @@ class Island;
 
 
 
-class SalvageRoomScene : public ActiveWorldScene {
+class SalvageRoomScene : public ActiveWorldScene
+{
 public:
     SalvageRoomScene(bool near = true) : near_(near)
     {

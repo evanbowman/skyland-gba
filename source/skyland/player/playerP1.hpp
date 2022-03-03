@@ -14,7 +14,8 @@ namespace skyland {
 
 
 
-class PlayerP1 : public Player {
+class PlayerP1 : public Player
+{
 public:
     void update(Platform&, App&, Microseconds delta) override;
 

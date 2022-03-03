@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class CombatDroneSetTargetScene : public ActiveWorldScene {
+class CombatDroneSetTargetScene : public ActiveWorldScene
+{
 public:
     CombatDroneSetTargetScene(SharedEntityRef<Drone> drone)
         : drone_(drone), near_(true)

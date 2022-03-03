@@ -10,7 +10,8 @@
 namespace skyland {
 
 
-class LispReplScene : public Scene {
+class LispReplScene : public Scene
+{
 public:
     LispReplScene(Platform& pfrm);
 
@@ -38,7 +39,8 @@ private:
 
     static constexpr const int completion_count = 10;
 
-    struct Completions {
+    struct Completions
+    {
         Buffer<const char*, completion_count> completion_strs_;
         Buffer<Text, completion_count> completions_;
         u8 completion_cursor_ = 0;

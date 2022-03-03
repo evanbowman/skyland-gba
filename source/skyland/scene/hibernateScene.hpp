@@ -13,7 +13,8 @@ namespace skyland {
 
 
 
-class HibernateScene : public Scene {
+class HibernateScene : public Scene
+{
 public:
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {

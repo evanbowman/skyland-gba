@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class FactoryResetModule : public Module<FactoryResetModule> {
+class FactoryResetModule : public Module<FactoryResetModule>
+{
 public:
     static SystemString module_name()
     {

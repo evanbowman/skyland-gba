@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class LoadModuleScene : public Scene {
+class LoadModuleScene : public Scene
+{
 public:
     void enter(Platform&, App&, Scene& prev) override;
 

@@ -4,7 +4,8 @@
 #include "number/numeric.hpp"
 
 
-class TimeTracker {
+class TimeTracker
+{
 public:
     TimeTracker(u32 secs) : time_(seconds(secs))
     {

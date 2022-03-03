@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class Explosion : public Entity {
+class Explosion : public Entity
+{
 public:
     static const int start_index = 19;
 

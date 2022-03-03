@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class StartMenuScene : public WorldScene {
+class StartMenuScene : public WorldScene
+{
 public:
     StartMenuScene(Platform& pfrm, int fade_direction);
 
@@ -51,10 +52,12 @@ private:
     };
 
 
-    struct Data {
+    struct Data
+    {
         Buffer<Text, option_count> text_;
 
-        struct TransitionInfo {
+        struct TransitionInfo
+        {
             DeferredScene next_scene_;
             TransitionMode mode_;
         };

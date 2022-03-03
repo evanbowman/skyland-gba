@@ -43,7 +43,8 @@ constexpr inline ColorConstant custom_color(u8 r, u8 g, u8 b)
 }
 
 
-struct ColorMix {
+struct ColorMix
+{
     ColorConstant color_ = ColorConstant::null;
     u8 amount_ = 0;
 };

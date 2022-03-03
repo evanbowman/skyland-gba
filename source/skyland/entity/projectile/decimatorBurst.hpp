@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class DecimatorBurst : public Projectile {
+class DecimatorBurst : public Projectile
+{
 public:
     DecimatorBurst(const Vec2<Float>& position,
                    const Vec2<Float>& target,

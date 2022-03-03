@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class SandboxLoaderModule : public Module<SandboxLoaderModule> {
+class SandboxLoaderModule : public Module<SandboxLoaderModule>
+{
 public:
     static SystemString module_name()
     {
@@ -58,7 +59,8 @@ private:
     std::optional<Text> title_;
     std::optional<Text> help_;
 
-    struct ParameterInfo {
+    struct ParameterInfo
+    {
         SystemString name_;
         int increment_;
         int lower_limit_;

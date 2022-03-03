@@ -4,7 +4,8 @@
 
 
 
-template <u32 bits> class BloomFilter {
+template <u32 bits> class BloomFilter
+{
 public:
     void insert(const char* data, u32 data_length)
     {

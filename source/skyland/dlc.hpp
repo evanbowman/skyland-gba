@@ -15,13 +15,15 @@ namespace skyland::dlc::archive {
 
 
 
-struct Header {
+struct Header
+{
     host_u16 file_count_;
 };
 
 
 
-struct FileDescription {
+struct FileDescription
+{
     u8 name_length_;
     host_u16 file_size_;
 

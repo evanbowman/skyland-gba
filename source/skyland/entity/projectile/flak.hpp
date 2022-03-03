@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class Flak : public Projectile {
+class Flak : public Projectile
+{
 public:
     Flak(const Vec2<Float>& position,
          const Vec2<Float>& target,

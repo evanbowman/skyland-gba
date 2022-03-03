@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class AchievementNotificationScene : public WorldScene {
+class AchievementNotificationScene : public WorldScene
+{
 public:
     AchievementNotificationScene(achievements::Achievement achievement,
                                  DeferredScene next_scene,

@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class TitleScreenScene : public Scene {
+class TitleScreenScene : public Scene
+{
 public:
     TitleScreenScene(int start_page = 1);
 
@@ -43,8 +44,10 @@ private:
     std::optional<Vec2<u8>> module_cursor_;
 
 
-    struct Pong {
-        struct Pad {
+    struct Pong
+    {
+        struct Pad
+        {
             Float speed_;
             Float pos_;
         };

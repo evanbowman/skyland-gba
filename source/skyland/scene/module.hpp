@@ -19,9 +19,11 @@ namespace skyland {
 
 
 namespace detail {
-class _Module : public Scene {
+class _Module : public Scene
+{
 public:
-    class Factory {
+    class Factory
+    {
     public:
         Factory()
         {
@@ -74,7 +76,8 @@ public:
 
 
 
-template <typename T> class Module : public detail::_Module {
+template <typename T> class Module : public detail::_Module
+{
 public:
     static bool enable_custom_scripts()
     {
@@ -88,7 +91,8 @@ public:
     }
 
 
-    class Factory : public _Module::Factory {
+    class Factory : public _Module::Factory
+    {
     public:
         SystemString name() override
         {

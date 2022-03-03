@@ -12,7 +12,8 @@ namespace skyland {
 
 
 
-class Paint {
+class Paint
+{
 public:
     Paint(u8 canvas_width = 13,
           u8 canvas_height = 11,

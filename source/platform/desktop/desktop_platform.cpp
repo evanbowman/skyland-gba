@@ -54,7 +54,8 @@ std::string resource_path();
 ////////////////////////////////////////////////////////////////////////////////
 
 
-class TileMap : public sf::Drawable, public sf::Transformable {
+class TileMap : public sf::Drawable, public sf::Transformable
+{
 public:
     TileMap(sf::Texture* texture, sf::Vector2u tile_size, int width, int height)
         : texture_(texture), tile_size_(tile_size), width_(width),
@@ -136,7 +137,8 @@ static constexpr Vec2<u32> resolution{240, 160};
 static const TileDesc glyph_region_start = 504;
 
 
-class Platform::Data {
+class Platform::Data
+{
 public:
     sf::Texture spritesheet_texture_;
     sf::Texture tile0_texture_;
@@ -267,7 +269,8 @@ public:
 static Platform* platform = nullptr;
 
 
-class WatchdogTask : public Platform::Task {
+class WatchdogTask : public Platform::Task
+{
 public:
     WatchdogTask()
     {
@@ -1901,7 +1904,8 @@ SynchronizedBase::~SynchronizedBase()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-struct NetworkPeerImpl {
+struct NetworkPeerImpl
+{
     sf::TcpSocket socket_;
     sf::TcpListener listener_;
     bool is_host_ = false;

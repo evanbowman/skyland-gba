@@ -4,7 +4,8 @@
 #include "number/numeric.hpp"
 
 
-class Color {
+class Color
+{
 public:
     Color(ColorConstant k)
     {

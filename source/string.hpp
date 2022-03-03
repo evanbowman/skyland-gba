@@ -73,7 +73,8 @@ inline int str_cmp(const char* p1, const char* p2)
 // removed it yet, as we do want to be able to copy a string with a smaller
 // capacity into a larger one, without compiler errors due to mismatched
 // types. Of course, there are solutions, but I have to make some changes.
-template <u32 Capacity, typename Memory> class StringAdapter {
+template <u32 Capacity, typename Memory> class StringAdapter
+{
 public:
     using Buffer = Memory;
 

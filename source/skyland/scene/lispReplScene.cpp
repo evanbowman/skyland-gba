@@ -164,7 +164,8 @@ void LispReplScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 namespace {
-class Printer : public lisp::Printer {
+class Printer : public lisp::Printer
+{
 public:
     Printer(LispReplScene::Command& cmd) : cmd_(cmd)
     {

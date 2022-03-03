@@ -12,7 +12,8 @@ class Island;
 
 
 
-class Bird : public Entity {
+class Bird : public Entity
+{
 public:
     using Entity::Entity;
 

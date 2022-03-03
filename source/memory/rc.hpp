@@ -30,7 +30,8 @@ namespace detail {
 // allocated from a pool. Kind of limiting, but as we do not have a malloc
 // implementation, this is the best we can really do for a general purpose
 // allocator.
-template <typename T, u32 Count> struct PooledControlBlock {
+template <typename T, u32 Count> struct PooledControlBlock
+{
     template <typename... Args>
     PooledControlBlock(ObjectPool<PooledControlBlock, Count>* pool,
                        void (*finalizer_hook)(PooledControlBlock*),
@@ -61,7 +62,8 @@ template <typename T, u32 Count> struct PooledControlBlock {
 };
 
 
-template <typename T> class IntrusiveControlBlock {
+template <typename T> class IntrusiveControlBlock
+{
 public:
     IntrusiveControlBlock()
         : data_(nullptr), finalizer_hook_(nullptr), strong_count_(0),
@@ -108,7 +110,8 @@ using IntrusiveRcControlBlock = detail::IntrusiveControlBlock<T>;
 
 
 
-template <typename ControlBlockT> class RcBase {
+template <typename ControlBlockT> class RcBase
+{
 public:
     using ControlBlock = ControlBlockT;
 
@@ -153,7 +156,8 @@ protected:
 
 
 template <typename T, typename ControlBlockImpl>
-class Rc : public RcBase<ControlBlockImpl> {
+class Rc : public RcBase<ControlBlockImpl>
+{
 public:
     using Super = RcBase<ControlBlockImpl>;
 
@@ -203,7 +207,8 @@ private:
 
 
 template <typename T, typename ControlBlockImpl>
-class Weak : public RcBase<ControlBlockImpl> {
+class Weak : public RcBase<ControlBlockImpl>
+{
 public:
     using Super = RcBase<ControlBlockImpl>;
 

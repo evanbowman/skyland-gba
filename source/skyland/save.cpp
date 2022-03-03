@@ -51,7 +51,8 @@ void store_global_data(Platform& pfrm, const GlobalPersistentData& data)
 
 
 
-class LispPrinter : public lisp::Printer {
+class LispPrinter : public lisp::Printer
+{
 public:
     LispPrinter(Platform& pfrm) : pfrm_(pfrm)
     {

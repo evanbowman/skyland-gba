@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class ZoneImageScene : public Scene {
+class ZoneImageScene : public Scene
+{
 public:
     void enter(Platform&, App&, Scene& prev) override;
     void exit(Platform&, App&, Scene& next) override;

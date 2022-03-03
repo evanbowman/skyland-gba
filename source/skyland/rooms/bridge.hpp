@@ -16,7 +16,8 @@ void show_island_interior(Platform& pfrm, App& app, Island* island);
 
 
 
-class Bridge : public Decoration {
+class Bridge : public Decoration
+{
 public:
     Bridge(Island* parent, const Vec2<u8>& position)
         : Decoration(parent, name(), position)

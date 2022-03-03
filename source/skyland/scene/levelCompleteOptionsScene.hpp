@@ -12,7 +12,8 @@ namespace skyland {
 
 
 
-class LevelCompleteOptionsScene : public WorldScene {
+class LevelCompleteOptionsScene : public WorldScene
+{
 public:
     LevelCompleteOptionsScene(
         bool fade_in = false,

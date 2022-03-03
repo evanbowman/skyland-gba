@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class CreateFileScene : public Scene {
+class CreateFileScene : public Scene
+{
 public:
     CreateFileScene(const char* ram_file_path);
 

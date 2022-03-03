@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class PluginProjectile : public Projectile {
+class PluginProjectile : public Projectile
+{
 public:
     PluginProjectile(const Vec2<Float>& position,
                      const Vec2<Float>& target,

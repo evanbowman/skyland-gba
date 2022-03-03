@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class SharedVariable {
+class SharedVariable
+{
 public:
     SharedVariable(const char* name);
     SharedVariable(const char* name, int initial);

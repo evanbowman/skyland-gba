@@ -12,7 +12,8 @@ using Line = const char* const;
 
 
 
-struct Page {
+struct Page
+{
     Line* text_lines_;
 };
 

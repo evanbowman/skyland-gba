@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class MultiplayerConnectScene : public Scene {
+class MultiplayerConnectScene : public Scene
+{
 public:
     void enter(Platform&, App&, Scene& prev) override;
     void exit(Platform&, App&, Scene& next) override;

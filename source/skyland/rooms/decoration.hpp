@@ -8,7 +8,8 @@ namespace skyland {
 
 
 
-class Decoration : public Room {
+class Decoration : public Room
+{
 public:
     using Room::Room;
 

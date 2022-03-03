@@ -11,14 +11,16 @@ namespace filesystem {
 
 
 
-struct Root {
+struct Root
+{
     char magic_[4];
     host_u32 file_count_;
 };
 
 
 
-struct FileHeader {
+struct FileHeader
+{
     char path_[64]; // Must be null-terminated.
     host_u32 size_;
 };

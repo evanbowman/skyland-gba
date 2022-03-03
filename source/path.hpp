@@ -36,7 +36,8 @@ std::optional<DynamicMemory<PathBuffer>> find_path(Platform& pfrm,
 static constexpr const auto vertex_scratch_buffers = 2;
 
 
-struct IncrementalPathfinder {
+struct IncrementalPathfinder
+{
     IncrementalPathfinder(Platform& pfrm,
                           TileMap& tiles,
                           const PathCoord& start,
@@ -46,7 +47,8 @@ struct IncrementalPathfinder {
     compute(Platform& pfrm, int max_iters, bool* incomplete);
 
 private:
-    struct PathVertexData {
+    struct PathVertexData
+    {
         PathCoord coord_;
         u16 dist_ = std::numeric_limits<u16>::max();
         PathVertexData* prev_ = nullptr;

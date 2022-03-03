@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class InspectP2Scene final : public ActiveWorldScene {
+class InspectP2Scene final : public ActiveWorldScene
+{
 public:
     void enter(Platform&, App&, Scene& prev) override;
     void exit(Platform&, App&, Scene& prev) override;

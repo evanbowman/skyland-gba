@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class IonFizzler : public Room {
+class IonFizzler : public Room
+{
 public:
     IonFizzler(Island* parent, const Vec2<u8>& position);
 

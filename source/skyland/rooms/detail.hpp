@@ -8,7 +8,8 @@
 
 namespace skyland {
 
-class Detail : public Room {
+class Detail : public Room
+{
 public:
     Detail(Island* parent, const Vec2<u8>& position, u16 tile) : Room(parent)
     {

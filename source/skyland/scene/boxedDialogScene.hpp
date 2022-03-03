@@ -14,7 +14,8 @@ namespace skyland {
 
 
 
-class BoxedDialogScene : public WorldScene {
+class BoxedDialogScene : public WorldScene
+{
 public:
     BoxedDialogScene(DialogBuffer buffer, bool expects_answer_y_n)
         : buffer_(std::move(buffer)), expects_answer_y_n_(expects_answer_y_n),
@@ -38,7 +39,8 @@ private:
 
     void clear_textbox(Platform& pfrm);
 
-    struct TextWriterState {
+    struct TextWriterState
+    {
         const char* current_word_;
         Microseconds timer_;
         u8 line_;

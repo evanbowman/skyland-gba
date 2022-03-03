@@ -28,7 +28,8 @@ inline EntityRef<Entity> null_entity()
 }
 
 
-class EntityOOM : public Entity {
+class EntityOOM : public Entity
+{
 public:
     EntityOOM() : Entity({})
     {

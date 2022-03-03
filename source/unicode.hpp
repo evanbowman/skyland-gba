@@ -119,7 +119,8 @@ inline size_t len(const char* data)
 // large utf-8 string in memory, so we have this adapter class, which loads
 // small chunks of codepoints from the encoded string.
 //
-class BufferedStr {
+class BufferedStr
+{
 private:
     const char* const str_;
 

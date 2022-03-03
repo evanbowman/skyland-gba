@@ -36,7 +36,8 @@ constexpr size_t index_in_tuple()
 } // namespace detail
 
 
-template <typename... Members> class TransformGroup {
+template <typename... Members> class TransformGroup
+{
 public:
     TransformGroup()
     {

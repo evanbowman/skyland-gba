@@ -21,7 +21,8 @@
 
 namespace _detail {
 
-template <typename T> struct reversion_wrapper {
+template <typename T> struct reversion_wrapper
+{
     T& iterable;
 };
 

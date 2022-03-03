@@ -7,7 +7,8 @@
 namespace skyland {
 
 
-class PluginRoom : public Room {
+class PluginRoom : public Room
+{
 public:
     PluginRoom(Island* parent, const Vec2<u8>& position, RoomMeta* metaclass);
 

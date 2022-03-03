@@ -110,7 +110,8 @@ template <> inline s64 to_host_order(s64 val)
 }
 
 
-template <typename T> class HostInteger {
+template <typename T> class HostInteger
+{
 public:
     // NOTE: I could overload the cast operator and assignment operators to make
     // this class behave similarly to a plain integer. But then I get

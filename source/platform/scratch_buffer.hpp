@@ -10,7 +10,8 @@
 #endif
 
 
-struct ScratchBuffer {
+struct ScratchBuffer
+{
     // NOTE: do not make any assumptions about the alignment of the data_
     // member.
     char data_[SCRATCH_BUFFER_SIZE];

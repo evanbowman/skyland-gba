@@ -14,7 +14,8 @@ namespace skyland {
 
 
 
-class TextEditorModule : public Module<TextEditorModule> {
+class TextEditorModule : public Module<TextEditorModule>
+{
 public:
     TextEditorModule() = default;
 
@@ -70,7 +71,8 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
-    struct ParserState {
+    struct ParserState
+    {
         bool comment = false;
         bool quotation = false;
         bool endquote = false;
@@ -127,7 +129,8 @@ private:
     void center_view(Platform& pfrm);
 
 
-    struct State {
+    struct State
+    {
         StringBuffer<64> file_path_;
         bool modified_;
 

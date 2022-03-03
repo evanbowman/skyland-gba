@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class Radar : public Room {
+class Radar : public Room
+{
 public:
     Radar(Island* parent, const Vec2<u8>& position);
 

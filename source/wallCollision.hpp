@@ -4,7 +4,8 @@
 #include "tileMap.hpp"
 
 
-struct WallCollisions {
+struct WallCollisions
+{
     bool up = false;
     bool down = false;
     bool left = false;

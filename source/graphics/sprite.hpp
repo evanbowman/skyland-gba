@@ -8,7 +8,8 @@
 using TextureIndex = u16;
 
 
-class Sprite {
+class Sprite
+{
 public:
     enum Alpha : u8 {
         opaque,
@@ -196,7 +197,8 @@ enum TextureMap : TextureIndex {
 // of five. There is a reason for this, and it has to do with smooth animations
 // when the game logic is run synchronously (dt is > 1000 microseconds per
 // step).
-template <Microseconds Interval> class FadeColorAnimation {
+template <Microseconds Interval> class FadeColorAnimation
+{
 public:
     inline void advance(Sprite& sprite, Microseconds dt)
     {

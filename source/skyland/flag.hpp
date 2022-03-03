@@ -17,7 +17,8 @@ class App;
 
 
 
-struct FlagPixels {
+struct FlagPixels
+{
     static const int width = 13;
     static const int height = 11;
 

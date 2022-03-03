@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class RepairDroneRangeScene : public ActiveWorldScene {
+class RepairDroneRangeScene : public ActiveWorldScene
+{
 public:
     RepairDroneRangeScene(SharedEntityRef<Drone> drone) : drone_(drone)
     {

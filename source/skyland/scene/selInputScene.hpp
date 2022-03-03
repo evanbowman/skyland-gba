@@ -15,7 +15,8 @@ namespace skyland {
 
 
 
-class SelInputScene : public ActiveWorldScene {
+class SelInputScene : public ActiveWorldScene
+{
 public:
     SelInputScene(lisp::Value* parameters, bool near)
         : parameters_(parameters), near_(near), started_near_(near)

@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class NotificationScene : public ActiveWorldScene {
+class NotificationScene : public ActiveWorldScene
+{
 public:
     NotificationScene(const StringBuffer<30>& msg, DeferredScene next_scene)
         : next_scene_(next_scene), msg_(msg)

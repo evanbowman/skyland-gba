@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class Replicator : public Room {
+class Replicator : public Room
+{
 public:
     Replicator(Island* parent, const Vec2<u8>& position);
 

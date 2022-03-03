@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class Bulkhead : public Room {
+class Bulkhead : public Room
+{
 public:
     Bulkhead(Island* parent, const Vec2<u8>& position);
 

@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class DlcInjectorModule : public Module<DlcInjectorModule> {
+class DlcInjectorModule : public Module<DlcInjectorModule>
+{
 public:
     DlcInjectorModule(bool begin_load = false) : begin_load_(begin_load)
     {

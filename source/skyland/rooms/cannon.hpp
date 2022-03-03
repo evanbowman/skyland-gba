@@ -16,7 +16,8 @@ extern SharedVariable cannon_reload_ms;
 
 
 
-class Cannon : public Weapon {
+class Cannon : public Weapon
+{
 public:
     Cannon(Island* parent, const Vec2<u8>& position);
 

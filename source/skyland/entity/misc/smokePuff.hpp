@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class SmokePuff : public Entity {
+class SmokePuff : public Entity
+{
 public:
     SmokePuff(const Vec2<Float>& position, u16 tile = 27) : Entity({{}, {}})
     {

@@ -10,7 +10,8 @@ using VolumeScaleLUT = std::array<s8, 256>;
 using AudioSample = s8;
 
 
-struct ActiveSoundInfo {
+struct ActiveSoundInfo
+{
     s32 position_;
     const s32 length_;
     const AudioSample* data_;
@@ -20,7 +21,8 @@ struct ActiveSoundInfo {
 };
 
 
-struct SoundContext {
+struct SoundContext
+{
     // Only three sounds will play at a time... hey, sound mixing's expensive!
     Buffer<ActiveSoundInfo, 3> active_sounds;
 
@@ -30,7 +32,8 @@ struct SoundContext {
 };
 
 
-struct AudioBuffer {
+struct AudioBuffer
+{
     static const int sample_count = 280 / 4;
 
     int samples_[sample_count];

@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class Infirmary : public Room {
+class Infirmary : public Room
+{
 public:
     Infirmary(Island* parent, const Vec2<u8>& position);
 

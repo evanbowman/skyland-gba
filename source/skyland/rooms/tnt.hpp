@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class Explosive : public Room {
+class Explosive : public Room
+{
 public:
     Explosive(Island* parent,
               const Vec2<u8>& position,
@@ -109,7 +110,8 @@ private:
 
 
 
-class TNT : public Explosive {
+class TNT : public Explosive
+{
 public:
     TNT(Island* parent, const Vec2<u8>& position)
         : Explosive(parent, position, name())

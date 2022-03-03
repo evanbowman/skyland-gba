@@ -16,7 +16,8 @@ extern SharedVariable arc_gun_reload_ms;
 
 
 
-class ArcGun : public Weapon {
+class ArcGun : public Weapon
+{
 public:
     ArcGun(Island* parent, const Vec2<u8>& position);
 

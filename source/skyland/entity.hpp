@@ -26,7 +26,8 @@ class Room;
 
 
 
-class Entity {
+class Entity
+{
 public:
     Entity(const HitBox::Dimension& dimension) : health_(1)
     {
@@ -120,7 +121,8 @@ static constexpr const int max_entity_size = 200;
 #endif
 
 
-struct EntityPools {
+struct EntityPools
+{
 public:
     static const auto entities_per_pool = 18;
     static const auto pool_count = entity_pool_size / entities_per_pool;
@@ -187,7 +189,8 @@ using EntityNodePool = Pool<sizeof(EntityNode), Capacity, alignof(Entity)>;
 
 
 
-struct GlobalEntityListData {
+struct GlobalEntityListData
+{
     using Pool = EntityNodePool<entity_pool_size>;
 
     Pool& pool() const;
@@ -195,7 +198,8 @@ struct GlobalEntityListData {
 
 
 
-template <typename T> struct GlobalEntityListDataImpl : GlobalEntityListData {
+template <typename T> struct GlobalEntityListDataImpl : GlobalEntityListData
+{
     BiNode<T>* begin_;
 };
 

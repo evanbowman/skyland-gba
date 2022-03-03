@@ -18,7 +18,8 @@ namespace skyland::time_stream {
 
 
 
-struct TimeBuffer {
+struct TimeBuffer
+{
 
     u64 time_window_begin_;
     Microseconds elapsed_ = 0;
@@ -91,7 +92,8 @@ struct TimeBuffer {
 
 
 
-class TimeStream {
+class TimeStream
+{
 public:
     static const auto max_buffers = 8;
 

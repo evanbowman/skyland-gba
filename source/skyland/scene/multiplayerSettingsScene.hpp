@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class MultiplayerSettingsScene : public Scene, public network::Listener {
+class MultiplayerSettingsScene : public Scene, public network::Listener
+{
 public:
     void enter(Platform& pfrm, App& app, Scene& prev) override;
 
@@ -79,7 +80,8 @@ private:
 
     bool opponent_ready_ = false;
 
-    struct ParameterInfo {
+    struct ParameterInfo
+    {
         const char* name_;
         int increment_;
         int lower_limit_;

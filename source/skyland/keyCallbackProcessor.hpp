@@ -15,12 +15,14 @@ class App;
 
 
 
-class KeyCallbackProcessor {
+class KeyCallbackProcessor
+{
 public:
     static const int seq_max = 11;
 
 
-    struct MatchSeq {
+    struct MatchSeq
+    {
         Key seq_[seq_max] = {
             Key::count,
             Key::count,
@@ -40,7 +42,8 @@ public:
     using Callback = Function<16, void(Platform&, App&)>;
 
 
-    struct Binding {
+    struct Binding
+    {
         MatchSeq key_seq_;
         Callback callback_;
     };

@@ -4,7 +4,8 @@
 #include <array>
 
 
-template <u32 bits> class Bitvector {
+template <u32 bits> class Bitvector
+{
 public:
     explicit constexpr Bitvector(u8 init) : data_{init}
     {
@@ -87,7 +88,8 @@ private:
 };
 
 
-template <int width, int height> class Bitmatrix {
+template <int width, int height> class Bitmatrix
+{
 public:
     constexpr Bitmatrix() : data_{}
     {

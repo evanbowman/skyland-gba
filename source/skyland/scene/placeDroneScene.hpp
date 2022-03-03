@@ -12,7 +12,8 @@ namespace skyland {
 
 
 
-class PlaceDroneScene : public ActiveWorldScene {
+class PlaceDroneScene : public ActiveWorldScene
+{
 public:
     PlaceDroneScene(Platform& pfrm,
                     Vec2<u8> origin,

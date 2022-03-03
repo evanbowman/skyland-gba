@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class ScriptHookScene : public WorldScene {
+class ScriptHookScene : public WorldScene
+{
 public:
     ScriptHookScene(const char* invoke_hook_name, DeferredScene next_scene)
         : next_scene_(next_scene), invoke_hook_name_(invoke_hook_name)

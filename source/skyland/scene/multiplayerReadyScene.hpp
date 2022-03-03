@@ -12,7 +12,8 @@ namespace skyland {
 
 
 
-class MultiplayerReadyScene : public WorldScene {
+class MultiplayerReadyScene : public WorldScene
+{
 public:
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override

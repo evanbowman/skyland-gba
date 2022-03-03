@@ -25,7 +25,8 @@ align(size_t __align, size_t __size, void*& __ptr, size_t& __space) noexcept
 // memory. If your data is nowhere near 1k, and the data is long lived, might be
 // better to use a bulk allocator, and share the underlying scratch buffer with
 // other stuff.
-template <typename T> struct DynamicMemory {
+template <typename T> struct DynamicMemory
+{
     ScratchBufferPtr memory_;
     std::unique_ptr<T, void (*)(T*)> obj_;
 
@@ -83,7 +84,8 @@ allocate_dynamic(Platform& pfrm, const ScratchBuffer::Tag& tag, Args&&... args)
 // Does not provide any mechanism for deallocation. Everything allocated from
 // the memory region will be de-allocated at once when the allocator goes out of
 // scope and lets go of its buffer.
-struct ScratchBufferBulkAllocator {
+struct ScratchBufferBulkAllocator
+{
 
     ScratchBufferBulkAllocator(Platform& pfrm)
         : buffer_(pfrm.make_scratch_buffer()), alloc_ptr_(buffer_->data_),
@@ -135,7 +137,8 @@ private:
 };
 
 
-template <u8 pages> struct BulkAllocator {
+template <u8 pages> struct BulkAllocator
+{
     BulkAllocator(Platform& pfrm)
     {
         if (pfrm.scratch_buffers_remaining() < pages) {

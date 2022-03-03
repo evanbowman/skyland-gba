@@ -361,10 +361,12 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         player_avg_forward_hull_thickness /= divisor;
     }
 
-    struct Context {
+    struct Context
+    {
         Buffer<RoomMeta*, 200> distribution_;
 
-        struct Pair {
+        struct Pair
+        {
             const char* weapon_name_;
             Float probability_;
         };
@@ -605,8 +607,10 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
 void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
 {
-    struct Context {
-        struct Slot {
+    struct Context
+    {
+        struct Slot
+        {
             Vec2<u8> coord_;
             Float weight_;
         };
@@ -789,12 +793,14 @@ void ProcgenEnemyAI::generate_stairwells(Platform& pfrm, App& app)
         return;
     }
 
-    struct StairwellPos {
+    struct StairwellPos
+    {
         Vec2<u8> coord_;
         u8 val_;
     };
 
-    struct Context {
+    struct Context
+    {
         u8 matrix[16][16];
         bool walkable_zones[16][16];
         Buffer<StairwellPos, 30> slots;
@@ -945,8 +951,10 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
     const int chr_count = 1 + rng::choice(core_count_, rng::critical_state) +
                           rng::choice(transporter_count, rng::critical_state);
 
-    struct Context {
-        struct Slot {
+    struct Context
+    {
+        struct Slot
+        {
             Vec2<u8> coord_;
             Float weight_;
         };
@@ -1043,12 +1051,14 @@ void ProcgenEnemyAI::place_room_adjacent(Platform& pfrm,
                                          App& app,
                                          const char* room_name)
 {
-    struct Slot {
+    struct Slot
+    {
         Vec2<u8> coord_;
         u8 val_;
     };
 
-    struct Context {
+    struct Context
+    {
         u8 matrix[16][16];
         bool walkable_zones[16][16];
         Buffer<Slot, 50> slots;

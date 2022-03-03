@@ -15,7 +15,8 @@ class WorldMap;
 
 
 
-class WorldMapScene : public Scene {
+class WorldMapScene : public Scene
+{
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 

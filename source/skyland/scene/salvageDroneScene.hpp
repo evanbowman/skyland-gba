@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class SalvageDroneScene : public ActiveWorldScene {
+class SalvageDroneScene : public ActiveWorldScene
+{
 public:
     SalvageDroneScene(SharedEntityRef<Drone> drone) : drone_(drone)
     {

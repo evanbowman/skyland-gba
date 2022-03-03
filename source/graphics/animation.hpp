@@ -5,7 +5,8 @@
 
 
 template <TextureIndex InitialTexture, u32 Length, Microseconds Interval>
-class Animation {
+class Animation
+{
 public:
     Animation() : timer_(0)
     {

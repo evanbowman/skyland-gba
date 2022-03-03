@@ -6,7 +6,8 @@
 #include "severity.hpp"
 
 
-struct Settings {
+struct Settings
+{
     enum class Difficulty : u8 { easy, normal, hard, survival, count };
 
     enum class ButtonMode : u8 { strafe_separate, strafe_combined, count };

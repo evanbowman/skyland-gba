@@ -134,7 +134,8 @@ void write_custom_graphics(Platform& pfrm, App& app)
 
 
 
-class RemoteConsoleLispPrinter : public lisp::Printer {
+class RemoteConsoleLispPrinter : public lisp::Printer
+{
 public:
     RemoteConsoleLispPrinter(Platform& pfrm) : pfrm_(pfrm)
     {

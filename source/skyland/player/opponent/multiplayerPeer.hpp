@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class MultiplayerPeer : public Opponent, public network::Listener {
+class MultiplayerPeer : public Opponent, public network::Listener
+{
 public:
     void update(Platform& pfrm, App& app, Microseconds delta) override;
 

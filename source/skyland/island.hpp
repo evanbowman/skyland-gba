@@ -17,7 +17,8 @@
 namespace skyland {
 
 
-class Island {
+class Island
+{
 public:
     Island(Platform& pfrm, Layer layer, u8 width, Player& owner);
     Island(const Island&) = delete;

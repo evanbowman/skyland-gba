@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class CustomTileMapper {
+class CustomTileMapper
+{
 public:
     static const int mapping_count = 15;
 
@@ -32,7 +33,8 @@ public:
 
 
 private:
-    struct Mappings {
+    struct Mappings
+    {
         img::Image textures_[mapping_count];
         Bitvector<mapping_count> textures_in_use_;
     };

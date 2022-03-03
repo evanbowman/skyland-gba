@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class Switch : public Decoration {
+class Switch : public Decoration
+{
 public:
     Switch(Island* parent, const Vec2<u8>& position);
 

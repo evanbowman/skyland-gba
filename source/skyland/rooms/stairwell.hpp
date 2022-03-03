@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class Stairwell : public Room {
+class Stairwell : public Room
+{
 public:
     Stairwell(Island* parent, const Vec2<u8>& position);
 

@@ -12,7 +12,8 @@ namespace skyland {
 
 
 
-class SelectTutorialScene : public Module<SelectTutorialScene> {
+class SelectTutorialScene : public Module<SelectTutorialScene>
+{
 public:
     void enter(Platform&, App&, Scene& prev) override;
     void exit(Platform&, App&, Scene& next) override;

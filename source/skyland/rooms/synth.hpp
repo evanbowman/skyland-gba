@@ -15,7 +15,8 @@ class Speaker;
 
 
 
-class Synth : public Decoration {
+class Synth : public Decoration
+{
 public:
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
@@ -75,7 +76,8 @@ public:
     using Note = Platform::Speaker::NoteDesc;
 
 
-    struct EffectParameter {
+    struct EffectParameter
+    {
         u8 value_;
     };
 

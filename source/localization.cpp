@@ -37,7 +37,8 @@ StringBuffer<32> format_time(u32 seconds, bool include_hours)
 
 
 
-class str_const {
+class str_const
+{
 private:
     const char* const p_;
     const size_t sz_;

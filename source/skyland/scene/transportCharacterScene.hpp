@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class TransportCharacterScene : public NotificationScene {
+class TransportCharacterScene : public NotificationScene
+{
 public:
     TransportCharacterScene(Platform& pfrm, Vec2<u8> origin);
 

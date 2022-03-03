@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class SurrenderWaitScene : public WorldScene {
+class SurrenderWaitScene : public WorldScene
+{
 public:
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override

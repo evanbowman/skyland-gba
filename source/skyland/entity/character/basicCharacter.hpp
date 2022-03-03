@@ -16,7 +16,8 @@ class Player;
 
 
 
-class BasicCharacter : public Entity {
+class BasicCharacter : public Entity
+{
 public:
     BasicCharacter(Island* parent,
                    Player* owner,

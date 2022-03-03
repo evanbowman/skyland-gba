@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class AssignWeaponGroupScene : public ActiveWorldScene {
+class AssignWeaponGroupScene : public ActiveWorldScene
+{
 public:
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override;

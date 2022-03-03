@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class FlagDesignerModule : public Module<FlagDesignerModule>, public Paint {
+class FlagDesignerModule : public Module<FlagDesignerModule>, public Paint
+{
 
 public:
     static SystemString module_name()

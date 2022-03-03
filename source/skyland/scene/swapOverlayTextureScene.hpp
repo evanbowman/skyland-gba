@@ -8,7 +8,8 @@ namespace skyland {
 
 
 
-class SwapOverlayTextureScene : public ActiveWorldScene {
+class SwapOverlayTextureScene : public ActiveWorldScene
+{
 public:
     SwapOverlayTextureScene(const char* texture_name, DeferredScene next_scene)
         : next_scene_(next_scene), next_texture_(texture_name)

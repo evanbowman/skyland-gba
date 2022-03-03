@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class AutopilotPlayer : public Player {
+class AutopilotPlayer : public Player
+{
 public:
     AutopilotPlayer(lisp::Value* keys_list);
 

@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-struct Confetti {
+struct Confetti
+{
     Float x_;
     Float y_;
     Float speed_;

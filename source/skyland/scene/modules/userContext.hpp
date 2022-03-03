@@ -8,7 +8,8 @@ namespace skyland {
 
 
 
-struct UserContext {
+struct UserContext
+{
     std::optional<Vector<char>> yank_buffer_;
 };
 

@@ -28,10 +28,13 @@
 // Other features, such as logging, also leverage the Vector class.
 
 
-template <typename T> class Vector {
+template <typename T> class Vector
+{
 private:
-    struct Chunk {
-        struct Header {
+    struct Chunk
+    {
+        struct Header
+        {
             std::optional<ScratchBufferPtr> next_;
             Chunk* prev_;
         };
@@ -90,7 +93,8 @@ private:
 
 
 public:
-    struct Iterator {
+    struct Iterator
+    {
         Iterator(int index, Chunk* chunk)
             : chunk_(chunk), index_(index), chunk_index_(index % Chunk::elems())
         {

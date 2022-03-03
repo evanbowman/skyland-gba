@@ -20,7 +20,8 @@ namespace save {
 
 
 
-struct EmergencyBackup {
+struct EmergencyBackup
+{
     PersistentData persistent_data_;
     SerialString lisp_data_;
     bool valid_ = false;
@@ -32,7 +33,8 @@ struct EmergencyBackup {
 
 
 
-struct SaveData {
+struct SaveData
+{
     HostInteger<u32> magic_;
     PersistentData data_;
 
@@ -50,7 +52,8 @@ static_assert(std::is_trivially_copyable<SaveData>::value,
 
 
 
-struct GlobalSaveData {
+struct GlobalSaveData
+{
     u32 reserved_;
     HostInteger<u32> magic_;
     GlobalPersistentData data_;

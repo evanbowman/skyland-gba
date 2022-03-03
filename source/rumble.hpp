@@ -4,7 +4,8 @@
 #include "platform/platform.hpp"
 
 
-class Rumble {
+class Rumble
+{
 public:
     void update(Platform& pfrm, Microseconds dt)
     {

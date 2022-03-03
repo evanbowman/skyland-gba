@@ -494,7 +494,8 @@ void EnemyAI::assign_local_character(Platform& pfrm,
 
     flood_fill(pfrm, matrix, 2, current_pos.x, current_pos.y);
 
-    struct Destination {
+    struct Destination
+    {
         Vec2<u8> coord_;
         Float ai_weight_;
     };
@@ -698,7 +699,8 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 
     flood_fill(pfrm, matrix, 2, current_pos.x, current_pos.y);
 
-    struct Destination {
+    struct Destination
+    {
         Vec2<u8> coord_;
         Float ai_weight_;
     };
@@ -1463,7 +1465,8 @@ void EnemyAI::set_target(Platform& pfrm,
                          const Bitmatrix<16, 16>& matrix,
                          FlakGun& flak_gun)
 {
-    struct RoomInfo {
+    struct RoomInfo
+    {
         Room* room_;
         int x_;
         int y_;

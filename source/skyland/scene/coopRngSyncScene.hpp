@@ -29,7 +29,8 @@ namespace skyland {
 
 
 
-class CoopRngSyncScene : public WorldScene, public network::Listener {
+class CoopRngSyncScene : public WorldScene, public network::Listener
+{
 public:
     ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta)
     {

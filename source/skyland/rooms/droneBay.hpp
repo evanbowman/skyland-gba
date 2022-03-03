@@ -17,7 +17,8 @@ extern SharedVariable drone_bay_reload_ms;
 
 
 
-class DroneBay : public Room {
+class DroneBay : public Room
+{
 public:
     DroneBay(Island* parent, const Vec2<u8>& position);
 

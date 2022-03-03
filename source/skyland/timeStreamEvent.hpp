@@ -114,7 +114,8 @@ enum Type : u8 {
 
 
 
-struct Initial {
+struct Initial
+{
     Header header_;
 
     static constexpr const auto t = Type::initial;
@@ -122,7 +123,8 @@ struct Initial {
 
 
 
-struct PlayerRoomCreated {
+struct PlayerRoomCreated
+{
     Header header_;
     u8 x_ : 4;
     u8 y_ : 4;
@@ -132,7 +134,8 @@ struct PlayerRoomCreated {
 
 
 
-struct OpponentRoomCreated {
+struct OpponentRoomCreated
+{
     Header header_;
     u8 x_ : 4;
     u8 y_ : 4;
@@ -142,7 +145,8 @@ struct OpponentRoomCreated {
 
 
 
-struct PlayerRoomDestroyed {
+struct PlayerRoomDestroyed
+{
     Header header_;
     u8 x_ : 4;
     u8 y_ : 4;
@@ -153,7 +157,8 @@ struct PlayerRoomDestroyed {
 
 
 
-struct OpponentRoomDestroyed {
+struct OpponentRoomDestroyed
+{
     Header header_;
     u8 x_ : 4;
     u8 y_ : 4;
@@ -164,7 +169,8 @@ struct OpponentRoomDestroyed {
 
 
 
-struct RoomPlundered {
+struct RoomPlundered
+{
     Header header_;
     u8 x_ : 4;
     u8 y_ : 4;
@@ -173,19 +179,22 @@ struct RoomPlundered {
 
 
 
-struct PlayerRoomPlundered : RoomPlundered {
+struct PlayerRoomPlundered : RoomPlundered
+{
     static constexpr const auto t = Type::player_room_plundered;
 };
 
 
 
-struct OpponentRoomPlundered : RoomPlundered {
+struct OpponentRoomPlundered : RoomPlundered
+{
     static constexpr const auto t = Type::opponent_room_plundered;
 };
 
 
 
-struct RoomSalvaged {
+struct RoomSalvaged
+{
     Header header_;
     u8 x_ : 4;
     u8 y_ : 4;
@@ -194,19 +203,22 @@ struct RoomSalvaged {
 
 
 
-struct PlayerRoomSalvaged : RoomSalvaged {
+struct PlayerRoomSalvaged : RoomSalvaged
+{
     static constexpr const auto t = Type::player_room_salvaged;
 };
 
 
 
-struct OpponentRoomSalvaged : RoomSalvaged {
+struct OpponentRoomSalvaged : RoomSalvaged
+{
     static constexpr const auto t = Type::opponent_room_salvaged;
 };
 
 
 
-struct BasicProjectileDestroyed {
+struct BasicProjectileDestroyed
+{
     Header header_;
     u8 x_origin_ : 4;
     u8 y_origin_ : 4;
@@ -219,67 +231,78 @@ struct BasicProjectileDestroyed {
 
 
 
-struct PlayerCannonballDestroyed : BasicProjectileDestroyed {
+struct PlayerCannonballDestroyed : BasicProjectileDestroyed
+{
     static constexpr const auto t = Type::player_cannonball_destroyed;
 };
 
 
 
-struct OpponentCannonballDestroyed : BasicProjectileDestroyed {
+struct OpponentCannonballDestroyed : BasicProjectileDestroyed
+{
     static constexpr const auto t = Type::player_cannonball_destroyed;
 };
 
 
 
-struct PlayerArcboltDestroyed : BasicProjectileDestroyed {
+struct PlayerArcboltDestroyed : BasicProjectileDestroyed
+{
     static constexpr const auto t = Type::player_arcbolt_destroyed;
 };
 
 
 
-struct OpponentArcboltDestroyed : BasicProjectileDestroyed {
+struct OpponentArcboltDestroyed : BasicProjectileDestroyed
+{
     static constexpr const auto t = Type::player_arcbolt_destroyed;
 };
 
 
 
-struct PlayerFlakDestroyed : BasicProjectileDestroyed {
+struct PlayerFlakDestroyed : BasicProjectileDestroyed
+{
     static constexpr const auto t = Type::player_flak_destroyed;
 };
 
 
 
-struct OpponentFlakDestroyed : BasicProjectileDestroyed {
+struct OpponentFlakDestroyed : BasicProjectileDestroyed
+{
     static constexpr const auto t = Type::opponent_flak_destroyed;
 };
 
 
 
-struct PlayerIonBurstDestroyed : BasicProjectileDestroyed {
+struct PlayerIonBurstDestroyed : BasicProjectileDestroyed
+{
     static constexpr const auto t = Type::player_ionburst_destroyed;
 };
 
 
 
-struct OpponentIonBurstDestroyed : BasicProjectileDestroyed {
+struct OpponentIonBurstDestroyed : BasicProjectileDestroyed
+{
     static constexpr const auto t = Type::opponent_ionburst_destroyed;
 };
 
 
 
-struct PlayerDecimatorBurstDestroyed : BasicProjectileDestroyed {
+struct PlayerDecimatorBurstDestroyed : BasicProjectileDestroyed
+{
     static constexpr const auto t = Type::player_decimator_burst_destroyed;
 };
 
 
 
-struct OpponentDecimatorBurstDestroyed : BasicProjectileDestroyed {
+struct OpponentDecimatorBurstDestroyed : BasicProjectileDestroyed
+{
     static constexpr const auto t = Type::opponent_decimator_burst_destroyed;
 };
 
 
 
-struct NemesisBlastDestroyed {
+struct NemesisBlastDestroyed
+{
     Header header_;
     u8 x_origin_ : 4;
     u8 y_origin_ : 4;
@@ -293,19 +316,22 @@ struct NemesisBlastDestroyed {
 
 
 
-struct PlayerNemesisBlastDestroyed : NemesisBlastDestroyed {
+struct PlayerNemesisBlastDestroyed : NemesisBlastDestroyed
+{
     static constexpr const auto t = Type::player_nemesis_blast_destroyed;
 };
 
 
 
-struct OpponentNemesisBlastDestroyed : NemesisBlastDestroyed {
+struct OpponentNemesisBlastDestroyed : NemesisBlastDestroyed
+{
     static constexpr const auto t = Type::opponent_nemesis_blast_destroyed;
 };
 
 
 
-struct PluginProjectileDestroyed {
+struct PluginProjectileDestroyed
+{
     Header header_;
     u8 x_origin_ : 4;
     u8 y_origin_ : 4;
@@ -322,19 +348,22 @@ struct PluginProjectileDestroyed {
 
 
 
-struct PlayerPluginProjectileDestroyed : PluginProjectileDestroyed {
+struct PlayerPluginProjectileDestroyed : PluginProjectileDestroyed
+{
     static constexpr const auto t = Type::player_plugin_projectile_destroyed;
 };
 
 
 
-struct OpponentPluginProjectileDestroyed : PluginProjectileDestroyed {
+struct OpponentPluginProjectileDestroyed : PluginProjectileDestroyed
+{
     static constexpr const auto t = Type::opponent_plugin_projectile_destroyed;
 };
 
 
 
-struct MissileDestroyed {
+struct MissileDestroyed
+{
     Header header_;
 
     HostInteger<Microseconds> timer_;
@@ -351,19 +380,22 @@ struct MissileDestroyed {
 
 
 
-struct PlayerMissileDestroyed : MissileDestroyed {
+struct PlayerMissileDestroyed : MissileDestroyed
+{
     static constexpr const auto t = Type::player_missile_destroyed;
 };
 
 
 
-struct OpponentMissileDestroyed : MissileDestroyed {
+struct OpponentMissileDestroyed : MissileDestroyed
+{
     static constexpr const auto t = Type::opponent_missile_destroyed;
 };
 
 
 
-struct RoomHealthChanged {
+struct RoomHealthChanged
+{
     Header header_;
     u8 x_ : 4;
     u8 y_ : 4;
@@ -375,31 +407,36 @@ struct RoomHealthChanged {
 
 
 
-struct PlayerRoomDamaged : RoomHealthChanged {
+struct PlayerRoomDamaged : RoomHealthChanged
+{
     static constexpr const auto t = Type::player_room_damaged;
 };
 
 
 
-struct OpponentRoomDamaged : RoomHealthChanged {
+struct OpponentRoomDamaged : RoomHealthChanged
+{
     static constexpr const auto t = Type::opponent_room_damaged;
 };
 
 
 
-struct PlayerRoomRepaired : RoomHealthChanged {
+struct PlayerRoomRepaired : RoomHealthChanged
+{
     static constexpr const auto t = Type::player_room_repaired;
 };
 
 
 
-struct OpponentRoomRepaired : RoomHealthChanged {
+struct OpponentRoomRepaired : RoomHealthChanged
+{
     static constexpr const auto t = Type::opponent_room_repaired;
 };
 
 
 
-struct CoinsChanged {
+struct CoinsChanged
+{
     Header header_;
     HostInteger<u32> previous_value_;
 
@@ -408,7 +445,8 @@ struct CoinsChanged {
 
 
 
-struct ReplicantCreated {
+struct ReplicantCreated
+{
     Header header_;
     u8 x_ : 4;
     u8 y_ : 4;
@@ -421,7 +459,8 @@ struct ReplicantCreated {
 
 
 
-struct CharacterMoved {
+struct CharacterMoved
+{
     Header header_;
     HostInteger<CharacterId> id_;
     u8 previous_x_ : 4;
@@ -434,7 +473,8 @@ struct CharacterMoved {
 
 
 
-struct CharacterMovementPathAssigned {
+struct CharacterMovementPathAssigned
+{
     Header header_;
     HostInteger<CharacterId> id_;
     u8 near_ : 1;
@@ -445,7 +485,8 @@ struct CharacterMovementPathAssigned {
 
 
 
-struct CharacterDied {
+struct CharacterDied
+{
     Header header_;
     HostInteger<CharacterId> id_;
     u8 x_ : 4;
@@ -460,7 +501,8 @@ struct CharacterDied {
 
 
 
-struct CharacterHealthChanged {
+struct CharacterHealthChanged
+{
     Header header_;
     HostInteger<CharacterId> id_;
     u8 owned_by_player_ : 1;
@@ -473,7 +515,8 @@ struct CharacterHealthChanged {
 
 
 
-struct CharacterTransported {
+struct CharacterTransported
+{
     Header header_;
     HostInteger<CharacterId> id_;
     u8 previous_x_ : 4;
@@ -486,7 +529,8 @@ struct CharacterTransported {
 
 
 
-struct CharacterDisembark {
+struct CharacterDisembark
+{
     Header header_;
     HostInteger<CharacterId> id_;
     u8 previous_x_ : 4;
@@ -499,7 +543,8 @@ struct CharacterDisembark {
 
 
 
-struct WeaponSetTarget {
+struct WeaponSetTarget
+{
     Header header_;
     u8 room_x_ : 4;
     u8 room_y_ : 4;
@@ -515,7 +560,8 @@ struct WeaponSetTarget {
 
 
 
-struct RoomReloadComplete {
+struct RoomReloadComplete
+{
     Header header_;
     u8 room_x_ : 4;
     u8 room_y_ : 4;
@@ -523,19 +569,22 @@ struct RoomReloadComplete {
 
 
 
-struct PlayerRoomReloadComplete : RoomReloadComplete {
+struct PlayerRoomReloadComplete : RoomReloadComplete
+{
     static constexpr const auto t = Type::player_room_reload_complete;
 };
 
 
 
-struct OpponentRoomReloadComplete : RoomReloadComplete {
+struct OpponentRoomReloadComplete : RoomReloadComplete
+{
     static constexpr const auto t = Type::opponent_room_reload_complete;
 };
 
 
 
-struct OpponentIslandDriftChanged {
+struct OpponentIslandDriftChanged
+{
     Header header_;
     u8 previous_speed_[sizeof(Float)];
 
@@ -544,7 +593,8 @@ struct OpponentIslandDriftChanged {
 
 
 
-struct IslandTerrainChanged {
+struct IslandTerrainChanged
+{
     Header header_;
     u8 previous_terrain_size_ : 4;
     u8 near_ : 1;
@@ -557,7 +607,8 @@ struct IslandTerrainChanged {
 
 // Event occurs after a drone finishes moving to its deployment point.  When we
 // see this event, we know to set the drone to its launch state, and rewind.
-struct DroneDeployed {
+struct DroneDeployed
+{
     Header header_;
     u8 x_pos_ : 4;
     u8 y_pos_ : 4;
@@ -570,7 +621,8 @@ struct DroneDeployed {
 
 
 
-struct DroneHealthChanged {
+struct DroneHealthChanged
+{
     Header header_;
     u8 x_pos_ : 4;
     u8 y_pos_ : 4;
@@ -582,7 +634,8 @@ struct DroneHealthChanged {
 
 
 
-struct DroneDestroyed {
+struct DroneDestroyed
+{
     Header header_;
     u8 x_pos_ : 4;
     u8 y_pos_ : 4;
@@ -600,7 +653,8 @@ struct DroneDestroyed {
 
 
 
-struct DroneSetTarget {
+struct DroneSetTarget
+{
     Header header_;
     u8 x_pos_ : 4;
     u8 y_pos_ : 4;
@@ -616,7 +670,8 @@ struct DroneSetTarget {
 
 
 
-struct DroneReloadComplete {
+struct DroneReloadComplete
+{
     Header header_;
     u8 x_pos_ : 4;
     u8 y_pos_ : 4;
@@ -627,7 +682,8 @@ struct DroneReloadComplete {
 
 
 
-struct RngChanged {
+struct RngChanged
+{
     Header header_;
     HostInteger<rng::LinearGenerator> previous_state_;
 
@@ -636,7 +692,8 @@ struct RngChanged {
 
 
 
-struct Achievement {
+struct Achievement
+{
     Header header_;
     achievements::Achievement which_;
     static_assert(sizeof(which_) == 1);

@@ -21,7 +21,8 @@ namespace skyland {
 
 
 
-template <u32 room_count, int map_width> class RoomTable {
+template <u32 room_count, int map_width> class RoomTable
+{
 public:
     RoomTable()
     {

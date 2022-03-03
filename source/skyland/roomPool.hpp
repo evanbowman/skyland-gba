@@ -25,7 +25,8 @@ static constexpr const int alignment = 8;
 
 
 
-struct RoomPools {
+struct RoomPools
+{
 public:
     // NOTE: each room occupies 52 bytes, plus a four byte freelist pointer, so
     // 56 bytes, i.e. ~35 rooms fit in each pool, as pools are reified as

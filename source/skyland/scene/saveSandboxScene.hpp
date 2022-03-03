@@ -17,7 +17,8 @@ namespace skyland {
 
 
 
-class SaveSandboxScene : public Scene {
+class SaveSandboxScene : public Scene
+{
 public:
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
@@ -125,7 +126,8 @@ public:
 
 
 
-    struct VectorPrinter : lisp::Printer {
+    struct VectorPrinter : lisp::Printer
+    {
         VectorPrinter(Platform& pfrm) : data_(pfrm)
         {
         }
@@ -186,7 +188,8 @@ private:
 
 
 
-class LoadSandboxScene : public SaveSandboxScene {
+class LoadSandboxScene : public SaveSandboxScene
+{
 public:
     ScenePtr<Scene> on_selected(Platform& pfrm, App& app) override
     {

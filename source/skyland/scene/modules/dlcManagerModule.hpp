@@ -12,7 +12,8 @@ namespace skyland {
 
 
 
-class DlcManagerModule : public Module<DlcManagerModule> {
+class DlcManagerModule : public Module<DlcManagerModule>
+{
 public:
     void enter(Platform&, App&, Scene& prev) override;
     void exit(Platform&, App&, Scene& next) override;
@@ -45,13 +46,15 @@ private:
 
     using PatchName = StringBuffer<30>;
 
-    struct PatchInfo {
+    struct PatchInfo
+    {
         PatchName name_;
         u8 tiles_used_ : 4;
         u8 sprites_used_ : 4;
     };
 
-    struct PatchList {
+    struct PatchList
+    {
         Buffer<PatchInfo, 32> list_;
     };
 

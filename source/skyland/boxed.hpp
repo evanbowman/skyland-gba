@@ -14,7 +14,8 @@ namespace skyland {
 
 
 template <typename T, typename DefaultType, int mem = sizeof(T), int align = 8>
-class Boxed {
+class Boxed
+{
 public:
     template <typename... Args> Boxed(Args&&... args)
     {

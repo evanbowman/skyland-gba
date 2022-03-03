@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class GlossaryViewerModule : public Module<GlossaryViewerModule> {
+class GlossaryViewerModule : public Module<GlossaryViewerModule>
+{
 public:
     static SystemString module_name()
     {

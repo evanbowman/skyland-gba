@@ -37,7 +37,8 @@ enum {
 
 
 
-struct Statistics {
+struct Statistics
+{
     u16 blocks_used_;
     u16 blocks_available_;
 };
@@ -110,7 +111,8 @@ int fs_contents_offset();
 
 
 
-struct Root {
+struct Root
+{
     char magic_[4];
     host_u16 file_count_;
     host_u16 freelist_;
@@ -119,15 +121,18 @@ struct Root {
 
 
 
-struct FileInfo {
+struct FileInfo
+{
     host_u16 file_size_;
     host_u16 file_contents_;
 };
 
 
 
-struct FileContents {
-    struct Header {
+struct FileContents
+{
+    struct Header
+    {
         // NOTE: therefore, max filesystem size is 200 * 65535
         host_u16 next_;     // Zero if no more blocks
         host_u16 checksum_; // To check for file corruption

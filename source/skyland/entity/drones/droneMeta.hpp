@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-struct DroneMeta {
+struct DroneMeta
+{
 
 
     static DroneMeta* load(const char* name);
@@ -20,7 +21,8 @@ struct DroneMeta {
     static int index(const char* name);
 
 
-    struct Box {
+    struct Box
+    {
         virtual ~Box()
         {
         }
@@ -49,7 +51,8 @@ struct DroneMeta {
     };
 
 
-    struct PluginBox : public Box {
+    struct PluginBox : public Box
+    {
         DroneMeta* mt_;
         mutable std::optional<lisp::Protected> info_;
 
@@ -96,7 +99,8 @@ struct DroneMeta {
     };
 
 
-    template <typename T> struct BoxImpl : public Box {
+    template <typename T> struct BoxImpl : public Box
+    {
         BoxImpl()
         {
         }
@@ -179,7 +183,8 @@ struct DroneMeta {
 
 
 
-template <int plugin_slots, typename... Drones> struct DroneMetatable {
+template <int plugin_slots, typename... Drones> struct DroneMetatable
+{
 public:
     template <size_t i, typename First, typename... Rest> void init()
     {

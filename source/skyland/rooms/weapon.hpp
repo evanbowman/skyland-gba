@@ -7,7 +7,8 @@ namespace skyland {
 
 
 
-class Weapon : public Room {
+class Weapon : public Room
+{
 public:
     Weapon(Island* parent,
            const char* name,

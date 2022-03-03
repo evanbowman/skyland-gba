@@ -15,7 +15,8 @@ extern SharedVariable transporter_reload_ms;
 
 
 
-class Transporter : public Room {
+class Transporter : public Room
+{
 public:
     Transporter(Island* parent, const Vec2<u8>& position);
 

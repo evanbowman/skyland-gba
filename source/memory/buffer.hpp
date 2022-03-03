@@ -6,7 +6,8 @@
 #include <new>
 
 
-template <typename T, u32 Capacity> class Buffer {
+template <typename T, u32 Capacity> class Buffer
+{
 public:
     using Iterator = T*;
     using ValueType = T;

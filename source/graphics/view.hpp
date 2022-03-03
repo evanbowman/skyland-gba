@@ -3,7 +3,8 @@
 #include "number/numeric.hpp"
 
 
-class View {
+class View
+{
 public:
     void set_center(const Vec2<Float>& center);
 

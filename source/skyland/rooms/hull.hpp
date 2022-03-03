@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class Hull : public Room {
+class Hull : public Room
+{
 public:
     Hull(Island* parent, const Vec2<u8>& position, const char* n = name());
 

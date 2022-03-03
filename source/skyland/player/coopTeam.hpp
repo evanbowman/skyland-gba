@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class CoopTeam : public PlayerP1, public network::Listener {
+class CoopTeam : public PlayerP1, public network::Listener
+{
 public:
     // TODO:
     // drone_set_target,

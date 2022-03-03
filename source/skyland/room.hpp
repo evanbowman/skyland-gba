@@ -31,7 +31,8 @@ class Drone;
 
 
 
-struct RoomProperties {
+struct RoomProperties
+{
     enum Value : u32 {
         none = 0,
 
@@ -80,7 +81,8 @@ struct RoomProperties {
 
 
 
-class Room : public Block {
+class Room : public Block
+{
 public:
     enum class Category {
         wall,

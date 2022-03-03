@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class Cannonball : public Projectile {
+class Cannonball : public Projectile
+{
 public:
     Cannonball(const Vec2<Float>& position,
                const Vec2<Float>& target,

@@ -26,7 +26,8 @@ class Island;
 
 
 
-class PlayerIslandDestroyedScene : public WorldScene {
+class PlayerIslandDestroyedScene : public WorldScene
+{
 public:
     enum class AnimState {
         init,

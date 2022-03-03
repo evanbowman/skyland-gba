@@ -13,7 +13,8 @@ class Room;
 
 
 
-class RecoverCharacterScene : public ActiveWorldScene {
+class RecoverCharacterScene : public ActiveWorldScene
+{
 public:
     RecoverCharacterScene(const Vec2<u8>& transporter_loc);
 

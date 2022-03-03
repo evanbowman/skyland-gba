@@ -13,7 +13,8 @@ namespace skyland::img {
 
 
 
-struct PackedPixel {
+struct PackedPixel
+{
     u8 data_;
 
     u8 first() const
@@ -41,7 +42,8 @@ struct PackedPixel {
 
 
 
-struct Image {
+struct Image
+{
 
     static const u8 width = 16;
     static const u8 height = 16;

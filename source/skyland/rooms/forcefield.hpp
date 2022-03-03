@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class Forcefield : public Room {
+class Forcefield : public Room
+{
 public:
     Forcefield(Island* parent, const Vec2<u8>& position);
 

@@ -14,7 +14,8 @@ namespace skyland {
 
 
 
-class SetupSwitchScene : public ActiveWorldScene {
+class SetupSwitchScene : public ActiveWorldScene
+{
 public:
     SetupSwitchScene(const Vec2<u8>& switch_location)
         : switch_location_(switch_location)

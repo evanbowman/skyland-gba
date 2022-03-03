@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class PoweredHull : public Room {
+class PoweredHull : public Room
+{
 public:
     PoweredHull(Island* parent, const Vec2<u8>& position);
 

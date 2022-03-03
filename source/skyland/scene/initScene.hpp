@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class InitScene : public Scene {
+class InitScene : public Scene
+{
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override
     {

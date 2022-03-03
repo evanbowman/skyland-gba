@@ -14,7 +14,8 @@ class Island;
 
 
 
-class Drone : public Entity, public IntrusiveRcControlBlock<Drone> {
+class Drone : public Entity, public IntrusiveRcControlBlock<Drone>
+{
 public:
     Drone(const char* name,
           Island* parent,

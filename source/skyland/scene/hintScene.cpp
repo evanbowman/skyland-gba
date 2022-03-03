@@ -9,7 +9,8 @@
 namespace skyland {
 
 
-struct HintInfo {
+struct HintInfo
+{
     const char* img_name_;
     const char* text_;
 };

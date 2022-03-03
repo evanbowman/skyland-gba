@@ -10,7 +10,8 @@ namespace skyland {
 
 
 
-class ConstructDroneScene : public ActiveWorldScene {
+class ConstructDroneScene : public ActiveWorldScene
+{
 public:
     ConstructDroneScene(Vec2<u8> position) : position_(position)
     {

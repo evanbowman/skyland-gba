@@ -12,7 +12,8 @@ namespace skyland {
 
 // A metatable entry backed by a lisp datastructure, allowing users to
 // define their own rooms via scripts.
-struct RoomPluginInfo : public RoomMeta::Info {
+struct RoomPluginInfo : public RoomMeta::Info
+{
     RoomMeta* mt_;
     mutable std::optional<lisp::Protected> info_;
 
@@ -43,7 +44,8 @@ struct RoomPluginInfo : public RoomMeta::Info {
     }
 
 
-    struct FieldTag {
+    struct FieldTag
+    {
         enum Tag {
             name,
             size,

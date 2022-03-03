@@ -22,7 +22,8 @@
 using TileDesc = u16;
 
 
-struct FontColors {
+struct FontColors
+{
     ColorConstant foreground_;
     ColorConstant background_;
 };
@@ -39,7 +40,8 @@ template <typename T> class Vector;
 ////////////////////////////////////////////////////////////////////////////////
 
 
-class Platform {
+class Platform
+{
 public:
     class Screen;
     class Keyboard;
@@ -54,7 +56,8 @@ public:
     DeviceName device_name() const;
 
 
-    struct alignas(4) EncodedTile {
+    struct alignas(4) EncodedTile
+    {
         u8 bytes_[128];
     };
 
@@ -68,7 +71,8 @@ public:
     void overwrite_sprite_tile(u16 index, const EncodedTile& t);
 
 
-    struct TilePixels {
+    struct TilePixels
+    {
         u8 data_[16][16];
     };
 
@@ -148,7 +152,8 @@ public:
     void* system_call(const char* feature_name, void* arg);
 
 
-    struct TextureMapping {
+    struct TextureMapping
+    {
         const char* texture_name_;
         u16 offset_;
     };
@@ -176,7 +181,8 @@ public:
     // video ram. By calling DynamicTexture::remap(), the platform will map the
     // requested texture index into video memory, and the index may then be used
     // when drawing sprites.
-    class DynamicTexture {
+    class DynamicTexture
+    {
     public:
         // This constructor is not private, but still, do not create
         // DynamicTexture instances except by calling
@@ -334,7 +340,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
 
-    class DeltaClock {
+    class DeltaClock
+    {
     public:
         ~DeltaClock();
 
@@ -363,7 +370,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
 
-    class SystemClock {
+    class SystemClock
+    {
     public:
         // NOTE: SystemClock::now() sometimes causes minor audio bugs on the
         // GAMEBOY ADVANCE. In the meantime, use Platform::startup_time() to
@@ -386,12 +394,14 @@ public:
 
 
 
-    class Screen {
+    class Screen
+    {
     public:
         static constexpr u32 sprite_limit = 128;
 
 
-        class Touch {
+        class Touch
+        {
         public:
             std::optional<Vec2<u32>> read() const
             {
@@ -489,7 +499,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
 
-    class Keyboard {
+    class Keyboard
+    {
     public:
         using KeyStates = std::array<bool, int(Key::count)>;
 
@@ -557,7 +568,8 @@ public:
         }
 
 
-        struct ControllerInfo {
+        struct ControllerInfo
+        {
             int vendor_id;
             int product_id;
             int action_1_key;
@@ -595,7 +607,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
 
-    class Logger {
+    class Logger
+    {
     public:
         void log(Severity severity, const char* msg);
 
@@ -617,7 +630,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
 
-    class Speaker {
+    class Speaker
+    {
     public:
         enum Note : u8 {
             invalid,
@@ -646,18 +660,22 @@ public:
         };
 
 
-        struct NoteDesc {
-            struct RegularNote {
+        struct NoteDesc
+        {
+            struct RegularNote
+            {
                 Platform::Speaker::Note note_ : 4;
                 u8 octave_ : 4;
             };
 
-            struct NoiseFrequency {
+            struct NoiseFrequency
+            {
                 u8 frequency_select_ : 7;
                 u8 wide_mode_ : 1;
             };
 
-            union {
+            union
+            {
                 RegularNote regular_;
                 NoiseFrequency noise_freq_;
             };
@@ -684,7 +702,8 @@ public:
                                    Microseconds delta);
 
 
-        struct ChannelSettings {
+        struct ChannelSettings
+        {
             u8 length_ : 6;
             u8 duty_ : 2;
             u8 envelope_step_ : 3;
@@ -753,7 +772,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
 
-    class NetworkPeer {
+    class NetworkPeer
+    {
     public:
         NetworkPeer();
         NetworkPeer(const NetworkPeer&) = delete;
@@ -767,7 +787,8 @@ public:
         bool is_connected() const;
         bool is_host() const;
 
-        struct Message {
+        struct Message
+        {
             const u8* data_;
             u32 length_;
         };
@@ -809,7 +830,8 @@ public:
         // multiplayer.
         static bool supported_by_device();
 
-        struct Stats {
+        struct Stats
+        {
             int transmit_count_;
             int receive_count_;
             int transmit_loss_;
@@ -829,7 +851,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////
 
 
-    class RemoteConsole {
+    class RemoteConsole
+    {
     public:
 #if defined(__GBA__) or defined(__NDS__)
         using Line = StringBuffer<1956>;
@@ -894,7 +917,8 @@ ColorConstant contrast_shader(int palette, ColorConstant k, int arg);
 
 
 
-class SynchronizedBase {
+class SynchronizedBase
+{
 protected:
     void init(Platform& pf);
     void lock();
@@ -909,7 +933,8 @@ private:
 };
 
 
-template <typename T> class Synchronized : SynchronizedBase {
+template <typename T> class Synchronized : SynchronizedBase
+{
 public:
     template <typename... Args>
     Synchronized(Platform& pf, Args&&... args)

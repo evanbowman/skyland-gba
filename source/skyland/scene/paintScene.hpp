@@ -14,7 +14,8 @@ namespace skyland {
 
 
 
-class PaintScene : public Scene, public Paint {
+class PaintScene : public Scene, public Paint
+{
 public:
     static const int canvas_width = 16;
     static const int canvas_height = 16;

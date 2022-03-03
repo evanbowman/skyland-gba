@@ -14,7 +14,8 @@ class MissileSilo;
 
 
 
-class FriendlyAI : public Opponent {
+class FriendlyAI : public Opponent
+{
 public:
     void update(Platform&, App&, Microseconds delta) override
     {

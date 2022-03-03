@@ -5,10 +5,12 @@
 
 
 
-struct HitBox {
+struct HitBox
+{
     Vec2<Float>* position_;
 
-    struct Dimension {
+    struct Dimension
+    {
         Vec2<s16> size_;
         Vec2<s16> origin_;
     } dimension_;

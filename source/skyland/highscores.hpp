@@ -6,7 +6,8 @@
 namespace skyland {
 
 
-struct Highscores {
+struct Highscores
+{
     static const int count = 6;
     HostInteger<u32> values_[count];
 };

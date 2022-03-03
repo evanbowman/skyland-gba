@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class ReplicatorSelectionScene : public ActiveWorldScene {
+class ReplicatorSelectionScene : public ActiveWorldScene
+{
 public:
     ReplicatorSelectionScene(bool near) : near_(near)
     {

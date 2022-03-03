@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class CargoBay : public Room {
+class CargoBay : public Room
+{
 public:
     CargoBay(Island* parent, const Vec2<u8>& position);
 

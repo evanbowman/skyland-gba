@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class SetGamespeedScene : public WorldScene {
+class SetGamespeedScene : public WorldScene
+{
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 

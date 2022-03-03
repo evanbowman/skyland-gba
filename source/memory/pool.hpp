@@ -11,7 +11,8 @@
 
 
 
-class GenericPool {
+class GenericPool
+{
 public:
     GenericPool(const char* name) : name_(name)
     {
@@ -70,10 +71,11 @@ private:
 
 
 
-template <u32 size, u32 count, u32 align = size>
-class Pool : public GenericPool {
+template <u32 size, u32 count, u32 align = size> class Pool : public GenericPool
+{
 public:
-    struct Cell {
+    struct Cell
+    {
         alignas(align) std::array<u8, size> mem_;
         Cell* next_;
     };
@@ -191,7 +193,8 @@ private:
 };
 
 
-template <typename T, u32 count> class ObjectPool {
+template <typename T, u32 count> class ObjectPool
+{
 public:
     template <typename... Args> T* get(Args&&... args)
     {

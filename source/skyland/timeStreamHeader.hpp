@@ -17,7 +17,8 @@ namespace event {
 
 
 
-struct Header {
+struct Header
+{
     HostInteger<Timestamp> timestamp_;
     u8 type_;
 };

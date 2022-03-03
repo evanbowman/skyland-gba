@@ -153,7 +153,8 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
     app.camera()->shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
 
-    struct Temp {
+    struct Temp
+    {
         u8 matrix_[16][16];
         Buffer<Room*, 70> rooms_;
     };

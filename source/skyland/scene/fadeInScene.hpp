@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class FadeInScene : public WorldScene {
+class FadeInScene : public WorldScene
+{
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 

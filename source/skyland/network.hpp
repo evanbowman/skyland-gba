@@ -13,7 +13,8 @@ namespace packet {
 
 
 
-struct Header {
+struct Header
+{
     enum MessageType : u8 {
         null,
         room_constructed,
@@ -53,7 +54,8 @@ static_assert(sizeof(Header) == 1);
 
 
 
-struct ProgramVersion {
+struct ProgramVersion
+{
     Header header_;
 
     host_u16 major_;
@@ -66,7 +68,8 @@ struct ProgramVersion {
 
 
 
-struct Heartbeat {
+struct Heartbeat
+{
     Header header_;
 
     u8 unused_[5] = {0};
@@ -76,7 +79,8 @@ struct Heartbeat {
 
 
 
-struct RoomConstructed {
+struct RoomConstructed
+{
     Header header_;
     HostInteger<MetaclassIndex> metaclass_index_;
     u8 x_;
@@ -88,7 +92,8 @@ struct RoomConstructed {
 
 
 
-struct TerrainConstructed {
+struct TerrainConstructed
+{
     Header header_;
     u8 new_terrain_size_;
     u8 unused_[4] = {0};
@@ -98,7 +103,8 @@ struct TerrainConstructed {
 
 
 
-struct RoomSalvaged {
+struct RoomSalvaged
+{
     Header header_;
     u8 x_;
     u8 y_;
@@ -110,7 +116,8 @@ struct RoomSalvaged {
 
 
 
-struct DynamiteActivated {
+struct DynamiteActivated
+{
     Header header_;
     u8 x_;
     u8 y_;
@@ -122,7 +129,8 @@ struct DynamiteActivated {
 
 
 
-struct WeaponSetTarget {
+struct WeaponSetTarget
+{
     Header header_;
     u8 weapon_x_;
     u8 weapon_y_;
@@ -135,7 +143,8 @@ struct WeaponSetTarget {
 
 
 
-struct DroneSetTarget {
+struct DroneSetTarget
+{
     Header header_;
 
     u8 drone_x_ : 4;
@@ -154,7 +163,8 @@ struct DroneSetTarget {
 
 
 
-struct CharacterSetTarget {
+struct CharacterSetTarget
+{
     Header header_;
     u8 src_x_;
     u8 src_y_;
@@ -169,7 +179,8 @@ struct CharacterSetTarget {
 
 
 
-struct TimekeeperSync {
+struct TimekeeperSync
+{
     Header header_;
     HostInteger<u16> microseconds_;
     HostInteger<u16> seconds_;
@@ -183,7 +194,8 @@ struct TimekeeperSync {
 
 
 
-struct RoomDestroyed {
+struct RoomDestroyed
+{
     Header header_;
     u8 room_x_;
     u8 room_y_;
@@ -211,7 +223,8 @@ struct RoomDestroyed {
 // combat, as destruction of a room will also destroy the characters within the
 // room, so the RoomDestroyed event already covers one of the major ways that a
 // character can die in the game.
-struct CharacterDied {
+struct CharacterDied
+{
     Header header_;
     u8 chr_x_;
     u8 chr_y_;
@@ -226,7 +239,8 @@ struct CharacterDied {
 
 
 
-struct CharacterBoarded {
+struct CharacterBoarded
+{
     Header header_;
 
     u8 src_x_;
@@ -243,7 +257,8 @@ struct CharacterBoarded {
 
 
 
-struct CharacterDisembark {
+struct CharacterDisembark
+{
     Header header_;
 
     u8 src_x_;
@@ -260,7 +275,8 @@ struct CharacterDisembark {
 
 
 
-struct ReplicantCreated {
+struct ReplicantCreated
+{
     Header header_;
 
     u8 src_x_;
@@ -275,7 +291,8 @@ struct ReplicantCreated {
 
 
 
-struct DroneSpawn {
+struct DroneSpawn
+{
     Header header_;
     u8 origin_x_ : 4;
     u8 origin_y_ : 4;
@@ -295,7 +312,8 @@ struct DroneSpawn {
 
 
 
-struct DroneDestroyed {
+struct DroneDestroyed
+{
     Header header_;
     u8 drone_x_ : 4;
     u8 drone_y_ : 4;
@@ -310,7 +328,8 @@ struct DroneDestroyed {
 
 
 
-struct OpponentBulkheadChanged {
+struct OpponentBulkheadChanged
+{
     Header header_;
 
     u8 room_x_;
@@ -325,7 +344,8 @@ struct OpponentBulkheadChanged {
 
 
 
-struct GameMatchParameterUpdate {
+struct GameMatchParameterUpdate
+{
     Header header_;
     u8 parameter_id_;
     host_s32 value_;
@@ -335,7 +355,8 @@ struct GameMatchParameterUpdate {
 
 
 
-struct GameMatchSettingsCursor {
+struct GameMatchSettingsCursor
+{
     Header header_;
     u8 cursor_line_;
 
@@ -346,7 +367,8 @@ struct GameMatchSettingsCursor {
 
 
 
-struct GameMatchReady {
+struct GameMatchReady
+{
     Header header_;
     u8 unused_[5] = {0};
 
@@ -355,7 +377,8 @@ struct GameMatchReady {
 
 
 
-struct CoopCursor {
+struct CoopCursor
+{
     Header header_;
     u8 x_;
     u8 y_;
@@ -371,7 +394,8 @@ struct CoopCursor {
 
 // At the end of a level in co-op mode, the game needs to make sure that the rng
 // values are synchronized, before attempting to generate another level.
-struct CoopRngSyncRequest {
+struct CoopRngSyncRequest
+{
     Header header_;
     u8 unused_[5] = {0};
 
@@ -380,7 +404,8 @@ struct CoopRngSyncRequest {
 
 
 
-struct CoopRngSync {
+struct CoopRngSync
+{
     Header header_;
     host_s32 rng_state_;
 
@@ -393,7 +418,8 @@ struct CoopRngSync {
 
 // After receiving an rng sync, the receiver should echo back the rng state
 // value.
-struct CoopRngSyncAck {
+struct CoopRngSyncAck
+{
     Header header_;
     host_s32 rng_state_;
 
@@ -404,7 +430,8 @@ struct CoopRngSyncAck {
 
 
 
-struct SetWeaponGroup {
+struct SetWeaponGroup
+{
     Header header_;
     u8 x_;
     u8 y_;
@@ -421,7 +448,8 @@ struct SetWeaponGroup {
 
 
 
-class Listener {
+class Listener
+{
 public:
     virtual ~Listener()
     {

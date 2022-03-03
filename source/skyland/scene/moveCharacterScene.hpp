@@ -11,7 +11,8 @@ namespace skyland {
 
 
 
-class MoveCharacterScene : public ActiveWorldScene {
+class MoveCharacterScene : public ActiveWorldScene
+{
 public:
     MoveCharacterScene(Platform& pfrm, bool near);
 

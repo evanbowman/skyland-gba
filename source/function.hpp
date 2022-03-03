@@ -8,12 +8,14 @@
 // A fixed-space version of std::function, does not allocate.
 
 
-template <std::size_t storage, typename T> class Function {
+template <std::size_t storage, typename T> class Function
+{
 };
 
 
 template <std::size_t storage, typename R, typename... Args>
-class Function<storage, R(Args...)> {
+class Function<storage, R(Args...)>
+{
 public:
     void* data()
     {

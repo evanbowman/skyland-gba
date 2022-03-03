@@ -9,7 +9,8 @@ namespace skyland {
 
 
 
-class AchievementViewerModule : public Module<AchievementViewerModule> {
+class AchievementViewerModule : public Module<AchievementViewerModule>
+{
 public:
     static SystemString module_name()
     {

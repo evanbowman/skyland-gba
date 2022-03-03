@@ -13,12 +13,10 @@ namespace skyland {
 
 
 
-class WorldScene : public Scene {
+class WorldScene : public Scene
+{
 public:
-
-    WorldScene() :
-        far_camera_(false),
-        birds_drawn_(false)
+    WorldScene() : far_camera_(false), birds_drawn_(false)
     {
     }
 
@@ -86,7 +84,8 @@ protected:
 
 
 
-class ActiveWorldScene : public WorldScene {
+class ActiveWorldScene : public WorldScene
+{
 public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 };
