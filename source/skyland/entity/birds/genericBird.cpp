@@ -210,9 +210,9 @@ void GenericBird::spawn(Platform& pfrm, App& app, Island& island, int count)
     for (int i = 0; i < count; ++i) {
         u8 tries = 40;
         u8 column = 0;
+        bool retry = false;
         while (tries--) {
             column = rng::choice(island.terrain().size(), rng::utility_state);
-            bool retry = false;
             for (auto& u : used) {
                 if (column == u) {
                     retry = true;
@@ -223,6 +223,10 @@ void GenericBird::spawn(Platform& pfrm, App& app, Island& island, int count)
                 used.push_back(column);
                 break;
             }
+        }
+
+        if (retry) {
+            continue;
         }
 
         for (u8 y = 0; y < 15; ++y) {
