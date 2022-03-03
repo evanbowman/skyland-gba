@@ -27,10 +27,17 @@ public:
     Island* island(App& app) override;
 
 
+    static void spawn(Platform& pfrm, App& app, Island& island, int count);
+
+
+    static void generate(Platform& pfrm, App& app);
+
+
 private:
     Platform::DynamicTexturePtr dt_;
     Vec2<u8> position_;
     bool near_;
+    bool alerted_ = false;
 
     enum class State {
         roost,

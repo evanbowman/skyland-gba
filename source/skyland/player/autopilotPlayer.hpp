@@ -27,6 +27,9 @@ public:
     bool key_pressed(Platform&, Key k) override;
 
 
+    void on_room_damaged(Platform& pfrm, App& app, Room& room) override;
+
+
 private:
     lisp::Protected keys_list_;
 

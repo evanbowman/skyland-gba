@@ -48,6 +48,8 @@ void LoadLevelScene::enter(Platform& pfrm, App& app, Scene& prev)
 void LoadLevelScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     WorldScene::exit(pfrm, app, next);
+
+    GenericBird::generate(pfrm, app);
 }
 
 
@@ -56,48 +58,6 @@ static SHARED_VARIABLE(zone1_coin_yield);
 static SHARED_VARIABLE(zone2_coin_yield);
 static SHARED_VARIABLE(zone3_coin_yield);
 static SHARED_VARIABLE(zone4_coin_yield);
-
-
-
-static void spawn_birds(Platform& pfrm, App& app, Island& island, int count)
-{
-    Buffer<u8, 10> used;
-
-    for (int i = 0; i < count; ++i) {
-        u8 tries = 40;
-        u8 column = 0;
-        while (tries--) {
-            column = rng::choice(island.terrain().size(), rng::utility_state);
-            bool retry = false;
-            for (auto& u : used) {
-                if (column == u) {
-                    retry = true;
-                    break;
-                }
-            }
-            if (not retry) {
-                used.push_back(column);
-                break;
-            }
-        }
-
-        for (u8 y = 0; y < 15; ++y) {
-            if (y == 14 or island.rooms_plot().get(column, y + 1)) {
-
-                auto pos = Vec2<u8>{column, y};
-
-                if (auto dt = pfrm.make_dynamic_texture()) {
-                    bool near = &island == &app.player_island();
-                    app.birds().push(app.alloc_entity<GenericBird>(pfrm,
-                                                                   *dt,
-                                                                   pos,
-                                                                   near));
-                    break;
-                }
-            }
-        }
-    }
-}
 
 
 
@@ -160,24 +120,6 @@ void prep_level(Platform& pfrm, App& app)
         }
 
         show_island_exterior(pfrm, app, app.opponent_island());
-
-        app.birds().clear();
-        static const int max_birds = 6;
-        int remaining_birds = max_birds;
-        if (rng::choice<4>(rng::utility_state) > 0) {
-            int used = rng::choice<4>(rng::utility_state);
-            remaining_birds -= used;
-            spawn_birds(pfrm,
-                        app,
-                        *app.opponent_island(),
-                        used);
-        }
-        if (rng::choice<4>(rng::utility_state) > 0) {
-            spawn_birds(pfrm,
-                        app,
-                        app.player_island(),
-                        rng::choice(remaining_birds, rng::utility_state));
-        }
 
 
         write_custom_graphics(pfrm, app);

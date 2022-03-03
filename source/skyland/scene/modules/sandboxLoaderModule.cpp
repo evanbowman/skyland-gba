@@ -2,6 +2,7 @@
 #include "skyland/scene/fadeInScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/entity/birds/genericBird.hpp"
 
 
 
@@ -141,6 +142,8 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
     pfrm.system_call("v-parallax", (void*)true);
 
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+
+    GenericBird::generate(pfrm, app);
 }
 
 

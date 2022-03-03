@@ -2,6 +2,7 @@
 #include "skyland/island.hpp"
 #include "skyland/tile.hpp"
 #include "number/random.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -67,7 +68,7 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
             break;
 
         case InteriorTile::flag_mount:
-            o.y -= 48;
+            o.y -= 32;
             o.x += 5;
             break;
 
@@ -81,13 +82,23 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
             break;
 
         default:
-            state_ = State::fly;
+            alerted_ = true;
+            position_.y -= 1;
             break;
         }
 
         o.y += island->get_ambient_movement();
 
         sprite_.set_position(o);
+
+        if (alerted_ and delta > 0) {
+            state_ = State::fly;
+            anim_timer_ = 0;
+
+            sprite_.set_flip({(bool)rng::choice<2>(rng::utility_state), false});
+
+            speed_ = 0.00003f * (1 + rng::choice<3>(rng::utility_state));
+        }
         break;
     }
 
@@ -135,12 +146,7 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
 void GenericBird::signal(Platform&, App&)
 {
     if (state_ == State::roost) {
-        state_ = State::fly;
-        anim_timer_ = 0;
-
-        sprite_.set_flip({(bool)rng::choice<2>(rng::utility_state), false});
-
-        speed_ = 0.00003f * rng::choice<4>(rng::utility_state);
+        alerted_ = true;
     }
 }
 
@@ -152,6 +158,75 @@ Island* GenericBird::island(App& app)
         return &player_island(app);
     } else {
         return opponent_island(app);
+    }
+}
+
+
+
+void GenericBird::generate(Platform& pfrm, App& app)
+{
+    app.birds().clear();
+    static const int max_birds = 6;
+    int remaining_birds = max_birds;
+    if (rng::choice<4>(rng::utility_state) > 0) {
+        int used = rng::choice<4>(rng::utility_state);
+        remaining_birds -= used;
+        GenericBird::spawn(pfrm,
+                           app,
+                           *app.opponent_island(),
+                           used);
+    }
+    if (rng::choice<4>(rng::utility_state) > 0) {
+        GenericBird::spawn(pfrm,
+                           app,
+                           app.player_island(),
+                           rng::choice(remaining_birds,
+                                       rng::utility_state));
+    }
+}
+
+
+
+void GenericBird::spawn(Platform& pfrm,
+                        App& app,
+                        Island& island,
+                        int count)
+{
+    Buffer<u8, 10> used;
+
+    for (int i = 0; i < count; ++i) {
+        u8 tries = 40;
+        u8 column = 0;
+        while (tries--) {
+            column = rng::choice(island.terrain().size(), rng::utility_state);
+            bool retry = false;
+            for (auto& u : used) {
+                if (column == u) {
+                    retry = true;
+                    break;
+                }
+            }
+            if (not retry) {
+                used.push_back(column);
+                break;
+            }
+        }
+
+        for (u8 y = 0; y < 15; ++y) {
+            if (y == 14 or island.rooms_plot().get(column, y + 1)) {
+
+                auto pos = Vec2<u8>{column, y};
+
+                if (auto dt = pfrm.make_dynamic_texture()) {
+                    bool near = &island == &app.player_island();
+                    app.birds().push(app.alloc_entity<GenericBird>(pfrm,
+                                                                   *dt,
+                                                                   pos,
+                                                                   near));
+                    break;
+                }
+            }
+        }
     }
 }
 

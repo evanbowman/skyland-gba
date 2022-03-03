@@ -9,8 +9,10 @@ namespace skyland {
 
 
 
-void FriendlyAI::on_room_damaged(Platform& pfrm, App& app, Room&)
+void FriendlyAI::on_room_damaged(Platform& pfrm, App& app, Room& room)
 {
+    Opponent::on_room_damaged(pfrm, app, room);
+
     // What!? The player attacked us! We're no longer a friendly AI.
     app.swap_opponent<EnemyAI>();
 

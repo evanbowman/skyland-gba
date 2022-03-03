@@ -106,6 +106,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/player/playerP1.cpp
   ${SOURCE_DIR}/skyland/player/coopTeam.cpp
   ${SOURCE_DIR}/skyland/player/autopilotPlayer.cpp
+  ${SOURCE_DIR}/skyland/player/opponent/opponent.cpp
   ${SOURCE_DIR}/skyland/player/opponent/enemyAI.cpp
   ${SOURCE_DIR}/skyland/player/opponent/friendlyAI.cpp
   ${SOURCE_DIR}/skyland/player/opponent/procgenEnemyAI.cpp

@@ -20,6 +20,20 @@ AutopilotPlayer::AutopilotPlayer(lisp::Value* keys_list) : keys_list_(keys_list)
 
 
 
+void AutopilotPlayer::on_room_damaged(Platform& pfrm, App& app, Room& room)
+{
+    auto island = room.parent();
+
+    // Birds alerted when island attacked.
+    for (auto& bird : app.birds()) {
+        if (bird->island(app) == island) {
+            bird->signal(pfrm, app);
+        }
+    }
+}
+
+
+
 static Key button_name_to_key(const char* name)
 {
     if (str_cmp(name, "Right") == 0) {
