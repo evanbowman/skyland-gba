@@ -1,5 +1,6 @@
 #include "procgenEnemyAI.hpp"
 #include "bulkAllocator.hpp"
+#include "skyland/entity/birds/genericBird.hpp"
 #include "skyland/roomTable.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/core.hpp"
@@ -33,6 +34,21 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (not app.opponent_island()) {
         generate_level(pfrm, app);
+
+        if (app.game_mode() == App::GameMode::skyland_forever) {
+            for (auto it = app.birds().begin(); it not_eq app.birds().end();) {
+                if ((*it)->island(app) == opponent_island(app)) {
+                    it = app.birds().erase(it);
+                } else {
+                    ++it;
+                }
+            }
+            GenericBird::spawn(pfrm,
+                               app,
+                               *app.opponent_island(),
+                               rng::choice<4>(rng::utility_state));
+        }
+
         if (app.game_mode() == App::GameMode::co_op) {
             std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ =
                 40;
