@@ -54,6 +54,14 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
 
         auto layer = island->layer();
         auto t = pfrm.get_tile(layer, position_.x, position_.y);
+        auto below = pfrm.get_tile(layer, position_.x, position_.y + 1);
+
+        if ((below == Tile::null or below == Tile::grass) and delta > 0) {
+            alerted_ = true;
+        } else if (below == Tile::null or below == Tile::grass) {
+            ++position_.y;
+        }
+
         switch (t) {
 
         case InteriorTile::roof_1:
