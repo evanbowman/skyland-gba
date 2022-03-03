@@ -9,9 +9,9 @@ namespace skyland {
 
 
 
-class SmolBirb : public Entity {
+class SmallBird : public Entity {
 public:
-    SmolBirb(const Vec2<Float>& position, Float speed)
+    SmallBird(const Vec2<Float>& position, Float speed)
         : Entity({{}, {}}), timer1_(0), timer2_(0), speed_(speed)
     {
         sprite_.set_position(position);

@@ -7,7 +7,7 @@
 #include "coins.hpp"
 #include "customTileMapper.hpp"
 #include "dialog.hpp"
-#include "entity/birbs/smolBirb.hpp"
+#include "entity/birds/smallBird.hpp"
 #include "flag.hpp"
 #include "gamespeed.hpp"
 #include "highscores.hpp"
@@ -193,9 +193,9 @@ public:
     }
 
 
-    EntityList<SmolBirb>& birbs()
+    EntityList<Entity>& birds()
     {
-        return birbs_;
+        return birds_;
     }
 
 
@@ -416,7 +416,7 @@ private:
     std::optional<lisp::Protected> input_setup_info_;
 
     EntityList<Entity> effects_;
-    EntityList<SmolBirb> birbs_;
+    EntityList<Entity> birds_;
 
     TimeTracker level_timer_;
     TimeTracker stat_timer_;

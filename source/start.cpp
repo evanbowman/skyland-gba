@@ -23,8 +23,6 @@ const char* console_header =
 
 static inline void skyland_main_loop(Platform& pf)
 {
-    pf.remote_console().printline(::console_header);
-
     globals().emplace<SkylandGlobalData>();
     skyland::scene_pool::pool_ =
         &std::get<SkylandGlobalData>(globals()).scene_pool_;
@@ -41,6 +39,8 @@ static inline void skyland_main_loop(Platform& pf)
     pf.enable_glyph_mode(true);
     pf.load_overlay_texture("overlay_world_map");
     pf.load_background_texture("background");
+
+    pf.remote_console().printline(::console_header);
 
     while (pf.is_running()) {
         pf.keyboard().poll();

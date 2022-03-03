@@ -12,7 +12,7 @@
 #include "setGamespeedScene.hpp"
 #include "skyland/achievement.hpp"
 #include "skyland/alloc_entity.hpp"
-#include "skyland/entity/birbs/smolBirb.hpp"
+#include "skyland/entity/birds/smallBird.hpp"
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -232,6 +232,10 @@ void WorldScene::display(Platform& pfrm, App& app)
 
     for (auto& effect : app.effects()) {
         pfrm.screen().draw(effect->sprite());
+    }
+
+    for (auto& bird : app.birds()) {
+        pfrm.screen().draw(bird->sprite());
     }
 }
 
@@ -458,10 +462,14 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.opponent_island()->update(pfrm, app, world_delta);
     }
 
+    // Yes, I know that I'm accidentally updating effects twice. I would fix it,
+    // only I'd need to adjust all of the animation timings.
     update_entities(pfrm, app, world_delta, app.effects());
     for (auto& effect : app.effects()) {
         effect->update(pfrm, app, world_delta);
     }
+
+    update_entities(pfrm, app, world_delta, app.birds());
 
 
     if (app.game_speed() not_eq GameSpeed::stopped) {

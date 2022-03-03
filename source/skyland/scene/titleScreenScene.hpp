@@ -94,7 +94,7 @@ private:
 
     Microseconds island_mov_timer_ = 0;
     int island_offset_ = 0;
-    Microseconds birb_timer_ = seconds(7);
+    Microseconds bird_timer_ = seconds(7);
 };
 
 

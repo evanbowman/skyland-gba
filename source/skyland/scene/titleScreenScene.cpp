@@ -9,7 +9,7 @@
 #include "script/lisp.hpp"
 #include "selectChallengeScene.hpp"
 #include "skyland/alloc_entity.hpp"
-#include "skyland/entity/birbs/smolBirb.hpp"
+#include "skyland/entity/birds/smallBird.hpp"
 #include "skyland/keyCallbackProcessor.hpp"
 #include "skyland/player/playerP1.hpp"
 #include "skyland/scene_pool.hpp"
@@ -278,7 +278,7 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
     set_scroll(pfrm, Layer::map_1_ext, 0, 8);
     set_scroll(pfrm, Layer::map_0_ext, 0, 0);
 
-    app.birbs().clear();
+    app.birds().clear();
 }
 
 
@@ -446,6 +446,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player().update(pfrm, app, delta);
 
     rng::get(rng::critical_state);
+    rng::get(rng::utility_state);
 
     hover_timer_ += delta;
 
@@ -488,12 +489,12 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                          float(sine(2 * 3.14f * 0.0005f * hover_timer_ + 180)) /
                          std::numeric_limits<s16>::max();
     } else if (menu_selection_ == 0) {
-        birb_timer_ -= delta;
-        if (birb_timer_ <= 0) {
-            birb_timer_ =
+        bird_timer_ -= delta;
+        if (bird_timer_ <= 0) {
+            bird_timer_ =
                 seconds(12) + seconds(rng::choice<4>(rng::critical_state));
             if (rng::choice<6>(rng::critical_state)) {
-                birb_timer_ =
+                bird_timer_ =
                     milliseconds(1300) -
                     milliseconds(rng::choice<700>(rng::critical_state));
             }
@@ -501,19 +502,19 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             auto speed =
                 (5 + rng::choice<4>(rng::critical_state)) / Float(100000);
             pos.y += rng::choice<20>(rng::critical_state);
-            if (auto e = alloc_entity<SmolBirb>(pos, speed)) {
-                app.birbs().push(std::move(e));
+            if (auto e = alloc_entity<SmallBird>(pos, speed)) {
+                app.birds().push(std::move(e));
             }
         }
     }
 
-    for (auto& birb : app.birbs()) {
-        if (birb->sprite().get_position().x >
+    for (auto& bird : app.birds()) {
+        if (bird->sprite().get_position().x >
             (scale_offset(pfrm).x + (197 + 16) - x_scroll_ / 2)) {
-            birb->kill();
+            bird->kill();
         }
     }
-    update_entities(pfrm, app, delta, app.birbs());
+    update_entities(pfrm, app, delta, app.birds());
 
 
     switch (state_) {
@@ -1034,15 +1035,23 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
     } else if (x_scroll_ < 0) {
         pong_.display(pfrm, x_scroll_);
     }
-    for (auto& birb : app.birbs()) {
-        auto spr = birb->sprite();
+    for (auto& bird : app.birds()) {
+        auto spr = bird->sprite();
         auto pos = spr.get_position();
         pos.x = pos.x - x_scroll_ / 2;
 
+        auto b = dynamic_cast<SmallBird*>(bird.get());
+        if (b == nullptr) {
+            // Well, this should never happen... I also shouldn't really be
+            // using dynamic_cast in this way.
+            app.birds().clear();
+            break;
+        }
+
         const auto ambient_movement =
             8 *
-            float(sine(((birb->speed() * 100000) / 2) * 3.14f * 0.0005f *
-                           birb->age() +
+            float(sine(((b->speed() * 100000) / 2) * 3.14f * 0.0005f *
+                           b->age() +
                        180)) /
             std::numeric_limits<s16>::max();
 

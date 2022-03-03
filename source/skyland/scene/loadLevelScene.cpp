@@ -9,6 +9,7 @@
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/entity/birds/genericBird.hpp"
 
 
 
@@ -55,6 +56,48 @@ static SHARED_VARIABLE(zone1_coin_yield);
 static SHARED_VARIABLE(zone2_coin_yield);
 static SHARED_VARIABLE(zone3_coin_yield);
 static SHARED_VARIABLE(zone4_coin_yield);
+
+
+
+static void spawn_birds(Platform& pfrm, App& app, Island& island, int count)
+{
+    Buffer<u8, 10> used;
+
+    for (int i = 0; i < count; ++i) {
+        u8 tries = 40;
+        u8 column = 0;
+        while (tries--) {
+            column = rng::choice(island.terrain().size(), rng::utility_state);
+            bool retry = false;
+            for (auto& u : used) {
+                if (column == u) {
+                    retry = true;
+                    break;
+                }
+            }
+            if (not retry) {
+                used.push_back(column);
+                break;
+            }
+        }
+
+        for (u8 y = 0; y < 15; ++y) {
+            if (y == 14 or island.rooms_plot().get(column, y + 1)) {
+
+                auto pos = Vec2<u8>{column, y};
+
+                if (auto dt = pfrm.make_dynamic_texture()) {
+                    bool near = &island == &app.player_island();
+                    app.birds().push(app.alloc_entity<GenericBird>(pfrm,
+                                                                   *dt,
+                                                                   pos,
+                                                                   near));
+                    break;
+                }
+            }
+        }
+    }
+}
 
 
 
@@ -117,6 +160,7 @@ void prep_level(Platform& pfrm, App& app)
         }
 
         show_island_exterior(pfrm, app, app.opponent_island());
+
 
         write_custom_graphics(pfrm, app);
         app.opponent_island()->render_exterior(pfrm, app);
