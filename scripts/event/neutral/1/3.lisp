@@ -18,7 +18,7 @@
   (setq on-converge
         (lambda
           (dialog
-           "<c:goblin king:3>*cackle* You're tresspasssing in my territory! I demand a tribute of "
+           "<c:goblin king:3>#cackle# You're tresspasssing in my territory! I demand a tribute of "
            (string temp)
            "@! Pay!")
 
@@ -31,13 +31,13 @@
           (if (> temp (coins))
               (progn
                 (opponent-mode 'hostile)
-                (dialog "<c:globlin king:3>Thatsss not enough! Letss ssee if theress anything we can take!!")
-                (progn
-                  (coins-add (- temp))
-                  (dialog "The goblin king rejoices, having successfully extorted "
-                          (string temp)
-                          "@.")
-                  (exit)))))))
+                (dialog "<c:globlin king:3>Thatsss not enough! Letss ssee if theress anything we can take!!"))
+            (progn
+              (coins-add (- temp))
+              (dialog "The goblin king rejoices, having successfully extorted "
+                      (string temp)
+                      "@.")
+              (exit))))))
 
 
 
