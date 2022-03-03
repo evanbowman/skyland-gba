@@ -41,6 +41,9 @@ static const char* const page_1_lines[] = {"-- Design --",
 
 static const char* const page_2_lines[] = {"-- Music --",
                                            "",
+                                           "\x12 Shadows \x12",
+                                           "Unattributed",
+                                           "",
                                            "\x12 Life in Silco \x12",
                                            "Scott Buckley",
                                            nullptr};
