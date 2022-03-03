@@ -14,7 +14,6 @@ class Island;
 
 class Bird : public Entity {
 public:
-
     using Entity::Entity;
 
 
@@ -42,4 +41,4 @@ public:
 
 
 
-}
+} // namespace skyland

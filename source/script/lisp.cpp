@@ -802,8 +802,8 @@ Value* make_string(const char* string)
             return bound_context->oom_;
         }
     } else {
-        auto buffer = make_databuffer(bound_context->pfrm_,
-                                      "lisp-string-bulk-allocator");
+        auto buffer =
+            make_databuffer(bound_context->pfrm_, "lisp-string-bulk-allocator");
 
         if (buffer == bound_context->oom_) {
             return bound_context->oom_;
@@ -2243,9 +2243,8 @@ static void eval_quasiquote(Value* code)
             code = code->cons().cdr();
 
             if (code == get_nil()) {
-                push_op(make_error(
-                    Error::Code::invalid_syntax,
-                    make_string("extraneous unquote")));
+                push_op(make_error(Error::Code::invalid_syntax,
+                                   make_string("extraneous unquote")));
                 return;
             }
 

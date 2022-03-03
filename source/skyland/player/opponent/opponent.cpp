@@ -21,4 +21,4 @@ void Opponent::on_room_damaged(Platform& pfrm, App& app, Room& room)
 
 
 
-}
+} // namespace skyland

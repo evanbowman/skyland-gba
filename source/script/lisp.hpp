@@ -7,7 +7,6 @@
 #endif
 
 
-
 #if defined(__GBA__) or defined(__NDS__)
 #define USE_COMPRESSED_PTRS
 #endif
@@ -591,9 +590,7 @@ public:
 
 class BasicCharSequence : public CharSequence {
 public:
-    BasicCharSequence(const char* ptr) :
-        ptr_(ptr),
-        len_(str_len(ptr))
+    BasicCharSequence(const char* ptr) : ptr_(ptr), len_(str_len(ptr))
     {
     }
 

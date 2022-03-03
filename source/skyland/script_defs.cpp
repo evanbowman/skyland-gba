@@ -237,9 +237,8 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
          {"printline",
           [](int argc) {
               L_EXPECT_ARGC(argc, 1);
-              lisp::interp_get_pfrm()
-                  ->remote_console().printline(L_LOAD_STRING(0),
-                                               true);
+              lisp::interp_get_pfrm()->remote_console().printline(
+                  L_LOAD_STRING(0), true);
               return L_NIL;
           }},
          {"pools-annotate",
@@ -1282,8 +1281,8 @@ static const lisp::Binding script_api[] = {
                          }
                      }
                      if (has_space) {
-                         builder.push_back(L_CONS(L_INT(x),
-                                                  L_INT(y - (sy - 1))));
+                         builder.push_back(
+                             L_CONS(L_INT(x), L_INT(y - (sy - 1))));
                      }
                  }
              }

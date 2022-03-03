@@ -348,7 +348,6 @@ protected:
 
 
 private:
-
     // NOTE: All of these parameters are arranged carefully to use minimal
     // space. Do not go re-arranging things unless you understand how struct
     // packing works. Generally, packing only matters for 32 bit systems. For 64

@@ -15,11 +15,8 @@ namespace skyland {
 
 
 Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
-    : parent_(parent),
-      dispatch_list_(nullptr),
-      health_(1),
-      x_position_(position.x),
-      y_position_(position.y)
+    : parent_(parent), dispatch_list_(nullptr), health_(1),
+      x_position_(position.x), y_position_(position.y)
 {
 
     if (name == nullptr) {
@@ -543,8 +540,9 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
                 y = 1;
             }
             for (; y < size_y_; y += (*plunder_metac)->size().y) {
-                const Vec2<u8> pos = {u8(((u8)x_position_) + x),
-                                      u8(((u8)y_position_) + y),
+                const Vec2<u8> pos = {
+                    u8(((u8)x_position_) + x),
+                    u8(((u8)y_position_) + y),
                 };
                 (*plunder_metac)->create(pfrm, app, parent_, pos);
             }

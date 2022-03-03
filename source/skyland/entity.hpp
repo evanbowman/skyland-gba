@@ -195,8 +195,7 @@ struct GlobalEntityListData {
 
 
 
-template <typename T>
-struct GlobalEntityListDataImpl : GlobalEntityListData {
+template <typename T> struct GlobalEntityListDataImpl : GlobalEntityListData {
     BiNode<T>* begin_;
 };
 

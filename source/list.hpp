@@ -15,8 +15,7 @@ template <typename T> struct BiNode {
 // We're trying to save bytes. We want to allow the list to optionally include a
 // pointer to a distinct memory pool if needed, or, an alternate implementation
 // of ListData could refer to a static pool instead, saving four bytes.
-template <typename T, typename _Pool>
-struct ListData {
+template <typename T, typename _Pool> struct ListData {
 
     using Pool = _Pool;
 
@@ -32,8 +31,6 @@ struct ListData {
     {
         return *pool_;
     }
-
-
 };
 
 
@@ -44,13 +41,13 @@ public:
 
     using Pool = typename Data::Pool;
 
-    template <typename ...Args>
-    List(Args&& ...args) : data_(std::forward<Args>(args)...)
+    template <typename... Args>
+    List(Args&&... args) : data_(std::forward<Args>(args)...)
     {
         data_.begin_ = nullptr;
 
         static_assert(sizeof(Node) <= Pool::element_size() and
-                      alignof(Node) <= Pool::alignment(),
+                          alignof(Node) <= Pool::alignment(),
                       "Pool incompatible");
     }
 

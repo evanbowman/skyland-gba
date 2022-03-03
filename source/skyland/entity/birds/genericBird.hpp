@@ -1,7 +1,7 @@
 #pragma once
 
-#include "platform/platform.hpp"
 #include "bird.hpp"
+#include "platform/platform.hpp"
 
 
 
@@ -11,7 +11,6 @@ namespace skyland {
 
 class GenericBird : public Bird {
 public:
-
     GenericBird(Platform::DynamicTexturePtr dt,
                 const Vec2<u8>& position,
                 bool near = false);
@@ -59,4 +58,4 @@ private:
 
 
 
-}
+} // namespace skyland

@@ -35,8 +35,8 @@ App::App(Platform& pfrm)
                                          Layer::map_0_ext,
                                          5,
                                          player())),
-      current_scene_(null_scene()), next_scene_(null_scene()),
-      level_timer_(0), stat_timer_(0),
+      current_scene_(null_scene()), next_scene_(null_scene()), level_timer_(0),
+      stat_timer_(0),
       backup_(allocate_dynamic<save::EmergencyBackup>(pfrm, "emergency-backup"))
 {
     player_.emplace<PlayerP1>();

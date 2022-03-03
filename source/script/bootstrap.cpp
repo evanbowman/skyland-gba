@@ -27,7 +27,7 @@ rng::Value rng::get(LinearGenerator& gen)
 
 ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
            scratch_buffer_count>
-scratch_buffer_pool("sbr");
+    scratch_buffer_pool("sbr");
 
 
 GenericPool* GenericPool::instances_;

@@ -14,4 +14,4 @@ GlobalEntityListData::Pool& GlobalEntityListData::pool() const
 
 
 
-}
+} // namespace skyland

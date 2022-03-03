@@ -17,8 +17,8 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
 
         if (header.parity_ not_eq parity((u8*)message->data_ + 1)) {
             listener.error(pfrm, app, "parity check failed!");
-            pfrm.network_peer()
-                .poll_consume(Platform::NetworkPeer::max_message_size);
+            pfrm.network_peer().poll_consume(
+                Platform::NetworkPeer::max_message_size);
         }
 
         switch (header.message_type_) {

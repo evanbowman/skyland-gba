@@ -1051,9 +1051,9 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
 
         const auto ambient_movement =
             8 *
-            float(sine(((b->speed() * 100000) / 2) * 3.14f * 0.0005f *
-                           b->age() +
-                       180)) /
+            float(
+                sine(((b->speed() * 100000) / 2) * 3.14f * 0.0005f * b->age() +
+                     180)) /
             std::numeric_limits<s16>::max();
 
         pos.y += ambient_movement;

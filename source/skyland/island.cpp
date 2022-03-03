@@ -44,8 +44,7 @@ void Island::init_terrain(Platform& pfrm, int width)
 
 
 Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
-    : layer_(layer), timer_(0), interior_visible_(false),
-      owner_(&owner)
+    : layer_(layer), timer_(0), interior_visible_(false), owner_(&owner)
 {
     init_terrain(pfrm, width);
 }

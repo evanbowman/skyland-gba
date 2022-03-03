@@ -129,7 +129,7 @@ struct FileInfo {
 struct FileContents {
     struct Header {
         // NOTE: therefore, max filesystem size is 200 * 65535
-        host_u16 next_; // Zero if no more blocks
+        host_u16 next_;     // Zero if no more blocks
         host_u16 checksum_; // To check for file corruption
     } header_;
 

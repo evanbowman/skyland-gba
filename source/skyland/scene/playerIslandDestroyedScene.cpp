@@ -1,5 +1,5 @@
-#include "achievementNotificationScene.hpp"
 #include "playerIslandDestroyedScene.hpp"
+#include "achievementNotificationScene.hpp"
 #include "coopRngSyncScene.hpp"
 #include "highscoresScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
@@ -438,10 +438,10 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.screen().fade(1.f);
 
                 auto next =
-                    scene_pool::make_deferred_scene<PlayerIslandDestroyedScene>(island_, true);
-                return scene_pool::alloc<AchievementNotificationScene>(achievement,
-                                                                       next,
-                                                                       true);
+                    scene_pool::make_deferred_scene<PlayerIslandDestroyedScene>(
+                        island_, true);
+                return scene_pool::alloc<AchievementNotificationScene>(
+                    achievement, next, true);
             }
         }
 

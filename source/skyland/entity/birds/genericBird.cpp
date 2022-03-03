@@ -1,8 +1,8 @@
 #include "genericBird.hpp"
-#include "skyland/island.hpp"
-#include "skyland/tile.hpp"
 #include "number/random.hpp"
+#include "skyland/island.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -12,11 +12,8 @@ namespace skyland {
 
 GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
                          const Vec2<u8>& position,
-                         bool near) :
-    Bird({{}, {}}),
-    dt_(dt),
-    position_(position),
-    near_(near)
+                         bool near)
+    : Bird({{}, {}}), dt_(dt), position_(position), near_(near)
 {
     // NOTE: Two bird graphics of different color sit interleaved in texture
     // data.
@@ -116,7 +113,6 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             dt_->remap((63 + anim_index_) * 2 + color_);
-
         }
 
         auto pos = sprite_.get_position();
@@ -138,7 +134,6 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
         sprite_.set_position(pos);
 
         break;
-
     }
     }
 }
@@ -173,26 +168,19 @@ void GenericBird::generate(Platform& pfrm, App& app)
     if (rng::choice<4>(rng::utility_state) > 0) {
         int used = rng::choice<4>(rng::utility_state);
         remaining_birds -= used;
-        GenericBird::spawn(pfrm,
-                           app,
-                           *app.opponent_island(),
-                           used);
+        GenericBird::spawn(pfrm, app, *app.opponent_island(), used);
     }
     if (rng::choice<4>(rng::utility_state) > 0) {
         GenericBird::spawn(pfrm,
                            app,
                            app.player_island(),
-                           rng::choice(remaining_birds,
-                                       rng::utility_state));
+                           rng::choice(remaining_birds, rng::utility_state));
     }
 }
 
 
 
-void GenericBird::spawn(Platform& pfrm,
-                        App& app,
-                        Island& island,
-                        int count)
+void GenericBird::spawn(Platform& pfrm, App& app, Island& island, int count)
 {
     Buffer<u8, 10> used;
 
@@ -221,10 +209,8 @@ void GenericBird::spawn(Platform& pfrm,
 
                 if (auto dt = pfrm.make_dynamic_texture()) {
                     bool near = &island == &app.player_island();
-                    app.birds().push(app.alloc_entity<GenericBird>(pfrm,
-                                                                   *dt,
-                                                                   pos,
-                                                                   near));
+                    app.birds().push(
+                        app.alloc_entity<GenericBird>(pfrm, *dt, pos, near));
                     break;
                 }
             }
@@ -234,4 +220,4 @@ void GenericBird::spawn(Platform& pfrm,
 
 
 
-}
+} // namespace skyland
