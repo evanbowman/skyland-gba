@@ -37,6 +37,7 @@ dynamite
 dynamite-ii
 transporter
 workshop
+(bird)
 (human) 
 (goblin) 
 (replicant) 

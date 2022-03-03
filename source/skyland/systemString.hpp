@@ -55,6 +55,8 @@ enum class SystemString {
     block_transporter,
     block_workshop,
 
+    bird_label,
+
     character_label_human,
     character_label_goblin,
     character_label_replicant,

@@ -549,6 +549,25 @@ void describe_room(Platform& pfrm,
                     room_description->append(1 + tm / seconds(1));
                 }
             }
+        } else {
+            for (auto& bird : app.birds()) {
+                if (bird->island(app) == island and
+                    bird->coordinate() == cursor_loc) {
+
+                    if (not room_description) {
+                        room_description.emplace(pfrm,
+                                                 OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
+                    }
+
+                    Text::OptColors opts =
+                        {{custom_color(0xbdef84),
+                          ColorConstant::rich_black}};
+
+                    auto str = SYSTR(bird_label);
+                    room_description->assign(str->c_str(), opts);
+                    break;
+                }
+            }
         }
     }
 

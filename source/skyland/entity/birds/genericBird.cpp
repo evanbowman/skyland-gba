@@ -82,7 +82,9 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
             break;
 
         default:
-            alerted_ = true;
+            if (delta > 0) {
+                alerted_ = true;
+            }
             position_.y -= 1;
             break;
         }

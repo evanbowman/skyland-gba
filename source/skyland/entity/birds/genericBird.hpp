@@ -33,6 +33,12 @@ public:
     static void generate(Platform& pfrm, App& app);
 
 
+    Vec2<u8> coordinate() override
+    {
+        return position_;
+    }
+
+
 private:
     Platform::DynamicTexturePtr dt_;
     Vec2<u8> position_;

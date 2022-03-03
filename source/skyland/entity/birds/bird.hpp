@@ -32,6 +32,12 @@ public:
     {
         return nullptr;
     }
+
+
+    virtual Vec2<u8> coordinate()
+    {
+        return {};
+    }
 };
 
 
