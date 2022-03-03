@@ -7,6 +7,7 @@
 
 The production version of SKYLAND for gameboy advance.
 
+<img src="imgs_for_readme/dialog.png"/>
 
 ## Building
 
