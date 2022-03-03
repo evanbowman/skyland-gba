@@ -161,6 +161,20 @@ void prep_level(Platform& pfrm, App& app)
 
         show_island_exterior(pfrm, app, app.opponent_island());
 
+        app.birds().clear();
+        if (rng::choice<4>(rng::utility_state) > 0) {
+            spawn_birds(pfrm,
+                        app,
+                        *app.opponent_island(),
+                        rng::choice<3>(rng::utility_state));
+        }
+        if (rng::choice<4>(rng::utility_state) > 0) {
+            spawn_birds(pfrm,
+                        app,
+                        app.player_island(),
+                        rng::choice<3>(rng::utility_state));
+        }
+
 
         write_custom_graphics(pfrm, app);
         app.opponent_island()->render_exterior(pfrm, app);
