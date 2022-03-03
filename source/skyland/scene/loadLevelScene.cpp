@@ -162,17 +162,21 @@ void prep_level(Platform& pfrm, App& app)
         show_island_exterior(pfrm, app, app.opponent_island());
 
         app.birds().clear();
+        static const int max_birds = 6;
+        int remaining_birds = max_birds;
         if (rng::choice<4>(rng::utility_state) > 0) {
+            int used = rng::choice<4>(rng::utility_state);
+            remaining_birds -= used;
             spawn_birds(pfrm,
                         app,
                         *app.opponent_island(),
-                        rng::choice<3>(rng::utility_state));
+                        used);
         }
         if (rng::choice<4>(rng::utility_state) > 0) {
             spawn_birds(pfrm,
                         app,
                         app.player_island(),
-                        rng::choice<3>(rng::utility_state));
+                        rng::choice(remaining_birds, rng::utility_state));
         }
 
 

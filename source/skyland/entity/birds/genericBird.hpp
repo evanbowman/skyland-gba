@@ -1,7 +1,7 @@
 #pragma once
 
-#include "skyland/entity.hpp"
 #include "platform/platform.hpp"
+#include "bird.hpp"
 
 
 
@@ -9,7 +9,7 @@ namespace skyland {
 
 
 
-class GenericBird : public Entity {
+class GenericBird : public Bird {
 public:
 
     GenericBird(Platform::DynamicTexturePtr dt,
@@ -18,6 +18,13 @@ public:
 
 
     void update(Platform&, App&, Microseconds delta) override;
+
+
+    void signal(Platform&, App&) override;
+
+
+
+    Island* island(App& app) override;
 
 
 private:
@@ -29,6 +36,12 @@ private:
         roost,
         fly,
     } state_ = State::roost;
+
+    Microseconds anim_timer_ = 0;
+
+    u8 anim_index_ = 0;
+    u8 color_ = 0;
+    Float speed_ = 0;
 };
 
 

@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "skyland/entity.hpp"
+#include "bird.hpp"
 
 
 
@@ -9,10 +9,10 @@ namespace skyland {
 
 
 
-class SmallBird : public Entity {
+class SmallBird : public Bird {
 public:
     SmallBird(const Vec2<Float>& position, Float speed)
-        : Entity({{}, {}}), timer1_(0), timer2_(0), speed_(speed)
+        : Bird({{}, {}}), timer1_(0), timer2_(0), speed_(speed)
     {
         sprite_.set_position(position);
         sprite_.set_texture_index(28);

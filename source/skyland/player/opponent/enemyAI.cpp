@@ -1611,6 +1611,9 @@ void EnemyAI::set_target(Platform& pfrm,
 void EnemyAI::on_room_damaged(Platform& pfrm, App& app, Room& room)
 {
     if (app.opponent_island()) {
+        for (auto& bird : app.birds()) {
+
+        }
     }
 }
 

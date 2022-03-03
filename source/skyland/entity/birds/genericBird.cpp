@@ -12,12 +12,16 @@ namespace skyland {
 GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
                          const Vec2<u8>& position,
                          bool near) :
-    Entity({{}, {}}),
+    Bird({{}, {}}),
     dt_(dt),
     position_(position),
     near_(near)
 {
-    dt_->remap((rng::choice<2>(rng::utility_state) + 63) * 2);
+    // NOTE: Two bird graphics of different color sit interleaved in texture
+    // data.
+    color_ = rng::choice<2>(rng::utility_state);
+
+    dt_->remap(63 * 2 + color_);
 
     sprite_.set_texture_index(dt->mapping_index() * 2);
     sprite_.set_size(Sprite::Size::w16_h32);
@@ -87,13 +91,69 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
         break;
     }
 
-    case State::fly:
-        // TODO...
-        this->kill();
+    case State::fly: {
+        anim_timer_ += delta;
+        if (anim_timer_ > milliseconds(110)) {
+            anim_timer_ -= milliseconds(110);
+
+            if (anim_index_ == 6) {
+                anim_index_ = 1;
+            } else {
+                ++anim_index_;
+            }
+
+            dt_->remap((63 + anim_index_) * 2 + color_);
+
+        }
+
+        auto pos = sprite_.get_position();
+
+        if (pos.y < 450) {
+            kill();
+        }
+
+        if (delta > 0) {
+            pos.y -= delta * 0.0001f;
+        }
+
+        if (sprite_.get_flip().x) {
+            pos.x += delta * speed_;
+        } else {
+            pos.x -= delta * speed_;
+        }
+
+        sprite_.set_position(pos);
+
         break;
+
+    }
     }
 }
 
+
+
+void GenericBird::signal(Platform&, App&)
+{
+    if (state_ == State::roost) {
+        state_ = State::fly;
+        anim_timer_ = 0;
+
+        sprite_.set_flip({(bool)rng::choice<2>(rng::utility_state), false});
+
+        speed_ = 0.00003f * rng::choice<4>(rng::utility_state);
+    }
+}
+
+
+
+Island* GenericBird::island(App& app)
+{
+    if (near_) {
+        return &player_island(app);
+    } else {
+        return opponent_island(app);
+    }
+}
 
 
 

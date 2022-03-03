@@ -162,6 +162,20 @@ void PlayerP1::on_room_destroyed(Platform& pfrm, App& app, Room& room)
 
 
 
+void PlayerP1::on_room_damaged(Platform& pfrm, App& app, Room& room)
+{
+    auto island = room.parent();
+
+    // Birds alerted when island attacked.
+    for (auto& bird : app.birds()) {
+        if (bird->island(app) == island) {
+            bird->signal(pfrm, app);
+        }
+    }
+}
+
+
+
 void PlayerP1::on_room_plundered(Platform& pfrm, App& app, Room& room)
 {
     if (room.parent() not_eq &app.player_island()) {
