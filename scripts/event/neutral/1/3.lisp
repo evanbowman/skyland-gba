@@ -32,12 +32,12 @@
               (progn
                 (opponent-mode 'hostile)
                 (dialog "<c:globlin king:3>Thatsss not enough! Letss ssee if theress anything we can take!!")
-            (progn
-              (coins-add (- temp))
-              (dialog "The goblin king rejoices, having successfully extorted "
-                      (string temp)
-                      "@.")
-              (exit))))))
+                (progn
+                  (coins-add (- temp))
+                  (dialog "The goblin king rejoices, having successfully extorted "
+                          (string temp)
+                          "@.")
+                  (exit)))))))
 
 
 
