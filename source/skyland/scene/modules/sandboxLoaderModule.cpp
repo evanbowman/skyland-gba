@@ -143,6 +143,7 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
+    app.birds().clear();
     GenericBird::generate(pfrm, app);
 }
 

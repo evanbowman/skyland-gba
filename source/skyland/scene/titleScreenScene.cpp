@@ -1031,6 +1031,7 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
                         Float(110 - 0.25f * (240 - x_scroll_))};
         sprite.set_position(pos + spr_scale_offset(pfrm).cast<Float>());
         sprite.set_priority(3);
+        sprite.set_texture_index(6);
 
         pfrm.screen().draw(sprite);
     } else if (x_scroll_ < 0) {

@@ -234,9 +234,17 @@ void WorldScene::display(Platform& pfrm, App& app)
         pfrm.screen().draw(effect->sprite());
     }
 
-    for (auto& bird : app.birds()) {
-        pfrm.screen().draw(bird->sprite());
+    if (not birds_drawn_) {
+        // We try to queue bird entities before a display call, because unlike
+        // other objects, birds sit directly on top of tiles, and if there's any
+        // tearing whatsoever, it's super noticeable. But not all derived scenes
+        // actually call WorldScene::update(), so we perform the draw call here
+        // for those cases.
+        for (auto& bird : app.birds()) {
+            pfrm.screen().draw(bird->sprite());
+        }
     }
+    birds_drawn_ = false;
 }
 
 
@@ -470,6 +478,11 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     update_entities(pfrm, app, world_delta, app.birds());
+
+    for (auto& bird : app.birds()) {
+        pfrm.screen().draw(bird->sprite());
+    }
+    birds_drawn_ = true;
 
 
     if (app.game_speed() not_eq GameSpeed::stopped) {

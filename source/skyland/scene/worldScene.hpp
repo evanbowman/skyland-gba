@@ -15,6 +15,14 @@ namespace skyland {
 
 class WorldScene : public Scene {
 public:
+
+    WorldScene() :
+        far_camera_(false),
+        birds_drawn_(false)
+    {
+    }
+
+
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
@@ -69,7 +77,8 @@ private:
     Coins last_coins_ = 0;
     Power last_power_supplied_ = 0;
     Power last_power_used_ = 0;
-    bool far_camera_ = false;
+    bool far_camera_ : 1;
+    bool birds_drawn_ : 1;
 
 protected:
     bool power_fraction_opponent_island_ = false;

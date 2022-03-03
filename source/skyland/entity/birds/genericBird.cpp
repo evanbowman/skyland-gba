@@ -25,6 +25,8 @@ GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
     sprite_.set_size(Sprite::Size::w16_h32);
 
     sprite_.set_flip({(bool)rng::choice<2>(rng::utility_state), false});
+
+    sprite_.set_priority(2);
 }
 
 
@@ -162,7 +164,14 @@ Island* GenericBird::island(App& app)
 
 void GenericBird::generate(Platform& pfrm, App& app)
 {
-    app.birds().clear();
+    for (auto it = app.birds().begin(); it not_eq app.birds().end();) {
+        if ((*it)->island(app) == opponent_island(app)) {
+            it = app.birds().erase(it);
+        } else {
+            ++it;
+        }
+    }
+
     static const int max_birds = 6;
     int remaining_birds = max_birds;
     if (rng::choice<4>(rng::utility_state) > 0) {
@@ -183,6 +192,12 @@ void GenericBird::generate(Platform& pfrm, App& app)
 void GenericBird::spawn(Platform& pfrm, App& app, Island& island, int count)
 {
     Buffer<u8, 10> used;
+
+    for (auto& bird : app.birds()) {
+        if (bird->island(app) == &island) {
+            used.push_back(bird->coordinate().x);
+        }
+    }
 
     for (int i = 0; i < count; ++i) {
         u8 tries = 40;

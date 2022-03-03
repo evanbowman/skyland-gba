@@ -689,7 +689,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::storm_advance: {
         storm_scroll_timer_ += delta;
-        constexpr auto fade_duration = milliseconds(1500);
+        constexpr auto fade_duration = milliseconds(1000);
         if (storm_scroll_timer_ > fade_duration) {
             storm_scroll_timer_ = 0;
             state_ = State::show_node_death_icons;
@@ -707,7 +707,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::storm_scroll_in: {
         storm_scroll_timer_ += delta;
-        constexpr auto fade_duration = milliseconds(1500);
+        constexpr auto fade_duration = milliseconds(1000);
         if (storm_scroll_timer_ > fade_duration) {
             storm_scroll_timer_ = 0;
             state_ = State::show_node_death_icons;
