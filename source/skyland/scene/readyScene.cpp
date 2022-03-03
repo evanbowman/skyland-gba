@@ -296,7 +296,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     } else /* start pressed */ {
 
-        if (app.player().key_held(Key::start, milliseconds(600))) {
+        if (app.player().key_held(Key::start, milliseconds(800))) {
             return scene_pool::alloc<ModifierKeyHintScene>();
         }
 

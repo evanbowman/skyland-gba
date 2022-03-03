@@ -267,6 +267,7 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
             text_.clear();
             pfrm.fill_overlay(0);
             exit_ = true;
+            pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         }
         break;
     }

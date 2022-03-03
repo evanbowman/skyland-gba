@@ -34,28 +34,30 @@ void AutopilotPlayer::on_room_damaged(Platform& pfrm, App& app, Room& room)
 
 
 
-static Key button_name_to_key(const char* name)
+static std::pair<Key, bool> button_name_to_key(const char* name)
 {
     if (str_cmp(name, "Right") == 0) {
-        return Key::right;
+        return {Key::right, true};
     } else if (str_cmp(name, "Left") == 0) {
-        return Key::left;
+        return {Key::left, true};
     } else if (str_cmp(name, "Up") == 0) {
-        return Key::up;
+        return {Key::up, true};
     } else if (str_cmp(name, "Down") == 0) {
-        return Key::down;
+        return {Key::down, true};
     } else if (str_cmp(name, "A") == 0) {
-        return Key::action_1;
+        return {Key::action_1, true};
     } else if (str_cmp(name, "B") == 0) {
-        return Key::action_2;
-    } else if (str_cmp(name, "Start") == 0) {
-        return Key::start;
+        return {Key::action_2, true};
+    } else if (str_eq(name, "Start-p")) {
+        return {Key::start, true};
+    } else if (str_eq(name, "Start-np")) {
+        return {Key::start, false};
     } else if (str_cmp(name, "Select") == 0) {
-        return Key::select;
+        return {Key::select, true};
     } else if (str_cmp(name, "L") == 0) {
-        return Key::alt_1;
+        return {Key::alt_1, true};
     } else {
-        return Key::alt_2;
+        return {Key::alt_2, true};
     }
 }
 
@@ -94,33 +96,55 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.set_tile(Layer::overlay, 26, 11, 352);
         } else if (taps_[(int)Key::select]) {
             pfrm.set_tile(Layer::overlay, 21, 12, 353);
+        } else if (taps_[(int)Key::start]) {
+            pfrm.set_tile(Layer::overlay, 21, 11, 412);
         }
     }
 
-    for (auto& s : prev_) {
-        s = false;
+    for (int i = 0; i < (int)Key::count; ++i) {
+        if ((Key)i not_eq Key::start) {
+            prev_[i] = false;
+        }
     }
 
     for (int i = 0; i < static_cast<int>(Key::count); ++i) {
         prev_[i] = states_[i];
     }
 
-    for (auto& s : states_) {
+    for (int i = 0; i < (int)Key::count; ++i) {
         // These events are level-triggered, so we only want to keep this state
         // set for one update of the game loop, or else the key pressed events
-        // will fire repeatedly.
-        s = false;
+        // will fire repeatedly. The start key is handled separately.
+        if ((Key)i not_eq Key::start) {
+            states_[i] = false;
+        }
     }
 
     if (next_key_timeout_ <= 0) {
 
         if (next_timeout_key_) {
-            states_[(int)*next_timeout_key_] = true;
-            for (auto& k : taps_) {
-                k = false;
+            if (*next_timeout_key_ == Key::start) {
+                for (auto& t : taps_) {
+                    t = false;
+                }
+
+                states_[(int)Key::start] = not next_timeout_release_;
+                taps_[(int)Key::start] = not next_timeout_release_;
+                if (next_timeout_release_) {
+                    key_tap_timeout_ = milliseconds(300);
+                } else {
+                    key_tap_timeout_ = seconds(5);
+                }
+            } else {
+                states_[(int)*next_timeout_key_] = true;
+                for (int i = 0; i < (int)Key::count; ++i) {
+                    if ((Key)i not_eq Key::start) {
+                        taps_[i] = false;
+                    }
+                }
+                key_tap_timeout_ = milliseconds(300);
+                taps_[(int)*next_timeout_key_] = true;
             }
-            key_tap_timeout_ = milliseconds(300);
-            taps_[(int)*next_timeout_key_] = true;
             next_timeout_key_.reset();
         }
 
@@ -140,7 +164,9 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
                     auto key = current->cons().car();
                     if (key->type() == lisp::Value::Type::symbol) {
                         const char* name = key->symbol().name_;
-                        next_timeout_key_ = button_name_to_key(name);
+                        auto [key, state] = button_name_to_key(name);
+                        next_timeout_key_ = key;
+                        next_timeout_release_ = not state;
                     } else if (key->type() == lisp::Value::Type::string) {
                         app.dialog_buffer().emplace(
                             allocate_dynamic<DialogString>(pfrm,

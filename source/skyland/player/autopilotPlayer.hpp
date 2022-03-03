@@ -36,6 +36,7 @@ private:
 
     Microseconds next_key_timeout_ = 0;
     std::optional<Key> next_timeout_key_;
+    bool next_timeout_release_ = false;
 
 
     Microseconds key_tap_timeout_ = 0;
