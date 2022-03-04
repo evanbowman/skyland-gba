@@ -759,9 +759,26 @@ Value* make_databuffer(Platform& pfrm, const char* sbr_tag)
 void live_values(::Function<24, void(Value&)> callback);
 
 
+Value* make_string_from_literal(const char* str)
+{
+    if (auto val = alloc_value()) {
+        val->hdr_.type_ = Value::Type::string;
+        val->string().data_.literal_.value_ = str;
+        val->string().is_literal_ = true;
+        return val;
+    } else {
+        return bound_context->oom_;
+    }
+}
+
+
 Value* make_string(const char* string)
 {
     auto len = str_len(string);
+
+    if (len == 0) {
+        return make_string_from_literal("");
+    }
 
     Value* existing_buffer = nullptr;
     decltype(len) free = 0;
@@ -795,8 +812,9 @@ Value* make_string(const char* string)
 
         if (auto val = alloc_value()) {
             val->hdr_.type_ = Value::Type::string;
-            val->string().data_buffer_ = compr(existing_buffer);
-            val->string().offset_ = offset;
+            val->string().data_.memory_.data_buffer_ = compr(existing_buffer);
+            val->string().data_.memory_.offset_ = offset;
+            val->string().is_literal_ = false;
             return val;
         } else {
             return bound_context->oom_;
@@ -823,8 +841,9 @@ Value* make_string(const char* string)
 
         if (auto val = alloc_value()) {
             val->hdr_.type_ = Value::Type::string;
-            val->string().data_buffer_ = compr(buffer);
-            val->string().offset_ = 0;
+            val->string().data_.memory_.data_buffer_ = compr(buffer);
+            val->string().data_.memory_.offset_ = 0;
+            val->string().is_literal_ = false;
             return val;
         } else {
             return bound_context->oom_;
@@ -1349,7 +1368,15 @@ void format_impl(Value* value, Printer& p, int depth)
 
 const char* String::value()
 {
-    return dcompr(data_buffer_)->data_buffer().value()->data_ + offset_;
+    if (is_literal_) {
+        return data_.literal_.value_;
+    } else {
+        return dcompr(data_.memory_.data_buffer_)
+                   ->data_buffer()
+                   .value()
+                   ->data_ +
+               data_.memory_.offset_;
+    }
 }
 
 
@@ -1390,7 +1417,9 @@ static void gc_mark_value(Value* value)
         break;
 
     case Value::Type::string:
-        gc_mark_value(dcompr(value->string().data_buffer_));
+        if (not value->string().is_literal_) {
+            gc_mark_value(dcompr(value->string().data_.memory_.data_buffer_));
+        }
         break;
 
     case Value::Type::error:

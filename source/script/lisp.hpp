@@ -267,9 +267,25 @@ struct DataBuffer {
 
 
 struct String {
+
     ValueHeader hdr_;
-    CompressedPtr data_buffer_;
-    u16 offset_;
+    bool is_literal_;
+
+    struct MemoryString {
+        CompressedPtr data_buffer_;
+        u16 offset_;
+    };
+
+    struct LiteralString {
+        const char* value_;
+    };
+
+
+    union Data {
+        MemoryString memory_;
+        LiteralString literal_;
+    } data_;
+
 
     static ValueHeader::Type type()
     {
@@ -483,6 +499,9 @@ Value* make_symbol(const char* name,
 Value* make_databuffer(Platform& pfrm, const char* sbr_tag = "");
 Value* make_string(const char* str);
 Value* make_character(utf8::Codepoint cp);
+
+// NOTE: Argument MUST be a C string literal.
+Value* make_string_from_literal(const char* str);
 
 
 Value* make_cons_safe(Value* car, Value* cdr);
