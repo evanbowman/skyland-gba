@@ -750,7 +750,7 @@ elseif(GAMEBOY_ADVANCE)
     # NOTE: using DrillDozer's ROM id code for testing purposes, because many
     # emulator developers do not give you the option to manually override which
     # gamepacks support gpio rumble.
-    COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSkyEngine2 -cV49E -r0 -mEB SkylandEngine.gba)
+    COMMAND ${DEVKITPRO}/tools/bin/gbafix -tSKYLAND -cV49E -r0 -mEB SkylandEngine.gba)
 
 elseif(APPLE)
   target_link_libraries(SkylandEngine
