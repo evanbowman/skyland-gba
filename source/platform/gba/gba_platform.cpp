@@ -1044,11 +1044,34 @@ u16 find_dynamic_mapping(u16 virtual_index)
 }
 
 
+
+static bool is_onscreen(const Platform::Screen& screen, const Vec2<Float>& pos)
+{
+    const auto view_center = screen.get_view().get_center().cast<s32>();
+    const auto view_half_extent = screen.size().cast<s32>() / s32(2);
+    Vec2<s32> view_br = {view_center.x + view_half_extent.x * 2,
+                         view_center.y + view_half_extent.y * 2};
+
+    // FIXME: check y range! Due to the gba's hardware wrapping, I didn't
+    // realize that certain layers and sprites were actually wrapped over in the
+    // y-direction, which makes the view bounds check difficult. Need to fix the
+    // y coordinates!!!
+
+    return pos.x > view_center.x - 32 and pos.x < view_br.x + 32;
+}
+
+
+
 void Platform::Screen::draw(const Sprite& spr)
 {
     if (UNLIKELY(spr.get_alpha() == Sprite::Alpha::transparent)) {
         return;
     }
+
+    if (not is_onscreen(*this, spr.get_position())) {
+        return;
+    }
+
 
     const auto& mix = spr.get_mix();
 
