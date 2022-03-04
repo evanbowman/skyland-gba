@@ -778,7 +778,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                         allocate_dynamic<DialogString>(pfrm, "dialog-buffer");
                     *dialog = SYS_CSTR(dialog_tutorial_prompt);
                     auto next = scene_pool::alloc<BoxedDialogScene>(
-                        std::move(dialog), false);
+                        pfrm, std::move(dialog), false);
 
                     return next;
 

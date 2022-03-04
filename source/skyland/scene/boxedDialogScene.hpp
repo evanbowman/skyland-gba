@@ -17,9 +17,11 @@ namespace skyland {
 class BoxedDialogScene : public WorldScene
 {
 public:
-    BoxedDialogScene(DialogBuffer buffer, bool expects_answer_y_n)
+    BoxedDialogScene(Platform& pfrm,
+                     DialogBuffer buffer,
+                     bool expects_answer_y_n)
         : buffer_(std::move(buffer)), expects_answer_y_n_(expects_answer_y_n),
-          character_image_(0)
+          data_(allocate_dynamic<Data>(pfrm, "dialog-data"))
     {
         goto_tutorial_ = 0;
     }
@@ -74,9 +76,22 @@ private:
     std::optional<Text> character_name_text_;
     bool choice_sel_ = true;
 
-    u16 character_image_;
 
-    StringBuffer<14> character_name_;
+
+    struct Data
+    {
+        struct CharacterDescription
+        {
+            // Yeah, the screen is only 30 tiles wide, but remember, this buffer
+            // holds utf8 text!
+            StringBuffer<32> name_;
+            u16 image_ = 0;
+        } character_;
+
+
+    };
+
+    DynamicMemory<Data> data_;
 };
 
 
