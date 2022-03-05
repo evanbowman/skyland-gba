@@ -294,6 +294,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/skyland_title_2_flattened.s
     ${DATA_DIR}/skyland_title_1_flattened.s
     ${DATA_DIR}/skyland_title_0_flattened.s
+    ${DATA_DIR}/gba_health_safety_logo_flattened.s
     ${DATA_DIR}/zone_image_0_flattened.s
     ${DATA_DIR}/zone_image_1_flattened.s
     ${DATA_DIR}/zone_image_2_flattened.s
@@ -565,6 +566,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(zone_image_1 0 0 YES NO)
     add_tilesheet(zone_image_2 0 0 YES NO)
     add_tilesheet(zone_image_3 0 0 YES NO)
+    add_tilesheet(gba_health_safety_logo 2 2 YES NO)
     add_background(background 0 0 NO NO)
     add_background(background_title_screen 0 0 NO NO)
     add_overlay(overlay 0 0 NO NO)

@@ -56,6 +56,9 @@ public:
     DeviceName device_name() const;
 
 
+    static Platform& instance();
+
+
     struct alignas(4) EncodedTile
     {
         u8 bytes_[128];

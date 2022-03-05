@@ -4,6 +4,10 @@
 //
 // Platform Implementation for Nintendo Gameboy Advance
 //
+// Generally, the code in this file is a mess, as the gba hardware is set in
+// stone and I don't need to maintain this stuff, so I didn't bother to write
+// organized code.
+//
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -263,6 +267,13 @@ void start(Platform&);
 
 
 static Platform* platform;
+
+
+
+Platform& Platform::instance()
+{
+    return *platform;
+}
 
 
 
@@ -742,7 +753,7 @@ static bool unlock_gameboy_player(Platform& pfrm)
     push_palette(ColorConstant::rich_black, 0);
 
     using Frames = int;
-    static const Frames splashscreen_duration(60);
+    static const Frames splashscreen_duration(40);
 
     for (Frames i = 0; i < splashscreen_duration; ++i) {
         // If the gameboy player hardware/software accepted our spash screen,
@@ -4116,6 +4127,156 @@ void ram_overclock()
 
 
 
+static void show_health_and_safety_message(Platform& pfrm)
+{
+    // Throwaway platform-specific code for displaying a health an safetly
+    // warning, like late-era gba games.
+
+    Color c_white(custom_color(0xffffff));
+    static const auto white_555 = c_white.bgr_hex_555();
+
+    u16 cached_palette[16];
+
+    VBlankIntrWait();
+
+    for (u32 i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[i] = white_555;
+        MEM_BG_PALETTE[i + 16] = white_555;
+    }
+
+    for (auto& info : tile_textures) {
+        if (str_eq(info.name_, "gba_health_safety_logo_flattened")) {
+
+            memcpy(cached_palette, info.palette_data_, 32);
+
+            if (validate_tilemap_texture_size(pfrm, info.tile_data_length_)) {
+                VBlankIntrWait();
+                memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0],
+                         info.tile_data_,
+                         info.tile_data_length_ / 2);
+            } else {
+                error(pfrm, "Unable to load health and safety notice.");
+            }
+
+            break;
+        }
+    }
+
+    REG_DISPCNT = MODE_0 | OBJ_ENABLE | OBJ_MAP_1D | BG0_ENABLE;
+    *bg0_x_scroll = 0;
+    *bg0_y_scroll = 0;
+
+    *bg0_control = BG_CBB(cbb_t0_texture) | BG_SBB(sbb_t0_tiles) |
+                   BG_REG_64x32 | BG_PRIORITY(2) | BG_MOSAIC;
+
+    auto set_tile =
+        [&](int x, int y, int val, int palette) {
+            MEM_SCREENBLOCKS[sbb_t0_tiles][x + y * 32] = val | SE_PALBANK(palette);
+        };
+
+    u16 tile = 1;
+    for (u16 y = 0; y < 11; ++y) {
+        for (u16 x = 0; x < 30; ++x) {
+            set_tile(x, y, tile++, 0);
+        }
+    }
+
+    for (int x = 0; x < 30; ++x) {
+        set_tile(x, 11, 1, 0);
+    }
+
+    for (u16 y = 12; y < 16; ++y) {
+        for (u16 x = 0; x < 30; ++x) {
+            set_tile(x, y, tile++, 0);
+        }
+    }
+
+    for (int x = 0; x < 30; ++x) {
+        set_tile(x, 16, 1, 0);
+    }
+
+    for (u16 y = 17; y < 19; ++y) {
+        for (u16 x = 0; x < 30; ++x) {
+            set_tile(x, y, tile++, 1);
+        }
+    }
+
+    for (int x = 0; x < 30; ++x) {
+        set_tile(x, 19, 1, 0);
+    }
+
+    for (int i = 0; i < 5; ++i) {
+        VBlankIntrWait();
+    }
+
+    for (int i = 0; i < 20; ++i) {
+        auto blend_amount = 255 * ((float)i / 20);
+        VBlankIntrWait();
+        for (int i = 0; i < palette_count; ++i) {
+            const auto c = Color::from_bgr_hex_555(cached_palette[i]);
+            MEM_BG_PALETTE[i] = blend(c_white, c, blend_amount);
+        }
+    }
+
+    int frames = 0;
+    u8 hint_fade_amount = 0;
+    bool hint_fade_in = true;
+
+    while (true) {
+        ++frames;
+        pfrm.feed_watchdog();
+        VBlankIntrWait();
+
+        if (frames > 60) {
+            if (hint_fade_in) {
+                hint_fade_amount += 15;
+                if (hint_fade_amount == 255) {
+                    hint_fade_in = false;
+                }
+            } else {
+                hint_fade_amount -= 15;
+                if (hint_fade_amount == 0) {
+                    hint_fade_in = true;
+                }
+            }
+            VBlankIntrWait();
+            for (int i = 0; i < palette_count; ++i) {
+                const auto c = Color::from_bgr_hex_555(cached_palette[i]);
+                MEM_BG_PALETTE[i + 16] = blend(c_white, c, hint_fade_amount);
+            }
+        }
+
+        pfrm.keyboard().poll();
+        if (pfrm.keyboard().pressed<Key::action_1>()) {
+            break;
+        }
+    }
+
+    while (hint_fade_amount) {
+        hint_fade_amount -= 15;
+        VBlankIntrWait();
+        for (int i = 0; i < palette_count; ++i) {
+            const auto c = Color::from_bgr_hex_555(cached_palette[i]);
+            MEM_BG_PALETTE[i + 16] = blend(c_white, c, hint_fade_amount);
+        }
+    }
+
+    for (int i = 0; i < 20; ++i) {
+        auto blend_amount = 255 * ((float)i / 20);
+        VBlankIntrWait();
+        for (int i = 0; i < palette_count; ++i) {
+            const auto c = Color::from_bgr_hex_555(cached_palette[i]);
+            MEM_BG_PALETTE[i] = blend(c, c_white, blend_amount);
+        }
+    }
+
+    for (int i = 0; i < 10; ++i) {
+        VBlankIntrWait();
+    }
+}
+
+
+
 Platform::Platform()
 {
     ::platform = this;
@@ -4126,35 +4287,6 @@ Platform::Platform()
     // ram_overclock();
 
     canary_init();
-
-    // NOTE: these colors were a custom hack I threw in during the GBA game jam,
-    // when I wanted background tiles to flicker between a few different colors.
-    for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(15 * 16) + i] =
-            Color(custom_color(0xef0d54)).bgr_hex_555();
-    }
-    for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(14 * 16) + i] =
-            Color(custom_color(0x103163)).bgr_hex_555();
-    }
-    for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(13 * 16) + i] =
-            Color(ColorConstant::silver_white).bgr_hex_555();
-    }
-
-    // Really bad hack. We added a feature where the player can design his/her
-    // own flag, but we frequently switch color palettes when viewing
-    // interior/exterior of a castle, so we reserve one of the palette banks for
-    // the flag palette, which is taken from the tilesheet texture.
-    load_tile0_texture("tilesheet");
-    for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(12 * 16) + i] = MEM_BG_PALETTE[i];
-
-        // When we started allowing players to design custom sprites, we needed
-        // to reserve a sprite palette and fill it with the same color values as
-        // the image editor uses for custom tile graphics.
-        MEM_PALETTE[16 + i] = MEM_BG_PALETTE[i];
-    }
 
 
     // for (int i = 0; i < audio_buffer_count; ++i) {
@@ -4209,7 +4341,8 @@ Platform::Platform()
 
     info(*this, "Verifying BIOS...");
 
-    switch (BiosCheckSum()) {
+    const auto bios_version = BiosCheckSum();
+    switch (bios_version) {
     case BiosVersion::NDS:
         info(*this, "BIOS matches Nintendo DS");
         break;
@@ -4247,6 +4380,11 @@ Platform::Platform()
                // unlocking.
 
     irqEnable(IRQ_VBLANK);
+
+    if (bios_version not_eq BiosVersion::NDS) {
+        show_health_and_safety_message(*this);
+    }
+
     irqSet(IRQ_VBLANK, vblank_isr);
 
     if (unlock_gameboy_player(*this)) {
@@ -4267,6 +4405,39 @@ Platform::Platform()
         start_remote_console(*this);
 
         rumble_init(nullptr);
+    }
+
+    // NOTE: these colors were a custom hack I threw in during the GBA game jam,
+    // when I wanted background tiles to flicker between a few different colors.
+    for (int i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[(15 * 16) + i] =
+            Color(custom_color(0xef0d54)).bgr_hex_555();
+    }
+    for (int i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[(14 * 16) + i] =
+            Color(custom_color(0x103163)).bgr_hex_555();
+    }
+    for (int i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[(13 * 16) + i] =
+            Color(ColorConstant::silver_white).bgr_hex_555();
+    }
+
+    // Really bad hack. We added a feature where the player can design his/her
+    // own flag, but we frequently switch color palettes when viewing
+    // interior/exterior of a castle, so we reserve one of the palette banks for
+    // the flag palette, which is taken from the tilesheet texture.
+    for (auto& info : tile_textures) {
+        if (str_eq(info.name_, "tilesheet")) {
+            for (int i = 0; i < 16; ++i) {
+                MEM_BG_PALETTE[(12 * 16) + i] = info.palette_data_[i];
+
+                // When we started allowing players to design custom sprites, we
+                // needed to reserve a sprite palette and fill it with the same
+                // color values as the image editor uses for custom tile
+                // graphics.
+                MEM_PALETTE[16 + i] = info.palette_data_[i];
+            }
+        }
     }
 
     irqSet(IRQ_KEYPAD, keypad_isr);
