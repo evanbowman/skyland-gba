@@ -20,12 +20,19 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    void display(Platform&, App&) override;
+
+
+    static void show_sunflowers(Platform& pfrm, int scroll);
+
+
 private:
     bool wait_ = true;
     bool exit_ = false;
     std::optional<Text> text_;
     std::optional<Text> copyright_text_;
     Microseconds timer_ = 0;
+    Microseconds flower_effect_timer_ = 0;
 };
 
 

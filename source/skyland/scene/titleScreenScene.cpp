@@ -16,6 +16,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
 #include "zoneImageScene.hpp"
+#include "introCreditsScene.hpp"
 
 
 
@@ -110,7 +111,16 @@ static void set_scroll(Platform& pfrm, Layer layer, int x_scroll, int y_scroll)
 
 void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    pfrm.screen().schedule_fade(1.f);
+    if (dynamic_cast<IntroCreditsScene*>(&prev)) {
+        flower_effect_ = true;
+        pfrm.screen().schedule_fade(1.f,
+                                    ColorConstant::rich_black,
+                                    {},
+                                    false);
+    } else {
+        pfrm.screen().schedule_fade(1.f);
+    }
+
     const int offset = 64;
 
     app.camera().emplace<Camera>();
@@ -153,8 +163,12 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_overlay_texture("overlay");
     pfrm.load_tile1_texture("skyland_title_1_flattened");
     pfrm.load_tile0_texture("skyland_title_0_flattened");
-    pfrm.load_sprite_texture("spritesheet_title_screen");
     pfrm.load_background_texture("background_title_screen");
+
+    if (not flower_effect_) {
+        // (already loaded previously)
+        pfrm.load_sprite_texture("spritesheet_title_screen");
+    }
 
     if (not pfrm.speaker().is_music_playing("shadows")) {
         pfrm.speaker().play_music("shadows", true);
@@ -562,8 +576,13 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
         } else {
             const auto amount = 1.f - smoothstep(0.f, fade_duration, timer_);
-            pfrm.screen().schedule_fade(
-                amount, ColorConstant::rich_black, true, true);
+            if (flower_effect_) {
+                pfrm.screen().schedule_fade(
+                    amount, ColorConstant::rich_black, false, true);
+            } else {
+                pfrm.screen().schedule_fade(
+                    amount, ColorConstant::rich_black, true, true);
+            }
         }
         break;
     }
@@ -1024,6 +1043,14 @@ void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
 
 void TitleScreenScene::display(Platform& pfrm, App& app)
 {
+    if (flower_effect_ and state_ == State::fade_in) {
+        auto amount =
+            smoothstep(milliseconds(-400), milliseconds(800), timer_);
+
+        IntroCreditsScene::show_sunflowers(pfrm, 48 * amount);
+        return;
+    }
+
     if (x_scroll_ > 160) {
         Sprite sprite;
 

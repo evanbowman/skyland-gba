@@ -33,7 +33,7 @@ private:
     Microseconds selector_timer_ = 0;
     Float ambient_movement_ = 0.f;
     bool selector_shaded_ = false;
-
+    bool flower_effect_ = false;
 
     void run_init_scripts(Platform& pfrm, App& app, bool allow_mods);
 

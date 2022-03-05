@@ -14,8 +14,9 @@ namespace skyland {
 void IntroCreditsScene::enter(Platform& pfrm, App&, Scene& prev)
 {
     pfrm.load_overlay_texture("overlay_skyland_title");
+    pfrm.load_sprite_texture("spritesheet_title_screen");
 
-    pfrm.screen().fade(1.f);
+    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, false, false);
 
     rng::critical_state = 2021;
 }
@@ -39,6 +40,7 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
     timer_ += delta;
 
     if (wait_) {
+        flower_effect_timer_ += delta;
         if (timer_ > milliseconds(500)) {
             wait_ = false;
             timer_ = 0;
@@ -52,6 +54,7 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
                 pfrm, text->c_str(), OverlayCoord{margin, (u8)(st.y / 2 - 3)});
         }
     } else if (text_) {
+        flower_effect_timer_ += delta;
         if (timer_ > milliseconds(500) and timer_ < milliseconds(2000)) {
             auto amount =
                 smoothstep(milliseconds(500), milliseconds(2000), timer_);
@@ -92,6 +95,59 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
     }
 
     return null_scene();
+}
+
+
+
+void IntroCreditsScene::show_sunflowers(Platform& pfrm, int scroll)
+{
+    Sprite sprite;
+    sprite.set_priority(0);
+
+    const Float sy = pfrm.screen().size().y;
+    const Float sx = pfrm.screen().size().x;
+
+    const auto view_origin = pfrm.screen().get_view().get_center();
+
+    auto spr = [&] (int t, Float x, Float y) {
+                   sprite.set_texture_index(t);
+                   sprite.set_position({x + view_origin.x,
+                                        y + view_origin.y});
+                   pfrm.screen().draw(sprite);
+               };
+
+    sprite.set_size(Sprite::Size::w32_h32);
+    spr(21, 0 - scroll, (sy - 16) + scroll / 2);
+    spr(20, 0 - scroll, (sy - 48) + scroll / 2);
+    spr(19, 0 - scroll, (sy - 80) + scroll / 2);
+
+    spr(22, 32 - scroll, (sy - 16) + scroll / 2);
+    spr(23, 64 - scroll, (sy - 16) + scroll / 2);
+
+
+    spr(25, (sx - 32) + scroll, (sy - 32) + scroll / 2);
+    spr(24, (sx - 32) + scroll, (sy - 64) + scroll / 2);
+    spr(26, (sx - 64) + scroll, (sy - 32) + scroll / 2);
+    spr(27, (sx - 96) + scroll, (sy - 16) + scroll / 2);
+}
+
+
+
+void IntroCreditsScene::display(Platform& pfrm, App&)
+{
+    if (not wait_ and not text_) {
+        auto amount =
+            smoothstep(milliseconds(0), milliseconds(1200), timer_);
+
+        show_sunflowers(pfrm, 48 * amount);
+    } else {
+        auto amount = smoothstep(milliseconds(100),
+                                 milliseconds(4000),
+                                 flower_effect_timer_);
+
+        show_sunflowers(pfrm, 64 * (1.f - amount));
+    }
+
 }
 
 
