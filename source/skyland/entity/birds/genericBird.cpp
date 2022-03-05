@@ -41,9 +41,12 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
         island = opponent_island(app);
     }
 
-    if (island == nullptr or island->is_destroyed()) {
+    if (island->is_destroyed()) {
+        this->signal(pfrm, app);
+    }
+
+    if (island == nullptr) {
         this->kill();
-        return;
     }
 
     switch (state_) {
