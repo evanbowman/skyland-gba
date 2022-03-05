@@ -3467,91 +3467,10 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
 
 
 
-static void clear_music()
-{
-    // The audio interrupt handler can be smaller and simpler if we use a track
-    // of empty bytes to represent scenarios where music is not playing, rather
-    // than adding another if condition to the audio isr.
-    snd_ctx.music_track = reinterpret_cast<const AudioSample*>(null_music);
-    snd_ctx.music_track_length = null_music_len - 1;
-    snd_ctx.music_track_pos = 0;
-}
-
-
-
-static void audio_update_fast_isr();
-
-
-
-static void audio_start()
-{
-    clear_music();
-
-    // REG_SOUNDCNT_H =
-    //     0x0B0D | SDS_DMG100; //DirectSound A + fifo reset + max volume to L and R
-    REG_SOUNDCNT_X = 0x0080; //turn sound chip on
-
-    REG_SOUNDCNT_H = SDS_DMG100 | 1 << 2 | 1 << 3 | 1 << 8 | 1 << 9;
-
-
-    // Required for stereo, currently unused.
-    // // Both direct sound channels, FIFO reset, A is R, B is L.
-    // REG_SOUNDCNT_H = 0b1010100100001111;
-    // REG_SOUNDCNT_X = 0x0080; //turn sound chip on
-
-
-    irqEnable(IRQ_TIMER1);
-    irqSet(IRQ_TIMER1, audio_update_fast_isr);
-
-    REG_TM0CNT_L = 0xffff;
-    REG_TM1CNT_L = 0xffff - 3; // I think that this is correct, but I'm not
-                               // certain... so we want to play four samples at
-                               // a time, which means that by subtracting three
-                               // from the initial count, the timer will
-                               // overflow at the correct rate, right?
-
-    // While it may look like TM0 is unused, it is in fact used for setting the
-    // sample rate for the digital audio chip.
-    REG_TM0CNT_H = 0x0083;
-    REG_TM1CNT_H = 0x00C3;
-
-
-    // turn sound on
-    REG_SNDSTAT = SSTAT_ENABLE;
-
-    // on left/right ; both full volume
-    REG_SNDDMGCNT =
-        SDMG_BUILD_LR(SDMG_SQR1 | SDMG_SQR2 | SDMG_WAVE | SDMG_NOISE, 7);
-
-    // no sweep
-    REG_SND1SWEEP = SSW_OFF;
-
-    // envelope: vol=12, decay, max step time (7) ; 50% duty
-    REG_SND1CNT = SSQR_ENV_BUILD(12, 0, 7) | SSQR_DUTY1_2;
-    REG_SND1FREQ = 0;
-
-    REG_SND2CNT = SSQR_ENV_BUILD(12, 0, 7) | SSQR_DUTY1_4;
-    REG_SND2FREQ = 0;
-
-    REG_SND4CNT = SSQR_ENV_BUILD(12, 0, 7) | SSQR_DUTY1_4;
-    REG_SND4FREQ = 0;
-}
-
-
-
-bool audio_started = false;
-
-
-
 void Platform::Speaker::play_sound(const char* name,
                                    int priority,
                                    std::optional<Vec2<Float>> position)
 {
-    if (not audio_started) {
-        audio_start();
-        audio_started = true;
-    }
-
     (void)position; // We're not using position data, because on the gameboy
                     // advance, we aren't supporting spatial audio.
 
@@ -3605,6 +3524,16 @@ void Platform::Speaker::play_sound(const char* name,
 }
 
 
+static void clear_music()
+{
+    // The audio interrupt handler can be smaller and simpler if we use a track
+    // of empty bytes to represent scenarios where music is not playing, rather
+    // than adding another if condition to the audio isr.
+    snd_ctx.music_track = reinterpret_cast<const AudioSample*>(null_music);
+    snd_ctx.music_track_length = null_music_len - 1;
+    snd_ctx.music_track_pos = 0;
+}
+
 
 static void stop_music()
 {
@@ -3650,14 +3579,8 @@ void Platform::Speaker::stop_music()
 }
 
 
-
 static void play_music(const char* name, Microseconds offset)
 {
-    if (not audio_started) {
-        audio_start();
-        audio_started = true;
-    }
-
     const auto track = find_music(name);
     if (track == nullptr) {
         return;
@@ -4044,6 +3967,62 @@ void Platform::Speaker::set_music_volume(u8 volume)
         music_volume_lut = &volume_scale_LUTs[volume];
         irqSet(IRQ_TIMER1, audio_update_music_volume_isr);
     }
+}
+
+
+
+static void audio_start()
+{
+    clear_music();
+
+    // REG_SOUNDCNT_H =
+    //     0x0B0D | SDS_DMG100; //DirectSound A + fifo reset + max volume to L and R
+    REG_SOUNDCNT_X = 0x0080; //turn sound chip on
+
+    REG_SOUNDCNT_H = SDS_DMG100 | 1 << 2 | 1 << 3 | 1 << 8 | 1 << 9;
+
+
+    // Required for stereo, currently unused.
+    // // Both direct sound channels, FIFO reset, A is R, B is L.
+    // REG_SOUNDCNT_H = 0b1010100100001111;
+    // REG_SOUNDCNT_X = 0x0080; //turn sound chip on
+
+
+    irqEnable(IRQ_TIMER1);
+    irqSet(IRQ_TIMER1, audio_update_fast_isr);
+
+    REG_TM0CNT_L = 0xffff;
+    REG_TM1CNT_L = 0xffff - 3; // I think that this is correct, but I'm not
+                               // certain... so we want to play four samples at
+                               // a time, which means that by subtracting three
+                               // from the initial count, the timer will
+                               // overflow at the correct rate, right?
+
+    // While it may look like TM0 is unused, it is in fact used for setting the
+    // sample rate for the digital audio chip.
+    REG_TM0CNT_H = 0x0083;
+    REG_TM1CNT_H = 0x00C3;
+
+
+    // turn sound on
+    REG_SNDSTAT = SSTAT_ENABLE;
+
+    // on left/right ; both full volume
+    REG_SNDDMGCNT =
+        SDMG_BUILD_LR(SDMG_SQR1 | SDMG_SQR2 | SDMG_WAVE | SDMG_NOISE, 7);
+
+    // no sweep
+    REG_SND1SWEEP = SSW_OFF;
+
+    // envelope: vol=12, decay, max step time (7) ; 50% duty
+    REG_SND1CNT = SSQR_ENV_BUILD(12, 0, 7) | SSQR_DUTY1_2;
+    REG_SND1FREQ = 0;
+
+    REG_SND2CNT = SSQR_ENV_BUILD(12, 0, 7) | SSQR_DUTY1_4;
+    REG_SND2FREQ = 0;
+
+    REG_SND4CNT = SSQR_ENV_BUILD(12, 0, 7) | SSQR_DUTY1_4;
+    REG_SND4FREQ = 0;
 }
 
 
@@ -4488,6 +4467,8 @@ Platform::Platform()
 
         info(*::platform, str.c_str());
     }
+
+    audio_start();
 
     fill_overlay(0);
 
