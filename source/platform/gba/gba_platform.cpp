@@ -4247,7 +4247,14 @@ static void show_health_and_safety_message(Platform& pfrm)
         }
 
         pfrm.keyboard().poll();
-        if (pfrm.keyboard().pressed<Key::action_1>()) {
+        bool exit = false;
+        for (int i = 0; i < (int)Key::count; ++i) {
+            if (pfrm.keyboard().pressed((Key)i)) {
+                exit = true;
+                break;
+            }
+        }
+        if (exit) {
             break;
         }
     }
