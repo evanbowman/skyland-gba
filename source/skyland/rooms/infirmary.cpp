@@ -51,7 +51,7 @@ void Infirmary::render_interior(App& app, u8 buffer[16][16])
     buffer[position().x][position().y] = InteriorTile::infirmary_1;
     buffer[position().x][position().y + 1] = InteriorTile::infirmary_2;
     buffer[position().x + 1][position().y] = InteriorTile::infirmary_3;
-    buffer[position().x + 1][position().y + 1] = InteriorTile::infirmary_4;
+    buffer[position().x + 1][position().y + 1] = InteriorTile::plain_floor;
 }
 
 
