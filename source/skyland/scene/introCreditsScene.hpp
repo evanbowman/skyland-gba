@@ -23,7 +23,7 @@ public:
     void display(Platform&, App&) override;
 
 
-    static void show_sunflowers(Platform& pfrm, int scroll);
+    static void show_sunflowers(Platform& pfrm, int scroll, Float darken);
 
 
 private:

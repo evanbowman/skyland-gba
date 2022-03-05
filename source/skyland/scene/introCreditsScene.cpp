@@ -99,10 +99,16 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
 
 
 
-void IntroCreditsScene::show_sunflowers(Platform& pfrm, int scroll)
+void IntroCreditsScene::show_sunflowers(Platform& pfrm,
+                                        int scroll,
+                                        Float darken)
 {
     Sprite sprite;
     sprite.set_priority(0);
+
+    if (darken not_eq 0.f) {
+        sprite.set_mix({ColorConstant::rich_black, u8(255 * darken)});
+    }
 
     const Float sy = pfrm.screen().size().y;
     const Float sx = pfrm.screen().size().x;
@@ -129,23 +135,37 @@ void IntroCreditsScene::show_sunflowers(Platform& pfrm, int scroll)
     spr(24, (sx - 32) + scroll, (sy - 64) + scroll / 2);
     spr(26, (sx - 64) + scroll, (sy - 32) + scroll / 2);
     spr(27, (sx - 96) + scroll, (sy - 16) + scroll / 2);
+
+
+    spr(28, 0 - scroll, (sy - 112) + scroll / 4);
+    spr(29, 0 - scroll, (sy - 144) + scroll / 4);
+
+    spr(30, (sx - 32) + scroll, (sy - 124) + scroll / 4);
+
+    // spr(32, (sx - 32) + scroll, 0 - scroll / 4);
+    // spr(33, (sx - 32) + scroll, 32 - scroll / 4);
+    // spr(34, (sx - 64) + scroll, 0 - scroll / 4);
+
 }
 
 
 
-void IntroCreditsScene::display(Platform& pfrm, App&)
+void IntroCreditsScene::display(Platform& pfrm, App& app)
 {
     if (not wait_ and not text_) {
         auto amount =
             smoothstep(milliseconds(0), milliseconds(1200), timer_);
 
-        show_sunflowers(pfrm, 48 * amount);
+        auto darken_amount =
+            smoothstep(milliseconds(0), milliseconds(600), timer_);
+
+        show_sunflowers(pfrm, 32 * amount, darken_amount);
     } else {
         auto amount = smoothstep(milliseconds(100),
                                  milliseconds(4000),
                                  flower_effect_timer_);
 
-        show_sunflowers(pfrm, 64 * (1.f - amount));
+        show_sunflowers(pfrm, 64 * (1.f - amount), 0.f);
     }
 
 }

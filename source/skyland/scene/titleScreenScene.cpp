@@ -1047,7 +1047,10 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         auto amount =
             smoothstep(milliseconds(-400), milliseconds(800), timer_);
 
-        IntroCreditsScene::show_sunflowers(pfrm, 48 * amount);
+        auto darken_amount =
+            smoothstep(milliseconds(-400), milliseconds(200), timer_);
+
+        IntroCreditsScene::show_sunflowers(pfrm, 32 * amount, darken_amount);
         return;
     }
 
