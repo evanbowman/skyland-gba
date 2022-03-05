@@ -717,7 +717,11 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
 void Island::render_terrain(Platform& pfrm)
 {
     for (u32 i = 0; i < terrain_.size(); ++i) {
-        pfrm.set_tile(layer_, i, 15, terrain_[i]);
+        auto tile_handle = layer_ == Layer::map_0_ext ?
+            pfrm.map_tile0_chunk(terrain_[i]) :
+            pfrm.map_tile1_chunk(terrain_[i]);
+
+        pfrm.set_tile(layer_, i, 15, tile_handle);
     }
 
     for (int i = terrain_.size(); i < 16; ++i) {
@@ -745,6 +749,13 @@ void Island::render_interior(Platform& pfrm, App& app)
 {
     interior_visible_ = true;
 
+    // When rendering the interior/exterior of a castle, we've swapped the
+    // tileset texture, so all tiles mapped into memory need to be discarded,
+    // allowing the repaint() code to insert new mappings into vram.
+    layer_ == Layer::map_0_ext ?
+        pfrm.clear_tile0_mappings() :
+        pfrm.clear_tile1_mappings();
+
     repaint(pfrm, app);
 }
 
@@ -753,6 +764,10 @@ void Island::render_interior(Platform& pfrm, App& app)
 void Island::render_exterior(Platform& pfrm, App& app)
 {
     interior_visible_ = false;
+
+    layer_ == Layer::map_0_ext ?
+        pfrm.clear_tile0_mappings() :
+        pfrm.clear_tile1_mappings();
 
     repaint(pfrm, app);
 }
@@ -871,6 +886,13 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
 
 void Island::repaint(Platform& pfrm, App& app)
 {
+    // The engine only knows how to draw an island wholistically, because some
+    // tiles need to be joined etc., so whenever the island changes, the whole
+    // things needs to be repainted. I could try to only re-render the changed
+    // parts, doing so would be quite complex, as the positions of the flag,
+    // chimney, roof tiles, etc. all sort of depend on the shape of the island
+    // as a whole. Anyway, this function performs all of the tile rendering.
+
     u8 matrix[16][16];
     u8 buffer[16][16]; // TODO: move this off of the stack!?
 
@@ -1022,16 +1044,46 @@ void Island::repaint(Platform& pfrm, App& app)
         }
     }
 
+
+    bool retried = false;
+
+ RETRY:
     for (int x = 0; x < 16; ++x) {
         // NOTE: only handle 15 rows because render_terrain() takes care of the
         // last row.
         for (int y = 0; y < 15; ++y) {
-            pfrm.set_tile(layer_, x, y, buffer[x][y]);
+
+            auto tile_handle = layer_ == Layer::map_0_ext ?
+                pfrm.map_tile0_chunk(buffer[x][y]) :
+                pfrm.map_tile1_chunk(buffer[x][y]);
+
+            if (tile_handle == 112 and not retried) {
+
+                // We ran out of vram for storing tiles! Clear out all mapped
+                // tiles, and attempt to reconstruct. A bit of a lazy
+                // brute-force solution. Alternatively, we could attempt to
+                // automatically clean up tile mappings when a room's destroyed,
+                // but then, all tiles would need to be reference-counted, and
+                // running out of tiles is a rare edge-case, so it's not worth
+                // optimizing at the moment.
+
+                retried = true;
+
+                layer_ == Layer::map_0_ext ?
+                    pfrm.clear_tile0_mappings() :
+                    pfrm.clear_tile1_mappings();
+
+                goto RETRY;
+            }
+
+            pfrm.set_tile(layer_, x, y, tile_handle);
+
             if (buffer[x][y] >= Tile::dlc_tiles_begin) {
                 pfrm.set_palette(layer_, x, y, 12);
             }
         }
     }
+
 
     if (layer_ == Layer::map_0_ext and flag_pos_) {
         pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y, 12);
@@ -1047,7 +1099,7 @@ void Island::repaint(Platform& pfrm, App& app)
                     pos.y += room->size().y - 1;
                     // NOTE: 8x8px tile, so start index = 4 * 16ptile + 1.
                     // +1 to skip the none enumeration.
-                    const auto tile = 347 + (int)room->group();
+                    const auto tile = (6 * 4 - 1) + (int)room->group();
                     if (layer_ == Layer::map_0_ext) {
                         pfrm.set_raw_tile(
                             Layer::map_0, pos.x * 2, pos.y * 2 + 1, tile);

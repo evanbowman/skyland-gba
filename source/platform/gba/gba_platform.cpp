@@ -1267,6 +1267,121 @@ static u16 x3_scroll = 0;
 static u16 y3_scroll = 0;
 
 
+static const int tile_reserved_count = 7;
+static const int tile_mapping_slots = 111 - tile_reserved_count;
+
+using TileMappings = s16[tile_mapping_slots];
+
+EWRAM_DATA static TileMappings tile0_mappings = {0};
+// EWRAM_DATA static TileMappings tile1_mappings = {0};
+
+
+void Platform::clear_tile0_mappings()
+{
+    for (auto& mapping : tile0_mappings) {
+        mapping = 0;
+    }
+}
+
+
+
+void Platform::clear_tile1_mappings()
+{
+    // TODO...
+}
+
+
+
+// Mapped tile -> tile enumeration
+static TileDesc translate_tile0_index(TileDesc index)
+{
+    if (index < tile_reserved_count) {
+        return index;
+    }
+
+    auto adjusted_index = index - tile_reserved_count;
+    if (adjusted_index < tile_mapping_slots and
+        tile0_mappings[adjusted_index]) {
+        return tile0_mappings[adjusted_index];
+    }
+
+    return index;
+}
+
+
+
+static TileDesc translate_tile1_index(TileDesc index)
+{
+    // TODO!
+    return index;
+}
+
+
+
+static TileDesc map_tile_chunk(TileMappings mappings,
+                               TileDesc src,
+                               u8* src_image_data,
+                               int dest_charblock)
+{
+    if (src == 0) {
+        return 0;
+    }
+
+    int tile_data_start = 128;
+
+    for (int i = 0; i < tile_mapping_slots; ++i) {
+        if (mappings[i] == src) {
+            return i + tile_reserved_count;
+        } else if (mappings[i] == 0) {
+            break;
+        }
+    }
+
+    int i = 0;
+    for (; i < tile_mapping_slots; ++i) {
+        if (mappings[i] == 0) {
+            mappings[i] = src;
+            break;
+        }
+    }
+
+    if (i == tile_mapping_slots) {
+        // Out of tile mappings!
+        return 112;
+    }
+
+    src -= 1;
+    i += tile_reserved_count;
+
+    u8* p_dest = ((u8*)&MEM_SCREENBLOCKS[dest_charblock][0]) +
+        (i) * (vram_tile_size() * 4);
+
+    u8* p_src = (// (u8*)current_tilesheet0->tile_data_
+                 src_image_data) +
+        ((src) + tile_data_start) * (vram_tile_size() * 4);
+
+    memcpy16(p_dest, p_src, (vram_tile_size() * 4) / 2);
+
+    return i;
+}
+
+
+
+TileDesc Platform::map_tile0_chunk(TileDesc src)
+{
+    return map_tile_chunk(tile0_mappings,
+                          src,
+                          (u8*)current_tilesheet0->tile_data_,
+                          sbb_t0_texture);
+}
+
+
+TileDesc Platform::map_tile1_chunk(TileDesc src)
+{
+    return src;
+}
+
+
 
 void Platform::overwrite_t0_tile(u16 index, const EncodedTile& t)
 {
@@ -1909,11 +2024,13 @@ u16 Platform::get_tile(Layer layer, u16 x, u16 y)
         }
         return MEM_SCREENBLOCKS[sbb_bg_tiles][x + y * 32] & ~(SE_PALBANK_MASK);
 
-    case Layer::map_1_ext:
-        return get_map_tile_16p(sbb_t1_tiles, x, y, 2);
+    case Layer::map_1_ext: {
+        return translate_tile1_index(get_map_tile_16p(sbb_t1_tiles, x, y, 2));
+    }
 
-    case Layer::map_0_ext:
-        return get_map_tile_16p(sbb_t0_tiles, x, y, 0);
+    case Layer::map_0_ext: {
+        return translate_tile0_index(get_map_tile_16p(sbb_t0_tiles, x, y, 0));
+    }
 
     case Layer::map_0:
         return get_map_tile(sbb_t0_tiles, x, y, 0);
@@ -2423,16 +2540,12 @@ void Platform::load_tile0_texture(const char* name)
                 MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
             }
 
-            if (validate_tilemap_texture_size(*this, info.tile_data_length_)) {
-                memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0],
-                         info.tile_data_,
-                         info.tile_data_length_ / 2);
-            } else {
-                StringBuffer<45> buf = "unable to load: ";
-                buf += name;
 
-                error(*this, buf.c_str());
-            }
+            memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0],
+                     info.tile_data_,
+                     std::min((int)charblock_size / 2,
+                              (int)info.tile_data_length_ / 2));
+
 
             return;
         }
@@ -2464,16 +2577,10 @@ void Platform::load_tile1_texture(const char* name)
                 MEM_BG_PALETTE[32 + i] = blend(from, c, last_fade_amt);
             }
 
-            if (validate_tilemap_texture_size(*this, info.tile_data_length_)) {
-                memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0],
-                         info.tile_data_,
-                         info.tile_data_length_ / 2);
-            } else {
-                StringBuffer<45> buf = "unable to load: ";
-                buf += name;
-
-                error(*this, buf.c_str());
-            }
+            memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t1_texture][0],
+                     info.tile_data_,
+                     std::min((int)charblock_size / 2,
+                              (int)info.tile_data_length_ / 2));
 
             return;
         }
