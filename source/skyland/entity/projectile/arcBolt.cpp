@@ -6,6 +6,7 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
 
@@ -66,7 +67,7 @@ void ArcBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void ArcBolt::update(Platform&, App&, Microseconds delta)
+void ArcBolt::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + Float(delta) * step_vector_;
@@ -85,6 +86,33 @@ void ArcBolt::update(Platform&, App&, Microseconds delta)
         }
     }
 
+    Island* target;
+    if (source_ == &app.player_island()) {
+        target = app.opponent_island();
+    } else {
+        target = &app.player_island();
+    }
+
+    if (target) {
+        auto t_y = (int)target->origin().y;
+        auto max_y = t_y + 16 * 16 + 32;
+        auto min_y = t_y + construction_zone_min_y * 16;
+        int max_x = 9999999;
+        int min_x = -9999999;
+        if (target == &app.player_island()) {
+            // If we're shooting at the player's island, the projectile moves
+            // leftwards, and we care about the min bound.
+            min_x = (int)target->origin().x - 32;
+        } else {
+            // Otherwise, we need to check the max bound.
+            max_x =
+                (int)target->origin().x + 16 * target->terrain().size() + 32;
+        }
+        if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
+            this->destroy(pfrm, app, pos.y > min_y);
+            pfrm.speaker().play_sound("explosion1", 2);
+        }
+    }
 
     if (timer_ > seconds(2)) {
         kill();
@@ -126,32 +154,7 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
-    auto timestream_record =
-        [&](time_stream::event::BasicProjectileDestroyed& e) {
-            e.x_origin_ = origin_tile_.x;
-            e.y_origin_ = origin_tile_.y;
-            e.timer_.set(timer_);
-            e.x_pos_.set(sprite_.get_position().x);
-            e.y_pos_.set(sprite_.get_position().y);
-            memcpy(&e.x_speed_, &step_vector_.x, sizeof(Float));
-            memcpy(&e.y_speed_, &step_vector_.y, sizeof(Float));
-        };
-
-
-    if (source_ == &app.player_island()) {
-        time_stream::event::PlayerArcboltDestroyed e;
-        timestream_record(e);
-        app.time_stream().push(pfrm, app.level_timer(), e);
-    } else {
-        time_stream::event::OpponentArcboltDestroyed e;
-        timestream_record(e);
-        app.time_stream().push(pfrm, app.level_timer(), e);
-    }
-
-
-    kill();
-    app.camera()->shake(8);
-    medium_explosion(pfrm, app, sprite_.get_position());
+    destroy(pfrm, app, true);
 
     struct Temp
     {
@@ -201,6 +204,41 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
 
     if (room.health()) {
         sound_impact.play(pfrm, 1);
+    }
+}
+
+
+
+void ArcBolt::destroy(Platform& pfrm, App& app, bool explosion)
+{
+    auto timestream_record =
+        [&](time_stream::event::BasicProjectileDestroyed& e) {
+            e.x_origin_ = origin_tile_.x;
+            e.y_origin_ = origin_tile_.y;
+            e.timer_.set(timer_);
+            e.x_pos_.set(sprite_.get_position().x);
+            e.y_pos_.set(sprite_.get_position().y);
+            memcpy(&e.x_speed_, &step_vector_.x, sizeof(Float));
+            memcpy(&e.y_speed_, &step_vector_.y, sizeof(Float));
+        };
+
+
+    if (source_ == &app.player_island()) {
+        time_stream::event::PlayerArcboltDestroyed e;
+        timestream_record(e);
+        app.time_stream().push(pfrm, app.level_timer(), e);
+    } else {
+        time_stream::event::OpponentArcboltDestroyed e;
+        timestream_record(e);
+        app.time_stream().push(pfrm, app.level_timer(), e);
+    }
+
+
+    kill();
+    app.camera()->shake(8);
+
+    if (explosion) {
+        medium_explosion(pfrm, app, sprite_.get_position());
     }
 }
 
