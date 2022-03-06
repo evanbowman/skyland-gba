@@ -90,6 +90,15 @@ enum class SystemString {
     construction_insufficient_power_supply,
     construction_too_many_rooms,
 
+    category_begin,
+    category_wall = category_begin,
+    category_weapon,
+    category_factory,
+    category_power,
+    category_misc,
+    category_decoration,
+
+
     intro_credits_name,
     intro_credits_cpy,
 

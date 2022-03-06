@@ -341,6 +341,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                     *tapclick not_eq data_->construction_sites_[selector_])) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
+            category_label_.reset();
             msg(pfrm, SYSTR(construction_build)->c_str());
             last_touch_x_ = 0;
             break;
@@ -350,6 +351,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (app.player().key_down(pfrm, Key::down)) {
             pfrm.speaker().play_sound("click", 1);
+
+            show_category_ = true;
+
             auto current_category =
                 (*load_metaclass(
                      data_->available_buildings_[building_selector_]))
@@ -418,6 +422,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 data_->available_buildings_[building_selector_]);
 
             if (app.coins() < get_cost(island(app), target)) {
+                category_label_.reset();
                 msg(pfrm, SYSTR(construction_insufficient_funds)->c_str());
                 state_ = State::insufficient_funds;
                 break;
@@ -425,6 +430,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (island(app)->power_supply() - island(app)->power_drain() <
                 target->consumes_power()) {
+                category_label_.reset();
                 msg(pfrm,
                     SYSTR(construction_insufficient_power_supply)->c_str());
                 state_ = State::insufficient_funds;
@@ -433,6 +439,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (std::get<SkylandGlobalData>(globals()).room_pools_.empty() or
                 island(app)->rooms().full()) {
+                category_label_.reset();
                 msg(pfrm, SYSTR(construction_too_many_rooms)->c_str());
                 state_ = State::insufficient_funds;
                 break;
@@ -485,6 +492,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             find_construction_sites(pfrm, app);
 
+            category_label_.reset();
             state_ = State::select_loc;
             msg(pfrm, SYSTR(construction_build)->c_str());
         }
@@ -551,6 +559,23 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 {
+    auto current_category =
+        (*load_metaclass(data_->available_buildings_[building_selector_]))
+            ->category();
+
+    auto category_str = (SystemString)(((int)SystemString::category_begin) +
+                                       (int)current_category);
+
+    StringBuffer<48> category_str_buffer;
+
+    if (show_category_) {
+        category_str_buffer = loadstr(pfrm, category_str)->c_str();
+    }
+
+    if (current_category not_eq last_category_) {
+        category_label_.reset();
+    }
+
     StringBuffer<32> str = SYSTR(construction_build)->c_str();
     str += " :";
 
@@ -578,7 +603,9 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
         return;
     }
 
-    for (int i = st.x - 25; i < st.x - 5; ++i) {
+    for (int i = st.x - 25;
+         i < int((st.x - 5) - utf8::len(category_str_buffer.c_str()));
+         ++i) {
         pfrm.set_tile(Layer::overlay, i, st.y - 6, 425);
     }
 
@@ -628,21 +655,6 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
                 ->icon();
         draw_image(pfrm, 197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);
 
-        // Not sure whether I like the visual representation of the item
-        // category. I might add it back at some point.
-        // pfrm.set_tile(Layer::overlay, 29, 17,
-        //               room_category_icon((*load_metaclass(available_buildings_[building_selector_]))->category()));
-
-        // pfrm.set_tile(Layer::overlay, 29, 15, 425);
-        // pfrm.set_tile(Layer::overlay, 29, 16, 398);
-        // pfrm.set_tile(Layer::overlay, 29, 18, 399);
-
-        // pfrm.set_tile(Layer::overlay, 28, 16, 128);
-        // pfrm.set_tile(Layer::overlay, 28, 17, 128);
-        // pfrm.set_tile(Layer::overlay, 28, 18, 419);
-
-
-
         pfrm.load_overlay_chunk(197, icon, 16);
     }
 
@@ -676,6 +688,32 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
         draw_image(pfrm, 274, st.x - 9, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(274, icon, 16);
+    }
+
+    if (show_category_) {
+
+        u8 x = st.x;
+        x -= 5;
+        x -= utf8::len(category_str_buffer.c_str());
+
+        auto coord = OverlayCoord{x, u8(st.y - 6)};
+
+        if (current_category not_eq last_category_ or not category_label_) {
+            category_label_.emplace(pfrm, coord);
+            category_label_->assign(category_str_buffer.c_str(),
+                                    FontColors{ColorConstant::med_blue_gray,
+                                                   ColorConstant::rich_black});
+        }
+
+        last_category_ = current_category;
+
+        pfrm.set_tile(Layer::overlay, x - 1, st.y - 6, 419);
+
+        for (int i = x; i < x + category_label_->len(); ++i) {
+            pfrm.set_tile(Layer::overlay, i, st.y - 7, 425);
+        }
+
+        pfrm.set_tile(Layer::overlay, st.x - 5, st.y - 6, 433);
     }
 }
 
@@ -842,7 +880,15 @@ void ConstructionScene::msg(Platform& pfrm, const char* text)
         pfrm.set_tile(Layer::overlay, i, st.y - 3, 0);
         pfrm.set_tile(Layer::overlay, i, st.y - 4, 0);
         pfrm.set_tile(Layer::overlay, i, st.y - 5, 0);
-        pfrm.set_tile(Layer::overlay, i, st.y - 6, 0);
+
+        if (not category_label_ or
+            (category_label_ and
+             (i < category_label_->coord().x or
+              i >= category_label_->coord().x + category_label_->len()))) {
+            pfrm.set_tile(Layer::overlay, i, st.y - 6, 0);
+        }
+
+        pfrm.set_tile(Layer::overlay, i, st.y - 7, 0);
     }
 }
 

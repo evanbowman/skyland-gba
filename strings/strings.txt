@@ -65,6 +65,12 @@ none
 insufficient funds!
 insufficient power supply!
 too many rooms
+walls
+weapons
+factories
+power
+misc
+decor
 Evan Bowman presents
 Copyright ©2022
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
