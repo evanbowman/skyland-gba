@@ -40,13 +40,41 @@ Cannonball::Cannonball(const Vec2<Float>& position,
 
 
 
-void Cannonball::update(Platform&, App&, Microseconds delta)
+void Cannonball::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + Float(delta) * step_vector_;
     sprite_.set_position(pos);
 
     timer_ += delta;
+
+
+    Island* target;
+    if (source_ == &app.player_island()) {
+        target = app.opponent_island();
+    } else {
+        target = &app.player_island();
+    }
+
+    if (target) {
+        auto t_y = (int)target->origin().y;
+        auto max_y = t_y + 16 * 16 + 32;
+        auto min_y = t_y - 32;
+        int max_x = 9999999;
+        int min_x = -9999999;
+        if (target == &app.player_island()) {
+            // If we're shooting at the player's island, the projectile moves
+            // leftwards, and we care about the min bound.
+            min_x = (int)target->origin().x - 32;
+        } else {
+            // Otherwise, we need to check the max bound.
+            max_x = (int)target->origin().x + 16 * target->terrain().size() + 32;
+        }
+        if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
+            this->destroy(pfrm, app);
+            pfrm.speaker().play_sound("explosion1", 2);
+        }
+    }
 
     if (timer_ > seconds(2)) {
         kill();
@@ -104,7 +132,19 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
+    this->destroy(pfrm, app);
 
+    room.apply_damage(pfrm, app, cannonball_damage);
+
+    if (room.health()) {
+        sound_impact.play(pfrm, 1);
+    }
+}
+
+
+
+void Cannonball::destroy(Platform& pfrm, App& app)
+{
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
             c.x_origin_ = origin_tile_.x;
@@ -131,12 +171,6 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
     kill();
     app.camera()->shake(8);
     medium_explosion(pfrm, app, sprite_.get_position());
-
-    room.apply_damage(pfrm, app, cannonball_damage);
-
-    if (room.health()) {
-        sound_impact.play(pfrm, 1);
-    }
 }
 
 
@@ -153,33 +187,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Entity& entity)
     }
 
 
-    auto timestream_record =
-        [&](time_stream::event::BasicProjectileDestroyed& c) {
-            c.x_origin_ = origin_tile_.x;
-            c.y_origin_ = origin_tile_.y;
-            c.timer_.set(timer_);
-            c.x_pos_.set(sprite_.get_position().x);
-            c.y_pos_.set(sprite_.get_position().y);
-            memcpy(&c.x_speed_, &step_vector_.x, sizeof(Float));
-            memcpy(&c.y_speed_, &step_vector_.y, sizeof(Float));
-        };
-
-
-    if (source_ == &app.player_island()) {
-        time_stream::event::PlayerCannonballDestroyed c;
-        timestream_record(c);
-        app.time_stream().push(pfrm, app.level_timer(), c);
-    } else {
-        time_stream::event::OpponentCannonballDestroyed c;
-        timestream_record(c);
-        app.time_stream().push(pfrm, app.level_timer(), c);
-    }
-
-
-
-    kill();
-    app.camera()->shake(8);
-    medium_explosion(pfrm, app, sprite_.get_position());
+    this->destroy(pfrm, app);
 
     entity.apply_damage(pfrm, app, cannonball_damage);
 }

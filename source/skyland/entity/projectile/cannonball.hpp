@@ -44,6 +44,9 @@ public:
 
 
 private:
+
+    void destroy(Platform& pfrm, App& app);
+
     Microseconds timer_ = 0;
     Vec2<Float> step_vector_;
     Island* source_;
