@@ -390,8 +390,6 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         c->pairs_.push_back({mt_name, prob});
     };
 
-    enq_prob("cannon", 100.f);
-
     if (levelgen_enemy_count_ > 4) {
         Float flak_prob = 100.f;
         flak_prob += (player_avg_forward_hull_thickness < 2 ? 25.f : -25.f);
@@ -417,8 +415,15 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     }
 
     if (levelgen_enemy_count_ > 8) {
-        enq_prob("arc-gun", 120.f);
-        enq_prob("nemesis", 120.f);
+        if (missile_count > 2) {
+            enq_prob("cannon", 50.f);
+            enq_prob("arc-gun", 220.f);
+            enq_prob("nemesis", 60.f);
+        } else {
+            enq_prob("cannon", 100.f);
+            enq_prob("arc-gun", 120.f);
+            enq_prob("nemesis", 120.f);
+        }
 
         enq_prob("missile-silo",
                  300.f + 10.f * missile_count + 10 * generic_cannon_count +
