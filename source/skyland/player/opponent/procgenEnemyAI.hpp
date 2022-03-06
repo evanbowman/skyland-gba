@@ -31,7 +31,6 @@ private:
     void generate_secondary_rooms(Platform& pfrm, App& app);
     void generate_foundation(Platform& pfrm, App& app);
     void generate_hull(Platform& pfrm, App& app);
-    void generate_rear_hull(Platform& pfrm, App& app); // TODO!
     void generate_weapons(Platform& pfrm, App& app, int max);
     void generate_forcefields(Platform& pfrm, App& app);
     void generate_characters(Platform& pfrm, App& app);
@@ -59,7 +58,7 @@ private:
     u8 difficulty_ = 1;
 
     Vec2<u8> levelgen_size_;
-    int levelgen_enemy_count_ = 0;
+    int levelgen_enemy_count_ = 12;
 
     int core_count_ = 0;
 

@@ -43,7 +43,7 @@
      0)
     ((equal (zone) 0) 3)
     ((equal (zone) 1) 6)
-    (true 12))))
+    (true 14))))
 
 (defn/c zone
   (car (wg-pos)))

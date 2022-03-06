@@ -741,22 +741,62 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
 void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
 {
     auto& hull = require_metaclass("hull");
+    auto& ehull = require_metaclass("energized-hull");
 
-    for (u8 x = 0; x < 15; ++x) {
+    int missile_count = 0;
+    for (auto& room : app.player_island().rooms()) {
+        if (str_eq(room->name(), "missile-silo")) {
+            ++missile_count;
+        }
+    }
 
-        for (u8 y = 0; y < 14; ++y) {
+    auto generate_roof = [&](bool conservative, int ehull_count) {
+        for (u8 x = 0; x < 15; ++x) {
 
-            if (app.opponent_island()->rooms_plot().get(x, y + 1)) {
-                auto below = app.opponent_island()->get_room({x, u8(y + 1)});
+            for (u8 y = 0; y < 14; ++y) {
 
-                if (below and (*below->metaclass())->category() not_eq
-                                  Room::Category::wall) {
-                    if (not app.opponent_island()->rooms_plot().get(x, y)) {
-                        hull->create(pfrm, app, app.opponent_island(), {x, y});
+                if (app.opponent_island()->rooms_plot().get(x, y + 1)) {
+                    auto below =
+                        app.opponent_island()->get_room({x, u8(y + 1)});
+
+                    if (not conservative or
+                        (below and (*below->metaclass())->category() not_eq
+                                       Room::Category::wall)) {
+                        if (not app.opponent_island()->rooms_plot().get(x, y)) {
+                            if (ehull_count > 0 and
+                                rng::choice<3>(rng::critical_state) == 0) {
+                                --ehull_count;
+                                ehull->create(
+                                    pfrm, app, app.opponent_island(), {x, y});
+                            } else {
+                                hull->create(
+                                    pfrm, app, app.opponent_island(), {x, y});
+                            }
+                        }
                     }
                 }
             }
         }
+    };
+
+    generate_roof(true, 0);
+
+    if (missile_count > 2) {
+        int ehull_count = 0;
+        switch (core_count_) {
+        case 1:
+            ehull_count = rng::choice<3>(rng::critical_state);
+            break;
+
+        case 2:
+            ehull_count = rng::choice<5>(rng::critical_state);
+            break;
+
+        default:
+            ehull_count = rng::choice<6>(rng::critical_state);
+            break;
+        }
+        generate_roof(false, ehull_count);
     }
 
     for (u8 x = 0; x < 15; ++x) {
