@@ -1339,6 +1339,10 @@ static TileDesc map_tile_chunk(TileMappings mappings,
         return 0;
     }
 
+    if (src < tile_reserved_count) {
+        return src;
+    }
+
     int tile_data_start = 128;
 
     for (int i = 0; i < tile_mapping_slots; ++i) {
