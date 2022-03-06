@@ -32,6 +32,7 @@
 #include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/statue.hpp"
+#include "skyland/rooms/sunflower.hpp"
 #include "skyland/rooms/switch.hpp"
 #include "skyland/rooms/synth.hpp"
 #include "skyland/rooms/tnt.hpp"
@@ -249,6 +250,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Statue,
                                         Bridge,
                                         Palm,
+                                        Sunflower,
                                         Shrubbery,
                                         BananaPlant,
                                         Masonry,

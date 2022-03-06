@@ -6,6 +6,7 @@
 #include "skyland/path.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/tile.hpp"
 
 
 

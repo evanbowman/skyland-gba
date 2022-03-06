@@ -10,7 +10,6 @@
 #include "room.hpp"
 #include "roomTable.hpp"
 #include "room_alloc.hpp"
-#include "skyland/tile.hpp"
 
 
 
@@ -344,7 +343,7 @@ private:
 
     std::optional<Vec2<u8>> flag_pos_;
     Microseconds flag_anim_timer_ = 0;
-    int flag_anim_index_ = Tile::flag_start;
+    int flag_anim_index_;
 
     EntityList<BasicCharacter> characters_;
     EntityList<Entity> projectiles_;

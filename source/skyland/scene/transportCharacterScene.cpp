@@ -4,6 +4,7 @@
 #include "readyScene.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/tile.hpp"
 
 
 

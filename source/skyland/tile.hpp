@@ -118,6 +118,7 @@ struct Tile
         banana_plant,
         roof_flag,
         flag_mount,
+        sunflower,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -222,6 +223,7 @@ struct InteriorTile
         banana_plant,
         roof_flag,
         flag_mount,
+        sunflower,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

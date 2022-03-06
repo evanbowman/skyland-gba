@@ -81,7 +81,7 @@ private:
 
     DynamicMemory<Data> data_;
 
-    bool show_category_ = false;
+    bool show_category_ = true;
     Room::Category last_category_ = Room::Category::count;
 
     State state_ = State::select_loc;

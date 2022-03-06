@@ -1,6 +1,7 @@
 #include "radiator.hpp"
 #include "skyland/island.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/tile.hpp"
 
 
 

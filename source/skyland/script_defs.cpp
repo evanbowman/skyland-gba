@@ -25,6 +25,7 @@
 #include "skyland/entity/projectile/nemesisBlast.hpp"
 #include "skyland/entity/projectile/pluginProjectile.hpp"
 #include "skyland/sound.hpp"
+#include "skyland/tile.hpp"
 #include "version.hpp"
 
 
