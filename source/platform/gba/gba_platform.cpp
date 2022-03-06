@@ -1348,12 +1348,11 @@ static TileDesc map_tile_chunk(TileMappings mappings,
     for (int i = 0; i < tile_mapping_slots; ++i) {
         if (mappings[i] == src) {
             return i + tile_reserved_count;
-        } else if (mappings[i] == 0) {
-            break;
         }
     }
 
     int i = 0;
+    // FIXME: remove this code?! Unreachable?
     for (; i < tile_mapping_slots; ++i) {
         if (mappings[i] == 0) {
             mappings[i] = src;
