@@ -1,5 +1,6 @@
 #include "titleScreenScene.hpp"
 #include "boxedDialogScene.hpp"
+#include "introCreditsScene.hpp"
 #include "loadModuleScene.hpp"
 #include "module.hpp"
 #include "modules/fileBrowserModule.hpp"
@@ -16,7 +17,6 @@
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
 #include "zoneImageScene.hpp"
-#include "introCreditsScene.hpp"
 
 
 
@@ -113,10 +113,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     if (dynamic_cast<IntroCreditsScene*>(&prev)) {
         flower_effect_ = true;
-        pfrm.screen().schedule_fade(1.f,
-                                    ColorConstant::rich_black,
-                                    {},
-                                    false);
+        pfrm.screen().schedule_fade(1.f, ColorConstant::rich_black, {}, false);
     } else {
         pfrm.screen().schedule_fade(1.f);
     }
@@ -1044,8 +1041,7 @@ void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
 void TitleScreenScene::display(Platform& pfrm, App& app)
 {
     if (flower_effect_ and state_ == State::fade_in) {
-        auto amount =
-            smoothstep(milliseconds(-400), milliseconds(800), timer_);
+        auto amount = smoothstep(milliseconds(-400), milliseconds(800), timer_);
 
         auto darken_amount =
             smoothstep(milliseconds(-400), milliseconds(200), timer_);

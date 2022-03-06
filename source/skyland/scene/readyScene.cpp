@@ -233,7 +233,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (tapped_topleft_corner(pfrm, app) or
             app.player().key_down(pfrm, Key::alt_2)) {
-            return scene_pool::alloc<ConstructionScene>();
+            return scene_pool::alloc<ConstructionScene>(pfrm);
         }
 
         if (test_key(Key::left)) {

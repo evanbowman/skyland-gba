@@ -460,9 +460,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.dialog_buffer().reset();
         const bool answer = app.dialog_expects_answer();
         app.dialog_expects_answer() = false;
-        return scene_pool::alloc<BoxedDialogScene>(pfrm,
-                                                   std::move(buffer),
-                                                   answer);
+        return scene_pool::alloc<BoxedDialogScene>(
+            pfrm, std::move(buffer), answer);
     }
 
 

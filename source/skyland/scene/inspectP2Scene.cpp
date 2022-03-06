@@ -195,7 +195,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.game_mode() == App::GameMode::sandbox and
         (tapped_topleft_corner(pfrm, app) or
          app.player().key_down(pfrm, Key::alt_2))) {
-        return scene_pool::alloc<ConstructionScene>(false);
+        return scene_pool::alloc<ConstructionScene>(pfrm, false);
     }
 
 

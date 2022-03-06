@@ -87,8 +87,6 @@ private:
             StringBuffer<32> name_;
             u16 image_ = 0;
         } character_;
-
-
     };
 
     DynamicMemory<Data> data_;

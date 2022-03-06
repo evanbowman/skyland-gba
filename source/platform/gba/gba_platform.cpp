@@ -1370,11 +1370,11 @@ static TileDesc map_tile_chunk(TileMappings mappings,
     i += tile_reserved_count;
 
     u8* p_dest = ((u8*)&MEM_SCREENBLOCKS[dest_charblock][0]) +
-        (i) * (vram_tile_size() * 4);
+                 (i) * (vram_tile_size() * 4);
 
-    u8* p_src = (// (u8*)current_tilesheet0->tile_data_
-                 src_image_data) +
-        ((src) + tile_data_start) * (vram_tile_size() * 4);
+    u8* p_src = ( // (u8*)current_tilesheet0->tile_data_
+                    src_image_data) +
+                ((src) + tile_data_start) * (vram_tile_size() * 4);
 
     memcpy16(p_dest, p_src, (vram_tile_size() * 4) / 2);
 
@@ -4298,10 +4298,9 @@ static void show_health_and_safety_message(Platform& pfrm)
     *bg0_control = BG_CBB(cbb_t0_texture) | BG_SBB(sbb_t0_tiles) |
                    BG_REG_64x32 | BG_PRIORITY(2) | BG_MOSAIC;
 
-    auto set_tile =
-        [&](int x, int y, int val, int palette) {
-            MEM_SCREENBLOCKS[sbb_t0_tiles][x + y * 32] = val | SE_PALBANK(palette);
-        };
+    auto set_tile = [&](int x, int y, int val, int palette) {
+        MEM_SCREENBLOCKS[sbb_t0_tiles][x + y * 32] = val | SE_PALBANK(palette);
+    };
 
     u16 tile = 1;
     for (u16 y = 0; y < 11; ++y) {

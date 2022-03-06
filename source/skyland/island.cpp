@@ -717,9 +717,9 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
 void Island::render_terrain(Platform& pfrm)
 {
     for (u32 i = 0; i < terrain_.size(); ++i) {
-        auto tile_handle = layer_ == Layer::map_0_ext ?
-            pfrm.map_tile0_chunk(terrain_[i]) :
-            pfrm.map_tile1_chunk(terrain_[i]);
+        auto tile_handle = layer_ == Layer::map_0_ext
+                               ? pfrm.map_tile0_chunk(terrain_[i])
+                               : pfrm.map_tile1_chunk(terrain_[i]);
 
         pfrm.set_tile(layer_, i, 15, tile_handle);
     }
@@ -763,9 +763,8 @@ void Island::render_interior(Platform& pfrm, App& app)
     // When rendering the interior/exterior of a castle, we've swapped the
     // tileset texture, so all tiles mapped into memory need to be discarded,
     // allowing the repaint() code to insert new mappings into vram.
-    layer_ == Layer::map_0_ext ?
-        pfrm.clear_tile0_mappings() :
-        pfrm.clear_tile1_mappings();
+    layer_ == Layer::map_0_ext ? pfrm.clear_tile0_mappings()
+                               : pfrm.clear_tile1_mappings();
 
     repaint(pfrm, app);
 }
@@ -776,9 +775,8 @@ void Island::render_exterior(Platform& pfrm, App& app)
 {
     interior_visible_ = false;
 
-    layer_ == Layer::map_0_ext ?
-        pfrm.clear_tile0_mappings() :
-        pfrm.clear_tile1_mappings();
+    layer_ == Layer::map_0_ext ? pfrm.clear_tile0_mappings()
+                               : pfrm.clear_tile1_mappings();
 
     repaint(pfrm, app);
 }
@@ -1058,15 +1056,15 @@ void Island::repaint(Platform& pfrm, App& app)
 
     bool retried = false;
 
- RETRY:
+RETRY:
     for (int x = 0; x < 16; ++x) {
         // NOTE: only handle 15 rows because render_terrain() takes care of the
         // last row.
         for (int y = 0; y < 15; ++y) {
 
-            auto tile_handle = layer_ == Layer::map_0_ext ?
-                pfrm.map_tile0_chunk(buffer[x][y]) :
-                pfrm.map_tile1_chunk(buffer[x][y]);
+            auto tile_handle = layer_ == Layer::map_0_ext
+                                   ? pfrm.map_tile0_chunk(buffer[x][y])
+                                   : pfrm.map_tile1_chunk(buffer[x][y]);
 
             if (tile_handle == 112 and not retried) {
 
@@ -1080,9 +1078,8 @@ void Island::repaint(Platform& pfrm, App& app)
 
                 retried = true;
 
-                layer_ == Layer::map_0_ext ?
-                    pfrm.clear_tile0_mappings() :
-                    pfrm.clear_tile1_mappings();
+                layer_ == Layer::map_0_ext ? pfrm.clear_tile0_mappings()
+                                           : pfrm.clear_tile1_mappings();
 
                 goto RETRY;
             }
