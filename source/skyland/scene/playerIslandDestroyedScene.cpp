@@ -769,6 +769,24 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     app.persistent_data().total_pauses_.set(
         app.persistent_data().total_pauses_.get() + app.pause_count());
+
+    for (auto& room : island_->rooms()) {
+        if (room->position().y < 7) {
+            // I expanded the maximum height of a castle, and now, when a
+            // destroyed castle sinks, the castle can now be tall enough that
+            // the upper portion sticks out above the bottom of the screen. So,
+            // destroy all rooms with a really small y-value.
+            room->apply_damage(pfrm, app, 9999);
+        }
+    }
+
+    // Another patch for scroll wrapping as the destroyed castle falls. Rather
+    // than deal with the issue, simply restrict the y range of the view, so the
+    // player cannot see the portion of the screen where the tile layer wraps
+    // around.
+    std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y =
+        clamp(std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y,
+              (u8)9, (u8)14);
 }
 
 
