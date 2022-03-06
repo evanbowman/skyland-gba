@@ -36,6 +36,12 @@ public:
     {
         buffer[position().x][position().y] = InteriorTile::bridge;
         buffer[position().x + 1][position().y] = InteriorTile::bridge;
+        if (buffer[position().x][position().y + 1] == 0) {
+            buffer[position().x][position().y + 1] = Tile::bridge_truss;
+        }
+        if (buffer[position().x + 1][position().y + 1] == 0) {
+            buffer[position().x + 1][position().y + 1] = Tile::bridge_truss;
+        }
     }
 
 
@@ -43,6 +49,12 @@ public:
     {
         buffer[position().x][position().y] = Tile::bridge;
         buffer[position().x + 1][position().y] = Tile::bridge;
+        if (buffer[position().x][position().y + 1] == 0) {
+            buffer[position().x][position().y + 1] = Tile::bridge_truss;
+        }
+        if (buffer[position().x + 1][position().y + 1] == 0) {
+            buffer[position().x + 1][position().y + 1] = Tile::bridge_truss;
+        }
     }
 
 
@@ -51,7 +63,9 @@ public:
         for (auto& c : characters()) {
             const auto& pos = c->sprite().get_position();
             if (pos.y < 700) {
-                screen.draw(c->sprite());
+                auto spr = c->sprite();
+                spr.set_priority(3);
+                screen.draw(spr);
             }
         }
     }
