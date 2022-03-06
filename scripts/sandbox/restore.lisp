@@ -9,7 +9,7 @@
       (if (equal (load 'save-protocol) 1)
           (progn
             (terrain (player) (car (load 'terrain)))
-            (opponent-init (cdr load 'terrain) 'hostile)
+            (opponent-init (cdr (load 'terrain)) 'hostile)
 
             (island-configure (player) (car (load 'rooms)))
             (island-configure (opponent) (cdr (load 'rooms)))

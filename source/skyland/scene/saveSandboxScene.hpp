@@ -188,6 +188,10 @@ private:
 
 
 
+void set_island_positions(Island& left_island, Island& right_island);
+
+
+
 class LoadSandboxScene : public SaveSandboxScene
 {
 public:
@@ -240,6 +244,11 @@ public:
 
 
         pfrm.fill_overlay(0);
+
+        set_island_positions(app.player_island(), *app.opponent_island());
+        app.opponent_island()->set_drift(pfrm, app, -0.000025f);
+
+        app.time_stream().clear();
 
         return scene_pool::alloc<FadeInScene>();
     }
