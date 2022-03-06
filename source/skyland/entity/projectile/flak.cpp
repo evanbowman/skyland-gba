@@ -6,6 +6,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/timeStreamEvent.hpp"
 
@@ -44,7 +45,7 @@ Flak::Flak(const Vec2<Float>& position,
 
 
 
-void Flak::update(Platform&, App&, Microseconds delta)
+void Flak::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
     pos = pos + Float(delta) * step_vector_;
@@ -66,6 +67,90 @@ void Flak::update(Platform&, App&, Microseconds delta)
             sprite_.set_mix({ColorConstant::silver_white, 200});
         }
     }
+
+    Island* target;
+    if (source_ == &app.player_island()) {
+        target = app.opponent_island();
+    } else {
+        target = &app.player_island();
+    }
+
+    if (target) {
+        auto t_y = (int)target->origin().y;
+        auto max_y = t_y + 16 * 16 + 32;
+        auto min_y = t_y + construction_zone_min_y * 16;
+        int max_x = 9999999;
+        int min_x = -9999999;
+        if (target == &app.player_island()) {
+            // If we're shooting at the player's island, the projectile moves
+            // leftwards, and we care about the min bound.
+            min_x = (int)target->origin().x - 32;
+        } else {
+            // Otherwise, we need to check the max bound.
+            max_x =
+                (int)target->origin().x + 16 * target->terrain().size() + 32;
+        }
+        if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
+            this->destroy(pfrm, app, pos.y > min_y);
+            pfrm.speaker().play_sound("explosion1", 2);
+        }
+    }
+}
+
+
+
+void Flak::destroy(Platform& pfrm, App& app, bool explosion)
+{
+    auto timestream_record =
+        [&](time_stream::event::BasicProjectileDestroyed& c) {
+            c.x_origin_ = origin_tile_.x;
+            c.y_origin_ = origin_tile_.y;
+            c.timer_.set(timer_);
+            c.x_pos_.set(sprite_.get_position().x);
+            c.y_pos_.set(sprite_.get_position().y);
+            memcpy(&c.x_speed_, &step_vector_.x, sizeof(Float));
+            memcpy(&c.y_speed_, &step_vector_.y, sizeof(Float));
+        };
+
+
+    if (source_ == &app.player_island()) {
+        time_stream::event::PlayerFlakDestroyed c;
+        timestream_record(c);
+        app.time_stream().push(pfrm, app.level_timer(), c);
+    } else {
+        time_stream::event::OpponentFlakDestroyed c;
+        timestream_record(c);
+        app.time_stream().push(pfrm, app.level_timer(), c);
+    }
+
+
+    if (explosion) {
+        big_explosion(pfrm, app, sprite_.get_position());
+
+        auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Float>& pos) {
+            auto e = app.alloc_entity<SmokePuff>(
+                pfrm, rng::sample<48>(pos, rng::utility_state), 61);
+
+            if (e) {
+                app.effects().push(std::move(e));
+            }
+        };
+
+        flak_smoke(pfrm, app, sprite_.get_position());
+        flak_smoke(pfrm, app, sprite_.get_position());
+
+
+        app.on_timeout(
+            pfrm,
+            milliseconds(190),
+            [pos = sprite_.get_position(), flak_smoke](Platform& pf, App& app) {
+                flak_smoke(pf, app, pos);
+            });
+    }
+
+    app.camera()->shake(8);
+
+    kill();
 }
 
 
@@ -106,30 +191,6 @@ void Flak::burst(Platform& pfrm,
                  const Vec2<Float>& position,
                  Room& origin_room)
 {
-    app.camera()->shake(8);
-    big_explosion(pfrm, app, position);
-
-    auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Float>& pos) {
-        auto e = app.alloc_entity<SmokePuff>(
-            pfrm, rng::sample<48>(pos, rng::utility_state), 61);
-
-        if (e) {
-            app.effects().push(std::move(e));
-        }
-    };
-
-    flak_smoke(pfrm, app, position);
-    flak_smoke(pfrm, app, position);
-
-
-    app.on_timeout(pfrm,
-                   milliseconds(190),
-                   [pos = position, flak_smoke](Platform& pf, App& app) {
-                       flak_smoke(pf, app, pos);
-                   });
-
-
-
     // Ok, so now we want to find the nearest tile with which we collided.
     auto origin = origin_room.origin();
     // Go from unconstrained coordinates to an index in the opponent's tile grid.
@@ -220,30 +281,8 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
     }
 
 
-    auto timestream_record =
-        [&](time_stream::event::BasicProjectileDestroyed& c) {
-            c.x_origin_ = origin_tile_.x;
-            c.y_origin_ = origin_tile_.y;
-            c.timer_.set(timer_);
-            c.x_pos_.set(sprite_.get_position().x);
-            c.y_pos_.set(sprite_.get_position().y);
-            memcpy(&c.x_speed_, &step_vector_.x, sizeof(Float));
-            memcpy(&c.y_speed_, &step_vector_.y, sizeof(Float));
-        };
+    destroy(pfrm, app, true);
 
-
-    if (source_ == &app.player_island()) {
-        time_stream::event::PlayerFlakDestroyed c;
-        timestream_record(c);
-        app.time_stream().push(pfrm, app.level_timer(), c);
-    } else {
-        time_stream::event::OpponentFlakDestroyed c;
-        timestream_record(c);
-        app.time_stream().push(pfrm, app.level_timer(), c);
-    }
-
-
-    kill();
     Flak::burst(pfrm, app, sprite_.get_position(), room);
 
     destroyed_ = true;

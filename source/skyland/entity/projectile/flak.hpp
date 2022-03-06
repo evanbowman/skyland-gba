@@ -52,6 +52,8 @@ private:
     Vec2<Float> step_vector_;
     Island* source_;
 
+    void destroy(Platform& pfrm, App& app, bool explosion);
+
     Microseconds flicker_time_ = 0;
 
     bool destroyed_ = false;

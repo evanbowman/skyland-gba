@@ -4,8 +4,8 @@
 #include "skyland/roomTable.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/core.hpp"
-#include "skyland/sharedVariable.hpp"
 #include "skyland/scene/constructionScene.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 
 

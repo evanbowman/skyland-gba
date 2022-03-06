@@ -2,9 +2,9 @@
 #include "globals.hpp"
 #include "readyScene.hpp"
 #include "skyland/network.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "skyland/scene/inspectP2Scene.hpp"
 #include "skyland/scene_pool.hpp"
-#include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/timeStreamEvent.hpp"
 

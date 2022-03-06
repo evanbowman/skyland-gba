@@ -8,6 +8,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/forcefield.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/timeStreamEvent.hpp"
@@ -59,7 +60,7 @@ void Cannonball::update(Platform& pfrm, App& app, Microseconds delta)
     if (target) {
         auto t_y = (int)target->origin().y;
         auto max_y = t_y + 16 * 16 + 32;
-        auto min_y = t_y - 32;
+        auto min_y = t_y + construction_zone_min_y * 16;
         int max_x = 9999999;
         int min_x = -9999999;
         if (target == &app.player_island()) {
@@ -68,10 +69,11 @@ void Cannonball::update(Platform& pfrm, App& app, Microseconds delta)
             min_x = (int)target->origin().x - 32;
         } else {
             // Otherwise, we need to check the max bound.
-            max_x = (int)target->origin().x + 16 * target->terrain().size() + 32;
+            max_x =
+                (int)target->origin().x + 16 * target->terrain().size() + 32;
         }
         if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
-            this->destroy(pfrm, app);
+            this->destroy(pfrm, app, pos.y > min_y);
             pfrm.speaker().play_sound("explosion1", 2);
         }
     }
@@ -132,7 +134,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
-    this->destroy(pfrm, app);
+    this->destroy(pfrm, app, true);
 
     room.apply_damage(pfrm, app, cannonball_damage);
 
@@ -143,7 +145,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
 
 
 
-void Cannonball::destroy(Platform& pfrm, App& app)
+void Cannonball::destroy(Platform& pfrm, App& app, bool explosion)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -170,7 +172,10 @@ void Cannonball::destroy(Platform& pfrm, App& app)
 
     kill();
     app.camera()->shake(8);
-    medium_explosion(pfrm, app, sprite_.get_position());
+
+    if (explosion) {
+        medium_explosion(pfrm, app, sprite_.get_position());
+    }
 }
 
 
@@ -187,7 +192,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Entity& entity)
     }
 
 
-    this->destroy(pfrm, app);
+    this->destroy(pfrm, app, true);
 
     entity.apply_damage(pfrm, app, cannonball_damage);
 }

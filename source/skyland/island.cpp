@@ -912,6 +912,8 @@ void Island::repaint(Platform& pfrm, App& app)
         }
     }
 
+    min_y_ = 0;
+
     flag_pos_.reset();
 
     if (interior_visible_) {
@@ -986,8 +988,7 @@ void Island::repaint(Platform& pfrm, App& app)
                 // tiles tall.
                 if (y > 0 and matrix[x][y - 1] == 0) {
                     if (not placed_chimney_this_tile and show_flag_ and
-                        not placed_flag and
-                        y > 5) {
+                        not placed_flag and y > 5) {
                         placed_flag = true;
                         buffer[x][y] = Tile::roof_flag;
                         buffer[x][y - 1] = Tile::flag_start;
@@ -1014,7 +1015,7 @@ void Island::repaint(Platform& pfrm, App& app)
                         not placed_flag and y > 1 and matrix[x][y - 1] == 0) {
                         if (auto room = get_room({x, (u8)(y + 1)})) {
                             if ((*room->metaclass())->properties() &
-                                RoomProperties::flag_mount and
+                                    RoomProperties::flag_mount and
                                 y > 5) {
                                 placed_flag = true;
                                 buffer[x][y] = Tile::flag_mount;
@@ -1068,6 +1069,10 @@ RETRY:
             auto tile_handle = layer_ == Layer::map_0_ext
                                    ? pfrm.map_tile0_chunk(buffer[x][y])
                                    : pfrm.map_tile1_chunk(buffer[x][y]);
+
+            if (min_y_ == 0 and tile_handle) {
+                min_y_ = y;
+            }
 
             if (tile_handle == 112 and not retried) {
 
@@ -1296,6 +1301,13 @@ void show_island_exterior(Platform& pfrm, App& app, Island* island)
     }
 
     write_custom_graphics(pfrm, app);
+}
+
+
+
+u8 Island::min_y() const
+{
+    return min_y_;
 }
 
 

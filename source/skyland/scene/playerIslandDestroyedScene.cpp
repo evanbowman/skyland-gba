@@ -786,7 +786,8 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
     // around.
     std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y =
         clamp(std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y,
-              (u8)9, (u8)14);
+              (u8)9,
+              (u8)14);
 }
 
 

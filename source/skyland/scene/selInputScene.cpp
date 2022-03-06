@@ -3,7 +3,6 @@
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
 #include "skyland/scene/constructionScene.hpp"
-#include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
 
 

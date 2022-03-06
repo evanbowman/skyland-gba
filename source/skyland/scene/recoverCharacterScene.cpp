@@ -2,8 +2,8 @@
 #include "globals.hpp"
 #include "readyScene.hpp"
 #include "skyland/rooms/transporter.hpp"
-#include "skyland/scene_pool.hpp"
 #include "skyland/scene/constructionScene.hpp"
+#include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 
 

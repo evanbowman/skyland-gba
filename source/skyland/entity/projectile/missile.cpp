@@ -136,7 +136,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::falling: {
-        if (sprite_.get_position().y < 450) {
+        if (sprite_.get_position().y < 400) {
             sprite_.set_alpha(Sprite::Alpha::transparent);
         } else {
             sprite_.set_alpha(Sprite::Alpha::opaque);

@@ -44,8 +44,7 @@ public:
 
 
 private:
-
-    void destroy(Platform& pfrm, App& app);
+    void destroy(Platform& pfrm, App& app, bool explosion);
 
     Microseconds timer_ = 0;
     Vec2<Float> step_vector_;

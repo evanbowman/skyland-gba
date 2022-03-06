@@ -4,8 +4,8 @@
 #include "readyScene.hpp"
 #include "skyland/network.hpp"
 #include "skyland/path.hpp"
-#include "skyland/scene_pool.hpp"
 #include "skyland/scene/constructionScene.hpp"
+#include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 
