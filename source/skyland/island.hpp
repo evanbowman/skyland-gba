@@ -112,6 +112,9 @@ public:
     void render_exterior(Platform& pfrm, App& app);
 
 
+    void render(Platform&, App&);
+
+
     void plot_rooms(u8 matrix[16][16]) const;
 
 
@@ -127,6 +130,7 @@ public:
     std::pair<BasicCharacter*, Room*> find_character_by_id(CharacterId id);
 
 
+    // NOTE: generally, you should use render() intead of repaint().
     void repaint(Platform& pfrm, App& app);
 
 

@@ -745,6 +745,17 @@ void Island::set_position(const Vec2<Float>& position)
 
 
 
+void Island::render(Platform& pfrm, App& app)
+{
+    if (interior_visible_) {
+        render_interior(pfrm, app);
+    } else {
+        render_exterior(pfrm, app);
+    }
+}
+
+
+
 void Island::render_interior(Platform& pfrm, App& app)
 {
     interior_visible_ = true;

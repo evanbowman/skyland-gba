@@ -31,7 +31,7 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
     configure_island_from_codestring(
         pfrm, app, app.player_island(), "'((power-core 1 13))");
 
-    app.player_island().repaint(pfrm, app);
+    app.player_island().render_exterior(pfrm, app);
     app.player_island().set_position({152, 370});
 
 
