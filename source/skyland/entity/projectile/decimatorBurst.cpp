@@ -49,6 +49,31 @@ void DecimatorBurst::update(Platform&, App& app, Microseconds delta)
 
     timer_ += delta;
 
+        Island* target;
+    if (source_ == &app.player_island()) {
+        target = app.opponent_island();
+    } else {
+        target = &app.player_island();
+    }
+
+    if (target) {
+        int max_x = 9999999;
+        int min_x = -9999999;
+        if (target == &app.player_island()) {
+            // If we're shooting at the player's island, the projectile moves
+            // leftwards, and we care about the min bound.
+            min_x = (int)target->origin().x - 32;
+        } else {
+            // Otherwise, we need to check the max bound.
+            max_x =
+                (int)target->origin().x + 16 * target->terrain().size() + 32;
+        }
+        if (pos.x > max_x or pos.x < min_x) {
+            kill();
+        }
+    }
+
+
     if (timer_ > milliseconds(1500)) {
         kill();
     }
