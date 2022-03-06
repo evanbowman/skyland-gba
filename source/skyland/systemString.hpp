@@ -29,6 +29,7 @@ enum class SystemString {
     block_drone_bay,
     block_flak_gun,
     block_forcefield,
+    block_fountain,
     block_hull,
     block_infirmary,
     block_ion_cannon,

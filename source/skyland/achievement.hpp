@@ -29,6 +29,7 @@ enum Achievement : u8 {
     none,
     builder,
     architect,
+    architect_2,
     explorer,
     strategist,
     stronghold,

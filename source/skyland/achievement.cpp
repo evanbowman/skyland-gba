@@ -49,6 +49,16 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[architect].reward_), awarded);
      }},
 
+    {"Architect (2)",
+     "Build an island with more than twenty structures!",
+     "fountain",
+     [](Platform&, App& app) {
+         return app.player_island().rooms().size() > 20;
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[architect_2].reward_), awarded);
+     }},
+
     {"Explorer",
      "Reach zone 2!",
      "coconut-palm",

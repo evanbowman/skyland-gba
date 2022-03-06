@@ -12,6 +12,7 @@ decimator
 drone-bay
 flak-gun
 forcefield
+fountain
 hull
 infirmary
 ion-cannon

@@ -119,6 +119,7 @@ struct Tile
         roof_flag,
         flag_mount,
         sunflower,
+        fountain,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -224,6 +225,7 @@ struct InteriorTile
         roof_flag,
         flag_mount,
         sunflower,
+        fountain,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

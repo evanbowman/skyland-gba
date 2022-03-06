@@ -11,10 +11,10 @@ namespace skyland {
 
 
 
-class Sunflower : public Decoration
+class Fountain : public Decoration
 {
 public:
-    Sunflower(Island* parent, const Vec2<u8>& position)
+    Fountain(Island* parent, const Vec2<u8>& position)
         : Decoration(parent, name(), position)
     {
     }
@@ -22,31 +22,25 @@ public:
 
     void render_interior(App& app, u8 buffer[16][16]) override
     {
-        buffer[position().x][position().y] = InteriorTile::sunflower;
+        buffer[position().x][position().y] = InteriorTile::fountain;
     }
 
 
     void render_exterior(App& app, u8 buffer[16][16]) override
     {
-        buffer[position().x][position().y] = Tile::sunflower;
-    }
-
-
-    static u32 properties()
-    {
-        return Decoration::properties() & ~RoomProperties::locked_by_default;
+        buffer[position().x][position().y] = Tile::fountain;
     }
 
 
     static const char* name()
     {
-        return "sunflower";
+        return "fountain";
     }
 
 
     static SystemString ui_name()
     {
-        return SystemString::block_sunflower;
+        return SystemString::block_fountain;
     }
 
 
@@ -58,13 +52,13 @@ public:
 
     static Icon icon()
     {
-        return 1896;
+        return 1928;
     }
 
 
     static Icon unsel_icon()
     {
-        return 1912;
+        return 1944;
     }
 };
 

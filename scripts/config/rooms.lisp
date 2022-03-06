@@ -35,6 +35,7 @@
    (coconut-palm 1   1    0)
    (sunflower    1   1    0)
    (shrubbery    1   1    0)
+   (fountain     1   1    0)
    (banana-plant 1   1    0)
    (masonry      30  30   0)
    (statue       1   1    0)
