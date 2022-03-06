@@ -271,7 +271,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (test_key(Key::up)) {
-            if (cursor_loc.y > 6) {
+            if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);

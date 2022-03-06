@@ -20,10 +20,6 @@ namespace skyland {
 
 
 
-const int construction_zone_min_y = 5;
-
-
-
 u16 room_category_icon(Room::Category category)
 {
     return 379 + static_cast<u16>(category);
@@ -849,7 +845,7 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
 
     for (u8 x = 0; x < 16; ++x) {
         for (u8 y = 0; y < 16; ++y) {
-            if (matrix[x][y] and y > construction_zone_min_y) {
+            if (matrix[x][y] and y >= construction_zone_min_y) {
                 data_->construction_sites_.push_back({x, y});
             }
         }

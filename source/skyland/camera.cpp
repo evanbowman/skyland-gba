@@ -9,7 +9,7 @@ namespace skyland {
 
 
 
-static const int view_y_min = -56;
+static const int view_y_min = -80;
 
 
 

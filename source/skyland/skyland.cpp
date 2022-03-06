@@ -322,6 +322,7 @@ void init_clouds(Platform& pfrm)
         pfrm.set_tile(Layer::background, i, 20, 7);
         pfrm.set_tile(Layer::background, i, 21, 7);
         pfrm.set_tile(Layer::background, i, 22, 7);
+        pfrm.set_tile(Layer::background, i, 23, 7);
     }
 }
 

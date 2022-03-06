@@ -2,6 +2,8 @@
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
+#include "skyland/scene/constructionScene.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -96,7 +98,7 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (test_key(Key::up)) {
-            if (cursor_loc.y > 6) {
+            if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
             }
         }
@@ -138,7 +140,7 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (test_key(Key::up)) {
-            if (cursor_loc.y > 6) {
+            if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
             }
         }

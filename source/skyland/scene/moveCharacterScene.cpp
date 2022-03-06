@@ -5,6 +5,7 @@
 #include "skyland/network.hpp"
 #include "skyland/path.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 
@@ -174,7 +175,7 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (test_key(Key::up)) {
-        if (cursor_loc->y > 6) {
+        if (cursor_loc->y > construction_zone_min_y) {
             --cursor_loc->y;
         }
     }

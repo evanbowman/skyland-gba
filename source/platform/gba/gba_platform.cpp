@@ -6241,6 +6241,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
             s16 v_scroll = (offset * 6) / 2 + 24;
 
+            // Gradient effect:
             for (int i = 0; i < (112 - offset) - 30; ++i) {
                 parallax_table[i] = far_x_offset / 4;
                 if (i < -v_scroll) {
@@ -6251,7 +6252,14 @@ void* Platform::system_call(const char* feature_name, void* arg)
                     // gradient color. NOTE: this works because the amount of
                     // background scrolling for the gradient does not exceed the
                     // width of the darkest band of tiles in the gradient.
+
                     vertical_parallax_table[i] = 0;
+
+                    if (i > 12) {
+                        // Yeah, some amount of trial and error here.
+                        vertical_parallax_table[i] = v_scroll / 2;
+                    }
+
                 } else {
                     vertical_parallax_table[i] = v_scroll;
                 }

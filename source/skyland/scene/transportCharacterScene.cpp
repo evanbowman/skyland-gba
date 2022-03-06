@@ -4,6 +4,7 @@
 #include "readyScene.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -125,7 +126,7 @@ TransportCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_down(pfrm, Key::up)) {
-        if (cursor_loc->y > 6) {
+        if (cursor_loc->y > construction_zone_min_y) {
             --cursor_loc->y;
         }
     }

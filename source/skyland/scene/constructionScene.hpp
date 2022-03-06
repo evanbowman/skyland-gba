@@ -12,6 +12,10 @@ namespace skyland {
 
 
 
+static const int construction_zone_min_y = 4;
+
+
+
 class ConstructionScene : public ActiveWorldScene
 {
 public:

@@ -971,7 +971,7 @@ void Island::repaint(Platform& pfrm, App& app)
             if (matrix[x][y] == 0 and y < 15 and matrix[x][y + 1] == 1) {
                 buffer[x][y] = Tile::roof_plain;
                 bool placed_chimney_this_tile = false;
-                if (not placed_chimney) {
+                if (not placed_chimney and y > 5) {
                     for (auto& loc : chimney_locs) {
                         if (loc == x) {
                             buffer[x][y] = Tile::roof_chimney;
@@ -986,7 +986,8 @@ void Island::repaint(Platform& pfrm, App& app)
                 // tiles tall.
                 if (y > 0 and matrix[x][y - 1] == 0) {
                     if (not placed_chimney_this_tile and show_flag_ and
-                        not placed_flag) {
+                        not placed_flag and
+                        y > 5) {
                         placed_flag = true;
                         buffer[x][y] = Tile::roof_flag;
                         buffer[x][y - 1] = Tile::flag_start;
@@ -998,7 +999,7 @@ void Island::repaint(Platform& pfrm, App& app)
                 buffer[x][y] = Tile::grass;
             } else if (matrix[x][y] == 0 and matrix[x][y + 1] == 2) {
                 bool placed_chimney_this_tile = false;
-                if (not placed_chimney) {
+                if (not placed_chimney and y > 5) {
                     for (auto& loc : chimney_locs) {
                         if (loc == x) {
                             buffer[x][y] = Tile::tin_chimney;
@@ -1013,7 +1014,8 @@ void Island::repaint(Platform& pfrm, App& app)
                         not placed_flag and y > 1 and matrix[x][y - 1] == 0) {
                         if (auto room = get_room({x, (u8)(y + 1)})) {
                             if ((*room->metaclass())->properties() &
-                                RoomProperties::flag_mount) {
+                                RoomProperties::flag_mount and
+                                y > 5) {
                                 placed_flag = true;
                                 buffer[x][y] = Tile::flag_mount;
                                 buffer[x][y - 1] = Tile::flag_start;

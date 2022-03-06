@@ -5,6 +5,7 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -325,7 +326,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     int player_avg_roof_hull_thickness = 0;
 
     for (u8 x = 0; x < (int)app.player_island().terrain().size(); ++x) {
-        for (u8 y = 6; y < 15; ++y) {
+        for (u8 y = construction_zone_min_y; y < 15; ++y) {
             if (auto room = app.player_island().get_room({x, y})) {
                 if ((*room->metaclass())->category() == Room::Category::wall) {
                     ++player_avg_roof_hull_thickness;
@@ -343,7 +344,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     int player_avg_forward_hull_thickness = 0;
     int min_present_y = 15;
 
-    for (u8 y = 6; y < 15; ++y) {
+    for (u8 y = construction_zone_min_y; y < 15; ++y) {
         for (u8 x = (int)app.player_island().terrain().size() - 1; x > 1; --x) {
             if (auto room = app.player_island().get_room({x, y})) {
                 if ((*room->metaclass())->category() == Room::Category::wall) {
@@ -454,7 +455,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     auto place_missile_silo = [&](RoomMeta* mt) {
         Buffer<Vec2<u8>, 16> slots;
         for (u8 x = 0; x < 16; ++x) {
-            for (u8 y = 6; y < 14; ++y) {
+            for (u8 y = construction_zone_min_y; y < 14; ++y) {
                 auto room = app.opponent_island()->get_room({x, u8(y + 2)});
                 if ((y == 13 or room) and has_space(app, {x, y}, {1, 2}) and
                     not c->invalidated_missile_cells_[x][y] and
@@ -487,7 +488,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         Buffer<Vec2<u8>, 16> slots;
 
 
-        for (u8 y = 6; y < 14; ++y) {
+        for (u8 y = construction_zone_min_y; y < 14; ++y) {
             for (u8 x = 0; x < 15; ++x) {
 
                 auto room = app.opponent_island()->get_room(
@@ -544,7 +545,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
         Buffer<Vec2<u8>, 16> slots;
         for (u8 x = 0; x < 16; ++x) {
-            for (u8 y = 6; y < 14; ++y) {
+            for (u8 y = construction_zone_min_y; y < 14; ++y) {
                 auto room = app.opponent_island()->get_room({x, u8(y + 1)});
                 if ((y == 13 or room) and has_space(app, {x, y}, {2, 1}) and
                     not c->invalidated_missile_cells_[x][y] and
@@ -654,7 +655,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
         }
 
         for (u8 x = 0; x < 15; ++x) {
-            for (u8 y = 6; y < 15; ++y) {
+            for (u8 y = construction_zone_min_y; y < 15; ++y) {
                 Float weight = 0.f;
 
                 auto get_room = [&](u8 x, u8 y) {
@@ -1058,7 +1059,7 @@ void ProcgenEnemyAI::generate_decorations(Platform& pfrm, App& app)
     for (u8 x = 0; x < (int)app.opponent_island()->terrain().size(); ++x) {
         bool empty_column = true;
         u8 y;
-        for (y = 6; y < 14; ++y) {
+        for (y = construction_zone_min_y; y < 14; ++y) {
             if (app.opponent_island()->rooms_plot().get(x, y)) {
                 if (auto room = app.opponent_island()->get_room({x, y})) {
                     if ((*room->metaclass())->category() ==
@@ -1074,7 +1075,7 @@ void ProcgenEnemyAI::generate_decorations(Platform& pfrm, App& app)
         }
 
 
-        if (empty_column and y > 6) {
+        if (empty_column and y > construction_zone_min_y) {
             switch (rng::choice<5>(rng::critical_state)) {
             case 0:
             case 1:

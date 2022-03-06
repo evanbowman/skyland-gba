@@ -3,6 +3,7 @@
 #include "skyland/entity/drones/attackDrone.hpp"
 #include "skyland/network.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 
@@ -65,13 +66,13 @@ void get_drone_slots(bool slots[16][16], Island* dest_island, Island* parent)
                 // overpowered if you could place them within empty gaps inside
                 // an enemy's perimeter.
                 if (x < (int)dest_island->terrain().size() - 1 and x > 0 and
-                    y > 6) {
+                    y > construction_zone_min_y) {
                     slots[x][y] = false;
                 }
             }
             if (y > 14) {
                 slots[x][y] = false;
-            } else if (y < 6) {
+            } else if (y < construction_zone_min_y) {
                 slots[x][y] = false;
             }
         }
@@ -265,7 +266,7 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (test_key(Key::up)) {
-        if (cursor_loc->y > 6) {
+        if (cursor_loc->y > construction_zone_min_y) {
             --cursor_loc->y;
         }
     }

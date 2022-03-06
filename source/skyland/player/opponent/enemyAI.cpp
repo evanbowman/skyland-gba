@@ -14,6 +14,7 @@
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/transporter.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -929,7 +930,7 @@ static void place_offensive_drone(Platform& pfrm,
     // as they might accidentally shoot eachother.
     for (u8 x = 0; x < 16; x += 2) {
         if (slot[x][6] and not restrict_columns[x]) {
-            for (u8 y = 6; y < 15; ++y) {
+            for (u8 y = construction_zone_min_y; y < 15; ++y) {
                 if (player_rooms.get(x, y)) {
                     if (auto room = player_island.get_room({x, y})) {
                         top_row_weights[x] =
@@ -946,7 +947,7 @@ static void place_offensive_drone(Platform& pfrm,
 
     std::optional<Vec2<u8>> ideal_coord;
     Float max_weight = 0.f;
-    for (u8 y = 6; y < 15; ++y) {
+    for (u8 y = construction_zone_min_y; y < 15; ++y) {
         if (left_column_weights[y] > max_weight) {
             ideal_coord = {0, y};
             max_weight = left_column_weights[y];

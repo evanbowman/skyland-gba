@@ -6,6 +6,7 @@
 #include "skyland/island.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/rooms/switch.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "worldScene.hpp"
 
 
@@ -79,7 +80,7 @@ public:
                 ++cursor_loc.x;
             }
         } else if (test_key(Key::up)) {
-            if (cursor_loc.y > 6) {
+            if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
             }
         } else if (test_key(Key::down)) {
