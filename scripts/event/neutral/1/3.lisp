@@ -45,7 +45,7 @@
 (setq on-dialog-declined
       (lambda
         (opponent-mode 'hostile)
-        (dialog "<g:goblin king:3>YARRRGG!!! PREPARE FOR BOARDING!!!")))
+        (dialog "<c:goblin king:3>YARRRGG!!! PREPARE FOR BOARDING!!!")))
 
 
 (setq on-hostile-transition
