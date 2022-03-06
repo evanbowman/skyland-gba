@@ -37,6 +37,10 @@ IonBurst::IonBurst(const Vec2<Float>& position,
 
 
 
+Sound sound_fizzle("fizzle");
+
+
+
 void IonBurst::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
@@ -81,7 +85,7 @@ void IonBurst::update(Platform& pfrm, App& app, Microseconds delta)
         }
         if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
             this->destroy(pfrm, app, pos.y > min_y);
-            pfrm.speaker().play_sound("explosion1", 2);
+            sound_fizzle.play(pfrm, 1);
         }
     }
 
@@ -153,10 +157,6 @@ void IonBurst::destroy(Platform& pfrm, App& app, bool explosion)
         medium_explosion(pfrm, app, sprite_.get_position());
     }
 }
-
-
-
-Sound sound_fizzle("fizzle");
 
 
 
