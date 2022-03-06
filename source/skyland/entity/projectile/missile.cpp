@@ -135,7 +135,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
 
-    case State::falling:
+    case State::falling: {
         if (sprite_.get_position().y < 450) {
             sprite_.set_alpha(Sprite::Alpha::transparent);
         } else {
@@ -148,7 +148,24 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
         auto pos = sprite_.get_position();
         pos.y += delta * 0.00041f;
         sprite_.set_position(pos);
+
+        Island* target;
+        if (source_ == &app.player_island()) {
+            target = app.opponent_island();
+        } else {
+            target = &app.player_island();
+        }
+
+        if (target) {
+            auto max_y = target->origin().y;
+            max_y += 16 * 16 + 32;
+            if (pos.y > max_y) {
+                this->destroy(pfrm, app);
+                pfrm.speaker().play_sound("explosion1", 2);
+            }
+        }
         break;
+    }
     }
 }
 
@@ -158,22 +175,8 @@ extern Sound sound_impact;
 
 
 
-void Missile::on_collision(Platform& pfrm, App& app, Room& room)
+void Missile::destroy(Platform& pfrm, App& app)
 {
-    if (source_ == room.parent() and room.metaclass() == missile_silo_mt) {
-        return;
-    }
-
-    if (source_ == room.parent() and room.metaclass() == forcefield_mt) {
-        return;
-    }
-
-    if ((*room.metaclass())->properties() & RoomProperties::fragile and
-        room.max_health() < missile_damage) {
-        room.apply_damage(pfrm, app, 9999);
-        return;
-    }
-
     auto setup_event = [&](time_stream::event::MissileDestroyed& e) {
         e.timer_.set(timer_);
         e.x_pos_.set(sprite_.get_position().x);
@@ -197,6 +200,27 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
     kill();
     app.camera()->shake(18);
     big_explosion(pfrm, app, sprite_.get_position());
+}
+
+
+
+void Missile::on_collision(Platform& pfrm, App& app, Room& room)
+{
+    if (source_ == room.parent() and room.metaclass() == missile_silo_mt) {
+        return;
+    }
+
+    if (source_ == room.parent() and room.metaclass() == forcefield_mt) {
+        return;
+    }
+
+    if ((*room.metaclass())->properties() & RoomProperties::fragile and
+        room.max_health() < missile_damage) {
+        room.apply_damage(pfrm, app, 9999);
+        return;
+    }
+
+    destroy(pfrm, app);
 
     auto metac = room.metaclass();
 

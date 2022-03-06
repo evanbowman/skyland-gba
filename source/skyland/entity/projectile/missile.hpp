@@ -59,6 +59,8 @@ private:
     Microseconds timer_ = 0;
     Float target_x_;
 
+    void destroy(Platform& pfrm, App& app);
+
     Island* source_;
     u8 source_x_;
     u8 source_y_;
