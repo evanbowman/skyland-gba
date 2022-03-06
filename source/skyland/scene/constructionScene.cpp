@@ -381,7 +381,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::up)) {
             pfrm.speaker().play_sound("click", 1);
             const auto current_category =
-                (*load_metaclass(data_->available_buildings_[building_selector_]))
+                (*load_metaclass(
+                     data_->available_buildings_[building_selector_]))
                     ->category();
 
             show_category_ = true;
@@ -407,7 +408,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             // the end, hence the next loop:
             for (i = 0; i < data_->available_buildings_.size(); ++i) {
                 if ((*load_metaclass(data_->available_buildings_[i]))
-                    ->category() == target_category) {
+                        ->category() == target_category) {
                     break;
                 }
             }
@@ -713,7 +714,7 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
             category_label_.emplace(pfrm, coord);
             category_label_->assign(category_str_buffer.c_str(),
                                     FontColors{ColorConstant::med_blue_gray,
-                                                   ColorConstant::rich_black});
+                                               ColorConstant::rich_black});
         }
 
         last_category_ = current_category;
