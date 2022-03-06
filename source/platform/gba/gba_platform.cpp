@@ -1273,7 +1273,8 @@ static const int tile_mapping_slots = 111 - tile_reserved_count;
 using TileMappings = s16[tile_mapping_slots];
 
 EWRAM_DATA static TileMappings tile0_mappings = {0};
-// EWRAM_DATA static TileMappings tile1_mappings = {0};
+EWRAM_DATA static TileMappings tile1_mappings = {0};
+
 
 
 void Platform::clear_tile0_mappings()
@@ -1287,7 +1288,9 @@ void Platform::clear_tile0_mappings()
 
 void Platform::clear_tile1_mappings()
 {
-    // TODO...
+    for (auto& mapping : tile1_mappings) {
+        mapping = 0;
+    }
 }
 
 
@@ -1312,7 +1315,16 @@ static TileDesc translate_tile0_index(TileDesc index)
 
 static TileDesc translate_tile1_index(TileDesc index)
 {
-    // TODO!
+    if (index < tile_reserved_count) {
+        return index;
+    }
+
+    auto adjusted_index = index - tile_reserved_count;
+    if (adjusted_index < tile_mapping_slots and
+        tile1_mappings[adjusted_index]) {
+        return tile1_mappings[adjusted_index];
+    }
+
     return index;
 }
 
@@ -1378,7 +1390,10 @@ TileDesc Platform::map_tile0_chunk(TileDesc src)
 
 TileDesc Platform::map_tile1_chunk(TileDesc src)
 {
-    return src;
+    return map_tile_chunk(tile1_mappings,
+                          src,
+                          (u8*)current_tilesheet1->tile_data_,
+                          sbb_t1_texture);
 }
 
 
