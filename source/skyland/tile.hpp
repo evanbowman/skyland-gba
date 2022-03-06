@@ -2,6 +2,23 @@
 
 
 
+struct StaticTile
+{
+    // These tiles are not dynamically re-mappable. They live at fixed positions
+    // at the beginning of the tile set.
+    enum {
+        null,
+        airborne_selection = 1,
+        flag_start = 2,
+        flag_end = 5,
+        group_icons,
+        path_marker,
+        count,
+    };
+};
+
+
+
 struct Tile
 {
     enum {
@@ -9,8 +26,8 @@ struct Tile
         airborne_selection = 1,
         flag_start = 2,
         flag_end = 5,
-        roof_flag,
-        flag_mount,
+        __fixme,
+        __fixme2,
         palm_1,
         palm_2,
         shrubbery,
@@ -99,6 +116,8 @@ struct Tile
         switch_on,
         switch_off,
         banana_plant,
+        roof_flag,
+        flag_mount,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -114,8 +133,8 @@ struct InteriorTile
         airborne_selection = 1,
         flag_start = 2,
         flag_end = 5,
-        roof_flag,
-        flag_mount,
+        __fixme,
+        __fixme2,
         palm_1,
         palm_2,
         shrubbery,
@@ -139,7 +158,7 @@ struct InteriorTile
         workshop_2,
         workshop_3,
         workshop_4,
-        path_marker,
+        __unused2__,
         missile_silo_1,
         missile_silo_2,
         forcefield,
@@ -201,6 +220,8 @@ struct InteriorTile
         switch_on,
         switch_off,
         banana_plant,
+        roof_flag,
+        flag_mount,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

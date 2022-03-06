@@ -45,7 +45,8 @@ void TransportCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
                         x, y};
                     set_cursor = true;
                 }
-                pfrm.set_tile(app.opponent_island()->layer(), x, y, 34);
+                pfrm.set_tile(app.opponent_island()->layer(), x, y,
+                              StaticTile::path_marker);
             }
         }
     }

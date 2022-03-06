@@ -122,7 +122,8 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             if ((*matrix_)[x][y]) {
-                pfrm.set_tile(island->layer(), x, y, 34);
+                pfrm.set_tile(island->layer(), x, y,
+                              StaticTile::path_marker);
             }
         }
     }

@@ -1267,7 +1267,7 @@ static u16 x3_scroll = 0;
 static u16 y3_scroll = 0;
 
 
-static const int tile_reserved_count = 7;
+static const int tile_reserved_count = 8;
 static const int tile_mapping_slots = 111 - tile_reserved_count;
 
 using TileMappings = s16[tile_mapping_slots];
