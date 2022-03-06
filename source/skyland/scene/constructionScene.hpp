@@ -15,12 +15,15 @@ namespace skyland {
 class ConstructionScene : public ActiveWorldScene
 {
 public:
-    ConstructionScene(bool near = true) : near_(near)
+    ConstructionScene(Platform& pfrm, bool near = true)
+        : data_(allocate_dynamic<Data>(pfrm, "construction-data")), near_(near)
     {
     }
 
 
-    ConstructionScene(int selector) : selector_(selector)
+    ConstructionScene(Platform& pfrm, int selector)
+        : selector_(selector),
+          data_(allocate_dynamic<Data>(pfrm, "construction-data"))
     {
     }
 
@@ -63,22 +66,24 @@ private:
 
     using Coord = Vec2<u8>;
 
-    // NOTE: while the terrain isn't quite so large, due to holes in a player's
-    // island, we may need more construction sites than there are x-coordinates.
-    // TODO: increase the size of the construction_sites_ buffer.
-    Buffer<Coord, 18> construction_sites_;
+
     u32 selector_ = 0;
 
     std::optional<Text> text_;
+    std::optional<Text> category_label_;
+
+    struct Data
+    {
+        Buffer<Coord, 48> construction_sites_;
+        Buffer<MetaclassIndex, 100> available_buildings_;
+        std::optional<MetaclassIndex> last_constructed_building_;
+    };
+
+    DynamicMemory<Data> data_;
 
     State state_ = State::select_loc;
 
     int building_selector_ = 0;
-
-    // NOTE: A metaclass pointer would be easier to work with, but metaclass
-    // indices require only two bytes, so we can make the buffer twice as large.
-    Buffer<MetaclassIndex, 40> available_buildings_;
-    std::optional<MetaclassIndex> last_constructed_building_;
 
     int touchscroll_ = 0;
     int last_touch_x_ = 0;

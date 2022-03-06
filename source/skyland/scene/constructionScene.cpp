@@ -117,8 +117,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto next = scene_pool::alloc<GlossaryViewerModule>();
         if (next) {
             const bool near = near_;
-            next->set_next_scene([near]() {
-                return scene_pool::alloc<ConstructionScene>(near);
+            next->set_next_scene([near, &pfrm]() {
+                return scene_pool::alloc<ConstructionScene>(pfrm, near);
             });
             return next;
         }
@@ -137,9 +137,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.player().key_down(pfrm, Key::alt_2) or
         (state_ == State::select_loc and
          app.player().key_down(pfrm, Key::action_2))) {
-        if (not construction_sites_.empty()) {
-            cursor_loc.x = construction_sites_[selector_].x;
-            cursor_loc.y = construction_sites_[selector_].y;
+        if (not data_->construction_sites_.empty()) {
+            cursor_loc.x = data_->construction_sites_[selector_].x;
+            cursor_loc.y = data_->construction_sites_[selector_].y;
         }
         return exit_scene();
     }
@@ -167,7 +167,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::select_loc:
 
         if (test_key(Key::right)) {
-            if (selector_ < construction_sites_.size() - 1) {
+            if (selector_ < data_->construction_sites_.size() - 1) {
                 ++selector_;
 
                 sync_cursor = true;
@@ -180,7 +180,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_loc.x = 0;
                 cursor_loc.y =
                     std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
-                return scene_pool::alloc<ConstructionScene>(false);
+                return scene_pool::alloc<ConstructionScene>(pfrm, false);
             }
         }
 
@@ -198,26 +198,27 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_loc.x = app.player_island().terrain().size();
                 cursor_loc.y =
                     std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y;
-                return scene_pool::alloc<ConstructionScene>(true);
+                return scene_pool::alloc<ConstructionScene>(pfrm, true);
             }
         }
 
-        if (not construction_sites_.empty()) {
-            cursor_loc.x = construction_sites_[selector_].x;
-            cursor_loc.y = construction_sites_[selector_].y;
+        if (not data_->construction_sites_.empty()) {
+            cursor_loc.x = data_->construction_sites_[selector_].x;
+            cursor_loc.y = data_->construction_sites_[selector_].y;
 
             if (sync_cursor) {
                 app.player().network_sync_cursor(pfrm, cursor_loc, 3, true);
             }
         }
 
-        if (((tapclick and *tapclick == construction_sites_[selector_]) or
+        if (((tapclick and
+              *tapclick == data_->construction_sites_[selector_]) or
              app.player().key_down(pfrm, Key::action_1)) and
-            not construction_sites_.empty()) {
+            not data_->construction_sites_.empty()) {
 
             tapclick.reset();
 
-            if (construction_sites_[selector_].y == 15) {
+            if (data_->construction_sites_[selector_].y == 15) {
                 // Special case: we want to add to the terrain level, not
                 // construct a building.
                 state_ = State::add_terrain;
@@ -230,11 +231,11 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 collect_available_buildings(pfrm, app);
 
-                if (not available_buildings_.empty()) {
+                if (not data_->available_buildings_.empty()) {
 
-                    if (last_constructed_building_ and
-                        (available_buildings_[building_selector_] not_eq
-                         *last_constructed_building_)) {
+                    if (data_->last_constructed_building_ and
+                        (data_->available_buildings_[building_selector_] not_eq
+                         *data_->last_constructed_building_)) {
 
                         // Ok, so if we constructed a building, and the cursor
                         // advanced into a narrower slot, we may have fewer
@@ -245,9 +246,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                         // strictly necessary, it just makes the UI feel nicer to
                         // the player.
 
-                        for (u32 i = 0; i < available_buildings_.size(); ++i) {
-                            if (available_buildings_[i] ==
-                                *last_constructed_building_) {
+                        for (u32 i = 0; i < data_->available_buildings_.size();
+                             ++i) {
+                            if (data_->available_buildings_[i] ==
+                                *data_->last_constructed_building_) {
                                 building_selector_ = i;
                                 break;
                             }
@@ -273,8 +275,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (tapclick) {
                 // First try to find an exact match. If not, try a loose match
                 // based on x coordinate.
-                for (u32 i = 0; i < construction_sites_.size(); ++i) {
-                    if (construction_sites_[i] == *tapclick) {
+                for (u32 i = 0; i < data_->construction_sites_.size(); ++i) {
+                    if (data_->construction_sites_[i] == *tapclick) {
                         tapclick.reset();
                         selector_ = i;
                         camera_update_timer_ = milliseconds(500);
@@ -282,8 +284,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
                 if (tapclick) {
-                    for (u32 i = 0; i < construction_sites_.size(); ++i) {
-                        if (construction_sites_[i].x == tapclick->x) {
+                    for (u32 i = 0; i < data_->construction_sites_.size();
+                         ++i) {
+                        if (data_->construction_sites_[i].x == tapclick->x) {
                             tapclick.reset();
                             selector_ = i;
                             camera_update_timer_ = milliseconds(500);
@@ -298,7 +301,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::choose_building: {
         auto scroll_right = [&] {
             pfrm.speaker().play_sound("click", 1);
-            if (building_selector_ < (int)available_buildings_.size() - 1) {
+            if (building_selector_ <
+                (int)data_->available_buildings_.size() - 1) {
                 ++building_selector_;
                 show_current_building_text(pfrm, app);
             } else {
@@ -312,7 +316,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 --building_selector_;
                 show_current_building_text(pfrm, app);
             } else {
-                building_selector_ = available_buildings_.size() - 1;
+                building_selector_ = data_->available_buildings_.size() - 1;
                 show_current_building_text(pfrm, app);
             }
         };
@@ -334,7 +338,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         } else if (app.player().key_down(pfrm, Key::action_2) or
                    (tapclick and
-                    *tapclick not_eq construction_sites_[selector_])) {
+                    *tapclick not_eq data_->construction_sites_[selector_])) {
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
             msg(pfrm, SYSTR(construction_build)->c_str());
@@ -347,24 +351,26 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::down)) {
             pfrm.speaker().play_sound("click", 1);
             auto current_category =
-                (*load_metaclass(available_buildings_[building_selector_]))
+                (*load_metaclass(
+                     data_->available_buildings_[building_selector_]))
                     ->category();
             // When the player presses down, jump to the next building in the
             // list of a different category. The room metatable should be
             // organized by room category by convention.
             u32 i = 0;
-            for (i = 0; i < available_buildings_.size(); ++i) {
+            for (i = 0; i < data_->available_buildings_.size(); ++i) {
                 auto other_category =
                     (*load_metaclass(
-                         available_buildings_[(building_selector_ + i) %
-                                              available_buildings_.size()]))
+                         data_->available_buildings_[(building_selector_ + i) %
+                                                     data_->available_buildings_
+                                                         .size()]))
                         ->category();
                 if (other_category not_eq current_category) {
                     break;
                 }
             }
             building_selector_ += i;
-            building_selector_ %= available_buildings_.size();
+            building_selector_ %= data_->available_buildings_.size();
             show_current_building_text(pfrm, app);
         }
 
@@ -406,10 +412,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             scroll_left();
         }
 
-        if (tapclick == construction_sites_[selector_] or
+        if (tapclick == data_->construction_sites_[selector_] or
             app.player().key_down(pfrm, Key::action_1)) {
-            const auto& target =
-                *load_metaclass(available_buildings_[building_selector_]);
+            const auto& target = *load_metaclass(
+                data_->available_buildings_[building_selector_]);
 
             if (app.coins() < get_cost(island(app), target)) {
                 msg(pfrm, SYSTR(construction_insufficient_funds)->c_str());
@@ -437,13 +443,14 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.level_coins_spent() += diff;
 
             const auto sz = target->size().y;
-            const u8 dest_x = construction_sites_[selector_].x;
-            const u8 dest_y = construction_sites_[selector_].y - (sz - 1);
+            const u8 dest_x = data_->construction_sites_[selector_].x;
+            const u8 dest_y =
+                data_->construction_sites_[selector_].y - (sz - 1);
 
             pfrm.speaker().play_sound("build0", 4);
 
             target->create(pfrm, app, island(app), {dest_x, dest_y});
-            last_constructed_building_ = metaclass_index(target->name());
+            data_->last_constructed_building_ = metaclass_index(target->name());
 
             app.player().rooms_built_++;
 
@@ -547,18 +554,19 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
     StringBuffer<32> str = SYSTR(construction_build)->c_str();
     str += " :";
 
-    str += (*load_metaclass(available_buildings_[building_selector_]))
+    str += (*load_metaclass(data_->available_buildings_[building_selector_]))
                ->ui_name(pfrm)
                ->c_str();
 
     str += " ";
-    str += stringify(
-        get_cost(island(app),
-                 (*load_metaclass(available_buildings_[building_selector_]))));
+    str += stringify(get_cost(
+        island(app),
+        (*load_metaclass(data_->available_buildings_[building_selector_]))));
     str += "@";
     str += " ";
-    str += stringify((*load_metaclass(available_buildings_[building_selector_]))
-                         ->consumes_power());
+    str += stringify(
+        (*load_metaclass(data_->available_buildings_[building_selector_]))
+            ->consumes_power());
     str += "`";
 
     msg(pfrm, str.c_str());
@@ -585,15 +593,15 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
     {
         int index = building_selector_;
         if (index - 2 < -1) {
-            index = available_buildings_.size() - 2;
+            index = data_->available_buildings_.size() - 2;
         } else if (index - 2 < 0) {
-            index = available_buildings_.size() - 1;
+            index = data_->available_buildings_.size() - 1;
         } else {
             index = index - 2;
         }
 
         auto icon =
-            (*load_metaclass(available_buildings_[index]))->unsel_icon();
+            (*load_metaclass(data_->available_buildings_[index]))->unsel_icon();
         draw_image(pfrm, 258, st.x - 25, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(258, icon, 16);
@@ -602,13 +610,13 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
     {
         int index = building_selector_;
         if (index - 1 < 0) {
-            index = available_buildings_.size() - 1;
+            index = data_->available_buildings_.size() - 1;
         } else {
             index = index - 1;
         }
 
         auto icon =
-            (*load_metaclass(available_buildings_[index]))->unsel_icon();
+            (*load_metaclass(data_->available_buildings_[index]))->unsel_icon();
         draw_image(pfrm, 181, st.x - 21, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(181, icon, 16);
@@ -616,7 +624,8 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 
     {
         auto icon =
-            (*load_metaclass(available_buildings_[building_selector_]))->icon();
+            (*load_metaclass(data_->available_buildings_[building_selector_]))
+                ->icon();
         draw_image(pfrm, 197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);
 
         // Not sure whether I like the visual representation of the item
@@ -639,14 +648,14 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 
     {
         int index = building_selector_;
-        if (index + 1 >= (int)available_buildings_.size()) {
+        if (index + 1 >= (int)data_->available_buildings_.size()) {
             index = 0;
         } else {
             index = index + 1;
         }
 
         auto icon =
-            (*load_metaclass(available_buildings_[index]))->unsel_icon();
+            (*load_metaclass(data_->available_buildings_[index]))->unsel_icon();
         draw_image(pfrm, 213, st.x - 13, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(213, icon, 16);
@@ -654,16 +663,16 @@ void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 
     {
         int index = building_selector_;
-        if (index + 1 >= (int)available_buildings_.size()) {
+        if (index + 1 >= (int)data_->available_buildings_.size()) {
             index = 1;
-        } else if (index + 2 >= (int)available_buildings_.size()) {
+        } else if (index + 2 >= (int)data_->available_buildings_.size()) {
             index = 0;
         } else {
             index = index + 2;
         }
 
         auto icon =
-            (*load_metaclass(available_buildings_[index]))->unsel_icon();
+            (*load_metaclass(data_->available_buildings_[index]))->unsel_icon();
         draw_image(pfrm, 274, st.x - 9, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(274, icon, 16);
@@ -685,16 +694,16 @@ void ConstructionScene::display(Platform& pfrm, App& app)
         break;
 
     case State::select_loc:
-        if (not construction_sites_.empty()) {
+        if (not data_->construction_sites_.empty()) {
             auto origin = island(app)->visual_origin();
 
-            origin.x += construction_sites_[selector_].x * 16;
-            origin.y += (construction_sites_[selector_].y) * 16;
+            origin.x += data_->construction_sites_[selector_].x * 16;
+            origin.y += (data_->construction_sites_[selector_].y) * 16;
 
             Sprite sprite;
             sprite.set_position(origin);
 
-            if (construction_sites_[selector_].y == 15) {
+            if (data_->construction_sites_[selector_].y == 15) {
                 // Display a different icon when constructing terrain, as a hint
                 // to the player that he/she can expand an island's terrain.
                 sprite.set_texture_index(73);
@@ -711,14 +720,15 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
 
     case State::choose_building:
-        if (not available_buildings_.empty()) {
-            const auto& meta =
-                *load_metaclass(available_buildings_[building_selector_]);
+        if (not data_->available_buildings_.empty()) {
+            const auto& meta = *load_metaclass(
+                data_->available_buildings_[building_selector_]);
             const auto sz = meta->size();
 
             auto origin = island(app)->visual_origin();
-            origin.x += construction_sites_[selector_].x * 16;
-            origin.y += (construction_sites_[selector_].y - (sz.y - 1)) * 16;
+            origin.x += data_->construction_sites_[selector_].x * 16;
+            origin.y +=
+                (data_->construction_sites_[selector_].y - (sz.y - 1)) * 16;
 
             if (sz.x == 1 and sz.y == 1) {
                 Sprite sprite;
@@ -781,7 +791,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
 void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
 {
-    construction_sites_.clear();
+    data_->construction_sites_.clear();
 
     bool matrix[16][16];
 
@@ -790,7 +800,7 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
     for (u8 x = 0; x < 16; ++x) {
         for (u8 y = 0; y < 16; ++y) {
             if (matrix[x][y] and y > construction_zone_min_y) {
-                construction_sites_.push_back({x, y});
+                data_->construction_sites_.push_back({x, y});
             }
         }
     }
@@ -798,12 +808,12 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
     auto& terrain = island(app)->terrain();
     if (not terrain.full() and
         app.game_mode() not_eq App::GameMode::multiplayer) {
-        construction_sites_.push_back({u8(terrain.size()), 15});
+        data_->construction_sites_.push_back({u8(terrain.size()), 15});
     }
 
-    if (construction_sites_.empty()) {
+    if (data_->construction_sites_.empty()) {
         selector_ = 0;
-    } else if (selector_ >= construction_sites_.size()) {
+    } else if (selector_ >= data_->construction_sites_.size()) {
         selector_--;
     }
 
@@ -840,14 +850,14 @@ void ConstructionScene::msg(Platform& pfrm, const char* text)
 
 void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 {
-    available_buildings_.clear();
+    data_->available_buildings_.clear();
 
     u8 matrix[16][16];
     island(app)->plot_rooms(matrix);
 
     int avail_x_space = 0;
 
-    const auto current = construction_sites_[selector_];
+    const auto current = data_->construction_sites_[selector_];
 
 
     // Avail y space per x coordinate of the room that we're constructing.
@@ -934,7 +944,7 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
                     meta->category() == Room::Category::decoration)) {
 
                 auto index = metaclass_index(meta->name());
-                if (not available_buildings_.push_back(index)) {
+                if (not data_->available_buildings_.push_back(index)) {
                     Platform::fatal("TODO: available buildings buffer "
                                     "needs more memory");
                 }
@@ -942,8 +952,8 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         }
     }
 
-    if (building_selector_ >= (int)available_buildings_.size()) {
-        building_selector_ = available_buildings_.size() - 1;
+    if (building_selector_ >= (int)data_->available_buildings_.size()) {
+        building_selector_ = data_->available_buildings_.size() - 1;
     }
 }
 
@@ -971,13 +981,13 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     find_construction_sites(pfrm, app);
 
-    if (not construction_sites_.empty()) {
+    if (not data_->construction_sites_.empty()) {
         auto& cursor_loc =
             near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
                   : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
-        for (u32 i = 0; i < construction_sites_.size(); ++i) {
-            if (construction_sites_[i].x == cursor_loc.x) {
+        for (u32 i = 0; i < data_->construction_sites_.size(); ++i) {
+            if (data_->construction_sites_[i].x == cursor_loc.x) {
 
                 selector_ = i;
             }
