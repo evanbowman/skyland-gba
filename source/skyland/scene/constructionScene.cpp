@@ -378,35 +378,42 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             show_current_building_text(pfrm, app);
         }
 
-        // FIXME: this code doesn't work!
-        // if (app.player().key_down(pfrm, Key::up)) {
-        //     pfrm.speaker().play_sound("click", 1);
-        //     const auto current_category =
-        //         (*load_metaclass(available_buildings_[building_selector_]))
-        //             ->category();
+        if (app.player().key_down(pfrm, Key::up)) {
+            pfrm.speaker().play_sound("click", 1);
+            const auto current_category =
+                (*load_metaclass(data_->available_buildings_[building_selector_]))
+                    ->category();
 
-        //     auto target_category = (Room::Category)(
-        //         ((u32)current_category - 1) % (u32)Room::Category::count);
+            show_category_ = true;
 
-        //     if (target_category == current_category) {
-        //         target_category =
-        //             (Room::Category)((int)Room::Category::count - 1);
-        //     }
+            Room::Category target_category = current_category;
 
-        //     u32 i;
-        //     for (i = 0; i < available_buildings_.size(); ++i) {
-        //         if ((*load_metaclass(available_buildings_[i]))->category() ==
-        //             target_category) {
-        //             break;
-        //         }
-        //     }
-        //     if (i >= available_buildings_.size()) {
-        //         i = 0;
-        //     }
+            u32 i = 0;
+            for (i = 0; i < data_->available_buildings_.size(); ++i) {
+                auto other_category =
+                    (*load_metaclass(
+                         data_->available_buildings_[(building_selector_ - i) %
+                                                     data_->available_buildings_
+                                                         .size()]))
+                        ->category();
+                if (other_category not_eq current_category) {
+                    target_category = other_category;
+                    break;
+                }
+            }
 
-        //     building_selector_ = i;
-        //     show_current_building_text(pfrm, app);
-        // }
+            // The above loop seeks the first category that differs from our
+            // own. But we want to seek to the beginning of the category, not
+            // the end, hence the next loop:
+            for (i = 0; i < data_->available_buildings_.size(); ++i) {
+                if ((*load_metaclass(data_->available_buildings_[i]))
+                    ->category() == target_category) {
+                    break;
+                }
+            }
+            building_selector_ = i;
+            show_current_building_text(pfrm, app);
+        }
 
         if (test_key(Key::right)) {
             scroll_right();
@@ -559,6 +566,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void ConstructionScene::show_current_building_text(Platform& pfrm, App& app)
 {
+    if (app.game_mode() == App::GameMode::tutorial) {
+        show_category_ = false;
+    }
+
     auto current_category =
         (*load_metaclass(data_->available_buildings_[building_selector_]))
             ->category();
@@ -888,7 +899,9 @@ void ConstructionScene::msg(Platform& pfrm, const char* text)
             pfrm.set_tile(Layer::overlay, i, st.y - 6, 0);
         }
 
-        pfrm.set_tile(Layer::overlay, i, st.y - 7, 0);
+        if (show_category_) {
+            pfrm.set_tile(Layer::overlay, i, st.y - 7, 0);
+        }
     }
 }
 
