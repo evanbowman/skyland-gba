@@ -110,6 +110,32 @@ void Weapon::___rewind___ability_used(Platform&, App&)
 
 
 
+void Weapon::display_on_hover(Platform::Screen& screen,
+                              App& app,
+                              const Vec2<u8>& cursor)
+{
+    if (not target_) {
+        return;
+    }
+
+    auto target_island = other_island(app);
+
+    if (target_island) {
+        auto pos = target_island->visual_origin();
+        pos.x += target_->x * 16;
+        pos.y += target_->y * 16;
+
+        Sprite spr;
+        spr.set_position(pos);
+        spr.set_texture_index(45);
+        spr.set_size(Sprite::Size::w16_h32);
+
+        screen.draw(spr);
+    }
+}
+
+
+
 void Weapon::set_target(Platform& pfrm, App& app, const Vec2<u8>& target)
 {
     if (target_ and *target_ == target) {

@@ -51,6 +51,11 @@ public:
     void unset_target(Platform& pfrm, App& app) override;
 
 
+    void display_on_hover(Platform::Screen& screen,
+                          App& app,
+                          const Vec2<u8>& cursor) override;
+
+
     ScenePtr<Scene>
     select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
 
