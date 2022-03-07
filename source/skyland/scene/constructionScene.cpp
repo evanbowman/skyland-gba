@@ -220,7 +220,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 state_ = State::add_terrain;
                 StringBuffer<30> temp;
                 temp += *SYSTR(construction_add_terrain);
-                temp += stringify(app.terrain_cost());
+                temp += stringify(app.terrain_cost(*island(app)));
                 temp += "@";
                 msg(pfrm, temp.c_str());
 
@@ -521,13 +521,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.player().key_down(pfrm, Key::action_1)) {
-            if (app.coins() < app.terrain_cost()) {
+            if (app.coins() < app.terrain_cost(*island(app))) {
                 msg(pfrm, SYSTR(construction_build)->c_str());
                 state_ = State::insufficient_funds;
                 break;
             }
 
-            app.set_coins(pfrm, app.coins() - app.terrain_cost());
+            app.set_coins(pfrm, app.coins() - app.terrain_cost(*island(app)));
 
             time_stream::event::IslandTerrainChanged e;
             e.previous_terrain_size_ = island(app)->terrain().size();

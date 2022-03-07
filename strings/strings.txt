@@ -135,6 +135,7 @@ set weapon groups
 weapon group 1
 weapon group 2
 weapon group 3
+pick weapon group
 shortcut: 
 time
 pauses used

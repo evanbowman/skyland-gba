@@ -85,7 +85,7 @@ App::App(Platform& pfrm)
 
 
 
-Coins App::terrain_cost()
+Coins App::terrain_cost(Island& island)
 {
     Coins terrain_cost_table[Island::Terrain::capacity()] = {
         200,
@@ -107,7 +107,7 @@ Coins App::terrain_cost()
         std::numeric_limits<Coins>::max(),
     };
 
-    return terrain_cost_table[islands_->player_.terrain().size() - 1];
+    return terrain_cost_table[island.terrain().size() - 1];
 }
 
 

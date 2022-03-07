@@ -13,6 +13,7 @@
 #include "playerIslandDestroyedScene.hpp"
 #include "salvageDroneScene.hpp"
 #include "salvageRoomScene.hpp"
+#include "selectWeaponGroupScene.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
@@ -153,7 +154,8 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
 {
     if (app.player().key_down(pfrm, Key::alt_2)) {
         return scene_pool::alloc<KeyComboScene>(true);
-    } else if (app.player().key_down(pfrm, Key::down)) {
+    } else if (app.player().key_down(pfrm, Key::action_2) or
+               app.player().key_down(pfrm, Key::down)) {
         return scene_pool::alloc<AssignWeaponGroupScene>();
     } else if (app.player().key_down(pfrm, Key::up)) {
         for (auto& room : app.player_island().rooms()) {
@@ -179,6 +181,9 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
                 }
             }
         }
+    } else if (app.player().key_down(pfrm, Key::action_1)) {
+        auto resume = scene_pool::make_deferred_scene<ReadyScene>();
+        return scene_pool::alloc<SelectWeaponGroupScene>(resume);
     }
 
     return null_scene();

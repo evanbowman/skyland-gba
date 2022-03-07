@@ -172,6 +172,7 @@ enum class SystemString {
     modifier_keys_opt_2,
     modifier_keys_opt_3,
     modifier_keys_opt_4,
+    modifier_keys_opt_5,
 
     key_combo_prompt,
 

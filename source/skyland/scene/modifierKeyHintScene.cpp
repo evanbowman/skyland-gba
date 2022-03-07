@@ -42,16 +42,22 @@ void ModifierKeyHintScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     const auto st = calc_screen_tiles(pfrm);
 
-    for (int x = 4; x < st.x - 4; ++x) {
+    for (int x = 3; x < st.x - 3; ++x) {
         for (int y = 3; y < st.y - 3; ++y) {
             pfrm.set_tile(Layer::overlay, x, y, 112);
         }
     }
 
-    pfrm.set_tile(Layer::overlay, 5, 7, 392);
-    pfrm.set_tile(Layer::overlay, 5, 9, 393);
-    pfrm.set_tile(Layer::overlay, 5, 11, 394);
-    pfrm.set_tile(Layer::overlay, 5, 13, 395);
+    pfrm.set_tile(Layer::overlay, 4, 7, 392);
+    pfrm.set_tile(Layer::overlay, 4, 9, 393);
+    pfrm.set_tile(Layer::overlay, 4, 11, 394);
+    pfrm.set_tile(Layer::overlay, 4, 13, 395);
+
+    Text b_opt(pfrm, "/B", OverlayCoord{5, 7});
+    b_opt.__detach();
+
+    Text a_opt(pfrm, "A", OverlayCoord({4, 15}));
+    a_opt.__detach();
 
     auto title = SYSTR(modifier_keys_title);
     title_.emplace(
@@ -61,16 +67,19 @@ void ModifierKeyHintScene::enter(Platform& pfrm, App& app, Scene& prev)
                      4});
 
     text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_1)->c_str(), OverlayCoord{7, 7});
+        pfrm, SYSTR(modifier_keys_opt_1)->c_str(), OverlayCoord{8, 7});
 
     text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_2)->c_str(), OverlayCoord{7, 9});
+        pfrm, SYSTR(modifier_keys_opt_2)->c_str(), OverlayCoord{8, 9});
 
     text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_3)->c_str(), OverlayCoord{7, 11});
+        pfrm, SYSTR(modifier_keys_opt_3)->c_str(), OverlayCoord{8, 11});
 
     text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_4)->c_str(), OverlayCoord{7, 13});
+        pfrm, SYSTR(modifier_keys_opt_4)->c_str(), OverlayCoord{8, 13});
+
+    text_.emplace_back(
+        pfrm, SYSTR(modifier_keys_opt_5)->c_str(), OverlayCoord{8, 15});
 
     pfrm.screen().schedule_fade(0.5f);
 }

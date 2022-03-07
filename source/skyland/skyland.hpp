@@ -57,7 +57,7 @@ public:
     void set_coins(Platform&, Coins coins);
 
 
-    Coins terrain_cost();
+    Coins terrain_cost(Island& island);
 
 
     Boxed<Camera, Camera, 48>& camera()
