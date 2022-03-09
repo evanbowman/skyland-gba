@@ -9,6 +9,9 @@ A Gameboy Advance game created, frantically, for a game jam, in about twenty
 days. A simple realtime strategy game where you build flying castles and fight
 AI players. Also includes a multiplayer vs mode.
 
+NOTE: This page sort of just includes a conceptual demo of SKYLAND. I'm working on the
+full version in a private repository, and will release it sometime in the future.
+
 I forked a top-down action game called Blind Jump to leverage some existing gba
 framework code that I'd written in the past for interfacing with the hardware,
 but most of the code is entirely new. For game-specific code, see the source/skyland 
