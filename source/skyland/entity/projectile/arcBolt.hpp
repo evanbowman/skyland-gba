@@ -44,7 +44,6 @@ public:
 
 
 private:
-
     void destroy(Platform& pfrm, App& app, bool explosion);
 
     Microseconds timer_ = 0;

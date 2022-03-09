@@ -12,7 +12,6 @@ namespace skyland {
 class IonBurst : public Projectile
 {
 public:
-
     IonBurst(const Vec2<Float>& position,
              const Vec2<Float>& target,
              Island* source,
@@ -41,7 +40,6 @@ public:
 
 
 private:
-
     void destroy(Platform& pfrm, App& app, bool explosion);
 
     Microseconds timer_ = 0;

@@ -6,8 +6,8 @@
 #include "scene/moveCharacterScene.hpp"
 #include "script/listBuilder.hpp"
 #include "skyland.hpp"
-#include "timeStreamEvent.hpp"
 #include "skyland/tile.hpp"
+#include "timeStreamEvent.hpp"
 
 
 
@@ -645,21 +645,19 @@ void Room::render_scaffolding(App& app, u8 buffer[16][16])
     auto p = position();
     auto s = size();
 
-    auto sal = parent()->interior_visible() ?
-        (int)InteriorTile::scaffolding_angled_l :
-        (int)Tile::scaffolding_angled_l;
+    auto sal = parent()->interior_visible()
+                   ? (int)InteriorTile::scaffolding_angled_l
+                   : (int)Tile::scaffolding_angled_l;
 
-    auto sar = parent()->interior_visible() ?
-        (int)InteriorTile::scaffolding_angled_r :
-        (int)Tile::scaffolding_angled_r;
+    auto sar = parent()->interior_visible()
+                   ? (int)InteriorTile::scaffolding_angled_r
+                   : (int)Tile::scaffolding_angled_r;
 
-    auto strut = parent()->interior_visible() ?
-        (int)InteriorTile::strut :
-        (int)Tile::strut;
+    auto strut = parent()->interior_visible() ? (int)InteriorTile::strut
+                                              : (int)Tile::strut;
 
-    auto strut_t = parent()->interior_visible() ?
-        (int)InteriorTile::strut_top :
-        (int)Tile::strut_top;
+    auto strut_t = parent()->interior_visible() ? (int)InteriorTile::strut_top
+                                                : (int)Tile::strut_top;
 
     bool placed_strut = false;
 

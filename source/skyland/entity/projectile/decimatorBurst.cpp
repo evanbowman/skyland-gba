@@ -49,7 +49,7 @@ void DecimatorBurst::update(Platform&, App& app, Microseconds delta)
 
     timer_ += delta;
 
-        Island* target;
+    Island* target;
     if (source_ == &app.player_island()) {
         target = app.opponent_island();
     } else {
