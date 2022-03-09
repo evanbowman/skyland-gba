@@ -19,6 +19,10 @@ void IntroCreditsScene::enter(Platform& pfrm, App&, Scene& prev)
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, false, false);
 
     rng::critical_state = 2021;
+
+    if (pfrm.keyboard().pressed<Key::select>()) {
+        flower_effect_ = true;
+    }
 }
 
 
@@ -150,6 +154,10 @@ void IntroCreditsScene::show_sunflowers(Platform& pfrm,
 
 void IntroCreditsScene::display(Platform& pfrm, App& app)
 {
+    if (not flower_effect_) {
+        return;
+    }
+
     if (not wait_ and not text_) {
         auto amount = smoothstep(milliseconds(0), milliseconds(1200), timer_);
 

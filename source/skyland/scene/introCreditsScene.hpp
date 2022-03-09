@@ -26,6 +26,9 @@ public:
     static void show_sunflowers(Platform& pfrm, int scroll, Float darken);
 
 
+    bool flower_effect_ = false;
+
+
 private:
     bool wait_ = true;
     bool exit_ = false;

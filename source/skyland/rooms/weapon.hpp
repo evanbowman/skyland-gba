@@ -34,6 +34,11 @@ public:
     }
 
 
+    void render_scaffolding(App& app, u8 buffer[16][16]) override
+    {
+    }
+
+
     void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 

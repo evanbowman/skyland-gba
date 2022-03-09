@@ -121,6 +121,12 @@ struct Tile
         sunflower,
         fountain,
         bridge_truss,
+        scaffolding_angled_l,
+        scaffolding_angled_r,
+        strut,
+        strut_top,
+        roof_strut,
+        roof_strut_joined,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -228,6 +234,12 @@ struct InteriorTile
         sunflower,
         fountain,
         bridge_truss,
+        scaffolding_angled_l,
+        scaffolding_angled_r,
+        strut,
+        strut_top,
+        roof_strut,
+        roof_strut_joined,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

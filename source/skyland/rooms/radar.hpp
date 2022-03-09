@@ -26,6 +26,12 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
+    void render_scaffolding(App& app, u8 buffer[16][16]) override
+    {
+    }
+
+
+
     static Vec2<u8> size()
     {
         return {1, 2};

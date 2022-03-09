@@ -121,6 +121,8 @@ public:
     virtual void render_interior(App& app, u8 buffer[16][16]) = 0;
     virtual void render_exterior(App& app, u8 buffer[16][16]) = 0;
 
+    virtual void render_scaffolding(App& app, u8 buffer[16][16]);
+
 
     void set_injured(Platform& pfrm);
 

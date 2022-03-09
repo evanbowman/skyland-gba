@@ -111,7 +111,8 @@ static void set_scroll(Platform& pfrm, Layer layer, int x_scroll, int y_scroll)
 
 void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    if (dynamic_cast<IntroCreditsScene*>(&prev)) {
+    auto ic = dynamic_cast<IntroCreditsScene*>(&prev);
+    if (ic and ic->flower_effect_) {
         flower_effect_ = true;
         pfrm.screen().schedule_fade(1.f, ColorConstant::rich_black, {}, false);
     } else {

@@ -19,6 +19,11 @@ public:
     }
 
 
+    void render_scaffolding(App& app, u8 buffer[16][16]) override
+    {
+    }
+
+
     static u32 properties()
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |

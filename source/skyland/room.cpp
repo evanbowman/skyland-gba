@@ -7,6 +7,7 @@
 #include "script/listBuilder.hpp"
 #include "skyland.hpp"
 #include "timeStreamEvent.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -635,6 +636,83 @@ Room::~Room()
     // remove ourself, but instead, tell the island to drop its dispatch list
     // and update all rooms on the next update step.
     parent_->cancel_dispatch();
+}
+
+
+
+void Room::render_scaffolding(App& app, u8 buffer[16][16])
+{
+    auto p = position();
+    auto s = size();
+
+    auto sal = parent()->interior_visible() ?
+        (int)InteriorTile::scaffolding_angled_l :
+        (int)Tile::scaffolding_angled_l;
+
+    auto sar = parent()->interior_visible() ?
+        (int)InteriorTile::scaffolding_angled_r :
+        (int)Tile::scaffolding_angled_r;
+
+    auto strut = parent()->interior_visible() ?
+        (int)InteriorTile::strut :
+        (int)Tile::strut;
+
+    auto strut_t = parent()->interior_visible() ?
+        (int)InteriorTile::strut_top :
+        (int)Tile::strut_top;
+
+    bool placed_strut = false;
+
+    if (s.x == 1) {
+        for (int y = p.y + s.y; y < 15; ++y) {
+            if (buffer[p.x][y]) {
+                break;
+            }
+
+            if (placed_strut) {
+                buffer[p.x][y] = strut;
+            } else {
+                buffer[p.x][y] = strut_t;
+                placed_strut = true;
+            }
+        }
+        placed_strut = false;
+
+        return;
+    }
+
+    if (buffer[p.x][p.y + s.y] not_eq 0 and
+        buffer[p.x + (s.x - 1)][p.y + s.y] == 0) {
+
+        buffer[p.x + (s.x - 1)][p.y + s.y] = sal;
+
+    } else if (buffer[p.x][p.y + s.y] == 0 and
+               buffer[p.x + (s.x - 1)][p.y + s.y] not_eq 0) {
+
+        if (s.x == 2) {
+            buffer[p.x + (s.x - 2)][p.y + s.y] = sar;
+        } else if (buffer[p.x + (s.x - 2)][p.y + s.y] == 0) {
+            buffer[p.x + (s.x - 2)][p.y + s.y] = sar;
+        }
+
+    } else if (buffer[p.x][p.y + s.y] == 0 and
+               buffer[p.x + (s.x - 1)][p.y + s.y] == 0) {
+        for (int x = p.x; x < p.x + s.x; ++x) {
+            for (int y = p.y + s.y; y < 15; ++y) {
+                if (buffer[x][y] and buffer[x][y]) {
+                    break;
+                }
+
+                if (placed_strut) {
+                    buffer[x][y] = strut;
+                } else {
+                    buffer[x][y] = strut_t;
+                    placed_strut = true;
+                }
+            }
+            placed_strut = false;
+        }
+    }
 }
 
 

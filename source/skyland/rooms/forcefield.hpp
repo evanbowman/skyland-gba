@@ -23,6 +23,11 @@ public:
     void render_interior(App& app, u8 buffer[16][16]) override;
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
+    void render_scaffolding(App& app, u8 buffer[16][16])
+    {
+        // Forcefields float; no scaffolding.
+    }
+
 
     void plot_walkable_zones(App& app, bool matrix[16][16]) override
     {

@@ -926,9 +926,13 @@ void Island::repaint(Platform& pfrm, App& app)
         }
     }
 
+    for (auto& room : rooms()) {
+        room->render_scaffolding(app, buffer);
+    }
+
     plot_rooms(matrix);
 
-    Buffer<u8, terrain_.capacity()> chimney_locs;
+    Buffer<Vec2<u8>, terrain_.capacity()> chimney_locs;
 
     has_radar_ = false;
     manufactory_count_ = 0;
@@ -937,7 +941,7 @@ void Island::repaint(Platform& pfrm, App& app)
     offensive_capabilities_ = 0;
     for (auto& room : rooms_) {
         if ((*room->metaclass())->properties() & RoomProperties::has_chimney) {
-            chimney_locs.push_back(room->position().x);
+            chimney_locs.push_back(room->position());
         }
         auto metac = room->metaclass();
         if (str_cmp((*metac)->name(), "radar") == 0) {
@@ -971,11 +975,21 @@ void Island::repaint(Platform& pfrm, App& app)
             rooms_plot_.set(x, y, matrix[x][y]);
 
             if (matrix[x][y] == 0 and y < 15 and matrix[x][y + 1] == 1) {
-                buffer[x][y] = Tile::roof_plain;
+                bool block_chimney = false;
+                if (buffer[x][y] == Tile::strut) {
+                    block_chimney = true;
+                    buffer[x][y] = Tile::roof_strut;
+                } else if (buffer[x][y] == Tile::strut_top) {
+                    block_chimney = true;
+                    buffer[x][y] = Tile::roof_strut_joined;
+                } else {
+                    buffer[x][y] = Tile::roof_plain;
+                }
+
                 bool placed_chimney_this_tile = false;
-                if (not placed_chimney and y > 5) {
+                if (not block_chimney and not placed_chimney and y > 5) {
                     for (auto& loc : chimney_locs) {
-                        if (loc == x) {
+                        if (loc.x == x and loc.y >= y) {
                             buffer[x][y] = Tile::roof_chimney;
                             chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
                             placed_chimney = true;
@@ -995,14 +1009,14 @@ void Island::repaint(Platform& pfrm, App& app)
                         flag_pos_ = {x, u8(y - 1)};
                     }
                 }
-            } else if (y == 14 and matrix[x][y] == 0 and
+            } else if (y == 14 and buffer[x][y] == 0 and
                        x < (int)terrain_.size()) {
                 buffer[x][y] = Tile::grass;
             } else if (matrix[x][y] == 0 and matrix[x][y + 1] == 2) {
                 bool placed_chimney_this_tile = false;
                 if (not placed_chimney and y > 5) {
                     for (auto& loc : chimney_locs) {
-                        if (loc == x) {
+                        if (loc.x == x and loc.y >= y) {
                             buffer[x][y] = Tile::tin_chimney;
                             placed_chimney = true;
                             chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
