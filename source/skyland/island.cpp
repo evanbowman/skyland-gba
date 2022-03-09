@@ -960,6 +960,12 @@ void Island::repaint(Platform& pfrm, App& app)
         }
     }
 
+    std::sort(chimney_locs.begin(),
+              chimney_locs.end(),
+              [&](const auto& lhs, const auto& rhs) {
+                  return lhs.y < rhs.y;
+              });
+
     chimney_loc_.reset();
 
     bool placed_flag = false;
@@ -1004,7 +1010,7 @@ void Island::repaint(Platform& pfrm, App& app)
                 // NOTE: when placing a flag, we need to make sure that the slot
                 // above the current tile is empty, because the flag is two
                 // tiles tall.
-                if (y > 0 and matrix[x][y - 1] == 0) {
+                if (y > 0 and matrix[x][y - 1] == 0 and buffer[x][y - 2] == 0) {
                     if (not placed_chimney_this_tile and show_flag_ and
                         not placed_flag and y > 5) {
                         placed_flag = true;
@@ -1030,7 +1036,8 @@ void Island::repaint(Platform& pfrm, App& app)
                 }
                 if (y > 0 and matrix[x][y - 1] == 0) {
                     if (not placed_chimney_this_tile and show_flag_ and
-                        not placed_flag and y > 1 and matrix[x][y - 1] == 0) {
+                        not placed_flag and y > 1 and matrix[x][y - 1] == 0 and
+                        buffer[x][y - 1] == 1) {
                         if (auto room = get_room({x, (u8)(y + 1)})) {
                             if ((*room->metaclass())->properties() &
                                     RoomProperties::flag_mount and
