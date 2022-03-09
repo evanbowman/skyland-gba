@@ -982,6 +982,10 @@ void Island::repaint(Platform& pfrm, App& app)
                 } else if (buffer[x][y] == Tile::strut_top) {
                     block_chimney = true;
                     buffer[x][y] = Tile::roof_strut_joined;
+                } else if (buffer[x][y] == Tile::scaffolding_angled_l or
+                           buffer[x][y] == Tile::scaffolding_angled_r) {
+                    block_chimney = true;
+                    buffer[x][y] = Tile::roof_strut_joined;
                 } else {
                     buffer[x][y] = Tile::roof_plain;
                 }
