@@ -680,9 +680,9 @@ void Room::render_scaffolding(App& app, u8 buffer[16][16])
     }
 
     if (buffer[p.x][p.y + s.y] not_eq 0 and
-        buffer[p.x + (s.x - 1)][p.y + s.y] == 0) {
+        buffer[p.x + 1][p.y + s.y] == 0) {
 
-        buffer[p.x + (s.x - 1)][p.y + s.y] = sal;
+        buffer[p.x + 1][p.y + s.y] = sal;
 
     } else if (buffer[p.x][p.y + s.y] == 0 and
                buffer[p.x + (s.x - 1)][p.y + s.y] not_eq 0) {
