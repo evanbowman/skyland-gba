@@ -20,6 +20,7 @@
 #include "skyland/rooms/ionFizzler.hpp"
 #include "skyland/rooms/manufactory.hpp"
 #include "skyland/rooms/masonry.hpp"
+#include "skyland/rooms/mirrorHull.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/nemesis.hpp"
 #include "skyland/rooms/palm.hpp"
@@ -220,6 +221,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         PoweredHull,
                                         IonFizzler,
                                         Radiator,
+                                        MirrorHull,
                                         // weapons
                                         Cannon,
                                         IonCannon,

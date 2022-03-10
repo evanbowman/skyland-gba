@@ -125,32 +125,39 @@ void Flak::destroy(Platform& pfrm, App& app, bool explosion)
 
 
     if (explosion) {
-        big_explosion(pfrm, app, sprite_.get_position());
-
-        auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Float>& pos) {
-            auto e = app.alloc_entity<SmokePuff>(
-                pfrm, rng::sample<48>(pos, rng::utility_state), 61);
-
-            if (e) {
-                app.effects().push(std::move(e));
-            }
-        };
-
-        flak_smoke(pfrm, app, sprite_.get_position());
-        flak_smoke(pfrm, app, sprite_.get_position());
-
-
-        app.on_timeout(
-            pfrm,
-            milliseconds(190),
-            [pos = sprite_.get_position(), flak_smoke](Platform& pf, App& app) {
-                flak_smoke(pf, app, pos);
-            });
+        explode(pfrm, app);
     }
 
     app.camera()->shake(8);
 
     kill();
+}
+
+
+
+void Flak::explode(Platform& pfrm, App& app)
+{
+    big_explosion(pfrm, app, sprite_.get_position());
+
+    auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Float>& pos) {
+        auto e = app.alloc_entity<SmokePuff>(
+            pfrm, rng::sample<48>(pos, rng::utility_state), 61);
+
+        if (e) {
+            app.effects().push(std::move(e));
+        }
+    };
+
+    flak_smoke(pfrm, app, sprite_.get_position());
+    flak_smoke(pfrm, app, sprite_.get_position());
+
+
+    app.on_timeout(
+        pfrm,
+        milliseconds(190),
+        [pos = sprite_.get_position(), flak_smoke](Platform& pf, App& app) {
+            flak_smoke(pf, app, pos);
+        });
 }
 
 
@@ -280,14 +287,19 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
-
-    destroy(pfrm, app, true);
-
     Flak::burst(pfrm, app, sprite_.get_position(), room);
 
-    destroyed_ = true;
-
-    // sound_fizzle.play(pfrm, 1);
+    if (str_eq(room.name(), "mirror-hull")) {
+        explode(pfrm, app);
+        app.camera()->shake(8);
+        step_vector_.x *= -1;
+        step_vector_.y *= -1;
+        source_ = room.parent();
+        origin_tile_ = room.position();
+    } else {
+        destroyed_ = true;
+        destroy(pfrm, app, true);
+    }
 }
 
 

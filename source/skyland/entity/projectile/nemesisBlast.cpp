@@ -112,16 +112,22 @@ void NemesisBlast::on_collision(Platform& pfrm, App& app, Room& room)
 
     timestream_record_destroyed(pfrm, app);
 
-    kill();
-    app.camera()->shake(2 + variant_ * 6);
-    if (variant_ < 2) {
-        medium_explosion(pfrm, app, sprite_.get_position());
-    } else {
-        big_explosion(pfrm, app, sprite_.get_position());
-    }
-
-
     room.apply_damage(pfrm, app, damage());
+
+    if (str_eq(room.name(), "mirror-hull")) {
+        step_vector_.x *= -1;
+        step_vector_.y *= -1;
+        source_ = room.parent();
+        origin_tile_ = room.position();
+    } else {
+        kill();
+        app.camera()->shake(2 + variant_ * 6);
+        if (variant_ < 2) {
+            medium_explosion(pfrm, app, sprite_.get_position());
+        } else {
+            big_explosion(pfrm, app, sprite_.get_position());
+        }
+    }
 
     if (room.health()) {
         sound_impact.play(pfrm, 1);

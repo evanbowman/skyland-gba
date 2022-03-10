@@ -127,6 +127,8 @@ struct Tile
         strut_top,
         roof_strut,
         roof_strut_joined,
+        soil,
+        mirror_hull,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -240,6 +242,8 @@ struct InteriorTile
         strut_top,
         roof_strut,
         roof_strut_joined,
+        soil,
+        mirror_hull,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

@@ -218,6 +218,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/pluginRoom.cpp
   ${SOURCE_DIR}/skyland/rooms/forcefield.cpp
   ${SOURCE_DIR}/skyland/rooms/bronzeHull.cpp
+  ${SOURCE_DIR}/skyland/rooms/mirrorHull.cpp
   ${SOURCE_DIR}/skyland/rooms/poweredHull.cpp
   ${SOURCE_DIR}/skyland/rooms/manufactory.cpp
   ${SOURCE_DIR}/skyland/rooms/missileSilo.cpp

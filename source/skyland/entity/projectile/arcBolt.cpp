@@ -154,8 +154,6 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
-    destroy(pfrm, app, true);
-
     struct Temp
     {
         u8 matrix_[16][16];
@@ -204,6 +202,15 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
 
     if (room.health()) {
         sound_impact.play(pfrm, 1);
+    }
+
+    if (str_eq(room.name(), "mirror-hull")) {
+        step_vector_.x *= -1;
+        step_vector_.y *= -1;
+        source_ = room.parent();
+        origin_tile_ = room.position();
+    } else {
+        destroy(pfrm, app, true);
     }
 }
 

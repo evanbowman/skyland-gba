@@ -54,6 +54,8 @@ private:
 
     void destroy(Platform& pfrm, App& app, bool explosion);
 
+    void explode(Platform& pfrm, App& app);
+
     Microseconds flicker_time_ = 0;
 
     bool destroyed_ = false;

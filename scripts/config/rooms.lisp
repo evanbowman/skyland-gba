@@ -10,6 +10,7 @@
                ; (1) (2)  (3)
  '((hull         240 300  0)
    (bronze-hull  240 300  0)
+   (mirror-hull  120 500  0)
    (forcefield   240 300  40)
    (ion-fizzler  40  200  20)
    (cannon       200 1000 34)
