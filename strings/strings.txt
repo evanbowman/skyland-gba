@@ -4,6 +4,7 @@ arc-gun
 banana-plant
 bridge
 bronze-hull
+stacked-hull
 mirror-hull
 bulkhead-door
 cannon
@@ -86,6 +87,7 @@ Ni!
 Deals ion damage. Ion bursts pass harmlessly through most rooms, but deal % damage every %.%s to forcefields, reactors, etc..
 Deals % damage every %.% seconds, but unlike other weapons, damage chains to all identical neighboring structures.
 Hull, but made out of bronze! Pretty, huh?
+Takes 50% less damage from missiles, 50% more damage from non-missiles.
 Reflects projectiles (except missiles!). Still takes damage, though.
 An unusual cannon-type weapon. Damage starts at %, and rises to % when health drops to 1/2, % when health drops below 1/4. %.% sec reload.
 An essential defensive structure.
