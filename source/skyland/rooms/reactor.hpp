@@ -22,6 +22,9 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
+    void finalize(Platform& pfrm, App& app) override;
+
+
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 

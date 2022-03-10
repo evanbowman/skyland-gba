@@ -1,6 +1,7 @@
 #include "core.hpp"
 #include "platform/platform.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/entity/explosion/coreExplosion.hpp"
 
 
 
@@ -25,6 +26,17 @@ Core::Core(Island* parent, const Vec2<u8>& position)
 void Core::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
+}
+
+
+
+void Core::finalize(Platform& pfrm, App& app)
+{
+    Room::finalize(pfrm, app);
+
+    if (health() == 0) {
+        core_explosion(pfrm, app, center());
+    }
 }
 
 
