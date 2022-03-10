@@ -296,6 +296,7 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
         step_vector_.y *= -1;
         source_ = room.parent();
         origin_tile_ = room.position();
+        timer_ = 0;
     } else {
         destroyed_ = true;
         destroy(pfrm, app, true);
