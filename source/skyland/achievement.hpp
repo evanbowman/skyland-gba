@@ -39,6 +39,7 @@ enum Achievement : u8 {
     triage,
     banana_man,
     ancient_weapon,
+    ship_of_theseus,
     count
 };
 

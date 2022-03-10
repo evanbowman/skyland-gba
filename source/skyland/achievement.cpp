@@ -163,6 +163,52 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[ancient_weapon].reward_), awarded);
+     }},
+
+    {"Ship of Theseus",
+     "Copy a castle with at least twenty structures!",
+     "switch",
+     [](Platform& pfrm, App& app) {
+         if (not app.opponent_island()) {
+             return false;
+         }
+
+         auto& p = app.player_island();
+         auto& o = *app.opponent_island();
+
+         if (p.rooms().size() < 20) {
+             return false;
+         }
+
+         // At all costs, try to avoid a strong comparison between the two
+         // islands.
+         if (p.rooms().size() not_eq o.rooms().size() or
+             p.power_supply() not_eq o.power_supply() or
+             p.power_drain() not_eq o.power_drain() or
+             p.core_count() not_eq o.core_count() or
+             p.workshop_count() not_eq o.workshop_count()) {
+
+             return false;
+         }
+
+         for (auto& room : o.rooms()) {
+             auto x = room->position().x;
+             // Flip over the x-axis.
+             x = p.terrain().size() - 1 - x;
+
+             if (auto other = p.get_room({x, room->position().y})) {
+                 if (not str_eq(other->name(), room->name())) {
+                     return false;
+                 }
+             } else {
+                 return false;
+             }
+         }
+
+         return true;
+     },
+     [](Platform& pfrm, App&, bool awarded) {
+         set_enabled(metaclass_index(info[ship_of_theseus].reward_), awarded);
      }}};
 
 

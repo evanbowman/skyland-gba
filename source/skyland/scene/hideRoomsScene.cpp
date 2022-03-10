@@ -90,7 +90,7 @@ void HideRoomsScene::repaint(Platform& pfrm)
     put(index_ + 1, 197, 10, false);
     put(index_ + 2, 213, 15, false);
 
-    for (int x = 1; x < calc_screen_tiles(pfrm).x - 1; ++x) {
+    for (int x = 2; x < calc_screen_tiles(pfrm).x - 2; ++x) {
         pfrm.set_tile(Layer::overlay, x, 8, 377);
     }
 }

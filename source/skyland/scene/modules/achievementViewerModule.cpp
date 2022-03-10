@@ -114,6 +114,8 @@ void AchievementViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
     // top of the achievements page.
 
     pfrm.speaker().set_music_volume(10);
+
+    Text::platform_retain_alphabet(pfrm);
 }
 
 
