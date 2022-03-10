@@ -1,8 +1,8 @@
 #pragma once
 
-#include "worldScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
+#include "worldScene.hpp"
 
 
 
@@ -13,11 +13,8 @@ namespace skyland {
 class SelectWeaponGroupScene : public ActiveWorldScene
 {
 public:
-
-    SelectWeaponGroupScene(DeferredScene cancel) :
-        cancel_(cancel)
+    SelectWeaponGroupScene(DeferredScene cancel) : cancel_(cancel)
     {
-
     }
 
 
@@ -31,10 +28,8 @@ public:
 
         text_->append(" ");
 
-        pfrm.set_tile(Layer::overlay,
-                      text_->len(),
-                      calc_screen_tiles(pfrm).y - 1,
-                      395);
+        pfrm.set_tile(
+            Layer::overlay, text_->len(), calc_screen_tiles(pfrm).y - 1, 395);
 
         pfrm.set_tile(Layer::overlay,
                       text_->len() + 1,
@@ -64,9 +59,8 @@ public:
 
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (auto next = ActiveWorldScene::update(pfrm, app, delta)) {
             return next;
@@ -75,7 +69,8 @@ public:
         if (app.player().key_down(pfrm, Key::up)) {
             for (auto& room : app.player_island().rooms()) {
                 if (room->group() == Room::Group::one) {
-                    if (auto scene = room->select(pfrm, app, room->position())) {
+                    if (auto scene =
+                            room->select(pfrm, app, room->position())) {
                         return scene;
                     }
                 }
@@ -84,7 +79,8 @@ public:
         } else if (app.player().key_down(pfrm, Key::right)) {
             for (auto& room : app.player_island().rooms()) {
                 if (room->group() == Room::Group::two) {
-                    if (auto scene = room->select(pfrm, app, room->position())) {
+                    if (auto scene =
+                            room->select(pfrm, app, room->position())) {
                         return scene;
                     }
                 }
@@ -93,7 +89,8 @@ public:
         } else if (app.player().key_down(pfrm, Key::left)) {
             for (auto& room : app.player_island().rooms()) {
                 if (room->group() == Room::Group::three) {
-                    if (auto scene = room->select(pfrm, app, room->position())) {
+                    if (auto scene =
+                            room->select(pfrm, app, room->position())) {
                         return scene;
                     }
                 }
@@ -113,4 +110,4 @@ private:
 
 
 
-}
+} // namespace skyland

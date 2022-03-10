@@ -962,9 +962,7 @@ void Island::repaint(Platform& pfrm, App& app)
 
     std::sort(chimney_locs.begin(),
               chimney_locs.end(),
-              [&](const auto& lhs, const auto& rhs) {
-                  return lhs.y < rhs.y;
-              });
+              [&](const auto& lhs, const auto& rhs) { return lhs.y < rhs.y; });
 
     chimney_loc_.reset();
 

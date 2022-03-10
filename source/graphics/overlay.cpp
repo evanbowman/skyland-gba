@@ -3,6 +3,7 @@
 #include "string.hpp"
 
 
+
 u32 integer_text_length(int n)
 {
     std::array<char, 40> buffer = {0};
@@ -266,6 +267,7 @@ void Text::append(int num, const OptColors& colors)
     locale_num2str(num, buffer.data(), 10);
     this->append(buffer.data(), colors);
 }
+
 
 
 SmallIcon::SmallIcon(Platform& pfrm, int tile, const OverlayCoord& coord)

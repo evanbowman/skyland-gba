@@ -145,6 +145,7 @@ enum class SystemString {
     start_menu_resume,
     start_menu_glossary,
     start_menu_hibernate,
+    start_menu_disable_rooms,
     start_menu_save_sandbox,
     start_menu_load_sandbox,
     start_menu_quit,
@@ -224,6 +225,9 @@ enum class SystemString {
 
     misc_hibernate_message,
     misc_dlc_message,
+
+    __NOTICE__,
+    patchfix_retain_alphabet,
 };
 
 

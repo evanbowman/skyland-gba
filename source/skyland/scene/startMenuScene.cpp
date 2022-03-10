@@ -1,5 +1,6 @@
 #include "startMenuScene.hpp"
 #include "hibernateScene.hpp"
+#include "hideRoomsScene.hpp"
 #include "modules/glossaryViewerModule.hpp"
 #include "readyScene.hpp"
 #include "saveSandboxScene.hpp"
@@ -35,7 +36,7 @@ void StartMenuScene::add_option(Platform& pfrm,
                                 DeferredScene on_click,
                                 TransitionMode transition_mode)
 {
-    int start_y = 4;
+    int start_y = 3;
 
     u8 margin = centered_text_margins(pfrm, utf8::len(str));
 
@@ -83,6 +84,17 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                    SYSTR(start_menu_hibernate)->c_str(),
                    scene_pool::make_deferred_scene<HibernateScene>(),
                    fade_sweep);
+
+        add_option(
+            pfrm,
+            SYSTR(start_menu_disable_rooms)->c_str(),
+            [&pfrm] {
+                auto next = scene_pool::alloc<HideRoomsScene>([&pfrm]() {
+                    return scene_pool::alloc<StartMenuScene>(pfrm, 1);
+                });
+                return next;
+            },
+            fade_sweep);
 
         switch (app.game_mode()) {
         case App::GameMode::sandbox:

@@ -988,7 +988,8 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         const bool explicitly_disabled =
             (app.game_mode() == App::GameMode::tutorial and
              meta->properties() & RoomProperties::disabled_in_tutorials) or
-            (meta->properties() & RoomProperties::not_constructible);
+            (meta->properties() & RoomProperties::not_constructible) or
+            (app.game_mode() not_eq App::GameMode::tutorial and is_hidden(i));
 
 
         if (not explicitly_disabled and meta->size().x <= avail_x_space and

@@ -101,6 +101,8 @@ void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.screen().fade(1.f);
 
     pfrm.speaker().set_music_volume(10);
+
+    Text::platform_retain_alphabet(pfrm);
 }
 
 

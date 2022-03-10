@@ -207,6 +207,7 @@ public:
 
     RoomMeta table_[sizeof...(Rooms) + plugin_slots];
     Bitvector<sizeof...(Rooms) + plugin_slots> enabled_rooms_;
+    Bitvector<sizeof...(Rooms) + plugin_slots> hidden_rooms_;
 };
 
 
@@ -283,6 +284,24 @@ void set_enabled(MetaclassIndex index, bool enabled)
     }
 
     __metatable().enabled_rooms_.set(index, enabled);
+}
+
+
+
+bool is_hidden(MetaclassIndex index)
+{
+    return __metatable().hidden_rooms_.get(index);
+}
+
+
+
+void set_hidden(MetaclassIndex index, bool hidden)
+{
+    if (index >= plugin_rooms_begin()) {
+        Platform::fatal("Attempt to manually set enabled bit for plugin room!");
+    }
+
+    __metatable().hidden_rooms_.set(index, hidden);
 }
 
 

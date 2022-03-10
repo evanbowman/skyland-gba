@@ -1,6 +1,7 @@
 #include "skyland.hpp"
 #include "achievement.hpp"
 #include "globals.hpp"
+#include "graphics/overlay.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
 #include "platform/ram_filesystem.hpp"
@@ -413,3 +414,14 @@ KeyCallbackProcessor key_callback_processor;
 
 
 } // namespace skyland
+
+
+
+void Text::platform_retain_alphabet(Platform& pfrm)
+{
+    Text t(pfrm, OverlayCoord{0, calc_screen_tiles(pfrm).y});
+    t.assign(
+        skyland::loadstr(pfrm, skyland::SystemString::patchfix_retain_alphabet)
+            ->c_str());
+    t.__detach();
+}

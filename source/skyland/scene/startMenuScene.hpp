@@ -42,7 +42,7 @@ private:
     } state_ = State::init;
 
 
-    static constexpr const u32 option_count = 6;
+    static constexpr const u32 option_count = 7;
 
 
     enum TransitionMode {
