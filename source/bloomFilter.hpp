@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bitvector.hpp"
+#include "fnv.hpp"
 
 
 
@@ -39,17 +40,6 @@ public:
 
 
 private:
-    u32 fnv32(const char* data, u32 len) const
-    {
-        u32 hash = 2166136261U, i;
-
-        for (i = 0; i < len; i++) {
-            hash = hash ^ (data[i]);
-            hash = hash * 16777619;
-        }
-
-        return hash;
-    }
 
 
     u32 murmurhash(const char* key, u32 len, u32 seed) const
