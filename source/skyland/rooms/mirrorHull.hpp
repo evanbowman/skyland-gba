@@ -30,7 +30,7 @@ public:
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
     {
-        buffer += SYSTR(description_bronze_hull)->c_str();
+        buffer += SYSTR(description_mirror_hull)->c_str();
     }
 
 
