@@ -747,6 +747,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
 void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
 {
     auto& hull = require_metaclass("hull");
+    auto& mhull = require_metaclass("mirror-hull");
     auto& ehull = require_metaclass("energized-hull");
 
     int missile_count = 0;
@@ -819,10 +820,21 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
                     continue;
                 }
 
+                bool place_mhull = false;
+                if (difficulty_ > 0 and levelgen_enemy_count_ > 8) {
+                    place_mhull = rng::choice<8>(rng::critical_state) == 0;
+                }
+
                 if ((*right->metaclass())->category() not_eq
                         Room::Category::wall and
                     not app.opponent_island()->rooms_plot().get(x, y)) {
-                    hull->create(pfrm, app, app.opponent_island(), {x, y});
+
+                    if (place_mhull) {
+                        mhull->create(pfrm, app, app.opponent_island(), {x, y});
+                    } else {
+                        hull->create(pfrm, app, app.opponent_island(), {x, y});
+                    }
+
                 }
             }
         }
