@@ -166,8 +166,8 @@ static const AchievementInfo info[Achievement::count] = {
      }},
 
     {"Ship of Theseus",
-     "Copy a castle with at least twenty structures!",
-     "switch",
+     "Copy an enemy castle with at least 20 blocks! (mirrored)",
+     "mirror-hull",
      [](Platform& pfrm, App& app) {
          if (not app.opponent_island()) {
              return false;
