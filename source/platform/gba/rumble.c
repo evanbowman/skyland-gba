@@ -201,8 +201,9 @@ void rumble_update()
     if (gbp_configured) {
         gbp_serial_start();
     } else {
-        GPIO_PORT_DIRECTION = 1 << 3;
-        GPIO_PORT_DATA = (rumble_state == rumble_start) << 3;
+        /* Uncomment to enable cartridge rumble: */
+        /* GPIO_PORT_DIRECTION = 1 << 3; */
+        /* GPIO_PORT_DATA = (rumble_state == rumble_start) << 3; */
     }
 }
 
