@@ -315,6 +315,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/sound_bell.s
     ${DATA_DIR}/sound_thud.s
     ${DATA_DIR}/sound_click.s
+    ${DATA_DIR}/sound_cling.s
     ${DATA_DIR}/sound_heart.s
     ${DATA_DIR}/sound_dodge.s
     ${DATA_DIR}/sound_creak.s

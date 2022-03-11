@@ -200,9 +200,6 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
         room->apply_damage(pfrm, app, arcbolt_damage);
     }
 
-    if (room.health()) {
-        sound_impact.play(pfrm, 1);
-    }
 
     if (str_eq(room.name(), "mirror-hull")) {
         step_vector_.x *= -1;
@@ -210,8 +207,12 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
+        pfrm.speaker().play_sound("cling", 2);
     } else {
         destroy(pfrm, app, true);
+        if (room.health()) {
+            sound_impact.play(pfrm, 1);
+        }
     }
 }
 

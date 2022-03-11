@@ -136,18 +136,18 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
 
     room.apply_damage(pfrm, app, cannonball_damage);
 
-    if (room.health()) {
-        sound_impact.play(pfrm, 1);
-    }
-
     if (str_eq(room.name(), "mirror-hull")) {
         step_vector_.x *= -1;
         step_vector_.y *= -1;
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
+        pfrm.speaker().play_sound("cling", 2);
     } else {
         this->destroy(pfrm, app, true);
+        if (room.health()) {
+            sound_impact.play(pfrm, 1);
+        }
     }
 }
 

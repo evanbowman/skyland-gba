@@ -120,6 +120,7 @@ void NemesisBlast::on_collision(Platform& pfrm, App& app, Room& room)
         source_ = room.parent();
         origin_tile_ = room.position();
         timer_ = 0;
+        pfrm.speaker().play_sound("cling", 2);
     } else {
         kill();
         app.camera()->shake(2 + variant_ * 6);
@@ -128,10 +129,9 @@ void NemesisBlast::on_collision(Platform& pfrm, App& app, Room& room)
         } else {
             big_explosion(pfrm, app, sprite_.get_position());
         }
-    }
-
-    if (room.health()) {
-        sound_impact.play(pfrm, 1);
+        if (room.health()) {
+            sound_impact.play(pfrm, 1);
+        }
     }
 }
 
