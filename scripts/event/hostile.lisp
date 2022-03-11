@@ -24,7 +24,7 @@
        (push 'enemies-seen 0)
        (lambda (eval-file "/scripts/event/hostile/0/0.lisp")))
    ;; Sometimes, procedurally generate an enemy. More frequently at lower levels.
-   (if (< (choice 100) (get '(50 30 20 10) (zone)))
+   (if (< (choice 100) (get '(50 35 25 10) (zone)))
        (progn
          (push 'enemies-seen -1)
          procgen)
