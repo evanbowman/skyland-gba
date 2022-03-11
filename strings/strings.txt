@@ -19,6 +19,7 @@ hull
 infirmary
 ion-cannon
 ion-fizzler
+lemon-tree
 manufactory
 masonry
 missile-silo
@@ -82,6 +83,7 @@ A weapon for targeting the roof of an enemy fortress. Deals % damage every %.% s
 Slightly lowers the construction cost of all rooms.
 Scans the interior of other castles! Radars improve transporter accuracy, allowing transporters to select an exact position on another island.
 Cancels all ion damage on contact. Useful for protecting vulnerable structures, such as reactors or forcefields, from ion cannons.
+...
 Plays chiptunes! Connect up to four synth blocks to the right of the speaker block! When finished playing, activates whatever block is placed beneath it, if any.
 Ni!
 Deals ion damage. Ion bursts pass harmlessly through most rooms, but deal % damage every %.%s to forcefields, reactors, etc..

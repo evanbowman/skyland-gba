@@ -130,6 +130,8 @@ struct Tile
         soil,
         mirror_hull,
         stacked_hull,
+        lemon_tree_1,
+        lemon_tree_2,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -246,6 +248,8 @@ struct InteriorTile
         soil,
         mirror_hull,
         stacked_hull,
+        lemon_tree_1,
+        lemon_tree_2,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

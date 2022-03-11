@@ -209,6 +209,16 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform& pfrm, App&, bool awarded) {
          set_enabled(metaclass_index(info[ship_of_theseus].reward_), awarded);
+     }},
+
+    {"Lemons Rescued!",
+     "...",
+     "lemon-tree",
+     [](Platform&, App& app) {
+         return is_enabled(metaclass_index(info[lemons].reward_));
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[lemons].reward_), awarded);
      }}};
 
 

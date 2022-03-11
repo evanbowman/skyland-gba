@@ -34,6 +34,7 @@
    (arc-gun      240 1700 40)
    (nemesis      200 1800 40)
    (coconut-palm 1   1    0)
+   (lemon-tree   1   1    0)
    (sunflower    1   1    0)
    (shrubbery    1   1    0)
    (fountain     1   1    0)

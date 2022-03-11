@@ -40,6 +40,7 @@ enum Achievement : u8 {
     banana_man,
     ancient_weapon,
     ship_of_theseus,
+    lemons,
     count
 };
 

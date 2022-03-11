@@ -140,13 +140,21 @@ void AchievementViewerModule::exit(Platform& pfrm, App& app, Scene& next)
 ScenePtr<Scene>
 AchievementViewerModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (app.player().key_down(pfrm, Key::right) and
+
+    app.player().update(pfrm, app, delta);
+
+    auto test_key = [&](Key k) {
+        return app.player().test_key(
+            pfrm, k, milliseconds(500), milliseconds(100));
+    };
+
+    if (test_key(Key::right) and
         // -1 because we skip the first Achievement::none enumeration
         page_ < achievements::count - 2) {
         load_page(pfrm, app, ++page_);
     }
 
-    if (app.player().key_down(pfrm, Key::left) and page_ > 0) {
+    if (test_key(Key::left) and page_ > 0) {
         load_page(pfrm, app, --page_);
     }
 

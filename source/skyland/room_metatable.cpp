@@ -18,6 +18,7 @@
 #include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/ionFizzler.hpp"
+#include "skyland/rooms/lemonTree.hpp"
 #include "skyland/rooms/manufactory.hpp"
 #include "skyland/rooms/masonry.hpp"
 #include "skyland/rooms/mirrorHull.hpp"
@@ -255,6 +256,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Bridge,
                                         Fountain,
                                         Palm,
+                                        LemonTree,
                                         Sunflower,
                                         Shrubbery,
                                         BananaPlant,
