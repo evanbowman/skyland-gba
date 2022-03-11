@@ -58,7 +58,7 @@ public:
     }
 
 
-    void display(Platform::Screen& screen)
+    void display(Platform::Screen& screen) override
     {
         for (auto& c : characters()) {
             const auto& pos = c->sprite().get_position();
@@ -69,6 +69,14 @@ public:
             }
         }
     }
+
+
+    void display_on_hover(Platform::Screen& screen,
+                          App& app,
+                          const Vec2<u8>& cursor) override
+    {
+    }
+
 
 
     static u32 properties()

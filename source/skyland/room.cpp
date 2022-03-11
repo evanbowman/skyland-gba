@@ -132,6 +132,17 @@ void Room::display_on_hover(Platform::Screen& screen,
                             App& app,
                             const Vec2<u8>& cursor)
 {
+    if (not parent_->interior_visible() and parent_ == &player_island(app)) {
+        for (auto& c : characters()) {
+            const auto& pos = c->sprite().get_position();
+            auto spr = c->sprite();
+            spr.set_mix({custom_color(0x28457b), 200});
+            spr.set_alpha(Sprite::Alpha::translucent);
+            if (pos.y < 700) {
+                screen.draw(spr);
+            }
+        }
+    }
 }
 
 
