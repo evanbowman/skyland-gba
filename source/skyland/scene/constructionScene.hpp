@@ -44,6 +44,9 @@ public:
     void exit(Platform&, App&, Scene& next) override;
 
 
+    bool camera_update_check_key(Platform& pfrm, App& app) override;
+
+
 private:
     enum class State {
         select_loc,

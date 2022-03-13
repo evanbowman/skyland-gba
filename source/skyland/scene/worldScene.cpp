@@ -256,6 +256,17 @@ static u32 format_power_fraction(Power avail, Power used)
 
 
 
+bool WorldScene::camera_update_check_key(Platform& pfrm, App& app)
+{
+    return app.player().key_pressed(pfrm, Key::left) or
+        app.player().key_pressed(pfrm, Key::right) or
+        app.player().key_pressed(pfrm, Key::up) or
+        app.player().key_pressed(pfrm, Key::down) or
+        app.player().key_pressed(pfrm, Key::select);
+}
+
+
+
 ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (not pfrm.network_peer().is_connected()) {
@@ -405,12 +416,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (app.player().key_pressed(pfrm, Key::left) or
-        app.player().key_pressed(pfrm, Key::right) or
-        app.player().key_pressed(pfrm, Key::up) or
-        app.player().key_pressed(pfrm, Key::down) or
-        app.player().key_pressed(pfrm, Key::select)) {
-
+    if (camera_update_check_key(pfrm, app)) {
         camera_update_timer_ = milliseconds(500);
     }
 

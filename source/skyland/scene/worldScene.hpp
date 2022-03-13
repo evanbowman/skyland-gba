@@ -57,6 +57,9 @@ public:
     void set_gamespeed(Platform& pfrm, App& app, GameSpeed speed);
 
 
+    virtual bool camera_update_check_key(Platform& pfrm, App& app);
+
+
 protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;

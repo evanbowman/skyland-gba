@@ -4,12 +4,14 @@
 #include "globals.hpp"
 #include "keyComboScene.hpp"
 #include "lispReplScene.hpp"
+#include "modifierKeyHintScene.hpp"
 #include "readyScene.hpp"
 #include "salvageDroneScene.hpp"
 #include "salvageRoomScene.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/skyland.hpp"
+#include "startMenuScene.hpp"
 
 
 
@@ -107,9 +109,19 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (app.player().key_pressed(pfrm, Key::start)) {
+
+        if (app.player().key_down(pfrm, Key::start)) {
+            await_start_key_ = true;
+        }
+
+        if (app.player().key_held(Key::start, milliseconds(800))) {
+            return scene_pool::alloc<ModifierKeyHintScene>();
+        }
+
         if (auto scene = update_modifier_keys(pfrm, app)) {
             return scene;
         }
+
     } else {
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
@@ -156,6 +168,13 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 describe_room_timer_ = milliseconds(300);
                 sync_cursor();
             }
+        }
+
+        if (await_start_key_ and
+            app.player().key_up(pfrm, Key::start) and
+            app.game_mode() not_eq App::GameMode::multiplayer and
+            app.game_mode() not_eq App::GameMode::co_op) {
+            return scene_pool::alloc<StartMenuScene>(pfrm, 0);
         }
     }
 

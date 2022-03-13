@@ -44,6 +44,20 @@ static Sound sound_openbag("openbag");
 
 
 
+bool ConstructionScene::camera_update_check_key(Platform& pfrm, App& app)
+{
+    if (state_ == State::choose_building) {
+        return false;
+    }
+    return app.player().key_pressed(pfrm, Key::left) or
+        app.player().key_pressed(pfrm, Key::right) or
+        app.player().key_pressed(pfrm, Key::up) or
+        app.player().key_pressed(pfrm, Key::down) or
+        app.player().key_pressed(pfrm, Key::select);
+}
+
+
+
 static Coins get_cost(Island* island, const RoomMeta& meta)
 {
     Coins cost = meta->cost();

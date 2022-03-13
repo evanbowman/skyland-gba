@@ -137,7 +137,7 @@ deploy:
 launch drone: select position
 -- highscores --
 score
-modifier keys
+combos: START + _
 set weapon groups
 weapon group 1
 weapon group 2
