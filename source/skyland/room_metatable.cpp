@@ -27,6 +27,7 @@
 #include "skyland/rooms/palm.hpp"
 #include "skyland/rooms/plunderedRoom.hpp"
 #include "skyland/rooms/poweredHull.hpp"
+#include "skyland/rooms/pummeler.hpp"
 #include "skyland/rooms/radar.hpp"
 #include "skyland/rooms/radiator.hpp"
 #include "skyland/rooms/reactor.hpp"
@@ -230,6 +231,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         ArcGun,
                                         Nemesis,
                                         Decimator,
+                                        // Pummeler,
                                         MissileSilo,
                                         // factories
                                         Workshop,

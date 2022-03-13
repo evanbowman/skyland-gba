@@ -204,6 +204,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/flakGun.cpp
   ${SOURCE_DIR}/skyland/rooms/reactor.cpp
   ${SOURCE_DIR}/skyland/rooms/bulkhead.cpp
+  ${SOURCE_DIR}/skyland/rooms/pummeler.cpp
   ${SOURCE_DIR}/skyland/rooms/nemesis.cpp
   ${SOURCE_DIR}/skyland/rooms/radiator.cpp
   ${SOURCE_DIR}/skyland/rooms/workshop.cpp
@@ -228,6 +229,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/entity/projectile/flak.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/curveshot.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/nemesisBlast.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/arcBolt.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/ionBurst.cpp
