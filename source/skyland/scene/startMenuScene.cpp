@@ -177,7 +177,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::idle:
-        if (player(app).key_down(pfrm, Key::action_2)) {
+        if (player(app).key_down(pfrm, Key::action_2) or
+            player(app).key_down(pfrm, Key::start)) {
             state_ = State::clear;
         }
         if (player(app).key_down(pfrm, Key::action_1)) {

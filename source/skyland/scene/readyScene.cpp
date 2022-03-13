@@ -293,13 +293,18 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (app.player().key_up(pfrm, Key::start) and
+        if (await_start_key_ and
+            app.player().key_up(pfrm, Key::start) and
             app.game_mode() not_eq App::GameMode::multiplayer and
             app.game_mode() not_eq App::GameMode::co_op) {
             return scene_pool::alloc<StartMenuScene>(pfrm, 0);
         }
 
     } else /* start pressed */ {
+
+        if (app.player().key_down(pfrm, Key::start)) {
+            await_start_key_ = true;
+        }
 
         if (app.player().key_held(Key::start, milliseconds(800))) {
             return scene_pool::alloc<ModifierKeyHintScene>();

@@ -948,6 +948,18 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"coins-set",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+
+         auto app = interp_get_app();
+         app->set_coins(
+             *lisp::interp_get_pfrm(),
+             L_LOAD_INT(0));
+
+         return L_NIL;
+     }},
     {"coins-victory",
      [](int argc) { return L_INT(interp_get_app()->victory_coins()); }},
     {"eval-file",
