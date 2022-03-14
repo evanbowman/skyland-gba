@@ -224,6 +224,17 @@ enum class SystemString {
     sandbox_title,
     sandbox_prompt,
 
+    mt_title,
+    mt_hint,
+    mt_coop,
+    mt_vs,
+    mt_game_mode,
+    mt_prep_seconds,
+    mt_unhide_prep,
+    mt_coins,
+    mt_terrain_size,
+    mt_waiting,
+
     sf_description,
     sf_hint,
     sf_title,

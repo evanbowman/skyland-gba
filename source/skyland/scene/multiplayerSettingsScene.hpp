@@ -48,7 +48,7 @@ public:
 
 
 private:
-    void update_parameter(u8 line_num);
+    void update_parameter(Platform& pfrm, u8 line_num);
 
 
     void setup_vs_game(Platform& pfrm, App& app);
@@ -82,7 +82,7 @@ private:
 
     struct ParameterInfo
     {
-        const char* name_;
+        SystemString name_;
         int increment_;
         int lower_limit_;
         int upper_limit_;

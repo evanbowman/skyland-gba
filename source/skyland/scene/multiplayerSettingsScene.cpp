@@ -20,32 +20,32 @@ MultiplayerSettingsScene::ParamBuffer MultiplayerSettingsScene::vs_parameters_;
 const MultiplayerSettingsScene::ParameterInfo
     MultiplayerSettingsScene::param_info[decltype(vs_parameters_)::capacity()] =
         {
-            {"game mode", 1, 0, 1},
-            {"prep seconds", 5, 20, 10000},
-            {"unhide prep ", 1, 0, 1},
-            {"coins", 100, 1000, 10000000},
-            {"terrain size", 1, 3, 13},
+            {SystemString::mt_game_mode, 1, 0, 1},
+            {SystemString::mt_prep_seconds, 5, 20, 10000},
+            {SystemString::mt_unhide_prep, 1, 0, 1},
+            {SystemString::mt_coins, 100, 1000, 10000000},
+            {SystemString::mt_terrain_size, 1, 3, 13},
 };
 
 
 
 void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    const char* title = "Multiplayer Settings";
+    const auto title = SYSTR(mt_title);
 
     pfrm.load_overlay_texture("overlay_challenges");
 
     title_.emplace(
         pfrm,
-        title,
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(title)), 1});
+        title->c_str(),
+        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title->c_str())), 1});
 
 
-    const char* msg = "Ready? Press start!";
+    const auto msg = SYSTR(mt_hint);
     msg_.emplace(
         pfrm,
-        msg,
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(msg)), 18});
+        msg->c_str(),
+        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(msg->c_str())), 18});
 
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
@@ -67,7 +67,7 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     for (u32 i = 0; i < vs_parameters_.capacity(); ++i) {
-        update_parameter(i);
+        update_parameter(pfrm, i);
     }
 
     pfrm.screen().fade(0.6f, ColorConstant::rich_black, {}, false, false);
@@ -77,7 +77,7 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void MultiplayerSettingsScene::update_parameter(u8 line_num)
+void MultiplayerSettingsScene::update_parameter(Platform& pfrm, u8 line_num)
 {
     if (line_num >= vs_parameters_.capacity()) {
         return;
@@ -87,32 +87,32 @@ void MultiplayerSettingsScene::update_parameter(u8 line_num)
         return;
     }
 
-    StringBuffer<28> temp;
-    temp += param_info[line_num].name_;
+    StringBuffer<48> temp;
+    temp += loadstr(pfrm, param_info[line_num].name_)->c_str();
     temp += " ";
 
     const bool is_boolean_field = param_info[line_num].lower_limit_ == 0 and
                                   param_info[line_num].upper_limit_ == 1;
 
-    const char* field_name;
+    StringBuffer<32> field_name;
     if (line_num == 0) {
         if (vs_parameters_[line_num]) {
-            field_name = "co-op";
+            field_name = SYSTR(mt_coop)->c_str();
         } else {
-            field_name = "vs";
+            field_name = SYSTR(mt_vs)->c_str();
         }
     } else {
         if (vs_parameters_[line_num]) {
-            field_name = "yes";
+            field_name = SYSTR(yes)->c_str();
         } else {
-            field_name = "no";
+            field_name = SYSTR(no)->c_str();
         }
     }
 
 
     auto int_text_len = integer_text_length(vs_parameters_[line_num]);
     if (is_boolean_field) {
-        int_text_len = utf8::len(field_name);
+        int_text_len = utf8::len(field_name.c_str());
     }
 
     for (u32 i = temp.length(); i < 28 - int_text_len - 2; ++i) {
@@ -139,7 +139,7 @@ void MultiplayerSettingsScene::update_parameter(u8 line_num)
             player_cursor_ = 0;
         } else {
             for (u32 i = 1; i < settings_text_.size(); ++i) {
-                update_parameter(i);
+                update_parameter(pfrm, i);
             }
         }
     }
@@ -276,7 +276,7 @@ void MultiplayerSettingsScene::receive(
     const network::packet::GameMatchParameterUpdate& packet)
 {
     vs_parameters_[packet.parameter_id_] = packet.value_.get();
-    update_parameter(packet.parameter_id_);
+    update_parameter(pfrm, packet.parameter_id_);
 }
 
 
@@ -364,11 +364,11 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         network::packet::GameMatchReady r;
         network::transmit(pfrm, r);
 
-        const char* msg = "Waiting for other player...";
+        const auto msg = SYSTR(mt_waiting);
         msg_.emplace(
             pfrm,
-            msg,
-            OverlayCoord{(u8)centered_text_margins(pfrm, str_len(msg)), 18});
+            msg->c_str(),
+            OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(msg->c_str())), 18});
 
 
         return null_scene();
@@ -406,7 +406,7 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (is_boolean_field) {
             vs_parameters_[player_cursor_] = not vs_parameters_[player_cursor_];
         }
-        update_parameter(player_cursor_);
+        update_parameter(pfrm, player_cursor_);
         key_held_timers_[3] -= milliseconds(80);
 
         network::packet::GameMatchParameterUpdate p;
@@ -424,7 +424,7 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (is_boolean_field) {
             vs_parameters_[player_cursor_] = not vs_parameters_[player_cursor_];
         }
-        update_parameter(player_cursor_);
+        update_parameter(pfrm, player_cursor_);
         key_held_timers_[2] -= milliseconds(80);
 
         network::packet::GameMatchParameterUpdate p;
