@@ -224,6 +224,14 @@ enum class SystemString {
     sandbox_title,
     sandbox_prompt,
 
+    sf_description,
+    sf_hint,
+    sf_title,
+    sf_difficulty,
+    sf_casual,
+    sf_normal,
+    sf_hard,
+
     dialog_tutorial_prompt,
 
     multi_session_connecting,

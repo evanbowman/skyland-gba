@@ -176,6 +176,13 @@ terrain size
 music
 Sandbox Settings
 Press A to begin
+Endless new levels! Survive as long as possible!
+Press A to begin
+SKYLAND Forever
+difficulty
+casual
+normal
+hard
 <c:Milo:5>Hey! Captain! <s:3>. . . <s:0>Come on, wake up!    . . . What!? Don't you remember me? I'm Milo, one of your crew! <d:1000>That's ok... anyway, there's a storm at our backs, and it's pushing us into hostile territory! Come to the window and I'll show you what I mean<t:0>!
 session connecting...
 Failed to connect to multiplayer peer!

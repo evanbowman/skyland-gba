@@ -16,7 +16,7 @@ void prep_level(Platform& pfrm, App& app);
 
 const SkylandForever::ParameterInfo
     SkylandForever::param_info[decltype(parameters_)::capacity()] = {
-        {"difficulty", 1, 0, 2},
+    {SystemString::sf_difficulty, 1, 0, 2},
 };
 
 
@@ -35,7 +35,7 @@ void SkylandForever::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     msg_.emplace(pfrm);
-    msg_->assign("Endless new levels! Survive as long as possible!",
+    msg_->assign(SYSTR(sf_description)->c_str(),
                  OverlayCoord{1, 4},
                  OverlayCoord{28, 6});
 
@@ -50,22 +50,22 @@ void SkylandForever::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     for (u32 i = 0; i < parameters_.capacity(); ++i) {
-        update_parameter(i);
+        update_parameter(pfrm, i);
     }
 
-    const char* help = "Press A to begin";
+    const auto help = SYSTR(sf_hint);
 
     help_.emplace(
         pfrm,
-        help,
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(help)), 18});
+        help->c_str(),
+        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(help->c_str())), 18});
 
-    const char* title = "SKYLAND Forever";
+    const auto title = SYSTR(sf_title);
 
     title_.emplace(
         pfrm,
-        title,
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(title)), 1});
+        title->c_str(),
+        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(title->c_str())), 1});
 }
 
 
@@ -150,7 +150,7 @@ SkylandForever::update(Platform& pfrm, App& app, Microseconds delta)
         if (parameters_[cursor_] < param_info[cursor_].upper_limit_) {
             parameters_[cursor_] += param_info[cursor_].increment_;
         }
-        update_parameter(cursor_);
+        update_parameter(pfrm, cursor_);
         app.player().key_held_reset(Key::right, milliseconds(80));
     }
 
@@ -161,7 +161,7 @@ SkylandForever::update(Platform& pfrm, App& app, Microseconds delta)
         if (parameters_[cursor_] < param_info[cursor_].lower_limit_) {
             parameters_[cursor_] = param_info[cursor_].lower_limit_;
         }
-        update_parameter(cursor_);
+        update_parameter(pfrm, cursor_);
         app.player().key_held_reset(Key::left, milliseconds(80));
     }
 
@@ -201,14 +201,14 @@ void SkylandForever::display(Platform& pfrm, App& app)
 
 
 
-void SkylandForever::update_parameter(u8 line_num)
+void SkylandForever::update_parameter(Platform& pfrm, u8 line_num)
 {
     if (line_num >= parameters_.capacity()) {
         return;
     }
 
     StringBuffer<28> temp;
-    temp += param_info[line_num].name_;
+    temp += loadstr(pfrm, param_info[line_num].name_)->c_str();
     temp += " ";
 
     const bool is_boolean_field = param_info[line_num].lower_limit_ == 0 and
@@ -216,28 +216,28 @@ void SkylandForever::update_parameter(u8 line_num)
 
     auto int_text_len = integer_text_length(parameters_[line_num]);
 
-    const char* text = "";
+    StringBuffer<48> text = "";
+
+    auto boolean_field_str = parameters_[line_num] ? SYSTR(yes) : SYSTR(no);
 
     if (line_num == 0) {
         switch (parameters_[line_num]) {
         case 0:
-            text = "casual";
+            text = SYSTR(sf_casual)->c_str();
             break;
 
         case 1:
-            text = "normal";
+            text = SYSTR(sf_normal)->c_str();;
             break;
 
         case 2:
-            text = "hard";
+            text = SYSTR(sf_hard)->c_str();;
             break;
         }
-        int_text_len = utf8::len(text);
+        int_text_len = utf8::len(text.c_str());
     } else if (is_boolean_field) {
-        if (parameters_[line_num]) {
-            int_text_len = utf8::len("yes");
-        } else {
-            int_text_len = utf8::len("no");
+        if (is_boolean_field) {
+            int_text_len = utf8::len(boolean_field_str->c_str());
         }
     }
 
@@ -252,7 +252,7 @@ void SkylandForever::update_parameter(u8 line_num)
     if (line_num == 0) {
         temp += text;
     } else if (is_boolean_field) {
-        temp += parameters_[line_num] ? "yes" : "no";
+        temp += boolean_field_str->c_str();
     } else {
         temp += stringify(parameters_[line_num]);
     }
