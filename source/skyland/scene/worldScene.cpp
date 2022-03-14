@@ -280,6 +280,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     Microseconds world_delta = delta;
     apply_gamespeed(app, world_delta);
 
+    app.float_delta() = world_delta;
+
     app.update_parallax(world_delta);
 
 

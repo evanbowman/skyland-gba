@@ -43,10 +43,10 @@ PluginProjectile::PluginProjectile(const Vec2<Float>& position,
 
 
 
-void PluginProjectile::update(Platform&, App&, Microseconds delta)
+void PluginProjectile::update(Platform&, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + Float(delta) * step_vector_;
+    pos = pos + app.float_delta() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ += delta;

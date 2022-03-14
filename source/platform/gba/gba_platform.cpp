@@ -4649,12 +4649,6 @@ u8* overlay_vram_tile_data(u16 tile_index)
 }
 
 
-
-static volatile int chinese_checksum_1 = 900;
-static volatile int chinese_checksum_2 = 30;
-static volatile int chinese_checksum_3 = 8;
-
-
 bool Platform::overlay_texture_exists(const char* name)
 {
     for (auto& info : overlay_textures) {

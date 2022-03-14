@@ -88,7 +88,7 @@ void Cannonball::update(Platform& pfrm, App& app, Microseconds delta)
 void Cannonball::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos - Float(delta) * step_vector_;
+    pos = pos - app.float_delta() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ -= delta;

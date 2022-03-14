@@ -50,7 +50,7 @@ Curveshot::Curveshot(const Vec2<Float>& position,
 void Curveshot::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Vec2<Float> pos = {sprite_.get_position().x, y_base_};
-    pos = pos + Float(delta) * step_vector_;
+    pos = pos + app.float_delta() * step_vector_;
     y_base_ = pos.y;
 
     pos.y -= height_ * Float(sine((Float(timer_) / time_to_target_) * (std::numeric_limits<s16>::max() / 2))) /

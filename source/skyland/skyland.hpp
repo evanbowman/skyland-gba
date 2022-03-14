@@ -66,6 +66,16 @@ public:
     }
 
 
+    // The time delta represented as a float. Used to improve performance in
+    // some cases, sot that we don't need to repeatedly cast the delta time to
+    // float in the many areas where the code interpolates position changes
+    // based on a time delta.
+    Float& float_delta()
+    {
+        return float_delta_;
+    }
+
+
     GameSpeed& game_speed()
     {
         return game_speed_;
@@ -397,6 +407,7 @@ private:
     DynamicMemory<Islands> islands_;
     Float cloud_scroll_1_;
     Float cloud_scroll_2_;
+    Float float_delta_ = 1.f;
     ScenePtr<Scene> current_scene_;
     ScenePtr<Scene> next_scene_;
     Coins victory_coins_ = 0;

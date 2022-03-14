@@ -39,10 +39,10 @@ NemesisBlast::NemesisBlast(const Vec2<Float>& position,
 
 
 
-void NemesisBlast::update(Platform&, App&, Microseconds delta)
+void NemesisBlast::update(Platform&, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + Float(delta) * step_vector_;
+    pos = pos + app.float_delta() * step_vector_;
     sprite_.set_position(pos);
 
     sprite_.set_texture_index(80 + variant_);
