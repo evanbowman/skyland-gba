@@ -179,7 +179,7 @@ DlcManagerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     if ((*patches_)->list_.empty()) {
         auto buffer = allocate_dynamic<DialogString>(pfrm, "dialog-buffer");
-        *buffer = "You don't have any DLC installed!";
+        *buffer = SYSTR(no_dlc_prompt)->c_str();
         return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer), [] {
             return scene_pool::alloc<TitleScreenScene>(3);
         });
@@ -205,7 +205,7 @@ DlcManagerModule::update(Platform& pfrm, App& app, Microseconds delta)
         if (not erase_text_) {
             erase_text_.emplace(pfrm, OverlayCoord{7, 10});
             erase_text_->assign(
-                "hold A to erase!",
+                SYSTR(dlc_erase_hint)->c_str(),
                 Text::OptColors{{ColorConstant::silver_white,
                                  ColorConstant::spanish_crimson}});
         }

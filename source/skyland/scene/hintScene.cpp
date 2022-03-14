@@ -3,6 +3,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
+#include "skyland/systemString.hpp"
 
 
 
@@ -12,34 +13,21 @@ namespace skyland {
 struct HintInfo
 {
     const char* img_name_;
-    const char* text_;
+    SystemString text_;
 };
 
 
 
-std::array<HintInfo, 9> hints = {
-    {{"<none>",
-      "Press and hold the pause button to set the game speed. Slow motion and "
-      "fastforward speeds available! You can even rewind!"},
-     {"hint_infirmary", "Build an infirmary to heal your crew!"},
-     {"<none>",
-      "In the construction menu, the up/down buttons scroll through "
-      "categories: defenses, weapons, workshops, power, misc."},
-     {"hint_goblin",
-      "Use bulkhead doors to protect your power-cores against goblins!"},
-     {"<none>",
-      "You can assign groups of weapons to hotkeys! Press and hold start for "
-      "more options!"},
-     {"<none>",
-      "The Glossary, found on the title screen extras menu, describes all "
-      "structures in the game!"},
-     {"hint_plunder", "Raid and plunder castles for extra coins!"},
-     {"hint_damaged_core",
-      "If you lose a power-core, systems may shut down til you rebalance "
-      "power."},
-     {"<none>",
-      "For more help, scroll right on the title screen and open the tutorial "
-      "viewer!"}}};
+static const std::array<HintInfo, 9> hints = {
+    {{"<none>", SystemString::hint_gamespeed},
+     {"hint_infirmary", SystemString::hint_infirmary},
+     {"<none>", SystemString::hint_navigation},
+     {"hint_goblin", SystemString::hint_doors},
+     {"<none>", SystemString::hint_hotkeys},
+     {"<none>", SystemString::hint_glossary},
+     {"hint_plunder", SystemString::hint_plunder},
+     {"hint_damaged_core", SystemString::hint_damaged_core},
+     {"<none>", SystemString::hint_tutorials}}};
 
 
 
@@ -47,11 +35,11 @@ static void show_hint(Platform& pfrm, const HintInfo& info, TextView& text)
 {
     if (str_cmp("<none>", info.img_name_) == 0) {
         pfrm.load_overlay_texture("hint_infirmary");
-        text.assign(info.text_, {2, 4}, {26, 18}, 0);
+        text.assign(loadstr(pfrm, info.text_)->c_str(), {2, 4}, {26, 18}, 0);
     } else {
         pfrm.load_overlay_texture(info.img_name_);
         draw_image(pfrm, 82, 18, 4, 12, 10, Layer::overlay);
-        text.assign(info.text_, {2, 6}, {16, 12}, 0);
+        text.assign(loadstr(pfrm, info.text_)->c_str(), {2, 6}, {16, 12}, 0);
     }
 }
 
@@ -65,7 +53,7 @@ void HintScene::enter(Platform& pfrm, App&, Scene& prev)
 
     heading_.emplace(pfrm, OverlayCoord{1, 1});
     heading_->assign(
-        "tips and tricks",
+        SYSTR(hint_title)->c_str(),
         Text::OptColors{{custom_color(0x163061), custom_color(0xffffff)}});
 }
 
@@ -144,7 +132,7 @@ ScenePtr<Scene> HintScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         heading_.emplace(pfrm, OverlayCoord{1, 1});
         heading_->assign(
-            "tips and tricks",
+            SYSTR(hint_title)->c_str(),
             Text::OptColors{{custom_color(0x163061), custom_color(0xffffff)}});
         break;
 

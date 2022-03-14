@@ -243,6 +243,22 @@ enum class SystemString {
     sf_normal,
     sf_hard,
 
+    hint_title,
+    hint_gamespeed,
+    hint_infirmary,
+    hint_navigation,
+    hint_doors,
+    hint_hotkeys,
+    hint_glossary,
+    hint_plunder,
+    hint_damaged_core,
+    hint_tutorials,
+
+    no_dlc_prompt,
+    dlc_erase_hint,
+
+    factory_reset,
+
     dialog_tutorial_prompt,
 
     multi_session_connecting,
