@@ -81,15 +81,15 @@ public:
     {
         timer_ += delta;
 
-        if (timer_ < milliseconds(6300)) {
+        if (timer_ < milliseconds(6700)) {
             auto fade_amount = smoothstep(milliseconds(3000),
                                           milliseconds(5000),
                                           timer_);
             pfrm.screen().schedule_fade(1.f - fade_amount / 2);
         } else if (timer_ < milliseconds(7800)) {
 
-            auto fade_amount = smoothstep(milliseconds(6300),
-                                          milliseconds(7200),
+            auto fade_amount = smoothstep(milliseconds(6700),
+                                          milliseconds(7600),
                                           timer_);
             pfrm.screen().schedule_fade(0.5f - fade_amount * 0.8f);
 
@@ -110,12 +110,12 @@ public:
             // pfrm.screen().schedule_fade(1.f, ColorConstant::rich_black);
         }
 
-        if (timer_ > milliseconds(6300)) {
+        if (timer_ > milliseconds(6700)) {
             text_.reset();
             pfrm.speaker().stop_music();
         } else {
             pfrm.speaker().set_music_volume(20 -
-                                            19 * (Float(timer_) / milliseconds(6300)));
+                                            19 * (Float(timer_) / milliseconds(6700)));
         }
 
         if (timer_ > milliseconds(11000)) {
