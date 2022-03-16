@@ -81,15 +81,15 @@ public:
     {
         timer_ += delta;
 
-        if (timer_ < milliseconds(6700)) {
+        if (timer_ < milliseconds(7000)) {
             auto fade_amount = smoothstep(milliseconds(3000),
                                           milliseconds(5000),
                                           timer_);
             pfrm.screen().schedule_fade(1.f - fade_amount / 2);
-        } else if (timer_ < milliseconds(7800)) {
+        } else if (timer_ <= milliseconds(8000)) {
 
-            auto fade_amount = smoothstep(milliseconds(6700),
-                                          milliseconds(7600),
+            auto fade_amount = smoothstep(milliseconds(7000),
+                                          milliseconds(7900),
                                           timer_);
             pfrm.screen().schedule_fade(0.5f - fade_amount * 0.8f);
 
@@ -110,12 +110,12 @@ public:
             // pfrm.screen().schedule_fade(1.f, ColorConstant::rich_black);
         }
 
-        if (timer_ > milliseconds(6700)) {
+        if (timer_ > milliseconds(7000)) {
             text_.reset();
             pfrm.speaker().stop_music();
         } else {
             pfrm.speaker().set_music_volume(20 -
-                                            19 * (Float(timer_) / milliseconds(6700)));
+                                            19 * (Float(timer_) / milliseconds(7000)));
         }
 
         if (timer_ > milliseconds(11000)) {
@@ -574,11 +574,11 @@ public:
 
         timer_ += delta;
 
-        if (timer_ > seconds(5)) {
+        if (timer_ > milliseconds(5500)) {
             text_.reset();
         }
 
-        if (timer_ > seconds(6)) {
+        if (timer_ > milliseconds(6500)) {
             return scene_pool::alloc<IntroCutsceneExplosion1>();
         }
 
@@ -611,6 +611,8 @@ public:
             pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
             pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 112);
         }
+
+        pfrm.speaker().play_music("isle_of_the_dead", 0);
     }
 
 
@@ -622,7 +624,7 @@ public:
         //     pfrm.screen().schedule_fade(1.f, custom_color(0xf7f2ab));
         // }
 
-        if (timer_ > milliseconds(500)) {
+        if (timer_ > milliseconds(800)) {
             return scene_pool::alloc<IntroCutsceneSceneText1>();
         }
         return null_scene();
