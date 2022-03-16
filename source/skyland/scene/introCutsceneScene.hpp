@@ -283,6 +283,10 @@ public:
 
     void exit(Platform& pfrm, App& app, Scene& next) override
     {
+        const auto screen_tiles = calc_screen_tiles(pfrm);
+        for (int i = 0; i < screen_tiles.x; ++i) {
+            pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 0);
+        }
         text_.reset();
     }
 
