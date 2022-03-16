@@ -300,6 +300,12 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/skyland_title_1_flattened.s
     ${DATA_DIR}/skyland_title_0_flattened.s
     ${DATA_DIR}/gba_health_safety_logo_flattened.s
+    ${DATA_DIR}/intro_crops_snow_flattened.s
+    ${DATA_DIR}/intro_crops_snow_far_flattened.s
+    ${DATA_DIR}/intro_island_launch_flattened.s
+    ${DATA_DIR}/intro_explosion_1_flattened.s
+    ${DATA_DIR}/intro_explosion_2_flattened.s
+    ${DATA_DIR}/intro_storm_king_flattened.s
     ${DATA_DIR}/zone_image_0_flattened.s
     ${DATA_DIR}/zone_image_1_flattened.s
     ${DATA_DIR}/zone_image_2_flattened.s
@@ -308,7 +314,9 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/background.s
     ${DATA_DIR}/background_title_screen.s
     ${DATA_DIR}/spritesheet_title_screen.s
+    ${DATA_DIR}/spritesheet_intro.s
     ${DATA_DIR}/music_unaccompanied_wind.s
+    ${DATA_DIR}/music_isle_of_the_dead.s
     ${DATA_DIR}/music_sb_solecism.s
     ${DATA_DIR}/shadows.s
     ${DATA_DIR}/sound_msg.s
@@ -559,6 +567,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
   if(GBA_AUTOBUILD_IMG)
     add_spritesheet(spritesheet 2 4 NO)
     add_spritesheet(spritesheet_title_screen 2 4 NO)
+    add_spritesheet(spritesheet_intro 2 4 NO)
     add_tilesheet(tilesheet 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
@@ -568,6 +577,12 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(skyland_title_2 0 0 YES NO)
     add_tilesheet(skyland_title_1 0 0 YES NO)
     add_tilesheet(skyland_title_0 0 0 YES NO)
+    add_tilesheet(intro_crops_snow 0 0 YES NO)
+    add_tilesheet(intro_crops_snow_far 0 0 YES NO)
+    add_tilesheet(intro_island_launch 0 0 YES NO)
+    add_tilesheet(intro_explosion_1 0 0 YES NO)
+    add_tilesheet(intro_explosion_2 0 0 YES NO)
+    add_tilesheet(intro_storm_king 0 0 YES NO)
     add_tilesheet(zone_image_0 0 0 YES NO)
     add_tilesheet(zone_image_1 0 0 YES NO)
     add_tilesheet(zone_image_2 0 0 YES NO)

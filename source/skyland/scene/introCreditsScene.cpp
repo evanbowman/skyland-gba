@@ -13,6 +13,8 @@ namespace skyland {
 
 void IntroCreditsScene::enter(Platform& pfrm, App&, Scene& prev)
 {
+    pfrm.speaker().play_music("shadows", true);
+
     pfrm.load_overlay_texture("overlay_skyland_title");
     pfrm.load_sprite_texture("spritesheet_title_screen");
 

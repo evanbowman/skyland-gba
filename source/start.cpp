@@ -32,12 +32,11 @@ static inline void skyland_main_loop(Platform& pf)
 
     skyland::App app(pf);
 
+    pf.speaker().play_music("isle_of_the_dead", 0);
     app.init_scripts(pf);
 
-    pf.speaker().play_music("shadows", true);
-
     pf.enable_glyph_mode(true);
-    pf.load_overlay_texture("overlay_world_map");
+    pf.load_overlay_texture("overlay");
     pf.load_background_texture("background");
 
     pf.remote_console().printline(::console_header);

@@ -17,6 +17,8 @@
 //;
 #include "data/spritesheet_title_screen.h"
 //;
+#include "data/spritesheet_intro.h"
+//;
 #include "data/tilesheet.h"
 //;
 #include "data/tilesheet_enemy_0.h"
@@ -34,6 +36,18 @@
 #include "data/skyland_title_1_flattened.h"
 //;
 #include "data/skyland_title_0_flattened.h"
+//;
+#include "data/intro_crops_snow_flattened.h"
+//;
+#include "data/intro_crops_snow_far_flattened.h"
+//;
+#include "data/intro_island_launch_flattened.h"
+//;
+#include "data/intro_explosion_1_flattened.h"
+//;
+#include "data/intro_explosion_2_flattened.h"
+//;
+#include "data/intro_storm_king_flattened.h"
 //;
 #include "data/zone_image_0_flattened.h"
 //;
@@ -103,6 +117,8 @@ static const TextureData sprite_textures[] = {
     TEXTURE_INFO(spritesheet),
 //;
     TEXTURE_INFO(spritesheet_title_screen),
+//;
+    TEXTURE_INFO(spritesheet_intro),
 //
 };
 
@@ -126,6 +142,18 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(skyland_title_1_flattened),
 //;
     TEXTURE_INFO(skyland_title_0_flattened),
+//;
+    TEXTURE_INFO(intro_crops_snow_flattened),
+//;
+    TEXTURE_INFO(intro_crops_snow_far_flattened),
+//;
+    TEXTURE_INFO(intro_island_launch_flattened),
+//;
+    TEXTURE_INFO(intro_explosion_1_flattened),
+//;
+    TEXTURE_INFO(intro_explosion_2_flattened),
+//;
+    TEXTURE_INFO(intro_storm_king_flattened),
 //;
     TEXTURE_INFO(zone_image_0_flattened),
 //;

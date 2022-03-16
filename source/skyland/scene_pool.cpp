@@ -1,5 +1,7 @@
 #include "scene_pool.hpp"
 #include "scene/introCreditsScene.hpp"
+#include "scene/introCutsceneScene.hpp"
+
 
 
 namespace skyland {
@@ -22,7 +24,7 @@ ScenePtr<Scene> null_scene()
 
 ScenePtr<Scene> initial_scene()
 {
-    return scene_pool::alloc<IntroCreditsScene>();
+    return scene_pool::alloc<IntroCutsceneSceneBegin>();
 }
 
 

@@ -267,6 +267,10 @@ enum class SystemString {
     misc_hibernate_message,
     misc_dlc_message,
 
+    intro_sequence_message_1,
+    intro_sequence_message_2,
+    intro_sequence_message_3,
+
     __NOTICE__,
     patchfix_retain_alphabet,
 };
