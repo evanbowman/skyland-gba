@@ -91,13 +91,13 @@ public:
             auto fade_amount = smoothstep(milliseconds(6300),
                                           milliseconds(7200),
                                           timer_);
-            pfrm.screen().schedule_fade(0.5f - fade_amount / 4);
+            pfrm.screen().schedule_fade(0.5f - fade_amount * 0.8f);
 
         } else if (timer_ > milliseconds(8000)) {
             auto fade_amount = smoothstep(milliseconds(8000),
                                           milliseconds(9000),
                                           timer_);
-            pfrm.screen().schedule_fade(0.25f + 0.75f * fade_amount);
+            pfrm.screen().schedule_fade(0.2f + 0.8f * fade_amount);
         }
 
 

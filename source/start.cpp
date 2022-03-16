@@ -32,14 +32,14 @@ static inline void skyland_main_loop(Platform& pf)
 
     skyland::App app(pf);
 
+    pf.remote_console().printline(::console_header);
+
     pf.speaker().play_music("isle_of_the_dead", 0);
     app.init_scripts(pf);
 
     pf.enable_glyph_mode(true);
     pf.load_overlay_texture("overlay");
     pf.load_background_texture("background");
-
-    pf.remote_console().printline(::console_header);
 
     while (pf.is_running()) {
         pf.keyboard().poll();

@@ -3051,10 +3051,10 @@ struct AudioTrack
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
 } music_tracks[] = {
+    DEF_MUSIC(isle_of_the_dead, music_isle_of_the_dead),
     DEF_MUSIC(shadows, shadows),
     DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
     DEF_MUSIC(sb_solecism, music_sb_solecism),
-    DEF_MUSIC(isle_of_the_dead, music_isle_of_the_dead),
 };
 
 
@@ -4519,6 +4519,8 @@ Platform::Platform()
 
     irqEnable(IRQ_VBLANK);
 
+    audio_start();
+
     if (bios_version not_eq BiosVersion::NDS) {
         show_health_and_safety_message(*this);
     }
@@ -4605,8 +4607,6 @@ Platform::Platform()
 
         info(*::platform, str.c_str());
     }
-
-    audio_start();
 
     fill_overlay(0);
 
