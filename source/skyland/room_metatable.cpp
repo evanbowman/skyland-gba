@@ -34,6 +34,7 @@
 #include "skyland/rooms/replicator.hpp"
 #include "skyland/rooms/shrubbery.hpp"
 #include "skyland/rooms/speaker.hpp"
+#include "skyland/rooms/stackedHull.hpp"
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/sunflower.hpp"
@@ -224,6 +225,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         IonFizzler,
                                         Radiator,
                                         MirrorHull,
+                                        StackedHull,
                                         // weapons
                                         Cannon,
                                         IonCannon,

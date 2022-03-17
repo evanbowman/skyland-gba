@@ -748,6 +748,7 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
 {
     auto& hull = require_metaclass("hull");
     auto& mhull = require_metaclass("mirror-hull");
+    auto& shull = require_metaclass("stacked-hull");
     auto& ehull = require_metaclass("energized-hull");
 
     int missile_count = 0;
@@ -756,6 +757,8 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
             ++missile_count;
         }
     }
+
+    bool missile_defense = false;
 
     auto generate_roof = [&](bool conservative, int ehull_count) {
         for (u8 x = 0; x < 15; ++x) {
@@ -774,6 +777,9 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
                                 rng::choice<3>(rng::critical_state) == 0) {
                                 --ehull_count;
                                 ehull->create(
+                                    pfrm, app, app.opponent_island(), {x, y});
+                            } else if (missile_defense) {
+                                shull->create(
                                     pfrm, app, app.opponent_island(), {x, y});
                             } else {
                                 hull->create(
@@ -802,6 +808,9 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
         default:
             ehull_count = rng::choice<6>(rng::critical_state);
             break;
+        }
+        if (difficulty_ not_eq 0) {
+            missile_defense = rng::choice<2>(rng::critical_state);
         }
         generate_roof(false, ehull_count);
     }

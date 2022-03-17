@@ -25,6 +25,11 @@ public:
     }
 
 
+    void render_scaffolding(App& app, u8 buffer[16][16]) override
+    {
+    }
+
+
     static SystemString ui_name()
     {
         return SystemString::block_stacked_hull;
@@ -40,19 +45,19 @@ public:
     static u32 properties()
     {
         return Hull::properties() | RoomProperties::disabled_in_tutorials |
-               RoomProperties::locked_by_default;
+            RoomProperties::manufactory_required;
     }
 
 
     static Icon icon()
     {
-        return 1624;
+        return 2024;
     }
 
 
     static Icon unsel_icon()
     {
-        return 1640;
+        return 2040;
     }
 
 

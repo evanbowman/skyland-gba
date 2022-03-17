@@ -226,6 +226,8 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
 
     if (str_cmp((*metac)->name(), "hull") == 0) {
         room.apply_damage(pfrm, app, missile_damage * 0.9f);
+    } else if (str_cmp((*metac)->name(), "stacked-hull") == 0) {
+        room.apply_damage(pfrm, app, missile_damage / 4);
     } else {
         room.apply_damage(pfrm, app, missile_damage);
     }
