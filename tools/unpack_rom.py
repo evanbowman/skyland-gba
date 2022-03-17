@@ -6,9 +6,21 @@ import os
 # To run, place this script in the same directory as Skyland.gba, and invoke the
 # script with python version >= 3.2
 #
-# Then, you may run python3 tools/encode_files.py to repack the files into an
+# Then, you may run `python3 tools/encode_files.py` to repack the files into an
 # archive, called fs.bin, which may be re-attached to the engine by running
-# cat SkylandEngine.gba fs.bin > SkylandMod.gba.
+# `cat SkylandEngine.gba fs.bin > SkylandMod.gba`.
+#
+# NOTE: If you're viewing this
+# script in the SKYLAND text
+# editor, and aren't sure how
+# to get the unpack_rom.py
+# script out of the rom: the
+# file is stored in plain
+# text, so you can simply open
+# the Skyland.gba file in text
+# mode in an editor and copy
+# the script contents into a
+# a local file.
 
 
 with open("Skyland.gba", 'rb') as f:
