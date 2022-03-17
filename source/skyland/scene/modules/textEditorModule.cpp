@@ -1468,7 +1468,7 @@ void TextEditorModule::paste_selection(Platform& pfrm, Vector<char>& source)
     auto insert = insert_pos();
 
     for (char c : source) {
-        pfrm.feed_watchdog();
+        pfrm.system_call("feed-watchdog", nullptr);
         insert_char(pfrm, c, insert);
         if (c == '\n') {
             ++cursor_.y;

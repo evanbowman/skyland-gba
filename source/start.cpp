@@ -43,7 +43,7 @@ static inline void skyland_main_loop(Platform& pf)
     while (pf.is_running()) {
         pf.keyboard().poll();
 
-        pf.feed_watchdog();
+        pf.system_call("feed-watchdog", nullptr);
 
         app.update(pf, pf.delta_clock().reset());
         pf.screen().clear();

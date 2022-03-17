@@ -129,7 +129,8 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
           }},
          {"hibernate",
           [](int argc) {
-              lisp::interp_get_pfrm()->hibernate();
+
+              lisp::interp_get_pfrm()->system_call("hibernate", nullptr);
               return L_NIL;
           }},
          {"fatal",
@@ -223,12 +224,13 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
           }},
          {"sbr-annotate",
           [](int argc) {
-              lisp::interp_get_pfrm()->print_memory_diagnostics();
+              lisp::interp_get_pfrm()->system_call("print-memory-diagnostics",
+                                                   nullptr);
               return L_NIL;
           }},
          {"readline",
           [](int argc) {
-              lisp::interp_get_pfrm()->feed_watchdog();
+              lisp::interp_get_pfrm()->system_call("feed-watchdog", nullptr);
               auto line = lisp::interp_get_pfrm()->remote_console().readline();
               if (line) {
                   return lisp::make_string(line->c_str());

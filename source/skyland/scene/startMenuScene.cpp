@@ -53,6 +53,7 @@ void StartMenuScene::add_option(Platform& pfrm,
 
 void StartMenuScene::exit(Platform& pfrm, App&, Scene& next)
 {
+    data_->option_names_.clear();
 }
 
 
@@ -110,7 +111,10 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             add_option(pfrm,
                        SYSTR(start_menu_quit)->c_str(),
-                       scene_pool::make_deferred_scene<TitleScreenScene>(3),
+                       [&pfrm]() -> ScenePtr<Scene> {
+                           pfrm.fill_overlay(0);
+                           return scene_pool::alloc<TitleScreenScene>(3);
+                       },
                        fade_sweep);
             break;
 
@@ -276,9 +280,11 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         if (timer_ > milliseconds(100)) {
             pfrm.system_call("vsync", nullptr);
-            pfrm.load_overlay_texture("overlay");
-            pfrm.set_overlay_origin(0, 0);
             data_->text_.clear();
+            pfrm.screen().display();
+
+            pfrm.set_overlay_origin(0, 0);
+            pfrm.load_overlay_texture("overlay");
 
             pfrm.screen().schedule_fade(0.f);
             pfrm.screen().schedule_fade(1.f);

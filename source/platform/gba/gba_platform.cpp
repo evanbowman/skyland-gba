@@ -1560,15 +1560,6 @@ static int scratch_buffer_highwater = 0;
 
 
 
-void Platform::stackcheck()
-{
-    if (not canary_check()) {
-        longjmp(stack_overflow_resume_context, 1);
-    }
-}
-
-
-
 const Platform::Screen::Touch* Platform::Screen::touch() const
 {
     // No touchscreen on the gba!
@@ -3768,27 +3759,6 @@ Platform::Speaker::Speaker()
 
 
 
-void Platform::hibernate()
-{
-    REG_KEYCNT = KEY_SELECT | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
-
-    irqSet(IRQ_KEYPAD, [] {});
-
-    Stop();
-
-    irqSet(IRQ_KEYPAD, keypad_isr);
-    REG_KEYCNT =
-        KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
-}
-
-
-
-void Platform::feed_watchdog()
-{
-    ::watchdog_counter = 0;
-}
-
-
 void Platform::on_unrecoverrable_error(UnrecoverrableErrorCallback callback)
 {
     ::unrecoverrable_error_callback.emplace(callback);
@@ -3841,39 +3811,6 @@ std::optional<Function<16, void()>> scratch_buffer_oom_handler;
 void Platform::set_scratch_buffer_oom_handler(Function<16, void()> callback)
 {
     scratch_buffer_oom_handler.emplace(callback);
-}
-
-
-
-int Platform::print_memory_diagnostics()
-{
-    auto output = allocate_dynamic<RemoteConsole::Line>(
-        *::platform, "sbr-annotation-buffer");
-
-    int buffer_num = 0;
-
-    for (auto& cell : scratch_buffer_pool.cells()) {
-        if (not scratch_buffer_pool.is_freed(&cell)) {
-            *output += stringify(buffer_num);
-            *output += ":";
-            *output += ((ScratchBuffer*)cell.mem_.data())->tag_;
-            *output += "\r\n";
-            ++buffer_num;
-        }
-    }
-
-    const int free_sbr = scratch_buffer_count - buffer_num;
-
-    *output += format("used: % (%kb), free: % (%kb)\r\n",
-                      buffer_num,
-                      buffer_num * 2,
-                      free_sbr,
-                      free_sbr * 2)
-                   .c_str();
-
-    ::platform->remote_console().printline(output->c_str());
-
-    return 0;
 }
 
 
@@ -4356,7 +4293,7 @@ static void show_health_and_safety_message(Platform& pfrm)
 
     while (true) {
         ++frames;
-        pfrm.feed_watchdog();
+        pfrm.system_call("feed-watchdog", nullptr);
         VBlankIntrWait();
 
         if (frames > 60) {
@@ -5623,7 +5560,7 @@ MASTER_RETRY:
             irqDisable(IRQ_SERIAL);
             return;
         }
-        ::platform->feed_watchdog();
+        ::platform->system_call("feed-watchdog", nullptr);
     }
 
     const char* handshake =
@@ -5646,7 +5583,7 @@ MASTER_RETRY:
     }
 
     while (true) {
-        ::platform->feed_watchdog();
+        ::platform->system_call("feed-watchdog", nullptr);
         delta += ::platform->delta_clock().reset();
         if (delta > seconds(20)) {
             StringBuffer<64> err =
@@ -6198,9 +6135,47 @@ void download_dlc_blob(Platform&, Vector<char>&);
 
 
 
+static void print_memory_diagnostics()
+{
+    auto output = allocate_dynamic<Platform::RemoteConsole::Line>(
+        *::platform, "sbr-annotation-buffer");
+
+    int buffer_num = 0;
+
+    for (auto& cell : scratch_buffer_pool.cells()) {
+        if (not scratch_buffer_pool.is_freed(&cell)) {
+            *output += stringify(buffer_num);
+            *output += ":";
+            *output += ((ScratchBuffer*)cell.mem_.data())->tag_;
+            *output += "\r\n";
+            ++buffer_num;
+        }
+    }
+
+    const int free_sbr = scratch_buffer_count - buffer_num;
+
+    *output += format("used: % (%kb), free: % (%kb)\r\n",
+                      buffer_num,
+                      buffer_num * 2,
+                      free_sbr,
+                      free_sbr * 2)
+                   .c_str();
+
+    ::platform->remote_console().printline(output->c_str());
+}
+
+
+
 void* Platform::system_call(const char* feature_name, void* arg)
 {
-    if (str_cmp(feature_name, "_prlx7") == 0) {
+    if (str_eq(feature_name, "sc")) { // Stackcheck, abreviated for speed.
+        if (not canary_check()) {
+            longjmp(stack_overflow_resume_context, 1);
+        }
+        return nullptr;
+    } else if (str_eq(feature_name, "feed-watchdog")) {
+        ::watchdog_counter = 0;
+    } else if (str_cmp(feature_name, "_prlx7") == 0) {
 
         if (not get_gflag(GlobalFlag::v_parallax)) {
             auto offset = screen_.get_view().get_center().cast<s32>().y / 2;
@@ -6330,6 +6305,18 @@ void* Platform::system_call(const char* feature_name, void* arg)
         download_dlc_blob(*this, *(Vector<char>*)arg);
     } else if (str_eq(feature_name, "vsync")) {
         VBlankIntrWait();
+    } else if (str_eq(feature_name, "hibernate")) {
+        REG_KEYCNT = KEY_SELECT | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
+
+        irqSet(IRQ_KEYPAD, [] {});
+
+        Stop();
+
+        irqSet(IRQ_KEYPAD, keypad_isr);
+        REG_KEYCNT =
+            KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
+    } else if (str_eq(feature_name, "print-memory-diagnostics")) {
+        print_memory_diagnostics();
     }
 
     return nullptr;

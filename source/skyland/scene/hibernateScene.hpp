@@ -37,7 +37,7 @@ public:
         if (timer_ > seconds(6)) {
             text_.reset();
             pfrm.screen().display();
-            pfrm.hibernate();
+            pfrm.system_call("hibernate", nullptr);
             return scene_pool::alloc<StartMenuScene>(pfrm, 1);
         }
 

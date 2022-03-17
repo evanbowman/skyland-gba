@@ -151,7 +151,10 @@ public:
     [[noreturn]] static void restart();
 
 
-    // Enable platform specific features. NOP if unsupported.
+    // An interface for dynamically-bound optional procedures. Invoked via
+    // string name, so that these functions do not need to be defined right away
+    // when going through the tedious process of re-implementing the Platform
+    // class for a new build target.
     void* system_call(const char* feature_name, void* arg);
 
 
@@ -289,16 +292,9 @@ public:
     bool is_running() const;
 
 
-    // If the watchdog is not fed every ten seconds, the game will reset itself,
-    // after calling the user-supplied watchdog handler (obviously, don't spend
-    // more than ten seconds in the watchdog handler!).
-    void feed_watchdog();
-
     using UnrecoverrableErrorCallback = Function<16, void(Platform& pfrm)>;
     void on_unrecoverrable_error(UnrecoverrableErrorCallback callback);
 
-
-    void hibernate();
 
     bool write_save_data(const void* data, u32 length, u32 offset);
     bool read_save_data(void* buffer, u32 data_length, u32 offset);
@@ -312,11 +308,6 @@ public:
     // in the folder argument, and the path in the filename argument.
     const char* load_file_contents(const char* folder,
                                    const char* filename) const;
-
-
-    // On supported platforms, performs a stack overflow check. Otherwise, a
-    // no-op.
-    static void stackcheck();
 
 
     void walk_filesystem(Function<8 * sizeof(void*), void(const char* path)>);
@@ -339,9 +330,6 @@ public:
 
 
     int scratch_buffers_remaining();
-
-
-    int print_memory_diagnostics();
 
 
     ////////////////////////////////////////////////////////////////////////////

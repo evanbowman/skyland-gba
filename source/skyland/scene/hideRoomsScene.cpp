@@ -31,6 +31,8 @@ void HideRoomsScene::enter(Platform& pfrm, App& app, Scene& prev)
 void HideRoomsScene::exit(Platform& pfrm, App& app, Scene& prev)
 {
     names_.clear();
+    hidden_.clear();
+    pfrm.fill_overlay(0);
 }
 
 

@@ -20,6 +20,12 @@ namespace skyland {
 class SaveSandboxScene : public Scene
 {
 public:
+
+    void exit(Platform& pfrm, App& app, Scene& next) override
+    {
+        pfrm.fill_overlay(0);
+    }
+
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         const auto st = calc_screen_tiles(pfrm);
