@@ -3812,7 +3812,8 @@ const char* Platform::load_file_contents(const char* folder,
 
 
 
-void Platform::walk_filesystem(Function<32, void(const char* path)> callback)
+void Platform::walk_filesystem(Function<8 * sizeof(void*),
+                               void(const char* path)> callback)
 {
     filesystem::walk(callback);
 }
@@ -6327,7 +6328,8 @@ void* Platform::system_call(const char* feature_name, void* arg)
         }
     } else if (str_cmp(feature_name, "dlc-download") == 0) {
         download_dlc_blob(*this, *(Vector<char>*)arg);
-    } else if (str_cmp(feature_name, "get-flag-palette") == 0) {
+    } else if (str_eq(feature_name, "vsync")) {
+        VBlankIntrWait();
     }
 
     return nullptr;

@@ -251,7 +251,7 @@ o----------------------------o
 
 o----------------------------o
 
- (key-bind str function)
+ (key-bind str symbol)
 
  While the game does not
  allow you to remap all of
@@ -261,8 +261,9 @@ o----------------------------o
  sequences of keys. To create
  a custom binding, specify
  a key sequence in str,
- along with a lisp function
- to call.
+ along with a lisp symbol
+ representing a callback
+ function name.
 
  Key character codes:
  u: dpad-up
@@ -274,7 +275,7 @@ o----------------------------o
 
  So:
 
- (key-bind "uulb" repl)
+ (key-bind "uulb" 'repl)
 
  Would launch a lisp repl
  after the user pressed

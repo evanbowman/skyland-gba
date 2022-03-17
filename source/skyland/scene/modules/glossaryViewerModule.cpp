@@ -96,7 +96,7 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
 
 void GlossaryViewerModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    load_page(pfrm, 0);
+    load_page(pfrm, page_);
     pfrm.screen().fade(0.95f);
     pfrm.screen().fade(1.f);
 

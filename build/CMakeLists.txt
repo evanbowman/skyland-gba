@@ -797,7 +797,7 @@ elseif(APPLE)
 
 elseif(UNIX)
 
-  target_link_libraries(SkylandEngine
+  target_link_libraries(SkylandEngine PRIVATE
     -lpthread
     -lsfml-window
     -lsfml-graphics

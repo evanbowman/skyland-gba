@@ -6,7 +6,7 @@
 #if defined(__GBA__) or defined(__NDS__)
 #define SCRATCH_BUFFER_SIZE 2000
 #else
-#define SCRATCH_BUFFER_SIZE 8000
+#define SCRATCH_BUFFER_SIZE 9000
 #endif
 
 

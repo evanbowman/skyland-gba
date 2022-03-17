@@ -448,12 +448,14 @@ static const lisp::Binding script_api[] = {
      [](int argc) {
          L_EXPECT_ARGC(argc, 2);
          L_EXPECT_OP(1, string);
-         L_EXPECT_OP(0, function);
+         L_EXPECT_OP(0, symbol);
 
          KeyCallbackProcessor::Binding b{
              KeyCallbackProcessor::MatchSeq{},
-             [v = lisp::Protected(lisp::get_op(0))](Platform& pfrm, App& app) {
-                 lisp::funcall(v.get(), 0);
+             [n = lisp::get_op(0)->symbol().name_](Platform& pfrm, App& app) {
+                 auto fn = lisp::get_var(n);
+                 lisp::funcall(fn, 0);
+                 lisp::pop_op(); // funcall result
              }};
 
          int i = 0;

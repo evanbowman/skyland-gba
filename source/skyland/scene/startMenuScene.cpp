@@ -275,6 +275,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::after_sweep: {
         timer_ += delta;
         if (timer_ > milliseconds(100)) {
+            pfrm.system_call("vsync", nullptr);
             pfrm.load_overlay_texture("overlay");
             pfrm.set_overlay_origin(0, 0);
             data_->text_.clear();

@@ -439,8 +439,8 @@ private:
     Buffer<std::pair<DeferredCallback, Microseconds>, 20> deferred_callbacks_;
 
 
-    Boxed<Player, Player, 104> player_;
-    Boxed<Opponent, FriendlyAI, 104> opponent_;
+    Boxed<Player, Player, 26 * sizeof(void*)> player_;
+    Boxed<Opponent, FriendlyAI, 26 * sizeof(void*)> opponent_;
 
 
     // In the unlikely event that the game freezes for some reason, the software

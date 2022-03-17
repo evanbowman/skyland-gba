@@ -600,7 +600,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 pfrm.screen().set_shader(passthrough_shader);
                 pfrm.screen().set_shader_argument(0);
-                pfrm.sleep(1);
+                pfrm.system_call("vsync", nullptr);
                 pfrm.screen().fade(1.f);
 
                 if (pfrm.network_peer().is_connected()) {

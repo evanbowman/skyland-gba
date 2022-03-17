@@ -122,7 +122,8 @@ public:
             pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
             return scene_pool::alloc<IntroCutsceneDoneScene>();
         } else {
-            if (pfrm.keyboard().down_transition<Key::action_2>()) {
+            if (pfrm.keyboard().down_transition<Key::action_2>() or
+                pfrm.keyboard().down_transition<Key::action_1>()) {
                 return scene_pool::alloc<IntroCutsceneDoneScene>();
             }
         }
@@ -213,7 +214,8 @@ public:
     {
         timer_ += delta;
 
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (pfrm.keyboard().down_transition<Key::action_2>() or
+            pfrm.keyboard().down_transition<Key::action_1>()) {
             return scene_pool::alloc<IntroCutsceneDoneScene>();
         }
 
@@ -293,7 +295,8 @@ public:
 
     ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
     {
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (pfrm.keyboard().down_transition<Key::action_2>() or
+            pfrm.keyboard().down_transition<Key::action_1>()) {
             return scene_pool::alloc<IntroCutsceneDoneScene>();
         }
 
@@ -355,7 +358,8 @@ public:
 
     ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
     {
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (pfrm.keyboard().down_transition<Key::action_2>() or
+            pfrm.keyboard().down_transition<Key::action_1>()) {
             return scene_pool::alloc<IntroCutsceneDoneScene>();
         }
 
@@ -454,7 +458,8 @@ public:
 
     ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
     {
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (pfrm.keyboard().down_transition<Key::action_2>() or
+            pfrm.keyboard().down_transition<Key::action_1>()) {
             return scene_pool::alloc<IntroCutsceneDoneScene>();
         }
 
@@ -531,7 +536,8 @@ public:
 
     ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
     {
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (pfrm.keyboard().down_transition<Key::action_2>() or
+            pfrm.keyboard().down_transition<Key::action_1>()) {
             return scene_pool::alloc<IntroCutsceneDoneScene>();
         }
 
@@ -572,7 +578,8 @@ public:
 
     ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
     {
-        if (pfrm.keyboard().down_transition<Key::action_2>()) {
+        if (pfrm.keyboard().down_transition<Key::action_2>() or
+            pfrm.keyboard().down_transition<Key::action_1>()) {
             return scene_pool::alloc<IntroCutsceneDoneScene>();
         }
 

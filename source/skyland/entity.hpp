@@ -155,7 +155,8 @@ public:
     void post(void* e)
     {
         for (auto& pl : pools_) {
-            if (e >= pl->cells().begin() and e < pl->cells().end()) {
+            if (e >= (void*)pl->cells().data() and
+                e < (void*)(pl->cells().data() + pl->cells().size())) {
                 pl->post((u8*)e);
                 return;
             }

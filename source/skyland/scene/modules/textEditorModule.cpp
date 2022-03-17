@@ -575,7 +575,7 @@ void TextEditorModule::enter(Platform& pfrm, App&, Scene& prev)
 
 void TextEditorModule::exit(Platform& pfrm, App&, Scene& next)
 {
-    pfrm.sleep(1);
+    pfrm.system_call("vsync", nullptr);
     pfrm.screen().fade(0.9f, ColorConstant::rich_black, {}, true, true);
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 

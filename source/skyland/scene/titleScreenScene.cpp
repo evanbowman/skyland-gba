@@ -646,7 +646,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 put_menu_text(pfrm);
                 state_ = State::scroll_to_end;
                 timer_ = 0;
-                pfrm.sleep(1);
+                pfrm.system_call("vsync", nullptr);
                 pfrm.load_tile0_texture("skyland_title_3_flattened");
             }
         }
@@ -663,7 +663,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 menu_selection_ = 2;
                 put_menu_text(pfrm);
                 state_ = State::scroll_multiplayer;
-                pfrm.sleep(1);
+                pfrm.system_call("vsync", nullptr);
                 pfrm.load_tile1_texture("skyland_title_2_flattened");
                 timer_ = 0;
             } else if (menu_selection_ == 3) {
@@ -695,7 +695,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > duration) {
             timer_ = 0;
             state_ = State::wait;
-            pfrm.sleep(1);
+            pfrm.system_call("vsync", nullptr);
             pfrm.load_tile1_texture("skyland_title_1_flattened");
             x_scroll_ = 0;
         } else {
@@ -729,7 +729,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             state_ = State::wait;
             x_scroll_ = 240;
-            pfrm.sleep(1);
+            pfrm.system_call("vsync", nullptr);
             pfrm.load_tile0_texture("skyland_title_0_flattened");
         } else {
             const auto amount = smoothstep(0.f, duration, timer_);

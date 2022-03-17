@@ -46,7 +46,26 @@ Platform::DeviceName Platform::device_name() const
 }
 
 
+
 std::string resource_path();
+
+
+
+int save_capacity = 32000;
+
+
+
+int Platform::save_capacity()
+{
+    return ::save_capacity;
+}
+
+
+void Platform::hibernate()
+{
+    // TODO...
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -269,66 +288,12 @@ public:
 static Platform* platform = nullptr;
 
 
-class WatchdogTask : public Platform::Task
+
+void* Platform::system_call(const char* feature_name, void* arg)
 {
-public:
-    WatchdogTask()
-    {
-        total_ = 0;
-        last_ = std::chrono::high_resolution_clock::now();
-    }
-
-    void run() override
-    {
-        if (::platform->data() and not ::platform->is_running()) {
-            Task::completed();
-            return;
-        }
-
-        const auto now = std::chrono::high_resolution_clock::now();
-        total_ +=
-            std::chrono::duration_cast<std::chrono::microseconds>(now - last_)
-                .count();
-
-        last_ = now;
-
-        if (total_ > seconds(10)) {
-            if (::platform->data()) {
-                if (::platform->data()->window_.isOpen()) {
-                    ::platform->data()->window_.close();
-                }
-            }
-
-            error(*::platform, "unresponsive process killed by watchdog");
-
-            // Give all of the threads the opportunity to receive the window
-            // shutdown sequence and exit responsibly.
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-
-            exit(EXIT_FAILURE);
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-
-    void feed()
-    {
-        total_ = 0;
-    }
-
-private:
-    std::chrono::time_point<std::chrono::high_resolution_clock> last_;
-    std::atomic<Microseconds> total_;
-
-} watchdog_task;
-
-
-void Platform::enable_feature(const char* feature_name, int value)
-{
-    if (str_cmp(feature_name, "vignette") == 0) {
-        ::platform->data()->show_vignette_ = value;
-    }
+    return nullptr;
 }
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -607,11 +572,6 @@ Platform::Screen::Screen()
 }
 
 
-void Platform::Screen::enable_night_mode(bool)
-{
-    // TODO...
-}
-
 
 Vec2<u32> Platform::Screen::size() const
 {
@@ -621,10 +581,12 @@ Vec2<u32> Platform::Screen::size() const
 }
 
 
+
 void Platform::Screen::set_contrast(Contrast c)
 {
     // TODO...
 }
+
 
 
 Contrast Platform::Screen::get_contrast() const
@@ -633,7 +595,9 @@ Contrast Platform::Screen::get_contrast() const
 }
 
 
+
 enum class TextureSwap { spritesheet, tile0, tile1, overlay };
+
 
 // The logic thread requests a texture swap, but the swap itself needs to be
 // performed on the graphics thread.
@@ -641,21 +605,22 @@ static std::queue<std::pair<TextureSwap, std::string>> texture_swap_requests;
 // static std::mutex texture_swap_mutex;
 
 
+
 static std::queue<std::tuple<Layer, int, int, int>> tile_swap_requests;
 // static std::mutex tile_swap_mutex;
+
 
 
 static std::queue<std::pair<TileDesc, Platform::TextureMapping>> glyph_requests;
 // static std::mutex glyph_requests_mutex;
 
 
-static std::vector<Platform::Task*> task_queue;
 
-
-static ObjectPool<RcBase<Platform::DynamicTexture,
-                         Platform::dynamic_texture_count>::ControlBlock,
+static ObjectPool<PooledRcControlBlock<Platform::DynamicTexture,
+                                       Platform::dynamic_texture_count>,
                   Platform::dynamic_texture_count>
-    dynamic_texture_pool;
+    dynamic_texture_pool("dynamic-texture-pool");
+
 
 
 void Platform::DynamicTexture::remap(u16 spritesheet_offset)
@@ -665,18 +630,34 @@ void Platform::DynamicTexture::remap(u16 spritesheet_offset)
 }
 
 
+
+static struct DynamicTextureMapping
+{
+    bool reserved_ = false;
+    bool dirty_ = false;
+    u16 spritesheet_offset_ = 0;
+} dynamic_texture_mappings[Platform::dynamic_texture_count];
+
+
+
 std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 {
     auto finalizer =
-        [](RcBase<Platform::DynamicTexture,
-                  Platform::dynamic_texture_count>::ControlBlock* ctrl) {
-            // Nothing managed, so nothing to do.
+        [](PooledRcControlBlock<DynamicTexture, dynamic_texture_count>* ctrl) {
+            dynamic_texture_mappings[ctrl->data_.mapping_index()].reserved_ =
+                false;
             dynamic_texture_pool.post(ctrl);
         };
 
-    auto dt = DynamicTexturePtr::create(&dynamic_texture_pool, finalizer, 0);
-    if (dt) {
-        return *dt;
+    for (u8 i = 0; i < dynamic_texture_count; ++i) {
+        if (not dynamic_texture_mappings[i].reserved_) {
+            auto dt = create_pooled_rc<DynamicTexture, dynamic_texture_count>(
+                &dynamic_texture_pool, finalizer, i);
+            if (dt) {
+                dynamic_texture_mappings[i].reserved_ = true;
+                return *dt;
+            }
+        }
     }
 
     warning(*this, "Failed to allocate DynamicTexture.");
@@ -684,27 +665,9 @@ std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 }
 
 
-void Platform::push_task(Task* task)
-{
-    task->complete_ = false;
-    task->running_ = true;
-
-    task_queue.push_back(task);
-}
-
 
 void Platform::Screen::clear()
 {
-    for (auto it = task_queue.begin(); it not_eq task_queue.end();) {
-        (*it)->run();
-        if ((*it)->complete()) {
-            (*it)->running_ = false;
-            it = task_queue.erase(it);
-        } else {
-            ++it;
-        }
-    }
-
     auto& window = ::platform->data()->window_;
     auto& rt = ::platform->data()->rt_;
     window.clear();
@@ -908,6 +871,10 @@ void Platform::Screen::clear()
                 ::platform->data()->overlay_.set_tile(std::get<1>(request),
                                                       std::get<2>(request),
                                                       std::get<3>(request));
+                break;
+
+            case Layer::map_0_ext:
+            case Layer::map_1_ext:
                 break;
 
             case Layer::map_0:
@@ -1260,6 +1227,16 @@ void Platform::Screen::fade(Float amount,
 }
 
 
+
+void Platform::Screen::schedule_fade(Float amount,
+                                     ColorConstant k,
+                                     bool include_sprites,
+                                     bool include_overlay)
+{
+    fade(amount, k, {}, include_sprites, include_overlay);
+}
+
+
 void Platform::Screen::pixelate(u8 amount,
                                 bool include_overlay,
                                 bool include_background,
@@ -1278,6 +1255,12 @@ void Platform::Screen::draw(const Sprite& spr)
 ////////////////////////////////////////////////////////////////////////////////
 // Speaker
 ////////////////////////////////////////////////////////////////////////////////
+
+
+void Platform::Speaker::set_music_reversed(bool reversed)
+{
+    // TODO...
+}
 
 
 void Platform::Speaker::set_position(const Vec2<Float>& position)
@@ -1418,6 +1401,12 @@ void Platform::Logger::set_threshold(Severity severity)
 }
 
 
+void Platform::Logger::flush()
+{
+    // nothing to do
+}
+
+
 void Platform::Logger::log(Severity level, const char* msg)
 {
     if (static_cast<int>(level) < static_cast<int>(::log_threshold)) {
@@ -1449,28 +1438,11 @@ void Platform::Logger::log(Severity level, const char* msg)
 }
 
 
-void Platform::Logger::read(void* buffer, u32 start_offset, u32 num_bytes)
-{
-    const std::string data = [&] {
-        std::ifstream logfile_in(logfile_name);
-        std::stringstream strbuf;
-        strbuf << logfile_in.rdbuf();
-        return strbuf.str();
-    }();
-
-    if (int(data.size() - start_offset) < int(num_bytes)) {
-        return;
-    }
-
-    for (u32 i = start_offset; i < start_offset + num_bytes; ++i) {
-        ((char*)buffer)[i - start_offset] = data[i];
-    }
-}
-
 
 Platform::Logger::Logger()
 {
 }
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1507,28 +1479,33 @@ Platform::~Platform()
 // EWRAM, called scratch space, for non-essential stuff. Right now, I am setting
 // the buffer to ~100K in size. One could theoretically make the buffer almost
 // 256kB, because I am using none of EWRAM as far as I know...
-static ObjectPool<RcBase<ScratchBuffer, 100>::ControlBlock, 100>
-    scratch_buffer_pool;
+static ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
+                  scratch_buffer_count>
+        scratch_buffer_pool("scratch-buffers");
+
 
 
 static int scratch_buffers_in_use = 0;
 
 
-Rc<ScratchBuffer, 100> Platform::make_scratch_buffer()
+ScratchBufferPtr Platform::make_scratch_buffer(const ScratchBuffer::Tag& tag)
 {
-    auto finalizer = [](RcBase<ScratchBuffer, 100>::ControlBlock* ctrl) {
-        --scratch_buffers_in_use;
-        ctrl->pool_->post(ctrl);
-    };
+    auto finalizer =
+        [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
+            --scratch_buffers_in_use;
+            ctrl->pool_->post(ctrl);
+        };
 
-    auto maybe_buffer =
-        Rc<ScratchBuffer, 100>::create(&scratch_buffer_pool, finalizer);
+    auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(
+        &scratch_buffer_pool, finalizer);
     if (maybe_buffer) {
         ++scratch_buffers_in_use;
+
+        (*maybe_buffer)->tag_ = tag;
+
         return *maybe_buffer;
     } else {
         screen().fade(1.f, ColorConstant::electric_blue);
-        error(*this, "scratch buffer pool exhausted");
         fatal("scratch buffer pool exhausted");
     }
 }
@@ -1600,13 +1577,9 @@ Platform::Platform()
 }
 
 
-void Platform::soft_exit()
-{
-    data()->window_.close();
-}
-
 
 static const char* const save_file_name = "save.dat";
+
 
 
 bool Platform::write_save_data(const void* data, u32 length, u32 offset)
@@ -1618,6 +1591,7 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 
     return true;
 }
+
 
 
 bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
@@ -1634,10 +1608,12 @@ bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
 }
 
 
+
 bool Platform::is_running() const
 {
     return data()->window_.isOpen();
 }
+
 
 
 void Platform::sleep(u32 frames)
@@ -1653,11 +1629,34 @@ void Platform::sleep(u32 frames)
 }
 
 
+
+void Platform::set_scratch_buffer_oom_handler(Function<16, void()> callback)
+{
+    // ...
+}
+
+
+
+void Platform::on_unrecoverrable_error(UnrecoverrableErrorCallback callback)
+{
+    // ...
+}
+
+
+
 void Platform::load_sprite_texture(const char* name)
 {
     // std::lock_guard<std::mutex> guard(texture_swap_mutex);
     texture_swap_requests.push({TextureSwap::spritesheet, name});
 }
+
+
+
+void Platform::load_background_texture(const char* name)
+{
+    // ...
+}
+
 
 
 void Platform::load_tile0_texture(const char* name)
@@ -1667,11 +1666,13 @@ void Platform::load_tile0_texture(const char* name)
 }
 
 
+
 void Platform::load_tile1_texture(const char* name)
 {
     // std::lock_guard<std::mutex> guard(texture_swap_mutex);
     texture_swap_requests.push({TextureSwap::tile1, name});
 }
+
 
 
 bool Platform::overlay_texture_exists(const char* name)
@@ -1681,6 +1682,7 @@ bool Platform::overlay_texture_exists(const char* name)
     std::ifstream f(image_folder + name + ".txt");
     return f.good();
 }
+
 
 
 bool Platform::load_overlay_texture(const char* name)
@@ -1708,16 +1710,16 @@ bool Platform::load_overlay_texture(const char* name)
 }
 
 
-void Platform::on_watchdog_timeout(WatchdogCallback callback)
-{
-    // TODO
-}
-
 
 std::map<Layer, std::map<std::pair<u16, u16>, TileDesc>> tile_layers_;
 
 
-void Platform::set_tile(Layer layer, u16 x, u16 y, TileDesc val)
+
+void Platform::set_tile(Layer layer,
+                        u16 x,
+                        u16 y,
+                        TileDesc val,
+                        std::optional<u16> palette)
 {
     tile_layers_[layer][{x, y}] = val;
 
@@ -1802,7 +1804,7 @@ void Platform::fatal(const char* msg)
 
 void Platform::feed_watchdog()
 {
-    ::watchdog_task.feed();
+    // ... TODO ...
 }
 
 
@@ -1948,50 +1950,20 @@ bool Platform::NetworkPeer::supported_by_device()
 
 void Platform::NetworkPeer::listen()
 {
-    auto impl = (NetworkPeerImpl*)impl_;
-
-    auto port = lisp::loadv<lisp::Integer>("network-port").value_;
-
-    info(*::platform, ("listening on port " + std::to_string(port)).c_str());
-
-    impl->listener_.listen(55001);
-    impl->listener_.accept(impl->socket_);
-
-    info(*::platform, "Peer connected!");
-
-    impl->is_host_ = true;
-    impl->socket_.setBlocking(false);
+    return;
 }
 
 
 void Platform::NetworkPeer::connect(const char* peer)
 {
-    auto impl = (NetworkPeerImpl*)impl_;
-
-    impl->is_host_ = false;
-
-    auto port = lisp::loadv<lisp::Integer>("network-port").value_;
-
-    auto addr = "127.0.0.1";
-    // Conf{*::platform}.expect<Conf::String>(
-    // ::platform->device_name().c_str(), "host_address");
-
-    info(*::platform,
-         ("connecting to " + std::string(addr) + ":" + std::to_string(port))
-             .c_str());
-
-    if (impl->socket_.connect(addr, port) == sf::Socket::Status::Done) {
-        info(*::platform, "Peer connected!");
-    } else {
-        error(*::platform, "connection failed :(");
-    }
-
-    impl->socket_.setBlocking(false);
+    return;
 }
 
 
 bool Platform::NetworkPeer::is_connected() const
 {
+    return false; // TODO
+
     auto impl = (NetworkPeerImpl*)impl_;
     return impl->socket_.getRemoteAddress() not_eq sf::IpAddress::None;
 }
@@ -1999,6 +1971,8 @@ bool Platform::NetworkPeer::is_connected() const
 
 bool Platform::NetworkPeer::send_message(const Message& message)
 {
+    return true; // TODO
+
     auto impl = (NetworkPeerImpl*)impl_;
 
     std::size_t sent = 0;
@@ -2090,6 +2064,12 @@ Platform::NetworkPeer::Interface Platform::NetworkPeer::interface() const
 }
 
 
+int Platform::NetworkPeer::send_queue_size() const
+{
+    return 100000;
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // SystemClock
 ////////////////////////////////////////////////////////////////////////////////
@@ -2123,6 +2103,125 @@ void Platform::SystemClock::init(Platform& pfrm)
 Platform::SystemClock::SystemClock()
 {
 }
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// misc
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+int Platform::print_memory_diagnostics()
+{
+    auto output = allocate_dynamic<RemoteConsole::Line>(
+        *::platform, "sbr-annotation-buffer");
+
+    int buffer_num = 0;
+
+    for (auto& cell : scratch_buffer_pool.cells()) {
+        if (not scratch_buffer_pool.is_freed(&cell)) {
+            *output += stringify(buffer_num);
+            *output += ":";
+            *output += ((ScratchBuffer*)cell.mem_.data())->tag_;
+            *output += "\r\n";
+            ++buffer_num;
+        }
+    }
+
+    const int free_sbr = scratch_buffer_count - buffer_num;
+
+    *output += format("used: % (%kb), free: % (%kb)\r\n",
+                      buffer_num,
+                      buffer_num * 2,
+                      free_sbr,
+                      free_sbr * 2)
+                   .c_str();
+
+    ::platform->remote_console().printline(output->c_str());
+
+    return 0;
+}
+
+
+
+void Platform::overwrite_t0_tile(u16 index, const EncodedTile& t)
+{
+    // TODO...
+}
+
+
+
+void Platform::overwrite_t1_tile(u16 index, const EncodedTile& t)
+{
+    // TODO...
+}
+
+
+
+void Platform::overwrite_sprite_tile(u16 index, const EncodedTile& t)
+{
+    // TODO...
+}
+
+
+
+Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
+{
+    // TODO...
+    return {};
+}
+
+
+
+void Platform::set_scroll(Layer layer, u16 x, u16 y)
+{
+    // TODO...
+}
+
+
+
+void Platform::load_overlay_chunk(TileDesc dst, TileDesc src, u16 count)
+{
+    // TODO...
+}
+
+
+
+ColorConstant grayscale_shader(int palette, ColorConstant k, int arg)
+{
+    return k; // TODO
+}
+
+
+
+ColorConstant contrast_shader(int palette, ColorConstant k, int arg)
+{
+    return k; // TODO
+}
+
+
+
+ColorConstant passthrough_shader(int palette, ColorConstant k, int arg)
+{
+    return k;
+}
+
+
+void Platform::set_raw_tile(Layer layer, u16 x, u16 y, TileDesc val)
+{
+    // TODO...
+}
+
+
+
+void Platform::Screen::set_shader(Shader shader)
+{
+    // ...
+}
+
 
 
 #ifdef _WIN32

@@ -72,7 +72,7 @@ struct Heartbeat
 {
     Header header_;
 
-    u8 unused_[5] = {0};
+    u8 unused_[5];
 
     static const auto mt = Header::MessageType::heartbeat;
 };
@@ -85,7 +85,7 @@ struct RoomConstructed
     HostInteger<MetaclassIndex> metaclass_index_;
     u8 x_;
     u8 y_;
-    u8 unused_[1] = {0};
+    u8 unused_[1];
 
     static const auto mt = Header::MessageType::room_constructed;
 };
@@ -96,7 +96,7 @@ struct TerrainConstructed
 {
     Header header_;
     u8 new_terrain_size_;
-    u8 unused_[4] = {0};
+    u8 unused_[4];
 
     static const auto mt = Header::MessageType::terrain_constructed;
 };
@@ -109,7 +109,7 @@ struct RoomSalvaged
     u8 x_;
     u8 y_;
 
-    u8 unused_[3] = {0};
+    u8 unused_[3];
 
     static const auto mt = Header::MessageType::room_salvaged;
 };
@@ -122,7 +122,7 @@ struct DynamiteActivated
     u8 x_;
     u8 y_;
 
-    u8 unused_[3] = {0};
+    u8 unused_[3];
 
     static const auto mt = Header::MessageType::dynamite_activated;
 };
@@ -156,7 +156,7 @@ struct DroneSetTarget
     u8 target_near_ : 1;
     u8 reserved_ : 6;
 
-    u8 unused_[2] = {0};
+    u8 unused_[2];
 
     static const auto mt = Header::MessageType::drone_set_target;
 };
@@ -225,6 +225,12 @@ struct RoomDestroyed
 // character can die in the game.
 struct CharacterDied
 {
+    CharacterDied()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
     u8 chr_x_;
     u8 chr_y_;
@@ -232,7 +238,7 @@ struct CharacterDied
     bool near_island_;
     bool chr_owned_by_player_;
 
-    u8 unused_[1] = {0};
+    u8 unused_[1];
 
     static const auto mt = Header::MessageType::character_died;
 };
@@ -241,6 +247,12 @@ struct CharacterDied
 
 struct CharacterBoarded
 {
+    CharacterBoarded()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
 
     u8 src_x_;
@@ -259,6 +271,12 @@ struct CharacterBoarded
 
 struct CharacterDisembark
 {
+    CharacterDisembark()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
 
     u8 src_x_;
@@ -277,6 +295,12 @@ struct CharacterDisembark
 
 struct ReplicantCreated
 {
+    ReplicantCreated()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
 
     u8 src_x_;
@@ -284,7 +308,7 @@ struct ReplicantCreated
 
     u8 health_;
 
-    u8 unused_[2] = {0};
+    u8 unused_[2];
 
     static const auto mt = Header::MessageType::replicant_created;
 };
@@ -293,6 +317,12 @@ struct ReplicantCreated
 
 struct DroneSpawn
 {
+    DroneSpawn()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
     u8 origin_x_ : 4;
     u8 origin_y_ : 4;
@@ -305,7 +335,7 @@ struct DroneSpawn
 
     u8 drone_class_;
 
-    u8 unused_[1] = {0};
+    u8 unused_[1];
 
     static const auto mt = Header::MessageType::drone_spawn;
 };
@@ -314,6 +344,12 @@ struct DroneSpawn
 
 struct DroneDestroyed
 {
+    DroneDestroyed()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
     u8 drone_x_ : 4;
     u8 drone_y_ : 4;
@@ -321,7 +357,7 @@ struct DroneDestroyed
     u8 destination_near_ : 1;
     u8 reserved_ : 7;
 
-    u8 unused_[3] = {0};
+    u8 unused_[3];
 
     static const auto mt = Header::MessageType::drone_destroyed;
 };
@@ -330,6 +366,12 @@ struct DroneDestroyed
 
 struct OpponentBulkheadChanged
 {
+    OpponentBulkheadChanged()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
 
     u8 room_x_;
@@ -337,7 +379,7 @@ struct OpponentBulkheadChanged
 
     bool open_;
 
-    u8 unused_[2] = {0};
+    u8 unused_[2];
 
     static const auto mt = Header::MessageType::bulkhead_changed;
 };
@@ -346,6 +388,12 @@ struct OpponentBulkheadChanged
 
 struct GameMatchParameterUpdate
 {
+    GameMatchParameterUpdate()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
     u8 parameter_id_;
     host_s32 value_;
@@ -357,10 +405,16 @@ struct GameMatchParameterUpdate
 
 struct GameMatchSettingsCursor
 {
+    GameMatchSettingsCursor()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
     u8 cursor_line_;
 
-    u8 unused_[4] = {0};
+    u8 unused_[4];
 
     static const auto mt = Header::MessageType::game_match_settings_cursor;
 };
@@ -369,8 +423,14 @@ struct GameMatchSettingsCursor
 
 struct GameMatchReady
 {
+    GameMatchReady()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
-    u8 unused_[5] = {0};
+    u8 unused_[5];
 
     static const auto mt = Header::MessageType::game_match_begin;
 };
@@ -379,13 +439,19 @@ struct GameMatchReady
 
 struct CoopCursor
 {
+    CoopCursor()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
     u8 x_;
     u8 y_;
     bool near_;
     u8 icon_;
 
-    u8 unused_[1] = {0};
+    u8 unused_[1];
 
     static const auto mt = Header::MessageType::co_op_cursor;
 };
@@ -396,8 +462,14 @@ struct CoopCursor
 // values are synchronized, before attempting to generate another level.
 struct CoopRngSyncRequest
 {
+    CoopRngSyncRequest()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
-    u8 unused_[5] = {0};
+    u8 unused_[5];
 
     static const auto mt = Header::MessageType::co_op_rng_sync_request;
 };
@@ -406,10 +478,16 @@ struct CoopRngSyncRequest
 
 struct CoopRngSync
 {
+    CoopRngSync()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
     host_s32 rng_state_;
 
-    u8 unused_[1] = {0};
+    u8 unused_[1];
 
     static const auto mt = Header::MessageType::co_op_rng_sync;
 };
@@ -420,10 +498,16 @@ struct CoopRngSync
 // value.
 struct CoopRngSyncAck
 {
+    CoopRngSyncAck()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
     host_s32 rng_state_;
 
-    u8 unused_[1] = {0};
+    u8 unused_[1];
 
     static const auto mt = Header::MessageType::co_op_rng_sync_ack;
 };
@@ -432,12 +516,18 @@ struct CoopRngSyncAck
 
 struct SetWeaponGroup
 {
+    SetWeaponGroup()
+    {
+        memset(this, 0, sizeof *this);
+        header_.message_type_ = mt;
+    }
+
     Header header_;
     u8 x_;
     u8 y_;
     u8 group_;
 
-    u8 unused_[2] = {0};
+    u8 unused_[2];
 
     static const auto mt = Header::MessageType::set_weapon_group;
 };
@@ -620,8 +710,8 @@ template <typename T> void transmit(Platform& pfrm, T& message)
 {
     static_assert(sizeof(T) == Platform::NetworkPeer::max_message_size);
     static_assert(alignof(T) == 1);
+    static_assert(std::is_trivially_copyable<T>());
 
-    message.header_.message_type_ = T::mt;
     message.header_.parity_ = parity(&message);
 
     while (

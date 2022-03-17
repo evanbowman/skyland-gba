@@ -40,7 +40,7 @@ bool is_mounted();
 FileContents load(FilePath path);
 
 
-void walk(Function<32, void(const char* path)> callback);
+void walk(Function<8 * sizeof(void*), void(const char* path)> callback);
 
 
 

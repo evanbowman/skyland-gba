@@ -82,7 +82,8 @@ public:
     void post(void* r)
     {
         for (auto& pl : pools_) {
-            if (r >= pl->cells().begin() and r < pl->cells().end()) {
+            if (r >= (void*)pl->cells().data() and
+                r < (void*)(pl->cells().data() + pl->cells().size())) {
                 pl->post((u8*)r);
                 return;
             }

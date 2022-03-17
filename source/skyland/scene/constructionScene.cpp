@@ -123,17 +123,6 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         return new_scene;
     }
 
-    if (app.player().key_down(pfrm, Key::start)) {
-        auto next = scene_pool::alloc<GlossaryViewerModule>();
-        if (next) {
-            const bool near = near_;
-            next->set_next_scene([near, &pfrm]() {
-                return scene_pool::alloc<ConstructionScene>(pfrm, near);
-            });
-            return next;
-        }
-    }
-
     if (not island(app)) {
         return exit_scene();
     }
@@ -309,6 +298,19 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::choose_building: {
+
+        if (app.player().key_down(pfrm, Key::start)) {
+            auto mt = data_->available_buildings_[building_selector_];
+            auto next = scene_pool::alloc<GlossaryViewerModule>(mt);
+            if (next) {
+                const bool near = near_;
+                next->set_next_scene([near, &pfrm]() {
+                    return scene_pool::alloc<ConstructionScene>(pfrm, near);
+                });
+                return next;
+            }
+        }
+
         auto scroll_right = [&] {
             pfrm.speaker().play_sound("click", 1);
             if (building_selector_ <

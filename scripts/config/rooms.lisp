@@ -11,7 +11,7 @@
  '((hull         240 300  0)
    (bronze-hull  240 300  0)
    (mirror-hull  200 500  0)
-   (stacked-hull 240 900  0)
+   (stacked-hull 200 600  0)
    (forcefield   240 300  40)
    (ion-fizzler  40  200  20)
    (cannon       200 1000 34)

@@ -319,7 +319,7 @@ public:
     static void stackcheck();
 
 
-    void walk_filesystem(Function<32, void(const char* path)>);
+    void walk_filesystem(Function<8 * sizeof(void*), void(const char* path)>);
 
 
     // Scratch buffers are sort of a blunt instrument. Designed for uncommon
