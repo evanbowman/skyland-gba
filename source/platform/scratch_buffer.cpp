@@ -1,5 +1,5 @@
 #include "scratch_buffer.hpp"
-#include "bulkAllocator.hpp"
+#include "allocator.hpp"
 #include "platform.hpp"
 
 #if defined(__NDS__)

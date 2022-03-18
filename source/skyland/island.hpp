@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bulkAllocator.hpp"
+#include "allocator.hpp"
 #include "entity.hpp"
 #include "entity/character/basicCharacter.hpp"
 #include "entity/drones/drone.hpp"

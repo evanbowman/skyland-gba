@@ -13,7 +13,7 @@
 
 #ifdef __GBA__
 
-#include "bulkAllocator.hpp"
+#include "allocator.hpp"
 #include "filesystem.hpp"
 #include "gbp_logo.hpp"
 #include "graphics/overlay.hpp"

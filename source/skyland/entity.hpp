@@ -2,7 +2,7 @@
 
 
 
-#include "bulkAllocator.hpp"
+#include "allocator.hpp"
 #include "graphics/sprite.hpp"
 #include "health.hpp"
 #include "hitbox.hpp"

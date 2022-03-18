@@ -1,5 +1,5 @@
 #include "lisp.hpp"
-#include "bulkAllocator.hpp"
+#include "allocator.hpp"
 #include "bytecode.hpp"
 #include "listBuilder.hpp"
 #include "localization.hpp"

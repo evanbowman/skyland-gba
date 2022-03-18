@@ -1,5 +1,5 @@
 #include "alloc_entity.hpp"
-#include "bulkAllocator.hpp"
+#include "allocator.hpp"
 #include "configure_island.hpp"
 #include "eternal/eternal.hpp"
 #include "platform/ram_filesystem.hpp"

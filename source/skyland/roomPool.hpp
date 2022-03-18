@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bulkAllocator.hpp"
+#include "allocator.hpp"
 #include "memory/pool.hpp"
 #include "skyland/room.hpp"
 #include <memory>

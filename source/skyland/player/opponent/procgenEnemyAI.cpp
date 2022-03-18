@@ -1,5 +1,5 @@
 #include "procgenEnemyAI.hpp"
-#include "bulkAllocator.hpp"
+#include "allocator.hpp"
 #include "skyland/entity/birds/genericBird.hpp"
 #include "skyland/roomTable.hpp"
 #include "skyland/room_metatable.hpp"

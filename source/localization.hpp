@@ -2,7 +2,7 @@
 
 
 #include "blind_jump/localeString.hpp"
-#include "bulkAllocator.hpp"
+#include "allocator.hpp"
 #include "dateTime.hpp"
 #include "string.hpp"
 

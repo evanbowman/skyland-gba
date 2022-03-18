@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bulkAllocator.hpp"
+#include "allocator.hpp"
 #include "graphics/overlay.hpp"
 #include "script/lisp.hpp"
 #include "skyland/scene.hpp"

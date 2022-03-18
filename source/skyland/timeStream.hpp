@@ -1,6 +1,6 @@
 #pragma once
 
-#include "bulkAllocator.hpp"
+#include "allocator.hpp"
 #include "memory/buffer.hpp"
 #include "number/endian.hpp"
 #include "number/numeric.hpp"
