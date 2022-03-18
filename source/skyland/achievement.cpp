@@ -228,7 +228,7 @@ static const AchievementInfo info[Achievement::count] = {
      SystemString::achievement_new_colossus_description,
      "lady-liberty",
      [](Platform&, App& app) {
-         if (player_island(app).character_count() > 7) {
+         if (player_island(app).character_count() >= 7) {
              u8 count = 0;
              for (auto& room : player_island(app).rooms()) {
                  for (auto& chr : room->characters()) {

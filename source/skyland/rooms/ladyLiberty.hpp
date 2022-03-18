@@ -53,12 +53,6 @@ public:
     }
 
 
-    static u32 properties()
-    {
-        return Decoration::properties() & ~RoomProperties::locked_by_default;
-    }
-
-
     static const char* name()
     {
         return "lady-liberty";
