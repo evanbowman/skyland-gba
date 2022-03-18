@@ -16,13 +16,12 @@ namespace skyland {
 
 
 
-FileBrowserModule::FileBrowserModule(Platform& pfrm,
-                                     UserContext&& user_context,
+FileBrowserModule::FileBrowserModule(UserContext&& user_context,
                                      const char* path,
                                      bool is_rom_path)
     : user_context_(std::move(user_context))
 {
-    path_ = allocate_dynamic<PathBuffer>(pfrm, "fs-path-buffer");
+    path_ = allocate_dynamic<PathBuffer>("fs-path-buffer");
 
     StringBuffer<max_folder_name> temp;
     u32 path_len = str_len(path);
@@ -47,10 +46,10 @@ FileBrowserModule::FileBrowserModule(Platform& pfrm,
 
 void FileBrowserModule::enter(Platform& pfrm, App&, Scene& prev)
 {
-    cwd_names_ = allocate_dynamic<CwdNames>(pfrm, "fs-cwd-names");
+    cwd_names_ = allocate_dynamic<CwdNames>("fs-cwd-names");
 
     if (not path_) {
-        path_ = allocate_dynamic<PathBuffer>(pfrm, "fs-path-buffer");
+        path_ = allocate_dynamic<PathBuffer>("fs-path-buffer");
         (*path_)->push_back("/");
     }
 
@@ -133,7 +132,7 @@ void FileBrowserModule::repaint(Platform& pfrm)
 
     auto cwd = this->cwd();
 
-    auto folders = allocate_dynamic<PathBuffer>(pfrm, "fs-folders-buffer");
+    auto folders = allocate_dynamic<PathBuffer>("fs-folders-buffer");
 
 
 
@@ -220,7 +219,7 @@ void FileBrowserModule::repaint(Platform& pfrm)
     case SelectedFilesystem::rom:
         auto cwd = this->cwd();
 
-        auto folders = allocate_dynamic<PathBuffer>(pfrm, "fs-folders-buffer");
+        auto folders = allocate_dynamic<PathBuffer>("fs-folders-buffer");
 
         pfrm.walk_filesystem(walk_fs);
 

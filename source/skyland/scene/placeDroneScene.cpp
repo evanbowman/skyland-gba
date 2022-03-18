@@ -17,7 +17,7 @@ PlaceDroneScene::PlaceDroneScene(Platform& pfrm,
                                  Vec2<u8> origin,
                                  DroneMeta* drone_class,
                                  bool near)
-    : matrix_(allocate_dynamic<bool[16][16]>(pfrm, "drone-placement-matrix")),
+    : matrix_(allocate_dynamic<bool[16][16]>("drone-placement-matrix")),
       origin_(origin), near_(near), drone_class_(drone_class)
 {
     if (not matrix_) {

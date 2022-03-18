@@ -496,7 +496,7 @@ Value* make_error(Error::Code error_code, Value* context);
 Value* make_userdata(void* obj);
 Value* make_symbol(const char* name,
                    Symbol::ModeBits mode = Symbol::ModeBits::requires_intern);
-Value* make_databuffer(Platform& pfrm, const char* sbr_tag = "");
+Value* make_databuffer(const char* sbr_tag = "");
 Value* make_string(const char* str);
 Value* make_character(utf8::Codepoint cp);
 
@@ -655,7 +655,7 @@ void eval(Value* code);
 
 
 // Parameter should be a function. Result on operand stack.
-void compile(Platform& pfrm, Value* code);
+void compile(Value* code);
 
 
 // Load code from a portable bytecode module. Result on operand stack.

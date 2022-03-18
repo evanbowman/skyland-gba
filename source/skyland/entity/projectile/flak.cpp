@@ -152,12 +152,10 @@ void Flak::explode(Platform& pfrm, App& app)
     flak_smoke(pfrm, app, sprite_.get_position());
 
 
-    app.on_timeout(
-        pfrm,
-        milliseconds(190),
-        [pos = sprite_.get_position(), flak_smoke](Platform& pf, App& app) {
-            flak_smoke(pf, app, pos);
-        });
+    app.on_timeout(pfrm,
+                   milliseconds(190),
+                   [pos = sprite_.get_position(), flak_smoke](
+                       Platform& pf, App& app) { flak_smoke(pf, app, pos); });
 }
 
 

@@ -692,7 +692,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             app.camera()->shake(3);
 
-            confetti_ = allocate_dynamic<ConfettiBuffer>(pfrm, "confetti");
+            confetti_ = allocate_dynamic<ConfettiBuffer>("confetti");
             if (confetti_ and *confetti_) {
                 for (int i = 0; i < 18; ++i) {
 

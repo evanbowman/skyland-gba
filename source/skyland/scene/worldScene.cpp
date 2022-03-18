@@ -259,10 +259,10 @@ static u32 format_power_fraction(Power avail, Power used)
 bool WorldScene::camera_update_check_key(Platform& pfrm, App& app)
 {
     return app.player().key_pressed(pfrm, Key::left) or
-        app.player().key_pressed(pfrm, Key::right) or
-        app.player().key_pressed(pfrm, Key::up) or
-        app.player().key_pressed(pfrm, Key::down) or
-        app.player().key_pressed(pfrm, Key::select);
+           app.player().key_pressed(pfrm, Key::right) or
+           app.player().key_pressed(pfrm, Key::up) or
+           app.player().key_pressed(pfrm, Key::down) or
+           app.player().key_pressed(pfrm, Key::select);
 }
 
 
@@ -468,8 +468,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.dialog_buffer().reset();
         const bool answer = app.dialog_expects_answer();
         app.dialog_expects_answer() = false;
-        return scene_pool::alloc<BoxedDialogScene>(
-            pfrm, std::move(buffer), answer);
+        return scene_pool::alloc<BoxedDialogScene>(std::move(buffer), answer);
     }
 
 

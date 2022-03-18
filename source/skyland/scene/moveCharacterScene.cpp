@@ -16,8 +16,7 @@ namespace skyland {
 
 
 MoveCharacterScene::MoveCharacterScene(Platform& pfrm, bool near)
-    : matrix_(allocate_dynamic<bool[16][16]>(pfrm, "chr-movement-slots")),
-      near_(near)
+    : matrix_(allocate_dynamic<bool[16][16]>("chr-movement-slots")), near_(near)
 {
     if (not matrix_) {
         pfrm.fatal("MCS: buffers exhausted");
@@ -343,7 +342,7 @@ u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y)
 {
     using Coord = Vec2<u8>;
 
-    ScratchBufferBulkAllocator mem(pfrm);
+    ScratchBufferBulkAllocator mem;
 
     auto stack = mem.alloc<Buffer<Coord, 16 * 16>>();
 

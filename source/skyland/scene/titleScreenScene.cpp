@@ -792,10 +792,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     save::store_global_data(pfrm, app.gp_);
                     app.invoke_script(pfrm, "/scripts/reset_hooks.lisp");
                     auto dialog =
-                        allocate_dynamic<DialogString>(pfrm, "dialog-buffer");
+                        allocate_dynamic<DialogString>("dialog-buffer");
                     *dialog = SYS_CSTR(dialog_tutorial_prompt);
                     auto next = scene_pool::alloc<BoxedDialogScene>(
-                        pfrm, std::move(dialog), false);
+                        std::move(dialog), false);
 
                     return next;
 

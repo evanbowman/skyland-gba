@@ -440,8 +440,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     auto result = lisp::get_op(0);
                     if (result->type() == lisp::Value::Type::error) {
                         const char* tag = "lisp-fmt-buffer";
-                        auto p =
-                            allocate_dynamic<lisp::DefaultPrinter>(pfrm, tag);
+                        auto p = allocate_dynamic<lisp::DefaultPrinter>(tag);
                         lisp::format(result, *p);
                         pfrm.fatal(p->fmt_.c_str());
                     }
@@ -1358,7 +1357,7 @@ Island* opponent_island(App& app)
 
 bool speaker_data_store(Platform& pfrm, Island& island, const char* path)
 {
-    Vector<char> data(pfrm);
+    Vector<char> data;
 
     for (auto& room : island.rooms()) {
         if (auto speaker = dynamic_cast<Speaker*>(room.get())) {
@@ -1395,7 +1394,7 @@ bool speaker_data_store(Platform& pfrm, Island& island, const char* path)
 
 bool speaker_data_load(Platform& pfrm, Island& island, const char* path)
 {
-    Vector<char> data(pfrm);
+    Vector<char> data;
 
     auto bytes = ram_filesystem::read_file_data(pfrm, path, data);
 
@@ -1465,7 +1464,7 @@ bool speaker_data_load(Platform& pfrm, Island& island, const char* path)
 
 bool synth_notes_store(Platform& pfrm, Island& island, const char* path)
 {
-    Vector<char> data(pfrm);
+    Vector<char> data;
 
     for (auto& room : island.rooms()) {
         if (auto synth = dynamic_cast<Synth*>(room.get())) {
@@ -1499,7 +1498,7 @@ bool synth_notes_store(Platform& pfrm, Island& island, const char* path)
 
 bool synth_notes_load(Platform& pfrm, Island& island, const char* path)
 {
-    Vector<char> data(pfrm);
+    Vector<char> data;
 
     auto bytes = ram_filesystem::read_file_data(pfrm, path, data);
 

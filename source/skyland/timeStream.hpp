@@ -106,15 +106,13 @@ public:
         }
 
         if (not buffers_) {
-            buffers_ =
-                allocate_dynamic<TimeBuffer>(pfrm, "time-stream", current);
+            buffers_ = allocate_dynamic<TimeBuffer>("time-stream", current);
             ++buffer_count_;
             end_ = &**buffers_;
         }
 
         while (not end_->push(event)) {
-            end_->next_ =
-                allocate_dynamic<TimeBuffer>(pfrm, "time-stream", current);
+            end_->next_ = allocate_dynamic<TimeBuffer>("time-stream", current);
             end_ = &**end_->next_;
             ++buffer_count_;
         }

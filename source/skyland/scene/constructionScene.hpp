@@ -19,15 +19,15 @@ static const int construction_zone_min_y = 4;
 class ConstructionScene : public ActiveWorldScene
 {
 public:
-    ConstructionScene(Platform& pfrm, bool near = true)
-        : data_(allocate_dynamic<Data>(pfrm, "construction-data")), near_(near)
+    ConstructionScene(bool near = true)
+        : data_(allocate_dynamic<Data>("construction-data")), near_(near)
     {
     }
 
 
-    ConstructionScene(Platform& pfrm, int selector)
+    ConstructionScene(int selector)
         : selector_(selector),
-          data_(allocate_dynamic<Data>(pfrm, "construction-data"))
+          data_(allocate_dynamic<Data>("construction-data"))
     {
     }
 

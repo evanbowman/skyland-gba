@@ -17,11 +17,9 @@ namespace skyland {
 class BoxedDialogScene : public WorldScene
 {
 public:
-    BoxedDialogScene(Platform& pfrm,
-                     DialogBuffer buffer,
-                     bool expects_answer_y_n)
+    BoxedDialogScene(DialogBuffer buffer, bool expects_answer_y_n)
         : buffer_(std::move(buffer)), expects_answer_y_n_(expects_answer_y_n),
-          data_(allocate_dynamic<Data>(pfrm, "dialog-data"))
+          data_(allocate_dynamic<Data>("dialog-data"))
     {
         goto_tutorial_ = 0;
     }

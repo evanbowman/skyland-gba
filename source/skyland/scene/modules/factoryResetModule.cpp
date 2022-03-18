@@ -17,9 +17,7 @@ FactoryResetModule::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.screen().fade(0.9f);
         pfrm.screen().fade(1.f);
         text_.emplace(pfrm);
-        text_->assign(SYSTR(factory_reset)->c_str(),
-                      {1, 1},
-                      {28, 8});
+        text_->assign(SYSTR(factory_reset)->c_str(), {1, 1}, {28, 8});
     }
 
     if (app.player().key_down(pfrm, Key::action_2)) {

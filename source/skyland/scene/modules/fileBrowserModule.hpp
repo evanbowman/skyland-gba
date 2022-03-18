@@ -54,8 +54,7 @@ public:
 
 
     FileBrowserModule() = default;
-    FileBrowserModule(Platform& pfrm,
-                      UserContext&& user_context,
+    FileBrowserModule(UserContext&& user_context,
                       const char* path,
                       bool is_rom_path = false);
 

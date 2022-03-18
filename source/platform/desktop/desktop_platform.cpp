@@ -1481,7 +1481,7 @@ Platform::~Platform()
 // 256kB, because I am using none of EWRAM as far as I know...
 static ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
                   scratch_buffer_count>
-        scratch_buffer_pool("scratch-buffers");
+    scratch_buffer_pool("scratch-buffers");
 
 
 

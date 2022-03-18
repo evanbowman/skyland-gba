@@ -40,8 +40,6 @@ public:
 
 
 private:
-
-
     u32 murmurhash(const char* key, u32 len, u32 seed) const
     {
         // The MIT License (MIT)

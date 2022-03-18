@@ -10,7 +10,7 @@ namespace skyland {
 
 void HideRoomsScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    data_ = allocate_dynamic<Data>(pfrm, "hide-rooms-context");
+    data_ = allocate_dynamic<Data>("hide-rooms-context");
 
 
     Text::platform_retain_alphabet(pfrm);

@@ -109,7 +109,7 @@ void Explosive::ignite(Platform& pfrm, App& app, int range, Health damage)
                    });
 
     auto targets =
-        allocate_dynamic<Buffer<Room*, 300>>(pfrm, "dynamite-target-bufer");
+        allocate_dynamic<Buffer<Room*, 300>>("dynamite-target-bufer");
 
     for (int x = -range; x < range + 1; ++x) {
         for (int y = -range; y < range + 1; ++y) {

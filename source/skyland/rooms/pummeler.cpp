@@ -1,5 +1,5 @@
-#include "platform/platform.hpp"
 #include "pummeler.hpp"
+#include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/projectile/curveshot.hpp"
 #include "skyland/scene_pool.hpp"
@@ -46,14 +46,8 @@ void Pummeler::fire(Platform& pfrm, App& app)
         target = rng::sample<6>(target, rng::critical_state);
     }
 
-    auto c =
-        app.alloc_entity<Curveshot>(pfrm,
-                                    start,
-                                    target,
-                                    parent(),
-                                    other_island(app),
-                                    position(),
-                                    *target_);
+    auto c = app.alloc_entity<Curveshot>(
+        pfrm, start, target, parent(), other_island(app), position(), *target_);
     if (c) {
         parent()->projectiles().push(std::move(c));
     }

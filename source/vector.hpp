@@ -275,15 +275,13 @@ public:
     }
 
 
-    Vector(Platform& pfrm, ScratchBuffer::Tag t = "")
-        : pfrm_(pfrm), data_(pfrm.make_scratch_buffer(t))
+    Vector(ScratchBuffer::Tag t = "") : data_(make_scratch_buffer(t))
     {
         Chunk::initialize(data_, nullptr);
     }
 
 
-    Vector(Vector&& other)
-        : pfrm_(other.pfrm_), data_(other.data_), size_(other.size_)
+    Vector(Vector&& other) : data_(other.data_), size_(other.size_)
     {
         other.valid_ = false;
     }
@@ -306,7 +304,7 @@ public:
         }
 
         if (size == Chunk::elems() and not current->header_.next_) {
-            auto sbr = pfrm_.make_scratch_buffer(t);
+            auto sbr = make_scratch_buffer(t);
             Chunk::initialize(sbr, current);
             current->header_.next_ = sbr;
             current = (Chunk*)(*current->header_.next_)->data_;
@@ -381,7 +379,6 @@ public:
 
 
 private:
-    Platform& pfrm_;
     ScratchBufferPtr data_;
     bool valid_ = true;
     u32 size_ = 0;

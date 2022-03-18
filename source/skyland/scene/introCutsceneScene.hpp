@@ -26,7 +26,6 @@ void __draw_image(Platform& pfrm,
 class IntroCutsceneDoneScene : public Scene
 {
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         pfrm.speaker().stop_music();
@@ -40,7 +39,6 @@ public:
         pfrm.fill_overlay(0);
         return scene_pool::alloc<IntroCreditsScene>();
     }
-
 };
 
 
@@ -48,7 +46,6 @@ public:
 class IntroCutsceneSceneText3 : public Scene
 {
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         pfrm.load_overlay_texture("overlay_challenges");
@@ -77,26 +74,24 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         timer_ += delta;
 
         if (timer_ < milliseconds(7000)) {
-            auto fade_amount = smoothstep(milliseconds(3000),
-                                          milliseconds(5000),
-                                          timer_);
+            auto fade_amount =
+                smoothstep(milliseconds(3000), milliseconds(5000), timer_);
             pfrm.screen().schedule_fade(1.f - fade_amount / 2);
         } else if (timer_ <= milliseconds(8000)) {
 
-            auto fade_amount = smoothstep(milliseconds(7000),
-                                          milliseconds(7900),
-                                          timer_);
+            auto fade_amount =
+                smoothstep(milliseconds(7000), milliseconds(7900), timer_);
             pfrm.screen().schedule_fade(0.5f - fade_amount * 0.8f);
 
         } else if (timer_ > milliseconds(8000)) {
-            auto fade_amount = smoothstep(milliseconds(8000),
-                                          milliseconds(9000),
-                                          timer_);
+            auto fade_amount =
+                smoothstep(milliseconds(8000), milliseconds(9000), timer_);
             pfrm.screen().schedule_fade(0.2f + 0.8f * fade_amount);
         }
 
@@ -104,9 +99,8 @@ public:
 
         if (timer_ > seconds(1) and not text_) {
             text_.emplace(pfrm);
-            text_->assign(SYSTR(intro_sequence_message_3)->c_str(),
-                          {1, 6},
-                          {28, 8});
+            text_->assign(
+                SYSTR(intro_sequence_message_3)->c_str(), {1, 6}, {28, 8});
             // pfrm.screen().schedule_fade(1.f, ColorConstant::rich_black);
         }
 
@@ -114,12 +108,13 @@ public:
             text_.reset();
             pfrm.speaker().stop_music();
         } else {
-            pfrm.speaker().set_music_volume(20 -
-                                            19 * (Float(timer_) / milliseconds(7000)));
+            pfrm.speaker().set_music_volume(
+                20 - 19 * (Float(timer_) / milliseconds(7000)));
         }
 
         if (timer_ > milliseconds(11000)) {
-            pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+            pfrm.speaker().set_music_volume(
+                Platform::Speaker::music_volume_max);
             return scene_pool::alloc<IntroCutsceneDoneScene>();
         } else {
             if (pfrm.keyboard().down_transition<Key::action_2>() or
@@ -138,9 +133,9 @@ public:
 
 
 
-class IntroCutsceneLaunch : public Scene {
+class IntroCutsceneLaunch : public Scene
+{
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         pfrm.load_tile1_texture("intro_island_launch_flattened");
@@ -210,7 +205,8 @@ public:
 
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         timer_ += delta;
 
@@ -219,12 +215,15 @@ public:
             return scene_pool::alloc<IntroCutsceneDoneScene>();
         }
 
-        auto fade_amount = smoothstep(milliseconds(4000), milliseconds(6000), timer_);
+        auto fade_amount =
+            smoothstep(milliseconds(4000), milliseconds(6000), timer_);
         pfrm.screen().schedule_fade(fade_amount);
 
 
-        for (auto it = snow_particles_.begin(); it not_eq snow_particles_.end();) {
-            if (it->x > pfrm.screen().size().x or it->y > pfrm.screen().size().y) {
+        for (auto it = snow_particles_.begin();
+             it not_eq snow_particles_.end();) {
+            if (it->x > pfrm.screen().size().x or
+                it->y > pfrm.screen().size().y) {
                 it = snow_particles_.erase(it);
             } else {
                 it->x += 0.0002f * delta;
@@ -235,12 +234,14 @@ public:
 
         if (snow_particles_.size() < 16) {
             if (rng::choice<2>(rng::utility_state)) {
-                Float x = rng::choice(pfrm.screen().size().x, rng::utility_state);
+                Float x =
+                    rng::choice(pfrm.screen().size().x, rng::utility_state);
                 Float y = 0;
                 snow_particles_.push_back({x, y});
             } else {
                 Float x = 0;
-                Float y = rng::choice(pfrm.screen().size().y, rng::utility_state);
+                Float y =
+                    rng::choice(pfrm.screen().size().y, rng::utility_state);
                 snow_particles_.push_back({x, y});
             }
         }
@@ -265,7 +266,6 @@ private:
 class IntroCutsceneSceneText2 : public Scene
 {
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         const auto screen_tiles = calc_screen_tiles(pfrm);
@@ -279,7 +279,6 @@ public:
             pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
             pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 112);
         }
-
     }
 
 
@@ -293,7 +292,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (pfrm.keyboard().down_transition<Key::action_2>() or
             pfrm.keyboard().down_transition<Key::action_1>()) {
@@ -304,9 +304,8 @@ public:
 
         if (timer_ > seconds(2) and not text_) {
             text_.emplace(pfrm);
-            text_->assign(SYSTR(intro_sequence_message_2)->c_str(),
-                          {1, 6},
-                          {28, 8});
+            text_->assign(
+                SYSTR(intro_sequence_message_2)->c_str(), {1, 6}, {28, 8});
             pfrm.screen().schedule_fade(1.f, ColorConstant::rich_black);
         }
 
@@ -326,7 +325,6 @@ public:
 class IntroCutsceneScene : public Scene
 {
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         pfrm.load_tile1_texture("intro_crops_snow_flattened");
@@ -356,7 +354,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (pfrm.keyboard().down_transition<Key::action_2>() or
             pfrm.keyboard().down_transition<Key::action_1>()) {
@@ -387,8 +386,10 @@ public:
             }
         }
 
-        for (auto it = snow_particles_.begin(); it not_eq snow_particles_.end();) {
-            if (it->x > pfrm.screen().size().x or it->y > pfrm.screen().size().y) {
+        for (auto it = snow_particles_.begin();
+             it not_eq snow_particles_.end();) {
+            if (it->x > pfrm.screen().size().x or
+                it->y > pfrm.screen().size().y) {
                 it = snow_particles_.erase(it);
             } else {
                 it->x += 0.0002f * delta;
@@ -399,12 +400,14 @@ public:
 
         if (snow_particles_.size() < 16) {
             if (rng::choice<2>(rng::utility_state)) {
-                Float x = rng::choice(pfrm.screen().size().x, rng::utility_state);
+                Float x =
+                    rng::choice(pfrm.screen().size().x, rng::utility_state);
                 Float y = 0;
                 snow_particles_.push_back({x, y});
             } else {
                 Float x = 0;
-                Float y = rng::choice(pfrm.screen().size().y, rng::utility_state);
+                Float y =
+                    rng::choice(pfrm.screen().size().y, rng::utility_state);
                 snow_particles_.push_back({x, y});
             }
         }
@@ -433,10 +436,9 @@ private:
 
 
 
-
-class IntroCutsceneExplosion2 : public Scene {
+class IntroCutsceneExplosion2 : public Scene
+{
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         pfrm.load_tile1_texture("intro_explosion_2_flattened");
@@ -456,7 +458,8 @@ public:
 
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (pfrm.keyboard().down_transition<Key::action_2>() or
             pfrm.keyboard().down_transition<Key::action_1>()) {
@@ -466,8 +469,7 @@ public:
         timer_ += delta;
 
         auto fade_amount = smoothstep(0.f, milliseconds(2000), timer_);
-        pfrm.screen().schedule_fade(1.f - fade_amount,
-                                    custom_color(0xf7f2ab));
+        pfrm.screen().schedule_fade(1.f - fade_amount, custom_color(0xf7f2ab));
 
 
         if (timer_ > milliseconds(4000)) {
@@ -484,9 +486,9 @@ private:
 
 
 
-class IntroCutsceneExplosion1 : public Scene {
+class IntroCutsceneExplosion1 : public Scene
+{
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         pfrm.load_tile1_texture("intro_explosion_1_flattened");
@@ -506,7 +508,6 @@ public:
             pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 3, 112);
             pfrm.set_tile(Layer::overlay, i, screen_tiles.y - 4, 112);
         }
-
     }
 
 
@@ -534,7 +535,8 @@ public:
 
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (pfrm.keyboard().down_transition<Key::action_2>() or
             pfrm.keyboard().down_transition<Key::action_1>()) {
@@ -544,8 +546,7 @@ public:
         timer_ += delta;
 
         auto fade_amount = smoothstep(0.f, milliseconds(1700), timer_);
-        pfrm.screen().schedule_fade(1.f - fade_amount,
-                                    custom_color(0xf7f2ab));
+        pfrm.screen().schedule_fade(1.f - fade_amount, custom_color(0xf7f2ab));
 
 
         if (timer_ > milliseconds(2300)) {
@@ -565,18 +566,17 @@ private:
 class IntroCutsceneSceneText1 : public Scene
 {
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         text_.emplace(pfrm);
-        text_->assign(SYSTR(intro_sequence_message_1)->c_str(),
-                      {1, 6},
-                      {28, 8});
+        text_->assign(
+            SYSTR(intro_sequence_message_1)->c_str(), {1, 6}, {28, 8});
         pfrm.screen().schedule_fade(1.f);
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (pfrm.keyboard().down_transition<Key::action_2>() or
             pfrm.keyboard().down_transition<Key::action_1>()) {
@@ -602,10 +602,9 @@ public:
 
 
 
-
-class IntroCutsceneSceneBegin : public Scene {
+class IntroCutsceneSceneBegin : public Scene
+{
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         // pfrm.speaker().play_music("unaccompanied_wind", 0);
@@ -627,7 +626,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         timer_ += delta;
 
@@ -646,4 +646,4 @@ public:
 
 
 
-}
+} // namespace skyland

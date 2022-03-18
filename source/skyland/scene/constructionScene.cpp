@@ -50,10 +50,10 @@ bool ConstructionScene::camera_update_check_key(Platform& pfrm, App& app)
         return false;
     }
     return app.player().key_pressed(pfrm, Key::left) or
-        app.player().key_pressed(pfrm, Key::right) or
-        app.player().key_pressed(pfrm, Key::up) or
-        app.player().key_pressed(pfrm, Key::down) or
-        app.player().key_pressed(pfrm, Key::select);
+           app.player().key_pressed(pfrm, Key::right) or
+           app.player().key_pressed(pfrm, Key::up) or
+           app.player().key_pressed(pfrm, Key::down) or
+           app.player().key_pressed(pfrm, Key::select);
 }
 
 
@@ -179,7 +179,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_loc.x = 0;
                 cursor_loc.y =
                     std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
-                return scene_pool::alloc<ConstructionScene>(pfrm, false);
+                return scene_pool::alloc<ConstructionScene>(false);
             }
         }
 
@@ -197,7 +197,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_loc.x = app.player_island().terrain().size();
                 cursor_loc.y =
                     std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y;
-                return scene_pool::alloc<ConstructionScene>(pfrm, true);
+                return scene_pool::alloc<ConstructionScene>(true);
             }
         }
 
@@ -305,7 +305,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (next) {
                 const bool near = near_;
                 next->set_next_scene([near, &pfrm]() {
-                    return scene_pool::alloc<ConstructionScene>(pfrm, near);
+                    return scene_pool::alloc<ConstructionScene>(near);
                 });
                 return next;
             }

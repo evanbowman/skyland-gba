@@ -38,7 +38,7 @@ public:
             text_.reset();
             pfrm.screen().display();
             pfrm.system_call("hibernate", nullptr);
-            return scene_pool::alloc<StartMenuScene>(pfrm, 1);
+            return scene_pool::alloc<StartMenuScene>(1);
         }
 
         return null_scene();

@@ -482,8 +482,7 @@ int TextEditorModule::line_length()
 
 
 TextEditorModule::TextEditorModule(Platform& pfrm, UserContext&& context)
-    : text_buffer_(pfrm),
-      state_(allocate_dynamic<State>(pfrm, "text-editor-state")),
+    : state_(allocate_dynamic<State>("text-editor-state")),
       user_context_(std::move(context)), filesystem_(FileSystem::device),
       syntax_mode_(SyntaxMode::plain_text), file_mode_(FileMode::readonly)
 {
@@ -506,8 +505,7 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
                                    SyntaxMode syntax_mode,
                                    FileMode file_mode,
                                    FileSystem filesystem)
-    : text_buffer_(pfrm),
-      state_(allocate_dynamic<State>(pfrm, "text-editor-state")),
+    : state_(allocate_dynamic<State>("text-editor-state")),
       user_context_(std::move(user_context)), filesystem_(filesystem),
       syntax_mode_(syntax_mode), file_mode_(file_mode)
 {
@@ -833,7 +831,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             } else if (app.player().key_down(pfrm, Key::action_1)) {
                 user_context_.yank_buffer_.reset();
                 if (state_->sel_begin_) {
-                    user_context_.yank_buffer_.emplace(pfrm);
+                    user_context_.yank_buffer_.emplace();
                     save_selection(*user_context_.yank_buffer_);
                     deselect();
                 }
@@ -1161,7 +1159,6 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     scene_pool::alloc<FileBrowserModule>();
                 }
                 return scene_pool::alloc<FileBrowserModule>(
-                    pfrm,
                     std::move(user_context_),
                     state_->file_path_.c_str(),
                     filesystem_ == FileSystem::rom);

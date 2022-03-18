@@ -36,7 +36,7 @@ std::optional<Path> find_path(Platform& pfrm,
     for (u8 x = 0; x < 16; ++x) {
         for (u8 y = 0; y < 16; ++y) {
             if (matrix[x][y]) {
-                if (auto obj = vertex_memory_.alloc<PathVertexData>(pfrm)) {
+                if (auto obj = vertex_memory_.alloc<PathVertexData>()) {
                     obj->coord_ = {x, y};
                     if (priority_q.push_back(obj.release())) {
                         if (priority_q.back()->coord_ == start) {
@@ -101,8 +101,7 @@ std::optional<Path> find_path(Platform& pfrm,
                 return {};
             }
             if (min->coord_ == end) {
-                auto path_mem =
-                    allocate_dynamic<PathBuffer>(pfrm, "path-buffer");
+                auto path_mem = allocate_dynamic<PathBuffer>("path-buffer");
                 if (not path_mem) {
                     return {};
                 }

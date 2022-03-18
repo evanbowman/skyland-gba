@@ -641,7 +641,7 @@ bool locale_requires_doublesize_font()
 
 LocalizedText locale_string(Platform& pfrm, LocaleString ls)
 {
-    auto result = allocate_dynamic<LocalizedStrBuffer>(pfrm, "locale-string");
+    auto result = allocate_dynamic<LocalizedStrBuffer>("locale-string");
 
     auto languages = lisp::get_var(lisp::make_symbol("languages"));
 

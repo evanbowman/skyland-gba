@@ -16,8 +16,8 @@ namespace skyland {
 
 
 
-StartMenuScene::StartMenuScene(Platform& pfrm, int fade_direction)
-    : data_(allocate_dynamic<Data>(pfrm, "start-menu-options-buffer")),
+StartMenuScene::StartMenuScene(int fade_direction)
+    : data_(allocate_dynamic<Data>("start-menu-options-buffer")),
       fade_direction_(fade_direction)
 {
 }
@@ -74,9 +74,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             SYSTR(start_menu_glossary)->c_str(),
             [&pfrm] {
                 auto next = scene_pool::alloc<GlossaryViewerModule>();
-                next->set_next_scene([&pfrm]() {
-                    return scene_pool::alloc<StartMenuScene>(pfrm, 1);
-                });
+                next->set_next_scene(
+                    [&pfrm]() { return scene_pool::alloc<StartMenuScene>(1); });
                 return next;
             },
             cut);
@@ -90,9 +89,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm,
             SYSTR(start_menu_disable_rooms)->c_str(),
             [&pfrm] {
-                auto next = scene_pool::alloc<HideRoomsScene>([&pfrm]() {
-                    return scene_pool::alloc<StartMenuScene>(pfrm, 1);
-                });
+                auto next = scene_pool::alloc<HideRoomsScene>(
+                    [&pfrm]() { return scene_pool::alloc<StartMenuScene>(1); });
                 return next;
             },
             fade_sweep);
@@ -109,13 +107,14 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                        scene_pool::make_deferred_scene<LoadSandboxScene>(),
                        fade_sweep);
 
-            add_option(pfrm,
-                       SYSTR(start_menu_quit)->c_str(),
-                       [&pfrm]() -> ScenePtr<Scene> {
-                           pfrm.fill_overlay(0);
-                           return scene_pool::alloc<TitleScreenScene>(3);
-                       },
-                       fade_sweep);
+            add_option(
+                pfrm,
+                SYSTR(start_menu_quit)->c_str(),
+                [&pfrm]() -> ScenePtr<Scene> {
+                    pfrm.fill_overlay(0);
+                    return scene_pool::alloc<TitleScreenScene>(3);
+                },
+                fade_sweep);
             break;
 
         case App::GameMode::adventure:

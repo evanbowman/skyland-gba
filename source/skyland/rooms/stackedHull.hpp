@@ -45,7 +45,7 @@ public:
     static u32 properties()
     {
         return Hull::properties() | RoomProperties::disabled_in_tutorials |
-            RoomProperties::manufactory_required;
+               RoomProperties::manufactory_required;
     }
 
 

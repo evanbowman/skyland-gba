@@ -106,8 +106,7 @@ struct Context {
 
 
     Context(Platform& pfrm)
-        : operand_stack_(
-              allocate_dynamic<OperandStack>(pfrm, "lisp-operand-stack")),
+        : operand_stack_(allocate_dynamic<OperandStack>("lisp-operand-stack")),
           pfrm_(pfrm)
     {
         if (not operand_stack_) {
@@ -735,9 +734,9 @@ Value* make_userdata(void* obj)
 }
 
 
-Value* make_databuffer(Platform& pfrm, const char* sbr_tag)
+Value* make_databuffer(const char* sbr_tag)
 {
-    if (not pfrm.scratch_buffers_remaining()) {
+    if (not scratch_buffers_remaining()) {
         // Collect any data buffers that may be lying around.
         run_gc();
     }
@@ -749,7 +748,7 @@ Value* make_databuffer(Platform& pfrm, const char* sbr_tag)
     if (auto val = alloc_value()) {
         val->hdr_.type_ = Value::Type::data_buffer;
         new ((ScratchBufferPtr*)val->data_buffer().sbr_mem_)
-            ScratchBufferPtr(pfrm.make_scratch_buffer(sbr_tag));
+            ScratchBufferPtr(make_scratch_buffer(sbr_tag));
         return val;
     }
     return bound_context->oom_;
@@ -820,8 +819,7 @@ Value* make_string(const char* string)
             return bound_context->oom_;
         }
     } else {
-        auto buffer =
-            make_databuffer(bound_context->pfrm_, "lisp-string-bulk-allocator");
+        auto buffer = make_databuffer("lisp-string-bulk-allocator");
 
         if (buffer == bound_context->oom_) {
             return bound_context->oom_;
@@ -1738,7 +1736,7 @@ static u32 read_list(CharSequence& code, int offset)
 
 static u32 read_string(CharSequence& code, int offset)
 {
-    auto temp = bound_context->pfrm_.make_scratch_buffer("lisp-string-memory");
+    auto temp = make_scratch_buffer("lisp-string-memory");
     auto write = temp->data_;
 
     int i = 0;
@@ -3052,13 +3050,11 @@ static const Binding builtins[] = {
      }},
     {"compile",
      [](int argc) {
-         auto pfrm = interp_get_pfrm();
-
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, function);
 
          if (get_op0()->hdr_.mode_bits_ == Function::ModeBits::lisp_function) {
-             compile(*pfrm, dcompr(get_op0()->function().lisp_impl_.code_));
+             compile(dcompr(get_op0()->function().lisp_impl_.code_));
              auto ret = get_op0();
              pop_op();
              return ret;
@@ -3493,7 +3489,7 @@ void init(Platform& pfrm)
 
 void load_module(Module* module)
 {
-    Protected buffer(make_databuffer(bound_context->pfrm_, "lisp-module"));
+    Protected buffer(make_databuffer("lisp-module"));
     Protected zero(make_integer(0));
 
     Protected bytecode(make_cons(zero, buffer));

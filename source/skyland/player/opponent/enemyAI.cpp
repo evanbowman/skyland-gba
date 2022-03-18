@@ -476,7 +476,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
     }
 
     DynamicMemory<bool[16][16]> matrix_ =
-        allocate_dynamic<bool[16][16]>(pfrm, "ai-rooms-plot");
+        allocate_dynamic<bool[16][16]>("ai-rooms-plot");
 
     app.opponent_island()->plot_walkable_zones(app, *matrix_);
 
@@ -681,7 +681,7 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 
 
     DynamicMemory<bool[16][16]> matrix_ =
-        allocate_dynamic<bool[16][16]>(pfrm, "ai-chr-slots");
+        allocate_dynamic<bool[16][16]>("ai-chr-slots");
 
     app.player_island().plot_walkable_zones(app, *matrix_);
 

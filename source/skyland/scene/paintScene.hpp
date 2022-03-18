@@ -33,7 +33,7 @@ public:
         app.effects().clear();
 
         if (not create_) {
-            Vector<char> data(pfrm);
+            Vector<char> data;
             ram_filesystem::read_file_data(pfrm, file_path_.c_str(), data);
 
             if (data.size() >= sizeof texture_) {
@@ -62,7 +62,7 @@ public:
         pfrm.screen().schedule_fade(0.f);
 
         if (app.player().key_down(pfrm, Key::action_2)) {
-            Vector<char> output(pfrm);
+            Vector<char> output;
             for (u32 i = 0; i < sizeof texture_; ++i) {
                 output.push_back(((u8*)&texture_)[i]);
             }

@@ -1555,7 +1555,6 @@ Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
 
 
 
-static int scratch_buffers_in_use = 0;
 static int scratch_buffer_highwater = 0;
 
 
@@ -1573,8 +1572,8 @@ void Platform::Screen::clear()
     // NOTE: because our logging vector is backed by scratch buffers,
     // alloc_scratch_buffer cannot itself log anything, or else you have
     // infinite mutual recursion in expanding the vector basically.
-    if (scratch_buffers_in_use > scratch_buffer_highwater) {
-        scratch_buffer_highwater = scratch_buffers_in_use;
+    if (scratch_buffers_in_use() > scratch_buffer_highwater) {
+        scratch_buffer_highwater = scratch_buffers_in_use();
 
         StringBuffer<60> str = "sbr highwater: ";
 
@@ -2967,7 +2966,7 @@ void Platform::Logger::log(Severity level, const char* msg)
     ScratchBuffer::Tag t = "syslog_data";
 
     if (not log_data_) {
-        log_data_.emplace(*::platform, t);
+        log_data_.emplace(t);
     }
 
     while (*msg not_eq '\0') {
@@ -2976,6 +2975,13 @@ void Platform::Logger::log(Severity level, const char* msg)
     }
 
     log_data_->push_back('\n', t);
+}
+
+
+
+void Platform::Logger::clear()
+{
+    log_data_.reset();
 }
 
 
@@ -3008,8 +3014,8 @@ void Platform::Logger::flush()
 
 
 
-#include "data/music_sb_solecism.hpp"
 #include "data/music_isle_of_the_dead.hpp"
+#include "data/music_sb_solecism.hpp"
 #include "data/music_unaccompanied_wind.hpp"
 #include "data/shadows.hpp"
 
@@ -3782,8 +3788,8 @@ const char* Platform::load_file_contents(const char* folder,
 
 
 
-void Platform::walk_filesystem(Function<8 * sizeof(void*),
-                               void(const char* path)> callback)
+void Platform::walk_filesystem(
+    Function<8 * sizeof(void*), void(const char* path)> callback)
 {
     filesystem::walk(callback);
 }
@@ -3793,71 +3799,12 @@ void Platform::walk_filesystem(Function<8 * sizeof(void*),
 static const bool use_optimized_waitstates = true;
 
 
-// EWRAM is large, but has a narrower bus. The platform offers a window into
-// EWRAM, called scratch space, for non-essential stuff. Right now, I am setting
-// the buffer to ~100K in size. One could theoretically make the buffer almost
-// 256kB, because I am using none of EWRAM as far as I know...
-static EWRAM_DATA
-    ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
-               scratch_buffer_count>
-        scratch_buffer_pool("scratch-buffers");
-
-
-
-std::optional<Function<16, void()>> scratch_buffer_oom_handler;
-
-
-
-void Platform::set_scratch_buffer_oom_handler(Function<16, void()> callback)
-{
-    scratch_buffer_oom_handler.emplace(callback);
-}
-
-
-
-ScratchBufferPtr Platform::make_scratch_buffer(const ScratchBuffer::Tag& tag)
-{
-    if (not scratch_buffers_remaining()) {
-        if (scratch_buffer_oom_handler) {
-            (*scratch_buffer_oom_handler)();
-
-            if (not scratch_buffers_remaining()) {
-                log_data_.reset();
-            }
-        }
-    }
-
-    auto finalizer =
-        [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
-            --scratch_buffers_in_use;
-            ctrl->pool_->post(ctrl);
-        };
-
-    auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(
-        &scratch_buffer_pool, finalizer);
-    if (maybe_buffer) {
-        ++scratch_buffers_in_use;
-
-        (*maybe_buffer)->tag_ = tag;
-
-        return *maybe_buffer;
-    } else {
-        screen().fade(1.f, ColorConstant::electric_blue);
-        fatal("scratch buffer pool exhausted");
-    }
-}
-
-
-int Platform::scratch_buffers_remaining()
-{
-    return scratch_buffer_count - scratch_buffers_in_use;
-}
-
 
 Platform::~Platform()
 {
     // ...
 }
+
 
 
 struct GlyphMapping
@@ -6032,7 +5979,7 @@ static void uart_serial_isr()
     } else {
         if (not state.rx_in_progress_) {
             state.rx_in_progress_ =
-                allocate_dynamic<ConsoleLine>(*::platform, "uart-rx-buffer");
+                allocate_dynamic<ConsoleLine>("uart-rx-buffer");
         }
 
         if (state.rx_in_progress_) {
@@ -6091,8 +6038,7 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
         return false;
     }
 
-    state.tx_msg_ =
-        allocate_dynamic<ConsoleLine>(*::platform, "uart-console-output");
+    state.tx_msg_ = allocate_dynamic<ConsoleLine>("uart-console-output");
 
     std::optional<char> first_char;
 
@@ -6132,37 +6078,6 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
 
 
 void download_dlc_blob(Platform&, Vector<char>&);
-
-
-
-static void print_memory_diagnostics()
-{
-    auto output = allocate_dynamic<Platform::RemoteConsole::Line>(
-        *::platform, "sbr-annotation-buffer");
-
-    int buffer_num = 0;
-
-    for (auto& cell : scratch_buffer_pool.cells()) {
-        if (not scratch_buffer_pool.is_freed(&cell)) {
-            *output += stringify(buffer_num);
-            *output += ":";
-            *output += ((ScratchBuffer*)cell.mem_.data())->tag_;
-            *output += "\r\n";
-            ++buffer_num;
-        }
-    }
-
-    const int free_sbr = scratch_buffer_count - buffer_num;
-
-    *output += format("used: % (%kb), free: % (%kb)\r\n",
-                      buffer_num,
-                      buffer_num * 2,
-                      free_sbr,
-                      free_sbr * 2)
-                   .c_str();
-
-    ::platform->remote_console().printline(output->c_str());
-}
 
 
 
@@ -6316,7 +6231,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
         REG_KEYCNT =
             KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
     } else if (str_eq(feature_name, "print-memory-diagnostics")) {
-        print_memory_diagnostics();
+        scratch_buffer_memory_diagnostics(*this);
     }
 
     return nullptr;

@@ -43,8 +43,8 @@ struct IncrementalPathfinder
                           const PathCoord& start,
                           const PathCoord& end);
 
-    std::optional<DynamicMemory<PathBuffer>>
-    compute(Platform& pfrm, int max_iters, bool* incomplete);
+    std::optional<DynamicMemory<PathBuffer>> compute(int max_iters,
+                                                     bool* incomplete);
 
 private:
     struct PathVertexData

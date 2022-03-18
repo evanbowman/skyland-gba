@@ -48,11 +48,11 @@ public:
     using RoomPool = Pool<max_room_size, rooms_per_pool, entity_pool_align>;
 
 
-    void init(Platform& pfrm)
+    void init()
     {
         for (u32 i = 0; i < pools_.capacity(); ++i) {
             pools_.push_back(
-                allocate_dynamic<RoomPool>(pfrm, "room-pool-memory", "rooms"));
+                allocate_dynamic<RoomPool>("room-pool-memory", "rooms"));
         }
     }
 

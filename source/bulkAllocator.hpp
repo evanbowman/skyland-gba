@@ -48,12 +48,11 @@ template <typename T> struct DynamicMemory
 
 
 template <typename T, typename... Args>
-DynamicMemory<T>
-allocate_dynamic(Platform& pfrm, const ScratchBuffer::Tag& tag, Args&&... args)
+DynamicMemory<T> allocate_dynamic(const ScratchBuffer::Tag& tag, Args&&... args)
 {
     static_assert(sizeof(T) + alignof(T) <= sizeof ScratchBuffer::data_);
 
-    auto sc_buf = pfrm.make_scratch_buffer(tag);
+    auto sc_buf = make_scratch_buffer(tag);
 
     auto deleter = [](T* val) {
         if (val) {
@@ -87,9 +86,9 @@ allocate_dynamic(Platform& pfrm, const ScratchBuffer::Tag& tag, Args&&... args)
 struct ScratchBufferBulkAllocator
 {
 
-    ScratchBufferBulkAllocator(Platform& pfrm)
-        : buffer_(pfrm.make_scratch_buffer()), alloc_ptr_(buffer_->data_),
-          size_(sizeof buffer_->data_)
+    ScratchBufferBulkAllocator()
+        : buffer_(make_scratch_buffer("bulk-allocator")),
+          alloc_ptr_(buffer_->data_), size_(sizeof buffer_->data_)
     {
     }
 
@@ -141,14 +140,13 @@ template <u8 pages> struct BulkAllocator
 {
     BulkAllocator(Platform& pfrm)
     {
-        if (pfrm.scratch_buffers_remaining() < pages) {
+        if (scratch_buffers_remaining() < pages) {
             warning(pfrm, "available scratch buffer count may be too low!");
         }
-        buffers_.emplace_back(pfrm);
+        buffers_.emplace_back();
     }
 
-    template <typename T, typename... Args>
-    auto alloc(Platform& pfrm, Args&&... args)
+    template <typename T, typename... Args> auto alloc(Args&&... args)
     {
         auto try_alloc = [&] {
             return buffers_.back().template alloc<T>(
@@ -161,7 +159,7 @@ template <u8 pages> struct BulkAllocator
             if (buffers_.full()) {
                 return ScratchBufferBulkAllocator::null<T>();
             } else {
-                buffers_.emplace_back(pfrm);
+                buffers_.emplace_back();
                 if (auto mem = try_alloc()) {
                     return mem;
                 } else {

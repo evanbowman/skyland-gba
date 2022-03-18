@@ -53,8 +53,10 @@ void Curveshot::update(Platform& pfrm, App& app, Microseconds delta)
     pos = pos + app.float_delta() * step_vector_;
     y_base_ = pos.y;
 
-    pos.y -= height_ * Float(sine((Float(timer_) / time_to_target_) * (std::numeric_limits<s16>::max() / 2))) /
-        std::numeric_limits<s16>::max();
+    pos.y -= height_ *
+             Float(sine((Float(timer_) / time_to_target_) *
+                        (std::numeric_limits<s16>::max() / 2))) /
+             std::numeric_limits<s16>::max();
 
     sprite_.set_position(pos);
 

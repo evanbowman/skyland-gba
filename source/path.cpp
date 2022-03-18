@@ -10,8 +10,8 @@ IncrementalPathfinder::IncrementalPathfinder(Platform& pfrm,
                                              const PathCoord& start,
                                              const PathCoord& end)
     : memory_(pfrm),
-      priority_q_(allocate_dynamic<VertexBuf>(pfrm, "path-priority-q")),
-      map_matrix_(allocate_dynamic<VertexMat>(pfrm, "path-matrix")), end_(end)
+      priority_q_(allocate_dynamic<VertexBuf>("path-priority-q")),
+      map_matrix_(allocate_dynamic<VertexMat>("path-matrix")), end_(end)
 {
     static_assert(sizeof(PathVertexData*) <= 8,
                   "What computer are you running this on?");
@@ -32,7 +32,7 @@ IncrementalPathfinder::IncrementalPathfinder(Platform& pfrm,
         }
     }
 
-    if (pfrm.scratch_buffers_remaining() <
+    if (scratch_buffers_remaining() <
         vertex_scratch_buffers + result_scratch_buffers + 1) {
         pfrm.fatal("cannot alloc vertex buffer");
     }
@@ -48,7 +48,7 @@ IncrementalPathfinder::IncrementalPathfinder(Platform& pfrm,
         if (is_walkable(t) and x < TileMap::width - 1 and
             y < TileMap::height - 1) {
 
-            if (auto obj = memory_.alloc<PathVertexData>(pfrm)) {
+            if (auto obj = memory_.alloc<PathVertexData>()) {
                 obj->coord_ = PathCoord{u8(x), u8(y)};
                 static_assert(std::is_trivially_destructible<PathVertexData>());
                 if (not priority_q_->push_back(obj.release())) {
@@ -87,7 +87,7 @@ IncrementalPathfinder::IncrementalPathfinder(Platform& pfrm,
 
 
 std::optional<DynamicMemory<PathBuffer>>
-IncrementalPathfinder::compute(Platform& pfrm, int max_iters, bool* incomplete)
+IncrementalPathfinder::compute(int max_iters, bool* incomplete)
 {
     for (int i = 0; i < max_iters; ++i) {
         if (not priority_q_->empty()) {
@@ -98,8 +98,7 @@ IncrementalPathfinder::compute(Platform& pfrm, int max_iters, bool* incomplete)
                 return {};
             }
             if (min->coord_ == end_) {
-                auto path_mem =
-                    allocate_dynamic<PathBuffer>(pfrm, "path-buffer");
+                auto path_mem = allocate_dynamic<PathBuffer>("path-buffer");
                 if (not path_mem) {
                     return {};
                 }
@@ -184,7 +183,7 @@ std::optional<DynamicMemory<PathBuffer>> find_path(Platform& pfrm,
     bool incomplete = true;
 
     while (incomplete) {
-        if (auto result = p.compute(pfrm, 5, &incomplete)) {
+        if (auto result = p.compute(5, &incomplete)) {
             return result;
         }
     }

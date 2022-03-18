@@ -92,7 +92,7 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data);
 inline bool
 store_file_data(Platform& pfrm, const char* path, const char* ptr, u32 length)
 {
-    Vector<char> buffer(pfrm);
+    Vector<char> buffer;
     for (u32 i = 0; i < length; ++i) {
         buffer.push_back(ptr[i]);
     }

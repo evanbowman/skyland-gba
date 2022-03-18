@@ -16,7 +16,7 @@ void prep_level(Platform& pfrm, App& app);
 
 const SkylandForever::ParameterInfo
     SkylandForever::param_info[decltype(parameters_)::capacity()] = {
-    {SystemString::sf_difficulty, 1, 0, 2},
+        {SystemString::sf_difficulty, 1, 0, 2},
 };
 
 
@@ -58,14 +58,16 @@ void SkylandForever::enter(Platform& pfrm, App& app, Scene& prev)
     help_.emplace(
         pfrm,
         help->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(help->c_str())), 18});
+        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(help->c_str())),
+                     18});
 
     const auto title = SYSTR(sf_title);
 
     title_.emplace(
         pfrm,
         title->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(title->c_str())), 1});
+        OverlayCoord{(u8)centered_text_margins(pfrm, str_len(title->c_str())),
+                     1});
 }
 
 
@@ -227,11 +229,13 @@ void SkylandForever::update_parameter(Platform& pfrm, u8 line_num)
             break;
 
         case 1:
-            text = SYSTR(sf_normal)->c_str();;
+            text = SYSTR(sf_normal)->c_str();
+            ;
             break;
 
         case 2:
-            text = SYSTR(sf_hard)->c_str();;
+            text = SYSTR(sf_hard)->c_str();
+            ;
             break;
         }
         int_text_len = utf8::len(text.c_str());

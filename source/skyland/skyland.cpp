@@ -14,6 +14,7 @@
 #include "timeStreamEvent.hpp"
 
 
+
 namespace skyland {
 
 
@@ -30,15 +31,14 @@ Player& player(App& app)
 
 
 App::App(Platform& pfrm)
-    : islands_(allocate_dynamic<Islands>(pfrm,
-                                         "islands-buffer",
+    : islands_(allocate_dynamic<Islands>("islands-buffer",
                                          pfrm,
                                          Layer::map_0_ext,
                                          5,
                                          player())),
       current_scene_(null_scene()), next_scene_(null_scene()), level_timer_(0),
       stat_timer_(0),
-      backup_(allocate_dynamic<save::EmergencyBackup>(pfrm, "emergency-backup"))
+      backup_(allocate_dynamic<save::EmergencyBackup>("emergency-backup"))
 {
     player_.emplace<PlayerP1>();
 
@@ -71,7 +71,7 @@ App::App(Platform& pfrm)
     // technically haven't tested this code, because the application still has
     // at least 120kb of unused RAM in the worst case, so I'm not on the verge
     // of running out.
-    pfrm.set_scratch_buffer_oom_handler([this] {
+    set_scratch_buffer_oom_handler([this] {
         auto var = lisp::get_var("gc");
         if (var->type() == lisp::Value::Type::function) {
             lisp::funcall(var, 0);
@@ -335,7 +335,7 @@ lisp::Value* App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
         return L_NIL;
     }
 
-    Vector<char> buffer(pfrm);
+    Vector<char> buffer;
     if (ram_filesystem::read_file_data(pfrm, ram_fs_path, buffer)) {
         lisp::VectorCharSequence seq(buffer);
         return lisp::dostring(seq, [&pfrm](lisp::Value& err) {
@@ -380,7 +380,7 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
     if (is_developer_mode() and not pfrm.network_peer().is_connected() and
         game_mode_ not_eq GameMode::tutorial and not rom_fs_only) {
 
-        Vector<char> buffer(pfrm);
+        Vector<char> buffer;
         if (ram_filesystem::read_file_data(pfrm, path, buffer)) {
             lisp::VectorCharSequence seq(buffer);
             auto result = lisp::dostring(seq, on_err);

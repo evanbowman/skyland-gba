@@ -38,14 +38,16 @@ void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
     title_.emplace(
         pfrm,
         title->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title->c_str())), 1});
+        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title->c_str())),
+                     1});
 
 
     const auto msg = SYSTR(mt_hint);
     msg_.emplace(
         pfrm,
         msg->c_str(),
-        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(msg->c_str())), 18});
+        OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(msg->c_str())),
+                     18});
 
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
@@ -368,7 +370,8 @@ MultiplayerSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         msg_.emplace(
             pfrm,
             msg->c_str(),
-            OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(msg->c_str())), 18});
+            OverlayCoord{
+                (u8)centered_text_margins(pfrm, utf8::len(msg->c_str())), 18});
 
 
         return null_scene();

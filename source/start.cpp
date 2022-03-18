@@ -28,7 +28,7 @@ static inline void skyland_main_loop(Platform& pf)
         &std::get<SkylandGlobalData>(globals()).scene_pool_;
 
     std::get<SkylandGlobalData>(globals()).entity_pools_.init(pf);
-    std::get<SkylandGlobalData>(globals()).room_pools_.init(pf);
+    std::get<SkylandGlobalData>(globals()).room_pools_.init();
 
     skyland::App app(pf);
 

@@ -20,7 +20,6 @@ namespace skyland {
 class SaveSandboxScene : public Scene
 {
 public:
-
     void exit(Platform& pfrm, App& app, Scene& next) override
     {
         pfrm.fill_overlay(0);
@@ -105,7 +104,7 @@ public:
         }
 
         if (player(app).key_down(pfrm, Key::action_2)) {
-            return scene_pool::alloc<StartMenuScene>(pfrm, 1);
+            return scene_pool::alloc<StartMenuScene>(1);
         }
 
         if (player(app).key_down(pfrm, Key::down)) {
@@ -134,10 +133,6 @@ public:
 
     struct VectorPrinter : lisp::Printer
     {
-        VectorPrinter(Platform& pfrm) : data_(pfrm)
-        {
-        }
-
         void put_str(const char* c) override
         {
             while (*c not_eq '\0') {
@@ -153,7 +148,7 @@ public:
 
     virtual ScenePtr<Scene> on_selected(Platform& pfrm, App& app)
     {
-        VectorPrinter p(pfrm);
+        VectorPrinter p;
         auto val = app.invoke_script(pfrm, "/scripts/sandbox/save.lisp");
         lisp::format(val, p);
 
@@ -203,7 +198,7 @@ class LoadSandboxScene : public SaveSandboxScene
 public:
     ScenePtr<Scene> on_selected(Platform& pfrm, App& app) override
     {
-        Vector<char> data(pfrm);
+        Vector<char> data;
 
         auto bytes = ram_filesystem::read_file_data(
             pfrm, format("/save/sb%.lisp", cursor()).c_str(), data);

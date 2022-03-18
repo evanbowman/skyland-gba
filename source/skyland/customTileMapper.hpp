@@ -17,7 +17,7 @@ public:
 
 
     // returns -1 upon failure.
-    int map_image(Platform& pfrm, const img::Image& image);
+    int map_image(const img::Image& image);
 
 
     // Push all mapped images to video memory

@@ -54,7 +54,7 @@ static void store_dlc(Platform& pfrm, Vector<char>& data)
             ++it;
         }
 
-        Vector<char> file_contents(pfrm);
+        Vector<char> file_contents;
         for (int i = 0; i < desc->file_size_.get(); ++i) {
             if (it == data.end()) {
                 Platform::fatal("dlc archive file contents cropped!");
@@ -78,7 +78,7 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<DlcInjectorModule>(true);
         };
 
-        auto buffer = allocate_dynamic<DialogString>(pfrm, "dialog-buffer");
+        auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
 
         if (pfrm.device_name() == "GameboyAdvance") {
             *buffer = SYSTR(misc_dlc_message)->c_str();
@@ -93,7 +93,7 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     Module::update(pfrm, app, delta);
 
-    Vector<char> result(pfrm);
+    Vector<char> result;
 
     pfrm.system_call("dlc-download", &result);
 

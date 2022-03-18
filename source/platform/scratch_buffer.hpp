@@ -1,5 +1,6 @@
 #pragma once
 
+#include "function.hpp"
 #include "memory/rc.hpp"
 
 
@@ -24,3 +25,27 @@ static constexpr const int scratch_buffer_count = 87;
 using ScratchBufferPtr =
     Rc<ScratchBuffer,
        PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>>;
+
+
+
+ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag);
+
+
+
+int scratch_buffers_remaining();
+
+
+
+int scratch_buffers_in_use();
+
+
+
+// An emergency function to invoke when the system runs out of scratch
+// buffers. This function should, if possible, drop any non-essential references
+// to scratch buffers.
+void set_scratch_buffer_oom_handler(Function<16, void()> callback);
+
+
+
+class Platform;
+void scratch_buffer_memory_diagnostics(Platform& pfrm);

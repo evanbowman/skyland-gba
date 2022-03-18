@@ -12,9 +12,7 @@ namespace skyland {
 class GlossaryViewerModule : public Module<GlossaryViewerModule>
 {
 public:
-
-    GlossaryViewerModule(int page = 0) :
-        page_(page)
+    GlossaryViewerModule(int page = 0) : page_(page)
     {
     }
 

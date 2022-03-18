@@ -313,24 +313,6 @@ public:
     void walk_filesystem(Function<8 * sizeof(void*), void(const char* path)>);
 
 
-    // Scratch buffers are sort of a blunt instrument. Designed for uncommon
-    // scenarios where you need a lot of memory. The Rc wrapper will
-    // automatically deallocate buffers when you're done with them. Creating a
-    // new scratch buffer when the buffer pool is exhausted will cause the
-    // system to lock up, so do not try to hold more than one hundred active
-    // references to scratch buffers (not sure why you would even need 200kB of
-    // temporary scratch space anyway...).
-    ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag = "");
-
-
-    // An emergency function to invoke when the system runs out of scratch
-    // buffers. This function should, if possible, drop any non-essential
-    // references to scratch buffers.
-    void set_scratch_buffer_oom_handler(Function<16, void()> callback);
-
-
-    int scratch_buffers_remaining();
-
 
     ////////////////////////////////////////////////////////////////////////////
     // DeltaClock
@@ -610,6 +592,8 @@ public:
         void log(Severity severity, const char* msg);
 
         void flush();
+
+        void clear();
 
         Vector<char>* data();
 

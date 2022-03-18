@@ -13,7 +13,7 @@ namespace skyland {
 class LispReplScene : public Scene
 {
 public:
-    LispReplScene(Platform& pfrm);
+    LispReplScene();
 
     void enter(Platform& pfrm, App& app, Scene& prev) override;
     void exit(Platform& pfrm, App& app, Scene& next) override;

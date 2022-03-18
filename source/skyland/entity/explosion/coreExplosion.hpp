@@ -12,14 +12,10 @@ namespace skyland {
 class CoreExplosionQuarter : public Entity
 {
 public:
-
     CoreExplosionQuarter(Platform::DynamicTexturePtr dt,
                          const Vec2<Float>& pos,
-                         int quarter) :
-        Entity({{}, {}}),
-        dt_(dt),
-        timer_(0),
-        quarter_(quarter)
+                         int quarter)
+        : Entity({{}, {}}), dt_(dt), timer_(0), quarter_(quarter)
     {
         sprite_.set_texture_index(dt->mapping_index());
 
@@ -85,13 +81,10 @@ inline void core_explosion(Platform& pfrm, App& app, const Vec2<Float>& pos)
         auto p = pos;
         p.x -= 32;
         p.y -= 32;
-        auto make_segment =
-            [&](int q) {
-                return app.effects().push(app.alloc_entity<CoreExplosionQuarter>(pfrm,
-                                                                                 *dt,
-                                                                                 p,
-                                                                                 q));
-            };
+        auto make_segment = [&](int q) {
+            return app.effects().push(
+                app.alloc_entity<CoreExplosionQuarter>(pfrm, *dt, p, q));
+        };
         make_segment(3);
         make_segment(2);
         make_segment(1);
@@ -101,4 +94,4 @@ inline void core_explosion(Platform& pfrm, App& app, const Vec2<Float>& pos)
 
 
 
-}
+} // namespace skyland

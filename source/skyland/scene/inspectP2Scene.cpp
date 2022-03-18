@@ -170,11 +170,10 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        if (await_start_key_ and
-            app.player().key_up(pfrm, Key::start) and
+        if (await_start_key_ and app.player().key_up(pfrm, Key::start) and
             app.game_mode() not_eq App::GameMode::multiplayer and
             app.game_mode() not_eq App::GameMode::co_op) {
-            return scene_pool::alloc<StartMenuScene>(pfrm, 0);
+            return scene_pool::alloc<StartMenuScene>(0);
         }
     }
 
@@ -214,7 +213,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.game_mode() == App::GameMode::sandbox and
         (tapped_topleft_corner(pfrm, app) or
          app.player().key_down(pfrm, Key::alt_2))) {
-        return scene_pool::alloc<ConstructionScene>(pfrm, false);
+        return scene_pool::alloc<ConstructionScene>(false);
     }
 
 
@@ -277,7 +276,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (not pfrm.network_peer().is_connected() and app.launch_repl()) {
         app.launch_repl() = false;
-        return scene_pool::alloc<LispReplScene>(pfrm);
+        return scene_pool::alloc<LispReplScene>();
     }
 
     if (describe_room_timer_ > 0) {

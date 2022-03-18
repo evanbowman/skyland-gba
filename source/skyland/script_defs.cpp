@@ -129,7 +129,6 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
           }},
          {"hibernate",
           [](int argc) {
-
               lisp::interp_get_pfrm()->system_call("hibernate", nullptr);
               return L_NIL;
           }},
@@ -249,7 +248,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               auto pool = GenericPool::instances();
               auto pfrm = lisp::interp_get_pfrm();
               auto output = allocate_dynamic<Platform::RemoteConsole::Line>(
-                  *pfrm, "pool-annotation-buffer");
+                  "pool-annotation-buffer");
 
               *output += "        name        |   size  |  total  |  used \r\n";
               *output +=
@@ -387,7 +386,7 @@ get_line_from_file(Platform& pfrm, const char* file_name, int line)
 {
     --line; // From the caller's perspective, file lines start from 1.
 
-    auto result = allocate_dynamic<FileLine>(pfrm, "file-line");
+    auto result = allocate_dynamic<FileLine>("file-line");
 
     if (!result) {
         return result;
@@ -504,12 +503,11 @@ static const lisp::Binding script_api[] = {
     {"dialog",
      [](int argc) {
          auto app = interp_get_app();
-         auto pfrm = lisp::interp_get_pfrm();
 
          for (int i = argc - 1; i > -1; --i) {
              if (not app->dialog_buffer()) {
                  app->dialog_buffer().emplace(
-                     allocate_dynamic<DialogString>(*pfrm, "dialog-buffer"));
+                     allocate_dynamic<DialogString>("dialog-buffer"));
              }
 
              if (lisp::get_op(i)->type() not_eq lisp::Value::Type::string) {
@@ -958,9 +956,7 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_OP(0, integer);
 
          auto app = interp_get_app();
-         app->set_coins(
-             *lisp::interp_get_pfrm(),
-             L_LOAD_INT(0));
+         app->set_coins(*lisp::interp_get_pfrm(), L_LOAD_INT(0));
 
          return L_NIL;
      }},
@@ -1138,7 +1134,7 @@ static const lisp::Binding script_api[] = {
 
          img::Image texture;
 
-         Vector<char> data(*lisp::interp_get_pfrm());
+         Vector<char> data;
 
          const char* path = lisp::get_op(0)->string().value();
 
@@ -1151,8 +1147,8 @@ static const lisp::Binding script_api[] = {
                  ++it;
              }
 
-             auto result = interp_get_app()->custom_sprite_mapper().map_image(
-                 *lisp::interp_get_pfrm(), texture);
+             auto result =
+                 interp_get_app()->custom_sprite_mapper().map_image(texture);
              return lisp::make_integer(SpriteTile::custom_sprite_tile_begin +
                                        result);
          } else {
@@ -1170,7 +1166,7 @@ static const lisp::Binding script_api[] = {
 
          img::Image texture;
 
-         Vector<char> data(*lisp::interp_get_pfrm());
+         Vector<char> data;
 
          const char* path = lisp::get_op(0)->string().value();
 
@@ -1183,8 +1179,8 @@ static const lisp::Binding script_api[] = {
                  ++it;
              }
 
-             auto result = interp_get_app()->custom_tile_mapper().map_image(
-                 *lisp::interp_get_pfrm(), texture);
+             auto result =
+                 interp_get_app()->custom_tile_mapper().map_image(texture);
 
              return lisp::make_integer(Tile::dlc_tiles_begin + result);
          } else {
@@ -1279,8 +1275,7 @@ static const lisp::Binding script_api[] = {
 
          auto island = (Island*)lisp::get_op(1)->user_data().obj_;
 
-         auto matrix = allocate_dynamic<bool[16][16]>(*lisp::interp_get_pfrm(),
-                                                      "construction-zones");
+         auto matrix = allocate_dynamic<bool[16][16]>("construction-zones");
 
          island->plot_construction_zones(*matrix);
 
