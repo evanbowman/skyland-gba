@@ -3,12 +3,12 @@
 
 
 #include "achievement.hpp"
+#include "bitvector.hpp"
 #include "coins.hpp"
 #include "flag.hpp"
 #include "highscores.hpp"
 #include "number/endian.hpp"
 #include "worldGraph.hpp"
-#include "bitvector.hpp"
 
 
 

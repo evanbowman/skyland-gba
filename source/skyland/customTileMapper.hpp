@@ -1,7 +1,7 @@
 #pragma once
 
-#include "bitvector.hpp"
 #include "allocator.hpp"
+#include "bitvector.hpp"
 #include "img.hpp"
 
 
