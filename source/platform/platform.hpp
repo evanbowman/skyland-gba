@@ -350,6 +350,8 @@ public:
         // GAMEBOY ADVANCE. Avoid.
         std::optional<DateTime> now();
 
+        void configure(DateTime dt);
+
     private:
         friend class Platform;
 

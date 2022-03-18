@@ -42,17 +42,24 @@ App::App(Platform& pfrm)
 {
     player_.emplace<PlayerP1>();
 
-    current_scene_ = initial_scene();
-    next_scene_ = initial_scene();
-
     init_clouds(pfrm);
 
     pfrm.screen().fade(1.f);
+
+    current_scene_ = initial_scene();
+    next_scene_ = initial_scene();
 
     if (not save::load_global_data(pfrm, gp_)) {
         load_default_flag(pfrm, *this);
         for (auto& score : gp_.highscores_.values_) {
             score.set(0);
+        }
+
+        DateTime dt;
+        if (pfrm.system_call("startup-time", &dt)) {
+            // TODO: we have a functional system clock, enter a scene for
+            // configuring the system clock.
+            // ...
         }
     }
 

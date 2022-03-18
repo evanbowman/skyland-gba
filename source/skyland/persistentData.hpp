@@ -24,6 +24,7 @@ struct GlobalPersistentData
     enum Flags0 {
         developer_mode = (1 << 0),
         tutorial_prompt = (1 << 1),
+        configured_clock = (1 << 2),
     };
 
     u8 flags0_ = developer_mode;
