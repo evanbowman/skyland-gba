@@ -16,7 +16,6 @@
 #include "skyland/scene/playerIslandDestroyedScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/touchscreenFreeformCamera.hpp"
 #include "surrenderWaitScene.hpp"
 
 

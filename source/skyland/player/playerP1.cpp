@@ -2,7 +2,6 @@
 #include "skyland/room_metatable.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/touchscreenFreeformCamera.hpp"
 
 
 

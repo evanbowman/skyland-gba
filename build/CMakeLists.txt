@@ -93,7 +93,6 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/paint.cpp
   ${SOURCE_DIR}/skyland/sound.cpp
   ${SOURCE_DIR}/skyland/camera.cpp
-  ${SOURCE_DIR}/skyland/touchscreenFreeformCamera.cpp
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/network.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
