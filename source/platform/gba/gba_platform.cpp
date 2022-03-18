@@ -314,14 +314,6 @@ int main(int argc, char** argv)
 }
 
 
-const char* Platform::get_opt(char opt)
-{
-    // Command line arguments aren't supported, seeing we are running without
-    // an operating system.
-    return nullptr;
-}
-
-
 
 void print_char(Platform& pfrm,
                 utf8::Codepoint c,
@@ -4106,11 +4098,6 @@ static bool rtc_verify_operability(Platform& pfrm)
 static std::optional<DateTime> start_time;
 
 
-std::optional<DateTime> Platform::startup_time() const
-{
-    return ::start_time;
-}
-
 
 static void start_remote_console(Platform& pfrm);
 
@@ -6232,6 +6219,12 @@ void* Platform::system_call(const char* feature_name, void* arg)
             KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
     } else if (str_eq(feature_name, "print-memory-diagnostics")) {
         scratch_buffer_memory_diagnostics(*this);
+    } else if (str_eq(feature_name, "startup-time")) {
+        if (start_time) {
+            *((DateTime*)arg) = *start_time;
+            return arg;
+        }
+        return nullptr;
     }
 
     return nullptr;

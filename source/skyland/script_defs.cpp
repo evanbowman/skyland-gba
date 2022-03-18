@@ -162,13 +162,14 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
          {"startup-time",
           [](int argc) {
               lisp::ListBuilder builder;
-              if (auto st = lisp::interp_get_pfrm()->startup_time()) {
-                  builder.push_back(lisp::make_integer(st->date_.year_));
-                  builder.push_back(lisp::make_integer(st->date_.month_));
-                  builder.push_back(lisp::make_integer(st->date_.day_));
-                  builder.push_back(lisp::make_integer(st->hour_));
-                  builder.push_back(lisp::make_integer(st->minute_));
-                  builder.push_back(lisp::make_integer(st->second_));
+              DateTime dt;
+              if (lisp::interp_get_pfrm()->system_call("startup-time", &dt)) {
+                  builder.push_back(lisp::make_integer(dt.date_.year_));
+                  builder.push_back(lisp::make_integer(dt.date_.month_));
+                  builder.push_back(lisp::make_integer(dt.date_.day_));
+                  builder.push_back(lisp::make_integer(dt.hour_));
+                  builder.push_back(lisp::make_integer(dt.minute_));
+                  builder.push_back(lisp::make_integer(dt.second_));
               }
               return builder.result();
           }},

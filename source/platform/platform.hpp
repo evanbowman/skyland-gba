@@ -83,10 +83,6 @@ public:
     TilePixels extract_tile(Layer layer, u16 tile);
 
 
-    // Timestamp recorded when the process launched, returns an empty optional
-    // if the platform does not provide a functional clock.
-    std::optional<DateTime> startup_time() const;
-
     Screen& screen()
     {
         return screen_;
@@ -135,8 +131,6 @@ public:
 
     // NOTE: I must admit, the platform class interface has become quite
     // bloated.
-
-    const char* get_opt(char opt);
 
     // On some platforms, fatal() will trigger a soft reset. But soft-reset is
     // mostly reserved for bare-metal platforms, where it's usually easy to
@@ -353,9 +347,7 @@ public:
     {
     public:
         // NOTE: SystemClock::now() sometimes causes minor audio bugs on the
-        // GAMEBOY ADVANCE. In the meantime, use Platform::startup_time() to
-        // access an initial startup timestamp, and only call DateTime::now()
-        // during shutdown, when saving a game.
+        // GAMEBOY ADVANCE. Avoid.
         std::optional<DateTime> now();
 
     private:
