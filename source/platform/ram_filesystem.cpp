@@ -3,7 +3,8 @@
 
 
 
-namespace ram_filesystem {
+namespace ram_filesystem
+{
 
 
 

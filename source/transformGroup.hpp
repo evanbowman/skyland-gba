@@ -5,7 +5,8 @@
 #include <utility>
 
 
-namespace detail {
+namespace detail
+{
 template <std::size_t I = 0, typename FuncT, typename... Tp>
 inline typename std::enable_if<I == sizeof...(Tp), void>::type
 for_each(std::tuple<Tp...>&, FuncT)

@@ -17,7 +17,8 @@
 // added weapons and defenses, inheriting them from Room for simplicity.
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 

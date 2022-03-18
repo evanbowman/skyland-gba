@@ -18,7 +18,8 @@ class Platform;
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 

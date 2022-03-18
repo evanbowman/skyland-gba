@@ -6,14 +6,15 @@
 
 
 
-namespace skyland::achievements {
+namespace skyland::achievements
+{
 
 
 
 struct AchievementInfo
 {
-    const char* name_;
-    const char* description_;
+    SystemString name_;
+    SystemString description_;
     const char* reward_;
 
     bool (*match_)(Platform&, App&);
@@ -23,14 +24,14 @@ struct AchievementInfo
 
 
 static const AchievementInfo info[Achievement::count] = {
-    {"none",
-     "none",
+    {SystemString::empty,
+     SystemString::empty,
      "none",
      [](Platform&, App&) { return false; },
      [](Platform&, App&, bool) {}},
 
-    {"Builder",
-     "Build an island with more than ten structures!",
+    {SystemString::achievement_builder_name,
+     SystemString::achievement_builder_description,
      "masonry",
      [](Platform&, App& app) {
          return app.player_island().rooms().size() > 10;
@@ -39,8 +40,8 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[builder].reward_), awarded);
      }},
 
-    {"Architect",
-     "Build an island with more than twenty structures!",
+    {SystemString::achievement_architect_name,
+     SystemString::achievement_architect_description,
      "bridge",
      [](Platform&, App& app) {
          return app.player_island().rooms().size() > 20;
@@ -49,8 +50,8 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[architect].reward_), awarded);
      }},
 
-    {"Architect (2)",
-     "Build an island with more than twenty structures!",
+    {SystemString::achievement_architect2_name,
+     SystemString::achievement_architect2_description,
      "fountain",
      [](Platform&, App& app) {
          return app.player_island().rooms().size() > 20;
@@ -59,32 +60,32 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[architect_2].reward_), awarded);
      }},
 
-    {"Explorer",
-     "Reach zone 2!",
+    {SystemString::achievement_explorer_name,
+     SystemString::achievement_explorer_description,
      "coconut-palm",
      [](Platform&, App& app) { return app.zone() > 1; },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[explorer].reward_), awarded);
      }},
 
-    {"Strategist",
-     "Reach zone 3!",
+    {SystemString::achievement_strategist_name,
+     SystemString::achievement_strategist_description,
      "statue",
      [](Platform&, App& app) { return app.zone() > 2; },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[strategist].reward_), awarded);
      }},
 
-    {"Stronghold",
-     "Build a castle with at least four power cores!",
+    {SystemString::achievement_stronghold_name,
+     SystemString::achievement_stronghold_description,
      "bronze-hull",
      [](Platform&, App& app) { return app.player_island().core_count() > 3; },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[stronghold].reward_), awarded);
      }},
 
-    {"dynamite",
-     "Complete any challenge level!",
+    {SystemString::achievement_dynamite_name,
+     SystemString::achievement_dynamite_description,
      "dynamite",
      [](Platform&, App& app) {
          return app.gp_.challenge_flags_.get() not_eq 0;
@@ -93,8 +94,8 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[dynamite].reward_), awarded);
      }},
 
-    {"Virtuoso (1)",
-     "Complete three challenge levels!",
+    {SystemString::achievement_maestro1_name,
+     SystemString::achievement_maestro1_description,
      "speaker",
      [](Platform&, App& app) {
          u64 v = app.gp_.challenge_flags_.get();
@@ -110,8 +111,8 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[maestro_1].reward_), awarded);
      }},
 
-    {"Virtuoso (2)",
-     "Complete three challenge levels!",
+    {SystemString::achievement_maestro2_name,
+     SystemString::achievement_maestro2_description,
      "synth",
      [](Platform&, App& app) {
          u64 v = app.gp_.challenge_flags_.get();
@@ -127,8 +128,8 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[maestro_2].reward_), awarded);
      }},
 
-    {"Triage",
-     "Destroy invading goblins with dynamite!",
+    {SystemString::achievement_triage_name,
+     SystemString::achievement_triage_description,
      "dynamite-ii",
      [](Platform&, App& app) {
          return is_enabled(metaclass_index(info[triage].reward_));
@@ -137,8 +138,8 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[triage].reward_), awarded);
      }},
 
-    {"Banana Man",
-     "Complete banana man's quest!",
+    {SystemString::achievement_banana_man_name,
+     SystemString::achievement_banana_man_description,
      "banana-plant",
      [](Platform&, App& app) {
          return is_enabled(metaclass_index(info[banana_man].reward_));
@@ -147,8 +148,8 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[banana_man].reward_), awarded);
      }},
 
-    {"Borrowed tech",
-     "Destroy a decimator by plundering!",
+    {SystemString::achievement_ancient_weapon_name,
+     SystemString::achievement_ancient_weapon_description,
      "decimator",
      [](Platform&, App& app) {
          // Yeah, this is a pretty bad hack. When the PlayerP1 class receives a
@@ -167,8 +168,8 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[ancient_weapon].reward_), awarded);
      }},
 
-    {"Ship of Theseus",
-     "Copy an enemy castle with at least 20 blocks! (mirrored)",
+    {SystemString::achievement_ship_of_theseus_name,
+     SystemString::achievement_ship_of_theseus_description,
      "mirror-hull",
      [](Platform& pfrm, App& app) {
          if (not app.opponent_island()) {
@@ -213,14 +214,36 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[ship_of_theseus].reward_), awarded);
      }},
 
-    {"Lemons Rescued!",
-     "...",
+    {SystemString::achievement_lemons_name,
+     SystemString::achievement_lemons_description,
      "lemon-tree",
      [](Platform&, App& app) {
          return is_enabled(metaclass_index(info[lemons].reward_));
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[lemons].reward_), awarded);
+     }},
+
+    {SystemString::achievement_new_colossus_name,
+     SystemString::achievement_new_colossus_description,
+     "lady-liberty",
+     [](Platform&, App& app) {
+         if (player_island(app).character_count() > 7) {
+             u8 count = 0;
+             for (auto& room : player_island(app).rooms()) {
+                 for (auto& chr : room->characters()) {
+                     if (not chr->is_replicant()) {
+                         ++count;
+                     }
+                 }
+             }
+
+             return count >= 7;
+         }
+         return false;
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[new_colossus].reward_), awarded);
      }}};
 
 
@@ -328,14 +351,14 @@ bool is_unlocked(App& app, Achievement achievement)
 
 
 
-const char* description(Achievement achievement)
+SystemString description(Achievement achievement)
 {
     return info[achievement].description_;
 }
 
 
 
-const char* name(Achievement achievement)
+SystemString name(Achievement achievement)
 {
     return info[achievement].name_;
 }

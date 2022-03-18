@@ -128,7 +128,8 @@ struct alignas(4) ObjectAffineMatrix
 };
 
 
-namespace attr0_mask {
+namespace attr0_mask
+{
 constexpr u16 disabled{2 << 8};
 }
 

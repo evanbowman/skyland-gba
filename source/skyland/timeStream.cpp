@@ -2,7 +2,8 @@
 
 
 
-namespace skyland::time_stream {
+namespace skyland::time_stream
+{
 
 
 

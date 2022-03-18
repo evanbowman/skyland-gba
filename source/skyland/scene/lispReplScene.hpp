@@ -7,7 +7,8 @@
 #include "string.hpp"
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 class LispReplScene : public Scene

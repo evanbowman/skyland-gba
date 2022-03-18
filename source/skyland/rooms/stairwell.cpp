@@ -3,7 +3,8 @@
 #include "skyland/tile.hpp"
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 void Stairwell::format_description(Platform& pfrm, StringBuffer<512>& buffer)

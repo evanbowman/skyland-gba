@@ -4,7 +4,8 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 
@@ -163,7 +164,8 @@ void LispReplScene::exit(Platform& pfrm, App& app, Scene& next)
 }
 
 
-namespace {
+namespace
+{
 class Printer : public lisp::Printer
 {
 public:

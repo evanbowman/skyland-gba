@@ -5,8 +5,10 @@
 
 
 
-namespace skyland {
-namespace room_pool {
+namespace skyland
+{
+namespace room_pool
+{
 
 
 

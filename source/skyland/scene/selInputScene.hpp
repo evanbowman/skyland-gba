@@ -6,7 +6,8 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 // The script API provides a function through which the script writer can

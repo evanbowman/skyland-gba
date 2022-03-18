@@ -6,7 +6,8 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 
@@ -45,7 +46,7 @@ void AchievementViewerModule::load_page(Platform& pfrm, App& app, int page)
     }
 
     StringBuffer<30> temp;
-    temp += achievements::name(achievement);
+    temp += loadstr(pfrm, achievements::name(achievement))->c_str();
     achievement_name_->assign(temp.c_str());
 
     if (is_unlocked(app, achievement)) {
@@ -84,7 +85,8 @@ void AchievementViewerModule::load_page(Platform& pfrm, App& app, int page)
 
     item_details_->assign(temp.c_str());
 
-    StringBuffer<512> description = achievements::description(achievement);
+    StringBuffer<512> description =
+        loadstr(pfrm, achievements::description(achievement))->c_str();
 
     if (not achievement_description_) {
         achievement_description_.emplace(pfrm);

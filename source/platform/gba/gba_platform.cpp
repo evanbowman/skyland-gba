@@ -94,7 +94,8 @@ static void __attribute__((noinline)) busy_wait(unsigned max)
 
 
 
-namespace {
+namespace
+{
 
 class RemoteConsoleLispPrinter : public lisp::Printer
 {
@@ -570,7 +571,8 @@ struct alignas(4) ObjectAffineMatrix
 };
 
 
-namespace attr0_mask {
+namespace attr0_mask
+{
 constexpr u16 disabled{2 << 8};
 }
 
@@ -3156,7 +3158,8 @@ Microseconds Platform::Speaker::track_length(const char* name)
 }
 
 
-namespace detail {
+namespace detail
+{
 template <std::size_t... Is> struct seq
 {
 };
@@ -4107,7 +4110,8 @@ extern char __rom_end__;
 
 
 
-namespace {
+namespace
+{
 __attribute__((section(".ewram"))) int _ewram_static_data = 0;
 }
 

@@ -11,7 +11,8 @@
 
 
 
-namespace skyland::dlc::archive {
+namespace skyland::dlc::archive
+{
 
 
 

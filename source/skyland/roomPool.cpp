@@ -1,9 +1,11 @@
 #include "roomPool.hpp"
 
 
-namespace skyland {
+namespace skyland
+{
 
-namespace room_pool {
+namespace room_pool
+{
 
 // _Pool* pool_ = nullptr;
 

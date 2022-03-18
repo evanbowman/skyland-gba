@@ -5,11 +5,13 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 
-namespace scene_pool {
+namespace scene_pool
+{
 
 
 #if defined(__GBA__) or defined(__NDS__)

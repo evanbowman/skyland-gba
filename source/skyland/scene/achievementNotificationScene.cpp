@@ -5,7 +5,8 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 
@@ -63,7 +64,7 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
             achievement_text_->assign(SYSTR(achievement_msg_title)->c_str());
 
             achievement_name_.emplace(pfrm, OverlayCoord{4, 6});
-            achievement_name_->assign(achievements::name(achievement_));
+            achievement_name_->assign(loadstr(pfrm, achievements::name(achievement_)));
 
             unlocked_text_.emplace(pfrm, OverlayCoord{4, 9});
             unlocked_text_->assign(SYSTR(achievement_msg_unlocked)->c_str());

@@ -18,6 +18,7 @@
 #include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/ionFizzler.hpp"
+#include "skyland/rooms/ladyLiberty.hpp"
 #include "skyland/rooms/lemonTree.hpp"
 #include "skyland/rooms/manufactory.hpp"
 #include "skyland/rooms/masonry.hpp"
@@ -46,7 +47,8 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 
@@ -256,6 +258,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Synth,
                                         Switch,
                                         Statue,
+                                        LadyLiberty,
                                         Bridge,
                                         Fountain,
                                         Palm,

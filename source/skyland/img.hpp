@@ -9,7 +9,8 @@
 
 
 
-namespace skyland::img {
+namespace skyland::img
+{
 
 
 

@@ -7,9 +7,12 @@
 
 
 
-namespace skyland {
-namespace network {
-namespace packet {
+namespace skyland
+{
+namespace network
+{
+namespace packet
+{
 
 
 

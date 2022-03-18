@@ -2,6 +2,7 @@
 
 #include "number/int.h"
 #include "scene.hpp"
+#include "systemString.hpp"
 
 
 
@@ -9,7 +10,8 @@ class Platform;
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 
@@ -21,7 +23,8 @@ class App;
 
 
 
-namespace skyland::achievements {
+namespace skyland::achievements
+{
 
 
 
@@ -41,6 +44,7 @@ enum Achievement : u8 {
     ancient_weapon,
     ship_of_theseus,
     lemons,
+    new_colossus,
     count
 };
 
@@ -74,11 +78,11 @@ bool is_unlocked(App& app, Achievement achievement);
 
 
 
-const char* description(Achievement achievement);
+SystemString description(Achievement achievement);
 
 
 
-const char* name(Achievement achievement);
+SystemString name(Achievement achievement);
 
 
 

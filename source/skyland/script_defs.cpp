@@ -36,13 +36,15 @@
 
 
 
-namespace lisp {
+namespace lisp
+{
 Platform* interp_get_pfrm();
 }
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 

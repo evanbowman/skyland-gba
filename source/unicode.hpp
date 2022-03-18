@@ -8,7 +8,8 @@
 #include <optional>
 
 
-namespace utf8 {
+namespace utf8
+{
 
 using Codepoint = u32;
 

@@ -132,6 +132,14 @@ struct Tile
         stacked_hull,
         lemon_tree_1,
         lemon_tree_2,
+        liberty_1,
+        liberty_2,
+        liberty_3,
+        liberty_4,
+        liberty_5,
+        liberty_6,
+        liberty_7,
+        liberty_8,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,
@@ -250,6 +258,14 @@ struct InteriorTile
         stacked_hull,
         lemon_tree_1,
         lemon_tree_2,
+        liberty_1,
+        liberty_2,
+        liberty_3,
+        liberty_4,
+        liberty_5,
+        liberty_6,
+        liberty_7,
+        liberty_8,
 
         // All tile indices below are reserved for DLC content.
         dlc_tiles_begin = 113,

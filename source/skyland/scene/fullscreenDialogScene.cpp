@@ -8,7 +8,8 @@ Platform::TextureCpMapper locale_texture_map();
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 

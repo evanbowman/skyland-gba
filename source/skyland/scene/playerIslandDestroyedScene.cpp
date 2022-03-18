@@ -24,7 +24,8 @@ StringBuffer<32> format_time(u32 seconds, bool include_hours = true);
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 

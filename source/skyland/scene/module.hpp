@@ -14,11 +14,13 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 
-namespace detail {
+namespace detail
+{
 class _Module : public Scene
 {
 public:

@@ -6,7 +6,8 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 class Detail : public Room
 {

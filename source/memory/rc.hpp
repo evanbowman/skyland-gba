@@ -24,7 +24,8 @@ template <typename T, typename ControlBlockImpl> class Rc;
 
 
 
-namespace detail {
+namespace detail
+{
 
 // The default control block: requires that the reference counted object was
 // allocated from a pool. Kind of limiting, but as we do not have a malloc

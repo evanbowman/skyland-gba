@@ -3,7 +3,8 @@
 #include "number/endian.hpp"
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 struct Highscores

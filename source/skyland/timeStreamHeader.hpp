@@ -5,7 +5,8 @@
 
 
 
-namespace skyland::time_stream {
+namespace skyland::time_stream
+{
 
 
 
@@ -13,7 +14,8 @@ using Timestamp = Microseconds;
 
 
 
-namespace event {
+namespace event
+{
 
 
 

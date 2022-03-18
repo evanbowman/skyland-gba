@@ -4,7 +4,8 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 class PluginRoom : public Room

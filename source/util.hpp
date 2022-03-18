@@ -19,7 +19,8 @@
 #endif
 
 
-namespace _detail {
+namespace _detail
+{
 
 template <typename T> struct reversion_wrapper
 {

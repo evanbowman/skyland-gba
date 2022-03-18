@@ -28,7 +28,8 @@
 
 
 
-namespace skyland::time_stream::event {
+namespace skyland::time_stream::event
+{
 
 
 

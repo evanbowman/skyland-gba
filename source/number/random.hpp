@@ -5,7 +5,8 @@
 #include "numeric.hpp"
 
 
-namespace rng {
+namespace rng
+{
 
 using Value = s32;
 using LinearGenerator = Value;

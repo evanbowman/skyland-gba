@@ -10,13 +10,15 @@ class Platform;
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 class App;
 
 
-namespace save {
+namespace save
+{
 
 
 

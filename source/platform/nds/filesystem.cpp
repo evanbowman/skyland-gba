@@ -10,7 +10,8 @@ INCBIN(fs, "fs.bin");
 
 
 
-namespace filesystem {
+namespace filesystem
+{
 
 
 

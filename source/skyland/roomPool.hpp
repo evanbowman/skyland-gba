@@ -7,11 +7,13 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 
-namespace room_pool {
+namespace room_pool
+{
 
 
 

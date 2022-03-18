@@ -4,10 +4,12 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
-namespace scene_pool {
+namespace scene_pool
+{
 
 
 _Pool* pool_ = nullptr;

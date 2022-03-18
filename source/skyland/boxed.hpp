@@ -10,7 +10,8 @@
 // allocation, which may be swapped for an instance with a type derived from T.
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 template <typename T, typename DefaultType, int mem = sizeof(T), int align = 8>

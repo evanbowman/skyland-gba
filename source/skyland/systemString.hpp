@@ -9,7 +9,8 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 
@@ -36,6 +37,7 @@ enum class SystemString {
     block_infirmary,
     block_ion_cannon,
     block_ion_fizzler,
+    block_lady_liberty,
     block_lemon_tree,
     block_manufactory,
     block_masonry,
@@ -112,6 +114,7 @@ enum class SystemString {
     description_workshop,
     description_radar,
     description_ion_fizzler,
+    description_lady_liberty,
     description_lemon_tree,
     description_speaker,
     description_shrubbery,
@@ -242,6 +245,37 @@ enum class SystemString {
     sf_casual,
     sf_normal,
     sf_hard,
+
+    achievement_builder_name,
+    achievement_builder_description,
+    achievement_architect_name,
+    achievement_architect_description,
+    achievement_architect2_name,
+    achievement_architect2_description,
+    achievement_explorer_name,
+    achievement_explorer_description,
+    achievement_strategist_name,
+    achievement_strategist_description,
+    achievement_stronghold_name,
+    achievement_stronghold_description,
+    achievement_dynamite_name,
+    achievement_dynamite_description,
+    achievement_maestro1_name,
+    achievement_maestro1_description,
+    achievement_maestro2_name,
+    achievement_maestro2_description,
+    achievement_triage_name,
+    achievement_triage_description,
+    achievement_banana_man_name,
+    achievement_banana_man_description,
+    achievement_ancient_weapon_name,
+    achievement_ancient_weapon_description,
+    achievement_ship_of_theseus_name,
+    achievement_ship_of_theseus_description,
+    achievement_lemons_name,
+    achievement_lemons_description,
+    achievement_new_colossus_name,
+    achievement_new_colossus_description,
 
     hint_title,
     hint_gamespeed,

@@ -2,7 +2,8 @@
 
 
 
-namespace skyland::network {
+namespace skyland::network
+{
 
 
 

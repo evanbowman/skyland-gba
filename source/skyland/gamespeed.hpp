@@ -2,7 +2,8 @@
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 enum class GameSpeed { stopped, slow, normal, fast, rewind, count };

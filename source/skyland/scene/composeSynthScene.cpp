@@ -20,7 +20,8 @@ void print_char(Platform& pfrm,
 
 
 
-namespace skyland {
+namespace skyland
+{
 
 
 
