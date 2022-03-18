@@ -78,7 +78,7 @@ void SelectChallengeScene::show_options(Platform& pfrm, App& app)
             pfrm.fatal("challenge list format invalid");
         }
 
-        bool completed = app.gp_.challenge_flags_ & (1 << index);
+        bool completed = app.gp_.challenge_flags_.get() & (1 << index);
 
         if (index++ < start_index) {
             return;

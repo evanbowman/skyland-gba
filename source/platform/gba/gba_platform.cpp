@@ -4078,11 +4078,9 @@ void Platform::Speaker::init_chiptune_noise(ChannelSettings settings)
 // We want our code to be resiliant to cartridges lacking an RTC chip. Run the
 // timer-based delta clock for a while, and make sure that the RTC also counted
 // up.
-static bool rtc_verify_operability(Platform& pfrm)
+static bool rtc_verify_operability(std::optional<DateTime> tm1, Platform& pfrm)
 {
-    Microseconds counter = 0;
-
-    const auto tm1 = pfrm.system_clock().now();
+    Microseconds counter = pfrm.delta_clock().reset();
 
     while (counter < seconds(1) + milliseconds(250)) {
         counter += pfrm.delta_clock().reset();
@@ -4220,45 +4218,32 @@ static void show_health_and_safety_message(Platform& pfrm)
         }
     }
 
+    int frames = 0;
     u8 hint_fade_amount = 0;
     bool hint_fade_in = true;
 
-    // We're waiting for the user to read the health and safety message, might
-    // as well use the opportunity to check the operability of the rtc chip
-    // now. Checking whether the RTC chip works correctly involves reading the
-    // clock twice after allowing a cpu timer to count up
-    if (not rtc_verify_operability(pfrm)) {
-        set_gflag(GlobalFlag::rtc_faulty, true);
-        info(pfrm, "RTC chip appears either non-existant or non-functional");
-    } else {
-        ::start_time = pfrm.system_clock().now();
-
-        StringBuffer<100> str = "startup time: ";
-
-        log_format_time(str, *::start_time);
-
-        info(*::platform, str.c_str());
-    }
-
     while (true) {
+        ++frames;
         pfrm.system_call("feed-watchdog", nullptr);
         VBlankIntrWait();
 
-        if (hint_fade_in) {
-            hint_fade_amount += 15;
-            if (hint_fade_amount == 255) {
-                hint_fade_in = false;
+        if (frames > 60) {
+            if (hint_fade_in) {
+                hint_fade_amount += 15;
+                if (hint_fade_amount == 255) {
+                    hint_fade_in = false;
+                }
+            } else {
+                hint_fade_amount -= 15;
+                if (hint_fade_amount == 0) {
+                    hint_fade_in = true;
+                }
             }
-        } else {
-            hint_fade_amount -= 15;
-            if (hint_fade_amount == 0) {
-                hint_fade_in = true;
+            VBlankIntrWait();
+            for (int i = 0; i < palette_count; ++i) {
+                const auto c = Color::from_bgr_hex_555(cached_palette[i]);
+                MEM_BG_PALETTE[i + 16] = blend(c_white, c, hint_fade_amount);
             }
-        }
-        VBlankIntrWait();
-        for (int i = 0; i < palette_count; ++i) {
-            const auto c = Color::from_bgr_hex_555(cached_palette[i]);
-            MEM_BG_PALETTE[i + 16] = blend(c_white, c, hint_fade_amount);
         }
 
         pfrm.keyboard().poll();
@@ -4303,17 +4288,14 @@ Platform::Platform()
 {
     ::platform = this;
 
+    const auto tm1 = system_clock_.now();
+
     // TODO: uncomment this after I finish development. Wouldn't want to build
     // something that doesn't work on some gba consoles, but speeding up the
     // ones that do work would be nice.
     // ram_overclock();
 
     canary_init();
-
-
-    // for (int i = 0; i < audio_buffer_count; ++i) {
-    //     audio_buffers.push_back(allocate_dynamic<AudioBuffer>(*this));
-    // }
 
 
     logger().set_threshold(Severity::fatal);
@@ -4403,8 +4385,6 @@ Platform::Platform()
 
     irqEnable(IRQ_VBLANK);
 
-    audio_start();
-
     irqSet(IRQ_TIMER3, [] {
         delta_total += 0xffff;
 
@@ -4412,6 +4392,7 @@ Platform::Platform()
         REG_TM3CNT_L = 0;
         REG_TM3CNT_H = 1 << 7 | 1 << 6;
     });
+    delta_clock().reset();
 
     if (bios_version not_eq BiosVersion::NDS) {
         show_health_and_safety_message(*this);
@@ -4501,6 +4482,21 @@ Platform::Platform()
         keyboard_.poll();
         fatal("resource bundle missing");
     }
+
+    if (not rtc_verify_operability(tm1, *this)) {
+        set_gflag(GlobalFlag::rtc_faulty, true);
+        info(*this, "RTC chip appears either non-existant or non-functional");
+    } else {
+        ::start_time = system_clock_.now();
+
+        StringBuffer<100> str = "startup time: ";
+
+        log_format_time(str, *::start_time);
+
+        info(*::platform, str.c_str());
+    }
+
+    audio_start();
 }
 
 

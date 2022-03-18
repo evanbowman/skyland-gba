@@ -86,7 +86,9 @@ static const AchievementInfo info[Achievement::count] = {
     {"dynamite",
      "Complete any challenge level!",
      "dynamite",
-     [](Platform&, App& app) { return app.gp_.challenge_flags_ not_eq 0; },
+     [](Platform&, App& app) {
+         return app.gp_.challenge_flags_.get() not_eq 0;
+     },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[dynamite].reward_), awarded);
      }},
@@ -95,7 +97,7 @@ static const AchievementInfo info[Achievement::count] = {
      "Complete three challenge levels!",
      "speaker",
      [](Platform&, App& app) {
-         u64 v = app.gp_.challenge_flags_;
+         u64 v = app.gp_.challenge_flags_.get();
          u32 upper;
          u32 lower;
          memcpy(&upper, &v, sizeof upper);
@@ -112,7 +114,7 @@ static const AchievementInfo info[Achievement::count] = {
      "Complete three challenge levels!",
      "synth",
      [](Platform&, App& app) {
-         u64 v = app.gp_.challenge_flags_;
+         u64 v = app.gp_.challenge_flags_.get();
          u32 upper;
          u32 lower;
          memcpy(&upper, &v, sizeof upper);
@@ -230,7 +232,7 @@ void init(Platform& pfrm, App& app)
     for (int i = 0; i < Achievement::count; ++i) {
         const u64 flag = 1 << i;
 
-        if (flags & flag) {
+        if (flags.get() & flag) {
             info[i].award_(pfrm, app, true);
         }
     }
@@ -262,9 +264,9 @@ Achievement update(Platform& pfrm, App& app)
                   "More than 64 achievements, i.e. achievement bit does not "
                   "fit in a u64.o");
 
-    if (not(flags & flag)) {
+    if (not(flags.get() & flag)) {
         if (info[check_achievement].match_(pfrm, app)) {
-            flags |= flag;
+            flags.set(flags.get() | flag);
             save::store_global_data(pfrm, app.gp_);
             return static_cast<Achievement>(check_achievement);
         }
@@ -280,7 +282,7 @@ void lock(Platform& pfrm, App& app, Achievement achievement)
     auto& flags = app.gp_.achievement_flags_;
     const u64 flag = 1 << achievement;
 
-    flags &= ~flag;
+    flags.set(flags.get() & ~flag);
 
     save::store_global_data(pfrm, app.gp_);
 
@@ -294,8 +296,8 @@ bool unlock(Platform& pfrm, App& app, Achievement achievement)
     auto& flags = app.gp_.achievement_flags_;
     const u64 flag = 1 << achievement;
 
-    if (not(flags & flag)) {
-        flags |= flag;
+    if (not(flags.get() & flag)) {
+        flags.set(flags.get() | flag);
         save::store_global_data(pfrm, app.gp_);
         return true;
     }
@@ -321,7 +323,7 @@ bool is_unlocked(App& app, Achievement achievement)
     auto& flags = app.gp_.achievement_flags_;
     const u64 flag = 1 << achievement;
 
-    return flags & flag;
+    return flags.get() & flag;
 }
 
 

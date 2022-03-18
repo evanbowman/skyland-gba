@@ -110,14 +110,6 @@ void set_enabled(MetaclassIndex index, bool enabled);
 
 
 
-bool is_hidden(MetaclassIndex index);
-
-
-
-void set_hidden(MetaclassIndex index, bool hidden);
-
-
-
 void plugin_rooms_unregister();
 
 

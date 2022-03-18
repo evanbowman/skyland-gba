@@ -28,7 +28,7 @@ public:
 
 
 private:
-    void repaint(Platform& pfrm);
+    void repaint(Platform& pfrm, App& app);
 
 
     struct Data
@@ -46,6 +46,7 @@ private:
 
 
     DeferredScene next_;
+    bool changed_ = false;
 };
 
 

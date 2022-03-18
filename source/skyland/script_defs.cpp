@@ -120,7 +120,9 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               int challenge = lisp::get_op(0)->integer().value_;
               u64 challenge_bitmask = 1 << challenge;
 
-              interp_get_app()->gp_.challenge_flags_ |= challenge_bitmask;
+              auto app = interp_get_app();
+              app->gp_.challenge_flags_.set(app->gp_.challenge_flags_.get() |
+                                            challenge_bitmask);
 
               save::store_global_data(*lisp::interp_get_pfrm(),
                                       interp_get_app()->gp_);

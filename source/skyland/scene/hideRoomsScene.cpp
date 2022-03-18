@@ -1,6 +1,7 @@
 #include "hideRoomsScene.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -23,7 +24,7 @@ void HideRoomsScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    repaint(pfrm);
+    repaint(pfrm, app);
 }
 
 
@@ -33,11 +34,15 @@ void HideRoomsScene::exit(Platform& pfrm, App& app, Scene& prev)
     names_.clear();
     hidden_.clear();
     pfrm.fill_overlay(0);
+
+    if (changed_) {
+        save::store_global_data(pfrm, app.gp_);
+    }
 }
 
 
 
-void HideRoomsScene::repaint(Platform& pfrm)
+void HideRoomsScene::repaint(Platform& pfrm, App& app)
 {
     auto [mt, ms] = room_metatable();
 
@@ -69,7 +74,7 @@ void HideRoomsScene::repaint(Platform& pfrm)
                 {ColorConstant::rich_black, ColorConstant::aerospace_orange}};
         }
 
-        if (is_hidden((*data_)->room_classes_[index])) {
+        if (app.gp_.hidden_rooms_.get((*data_)->room_classes_[index])) {
             auto str = SYSTR(yes);
             hidden_.emplace_back(
                 pfrm,
@@ -110,8 +115,9 @@ HideRoomsScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (player(app).key_down(pfrm, Key::action_1)) {
         auto mti = (*data_)->room_classes_[index_];
-        set_hidden(mti, not is_hidden(mti));
-        repaint(pfrm);
+        app.gp_.hidden_rooms_.set(mti, not app.gp_.hidden_rooms_.get(mti));
+        repaint(pfrm, app);
+        changed_ = true;
     }
 
     auto test_key = [&](Key k) {
@@ -122,12 +128,12 @@ HideRoomsScene::update(Platform& pfrm, App& app, Microseconds delta)
     int limit = (int)(*data_)->room_classes_.size();
     if (test_key(Key::down) and index_ < limit - 1) {
         ++index_;
-        repaint(pfrm);
+        repaint(pfrm, app);
     }
 
     if (test_key(Key::up) and index_ > 0) {
         --index_;
-        repaint(pfrm);
+        repaint(pfrm, app);
     }
 
     return null_scene();
