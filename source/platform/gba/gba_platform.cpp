@@ -4080,7 +4080,6 @@ void Platform::Speaker::init_chiptune_noise(ChannelSettings settings)
 // up.
 static bool rtc_verify_operability(Platform& pfrm)
 {
-    return false;
     Microseconds counter = 0;
 
     const auto tm1 = pfrm.system_clock().now();
@@ -4221,32 +4220,45 @@ static void show_health_and_safety_message(Platform& pfrm)
         }
     }
 
-    int frames = 0;
     u8 hint_fade_amount = 0;
     bool hint_fade_in = true;
 
+    // We're waiting for the user to read the health and safety message, might
+    // as well use the opportunity to check the operability of the rtc chip
+    // now. Checking whether the RTC chip works correctly involves reading the
+    // clock twice after allowing a cpu timer to count up
+    if (not rtc_verify_operability(pfrm)) {
+        set_gflag(GlobalFlag::rtc_faulty, true);
+        info(pfrm, "RTC chip appears either non-existant or non-functional");
+    } else {
+        ::start_time = pfrm.system_clock().now();
+
+        StringBuffer<100> str = "startup time: ";
+
+        log_format_time(str, *::start_time);
+
+        info(*::platform, str.c_str());
+    }
+
     while (true) {
-        ++frames;
         pfrm.system_call("feed-watchdog", nullptr);
         VBlankIntrWait();
 
-        if (frames > 60) {
-            if (hint_fade_in) {
-                hint_fade_amount += 15;
-                if (hint_fade_amount == 255) {
-                    hint_fade_in = false;
-                }
-            } else {
-                hint_fade_amount -= 15;
-                if (hint_fade_amount == 0) {
-                    hint_fade_in = true;
-                }
+        if (hint_fade_in) {
+            hint_fade_amount += 15;
+            if (hint_fade_amount == 255) {
+                hint_fade_in = false;
             }
-            VBlankIntrWait();
-            for (int i = 0; i < palette_count; ++i) {
-                const auto c = Color::from_bgr_hex_555(cached_palette[i]);
-                MEM_BG_PALETTE[i + 16] = blend(c_white, c, hint_fade_amount);
+        } else {
+            hint_fade_amount -= 15;
+            if (hint_fade_amount == 0) {
+                hint_fade_in = true;
             }
+        }
+        VBlankIntrWait();
+        for (int i = 0; i < palette_count; ++i) {
+            const auto c = Color::from_bgr_hex_555(cached_palette[i]);
+            MEM_BG_PALETTE[i + 16] = blend(c_white, c, hint_fade_amount);
         }
 
         pfrm.keyboard().poll();
@@ -4393,6 +4405,14 @@ Platform::Platform()
 
     audio_start();
 
+    irqSet(IRQ_TIMER3, [] {
+        delta_total += 0xffff;
+
+        REG_TM3CNT_H = 0;
+        REG_TM3CNT_L = 0;
+        REG_TM3CNT_H = 1 << 7 | 1 << 6;
+    });
+
     if (bios_version not_eq BiosVersion::NDS) {
         show_health_and_safety_message(*this);
     }
@@ -4458,27 +4478,6 @@ Platform::Platform()
         KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
 
     init_video(screen());
-
-    irqSet(IRQ_TIMER3, [] {
-        delta_total += 0xffff;
-
-        REG_TM3CNT_H = 0;
-        REG_TM3CNT_L = 0;
-        REG_TM3CNT_H = 1 << 7 | 1 << 6;
-    });
-
-    if (not rtc_verify_operability(*this)) {
-        set_gflag(GlobalFlag::rtc_faulty, true);
-        info(*this, "RTC chip appears either non-existant or non-functional");
-    } else {
-        ::start_time = system_clock_.now();
-
-        StringBuffer<100> str = "startup time: ";
-
-        log_format_time(str, *::start_time);
-
-        info(*::platform, str.c_str());
-    }
 
     fill_overlay(0);
 
