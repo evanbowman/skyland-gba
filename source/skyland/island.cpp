@@ -1089,6 +1089,13 @@ RETRY:
         // last row.
         for (int y = 0; y < 15; ++y) {
 
+            if (buffer[x][y] >= Tile::dlc_tiles_begin and
+                buffer[x][y] < Tile::dlc_tiles_begin + 15) {
+                pfrm.set_tile(layer_, x, y, buffer[x][y]);
+                pfrm.set_palette(layer_, x, y, 12);
+                continue;
+            }
+
             auto tile_handle = layer_ == Layer::map_0_ext
                                    ? pfrm.map_tile0_chunk(buffer[x][y])
                                    : pfrm.map_tile1_chunk(buffer[x][y]);
@@ -1116,10 +1123,6 @@ RETRY:
             }
 
             pfrm.set_tile(layer_, x, y, tile_handle);
-
-            if (buffer[x][y] >= Tile::dlc_tiles_begin) {
-                pfrm.set_palette(layer_, x, y, 12);
-            }
         }
     }
 

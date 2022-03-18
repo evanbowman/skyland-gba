@@ -132,6 +132,12 @@ struct Tile
         stacked_hull,
         lemon_tree_1,
         lemon_tree_2,
+
+        RESERVED_RANGE_DO_NOT_USE,
+
+        dlc_tiles_begin = 113,
+        dlc_tiles_end = 127,
+
         liberty_1,
         liberty_2,
         liberty_3,
@@ -140,9 +146,6 @@ struct Tile
         liberty_6,
         liberty_7,
         liberty_8,
-
-        // All tile indices below are reserved for DLC content.
-        dlc_tiles_begin = 113,
     };
 };
 
@@ -258,6 +261,12 @@ struct InteriorTile
         stacked_hull,
         lemon_tree_1,
         lemon_tree_2,
+
+        RESERVED_RANGE_DO_NOT_USE,
+
+        dlc_tiles_begin = 113,
+        dlc_tiles_end = 127,
+
         liberty_1,
         liberty_2,
         liberty_3,
@@ -267,8 +276,6 @@ struct InteriorTile
         liberty_7,
         liberty_8,
 
-        // All tile indices below are reserved for DLC content.
-        dlc_tiles_begin = 113,
     };
 };
 

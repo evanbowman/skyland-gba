@@ -64,7 +64,8 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
             achievement_text_->assign(SYSTR(achievement_msg_title)->c_str());
 
             achievement_name_.emplace(pfrm, OverlayCoord{4, 6});
-            achievement_name_->assign(loadstr(pfrm, achievements::name(achievement_))->c_str());
+            achievement_name_->assign(
+                loadstr(pfrm, achievements::name(achievement_))->c_str());
 
             unlocked_text_.emplace(pfrm, OverlayCoord{4, 9});
             unlocked_text_->assign(SYSTR(achievement_msg_unlocked)->c_str());
