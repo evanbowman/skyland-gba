@@ -80,11 +80,9 @@ set(SOURCES
   ${SOURCE_DIR}/localization_extended.cpp
   ${SOURCE_DIR}/memory/pool.cpp
   ${SOURCE_DIR}/collision.cpp
-  ${SOURCE_DIR}/tileMap.cpp
   ${SOURCE_DIR}/globals.cpp
   ${SOURCE_DIR}/string.cpp
-  ${SOURCE_DIR}/start.cpp
-  ${SOURCE_DIR}/path.cpp)
+  ${SOURCE_DIR}/start.cpp)
 
 
 set(SOURCES
