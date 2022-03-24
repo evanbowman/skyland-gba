@@ -66,6 +66,25 @@ public:
     }
 
 
+    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    {
+        timer_ -= delta;
+
+        if (timer_ < 0) {
+            timer_ += milliseconds(200);
+
+            if (keyframe_ == 0) {
+                kill();
+            } else {
+                if (quarter_ == 0) {
+                    dt_->remap((70 + keyframe_) * 2);
+                }
+                keyframe_--;
+            }
+        }
+    }
+
+
 private:
     Platform::DynamicTexturePtr dt_;
     Microseconds timer_;
