@@ -275,8 +275,9 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    if (not pfrm.network_peer().is_connected() and app.launch_repl()) {
-        app.launch_repl() = false;
+    if (not pfrm.network_peer().is_connected() and
+        state_bit_load(app, StateBit::launch_repl)) {
+        state_bit_store(app, StateBit::launch_repl, false);
         return scene_pool::alloc<LispReplScene>();
     }
 

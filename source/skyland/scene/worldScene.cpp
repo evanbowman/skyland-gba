@@ -164,13 +164,13 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (auto o = app.opponent_island()) {
-        if (not app.surrender_offered() and
+        if (not state_bit_load(app, StateBit::surrender_offered) and
             app.game_mode() == App::GameMode::adventure) {
             if (not app.player_island().is_boarded() and
                 o->offensive_capabilities() == 0 and o->character_count() and
                 o->projectiles().empty()) {
 
-                app.surrender_offered() = true;
+                state_bit_store(app, StateBit::surrender_offered, true);
                 return scene_pool::alloc<SurrenderWaitScene>();
             }
         }
@@ -466,8 +466,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.dialog_buffer()) {
         auto buffer = std::move(*app.dialog_buffer());
         app.dialog_buffer().reset();
-        const bool answer = app.dialog_expects_answer();
-        app.dialog_expects_answer() = false;
+        bool answer = state_bit_load(app, StateBit::dialog_expects_answer);
+        state_bit_store(app, StateBit::dialog_expects_answer, false);
         return scene_pool::alloc<BoxedDialogScene>(std::move(buffer), answer);
     }
 

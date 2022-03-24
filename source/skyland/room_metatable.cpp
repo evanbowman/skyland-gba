@@ -11,6 +11,7 @@
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/rooms/escapeBeacon.hpp"
 #include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/fountain.hpp"
@@ -251,6 +252,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         TNT,
                                         Radar,
                                         Transporter,
+                                        EscapeBeacon,
                                         Replicator,
                                         DroneBay,
                                         // decoration

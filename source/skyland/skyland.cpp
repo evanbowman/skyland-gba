@@ -421,6 +421,20 @@ KeyCallbackProcessor key_callback_processor;
 
 
 
+void state_bit_store(App& app, StateBit state_bit, bool value)
+{
+    app.state_bits().set((int)state_bit, value);
+}
+
+
+
+bool state_bit_load(App& app, StateBit state_bit)
+{
+    return app.state_bits().get((int)state_bit);
+}
+
+
+
 } // namespace skyland
 
 

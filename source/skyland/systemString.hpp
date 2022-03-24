@@ -30,6 +30,7 @@ enum class SystemString {
     block_power_core,
     block_decimator,
     block_drone_bay,
+    block_escape_beacon,
     block_flak_gun,
     block_forcefield,
     block_fountain,
@@ -142,6 +143,7 @@ enum class SystemString {
     description_radiator,
     description_switch,
     description_banana_plant,
+    description_escape_beacon,
 
     gs_paused,
     gs_slow,

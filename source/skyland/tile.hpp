@@ -146,6 +146,11 @@ struct Tile
         liberty_6,
         liberty_7,
         liberty_8,
+        escape_beacon_off_1,
+        escape_beacon_off_2,
+        escape_beacon_base,
+        escape_beacon_on_1,
+        escape_beacon_on_2,
     };
 };
 
@@ -275,7 +280,11 @@ struct InteriorTile
         liberty_6,
         liberty_7,
         liberty_8,
-
+        escape_beacon_off_1,
+        escape_beacon_off_2,
+        escape_beacon_base,
+        escape_beacon_on_1,
+        escape_beacon_on_2,
     };
 };
 

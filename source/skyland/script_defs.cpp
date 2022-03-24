@@ -441,13 +441,13 @@ static const lisp::Binding script_api[] = {
     {"dialog-await-y/n",
      [](int argc) {
          auto app = interp_get_app();
-         app->dialog_expects_answer_ = true;
+         state_bit_store(*app, StateBit::dialog_expects_answer, true);
          return L_NIL;
      }},
     {"repl",
      [](int argc) {
          auto app = interp_get_app();
-         app->launch_repl() = true;
+         state_bit_store(*app, StateBit::launch_repl, true);
          return L_NIL;
      }},
     {"key-bind",

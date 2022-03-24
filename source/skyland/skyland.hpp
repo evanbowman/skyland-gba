@@ -20,6 +20,7 @@
 #include "save.hpp"
 #include "scene.hpp"
 #include "script/lisp.hpp"
+#include "stateBit.hpp"
 #include "timeStream.hpp"
 #include "timeTracker.hpp"
 
@@ -247,12 +248,6 @@ public:
     }
 
 
-    bool& dialog_expects_answer()
-    {
-        return dialog_expects_answer_;
-    }
-
-
     enum class ExitCondition {
         none,
         misc,
@@ -266,17 +261,6 @@ public:
         return exit_condition_;
     }
 
-
-    bool& launch_repl()
-    {
-        return launch_repl_;
-    }
-
-
-    bool& surrender_offered()
-    {
-        return surrender_offered_;
-    }
 
 
     PersistentData& persistent_data()
@@ -317,6 +301,14 @@ public:
     {
         return level_coins_spent_;
     }
+
+
+
+    StateBitvector& state_bits()
+    {
+        return state_bitvector_;
+    }
+
 
 
     GlobalPersistentData gp_;
@@ -362,8 +354,6 @@ public:
         return input_setup_info_;
     }
 
-
-    bool dialog_expects_answer_ = false;
 
 
     time_stream::TimeStream& time_stream()
@@ -422,10 +412,10 @@ private:
 
     std::optional<DialogBuffer> dialog_buffer_;
     ExitCondition exit_condition_ = ExitCondition::none;
-    bool launch_repl_ = false;
     bool launch_input_ = false;
-    bool surrender_offered_ = false;
     GameMode game_mode_ = GameMode::adventure;
+
+    StateBitvector state_bitvector_;
 
     std::optional<lisp::Protected> input_setup_info_;
 

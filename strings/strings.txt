@@ -12,6 +12,7 @@ cargo-bay
 power-core
 decimator
 drone-bay
+escape-beacon
 flak-gun
 forcefield
 fountain
@@ -112,6 +113,7 @@ A reliable artillery weapon. Deals % damage every %.% seconds.
 Emits harmful radiation, damaging any character standing within two spaces away.
 A switch! When the lefthand side of the switch is selected, it'll select one of two targets, epending on the position of the switch.
 B is bananas B-A-N-A-N-A-S!
+Once activated, transports an island out of a battle after 60 seconds.
 paused
 slow
 regular

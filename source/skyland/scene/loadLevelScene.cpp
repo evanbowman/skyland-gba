@@ -77,7 +77,7 @@ void prep_level(Platform& pfrm, App& app)
     app.pause_count() = 0;
     app.stat_timer().reset(0);
     app.level_timer().reset(0);
-    app.surrender_offered() = false;
+    state_bit_store(app, StateBit::surrender_offered, false);
 
     if (app.game_mode() not_eq App::GameMode::skyland_forever and
         app.game_mode() not_eq App::GameMode::co_op) {
