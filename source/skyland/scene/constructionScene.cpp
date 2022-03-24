@@ -1007,7 +1007,9 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
              meta->properties() & RoomProperties::disabled_in_tutorials) or
             (meta->properties() & RoomProperties::not_constructible) or
             (app.game_mode() not_eq App::GameMode::tutorial and
-             app.gp_.hidden_rooms_.get(i));
+             app.gp_.hidden_rooms_.get(i)) or
+            (app.game_mode() not_eq App::GameMode::adventure and
+             meta->properties() & RoomProperties::adventure_mode_only);
 
         if (i >= app.gp_.hidden_rooms_.size()) {
             Platform::fatal("hidden rooms Bitvector requires resize!");

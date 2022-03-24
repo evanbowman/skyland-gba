@@ -179,6 +179,10 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     prep_level(pfrm, app);
 
+    for (auto& room : app.player_island().rooms()) {
+        room->reset_state();
+    }
+
     if (app.dialog_buffer()) {
         auto buffer = std::move(*app.dialog_buffer());
         app.dialog_buffer().reset();

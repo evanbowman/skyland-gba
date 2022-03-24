@@ -253,6 +253,8 @@ public:
         misc,
         victory,
         defeat,
+        player_fled,
+        opponent_fled,
     };
 
 

@@ -1,5 +1,6 @@
 #include "escapeBeacon.hpp"
 #include "skyland/island.hpp"
+#include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -35,8 +36,15 @@ void EscapeBeacon::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ -= delta;
 
             if (timer_ <= 0) {
-                // ...
+
+                if (parent() == &player_island(app)) {
+                    app.exit_condition() = App::ExitCondition::player_fled;
+                } else {
+                    app.exit_condition() = App::ExitCondition::opponent_fled;
+                }
+
                 activated_ = false;
+                timer_ = 0;
             }
         }
     }
@@ -53,7 +61,7 @@ EscapeBeacon::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 
     if (not was_activated) {
         parent()->repaint(pfrm, app);
-        timer_ = seconds(90);
+        timer_ = seconds(60);
     }
 
     Room::ready();

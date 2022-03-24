@@ -84,7 +84,7 @@ public:
     {
         return RoomProperties::workshop_required | RoomProperties::roof_hidden |
                RoomProperties::accepts_ion_damage |
-               RoomProperties::disabled_in_tutorials;
+               RoomProperties::adventure_mode_only;
     }
 
 
@@ -98,6 +98,13 @@ public:
         } else {
             return timer_;
         }
+    }
+
+
+    void reset_state() override
+    {
+        activated_ = false;
+        timer_ = 0;
     }
 
 

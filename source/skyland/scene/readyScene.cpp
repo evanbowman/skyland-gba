@@ -202,14 +202,22 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (exit_cond not_eq App::ExitCondition::none) {
         set_gamespeed(pfrm, app, GameSpeed::normal);
         app.exit_condition() = App::ExitCondition::none;
-        if (exit_cond == App::ExitCondition::misc) {
+        switch (exit_cond) {
+        case App::ExitCondition::player_fled:
+        case App::ExitCondition::opponent_fled:
+        case App::ExitCondition::misc:
             return scene_pool::alloc<FadeOutScene>();
-        } else if (exit_cond == App::ExitCondition::victory) {
+
+        case App::ExitCondition::victory:
             return scene_pool::alloc<PlayerIslandDestroyedScene>(
                 app.opponent_island(), true);
-        } else if (exit_cond == App::ExitCondition::defeat) {
+
+        case App::ExitCondition::defeat:
             return scene_pool::alloc<PlayerIslandDestroyedScene>(
                 &app.player_island(), true);
+
+        case App::ExitCondition::none:
+            break;
         }
     }
 

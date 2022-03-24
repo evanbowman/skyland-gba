@@ -77,6 +77,9 @@ struct RoomProperties
         // If hit by a weapon with damage that exceeds the room's health, the
         // colliding projectile will not be destroyed.
         fragile = (1 << 12),
+
+        // Only available in adventure mode.
+        adventure_mode_only = (1 << 13),
     };
 };
 
@@ -346,6 +349,11 @@ public:
 
 
     Group group() const;
+
+
+    virtual void reset_state()
+    {
+    }
 
 
 protected:

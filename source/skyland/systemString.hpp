@@ -160,6 +160,7 @@ enum class SystemString {
     start_menu_save_sandbox,
     start_menu_load_sandbox,
     start_menu_quit,
+    start_menu_scuttle,
     start_menu_sky_map,
 
     salvage_prompt,
