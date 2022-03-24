@@ -431,6 +431,8 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
                  300.f + 10.f * missile_count + 10 * generic_cannon_count +
                      50.f * drone_count);
     } else {
+        enq_prob("cannon", 100.f);
+
         enq_prob("missile-silo",
                  90.f + 10.f * missile_count + 10 * generic_cannon_count +
                      50.f * drone_count);
