@@ -5,11 +5,11 @@
 #include "readyScene.hpp"
 #include "saveSandboxScene.hpp"
 #include "skyland/player/player.hpp"
+#include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
 #include "zoneImageScene.hpp"
-#include "skyland/room_metatable.hpp"
 
 
 
@@ -62,22 +62,19 @@ void StartMenuScene::exit(Platform& pfrm, App&, Scene& next)
 
 static void scuttle(Platform& pfrm, App& app)
 {
-    app.on_timeout(pfrm,
-                   milliseconds(350),
-                   [](Platform& pfrm, App& app) {
-                       for (auto& room : app.player_island().rooms()) {
-                           if ((*room->metaclass())->category() == Room::Category::power) {
-                               room->apply_damage(pfrm, app, 9999);
+    app.on_timeout(pfrm, milliseconds(350), [](Platform& pfrm, App& app) {
+        for (auto& room : app.player_island().rooms()) {
+            if ((*room->metaclass())->category() == Room::Category::power) {
+                room->apply_damage(pfrm, app, 9999);
 
-                               app.on_timeout(pfrm,
-                                              milliseconds(350),
-                                              [](Platform& pfrm, App& app) {
-                                                  scuttle(pfrm, app);
-                                              });
-                               return;
-                           }
-                       }
-                   });
+                app.on_timeout(
+                    pfrm, milliseconds(350), [](Platform& pfrm, App& app) {
+                        scuttle(pfrm, app);
+                    });
+                return;
+            }
+        }
+    });
 }
 
 
@@ -151,15 +148,16 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             break;
 
         case App::GameMode::skyland_forever:
-            add_option(pfrm,
-                       SYSTR(start_menu_scuttle)->c_str(),
-                       [&pfrm, &app] {
-                           scuttle(pfrm, app);
-                           pfrm.screen().schedule_fade(0.f);
-                           app.game_speed() = GameSpeed::normal;
-                           return scene_pool::alloc<ReadyScene>();
-                       },
-                       cut);
+            add_option(
+                pfrm,
+                SYSTR(start_menu_scuttle)->c_str(),
+                [&pfrm, &app] {
+                    scuttle(pfrm, app);
+                    pfrm.screen().schedule_fade(0.f);
+                    app.game_speed() = GameSpeed::normal;
+                    return scene_pool::alloc<ReadyScene>();
+                },
+                cut);
             break;
 
         case App::GameMode::co_op:
