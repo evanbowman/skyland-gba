@@ -179,6 +179,11 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
         sound_fizzle.play(pfrm, 1);
     } else {
         room.apply_damage(pfrm, app, ion_burst_damage);
+
+        // A hack for the "meltdown" achievement.
+        if (str_eq(room.name(), "reactor") and room.health() <= 0) {
+            set_enabled(skyland::metaclass_index("radiator"), true);
+        }
     }
 }
 

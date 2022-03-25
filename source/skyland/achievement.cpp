@@ -244,6 +244,16 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[new_colossus].reward_), awarded);
+     }},
+
+    {SystemString::achievement_meltdown_name,
+     SystemString::achievement_meltdown_description,
+     "radiator",
+     [](Platform&, App& app) {
+         return is_enabled(metaclass_index(info[meltdown].reward_));
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[meltdown].reward_), awarded);
      }}};
 
 

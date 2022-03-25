@@ -45,6 +45,7 @@ enum Achievement : u8 {
     ship_of_theseus,
     lemons,
     new_colossus,
+    meltdown,
     count
 };
 
