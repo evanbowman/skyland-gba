@@ -14,23 +14,26 @@
 
 (setq on-converge
       (lambda
-        (let ((c (* 1400 (length (filter
-                                  (lambda (equal (car $0) 'lemon-tree))
-                                  (rooms (player)))))))
+        (if (not (bound 'lemon-quest-max-reward))
+            (setq lemon-quest-max-reward 99999))
+
+        (let ((c (min (list lemon-quest-max-reward
+                            (* 1400
+                               (length (filter
+                                        (lambda (equal (car $0) 'lemon-tree))
+                                        (rooms (player)))))))))
           (if (equal c 0)
               (progn
                 (dialog "<c:Farmer Ted:9>Hey, you lost my brother's trees!?")
                 (setq on-dialog-closed exit))
             (progn
-              (if (not (bound 'lemon-quest-max-reward))
-                  (setq lemon-quest-max-reward 99999))
 
               (dialog
                "<c:Farmer Ted:9>Wonderful! Here's "
-               (string (min (list lemon-quest-max-reward c)))
-               " for your trouble!")
+               (string c)
+               "@ for your trouble!")
 
-              (coins-add (min (list lemon-quest-max-reward c)))
+              (coins-add c)
 
               (unbind 'lemon-quest-max-reward)
               (setq quests '())
