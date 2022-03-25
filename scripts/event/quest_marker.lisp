@@ -6,6 +6,7 @@
 (eval-file "/scripts/reset_hooks.lisp")
 
 
+(gc)
 
 (let ((z (zone))
       (pos (cdr (wg-pos))))
@@ -17,3 +18,5 @@
         (progn
           (eval-file (car (car found))))
       (syscall "fatal" "invalid quest marker!"))))
+
+(gc)

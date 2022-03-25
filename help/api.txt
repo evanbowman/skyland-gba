@@ -498,6 +498,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (room-rem island x y)
+
+ Remove room room at x y from
+ island.
+
+
+o----------------------------o
+
  (sel)
 
  Returns the coordinates of

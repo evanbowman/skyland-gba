@@ -36,6 +36,8 @@
 ;; Defines a bytecode-compiled function.
 (macro defn/c (name body) `(setq ,name (compile (lambda ,@body))))
 
+(macro += (name val)
+ `(setq ,name (+ ,name ,@val)))
 
 (macro setq (name expr)
  `(set ,(cons $q name) ,@expr))
@@ -89,6 +91,7 @@
     (get (filter (lambda (equal (car $0) temp))
                  $1)
          0)))
+
 
 
 (defn append

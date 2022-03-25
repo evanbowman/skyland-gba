@@ -713,6 +713,26 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"room-rem",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 3);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(2, user_data);
+
+         auto [app, pfrm] = interp_get_context();
+
+         auto island = (Island*)lisp::get_op(2)->user_data().obj_;
+
+         auto coord = Vec2<u8>{
+             (u8)lisp::get_op(1)->integer().value_,
+             (u8)lisp::get_op(0)->integer().value_,
+         };
+
+         island->destroy_room(*pfrm, *app, coord);
+
+         return L_NIL;
+     }},
     {"chr-rem",
      [](int argc) {
          L_EXPECT_ARGC(argc, 3);

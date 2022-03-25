@@ -3,5 +3,9 @@
 ;;;
 
 
+(gc)
+
 (eval-file
- (string "/scripts/event/quest/" (choice 2) ".lisp"))
+ (string "/scripts/event/quest/" (choice 3) ".lisp"))
+
+(gc)
