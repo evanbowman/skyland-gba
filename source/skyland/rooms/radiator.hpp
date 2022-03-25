@@ -99,6 +99,11 @@ public:
     }
 
 
+    void display_on_hover(Platform::Screen& screen,
+                          App& app,
+                          const Vec2<u8>& cursor) override;
+
+
 private:
     void emit_radiation(Platform& pfrm, App& app);
 

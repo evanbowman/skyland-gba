@@ -97,4 +97,41 @@ void Radiator::render_exterior(App& app, u8 buffer[16][16])
 
 
 
+void Radiator::display_on_hover(Platform::Screen& screen,
+                                App& app,
+                                const Vec2<u8>& cursor)
+{
+    auto pos = position();
+
+    auto origin = parent()->visual_origin();
+
+    Sprite sprite;
+    sprite.set_size(Sprite::Size::w16_h32);
+    sprite.set_texture_index(13);
+
+    for (int x = pos.x - 2; x < pos.x + 3; ++x) {
+        sprite.set_position({origin.x + x * 16, origin.y + (pos.y - 2) * 16});
+        screen.draw(sprite);
+
+
+        if (x not_eq pos.x) {
+            sprite.set_texture_index(14);
+
+            sprite.set_position(
+                {origin.x + x * 16, origin.y + (pos.y - 1) * 16});
+
+            screen.draw(sprite);
+
+            sprite.set_texture_index(13);
+        }
+
+
+        sprite.set_position({origin.x + x * 16, origin.y + (pos.y + 1) * 16});
+
+        screen.draw(sprite);
+    }
+}
+
+
+
 } // namespace skyland
