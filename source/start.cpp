@@ -5,6 +5,7 @@
 #include "skyland/skyland.hpp"
 #include "transformGroup.hpp"
 #include "vector.hpp"
+#include "version.hpp"
 
 
 
@@ -39,6 +40,12 @@ static inline void skyland_main_loop(Platform& pf)
     pf.enable_glyph_mode(true);
     pf.load_overlay_texture("overlay");
     pf.load_background_texture("background");
+
+    info(pf, format("engine version %.%.%.%",
+                    PROGRAM_MAJOR_VERSION,
+                    PROGRAM_MINOR_VERSION,
+                    PROGRAM_SUBMINOR_VERSION,
+                    PROGRAM_VERSION_REVISION).c_str());
 
     while (pf.is_running()) {
         pf.keyboard().poll();

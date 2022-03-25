@@ -4083,6 +4083,10 @@ void Platform::Speaker::init_chiptune_noise(ChannelSettings settings)
 // up.
 static bool rtc_verify_operability(std::optional<DateTime> tm1, Platform& pfrm)
 {
+    if (get_gflag(GlobalFlag::rtc_faulty)) {
+        return false;
+    }
+
     Microseconds counter = pfrm.delta_clock().reset();
 
     while (counter < seconds(1) + milliseconds(250)) {
@@ -5870,6 +5874,7 @@ void Platform::SystemClock::init(Platform& pfrm)
 
     auto status = rtc_get_status();
     if (status & S3511A_STATUS_POWER) {
+        set_gflag(GlobalFlag::rtc_faulty, true);
         warning(pfrm, "RTC chip power failure");
     }
 }
