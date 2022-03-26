@@ -11,6 +11,10 @@
 
 
 
+class Platform;
+
+
+
 class GenericPool
 {
 public:
@@ -61,6 +65,8 @@ public:
     {
         return next_;
     }
+
+    static void print_diagnostics(Platform& pfrm);
 
 private:
     const char* name_;

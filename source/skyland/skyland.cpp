@@ -164,6 +164,8 @@ public:
 void App::on_remote_console_text(Platform& pfrm,
                                  const Platform::RemoteConsole::Line& str)
 {
+    const char* usage = "Enter mode: (s: simple, l: lisp repl)";
+
     switch (remote_console_syntax_) {
     case RemoteConsoleSyntax::none:
         if (str.length() == 1 and str[0] == 's') {
@@ -175,28 +177,51 @@ void App::on_remote_console_text(Platform& pfrm,
             remote_console_syntax_ = RemoteConsoleSyntax::lisp;
             pfrm.remote_console().printline("Skyland LISP ready!");
         } else {
-            const char* usage = "Enter mode: (s: simple, l: lisp repl)";
             pfrm.remote_console().printline(usage);
         }
         break;
 
     case RemoteConsoleSyntax::simple_console:
-        // TODO...
+        if (str == "help") {
+            // clang-format off
+            const char* msg =
+                "help            show this help message\r\n"
+                "pools annotate  show memory pool statistics\r\n"
+                "sbr annotate    show memory buffers in use\r\n"
+                "quit            select a different console mode\r\n";
+                ;
+            // clang-format on
+            pfrm.remote_console().printline(msg);
+        } else if (str == "sbr annotate") {
+            pfrm.system_call("print-memory-diagnostics", nullptr);
+        } else if (str == "pools annotate") {
+            GenericPool::print_diagnostics(pfrm);
+        } else if (str == "quit") {
+            pfrm.remote_console().printline(usage);
+            remote_console_syntax_ = RemoteConsoleSyntax::none;
+        } else {
+            pfrm.remote_console().printline("error: type help for options");
+        }
         break;
 
     case RemoteConsoleSyntax::lisp: {
-        RemoteConsoleLispPrinter printer(pfrm);
+        if (str == "(quit)") {
+            pfrm.remote_console().printline(usage);
+            remote_console_syntax_ = RemoteConsoleSyntax::none;
+        } else {
+            RemoteConsoleLispPrinter printer(pfrm);
 
-        lisp::BasicCharSequence seq(str.c_str());
-        lisp::read(seq);
-        lisp::eval(lisp::get_op(0));
-        format(lisp::get_op(0), printer);
+            lisp::BasicCharSequence seq(str.c_str());
+            lisp::read(seq);
+            lisp::eval(lisp::get_op(0));
+            format(lisp::get_op(0), printer);
 
-        lisp::pop_op();
-        lisp::pop_op();
+            lisp::pop_op();
+            lisp::pop_op();
 
-        pfrm.remote_console().printline(printer.fmt_.c_str());
-        break;
+            pfrm.remote_console().printline(printer.fmt_.c_str());
+            break;
+        }
     }
     }
 }
