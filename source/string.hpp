@@ -166,6 +166,11 @@ public:
         return mem_[pos];
     }
 
+    const char& operator[](int pos) const
+    {
+        return mem_[pos];
+    }
+
     void push_back(char c)
     {
         if (not mem_.full()) {

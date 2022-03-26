@@ -14,9 +14,9 @@
 const char* console_header =
 "\r\n"
 "*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n"
-"|  Skyland LISP Console                                                        |\r\n"
+"|  Skyland Console                                                             |\r\n"
 "*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n"
-"Type (env) to show available symbols";
+"Enter mode: (s: simple, l: lisp repl)";
 
 // clang-format on
 

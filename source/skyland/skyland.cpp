@@ -161,21 +161,44 @@ public:
 
 
 
-COLD void on_remote_console_text(Platform& pfrm,
+void App::on_remote_console_text(Platform& pfrm,
                                  const Platform::RemoteConsole::Line& str)
 {
-    RemoteConsoleLispPrinter printer(pfrm);
+    switch (remote_console_syntax_) {
+    case RemoteConsoleSyntax::none:
+        if (str.length() == 1 and str[0] == 's') {
+            remote_console_syntax_ = RemoteConsoleSyntax::simple_console;
+            const char* hint =
+                "Simple Console ready, type help to list commands";
+            pfrm.remote_console().printline(hint);
+        } else if (str.length() == 1 and str[0] == 'l') {
+            remote_console_syntax_ = RemoteConsoleSyntax::lisp;
+            pfrm.remote_console().printline("Skyland LISP ready!");
+        } else {
+            const char* usage = "Enter mode: (s: simple, l: lisp repl)";
+            pfrm.remote_console().printline(usage);
+        }
+        break;
 
-    lisp::BasicCharSequence seq(str.c_str());
-    lisp::read(seq);
-    lisp::eval(lisp::get_op(0));
-    format(lisp::get_op(0), printer);
+    case RemoteConsoleSyntax::simple_console:
+        // TODO...
+        break;
 
-    lisp::pop_op();
-    lisp::pop_op();
+    case RemoteConsoleSyntax::lisp: {
+        RemoteConsoleLispPrinter printer(pfrm);
 
+        lisp::BasicCharSequence seq(str.c_str());
+        lisp::read(seq);
+        lisp::eval(lisp::get_op(0));
+        format(lisp::get_op(0), printer);
 
-    pfrm.remote_console().printline(printer.fmt_.c_str());
+        lisp::pop_op();
+        lisp::pop_op();
+
+        pfrm.remote_console().printline(printer.fmt_.c_str());
+        break;
+    }
+    }
 }
 
 

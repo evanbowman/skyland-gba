@@ -396,6 +396,9 @@ private:
         std::optional<Island> opponent_;
     };
 
+    void on_remote_console_text(Platform& pfrm,
+                                const Platform::RemoteConsole::Line& str);
+
     PersistentData persistent_data_;
     DynamicMemory<Islands> islands_;
     Float cloud_scroll_1_;
@@ -409,6 +412,12 @@ private:
     GameSpeed game_speed_ = GameSpeed::normal;
     int pause_count_ = 0;
     Rumble rumble_;
+
+    enum class RemoteConsoleSyntax {
+        none,
+        simple_console,
+        lisp,
+    } remote_console_syntax_ = RemoteConsoleSyntax::none;
 
     s32 level_begin_score_ = 0;
 

@@ -5967,6 +5967,8 @@ static void uart_serial_isr()
         if (state.rx_in_progress_) {
             (*state.rx_in_progress_)->pop_back();
         }
+    } else if (data == '\0') {
+        // Hmm... how'd we end up with a null byte!?
     } else {
         if (not state.rx_in_progress_) {
             state.rx_in_progress_ =
@@ -5992,7 +5994,7 @@ static void start_remote_console(Platform& pfrm)
 
     // Stick a character in the data register. This stops the GBA transmitting a
     // Character as soon as it goes into UART mode (?!?)
-    REG_SIODATA8 = 'A';
+    // REG_SIODATA8 = 'A';
 
     // Now to go into UART mode
     REG_RCNT = 0;
