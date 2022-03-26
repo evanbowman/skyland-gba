@@ -164,18 +164,37 @@ public:
 void App::on_remote_console_text(Platform& pfrm,
                                  const Platform::RemoteConsole::Line& str)
 {
-    const char* usage = "Enter mode: (s: simple, l: lisp repl)";
+    if (state_bit_load(*this, StateBit::remote_console_force_newline)) {
+        // Force-printing newlines required for some uart consoles. Our UART
+        // console requires local echo to be turned on regardless. But some
+        // serial consoles, like Putty, don't echo newlines, even with local
+        // echo turned on.
+        pfrm.remote_console().printline("", "");
+        pfrm.sleep(2);
+    }
+
+    const char* usage =
+        "\aOptions: (s: simple console, l: lisp repl, f: toggle echo newlines)";
 
     switch (remote_console_syntax_) {
     case RemoteConsoleSyntax::none:
-        if (str.length() == 1 and str[0] == 's') {
+        if (str.length() == 1 and str[0] == 'f') {
+            const auto sb = StateBit::remote_console_force_newline;
+            const auto force = not state_bit_load(*this, sb);
+            state_bit_store(*this, sb, force);
+            if (force) {
+                pfrm.remote_console().printline("forced newline echo on");
+            } else {
+                pfrm.remote_console().printline("forced newline echo off");
+            }
+        } else if (str.length() == 1 and str[0] == 's') {
             remote_console_syntax_ = RemoteConsoleSyntax::simple_console;
             const char* hint =
                 "Simple Console ready, type help to list commands";
-            pfrm.remote_console().printline(hint);
+            pfrm.remote_console().printline(hint, "sc> ");
         } else if (str.length() == 1 and str[0] == 'l') {
             remote_console_syntax_ = RemoteConsoleSyntax::lisp;
-            pfrm.remote_console().printline("Skyland LISP ready!");
+            pfrm.remote_console().printline("Skyland LISP ready!", "lisp> ");
         } else {
             pfrm.remote_console().printline(usage);
         }
@@ -189,24 +208,24 @@ void App::on_remote_console_text(Platform& pfrm,
                 "pools annotate  show memory pool statistics\r\n"
                 "sbr annotate    show memory buffers in use\r\n"
                 "quit            select a different console mode\r\n";
-                ;
             // clang-format on
-            pfrm.remote_console().printline(msg);
+            pfrm.remote_console().printline(msg, "sc> ");
         } else if (str == "sbr annotate") {
             pfrm.system_call("print-memory-diagnostics", nullptr);
         } else if (str == "pools annotate") {
             GenericPool::print_diagnostics(pfrm);
         } else if (str == "quit") {
-            pfrm.remote_console().printline(usage);
+            pfrm.remote_console().printline("");
             remote_console_syntax_ = RemoteConsoleSyntax::none;
         } else {
-            pfrm.remote_console().printline("error: type help for options");
+            pfrm.remote_console().printline("error: type help for options",
+                                            "sc> ");
         }
         break;
 
     case RemoteConsoleSyntax::lisp: {
         if (str == "(quit)") {
-            pfrm.remote_console().printline(usage);
+            pfrm.remote_console().printline("");
             remote_console_syntax_ = RemoteConsoleSyntax::none;
         } else {
             RemoteConsoleLispPrinter printer(pfrm);
@@ -214,12 +233,17 @@ void App::on_remote_console_text(Platform& pfrm,
             lisp::BasicCharSequence seq(str.c_str());
             lisp::read(seq);
             lisp::eval(lisp::get_op(0));
+
+            if (lisp::get_op(0)->type() == lisp::Value::Type::error) {
+                printer.fmt_.push_back('\a');
+            }
+
             format(lisp::get_op(0), printer);
 
             lisp::pop_op();
             lisp::pop_op();
 
-            pfrm.remote_console().printline(printer.fmt_.c_str());
+            pfrm.remote_console().printline(printer.fmt_.c_str(), "lisp> ");
             break;
         }
     }

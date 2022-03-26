@@ -107,5 +107,5 @@ void scratch_buffer_memory_diagnostics(Platform& pfrm)
                       free_sbr * 2)
                    .c_str();
 
-    pfrm.remote_console().printline(output->c_str());
+    pfrm.remote_console().printline(output->c_str(), "sc> ");
 }

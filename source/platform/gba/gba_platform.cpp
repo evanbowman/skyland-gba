@@ -6021,7 +6021,7 @@ auto Platform::RemoteConsole::readline() -> std::optional<Line>
 }
 
 
-bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
+bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
 {
     auto& state = *::remote_console_state;
 
@@ -6053,16 +6053,19 @@ bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
     (*state.tx_msg_)->insert((*state.tx_msg_)->begin(), '\r');
     (*state.tx_msg_)->insert((*state.tx_msg_)->begin(), '\n');
 
-    if (show_prompt) {
-        // Show the prompt
-        (*state.tx_msg_)->insert((*state.tx_msg_)->begin(), '>');
-        (*state.tx_msg_)->insert((*state.tx_msg_)->begin(), ' ');
+    while (*prompt not_eq '\0') {
+        (*state.tx_msg_)->insert((*state.tx_msg_)->begin(), *prompt);
+        ++prompt;
     }
 
     if (first_char) {
         // Now that we're done copying the output message, place the first
         // character in the uart shift register, to kick off the send.
         REG_SIODATA8 = *first_char;
+    } else {
+        auto first = *((*state.tx_msg_)->end() - 1);
+        (*state.tx_msg_)->pop_back();
+        REG_SIODATA8 = first;
     }
 
     return true;

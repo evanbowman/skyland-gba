@@ -836,11 +836,11 @@ public:
 #endif
         std::optional<Line> readline();
 
-        bool printline(const char* text, bool show_prompt = true);
+        bool printline(const char* text, const char* prompt = "> ");
 
-        void printline_blocking(const char* text, bool show_prompt = true)
+        void printline_blocking(const char* text, const char* prompt = "> ")
         {
-            while (not printline(text, show_prompt))
+            while (not printline(text, prompt))
                 ;
         }
     };

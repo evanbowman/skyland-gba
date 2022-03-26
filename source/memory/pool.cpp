@@ -1,5 +1,5 @@
-#include "allocator.hpp"
 #include "pool.hpp"
+#include "allocator.hpp"
 #include "platform/platform.hpp"
 
 
@@ -11,12 +11,11 @@ GenericPool* GenericPool::instances_;
 void GenericPool::print_diagnostics(Platform& pfrm)
 {
     auto pool = GenericPool::instances();
-    auto output =
-        allocate_dynamic<Platform::RemoteConsole::Line>("pool-annotation-buffer");
+    auto output = allocate_dynamic<Platform::RemoteConsole::Line>(
+        "pool-annotation-buffer");
 
     *output += "        name        |   size  |  total  |  used \r\n";
-    *output +=
-        "____________________|_________|_________|________\r\n";
+    *output += "____________________|_________|_________|________\r\n";
     *output += "                    |         |         |";
     *output += "\r\n";
 
@@ -37,18 +36,15 @@ void GenericPool::print_diagnostics(Platform& pfrm)
 
         auto elem_count_str = stringify(pool->pooled_element_count());
         if (elem_count_str.length() < 7) {
-            *output +=
-                StringBuffer<7>(' ', 7 - elem_count_str.length());
+            *output += StringBuffer<7>(' ', 7 - elem_count_str.length());
         }
         *output += elem_count_str;
         *output += " | ";
 
-        auto remaining_str =
-            stringify(pool->pooled_element_count() -
-                      pool->pooled_element_remaining());
+        auto remaining_str = stringify(pool->pooled_element_count() -
+                                       pool->pooled_element_remaining());
         if (remaining_str.length() < 7) {
-            *output +=
-                StringBuffer<7>(' ', 7 - remaining_str.length());
+            *output += StringBuffer<7>(' ', 7 - remaining_str.length());
         }
         *output += remaining_str;
         *output += "\r\n";
@@ -56,5 +52,5 @@ void GenericPool::print_diagnostics(Platform& pfrm)
         pool = pool->next();
     }
 
-    pfrm.remote_console().printline(output->c_str());
+    pfrm.remote_console().printline(output->c_str(), "sc> ");
 }

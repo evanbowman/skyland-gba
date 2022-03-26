@@ -245,7 +245,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
           [](int argc) {
               L_EXPECT_ARGC(argc, 1);
               lisp::interp_get_pfrm()->remote_console().printline(
-                  L_LOAD_STRING(0), true);
+                  L_LOAD_STRING(0));
               return L_NIL;
           }},
          {"pools-annotate",

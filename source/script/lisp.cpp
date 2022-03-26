@@ -3372,7 +3372,7 @@ static const Binding builtins[] = {
                      if (depth == 0) {
                          out += "RET\r\n";
                          auto pfrm = interp_get_pfrm();
-                         pfrm->remote_console().printline(out.c_str(), false);
+                         pfrm->remote_console().printline(out.c_str(), "");
                          ((Platform*)pfrm)->sleep(80);
                          return get_nil();
                      } else {
@@ -3385,7 +3385,7 @@ static const Binding builtins[] = {
 
                  default:
                      interp_get_pfrm()->remote_console().printline(out.c_str(),
-                                                                   false);
+                                                                   "");
                      interp_get_pfrm()->sleep(80);
                      return get_nil();
                  }

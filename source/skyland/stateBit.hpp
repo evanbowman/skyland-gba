@@ -13,6 +13,7 @@ enum class StateBit {
     dialog_expects_answer,
     launch_repl,
     surrender_offered,
+    remote_console_force_newline,
     count,
 };
 
