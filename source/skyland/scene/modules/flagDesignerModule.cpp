@@ -72,9 +72,6 @@ FlagDesignerModule::update(Platform& pfrm, App& app, Microseconds delta)
     app.player_island().update(pfrm, app, delta);
 
     update_entities(pfrm, app, delta, app.effects());
-    for (auto& effect : app.effects()) {
-        effect->update(pfrm, app, delta);
-    }
 
     return Paint::update(pfrm, app, delta);
 }

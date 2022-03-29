@@ -45,6 +45,10 @@ public:
 
     void rewind(Platform&, App&, Microseconds delta)
     {
+        // In some older code I was accidentally updating effects twice per
+        // frame. Multiply delta x2 until I get around to fixing all the timers.
+        delta *= 2;
+
         timer_ -= delta;
 
         if (timer_ < 0) {
@@ -68,6 +72,7 @@ public:
 
     void update(Platform&, App&, Microseconds delta)
     {
+        delta *= 2;
         timer_ += delta;
 
         auto pos = sprite_.get_position();

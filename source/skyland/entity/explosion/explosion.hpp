@@ -27,7 +27,7 @@ public:
 
     void update(Platform&, App&, Microseconds delta) override
     {
-        timer_ += delta;
+        timer_ += delta * 2;
 
         if (timer_ > milliseconds(55)) {
             timer_ = 0;
@@ -44,7 +44,7 @@ public:
 
     void rewind(Platform& pfrm, App& app, Microseconds delta) override
     {
-        timer_ -= delta;
+        timer_ -= delta * 2;
 
         if (timer_ < 0) {
             timer_ = milliseconds(55);

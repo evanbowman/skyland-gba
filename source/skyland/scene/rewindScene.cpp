@@ -1006,13 +1006,6 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     app.update_parallax(-delta);
 
     rewind_entities(pfrm, app, delta, app.effects());
-    for (auto& entity : app.effects()) {
-        // Yeah, this is kind of terrible. Until late into development, I didn't
-        // realize that I was mistakenly update the effects list twice. I need
-        // to go through the effects and update the timers, so that I don't need
-        // to keep doing this.
-        entity->rewind(pfrm, app, delta);
-    }
 
     app.player_island().rewind(pfrm, app, delta);
     app.opponent_island()->rewind(pfrm, app, delta);
