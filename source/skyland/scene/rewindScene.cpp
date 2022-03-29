@@ -149,7 +149,9 @@ void RewindScene::print_timestamp(Platform& pfrm, App& app)
 ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 {
     // Playback history at a fixed delta.
-    const Microseconds delta = 2.5f * (seconds(1) / 60);
+    const Microseconds delta = 2 * (seconds(1) / 60);
+
+    app.float_delta() = delta;
 
 
     // Some functions called in this block may try to call other functions that
@@ -976,6 +978,15 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::rng_changed: {
             auto e = (time_stream::event::RngChanged*)end;
             rng::critical_state = e->previous_state_.get();
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::sound_completed: {
+            auto e = (time_stream::event::SoundCompleted*)end;
+            auto name = (const char*)(intptr_t)e->sound_name_ptr_.get();
+            pfrm.speaker().play_sound(name, 3);
             app.time_stream().pop(sizeof *e);
             break;
         }

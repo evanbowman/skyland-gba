@@ -21,6 +21,7 @@ namespace skyland
 
 
 SHARED_VARIABLE(cannonball_damage);
+extern Sound cannon_sound;
 
 
 

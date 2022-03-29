@@ -728,10 +728,10 @@ public:
                         std::optional<Vec2<Float>> position = {});
         bool is_sound_playing(const char* name);
 
-        void clear_sounds();
+        // Return a buffer containing any sounds that finished playing.
+        Buffer<const char*, 4> completed_sounds();
 
-        // Updates the listener position for spatialized audio, if supported.
-        void set_position(const Vec2<Float>& position);
+        void clear_sounds();
 
         Microseconds track_length(const char* sound_or_music_name);
 

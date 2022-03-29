@@ -3213,29 +3213,12 @@ static constexpr std::array<VolumeScaleLUT, 20> volume_scale_LUTs = {
 };
 
 
-static const VolumeScaleLUT* get_volume_lut(Float volume)
-{
-    return &volume_scale_LUTs[volume * (volume_scale_LUTs.size() - 1)];
-}
-
-
-static void
-set_sound_volume(ActiveSoundInfo& sound, Float left_volume, Float right_volume)
-{
-    sound.l_volume_lut_ = get_volume_lut(left_volume);
-    sound.r_volume_lut_ = get_volume_lut(right_volume);
-}
-
 
 static std::optional<ActiveSoundInfo> make_sound(const char* name)
 {
     if (auto sound = get_sound(name)) {
-        return ActiveSoundInfo{0,
-                               sound->length_,
-                               sound->data_,
-                               0,
-                               &volume_scale_LUTs[19],
-                               &volume_scale_LUTs[19]};
+        return ActiveSoundInfo{
+            0, sound->length_, sound->data_, 0, sound->name_};
     } else {
         return {};
     }
@@ -3255,20 +3238,18 @@ template <typename F> auto modify_audio(F&& callback)
 
 bool Platform::Speaker::is_sound_playing(const char* name)
 {
-    if (auto sound = get_sound(name)) {
-        bool playing = false;
-        modify_audio([&] {
-            for (const auto& info : snd_ctx.active_sounds) {
-                if ((s8*)sound->data_ == info.data_) {
-                    playing = true;
-                    return;
-                }
-            }
-        });
+    bool playing = false;
 
-        return playing;
-    }
-    return false;
+    modify_audio([&] {
+        for (const auto& info : snd_ctx.active_sounds) {
+            if (str_eq(name, info.name_)) {
+                playing = true;
+                return;
+            }
+        }
+    });
+
+    return playing;
 }
 
 
@@ -3290,12 +3271,26 @@ bool Platform::Speaker::is_music_playing(const char* name)
 
 
 
-static Vec2<Float> spatialized_audio_listener_pos;
+static Buffer<const char*, 4> completed_sounds_buffer;
+static volatile bool completed_sounds_lock = false;
 
 
-void Platform::Speaker::set_position(const Vec2<Float>& position)
+
+Buffer<const char*, 4> Platform::Speaker::completed_sounds()
 {
-    spatialized_audio_listener_pos = position;
+    while (completed_sounds_lock)
+        ;
+
+    Buffer<const char*, 4> result;
+
+    completed_sounds_lock = true;
+
+    result = completed_sounds_buffer;
+    completed_sounds_buffer.clear();
+
+    completed_sounds_lock = false;
+
+    return result;
 }
 
 
@@ -3601,48 +3596,6 @@ void Platform::Speaker::play_sound(const char* name,
     if (auto info = make_sound(name)) {
         info->priority_ = priority;
 
-        if (position) {
-            const auto dist =
-                distance(*position, spatialized_audio_listener_pos);
-
-            if (dist < 48) {
-                set_sound_volume(*info, 1.f, 1.f);
-            } else {
-                const Float distance_scale = 0.0005f;
-
-                const auto inv_sqr_intensity =
-                    1.f / (distance_scale * ((dist / 4) * dist));
-
-                auto l_vol = inv_sqr_intensity;
-                auto r_vol = inv_sqr_intensity;
-
-                // Currently disabled, used for stereo sound effects
-                // const auto dir =
-                //     direction(spatialized_audio_listener_pos, *position);
-                // const auto attenuation = 1.f - inv_sqr_intensity;
-                // const auto partial_attenuation = attenuation / 2.f;
-
-                // l_vol -= partial_attenuation * dir.x;
-                // r_vol += partial_attenuation * dir.x;
-
-                // if (r_vol < 0 and l_vol > r_vol) {
-                //     l_vol += r_vol;
-                // }
-
-                // if (l_vol < 0 and l_vol > r_vol) {
-                //     r_vol += l_vol;
-                // }
-
-                l_vol = clamp(l_vol, 0.f, 1.f);
-                r_vol = clamp(r_vol, 0.f, 1.f);
-
-                set_sound_volume(*info, l_vol, r_vol);
-            }
-
-        } else {
-            set_sound_volume(*info, 1.f, 1.f);
-        }
-
         modify_audio([&] { add_sound(snd_ctx.active_sounds, *info); });
     }
 }
@@ -3921,6 +3874,22 @@ static void audio_update_rewind_music_isr()
         snd_ctx.music_track_pos = snd_ctx.music_track_length;
     }
 
+    for (auto it = snd_ctx.active_sounds.begin();
+         it not_eq snd_ctx.active_sounds.end();) {
+        if (UNLIKELY(it->position_ == 0)) {
+            it->position_ = it->length_ - 1;
+            ++it;
+        } else if (UNLIKELY(it->position_ - 8 <= 0)) {
+            it = snd_ctx.active_sounds.erase(it);
+        } else {
+            for (int i = 0; i < 4; ++i) {
+                mixing_buffer[3 - i] += (u8)it->data_[it->position_];
+                it->position_ -= 2;
+            }
+            ++it;
+        }
+    }
+
     REG_SGFIFOA = *((u32*)mixing_buffer);
 }
 
@@ -3941,6 +3910,9 @@ static void audio_update_fast_isr()
     for (auto it = snd_ctx.active_sounds.begin();
          it not_eq snd_ctx.active_sounds.end();) {
         if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+            if (not completed_sounds_lock) {
+                completed_sounds_buffer.push_back(it->name_);
+            }
             it = snd_ctx.active_sounds.erase(it);
         } else {
             for (int i = 0; i < 4; ++i) {
@@ -4004,11 +3976,7 @@ static void audio_start()
     irqSet(IRQ_TIMER1, audio_update_fast_isr);
 
     REG_TM0CNT_L = 0xffff;
-    REG_TM1CNT_L = 0xffff - 3; // I think that this is correct, but I'm not
-                               // certain... so we want to play four samples at
-                               // a time, which means that by subtracting three
-                               // from the initial count, the timer will
-                               // overflow at the correct rate, right?
+    REG_TM1CNT_L = 0xffff - 3;
 
     // While it may look like TM0 is unused, it is in fact used for setting the
     // sample rate for the digital audio chip.

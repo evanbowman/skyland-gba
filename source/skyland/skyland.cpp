@@ -252,6 +252,14 @@ void App::on_remote_console_text(Platform& pfrm,
 
 
 
+static bool is_gui_sound(const char* sound_name)
+{
+    return str_eq(sound_name, "click") or str_eq(sound_name, "drone_beep") or
+           str_eq(sound_name, "openbag");
+}
+
+
+
 void App::update(Platform& pfrm, Microseconds delta)
 {
     const auto previous_rng = rng::critical_state;
@@ -297,6 +305,15 @@ void App::update(Platform& pfrm, Microseconds delta)
         e.previous_state_.set(previous_rng);
 
         time_stream_.push(pfrm, level_timer_, e);
+    }
+
+    for (const char* sound : pfrm.speaker().completed_sounds()) {
+        // Do not play sounds associated with the game's ui.
+        if (not is_gui_sound(sound)) {
+            time_stream::event::SoundCompleted e;
+            e.sound_name_ptr_.set((intptr_t)sound);
+            time_stream_.push(pfrm, level_timer_, e);
+        }
     }
 }
 

@@ -111,6 +111,8 @@ enum Type : u8 {
     rng_changed,
 
     achievement,
+
+    sound_completed,
 };
 
 
@@ -700,6 +702,20 @@ struct Achievement
     static_assert(sizeof(which_) == 1);
 
     static constexpr const auto t = Type::achievement;
+};
+
+
+
+struct SoundCompleted
+{
+    Header header_;
+#ifdef __GBA__
+    host_u32 sound_name_ptr_;
+#else
+    host_u64 sound_name_ptr_;
+#endif
+
+    static constexpr const auto t = Type::sound_completed;
 };
 
 
