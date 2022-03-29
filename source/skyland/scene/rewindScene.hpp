@@ -13,6 +13,10 @@ namespace skyland
 class RewindScene : public Scene
 {
 public:
+    RewindScene(bool is_far_camera) : far_camera_(is_far_camera)
+    {
+    }
+
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
@@ -28,6 +32,7 @@ private:
 
 
     std::optional<Text> text_;
+    bool far_camera_;
 };
 
 

@@ -1,3 +1,4 @@
+#include "inspectP2Scene.hpp"
 #include "rewindScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
@@ -168,9 +169,18 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
 
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-    app.camera()->update(
-        pfrm, app, app.player_island(), cursor_loc, delta, true);
+    if (far_camera_) {
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        app.camera()->update(
+            pfrm, app, *app.opponent_island(), cursor_loc, delta, false);
+    } else {
+        auto& cursor_loc =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        app.camera()->update(
+            pfrm, app, app.player_island(), cursor_loc, delta, true);
+    }
+
 
 
     const auto current_timestamp = app.level_timer().total();
@@ -193,7 +203,12 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
         app.game_speed() = GameSpeed::stopped;
-        return scene_pool::alloc<ReadyScene>();
+
+        if (far_camera_) {
+            return scene_pool::alloc<InspectP2Scene>();
+        } else {
+            return scene_pool::alloc<ReadyScene>();
+        }
     }
 
     // NOTE: IMPORTANT: any code called in this loop should not push a

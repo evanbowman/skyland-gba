@@ -56,7 +56,9 @@ SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 set_gamespeed(pfrm, app, GameSpeed::stopped);
 
                 return scene_pool::alloc<SwapOverlayTextureScene>(
-                    "overlay", scene_pool::make_deferred_scene<RewindScene>());
+                    "overlay",
+                    scene_pool::make_deferred_scene<RewindScene>(
+                        is_far_camera()));
             } else {
                 set_gamespeed(pfrm, app, GameSpeed::stopped);
                 selection_ = (int)GameSpeed::stopped;
@@ -89,7 +91,7 @@ u16 gamespeed_icon(GameSpeed speed);
 
 
 
-void SetGamespeedScene::enter(Platform& pfrm, App& app, Scene&)
+void SetGamespeedScene::enter(Platform& pfrm, App& app, Scene& scene)
 {
     selection_ = (int)app.game_speed();
 
@@ -97,6 +99,12 @@ void SetGamespeedScene::enter(Platform& pfrm, App& app, Scene&)
     pfrm.load_overlay_texture("overlay_gamespeed");
 
     repaint_selector(pfrm);
+
+    if (auto ws = dynamic_cast<WorldScene*>(&scene)) {
+        if (ws->is_far_camera()) {
+            far_camera();
+        }
+    }
 }
 
 
