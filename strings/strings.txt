@@ -23,6 +23,7 @@ ion-cannon
 ion-fizzler
 lady-liberty
 lava
+lava*
 lemon-tree
 manufactory
 masonry
@@ -46,6 +47,7 @@ dynamite
 dynamite-ii
 transporter
 water
+water*
 workshop
 (bird)
 (human) 
@@ -85,12 +87,14 @@ Evan Bowman presents
 Copyright ©2022
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
 A weapon for targeting the roof of an enemy fortress. Deals % damage every %.% seconds.
-Slightly lowers the construction cost of all rooms.
 ...
+Water source block.
+Slightly lowers the construction cost of all rooms.
 Scans the interior of other castles! Radars improve transporter accuracy, allowing transporters to select an exact position on another island.
 Cancels all ion damage on contact. Useful for protecting vulnerable structures, such as reactors or forcefields, from ion cannons.
 "Give me your tired, your poor, Your huddled masses yearning to breathe free"
 ...
+Lava source block.
 ...
 Plays chiptunes! Connect up to four synth blocks to the right of the speaker block! When finished playing, activates whatever block is placed beneath it, if any.
 Ni!

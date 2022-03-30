@@ -69,15 +69,14 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
     if (damage_timer_ > milliseconds(400)) {
         damage_timer_ = 0;
 
-        auto damage =
-            [&](u8 x, u8 y) {
-                if (auto room = parent()->get_room({x, y})) {
-                    if (not dynamic_cast<Lava*>(room) and not
-                        str_eq(room->name(), "barrier")) {
-                        room->apply_damage(pfrm, app, 10);
-                    }
+        auto damage = [&](u8 x, u8 y) {
+            if (auto room = parent()->get_room({x, y})) {
+                if (not dynamic_cast<Lava*>(room) and
+                    not str_eq(room->name(), "barrier")) {
+                    room->apply_damage(pfrm, app, 10);
                 }
-            };
+            }
+        };
 
         const auto x = position().x;
         const auto y = position().y;
@@ -201,8 +200,8 @@ void LavaSource::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 void LavaSource::check_flood_parent(Platform& pfrm,
-                                     App& app,
-                                     Microseconds delta)
+                                    App& app,
+                                    Microseconds delta)
 {
     decay_ = 0;
     has_flood_parent_ = false;

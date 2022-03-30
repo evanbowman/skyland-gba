@@ -86,6 +86,12 @@ public:
     }
 
 
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    {
+        buffer += SYSTR(description_water)->c_str();
+    }
+
+
     static Icon icon()
     {
         return 2120;
@@ -131,6 +137,17 @@ public:
     void
     check_flood_parent(Platform& pfrm, App& app, Microseconds delta) override;
 
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_water_source;
+    }
+
+
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    {
+        buffer += SYSTR(description_water_source)->c_str();
+    }
 
 
     static const char* name()

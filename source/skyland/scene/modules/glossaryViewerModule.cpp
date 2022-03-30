@@ -18,10 +18,6 @@ void GlossaryViewerModule::load_page(Platform& pfrm, int page)
 {
     auto [mt, ms] = room_metatable();
 
-    if (page >= ms) {
-        Platform::fatal("glossary: invalid index");
-    }
-
     auto icon = mt[page]->unsel_icon();
     draw_image(pfrm, 181, 1, 1, 4, 4, Layer::overlay);
     pfrm.load_overlay_chunk(181, icon, 16);

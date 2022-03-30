@@ -20,7 +20,8 @@ void HideRoomsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto [mt, ms] = room_metatable();
     for (int i = 0; i < ms; ++i) {
-        if (is_enabled(i)) {
+        if (is_enabled(i) and
+            not(mt[i]->properties() & RoomProperties::not_constructible)) {
             (*data_)->room_classes_.push_back(i);
         }
     }

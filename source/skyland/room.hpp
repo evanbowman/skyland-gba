@@ -89,6 +89,7 @@ struct RoomProperties
 
         // No explosion or sound effects when the room health drops to zero.
         destroy_quietly = (1 << 16),
+
     };
 };
 

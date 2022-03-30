@@ -86,6 +86,12 @@ public:
     }
 
 
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    {
+        buffer += SYSTR(description_lava)->c_str();
+    }
+
+
     static Icon icon()
     {
         return 2152;
@@ -138,6 +144,18 @@ public:
     static const char* name()
     {
         return "lava-source";
+    }
+
+
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    {
+        buffer += SYSTR(description_lava_source)->c_str();
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_lava_source;
     }
 
 
