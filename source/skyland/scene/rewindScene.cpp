@@ -3,6 +3,7 @@
 #include "readyScene.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
+#include "skyland/entity/birds/genericBird.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
 #include "skyland/entity/projectile/decimatorBurst.hpp"
@@ -1007,6 +1008,39 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::bird_left_map: {
+            auto e = (time_stream::event::BirdLeftMap*)end;
+
+            if (auto dt = pfrm.make_dynamic_texture()) {
+                Vec2<Float> pos;
+                pos.x = e->x_pos_.get();
+                pos.y = e->y_pos_.get();
+
+                Vec2<u8> coord;
+                coord.x = e->x_coord_;
+                coord.y = e->y_coord_;
+
+                const auto tm = e->flight_timer_.get();
+
+                Float speed;
+                memcpy(&speed, e->speed_, sizeof speed);
+
+                app.birds().push(app.alloc_entity<GenericBird>(pfrm,
+                                                               *dt,
+                                                               coord,
+                                                               pos,
+                                                               speed,
+                                                               tm,
+                                                               (u8)e->color_,
+                                                               (bool)e->near_,
+                                                               (bool)e->flip_));
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         default:
             Platform::fatal("invalid event from time stream");
         }
@@ -1021,6 +1055,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     app.update_parallax(-delta);
 
     rewind_entities(pfrm, app, delta, app.effects());
+    rewind_entities(pfrm, app, delta, app.birds());
 
     app.player_island().rewind(pfrm, app, delta);
     app.opponent_island()->rewind(pfrm, app, delta);
@@ -1079,6 +1114,10 @@ void RewindScene::display(Platform& pfrm, App& app)
 
     for (auto& effect : app.effects()) {
         pfrm.screen().draw(effect->sprite());
+    }
+
+    for (auto& bird : app.birds()) {
+        pfrm.screen().draw(bird->sprite());
     }
 }
 

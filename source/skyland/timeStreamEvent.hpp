@@ -113,6 +113,8 @@ enum Type : u8 {
     achievement,
 
     sound_completed,
+
+    bird_left_map,
 };
 
 
@@ -716,6 +718,24 @@ struct SoundCompleted
 #endif
 
     static constexpr const auto t = Type::sound_completed;
+};
+
+
+
+struct BirdLeftMap
+{
+    Header header_;
+    u8 x_coord_ : 4;
+    u8 y_coord_ : 4;
+    host_s16 x_pos_;
+    host_s16 y_pos_;
+    u8 speed_[sizeof(Float)];
+    HostInteger<Microseconds> flight_timer_;
+    u8 color_ : 1;
+    u8 flip_ : 1;
+    u8 near_ : 1;
+
+    static constexpr const auto t = Type::bird_left_map;
 };
 
 
