@@ -1,9 +1,10 @@
-#include "water.hpp"
+#include "lava.hpp"
 #include "globals.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "water.hpp"
 
 
 
@@ -12,37 +13,37 @@ namespace skyland
 
 
 
-Water::Water(Island* parent, const Vec2<u8>& position, const char* name)
+Lava::Lava(Island* parent, const Vec2<u8>& position, const char* name)
     : Room(parent, name, position)
 {
 }
 
 
 
-void Water::check_flood_parent(Platform& pfrm, App& app, Microseconds delta)
+void Lava::check_flood_parent(Platform& pfrm, App& app, Microseconds delta)
 {
-    // NOTE: we want to destroy a water block if its parent water block no
+    // NOTE: we want to destroy a lava block if its parent lava block no
     // longer exists.
 
     has_flood_parent_ = false;
 
-    bool flood_source_is_water = false;
+    bool flood_source_is_lava = false;
 
     if (auto room = parent()->get_room(flood_parent_)) {
-        if (auto w = dynamic_cast<Water*>(room)) {
-            flood_source_is_water = true;
+        if (auto w = dynamic_cast<Lava*>(room)) {
+            flood_source_is_lava = true;
             if (w->has_flood_parent_) {
                 has_flood_parent_ = true;
-            } else if (dynamic_cast<WaterSource*>(w)) {
+            } else if (dynamic_cast<LavaSource*>(w)) {
                 has_flood_parent_ = true;
             }
         }
     }
 
-    if (not flood_source_is_water and not has_flood_parent_) {
+    if (not flood_source_is_lava and not has_flood_parent_) {
         decay_ += delta;
 
-        if (decay_ > milliseconds(400)) {
+        if (decay_ > milliseconds(1000)) {
             __set_health(0);
         }
     } else {
@@ -52,7 +53,7 @@ void Water::check_flood_parent(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Water::update(Platform& pfrm, App& app, Microseconds delta)
+void Lava::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
@@ -64,13 +65,38 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
         flood_timer_ += delta;
     }
 
-    if (flood_timer_ >= milliseconds(400)) {
-        flood_timer_ -= milliseconds(400);
+    damage_timer_ += delta;
+    if (damage_timer_ > milliseconds(400)) {
+        damage_timer_ = 0;
+
+        auto damage =
+            [&](u8 x, u8 y) {
+                if (auto room = parent()->get_room({x, y})) {
+                    if (not dynamic_cast<Lava*>(room) and not
+                        str_eq(room->name(), "barrier")) {
+                        room->apply_damage(pfrm, app, 10);
+                    }
+                }
+            };
+
+        const auto x = position().x;
+        const auto y = position().y;
+
+        if (x > 0) {
+            damage(x - 1, y);
+        }
+
+        damage(x + 1, y);
+        damage(x, y + 1);
+    }
+
+    if (flood_timer_ >= milliseconds(1000)) {
+        flood_timer_ -= milliseconds(1000);
 
         auto flood = [&](u8 x, u8 y) {
-            (*load_metaclass("water"))->create(pfrm, app, parent(), {x, y});
+            (*load_metaclass("lava"))->create(pfrm, app, parent(), {x, y});
             if (auto room = parent()->get_room({x, y})) {
-                if (auto w = dynamic_cast<Water*>(room)) {
+                if (auto w = dynamic_cast<Lava*>(room)) {
                     w->set_flood_parent(position());
                 }
             }
@@ -114,67 +140,67 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Water::render_interior(App& app, u8 buffer[16][16])
+void Lava::render_interior(App& app, u8 buffer[16][16])
 {
     auto above = parent()->get_room({position().x, (u8)(position().y - 1)});
     if (above and (*above->metaclass())->properties() & RoomProperties::fluid) {
-        buffer[position().x][position().y] = InteriorTile::water_column;
+        buffer[position().x][position().y] = InteriorTile::lava_column;
     } else {
         u8 x = position().x;
         auto left = parent()->get_room({(u8)(x - 1), position().y});
         auto right = parent()->get_room({(u8)(x + 1), position().y});
 
         if (left and not right) {
-            buffer[position().x][position().y] = InteriorTile::water_right;
+            buffer[position().x][position().y] = InteriorTile::lava_right;
         } else if (right and not left) {
-            buffer[position().x][position().y] = InteriorTile::water_left;
+            buffer[position().x][position().y] = InteriorTile::lava_left;
         } else {
-            buffer[position().x][position().y] = InteriorTile::water_top;
+            buffer[position().x][position().y] = InteriorTile::lava_top;
         }
     }
 }
 
 
 
-void Water::render_exterior(App& app, u8 buffer[16][16])
+void Lava::render_exterior(App& app, u8 buffer[16][16])
 {
     auto above = parent()->get_room({position().x, (u8)(position().y - 1)});
     if (above and (*above->metaclass())->properties() & RoomProperties::fluid) {
-        buffer[position().x][position().y] = Tile::water_column;
+        buffer[position().x][position().y] = Tile::lava_column;
     } else {
         u8 x = position().x;
         auto left = parent()->get_room({(u8)(x - 1), position().y});
         auto right = parent()->get_room({(u8)(x + 1), position().y});
 
         if (left and not right) {
-            buffer[position().x][position().y] = InteriorTile::water_right;
+            buffer[position().x][position().y] = InteriorTile::lava_right;
         } else if (right and not left) {
-            buffer[position().x][position().y] = InteriorTile::water_left;
+            buffer[position().x][position().y] = InteriorTile::lava_left;
         } else {
-            buffer[position().x][position().y] = InteriorTile::water_top;
+            buffer[position().x][position().y] = InteriorTile::lava_top;
         }
     }
 }
 
 
 
-WaterSource::WaterSource(Island* parent, const Vec2<u8>& position)
-    : Water(parent, position, name())
+LavaSource::LavaSource(Island* parent, const Vec2<u8>& position)
+    : Lava(parent, position, name())
 {
 }
 
 
 
-void WaterSource::update(Platform& pfrm, App& app, Microseconds delta)
+void LavaSource::update(Platform& pfrm, App& app, Microseconds delta)
 {
     flood_timer_ += delta;
 
-    Water::update(pfrm, app, delta);
+    Lava::update(pfrm, app, delta);
 }
 
 
 
-void WaterSource::check_flood_parent(Platform& pfrm,
+void LavaSource::check_flood_parent(Platform& pfrm,
                                      App& app,
                                      Microseconds delta)
 {

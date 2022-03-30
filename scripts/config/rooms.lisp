@@ -45,6 +45,7 @@
    (statue       1   1    0)
    (synth        1   1    0)
    (water        1   1    0)
+   (lava         1   1    0)
    (bridge       30  30   0)
    (dynamite     40  10   0)
    (dynamite-ii  35  10   0)

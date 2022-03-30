@@ -156,6 +156,10 @@ struct Tile
         water_right,
         water_column,
         water_left,
+        lava_top,
+        lava_right,
+        lava_column,
+        lava_left,
     };
 };
 
@@ -295,6 +299,10 @@ struct InteriorTile
         water_right,
         water_column,
         water_left,
+        lava_top,
+        lava_right,
+        lava_column,
+        lava_left,
     };
 };
 

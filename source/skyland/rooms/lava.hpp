@@ -10,10 +10,10 @@ namespace skyland
 
 
 
-class Water : public Room
+class Lava : public Room
 {
 public:
-    Water(Island* parent, const Vec2<u8>& position, const char* name = name());
+    Lava(Island* parent, const Vec2<u8>& position, const char* name = name());
 
 
     void set_flood_parent(Vec2<u8> parent)
@@ -70,13 +70,13 @@ public:
 
     static const char* name()
     {
-        return "water";
+        return "lava";
     }
 
 
     static SystemString ui_name()
     {
-        return SystemString::block_water;
+        return SystemString::block_lava;
     }
 
 
@@ -111,6 +111,8 @@ public:
 protected:
     Microseconds decay_ = 0;
 
+    Microseconds damage_timer_ = 0;
+
     Vec2<u8> flood_parent_;
     bool has_flood_parent_ = true;
 
@@ -119,10 +121,10 @@ protected:
 
 
 
-class WaterSource : public Water
+class LavaSource : public Lava
 {
 public:
-    WaterSource(Island* parent, const Vec2<u8>& position);
+    LavaSource(Island* parent, const Vec2<u8>& position);
 
 
     void update(Platform& pfrm, App& app, Microseconds delta) override;
@@ -135,13 +137,13 @@ public:
 
     static const char* name()
     {
-        return "water-source";
+        return "lava-source";
     }
 
 
     static u32 properties()
     {
-        return Water::properties() & ~RoomProperties::not_constructible;
+        return Lava::properties() & ~RoomProperties::not_constructible;
     }
 };
 

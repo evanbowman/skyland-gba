@@ -21,6 +21,7 @@
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/ionFizzler.hpp"
 #include "skyland/rooms/ladyLiberty.hpp"
+#include "skyland/rooms/lava.hpp"
 #include "skyland/rooms/lemonTree.hpp"
 #include "skyland/rooms/manufactory.hpp"
 #include "skyland/rooms/masonry.hpp"
@@ -253,6 +254,8 @@ using RoomMetatableType = RoomMetatable<15,
                                         CargoBay,
                                         Water,
                                         WaterSource,
+                                        Lava,
+                                        LavaSource,
                                         Explosive,
                                         TNT,
                                         Radar,
