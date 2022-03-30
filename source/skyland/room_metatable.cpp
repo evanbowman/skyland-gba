@@ -3,6 +3,7 @@
 #include "roomPluginInfo.hpp"
 #include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/bananaPlant.hpp"
+#include "skyland/rooms/barrier.hpp"
 #include "skyland/rooms/bridge.hpp"
 #include "skyland/rooms/bronzeHull.hpp"
 #include "skyland/rooms/bulkhead.hpp"
@@ -228,6 +229,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Radiator,
                                         MirrorHull,
                                         StackedHull,
+                                        Barrier,
                                         // weapons
                                         Cannon,
                                         IonCannon,

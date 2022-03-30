@@ -151,6 +151,7 @@ struct Tile
         escape_beacon_base,
         escape_beacon_on_1,
         escape_beacon_on_2,
+        barrier,
     };
 };
 
@@ -285,6 +286,7 @@ struct InteriorTile
         escape_beacon_base,
         escape_beacon_on_1,
         escape_beacon_on_2,
+        barrier,
     };
 };
 

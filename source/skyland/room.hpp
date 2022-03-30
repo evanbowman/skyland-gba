@@ -80,6 +80,9 @@ struct RoomProperties
 
         // Only available in adventure mode.
         adventure_mode_only = (1 << 13),
+
+        // Only available in sandbox mode.
+        sandbox_mode_only = (1 << 14),
     };
 };
 
