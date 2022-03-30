@@ -31,6 +31,10 @@ void SelectChallengeScene::enter(Platform& pfrm, App& app, Scene& prev)
     // pfrm.fatal(p.fmt_.c_str());
 
     const auto challenge_count = lisp::length(*challenges_);
+    if (challenge_count not_eq 4) {
+        pfrm.fatal("FIXME: update completionist achievement with new count!");
+    }
+
     page_count_ = challenge_count / 5 + (challenge_count % 5 ? 1 : 0);
 
     show_options(pfrm, app);

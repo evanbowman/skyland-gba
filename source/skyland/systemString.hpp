@@ -281,6 +281,8 @@ enum class SystemString {
     achievement_new_colossus_description,
     achievement_meltdown_name,
     achievement_meltdown_description,
+    achievement_completionist_name,
+    achievement_completionist_description,
 
     hint_title,
     hint_gamespeed,

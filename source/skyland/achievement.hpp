@@ -46,6 +46,7 @@ enum Achievement : u8 {
     lemons,
     new_colossus,
     meltdown,
+    completionist,
     count
 };
 

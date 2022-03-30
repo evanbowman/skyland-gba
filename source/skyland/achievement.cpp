@@ -254,6 +254,34 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[meltdown].reward_), awarded);
+     }},
+
+    {SystemString::achievement_completionist_name,
+     SystemString::achievement_completionist_description,
+     "switch", // TODD...
+     [](Platform&, App& app) {
+         u64 v = app.gp_.achievement_flags_.get();
+
+         u64 c = app.gp_.challenge_flags_.get();
+         u32 upper;
+         u32 lower;
+         memcpy(&upper, &c, sizeof upper);
+         memcpy(&lower, (u8*)&c + 4, sizeof lower);
+         auto bc = count_1bits(upper) + count_1bits(lower);
+         if (bc != 4) {
+             // FIXME: use something other than hard-coding four!
+             return false;
+         }
+
+         for (int i = Achievement::builder; i < Achievement::completionist; ++i) {
+             if ((v & (1 << i)) == 0) {
+                 return false;
+             }
+         }
+         return true;
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[completionist].reward_), awarded);
      }}};
 
 

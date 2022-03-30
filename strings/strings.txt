@@ -230,6 +230,8 @@ The New Colossus
 Settle at least seven people in your castle at once!
 Meltdown
 Destroy an opponent's reactor with ion damage!
+Completionist
+Finish all challenge levels and achievements!
 tips and tricks
 Press and hold the pause button to set the game speed. Slow motion and fastforward speeds available! You can even rewind!
 Build an infirmary to heal your crew!
