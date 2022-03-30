@@ -55,7 +55,6 @@ public:
 
 
 private:
-
     void roost(Platform& pfrm, Island* island, Microseconds delta);
 
     Platform::DynamicTexturePtr dt_;

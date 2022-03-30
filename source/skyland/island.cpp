@@ -375,7 +375,10 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
         if (room->health() == 0) {
 
-            if (++destroyed_count < 5) {
+            const bool quiet = (*room->metaclass())->properties() &
+                               RoomProperties::destroy_quietly;
+
+            if (++destroyed_count < 5 and not quiet) {
                 // Five rooms destroyed on the same island in the same frame! If
                 // we create tons of huge explosions all at once, we'll lag the
                 // game and use lots of entities.
@@ -472,7 +475,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             }
 
 
-            if (destroyed_count < 2) {
+            if (destroyed_count < 2 and not quiet) {
                 pfrm.speaker().play_sound("explosion1", 2);
             }
 

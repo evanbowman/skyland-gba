@@ -40,14 +40,9 @@ GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
                          Microseconds flight_timer,
                          u8 color,
                          bool near,
-                         bool flip) :
-    Bird({{}, {}}),
-    dt_(dt),
-    position_(coord),
-    near_(near),
-    flight_timer_(flight_timer),
-    color_(color),
-    speed_(speed)
+                         bool flip)
+    : Bird({{}, {}}), dt_(dt), position_(coord), near_(near),
+      flight_timer_(flight_timer), color_(color), speed_(speed)
 {
     sprite_.set_position(position);
     sprite_.set_flip({flip, false});
@@ -248,7 +243,7 @@ void GenericBird::rewind(Platform& pfrm, App& app, Microseconds delta)
             break;
         }
         anim_timer_ -= delta;
-        if (anim_timer_ < 0 ) {
+        if (anim_timer_ < 0) {
             anim_timer_ += milliseconds(110);
 
             if (anim_index_ == 1) {

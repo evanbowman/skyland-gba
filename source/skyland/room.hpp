@@ -83,6 +83,12 @@ struct RoomProperties
 
         // Only available in sandbox mode.
         sandbox_mode_only = (1 << 14),
+
+        // Behaves as a fluid (water, lava, etc.)
+        fluid = (1 << 15),
+
+        // No explosion or sound effects when the room health drops to zero.
+        destroy_quietly = (1 << 16),
     };
 };
 

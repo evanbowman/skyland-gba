@@ -45,6 +45,7 @@
 #include "skyland/rooms/synth.hpp"
 #include "skyland/rooms/tnt.hpp"
 #include "skyland/rooms/transporter.hpp"
+#include "skyland/rooms/water.hpp"
 #include "skyland/rooms/workshop.hpp"
 
 
@@ -250,6 +251,8 @@ using RoomMetatableType = RoomMetatable<15,
                                         Bulkhead,
                                         Infirmary,
                                         CargoBay,
+                                        Water,
+                                        WaterSource,
                                         Explosive,
                                         TNT,
                                         Radar,

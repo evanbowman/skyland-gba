@@ -62,6 +62,7 @@ enum class SystemString {
     block_dynamite_1,
     block_dynamite_2,
     block_transporter,
+    block_water,
     block_workshop,
 
     bird_label,
@@ -113,6 +114,7 @@ enum class SystemString {
 
     description_power_core,
     description_missile_silo,
+    description_water,
     description_workshop,
     description_radar,
     description_ion_fizzler,

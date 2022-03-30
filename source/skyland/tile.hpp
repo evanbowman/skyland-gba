@@ -152,6 +152,10 @@ struct Tile
         escape_beacon_on_1,
         escape_beacon_on_2,
         barrier,
+        water_top,
+        water_right,
+        water_column,
+        water_left,
     };
 };
 
@@ -287,6 +291,10 @@ struct InteriorTile
         escape_beacon_on_1,
         escape_beacon_on_2,
         barrier,
+        water_top,
+        water_right,
+        water_column,
+        water_left,
     };
 };
 
