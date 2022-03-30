@@ -7,8 +7,8 @@ namespace skyland
 
 
 
-Barrier::Barrier(Island* parent, const Vec2<u8>& position) :
-    Room(parent, name(), position)
+Barrier::Barrier(Island* parent, const Vec2<u8>& position)
+    : Room(parent, name(), position)
 {
 }
 
@@ -43,4 +43,4 @@ void Barrier::apply_damage(Platform& pfrm, App& app, Health damage)
 
 
 
-}
+} // namespace skyland

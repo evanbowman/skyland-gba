@@ -61,19 +61,20 @@ public:
 
     static u32 properties()
     {
-        return RoomProperties::roof_hidden | RoomProperties::flag_mount | RoomProperties::sandbox_mode_only;
+        return RoomProperties::roof_hidden | RoomProperties::flag_mount |
+               RoomProperties::sandbox_mode_only;
     }
 
 
     static Icon icon()
     {
-        return 1624;
+        return 2088;
     }
 
 
     static Icon unsel_icon()
     {
-        return 1640;
+        return 2104;
     }
 
 

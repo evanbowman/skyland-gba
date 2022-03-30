@@ -273,7 +273,8 @@ static const AchievementInfo info[Achievement::count] = {
              return false;
          }
 
-         for (int i = Achievement::builder; i < Achievement::completionist; ++i) {
+         for (int i = Achievement::builder; i < Achievement::completionist;
+              ++i) {
              if ((v & (1 << i)) == 0) {
                  return false;
              }
