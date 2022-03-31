@@ -160,6 +160,7 @@ struct Tile
         lava_right,
         lava_column,
         lava_left,
+        mycelium,
     };
 };
 
@@ -303,6 +304,7 @@ struct InteriorTile
         lava_right,
         lava_column,
         lava_left,
+        mycelium,
     };
 };
 

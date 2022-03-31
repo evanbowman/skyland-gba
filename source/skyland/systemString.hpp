@@ -46,6 +46,7 @@ enum class SystemString {
     block_manufactory,
     block_masonry,
     block_missile_silo,
+    block_mycelium,
     block_nemesis,
     block_palm,
     block_plundered_room,
@@ -133,6 +134,7 @@ enum class SystemString {
     description_bronze_hull,
     description_stacked_hull,
     description_mirror_hull,
+
     description_nemesis,
     description_hull,
     description_forcefield,
@@ -154,6 +156,7 @@ enum class SystemString {
     description_banana_plant,
     description_barrier,
     description_escape_beacon,
+    description_mycelium,
 
     gs_paused,
     gs_slow,
@@ -177,6 +180,7 @@ enum class SystemString {
     salvage_option_A,
     salvage_option_B,
     salvage_error_populated,
+    salvage_error_disallowed,
     salvage_drone,
 
     achievement_msg_title,

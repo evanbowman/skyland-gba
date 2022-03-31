@@ -52,6 +52,7 @@ public:
                RoomProperties::disabled_in_tutorials |
                RoomProperties::not_constructible | RoomProperties::roof_hidden |
                RoomProperties::fluid | RoomProperties::fragile |
+               RoomProperties::multiplayer_unsupported |
                RoomProperties::destroy_quietly;
     }
 

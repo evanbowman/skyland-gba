@@ -88,6 +88,7 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
 
         damage(x + 1, y);
         damage(x, y + 1);
+        damage(x, y - 1);
     }
 
     if (flood_timer_ >= milliseconds(1000)) {

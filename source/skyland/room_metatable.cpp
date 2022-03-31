@@ -27,6 +27,7 @@
 #include "skyland/rooms/masonry.hpp"
 #include "skyland/rooms/mirrorHull.hpp"
 #include "skyland/rooms/missileSilo.hpp"
+#include "skyland/rooms/mycelium.hpp"
 #include "skyland/rooms/nemesis.hpp"
 #include "skyland/rooms/palm.hpp"
 #include "skyland/rooms/plunderedRoom.hpp"
@@ -231,6 +232,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Radiator,
                                         MirrorHull,
                                         StackedHull,
+                                        Mycelium,
                                         Barrier,
                                         // weapons
                                         Cannon,

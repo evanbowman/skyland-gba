@@ -9,6 +9,7 @@
 #include "levelCompleteOptionsScene.hpp"
 #include "lispReplScene.hpp"
 #include "modifierKeyHintScene.hpp"
+#include "notificationScene.hpp"
 #include "platform/platform.hpp"
 #include "playerIslandDestroyedScene.hpp"
 #include "salvageDroneScene.hpp"
@@ -409,8 +410,15 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_down(pfrm, Key::action_2)) {
-        if (app.player_island().get_room(cursor_loc)) {
-            return scene_pool::alloc<SalvageRoomScene>();
+        if (auto room = app.player_island().get_room(cursor_loc)) {
+            const auto props = (*room->metaclass())->properties();
+            if (not(props & RoomProperties::salvage_disallowed)) {
+                return scene_pool::alloc<SalvageRoomScene>();
+            } else {
+                auto msg = SYSTR(salvage_error_disallowed);
+                auto next = scene_pool::make_deferred_scene<ReadyScene>();
+                return scene_pool::alloc<NotificationScene>(msg->c_str(), next);
+            }
         } else if (auto drone = app.player_island().get_drone(cursor_loc)) {
             if ((*drone)->parent() == &app.player_island()) {
                 return scene_pool::alloc<SalvageDroneScene>(*drone);

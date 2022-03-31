@@ -5,6 +5,7 @@
 #include "keyComboScene.hpp"
 #include "lispReplScene.hpp"
 #include "modifierKeyHintScene.hpp"
+#include "notificationScene.hpp"
 #include "readyScene.hpp"
 #include "salvageDroneScene.hpp"
 #include "salvageRoomScene.hpp"
@@ -265,9 +266,18 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             if ((*drone)->parent() == &app.player_island()) {
                 return scene_pool::alloc<SalvageDroneScene>(*drone);
             }
-        } else if (app.game_mode() == App::GameMode::sandbox and
-                   app.opponent_island()->get_room(cursor_loc)) {
-            return scene_pool::alloc<SalvageRoomScene>(false);
+        } else if (app.game_mode() == App::GameMode::sandbox) {
+            if (auto room = app.opponent_island()->get_room(cursor_loc)) {
+                const auto props = (*room->metaclass())->properties();
+                if (not(props & RoomProperties::salvage_disallowed)) {
+                    return scene_pool::alloc<SalvageRoomScene>(false);
+                } else {
+                    auto msg = SYSTR(salvage_error_disallowed);
+                    auto s = scene_pool::make_deferred_scene<InspectP2Scene>();
+                    return scene_pool::alloc<NotificationScene>(msg->c_str(),
+                                                                s);
+                }
+            }
         }
     }
 

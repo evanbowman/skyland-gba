@@ -28,6 +28,7 @@ lemon-tree
 manufactory
 masonry
 missile-silo
+mycelium
 nemesis
 coconut-palm
 plundered-room
@@ -124,6 +125,7 @@ A switch! When the lefthand side of the switch is selected, it'll select one of 
 B is bananas B-A-N-A-N-A-S!
 Indestructable hull. May only be built in sandbox mode.
 Once activated, transports an island out of a battle after 60 seconds.
+An organic defensive structure. Grows to cover the whole surface of a castle.
 paused
 slow
 regular
@@ -144,6 +146,7 @@ really salvage?  +
 A: yes 
 B:  no 
 cannot salvage populated room!
+this block cannot be salvaged!
 scuttle drone?
 Achievement:
 Unlocked:

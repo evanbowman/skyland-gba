@@ -1011,7 +1011,9 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             (app.game_mode() not_eq App::GameMode::adventure and
              meta->properties() & RoomProperties::adventure_mode_only) or
             (app.game_mode() not_eq App::GameMode::sandbox and
-             meta->properties() & RoomProperties::sandbox_mode_only);
+             meta->properties() & RoomProperties::sandbox_mode_only) or
+            (pfrm.network_peer().is_connected() and
+             meta->properties() & RoomProperties::multiplayer_unsupported);
 
         if (i >= app.gp_.hidden_rooms_.size()) {
             Platform::fatal("hidden rooms Bitvector requires resize!");

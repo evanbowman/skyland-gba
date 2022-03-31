@@ -90,6 +90,11 @@ struct RoomProperties
         // No explosion or sound effects when the room health drops to zero.
         destroy_quietly = (1 << 16),
 
+        // Cannot be salvaged.
+        salvage_disallowed = (1 << 17),
+
+        // Unsupported in multiplayer.
+        multiplayer_unsupported = (1 << 18),
     };
 };
 

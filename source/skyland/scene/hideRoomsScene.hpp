@@ -34,7 +34,7 @@ private:
 
     struct Data
     {
-        Buffer<u16, 50> room_classes_;
+        Buffer<u16, 100> room_classes_;
     };
 
 
