@@ -142,6 +142,7 @@ load sandbox
 quit
 scuttle (quit)
 sky map
+Give me a hint!
 really salvage?  +
 A: yes 
 B:  no 

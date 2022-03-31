@@ -22,6 +22,11 @@ Mycelium::Mycelium(Island* parent, const Vec2<u8>& position, const char* n)
 void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
+
+    if (parent()->is_destroyed()) {
+        return;
+    }
+
     Room::ready();
 
     flood_timer_ += delta;

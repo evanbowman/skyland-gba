@@ -9,7 +9,14 @@
   (syscall "challenge-complete" 2))
 
 
-(setq challenge-hints '("Hint: repair-drone"))
+(defn challenge-hint
+  (dialog "Are you sure you want a hint?")
+  (dialog-await-y/n)
+
+  (defn on-dialog-accepted
+    (dialog "Hint: You may need to use a repair-drone in an unconventional way. Also: read the description for nemesis in the game's glossary."))
+
+  (setq on-dialog-declined (lambda '())))
 
 
 (terrain (player) 6)

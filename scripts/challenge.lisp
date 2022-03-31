@@ -4,6 +4,8 @@
 
 (eval-file "/scripts/reset_hooks.lisp")
 
+(if (bound 'challenge-hint) (unbind 'challenge-hint))
+
 (gc)
 
 '(("1: Goliath" . "challenges/goliath.lisp")

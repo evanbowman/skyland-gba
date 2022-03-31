@@ -28,8 +28,11 @@ struct RoomMeta
         {
         }
 
-        virtual void
-        create(Platform&, App&, Island*, const Vec2<u8>&, bool do_repaint = true) const = 0;
+        virtual void create(Platform&,
+                            App&,
+                            Island*,
+                            const Vec2<u8>&,
+                            bool do_repaint = true) const = 0;
         virtual RoomPtr<Room>
         create(Platform&, Island*, const Vec2<u8>&) const = 0;
         virtual const char* name() const = 0;

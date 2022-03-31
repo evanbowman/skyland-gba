@@ -175,6 +175,7 @@ enum class SystemString {
     start_menu_quit,
     start_menu_scuttle,
     start_menu_sky_map,
+    start_menu_hint,
 
     salvage_prompt,
     salvage_option_A,

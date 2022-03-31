@@ -259,7 +259,6 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
     ambient_movement_ = ambient_offset;
 
-
     const bool movement_ready = all_characters_awaiting_movement_;
     all_characters_awaiting_movement_ = true;
 

@@ -451,7 +451,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (target->consumes_power() not_eq 0 and
                 island(app)->power_supply() - island(app)->power_drain() <
-                target->consumes_power()) {
+                    target->consumes_power()) {
                 category_label_.reset();
                 msg(pfrm,
                     SYSTR(construction_insufficient_power_supply)->c_str());

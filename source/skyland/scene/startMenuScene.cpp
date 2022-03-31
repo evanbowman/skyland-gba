@@ -1,9 +1,11 @@
 #include "startMenuScene.hpp"
+#include "boxedDialogScene.hpp"
 #include "hibernateScene.hpp"
 #include "hideRoomsScene.hpp"
 #include "modules/glossaryViewerModule.hpp"
 #include "readyScene.hpp"
 #include "saveSandboxScene.hpp"
+#include "selectChallengeScene.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
@@ -158,6 +160,42 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<ReadyScene>();
                 },
                 cut);
+            break;
+
+        case App::GameMode::challenge:
+            add_option(
+                pfrm,
+                SYSTR(start_menu_hint)->c_str(),
+                [&pfrm] {
+                    auto hint = lisp::get_var("challenge-hint");
+                    if (hint->type() == lisp::Value::Type::function) {
+
+                        using namespace lisp;
+
+                        funcall(hint, 0);
+                        if (get_op(0)->type() == Value::Type::error) {
+                            Platform::fatal("unexpected error (ch hint)!");
+                        }
+                        pop_op(); // result
+
+                        pfrm.screen().schedule_fade(0.f);
+
+                        return scene_pool::alloc<ReadyScene>();
+                    }
+                    Platform::fatal("invalid datatype for challenge-hint"
+                                    " (expected function)");
+                },
+                cut);
+
+            add_option(
+                pfrm,
+                SYSTR(start_menu_quit)->c_str(),
+                [&pfrm]() -> ScenePtr<Scene> {
+                    pfrm.fill_overlay(0);
+                    return scene_pool::alloc<SelectChallengeScene>();
+                },
+                fade_sweep);
+
             break;
 
         case App::GameMode::co_op:

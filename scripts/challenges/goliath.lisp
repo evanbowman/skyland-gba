@@ -10,7 +10,8 @@
   (syscall "challenge-complete" 0))
 
 
-(setq challenge-hints '("Sorry, no hints for this one."))
+(defn challenge-hint
+  (dialog "Sorry, no hints for this one."))
 
 
 (terrain (player) 8)

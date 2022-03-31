@@ -9,8 +9,31 @@
   (syscall "room-enable" 'mycelium 1))
 
 
-(setq challenge-hints
-      '("Hint: mycelium won't grow on forcefields, and is weak against arc-guns."))
+(setq challenge-hint-count 0)
+
+
+(defn challenge-hint
+  (dialog (if (equal challenge-hint-count 0)
+              "Are you sure you want a hint?"
+            "Need another hint?"))
+  (dialog-await-y/n)
+
+  (defn on-dialog-accepted
+    (let ((c challenge-hint-count))
+      (dialog
+       (cond
+        ((equal c 0)
+         (+= challenge-hint-count 1)
+         "Hint: mycelium won't grow on forcefields, and is weak against arc-guns.")
+        ((equal c 1)
+         (+= challenge-hint-count 1)
+         "Hint: you can incapacitate the cannon by destroying the two forcefields in front of it, allowing the mycelium to grow over the cannon.")
+        ((equal c 2)
+         (setq challenge-hint-count 0)
+         "Ok, one final hint: After building anything that you need from the manufactory, scrap it for coins.")))))
+
+
+  (setq on-dialog-declined (lambda '())))
 
 
 (terrain (player) 7)

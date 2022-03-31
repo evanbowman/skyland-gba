@@ -46,8 +46,8 @@ public:
     {
         return RoomProperties::disabled_in_tutorials |
                RoomProperties::workshop_required |
-               RoomProperties::locked_by_default |
-               RoomProperties::roof_hidden | RoomProperties::salvage_disallowed;
+               RoomProperties::locked_by_default | RoomProperties::roof_hidden |
+               RoomProperties::salvage_disallowed;
     }
 
 

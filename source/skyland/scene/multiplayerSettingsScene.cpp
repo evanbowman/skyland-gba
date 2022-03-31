@@ -239,7 +239,8 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
 
     const u8 opponent_start_x =
         vs_parameters_[4] > 3 ? vs_parameters_[4] - 3 : vs_parameters_[4] - 2;
-    app.opponent_island()->add_room<Core>(pfrm, app, {opponent_start_x, 13}, true);
+    app.opponent_island()->add_room<Core>(
+        pfrm, app, {opponent_start_x, 13}, true);
 
     auto add_opponent_chr = [&app](u8 x, u8 y) {
         app.opponent_island()->add_character(alloc_entity<BasicCharacter>(

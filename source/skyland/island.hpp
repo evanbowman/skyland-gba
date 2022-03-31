@@ -43,12 +43,11 @@ public:
 
 
     template <typename T, typename... Args>
-    bool
-    add_room(Platform& pfrm,
-             App& app,
-             const Vec2<u8>& position,
-             bool do_repaint,
-             Args&&... args)
+    bool add_room(Platform& pfrm,
+                  App& app,
+                  const Vec2<u8>& position,
+                  bool do_repaint,
+                  Args&&... args)
     {
         if (auto room = room_pool::alloc<T>(
                 this, position, std::forward<Args>(args)...)) {

@@ -11,7 +11,8 @@
 
 
 
-(setq challenge-hints '("Sorry, no hints for this one."))
+(defn challenge-hint
+  (dialog "Sorry, no hints for this one."))
 
 
 (setq on-fadein

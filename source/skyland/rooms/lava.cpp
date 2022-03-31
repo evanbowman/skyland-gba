@@ -57,6 +57,10 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
 
+    if (parent()->is_destroyed()) {
+        return;
+    }
+
     Room::ready();
 
     check_flood_parent(pfrm, app, delta);
@@ -95,7 +99,8 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
         flood_timer_ -= milliseconds(1000);
 
         auto flood = [&](u8 x, u8 y) {
-            (*load_metaclass("lava"))->create(pfrm, app, parent(), {x, y}, false);
+            (*load_metaclass("lava"))
+                ->create(pfrm, app, parent(), {x, y}, false);
 
             parent()->schedule_repaint();
 
