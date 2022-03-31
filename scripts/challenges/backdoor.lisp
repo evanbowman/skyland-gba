@@ -9,6 +9,8 @@
   (syscall "challenge-complete" 2))
 
 
+(setq challenge-hints '("Hint: repair-drone"))
+
 
 (terrain (player) 6)
 (island-configure

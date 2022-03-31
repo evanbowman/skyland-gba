@@ -12,6 +12,10 @@
 
 
 
+(setq challenge-hints '("Sorry, no hints for this one."))
+
+
+
 (setq on-room-destroyed
       (lambda
         (if (equal $0 (opponent))

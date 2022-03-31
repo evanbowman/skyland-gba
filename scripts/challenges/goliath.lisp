@@ -10,6 +10,9 @@
   (syscall "challenge-complete" 0))
 
 
+(setq challenge-hints '("Sorry, no hints for this one."))
+
+
 (terrain (player) 8)
 (island-configure
  (player)

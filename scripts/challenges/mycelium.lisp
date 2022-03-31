@@ -9,6 +9,10 @@
   (syscall "room-enable" 'mycelium 1))
 
 
+(setq challenge-hints
+      '("Hint: mycelium won't grow on forcefields, and is weak against arc-guns."))
+
+
 (terrain (player) 7)
 (island-configure
  (player)

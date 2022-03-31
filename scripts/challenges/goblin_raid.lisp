@@ -10,6 +10,10 @@
   (syscall "challenge-complete" 1))
 
 
+
+(setq challenge-hints '("Sorry, no hints for this one."))
+
+
 (setq on-fadein
       (lambda
         (dialog "<c:goblin:2>Hey King, we've found a defensselesss cassstle!")
