@@ -67,6 +67,7 @@ private:
     enum class State {
         roost,
         fly,
+        caw,
     } state_ = State::roost;
 
     Microseconds anim_timer_ = 0;

@@ -142,6 +142,14 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
 
         roost(pfrm, island, delta);
 
+        // anim_timer_ += delta;
+        // if (anim_timer_ > seconds(10) and rng::choice<1400>(rng::utility_state) == 0) {
+        //     anim_timer_ = 0;
+        //     anim_index_ = 0;
+        //     flight_timer_ = 0;
+        //     state_ = State::caw;
+        // }
+
         if (alerted_ and delta > 0) {
             state_ = State::fly;
             anim_timer_ = 0;
@@ -150,6 +158,34 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
 
             speed_ = 0.00003f * (1 + rng::choice<3>(rng::utility_state));
         }
+        break;
+    }
+
+    case State::caw: {
+        roost(pfrm, island, delta);
+
+        anim_timer_ += delta;
+        flight_timer_ += delta;
+        if (anim_timer_ > milliseconds(150)) {
+            anim_timer_ -= milliseconds(150);
+            anim_index_ = not anim_index_;
+            dt_->remap((75 + anim_index_) * 2 + color_);
+        }
+        if (flight_timer_ > seconds(2)) {
+            flight_timer_ = 0;
+            dt_->remap(63 * 2 + color_);
+            state_ = State::roost;
+        }
+
+        if (alerted_ and delta > 0) {
+            state_ = State::fly;
+            anim_timer_ = 0;
+            flight_timer_ = 0;
+            sprite_.set_flip({(bool)rng::choice<2>(rng::utility_state), false});
+
+            speed_ = 0.00003f * (1 + rng::choice<3>(rng::utility_state));
+        }
+
         break;
     }
 
@@ -229,6 +265,14 @@ void GenericBird::rewind(Platform& pfrm, App& app, Microseconds delta)
     switch (state_) {
     case State::roost: {
         roost(pfrm, island, 0);
+        break;
+    }
+
+    case State::caw: {
+        flight_timer_ = 0;
+        anim_timer_ = 0;
+        dt_->remap(63 * 2 + color_);
+        state_ = State::roost;
         break;
     }
 
