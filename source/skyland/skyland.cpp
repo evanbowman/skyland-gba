@@ -210,8 +210,6 @@ void App::on_remote_console_text(Platform& pfrm,
                 "help                  | show this help message\r\n"
                 "pools annotate        | show memory pool statistics\r\n"
                 "sbr annotate          | show memory buffers in use\r\n"
-                "dump file <path>      | dump file to console\r\n"
-                "dump file b32 <path>  | dump file to console, converted to base32\r\n"
                 "quit                  | select a different console mode\r\n";
             // clang-format on
             pfrm.remote_console().printline(msg, "sc> ");
