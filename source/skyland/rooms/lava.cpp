@@ -72,7 +72,8 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
         auto damage = [&](u8 x, u8 y) {
             if (auto room = parent()->get_room({x, y})) {
                 if (not dynamic_cast<Lava*>(room) and
-                    not str_eq(room->name(), "barrier")) {
+                    not str_eq(room->name(), "barrier") and
+                    not str_eq(room->name(), "masonry")) {
                     room->apply_damage(pfrm, app, 10);
                 }
             }

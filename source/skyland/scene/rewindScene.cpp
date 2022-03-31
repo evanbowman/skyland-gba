@@ -253,7 +253,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, &app.player_island(), {e->x_, e->y_});
             if (auto room = app.player_island().get_room({e->x_, e->y_})) {
-                medium_explosion_inv(pfrm, app, room->origin());
+                const bool quiet = (*room->metaclass())->properties() &
+                    RoomProperties::destroy_quietly;
+                if (not quiet) {
+                    medium_explosion_inv(pfrm, app, room->origin());
+                }
             }
             app.time_stream().pop(sizeof *e);
             break;
@@ -265,7 +269,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, app.opponent_island(), {e->x_, e->y_});
             if (auto room = app.opponent_island()->get_room({e->x_, e->y_})) {
-                medium_explosion_inv(pfrm, app, room->origin());
+                const bool quiet = (*room->metaclass())->properties() &
+                    RoomProperties::destroy_quietly;
+                if (not quiet) {
+                    medium_explosion_inv(pfrm, app, room->origin());
+                }
             }
             app.time_stream().pop(sizeof *e);
             break;

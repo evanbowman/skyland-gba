@@ -112,7 +112,7 @@ Transport boarding parties into an enemy castle! Selects a random destination, u
 Upgraded hull. Much more durable, but succeptible to ion damage.
 Deals low damage, but spread over large areas. Highly destructive when used in groups against castles with thin hull.
 An upgraded workshop. Slightly lowers the construction cost of all rooms.
-While ineffective against most modern weaponry, villagers in skyland still build structures with stone, because it looks nice.
+While ineffective against most modern weaponry, villagers in skyland still build structures with stone, because it looks nice. Heat resistant.
 A massively destructive weapon with a sluggish %.% second recharge. Reloads and fires only when inhabited by a character.
 A structure designed to bridge a large vertical distance by dividing it into smaller vertical distances, often called steps.
 A placeholder structure created after a character destroys a room by plundering.

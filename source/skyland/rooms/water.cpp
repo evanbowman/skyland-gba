@@ -42,7 +42,7 @@ void Water::check_flood_parent(Platform& pfrm, App& app, Microseconds delta)
     if (not flood_source_is_water and not has_flood_parent_) {
         decay_ += delta;
 
-        if (decay_ > milliseconds(400)) {
+        if (decay_ > milliseconds(300)) {
             __set_health(0);
         }
     } else {
@@ -64,8 +64,8 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
         flood_timer_ += delta;
     }
 
-    if (flood_timer_ >= milliseconds(400)) {
-        flood_timer_ -= milliseconds(400);
+    if (flood_timer_ >= milliseconds(300)) {
+        flood_timer_ -= milliseconds(300);
 
         auto flood = [&](u8 x, u8 y) {
             (*load_metaclass("water"))->create(pfrm, app, parent(), {x, y});
