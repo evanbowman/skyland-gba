@@ -313,6 +313,12 @@ public:
     u8 min_y() const;
 
 
+    void schedule_repaint()
+    {
+        schedule_repaint_ = true;
+    }
+
+
 private:
     void resolve_cancelled_dispatch();
 
@@ -339,6 +345,7 @@ private:
     bool show_flag_ = false;
     bool dispatch_cancelled_ = false;
     bool show_groups_ = false;
+    bool schedule_repaint_ = false;
 
     bool has_radar_ = false;
     bool is_boarded_ = false;

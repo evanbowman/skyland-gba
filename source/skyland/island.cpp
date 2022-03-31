@@ -361,6 +361,10 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
 
     bool do_repaint = false;
+    if (schedule_repaint_) {
+        schedule_repaint_ = false;
+        do_repaint = true;
+    }
 
 
     resolve_cancelled_dispatch();

@@ -68,7 +68,10 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
         flood_timer_ -= milliseconds(300);
 
         auto flood = [&](u8 x, u8 y) {
-            (*load_metaclass("water"))->create(pfrm, app, parent(), {x, y});
+            (*load_metaclass("water"))->create(pfrm, app, parent(), {x, y}, false);
+
+            parent()->schedule_repaint();
+
             if (auto room = parent()->get_room({x, y})) {
                 if (auto w = dynamic_cast<Water*>(room)) {
                     w->set_flood_parent(position());

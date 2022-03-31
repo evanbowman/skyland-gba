@@ -72,7 +72,9 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
         };
 
         auto spread = [&](u8 x, u8 y) {
-            (*metaclass())->create(pfrm, app, parent(), {x, y});
+            (*metaclass())->create(pfrm, app, parent(), {x, y}, false);
+
+            parent()->schedule_repaint();
 
             if (parent() == &app.player_island()) {
                 time_stream::event::PlayerRoomCreated p;
