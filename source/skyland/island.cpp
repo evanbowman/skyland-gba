@@ -1040,8 +1040,7 @@ void Island::repaint(Platform& pfrm, App& app)
                 }
                 if (y > 0 and matrix[x][y - 1] == 0) {
                     if (not placed_chimney_this_tile and show_flag_ and
-                        not placed_flag and y > 1 and matrix[x][y - 1] == 0 and
-                        buffer[x][y - 1] == 1) {
+                        not placed_flag and y > 1 and matrix[x][y - 1] == 0) {
                         if (auto room = get_room({x, (u8)(y + 1)})) {
                             if ((*room->metaclass())->properties() &
                                     RoomProperties::flag_mount and
