@@ -297,6 +297,8 @@ static std::optional<Platform::UnrecoverrableErrorCallback>
 
 int main(int argc, char** argv)
 {
+    canary_init();
+
     gflags.clear();
 
     Platform pf;
@@ -3065,7 +3067,7 @@ static const AudioTrack* find_music(const char* name)
 // NOTE: Between remixing the audio track down to 8-bit 16kHz signed, generating
 // assembly output, adding the file to CMake, adding the include, and adding the
 // sound to the sounds array, it's just too tedious to keep working this way...
-// #include "data/sound_bell.hpp"
+#include "data/sound_bell.hpp"
 // #include "data/sound_blaster.hpp"
 #include "data/sound_click.hpp"
 #include "data/sound_cling.hpp"
@@ -3129,7 +3131,7 @@ static const AudioTrack sounds[] = {DEF_SOUND(explosion1, sound_explosion1),
                                     DEF_SOUND(cannon, sound_cannon),
                                     DEF_SOUND(cling, sound_cling),
                                     DEF_SOUND(coin, sound_coin),
-                                    // DEF_SOUND(bell, sound_bell),
+                                    DEF_SOUND(bell, sound_bell),
                                     DEF_SOUND(msg, sound_msg)};
 
 
@@ -4071,7 +4073,7 @@ static std::optional<DateTime> start_time;
 
 
 
-static void start_remote_console(Platform& pfrm);
+static void start_remote_console();
 
 
 extern char __iwram_start__;
@@ -4271,9 +4273,6 @@ Platform::Platform()
     // ones that do work would be nice.
     // ram_overclock();
 
-    canary_init();
-
-
     logger().set_threshold(Severity::fatal);
 
     keyboard().poll();
@@ -4370,6 +4369,11 @@ Platform::Platform()
     });
     delta_clock().reset();
 
+    audio_start();
+    clear_music();
+    speaker().play_music("unaccompanied_wind", 0);
+    speaker().play_sound("bell", 1);
+
     if (bios_version not_eq BiosVersion::NDS) {
         show_health_and_safety_message(*this);
     }
@@ -4391,7 +4395,7 @@ Platform::Platform()
     } else {
         info(*this, "gbp not detected");
 
-        start_remote_console(*this);
+        start_remote_console();
 
         rumble_init(nullptr);
     }
@@ -4471,8 +4475,6 @@ Platform::Platform()
 
         info(*::platform, str.c_str());
     }
-
-    audio_start();
 }
 
 
@@ -5887,8 +5889,17 @@ static EWRAM_DATA std::optional<RemoteConsoleState> remote_console_state;
 
 
 
+static bool uart_echo_skip = false;
+
+
+
 static void uart_serial_isr()
 {
+    if (uart_echo_skip) {
+        uart_echo_skip = false;
+        return;
+    }
+
     auto& state = *::remote_console_state;
 
     const char data = REG_SIODATA8;
@@ -5900,6 +5911,9 @@ static void uart_serial_isr()
         return;
     }
 
+    // NOTE: a later discovery: in addition to is_rcv not working in the
+    // commented out code (below), send_ready also does not work. i.e. we cannot
+    // receive while we're sending.
     const bool send_ready = !(REG_SIOCNT & 0x0010);
     if (send_ready and state.tx_msg_ and not(*state.tx_msg_)->empty()) {
 
@@ -5923,14 +5937,12 @@ static void uart_serial_isr()
     // const bool is_rcv = !(REG_SIOCNT & 0x0020);
     // if (is_rcv) {
 
-    // just for debugging purposes
-
     if (data == '\r') {
         if (state.rx_in_progress_) {
             state.rx_full_lines_.push_back(std::move(*state.rx_in_progress_));
             state.rx_in_progress_.reset();
         }
-    } else if (data == 8 /* ASCII backspace */ or
+    } else if (data == 0x08 /* ASCII backspace */ or
                data == 0x7f /* Strange char used by picocom as a backspace */) {
         if (state.rx_in_progress_) {
             (*state.rx_in_progress_)->pop_back();
@@ -5948,11 +5960,47 @@ static void uart_serial_isr()
         }
     }
 
+    if (data not_eq '\r') {
+
+        if (data == 0x7f) {
+            // Why would you send 0x7f but not handle it upon echo? I have no
+            // idea why some terminals send a backspace character yet don't
+            // understand THE BACKSPACE CHARACTER THAT THEMSELVES SENT! Anyway,
+            // I echo back a proper ascii backspace instead, because apparently
+            // the developers who wrote these serial consoles were really
+            // stupid. Or am I stupid? Someone is clearly an idiot.
+            //
+            // Description of the problem: In bash, running picocom, I type
+            // backspace. GBA receives 0x7f. Whatever, it's not an ascii
+            // backspace, but at least it's sort of standardized. I echo back
+            // 0x7f, picocom in bash DOES NOTHING.
+            REG_SIODATA8 = 0x08;
+        } else {
+            REG_SIODATA8 = data;
+        }
+
+        // Most serial consoles are super dumb, and assume that the server will
+        // echo back everything that they type. If we do the echo now, we'll
+        // raise another serial interrupt, which we want to ignore.
+        //
+        // NOTE: I was relying on local echo for a while, rather than
+        // implementing server-side echo. But then, I discovered that Putty
+        // echos everything except for newline characters with local echo turned
+        // on, and basically, I don't trust the authors of serial terminals to
+        // get anything right, based on my experience so far. That's why the
+        // server is handline everything an relies on the minimal possible
+        // subset of uart functionality. 9600 baud, no local echo, no flow
+        // control.
+        uart_echo_skip = true;
+    }
+
+
     // }
 }
 
 
-static void start_remote_console(Platform& pfrm)
+
+static void start_remote_console()
 {
     ::remote_console_state.emplace();
 
@@ -6202,6 +6250,8 @@ void* Platform::system_call(const char* feature_name, void* arg)
             return arg;
         }
         return nullptr;
+    } else if (str_eq(feature_name, "console-print-file")) {
+
     }
 
     return nullptr;

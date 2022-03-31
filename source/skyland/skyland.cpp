@@ -89,6 +89,9 @@ App::App(Platform& pfrm)
         time_stream_.clear();
     });
 
+    const auto sb = StateBit::remote_console_force_newline;
+    state_bit_store(*this, sb, true);
+
     achievements::init(pfrm, *this);
 }
 
@@ -174,7 +177,7 @@ void App::on_remote_console_text(Platform& pfrm,
     }
 
     const char* usage =
-        "\aOptions: (s: simple console, l: lisp repl, f: toggle echo newlines)";
+        "\aOptions: (s: simple console, l: lisp repl)";
 
     switch (remote_console_syntax_) {
     case RemoteConsoleSyntax::none:
@@ -200,14 +203,16 @@ void App::on_remote_console_text(Platform& pfrm,
         }
         break;
 
-    case RemoteConsoleSyntax::simple_console:
+    case RemoteConsoleSyntax::simple_console: {
         if (str == "help") {
             // clang-format off
             const char* msg =
-                "help            show this help message\r\n"
-                "pools annotate  show memory pool statistics\r\n"
-                "sbr annotate    show memory buffers in use\r\n"
-                "quit            select a different console mode\r\n";
+                "help                  | show this help message\r\n"
+                "pools annotate        | show memory pool statistics\r\n"
+                "sbr annotate          | show memory buffers in use\r\n"
+                "dump file <path>      | dump file to console\r\n"
+                "dump file b32 <path>  | dump file to console, converted to base32\r\n"
+                "quit                  | select a different console mode\r\n";
             // clang-format on
             pfrm.remote_console().printline(msg, "sc> ");
         } else if (str == "sbr annotate") {
@@ -222,6 +227,7 @@ void App::on_remote_console_text(Platform& pfrm,
                                             "sc> ");
         }
         break;
+    }
 
     case RemoteConsoleSyntax::lisp: {
         if (str == "(quit)") {
