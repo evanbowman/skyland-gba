@@ -84,21 +84,16 @@
  which at time of writing,
  is the default in picocom.
 
- Toggle local echo with
- shortcut ctrl-a ctrl-c.
- You'll want local echo, as
- SKYLAND does not render your
- keystrokes onscreen, it
- handles uart in the
- background, so you can
- run commands without
- pausing the game.
-
  Ok, you should be all set
  up! Restart skyland, and
  the game should print
  a command prompt into
  picocom.
+
+ If you're unfamiliar with
+ picocom or linux, you may
+ instead use Putty in Windows,
+ or serial-term in emacs.
 
  All of the functions in
  /help/api.txt are of course
