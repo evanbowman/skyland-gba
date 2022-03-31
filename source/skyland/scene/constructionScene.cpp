@@ -229,9 +229,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 msg(pfrm, temp.c_str());
 
             } else {
-                collect_available_buildings(pfrm, app);
-
-                if (not data_->available_buildings_.empty()) {
+                if (not collect_available_buildings(pfrm, app)) {
+                    // Do nothing...
+                } else if (not data_->available_buildings_.empty()) {
 
                     if (data_->last_constructed_building_ and
                         (data_->available_buildings_[building_selector_] not_eq
@@ -449,7 +449,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            if (island(app)->power_supply() - island(app)->power_drain() <
+            if (target->consumes_power() not_eq 0 and
+                island(app)->power_supply() - island(app)->power_drain() <
                 target->consumes_power()) {
                 category_label_.reset();
                 msg(pfrm,
@@ -921,7 +922,7 @@ void ConstructionScene::msg(Platform& pfrm, const char* text)
 
 
 
-void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
+bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
 {
     data_->available_buildings_.clear();
 
@@ -952,7 +953,10 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
     if (avail_x_space == 0) {
         // We should have started with a construction site known to be valid, so
         // the minimum space available should 1,1.
-        Platform::fatal("collect_avail_buildings(): logic error");
+        //
+        // P.S.: after adding mycelium, technically something can grow in the
+        // available slot, so return a failure.
+        return false;
     }
 
 
@@ -1039,6 +1043,8 @@ void ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
     if (building_selector_ >= (int)data_->available_buildings_.size()) {
         building_selector_ = data_->available_buildings_.size() - 1;
     }
+
+    return true;
 }
 
 

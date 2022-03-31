@@ -88,13 +88,22 @@ public:
 
     static Icon icon()
     {
-        return 2120;
+        return 2184;
     }
 
 
     static Icon unsel_icon()
     {
-        return 2136;
+        return 2200;
+    }
+
+
+    static constexpr const auto flood_time = seconds(8);
+
+
+    Microseconds reload_time_remaining() const override
+    {
+        return flood_time - flood_timer_;
     }
 
 

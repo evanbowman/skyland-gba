@@ -125,7 +125,7 @@ A switch! When the lefthand side of the switch is selected, it'll select one of 
 B is bananas B-A-N-A-N-A-S!
 Indestructable hull. May only be built in sandbox mode.
 Once activated, transports an island out of a battle after 60 seconds.
-An organic defensive structure. Grows to cover the whole surface of a castle.
+An organic defensive structure. Grows to cover the whole surface of a castle. Will not grow on fluid blocks, or other mycelium.
 paused
 slow
 regular

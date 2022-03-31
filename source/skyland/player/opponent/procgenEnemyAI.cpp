@@ -295,6 +295,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     int forcefield_count = 0;
     int misc_cannon_count = 0;
     int ion_cannon_count = 0;
+    int mycelium_count = 0;
 
     for (auto& room : app.player_island().rooms()) {
         const auto category = (*room->metaclass())->category();
@@ -315,6 +316,8 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
             ++arc_count;
         } else if (str_eq(room->name(), "ion-cannon")) {
             ++ion_cannon_count;
+        } else if (str_eq(room->name(), "mycelium")) {
+            ++mycelium_count;
         } else if (category == Room::Category::weapon) {
             ++misc_cannon_count;
         }
@@ -423,7 +426,11 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
             enq_prob("nemesis", 60.f);
         } else {
             enq_prob("cannon", 100.f);
-            enq_prob("arc-gun", 120.f);
+            if (mycelium_count) {
+                enq_prob("arc-gun", 200.f);
+            } else {
+                enq_prob("arc-gun", 120.f);
+            }
             enq_prob("nemesis", 120.f);
         }
 

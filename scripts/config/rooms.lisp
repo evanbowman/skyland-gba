@@ -48,7 +48,7 @@
    (water-source 1   1    0)
    (lava         1   1    0)
    (lava-source  1   1    0)
-   (mycelium     40  2500 0)
+   (mycelium     60  2500 5)
    (bridge       30  30   0)
    (dynamite     40  80   0)
    (dynamite-ii  35  500  0)

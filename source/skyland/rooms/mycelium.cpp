@@ -26,8 +26,8 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
 
     flood_timer_ += delta;
 
-    if (flood_timer_ > seconds(6)) {
-        flood_timer_ -= seconds(6);
+    if (flood_timer_ > flood_time) {
+        flood_timer_ -= flood_time;
 
         const auto x = position().x;
         const auto y = position().y;
@@ -37,7 +37,8 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
             if (auto room = parent()->get_room({x, y})) {
                 // Mycelium substrate must be non-mycelium room.
                 return room->metaclass() not_eq metaclass() and
-                       not(room->properties() & RoomProperties::fluid);
+                       not(room->properties() & RoomProperties::fluid) and
+                       not str_eq(room->name(), "forcefield");
             }
 
             return false;
@@ -45,6 +46,8 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (not substrate(x + 1, y) and not substrate(x - 1, y) and
             not substrate(x, y - 1) and not substrate(x, y + 1) and
+            not substrate(x + 1, y + 1) and not substrate(x - 1, y - 1) and
+            not substrate(x + 1, y - 1) and not substrate(x - 1, y + 1) and
             y not_eq 14) {
             this->apply_damage(pfrm, app, 9999);
             return;
@@ -61,7 +64,9 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
 
 
                 return substrate(x + 1, y) or substrate(x - 1, y) or
-                       substrate(x, y - 1) or substrate(x, y + 1);
+                       substrate(x, y - 1) or substrate(x, y + 1) or
+                       substrate(x + 1, y + 1) or substrate(x - 1, y - 1) or
+                       substrate(x + 1, y - 1) or substrate(x - 1, y + 1);
             }
             return false;
         };
@@ -103,14 +108,60 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
 
 void Mycelium::render_interior(App& app, u8 buffer[16][16])
 {
-    buffer[position().x][position().y] = InteriorTile::mycelium;
+    bool above = false;
+    bool below = false;
+
+    if (auto room = parent()->get_room({position().x, u8(position().y - 1)})) {
+        if (room->metaclass() == metaclass()) {
+            above = true;
+        }
+    }
+
+    if (auto room = parent()->get_room({position().x, u8(position().y + 1)})) {
+        if (room->metaclass() == metaclass()) {
+            below = true;
+        }
+    }
+
+    if (above and below) {
+        buffer[position().x][position().y] = InteriorTile::mycelium_middle;
+    } else if (above) {
+        buffer[position().x][position().y] = InteriorTile::mycelium_bottom;
+    } else if (below) {
+        buffer[position().x][position().y] = InteriorTile::mycelium_top;
+    } else {
+        buffer[position().x][position().y] = InteriorTile::mycelium;
+    }
 }
 
 
 
 void Mycelium::render_exterior(App& app, u8 buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::mycelium;
+    bool above = false;
+    bool below = false;
+
+    if (auto room = parent()->get_room({position().x, u8(position().y - 1)})) {
+        if (room->metaclass() == metaclass()) {
+            above = true;
+        }
+    }
+
+    if (auto room = parent()->get_room({position().x, u8(position().y + 1)})) {
+        if (room->metaclass() == metaclass()) {
+            below = true;
+        }
+    }
+
+    if (above and below) {
+        buffer[position().x][position().y] = Tile::mycelium_middle;
+    } else if (above) {
+        buffer[position().x][position().y] = Tile::mycelium_bottom;
+    } else if (below) {
+        buffer[position().x][position().y] = Tile::mycelium_top;
+    } else {
+        buffer[position().x][position().y] = Tile::mycelium;
+    }
 }
 
 

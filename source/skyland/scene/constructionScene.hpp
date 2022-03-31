@@ -60,7 +60,7 @@ private:
     Island* island(App& app);
 
 
-    void collect_available_buildings(Platform&, App&);
+    bool collect_available_buildings(Platform&, App&);
 
 
     void find_construction_sites(Platform&, App&);
