@@ -1,10 +1,10 @@
 #include "mycelium.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/scene/constructionScene.hpp"
 
 
 
@@ -60,7 +60,8 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         auto slot_valid = [&](u8 x, u8 y) {
-            if (x > parent()->terrain().size() - 1 or y > 14 or y < construction_zone_min_y) {
+            if (x > parent()->terrain().size() - 1 or y > 14 or
+                y < construction_zone_min_y) {
                 return false;
             }
             if (not parent()->get_room({x, y})) {
