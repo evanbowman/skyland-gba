@@ -47,6 +47,7 @@ enum Achievement : u8 {
     new_colossus,
     meltdown,
     completionist,
+    mycelium,
     count
 };
 

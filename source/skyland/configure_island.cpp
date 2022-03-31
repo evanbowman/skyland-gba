@@ -29,7 +29,7 @@ void configure_island(Platform& pfrm,
             u8 y = lisp::get_list(val, 2)->integer().value_;
 
             if (auto c = load_metaclass(name_symb->symbol().name_)) {
-                (*c)->create(pfrm, app, &island, Vec2<u8>{x, y});
+                (*c)->create(pfrm, app, &island, Vec2<u8>{x, y}, false);
                 if (auto room = island.get_room({x, y})) {
                     room->deserialize(val);
                 }

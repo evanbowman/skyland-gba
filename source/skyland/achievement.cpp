@@ -258,7 +258,7 @@ static const AchievementInfo info[Achievement::count] = {
 
     {SystemString::achievement_completionist_name,
      SystemString::achievement_completionist_description,
-     "switch", // TODD...
+     "switch", // TODO...
      [](Platform&, App& app) {
          u64 v = app.gp_.achievement_flags_.get();
 
@@ -268,7 +268,7 @@ static const AchievementInfo info[Achievement::count] = {
          memcpy(&upper, &c, sizeof upper);
          memcpy(&lower, (u8*)&c + 4, sizeof lower);
          auto bc = count_1bits(upper) + count_1bits(lower);
-         if (bc != 4) {
+         if (bc != 5) {
              // FIXME: use something other than hard-coding four!
              return false;
          }
@@ -283,6 +283,16 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[completionist].reward_), awarded);
+     }},
+
+    {SystemString::achievement_mycelium_name,
+     SystemString::achievement_mycelium_description,
+     "mycelium",
+     [](Platform&, App& app) {
+         return is_enabled(metaclass_index(info[mycelium].reward_));
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[mycelium].reward_), awarded);
      }}};
 
 

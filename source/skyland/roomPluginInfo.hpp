@@ -31,9 +31,10 @@ struct RoomPluginInfo : public RoomMeta::Info
     void create(Platform& pfrm,
                 App& app,
                 Island* parent,
-                const Vec2<u8>& position) const override
+                const Vec2<u8>& position,
+                bool do_repaint) const override
     {
-        parent->add_room<PluginRoom>(pfrm, app, position, mt_);
+        parent->add_room<PluginRoom>(pfrm, app, position, do_repaint, mt_);
     }
 
 

@@ -69,9 +69,10 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
     void create(Platform& pfrm,
                 App& app,
                 Island* parent,
-                const Vec2<u8>& position) const override
+                const Vec2<u8>& position,
+                bool do_repaint) const override
     {
-        parent->add_room<T>(pfrm, app, position);
+        parent->add_room<T>(pfrm, app, position, do_repaint);
     }
 
     RoomPtr<Room> create(Platform& pfrm,

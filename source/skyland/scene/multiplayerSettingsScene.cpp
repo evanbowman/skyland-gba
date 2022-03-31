@@ -226,7 +226,7 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
     // Unless the island configured size is really tiny, leave a one-tile gap to
     // the left of the starting position of the power core.
     const u8 player_start_x = vs_parameters_[4] > 3 ? 1 : 0;
-    app.player_island().add_room<Core>(pfrm, app, {player_start_x, 13});
+    app.player_island().add_room<Core>(pfrm, app, {player_start_x, 13}, true);
 
     auto add_player_chr = [&app](u8 x, u8 y) {
         app.player_island().add_character(alloc_entity<BasicCharacter>(
@@ -239,7 +239,7 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
 
     const u8 opponent_start_x =
         vs_parameters_[4] > 3 ? vs_parameters_[4] - 3 : vs_parameters_[4] - 2;
-    app.opponent_island()->add_room<Core>(pfrm, app, {opponent_start_x, 13});
+    app.opponent_island()->add_room<Core>(pfrm, app, {opponent_start_x, 13}, true);
 
     auto add_opponent_chr = [&app](u8 x, u8 y) {
         app.opponent_island()->add_character(alloc_entity<BasicCharacter>(

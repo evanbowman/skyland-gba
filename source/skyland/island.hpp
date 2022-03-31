@@ -27,10 +27,15 @@ public:
     using Rooms = RoomTable<92, 16>;
 
 
-    bool add_room(Platform& pfrm, App& app, RoomPtr<Room> insert)
+    bool add_room(Platform& pfrm,
+                  App& app,
+                  RoomPtr<Room> insert,
+                  bool do_repaint = true)
     {
         auto result = rooms_.insert_room(std::move(insert));
-        repaint(pfrm, app);
+        if (do_repaint) {
+            repaint(pfrm, app);
+        }
         recalculate_power_usage();
         on_layout_changed(app, insert->position());
         return result;
@@ -39,12 +44,18 @@ public:
 
     template <typename T, typename... Args>
     bool
-    add_room(Platform& pfrm, App& app, const Vec2<u8>& position, Args&&... args)
+    add_room(Platform& pfrm,
+             App& app,
+             const Vec2<u8>& position,
+             bool do_repaint,
+             Args&&... args)
     {
         if (auto room = room_pool::alloc<T>(
                 this, position, std::forward<Args>(args)...)) {
             if (rooms_.insert_room({room.release(), room_pool::deleter})) {
-                repaint(pfrm, app);
+                if (do_repaint) {
+                    repaint(pfrm, app);
+                }
                 recalculate_power_usage();
                 on_layout_changed(app, position);
                 return true;
