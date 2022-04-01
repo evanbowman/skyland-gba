@@ -254,11 +254,18 @@ void App::on_remote_console_text(Platform& pfrm,
             Vector<char> data;
             if (ram_filesystem::read_file_data(pfrm, parsed[1].c_str(), data)) {
                 data.pop_back(); // ignore null terminator added by ram_filesystem.
-                Platform::RemoteConsole::Line out;
+                StringBuffer<1900> out;
                 for (char c : base32::encode(data)) {
+                    if (out.full()) {
+                        pfrm.remote_console().printline(out.c_str(), "");
+                        // Wait for the platform code to asynchronously handle
+                        // the output data chunk.
+                        pfrm.sleep(240);
+                        out.clear();
+                    }
                     out.push_back(c);
                 }
-                pfrm.remote_console().printline(out.c_str());
+                pfrm.remote_console().printline(out.c_str(), "sc> ");
             } else {
                 pfrm.remote_console().printline("file not found!", "sc> ");
             }

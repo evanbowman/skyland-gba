@@ -5988,7 +5988,7 @@ static void uart_serial_isr()
         // echos everything except for newline characters with local echo turned
         // on, and basically, I don't trust the authors of serial terminals to
         // get anything right, based on my experience so far. That's why the
-        // server is handline everything an relies on the minimal possible
+        // server is handling everything and relies on the minimal possible
         // subset of uart functionality. 9600 baud, no local echo, no flow
         // control.
         uart_echo_skip = true;
