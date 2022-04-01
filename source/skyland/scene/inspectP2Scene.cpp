@@ -73,6 +73,12 @@ bool tapped_topleft_corner(Platform& pfrm, App& app);
 
 
 
+ScenePtr<Scene> process_exit_condition(Platform& pfrm,
+                                       App& app,
+                                       App::ExitCondition c);
+
+
+
 ScenePtr<Scene>
 InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -81,10 +87,12 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (app.exit_condition() not_eq App::ExitCondition::none) {
+    const auto exit_cond = app.exit_condition();
+    if (exit_cond not_eq App::ExitCondition::none) {
         set_gamespeed(pfrm, app, GameSpeed::normal);
-        app.exit_condition() = App::ExitCondition::none;
-        return scene_pool::alloc<FadeOutScene>();
+        if (auto next = process_exit_condition(pfrm, app, exit_cond)) {
+            return next;
+        }
     }
 
 

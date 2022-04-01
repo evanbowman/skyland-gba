@@ -70,13 +70,13 @@ public:
 
     static Icon icon()
     {
-        return 1512;
+        return 2216;
     }
 
 
     static Icon unsel_icon()
     {
-        return 1528;
+        return 2232;
     }
 
 
@@ -84,7 +84,8 @@ public:
     {
         return RoomProperties::workshop_required | RoomProperties::roof_hidden |
                RoomProperties::accepts_ion_damage |
-               RoomProperties::adventure_mode_only;
+               RoomProperties::multiplayer_unsupported |
+               RoomProperties::skyland_forever_unsupported;
     }
 
 

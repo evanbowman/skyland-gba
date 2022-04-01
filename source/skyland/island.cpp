@@ -220,11 +220,30 @@ void Island::check_destroyed()
 
 
 
+void Island::set_hidden(Platform& pfrm, App& app, bool hidden)
+{
+    bool was_hidden = hidden_;
+
+    hidden_ = hidden;
+
+    if (not hidden_ and was_hidden) {
+        repaint(pfrm, app);
+    } else if (hidden_ and not was_hidden) {
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) {
+                pfrm.set_tile(layer(), x, y, 0);
+            }
+        }
+    }
+}
+
+
+
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;
 
-    if (show_flag_ and flag_pos_) {
+    if (not hidden_ and show_flag_ and flag_pos_) {
         flag_anim_timer_ += dt;
         if (flag_anim_timer_ > milliseconds(80)) {
             flag_anim_timer_ = 0;
@@ -237,7 +256,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         }
     }
 
-    if (chimney_loc_) {
+    if (not hidden_ and chimney_loc_) {
         chimney_spawn_timer_ += dt;
 
         if (chimney_spawn_timer_ > milliseconds(600)) {
@@ -611,6 +630,10 @@ static const int screen_limit_y = 700;
 
 void Island::display(Platform& pfrm)
 {
+    if (hidden_) {
+        return;
+    }
+
     if (flag_pos_ and show_flag_) {
 
         std::optional<u16> palette;
@@ -902,6 +925,10 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
 
 void Island::repaint(Platform& pfrm, App& app)
 {
+    if (hidden_) {
+        return;
+    }
+
     // The engine only knows how to draw an island wholistically, because some
     // tiles need to be joined etc., so whenever the island changes, the whole
     // things needs to be repainted. I could try to only re-render the changed

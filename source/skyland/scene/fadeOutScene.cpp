@@ -49,6 +49,11 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
         pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
 
+        app.player_island().set_hidden(pfrm, app, false);
+        if (app.opponent_island()) {
+            app.opponent_island()->set_hidden(pfrm, app, false);
+        }
+
         pfrm.screen().set_shader(passthrough_shader);
         pfrm.screen().fade(1.f);
         switch (app.game_mode()) {

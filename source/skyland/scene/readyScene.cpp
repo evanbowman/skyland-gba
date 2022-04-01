@@ -2,6 +2,7 @@
 #include "assignWeaponGroupScene.hpp"
 #include "boxedDialogScene.hpp"
 #include "constructionScene.hpp"
+#include "escapeBeaconFadeScene.hpp"
 #include "fadeOutScene.hpp"
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
@@ -193,6 +194,51 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
 
 
 
+ScenePtr<Scene> process_exit_condition(Platform& pfrm,
+                                       App& app,
+                                       App::ExitCondition c)
+{
+    app.exit_condition() = App::ExitCondition::none;
+    switch (c) {
+    case App::ExitCondition::player_fled:
+        app.effects().clear();
+        app.player_island().projectiles().clear();
+        if (app.opponent_island()) {
+            app.opponent_island()->projectiles().clear();
+        }
+        pfrm.speaker().play_sound("bell", 1);
+        return scene_pool::alloc<EscapeBeaconFadeScene>(true);
+
+    case App::ExitCondition::opponent_fled:
+        app.effects().clear();
+        app.player_island().projectiles().clear();
+        if (app.opponent_island()) {
+            app.opponent_island()->projectiles().clear();
+        }
+        app.effects().clear();
+        pfrm.speaker().play_sound("bell", 1);
+        return scene_pool::alloc<EscapeBeaconFadeScene>(false);
+
+    case App::ExitCondition::misc:
+        return scene_pool::alloc<FadeOutScene>();
+
+    case App::ExitCondition::victory:
+        return scene_pool::alloc<PlayerIslandDestroyedScene>(app.opponent_island(),
+                                                             true);
+
+    case App::ExitCondition::defeat:
+        return scene_pool::alloc<PlayerIslandDestroyedScene>(&app.player_island(),
+                                                             true);
+
+    case App::ExitCondition::none:
+        break;
+    }
+
+    return null_scene();
+}
+
+
+
 ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
@@ -202,23 +248,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     const auto exit_cond = app.exit_condition();
     if (exit_cond not_eq App::ExitCondition::none) {
         set_gamespeed(pfrm, app, GameSpeed::normal);
-        app.exit_condition() = App::ExitCondition::none;
-        switch (exit_cond) {
-        case App::ExitCondition::player_fled:
-        case App::ExitCondition::opponent_fled:
-        case App::ExitCondition::misc:
-            return scene_pool::alloc<FadeOutScene>();
-
-        case App::ExitCondition::victory:
-            return scene_pool::alloc<PlayerIslandDestroyedScene>(
-                app.opponent_island(), true);
-
-        case App::ExitCondition::defeat:
-            return scene_pool::alloc<PlayerIslandDestroyedScene>(
-                &app.player_island(), true);
-
-        case App::ExitCondition::none:
-            break;
+        if (auto next = process_exit_condition(pfrm, app, exit_cond)) {
+            return next;
         }
     }
 

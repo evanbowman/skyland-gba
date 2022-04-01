@@ -116,6 +116,9 @@ public:
     }
 
 
+    void set_hidden(Platform& pfrm, App& app, bool hidden);
+
+
     void render_interior(Platform& pfrm, App& app);
 
 
@@ -348,6 +351,7 @@ private:
 
     bool has_radar_ = false;
     bool is_boarded_ = false;
+    bool hidden_ = false;
     u8 workshop_count_ = 0;
     u8 manufactory_count_ = 0;
     u8 core_count_ = 0;
