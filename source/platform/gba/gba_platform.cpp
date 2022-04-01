@@ -4076,6 +4076,7 @@ static std::optional<DateTime> start_time;
 static void start_remote_console();
 
 
+extern char __text_start;
 extern char __iwram_start__;
 extern char __data_end__;
 extern char __ewram_start;
@@ -6022,7 +6023,7 @@ static void start_remote_console()
 
     // NOTE: see gba.h for constants
     REG_SIOCNT = SIO_9600 | SIO_UART_LENGTH_8 | SIO_UART_SEND_ENABLE |
-        SIO_UART_RECV_ENABLE | SIO_UART | SIO_IRQ;
+                 SIO_UART_RECV_ENABLE | SIO_UART | SIO_IRQ;
 }
 
 
@@ -6094,6 +6095,31 @@ bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
 
 
 void download_dlc_blob(Platform&, Vector<char>&);
+
+
+
+static void uart_blocking_output_mode()
+{
+    REG_SIOCNT = SIO_9600 | SIO_UART | SIO_UART_LENGTH_8 | SIO_UART_SEND_ENABLE;
+
+    irqDisable(IRQ_SERIAL);
+}
+
+
+
+static inline void uart_blocking_send_sync()
+{
+    while (REG_SIOCNT & 0x0010)
+        ;
+}
+
+
+
+static void uart_blocking_write(char c)
+{
+    uart_blocking_send_sync();
+    REG_SIODATA8 = c;
+}
 
 
 
@@ -6257,22 +6283,44 @@ void* Platform::system_call(const char* feature_name, void* arg)
     } else if (str_eq(feature_name, "console-write-buffer")) {
         auto v = (Vector<char>*)arg;
 
-        REG_SIOCNT = SIO_9600 | SIO_UART | SIO_UART_LENGTH_8 | SIO_UART_SEND_ENABLE;
-
-        irqDisable(IRQ_SERIAL);
+        uart_blocking_output_mode();
 
         // Our console doesn't support output for lines larger than ~2
         // kilobytes. This system call implements a blocking write for large
         // data buffers.
 
         for (char c : *v) {
-            while (REG_SIOCNT & 0x0010) ;
-            REG_SIODATA8 = c;
+            uart_blocking_write(c);
         }
 
-        while (REG_SIOCNT & 0x0010) ;
+        uart_blocking_send_sync();
         REG_SIOCNT = 0;
         REG_SIODATA8 = '\n';
+
+        // Re-enable the async non-blocking console.
+        start_remote_console();
+    } else if (str_eq(feature_name, "dump-rom")) {
+
+        uart_blocking_output_mode();
+
+        irqDisable(IRQ_VBLANK);
+
+        auto rom = (const u8*)&__text_start;
+
+        while (rom not_eq (const u8*) & __rom_end__) {
+            const char* hex = "0123456789ABCDEF";
+
+            uart_blocking_write(hex[(*rom & 0xf0) >> 4]);
+            uart_blocking_write(hex[(*rom & 0x0f)]);
+
+            ++rom;
+        }
+
+        uart_blocking_send_sync();
+        REG_SIOCNT = 0;
+        REG_SIODATA8 = '\n';
+
+        irqEnable(IRQ_VBLANK);
 
         // Re-enable the async non-blocking console.
         start_remote_console();

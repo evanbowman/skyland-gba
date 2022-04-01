@@ -231,7 +231,7 @@ public:
 
     bool operator==(const char* str)
     {
-        return str_cmp(str, this->c_str()) == 0;
+        return str_eq(str, this->c_str());
     }
 
     bool full() const

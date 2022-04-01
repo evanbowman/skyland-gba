@@ -87,25 +87,66 @@ void scratch_buffer_memory_diagnostics(Platform& pfrm)
         "sbr-annotation-buffer");
 
     int buffer_num = 0;
+    int buffers_used = 0;
 
     for (auto& cell : scratch_buffer_pool.cells()) {
         if (not scratch_buffer_pool.is_freed(&cell)) {
+            *output += "@";
             *output += stringify(buffer_num);
-            *output += ":";
+            *output += ": ";
             *output += ((ScratchBuffer*)cell.mem_.data())->tag_;
             *output += "\r\n";
-            ++buffer_num;
+            ++buffers_used;
         }
+        ++buffer_num;
     }
 
-    const int free_sbr = scratch_buffer_count - buffer_num;
+    const int free_sbr = scratch_buffer_count - buffers_used;
 
     *output += format("used: % (%kb), free: % (%kb)\r\n",
-                      buffer_num,
-                      buffer_num * 2,
+                      buffers_used,
+                      buffers_used * 2,
                       free_sbr,
                       free_sbr * 2)
                    .c_str();
 
     pfrm.remote_console().printline(output->c_str(), "sc> ");
+}
+
+
+
+void scratch_buffer_dump_sector(Platform& pfrm, int sector)
+{
+    if (sector >= (int)scratch_buffer_pool.cells().size()) {
+        return;
+    }
+
+    static_assert(SCRATCH_BUFFER_SIZE % 40 == 0);
+
+    auto page = scratch_buffer_pool.cells()[sector];
+
+    const u8* p = page.mem_.data();
+
+
+    for (int row = 0; row < SCRATCH_BUFFER_SIZE / 40; ++row) {
+        StringBuffer<200> out;
+        for (int i = 0; i < 40; ++i) {
+            const char* hex = "0123456789ABCDEF";
+
+            out.push_back(hex[(*p & 0xf0) >> 4]);
+            out.push_back(hex[(*p & 0x0f)]);
+            out.push_back(' ');
+
+            ++p;
+        }
+
+        pfrm.remote_console().printline(out.c_str(), "");
+        pfrm.sleep(20);
+        pfrm.system_call("feed-watchdog", nullptr);
+    }
+
+    StringBuffer<50> complete("dumped : ");
+    complete += ((ScratchBuffer*)page.mem_.data())->tag_;
+
+    pfrm.remote_console().printline(complete.c_str(), "sc> ");
 }

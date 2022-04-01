@@ -242,20 +242,36 @@ void App::on_remote_console_text(Platform& pfrm,
         if (str == "help") {
             // clang-format off
             const char* msg =
-                "help                  | show this help message\r\n"
-                "pools annotate        | show memory pool statistics\r\n"
-                "sbr annotate          | show memory buffers in use\r\n"
-                "download <path>       | dump file to console, base32 encoded\r\n"
-                "quit                  | select a different console mode\r\n";
+                "help                   | show this help message\r\n"
+                "pools annotate         | show memory pool statistics\r\n"
+                "sbr annotate           | show memory buffers in use\r\n"
+                "sbr dump @<buffer id>  | dump memory buffer as hex\r\n"
+                "rom dump               | dump entire rom as hex (slow)\r\n"
+                "download <path>        | dump file to console, base32 encoded\r\n"
+                "quit                   | select a different console mode\r\n";
             // clang-format on
             pfrm.remote_console().printline(msg, "sc> ");
         } else if (str == "sbr annotate") {
             pfrm.system_call("print-memory-diagnostics", nullptr);
+        } else if (parsed.size() == 3 and parsed[0] == "sbr" and
+                   parsed[1] == "dump") {
+            auto num = parsed[2].c_str();
+            if (num[0] == '@') {
+                ++num;
+            }
+            scratch_buffer_dump_sector(pfrm, parse_int(num, str_len(num)));
         } else if (str == "pools annotate") {
             GenericPool::print_diagnostics(pfrm);
         } else if (str == "quit") {
             pfrm.remote_console().printline("");
             remote_console_syntax_ = RemoteConsoleSyntax::none;
+        } else if (str == "rom dump") {
+            pfrm.remote_console().printline("Dumping the entire rom as hex. "
+                                            "This will take a couple hours...",
+                                            "");
+            pfrm.sleep(180);
+            pfrm.system_call("dump-rom", nullptr);
+            pfrm.remote_console().printline("\r\nDone!", "sc> ");
         } else if (parsed.size() == 2 and parsed[0] == "download") {
             Vector<char> data;
             if (ram_filesystem::read_file_data(pfrm, parsed[1].c_str(), data)) {

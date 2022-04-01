@@ -269,6 +269,18 @@ inline Float distance(const Vec2<Float>& from, const Vec2<Float>& to)
 enum class Cardinal : u8 { north, south, west, east };
 
 
+
+inline s32 parse_int(const char* str, u32 len)
+{
+    s32 n = 0;
+    for (u32 i = 0; i < len; ++i) {
+        n = n * 10 + (str[i] - '0');
+    }
+    return n;
+}
+
+
+
 inline Float fast_atan_approx(Float x)
 {
     return 57.2f * // degrees per radian

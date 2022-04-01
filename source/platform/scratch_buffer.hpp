@@ -49,3 +49,4 @@ void set_scratch_buffer_oom_handler(Function<16, void()> callback);
 
 class Platform;
 void scratch_buffer_memory_diagnostics(Platform& pfrm);
+void scratch_buffer_dump_sector(Platform& pfrm, int sector);
