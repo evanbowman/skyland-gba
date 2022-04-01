@@ -280,6 +280,24 @@ struct InteriorTile
         lemon_tree_1,
         lemon_tree_2,
 
+        // NOTE: Tile 112 displays some "out of memory" text. But, in practice,
+        // it's actually really difficult to run out of memory for unique tiles,
+        // given the size of the level maps. I tried to use up all tile vram,
+        // and couldn't produce an error. Basically, we have
+        // one-hundred-and-three or so dynamically loaded tile graphics slots on
+        // the gba. The islands in the game support ten blocks in the
+        // y-direction and thirteen blocks in the x-direction. So the levels
+        // only allow 130 unique blocks (tiles) in the first place. In practice,
+        // you'd basically need to intentionally try to produce an error,
+        // because no sane playing style would involve filling the level map
+        // with 130 different blocks. Furthermore, some blocks have energy
+        // requirements, so, at best, you'd need to build several copies of a
+        // reactor, probably at least two. So subtract five blocks from the
+        // total (reactor tile count). The game's code does handle out of memory
+        // errors for vram without crashing, it should in theory just display a
+        // tile with a little error message printed on it. But I haven't managed
+        // to test whether the code for handling vram out of mem scenarios
+        // actually works.
         RESERVED_RANGE_DO_NOT_USE,
 
         dlc_tiles_begin = 113,
