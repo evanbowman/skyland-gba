@@ -1,5 +1,6 @@
 #include "skyland.hpp"
 #include "achievement.hpp"
+#include "base32.hpp"
 #include "globals.hpp"
 #include "graphics/overlay.hpp"
 #include "number/random.hpp"
@@ -164,6 +165,32 @@ public:
 
 
 
+static auto split(const Platform::RemoteConsole::Line& line)
+{
+    Vector<StringBuffer<64>> result;
+
+    StringBuffer<64> current;
+
+    auto pos = line.begin();
+    while (pos not_eq line.end()) {
+        if (*pos == ' ' and not current.empty()) {
+            result.push_back(current);
+            current.clear();
+        } else {
+            current.push_back(*pos);
+        }
+        ++pos;
+    }
+
+    if (not current.empty()) {
+        result.push_back(current);
+    }
+
+    return result;
+}
+
+
+
 void App::on_remote_console_text(Platform& pfrm,
                                  const Platform::RemoteConsole::Line& str)
 {
@@ -203,12 +230,16 @@ void App::on_remote_console_text(Platform& pfrm,
         break;
 
     case RemoteConsoleSyntax::simple_console: {
+
+        auto parsed = split(str);
+
         if (str == "help") {
             // clang-format off
             const char* msg =
                 "help                  | show this help message\r\n"
                 "pools annotate        | show memory pool statistics\r\n"
                 "sbr annotate          | show memory buffers in use\r\n"
+                "download <path>       | dump file to console, base32 encoded\r\n"
                 "quit                  | select a different console mode\r\n";
             // clang-format on
             pfrm.remote_console().printline(msg, "sc> ");
@@ -219,6 +250,18 @@ void App::on_remote_console_text(Platform& pfrm,
         } else if (str == "quit") {
             pfrm.remote_console().printline("");
             remote_console_syntax_ = RemoteConsoleSyntax::none;
+        } else if (parsed.size() == 2 and parsed[0] == "download") {
+            Vector<char> data;
+            if (ram_filesystem::read_file_data(pfrm, parsed[1].c_str(), data)) {
+                data.pop_back(); // ignore null terminator added by ram_filesystem.
+                Platform::RemoteConsole::Line out;
+                for (char c : base32::encode(data)) {
+                    out.push_back(c);
+                }
+                pfrm.remote_console().printline(out.c_str());
+            } else {
+                pfrm.remote_console().printline("file not found!", "sc> ");
+            }
         } else {
             pfrm.remote_console().printline("error: type help for options",
                                             "sc> ");
