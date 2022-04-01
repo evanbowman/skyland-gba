@@ -610,20 +610,6 @@ StringBuffer<31> locale_language_name(int language)
 }
 
 
-LocalizedText locale_localized_language_name(Platform& pfrm, int language)
-{
-    const auto cached_lang = ::language_id;
-
-    ::language_id = language;
-
-    auto ret = locale_string(pfrm, LocaleString::language_name);
-
-    ::language_id = cached_lang;
-
-    return ret;
-}
-
-
 bool locale_requires_doublesize_font()
 {
     auto languages = lisp::get_var(lisp::make_symbol("languages"));
@@ -638,45 +624,6 @@ bool locale_requires_doublesize_font()
                .value_ == 2;
 }
 
-
-LocalizedText locale_string(Platform& pfrm, LocaleString ls)
-{
-    auto result = allocate_dynamic<LocalizedStrBuffer>("locale-string");
-
-    auto languages = lisp::get_var(lisp::make_symbol("languages"));
-
-    auto lang = lisp::get_list(languages, ::language_id);
-
-    StringBuffer<31> fname =
-        lang->expect<lisp::Cons>().car()->expect<lisp::Symbol>().name_;
-    fname += ".txt";
-
-    if (auto data = pfrm.load_file_contents("strings", fname.c_str())) {
-        const int target_line = static_cast<int>(ls);
-
-        int index = 0;
-        while (index not_eq target_line) {
-            while (*data not_eq '\n') {
-                if (*data == '\0') {
-                    pfrm.fatal("null byte in localized text");
-                }
-                ++data;
-            }
-            ++data;
-
-            ++index;
-        }
-
-        while (*data not_eq '\0' and *data not_eq '\n') {
-            result->push_back(*data);
-            ++data;
-        }
-
-        return result;
-    } else {
-        pfrm.fatal("missing strings file for language");
-    }
-}
 
 
 void english__to_string(int num, char* buffer, int base)

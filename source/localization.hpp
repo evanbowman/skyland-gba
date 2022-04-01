@@ -2,7 +2,6 @@
 
 
 #include "allocator.hpp"
-#include "blind_jump/localeString.hpp"
 #include "dateTime.hpp"
 #include "string.hpp"
 
@@ -15,7 +14,6 @@ bool locale_requires_doublesize_font();
 
 using LocalizedStrBuffer = StringBuffer<1987>;
 using LocalizedText = DynamicMemory<LocalizedStrBuffer>;
-LocalizedText locale_string(Platform& pfrm, LocaleString ls);
 
 
 void set_font_image(const char* font_image_name);
