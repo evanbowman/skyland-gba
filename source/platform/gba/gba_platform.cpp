@@ -5975,6 +5975,10 @@ static void uart_serial_isr()
             // backspace, but at least it's sort of standardized. I echo back
             // 0x7f, picocom in bash DOES NOTHING.
             REG_SIODATA8 = 0x08;
+        } else if (data == 0x04) {
+            // Don't echo ctrl-D back to the terminal. Causes problems in some
+            // client shells.
+            REG_SIODATA8 = '!';
         } else {
             REG_SIODATA8 = data;
         }
@@ -6018,7 +6022,7 @@ static void start_remote_console()
 
     // NOTE: see gba.h for constants
     REG_SIOCNT = SIO_9600 | SIO_UART_LENGTH_8 | SIO_UART_SEND_ENABLE |
-                 SIO_UART_RECV_ENABLE | SIO_UART | SIO_IRQ;
+        SIO_UART_RECV_ENABLE | SIO_UART | SIO_IRQ;
 }
 
 
@@ -6250,7 +6254,28 @@ void* Platform::system_call(const char* feature_name, void* arg)
             return arg;
         }
         return nullptr;
-    } else if (str_eq(feature_name, "console-print-file")) {
+    } else if (str_eq(feature_name, "console-write-buffer")) {
+        auto v = (Vector<char>*)arg;
+
+        REG_SIOCNT = SIO_9600 | SIO_UART | SIO_UART_LENGTH_8 | SIO_UART_SEND_ENABLE;
+
+        irqDisable(IRQ_SERIAL);
+
+        // Our console doesn't support output for lines larger than ~2
+        // kilobytes. This system call implements a blocking write for large
+        // data buffers.
+
+        for (char c : *v) {
+            while (REG_SIOCNT & 0x0010) ;
+            REG_SIODATA8 = c;
+        }
+
+        while (REG_SIOCNT & 0x0010) ;
+        REG_SIOCNT = 0;
+        REG_SIODATA8 = '\n';
+
+        // Re-enable the async non-blocking console.
+        start_remote_console();
     }
 
     return nullptr;

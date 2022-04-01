@@ -167,14 +167,14 @@ public:
 
 static auto split(const Platform::RemoteConsole::Line& line)
 {
-    Vector<StringBuffer<64>> result;
+    Vector<StringBuffer<64>> result("console-parse-buffer");
 
     StringBuffer<64> current;
 
     auto pos = line.begin();
     while (pos not_eq line.end()) {
         if (*pos == ' ' and not current.empty()) {
-            result.push_back(current);
+            result.push_back(current, "console-parse-buffer");
             current.clear();
         } else {
             current.push_back(*pos);
@@ -183,7 +183,7 @@ static auto split(const Platform::RemoteConsole::Line& line)
     }
 
     if (not current.empty()) {
-        result.push_back(current);
+        result.push_back(current, "console-parse-buffer");
     }
 
     return result;
@@ -201,6 +201,12 @@ void App::on_remote_console_text(Platform& pfrm,
         // echo turned on.
         pfrm.remote_console().printline("", "");
         pfrm.sleep(2);
+    }
+
+    if (str[0] == 0x04) { // EOT, i.e. ctrl-D
+        remote_console_syntax_ = RemoteConsoleSyntax::none;
+        pfrm.remote_console().printline("");
+        return;
     }
 
     const char* usage = "\aOptions: (s: simple console, l: lisp repl)";
@@ -254,18 +260,9 @@ void App::on_remote_console_text(Platform& pfrm,
             Vector<char> data;
             if (ram_filesystem::read_file_data(pfrm, parsed[1].c_str(), data)) {
                 data.pop_back(); // ignore null terminator added by ram_filesystem.
-                StringBuffer<1900> out;
-                for (char c : base32::encode(data)) {
-                    if (out.full()) {
-                        pfrm.remote_console().printline(out.c_str(), "");
-                        // Wait for the platform code to asynchronously handle
-                        // the output data chunk.
-                        pfrm.sleep(240);
-                        out.clear();
-                    }
-                    out.push_back(c);
-                }
-                pfrm.remote_console().printline(out.c_str(), "sc> ");
+                auto enc = base32::encode(data);
+                pfrm.system_call("console-write-buffer", &enc);
+                pfrm.remote_console().printline("\r\nComplete!", "sc> ");
             } else {
                 pfrm.remote_console().printline("file not found!", "sc> ");
             }
