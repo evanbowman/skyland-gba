@@ -81,6 +81,7 @@ set(SOURCES
   ${SOURCE_DIR}/memory/pool.cpp
   ${SOURCE_DIR}/collision.cpp
   ${SOURCE_DIR}/globals.cpp
+  ${SOURCE_DIR}/base32.cpp
   ${SOURCE_DIR}/string.cpp
   ${SOURCE_DIR}/start.cpp)
 

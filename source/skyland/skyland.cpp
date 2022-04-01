@@ -176,8 +176,7 @@ void App::on_remote_console_text(Platform& pfrm,
         pfrm.sleep(2);
     }
 
-    const char* usage =
-        "\aOptions: (s: simple console, l: lisp repl)";
+    const char* usage = "\aOptions: (s: simple console, l: lisp repl)";
 
     switch (remote_console_syntax_) {
     case RemoteConsoleSyntax::none:

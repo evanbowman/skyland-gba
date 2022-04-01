@@ -218,6 +218,12 @@ public:
     }
 
 
+    Iterator begin() const
+    {
+        return Iterator(0, (Chunk*)data_->data_);
+    }
+
+
     Iterator end()
     {
         if (end_cache_) {

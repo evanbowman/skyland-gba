@@ -6251,7 +6251,6 @@ void* Platform::system_call(const char* feature_name, void* arg)
         }
         return nullptr;
     } else if (str_eq(feature_name, "console-print-file")) {
-
     }
 
     return nullptr;
