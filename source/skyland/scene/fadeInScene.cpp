@@ -40,7 +40,7 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.time_stream().clear();
 
             time_stream::event::Initial e;
-            app.time_stream().push(pfrm, app.level_timer(), e);
+            app.time_stream().push(app.level_timer(), e);
         }
 
         pfrm.screen().fade(0.f);

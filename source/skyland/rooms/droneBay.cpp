@@ -51,12 +51,12 @@ void DroneBay::update(Platform& pfrm, App& app, Microseconds delta)
                 time_stream::event::PlayerRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(pfrm, app.level_timer(), e);
+                app.time_stream().push(app.level_timer(), e);
             } else {
                 time_stream::event::OpponentRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(pfrm, app.level_timer(), e);
+                app.time_stream().push(app.level_timer(), e);
             }
         }
     }
@@ -198,7 +198,7 @@ void DroneBay::detach_drone(Platform& pfrm, App& app, bool quiet)
         e.duration_.set((*drone_)->duration());
         e.db_x_pos_ = position().x;
         e.db_y_pos_ = position().y;
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
     }
 
     drone_.reset();

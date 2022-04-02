@@ -44,12 +44,12 @@ void Weapon::update(Platform& pfrm, App& app, Microseconds delta)
                 time_stream::event::PlayerRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(pfrm, app.level_timer(), e);
+                app.time_stream().push(app.level_timer(), e);
             } else {
                 time_stream::event::OpponentRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(pfrm, app.level_timer(), e);
+                app.time_stream().push(app.level_timer(), e);
             }
         }
     } else if (target_) {
@@ -161,7 +161,7 @@ void Weapon::set_target(Platform& pfrm, App& app, const Vec2<u8>& target)
         e.has_previous_target_ = false;
     }
 
-    app.time_stream().push(pfrm, app.level_timer(), e);
+    app.time_stream().push(app.level_timer(), e);
 
     target_ = target;
 }
@@ -191,7 +191,7 @@ void Weapon::unset_target(Platform& pfrm, App& app)
         e.has_previous_target_ = false;
     }
 
-    app.time_stream().push(pfrm, app.level_timer(), e);
+    app.time_stream().push(app.level_timer(), e);
 
     target_.reset();
 }

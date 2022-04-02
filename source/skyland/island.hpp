@@ -65,6 +65,9 @@ public:
     }
 
 
+    void move_room(App& app, const Vec2<u8>& from, const Vec2<u8>& to);
+
+
     void init_terrain(Platform& pfrm, int width);
 
 

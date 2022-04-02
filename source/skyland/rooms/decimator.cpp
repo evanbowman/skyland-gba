@@ -63,12 +63,12 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
                 time_stream::event::PlayerRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(pfrm, app.level_timer(), e);
+                app.time_stream().push(app.level_timer(), e);
             } else {
                 time_stream::event::OpponentRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(pfrm, app.level_timer(), e);
+                app.time_stream().push(app.level_timer(), e);
             }
         }
 

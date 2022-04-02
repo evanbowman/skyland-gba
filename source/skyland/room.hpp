@@ -239,6 +239,12 @@ public:
     Health max_health() const;
 
 
+    static Health health_upper_limit()
+    {
+        return std::numeric_limits<Health>::max();
+    }
+
+
     void heal(Platform& pfrm, App& app, Health amount);
 
 
@@ -371,6 +377,14 @@ public:
 
     virtual void reset_state()
     {
+    }
+
+
+    // Do not call directly! Use Island::move_room() instead.
+    void __set_position(const Vec2<u8>& pos)
+    {
+        x_position_ = pos.x;
+        y_position_ = pos.y;
     }
 
 

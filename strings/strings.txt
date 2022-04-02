@@ -31,6 +31,7 @@ missile-silo
 mycelium
 nemesis
 coconut-palm
+piston
 plundered-room
 energized-hull
 radar
@@ -41,6 +42,7 @@ shrubbery
 speaker
 stairwell
 statue
+sticky-piston
 sunflower
 switch
 synth

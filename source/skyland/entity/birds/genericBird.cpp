@@ -219,7 +219,7 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
                 e.color_ = color_;
                 e.flip_ = sprite_.get_flip().x;
                 e.near_ = near_;
-                app.time_stream().push(pfrm, app.level_timer(), e);
+                app.time_stream().push(app.level_timer(), e);
             }
 
             kill();

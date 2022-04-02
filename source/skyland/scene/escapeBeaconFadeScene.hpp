@@ -1,8 +1,8 @@
 #pragma once
 
 #include "fadeOutScene.hpp"
-#include "skyland/scene_pool.hpp"
 #include "skyland/island.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 
@@ -14,16 +14,14 @@ namespace skyland
 class EscapeBeaconFadeScene : public WorldScene
 {
 public:
-
-    EscapeBeaconFadeScene(bool player_escaped) :
-        player_escaped_(player_escaped)
+    EscapeBeaconFadeScene(bool player_escaped) : player_escaped_(player_escaped)
     {
-
     }
 
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         WorldScene::update(pfrm, app, delta);
 
@@ -58,4 +56,4 @@ private:
 
 
 
-}
+} // namespace skyland

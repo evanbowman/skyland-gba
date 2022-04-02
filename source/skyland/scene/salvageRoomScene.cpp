@@ -187,11 +187,11 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                         if (island(app) == &app.player_island()) {
                             time_stream::event::PlayerRoomSalvaged e;
                             setup(e);
-                            app.time_stream().push(pfrm, app.level_timer(), e);
+                            app.time_stream().push(app.level_timer(), e);
                         } else {
                             time_stream::event::OpponentRoomSalvaged e;
                             setup(e);
-                            app.time_stream().push(pfrm, app.level_timer(), e);
+                            app.time_stream().push(app.level_timer(), e);
                         }
                     }
 

@@ -104,7 +104,7 @@ void PluginProjectile::on_collision(Platform& pfrm, App& app, Room& room)
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < damage_) {
-        room.apply_damage(pfrm, app, 9999);
+        room.apply_damage(pfrm, app, Room::health_upper_limit());
         return;
     }
 
@@ -143,11 +143,11 @@ void PluginProjectile::timestream_record_destroyed(Platform& pfrm, App& app)
     if (source_ == &app.player_island()) {
         time_stream::event::PlayerPluginProjectileDestroyed c;
         timestream_record(c);
-        app.time_stream().push(pfrm, app.level_timer(), c);
+        app.time_stream().push(app.level_timer(), c);
     } else {
         time_stream::event::OpponentPluginProjectileDestroyed c;
         timestream_record(c);
-        app.time_stream().push(pfrm, app.level_timer(), c);
+        app.time_stream().push(app.level_timer(), c);
     }
 }
 

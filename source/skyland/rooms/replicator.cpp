@@ -74,7 +74,7 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
             e.y_ = dst.y;
             e.near_ = parent() == &app.player_island();
             e.owned_by_player_ = found_chr->owner() == &app.player();
-            app.time_stream().push(pfrm, app.level_timer(), e);
+            app.time_stream().push(app.level_timer(), e);
 
 
             chr->apply_damage(pfrm, app, 255 - replicant_health);

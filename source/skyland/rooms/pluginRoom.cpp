@@ -185,7 +185,7 @@ void PluginRoom::set_target(Platform& pfrm, App& app, const Vec2<u8>& target)
         e.has_previous_target_ = false;
     }
 
-    app.time_stream().push(pfrm, app.level_timer(), e);
+    app.time_stream().push(app.level_timer(), e);
 
     target_ = target;
 }
@@ -215,7 +215,7 @@ void PluginRoom::unset_target(Platform& pfrm, App& app)
         e.has_previous_target_ = false;
     }
 
-    app.time_stream().push(pfrm, app.level_timer(), e);
+    app.time_stream().push(app.level_timer(), e);
 
     target_.reset();
 }

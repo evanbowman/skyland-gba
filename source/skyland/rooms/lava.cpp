@@ -114,12 +114,12 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
                 time_stream::event::PlayerRoomCreated p;
                 p.x_ = x;
                 p.y_ = y;
-                app.time_stream().push(pfrm, app.level_timer(), p);
+                app.time_stream().push(app.level_timer(), p);
             } else {
                 time_stream::event::OpponentRoomCreated p;
                 p.x_ = x;
                 p.y_ = y;
-                app.time_stream().push(pfrm, app.level_timer(), p);
+                app.time_stream().push(app.level_timer(), p);
             }
         };
 

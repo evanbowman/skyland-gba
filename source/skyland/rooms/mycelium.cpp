@@ -55,7 +55,7 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
             not substrate(x + 1, y + 1) and not substrate(x - 1, y - 1) and
             not substrate(x + 1, y - 1) and not substrate(x - 1, y + 1) and
             y not_eq 14) {
-            this->apply_damage(pfrm, app, 9999);
+            this->apply_damage(pfrm, app, health_upper_limit());
             return;
         }
 
@@ -87,12 +87,12 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
                 time_stream::event::PlayerRoomCreated p;
                 p.x_ = x;
                 p.y_ = y;
-                app.time_stream().push(pfrm, app.level_timer(), p);
+                app.time_stream().push(app.level_timer(), p);
             } else {
                 time_stream::event::OpponentRoomCreated p;
                 p.x_ = x;
                 p.y_ = y;
-                app.time_stream().push(pfrm, app.level_timer(), p);
+                app.time_stream().push(app.level_timer(), p);
             }
         };
 

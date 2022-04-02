@@ -73,9 +73,8 @@ bool tapped_topleft_corner(Platform& pfrm, App& app);
 
 
 
-ScenePtr<Scene> process_exit_condition(Platform& pfrm,
-                                       App& app,
-                                       App::ExitCondition c);
+ScenePtr<Scene>
+process_exit_condition(Platform& pfrm, App& app, App::ExitCondition c);
 
 
 

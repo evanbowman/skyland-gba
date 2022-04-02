@@ -159,7 +159,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
                     (*room->metaclass())->name(),
                     (*load_metaclass(packet.metaclass_index_.get()))->name()) ==
                 0) {
-                room->apply_damage(pfrm, app, 9999);
+                room->apply_damage(pfrm, app, Room::health_upper_limit());
             }
         }
     }

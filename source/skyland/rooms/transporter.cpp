@@ -52,12 +52,12 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
                 time_stream::event::PlayerRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(pfrm, app.level_timer(), e);
+                app.time_stream().push(app.level_timer(), e);
             } else {
                 time_stream::event::OpponentRoomReloadComplete e;
                 e.room_x_ = position().x;
                 e.room_y_ = position().y;
-                app.time_stream().push(pfrm, app.level_timer(), e);
+                app.time_stream().push(app.level_timer(), e);
             }
 
             if (parent()->interior_visible()) {
@@ -163,7 +163,7 @@ void Transporter::recover_character(Platform& pfrm,
                 e.previous_x_ = unlinked->grid_position().x;
                 e.previous_y_ = unlinked->grid_position().y;
                 e.chr_near_ = unlinked->parent() == &app.player_island();
-                app.time_stream().push(pfrm, app.level_timer(), e);
+                app.time_stream().push(app.level_timer(), e);
 
                 // Again, the character is warping to a new location, let's
                 // update its position.
@@ -257,7 +257,7 @@ void Transporter::transport_occupant(Platform& pfrm,
         e.previous_y_ = (*chr)->grid_position().y;
         e.id_.set((*chr)->id());
         e.source_near_ = &parent()->owner() == &app.player();
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
 
         (*chr)->set_grid_position(*dest);
         (*chr)->set_parent(island);

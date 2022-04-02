@@ -145,11 +145,11 @@ void IonBurst::destroy(Platform& pfrm, App& app, bool explosion)
     if (source_ == &app.player_island()) {
         time_stream::event::PlayerIonBurstDestroyed c;
         timestream_record(c);
-        app.time_stream().push(pfrm, app.level_timer(), c);
+        app.time_stream().push(app.level_timer(), c);
     } else {
         time_stream::event::OpponentIonBurstDestroyed c;
         timestream_record(c);
-        app.time_stream().push(pfrm, app.level_timer(), c);
+        app.time_stream().push(app.level_timer(), c);
     }
 
     kill();

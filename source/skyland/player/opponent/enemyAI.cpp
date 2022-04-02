@@ -365,7 +365,8 @@ void EnemyAI::resolve_insufficient_power(Platform& pfrm, App& app)
         // something else. For the time being, we just want to salvage the
         // lowest-weighted rooms, until we have a stable balance of power, to
         // bring our systems back online.
-        lowest_weighted_room->apply_damage(pfrm, app, 9999);
+        lowest_weighted_room->apply_damage(
+            pfrm, app, Room::health_upper_limit());
     }
 }
 

@@ -385,7 +385,7 @@ void award(Platform& pfrm, App& app, Achievement achievement)
 
     time_stream::event::Achievement e;
     e.which_ = achievement;
-    app.time_stream().push(pfrm, app.level_timer(), e);
+    app.time_stream().push(app.level_timer(), e);
 }
 
 

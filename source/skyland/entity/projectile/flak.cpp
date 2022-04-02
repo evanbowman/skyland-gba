@@ -117,11 +117,11 @@ void Flak::destroy(Platform& pfrm, App& app, bool explosion)
     if (source_ == &app.player_island()) {
         time_stream::event::PlayerFlakDestroyed c;
         timestream_record(c);
-        app.time_stream().push(pfrm, app.level_timer(), c);
+        app.time_stream().push(app.level_timer(), c);
     } else {
         time_stream::event::OpponentFlakDestroyed c;
         timestream_record(c);
-        app.time_stream().push(pfrm, app.level_timer(), c);
+        app.time_stream().push(app.level_timer(), c);
     }
 
 
@@ -263,7 +263,7 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < flak_r1_damage) {
-        room.apply_damage(pfrm, app, 9999);
+        room.apply_damage(pfrm, app, Room::health_upper_limit());
         return;
     }
 

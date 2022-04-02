@@ -37,7 +37,7 @@ void invoke_hook(Platform& pfrm, App& app, const char* lisp_hook_name)
         // run a script.
         app.time_stream().clear();
         time_stream::event::Initial e;
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
 
 
         auto result = lisp::get_op(0);

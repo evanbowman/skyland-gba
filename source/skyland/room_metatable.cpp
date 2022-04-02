@@ -30,6 +30,7 @@
 #include "skyland/rooms/mycelium.hpp"
 #include "skyland/rooms/nemesis.hpp"
 #include "skyland/rooms/palm.hpp"
+#include "skyland/rooms/piston.hpp"
 #include "skyland/rooms/plunderedRoom.hpp"
 #include "skyland/rooms/poweredHull.hpp"
 #include "skyland/rooms/pummeler.hpp"
@@ -261,6 +262,8 @@ using RoomMetatableType = RoomMetatable<15,
                                         LavaSource,
                                         Explosive,
                                         TNT,
+                                        Piston,
+                                        StickyPiston,
                                         Radar,
                                         Transporter,
                                         EscapeBeacon,

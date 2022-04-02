@@ -194,9 +194,8 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene> process_exit_condition(Platform& pfrm,
-                                       App& app,
-                                       App::ExitCondition c)
+ScenePtr<Scene>
+process_exit_condition(Platform& pfrm, App& app, App::ExitCondition c)
 {
     app.exit_condition() = App::ExitCondition::none;
     switch (c) {
@@ -223,12 +222,12 @@ ScenePtr<Scene> process_exit_condition(Platform& pfrm,
         return scene_pool::alloc<FadeOutScene>();
 
     case App::ExitCondition::victory:
-        return scene_pool::alloc<PlayerIslandDestroyedScene>(app.opponent_island(),
-                                                             true);
+        return scene_pool::alloc<PlayerIslandDestroyedScene>(
+            app.opponent_island(), true);
 
     case App::ExitCondition::defeat:
-        return scene_pool::alloc<PlayerIslandDestroyedScene>(&app.player_island(),
-                                                             true);
+        return scene_pool::alloc<PlayerIslandDestroyedScene>(
+            &app.player_island(), true);
 
     case App::ExitCondition::none:
         break;

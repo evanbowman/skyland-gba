@@ -67,7 +67,7 @@ static void scuttle(Platform& pfrm, App& app)
     app.on_timeout(pfrm, milliseconds(350), [](Platform& pfrm, App& app) {
         for (auto& room : app.player_island().rooms()) {
             if ((*room->metaclass())->category() == Room::Category::power) {
-                room->apply_damage(pfrm, app, 9999);
+                room->apply_damage(pfrm, app, Room::health_upper_limit());
 
                 app.on_timeout(
                     pfrm, milliseconds(350), [](Platform& pfrm, App& app) {

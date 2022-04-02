@@ -101,6 +101,9 @@ enum Type : u8 {
     player_room_plundered,
     opponent_room_plundered,
 
+    player_room_moved,
+    opponent_room_moved,
+
     drone_deployed,
     drone_health_changed,
     drone_destroyed,
@@ -170,6 +173,32 @@ struct OpponentRoomDestroyed
     u8 type_;
 
     static constexpr const auto t = Type::opponent_room_destroyed;
+};
+
+
+
+struct PlayerRoomMoved
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 prev_x_ : 4;
+    u8 prev_y_ : 4;
+
+    static constexpr const auto t = Type::player_room_moved;
+};
+
+
+
+struct OpponentRoomMoved
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 prev_x_ : 4;
+    u8 prev_y_ : 4;
+
+    static constexpr const auto t = Type::opponent_room_moved;
 };
 
 

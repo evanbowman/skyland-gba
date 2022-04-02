@@ -164,6 +164,18 @@ struct Tile
         mycelium_top,
         mycelium_middle,
         mycelium_bottom,
+        piston_closed_r,
+        piston_opened_r_1,
+        piston_opened_r_2,
+        piston_closed_l,
+        piston_opened_l_1,
+        piston_opened_l_2,
+        piston_closed_u,
+        piston_opened_u_1,
+        piston_opened_u_2,
+        piston_closed_d,
+        piston_opened_d_1,
+        piston_opened_d_2,
     };
 };
 
@@ -329,6 +341,18 @@ struct InteriorTile
         mycelium_top,
         mycelium_middle,
         mycelium_bottom,
+        piston_closed_r,
+        piston_opened_r_1,
+        piston_opened_r_2,
+        piston_closed_l,
+        piston_opened_l_1,
+        piston_opened_l_2,
+        piston_closed_u,
+        piston_opened_u_1,
+        piston_opened_u_2,
+        piston_closed_d,
+        piston_opened_d_1,
+        piston_opened_d_2,
     };
 };
 

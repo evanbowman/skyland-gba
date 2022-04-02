@@ -371,19 +371,19 @@ void Speaker::finalize(Platform& pfrm, App& app)
     Room::finalize(pfrm, app);
 
     if (auto p1 = square_1()) {
-        p1->apply_damage(pfrm, app, 9999);
+        p1->apply_damage(pfrm, app, health_upper_limit());
     }
 
     if (auto p2 = square_2()) {
-        p2->apply_damage(pfrm, app, 9999);
+        p2->apply_damage(pfrm, app, health_upper_limit());
     }
 
     if (auto wav = wave()) {
-        wav->apply_damage(pfrm, app, 9999);
+        wav->apply_damage(pfrm, app, health_upper_limit());
     }
 
     if (auto n = noise()) {
-        n->apply_damage(pfrm, app, 9999);
+        n->apply_damage(pfrm, app, health_upper_limit());
     }
 
     if (playing_) {

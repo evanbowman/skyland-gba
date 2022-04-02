@@ -778,7 +778,7 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
             // destroyed castle sinks, the castle can now be tall enough that
             // the upper portion sticks out above the bottom of the screen. So,
             // destroy all rooms with a really small y-value.
-            room->apply_damage(pfrm, app, 9999);
+            room->apply_damage(pfrm, app, Room::health_upper_limit());
         }
     }
 

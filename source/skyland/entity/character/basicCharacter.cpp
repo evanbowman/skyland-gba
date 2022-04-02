@@ -453,7 +453,7 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
             e.previous_y_ = grid_position_.y;
             e.near_ = parent_ == &app.player_island();
 
-            app.time_stream().push(pfrm, app.level_timer(), e);
+            app.time_stream().push(app.level_timer(), e);
 
             // Now, we've moved to a new location. We want to re-assign
             // ourself, having (potentially) moved from one room to another.
@@ -473,7 +473,7 @@ void BasicCharacter::set_movement_path(Platform& pfrm, App& app, Path path)
     time_stream::event::CharacterMovementPathAssigned e;
     e.id_.set(id_);
     e.near_ = parent_ == &app.player_island();
-    app.time_stream().push(pfrm, app.level_timer(), e);
+    app.time_stream().push(app.level_timer(), e);
 
     movement_path_ = std::move(path);
 }
@@ -518,7 +518,7 @@ void BasicCharacter::heal(Platform& pfrm, App& app, int amount)
     e.owned_by_player_ = owner_ == &app.player();
     e.near_ = parent_ == &app.player_island();
     e.previous_health_.set(health_);
-    app.time_stream().push(pfrm, app.level_timer(), e);
+    app.time_stream().push(app.level_timer(), e);
 
     if (health_ + amount > 255) {
         health_ = 255;
@@ -536,7 +536,7 @@ void BasicCharacter::apply_damage(Platform& pfrm, App& app, Health damage)
     e.owned_by_player_ = owner_ == &app.player();
     e.near_ = parent_ == &app.player_island();
     e.previous_health_.set(health_);
-    app.time_stream().push(pfrm, app.level_timer(), e);
+    app.time_stream().push(app.level_timer(), e);
 
     int current = health_;
     current -= damage;

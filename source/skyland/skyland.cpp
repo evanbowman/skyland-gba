@@ -370,7 +370,7 @@ void App::update(Platform& pfrm, Microseconds delta)
         time_stream::event::RngChanged e;
         e.previous_state_.set(previous_rng);
 
-        time_stream_.push(pfrm, level_timer_, e);
+        time_stream_.push(level_timer_, e);
     }
 
     for (const char* sound : pfrm.speaker().completed_sounds()) {
@@ -378,7 +378,7 @@ void App::update(Platform& pfrm, Microseconds delta)
         if (not is_gui_sound(sound)) {
             time_stream::event::SoundCompleted e;
             e.sound_name_ptr_.set((intptr_t)sound);
-            time_stream_.push(pfrm, level_timer_, e);
+            time_stream_.push(level_timer_, e);
         }
     }
 }
@@ -407,7 +407,7 @@ void App::set_coins(Platform& pfrm, Coins coins)
 {
     time_stream::event::CoinsChanged e;
     e.previous_value_.set(persistent_data_.coins_);
-    time_stream_.push(pfrm, level_timer_, e);
+    time_stream_.push(level_timer_, e);
 
     persistent_data_.coins_ = coins;
 }

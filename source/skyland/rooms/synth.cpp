@@ -72,7 +72,7 @@ void Synth::update(Platform& pfrm, App& app, Microseconds delta)
     Room::update(pfrm, app, delta);
 
     if (not speaker()) {
-        apply_damage(pfrm, app, 9999);
+        apply_damage(pfrm, app, health_upper_limit());
     }
 }
 

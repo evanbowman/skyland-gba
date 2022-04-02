@@ -191,11 +191,11 @@ void Missile::destroy(Platform& pfrm, App& app)
     if (source_ == &app.player_island()) {
         time_stream::event::PlayerMissileDestroyed e;
         setup_event(e);
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
     } else {
         time_stream::event::OpponentMissileDestroyed e;
         setup_event(e);
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
     }
 
     kill();
@@ -217,7 +217,7 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < missile_damage) {
-        room.apply_damage(pfrm, app, 9999);
+        room.apply_damage(pfrm, app, Room::health_upper_limit());
         return;
     }
 

@@ -430,13 +430,13 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
         e.x_ = position().x;
         e.y_ = position().y;
         e.previous_health_.set(health_);
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
     } else {
         time_stream::event::OpponentRoomDamaged e;
         e.x_ = position().x;
         e.y_ = position().y;
         e.previous_health_.set(health_);
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
     }
 
     if (damage > health_) {
@@ -459,13 +459,13 @@ void Room::heal(Platform& pfrm, App& app, Health amount)
         e.x_ = position().x;
         e.y_ = position().y;
         e.previous_health_.set(health_);
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
     } else {
         time_stream::event::OpponentRoomRepaired e;
         e.x_ = position().x;
         e.y_ = position().y;
         e.previous_health_.set(health_);
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
     }
 
     const Health new_health = health_ + amount;
@@ -488,14 +488,14 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
             e.x_ = position().x;
             e.y_ = position().y;
             e.type_ = metaclass_index_;
-            app.time_stream().push(pfrm, app.level_timer(), e);
+            app.time_stream().push(app.level_timer(), e);
 
         } else {
             time_stream::event::PlayerRoomPlundered e;
             e.x_ = position().x;
             e.y_ = position().y;
             e.type_ = metaclass_index_;
-            app.time_stream().push(pfrm, app.level_timer(), e);
+            app.time_stream().push(app.level_timer(), e);
         }
 
         // Ok, so when a character plunders a room, we don't actually want to

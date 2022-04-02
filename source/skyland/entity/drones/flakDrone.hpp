@@ -143,7 +143,7 @@ public:
                     e.x_pos_ = position().x;
                     e.y_pos_ = position().y;
                     e.destination_near_ = destination() == &app.player_island();
-                    app.time_stream().push(pfrm, app.level_timer(), e);
+                    app.time_stream().push(app.level_timer(), e);
                 }
             }
 

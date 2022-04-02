@@ -200,7 +200,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             // to. Our implementation only allows rewinding until the earliest
             // existing event.
             time_stream::event::Initial e;
-            app.time_stream().push(pfrm, app.level_timer(), e);
+            app.time_stream().push(app.level_timer(), e);
         }
 
         app.game_speed() = GameSpeed::stopped;
@@ -293,6 +293,24 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::OpponentRoomSalvaged*)end;
             (*load_metaclass(e->type_))
                 ->create(pfrm, app, app.opponent_island(), {e->x_, e->y_});
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_room_moved: {
+            auto e = (time_stream::event::PlayerRoomMoved*)end;
+            app.player_island().move_room(
+                app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_room_moved: {
+            auto e = (time_stream::event::OpponentRoomMoved*)end;
+            app.opponent_island()->move_room(
+                app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
             app.time_stream().pop(sizeof *e);
             break;
         }

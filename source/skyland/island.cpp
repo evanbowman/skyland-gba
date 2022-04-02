@@ -190,6 +190,12 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    if (schedule_repaint_) {
+        schedule_repaint_ = false;
+        repaint(pfrm, app);
+    }
+
+
     u8 ambient_offset = 4 * float(sine(4 * 3.14f * 0.0005f * timer_ + 180)) /
                         std::numeric_limits<s16>::max();
 
@@ -292,7 +298,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         e.owned_by_player_ = c.owner() == &app.player();
         e.near_ = this == &app.player_island();
         e.is_replicant_ = c.is_replicant();
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
     };
 
 
@@ -487,13 +493,13 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 p.x_ = pos.x;
                 p.y_ = pos.y;
                 p.type_ = mt;
-                app.time_stream().push(pfrm, app.level_timer(), p);
+                app.time_stream().push(app.level_timer(), p);
             } else {
                 time_stream::event::OpponentRoomDestroyed p;
                 p.x_ = pos.x;
                 p.y_ = pos.y;
                 p.type_ = mt;
-                app.time_stream().push(pfrm, app.level_timer(), p);
+                app.time_stream().push(app.level_timer(), p);
             }
 
 
@@ -874,6 +880,45 @@ bool Island::add_character(EntityRef<BasicCharacter> character)
 
 
 
+void Island::move_room(App& app, const Vec2<u8>& from, const Vec2<u8>& to)
+{
+    for (auto it = rooms_.begin(); it not_eq rooms_.end(); ++it) {
+        if ((*it)->position() == from) {
+            auto room = std::move(*it);
+            it = rooms_.erase(it);
+
+            recalculate_power_usage();
+            on_layout_changed(app, from);
+
+            room->__set_position(to);
+
+            rooms_.insert_room(std::move(room));
+
+            schedule_repaint_ = true;
+
+            if (this == &app.player_island()) {
+                time_stream::event::PlayerRoomMoved e;
+                e.x_ = to.x;
+                e.y_ = to.y;
+                e.prev_x_ = from.x;
+                e.prev_y_ = from.y;
+                app.time_stream().push(app.level_timer(), e);
+            } else {
+                time_stream::event::OpponentRoomMoved e;
+                e.x_ = to.x;
+                e.y_ = to.y;
+                e.prev_x_ = from.x;
+                e.prev_y_ = from.y;
+                app.time_stream().push(app.level_timer(), e);
+            }
+
+            return;
+        }
+    }
+}
+
+
+
 void Island::plot_walkable_zones(App& app, bool matrix[16][16]) const
 {
     for (int x = 0; x < 16; ++x) {
@@ -1016,6 +1061,9 @@ void Island::repaint(Platform& pfrm, App& app)
                 if (buffer[x][y] == Tile::strut) {
                     block_chimney = true;
                     buffer[x][y] = Tile::roof_strut;
+                } else if (buffer[x][y] >= Tile::piston_closed_r and
+                           buffer[x][y] <= Tile::piston_opened_d_2) {
+                    block_chimney = true;
                 } else if (buffer[x][y] == Tile::strut_top) {
                     block_chimney = true;
                     buffer[x][y] = Tile::roof_strut_joined;
@@ -1193,7 +1241,7 @@ void Island::set_drift(Platform& pfrm, App& app, Float drift)
         time_stream::event::OpponentIslandDriftChanged e;
         memcpy(e.previous_speed_, &drift_, sizeof drift_);
 
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
     }
 
     if (this == &app.player_island()) {

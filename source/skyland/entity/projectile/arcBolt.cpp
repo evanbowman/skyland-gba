@@ -151,7 +151,7 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
 
     if ((*room.metaclass())->properties() & RoomProperties::fragile and
         room.max_health() < arcbolt_damage) {
-        room.apply_damage(pfrm, app, 9999);
+        room.apply_damage(pfrm, app, Room::health_upper_limit());
         return;
     }
 
@@ -236,11 +236,11 @@ void ArcBolt::destroy(Platform& pfrm, App& app, bool explosion)
     if (source_ == &app.player_island()) {
         time_stream::event::PlayerArcboltDestroyed e;
         timestream_record(e);
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
     } else {
         time_stream::event::OpponentArcboltDestroyed e;
         timestream_record(e);
-        app.time_stream().push(pfrm, app.level_timer(), e);
+        app.time_stream().push(app.level_timer(), e);
     }
 
 

@@ -155,7 +155,7 @@ void Drone::set_target(Platform& pfrm,
     }
     e.previous_target_near_ = target_near_;
     e.destination_near_ = destination_ == &app.player_island();
-    app.time_stream().push(pfrm, app.level_timer(), e);
+    app.time_stream().push(app.level_timer(), e);
 
     target_ = target;
     target_near_ = target_near;
@@ -183,7 +183,7 @@ void Drone::apply_damage(Platform& pfrm, App& app, Health amount)
     e.y_pos_ = grid_pos_.y;
     e.destination_near_ = destination_ == &app.player_island();
     e.previous_health_.set(health());
-    app.time_stream().push(pfrm, app.level_timer(), e);
+    app.time_stream().push(app.level_timer(), e);
 
     Entity::apply_damage(pfrm, app, amount);
 }
@@ -205,7 +205,7 @@ void Drone::update(Platform& pfrm, App& app, Microseconds delta)
             e.parent_near_ = parent_ == &app.player_island();
             e.destination_near_ = destination_ == &app.player_island();
             e.duration_.set(duration_);
-            app.time_stream().push(pfrm, app.level_timer(), e);
+            app.time_stream().push(app.level_timer(), e);
             break;
         }
         auto amount = smoothstep(0.f, duration_, timer_);

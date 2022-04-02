@@ -99,8 +99,7 @@ public:
     static const auto max_buffers = 8;
 
 
-    template <typename T>
-    void push(Platform& pfrm, TimeTracker& current, T& event)
+    template <typename T> void push(TimeTracker& current, T& event)
     {
         if (not enabled_pushes_) {
             return;
