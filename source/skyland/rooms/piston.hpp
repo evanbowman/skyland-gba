@@ -20,6 +20,11 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
+    void render_scaffolding(App& app, u8 buffer[16][16]) override
+    {
+    }
+
+
     static Category category()
     {
         return Category::misc;

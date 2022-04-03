@@ -73,7 +73,7 @@ private:
 
 
     void
-    update_room(Platform&, App&, const Bitmatrix<16, 16>& matrix, DroneBay& db);
+    update_drone_bay(Platform&, App&, const Bitmatrix<16, 16>& matrix, DroneBay& db);
 
 
     void assign_boarded_character(Platform&, App&, BasicCharacter& character);

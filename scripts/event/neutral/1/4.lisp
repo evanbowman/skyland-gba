@@ -56,7 +56,7 @@
                 (let ((c (get temp (choice (length temp)))))
                   (room-new (player) (list 'mycelium (car c) (cdr c))))
                 (dialog "While attempting to board, several spores on the castle burst, infesting your island with mycelium!"))))
-        )
+        (exit))
     (progn
       (let ((temp (+ 1000 (choice 1000))))
         (dialog "You explore, and find cargo worth " (string temp) "@!")

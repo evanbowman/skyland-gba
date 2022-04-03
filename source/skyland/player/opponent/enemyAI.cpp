@@ -245,7 +245,7 @@ void EnemyAI::update_room(Platform& pfrm,
         // bit.
         if (app.opponent_island()->get_drift() == 0.f) {
             if (app.game_speed() not_eq GameSpeed::stopped) {
-                update_room(pfrm, app, matrix, *db);
+                update_drone_bay(pfrm, app, matrix, *db);
             }
         }
     } else if (auto transporter = dynamic_cast<Transporter*>(&room)) {
@@ -982,10 +982,10 @@ void get_drone_slots(bool slots[16][16], Island* dest_island, Island* parent);
 
 
 
-void EnemyAI::update_room(Platform& pfrm,
-                          App& app,
-                          const Bitmatrix<16, 16>& matrix,
-                          DroneBay& db)
+void EnemyAI::update_drone_bay(Platform& pfrm,
+                               App& app,
+                               const Bitmatrix<16, 16>& matrix,
+                               DroneBay& db)
 {
     if (db.reload_time_remaining() > 0) {
         return;
