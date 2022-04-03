@@ -772,7 +772,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::fade_out: {
         timer_ += delta;
-        constexpr auto fade_duration = milliseconds(1300);
+        constexpr auto fade_duration = milliseconds(600);
         if (timer_ > fade_duration) {
             text_.reset();
             switch (menu_selection_) {
