@@ -14,7 +14,7 @@ namespace skyland
 class NotificationScene : public ActiveWorldScene
 {
 public:
-    NotificationScene(const StringBuffer<30>& msg, DeferredScene next_scene)
+    NotificationScene(const StringBuffer<80>& msg, DeferredScene next_scene)
         : next_scene_(next_scene), msg_(msg)
     {
     }
@@ -31,7 +31,7 @@ public:
 public:
     std::optional<Text> description_;
     DeferredScene next_scene_;
-    StringBuffer<30> msg_;
+    StringBuffer<80> msg_;
 };
 
 

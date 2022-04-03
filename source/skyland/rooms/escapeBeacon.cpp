@@ -52,6 +52,26 @@ void EscapeBeacon::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+static const auto escape_beacon_countdown = seconds(60);
+
+
+
+void EscapeBeacon::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::rewind(pfrm, app, delta);
+
+    if (timer_ > 0) {
+        timer_ += delta;
+        if (timer_ > escape_beacon_countdown) {
+            timer_ = 0;
+            activated_ = false;
+            parent()->schedule_repaint();
+        }
+    }
+}
+
+
+
 ScenePtr<Scene>
 EscapeBeacon::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 {
@@ -60,8 +80,8 @@ EscapeBeacon::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
     activated_ = true;
 
     if (not was_activated) {
-        parent()->repaint(pfrm, app);
-        timer_ = seconds(60);
+        parent()->schedule_repaint();
+        timer_ = escape_beacon_countdown;
     }
 
     Room::ready();

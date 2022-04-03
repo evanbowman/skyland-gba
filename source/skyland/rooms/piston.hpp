@@ -22,13 +22,14 @@ public:
 
     static Category category()
     {
-        return Category::wall;
+        return Category::misc;
     }
 
 
     static u32 properties()
     {
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
+               RoomProperties::locked_by_default |
                RoomProperties::multiplayer_unsupported |
                RoomProperties::disabled_in_tutorials;
     }
@@ -89,9 +90,18 @@ public:
     virtual bool is_sticky() const;
 
 
+    ScenePtr<Scene> setup(Platform& pfrm, App&) override;
+
+
+    void set_direction(Direction dir)
+    {
+        dir_ = dir;
+    }
+
+
 private:
     bool opened_ = false;
-    Direction dir_ = Direction::up;
+    Direction dir_ = Direction::right;
 };
 
 
@@ -99,8 +109,8 @@ private:
 class StickyPiston : public Piston
 {
 public:
-    StickyPiston(Island* parent, const Vec2<u8>& position) :
-        Piston(parent, position, name())
+    StickyPiston(Island* parent, const Vec2<u8>& position)
+        : Piston(parent, position, name())
     {
     }
 
@@ -121,8 +131,6 @@ public:
     {
         return SystemString::block_sticky_piston;
     }
-
-
 };
 
 

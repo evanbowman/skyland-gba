@@ -317,6 +317,9 @@ enum class SystemString {
     no_dlc_prompt,
     dlc_erase_hint,
 
+    piston_setup,
+    piston_error,
+
     factory_reset,
 
     dialog_tutorial_prompt,

@@ -1,5 +1,6 @@
 #include "piston.hpp"
 #include "skyland/island.hpp"
+#include "skyland/scene/setupPistonScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/timeStream.hpp"
@@ -93,6 +94,14 @@ void Piston::render_exterior(App& app, u8 buffer[16][16])
 
 ScenePtr<Scene> Piston::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 {
+    if ((dir_ == down and position().y == 14) or
+        (dir_ == left and position().x == 0) or
+        (dir_ == right and position().x == parent()->terrain().size() - 1)) {
+        // TODO: Return error: extending piston would access out of bounds tile.
+        return null_scene();
+    }
+
+
     auto record_event = [&] {
         if (parent() == &player_island(app)) {
             // I repurposed the ReloadComplete event because it's already looped
@@ -144,7 +153,7 @@ ScenePtr<Scene> Piston::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
         }
 
         if (auto room = parent()->get_room(start)) {
-            if (is_sticky() and  room->size().x == 1 and room->size().y == 1) {
+            if (is_sticky() and room->size().x == 1 and room->size().y == 1) {
                 parent()->move_room(app, start, end);
             }
         }
@@ -219,6 +228,15 @@ void Piston::___rewind___finished_reload(Platform& pfrm, App& app)
 {
     opened_ = not opened_;
     parent()->schedule_repaint();
+}
+
+
+
+ScenePtr<Scene> Piston::setup(Platform& pfrm, App& app)
+{
+    const bool near = parent() == &player_island(app);
+
+    return scene_pool::alloc<SetupPistonScene>(pfrm, position(), near);
 }
 
 
