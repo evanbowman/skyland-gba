@@ -32,6 +32,9 @@ public:
     }
 
 
+    static int get_setting(u8 slot);
+
+
     void enter(Platform&, App&, Scene& prev) override;
 
 
@@ -68,7 +71,7 @@ private:
         int upper_limit_;
     };
 
-    Buffer<Text, 3> settings_text_;
+    Buffer<Text, 4> settings_text_;
     using ParamBuffer = Buffer<int, decltype(settings_text_)::capacity()>;
     static ParamBuffer parameters_;
 

@@ -244,6 +244,7 @@ enum class SystemString {
     sandbox_coins,
     sandbox_terrain_size,
     sandbox_music,
+    sandbox_building_dependencies,
     sandbox_title,
     sandbox_prompt,
 

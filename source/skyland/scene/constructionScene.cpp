@@ -2,6 +2,7 @@
 #include "globals.hpp"
 #include "inspectP2Scene.hpp"
 #include "modules/glossaryViewerModule.hpp"
+#include "modules/sandboxLoaderModule.hpp"
 #include "platform/platform.hpp"
 #include "readyScene.hpp"
 #include "salvageRoomScene.hpp"
@@ -999,12 +1000,18 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         const bool manufactory_required =
             (meta->properties() & RoomProperties::manufactory_required);
 
+        const bool sandbox_dependencies_off =
+            not SandboxLoaderModule::get_setting(3);
+
+
         const bool dependencies_satisfied =
             (not manufactory_required or
              (manufactory_required and f_count > 0) or
-             app.game_mode() == App::GameMode::sandbox) and
+             (app.game_mode() == App::GameMode::sandbox and
+              sandbox_dependencies_off)) and
             (not workshop_required or (workshop_required and w_count > 0) or
-             app.game_mode() == App::GameMode::sandbox);
+             (app.game_mode() == App::GameMode::sandbox and
+              sandbox_dependencies_off));
 
         const bool explicitly_disabled =
             (app.game_mode() == App::GameMode::tutorial and
@@ -1028,7 +1035,6 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         if (not explicitly_disabled and meta->size().x <= avail_x_space and
             meta->size().y <= calc_avail_y_space(meta->size().x) and
             dependencies_satisfied) {
-
             // Do not show decorations in the building list in tutorial mode.
             if (not(app.game_mode() == App::GameMode::tutorial and
                     meta->category() == Room::Category::decoration)) {

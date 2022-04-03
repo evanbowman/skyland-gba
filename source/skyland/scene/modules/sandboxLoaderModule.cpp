@@ -23,7 +23,18 @@ const SandboxLoaderModule::ParameterInfo
     SandboxLoaderModule::param_info[decltype(parameters_)::capacity()] = {
         {SystemString::sandbox_coins, 1000, 1000, 100000000},
         {SystemString::sandbox_terrain_size, 1, 4, 13},
-        {SystemString::sandbox_music, 1, 0, 1}};
+        {SystemString::sandbox_music, 1, 0, 1},
+        {SystemString::sandbox_building_dependencies, 1, 0, 1}};
+
+
+
+int SandboxLoaderModule::get_setting(u8 slot)
+{
+    if (slot >= parameters_.size()) {
+        return 0;
+    }
+    return parameters_[slot];
+}
 
 
 

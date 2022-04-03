@@ -195,6 +195,7 @@ exit
 coins
 terrain size
 music
+dependencies
 Sandbox Settings
 Press A to begin
 Multiplayer Settings
