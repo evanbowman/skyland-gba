@@ -38,8 +38,15 @@ PlaceDroneScene::PlaceDroneScene(Platform& pfrm,
 
 void get_drone_slots(bool slots[16][16], Island* dest_island, Island* parent)
 {
+    int island_min_y = 14;
+
     for (auto& room : dest_island->rooms()) {
         auto pos = room->position();
+
+        if (pos.y < island_min_y) {
+            island_min_y = pos.y;
+        }
+
         for (int x = 0; x < room->size().x; ++x) {
             for (int y = 0; y < room->size().y; ++y) {
                 slots[pos.x + x][pos.y + y] = false;
@@ -67,7 +74,10 @@ void get_drone_slots(bool slots[16][16], Island* dest_island, Island* parent)
                 // overpowered if you could place them within empty gaps inside
                 // an enemy's perimeter.
                 if (x < (int)dest_island->terrain().size() - 1 and x > 0 and
-                    y > construction_zone_min_y) {
+                    ((island_min_y - 3 <= construction_zone_min_y and
+                      y > construction_zone_min_y) or
+                     (island_min_y - 3 > construction_zone_min_y and
+                      y > island_min_y - 4 and y > construction_zone_min_y))) {
                     slots[x][y] = false;
                 }
             }

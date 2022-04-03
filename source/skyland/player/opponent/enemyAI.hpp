@@ -72,8 +72,10 @@ private:
                                     Drone& drone);
 
 
-    void
-    update_drone_bay(Platform&, App&, const Bitmatrix<16, 16>& matrix, DroneBay& db);
+    void update_drone_bay(Platform&,
+                          App&,
+                          const Bitmatrix<16, 16>& matrix,
+                          DroneBay& db);
 
 
     void assign_boarded_character(Platform&, App&, BasicCharacter& character);

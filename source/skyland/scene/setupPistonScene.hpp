@@ -1,6 +1,6 @@
+#include "inspectP2Scene.hpp"
 #include "notificationScene.hpp"
 #include "readyScene.hpp"
-#include "inspectP2Scene.hpp"
 #include "skyland/island.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/rooms/piston.hpp"
@@ -16,10 +16,10 @@ namespace skyland
 class SetupPistonScene : public NotificationScene
 {
 public:
-    SetupPistonScene(Platform& pfrm, Vec2<u8> piston_loc, bool near) :
-        NotificationScene(SYSTR(piston_setup)->c_str(),
-            scene_pool::make_deferred_scene<ReadyScene>()),
-        piston_loc_(piston_loc)
+    SetupPistonScene(Platform& pfrm, Vec2<u8> piston_loc, bool near)
+        : NotificationScene(SYSTR(piston_setup)->c_str(),
+                            scene_pool::make_deferred_scene<ReadyScene>()),
+          piston_loc_(piston_loc)
     {
         if (not near) {
             far_camera();
@@ -27,9 +27,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
             return scene;
@@ -81,5 +80,4 @@ private:
 
 
 
-
-}
+} // namespace skyland

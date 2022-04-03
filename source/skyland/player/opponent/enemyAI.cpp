@@ -884,6 +884,15 @@ static void place_offensive_drone(Platform& pfrm,
         }
     }
 
+    // Find lowest available slot y-value, into which we may place a drone.
+    u8 min_y = 15;
+    for (int y = 15; y > 0; --y) {
+        if (slot[1][y]) {
+            min_y = y;
+            break;
+        }
+    }
+
     // 9-14 range: check immediately rightwards.
     if (not restrict_columns[0]) {
         for (u8 y = 9; y < 14; ++y) {
@@ -931,18 +940,22 @@ static void place_offensive_drone(Platform& pfrm,
     // NOTE: += 2 because we don't want to place two drones directly adjacent,
     // as they might accidentally shoot eachother.
     for (u8 x = 0; x < 16; x += 2) {
-        if (slot[x][6] and not restrict_columns[x]) {
-            for (u8 y = construction_zone_min_y; y < 15; ++y) {
-                if (player_rooms.get(x, y)) {
-                    if (auto room = player_island.get_room({x, y})) {
-                        top_row_weights[x] =
-                            (*room->metaclass())->ai_base_weight();
+        if (not restrict_columns[x]) {
+            for (int yy = 14; yy > 0; --yy) {
+                if (slot[x][yy]) {
+                    for (u8 y = yy; y < 15; ++y) {
+                        if (player_rooms.get(x, y)) {
+                            if (auto room = player_island.get_room({x, y})) {
+                                top_row_weights[x] =
+                                    (*room->metaclass())->ai_base_weight();
+                            }
+                            break;
+                        }
                     }
-                    break;
+                    if (top_row_weights[x] == 0.f) {
+                        top_row_weights[x] = 0.5f;
+                    }
                 }
-            }
-            if (top_row_weights[x] == 0.f) {
-                top_row_weights[x] = 0.5f;
             }
         }
     }
@@ -958,7 +971,7 @@ static void place_offensive_drone(Platform& pfrm,
 
     for (u8 x = 0; x < 16; ++x) {
         if (top_row_weights[x] > max_weight) {
-            ideal_coord = {x, 6};
+            ideal_coord = {x, min_y};
             max_weight = top_row_weights[x];
         }
     }
@@ -973,6 +986,8 @@ static void place_offensive_drone(Platform& pfrm,
             db.attach_drone(pfrm, app, *drone);
             player_island.drones().push(*drone);
         }
+    } else {
+        Platform::fatal("no coord!?jlk!?kl?!");
     }
 }
 
@@ -1120,7 +1135,7 @@ void EnemyAI::update_drone_bay(Platform& pfrm,
     bool slots[16][16];
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
-            slots[x][y] = y > 5;
+            slots[x][y] = y >= construction_zone_min_y;
         }
     }
 
