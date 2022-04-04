@@ -445,6 +445,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (not(props & RoomProperties::salvage_disallowed)) {
                 return scene_pool::alloc<SalvageRoomScene>();
             } else {
+                pfrm.speaker().play_sound("beep_error", 2);
                 auto msg = SYSTR(salvage_error_disallowed);
                 auto next = scene_pool::make_deferred_scene<ReadyScene>();
                 return scene_pool::alloc<NotificationScene>(msg->c_str(), next);
