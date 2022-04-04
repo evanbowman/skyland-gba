@@ -202,6 +202,22 @@ public:
         sprite.set_texture_index(15);
         sprite.set_position({146, 99 - amount});
         pfrm.screen().draw(sprite);
+
+
+        amount =
+            48 * smoothstep(milliseconds(-500), milliseconds(12000), timer_);
+
+        sprite.set_texture_index(17);
+        sprite.set_position({200, 55 - amount});
+
+        if (timer_ > milliseconds(4000)) {
+            sprite.set_alpha(Sprite::Alpha::translucent);
+        } else {
+            sprite.set_mix({custom_color(0x9cb5c6),
+                        (u8)(28 + 100 * smoothstep(milliseconds(-500), milliseconds(4000), timer_))});
+        }
+
+        pfrm.screen().draw(sprite);
     }
 
 
