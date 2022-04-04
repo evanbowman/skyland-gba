@@ -48,6 +48,7 @@ enum Achievement : u8 {
     meltdown,
     completionist,
     mycelium,
+    primitive,
     count
 };
 

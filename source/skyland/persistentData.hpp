@@ -67,8 +67,17 @@ struct PersistentData
 
     HostInteger<u32> total_seconds_;
     HostInteger<u32> total_pauses_;
-    HostInteger<u16> replicants_created_;
     HostInteger<s32> score_;
+    HostInteger<s32> state_flags_;
+
+    enum StateFlag {
+        workshop_built = (1 << 0),
+    };
+
+    void set_flag(StateFlag flag)
+    {
+        state_flags_.set(state_flags_.get() | flag);
+    }
 };
 
 

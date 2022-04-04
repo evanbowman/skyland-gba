@@ -303,6 +303,8 @@ enum class SystemString {
     achievement_completionist_description,
     achievement_mycelium_name,
     achievement_mycelium_description,
+    achievement_primitive_name,
+    achievement_primitive_description,
 
     hint_title,
     hint_gamespeed,

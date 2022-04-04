@@ -251,6 +251,8 @@ Completionist
 Finish all challenge levels and achievements!
 Symbiosis
 Complete the "Mycelium!" challenge!
+Primitive
+Reach zone 4 without building a workshop!
 tips and tricks
 Press and hold the pause button to set the game speed. Slow motion and fastforward speeds available! You can even rewind!
 Build an infirmary to heal your crew!

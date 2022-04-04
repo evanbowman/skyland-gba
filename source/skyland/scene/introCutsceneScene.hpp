@@ -214,7 +214,9 @@ public:
             sprite.set_alpha(Sprite::Alpha::translucent);
         } else {
             sprite.set_mix({custom_color(0x9cb5c6),
-                        (u8)(28 + 100 * smoothstep(milliseconds(-500), milliseconds(4000), timer_))});
+                            (u8)(28 + 100 * smoothstep(milliseconds(-500),
+                                                       milliseconds(4000),
+                                                       timer_))});
         }
 
         pfrm.screen().draw(sprite);

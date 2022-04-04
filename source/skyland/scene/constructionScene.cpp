@@ -482,6 +482,10 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             target->create(pfrm, app, island(app), {dest_x, dest_y});
             data_->last_constructed_building_ = metaclass_index(target->name());
 
+            if (str_eq(target->name(), "workshop")) {
+                app.persistent_data().set_flag(PersistentData::workshop_built);
+            }
+
             app.player().rooms_built_++;
 
             auto mt_index = metaclass_index(target->name());

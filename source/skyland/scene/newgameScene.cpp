@@ -63,6 +63,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.persistent_data().total_pauses_.set(0);
         app.persistent_data().total_seconds_.set(0);
         app.persistent_data().score_.set(0);
+        app.persistent_data().state_flags_.set(0);
     }
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;

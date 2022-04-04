@@ -293,6 +293,18 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[mycelium].reward_), awarded);
+     }},
+
+    {SystemString::achievement_primitive_name,
+     SystemString::achievement_primitive_description,
+     "sticky-piston",
+     [](Platform&, App& app) {
+         return app.zone() > 3 and
+                not(app.persistent_data().state_flags_.get() &
+                    PersistentData::workshop_built);
+     },
+     [](Platform&, App& app, bool awarded) {
+         set_enabled(metaclass_index(info[primitive].reward_), awarded);
      }}};
 
 
