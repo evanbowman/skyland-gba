@@ -16,8 +16,10 @@ void Forcefield::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Forcefield::Forcefield(Island* parent, const Vec2<u8>& position)
-    : Room(parent, name(), position)
+Forcefield::Forcefield(Island* parent,
+                       const Vec2<u8>& position,
+                       const char* name)
+    : Room(parent, name, position)
 {
 }
 
@@ -40,6 +42,27 @@ void Forcefield::render_interior(App& app, u8 buffer[16][16])
 void Forcefield::render_exterior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::forcefield;
+}
+
+
+
+void Forcefield2::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+{
+    buffer += SYSTR(description_forcefield2)->c_str();
+}
+
+
+
+void Forcefield2::render_interior(App& app, u8 buffer[16][16])
+{
+    buffer[position().x][position().y] = InteriorTile::forcefield2;
+}
+
+
+
+void Forcefield2::render_exterior(App& app, u8 buffer[16][16])
+{
+    buffer[position().x][position().y] = Tile::forcefield2;
 }
 
 

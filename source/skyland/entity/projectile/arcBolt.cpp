@@ -145,7 +145,7 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
         }
     }
 
-    if (source_ == room.parent() and room.metaclass() == forcefield_mt) {
+    if (source_ == room.parent() and is_forcefield(room.metaclass())) {
         return;
     }
 

@@ -16,6 +16,7 @@ drone-bay
 escape-beacon
 flak-gun
 forcefield
+forcefield*
 fountain
 hull
 infirmary
@@ -109,6 +110,7 @@ Reflects projectiles (except missiles!). Still takes damage, though.
 An unusual cannon-type weapon. Damage starts at %, and rises to % when health drops to 1/2, % when health drops below 1/4. %.% sec reload.
 An essential defensive structure.
 Blocks enemy projectiles, but allows your own weapons to shoot through. Vulnerable to ion damage.
+An upgraded forcefield.
 An upgraded power-core. Supplies much more energy, but succeptible to ion damage.
 An openable/closable door. Used for restricting the movement of enemy boarding parties.
 Transport boarding parties into an enemy castle! Selects a random destination, unless you have a radar.

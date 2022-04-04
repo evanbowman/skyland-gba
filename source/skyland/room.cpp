@@ -32,6 +32,11 @@ Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
 
     auto metatable = room_metatable();
 
+    if (metatable.second > 255) {
+        Platform::fatal("metaclass index exceeds 255! More bytes required to "
+                        "store the full 16 bit metaclass index!");
+    }
+
     for (MetaclassIndex i = 0; i < metatable.second; ++i) {
         auto& current = metatable.first[i];
 

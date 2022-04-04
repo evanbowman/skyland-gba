@@ -13,13 +13,10 @@ template <typename T> using Atomic = std::atomic<T>;
 
 
 
-
 inline u8 count_ones(u8 byte)
 {
     static const u8 nibble_lut[16] = {
-        0, 1, 1, 2, 1, 2, 2, 3,
-        1, 2, 2, 3, 2, 3, 3, 4
-    };
+        0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4};
 
     return nibble_lut[byte & 0x0F] + nibble_lut[byte >> 4];
 }

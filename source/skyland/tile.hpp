@@ -176,6 +176,7 @@ struct Tile
         piston_closed_d,
         piston_opened_d_1,
         piston_opened_d_2,
+        forcefield2,
     };
 };
 
@@ -353,6 +354,7 @@ struct InteriorTile
         piston_closed_d,
         piston_opened_d_1,
         piston_opened_d_2,
+        forcefield2,
     };
 };
 

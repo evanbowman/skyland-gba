@@ -428,13 +428,22 @@ private:
     ////////////////////////////////////////////////////////////////////////////
 
     Health health_;
-    MetaclassIndex metaclass_index_;
 
     ////////////////////////////////////////////////////////////////////////////
     //
     // Bitfields and single bytes:
     //
     ////////////////////////////////////////////////////////////////////////////
+
+    // I originally used a u16 throughout the engine for representing metaclass
+    // index. But, in practice, we don't have nearly 255 different blocks in the
+    // game. While I still want to use a u16 in the main engine code, just in
+    // case, I'm using a u8 in the room object metadata, and will move to a
+    // larger datatype if I ever have more than 255 unique rooms for some
+    // reason. I have assertions in the code to check overflow.
+    using SmallMetaclassIndex = u8;
+
+    SmallMetaclassIndex metaclass_index_;
 
     // Room's position. We only support coordinates 0-16, as even castles 13
     // tiles wide get to be too large for the game to be fun.
@@ -456,7 +465,7 @@ private:
     u8 group_ : 2;
 
     // Bytes freed up by various space optimization techniques.
-    u8 reserved_[6];
+    u8 reserved_[7];
 };
 
 

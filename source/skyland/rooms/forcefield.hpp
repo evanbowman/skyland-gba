@@ -15,7 +15,9 @@ namespace skyland
 class Forcefield : public Room
 {
 public:
-    Forcefield(Island* parent, const Vec2<u8>& position);
+    Forcefield(Island* parent,
+               const Vec2<u8>& position,
+               const char* name = name());
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -92,6 +94,62 @@ public:
         return RoomProperties::workshop_required |
                RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
                RoomProperties::accepts_ion_damage;
+    }
+};
+
+
+
+class Forcefield2 : public Forcefield
+{
+public:
+    Forcefield2(Island* parent, const Vec2<u8>& position)
+        : Forcefield(parent, position, name())
+    {
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_forcefield2;
+    }
+
+
+    static const char* name()
+    {
+        return "forcefield*";
+    }
+
+
+    static Float ai_base_weight()
+    {
+        return 9.f;
+    }
+
+
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+
+
+    void render_interior(App& app, u8 buffer[16][16]) override;
+    void render_exterior(App& app, u8 buffer[16][16]) override;
+
+
+    static u32 properties()
+    {
+        return (Forcefield::properties() |
+                RoomProperties::manufactory_required) &
+               ~RoomProperties::workshop_required;
+    }
+
+
+    static Icon icon()
+    {
+        return 2248;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 2264;
     }
 };
 

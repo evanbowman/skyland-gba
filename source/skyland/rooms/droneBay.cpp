@@ -142,13 +142,13 @@ DroneBay::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
         bool free[2] = {true, true};
         pos.y -= 1;
         if (auto room = parent()->get_room(pos)) {
-            if (room->metaclass() not_eq forcefield_mt) {
+            if (not is_forcefield(room->metaclass())) {
                 free[0] = false;
             }
         }
         pos.x += 1;
         if (auto room = parent()->get_room(pos)) {
-            if (room->metaclass() not_eq forcefield_mt) {
+            if (not is_forcefield(room->metaclass())) {
                 free[1] = false;
             }
         }

@@ -229,6 +229,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Hull,
                                         BronzeHull,
                                         Forcefield,
+                                        Forcefield2,
                                         PoweredHull,
                                         IonFizzler,
                                         Radiator,
@@ -365,6 +366,7 @@ MetaclassIndex plugin_rooms_begin()
 
 
 const RoomMeta* forcefield_mt = load_metaclass(Forcefield::name());
+const RoomMeta* forcefield2_mt = load_metaclass(Forcefield2::name());
 const RoomMeta* cannon_mt = load_metaclass(Cannon::name());
 const RoomMeta* missile_silo_mt = load_metaclass(MissileSilo::name());
 const RoomMeta* ion_cannon_mt = load_metaclass(IonCannon::name());

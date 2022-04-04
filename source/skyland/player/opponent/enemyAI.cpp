@@ -11,6 +11,7 @@
 #include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/flakGun.hpp"
+#include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/missileSilo.hpp"
 #include "skyland/rooms/transporter.hpp"
@@ -818,19 +819,11 @@ void EnemyAI::set_target(Platform& pfrm,
 
         auto w = (*meta_c)->ai_base_weight();
 
-        if (meta_c == bulkhead_mt and app.player_island().is_boarded()) {
-            if (auto bulkhead = dynamic_cast<Bulkhead*>(room.get())) {
-                if (not bulkhead->is_open()) {
-                    w = (*forcefield_mt)->ai_base_weight() +
-                        2 * manhattan_length(room->origin(),
-                                             ion_cannon.origin());
-                }
-            }
-        } else if ((app.opponent_island()->has_radar() or
-                    app.player_island().is_boarded()) and
-                   str_cmp((*meta_c)->name(), "reactor") == 0) {
+        if ((app.opponent_island()->has_radar() or
+             app.player_island().is_boarded()) and
+            str_cmp((*meta_c)->name(), "reactor") == 0) {
             w += 3 * manhattan_length(room->origin(), ion_cannon.origin());
-        } else if (meta_c not_eq forcefield_mt and
+        } else if (not is_forcefield(meta_c) and
                    str_cmp((*meta_c)->name(), "energized-hull") not_eq 0) {
             continue;
         } else {

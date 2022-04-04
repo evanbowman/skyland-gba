@@ -211,7 +211,7 @@ void Missile::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
-    if (source_ == room.parent() and room.metaclass() == forcefield_mt) {
+    if (source_ == room.parent() and is_forcefield(room.metaclass())) {
         return;
     }
 

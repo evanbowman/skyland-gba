@@ -14,6 +14,7 @@
    (stacked-hull 200 600  0)
    (barrier      1   300  0)
    (forcefield   240 300  40)
+   (forcefield*  360 400  50)
    (ion-fizzler  40  200  20)
    (cannon       200 1000 34)
    (ion-cannon   150 800  30)

@@ -306,7 +306,8 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
             ++drone_count;
         } else if (str_eq(room->name(), "cannon")) {
             ++cannon_count;
-        } else if (str_eq(room->name(), "forcefield")) {
+        } else if (str_eq(room->name(), "forcefield") or
+                   str_eq(room->name(), "forcefield*")) {
             ++forcefield_count;
         } else if (str_eq(room->name(), "flak-gun")) {
             ++flak_count;
@@ -642,10 +643,13 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
 
         int player_missile_count = 0;
         int player_cannon_count = 0;
+        int player_ion_cannon_count = 0;
         for (auto& room : app.player_island().rooms()) {
             if ((*room->metaclass())->category() == Room::Category::weapon) {
                 if (str_eq(room->name(), "missile-silo")) {
                     ++player_missile_count;
+                } else if (str_eq(room->name(), "ion-cannon")) {
+                    ++player_ion_cannon_count;
                 } else {
                     ++player_cannon_count;
                 }
@@ -725,10 +729,19 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
 
 
     auto& mt = require_metaclass("forcefield");
+    auto& mt2 = require_metaclass("forcefield*");
 
     while (true) {
         const auto power = power_remaining(app);
-        if (power < mt->consumes_power()) {
+
+        RoomMeta* sel = &mt;
+
+        if (core_count_ > 2 and rng::choice<2>(rng::critical_state) and
+            power > mt2->consumes_power()) {
+            sel = &mt2;
+        }
+
+        if (power < (*sel)->consumes_power()) {
             return;
         }
 

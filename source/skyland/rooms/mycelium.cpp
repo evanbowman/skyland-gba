@@ -44,7 +44,7 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
                 // Mycelium substrate must be non-mycelium room.
                 return room->metaclass() not_eq metaclass() and
                        not(room->properties() & RoomProperties::fluid) and
-                       not str_eq(room->name(), "forcefield");
+                       not is_forcefield(room->metaclass());
             }
 
             return false;
