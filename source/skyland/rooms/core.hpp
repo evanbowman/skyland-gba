@@ -74,7 +74,8 @@ public:
 
     static u32 properties()
     {
-        return RoomProperties::workshop_required | RoomProperties::has_chimney | RoomProperties::habitable;
+        return RoomProperties::workshop_required | RoomProperties::has_chimney |
+               RoomProperties::habitable;
     }
 };
 

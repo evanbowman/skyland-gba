@@ -81,8 +81,7 @@ public:
         return RoomProperties::manufactory_required |
                RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
                RoomProperties::accepts_ion_damage |
-               RoomProperties::cancels_ion_damage |
-               RoomProperties::habitable;
+               RoomProperties::cancels_ion_damage | RoomProperties::habitable;
     }
 };
 

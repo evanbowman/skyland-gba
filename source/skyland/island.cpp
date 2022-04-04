@@ -328,15 +328,15 @@ void Island::FireState::update(Platform& pfrm,
                         plotted = true;
                     }
 
-                    const auto props =
-                        [&] {
-                            if (auto room = island.get_room({x, y})) {
-                                return (*room->metaclass())->properties();
-                            }
-                            return u32(0);
-                        }();
+                    const auto props = [&] {
+                        if (auto room = island.get_room({x, y})) {
+                            return (*room->metaclass())->properties();
+                        }
+                        return u32(0);
+                    }();
 
-                    if (not(*mat)[x][y] and not (props & RoomProperties::highly_flammable)) {
+                    if (not(*mat)[x][y] and
+                        not(props & RoomProperties::highly_flammable)) {
                         island.fire_extinguish(pfrm, app, {x, y});
                     }
 
@@ -344,11 +344,12 @@ void Island::FireState::update(Platform& pfrm,
                         if (auto room = island.get_room({x, y})) {
                             auto props = (*room->metaclass())->properties();
                             if (props & RoomProperties::fireproof or
-                                (not (*mat)[x][y] and not
-                                 (props & RoomProperties::highly_flammable))) {
+                                (not(*mat)[x][y] and
+                                 not(props &
+                                     RoomProperties::highly_flammable))) {
                                 return;
                             }
-                        } else if (not (*mat)[x][y]) {
+                        } else if (not(*mat)[x][y]) {
                             island.fire_extinguish(pfrm, app, {x, y});
                             return;
                         }

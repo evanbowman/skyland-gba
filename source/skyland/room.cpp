@@ -472,7 +472,7 @@ void Room::burn_damage(Platform& pfrm, App& app, Health amount)
     auto props = (*metaclass())->properties();
     if (props & RoomProperties::highly_flammable) {
         apply_damage(pfrm, app, amount * 4);
-    } else if (not (props & RoomProperties::habitable)) {
+    } else if (not(props & RoomProperties::habitable)) {
         apply_damage(pfrm, app, amount * 2);
     } else {
         apply_damage(pfrm, app, amount);
