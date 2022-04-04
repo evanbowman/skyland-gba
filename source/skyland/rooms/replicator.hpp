@@ -74,9 +74,9 @@ public:
     bool create_replicant(Platform& pfrm, App& app) override;
 
 
-    static RoomProperties::Value properties()
+    static u32 properties()
     {
-        return RoomProperties::workshop_required;
+        return RoomProperties::workshop_required | RoomProperties::habitable;
     }
 
 

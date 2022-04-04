@@ -52,8 +52,7 @@ public:
                RoomProperties::disabled_in_tutorials |
                RoomProperties::not_constructible | RoomProperties::roof_hidden |
                RoomProperties::fluid | RoomProperties::fragile |
-               RoomProperties::destroy_quietly |
-               RoomProperties::fireproof;
+               RoomProperties::destroy_quietly | RoomProperties::fireproof;
     }
 
 

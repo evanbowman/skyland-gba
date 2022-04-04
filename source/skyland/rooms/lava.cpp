@@ -80,8 +80,8 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
                     not str_eq(room->name(), "masonry")) {
 
                     if (not parent()->fire_present({x, y}) and
-                        not ((*room->metaclass())->properties() &
-                             RoomProperties::fireproof)) {
+                        not((*room->metaclass())->properties() &
+                            RoomProperties::fireproof)) {
                         parent()->fire_create(pfrm, app, {x, y});
                     }
                 }

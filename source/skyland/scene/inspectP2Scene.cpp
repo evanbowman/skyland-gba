@@ -260,7 +260,8 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().key_down(pfrm, Key::action_1)) {
         if (auto room = app.opponent_island()->get_room(cursor_loc)) {
-            if (room->non_owner_selectable()) {
+            if (app.game_mode() == App::GameMode::sandbox or
+                room->non_owner_selectable()) {
                 return room->select(pfrm, app, cursor_loc);
             } else {
                 pfrm.speaker().play_sound("beep_error", 2);

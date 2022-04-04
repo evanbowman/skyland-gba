@@ -41,7 +41,8 @@ public:
 
     static u32 properties()
     {
-        return Decoration::properties() & ~RoomProperties::locked_by_default;
+        return (Decoration::properties() & ~RoomProperties::locked_by_default) |
+               RoomProperties::highly_flammable;
     }
 
 

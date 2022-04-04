@@ -40,6 +40,12 @@ public:
     }
 
 
+    static u32 properties()
+    {
+        return Decoration::properties() | RoomProperties::highly_flammable;
+    }
+
+
     static SystemString ui_name()
     {
         return SystemString::block_lemon_tree;

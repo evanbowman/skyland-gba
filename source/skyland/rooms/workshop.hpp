@@ -51,6 +51,12 @@ public:
     }
 
 
+    static u32 properties()
+    {
+        return RoomProperties::habitable;
+    }
+
+
     static Icon icon()
     {
         return 776;

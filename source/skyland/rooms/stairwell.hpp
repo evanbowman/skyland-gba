@@ -48,6 +48,12 @@ public:
     }
 
 
+    static u32 properties()
+    {
+        return RoomProperties::habitable;
+    }
+
+
     static SystemString ui_name()
     {
         return SystemString::block_stairwell;

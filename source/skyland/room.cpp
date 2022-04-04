@@ -467,6 +467,20 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
 
 
 
+void Room::burn_damage(Platform& pfrm, App& app, Health amount)
+{
+    auto props = (*metaclass())->properties();
+    if (props & RoomProperties::highly_flammable) {
+        apply_damage(pfrm, app, amount * 4);
+    } else if (not (props & RoomProperties::habitable)) {
+        apply_damage(pfrm, app, amount * 2);
+    } else {
+        apply_damage(pfrm, app, amount);
+    }
+}
+
+
+
 void Room::heal(Platform& pfrm, App& app, Health amount)
 {
     if (parent_ == &app.player_island()) {

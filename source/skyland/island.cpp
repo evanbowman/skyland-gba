@@ -328,15 +328,29 @@ void Island::FireState::update(Platform& pfrm,
                         plotted = true;
                     }
 
+                    const auto props =
+                        [&] {
+                            if (auto room = island.get_room({x, y})) {
+                                return (*room->metaclass())->properties();
+                            }
+                            return u32(0);
+                        }();
+
+                    if (not(*mat)[x][y] and not (props & RoomProperties::highly_flammable)) {
+                        island.fire_extinguish(pfrm, app, {x, y});
+                    }
+
                     auto try_spread = [&](u8 x, u8 y) {
-                        if (not(*mat)[x][y]) {
-                            return;
-                        }
                         if (auto room = island.get_room({x, y})) {
-                            if ((*room->metaclass())->properties() &
-                                RoomProperties::fireproof) {
+                            auto props = (*room->metaclass())->properties();
+                            if (props & RoomProperties::fireproof or
+                                (not (*mat)[x][y] and not
+                                 (props & RoomProperties::highly_flammable))) {
                                 return;
                             }
+                        } else if (not (*mat)[x][y]) {
+                            island.fire_extinguish(pfrm, app, {x, y});
+                            return;
                         }
                         if (not old_positions.get(x, y)) {
                             island.fire_create(pfrm, app, {x, y});
@@ -378,7 +392,7 @@ void Island::FireState::update(Platform& pfrm,
                             RoomProperties::fireproof) {
                             island.fire_extinguish(pfrm, app, {x, y});
                         } else {
-                            room->apply_damage(pfrm, app, 1);
+                            room->burn_damage(pfrm, app, 1);
                         }
                     } else {
                         // No room here any longer, unset the fire bit.
@@ -437,9 +451,8 @@ void Island::FireState::display(Platform& pfrm, Island& island)
         pfrm.screen().draw_batch(
             (*texture_)->mapping_index() * 2, Sprite::Alpha::opaque, *batch);
     } else {
-        pfrm.screen().draw_batch((*texture_)->mapping_index() * 2,
-                                 Sprite::Alpha::opaque,
-                                 *batch);
+        pfrm.screen().draw_batch(
+            (*texture_)->mapping_index() * 2, Sprite::Alpha::opaque, *batch);
     }
 }
 
@@ -1133,7 +1146,11 @@ void Island::plot_walkable_zones(App& app, bool matrix[16][16]) const
     // TODO: label outdoor grass areas as walkable.
 
     for (auto& room : rooms_) {
-        room->plot_walkable_zones(app, matrix);
+        auto props = (*room->metaclass())->properties();
+
+        if (props & RoomProperties::habitable) {
+            room->plot_walkable_zones(app, matrix);
+        }
     }
 }
 

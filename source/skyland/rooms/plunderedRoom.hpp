@@ -57,9 +57,9 @@ public:
     }
 
 
-    static RoomProperties::Value properties()
+    static u32 properties()
     {
-        return RoomProperties::not_constructible;
+        return RoomProperties::not_constructible | RoomProperties::habitable;
     }
 };
 

@@ -38,6 +38,10 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
         const auto x = position().x;
         const auto y = position().y;
 
+        if (parent()->fire_present({x, y})) {
+            // Do not grow if we're burning.
+            return;
+        }
 
         auto substrate = [&](u8 x, u8 y) {
             if (auto room = parent()->get_room({x, y})) {

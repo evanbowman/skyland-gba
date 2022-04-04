@@ -28,12 +28,6 @@ public:
     }
 
 
-    void plot_walkable_zones(App& app, bool matrix[16][16]) override
-    {
-        // one cannot walk through this tile, intentionally do nothing.
-    }
-
-
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 

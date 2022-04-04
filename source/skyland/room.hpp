@@ -101,6 +101,13 @@ struct RoomProperties
 
         // Cannot catch fire.
         fireproof = (1 << 20),
+
+        // Fire will easily spread to this block.
+        highly_flammable = (1 << 21),
+
+        // Characters may move into this room. You may still need to override
+        // plot_walkable_zones, in some cases.
+        habitable = (1 << 22),
     };
 };
 
@@ -267,6 +274,9 @@ public:
 
 
     virtual void apply_damage(Platform&, App&, Health damage);
+
+
+    virtual void burn_damage(Platform& pfrm, App& app, Health damage);
 
 
     void plunder(Platform&, App&, Health damage);

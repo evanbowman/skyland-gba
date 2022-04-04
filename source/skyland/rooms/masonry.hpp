@@ -41,8 +41,8 @@ public:
 
     static u32 properties()
     {
-        return (Decoration::properties() & ~RoomProperties::disallow_chimney)
-            | RoomProperties::fireproof;
+        return (Decoration::properties() & ~RoomProperties::disallow_chimney) |
+               RoomProperties::fireproof;
     }
 
 

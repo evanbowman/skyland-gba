@@ -90,7 +90,7 @@ public:
 
     static u32 properties()
     {
-        return RoomProperties::fireproof;
+        return RoomProperties::fireproof | RoomProperties::habitable;
     }
 
 

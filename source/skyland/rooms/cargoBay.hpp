@@ -82,6 +82,12 @@ public:
     }
 
 
+    static u32 properties()
+    {
+        return RoomProperties::habitable;
+    }
+
+
     virtual lisp::Value* serialize() override;
     virtual void deserialize(lisp::Value*) override;
 

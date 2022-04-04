@@ -34,6 +34,12 @@ public:
     }
 
 
+    static u32 properties()
+    {
+        return Decoration::properties() | RoomProperties::highly_flammable;
+    }
+
+
     static const char* name()
     {
         return "coconut-palm";

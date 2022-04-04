@@ -69,10 +69,10 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     auto kill_fire = [&](u8 x, u8 y) {
-                         if (parent()->fire_present({x, y})) {
-                             parent()->fire_extinguish(pfrm, app, {x, y});
-                         }
-                     };
+        if (parent()->fire_present({x, y})) {
+            parent()->fire_extinguish(pfrm, app, {x, y});
+        }
+    };
 
     auto x = position().x;
     auto y = position().y;

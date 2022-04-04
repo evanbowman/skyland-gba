@@ -42,6 +42,12 @@ public:
     }
 
 
+    static u32 properties()
+    {
+        return RoomProperties::habitable;
+    }
+
+
     static Float ai_base_weight()
     {
         return 800.f;
