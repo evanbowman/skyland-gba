@@ -481,6 +481,23 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"fire-new",
+     [](int argc) {
+         L_EXPECT_OP(0, integer); // y
+         L_EXPECT_OP(1, integer); // x
+         L_EXPECT_OP(2, user_data);
+
+         auto [app, pfrm] = interp_get_context();
+
+         auto island = (Island*)lisp::get_op(0)->user_data().obj_;
+
+         const u8 x = L_LOAD_INT(1);
+         const u8 y = L_LOAD_INT(0);
+
+         island->fire_create(*pfrm, *app, {x, y});
+
+         return L_NIL;
+     }},
     {"rooms",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);

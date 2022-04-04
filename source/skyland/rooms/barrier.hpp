@@ -62,7 +62,7 @@ public:
     static u32 properties()
     {
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
-               RoomProperties::sandbox_mode_only;
+               RoomProperties::sandbox_mode_only | RoomProperties::fireproof;
     }
 
 

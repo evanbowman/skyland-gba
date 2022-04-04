@@ -364,7 +364,8 @@ private:
     bool is_boarded_ = false;
     bool hidden_ = false;
 
-    struct FireState {
+    struct FireState
+    {
         Bitmatrix<16, 16> positions_;
         std::optional<Platform::DynamicTexturePtr> texture_;
         Microseconds spread_timer_ = 0;
@@ -372,15 +373,11 @@ private:
         Microseconds anim_timer_ = 0;
         u8 anim_index_ = 0;
 
-        void update(Platform& pfrm,
-                    App& app,
-                    Island& island,
-                    Microseconds delta);
+        void
+        update(Platform& pfrm, App& app, Island& island, Microseconds delta);
 
-        void rewind(Platform& pfrm,
-                    App& app,
-                    Island& island,
-                    Microseconds delta);
+        void
+        rewind(Platform& pfrm, App& app, Island& island, Microseconds delta);
 
         void display(Platform& pfrm, Island& island);
 

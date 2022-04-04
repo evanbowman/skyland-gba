@@ -325,23 +325,23 @@ void Island::FireState::update(Platform& pfrm,
 
                     if (not plotted) {
                         island.plot_walkable_zones(app, *mat);
+                        plotted = true;
                     }
 
-                    auto try_spread =
-                        [&](u8 x, u8 y) {
-                            if (not (*mat)[x][y]) {
+                    auto try_spread = [&](u8 x, u8 y) {
+                        if (not(*mat)[x][y]) {
+                            return;
+                        }
+                        if (auto room = island.get_room({x, y})) {
+                            if ((*room->metaclass())->properties() &
+                                RoomProperties::fireproof) {
                                 return;
                             }
-                            if (auto room = island.get_room({x, y})) {
-                                if ((*room->metaclass())->properties() &
-                                    RoomProperties::fireproof) {
-                                    return;
-                                }
-                            }
-                            if (not old_positions.get(x, y)) {
-                                island.fire_create(pfrm, app, {x, y});
-                            }
-                        };
+                        }
+                        if (not old_positions.get(x, y)) {
+                            island.fire_create(pfrm, app, {x, y});
+                        }
+                    };
 
                     if (x > 0) {
                         try_spread(x - 1, y);
@@ -374,7 +374,12 @@ void Island::FireState::update(Platform& pfrm,
                 if (positions_.get(x, y)) {
                     fire_present = true;
                     if (auto room = island.get_room({x, y})) {
-                        room->apply_damage(pfrm, app, 1);
+                        if ((*room->metaclass())->properties() &
+                            RoomProperties::fireproof) {
+                            island.fire_extinguish(pfrm, app, {x, y});
+                        } else {
+                            room->apply_damage(pfrm, app, 1);
+                        }
                     } else {
                         // No room here any longer, unset the fire bit.
                         positions_.set(x, y, false);
@@ -423,22 +428,19 @@ void Island::FireState::display(Platform& pfrm, Island& island)
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             if (positions_.get(x, y)) {
-                batch->push_back({o.x + x * 16,
-                                  o.y + y * 16 - 16});
+                batch->push_back({o.x + x * 16, o.y + y * 16 - 16});
             }
         }
     }
 
     if (island.interior_visible()) {
+        pfrm.screen().draw_batch(
+            (*texture_)->mapping_index() * 2, Sprite::Alpha::opaque, *batch);
+    } else {
         pfrm.screen().draw_batch((*texture_)->mapping_index() * 2,
                                  Sprite::Alpha::opaque,
                                  *batch);
-    } else {
-        pfrm.screen().draw_batch((*texture_)->mapping_index() * 2,
-                                 Sprite::Alpha::translucent,
-                                 *batch);
     }
-
 }
 
 

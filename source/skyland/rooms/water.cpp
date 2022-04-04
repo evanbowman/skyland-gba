@@ -68,6 +68,32 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
         flood_timer_ += delta;
     }
 
+    auto kill_fire = [&](u8 x, u8 y) {
+                         if (parent()->fire_present({x, y})) {
+                             parent()->fire_extinguish(pfrm, app, {x, y});
+                         }
+                     };
+
+    auto x = position().x;
+    auto y = position().y;
+
+    if (x > 0) {
+        kill_fire(x - 1, y);
+    }
+
+    if (y > 0) {
+        kill_fire(x, y - 1);
+    }
+
+    if (x < 15) {
+        kill_fire(x + 1, y);
+    }
+
+    if (y < 15) {
+        kill_fire(x, y + 1);
+    }
+
+
     if (flood_timer_ >= milliseconds(300)) {
         flood_timer_ -= milliseconds(300);
 

@@ -50,7 +50,7 @@
    (statue       1   1    0)
    (synth        1   1    0)
    (water        1   1    0)
-   (water-source 1   1    0)
+   (water-source 1 700    0)
    (lava         1   1    0)
    (lava-source  1   1    0)
    (mycelium     60  2500 5)

@@ -15,8 +15,8 @@ namespace skyland
 class SolarCell : public Room
 {
 public:
-    SolarCell(Island* parent, const Vec2<u8>& position) :
-        Room(parent, name(), position)
+    SolarCell(Island* parent, const Vec2<u8>& position)
+        : Room(parent, name(), position)
     {
     }
 
@@ -82,8 +82,7 @@ public:
     static u32 properties()
     {
         return RoomProperties::manufactory_required |
-               RoomProperties::roof_hidden |
-               RoomProperties::disallow_chimney;
+               RoomProperties::roof_hidden | RoomProperties::disallow_chimney;
     }
 };
 

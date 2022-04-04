@@ -819,5 +819,4 @@ struct OpponentFireExtinguished
 
 
 
-
 } // namespace skyland::time_stream::event

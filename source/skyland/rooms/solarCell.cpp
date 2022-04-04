@@ -50,4 +50,4 @@ void SolarCell::render_exterior(App& app, u8 buffer[16][16])
 
 
 
-}
+} // namespace skyland

@@ -53,7 +53,10 @@ public:
                RoomProperties::not_constructible | RoomProperties::roof_hidden |
                RoomProperties::fluid | RoomProperties::fragile |
                RoomProperties::multiplayer_unsupported |
-               RoomProperties::destroy_quietly;
+               RoomProperties::destroy_quietly |
+               // lol, fireproof property because the lava just looks strange if
+               // it catches on fire.
+               RoomProperties::fireproof;
     }
 
 

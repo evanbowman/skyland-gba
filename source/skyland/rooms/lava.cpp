@@ -78,7 +78,12 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
                 if (not dynamic_cast<Lava*>(room) and
                     not str_eq(room->name(), "barrier") and
                     not str_eq(room->name(), "masonry")) {
-                    room->apply_damage(pfrm, app, 10);
+
+                    if (not parent()->fire_present({x, y}) and
+                        not ((*room->metaclass())->properties() &
+                             RoomProperties::fireproof)) {
+                        parent()->fire_create(pfrm, app, {x, y});
+                    }
                 }
             }
         };
