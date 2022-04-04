@@ -98,14 +98,7 @@ static const AchievementInfo info[Achievement::count] = {
      SystemString::achievement_maestro1_description,
      "speaker",
      [](Platform&, App& app) {
-         u64 v = app.gp_.challenge_flags_.get();
-         u32 upper;
-         u32 lower;
-         memcpy(&upper, &v, sizeof upper);
-         memcpy(&lower, (u8*)&v + 4, sizeof lower);
-
-         auto bc = count_1bits(upper) + count_1bits(lower);
-         return bc > 2;
+         return count_ones(app.gp_.challenge_flags_.get()) > 2;
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[maestro_1].reward_), awarded);
@@ -115,14 +108,7 @@ static const AchievementInfo info[Achievement::count] = {
      SystemString::achievement_maestro2_description,
      "synth",
      [](Platform&, App& app) {
-         u64 v = app.gp_.challenge_flags_.get();
-         u32 upper;
-         u32 lower;
-         memcpy(&upper, &v, sizeof upper);
-         memcpy(&lower, (u8*)&v + 4, sizeof lower);
-
-         auto bc = count_1bits(upper) + count_1bits(lower);
-         return bc > 2;
+         return count_ones(app.gp_.challenge_flags_.get()) > 2;
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[maestro_2].reward_), awarded);
@@ -262,13 +248,8 @@ static const AchievementInfo info[Achievement::count] = {
      [](Platform&, App& app) {
          u64 v = app.gp_.achievement_flags_.get();
 
-         u64 c = app.gp_.challenge_flags_.get();
-         u32 upper;
-         u32 lower;
-         memcpy(&upper, &c, sizeof upper);
-         memcpy(&lower, (u8*)&c + 4, sizeof lower);
-         auto bc = count_1bits(upper) + count_1bits(lower);
-         if (bc != 5) {
+         auto bc = count_ones(app.gp_.challenge_flags_.get());
+         if (bc < 5) {
              // FIXME: use something other than hard-coding four!
              return false;
          }

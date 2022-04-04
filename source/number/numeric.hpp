@@ -13,13 +13,28 @@ template <typename T> using Atomic = std::atomic<T>;
 
 
 
-inline u32 count_1bits(u32 x)
+
+inline u8 count_ones(u8 byte)
 {
-    x = x - ((x >> 1) & 0x55555555);
-    x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
-    x = x + (x >> 8);
-    x = x + (x >> 16);
-    return x & 0x0000003F;
+    static const u8 nibble_lut[16] = {
+        0, 1, 1, 2, 1, 2, 2, 3,
+        1, 2, 2, 3, 2, 3, 3, 4
+    };
+
+    return nibble_lut[byte & 0x0F] + nibble_lut[byte >> 4];
+}
+
+
+
+inline int count_ones(u64 x)
+{
+    int sum = 0;
+
+    for (int i = 0; i < 8; ++i) {
+        sum += count_ones(((u8*)&x)[i]);
+    }
+
+    return sum;
 }
 
 
