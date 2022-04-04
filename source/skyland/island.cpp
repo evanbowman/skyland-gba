@@ -245,6 +245,204 @@ void Island::set_hidden(Platform& pfrm, App& app, bool hidden)
 
 
 
+bool Island::fire_present(const Vec2<u8>& coord) const
+{
+    return fire_.positions_.get(coord.x, coord.y);
+}
+
+
+
+void Island::fire_extinguish(Platform& pfrm, App& app, const Vec2<u8>& coord)
+{
+    if (this == &player_island(app)) {
+        time_stream::event::PlayerFireExtinguished e;
+        e.x_ = coord.x;
+        e.y_ = coord.y;
+        app.time_stream().push(app.level_timer(), e);
+    } else {
+        time_stream::event::OpponentFireExtinguished e;
+        e.x_ = coord.x;
+        e.y_ = coord.y;
+        app.time_stream().push(app.level_timer(), e);
+    }
+
+    fire_.positions_.set(coord.x, coord.y, false);
+}
+
+
+
+void Island::fire_create(Platform& pfrm, App& app, const Vec2<u8>& coord)
+{
+    if (fire_present(coord)) {
+        return;
+    }
+
+    if (this == &player_island(app)) {
+        time_stream::event::PlayerFireCreated e;
+        e.x_ = coord.x;
+        e.y_ = coord.y;
+        app.time_stream().push(app.level_timer(), e);
+    } else {
+        time_stream::event::OpponentFireCreated e;
+        e.x_ = coord.x;
+        e.y_ = coord.y;
+        app.time_stream().push(app.level_timer(), e);
+    }
+
+    fire_.positions_.set(coord.x, coord.y, true);
+
+    // Hmm... does this make sense, really? I just don't want a fire to spread
+    // right after created. Ideally, each fire would maintain an individual
+    // timer, but that'd use a lot of memory. So, globally, fire spread time is
+    // reset if a new block catches on fire, whether via natural fire spread, or
+    // by some other means.
+    fire_.spread_timer_ = 0;
+}
+
+
+
+void Island::FireState::update(Platform& pfrm,
+                               App& app,
+                               Island& island,
+                               Microseconds delta)
+{
+    damage_timer_ += delta;
+    spread_timer_ += delta;
+
+    static const auto fire_spread_time = seconds(12);
+
+    if (spread_timer_ > fire_spread_time) {
+        spread_timer_ -= fire_spread_time;
+
+        auto mat = allocate_dynamic<bool[16][16]>("fire-spread-paths");
+        bool plotted = false;
+
+        Bitmatrix<16, 16> old_positions = positions_;
+
+        for (u8 x = 0; x < 16; ++x) {
+            for (u8 y = 0; y < 16; ++y) {
+                if (old_positions.get(x, y)) {
+
+                    if (not plotted) {
+                        island.plot_walkable_zones(app, *mat);
+                    }
+
+                    auto try_spread =
+                        [&](u8 x, u8 y) {
+                            if (not (*mat)[x][y]) {
+                                return;
+                            }
+                            if (auto room = island.get_room({x, y})) {
+                                if ((*room->metaclass())->properties() &
+                                    RoomProperties::fireproof) {
+                                    return;
+                                }
+                            }
+                            if (not old_positions.get(x, y)) {
+                                island.fire_create(pfrm, app, {x, y});
+                            }
+                        };
+
+                    if (x > 0) {
+                        try_spread(x - 1, y);
+                    }
+
+                    if (x < 15) {
+                        try_spread(x + 1, y);
+                    }
+
+                    if (y > 0) {
+                        try_spread(x, y - 1);
+                    }
+
+                    if (y < 15) {
+                        try_spread(x, y + 1);
+                    }
+                }
+            }
+        }
+    }
+
+    if (damage_timer_ > seconds(2)) {
+
+        damage_timer_ -= seconds(2);
+
+        bool fire_present = false;
+
+        for (u8 x = 0; x < 16; ++x) {
+            for (u8 y = 0; y < 16; ++y) {
+                if (positions_.get(x, y)) {
+                    fire_present = true;
+                    if (auto room = island.get_room({x, y})) {
+                        room->apply_damage(pfrm, app, 1);
+                    } else {
+                        // No room here any longer, unset the fire bit.
+                        positions_.set(x, y, false);
+                    }
+                }
+            }
+        }
+
+        if (fire_present and not texture_) {
+            texture_ = pfrm.make_dynamic_texture();
+            if (texture_) {
+                (*texture_)->remap(154);
+            }
+        } else if (not fire_present) {
+            texture_.reset();
+        }
+    }
+
+    anim_timer_ += delta;
+    if (anim_timer_ > milliseconds(100)) {
+        anim_timer_ -= milliseconds(100);
+
+        ++anim_index_;
+        if (anim_index_ == 6) {
+            anim_index_ = 0;
+        }
+
+        if (texture_) {
+            (*texture_)->remap(154 + anim_index_);
+        }
+    }
+}
+
+
+
+void Island::FireState::display(Platform& pfrm, Island& island)
+{
+    if (not texture_) {
+        return;
+    }
+
+    auto o = island.visual_origin().cast<s32>();
+
+    auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("fire-spr-buffer");
+
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 16; ++y) {
+            if (positions_.get(x, y)) {
+                batch->push_back({o.x + x * 16,
+                                  o.y + y * 16 - 16});
+            }
+        }
+    }
+
+    if (island.interior_visible()) {
+        pfrm.screen().draw_batch((*texture_)->mapping_index() * 2,
+                                 Sprite::Alpha::opaque,
+                                 *batch);
+    } else {
+        pfrm.screen().draw_batch((*texture_)->mapping_index() * 2,
+                                 Sprite::Alpha::translucent,
+                                 *batch);
+    }
+
+}
+
+
+
 void Island::update(Platform& pfrm, App& app, Microseconds dt)
 {
     timer_ += dt;
@@ -589,6 +787,8 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     pfrm.set_scroll(layer(),
                     -get_position().cast<u16>().x,
                     -get_position().cast<u16>().y - ambient_offset);
+
+    fire_.update(pfrm, app, *this, dt);
 }
 
 
@@ -679,6 +879,8 @@ void Island::display(Platform& pfrm)
         room->display(pfrm.screen());
         room = room->dispatch_next();
     }
+
+    fire_.display(pfrm, *this);
 }
 
 

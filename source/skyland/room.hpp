@@ -98,6 +98,9 @@ struct RoomProperties
 
         // Unsupported in skyland forever.
         skyland_forever_unsupported = (1 << 19),
+
+        // Cannot catch fire.
+        fireproof = (1 << 20),
     };
 };
 

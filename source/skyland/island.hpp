@@ -324,6 +324,14 @@ public:
     }
 
 
+    std::optional<Platform::DynamicTexturePtr> fire_texture();
+
+
+    bool fire_present(const Vec2<u8>& coord) const;
+    void fire_extinguish(Platform& pfrm, App& app, const Vec2<u8>& coord);
+    void fire_create(Platform& pfrm, App& app, const Vec2<u8>& coord);
+
+
 private:
     void resolve_cancelled_dispatch();
 
@@ -355,6 +363,29 @@ private:
     bool has_radar_ = false;
     bool is_boarded_ = false;
     bool hidden_ = false;
+
+    struct FireState {
+        Bitmatrix<16, 16> positions_;
+        std::optional<Platform::DynamicTexturePtr> texture_;
+        Microseconds spread_timer_ = 0;
+        Microseconds damage_timer_ = 0;
+        Microseconds anim_timer_ = 0;
+        u8 anim_index_ = 0;
+
+        void update(Platform& pfrm,
+                    App& app,
+                    Island& island,
+                    Microseconds delta);
+
+        void rewind(Platform& pfrm,
+                    App& app,
+                    Island& island,
+                    Microseconds delta);
+
+        void display(Platform& pfrm, Island& island);
+
+    } fire_;
+
     u8 workshop_count_ = 0;
     u8 manufactory_count_ = 0;
     u8 core_count_ = 0;

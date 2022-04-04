@@ -88,6 +88,12 @@ public:
     }
 
 
+    static u32 properties()
+    {
+        return RoomProperties::fireproof;
+    }
+
+
 private:
     bool open_ = true;
     bool interior_visible_ = false;

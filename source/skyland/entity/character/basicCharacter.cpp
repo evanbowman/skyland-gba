@@ -136,6 +136,9 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
             if (has_opponent(room)) {
                 sprite_.set_texture_index(base_frame(this, app));
                 sprite_.set_flip({});
+            } else if (room->parent()->fire_present(grid_position())) {
+                sprite_.set_texture_index(base_frame(this, app) + 2);
+                sprite_.set_flip({});
             } else if (room->health() not_eq room->max_health()) {
                 sprite_.set_texture_index(base_frame(this, app) + 1);
                 sprite_.set_flip({});
@@ -249,6 +252,11 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                         state_ = State::plunder_room;
                         timer_ = 0;
                     } else if (&room->parent()->owner() == owner() and
+                               room->parent()->fire_present(grid_position())) {
+                        state_ = State::exstinguish_fire;
+                        timer_ = 0;
+                        anim_timer_ = 0;
+                    } else if (&room->parent()->owner() == owner() and
                                not is_plundered and
                                room->health() < room->max_health()) {
                         state_ = State::repair_room;
@@ -312,6 +320,49 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
 
+    case State::exstinguish_fire:
+        awaiting_movement_ = true;
+        can_move_ = false;
+
+        sprite_.set_flip({});
+
+        sprite_.set_position(o);
+
+        anim_timer_ += delta;
+        if (anim_timer_ > milliseconds(200)) {
+            anim_timer_ = 0;
+            auto index = sprite_.get_texture_index();
+            if (index == base_frame(this, app) + 5) {
+                index = base_frame(this, app) + 2;
+            } else {
+                index = base_frame(this, app) + 5;
+            }
+            sprite_.set_texture_index(index);
+        }
+
+        if (movement_path_) {
+            this->set_idle(app);
+            break;
+        }
+
+        timer_ += delta;
+        if (timer_ > milliseconds(3000)) {
+            timer_ = 0;
+            if (auto room = parent_->get_room(grid_position_)) {
+                room->parent()->fire_extinguish(pfrm, app, grid_position_);
+                if (has_opponent(room)) {
+                    state_ = State::fighting;
+                    timer_ = 0;
+                    anim_timer_ = 0;
+                    break;
+                } else {
+                    this->set_idle(app);
+                }
+            }
+        }
+        break;
+
+
     case State::repair_room:
         awaiting_movement_ = true;
         can_move_ = false;
@@ -348,7 +399,11 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
                     break;
                 }
 
-                if (has_opponent(room)) {
+                if (room->parent()->fire_present(grid_position_)) {
+                    state_ = State::exstinguish_fire;
+                    timer_ = 0;
+                    anim_timer_ = 0;
+                } else if (has_opponent(room)) {
                     state_ = State::fighting;
                     timer_ = 0;
                     anim_timer_ = 0;

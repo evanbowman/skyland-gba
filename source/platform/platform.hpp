@@ -404,15 +404,16 @@ public:
 
         void draw(const Sprite& spr);
 
+        // Optimized drawing routine for multiple copies of the same sprite.
+        void draw_batch(TextureIndex texture,
+                        Sprite::Alpha alpha,
+                        const Buffer<Vec2<s32>, 64>& coords);
+
         void clear();
 
         void display();
 
         Vec2<u32> size() const;
-
-        void set_contrast(Contrast contrast);
-
-        Contrast get_contrast() const;
 
         using Shader = ColorConstant (*)(int, ColorConstant, int);
 

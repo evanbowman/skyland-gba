@@ -138,6 +138,7 @@ public:
         fighting,
         plunder_room,
         repair_room,
+        exstinguish_fire,
         after_transport,
     };
 

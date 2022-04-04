@@ -1069,6 +1069,42 @@ static bool is_onscreen(const Platform::Screen& screen, const Vec2<Float>& pos)
 
 
 
+void Platform::Screen::draw_batch(TextureIndex t,
+                                  Sprite::Alpha alpha,
+                                  const Buffer<Vec2<s32>, 64>& coords)
+{
+    const auto view_center = view_.get_center().cast<s32>();
+
+    for (auto& c : coords) {
+        if (UNLIKELY(oam_write_index == oam_count)) {
+            return;
+        }
+
+        auto oa = object_attribute_back_buffer + oam_write_index;
+        if (alpha not_eq Sprite::Alpha::translucent) {
+            oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL;
+        } else {
+            oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL | ATTR0_BLEND;
+        }
+
+        oa->attribute_1 = ATTR1_SIZE_32;
+        auto abs_position = c - view_center;
+
+        oa->attribute_0 &= (0xff00 & ~((1 << 8) | (1 << 9)));
+        oa->attribute_0 |= abs_position.y & 0x00ff;
+
+        oa->attribute_1 |= abs_position.x & 0x01ff;
+
+        const auto target_index = 2 + t * 8;
+        oa->attribute_2 = target_index;
+        oa->attribute_2 |= 0; // palette bank
+        oa->attribute_2 |= ATTR2_PRIORITY(1);
+        oam_write_index += 1;
+    }
+}
+
+
+
 void Platform::Screen::draw(const Sprite& spr)
 {
     if (UNLIKELY(spr.get_alpha() == Sprite::Alpha::transparent)) {
@@ -1769,56 +1805,6 @@ Vec2<u32> Platform::Screen::size() const
 // Platform
 ////////////////////////////////////////////////////////////////////////////////
 
-
-
-// We use base_contrast as the starting point for all contrast calculations. In
-// most screen modes, the base contrast will be zero, but in some situations,
-// like when we have night mode enabled, the base contrast will be decreased,
-// and then further contrast adjustments will be calculated according to the
-// shifted base value.
-// static Contrast base_contrast = 0;
-static Contrast contrast = 0;
-
-
-Contrast Platform::Screen::get_contrast() const
-{
-    return ::contrast;
-}
-
-
-
-// void Platform::Screen::enable_night_mode(bool enabled)
-// {
-//     set_gflag(GlobalFlag::night_mode, enabled);
-
-//     if (enabled) {
-//         ::base_contrast = -10;
-//     } else {
-//         ::base_contrast = 0;
-//     }
-
-//     init_palette(current_spritesheet, sprite_palette, false);
-//     init_palette(current_tilesheet0, tilesheet_0_palette, false);
-//     init_palette(current_tilesheet1, tilesheet_1_palette, false);
-//     init_palette(current_background, background_palette, false);
-
-//     // TODO: Edit code so that we don't need a specific hack here for the
-//     // overlay palette.
-//     for (int i = 0; i < 16; ++i) {
-//         MEM_BG_PALETTE[16 + i] = overlay_palette[i];
-//     }
-// }
-
-
-void Platform::Screen::set_contrast(Contrast c)
-{
-    ::contrast = c;
-
-    init_palette(current_spritesheet, sprite_palette, 16);
-    init_palette(current_tilesheet0, tilesheet_0_palette, 0);
-    init_palette(current_tilesheet1, tilesheet_1_palette, 2);
-    init_palette(current_background, background_palette, 11);
-}
 
 
 static bool validate_tilemap_texture_size(Platform& pfrm, size_t size)

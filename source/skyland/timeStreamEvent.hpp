@@ -118,6 +118,12 @@ enum Type : u8 {
     sound_completed,
 
     bird_left_map,
+
+    player_fire_created,
+    opponent_fire_created,
+
+    player_fire_extinguished,
+    opponent_fire_extinguished,
 };
 
 
@@ -766,6 +772,51 @@ struct BirdLeftMap
 
     static constexpr const auto t = Type::bird_left_map;
 };
+
+
+
+struct PlayerFireCreated
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+
+    static constexpr const auto t = Type::player_fire_created;
+};
+
+
+
+struct OpponentFireCreated
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+
+    static constexpr const auto t = Type::opponent_fire_created;
+};
+
+
+
+struct PlayerFireExtinguished
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+
+    static constexpr const auto t = Type::player_fire_extinguished;
+};
+
+
+
+struct OpponentFireExtinguished
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+
+    static constexpr const auto t = Type::opponent_fire_extinguished;
+};
+
 
 
 

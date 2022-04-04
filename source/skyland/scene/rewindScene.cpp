@@ -316,6 +316,38 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::Type::player_fire_created: {
+            auto e = (time_stream::event::PlayerFireCreated*)end;
+            app.player_island().fire_extinguish(pfrm, app, {e->x_, e->y_});
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_fire_created: {
+            auto e = (time_stream::event::OpponentFireCreated*)end;
+            app.opponent_island()->fire_extinguish(pfrm, app, {e->x_, e->y_});
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_fire_extinguished: {
+            auto e = (time_stream::event::PlayerFireExtinguished*)end;
+            app.player_island().fire_create(pfrm, app, {e->x_, e->y_});
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_fire_extinguished: {
+            auto e = (time_stream::event::OpponentFireExtinguished*)end;
+            app.opponent_island()->fire_create(pfrm, app, {e->x_, e->y_});
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::player_room_plundered:
         case time_stream::event::Type::opponent_room_plundered: {
             auto e = (time_stream::event::RoomPlundered*)end;

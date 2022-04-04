@@ -533,6 +533,11 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 (base_weight -
                  base_weight * (Float(room->health()) / room->max_health()));
 
+            if (app.opponent_island()->fire_present(slot.coord_)) {
+                // Yeah, really important to put out any fires!
+                slot.ai_weight_ += 1500.f;
+            }
+
             if (room->health() not_eq room->max_health()) {
                 slot.ai_weight_ += 500.f;
             }
@@ -732,6 +737,12 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
         if (auto room = app.player_island().get_room(slot.coord_)) {
             slot.ai_weight_ = (*room->metaclass())->ai_base_weight();
             slot.ai_weight_ -= 3 * manhattan_length(slot.coord_, current_pos);
+
+            if (app.player_island().fire_present(slot.coord_)) {
+                // The slot is already on fire! Maybe we can do more damage
+                // elsewhere...
+                slot.ai_weight_ -= 800.f;
+            }
 
             Float player_chr_remove_weight = 0.f;
             for (auto& chr : room->characters()) {
