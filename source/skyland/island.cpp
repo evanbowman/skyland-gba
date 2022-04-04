@@ -368,10 +368,24 @@ void Island::FireState::update(Platform& pfrm,
 
                     if (y > 0) {
                         try_spread(x, y - 1);
+
+                        if (x > 0) {
+                            try_spread(x - 1, y - 1);
+                        }
+                        if (x < 15) {
+                            try_spread(x + 1, y - 1);
+                        }
                     }
 
                     if (y < 15) {
                         try_spread(x, y + 1);
+
+                        if (x > 0) {
+                            try_spread(x - 1, y + 1);
+                        }
+                        if (x < 15) {
+                            try_spread(x + 1, y + 1);
+                        }
                     }
                 }
             }
