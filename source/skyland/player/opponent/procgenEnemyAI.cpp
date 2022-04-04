@@ -162,7 +162,11 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     cleanup_unused_terrain(pfrm, app);
 
+    generate_walls_behind_weapons(pfrm, app);
+
     generate_decorations(pfrm, app);
+
+    generate_foundation(pfrm, app);
 
 
     prep_level(pfrm, app);
@@ -737,7 +741,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
         RoomMeta* sel = &mt;
 
         if (core_count_ > 2 and rng::choice<2>(rng::critical_state) and
-            power > mt2->consumes_power()) {
+            power > mt2->consumes_power() and difficulty_ > 0) {
             sel = &mt2;
         }
 
@@ -752,7 +756,8 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
             for (auto& slot : c->slots_) {
                 if (has_space(app, slot.coord_, {1, 1})) {
                     placed = true;
-                    mt->create(pfrm, app, app.opponent_island(), slot.coord_);
+                    (*sel)->create(
+                        pfrm, app, app.opponent_island(), slot.coord_);
                     break;
                 }
             }
@@ -866,6 +871,41 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
                     } else {
                         hull->create(pfrm, app, app.opponent_island(), {x, y});
                     }
+                }
+            }
+        }
+    }
+}
+
+
+
+void ProcgenEnemyAI::generate_walls_behind_weapons(Platform& pfrm, App& app)
+{
+    auto& hull = require_metaclass("masonry");
+
+    for (auto& room : app.opponent_island()->rooms()) {
+        if ((*room->metaclass())->category() == Room::Category::weapon and
+            not str_eq(room->name(), "missile-silo")) {
+
+            auto behind = room->position();
+            behind.x += (*room->metaclass())->size().x;
+
+            if (not app.opponent_island()->get_room(behind)) {
+                bool skip = false;
+                for (u8 y = behind.y; y < 15; ++y) {
+                    if (auto room =
+                            app.opponent_island()->get_room({behind.x, y})) {
+                        if (str_eq(room->name(), "missile-silo")) {
+                            // Don't generate a hull over top of a missile
+                            // silo. The enemy will just shoot itself with
+                            // missiles.
+                            skip = true;
+                        }
+                    }
+                }
+
+                if (not skip) {
+                    hull->create(pfrm, app, app.opponent_island(), behind);
                 }
             }
         }
@@ -1106,7 +1146,8 @@ void ProcgenEnemyAI::generate_decorations(Platform& pfrm, App& app)
             if (app.opponent_island()->rooms_plot().get(x, y)) {
                 if (auto room = app.opponent_island()->get_room({x, y})) {
                     if ((*room->metaclass())->category() ==
-                        Room::Category::decoration) {
+                            Room::Category::decoration or
+                        str_eq(room->name(), "drone-bay")) {
                         empty_column = false;
                         y -= 1;
                         break;
@@ -1282,7 +1323,7 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
         for (u8 y = 0; y < 15; ++y) {
             if (app.opponent_island()->rooms_plot().get(x, y)) {
                 if (auto room = app.opponent_island()->get_room({x, y})) {
-                    if (str_eq(room->name(), "forcefield")) {
+                    if (is_forcefield(room->metaclass())) {
                         // Don't put foundation blocks beneath a forcefield
                         continue;
                     }
@@ -1299,10 +1340,16 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
                                 continue;
                             }
                         }
+                        if (auto room = app.opponent_island()->get_room(
+                                {x, u8(yy + 1)})) {
+                            if (str_eq(room->name(), "drone-bay")) {
+                                continue;
+                            }
+                        }
                         if (rng::choice<18>(rng::critical_state) == 0) {
                             dynamite->create(
                                 pfrm, app, app.opponent_island(), {x, yy});
-                        } else if (rng::choice<35>(rng::critical_state) == 0) {
+                        } else if (rng::choice<40>(rng::critical_state) == 0) {
                             dynamite_ii->create(
                                 pfrm, app, app.opponent_island(), {x, yy});
                         } else {

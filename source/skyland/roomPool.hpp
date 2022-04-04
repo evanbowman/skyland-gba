@@ -22,7 +22,7 @@ static constexpr const int max_room_size = 64;
 #else
 static constexpr const int max_room_size = 128;
 #endif
-static constexpr const int pool_capacity = 155;
+static constexpr const int pool_capacity = 181;
 static constexpr const int alignment = 8;
 
 
@@ -36,7 +36,7 @@ public:
     static const auto rooms_per_pool = 26;
     static const auto pool_count = pool_capacity / rooms_per_pool;
 
-    static_assert(pool_count < 6,
+    static_assert(pool_count < 7,
                   "Just a sanity check. We want to understand memory usage "
                   "in the room pool.");
 

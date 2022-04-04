@@ -37,6 +37,7 @@ private:
     void generate_characters(Platform& pfrm, App& app);
     void generate_decorations(Platform& pfrm, App& app);
     void generate_radiators(Platform& pfrm, App& app);
+    void generate_walls_behind_weapons(Platform& pfrm, App& app);
 
     void cleanup_unused_terrain(Platform& pfrm, App& app);
 
