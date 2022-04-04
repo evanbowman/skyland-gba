@@ -268,6 +268,8 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (auto drone = app.opponent_island()->get_drone(cursor_loc)) {
             if ((*drone)->parent() == &app.player_island()) {
                 return (*drone)->select(pfrm, app);
+            } else {
+                pfrm.speaker().play_sound("beep_error", 2);
             }
         }
     }
