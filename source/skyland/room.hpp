@@ -171,7 +171,7 @@ public:
 
     Vec2<u8> size() const
     {
-        return {size_x_, size_y_};
+        return {u8(__packed_size_x_ + 1), u8(__packed_size_y_ + 1)};
     }
 
 
@@ -443,23 +443,20 @@ private:
 
     // NOTE: we're a little tight on memory on some consoles, especially when
     // players create a lot of rooms. Given the game's mechanics, there's
-    // practically no reason to support rooms larger than 7x7. No room structure
-    // in the game even comes close to this size.
-    u8 size_x_ : 3;
-    u8 size_y_ : 3;
+    // practically no reason to support rooms larger than 4x4. No room structure
+    // in the game exceeds four tiles in either direction. NOTE: as zero-sized
+    // rooms don't make sense, we interpret the size fields as off-by-one,
+    // giving us a range of values from one to four.
+    u8 __packed_size_x_ : 2;
+    u8 __packed_size_y_ : 2;
 
     u8 finalized_ : 1;
     u8 dispatch_queued_ : 1;
 
     u8 group_ : 2;
 
-    // NOTE: These flags are reserved for stuff unique to a specific instance of
-    // a room. If you want to set properties for an entire class of rooms, use
-    // RoomProperties, and retrieve the field from the metaclass.
-    u8 reserved_flags0_ : 6;
-
     // Bytes freed up by various space optimization techniques.
-    u8 reserved_[5];
+    u8 reserved_[6];
 };
 
 

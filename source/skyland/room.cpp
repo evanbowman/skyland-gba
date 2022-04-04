@@ -39,11 +39,16 @@ Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
             metaclass_index_ = i;
 
             auto mt_size = current->size();
-            if (mt_size.x > 7 or mt_size.y > 7) {
+            if (mt_size.x > 4 or mt_size.y > 4) {
                 Platform::fatal("Room size too large!");
             }
-            size_x_ = mt_size.x;
-            size_y_ = mt_size.y;
+            if (mt_size.x == 0 or mt_size.y == 0) {
+                Platform::fatal("Zero-sized room unsupported!");
+            }
+
+            // See comment along with definition of size_x_ and size_y_ fields.
+            __packed_size_x_ = mt_size.x - 1;
+            __packed_size_y_ = mt_size.y - 1;
             health_ = current->full_health();
 
             ready();
@@ -309,8 +314,8 @@ Vec2<Float> Room::origin() const
 Vec2<Float> Room::center() const
 {
     auto o = origin();
-    o.x += (size_x_ * 0.5f) * 16;
-    o.y += (size_y_ * 0.5f) * 16;
+    o.x += (size().x * 0.5f) * 16;
+    o.y += (size().y * 0.5f) * 16;
 
     return o;
 }
@@ -416,8 +421,8 @@ void Room::plot_walkable_zones(App& app, bool matrix[16][16])
     // By default, treat every cell in the lowest row of a room as walkable for
     // NPCs. A few rooms, like staircases, cannons, walls, etc. will need to
     // provide different implementations.
-    for (int x = 0; x < size_x_; ++x) {
-        matrix[x_position_ + x][y_position_ + size_y_ - 1] = true;
+    for (int x = 0; x < size().x; ++x) {
+        matrix[x_position_ + x][y_position_ + size().y - 1] = true;
     }
 }
 
@@ -545,14 +550,14 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
             return;
         }
 
-        for (int x = 0; x < size_x_; x += (*plunder_metac)->size().x) {
+        for (int x = 0; x < size().x; x += (*plunder_metac)->size().x) {
             int y = 0;
-            if (size_y_ % 2 not_eq 0) {
+            if (size().y % 2 not_eq 0) {
                 // NOTE: plundered-room occupies two tiles vertically. For an
                 // odd-sized room height, start at 1.
                 y = 1;
             }
-            for (; y < size_y_; y += (*plunder_metac)->size().y) {
+            for (; y < size().y; y += (*plunder_metac)->size().y) {
                 const Vec2<u8> pos = {
                     u8(((u8)x_position_) + x),
                     u8(((u8)y_position_) + y),
