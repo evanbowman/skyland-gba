@@ -285,6 +285,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (not(props & RoomProperties::salvage_disallowed)) {
                     return scene_pool::alloc<SalvageRoomScene>(false);
                 } else {
+                    pfrm.speaker().play_sound("beep_error", 2);
                     auto msg = SYSTR(salvage_error_disallowed);
                     auto s = scene_pool::make_deferred_scene<InspectP2Scene>();
                     return scene_pool::alloc<NotificationScene>(msg->c_str(),
