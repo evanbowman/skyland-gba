@@ -351,7 +351,7 @@ void EnemyAI::resolve_insufficient_power(Platform& pfrm, App& app)
             // supply.
             continue;
         }
-        auto pwr = (*room->metaclass())->consumes_power();
+        auto pwr = room->power_usage();
         if (pwr > 0) {
             auto w = (*room->metaclass())->ai_base_weight();
             if (w < lowest_weight) {

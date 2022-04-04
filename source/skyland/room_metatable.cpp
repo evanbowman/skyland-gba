@@ -39,6 +39,7 @@
 #include "skyland/rooms/reactor.hpp"
 #include "skyland/rooms/replicator.hpp"
 #include "skyland/rooms/shrubbery.hpp"
+#include "skyland/rooms/solarCell.hpp"
 #include "skyland/rooms/speaker.hpp"
 #include "skyland/rooms/stackedHull.hpp"
 #include "skyland/rooms/stairwell.hpp"
@@ -252,6 +253,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         // power generation
                                         Core,
                                         Reactor,
+                                        SolarCell,
                                         // misc
                                         Stairwell,
                                         Bulkhead,

@@ -177,6 +177,7 @@ struct Tile
         piston_opened_d_1,
         piston_opened_d_2,
         forcefield2,
+        solar_cell,
     };
 };
 
@@ -355,6 +356,7 @@ struct InteriorTile
         piston_opened_d_1,
         piston_opened_d_2,
         forcefield2,
+        solar_cell,
     };
 };
 

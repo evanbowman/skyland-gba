@@ -58,6 +58,7 @@ enum class SystemString {
     block_reactor,
     block_replicator,
     block_shrubbery,
+    block_solar_cell,
     block_speaker,
     block_stairwell,
     block_statue,
@@ -120,6 +121,7 @@ enum class SystemString {
     intro_credits_cpy,
 
     description_power_core,
+    description_solar_cell,
     description_missile_silo,
     description_water,
     description_water_source,

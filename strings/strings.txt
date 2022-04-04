@@ -40,6 +40,7 @@ radiator
 reactor
 replicator
 shrubbery
+solar-cell
 speaker
 stairwell
 statue
@@ -90,6 +91,7 @@ decor
 Evan Bowman presents
 Copyright ©2022
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
+Energy from the sun! Power output reduced by 1/4 for each block directly above the solar-cell.
 A weapon for targeting the roof of an enemy fortress. Deals % damage every %.% seconds.
 Water! No strategic properties, really, just fun to play with.
 Water source block.

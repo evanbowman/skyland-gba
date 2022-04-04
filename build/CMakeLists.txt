@@ -216,6 +216,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/cargoBay.cpp
   ${SOURCE_DIR}/skyland/rooms/infirmary.cpp
   ${SOURCE_DIR}/skyland/rooms/decimator.cpp
+  ${SOURCE_DIR}/skyland/rooms/solarCell.cpp
   ${SOURCE_DIR}/skyland/rooms/stairwell.cpp
   ${SOURCE_DIR}/skyland/rooms/ionCannon.cpp
   ${SOURCE_DIR}/skyland/rooms/ionFizzler.cpp

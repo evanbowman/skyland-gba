@@ -124,6 +124,11 @@ MetaclassIndex Room::metaclass_index() const
 }
 
 
+Power Room::power_usage() const
+{
+    return (*metaclass())->consumes_power();
+}
+
 
 void Room::display(Platform::Screen& screen)
 {

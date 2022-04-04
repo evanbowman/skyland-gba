@@ -549,7 +549,7 @@ void describe_room(Platform& pfrm,
                     room_description->append("/");
                     room_description->append(room->max_health());
                     room_description->append(" ");
-                    room_description->append((*metac)->consumes_power());
+                    room_description->append(room->power_usage());
                     room_description->append("`");
                 }
 

@@ -28,6 +28,7 @@
    (infirmary    60  1000 10)
    (power-core   60  3000 -150)
    (reactor      140 4200 -400)
+   (solar-cell   60  1000  -80)
    (manufactory  80  2500 30)
    (radar        30  300  80)
    (transporter  100 999  40)

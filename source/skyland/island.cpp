@@ -855,8 +855,7 @@ void Island::recalculate_power_usage()
     power_drain_ = 0;
 
     for (auto& room : rooms_) {
-        auto metac = room->metaclass();
-        auto power = (*metac)->consumes_power();
+        auto power = room->power_usage();
 
         if (power < 0) {
             power_supply_ += -power;

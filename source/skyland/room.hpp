@@ -302,6 +302,9 @@ public:
     }
 
 
+    virtual Power power_usage() const;
+
+
     static Power consumes_power()
     {
         return 10;
