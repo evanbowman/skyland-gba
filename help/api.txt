@@ -506,14 +506,6 @@ o----------------------------o
 
 o----------------------------o
 
- (sel)
-
- Returns the coordinates of
- the cursor as (island x y)
-
-
-o----------------------------o
-
  (sel-move island x y)
 
  Move the cursor to island:

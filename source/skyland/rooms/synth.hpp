@@ -70,6 +70,12 @@ public:
     void render_exterior(App& app, u8 buffer[16][16]) override;
 
 
+    bool non_owner_selectable() const override
+    {
+        return true;
+    }
+
+
     ScenePtr<Scene>
     select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
 

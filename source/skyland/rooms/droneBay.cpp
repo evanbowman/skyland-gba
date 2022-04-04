@@ -156,6 +156,7 @@ DroneBay::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
             auto future_scene = []() {
                 return scene_pool::alloc<ReadyScene>();
             };
+            pfrm.speaker().play_sound("beep_error", 2);
             return scene_pool::alloc<NotificationScene>("drone-bay covered!",
                                                         future_scene);
         }

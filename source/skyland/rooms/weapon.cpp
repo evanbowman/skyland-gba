@@ -209,6 +209,7 @@ ScenePtr<Scene> Weapon::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 
     if (parent()->power_supply() < parent()->power_drain()) {
         auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
+        pfrm.speaker().play_sound("beep_error", 2);
         return scene_pool::alloc<NotificationScene>("power outage!",
                                                     future_scene);
     }

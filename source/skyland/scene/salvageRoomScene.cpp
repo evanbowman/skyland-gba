@@ -145,6 +145,7 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (length(room->characters()) > 0) {
             auto future_scene = [exit_scene]() { return exit_scene(); };
             auto msg = SYSTR(salvage_error_populated);
+            pfrm.speaker().play_sound("beep_error", 2);
             return scene_pool::alloc<NotificationScene>(msg->c_str(),
                                                         future_scene);
         }

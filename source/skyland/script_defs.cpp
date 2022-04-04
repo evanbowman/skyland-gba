@@ -807,30 +807,24 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
-    {"sel",
+    {"click",
      [](int argc) {
+         L_EXPECT_ARGC(argc, 3);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(2, user_data);
+
+         Vec2<u8> coord;
+         coord.x = lisp::get_op(1)->integer().value_;
+         coord.y = lisp::get_op(0)->integer().value_;
+
          if (auto app = interp_get_app()) {
-
-             Island* island = &app->player_island();
-             Vec2<u8> sel =
-                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
-
-             if (auto ws = dynamic_cast<WorldScene*>(&app->scene())) {
-                 if (ws->is_far_camera()) {
-                     sel =
-                         std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
-                     if (app->opponent_island()) {
-                         island = app->opponent_island();
-                     }
-                 }
+             if (auto room = ((Island*)lisp::get_op(2)->user_data().obj_)
+                                 ->get_room(coord)) {
+                 room->select(*lisp::interp_get_pfrm(), *app, coord);
              }
-
-             lisp::ListBuilder lb;
-             lb.push_back(lisp::make_userdata(island));
-             lb.push_back(lisp::make_integer(sel.x));
-             lb.push_back(lisp::make_integer(sel.y));
-             return lb.result();
          }
+
          return L_NIL;
      }},
     {"sel-move",

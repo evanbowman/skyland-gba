@@ -61,6 +61,12 @@ public:
     }
 
 
+    bool non_owner_selectable() const override
+    {
+        return true;
+    }
+
+
     ScenePtr<Scene>
     select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
 

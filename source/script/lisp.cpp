@@ -2961,32 +2961,6 @@ static const Binding builtins[] = {
 
          return result;
      }},
-    {"select",
-     [](int argc) {
-         L_EXPECT_ARGC(argc, 2);
-         L_EXPECT_OP(0, cons);
-         L_EXPECT_OP(1, cons);
-
-         const auto len = length(get_op0());
-         if (not len or len not_eq length(get_op1())) {
-             return get_nil();
-         }
-
-         auto input_list = get_op1();
-         auto selection_list = get_op0();
-
-         auto result = get_nil();
-         for (int i = len - 1; i > -1; --i) {
-             if (is_boolean_true(get_list(selection_list, i))) {
-                 push_op(result);
-                 auto next = make_cons(get_list(input_list, i), result);
-                 result = next;
-                 pop_op(); // result
-             }
-         }
-
-         return result;
-     }},
     {"gc", [](int argc) { return make_integer(run_gc()); }},
     {"get",
      [](int argc) {

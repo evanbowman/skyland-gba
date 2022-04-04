@@ -342,6 +342,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/sound_gravel.s
     ${DATA_DIR}/sound_dropitem.s
     ${DATA_DIR}/sound_scroll.s
+    ${DATA_DIR}/sound_beep_error.s
     ${DATA_DIR}/sound_drone_beep.s
     ${DATA_DIR}/sound_laser1.s
     ${DATA_DIR}/sound_select.s

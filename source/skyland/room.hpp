@@ -194,6 +194,13 @@ public:
     virtual ScenePtr<Scene> setup(Platform& pfrm, App&);
 
 
+    // Block may be selected and activated even by the other player.
+    virtual bool non_owner_selectable() const
+    {
+        return false;
+    }
+
+
     virtual ScenePtr<Scene>
     select(Platform& pfrm, App& app, const Vec2<u8>& cursor);
 
