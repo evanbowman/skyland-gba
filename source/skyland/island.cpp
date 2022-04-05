@@ -245,6 +245,13 @@ void Island::set_hidden(Platform& pfrm, App& app, bool hidden)
 
 
 
+std::optional<Platform::DynamicTexturePtr> Island::fire_texture()
+{
+    return fire_.texture_;
+}
+
+
+
 bool Island::fire_present(const Vec2<u8>& coord) const
 {
     return fire_.positions_.get(coord.x, coord.y);
@@ -457,7 +464,19 @@ void Island::FireState::update(Platform& pfrm,
         }
 
         if (fire_present and not texture_) {
-            texture_ = pfrm.make_dynamic_texture();
+            // Check to see if the other island already has a texture allocated
+            // for the fire effect. If so, share the texture.
+            if (&island == &app.player_island() and
+                app.opponent_island()) {
+                texture_ = app.opponent_island()->fire_texture();
+            } else if (&island == app.opponent_island()) {
+                texture_ = app.player_island().fire_texture();
+            }
+
+            if (not texture_) {
+                texture_ = pfrm.make_dynamic_texture();
+            }
+
             if (texture_) {
                 (*texture_)->remap(154);
             }
@@ -475,7 +494,11 @@ void Island::FireState::update(Platform& pfrm,
             anim_index_ = 0;
         }
 
-        if (texture_) {
+        if (texture_ and
+            // We only want to maintain a single reference to the fire texture,
+            // to save vram. Both islands share a texture for the fire effect,
+            // and only one island updates the tile glyph.
+            (texture_->strong_count() == 1 or &island == &app.player_island())) {
             (*texture_)->remap(154 + anim_index_);
         }
     }
