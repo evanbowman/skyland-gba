@@ -24,13 +24,7 @@ extern Sound cannon_sound;
 
 void FireCharge::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    // auto secs = cannon_reload_ms / 1000;
-
-    // make_format(buffer,
-    //             SYSTR(description_cannon)->c_str(),
-    //             cannonball_damage,
-    //             secs,
-    //             (cannon_reload_ms / 100 - secs * 10));
+    buffer += SYSTR(description_fire_charge)->c_str();
 }
 
 

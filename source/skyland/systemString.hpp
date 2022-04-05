@@ -123,6 +123,7 @@ enum class SystemString {
 
     description_power_core,
     description_solar_cell,
+    description_fire_charge,
     description_missile_silo,
     description_water,
     description_water_source,
