@@ -50,6 +50,9 @@ enum Type : u8 {
     player_arcbolt_destroyed,
     opponent_arcbolt_destroyed,
 
+    player_firebolt_destroyed,
+    opponent_firebolt_destroyed,
+
     player_flak_destroyed,
     opponent_flak_destroyed,
 
@@ -295,6 +298,20 @@ struct PlayerArcboltDestroyed : BasicProjectileDestroyed
 struct OpponentArcboltDestroyed : BasicProjectileDestroyed
 {
     static constexpr const auto t = Type::player_arcbolt_destroyed;
+};
+
+
+
+struct PlayerFireboltDestroyed : BasicProjectileDestroyed
+{
+    static constexpr const auto t = Type::player_firebolt_destroyed;
+};
+
+
+
+struct OpponentFireboltDestroyed : BasicProjectileDestroyed
+{
+    static constexpr const auto t = Type::player_firebolt_destroyed;
 };
 
 

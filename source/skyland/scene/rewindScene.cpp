@@ -7,6 +7,7 @@
 #include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
 #include "skyland/entity/projectile/decimatorBurst.hpp"
+#include "skyland/entity/projectile/fireBolt.hpp"
 #include "skyland/entity/projectile/flak.hpp"
 #include "skyland/entity/projectile/ionBurst.hpp"
 #include "skyland/entity/projectile/missile.hpp"
@@ -498,6 +499,26 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::opponent_arcbolt_destroyed: {
             auto e = (time_stream::event::OpponentArcboltDestroyed*)end;
             respawn_basic_projectile<ArcBolt>(
+                pfrm, app, app.opponent_island(), *e, medium_explosion_inv);
+            app.time_stream().pop(sizeof *e);
+            app.camera()->shake(8);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_firebolt_destroyed: {
+            auto e = (time_stream::event::PlayerFireboltDestroyed*)end;
+            respawn_basic_projectile<FireBolt>(
+                pfrm, app, &app.player_island(), *e, medium_explosion_inv);
+            app.time_stream().pop(sizeof *e);
+            app.camera()->shake(8);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_firebolt_destroyed: {
+            auto e = (time_stream::event::OpponentFireboltDestroyed*)end;
+            respawn_basic_projectile<FireBolt>(
                 pfrm, app, app.opponent_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera()->shake(8);

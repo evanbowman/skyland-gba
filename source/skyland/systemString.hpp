@@ -33,6 +33,7 @@ enum class SystemString {
     block_drone_bay,
     block_escape_beacon,
     block_flak_gun,
+    block_fire_charge,
     block_forcefield,
     block_forcefield2,
     block_fountain,

@@ -290,13 +290,6 @@ void Island::fire_create(Platform& pfrm, App& app, const Vec2<u8>& coord)
     }
 
     fire_.positions_.set(coord.x, coord.y, true);
-
-    // Hmm... does this make sense, really? I just don't want a fire to spread
-    // right after created. Ideally, each fire would maintain an individual
-    // timer, but that'd use a lot of memory. So, globally, fire spread time is
-    // reset if a new block catches on fire, whether via natural fire spread, or
-    // by some other means.
-    fire_.spread_timer_ = 0;
 }
 
 
@@ -415,6 +408,10 @@ void Island::FireState::update(Platform& pfrm,
                     }
                 }
             }
+        }
+
+        if (not fire_present) {
+            spread_timer_ = 0;
         }
 
         if (fire_present and not texture_) {

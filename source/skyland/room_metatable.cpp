@@ -14,6 +14,7 @@
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/escapeBeacon.hpp"
 #include "skyland/rooms/flakGun.hpp"
+#include "skyland/rooms/fireCharge.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/fountain.hpp"
 #include "skyland/rooms/hull.hpp"
@@ -244,6 +245,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         FlakGun,
                                         ArcGun,
                                         Nemesis,
+                                        FireCharge,
                                         Decimator,
                                         // Pummeler,
                                         MissileSilo,

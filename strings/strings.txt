@@ -15,6 +15,7 @@ decimator
 drone-bay
 escape-beacon
 flak-gun
+fire-charge
 forcefield
 forcefield*
 fountain
