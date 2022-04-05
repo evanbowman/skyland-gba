@@ -93,7 +93,7 @@ public:
     {
         return RoomProperties::workshop_required |
                RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::accepts_ion_damage;
+               RoomProperties::accepts_ion_damage | RoomProperties::fireproof;
     }
 };
 

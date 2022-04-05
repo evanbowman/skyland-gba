@@ -391,6 +391,8 @@ void Island::FireState::update(Platform& pfrm,
 
         bool fire_present = false;
 
+        Buffer<Vec2<u8>, 32> spread_queue;
+
         for (u8 x = 0; x < 16; ++x) {
             for (u8 y = 0; y < 16; ++y) {
                 if (positions_.get(x, y)) {
@@ -401,6 +403,42 @@ void Island::FireState::update(Platform& pfrm,
                             island.fire_extinguish(pfrm, app, {x, y});
                         } else {
                             room->burn_damage(pfrm, app, 2);
+
+                            auto try_spread = [&](u8 x, u8 y) {
+                                if (island.fire_present({x, y})) {
+                                    return;
+                                }
+                                auto room = island.get_room({x, y});
+                                if (room) {
+                                    auto props =
+                                        (*room->metaclass())->properties();
+                                    if (props &
+                                        RoomProperties::highly_flammable) {
+                                        spread_queue.push_back({x, y});
+                                    }
+                                }
+                            };
+
+                            // If fire just destroyed a room, and there are
+                            // un-lit highly-flammable rooms nearby, try to
+                            // spread.
+                            if (room->health() == 0) {
+                                if (x > 0) {
+                                    try_spread(x - 1, y);
+                                }
+
+                                if (x < 15) {
+                                    try_spread(x + 1, y);
+                                }
+
+                                if (y > 0) {
+                                    try_spread(x, y - 1);
+                                }
+
+                                if (y < 15) {
+                                    try_spread(x, y + 1);
+                                }
+                            }
                         }
                     } else {
                         // No room here any longer, unset the fire bit.
@@ -408,6 +446,10 @@ void Island::FireState::update(Platform& pfrm,
                     }
                 }
             }
+        }
+
+        for (auto& c : spread_queue) {
+            island.fire_create(pfrm, app, c);
         }
 
         if (not fire_present) {
