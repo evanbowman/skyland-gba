@@ -56,11 +56,12 @@ public:
     void on_collision(Platform& pfrm, App& app, Entity& entity) override;
 
 
+protected:
+    virtual void destroy(Platform& pfrm, App& app);
+
 private:
     Microseconds timer_ = 0;
     Float target_x_;
-
-    void destroy(Platform& pfrm, App& app);
 
     Island* source_;
     u8 source_x_;
@@ -72,6 +73,33 @@ private:
 
 
 extern SharedVariable missile_damage;
+
+
+
+class RocketBomb : public Missile
+{
+public:
+
+    RocketBomb(const Vec2<Float>& position,
+               const Vec2<Float>& target,
+               u8 source_x,
+               u8 source_y,
+               Island* source) :
+        Missile(position, target, source_x, source_y, source)
+    {
+        sprite_.set_texture_index(88);
+    }
+
+
+
+    void on_collision(Platform& pfrm, App& app, Room&) override;
+
+
+protected:
+
+    void destroy(Platform& pfrm, App& app) override;
+
+};
 
 
 

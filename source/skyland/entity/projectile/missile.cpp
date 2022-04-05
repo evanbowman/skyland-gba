@@ -251,4 +251,18 @@ void Missile::on_collision(Platform& pfrm, App& app, Entity& entity)
 
 
 
+void RocketBomb::on_collision(Platform& pfrm, App& app, Room& room)
+{
+    // ...
+}
+
+
+
+void RocketBomb::destroy(Platform& pfrm, App& app)
+{
+    // ...
+}
+
+
+
 } // namespace skyland
