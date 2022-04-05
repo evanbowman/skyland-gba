@@ -395,6 +395,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             app.player_island().drones().clear();
             app.opponent_island()->drones().clear();
+
+            for (u8 x = 0; x < 16; ++x) {
+                for (u8 y = 0; y < 16; ++y) {
+                    app.player_island().fire_extinguish(pfrm, app, {x, y});
+                    app.opponent_island()->fire_extinguish(pfrm, app, {x, y});
+                }
+            }
         }
         break;
 

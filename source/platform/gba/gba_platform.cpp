@@ -1075,9 +1075,18 @@ void Platform::Screen::draw_batch(TextureIndex t,
 {
     const auto view_center = view_.get_center().cast<s32>();
 
+    const auto view_half_extent = size().cast<s32>() / s32(2);
+    Vec2<s32> view_br = {view_center.x + view_half_extent.x * 2,
+                         view_center.y + view_half_extent.y * 2};
+
     for (auto& c : coords) {
         if (UNLIKELY(oam_write_index == oam_count)) {
             return;
+        }
+
+        if (not (c.x > view_center.x - 32 and c.x < view_br.x + 32)) {
+            // Offscreen in x direction.
+            continue;
         }
 
         auto oa = object_attribute_back_buffer + oam_write_index;

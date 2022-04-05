@@ -302,7 +302,7 @@ void Island::FireState::update(Platform& pfrm,
     damage_timer_ += delta;
     spread_timer_ += delta;
 
-    static const auto fire_spread_time = seconds(12);
+    static const auto fire_spread_time = seconds(9);
 
     if (spread_timer_ > fire_spread_time) {
         spread_timer_ -= fire_spread_time;
@@ -400,7 +400,7 @@ void Island::FireState::update(Platform& pfrm,
                             RoomProperties::fireproof) {
                             island.fire_extinguish(pfrm, app, {x, y});
                         } else {
-                            room->burn_damage(pfrm, app, 1);
+                            room->burn_damage(pfrm, app, 2);
                         }
                     } else {
                         // No room here any longer, unset the fire bit.
