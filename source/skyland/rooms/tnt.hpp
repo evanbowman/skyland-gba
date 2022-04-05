@@ -105,7 +105,11 @@ public:
     void apply_damage(Platform& pfrm, App& app, Health damage) override;
 
 
-    void ignite(Platform& pfrm, App& app, int range, Health damage);
+    void ignite(Platform& pfrm,
+                App& app,
+                int range,
+                Health damage,
+                bool spread_fire);
 
 
 protected:
@@ -133,7 +137,7 @@ public:
         if (not ignition_) {
             return;
         } else {
-            ignite(pfrm, app, 2, 200);
+            ignite(pfrm, app, 2, 200, true);
         }
     }
 

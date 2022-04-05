@@ -71,7 +71,8 @@ void GenericBird::roost(Platform& pfrm, Island* island, Microseconds delta)
     auto below = pfrm.get_tile(layer, position_.x, position_.y + 1);
 
     if ((below == Tile::null or below == Tile::grass or
-         below == Tile::liberty_1) and
+         below == Tile::liberty_1 or below == Tile::lava_top or
+         below == Tile::lava_left or below == Tile::lava_right) and
         delta > 0) {
         alerted_ = true;
     } else if (below == Tile::null or below == Tile::grass) {

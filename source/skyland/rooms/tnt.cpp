@@ -89,7 +89,11 @@ void Explosive::apply_damage(Platform& pfrm, App& app, Health damage)
 
 
 
-void Explosive::ignite(Platform& pfrm, App& app, int range, Health damage)
+void Explosive::ignite(Platform& pfrm,
+                       App& app,
+                       int range,
+                       Health damage,
+                       bool spread_fire)
 {
     auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Float>& pos) {
         auto e = app.alloc_entity<SmokePuff>(
@@ -141,6 +145,14 @@ void Explosive::ignite(Platform& pfrm, App& app, int range, Health damage)
     for (auto& room : *targets) {
         room->apply_damage(pfrm, app, damage);
 
+        if (spread_fire and not((*room->metaclass())->properties() &
+                                RoomProperties::fireproof)) {
+            if (room->health() > 0) {
+                room->parent()->fire_create(pfrm, app, room->position());
+            }
+        }
+
+
         if (app.game_mode() == App::GameMode::adventure or
             app.game_mode() == App::GameMode::skyland_forever) {
 
@@ -169,7 +181,7 @@ void Explosive::finalize(Platform& pfrm, App& app)
     if (not ignition_) {
         return;
     } else {
-        ignite(pfrm, app, tnt_range, tnt_damage);
+        ignite(pfrm, app, tnt_range, tnt_damage, false);
     }
 }
 

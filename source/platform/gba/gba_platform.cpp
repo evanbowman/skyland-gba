@@ -1084,7 +1084,7 @@ void Platform::Screen::draw_batch(TextureIndex t,
             return;
         }
 
-        if (not (c.x > view_center.x - 32 and c.x < view_br.x + 32)) {
+        if (not(c.x > view_center.x - 32 and c.x < view_br.x + 32)) {
             // Offscreen in x direction.
             continue;
         }
