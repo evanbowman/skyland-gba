@@ -61,9 +61,9 @@ void FireCharge::fire(Platform& pfrm, App& app)
     // run into the player's own buildings, especially around
     // corners.
     if (island == &app.player_island()) {
-        start.x -= 32;
+        start.x -= 23;
     } else {
-        start.x += 32;
+        start.x += 23;
     }
 
     if (not pfrm.network_peer().is_connected() and
@@ -93,7 +93,6 @@ void FireCharge::render_interior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::fire_charge_1;
     buffer[position().x + 1][position().y] = InteriorTile::fire_charge_2;
-    buffer[position().x + 2][position().y] = InteriorTile::fire_charge_3;
 }
 
 
@@ -102,7 +101,6 @@ void FireCharge::render_exterior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::fire_charge_1;
     buffer[position().x + 1][position().y] = Tile::fire_charge_2;
-    buffer[position().x + 2][position().y] = Tile::fire_charge_3;
 }
 
 
