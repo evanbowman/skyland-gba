@@ -33,11 +33,11 @@ Player& player(App& app)
 
 
 App::App(Platform& pfrm)
-    : islands_(allocate_dynamic<Islands>("islands-buffer",
-                                         pfrm,
-                                         Layer::map_0_ext,
-                                         5,
-                                         player())),
+    : environment_(allocate_dynamic<Environment>("env-buffer",
+                                                 pfrm,
+                                                 Layer::map_0_ext,
+                                                 5,
+                                                 player())),
       current_scene_(null_scene()), next_scene_(null_scene()), level_timer_(0),
       stat_timer_(0),
       backup_(allocate_dynamic<save::EmergencyBackup>("emergency-backup"))
@@ -568,6 +568,13 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
         err += "' missing";
         pfrm.fatal(err.c_str());
     }
+}
+
+
+
+WeatherSystem& App::weather()
+{
+    return *environment_->weather_system_;
 }
 
 

@@ -23,6 +23,7 @@
 #include "stateBit.hpp"
 #include "timeStream.hpp"
 #include "timeTracker.hpp"
+#include "weather/weatherSystem.hpp"
 
 
 
@@ -42,7 +43,7 @@ public:
 
     Island& player_island()
     {
-        return islands_->player_;
+        return environment_->player_;
     }
 
 
@@ -86,27 +87,30 @@ public:
 
     Island* opponent_island()
     {
-        if (islands_->opponent_) {
-            return &*islands_->opponent_;
+        if (environment_->opponent_) {
+            return &*environment_->opponent_;
         }
         return nullptr;
     }
+
+
+
 
 
     void create_opponent_island(Platform& pfrm, int terrain_size)
     {
         reset_opponent_island(pfrm);
 
-        islands_->opponent_.emplace(
+        environment_->opponent_.emplace(
             pfrm, Layer::map_1_ext, terrain_size, opponent());
     }
 
 
     void reset_opponent_island(Platform& pfrm)
     {
-        if (islands_->opponent_) {
-            islands_->opponent_->clear_rooms(pfrm, *this);
-            islands_->opponent_.reset();
+        if (environment_->opponent_) {
+            environment_->opponent_->clear_rooms(pfrm, *this);
+            environment_->opponent_.reset();
         }
     }
 
@@ -167,6 +171,9 @@ public:
         }
         return true;
     }
+
+
+    WeatherSystem& weather();
 
 
     Player& player()
@@ -385,22 +392,23 @@ public:
 private:
     // NOTE: As islands take a lot of memory, and App is created on the stack, I
     // ended up moving them into a scratch buffer.
-    struct Islands
+    struct Environment
     {
         template <typename... Args>
-        Islands(Args&&... args) : player_(std::forward<Args>(args)...)
+        Environment(Args&&... args) : player_(std::forward<Args>(args)...)
         {
         }
 
         Island player_;
         std::optional<Island> opponent_;
+        Boxed<WeatherSystem, ClearWeatherSystem, 32> weather_system_;
     };
 
     void on_remote_console_text(Platform& pfrm,
                                 const Platform::RemoteConsole::Line& str);
 
     PersistentData persistent_data_;
-    DynamicMemory<Islands> islands_;
+    DynamicMemory<Environment> environment_;
     Float cloud_scroll_1_;
     Float cloud_scroll_2_;
     Float float_delta_ = 1.f;
