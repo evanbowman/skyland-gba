@@ -268,10 +268,10 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 
     pfrm.system_call("v-parallax", (void*)true);
 
-    pfrm.load_tile0_texture(app.weather().player_island_texture());
-    pfrm.load_tile1_texture(app.weather().opponent_island_texture());
-    pfrm.load_sprite_texture(app.weather().sprite_texture());
-    pfrm.load_background_texture(app.weather().background_texture());
+    pfrm.load_tile0_texture(app.environment().player_island_texture());
+    pfrm.load_tile1_texture(app.environment().opponent_island_texture());
+    pfrm.load_sprite_texture(app.environment().sprite_texture());
+    pfrm.load_background_texture(app.environment().background_texture());
 
     write_custom_graphics(pfrm, app);
     app.custom_sprite_mapper().publish_as_sprites(pfrm);

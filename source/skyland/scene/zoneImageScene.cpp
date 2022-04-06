@@ -74,9 +74,10 @@ void ZoneImageScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.fill_overlay(0);
 
     if (app.player_island().interior_visible()) {
-        pfrm.load_tile0_texture(app.weather().player_island_interior_texture());
+        auto t = app.environment().player_island_interior_texture();
+        pfrm.load_tile0_texture(t);
     } else {
-        pfrm.load_tile0_texture(app.weather().player_island_texture());
+        pfrm.load_tile0_texture(app.environment().player_island_texture());
     }
 
     show_island_exterior(pfrm, app, app.opponent_island());

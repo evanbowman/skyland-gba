@@ -1674,10 +1674,11 @@ u8 Island::character_count() const
 void show_island_interior(Platform& pfrm, App& app, Island* island)
 {
     if (island == &app.player_island()) {
-        pfrm.load_tile0_texture(app.weather().player_island_interior_texture());
+        auto t = app.environment().player_island_interior_texture();
+        pfrm.load_tile0_texture(t);
 
     } else {
-        auto t = app.weather().opponent_island_interior_texture();
+        auto t = app.environment().opponent_island_interior_texture();
         pfrm.load_tile1_texture(t);
     }
 
@@ -1694,9 +1695,9 @@ void show_island_interior(Platform& pfrm, App& app, Island* island)
 void show_island_exterior(Platform& pfrm, App& app, Island* island)
 {
     if (island == &app.player_island()) {
-        pfrm.load_tile0_texture(app.weather().player_island_texture());
+        pfrm.load_tile0_texture(app.environment().player_island_texture());
     } else {
-        pfrm.load_tile1_texture(app.weather().opponent_island_texture());
+        pfrm.load_tile1_texture(app.environment().opponent_island_texture());
     }
 
     if (island) {

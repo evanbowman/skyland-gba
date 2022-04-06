@@ -23,7 +23,7 @@
 #include "stateBit.hpp"
 #include "timeStream.hpp"
 #include "timeTracker.hpp"
-#include "weather/weatherSystem.hpp"
+#include "weather/environment.hpp"
 
 
 
@@ -43,7 +43,7 @@ public:
 
     Island& player_island()
     {
-        return environment_->player_;
+        return world_state_->player_;
     }
 
 
@@ -87,8 +87,8 @@ public:
 
     Island* opponent_island()
     {
-        if (environment_->opponent_) {
-            return &*environment_->opponent_;
+        if (world_state_->opponent_) {
+            return &*world_state_->opponent_;
         }
         return nullptr;
     }
@@ -101,16 +101,16 @@ public:
     {
         reset_opponent_island(pfrm);
 
-        environment_->opponent_.emplace(
+        world_state_->opponent_.emplace(
             pfrm, Layer::map_1_ext, terrain_size, opponent());
     }
 
 
     void reset_opponent_island(Platform& pfrm)
     {
-        if (environment_->opponent_) {
-            environment_->opponent_->clear_rooms(pfrm, *this);
-            environment_->opponent_.reset();
+        if (world_state_->opponent_) {
+            world_state_->opponent_->clear_rooms(pfrm, *this);
+            world_state_->opponent_.reset();
         }
     }
 
@@ -173,7 +173,7 @@ public:
     }
 
 
-    WeatherSystem& weather();
+    Environment& environment();
 
 
     Player& player()
@@ -392,23 +392,23 @@ public:
 private:
     // NOTE: As islands take a lot of memory, and App is created on the stack, I
     // ended up moving them into a scratch buffer.
-    struct Environment
+    struct WorldState
     {
         template <typename... Args>
-        Environment(Args&&... args) : player_(std::forward<Args>(args)...)
+        WorldState(Args&&... args) : player_(std::forward<Args>(args)...)
         {
         }
 
         Island player_;
         std::optional<Island> opponent_;
-        Boxed<WeatherSystem, ClearWeatherSystem, 32> weather_system_;
+        Boxed<Environment, ClearEnvironment, 32> environment_;
     };
 
     void on_remote_console_text(Platform& pfrm,
                                 const Platform::RemoteConsole::Line& str);
 
     PersistentData persistent_data_;
-    DynamicMemory<Environment> environment_;
+    DynamicMemory<WorldState> world_state_;
     Float cloud_scroll_1_;
     Float cloud_scroll_2_;
     Float float_delta_ = 1.f;

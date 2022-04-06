@@ -33,11 +33,11 @@ Player& player(App& app)
 
 
 App::App(Platform& pfrm)
-    : environment_(allocate_dynamic<Environment>("env-buffer",
-                                                 pfrm,
-                                                 Layer::map_0_ext,
-                                                 5,
-                                                 player())),
+    : world_state_(allocate_dynamic<WorldState>("env-buffer",
+                                                pfrm,
+                                                Layer::map_0_ext,
+                                                5,
+                                                player())),
       current_scene_(null_scene()), next_scene_(null_scene()), level_timer_(0),
       stat_timer_(0),
       backup_(allocate_dynamic<save::EmergencyBackup>("emergency-backup"))
@@ -572,9 +572,9 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
 
 
 
-WeatherSystem& App::weather()
+Environment& App::environment()
 {
-    return *environment_->weather_system_;
+    return *world_state_->environment_;
 }
 
 

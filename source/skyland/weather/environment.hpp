@@ -17,12 +17,12 @@ class App;
 
 
 
-class WeatherSystem
+class Environment
 {
 public:
 
 
-    virtual ~WeatherSystem()
+    virtual ~Environment()
     {
     }
 
@@ -42,7 +42,7 @@ public:
 
 
 
-class ClearWeatherSystem : public WeatherSystem
+class ClearEnvironment : public Environment
 {
 public:
 
