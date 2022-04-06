@@ -40,6 +40,15 @@ template <typename T> class Vector;
 ////////////////////////////////////////////////////////////////////////////////
 
 
+enum class ShaderPalette {
+    tile0 = 0,
+    overlay = 1,
+    tile1 = 2,
+    background = 11,
+    spritesheet = 16,
+};
+
+
 class Platform
 {
 public:
@@ -415,7 +424,10 @@ public:
 
         Vec2<u32> size() const;
 
-        using Shader = ColorConstant (*)(int, ColorConstant, int);
+        using Shader = ColorConstant (*)(ShaderPalette,
+                                         ColorConstant,
+                                         int,
+                                         int);
 
         void set_shader(Shader shader);
 
@@ -887,9 +899,14 @@ private:
 // example: one of the build targets, the Gameboy Advance, uses five-bit bgr,
 // and there's no need to convert to a 32-bit color constant (eight bits per
 // color) and back to five bit color again.
-ColorConstant passthrough_shader(int palette, ColorConstant k, int arg);
-ColorConstant grayscale_shader(int palette, ColorConstant k, int arg);
-ColorConstant contrast_shader(int palette, ColorConstant k, int arg);
+ColorConstant
+passthrough_shader(ShaderPalette palette, ColorConstant k, int arg, int index);
+
+ColorConstant
+grayscale_shader(ShaderPalette palette, ColorConstant k, int arg, int index);
+
+ColorConstant
+contrast_shader(ShaderPalette palette, ColorConstant k, int arg, int index);
 
 
 

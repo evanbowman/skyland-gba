@@ -1,6 +1,8 @@
 #pragma once
 
 #include "number/numeric.hpp"
+#include "graphics/color.hpp"
+#include "platform/platform.hpp"
 
 
 
@@ -38,11 +40,47 @@ public:
 
     virtual const char* sprite_texture() const = 0;
     virtual const char* background_texture() const = 0;
+
+
+    virtual ColorConstant* player_island_palette_override() const
+    {
+        return nullptr;
+    }
+
+    virtual ColorConstant* player_island_interior_palette_override() const
+    {
+        return nullptr;
+    }
+
+    virtual ColorConstant* opponent_island_palette_override() const
+    {
+        return nullptr;
+    }
+
+    virtual ColorConstant* opponent_island_interior_palette_override() const
+    {
+        return nullptr;
+    }
+
+    virtual ColorConstant* sprite_palette_override() const
+    {
+        return nullptr;
+    }
+
+    virtual ColorConstant* background_palette_override() const
+    {
+        return nullptr;
+    }
+
+    virtual Platform::Screen::Shader shader() const
+    {
+        return passthrough_shader;
+    }
 };
 
 
 
-class ClearEnvironment : public Environment
+class CleanEnvironment : public Environment
 {
 public:
 
@@ -88,6 +126,16 @@ public:
         return "background";
     }
 
+
+};
+
+
+
+class ClearEnvironment : public CleanEnvironment
+{
+public:
+
+    // ...
 
 };
 

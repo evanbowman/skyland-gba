@@ -95,8 +95,6 @@ public:
 
 
 
-
-
     void create_opponent_island(Platform& pfrm, int terrain_size)
     {
         reset_opponent_island(pfrm);

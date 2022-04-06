@@ -845,7 +845,8 @@ Color adjust_warmth(const Color& c, int amount)
 
 
 
-ColorConstant grayscale_shader(int palette, ColorConstant k, int arg)
+ColorConstant
+grayscale_shader(ShaderPalette palette, ColorConstant k, int arg, int index)
 {
     return Color::from_bgr_hex_555(
                blend(Color(k), Color(k).grayscale(), (u8)arg))
@@ -854,7 +855,8 @@ ColorConstant grayscale_shader(int palette, ColorConstant k, int arg)
 
 
 
-ColorConstant contrast_shader(int palette, ColorConstant k, int arg)
+ColorConstant
+contrast_shader(ShaderPalette palette, ColorConstant k, int arg, int index)
 {
     const Float f = (259.f * ((s8)arg + 255)) / (255 * (259 - (s8)arg));
 
@@ -871,7 +873,8 @@ ColorConstant contrast_shader(int palette, ColorConstant k, int arg)
 
 
 
-ColorConstant passthrough_shader(int palette, ColorConstant k, int arg)
+ColorConstant
+passthrough_shader(ShaderPalette palette, ColorConstant k, int arg, int index)
 {
     return k;
 }
@@ -891,9 +894,9 @@ void Platform::Screen::set_shader(Shader shader)
 
 
 
-static Color invoke_shader(const Color& c, int palette)
+static Color invoke_shader(const Color& c, ShaderPalette palette, int index)
 {
-    return shader(palette, c.hex(), shader_argument);
+    return shader(palette, c.hex(), shader_argument, index);
 }
 
 
@@ -906,12 +909,11 @@ EWRAM_DATA u16 background_palette[16];
 
 
 
-static void init_palette(const TextureData* td, u16* palette, int palette_id)
+static void init_palette(const TextureData* td, u16* palette, ShaderPalette p)
 {
     for (int i = 0; i < 16; ++i) {
         palette[i] =
-            invoke_shader(Color::from_bgr_hex_555(td->palette_data_[i]),
-                          palette_id)
+            invoke_shader(Color::from_bgr_hex_555(td->palette_data_[i]), p, i)
                 .bgr_hex_555();
     }
 }
@@ -922,10 +924,15 @@ void Platform::Screen::set_shader_argument(int arg)
 {
     shader_argument = arg;
 
-    init_palette(current_spritesheet, sprite_palette, 16);
-    init_palette(current_tilesheet0, tilesheet_0_palette, 0);
-    init_palette(current_tilesheet1, tilesheet_1_palette, 2);
-    init_palette(current_background, background_palette, 11);
+    init_palette(
+        current_spritesheet, sprite_palette, ShaderPalette::spritesheet);
+
+    init_palette(current_tilesheet0, tilesheet_0_palette, ShaderPalette::tile0);
+
+    init_palette(current_tilesheet1, tilesheet_1_palette, ShaderPalette::tile1);
+
+    init_palette(
+        current_background, background_palette, ShaderPalette::background);
 }
 
 
@@ -1003,7 +1010,7 @@ static PaletteBank color_mix(ColorConstant k, u8 amount)
         }
     }
 
-    const auto c = invoke_shader(real_color(k), 0);
+    const auto c = invoke_shader(real_color(k), ShaderPalette::tile0, 0);
 
     if (amount not_eq 255) {
         for (int i = 0; i < 16; ++i) {
@@ -2293,7 +2300,7 @@ void Platform::Screen::fade(float amount,
     last_color = k;
     last_fade_include_sprites = include_sprites;
 
-    const auto c = invoke_shader(real_color(k), 0);
+    const auto c = invoke_shader(real_color(k), ShaderPalette::tile0, 0);
 
     if (not base) {
         // Sprite palette
@@ -2332,7 +2339,8 @@ void Platform::Screen::fade(float amount,
         }
         overlay_was_faded = include_overlay;
     } else {
-        const auto bc = invoke_shader(real_color(*base), 0);
+        const auto bc =
+            invoke_shader(real_color(*base), ShaderPalette::tile0, 0);
         for (int i = 0; i < 16; ++i) {
             MEM_PALETTE[i] = blend(bc, c, include_sprites ? amt : 0);
             MEM_BG_PALETTE[i] = blend(bc, c, amt);
@@ -2368,7 +2376,7 @@ void Platform::Screen::schedule_fade(Float amount,
     last_color = k;
     last_fade_include_sprites = include_sprites;
 
-    const auto c = invoke_shader(real_color(k), 0);
+    const auto c = invoke_shader(real_color(k), ShaderPalette::tile0, 0);
 
 
     set_gflag(GlobalFlag::palette_sync, true);
@@ -2493,7 +2501,9 @@ void Platform::load_sprite_texture(const char* name)
 
             current_spritesheet = &info;
 
-            init_palette(current_spritesheet, sprite_palette, 16);
+            init_palette(current_spritesheet,
+                         sprite_palette,
+                         ShaderPalette::spritesheet);
 
 
             // NOTE: There are four tile blocks, so index four points to the
@@ -2504,7 +2514,8 @@ void Platform::load_sprite_texture(const char* name)
 
             // We need to do this, otherwise whatever screen fade is currently
             // active will be overwritten by the copy.
-            const auto c = invoke_shader(real_color(last_color), 16);
+            const auto c = invoke_shader(
+                real_color(last_color), ShaderPalette::spritesheet, 0);
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(sprite_palette[i]);
                 MEM_PALETTE[i] = blend(from, c, last_fade_amt);
@@ -2526,7 +2537,8 @@ void Platform::load_tile0_texture(const char* name)
 
             current_tilesheet0 = &info;
 
-            init_palette(current_tilesheet0, tilesheet_0_palette, 0);
+            init_palette(
+                current_tilesheet0, tilesheet_0_palette, ShaderPalette::tile0);
 
 
             // We don't want to load the whole palette into memory, we might
@@ -2534,12 +2546,13 @@ void Platform::load_tile0_texture(const char* name)
             //
             // Also, like the sprite texture, we need to apply the currently
             // active screen fade while modifying the color palette.
-            const auto c = invoke_shader(real_color(last_color), 0);
+            const auto c =
+                invoke_shader(real_color(last_color), ShaderPalette::tile0, 0);
+
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
                 MEM_BG_PALETTE[i] = blend(from, c, last_fade_amt);
             }
-
 
             memcpy16((void*)&MEM_SCREENBLOCKS[sbb_t0_texture][0],
                      info.tile_data_,
@@ -2563,7 +2576,8 @@ void Platform::load_tile1_texture(const char* name)
 
             current_tilesheet1 = &info;
 
-            init_palette(current_tilesheet1, tilesheet_1_palette, 2);
+            init_palette(
+                current_tilesheet1, tilesheet_1_palette, ShaderPalette::tile1);
 
 
             // We don't want to load the whole palette into memory, we might
@@ -2571,7 +2585,8 @@ void Platform::load_tile1_texture(const char* name)
             //
             // Also, like the sprite texture, we need to apply the currently
             // active screen fade while modifying the color palette.
-            const auto c = invoke_shader(real_color(last_color), 2);
+            const auto c =
+                invoke_shader(real_color(last_color), ShaderPalette::tile1, 0);
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
                 MEM_BG_PALETTE[32 + i] = blend(from, c, last_fade_amt);
@@ -2598,9 +2613,12 @@ void Platform::load_background_texture(const char* name)
 
             current_background = &info;
 
-            init_palette(current_background, background_palette, 11);
+            init_palette(current_background,
+                         background_palette,
+                         ShaderPalette::background);
 
-            const auto c = invoke_shader(real_color(last_color), 11);
+            const auto c = invoke_shader(
+                real_color(last_color), ShaderPalette::background, 0);
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(background_palette[i]);
                 MEM_BG_PALETTE[16 * 11 + i] = blend(from, c, last_fade_amt);
@@ -4515,14 +4533,17 @@ bool Platform::load_overlay_texture(const char* name)
 
             current_overlay_texture = &info;
 
-            init_palette(current_overlay_texture, overlay_palette, 1);
+            init_palette(current_overlay_texture,
+                         overlay_palette,
+                         ShaderPalette::overlay);
 
             for (int i = 0; i < 16; ++i) {
                 auto from = Color::from_bgr_hex_555(overlay_palette[i]);
                 if (not overlay_was_faded) {
                     MEM_BG_PALETTE[16 + i] = from.bgr_hex_555();
                 } else {
-                    const auto c = invoke_shader(real_color(last_color), 1);
+                    const auto c = invoke_shader(
+                        real_color(last_color), ShaderPalette::overlay, i);
                     MEM_BG_PALETTE[16 + i] = blend(from, c, last_fade_amt);
                 }
             }
@@ -4823,10 +4844,12 @@ void Platform::set_tile(u16 x, u16 y, TileDesc glyph, const FontColors& colors)
     const auto default_colors = font_color_indices();
 
     const auto fg_color_hash =
-        invoke_shader(real_color(colors.foreground_), 1).bgr_hex_555();
+        invoke_shader(real_color(colors.foreground_), ShaderPalette::overlay, 0)
+            .bgr_hex_555();
 
     const auto bg_color_hash =
-        invoke_shader(real_color(colors.background_), 1).bgr_hex_555();
+        invoke_shader(real_color(colors.background_), ShaderPalette::overlay, 0)
+            .bgr_hex_555();
 
     auto existing_mapping = [&]() -> std::optional<PaletteBank> {
         for (auto i = custom_text_palette_begin; i < custom_text_palette_end;

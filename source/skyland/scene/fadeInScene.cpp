@@ -12,6 +12,13 @@ namespace skyland
 
 
 
+void FadeInScene::enter(Platform& pfrm, App& app, Scene& prev)
+{
+    pfrm.screen().set_shader(app.environment().shader());
+}
+
+
+
 ScenePtr<Scene>
 FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
 {

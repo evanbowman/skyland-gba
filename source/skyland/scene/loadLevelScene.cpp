@@ -191,15 +191,16 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
                              storm_king = node.type_ ==
                                           WorldGraph::Node::Type::corrupted] {
             if (storm_king) {
-                pfrm.screen().set_shader([](int p, ColorConstant k, int) {
-                    if (p == 1) {
-                        return grayscale_shader(p, k, 76);
-                    } else {
-                        auto k1 = contrast_shader(p, k, -10);
-                        auto k2 = grayscale_shader(p, k1, 128);
-                        return k2;
-                    }
-                });
+                pfrm.screen().set_shader(
+                    [](ShaderPalette palette, ColorConstant k, int, int index) {
+                        if (palette == ShaderPalette::overlay) {
+                            return grayscale_shader(palette, k, 76, 0);
+                        } else {
+                            auto k1 = contrast_shader(palette, k, -10, 0);
+                            auto k2 = grayscale_shader(palette, k1, 128, 0);
+                            return k2;
+                        }
+                    });
             }
 
             return scene_pool::alloc<FadeInScene>();

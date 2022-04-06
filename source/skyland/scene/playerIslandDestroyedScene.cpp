@@ -199,14 +199,15 @@ void update_confetti(Platform& pfrm,
 
 
 
-ColorConstant redden_shader(int p, ColorConstant k, int var)
+ColorConstant
+redden_shader(ShaderPalette p, ColorConstant k, int var, int index)
 {
-    if (p == 1) {
+    if (p == ShaderPalette::overlay) {
         // Do not apply the redden effect to the overlay.
         return k;
     }
 
-    auto k1 = contrast_shader(p, k, std::max(-(var / 2), -64));
+    auto k1 = contrast_shader(p, k, std::max(-(var / 2), -64), index);
 
     static const Color ao(ColorConstant::aerospace_orange);
     const Color input(k1);

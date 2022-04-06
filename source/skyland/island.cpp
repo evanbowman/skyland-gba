@@ -466,8 +466,7 @@ void Island::FireState::update(Platform& pfrm,
         if (fire_present and not texture_) {
             // Check to see if the other island already has a texture allocated
             // for the fire effect. If so, share the texture.
-            if (&island == &app.player_island() and
-                app.opponent_island()) {
+            if (&island == &app.player_island() and app.opponent_island()) {
                 texture_ = app.opponent_island()->fire_texture();
             } else if (&island == app.opponent_island()) {
                 texture_ = app.player_island().fire_texture();
@@ -498,7 +497,8 @@ void Island::FireState::update(Platform& pfrm,
             // We only want to maintain a single reference to the fire texture,
             // to save vram. Both islands share a texture for the fire effect,
             // and only one island updates the tile glyph.
-            (texture_->strong_count() == 1 or &island == &app.player_island())) {
+            (texture_->strong_count() == 1 or
+             &island == &app.player_island())) {
             (*texture_)->remap(154 + anim_index_);
         }
     }

@@ -79,13 +79,12 @@ extern SharedVariable missile_damage;
 class RocketBomb : public Missile
 {
 public:
-
     RocketBomb(const Vec2<Float>& position,
                const Vec2<Float>& target,
                u8 source_x,
                u8 source_y,
-               Island* source) :
-        Missile(position, target, source_x, source_y, source)
+               Island* source)
+        : Missile(position, target, source_x, source_y, source)
     {
         sprite_.set_texture_index(88);
     }
@@ -96,9 +95,7 @@ public:
 
 
 protected:
-
     void destroy(Platform& pfrm, App& app) override;
-
 };
 
 

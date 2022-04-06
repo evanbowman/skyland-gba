@@ -56,7 +56,7 @@ static inline void skyland_main_loop(Platform& pf)
 
     pf.enable_glyph_mode(true);
     pf.load_overlay_texture("overlay");
-    pf.load_background_texture("background");
+    pf.load_background_texture(app.environment().background_texture());
 
     while (pf.is_running()) {
         pf.keyboard().poll();
