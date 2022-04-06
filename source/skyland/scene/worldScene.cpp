@@ -109,7 +109,7 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.opponent().update(pfrm, app, delta);
 
 
-    app.weather().update(pfrm, app, delta);
+    app.environment().update(pfrm, app, delta);
 
 
     if (auto new_scene = WorldScene::update(pfrm, app, delta)) {
