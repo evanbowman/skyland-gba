@@ -1,3 +1,25 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (C) 2022  Evan Bowman
+//
+// This program is free software; you can redistribute it and/or modify it under
+// the terms of version 2 of the GNU General Public License as published by the
+// Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program; if not, write to the Free Software Foundation, Inc., 51
+// Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// GPL2 ONLY. No later versions permitted.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
 extern const unsigned char file_spanish[] = {
     0x0a, 0x0a, 0x70, 0x72, 0x65, 0x73, 0x65, 0x6e, 0x74, 0x61, 0x0a, 0x0a,
     0x42, 0x4c, 0x49, 0x4e, 0x44, 0x20, 0x4a, 0x55, 0x4d, 0x50, 0x0a, 0x74,

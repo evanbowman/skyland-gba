@@ -1,3 +1,25 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (C) 2022  Evan Bowman
+//
+// This program is free software; you can redistribute it and/or modify it under
+// the terms of version 2 of the GNU General Public License as published by the
+// Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program; if not, write to the Free Software Foundation, Inc., 51
+// Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// GPL2 ONLY. No later versions permitted.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
 extern const unsigned char file_hostile_0_13[] = {
     0x3b, 0x3b, 0x3b, 0x0a, 0x3b, 0x3b, 0x3b, 0x20, 0x68, 0x6f, 0x73, 0x74,
     0x69, 0x6c, 0x65, 0x5f, 0x30, 0x5f, 0x31, 0x33, 0x2e, 0x6c, 0x69, 0x73,
