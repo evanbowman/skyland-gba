@@ -393,7 +393,7 @@ private:
         Microseconds spread_timer_ = 0;
         Microseconds damage_timer_ = 0;
         Microseconds anim_timer_ = 0;
-        u8 anim_index_ = 0;
+        s8 anim_index_ = 0;
 
         void
         update(Platform& pfrm, App& app, Island& island, Microseconds delta);

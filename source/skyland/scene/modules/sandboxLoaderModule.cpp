@@ -26,6 +26,7 @@
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/weather/storm.hpp"
+#include "skyland/weather/typhoon.hpp"
 
 
 
@@ -58,6 +59,25 @@ int SandboxLoaderModule::get_setting(u8 slot)
         return 0;
     }
     return parameters_[slot];
+}
+
+
+
+static void environment_init(App& app, int type)
+{
+    switch (type) {
+    case 1:
+        app.swap_environment<weather::ClearSkies>();
+        break;
+
+    case 2:
+        app.swap_environment<weather::Storm>();
+        break;
+
+    case 3:
+        app.swap_environment<weather::Typhoon>();
+        break;
+    }
 }
 
 
@@ -144,14 +164,7 @@ void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
         parameters_[3] = 0;
         parameters_[4] = 1;
     } else {
-        switch (parameters_[4]) {
-        case 1:
-            app.swap_environment<weather::ClearSkies>();
-            break;
-        case 2:
-            app.swap_environment<weather::Storm>();
-            break;
-        }
+        environment_init(app, parameters_[4]);
         pfrm.screen().set_shader(app.environment().shader(app));
     }
 
@@ -175,14 +188,7 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
     app.set_coins(pfrm, parameters_[0]);
     app.player_island().init_terrain(pfrm, parameters_[1]);
 
-    switch (parameters_[4]) {
-    case 1:
-        app.swap_environment<weather::ClearSkies>();
-        break;
-    case 2:
-        app.swap_environment<weather::Storm>();
-        break;
-    }
+    environment_init(app, parameters_[4]);
 
     if (parameters_[2]) {
         pfrm.speaker().play_music(app.environment().music(), 0);
@@ -256,14 +262,7 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto update_env =
         [&] {
-            switch (parameters_[4]) {
-            case 1:
-                app.swap_environment<weather::ClearSkies>();
-                break;
-            case 2:
-                app.swap_environment<weather::Storm>();
-                break;
-            }
+            environment_init(app, parameters_[4]);
 
             pfrm.screen().set_shader(app.environment().shader(app));
             pfrm.screen().set_shader_argument(0);

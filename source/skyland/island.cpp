@@ -140,6 +140,95 @@ std::pair<BasicCharacter*, Room*> Island::find_character_by_id(CharacterId id)
 
 
 
+static auto fire_alloc_texture(Platform& pfrm,
+                               App& app,
+                               Island& island)
+{
+    std::optional<Platform::DynamicTexturePtr> result;
+
+    // Check to see if the other island already has a texture allocated
+    // for the fire effect. If so, share the texture.
+    if (&island == &app.player_island() and app.opponent_island()) {
+        result = app.opponent_island()->fire_texture();
+    } else if (&island == app.opponent_island()) {
+        result = app.player_island().fire_texture();
+    }
+
+    if (not result) {
+        result = pfrm.make_dynamic_texture();
+    }
+
+    if (result) {
+        (*result)->remap(154);
+    }
+
+    return result;
+}
+
+
+
+
+static const auto fire_spread_time = seconds(9);
+
+
+
+void Island::FireState::rewind(Platform& pfrm,
+                               App& app,
+                               Island& island,
+                               Microseconds delta)
+{
+    if (spread_timer_ > 0) {
+        spread_timer_ -= delta;
+    } else {
+        spread_timer_ += fire_spread_time - delta;
+    }
+
+    if (damage_timer_ > 0) {
+        damage_timer_ -= delta;
+    } else {
+
+        bool present = false;
+        for (u8 x = 0; x < 16; ++x) {
+            for (u8 y = 0; y < 16; ++y) {
+                if (island.fire_present({x, y})) {
+                    present = true;
+                }
+            }
+        }
+
+        if (present and not texture_) {
+
+            texture_ = fire_alloc_texture(pfrm, app, island);
+
+        } else if (not present) {
+            texture_.reset();
+        }
+
+        damage_timer_ += seconds(2) - delta;
+    }
+
+    anim_timer_ -= delta;
+    if (anim_timer_ < 0) {
+        anim_timer_ += milliseconds(100);
+
+        --anim_index_;
+        if (anim_index_ == -1) {
+            anim_index_ = 5;
+        }
+
+        if (texture_ and
+            // We only want to maintain a single reference to the fire texture,
+            // to save vram. Both islands share a texture for the fire effect,
+            // and only one island updates the tile glyph.
+            (texture_->strong_count() == 1 or
+             &island == &app.player_island())) {
+            (*texture_)->remap(154 + anim_index_);
+        }
+    }
+}
+
+
+
 void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     timer_ -= delta;
@@ -227,6 +316,8 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
     pfrm.set_scroll(layer(),
                     -get_position().cast<u16>().x,
                     -get_position().cast<u16>().y - ambient_offset);
+
+    fire_.rewind(pfrm, app, *this, delta);
 }
 
 
@@ -334,8 +425,6 @@ void Island::FireState::update(Platform& pfrm,
 {
     damage_timer_ += delta;
     spread_timer_ += delta;
-
-    static const auto fire_spread_time = seconds(9);
 
     if (spread_timer_ > fire_spread_time) {
         spread_timer_ -= fire_spread_time;
@@ -490,21 +579,9 @@ void Island::FireState::update(Platform& pfrm,
         }
 
         if (fire_present and not texture_) {
-            // Check to see if the other island already has a texture allocated
-            // for the fire effect. If so, share the texture.
-            if (&island == &app.player_island() and app.opponent_island()) {
-                texture_ = app.opponent_island()->fire_texture();
-            } else if (&island == app.opponent_island()) {
-                texture_ = app.player_island().fire_texture();
-            }
 
-            if (not texture_) {
-                texture_ = pfrm.make_dynamic_texture();
-            }
+            texture_ = fire_alloc_texture(pfrm, app, island);
 
-            if (texture_) {
-                (*texture_)->remap(154);
-            }
         } else if (not fire_present) {
             texture_.reset();
         }
