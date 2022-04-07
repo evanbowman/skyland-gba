@@ -171,7 +171,14 @@ public:
     }
 
 
-    Environment& environment();
+    weather::Environment& environment();
+
+
+    template <typename T, typename... Args>
+    void swap_environment(Args&&... args)
+    {
+        world_state_->environment_.emplace<T>(std::forward<Args>(args)...);
+    }
 
 
     Player& player()
@@ -399,7 +406,7 @@ private:
 
         Island player_;
         std::optional<Island> opponent_;
-        Boxed<Environment, ClearEnvironment, 32> environment_;
+        Boxed<weather::Environment, weather::ClearSkies, 32> environment_;
     };
 
     void on_remote_console_text(Platform& pfrm,

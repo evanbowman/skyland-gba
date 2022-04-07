@@ -424,10 +424,8 @@ public:
 
         Vec2<u32> size() const;
 
-        using Shader = ColorConstant (*)(ShaderPalette,
-                                         ColorConstant,
-                                         int,
-                                         int);
+        using Shader =
+            Function<16, ColorConstant(ShaderPalette, ColorConstant, int, int)>;
 
         void set_shader(Shader shader);
 

@@ -12,10 +12,13 @@ class Platform;
 
 namespace skyland
 {
+    class App;
+}
 
 
 
-class App;
+namespace skyland::weather
+{
 
 
 
@@ -42,37 +45,7 @@ public:
     virtual const char* background_texture() const = 0;
 
 
-    virtual ColorConstant* player_island_palette_override() const
-    {
-        return nullptr;
-    }
-
-    virtual ColorConstant* player_island_interior_palette_override() const
-    {
-        return nullptr;
-    }
-
-    virtual ColorConstant* opponent_island_palette_override() const
-    {
-        return nullptr;
-    }
-
-    virtual ColorConstant* opponent_island_interior_palette_override() const
-    {
-        return nullptr;
-    }
-
-    virtual ColorConstant* sprite_palette_override() const
-    {
-        return nullptr;
-    }
-
-    virtual ColorConstant* background_palette_override() const
-    {
-        return nullptr;
-    }
-
-    virtual Platform::Screen::Shader shader() const
+    virtual Platform::Screen::Shader shader(App& app) const
     {
         return passthrough_shader;
     }
@@ -131,13 +104,14 @@ public:
 
 
 
-class ClearEnvironment : public CleanEnvironment
+class ClearSkies : public CleanEnvironment
 {
 public:
 
     // ...
 
 };
+
 
 
 

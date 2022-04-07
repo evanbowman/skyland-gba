@@ -57,6 +57,25 @@ public:
     }
 
 
+    Function& operator=(const Function& rhs)
+    {
+        if (destroy_policy_) {
+            destroy_policy_(data());
+        }
+
+        invoke_policy_ = rhs.invoke_policy_;
+        construct_policy_ = rhs.construct_policy_;
+        move_policy_ = rhs.move_policy_;
+        destroy_policy_ = rhs.destroy_policy_;
+
+        if (invoke_policy_) {
+            construct_policy_(data(), rhs.data());
+        }
+
+        return *this;
+    }
+
+
     Function(Function&& rhs)
         : invoke_policy_(rhs.invoke_policy_),
           construct_policy_(rhs.construct_policy_),

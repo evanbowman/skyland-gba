@@ -896,7 +896,11 @@ void Platform::Screen::set_shader(Shader shader)
 
 static Color invoke_shader(const Color& c, ShaderPalette palette, int index)
 {
-    return shader(palette, c.hex(), shader_argument, index);
+    return shader(// FIXME!!!
+                  std::move(palette),
+                  c.hex(),
+                  std::move(shader_argument),
+                  std::move(index));
 }
 
 

@@ -14,7 +14,9 @@ namespace skyland
 
 void FadeInScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    pfrm.screen().set_shader(app.environment().shader());
+    WorldScene::enter(pfrm, app, prev);
+
+    pfrm.screen().set_shader(app.environment().shader(app));
 }
 
 

@@ -135,6 +135,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 SYSTR(start_menu_quit)->c_str(),
                 [&pfrm]() -> ScenePtr<Scene> {
                     pfrm.fill_overlay(0);
+                    pfrm.screen().set_shader(passthrough_shader);
                     return scene_pool::alloc<TitleScreenScene>(3);
                 },
                 fade_sweep);
@@ -192,6 +193,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 SYSTR(start_menu_quit)->c_str(),
                 [&pfrm]() -> ScenePtr<Scene> {
                     pfrm.fill_overlay(0);
+                    pfrm.screen().set_shader(passthrough_shader);
                     return scene_pool::alloc<SelectChallengeScene>();
                 },
                 fade_sweep);

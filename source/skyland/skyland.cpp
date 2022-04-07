@@ -13,6 +13,7 @@
 #include "serial.hpp"
 #include "sound.hpp"
 #include "timeStreamEvent.hpp"
+#include "weather/storm.hpp"
 
 
 
@@ -572,7 +573,7 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
 
 
 
-Environment& App::environment()
+weather::Environment& App::environment()
 {
     return *world_state_->environment_;
 }
