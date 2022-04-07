@@ -283,6 +283,10 @@ bool Island::fire_present(const Vec2<u8>& coord) const
 
 void Island::fire_extinguish(Platform& pfrm, App& app, const Vec2<u8>& coord)
 {
+    if (not fire_present(coord)) {
+        return;
+    }
+
     if (this == &player_island(app)) {
         time_stream::event::PlayerFireExtinguished e;
         e.x_ = coord.x;
