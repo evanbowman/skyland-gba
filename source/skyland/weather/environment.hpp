@@ -50,6 +50,9 @@ public:
     {
         return passthrough_shader;
     }
+
+
+    virtual const char* music() const = 0;
 };
 
 
@@ -115,7 +118,10 @@ class ClearSkies : public CleanEnvironment
 {
 public:
 
-    // ...
+    const char* music() const override
+    {
+        return "life_in_silco";
+    }
 
 };
 

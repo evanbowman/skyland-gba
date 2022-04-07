@@ -245,6 +245,18 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    auto setup_shader = [&app, &pfrm] {
+        pfrm.screen().set_shader(
+            [&app](ShaderPalette p, ColorConstant k, int var, int index) {
+                auto k1 = app.environment().shader(app)(std::move(p),
+                                                        std::move(k),
+                                                        std::move(var),
+                                                        std::move(index));
+                return redden_shader(p, k1, var, index);
+            });
+    };
+
+
     auto pos = island_->get_position();
     if (pos.y < 600) {
         pos.y += sink_speed_ * delta;
@@ -416,7 +428,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (opponent_defeated) {
                 anim_state_ = AnimState::wait_1;
             } else {
-                pfrm.screen().set_shader(redden_shader);
+                setup_shader();
                 anim_state_ = AnimState::fade_out;
             }
 
@@ -456,7 +468,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
 
-        pfrm.screen().set_shader(redden_shader);
+        setup_shader();
 
         for (auto& room : app.player_island().rooms()) {
             room->detach_drone(pfrm, app, true);

@@ -117,7 +117,7 @@ void SkylandForever::init(Platform& pfrm, App& app, u8 difficulty)
 
     app.persistent_data().score_.set(0);
 
-    pfrm.speaker().play_music("sb_solecism", 0);
+    pfrm.speaker().play_music(app.environment().music(), 0);
 
     app.invoke_script(pfrm, "/scripts/skyland_forever.lisp");
 

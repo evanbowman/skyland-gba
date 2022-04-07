@@ -140,7 +140,7 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
     app.player_island().init_terrain(pfrm, parameters_[1]);
 
     if (parameters_[2]) {
-        pfrm.speaker().play_music("sb_solecism", 0);
+        pfrm.speaker().play_music(app.environment().music(), 0);
     }
 
     app.invoke_script(pfrm, "/scripts/sandbox/new.lisp");

@@ -172,8 +172,8 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.speaker().play_music("unaccompanied_wind", 0);
 
     } else {
-        if (not pfrm.speaker().is_music_playing("sb_solecism")) {
-            pfrm.speaker().play_music("sb_solecism", 0);
+        if (not pfrm.speaker().is_music_playing(app.environment().music())) {
+            pfrm.speaker().play_music(app.environment().music(), 0);
         }
     }
 
