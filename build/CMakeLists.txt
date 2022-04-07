@@ -110,6 +110,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/player/opponent/friendlyAI.cpp
   ${SOURCE_DIR}/skyland/player/opponent/procgenEnemyAI.cpp
   ${SOURCE_DIR}/skyland/player/opponent/multiplayerPeer.cpp
+  ${SOURCE_DIR}/skyland/weather/storm.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
   ${SOURCE_DIR}/skyland/sharedVariable.cpp
   ${SOURCE_DIR}/skyland/room_metatable.cpp
@@ -326,6 +327,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/music_unaccompanied_wind.s
     ${DATA_DIR}/music_isle_of_the_dead.s
     ${DATA_DIR}/music_life_in_silco.s
+    ${DATA_DIR}/sb_solecism.s
     ${DATA_DIR}/shadows.s
     ${DATA_DIR}/sound_msg.s
     ${DATA_DIR}/sound_pop.s

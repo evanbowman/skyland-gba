@@ -3029,6 +3029,7 @@ void Platform::Logger::flush()
 
 #include "data/music_isle_of_the_dead.hpp"
 #include "data/music_life_in_silco.hpp"
+#include "data/sb_solecism.hpp"
 #include "data/music_unaccompanied_wind.hpp"
 #include "data/shadows.hpp"
 
@@ -3065,6 +3066,7 @@ struct AudioTrack
     DEF_MUSIC(shadows, shadows),
     DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
     DEF_MUSIC(life_in_silco, music_life_in_silco),
+    DEF_MUSIC(solecism, sb_solecism),
 };
 
 

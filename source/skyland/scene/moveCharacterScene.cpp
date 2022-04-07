@@ -44,9 +44,6 @@ void MoveCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
     }
 
     island->render_interior(pfrm, app);
-    // island->repaint()
-    // app.player_island().render_interior(pfrm);
-    // app.player_island().repaint(pfrm);
 }
 
 

@@ -3,6 +3,7 @@
 #include "skyland/scene/fadeInScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/weather/storm.hpp"
 
 
 
@@ -24,7 +25,8 @@ const SandboxLoaderModule::ParameterInfo
         {SystemString::sandbox_coins, 1000, 1000, 100000000},
         {SystemString::sandbox_terrain_size, 1, 4, 13},
         {SystemString::sandbox_music, 1, 0, 1},
-        {SystemString::sandbox_building_dependencies, 1, 0, 1}};
+        {SystemString::sandbox_building_dependencies, 1, 0, 1},
+        {SystemString::sandbox_weather, 1, 1, 2}};
 
 
 
@@ -117,6 +119,18 @@ void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
         parameters_[0] = 500000;
         parameters_[1] = 4;
         parameters_[2] = 1;
+        parameters_[3] = 0;
+        parameters_[4] = 1;
+    } else {
+        switch (parameters_[4]) {
+        case 1:
+            app.swap_environment<weather::ClearSkies>();
+            break;
+        case 2:
+            app.swap_environment<weather::Storm>();
+            break;
+        }
+        pfrm.screen().set_shader(app.environment().shader(app));
     }
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
@@ -138,6 +152,15 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
 
     app.set_coins(pfrm, parameters_[0]);
     app.player_island().init_terrain(pfrm, parameters_[1]);
+
+    switch (parameters_[4]) {
+    case 1:
+        app.swap_environment<weather::ClearSkies>();
+        break;
+    case 2:
+        app.swap_environment<weather::Storm>();
+        break;
+    }
 
     if (parameters_[2]) {
         pfrm.speaker().play_music(app.environment().music(), 0);
@@ -192,7 +215,7 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (unveil_) {
-        pfrm.screen().fade(0.6f, ColorConstant::rich_black, {}, false, false);
+        pfrm.screen().schedule_fade(0.6f, ColorConstant::rich_black, false, false);
     } else {
         unveil_ = true;
     }
@@ -209,6 +232,24 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
         long_hold_time_[0] = 0;
     }
 
+    auto update_env =
+        [&] {
+            switch (parameters_[4]) {
+            case 1:
+                app.swap_environment<weather::ClearSkies>();
+                break;
+            case 2:
+                app.swap_environment<weather::Storm>();
+                break;
+            }
+
+            pfrm.screen().set_shader(app.environment().shader(app));
+            pfrm.screen().set_shader_argument(0);
+
+            pfrm.screen().schedule_fade(0.7f, ColorConstant::rich_black, false, false);
+            pfrm.screen().schedule_fade(0.6f, ColorConstant::rich_black, false, false);
+        };
+
 
     if (app.player().key_down(pfrm, Key::right) or
         app.player().key_held(Key::right, milliseconds(500))) {
@@ -217,6 +258,10 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (long_hold_time_[0] > milliseconds(2000)) {
                 parameters_[cursor_] += param_info[cursor_].increment_ * 9;
+            }
+
+            if (cursor_ == 4) {
+                update_env();
             }
         }
         update_parameter(pfrm, cursor_);
@@ -237,6 +282,10 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (long_hold_time_[0] > milliseconds(2000)) {
             parameters_[cursor_] += param_info[cursor_].increment_ * 3;
+        }
+
+        if (cursor_ == 4) {
+            update_env();
         }
     }
 

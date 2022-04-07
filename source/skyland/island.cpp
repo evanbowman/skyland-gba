@@ -1090,6 +1090,14 @@ void Island::render_interior(Platform& pfrm, App& app)
 {
     interior_visible_ = true;
 
+    if (layer_ == Layer::map_0_ext) {
+        auto t = app.environment().player_island_interior_texture();
+        pfrm.load_tile0_texture(t);
+    } else {
+        auto t = app.environment().opponent_island_interior_texture();
+        pfrm.load_tile1_texture(t);
+    }
+
     // When rendering the interior/exterior of a castle, we've swapped the
     // tileset texture, so all tiles mapped into memory need to be discarded,
     // allowing the repaint() code to insert new mappings into vram.
@@ -1104,6 +1112,12 @@ void Island::render_interior(Platform& pfrm, App& app)
 void Island::render_exterior(Platform& pfrm, App& app)
 {
     interior_visible_ = false;
+
+    if (layer_ == Layer::map_0_ext) {
+        pfrm.load_tile0_texture(app.environment().player_island_texture());
+    } else {
+        pfrm.load_tile1_texture(app.environment().opponent_island_texture());
+    }
 
     layer_ == Layer::map_0_ext ? pfrm.clear_tile0_mappings()
                                : pfrm.clear_tile1_mappings();
@@ -1673,15 +1687,6 @@ u8 Island::character_count() const
 
 void show_island_interior(Platform& pfrm, App& app, Island* island)
 {
-    if (island == &app.player_island()) {
-        auto t = app.environment().player_island_interior_texture();
-        pfrm.load_tile0_texture(t);
-
-    } else {
-        auto t = app.environment().opponent_island_interior_texture();
-        pfrm.load_tile1_texture(t);
-    }
-
     if (island) {
         island->show_groups(true);
         island->render_interior(pfrm, app);
@@ -1694,12 +1699,6 @@ void show_island_interior(Platform& pfrm, App& app, Island* island)
 
 void show_island_exterior(Platform& pfrm, App& app, Island* island)
 {
-    if (island == &app.player_island()) {
-        pfrm.load_tile0_texture(app.environment().player_island_texture());
-    } else {
-        pfrm.load_tile1_texture(app.environment().opponent_island_texture());
-    }
-
     if (island) {
         // island->show_groups(false);
         island->render_exterior(pfrm, app);

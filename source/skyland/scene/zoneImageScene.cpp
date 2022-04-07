@@ -4,6 +4,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "worldMapScene.hpp"
+#include "skyland/weather/storm.hpp"
 
 
 
@@ -27,6 +28,12 @@ void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.screen().set_view(View{});
     pfrm.set_scroll(Layer::map_1_ext, 0, 8);
     pfrm.set_scroll(Layer::map_0_ext, 0, 0);
+
+    if (app.zone() > 2) {
+        app.swap_environment<weather::Storm>();
+    } else {
+        app.swap_environment<weather::ClearSkies>();
+    }
 
     if (not app.current_world_location() == 0) {
         return;

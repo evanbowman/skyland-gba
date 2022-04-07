@@ -202,6 +202,7 @@ coins
 terrain size
 music
 dependencies
+weather
 Sandbox Settings
 Press A to begin
 Multiplayer Settings
