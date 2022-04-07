@@ -199,6 +199,8 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 void WorldScene::display(Platform& pfrm, App& app)
 {
+    app.environment().display(pfrm, app);
+
     if (app.game_mode() == App::GameMode::co_op) {
         Sprite cursor;
         cursor.set_size(Sprite::Size::w16_h32);

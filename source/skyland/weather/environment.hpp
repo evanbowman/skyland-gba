@@ -34,6 +34,7 @@ public:
 
     virtual void update(Platform& pfrm, App& app, Microseconds delta) = 0;
 
+    virtual void display(Platform& pfrm, App& app) = 0;
 
     virtual const char* player_island_texture() const = 0;
     virtual const char* player_island_interior_texture() const = 0;
@@ -59,6 +60,12 @@ public:
 
 
     void update(Platform& pfrm, App& app, Microseconds delta)
+    {
+        // Nothing...
+    }
+
+
+    void display(Platform& pfrm, App& app)
     {
         // Nothing...
     }
