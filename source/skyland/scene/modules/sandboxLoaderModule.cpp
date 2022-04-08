@@ -49,7 +49,7 @@ const SandboxLoaderModule::ParameterInfo
         {SystemString::sandbox_terrain_size, 1, 4, 13},
         {SystemString::sandbox_music, 1, 0, 1},
         {SystemString::sandbox_building_dependencies, 1, 0, 1},
-        {SystemString::sandbox_weather, 1, 1, 2}};
+        {SystemString::sandbox_weather, 1, 1, 3}};
 
 
 
