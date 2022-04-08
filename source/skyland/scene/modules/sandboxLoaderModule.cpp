@@ -63,7 +63,7 @@ int SandboxLoaderModule::get_setting(u8 slot)
 
 
 
-static void environment_init(App& app, int type)
+void environment_init(App& app, int type)
 {
     switch (type) {
     case 1:

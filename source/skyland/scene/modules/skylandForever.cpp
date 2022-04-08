@@ -34,12 +34,14 @@ namespace skyland
 
 
 void prep_level(Platform& pfrm, App& app);
+void environment_init(App& app, int type);
 
 
 
 const SkylandForever::ParameterInfo
     SkylandForever::param_info[decltype(parameters_)::capacity()] = {
         {SystemString::sf_difficulty, 1, 0, 2},
+        {SystemString::sandbox_weather, 1, 1, 3},
 };
 
 
@@ -66,6 +68,10 @@ void SkylandForever::enter(Platform& pfrm, App& app, Scene& prev)
     app.game_mode() = App::GameMode::skyland_forever;
 
     parameters_.push_back(1);
+    parameters_.push_back(1);
+
+    environment_init(app, parameters_[1]);
+    pfrm.screen().set_shader(app.environment().shader(app));
 
     for (u32 i = 0; i < settings_text_.capacity(); ++i) {
         settings_text_.emplace_back(
@@ -103,6 +109,8 @@ void SkylandForever::exit(Platform& pfrm, App& app, Scene& prev)
     title_.reset();
     settings_text_.clear();
     msg_.reset();
+
+    environment_init(app, parameters_[1]);
 
     pfrm.load_overlay_texture("overlay");
     pfrm.system_call("v-parallax", (void*)true);
@@ -170,6 +178,17 @@ SkylandForever::update(Platform& pfrm, App& app, Microseconds delta)
         unveil_ = true;
     }
 
+    auto update_env =
+        [&] {
+            environment_init(app, parameters_[1]);
+
+            pfrm.screen().set_shader(app.environment().shader(app));
+            pfrm.screen().set_shader_argument(0);
+
+            pfrm.screen().schedule_fade(0.7f, ColorConstant::rich_black, false, false);
+            pfrm.screen().schedule_fade(0.6f, ColorConstant::rich_black, false, false);
+        };
+
     if (app.player().key_down(pfrm, Key::right) or
         app.player().key_held(Key::right, milliseconds(500))) {
         if (parameters_[cursor_] < param_info[cursor_].upper_limit_) {
@@ -177,6 +196,9 @@ SkylandForever::update(Platform& pfrm, App& app, Microseconds delta)
         }
         update_parameter(pfrm, cursor_);
         app.player().key_held_reset(Key::right, milliseconds(80));
+        if (cursor_ == 1) {
+            update_env();
+        }
     }
 
     if (app.player().key_down(pfrm, Key::left) or
@@ -188,6 +210,9 @@ SkylandForever::update(Platform& pfrm, App& app, Microseconds delta)
         }
         update_parameter(pfrm, cursor_);
         app.player().key_held_reset(Key::left, milliseconds(80));
+        if (cursor_ == 1) {
+            update_env();
+        }
     }
 
     if (app.player().key_down(pfrm, Key::down) and

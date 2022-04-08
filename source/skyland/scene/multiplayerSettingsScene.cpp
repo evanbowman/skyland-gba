@@ -54,6 +54,8 @@ const MultiplayerSettingsScene::ParameterInfo
 
 void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    pfrm.screen().set_shader(passthrough_shader);
+
     const auto title = SYSTR(mt_title);
 
     pfrm.load_overlay_texture("overlay_challenges");

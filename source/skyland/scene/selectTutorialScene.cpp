@@ -54,6 +54,8 @@ void SelectTutorialScene::quick_select(int tutorial_number)
 
 void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    pfrm.screen().set_shader(passthrough_shader);
+
     pfrm.speaker().play_music("unaccompanied_wind", 0);
 
     app.set_coins(pfrm, 0);

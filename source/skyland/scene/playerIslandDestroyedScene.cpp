@@ -642,7 +642,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 Platform::fatal("fallthrough in playerIslandDestroyedScene");
             } else {
 
-                pfrm.screen().set_shader(passthrough_shader);
+                pfrm.screen().set_shader(app.environment().shader(app));
                 pfrm.screen().set_shader_argument(0);
                 pfrm.system_call("vsync", nullptr);
                 pfrm.screen().fade(1.f);
@@ -849,7 +849,7 @@ void PlayerIslandDestroyedScene::exit(Platform& pfrm, App& app, Scene& next)
 
     pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 
-    pfrm.screen().set_shader(passthrough_shader);
+    pfrm.screen().set_shader(app.environment().shader(app));
 }
 
 

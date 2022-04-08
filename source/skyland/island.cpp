@@ -627,13 +627,7 @@ void Island::FireState::display(Platform& pfrm, Island& island)
         }
     }
 
-    if (island.interior_visible()) {
-        pfrm.screen().draw_batch(
-            (*texture_)->mapping_index() * 2, Sprite::Alpha::opaque, *batch);
-    } else {
-        pfrm.screen().draw_batch(
-            (*texture_)->mapping_index() * 2, Sprite::Alpha::opaque, *batch);
-    }
+    pfrm.screen().draw_batch((*texture_)->mapping_index() * 2, *batch);
 }
 
 

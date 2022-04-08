@@ -189,6 +189,9 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     app.time_stream().rewind(delta);
 
 
+    app.environment().rewind(pfrm, app, delta);
+
+
     print_timestamp(pfrm, app);
 
 
@@ -1212,6 +1215,8 @@ void RewindScene::display(Platform& pfrm, App& app)
     if (app.opponent_island()) {
         app.opponent_island()->display(pfrm);
     }
+
+    app.environment().display(pfrm, app);
 
     for (auto& effect : app.effects()) {
         pfrm.screen().draw(effect->sprite());

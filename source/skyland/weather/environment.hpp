@@ -55,6 +55,7 @@ public:
 
 
     virtual void update(Platform& pfrm, App& app, Microseconds delta) = 0;
+    virtual void rewind(Platform& pfrm, App& app, Microseconds delta) = 0;
 
     virtual void display(Platform& pfrm, App& app) = 0;
 
@@ -84,13 +85,19 @@ class CleanEnvironment : public Environment
 public:
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta)
+    void update(Platform& pfrm, App& app, Microseconds delta) override
     {
         // Nothing...
     }
 
 
-    void display(Platform& pfrm, App& app)
+    void rewind(Platform& pfrm, App& app, Microseconds delta) override
+    {
+        // Nothing...
+    }
+
+
+    void display(Platform& pfrm, App& app) override
     {
         // Nothing...
     }

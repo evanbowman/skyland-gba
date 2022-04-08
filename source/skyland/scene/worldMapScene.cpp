@@ -921,6 +921,8 @@ void WorldMapScene::display(Platform& pfrm, App& app)
 
 void WorldMapScene::enter(Platform& pfrm, App& app, Scene& prev_scene)
 {
+    pfrm.screen().set_shader(passthrough_shader);
+
     pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
 
     app.swap_player<PlayerP1>();

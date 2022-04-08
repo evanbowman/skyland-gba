@@ -84,6 +84,12 @@ public:
     }
 
 
+    Vec2<Float> center() const
+    {
+        return current_;
+    }
+
+
 protected:
     Vec2<int> target_;
     Vec2<Float> current_;

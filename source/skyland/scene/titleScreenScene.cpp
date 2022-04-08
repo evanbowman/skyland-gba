@@ -142,6 +142,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.screen().schedule_fade(1.f);
     }
 
+    pfrm.screen().set_shader(passthrough_shader);
     app.swap_environment<weather::ClearSkies>();
 
     const int offset = 64;

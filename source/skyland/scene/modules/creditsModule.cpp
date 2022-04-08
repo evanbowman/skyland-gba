@@ -76,11 +76,25 @@ static const char* const page_2_lines[] = {"-- Music --",
                                            nullptr};
 
 
+static const char* const page_3_lines[] = {"-- Music --",
+                                           "",
+                                           "\x12 Solecism \x12",
+                                           "Scott Buckley",
+                                           "",
+                                           "",
+                                           "",
+                                           "",
+                                           "",
+                                           "",
+                                           nullptr};
 
-std::array<Page, 3> pages_ = {{
+
+
+std::array<Page, 4> pages_ = {{
     {page_0_lines},
     {page_1_lines},
     {page_2_lines},
+    {page_3_lines},
 }};
 
 

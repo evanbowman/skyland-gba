@@ -33,11 +33,15 @@ namespace skyland::weather
 class Storm : public CleanEnvironment
 {
 private:
-    Vec2<u16> raindrops_[6];
+    Vec2<s16> raindrops_[6];
+    Vec2<s16> last_camera_;
 
 public:
 
     void update(Platform& pfrm, App& app, Microseconds delta);
+
+
+    void rewind(Platform& pfrm, App& app, Microseconds delta);
 
 
     void display(Platform& pfrm, App& app) override;

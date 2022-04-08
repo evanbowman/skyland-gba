@@ -435,10 +435,22 @@ public:
 
         void draw(const Sprite& spr);
 
+        struct SpriteBatchOptions
+        {
+            SpriteBatchOptions() :
+                position_absolute_(false),
+                alpha_(Sprite::Alpha::opaque)
+            {
+            }
+
+            bool position_absolute_;
+            Sprite::Alpha alpha_;
+        };
+
         // Optimized drawing routine for multiple copies of the same sprite.
         void draw_batch(TextureIndex texture,
-                        Sprite::Alpha alpha,
-                        const Buffer<Vec2<s32>, 64>& coords);
+                        const Buffer<Vec2<s32>, 64>& coords,
+                        const SpriteBatchOptions& opts = SpriteBatchOptions());
 
         void clear();
 

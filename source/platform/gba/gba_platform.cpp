@@ -1103,14 +1103,21 @@ static bool is_onscreen(const Platform::Screen& screen, const Vec2<Float>& pos)
 
 
 void Platform::Screen::draw_batch(TextureIndex t,
-                                  Sprite::Alpha alpha,
-                                  const Buffer<Vec2<s32>, 64>& coords)
+                                  const Buffer<Vec2<s32>, 64>& coords,
+                                  const SpriteBatchOptions& opts)
 {
-    const auto view_center = view_.get_center().cast<s32>();
+     auto view_center = view_.get_center().cast<s32>();
 
     const auto view_half_extent = size().cast<s32>() / s32(2);
     Vec2<s32> view_br = {view_center.x + view_half_extent.x * 2,
                          view_center.y + view_half_extent.y * 2};
+
+    if (opts.position_absolute_) {
+        view_center.x = 0;
+        view_center.y = 0;
+        view_br.x = 240;
+        view_br.y = 160;
+    }
 
     for (auto& c : coords) {
         if (UNLIKELY(oam_write_index == oam_count)) {
@@ -1123,7 +1130,7 @@ void Platform::Screen::draw_batch(TextureIndex t,
         }
 
         auto oa = object_attribute_back_buffer + oam_write_index;
-        if (alpha not_eq Sprite::Alpha::translucent) {
+        if (opts.alpha_ not_eq Sprite::Alpha::translucent) {
             oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL;
         } else {
             oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL | ATTR0_BLEND;

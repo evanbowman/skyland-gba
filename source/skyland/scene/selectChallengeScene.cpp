@@ -40,6 +40,8 @@ static const Float default_fade = 0.6f;
 
 void SelectChallengeScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    pfrm.screen().set_shader(passthrough_shader);
+
     pfrm.load_overlay_texture("overlay_challenges");
 
     pfrm.system_call("v-parallax", (void*)false);
