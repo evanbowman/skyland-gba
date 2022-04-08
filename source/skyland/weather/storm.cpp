@@ -49,12 +49,17 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
     for (auto& rd : raindrops_) {
         if ((rd.x / scale) < 0 or (rd.y / scale) > (s16)pfrm.screen().size().y) {
 
-            if (rng::choice<2>(rng::utility_state)) {
-                rd.x = pfrm.screen().size().x * scale;
+            if (delta == 0) {
+                rd.x = rng::choice(pfrm.screen().size().x * scale, gen);
                 rd.y = rng::choice(pfrm.screen().size().y * scale, gen);
             } else {
-                rd.x = rng::choice(pfrm.screen().size().x * scale, gen);
-                rd.y = 0;
+                if (rng::choice<2>(rng::utility_state)) {
+                    rd.x = pfrm.screen().size().x * scale;
+                    rd.y = rng::choice(pfrm.screen().size().y * scale, gen);
+                } else {
+                    rd.x = rng::choice(pfrm.screen().size().x * scale, gen);
+                    rd.y = 0;
+                }
             }
         } else {
             rd.x -= (delta >> 6) + (delta >> 8);
@@ -114,6 +119,7 @@ void Storm::display(Platform& pfrm, App& app)
 
     Platform::Screen::SpriteBatchOptions opts;
     opts.position_absolute_ = true;
+    // opts.alpha_ = Sprite::Alpha::translucent;
 
     pfrm.screen().draw_batch(89, *batch, opts);
 }
