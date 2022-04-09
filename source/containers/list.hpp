@@ -25,14 +25,7 @@
 #include <new>
 
 #include "memory/pool.hpp"
-
-
-template <typename T> struct BiNode
-{
-    BiNode* right_;
-    BiNode* left_;
-    T data_;
-};
+#include "binaryNode.hpp"
 
 
 // We're trying to save bytes. We want to allow the list to optionally include a
@@ -48,7 +41,7 @@ template <typename T, typename _Pool> struct ListData
         pool_ = &pool;
     }
 
-    BiNode<T>* begin_;
+    BinaryNode<T>* begin_;
     Pool* pool_;
 
     Pool& pool() const
@@ -61,7 +54,7 @@ template <typename T, typename _Pool> struct ListData
 template <typename T, typename Data> class List
 {
 public:
-    using Node = BiNode<T>;
+    using Node = BinaryNode<T>;
     using ValueType = T;
 
     using Pool = typename Data::Pool;
