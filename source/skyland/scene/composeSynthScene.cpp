@@ -261,7 +261,7 @@ ComposeSynthScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
 
             case Platform::Speaker::Effect::envelope:
-                param.value_ = 0;
+                param.value_ = 0xf7;
                 break;
             }
         };

@@ -3594,7 +3594,25 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
 
 
     auto apply_envelope = [&](volatile u16* ctrl_register) {
-        // TODO...
+        auto duty = (*ctrl_register & SSQR_DUTY_MASK) >> SSQR_DUTY_SHIFT;
+        auto length = (*ctrl_register & SSQR_LEN_MASK) >> SSQR_LEN_SHIFT;
+
+        // To match LSDJ: first nibble: volume, second nibble: 1-7: release with
+        // decreasing envelope, 8-f: release with increasing envelope.
+
+        int dir = 0;
+
+        if ((argument & 0x0f) < 8) {
+            dir = 0; // decreasing
+        } else {
+            dir = 1;
+        }
+
+        *ctrl_register = SSQR_BUILD((argument & 0xf0) >> 4,
+                                    dir,
+                                    (argument & 0x07),
+                                    duty,
+                                    length);
     };
 
 
@@ -3650,6 +3668,18 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
         break;
 
     case Channel::noise:
+        switch (effect) {
+        case Effect::duty:
+            apply_duty(&REG_SND4CNT);
+            break;
+
+        case Effect::envelope:
+            apply_envelope(&REG_SND4CNT);
+            break;
+
+        default:
+            break;
+        }
         break;
 
     default:

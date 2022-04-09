@@ -106,6 +106,13 @@ static void scuttle(Platform& pfrm, App& app)
 ScenePtr<Scene>
 StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    player(app).update(pfrm, app, delta);
+
+    auto test_key = [&](Key k) {
+        return player(app).test_key(
+            pfrm, k, milliseconds(500), milliseconds(100));
+    };
+
     switch (state_) {
     case State::init: {
         pfrm.load_overlay_texture("overlay_challenges");
@@ -284,12 +291,12 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 state_ = State::cut;
             }
         }
-        if (player(app).key_down(pfrm, Key::down)) {
+        if (test_key(Key::down)) {
             if (data_->cursor_ < data_->text_.size() - 1) {
                 ++data_->cursor_;
             }
         }
-        if (player(app).key_down(pfrm, Key::up)) {
+        if (test_key(Key::up)) {
             if (data_->cursor_ > 0) {
                 --data_->cursor_;
             }
