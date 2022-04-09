@@ -1645,7 +1645,7 @@ void Island::set_drift(Platform& pfrm, App& app, Fixnum drift)
     if (app.opponent_island() and this == app.opponent_island()) {
 
         time_stream::event::OpponentIslandDriftChanged e;
-        memcpy(e.previous_speed_, &drift_, sizeof drift_);
+        e.previous_speed__data_.set(drift_.data());
 
         app.time_stream().push(app.level_timer(), e);
     }

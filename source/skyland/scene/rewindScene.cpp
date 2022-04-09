@@ -937,8 +937,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
         case time_stream::event::Type::opponent_island_drift_changed: {
             auto e = (time_stream::event::OpponentIslandDriftChanged*)end;
-            Float val;
-            memcpy(&val, e->previous_speed_, sizeof val);
+            auto val = Fixnum::create(e->previous_speed__data_.get());
             app.opponent_island()->set_drift(pfrm, app, val);
             app.time_stream().pop(sizeof *e);
             break;
