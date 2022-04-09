@@ -40,8 +40,8 @@ class Island;
 class Missile : public Projectile
 {
 public:
-    Missile(const Vec2<Float>& position,
-            const Vec2<Float>& target,
+    Missile(const Vec2<Fixnum>& position,
+            const Vec2<Fixnum>& target,
             u8 source_x,
             u8 source_y,
             Island* source);
@@ -83,7 +83,7 @@ protected:
 
 private:
     Microseconds timer_ = 0;
-    Float target_x_;
+    Fixnum target_x_;
 
     Island* source_;
     u8 source_x_;
@@ -101,8 +101,8 @@ extern SharedVariable missile_damage;
 class RocketBomb : public Missile
 {
 public:
-    RocketBomb(const Vec2<Float>& position,
-               const Vec2<Float>& target,
+    RocketBomb(const Vec2<Fixnum>& position,
+               const Vec2<Fixnum>& target,
                u8 source_x,
                u8 source_y,
                Island* source)

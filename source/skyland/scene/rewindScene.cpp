@@ -57,14 +57,16 @@ T* respawn_basic_projectile(Platform& pfrm,
 {
     auto c = app.alloc_entity<T>(
         pfrm,
-        Vec2<Float>{(Float)e.x_pos_.get(), (Float)e.y_pos_.get()},
-        Vec2<Float>{},
+        Vec2<Fixnum>{Fixnum::from_integer(e.x_pos_.get()),
+                     Fixnum::from_integer(e.y_pos_.get())},
+        Vec2<Fixnum>{},
         parent,
         Vec2<u8>{e.x_origin_, e.y_origin_});
     if (c) {
-        Vec2<Float> step_vector;
-        memcpy(&step_vector.x, e.x_speed_, sizeof(Float));
-        memcpy(&step_vector.y, e.y_speed_, sizeof(Float));
+        Vec2<Float> step_vector_f;
+        memcpy(&step_vector_f.x, e.x_speed_, sizeof(Float));
+        memcpy(&step_vector_f.y, e.y_speed_, sizeof(Float));
+        Vec2<Fixnum> step_vector{step_vector_f.x, step_vector_f.y};
         c->set_step_vector(step_vector);
         c->set_timer(e.timer_.get());
         explosion_function(pfrm, app, c->sprite().get_position());
@@ -85,17 +87,19 @@ void respawn_plugin_projectile(
 {
     auto c = app.alloc_entity<PluginProjectile>(
         pfrm,
-        Vec2<Float>{(Float)e.x_pos_.get(), (Float)e.y_pos_.get()},
-        Vec2<Float>{},
+        Vec2<Fixnum>{Fixnum::from_integer(e.x_pos_.get()),
+                     Fixnum::from_integer(e.y_pos_.get())},
+        Vec2<Fixnum>{},
         parent,
         Vec2<u8>{e.x_origin_, e.y_origin_},
         e.tile_.get(),
         e.damage_.get(),
         e.hflip_);
     if (c) {
-        Vec2<Float> step_vector;
-        memcpy(&step_vector.x, e.x_speed_, sizeof(Float));
-        memcpy(&step_vector.y, e.y_speed_, sizeof(Float));
+        Vec2<Float> step_vector_f;
+        memcpy(&step_vector_f.x, e.x_speed_, sizeof(Float));
+        memcpy(&step_vector_f.y, e.y_speed_, sizeof(Float));
+        Vec2<Fixnum> step_vector {step_vector_f.x, step_vector_f.y};
         c->set_step_vector(step_vector);
         c->set_timer(e.timer_.get());
         medium_explosion_inv(pfrm, app, c->sprite().get_position());
@@ -112,9 +116,10 @@ void respawn_missile(Platform& pfrm,
 {
     auto m = app.alloc_entity<Missile>(
         pfrm,
-        Vec2<Float>{(Float)e.x_pos_.get(), (Float)e.y_pos_.get()},
-        Vec2<Float>{
-            (Float)e.target_x_.get(),
+        Vec2<Fixnum>{Fixnum::from_integer(e.x_pos_.get()),
+                     Fixnum::from_integer(e.y_pos_.get())},
+        Vec2<Fixnum>{
+            Fixnum::from_integer(e.target_x_.get()),
             0.f // TODO: change target parameter to simple float, y unused.
         },
         (u8)e.source_x_,
@@ -1116,7 +1121,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::BirdLeftMap*)end;
 
             if (auto dt = pfrm.make_dynamic_texture()) {
-                Vec2<Float> pos;
+                Vec2<Fixnum> pos;
                 pos.x = e->x_pos_.get();
                 pos.y = e->y_pos_.get();
 

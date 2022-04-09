@@ -67,7 +67,15 @@ void Island::init_terrain(Platform& pfrm, int width)
 
 
 Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
-    : layer_(layer), timer_(0), interior_visible_(false),
+    : layer_(layer), timer_(0),
+      interior_visible_(false),
+      show_flag_(false),
+      dispatch_cancelled_(false),
+      show_groups_(false),
+      schedule_repaint_(false),
+      has_radar_(false),
+      is_boarded_(false),
+      hidden_(false),
       flag_anim_index_(Tile::flag_start), owner_(&owner)
 {
     init_terrain(pfrm, width);
@@ -286,7 +294,7 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (drift_) {
+    if (drift_ not_eq 0) {
         position_.x -= drift_ * delta;
     }
 
@@ -314,8 +322,8 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
     pfrm.set_scroll(layer(),
-                    -get_position().cast<u16>().x,
-                    -get_position().cast<u16>().y - ambient_offset);
+                    -get_position().x.as_integer(),
+                    -get_position().y.as_integer() - ambient_offset);
 
     fire_.rewind(pfrm, app, *this, delta);
 }
@@ -615,7 +623,7 @@ void Island::FireState::display(Platform& pfrm, Island& island)
         return;
     }
 
-    auto o = island.visual_origin().cast<s32>();
+    auto o = ivec(island.visual_origin());
 
     auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("fire-spr-buffer");
 
@@ -969,13 +977,13 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
     update_entities(pfrm, app, dt, projectiles_);
 
-    if (drift_) {
+    if (drift_ not_eq 0) {
         position_.x += drift_ * dt;
     }
 
     pfrm.set_scroll(layer(),
-                    -get_position().cast<u16>().x,
-                    -get_position().cast<u16>().y - ambient_offset);
+                    -get_position().x.as_integer(),
+                    -get_position().y.as_integer() - ambient_offset);
 
     fire_.update(pfrm, app, *this, dt);
 }
@@ -1049,7 +1057,7 @@ void Island::display(Platform& pfrm)
         // character down by two pixels.
         Sprite cpy = c->sprite();
         auto pos = cpy.get_position();
-        if (pos.y < screen_limit_y) {
+        if (pos.y.as_integer() < screen_limit_y) {
             pos.y += 2;
             cpy.set_position(pos);
             pfrm.screen().draw(cpy);
@@ -1076,7 +1084,7 @@ void Island::display(Platform& pfrm)
 
 HitBox Island::hitbox() const
 {
-    Vec2<Float> hitbox_pos = this->origin();
+    Vec2<Fixnum> hitbox_pos = this->origin();
     HitBox island_hitbox;
     island_hitbox.position_ = &hitbox_pos;
     island_hitbox.dimension_.size_.x = terrain_.size() * 16;
@@ -1090,8 +1098,7 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
 {
     // Calculate the position of the entity in terms of the island's grid
     // coordinates.
-    auto entity_pos =
-        (entity.sprite().get_position() - this->origin()).cast<int>();
+    auto entity_pos = ivec((entity.sprite().get_position() - this->origin()));
     entity_pos.x /= 16;
     entity_pos.y /= 16;
 
@@ -1123,7 +1130,7 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
         }
     }
 
-    Vec2<Float> hitbox_pos = this->origin();
+    Vec2<Fixnum> hitbox_pos = this->origin();
     HitBox island_hitbox;
     island_hitbox.position_ = &hitbox_pos;
     island_hitbox.dimension_.size_.x = terrain_.size() * 16;
@@ -1158,14 +1165,14 @@ void Island::render_terrain(Platform& pfrm)
 
 
 
-const Vec2<Float>& Island::get_position() const
+const Vec2<Fixnum>& Island::get_position() const
 {
     return position_;
 }
 
 
 
-void Island::set_position(const Vec2<Float>& position)
+void Island::set_position(const Vec2<Fixnum>& position)
 {
     position_ = position;
 }
@@ -1642,7 +1649,7 @@ RETRY:
 
 
 
-void Island::set_drift(Platform& pfrm, App& app, Float drift)
+void Island::set_drift(Platform& pfrm, App& app, Fixnum drift)
 {
     if (app.opponent_island() and this == app.opponent_island()) {
 
@@ -1661,14 +1668,14 @@ void Island::set_drift(Platform& pfrm, App& app, Float drift)
 
 
 
-Vec2<Float> Island::origin() const
+Vec2<Fixnum> Island::origin() const
 {
     return {position_.x, position_.y};
 }
 
 
 
-Vec2<Float> Island::visual_origin() const
+Vec2<Fixnum> Island::visual_origin() const
 {
     return {position_.x, position_.y + ambient_movement_};
 }

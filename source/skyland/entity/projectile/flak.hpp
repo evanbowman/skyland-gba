@@ -37,13 +37,13 @@ namespace skyland
 class Flak : public Projectile
 {
 public:
-    Flak(const Vec2<Float>& position,
-         const Vec2<Float>& target,
+    Flak(const Vec2<Fixnum>& position,
+         const Vec2<Fixnum>& target,
          Island* source,
          const Vec2<u8>& origin_tile);
 
 
-    void set_step_vector(const Vec2<Float>& val)
+    void set_step_vector(const Vec2<Fixnum>& val)
     {
         step_vector_ = val;
     }
@@ -66,13 +66,13 @@ public:
 
     static void burst(Platform& pfrm,
                       App& app,
-                      const Vec2<Float>& position,
+                      const Vec2<Fixnum>& position,
                       Room& origin_room);
 
 
 private:
     Microseconds timer_ = 0;
-    Vec2<Float> step_vector_;
+    Vec2<Fixnum> step_vector_;
     Island* source_;
 
     void destroy(Platform& pfrm, App& app, bool explosion);

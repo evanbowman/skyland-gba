@@ -138,7 +138,7 @@ static constexpr const int entity_pool_size = 64;
 static constexpr const int entity_pool_align = 8;
 
 #if defined(__GBA__) or defined(__NDS__)
-static constexpr const int max_entity_size = 100;
+static constexpr const int max_entity_size = 128;
 #else
 static constexpr const int max_entity_size = 200;
 #endif
@@ -147,7 +147,7 @@ static constexpr const int max_entity_size = 200;
 struct EntityPools
 {
 public:
-    static const auto entities_per_pool = 18;
+    static const auto entities_per_pool = 14;
     static const auto pool_count = entity_pool_size / entities_per_pool;
 
 

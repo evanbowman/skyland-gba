@@ -42,8 +42,8 @@ SHARED_VARIABLE(arcbolt_damage);
 
 
 
-ArcBolt::ArcBolt(const Vec2<Float>& position,
-                 const Vec2<Float>& target,
+ArcBolt::ArcBolt(const Vec2<Fixnum>& position,
+                 const Vec2<Fixnum>& target,
                  Island* source,
                  const Vec2<u8>& origin_tile)
     : Projectile({{10, 10}, {8, 8}}), source_(source), origin_tile_(origin_tile)
@@ -55,7 +55,8 @@ ArcBolt::ArcBolt(const Vec2<Float>& position,
     sprite_.set_origin({8, 8});
 
     static const Float speed = 0.00011f;
-    step_vector_ = direction(position, target) * speed;
+    auto step = direction(fvec(position), fvec(target)) * speed;
+    step_vector_ = Vec2<Fixnum>{step.x, step.y};
 }
 
 
@@ -63,7 +64,7 @@ ArcBolt::ArcBolt(const Vec2<Float>& position,
 void ArcBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos - app.float_delta() * step_vector_;
+    pos = pos - Fixnum(delta) * step_vector_;
     sprite_.set_position(pos);
 
     timer_ -= delta;
@@ -93,7 +94,7 @@ void ArcBolt::rewind(Platform& pfrm, App& app, Microseconds delta)
 void ArcBolt::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + app.float_delta() * step_vector_;
+    pos = pos + Fixnum(delta) * step_vector_;
     sprite_.set_position(pos);
 
     timer_ += delta;
@@ -117,7 +118,7 @@ void ArcBolt::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (target) {
-        auto t_y = (int)target->origin().y;
+        auto t_y = target->origin().y.as_integer();
         auto max_y = t_y + 16 * 16 + 32;
         auto min_y = t_y + construction_zone_min_y * 16;
         int max_x = 9999999;
@@ -125,11 +126,11 @@ void ArcBolt::update(Platform& pfrm, App& app, Microseconds delta)
         if (target == &app.player_island()) {
             // If we're shooting at the player's island, the projectile moves
             // leftwards, and we care about the min bound.
-            min_x = (int)target->origin().x - 32;
+            min_x = target->origin().x.as_integer() - 32;
         } else {
             // Otherwise, we need to check the max bound.
             max_x =
-                (int)target->origin().x + 16 * target->terrain().size() + 32;
+                target->origin().x.as_integer() + 16 * target->terrain().size() + 32;
         }
         if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
             this->destroy(pfrm, app, pos.y > min_y);
@@ -248,10 +249,12 @@ void ArcBolt::destroy(Platform& pfrm, App& app, bool explosion)
             e.x_origin_ = origin_tile_.x;
             e.y_origin_ = origin_tile_.y;
             e.timer_.set(timer_);
-            e.x_pos_.set(sprite_.get_position().x);
-            e.y_pos_.set(sprite_.get_position().y);
-            memcpy(&e.x_speed_, &step_vector_.x, sizeof(Float));
-            memcpy(&e.y_speed_, &step_vector_.y, sizeof(Float));
+            e.x_pos_.set(sprite_.get_position().x.as_integer());
+            e.y_pos_.set(sprite_.get_position().y.as_integer());
+            auto sx = step_vector_.x.as_float();
+            auto sy = step_vector_.y.as_float();
+            memcpy(&e.x_speed_, &sx, sizeof(Float));
+            memcpy(&e.y_speed_, &sy, sizeof(Float));
         };
 
 

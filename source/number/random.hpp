@@ -25,6 +25,8 @@
 
 #include "memory/buffer.hpp"
 #include "numeric.hpp"
+#include "number/fixed.hpp"
+
 
 
 namespace rng
@@ -59,13 +61,13 @@ inline Value choice(Value n, LinearGenerator& gen)
 }
 
 
-template <u32 offset> Float sample(Float n, LinearGenerator& gen)
+template <u32 offset> Fixnum sample(Fixnum n, LinearGenerator& gen)
 {
     if (choice<2>(gen)) {
-        return n + Float(choice<offset>(gen));
+        return n + Fixnum(choice<offset>(gen));
 
     } else {
-        return n - Float(choice<offset>(gen));
+        return n - Fixnum(choice<offset>(gen));
     }
 }
 
@@ -82,7 +84,7 @@ template <u32 offset> int sample(int n, LinearGenerator& gen)
 
 
 template <u32 offset>
-Vec2<Float> sample(const Vec2<Float>& position, LinearGenerator& gen)
+Vec2<Fixnum> sample(const Vec2<Fixnum>& position, LinearGenerator& gen)
 {
     auto result = position;
 

@@ -24,12 +24,13 @@
 
 
 #include "number/numeric.hpp"
+#include "number/fixed.hpp"
 
 
 
 struct HitBox
 {
-    Vec2<Float>* position_;
+    Vec2<Fixnum>* position_;
 
     struct Dimension
     {
@@ -54,8 +55,8 @@ struct HitBox
     Vec2<s16> center() const
     {
         Vec2<s16> c;
-        c.x = s16(position_->x) - dimension_.origin_.x;
-        c.y = s16(position_->y) - dimension_.origin_.y;
+        c.x = s16(position_->x.as_integer()) - dimension_.origin_.x;
+        c.y = s16(position_->y.as_integer()) - dimension_.origin_.y;
         return c;
     }
 };

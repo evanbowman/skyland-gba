@@ -25,6 +25,8 @@
 #include "bitvector.hpp"
 #include "color.hpp"
 #include "number/numeric.hpp"
+#include "number/fixed.hpp"
+
 
 
 using TextureIndex = u16;
@@ -59,7 +61,7 @@ public:
     void set_scale(const Scale& scale);
 
 
-    void set_position(const Vec2<Float>& position);
+    void set_position(const Vec2<Fixnum>& position);
 
 
     void set_origin(const Vec2<s16>& origin);
@@ -80,7 +82,7 @@ public:
     void set_size(Size size);
 
 
-    const Vec2<Float>& get_position() const;
+    const Vec2<Fixnum>& get_position() const;
 
 
     const Vec2<s16>& get_origin() const;
@@ -154,7 +156,7 @@ private:
     Vec2<s16> scale_;
 
 public:
-    Vec2<Float> position_;
+    Vec2<Fixnum> position_;
 
 private:
     Rotation rot_ = 0;

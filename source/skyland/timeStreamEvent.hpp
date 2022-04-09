@@ -665,7 +665,7 @@ struct OpponentRoomReloadComplete : RoomReloadComplete
 struct OpponentIslandDriftChanged
 {
     Header header_;
-    u8 previous_speed_[sizeof(Float)];
+    u8 previous_speed_[sizeof(Fixnum)];
 
     static constexpr const auto t = Type::opponent_island_drift_changed;
 };

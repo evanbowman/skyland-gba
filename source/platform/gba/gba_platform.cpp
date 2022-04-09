@@ -1085,7 +1085,7 @@ u16 find_dynamic_mapping(u16 virtual_index)
 
 
 
-static bool is_onscreen(const Platform::Screen& screen, const Vec2<Float>& pos)
+static bool is_onscreen(const Platform::Screen& screen, const Vec2<Fixnum>& pos)
 {
     const auto view_center = screen.get_view().get_center().cast<s32>();
     const auto view_half_extent = screen.size().cast<s32>() / s32(2);
@@ -1097,7 +1097,7 @@ static bool is_onscreen(const Platform::Screen& screen, const Vec2<Float>& pos)
     // y-direction, which makes the view bounds check difficult. Need to fix the
     // y coordinates!!!
 
-    return pos.x > view_center.x - 32 and pos.x < view_br.x + 32;
+    return pos.x.as_integer() > view_center.x - 32 and pos.x.as_integer() < view_br.x + 32;
 }
 
 
@@ -1189,7 +1189,7 @@ void Platform::Screen::draw(const Sprite& spr)
             return;
         }
         const auto position =
-            spr.get_position().cast<s32>() - spr.get_origin().cast<s32>();
+            ivec(spr.get_position()) - spr.get_origin().cast<s32>();
 
         const auto view_center = view_.get_center().cast<s32>();
         auto oa = object_attribute_back_buffer + oam_write_index;

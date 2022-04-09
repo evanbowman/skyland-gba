@@ -45,8 +45,8 @@ SHARED_VARIABLE(nemesis_blast_damage);
 
 
 
-NemesisBlast::NemesisBlast(const Vec2<Float>& position,
-                           const Vec2<Float>& target,
+NemesisBlast::NemesisBlast(const Vec2<Fixnum>& position,
+                           const Vec2<Fixnum>& target,
                            Island* source,
                            const Vec2<u8>& origin_tile)
     : Projectile({{10, 10}, {8, 8}}), source_(source), origin_tile_(origin_tile)
@@ -57,7 +57,8 @@ NemesisBlast::NemesisBlast(const Vec2<Float>& position,
     sprite_.set_origin({8, 8});
 
     static const Float speed = 0.00018f;
-    step_vector_ = direction(position, target) * speed;
+    auto step = direction(fvec(position), fvec(target)) * speed;
+    step_vector_ = Vec2<Fixnum>{step.x, step.y};
 }
 
 
@@ -65,7 +66,7 @@ NemesisBlast::NemesisBlast(const Vec2<Float>& position,
 void NemesisBlast::update(Platform&, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + app.float_delta() * step_vector_;
+    pos = pos + Fixnum(delta) * step_vector_;
     sprite_.set_position(pos);
 
     sprite_.set_texture_index(80 + variant_);
@@ -82,7 +83,7 @@ void NemesisBlast::update(Platform&, App& app, Microseconds delta)
 void NemesisBlast::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos - Float(delta) * step_vector_;
+    pos = pos - Fixnum(delta) * step_vector_;
     sprite_.set_position(pos);
 
     sprite_.set_texture_index(80 + variant_);
@@ -196,10 +197,12 @@ void NemesisBlast::timestream_record_destroyed(Platform& pfrm, App& app)
         c.x_origin_ = origin_tile_.x;
         c.y_origin_ = origin_tile_.y;
         c.timer_.set(timer_);
-        c.x_pos_.set(sprite_.get_position().x);
-        c.y_pos_.set(sprite_.get_position().y);
-        memcpy(&c.x_speed_, &step_vector_.x, sizeof(Float));
-        memcpy(&c.y_speed_, &step_vector_.y, sizeof(Float));
+        c.x_pos_.set(sprite_.get_position().x.as_integer());
+        c.y_pos_.set(sprite_.get_position().y.as_integer());
+        auto sx = step_vector_.x.as_float();
+        auto sy = step_vector_.y.as_float();
+        memcpy(&c.x_speed_, &sx, sizeof(Float));
+        memcpy(&c.y_speed_, &sy, sizeof(Float));
     };
 
 

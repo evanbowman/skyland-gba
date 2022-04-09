@@ -35,7 +35,7 @@ namespace skyland
 class SmallBird : public Bird
 {
 public:
-    SmallBird(const Vec2<Float>& position, Float speed)
+    SmallBird(const Vec2<Fixnum>& position, Float speed)
         : Bird({{}, {}}), timer1_(0), timer2_(0), speed_(speed)
     {
         sprite_.set_position(position);

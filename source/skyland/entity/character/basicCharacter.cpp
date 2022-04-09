@@ -138,7 +138,7 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
 
         if (timer_ > 0) {
             sprite_.set_position(
-                interpolate(dest, o, Float(timer_) / movement_step_duration));
+                interpolate(dest, o, Fixnum(timer_) / movement_step_duration));
         }
 
         anim_timer_ -= delta;
@@ -512,7 +512,7 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
         }
 
         sprite_.set_position(
-            interpolate(dest, o, Float(timer_) / movement_step_duration));
+            interpolate(dest, o, Fixnum(timer_) / movement_step_duration));
     }
 
     if (timer_ > movement_step_duration) {

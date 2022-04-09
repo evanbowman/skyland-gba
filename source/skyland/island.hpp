@@ -114,10 +114,10 @@ public:
     void display(Platform&);
 
 
-    const Vec2<Float>& get_position() const;
+    const Vec2<Fixnum>& get_position() const;
 
 
-    void set_position(const Vec2<Float>& position);
+    void set_position(const Vec2<Fixnum>& position);
 
 
     Room* get_room(const Vec2<u8>& coord);
@@ -179,14 +179,14 @@ public:
 
 
     // The origin used for collision checking and important stuff.
-    Vec2<Float> origin() const;
+    Vec2<Fixnum> origin() const;
 
 
     // The origin with some added ambient movement, looks nice, but not
     // sufficient for calculating collision checking or anything like that,
     // mostly due to multiplayer, continuously moving things can get out of
     // sync.
-    Vec2<Float> visual_origin() const;
+    Vec2<Fixnum> visual_origin() const;
 
 
     using Terrain = Buffer<u8, 16>;
@@ -210,10 +210,10 @@ public:
     }
 
 
-    void set_drift(Platform& pfrm, App& app, Float drift);
+    void set_drift(Platform& pfrm, App& app, Fixnum drift);
 
 
-    Float get_drift() const
+    Fixnum get_drift() const
     {
         return drift_;
     }
@@ -371,20 +371,20 @@ private:
     Room* dispatch_list_ = nullptr;
     const Layer layer_;
     Terrain terrain_;
-    Vec2<Float> position_;
+    Vec2<Fixnum> position_;
     u8 ambient_movement_;
     Microseconds timer_;
-    Float drift_ = 0;
+    Fixnum drift_ = 0;
 
-    bool interior_visible_;
-    bool show_flag_ = false;
-    bool dispatch_cancelled_ = false;
-    bool show_groups_ = false;
-    bool schedule_repaint_ = false;
+    bool interior_visible_ : 1;
+    bool show_flag_ : 1;
+    bool dispatch_cancelled_ : 1;
+    bool show_groups_ : 1;
+    bool schedule_repaint_ : 1;
 
-    bool has_radar_ = false;
-    bool is_boarded_ = false;
-    bool hidden_ = false;
+    bool has_radar_ : 1;
+    bool is_boarded_ : 1;
+    bool hidden_ : 1;
 
     struct FireState
     {

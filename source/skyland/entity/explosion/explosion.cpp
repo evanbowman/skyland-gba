@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-void medium_explosion(Platform& pfrm, App& app, const Vec2<Float>& position)
+void medium_explosion(Platform& pfrm, App& app, const Vec2<Fixnum>& position)
 {
     app.effects().push(app.alloc_entity<Explosion>(
         pfrm, rng::sample<18>(position, rng::utility_state)));
@@ -53,7 +53,7 @@ void medium_explosion(Platform& pfrm, App& app, const Vec2<Float>& position)
 
 
 
-void medium_explosion_inv(Platform& pfrm, App& app, const Vec2<Float>& position)
+void medium_explosion_inv(Platform& pfrm, App& app, const Vec2<Fixnum>& position)
 {
     auto first = app.alloc_entity<Explosion>(
         pfrm, rng::sample<18>(position, rng::utility_state));
@@ -80,7 +80,7 @@ void medium_explosion_inv(Platform& pfrm, App& app, const Vec2<Float>& position)
 
 
 
-void big_explosion(Platform& pfrm, App& app, const Vec2<Float>& position)
+void big_explosion(Platform& pfrm, App& app, const Vec2<Fixnum>& position)
 {
     for (int i = 0; i < 4; ++i) {
         app.effects().push(app.alloc_entity<Explosion>(
@@ -115,7 +115,7 @@ void big_explosion(Platform& pfrm, App& app, const Vec2<Float>& position)
 
 
 
-void big_explosion_inv(Platform& pfrm, App& app, const Vec2<Float>& position)
+void big_explosion_inv(Platform& pfrm, App& app, const Vec2<Fixnum>& position)
 {
     for (int i = 0; i < 1; ++i) {
         auto exp = app.alloc_entity<Explosion>(

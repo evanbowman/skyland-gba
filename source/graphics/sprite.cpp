@@ -44,7 +44,7 @@ void Sprite::set_rotation(Rotation rot)
 }
 
 
-void Sprite::set_position(const Vec2<Float>& position)
+void Sprite::set_position(const Vec2<Fixnum>& position)
 {
     position_ = position;
 }
@@ -99,7 +99,7 @@ Sprite::Scale Sprite::get_scale() const
 }
 
 
-const Vec2<Float>& Sprite::get_position() const
+const Vec2<Fixnum>& Sprite::get_position() const
 {
     return position_;
 }

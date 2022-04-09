@@ -319,10 +319,10 @@ public:
     const char* name() const;
 
 
-    Vec2<Float> origin() const;
+    Vec2<Fixnum> origin() const;
 
 
-    Vec2<Float> center() const;
+    Vec2<Fixnum> center() const;
 
 
     Island* parent() const

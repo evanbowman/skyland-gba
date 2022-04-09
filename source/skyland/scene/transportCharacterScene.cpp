@@ -98,7 +98,7 @@ void TransportCharacterScene::display(Platform& pfrm, App& app)
     cursor.set_size(Sprite::Size::w16_h32);
     cursor.set_texture_index(15 + cursor_anim_frame_);
 
-    Vec2<Float> origin;
+    Vec2<Fixnum> origin;
     if (app.opponent_island()) {
         origin = app.opponent_island()->visual_origin();
     }

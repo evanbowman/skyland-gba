@@ -36,7 +36,7 @@ class CoreExplosionQuarter : public Entity
 {
 public:
     CoreExplosionQuarter(Platform::DynamicTexturePtr dt,
-                         const Vec2<Float>& pos,
+                         const Vec2<Fixnum>& pos,
                          int quarter)
         : Entity({{}, {}}), dt_(dt), timer_(0), quarter_(quarter)
     {
@@ -116,7 +116,7 @@ private:
 
 
 
-inline void core_explosion(Platform& pfrm, App& app, const Vec2<Float>& pos)
+inline void core_explosion(Platform& pfrm, App& app, const Vec2<Fixnum>& pos)
 {
     auto dt = pfrm.make_dynamic_texture();
     if (dt) {

@@ -105,10 +105,6 @@ void Storm::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 void Storm::display(Platform& pfrm, App& app)
 {
-    // if (app.game_speed() == GameSpeed::stopped) {
-    //     return;
-    // }
-
     auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("rain-spr-buffer");
 
     const auto scale = rain_pos_scale;
@@ -119,7 +115,6 @@ void Storm::display(Platform& pfrm, App& app)
 
     Platform::Screen::SpriteBatchOptions opts;
     opts.position_absolute_ = true;
-    // opts.alpha_ = Sprite::Alpha::translucent;
 
     pfrm.screen().draw_batch(89, *batch, opts);
 }

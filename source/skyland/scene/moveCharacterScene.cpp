@@ -317,7 +317,7 @@ void MoveCharacterScene::display(Platform& pfrm, App& app)
     cursor.set_texture_index(15 + cursor_anim_frame_);
 
 
-    Vec2<Float> origin;
+    Vec2<Fixnum> origin;
     if (near_) {
         origin = app.player_island().visual_origin();
     } else {

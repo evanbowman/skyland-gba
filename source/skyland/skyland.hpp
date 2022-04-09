@@ -199,7 +199,7 @@ public:
     template <typename T, typename... Args>
     void swap_environment(Args&&... args)
     {
-        world_state_->environment_.emplace<T>(std::forward<Args>(args)...);
+        environment_.emplace<T>(std::forward<Args>(args)...);
     }
 
 
@@ -428,7 +428,6 @@ private:
 
         Island player_;
         std::optional<Island> opponent_;
-        Boxed<weather::Environment, weather::ClearSkies, 32> environment_;
     };
 
     void on_remote_console_text(Platform& pfrm,
@@ -447,6 +446,8 @@ private:
     GameSpeed game_speed_ = GameSpeed::normal;
     int pause_count_ = 0;
     Rumble rumble_;
+
+    Boxed<weather::Environment, weather::ClearSkies, 32> environment_;
 
     enum class RemoteConsoleSyntax {
         none,

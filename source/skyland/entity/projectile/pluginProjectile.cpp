@@ -38,8 +38,8 @@ namespace skyland
 
 
 
-PluginProjectile::PluginProjectile(const Vec2<Float>& position,
-                                   const Vec2<Float>& target,
+PluginProjectile::PluginProjectile(const Vec2<Fixnum>& position,
+                                   const Vec2<Fixnum>& target,
                                    Island* source,
                                    const Vec2<u8>& origin_tile,
                                    u16 graphics_tile,
@@ -61,7 +61,9 @@ PluginProjectile::PluginProjectile(const Vec2<Float>& position,
     sprite_.set_flip({flip, false});
 
     static const Float speed = 0.00015f;
-    step_vector_ = direction(position, target) * speed;
+
+    auto step = direction(fvec(position), fvec(target)) * speed;
+    step_vector_ = Vec2<Fixnum>{step.x, step.y};
 }
 
 
@@ -69,7 +71,7 @@ PluginProjectile::PluginProjectile(const Vec2<Float>& position,
 void PluginProjectile::update(Platform&, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + app.float_delta() * step_vector_;
+    pos = pos + Fixnum(delta) * step_vector_;
     sprite_.set_position(pos);
 
     timer_ += delta;
@@ -84,7 +86,7 @@ void PluginProjectile::update(Platform&, App& app, Microseconds delta)
 void PluginProjectile::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos - Float(delta) * step_vector_;
+    pos = pos - Fixnum(delta) * step_vector_;
     sprite_.set_position(pos);
 
     timer_ -= delta;
@@ -152,10 +154,12 @@ void PluginProjectile::timestream_record_destroyed(Platform& pfrm, App& app)
             c.x_origin_ = origin_tile_.x;
             c.y_origin_ = origin_tile_.y;
             c.timer_.set(timer_);
-            c.x_pos_.set(sprite_.get_position().x);
-            c.y_pos_.set(sprite_.get_position().y);
-            memcpy(&c.x_speed_, &step_vector_.x, sizeof(Float));
-            memcpy(&c.y_speed_, &step_vector_.y, sizeof(Float));
+            c.x_pos_.set(sprite_.get_position().x.as_integer());
+            c.y_pos_.set(sprite_.get_position().y.as_integer());
+            auto sx = step_vector_.x.as_float();
+            auto sy = step_vector_.y.as_float();
+            memcpy(&c.x_speed_, &sx, sizeof(Float));
+            memcpy(&c.y_speed_, &sy, sizeof(Float));
             c.tile_.set(sprite().get_texture_index());
             c.damage_.set(damage_);
             c.hflip_ = sprite().get_flip().x;
