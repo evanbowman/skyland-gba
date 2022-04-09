@@ -62,7 +62,7 @@ public:
     };
 
 
-    using Callback = Function<16, void(Platform&, App&)>;
+    using Callback = Function<8, void(Platform&, App&)>;
 
 
     struct Binding
@@ -154,15 +154,11 @@ public:
 private:
     int seek_state_ = 0;
 
-    static const int binding_max = 32;
+    static const int binding_max = 8;
 
     Buffer<u8, binding_max> possibilities_;
     Buffer<Binding, binding_max> bindings_;
 };
-
-
-
-extern KeyCallbackProcessor key_callback_processor;
 
 
 

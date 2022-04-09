@@ -347,13 +347,6 @@ public:
     GlobalPersistentData gp_;
 
 
-    static const auto pixelate_duration = milliseconds(200);
-
-    void pixelate()
-    {
-        pixelate_timer_ = pixelate_duration;
-    }
-
 
     lisp::Value* invoke_ram_script(Platform& pfrm, const char* ram_fs_path);
 
@@ -413,6 +406,12 @@ public:
     }
 
 
+    KeyCallbackProcessor& key_callback_processor()
+    {
+        return key_callback_processor_;
+    }
+
+
 private:
     // NOTE: As islands take a lot of memory, and App is created on the stack, I
     // ended up moving them into a scratch buffer.
@@ -444,6 +443,8 @@ private:
     int pause_count_ = 0;
     Rumble rumble_;
 
+    KeyCallbackProcessor key_callback_processor_;
+
     Boxed<weather::Environment, weather::ClearSkies, 32> environment_;
 
     enum class RemoteConsoleSyntax {
@@ -468,8 +469,6 @@ private:
 
     TimeTracker level_timer_;
     TimeTracker stat_timer_;
-
-    Microseconds pixelate_timer_ = 0;
 
     Buffer<std::pair<DeferredCallback, Microseconds>, 20> deferred_callbacks_;
 

@@ -602,10 +602,6 @@ weather::Environment& App::environment()
 
 
 
-KeyCallbackProcessor key_callback_processor;
-
-
-
 void state_bit_store(App& app, StateBit state_bit, bool value)
 {
     app.state_bits().set((int)state_bit, value);

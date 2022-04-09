@@ -48,7 +48,9 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
 
     for (auto& rd : raindrops_) {
         if ((rd.x / scale) < 0 or
-            (rd.y / scale) > (s16)pfrm.screen().size().y) {
+            (rd.y / scale) > (s16)pfrm.screen().size().y or
+            (rd.x / scale) > (s16)pfrm.screen().size().x + 24 or
+            (rd.y / scale) < -24) {
 
             if (delta == 0) {
                 rd.x = rng::choice(pfrm.screen().size().x * scale, gen);
@@ -66,14 +68,12 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
             rd.x -= (delta >> 6) + (delta >> 8);
             rd.y += (delta >> 6) + (delta >> 8);
 
-            if (delta == 0) {
-                rd.x -= camera_diff_x * (scale + 48);
-                rd.y -= camera_diff_y * (scale + 48);
-            }
+            rd.x -= camera_diff_x * (scale + 48);
+            rd.y -= camera_diff_y * (scale + 48);
         }
     }
 
-    if (delta not_eq 0 or camera_diff_x != 0 or camera_diff_y != 0) {
+    if (camera_diff_x != 0 or camera_diff_y != 0) {
         last_camera_ = camera;
     }
 }

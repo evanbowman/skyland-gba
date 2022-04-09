@@ -69,24 +69,24 @@ static inline void skyland_main_loop(Platform& pf)
     std::get<SkylandGlobalData>(globals()).entity_pools_.init(pf);
     std::get<SkylandGlobalData>(globals()).room_pools_.init();
 
-    skyland::App app(pf);
+    auto app = allocate_dynamic<skyland::App>("app-data", pf);
 
     console_display_startup_prompt(pf);
 
-    app.init_scripts(pf);
+    app->init_scripts(pf);
 
     pf.enable_glyph_mode(true);
     pf.load_overlay_texture("overlay");
-    pf.load_background_texture(app.environment().background_texture());
+    pf.load_background_texture(app->environment().background_texture());
 
     while (pf.is_running()) {
         pf.keyboard().poll();
 
         pf.system_call("feed-watchdog", nullptr);
 
-        app.update(pf, pf.delta_clock().reset());
+        app->update(pf, pf.delta_clock().reset());
         pf.screen().clear();
-        app.render(pf);
+        app->render(pf);
         pf.screen().display();
     }
 }

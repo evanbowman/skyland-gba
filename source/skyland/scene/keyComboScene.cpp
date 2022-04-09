@@ -53,7 +53,7 @@ void KeyComboScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.set_tile(Layer::overlay, i, 18, 425);
     }
 
-    key_callback_processor.reset();
+    app.key_callback_processor().reset();
 }
 
 
@@ -76,15 +76,15 @@ KeyComboScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_down(pfrm, Key::start) or
-        key_callback_processor.seek_state() ==
+        app.key_callback_processor().seek_state() ==
             KeyCallbackProcessor::seq_max - 1 or
-        (key_callback_processor.possibilities() == 1 and
-         key_callback_processor.match())) {
+        (app.key_callback_processor().possibilities() == 1 and
+         app.key_callback_processor().match())) {
 
-        if (auto binding = key_callback_processor.match()) {
+        if (auto binding = app.key_callback_processor().match()) {
             binding->callback_(pfrm, app);
         }
-        key_callback_processor.reset();
+        app.key_callback_processor().reset();
 
         if (is_far_camera()) {
             return scene_pool::alloc<InspectP2Scene>();
@@ -93,7 +93,7 @@ KeyComboScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    key_callback_processor.update(pfrm);
+    app.key_callback_processor().update(pfrm);
 
     Key found = Key::count;
     for (int i = 0; i < (int)Key::count; ++i) {

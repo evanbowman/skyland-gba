@@ -160,7 +160,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
         app.reset_opponent_island(pfrm);
     }
 
-    key_callback_processor.clear();
+    app.key_callback_processor().clear();
     app.custom_tile_mapper().clear();
     app.custom_sprite_mapper().clear();
 

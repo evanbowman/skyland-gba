@@ -470,13 +470,13 @@ static const lisp::Binding script_api[] = {
              ++str;
          }
 
-         key_callback_processor.push_binding(b);
+         interp_get_app()->key_callback_processor().push_binding(b);
 
          return L_NIL;
      }},
     {"key-reset",
      [](int argc) {
-         key_callback_processor.clear();
+         interp_get_app()->key_callback_processor().clear();
          return L_NIL;
      }},
     {"dialog",
