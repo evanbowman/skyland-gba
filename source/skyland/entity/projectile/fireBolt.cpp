@@ -157,6 +157,7 @@ void FireBolt::on_collision(Platform& pfrm, App& app, Room& room)
     room.apply_damage(pfrm, app, 30);
 
     if (str_eq(room.name(), "mirror-hull")) {
+        record_destroyed(pfrm, app);
         step_vector_.x *= -1;
         step_vector_.y *= -1;
         source_ = room.parent();
@@ -173,7 +174,7 @@ void FireBolt::on_collision(Platform& pfrm, App& app, Room& room)
 
 
 
-void FireBolt::destroy(Platform& pfrm, App& app, bool explosion)
+void FireBolt::record_destroyed(Platform& pfrm, App& app)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -197,6 +198,13 @@ void FireBolt::destroy(Platform& pfrm, App& app, bool explosion)
         app.time_stream().push(app.level_timer(), c);
     }
 
+}
+
+
+
+void FireBolt::destroy(Platform& pfrm, App& app, bool explosion)
+{
+    record_destroyed(pfrm, app);
 
     kill();
     app.camera()->shake(8);

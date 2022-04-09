@@ -105,7 +105,7 @@ void Flak::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Flak::destroy(Platform& pfrm, App& app, bool explosion)
+void Flak::record_destroyed(Platform& pfrm, App& app)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -128,7 +128,13 @@ void Flak::destroy(Platform& pfrm, App& app, bool explosion)
         timestream_record(c);
         app.time_stream().push(app.level_timer(), c);
     }
+}
 
+
+
+void Flak::destroy(Platform& pfrm, App& app, bool explosion)
+{
+    record_destroyed(pfrm, app);
 
     if (explosion) {
         explode(pfrm, app);
@@ -301,6 +307,7 @@ void Flak::on_collision(Platform& pfrm, App& app, Room& room)
     Flak::burst(pfrm, app, sprite_.get_position(), room);
 
     if (str_eq(room.name(), "mirror-hull")) {
+        record_destroyed(pfrm, app);
         explode(pfrm, app);
         app.camera()->shake(8);
         step_vector_.x *= -1;

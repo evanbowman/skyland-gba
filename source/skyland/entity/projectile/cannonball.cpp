@@ -146,6 +146,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
     room.apply_damage(pfrm, app, cannonball_damage);
 
     if (str_eq(room.name(), "mirror-hull")) {
+        record_destroyed(pfrm, app);
         step_vector_.x *= -1;
         step_vector_.y *= -1;
         source_ = room.parent();
@@ -162,7 +163,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Room& room)
 
 
 
-void Cannonball::destroy(Platform& pfrm, App& app, bool explosion)
+void Cannonball::record_destroyed(Platform& pfrm, App& app)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& c) {
@@ -185,7 +186,13 @@ void Cannonball::destroy(Platform& pfrm, App& app, bool explosion)
         timestream_record(c);
         app.time_stream().push(app.level_timer(), c);
     }
+}
 
+
+
+void Cannonball::destroy(Platform& pfrm, App& app, bool explosion)
+{
+    record_destroyed(pfrm, app);
 
     kill();
     app.camera()->shake(8);

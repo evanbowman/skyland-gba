@@ -209,6 +209,7 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
 
 
     if (str_eq(room.name(), "mirror-hull")) {
+        record_destroyed(pfrm, app);
         step_vector_.x *= -1;
         step_vector_.y *= -1;
         source_ = room.parent();
@@ -225,7 +226,7 @@ void ArcBolt::on_collision(Platform& pfrm, App& app, Room& room)
 
 
 
-void ArcBolt::destroy(Platform& pfrm, App& app, bool explosion)
+void ArcBolt::record_destroyed(Platform& pfrm, App& app)
 {
     auto timestream_record =
         [&](time_stream::event::BasicProjectileDestroyed& e) {
@@ -248,7 +249,13 @@ void ArcBolt::destroy(Platform& pfrm, App& app, bool explosion)
         timestream_record(e);
         app.time_stream().push(app.level_timer(), e);
     }
+}
 
+
+
+void ArcBolt::destroy(Platform& pfrm, App& app, bool explosion)
+{
+    record_destroyed(pfrm, app);
 
     kill();
     app.camera()->shake(8);

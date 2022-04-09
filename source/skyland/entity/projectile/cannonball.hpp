@@ -70,6 +70,8 @@ public:
 private:
     void destroy(Platform& pfrm, App& app, bool explosion) override;
 
+    void record_destroyed(Platform& pfrm, App& app);
+
     Microseconds timer_ = 0;
     Vec2<Fixnum> step_vector_;
     Island* source_;

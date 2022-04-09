@@ -67,6 +67,7 @@ public:
 
 
 private:
+    void record_destroyed(Platform& pfrm, App& app);
     void destroy(Platform& pfrm, App& app, bool explosion) override;
 
     Microseconds timer_ = 0;
