@@ -67,7 +67,7 @@ public:
 
 
 private:
-    void destroy(Platform& pfrm, App& app, bool explosion);
+    void destroy(Platform& pfrm, App& app, bool explosion) override;
 
     Microseconds timer_ = 0;
     Microseconds anim_timer_ = 0;

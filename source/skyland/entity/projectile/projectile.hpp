@@ -32,12 +32,25 @@ namespace skyland
 
 
 
+class Island;
+
+
+
 class Projectile : public Entity
 {
 public:
     Projectile(const HitBox::Dimension& dimension) : Entity(dimension)
     {
     }
+
+
+protected:
+
+
+    virtual void destroy(Platform& pfrm, App& app, bool explosion);
+
+
+    void destroy_out_of_bounds(Platform& pfrm, App& app, Island* target);
 };
 
 

@@ -68,7 +68,7 @@ public:
 
 
 private:
-    void destroy(Platform& pfrm, App& app, bool explosion);
+    void destroy(Platform& pfrm, App& app, bool explosion) override;
 
     Microseconds timer_ = 0;
     Vec2<Fixnum> step_vector_;

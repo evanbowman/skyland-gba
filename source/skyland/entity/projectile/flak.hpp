@@ -75,7 +75,7 @@ private:
     Vec2<Fixnum> step_vector_;
     Island* source_;
 
-    void destroy(Platform& pfrm, App& app, bool explosion);
+    void destroy(Platform& pfrm, App& app, bool explosion) override;
 
     void explode(Platform& pfrm, App& app);
 
