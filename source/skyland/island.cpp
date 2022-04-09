@@ -67,15 +67,9 @@ void Island::init_terrain(Platform& pfrm, int width)
 
 
 Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
-    : layer_(layer), timer_(0),
-      interior_visible_(false),
-      show_flag_(false),
-      dispatch_cancelled_(false),
-      show_groups_(false),
-      schedule_repaint_(false),
-      has_radar_(false),
-      is_boarded_(false),
-      hidden_(false),
+    : layer_(layer), timer_(0), interior_visible_(false), show_flag_(false),
+      dispatch_cancelled_(false), show_groups_(false), schedule_repaint_(false),
+      has_radar_(false), is_boarded_(false), hidden_(false),
       flag_anim_index_(Tile::flag_start), owner_(&owner)
 {
     init_terrain(pfrm, width);
@@ -148,9 +142,7 @@ std::pair<BasicCharacter*, Room*> Island::find_character_by_id(CharacterId id)
 
 
 
-static auto fire_alloc_texture(Platform& pfrm,
-                               App& app,
-                               Island& island)
+static auto fire_alloc_texture(Platform& pfrm, App& app, Island& island)
 {
     std::optional<Platform::DynamicTexturePtr> result;
 
@@ -172,7 +164,6 @@ static auto fire_alloc_texture(Platform& pfrm,
 
     return result;
 }
-
 
 
 

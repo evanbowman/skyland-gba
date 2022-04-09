@@ -21,7 +21,6 @@
 
 
 
-
 extern const unsigned char script_init[];
 //;
 extern const unsigned char script_pre_levelgen[];

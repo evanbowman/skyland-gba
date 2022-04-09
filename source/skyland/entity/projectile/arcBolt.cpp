@@ -129,8 +129,8 @@ void ArcBolt::update(Platform& pfrm, App& app, Microseconds delta)
             min_x = target->origin().x.as_integer() - 32;
         } else {
             // Otherwise, we need to check the max bound.
-            max_x =
-                target->origin().x.as_integer() + 16 * target->terrain().size() + 32;
+            max_x = target->origin().x.as_integer() +
+                    16 * target->terrain().size() + 32;
         }
         if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
             this->destroy(pfrm, app, pos.y > min_y);

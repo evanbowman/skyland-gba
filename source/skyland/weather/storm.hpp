@@ -37,7 +37,6 @@ private:
     Vec2<s16> last_camera_;
 
 public:
-
     void update(Platform& pfrm, App& app, Microseconds delta);
 
 
@@ -55,5 +54,4 @@ public:
 
 
 
-
-}
+} // namespace skyland::weather

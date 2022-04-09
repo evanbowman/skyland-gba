@@ -89,8 +89,8 @@ void DecimatorBurst::update(Platform&, App& app, Microseconds delta)
             min_x = target->origin().x.as_integer() - 32;
         } else {
             // Otherwise, we need to check the max bound.
-            max_x =
-                target->origin().x.as_integer() + 16 * target->terrain().size() + 32;
+            max_x = target->origin().x.as_integer() +
+                    16 * target->terrain().size() + 32;
         }
         if (pos.x > max_x or pos.x < min_x) {
             kill();

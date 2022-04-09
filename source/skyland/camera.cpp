@@ -68,15 +68,11 @@ void Camera::update(Platform& pfrm,
 
     if (near) {
         target_.x = tpos.x + ((cursor_loc.x - 3) * 16) / 2;
-        target_.x = clamp(target_.x,
-                          (int)tpos.x - 40,
-                          (int)tpos.x + 48);
+        target_.x = clamp(target_.x, (int)tpos.x - 40, (int)tpos.x + 48);
         target_.x -= 16;
     } else {
         target_.x = tpos.x + ((cursor_loc.x + 3) * 16) / 2;
-        target_.x = clamp(target_.x,
-                          (int)tpos.x - 48,
-                          (int)tpos.x + 256);
+        target_.x = clamp(target_.x, (int)tpos.x - 48, (int)tpos.x + 256);
         target_.x -= 100;
     }
 

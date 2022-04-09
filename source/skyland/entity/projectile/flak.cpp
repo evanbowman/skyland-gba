@@ -110,8 +110,8 @@ void Flak::update(Platform& pfrm, App& app, Microseconds delta)
             min_x = target->origin().x.as_integer() - 32;
         } else {
             // Otherwise, we need to check the max bound.
-            max_x =
-                target->origin().x.as_integer() + 16 * target->terrain().size() + 32;
+            max_x = target->origin().x.as_integer() +
+                    16 * target->terrain().size() + 32;
         }
         if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
             this->destroy(pfrm, app, pos.y > min_y);
@@ -181,14 +181,13 @@ void Flak::explode(Platform& pfrm, App& app)
     pos.x = sprite_.get_position().x.as_integer();
     pos.y = sprite_.get_position().y.as_integer();
 
-    app.on_timeout(pfrm,
-                   milliseconds(190),
-                   [pos, flak_smoke](Platform& pf, App& app) {
-                       Vec2<Fixnum> p;
-                       p.x = Fixnum::from_integer(pos.x);
-                       p.y = Fixnum::from_integer(pos.y);
-                       flak_smoke(pf, app, p);
-                   });
+    app.on_timeout(
+        pfrm, milliseconds(190), [pos, flak_smoke](Platform& pf, App& app) {
+            Vec2<Fixnum> p;
+            p.x = Fixnum::from_integer(pos.x);
+            p.y = Fixnum::from_integer(pos.y);
+            flak_smoke(pf, app, p);
+        });
 }
 
 

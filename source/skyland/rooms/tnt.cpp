@@ -133,14 +133,13 @@ void Explosive::ignite(Platform& pfrm,
     pos.x = center().x.as_integer();
     pos.y = center().y.as_integer();
 
-    app.on_timeout(pfrm,
-                   milliseconds(190),
-                   [pos, flak_smoke](Platform& pf, App& app) {
-                       Vec2<Fixnum> p;
-                       p.x = Fixnum::from_integer(pos.x);
-                       p.y = Fixnum::from_integer(pos.y);
-                       flak_smoke(pf, app, p);
-                   });
+    app.on_timeout(
+        pfrm, milliseconds(190), [pos, flak_smoke](Platform& pf, App& app) {
+            Vec2<Fixnum> p;
+            p.x = Fixnum::from_integer(pos.x);
+            p.y = Fixnum::from_integer(pos.y);
+            flak_smoke(pf, app, p);
+        });
 
     auto targets =
         allocate_dynamic<Buffer<Room*, 300>>("dynamite-target-bufer");

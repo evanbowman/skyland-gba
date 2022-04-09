@@ -24,8 +24,8 @@
 
 
 #include "memory/buffer.hpp"
-#include "numeric.hpp"
 #include "number/fixed.hpp"
+#include "numeric.hpp"
 
 
 

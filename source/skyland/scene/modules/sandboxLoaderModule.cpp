@@ -243,7 +243,8 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (unveil_) {
-        pfrm.screen().schedule_fade(0.6f, ColorConstant::rich_black, false, false);
+        pfrm.screen().schedule_fade(
+            0.6f, ColorConstant::rich_black, false, false);
     } else {
         unveil_ = true;
     }
@@ -260,16 +261,17 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
         long_hold_time_[0] = 0;
     }
 
-    auto update_env =
-        [&] {
-            environment_init(app, parameters_[4]);
+    auto update_env = [&] {
+        environment_init(app, parameters_[4]);
 
-            pfrm.screen().set_shader(app.environment().shader(app));
-            pfrm.screen().set_shader_argument(0);
+        pfrm.screen().set_shader(app.environment().shader(app));
+        pfrm.screen().set_shader_argument(0);
 
-            pfrm.screen().schedule_fade(0.7f, ColorConstant::rich_black, false, false);
-            pfrm.screen().schedule_fade(0.6f, ColorConstant::rich_black, false, false);
-        };
+        pfrm.screen().schedule_fade(
+            0.7f, ColorConstant::rich_black, false, false);
+        pfrm.screen().schedule_fade(
+            0.6f, ColorConstant::rich_black, false, false);
+    };
 
 
     if (app.player().key_down(pfrm, Key::right) or

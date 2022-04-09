@@ -23,9 +23,9 @@
 #pragma once
 
 
+#include "number/fixed.hpp"
 #include "projectile.hpp"
 #include "skyland/skyland.hpp"
-#include "number/fixed.hpp"
 
 
 

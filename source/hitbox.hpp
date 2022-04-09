@@ -23,8 +23,8 @@
 #pragma once
 
 
-#include "number/numeric.hpp"
 #include "number/fixed.hpp"
+#include "number/numeric.hpp"
 
 
 

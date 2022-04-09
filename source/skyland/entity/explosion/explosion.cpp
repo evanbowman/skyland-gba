@@ -53,7 +53,9 @@ void medium_explosion(Platform& pfrm, App& app, const Vec2<Fixnum>& position)
 
 
 
-void medium_explosion_inv(Platform& pfrm, App& app, const Vec2<Fixnum>& position)
+void medium_explosion_inv(Platform& pfrm,
+                          App& app,
+                          const Vec2<Fixnum>& position)
 {
     auto first = app.alloc_entity<Explosion>(
         pfrm, rng::sample<18>(position, rng::utility_state));

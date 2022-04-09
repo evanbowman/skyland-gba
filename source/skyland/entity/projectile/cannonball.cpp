@@ -24,6 +24,7 @@
 
 
 #include "cannonball.hpp"
+#include "number/fixed.hpp"
 #include "skyland/entity/drones/drone.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/room.hpp"
@@ -34,7 +35,6 @@
 #include "skyland/sharedVariable.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "number/fixed.hpp"
 
 
 
@@ -92,33 +92,34 @@ void Cannonball::update(Platform& pfrm, App& app, Microseconds delta)
     // }
 
 
-    // Island* target;
-    // if (source_ == &app.player_island()) {
-    //     target = app.opponent_island();
-    // } else {
-    //     target = &app.player_island();
-    // }
+    Island* target;
+    if (source_ == &app.player_island()) {
+        target = app.opponent_island();
+    } else {
+        target = &app.player_island();
+    }
 
-    // if (target) {
-    //     auto t_y = target->origin().y.as_integer();
-    //     auto max_y = t_y + 16 * 16 + 32;
-    //     auto min_y = t_y + construction_zone_min_y * 16;
-    //     int max_x = 9999999;
-    //     int min_x = -9999999;
-    //     if (target == &app.player_island()) {
-    //         // If we're shooting at the player's island, the projectile moves
-    //         // leftwards, and we care about the min bound.
-    //         min_x = target->origin().x.as_integer() - 32;
-    //     } else {
-    //         // Otherwise, we need to check the max bound.
-    //         max_x =
-    //             target->origin().x.as_integer() + 16 * target->terrain().size() + 32;
-    //     }
-    //     if (pos.y > max_y or pos.y < min_y or pos.x > max_x or pos.x < min_x) {
-    //         this->destroy(pfrm, app, pos.y > min_y);
-    //         pfrm.speaker().play_sound("explosion1", 2);
-    //     }
-    // }
+    if (target) {
+        auto t_y = target->origin().y.as_integer();
+        auto max_y = t_y + 16 * 16 + 32;
+        auto min_y = t_y + construction_zone_min_y * 16;
+        int max_x = 9999999;
+        int min_x = -9999999;
+        if (target == &app.player_island()) {
+            // If we're shooting at the player's island, the projectile moves
+            // leftwards, and we care about the min bound.
+            min_x = target->origin().x.as_integer() - 32;
+        } else {
+            // Otherwise, we need to check the max bound.
+            max_x = target->origin().x.as_integer() +
+                    16 * target->terrain().size() + 32;
+        }
+        if (pos.y > max_y or pos.y < min_y or pos.x.as_integer() > max_x or
+            pos.x.as_integer() < min_x) {
+            this->destroy(pfrm, app, pos.y > min_y);
+            pfrm.speaker().play_sound("explosion1", 2);
+        }
+    }
 
     if (timer_ > seconds(2)) {
         kill();

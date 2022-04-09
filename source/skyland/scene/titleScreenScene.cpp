@@ -1136,41 +1136,41 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
 
 
         sprite.set_position(Vec2<Fixnum>{28 + 64.f * module_cursor_->x +
-                                            (selector_shaded_ ? 1 : 0),
-                                        ambient_movement_ + 60 + 8 +
-                                            64.f * module_cursor_->y +
-                                            (selector_shaded_ ? 1 : 0)} +
-            scl);
+                                             (selector_shaded_ ? 1 : 0),
+                                         ambient_movement_ + 60 + 8 +
+                                             64.f * module_cursor_->y +
+                                             (selector_shaded_ ? 1 : 0)} +
+                            scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({true, false});
         sprite.set_position(Vec2<Fixnum>{83 + 64.f * module_cursor_->x -
-                                            (selector_shaded_ ? 1 : 0),
-                                        ambient_movement_ + 60 + 8 +
-                                            64.f * module_cursor_->y +
-                                            (selector_shaded_ ? 1 : 0)} +
-            scl);
+                                             (selector_shaded_ ? 1 : 0),
+                                         ambient_movement_ + 60 + 8 +
+                                             64.f * module_cursor_->y +
+                                             (selector_shaded_ ? 1 : 0)} +
+                            scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({false, true});
         sprite.set_position(Vec2<Fixnum>{28 + 64.f * module_cursor_->x +
-                                            (selector_shaded_ ? 1 : 0),
-                                        ambient_movement_ + 60 + 8 +
-                                            64.f * module_cursor_->y + 40 -
-                                            (selector_shaded_ ? 1 : 0)} +
-            scl);
+                                             (selector_shaded_ ? 1 : 0),
+                                         ambient_movement_ + 60 + 8 +
+                                             64.f * module_cursor_->y + 40 -
+                                             (selector_shaded_ ? 1 : 0)} +
+                            scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({true, true});
         sprite.set_position(Vec2<Fixnum>{83 + 64.f * module_cursor_->x -
-                                            (selector_shaded_ ? 1 : 0),
-                                        ambient_movement_ + 60 + 8 +
-                                            64.f * module_cursor_->y + 40 -
-                                            (selector_shaded_ ? 1 : 0)} +
-            scl);
+                                             (selector_shaded_ ? 1 : 0),
+                                         ambient_movement_ + 60 + 8 +
+                                             64.f * module_cursor_->y + 40 -
+                                             (selector_shaded_ ? 1 : 0)} +
+                            scl);
         pfrm.screen().draw(sprite);
     }
 }
@@ -1236,12 +1236,14 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
             anchor.y +
                 clamp(interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
                       0.f,
-                      19.f)} + scl);
+                      19.f)} +
+        scl);
     pfrm.screen().draw(sprite);
 
     sprite.set_position(
         Vec2<Fixnum>{(anchor.x + 24) - (240 + x_scroll),
-                    anchor.y + interpolate(ball_.y, pad2_.pos_, ball_.x / 22)} +
+                     anchor.y +
+                         interpolate(ball_.y, pad2_.pos_, ball_.x / 22)} +
         scl);
 
     pfrm.screen().draw(sprite);
@@ -1249,8 +1251,8 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
     sprite.set_origin({});
     sprite.set_texture_index(27);
     sprite.set_position(Vec2<Fixnum>{(ball_.x + anchor.x) - (240 + x_scroll),
-                                    ball_.y + anchor.y} +
-        scl);
+                                     ball_.y + anchor.y} +
+                        scl);
     pfrm.screen().draw(sprite);
 }
 
