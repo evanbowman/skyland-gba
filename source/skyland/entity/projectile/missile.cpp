@@ -75,7 +75,7 @@ void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::wait;
         }
         auto pos = sprite_.get_position();
-        pos.y -= delta * 0.00041f;
+        pos.y -= app.delta_fp() * Fixnum(0.00041f);
         sprite_.set_position(pos);
         break;
     }
@@ -105,7 +105,7 @@ void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
             kill();
         }
         auto pos = sprite_.get_position();
-        pos.y += delta * 0.0003f;
+        pos.y += app.delta_fp() * Fixnum(0.0003f);
         sprite_.set_position(pos);
         break;
     }
@@ -137,7 +137,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         auto pos = sprite_.get_position();
-        pos.y -= Fixnum(delta) * Fixnum(0.0003f);
+        pos.y -= app.delta_fp() * Fixnum(0.0003f);
         sprite_.set_position(pos);
         break;
     }
@@ -169,7 +169,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
             kill();
         }
         auto pos = sprite_.get_position();
-        pos.y += app.float_delta() * 0.00041f;
+        pos.y += app.delta_fp() * Fixnum(0.00041f);
         sprite_.set_position(pos);
 
         Island* target;

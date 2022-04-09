@@ -489,6 +489,22 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
 
 
 
+bool Room::non_owner_selectable() const
+{
+    for (auto& chr : characters()) {
+
+        bool has_boarded_character = chr->owner() not_eq &parent()->owner();
+
+        if (has_boarded_character) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+
 void Room::burn_damage(Platform& pfrm, App& app, Health amount)
 {
     auto props = (*metaclass())->properties();

@@ -290,8 +290,8 @@ struct BasicProjectileDestroyed
     HostInteger<Microseconds> timer_;
     host_s16 x_pos_;
     host_s16 y_pos_;
-    u8 x_speed_[sizeof(Float)];
-    u8 y_speed_[sizeof(Float)];
+    host_s64 x_speed__data_;
+    host_s64 y_speed__data_;
 };
 
 
@@ -388,8 +388,8 @@ struct NemesisBlastDestroyed
     HostInteger<Microseconds> timer_;
     host_s16 x_pos_;
     host_s16 y_pos_;
-    u8 x_speed_[sizeof(Float)];
-    u8 y_speed_[sizeof(Float)];
+    host_s64 x_speed__data_;
+    host_s64 y_speed__data_;
     u8 variant_;
 };
 
@@ -417,8 +417,8 @@ struct PluginProjectileDestroyed
     HostInteger<Microseconds> timer_;
     host_s16 x_pos_;
     host_s16 y_pos_;
-    u8 x_speed_[sizeof(Float)];
-    u8 y_speed_[sizeof(Float)];
+    host_s64 x_speed__data_;
+    host_s64 y_speed__data_;
     u8 variant_;
     host_u16 tile_;
     HostInteger<s16> damage_;

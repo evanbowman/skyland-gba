@@ -227,10 +227,7 @@ public:
 
 
     // Block may be selected and activated even by the other player.
-    virtual bool non_owner_selectable() const
-    {
-        return false;
-    }
+    virtual bool non_owner_selectable() const;
 
 
     virtual ScenePtr<Scene>
@@ -332,6 +329,12 @@ public:
 
 
     EntityList<BasicCharacter>& characters()
+    {
+        return characters_;
+    }
+
+
+    const EntityList<BasicCharacter>& characters() const
     {
         return characters_;
     }

@@ -226,12 +226,6 @@ template <typename T> T interpolate(const T& a, const T& b, Float t)
 }
 
 
-template <typename T> T interpolate(const T& a, const T& b, Fixnum t)
-{
-    return a * t + (1 - t) * b;
-}
-
-
 inline Float ease_out(Float time, Float b, Float c, Float duration)
 {
     time = time / duration - 1;

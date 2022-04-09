@@ -133,11 +133,12 @@ void Drone::rewind(Platform& pfrm, App& app, Microseconds delta)
             auto amount = smoothstep(0.f, duration_, timer_);
             auto dest = calc_pos(destination_, grid_pos_);
             auto pos =
-                interpolate(dest,
-                            Vec2<Fixnum>{Fixnum::from_integer(anchor_.x),
-                                         Fixnum::from_integer(anchor_.y)},
-                            Fixnum(amount));
-            sprite_.set_position(pos);
+                interpolate(fvec(dest),
+                            Vec2<Float>{(Float)anchor_.x,
+                                        (Float)anchor_.y},
+                            Float(amount));
+
+            sprite_.set_position(Vec2<Fixnum>{pos.x, pos.y});
 
             if (parent() not_eq &app.player_island()) {
                 sprite_.set_flip({true, false});
@@ -236,11 +237,10 @@ void Drone::update(Platform& pfrm, App& app, Microseconds delta)
         }
         auto amount = smoothstep(0.f, duration_, timer_);
         auto dest = calc_pos(destination_, grid_pos_);
-        auto pos = interpolate(dest,
-                               Vec2<Fixnum>{Fixnum::from_integer(anchor_.x),
-                                            Fixnum::from_integer(anchor_.y)},
-                               Fixnum(amount));
-        sprite_.set_position(pos);
+        auto pos = interpolate(fvec(dest),
+                               Vec2<Float>{(Float)anchor_.x, (Float)anchor_.y},
+                               Float(amount));
+        sprite_.set_position(Vec2<Fixnum>{pos.x, pos.y});
 
         if (parent() not_eq &app.player_island()) {
             sprite_.set_flip({true, false});

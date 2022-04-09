@@ -71,7 +71,7 @@ Cannonball::Cannonball(const Vec2<Fixnum>& position,
 void Cannonball::update(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + Fixnum(delta) * step_vector_;
+    pos = pos + app.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ += delta;
@@ -99,7 +99,7 @@ void Cannonball::update(Platform& pfrm, App& app, Microseconds delta)
             max_x = target->origin().x.as_integer() +
                     16 * target->terrain().size() + 32;
         }
-        if (pos.y > max_y or pos.y < min_y or pos.x.as_integer() > max_x or
+        if (pos.y.as_integer() > max_y or pos.y.as_integer() < min_y or pos.x.as_integer() > max_x or
             pos.x.as_integer() < min_x) {
             this->destroy(pfrm, app, pos.y > min_y);
             pfrm.speaker().play_sound("explosion1", 2);
@@ -115,9 +115,9 @@ void Cannonball::update(Platform& pfrm, App& app, Microseconds delta)
 
 void Cannonball::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
-    // auto pos = sprite_.get_position();
-    // pos = pos - app.float_delta() * step_vector_;
-    // sprite_.set_position(pos);
+    auto pos = sprite_.get_position();
+    pos = pos - app.delta_fp() * step_vector_;
+    sprite_.set_position(pos);
 
     timer_ -= delta;
 
@@ -190,10 +190,8 @@ void Cannonball::destroy(Platform& pfrm, App& app, bool explosion)
             c.timer_.set(timer_);
             c.x_pos_.set(sprite_.get_position().x.as_integer());
             c.y_pos_.set(sprite_.get_position().y.as_integer());
-            auto sx = step_vector_.x.as_float();
-            auto sy = step_vector_.y.as_float();
-            memcpy(&c.x_speed_, &sx, sizeof(Float));
-            memcpy(&c.y_speed_, &sy, sizeof(Float));
+            c.x_speed__data_.set(step_vector_.x.data());
+            c.y_speed__data_.set(step_vector_.y.data());
         };
 
 

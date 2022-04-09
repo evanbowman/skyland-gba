@@ -66,7 +66,7 @@ NemesisBlast::NemesisBlast(const Vec2<Fixnum>& position,
 void NemesisBlast::update(Platform&, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + Fixnum(delta) * step_vector_;
+    pos = pos + app.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     sprite_.set_texture_index(80 + variant_);
@@ -83,7 +83,7 @@ void NemesisBlast::update(Platform&, App& app, Microseconds delta)
 void NemesisBlast::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos - Fixnum(delta) * step_vector_;
+    pos = pos - app.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     sprite_.set_texture_index(80 + variant_);
@@ -199,10 +199,8 @@ void NemesisBlast::timestream_record_destroyed(Platform& pfrm, App& app)
         c.timer_.set(timer_);
         c.x_pos_.set(sprite_.get_position().x.as_integer());
         c.y_pos_.set(sprite_.get_position().y.as_integer());
-        auto sx = step_vector_.x.as_float();
-        auto sy = step_vector_.y.as_float();
-        memcpy(&c.x_speed_, &sx, sizeof(Float));
-        memcpy(&c.y_speed_, &sy, sizeof(Float));
+        c.x_speed__data_.set(step_vector_.x.data());
+        c.y_speed__data_.set(step_vector_.y.data());
     };
 
 

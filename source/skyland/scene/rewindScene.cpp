@@ -63,10 +63,8 @@ T* respawn_basic_projectile(Platform& pfrm,
                             parent,
                             Vec2<u8>{e.x_origin_, e.y_origin_});
     if (c) {
-        Vec2<Float> step_vector_f;
-        memcpy(&step_vector_f.x, e.x_speed_, sizeof(Float));
-        memcpy(&step_vector_f.y, e.y_speed_, sizeof(Float));
-        Vec2<Fixnum> step_vector{step_vector_f.x, step_vector_f.y};
+        Vec2<Fixnum> step_vector{Fixnum::create(e.x_speed__data_.get()),
+                                 Fixnum::create(e.y_speed__data_.get())};
         c->set_step_vector(step_vector);
         c->set_timer(e.timer_.get());
         explosion_function(pfrm, app, c->sprite().get_position());
@@ -96,10 +94,8 @@ void respawn_plugin_projectile(
         e.damage_.get(),
         e.hflip_);
     if (c) {
-        Vec2<Float> step_vector_f;
-        memcpy(&step_vector_f.x, e.x_speed_, sizeof(Float));
-        memcpy(&step_vector_f.y, e.y_speed_, sizeof(Float));
-        Vec2<Fixnum> step_vector{step_vector_f.x, step_vector_f.y};
+        Vec2<Fixnum> step_vector{Fixnum::create(e.x_speed__data_.get()),
+                                 Fixnum::create(e.y_speed__data_.get())};
         c->set_step_vector(step_vector);
         c->set_timer(e.timer_.get());
         medium_explosion_inv(pfrm, app, c->sprite().get_position());
@@ -181,7 +177,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     // Playback history at a fixed delta.
     const Microseconds delta = 2 * (seconds(1) / 60);
 
-    app.float_delta() = delta;
+    app.delta_fp() = delta;
 
 
     // Some functions called in this block may try to call other functions that
