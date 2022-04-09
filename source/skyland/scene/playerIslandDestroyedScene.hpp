@@ -68,7 +68,8 @@ public:
     };
 
 
-    PlayerIslandDestroyedScene(Island* island) : island_(island)
+    PlayerIslandDestroyedScene(Island* island)
+        : sink_speed_(0.000011f), island_(island)
     {
     }
 
@@ -97,7 +98,7 @@ public:
 
 private:
     Microseconds timer_ = 0;
-    Float sink_speed_ = 0.000011f;
+    Fixnum sink_speed_;
     Island* island_;
 
     Buffer<Text, 5> lines_;

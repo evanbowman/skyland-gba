@@ -280,8 +280,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     auto pos = island_->get_position();
-    if (pos.y < 600) {
-        pos.y += sink_speed_ * delta;
+    if (pos.y < 600.0_fixed) {
+        pos.y += sink_speed_ * app.delta_fp();
 
         // Now, because some platforms implement automatic background wrapping
         // in hardware, we need to clear out tiles as they scroll outside the
@@ -302,7 +302,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         for (int y = 15; y > 0; --y) {
             const auto y_pos = pos.y + y * 16;
-            if (y_pos > 700) {
+            if (y_pos > 700.0_fixed) {
                 if (island_->flag_pos() and island_->flag_pos()->y >= y) {
                     island_->show_flag(false);
                 }
