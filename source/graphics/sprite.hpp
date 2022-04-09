@@ -165,57 +165,6 @@ private:
 };
 
 
-// NOTE: If you see two texture indices with the same value, don't
-// panic! The program supports both 32px and 16px wide sprites, so two
-// of the same indices might refer to different sprites due to
-// different sprite sizes.
-enum TextureMap : TextureIndex {
-    player_still_down = 63,
-    player_walk_down = 64,
-    player_walk_up = 69,
-    player_still_up = 74,
-    player_walk_left = 75,
-    player_still_left = 81,
-    player_walk_right = 82,
-    player_still_right = 88,
-    player_dodge_left = 98,
-    player_dodge_right = 99,
-    player_dodge_down = 100,
-    player_dodge_up = 101,
-    player_sidestep_right = 102,
-    player_sidestep_left = 103,
-    transporter = 15,
-    item_chest = 12,
-    turret = 18,
-    turret_shadow = 23,
-    dasher_idle = 24,
-    dasher_crouch = dasher_idle + 1,
-    dasher_dash = dasher_crouch + 1,
-    dasher_weapon1 = dasher_dash + 1,
-    dasher_weapon2 = dasher_weapon1 + 1,
-    dasher_head = dasher_weapon2 + 1,
-    drop_shadow = 60,
-    heart = 61,
-    coin = 62,
-    orb1 = 63,
-    orb2 = 64,
-    snake_body = 65,
-    snake_head_profile = 66,
-    snake_head_down = 67,
-    snake_head_up = 68,
-    h_laser = 71,
-    v_laser = 72,
-    h_blaster = 73,
-    v_blaster = 74,
-    explosion = 75,
-    rubble = 81,
-    drone = 82,
-    scarecrow_top = 83,
-    scarecrow_bottom = 84,
-    scarecrow_top_2 = 85,
-    laser_pop = 86,
-};
-
 
 // Warning: The class requires the initial mix amount passed in to be a multiple
 // of five. There is a reason for this, and it has to do with smooth animations
