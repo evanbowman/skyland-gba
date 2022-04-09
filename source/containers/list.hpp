@@ -24,8 +24,8 @@
 
 #include <new>
 
-#include "memory/pool.hpp"
 #include "binaryNode.hpp"
+#include "memory/pool.hpp"
 
 
 // We're trying to save bytes. We want to allow the list to optionally include a

@@ -32,6 +32,7 @@
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/weather/typhoon.hpp"
 
 
 
@@ -210,19 +211,11 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.dialog_buffer().reset();
 
         auto future_scene = [&pfrm,
+                             &app,
                              storm_king = node.type_ ==
                                           WorldGraph::Node::Type::corrupted] {
             if (storm_king) {
-                pfrm.screen().set_shader(
-                    [](ShaderPalette palette, ColorConstant k, int, int index) {
-                        if (palette == ShaderPalette::overlay) {
-                            return grayscale_shader(palette, k, 76, 0);
-                        } else {
-                            auto k1 = contrast_shader(palette, k, -10, 0);
-                            auto k2 = grayscale_shader(palette, k1, 128, 0);
-                            return k2;
-                        }
-                    });
+                app.swap_environment<weather::Typhoon>();
             }
 
             return scene_pool::alloc<FadeInScene>();

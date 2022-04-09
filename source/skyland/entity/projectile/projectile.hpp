@@ -45,8 +45,6 @@ public:
 
 
 protected:
-
-
     virtual void destroy(Platform& pfrm, App& app, bool explosion);
 
 

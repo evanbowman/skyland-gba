@@ -44,7 +44,7 @@ void Projectile::destroy_out_of_bounds(Platform& pfrm, App& app, Island* target)
     } else {
         // Otherwise, we need to check the max bound.
         max_x = target->origin().x.as_integer() +
-            16 * target->terrain().size() + 32;
+                16 * target->terrain().size() + 32;
     }
 
     auto pos = sprite_.get_position();
@@ -65,4 +65,4 @@ void Projectile::destroy(Platform& pfrm, App& app, bool explosion)
 
 
 
-}
+} // namespace skyland

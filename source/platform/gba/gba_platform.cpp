@@ -620,20 +620,20 @@ static u32 affine_transform_write_index = 0;
 static u32 last_affine_transform_write_index = 0;
 
 
-static volatile u16* bg0_control = (volatile u16*)0x4000008;
-static volatile u16* bg1_control = (volatile u16*)0x400000a;
-static volatile u16* bg2_control = (volatile u16*)0x400000c;
-static volatile u16* bg3_control = (volatile u16*)0x400000e;
+#define BG0_CONTROL (*((volatile u16*)0x4000008))
+#define BG1_CONTROL (*((volatile u16*)0x400000a))
+#define BG2_CONTROL (*((volatile u16*)0x400000c))
+#define BG3_CONTROL (*((volatile u16*)0x400000e))
 
 
-static volatile short* bg0_x_scroll = (volatile short*)0x4000010;
-static volatile short* bg0_y_scroll = (volatile short*)0x4000012;
-static volatile short* bg1_x_scroll = (volatile short*)0x4000014;
-static volatile short* bg1_y_scroll = (volatile short*)0x4000016;
-static volatile short* bg2_x_scroll = (volatile short*)0x4000018;
-static volatile short* bg2_y_scroll = (volatile short*)0x400001a;
-static volatile short* bg3_x_scroll = (volatile short*)0x400001c;
-static volatile short* bg3_y_scroll = (volatile short*)0x400001e;
+#define BG0_X_SCROLL (*((volatile short*)0x4000010))
+#define BG0_Y_SCROLL (*((volatile short*)0x4000012))
+#define BG1_X_SCROLL (*((volatile short*)0x4000014))
+#define BG1_Y_SCROLL (*((volatile short*)0x4000016))
+#define BG2_X_SCROLL (*((volatile short*)0x4000018))
+#define BG2_Y_SCROLL (*((volatile short*)0x400001a))
+#define BG3_X_SCROLL (*((volatile short*)0x400001c))
+#define BG3_Y_SCROLL (*((volatile short*)0x400001e))
 
 
 static u8 last_fade_amt;
@@ -641,8 +641,8 @@ static ColorConstant last_color;
 static bool last_fade_include_sprites;
 
 
-static volatile u16* reg_blendcnt = (volatile u16*)0x04000050;
-static volatile u16* reg_blendalpha = (volatile u16*)0x04000052;
+#define REG_BLENDCNT (*((volatile u16*)0x04000050))
+#define REG_BLENDALPHA (*((volatile u16*)0x04000052))
 
 #define BLD_BUILD(top, bot, mode)                                              \
     ((((bot)&63) << 8) | (((mode)&3) << 6) | ((top)&63))
@@ -684,25 +684,25 @@ static void init_video(Platform::Screen& screen)
     // side of the screen.
     REG_WINOUT = WIN_OBJ | WIN_BG1 | WIN_BG2;
 
-    *reg_blendcnt = BLD_BUILD(BLD_OBJ, BLD_BG0 | BLD_BG1 | BLD_BG3, 0);
+    REG_BLENDCNT = BLD_BUILD(BLD_OBJ, BLD_BG0 | BLD_BG1 | BLD_BG3, 0);
 
-    *reg_blendalpha = BLDA_BUILD(0x40 / 8, 0x40 / 8);
+    REG_BLENDALPHA = BLDA_BUILD(0x40 / 8, 0x40 / 8);
 
     // Tilemap layer 0
-    *bg0_control = BG_CBB(cbb_t0_texture) | BG_SBB(sbb_t0_tiles) |
-                   BG_REG_64x32 | BG_PRIORITY(2) | BG_MOSAIC;
+    BG0_CONTROL = BG_CBB(cbb_t0_texture) | BG_SBB(sbb_t0_tiles) | BG_REG_64x32 |
+                  BG_PRIORITY(2) | BG_MOSAIC;
 
     // Tilemap layer 1
-    *bg3_control = BG_CBB(cbb_t1_texture) | BG_SBB(sbb_t1_tiles) |
-                   BG_REG_64x32 | BG_PRIORITY(2) | BG_MOSAIC;
+    BG3_CONTROL = BG_CBB(cbb_t1_texture) | BG_SBB(sbb_t1_tiles) | BG_REG_64x32 |
+                  BG_PRIORITY(2) | BG_MOSAIC;
 
     // The background
-    *bg1_control = BG_CBB(cbb_background_texture) | BG_SBB(sbb_bg_tiles) |
-                   BG_PRIORITY(3) | BG_MOSAIC;
+    BG1_CONTROL = BG_CBB(cbb_background_texture) | BG_SBB(sbb_bg_tiles) |
+                  BG_PRIORITY(3) | BG_MOSAIC;
 
     // The overlay
-    *bg2_control = BG_CBB(cbb_overlay_texture) | BG_SBB(sbb_overlay_tiles) |
-                   BG_PRIORITY(0) | BG_MOSAIC;
+    BG2_CONTROL = BG_CBB(cbb_overlay_texture) | BG_SBB(sbb_overlay_tiles) |
+                  BG_PRIORITY(0) | BG_MOSAIC;
 
     View view;
     view.set_size(screen.size().cast<Float>());
@@ -721,9 +721,9 @@ static bool unlock_gameboy_player(Platform& pfrm)
 
 
     REG_DISPCNT = MODE_0 | BG0_ENABLE;
-    *bg0_control = 0x0088;
-    *bg0_x_scroll = 0;
-    *bg0_y_scroll = 0;
+    BG0_CONTROL = 0x0088;
+    BG0_X_SCROLL = 0;
+    BG0_Y_SCROLL = 0;
 
     static const auto white_555 = Color(custom_color(0xffffff)).bgr_hex_555();
 
@@ -1713,11 +1713,11 @@ void Platform::Screen::clear()
     map_dynamic_textures();
 
     auto view_offset = view_.get_center().cast<s32>();
-    *bg0_x_scroll = x0_scroll + view_offset.x;
-    *bg0_y_scroll = y0_scroll + view_offset.y;
+    BG0_X_SCROLL = x0_scroll + view_offset.x;
+    BG0_Y_SCROLL = y0_scroll + view_offset.y;
 
-    *bg3_x_scroll = x3_scroll + view_offset.x;
-    *bg3_y_scroll = y3_scroll + view_offset.y;
+    BG3_X_SCROLL = x3_scroll + view_offset.x;
+    BG3_Y_SCROLL = y3_scroll + view_offset.y;
 }
 
 
@@ -1852,11 +1852,11 @@ void Platform::Screen::display()
     REG_WIN0V = (0 << 8) | (size().y);
     // }
     if (not get_gflag(GlobalFlag::parallax_clouds)) {
-        *bg1_x_scroll = view_offset.x * 0.3f;
-        *bg1_y_scroll = view_offset.y * 0.3f;
+        BG1_X_SCROLL = view_offset.x * 0.3f;
+        BG1_Y_SCROLL = view_offset.y * 0.3f;
     } else {
         if (not get_gflag(GlobalFlag::v_parallax)) {
-            *bg1_y_scroll = view_offset.y / 2;
+            BG1_Y_SCROLL = view_offset.y / 2;
         }
     }
 
@@ -2319,8 +2319,8 @@ void Platform::fatal(const char* msg)
 
 void Platform::set_overlay_origin(Float x, Float y)
 {
-    *bg2_x_scroll = static_cast<s16>(x);
-    *bg2_y_scroll = static_cast<s16>(y);
+    BG2_X_SCROLL = static_cast<s16>(x);
+    BG2_Y_SCROLL = static_cast<s16>(y);
     overlay_y = y;
 }
 
@@ -2489,17 +2489,17 @@ void Platform::Screen::pixelate(u8 amount,
                                include_sprites ? amount >> 4 : 0);
 
         if (include_overlay) {
-            *bg2_control = *bg2_control | BG_MOSAIC;
+            BG2_CONTROL = BG2_CONTROL | BG_MOSAIC;
         } else {
-            *bg2_control = *bg2_control & ~BG_MOSAIC;
+            BG2_CONTROL = BG2_CONTROL & ~BG_MOSAIC;
         }
 
         if (include_background) {
-            *bg0_control = *bg0_control | BG_MOSAIC;
-            *bg1_control = *bg1_control | BG_MOSAIC;
+            BG0_CONTROL = BG0_CONTROL | BG_MOSAIC;
+            BG1_CONTROL = BG1_CONTROL | BG_MOSAIC;
         } else {
-            *bg0_control = *bg0_control & ~BG_MOSAIC;
-            *bg1_control = *bg1_control & ~BG_MOSAIC;
+            BG0_CONTROL = BG0_CONTROL & ~BG_MOSAIC;
+            BG1_CONTROL = BG1_CONTROL & ~BG_MOSAIC;
         }
     }
 }
@@ -3608,11 +3608,8 @@ void Platform::Speaker::apply_chiptune_effect(Channel channel,
             dir = 1;
         }
 
-        *ctrl_register = SSQR_BUILD((argument & 0xf0) >> 4,
-                                    dir,
-                                    (argument & 0x07),
-                                    duty,
-                                    length);
+        *ctrl_register = SSQR_BUILD(
+            (argument & 0xf0) >> 4, dir, (argument & 0x07), duty, length);
     };
 
 
@@ -4245,11 +4242,11 @@ static void show_health_and_safety_message(Platform& pfrm)
     }
 
     REG_DISPCNT = MODE_0 | OBJ_ENABLE | OBJ_MAP_1D | BG0_ENABLE;
-    *bg0_x_scroll = 0;
-    *bg0_y_scroll = 0;
+    BG0_X_SCROLL = 0;
+    BG0_Y_SCROLL = 0;
 
-    *bg0_control = BG_CBB(cbb_t0_texture) | BG_SBB(sbb_t0_tiles) |
-                   BG_REG_64x32 | BG_PRIORITY(2) | BG_MOSAIC;
+    BG0_CONTROL = BG_CBB(cbb_t0_texture) | BG_SBB(sbb_t0_tiles) | BG_REG_64x32 |
+                  BG_PRIORITY(2) | BG_MOSAIC;
 
     auto set_tile = [&](int x, int y, int val, int palette) {
         MEM_SCREENBLOCKS[sbb_t0_tiles][x + y * 32] = val | SE_PALBANK(palette);

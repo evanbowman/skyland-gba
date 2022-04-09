@@ -62,20 +62,18 @@ public:
     }
 
 
-    constexpr FixedPoint(float value) :
-        data_(static_cast<ValueType>(value * scale()))
+    constexpr FixedPoint(float value)
+        : data_(static_cast<ValueType>(value * scale()))
     {
     }
 
 
-    FixedPoint(const FixedPoint& other) :
-        data_(other.data_)
+    FixedPoint(const FixedPoint& other) : data_(other.data_)
     {
     }
 
 
-    FixedPoint(FixedPoint&& other) :
-        data_(std::move(other.data_))
+    FixedPoint(FixedPoint&& other) : data_(std::move(other.data_))
     {
     }
 
@@ -226,7 +224,6 @@ public:
 
 
 private:
-
     static FixedPoint mul(FixedPoint lhs, FixedPoint rhs)
     {
         ValueType data = lhs.data_ / half_scale();
@@ -250,7 +247,7 @@ private:
 using Fixnum = FixedPoint<40, s64>;
 
 
-constexpr Fixnum operator "" _fixed(long double value)
+constexpr Fixnum operator"" _fixed(long double value)
 {
     return Fixnum((static_cast<float>(value)));
 }

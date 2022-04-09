@@ -197,7 +197,6 @@ void FireBolt::record_destroyed(Platform& pfrm, App& app)
         timestream_record(c);
         app.time_stream().push(app.level_timer(), c);
     }
-
 }
 
 
