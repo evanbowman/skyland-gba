@@ -25,7 +25,6 @@
 #include "platform/ram_filesystem.hpp"
 #include "skyland/save.hpp"
 #include "skyland/skyland.hpp"
-#include "vector.hpp"
 #include "version.hpp"
 
 

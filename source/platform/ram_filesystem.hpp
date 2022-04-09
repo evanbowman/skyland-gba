@@ -22,10 +22,10 @@
 
 #pragma once
 
+#include "containers/vector.hpp"
 #include "number/endian.hpp"
 #include "number/int.h"
 #include "platform/platform.hpp"
-#include "vector.hpp"
 #include <utility>
 
 

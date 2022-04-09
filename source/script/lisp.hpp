@@ -39,6 +39,7 @@
 #endif
 
 
+#include "containers/vector.hpp"
 #include "function.hpp"
 #include "module.hpp"
 #include "number/numeric.hpp"
@@ -46,7 +47,6 @@
 #include "string.hpp"
 #include "unicode.hpp"
 #include "value.hpp"
-#include "vector.hpp"
 
 
 class Platform;

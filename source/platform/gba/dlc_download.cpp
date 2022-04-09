@@ -20,10 +20,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include "containers/vector.hpp"
 #include "gba.h"
 #include "memory/buffer.hpp"
 #include "platform/platform.hpp"
-#include "vector.hpp"
 
 
 

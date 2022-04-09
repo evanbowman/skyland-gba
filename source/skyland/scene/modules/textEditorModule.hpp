@@ -24,11 +24,11 @@
 
 
 #include "allocator.hpp"
+#include "containers/vector.hpp"
 #include "graphics/overlay.hpp"
 #include "memory/buffer.hpp"
 #include "skyland/scene/module.hpp"
 #include "userContext.hpp"
-#include "vector.hpp"
 
 
 

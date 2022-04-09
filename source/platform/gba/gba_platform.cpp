@@ -36,6 +36,7 @@
 #ifdef __GBA__
 
 #include "allocator.hpp"
+#include "containers/vector.hpp"
 #include "filesystem.hpp"
 #include "gbp_logo.hpp"
 #include "graphics/overlay.hpp"
@@ -50,7 +51,6 @@
 #include "script/lisp.hpp"
 #include "string.hpp"
 #include "util.hpp"
-#include "vector.hpp"
 #include <algorithm>
 #include <setjmp.h>
 

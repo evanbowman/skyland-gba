@@ -22,11 +22,11 @@
 
 #pragma once
 
+#include "containers/vector.hpp"
 #include "graphics/overlay.hpp"
 #include "modules/userContext.hpp"
 #include "skyland/scene.hpp"
 #include "string.hpp"
-#include "vector.hpp"
 
 
 
