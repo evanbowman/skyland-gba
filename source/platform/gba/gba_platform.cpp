@@ -1085,9 +1085,28 @@ u16 find_dynamic_mapping(u16 virtual_index)
 
 
 
+static std::optional<Vec2<s32>> cached_view_center;
+
+
+
+static Vec2<s32> get_view_center(const Platform::Screen& screen)
+{
+    Vec2<s32> view_center;
+    if (cached_view_center) {
+        view_center = *cached_view_center;
+    } else {
+        view_center = screen.get_view().get_center().cast<s32>();
+        cached_view_center = view_center;
+    }
+
+    return view_center;
+}
+
+
+
 static bool is_onscreen(const Platform::Screen& screen, const Vec2<Fixnum>& pos)
 {
-    const auto view_center = screen.get_view().get_center().cast<s32>();
+    const auto view_center = get_view_center(screen);
     const auto view_half_extent = screen.size().cast<s32>() / s32(2);
     Vec2<s32> view_br = {view_center.x + view_half_extent.x * 2,
                          view_center.y + view_half_extent.y * 2};
@@ -1107,7 +1126,7 @@ void Platform::Screen::draw_batch(TextureIndex t,
                                   const Buffer<Vec2<s32>, 64>& coords,
                                   const SpriteBatchOptions& opts)
 {
-    auto view_center = view_.get_center().cast<s32>();
+    auto view_center = get_view_center(*this);
 
     const auto view_half_extent = size().cast<s32>() / s32(2);
     Vec2<s32> view_br = {view_center.x + view_half_extent.x * 2,
@@ -1192,7 +1211,7 @@ void Platform::Screen::draw(const Sprite& spr)
         const auto position =
             ivec(spr.get_position()) - spr.get_origin().cast<s32>();
 
-        const auto view_center = view_.get_center().cast<s32>();
+        const auto view_center = get_view_center(*this);
         auto oa = object_attribute_back_buffer + oam_write_index;
         if (spr.get_alpha() not_eq Sprite::Alpha::translucent) {
             oa->attribute_0 = ATTR0_COLOR_16 | ATTR0_TALL;
@@ -1840,6 +1859,8 @@ void Platform::Screen::display()
             *bg1_y_scroll = view_offset.y / 2;
         }
     }
+
+    cached_view_center.reset();
 }
 
 

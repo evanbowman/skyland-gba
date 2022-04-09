@@ -433,8 +433,8 @@ public:
                 it->y > pfrm.screen().size().y) {
                 it = snow_particles_.erase(it);
             } else {
-                it->x += Fixnum(0.0002f) * app.delta_fp();
-                it->y += Fixnum(0.0002f) * app.delta_fp();
+                it->x += 0.0002_fixed * app.delta_fp();
+                it->y += 0.0002_fixed * app.delta_fp();
                 ++it;
             }
         }

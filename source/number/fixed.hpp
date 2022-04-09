@@ -241,6 +241,12 @@ private:
 using Fixnum = FixedPoint<40, s64>;
 
 
+constexpr Fixnum operator "" _fixed(long double value)
+{
+    return Fixnum((static_cast<float>(value)));
+}
+
+
 
 #ifdef TEST
 

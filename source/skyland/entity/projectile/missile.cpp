@@ -60,7 +60,7 @@ Missile::Missile(const Vec2<Fixnum>& position,
 
 void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (sprite_.get_position().y < Fixnum(450)) {
+    if (sprite_.get_position().y < 450.0_fixed) {
         sprite_.set_alpha(Sprite::Alpha::transparent);
     } else {
         sprite_.set_alpha(Sprite::Alpha::opaque);
@@ -75,7 +75,7 @@ void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::wait;
         }
         auto pos = sprite_.get_position();
-        pos.y -= app.delta_fp() * Fixnum(0.00041f);
+        pos.y -= app.delta_fp() * 0.00041_fixed;
         sprite_.set_position(pos);
         break;
     }
@@ -105,7 +105,7 @@ void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
             kill();
         }
         auto pos = sprite_.get_position();
-        pos.y += app.delta_fp() * Fixnum(0.0003f);
+        pos.y += app.delta_fp() * 0.0003_fixed;
         sprite_.set_position(pos);
         break;
     }
@@ -137,7 +137,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         auto pos = sprite_.get_position();
-        pos.y -= app.delta_fp() * Fixnum(0.0003f);
+        pos.y -= app.delta_fp() * 0.0003_fixed;
         sprite_.set_position(pos);
         break;
     }
@@ -169,7 +169,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
             kill();
         }
         auto pos = sprite_.get_position();
-        pos.y += app.delta_fp() * Fixnum(0.00041f);
+        pos.y += app.delta_fp() * 0.00041_fixed;
         sprite_.set_position(pos);
 
         Island* target;
