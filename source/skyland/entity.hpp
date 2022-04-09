@@ -204,7 +204,7 @@ template <typename T> using WeakEntityRef = Weak<T, IntrusiveRcControlBlock<T>>;
 
 
 
-using EntityNode = BiNode<EntityRef<Entity>>;
+using EntityNode = BinaryNode<EntityRef<Entity>>;
 
 
 
@@ -224,7 +224,7 @@ struct GlobalEntityListData
 
 template <typename T> struct GlobalEntityListDataImpl : GlobalEntityListData
 {
-    BiNode<T>* begin_;
+    BinaryNode<T>* begin_;
 };
 
 
