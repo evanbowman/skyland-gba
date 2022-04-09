@@ -107,7 +107,8 @@ void IonBurst::update(Platform& pfrm, App& app, Microseconds delta)
             max_x = target->origin().x.as_integer() +
                     16 * target->terrain().size() + 32;
         }
-        if (pos.y.as_integer() > max_y or pos.y.as_integer() < min_y or pos.x.as_integer() > max_x or pos.x.as_integer() < min_x) {
+        if (pos.y.as_integer() > max_y or pos.y.as_integer() < min_y or
+            pos.x.as_integer() > max_x or pos.x.as_integer() < min_x) {
             this->destroy(pfrm, app, pos.y > min_y);
             sound_fizzle.play(pfrm, 1);
         }

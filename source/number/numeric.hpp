@@ -25,7 +25,7 @@
 #include "int.h"
 #include <ciso646> // For MSVC. What an inept excuse for a compiler.
 
-#include "fixed.hpp"
+#include "fixnum.hpp"
 
 
 #if defined(__GBA__) or defined(__NDS__)

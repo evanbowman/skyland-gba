@@ -149,14 +149,6 @@ struct Integer {
 };
 
 
-struct Float {
-    ValueHeader hdr_;
-    float value_;
-
-    // TODO... we do not support floating point at the moment.
-};
-
-
 struct Character {
     ValueHeader hdr_;
     utf8::Codepoint cp_;

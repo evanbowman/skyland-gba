@@ -213,7 +213,13 @@ public:
     }
 
 
-    constexpr ValueType fraction() const
+    constexpr ValueType numerator() const
+    {
+        return as_integer();
+    }
+
+
+    constexpr ValueType denominator() const
     {
         return data_ & (scale() - 1);
     }

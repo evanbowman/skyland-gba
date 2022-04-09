@@ -23,7 +23,7 @@
 #pragma once
 
 
-#include "number/fixed.hpp"
+#include "number/fixnum.hpp"
 #include "projectile.hpp"
 #include "skyland/skyland.hpp"
 

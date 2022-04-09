@@ -134,8 +134,7 @@ void Drone::rewind(Platform& pfrm, App& app, Microseconds delta)
             auto dest = calc_pos(destination_, grid_pos_);
             auto pos =
                 interpolate(fvec(dest),
-                            Vec2<Float>{(Float)anchor_.x,
-                                        (Float)anchor_.y},
+                            Vec2<Float>{(Float)anchor_.x, (Float)anchor_.y},
                             Float(amount));
 
             sprite_.set_position(Vec2<Fixnum>{pos.x, pos.y});

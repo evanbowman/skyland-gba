@@ -24,7 +24,7 @@
 
 #include "bitvector.hpp"
 #include "color.hpp"
-#include "number/fixed.hpp"
+#include "number/fixnum.hpp"
 #include "number/numeric.hpp"
 
 

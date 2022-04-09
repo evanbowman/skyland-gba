@@ -387,6 +387,24 @@ inline const char* stringify(const char* arg)
 
 
 
+template <s32 precision, typename T, s32 buffer_size = 24>
+StringBuffer<buffer_size> stringify(const FixedPoint<precision, T>& fp)
+{
+    StringBuffer<buffer_size> result;
+
+    result += stringify((s32)fp.numerator());
+
+    auto fraction = (s32)fp.denominator();
+    if (fraction) {
+        result += ".";
+        result += stringify(fraction);
+    }
+
+    return result;
+}
+
+
+
 template <u32 size, typename Arg, typename... Args>
 void make_format(StringBuffer<size>& output,
                  const char* fmt_str,
