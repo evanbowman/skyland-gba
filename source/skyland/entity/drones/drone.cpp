@@ -35,7 +35,7 @@ namespace skyland
 
 
 
-static Vec2<Float> calc_pos(Island* island, const Vec2<u8>& grid_coord)
+static Vec2<Fixnum> calc_pos(Island* island, const Vec2<u8>& grid_coord)
 {
     auto o = island->visual_origin();
     o.x += grid_coord.x * 16;
@@ -59,7 +59,7 @@ Drone::Drone(const char* name,
 
     auto o = calc_pos(parent_, grid_pos);
     sprite_.set_position(o);
-    anchor_ = o.cast<s16>();
+    anchor_ = Vec2<s16>{(s16)ivec(o).x, (s16)ivec(o).y};
 
     target_near_ = false;
 
@@ -76,7 +76,7 @@ void Drone::set_movement_target(const Vec2<u8>& position)
     auto v1 = calc_pos(parent_, old_pos);
     auto v2 = calc_pos(destination_, grid_pos_);
 
-    auto dist = distance(v1, v2);
+    auto dist = distance(fvec(v1), fvec(v2));
 
     auto speed = 0.0002f;
 
@@ -132,8 +132,13 @@ void Drone::rewind(Platform& pfrm, App& app, Microseconds delta)
         } else {
             auto amount = smoothstep(0.f, duration_, timer_);
             auto dest = calc_pos(destination_, grid_pos_);
-            auto pos = interpolate(dest, anchor_.cast<Float>(), amount);
-            sprite_.set_position(pos);
+            auto pos =
+                interpolate(fvec(dest),
+                            Vec2<Float>{(Float)anchor_.x,
+                                        (Float)anchor_.y},
+                            Float(amount));
+
+            sprite_.set_position(Vec2<Fixnum>{pos.x, pos.y});
 
             if (parent() not_eq &app.player_island()) {
                 sprite_.set_flip({true, false});
@@ -232,8 +237,10 @@ void Drone::update(Platform& pfrm, App& app, Microseconds delta)
         }
         auto amount = smoothstep(0.f, duration_, timer_);
         auto dest = calc_pos(destination_, grid_pos_);
-        auto pos = interpolate(dest, anchor_.cast<Float>(), amount);
-        sprite_.set_position(pos);
+        auto pos = interpolate(fvec(dest),
+                               Vec2<Float>{(Float)anchor_.x, (Float)anchor_.y},
+                               Float(amount));
+        sprite_.set_position(Vec2<Fixnum>{pos.x, pos.y});
 
         if (parent() not_eq &app.player_island()) {
             sprite_.set_flip({true, false});

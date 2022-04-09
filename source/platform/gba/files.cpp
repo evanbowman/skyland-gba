@@ -21,8 +21,6 @@
 
 
 
-
-
 static const struct
 {
     const char* root_;

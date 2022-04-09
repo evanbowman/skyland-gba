@@ -183,7 +183,7 @@ void SelectTutorialScene::display(Platform& pfrm, App& app)
     cursor.set_size(Sprite::Size::w16_h32);
     cursor.set_texture_index(59);
 
-    Vec2<Float> origin;
+    Vec2<Fixnum> origin;
 
     auto ambient_movement = 2 * float(sine(4 * 3.14f * 0.004f * timer_ + 180)) /
                             std::numeric_limits<s16>::max();

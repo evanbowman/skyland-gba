@@ -64,17 +64,15 @@ void Camera::update(Platform& pfrm,
     // you're just looking at a bunch of empty space, especially early on, while
     // enemy castles are small.
 
+    auto tpos = fvec(target.get_position());
+
     if (near) {
-        target_.x = target.get_position().x + ((cursor_loc.x - 3) * 16) / 2;
-        target_.x = clamp(target_.x,
-                          (int)target.get_position().x - 40,
-                          (int)target.get_position().x + 48);
+        target_.x = tpos.x + ((cursor_loc.x - 3) * 16) / 2;
+        target_.x = clamp(target_.x, (int)tpos.x - 40, (int)tpos.x + 48);
         target_.x -= 16;
     } else {
-        target_.x = target.get_position().x + ((cursor_loc.x + 3) * 16) / 2;
-        target_.x = clamp(target_.x,
-                          (int)target.get_position().x - 48,
-                          (int)target.get_position().x + 256);
+        target_.x = tpos.x + ((cursor_loc.x + 3) * 16) / 2;
+        target_.x = clamp(target_.x, (int)tpos.x - 48, (int)tpos.x + 256);
         target_.x -= 100;
     }
 

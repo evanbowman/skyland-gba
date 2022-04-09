@@ -405,7 +405,7 @@ void StartMenuScene::display(Platform& pfrm, App& app)
 
     auto view = pfrm.screen().get_view().get_center();
 
-    Vec2<Float> origin;
+    Vec2<Fixnum> origin;
 
     // auto ambient_movement = 2 * float(sine(4 * 3.14f * 0.004f * timer_ + 180)) /
     //                         std::numeric_limits<s16>::max();

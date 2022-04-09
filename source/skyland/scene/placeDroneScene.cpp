@@ -178,7 +178,7 @@ void PlaceDroneScene::display(Platform& pfrm, App& app)
         island = app.opponent_island();
     }
 
-    Vec2<Float> origin = island->visual_origin();
+    Vec2<Fixnum> origin = island->visual_origin();
 
     Vec2<u8> cursor_loc;
     if (near_) {

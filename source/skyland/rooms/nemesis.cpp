@@ -71,7 +71,7 @@ void Nemesis::fire(Platform& pfrm, App& app)
 {
     auto island = other_island(app);
 
-    Vec2<Float> target;
+    Vec2<Fixnum> target;
 
     auto origin = island->origin();
     origin.x += target_->x * 16 + 8;

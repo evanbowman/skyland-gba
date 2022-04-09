@@ -861,12 +861,14 @@ void EnemyAI::set_target(Platform& pfrm,
         if ((app.opponent_island()->has_radar() or
              app.player_island().is_boarded()) and
             str_cmp((*meta_c)->name(), "reactor") == 0) {
-            w += 3 * manhattan_length(room->origin(), ion_cannon.origin());
+            w += 3 * manhattan_length(room->origin(), ion_cannon.origin())
+                         .as_float();
         } else if (not is_forcefield(meta_c) and
                    str_cmp((*meta_c)->name(), "energized-hull") not_eq 0) {
             continue;
         } else {
-            w += 3 * manhattan_length(room->origin(), ion_cannon.origin());
+            w += 3 * manhattan_length(room->origin(), ion_cannon.origin())
+                         .as_float();
         }
 
 
@@ -1380,7 +1382,7 @@ void EnemyAI::set_target(Platform& pfrm,
                          const Bitmatrix<16, 16>& matrix,
                          MissileSilo& silo)
 {
-    if (silo.parent()->get_drift()) {
+    if (silo.parent()->get_drift() not_eq 0) {
         // Wait until we've stopped moving
         return;
     }

@@ -104,8 +104,8 @@ public:
 
     static u32 properties()
     {
-        return (Decoration::properties() & ~RoomProperties::roof_hidden)
-            | RoomProperties::habitable;
+        return (Decoration::properties() & ~RoomProperties::roof_hidden) |
+               RoomProperties::habitable;
     }
 
 

@@ -117,7 +117,7 @@ void Explosive::ignite(Platform& pfrm,
                        Health damage,
                        bool spread_fire)
 {
-    auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Float>& pos) {
+    auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Fixnum>& pos) {
         auto e = app.alloc_entity<SmokePuff>(
             pfrm, rng::sample<48>(pos, rng::utility_state), 61);
 
@@ -129,11 +129,17 @@ void Explosive::ignite(Platform& pfrm,
     flak_smoke(pfrm, app, center());
     flak_smoke(pfrm, app, center());
 
-    app.on_timeout(pfrm,
-                   milliseconds(190),
-                   [pos = center(), flak_smoke](Platform& pf, App& app) {
-                       flak_smoke(pf, app, pos);
-                   });
+    Vec2<s32> pos;
+    pos.x = center().x.as_integer();
+    pos.y = center().y.as_integer();
+
+    app.on_timeout(
+        pfrm, milliseconds(190), [pos, flak_smoke](Platform& pf, App& app) {
+            Vec2<Fixnum> p;
+            p.x = Fixnum::from_integer(pos.x);
+            p.y = Fixnum::from_integer(pos.y);
+            flak_smoke(pf, app, p);
+        });
 
     auto targets =
         allocate_dynamic<Buffer<Room*, 300>>("dynamite-target-bufer");

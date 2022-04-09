@@ -91,13 +91,10 @@ public:
     }
 
 
-    // The time delta represented as a float. Used to improve performance in
-    // some cases, sot that we don't need to repeatedly cast the delta time to
-    // float in the many areas where the code interpolates position changes
-    // based on a time delta.
-    Float& float_delta()
+    // Cached time delta, converted to a fixnum.
+    Fixnum& delta_fp()
     {
-        return float_delta_;
+        return delta_fp_;
     }
 
 
@@ -199,7 +196,7 @@ public:
     template <typename T, typename... Args>
     void swap_environment(Args&&... args)
     {
-        world_state_->environment_.emplace<T>(std::forward<Args>(args)...);
+        environment_.emplace<T>(std::forward<Args>(args)...);
     }
 
 
@@ -428,7 +425,6 @@ private:
 
         Island player_;
         std::optional<Island> opponent_;
-        Boxed<weather::Environment, weather::ClearSkies, 32> environment_;
     };
 
     void on_remote_console_text(Platform& pfrm,
@@ -438,7 +434,7 @@ private:
     DynamicMemory<WorldState> world_state_;
     Float cloud_scroll_1_;
     Float cloud_scroll_2_;
-    Float float_delta_ = 1.f;
+    Fixnum delta_fp_ = 1.f;
     ScenePtr<Scene> current_scene_;
     ScenePtr<Scene> next_scene_;
     Coins victory_coins_ = 0;
@@ -447,6 +443,8 @@ private:
     GameSpeed game_speed_ = GameSpeed::normal;
     int pause_count_ = 0;
     Rumble rumble_;
+
+    Boxed<weather::Environment, weather::ClearSkies, 32> environment_;
 
     enum class RemoteConsoleSyntax {
         none,

@@ -28,11 +28,9 @@
 
 
 
-template <s32 precision, typename T>
-class FixedPoint
+template <s32 precision, typename T> class FixedPoint
 {
 public:
-
     using ValueType = T;
     static_assert(std::is_integral<ValueType>());
     static_assert(precision % 2 == 0);
@@ -59,8 +57,7 @@ public:
     }
 
 
-    constexpr FixedPoint() :
-        data_(0)
+    constexpr FixedPoint() : data_(0)
     {
     }
 
@@ -224,7 +221,6 @@ public:
 
 private:
 
-
     static FixedPoint mul(FixedPoint lhs, FixedPoint rhs)
     {
         ValueType data = lhs.data_ / half_scale();
@@ -246,6 +242,12 @@ private:
 
 
 using Fixnum = FixedPoint<40, s64>;
+
+
+constexpr Fixnum operator "" _fixed(long double value)
+{
+    return Fixnum((static_cast<float>(value)));
+}
 
 
 
@@ -271,7 +273,6 @@ int main()
 
     std::cout << Fixnum(0.0003f).as_float() << std::endl;
 }
-
 
 
 

@@ -227,10 +227,7 @@ public:
 
 
     // Block may be selected and activated even by the other player.
-    virtual bool non_owner_selectable() const
-    {
-        return false;
-    }
+    virtual bool non_owner_selectable() const;
 
 
     virtual ScenePtr<Scene>
@@ -319,10 +316,10 @@ public:
     const char* name() const;
 
 
-    Vec2<Float> origin() const;
+    Vec2<Fixnum> origin() const;
 
 
-    Vec2<Float> center() const;
+    Vec2<Fixnum> center() const;
 
 
     Island* parent() const
@@ -332,6 +329,12 @@ public:
 
 
     EntityList<BasicCharacter>& characters()
+    {
+        return characters_;
+    }
+
+
+    const EntityList<BasicCharacter>& characters() const
     {
         return characters_;
     }

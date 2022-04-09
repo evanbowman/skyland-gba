@@ -25,6 +25,8 @@
 #include "int.h"
 #include <ciso646> // For MSVC. What an inept excuse for a compiler.
 
+#include "fixed.hpp"
+
 
 #if defined(__GBA__) or defined(__NDS__)
 template <typename T> using Atomic = T;
@@ -77,6 +79,7 @@ template <typename T> struct Vec2
 };
 
 
+
 template <typename T, typename U = T> struct Rect
 {
     T x_off = 0;
@@ -106,6 +109,21 @@ using Angle = Degree;
 
 // Note: In case I need to swap in a fixed-point class in the future.
 using Float = float;
+
+
+
+inline Vec2<Float> fvec(Vec2<Fixnum> fixed)
+{
+    return {fixed.x.as_float(), fixed.y.as_float()};
+}
+
+
+
+inline Vec2<s32> ivec(Vec2<Fixnum> fixed)
+{
+    return {fixed.x.as_integer(), fixed.y.as_integer()};
+}
+
 
 
 inline Float sqrt_approx(const Float x)

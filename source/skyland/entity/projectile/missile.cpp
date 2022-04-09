@@ -41,8 +41,8 @@ SHARED_VARIABLE(missile_damage);
 
 
 
-Missile::Missile(const Vec2<Float>& position,
-                 const Vec2<Float>& target,
+Missile::Missile(const Vec2<Fixnum>& position,
+                 const Vec2<Fixnum>& target,
                  u8 source_x,
                  u8 source_y,
                  Island* source)
@@ -60,7 +60,7 @@ Missile::Missile(const Vec2<Float>& position,
 
 void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (sprite_.get_position().y < 450) {
+    if (sprite_.get_position().y < 450.0_fixed) {
         sprite_.set_alpha(Sprite::Alpha::transparent);
     } else {
         sprite_.set_alpha(Sprite::Alpha::opaque);
@@ -75,7 +75,7 @@ void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::wait;
         }
         auto pos = sprite_.get_position();
-        pos.y -= delta * 0.00041f;
+        pos.y -= app.delta_fp() * 0.00041_fixed;
         sprite_.set_position(pos);
         break;
     }
@@ -105,7 +105,7 @@ void Missile::rewind(Platform& pfrm, App& app, Microseconds delta)
             kill();
         }
         auto pos = sprite_.get_position();
-        pos.y += delta * 0.0003f;
+        pos.y += app.delta_fp() * 0.0003_fixed;
         sprite_.set_position(pos);
         break;
     }
@@ -137,7 +137,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         auto pos = sprite_.get_position();
-        pos.y -= app.float_delta() * 0.0003f;
+        pos.y -= app.delta_fp() * 0.0003_fixed;
         sprite_.set_position(pos);
         break;
     }
@@ -169,7 +169,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
             kill();
         }
         auto pos = sprite_.get_position();
-        pos.y += app.float_delta() * 0.00041f;
+        pos.y += app.delta_fp() * 0.00041_fixed;
         sprite_.set_position(pos);
 
         Island* target;
@@ -202,9 +202,9 @@ void Missile::destroy(Platform& pfrm, App& app)
 {
     auto setup_event = [&](time_stream::event::MissileDestroyed& e) {
         e.timer_.set(timer_);
-        e.x_pos_.set(sprite_.get_position().x);
-        e.y_pos_.set(sprite_.get_position().y);
-        e.target_x_.set(target_x_);
+        e.x_pos_.set(sprite_.get_position().x.as_integer());
+        e.y_pos_.set(sprite_.get_position().y.as_integer());
+        e.target_x_.set(target_x_.as_integer());
         e.source_x_ = source_x_;
         e.source_y_ = source_y_;
         e.state_ = (u8)state_;

@@ -537,7 +537,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     milliseconds(1300) -
                     milliseconds(rng::choice<700>(rng::critical_state));
             }
-            auto pos = Vec2<Float>{1, 130};
+            auto pos = Vec2<Fixnum>{1, 130};
             auto speed =
                 (5 + rng::choice<4>(rng::critical_state)) / Float(100000);
             pos.y += rng::choice<20>(rng::critical_state);
@@ -1080,9 +1080,12 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
     if (x_scroll_ > 160) {
         Sprite sprite;
 
-        Vec2<Float> pos{Float(135 - x_scroll_ / 3) + island_offset_,
-                        Float(110 - 0.25f * (240 - x_scroll_))};
-        sprite.set_position(pos + spr_scale_offset(pfrm).cast<Float>());
+        Vec2<Fixnum> pos{Fixnum(135 - x_scroll_ / 3) + island_offset_,
+                         Fixnum(110 - 0.25f * (240 - x_scroll_))};
+        auto scl = spr_scale_offset(pfrm);
+        pos.x += scl.x;
+        pos.y += scl.y;
+        sprite.set_position(pos);
         sprite.set_priority(3);
         sprite.set_texture_index(6);
 
@@ -1111,7 +1114,9 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
             std::numeric_limits<s16>::max();
 
         pos.y += ambient_movement;
-        pos = pos + spr_scale_offset(pfrm).cast<Float>();
+        auto scl = spr_scale_offset(pfrm);
+        pos.x += scl.x;
+        pos.y += scl.y;
 
         spr.set_position(pos);
         pfrm.screen().draw(spr);
@@ -1125,42 +1130,47 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         sprite.set_priority(0);
 
 
-        sprite.set_position(Vec2<Float>{28 + 64.f * module_cursor_->x +
-                                            (selector_shaded_ ? 1 : 0),
-                                        ambient_movement_ + 60 + 8 +
-                                            64.f * module_cursor_->y +
-                                            (selector_shaded_ ? 1 : 0)} +
-                            scale_offset(pfrm).cast<Float>());
+        Vec2<Fixnum> scl;
+        scl.x = scale_offset(pfrm).x;
+        scl.y = scale_offset(pfrm).y;
+
+
+        sprite.set_position(Vec2<Fixnum>{28 + 64.f * module_cursor_->x +
+                                             (selector_shaded_ ? 1 : 0),
+                                         ambient_movement_ + 60 + 8 +
+                                             64.f * module_cursor_->y +
+                                             (selector_shaded_ ? 1 : 0)} +
+                            scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({true, false});
-        sprite.set_position(Vec2<Float>{83 + 64.f * module_cursor_->x -
-                                            (selector_shaded_ ? 1 : 0),
-                                        ambient_movement_ + 60 + 8 +
-                                            64.f * module_cursor_->y +
-                                            (selector_shaded_ ? 1 : 0)} +
-                            scale_offset(pfrm).cast<Float>());
+        sprite.set_position(Vec2<Fixnum>{83 + 64.f * module_cursor_->x -
+                                             (selector_shaded_ ? 1 : 0),
+                                         ambient_movement_ + 60 + 8 +
+                                             64.f * module_cursor_->y +
+                                             (selector_shaded_ ? 1 : 0)} +
+                            scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({false, true});
-        sprite.set_position(Vec2<Float>{28 + 64.f * module_cursor_->x +
-                                            (selector_shaded_ ? 1 : 0),
-                                        ambient_movement_ + 60 + 8 +
-                                            64.f * module_cursor_->y + 40 -
-                                            (selector_shaded_ ? 1 : 0)} +
-                            scale_offset(pfrm).cast<Float>());
+        sprite.set_position(Vec2<Fixnum>{28 + 64.f * module_cursor_->x +
+                                             (selector_shaded_ ? 1 : 0),
+                                         ambient_movement_ + 60 + 8 +
+                                             64.f * module_cursor_->y + 40 -
+                                             (selector_shaded_ ? 1 : 0)} +
+                            scl);
         pfrm.screen().draw(sprite);
 
 
         sprite.set_flip({true, true});
-        sprite.set_position(Vec2<Float>{83 + 64.f * module_cursor_->x -
-                                            (selector_shaded_ ? 1 : 0),
-                                        ambient_movement_ + 60 + 8 +
-                                            64.f * module_cursor_->y + 40 -
-                                            (selector_shaded_ ? 1 : 0)} +
-                            scale_offset(pfrm).cast<Float>());
+        sprite.set_position(Vec2<Fixnum>{83 + 64.f * module_cursor_->x -
+                                             (selector_shaded_ ? 1 : 0),
+                                         ambient_movement_ + 60 + 8 +
+                                             64.f * module_cursor_->y + 40 -
+                                             (selector_shaded_ ? 1 : 0)} +
+                            scl);
         pfrm.screen().draw(sprite);
     }
 }
@@ -1210,34 +1220,39 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
     auto view = pfrm.screen().get_view();
     auto c = view.get_center();
 
-    const Vec2<Float> anchor = {73.f, (c.y - 64) + 148};
+    const Vec2<Fixnum> anchor = {73.f, (c.y - 64) + 148};
+
+    Vec2<Fixnum> scl;
+    scl.x = spr_scale_offset(pfrm).x;
+    scl.y = spr_scale_offset(pfrm).y;
 
     Sprite sprite;
     sprite.set_size(Sprite::Size::w16_h32);
     sprite.set_texture_index(26);
     sprite.set_origin({1, 2});
     sprite.set_position(
-        Vec2<Float>{
+        Vec2<Fixnum>{
             (anchor.x) - (240 + x_scroll),
             anchor.y +
                 clamp(interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
                       0.f,
                       19.f)} +
-        spr_scale_offset(pfrm).cast<Float>());
+        scl);
     pfrm.screen().draw(sprite);
 
     sprite.set_position(
-        Vec2<Float>{(anchor.x + 24) - (240 + x_scroll),
-                    anchor.y + interpolate(ball_.y, pad2_.pos_, ball_.x / 22)} +
-        spr_scale_offset(pfrm).cast<Float>());
+        Vec2<Fixnum>{(anchor.x + 24) - (240 + x_scroll),
+                     anchor.y +
+                         interpolate(ball_.y, pad2_.pos_, ball_.x / 22)} +
+        scl);
 
     pfrm.screen().draw(sprite);
 
     sprite.set_origin({});
     sprite.set_texture_index(27);
-    sprite.set_position(Vec2<Float>{(ball_.x + anchor.x) - (240 + x_scroll),
-                                    ball_.y + anchor.y} +
-                        spr_scale_offset(pfrm).cast<Float>());
+    sprite.set_position(Vec2<Fixnum>{(ball_.x + anchor.x) - (240 + x_scroll),
+                                     ball_.y + anchor.y} +
+                        scl);
     pfrm.screen().draw(sprite);
 }
 

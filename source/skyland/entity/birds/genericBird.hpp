@@ -43,7 +43,7 @@ public:
     // Alternate constructor, intended for rewind implementation.
     GenericBird(Platform::DynamicTexturePtr dt,
                 const Vec2<u8>& coord,
-                const Vec2<Float>& position,
+                const Vec2<Fixnum>& position,
                 Float speed,
                 Microseconds flight_timer,
                 u8 color,

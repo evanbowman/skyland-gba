@@ -36,7 +36,6 @@ private:
     Vec2<u16> raindrops_[6];
 
 public:
-
     void update(Platform& pfrm, App& app, Microseconds delta);
 
 
@@ -51,4 +50,4 @@ public:
 
 
 
-}
+} // namespace skyland::weather

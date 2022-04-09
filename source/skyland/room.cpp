@@ -157,7 +157,7 @@ void Room::display(Platform::Screen& screen)
     if (parent_->interior_visible()) {
         for (auto& c : characters()) {
             const auto& pos = c->sprite().get_position();
-            if (pos.y < 700) {
+            if (pos.y.as_integer() < 700) {
                 screen.draw(c->sprite());
             }
         }
@@ -176,7 +176,7 @@ void Room::display_on_hover(Platform::Screen& screen,
             auto spr = c->sprite();
             spr.set_mix({custom_color(0x28457b), 200});
             spr.set_alpha(Sprite::Alpha::translucent);
-            if (pos.y < 700) {
+            if (pos.y.as_integer() < 700) {
                 screen.draw(spr);
             }
         }
@@ -333,7 +333,7 @@ Island* Room::other_island(App& app)
 
 
 
-Vec2<Float> Room::origin() const
+Vec2<Fixnum> Room::origin() const
 {
     auto origin = parent_->origin();
     origin.x += x_position_ * 16;
@@ -343,7 +343,7 @@ Vec2<Float> Room::origin() const
 
 
 
-Vec2<Float> Room::center() const
+Vec2<Fixnum> Room::center() const
 {
     auto o = origin();
     o.x += (size().x * 0.5f) * 16;
@@ -485,6 +485,22 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
     parent_->owner().on_room_damaged(pfrm, app, *this);
 
     ready();
+}
+
+
+
+bool Room::non_owner_selectable() const
+{
+    for (auto& chr : characters()) {
+
+        bool has_boarded_character = chr->owner() not_eq &parent()->owner();
+
+        if (has_boarded_character) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 

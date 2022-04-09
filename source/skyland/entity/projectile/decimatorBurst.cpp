@@ -41,8 +41,8 @@ static SHARED_VARIABLE(decimator_burst_damage);
 
 
 
-DecimatorBurst::DecimatorBurst(const Vec2<Float>& position,
-                               const Vec2<Float>& target,
+DecimatorBurst::DecimatorBurst(const Vec2<Fixnum>& position,
+                               const Vec2<Fixnum>& target,
                                Island* source,
                                const Vec2<u8>& origin_tile)
     : Projectile({{10, 20}, {8, 16}}), source_(source),
@@ -55,7 +55,8 @@ DecimatorBurst::DecimatorBurst(const Vec2<Float>& position,
     sprite_.set_origin({8, 16});
 
     static const Float speed = 0.00025f;
-    step_vector_ = direction(position, target) * speed;
+    const auto step = direction(fvec(position), fvec(target)) * speed;
+    step_vector_ = Vec2<Fixnum>{step.x, step.y};
 }
 
 
@@ -63,7 +64,7 @@ DecimatorBurst::DecimatorBurst(const Vec2<Float>& position,
 void DecimatorBurst::update(Platform&, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos + app.float_delta() * step_vector_;
+    pos = pos + app.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     if (source_ not_eq &app.player_island()) {
@@ -85,13 +86,13 @@ void DecimatorBurst::update(Platform&, App& app, Microseconds delta)
         if (target == &app.player_island()) {
             // If we're shooting at the player's island, the projectile moves
             // leftwards, and we care about the min bound.
-            min_x = (int)target->origin().x - 32;
+            min_x = target->origin().x.as_integer() - 32;
         } else {
             // Otherwise, we need to check the max bound.
-            max_x =
-                (int)target->origin().x + 16 * target->terrain().size() + 32;
+            max_x = target->origin().x.as_integer() +
+                    16 * target->terrain().size() + 32;
         }
-        if (pos.x > max_x or pos.x < min_x) {
+        if (pos.x.as_integer() > max_x or pos.x.as_integer() < min_x) {
             kill();
         }
     }
@@ -107,7 +108,7 @@ void DecimatorBurst::update(Platform&, App& app, Microseconds delta)
 void DecimatorBurst::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
     auto pos = sprite_.get_position();
-    pos = pos - Float(delta) * step_vector_;
+    pos = pos - app.delta_fp() * step_vector_;
     sprite_.set_position(pos);
 
     timer_ -= delta;
@@ -153,10 +154,10 @@ void DecimatorBurst::on_collision(Platform& pfrm, App& app, Room& room)
             e.x_origin_ = origin_tile_.x;
             e.y_origin_ = origin_tile_.y;
             e.timer_.set(timer_);
-            e.x_pos_.set(sprite_.get_position().x);
-            e.y_pos_.set(sprite_.get_position().y);
-            memcpy(&e.x_speed_, &step_vector_.x, sizeof(Float));
-            memcpy(&e.y_speed_, &step_vector_.y, sizeof(Float));
+            e.x_pos_.set(sprite_.get_position().x.as_integer());
+            e.y_pos_.set(sprite_.get_position().y.as_integer());
+            e.x_speed__data_.set(step_vector_.x.data());
+            e.y_speed__data_.set(step_vector_.y.data());
         };
 
 

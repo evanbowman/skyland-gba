@@ -47,7 +47,7 @@ void Pummeler::fire(Platform& pfrm, App& app)
 {
     auto island = other_island(app);
 
-    Vec2<Float> target;
+    Vec2<Fixnum> target;
 
     auto origin = island->origin();
     origin.x += target_->x * 16 + 8;
@@ -69,11 +69,11 @@ void Pummeler::fire(Platform& pfrm, App& app)
         target = rng::sample<6>(target, rng::critical_state);
     }
 
-    auto c = app.alloc_entity<Curveshot>(
-        pfrm, start, target, parent(), other_island(app), position(), *target_);
-    if (c) {
-        parent()->projectiles().push(std::move(c));
-    }
+    // auto c = app.alloc_entity<Curveshot>(
+    //     pfrm, start, target, parent(), other_island(app), position(), *target_);
+    // if (c) {
+    //     parent()->projectiles().push(std::move(c));
+    // }
 }
 
 

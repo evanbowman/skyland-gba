@@ -57,7 +57,7 @@ GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
 
 GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
                          const Vec2<u8>& coord,
-                         const Vec2<Float>& position,
+                         const Vec2<Fixnum>& position,
                          Float speed,
                          Microseconds flight_timer,
                          u8 color,
@@ -235,8 +235,8 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
                 time_stream::event::BirdLeftMap e;
                 e.x_coord_ = position_.x;
                 e.y_coord_ = position_.y;
-                e.x_pos_.set(sprite_.get_position().x);
-                e.y_pos_.set(sprite_.get_position().y);
+                e.x_pos_.set(sprite_.get_position().x.as_integer());
+                e.y_pos_.set(sprite_.get_position().y.as_integer());
                 memcpy(e.speed_, &speed_, sizeof(speed_));
                 e.flight_timer_.set(flight_timer_);
                 e.color_ = color_;

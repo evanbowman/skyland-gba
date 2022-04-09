@@ -38,7 +38,7 @@ public:
     static const int start_index = 19;
 
 
-    Explosion(const Vec2<Float>& position) : Entity({{}, {}})
+    Explosion(const Vec2<Fixnum>& position) : Entity({{}, {}})
     {
         sprite_.set_position(position);
         sprite_.set_size(Sprite::Size::w16_h32);
@@ -94,14 +94,14 @@ private:
 
 
 
-void medium_explosion(Platform& pfrm, App& app, const Vec2<Float>& position);
+void medium_explosion(Platform& pfrm, App& app, const Vec2<Fixnum>& position);
 void medium_explosion_inv(Platform& pfrm,
                           App& app,
-                          const Vec2<Float>& position);
+                          const Vec2<Fixnum>& position);
 
 
-void big_explosion(Platform& pfrm, App& app, const Vec2<Float>& position);
-void big_explosion_inv(Platform& pfrm, App& app, const Vec2<Float>& position);
+void big_explosion(Platform& pfrm, App& app, const Vec2<Fixnum>& position);
+void big_explosion_inv(Platform& pfrm, App& app, const Vec2<Fixnum>& position);
 
 
 

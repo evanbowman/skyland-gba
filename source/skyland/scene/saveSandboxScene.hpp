@@ -93,7 +93,7 @@ public:
 
         auto view = pfrm.screen().get_view().get_center();
 
-        Vec2<Float> origin;
+        Vec2<Fixnum> origin;
         origin.x = 5;
         origin.y = (4 + 5 * cursor_) * 8 - 3;
         origin.x += view.x;

@@ -437,9 +437,8 @@ public:
 
         struct SpriteBatchOptions
         {
-            SpriteBatchOptions() :
-                position_absolute_(false),
-                alpha_(Sprite::Alpha::opaque)
+            SpriteBatchOptions()
+                : position_absolute_(false), alpha_(Sprite::Alpha::opaque)
             {
             }
 

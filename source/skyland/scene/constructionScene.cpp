@@ -119,8 +119,8 @@ get_local_tapclick(Platform& pfrm, Island* island, const Vec2<u32>& pos)
     if (pos.x >= island_pos.x and
         pos.x <= island_pos.x + (1 + island->terrain().size()) * 16) {
 
-        int x_tile = -((island_pos.x - pos.x) / 16);
-        int y_tile = -((island_pos.y - pos.y) / 16);
+        int x_tile = -((island_pos.x.as_integer() - pos.x) / 16);
+        int y_tile = -((island_pos.y.as_integer() - pos.y) / 16);
 
         y_tile += 31; // FIXME!
 

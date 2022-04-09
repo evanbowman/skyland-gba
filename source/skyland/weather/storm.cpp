@@ -20,9 +20,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include "storm.hpp"
 #include "number/random.hpp"
 #include "skyland/skyland.hpp"
-#include "storm.hpp"
 
 
 
@@ -47,7 +47,8 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
     auto camera_diff_y = camera.y - last_camera_.y;
 
     for (auto& rd : raindrops_) {
-        if ((rd.x / scale) < 0 or (rd.y / scale) > (s16)pfrm.screen().size().y) {
+        if ((rd.x / scale) < 0 or
+            (rd.y / scale) > (s16)pfrm.screen().size().y) {
 
             if (delta == 0) {
                 rd.x = rng::choice(pfrm.screen().size().x * scale, gen);
@@ -86,7 +87,8 @@ void Storm::rewind(Platform& pfrm, App& app, Microseconds delta)
     auto& gen = rng::utility_state;
 
     for (auto& rd : raindrops_) {
-        if ((rd.x / scale) > (s16)pfrm.screen().size().x or (rd.y / scale) < 0) {
+        if ((rd.x / scale) > (s16)pfrm.screen().size().x or
+            (rd.y / scale) < 0) {
             if (rng::choice<2>(rng::utility_state)) {
                 rd.x = 0;
                 rd.y = rng::choice(pfrm.screen().size().y * scale, gen);
@@ -105,10 +107,6 @@ void Storm::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 void Storm::display(Platform& pfrm, App& app)
 {
-    // if (app.game_speed() == GameSpeed::stopped) {
-    //     return;
-    // }
-
     auto batch = allocate_dynamic<Buffer<Vec2<s32>, 64>>("rain-spr-buffer");
 
     const auto scale = rain_pos_scale;
@@ -119,7 +117,6 @@ void Storm::display(Platform& pfrm, App& app)
 
     Platform::Screen::SpriteBatchOptions opts;
     opts.position_absolute_ = true;
-    // opts.alpha_ = Sprite::Alpha::translucent;
 
     pfrm.screen().draw_batch(89, *batch, opts);
 }
@@ -136,99 +133,99 @@ const char* Storm::music() const
 Platform::Screen::Shader Storm::shader(App& app) const
 {
     return [&app](ShaderPalette palette, ColorConstant k, int arg, int index) {
-               switch (palette) {
-               case ShaderPalette::tile0:
-                   switch (index & 0x0f) {
-                   case 1:
-                       return custom_color(0x10405c);
-                   case 2:
-                       return custom_color(0x5e728c);
-                   case 3:
-                       return custom_color(0x95bbbd);
-                   case 5:
-                       return custom_color(0xc7612e);
-                   case 8:
-                       return custom_color(0xb8ea80);
-                   case 9:
-                       return custom_color(0xe8ebe6);
-                   case 10:
-                       if (not player_island(app).interior_visible()) {
-                           return custom_color(0x9adbd6);
-                       }
-                       break;
-                   case 12:
-                       return custom_color(0x1477b5);
-                   case 13:
-                       return custom_color(0xdee7a5);
-                   case 14:
-                       return custom_color(0xaab87d);
-                   case 15:
-                       return custom_color(0x5f6e3b);
-                   }
-                   break;
+        switch (palette) {
+        case ShaderPalette::tile0:
+            switch (index & 0x0f) {
+            case 1:
+                return custom_color(0x10405c);
+            case 2:
+                return custom_color(0x5e728c);
+            case 3:
+                return custom_color(0x95bbbd);
+            case 5:
+                return custom_color(0xc7612e);
+            case 8:
+                return custom_color(0xb8ea80);
+            case 9:
+                return custom_color(0xe8ebe6);
+            case 10:
+                if (not player_island(app).interior_visible()) {
+                    return custom_color(0x9adbd6);
+                }
+                break;
+            case 12:
+                return custom_color(0x1477b5);
+            case 13:
+                return custom_color(0xdee7a5);
+            case 14:
+                return custom_color(0xaab87d);
+            case 15:
+                return custom_color(0x5f6e3b);
+            }
+            break;
 
-               case ShaderPalette::tile1:
-                   switch (index) {
-                   case 1:
-                       return custom_color(0x10405c);
-                   case 2:
-                       return custom_color(0x5e728c);
-                   case 3:
-                       return custom_color(0x95bbbd);
-                   case 5:
-                       return custom_color(0xc7612e);
-                   case 8:
-                       return custom_color(0xb8ea80);
-                   case 9:
-                       return custom_color(0xe8ebe6);
-                   case 10: // FIXME
-                       if (opponent_island(app) and
-                           not opponent_island(app)->interior_visible()) {
-                           return custom_color(0x899668);
-                       }
-                       break;
-                   case 12:
-                       return custom_color(0x1477b5);
-                   case 13:
-                       return custom_color(0xdee7a5);
-                   case 14:
-                       return custom_color(0xaab87d);
-                   case 15:
-                       return custom_color(0x5f6e3b);
-                   }
-                   break;
+        case ShaderPalette::tile1:
+            switch (index) {
+            case 1:
+                return custom_color(0x10405c);
+            case 2:
+                return custom_color(0x5e728c);
+            case 3:
+                return custom_color(0x95bbbd);
+            case 5:
+                return custom_color(0xc7612e);
+            case 8:
+                return custom_color(0xb8ea80);
+            case 9:
+                return custom_color(0xe8ebe6);
+            case 10: // FIXME
+                if (opponent_island(app) and
+                    not opponent_island(app)->interior_visible()) {
+                    return custom_color(0x899668);
+                }
+                break;
+            case 12:
+                return custom_color(0x1477b5);
+            case 13:
+                return custom_color(0xdee7a5);
+            case 14:
+                return custom_color(0xaab87d);
+            case 15:
+                return custom_color(0x5f6e3b);
+            }
+            break;
 
-               case ShaderPalette::background:
-                   switch (index) {
-                   case 1:
-                       return custom_color(0x6fbdb9);
-                   case 2:
-                       return custom_color(0xe8ebe6);
-                   case 3:
-                       return custom_color(0x9adbd6);
-                   case 4:
-                       return custom_color(0x49a7b8);
-                   }
-                   break;
+        case ShaderPalette::background:
+            switch (index) {
+            case 1:
+                return custom_color(0x6fbdb9);
+            case 2:
+                return custom_color(0xe8ebe6);
+            case 3:
+                return custom_color(0x9adbd6);
+            case 4:
+                return custom_color(0x49a7b8);
+            }
+            break;
 
-               case ShaderPalette::spritesheet:
-                   switch (index) {
-                   case 10:
-                       return custom_color(0x1780bd);
+        case ShaderPalette::spritesheet:
+            switch (index) {
+            case 10:
+                return custom_color(0x1780bd);
 
-                   default:
-                       break;
-                   }
-                   break;
+            default:
+                break;
+            }
+            break;
 
-               default:
-                   return k;
-               }
+        default:
+            return k;
+        }
 
-               return k;
-           };
+        return k;
+    };
 }
 
 
 
-}
+} // namespace skyland::weather

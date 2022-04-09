@@ -137,8 +137,13 @@ void BasicCharacter::rewind(Platform&, App& app, Microseconds delta)
         timer_ -= delta;
 
         if (timer_ > 0) {
-            sprite_.set_position(
-                interpolate(dest, o, Float(timer_) / movement_step_duration));
+            auto fpos = interpolate(fvec(dest),
+                                    fvec(o),
+                                    Float(timer_) / movement_step_duration);
+
+            sprite_.set_position(Vec2<Fixnum>{
+                    fpos.x, fpos.y
+                });
         }
 
         anim_timer_ -= delta;
@@ -511,8 +516,13 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
             sprite_.set_flip({true, false});
         }
 
-        sprite_.set_position(
-            interpolate(dest, o, Float(timer_) / movement_step_duration));
+        auto fpos = interpolate(fvec(dest),
+                                fvec(o),
+                                Float(timer_) / movement_step_duration);
+
+        sprite_.set_position(Vec2<Fixnum>{
+            fpos.x, fpos.y
+        });
     }
 
     if (timer_ > movement_step_duration) {

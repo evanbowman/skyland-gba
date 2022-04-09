@@ -308,7 +308,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     Microseconds world_delta = delta;
     apply_gamespeed(app, world_delta);
 
-    app.float_delta() = world_delta;
+    app.delta_fp() = world_delta;
 
     app.update_parallax(world_delta);
 
@@ -421,10 +421,10 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         // island, drift the opponent island away to maintain the ideal
         // distance between the two.
         if ((app.opponent_island()->get_drift() < 0 and
-             (int) app.opponent_island()->get_position().x <=
+             app.opponent_island()->get_position().x.as_integer() <=
                  (int)app.player_island().terrain().size() * 16 + 48) or
             (app.opponent_island()->get_drift() > 0 and
-             (int) app.opponent_island()->get_position().x >
+             app.opponent_island()->get_position().x.as_integer() >
                  (int)app.player_island().terrain().size() * 16 + 48)) {
 
             app.opponent_island()->set_position(
@@ -439,7 +439,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.opponent_island()->get_drift() == 0) {
-            if ((int)app.opponent_island()->get_position().x <
+            if (app.opponent_island()->get_position().x.as_integer() <
                 (int)app.player_island().terrain().size() * 16 + 48) {
                 app.opponent_island()->set_drift(pfrm, app, 0.00003f);
             }

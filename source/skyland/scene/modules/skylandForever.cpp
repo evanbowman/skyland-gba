@@ -178,16 +178,17 @@ SkylandForever::update(Platform& pfrm, App& app, Microseconds delta)
         unveil_ = true;
     }
 
-    auto update_env =
-        [&] {
-            environment_init(app, parameters_[1]);
+    auto update_env = [&] {
+        environment_init(app, parameters_[1]);
 
-            pfrm.screen().set_shader(app.environment().shader(app));
-            pfrm.screen().set_shader_argument(0);
+        pfrm.screen().set_shader(app.environment().shader(app));
+        pfrm.screen().set_shader_argument(0);
 
-            pfrm.screen().schedule_fade(0.7f, ColorConstant::rich_black, false, false);
-            pfrm.screen().schedule_fade(0.6f, ColorConstant::rich_black, false, false);
-        };
+        pfrm.screen().schedule_fade(
+            0.7f, ColorConstant::rich_black, false, false);
+        pfrm.screen().schedule_fade(
+            0.6f, ColorConstant::rich_black, false, false);
+    };
 
     if (app.player().key_down(pfrm, Key::right) or
         app.player().key_held(Key::right, milliseconds(500))) {

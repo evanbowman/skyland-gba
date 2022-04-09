@@ -597,7 +597,7 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
 
 weather::Environment& App::environment()
 {
-    return *world_state_->environment_;
+    return *environment_;
 }
 
 

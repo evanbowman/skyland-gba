@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include "number/numeric.hpp"
 #include "graphics/color.hpp"
+#include "number/numeric.hpp"
 #include "platform/platform.hpp"
 
 
@@ -34,7 +34,7 @@ class Platform;
 
 namespace skyland
 {
-    class App;
+class App;
 }
 
 
@@ -47,8 +47,6 @@ namespace skyland::weather
 class Environment
 {
 public:
-
-
     virtual ~Environment()
     {
     }
@@ -83,8 +81,6 @@ public:
 class CleanEnvironment : public Environment
 {
 public:
-
-
     void update(Platform& pfrm, App& app, Microseconds delta) override
     {
         // Nothing...
@@ -137,8 +133,6 @@ public:
     {
         return "background";
     }
-
-
 };
 
 
@@ -146,15 +140,12 @@ public:
 class ClearSkies : public CleanEnvironment
 {
 public:
-
     const char* music() const override
     {
         return "life_in_silco";
     }
-
 };
 
 
 
-
-}
+} // namespace skyland::weather

@@ -70,7 +70,7 @@ void MissileSilo::fire(Platform& pfrm, App& app)
 {
     auto island = other_island(app);
 
-    Vec2<Float> target;
+    Vec2<Fixnum> target;
 
     auto room = island->get_room(*target_);
     if (room and not pfrm.network_peer().is_connected()) {

@@ -36,13 +36,13 @@ namespace skyland
 class DecimatorBurst : public Projectile
 {
 public:
-    DecimatorBurst(const Vec2<Float>& position,
-                   const Vec2<Float>& target,
+    DecimatorBurst(const Vec2<Fixnum>& position,
+                   const Vec2<Fixnum>& target,
                    Island* source,
                    const Vec2<u8>& origin_tile);
 
 
-    void set_step_vector(const Vec2<Float>& val)
+    void set_step_vector(const Vec2<Fixnum>& val)
     {
         step_vector_ = val;
     }
@@ -68,7 +68,7 @@ public:
 
 private:
     Microseconds timer_ = 0;
-    Vec2<Float> step_vector_;
+    Vec2<Fixnum> step_vector_;
     Island* source_;
 
     // We need to keep track of the origin tile coords, to prevent cannons from

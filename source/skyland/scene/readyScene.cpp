@@ -91,8 +91,8 @@ check_island_tapclick(Platform& pfrm, App& app, const Vec2<u32>& pos)
         if (pos.x >= island_pos.x and
             pos.x <= island_pos.x + app.player_island().terrain().size() * 16) {
 
-            int x_tile = -((island_pos.x - pos.x) / 16);
-            int y_tile = -((island_pos.y - pos.y) / 16);
+            int x_tile = -((island_pos.x.as_integer() - pos.x) / 16);
+            int y_tile = -((island_pos.y.as_integer() - pos.y) / 16);
 
             y_tile += 31; // FIXME!
 
@@ -110,8 +110,8 @@ check_island_tapclick(Platform& pfrm, App& app, const Vec2<u32>& pos)
             pos.x <=
                 island_pos.x + app.opponent_island()->terrain().size() * 16) {
 
-            int x_tile = -((island_pos.x - pos.x) / 16);
-            int y_tile = -((island_pos.y - pos.y) / 16);
+            int x_tile = -((island_pos.x.as_integer() - pos.x) / 16);
+            int y_tile = -((island_pos.y.as_integer() - pos.y) / 16);
 
             y_tile += 31; // FIXME!
 
@@ -402,8 +402,8 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pos->x <=
                     island_pos.x + app.player_island().terrain().size() * 16) {
 
-                int x_tile = -((island_pos.x - pos->x) / 16);
-                int y_tile = -((island_pos.y - pos->y) / 16);
+                int x_tile = -((island_pos.x.as_integer() - pos->x) / 16);
+                int y_tile = -((island_pos.y.as_integer() - pos->y) / 16);
 
                 y_tile += 31; // FIXME!
 
