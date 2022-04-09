@@ -76,21 +76,6 @@ void Cannonball::update(Platform& pfrm, App& app, Microseconds delta)
 
     timer_ += delta;
 
-    // {
-    //     auto pos = sprite_.get_position();
-    //     Vec2<Fixnum> testp {pos.x, pos.y};
-
-    //     Vec2<Fixnum> tests { step_vector_.x, step_vector_.y };
-
-    //     const auto begin = pfrm.delta_clock().sample();
-
-    //     testp = testp + Fixnum(delta) * tests;
-
-    //     const auto end = pfrm.delta_clock().sample();
-    //     info(pfrm, stringify(end - begin).c_str());
-    //     info(pfrm, stringify(testp.x.as_integer()).c_str());
-    // }
-
 
     Island* target;
     if (source_ == &app.player_island()) {
