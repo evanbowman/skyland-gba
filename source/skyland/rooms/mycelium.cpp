@@ -69,7 +69,8 @@ void Mycelium::update(Platform& pfrm, App& app, Microseconds delta)
             if (auto room = parent()->get_room({x, y})) {
                 // Mycelium substrate must be non-mycelium room.
                 return room->metaclass() not_eq metaclass() and
-                       not(room->properties() & RoomProperties::fluid) and
+                       not((*room->metaclass())->properties() &
+                           RoomProperties::fluid) and
                        not is_forcefield(room->metaclass());
             }
 
