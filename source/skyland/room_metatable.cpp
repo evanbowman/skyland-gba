@@ -25,8 +25,8 @@
 #include "roomPluginInfo.hpp"
 #include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/bananaPlant.hpp"
-#include "skyland/rooms/basalt.hpp"
 #include "skyland/rooms/barrier.hpp"
+#include "skyland/rooms/basalt.hpp"
 #include "skyland/rooms/bridge.hpp"
 #include "skyland/rooms/bronzeHull.hpp"
 #include "skyland/rooms/bulkhead.hpp"
@@ -73,6 +73,7 @@
 #include "skyland/rooms/switch.hpp"
 #include "skyland/rooms/synth.hpp"
 #include "skyland/rooms/tnt.hpp"
+#include "skyland/rooms/torch.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/water.hpp"
 #include "skyland/rooms/workshop.hpp"
@@ -316,6 +317,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         LadyLiberty,
                                         Bridge,
                                         Fountain,
+                                        Torch,
                                         Palm,
                                         LemonTree,
                                         Sunflower,

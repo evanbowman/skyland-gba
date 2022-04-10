@@ -1622,24 +1622,23 @@ void EnemyAI::set_target(Platform& pfrm,
         u8 x = room->position().x;
         u8 y = room->position().y;
 
-        auto check_neighbor =
-            [&](u8 x, u8 y) {
-                if (app.player_island().fire_present({x, y})) {
-                    // This flammable room shouldn't add weight, it's already on
-                    // fire at this slot! Just let it burn.
-                    return;
+        auto check_neighbor = [&](u8 x, u8 y) {
+            if (app.player_island().fire_present({x, y})) {
+                // This flammable room shouldn't add weight, it's already on
+                // fire at this slot! Just let it burn.
+                return;
+            }
+            if (auto room = app.player_island().get_room({x, y})) {
+                auto props = (*room->metaclass())->properties();
+                if (props & RoomProperties::habitable and
+                    room->position().y <= y) {
+                    w += 200.f;
                 }
-                if (auto room = app.player_island().get_room({x, y})) {
-                    auto props = (*room->metaclass())->properties();
-                    if (props & RoomProperties::habitable and
-                        room->position().y <= y) {
-                        w += 200.f;
-                    }
-                    if (props & RoomProperties::highly_flammable) {
-                        w += 300.f;
-                    }
+                if (props & RoomProperties::highly_flammable) {
+                    w += 300.f;
                 }
-            };
+            }
+        };
 
         check_neighbor(x - 1, y);
         check_neighbor(x - 1, y - 1);

@@ -34,49 +34,82 @@ namespace skyland
 
 
 
-class Basalt : public Decoration
+class Torch : public Decoration
 {
 public:
-    Basalt(Island* parent, const Vec2<u8>& position)
+    Torch(Island* parent, const Vec2<u8>& position)
         : Decoration(parent, name(), position)
     {
     }
 
 
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    void burn_damage(Platform& pfrm, App& app, Health damage) override
     {
-        buffer += SYSTR(description_basalt)->c_str();
+        // Torches take no burn damage (that's kinda the whole point).
     }
 
 
-    void render_interior(App& app, u8 buffer[16][16]) override;
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
+    {
+        buffer += SYSTR(description_torch)->c_str();
+    }
 
 
-    void render_exterior(App& app, u8 buffer[16][16]) override;
+    void render_scaffolding(App& app, u8 buffer[16][16]) override
+    {
+        Room::render_scaffolding(app, buffer);
+    }
+
+
+    void render_interior(App& app, u8 buffer[16][16]) override
+    {
+        buffer[position().x][position().y] = InteriorTile::torch;
+    }
+
+
+    void render_exterior(App& app, u8 buffer[16][16]) override
+    {
+        buffer[position().x][position().y] = Tile::torch;
+    }
 
 
     static u32 properties()
     {
-        return (Decoration::properties() & ~RoomProperties::locked_by_default) |
-               RoomProperties::not_constructible | RoomProperties::fireproof;
+        return (Decoration::properties() &
+                ~(RoomProperties::disallow_chimney |
+                  RoomProperties::locked_by_default)) |
+            RoomProperties::highly_flammable |
+            RoomProperties::sandbox_mode_only;
     }
 
 
     static const char* name()
     {
-        return "basalt";
+        return "torch";
     }
 
 
     static SystemString ui_name()
     {
-        return SystemString::block_basalt;
+        return SystemString::block_torch;
     }
 
 
     static Vec2<u8> size()
     {
         return {1, 1};
+    }
+
+
+    static Icon icon()
+    {
+        return 2376;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 2392;
     }
 };
 

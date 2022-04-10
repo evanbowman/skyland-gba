@@ -46,6 +46,7 @@
    (sunflower    1   1    0)
    (shrubbery    1   1    0)
    (fountain     1   1    0)
+   (torch        1   1    0)
    (banana-plant 1   1    0)
    (masonry      30  30   0)
    (basalt       31  1    0)

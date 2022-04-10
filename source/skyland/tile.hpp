@@ -205,6 +205,7 @@ struct Tile
         ice,
         basalt_top,
         basalt,
+        torch,
     };
 };
 
@@ -389,6 +390,7 @@ struct InteriorTile
         ice,
         basalt_top,
         basalt,
+        torch,
     };
 };
 

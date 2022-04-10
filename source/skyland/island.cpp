@@ -562,8 +562,7 @@ void Island::FireState::update(Platform& pfrm,
                             }
                         }
                     } else {
-                        // No room here any longer, unset the fire bit.
-                        positions_.set(x, y, false);
+                        island.fire_extinguish(pfrm, app, {x, y});
                     }
                 }
             }

@@ -93,6 +93,7 @@ enum class SystemString {
     block_synth,
     block_dynamite_1,
     block_dynamite_2,
+    block_torch,
     block_transporter,
     block_water,
     block_water_source,
@@ -191,6 +192,7 @@ enum class SystemString {
     description_mycelium,
     description_ice,
     description_basalt,
+    description_torch,
 
     gs_paused,
     gs_slow,
