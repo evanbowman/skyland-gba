@@ -29,13 +29,57 @@ namespace skyland
 
 
 
+// The code below scans the whole file each time in search of a SystemString. We
+// speed up the loading by caching the results.
+struct IndexCache {
+    u32 file_offset_[(int)SystemString::count] = {0};
+};
+
+
+
+static std::optional<DynamicMemory<IndexCache>> index_cache;
+
+
+
+void systemstring_drop_index_cache()
+{
+    index_cache.reset();
+}
+
+
+
+static void systemstring_get_index_cache()
+{
+    if (not index_cache) {
+        index_cache = allocate_dynamic<IndexCache>("locale-string-index-cache");
+    }
+}
+
+
+
 SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
 {
+    systemstring_get_index_cache();
+
     auto result = allocate_dynamic<StringBuffer<1900>>("system-string");
+
 
     const char* file = "strings.txt";
 
     if (auto data = pfrm.load_file_contents("strings", file)) {
+        const char* const data_start = data;
+
+        if ((*index_cache)->file_offset_[(int)str]) {
+            data += (*index_cache)->file_offset_[(int)str];
+
+            while (*data not_eq '\0' and *data not_eq '\n') {
+                result->push_back(*data);
+                ++data;
+            }
+
+            return result;
+        }
+
         const int target_line = static_cast<int>(str);
 
         int index = 0;
@@ -50,6 +94,8 @@ SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
 
             ++index;
         }
+
+        (*index_cache)->file_offset_[(int)str] = data - data_start;
 
         while (*data not_eq '\0' and *data not_eq '\n') {
             result->push_back(*data);

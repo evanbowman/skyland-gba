@@ -36,9 +36,27 @@ namespace skyland
 
 
 
+void systemstring_drop_index_cache();
+
+
+
 enum class SystemString {
     empty,
     game_title,
+
+    yes,
+    no,
+
+    mt_title,
+    mt_hint,
+    mt_coop,
+    mt_vs,
+    mt_game_mode,
+    mt_prep_seconds,
+    mt_unhide_prep,
+    mt_coins,
+    mt_terrain_size,
+    mt_waiting,
 
     block_arcgun,
     block_banana_plant,
@@ -255,8 +273,6 @@ enum class SystemString {
     create_replicant,
 
     reset_sandbox_query,
-    yes,
-    no,
     exit,
 
     switch_connect_on,
@@ -284,17 +300,6 @@ enum class SystemString {
     sandbox_weather,
     sandbox_title,
     sandbox_prompt,
-
-    mt_title,
-    mt_hint,
-    mt_coop,
-    mt_vs,
-    mt_game_mode,
-    mt_prep_seconds,
-    mt_unhide_prep,
-    mt_coins,
-    mt_terrain_size,
-    mt_waiting,
 
     sf_description,
     sf_hint,
@@ -376,6 +381,7 @@ enum class SystemString {
 
     __NOTICE__,
     patchfix_retain_alphabet,
+    count,
 };
 
 

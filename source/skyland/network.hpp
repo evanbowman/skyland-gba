@@ -67,8 +67,7 @@ struct Header
         co_op_rng_sync,
         co_op_rng_sync_ack,
         set_weapon_group,
-    } message_type_ : 7;
-    u8 parity_ : 1;
+    } message_type_;
 };
 static_assert(sizeof(Header) == 1);
 
@@ -250,12 +249,6 @@ struct RoomDestroyed
 // character can die in the game.
 struct CharacterDied
 {
-    CharacterDied()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
     u8 chr_x_;
     u8 chr_y_;
@@ -272,12 +265,6 @@ struct CharacterDied
 
 struct CharacterBoarded
 {
-    CharacterBoarded()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
 
     u8 src_x_;
@@ -296,12 +283,6 @@ struct CharacterBoarded
 
 struct CharacterDisembark
 {
-    CharacterDisembark()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
 
     u8 src_x_;
@@ -320,12 +301,6 @@ struct CharacterDisembark
 
 struct ReplicantCreated
 {
-    ReplicantCreated()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
 
     u8 src_x_;
@@ -342,12 +317,6 @@ struct ReplicantCreated
 
 struct DroneSpawn
 {
-    DroneSpawn()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
     u8 origin_x_ : 4;
     u8 origin_y_ : 4;
@@ -369,12 +338,6 @@ struct DroneSpawn
 
 struct DroneDestroyed
 {
-    DroneDestroyed()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
     u8 drone_x_ : 4;
     u8 drone_y_ : 4;
@@ -391,12 +354,6 @@ struct DroneDestroyed
 
 struct OpponentBulkheadChanged
 {
-    OpponentBulkheadChanged()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
 
     u8 room_x_;
@@ -413,12 +370,6 @@ struct OpponentBulkheadChanged
 
 struct GameMatchParameterUpdate
 {
-    GameMatchParameterUpdate()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
     u8 parameter_id_;
     host_s32 value_;
@@ -430,12 +381,6 @@ struct GameMatchParameterUpdate
 
 struct GameMatchSettingsCursor
 {
-    GameMatchSettingsCursor()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
     u8 cursor_line_;
 
@@ -448,12 +393,6 @@ struct GameMatchSettingsCursor
 
 struct GameMatchReady
 {
-    GameMatchReady()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
     u8 unused_[5];
 
@@ -464,12 +403,6 @@ struct GameMatchReady
 
 struct CoopCursor
 {
-    CoopCursor()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
     u8 x_;
     u8 y_;
@@ -487,12 +420,6 @@ struct CoopCursor
 // values are synchronized, before attempting to generate another level.
 struct CoopRngSyncRequest
 {
-    CoopRngSyncRequest()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
     u8 unused_[5];
 
@@ -503,12 +430,6 @@ struct CoopRngSyncRequest
 
 struct CoopRngSync
 {
-    CoopRngSync()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
     host_s32 rng_state_;
 
@@ -523,12 +444,6 @@ struct CoopRngSync
 // value.
 struct CoopRngSyncAck
 {
-    CoopRngSyncAck()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
     host_s32 rng_state_;
 
@@ -541,12 +456,6 @@ struct CoopRngSyncAck
 
 struct SetWeaponGroup
 {
-    SetWeaponGroup()
-    {
-        memset(this, 0, sizeof *this);
-        header_.message_type_ = mt;
-    }
-
     Header header_;
     u8 x_;
     u8 y_;
@@ -710,34 +619,13 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener);
 
 
 
-inline bool parity(void* message)
-{
-    unsigned char r = 0;
-
-    // NOTE: do not include first byte in parity calculation. The first message
-    // byte will contain the parity bit.
-    for (u32 i = 1; i < Platform::NetworkPeer::max_message_size; ++i) {
-        r ^= ((u8*)message)[i];
-    }
-
-    int width = 8;
-    while (width > 1) {
-        r ^= r >> (width / 2);
-        width -= width / 2;
-    }
-
-    return r % 2;
-}
-
-
-
 template <typename T> void transmit(Platform& pfrm, T& message)
 {
     static_assert(sizeof(T) == Platform::NetworkPeer::max_message_size);
     static_assert(alignof(T) == 1);
     static_assert(std::is_trivially_copyable<T>());
 
-    message.header_.parity_ = parity(&message);
+    message.header_.message_type_ = T::mt;
 
     while (
         pfrm.network_peer().is_connected() and

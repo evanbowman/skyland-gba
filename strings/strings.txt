@@ -1,5 +1,17 @@
 
 SKYLAND
+yes
+no
+Multiplayer Settings
+Ready? Press start!
+co-op
+vs
+game mode
+prep seconds
+unhide prep
+coins
+terrain size
+Waiting for other player...
 arc-gun
 banana-plant
 barrier
@@ -188,8 +200,6 @@ recover character?
 showing: repair range
 create replicant? -
 Reset sandbox?
-yes
-no
 exit
 setup switch: connect ON:
 setup switch: connect OFF:
@@ -213,16 +223,6 @@ dependencies
 weather
 Sandbox Settings
 Press A to begin
-Multiplayer Settings
-Ready? Press start!
-co-op
-vs
-game mode
-prep seconds
-unhide prep
-coins
-terrain size
-Waiting for other player...
 Endless new levels! Survive as long as possible!
 Press A to begin
 SKYLAND Forever
