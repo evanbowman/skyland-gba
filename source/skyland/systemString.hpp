@@ -46,6 +46,7 @@ enum class SystemString {
     block_basalt,
     block_bridge,
     block_bronze_hull,
+    block_cesium,
     block_stacked_hull,
     block_mirror_hull,
     block_bulkhead_door,
@@ -193,6 +194,7 @@ enum class SystemString {
     description_ice,
     description_basalt,
     description_torch,
+    description_cesium,
 
     gs_paused,
     gs_slow,

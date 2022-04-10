@@ -59,6 +59,7 @@
    (lava-source  1   2000 0)
    (mycelium     60  2500 5)
    (bridge       30  30   0)
+   (cesium       40  80   0)
    (dynamite     40  80   0)
    (dynamite-ii  35  500  0)
    (energized-hull 380 450 20)

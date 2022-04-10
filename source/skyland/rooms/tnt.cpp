@@ -215,6 +215,84 @@ void Explosive::finalize(Platform& pfrm, App& app)
 
 
 
+static void display_damage_range_dist1(Platform::Screen& screen,
+                                       Room& room)
+{
+    auto pos = room.position();
+
+    auto origin = room.parent()->visual_origin();
+
+    Sprite sprite;
+    sprite.set_size(Sprite::Size::w16_h32);
+    sprite.set_texture_index(13);
+
+    for (int x = pos.x - 1; x < pos.x + 2; ++x) {
+
+        if (x == pos.x) {
+            sprite.set_texture_index(14);
+            sprite.set_position({origin.x + x * 16, origin.y + (pos.y - 2) * 16});
+        } else {
+            sprite.set_texture_index(13);
+            sprite.set_position({origin.x + x * 16, origin.y + (pos.y - 1) * 16});
+        }
+
+        screen.draw(sprite);
+
+        sprite.set_texture_index(14);
+        sprite.set_position({origin.x + x * 16, origin.y + (pos.y) * 16});
+        screen.draw(sprite);
+        sprite.set_texture_index(13);
+    }
+}
+
+
+
+static void display_damage_range_dist2(Platform::Screen& screen,
+                                       Room& room)
+{
+    auto pos = room.position();
+
+    auto origin = room.parent()->visual_origin();
+
+    Sprite sprite;
+    sprite.set_size(Sprite::Size::w16_h32);
+    sprite.set_texture_index(13);
+
+    for (int x = pos.x - 2; x < pos.x + 3; ++x) {
+        sprite.set_position({origin.x + x * 16, origin.y + (pos.y - 2) * 16});
+        screen.draw(sprite);
+
+
+        if (x not_eq pos.x) {
+            sprite.set_texture_index(14);
+
+            sprite.set_position(
+                {origin.x + x * 16, origin.y + (pos.y - 1) * 16});
+
+            screen.draw(sprite);
+
+            sprite.set_texture_index(13);
+        }
+
+
+        sprite.set_position({origin.x + x * 16, origin.y + (pos.y + 1) * 16});
+
+        screen.draw(sprite);
+    }
+
+}
+
+
+
+void Explosive::display_on_hover(Platform::Screen& screen,
+                                 App& app,
+                                 const Vec2<u8>& cursor)
+{
+    display_damage_range_dist1(screen, *this);
+}
+
+
+
 void TNT::render_interior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::tnt;
@@ -226,6 +304,104 @@ void TNT::render_exterior(App& app, u8 buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::tnt;
 }
+
+
+
+void TNT::display_on_hover(Platform::Screen& screen,
+                           App& app,
+                           const Vec2<u8>& cursor)
+{
+    display_damage_range_dist2(screen, *this);
+}
+
+
+
+void Cesium::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::update(pfrm, app, delta);
+    Room::ready();
+
+    if (health() not_eq max_health()) {
+        Room::ready();
+        ignition_ = true;
+
+        damage_timer_ += delta;
+        if (damage_timer_ > milliseconds(200)) {
+            apply_damage(pfrm, app, 10);
+            damage_timer_ = 0;
+        }
+
+    } else {
+
+        u8 x = position().x;
+        u8 y = position().y;
+
+        if (auto room = parent()->get_room({x, u8(y - 1)})) {
+            if ((*room->metaclass())->properties() & RoomProperties::fluid) {
+                ignition_ = true;
+                apply_damage(pfrm, app, 1);
+                return;
+            }
+        }
+
+        if (auto room = parent()->get_room({x, u8(y + 1)})) {
+            if ((*room->metaclass())->properties() & RoomProperties::fluid) {
+                ignition_ = true;
+                apply_damage(pfrm, app, 1);
+                return;
+            }
+        }
+
+        if (auto room = parent()->get_room({u8(x + 1), y})) {
+            if ((*room->metaclass())->properties() & RoomProperties::fluid) {
+                ignition_ = true;
+                apply_damage(pfrm, app, 1);
+                return;
+            }
+        }
+
+        if (auto room = parent()->get_room({u8(x - 1), y})) {
+            if ((*room->metaclass())->properties() & RoomProperties::fluid) {
+                ignition_ = true;
+                apply_damage(pfrm, app, 1);
+                return;
+            }
+        }
+    }
+
+}
+
+
+
+void Cesium::render_interior(App& app, u8 buffer[16][16])
+{
+    buffer[position().x][position().y] = InteriorTile::cesium;
+}
+
+
+
+void Cesium::render_exterior(App& app, u8 buffer[16][16])
+{
+    buffer[position().x][position().y] = Tile::cesium;
+}
+
+
+
+void Cesium::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+{
+    buffer += SYSTR(description_cesium)->c_str();
+}
+
+
+
+
+void Cesium::display_on_hover(Platform::Screen& screen,
+                              App& app,
+                              const Vec2<u8>& cursor)
+{
+    display_damage_range_dist2(screen, *this);
+}
+
 
 
 

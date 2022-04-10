@@ -134,10 +134,13 @@ public:
                 bool spread_fire);
 
 
+    void display_on_hover(Platform::Screen& screen,
+                          App& app,
+                          const Vec2<u8>& cursor) override;
+
+
 protected:
     bool ignition_ = false;
-
-private:
     Microseconds damage_timer_ = 0;
 };
 
@@ -193,6 +196,87 @@ public:
     {
         return 1720;
     }
+
+
+    void display_on_hover(Platform::Screen& screen,
+                          App& app,
+                          const Vec2<u8>& cursor) override;
+
+
+    void render_interior(App& app, u8 buffer[16][16]) override;
+    void render_exterior(App& app, u8 buffer[16][16]) override;
+};
+
+
+
+class Cesium : public Explosive
+{
+public:
+    Cesium(Island* parent, const Vec2<u8>& position)
+        : Explosive(parent, position, name())
+    {
+    }
+
+
+    void finalize(Platform& pfrm, App& app) override
+    {
+        Room::finalize(pfrm, app);
+
+        if (not ignition_) {
+            return;
+        } else {
+            ignite(pfrm, app, 2, 100, true);
+        }
+    }
+
+
+    static u32 properties()
+    {
+        return (Explosive::properties() & ~RoomProperties::locked_by_default) |
+               RoomProperties::sandbox_mode_only;
+    }
+
+
+    static const char* name()
+    {
+        return "cesium";
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_cesium;
+    }
+
+
+    static Icon icon()
+    {
+        return 1704;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 1720;
+    }
+
+
+    ScenePtr<Scene>
+    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override
+    {
+        return Room::select(pfrm, app, cursor);
+    }
+
+
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+
+
+    void update(Platform& pfrm, App& app, Microseconds delta) override;
+
+
+    void display_on_hover(Platform::Screen& screen,
+                          App& app,
+                          const Vec2<u8>& cursor) override;
 
 
     void render_interior(App& app, u8 buffer[16][16]) override;

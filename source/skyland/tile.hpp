@@ -206,6 +206,7 @@ struct Tile
         basalt_top,
         basalt,
         torch,
+        cesium,
     };
 };
 
@@ -391,6 +392,7 @@ struct InteriorTile
         basalt_top,
         basalt,
         torch,
+        cesium,
     };
 };
 
