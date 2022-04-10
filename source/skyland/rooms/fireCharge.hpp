@@ -64,8 +64,7 @@ public:
     static u32 properties()
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::manufactory_required |
-               RoomProperties::multiplayer_unsupported;
+               RoomProperties::manufactory_required;
     }
 
 
