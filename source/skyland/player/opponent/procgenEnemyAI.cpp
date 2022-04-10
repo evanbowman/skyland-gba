@@ -74,8 +74,20 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.game_mode() == App::GameMode::co_op) {
+            int prep_seconds = 30;
+
+            if (levelgen_enemy_count_ > 13) {
+                prep_seconds = 80;
+            } if (levelgen_enemy_count_ > 11) {
+                prep_seconds = 70;
+            } if (levelgen_enemy_count_ > 8) {
+                prep_seconds = 55;
+            } if (levelgen_enemy_count_ > 4) {
+                prep_seconds = 40;
+            }
+
             std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ =
-                40;
+                prep_seconds;
         }
     } else {
         auto mt_prep_seconds =
@@ -226,8 +238,12 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
             if (app.game_mode() == App::GameMode::co_op) {
                 // For co-op, our score calculation differs slightly. Give each
                 // player half of the resulting coins.
+                //
+                // Actually... let's give players score * 0.63f coins, not
+                // exactly half, as coordination between the players will
+                // inevitably be difficult.
                 app.victory_coins() +=
-                    (frac * (*room->metaclass())->cost()) / 2;
+                    (frac * (*room->metaclass())->cost()) * 0.63f;
             } else {
                 app.victory_coins() += frac * (*room->metaclass())->cost();
             }

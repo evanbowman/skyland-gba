@@ -24,6 +24,7 @@
 
 
 #include "fadeInScene.hpp"
+#include "skyland/network.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "worldScene.hpp"
@@ -52,9 +53,14 @@ public:
                 pfrm.screen().fade(1.f);
                 state_ = State::wait;
                 timer_ = 0;
+
+                network::packet::PlayMusic p;
+                p.music_id_.set(1);
+                network::transmit(pfrm, p);
+
             } else {
                 const auto amount = smoothstep(0.f, fade_duration, timer_);
-                pfrm.screen().fade(amount);
+                pfrm.screen().schedule_fade(amount);
             }
             break;
         }

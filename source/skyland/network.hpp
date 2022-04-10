@@ -67,6 +67,7 @@ struct Header
         co_op_rng_sync,
         co_op_rng_sync_ack,
         set_weapon_group,
+        play_music,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -468,6 +469,18 @@ struct SetWeaponGroup
 
 
 
+struct PlayMusic
+{
+    Header header_;
+    host_s32 music_id_;
+
+    u8 unused_[1];
+
+    static const auto mt = Header::MessageType::play_music;
+};
+
+
+
 } // namespace packet
 
 
@@ -604,6 +617,11 @@ public:
 
 
     virtual void receive(Platform&, App&, const packet::SetWeaponGroup&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::PlayMusic&)
     {
     }
 

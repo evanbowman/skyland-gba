@@ -120,6 +120,11 @@ public:
                  const network::packet::DynamiteActivated& packet) override;
 
 
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::PlayMusic& packet) override;
+
+
 private:
     static const auto heartbeat_interval = seconds(5);
     Microseconds heartbeat_send_counter_ = 0;

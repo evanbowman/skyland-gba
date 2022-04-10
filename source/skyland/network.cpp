@@ -85,6 +85,7 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::CoopRngSync)
             HANDLE_MESSAGE(packet::CoopRngSyncAck)
             HANDLE_MESSAGE(packet::SetWeaponGroup)
+            HANDLE_MESSAGE(packet::PlayMusic)
         }
 
         error(pfrm, "garbled message!?");

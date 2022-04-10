@@ -601,7 +601,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 app.reset_opponent_island(pfrm);
 
-                if (pfrm.network_peer().is_connected()) {
+                if (app.game_mode() == App::GameMode::multiplayer and
+                    pfrm.network_peer().is_connected()) {
                     pfrm.network_peer().disconnect();
                     return scene_pool::alloc<TitleScreenScene>();
                 }
