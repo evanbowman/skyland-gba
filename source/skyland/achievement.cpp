@@ -140,7 +140,8 @@ static const AchievementInfo info[Achievement::count] = {
      SystemString::achievement_triage_description,
      "dynamite-ii",
      [](Platform&, App& app) {
-         return is_enabled(metaclass_index(info[triage].reward_));
+         // invoked manually through achievements::raise().
+         return false;
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[triage].reward_), awarded);
@@ -150,7 +151,8 @@ static const AchievementInfo info[Achievement::count] = {
      SystemString::achievement_banana_man_description,
      "banana-plant",
      [](Platform&, App& app) {
-         return is_enabled(metaclass_index(info[banana_man].reward_));
+         // invoked manually through achievements::raise().
+         return false;
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[banana_man].reward_), awarded);
@@ -160,17 +162,8 @@ static const AchievementInfo info[Achievement::count] = {
      SystemString::achievement_ancient_weapon_description,
      "decimator",
      [](Platform&, App& app) {
-         // Yeah, this is a pretty bad hack. When the PlayerP1 class receives a
-         // notification that the player plundered a room, it immediately
-         // enables the decimator item if the player plundered a
-         // decimator. Then, this code sees the signal and raises an alert. Sort
-         // of a backwards way of doing things. We could unlock() the
-         // achievement from the player class, but then the player would be
-         // responsible for creating a notification scene, which just isn't
-         // realistic, because the player isn't supposed to have control over
-         // the scene transition logic.
-         // Please excuse this spaghetti code.
-         return is_enabled(metaclass_index(info[ancient_weapon].reward_));
+         // invoked manually through achievements::raise().
+         return false;
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[ancient_weapon].reward_), awarded);
@@ -226,7 +219,8 @@ static const AchievementInfo info[Achievement::count] = {
      SystemString::achievement_lemons_description,
      "lemon-tree",
      [](Platform&, App& app) {
-         return is_enabled(metaclass_index(info[lemons].reward_));
+         // invoked manually through achievements::raise().
+         return false;
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[lemons].reward_), awarded);
@@ -258,7 +252,8 @@ static const AchievementInfo info[Achievement::count] = {
      SystemString::achievement_meltdown_description,
      "radiator",
      [](Platform&, App& app) {
-         return is_enabled(metaclass_index(info[meltdown].reward_));
+         // invoked manually through achievements::raise().
+         return false;
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[meltdown].reward_), awarded);
@@ -292,7 +287,8 @@ static const AchievementInfo info[Achievement::count] = {
      SystemString::achievement_mycelium_description,
      "mycelium",
      [](Platform&, App& app) {
-         return is_enabled(metaclass_index(info[mycelium].reward_));
+         // invoked manually through achievements::raise().
+         return false;
      },
      [](Platform&, App&, bool awarded) {
          set_enabled(metaclass_index(info[mycelium].reward_), awarded);
@@ -327,6 +323,25 @@ void init(Platform& pfrm, App& app)
 
 
 
+static Bitvector<Achievement::count> raised_achievements;
+
+
+
+void raise(Platform& pfrm, App& app, Achievement achievement)
+{
+    auto& flags = app.gp_.achievement_flags_;
+    const u64 flag = 1 << achievement;
+
+    if (flags.get() & flag) {
+        // We've already unlocked the achievement, silently ignore.
+        return;
+    }
+
+    raised_achievements.set(achievement, true);
+}
+
+
+
 // For efficiency/scalability, only check one achievement per update call. Store
 // the last checked achievement in a variable. Round-robin through the
 // achievements, one check per frame.
@@ -352,7 +367,9 @@ Achievement update(Platform& pfrm, App& app)
                   "fit in a u64.o");
 
     if (not(flags.get() & flag)) {
-        if (info[check_achievement].match_(pfrm, app)) {
+        if (raised_achievements.get(check_achievement) or
+            info[check_achievement].match_(pfrm, app)) {
+            raised_achievements.set(check_achievement, false);
             flags.set(flags.get() | flag);
             save::store_global_data(pfrm, app.gp_);
             return static_cast<Achievement>(check_achievement);

@@ -52,6 +52,6 @@
                (construction-sites (opponent) '(1 . 2)))
 
               ;; For the lemon-tree achievement
-              (syscall "room-enable" 'lemon-tree 1)
+              (achieve 14)
 
               (setq on-dialog-closed exit))))))

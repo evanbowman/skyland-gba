@@ -213,10 +213,8 @@ void PlayerP1::on_room_plundered(Platform& pfrm, App& app, Room& room)
             (app.score().get() +
              1.2f * (score_multiplier * (*room.metaclass())->cost())));
 
-        // Unlock the decimator structure if the player plunders it from an
-        // opponent castle.
         if (str_eq((*room.metaclass())->name(), "decimator")) {
-            set_enabled(metaclass_index("decimator"), true);
+            achievements::raise(pfrm, app, achievements::Achievement::ancient_weapon);
         }
     }
 }

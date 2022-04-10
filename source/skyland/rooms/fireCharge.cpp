@@ -81,7 +81,6 @@ void FireCharge::fire(Platform& pfrm, App& app)
         target.x += 23;
     } else {
         start.x += 23;
-        target.x -= 23;
     }
 
 

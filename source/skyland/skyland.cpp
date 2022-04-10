@@ -80,6 +80,10 @@ App::App(Platform& pfrm)
             score.set(0);
         }
 
+        // Hidden by default. Just as an incentive to the player to figure out
+        // how the room hide menu works.
+        gp_.hidden_rooms_.set(metaclass_index("sunflower"), true);
+
         DateTime dt;
         if (pfrm.system_call("startup-time", &dt)) {
             // TODO: we have a functional system clock, enter a scene for

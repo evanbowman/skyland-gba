@@ -6,7 +6,7 @@
 
 (defn on-victory
   (syscall "challenge-complete" 4)
-  (syscall "room-enable" 'mycelium 1))
+  (achieve 18))
 
 
 (setq challenge-hint-count 0)

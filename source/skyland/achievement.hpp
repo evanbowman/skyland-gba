@@ -51,27 +51,29 @@ namespace skyland::achievements
 
 
 enum Achievement : u8 {
-    none,
-    builder,
-    architect,
-    architect_2,
-    explorer,
-    strategist,
-    stronghold,
-    dynamite,
-    maestro_1,
-    maestro_2,
-    triage,
-    banana_man,
-    ancient_weapon,
-    ship_of_theseus,
-    lemons,
-    new_colossus,
-    meltdown,
-    completionist,
-    mycelium,
-    primitive,
+// clang-format off
+    none            = 0,
+    builder         = 1,
+    architect       = 2,
+    architect_2     = 3,
+    explorer        = 4,
+    strategist      = 5,
+    stronghold      = 6,
+    dynamite        = 7,
+    maestro_1       = 8,
+    maestro_2       = 9,
+    triage          = 10,
+    banana_man      = 11,
+    ancient_weapon  = 12,
+    ship_of_theseus = 13,
+    lemons          = 14,
+    new_colossus    = 15,
+    meltdown        = 16,
+    completionist   = 17,
+    mycelium        = 18,
+    primitive       = 19,
     count
+// clang-format on
 };
 
 
@@ -83,6 +85,11 @@ void init(Platform& pfrm, App& app);
 
 // If the library matches a new achievement, return the achievement.
 Achievement update(Platform& pfrm, App& app);
+
+
+
+// Raise an alert, forcibly unlocking an achievement.
+void raise(Platform& pfrm, App& app, Achievement achievement);
 
 
 

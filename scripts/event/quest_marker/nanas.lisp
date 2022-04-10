@@ -66,6 +66,6 @@
                          "<c:banana man:8>Horay! My bananas! Time for Banana Breakfast!")
                         (setq on-dialog-closed
                               (lambda
-                                (syscall "room-enable" 'banana-plant 1)
+                                (achieve 11)
                                 (coins-add 2000)
                                 (exit 2)))))))))

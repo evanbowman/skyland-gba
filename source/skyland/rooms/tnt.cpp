@@ -190,8 +190,8 @@ void Explosive::ignite(Platform& pfrm,
                 room->health() == 0) {
                 for (auto& chr : room->characters()) {
                     if (chr->owner() == &app.opponent()) {
-                        set_enabled(::skyland::metaclass_index("dynamite-ii"),
-                                    true);
+                        achievements::raise(
+                            pfrm, app, achievements::Achievement::triage);
                         break;
                     }
                 }
