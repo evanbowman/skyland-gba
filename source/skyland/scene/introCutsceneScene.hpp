@@ -184,7 +184,7 @@ public:
             Sprite spr;
             spr.set_size(Sprite::Size::w16_h32);
             spr.set_texture_index(13);
-            spr.set_position(p);
+            spr.set_position({p.x, p.y});
             pfrm.screen().draw(spr);
         }
 
@@ -298,7 +298,7 @@ public:
 
 
 private:
-    Buffer<Vec2<Fixnum>, 16> snow_particles_;
+    Buffer<Vec2<Float>, 16> snow_particles_;
     Microseconds timer_ = 0;
 };
 
@@ -433,8 +433,8 @@ public:
                 it->y > pfrm.screen().size().y) {
                 it = snow_particles_.erase(it);
             } else {
-                it->x += 0.0002_fixed * app.delta_fp();
-                it->y += 0.0002_fixed * app.delta_fp();
+                it->x += 0.0002f * delta;
+                it->y += 0.0002f * delta;
                 ++it;
             }
         }
@@ -463,14 +463,14 @@ public:
             Sprite spr;
             spr.set_size(Sprite::Size::w16_h32);
             spr.set_texture_index(14);
-            spr.set_position(p);
+            spr.set_position({p.x, p.y});
             pfrm.screen().draw(spr);
         }
     }
 
 
 private:
-    Buffer<Vec2<Fixnum>, 16> snow_particles_;
+    Buffer<Vec2<Float>, 16> snow_particles_;
     Microseconds timer_ = 0;
     bool fade_out_ = false;
 };
