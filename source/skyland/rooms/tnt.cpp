@@ -215,8 +215,7 @@ void Explosive::finalize(Platform& pfrm, App& app)
 
 
 
-static void display_damage_range_dist1(Platform::Screen& screen,
-                                       Room& room)
+static void display_damage_range_dist1(Platform::Screen& screen, Room& room)
 {
     auto pos = room.position();
 
@@ -230,10 +229,12 @@ static void display_damage_range_dist1(Platform::Screen& screen,
 
         if (x == pos.x) {
             sprite.set_texture_index(14);
-            sprite.set_position({origin.x + x * 16, origin.y + (pos.y - 2) * 16});
+            sprite.set_position(
+                {origin.x + x * 16, origin.y + (pos.y - 2) * 16});
         } else {
             sprite.set_texture_index(13);
-            sprite.set_position({origin.x + x * 16, origin.y + (pos.y - 1) * 16});
+            sprite.set_position(
+                {origin.x + x * 16, origin.y + (pos.y - 1) * 16});
         }
 
         screen.draw(sprite);
@@ -247,8 +248,7 @@ static void display_damage_range_dist1(Platform::Screen& screen,
 
 
 
-static void display_damage_range_dist2(Platform::Screen& screen,
-                                       Room& room)
+static void display_damage_range_dist2(Platform::Screen& screen, Room& room)
 {
     auto pos = room.position();
 
@@ -279,7 +279,6 @@ static void display_damage_range_dist2(Platform::Screen& screen,
 
         screen.draw(sprite);
     }
-
 }
 
 
@@ -368,7 +367,6 @@ void Cesium::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
     }
-
 }
 
 
@@ -394,14 +392,12 @@ void Cesium::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-
 void Cesium::display_on_hover(Platform::Screen& screen,
                               App& app,
                               const Vec2<u8>& cursor)
 {
     display_damage_range_dist2(screen, *this);
 }
-
 
 
 

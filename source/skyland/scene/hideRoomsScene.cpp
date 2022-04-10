@@ -78,13 +78,19 @@ void HideRoomsScene::repaint(Platform& pfrm, App& app)
     hidden_.clear();
 
     auto put = [&](int index, int vram, int y, bool shade) {
-        if (index >= (int)(*data_)->room_classes_.size()) {
-            return;
-        }
-        auto& m = mt[(*data_)->room_classes_[index]];
+        // Lazy hack: plundered-room has no icon.
+
+        auto& m = (index >= (int)(*data_)->room_classes_.size())
+                      ? require_metaclass("plundered-room")
+                      : mt[(*data_)->room_classes_[index]];
+
         auto icon = shade ? m->icon() : m->unsel_icon();
         draw_image(pfrm, vram, 1, y, 4, 4, Layer::overlay);
         pfrm.load_overlay_chunk(vram, icon, 16);
+
+        if (m->properties() & RoomProperties::not_constructible) {
+            return;
+        }
 
         StringBuffer<48> description;
         description += m->ui_name(pfrm)->c_str();
