@@ -520,6 +520,18 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"version",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 0);
+
+         lisp::ListBuilder result;
+         result.push_back(lisp::make_integer(PROGRAM_MAJOR_VERSION));
+         result.push_back(lisp::make_integer(PROGRAM_MINOR_VERSION));
+         result.push_back(lisp::make_integer(PROGRAM_SUBMINOR_VERSION));
+         result.push_back(lisp::make_integer(PROGRAM_VERSION_REVISION));
+
+         return result.result();
+     }},
     {"rooms",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);
