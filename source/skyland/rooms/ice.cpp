@@ -43,39 +43,8 @@ void Ice::update(Platform& pfrm, App& app, Microseconds delta)
     u8 y = position().y;
 
     auto melt = [&] {
-        apply_damage(pfrm, app, std::numeric_limits<Health>::max());
-
-        bool near = parent() == &app.player_island();
-
-        app.on_timeout(
-            pfrm, milliseconds(100), [x, y, near](Platform& pfrm, App& app) {
-                Island* island = nullptr;
-                if (near) {
-                    island = &app.player_island();
-                } else {
-                    island = app.opponent_island();
-                }
-
-                if (not island) {
-                    return;
-                }
-
-                island->schedule_repaint();
-
-                (*load_metaclass("water-source"))
-                    ->create(pfrm, app, island, {x, y}, false);
-                if (near) {
-                    time_stream::event::PlayerRoomCreated p;
-                    p.x_ = x;
-                    p.y_ = y;
-                    app.time_stream().push(app.level_timer(), p);
-                } else {
-                    time_stream::event::OpponentRoomCreated p;
-                    p.x_ = x;
-                    p.y_ = y;
-                    app.time_stream().push(app.level_timer(), p);
-                }
-            });
+        __unsafe__transmute(
+            pfrm, app, skyland::metaclass_index("water-source"));
     };
 
     if (auto room = parent()->get_room({x, u8(y - 1)})) {

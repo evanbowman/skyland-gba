@@ -92,6 +92,15 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
     {
     }
 
+    void
+    construct(void* address, Island* parent, const Vec2<u8>& position) override
+    {
+        static_assert(sizeof(T) <= room_pool::max_room_size);
+        static_assert(alignof(T) <= room_pool::alignment);
+
+        new (address) T(parent, position);
+    }
+
     void create(Platform& pfrm,
                 App& app,
                 Island* parent,

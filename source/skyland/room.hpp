@@ -287,6 +287,15 @@ public:
     void heal(Platform& pfrm, App& app, Health amount);
 
 
+    // Careful! Converts a room to an entirely new type, by changing the parent
+    // class. If called from within a member function of a Room, the code would
+    // need to return immediately after. Seriously, this function needs to be
+    // treated with the utmost care if invoked from within a method of a derived
+    // room, as this code invokes the existing room's destructor and constructs
+    // a room of a new type in its place.
+    void __unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m);
+
+
     // DO NOT CALL __set_health()! Intended for rewind, multiplayer, and very
     // niche purposes.
     void __set_health(Health amount)

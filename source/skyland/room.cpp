@@ -489,6 +489,43 @@ void Room::apply_damage(Platform& pfrm, App& app, Health damage)
 
 
 
+void Room::__unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m)
+{
+    Island* island = parent();
+    const auto pos = position();
+    const auto sz = size();
+    void* address = this;
+
+    auto m_prev = metaclass_index();
+
+    if (island == &app.player_island()) {
+        time_stream::event::PlayerRoomTransmuted e;
+        e.prev_type_ = m_prev;
+        e.x_ = pos.x;
+        e.y_ = pos.y;
+        app.time_stream().push(app.level_timer(), e);
+    } else {
+        time_stream::event::OpponentRoomTransmuted e;
+        e.prev_type_ = m_prev;
+        e.x_ = pos.x;
+        e.y_ = pos.y;
+        app.time_stream().push(app.level_timer(), e);
+    }
+
+    this->finalize(pfrm, app);
+    this->~Room();
+
+    auto& mt = *load_metaclass(m);
+    if (mt->size() not_eq sz) {
+        Platform::fatal("attempt to transmute room of differing size");
+    }
+    mt->construct(address, island, pos);
+
+    island->schedule_repaint();
+}
+
+
+
 bool Room::non_owner_selectable() const
 {
     for (auto& chr : characters()) {

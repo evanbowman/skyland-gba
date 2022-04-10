@@ -307,6 +307,30 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::Type::player_room_transmuted: {
+            auto e = (time_stream::event::PlayerRoomTransmuted*)end;
+
+            if (auto room = app.player_island().get_room({e->x_, e->y_})) {
+                room->__unsafe__transmute(pfrm, app, e->prev_type_);
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_room_transmuted: {
+            auto e = (time_stream::event::OpponentRoomTransmuted*)end;
+
+            if (auto room = app.opponent_island()->get_room({e->x_, e->y_})) {
+                room->__unsafe__transmute(pfrm, app, e->prev_type_);
+            }
+
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::Type::player_room_salvaged: {
             auto e = (time_stream::event::PlayerRoomSalvaged*)end;
             (*load_metaclass(e->type_))

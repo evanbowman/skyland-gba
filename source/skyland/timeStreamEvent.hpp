@@ -66,6 +66,9 @@ enum Type : u8 {
     player_room_destroyed,
     opponent_room_destroyed,
 
+    player_room_transmuted,
+    opponent_room_transmuted,
+
     player_cannonball_destroyed,
     opponent_cannonball_destroyed,
 
@@ -204,6 +207,30 @@ struct OpponentRoomDestroyed
     u8 type_;
 
     static constexpr const auto t = Type::opponent_room_destroyed;
+};
+
+
+
+struct PlayerRoomTransmuted
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 prev_type_;
+
+    static constexpr const auto t = Type::player_room_transmuted;
+};
+
+
+
+struct OpponentRoomTransmuted
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 prev_type_;
+
+    static constexpr const auto t = Type::opponent_room_transmuted;
 };
 
 

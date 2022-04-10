@@ -50,6 +50,16 @@ struct RoomPluginInfo : public RoomMeta::Info
     }
 
 
+    void
+    construct(void* address, Island* parent, const Vec2<u8>& position) override
+    {
+        static_assert(sizeof(PluginRoom) <= room_pool::max_room_size);
+        static_assert(alignof(PluginRoom) <= room_pool::alignment);
+
+        new (address) PluginRoom(parent, position, mt_);
+    }
+
+
     void create(Platform& pfrm,
                 App& app,
                 Island* parent,

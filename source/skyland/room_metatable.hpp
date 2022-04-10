@@ -50,6 +50,9 @@ struct RoomMeta
         {
         }
 
+        virtual void
+        construct(void* address, Island* parent, const Vec2<u8>& position) = 0;
+
         virtual void create(Platform&,
                             App&,
                             Island*,
