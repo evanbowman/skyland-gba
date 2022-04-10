@@ -93,10 +93,7 @@ Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
                   " increase the room pool size in roomPool.hpp");
 #endif
 
-    // TODO: actually raise an error for an unassigned metaclass. We would need
-    // to pass in a Platform instance in order to raise a fatal error.
-    while (true)
-        ;
+    Platform::fatal("room failed to bind metaclass!?");
 }
 
 

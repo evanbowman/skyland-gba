@@ -43,6 +43,7 @@ enum class SystemString {
     block_arcgun,
     block_banana_plant,
     block_barrier,
+    block_basalt,
     block_bridge,
     block_bronze_hull,
     block_stacked_hull,
@@ -189,6 +190,7 @@ enum class SystemString {
     description_escape_beacon,
     description_mycelium,
     description_ice,
+    description_basalt,
 
     gs_paused,
     gs_slow,

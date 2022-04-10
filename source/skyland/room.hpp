@@ -360,18 +360,6 @@ public:
     virtual Power power_usage() const;
 
 
-    static Power consumes_power()
-    {
-        return 10;
-    }
-
-
-    static RoomProperties::Value properties()
-    {
-        return RoomProperties::none;
-    }
-
-
     static Icon icon()
     {
         return 450;

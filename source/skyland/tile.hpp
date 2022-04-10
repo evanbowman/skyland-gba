@@ -203,6 +203,8 @@ struct Tile
         fire_charge_1,
         fire_charge_2,
         ice,
+        basalt_top,
+        basalt,
     };
 };
 
@@ -385,6 +387,8 @@ struct InteriorTile
         fire_charge_1,
         fire_charge_2,
         ice,
+        basalt_top,
+        basalt,
     };
 };
 

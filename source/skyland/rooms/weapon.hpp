@@ -62,6 +62,12 @@ public:
     }
 
 
+    static u32 properties()
+    {
+        return RoomProperties::none;
+    }
+
+
     void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 

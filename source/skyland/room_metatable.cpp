@@ -25,6 +25,7 @@
 #include "roomPluginInfo.hpp"
 #include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/bananaPlant.hpp"
+#include "skyland/rooms/basalt.hpp"
 #include "skyland/rooms/barrier.hpp"
 #include "skyland/rooms/bridge.hpp"
 #include "skyland/rooms/bronzeHull.hpp"
@@ -321,6 +322,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Shrubbery,
                                         BananaPlant,
                                         Masonry,
+                                        Basalt,
                                         PlunderedRoom>;
 
 

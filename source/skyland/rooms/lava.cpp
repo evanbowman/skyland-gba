@@ -95,16 +95,31 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
     if (damage_timer_ > milliseconds(400)) {
         damage_timer_ = 0;
 
+        bool solidify = false;
+
         auto damage = [&](u8 x, u8 y) {
             if (auto room = parent()->get_room({x, y})) {
                 if (not dynamic_cast<Lava*>(room) and
                     not str_eq(room->name(), "barrier") and
                     not str_eq(room->name(), "masonry")) {
 
+                    auto props = (*room->metaclass())->properties();
+
                     if (not parent()->fire_present({x, y}) and
-                        not((*room->metaclass())->properties() &
-                            RoomProperties::fireproof)) {
+                        not(props & RoomProperties::fireproof)) {
                         parent()->fire_create(pfrm, app, {x, y});
+                    }
+
+                    if (props & RoomProperties::fluid) {
+                        // This cast should happen only once. If we're a
+                        // non-lava fluid, water's sort of the only other
+                        // option.
+                        if (dynamic_cast<Water*>(room)) {
+                            solidify = true;
+                            if (position().y <= y) {
+                                room->apply_damage(pfrm, app, 9999);
+                            }
+                        }
                     }
                 }
             }
@@ -120,6 +135,11 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
         damage(x + 1, y);
         damage(x, y + 1);
         damage(x, y - 1);
+
+        if (solidify) {
+            __unsafe__transmute(pfrm, app, skyland::metaclass_index("basalt"));
+            return;
+        }
     }
 
     if (flood_timer_ >= milliseconds(1000)) {
