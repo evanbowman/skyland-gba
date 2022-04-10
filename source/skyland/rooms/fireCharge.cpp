@@ -78,9 +78,10 @@ void FireCharge::fire(Platform& pfrm, App& app)
     // corners.
     if (island == &app.player_island()) {
         start.x -= 23;
-        target.x += 23;
+        target.x += 14;
     } else {
         start.x += 23;
+        target.x -= 8;
     }
 
 
