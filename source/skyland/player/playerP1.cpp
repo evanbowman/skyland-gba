@@ -214,7 +214,8 @@ void PlayerP1::on_room_plundered(Platform& pfrm, App& app, Room& room)
              1.2f * (score_multiplier * (*room.metaclass())->cost())));
 
         if (str_eq((*room.metaclass())->name(), "decimator")) {
-            achievements::raise(pfrm, app, achievements::Achievement::ancient_weapon);
+            achievements::raise(
+                pfrm, app, achievements::Achievement::ancient_weapon);
         }
     }
 }

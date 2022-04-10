@@ -31,7 +31,8 @@ namespace skyland
 
 // The code below scans the whole file each time in search of a SystemString. We
 // speed up the loading by caching the results.
-struct IndexCache {
+struct IndexCache
+{
     u32 file_offset_[(int)SystemString::count] = {0};
 };
 

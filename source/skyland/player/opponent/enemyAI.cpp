@@ -596,10 +596,21 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                 // would be our only offense.
                 if (transporter->ready()) {
 
+                    const bool co_op_mode =
+                        app.game_mode() == App::GameMode::co_op;
+
                     if (player_characters_remote >= ai_characters_remote and
                         ai_characters_remote + ai_characters_local >
                             player_characters_remote) {
-                        slot.ai_weight_ += 400.f * ai_characters_local;
+
+                        if (co_op_mode) {
+                            // Make boarding less likely in co_op mode, as
+                            // character combat is sort of difficult without
+                            // being able to pause.
+                            slot.ai_weight_ += 100.f * ai_characters_local;
+                        } else {
+                            slot.ai_weight_ += 400.f * ai_characters_local;
+                        }
                     }
                     if (player_characters_local > ai_characters_local) {
                         slot.ai_weight_ -= 250.f * (player_characters_local -

@@ -78,11 +78,11 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (levelgen_enemy_count_ > 13) {
                 prep_seconds = 80;
-            } if (levelgen_enemy_count_ > 11) {
+            } else if (levelgen_enemy_count_ > 11) {
                 prep_seconds = 70;
-            } if (levelgen_enemy_count_ > 8) {
+            } else if (levelgen_enemy_count_ > 8) {
                 prep_seconds = 55;
-            } if (levelgen_enemy_count_ > 4) {
+            } else if (levelgen_enemy_count_ > 4) {
                 prep_seconds = 40;
             }
 

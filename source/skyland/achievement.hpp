@@ -51,7 +51,7 @@ namespace skyland::achievements
 
 
 enum Achievement : u8 {
-// clang-format off
+    // clang-format off
     none            = 0,
     builder         = 1,
     architect       = 2,
@@ -73,7 +73,7 @@ enum Achievement : u8 {
     mycelium        = 18,
     primitive       = 19,
     count
-// clang-format on
+    // clang-format on
 };
 
 

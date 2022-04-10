@@ -1236,7 +1236,8 @@ static const lisp::Binding script_api[] = {
              return L_NIL;
          }
 
-         achievements::raise(*lisp::interp_get_pfrm(), *interp_get_app(), achievement);
+         achievements::raise(
+             *lisp::interp_get_pfrm(), *interp_get_app(), achievement);
 
          return L_NIL;
      }},
