@@ -139,7 +139,7 @@ Once activated, transports an island out of a battle after 60 seconds.
 An organic defensive structure. Grows to cover the whole surface of a castle. Will not grow on fluid blocks, forcefields, or other mycelium.
 Changes into water when placed near a heat source. May only be built in sandbox mode.
 A block produced when water interacts with lava.
-Highly flammable, but takes no fire damage.
+Highly flammable, but takes no burn damage. Sandbox mode only.
 paused
 slow
 regular
