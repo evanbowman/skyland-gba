@@ -293,6 +293,11 @@ public:
     // treated with the utmost care if invoked from within a method of a derived
     // room, as this code invokes the existing room's destructor and constructs
     // a room of a new type in its place.
+    //
+    // NOTE: We allocate all rooms from the same memory pool, and we have
+    // assertions elsewhere to check for alignment and stuff, so this code is
+    // safe as long as you're careful when transmuting rooms from within derived
+    // room code.
     void __unsafe__transmute(Platform& pfrm, App& app, MetaclassIndex m);
 
 
