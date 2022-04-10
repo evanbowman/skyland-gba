@@ -78,9 +78,12 @@ void FireCharge::fire(Platform& pfrm, App& app)
     // corners.
     if (island == &app.player_island()) {
         start.x -= 23;
+        target.x += 23;
     } else {
         start.x += 23;
+        target.x -= 23;
     }
+
 
     if (not pfrm.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {

@@ -32,6 +32,7 @@
 #include "skyland/rooms/core.hpp"
 #include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
+#include "skyland/rooms/fireCharge.hpp"
 #include "skyland/rooms/flakGun.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/ionCannon.hpp"
@@ -258,6 +259,8 @@ void EnemyAI::update_room(Platform& pfrm,
         set_target(pfrm, app, matrix, *flak_gun);
     } else if (auto ion_cannon = dynamic_cast<IonCannon*>(&room)) {
         set_target(pfrm, app, matrix, *ion_cannon);
+    } else if (auto fire_charge = dynamic_cast<FireCharge*>(&room)) {
+        set_target(pfrm, app, matrix, *fire_charge);
     } else if (category == Room::Category::weapon or
                (*room.metaclass())->properties() & RoomProperties::plugin) {
         // NOTE: if we haven't hit any of the cases above, assume that the
@@ -1586,6 +1589,80 @@ void EnemyAI::set_target(Platform& pfrm,
     if (highest_weighted_room) {
         assign_weapon_target(
             pfrm, app, flak_gun, highest_weighted_room->position());
+    }
+}
+
+
+
+void EnemyAI::set_target(Platform& pfrm,
+                         App& app,
+                         const Bitmatrix<16, 16>& matrix,
+                         FireCharge& fire_charge)
+{
+    Buffer<Room*, 32> visible_rooms;
+
+    for (u8 y = 0; y < 16; ++y) {
+        for (int x = 15; x > -1; --x) {
+            if (matrix.get(x, y)) {
+                if (auto room = app.player_island().get_room({u8(x), y})) {
+                    visible_rooms.push_back(room);
+                }
+                break;
+            }
+        }
+    }
+
+    Room* highest_weighted_room = nullptr;
+    Float highest_weight = 3E-5;
+
+    for (auto room : visible_rooms) {
+        auto meta_c = room->metaclass();
+        auto w = (*meta_c)->ai_base_weight();
+
+        u8 x = room->position().x;
+        u8 y = room->position().y;
+
+        auto check_neighbor =
+            [&](u8 x, u8 y) {
+                if (app.player_island().fire_present({x, y})) {
+                    // This flammable room shouldn't add weight, it's already on
+                    // fire at this slot! Just let it burn.
+                    return;
+                }
+                if (auto room = app.player_island().get_room({x, y})) {
+                    auto props = (*room->metaclass())->properties();
+                    if (props & RoomProperties::habitable and
+                        room->position().y <= y) {
+                        w += 200.f;
+                    }
+                    if (props & RoomProperties::highly_flammable) {
+                        w += 300.f;
+                    }
+                }
+            };
+
+        check_neighbor(x - 1, y);
+        check_neighbor(x - 1, y - 1);
+        check_neighbor(x - 1, y + 1);
+        check_neighbor(x, y - 1);
+        check_neighbor(x, y + 1);
+
+        if (app.player_island().fire_present({x, y})) {
+            // The room's already on fire and has flammable neighbors that
+            // aren't on fire. If we destroy the room before the fire can
+            // spread, well then that's no good!
+            w -= 700.f;
+        }
+
+        if (w > highest_weight) {
+            highest_weighted_room = room;
+            highest_weight = w;
+        }
+    }
+
+    if (highest_weighted_room) {
+        auto target = highest_weighted_room;
+        assign_weapon_target(pfrm, app, fire_charge, target->position());
     }
 }
 

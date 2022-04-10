@@ -39,6 +39,7 @@ class Cannon;
 class FlakGun;
 class DroneBay;
 class IonCannon;
+class FireCharge;
 class MissileSilo;
 class BasicCharacter;
 
@@ -67,6 +68,12 @@ private:
                     App&,
                     const Bitmatrix<16, 16>& matrix,
                     Room& generic_gun);
+
+    void set_target(Platform&,
+                    App&,
+                    const Bitmatrix<16, 16>& matrix,
+                    FireCharge& fire_charge);
+
     void set_target(Platform&,
                     App&,
                     const Bitmatrix<16, 16>& matrix,

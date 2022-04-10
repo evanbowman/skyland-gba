@@ -450,15 +450,19 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         if (missile_count > 2) {
             enq_prob("cannon", 50.f);
             enq_prob("arc-gun", 220.f);
-            enq_prob("nemesis", 60.f);
+            enq_prob("nemesis", 30.f);
+            enq_prob("fire-charge", 30.f);
         } else {
             enq_prob("cannon", 100.f);
             if (mycelium_count) {
                 enq_prob("arc-gun", 200.f);
+                enq_prob("fire-charge", 90.f);
+                enq_prob("nemesis", 30.f);
             } else {
                 enq_prob("arc-gun", 120.f);
+                enq_prob("fire-charge", 40.f);
+                enq_prob("nemesis", 80.f);
             }
-            enq_prob("nemesis", 120.f);
         }
 
         enq_prob("missile-silo",
