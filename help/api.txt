@@ -571,6 +571,16 @@ o----------------------------o
 
 o----------------------------o
 
+ (version)
+
+ Return the engine version,
+ as a list:
+
+ '(major minor subminor patch)
+
+
+o----------------------------o
+
  (wg-nodes)
 
  Get a list of all world
