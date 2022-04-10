@@ -74,6 +74,15 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.time_stream().push(app.level_timer(), e);
         }
 
+        const auto loc = app.current_world_location();
+        auto& node = app.world_graph().nodes_[loc];
+        if (node.type_ == WorldGraph::Node::Type::corrupted) {
+            if (not pfrm.speaker().is_music_playing(
+                    app.environment().music())) {
+                pfrm.speaker().play_music(app.environment().music(), 0);
+            }
+        }
+
         pfrm.screen().fade(0.f);
         auto future_scene = scene_pool::make_deferred_scene<ReadyScene>();
         return scene_pool::alloc<ScriptHookScene>("on-fadein", future_scene);

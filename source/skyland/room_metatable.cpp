@@ -40,6 +40,7 @@
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/fountain.hpp"
 #include "skyland/rooms/hull.hpp"
+#include "skyland/rooms/ice.hpp"
 #include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/ionFizzler.hpp"
@@ -285,6 +286,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         CargoBay,
                                         Water,
                                         WaterSource,
+                                        Ice,
                                         Lava,
                                         LavaSource,
                                         Explosive,

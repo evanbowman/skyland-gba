@@ -60,6 +60,7 @@ enum class SystemString {
     block_forcefield2,
     block_fountain,
     block_hull,
+    block_ice,
     block_infirmary,
     block_ion_cannon,
     block_ion_fizzler,
@@ -187,6 +188,7 @@ enum class SystemString {
     description_barrier,
     description_escape_beacon,
     description_mycelium,
+    description_ice,
 
     gs_paused,
     gs_slow,

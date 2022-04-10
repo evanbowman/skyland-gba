@@ -75,6 +75,7 @@ public:
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
                RoomProperties::workshop_required |
                RoomProperties::locked_by_default |
+               RoomProperties::generates_heat |
                RoomProperties::disabled_in_tutorials;
     }
 

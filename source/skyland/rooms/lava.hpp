@@ -76,6 +76,7 @@ public:
                RoomProperties::fluid | RoomProperties::fragile |
                RoomProperties::multiplayer_unsupported |
                RoomProperties::destroy_quietly |
+               RoomProperties::generates_heat |
                // lol, fireproof property because the lava just looks strange if
                // it catches on fire.
                RoomProperties::fireproof;

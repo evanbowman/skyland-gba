@@ -20,6 +20,7 @@ forcefield
 forcefield*
 fountain
 hull
+ice
 infirmary
 ion-cannon
 ion-fizzler
@@ -134,6 +135,7 @@ B is bananas B-A-N-A-N-A-S!
 Indestructable hull. May only be built in sandbox mode.
 Once activated, transports an island out of a battle after 60 seconds.
 An organic defensive structure. Grows to cover the whole surface of a castle. Will not grow on fluid blocks, forcefields, or other mycelium.
+Changes into water when placed near a heat source. May only be built in sandbox mode.
 paused
 slow
 regular

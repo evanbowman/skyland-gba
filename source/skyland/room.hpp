@@ -130,6 +130,9 @@ struct RoomProperties
         // Characters may move into this room. You may still need to override
         // plot_walkable_zones, in some cases.
         habitable = (1 << 22),
+
+        // Melts nearby ice blocks.
+        generates_heat = (1 << 23),
     };
 };
 

@@ -202,7 +202,7 @@ struct Tile
         solar_cell,
         fire_charge_1,
         fire_charge_2,
-        fire_charge_3,
+        ice,
     };
 };
 
@@ -384,7 +384,7 @@ struct InteriorTile
         solar_cell,
         fire_charge_1,
         fire_charge_2,
-        fire_charge_3,
+        ice,
     };
 };
 
