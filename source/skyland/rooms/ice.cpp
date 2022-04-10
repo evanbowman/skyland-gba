@@ -79,32 +79,36 @@ void Ice::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
     if (auto room = parent()->get_room({x, u8(y - 1)})) {
-        if ((*room->metaclass())->properties() &
-            RoomProperties::generates_heat) {
+        if (((*room->metaclass())->properties() &
+             RoomProperties::generates_heat) or
+            parent()->fire_present({x, u8(y - 1)})) {
             melt();
             return;
         }
     }
 
     if (auto room = parent()->get_room({x, u8(y + 1)})) {
-        if ((*room->metaclass())->properties() &
-            RoomProperties::generates_heat) {
+        if (((*room->metaclass())->properties() &
+             RoomProperties::generates_heat) or
+            parent()->fire_present({x, u8(y + 1)})) {
             melt();
             return;
         }
     }
 
     if (auto room = parent()->get_room({u8(x + 1), y})) {
-        if ((*room->metaclass())->properties() &
-            RoomProperties::generates_heat) {
+        if (((*room->metaclass())->properties() &
+             RoomProperties::generates_heat) or
+            parent()->fire_present({u8(x + 1), y})) {
             melt();
             return;
         }
     }
 
     if (auto room = parent()->get_room({u8(x - 1), y})) {
-        if ((*room->metaclass())->properties() &
-            RoomProperties::generates_heat) {
+        if (((*room->metaclass())->properties() &
+             RoomProperties::generates_heat) or
+            parent()->fire_present({u8(x - 1), y})) {
             melt();
             return;
         }
