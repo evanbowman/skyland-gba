@@ -261,7 +261,7 @@ static const AchievementInfo info[Achievement::count] = {
 
     {SystemString::achievement_completionist_name,
      SystemString::achievement_completionist_description,
-     "switch", // TODO...
+     "gold",
      [](Platform&, App& app) {
          u64 v = app.gp_.achievement_flags_.get();
 
