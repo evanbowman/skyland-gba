@@ -215,6 +215,7 @@ struct Tile
         basalt,
         torch,
         cesium,
+        gold,
     };
 };
 
@@ -401,6 +402,7 @@ struct InteriorTile
         basalt,
         torch,
         cesium,
+        gold,
     };
 };
 

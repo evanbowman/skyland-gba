@@ -470,7 +470,20 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (auto room = app.player_island().get_room(cursor_loc)) {
             const auto props = (*room->metaclass())->properties();
             if (not(props & RoomProperties::salvage_disallowed)) {
-                return scene_pool::alloc<SalvageRoomScene>();
+
+                auto next = scene_pool::make_deferred_scene<SalvageRoomScene>();
+
+                if (app.game_mode() == App::GameMode::co_op) {
+                    if (auto await = room->co_op_acquire_lock(pfrm, next)) {
+                        return await;
+                    } else {
+                        pfrm.speaker().play_sound("beep_error", 2);
+                        // TODO: notification
+                    }
+                } else {
+                    return next();
+                }
+
             } else {
                 pfrm.speaker().play_sound("beep_error", 2);
                 auto msg = SYSTR(salvage_error_disallowed);

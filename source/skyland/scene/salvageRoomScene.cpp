@@ -39,6 +39,10 @@ namespace skyland
 
 static Coins salvage_value(Room& room)
 {
+    if (str_eq(room.name(), "gold")) {
+        return (*room.metaclass())->cost();
+    }
+
     return ((*room.metaclass())->cost() * salvage_factor) *
            (Float(room.health()) / (*room.metaclass())->full_health());
 }
@@ -136,6 +140,16 @@ void SalvageRoomScene::exit(Platform& pfrm, App& app, Scene& next)
         pfrm.set_tile(Layer::overlay, x, st.y - 2, 0);
         pfrm.set_tile(Layer::overlay, x, st.y - 3, 0);
         pfrm.set_tile(Layer::overlay, x, st.y - 4, 0);
+    }
+
+    auto& cursor_loc =
+        near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
+              : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+    if (app.game_mode() == App::GameMode::co_op) {
+        if (auto room = island(app)->get_room(cursor_loc)) {
+            room->co_op_release_lock(pfrm);
+        }
     }
 }
 

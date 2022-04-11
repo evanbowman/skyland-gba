@@ -52,6 +52,7 @@
    (basalt       31  1    0)
    (statue       1   1    0)
    (synth        1   1    0)
+   (gold         30  500  0)
    (water        1   1    0)
    (water-source 1   700  0)
    (ice          30  30   0)

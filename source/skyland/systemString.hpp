@@ -79,6 +79,7 @@ enum class SystemString {
     block_forcefield,
     block_forcefield2,
     block_fountain,
+    block_gold,
     block_hull,
     block_ice,
     block_infirmary,
@@ -213,6 +214,7 @@ enum class SystemString {
     description_basalt,
     description_torch,
     description_cesium,
+    description_gold,
 
     gs_paused,
     gs_slow,

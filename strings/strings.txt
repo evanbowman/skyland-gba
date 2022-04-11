@@ -33,6 +33,7 @@ fire-charge
 forcefield
 forcefield*
 fountain
+gold-block
 hull
 ice
 infirmary
@@ -154,6 +155,7 @@ Changes into water when placed near a heat source. May only be built in sandbox 
 A block produced when water interacts with lava.
 Highly flammable, but takes no burn damage. Sandbox mode only.
 Reacts violently with water! Sandbox mode only.
+May be salvaged for one hundred percent of its value! Useful for co-op multiplayer.
 paused
 slow
 regular
