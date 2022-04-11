@@ -55,6 +55,21 @@ namespace skyland
 class CoopRngSyncScene : public WorldScene, public network::Listener
 {
 public:
+    void enter(Platform& pfrm, App& app, Scene& prev)
+    {
+        WorldScene::enter(pfrm, app, prev);
+
+        for (auto& room : player_island(app).rooms()) {
+            // Just in case... should there be a bug in the locking anywhere
+            // (I haven't found any), unlock everything at the end of the
+            // level.
+            room->co_op_peer_release_lock();
+            for (auto& chr : room->characters()) {
+                chr->co_op_release_lock();
+            }
+        }
+    }
+
     ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta)
     {
         network::poll_messages(pfrm, app, *this);

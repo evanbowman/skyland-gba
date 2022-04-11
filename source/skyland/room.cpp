@@ -909,9 +909,13 @@ bool Room::co_op_peer_acquire_lock()
             if (room->group_ == group_) {
                 if (room->co_op_locked_) {
                     return false;
-                } else {
-                    room->co_op_locked_ = true;
                 }
+            }
+        }
+
+        for (auto& room : parent()->rooms()) {
+            if (room->group_ == group_) {
+                room->co_op_locked_ = true;
             }
         }
     }
