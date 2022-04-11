@@ -11,10 +11,6 @@ ScenePtr<Scene> MultiplayerCoopAwaitLockScene::update(Platform& pfrm,
                                                       App& app,
                                                       Microseconds delta)
 {
-    if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
-        return scene;
-    }
-
     auto on_failure = [&] {
         if (auto room = player_island(app).get_room(coord_)) {
             // Before entering this scene, the originating code should
@@ -24,6 +20,11 @@ ScenePtr<Scene> MultiplayerCoopAwaitLockScene::update(Platform& pfrm,
         pfrm.speaker().play_sound("beep_error", 2);
         return scene_pool::alloc<ReadyScene>();
     };
+
+    if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+        on_failure();
+        return scene;
+    }
 
     if (result_) {
         if (*result_) {
