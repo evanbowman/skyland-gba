@@ -176,7 +176,7 @@ ScenePtr<Scene> Piston::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 
         if (auto room = parent()->get_room(start)) {
             if (is_sticky() and room->size().x == 1 and room->size().y == 1) {
-                parent()->move_room(app, start, end);
+                parent()->move_room(pfrm, app, start, end);
             }
         }
 
@@ -221,7 +221,7 @@ ScenePtr<Scene> Piston::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
         if (room) {
             if (room->size().x == 1 and room->size().y == 1) {
 
-                parent()->move_room(app, start, end);
+                parent()->move_room(pfrm, app, start, end);
             } else {
                 // Play error sound effect. Cannot open, large block in the way.
                 return null_scene();

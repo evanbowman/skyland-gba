@@ -35,8 +35,6 @@ namespace skyland
 class CoopTeam : public PlayerP1, public network::Listener
 {
 public:
-
-
     void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 

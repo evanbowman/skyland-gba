@@ -1281,7 +1281,10 @@ bool Island::add_character(EntityRef<BasicCharacter> character)
 
 
 
-void Island::move_room(App& app, const Vec2<u8>& from, const Vec2<u8>& to)
+void Island::move_room(Platform& pfrm,
+                       App& app,
+                       const Vec2<u8>& from,
+                       const Vec2<u8>& to)
 {
     for (auto it = rooms_.begin(); it not_eq rooms_.end(); ++it) {
         if ((*it)->position() == from) {
@@ -1311,6 +1314,11 @@ void Island::move_room(App& app, const Vec2<u8>& from, const Vec2<u8>& to)
                 e.prev_x_ = from.x;
                 e.prev_y_ = from.y;
                 app.time_stream().push(app.level_timer(), e);
+            }
+
+            if (fire_present(from)) {
+                fire_extinguish(pfrm, app, from);
+                fire_create(pfrm, app, to);
             }
 
             return;

@@ -352,7 +352,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::player_room_moved: {
             auto e = (time_stream::event::PlayerRoomMoved*)end;
             app.player_island().move_room(
-                app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
+                pfrm, app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
             app.time_stream().pop(sizeof *e);
             break;
         }
@@ -361,7 +361,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         case time_stream::event::Type::opponent_room_moved: {
             auto e = (time_stream::event::OpponentRoomMoved*)end;
             app.opponent_island()->move_room(
-                app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
+                pfrm, app, {e->x_, e->y_}, {e->prev_x_, e->prev_y_});
             app.time_stream().pop(sizeof *e);
             break;
         }
