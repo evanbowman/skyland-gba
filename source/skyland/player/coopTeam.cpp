@@ -82,6 +82,17 @@ void CoopTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::RoomConstructed& packet)
 {
+    if (app.player_island().get_room({packet.x_, packet.y_})) {
+        // Co-op player managed to construct a room in exactly the same slot as
+        // one of our own, tell the other player that the room was destroyed.
+        network::packet::RoomDestroyed d;
+        d.room_x_ = packet.x_;
+        d.room_y_ = packet.y_;
+        d.near_island_ = false;
+        d.metaclass_index_.set(packet.metaclass_index_.get());
+        network::transmit(pfrm, d);
+    }
+
     auto metac = load_metaclass(packet.metaclass_index_.get());
 
     Vec2<u8> pos{packet.x_, packet.y_};
