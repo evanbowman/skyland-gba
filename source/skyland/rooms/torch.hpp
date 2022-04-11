@@ -78,8 +78,8 @@ public:
         return (Decoration::properties() &
                 ~(RoomProperties::disallow_chimney |
                   RoomProperties::locked_by_default)) |
-            RoomProperties::highly_flammable |
-            RoomProperties::sandbox_mode_only;
+               RoomProperties::highly_flammable |
+               RoomProperties::sandbox_mode_only;
     }
 
 

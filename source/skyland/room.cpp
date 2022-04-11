@@ -835,6 +835,19 @@ bool Room::co_op_acquire_lock()
         return false;
     }
 
+    if (group_) {
+        // Part of a group, so lock the whole group!
+        for (auto& room : parent()->rooms()) {
+            if (room->group_ == group_) {
+                if (room->co_op_locked_) {
+                    return false;
+                } else {
+                    room->co_op_locked_ = true;
+                }
+            }
+        }
+    }
+
     co_op_locked_ = true;
 
     return true;
@@ -844,6 +857,14 @@ bool Room::co_op_acquire_lock()
 
 void Room::co_op_release_lock()
 {
+    if (group_) {
+        for (auto& room : parent()->rooms()) {
+            if (room->group_ == group_) {
+                room->co_op_locked_ = false;
+            }
+        }
+    }
+
     co_op_locked_ = false;
 }
 

@@ -70,7 +70,10 @@ AssignWeaponGroupScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             if (auto room = app.player_island().get_room(cursor_loc)) {
-                if ((*room->metaclass())->category() ==
+                if (room->co_op_locked()) {
+                    pfrm.speaker().play_sound("beep_error", 2);
+                    // TODO: notification
+                } else if ((*room->metaclass())->category() ==
                     Room::Category::weapon) {
                     // TODO: select category first in select_group scene, then
                     // assign groups in bulk, rather than cycling through.

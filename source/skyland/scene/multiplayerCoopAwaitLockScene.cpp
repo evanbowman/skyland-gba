@@ -1,0 +1,46 @@
+#include "multiplayerCoopAwaitLockScene.hpp"
+
+
+
+namespace skyland
+{
+
+
+
+ScenePtr<Scene> MultiplayerCoopAwaitLockScene::update(Platform& pfrm,
+                                                      App& app,
+                                                      Microseconds delta)
+{
+    if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+        return scene;
+    }
+
+    auto on_failure = [&] {
+        if (auto room = player_island(app).get_room(coord_)) {
+            // Before entering this scene, the originating code should
+            // have checked the room's lock and acquired it.
+            room->co_op_release_lock();
+        }
+        pfrm.speaker().play_sound("beep_error", 2);
+        return scene_pool::alloc<ReadyScene>();
+    };
+
+    if (result_) {
+        if (*result_) {
+            return next_();
+        } else {
+            return on_failure();
+        }
+    }
+
+    timeout_ -= delta;
+    if (timeout_ <= 0) {
+        return on_failure();
+    }
+
+    return null_scene();
+}
+
+
+
+} // namespace skyland

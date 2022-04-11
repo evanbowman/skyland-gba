@@ -1,0 +1,65 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (C) 2022  Evan Bowman
+//
+// This program is free software; you can redistribute it and/or modify it under
+// the terms of version 2 of the GNU General Public License as published by the
+// Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program; if not, write to the Free Software Foundation, Inc., 51
+// Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// GPL2 ONLY. No later versions permitted.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+#pragma once
+
+#include "readyScene.hpp"
+#include "skyland/island.hpp"
+#include "skyland/scene_pool.hpp"
+#include "worldScene.hpp"
+
+
+
+namespace skyland
+{
+
+
+
+class MultiplayerCoopAwaitLockScene : public ActiveWorldScene
+{
+public:
+    MultiplayerCoopAwaitLockScene(DeferredScene next, const Vec2<u8>& coord)
+        : next_(next), coord_(coord)
+    {
+    }
+
+
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+
+    void signal_result(bool result)
+    {
+        result_ = result;
+    }
+
+
+private:
+    DeferredScene next_;
+    Vec2<u8> coord_;
+    std::optional<bool> result_;
+
+    Microseconds timeout_ = milliseconds(500);
+};
+
+
+
+} // namespace skyland
