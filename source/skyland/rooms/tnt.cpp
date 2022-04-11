@@ -83,14 +83,14 @@ Explosive::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 
 
 
-void Explosive::render_interior(App& app, u8 buffer[16][16])
+void Explosive::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::dynamite;
 }
 
 
 
-void Explosive::render_exterior(App& app, u8 buffer[16][16])
+void Explosive::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::dynamite;
 }
@@ -292,14 +292,14 @@ void Explosive::display_on_hover(Platform::Screen& screen,
 
 
 
-void TNT::render_interior(App& app, u8 buffer[16][16])
+void TNT::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::tnt;
 }
 
 
 
-void TNT::render_exterior(App& app, u8 buffer[16][16])
+void TNT::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::tnt;
 }
@@ -371,14 +371,14 @@ void Cesium::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Cesium::render_interior(App& app, u8 buffer[16][16])
+void Cesium::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::cesium;
 }
 
 
 
-void Cesium::render_exterior(App& app, u8 buffer[16][16])
+void Cesium::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::cesium;
 }

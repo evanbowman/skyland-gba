@@ -1395,7 +1395,7 @@ void Island::repaint(Platform& pfrm, App& app)
     // as a whole. Anyway, this function performs all of the tile rendering.
 
     u8 matrix[16][16];
-    u8 buffer[16][16]; // TODO: move this off of the stack!?
+    TileId buffer[16][16]; // TODO: move this off of the stack!?
 
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {

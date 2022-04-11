@@ -66,7 +66,7 @@ struct RoomMeta
         virtual Coins cost() const = 0;
         virtual Float ai_base_weight() const = 0;
         virtual Power consumes_power() const = 0;
-        virtual u32 properties() const = 0;
+        virtual RoomProperties::Bitmask properties() const = 0;
         virtual Room::Icon icon() const = 0;
         virtual Room::Icon unsel_icon() const = 0;
         virtual Health full_health() const = 0;

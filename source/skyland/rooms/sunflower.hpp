@@ -43,19 +43,19 @@ public:
     }
 
 
-    void render_interior(App& app, u8 buffer[16][16]) override
+    void render_interior(App& app, TileId buffer[16][16]) override
     {
         buffer[position().x][position().y] = InteriorTile::sunflower;
     }
 
 
-    void render_exterior(App& app, u8 buffer[16][16]) override
+    void render_exterior(App& app, TileId buffer[16][16]) override
     {
         buffer[position().x][position().y] = Tile::sunflower;
     }
 
 
-    static u32 properties()
+    static RoomProperties::Bitmask properties()
     {
         return (Decoration::properties() & ~RoomProperties::locked_by_default) |
                RoomProperties::highly_flammable;

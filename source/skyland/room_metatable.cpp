@@ -159,7 +159,7 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
         return power_;
     }
 
-    u32 properties() const override
+    RoomProperties::Bitmask properties() const override
     {
         return T::properties();
     }

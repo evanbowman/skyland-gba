@@ -86,14 +86,14 @@ void Ice::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Ice::render_interior(App& app, u8 buffer[16][16])
+void Ice::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::ice;
 }
 
 
 
-void Ice::render_exterior(App& app, u8 buffer[16][16])
+void Ice::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::ice;
 }

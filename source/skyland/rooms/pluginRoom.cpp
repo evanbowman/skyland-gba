@@ -50,7 +50,7 @@ PluginRoom::PluginRoom(Island* parent,
 
 
 
-void PluginRoom::render_interior(App& app, u8 buffer[16][16])
+void PluginRoom::render_interior(App& app, TileId buffer[16][16])
 {
     auto b = static_cast<RoomPluginInfo*>(this->metaclass()->box());
 
@@ -70,7 +70,7 @@ void PluginRoom::render_interior(App& app, u8 buffer[16][16])
 
 
 
-void PluginRoom::render_exterior(App& app, u8 buffer[16][16])
+void PluginRoom::render_exterior(App& app, TileId buffer[16][16])
 {
     auto b = static_cast<RoomPluginInfo*>(this->metaclass()->box());
 

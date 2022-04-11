@@ -33,7 +33,9 @@ namespace skyland
 // speed up the loading by caching the results.
 struct IndexCache
 {
-    u32 file_offset_[(int)SystemString::count] = {0};
+    using FileOffset = u32;
+
+    FileOffset file_offset_[(int)SystemString::count] = {0};
 };
 
 

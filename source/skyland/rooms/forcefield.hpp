@@ -45,10 +45,10 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(App& app, u8 buffer[16][16]) override;
-    void render_exterior(App& app, u8 buffer[16][16]) override;
+    void render_interior(App& app, TileId buffer[16][16]) override;
+    void render_exterior(App& app, TileId buffer[16][16]) override;
 
-    void render_scaffolding(App& app, u8 buffer[16][16])
+    void render_scaffolding(App& app, TileId buffer[16][16])
     {
         // Forcefields float; no scaffolding.
     }
@@ -111,7 +111,7 @@ public:
     }
 
 
-    static u32 properties()
+    static RoomProperties::Bitmask properties()
     {
         return RoomProperties::workshop_required |
                RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
@@ -151,11 +151,11 @@ public:
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
-    void render_interior(App& app, u8 buffer[16][16]) override;
-    void render_exterior(App& app, u8 buffer[16][16]) override;
+    void render_interior(App& app, TileId buffer[16][16]) override;
+    void render_exterior(App& app, TileId buffer[16][16]) override;
 
 
-    static u32 properties()
+    static RoomProperties::Bitmask properties()
     {
         return (Forcefield::properties() |
                 RoomProperties::manufactory_required) &

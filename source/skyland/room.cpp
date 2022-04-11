@@ -803,7 +803,7 @@ Room::~Room()
 
 
 
-void Room::render_scaffolding(App& app, u8 buffer[16][16])
+void Room::render_scaffolding(App& app, TileId buffer[16][16])
 {
     auto p = position();
     auto s = size();

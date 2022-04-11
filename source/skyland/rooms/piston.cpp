@@ -42,7 +42,7 @@ Piston::Piston(Island* parent, const Vec2<u8>& position, const char* name)
 
 
 
-void Piston::render_interior(App& app, u8 buffer[16][16])
+void Piston::render_interior(App& app, TileId buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;
@@ -78,7 +78,7 @@ void Piston::render_interior(App& app, u8 buffer[16][16])
 
 
 
-void Piston::render_exterior(App& app, u8 buffer[16][16])
+void Piston::render_exterior(App& app, TileId buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;

@@ -170,7 +170,7 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Water::render_interior(App& app, u8 buffer[16][16])
+void Water::render_interior(App& app, TileId buffer[16][16])
 {
     auto above = parent()->get_room({position().x, (u8)(position().y - 1)});
     if (above and (*above->metaclass())->properties() & RoomProperties::fluid) {
@@ -192,7 +192,7 @@ void Water::render_interior(App& app, u8 buffer[16][16])
 
 
 
-void Water::render_exterior(App& app, u8 buffer[16][16])
+void Water::render_exterior(App& app, TileId buffer[16][16])
 {
     auto above = parent()->get_room({position().x, (u8)(position().y - 1)});
     if (above and (*above->metaclass())->properties() & RoomProperties::fluid) {

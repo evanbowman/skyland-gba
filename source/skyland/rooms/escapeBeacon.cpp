@@ -113,7 +113,7 @@ EscapeBeacon::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 
 
 
-void EscapeBeacon::render_interior(App& app, u8 buffer[16][16])
+void EscapeBeacon::render_interior(App& app, TileId buffer[16][16])
 {
     const auto x = position().x;
     const auto y = position().y;
@@ -132,7 +132,7 @@ void EscapeBeacon::render_interior(App& app, u8 buffer[16][16])
 
 
 
-void EscapeBeacon::render_exterior(App& app, u8 buffer[16][16])
+void EscapeBeacon::render_exterior(App& app, TileId buffer[16][16])
 {
     const auto x = position().x;
     const auto y = position().y;

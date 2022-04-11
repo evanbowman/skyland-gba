@@ -23,12 +23,20 @@
 #pragma once
 
 
+#include "tileId.hpp"
+
+
+
+namespace skyland
+{
+
+
 
 struct StaticTile
 {
     // These tiles are not dynamically re-mappable. They live at fixed positions
     // at the beginning of the tile set.
-    enum {
+    enum __StaticTile : TileId {
         null,
         airborne_selection = 1,
         flag_start = 2,
@@ -43,7 +51,7 @@ struct StaticTile
 
 struct Tile
 {
-    enum {
+    enum __Tile : TileId {
         null,
         airborne_selection = 1,
         flag_start = 2,
@@ -214,7 +222,7 @@ struct Tile
 
 struct InteriorTile
 {
-    enum {
+    enum __InteriorTile : TileId {
         null,
         airborne_selection = 1,
         flag_start = 2,
@@ -403,3 +411,7 @@ struct SpriteTile
         custom_sprite_tile_begin = 110,
     };
 };
+
+
+
+}

@@ -106,14 +106,14 @@ Microseconds IonCannon::reload() const
 
 
 
-void IonCannon::render_interior(App& app, u8 buffer[16][16])
+void IonCannon::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::particle_gun;
 }
 
 
 
-void IonCannon::render_exterior(App& app, u8 buffer[16][16])
+void IonCannon::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::particle_gun;
 }

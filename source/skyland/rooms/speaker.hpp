@@ -50,7 +50,7 @@ public:
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
 
 
-    static u32 properties()
+    static RoomProperties::Bitmask properties()
     {
         return Decoration::properties();
     }
@@ -86,10 +86,10 @@ public:
     }
 
 
-    void render_interior(App& app, u8 buffer[16][16]) override;
+    void render_interior(App& app, TileId buffer[16][16]) override;
 
 
-    void render_exterior(App& app, u8 buffer[16][16]) override;
+    void render_exterior(App& app, TileId buffer[16][16]) override;
 
 
     bool non_owner_selectable() const override

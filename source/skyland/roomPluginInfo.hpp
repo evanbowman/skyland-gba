@@ -141,7 +141,7 @@ struct RoomPluginInfo : public RoomMeta::Info
     }
 
 
-    u32 properties() const override
+    RoomProperties::Bitmask properties() const override
     {
         return RoomProperties::plugin | RoomProperties::disallow_chimney |
                RoomProperties::roof_hidden | RoomProperties::locked_by_default;

@@ -36,14 +36,14 @@ BronzeHull::BronzeHull(Island* parent, const Vec2<u8>& position)
 
 
 
-void BronzeHull::render_interior(App& app, u8 buffer[16][16])
+void BronzeHull::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::bronze;
 }
 
 
 
-void BronzeHull::render_exterior(App& app, u8 buffer[16][16])
+void BronzeHull::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::bronze;
 }

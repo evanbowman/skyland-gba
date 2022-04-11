@@ -52,14 +52,14 @@ void Hull::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Hull::render_interior(App& app, u8 buffer[16][16])
+void Hull::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::hull;
 }
 
 
 
-void Hull::render_exterior(App& app, u8 buffer[16][16])
+void Hull::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::hull;
 }

@@ -51,7 +51,7 @@ void Manufactory::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Manufactory::render_interior(App& app, u8 buffer[16][16])
+void Manufactory::render_interior(App& app, TileId buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;
@@ -67,7 +67,7 @@ void Manufactory::render_interior(App& app, u8 buffer[16][16])
 
 
 
-void Manufactory::render_exterior(App& app, u8 buffer[16][16])
+void Manufactory::render_exterior(App& app, TileId buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;

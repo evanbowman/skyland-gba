@@ -161,7 +161,7 @@ void Switch::deserialize(lisp::Value* list)
 
 
 
-void Switch::render_interior(App& app, u8 buffer[16][16])
+void Switch::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::switch_1;
 
@@ -174,7 +174,7 @@ void Switch::render_interior(App& app, u8 buffer[16][16])
 
 
 
-void Switch::render_exterior(App& app, u8 buffer[16][16])
+void Switch::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::switch_1;
 

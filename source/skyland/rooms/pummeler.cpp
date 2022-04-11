@@ -85,14 +85,14 @@ Microseconds Pummeler::reload() const
 
 
 
-void Pummeler::render_interior(App& app, u8 buffer[16][16])
+void Pummeler::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::cannon_1;
 }
 
 
 
-void Pummeler::render_exterior(App& app, u8 buffer[16][16])
+void Pummeler::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::cannon_1;
 }

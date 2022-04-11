@@ -57,7 +57,7 @@ public:
     }
 
 
-    static u32 properties()
+    static RoomProperties::Bitmask properties()
     {
         return RoomProperties::manufactory_required | Hull::properties() |
                RoomProperties::disabled_in_tutorials |
@@ -83,10 +83,10 @@ public:
     }
 
 
-    void render_interior(App& app, u8 buffer[16][16]) override;
+    void render_interior(App& app, TileId buffer[16][16]) override;
 
 
-    void render_exterior(App& app, u8 buffer[16][16]) override;
+    void render_exterior(App& app, TileId buffer[16][16]) override;
 };
 
 

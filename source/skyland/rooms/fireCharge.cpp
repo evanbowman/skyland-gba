@@ -108,7 +108,7 @@ Microseconds FireCharge::reload() const
 
 
 
-void FireCharge::render_interior(App& app, u8 buffer[16][16])
+void FireCharge::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::fire_charge_1;
     buffer[position().x + 1][position().y] = InteriorTile::fire_charge_2;
@@ -116,7 +116,7 @@ void FireCharge::render_interior(App& app, u8 buffer[16][16])
 
 
 
-void FireCharge::render_exterior(App& app, u8 buffer[16][16])
+void FireCharge::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::fire_charge_1;
     buffer[position().x + 1][position().y] = Tile::fire_charge_2;

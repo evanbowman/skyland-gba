@@ -48,11 +48,11 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
-    void render_interior(App& app, u8 buffer[16][16]) override;
-    void render_exterior(App& app, u8 buffer[16][16]) override;
+    void render_interior(App& app, TileId buffer[16][16]) override;
+    void render_exterior(App& app, TileId buffer[16][16]) override;
 
 
-    void render_scaffolding(App& app, u8 buffer[16][16]) override
+    void render_scaffolding(App& app, TileId buffer[16][16]) override
     {
     }
 
@@ -79,7 +79,7 @@ public:
     }
 
 
-    static u32 properties()
+    static RoomProperties::Bitmask properties()
     {
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
                RoomProperties::locked_by_default |
@@ -167,7 +167,7 @@ public:
     }
 
 
-    static u32 properties()
+    static RoomProperties::Bitmask properties()
     {
         return Explosive::properties() | RoomProperties::manufactory_required |
                RoomProperties::locked_by_default;
@@ -203,8 +203,8 @@ public:
                           const Vec2<u8>& cursor) override;
 
 
-    void render_interior(App& app, u8 buffer[16][16]) override;
-    void render_exterior(App& app, u8 buffer[16][16]) override;
+    void render_interior(App& app, TileId buffer[16][16]) override;
+    void render_exterior(App& app, TileId buffer[16][16]) override;
 };
 
 
@@ -230,7 +230,7 @@ public:
     }
 
 
-    static u32 properties()
+    static RoomProperties::Bitmask properties()
     {
         return (Explosive::properties() & ~RoomProperties::locked_by_default) |
                RoomProperties::sandbox_mode_only;
@@ -279,8 +279,8 @@ public:
                           const Vec2<u8>& cursor) override;
 
 
-    void render_interior(App& app, u8 buffer[16][16]) override;
-    void render_exterior(App& app, u8 buffer[16][16]) override;
+    void render_interior(App& app, TileId buffer[16][16]) override;
+    void render_exterior(App& app, TileId buffer[16][16]) override;
 };
 
 

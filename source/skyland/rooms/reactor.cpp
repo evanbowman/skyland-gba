@@ -63,7 +63,7 @@ void Reactor::finalize(Platform& pfrm, App& app)
 
 
 
-void Reactor::render_interior(App& app, u8 buffer[16][16])
+void Reactor::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::reactor_1;
     buffer[position().x + 1][position().y] = InteriorTile::reactor_2;
@@ -77,7 +77,7 @@ void Reactor::render_interior(App& app, u8 buffer[16][16])
 
 
 
-void Reactor::render_exterior(App& app, u8 buffer[16][16])
+void Reactor::render_exterior(App& app, TileId buffer[16][16])
 {
     auto x = position().x;
     auto y = position().y;

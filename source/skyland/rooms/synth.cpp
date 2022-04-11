@@ -100,14 +100,14 @@ void Synth::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Synth::render_interior(App& app, u8 buffer[16][16])
+void Synth::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = InteriorTile::synth;
 }
 
 
 
-void Synth::render_exterior(App& app, u8 buffer[16][16])
+void Synth::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::synth;
 }

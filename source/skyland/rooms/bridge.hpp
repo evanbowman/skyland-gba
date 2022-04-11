@@ -55,7 +55,7 @@ public:
     }
 
 
-    void render_interior(App& app, u8 buffer[16][16]) override
+    void render_interior(App& app, TileId buffer[16][16]) override
     {
         buffer[position().x][position().y] = InteriorTile::bridge;
         buffer[position().x + 1][position().y] = InteriorTile::bridge;
@@ -68,7 +68,7 @@ public:
     }
 
 
-    void render_exterior(App& app, u8 buffer[16][16]) override
+    void render_exterior(App& app, TileId buffer[16][16]) override
     {
         buffer[position().x][position().y] = Tile::bridge;
         buffer[position().x + 1][position().y] = Tile::bridge;
@@ -102,7 +102,7 @@ public:
 
 
 
-    static u32 properties()
+    static RoomProperties::Bitmask properties()
     {
         return (Decoration::properties() & ~RoomProperties::roof_hidden) |
                RoomProperties::habitable;

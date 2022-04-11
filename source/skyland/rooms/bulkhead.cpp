@@ -55,7 +55,7 @@ void Bulkhead::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void Bulkhead::render_interior(App& app, u8 buffer[16][16])
+void Bulkhead::render_interior(App& app, TileId buffer[16][16])
 {
     if (open_) {
         buffer[position().x][position().y] = InteriorTile::bulkhead_open_1;
@@ -78,7 +78,7 @@ void Bulkhead::___rewind___finished_reload(Platform& pfrm, App& app)
 
 
 
-void Bulkhead::render_exterior(App& app, u8 buffer[16][16])
+void Bulkhead::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::wall_plain_1;
     buffer[position().x][position().y + 1] = Tile::wall_plain_2;

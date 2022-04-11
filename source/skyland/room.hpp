@@ -32,6 +32,7 @@
 #include "power.hpp"
 #include "scene.hpp"
 #include "script/value.hpp"
+#include "tileId.hpp"
 #include <memory>
 
 
@@ -56,7 +57,9 @@ class Drone;
 
 struct RoomProperties
 {
-    enum Value : u32 {
+    using Bitmask = u32;
+
+    enum Value : Bitmask {
         none = 0,
 
         // Workshop required to build this room
@@ -175,10 +178,10 @@ public:
     }
 
 
-    virtual void render_interior(App& app, u8 buffer[16][16]) = 0;
-    virtual void render_exterior(App& app, u8 buffer[16][16]) = 0;
+    virtual void render_interior(App& app, TileId buffer[16][16]) = 0;
+    virtual void render_exterior(App& app, TileId buffer[16][16]) = 0;
 
-    virtual void render_scaffolding(App& app, u8 buffer[16][16]);
+    virtual void render_scaffolding(App& app, TileId buffer[16][16]);
 
 
     void set_injured(Platform& pfrm);

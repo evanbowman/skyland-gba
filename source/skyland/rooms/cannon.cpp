@@ -112,14 +112,14 @@ Microseconds Cannon::reload() const
 
 
 
-void Cannon::render_interior(App& app, u8 buffer[16][16])
+void Cannon::render_interior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::cannon_1;
 }
 
 
 
-void Cannon::render_exterior(App& app, u8 buffer[16][16])
+void Cannon::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::cannon_1;
 }
