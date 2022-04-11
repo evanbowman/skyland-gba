@@ -132,6 +132,9 @@ ScenePtr<Scene> player_island_onclick(Platform& pfrm,
                                       const Vec2<u8>& pos)
 {
     if (auto room = app.player_island().get_room(pos)) {
+        if (room->co_op_locked()) {
+            return null_scene();
+        }
         if (auto scene = room->select(pfrm, app, pos)) {
             return scene;
         } else if (auto db = dynamic_cast<DroneBay*>(room)) {

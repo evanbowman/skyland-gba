@@ -140,6 +140,21 @@ public:
                  const network::packet::Heartbeat& packet) override;
 
 
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::CoopRoomLockAcquire& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::CoopRoomLockRelease& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::CoopRoomLockResponse& packet) override;
+
+
     void network_sync_cursor(Platform& pfrm,
                              const Vec2<u8>& cursor,
                              u8 cursor_icon,

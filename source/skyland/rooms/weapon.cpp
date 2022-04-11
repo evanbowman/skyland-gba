@@ -22,6 +22,8 @@
 
 #include "weapon.hpp"
 #include "globals.hpp"
+#include "skyland/network.hpp"
+#include "skyland/scene/multiplayerCoopAwaitLockScene.hpp"
 #include "skyland/scene/notificationScene.hpp"
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
@@ -236,9 +238,27 @@ ScenePtr<Scene> Weapon::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
                                                     future_scene);
     }
 
+
     if (parent() == &app.player_island()) {
-        return scene_pool::alloc<WeaponSetTargetScene>(
-            position(), true, target_);
+
+        using Next = WeaponSetTargetScene;
+        using Await = MultiplayerCoopAwaitLockScene;
+
+        auto next =
+            scene_pool::make_deferred_scene<Next>(position(), true, target_);
+
+        if (app.game_mode() == App::GameMode::co_op and
+            this->co_op_acquire_lock()) {
+
+            network::packet::CoopRoomLockAcquire pkt;
+            pkt.x_ = position().x;
+            pkt.y_ = position().y;
+            network::transmit(pfrm, pkt);
+
+            return scene_pool::alloc<Await>(next, position());
+        } else {
+            return next();
+        }
     }
     return null_scene();
 }

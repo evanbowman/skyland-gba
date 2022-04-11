@@ -27,6 +27,7 @@
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/tnt.hpp"
 #include "skyland/rooms/transporter.hpp"
+#include "skyland/scene/multiplayerCoopAwaitLockScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -491,6 +492,54 @@ void CoopTeam::receive(Platform& pfrm,
                              app,
                              {packet.target_x_, packet.target_y_},
                              not packet.target_near_);
+    }
+}
+
+
+
+void CoopTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::CoopRoomLockAcquire& packet)
+{
+    using RespType = network::packet::CoopRoomLockResponse;
+
+    RespType resp;
+    resp.x_ = packet.x_;
+    resp.y_ = packet.y_;
+    resp.status_ = RespType::failure;
+
+    if (auto room = app.player_island().get_room({packet.x_, packet.y_})) {
+        if (room->co_op_acquire_lock()) {
+            resp.status_ = RespType::success;
+        }
+    }
+
+    network::transmit(pfrm, resp);
+}
+
+
+
+void CoopTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::CoopRoomLockRelease& packet)
+{
+    if (auto room = app.player_island().get_room({packet.x_, packet.y_})) {
+        room->co_op_release_lock();
+    }
+}
+
+
+
+void CoopTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::CoopRoomLockResponse& packet)
+{
+    using RespType = network::packet::CoopRoomLockResponse;
+
+    Scene* s = &app.scene();
+
+    if (auto scene = dynamic_cast<MultiplayerCoopAwaitLockScene*>(s)) {
+        scene->signal_result(packet.status_ == RespType::success);
     }
 }
 

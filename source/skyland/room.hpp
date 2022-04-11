@@ -441,6 +441,14 @@ public:
     }
 
 
+    // For co-op mode, to prevent two consoles from editing the same block at
+    // once.
+    bool co_op_acquire_lock();
+    void co_op_release_lock();
+
+    bool co_op_locked() const;
+
+
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 
@@ -510,8 +518,11 @@ private:
 
     u8 group_ : 2;
 
+    u8 co_op_locked_ : 1;
+    u8 unused_ : 7;
+
     // Bytes freed up by various space optimization techniques.
-    u8 reserved_[7];
+    u8 reserved_[6];
 };
 
 

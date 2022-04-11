@@ -52,6 +52,8 @@ Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
 
     set_group(Room::Group::none);
 
+    co_op_locked_ = false;
+
     auto metatable = room_metatable();
 
     if (metatable.second > 255) {
@@ -823,6 +825,33 @@ void Room::render_scaffolding(App& app, u8 buffer[16][16])
             placed_strut = false;
         }
     }
+}
+
+
+
+bool Room::co_op_acquire_lock()
+{
+    if (co_op_locked_) {
+        return false;
+    }
+
+    co_op_locked_ = true;
+
+    return true;
+}
+
+
+
+void Room::co_op_release_lock()
+{
+    co_op_locked_ = false;
+}
+
+
+
+bool Room::co_op_locked() const
+{
+    return co_op_locked_;
 }
 
 

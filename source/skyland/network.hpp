@@ -68,6 +68,9 @@ struct Header
         co_op_rng_sync_ack,
         set_weapon_group,
         play_music,
+        co_op_room_lock_acquire,
+        co_op_room_lock_release,
+        co_op_room_lock_response,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -481,6 +484,43 @@ struct PlayMusic
 
 
 
+struct CoopRoomLockAcquire
+{
+    Header header_;
+    u8 x_;
+    u8 y_;
+    u8 unused_[3];
+
+    static const auto mt = Header::MessageType::co_op_room_lock_acquire;
+};
+
+
+
+struct CoopRoomLockRelease
+{
+    Header header_;
+    u8 x_;
+    u8 y_;
+    u8 unused_[3];
+
+    static const auto mt = Header::MessageType::co_op_room_lock_release;
+};
+
+
+
+struct CoopRoomLockResponse
+{
+    Header header_;
+    u8 x_;
+    u8 y_;
+    enum Status : u8 { success, failure } status_;
+    u8 unused_[2];
+
+    static const auto mt = Header::MessageType::co_op_room_lock_response;
+};
+
+
+
 } // namespace packet
 
 
@@ -622,6 +662,21 @@ public:
 
 
     virtual void receive(Platform&, App&, const packet::PlayMusic&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::CoopRoomLockAcquire&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::CoopRoomLockRelease&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::CoopRoomLockResponse&)
     {
     }
 
