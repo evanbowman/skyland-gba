@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "coord.hpp"
 #include "number/numeric.hpp"
 
 
@@ -51,7 +52,7 @@ public:
     virtual void update(Platform& pfrm,
                         App& app,
                         Island& target,
-                        const Vec2<u8>& cursor_loc,
+                        const RoomCoord& cursor_loc,
                         Microseconds delta,
                         bool near);
 

@@ -36,7 +36,7 @@ class Mycelium : public Room
 {
 public:
     Mycelium(Island* parent,
-             const Vec2<u8>& position,
+             const RoomCoord& position,
              const char* name = name());
 
 

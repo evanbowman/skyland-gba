@@ -37,7 +37,7 @@ namespace skyland
 class LadyLiberty : public Decoration
 {
 public:
-    LadyLiberty(Island* parent, const Vec2<u8>& position)
+    LadyLiberty(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }

@@ -23,9 +23,7 @@
 #pragma once
 
 
-
-#include "allocator.hpp"
-#include "coord.hpp"
+#include "number/int.h"
 
 
 
@@ -34,21 +32,8 @@ namespace skyland
 
 
 
-class App;
-class Island;
+using TileId = u8;
 
 
 
-using PathBuffer = Buffer<RoomCoord, 512>;
-using Path = DynamicMemory<PathBuffer>;
-
-
-std::optional<Path> find_path(Platform& pfrm,
-                              App& app,
-                              Island* island,
-                              const RoomCoord& start,
-                              const RoomCoord& end);
-
-
-
-} // namespace skyland
+}

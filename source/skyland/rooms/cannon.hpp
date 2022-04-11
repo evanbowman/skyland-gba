@@ -42,7 +42,7 @@ extern SharedVariable cannon_reload_ms;
 class Cannon : public Weapon
 {
 public:
-    Cannon(Island* parent, const Vec2<u8>& position);
+    Cannon(Island* parent, const RoomCoord& position);
 
 
     void fire(Platform& pfrm, App& app) override;

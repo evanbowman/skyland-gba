@@ -35,7 +35,7 @@ namespace skyland
 class Piston : public Room
 {
 public:
-    Piston(Island* parent, const Vec2<u8>& position, const char* name = name());
+    Piston(Island* parent, const RoomCoord& position, const char* name = name());
 
 
     void render_interior(App& app, TileId buffer[16][16]) override;
@@ -93,7 +93,7 @@ public:
 
 
     ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
 
     static Icon icon()
@@ -136,7 +136,7 @@ private:
 class StickyPiston : public Piston
 {
 public:
-    StickyPiston(Island* parent, const Vec2<u8>& position)
+    StickyPiston(Island* parent, const RoomCoord& position)
         : Piston(parent, position, name())
     {
     }

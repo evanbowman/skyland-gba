@@ -50,7 +50,7 @@ void Decimator::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Decimator::Decimator(Island* parent, const Vec2<u8>& position)
+Decimator::Decimator(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }

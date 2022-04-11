@@ -41,7 +41,7 @@ void Bulkhead::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Bulkhead::Bulkhead(Island* parent, const Vec2<u8>& position)
+Bulkhead::Bulkhead(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }
@@ -114,7 +114,7 @@ void Bulkhead::set_open(Platform& pfrm, App& app, bool open)
 
 
 ScenePtr<Scene>
-Bulkhead::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+Bulkhead::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     if (length(characters())) {
         return Room::select(pfrm, app, cursor);

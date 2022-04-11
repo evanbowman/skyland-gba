@@ -37,7 +37,7 @@ namespace skyland
 
 
 PluginRoom::PluginRoom(Island* parent,
-                       const Vec2<u8>& position,
+                       const RoomCoord& position,
                        RoomMeta* metaclass)
     : Room(parent, (*metaclass)->name(), position)
 {
@@ -159,7 +159,7 @@ void PluginRoom::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 ScenePtr<Scene>
-PluginRoom::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+PluginRoom::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
@@ -183,7 +183,7 @@ PluginRoom::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 
 
 
-void PluginRoom::set_target(Platform& pfrm, App& app, const Vec2<u8>& target)
+void PluginRoom::set_target(Platform& pfrm, App& app, const RoomCoord& target)
 {
     if (target_ and *target_ == target) {
         // No need to waste space in rewind memory if the target does not

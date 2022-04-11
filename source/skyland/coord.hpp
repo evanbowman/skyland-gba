@@ -22,10 +22,7 @@
 
 #pragma once
 
-
-
-#include "allocator.hpp"
-#include "coord.hpp"
+#include "number/numeric.hpp"
 
 
 
@@ -34,21 +31,57 @@ namespace skyland
 
 
 
-class App;
-class Island;
+using RoomCoord = Vec2<u8>;
+using WorldCoord = Vec2<Fixnum>;
 
 
 
-using PathBuffer = Buffer<RoomCoord, 512>;
-using Path = DynamicMemory<PathBuffer>;
+struct PackedRoomCoord
+{
+
+    PackedRoomCoord(const RoomCoord& c)
+    {
+        set_x(c.x);
+        set_y(c.y);
+    }
 
 
-std::optional<Path> find_path(Platform& pfrm,
-                              App& app,
-                              Island* island,
-                              const RoomCoord& start,
-                              const RoomCoord& end);
+    u8 x() const
+    {
+        return data_ & 0x0f;
+    }
+
+
+    u8 y() const
+    {
+        return data_ & 0xf0;
+    }
+
+
+    void set_x(u8 x)
+    {
+        data_ &= 0xf0;
+        data_ |= 0x0f & x;
+    }
+
+
+    void set_y(u8 y)
+    {
+        data_ &= 0x0f;
+        data_ |= 0xf0 & (y << 4);
+    }
+
+
+    RoomCoord unpack() const
+    {
+        return RoomCoord{x(), y()};
+    }
+
+
+private:
+    u8 data_;
+};
 
 
 
-} // namespace skyland
+}

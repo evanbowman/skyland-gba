@@ -38,7 +38,7 @@ namespace skyland
 
 Weapon::Weapon(Island* parent,
                const char* name,
-               const Vec2<u8>& position,
+               const RoomCoord& position,
                Microseconds reload_time)
     : Room(parent, name, position)
 {
@@ -136,7 +136,7 @@ void Weapon::___rewind___ability_used(Platform&, App&)
 
 void Weapon::display_on_hover(Platform::Screen& screen,
                               App& app,
-                              const Vec2<u8>& cursor)
+                              const RoomCoord& cursor)
 {
     if (not target_) {
         return;
@@ -160,7 +160,7 @@ void Weapon::display_on_hover(Platform::Screen& screen,
 
 
 
-void Weapon::set_target(Platform& pfrm, App& app, const Vec2<u8>& target)
+void Weapon::set_target(Platform& pfrm, App& app, const RoomCoord& target)
 {
     if (target_ and *target_ == target) {
         // No need to waste space in rewind memory if the target does not
@@ -221,7 +221,7 @@ void Weapon::unset_target(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene> Weapon::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+ScenePtr<Scene> Weapon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;

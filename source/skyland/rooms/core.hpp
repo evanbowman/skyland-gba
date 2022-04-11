@@ -36,7 +36,7 @@ namespace skyland
 class Core : public Room
 {
 public:
-    Core(Island* parent, const Vec2<u8>& position);
+    Core(Island* parent, const RoomCoord& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;

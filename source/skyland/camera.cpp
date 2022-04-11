@@ -39,7 +39,7 @@ static const int view_y_min = -80;
 void Camera::update(Platform& pfrm,
                     App& app,
                     Island& target,
-                    const Vec2<u8>& cursor_loc,
+                    const RoomCoord& cursor_loc,
                     Microseconds delta,
                     bool near)
 {

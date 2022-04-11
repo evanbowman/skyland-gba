@@ -36,7 +36,7 @@ namespace skyland
 class StackedHull : public Hull
 {
 public:
-    StackedHull(Island* parent, const Vec2<u8>& position);
+    StackedHull(Island* parent, const RoomCoord& position);
 
 
     using Hull::Hull;

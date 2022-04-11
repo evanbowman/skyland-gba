@@ -38,7 +38,7 @@ class Forcefield : public Room
 {
 public:
     Forcefield(Island* parent,
-               const Vec2<u8>& position,
+               const RoomCoord& position,
                const char* name = name());
 
 
@@ -124,7 +124,7 @@ public:
 class Forcefield2 : public Forcefield
 {
 public:
-    Forcefield2(Island* parent, const Vec2<u8>& position)
+    Forcefield2(Island* parent, const RoomCoord& position)
         : Forcefield(parent, position, name())
     {
     }

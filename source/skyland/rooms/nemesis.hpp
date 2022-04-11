@@ -42,7 +42,7 @@ extern SharedVariable nemesis_reload_ms;
 class Nemesis : public Weapon
 {
 public:
-    Nemesis(Island* parent, const Vec2<u8>& position);
+    Nemesis(Island* parent, const RoomCoord& position);
 
 
     void fire(Platform& pfrm, App& app) override;

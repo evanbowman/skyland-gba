@@ -67,7 +67,7 @@ public:
     template <typename T, typename... Args>
     bool add_room(Platform& pfrm,
                   App& app,
-                  const Vec2<u8>& position,
+                  const RoomCoord& position,
                   bool do_repaint,
                   Args&&... args)
     {
@@ -89,8 +89,8 @@ public:
 
     void move_room(Platform& pfrm,
                    App& app,
-                   const Vec2<u8>& from,
-                   const Vec2<u8>& to);
+                   const RoomCoord& from,
+                   const RoomCoord& to);
 
 
     void init_terrain(Platform& pfrm, int width);
@@ -99,7 +99,7 @@ public:
     bool add_character(EntityRef<BasicCharacter> character);
 
 
-    void remove_character(const Vec2<u8>& location);
+    void remove_character(const RoomCoord& location);
 
 
     Rooms& rooms();
@@ -123,13 +123,13 @@ public:
     void set_position(const Vec2<Fixnum>& position);
 
 
-    Room* get_room(const Vec2<u8>& coord);
+    Room* get_room(const RoomCoord& coord);
 
 
-    std::optional<SharedEntityRef<Drone>> get_drone(const Vec2<u8>& coord);
+    std::optional<SharedEntityRef<Drone>> get_drone(const RoomCoord& coord);
 
 
-    void destroy_room(Platform& pfrm, App& app, const Vec2<u8>& coord);
+    void destroy_room(Platform& pfrm, App& app, const RoomCoord& coord);
 
 
     u8 get_ambient_movement()
@@ -165,7 +165,7 @@ public:
     void plot_walkable_zones(App& app, bool matrix[16][16]) const;
 
 
-    BasicCharacter* character_at_location(const Vec2<u8>& loc);
+    BasicCharacter* character_at_location(const RoomCoord& loc);
 
 
     std::pair<BasicCharacter*, Room*> find_character_by_id(CharacterId id);
@@ -261,7 +261,7 @@ public:
     }
 
 
-    std::optional<Vec2<u8>> chimney_loc() const
+    std::optional<RoomCoord> chimney_loc() const
     {
         return chimney_loc_;
     }
@@ -297,7 +297,7 @@ public:
     }
 
 
-    void on_layout_changed(App& app, const Vec2<u8>& room_added_removed_coord);
+    void on_layout_changed(App& app, const RoomCoord& room_added_removed_coord);
 
 
     SharedEntityList<Drone>& drones()
@@ -310,7 +310,7 @@ public:
     HitBox hitbox() const;
 
 
-    std::optional<Vec2<u8>> flag_pos()
+    std::optional<RoomCoord> flag_pos()
     {
         return flag_pos_;
     }
@@ -352,9 +352,9 @@ public:
     std::optional<Platform::DynamicTexturePtr> fire_texture();
 
 
-    bool fire_present(const Vec2<u8>& coord) const;
-    void fire_extinguish(Platform& pfrm, App& app, const Vec2<u8>& coord);
-    void fire_create(Platform& pfrm, App& app, const Vec2<u8>& coord);
+    bool fire_present(const RoomCoord& coord) const;
+    void fire_extinguish(Platform& pfrm, App& app, const RoomCoord& coord);
+    void fire_create(Platform& pfrm, App& app, const RoomCoord& coord);
 
 
 private:
@@ -423,7 +423,7 @@ private:
     // matrix of bitflags. We use the result to speed up collision checking.
     Bitmatrix<16, 16> rooms_plot_;
 
-    std::optional<Vec2<u8>> flag_pos_;
+    std::optional<RoomCoord> flag_pos_;
     Microseconds flag_anim_timer_ = 0;
     int flag_anim_index_;
 
@@ -433,7 +433,7 @@ private:
 
     Player* owner_;
 
-    std::optional<Vec2<u8>> chimney_loc_;
+    std::optional<RoomCoord> chimney_loc_;
     Microseconds chimney_spawn_timer_ = 0;
 };
 

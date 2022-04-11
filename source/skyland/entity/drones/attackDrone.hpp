@@ -44,7 +44,7 @@ extern Sound cannon_sound;
 class AttackDrone : public Drone
 {
 public:
-    AttackDrone(Island* parent, Island* destination, const Vec2<u8>& grid_pos)
+    AttackDrone(Island* parent, Island* destination, const RoomCoord& grid_pos)
         : Drone(get_name(), parent, destination, grid_pos)
     {
     }

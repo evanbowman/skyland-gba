@@ -37,7 +37,7 @@ namespace skyland
 class Basalt : public Decoration
 {
 public:
-    Basalt(Island* parent, const Vec2<u8>& position)
+    Basalt(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }

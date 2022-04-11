@@ -36,7 +36,7 @@ namespace skyland
 class Radiator : public Room
 {
 public:
-    Radiator(Island* parent, const Vec2<u8>& position);
+    Radiator(Island* parent, const RoomCoord& position);
 
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
@@ -124,7 +124,7 @@ public:
 
     void display_on_hover(Platform::Screen& screen,
                           App& app,
-                          const Vec2<u8>& cursor) override;
+                          const RoomCoord& cursor) override;
 
 
 private:

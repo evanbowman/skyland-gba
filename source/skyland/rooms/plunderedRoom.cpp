@@ -39,7 +39,7 @@ void PlunderedRoom::format_description(Platform& pfrm,
 
 
 
-PlunderedRoom::PlunderedRoom(Island* parent, const Vec2<u8>& position)
+PlunderedRoom::PlunderedRoom(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }

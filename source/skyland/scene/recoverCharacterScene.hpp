@@ -23,6 +23,7 @@
 #pragma once
 
 
+#include "skyland/coord.hpp"
 #include "worldScene.hpp"
 
 
@@ -39,7 +40,7 @@ class Room;
 class RecoverCharacterScene : public ActiveWorldScene
 {
 public:
-    RecoverCharacterScene(const Vec2<u8>& transporter_loc);
+    RecoverCharacterScene(const RoomCoord& transporter_loc);
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
@@ -55,7 +56,7 @@ public:
 
 
 private:
-    Vec2<u8> transporter_loc_;
+    RoomCoord transporter_loc_;
     std::optional<Text> text_;
 };
 

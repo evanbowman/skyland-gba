@@ -39,7 +39,7 @@ public:
     PluginProjectile(const Vec2<Fixnum>& position,
                      const Vec2<Fixnum>& target,
                      Island* source,
-                     const Vec2<u8>& origin_tile,
+                     const RoomCoord& origin_tile,
                      u16 graphics_tile,
                      Health damage,
                      bool flip);
@@ -78,7 +78,7 @@ private:
 
     // We need to keep track of the origin tile coords, to prevent cannons from
     // shooting themselves.
-    Vec2<u8> origin_tile_;
+    RoomCoord origin_tile_;
 
     Health damage_;
 };

@@ -64,7 +64,7 @@ private:
 
     Speaker::EffectFlags effect_flags_;
 
-    Vec2<u8> synth_pos_;
+    RoomCoord synth_pos_;
     bool synth_near_;
 
     bool init_ = true;

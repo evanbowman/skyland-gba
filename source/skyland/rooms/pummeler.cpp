@@ -36,7 +36,7 @@ namespace skyland
 
 
 
-Pummeler::Pummeler(Island* parent, const Vec2<u8>& position)
+Pummeler::Pummeler(Island* parent, const RoomCoord& position)
     : Weapon(parent, name(), position, 1000 * milliseconds(3))
 {
 }

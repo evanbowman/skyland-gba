@@ -35,7 +35,7 @@ namespace skyland
 
 
 
-Lava::Lava(Island* parent, const Vec2<u8>& position, const char* name)
+Lava::Lava(Island* parent, const RoomCoord& position, const char* name)
     : Room(parent, name, position)
 {
 }
@@ -240,7 +240,7 @@ void Lava::render_exterior(App& app, TileId buffer[16][16])
 
 
 
-LavaSource::LavaSource(Island* parent, const Vec2<u8>& position)
+LavaSource::LavaSource(Island* parent, const RoomCoord& position)
     : Lava(parent, position, name())
 {
 }

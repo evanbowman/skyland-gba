@@ -38,7 +38,7 @@ void Hull::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Hull::Hull(Island* parent, const Vec2<u8>& position, const char* n)
+Hull::Hull(Island* parent, const RoomCoord& position, const char* n)
     : Room(parent, n, position)
 {
 }

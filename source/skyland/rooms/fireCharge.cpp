@@ -51,7 +51,7 @@ void FireCharge::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-FireCharge::FireCharge(Island* parent, const Vec2<u8>& position)
+FireCharge::FireCharge(Island* parent, const RoomCoord& position)
     : Weapon(parent, name(), position, 1000 * fire_charge_reload_ms)
 {
 }

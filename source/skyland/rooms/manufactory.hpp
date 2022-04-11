@@ -37,7 +37,7 @@ namespace skyland
 class Manufactory : public Room
 {
 public:
-    Manufactory(Island* parent, const Vec2<u8>& position);
+    Manufactory(Island* parent, const RoomCoord& position);
 
 
     void update(Platform&, App&, Microseconds delta);

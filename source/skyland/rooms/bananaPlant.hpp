@@ -37,7 +37,7 @@ namespace skyland
 class BananaPlant : public Decoration
 {
 public:
-    BananaPlant(Island* parent, const Vec2<u8>& position)
+    BananaPlant(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }

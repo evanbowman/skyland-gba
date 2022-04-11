@@ -44,7 +44,7 @@ static SHARED_VARIABLE(decimator_burst_damage);
 DecimatorBurst::DecimatorBurst(const Vec2<Fixnum>& position,
                                const Vec2<Fixnum>& target,
                                Island* source,
-                               const Vec2<u8>& origin_tile)
+                               const RoomCoord& origin_tile)
     : Projectile({{10, 20}, {8, 16}}), source_(source),
       origin_tile_(origin_tile)
 {

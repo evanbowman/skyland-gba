@@ -38,7 +38,7 @@ namespace skyland
 class SetupPistonScene : public NotificationScene
 {
 public:
-    SetupPistonScene(Platform& pfrm, Vec2<u8> piston_loc, bool near)
+    SetupPistonScene(Platform& pfrm, RoomCoord piston_loc, bool near)
         : NotificationScene(SYSTR(piston_setup)->c_str(),
                             scene_pool::make_deferred_scene<ReadyScene>()),
           piston_loc_(piston_loc)
@@ -96,7 +96,7 @@ public:
 
 
 private:
-    Vec2<u8> piston_loc_;
+    RoomCoord piston_loc_;
     Piston::Direction dir_ = Piston::Direction::right;
 };
 

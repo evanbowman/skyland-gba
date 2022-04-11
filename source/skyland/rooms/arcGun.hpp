@@ -42,7 +42,7 @@ extern SharedVariable arc_gun_reload_ms;
 class ArcGun : public Weapon
 {
 public:
-    ArcGun(Island* parent, const Vec2<u8>& position);
+    ArcGun(Island* parent, const RoomCoord& position);
 
 
     void fire(Platform& pfrm, App& app) override;

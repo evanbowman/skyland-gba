@@ -41,7 +41,7 @@ namespace skyland
 class SetupSwitchScene : public ActiveWorldScene
 {
 public:
-    SetupSwitchScene(const Vec2<u8>& switch_location)
+    SetupSwitchScene(const RoomCoord& switch_location)
         : switch_location_(switch_location)
     {
     }
@@ -189,9 +189,9 @@ private:
     } state_ = State::pick_first;
 
     std::optional<Text> text_;
-    Vec2<u8> switch_location_;
-    Vec2<u8> branch_1_;
-    Vec2<u8> branch_2_;
+    RoomCoord switch_location_;
+    RoomCoord branch_1_;
+    RoomCoord branch_2_;
     Microseconds cursor_anim_timer_ = 0;
 
     bool cursor_anim_frame_ = false;

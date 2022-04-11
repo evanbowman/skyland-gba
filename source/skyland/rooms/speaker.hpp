@@ -41,7 +41,7 @@ namespace skyland
 class Speaker : public Decoration
 {
 public:
-    Speaker(Island* parent, const Vec2<u8>& position);
+    Speaker(Island* parent, const RoomCoord& position);
 
 
     void update(Platform& pfrm, App& app, Microseconds delta) override;
@@ -99,7 +99,7 @@ public:
 
 
     ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
 
     // If signal, the speaker will select the next block below it when finished.

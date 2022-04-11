@@ -53,7 +53,7 @@ struct DroneMeta
         virtual std::optional<SharedEntityRef<Drone>>
         create(Island* parent,
                Island* destination,
-               const Vec2<u8>& grid_pos) const = 0;
+               const RoomCoord& grid_pos) const = 0;
 
 
         virtual const char* name() const = 0;
@@ -114,7 +114,7 @@ struct DroneMeta
         std::optional<SharedEntityRef<Drone>>
         create(Island* parent,
                Island* destination,
-               const Vec2<u8>& grid_pos) const override
+               const RoomCoord& grid_pos) const override
         {
             // TODO: support plugin (scriptable) drones
             return {};
@@ -156,7 +156,7 @@ struct DroneMeta
         std::optional<SharedEntityRef<Drone>>
         create(Island* parent,
                Island* destination,
-               const Vec2<u8>& grid_pos) const override
+               const RoomCoord& grid_pos) const override
         {
             return alloc_shared_entity<T, Drone>(parent, destination, grid_pos);
         }

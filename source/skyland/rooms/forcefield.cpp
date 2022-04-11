@@ -39,7 +39,7 @@ void Forcefield::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 Forcefield::Forcefield(Island* parent,
-                       const Vec2<u8>& position,
+                       const RoomCoord& position,
                        const char* name)
     : Room(parent, name, position)
 {

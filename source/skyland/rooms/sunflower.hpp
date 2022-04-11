@@ -37,7 +37,7 @@ namespace skyland
 class Sunflower : public Decoration
 {
 public:
-    Sunflower(Island* parent, const Vec2<u8>& position)
+    Sunflower(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }

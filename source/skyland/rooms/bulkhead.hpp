@@ -36,7 +36,7 @@ namespace skyland
 class Bulkhead : public Room
 {
 public:
-    Bulkhead(Island* parent, const Vec2<u8>& position);
+    Bulkhead(Island* parent, const RoomCoord& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -56,7 +56,7 @@ public:
 
 
     ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);

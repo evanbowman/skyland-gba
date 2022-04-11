@@ -510,7 +510,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     }
 
     auto place_missile_silo = [&](RoomMeta* mt) {
-        Buffer<Vec2<u8>, 16> slots;
+        Buffer<RoomCoord, 16> slots;
         for (u8 x = 0; x < 16; ++x) {
             for (u8 y = construction_zone_min_y; y < 14; ++y) {
                 auto room = app.opponent_island()->get_room({x, u8(y + 2)});
@@ -542,7 +542,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     };
 
     auto place_cannon = [&](RoomMeta* mt) {
-        Buffer<Vec2<u8>, 16> slots;
+        Buffer<RoomCoord, 16> slots;
 
 
         for (u8 y = construction_zone_min_y; y < 14; ++y) {
@@ -600,7 +600,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         // We mostly treat a drone bay as if it were simply a differently-shaped
         // missile-silo.
 
-        Buffer<Vec2<u8>, 16> slots;
+        Buffer<RoomCoord, 16> slots;
         for (u8 x = 0; x < 16; ++x) {
             for (u8 y = construction_zone_min_y; y < 14; ++y) {
                 auto room = app.opponent_island()->get_room({x, u8(y + 1)});
@@ -674,7 +674,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
     {
         struct Slot
         {
-            Vec2<u8> coord_;
+            RoomCoord coord_;
             Float weight_;
         };
 
@@ -966,7 +966,7 @@ void ProcgenEnemyAI::generate_stairwells(Platform& pfrm, App& app)
 
     struct StairwellPos
     {
-        Vec2<u8> coord_;
+        RoomCoord coord_;
         u8 val_;
     };
 
@@ -1126,7 +1126,7 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
     {
         struct Slot
         {
-            Vec2<u8> coord_;
+            RoomCoord coord_;
             Float weight_;
         };
 
@@ -1225,7 +1225,7 @@ void ProcgenEnemyAI::place_room_adjacent(Platform& pfrm,
 {
     struct Slot
     {
-        Vec2<u8> coord_;
+        RoomCoord coord_;
         u8 val_;
     };
 
@@ -1437,7 +1437,7 @@ void ProcgenEnemyAI::place_room_random_loc(Platform& pfrm,
         Platform::fatal(format("procgen ai: % missing!", room_name).c_str());
     }
 
-    auto make_room = [&](const Vec2<u8>& position) {
+    auto make_room = [&](const RoomCoord& position) {
         (*mt)->create(pfrm, app, app.opponent_island(), position);
     };
 
@@ -1459,8 +1459,8 @@ void ProcgenEnemyAI::place_room_random_loc(Platform& pfrm,
 
 
 bool ProcgenEnemyAI::has_space(App& app,
-                               const Vec2<u8>& loc,
-                               const Vec2<u8>& sz)
+                               const RoomCoord& loc,
+                               const RoomCoord& sz)
 {
     for (u8 x = 0; x < sz.x; ++x) {
         for (u8 y = 0; y < sz.y; ++y) {

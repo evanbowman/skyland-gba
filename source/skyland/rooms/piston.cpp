@@ -35,7 +35,7 @@ namespace skyland
 
 
 
-Piston::Piston(Island* parent, const Vec2<u8>& position, const char* name)
+Piston::Piston(Island* parent, const RoomCoord& position, const char* name)
     : Room(parent, name, position)
 {
 }
@@ -114,7 +114,7 @@ void Piston::render_exterior(App& app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Piston::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+ScenePtr<Scene> Piston::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     if ((dir_ == down and position().y == 14) or
         (dir_ == left and position().x == 0) or
@@ -144,7 +144,7 @@ ScenePtr<Scene> Piston::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
     parent()->schedule_repaint();
 
     if (opened_) {
-        Vec2<u8> start = position();
+        RoomCoord start = position();
         auto end = start;
 
         switch (dir_) {
@@ -185,7 +185,7 @@ ScenePtr<Scene> Piston::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
         record_event();
 
     } else {
-        Vec2<u8> start = position();
+        RoomCoord start = position();
         auto end = start;
 
         switch (dir_) {

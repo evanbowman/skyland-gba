@@ -24,6 +24,7 @@
 
 
 #include "script/lisp.hpp"
+#include "skyland/coord.hpp"
 #include "worldScene.hpp"
 
 
@@ -66,8 +67,8 @@ private:
     bool started_near_;
 
     std::optional<Text> text_;
-    Vec2<u8> cached_near_cursor_;
-    Vec2<u8> cached_far_cursor_;
+    RoomCoord cached_near_cursor_;
+    RoomCoord cached_far_cursor_;
     Microseconds cursor_anim_timer_ = 0;
 
     bool cursor_anim_frame_ = false;

@@ -34,7 +34,7 @@ namespace skyland
 class Detail : public Room
 {
 public:
-    Detail(Island* parent, const Vec2<u8>& position, u16 tile) : Room(parent)
+    Detail(Island* parent, const RoomCoord& position, u16 tile) : Room(parent)
     {
     }
 

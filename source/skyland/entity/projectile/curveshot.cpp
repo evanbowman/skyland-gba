@@ -49,8 +49,8 @@ Curveshot::Curveshot(const Vec2<Float>& position,
                      const Vec2<Float>& target,
                      Island* source,
                      Island* dest,
-                     const Vec2<u8>& origin_tile,
-                     const Vec2<u8>& dest_tile)
+                     const RoomCoord& origin_tile,
+                     const RoomCoord& dest_tile)
     : Projectile({{10, 10}, {8, 8}}), source_(source), origin_tile_(origin_tile)
 {
     sprite_.set_position(position);

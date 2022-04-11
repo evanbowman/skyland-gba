@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-EscapeBeacon::EscapeBeacon(Island* parent, const Vec2<u8>& position)
+EscapeBeacon::EscapeBeacon(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }
@@ -95,7 +95,7 @@ void EscapeBeacon::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 
 ScenePtr<Scene>
-EscapeBeacon::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+EscapeBeacon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     const bool was_activated = activated_;
 

@@ -257,7 +257,7 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
 
     auto add_player_chr = [&app](u8 x, u8 y) {
         app.player_island().add_character(alloc_entity<BasicCharacter>(
-            &app.player_island(), &app.player(), Vec2<u8>{x, y}, false));
+            &app.player_island(), &app.player(), RoomCoord{x, y}, false));
     };
 
     add_player_chr(player_start_x, 14);
@@ -271,7 +271,7 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
 
     auto add_opponent_chr = [&app](u8 x, u8 y) {
         app.opponent_island()->add_character(alloc_entity<BasicCharacter>(
-            app.opponent_island(), &app.opponent(), Vec2<u8>{x, y}, false));
+            app.opponent_island(), &app.opponent(), RoomCoord{x, y}, false));
     };
 
     add_opponent_chr(opponent_start_x, 14);

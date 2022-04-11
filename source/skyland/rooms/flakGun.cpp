@@ -52,7 +52,7 @@ void FlakGun::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-FlakGun::FlakGun(Island* parent, const Vec2<u8>& position)
+FlakGun::FlakGun(Island* parent, const RoomCoord& position)
     : Weapon(parent, name(), position, 1000 * flak_gun_reload_ms)
 {
 }

@@ -24,6 +24,7 @@
 
 
 #include "projectile.hpp"
+#include "skyland/coord.hpp"
 
 
 
@@ -42,7 +43,7 @@ public:
     ArcBolt(const Vec2<Fixnum>& position,
             const Vec2<Fixnum>& target,
             Island* source,
-            const Vec2<u8>& origin_tile);
+            const RoomCoord& origin_tile);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -75,7 +76,7 @@ private:
     Vec2<Fixnum> step_vector_;
     Island* source_;
 
-    Vec2<u8> origin_tile_;
+    RoomCoord origin_tile_;
 };
 
 

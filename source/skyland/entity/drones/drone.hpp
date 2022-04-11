@@ -23,6 +23,7 @@
 #pragma once
 
 #include "memory/rc.hpp"
+#include "skyland/coord.hpp"
 #include "skyland/entity.hpp"
 #include "skyland/scene.hpp"
 
@@ -43,7 +44,7 @@ public:
     Drone(const char* name,
           Island* parent,
           Island* destination,
-          const Vec2<u8>& grid_pos);
+          const RoomCoord& grid_pos);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -92,19 +93,19 @@ public:
     }
 
 
-    const Vec2<u8>& position() const
+    const RoomCoord& position() const
     {
         return grid_pos_;
     }
 
 
-    void set_movement_target(const Vec2<u8>& position);
+    void set_movement_target(const RoomCoord& position);
 
 
 
     void set_target(Platform& pfrm,
                     App& app,
-                    const Vec2<u8>& target,
+                    const RoomCoord& target,
                     bool target_near = false);
 
 
@@ -164,11 +165,11 @@ protected:
 private:
     Island* parent_;
     Island* destination_;
-    Vec2<u8> grid_pos_;
+    RoomCoord grid_pos_;
     Vec2<s16> anchor_;
 
 protected:
-    std::optional<Vec2<u8>> target_;
+    std::optional<RoomCoord> target_;
     u8 target_near_ : 1;
 
 private:

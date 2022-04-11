@@ -41,7 +41,7 @@ namespace skyland
 PluginProjectile::PluginProjectile(const Vec2<Fixnum>& position,
                                    const Vec2<Fixnum>& target,
                                    Island* source,
-                                   const Vec2<u8>& origin_tile,
+                                   const RoomCoord& origin_tile,
                                    u16 graphics_tile,
                                    Health damage,
                                    bool flip)

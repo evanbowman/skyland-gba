@@ -36,13 +36,13 @@ class GenericBird : public Bird
 {
 public:
     GenericBird(Platform::DynamicTexturePtr dt,
-                const Vec2<u8>& coord,
+                const RoomCoord& coord,
                 bool near = false);
 
 
     // Alternate constructor, intended for rewind implementation.
     GenericBird(Platform::DynamicTexturePtr dt,
-                const Vec2<u8>& coord,
+                const RoomCoord& coord,
                 const Vec2<Fixnum>& position,
                 Float speed,
                 Microseconds flight_timer,
@@ -70,7 +70,7 @@ public:
     static void generate(Platform& pfrm, App& app);
 
 
-    Vec2<u8> coordinate() override
+    RoomCoord coordinate() override
     {
         return position_;
     }
@@ -80,7 +80,7 @@ private:
     void roost(Platform& pfrm, Island* island, Microseconds delta);
 
     Platform::DynamicTexturePtr dt_;
-    Vec2<u8> position_;
+    RoomCoord position_;
     bool near_;
     bool alerted_ = false;
 

@@ -94,7 +94,7 @@ private:
     void show_current_building_text(Platform& pfrm, App& app);
 
 
-    using Coord = Vec2<u8>;
+    using Coord = RoomCoord;
 
 
     u32 selector_ = 0;

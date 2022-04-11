@@ -36,9 +36,9 @@ namespace skyland
 class WeaponSetTargetScene : public ActiveWorldScene
 {
 public:
-    WeaponSetTargetScene(const Vec2<u8>& weapon_loc,
+    WeaponSetTargetScene(const RoomCoord& weapon_loc,
                          bool near = true,
-                         std::optional<Vec2<u8>> initial_pos = {});
+                         std::optional<RoomCoord> initial_pos = {});
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
@@ -56,13 +56,13 @@ private:
     // we stored a pointer, we'd need to make all the room pointers into
     // shared/weak pointers instead of unique pointers, which we could easily
     // do, but doing so would use more memory.
-    const Vec2<u8> weapon_loc_;
+    const RoomCoord weapon_loc_;
 
 
     void collect_targets(Platform&, App&);
 
 
-    Buffer<Vec2<u8>, 32> targets_;
+    Buffer<RoomCoord, 32> targets_;
     int selector_ = 0;
 
     Microseconds describe_room_timer_ = milliseconds(400);
@@ -74,7 +74,7 @@ private:
     Room::Group group_ = Room::Group::none;
 
 
-    std::optional<Vec2<u8>> initial_pos_;
+    std::optional<RoomCoord> initial_pos_;
 };
 
 

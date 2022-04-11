@@ -37,7 +37,7 @@ namespace skyland
 class Replicator : public Room
 {
 public:
-    Replicator(Island* parent, const Vec2<u8>& position);
+    Replicator(Island* parent, const RoomCoord& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -90,7 +90,7 @@ public:
 
 
     ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
 
     bool create_replicant(Platform& pfrm, App& app) override;

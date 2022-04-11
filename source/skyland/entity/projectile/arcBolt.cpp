@@ -45,7 +45,7 @@ SHARED_VARIABLE(arcbolt_damage);
 ArcBolt::ArcBolt(const Vec2<Fixnum>& position,
                  const Vec2<Fixnum>& target,
                  Island* source,
-                 const Vec2<u8>& origin_tile)
+                 const RoomCoord& origin_tile)
     : Projectile({{8, 8}, {8, 8}}), source_(source), origin_tile_(origin_tile)
 {
     sprite_.set_position(position);

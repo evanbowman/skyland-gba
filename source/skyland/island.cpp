@@ -83,7 +83,7 @@ Island::Rooms& Island::rooms()
 }
 
 
-void Island::remove_character(const Vec2<u8>& location)
+void Island::remove_character(const RoomCoord& location)
 {
     if (auto room = get_room(location)) {
         for (auto it = room->characters().begin();
@@ -108,7 +108,7 @@ void Island::remove_character(const Vec2<u8>& location)
 }
 
 
-BasicCharacter* Island::character_at_location(const Vec2<u8>& loc)
+BasicCharacter* Island::character_at_location(const RoomCoord& loc)
 {
     if (auto room = get_room(loc)) {
         for (auto& chr : room->characters()) {
@@ -364,14 +364,14 @@ std::optional<Platform::DynamicTexturePtr> Island::fire_texture()
 
 
 
-bool Island::fire_present(const Vec2<u8>& coord) const
+bool Island::fire_present(const RoomCoord& coord) const
 {
     return fire_.positions_.get(coord.x, coord.y);
 }
 
 
 
-void Island::fire_extinguish(Platform& pfrm, App& app, const Vec2<u8>& coord)
+void Island::fire_extinguish(Platform& pfrm, App& app, const RoomCoord& coord)
 {
     if (not fire_present(coord)) {
         return;
@@ -394,7 +394,7 @@ void Island::fire_extinguish(Platform& pfrm, App& app, const Vec2<u8>& coord)
 
 
 
-void Island::fire_create(Platform& pfrm, App& app, const Vec2<u8>& coord)
+void Island::fire_create(Platform& pfrm, App& app, const RoomCoord& coord)
 {
     if (fire_present(coord)) {
         return;
@@ -512,7 +512,7 @@ void Island::FireState::update(Platform& pfrm,
 
         bool fire_present = false;
 
-        Buffer<Vec2<u8>, 32> spread_queue;
+        Buffer<RoomCoord, 32> spread_queue;
 
         for (u8 x = 0; x < 16; ++x) {
             for (u8 y = 0; y < 16; ++y) {
@@ -981,7 +981,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
 
 void Island::on_layout_changed(App& app,
-                               const Vec2<u8>& room_added_removed_coord)
+                               const RoomCoord& room_added_removed_coord)
 {
     check_destroyed();
 
@@ -1283,8 +1283,8 @@ bool Island::add_character(EntityRef<BasicCharacter> character)
 
 void Island::move_room(Platform& pfrm,
                        App& app,
-                       const Vec2<u8>& from,
-                       const Vec2<u8>& to)
+                       const RoomCoord& from,
+                       const RoomCoord& to)
 {
     for (auto it = rooms_.begin(); it not_eq rooms_.end(); ++it) {
         if ((*it)->position() == from) {
@@ -1423,7 +1423,7 @@ void Island::repaint(Platform& pfrm, App& app)
 
     plot_rooms(matrix);
 
-    Buffer<Vec2<u8>, terrain_.capacity()> chimney_locs;
+    Buffer<RoomCoord, terrain_.capacity()> chimney_locs;
 
     has_radar_ = false;
     manufactory_count_ = 0;
@@ -1460,7 +1460,7 @@ void Island::repaint(Platform& pfrm, App& app)
     bool placed_flag = false;
     bool placed_chimney = false;
 
-    std::optional<Vec2<u8>> flag_loc;
+    std::optional<RoomCoord> flag_loc;
 
     rooms_plot_.clear();
 
@@ -1493,7 +1493,7 @@ void Island::repaint(Platform& pfrm, App& app)
                     for (auto& loc : chimney_locs) {
                         if (loc.x == x and loc.y >= y) {
                             buffer[x][y] = Tile::roof_chimney;
-                            chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
+                            chimney_loc_ = RoomCoord{u8(x), u8(y)};
                             placed_chimney = true;
                             placed_chimney_this_tile = true;
                         }
@@ -1521,7 +1521,7 @@ void Island::repaint(Platform& pfrm, App& app)
                         if (loc.x == x and loc.y >= y) {
                             buffer[x][y] = Tile::tin_chimney;
                             placed_chimney = true;
-                            chimney_loc_ = Vec2<u8>{u8(x), u8(y)};
+                            chimney_loc_ = RoomCoord{u8(x), u8(y)};
                             placed_chimney_this_tile = true;
                         }
                     }
@@ -1680,7 +1680,7 @@ Vec2<Fixnum> Island::visual_origin() const
 
 
 
-std::optional<SharedEntityRef<Drone>> Island::get_drone(const Vec2<u8>& coord)
+std::optional<SharedEntityRef<Drone>> Island::get_drone(const RoomCoord& coord)
 {
     for (auto& drone_sp : drones()) {
         if (drone_sp->position() == coord) {
@@ -1693,14 +1693,14 @@ std::optional<SharedEntityRef<Drone>> Island::get_drone(const Vec2<u8>& coord)
 
 
 
-Room* Island::get_room(const Vec2<u8>& coord)
+Room* Island::get_room(const RoomCoord& coord)
 {
     return rooms_.get_room(coord);
 }
 
 
 
-void Island::destroy_room(Platform& pfrm, App& app, const Vec2<u8>& coord)
+void Island::destroy_room(Platform& pfrm, App& app, const RoomCoord& coord)
 {
     for (auto& room : rooms_) {
         if (coord.x >= room->position().x and coord.y >= room->position().y and

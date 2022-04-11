@@ -38,7 +38,7 @@ public:
     IonBurst(const Vec2<Fixnum>& position,
              const Vec2<Fixnum>& target,
              Island* source,
-             const Vec2<u8>& origin_tile);
+             const RoomCoord& origin_tile);
 
 
     void set_step_vector(const Vec2<Fixnum>& val)
@@ -69,7 +69,7 @@ private:
     Microseconds anim_timer_ = 0;
     Vec2<Fixnum> step_vector_;
     Island* source_;
-    Vec2<u8> origin_tile_;
+    RoomCoord origin_tile_;
 };
 
 

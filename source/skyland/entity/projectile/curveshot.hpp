@@ -40,8 +40,8 @@ public:
               const Vec2<Float>& target,
               Island* source,
               Island* dest,
-              const Vec2<u8>& origin_tile,
-              const Vec2<u8>& dest_tile);
+              const RoomCoord& origin_tile,
+              const RoomCoord& dest_tile);
 
 
     void set_step_vector(const Vec2<Float>& val)
@@ -79,7 +79,7 @@ private:
 
     // We need to keep track of the origin tile coords, to prevent cannons from
     // shooting themselves.
-    Vec2<u8> origin_tile_;
+    RoomCoord origin_tile_;
     u8 height_;
 };
 

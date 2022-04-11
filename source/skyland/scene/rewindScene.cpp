@@ -61,7 +61,7 @@ T* respawn_basic_projectile(Platform& pfrm,
                                          Fixnum::from_integer(e.y_pos_.get())},
                             Vec2<Fixnum>{},
                             parent,
-                            Vec2<u8>{e.x_origin_, e.y_origin_});
+                            RoomCoord{e.x_origin_, e.y_origin_});
     if (c) {
         Vec2<Fixnum> step_vector{Fixnum::create(e.x_speed__data_.get()),
                                  Fixnum::create(e.y_speed__data_.get())};
@@ -89,7 +89,7 @@ void respawn_plugin_projectile(
                      Fixnum::from_integer(e.y_pos_.get())},
         Vec2<Fixnum>{},
         parent,
-        Vec2<u8>{e.x_origin_, e.y_origin_},
+        RoomCoord{e.x_origin_, e.y_origin_},
         e.tile_.get(),
         e.damage_.get(),
         e.hflip_);
@@ -448,7 +448,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             }
 
             // Re-create the original room.
-            (*meta)->create(pfrm, app, island, Vec2<u8>{e->x_, e->y_});
+            (*meta)->create(pfrm, app, island, RoomCoord{e->x_, e->y_});
 
             // Add characters back.
             if (auto room = island->get_room({e->x_, e->y_})) {
@@ -747,7 +747,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             const bool is_replicant = e->is_replicant_;
 
             auto chr = app.alloc_entity<BasicCharacter>(
-                pfrm, island, owner, Vec2<u8>{e->x_, e->y_}, is_replicant);
+                pfrm, island, owner, RoomCoord{e->x_, e->y_}, is_replicant);
 
             chr->__assign_id(e->id_.get());
 
@@ -769,7 +769,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                      it not_eq room->characters().end();) {
                     const bool player_chr = (*it)->owner() == &app.player();
                     if (player_chr == e->owned_by_player_ and
-                        (*it)->grid_position() == Vec2<u8>{e->x_, e->y_}) {
+                        (*it)->grid_position() == RoomCoord{e->x_, e->y_}) {
                         if ((*it)->is_replicant()) {
                             room->characters().erase(it);
                         } else {
@@ -890,7 +890,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
                         auto detached = std::move(*it);
                         dest_room->characters().erase(it);
-                        const Vec2<u8> pos{e->previous_x_, e->previous_y_};
+                        const RoomCoord pos{e->previous_x_, e->previous_y_};
                         detached->set_grid_position(pos);
                         detached->set_parent(source_island);
                         detached->drop_movement_path();
@@ -926,7 +926,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                     room->set_target(
                         pfrm,
                         app,
-                        Vec2<u8>{e->previous_target_x_, e->previous_target_y_});
+                        RoomCoord{e->previous_target_x_, e->previous_target_y_});
                 } else {
                     room->unset_target(pfrm, app);
                 }
@@ -1085,10 +1085,10 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             if (auto drone = (*drone_class)
                                  ->create(parent_island,
                                           dest_island,
-                                          Vec2<u8>{e->db_x_pos_,
+                                          RoomCoord{e->db_x_pos_,
                                                    u8(e->db_y_pos_ - 1)})) {
 
-                (*drone)->set_movement_target(Vec2<u8>{e->x_pos_, e->y_pos_});
+                (*drone)->set_movement_target(RoomCoord{e->x_pos_, e->y_pos_});
 
                 (*drone)->__override_state((Drone::State)e->state_,
                                            e->duration_.get(),
@@ -1144,7 +1144,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                 pos.x = e->x_pos_.get();
                 pos.y = e->y_pos_.get();
 
-                Vec2<u8> coord;
+                RoomCoord coord;
                 coord.x = e->x_coord_;
                 coord.y = e->y_coord_;
 

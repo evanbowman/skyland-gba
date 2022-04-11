@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-Water::Water(Island* parent, const Vec2<u8>& position, const char* name)
+Water::Water(Island* parent, const RoomCoord& position, const char* name)
     : Room(parent, name, position)
 {
 }
@@ -214,7 +214,7 @@ void Water::render_exterior(App& app, TileId buffer[16][16])
 
 
 
-WaterSource::WaterSource(Island* parent, const Vec2<u8>& position)
+WaterSource::WaterSource(Island* parent, const RoomCoord& position)
     : Water(parent, position, name())
 {
 }

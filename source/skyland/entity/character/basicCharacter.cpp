@@ -68,7 +68,7 @@ void BasicCharacter::__reset_ids()
 
 BasicCharacter::BasicCharacter(Island* parent,
                                Player* owner,
-                               const Vec2<u8>& position,
+                               const RoomCoord& position,
                                bool is_replicant)
     : Entity({{}, {}}), parent_(parent), owner_(owner),
       grid_position_(position), id_(alloc_character_id())
@@ -571,7 +571,7 @@ void BasicCharacter::set_movement_path(Platform& pfrm, App& app, Path path)
 
 
 void BasicCharacter::rewind_movement_step(Platform& pfrm,
-                                          const Vec2<u8>& new_pos)
+                                          const RoomCoord& new_pos)
 {
     if (not movement_path_) {
         movement_path_.emplace(allocate_dynamic<PathBuffer>("path-buffer"));
@@ -640,8 +640,8 @@ void BasicCharacter::apply_damage(Platform& pfrm, App& app, Health damage)
 
 
 
-void BasicCharacter::reassign_room(const Vec2<u8>& old_coord,
-                                   const Vec2<u8>& new_coord)
+void BasicCharacter::reassign_room(const RoomCoord& old_coord,
+                                   const RoomCoord& new_coord)
 {
     if (auto room = parent_->get_room(old_coord)) {
 

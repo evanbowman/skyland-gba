@@ -37,7 +37,7 @@ namespace skyland
 class Masonry : public Decoration
 {
 public:
-    Masonry(Island* parent, const Vec2<u8>& position)
+    Masonry(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }

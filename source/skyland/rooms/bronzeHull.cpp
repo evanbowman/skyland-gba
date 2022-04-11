@@ -29,7 +29,7 @@ namespace skyland
 
 
 
-BronzeHull::BronzeHull(Island* parent, const Vec2<u8>& position)
+BronzeHull::BronzeHull(Island* parent, const RoomCoord& position)
     : Hull(parent, position, name())
 {
 }

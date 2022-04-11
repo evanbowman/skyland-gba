@@ -37,7 +37,7 @@ namespace skyland
 
 
 PlaceDroneScene::PlaceDroneScene(Platform& pfrm,
-                                 Vec2<u8> origin,
+                                 RoomCoord origin,
                                  DroneMeta* drone_class,
                                  bool near)
     : matrix_(allocate_dynamic<bool[16][16]>("drone-placement-matrix")),
@@ -180,7 +180,7 @@ void PlaceDroneScene::display(Platform& pfrm, App& app)
 
     Vec2<Fixnum> origin = island->visual_origin();
 
-    Vec2<u8> cursor_loc;
+    RoomCoord cursor_loc;
     if (near_) {
         cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
     } else {
@@ -219,7 +219,7 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
         island = app.opponent_island();
     }
 
-    Vec2<u8>* cursor_loc;
+    RoomCoord* cursor_loc;
     if (near_) {
         cursor_loc = &std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
     } else {
@@ -233,7 +233,7 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
                         (*drone_class_)
                             ->create(room->parent(),
                                      island,
-                                     Vec2<u8>{origin_.x, u8(origin_.y - 1)})) {
+                                     RoomCoord{origin_.x, u8(origin_.y - 1)})) {
                     (*drone)->set_movement_target(*cursor_loc);
 
                     if (not room->attach_drone(pfrm, app, *drone)) {

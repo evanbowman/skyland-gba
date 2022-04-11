@@ -51,7 +51,7 @@ void Transporter::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Transporter::Transporter(Island* parent, const Vec2<u8>& position)
+Transporter::Transporter(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }
@@ -128,7 +128,7 @@ void Transporter::___rewind___ability_used(Platform& pfrm, App& app)
 
 void Transporter::recover_character(Platform& pfrm,
                                     App& app,
-                                    const Vec2<u8>& position)
+                                    const RoomCoord& position)
 {
     recharge_ = 1000 * transporter_reload_ms;
 
@@ -154,7 +154,7 @@ void Transporter::recover_character(Platform& pfrm,
                 // our island, where the path would make no sense.
                 unlinked->drop_movement_path();
 
-                const Vec2<u8> dst = {this->position().x,
+                const RoomCoord dst = {this->position().x,
                                       u8(this->position().y + 1)};
 
                 network::packet::CharacterDisembark packet;
@@ -208,7 +208,7 @@ void Transporter::recover_character(Platform& pfrm,
 
 void Transporter::transport_occupant(Platform& pfrm,
                                      App& app,
-                                     std::optional<Vec2<u8>> destination)
+                                     std::optional<RoomCoord> destination)
 {
     recharge_ = 1000 * transporter_reload_ms;
 
@@ -223,13 +223,13 @@ void Transporter::transport_occupant(Platform& pfrm,
         return;
     }
 
-    std::optional<Vec2<u8>> dest;
+    std::optional<RoomCoord> dest;
 
     if (not destination) {
         bool matrix[16][16];
         island->plot_walkable_zones(app, matrix);
 
-        Buffer<Vec2<u8>, 32> slots;
+        Buffer<RoomCoord, 32> slots;
 
         for (u8 x = 0; x < 16; ++x) {
             for (u8 y = 0; y < 16; ++y) {
@@ -297,7 +297,7 @@ void Transporter::transport_occupant(Platform& pfrm,
 
 
 ScenePtr<Scene>
-Transporter::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+Transporter::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     if (auto new_scene = Room::select(pfrm, app, cursor)) {
         return new_scene;
@@ -373,8 +373,8 @@ void transport_character_impl(App& app,
                               bool ai_controlled,
                               Island* src_island,
                               Island* dst_island,
-                              const Vec2<u8>& src,
-                              const Vec2<u8>& dst,
+                              const RoomCoord& src,
+                              const RoomCoord& dst,
                               int signal)
 {
     if (auto room = src_island->get_room(src)) {

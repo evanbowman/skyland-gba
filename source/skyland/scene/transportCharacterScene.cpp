@@ -37,7 +37,7 @@ namespace skyland
 
 
 TransportCharacterScene::TransportCharacterScene(Platform& pfrm,
-                                                 Vec2<u8> origin)
+                                                 RoomCoord origin)
     : NotificationScene(SYSTR(transporter_transport_char)->c_str(),
                         [] { return scene_pool::alloc<ReadyScene>(); }),
       origin_(origin)
@@ -133,7 +133,7 @@ TransportCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    Vec2<u8>* cursor_loc = nullptr;
+    RoomCoord* cursor_loc = nullptr;
     cursor_loc = &std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
     if (app.player().key_down(pfrm, Key::left)) {

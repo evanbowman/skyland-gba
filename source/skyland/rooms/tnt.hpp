@@ -38,7 +38,7 @@ class Explosive : public Room
 {
 public:
     Explosive(Island* parent,
-              const Vec2<u8>& position,
+              const RoomCoord& position,
               const char* class_name = name());
 
 
@@ -70,7 +70,7 @@ public:
 
 
     ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
 
     static Category category()
@@ -136,7 +136,7 @@ public:
 
     void display_on_hover(Platform::Screen& screen,
                           App& app,
-                          const Vec2<u8>& cursor) override;
+                          const RoomCoord& cursor) override;
 
 
 protected:
@@ -149,7 +149,7 @@ protected:
 class TNT : public Explosive
 {
 public:
-    TNT(Island* parent, const Vec2<u8>& position)
+    TNT(Island* parent, const RoomCoord& position)
         : Explosive(parent, position, name())
     {
     }
@@ -200,7 +200,7 @@ public:
 
     void display_on_hover(Platform::Screen& screen,
                           App& app,
-                          const Vec2<u8>& cursor) override;
+                          const RoomCoord& cursor) override;
 
 
     void render_interior(App& app, TileId buffer[16][16]) override;
@@ -212,7 +212,7 @@ public:
 class Cesium : public Explosive
 {
 public:
-    Cesium(Island* parent, const Vec2<u8>& position)
+    Cesium(Island* parent, const RoomCoord& position)
         : Explosive(parent, position, name())
     {
     }
@@ -262,7 +262,7 @@ public:
 
 
     ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override
     {
         return Room::select(pfrm, app, cursor);
     }
@@ -276,7 +276,7 @@ public:
 
     void display_on_hover(Platform::Screen& screen,
                           App& app,
-                          const Vec2<u8>& cursor) override;
+                          const RoomCoord& cursor) override;
 
 
     void render_interior(App& app, TileId buffer[16][16]) override;

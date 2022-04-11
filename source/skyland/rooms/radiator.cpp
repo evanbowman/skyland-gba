@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-Radiator::Radiator(Island* parent, const Vec2<u8>& position)
+Radiator::Radiator(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }
@@ -79,7 +79,7 @@ void Radiator::emit_radiation(Platform& pfrm, App& app)
             }
             if (auto room = parent()->get_room({u8(x), u8(y)})) {
                 for (auto& chr : room->characters()) {
-                    if (chr->grid_position() not_eq Vec2<u8>{(u8)x, (u8)y}) {
+                    if (chr->grid_position() not_eq RoomCoord{(u8)x, (u8)y}) {
                         continue;
                     }
                     const bool found = [&] {
@@ -121,7 +121,7 @@ void Radiator::render_exterior(App& app, TileId buffer[16][16])
 
 void Radiator::display_on_hover(Platform::Screen& screen,
                                 App& app,
-                                const Vec2<u8>& cursor)
+                                const RoomCoord& cursor)
 {
     auto pos = position();
 

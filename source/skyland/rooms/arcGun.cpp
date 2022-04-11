@@ -52,7 +52,7 @@ void ArcGun::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-ArcGun::ArcGun(Island* parent, const Vec2<u8>& position)
+ArcGun::ArcGun(Island* parent, const RoomCoord& position)
     : Weapon(parent, name(), position, 1000 * arc_gun_reload_ms)
 {
 }

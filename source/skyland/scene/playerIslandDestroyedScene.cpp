@@ -72,7 +72,7 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
         }
 
         lines_.emplace_back(
-            pfrm, Vec2<u8>{3, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
+            pfrm, RoomCoord{3, u8(metrics_y_offset_ + 8 + 2 * lines_.size())});
 
         const auto colors =
             highlight

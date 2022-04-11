@@ -60,7 +60,7 @@ void Nemesis::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Nemesis::Nemesis(Island* parent, const Vec2<u8>& position)
+Nemesis::Nemesis(Island* parent, const RoomCoord& position)
     : Weapon(parent, name(), position, 1000 * nemesis_reload_ms)
 {
 }

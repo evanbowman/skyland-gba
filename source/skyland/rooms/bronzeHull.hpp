@@ -36,7 +36,7 @@ namespace skyland
 class BronzeHull : public Hull
 {
 public:
-    BronzeHull(Island* parent, const Vec2<u8>& position);
+    BronzeHull(Island* parent, const RoomCoord& position);
 
 
     using Hull::Hull;

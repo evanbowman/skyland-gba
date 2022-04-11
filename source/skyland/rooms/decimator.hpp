@@ -42,7 +42,7 @@ extern SharedVariable decimator_reload_ms;
 class Decimator : public Room
 {
 public:
-    Decimator(Island* parent, const Vec2<u8>& position);
+    Decimator(Island* parent, const RoomCoord& position);
 
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);

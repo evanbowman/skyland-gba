@@ -56,7 +56,7 @@ namespace skyland
 void describe_room(Platform& pfrm,
                    App& app,
                    Island* island,
-                   const Vec2<u8>& cursor_loc,
+                   const RoomCoord& cursor_loc,
                    std::optional<Text>& room_description);
 
 
@@ -129,7 +129,7 @@ ScenePtr<Scene> player_island_onclick(Platform& pfrm,
                                       App& app,
                                       Microseconds& camera_update_timer,
                                       std::optional<Text>& room_description,
-                                      const Vec2<u8>& pos)
+                                      const RoomCoord& pos)
 {
     if (auto room = app.player_island().get_room(pos)) {
         if (room->co_op_locked()) {
@@ -502,7 +502,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 void describe_room(Platform& pfrm,
                    App& app,
                    Island* island,
-                   const Vec2<u8>& cursor_loc,
+                   const RoomCoord& cursor_loc,
                    std::optional<Text>& room_description)
 {
     if (auto room = island->get_room(cursor_loc)) {

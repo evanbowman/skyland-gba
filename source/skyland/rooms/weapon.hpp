@@ -35,7 +35,7 @@ class Weapon : public Room
 public:
     Weapon(Island* parent,
            const char* name,
-           const Vec2<u8>& position,
+           const RoomCoord& position,
            Microseconds reload_time);
 
 
@@ -79,7 +79,7 @@ public:
     void ___rewind___ability_used(Platform&, App&) override;
 
 
-    void set_target(Platform& pfrm, App& app, const Vec2<u8>& target) override;
+    void set_target(Platform& pfrm, App& app, const RoomCoord& target) override;
 
 
     void unset_target(Platform& pfrm, App& app) override;
@@ -87,15 +87,15 @@ public:
 
     void display_on_hover(Platform::Screen& screen,
                           App& app,
-                          const Vec2<u8>& cursor) override;
+                          const RoomCoord& cursor) override;
 
 
     ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
 
 protected:
-    std::optional<Vec2<u8>> target_;
+    std::optional<RoomCoord> target_;
     Microseconds reload_timer_;
 };
 

@@ -37,7 +37,7 @@ namespace skyland
 class Ice : public Decoration
 {
 public:
-    Ice(Island* parent, const Vec2<u8>& position)
+    Ice(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }

@@ -33,7 +33,7 @@ namespace skyland
 class PluginRoom : public Room
 {
 public:
-    PluginRoom(Island* parent, const Vec2<u8>& position, RoomMeta* metaclass);
+    PluginRoom(Island* parent, const RoomCoord& position, RoomMeta* metaclass);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -54,14 +54,14 @@ public:
     }
 
 
-    void set_target(Platform& pfrm, App& app, const Vec2<u8>& target) override;
+    void set_target(Platform& pfrm, App& app, const RoomCoord& target) override;
 
 
     void unset_target(Platform& pfrm, App& app) override;
 
 
     ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
 
     bool description_visible() override
@@ -84,7 +84,7 @@ public:
 
 private:
     Microseconds timer_ = 0;
-    std::optional<Vec2<u8>> target_;
+    std::optional<RoomCoord> target_;
 };
 
 

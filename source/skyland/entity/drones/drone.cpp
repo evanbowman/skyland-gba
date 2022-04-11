@@ -35,7 +35,7 @@ namespace skyland
 
 
 
-static Vec2<Fixnum> calc_pos(Island* island, const Vec2<u8>& grid_coord)
+static Vec2<Fixnum> calc_pos(Island* island, const RoomCoord& grid_coord)
 {
     auto o = island->visual_origin();
     o.x += grid_coord.x * 16;
@@ -48,7 +48,7 @@ static Vec2<Fixnum> calc_pos(Island* island, const Vec2<u8>& grid_coord)
 Drone::Drone(const char* name,
              Island* parent,
              Island* destination,
-             const Vec2<u8>& grid_pos)
+             const RoomCoord& grid_pos)
     : Entity({{16, 16}, {0, 0}}), parent_(parent), destination_(destination),
       grid_pos_({grid_pos.x, u8(grid_pos.y)})
 {
@@ -68,7 +68,7 @@ Drone::Drone(const char* name,
 
 
 
-void Drone::set_movement_target(const Vec2<u8>& position)
+void Drone::set_movement_target(const RoomCoord& position)
 {
     auto old_pos = grid_pos_;
     grid_pos_ = position;
@@ -159,7 +159,7 @@ void Drone::rewind(Platform& pfrm, App& app, Microseconds delta)
 
 void Drone::set_target(Platform& pfrm,
                        App& app,
-                       const Vec2<u8>& target,
+                       const RoomCoord& target,
                        bool target_near)
 {
     if (target_) {

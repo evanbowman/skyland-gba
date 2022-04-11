@@ -118,7 +118,7 @@ public:
     }
 
 
-    Room* get_room(const Vec2<u8>& coord)
+    Room* get_room(const RoomCoord& coord)
     {
         if (coord.x >= map_width or coord.y >= 15) {
             return nullptr;

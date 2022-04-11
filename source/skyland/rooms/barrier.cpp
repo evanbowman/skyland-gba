@@ -29,7 +29,7 @@ namespace skyland
 
 
 
-Barrier::Barrier(Island* parent, const Vec2<u8>& position)
+Barrier::Barrier(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }

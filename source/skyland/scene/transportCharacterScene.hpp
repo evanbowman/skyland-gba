@@ -23,6 +23,7 @@
 #pragma once
 
 #include "allocator.hpp"
+#include "skyland/coord.hpp"
 #include "notificationScene.hpp"
 
 
@@ -35,7 +36,7 @@ namespace skyland
 class TransportCharacterScene : public NotificationScene
 {
 public:
-    TransportCharacterScene(Platform& pfrm, Vec2<u8> origin);
+    TransportCharacterScene(Platform& pfrm, RoomCoord origin);
 
 
     void enter(Platform&, App&, Scene& prev) override;
@@ -54,7 +55,7 @@ private:
     Microseconds cursor_anim_timer_ = 0;
     u8 cursor_anim_frame_ = 0;
 
-    Vec2<u8> origin_;
+    RoomCoord origin_;
 };
 
 

@@ -35,7 +35,7 @@ namespace skyland
 class Reactor : public Room
 {
 public:
-    Reactor(Island* parent, const Vec2<u8>& position);
+    Reactor(Island* parent, const RoomCoord& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;

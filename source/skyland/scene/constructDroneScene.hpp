@@ -36,7 +36,7 @@ namespace skyland
 class ConstructDroneScene : public ActiveWorldScene
 {
 public:
-    ConstructDroneScene(Vec2<u8> position) : position_(position)
+    ConstructDroneScene(RoomCoord position) : position_(position)
     {
     }
 
@@ -52,7 +52,7 @@ public:
 
 
 private:
-    Vec2<u8> position_;
+    RoomCoord position_;
     std::optional<Text> text_;
     int selector_ = 0;
 };

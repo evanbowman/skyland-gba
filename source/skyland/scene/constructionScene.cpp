@@ -107,7 +107,7 @@ bool tapped_topleft_corner(Platform& pfrm, App& app);
 
 
 
-std::optional<Vec2<u8>>
+std::optional<RoomCoord>
 get_local_tapclick(Platform& pfrm, Island* island, const Vec2<u32>& pos)
 {
     const auto view_offset = pfrm.screen().get_view().get_center().cast<s32>();
@@ -168,7 +168,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    auto tapclick = [&]() -> std::optional<Vec2<u8>> {
+    auto tapclick = [&]() -> std::optional<RoomCoord> {
         if (auto pos = app.player().tap_released(pfrm)) {
             auto clk = get_local_tapclick(pfrm, island(app), *pos);
 
@@ -864,7 +864,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
     case State::add_terrain: {
         auto& terrain = island(app)->terrain();
-        const Vec2<u8> loc = {u8(terrain.size()), 15};
+        const RoomCoord loc = {u8(terrain.size()), 15};
         auto origin = island(app)->visual_origin();
         origin.x += loc.x * 16;
         origin.y -= 32;

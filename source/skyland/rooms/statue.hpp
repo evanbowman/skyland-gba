@@ -36,7 +36,7 @@ namespace skyland
 class Statue : public Decoration
 {
 public:
-    Statue(Island* parent, const Vec2<u8>& position)
+    Statue(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }

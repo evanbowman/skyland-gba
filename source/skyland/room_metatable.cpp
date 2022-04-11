@@ -95,7 +95,7 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
     }
 
     void
-    construct(void* address, Island* parent, const Vec2<u8>& position) override
+    construct(void* address, Island* parent, const RoomCoord& position) override
     {
         static_assert(sizeof(T) <= room_pool::max_room_size);
         static_assert(alignof(T) <= room_pool::alignment);
@@ -106,7 +106,7 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
     void create(Platform& pfrm,
                 App& app,
                 Island* parent,
-                const Vec2<u8>& position,
+                const RoomCoord& position,
                 bool do_repaint) const override
     {
         parent->add_room<T>(pfrm, app, position, do_repaint);
@@ -114,7 +114,7 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
 
     RoomPtr<Room> create(Platform& pfrm,
                          Island* parent,
-                         const Vec2<u8>& position) const override
+                         const RoomCoord& position) const override
     {
         return room_pool::alloc<T>(parent, position);
     }

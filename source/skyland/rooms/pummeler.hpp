@@ -38,7 +38,7 @@ namespace skyland
 class Pummeler : public Weapon
 {
 public:
-    Pummeler(Island* parent, const Vec2<u8>& position);
+    Pummeler(Island* parent, const RoomCoord& position);
 
 
     void fire(Platform& pfrm, App& app) override;

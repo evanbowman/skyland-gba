@@ -51,15 +51,15 @@ struct RoomMeta
         }
 
         virtual void
-        construct(void* address, Island* parent, const Vec2<u8>& position) = 0;
+        construct(void* address, Island* parent, const RoomCoord& position) = 0;
 
         virtual void create(Platform&,
                             App&,
                             Island*,
-                            const Vec2<u8>&,
+                            const RoomCoord&,
                             bool do_repaint = true) const = 0;
         virtual RoomPtr<Room>
-        create(Platform&, Island*, const Vec2<u8>&) const = 0;
+        create(Platform&, Island*, const RoomCoord&) const = 0;
         virtual const char* name() const = 0;
         virtual SystemStringBuffer ui_name(Platform& pfrm) const = 0;
         virtual Vec2<u8> size() const = 0;

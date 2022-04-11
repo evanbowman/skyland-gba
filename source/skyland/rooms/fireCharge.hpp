@@ -41,7 +41,7 @@ extern SharedVariable fire_charge_reload_ms;
 class FireCharge : public Weapon
 {
 public:
-    FireCharge(Island* parent, const Vec2<u8>& position);
+    FireCharge(Island* parent, const RoomCoord& position);
 
 
     void fire(Platform& pfrm, App& app) override;

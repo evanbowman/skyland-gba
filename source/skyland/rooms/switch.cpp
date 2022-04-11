@@ -42,7 +42,7 @@ void Switch::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 void Switch::display_on_hover(Platform::Screen& screen,
                               App& app,
-                              const Vec2<u8>& cursor)
+                              const RoomCoord& cursor)
 {
     if (not setup_) {
         return;
@@ -78,13 +78,13 @@ void Switch::display_on_hover(Platform::Screen& screen,
 
 
 
-ScenePtr<Scene> Switch::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+ScenePtr<Scene> Switch::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     if (not setup_) {
         return scene_pool::alloc<SetupSwitchScene>(position());
     }
 
-    if (Vec2<u8>{u8(cursor.x - 1), cursor.y} == position()) {
+    if (RoomCoord{u8(cursor.x - 1), cursor.y} == position()) {
         on_ = not on_;
         parent()->repaint(pfrm, app);
     } else {
@@ -108,7 +108,7 @@ ScenePtr<Scene> Switch::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
 
 
 
-Switch::Switch(Island* parent, const Vec2<u8>& position)
+Switch::Switch(Island* parent, const RoomCoord& position)
     : Decoration(parent, name(), position)
 {
 }

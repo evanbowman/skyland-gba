@@ -38,7 +38,7 @@ void IonFizzler::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-IonFizzler::IonFizzler(Island* parent, const Vec2<u8>& position)
+IonFizzler::IonFizzler(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }

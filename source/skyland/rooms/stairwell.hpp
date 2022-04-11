@@ -36,7 +36,7 @@ namespace skyland
 class Stairwell : public Room
 {
 public:
-    Stairwell(Island* parent, const Vec2<u8>& position);
+    Stairwell(Island* parent, const RoomCoord& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;

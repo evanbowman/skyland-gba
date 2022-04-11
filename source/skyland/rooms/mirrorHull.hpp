@@ -36,7 +36,7 @@ namespace skyland
 class MirrorHull : public Hull
 {
 public:
-    MirrorHull(Island* parent, const Vec2<u8>& position);
+    MirrorHull(Island* parent, const RoomCoord& position);
 
 
     static const char* name()

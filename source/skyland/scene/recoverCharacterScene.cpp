@@ -35,7 +35,7 @@ namespace skyland
 
 
 
-RecoverCharacterScene::RecoverCharacterScene(const Vec2<u8>& transporter_loc)
+RecoverCharacterScene::RecoverCharacterScene(const RoomCoord& transporter_loc)
     : transporter_loc_(transporter_loc)
 {
 }

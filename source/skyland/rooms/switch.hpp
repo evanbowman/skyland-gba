@@ -35,7 +35,7 @@ namespace skyland
 class Switch : public Decoration
 {
 public:
-    Switch(Island* parent, const Vec2<u8>& position);
+    Switch(Island* parent, const RoomCoord& position);
 
 
     static const char* name()
@@ -55,7 +55,7 @@ public:
 
 
     ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
 
     virtual lisp::Value* serialize() override;
@@ -104,10 +104,10 @@ public:
 
     void display_on_hover(Platform::Screen& screen,
                           App& app,
-                          const Vec2<u8>& cursor) override;
+                          const RoomCoord& cursor) override;
 
-    Vec2<u8> branch_1_;
-    Vec2<u8> branch_2_;
+    RoomCoord branch_1_;
+    RoomCoord branch_2_;
 
     bool setup_ = false;
 

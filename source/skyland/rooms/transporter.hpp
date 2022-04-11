@@ -41,7 +41,7 @@ extern SharedVariable transporter_reload_ms;
 class Transporter : public Room
 {
 public:
-    Transporter(Island* parent, const Vec2<u8>& position);
+    Transporter(Island* parent, const RoomCoord& position);
 
 
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
@@ -67,17 +67,17 @@ public:
 
 
     ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
 
     void transport_occupant(Platform& pfrm,
                             App& app,
                             // NOTE: if you do not pass a destination, the
                             // transporter logic will select a random one.
-                            std::optional<Vec2<u8>> destination = {});
+                            std::optional<RoomCoord> destination = {});
 
 
-    void recover_character(Platform&, App& app, const Vec2<u8>& pos);
+    void recover_character(Platform&, App& app, const RoomCoord& pos);
 
 
     static Vec2<u8> size()
@@ -141,8 +141,8 @@ void transport_character_impl(App& app,
                               bool ai_controlled,
                               Island* src_island,
                               Island* dst_island,
-                              const Vec2<u8>& src,
-                              const Vec2<u8>& dst,
+                              const RoomCoord& src,
+                              const RoomCoord& dst,
                               int signal = 0);
 
 

@@ -35,7 +35,7 @@ namespace skyland
 
 
 GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
-                         const Vec2<u8>& position,
+                         const RoomCoord& position,
                          bool near)
     : Bird({{}, {}}), dt_(dt), position_(position), near_(near)
 {
@@ -56,7 +56,7 @@ GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
 
 
 GenericBird::GenericBird(Platform::DynamicTexturePtr dt,
-                         const Vec2<u8>& coord,
+                         const RoomCoord& coord,
                          const Vec2<Fixnum>& position,
                          Float speed,
                          Microseconds flight_timer,
@@ -425,7 +425,7 @@ void GenericBird::spawn(Platform& pfrm, App& app, Island& island, int count)
         for (u8 y = 0; y < 15; ++y) {
             if (y == 14 or island.rooms_plot().get(column, y + 1)) {
 
-                auto pos = Vec2<u8>{column, y};
+                auto pos = RoomCoord{column, y};
 
                 if (auto dt = pfrm.make_dynamic_texture()) {
                     bool near = &island == &app.player_island();

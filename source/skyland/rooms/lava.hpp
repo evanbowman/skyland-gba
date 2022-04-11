@@ -35,10 +35,10 @@ namespace skyland
 class Lava : public Room
 {
 public:
-    Lava(Island* parent, const Vec2<u8>& position, const char* name = name());
+    Lava(Island* parent, const RoomCoord& position, const char* name = name());
 
 
-    void set_flood_parent(Vec2<u8> parent)
+    void set_flood_parent(RoomCoord parent)
     {
         flood_parent_ = parent;
     }
@@ -147,7 +147,7 @@ protected:
 
     Microseconds damage_timer_ = 0;
 
-    Vec2<u8> flood_parent_;
+    RoomCoord flood_parent_;
     bool has_flood_parent_ = true;
 
     Microseconds flood_timer_ = 0;
@@ -158,7 +158,7 @@ protected:
 class LavaSource : public Lava
 {
 public:
-    LavaSource(Island* parent, const Vec2<u8>& position);
+    LavaSource(Island* parent, const RoomCoord& position);
 
 
     void update(Platform& pfrm, App& app, Microseconds delta) override;

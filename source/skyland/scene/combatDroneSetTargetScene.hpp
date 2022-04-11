@@ -58,7 +58,7 @@ private:
 
     Buffer<SharedEntityRef<Drone>, 20> targets_;
 
-    Vec2<u8> cursor_loc_;
+    RoomCoord cursor_loc_;
     bool near_;
 
     int selector_ = 0;

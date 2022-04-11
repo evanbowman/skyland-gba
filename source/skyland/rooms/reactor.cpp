@@ -38,7 +38,7 @@ void Reactor::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Reactor::Reactor(Island* parent, const Vec2<u8>& position)
+Reactor::Reactor(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }

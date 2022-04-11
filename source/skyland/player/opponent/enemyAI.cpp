@@ -205,7 +205,7 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 void EnemyAI::assign_weapon_target(Platform& pfrm,
                                    App& app,
                                    Room& weapon,
-                                   const Vec2<u8>& target)
+                                   const RoomCoord& target)
 {
     weapon.set_target(pfrm, app, target);
 
@@ -317,7 +317,7 @@ void EnemyAI::update_room(Platform& pfrm,
             }
 
             if (found_infirmary) {
-                auto recover_pos = [&]() -> std::optional<Vec2<u8>> {
+                auto recover_pos = [&]() -> std::optional<RoomCoord> {
                     for (auto it = boarded_ai_characters.begin();
                          it not_eq boarded_ai_characters.end();) {
                         if ((*it).first->health() < 25 and
@@ -420,7 +420,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
         return;
     }
 
-    Buffer<Vec2<u8>, 16> exclude_slots;
+    Buffer<RoomCoord, 16> exclude_slots;
 
     // We may want to keep track of how many of the player's characters have
     // boarded our island. We might not want to transport to the player's island
@@ -525,7 +525,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
 
     struct Destination
     {
-        Vec2<u8> coord_;
+        RoomCoord coord_;
         Float ai_weight_;
     };
 
@@ -713,7 +713,7 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
     }
 
 
-    Buffer<Vec2<u8>, 16> exclude_slots; // Don't move into currently occupied
+    Buffer<RoomCoord, 16> exclude_slots; // Don't move into currently occupied
                                         // slots, or slots that will be
                                         // occupied.
 
@@ -752,7 +752,7 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 
     struct Destination
     {
-        Vec2<u8> coord_;
+        RoomCoord coord_;
         Float ai_weight_;
     };
 
@@ -965,7 +965,7 @@ static void place_offensive_drone(Platform& pfrm,
     if (not restrict_columns[0]) {
         for (u8 y = 7; y < 9; ++y) {
             if (slot[0][y]) {
-                Vec2<u8> cursor{1, u8(y + 1)};
+                RoomCoord cursor{1, u8(y + 1)};
                 while (cursor.x < 16 and cursor.y < 15) {
                     if (player_rooms.get(cursor.x, cursor.y)) {
                         if (auto room = player_island.get_room(cursor)) {
@@ -1008,7 +1008,7 @@ static void place_offensive_drone(Platform& pfrm,
         }
     }
 
-    std::optional<Vec2<u8>> ideal_coord;
+    std::optional<RoomCoord> ideal_coord;
     Float max_weight = 0.f;
     for (u8 y = construction_zone_min_y; y < 15; ++y) {
         if (left_column_weights[y] > max_weight) {
@@ -1284,12 +1284,12 @@ void EnemyAI::offensive_drone_set_target(Platform& pfrm,
     // without potentially affecting performance on the gameboy, if the enemy
     // has deployed a lot of drones.
 
-    std::optional<Vec2<u8>> ideal_pos;
+    std::optional<RoomCoord> ideal_pos;
     Float highest_weight = 0.f;
 
     const auto drone_pos = drone.position();
 
-    Vec2<u8> cursor = drone_pos;
+    RoomCoord cursor = drone_pos;
 
     const auto width = app.player_island().terrain().size();
 

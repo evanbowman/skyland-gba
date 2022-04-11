@@ -38,7 +38,7 @@ void Workshop::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Workshop::Workshop(Island* parent, const Vec2<u8>& position)
+Workshop::Workshop(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }

@@ -36,7 +36,7 @@ namespace skyland
 class PoweredHull : public Room
 {
 public:
-    PoweredHull(Island* parent, const Vec2<u8>& position);
+    PoweredHull(Island* parent, const RoomCoord& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;

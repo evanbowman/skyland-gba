@@ -36,7 +36,7 @@ namespace skyland
 class LemonTree : public Decoration
 {
 public:
-    LemonTree(Island* parent, const Vec2<u8>& position)
+    LemonTree(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }

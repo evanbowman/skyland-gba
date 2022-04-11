@@ -43,7 +43,7 @@ SHARED_VARIABLE(drone_bay_reload_ms);
 
 
 
-DroneBay::DroneBay(Island* parent, const Vec2<u8>& position)
+DroneBay::DroneBay(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }
@@ -142,7 +142,7 @@ void DroneBay::render_exterior(App& app, TileId buffer[16][16])
 
 
 ScenePtr<Scene>
-DroneBay::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+DroneBay::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     if (reload_ > 0) {
         return null_scene();

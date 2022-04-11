@@ -59,7 +59,7 @@ void MissileSilo::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-MissileSilo::MissileSilo(Island* parent, const Vec2<u8>& position)
+MissileSilo::MissileSilo(Island* parent, const RoomCoord& position)
     : Weapon(parent, name(), position, 1000 * missile_silo_reload_ms)
 {
 }

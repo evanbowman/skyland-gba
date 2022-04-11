@@ -64,7 +64,7 @@ private:
     void cleanup_unused_terrain(Platform& pfrm, App& app);
 
 
-    bool has_space(App& app, const Vec2<u8>& loc, const Vec2<u8>& sz);
+    bool has_space(App& app, const RoomCoord& loc, const RoomCoord& sz);
 
 
     Power power_remaining(App& app) const;

@@ -38,7 +38,7 @@ void Speaker::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Speaker::Speaker(Island* parent, const Vec2<u8>& position)
+Speaker::Speaker(Island* parent, const RoomCoord& position)
     : Decoration(parent, name(), position)
 {
     end_music_ = 0;
@@ -122,7 +122,7 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
                         room->select(
                             pfrm,
                             app,
-                            Vec2<u8>{position().x, u8(position().y + 1)});
+                            RoomCoord{position().x, u8(position().y + 1)});
                     } else {
                         reset(pfrm, true);
                     }
@@ -245,7 +245,7 @@ void Speaker::render_exterior(App& app, TileId buffer[16][16])
 
 
 ScenePtr<Scene>
-Speaker::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+Speaker::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     bool was_playing_ = playing_;
 

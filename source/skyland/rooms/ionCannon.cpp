@@ -53,7 +53,7 @@ void IonCannon::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-IonCannon::IonCannon(Island* parent, const Vec2<u8>& position)
+IonCannon::IonCannon(Island* parent, const RoomCoord& position)
     : Weapon(parent, name(), position, 1000 * ion_cannon_reload_ms)
 {
 }

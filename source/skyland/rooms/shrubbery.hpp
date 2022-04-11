@@ -37,7 +37,7 @@ namespace skyland
 class Shrubbery : public Decoration
 {
 public:
-    Shrubbery(Island* parent, const Vec2<u8>& position)
+    Shrubbery(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }

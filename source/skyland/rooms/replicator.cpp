@@ -37,7 +37,7 @@ namespace skyland
 
 
 
-Replicator::Replicator(Island* parent, const Vec2<u8>& position)
+Replicator::Replicator(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }
@@ -74,9 +74,9 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
             if (chr_pos.x ==
                 position().x) { // We have two slots where we can place
                                 // the replicant.
-                return Vec2<u8>{u8(chr_pos.x + 1), chr_pos.y};
+                return RoomCoord{u8(chr_pos.x + 1), chr_pos.y};
             } else {
-                return Vec2<u8>{u8(chr_pos.x - 1), chr_pos.y};
+                return RoomCoord{u8(chr_pos.x - 1), chr_pos.y};
             }
         }();
 
@@ -114,7 +114,7 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
 
 
 ScenePtr<Scene>
-Replicator::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+Replicator::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     if (auto next = Room::select(pfrm, app, cursor)) {
         return next;

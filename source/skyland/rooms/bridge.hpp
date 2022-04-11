@@ -42,7 +42,7 @@ void show_island_interior(Platform& pfrm, App& app, Island* island);
 class Bridge : public Decoration
 {
 public:
-    Bridge(Island* parent, const Vec2<u8>& position)
+    Bridge(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }
@@ -96,7 +96,7 @@ public:
 
     void display_on_hover(Platform::Screen& screen,
                           App& app,
-                          const Vec2<u8>& cursor) override
+                          const RoomCoord& cursor) override
     {
     }
 

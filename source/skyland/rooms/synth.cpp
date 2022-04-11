@@ -39,7 +39,7 @@ void Synth::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Synth::Synth(Island* parent, const Vec2<u8>& position)
+Synth::Synth(Island* parent, const RoomCoord& position)
     : Decoration(parent, name(), position)
 {
     for (auto& note : notes_) {
@@ -114,7 +114,7 @@ void Synth::render_exterior(App& app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Synth::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+ScenePtr<Scene> Synth::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     return scene_pool::alloc<ComposeSynthScene>(app, *this);
 }

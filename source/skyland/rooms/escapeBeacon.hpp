@@ -35,7 +35,7 @@ namespace skyland
 class EscapeBeacon : public Room
 {
 public:
-    EscapeBeacon(Island* parent, const Vec2<u8>& position);
+    EscapeBeacon(Island* parent, const RoomCoord& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -114,7 +114,7 @@ public:
     }
 
 
-    ScenePtr<Scene> select(Platform&, App&, const Vec2<u8>& cursor) override;
+    ScenePtr<Scene> select(Platform&, App&, const RoomCoord& cursor) override;
 
 
     Microseconds reload_time_remaining() const override

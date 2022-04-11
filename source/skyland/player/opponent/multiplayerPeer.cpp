@@ -84,7 +84,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
     if (app.opponent_island()) {
         const auto size = (*metac)->size();
-        Vec2<u8> pos{packet.x_, packet.y_};
+        RoomCoord pos{packet.x_, packet.y_};
 
         pos.x = ((app.opponent_island()->terrain().size() - 1) - pos.x) -
                 (size.x - 1);
@@ -204,9 +204,9 @@ void MultiplayerPeer::receive(Platform& pfrm,
     }
 
     if (island) {
-        const Vec2<u8> src_coord{invert_axis(app, packet.src_x_),
+        const RoomCoord src_coord{invert_axis(app, packet.src_x_),
                                  packet.src_y_};
-        const Vec2<u8> dst_coord{invert_axis(app, packet.dst_x_),
+        const RoomCoord dst_coord{invert_axis(app, packet.dst_x_),
                                  packet.dst_y_};
 
         if (auto room = island->get_room(src_coord)) {
@@ -237,8 +237,8 @@ void MultiplayerPeer::receive(Platform& pfrm,
         return;
     }
 
-    const auto src = Vec2<u8>{invert_axis(app, packet.src_x_), packet.src_y_};
-    const auto dst = Vec2<u8>{invert_axis(app, packet.dst_x_), packet.dst_y_};
+    const auto src = RoomCoord{invert_axis(app, packet.src_x_), packet.src_y_};
+    const auto dst = RoomCoord{invert_axis(app, packet.dst_x_), packet.dst_y_};
 
     if (auto room = app.opponent_island()->get_room(src)) {
         for (auto it = room->characters().begin();
@@ -281,8 +281,8 @@ void MultiplayerPeer::receive(Platform& pfrm,
     // TODO: pretty much identical to the code above for the CharacterBoarded
     // event, refactor this stuff to one function.x
 
-    const auto src = Vec2<u8>{invert_axis(app, packet.src_x_), packet.src_y_};
-    const auto dst = Vec2<u8>{invert_axis(app, packet.dst_x_), packet.dst_y_};
+    const auto src = RoomCoord{invert_axis(app, packet.src_x_), packet.src_y_};
+    const auto dst = RoomCoord{invert_axis(app, packet.dst_x_), packet.dst_y_};
 
     if (auto room = app.player_island().get_room(src)) {
         for (auto it = room->characters().begin();
@@ -327,7 +327,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
         }
     }
 
-    const Vec2<u8> chr_loc = {invert_axis(app, packet.chr_x_), packet.chr_y_};
+    const RoomCoord chr_loc = {invert_axis(app, packet.chr_x_), packet.chr_y_};
 
     if (island) {
         if (auto room = island->get_room(chr_loc)) {
@@ -362,7 +362,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
         return;
     }
 
-    const Vec2<u8> loc = {invert_axis(app, packet.src_x_), packet.src_y_};
+    const RoomCoord loc = {invert_axis(app, packet.src_x_), packet.src_y_};
 
     auto chr = app.alloc_entity<BasicCharacter>(
         pfrm, app.opponent_island(), &app.opponent(), loc, true);
@@ -403,9 +403,9 @@ void MultiplayerPeer::receive(Platform& pfrm,
     if (auto drone = (*drone_meta)
                          ->create(app.opponent_island(),
                                   island,
-                                  Vec2<u8>{x_origin, packet.origin_y_})) {
+                                  RoomCoord{x_origin, packet.origin_y_})) {
 
-        const Vec2<u8> drone_bay_pos = {x_origin, u8(packet.origin_y_ + 1)};
+        const RoomCoord drone_bay_pos = {x_origin, u8(packet.origin_y_ + 1)};
 
         if (auto room = app.opponent_island()->get_room(drone_bay_pos)) {
 
@@ -414,7 +414,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
             }
 
             (*drone)->set_movement_target(
-                Vec2<u8>{invert_axis(app, packet.deploy_x_), packet.deploy_y_});
+                RoomCoord{invert_axis(app, packet.deploy_x_), packet.deploy_y_});
         }
     }
 }
@@ -432,7 +432,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
         island = &app.player_island();
     }
 
-    Vec2<u8> pos;
+    RoomCoord pos;
     pos.x = invert_axis(app, packet.drone_x_);
     pos.y = packet.drone_y_;
 
@@ -454,7 +454,7 @@ void MultiplayerPeer::receive(
         return;
     }
 
-    const Vec2<u8> loc = {invert_axis(app, packet.room_x_), packet.room_y_};
+    const RoomCoord loc = {invert_axis(app, packet.room_x_), packet.room_y_};
 
     if (auto room = app.opponent_island()->get_room(loc)) {
         if (auto bulkhead = dynamic_cast<Bulkhead*>(room)) {
@@ -503,7 +503,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
                               const network::packet::DynamiteActivated& packet)
 {
     if (app.opponent_island()) {
-        Vec2<u8> pos{invert_axis(app, packet.x_), packet.y_};
+        RoomCoord pos{invert_axis(app, packet.x_), packet.y_};
 
         if (auto room = app.opponent_island()->get_room(pos)) {
             // We technically don't really need to do a cast here, as we don't

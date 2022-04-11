@@ -37,7 +37,7 @@ namespace skyland
 class SolarCell : public Room
 {
 public:
-    SolarCell(Island* parent, const Vec2<u8>& position)
+    SolarCell(Island* parent, const RoomCoord& position)
         : Room(parent, name(), position)
     {
     }

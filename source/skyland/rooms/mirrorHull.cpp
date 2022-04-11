@@ -29,7 +29,7 @@ namespace skyland
 
 
 
-MirrorHull::MirrorHull(Island* parent, const Vec2<u8>& position)
+MirrorHull::MirrorHull(Island* parent, const RoomCoord& position)
     : Hull(parent, position, name())
 {
 }

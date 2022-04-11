@@ -103,7 +103,7 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
     // Now, we want to do a bfs walk, to find all connected parts of the
     // walkable areas.
 
-    Vec2<u8> cursor_loc;
+    RoomCoord cursor_loc;
 
     if (near_) {
         cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
@@ -176,7 +176,7 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         island = app.opponent_island();
     }
 
-    Vec2<u8>* cursor_loc = nullptr;
+    RoomCoord* cursor_loc = nullptr;
 
     if (near_) {
         cursor_loc = &std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
@@ -349,7 +349,7 @@ void MoveCharacterScene::display(Platform& pfrm, App& app)
 
 u32 flood_fill(Platform& pfrm, u8 matrix[16][16], u8 replace, u8 x, u8 y)
 {
-    using Coord = Vec2<u8>;
+    using Coord = RoomCoord;
 
     ScratchBufferBulkAllocator mem;
 

@@ -36,7 +36,7 @@ namespace skyland
 
 
 Explosive::Explosive(Island* parent,
-                     const Vec2<u8>& position,
+                     const RoomCoord& position,
                      const char* class_name)
     : Room(parent, class_name, position)
 {
@@ -63,7 +63,7 @@ void Explosive::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 ScenePtr<Scene>
-Explosive::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+Explosive::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     if (parent() not_eq &app.player_island()) {
         return null_scene();
@@ -151,7 +151,7 @@ void Explosive::ignite(Platform& pfrm,
                 continue;
             }
 
-            auto pos = Vec2<u8>{u8(position().x + x), u8(position().y + y)};
+            auto pos = RoomCoord{u8(position().x + x), u8(position().y + y)};
 
             if (auto room = parent()->get_room(pos)) {
                 bool found = false;
@@ -285,7 +285,7 @@ static void display_damage_range_dist2(Platform::Screen& screen, Room& room)
 
 void Explosive::display_on_hover(Platform::Screen& screen,
                                  App& app,
-                                 const Vec2<u8>& cursor)
+                                 const RoomCoord& cursor)
 {
     display_damage_range_dist1(screen, *this);
 }
@@ -308,7 +308,7 @@ void TNT::render_exterior(App& app, TileId buffer[16][16])
 
 void TNT::display_on_hover(Platform::Screen& screen,
                            App& app,
-                           const Vec2<u8>& cursor)
+                           const RoomCoord& cursor)
 {
     display_damage_range_dist2(screen, *this);
 }
@@ -394,7 +394,7 @@ void Cesium::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 void Cesium::display_on_hover(Platform::Screen& screen,
                               App& app,
-                              const Vec2<u8>& cursor)
+                              const RoomCoord& cursor)
 {
     display_damage_range_dist2(screen, *this);
 }

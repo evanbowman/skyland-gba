@@ -37,7 +37,7 @@ namespace skyland
 class Torch : public Decoration
 {
 public:
-    Torch(Island* parent, const Vec2<u8>& position)
+    Torch(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }

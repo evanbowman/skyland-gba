@@ -40,7 +40,7 @@ namespace skyland
 
 
 
-Room::Room(Island* parent, const char* name, const Vec2<u8>& position)
+Room::Room(Island* parent, const char* name, const RoomCoord& position)
     : parent_(parent), dispatch_list_(nullptr), health_(1),
       x_position_(position.x), y_position_(position.y)
 {
@@ -169,7 +169,7 @@ void Room::display(Platform::Screen& screen)
 
 void Room::display_on_hover(Platform::Screen& screen,
                             App& app,
-                            const Vec2<u8>& cursor)
+                            const RoomCoord& cursor)
 {
     if (not parent_->interior_visible() and parent_ == &player_island(app)) {
         for (auto& c : characters()) {
@@ -368,7 +368,7 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
 
         const bool near = parent() == &app.player_island();
 
-        Vec2<u8> cursor_loc;
+        RoomCoord cursor_loc;
 
         if (near) {
             cursor_loc =
@@ -447,7 +447,7 @@ ScenePtr<Scene> Room::setup(Platform& pfrm, App&)
 
 
 
-ScenePtr<Scene> Room::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
+ScenePtr<Scene> Room::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     bool chr_at_cursor = false;
     for (auto& chr : characters()) {
@@ -704,7 +704,7 @@ void Room::plunder(Platform& pfrm, App& app, Health damage)
                 y = 1;
             }
             for (; y < size().y; y += (*plunder_metac)->size().y) {
-                const Vec2<u8> pos = {
+                const RoomCoord pos = {
                     u8(((u8)x_position_) + x),
                     u8(((u8)y_position_) + y),
                 };

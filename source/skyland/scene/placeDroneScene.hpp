@@ -39,7 +39,7 @@ class PlaceDroneScene : public ActiveWorldScene
 {
 public:
     PlaceDroneScene(Platform& pfrm,
-                    Vec2<u8> origin,
+                    RoomCoord origin,
                     DroneMeta* drone_class,
                     bool near = true);
 
@@ -58,7 +58,7 @@ private:
     DynamicMemory<bool[16][16]> matrix_;
     Microseconds cursor_anim_timer_ = 0;
     u8 cursor_anim_frame_ = 0;
-    Vec2<u8> origin_;
+    RoomCoord origin_;
     bool near_;
 
     std::optional<Text> message_;

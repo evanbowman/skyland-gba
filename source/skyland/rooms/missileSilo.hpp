@@ -42,7 +42,7 @@ extern SharedVariable missile_silo_reload_ms;
 class MissileSilo : public Weapon
 {
 public:
-    MissileSilo(Island* parent, const Vec2<u8>& position);
+    MissileSilo(Island* parent, const RoomCoord& position);
 
 
     void fire(Platform& pfrm, App& app) override;

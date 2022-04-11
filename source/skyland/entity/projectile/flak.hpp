@@ -40,7 +40,7 @@ public:
     Flak(const Vec2<Fixnum>& position,
          const Vec2<Fixnum>& target,
          Island* source,
-         const Vec2<u8>& origin_tile);
+         const RoomCoord& origin_tile);
 
 
     void set_step_vector(const Vec2<Fixnum>& val)
@@ -86,7 +86,7 @@ private:
 
     // We need to keep track of the origin tile coords, to prevent cannons from
     // shooting themselves.
-    Vec2<u8> origin_tile_;
+    RoomCoord origin_tile_;
 };
 
 

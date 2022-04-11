@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "skyland/coord.hpp"
 #include "skyland/entity.hpp"
 
 
@@ -57,7 +58,7 @@ public:
     }
 
 
-    virtual Vec2<u8> coordinate()
+    virtual RoomCoord coordinate()
     {
         return {};
     }

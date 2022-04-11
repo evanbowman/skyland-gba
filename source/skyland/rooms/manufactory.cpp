@@ -37,7 +37,7 @@ void Manufactory::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Manufactory::Manufactory(Island* parent, const Vec2<u8>& position)
+Manufactory::Manufactory(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }

@@ -38,7 +38,7 @@ void PoweredHull::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-PoweredHull::PoweredHull(Island* parent, const Vec2<u8>& position)
+PoweredHull::PoweredHull(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
 }

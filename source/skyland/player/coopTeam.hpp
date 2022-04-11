@@ -165,7 +165,7 @@ public:
 
 
     void network_sync_cursor(Platform& pfrm,
-                             const Vec2<u8>& cursor,
+                             const RoomCoord& cursor,
                              u8 cursor_icon,
                              bool near) override;
 

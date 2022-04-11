@@ -32,7 +32,7 @@ namespace skyland
 
 struct PathVertexData
 {
-    Vec2<u8> coord_;
+    RoomCoord coord_;
     u16 dist_ = std::numeric_limits<u16>::max();
     PathVertexData* prev_ = nullptr;
 };
@@ -42,8 +42,8 @@ struct PathVertexData
 std::optional<Path> find_path(Platform& pfrm,
                               App& app,
                               Island* island,
-                              const Vec2<u8>& start,
-                              const Vec2<u8>& end)
+                              const RoomCoord& start,
+                              const RoomCoord& end)
 {
     BulkAllocator<2> vertex_memory_(pfrm);
 

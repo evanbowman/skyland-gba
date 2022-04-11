@@ -23,6 +23,7 @@
 #pragma once
 
 #include "block.hpp"
+#include "coord.hpp"
 #include "entity.hpp"
 #include "entity/character/basicCharacter.hpp"
 #include "health.hpp"
@@ -164,7 +165,7 @@ public:
 
 
 
-    Room(Island* parent, const char* name, const Vec2<u8>& position);
+    Room(Island* parent, const char* name, const RoomCoord& position);
 
 
     Room(const Room&) = delete;
@@ -195,13 +196,13 @@ public:
 
     virtual void display_on_hover(Platform::Screen& screen,
                                   App& app,
-                                  const Vec2<u8>& cursor);
+                                  const RoomCoord& cursor);
 
 
     Island* other_island(App&);
 
 
-    Vec2<u8> position() const
+    RoomCoord position() const
     {
         return {x_position_, y_position_};
     }
@@ -237,10 +238,10 @@ public:
 
 
     virtual ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor);
+    select(Platform& pfrm, App& app, const RoomCoord& cursor);
 
 
-    virtual void set_target(Platform& pfrm, App& app, const Vec2<u8>& target)
+    virtual void set_target(Platform& pfrm, App& app, const RoomCoord& target)
     {
     }
 
@@ -336,10 +337,10 @@ public:
     const char* name() const;
 
 
-    Vec2<Fixnum> origin() const;
+    WorldCoord origin() const;
 
 
-    Vec2<Fixnum> center() const;
+    WorldCoord center() const;
 
 
     Island* parent() const
@@ -437,7 +438,7 @@ public:
 
 
     // Do not call directly! Use Island::move_room() instead.
-    void __set_position(const Vec2<u8>& pos)
+    void __set_position(const RoomCoord& pos)
     {
         x_position_ = pos.x;
         y_position_ = pos.y;

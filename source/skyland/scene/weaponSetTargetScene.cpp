@@ -40,7 +40,7 @@ namespace skyland
 void describe_room(Platform& pfrm,
                    App& app,
                    Island* island,
-                   const Vec2<u8>& cursor_loc,
+                   const RoomCoord& cursor_loc,
                    std::optional<Text>& room_description);
 
 
@@ -55,9 +55,9 @@ check_island_tapclick(Platform& pfrm, App& app, const Vec2<u32>& pos);
 
 
 
-WeaponSetTargetScene::WeaponSetTargetScene(const Vec2<u8>& weapon_loc,
+WeaponSetTargetScene::WeaponSetTargetScene(const RoomCoord& weapon_loc,
                                            bool near,
-                                           std::optional<Vec2<u8>> initial_pos)
+                                           std::optional<RoomCoord> initial_pos)
     : weapon_loc_(weapon_loc), near_(near), initial_pos_(initial_pos)
 {
 }
@@ -147,7 +147,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    auto onclick = [&](Vec2<u8> cursor_loc) -> ScenePtr<Scene> {
+    auto onclick = [&](RoomCoord cursor_loc) -> ScenePtr<Scene> {
         if (app.opponent_island()->get_room(cursor_loc)) {
 
             auto do_set_target = [&pfrm, &app, cursor_loc](Room& room) {
@@ -376,7 +376,7 @@ void WeaponSetTargetScene::collect_targets(Platform& pfrm, App& app)
 
     std::sort(targets_.begin(),
               targets_.end(),
-              [](const Vec2<u8>& lhs, const Vec2<u8>& rhs) {
+              [](const RoomCoord& lhs, const RoomCoord& rhs) {
                   return lhs.x < rhs.x || (lhs.x == rhs.x and lhs.y < rhs.y);
               });
 }

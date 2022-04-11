@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-CargoBay::CargoBay(Island* parent, const Vec2<u8>& position)
+CargoBay::CargoBay(Island* parent, const RoomCoord& position)
     : Room(parent, name(), position)
 {
     set_cargo("", 0);

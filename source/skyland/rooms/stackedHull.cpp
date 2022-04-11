@@ -29,7 +29,7 @@ namespace skyland
 
 
 
-StackedHull::StackedHull(Island* parent, const Vec2<u8>& position)
+StackedHull::StackedHull(Island* parent, const RoomCoord& position)
     : Hull(parent, position, name())
 {
 }

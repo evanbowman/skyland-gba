@@ -117,7 +117,7 @@ private:
 
 
     void
-    assign_weapon_target(Platform&, App&, Room& weapon, const Vec2<u8>& target);
+    assign_weapon_target(Platform&, App&, Room& weapon, const RoomCoord& target);
 
 
     static const auto next_action_timeout = seconds(1);

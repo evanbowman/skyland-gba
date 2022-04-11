@@ -43,7 +43,7 @@ extern SharedVariable drone_bay_reload_ms;
 class DroneBay : public Room
 {
 public:
-    DroneBay(Island* parent, const Vec2<u8>& position);
+    DroneBay(Island* parent, const RoomCoord& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -102,7 +102,7 @@ public:
 
 
     ScenePtr<Scene>
-    select(Platform& pfrm, App& app, const Vec2<u8>& cursor) override;
+    select(Platform& pfrm, App& app, const RoomCoord& cursor) override;
 
 
     void plot_walkable_zones(App& app, bool matrix[16][16]) override
@@ -161,7 +161,7 @@ private:
 
     Microseconds reload_ = 0;
 
-    std::optional<Vec2<u8>> target_;
+    std::optional<RoomCoord> target_;
 };
 
 

@@ -95,7 +95,7 @@ void CoopTeam::receive(Platform& pfrm,
 
     auto metac = load_metaclass(packet.metaclass_index_.get());
 
-    Vec2<u8> pos{packet.x_, packet.y_};
+    RoomCoord pos{packet.x_, packet.y_};
 
     (*metac)->create(pfrm, app, &player_island(app), pos);
 }
@@ -174,7 +174,7 @@ void CoopTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::DynamiteActivated& packet)
 {
-    Vec2<u8> pos{packet.x_, packet.y_};
+    RoomCoord pos{packet.x_, packet.y_};
 
     if (auto room = player_island(app).get_room(pos)) {
         if (dynamic_cast<Explosive*>(room)) {
@@ -221,7 +221,7 @@ void CoopTeam::receive(Platform& pfrm,
         island = opponent_island(app);
     }
 
-    const Vec2<u8> chr_loc = {packet.chr_x_, packet.chr_y_};
+    const RoomCoord chr_loc = {packet.chr_x_, packet.chr_y_};
 
     if (island) {
         if (auto room = island->get_room(chr_loc)) {
@@ -256,8 +256,8 @@ void CoopTeam::receive(Platform& pfrm,
         return;
     }
 
-    const auto src = Vec2<u8>{packet.src_x_, packet.src_y_};
-    const auto dst = Vec2<u8>{packet.dst_x_, packet.dst_y_};
+    const auto src = RoomCoord{packet.src_x_, packet.src_y_};
+    const auto dst = RoomCoord{packet.dst_x_, packet.dst_y_};
 
     auto source_island =
         packet.transporter_near_ ? &player_island(app) : opponent_island(app);
@@ -279,8 +279,8 @@ void CoopTeam::receive(Platform& pfrm,
         return;
     }
 
-    const auto src = Vec2<u8>{packet.src_x_, packet.src_y_};
-    const auto dst = Vec2<u8>{packet.dst_x_, packet.dst_y_};
+    const auto src = RoomCoord{packet.src_x_, packet.src_y_};
+    const auto dst = RoomCoord{packet.dst_x_, packet.dst_y_};
 
     auto dest_island =
         packet.transporter_near_ ? &player_island(app) : opponent_island(app);
@@ -307,8 +307,8 @@ void CoopTeam::receive(Platform& pfrm,
     }
 
     if (island) {
-        const Vec2<u8> src_coord{packet.src_x_, packet.src_y_};
-        const Vec2<u8> dst_coord{packet.dst_x_, packet.dst_y_};
+        const RoomCoord src_coord{packet.src_x_, packet.src_y_};
+        const RoomCoord dst_coord{packet.dst_x_, packet.dst_y_};
 
         if (auto room = island->get_room(src_coord)) {
             for (auto& chr : room->characters()) {
@@ -339,7 +339,7 @@ void CoopTeam::receive(Platform& pfrm,
         return;
     }
 
-    const Vec2<u8> loc = {packet.src_x_, packet.src_y_};
+    const RoomCoord loc = {packet.src_x_, packet.src_y_};
 
     auto chr = app.alloc_entity<BasicCharacter>(
         pfrm, &app.player_island(), &app.player(), loc, true);
@@ -401,7 +401,7 @@ void CoopTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::OpponentBulkheadChanged& packet)
 {
-    const Vec2<u8> loc = {packet.room_x_, packet.room_y_};
+    const RoomCoord loc = {packet.room_x_, packet.room_y_};
 
     if (auto room = player_island(app).get_room(loc)) {
         if (auto bulkhead = dynamic_cast<Bulkhead*>(room)) {
@@ -439,9 +439,9 @@ void CoopTeam::receive(Platform& pfrm,
     if (auto drone = (*drone_meta)
                          ->create(&app.player_island(),
                                   island,
-                                  Vec2<u8>{x_origin, packet.origin_y_})) {
+                                  RoomCoord{x_origin, packet.origin_y_})) {
 
-        const Vec2<u8> drone_bay_pos = {x_origin, u8(packet.origin_y_ + 1)};
+        const RoomCoord drone_bay_pos = {x_origin, u8(packet.origin_y_ + 1)};
 
         if (auto room = app.player_island().get_room(drone_bay_pos)) {
 
@@ -450,7 +450,7 @@ void CoopTeam::receive(Platform& pfrm,
             }
 
             (*drone)->set_movement_target(
-                Vec2<u8>{packet.deploy_x_, packet.deploy_y_});
+                RoomCoord{packet.deploy_x_, packet.deploy_y_});
         }
     }
 }
@@ -468,7 +468,7 @@ void CoopTeam::receive(Platform& pfrm,
         island = app.opponent_island();
     }
 
-    Vec2<u8> pos;
+    RoomCoord pos;
     pos.x = packet.drone_x_;
     pos.y = packet.drone_y_;
 
@@ -608,7 +608,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 void CoopTeam::network_sync_cursor(Platform& pfrm,
-                                   const Vec2<u8>& cursor,
+                                   const RoomCoord& cursor,
                                    u8 cursor_icon,
                                    bool near)
 {

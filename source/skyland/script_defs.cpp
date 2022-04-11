@@ -708,7 +708,7 @@ static const lisp::Binding script_api[] = {
          u8 y = lisp::get_list(lisp::get_op(0), 2)->integer().value_;
 
          if (auto c = load_metaclass(name)) {
-             (*c)->create(*pfrm, *app, island, Vec2<u8>{x, y});
+             (*c)->create(*pfrm, *app, island, RoomCoord{x, y});
              island->repaint(*pfrm, *app);
          } else {
              Platform::fatal(name);
@@ -727,7 +727,7 @@ static const lisp::Binding script_api[] = {
 
          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
 
-         auto coord = Vec2<u8>{
+         auto coord = RoomCoord{
              (u8)lisp::get_op(1)->integer().value_,
              (u8)lisp::get_op(0)->integer().value_,
          };
@@ -745,7 +745,7 @@ static const lisp::Binding script_api[] = {
 
          auto island = (Island*)lisp::get_op(2)->user_data().obj_;
 
-         auto coord = Vec2<u8>{
+         auto coord = RoomCoord{
              (u8)lisp::get_op(1)->integer().value_,
              (u8)lisp::get_op(0)->integer().value_,
          };
@@ -763,7 +763,7 @@ static const lisp::Binding script_api[] = {
 
          auto island = (Island*)lisp::get_op(3)->user_data().obj_;
 
-         auto coord = Vec2<u8>{
+         auto coord = RoomCoord{
              (u8)lisp::get_op(2)->integer().value_,
              (u8)lisp::get_op(1)->integer().value_,
          };
@@ -831,7 +831,7 @@ static const lisp::Binding script_api[] = {
          auto app = interp_get_app();
 
 
-         auto coord = Vec2<u8>{
+         auto coord = RoomCoord{
              (u8)lisp::get_op(3)->integer().value_,
              (u8)lisp::get_op(2)->integer().value_,
          };
@@ -865,7 +865,7 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_OP(1, integer);
          L_EXPECT_OP(2, user_data);
 
-         Vec2<u8> coord;
+         RoomCoord coord;
          coord.x = lisp::get_op(1)->integer().value_;
          coord.y = lisp::get_op(0)->integer().value_;
 
@@ -886,7 +886,7 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_OP(2, user_data);
 
          if (auto app = interp_get_app()) {
-             Vec2<u8>& sel =
+             RoomCoord& sel =
                  std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
              if (auto ws = dynamic_cast<WorldScene*>(&app->scene())) {

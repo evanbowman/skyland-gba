@@ -35,7 +35,7 @@ namespace skyland
 
 
 
-Mycelium::Mycelium(Island* parent, const Vec2<u8>& position, const char* n)
+Mycelium::Mycelium(Island* parent, const RoomCoord& position, const char* n)
     : Room(parent, n, position)
 {
 }

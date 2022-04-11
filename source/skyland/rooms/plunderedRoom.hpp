@@ -36,7 +36,7 @@ namespace skyland
 class PlunderedRoom : public Room
 {
 public:
-    PlunderedRoom(Island* parent, const Vec2<u8>& position);
+    PlunderedRoom(Island* parent, const RoomCoord& position);
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -61,7 +61,7 @@ public:
     }
 
 
-    static Vec2<u8> size()
+    static RoomCoord size()
     {
         return {1, 2};
     }

@@ -51,7 +51,7 @@ struct RoomPluginInfo : public RoomMeta::Info
 
 
     void
-    construct(void* address, Island* parent, const Vec2<u8>& position) override
+    construct(void* address, Island* parent, const RoomCoord& position) override
     {
         static_assert(sizeof(PluginRoom) <= room_pool::max_room_size);
         static_assert(alignof(PluginRoom) <= room_pool::alignment);
@@ -63,7 +63,7 @@ struct RoomPluginInfo : public RoomMeta::Info
     void create(Platform& pfrm,
                 App& app,
                 Island* parent,
-                const Vec2<u8>& position,
+                const RoomCoord& position,
                 bool do_repaint) const override
     {
         parent->add_room<PluginRoom>(pfrm, app, position, do_repaint, mt_);
@@ -72,7 +72,7 @@ struct RoomPluginInfo : public RoomMeta::Info
 
     RoomPtr<Room> create(Platform& pfrm,
                          Island* parent,
-                         const Vec2<u8>& position) const override
+                         const RoomCoord& position) const override
     {
         return room_pool::alloc<PluginRoom>(parent, position, mt_);
     }

@@ -44,7 +44,7 @@ class BasicCharacter : public Entity
 public:
     BasicCharacter(Island* parent,
                    Player* owner,
-                   const Vec2<u8>& position,
+                   const RoomCoord& position,
                    bool is_replicant);
 
 
@@ -54,13 +54,13 @@ public:
     void rewind(Platform&, App&, Microseconds delta) override;
 
 
-    const Vec2<u8>& grid_position() const
+    const RoomCoord& grid_position() const
     {
         return grid_position_;
     }
 
 
-    void set_grid_position(const Vec2<u8>& pos)
+    void set_grid_position(const RoomCoord& pos)
     {
         grid_position_ = pos;
     }
@@ -91,7 +91,7 @@ public:
 
 
 
-    std::optional<Vec2<u8>> destination() const
+    std::optional<RoomCoord> destination() const
     {
         if (has_movement_path()) {
             if (not(*movement_path_)->empty()) {
@@ -152,7 +152,7 @@ public:
     void set_can_move();
 
 
-    void rewind_movement_step(Platform& pfrm, const Vec2<u8>& new_pos);
+    void rewind_movement_step(Platform& pfrm, const RoomCoord& new_pos);
 
 
     enum class State {
@@ -211,7 +211,7 @@ public:
 private:
     Island* parent_;
     Player* owner_;
-    Vec2<u8> grid_position_;
+    RoomCoord grid_position_;
     Microseconds timer_ = 0;
     Microseconds anim_timer_ = 0;
 
@@ -230,7 +230,7 @@ private:
 
     std::optional<Path> movement_path_;
 
-    void reassign_room(const Vec2<u8>& old_coord, const Vec2<u8>& new_coord);
+    void reassign_room(const RoomCoord& old_coord, const RoomCoord& new_coord);
 
 
     void movement_step(Platform& pfrm, App& app, Microseconds delta);

@@ -37,7 +37,7 @@ namespace skyland
 class MultiplayerCoopAwaitLockScene : public ActiveWorldScene
 {
 public:
-    MultiplayerCoopAwaitLockScene(DeferredScene next, const Vec2<u8>& coord)
+    MultiplayerCoopAwaitLockScene(DeferredScene next, const RoomCoord& coord)
         : next_(next), coord_(coord)
     {
     }
@@ -54,7 +54,7 @@ public:
 
 private:
     DeferredScene next_;
-    Vec2<u8> coord_;
+    RoomCoord coord_;
     std::optional<bool> result_;
 
     Microseconds timeout_ = milliseconds(500);

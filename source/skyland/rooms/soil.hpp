@@ -37,7 +37,7 @@ namespace skyland
 class Soil : public Decoration
 {
 public:
-    Soil(Island* parent, const Vec2<u8>& position)
+    Soil(Island* parent, const RoomCoord& position)
         : Decoration(parent, name(), position)
     {
     }
