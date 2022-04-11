@@ -221,7 +221,8 @@ void Weapon::unset_target(Platform& pfrm, App& app)
 
 
 
-ScenePtr<Scene> Weapon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene>
+Weapon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;

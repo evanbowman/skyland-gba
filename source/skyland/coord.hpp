@@ -38,6 +38,11 @@ using WorldCoord = Vec2<Fixnum>;
 
 struct PackedRoomCoord
 {
+    PackedRoomCoord()
+    {
+        data_ = 0;
+    }
+
 
     PackedRoomCoord(const RoomCoord& c)
     {

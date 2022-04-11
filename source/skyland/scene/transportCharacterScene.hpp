@@ -23,8 +23,8 @@
 #pragma once
 
 #include "allocator.hpp"
-#include "skyland/coord.hpp"
 #include "notificationScene.hpp"
+#include "skyland/coord.hpp"
 
 
 

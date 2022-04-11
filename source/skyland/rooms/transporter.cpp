@@ -155,7 +155,7 @@ void Transporter::recover_character(Platform& pfrm,
                 unlinked->drop_movement_path();
 
                 const RoomCoord dst = {this->position().x,
-                                      u8(this->position().y + 1)};
+                                       u8(this->position().y + 1)};
 
                 network::packet::CharacterDisembark packet;
                 packet.src_x_ = unlinked->grid_position().x;

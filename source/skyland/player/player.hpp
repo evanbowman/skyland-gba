@@ -25,8 +25,8 @@
 
 #include "number/numeric.hpp"
 #include "platform/key.hpp"
-#include <tuple>
 #include "skyland/coord.hpp"
+#include <tuple>
 
 
 

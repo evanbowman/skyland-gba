@@ -714,8 +714,8 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
 
 
     Buffer<RoomCoord, 16> exclude_slots; // Don't move into currently occupied
-                                        // slots, or slots that will be
-                                        // occupied.
+                                         // slots, or slots that will be
+                                         // occupied.
 
     for (auto& room : app.player_island().rooms()) {
         for (auto& other : room->characters()) {

@@ -923,10 +923,10 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
             if (auto room = island->get_room({e->room_x_, e->room_y_})) {
                 if (e->has_previous_target_) {
-                    room->set_target(
-                        pfrm,
-                        app,
-                        RoomCoord{e->previous_target_x_, e->previous_target_y_});
+                    room->set_target(pfrm,
+                                     app,
+                                     RoomCoord{e->previous_target_x_,
+                                               e->previous_target_y_});
                 } else {
                     room->unset_target(pfrm, app);
                 }
@@ -1086,7 +1086,7 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
                                  ->create(parent_island,
                                           dest_island,
                                           RoomCoord{e->db_x_pos_,
-                                                   u8(e->db_y_pos_ - 1)})) {
+                                                    u8(e->db_y_pos_ - 1)})) {
 
                 (*drone)->set_movement_target(RoomCoord{e->x_pos_, e->y_pos_});
 

@@ -205,9 +205,9 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
     if (island) {
         const RoomCoord src_coord{invert_axis(app, packet.src_x_),
-                                 packet.src_y_};
+                                  packet.src_y_};
         const RoomCoord dst_coord{invert_axis(app, packet.dst_x_),
-                                 packet.dst_y_};
+                                  packet.dst_y_};
 
         if (auto room = island->get_room(src_coord)) {
             for (auto& chr : room->characters()) {
@@ -413,8 +413,8 @@ void MultiplayerPeer::receive(Platform& pfrm,
                 island->drones().push(*drone);
             }
 
-            (*drone)->set_movement_target(
-                RoomCoord{invert_axis(app, packet.deploy_x_), packet.deploy_y_});
+            (*drone)->set_movement_target(RoomCoord{
+                invert_axis(app, packet.deploy_x_), packet.deploy_y_});
         }
     }
 }

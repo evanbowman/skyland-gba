@@ -114,7 +114,8 @@ void Piston::render_exterior(App& app, TileId buffer[16][16])
 
 
 
-ScenePtr<Scene> Piston::select(Platform& pfrm, App& app, const RoomCoord& cursor)
+ScenePtr<Scene>
+Piston::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     if ((dir_ == down and position().y == 14) or
         (dir_ == left and position().x == 0) or
