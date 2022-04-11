@@ -28,6 +28,8 @@
 #include "scene/moveCharacterScene.hpp"
 #include "script/listBuilder.hpp"
 #include "skyland.hpp"
+#include "skyland/network.hpp"
+#include "skyland/scene/multiplayerCoopAwaitLockScene.hpp"
 #include "skyland/tile.hpp"
 #include "timeStreamEvent.hpp"
 
@@ -375,14 +377,60 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
             cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
         }
 
-        for (auto& character : characters_) {
-            if (character->grid_position() == cursor_loc) {
+        const bool is_co_op = app.game_mode() == App::GameMode::co_op;
 
-                if (character->owner() == &app.player() or
-                    (character->owner() == &app.opponent() and
-                     app.game_mode() == App::GameMode::sandbox)) {
-                    return scene_pool::alloc<MoveCharacterScene>(pfrm, near);
+        auto try_move = [&](auto cond) -> ScenePtr<Scene> {
+            for (auto& character : characters_) {
+                if (character->grid_position() == cursor_loc) {
+
+                    if (is_co_op and character->co_op_locked()) {
+                        pfrm.speaker().play_sound("beep_error", 2);
+                        // TODO: notification scene instead!
+                        return null_scene();
+                    }
+
+                    if (cond(character)) {
+
+                        const auto ch_id = character->id();
+
+                        using Next = MoveCharacterScene;
+                        using Await = MultiplayerCoopAwaitChrLockScene;
+                        auto n =
+                            scene_pool::make_deferred_scene<Next>(ch_id, near);
+
+                        if (is_co_op) {
+                            // NOTE: in co-op mode, we do not allow a player to
+                            // move a character with an assigned movement
+                            // path. Clears up a number of edge cases.
+                            if (not character->has_movement_path() and
+                                character->co_op_acquire_lock()) {
+                                network::packet::CoopChrLockAcquire pkt;
+                                pkt.chr_id_.set(character->id());
+                                network::transmit(pfrm, pkt);
+
+                                return scene_pool::alloc<Await>(
+                                    n, character->id());
+                            }
+                        } else {
+                            return n();
+                        }
+                    }
                 }
+            }
+            return null_scene();
+        };
+
+
+        if (auto scene = try_move(
+                [&](auto& chr) { return chr->owner() == &app.player(); })) {
+            return scene;
+        }
+
+        if (app.game_mode() == App::GameMode::sandbox) {
+            if (auto scene = try_move([&](auto& chr) {
+                    return chr->owner() == &app.opponent();
+                })) {
+                return scene;
             }
         }
     }

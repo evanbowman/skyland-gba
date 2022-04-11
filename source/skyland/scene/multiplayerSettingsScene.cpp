@@ -204,6 +204,8 @@ void prep_level(Platform& pfrm, App& app);
 
 void MultiplayerSettingsScene::setup_coop_game(Platform& pfrm, App& app)
 {
+    BasicCharacter::__reset_ids();
+
     std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_ = true;
     std::get<SkylandGlobalData>(globals()).coop_cursor_icon_ = 15;
 

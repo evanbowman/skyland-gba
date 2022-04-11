@@ -195,6 +195,19 @@ public:
     }
 
 
+    static void __reset_ids();
+
+
+    bool co_op_acquire_lock();
+    void co_op_release_lock();
+
+    bool co_op_locked() const;
+
+
+    static std::pair<BasicCharacter*, Room*> find_by_id(App& app,
+                                                        CharacterId id);
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -205,7 +218,10 @@ private:
     u8 awaiting_movement_ : 1;
     u8 can_move_ : 1;
     u8 is_replicant_ : 1;
-    u8 unused_ : 5;
+
+    u8 co_op_locked_ : 1;
+
+    u8 unused_ : 4;
 
     State state_ = State::moving_or_idle;
     u16 idle_count_ = 0;

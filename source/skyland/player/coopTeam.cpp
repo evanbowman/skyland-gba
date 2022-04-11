@@ -556,6 +556,57 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
+void CoopTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::CoopChrLockAcquire& packet)
+{
+    using RespType = network::packet::CoopChrLockResponse;
+
+    const auto chr_id = packet.chr_id_.get();
+
+    RespType resp;
+    resp.chr_id_.set(chr_id);
+    resp.status_ = RespType::failure;
+
+    if (auto chr = BasicCharacter::find_by_id(app, chr_id).first) {
+        if (chr->co_op_acquire_lock()) {
+            resp.status_ = RespType::success;
+        }
+    }
+
+    network::transmit(pfrm, resp);
+}
+
+
+
+void CoopTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::CoopChrLockRelease& packet)
+{
+    const auto chr_id = packet.chr_id_.get();
+
+    if (auto chr = BasicCharacter::find_by_id(app, chr_id).first) {
+        chr->co_op_release_lock();
+    }
+}
+
+
+
+void CoopTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::CoopChrLockResponse& packet)
+{
+    using RespType = network::packet::CoopChrLockResponse;
+
+    Scene* s = &app.scene();
+
+    if (auto scene = dynamic_cast<MultiplayerCoopAwaitChrLockScene*>(s)) {
+        scene->signal_result(packet.status_ == RespType::success);
+    }
+}
+
+
+
 void CoopTeam::network_sync_cursor(Platform& pfrm,
                                    const Vec2<u8>& cursor,
                                    u8 cursor_icon,

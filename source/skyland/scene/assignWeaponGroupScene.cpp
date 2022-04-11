@@ -74,7 +74,7 @@ AssignWeaponGroupScene::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm.speaker().play_sound("beep_error", 2);
                     // TODO: notification
                 } else if ((*room->metaclass())->category() ==
-                    Room::Category::weapon) {
+                           Room::Category::weapon) {
                     // TODO: select category first in select_group scene, then
                     // assign groups in bulk, rather than cycling through.
                     // if (room->group() == current_group_) {

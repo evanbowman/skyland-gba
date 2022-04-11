@@ -59,6 +59,13 @@ static CharacterId alloc_character_id()
 
 
 
+void BasicCharacter::__reset_ids()
+{
+    character_id_generator = 1;
+}
+
+
+
 BasicCharacter::BasicCharacter(Island* parent,
                                Player* owner,
                                const Vec2<u8>& position,
@@ -77,6 +84,8 @@ BasicCharacter::BasicCharacter(Island* parent,
 
     awaiting_movement_ = true;
     can_move_ = false;
+
+    co_op_locked_ = 0;
 
     is_replicant_ = is_replicant;
 
@@ -658,6 +667,53 @@ void BasicCharacter::reassign_room(const Vec2<u8>& old_coord,
     }
 
     grid_position_ = new_coord;
+}
+
+
+
+bool BasicCharacter::co_op_acquire_lock()
+{
+    if (co_op_locked_) {
+        return false;
+    }
+
+    co_op_locked_ = true;
+
+    return true;
+}
+
+
+
+void BasicCharacter::co_op_release_lock()
+{
+    co_op_locked_ = false;
+}
+
+
+
+bool BasicCharacter::co_op_locked() const
+{
+    return co_op_locked_;
+}
+
+
+
+std::pair<BasicCharacter*, Room*> BasicCharacter::find_by_id(App& app,
+                                                             CharacterId id)
+{
+    auto found = app.player_island().find_character_by_id(id);
+    if (found.first) {
+        return found;
+    }
+
+    if (app.opponent_island()) {
+        found = app.opponent_island()->find_character_by_id(id);
+        if (found.first) {
+            return found;
+        }
+    }
+
+    return {nullptr, nullptr};
 }
 
 

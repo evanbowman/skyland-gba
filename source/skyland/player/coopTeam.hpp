@@ -35,10 +35,6 @@ namespace skyland
 class CoopTeam : public PlayerP1, public network::Listener
 {
 public:
-    // TODO:
-    // drone_set_target,
-    // drone_spawn,
-    // drone_destroyed,
 
 
     void update(Platform& pfrm, App& app, Microseconds delta) override;
@@ -153,6 +149,21 @@ public:
     void receive(Platform& pfrm,
                  App& app,
                  const network::packet::CoopRoomLockResponse& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::CoopChrLockAcquire& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::CoopChrLockRelease& packet) override;
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::CoopChrLockResponse& packet) override;
 
 
     void network_sync_cursor(Platform& pfrm,

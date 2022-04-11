@@ -71,6 +71,9 @@ struct Header
         co_op_room_lock_acquire,
         co_op_room_lock_release,
         co_op_room_lock_response,
+        co_op_chr_lock_acquire,
+        co_op_chr_lock_release,
+        co_op_chr_lock_response,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -521,6 +524,40 @@ struct CoopRoomLockResponse
 
 
 
+struct CoopChrLockAcquire
+{
+    Header header_;
+    HostInteger<CharacterId> chr_id_;
+    u8 unused_[3];
+
+    static const auto mt = Header::MessageType::co_op_chr_lock_acquire;
+};
+
+
+
+struct CoopChrLockRelease
+{
+    Header header_;
+    HostInteger<CharacterId> chr_id_;
+    u8 unused_[3];
+
+    static const auto mt = Header::MessageType::co_op_chr_lock_release;
+};
+
+
+
+struct CoopChrLockResponse
+{
+    Header header_;
+    HostInteger<CharacterId> chr_id_;
+    enum Status : u8 { success, failure } status_;
+    u8 unused_[2];
+
+    static const auto mt = Header::MessageType::co_op_chr_lock_response;
+};
+
+
+
 } // namespace packet
 
 
@@ -677,6 +714,21 @@ public:
 
 
     virtual void receive(Platform&, App&, const packet::CoopRoomLockResponse&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::CoopChrLockAcquire&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::CoopChrLockRelease&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::CoopChrLockResponse&)
     {
     }
 

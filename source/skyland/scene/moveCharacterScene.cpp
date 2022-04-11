@@ -38,11 +38,12 @@ namespace skyland
 
 
 
-MoveCharacterScene::MoveCharacterScene(Platform& pfrm, bool near)
-    : matrix_(allocate_dynamic<bool[16][16]>("chr-movement-slots")), near_(near)
+MoveCharacterScene::MoveCharacterScene(CharacterId chr_id, bool near)
+    : matrix_(allocate_dynamic<bool[16][16]>("chr-movement-slots")),
+      chr_id_(chr_id), near_(near)
 {
     if (not matrix_) {
-        pfrm.fatal("MCS: buffers exhausted");
+        Platform::fatal("MCS: buffers exhausted");
     }
 }
 
@@ -66,6 +67,17 @@ void MoveCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
     }
 
     island->render_interior(pfrm, app);
+
+    if (app.game_mode() == App::GameMode::co_op) {
+
+        network::packet::CoopChrLockRelease pkt;
+        pkt.chr_id_.set(chr_id_);
+        network::transmit(pfrm, pkt);
+
+        if (auto chr = BasicCharacter::find_by_id(app, chr_id_).first) {
+            chr->co_op_release_lock();
+        }
+    }
 }
 
 
@@ -98,8 +110,6 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
     } else {
         cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
     }
-
-    initial_cursor_ = cursor_loc;
 
     if (not(*matrix_)[cursor_loc.x][cursor_loc.y]) {
         for (int x = 0; x < 16; ++x) {
@@ -228,29 +238,7 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         (*matrix_)[cursor_loc->x][cursor_loc->y]) {
 
         auto sel_chr = [&]() -> BasicCharacter* {
-            if (auto room = island->get_room(initial_cursor_)) {
-                for (auto it = room->characters().begin();
-                     it not_eq room->characters().end();
-                     ++it) {
-                    // Either the player owns the character, or the character
-                    // belongs to the AI and we're in sandbox mode and the
-                    // player has no characters in the same room.
-                    if ((*it)->grid_position() == initial_cursor_ and
-                        ((*it)->owner() == &app.player() or
-                         (app.game_mode() == App::GameMode::sandbox and [&] {
-                             for (auto& chr : room->characters()) {
-                                 if (chr->owner() == &app.player()) {
-                                     return false;
-                                 }
-                             }
-                             return true;
-                         }()))) {
-
-                        return it->get();
-                    }
-                }
-            }
-            return nullptr;
+            return BasicCharacter::find_by_id(app, chr_id_).first;
         }();
 
 
@@ -278,15 +266,16 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
 
-            auto path =
-                find_path(pfrm, app, island, initial_cursor_, *cursor_loc);
+            auto current = sel_chr->grid_position();
+
+            auto path = find_path(pfrm, app, island, current, *cursor_loc);
 
             if (path and *path) {
                 sel_chr->set_movement_path(pfrm, app, std::move(*path));
 
                 network::packet::CharacterSetTarget packet;
-                packet.src_x_ = initial_cursor_.x;
-                packet.src_y_ = initial_cursor_.y;
+                packet.src_x_ = current.x;
+                packet.src_y_ = current.y;
                 packet.dst_x_ = cursor_loc->x;
                 packet.dst_y_ = cursor_loc->y;
                 packet.owned_by_ai_ = false;

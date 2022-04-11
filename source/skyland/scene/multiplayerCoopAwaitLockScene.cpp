@@ -66,4 +66,39 @@ ScenePtr<Scene> MultiplayerCoopAwaitLockScene::update(Platform& pfrm,
 
 
 
+ScenePtr<Scene> MultiplayerCoopAwaitChrLockScene::update(Platform& pfrm,
+                                                         App& app,
+                                                         Microseconds delta)
+{
+    auto on_failure = [&] {
+        if (auto chr = BasicCharacter::find_by_id(app, id_).first) {
+            chr->co_op_release_lock();
+        }
+        pfrm.speaker().play_sound("beep_error", 2);
+        return scene_pool::alloc<ReadyScene>();
+    };
+
+    if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+        on_failure();
+        return scene;
+    }
+
+    if (result_) {
+        if (*result_) {
+            return next_();
+        } else {
+            return on_failure();
+        }
+    }
+
+    timeout_ -= delta;
+    if (timeout_ <= 0) {
+        return on_failure();
+    }
+
+    return null_scene();
+}
+
+
+
 } // namespace skyland

@@ -24,6 +24,7 @@
 
 
 #include "allocator.hpp"
+#include "skyland/characterId.hpp"
 #include "skyland/scene.hpp"
 #include "worldScene.hpp"
 
@@ -37,7 +38,7 @@ namespace skyland
 class MoveCharacterScene : public ActiveWorldScene
 {
 public:
-    MoveCharacterScene(Platform& pfrm, bool near);
+    MoveCharacterScene(CharacterId chr_id, bool near);
 
 
     void enter(Platform&, App&, Scene& prev) override;
@@ -54,7 +55,7 @@ private:
     DynamicMemory<bool[16][16]> matrix_;
     Microseconds cursor_anim_timer_ = 0;
     u8 cursor_anim_frame_ = 0;
-    Vec2<u8> initial_cursor_;
+    CharacterId chr_id_;
     const bool near_;
 };
 

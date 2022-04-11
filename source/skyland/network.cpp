@@ -89,6 +89,9 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::CoopRoomLockAcquire)
             HANDLE_MESSAGE(packet::CoopRoomLockRelease)
             HANDLE_MESSAGE(packet::CoopRoomLockResponse)
+            HANDLE_MESSAGE(packet::CoopChrLockAcquire)
+            HANDLE_MESSAGE(packet::CoopChrLockRelease)
+            HANDLE_MESSAGE(packet::CoopChrLockResponse)
         }
 
         error(pfrm, "garbled message!?");

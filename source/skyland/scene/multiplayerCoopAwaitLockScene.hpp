@@ -62,4 +62,32 @@ private:
 
 
 
+class MultiplayerCoopAwaitChrLockScene : public ActiveWorldScene
+{
+public:
+    MultiplayerCoopAwaitChrLockScene(DeferredScene next, CharacterId id)
+        : next_(next), id_(id)
+    {
+    }
+
+
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+
+    void signal_result(bool result)
+    {
+        result_ = result;
+    }
+
+
+private:
+    DeferredScene next_;
+    CharacterId id_;
+    std::optional<bool> result_;
+
+    Microseconds timeout_ = milliseconds(500);
+};
+
+
+
 } // namespace skyland

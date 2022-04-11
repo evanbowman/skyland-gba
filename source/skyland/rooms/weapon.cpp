@@ -247,15 +247,17 @@ ScenePtr<Scene> Weapon::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
         auto next =
             scene_pool::make_deferred_scene<Next>(position(), true, target_);
 
-        if (app.game_mode() == App::GameMode::co_op and
-            this->co_op_acquire_lock()) {
+        if (app.game_mode() == App::GameMode::co_op) {
 
-            network::packet::CoopRoomLockAcquire pkt;
-            pkt.x_ = position().x;
-            pkt.y_ = position().y;
-            network::transmit(pfrm, pkt);
+            if (this->co_op_acquire_lock()) {
+                network::packet::CoopRoomLockAcquire pkt;
+                pkt.x_ = position().x;
+                pkt.y_ = position().y;
+                network::transmit(pfrm, pkt);
 
-            return scene_pool::alloc<Await>(next, position());
+                return scene_pool::alloc<Await>(next, position());
+            }
+
         } else {
             return next();
         }
