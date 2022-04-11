@@ -425,7 +425,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // Just in case... should there be a bug in the locking anywhere
                 // (I haven't found any), unlock everything at the end of the
                 // level.
-                room->co_op_release_lock();
+                room->co_op_peer_release_lock();
                 for (auto& chr : room->characters()) {
                     chr->co_op_release_lock();
                 }

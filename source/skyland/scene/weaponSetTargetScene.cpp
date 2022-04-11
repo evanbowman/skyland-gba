@@ -309,13 +309,9 @@ void WeaponSetTargetScene::exit(Platform& pfrm, App& app, Scene& next)
     clear_room_description(pfrm, room_description_);
 
     if (app.game_mode() == App::GameMode::co_op) {
-        network::packet::CoopRoomLockRelease pkt;
-        pkt.x_ = weapon_loc_.x;
-        pkt.y_ = weapon_loc_.y;
-        network::transmit(pfrm, pkt);
 
         if (auto room = app.player_island().get_room(weapon_loc_)) {
-            room->co_op_release_lock();
+            room->co_op_release_lock(pfrm);
         }
     }
 }

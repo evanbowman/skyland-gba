@@ -37,7 +37,7 @@ ScenePtr<Scene> MultiplayerCoopAwaitLockScene::update(Platform& pfrm,
         if (auto room = player_island(app).get_room(coord_)) {
             // Before entering this scene, the originating code should
             // have checked the room's lock and acquired it.
-            room->co_op_release_lock();
+            room->co_op_peer_release_lock();
         }
         pfrm.speaker().play_sound("beep_error", 2);
         return scene_pool::alloc<ReadyScene>();

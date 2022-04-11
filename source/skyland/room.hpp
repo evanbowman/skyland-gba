@@ -440,14 +440,43 @@ public:
         y_position_ = pos.y;
     }
 
-
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // Co-op synchronization:
+    //
     // For co-op mode, to prevent two consoles from editing the same block at
-    // once.
-    bool co_op_acquire_lock();
-    void co_op_release_lock();
+    // once. Acquiring a lock broadcasts an acquire lock message, and the sender
+    // should wait for a response from the other console before continuing. When
+    // granting the lock to another connected game, the receiver should call
+    // co_op_peer_acquire_lock(), which sets the lock bit to true, indicating
+    // that another game acquired the lock. co_op_release_lock unsets the lock
+    // bit and broadcasts a message to the other console, which should call
+    // co_op_peer_release_lock(). While the semantics are admittedly a bit
+    // complex, the alternative would be to allow both co-op players to set the
+    // target of a weapon at the same time, which results in tons of bugs.
+    //
+
+    // When acquiring a lock, pass a lazy reference to a scene object, which the
+    // game will enter after successfully acquiring the lock.
+    //
+    // Returns an intermediary scene which safely waits on the lock, if the lock
+    // is available. If the lock is already locked, returns null_scene().
+    //
+    // Generally, co_op_acquire lock does almost everything for you, you just
+    // need to make sure that the exit method of the deferred scene passed into
+    // the function correctly releases the lock with co_op_release_lock()!
+    ScenePtr<Scene> co_op_acquire_lock(Platform& pfrm, DeferredScene next);
+
+    void co_op_release_lock(Platform& pfrm);
+
+    bool co_op_peer_acquire_lock();
+    void co_op_peer_release_lock();
+
 
     bool co_op_locked() const;
 
+    //
+    ////////////////////////////////////////////////////////////////////////////
 
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);

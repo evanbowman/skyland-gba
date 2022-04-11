@@ -520,7 +520,7 @@ void CoopTeam::receive(Platform& pfrm,
     resp.status_ = RespType::failure;
 
     if (auto room = app.player_island().get_room({packet.x_, packet.y_})) {
-        if (room->co_op_acquire_lock()) {
+        if (room->co_op_peer_acquire_lock()) {
             resp.status_ = RespType::success;
         }
     }
@@ -535,7 +535,7 @@ void CoopTeam::receive(Platform& pfrm,
                        const network::packet::CoopRoomLockRelease& packet)
 {
     if (auto room = app.player_island().get_room({packet.x_, packet.y_})) {
-        room->co_op_release_lock();
+        room->co_op_peer_release_lock();
     }
 }
 

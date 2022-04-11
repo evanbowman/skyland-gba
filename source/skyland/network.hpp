@@ -197,6 +197,17 @@ struct DroneSetTarget
 struct CharacterSetTarget
 {
     Header header_;
+
+    // FIXME: Rather than src_x_ and src_y_, we should be identifying a
+    // character by character id. We already do this elsewhere in the code,
+    // e.g. in some of the character-related messages for co-op mode, and in the
+    // rewind logic. But, using character id becomes tricky in vs-multiplayer,
+    // where we need to first add extra logic to assign character ids
+    // differently than we currently do when setting up a game, as nothing
+    // prevents each console from generating the same ids for each player's
+    // characters. For co-op mode, both players control the same castle, so
+    // there's no id issue, only a problem in vs-multiplayer.
+
     u8 src_x_;
     u8 src_y_;
     u8 dst_x_;

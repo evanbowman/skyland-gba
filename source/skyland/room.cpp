@@ -877,7 +877,27 @@ void Room::render_scaffolding(App& app, u8 buffer[16][16])
 
 
 
-bool Room::co_op_acquire_lock()
+ScenePtr<Scene> Room::co_op_acquire_lock(Platform& pfrm, DeferredScene next)
+{
+    if (co_op_locked_) {
+        return null_scene();
+    }
+
+    if (not co_op_peer_acquire_lock()) {
+        return null_scene();
+    }
+
+    network::packet::CoopRoomLockAcquire pkt;
+    pkt.x_ = position().x;
+    pkt.y_ = position().y;
+    network::transmit(pfrm, pkt);
+
+    return scene_pool::alloc<MultiplayerCoopAwaitLockScene>(next, position());
+}
+
+
+
+bool Room::co_op_peer_acquire_lock()
 {
     if (co_op_locked_) {
         return false;
@@ -903,7 +923,7 @@ bool Room::co_op_acquire_lock()
 
 
 
-void Room::co_op_release_lock()
+void Room::co_op_peer_release_lock()
 {
     if (group_) {
         for (auto& room : parent()->rooms()) {
@@ -914,6 +934,18 @@ void Room::co_op_release_lock()
     }
 
     co_op_locked_ = false;
+}
+
+
+
+void Room::co_op_release_lock(Platform& pfrm)
+{
+    co_op_peer_release_lock();
+
+    network::packet::CoopRoomLockRelease pkt;
+    pkt.x_ = position().x;
+    pkt.y_ = position().y;
+    network::transmit(pfrm, pkt);
 }
 
 

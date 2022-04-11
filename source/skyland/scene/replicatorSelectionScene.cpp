@@ -93,6 +93,19 @@ void ReplicatorSelectionScene::exit(Platform& pfrm, App& app, Scene& next)
         pfrm.set_tile(Layer::overlay, x, st.y - 3, 0);
         pfrm.set_tile(Layer::overlay, x, st.y - 4, 0);
     }
+
+    if (app.game_mode() == App::GameMode::co_op) {
+
+        auto& cursor_loc =
+            near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
+                  : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+        Island* island = near_ ? &app.player_island() : app.opponent_island();
+
+        if (auto room = island->get_room(cursor_loc)) {
+            room->co_op_release_lock(pfrm);
+        }
+    }
 }
 
 
