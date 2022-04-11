@@ -24,6 +24,7 @@
 #include "skyland/alloc_entity.hpp"
 #include "skyland/island.hpp"
 #include "skyland/network.hpp"
+#include "skyland/scene/multiplayerCoopAwaitLockScene.hpp"
 #include "skyland/scene/replicatorSelectionScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -137,8 +138,25 @@ Replicator::select(Platform& pfrm, App& app, const Vec2<u8>& cursor)
     }
 
     if (found_chr) {
-        return scene_pool::alloc<ReplicatorSelectionScene>(
-            parent() == &app.player_island());
+
+        using Next = ReplicatorSelectionScene;
+        using Await = MultiplayerCoopAwaitLockScene;
+
+        const bool near = parent() == &app.player_island();
+        auto next = scene_pool::make_deferred_scene<Next>(near);
+
+        if (app.game_mode() == App::GameMode::co_op) {
+            if (this->co_op_acquire_lock()) {
+                network::packet::CoopRoomLockAcquire pkt;
+                pkt.x_ = position().x;
+                pkt.y_ = position().y;
+                network::transmit(pfrm, pkt);
+
+                return scene_pool::alloc<Await>(next, position());
+            }
+        } else {
+            return next();
+        }
     }
 
     return null_scene();
