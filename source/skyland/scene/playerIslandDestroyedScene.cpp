@@ -421,6 +421,15 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             for (auto& room : app.player_island().rooms()) {
+
+                // Just in case... should there be a bug in the locking anywhere
+                // (I haven't found any), unlock everything at the end of the
+                // level.
+                room->co_op_release_lock();
+                for (auto& chr : room->characters()) {
+                    chr->co_op_release_lock();
+                }
+
                 room->detach_drone(pfrm, app, true);
             }
 
