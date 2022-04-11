@@ -133,6 +133,8 @@ ScenePtr<Scene> player_island_onclick(Platform& pfrm,
 {
     if (auto room = app.player_island().get_room(pos)) {
         if (room->co_op_locked()) {
+            pfrm.speaker().play_sound("beep_error", 2);
+            // TODO: display notification: co-op player editing room.
             return null_scene();
         }
         if (auto scene = room->select(pfrm, app, pos)) {
