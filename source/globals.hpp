@@ -69,9 +69,9 @@ struct SkylandGlobalData
     bool unhide_multiplayer_prep_ = false;
     int levels_since_music_ = 0;
 
-    Vec2<u8> coop_cursor_;
-    bool coop_cursor_near_ = true;
-    u8 coop_cursor_icon_ = 15;
+    Vec2<u8> co_op_cursor_;
+    bool co_op_cursor_near_ = true;
+    u8 co_op_cursor_icon_ = 15;
 
     SkylandGlobalData()
         : scene_pool_("scenes"), entity_node_pool_("entity-list-node")

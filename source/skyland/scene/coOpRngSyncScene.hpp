@@ -52,7 +52,7 @@ namespace skyland
 
 
 
-class CoopRngSyncScene : public WorldScene, public network::Listener
+class CoOpRngSyncScene : public WorldScene, public network::Listener
 {
 public:
     void enter(Platform& pfrm, App& app, Scene& prev)
@@ -82,7 +82,7 @@ public:
             timer_ += delta;
             if (timer_ > milliseconds(100)) {
                 timer_ = 0;
-                network::packet::CoopRngSyncRequest p;
+                network::packet::CoOpRngSyncRequest p;
                 network::transmit(pfrm, p);
             }
         }
@@ -93,10 +93,10 @@ public:
 
     void receive(Platform& pfrm,
                  App& app,
-                 const network::packet::CoopRngSyncRequest&)
+                 const network::packet::CoOpRngSyncRequest&)
     {
         if (pfrm.network_peer().is_host()) {
-            network::packet::CoopRngSync p;
+            network::packet::CoOpRngSync p;
             p.rng_state_.set(rng::critical_state);
             network::transmit(pfrm, p);
         }
@@ -105,13 +105,13 @@ public:
 
     void receive(Platform& pfrm,
                  App& app,
-                 const network::packet::CoopRngSyncAck& ack)
+                 const network::packet::CoOpRngSyncAck& ack)
     {
         if (pfrm.network_peer().is_host()) {
             if (ack.rng_state_.get() == rng::critical_state) {
                 syncd_ = true;
 
-                network::packet::CoopRngSyncAck p;
+                network::packet::CoOpRngSyncAck p;
                 p.rng_state_.set(rng::critical_state);
                 network::transmit(pfrm, p);
             }

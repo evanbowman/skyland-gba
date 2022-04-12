@@ -633,6 +633,11 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"console-start",
+     [](int argc) {
+         lisp::interp_get_pfrm()->remote_console().start();
+         return L_NIL;
+     }},
     {"opponent-generate",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);

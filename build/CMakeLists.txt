@@ -103,7 +103,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/configure_island.cpp
   ${SOURCE_DIR}/skyland/customTileMapper.cpp
   ${SOURCE_DIR}/skyland/player/playerP1.cpp
-  ${SOURCE_DIR}/skyland/player/coopTeam.cpp
+  ${SOURCE_DIR}/skyland/player/coOpTeam.cpp
   ${SOURCE_DIR}/skyland/player/autopilotPlayer.cpp
   ${SOURCE_DIR}/skyland/player/opponent/opponent.cpp
   ${SOURCE_DIR}/skyland/player/opponent/enemyAI.cpp
@@ -169,7 +169,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/combatDroneSetTargetScene.cpp
   ${SOURCE_DIR}/skyland/scene/levelCompleteOptionsScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
-  ${SOURCE_DIR}/skyland/scene/multiplayerCoopAwaitLockScene.cpp
+  ${SOURCE_DIR}/skyland/scene/multiplayerCoOpAwaitLockScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp

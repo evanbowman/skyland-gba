@@ -20,14 +20,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "coopTeam.hpp"
+#include "coOpTeam.hpp"
 #include "number/random.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/island.hpp"
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/tnt.hpp"
 #include "skyland/rooms/transporter.hpp"
-#include "skyland/scene/multiplayerCoopAwaitLockScene.hpp"
+#include "skyland/scene/multiplayerCoOpAwaitLockScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -37,7 +37,7 @@ namespace skyland
 
 
 
-void CoopTeam::update(Platform& pfrm, App& app, Microseconds delta)
+void CoOpTeam::update(Platform& pfrm, App& app, Microseconds delta)
 {
     PlayerP1::update(pfrm, app, delta);
 
@@ -69,7 +69,7 @@ void CoopTeam::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::Heartbeat& packet)
 {
@@ -78,7 +78,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::RoomConstructed& packet)
 {
@@ -102,7 +102,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::WeaponSetTarget& packet)
 {
@@ -127,24 +127,15 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
-                       const network::packet::CoopRngSync& packet)
+                       const network::packet::CoOpCursor& packet)
 {
-    rng::critical_state = packet.rng_state_.get();
-}
+    std::get<SkylandGlobalData>(globals()).co_op_cursor_.x = packet.x_;
+    std::get<SkylandGlobalData>(globals()).co_op_cursor_.y = packet.y_;
+    std::get<SkylandGlobalData>(globals()).co_op_cursor_near_ = packet.near_;
 
-
-
-void CoopTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::CoopCursor& packet)
-{
-    std::get<SkylandGlobalData>(globals()).coop_cursor_.x = packet.x_;
-    std::get<SkylandGlobalData>(globals()).coop_cursor_.y = packet.y_;
-    std::get<SkylandGlobalData>(globals()).coop_cursor_near_ = packet.near_;
-
-    std::get<SkylandGlobalData>(globals()).coop_cursor_icon_ = [&] {
+    std::get<SkylandGlobalData>(globals()).co_op_cursor_icon_ = [&] {
         switch (packet.icon_) {
         default:
             // Why not simply add an offset? I guess I could... But doing so
@@ -170,7 +161,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::DynamiteActivated& packet)
 {
@@ -187,7 +178,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::SetWeaponGroup& packet)
 {
@@ -200,7 +191,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::RoomSalvaged& packet)
 {
@@ -209,7 +200,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::CharacterDied& packet)
 {
@@ -248,7 +239,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::CharacterBoarded& packet)
 {
@@ -271,7 +262,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::CharacterDisembark& packet)
 {
@@ -294,7 +285,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::CharacterSetTarget& packet)
 {
@@ -331,7 +322,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::ReplicantCreated& packet)
 {
@@ -353,7 +344,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::RoomDestroyed& packet)
 {
@@ -388,7 +379,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::TerrainConstructed& packet)
 {
@@ -397,7 +388,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::OpponentBulkheadChanged& packet)
 {
@@ -412,7 +403,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::DroneSpawn& packet)
 {
@@ -457,7 +448,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::DroneDestroyed& packet)
 {
@@ -481,7 +472,7 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::DroneSetTarget& packet)
 {
@@ -508,11 +499,11 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
-                       const network::packet::CoopRoomLockAcquire& packet)
+                       const network::packet::CoOpRoomLockAcquire& packet)
 {
-    using RespType = network::packet::CoopRoomLockResponse;
+    using RespType = network::packet::CoOpRoomLockResponse;
 
     RespType resp;
     resp.x_ = packet.x_;
@@ -530,9 +521,9 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
-                       const network::packet::CoopRoomLockRelease& packet)
+                       const network::packet::CoOpRoomLockRelease& packet)
 {
     if (auto room = app.player_island().get_room({packet.x_, packet.y_})) {
         room->co_op_peer_release_lock();
@@ -541,26 +532,26 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
-                       const network::packet::CoopRoomLockResponse& packet)
+                       const network::packet::CoOpRoomLockResponse& packet)
 {
-    using RespType = network::packet::CoopRoomLockResponse;
+    using RespType = network::packet::CoOpRoomLockResponse;
 
     Scene* s = &app.scene();
 
-    if (auto scene = dynamic_cast<MultiplayerCoopAwaitLockScene*>(s)) {
+    if (auto scene = dynamic_cast<MultiplayerCoOpAwaitLockScene*>(s)) {
         scene->signal_result(packet.status_ == RespType::success);
     }
 }
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
-                       const network::packet::CoopChrLockAcquire& packet)
+                       const network::packet::CoOpChrLockAcquire& packet)
 {
-    using RespType = network::packet::CoopChrLockResponse;
+    using RespType = network::packet::CoOpChrLockResponse;
 
     const auto chr_id = packet.chr_id_.get();
 
@@ -579,9 +570,9 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
-                       const network::packet::CoopChrLockRelease& packet)
+                       const network::packet::CoOpChrLockRelease& packet)
 {
     const auto chr_id = packet.chr_id_.get();
 
@@ -592,22 +583,39 @@ void CoopTeam::receive(Platform& pfrm,
 
 
 
-void CoopTeam::receive(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
                        App& app,
-                       const network::packet::CoopChrLockResponse& packet)
+                       const network::packet::CoOpChrLockResponse& packet)
 {
-    using RespType = network::packet::CoopChrLockResponse;
+    using RespType = network::packet::CoOpChrLockResponse;
 
     Scene* s = &app.scene();
 
-    if (auto scene = dynamic_cast<MultiplayerCoopAwaitChrLockScene*>(s)) {
+    if (auto scene = dynamic_cast<MultiplayerCoOpAwaitChrLockScene*>(s)) {
         scene->signal_result(packet.status_ == RespType::success);
     }
 }
 
 
 
-void CoopTeam::network_sync_cursor(Platform& pfrm,
+void CoOpTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::CoOpOpponentDestroyed&)
+{
+    if (app.opponent_island()) {
+        for (auto& room : app.opponent_island()->rooms()) {
+            auto category = (*room->metaclass())->category();
+            if (category == Room::Category::power) {
+                auto ko_hp = std::numeric_limits<Health>::max();
+                room->apply_damage(pfrm, app, ko_hp);
+            }
+        }
+    }
+}
+
+
+
+void CoOpTeam::network_sync_cursor(Platform& pfrm,
                                    const RoomCoord& cursor,
                                    u8 cursor_icon,
                                    bool near)
@@ -616,7 +624,7 @@ void CoopTeam::network_sync_cursor(Platform& pfrm,
     // outgoing stuff in the send queue. Updating the cursor graphics for co-op
     // players isn't super essential.
     if (pfrm.network_peer().send_queue_empty()) {
-        network::packet::CoopCursor p;
+        network::packet::CoOpCursor p;
         p.x_ = cursor.x;
         p.y_ = cursor.y;
         p.near_ = near;

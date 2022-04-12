@@ -22,7 +22,6 @@
 
 #include "playerIslandDestroyedScene.hpp"
 #include "achievementNotificationScene.hpp"
-#include "coopRngSyncScene.hpp"
 #include "highscoresScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
 #include "platform/color.hpp"
@@ -416,6 +415,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                         }
                     }
                 }
+
+                if (app.game_mode() == App::GameMode::co_op) {
+                    network::packet::CoOpOpponentDestroyed packet;
+                    network::transmit(pfrm, packet);
+                }
+
             } else {
                 app.swap_opponent<FriendlyAI>();
             }
@@ -650,7 +655,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<SandboxResetScene>();
 
                 case App::GameMode::co_op:
-                    return scene_pool::alloc<CoopRngSyncScene>();
+                    Platform::fatal("logic error: co_op 111");
 
                 case App::GameMode::skyland_forever:
                     return scene_pool::alloc<ReadyScene>();

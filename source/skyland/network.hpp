@@ -63,9 +63,6 @@ struct Header
         heartbeat,
         dynamite_activated,
         co_op_cursor,
-        co_op_rng_sync_request,
-        co_op_rng_sync,
-        co_op_rng_sync_ack,
         set_weapon_group,
         play_music,
         co_op_room_lock_acquire,
@@ -74,6 +71,7 @@ struct Header
         co_op_chr_lock_acquire,
         co_op_chr_lock_release,
         co_op_chr_lock_response,
+        co_op_opponent_destroyed,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -419,7 +417,7 @@ struct GameMatchReady
 
 
 
-struct CoopCursor
+struct CoOpCursor
 {
     Header header_;
     u8 x_;
@@ -430,44 +428,6 @@ struct CoopCursor
     u8 unused_[1];
 
     static const auto mt = Header::MessageType::co_op_cursor;
-};
-
-
-
-// At the end of a level in co-op mode, the game needs to make sure that the rng
-// values are synchronized, before attempting to generate another level.
-struct CoopRngSyncRequest
-{
-    Header header_;
-    u8 unused_[5];
-
-    static const auto mt = Header::MessageType::co_op_rng_sync_request;
-};
-
-
-
-struct CoopRngSync
-{
-    Header header_;
-    host_s32 rng_state_;
-
-    u8 unused_[1];
-
-    static const auto mt = Header::MessageType::co_op_rng_sync;
-};
-
-
-
-// After receiving an rng sync, the receiver should echo back the rng state
-// value.
-struct CoopRngSyncAck
-{
-    Header header_;
-    host_s32 rng_state_;
-
-    u8 unused_[1];
-
-    static const auto mt = Header::MessageType::co_op_rng_sync_ack;
 };
 
 
@@ -498,7 +458,7 @@ struct PlayMusic
 
 
 
-struct CoopRoomLockAcquire
+struct CoOpRoomLockAcquire
 {
     Header header_;
     u8 x_;
@@ -510,7 +470,7 @@ struct CoopRoomLockAcquire
 
 
 
-struct CoopRoomLockRelease
+struct CoOpRoomLockRelease
 {
     Header header_;
     u8 x_;
@@ -522,7 +482,7 @@ struct CoopRoomLockRelease
 
 
 
-struct CoopRoomLockResponse
+struct CoOpRoomLockResponse
 {
     Header header_;
     u8 x_;
@@ -535,7 +495,7 @@ struct CoopRoomLockResponse
 
 
 
-struct CoopChrLockAcquire
+struct CoOpChrLockAcquire
 {
     Header header_;
     HostInteger<CharacterId> chr_id_;
@@ -546,7 +506,7 @@ struct CoopChrLockAcquire
 
 
 
-struct CoopChrLockRelease
+struct CoOpChrLockRelease
 {
     Header header_;
     HostInteger<CharacterId> chr_id_;
@@ -557,7 +517,7 @@ struct CoopChrLockRelease
 
 
 
-struct CoopChrLockResponse
+struct CoOpChrLockResponse
 {
     Header header_;
     HostInteger<CharacterId> chr_id_;
@@ -565,6 +525,17 @@ struct CoopChrLockResponse
     u8 unused_[2];
 
     static const auto mt = Header::MessageType::co_op_chr_lock_response;
+};
+
+
+
+// This message should be unnecessary in most cases. Just as a failsafe.
+struct CoOpOpponentDestroyed
+{
+    Header header_;
+    u8 unused_[5];
+
+    static const auto mt = Header::MessageType::co_op_opponent_destroyed;
 };
 
 
@@ -684,22 +655,7 @@ public:
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoopCursor&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::CoopRngSyncRequest&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::CoopRngSync&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::CoopRngSyncAck&)
+    virtual void receive(Platform&, App&, const packet::CoOpCursor&)
     {
     }
 
@@ -714,32 +670,37 @@ public:
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoopRoomLockAcquire&)
+    virtual void receive(Platform&, App&, const packet::CoOpRoomLockAcquire&)
     {
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoopRoomLockRelease&)
+    virtual void receive(Platform&, App&, const packet::CoOpRoomLockRelease&)
     {
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoopRoomLockResponse&)
+    virtual void receive(Platform&, App&, const packet::CoOpRoomLockResponse&)
     {
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoopChrLockAcquire&)
+    virtual void receive(Platform&, App&, const packet::CoOpChrLockAcquire&)
     {
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoopChrLockRelease&)
+    virtual void receive(Platform&, App&, const packet::CoOpChrLockRelease&)
     {
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoopChrLockResponse&)
+    virtual void receive(Platform&, App&, const packet::CoOpChrLockResponse&)
+    {
+    }
+
+
+    virtual void receive(Platform&, App&, const packet::CoOpOpponentDestroyed&)
     {
     }
 

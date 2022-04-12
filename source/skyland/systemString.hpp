@@ -49,7 +49,7 @@ enum class SystemString {
 
     mt_title,
     mt_hint,
-    mt_coop,
+    mt_co_op,
     mt_vs,
     mt_game_mode,
     mt_prep_seconds,

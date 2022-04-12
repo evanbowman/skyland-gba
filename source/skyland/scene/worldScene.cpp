@@ -228,11 +228,11 @@ void WorldScene::display(Platform& pfrm, App& app)
         Sprite cursor;
         cursor.set_size(Sprite::Size::w16_h32);
         cursor.set_texture_index(
-            std::get<SkylandGlobalData>(globals()).coop_cursor_icon_);
+            std::get<SkylandGlobalData>(globals()).co_op_cursor_icon_);
 
-        auto cursor_loc = std::get<SkylandGlobalData>(globals()).coop_cursor_;
+        auto cursor_loc = std::get<SkylandGlobalData>(globals()).co_op_cursor_;
 
-        if (std::get<SkylandGlobalData>(globals()).coop_cursor_near_) {
+        if (std::get<SkylandGlobalData>(globals()).co_op_cursor_near_) {
 
             auto origin = app.player_island().visual_origin();
 

@@ -70,7 +70,7 @@ void MoveCharacterScene::exit(Platform& pfrm, App& app, Scene& next)
 
     if (app.game_mode() == App::GameMode::co_op) {
 
-        network::packet::CoopChrLockRelease pkt;
+        network::packet::CoOpChrLockRelease pkt;
         pkt.chr_id_.set(chr_id_);
         network::transmit(pfrm, pkt);
 

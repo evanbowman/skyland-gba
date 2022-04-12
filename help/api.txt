@@ -130,6 +130,14 @@ o----------------------------o
 
 o----------------------------o
 
+ (console-start)
+
+ Serve a command line shell
+ over uart.
+
+
+o----------------------------o
+
  (construction-sites
   island
   room-size-x/y-pair)

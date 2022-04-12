@@ -4172,7 +4172,7 @@ static std::optional<DateTime> start_time;
 
 
 
-static void start_remote_console();
+static void remote_console_start();
 
 
 extern char __text_start;
@@ -4494,8 +4494,6 @@ Platform::Platform()
 
     } else {
         info(*this, "gbp not detected");
-
-        start_remote_console();
 
         rumble_init(nullptr);
     }
@@ -6109,7 +6107,7 @@ static void uart_serial_isr()
 
 
 
-static void start_remote_console()
+static void remote_console_start()
 {
     ::remote_console_state.emplace();
 
@@ -6129,6 +6127,14 @@ static void start_remote_console()
     REG_SIOCNT = SIO_9600 | SIO_UART_LENGTH_8 | SIO_UART_SEND_ENABLE |
                  SIO_UART_RECV_ENABLE | SIO_UART | SIO_IRQ;
 }
+
+
+
+void Platform::RemoteConsole::start()
+{
+    remote_console_start();
+}
+
 
 
 auto Platform::RemoteConsole::readline() -> std::optional<Line>
@@ -6402,7 +6408,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
         REG_SIODATA8 = '\n';
 
         // Re-enable the async non-blocking console.
-        start_remote_console();
+        remote_console_start();
     } else if (str_eq(feature_name, "dump-rom")) {
 
         uart_blocking_output_mode();
@@ -6427,7 +6433,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
         irqEnable(IRQ_VBLANK);
 
         // Re-enable the async non-blocking console.
-        start_remote_console();
+        remote_console_start();
     }
 
     return nullptr;

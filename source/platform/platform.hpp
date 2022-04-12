@@ -878,6 +878,10 @@ public:
 #else
         using Line = StringBuffer<8000>;
 #endif
+
+        void start();
+
+
         std::optional<Line> readline();
 
         bool printline(const char* text, const char* prompt = "> ");

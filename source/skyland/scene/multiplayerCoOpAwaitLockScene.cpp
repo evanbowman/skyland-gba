@@ -20,7 +20,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "multiplayerCoopAwaitLockScene.hpp"
+#include "multiplayerCoOpAwaitLockScene.hpp"
 
 
 
@@ -29,7 +29,7 @@ namespace skyland
 
 
 
-ScenePtr<Scene> MultiplayerCoopAwaitLockScene::update(Platform& pfrm,
+ScenePtr<Scene> MultiplayerCoOpAwaitLockScene::update(Platform& pfrm,
                                                       App& app,
                                                       Microseconds delta)
 {
@@ -66,7 +66,7 @@ ScenePtr<Scene> MultiplayerCoopAwaitLockScene::update(Platform& pfrm,
 
 
 
-ScenePtr<Scene> MultiplayerCoopAwaitChrLockScene::update(Platform& pfrm,
+ScenePtr<Scene> MultiplayerCoOpAwaitChrLockScene::update(Platform& pfrm,
                                                          App& app,
                                                          Microseconds delta)
 {

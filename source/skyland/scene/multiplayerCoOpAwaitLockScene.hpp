@@ -34,10 +34,10 @@ namespace skyland
 
 
 
-class MultiplayerCoopAwaitLockScene : public ActiveWorldScene
+class MultiplayerCoOpAwaitLockScene : public ActiveWorldScene
 {
 public:
-    MultiplayerCoopAwaitLockScene(DeferredScene next, const RoomCoord& coord)
+    MultiplayerCoOpAwaitLockScene(DeferredScene next, const RoomCoord& coord)
         : next_(next), coord_(coord)
     {
     }
@@ -62,10 +62,10 @@ private:
 
 
 
-class MultiplayerCoopAwaitChrLockScene : public ActiveWorldScene
+class MultiplayerCoOpAwaitChrLockScene : public ActiveWorldScene
 {
 public:
-    MultiplayerCoopAwaitChrLockScene(DeferredScene next, CharacterId id)
+    MultiplayerCoOpAwaitChrLockScene(DeferredScene next, CharacterId id)
         : next_(next), id_(id)
     {
     }

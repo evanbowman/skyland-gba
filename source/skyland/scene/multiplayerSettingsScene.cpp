@@ -24,7 +24,7 @@
 #include "fadeInScene.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/character/basicCharacter.hpp"
-#include "skyland/player/coopTeam.hpp"
+#include "skyland/player/coOpTeam.hpp"
 #include "skyland/rooms/core.hpp"
 #include "skyland/scene/modules/skylandForever.hpp"
 #include "skyland/skyland.hpp"
@@ -141,7 +141,7 @@ void MultiplayerSettingsScene::update_parameter(Platform& pfrm, u8 line_num)
     StringBuffer<32> field_name;
     if (line_num == 0) {
         if (vs_parameters_[line_num]) {
-            field_name = SYSTR(mt_coop)->c_str();
+            field_name = SYSTR(mt_co_op)->c_str();
         } else {
             field_name = SYSTR(mt_vs)->c_str();
         }
@@ -207,7 +207,7 @@ void MultiplayerSettingsScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.system_call("v-parallax", (void*)true);
 
     if (vs_parameters_[0]) {
-        setup_coop_game(pfrm, app);
+        setup_co_op_game(pfrm, app);
     } else {
         setup_vs_game(pfrm, app);
     }
@@ -219,7 +219,7 @@ void prep_level(Platform& pfrm, App& app);
 
 
 
-void MultiplayerSettingsScene::setup_coop_game(Platform& pfrm, App& app)
+void MultiplayerSettingsScene::setup_co_op_game(Platform& pfrm, App& app)
 {
     if (co_op_rng_) {
         rng::critical_state = *co_op_rng_;
@@ -230,7 +230,7 @@ void MultiplayerSettingsScene::setup_coop_game(Platform& pfrm, App& app)
     BasicCharacter::__reset_ids();
 
     std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_ = true;
-    std::get<SkylandGlobalData>(globals()).coop_cursor_icon_ = 15;
+    std::get<SkylandGlobalData>(globals()).co_op_cursor_icon_ = 15;
 
     // NOTE: A co-op game is basically just SKYLAND Forever where both players
     // share control of a castle.
@@ -240,7 +240,7 @@ void MultiplayerSettingsScene::setup_coop_game(Platform& pfrm, App& app)
 
     app.set_coins(pfrm, std::max(0, app.coins() - 1000));
 
-    app.swap_player<CoopTeam>();
+    app.swap_player<CoOpTeam>();
 
     app.game_mode() = App::GameMode::co_op;
 }

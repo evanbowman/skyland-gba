@@ -29,7 +29,7 @@
 #include "script/listBuilder.hpp"
 #include "skyland.hpp"
 #include "skyland/network.hpp"
-#include "skyland/scene/multiplayerCoopAwaitLockScene.hpp"
+#include "skyland/scene/multiplayerCoOpAwaitLockScene.hpp"
 #include "skyland/tile.hpp"
 #include "timeStreamEvent.hpp"
 
@@ -394,7 +394,7 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
                         const auto ch_id = character->id();
 
                         using Next = MoveCharacterScene;
-                        using Await = MultiplayerCoopAwaitChrLockScene;
+                        using Await = MultiplayerCoOpAwaitChrLockScene;
                         auto n =
                             scene_pool::make_deferred_scene<Next>(ch_id, near);
 
@@ -404,7 +404,7 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
                             // path. Clears up a number of edge cases.
                             if (not character->has_movement_path() and
                                 character->co_op_acquire_lock()) {
-                                network::packet::CoopChrLockAcquire pkt;
+                                network::packet::CoOpChrLockAcquire pkt;
                                 pkt.chr_id_.set(character->id());
                                 network::transmit(pfrm, pkt);
 
@@ -903,12 +903,12 @@ ScenePtr<Scene> Room::co_op_acquire_lock(Platform& pfrm, DeferredScene next)
         return null_scene();
     }
 
-    network::packet::CoopRoomLockAcquire pkt;
+    network::packet::CoOpRoomLockAcquire pkt;
     pkt.x_ = position().x;
     pkt.y_ = position().y;
     network::transmit(pfrm, pkt);
 
-    return scene_pool::alloc<MultiplayerCoopAwaitLockScene>(next, position());
+    return scene_pool::alloc<MultiplayerCoOpAwaitLockScene>(next, position());
 }
 
 
@@ -962,7 +962,7 @@ void Room::co_op_release_lock(Platform& pfrm)
 {
     co_op_peer_release_lock();
 
-    network::packet::CoopRoomLockRelease pkt;
+    network::packet::CoOpRoomLockRelease pkt;
     pkt.x_ = position().x;
     pkt.y_ = position().y;
     network::transmit(pfrm, pkt);
