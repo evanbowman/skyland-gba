@@ -32,6 +32,7 @@
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/network.hpp"
 #include "skyland/player/opponent/friendlyAI.hpp"
+#include "skyland/player/playerP1.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/serial.hpp"
@@ -359,6 +360,10 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         const auto off = 50.f;
 
+        if (not opponent_defeated) {
+            app.swap_player<PlayerP1>();
+        }
+
         big_explosion(pfrm, app, {origin.x - off, origin.y - off});
         big_explosion(pfrm, app, {origin.x + off, origin.y + off});
         timer_ = 0;
@@ -615,6 +620,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         constexpr auto fade_duration = milliseconds(350);
         if (timer_ > fade_duration) {
+
+            timer_ = fade_duration + 1;
+
             if (opponent_defeated) {
 
                 if (app.world_graph()
@@ -678,7 +686,6 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 if (pfrm.network_peer().is_connected()) {
                     pfrm.network_peer().disconnect();
-                    return scene_pool::alloc<TitleScreenScene>();
                 }
 
                 switch (app.game_mode()) {
