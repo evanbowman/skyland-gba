@@ -242,11 +242,11 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
                 // For co-op, our score calculation differs slightly. Give each
                 // player half of the resulting coins.
                 //
-                // Actually... let's give players score * 0.63f coins, not
+                // Actually... let's give players score * 0.6f coins, not
                 // exactly half, as coordination between the players will
                 // inevitably be difficult.
                 app.victory_coins() +=
-                    (frac * (*room->metaclass())->cost()) * 0.63f;
+                    (frac * (*room->metaclass())->cost()) * 0.6f;
             } else {
                 app.victory_coins() += frac * (*room->metaclass())->cost();
             }
@@ -465,21 +465,27 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
         }
     }
 
+    // Fire spread is really super difficult to synchronize over a low bandwidth
+    // GBA link cable. Disabled until I can get it to work reliably.
+    const char* fire_charge_substitution =
+        pfrm.network_peer().is_connected() ?
+        "nemesis" : "fire-charge";
+
     if (levelgen_enemy_count_ > 8) {
         if (missile_count > 2) {
             enq_prob("cannon", 50.f);
             enq_prob("arc-gun", 220.f);
             enq_prob("nemesis", 30.f);
-            enq_prob("fire-charge", 30.f);
+            enq_prob(fire_charge_substitution, 30.f);
         } else {
             enq_prob("cannon", 100.f);
             if (mycelium_count) {
                 enq_prob("arc-gun", 200.f);
-                enq_prob("fire-charge", 90.f);
+                enq_prob(fire_charge_substitution, 90.f);
                 enq_prob("nemesis", 30.f);
             } else {
                 enq_prob("arc-gun", 120.f);
-                enq_prob("fire-charge", 40.f);
+                enq_prob(fire_charge_substitution, 40.f);
                 enq_prob("nemesis", 80.f);
             }
         }
