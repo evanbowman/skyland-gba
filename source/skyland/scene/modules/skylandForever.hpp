@@ -25,6 +25,7 @@
 
 #include "graphics/overlay.hpp"
 #include "skyland/scene/module.hpp"
+#include "number/random.hpp"
 
 
 
@@ -72,7 +73,10 @@ public:
     }
 
 
-    static void init(Platform& pfrm, App& app, u8 difficulty);
+    static void init(Platform& pfrm,
+                     App& app,
+                     u8 difficulty,
+                     rng::LinearGenerator seed);
 
 
 private:

@@ -24,6 +24,7 @@
 
 
 #include "enemyAI.hpp"
+#include "number/random.hpp"
 #include "skyland/island.hpp"
 
 
@@ -36,7 +37,8 @@ namespace skyland
 class ProcgenEnemyAI : public EnemyAI
 {
 public:
-    ProcgenEnemyAI(u8 difficulty);
+
+    ProcgenEnemyAI(rng::LinearGenerator seed, u8 difficulty);
 
 
     void update(Platform& pfrm, App& app, Microseconds delta) override;
@@ -79,6 +81,7 @@ private:
     void place_room_adjacent(Platform& pfrm, App& app, const char* room_name);
 
 
+    rng::LinearGenerator rng_source_;
     u8 difficulty_ = 1;
 
     Vec2<u8> levelgen_size_;

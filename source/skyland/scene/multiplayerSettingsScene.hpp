@@ -23,6 +23,7 @@
 #pragma once
 
 #include "graphics/overlay.hpp"
+#include "number/random.hpp"
 #include "skyland/network.hpp"
 #include "skyland/scene.hpp"
 
@@ -76,6 +77,9 @@ private:
 
     void setup_vs_game(Platform& pfrm, App& app);
     void setup_coop_game(Platform& pfrm, App& app);
+
+
+    std::optional<rng::LinearGenerator> co_op_rng_;
 
 
     Microseconds parameter_sync_timer_ = seconds(1);

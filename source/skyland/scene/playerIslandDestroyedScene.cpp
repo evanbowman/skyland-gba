@@ -542,7 +542,29 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (app.game_mode() == App::GameMode::skyland_forever or
                 app.game_mode() == App::GameMode::co_op) {
                 app.reset_opponent_island(pfrm);
+
+
+                if (app.game_mode() == App::GameMode::co_op) {
+                    for (auto& room : player_island(app).rooms()) {
+                        // Just in case... should there be a bug in the locking
+                        // anywhere (I haven't found any), unlock everything at
+                        // the end of the level.
+                        const bool was_locked = room->co_op_locked();
+                        room->co_op_peer_release_lock();
+                        if (was_locked and room->co_op_locked()) {
+                            Platform::fatal("failed to release lock!");
+                        } else if (was_locked) {
+                            info(pfrm, "released lock!");
+                        }
+
+                        for (auto& chr : room->characters()) {
+                            chr->co_op_release_lock();
+                        }
+                    }
+                }
+
                 return scene_pool::alloc<ReadyScene>();
+
             } else {
                 anim_state_ = AnimState::fade_out;
             }
@@ -589,6 +611,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = milliseconds(350);
         if (timer_ > fade_duration) {
             if (opponent_defeated) {
+
                 if (app.world_graph()
                         .nodes_[app.current_world_location()]
                         .type_ == WorldGraph::Node::Type::exit) {

@@ -469,6 +469,7 @@ public:
     // Generally, co_op_acquire lock does almost everything for you, you just
     // need to make sure that the exit method of the deferred scene passed into
     // the function correctly releases the lock with co_op_release_lock()!
+
     ScenePtr<Scene> co_op_acquire_lock(Platform& pfrm, DeferredScene next);
 
     void co_op_release_lock(Platform& pfrm);

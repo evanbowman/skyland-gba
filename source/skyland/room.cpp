@@ -734,6 +734,22 @@ Health Room::max_health() const
 void Room::finalize(Platform& pfrm, App& app)
 {
     finalized_ = true;
+
+    if (co_op_locked_) {
+        // What else can we do? Yeah, maybe not perfectly correct. But if we
+        // don't release the lock from the rest of the group, the room could end
+        // up deadlocked, which is worse than two players concurrently editing a
+        // Room, I think. By concurrent, I mean of course across a network. We
+        // don't have any sort of memory race-condition, just a networking one
+        // involving state sync across consoles. If a room associated with a
+        // group is locked, and subsequently destroyed, the other rooms in the
+        // group will remain locked on both devices, and can no longer be
+        // unlocked by any means. i.e. the rooms can't even be salvaged by the
+        // player, as doing so requires acquiring the lock. Releasing the whole
+        // group when a member room's destroyed clears up a large number of
+        // edge-cases.
+        co_op_peer_release_lock();
+    }
 }
 
 

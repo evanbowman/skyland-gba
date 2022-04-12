@@ -36,6 +36,10 @@ namespace skyland
 
 
 
+static const u8 special_parameter_slot_co_op_rng = 99;
+
+
+
 MultiplayerSettingsScene::ParamBuffer MultiplayerSettingsScene::vs_parameters_;
 
 
@@ -54,6 +58,19 @@ const MultiplayerSettingsScene::ParameterInfo
 
 void MultiplayerSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    if (pfrm.network_peer().is_host()) {
+
+        // Feed the utility rng into a variable, sync it with the client
+        // console.
+        co_op_rng_ = rng::utility_state;
+
+        network::packet::GameMatchParameterUpdate p;
+        p.parameter_id_ = special_parameter_slot_co_op_rng;
+        p.value_.set(*co_op_rng_);
+        network::transmit(pfrm, p);
+    }
+
+
     pfrm.screen().set_shader(passthrough_shader);
 
     const auto title = SYSTR(mt_title);
@@ -204,6 +221,12 @@ void prep_level(Platform& pfrm, App& app);
 
 void MultiplayerSettingsScene::setup_coop_game(Platform& pfrm, App& app)
 {
+    if (co_op_rng_) {
+        rng::critical_state = *co_op_rng_;
+    } else {
+        Platform::fatal("Session error code 9001");
+    }
+
     BasicCharacter::__reset_ids();
 
     std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_ = true;
@@ -211,7 +234,7 @@ void MultiplayerSettingsScene::setup_coop_game(Platform& pfrm, App& app)
 
     // NOTE: A co-op game is basically just SKYLAND Forever where both players
     // share control of a castle.
-    SkylandForever::init(pfrm, app, 1);
+    SkylandForever::init(pfrm, app, 1, *co_op_rng_);
 
     app.persistent_data().score_.set(0);
 
@@ -306,6 +329,11 @@ void MultiplayerSettingsScene::receive(
     App& app,
     const network::packet::GameMatchParameterUpdate& packet)
 {
+    if (packet.parameter_id_ == special_parameter_slot_co_op_rng) {
+        co_op_rng_ = packet.value_.get();
+        return;
+    }
+
     vs_parameters_[packet.parameter_id_] = packet.value_.get();
     update_parameter(pfrm, packet.parameter_id_);
 }

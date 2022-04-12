@@ -48,7 +48,10 @@ void prep_level(Platform& pfrm, App& app);
 
 
 
-ProcgenEnemyAI::ProcgenEnemyAI(u8 difficulty) : difficulty_(difficulty)
+ProcgenEnemyAI::ProcgenEnemyAI(rng::LinearGenerator seed,
+                               u8 difficulty) :
+    rng_source_(seed),
+    difficulty_(difficulty)
 {
 }
 
@@ -148,7 +151,7 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
         }
     }();
 
-    levelgen_size_.y = 4 + rng::choice<5>(rng::critical_state);
+    levelgen_size_.y = 4 + rng::choice<5>(rng_source_);
 
     if (levelgen_enemy_count_ < 4) {
         levelgen_size_.y = std::min(u8(5), levelgen_size_.y);
@@ -162,7 +165,7 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     generate_power_sources(pfrm, app);
 
-    if (levelgen_enemy_count_ > 2 or rng::choice<2>(rng::critical_state)) {
+    if (levelgen_enemy_count_ > 2 or rng::choice<2>(rng_source_)) {
         generate_stairwells(pfrm, app);
     }
 
@@ -528,7 +531,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
             }
         }
 
-        rng::shuffle(slots, rng::critical_state);
+        rng::shuffle(slots, rng_source_);
 
         if (not slots.empty()) {
             auto s = slots[0];
@@ -572,7 +575,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
             }
         }
 
-        rng::shuffle(slots, rng::critical_state);
+        rng::shuffle(slots, rng_source_);
 
         // Placing weapons nearer to the leftmost position reduces the chances
         // of placing cannons in the path of other cannons.
@@ -618,7 +621,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
             }
         }
 
-        rng::shuffle(slots, rng::critical_state);
+        rng::shuffle(slots, rng_source_);
 
         if (not slots.empty()) {
             auto s = slots[0];
@@ -644,7 +647,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
     for (int i = 0; i < max; ++i) {
         auto sel = c->distribution_[rng::choice(c->distribution_.size(),
-                                                rng::critical_state)];
+                                                rng_source_)];
 
         if (power_remaining(app) > (*sel)->consumes_power()) {
 
@@ -766,7 +769,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
             }
         }
 
-        rng::shuffle(c->slots_, rng::critical_state);
+        rng::shuffle(c->slots_, rng_source_);
 
         std::sort(c->slots_.begin(), c->slots_.end(), [](auto& lhs, auto& rhs) {
             return lhs.weight_ > rhs.weight_;
@@ -782,7 +785,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
 
         RoomMeta* sel = &mt;
 
-        if (core_count_ > 2 and rng::choice<2>(rng::critical_state) and
+        if (core_count_ > 2 and rng::choice<2>(rng_source_) and
             power > mt2->consumes_power() and difficulty_ > 0) {
             sel = &mt2;
         }
@@ -844,7 +847,7 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
                                        Room::Category::wall)) {
                         if (not app.opponent_island()->rooms_plot().get(x, y)) {
                             if (ehull_count > 0 and
-                                rng::choice<3>(rng::critical_state) == 0) {
+                                rng::choice<3>(rng_source_) == 0) {
                                 --ehull_count;
                                 ehull->create(
                                     pfrm, app, app.opponent_island(), {x, y});
@@ -868,19 +871,19 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
         int ehull_count = 0;
         switch (core_count_) {
         case 1:
-            ehull_count = rng::choice<3>(rng::critical_state);
+            ehull_count = rng::choice<3>(rng_source_);
             break;
 
         case 2:
-            ehull_count = rng::choice<5>(rng::critical_state);
+            ehull_count = rng::choice<5>(rng_source_);
             break;
 
         default:
-            ehull_count = rng::choice<6>(rng::critical_state);
+            ehull_count = rng::choice<6>(rng_source_);
             break;
         }
         if (difficulty_ not_eq 0) {
-            missile_defense = rng::choice<2>(rng::critical_state);
+            missile_defense = rng::choice<2>(rng_source_);
         }
         generate_roof(false, ehull_count);
     }
@@ -901,7 +904,7 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
 
                 bool place_mhull = false;
                 if (difficulty_ > 0 and levelgen_enemy_count_ > 8) {
-                    place_mhull = rng::choice<8>(rng::critical_state) == 0;
+                    place_mhull = rng::choice<8>(rng_source_) == 0;
                 }
 
                 if ((*right->metaclass())->category() not_eq
@@ -1100,7 +1103,7 @@ void ProcgenEnemyAI::generate_radiators(Platform& pfrm, App& app)
         // with a player who's offensively focused on boarding parties. Generate
         // some radiator blocks to make things more difficult.
 
-        const int count = rng::choice<4>(rng::critical_state);
+        const int count = rng::choice<4>(rng_source_);
         for (int i = 0; i < count; ++i) {
             place_room_adjacent(pfrm, app, "radiator");
         }
@@ -1119,8 +1122,8 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
         }
     }
 
-    const int chr_count = 1 + rng::choice(core_count_, rng::critical_state) +
-                          rng::choice(transporter_count, rng::critical_state);
+    const int chr_count = 1 + rng::choice(core_count_, rng_source_) +
+                          rng::choice(transporter_count, rng_source_);
 
     struct Context
     {
@@ -1153,7 +1156,7 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
             }
         }
 
-        rng::shuffle(c->slots_, rng::critical_state);
+        rng::shuffle(c->slots_, rng_source_);
 
         std::sort(c->slots_.begin(), c->slots_.end(), [](auto& lhs, auto& rhs) {
             return lhs.weight_ > rhs.weight_;
@@ -1202,7 +1205,7 @@ void ProcgenEnemyAI::generate_decorations(Platform& pfrm, App& app)
 
 
         if (empty_column and y > construction_zone_min_y) {
-            switch (rng::choice<5>(rng::critical_state)) {
+            switch (rng::choice<5>(rng_source_)) {
             case 0:
             case 1:
             case 2:
@@ -1291,7 +1294,7 @@ void ProcgenEnemyAI::place_room_adjacent(Platform& pfrm,
             }
         }
 
-        rng::shuffle(c->slots, rng::critical_state);
+        rng::shuffle(c->slots, rng_source_);
     };
 
     auto try_place_room = [&](RoomMeta& m) {
@@ -1320,7 +1323,7 @@ void ProcgenEnemyAI::place_room_adjacent(Platform& pfrm,
 
 void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
 {
-    if (levelgen_enemy_count_ > 6 and rng::choice<2>(rng::critical_state)) {
+    if (levelgen_enemy_count_ > 6 and rng::choice<2>(rng_source_)) {
 
         place_room_adjacent(pfrm, app, "infirmary");
     }
@@ -1338,9 +1341,9 @@ void ProcgenEnemyAI::generate_secondary_rooms(Platform& pfrm, App& app)
         place_room_adjacent(pfrm, app, "infirmary");
     }
 
-    if (levelgen_enemy_count_ > 6 and rng::choice<2>(rng::critical_state)) {
+    if (levelgen_enemy_count_ > 6 and rng::choice<2>(rng_source_)) {
 
-        int count = rng::choice<3>(rng::critical_state);
+        int count = rng::choice<3>(rng_source_);
         if (core_count_ == 4) {
             count++;
         }
@@ -1388,10 +1391,10 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
                                 continue;
                             }
                         }
-                        if (rng::choice<18>(rng::critical_state) == 0) {
+                        if (rng::choice<18>(rng_source_) == 0) {
                             dynamite->create(
                                 pfrm, app, app.opponent_island(), {x, yy});
-                        } else if (rng::choice<40>(rng::critical_state) == 0) {
+                        } else if (rng::choice<40>(rng_source_) == 0) {
                             dynamite_ii->create(
                                 pfrm, app, app.opponent_island(), {x, yy});
                         } else {
@@ -1444,8 +1447,8 @@ void ProcgenEnemyAI::place_room_random_loc(Platform& pfrm,
     int tries = 0;
     while (tries < 255) {
         u8 x = x_start +
-               rng::choice((levelgen_size_.x - x_start), rng::critical_state);
-        u8 y = 14 - rng::choice(levelgen_size_.y, rng::critical_state);
+               rng::choice((levelgen_size_.x - x_start), rng_source_);
+        u8 y = 14 - rng::choice(levelgen_size_.y, rng_source_);
 
         if (has_space(app, {x, y}, (*mt)->size())) {
             make_room({x, y});

@@ -115,7 +115,7 @@ void SkylandForever::exit(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_overlay_texture("overlay");
     pfrm.system_call("v-parallax", (void*)true);
 
-    init(pfrm, app, parameters_[0]);
+    init(pfrm, app, parameters_[0], rng::critical_state);
 
     pfrm.load_overlay_texture("overlay");
     pfrm.system_call("v-parallax", (void*)true);
@@ -125,7 +125,10 @@ void SkylandForever::exit(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void SkylandForever::init(Platform& pfrm, App& app, u8 difficulty)
+void SkylandForever::init(Platform& pfrm,
+                          App& app,
+                          u8 difficulty,
+                          rng::LinearGenerator seed)
 {
     app.set_coins(pfrm, 0);
 
@@ -155,7 +158,7 @@ void SkylandForever::init(Platform& pfrm, App& app, u8 difficulty)
     app.player_island().set_position({10, 374});
 
     app.reset_opponent_island(pfrm);
-    app.swap_opponent<ProcgenEnemyAI>(difficulty);
+    app.swap_opponent<ProcgenEnemyAI>(seed, difficulty);
 
 
     show_island_exterior(pfrm, app, &app.player_island());
