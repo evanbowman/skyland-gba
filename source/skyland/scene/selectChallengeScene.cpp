@@ -218,12 +218,14 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::down)) {
             if ((u32)cursor_ < text_.size() - 1) {
                 cursor_++;
+                pfrm.speaker().play_sound("click_wooden", 2);
             }
         }
 
         if (app.player().key_down(pfrm, Key::up)) {
             if (cursor_) {
                 cursor_--;
+                pfrm.speaker().play_sound("click_wooden", 2);
             }
         }
 

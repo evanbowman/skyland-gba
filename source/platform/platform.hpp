@@ -253,11 +253,6 @@ public:
     // tiles are overwritten by set_tile.
     void enable_glyph_mode(bool enabled);
 
-    // In this mode, the engine will use all of available overlay vram for
-    // rendering text glyphs. Added during chinese language localization,
-    // when we needed extra memory for displaying large amounts of text.
-    void enable_expanded_glyph_mode(bool enabled);
-
 
     // NOTE: For the overlay and background, the tile layers consist of 32x32
     // tiles, where each tiles is 8x8 pixels. The overlay and the background
@@ -854,21 +849,6 @@ public:
         // poll_consume() until there's enough space to fill an entire message.
         std::optional<Message> poll_message();
         void poll_consume(u32 length);
-
-        // Will return false if the platform does not support networked
-        // multiplayer.
-        static bool supported_by_device();
-
-        struct Stats
-        {
-            int transmit_count_;
-            int receive_count_;
-            int transmit_loss_;
-            int receive_loss_;
-            int link_saturation_; // percentage 0 to 100
-        };
-
-        Stats stats();
 
     private:
         void* impl_;

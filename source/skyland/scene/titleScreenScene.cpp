@@ -659,6 +659,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 state_ = State::fade_modules_1;
             } else {
                 pfrm.speaker().play_music("unaccompanied_wind", 0);
+                pfrm.speaker().play_sound("button_wooden", 3);
             }
         }
 
@@ -943,44 +944,61 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             module_cursor_.reset();
         }
         if (module_cursor_) {
-            if (app.player().key_down(pfrm, Key::right)) {
+
+            auto test_key = [&](Key k) {
+                return app.player().test_key(
+                    pfrm, k, milliseconds(500), milliseconds(100));
+            };
+
+            auto click_sound = [&] {
+                             pfrm.speaker().play_sound("click_wooden", 2);
+                         };
+            if (test_key(Key::right)) {
                 if (module_cursor_->x < 2) {
                     module_cursor_->x += 1;
+                    click_sound();
                 } else if (module_page_ < module_page_count() - 1) {
                     pfrm.fill_overlay(0);
                     redraw_margins(pfrm);
                     module_cursor_->x = 0;
                     module_page_++;
+                    click_sound();
                 }
                 put_module_text(pfrm);
             }
-            if (app.player().key_down(pfrm, Key::left)) {
+            if (test_key(Key::left)) {
                 if (module_cursor_->x > 0) {
                     module_cursor_->x -= 1;
+                    click_sound();
                 } else if (module_page_ > 0) {
                     pfrm.fill_overlay(0);
                     redraw_margins(pfrm);
                     module_cursor_->x = 2;
                     --module_page_;
+                    click_sound();
                 }
                 put_module_text(pfrm);
             }
-            if (app.player().key_down(pfrm, Key::up) and
+            if (test_key(Key::up) and
                 module_cursor_->y > 0) {
                 module_cursor_->y -= 1;
                 put_module_text(pfrm);
+                click_sound();
             }
-            if (app.player().key_down(pfrm, Key::down) and
+            if (test_key(Key::down) and
                 module_cursor_->y < 1) {
                 module_cursor_->y += 1;
                 put_module_text(pfrm);
+                click_sound();
             }
 
             if (app.player().key_down(pfrm, Key::action_1)) {
+
                 auto index = module_page_ * modules_per_page +
                              module_cursor_->x +
                              module_cursor_->y * modules_per_row;
                 if (auto f = detail::_Module::Factory::get(index)) {
+                    pfrm.speaker().play_sound("button_wooden", 3);
                     if (f->stop_sound()) {
                         pfrm.speaker().play_music("unaccompanied_wind", 0);
                     }

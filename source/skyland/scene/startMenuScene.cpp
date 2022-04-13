@@ -281,6 +281,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::clear;
         }
         if (player(app).key_down(pfrm, Key::action_1)) {
+            pfrm.speaker().play_sound("button_wooden", 3);
             const auto mode = data_->on_click_[data_->cursor_].mode_;
             if (mode == kill_menu) {
                 state_ = State::clear;
@@ -294,11 +295,13 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::down)) {
             if (data_->cursor_ < data_->text_.size() - 1) {
                 ++data_->cursor_;
+                pfrm.speaker().play_sound("click_wooden", 2);
             }
         }
         if (test_key(Key::up)) {
             if (data_->cursor_ > 0) {
                 --data_->cursor_;
+                pfrm.speaker().play_sound("click_wooden", 2);
             }
         }
         break;

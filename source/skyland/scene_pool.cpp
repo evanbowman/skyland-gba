@@ -48,7 +48,7 @@ ScenePtr<Scene> null_scene()
 
 ScenePtr<Scene> initial_scene()
 {
-    return scene_pool::alloc<IntroCutsceneSceneBegin>();
+    return scene_pool::alloc<IntroCreditsScene>();
 }
 
 

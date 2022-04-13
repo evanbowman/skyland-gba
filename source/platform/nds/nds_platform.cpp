@@ -649,13 +649,6 @@ void Platform::enable_glyph_mode(bool enabled)
 
 
 
-void Platform::enable_expanded_glyph_mode(bool enabled)
-{
-    // TODO...
-}
-
-
-
 u16 Platform::get_palette(Layer layer, u16 x, u16 y)
 {
     if (layer == Layer::overlay) {

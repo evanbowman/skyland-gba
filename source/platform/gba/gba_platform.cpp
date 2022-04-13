@@ -3114,7 +3114,7 @@ struct AudioTrack
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
 } music_tracks[] = {
-    DEF_MUSIC(isle_of_the_dead, music_isle_of_the_dead),
+                    // DEF_MUSIC(isle_of_the_dead, music_isle_of_the_dead),
     DEF_MUSIC(shadows, shadows),
     DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
     DEF_MUSIC(life_in_silco, music_life_in_silco),
@@ -3141,6 +3141,11 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_bell.hpp"
 // #include "data/sound_blaster.hpp"
 #include "data/sound_click.hpp"
+#include "data/sound_cursor_click.hpp"
+#include "data/sound_click_wooden.hpp"
+#include "data/sound_button_wooden.hpp"
+#include "data/sound_click_negative.hpp"
+#include "data/sound_digital_click_1.hpp"
 #include "data/sound_cling.hpp"
 #include "data/sound_coin.hpp"
 #include "data/sound_gust.hpp"
@@ -3206,6 +3211,11 @@ static const AudioTrack sounds[] = {DEF_SOUND(explosion1, sound_explosion1),
                                     // DEF_SOUND(dodge, sound_dodge),
                                     // DEF_SOUND(heart, sound_heart),
                                     DEF_SOUND(click, sound_scroll),
+                                    DEF_SOUND(cursor_tick, sound_cursor_click),
+                                    DEF_SOUND(click_negative, sound_click_negative),
+                                    DEF_SOUND(click_wooden, sound_click_wooden),
+                                    DEF_SOUND(button_wooden, sound_button_wooden),
+                                    DEF_SOUND(click_digital_1, sound_digital_click_1),
                                     // DEF_SOUND(thud, sound_thud),
                                     DEF_SOUND(cannon, sound_cannon),
                                     DEF_SOUND(cling, sound_cling),
@@ -3904,19 +3914,6 @@ struct GlyphTable
 static EWRAM_DATA GlyphTable glyph_table;
 
 
-void Platform::enable_expanded_glyph_mode(bool enabled)
-{
-    for (auto& gm : ::glyph_table.mappings_) {
-        gm.reference_count_ = -1;
-    }
-
-    if (enabled) {
-        glyph_table_size = glyph_mapping_count + glyph_expanded_count;
-    } else {
-        glyph_table_size = glyph_mapping_count;
-    }
-}
-
 
 #define REG_SGFIFOA *(volatile u32*)0x40000A0
 
@@ -4507,7 +4504,7 @@ Platform::Platform()
     audio_start();
     clear_music();
     speaker().play_music("unaccompanied_wind", 0);
-    speaker().play_sound("bell", 1);
+    speaker().play_sound("click_digital_1", 1);
 
     if (bios_version not_eq BiosVersion::NDS) {
         show_health_and_safety_message(*this);
@@ -5705,40 +5702,6 @@ void Platform::NetworkPeer::listen()
 
 void Platform::NetworkPeer::update()
 {
-}
-
-
-static int last_tx_count = 0;
-
-
-Platform::NetworkPeer::Stats Platform::NetworkPeer::stats()
-{
-    auto& mc = multiplayer_comms;
-
-    const int empty_transmits = mc.null_bytes_written / max_message_size;
-    mc.null_bytes_written = 0;
-
-    Float link_saturation = 0.f;
-
-    if (empty_transmits) {
-        auto tx_diff = mc.tx_message_count - last_tx_count;
-
-        link_saturation = Float(tx_diff) / (empty_transmits + tx_diff);
-    }
-
-    last_tx_count = mc.tx_message_count;
-
-    return {mc.tx_message_count,
-            mc.rx_message_count,
-            mc.tx_loss,
-            mc.rx_loss,
-            static_cast<int>(100 * link_saturation)};
-}
-
-
-bool Platform::NetworkPeer::supported_by_device()
-{
-    return true;
 }
 
 

@@ -352,6 +352,11 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/sound_missile_explosion.s
     ${DATA_DIR}/sound_gust.s
     ${DATA_DIR}/sound_gust2.s
+    ${DATA_DIR}/sound_click_negative.s
+    ${DATA_DIR}/sound_click_wooden.s
+    ${DATA_DIR}/sound_cursor_click.s
+    ${DATA_DIR}/sound_button_wooden.s
+    ${DATA_DIR}/sound_digital_click_1.s
     ${DATA_DIR}/sound_fizzle.s
     ${DATA_DIR}/sound_gravel.s
     ${DATA_DIR}/sound_dropitem.s

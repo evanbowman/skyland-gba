@@ -308,12 +308,14 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             return scene_pool::alloc<ConstructionScene>();
         }
 
+        bool cursor_moved = false;
+
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
-
+                cursor_moved = true;
                 sync_cursor();
             }
         } else if (test_key(Key::right)) {
@@ -321,6 +323,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 ++cursor_loc.x;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+                cursor_moved = true;
 
                 sync_cursor();
 
@@ -347,7 +350,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 --cursor_loc.y;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
-
+                cursor_moved = true;
                 sync_cursor();
             }
         } else if (test_key(Key::down)) {
@@ -355,9 +358,13 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 ++cursor_loc.y;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
-
+                cursor_moved = true;
                 sync_cursor();
             }
+        }
+
+        if (cursor_moved) {
+            // pfrm.speaker().play_sound("cursor_tick", 0);
         }
 
         if (await_start_key_ and app.player().key_up(pfrm, Key::start) and

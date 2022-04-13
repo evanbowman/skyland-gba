@@ -1812,22 +1812,11 @@ TileDesc Platform::map_glyph(const utf8::Codepoint& glyph,
 }
 
 
-void Platform::enable_expanded_glyph_mode(bool enabled)
-{
-    // No need to do anything here.
-}
-
-
 void Platform::fatal(const char* msg)
 {
     exit(1);
 }
 
-
-void Platform::feed_watchdog()
-{
-    // ... TODO ...
-}
 
 
 static std::map<std::string, std::string> files;

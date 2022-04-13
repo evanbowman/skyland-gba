@@ -315,9 +315,11 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.player().key_down(pfrm, Key::down) and
         cursor_ < parameters_.size() - 1) {
         ++cursor_;
+        pfrm.speaker().play_sound("click_wooden", 2);
 
     } else if (app.player().key_down(pfrm, Key::up) and cursor_ > 0) {
         --cursor_;
+        pfrm.speaker().play_sound("click_wooden", 2);
     }
 
 
