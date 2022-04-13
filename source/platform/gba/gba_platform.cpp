@@ -162,6 +162,7 @@ enum class GlobalFlag {
     parallax_clouds,
     v_parallax,
     palette_sync,
+    sound_startup_monkeypatch,
     count
 };
 
@@ -3142,6 +3143,8 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_click.hpp"
 #include "data/sound_cling.hpp"
 #include "data/sound_coin.hpp"
+#include "data/sound_gust.hpp"
+#include "data/sound_gust2.hpp"
 #include "data/sound_thunder_1.hpp"
 #include "data/sound_thunder_2.hpp"
 // #include "data/sound_creak.hpp"
@@ -3188,6 +3191,8 @@ static const AudioTrack sounds[] = {DEF_SOUND(explosion1, sound_explosion1),
                                     DEF_SOUND(footstep1, sound_footstep1),
                                     DEF_SOUND(footstep2, sound_footstep2),
                                     DEF_SOUND(footstep3, sound_footstep3),
+                                    DEF_SOUND(gust1, sound_gust),
+                                    DEF_SOUND(gust2, sound_gust2),
                                     // DEF_SOUND(footstep4, sound_footstep4),
                                     // DEF_SOUND(open_book, sound_open_book),
                                     // DEF_SOUND(dropitem, sound_dropitem),
@@ -3804,6 +3809,7 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
     play_sound("footstep1", 0);
     play_sound("footstep2", 0);
     play_sound("footstep3", 0);
+
 }
 
 

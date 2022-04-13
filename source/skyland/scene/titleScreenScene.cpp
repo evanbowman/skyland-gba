@@ -477,6 +477,17 @@ static int module_page_count()
 
 
 
+void TitleScreenScene::play_gust_sound(Platform& pfrm)
+{
+    if (rng::choice<3>(rng::utility_state)) {
+        pfrm.speaker().play_sound("gust1", 1);
+    } else {
+        pfrm.speaker().play_sound("gust2", 1);
+    }
+}
+
+
+
 ScenePtr<Scene>
 TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -659,18 +670,20 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (menu_selection_ == 0) {
                 menu_selection_ = 1;
                 put_menu_text(pfrm);
-                // pfrm.speaker().play_sound("scroll", 1);
+                play_gust_sound(pfrm);
                 state_ = State::scroll_right;
                 timer_ = 0;
             } else if (menu_selection_ == 2) {
                 menu_selection_ = 0;
                 put_menu_text(pfrm);
+                play_gust_sound(pfrm);
                 state_ = State::scroll_to_center;
                 timer_ = 0;
             } else if (menu_selection_ == 1) {
                 menu_selection_ = 3;
                 put_menu_text(pfrm);
                 state_ = State::scroll_to_end;
+                play_gust_sound(pfrm);
                 timer_ = 0;
                 pfrm.system_call("vsync", nullptr);
                 pfrm.load_tile0_texture("skyland_title_3_flattened");
@@ -682,19 +695,21 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (menu_selection_ == 1) {
                 menu_selection_ = 0;
                 put_menu_text(pfrm);
-                // pfrm.speaker().play_sound("scroll", 1);
                 state_ = State::scroll_left;
+                play_gust_sound(pfrm);
                 timer_ = 0;
             } else if (menu_selection_ == 0) {
                 menu_selection_ = 2;
                 put_menu_text(pfrm);
                 state_ = State::scroll_multiplayer;
+                play_gust_sound(pfrm);
                 pfrm.system_call("vsync", nullptr);
                 pfrm.load_tile1_texture("skyland_title_2_flattened");
                 timer_ = 0;
             } else if (menu_selection_ == 3) {
                 menu_selection_ = 1;
                 put_menu_text(pfrm);
+                play_gust_sound(pfrm);
                 state_ = State::scroll_from_end;
                 timer_ = 0;
             }

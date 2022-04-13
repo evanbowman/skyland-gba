@@ -67,6 +67,9 @@ private:
     std::optional<Vec2<u8>> module_cursor_;
 
 
+    void play_gust_sound(Platform& pfrm);
+
+
     struct Pong
     {
         struct Pad
