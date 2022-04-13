@@ -251,6 +251,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     reset_gamespeed(pfrm, app);
 
+    app.environment().update(pfrm, app, delta);
 
     app.time_stream().enable_pushes(false);
     app.time_stream().clear();
