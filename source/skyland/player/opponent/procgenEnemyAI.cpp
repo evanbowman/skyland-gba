@@ -48,10 +48,8 @@ void prep_level(Platform& pfrm, App& app);
 
 
 
-ProcgenEnemyAI::ProcgenEnemyAI(rng::LinearGenerator seed,
-                               u8 difficulty) :
-    rng_source_(seed),
-    difficulty_(difficulty)
+ProcgenEnemyAI::ProcgenEnemyAI(rng::LinearGenerator seed, u8 difficulty)
+    : rng_source_(seed), difficulty_(difficulty)
 {
 }
 
@@ -468,8 +466,7 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     // Fire spread is really super difficult to synchronize over a low bandwidth
     // GBA link cable. Disabled until I can get it to work reliably.
     const char* fire_charge_substitution =
-        pfrm.network_peer().is_connected() ?
-        "nemesis" : "fire-charge";
+        pfrm.network_peer().is_connected() ? "nemesis" : "fire-charge";
 
     if (levelgen_enemy_count_ > 8) {
         if (missile_count > 2) {
@@ -652,8 +649,8 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     int place_missile_count = 0;
 
     for (int i = 0; i < max; ++i) {
-        auto sel = c->distribution_[rng::choice(c->distribution_.size(),
-                                                rng_source_)];
+        auto sel =
+            c->distribution_[rng::choice(c->distribution_.size(), rng_source_)];
 
         if (power_remaining(app) > (*sel)->consumes_power()) {
 
@@ -1452,8 +1449,7 @@ void ProcgenEnemyAI::place_room_random_loc(Platform& pfrm,
 
     int tries = 0;
     while (tries < 255) {
-        u8 x = x_start +
-               rng::choice((levelgen_size_.x - x_start), rng_source_);
+        u8 x = x_start + rng::choice((levelgen_size_.x - x_start), rng_source_);
         u8 y = 14 - rng::choice(levelgen_size_.y, rng_source_);
 
         if (has_space(app, {x, y}, (*mt)->size())) {

@@ -42,6 +42,8 @@ void SelectChallengeScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.screen().set_shader(passthrough_shader);
 
+    app.swap_environment<weather::ClearSkies>();
+
     pfrm.load_overlay_texture("overlay_challenges");
 
     pfrm.system_call("v-parallax", (void*)false);
@@ -281,7 +283,10 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             show_island_exterior(pfrm, app, &app.player_island());
 
-            pfrm.speaker().play_music(app.environment().music(), 0);
+            if (not pfrm.speaker().is_music_playing(app.environment().music())) {
+                pfrm.speaker().play_music(app.environment().music(), 0);
+            }
+
             return scene_pool::alloc<FadeInScene>();
 
         } else {

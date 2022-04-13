@@ -41,7 +41,6 @@ extern SharedVariable fire_charge_reload_ms;
 class FireCharge : public Weapon
 {
 public:
-
     FireCharge(Island* parent, const RoomCoord& position);
 
 
@@ -65,8 +64,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-            RoomProperties::manufactory_required |
-            RoomProperties::multiplayer_unsupported;
+               RoomProperties::manufactory_required |
+               RoomProperties::multiplayer_unsupported;
     }
 
 

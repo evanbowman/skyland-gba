@@ -121,3 +121,6 @@
    (mycelium 8 6)
    (mycelium 8 9)
    (mycelium 8 12)))
+
+
+(weather 2)

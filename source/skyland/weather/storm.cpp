@@ -36,11 +36,10 @@ static_assert(rain_pos_scale % 2 == 0);
 
 
 
-Storm::Storm() :
-    state_(allocate_dynamic<State>("storm-state-buffer"))
+Storm::Storm() : state_(allocate_dynamic<State>("storm-state-buffer"))
 {
-    state_->thunder_timer_ = seconds(6) + rng::choice(seconds(5),
-                                                      rng::utility_state);
+    state_->thunder_timer_ =
+        seconds(6) + rng::choice(seconds(5), rng::utility_state);
 
     const auto scale = rain_pos_scale;
 

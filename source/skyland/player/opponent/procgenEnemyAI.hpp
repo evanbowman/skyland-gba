@@ -37,7 +37,6 @@ namespace skyland
 class ProcgenEnemyAI : public EnemyAI
 {
 public:
-
     ProcgenEnemyAI(rng::LinearGenerator seed, u8 difficulty);
 
 

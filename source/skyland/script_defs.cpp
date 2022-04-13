@@ -643,7 +643,7 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, integer);
 
-         void environment_init(App& app, int type);
+         void environment_init(App & app, int type);
 
          auto [app, pfrm] = interp_get_context();
 

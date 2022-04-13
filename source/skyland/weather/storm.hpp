@@ -33,7 +33,6 @@ namespace skyland::weather
 class Storm : public CleanEnvironment
 {
 private:
-
     Vec2<s16> last_camera_;
 
     struct State
@@ -46,7 +45,6 @@ private:
     DynamicMemory<State> state_;
 
 public:
-
     Storm();
 
 
