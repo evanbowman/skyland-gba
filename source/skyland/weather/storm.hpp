@@ -33,10 +33,23 @@ namespace skyland::weather
 class Storm : public CleanEnvironment
 {
 private:
-    Vec2<s16> raindrops_[6];
+
     Vec2<s16> last_camera_;
 
+    struct State
+    {
+        Vec2<s16> raindrops_[6];
+        Microseconds thunder_timer_;
+    };
+
+
+    DynamicMemory<State> state_;
+
 public:
+
+    Storm();
+
+
     void update(Platform& pfrm, App& app, Microseconds delta);
 
 

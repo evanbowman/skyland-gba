@@ -50,6 +50,9 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     timer_ += delta;
 
+    app.environment().update(pfrm, app, delta);
+
+
     constexpr auto fade_duration = milliseconds(800);
     if (timer_ > fade_duration) {
         if (app.game_mode() not_eq App::GameMode::tutorial and

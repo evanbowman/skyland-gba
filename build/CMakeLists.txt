@@ -347,6 +347,8 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/sound_build0.s
     ${DATA_DIR}/sound_cannon.s
     ${DATA_DIR}/sound_missile.s
+    ${DATA_DIR}/sound_thunder_1.s
+    ${DATA_DIR}/sound_thunder_2.s
     ${DATA_DIR}/sound_missile_explosion.s
     ${DATA_DIR}/sound_fizzle.s
     ${DATA_DIR}/sound_gravel.s

@@ -3142,6 +3142,8 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_click.hpp"
 #include "data/sound_cling.hpp"
 #include "data/sound_coin.hpp"
+#include "data/sound_thunder_1.hpp"
+#include "data/sound_thunder_2.hpp"
 // #include "data/sound_creak.hpp"
 // #include "data/sound_dodge.hpp"
 // #include "data/sound_dropitem.hpp"
@@ -3202,6 +3204,8 @@ static const AudioTrack sounds[] = {DEF_SOUND(explosion1, sound_explosion1),
                                     // DEF_SOUND(thud, sound_thud),
                                     DEF_SOUND(cannon, sound_cannon),
                                     DEF_SOUND(cling, sound_cling),
+                                    DEF_SOUND(thunder_1, sound_thunder_1),
+                                    DEF_SOUND(thunder_2, sound_thunder_2),
                                     DEF_SOUND(coin, sound_coin),
                                     DEF_SOUND(bell, sound_bell),
                                     DEF_SOUND(msg, sound_msg)};
