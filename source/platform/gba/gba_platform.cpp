@@ -4056,6 +4056,31 @@ void Platform::Speaker::set_music_volume(u8 volume)
 
 
 
+static Buffer<ActiveSoundInfo, 3> sound_stash;
+
+
+
+void Platform::Speaker::stash_sounds()
+{
+    sound_stash.clear();
+
+    modify_audio([&] {
+                     sound_stash = snd_ctx.active_sounds;
+                     snd_ctx.active_sounds.clear();
+                 });
+}
+
+
+
+void Platform::Speaker::restore_sounds()
+{
+    modify_audio([&] {
+                     snd_ctx.active_sounds = sound_stash;
+                 });
+}
+
+
+
 static void audio_start()
 {
     clear_music();

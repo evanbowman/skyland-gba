@@ -772,6 +772,16 @@ public:
                         std::optional<Vec2<Float>> position = {});
         bool is_sound_playing(const char* name);
 
+
+        // stash_sounds() pushes the currently playing sounds into a stash and
+        // clears the active sound buffer. restore_sounds() copies the data in
+        // the stash into the active sounds list. Sometimes, when pausing the
+        // game, we want sound effects to halt, and resume when we continue
+        // playing.
+        void stash_sounds();
+        void restore_sounds();
+
+
         // Return a buffer containing any sounds that finished playing.
         Buffer<const char*, 4> completed_sounds();
 

@@ -106,6 +106,12 @@ u16 gamespeed_icon(GameSpeed speed)
 
 void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
 {
+    if (speed == GameSpeed::stopped) {
+        pfrm.speaker().stash_sounds();
+    } else if (app.game_speed() == GameSpeed::stopped) {
+        pfrm.speaker().restore_sounds();
+    }
+
     app.game_speed() = speed;
     if (speed == GameSpeed::normal) {
         set_pause_icon(pfrm, 0);
