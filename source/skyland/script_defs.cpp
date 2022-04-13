@@ -638,6 +638,25 @@ static const lisp::Binding script_api[] = {
          lisp::interp_get_pfrm()->remote_console().start();
          return L_NIL;
      }},
+    {"weather",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+
+         void environment_init(App& app, int type);
+
+         auto [app, pfrm] = interp_get_context();
+
+         environment_init(*app, L_LOAD_INT(0));
+         pfrm->screen().set_shader(app->environment().shader(*app));
+         pfrm->screen().set_shader_argument(0);
+
+         if (not pfrm->speaker().is_music_playing(app->environment().music())) {
+             pfrm->speaker().play_music(app->environment().music(), 0);
+         }
+
+         return L_NIL;
+     }},
     {"opponent-generate",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);
