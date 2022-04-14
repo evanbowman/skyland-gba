@@ -6,16 +6,18 @@
 (eval-file "/scripts/reset_hooks.lisp")
 
 
-(if (not (bound 'sandbox-msg))
+(defn sb-help
+  (dialog "Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own! You may also reposition your opponent's characters! Try out strategies, or just play around!"))
+
+
+(if (not (syscall "save-bit-load" 3))
     (setq on-fadein
           (lambda
             (setq on-fadein nil)
-            (setq sandbox-msg 1)
+            (syscall "save-bit-store" 3 1)
             (dialog "Welcome to the Battle Sandbox! Want any help?")
             (dialog-await-y/n)
-            (setq on-dialog-accepted
-                  (lambda
-                    (dialog "Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own! You may also reposition your opponent's characters! Try out strategies, or just play around!")))
+            (setq on-dialog-accepted sb-help)
             (setq on-dialog-declined nil))))
 
 

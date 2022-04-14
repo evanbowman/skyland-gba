@@ -349,7 +349,8 @@ static bool is_gui_sound(const char* sound_name)
 {
     return str_eq(sound_name, "click") or str_eq(sound_name, "drone_beep") or
            str_eq(sound_name, "openbag") or str_eq(sound_name, "beep_error") or
-           str_eq(sound_name, "click_wooden") or str_eq(sound_name, "button_wooden") or
+           str_eq(sound_name, "click_wooden") or
+           str_eq(sound_name, "button_wooden") or
            str_eq(sound_name, "click_negative");
 }
 
@@ -544,18 +545,14 @@ lisp::Value* App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
 
 bool App::is_developer_mode()
 {
-    return gp_.flags0_ & GlobalPersistentData::Flags0::developer_mode;
+    return gp_.stateflags_.get(GlobalPersistentData::developer_mode);
 }
 
 
 
 void App::set_developer_mode(bool value)
 {
-    if (value) {
-        gp_.flags0_ |= GlobalPersistentData::Flags0::developer_mode;
-    } else {
-        gp_.flags0_ &= ~GlobalPersistentData::Flags0::developer_mode;
-    }
+    return gp_.stateflags_.set(GlobalPersistentData::developer_mode, value);
 }
 
 

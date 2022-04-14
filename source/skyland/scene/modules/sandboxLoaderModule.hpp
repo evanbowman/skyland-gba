@@ -99,6 +99,7 @@ private:
 
     Microseconds long_hold_time_[2] = {0, 0};
 
+    bool cancelled_ = false;
 
     static const ParameterInfo param_info[decltype(parameters_)::capacity()];
 

@@ -44,16 +44,14 @@ struct GlobalPersistentData
     FlagPixels flag_img_;
     Highscores highscores_;
 
-    enum Flags0 {
-        developer_mode = (1 << 0),
-        tutorial_prompt = (1 << 1),
-        configured_clock = (1 << 2),
+    enum Flags {
+        developer_mode,
+        tutorial_prompt,
+        configured_clock,
+        sandbox_prompt,
     };
 
-    u8 flags0_ = developer_mode;
-    u8 flags1_ = 0;
-    u8 flags2_ = 0;
-    u8 flags3_ = 0;
+    Bitvector<64> stateflags_;
 
     host_u64 achievement_flags_;
     host_u64 challenge_flags_;
@@ -67,6 +65,7 @@ struct GlobalPersistentData
 
     GlobalPersistentData()
     {
+        stateflags_.set(developer_mode, true);
         achievement_flags_.set(0);
         challenge_flags_.set(0);
     }

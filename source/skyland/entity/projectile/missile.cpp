@@ -130,7 +130,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
             state_ = State::wait;
             sprite_.set_alpha(Sprite::Alpha::transparent);
-        } else if (sprite_.get_position().y < 450) {
+        } else if (sprite_.get_position().y < 460) {
             sprite_.set_alpha(Sprite::Alpha::transparent);
         } else {
             sprite_.set_alpha(Sprite::Alpha::opaque);
@@ -146,7 +146,6 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > seconds(2)) {
             timer_ = 0;
             state_ = State::falling;
-            sprite_.set_alpha(Sprite::Alpha::opaque);
             auto pos = sprite_.get_position();
             pos.x = target_x_;
             if (not pfrm.network_peer().is_connected() and
@@ -159,7 +158,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::falling: {
-        if (sprite_.get_position().y < 400) {
+        if (sprite_.get_position().y < 460) {
             sprite_.set_alpha(Sprite::Alpha::transparent);
         } else {
             sprite_.set_alpha(Sprite::Alpha::opaque);

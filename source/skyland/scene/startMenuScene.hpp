@@ -65,7 +65,7 @@ private:
     } state_ = State::init;
 
 
-    static constexpr const u32 option_count = 7;
+    static constexpr const u32 option_count = 8;
 
 
     enum TransitionMode {
@@ -91,6 +91,8 @@ private:
     };
 
     Float y_offset_ = 0.f;
+
+    Float diff_percent_ = 0.3f;
 
     void add_option(Platform&,
                     const char* str,

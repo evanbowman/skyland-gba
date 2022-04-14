@@ -36,7 +36,6 @@ namespace skyland::weather
 class Typhoon : public Storm
 {
 public:
-
     Platform::Screen::Shader shader(App& app) const override;
 };
 

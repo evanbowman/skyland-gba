@@ -120,6 +120,28 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               Platform::fatal(error.c_str());
           }},
+         {"save-bit-load",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 1);
+              L_EXPECT_OP(0, integer);
+
+              auto app = interp_get_app();
+              return L_INT(app->gp_.stateflags_.get(L_LOAD_INT(0)));
+          }},
+         {"save-bit-store",
+          [](int argc) {
+              L_EXPECT_ARGC(argc, 2);
+              L_EXPECT_OP(0, integer);
+              L_EXPECT_OP(1, integer);
+
+              auto app = interp_get_app();
+              auto prev = app->gp_.stateflags_.get(L_LOAD_INT(1));
+
+              app->gp_.stateflags_.set(L_LOAD_INT(1), L_LOAD_INT(0));
+              save::store_global_data(*lisp::interp_get_pfrm(), app->gp_);
+
+              return L_INT(prev);
+          }},
          {"log",
           [](int argc) {
               L_EXPECT_ARGC(argc, 1);

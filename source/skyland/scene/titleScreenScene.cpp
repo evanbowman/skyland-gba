@@ -817,13 +817,16 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > fade_duration) {
             text_.reset();
             switch (menu_selection_) {
-            case 0:
+            case 0: {
                 app.game_mode() = App::GameMode::adventure;
                 run_init_scripts(pfrm, app, true);
-                if (app.gp_.flags0_ & GlobalPersistentData::tutorial_prompt) {
+
+                auto tutorial_flag = GlobalPersistentData::tutorial_prompt;
+
+                if (app.gp_.stateflags_.get(tutorial_flag)) {
                     return scene_pool::alloc<NewgameScene>();
                 } else {
-                    app.gp_.flags0_ |= GlobalPersistentData::tutorial_prompt;
+                    app.gp_.stateflags_.set(tutorial_flag, true);
 
                     // Title Screen Graphical bugfix (1)
                     // Text box doesn't show up, need to cycle a fade to fix the
@@ -842,6 +845,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return next;
                 }
                 break;
+            }
 
             case 1: {
                 app.game_mode() = App::GameMode::challenge;
@@ -946,8 +950,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             };
 
             auto click_sound = [&] {
-                             pfrm.speaker().play_sound("click_wooden", 2);
-                         };
+                pfrm.speaker().play_sound("click_wooden", 2);
+            };
             if (test_key(Key::right)) {
                 if (module_cursor_->x < 2) {
                     module_cursor_->x += 1;
@@ -974,14 +978,12 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
                 put_module_text(pfrm);
             }
-            if (test_key(Key::up) and
-                module_cursor_->y > 0) {
+            if (test_key(Key::up) and module_cursor_->y > 0) {
                 module_cursor_->y -= 1;
                 put_module_text(pfrm);
                 click_sound();
             }
-            if (test_key(Key::down) and
-                module_cursor_->y < 1) {
+            if (test_key(Key::down) and module_cursor_->y < 1) {
                 module_cursor_->y += 1;
                 put_module_text(pfrm);
                 click_sound();

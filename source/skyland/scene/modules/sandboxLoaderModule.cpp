@@ -179,35 +179,40 @@ void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& prev)
+void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& next)
 {
     title_.reset();
     help_.reset();
     settings_text_.clear();
 
-    app.set_coins(pfrm, parameters_[0]);
-    app.player_island().init_terrain(pfrm, parameters_[1]);
 
-    environment_init(app, parameters_[4]);
+    if (not cancelled_) {
 
-    if (parameters_[2]) {
-        pfrm.speaker().play_music(app.environment().music(), 0);
+        app.set_coins(pfrm, parameters_[0]);
+        app.player_island().init_terrain(pfrm, parameters_[1]);
+
+        environment_init(app, parameters_[4]);
+
+        if (parameters_[2]) {
+            pfrm.speaker().play_music(app.environment().music(), 0);
+        }
+
+        app.invoke_script(pfrm, "/scripts/sandbox/new.lisp");
+
+        prep_level(pfrm, app);
+
+        show_island_exterior(pfrm, app, &app.player_island());
+        show_island_exterior(pfrm, app, app.opponent_island());
+
+        pfrm.load_overlay_texture("overlay");
+        pfrm.system_call("v-parallax", (void*)true);
+
+        pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
+
+        app.birds().clear();
+        GenericBird::generate(pfrm, app);
     }
 
-    app.invoke_script(pfrm, "/scripts/sandbox/new.lisp");
-
-    prep_level(pfrm, app);
-
-    show_island_exterior(pfrm, app, &app.player_island());
-    show_island_exterior(pfrm, app, app.opponent_island());
-
-    pfrm.load_overlay_texture("overlay");
-    pfrm.system_call("v-parallax", (void*)true);
-
-    pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
-
-    app.birds().clear();
-    GenericBird::generate(pfrm, app);
 }
 
 
@@ -238,6 +243,7 @@ SandboxLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<FadeInScene>();
     } else if (app.player().key_down(pfrm, Key::action_2)) {
+        cancelled_ = true;
         pfrm.screen().fade(1.f, ColorConstant::rich_black, {}, true, true);
         return scene_pool::alloc<TitleScreenScene>(3);
     }

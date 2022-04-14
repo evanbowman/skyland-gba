@@ -44,7 +44,7 @@ namespace save
 
 
 static const u32 save_data_magic = 0xABCD + 3;
-static const u32 global_save_data_magic = 0xABCD + 1;
+static const u32 global_save_data_magic = 0xABCD + 2;
 
 
 

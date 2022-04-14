@@ -3112,7 +3112,7 @@ struct AudioTrack
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
 } music_tracks[] = {
-                    // DEF_MUSIC(isle_of_the_dead, music_isle_of_the_dead),
+    // DEF_MUSIC(isle_of_the_dead, music_isle_of_the_dead),
     DEF_MUSIC(shadows, shadows),
     DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
     DEF_MUSIC(life_in_silco, music_life_in_silco),
@@ -3137,26 +3137,26 @@ static const AudioTrack* find_music(const char* name)
 // assembly output, adding the file to CMake, adding the include, and adding the
 // sound to the sounds array, it's just too tedious to keep working this way...
 #include "data/sound_bell.hpp"
-#include "data/sound_click.hpp"
-#include "data/sound_cursor_click.hpp"
-#include "data/sound_click_wooden.hpp"
 #include "data/sound_button_wooden.hpp"
+#include "data/sound_click.hpp"
 #include "data/sound_click_negative.hpp"
-#include "data/sound_digital_click_1.hpp"
+#include "data/sound_click_wooden.hpp"
 #include "data/sound_cling.hpp"
 #include "data/sound_coin.hpp"
-#include "data/sound_gust.hpp"
-#include "data/sound_gust2.hpp"
-#include "data/sound_thunder_1.hpp"
-#include "data/sound_thunder_2.hpp"
+#include "data/sound_cursor_click.hpp"
+#include "data/sound_digital_click_1.hpp"
 #include "data/sound_explosion1.hpp"
 #include "data/sound_explosion2.hpp"
 #include "data/sound_footstep1.hpp"
 #include "data/sound_footstep2.hpp"
 #include "data/sound_footstep3.hpp"
+#include "data/sound_gust.hpp"
+#include "data/sound_gust2.hpp"
 #include "data/sound_msg.hpp"
 #include "data/sound_openbag.hpp"
 #include "data/sound_scroll.hpp"
+#include "data/sound_thunder_1.hpp"
+#include "data/sound_thunder_2.hpp"
 // #include "data/sound_tw_bell.hpp"
 // #include "data/sound_typewriter.hpp"
 #include "data/sound_beep_error.hpp"
@@ -3170,36 +3170,37 @@ static const AudioTrack* find_music(const char* name)
 
 
 
-static const AudioTrack sounds[] = {DEF_SOUND(explosion1, sound_explosion1),
-                                    DEF_SOUND(explosion2, sound_explosion2),
-                                    DEF_SOUND(build0, sound_build0),
-                                    DEF_SOUND(missile, sound_missile),
-                                    DEF_SOUND(impact, sound_missile_explosion),
-                                    DEF_SOUND(fizzle, sound_fizzle),
-                                    DEF_SOUND(gravel, sound_gravel),
-                                    DEF_SOUND(beep_error, sound_beep_error),
-                                    DEF_SOUND(drone_beep, sound_drone_beep),
-                                    // DEF_SOUND(typewriter, sound_typewriter),
-                                    DEF_SOUND(footstep1, sound_footstep1),
-                                    DEF_SOUND(footstep2, sound_footstep2),
-                                    DEF_SOUND(footstep3, sound_footstep3),
-                                    DEF_SOUND(gust1, sound_gust),
-                                    DEF_SOUND(gust2, sound_gust2),
-                                    DEF_SOUND(openbag, sound_openbag),
-                                    // DEF_SOUND(tw_bell, sound_tw_bell),
-                                    DEF_SOUND(click, sound_scroll),
-                                    DEF_SOUND(cursor_tick, sound_cursor_click),
-                                    DEF_SOUND(click_negative, sound_click_negative),
-                                    DEF_SOUND(click_wooden, sound_click_wooden),
-                                    DEF_SOUND(button_wooden, sound_button_wooden),
-                                    DEF_SOUND(click_digital_1, sound_digital_click_1),
-                                    DEF_SOUND(cannon, sound_cannon),
-                                    DEF_SOUND(cling, sound_cling),
-                                    DEF_SOUND(thunder_1, sound_thunder_1),
-                                    DEF_SOUND(thunder_2, sound_thunder_2),
-                                    DEF_SOUND(coin, sound_coin),
-                                    DEF_SOUND(bell, sound_bell),
-                                    DEF_SOUND(msg, sound_msg)};
+static const AudioTrack sounds[] = {
+    DEF_SOUND(explosion1, sound_explosion1),
+    DEF_SOUND(explosion2, sound_explosion2),
+    DEF_SOUND(build0, sound_build0),
+    DEF_SOUND(missile, sound_missile),
+    DEF_SOUND(impact, sound_missile_explosion),
+    DEF_SOUND(fizzle, sound_fizzle),
+    DEF_SOUND(gravel, sound_gravel),
+    DEF_SOUND(beep_error, sound_beep_error),
+    DEF_SOUND(drone_beep, sound_drone_beep),
+    // DEF_SOUND(typewriter, sound_typewriter),
+    DEF_SOUND(footstep1, sound_footstep1),
+    DEF_SOUND(footstep2, sound_footstep2),
+    DEF_SOUND(footstep3, sound_footstep3),
+    DEF_SOUND(gust1, sound_gust),
+    DEF_SOUND(gust2, sound_gust2),
+    DEF_SOUND(openbag, sound_openbag),
+    // DEF_SOUND(tw_bell, sound_tw_bell),
+    DEF_SOUND(click, sound_scroll),
+    DEF_SOUND(cursor_tick, sound_cursor_click),
+    DEF_SOUND(click_negative, sound_click_negative),
+    DEF_SOUND(click_wooden, sound_click_wooden),
+    DEF_SOUND(button_wooden, sound_button_wooden),
+    DEF_SOUND(click_digital_1, sound_digital_click_1),
+    DEF_SOUND(cannon, sound_cannon),
+    DEF_SOUND(cling, sound_cling),
+    DEF_SOUND(thunder_1, sound_thunder_1),
+    DEF_SOUND(thunder_2, sound_thunder_2),
+    DEF_SOUND(coin, sound_coin),
+    DEF_SOUND(bell, sound_bell),
+    DEF_SOUND(msg, sound_msg)};
 
 
 static const AudioTrack* get_sound(const char* name)
@@ -3764,7 +3765,6 @@ void Platform::Speaker::play_music(const char* name, Microseconds offset)
     play_sound("footstep1", 0);
     play_sound("footstep2", 0);
     play_sound("footstep3", 0);
-
 }
 
 
@@ -4017,18 +4017,16 @@ void Platform::Speaker::stash_sounds()
     sound_stash.clear();
 
     modify_audio([&] {
-                     sound_stash = snd_ctx.active_sounds;
-                     snd_ctx.active_sounds.clear();
-                 });
+        sound_stash = snd_ctx.active_sounds;
+        snd_ctx.active_sounds.clear();
+    });
 }
 
 
 
 void Platform::Speaker::restore_sounds()
 {
-    modify_audio([&] {
-                     snd_ctx.active_sounds = sound_stash;
-                 });
+    modify_audio([&] { snd_ctx.active_sounds = sound_stash; });
 }
 
 

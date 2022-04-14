@@ -173,6 +173,7 @@ quit
 scuttle (quit)
 sky map
 Give me a hint!
+what's sandbox mode?!
 really salvage?  +
 A: yes 
 B:  no 

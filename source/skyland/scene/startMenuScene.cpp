@@ -149,6 +149,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         switch (app.game_mode()) {
         case App::GameMode::sandbox:
+            diff_percent_ = -0.1f;
+
             add_option(pfrm,
                        SYSTR(start_menu_save_sandbox)->c_str(),
                        scene_pool::make_deferred_scene<SaveSandboxScene>(),
@@ -161,8 +163,33 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             add_option(
                 pfrm,
+                SYSTR(start_menu_sandbox_help)->c_str(),
+                [&pfrm] {
+                    auto hint = lisp::get_var("sb-help");
+                    if (hint->type() == lisp::Value::Type::function) {
+
+                        using namespace lisp;
+
+                        funcall(hint, 0);
+                        if (get_op(0)->type() == Value::Type::error) {
+                            Platform::fatal("unexpected error (sb-help)!");
+                        }
+                        pop_op(); // result
+
+                        pfrm.screen().schedule_fade(0.f);
+
+                        return scene_pool::alloc<ReadyScene>();
+                    }
+                    Platform::fatal("invalid datatype for challenge-hint"
+                                    " (expected function)");
+                },
+                cut);
+
+            add_option(
+                pfrm,
                 SYSTR(start_menu_quit)->c_str(),
                 [&pfrm]() -> ScenePtr<Scene> {
+                    lisp::set_var("sb-help", L_NIL);
                     pfrm.fill_overlay(0);
                     pfrm.screen().set_shader(passthrough_shader);
                     return scene_pool::alloc<TitleScreenScene>(3);
@@ -249,7 +276,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         const auto& line = data_->text_[0];
         const auto y_center = pfrm.screen().size().y / 2;
         const Float y_line = line.coord().y * 8;
-        const auto y_diff = (y_line - y_center) * 0.3f;
+        const auto y_diff = (y_line - y_center) * diff_percent_;
 
         y_offset_ = interpolate(Float(y_diff), y_offset_, delta * 0.00001f);
 
