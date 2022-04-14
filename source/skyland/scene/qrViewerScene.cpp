@@ -21,6 +21,7 @@
 
 
 #include "skyland/player/playerP1.hpp"
+#include "skyland/skyland.hpp"
 #include "graphics/overlay.hpp"
 #include "platform/platform.hpp"
 #include "qrViewerScene.hpp"
@@ -33,7 +34,10 @@ namespace skyland
 
 
 
-QRViewerScene::QRViewerScene(const char* text, DeferredScene next) :
+QRViewerScene::QRViewerScene(const char* text,
+                             const char* message,
+                             DeferredScene next) :
+    message_(message),
     next_(next)
 {
     if (str_len(text) < text_.remaining()) {
@@ -83,6 +87,38 @@ ScenePtr<Scene> QRViewerScene::update(Platform& pfrm,
     }
 
     return null_scene();
+}
+
+
+
+
+ConfiguredURLQRViewerScene::ConfiguredURLQRViewerScene(const char* config_path,
+                                                       const char* text,
+                                                       const char* message,
+                                                       DeferredScene next)
+    : QRViewerScene(text, message, next),
+      config_path_(config_path)
+{
+}
+
+
+
+void ConfiguredURLQRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
+{
+    auto v = app.invoke_script(pfrm, config_path_.c_str());
+    if (v->type() not_eq lisp::Value::Type::string) {
+        Platform::fatal("url lisp script returned non-string result");
+    }
+
+    // Prepend the url from config.
+    auto temp = text_;
+    text_.clear();
+    text_ = v->string().value();
+    text_ += temp;
+
+    info(pfrm, text_);
+
+    QRViewerScene::enter(pfrm, app, prev);
 }
 
 

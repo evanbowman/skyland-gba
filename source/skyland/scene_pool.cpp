@@ -49,7 +49,10 @@ ScenePtr<Scene> null_scene()
 
 ScenePtr<Scene> initial_scene()
 {
-    return scene_pool::alloc<QRViewerScene>("skyland.github.io/hs?sc=100000000&m=2&v=255&t=fffffff",
+    // "skyland.github.io/hs?sc=100000000&m=2&v=255&t=fffffff"
+    return scene_pool::alloc<ConfiguredURLQRViewerScene>("/scripts/config/uploadscore.lisp",
+                                                         "?sc=100000000&m=2&v=255&t=fffffff",
+                                            "scan me :)",
                                             scene_pool::make_deferred_scene<IntroCreditsScene>());
     // return scene_pool::alloc<IntroCreditsScene>();
 }

@@ -36,7 +36,9 @@ class QRViewerScene : public Scene
 {
 public:
 
-    QRViewerScene(const char* text, DeferredScene next);
+    QRViewerScene(const char* text, // Text to encode
+                  const char* message, // message to display alongside qr code
+                  DeferredScene next);
 
 
     void enter(Platform& pfrm, App& app, Scene& prev) override;
@@ -46,10 +48,30 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
-private:
-    StringBuffer<64> text_;
+protected:
+    StringBuffer<100> text_;
+    StringBuffer<84> message_;
     DeferredScene next_;
     bool exit_ = false;
+};
+
+
+
+class ConfiguredURLQRViewerScene : public QRViewerScene
+{
+public:
+
+    ConfiguredURLQRViewerScene(const char* config_path,
+                               const char* text,
+                               const char* message,
+                               DeferredScene next);
+
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override;
+
+
+private:
+    StringBuffer<64> config_path_;
 };
 
 
