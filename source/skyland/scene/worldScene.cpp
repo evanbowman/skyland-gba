@@ -312,6 +312,18 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     Microseconds world_delta = delta;
+
+    if (not pfrm.network_peer().is_connected()) {
+        // NOTE: we can't clamp the clock delta in multiplayer modes of course!
+
+        // The game uses clock deltas for update logic throughout the code, but
+        // huge deltas mess up the collision checking, so in certain cases, it's
+        // better to just clamp the delta time and allow some lag.
+        //
+        // i.e.: lag the game if it lags slower than 30fps.
+        world_delta = clamp(world_delta, seconds(0), seconds(1) / 30);
+    }
+
     apply_gamespeed(app, world_delta);
 
     app.delta_fp() = world_delta;
