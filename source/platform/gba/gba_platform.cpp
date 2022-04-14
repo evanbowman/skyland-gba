@@ -462,11 +462,6 @@ static volatile u32* keys = (volatile u32*)0x04000130;
 std::optional<Bitvector<int(Key::count)>> missed_keys;
 
 
-void Platform::Keyboard::register_controller(const ControllerInfo& info)
-{
-    // ...
-}
-
 
 void Platform::Keyboard::poll()
 {
@@ -1680,6 +1675,9 @@ void Platform::Screen::clear()
         StringBuffer<60> str = "sbr highwater: ";
 
         str += stringify(scratch_buffer_highwater).c_str();
+        str += " (";
+        str += stringify(scratch_buffers_remaining());
+        str += " left)";
 
         info(*::platform, str.c_str());
     }
@@ -3139,7 +3137,6 @@ static const AudioTrack* find_music(const char* name)
 // assembly output, adding the file to CMake, adding the include, and adding the
 // sound to the sounds array, it's just too tedious to keep working this way...
 #include "data/sound_bell.hpp"
-// #include "data/sound_blaster.hpp"
 #include "data/sound_click.hpp"
 #include "data/sound_cursor_click.hpp"
 #include "data/sound_click_wooden.hpp"
@@ -3152,24 +3149,14 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_gust2.hpp"
 #include "data/sound_thunder_1.hpp"
 #include "data/sound_thunder_2.hpp"
-// #include "data/sound_creak.hpp"
-// #include "data/sound_dodge.hpp"
-// #include "data/sound_dropitem.hpp"
 #include "data/sound_explosion1.hpp"
 #include "data/sound_explosion2.hpp"
 #include "data/sound_footstep1.hpp"
 #include "data/sound_footstep2.hpp"
 #include "data/sound_footstep3.hpp"
-// #include "data/sound_footstep4.hpp"
-// #include "data/sound_heart.hpp"
-// #include "data/sound_laser1.hpp"
 #include "data/sound_msg.hpp"
-// #include "data/sound_open_book.hpp"
 #include "data/sound_openbag.hpp"
-// #include "data/sound_pop.hpp"
 #include "data/sound_scroll.hpp"
-// #include "data/sound_select.hpp"
-// #include "data/sound_thud.hpp"
 // #include "data/sound_tw_bell.hpp"
 // #include "data/sound_typewriter.hpp"
 #include "data/sound_beep_error.hpp"
@@ -3198,25 +3185,14 @@ static const AudioTrack sounds[] = {DEF_SOUND(explosion1, sound_explosion1),
                                     DEF_SOUND(footstep3, sound_footstep3),
                                     DEF_SOUND(gust1, sound_gust),
                                     DEF_SOUND(gust2, sound_gust2),
-                                    // DEF_SOUND(footstep4, sound_footstep4),
-                                    // DEF_SOUND(open_book, sound_open_book),
-                                    // DEF_SOUND(dropitem, sound_dropitem),
                                     DEF_SOUND(openbag, sound_openbag),
-                                    // DEF_SOUND(blaster, sound_blaster),
                                     // DEF_SOUND(tw_bell, sound_tw_bell),
-                                    // DEF_SOUND(select, sound_select),
-                                    // DEF_SOUND(laser1, sound_laser1),
-                                    // DEF_SOUND(scroll, sound_scroll),
-                                    // DEF_SOUND(creak, sound_creak),
-                                    // DEF_SOUND(dodge, sound_dodge),
-                                    // DEF_SOUND(heart, sound_heart),
                                     DEF_SOUND(click, sound_scroll),
                                     DEF_SOUND(cursor_tick, sound_cursor_click),
                                     DEF_SOUND(click_negative, sound_click_negative),
                                     DEF_SOUND(click_wooden, sound_click_wooden),
                                     DEF_SOUND(button_wooden, sound_button_wooden),
                                     DEF_SOUND(click_digital_1, sound_digital_click_1),
-                                    // DEF_SOUND(thud, sound_thud),
                                     DEF_SOUND(cannon, sound_cannon),
                                     DEF_SOUND(cling, sound_cling),
                                     DEF_SOUND(thunder_1, sound_thunder_1),
@@ -3735,37 +3711,6 @@ static void clear_music()
 static void stop_music()
 {
     modify_audio([] { clear_music(); });
-}
-
-
-
-const char* halted_music_track = "";
-s32 halted_music_offset = 0;
-
-
-
-void Platform::Speaker::halt_music()
-{
-    // if (snd_ctx.music_track not_eq (AudioSample*) null_music) {
-
-    //     for (auto& track : music_tracks) {
-
-    //         if (track.data_ == snd_ctx.music_track) {
-    //             halted_music_track = track.name_;
-    //             halted_music_offset = snd_ctx.music_track_pos;
-    //             break;
-    //         }
-    //     }
-
-    //     stop_music();
-    // }
-}
-
-
-
-void Platform::Speaker::resume_music()
-{
-    // play_music(halted_music_track, halted_music_offset / 0.016f);
 }
 
 
@@ -4392,220 +4337,6 @@ static void show_health_and_safety_message(Platform& pfrm)
     }
 }
 
-
-
-Platform::Platform()
-{
-    ::platform = this;
-
-    const auto tm1 = system_clock_.now();
-
-    // TODO: uncomment this after I finish development. Wouldn't want to build
-    // something that doesn't work on some gba consoles, but speeding up the
-    // ones that do work would be nice.
-    // ram_overclock();
-
-    logger().set_threshold(Severity::fatal);
-
-    keyboard().poll();
-    if (keyboard().pressed<Key::alt_1>() and
-        keyboard().pressed<Key::alt_2>() and
-        keyboard().pressed<Key::action_1>()) {
-    }
-
-    // Not sure how else to determine whether the cartridge has sram, flash, or
-    // something else. An sram write will fail if the cartridge ram is flash, so
-    // attempt to save, and if the save fails, assume flash. I don't really know
-    // anything about the EEPROM hardware interface...
-
-
-    static const u32 sram_test_const = 0xAAAAAAAA;
-    sram_save(&sram_test_const, 0, sizeof sram_test_const);
-
-    u32 sram_test_result = 0;
-    sram_load(&sram_test_result, 0, sizeof sram_test_result);
-
-
-    if (sram_test_result not_eq sram_test_const) {
-        set_gflag(GlobalFlag::save_using_flash, true);
-        info(*this, "SRAM write failed, falling back to FLASH");
-
-        ::save_capacity = flash_capacity(*this);
-    }
-
-    {
-        StringBuffer<32> used("iwram used: ");
-        used += stringify(&__data_end__ - &__iwram_start__);
-        info(*this, used.c_str());
-
-        used = "ewram used: ";
-        used += stringify(&__eheap_start - &__ewram_start);
-        info(*this, used.c_str());
-
-        used = "estimated stack size: ";
-        used += stringify(32000 - (&__data_end__ - &__iwram_start__));
-        info(*this, used.c_str());
-    }
-
-    // IMPORTANT: No calls to map_glyph() are allowed before reaching this
-    // line. Otherwise, the glyph table has not yet been constructed.
-
-    info(*this, "Verifying BIOS...");
-
-    const auto bios_version = BiosCheckSum();
-    switch (bios_version) {
-    case BiosVersion::NDS:
-        info(*this, "BIOS matches Nintendo DS");
-        break;
-    case BiosVersion::GBA:
-        info(*this, "BIOS matches GAMEBOY Advance");
-        break;
-    default:
-        warning(*this, "BIOS checksum failed, may be corrupt");
-        break;
-    }
-
-    // NOTE: Non-sequential 8 and sequential 3 seem to work well for Cart 0 wait
-    // states, although setting these options unmasks a few obscure audio bugs,
-    // the game displays visibly less tearing. The cartridge prefetch unmasks
-    // even more aggressive audio bugs, and doesn't seem to grant obvious
-    // performance benefits, so I'm leaving the cartridge prefetch turned off...
-    if (use_optimized_waitstates) {
-        // Although there is less tearing when running with optimized
-        // waitstates, I actually prefer the feature turned off. I really tuned
-        // the feel of the controls before I knew about waitstates, and
-        // something just feels off to me when turning this feature on. The game
-        // is almost too smooth.
-        REG_WAITCNT = 0b0000001100010111;
-        info(*this, "enabled optimized waitstates...");
-    }
-
-    // NOTE: initializing the system clock is easier before interrupts are
-    // enabled, because the system clock pulls data from the gpio port on the
-    // cartridge.
-    system_clock_.init(*this);
-
-
-    irqInit(); // NOTE: Do not move these lines with respect to
-               // unlock_gameboy_player(), or you could break the rumble
-               // unlocking.
-
-    irqEnable(IRQ_VBLANK);
-
-    irqSet(IRQ_TIMER3, [] {
-        delta_total += 0xffff;
-
-        REG_TM3CNT_H = 0;
-        REG_TM3CNT_L = 0;
-        REG_TM3CNT_H = 1 << 7 | 1 << 6;
-    });
-    delta_clock().reset();
-
-    audio_start();
-    clear_music();
-    speaker().play_music("unaccompanied_wind", 0);
-    speaker().play_sound("click_digital_1", 1);
-
-    if (bios_version not_eq BiosVersion::NDS) {
-        show_health_and_safety_message(*this);
-    }
-
-    irqSet(IRQ_VBLANK, vblank_isr);
-
-    if (unlock_gameboy_player(*this)) {
-        info(*this, "gameboy player unlocked!");
-
-        set_gflag(GlobalFlag::gbp_unlocked, true);
-
-        RumbleGBPConfig conf{[](void (*rumble_isr)(void)) {
-            irqEnable(IRQ_SERIAL);
-            irqSet(IRQ_SERIAL, rumble_isr);
-        }};
-
-        rumble_init(&conf);
-
-    } else {
-        info(*this, "gbp not detected");
-
-        rumble_init(nullptr);
-    }
-
-    // NOTE: these colors were a custom hack I threw in during the GBA game jam,
-    // when I wanted background tiles to flicker between a few different colors.
-    for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(15 * 16) + i] =
-            Color(custom_color(0xef0d54)).bgr_hex_555();
-    }
-    for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(14 * 16) + i] =
-            Color(custom_color(0x103163)).bgr_hex_555();
-    }
-    for (int i = 0; i < 16; ++i) {
-        MEM_BG_PALETTE[(13 * 16) + i] =
-            Color(ColorConstant::silver_white).bgr_hex_555();
-    }
-
-    // Really bad hack. We added a feature where the player can design his/her
-    // own flag, but we frequently switch color palettes when viewing
-    // interior/exterior of a castle, so we reserve one of the palette banks for
-    // the flag palette, which is taken from the tilesheet texture.
-    for (auto& info : tile_textures) {
-        if (str_eq(info.name_, "tilesheet")) {
-            for (int i = 0; i < 16; ++i) {
-                MEM_BG_PALETTE[(12 * 16) + i] = info.palette_data_[i];
-
-                // When we started allowing players to design custom sprites, we
-                // needed to reserve a sprite palette and fill it with the same
-                // color values as the image editor uses for custom tile
-                // graphics.
-                MEM_PALETTE[16 + i] = info.palette_data_[i];
-            }
-        }
-    }
-
-    irqSet(IRQ_KEYPAD, keypad_isr);
-    irqEnable(IRQ_KEYPAD);
-    REG_KEYCNT =
-        KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
-
-    init_video(screen());
-
-    fill_overlay(0);
-
-    for (u32 i = 0; i < Screen::sprite_limit; ++i) {
-        // This was a really insidious bug to track down! When failing to hide
-        // unused attributes in the back buffer, the uninitialized objects punch
-        // a 1 tile (8x8 pixel) hole in the top left corner of the overlay
-        // layer, but not exactly. The tile in the high priority background
-        // layer still shows up, but lower priority sprites show through the top
-        // left tile, I guess I'm observing some weird interaction involving an
-        // overlap between a priority 0 tile and a priority 1 sprite: when a
-        // priority 1 sprite is sandwitched in between the two tile layers, the
-        // priority 0 background tiles seems to be drawn behind the priority 1
-        // sprite. I have no idea why!
-        object_attribute_back_buffer[i].attribute_2 = ATTR2_PRIORITY(3);
-        object_attribute_back_buffer[i].attribute_0 |= attr0_mask::disabled;
-    }
-
-
-    if (not filesystem::is_mounted()) {
-        keyboard_.poll();
-        fatal("resource bundle missing");
-    }
-
-    if (not rtc_verify_operability(tm1, *this)) {
-        set_gflag(GlobalFlag::rtc_faulty, true);
-        info(*this, "RTC chip appears either non-existant or non-functional");
-    } else {
-        ::start_time = system_clock_.now();
-
-        StringBuffer<100> str = "startup time: ";
-
-        log_format_time(str, *::start_time);
-
-        info(*::platform, str.c_str());
-    }
-}
 
 
 void Platform::enable_glyph_mode(bool enabled)
@@ -5621,7 +5352,7 @@ MASTER_RETRY:
     multiplayer_schedule_tx();
 
     if (multiplayer_is_master()) {
-        error(*::platform, "I am the master");
+        info(*::platform, "I am the master");
     }
 
     while (true) {
@@ -6435,6 +6166,223 @@ void* Platform::system_call(const char* feature_name, void* arg)
     }
 
     return nullptr;
+}
+
+
+
+Platform::Platform()
+{
+    ::platform = this;
+
+    const auto tm1 = system_clock_.now();
+
+    // TODO: uncomment this after I finish development. Wouldn't want to build
+    // something that doesn't work on some gba consoles, but speeding up the
+    // ones that do work would be nice.
+    // ram_overclock();
+
+    logger().set_threshold(Severity::fatal);
+
+    keyboard().poll();
+    if (keyboard().pressed<Key::alt_1>() and
+        keyboard().pressed<Key::alt_2>() and
+        keyboard().pressed<Key::action_1>()) {
+    }
+
+    // Not sure how else to determine whether the cartridge has sram, flash, or
+    // something else. An sram write will fail if the cartridge ram is flash, so
+    // attempt to save, and if the save fails, assume flash. I don't really know
+    // anything about the EEPROM hardware interface...
+
+
+    static const u32 sram_test_const = 0xAAAAAAAA;
+    sram_save(&sram_test_const, 0, sizeof sram_test_const);
+
+    u32 sram_test_result = 0;
+    sram_load(&sram_test_result, 0, sizeof sram_test_result);
+
+
+    if (sram_test_result not_eq sram_test_const) {
+        set_gflag(GlobalFlag::save_using_flash, true);
+        info(*this, "SRAM write failed, falling back to FLASH");
+
+        ::save_capacity = flash_capacity(*this);
+    }
+
+    {
+        StringBuffer<32> used("iwram used: ");
+        used += stringify(&__data_end__ - &__iwram_start__);
+        info(*this, used.c_str());
+
+        used = "ewram used: ";
+        used += stringify(&__eheap_start - &__ewram_start);
+        info(*this, used.c_str());
+
+        used = "estimated stack size: ";
+        used += stringify(32000 - (&__data_end__ - &__iwram_start__));
+        info(*this, used.c_str());
+    }
+
+    // IMPORTANT: No calls to map_glyph() are allowed before reaching this
+    // line. Otherwise, the glyph table has not yet been constructed.
+
+    info(*this, "Verifying BIOS...");
+
+    const auto bios_version = BiosCheckSum();
+    switch (bios_version) {
+    case BiosVersion::NDS:
+        info(*this, "BIOS matches Nintendo DS");
+        break;
+    case BiosVersion::GBA:
+        info(*this, "BIOS matches GAMEBOY Advance");
+        break;
+    default:
+        warning(*this, "BIOS checksum failed, may be corrupt");
+        break;
+    }
+
+    // NOTE: Non-sequential 8 and sequential 3 seem to work well for Cart 0 wait
+    // states, although setting these options unmasks a few obscure audio bugs,
+    // the game displays visibly less tearing. The cartridge prefetch unmasks
+    // even more aggressive audio bugs, and doesn't seem to grant obvious
+    // performance benefits, so I'm leaving the cartridge prefetch turned off...
+    if (use_optimized_waitstates) {
+        // Although there is less tearing when running with optimized
+        // waitstates, I actually prefer the feature turned off. I really tuned
+        // the feel of the controls before I knew about waitstates, and
+        // something just feels off to me when turning this feature on. The game
+        // is almost too smooth.
+        REG_WAITCNT = 0b0000001100010111;
+        info(*this, "enabled optimized waitstates...");
+    }
+
+    // NOTE: initializing the system clock is easier before interrupts are
+    // enabled, because the system clock pulls data from the gpio port on the
+    // cartridge.
+    system_clock_.init(*this);
+
+
+    irqInit(); // NOTE: Do not move these lines with respect to
+               // unlock_gameboy_player(), or you could break the rumble
+               // unlocking.
+
+    irqEnable(IRQ_VBLANK);
+
+    irqSet(IRQ_TIMER3, [] {
+        delta_total += 0xffff;
+
+        REG_TM3CNT_H = 0;
+        REG_TM3CNT_L = 0;
+        REG_TM3CNT_H = 1 << 7 | 1 << 6;
+    });
+    delta_clock().reset();
+
+    audio_start();
+    clear_music();
+    speaker().play_music("unaccompanied_wind", 0);
+    speaker().play_sound("click_digital_1", 1);
+
+    if (bios_version not_eq BiosVersion::NDS) {
+        show_health_and_safety_message(*this);
+    }
+
+    irqSet(IRQ_VBLANK, vblank_isr);
+
+    if (unlock_gameboy_player(*this)) {
+        info(*this, "gameboy player unlocked!");
+
+        set_gflag(GlobalFlag::gbp_unlocked, true);
+
+        RumbleGBPConfig conf{[](void (*rumble_isr)(void)) {
+            irqEnable(IRQ_SERIAL);
+            irqSet(IRQ_SERIAL, rumble_isr);
+        }};
+
+        rumble_init(&conf);
+
+    } else {
+        info(*this, "gbp not detected");
+
+        rumble_init(nullptr);
+    }
+
+    // NOTE: these colors were a custom hack I threw in during the GBA game jam,
+    // when I wanted background tiles to flicker between a few different colors.
+    for (int i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[(15 * 16) + i] =
+            Color(custom_color(0xef0d54)).bgr_hex_555();
+    }
+    for (int i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[(14 * 16) + i] =
+            Color(custom_color(0x103163)).bgr_hex_555();
+    }
+    for (int i = 0; i < 16; ++i) {
+        MEM_BG_PALETTE[(13 * 16) + i] =
+            Color(ColorConstant::silver_white).bgr_hex_555();
+    }
+
+    // Really bad hack. We added a feature where the player can design his/her
+    // own flag, but we frequently switch color palettes when viewing
+    // interior/exterior of a castle, so we reserve one of the palette banks for
+    // the flag palette, which is taken from the tilesheet texture.
+    for (auto& info : tile_textures) {
+        if (str_eq(info.name_, "tilesheet")) {
+            for (int i = 0; i < 16; ++i) {
+                MEM_BG_PALETTE[(12 * 16) + i] = info.palette_data_[i];
+
+                // When we started allowing players to design custom sprites, we
+                // needed to reserve a sprite palette and fill it with the same
+                // color values as the image editor uses for custom tile
+                // graphics.
+                MEM_PALETTE[16 + i] = info.palette_data_[i];
+            }
+        }
+    }
+
+    irqSet(IRQ_KEYPAD, keypad_isr);
+    irqEnable(IRQ_KEYPAD);
+    REG_KEYCNT =
+        KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
+
+    init_video(screen());
+
+    fill_overlay(0);
+
+    for (u32 i = 0; i < Screen::sprite_limit; ++i) {
+        // This was a really insidious bug to track down! When failing to hide
+        // unused attributes in the back buffer, the uninitialized objects punch
+        // a 1 tile (8x8 pixel) hole in the top left corner of the overlay
+        // layer, but not exactly. The tile in the high priority background
+        // layer still shows up, but lower priority sprites show through the top
+        // left tile, I guess I'm observing some weird interaction involving an
+        // overlap between a priority 0 tile and a priority 1 sprite: when a
+        // priority 1 sprite is sandwitched in between the two tile layers, the
+        // priority 0 background tiles seems to be drawn behind the priority 1
+        // sprite. I have no idea why!
+        object_attribute_back_buffer[i].attribute_2 = ATTR2_PRIORITY(3);
+        object_attribute_back_buffer[i].attribute_0 |= attr0_mask::disabled;
+    }
+
+
+    if (not filesystem::is_mounted()) {
+        keyboard_.poll();
+        fatal("resource bundle missing");
+    }
+
+    if (not rtc_verify_operability(tm1, *this)) {
+        set_gflag(GlobalFlag::rtc_faulty, true);
+        info(*this, "RTC chip appears either non-existant or non-functional");
+    } else {
+        ::start_time = system_clock_.now();
+
+        StringBuffer<100> str = "startup time: ";
+
+        log_format_time(str, *::start_time);
+
+        info(*::platform, str.c_str());
+    }
+
+    info(*this, stringify(sizeof multiplayer_comms));
 }
 
 
