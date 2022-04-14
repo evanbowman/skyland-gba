@@ -1,5 +1,29 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (C) 2022  Evan Bowman
+//
+// This program is free software; you can redistribute it and/or modify it under
+// the terms of version 2 of the GNU General Public License as published by the
+// Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program; if not, write to the Free Software Foundation, Inc., 51
+// Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// GPL2 ONLY. No later versions permitted.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
 #include "qr.hpp"
 #include "../external/qr/qrcodegen.h"
+#include "platform/platform.hpp"
+#include <string.h>
 
 
 
@@ -48,6 +72,60 @@ bool QRCode::get_module(const Vec2<int>& position) const
 QRCode::Sidelength QRCode::size() const
 {
     return qrcodegen_getSize((u8*)qr_data_->data_);
+}
+
+
+
+void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset)
+{
+    auto sz = size();
+
+    // We want to use four pixels to render each QR module.
+
+    int output_tile = tile_start_offset;
+
+    // First row of 2x2 QR module blocks:
+    for (int y = 0; y < sz; y += 2) {
+        for (int x = 0; x < sz; x += 2) {
+            u8 tile_data[16][16];
+            memset(tile_data, 0, sizeof(tile_data));
+
+            // For each module in the current 2x2 block
+            for (int yy = 0; yy < 2; ++yy) {
+                for (int xx = 0; xx < 2; ++xx) {
+                    if (get_module({y + yy, x + xx})) {
+
+                        // Set bits for 4x4 block.
+                        for (int j = 0; j < 4; ++j) {
+                            for (int i = 0; i < 4; ++i) {
+                                tile_data[xx * 4 + i][yy * 4 + j] = 3;
+                            }
+                        }
+                    }
+                }
+            }
+
+            pfrm.overwrite_overlay_tile(output_tile++,
+                                        pfrm.encode_tile(tile_data));
+
+        }
+    }
+}
+
+
+
+void QRCode::draw(Platform& pfrm, const Vec2<u8>& screen_coord)
+{
+    copy_to_vram(pfrm, 181);
+
+    draw_image(pfrm,
+               181,
+               screen_coord.x,
+               screen_coord.y,
+               // NOTE: two QR blocks per tile, i.e. size / 2
+               size() / 2 + size() % 2,
+               size() / 2 + size() % 2,
+               Layer::overlay);
 }
 
 

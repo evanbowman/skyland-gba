@@ -23,6 +23,7 @@
 #include "scene_pool.hpp"
 #include "scene/introCreditsScene.hpp"
 #include "scene/introCutsceneScene.hpp"
+#include "scene/qrViewerScene.hpp"
 
 
 
@@ -48,7 +49,9 @@ ScenePtr<Scene> null_scene()
 
 ScenePtr<Scene> initial_scene()
 {
-    return scene_pool::alloc<IntroCreditsScene>();
+    return scene_pool::alloc<QRViewerScene>("skyland.github.io/hs?sc=100000000&m=2&v=255&t=fffffff",
+                                            scene_pool::make_deferred_scene<IntroCreditsScene>());
+    // return scene_pool::alloc<IntroCreditsScene>();
 }
 
 

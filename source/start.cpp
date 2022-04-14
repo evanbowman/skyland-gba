@@ -26,6 +26,7 @@
 #include "skyland/save.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
+#include "qr.hpp"
 
 
 

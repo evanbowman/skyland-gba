@@ -99,6 +99,10 @@ public:
     EncodedTile encode_tile(u8 tile_data[16][16]);
 
 
+    // NOTE: overlay tiles are 8x8px, so only the top left quarter of the
+    // encoded tile data will be used.
+    void overwrite_overlay_tile(u16 index, const EncodedTile& t);
+
     void overwrite_t0_tile(u16 index, const EncodedTile& t);
     void overwrite_t1_tile(u16 index, const EncodedTile& t);
 

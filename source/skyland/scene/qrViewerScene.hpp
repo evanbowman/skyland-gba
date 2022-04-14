@@ -22,7 +22,8 @@
 
 #pragma once
 
-#include "platform/scratch_buffer.hpp"
+#include "skyland/scene.hpp"
+#include "string.hpp"
 
 
 
@@ -31,39 +32,25 @@ namespace skyland
 
 
 
-class QRCode
+class QRViewerScene : public Scene
 {
 public:
 
-    static std::optional<QRCode> create(const char* text);
+    QRViewerScene(const char* text, DeferredScene next);
 
 
-    bool get_module(const Vec2<int>& position) const;
+    void enter(Platform& pfrm, App& app, Scene& prev) override;
+    void exit(Platform& pfrm, App& app, Scene& next) override;
 
 
-    using Sidelength = int;
-
-
-    Sidelength size() const;
-
-
-    void copy_to_vram(Platform& pfrm, u16 tile_start_offset);
-
-
-    // NOTE: calls copy_to_vram(), and overwrites tiles starting at overlay tile
-    // index 181. The caller may need to reload the overlay tile texture to
-    // recover any overwritten tiles.
-    void draw(Platform& pfrm, const Vec2<u8>& screen_coord);
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
 private:
-
-    QRCode(ScratchBufferPtr qr_data_);
-
-
-    ScratchBufferPtr qr_data_;
+    StringBuffer<64> text_;
+    DeferredScene next_;
+    bool exit_ = false;
 };
-
 
 
 

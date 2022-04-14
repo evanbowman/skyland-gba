@@ -1499,6 +1499,16 @@ TileDesc Platform::map_tile1_chunk(TileDesc src)
 
 
 
+void Platform::overwrite_overlay_tile(u16 index, const EncodedTile& t)
+{
+    u8* p = ((u8*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0]) +
+            index * (vram_tile_size());
+
+    memcpy16(p, &t, ((sizeof t) / 4) / 2);
+}
+
+
+
 void Platform::overwrite_t0_tile(u16 index, const EncodedTile& t)
 {
     u8* p = ((u8*)&MEM_SCREENBLOCKS[sbb_t0_texture][0]) +
@@ -6380,7 +6390,7 @@ Platform::Platform()
         info(*::platform, str.c_str());
     }
 
-    info(*this, stringify(sizeof multiplayer_comms));
+    // info(*this, stringify(sizeof multiplayer_comms));
 }
 
 
