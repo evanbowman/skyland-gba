@@ -29,26 +29,6 @@ namespace skyland::weather
 
 
 
-void Typhoon::update(Platform& pfrm, App& app, Microseconds delta)
-{
-    // ...
-}
-
-
-
-void Typhoon::display(Platform& pfrm, App& app)
-{
-}
-
-
-
-const char* Typhoon::music() const
-{
-    return "solecism";
-}
-
-
-
 Platform::Screen::Shader Typhoon::shader(App& app) const
 {
     return [&app](ShaderPalette palette, ColorConstant k, int arg, int index) {
@@ -147,6 +127,9 @@ Platform::Screen::Shader Typhoon::shader(App& app) const
 
             case 11:
                 return custom_color(0x95bbbd);
+
+            case 10:
+                return custom_color(0x115ba6);
 
             case 12:
                 return custom_color(0x270d42);
