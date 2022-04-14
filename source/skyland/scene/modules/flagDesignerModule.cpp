@@ -62,6 +62,8 @@ void FlagDesignerModule::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm, app, app.player_island(), rng::choice<3>(rng::utility_state));
 
     pfrm.screen().fade(0);
+
+    show(pfrm, app);
 }
 
 
