@@ -39,7 +39,7 @@
    (hull 7 11)))
 
 
-(show-flag (opponent))
+(flag-show (opponent))
 
 
 (map

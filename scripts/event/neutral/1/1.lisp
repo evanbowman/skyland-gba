@@ -43,7 +43,7 @@
                (hull 1 12)
                (missile-silo 3 13)
                (missile-silo 4 13)))
-            (show-flag (opponent))
+            (flag-show (opponent))
             (dialog "It's a trap!")))))
 
 

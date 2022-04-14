@@ -18,7 +18,7 @@
  '((power-core 1 13)
    (missile-silo 0 13)))
 
-(show-flag (opponent))
+(flag-show (opponent))
 
 
 ;; Captured with a keylogger that I hacked into playerP1.cpp (commented out)

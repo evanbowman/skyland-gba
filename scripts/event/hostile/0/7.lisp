@@ -3,7 +3,7 @@
 (opponent-init 6 'hostile)
 
 
-(show-flag (opponent))
+(flag-show (opponent))
 
 
 (island-configure

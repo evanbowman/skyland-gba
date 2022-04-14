@@ -20,7 +20,7 @@
    (hull 1 12)
    (hull 2 12)))
 
-(show-flag (opponent))
+(flag-show (opponent))
 
 
 (autopilot

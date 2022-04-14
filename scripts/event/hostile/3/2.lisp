@@ -50,7 +50,7 @@
    (stairwell 12 11)))
 
 
-(show-flag (opponent))
+(flag-show (opponent))
 
 
 (chr-new (opponent) 10 14 'hostile 0)

@@ -548,7 +548,7 @@ o----------------------------o
 
 o----------------------------o
 
- (show-flag island)
+ (flag-show island)
 
  Display a flag.
 

@@ -35,7 +35,7 @@
    (missile-silo 4 7)))
 
 
-(show-flag (opponent))
+(flag-show (opponent))
 
 
 

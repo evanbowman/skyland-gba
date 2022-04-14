@@ -44,7 +44,7 @@
    (hull 2 8)))
 
 
-(show-flag (opponent))
+(flag-show (opponent))
 
 
 (chr-new (opponent) 2 14 'hostile 0)

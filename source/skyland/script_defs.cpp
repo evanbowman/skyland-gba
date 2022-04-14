@@ -987,7 +987,7 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
-    {"show-flag",
+    {"flag-show",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, user_data);

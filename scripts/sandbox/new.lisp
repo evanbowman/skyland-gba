@@ -27,14 +27,14 @@
 
 
 (chr-new (player) 1 14 'neutral 0)
-(show-flag (player))
+(flag-show (player))
 
 
 
 (opponent-init (terrain (player)) 'hostile)
 
 
-(show-flag (opponent))
+(flag-show (opponent))
 
 
 ;; Note: prior to running this script, the game

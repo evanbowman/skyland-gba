@@ -39,7 +39,7 @@
    (hull 5 10)
    (decimator 4 13)))
 
-(show-flag (opponent))
+(flag-show (opponent))
 
 (chr-new (opponent) 6 14 'hostile 0)
 (chr-new (opponent) 7 14 'hostile 0)

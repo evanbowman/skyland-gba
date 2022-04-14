@@ -47,7 +47,7 @@
    (energized-hull 10 12)))
 
 
-(show-flag (opponent))
+(flag-show (opponent))
 
 
 (chr-new (opponent) 2 13 'hostile 0)
