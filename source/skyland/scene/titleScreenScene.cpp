@@ -479,7 +479,7 @@ static int module_page_count()
 
 void TitleScreenScene::play_gust_sound(Platform& pfrm)
 {
-    if (rng::choice<3>(rng::utility_state)) {
+    if (rng::choice<4>(rng::utility_state)) {
         pfrm.speaker().play_sound("gust1", 1);
     } else {
         pfrm.speaker().play_sound("gust2", 1);
@@ -840,11 +840,6 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                         std::move(dialog), false);
 
                     return next;
-
-                    // auto next = scene_pool::alloc<SelectTutorialScene>();
-                    // next->quick_select(0);
-
-                    // return next;
                 }
                 break;
 
