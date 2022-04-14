@@ -83,7 +83,8 @@ set(SOURCES
   ${SOURCE_DIR}/globals.cpp
   ${SOURCE_DIR}/base32.cpp
   ${SOURCE_DIR}/string.cpp
-  ${SOURCE_DIR}/start.cpp)
+  ${SOURCE_DIR}/start.cpp
+  ${SOURCE_DIR}/qr.cpp)
 
 
 set(SOURCES
@@ -243,7 +244,6 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/projectile.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/fireBolt.cpp
-  # ${SOURCE_DIR}/skyland/entity/projectile/curveshot.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/nemesisBlast.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/arcBolt.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/ionBurst.cpp
@@ -761,6 +761,15 @@ elseif(GAMEBOY_ADVANCE)
     ${ARM7_THUMB_FLAGS})
 
 
+  add_library(QR
+    ${ROOT_DIR}/external/qr/qrcodegen.c)
+
+  target_compile_options(QR PRIVATE
+    -O2
+    ${ARM7_THUMB_FLAGS})
+
+
+
   add_library(ARM_ROUTINES ${SOURCE_DIR}/platform/gba/gba_arm_routines.cpp)
 
   target_compile_options(ARM_ROUTINES PRIVATE
@@ -787,6 +796,7 @@ elseif(GAMEBOY_ADVANCE)
 
   target_link_libraries(SkylandEngine PRIVATE
     LIBGBA
+    QR
     ARM_ROUTINES)
 
   target_compile_options(SkylandEngine PRIVATE
