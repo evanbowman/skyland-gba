@@ -79,6 +79,7 @@ void StartMenuScene::add_option(Platform& pfrm,
 
 void StartMenuScene::exit(Platform& pfrm, App&, Scene& next)
 {
+    pfrm.screen().pixelate(0);
     data_->option_names_.clear();
 }
 
@@ -213,6 +214,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 [&pfrm, &app] {
                     scuttle(pfrm, app);
                     pfrm.screen().schedule_fade(0.f);
+                    pfrm.screen().pixelate(0);
                     app.game_speed() = GameSpeed::normal;
                     return scene_pool::alloc<ReadyScene>();
                 },
@@ -236,6 +238,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         pop_op(); // result
 
                         pfrm.screen().schedule_fade(0.f);
+                        pfrm.screen().pixelate(0);
 
                         return scene_pool::alloc<ReadyScene>();
                     }
@@ -288,13 +291,15 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (timer_ < fade_duration) {
             if (fade_direction_ == 0) {
-                pfrm.screen().schedule_fade(0.7f * step);
+                pfrm.screen().schedule_fade(0.75f * step);
+                pfrm.screen().pixelate(step * 128, false);
             } else {
-                pfrm.screen().schedule_fade(1.f - 0.3f * step);
+                pfrm.screen().pixelate(128, false);
+                pfrm.screen().schedule_fade(1.f - 0.25f * step);
             }
 
         } else {
-            pfrm.screen().schedule_fade(0.7f);
+            pfrm.screen().schedule_fade(0.75f);
             state_ = State::idle;
             timer_ = 0;
         }
@@ -349,6 +354,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.set_overlay_origin(0, 0);
         pfrm.load_overlay_texture("overlay");
         pfrm.screen().schedule_fade(0.f);
+        pfrm.screen().pixelate(0);
         return scene_pool::alloc<ReadyScene>();
 
     case State::partial_clear: {
@@ -370,7 +376,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         auto step = smoothstep(0, fade_duration, timer_);
 
         if (timer_ < fade_duration) {
-            pfrm.screen().schedule_fade(0.7f + 0.3f * step);
+            pfrm.screen().schedule_fade(0.75f + 0.25f * step);
         } else {
             pfrm.screen().schedule_fade(1.f);
             state_ = State::sweep_up;

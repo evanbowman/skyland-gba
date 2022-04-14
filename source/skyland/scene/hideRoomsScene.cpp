@@ -158,11 +158,13 @@ HideRoomsScene::update(Platform& pfrm, App& app, Microseconds delta)
     int limit = (int)(*data_)->room_classes_.size();
     if (test_key(Key::down) and index_ < limit - 1) {
         ++index_;
+        pfrm.speaker().play_sound("click_wooden", 2);
         repaint(pfrm, app);
     }
 
     if (test_key(Key::up) and index_ > 0) {
         --index_;
+        pfrm.speaker().play_sound("click_wooden", 2);
         repaint(pfrm, app);
     }
 
