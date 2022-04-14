@@ -46,7 +46,7 @@
             (map
              (lambda
                (if (equal (car $0) 'lemon-tree)
-                   (room-rem (opponent) (get $0 1) (get $0 2))))
+                   (room-del (opponent) (get $0 1) (get $0 2))))
              (rooms (opponent)))
 
             ;; In case some player decides to farm coins by building his/her own

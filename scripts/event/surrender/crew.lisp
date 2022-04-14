@@ -20,7 +20,7 @@
                         (ss (chr-slots (player))))
                     (if g
                         (let ((s (get ss (choice (length ss)))))
-                          (chr-rem (opponent)
+                          (chr-del (opponent)
                                    (car (car g))
                                    (cdr (car g)))
                           (chr-new (player) (car s) (cdr s) 'neutral 0))))

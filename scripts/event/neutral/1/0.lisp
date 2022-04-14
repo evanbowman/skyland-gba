@@ -43,7 +43,7 @@
                 (coins-add (* -400 (zone)))
                 (setq temp (get temp (choice (length temp))))
                 (chr-new (player) (car temp) (cdr temp) 'neutral 0)
-                (chr-rem (opponent) 1 14)
+                (chr-del (opponent) 1 14)
                 (setq temp (nil))
                 (dialog "The mercenary joined your crew!"))
             (dialog "Sadly, there's no room...")))

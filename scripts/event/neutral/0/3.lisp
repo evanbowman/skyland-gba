@@ -37,14 +37,14 @@
                 (coins-add -800)
                 (setq temp (get temp (choice (length temp))))
                 (chr-new (player) (car temp) (cdr temp) 'neutral 0)
-                (chr-rem (opponent) 1 14)
+                (chr-del (opponent) 1 14)
 
                 (setq temp (chr-slots (player)))
                 (if temp
                     (progn
                       (setq temp (get temp (choice (length temp))))
                       (chr-new (player) (car temp) (cdr temp) 'neutral 0)
-                      (chr-rem (opponent) 2 14)
+                      (chr-del (opponent) 2 14)
                       (dialog "Two survivors joined your crew!"))
                   (dialog "You rescue one of the survivors. The other survivor decides "
                           "that your castle is too crowded and declines to come aboard.")))

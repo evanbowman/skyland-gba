@@ -41,7 +41,7 @@
               (map
                (lambda
                  (if (equal (car $0) 'lemon-tree)
-                     (room-rem (player) (get $0 1) (get $0 2))))
+                     (room-del (player) (get $0 1) (get $0 2))))
                (rooms (player)))
 
               (map

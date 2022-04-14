@@ -43,7 +43,7 @@
             (progn
               (setq temp (get temp (choice (length temp))))
               (chr-new (player) (car temp) (cdr temp) 'neutral 0)
-              (chr-rem (opponent) 1 14)
+              (chr-del (opponent) 1 14)
               (setq temp '())
               (dialog "The castaway joined your crew!"))
           (progn

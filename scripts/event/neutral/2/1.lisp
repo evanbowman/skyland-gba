@@ -39,7 +39,7 @@
 
         (if temp
             (progn
-              (chr-rem (opponent) 1 14)
+              (chr-del (opponent) 1 14)
               (if (equal (choice 2) 0)
                   (progn
                     (chr-new (player) (car temp) (cdr temp) 'neutral 0)

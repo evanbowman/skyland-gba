@@ -655,9 +655,17 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
-    {"console-start",
+    {"port",
      [](int argc) {
-         lisp::interp_get_pfrm()->remote_console().start();
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+
+         switch (L_LOAD_INT(0)) {
+         case 1:
+             lisp::interp_get_pfrm()->remote_console().start();
+             break;
+         }
+
          return L_NIL;
      }},
     {"weather",
@@ -762,7 +770,7 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
-    {"room-rem",
+    {"room-del",
      [](int argc) {
          L_EXPECT_ARGC(argc, 3);
          L_EXPECT_OP(0, integer);
@@ -782,7 +790,7 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
-    {"chr-rem",
+    {"chr-del",
      [](int argc) {
          L_EXPECT_ARGC(argc, 3);
          L_EXPECT_OP(0, integer); // y

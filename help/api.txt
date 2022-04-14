@@ -79,7 +79,7 @@ o----------------------------o
 
 o----------------------------o
 
- (chr-rem island x y)
+ (chr-del island x y)
 
  Remove character from
  from slot (x, y).
@@ -126,14 +126,6 @@ o----------------------------o
  See
  /scripts/config/rooms.lisp
  for usage.
-
-
-o----------------------------o
-
- (console-start)
-
- Serve a command line shell
- over uart.
 
 
 o----------------------------o
@@ -385,6 +377,17 @@ o----------------------------o
 
 o----------------------------o
 
+ (port mode)
+
+ Configure serial port.
+ Supported modes:
+
+ 1: serve a command line over
+    uart, at 9600 baud.
+
+
+o----------------------------o
+
  (register-tile file-path)
 
  Allocate and map tile
@@ -506,7 +509,7 @@ o----------------------------o
 
 o----------------------------o
 
- (room-rem island x y)
+ (room-del island x y)
 
  Remove room room at x y from
  island.
