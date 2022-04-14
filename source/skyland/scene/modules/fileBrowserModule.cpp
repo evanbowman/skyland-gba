@@ -368,11 +368,13 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
             ++line_offset_;
             repaint(pfrm);
+            pfrm.speaker().play_sound("click_wooden", 2);
         } else if (scroll_index_ + line_offset_ <
                    (int)(*cwd_names_)->size() - 1) {
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
             ++scroll_index_;
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
+            pfrm.speaker().play_sound("click_wooden", 2);
         }
     };
 
@@ -381,10 +383,12 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
             --line_offset_;
             repaint(pfrm);
+            pfrm.speaker().play_sound("click_wooden", 2);
         } else if (scroll_index_ > 0) {
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 112);
             --scroll_index_;
             pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
+            pfrm.speaker().play_sound("click_wooden", 2);
         }
     };
 
@@ -414,6 +418,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                         path += selected;
                         ram_filesystem::unlink_file(pfrm, path.c_str());
                         on_dir_changed();
+                        pfrm.speaker().play_sound("button_wooden", 3);
                     }
                 }
                 break;
@@ -440,12 +445,14 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                 on_dir_changed();
                 selected_filesystem_ = SelectedFilesystem::sram;
                 repaint(pfrm);
+                pfrm.speaker().play_sound("button_wooden", 3);
                 break;
 
             case 1:
                 on_dir_changed();
                 selected_filesystem_ = SelectedFilesystem::rom;
                 repaint(pfrm);
+                pfrm.speaker().play_sound("button_wooden", 3);
                 break;
 
             case 2:
@@ -474,6 +481,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
             scroll_down();
         } else if (app.player().key_down(pfrm, Key::action_1)) {
             if ((**cwd_names_).size() not_eq 0) {
+                pfrm.speaker().play_sound("button_wooden", 3);
                 auto selected = (**cwd_names_)[scroll_index_];
                 if (selected[selected.length() - 1] == '/') {
                     on_dir_changed();
