@@ -65,6 +65,8 @@
 //;
 #include "data/overlay.h"
 //;
+#include "data/overlay_qr.h"
+//;
 #include "data/overlay_gamespeed.h"
 //;
 #include "data/overlay_editor.h"
@@ -171,6 +173,8 @@ static const TextureData tile_textures[] = {
 static const TextureData overlay_textures[] = {
 
     TEXTURE_INFO(overlay),
+//;
+    TEXTURE_INFO(overlay_qr),
 //;
     TEXTURE_INFO(overlay_gamespeed),
 //;

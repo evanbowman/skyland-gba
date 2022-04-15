@@ -70,6 +70,10 @@ private:
     bool disable_writeback_;
     int title_screen_page_;
 
+    std::optional<Text> upload_hint_;
+
+    int page_ = 0;
+
     static Factory factory_;
 };
 

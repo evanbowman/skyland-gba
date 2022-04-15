@@ -253,6 +253,9 @@ enum class SystemString {
 
     highscores_title,
     highscores_score,
+    highscores_upload,
+
+    a_next,
 
     modifier_keys_title,
     modifier_keys_opt_1,

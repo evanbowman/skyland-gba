@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "graphics/overlay.hpp"
 #include "skyland/scene.hpp"
 #include "string.hpp"
 
@@ -35,8 +36,7 @@ namespace skyland
 class QRViewerScene : public Scene
 {
 public:
-
-    QRViewerScene(const char* text, // Text to encode
+    QRViewerScene(const char* text,    // Text to encode
                   const char* message, // message to display alongside qr code
                   DeferredScene next);
 
@@ -49,10 +49,12 @@ public:
 
 
 protected:
-    StringBuffer<100> text_;
+    StringBuffer<80> text_;
     StringBuffer<84> message_;
     DeferredScene next_;
     bool exit_ = false;
+    std::optional<TextView> tv_;
+    std::optional<Text> next_text_;
 };
 
 
@@ -60,7 +62,6 @@ protected:
 class ConfiguredURLQRViewerScene : public QRViewerScene
 {
 public:
-
     ConfiguredURLQRViewerScene(const char* config_path,
                                const char* text,
                                const char* message,
@@ -76,4 +77,4 @@ private:
 
 
 
-}
+} // namespace skyland

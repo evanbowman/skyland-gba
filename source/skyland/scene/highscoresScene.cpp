@@ -21,10 +21,12 @@
 
 
 #include "highscoresScene.hpp"
+#include "qrViewerScene.hpp"
 #include "skyland/save.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
+#include "skyland/loginToken.hpp"
 
 
 
@@ -58,6 +60,10 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
     const auto screen_tiles = calc_screen_tiles(pfrm);
 
     int metrics_y_offset_ = -5;
+
+    if (show_current_score_) {
+        --metrics_y_offset_;
+    }
 
 
     const auto dot = ".";
@@ -148,6 +154,15 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
     if (not disable_writeback_) {
         save::store_global_data(pfrm, app.gp_);
     }
+
+    auto upload = SYSTR(highscores_upload);
+
+    u8 margin = centered_text_margins(pfrm, utf8::len(upload->c_str()));
+
+    upload_hint_.emplace(pfrm, OverlayCoord{margin, u8(screen_tiles.y - 1)});
+    upload_hint_->assign(
+        upload->c_str(),
+        OptColors{{ColorConstant::rich_black, ColorConstant::silver_white}});
 }
 
 
@@ -155,12 +170,44 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
 void HighscoresScene::exit(Platform& pfrm, App& app, Scene& prev)
 {
     lines_.clear();
+    upload_hint_.reset();
 }
 
 
 
 ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
 {
+    if (app.player().key_pressed(pfrm, Key::alt_1) and
+        app.player().key_pressed(pfrm, Key::alt_2)) {
+        pfrm.speaker().play_sound("button_wooden", 3);
+        auto p = title_screen_page_;
+        auto next = [p, &app]() {
+            StringBuffer<LoginToken::size> token_str;
+            for (int i = 0; i < 8; ++i) {
+                token_str.push_back(__login_token.text_[i]);
+            }
+            return scene_pool::alloc<ConfiguredURLQRViewerScene>(
+                "/scripts/config/uploadscore.lisp",
+                format("?sc=%&m=2&v=255&t=%",
+                       app.gp_.highscores_.values_[0].get(),
+                       token_str.c_str()).c_str(),
+                "Step 3: Scan to upload score!",
+                scene_pool::make_deferred_scene<HighscoresScene>());
+        };
+
+        if (__login_token.valid_) {
+            return next();
+        }
+
+        __login_token.valid_ = true;
+
+        return scene_pool::alloc<ConfiguredURLQRViewerScene>(
+            "/scripts/config/login.lisp",
+            "",
+            "Step 1: Scan to request a login token!",
+            next);
+    }
+
     if (app.player().key_down(pfrm, Key::action_1) or
         app.player().key_down(pfrm, Key::action_2)) {
         return scene_pool::alloc<TitleScreenScene>(title_screen_page_);

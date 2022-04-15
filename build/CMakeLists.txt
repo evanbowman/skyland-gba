@@ -98,6 +98,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/skyland.cpp
   ${SOURCE_DIR}/skyland/network.cpp
   ${SOURCE_DIR}/skyland/roomPool.cpp
+  ${SOURCE_DIR}/skyland/loginToken.cpp
   ${SOURCE_DIR}/skyland/script_defs.cpp
   ${SOURCE_DIR}/skyland/achievement.cpp
   ${SOURCE_DIR}/skyland/systemString.cpp
@@ -289,6 +290,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     # Data files below. Because the gameboy advance does not have a filesystem,
     # all of the sounds and images need to be compiled into the ROM.
     ${DATA_DIR}/overlay.s
+    ${DATA_DIR}/overlay_qr.s
     ${DATA_DIR}/overlay_dialog.s
     ${DATA_DIR}/overlay_dialog_fullscreen.s
     ${DATA_DIR}/overlay_world_map.s
@@ -617,6 +619,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_background(background 0 0 NO NO)
     add_background(background_title_screen 0 0 NO NO)
     add_overlay(overlay 0 0 NO NO)
+    add_overlay(overlay_qr 0 0 NO NO)
     add_overlay(overlay_gamespeed 0 0 NO NO)
     add_overlay(overlay_editor 0 0 NO NO)
     add_overlay(overlay_dialog 0 0 NO NO)

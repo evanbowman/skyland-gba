@@ -212,7 +212,6 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& next)
         app.birds().clear();
         GenericBird::generate(pfrm, app);
     }
-
 }
 
 

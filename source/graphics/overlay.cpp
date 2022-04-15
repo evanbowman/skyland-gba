@@ -338,12 +338,14 @@ TextView::~TextView()
 }
 
 
-void TextView::assign(const char* str,
-                      const OverlayCoord& coord,
-                      const OverlayCoord& size,
-                      int skiplines,
-                      const OptColors& colors)
+TextView::LineCount TextView::assign(const char* str,
+                                     const OverlayCoord& coord,
+                                     const OverlayCoord& size,
+                                     int skiplines,
+                                     const OptColors& colors)
 {
+    LineCount result = 1;
+
     position_ = coord;
     size_ = size;
 
@@ -374,10 +376,12 @@ void TextView::assign(const char* str,
                     --i;
                     --cursor.x;
                 }
+                ++result;
                 newline();
                 if (cursor.y == (coord.y + size.y) - 1) {
                     break;
                 }
+                ++result;
                 newline();
             } else {
                 cursor.y += 1;
@@ -385,6 +389,7 @@ void TextView::assign(const char* str,
                 if (cursor.y == (coord.y + size.y) - 1) {
                     break;
                 }
+                ++result;
                 newline();
             }
             if (skiplines) {
@@ -409,6 +414,8 @@ void TextView::assign(const char* str,
     while (cursor.y < (coord.y + size.y)) {
         newline();
     }
+
+    return result;
 }
 
 

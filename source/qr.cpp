@@ -55,8 +55,7 @@ std::optional<QRCode> QRCode::create(const char* text)
 
 
 
-QRCode::QRCode(ScratchBufferPtr qr_data) :
-    qr_data_(qr_data)
+QRCode::QRCode(ScratchBufferPtr qr_data) : qr_data_(qr_data)
 {
 }
 
@@ -84,6 +83,16 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset)
 
     int output_tile = tile_start_offset;
 
+    auto is_position_marker_inner = [sz](int x, int y) {
+        return (x >= 2 and y >= 2 and x < 5 and y < 5) or
+               (x >= 2 and y >= sz - 6 and x < 5 and y < sz - 2) or
+               (x > sz - 6 and y < 5 and x < sz - 2 and y > 1);
+    };
+
+    auto is_position_marker_outer = [=](int x, int y) {
+        return not is_position_marker_inner(x, y) and x < 7 and y < 7;
+    };
+
     // First row of 2x2 QR module blocks:
     for (int y = 0; y < sz; y += 2) {
         for (int x = 0; x < sz; x += 2) {
@@ -95,10 +104,17 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset)
                 for (int xx = 0; xx < 2; ++xx) {
                     if (get_module({y + yy, x + xx})) {
 
+                        u8 color = data_color_;
+                        if (is_position_marker_inner(x, y)) {
+                            color = position_marker_inner_color_;
+                        } else if (is_position_marker_outer(x, y)) {
+                            color = position_marker_outer_color_;
+                        }
+
                         // Set bits for 4x4 block.
                         for (int j = 0; j < 4; ++j) {
                             for (int i = 0; i < 4; ++i) {
-                                tile_data[xx * 4 + i][yy * 4 + j] = 3;
+                                tile_data[xx * 4 + i][yy * 4 + j] = color;
                             }
                         }
                     }
@@ -107,7 +123,6 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset)
 
             pfrm.overwrite_overlay_tile(output_tile++,
                                         pfrm.encode_tile(tile_data));
-
         }
     }
 }
@@ -130,4 +145,4 @@ void QRCode::draw(Platform& pfrm, const Vec2<u8>& screen_coord)
 
 
 
-}
+} // namespace skyland

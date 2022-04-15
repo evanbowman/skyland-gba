@@ -34,7 +34,6 @@ namespace skyland
 class QRCode
 {
 public:
-
     static std::optional<QRCode> create(const char* text);
 
 
@@ -56,15 +55,38 @@ public:
     void draw(Platform& pfrm, const Vec2<u8>& screen_coord);
 
 
-private:
+    QRCode& data_color_index(u8 color)
+    {
+        data_color_ = color;
+        return *this;
+    }
 
+
+    QRCode& position_marker_inner_color_index(u8 color)
+    {
+        position_marker_inner_color_ = color;
+        return *this;
+    }
+
+
+    QRCode& position_marker_outer_color_index(u8 color)
+    {
+        position_marker_outer_color_ = color;
+        return *this;
+    }
+
+
+private:
     QRCode(ScratchBufferPtr qr_data_);
 
+
+    u8 data_color_ = 3;
+    u8 position_marker_inner_color_ = 3;
+    u8 position_marker_outer_color_ = 3;
 
     ScratchBufferPtr qr_data_;
 };
 
 
 
-
-}
+} // namespace skyland

@@ -165,12 +165,14 @@ public:
 
     using OptColors = ::OptColors;
 
+    using LineCount = int;
+
     // Use the skiplines parameter to scroll the textview vertically.
-    void assign(const char* str,
-                const OverlayCoord& coord,
-                const OverlayCoord& size,
-                int skiplines = 0,
-                const OptColors& opts = {});
+    LineCount assign(const char* str,
+                     const OverlayCoord& coord,
+                     const OverlayCoord& size,
+                     int skiplines = 0,
+                     const OptColors& opts = {});
 
     inline const OverlayCoord& size()
     {

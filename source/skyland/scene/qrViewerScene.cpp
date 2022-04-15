@@ -20,12 +20,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include "qrViewerScene.hpp"
+#include "platform/platform.hpp"
+#include "qr.hpp"
 #include "skyland/player/playerP1.hpp"
 #include "skyland/skyland.hpp"
-#include "graphics/overlay.hpp"
-#include "platform/platform.hpp"
-#include "qrViewerScene.hpp"
-#include "qr.hpp"
 
 
 
@@ -36,9 +35,8 @@ namespace skyland
 
 QRViewerScene::QRViewerScene(const char* text,
                              const char* message,
-                             DeferredScene next) :
-    message_(message),
-    next_(next)
+                             DeferredScene next)
+    : message_(message), next_(next)
 {
     if (str_len(text) < text_.remaining()) {
         text_ = text;
@@ -49,13 +47,46 @@ QRViewerScene::QRViewerScene(const char* text,
 
 void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    pfrm.load_overlay_texture("overlay");
+    pfrm.load_overlay_texture("overlay_qr");
+
+    tv_.emplace(pfrm);
 
     if (not text_.empty()) {
         if (auto code = QRCode::create(text_.c_str())) {
+
+            code->data_color_index(7);
+            code->position_marker_outer_color_index(7);
+            code->position_marker_inner_color_index(8);
+
             const auto st = calc_screen_tiles(pfrm);
 
             auto margin = (st.y - code->size() / 2) / 2;
+
+            int lc = [&] {
+                return tv_->assign(message_.c_str(),
+                                   {u8(5 + code->size() / 2), 1},
+                                   {u8(st.x - (6 + code->size() / 2)), 18},
+                                   0);
+            }();
+
+            pfrm.fill_overlay(0);
+
+            u8 text_margin = (st.y - lc) / 2;
+            tv_->assign(message_.c_str(),
+                        {u8(5 + code->size() / 2), text_margin},
+                        {u8(st.x - (6 + code->size() / 2)), 18},
+                        0,
+                        OptColors{{custom_color(0x392194),
+                                   ColorConstant::silver_white}});
+
+            auto next_str = SYSTR(a_next);
+
+            u8 next_start = st.x - utf8::len(next_str->c_str());
+            next_text_.emplace(pfrm, OverlayCoord{next_start, 19});
+            next_text_->assign(next_str->c_str(),
+                               OptColors{{ColorConstant::silver_white,
+                                           custom_color(0x392194)}});
+
             code->draw(pfrm, {2, (u8)margin});
         }
     }
@@ -68,20 +99,22 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 void QRViewerScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     pfrm.load_overlay_texture("overlay");
+    next_text_.reset();
 }
 
 
 
-ScenePtr<Scene> QRViewerScene::update(Platform& pfrm,
-                                      App& app,
-                                      Microseconds delta)
+ScenePtr<Scene>
+QRViewerScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (exit_) {
         return next_();
     }
 
-    if (player(app).key_down(pfrm, Key::action_1)) {
+    if (player(app).key_down(pfrm, Key::action_1) or
+        player(app).key_down(pfrm, Key::action_2)) {
         exit_ = true;
+        tv_.reset();
         pfrm.fill_overlay(0);
         pfrm.screen().schedule_fade(1.f);
     }
@@ -91,13 +124,11 @@ ScenePtr<Scene> QRViewerScene::update(Platform& pfrm,
 
 
 
-
 ConfiguredURLQRViewerScene::ConfiguredURLQRViewerScene(const char* config_path,
                                                        const char* text,
                                                        const char* message,
                                                        DeferredScene next)
-    : QRViewerScene(text, message, next),
-      config_path_(config_path)
+    : QRViewerScene(text, message, next), config_path_(config_path)
 {
 }
 
@@ -116,11 +147,9 @@ void ConfiguredURLQRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
     text_ = v->string().value();
     text_ += temp;
 
-    info(pfrm, text_);
-
     QRViewerScene::enter(pfrm, app, prev);
 }
 
 
 
-}
+} // namespace skyland

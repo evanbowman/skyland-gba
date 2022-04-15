@@ -77,11 +77,7 @@ static const char* const page_2_lines[] = {"-- Music --",
 
 
 
-std::array<Page, 3> pages_ = {{
-    {page_0_lines},
-    {page_1_lines},
-    {page_2_lines}
-}};
+std::array<Page, 3> pages_ = {{{page_0_lines}, {page_1_lines}, {page_2_lines}}};
 
 
 

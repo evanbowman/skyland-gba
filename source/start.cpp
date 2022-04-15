@@ -23,10 +23,10 @@
 #include "globals.hpp"
 #include "localization.hpp"
 #include "platform/ram_filesystem.hpp"
+#include "qr.hpp"
 #include "skyland/save.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
-#include "qr.hpp"
 
 
 
