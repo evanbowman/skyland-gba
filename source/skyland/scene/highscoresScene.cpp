@@ -191,7 +191,7 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
                 format("?sc=%&m=2&v=255&t=%",
                        app.gp_.highscores_.values_[0].get(),
                        token_str.c_str()).c_str(),
-                "Step 3: Scan to upload score!",
+                "Scan to upload score!",
                 scene_pool::make_deferred_scene<HighscoresScene>());
         };
 
