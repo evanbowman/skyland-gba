@@ -38,7 +38,8 @@ class QRViewerScene : public Scene
 public:
     QRViewerScene(const char* text,    // Text to encode
                   const char* message, // message to display alongside qr code
-                  DeferredScene next);
+                  DeferredScene next,
+                  ColorConstant exit_color);
 
 
     void enter(Platform& pfrm, App& app, Scene& prev) override;
@@ -55,6 +56,7 @@ protected:
     bool exit_ = false;
     std::optional<TextView> tv_;
     std::optional<Text> next_text_;
+    ColorConstant exit_color_;
 };
 
 
@@ -62,10 +64,12 @@ protected:
 class ConfiguredURLQRViewerScene : public QRViewerScene
 {
 public:
-    ConfiguredURLQRViewerScene(const char* config_path,
-                               const char* text,
-                               const char* message,
-                               DeferredScene next);
+    ConfiguredURLQRViewerScene(
+        const char* config_path,
+        const char* text,
+        const char* message,
+        DeferredScene next,
+        ColorConstant exit_color = custom_color(0x392194));
 
 
     void enter(Platform& pfrm, App& app, Scene& prev) override;

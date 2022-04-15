@@ -35,8 +35,9 @@ namespace skyland
 
 QRViewerScene::QRViewerScene(const char* text,
                              const char* message,
-                             DeferredScene next)
-    : message_(message), next_(next)
+                             DeferredScene next,
+                             ColorConstant exit_color)
+    : message_(message), next_(next), exit_color_(exit_color)
 {
     if (str_len(text) < text_.remaining()) {
         text_ = text;
@@ -52,7 +53,25 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
     tv_.emplace(pfrm);
 
     if (not text_.empty()) {
+
+        {
+            auto str = SYSTR(qr_prep);
+            auto m = centered_text_margins(pfrm, utf8::len(str->c_str()));
+            Text t(
+                pfrm,
+                OverlayCoord{(u8)m, (u8)(calc_screen_tiles(pfrm).y / 2 - 1)});
+            t.assign(str->c_str(),
+                     OptColors{{ColorConstant::silver_white,
+                                custom_color(0x392194)}});
+            pfrm.system_call("vsync", nullptr);
+            pfrm.screen().fade(1.f, custom_color(0x392194));
+            pfrm.screen().display();
+        }
+
+
         if (auto code = QRCode::create(text_.c_str())) {
+
+            pfrm.screen().display();
 
             code->data_color_index(7);
             code->position_marker_outer_color_index(7);
@@ -111,12 +130,11 @@ QRViewerScene::update(Platform& pfrm, App& app, Microseconds delta)
         return next_();
     }
 
-    if (player(app).key_down(pfrm, Key::action_1) or
-        player(app).key_down(pfrm, Key::action_2)) {
+    if (player(app).key_down(pfrm, Key::action_1)) {
         exit_ = true;
         tv_.reset();
         pfrm.fill_overlay(0);
-        pfrm.screen().schedule_fade(1.f);
+        pfrm.screen().schedule_fade(1.f, exit_color_);
     }
 
     return null_scene();
@@ -127,8 +145,9 @@ QRViewerScene::update(Platform& pfrm, App& app, Microseconds delta)
 ConfiguredURLQRViewerScene::ConfiguredURLQRViewerScene(const char* config_path,
                                                        const char* text,
                                                        const char* message,
-                                                       DeferredScene next)
-    : QRViewerScene(text, message, next), config_path_(config_path)
+                                                       DeferredScene next,
+                                                       ColorConstant exit_color)
+    : QRViewerScene(text, message, next, exit_color), config_path_(config_path)
 {
 }
 

@@ -187,6 +187,69 @@ void HighscoresScene::exit(Platform& pfrm, App& app, Scene& prev)
 
 
 
+static Vector<char> encode_highscore_data(App& app)
+{
+    StringBuffer<LoginToken::size> token_str;
+    for (int i = 0; i < 8; ++i) {
+        token_str.push_back(__login_token.text_[i]);
+    }
+
+    struct Payload
+    {
+        host_u32 score_;
+        u8 trick_1_;
+        u8 login_token_[LoginToken::size];
+        u8 trick_2_;
+        u8 score_multiplier_;
+        u8 trick_3_;
+        host_u32 time_seconds_;
+    } payload;
+
+    payload.score_.set(app.gp_.highscores_.values_[0].get());
+    memcpy(payload.login_token_, __login_token.text_, LoginToken::size);
+
+    payload.time_seconds_.set(
+        app.gp_.highscores_.highest_score_play_seconds_.get());
+    payload.score_multiplier_ =
+        app.gp_.highscores_.highest_score_multiplier_used_;
+
+    // Just to confuse people who try to decode the format. We padded
+    // the structure with three bytes to make it a multiple of five, to
+    // avoid base32 delimiters on urls, might as well use the bytes for
+    // something. We want to discourage cheaters, who might try to send
+    // false data to the highscore server.
+    payload.trick_1_ = ~(payload.score_.get());
+    payload.trick_2_ = 0xaa ^ (payload.score_.get());
+    payload.trick_3_ =
+        (payload.trick_1_ | payload.trick_2_) ^ payload.login_token_[3];
+
+    static_assert(sizeof(Payload) % 5 == 0,
+                  "Base32 string not multiple of five, i.e. will contain "
+                  "invalid '=' delimiters when url-encoded.");
+
+    static_assert(sizeof(Payload) == 20);
+
+    Vector<char> data;
+
+    static_assert((sizeof payload) % 2 == 0);
+
+    // Pack in the upper nibbles, followed by the lower nibbles.
+    for (u32 i = 0; i < sizeof payload; i += 2) {
+        data.push_back((((u8*)&payload)[i] & 0x0f) |
+                       ((((u8*)&payload)[i + 1] & 0x0f) << 4));
+    }
+    for (u32 i = 0; i < sizeof payload; i += 2) {
+        data.push_back((((u8*)&payload)[i] & 0xf0) |
+                       ((((u8*)&payload)[i + 1] & 0xf0) >> 4));
+    }
+
+    const char* cipher_alphabet = "5yet2s4waiobjmdx3hzg6nv7cfqprklu";
+
+    return base32::encode(data, cipher_alphabet);
+}
+
+
+
 ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
 {
     if (app.player().key_pressed(pfrm, Key::alt_1) and
@@ -194,73 +257,7 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
         pfrm.speaker().play_sound("button_wooden", 3);
         auto p = title_screen_page_;
         auto next = [p, &app, &pfrm]() {
-            StringBuffer<LoginToken::size> token_str;
-            for (int i = 0; i < 8; ++i) {
-                token_str.push_back(__login_token.text_[i]);
-            }
-
-            struct Payload
-            {
-                host_u32 score_;
-                u8 trick_1_;
-                u8 login_token_[LoginToken::size];
-                u8 trick_2_;
-                u8 score_multiplier_;
-                u8 trick_3_;
-                host_u32 time_seconds_;
-            } payload;
-
-            payload.score_.set(app.gp_.highscores_.values_[0].get());
-            memcpy(payload.login_token_, __login_token.text_, LoginToken::size);
-
-            payload.time_seconds_.set(
-                app.gp_.highscores_.highest_score_play_seconds_.get());
-            payload.score_multiplier_ =
-                app.gp_.highscores_.highest_score_multiplier_used_;
-
-            // Just to confuse people who try to decode the format. We padded
-            // the structure with three bytes to make it a multiple of five, to
-            // avoid base32 delimiters on urls, might as well use the bytes for
-            // something. We want to discourage cheaters, who might try to send
-            // false data to the highscore server.
-            payload.trick_1_ = ~(payload.score_.get());
-            payload.trick_2_ = 0xaa ^ (payload.score_.get());
-            payload.trick_3_ =
-                (payload.trick_1_ | payload.trick_2_) ^ payload.login_token_[3];
-
-            static_assert(
-                sizeof(Payload) % 5 == 0,
-                "Base32 string not multiple of five, i.e. will contain "
-                "invalid '=' delimiters when url-encoded.");
-
-            static_assert(sizeof(Payload) == 20);
-
-            Vector<char> data;
-            // Unrolled rail-fence cipher.
-            data.push_back(((u8*)&payload)[0]); // row 1
-            data.push_back(((u8*)&payload)[4]);
-            data.push_back(((u8*)&payload)[8]);
-            data.push_back(((u8*)&payload)[12]);
-            data.push_back(((u8*)&payload)[16]);
-
-            data.push_back(((u8*)&payload)[1]); // row 2
-            data.push_back(((u8*)&payload)[3]);
-            data.push_back(((u8*)&payload)[5]);
-            data.push_back(((u8*)&payload)[7]);
-            data.push_back(((u8*)&payload)[9]);
-            data.push_back(((u8*)&payload)[11]);
-            data.push_back(((u8*)&payload)[13]);
-            data.push_back(((u8*)&payload)[15]);
-            data.push_back(((u8*)&payload)[17]);
-            data.push_back(((u8*)&payload)[19]);
-
-            data.push_back(((u8*)&payload)[2]); // row 3
-            data.push_back(((u8*)&payload)[6]);
-            data.push_back(((u8*)&payload)[10]);
-            data.push_back(((u8*)&payload)[14]);
-            data.push_back(((u8*)&payload)[18]);
-
-            auto encoded = base32::encode(data);
+            auto encoded = encode_highscore_data(app);
 
             StringBuffer<64> temp;
             for (auto& c : encoded) {
@@ -271,7 +268,8 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
                 "/scripts/config/uploadscore.lisp",
                 format("?d=%", temp.c_str()).c_str(),
                 SYSTR(score_upload_prompt_3)->c_str(),
-                scene_pool::make_deferred_scene<HighscoresScene>());
+                scene_pool::make_deferred_scene<HighscoresScene>(),
+                ColorConstant::rich_black);
         };
 
         if (__login_token.valid_) {

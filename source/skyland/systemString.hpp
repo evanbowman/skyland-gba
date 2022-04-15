@@ -260,6 +260,7 @@ enum class SystemString {
     score_upload_prompt_3,
 
     a_next,
+    qr_prep,
 
     modifier_keys_title,
     modifier_keys_opt_1,
