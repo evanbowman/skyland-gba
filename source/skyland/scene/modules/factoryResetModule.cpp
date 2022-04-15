@@ -65,7 +65,7 @@ FactoryResetModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-FactoryResetModule::Factory FactoryResetModule::factory_(true);
+FactoryResetModule::Factory FactoryResetModule::factory_;
 
 
 
