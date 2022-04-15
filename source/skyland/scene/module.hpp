@@ -58,7 +58,6 @@ public:
                 next_ = _Module::developer_mode_factories_;
                 _Module::developer_mode_factories_ = this;
             }
-
         }
 
 
@@ -124,7 +123,6 @@ public:
 template <typename T> class Module : public detail::_Module
 {
 public:
-
     static bool enable_custom_scripts()
     {
         return false;
@@ -146,9 +144,8 @@ public:
     class Factory : public _Module::Factory
     {
     public:
-
-        Factory(bool requires_developer_mode = false) :
-            _Module::Factory(requires_developer_mode)
+        Factory(bool requires_developer_mode = false)
+            : _Module::Factory(requires_developer_mode)
         {
         }
 

@@ -138,6 +138,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/worldMapScene.cpp
   ${SOURCE_DIR}/skyland/scene/hideRoomsScene.cpp
   ${SOURCE_DIR}/skyland/scene/keyComboScene.cpp
+  ${SOURCE_DIR}/skyland/scene/textEntryScene.cpp
   ${SOURCE_DIR}/skyland/scene/inspectP2Scene.cpp
   ${SOURCE_DIR}/skyland/scene/loadLevelScene.cpp
   ${SOURCE_DIR}/skyland/scene/zoneImageScene.cpp

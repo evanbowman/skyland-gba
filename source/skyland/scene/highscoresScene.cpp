@@ -28,6 +28,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
+#include "textEntryScene.hpp"
 #include "titleScreenScene.hpp"
 
 
@@ -259,6 +260,7 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
         app.player().key_pressed(pfrm, Key::alt_2)) {
         pfrm.speaker().play_sound("button_wooden", 3);
         auto p = title_screen_page_;
+
         auto next = [p, &app, &pfrm]() {
             auto encoded = encode_highscore_data(app);
 
@@ -275,17 +277,31 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
                 ColorConstant::rich_black);
         };
 
+
+
         if (__login_token.valid_) {
             return next();
         }
 
-        __login_token.valid_ = true;
+        auto gettext = [next]() {
+            auto receive = [next](const char* text) {
+                __login_token.valid_ = true;
+                if (str_len(text) not_eq 8) {
+                    // sanity check
+                    Platform::fatal("qr text logic error");
+                }
+                memcpy(__login_token.text_, text, 8);
+                return next();
+            };
+            const char* prompt = "Enter your token:";
+            return scene_pool::alloc<TextEntryScene>(prompt, receive, 8, 8);
+        };
 
         return scene_pool::alloc<ConfiguredURLQRViewerScene>(
             "/scripts/config/login.lisp",
             "",
             SYSTR(score_upload_prompt_1)->c_str(),
-            next);
+            gettext);
     }
 
     if (app.player().key_down(pfrm, Key::action_1) or
