@@ -36,13 +36,15 @@ struct Cipher
 
 
 
-Vector<char> encode(Vector<char>& input)
+Vector<char> encode(Vector<char>& input, const char* alphabet)
 {
     Vector<char> result;
 
     auto pos = input.begin();
 
-    const char* alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    if (alphabet == nullptr) {
+        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    }
 
     while (pos not_eq input.end()) {
 

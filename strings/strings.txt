@@ -187,7 +187,10 @@ deploy:
 launch drone: select position
 -- highscores --
 score
-l + r: share score
+l + r: share top score
+Step 1: Scan to request a login token!
+
+Scan to upload score!
  A: next 
 combos: START + _
 set weapon groups

@@ -21,12 +21,14 @@
 
 
 #include "highscoresScene.hpp"
+#include "base32.hpp"
 #include "qrViewerScene.hpp"
+#include "skyland/loginToken.hpp"
 #include "skyland/save.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
-#include "skyland/loginToken.hpp"
 
 
 
@@ -49,6 +51,10 @@ HighscoresScene::HighscoresScene(bool show_current_score, int title_screen_page)
       title_screen_page_(title_screen_page)
 {
 }
+
+
+
+extern SharedVariable score_multiplier;
 
 
 
@@ -152,6 +158,12 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     if (not disable_writeback_) {
+        if (show_current_score_ and highscores.values_[0].get() == (u32)score) {
+            highscores.highest_score_play_seconds_.set(
+                app.persistent_data().total_seconds_.get());
+            highscores.highest_score_multiplier_used_ = score_multiplier;
+        }
+
         save::store_global_data(pfrm, app.gp_);
     }
 
@@ -181,17 +193,84 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
         app.player().key_pressed(pfrm, Key::alt_2)) {
         pfrm.speaker().play_sound("button_wooden", 3);
         auto p = title_screen_page_;
-        auto next = [p, &app]() {
+        auto next = [p, &app, &pfrm]() {
             StringBuffer<LoginToken::size> token_str;
             for (int i = 0; i < 8; ++i) {
                 token_str.push_back(__login_token.text_[i]);
             }
+
+            struct Payload
+            {
+                host_u32 score_;
+                u8 trick_1_;
+                u8 login_token_[LoginToken::size];
+                u8 trick_2_;
+                u8 score_multiplier_;
+                u8 trick_3_;
+                host_u32 time_seconds_;
+            } payload;
+
+            payload.score_.set(app.gp_.highscores_.values_[0].get());
+            memcpy(payload.login_token_, __login_token.text_, LoginToken::size);
+
+            payload.time_seconds_.set(
+                app.gp_.highscores_.highest_score_play_seconds_.get());
+            payload.score_multiplier_ =
+                app.gp_.highscores_.highest_score_multiplier_used_;
+
+            // Just to confuse people who try to decode the format. We padded
+            // the structure with three bytes to make it a multiple of five, to
+            // avoid base32 delimiters on urls, might as well use the bytes for
+            // something. We want to discourage cheaters, who might try to send
+            // false data to the highscore server.
+            payload.trick_1_ = ~(payload.score_.get());
+            payload.trick_2_ = 0xaa ^ (payload.score_.get());
+            payload.trick_3_ =
+                (payload.trick_1_ | payload.trick_2_) ^ payload.login_token_[3];
+
+            static_assert(
+                sizeof(Payload) % 5 == 0,
+                "Base32 string not multiple of five, i.e. will contain "
+                "invalid '=' delimiters when url-encoded.");
+
+            static_assert(sizeof(Payload) == 20);
+
+            Vector<char> data;
+            // Unrolled rail-fence cipher.
+            data.push_back(((u8*)&payload)[0]); // row 1
+            data.push_back(((u8*)&payload)[4]);
+            data.push_back(((u8*)&payload)[8]);
+            data.push_back(((u8*)&payload)[12]);
+            data.push_back(((u8*)&payload)[16]);
+
+            data.push_back(((u8*)&payload)[1]); // row 2
+            data.push_back(((u8*)&payload)[3]);
+            data.push_back(((u8*)&payload)[5]);
+            data.push_back(((u8*)&payload)[7]);
+            data.push_back(((u8*)&payload)[9]);
+            data.push_back(((u8*)&payload)[11]);
+            data.push_back(((u8*)&payload)[13]);
+            data.push_back(((u8*)&payload)[15]);
+            data.push_back(((u8*)&payload)[17]);
+            data.push_back(((u8*)&payload)[19]);
+
+            data.push_back(((u8*)&payload)[2]); // row 3
+            data.push_back(((u8*)&payload)[6]);
+            data.push_back(((u8*)&payload)[10]);
+            data.push_back(((u8*)&payload)[14]);
+            data.push_back(((u8*)&payload)[18]);
+
+            auto encoded = base32::encode(data);
+
+            StringBuffer<64> temp;
+            for (auto& c : encoded) {
+                temp.push_back(c);
+            }
+
             return scene_pool::alloc<ConfiguredURLQRViewerScene>(
                 "/scripts/config/uploadscore.lisp",
-                format("?sc=%&m=2&v=255&t=%",
-                       app.gp_.highscores_.values_[0].get(),
-                       token_str.c_str()).c_str(),
-                "Scan to upload score!",
+                format("?d=%", temp.c_str()).c_str(),
+                SYSTR(score_upload_prompt_3)->c_str(),
                 scene_pool::make_deferred_scene<HighscoresScene>());
         };
 
@@ -204,7 +283,7 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
         return scene_pool::alloc<ConfiguredURLQRViewerScene>(
             "/scripts/config/login.lisp",
             "",
-            "Step 1: Scan to request a login token!",
+            SYSTR(score_upload_prompt_1)->c_str(),
             next);
     }
 

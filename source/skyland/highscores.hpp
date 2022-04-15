@@ -33,6 +33,8 @@ struct Highscores
 {
     static const int count = 6;
     HostInteger<u32> values_[count];
+    HostInteger<u32> highest_score_play_seconds_;
+    u8 highest_score_multiplier_used_;
 };
 
 

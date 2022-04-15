@@ -29,7 +29,7 @@ namespace base32
 
 
 
-Vector<char> encode(Vector<char>& input);
+Vector<char> encode(Vector<char>& input, const char* alphabet = nullptr);
 
 
 

@@ -85,7 +85,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
             next_text_.emplace(pfrm, OverlayCoord{next_start, 19});
             next_text_->assign(next_str->c_str(),
                                OptColors{{ColorConstant::silver_white,
-                                           custom_color(0x392194)}});
+                                          custom_color(0x392194)}});
 
             code->draw(pfrm, {2, (u8)margin});
         }

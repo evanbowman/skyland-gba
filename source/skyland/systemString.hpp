@@ -255,6 +255,10 @@ enum class SystemString {
     highscores_score,
     highscores_upload,
 
+    score_upload_prompt_1,
+    score_upload_prompt_2,
+    score_upload_prompt_3,
+
     a_next,
 
     modifier_keys_title,

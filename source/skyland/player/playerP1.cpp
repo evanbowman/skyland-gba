@@ -178,7 +178,7 @@ void PlayerP1::touch_consume()
 
 
 
-static SharedVariable score_multiplier("score_multiplier", 1);
+SharedVariable score_multiplier("score_multiplier", 1);
 
 
 
