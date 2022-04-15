@@ -20,8 +20,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "module.hpp"
-#include "string.hpp"
+#pragma once
+
+
+#include "skyland/scene/module.hpp"
 
 
 
@@ -30,8 +32,38 @@ namespace skyland
 
 
 
-detail::_Module::Factory* detail::_Module::factories_;
-detail::_Module::Factory* detail::_Module::developer_mode_factories_;
+class DeveloperModeModule : public Module<DeveloperModeModule>
+{
+public:
+    DeveloperModeModule()
+    {
+    }
+
+
+    static SystemString module_name()
+    {
+        return SystemString::module_developer_mode;
+    }
+
+
+    static u16 icon()
+    {
+        return 2472;
+    }
+
+
+    static bool run_scripts()
+    {
+        return false;
+    }
+
+
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+
+    static Factory factory_;
+};
+
 
 
 } // namespace skyland

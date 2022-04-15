@@ -129,7 +129,7 @@ DlcInjectorModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-DlcInjectorModule::Factory DlcInjectorModule::factory_;
+DlcInjectorModule::Factory DlcInjectorModule::factory_(true);
 
 
 

@@ -568,7 +568,7 @@ void FileBrowserModule::display(Platform& pfrm, App&)
 
 
 
-FileBrowserModule::Factory FileBrowserModule::factory_;
+FileBrowserModule::Factory FileBrowserModule::factory_(true);
 
 
 

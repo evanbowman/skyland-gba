@@ -271,7 +271,7 @@ DlcManagerModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-DlcManagerModule::Factory DlcManagerModule::factory_;
+DlcManagerModule::Factory DlcManagerModule::factory_(true);
 
 
 

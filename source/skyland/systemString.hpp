@@ -143,6 +143,7 @@ enum class SystemString {
     module_text_editor,
     module_highscores,
     module_tutorials,
+    module_developer_mode,
 
     cargo,
 

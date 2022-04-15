@@ -145,6 +145,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.screen().set_shader(passthrough_shader);
     app.swap_environment<weather::ClearSkies>();
 
+    dev_ = app.is_developer_mode();
+
     const int offset = 64;
 
     app.camera().emplace<Camera>();
@@ -359,7 +361,7 @@ void TitleScreenScene::put_module_text(Platform& pfrm)
     if (module_cursor_) {
         const auto index = module_page_ * modules_per_page + module_cursor_->x +
                            module_cursor_->y * modules_per_row;
-        if (auto factory = detail::_Module::Factory::get(index)) {
+        if (auto factory = detail::_Module::Factory::get(index, dev_)) {
             buffer += *loadstr(pfrm, factory->name());
         } else {
             return;
@@ -450,7 +452,7 @@ void TitleScreenScene::run_init_scripts(Platform& pfrm,
 
 
 
-static int module_count()
+static int module_count(bool dev)
 {
     int count = 0;
 
@@ -460,14 +462,22 @@ static int module_count()
         current = current->next_;
     }
 
+    if (dev) {
+        current = detail::_Module::developer_mode_factories_;
+        while (current) {
+            ++count;
+            current = current->next_;
+        }
+    }
+
     return count;
 }
 
 
 
-static int module_page_count()
+static int module_page_count(bool dev)
 {
-    const int count = module_count();
+    const int count = module_count(dev);
 
     int full_pages = count / modules_per_page;
     int partial_page = (count % modules_per_page) not_eq 0;
@@ -956,7 +966,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (module_cursor_->x < 2) {
                     module_cursor_->x += 1;
                     click_sound();
-                } else if (module_page_ < module_page_count() - 1) {
+                } else if (module_page_ < module_page_count(dev_) - 1) {
                     pfrm.fill_overlay(0);
                     redraw_margins(pfrm);
                     module_cursor_->x = 0;
@@ -994,7 +1004,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 auto index = module_page_ * modules_per_page +
                              module_cursor_->x +
                              module_cursor_->y * modules_per_row;
-                if (auto f = detail::_Module::Factory::get(index)) {
+                if (auto f = detail::_Module::Factory::get(index, dev_)) {
                     pfrm.speaker().play_sound("button_wooden", 3);
                     if (f->stop_sound()) {
                         pfrm.speaker().play_music("unaccompanied_wind", 0);
@@ -1032,7 +1042,7 @@ void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
     pfrm.set_tile(Layer::overlay,
                   calc_screen_tiles(pfrm).x - 2,
                   8,
-                  module_page_ == module_page_count() - 1 ? 174 : 172);
+                  module_page_ == module_page_count(dev_) - 1 ? 174 : 172);
 
 
     auto icon_vram = 181;
@@ -1065,7 +1075,7 @@ void TitleScreenScene::show_module_icons(Platform& pfrm, int page)
         auto y_start = (2 + y * 8) + scale_offset(pfrm).y / 8;
 
         const auto index = page * modules_per_page + x + y * modules_per_row;
-        if (auto f = detail::_Module::Factory::get(index)) {
+        if (auto f = detail::_Module::Factory::get(index, dev_)) {
 
             for (int x = 0; x < 6; ++x) {
                 for (int y = 0; y < 6; ++y) {

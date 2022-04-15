@@ -93,6 +93,7 @@ SKYLAND Forever
 Text Editor
 Highscores
 Tutorials
+Developer Mode
 cargo: 
 none
 :build
@@ -191,7 +192,7 @@ l + r: share top score
 Step 1: Scan to request a login token!
 
 Scan to upload score!
- A: next
+ A: next 
 Preparing QR Code...
 combos: START + _
 set weapon groups

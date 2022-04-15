@@ -121,12 +121,15 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto& highscores = app.gp_.highscores_;
 
-    for (auto& highscore : reversed(highscores.values_)) {
-        if (highscore.get() < (u32)score) {
-            highscore.set(score);
-            break;
+    if (not app.is_developer_mode()) {
+        for (auto& highscore : reversed(highscores.values_)) {
+            if (highscore.get() < (u32)score) {
+                highscore.set(score);
+                break;
+            }
         }
     }
+
 
     std::sort(
         std::begin(highscores.values_),
@@ -157,7 +160,7 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    if (not disable_writeback_) {
+    if (not disable_writeback_ and not app.is_developer_mode()) {
         if (show_current_score_ and highscores.values_[0].get() == (u32)score) {
             highscores.highest_score_play_seconds_.set(
                 app.persistent_data().total_seconds_.get());

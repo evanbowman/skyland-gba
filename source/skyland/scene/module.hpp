@@ -49,10 +49,16 @@ public:
     class Factory
     {
     public:
-        Factory()
+        Factory(bool requires_developer_mode)
         {
-            next_ = _Module::factories_;
-            _Module::factories_ = this;
+            if (not requires_developer_mode) {
+                next_ = _Module::factories_;
+                _Module::factories_ = this;
+            } else {
+                next_ = _Module::developer_mode_factories_;
+                _Module::developer_mode_factories_ = this;
+            }
+
         }
 
 
@@ -67,6 +73,9 @@ public:
         }
 
 
+        virtual bool requires_developer_mode() = 0;
+
+
         virtual bool run_scripts() = 0;
 
 
@@ -76,7 +85,7 @@ public:
         virtual bool enable_custom_scripts() = 0;
 
 
-        static Factory* get(int index)
+        static Factory* get(int index, bool is_developer_mode)
         {
             auto current = factories_;
             while (current and index >= 0) {
@@ -85,6 +94,17 @@ public:
                 }
                 current = current->next_;
             }
+
+            if (is_developer_mode) {
+                current = developer_mode_factories_;
+                while (current and index >= 0) {
+                    if (index-- == 0) {
+                        return current;
+                    }
+                    current = current->next_;
+                }
+            }
+
             return nullptr;
         }
 
@@ -95,6 +115,7 @@ public:
     };
 
     static Factory* factories_;
+    static Factory* developer_mode_factories_;
 };
 } // namespace detail
 
@@ -103,6 +124,7 @@ public:
 template <typename T> class Module : public detail::_Module
 {
 public:
+
     static bool enable_custom_scripts()
     {
         return false;
@@ -115,9 +137,22 @@ public:
     }
 
 
+    static bool requires_developer_mode()
+    {
+        return false;
+    }
+
+
     class Factory : public _Module::Factory
     {
     public:
+
+        Factory(bool requires_developer_mode = false) :
+            _Module::Factory(requires_developer_mode)
+        {
+        }
+
+
         SystemString name() override
         {
             return T::module_name();
@@ -133,6 +168,12 @@ public:
         bool run_scripts() override
         {
             return T::run_scripts();
+        }
+
+
+        bool requires_developer_mode() override
+        {
+            return T::requires_developer_mode();
         }
 
 

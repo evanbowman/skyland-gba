@@ -155,10 +155,21 @@ ConfiguredURLQRViewerScene::ConfiguredURLQRViewerScene(const char* config_path,
 
 void ConfiguredURLQRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    // NOTE: enabling developer mode does not allow the player to record
+    // highscores. But, we do want the software to be resiliant to future
+    // changes, and we make a temporary exception, allowing users to run custom
+    // scripts if and only if we're reading the config script for the highscore
+    // server url.
+    const bool was_developer_mode = app.is_developer_mode();
+    app.set_developer_mode(true);
+
     auto v = app.invoke_script(pfrm, config_path_.c_str());
     if (v->type() not_eq lisp::Value::Type::string) {
         Platform::fatal("url lisp script returned non-string result");
     }
+
+    app.set_developer_mode(was_developer_mode);
+
 
     // Prepend the url from config.
     auto temp = text_;

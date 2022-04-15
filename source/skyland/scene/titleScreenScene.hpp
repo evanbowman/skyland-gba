@@ -121,6 +121,8 @@ private:
 
     int x_scroll_ = 0;
 
+    bool dev_;
+
     Microseconds island_mov_timer_ = 0;
     int island_offset_ = 0;
     Microseconds bird_timer_ = seconds(7);
