@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "allocator.hpp"
 #include "number/int.h"
 
 
@@ -40,11 +41,22 @@ namespace terrain
 
 
 
+enum class Type {
+    building,
+    rock_edge,
+    water,
+    rock_stacked,
+};
+
+
+
 struct Block
 {
     u8 type_ : 6;
+
     u8 shadowed_ : 1;
     u8 unused_ : 1;
+
     u8 data_;
 };
 static_assert(sizeof(Block) == 2);
@@ -61,6 +73,43 @@ struct Chunk
 
     void rotate();
     void shadowcast();
+
+
+    struct DepthNode
+    {
+        Vec3<u8> position_;
+        DepthNode* next_;
+    };
+
+    struct DepthBufferSlab
+    {
+        DepthNode* visible_[480];
+
+        DepthBufferSlab()
+        {
+            for (auto& node : visible_) {
+                node = nullptr;
+            }
+        }
+    };
+
+    struct DepthBuffer
+    {
+        // NOTE: DepthBufferSlab won't fit in a single allocation.
+        DynamicMemory<DepthBufferSlab> depth_1_;
+        DynamicMemory<DepthBufferSlab> depth_2_;
+
+        BulkAllocator<6> depth_node_allocator_;
+
+        DepthBuffer(Platform& pfrm)
+            : depth_1_(allocate_dynamic<DepthBufferSlab>("iso-depth-buffer")),
+              depth_2_(allocate_dynamic<DepthBufferSlab>("iso-depth-buffer")),
+              depth_node_allocator_(pfrm)
+        {
+        }
+    };
+
+    std::optional<DepthBuffer> db_;
 };
 
 

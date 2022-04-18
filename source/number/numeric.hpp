@@ -206,6 +206,11 @@ template <typename T> bool operator==(const Vec2<T>& rhs, const Vec2<T>& lhs)
     return lhs.x == rhs.x and lhs.y == rhs.y;
 }
 
+template <typename T> bool operator==(const Vec3<T>& rhs, const Vec3<T>& lhs)
+{
+    return lhs.x == rhs.x and lhs.y == rhs.y and lhs.z == rhs.z;
+}
+
 template <typename T>
 bool operator not_eq(const Vec2<T>& rhs, const Vec2<T>& lhs)
 {

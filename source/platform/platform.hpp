@@ -118,12 +118,16 @@ public:
                                  // of to_index (faster).
                                  bool hard);
 
+    void blit_t0_erase(u16 index);
+
 
     void blit_t1_tile_to_texture(u16 from_index,
                                  u16 to_index,
                                  // Completely overwrite existing contents
                                  // of to_index (faster).
                                  bool hard);
+
+    void blit_t1_erase(u16 index);
 
 
     struct TilePixels

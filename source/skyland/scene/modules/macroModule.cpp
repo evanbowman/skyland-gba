@@ -50,10 +50,17 @@ void MacroModule::enter(Platform& pfrm, App& app, Scene& prev)
     (*chunk_)->blocks_[1][1][4].type_ = 1;
 
     (*chunk_)->blocks_[1][0][6].type_ = 1;
-    (*chunk_)->blocks_[1][0][1].type_ = 2;
+    (*chunk_)->blocks_[1][0][1].type_ = 4;
+    (*chunk_)->blocks_[2][0][1].type_ = 4;
 
+    // for (int z = 0; z < 8; ++z) {
+    //     for (int x = 0; x < 8; ++x) {
+    //         for (int y = 0; y < 8; ++y) {
+    //             (*chunk_)->blocks_[z][x][y].type_ = 2;
+    //         }
+    //     }
+    // }
 
-    (*chunk_)->blocks_[0][0][0].type_ = 1;
     (*chunk_)->blocks_[0][0][1].type_ = 2;
     (*chunk_)->blocks_[0][0][2].type_ = 2;
     (*chunk_)->blocks_[0][0][3].type_ = 2;
@@ -111,27 +118,27 @@ void MacroModule::enter(Platform& pfrm, App& app, Scene& prev)
     (*chunk_)->blocks_[0][6][1].type_ = 2;
     (*chunk_)->blocks_[0][6][2].type_ = 2;
     (*chunk_)->blocks_[0][6][3].type_ = 2;
-    (*chunk_)->blocks_[0][6][4].type_ = 2;
-    (*chunk_)->blocks_[0][6][5].type_ = 2;
-    (*chunk_)->blocks_[0][6][6].type_ = 2;
-    (*chunk_)->blocks_[0][6][7].type_ = 2;
 
     (*chunk_)->blocks_[0][7][0].type_ = 2;
     (*chunk_)->blocks_[0][7][1].type_ = 2;
     (*chunk_)->blocks_[0][7][2].type_ = 2;
     (*chunk_)->blocks_[0][7][3].type_ = 2;
     (*chunk_)->blocks_[0][7][4].type_ = 2;
-    (*chunk_)->blocks_[0][7][5].type_ = 2;
-    (*chunk_)->blocks_[0][7][6].type_ = 2;
-    (*chunk_)->blocks_[0][7][7].type_ = 2;
 
-    (*chunk_)->blocks_[1][7][0].type_ = 2;
-    (*chunk_)->blocks_[2][7][0].type_ = 2;
-    (*chunk_)->blocks_[3][7][0].type_ = 2;
-    (*chunk_)->blocks_[4][7][0].type_ = 2;
-    (*chunk_)->blocks_[5][7][0].type_ = 2;
-    (*chunk_)->blocks_[6][7][0].type_ = 2;
-    (*chunk_)->blocks_[7][7][0].type_ = 2;
+    (*chunk_)->blocks_[5][7][1].type_ = 2;
+    (*chunk_)->blocks_[5][7][2].type_ = 2;
+    (*chunk_)->blocks_[1][7][2].type_ = 1;
+    (*chunk_)->blocks_[5][7][3].type_ = 2;
+    (*chunk_)->blocks_[5][6][1].type_ = 2;
+    (*chunk_)->blocks_[5][6][2].type_ = 2;
+
+    (*chunk_)->blocks_[1][7][0].type_ = 4;
+    (*chunk_)->blocks_[2][7][0].type_ = 4;
+    (*chunk_)->blocks_[3][7][0].type_ = 4;
+    (*chunk_)->blocks_[4][7][0].type_ = 4;
+    (*chunk_)->blocks_[5][7][0].type_ = 4;
+    (*chunk_)->blocks_[6][7][0].type_ = 4;
+    (*chunk_)->blocks_[7][7][0].type_ = 4;
 
     (*chunk_)->shadowcast();
 
@@ -153,33 +160,55 @@ void MacroModule::render(Platform& pfrm)
 ScenePtr<Scene>
 MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    app.update_parallax(delta);
+
     if (player(app).key_down(pfrm, Key::alt_2)) {
         pfrm.screen().schedule_fade(
             0.8f, custom_color(0x102447), true, false, false);
         pfrm.screen().clear();
         pfrm.screen().display();
         (*chunk_)->rotate();
-        pfrm.sleep(4);
-        pfrm.load_tile0_texture("macro_rendertexture");
-        pfrm.load_tile1_texture("macro_rendertexture");
         render(pfrm);
         pfrm.screen().schedule_fade(
             0.f, ColorConstant::rich_black, true, false, false);
     }
 
-    if (player(app).key_pressed(pfrm, Key::down)) {
-        scroll_ -= 0.7f;
-        scroll_ = clamp(scroll_, 0.f, 50.f);
-        pfrm.set_scroll(Layer::map_0, 0, scroll_);
-        pfrm.set_scroll(Layer::map_1, 0, scroll_ + 8);
+    // if (player(app).key_pressed(pfrm, Key::down)) {
+    //     scroll_ -= 0.7f;
+    //     scroll_ = clamp(scroll_, 0.f, 50.f);
+    //     pfrm.set_scroll(Layer::map_0, 0, scroll_);
+    //     pfrm.set_scroll(Layer::map_1, 0, scroll_ + 8);
+    // }
+
+    // if (player(app).key_pressed(pfrm, Key::up)) {
+    //     scroll_ += 0.7f;
+    //     scroll_ = clamp(scroll_, 0.f, 50.f);
+    //     pfrm.set_scroll(Layer::map_0, 0, scroll_);
+    //     pfrm.set_scroll(Layer::map_1, 0, scroll_ + 8);
+    // }
+
+    if (player(app).key_pressed(pfrm, Key::left)) {
+        --cursor_.x;
     }
 
-    if (player(app).key_pressed(pfrm, Key::up)) {
-        scroll_ += 0.7f;
-        scroll_ = clamp(scroll_, 0.f, 50.f);
-        pfrm.set_scroll(Layer::map_0, 0, scroll_);
-        pfrm.set_scroll(Layer::map_1, 0, scroll_ + 8);
+    if (player(app).key_pressed(pfrm, Key::right)) {
+        ++cursor_.x;
     }
+
+    if (player(app).key_pressed(pfrm, Key::action_1)) {
+        auto& selected = (*chunk_)->blocks_[0][cursor_.x][cursor_.y];
+        auto prev_type = selected.type_;
+        selected.type_ = 3;
+
+        (*chunk_)->shadowcast();
+
+        if (prev_type == 0) {
+            (*chunk_)->db_.reset();
+        }
+
+        render(pfrm);
+    }
+
 
 
     return null_scene();

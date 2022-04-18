@@ -23,8 +23,8 @@
 #pragma once
 
 
-#include "skyland/scene/module.hpp"
 #include "skyland/macro.hpp"
+#include "skyland/scene/module.hpp"
 
 
 
@@ -36,7 +36,6 @@ namespace skyland
 class MacroModule : public Module<MacroModule>
 {
 public:
-
     static SystemString module_name()
     {
         return SystemString::module_macro;
@@ -69,6 +68,8 @@ public:
     std::optional<DynamicMemory<macro::terrain::Chunk>> chunk_;
 
     float scroll_ = 0;
+
+    Vec2<u8> cursor_;
 };
 
 

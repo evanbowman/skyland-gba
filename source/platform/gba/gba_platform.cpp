@@ -1499,6 +1499,30 @@ TileDesc Platform::map_tile1_chunk(TileDesc src)
 
 
 
+void Platform::blit_t0_erase(u16 index)
+{
+    u8* p =
+        ((u8*)&MEM_SCREENBLOCKS[sbb_t0_texture][0]) + index * vram_tile_size();
+
+    for (int i = 0; i < vram_tile_size() / 2; ++i) {
+        ((u16*)p)[i] = 0;
+    }
+}
+
+
+
+void Platform::blit_t1_erase(u16 index)
+{
+    u8* p =
+        ((u8*)&MEM_SCREENBLOCKS[sbb_t1_texture][0]) + index * vram_tile_size();
+
+    for (int i = 0; i < vram_tile_size() / 2; ++i) {
+        ((u16*)p)[i] = 0;
+    }
+}
+
+
+
 void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 {
     auto data = (u8*)current_tilesheet0->tile_data_;
