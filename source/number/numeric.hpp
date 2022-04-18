@@ -60,6 +60,15 @@ inline int count_ones(u64 x)
 
 
 
+template <typename T> struct Vec3
+{
+    T x = 0;
+    T y = 0;
+    T z = 0;
+};
+
+
+
 template <typename T> struct Vec2
 {
     T x = 0;

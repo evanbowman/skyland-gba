@@ -144,6 +144,10 @@ enum class SystemString {
     module_highscores,
     module_tutorials,
     module_developer_mode,
+    module_macro,
+
+    developer_mode_msg,
+    developer_mode_msg_2,
 
     cargo,
 

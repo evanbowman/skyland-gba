@@ -109,6 +109,23 @@ public:
     void overwrite_sprite_tile(u16 index, const EncodedTile& t);
 
 
+    // Intended to allow usage of the t0 tile layer as a sort of RenderTexture
+    // (frame buffer). Writes a 8x8 px tile block specified by from_index to
+    // a location specified by to_index.
+    void blit_t0_tile_to_texture(u16 from_index,
+                                 u16 to_index,
+                                 // Completely overwrite existing contents
+                                 // of to_index (faster).
+                                 bool hard);
+
+
+    void blit_t1_tile_to_texture(u16 from_index,
+                                 u16 to_index,
+                                 // Completely overwrite existing contents
+                                 // of to_index (faster).
+                                 bool hard);
+
+
     struct TilePixels
     {
         u8 data_[16][16];
@@ -491,7 +508,8 @@ public:
         void schedule_fade(Float amount,
                            ColorConstant color = ColorConstant::rich_black,
                            bool include_sprites = true,
-                           bool include_overlay = false);
+                           bool include_overlay = false,
+                           bool include_background = true);
 
 
         void pixelate(u8 amount,

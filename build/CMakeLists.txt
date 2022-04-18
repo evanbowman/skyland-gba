@@ -92,6 +92,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/flag.cpp
   ${SOURCE_DIR}/skyland/path.cpp
   ${SOURCE_DIR}/skyland/save.cpp
+  ${SOURCE_DIR}/skyland/macro.cpp
   ${SOURCE_DIR}/skyland/paint.cpp
   ${SOURCE_DIR}/skyland/sound.cpp
   ${SOURCE_DIR}/skyland/camera.cpp
@@ -177,6 +178,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/developerModeModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/macroModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcManagerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
@@ -318,6 +320,8 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/skyland_title_2_flattened.s
     ${DATA_DIR}/skyland_title_1_flattened.s
     ${DATA_DIR}/skyland_title_0_flattened.s
+    ${DATA_DIR}/macro_rendertexture.s
+    ${DATA_DIR}/developer_mode_flattened.s
     ${DATA_DIR}/gba_health_safety_logo_flattened.s
     ${DATA_DIR}/intro_crops_snow_flattened.s
     ${DATA_DIR}/intro_crops_snow_far_flattened.s
@@ -607,6 +611,8 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(skyland_title_2 0 0 YES NO)
     add_tilesheet(skyland_title_1 0 0 YES NO)
     add_tilesheet(skyland_title_0 0 0 YES NO)
+    add_tilesheet(macro_rendertexture 0 0 NO NO)
+    add_tilesheet(developer_mode 0 0 YES NO)
     add_tilesheet(intro_crops_snow 0 0 YES NO)
     add_tilesheet(intro_crops_snow_far 0 0 YES NO)
     add_tilesheet(intro_island_launch 0 0 YES NO)

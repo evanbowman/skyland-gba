@@ -1499,6 +1499,100 @@ TileDesc Platform::map_tile1_chunk(TileDesc src)
 
 
 
+void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
+{
+    auto data = (u8*)current_tilesheet0->tile_data_;
+    data += from_index * vram_tile_size();
+
+    u8* p = ((u8*)&MEM_SCREENBLOCKS[sbb_t0_texture][0]) +
+            to_index * vram_tile_size();
+
+    if (hard) {
+        memcpy16(p, data, vram_tile_size() / 2);
+    } else {
+
+        u16* out = (u16*)p;
+        u16* d = (u16*)data;
+
+        for (int i = 0; i < vram_tile_size() / 2; ++i) {
+
+            if (*d) {
+                if (*d & 0xf000) {
+                    *out &= 0x0fff;
+                    *out |= *d & 0xf000;
+                }
+
+                if (*d & 0x0f00) {
+                    *out &= 0xf0ff;
+                    *out |= *d & 0x0f00;
+                }
+
+                if (*d & 0x00f0) {
+                    *out &= 0xff0f;
+                    *out |= *d & 0x00f0;
+                }
+
+                if (*d & 0x000f) {
+                    *out &= 0xfff0;
+                    *out |= *d & 0x000f;
+                }
+            }
+
+            ++out;
+            ++d;
+        }
+    }
+}
+
+
+
+void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
+{
+    auto data = (u8*)current_tilesheet1->tile_data_;
+    data += from_index * vram_tile_size();
+
+    u8* p = ((u8*)&MEM_SCREENBLOCKS[sbb_t1_texture][0]) +
+            to_index * vram_tile_size();
+
+    if (hard) {
+        memcpy16(p, data, vram_tile_size() / 2);
+    } else {
+
+        u16* out = (u16*)p;
+        u16* d = (u16*)data;
+
+        for (int i = 0; i < vram_tile_size() / 2; ++i) {
+
+            if (*d) {
+                if (*d & 0xf000) {
+                    *out &= 0x0fff;
+                    *out |= *d & 0xf000;
+                }
+
+                if (*d & 0x0f00) {
+                    *out &= 0xf0ff;
+                    *out |= *d & 0x0f00;
+                }
+
+                if (*d & 0x00f0) {
+                    *out &= 0xff0f;
+                    *out |= *d & 0x00f0;
+                }
+
+                if (*d & 0x000f) {
+                    *out &= 0xfff0;
+                    *out |= *d & 0x000f;
+                }
+            }
+
+            ++out;
+            ++d;
+        }
+    }
+}
+
+
+
 void Platform::overwrite_overlay_tile(u16 index, const EncodedTile& t)
 {
     u8* p = ((u8*)&MEM_SCREENBLOCKS[sbb_overlay_texture][0]) +
@@ -2427,7 +2521,8 @@ void Platform::Screen::fade(float amount,
 void Platform::Screen::schedule_fade(Float amount,
                                      ColorConstant k,
                                      bool include_sprites,
-                                     bool include_overlay)
+                                     bool include_overlay,
+                                     bool include_background)
 {
     const u8 amt = amount * 255;
 
@@ -2470,7 +2565,8 @@ void Platform::Screen::schedule_fade(Float amount,
     }
     for (int i = 0; i < 16; ++i) {
         auto from = Color::from_bgr_hex_555(background_palette[i]);
-        bg_palette_back_buffer[16 * 11 + i] = blend(from, c, amt);
+        bg_palette_back_buffer[16 * 11 + i] =
+            blend(from, c, include_background ? amt : 0);
     }
     // Overlay palette
     for (int i = 0; i < 16; ++i) {

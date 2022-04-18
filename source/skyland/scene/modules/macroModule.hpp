@@ -23,8 +23,8 @@
 #pragma once
 
 
-#include "graphics/overlay.hpp"
 #include "skyland/scene/module.hpp"
+#include "skyland/macro.hpp"
 
 
 
@@ -33,27 +33,19 @@ namespace skyland
 
 
 
-class DeveloperModeModule : public Module<DeveloperModeModule>
+class MacroModule : public Module<MacroModule>
 {
 public:
-    DeveloperModeModule()
-    {
-    }
-
-
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& next) override;
-
 
     static SystemString module_name()
     {
-        return SystemString::module_developer_mode;
+        return SystemString::module_macro;
     }
 
 
     static u16 icon()
     {
-        return 2472;
+        return 1192;
     }
 
 
@@ -63,28 +55,20 @@ public:
     }
 
 
-    static bool stop_sound()
-    {
-        return false;
-    }
+    void enter(Platform& pfrm, App& app, Scene& prev) override;
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
-    void set_opt(Platform&, bool value);
+    void render(Platform& pfrm);
 
 
     static Factory factory_;
 
-    std::optional<TextView> message_;
-    std::optional<TextView> message_overflow_;
-    std::optional<Text> option_text_;
-    bool was_developer_mode_ = false;
+    std::optional<DynamicMemory<macro::terrain::Chunk>> chunk_;
 
-    bool exit_ = false;
-
-    bool option_ = false;
+    float scroll_ = 0;
 };
 
 

@@ -37,6 +37,10 @@
 //;
 #include "data/skyland_title_0_flattened.h"
 //;
+#include "data/macro_rendertexture.h"
+//;
+#include "data/developer_mode_flattened.h"
+//;
 #include "data/intro_crops_snow_flattened.h"
 //;
 #include "data/intro_crops_snow_far_flattened.h"
@@ -144,6 +148,10 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(skyland_title_1_flattened),
 //;
     TEXTURE_INFO(skyland_title_0_flattened),
+//;
+    TEXTURE_INFO(macro_rendertexture),
+//;
+    TEXTURE_INFO(developer_mode_flattened),
 //;
     TEXTURE_INFO(intro_crops_snow_flattened),
 //;

@@ -245,6 +245,20 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         (tapped_topleft_corner(pfrm, app) or
          app.player().key_down(pfrm, Key::alt_2))) {
         return scene_pool::alloc<ConstructionScene>(false);
+    } else if (app.player().key_down(pfrm, Key::alt_2)) {
+
+        pfrm.speaker().play_sound("beep_error", 2);
+
+        cursor_loc.x = 0;
+
+        auto& near_cursor =
+            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+
+        near_cursor.y = cursor_loc.y;
+
+        app.player().network_sync_cursor(pfrm, near_cursor, 0, true);
+
+        return scene_pool::alloc<ReadyScene>();
     }
 
 
