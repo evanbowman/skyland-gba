@@ -145,6 +145,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.screen().set_shader(passthrough_shader);
     app.swap_environment<weather::ClearSkies>();
 
+    app.macrocosm().reset();
+
     dev_ = app.is_developer_mode();
 
     const int offset = 64;

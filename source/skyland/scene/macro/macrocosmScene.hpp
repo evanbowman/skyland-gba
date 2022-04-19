@@ -23,50 +23,37 @@
 #pragma once
 
 
+
+#include "skyland/scene.hpp"
 #include "skyland/macro.hpp"
-#include "skyland/scene/module.hpp"
+#include "skyland/player/player.hpp"
 
 
 
-namespace skyland
+namespace skyland::macro
 {
 
 
 
-class MacroModule : public Module<MacroModule>
+class MacrocosmScene : public Scene
 {
 public:
-    static SystemString module_name()
-    {
-        return SystemString::module_macro;
-    }
 
 
-    static u16 icon()
-    {
-        return 1192;
-    }
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override final;
 
 
-    static bool run_scripts()
-    {
-        return false;
-    }
+    void display(Platform&, App&) override final;
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
+    virtual ScenePtr<Scene> update(Platform& pfrm,
+                                   Player& player,
+                                   macro::State& state) = 0;
 
+    virtual void display(Platform& pfrm, macro::State& state);
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
-
-
-    static Factory factory_;
-
-    float scroll_ = 0;
-
-    Vec3<u8> cursor_;
 };
 
 
 
-} // namespace skyland
+}

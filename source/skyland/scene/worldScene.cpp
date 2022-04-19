@@ -648,6 +648,10 @@ void WorldScene::persist_ui()
 
 void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    if (app.macrocosm()) {
+        Platform::fatal("entering 2d overworld from macro mode!");
+    }
+
     camera_update_timer_ = milliseconds(1000);
 
     last_coins_ = app.coins();

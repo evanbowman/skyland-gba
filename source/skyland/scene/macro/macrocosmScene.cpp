@@ -20,53 +20,49 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#pragma once
-
-
-#include "skyland/macro.hpp"
-#include "skyland/scene/module.hpp"
+#include "macrocosmScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
-namespace skyland
+namespace skyland::macro
 {
 
 
 
-class MacroModule : public Module<MacroModule>
+ScenePtr<Scene> MacrocosmScene::update(Platform& pfrm,
+                                       App& app,
+                                       Microseconds delta)
 {
-public:
-    static SystemString module_name()
-    {
-        return SystemString::module_macro;
+    if (not app.macrocosm()) {
+        Platform::fatal("macro state unbound!?");
     }
 
-
-    static u16 icon()
-    {
-        return 1192;
+    if (auto scene = update(pfrm, app.player(), *app.macrocosm())) {
+        return scene;
     }
 
+    return null_scene();
+}
 
-    static bool run_scripts()
-    {
-        return false;
+
+
+void MacrocosmScene::display(Platform& pfrm, App& app)
+{
+    if (not app.macrocosm()) {
+        return;
     }
 
-
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-
-
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
-
-
-    static Factory factory_;
-
-    float scroll_ = 0;
-
-    Vec3<u8> cursor_;
-};
+    display(pfrm, *app.macrocosm());
+}
 
 
 
-} // namespace skyland
+void MacrocosmScene::display(Platform& pfrm, macro::State& state)
+{
+    state.sector_->render(pfrm);
+}
+
+
+
+}

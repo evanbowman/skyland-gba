@@ -35,6 +35,7 @@
 #include "highscores.hpp"
 #include "island.hpp"
 #include "keyCallbackProcessor.hpp"
+#include "macro.hpp"
 #include "persistentData.hpp"
 #include "platform/platform.hpp"
 #include "player/opponent/friendlyAI.hpp"
@@ -85,7 +86,7 @@ public:
     Coins terrain_cost(Island& island);
 
 
-    Boxed<Camera, Camera, 48>& camera()
+    Boxed<Camera, Camera, 32>& camera()
     {
         return camera_;
     }
@@ -412,6 +413,12 @@ public:
     }
 
 
+    std::optional<macro::State>& macrocosm()
+    {
+        return macrocosm_;
+    }
+
+
 private:
     // NOTE: As islands take a lot of memory, and App is created on the stack, I
     // ended up moving them into a scratch buffer.
@@ -438,7 +445,7 @@ private:
     ScenePtr<Scene> next_scene_;
     Coins victory_coins_ = 0;
     Coins level_coins_spent_ = 0;
-    Boxed<Camera, Camera, 48> camera_;
+    Boxed<Camera, Camera, 32> camera_;
     GameSpeed game_speed_ = GameSpeed::normal;
     int pause_count_ = 0;
     Rumble rumble_;
@@ -484,6 +491,8 @@ private:
     time_stream::TimeStream time_stream_;
     CustomTileMapper custom_tile_mapper_;
     CustomTileMapper custom_sprite_mapper_;
+
+    std::optional<macro::State> macrocosm_;
 };
 
 

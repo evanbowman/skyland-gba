@@ -32,7 +32,7 @@ namespace skyland::macro
 
 
 
-void terrain::Chunk::rotate()
+void terrain::Sector::rotate()
 {
     for (int z = 0; z < z_limit; ++z) {
         for (int x = 0; x < 8 / 2; x++) {
@@ -46,8 +46,6 @@ void terrain::Chunk::rotate()
         }
     }
 
-    db_.reset();
-
     for (auto& layer : blocks_) {
         for (auto& slice : layer) {
             for (auto& block : slice) {
@@ -55,11 +53,13 @@ void terrain::Chunk::rotate()
             }
         }
     }
+
+    changed_ = true;
 }
 
 
 
-void terrain::Chunk::shadowcast()
+void terrain::Sector::shadowcast()
 {
     for (int z = 0; z < z_limit; ++z) {
         for (int x = 0; x < 8; ++x) {
@@ -83,10 +83,10 @@ void terrain::Chunk::shadowcast()
 
 
 
-void terrain::Chunk::set_block(const Vec3<u8> coord, u8 type)
+void terrain::Sector::set_block(const Vec3<u8> coord, Type type)
 {
     auto& selected = blocks_[coord.z][coord.x][coord.y];
-    selected.type_ = type;
+    selected.type_ = (u8)type;
     selected.repaint_ = true;
 
     if (coord.z > 0 and blocks_[coord.z - 1][coord.x][coord.y].type_ == 0) {
@@ -102,9 +102,7 @@ void terrain::Chunk::set_block(const Vec3<u8> coord, u8 type)
 
     shadowcast();
 
-    // The previously-allocated depth buffer may no longer be accurate, in fact,
-    // very likely it won't be.
-    db_.reset();
+    changed_ = true;
 }
 
 
@@ -181,11 +179,61 @@ static TileCategory tile_category(int texture_id)
 
 
 
-void render(Platform& pfrm, terrain::Chunk& chunk)
+namespace raster
 {
+
+
+
+struct DepthNode
+{
+    Vec3<u8> position_;
+    u8 tile_ = 0;
+    DepthNode* next_;
+};
+
+struct DepthBufferSlab
+{
+    DepthNode* visible_[480];
+
+    DepthBufferSlab()
+    {
+        for (auto& node : visible_) {
+            node = nullptr;
+        }
+    }
+};
+
+struct DepthBuffer
+{
+    // NOTE: DepthBufferSlab won't fit in a single allocation.
+    DynamicMemory<DepthBufferSlab> depth_1_;
+    DynamicMemory<DepthBufferSlab> depth_2_;
+
+    BulkAllocator<18> depth_node_allocator_;
+
+    DepthBuffer(Platform& pfrm)
+        : depth_1_(allocate_dynamic<DepthBufferSlab>("iso-depth-buffer")),
+          depth_2_(allocate_dynamic<DepthBufferSlab>("iso-depth-buffer")),
+          depth_node_allocator_(pfrm)
+    {
+    }
+};
+
+
+
+} // namespace raster
+
+
+
+void terrain::Sector::render(Platform& pfrm)
+{
+    if (not changed_) {
+        return;
+    }
+
     auto rendering_pass = [&](auto rendering_function) {
-        auto draw_block = [&](int x, int y, int z) {
-            auto slab = chunk.blocks_[z];
+        auto project_block = [&](int x, int y, int z) {
+            auto slab = blocks_[z];
 
             auto& block = slab[x][y];
 
@@ -224,98 +272,34 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
 
 
 
-        for (int z = 0; z < chunk.z_view_; ++z) {
+        for (int z = 0; z < z_view_; ++z) {
 
-            draw_block(0, 0, z);
+            static const Vec2<u8> winding_path[] = {
+                {0, 0}, {1, 0}, {0, 1}, {2, 0}, {1, 1}, {0, 2}, {3, 0}, {2, 1},
+                {1, 2}, {0, 3}, {4, 0}, {3, 1}, {2, 2}, {1, 3}, {0, 4}, {5, 0},
+                {4, 1}, {3, 2}, {2, 3}, {1, 4}, {0, 5}, {6, 0}, {5, 1}, {4, 2},
+                {3, 3}, {2, 4}, {1, 5}, {0, 6}, {7, 0}, {6, 1}, {5, 2}, {4, 3},
+                {3, 4}, {2, 5}, {1, 6}, {0, 7}, {7, 1}, {6, 2}, {5, 3}, {4, 4},
+                {3, 5}, {2, 6}, {1, 7}, {7, 2}, {6, 3}, {5, 4}, {4, 5}, {3, 6},
+                {2, 7}, {7, 3}, {6, 4}, {5, 5}, {4, 6}, {3, 7}, {7, 4}, {6, 5},
+                {5, 6}, {4, 7}, {7, 5}, {6, 6}, {5, 7}, {7, 6}, {6, 7}, {7, 7},
+            };
 
-            draw_block(1, 0, z);
-            draw_block(0, 1, z);
-
-            draw_block(2, 0, z);
-            draw_block(1, 1, z);
-            draw_block(0, 2, z);
-
-            draw_block(3, 0, z);
-            draw_block(2, 1, z);
-            draw_block(1, 2, z);
-            draw_block(0, 3, z);
-
-            draw_block(4, 0, z);
-            draw_block(3, 1, z);
-            draw_block(2, 2, z);
-            draw_block(1, 3, z);
-            draw_block(0, 4, z);
-
-            draw_block(5, 0, z);
-            draw_block(4, 1, z);
-            draw_block(3, 2, z);
-            draw_block(2, 3, z);
-            draw_block(1, 4, z);
-            draw_block(0, 5, z);
-
-            draw_block(6, 0, z);
-            draw_block(5, 1, z);
-            draw_block(4, 2, z);
-            draw_block(3, 3, z);
-            draw_block(2, 4, z);
-            draw_block(1, 5, z);
-            draw_block(0, 6, z);
-
-            draw_block(7, 0, z);
-            draw_block(6, 1, z);
-            draw_block(5, 2, z);
-            draw_block(4, 3, z);
-            draw_block(3, 4, z);
-            draw_block(2, 5, z);
-            draw_block(1, 6, z);
-            draw_block(0, 7, z);
-
-            draw_block(7, 1, z);
-            draw_block(6, 2, z);
-            draw_block(5, 3, z);
-            draw_block(4, 4, z);
-            draw_block(3, 5, z);
-            draw_block(2, 6, z);
-            draw_block(1, 7, z);
-
-            draw_block(7, 2, z);
-            draw_block(6, 3, z);
-            draw_block(5, 4, z);
-            draw_block(4, 5, z);
-            draw_block(3, 6, z);
-            draw_block(2, 7, z);
-
-            draw_block(7, 3, z);
-            draw_block(6, 4, z);
-            draw_block(5, 5, z);
-            draw_block(4, 6, z);
-            draw_block(3, 7, z);
-
-            draw_block(7, 4, z);
-            draw_block(6, 5, z);
-            draw_block(5, 6, z);
-            draw_block(4, 7, z);
-
-            draw_block(7, 5, z);
-            draw_block(6, 6, z);
-            draw_block(5, 7, z);
-
-            draw_block(7, 6, z);
-            draw_block(6, 7, z);
-
-            draw_block(7, 7, z);
+            for (auto& p : winding_path) {
+                project_block(p.x, p.y, z);
+            }
         }
     };
 
 
-    chunk.db_.reset();
+    std::optional<raster::DepthBuffer> db_;
 
-    if (not chunk.db_) {
-        chunk.db_.emplace(pfrm);
+
+    if (not db_) {
+        db_.emplace(pfrm);
 
         rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
-            auto n = chunk.db_->depth_node_allocator_
-                         .alloc<terrain::Chunk::DepthNode>();
+            auto n = db_->depth_node_allocator_.alloc<raster::DepthNode>();
             if (n == nullptr) {
                 Platform::fatal("depth node allocator out of memory!");
             }
@@ -324,13 +308,13 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
             n->tile_ = texture - 480;
 
             if (t_start < 480) {
-                n->next_ = chunk.db_->depth_1_->visible_[t_start];
+                n->next_ = db_->depth_1_->visible_[t_start];
                 // NOTE: it's bulk allocation, there's no leak here. The destructor
                 // won't be called, but we're dealing with a primitive type.
-                chunk.db_->depth_1_->visible_[t_start] = n.release();
+                db_->depth_1_->visible_[t_start] = n.release();
             } else {
-                n->next_ = chunk.db_->depth_2_->visible_[t_start - 480];
-                chunk.db_->depth_2_->visible_[t_start - 480] = n.release();
+                n->next_ = db_->depth_2_->visible_[t_start - 480];
+                db_->depth_2_->visible_[t_start - 480] = n.release();
             }
         });
     }
@@ -342,19 +326,19 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
 
     // Culling for non-visible tiles
     for (int i = 0; i < 480; ++i) {
-        if (auto head = chunk.db_->depth_1_->visible_[i]) {
+        if (auto head = db_->depth_1_->visible_[i]) {
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
                 auto pos = temp->position_;
-                if (chunk.blocks_[pos.z][pos.x][pos.y].repaint_) {
+                if (blocks_[pos.z][pos.x][pos.y].repaint_) {
                     skip_repaint = false;
                 }
                 temp = temp->next_;
             }
             if (skip_repaint) {
                 depth_1_skip_clear.set(i, true);
-                chunk.db_->depth_1_->visible_[i] = nullptr;
+                db_->depth_1_->visible_[i] = nullptr;
                 continue;
             }
             Buffer<TileCategory, 8> seen;
@@ -421,19 +405,19 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
                 head = head->next_;
             }
         }
-        if (auto head = chunk.db_->depth_2_->visible_[i]) {
+        if (auto head = db_->depth_2_->visible_[i]) {
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
                 auto pos = temp->position_;
-                if (chunk.blocks_[pos.z][pos.x][pos.y].repaint_) {
+                if (blocks_[pos.z][pos.x][pos.y].repaint_) {
                     skip_repaint = false;
                 }
                 temp = temp->next_;
             }
             if (skip_repaint) {
                 depth_2_skip_clear.set(i, true);
-                chunk.db_->depth_2_->visible_[i] = nullptr;
+                db_->depth_2_->visible_[i] = nullptr;
                 continue;
             }
             Buffer<TileCategory, 8> seen;
@@ -507,10 +491,10 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
     // Actually perform the rendering. At this point, ideally, everything that's
     // not actually visible in the output should have been removed from the
     // depth buffer.
-    pfrm.sleep(1);
+    pfrm.system_call("vsync", nullptr);
     for (int i = 0; i < 480; ++i) {
 
-        if (auto head = chunk.db_->depth_1_->visible_[i]) {
+        if (auto head = db_->depth_1_->visible_[i]) {
             if (not depth_1_skip_clear.get(i)) {
                 pfrm.blit_t0_erase(i);
             }
@@ -532,7 +516,7 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
             pfrm.blit_t0_erase(i);
         }
 
-        if (auto head = chunk.db_->depth_2_->visible_[i]) {
+        if (auto head = db_->depth_2_->visible_[i]) {
             if (not depth_2_skip_clear.get(i)) {
                 pfrm.blit_t1_erase(i);
             }
@@ -554,13 +538,63 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
     }
 
 
-    for (auto& layer : chunk.blocks_) {
+    for (auto& layer : blocks_) {
         for (auto& slice : layer) {
             for (auto& block : slice) {
                 block.repaint_ = false;
             }
         }
     }
+
+    changed_ = false;
+}
+
+
+
+// clang-format off
+typedef void(*UpdateFunction)(terrain::Block&, Vec3<u8>);
+static const UpdateFunction update_functions[(int)terrain::Type::count] = {
+    nullptr, // Air has no update code.
+    [](terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+};
+// clang-format on
+
+
+
+void terrain::Sector::update(Platform& pfrm)
+{
+    for (u8 z = 0; z < z_limit; ++z) {
+        for (u8 x = 0; x < 8; ++x) {
+            for (u8 y = 0; y < 8; ++y) {
+                // Vec3<u8> pos{x, y, z};
+                // Block& block = get_block
+                // auto update = update_functions[block.type_];
+                // if (update) {
+                //     update(block, )
+                // }
+            }
+        }
+    }
+
 }
 
 
