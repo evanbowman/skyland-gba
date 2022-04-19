@@ -1,7 +1,7 @@
 #include "macroModule.hpp"
 #include "skyland/player/player.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -167,27 +167,23 @@ MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
     app.update_parallax(delta);
 
     if (player(app).key_down(pfrm, Key::alt_1)) {
-        pfrm.screen().schedule_fade(
-            0.7f, custom_color(0x102447));
+        pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
         pfrm.screen().clear();
         pfrm.screen().display();
         (*chunk_)->rotate();
         render(pfrm);
-        pfrm.screen().schedule_fade(
-            0.f, ColorConstant::rich_black);
+        pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
     }
 
     if (player(app).key_down(pfrm, Key::alt_2)) {
-        pfrm.screen().schedule_fade(
-            0.7f, custom_color(0x102447));
+        pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
         pfrm.screen().clear();
         pfrm.screen().display();
         (*chunk_)->rotate();
         (*chunk_)->rotate();
         (*chunk_)->rotate();
         render(pfrm);
-        pfrm.screen().schedule_fade(
-            0.f, ColorConstant::rich_black);
+        pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
     }
 
     if (player(app).key_down(pfrm, Key::up) and cursor_.y > 0) {
@@ -224,7 +220,14 @@ MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
             (*chunk_)->db_.reset();
         }
 
+
+        pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
+        pfrm.screen().clear();
+        pfrm.screen().display();
+
         render(pfrm);
+
+        pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
     }
 
     if (player(app).key_down(pfrm, Key::action_2)) {

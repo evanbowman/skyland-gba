@@ -55,9 +55,14 @@ struct Block
     u8 type_ : 6;
 
     u8 shadowed_ : 1;
-    u8 unused_ : 1;
+    u8 repaint_ : 1;
 
     u8 data_;
+
+    Block() : shadowed_(true),
+              repaint_(true)
+    {
+    }
 };
 static_assert(sizeof(Block) == 2);
 

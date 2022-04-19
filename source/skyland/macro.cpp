@@ -47,6 +47,14 @@ void terrain::Chunk::rotate()
     }
 
     db_.reset();
+
+    for (auto& layer : blocks_) {
+        for (auto& slice : layer) {
+            for (auto& block : slice) {
+                block.repaint_ = true;
+            }
+        }
+    }
 }
 
 
@@ -87,8 +95,7 @@ static const u16 screen_mapping_lut[8][8] = {
 
 
 
-enum TileCategory
-{
+enum TileCategory {
     empty,
     opaque,
     top_angled_l,
@@ -96,8 +103,6 @@ enum TileCategory
     bot_angled_l,
     bot_angled_r,
 };
-
-
 
 
 
@@ -460,7 +465,6 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
             while (head) {
                 stack.push_back(head->tile_);
                 if (head->tile_) {
-
                 }
                 head = head->next_;
             }
