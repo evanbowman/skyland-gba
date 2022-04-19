@@ -46,6 +46,7 @@ enum class Type {
     rock_edge,
     water,
     rock_stacked,
+    masonry,
 };
 
 
@@ -73,7 +74,16 @@ struct Chunk
     u8 x_;
     u8 y_;
 
-    Block blocks_[8][8][8]; // (z, x, y)
+    static const int z_limit = 9;
+    u8 z_view_ = z_limit;
+
+    Block blocks_[z_limit][8][8]; // (z, x, y)
+
+
+    void set_block(const Vec3<u8> coord, u8 type);
+
+
+    Vec3<u8> cursor_;
 
 
     void rotate();

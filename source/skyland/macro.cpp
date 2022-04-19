@@ -34,7 +34,7 @@ namespace skyland::macro
 
 void terrain::Chunk::rotate()
 {
-    for (int z = 0; z < 8; ++z) {
+    for (int z = 0; z < z_limit; ++z) {
         for (int x = 0; x < 8 / 2; x++) {
             for (int y = x; y < 8 - x - 1; y++) {
                 auto temp = blocks_[z][x][y];
@@ -61,7 +61,7 @@ void terrain::Chunk::rotate()
 
 void terrain::Chunk::shadowcast()
 {
-    for (int z = 0; z < 8; ++z) {
+    for (int z = 0; z < z_limit; ++z) {
         for (int x = 0; x < 8; ++x) {
             for (int y = 0; y < 8; ++y) {
                 blocks_[z][x][y].shadowed_ = true;
@@ -71,7 +71,7 @@ void terrain::Chunk::shadowcast()
 
     for (int x = 0; x < 8; ++x) {
         for (int y = 0; y < 8; ++y) {
-            for (int z = 7; z > -1; --z) {
+            for (int z = z_limit - 1; z > -1; --z) {
                 if (blocks_[z][x][y].type_ > 0) {
                     blocks_[z][x][y].shadowed_ = false;
                     break;
@@ -79,6 +79,32 @@ void terrain::Chunk::shadowcast()
             }
         }
     }
+}
+
+
+
+void terrain::Chunk::set_block(const Vec3<u8> coord, u8 type)
+{
+    auto& selected = blocks_[coord.z][coord.x][coord.y];
+    selected.type_ = type;
+    selected.repaint_ = true;
+
+    if (coord.z > 0 and blocks_[coord.z - 1][coord.x][coord.y].type_ == 0) {
+        // Required for shadow mapping
+        for (int z = coord.z - 1; z > -1; --z) {
+            auto& selected = blocks_[z][coord.x][coord.y];
+            if (selected.type_ not_eq 0) {
+                selected.repaint_ = true;
+                break;
+            }
+        }
+    }
+
+    shadowcast();
+
+    // The previously-allocated depth buffer may no longer be accurate, in fact,
+    // very likely it won't be.
+    db_.reset();
 }
 
 
@@ -198,7 +224,7 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
 
 
 
-        for (int z = 0; z < 8; ++z) {
+        for (int z = 0; z < chunk.z_view_; ++z) {
 
             draw_block(0, 0, z);
 

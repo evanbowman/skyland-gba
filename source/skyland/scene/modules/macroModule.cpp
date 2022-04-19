@@ -25,6 +25,7 @@ void MacroModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.speaker().play_music(app.environment().music(), 0);
 
     chunk_ = allocate_dynamic<macro::terrain::Chunk>("macro-chunk");
+    // (*chunk_)->z_view_ = 3;
 
     scroll_ = 42;
     pfrm.set_scroll(Layer::map_0, 0, scroll_);
@@ -207,26 +208,11 @@ MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (player(app).key_down(pfrm, Key::action_1)) {
-        auto& selected = (*chunk_)->blocks_[cursor_.z][cursor_.x][cursor_.y];
 
-        auto prev_type = selected.type_;
-        selected.type_ = 5;
-        selected.repaint_ = true;
+        (*chunk_)->set_block(cursor_, 5);
 
-        for (int z = cursor_.z; z > -1; --z) {
-            auto& selected = (*chunk_)->blocks_[z][cursor_.x][cursor_.y];
-            selected.repaint_ = true;
-        }
-
-        if (cursor_.z < 7) {
+        if (cursor_.z < macro::terrain::Chunk::z_limit - 1) {
             ++cursor_.z;
-        }
-
-
-        (*chunk_)->shadowcast();
-
-        if (prev_type == 0) {
-            (*chunk_)->db_.reset();
         }
 
         render(pfrm);
