@@ -57,6 +57,8 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     sector.set_block({4, 3, 0}, macro::terrain::Type::rock_edge);
     sector.set_block({3, 3, 1}, macro::terrain::Type::building);
 
+    sector.cursor_ = {3, 3, 1};
+
 
     pfrm.screen().schedule_fade(0.f);
 }
