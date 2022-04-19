@@ -78,6 +78,7 @@ struct Chunk
     struct DepthNode
     {
         Vec3<u8> position_;
+        u8 tile_ = 0;
         DepthNode* next_;
     };
 
@@ -99,7 +100,7 @@ struct Chunk
         DynamicMemory<DepthBufferSlab> depth_1_;
         DynamicMemory<DepthBufferSlab> depth_2_;
 
-        BulkAllocator<6> depth_node_allocator_;
+        BulkAllocator<18> depth_node_allocator_;
 
         DepthBuffer(Platform& pfrm)
             : depth_1_(allocate_dynamic<DepthBufferSlab>("iso-depth-buffer")),

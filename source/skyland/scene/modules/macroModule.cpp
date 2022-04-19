@@ -1,6 +1,7 @@
 #include "macroModule.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/scene/titleScreenScene.hpp"
 
 
 
@@ -28,6 +29,9 @@ void MacroModule::enter(Platform& pfrm, App& app, Scene& prev)
     scroll_ = 42;
     pfrm.set_scroll(Layer::map_0, 0, scroll_);
     pfrm.set_scroll(Layer::map_1, 0, scroll_ + 8);
+
+    pfrm.load_background_texture("background_macro");
+    // pfrm.system_call("parallax-clouds", false);
 
     pfrm.load_tile0_texture("macro_rendertexture");
     pfrm.load_tile1_texture("macro_rendertexture");
@@ -164,13 +168,13 @@ MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (player(app).key_down(pfrm, Key::alt_2)) {
         pfrm.screen().schedule_fade(
-            0.8f, custom_color(0x102447), true, false, false);
+            0.8f, custom_color(0x102447));
         pfrm.screen().clear();
         pfrm.screen().display();
         (*chunk_)->rotate();
         render(pfrm);
         pfrm.screen().schedule_fade(
-            0.f, ColorConstant::rich_black, true, false, false);
+            0.f, ColorConstant::rich_black);
     }
 
     // if (player(app).key_pressed(pfrm, Key::down)) {
@@ -187,18 +191,33 @@ MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
     //     pfrm.set_scroll(Layer::map_1, 0, scroll_ + 8);
     // }
 
-    if (player(app).key_pressed(pfrm, Key::left)) {
+    if (player(app).key_down(pfrm, Key::up) and cursor_.y > 0) {
+        --cursor_.y;
+    }
+
+    if (player(app).key_down(pfrm, Key::down) and cursor_.y < 7) {
+        ++cursor_.y;
+    }
+
+    if (player(app).key_down(pfrm, Key::right) and cursor_.x > 0) {
         --cursor_.x;
     }
 
-    if (player(app).key_pressed(pfrm, Key::right)) {
+    if (player(app).key_down(pfrm, Key::left) and cursor_.x < 7) {
         ++cursor_.x;
     }
 
-    if (player(app).key_pressed(pfrm, Key::action_1)) {
-        auto& selected = (*chunk_)->blocks_[0][cursor_.x][cursor_.y];
+    if (player(app).key_down(pfrm, Key::select) and cursor_.x < 7) {
+        --cursor_.z;
+    }
+
+    if (player(app).key_down(pfrm, Key::action_1)) {
+        auto& selected = (*chunk_)->blocks_[cursor_.z][cursor_.x][cursor_.y];
+
+        ++cursor_.z;
+
         auto prev_type = selected.type_;
-        selected.type_ = 3;
+        selected.type_ = 5;
 
         (*chunk_)->shadowcast();
 
@@ -209,7 +228,9 @@ MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
         render(pfrm);
     }
 
-
+    if (player(app).key_down(pfrm, Key::action_2)) {
+        return scene_pool::alloc<TitleScreenScene>(3);
+    }
 
     return null_scene();
 }

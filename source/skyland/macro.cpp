@@ -87,6 +87,40 @@ static const u16 screen_mapping_lut[8][8] = {
 
 
 
+// Some texture indices completely cover everything underneath them, allowing
+// the render to skip some steps.
+static bool tile_fully_opaque(int texture_id)
+{
+    // NOTE: for our isometric tiles, the middle row is fully opaque, i.e. we
+    // don't need to worry about rendering anything underneath. The top and
+    // bottom rows have transparent pixels, and cannot necessarily be skipped.
+
+    static const std::array<bool, 200> fully_opaque =
+        {0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0,
+         0, 0, 1, 1, 0, 0};
+
+    return fully_opaque[texture_id];
+}
+
+
+
 void render(Platform& pfrm, terrain::Chunk& chunk)
 {
     auto rendering_pass = [&](auto rendering_function) {
@@ -227,6 +261,7 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
             }
 
             n->position_ = p;
+            n->tile_ = texture - 480;
 
             if (t_start < 480) {
                 n->next_ = chunk.db_->depth_1_->visible_[t_start];
@@ -240,47 +275,93 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
         });
     }
 
-
     for (int i = 0; i < 480; ++i) {
-        // if (chunk.db_->depth_1_->visible_[i]) {
+        if (auto head = chunk.db_->depth_1_->visible_[i]) {
+            while (head) {
+                if (tile_fully_opaque(head->tile_)) {
+                    // Cull non-visible tiles.
+                    head->next_ = nullptr;
+                    break;
+                } else {
+                    head = head->next_;
+                }
+            }
+        }
+    }
+
+    pfrm.sleep(1);
+    for (int i = 0; i < 480; ++i) {
+        if (auto head = chunk.db_->depth_1_->visible_[i]) {
             pfrm.blit_t0_erase(i);
-        // }
-        // if (chunk.db_->depth_2_->visible_[i]) {
+
+            Buffer<int, 5> stack;
+            while (head) {
+                stack.push_back(head->tile_);
+                if (head->tile_) {
+
+                }
+                head = head->next_;
+            }
+
+            while (not stack.empty()) {
+                int tile = stack.back();
+                pfrm.blit_t0_tile_to_texture(tile + 480, i, false);
+                stack.pop_back();
+            }
+        } else {
+            pfrm.blit_t0_erase(i);
+        }
+
+        if (auto head = chunk.db_->depth_2_->visible_[i]) {
             pfrm.blit_t1_erase(i);
-        // }
+
+            Buffer<int, 5> stack;
+            while (head) {
+                stack.push_back(head->tile_);
+                head = head->next_;
+            }
+
+            while (not stack.empty()) {
+                int tile = stack.back();
+                pfrm.blit_t1_tile_to_texture(tile + 480, i, false);
+                stack.pop_back();
+            }
+        } else {
+            pfrm.blit_t1_erase(i);
+        }
     }
 
 
-    rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
-        static const int giveup_depth = 4;
+    // rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
+    //     static const int giveup_depth = 5;
 
-        if (t_start < 480) {
-            auto n = chunk.db_->depth_1_->visible_[t_start];
-            int d = 0;
-            while (n and d < giveup_depth) {
-                auto pos = n->position_;
-                if (p == pos) {
-                    pfrm.blit_t0_tile_to_texture(texture, t_start, false);
-                    break;
-                }
-                n = n->next_;
-                ++d;
-            }
+    //     if (t_start < 480) {
+    //         auto n = chunk.db_->depth_1_->visible_[t_start];
+    //         int d = 0;
+    //         while (n and d < giveup_depth) {
+    //             auto pos = n->position_;
+    //             if (p == pos) {
+    //                 pfrm.blit_t0_tile_to_texture(texture, t_start, false);
+    //                 break;
+    //             }
+    //             n = n->next_;
+    //             ++d;
+    //         }
 
-        } else {
-            auto n = chunk.db_->depth_2_->visible_[t_start - 480];
-            int d = 0;
-            while (n and d < giveup_depth) {
-                auto pos = n->position_;
-                if (p == pos) {
-                    pfrm.blit_t1_tile_to_texture(texture, t_start - 480, false);
-                    break;
-                }
-                n = n->next_;
-                ++d;
-            }
-        }
-    });
+    //     } else {
+    //         auto n = chunk.db_->depth_2_->visible_[t_start - 480];
+    //         int d = 0;
+    //         while (n and d < giveup_depth) {
+    //             auto pos = n->position_;
+    //             if (p == pos) {
+    //                 pfrm.blit_t1_tile_to_texture(texture, t_start - 480, false);
+    //                 break;
+    //             }
+    //             n = n->next_;
+    //             ++d;
+    //         }
+    //     }
+    // });
 }
 
 

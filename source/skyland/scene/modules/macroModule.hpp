@@ -69,7 +69,7 @@ public:
 
     float scroll_ = 0;
 
-    Vec2<u8> cursor_;
+    Vec3<u8> cursor_;
 };
 
 
