@@ -87,36 +87,65 @@ static const u16 screen_mapping_lut[8][8] = {
 
 
 
+enum TileCategory
+{
+    empty,
+    opaque,
+    top_angled_l,
+    top_angled_r,
+    bot_angled_l,
+    bot_angled_r,
+};
+
+
+
+
+
 // Some texture indices completely cover everything underneath them, allowing
 // the render to skip some steps.
-static bool tile_fully_opaque(int texture_id)
+static TileCategory tile_category(int texture_id)
 {
     // NOTE: for our isometric tiles, the middle row is fully opaque, i.e. we
     // don't need to worry about rendering anything underneath. The top and
     // bottom rows have transparent pixels, and cannot necessarily be skipped.
 
-    static const std::array<bool, 200> fully_opaque =
-        {0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0,
-         0, 0, 1, 1, 0, 0};
+    // clang-format off
+    static const std::array<TileCategory, 200> category =
+        {top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+        };
+    // clang-format on
 
-    return fully_opaque[texture_id];
+    return category[texture_id];
 }
 
 
@@ -275,26 +304,159 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
         });
     }
 
+    // A combination of tiles fully covers whatever's beneath, so no need to
+    // clear out the current contents of vram.
+    Bitvector<480> depth_1_skip_clear;
+    Bitvector<480> depth_2_skip_clear;
+
+    // Culling for non-visible tiles
     for (int i = 0; i < 480; ++i) {
         if (auto head = chunk.db_->depth_1_->visible_[i]) {
+            Buffer<TileCategory, 8> seen;
             while (head) {
-                if (tile_fully_opaque(head->tile_)) {
+                auto cg = tile_category(head->tile_);
+                if (cg == opaque) {
                     // Cull non-visible tiles.
                     head->next_ = nullptr;
+                    depth_1_skip_clear.set(i, true);
                     break;
                 } else {
-                    head = head->next_;
+                    switch (cg) {
+                    default:
+                        break;
+
+                    case top_angled_l:
+                        // Basically, if we have a top slanted tile going in one
+                        // direction, and the bottom tile slanted in the
+                        // opposite direction has been rendered, then everything
+                        // below would be covered up, so there's no need to draw
+                        // anything beneath.
+                        for (auto& s : seen) {
+                            if (s == bot_angled_r) {
+                                head->next_ = nullptr;
+                                depth_1_skip_clear.set(i, true);
+                                break;
+                            }
+                        }
+                        break;
+
+                    case top_angled_r:
+                        for (auto& s : seen) {
+                            if (s == bot_angled_l) {
+                                head->next_ = nullptr;
+                                depth_1_skip_clear.set(i, true);
+                                break;
+                            }
+                        }
+                        break;
+
+                    case bot_angled_l:
+                        for (auto& s : seen) {
+                            if (s == top_angled_r) {
+                                head->next_ = nullptr;
+                                depth_1_skip_clear.set(i, true);
+                                break;
+                            }
+                        }
+                        break;
+
+                    case bot_angled_r:
+                        for (auto& s : seen) {
+                            if (s == top_angled_l) {
+                                head->next_ = nullptr;
+                                depth_1_skip_clear.set(i, true);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    seen.push_back(cg);
                 }
+
+                head = head->next_;
+            }
+        }
+        if (auto head = chunk.db_->depth_2_->visible_[i]) {
+            Buffer<TileCategory, 8> seen;
+            while (head) {
+                auto cg = tile_category(head->tile_);
+                if (cg == opaque) {
+                    // Cull non-visible tiles.
+                    head->next_ = nullptr;
+                    depth_2_skip_clear.set(i, true);
+                    break;
+                } else {
+                    switch (cg) {
+                    default:
+                        break;
+
+                    case top_angled_l:
+                        // Basically, if we have a top slanted tile going in one
+                        // direction, and the bottom tile slanted in the
+                        // opposite direction has been rendered, then everything
+                        // below would be covered up, so there's no need to draw
+                        // anything beneath.
+                        for (auto& s : seen) {
+                            if (s == bot_angled_r) {
+                                head->next_ = nullptr;
+                                depth_2_skip_clear.set(i, true);
+                                break;
+                            }
+                        }
+                        break;
+
+                    case top_angled_r:
+                        for (auto& s : seen) {
+                            if (s == bot_angled_l) {
+                                head->next_ = nullptr;
+                                depth_2_skip_clear.set(i, true);
+                                break;
+                            }
+                        }
+                        break;
+
+                    case bot_angled_l:
+                        for (auto& s : seen) {
+                            if (s == top_angled_r) {
+                                head->next_ = nullptr;
+                                depth_2_skip_clear.set(i, true);
+                                break;
+                            }
+                        }
+                        break;
+
+                    case bot_angled_r:
+                        for (auto& s : seen) {
+                            if (s == top_angled_l) {
+                                head->next_ = nullptr;
+                                depth_2_skip_clear.set(i, true);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    seen.push_back(cg);
+                }
+
+                head = head->next_;
             }
         }
     }
 
+
+
+    // Actually perform the rendering. At this point, ideally, everything that's
+    // not actually visible in the output should have been removed from the
+    // depth buffer.
     pfrm.sleep(1);
     for (int i = 0; i < 480; ++i) {
-        if (auto head = chunk.db_->depth_1_->visible_[i]) {
-            pfrm.blit_t0_erase(i);
 
-            Buffer<int, 5> stack;
+        if (auto head = chunk.db_->depth_1_->visible_[i]) {
+            if (not depth_1_skip_clear.get(i)) {
+                pfrm.blit_t0_erase(i);
+            }
+
+            Buffer<int, 6> stack;
             while (head) {
                 stack.push_back(head->tile_);
                 if (head->tile_) {
@@ -313,9 +475,11 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
         }
 
         if (auto head = chunk.db_->depth_2_->visible_[i]) {
-            pfrm.blit_t1_erase(i);
+            if (not depth_2_skip_clear.get(i)) {
+                pfrm.blit_t1_erase(i);
+            }
 
-            Buffer<int, 5> stack;
+            Buffer<int, 6> stack;
             while (head) {
                 stack.push_back(head->tile_);
                 head = head->next_;
@@ -330,38 +494,6 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
             pfrm.blit_t1_erase(i);
         }
     }
-
-
-    // rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
-    //     static const int giveup_depth = 5;
-
-    //     if (t_start < 480) {
-    //         auto n = chunk.db_->depth_1_->visible_[t_start];
-    //         int d = 0;
-    //         while (n and d < giveup_depth) {
-    //             auto pos = n->position_;
-    //             if (p == pos) {
-    //                 pfrm.blit_t0_tile_to_texture(texture, t_start, false);
-    //                 break;
-    //             }
-    //             n = n->next_;
-    //             ++d;
-    //         }
-
-    //     } else {
-    //         auto n = chunk.db_->depth_2_->visible_[t_start - 480];
-    //         int d = 0;
-    //         while (n and d < giveup_depth) {
-    //             auto pos = n->position_;
-    //             if (p == pos) {
-    //                 pfrm.blit_t1_tile_to_texture(texture, t_start - 480, false);
-    //                 break;
-    //             }
-    //             n = n->next_;
-    //             ++d;
-    //         }
-    //     }
-    // });
 }
 
 

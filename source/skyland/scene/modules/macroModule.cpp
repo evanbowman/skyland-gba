@@ -166,9 +166,9 @@ MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     app.update_parallax(delta);
 
-    if (player(app).key_down(pfrm, Key::alt_2)) {
+    if (player(app).key_down(pfrm, Key::alt_1)) {
         pfrm.screen().schedule_fade(
-            0.8f, custom_color(0x102447));
+            0.7f, custom_color(0x102447));
         pfrm.screen().clear();
         pfrm.screen().display();
         (*chunk_)->rotate();
@@ -177,19 +177,18 @@ MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
             0.f, ColorConstant::rich_black);
     }
 
-    // if (player(app).key_pressed(pfrm, Key::down)) {
-    //     scroll_ -= 0.7f;
-    //     scroll_ = clamp(scroll_, 0.f, 50.f);
-    //     pfrm.set_scroll(Layer::map_0, 0, scroll_);
-    //     pfrm.set_scroll(Layer::map_1, 0, scroll_ + 8);
-    // }
-
-    // if (player(app).key_pressed(pfrm, Key::up)) {
-    //     scroll_ += 0.7f;
-    //     scroll_ = clamp(scroll_, 0.f, 50.f);
-    //     pfrm.set_scroll(Layer::map_0, 0, scroll_);
-    //     pfrm.set_scroll(Layer::map_1, 0, scroll_ + 8);
-    // }
+    if (player(app).key_down(pfrm, Key::alt_2)) {
+        pfrm.screen().schedule_fade(
+            0.7f, custom_color(0x102447));
+        pfrm.screen().clear();
+        pfrm.screen().display();
+        (*chunk_)->rotate();
+        (*chunk_)->rotate();
+        (*chunk_)->rotate();
+        render(pfrm);
+        pfrm.screen().schedule_fade(
+            0.f, ColorConstant::rich_black);
+    }
 
     if (player(app).key_down(pfrm, Key::up) and cursor_.y > 0) {
         --cursor_.y;
@@ -207,7 +206,7 @@ MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
         ++cursor_.x;
     }
 
-    if (player(app).key_down(pfrm, Key::select) and cursor_.x < 7) {
+    if (player(app).key_down(pfrm, Key::select) and cursor_.z > 0) {
         --cursor_.z;
     }
 
