@@ -55,8 +55,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     sector.set_block({2, 3, 0}, macro::terrain::Type::rock_edge);
     sector.set_block({3, 4, 0}, macro::terrain::Type::rock_edge);
     sector.set_block({4, 3, 0}, macro::terrain::Type::rock_edge);
-    sector.set_block({3, 3, 1}, macro::terrain::Type::rock_stacked);
-    sector.set_block({3, 3, 2}, macro::terrain::Type::building);
+    sector.set_block({3, 3, 1}, macro::terrain::Type::building);
 
 
     pfrm.screen().schedule_fade(0.f);
