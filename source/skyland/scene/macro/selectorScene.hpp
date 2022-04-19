@@ -42,11 +42,17 @@ public:
                            Player& player,
                            macro::State& state) override
     {
+        if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
+            return scene;
+        }
+
+        auto& cursor_ = state.data_->sector_.cursor_;
+
         if (player.key_down(pfrm, Key::alt_1)) {
             pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
             pfrm.screen().clear();
             pfrm.screen().display();
-            state.sector_->rotate();
+            state.data_->sector_.rotate();
             pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
         }
 
@@ -54,10 +60,24 @@ public:
             pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
             pfrm.screen().clear();
             pfrm.screen().display();
-            state.sector_->rotate();
-            state.sector_->rotate();
-            state.sector_->rotate();
+            state.data_->sector_.rotate();
+            state.data_->sector_.rotate();
+            state.data_->sector_.rotate();
             pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
+        }
+
+        if (not text_) {
+            text_.emplace(pfrm, OverlayCoord{0, 19});
+        } else {
+            StringBuffer<48> b;
+            b += "(";
+            b += stringify(cursor_.x).c_str();
+            b += ", ";
+            b += stringify(cursor_.y).c_str();
+            b += ", ";
+            b += stringify(cursor_.z).c_str();
+            b += ")";
+            text_->assign(b.c_str());
         }
 
         if (player.key_down(pfrm, Key::up) and cursor_.y > 0) {
@@ -82,7 +102,7 @@ public:
 
         if (player.key_down(pfrm, Key::action_1)) {
 
-            state.sector_->set_block(cursor_, macro::terrain::Type::masonry);
+            state.data_->sector_.set_block(cursor_, macro::terrain::Type::water);
 
             if (cursor_.z < macro::terrain::Sector::z_limit - 1) {
                 ++cursor_.z;
@@ -99,7 +119,7 @@ public:
 
 
 private:
-    Vec3<u8> cursor_;
+    std::optional<Text> text_;
 };
 
 

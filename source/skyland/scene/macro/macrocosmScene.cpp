@@ -58,9 +58,20 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
 
 
 
+ScenePtr<Scene> MacrocosmScene::update(Platform& pfrm,
+                                       Player& player,
+                                       macro::State& state)
+{
+    state.data_->sector_.update(pfrm);
+
+    return null_scene();
+}
+
+
+
 void MacrocosmScene::display(Platform& pfrm, macro::State& state)
 {
-    state.sector_->render(pfrm);
+    state.data_->sector_.render(pfrm);
 }
 
 

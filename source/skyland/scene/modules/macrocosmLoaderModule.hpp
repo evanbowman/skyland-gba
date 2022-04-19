@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class MacroModule : public Module<MacroModule>
+class MacrocosmLoaderModule : public Module<MacrocosmLoaderModule>
 {
 public:
     static SystemString module_name()

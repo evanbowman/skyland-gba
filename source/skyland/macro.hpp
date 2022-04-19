@@ -43,6 +43,10 @@ enum class Type {
     water,
     rock_stacked,
     masonry,
+    water_slant_a,
+    water_slant_b,
+    water_slant_c,
+    water_slant_d,
     count,
 };
 
@@ -68,10 +72,10 @@ static_assert(sizeof(Block) == 2);
 class Sector
 {
 public:
-    void set_block(const Vec3<u8> coord, Type type);
+    void set_block(const Vec3<u8>& coord, Type type);
 
 
-    const Block& get_block(const Vec3<u8> coord);
+    const Block& get_block(const Vec3<u8>& coord) const;
 
 
     void rotate();
@@ -86,6 +90,9 @@ public:
     static const int z_limit = 9;
 
 
+    Vec3<u8> cursor_;
+
+
 private:
     void shadowcast();
 
@@ -98,8 +105,6 @@ private:
     u8 z_view_ = z_limit;
 
     Block blocks_[z_limit][8][8]; // (z, x, y)
-
-    Vec3<u8> cursor_;
 };
 
 
@@ -114,12 +119,18 @@ namespace skyland::macro
 
 struct State
 {
+    struct Data
+    {
+        macro::terrain::Sector sector_;
+    };
+
+
     State() :
-        sector_(allocate_dynamic<macro::terrain::Sector>("macrocosm-sector"))
+        data_(allocate_dynamic<Data>("macrocosm-data"))
     {
     }
 
-    DynamicMemory<macro::terrain::Sector> sector_;
+    DynamicMemory<Data> data_;
 };
 
 

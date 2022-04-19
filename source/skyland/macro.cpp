@@ -83,20 +83,27 @@ void terrain::Sector::shadowcast()
 
 
 
-void terrain::Sector::set_block(const Vec3<u8> coord, Type type)
+const terrain::Block& terrain::Sector::get_block(const Vec3<u8>& coord) const
+{
+    return blocks_[coord.z][coord.x][coord.y];
+}
+
+
+
+void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 {
     auto& selected = blocks_[coord.z][coord.x][coord.y];
+    if (selected.type_ == (u8)type) {
+        return;
+    }
     selected.type_ = (u8)type;
     selected.repaint_ = true;
 
-    if (coord.z > 0 and blocks_[coord.z - 1][coord.x][coord.y].type_ == 0) {
-        // Required for shadow mapping
-        for (int z = coord.z - 1; z > -1; --z) {
-            auto& selected = blocks_[z][coord.x][coord.y];
-            if (selected.type_ not_eq 0) {
-                selected.repaint_ = true;
-                break;
-            }
+    for (int z = coord.z - 1; z > -1; --z) {
+        auto& selected = blocks_[z][coord.x][coord.y];
+        if (selected.type_ not_eq 0 and not
+            selected.shadowed_) {
+            selected.repaint_ = true;
         }
     }
 
@@ -552,26 +559,46 @@ void terrain::Sector::render(Platform& pfrm)
 
 
 // clang-format off
-typedef void(*UpdateFunction)(terrain::Block&, Vec3<u8>);
+typedef void(*UpdateFunction)(terrain::Sector&, terrain::Block&, Vec3<u8>);
 static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr, // Air has no update code.
-    [](terrain::Block& block, Vec3<u8> position)
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
         // TODO...
     },
-    [](terrain::Block& block, Vec3<u8> position)
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
         // TODO...
     },
-    [](terrain::Block& block, Vec3<u8> position)
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        // Vec3<u8> spread_pos{(u8)(position.x + 1), position.y, position.z};
+        // auto a = s.get_block(spread_pos);
+        // if (a.type_ == (u8)terrain::Type::air) {
+        //     s.set_block(spread_pos, terrain::Type::water_slant_a);
+        // }
+    },
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
         // TODO...
     },
-    [](terrain::Block& block, Vec3<u8> position)
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
         // TODO...
     },
-    [](terrain::Block& block, Vec3<u8> position)
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
         // TODO...
     },
@@ -585,12 +612,13 @@ void terrain::Sector::update(Platform& pfrm)
     for (u8 z = 0; z < z_limit; ++z) {
         for (u8 x = 0; x < 8; ++x) {
             for (u8 y = 0; y < 8; ++y) {
-                // Vec3<u8> pos{x, y, z};
-                // Block& block = get_block
-                // auto update = update_functions[block.type_];
-                // if (update) {
-                //     update(block, )
-                // }
+
+                auto& block = blocks_[z][x][y];
+
+                auto update = update_functions[block.type_];
+                if (update) {
+                    update(*this, block, {x, y, z});
+                }
             }
         }
     }

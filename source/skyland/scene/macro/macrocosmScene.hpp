@@ -48,7 +48,7 @@ public:
 
     virtual ScenePtr<Scene> update(Platform& pfrm,
                                    Player& player,
-                                   macro::State& state) = 0;
+                                   macro::State& state);
 
     virtual void display(Platform& pfrm, macro::State& state);
 
