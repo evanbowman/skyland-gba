@@ -209,10 +209,19 @@ MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
     if (player(app).key_down(pfrm, Key::action_1)) {
         auto& selected = (*chunk_)->blocks_[cursor_.z][cursor_.x][cursor_.y];
 
-        ++cursor_.z;
-
         auto prev_type = selected.type_;
         selected.type_ = 5;
+        selected.repaint_ = true;
+
+        for (int z = cursor_.z; z > -1; --z) {
+            auto& selected = (*chunk_)->blocks_[z][cursor_.x][cursor_.y];
+            selected.repaint_ = true;
+        }
+
+        if (cursor_.z < 7) {
+            ++cursor_.z;
+        }
+
 
         (*chunk_)->shadowcast();
 
@@ -220,14 +229,7 @@ MacroModule::update(Platform& pfrm, App& app, Microseconds delta)
             (*chunk_)->db_.reset();
         }
 
-
-        pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
-        pfrm.screen().clear();
-        pfrm.screen().display();
-
         render(pfrm);
-
-        pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
     }
 
     if (player(app).key_down(pfrm, Key::action_2)) {

@@ -317,6 +317,20 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
     // Culling for non-visible tiles
     for (int i = 0; i < 480; ++i) {
         if (auto head = chunk.db_->depth_1_->visible_[i]) {
+            auto temp = head;
+            bool skip_repaint = true;
+            while (temp) {
+                auto pos = temp->position_;
+                if (chunk.blocks_[pos.z][pos.x][pos.y].repaint_) {
+                    skip_repaint = false;
+                }
+                temp = temp->next_;
+            }
+            if (skip_repaint) {
+                depth_1_skip_clear.set(i, true);
+                chunk.db_->depth_1_->visible_[i] = nullptr;
+                continue;
+            }
             Buffer<TileCategory, 8> seen;
             while (head) {
                 auto cg = tile_category(head->tile_);
@@ -382,6 +396,20 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
             }
         }
         if (auto head = chunk.db_->depth_2_->visible_[i]) {
+            auto temp = head;
+            bool skip_repaint = true;
+            while (temp) {
+                auto pos = temp->position_;
+                if (chunk.blocks_[pos.z][pos.x][pos.y].repaint_) {
+                    skip_repaint = false;
+                }
+                temp = temp->next_;
+            }
+            if (skip_repaint) {
+                depth_2_skip_clear.set(i, true);
+                chunk.db_->depth_2_->visible_[i] = nullptr;
+                continue;
+            }
             Buffer<TileCategory, 8> seen;
             while (head) {
                 auto cg = tile_category(head->tile_);
@@ -474,7 +502,7 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
                 pfrm.blit_t0_tile_to_texture(tile + 480, i, false);
                 stack.pop_back();
             }
-        } else {
+        } else if (not depth_1_skip_clear.get(i)) {
             pfrm.blit_t0_erase(i);
         }
 
@@ -494,8 +522,17 @@ void render(Platform& pfrm, terrain::Chunk& chunk)
                 pfrm.blit_t1_tile_to_texture(tile + 480, i, false);
                 stack.pop_back();
             }
-        } else {
+        } else if (not depth_2_skip_clear.get(i)) {
             pfrm.blit_t1_erase(i);
+        }
+    }
+
+
+    for (auto& layer : chunk.blocks_) {
+        for (auto& slice : layer) {
+            for (auto& block : slice) {
+                block.repaint_ = false;
+            }
         }
     }
 }
