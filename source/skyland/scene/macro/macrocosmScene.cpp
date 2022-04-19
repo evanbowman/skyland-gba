@@ -38,6 +38,9 @@ ScenePtr<Scene> MacrocosmScene::update(Platform& pfrm,
         Platform::fatal("macro state unbound!?");
     }
 
+    app.player().update(pfrm, app, delta);
+
+
     if (auto scene = update(pfrm, app.player(), *app.macrocosm())) {
         return scene;
     }

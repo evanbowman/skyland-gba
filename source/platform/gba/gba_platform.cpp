@@ -1499,14 +1499,64 @@ TileDesc Platform::map_tile1_chunk(TileDesc src)
 
 
 
+#define BIT_MASK(len)       ( (1<<(len))-1 )
+
+static void __toncset(void *dst, u32 fill, uint size)
+{
+    if(size==0 || dst==NULL)
+        return;
+
+    uint left= (u32)dst&3;
+    u32 *dst32= (u32*)((char*)dst-left);
+    u32 count, mask;
+
+    // Unaligned head.
+    if(left != 0)
+    {
+        // Adjust for very small stint.
+        if(left+size<4)
+        {
+            mask= BIT_MASK(size*8)<<(left*8);
+            *dst32= (*dst32 &~ mask) | (fill & mask);
+            return;
+        }
+
+        mask= BIT_MASK(left*8);
+        *dst32= (*dst32 & mask) | (fill&~mask);
+        dst32++;
+        size -= 4-left;
+    }
+
+    // Main stint.
+    count= size/4;
+    uint tmp= count&3;
+    count /= 4;
+
+    switch(tmp) {
+        do {    *dst32++ = fill;
+    case 3:     *dst32++ = fill;
+    case 2:     *dst32++ = fill;
+    case 1:     *dst32++ = fill;
+    case 0:     ; } while(count--);
+    }
+
+    // Tail
+    size &= 3;
+    if(size)
+    {
+        mask= BIT_MASK(size*8);
+        *dst32= (*dst32 &~ mask) | (fill & mask);
+    }
+}
+
+
+
 void Platform::blit_t0_erase(u16 index)
 {
     u8* p =
         ((u8*)&MEM_SCREENBLOCKS[sbb_t0_texture][0]) + index * vram_tile_size();
 
-    for (int i = 0; i < vram_tile_size() / 2; ++i) {
-        ((u16*)p)[i] = 0;
-    }
+    __toncset(p, 0, vram_tile_size());
 }
 
 
@@ -1516,9 +1566,7 @@ void Platform::blit_t1_erase(u16 index)
     u8* p =
         ((u8*)&MEM_SCREENBLOCKS[sbb_t1_texture][0]) + index * vram_tile_size();
 
-    for (int i = 0; i < vram_tile_size() / 2; ++i) {
-        ((u16*)p)[i] = 0;
-    }
+    __toncset(p, 0, vram_tile_size());
 }
 
 
@@ -2276,7 +2324,7 @@ static void vblank_isr()
 {
     vblank_scroll_callback();
 
-    watchdog_counter += 1;
+    // watchdog_counter += 1;
 
     rumble_update();
 

@@ -46,15 +46,41 @@ void terrain::Sector::rotate()
         }
     }
 
-    for (auto& layer : blocks_) {
-        for (auto& slice : layer) {
-            for (auto& block : slice) {
+    for (int z = 0; z < z_limit; ++z) {
+        for (int x = 0; x < 8; ++x) {
+            for (int y = 0; y < 8; ++y) {
+                auto& block = blocks_[z][x][y];
                 block.repaint_ = true;
+                if (block.type_ == (u8)terrain::Type::selector) {
+                    cursor_ = {(u8)x, (u8)y, (u8)z};
+                }
             }
         }
     }
 
     changed_ = true;
+    shrunk_ = true;
+}
+
+
+
+static bool blocks_light(terrain::Type t)
+{
+    static const bool result[(int)terrain::Type::count] = {
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+    };
+
+    return result[(int)t];
 }
 
 
@@ -64,17 +90,20 @@ void terrain::Sector::shadowcast()
     for (int z = 0; z < z_limit; ++z) {
         for (int x = 0; x < 8; ++x) {
             for (int y = 0; y < 8; ++y) {
-                blocks_[z][x][y].shadowed_ = true;
+                blocks_[z][x][y].shadowed_ = false;
             }
         }
     }
 
     for (int x = 0; x < 8; ++x) {
         for (int y = 0; y < 8; ++y) {
+            bool shadow = false;
             for (int z = z_limit - 1; z > -1; --z) {
-                if (blocks_[z][x][y].type_ > 0) {
-                    blocks_[z][x][y].shadowed_ = false;
-                    break;
+                auto t = blocks_[z][x][y].type_;
+                if (shadow) {
+                    blocks_[z][x][y].shadowed_ = true;
+                } else if (blocks_light((terrain::Type)t)) {
+                    shadow = true;
                 }
             }
         }
@@ -96,6 +125,7 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
     if (selected.type_ == (u8)type) {
         return;
     }
+
     selected.type_ = (u8)type;
     selected.repaint_ = true;
 
@@ -110,6 +140,38 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
     shadowcast();
 
     changed_ = true;
+}
+
+
+
+void terrain::Sector::set_cursor(const Vec3<u8>& pos)
+{
+    auto old_cursor = cursor_;
+    auto& block = blocks_[old_cursor.z][old_cursor.x][old_cursor.y];
+    if (block.type_ == (u8)terrain::Type::selector) {
+        set_block(old_cursor, macro::terrain::Type::air);
+    }
+
+    if (old_cursor.z > 0) {
+        auto& block = blocks_[old_cursor.z + 1][old_cursor.x][old_cursor.y];
+        block.repaint_ = true;
+    }
+
+    cursor_ = pos;
+    while (blocks_[cursor_.z][cursor_.x][cursor_.y].type_ not_eq
+           (u8)terrain::Type::air) {
+        ++cursor_.z;
+    }
+
+    cursor_moved_ = true;
+
+    while (cursor_.z > 0 and
+           blocks_[cursor_.z - 1][cursor_.x][cursor_.y].type_ ==
+           (u8)terrain::Type::air) {
+        --cursor_.z;
+    }
+
+    set_block(cursor_, terrain::Type::selector);
 }
 
 
@@ -157,7 +219,8 @@ static TileCategory tile_category(int texture_id)
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         empty, empty, empty, empty, empty, empty,
+         empty, empty, empty, empty, empty, empty,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
@@ -238,6 +301,10 @@ void terrain::Sector::render(Platform& pfrm)
         return;
     }
 
+    auto prev_cursor_raster_tiles = cursor_raster_tiles_;
+    cursor_raster_tiles_.clear();
+
+
     auto rendering_pass = [&](auto rendering_function) {
         auto project_block = [&](int x, int y, int z) {
             auto slab = blocks_[z];
@@ -261,6 +328,9 @@ void terrain::Sector::render(Platform& pfrm)
             auto blit = [&](int texture, int t_start) {
                 rendering_function(
                     Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
+                if (block.type_ == (u8)Type::selector) {
+                    cursor_raster_tiles_.push_back(t_start);
+                }
             };
 
             blit(texture, t_start);
@@ -331,12 +401,22 @@ void terrain::Sector::render(Platform& pfrm)
     Bitvector<480> depth_1_skip_clear;
     Bitvector<480> depth_2_skip_clear;
 
+    Bitvector<480> depth_1_empty;
+    Bitvector<480> depth_2_empty;
+
     // Culling for non-visible tiles
     for (int i = 0; i < 480; ++i) {
         if (auto head = db_->depth_1_->visible_[i]) {
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
+                if (cursor_moved_) {
+                    for (auto& t : prev_cursor_raster_tiles) {
+                        if (t == i) {
+                            skip_repaint = false;
+                        }
+                    }
+                }
                 auto pos = temp->position_;
                 if (blocks_[pos.z][pos.x][pos.y].repaint_) {
                     skip_repaint = false;
@@ -411,11 +491,20 @@ void terrain::Sector::render(Platform& pfrm)
 
                 head = head->next_;
             }
+        } else {
+            depth_1_empty.set(i, true);
         }
         if (auto head = db_->depth_2_->visible_[i]) {
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
+                if (cursor_moved_) {
+                    for (auto& t : prev_cursor_raster_tiles) {
+                        if (t - 480 == i) {
+                            skip_repaint = false;
+                        }
+                    }
+                }
                 auto pos = temp->position_;
                 if (blocks_[pos.z][pos.x][pos.y].repaint_) {
                     skip_repaint = false;
@@ -490,6 +579,8 @@ void terrain::Sector::render(Platform& pfrm)
 
                 head = head->next_;
             }
+        } else {
+            depth_2_empty.set(i, true);
         }
     }
 
@@ -519,7 +610,7 @@ void terrain::Sector::render(Platform& pfrm)
                 pfrm.blit_t0_tile_to_texture(tile + 480, i, false);
                 stack.pop_back();
             }
-        } else if (not depth_1_skip_clear.get(i)) {
+        } else if (shrunk_ and not depth_1_skip_clear.get(i)) {
             pfrm.blit_t0_erase(i);
         }
 
@@ -539,8 +630,20 @@ void terrain::Sector::render(Platform& pfrm)
                 pfrm.blit_t1_tile_to_texture(tile + 480, i, false);
                 stack.pop_back();
             }
-        } else if (not depth_2_skip_clear.get(i)) {
+        } else if (shrunk_ and not depth_2_skip_clear.get(i)) {
             pfrm.blit_t1_erase(i);
+        }
+    }
+
+
+    if (cursor_moved_) {
+        for (int i = 0; i < 480; ++i) {
+            if (cursor_moved_ and depth_1_empty.get(i)) {
+                pfrm.blit_t0_erase(i);
+            }
+            if (cursor_moved_ and depth_2_empty.get(i)) {
+                pfrm.blit_t1_erase(i);
+            }
         }
     }
 
@@ -554,6 +657,8 @@ void terrain::Sector::render(Platform& pfrm)
     }
 
     changed_ = false;
+    shrunk_ = false;
+    cursor_moved_ = false;
 }
 
 
@@ -586,9 +691,16 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         // TODO...
     },
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        // TODO...
+        block.data_++;
+        if (block.data_ > 6) {
+            block.data_ = 0;
+            block.shadowed_ = not block.shadowed_;
+            block.repaint_ = true;
+            s.changed_ = true;
+        }
+
     },
     [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
@@ -601,6 +713,10 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
         // TODO...
+    },
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+
     },
 };
 // clang-format on

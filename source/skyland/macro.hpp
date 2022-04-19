@@ -43,6 +43,7 @@ enum class Type {
     water,
     rock_stacked,
     masonry,
+    selector,
     water_slant_a,
     water_slant_b,
     water_slant_c,
@@ -90,17 +91,41 @@ public:
     static const int z_limit = 9;
 
 
-    Vec3<u8> cursor_;
+    Vec3<u8> cursor() const
+    {
+        return cursor_;
+    }
+
+
+    u16 population_ = 0;
+
+
+    Vec2<s8> coordinate();
+
+
+    void set_cursor(const Vec3<u8>& pos);
+
+
+    bool changed_ = false;
+
+
+    void serialize(u8* output);
 
 
 private:
     void shadowcast();
 
+    bool shrunk_ = false;
 
-    u8 x_;
-    u8 y_;
+    Vec3<u8> cursor_;
+    bool cursor_moved_ = false;
 
-    bool changed_ = false;
+    // We keep a cache of screen tiles used by the cursor, as an
+    // optimization. The cursor animation requires frequent redraw.
+    Buffer<u16, 8> cursor_raster_tiles_;
+
+    s8 x_;
+    s8 y_;
 
     u8 z_view_ = z_limit;
 
@@ -122,6 +147,7 @@ struct State
     struct Data
     {
         macro::terrain::Sector sector_;
+        u16 year_ = 0;
     };
 
 
