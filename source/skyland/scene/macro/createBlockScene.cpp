@@ -53,6 +53,7 @@ void CreateBlockScene::enter(Platform& pfrm, App& app, Scene& prev)
         options_.push_back(terrain::Type::water);
         options_.push_back(terrain::Type::masonry);
         options_.push_back(terrain::Type::wheat);
+        options_.push_back(terrain::Type::air);
     }
 
     show_options(pfrm);
@@ -212,8 +213,17 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
             state.data_->sector_.set_block(cursor,
                                            options_[selector_]);
             ++cursor.z;
-            state.data_->sector_.set_cursor(cursor);
-            pfrm.speaker().play_sound("build0", 4);
+            auto block = state.data_->sector_.get_block(cursor);
+            while (block.type_ not_eq (u8)terrain::Type::air) {
+                ++cursor.z;
+                block = state.data_->sector_.get_block(cursor);
+            }
+            state.data_->sector_.set_cursor(cursor, false);
+
+            if (options_[selector_] not_eq terrain::Type::air) {
+                pfrm.speaker().play_sound("build0", 4);
+            }
+
             return scene_pool::alloc<SelectorScene>();
         }
     }

@@ -144,7 +144,7 @@ public:
     Vec2<s8> coordinate();
 
 
-    void set_cursor(const Vec3<u8>& pos);
+    void set_cursor(const Vec3<u8>& pos, bool lock_to_floor = true);
 
 
     bool changed_ = false;

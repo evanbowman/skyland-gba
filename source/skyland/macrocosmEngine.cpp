@@ -357,7 +357,7 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 
 
 
-void terrain::Sector::set_cursor(const Vec3<u8>& pos)
+void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
 {
     auto old_cursor = cursor_;
     auto& block = blocks_[old_cursor.z][old_cursor.x][old_cursor.y];
@@ -371,17 +371,20 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos)
     }
 
     cursor_ = pos;
-    while (blocks_[cursor_.z][cursor_.x][cursor_.y].type_ not_eq
-           (u8) terrain::Type::air) {
-        ++cursor_.z;
-    }
 
-    cursor_moved_ = true;
+    if (lock_to_floor) {
+        while (blocks_[cursor_.z][cursor_.x][cursor_.y].type_ not_eq
+               (u8) terrain::Type::air) {
+            ++cursor_.z;
+        }
 
-    while (cursor_.z > 0 and
-           blocks_[cursor_.z - 1][cursor_.x][cursor_.y].type_ ==
+        cursor_moved_ = true;
+
+        while (cursor_.z > 0 and
+               blocks_[cursor_.z - 1][cursor_.x][cursor_.y].type_ ==
                (u8)terrain::Type::air) {
-        --cursor_.z;
+            --cursor_.z;
+        }
     }
 
     set_block(cursor_, terrain::Type::selector);
