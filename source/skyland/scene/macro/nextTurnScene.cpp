@@ -33,7 +33,7 @@ namespace skyland::macro
 ScenePtr<Scene>
 NextTurnScene::update(Platform& pfrm, Player& player, macro::State& state)
 {
-    ++state.data_->year_;
+    state.advance(1);
 
     return scene_pool::alloc<SelectorScene>();
 }

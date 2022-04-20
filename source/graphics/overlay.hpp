@@ -446,8 +446,11 @@ public:
         if (format_ == Format::fraction or format_ == Format::fraction_p_m) {
             auto v1 = value & 0x0000ffff;
             auto v2 = (value & 0xffff0000) >> 16;
-            value_len = integer_text_length(v1) + 1 + integer_text_length(v2);
+            value_len =
+                integer_text_length(v1) + 1 + integer_text_length(v2);
             if (format_ == Format::fraction_p_m) {
+                value_len += integer_text_length(v1 - v2);
+                value_len += 1;
                 value_len += 2;
             }
         }
@@ -521,14 +524,23 @@ private:
             }();
 
             if (format_ == Format::fraction_p_m) {
+                text_->append(v1 - v2, clr);
+                text_->append(":", clr);
                 text_->append("-", clr);
             }
             text_->append(v2, clr);
-            text_->append("/", clr);
+
+            if (format_ == Format::fraction_p_m) {
+                text_->append(",", clr);
+            } else {
+                text_->append("/", clr);
+            }
+
             if (format_ == Format::fraction_p_m) {
                 text_->append("+", clr);
             }
             text_->append(v1, clr);
+
 
         } else {
             text_->assign(value_);

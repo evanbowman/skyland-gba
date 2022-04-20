@@ -44,6 +44,7 @@ void SelectorScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 void SelectorScene::exit(Platform& pfrm, App& app, Scene& next)
 {
+    MacrocosmScene::exit(pfrm, app, next);
     text_.reset();
 }
 

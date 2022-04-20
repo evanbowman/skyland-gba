@@ -63,6 +63,8 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     sector.set_cursor({3, 3, 1});
     sector.population_ = 8;
 
+    app.macrocosm()->data_->coins_ = 200;
+
 
     pfrm.screen().schedule_fade(0.f);
 }

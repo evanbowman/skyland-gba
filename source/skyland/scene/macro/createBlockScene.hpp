@@ -44,8 +44,13 @@ public:
     ScenePtr<Scene>
     update(Platform& pfrm, Player& player, macro::State& state) override;
 
+
+    void show_options(Platform& pfrm);
+
+
 private:
     Buffer<macro::terrain::Type, 32> options_;
+    static s8 selector_;
 };
 
 

@@ -87,17 +87,33 @@ u32 format_ui_fraction(u16 avail, u16 used)
 
 void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    auto stat = app.macrocosm()->data_->sector_.stats();
+
     auto pop = app.macrocosm()->data_->sector_.population_;
 
     food_.emplace(pfrm,
                   OverlayCoord{1, 1},
                   414,
-                  format_ui_fraction(4, pop / 2),
+                  format_ui_fraction(stat.food_, pop / terrain::food_consumption_factor),
                   UIMetric::Align::left,
                   UIMetric::Format::fraction_p_m);
 
     population_.emplace(
-        pfrm, OverlayCoord{1, 2}, 413, pop, UIMetric::Align::left);
+        pfrm, OverlayCoord{1, 3}, 413, pop, UIMetric::Align::left);
+
+    // Text temp1(pfrm, OverlayCoord{1, 5});
+    // Fixnum fmt(app.macrocosm()->data_->sector_.population_growth_rate());
+    // temp1.append(fmt.numerator());
+    // temp1.append(".");
+    // temp1.append(fmt.denominator());
+    // temp1.__detach();
+
+
+    coins_.emplace(pfrm,
+                   OverlayCoord{1, 2},
+                   146,
+                   (int)app.macrocosm()->data_->coins_,
+                   UIMetric::Align::left);
 
     const auto year = app.macrocosm()->data_->year_ + 1;
 
@@ -129,6 +145,7 @@ void MacrocosmScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     food_.reset();
     population_.reset();
+    coins_.reset();
 }
 
 

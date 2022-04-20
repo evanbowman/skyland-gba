@@ -32,6 +32,109 @@ namespace skyland::macro
 
 
 
+
+void State::advance(int elapsed_years)
+{
+    data_->sector_.advance(elapsed_years);
+    data_->year_ += elapsed_years;
+}
+
+
+
+void terrain::Sector::advance(int years)
+{
+    population_ += population_growth_rate() * years;
+}
+
+
+
+terrain::Stats terrain::stats(Type t)
+{
+    terrain::Stats result;
+
+
+    switch (t) {
+    case terrain::Type::building:
+        result.housing_ += 40;
+        break;
+
+    case terrain::Type::rock_edge:
+    case terrain::Type::rock_stacked:
+        result.food_ += 1;
+        break;
+
+    case terrain::Type::wheat:
+        result.food_ += 5;
+
+    default:
+        break;
+    }
+
+    return result;
+}
+
+
+
+terrain::Stats terrain::Block::stats() const
+{
+    return terrain::stats((Type)type_);
+}
+
+
+
+terrain::Stats terrain::Sector::stats() const
+{
+    terrain::Stats result;
+
+    for (int z = 0; z < z_limit - 1; ++z) {
+        for (int x = 0; x < 8; ++x) {
+            for (int y = 0; y < 8; ++y) {
+                auto block_stats = blocks_[z][x][y].stats();
+
+                // NOTE: if a block is covered, then it's not possible to
+                // harvest the supplied food, so a stacked block should yield
+                // zero food.
+                if (blocks_[z + 1][x][y].type_ == (u8)Type::air) {
+                    result.food_ += block_stats.food_;
+                }
+
+                result.housing_ += block_stats.housing_;
+            }
+        }
+    }
+
+    return result;
+}
+
+
+
+Float terrain::Sector::population_growth_rate() const
+{
+    auto s = stats();
+
+    auto required_food = population_ / food_consumption_factor;
+
+    Float result = 0.f;
+
+
+    if (s.food_ >= required_food) {
+        result = 0.1f * (s.food_ - required_food);
+    } else {
+        result = -0.5f * (required_food - s.food_);
+    }
+
+    if (population_ > s.housing_) {
+        result -= 0.025f * (population_ - s.housing_);
+    } else {
+        result += 0.025f * (s.housing_ - population_);
+    }
+
+
+    return result;
+}
+
+
+
 SystemString terrain::name(Type t)
 {
     switch (t) {
@@ -123,6 +226,40 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
     }
 
     return result;
+}
+
+
+
+std::pair<int, int> terrain::icons(Type t)
+{
+    switch (t) {
+    case terrain::Type::air:
+        return {};
+
+    case terrain::Type::building:
+        return {1448, 1464};
+
+    case terrain::Type::rock_edge:
+    case terrain::Type::rock_stacked:
+        return {1448, 1464};
+
+    case terrain::Type::masonry:
+        return {1448, 1464};
+
+    default:
+    case terrain::Type::selector:
+        return {};
+
+    case terrain::Type::water:
+    case terrain::Type::water_slant_a:
+    case terrain::Type::water_slant_b:
+    case terrain::Type::water_slant_c:
+    case terrain::Type::water_slant_d:
+        return {2120, 2136};
+
+    case terrain::Type::wheat:
+        return {1448, 1464};
+    }
 }
 
 

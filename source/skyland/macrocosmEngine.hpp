@@ -37,6 +37,10 @@ namespace skyland::macro::terrain
 
 
 
+static const int food_consumption_factor = 2;
+
+
+
 enum class Type {
     air,
     building,
@@ -57,10 +61,8 @@ enum class Type {
 
 struct Stats
 {
-    int food_;
-    int coins_;
-    int productivity_;
-    int housing_;
+    int food_ = 0;
+    int housing_ = 0;
 };
 
 
@@ -112,6 +114,12 @@ public:
     void update();
 
 
+    void advance(int years);
+
+
+    Stats stats() const;
+
+
     void render(Platform& pfrm);
 
 
@@ -124,7 +132,13 @@ public:
     }
 
 
-    u16 population_ = 0;
+    using Population = float;
+
+
+    Population population_ = 0;
+
+
+    Float population_growth_rate() const;
 
 
     Vec2<s8> coordinate();
@@ -187,6 +201,7 @@ struct State
     {
         macro::terrain::Sector sector_;
         u16 year_ = 0;
+        u32 coins_ = 0;
     };
 
 
@@ -195,6 +210,9 @@ struct State
     }
 
     DynamicMemory<Data> data_;
+
+
+    void advance(int elapsed_years);
 };
 
 
