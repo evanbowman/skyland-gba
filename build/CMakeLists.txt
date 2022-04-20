@@ -179,6 +179,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/macro/nextTurnScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/selectorScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/tileOptionsScene.cpp
+  ${SOURCE_DIR}/skyland/scene/macro/createBlockScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/developerModeModule.cpp

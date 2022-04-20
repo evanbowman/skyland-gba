@@ -25,6 +25,7 @@
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "tileOptionsScene.hpp"
+#include "createBlockScene.hpp"
 
 
 
@@ -55,7 +56,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         return scene;
     }
 
-    auto cursor_ = state.data_->sector_.cursor();
+    auto cursor = state.data_->sector_.cursor();
 
     if (player.key_down(pfrm, Key::select)) {
         return scene_pool::alloc<NextTurnScene>();
@@ -103,48 +104,54 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
     };
 
 
-    if (test_key(Key::up) and cursor_.y > 0) {
-        --cursor_.y;
-        state.data_->sector_.set_cursor(cursor_);
+    if (test_key(Key::up) and cursor.y > 0) {
+        --cursor.y;
+        state.data_->sector_.set_cursor(cursor);
         msg();
     }
 
-    if (test_key(Key::down) and cursor_.y < 7) {
-        ++cursor_.y;
-        state.data_->sector_.set_cursor(cursor_);
+    if (test_key(Key::down) and cursor.y < 7) {
+        ++cursor.y;
+        state.data_->sector_.set_cursor(cursor);
         msg();
     }
 
-    if (test_key(Key::right) and cursor_.x > 0) {
-        --cursor_.x;
-        state.data_->sector_.set_cursor(cursor_);
+    if (test_key(Key::right) and cursor.x > 0) {
+        --cursor.x;
+        state.data_->sector_.set_cursor(cursor);
         msg();
     }
 
-    if (test_key(Key::left) and cursor_.x < 7) {
-        ++cursor_.x;
-        state.data_->sector_.set_cursor(cursor_);
+    if (test_key(Key::left) and cursor.x < 7) {
+        ++cursor.x;
+        state.data_->sector_.set_cursor(cursor);
         msg();
     }
 
     if (player.key_down(pfrm, Key::action_1)) {
 
-        // if (cursor_.z < macro::terrain::Sector::z_limit - 1) {
-        //     state.data_->sector_.set_block(cursor_,
+        // if (cursor.z < macro::terrain::Sector::z_limit - 1) {
+        //     state.data_->sector_.set_block(cursor,
         //                                    macro::terrain::Type::masonry);
-        //     ++cursor_.z;
-        //     state.data_->sector_.set_cursor(cursor_);
+        //     ++cursor.z;
+        //     state.data_->sector_.set_cursor(cursor);
         // }
-        // return scene_pool::alloc<TileOptionsScene>();
+
+        if (cursor.z == 0) {
+            return scene_pool::alloc<CreateBlockScene>();
+        } else {
+            return scene_pool::alloc<TileOptionsScene>();
+        }
 
 
 
-            if (cursor_.z < macro::terrain::Sector::z_limit - 1) {
-                state.data_->sector_.set_block(cursor_, macro::terrain::Type::masonry);
-                ++cursor_.z;
-                state.data_->sector_.set_cursor(cursor_);
-        msg();
-            }
+
+            // if (cursor.z < macro::terrain::Sector::z_limit - 1) {
+        //         state.data_->sector_.set_block(cursor, macro::terrain::Type::masonry);
+        //         ++cursor.z;
+        //         state.data_->sector_.set_cursor(cursor);
+        // msg();
+        //     }
     }
 
     if (player.key_down(pfrm, Key::action_2)) {
