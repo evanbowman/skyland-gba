@@ -111,24 +111,28 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         --cursor.y;
         state.sector().set_cursor(cursor);
         msg();
+        pfrm.speaker().play_sound("cursor_tick", 2);
     }
 
     if (test_key(Key::down) and cursor.y < 7) {
         ++cursor.y;
         state.sector().set_cursor(cursor);
         msg();
+        pfrm.speaker().play_sound("cursor_tick", 2);
     }
 
     if (test_key(Key::right) and cursor.x > 0) {
         --cursor.x;
         state.sector().set_cursor(cursor);
         msg();
+        pfrm.speaker().play_sound("cursor_tick", 2);
     }
 
     if (test_key(Key::left) and cursor.x < 7) {
         ++cursor.x;
         state.sector().set_cursor(cursor);
         msg();
+        pfrm.speaker().play_sound("cursor_tick", 2);
     }
 
     if (player.key_down(pfrm, Key::action_1)) {

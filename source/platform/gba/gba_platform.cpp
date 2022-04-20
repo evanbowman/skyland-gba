@@ -3334,6 +3334,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_gust2.hpp"
 #include "data/sound_msg.hpp"
 #include "data/sound_openbag.hpp"
+#include "data/sound_open_book.hpp"
 #include "data/sound_scroll.hpp"
 #include "data/sound_thunder_1.hpp"
 #include "data/sound_thunder_2.hpp"
@@ -3366,6 +3367,7 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(footstep3, sound_footstep3),
     DEF_SOUND(gust1, sound_gust),
     DEF_SOUND(gust2, sound_gust2),
+    DEF_SOUND(openbook, sound_open_book),
     DEF_SOUND(openbag, sound_openbag),
     // DEF_SOUND(tw_bell, sound_tw_bell),
     DEF_SOUND(click, sound_scroll),
