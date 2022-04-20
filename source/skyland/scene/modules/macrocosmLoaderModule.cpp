@@ -1,8 +1,8 @@
 #include "macrocosmLoaderModule.hpp"
+#include "skyland/macroCamera.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene/macro/selectorScene.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/macroCamera.hpp"
 
 
 

@@ -20,8 +20,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "selectorScene.hpp"
 #include "createBlockScene.hpp"
+#include "selectorScene.hpp"
 #include "skyland/scene_pool.hpp"
 
 
@@ -32,9 +32,7 @@ namespace skyland::macro
 
 
 ScenePtr<Scene>
-CreateBlockScene::update(Platform& pfrm,
-                         Player& player,
-                         macro::State& state)
+CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
 {
     if (auto next = MacrocosmScene::update(pfrm, player, state)) {
         return next;
@@ -43,7 +41,8 @@ CreateBlockScene::update(Platform& pfrm,
     if (player.key_down(pfrm, Key::action_1)) {
         auto cursor = state.data_->sector_.cursor();
         if (cursor.z < macro::terrain::Sector::z_limit - 1) {
-            state.data_->sector_.set_block(cursor, macro::terrain::Type::masonry);
+            state.data_->sector_.set_block(cursor,
+                                           macro::terrain::Type::masonry);
             ++cursor.z;
             state.data_->sector_.set_cursor(cursor);
             return scene_pool::alloc<SelectorScene>();
@@ -59,4 +58,4 @@ CreateBlockScene::update(Platform& pfrm,
 
 
 
-}
+} // namespace skyland::macro

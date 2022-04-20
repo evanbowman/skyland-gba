@@ -110,6 +110,17 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
     temp.append(yr->c_str());
     temp.append(year);
     temp.__detach();
+
+    draw_compass(pfrm, *app.macrocosm());
+}
+
+
+
+void MacrocosmScene::draw_compass(Platform& pfrm, macro::State& state)
+{
+    auto o = state.data_->sector_.orientation();
+    int compass_tile = 434 + (int)o * 4;
+    draw_image(pfrm, compass_tile, 27, 3, 2, 2, Layer::overlay);
 }
 
 

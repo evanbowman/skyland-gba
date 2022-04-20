@@ -21,6 +21,7 @@
 
 
 #include "tileOptionsScene.hpp"
+#include "createBlockScene.hpp"
 #include "selectorScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -50,6 +51,16 @@ void TileOptionsScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
+struct TileOptionsScene::OptionInfo
+{
+    SystemString name_;
+    int sel_icon_;
+    int unsel_icon_;
+    ScenePtr<Scene> (*next_)();
+};
+
+
+
 ScenePtr<Scene>
 TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
 {
@@ -57,8 +68,8 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
         return scene;
     }
 
-    if (player.key_down(pfrm, Key::action_2)) {
-
+    if (player.key_down(pfrm, Key::action_1)) {
+        return options_[selector_]->next_();
     }
 
     if (player.key_down(pfrm, Key::action_2)) {
@@ -85,33 +96,22 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
 
 
 
-struct TileOptionsScene::OptionInfo
-{
-    SystemString name_;
-    int sel_icon_;
-    int unsel_icon_;
-};
-
-
-
 void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
 {
     static const TileOptionsScene::OptionInfo options[] = {
-        {
-            SystemString::macro_create_block,
-            776,
-            760
-        },
-        {
-            SystemString::macro_build_improvement,
-            776,
-            760
-        },
-        {
-            SystemString::macro_demolish,
-            504,
-            504,
-        }};
+        {SystemString::macro_create_block,
+         776,
+         760,
+         []() -> ScenePtr<Scene> {
+             return scene_pool::alloc<CreateBlockScene>();
+         }},
+        {SystemString::macro_build_improvement,
+         776,
+         760,
+         []() -> ScenePtr<Scene> { return null_scene(); }},
+        {SystemString::macro_demolish, 504, 504, []() -> ScenePtr<Scene> {
+             return null_scene();
+         }}};
 
     options_.push_back(&options[0]);
     options_.push_back(&options[1]);
@@ -135,9 +135,12 @@ void TileOptionsScene::show_options(Platform& pfrm)
     pfrm.set_tile(Layer::overlay, st.x - 22, st.y - 2, 419);
     pfrm.set_tile(Layer::overlay, st.x - 9, st.y - 2, 418);
 
-    pfrm.load_overlay_chunk(258, options_[(selector_ + 1) % options_.size()]->unsel_icon_, 16);
-    pfrm.load_overlay_chunk(181, options_[(selector_ + 2) % options_.size()]->unsel_icon_, 16);
-    pfrm.load_overlay_chunk(197, options_[(selector_) % options_.size()]->sel_icon_, 16);
+    pfrm.load_overlay_chunk(
+        258, options_[(selector_ + 1) % options_.size()]->unsel_icon_, 16);
+    pfrm.load_overlay_chunk(
+        181, options_[(selector_ + 2) % options_.size()]->unsel_icon_, 16);
+    pfrm.load_overlay_chunk(
+        197, options_[(selector_) % options_.size()]->sel_icon_, 16);
 
     draw_image(pfrm, 181, st.x - 21, st.y - 5, 4, 4, Layer::overlay);
     draw_image(pfrm, 197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);

@@ -24,7 +24,7 @@
 
 
 #include "graphics/overlay.hpp"
-#include "skyland/macro.hpp"
+#include "skyland/macrocosmEngine.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene.hpp"
 
@@ -52,6 +52,9 @@ public:
     update(Platform& pfrm, Player& player, macro::State& state);
 
     virtual void display(Platform& pfrm, macro::State& state);
+
+
+    void draw_compass(Platform& pfrm, macro::State& state);
 
 
 private:

@@ -35,7 +35,7 @@
 #include "highscores.hpp"
 #include "island.hpp"
 #include "keyCallbackProcessor.hpp"
-#include "macro.hpp"
+#include "macrocosmEngine.hpp"
 #include "persistentData.hpp"
 #include "platform/platform.hpp"
 #include "player/opponent/friendlyAI.hpp"

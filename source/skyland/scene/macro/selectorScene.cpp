@@ -21,11 +21,11 @@
 
 
 #include "selectorScene.hpp"
+#include "createBlockScene.hpp"
 #include "nextTurnScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "tileOptionsScene.hpp"
-#include "createBlockScene.hpp"
 
 
 
@@ -68,6 +68,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         pfrm.screen().display();
         state.data_->sector_.rotate();
         pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
+        draw_compass(pfrm, state);
     }
 
     if (player.key_down(pfrm, Key::alt_2)) {
@@ -78,6 +79,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         state.data_->sector_.rotate();
         state.data_->sector_.rotate();
         pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
+        draw_compass(pfrm, state);
     }
 
     if (not text_) {
@@ -145,8 +147,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
 
 
-
-            // if (cursor.z < macro::terrain::Sector::z_limit - 1) {
+        // if (cursor.z < macro::terrain::Sector::z_limit - 1) {
         //         state.data_->sector_.set_block(cursor, macro::terrain::Type::masonry);
         //         ++cursor.z;
         //         state.data_->sector_.set_cursor(cursor);

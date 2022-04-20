@@ -13,7 +13,6 @@ namespace skyland::macro
 class Camera : public ::skyland::Camera
 {
 public:
-
     Camera(Platform& pfrm)
     {
         current_ = {0, 40.f};
@@ -43,14 +42,13 @@ public:
         target_.y = clamp(target_.y, 0, 40);
 
         if (real_y < (current_.y + 10) or real_y > current_.y + 120) {
-            current_ = interpolate(target_.cast<Float>(), current_, delta * 0.0000021f);
+            current_ = interpolate(
+                target_.cast<Float>(), current_, delta * 0.0000021f);
 
             pfrm.set_scroll(Layer::map_0, current_.x, current_.y);
             pfrm.set_scroll(Layer::map_1, current_.x, current_.y + 8);
         }
-
     }
-
 };
 
 
