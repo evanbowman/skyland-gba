@@ -109,7 +109,20 @@ void terrain::Sector::rotate()
 
 Buffer<terrain::Type, 10> terrain::improvements(Type t)
 {
-    return {};
+    Buffer<terrain::Type, 10> result;
+
+    switch (t) {
+    case Type::rock_stacked:
+    case Type::rock_edge: {
+        result.push_back(Type::wheat);
+        break;
+    }
+
+    default:
+        break;
+    }
+
+    return result;
 }
 
 
@@ -235,6 +248,93 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos)
     }
 
     set_block(cursor_, terrain::Type::selector);
+}
+
+
+
+// clang-format off
+typedef void(*UpdateFunction)(terrain::Sector&, terrain::Block&, Vec3<u8>);
+static const UpdateFunction update_functions[(int)terrain::Type::count] = {
+    nullptr, // Air has no update code.
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        // Vec3<u8> spread_pos{(u8)(position.x + 1), position.y, position.z};
+        // auto a = s.get_block(spread_pos);
+        // if (a.type_ == (u8)terrain::Type::air) {
+        //     s.set_block(spread_pos, terrain::Type::water_slant_a);
+        // }
+    },
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.z == 0) {
+            block.type_ = (u8)terrain::Type::rock_edge;
+            block.repaint_ = true;
+            s.changed_ = true;
+        }
+    },
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        block.data_++;
+        if (block.data_ > 6) {
+            block.data_ = 0;
+            block.shadowed_ = not block.shadowed_;
+            block.repaint_ = true;
+            s.changed_ = true;
+        }
+
+    },
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (block.shadowed_) {
+            block.type_ = (u8)terrain::Type::rock_stacked;
+            block.repaint_ = true;
+            s.changed_ = true;
+        }
+    },
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    {
+        // TODO...
+    },
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+
+    },
+};
+// clang-format on
+
+
+
+void terrain::Sector::update()
+{
+    for (u8 z = 0; z < z_limit; ++z) {
+        for (u8 x = 0; x < 8; ++x) {
+            for (u8 y = 0; y < 8; ++y) {
+
+                auto& block = blocks_[z][x][y];
+
+                auto update = update_functions[block.type_];
+                if (update) {
+                    update(*this, block, {x, y, z});
+                }
+            }
+        }
+    }
 }
 
 
@@ -728,93 +828,6 @@ void terrain::Sector::render(Platform& pfrm)
     changed_ = false;
     shrunk_ = false;
     cursor_moved_ = false;
-}
-
-
-
-// clang-format off
-typedef void(*UpdateFunction)(terrain::Sector&, terrain::Block&, Vec3<u8>);
-static const UpdateFunction update_functions[(int)terrain::Type::count] = {
-    nullptr, // Air has no update code.
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
-    {
-        // TODO...
-    },
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
-    {
-        // TODO...
-    },
-    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
-    {
-        // Vec3<u8> spread_pos{(u8)(position.x + 1), position.y, position.z};
-        // auto a = s.get_block(spread_pos);
-        // if (a.type_ == (u8)terrain::Type::air) {
-        //     s.set_block(spread_pos, terrain::Type::water_slant_a);
-        // }
-    },
-    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
-    {
-        if (position.z == 0) {
-            block.type_ = (u8)terrain::Type::rock_edge;
-            block.repaint_ = true;
-            s.changed_ = true;
-        }
-    },
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
-    {
-        // TODO...
-    },
-    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
-    {
-        block.data_++;
-        if (block.data_ > 6) {
-            block.data_ = 0;
-            block.shadowed_ = not block.shadowed_;
-            block.repaint_ = true;
-            s.changed_ = true;
-        }
-
-    },
-    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
-    {
-        if (block.shadowed_) {
-            block.type_ = (u8)terrain::Type::rock_stacked;
-            block.repaint_ = true;
-            s.changed_ = true;
-        }
-    },
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
-    {
-        // TODO...
-    },
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
-    {
-        // TODO...
-    },
-    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
-    {
-
-    },
-};
-// clang-format on
-
-
-
-void terrain::Sector::update(Platform& pfrm)
-{
-    for (u8 z = 0; z < z_limit; ++z) {
-        for (u8 x = 0; x < 8; ++x) {
-            for (u8 y = 0; y < 8; ++y) {
-
-                auto& block = blocks_[z][x][y];
-
-                auto update = update_functions[block.type_];
-                if (update) {
-                    update(*this, block, {x, y, z});
-                }
-            }
-        }
-    }
 }
 
 

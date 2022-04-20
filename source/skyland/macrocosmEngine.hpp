@@ -109,7 +109,7 @@ public:
     void rotate();
 
 
-    void update(Platform& pfrm);
+    void update();
 
 
     void render(Platform& pfrm);

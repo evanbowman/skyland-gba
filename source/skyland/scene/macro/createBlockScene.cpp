@@ -35,6 +35,9 @@ void CreateBlockScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     MacrocosmScene::enter(pfrm, app, prev);
 
+    options_.push_back(terrain::Type::rock_stacked);
+    options_.push_back(terrain::Type::building);
+    options_.push_back(terrain::Type::water);
 }
 
 
