@@ -22,11 +22,8 @@
 
 #pragma once
 
-
-#include "graphics/overlay.hpp"
-#include "skyland/macro.hpp"
-#include "skyland/player/player.hpp"
-#include "skyland/scene.hpp"
+#include "macrocosmScene.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 
@@ -35,29 +32,11 @@ namespace skyland::macro
 
 
 
-class MacrocosmScene : public Scene
+class NextTurnScene : public MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& next) override;
-
-
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override final;
-
-
-    void display(Platform&, App&) override final;
-
-
-    virtual ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::State& state);
-
-    virtual void display(Platform& pfrm, macro::State& state);
-
-
-private:
-    std::optional<UIMetric> coins_;
-    std::optional<UIMetric> population_;
-    std::optional<UIMetric> food_;
+    ScenePtr<Scene>
+    update(Platform& pfrm, Player& player, macro::State& state) override;
 };
 
 

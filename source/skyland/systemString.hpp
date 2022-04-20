@@ -58,12 +58,14 @@ enum class SystemString {
     mt_terrain_size,
     mt_waiting,
 
+    block_air,
     block_arcgun,
     block_banana_plant,
     block_barrier,
     block_basalt,
     block_bridge,
     block_bronze_hull,
+    block_building,
     block_cesium,
     block_stacked_hull,
     block_mirror_hull,
@@ -111,6 +113,7 @@ enum class SystemString {
     block_sunflower,
     block_switch,
     block_synth,
+    block_terrain,
     block_dynamite_1,
     block_dynamite_2,
     block_torch,
@@ -170,6 +173,11 @@ enum class SystemString {
 
     intro_credits_name,
     intro_credits_cpy,
+
+    macro_year,
+    macro_create_block,
+    macro_build_improvement,
+    macro_demolish,
 
     description_power_core,
     description_solar_cell,

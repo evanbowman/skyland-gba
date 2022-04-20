@@ -417,6 +417,7 @@ public:
     enum class Format : u8 {
         plain_integer,
         fraction,
+        fraction_p_m,
     };
 
 
@@ -442,10 +443,13 @@ public:
     {
         auto value_len = integer_text_length(value);
 
-        if (format_ == Format::fraction) {
+        if (format_ == Format::fraction or format_ == Format::fraction_p_m) {
             auto v1 = value & 0x0000ffff;
             auto v2 = (value & 0xffff0000) >> 16;
             value_len = integer_text_length(v1) + 1 + integer_text_length(v2);
+            if (format_ == Format::fraction_p_m) {
+                value_len += 2;
+            }
         }
 
         anim_.init(value_len);
@@ -503,7 +507,7 @@ private:
         }
 
 
-        if (format_ == Format::fraction) {
+        if (format_ == Format::fraction or format_ == Format::fraction_p_m) {
             auto v1 = value_ & 0x0000ffff;
             auto v2 = (value_ & 0xffff0000) >> 16;
 
@@ -516,8 +520,14 @@ private:
                 }
             }();
 
+            if (format_ == Format::fraction_p_m) {
+                text_->append("-", clr);
+            }
             text_->append(v2, clr);
             text_->append("/", clr);
+            if (format_ == Format::fraction_p_m) {
+                text_->append("+", clr);
+            }
             text_->append(v1, clr);
 
         } else {

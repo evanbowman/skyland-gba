@@ -32,6 +32,37 @@ namespace skyland::macro
 
 
 
+SystemString terrain::Block::name() const
+{
+    switch ((Type)type_) {
+    case terrain::Type::air:
+        return SystemString::block_air;
+
+    case terrain::Type::building:
+        return SystemString::block_building;
+
+    case terrain::Type::rock_edge:
+    case terrain::Type::rock_stacked:
+        return SystemString::block_terrain;
+
+    case terrain::Type::masonry:
+        return SystemString::block_masonry;
+
+    default:
+    case terrain::Type::selector:
+        return SystemString::gs_error;
+
+    case terrain::Type::water:
+    case terrain::Type::water_slant_a:
+    case terrain::Type::water_slant_b:
+    case terrain::Type::water_slant_c:
+    case terrain::Type::water_slant_d:
+        return SystemString::block_water;
+    }
+}
+
+
+
 void terrain::Sector::rotate()
 {
     for (int z = 0; z < z_limit; ++z) {
@@ -60,6 +91,20 @@ void terrain::Sector::rotate()
 
     changed_ = true;
     shrunk_ = true;
+}
+
+
+
+u16 terrain::Sector::cursor_raster_pos() const
+{
+    int min = 9999;
+    for (auto p : cursor_raster_tiles_) {
+        if (p < min) {
+            min = p;
+        }
+    }
+
+    return min;
 }
 
 
@@ -131,8 +176,7 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 
     for (int z = coord.z - 1; z > -1; --z) {
         auto& selected = blocks_[z][coord.x][coord.y];
-        if (selected.type_ not_eq 0 and not
-            selected.shadowed_) {
+        if (selected.type_ not_eq 0 and not selected.shadowed_) {
             selected.repaint_ = true;
         }
     }
@@ -159,7 +203,7 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos)
 
     cursor_ = pos;
     while (blocks_[cursor_.z][cursor_.x][cursor_.y].type_ not_eq
-           (u8)terrain::Type::air) {
+           (u8) terrain::Type::air) {
         ++cursor_.z;
     }
 
@@ -167,7 +211,7 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos)
 
     while (cursor_.z > 0 and
            blocks_[cursor_.z - 1][cursor_.x][cursor_.y].type_ ==
-           (u8)terrain::Type::air) {
+               (u8)terrain::Type::air) {
         --cursor_.z;
     }
 
@@ -297,6 +341,10 @@ struct DepthBuffer
 
 void terrain::Sector::render(Platform& pfrm)
 {
+    // TODO: simplify this rendering code. The output texture is split across
+    // two tile layers, so there's some copy-pasted code that needs to be
+    // re-organized into common functions.
+
     if (not changed_) {
         return;
     }
@@ -637,6 +685,8 @@ void terrain::Sector::render(Platform& pfrm)
 
 
     if (cursor_moved_) {
+        // Handle these out of line, as not to slow down the main rendering
+        // block.
         for (int i = 0; i < 480; ++i) {
             if (cursor_moved_ and depth_1_empty.get(i)) {
                 pfrm.blit_t0_erase(i);
@@ -738,7 +788,6 @@ void terrain::Sector::update(Platform& pfrm)
             }
         }
     }
-
 }
 
 

@@ -23,10 +23,7 @@
 #pragma once
 
 
-#include "graphics/overlay.hpp"
-#include "skyland/macro.hpp"
-#include "skyland/player/player.hpp"
-#include "skyland/scene.hpp"
+#include "macrocosmScene.hpp"
 
 
 
@@ -35,29 +32,37 @@ namespace skyland::macro
 
 
 
-class MacrocosmScene : public Scene
+class TileOptionsScene : public MacrocosmScene
 {
 public:
     void enter(Platform& pfrm, App& app, Scene& prev) override;
+
+
     void exit(Platform& pfrm, App& app, Scene& next) override;
 
 
-    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override final;
+    ScenePtr<Scene>
+    update(Platform& pfrm, Player& player, macro::State& state) override;
 
 
-    void display(Platform&, App&) override final;
+    void show_options(Platform& pfrm);
 
 
-    virtual ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::State& state);
-
-    virtual void display(Platform& pfrm, macro::State& state);
+    void msg(Platform& pfrm, const char* text);
 
 
 private:
-    std::optional<UIMetric> coins_;
-    std::optional<UIMetric> population_;
-    std::optional<UIMetric> food_;
+    void collect_options(Platform& pfrm, macro::State& state);
+
+
+    struct OptionInfo;
+
+
+    Buffer<const OptionInfo*, 6> options_;
+
+
+    u8 selector_ = 0;
+    std::optional<Text> text_;
 };
 
 

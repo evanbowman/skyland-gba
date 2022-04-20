@@ -12,12 +12,14 @@ unhide prep
 coins
 terrain size
 Waiting for other player...
+air
 arc-gun
 banana-plant
 barrier
 basalt
 bridge
 bronze-hull
+building
 cesium
 stacked-hull
 mirror-hull
@@ -65,6 +67,7 @@ sticky-piston
 sunflower
 switch
 synth
+terrain
 dynamite
 dynamite-ii
 torch
@@ -112,6 +115,10 @@ misc
 decor
 Evan Bowman presents
 Copyright ©2022
+year:
+create block:
+build improvement:
+demolish block:
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
 Energy from the sun! Power output reduced by 1/4 for each block directly above the solar-cell.
 While slightly less powerful than an ordinary cannon, its attacks spread fire.

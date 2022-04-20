@@ -24,6 +24,7 @@
 
 #include "allocator.hpp"
 #include "number/int.h"
+#include "systemString.hpp"
 
 
 
@@ -53,6 +54,15 @@ enum class Type {
 
 
 
+struct Stats {
+    int food_;
+    int coins_;
+    int productivity_;
+    int housing_;
+};
+
+
+
 struct Block
 {
     u8 type_ : 6;
@@ -61,6 +71,11 @@ struct Block
     u8 repaint_ : 1;
 
     u8 data_;
+
+
+    Stats stats() const;
+    SystemString name() const;
+
 
     Block() : shadowed_(true), repaint_(true)
     {
@@ -112,6 +127,10 @@ public:
     void serialize(u8* output);
 
 
+    // Projected position of the cursor onto the frame buffer.
+    u16 cursor_raster_pos() const;
+
+
 private:
     void shadowcast();
 
@@ -151,8 +170,7 @@ struct State
     };
 
 
-    State() :
-        data_(allocate_dynamic<Data>("macrocosm-data"))
+    State() : data_(allocate_dynamic<Data>("macrocosm-data"))
     {
     }
 
@@ -161,4 +179,4 @@ struct State
 
 
 
-}
+} // namespace skyland::macro
