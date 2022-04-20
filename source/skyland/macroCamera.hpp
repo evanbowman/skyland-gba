@@ -13,6 +13,15 @@ namespace skyland::macro
 class Camera : public ::skyland::Camera
 {
 public:
+
+    Camera(Platform& pfrm)
+    {
+        current_ = {0, 40.f};
+        pfrm.set_scroll(Layer::map_0, current_.x, current_.y);
+        pfrm.set_scroll(Layer::map_1, current_.x, current_.y + 8);
+    }
+
+
     void update(Platform& pfrm,
                 App& app,
                 Island&,

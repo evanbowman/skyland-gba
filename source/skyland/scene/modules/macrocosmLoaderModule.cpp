@@ -25,7 +25,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.speaker().play_music(app.environment().music(), 0);
 
-    app.camera().emplace<macro::Camera>();
+    app.camera().emplace<macro::Camera>(pfrm);
 
     pfrm.load_background_texture("background_macro");
     // pfrm.system_call("parallax-clouds", false);
