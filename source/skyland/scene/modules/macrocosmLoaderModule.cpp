@@ -52,7 +52,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
             pfrm.set_tile(Layer::background, x, y, 75);
         }
     }
-    draw_image(pfrm, 4, 4, 17, 6, 3, Layer::background);
+    draw_image(pfrm, 4, 14, 17, 6, 3, Layer::background);
     draw_image(pfrm, 22, 9, 8, 2, 1, Layer::background);
     draw_image(pfrm, 24, 12, 5, 2, 1, Layer::background);
     pfrm.set_tile(Layer::background, 3, 4, 26);
