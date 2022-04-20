@@ -34,8 +34,18 @@ namespace skyland::macro
 class CreateBlockScene : public MacrocosmScene
 {
 public:
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override;
+
+
+    void exit(Platform& pfrm, App& app, Scene& next) override;
+
+
     ScenePtr<Scene>
     update(Platform& pfrm, Player& player, macro::State& state) override;
+
+private:
+    Buffer<macro::terrain::Type, 32> options_;
 };
 
 

@@ -752,9 +752,13 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         //     s.set_block(spread_pos, terrain::Type::water_slant_a);
         // }
     },
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        // TODO...
+        if (position.z == 0) {
+            block.type_ = (u8)terrain::Type::rock_edge;
+            block.repaint_ = true;
+            s.changed_ = true;
+        }
     },
     [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {

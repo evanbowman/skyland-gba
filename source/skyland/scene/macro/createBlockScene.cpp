@@ -31,6 +31,21 @@ namespace skyland::macro
 
 
 
+void CreateBlockScene::enter(Platform& pfrm, App& app, Scene& prev)
+{
+    MacrocosmScene::enter(pfrm, app, prev);
+
+}
+
+
+
+void CreateBlockScene::exit(Platform& pfrm, App& app, Scene& next)
+{
+    MacrocosmScene::exit(pfrm, app, next);
+}
+
+
+
 ScenePtr<Scene>
 CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
 {
