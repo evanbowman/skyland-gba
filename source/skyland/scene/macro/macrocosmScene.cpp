@@ -95,7 +95,7 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     food_.emplace(
         pfrm,
-        OverlayCoord{1, 2},
+        OverlayCoord{1, 1},
         414,
         format_ui_fraction(stat.food_, pop / terrain::food_consumption_factor),
         UIMetric::Align::left,
@@ -108,16 +108,8 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
                         UIMetric::Align::left,
                         UIMetric::Format::integer_with_rate);
 
-    // Text temp1(pfrm, OverlayCoord{1, 5});
-    // Fixnum fmt(app.macrocosm()->sector().population_growth_rate());
-    // temp1.append(fmt.numerator());
-    // temp1.append(".");
-    // temp1.append(fmt.denominator());
-    // temp1.__detach();
-
-
     coins_.emplace(pfrm,
-                   OverlayCoord{1, 1},
+                   OverlayCoord{1, 2},
                    146,
                    format_ui_fraction((int)app.macrocosm()->data_->coins_,
                                       app.macrocosm()->coin_yield()),
