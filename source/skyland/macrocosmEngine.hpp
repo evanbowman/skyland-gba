@@ -244,6 +244,7 @@ struct State
         macro::terrain::Sector sector_;
         u16 year_ = 0;
         Coins coins_ = 0;
+        Float cloud_scroll_ = 0;
     };
 
 

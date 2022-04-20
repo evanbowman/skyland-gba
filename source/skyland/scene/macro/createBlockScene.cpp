@@ -226,6 +226,7 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
             }
 
             edit(state, options_[selector_]);
+            state.sector().update();
 
             if (options_[selector_] not_eq terrain::Type::air) {
                 pfrm.speaker().play_sound("build0", 4);

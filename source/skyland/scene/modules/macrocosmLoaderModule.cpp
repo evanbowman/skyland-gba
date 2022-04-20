@@ -3,6 +3,7 @@
 #include "skyland/player/player.hpp"
 #include "skyland/scene/macro/selectorScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/weather/storm.hpp"
 
 
 
@@ -25,6 +26,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.speaker().play_music(app.environment().music(), 0);
 
+
     app.camera().emplace<macro::Camera>(pfrm);
 
     pfrm.load_background_texture("background_macro");
@@ -38,6 +40,23 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
             pfrm.set_tile(Layer::map_1_ext, x, y, 0);
         }
     }
+
+    for (int x = 0; x < 32; ++x) {
+        for (int y = 0; y < 20; ++y) {
+            pfrm.set_tile(Layer::background, x, y, 72);
+        }
+        for (int y = 0; y < 2; ++y) {
+            pfrm.set_tile(Layer::background, x, y, 74);
+        }
+        for (int y = 2; y < 4; ++y) {
+            pfrm.set_tile(Layer::background, x, y, 75);
+        }
+    }
+    draw_image(pfrm, 4, 4, 17, 6, 3, Layer::background);
+    draw_image(pfrm, 22, 9, 8, 2, 1, Layer::background);
+    draw_image(pfrm, 24, 12, 5, 2, 1, Layer::background);
+    pfrm.set_tile(Layer::background, 3, 4, 26);
+
 
     pfrm.screen().set_view({});
 

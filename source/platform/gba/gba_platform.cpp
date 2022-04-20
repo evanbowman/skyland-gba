@@ -6251,6 +6251,26 @@ void* Platform::system_call(const char* feature_name, void* arg)
         }
 
 
+    } else if (str_eq(feature_name, "_prlx_macro")) {
+        auto scroll = (int)((intptr_t)arg);
+        for (int i = 0; i < 160; ++i) {
+            vertical_parallax_table[i] = 0;
+        }
+        int amount_4 = (scroll * 0.1f);
+        for (int i = 32; i < 64; ++i) {
+            parallax_table[i] = (u8)amount_4;
+        }
+        int amount_3 = (scroll * 0.4f);
+        for (int i = 64; i < 100; ++i) {
+            parallax_table[i] = (u8)amount_3;
+        }
+        int amount_2 = (scroll * 0.7f);
+        for (int i = 100; i < 128; ++i) {
+            parallax_table[i] = (u8)amount_2;
+        }
+        for (int i = 128; i < 160; ++i) {
+            parallax_table[i] = (u8)scroll;
+        }
     } else if (str_cmp(feature_name, "gswap") == 0) {
         *((u16*)0x4000002) = 0x0000 | (bool)arg;
     } else if (str_cmp(feature_name, "parallax-clouds") == 0) {

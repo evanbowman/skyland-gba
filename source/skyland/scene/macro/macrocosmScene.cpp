@@ -45,6 +45,8 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene;
     }
 
+    app.macrocosm()->data_->cloud_scroll_ += 0.000001f * delta;
+
     return null_scene();
 }
 
@@ -55,6 +57,8 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
     if (not app.macrocosm()) {
         return;
     }
+
+    pfrm.system_call("_prlx_macro", (void*)(intptr_t)(int)app.macrocosm()->data_->cloud_scroll_);
 
     display(pfrm, *app.macrocosm());
 }
