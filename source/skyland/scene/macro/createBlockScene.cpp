@@ -45,6 +45,7 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
                                            macro::terrain::Type::masonry);
             ++cursor.z;
             state.data_->sector_.set_cursor(cursor);
+            pfrm.speaker().play_sound("build0", 4);
             return scene_pool::alloc<SelectorScene>();
         }
     }

@@ -155,9 +155,9 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         //     }
     }
 
-    if (player.key_down(pfrm, Key::action_2)) {
-        return scene_pool::alloc<TitleScreenScene>(3);
-    }
+    // if (player.key_down(pfrm, Key::action_2)) {
+    //     return scene_pool::alloc<TitleScreenScene>(3);
+    // }
 
 
     return null_scene();
