@@ -67,6 +67,7 @@ struct Stats
 Stats stats(Type t);
 SystemString name(Type t);
 std::pair<int, int> icons(Type t);
+Buffer<Type, 10> improvements(Type t);
 
 
 

@@ -114,7 +114,18 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
          }}};
 
     options_.push_back(&options[0]);
-    options_.push_back(&options[1]);
+
+    auto c = state.data_->sector_.cursor();
+    if (c.z == 0) {
+        Platform::fatal("logic error: collect options, z is zero");
+    }
+    --c.z;
+    auto& block = state.data_->sector_.get_block(c);
+    auto improvements = terrain::improvements((terrain::Type)block.type_);
+    if (not improvements.empty()) {
+        options_.push_back(&options[1]);
+    }
+
     options_.push_back(&options[2]);
 }
 
@@ -137,8 +148,16 @@ void TileOptionsScene::show_options(Platform& pfrm)
 
     pfrm.load_overlay_chunk(
         258, options_[(selector_ + 1) % options_.size()]->unsel_icon_, 16);
+
+    int sel = selector_;
+    if (sel - 1 < 0) {
+        sel = options_.size() - 1;
+    } else {
+        sel -= 1;
+    }
     pfrm.load_overlay_chunk(
-        181, options_[(selector_ + 2) % options_.size()]->unsel_icon_, 16);
+        181, options_[sel]->unsel_icon_, 16);
+
     pfrm.load_overlay_chunk(
         197, options_[(selector_) % options_.size()]->sel_icon_, 16);
 

@@ -104,6 +104,13 @@ void terrain::Sector::rotate()
 
 
 
+Buffer<terrain::Type, 10> terrain::improvements(Type t)
+{
+    return {};
+}
+
+
+
 u16 terrain::Sector::cursor_raster_pos() const
 {
     int min = 9999;
