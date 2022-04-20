@@ -34,7 +34,6 @@ namespace skyland::macro
 class CreateBlockScene : public MacrocosmScene
 {
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override;
 
 
@@ -65,12 +64,10 @@ protected:
 class BuildImprovementScene : public CreateBlockScene
 {
 public:
-
     void collect_options(macro::State& state) override;
 
 
     void edit(macro::State& state, terrain::Type t) override;
-
 };
 
 

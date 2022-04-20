@@ -50,12 +50,12 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     auto& sector = app.macrocosm()->sector();
 
 
-    sector.set_block({3, 3, 0}, macro::terrain::Type::rock_edge);
-    sector.set_block({3, 2, 0}, macro::terrain::Type::rock_edge);
-    sector.set_block({2, 3, 0}, macro::terrain::Type::rock_edge);
-    sector.set_block({3, 4, 0}, macro::terrain::Type::rock_edge);
-    sector.set_block({4, 3, 0}, macro::terrain::Type::rock_edge);
-    sector.set_block({4, 4, 0}, macro::terrain::Type::rock_edge);
+    sector.set_block({3, 3, 0}, macro::terrain::Type::terrain);
+    sector.set_block({3, 2, 0}, macro::terrain::Type::terrain);
+    sector.set_block({2, 3, 0}, macro::terrain::Type::terrain);
+    sector.set_block({3, 4, 0}, macro::terrain::Type::terrain);
+    sector.set_block({4, 3, 0}, macro::terrain::Type::terrain);
+    sector.set_block({4, 4, 0}, macro::terrain::Type::terrain);
     sector.set_block({2, 2, 0}, macro::terrain::Type::masonry);
     sector.set_block({4, 2, 0}, macro::terrain::Type::masonry);
     sector.set_block({3, 3, 1}, macro::terrain::Type::building);

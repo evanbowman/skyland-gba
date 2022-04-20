@@ -33,7 +33,7 @@ namespace skyland::macro
 
 
 s8 CreateBlockScene::selector_;
-static macro::terrain::Type last_created = terrain::Type::rock_stacked;
+static macro::terrain::Type last_created = terrain::Type::terrain;
 
 
 
@@ -61,11 +61,11 @@ void CreateBlockScene::collect_options(macro::State& state)
     if (c.z == 0) {
         // We don't allow the player to create every sort of block at layer
         // zero. Only a few specific ones:
-        options_.push_back(terrain::Type::rock_stacked);
+        options_.push_back(terrain::Type::terrain);
         options_.push_back(terrain::Type::masonry);
         options_.push_back(terrain::Type::air);
     } else {
-        options_.push_back(terrain::Type::rock_stacked);
+        options_.push_back(terrain::Type::terrain);
         options_.push_back(terrain::Type::building);
         options_.push_back(terrain::Type::water);
         options_.push_back(terrain::Type::masonry);
@@ -171,7 +171,8 @@ void CreateBlockScene::show_options(Platform& pfrm)
             index = index + 1;
         }
 
-        auto icon = terrain::icons(options_[index]).second;;
+        auto icon = terrain::icons(options_[index]).second;
+        ;
         draw_image(pfrm, 213, st.x - 13, st.y - 5, 4, 4, Layer::overlay);
 
         pfrm.load_overlay_chunk(213, icon, 16);
@@ -260,7 +261,7 @@ void CreateBlockScene::edit(macro::State& state, terrain::Type t)
 
     ++cursor.z;
     auto block = state.sector().get_block(cursor);
-    while (block.type_ not_eq (u8)terrain::Type::air) {
+    while (block.type_ not_eq (u8) terrain::Type::air) {
         ++cursor.z;
         block = state.sector().get_block(cursor);
     }

@@ -32,14 +32,12 @@ namespace skyland::macro
 
 
 
-
 void State::advance(int elapsed_years)
 {
     sector().advance(elapsed_years);
     data_->year_ += elapsed_years;
 
-    [[gnu::unused]]
-    Float productivity = sector().population_ * 0.2f;
+    [[gnu::unused]] Float productivity = sector().population_ * 0.2f;
     if (productivity < 1) {
         productivity = 1;
     }
@@ -66,8 +64,7 @@ terrain::Stats terrain::stats(Type t)
         result.housing_ += 40;
         break;
 
-    case terrain::Type::rock_edge:
-    case terrain::Type::rock_stacked:
+    case terrain::Type::terrain:
         result.food_ += 1;
         break;
 
@@ -157,14 +154,16 @@ Float terrain::Sector::population_growth_rate() const
 Coins terrain::cost(Type t)
 {
     switch (t) {
+    case terrain::Type::__invalid:
+        break;
+
     case terrain::Type::air:
         return 0;
 
     case terrain::Type::building:
         return 500;
 
-    case terrain::Type::rock_edge:
-    case terrain::Type::rock_stacked:
+    case terrain::Type::terrain:
         return 100;
 
     case terrain::Type::masonry:
@@ -196,14 +195,16 @@ Coins terrain::cost(Type t)
 SystemString terrain::name(Type t)
 {
     switch (t) {
+    case terrain::Type::__invalid:
+        break;
+
     case terrain::Type::air:
         return SystemString::block_air;
 
     case terrain::Type::building:
         return SystemString::block_building;
 
-    case terrain::Type::rock_edge:
-    case terrain::Type::rock_stacked:
+    case terrain::Type::terrain:
         return SystemString::block_terrain;
 
     case terrain::Type::masonry:
@@ -278,8 +279,7 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
     Buffer<terrain::Type, 10> result;
 
     switch (t) {
-    case Type::rock_stacked:
-    case Type::rock_edge: {
+    case Type::terrain: {
         result.push_back(Type::wheat);
         result.push_back(Type::indigo);
         break;
@@ -303,14 +303,14 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::building:
         return {1448, 1464};
 
-    case terrain::Type::rock_edge:
-    case terrain::Type::rock_stacked:
+    case terrain::Type::terrain:
         return {1448, 1464};
 
     case terrain::Type::masonry:
         return {1448, 1464};
 
-    default:
+    case terrain::Type::count:
+    case terrain::Type::__invalid:
     case terrain::Type::selector:
         return {};
 
@@ -327,6 +327,8 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::indigo:
         return {1448, 1464};
     }
+
+    return {};
 }
 
 
@@ -449,7 +451,7 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
 
         while (cursor_.z > 0 and
                blocks_[cursor_.z - 1][cursor_.x][cursor_.y].type() ==
-               terrain::Type::air) {
+                   terrain::Type::air) {
             --cursor_.z;
         }
     }
@@ -481,11 +483,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     },
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (position.z == 0) {
-            block.type_ = (u8)terrain::Type::rock_edge;
-            block.repaint_ = true;
-            s.changed_ = true;
-        }
+        // TODO...
     },
     [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
@@ -722,19 +720,18 @@ void terrain::Sector::render(Platform& pfrm)
         };
 
 
+        static const Vec2<u8> winding_path[] = {
+            {0, 0}, {1, 0}, {0, 1}, {2, 0}, {1, 1}, {0, 2}, {3, 0}, {2, 1},
+            {1, 2}, {0, 3}, {4, 0}, {3, 1}, {2, 2}, {1, 3}, {0, 4}, {5, 0},
+            {4, 1}, {3, 2}, {2, 3}, {1, 4}, {0, 5}, {6, 0}, {5, 1}, {4, 2},
+            {3, 3}, {2, 4}, {1, 5}, {0, 6}, {7, 0}, {6, 1}, {5, 2}, {4, 3},
+            {3, 4}, {2, 5}, {1, 6}, {0, 7}, {7, 1}, {6, 2}, {5, 3}, {4, 4},
+            {3, 5}, {2, 6}, {1, 7}, {7, 2}, {6, 3}, {5, 4}, {4, 5}, {3, 6},
+            {2, 7}, {7, 3}, {6, 4}, {5, 5}, {4, 6}, {3, 7}, {7, 4}, {6, 5},
+            {5, 6}, {4, 7}, {7, 5}, {6, 6}, {5, 7}, {7, 6}, {6, 7}, {7, 7},
+        };
 
         for (int z = 0; z < z_view_; ++z) {
-
-            static const Vec2<u8> winding_path[] = {
-                {0, 0}, {1, 0}, {0, 1}, {2, 0}, {1, 1}, {0, 2}, {3, 0}, {2, 1},
-                {1, 2}, {0, 3}, {4, 0}, {3, 1}, {2, 2}, {1, 3}, {0, 4}, {5, 0},
-                {4, 1}, {3, 2}, {2, 3}, {1, 4}, {0, 5}, {6, 0}, {5, 1}, {4, 2},
-                {3, 3}, {2, 4}, {1, 5}, {0, 6}, {7, 0}, {6, 1}, {5, 2}, {4, 3},
-                {3, 4}, {2, 5}, {1, 6}, {0, 7}, {7, 1}, {6, 2}, {5, 3}, {4, 4},
-                {3, 5}, {2, 6}, {1, 7}, {7, 2}, {6, 3}, {5, 4}, {4, 5}, {3, 6},
-                {2, 7}, {7, 3}, {6, 4}, {5, 5}, {4, 6}, {3, 7}, {7, 4}, {6, 5},
-                {5, 6}, {4, 7}, {7, 5}, {6, 6}, {5, 7}, {7, 6}, {6, 7}, {7, 7},
-            };
 
             for (auto& p : winding_path) {
                 project_block(p.x, p.y, z);
@@ -778,7 +775,7 @@ void terrain::Sector::render(Platform& pfrm)
     Bitvector<480> depth_1_empty;
     Bitvector<480> depth_2_empty;
 
-    // Culling for non-visible tiles
+
     for (int i = 0; i < 480; ++i) {
         if (auto head = db_->depth_1_->visible_[i]) {
             auto temp = head;
@@ -958,7 +955,66 @@ void terrain::Sector::render(Platform& pfrm)
         }
     }
 
+    // Performs drawing for jagged edge tiles in software.
+    for (int i = 0; i < 480; ++i) {
 
+        auto insert_edges = [&](auto head) {
+            bool has_tl = false;
+            bool has_tr = false;
+
+            while (head->next_) {
+                auto cat = tile_category(head->tile_);
+                // The top-left or top-right tile would obscure the one that we
+                // want to draw anyway, so skip it.
+                if (cat == TileCategory::top_angled_l) {
+                    has_tl = true;
+                }
+                if (cat == TileCategory::top_angled_r) {
+                    has_tr = true;
+                }
+                head = head->next_;
+            }
+
+            const u8 edge_l = 496 - 480;
+            const u8 edge_r = 497 - 480;
+
+            auto cat = tile_category(head->tile_);
+            if (head->position_.z == 0 and head->tile_ not_eq edge_l and
+                head->tile_ not_eq edge_r) {
+                if ((cat == bot_angled_l and not has_tr) or
+                    (cat == bot_angled_r and not has_tl)) {
+                    auto n =
+                        db_->depth_node_allocator_.alloc<raster::DepthNode>();
+                    n->position_ = head->position_;
+                    n->next_ = nullptr;
+
+                    if (cat == bot_angled_l) {
+                        n->tile_ = edge_l;
+                    } else if (cat == bot_angled_r) {
+                        n->tile_ = edge_r;
+                    }
+
+                    head->next_ = n.release();
+                }
+            }
+        };
+
+        if (auto head = db_->depth_1_->visible_[i]) {
+            insert_edges(head);
+        }
+
+        if (auto head = db_->depth_2_->visible_[i]) {
+            insert_edges(head);
+        }
+    }
+
+    // #define RASTER_DEBUG_ENABLE
+
+#ifdef RASTER_DEBUG_ENABLE
+#define RASTER_DEBUG() do {pfrm.sleep(30);} while (false)
+#else
+#define RASTER_DEBUG() do {} while (false)
+#endif
 
     // Actually perform the rendering. At this point, ideally, everything that's
     // not actually visible in the output should have been removed from the
@@ -968,6 +1024,7 @@ void terrain::Sector::render(Platform& pfrm)
 
         if (auto head = db_->depth_1_->visible_[i]) {
             if (not depth_1_skip_clear.get(i)) {
+                RASTER_DEBUG();
                 pfrm.blit_t0_erase(i);
             }
 
@@ -981,6 +1038,7 @@ void terrain::Sector::render(Platform& pfrm)
 
             while (not stack.empty()) {
                 int tile = stack.back();
+                RASTER_DEBUG();
                 pfrm.blit_t0_tile_to_texture(tile + 480, i, false);
                 stack.pop_back();
             }
@@ -990,6 +1048,7 @@ void terrain::Sector::render(Platform& pfrm)
 
         if (auto head = db_->depth_2_->visible_[i]) {
             if (not depth_2_skip_clear.get(i)) {
+                RASTER_DEBUG();
                 pfrm.blit_t1_erase(i);
             }
 
@@ -1001,6 +1060,7 @@ void terrain::Sector::render(Platform& pfrm)
 
             while (not stack.empty()) {
                 int tile = stack.back();
+                RASTER_DEBUG();
                 pfrm.blit_t1_tile_to_texture(tile + 480, i, false);
                 stack.pop_back();
             }

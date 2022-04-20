@@ -109,7 +109,8 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
          2520,
          2536,
          []() -> ScenePtr<Scene> {
-                                  return scene_pool::alloc<BuildImprovementScene>(); }},
+             return scene_pool::alloc<BuildImprovementScene>();
+         }},
         {SystemString::macro_demolish, 1672, 1688, []() -> ScenePtr<Scene> {
              return null_scene();
          }}};
@@ -156,8 +157,7 @@ void TileOptionsScene::show_options(Platform& pfrm)
     } else {
         sel -= 1;
     }
-    pfrm.load_overlay_chunk(
-        181, options_[sel]->unsel_icon_, 16);
+    pfrm.load_overlay_chunk(181, options_[sel]->unsel_icon_, 16);
 
     pfrm.load_overlay_chunk(
         197, options_[(selector_) % options_.size()]->sel_icon_, 16);

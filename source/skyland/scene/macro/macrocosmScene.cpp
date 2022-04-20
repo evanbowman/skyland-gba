@@ -91,12 +91,13 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto pop = app.macrocosm()->sector().population_;
 
-    food_.emplace(pfrm,
-                  OverlayCoord{1, 1},
-                  414,
-                  format_ui_fraction(stat.food_, pop / terrain::food_consumption_factor),
-                  UIMetric::Align::left,
-                  UIMetric::Format::fraction_p_m);
+    food_.emplace(
+        pfrm,
+        OverlayCoord{1, 1},
+        414,
+        format_ui_fraction(stat.food_, pop / terrain::food_consumption_factor),
+        UIMetric::Align::left,
+        UIMetric::Format::fraction_p_m);
 
     population_.emplace(
         pfrm, OverlayCoord{1, 3}, 413, pop, UIMetric::Align::left);

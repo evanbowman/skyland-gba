@@ -446,8 +446,7 @@ public:
         if (format_ == Format::fraction or format_ == Format::fraction_p_m) {
             auto v1 = value & 0x0000ffff;
             auto v2 = (value & 0xffff0000) >> 16;
-            value_len =
-                integer_text_length(v1) + 1 + integer_text_length(v2);
+            value_len = integer_text_length(v1) + 1 + integer_text_length(v2);
             if (format_ == Format::fraction_p_m) {
                 value_len += integer_text_length(v1 - v2);
                 value_len += 1;

@@ -34,7 +34,7 @@ class Platform;
 
 namespace skyland::macro
 {
-    using Coins = u32;
+using Coins = u32;
 }
 
 
@@ -51,9 +51,9 @@ static const int food_consumption_factor = 2;
 enum class Type {
     air,
     building,
-    rock_edge,
+    __invalid,
     water,
-    rock_stacked,
+    terrain,
     masonry,
     selector,
     wheat,
