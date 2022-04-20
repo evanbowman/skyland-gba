@@ -38,6 +38,7 @@ fountain
 gold-block
 hull
 ice
+indigo
 infirmary
 ion-cannon
 ion-fizzler

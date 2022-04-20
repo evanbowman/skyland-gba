@@ -64,7 +64,7 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
 ScenePtr<Scene>
 MacrocosmScene::update(Platform& pfrm, Player& player, macro::State& state)
 {
-    state.data_->sector_.update();
+    state.sector().update();
 
     return null_scene();
 }
@@ -73,7 +73,7 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::State& state)
 
 void MacrocosmScene::display(Platform& pfrm, macro::State& state)
 {
-    state.data_->sector_.render(pfrm);
+    state.sector().render(pfrm);
 }
 
 
@@ -87,9 +87,9 @@ u32 format_ui_fraction(u16 avail, u16 used)
 
 void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    auto stat = app.macrocosm()->data_->sector_.stats();
+    auto stat = app.macrocosm()->sector().stats();
 
-    auto pop = app.macrocosm()->data_->sector_.population_;
+    auto pop = app.macrocosm()->sector().population_;
 
     food_.emplace(pfrm,
                   OverlayCoord{1, 1},
@@ -102,7 +102,7 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm, OverlayCoord{1, 3}, 413, pop, UIMetric::Align::left);
 
     // Text temp1(pfrm, OverlayCoord{1, 5});
-    // Fixnum fmt(app.macrocosm()->data_->sector_.population_growth_rate());
+    // Fixnum fmt(app.macrocosm()->sector().population_growth_rate());
     // temp1.append(fmt.numerator());
     // temp1.append(".");
     // temp1.append(fmt.denominator());
@@ -134,7 +134,7 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 void MacrocosmScene::draw_compass(Platform& pfrm, macro::State& state)
 {
-    auto o = state.data_->sector_.orientation();
+    auto o = state.sector().orientation();
     int compass_tile = 434 + (int)o * 4;
     draw_image(pfrm, compass_tile, 27, 3, 2, 2, Layer::overlay);
 }

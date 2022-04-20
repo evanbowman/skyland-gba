@@ -84,6 +84,7 @@ enum class SystemString {
     block_gold,
     block_hull,
     block_ice,
+    block_indigo,
     block_infirmary,
     block_ion_cannon,
     block_ion_fizzler,

@@ -106,25 +106,26 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
              return scene_pool::alloc<CreateBlockScene>();
          }},
         {SystemString::macro_build_improvement,
-         776,
-         760,
-         []() -> ScenePtr<Scene> { return null_scene(); }},
-        {SystemString::macro_demolish, 504, 504, []() -> ScenePtr<Scene> {
+         2520,
+         2536,
+         []() -> ScenePtr<Scene> {
+                                  return scene_pool::alloc<BuildImprovementScene>(); }},
+        {SystemString::macro_demolish, 1672, 1688, []() -> ScenePtr<Scene> {
              return null_scene();
          }}};
 
-    options_.push_back(&options[0]);
-
-    auto c = state.data_->sector_.cursor();
+    auto c = state.sector().cursor();
     if (c.z == 0) {
         Platform::fatal("logic error: collect options, z is zero");
     }
     --c.z;
-    auto& block = state.data_->sector_.get_block(c);
+    auto& block = state.sector().get_block(c);
     auto improvements = terrain::improvements((terrain::Type)block.type_);
     if (not improvements.empty()) {
         options_.push_back(&options[1]);
     }
+
+    options_.push_back(&options[0]);
 
     options_.push_back(&options[2]);
 }

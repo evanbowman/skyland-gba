@@ -35,8 +35,16 @@ namespace skyland::macro
 
 void State::advance(int elapsed_years)
 {
-    data_->sector_.advance(elapsed_years);
+    sector().advance(elapsed_years);
     data_->year_ += elapsed_years;
+
+    [[gnu::unused]]
+    Float productivity = sector().population_ * 0.2f;
+    if (productivity < 1) {
+        productivity = 1;
+    }
+
+    data_->coins_ += productivity;
 }
 
 
@@ -65,6 +73,10 @@ terrain::Stats terrain::stats(Type t)
 
     case terrain::Type::wheat:
         result.food_ += 5;
+        break;
+
+    case terrain::Type::indigo:
+        break;
 
     default:
         break;
@@ -77,7 +89,14 @@ terrain::Stats terrain::stats(Type t)
 
 terrain::Stats terrain::Block::stats() const
 {
-    return terrain::stats((Type)type_);
+    return terrain::stats(type());
+}
+
+
+
+terrain::Improvements terrain::Block::improvements() const
+{
+    return terrain::improvements(type());
 }
 
 
@@ -94,7 +113,7 @@ terrain::Stats terrain::Sector::stats() const
                 // NOTE: if a block is covered, then it's not possible to
                 // harvest the supplied food, so a stacked block should yield
                 // zero food.
-                if (blocks_[z + 1][x][y].type_ == (u8)Type::air) {
+                if (blocks_[z + 1][x][y].type() == Type::air) {
                     result.food_ += block_stats.food_;
                 }
 
@@ -135,6 +154,45 @@ Float terrain::Sector::population_growth_rate() const
 
 
 
+Coins terrain::cost(Type t)
+{
+    switch (t) {
+    case terrain::Type::air:
+        return 0;
+
+    case terrain::Type::building:
+        return 500;
+
+    case terrain::Type::rock_edge:
+    case terrain::Type::rock_stacked:
+        return 100;
+
+    case terrain::Type::masonry:
+        return 30;
+
+    case terrain::Type::count:
+    case terrain::Type::selector:
+        return 0;
+
+    case terrain::Type::water:
+    case terrain::Type::water_slant_a:
+    case terrain::Type::water_slant_b:
+    case terrain::Type::water_slant_c:
+    case terrain::Type::water_slant_d:
+        return 30;
+
+    case terrain::Type::wheat:
+        return 40;
+
+    case terrain::Type::indigo:
+        return 70;
+    }
+
+    return 0;
+}
+
+
+
 SystemString terrain::name(Type t)
 {
     switch (t) {
@@ -151,7 +209,7 @@ SystemString terrain::name(Type t)
     case terrain::Type::masonry:
         return SystemString::block_masonry;
 
-    default:
+    case terrain::Type::count:
     case terrain::Type::selector:
         return SystemString::gs_error;
 
@@ -164,14 +222,19 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::wheat:
         return SystemString::block_wheat;
+
+    case terrain::Type::indigo:
+        return SystemString::block_indigo;
     }
+
+    return SystemString::gs_error;
 }
 
 
 
 SystemString terrain::Block::name() const
 {
-    return terrain::name((Type)type_);
+    return terrain::name(type());
 }
 
 
@@ -195,7 +258,7 @@ void terrain::Sector::rotate()
             for (int y = 0; y < 8; ++y) {
                 auto& block = blocks_[z][x][y];
                 block.repaint_ = true;
-                if (block.type_ == (u8)terrain::Type::selector) {
+                if (block.type() == terrain::Type::selector) {
                     cursor_ = {(u8)x, (u8)y, (u8)z};
                 }
             }
@@ -218,6 +281,7 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
     case Type::rock_stacked:
     case Type::rock_edge: {
         result.push_back(Type::wheat);
+        result.push_back(Type::indigo);
         break;
     }
 
@@ -234,7 +298,7 @@ std::pair<int, int> terrain::icons(Type t)
 {
     switch (t) {
     case terrain::Type::air:
-        return {};
+        return {2488, 2504};
 
     case terrain::Type::building:
         return {1448, 1464};
@@ -258,6 +322,9 @@ std::pair<int, int> terrain::icons(Type t)
         return {2120, 2136};
 
     case terrain::Type::wheat:
+        return {1448, 1464};
+
+    case terrain::Type::indigo:
         return {1448, 1464};
     }
 }
@@ -313,10 +380,10 @@ void terrain::Sector::shadowcast()
         for (int y = 0; y < 8; ++y) {
             bool shadow = false;
             for (int z = z_limit - 1; z > -1; --z) {
-                auto t = blocks_[z][x][y].type_;
+                auto t = blocks_[z][x][y].type();
                 if (shadow) {
                     blocks_[z][x][y].shadowed_ = true;
-                } else if (blocks_light((terrain::Type)t)) {
+                } else if (blocks_light(t)) {
                     shadow = true;
                 }
             }
@@ -336,7 +403,7 @@ const terrain::Block& terrain::Sector::get_block(const Vec3<u8>& coord) const
 void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 {
     auto& selected = blocks_[coord.z][coord.x][coord.y];
-    if (selected.type_ == (u8)type) {
+    if (selected.type() == type) {
         return;
     }
 
@@ -373,16 +440,16 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
     cursor_ = pos;
 
     if (lock_to_floor) {
-        while (blocks_[cursor_.z][cursor_.x][cursor_.y].type_ not_eq
-               (u8) terrain::Type::air) {
+        while (blocks_[cursor_.z][cursor_.x][cursor_.y].type() not_eq
+               terrain::Type::air) {
             ++cursor_.z;
         }
 
         cursor_moved_ = true;
 
         while (cursor_.z > 0 and
-               blocks_[cursor_.z - 1][cursor_.x][cursor_.y].type_ ==
-               (u8)terrain::Type::air) {
+               blocks_[cursor_.z - 1][cursor_.x][cursor_.y].type() ==
+               terrain::Type::air) {
             --cursor_.z;
         }
     }
@@ -437,11 +504,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     },
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (block.shadowed_) {
-            block.type_ = (u8)terrain::Type::rock_stacked;
-            block.repaint_ = true;
-            s.changed_ = true;
-        }
+        // if (block.shadowed_) {
+        //     block.type_ = (u8)terrain::Type::rock_stacked;
+        //     block.repaint_ = true;
+        //     s.changed_ = true;
+        // }
     },
     [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
@@ -635,7 +702,7 @@ void terrain::Sector::render(Platform& pfrm)
             auto blit = [&](int texture, int t_start) {
                 rendering_function(
                     Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
-                if (block.type_ == (u8)Type::selector) {
+                if (block.type() == Type::selector) {
                     cursor_raster_tiles_.push_back(t_start);
                 }
             };

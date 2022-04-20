@@ -57,7 +57,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         return scene;
     }
 
-    auto cursor = state.data_->sector_.cursor();
+    auto cursor = state.sector().cursor();
 
     if (player.key_down(pfrm, Key::select)) {
         return scene_pool::alloc<NextTurnScene>();
@@ -67,7 +67,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
         pfrm.screen().clear();
         pfrm.screen().display();
-        state.data_->sector_.rotate();
+        state.sector().rotate();
         pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
         draw_compass(pfrm, state);
     }
@@ -76,9 +76,9 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
         pfrm.screen().clear();
         pfrm.screen().display();
-        state.data_->sector_.rotate();
-        state.data_->sector_.rotate();
-        state.data_->sector_.rotate();
+        state.sector().rotate();
+        state.sector().rotate();
+        state.sector().rotate();
         pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
         draw_compass(pfrm, state);
     }
@@ -93,10 +93,10 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     auto msg = [&] {
         auto s = SystemString::block_air;
-        auto cursor = state.data_->sector_.cursor();
+        auto cursor = state.sector().cursor();
         if (cursor.z > 0) {
             --cursor.z;
-            auto& block = state.data_->sector_.get_block(cursor);
+            auto& block = state.sector().get_block(cursor);
             s = block.name();
         }
         StringBuffer<48> b;
@@ -109,35 +109,35 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     if (test_key(Key::up) and cursor.y > 0) {
         --cursor.y;
-        state.data_->sector_.set_cursor(cursor);
+        state.sector().set_cursor(cursor);
         msg();
     }
 
     if (test_key(Key::down) and cursor.y < 7) {
         ++cursor.y;
-        state.data_->sector_.set_cursor(cursor);
+        state.sector().set_cursor(cursor);
         msg();
     }
 
     if (test_key(Key::right) and cursor.x > 0) {
         --cursor.x;
-        state.data_->sector_.set_cursor(cursor);
+        state.sector().set_cursor(cursor);
         msg();
     }
 
     if (test_key(Key::left) and cursor.x < 7) {
         ++cursor.x;
-        state.data_->sector_.set_cursor(cursor);
+        state.sector().set_cursor(cursor);
         msg();
     }
 
     if (player.key_down(pfrm, Key::action_1)) {
 
         // if (cursor.z < macro::terrain::Sector::z_limit - 1) {
-        //     state.data_->sector_.set_block(cursor,
+        //     state.sector().set_block(cursor,
         //                                    macro::terrain::Type::masonry);
         //     ++cursor.z;
-        //     state.data_->sector_.set_cursor(cursor);
+        //     state.sector().set_cursor(cursor);
         // }
 
         if (cursor.z == 0) {
@@ -149,9 +149,9 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
 
         // if (cursor.z < macro::terrain::Sector::z_limit - 1) {
-        //         state.data_->sector_.set_block(cursor, macro::terrain::Type::masonry);
+        //         state.sector().set_block(cursor, macro::terrain::Type::masonry);
         //         ++cursor.z;
-        //         state.data_->sector_.set_cursor(cursor);
+        //         state.sector().set_cursor(cursor);
         // msg();
         //     }
     }

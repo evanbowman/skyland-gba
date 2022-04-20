@@ -32,6 +32,13 @@ class Platform;
 
 
 
+namespace skyland::macro
+{
+    using Coins = u32;
+}
+
+
+
 namespace skyland::macro::terrain
 {
 
@@ -50,6 +57,7 @@ enum class Type {
     masonry,
     selector,
     wheat,
+    indigo,
     water_slant_a,
     water_slant_b,
     water_slant_c,
@@ -67,10 +75,17 @@ struct Stats
 
 
 
+using Improvements = Buffer<Type, 10>;
+
+
+
 Stats stats(Type t);
 SystemString name(Type t);
 std::pair<int, int> icons(Type t);
-Buffer<Type, 10> improvements(Type t);
+Improvements improvements(Type t);
+
+
+Coins cost(Type t);
 
 
 
@@ -86,6 +101,14 @@ struct Block
 
     Stats stats() const;
     SystemString name() const;
+
+    Improvements improvements() const;
+
+
+    Type type() const
+    {
+        return (Type)type_;
+    }
 
 
     Block() : shadowed_(true), repaint_(true)
@@ -201,8 +224,14 @@ struct State
     {
         macro::terrain::Sector sector_;
         u16 year_ = 0;
-        u32 coins_ = 0;
+        Coins coins_ = 0;
     };
+
+
+    macro::terrain::Sector& sector()
+    {
+        return data_->sector_;
+    }
 
 
     State() : data_(allocate_dynamic<Data>("macrocosm-data"))

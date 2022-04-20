@@ -32,7 +32,7 @@ public:
             return;
         }
 
-        auto p = app.macrocosm()->data_->sector_.cursor_raster_pos();
+        auto p = app.macrocosm()->sector().cursor_raster_pos();
 
         int y = p / 30;
         int real_y = y * 8;

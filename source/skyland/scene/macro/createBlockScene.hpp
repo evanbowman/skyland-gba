@@ -48,9 +48,29 @@ public:
     void show_options(Platform& pfrm);
 
 
-private:
+    virtual void collect_options(macro::State& state);
+
+
+    virtual void edit(macro::State& state, terrain::Type t);
+
+
+protected:
     Buffer<macro::terrain::Type, 32> options_;
+
     static s8 selector_;
+};
+
+
+
+class BuildImprovementScene : public CreateBlockScene
+{
+public:
+
+    void collect_options(macro::State& state) override;
+
+
+    void edit(macro::State& state, terrain::Type t) override;
+
 };
 
 

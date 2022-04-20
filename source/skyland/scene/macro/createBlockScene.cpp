@@ -33,6 +33,7 @@ namespace skyland::macro
 
 
 s8 CreateBlockScene::selector_;
+static macro::terrain::Type last_created = terrain::Type::rock_stacked;
 
 
 
@@ -40,23 +41,36 @@ void CreateBlockScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     MacrocosmScene::enter(pfrm, app, prev);
 
-    auto c = app.macrocosm()->data_->sector_.cursor();
+    collect_options(*app.macrocosm());
+
+    for (u32 i = 0; i < options_.size(); ++i) {
+        if (options_[i] == last_created) {
+            selector_ = i;
+            break;
+        }
+    }
+
+    show_options(pfrm);
+}
+
+
+
+void CreateBlockScene::collect_options(macro::State& state)
+{
+    auto c = state.sector().cursor();
     if (c.z == 0) {
         // We don't allow the player to create every sort of block at layer
         // zero. Only a few specific ones:
         options_.push_back(terrain::Type::rock_stacked);
         options_.push_back(terrain::Type::masonry);
-        options_.push_back(terrain::Type::wheat);
+        options_.push_back(terrain::Type::air);
     } else {
         options_.push_back(terrain::Type::rock_stacked);
         options_.push_back(terrain::Type::building);
         options_.push_back(terrain::Type::water);
         options_.push_back(terrain::Type::masonry);
-        options_.push_back(terrain::Type::wheat);
         options_.push_back(terrain::Type::air);
     }
-
-    show_options(pfrm);
 }
 
 
@@ -76,9 +90,9 @@ void CreateBlockScene::show_options(Platform& pfrm)
     StringBuffer<30> message = SYSTR(construction_build)->c_str();
     message += " ";
     message += loadstr(pfrm, terrain::name(options_[selector_]))->c_str();
-    // message += " ";
-    // message += stringify(templates[selector_]->cost());
-    // message += "@";
+    message += " ";
+    message += stringify(terrain::cost(options_[selector_]));
+    message += "@";
 
     Text text(pfrm, OverlayCoord{0, u8(st.y - 1)});
     text.assign(message.c_str());
@@ -208,23 +222,22 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
     }
 
     if (player.key_down(pfrm, Key::action_1)) {
-        auto cursor = state.data_->sector_.cursor();
+        auto cursor = state.sector().cursor();
         if (cursor.z < macro::terrain::Sector::z_limit - 1) {
-            state.data_->sector_.set_block(cursor,
-                                           options_[selector_]);
-            ++cursor.z;
-            auto block = state.data_->sector_.get_block(cursor);
-            while (block.type_ not_eq (u8)terrain::Type::air) {
-                ++cursor.z;
-                block = state.data_->sector_.get_block(cursor);
+            auto cost = terrain::cost(options_[selector_]);
+            if (cost > state.data_->coins_) {
+                pfrm.speaker().play_sound("beep_error", 2);
+                return null_scene();
+            } else {
+                state.data_->coins_ -= cost;
             }
-            state.data_->sector_.set_cursor(cursor, false);
+
+            edit(state, options_[selector_]);
 
             if (options_[selector_] not_eq terrain::Type::air) {
                 pfrm.speaker().play_sound("build0", 4);
+                return scene_pool::alloc<SelectorScene>();
             }
-
-            return scene_pool::alloc<SelectorScene>();
         }
     }
 
@@ -233,6 +246,61 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
     }
 
     return null_scene();
+}
+
+
+
+void CreateBlockScene::edit(macro::State& state, terrain::Type t)
+{
+    auto cursor = state.sector().cursor();
+
+    if (t not_eq terrain::Type::air) {
+        state.sector().set_block(cursor, t);
+    }
+
+    ++cursor.z;
+    auto block = state.sector().get_block(cursor);
+    while (block.type_ not_eq (u8)terrain::Type::air) {
+        ++cursor.z;
+        block = state.sector().get_block(cursor);
+    }
+    state.sector().set_cursor(cursor, false);
+
+    last_created = options_[selector_];
+}
+
+
+
+void BuildImprovementScene::collect_options(macro::State& state)
+{
+    auto& sector = state.sector();
+
+    auto cursor = sector.cursor();
+    if (cursor.z == 0) {
+        Platform::fatal("logic error: build improvement cursor too low");
+    }
+
+    --cursor.z;
+    auto improvements = sector.get_block(cursor).improvements();
+
+    for (auto improvement : improvements) {
+        options_.push_back(improvement);
+    }
+
+    selector_ = 0;
+}
+
+
+
+void BuildImprovementScene::edit(macro::State& state, terrain::Type t)
+{
+    auto cursor = state.sector().cursor();
+
+    cursor.z--;
+
+    if (t not_eq terrain::Type::air) {
+        state.sector().set_block(cursor, t);
+    }
 }
 
 
