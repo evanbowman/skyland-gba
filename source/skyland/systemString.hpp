@@ -92,6 +92,7 @@ enum class SystemString {
     block_lava,
     block_lava_source,
     block_lemon_tree,
+    block_madder,
     block_manufactory,
     block_masonry,
     block_missile_silo,

@@ -32,17 +32,61 @@ namespace skyland::macro
 
 
 
+Coins State::coin_yield()
+{
+    Coins result = 0;
+
+    auto st = sector().stats();
+
+    int productive_population = sector().population_;
+    int unproductive_population = 0;
+
+    if (st.housing_ < sector().population_) {
+        // Homeless people are less economically productive? Sounds cynical, but
+        // probably true.
+        productive_population = st.housing_;
+        unproductive_population = sector().population_ - st.housing_;
+    }
+
+    int employed_population = productive_population;
+    int unemployed_population = 0;
+    if (st.employment_ < employed_population) {
+        unemployed_population = productive_population - st.employment_;
+        employed_population = productive_population - unemployed_population;
+    }
+
+    Float productivity =
+        employed_population * 0.3f +
+        unemployed_population * 0.1f;
+
+    // Un-housed people put a drain on state resources. Build them some housing!
+    productivity -= unproductive_population * 0.1f;
+
+    if (productivity < 1) {
+        productivity = 1;
+    }
+
+    result += productivity;
+
+    for (auto& c : st.commodities_) {
+        auto value = c.value(c.type_);
+        for (int i = 0; i < c.supply_; ++i) {
+            result += value;
+            value *= 0.75f; // Diminishing returns
+        }
+    }
+
+    return result;
+}
+
+
+
 void State::advance(int elapsed_years)
 {
     sector().advance(elapsed_years);
     data_->year_ += elapsed_years;
 
-    [[gnu::unused]] Float productivity = sector().population_ * 0.2f;
-    if (productivity < 1) {
-        productivity = 1;
-    }
-
-    data_->coins_ += productivity;
+    data_->coins_ += coin_yield() * elapsed_years;
 }
 
 
@@ -70,9 +114,17 @@ terrain::Stats terrain::stats(Type t)
 
     case terrain::Type::wheat:
         result.food_ += 5;
+        result.employment_ += 2;
         break;
 
     case terrain::Type::indigo:
+        result.commodities_.push_back({Commodity::Type::indigo, 1});
+        result.employment_ += 4;
+        break;
+
+    case terrain::Type::madder:
+        result.commodities_.push_back({Commodity::Type::rose_madder, 1});
+        result.employment_ += 4;
         break;
 
     default:
@@ -80,6 +132,14 @@ terrain::Stats terrain::stats(Type t)
     }
 
     return result;
+}
+
+
+
+Coins terrain::Commodity::value(Commodity::Type t)
+{
+    // TODO...
+    return 5;
 }
 
 
@@ -114,7 +174,24 @@ terrain::Stats terrain::Sector::stats() const
                     result.food_ += block_stats.food_;
                 }
 
+                result.employment_ = block_stats.employment_;
+
                 result.housing_ += block_stats.housing_;
+
+                for (auto& c : block_stats.commodities_) {
+                    bool existing = false;
+                    for (auto& e : result.commodities_) {
+                        if (e.type_ == c.type_) {
+                            e.supply_ += c.supply_;
+                            existing = true;
+                            break;
+                        }
+                    }
+
+                    if (not existing) {
+                        result.commodities_.push_back(c);
+                    }
+                }
             }
         }
     }
@@ -161,7 +238,7 @@ Coins terrain::cost(Type t)
         return 0;
 
     case terrain::Type::building:
-        return 500;
+        return 400;
 
     case terrain::Type::terrain:
         return 100;
@@ -185,6 +262,15 @@ Coins terrain::cost(Type t)
 
     case terrain::Type::indigo:
         return 70;
+
+    case terrain::Type::madder:
+        return 70;
+
+    case terrain::Type::gold:
+        return 1000;
+
+    case terrain::Type::workshop:
+        return 100;
     }
 
     return 0;
@@ -226,6 +312,15 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::indigo:
         return SystemString::block_indigo;
+
+    case terrain::Type::madder:
+        return SystemString::block_madder;
+
+    case terrain::Type::gold:
+        return SystemString::block_gold;
+
+    case terrain::Type::workshop:
+        return SystemString::block_workshop;
     }
 
     return SystemString::gs_error;
@@ -282,6 +377,7 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
     case Type::terrain: {
         result.push_back(Type::wheat);
         result.push_back(Type::indigo);
+        result.push_back(Type::madder);
         break;
     }
 
@@ -326,6 +422,15 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::indigo:
         return {1448, 1464};
+
+    case terrain::Type::madder:
+        return {1448, 1464};
+
+    case terrain::Type::gold:
+        return {2440, 2456};
+
+    case terrain::Type::workshop:
+        return {776, 760};
     }
 
     return {};

@@ -102,7 +102,6 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/script_defs.cpp
   ${SOURCE_DIR}/skyland/achievement.cpp
   ${SOURCE_DIR}/skyland/systemString.cpp
-  ${SOURCE_DIR}/skyland/macrocosmEngine.cpp
   ${SOURCE_DIR}/skyland/configure_island.cpp
   ${SOURCE_DIR}/skyland/customTileMapper.cpp
   ${SOURCE_DIR}/skyland/player/playerP1.cpp
@@ -250,6 +249,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/transporter.cpp
   ${SOURCE_DIR}/skyland/rooms/escapeBeacon.cpp
   ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp
+  ${SOURCE_DIR}/skyland/macrocosmEngine.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/flak.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp

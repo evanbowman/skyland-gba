@@ -44,7 +44,7 @@ public:
 
     static u16 icon()
     {
-        return 1192;
+        return 2552;
     }
 
 

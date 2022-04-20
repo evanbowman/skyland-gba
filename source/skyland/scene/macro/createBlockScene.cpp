@@ -57,20 +57,12 @@ void CreateBlockScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 void CreateBlockScene::collect_options(macro::State& state)
 {
-    auto c = state.sector().cursor();
-    if (c.z == 0) {
-        // We don't allow the player to create every sort of block at layer
-        // zero. Only a few specific ones:
-        options_.push_back(terrain::Type::terrain);
-        options_.push_back(terrain::Type::masonry);
-        options_.push_back(terrain::Type::air);
-    } else {
-        options_.push_back(terrain::Type::terrain);
-        options_.push_back(terrain::Type::building);
-        options_.push_back(terrain::Type::water);
-        options_.push_back(terrain::Type::masonry);
-        options_.push_back(terrain::Type::air);
-    }
+    options_.push_back(terrain::Type::terrain);
+    options_.push_back(terrain::Type::building);
+    options_.push_back(terrain::Type::water);
+    options_.push_back(terrain::Type::masonry);
+    options_.push_back(terrain::Type::gold);
+    options_.push_back(terrain::Type::air);
 }
 
 

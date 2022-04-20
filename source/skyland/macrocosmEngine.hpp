@@ -58,6 +58,9 @@ enum class Type {
     selector,
     wheat,
     indigo,
+    madder,
+    gold,
+    workshop,
     water_slant_a,
     water_slant_b,
     water_slant_c,
@@ -67,10 +70,26 @@ enum class Type {
 
 
 
+struct Commodity {
+    enum Type : u8 {
+        indigo,
+        rose_madder,
+    };
+    Type type_;
+    u8 supply_;
+
+    static Coins value(Type t);
+};
+
+
+
 struct Stats
 {
     int food_ = 0;
     int housing_ = 0;
+    int employment_ = 0;
+
+    Buffer<Commodity, 16> commodities_;
 };
 
 
@@ -232,6 +251,9 @@ struct State
     {
         return data_->sector_;
     }
+
+
+    Coins coin_yield();
 
 
     State() : data_(allocate_dynamic<Data>("macrocosm-data"))

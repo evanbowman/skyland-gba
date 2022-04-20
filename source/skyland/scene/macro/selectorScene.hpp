@@ -34,6 +34,7 @@ namespace skyland::macro
 class SelectorScene : public MacrocosmScene
 {
 public:
+
     void enter(Platform& pfrm, App& app, Scene& prev) override;
 
 

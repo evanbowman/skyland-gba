@@ -418,6 +418,7 @@ public:
         plain_integer,
         fraction,
         fraction_p_m,
+        integer_with_rate,
     };
 
 
@@ -451,6 +452,13 @@ public:
                 value_len += integer_text_length(v1 - v2);
                 value_len += 1;
                 value_len += 2;
+            }
+        } else if (format_ == Format::integer_with_rate) {
+            auto v1 = value & 0x0000ffff;
+            auto v2 = (value & 0xffff0000) >> 16;
+            value_len = integer_text_length(v1) + 2 + integer_text_length(v2);
+            if (v2 >= 0) {
+                ++value_len;
             }
         }
 
@@ -509,22 +517,44 @@ private:
         }
 
 
-        if (format_ == Format::fraction or format_ == Format::fraction_p_m) {
+        if (format_ == Format::integer_with_rate) {
+            auto v1 = value_ & 0x0000ffff;
+            int v2 = (value_ & 0xffff0000) >> 16;
+            text_->assign(v1);
+            auto clr = Text::OptColors{{ColorConstant::med_blue_gray,
+                                        ColorConstant::rich_black}};
+            text_->append(",", clr);
+
+            if (v2 >= 0) {
+                text_->append("+", clr);
+            }
+            text_->append(v2, clr);
+
+        } else if (format_ == Format::fraction or format_ == Format::fraction_p_m) {
             auto v1 = value_ & 0x0000ffff;
             auto v2 = (value_ & 0xffff0000) >> 16;
 
+            Text::OptColors main_clr;
+
             auto clr = [&] {
                 if (v1 < v2) {
-                    return Text::OptColors{{ColorConstant::rich_black,
+                    main_clr = Text::OptColors{{ColorConstant::rich_black,
                                             ColorConstant::aerospace_orange}};
+                    return main_clr;
                 } else {
-                    return Text::OptColors{};
+                    if (format_ == Format::fraction_p_m) {
+                        return Text::OptColors{{ColorConstant::med_blue_gray,
+                                                    ColorConstant::rich_black}};
+                    } else {
+                        return Text::OptColors{};
+                    }
+
                 }
             }();
 
             if (format_ == Format::fraction_p_m) {
-                text_->append(v1 - v2, clr);
-                text_->append(":", clr);
+                text_->append(v1 - v2, main_clr);
+                text_->append(",", clr);
                 text_->append("-", clr);
             }
             text_->append(v2, clr);

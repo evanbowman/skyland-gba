@@ -87,20 +87,26 @@ u32 format_ui_fraction(u16 avail, u16 used)
 
 void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    auto stat = app.macrocosm()->sector().stats();
+    auto& sector = app.macrocosm()->sector();
 
-    auto pop = app.macrocosm()->sector().population_;
+    auto stat = sector.stats();
+
+    auto pop = sector.population_;
 
     food_.emplace(
         pfrm,
-        OverlayCoord{1, 1},
+        OverlayCoord{1, 2},
         414,
         format_ui_fraction(stat.food_, pop / terrain::food_consumption_factor),
         UIMetric::Align::left,
         UIMetric::Format::fraction_p_m);
 
-    population_.emplace(
-        pfrm, OverlayCoord{1, 3}, 413, pop, UIMetric::Align::left);
+    population_.emplace(pfrm,
+                        OverlayCoord{1, 3},
+                        413,
+                        format_ui_fraction(pop, sector.population_growth_rate()),
+                        UIMetric::Align::left,
+                        UIMetric::Format::integer_with_rate);
 
     // Text temp1(pfrm, OverlayCoord{1, 5});
     // Fixnum fmt(app.macrocosm()->sector().population_growth_rate());
@@ -111,10 +117,12 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     coins_.emplace(pfrm,
-                   OverlayCoord{1, 2},
+                   OverlayCoord{1, 1},
                    146,
-                   (int)app.macrocosm()->data_->coins_,
-                   UIMetric::Align::left);
+                   format_ui_fraction((int)app.macrocosm()->data_->coins_,
+                                      app.macrocosm()->coin_yield()),
+                   UIMetric::Align::left,
+                   UIMetric::Format::integer_with_rate);
 
     const auto year = app.macrocosm()->data_->year_ + 1;
 
@@ -124,7 +132,8 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
     Text temp(
         pfrm,
         OverlayCoord{u8(st.x - (yr_len + integer_text_length(year) + 1)), 1});
-    temp.append(yr->c_str());
+    temp.append(yr->c_str(), Text::OptColors{{ColorConstant::med_blue_gray,
+                                                      ColorConstant::rich_black}});
     temp.append(year);
     temp.__detach();
 
