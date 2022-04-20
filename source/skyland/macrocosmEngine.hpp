@@ -45,6 +45,7 @@ enum class Type {
     rock_stacked,
     masonry,
     selector,
+    wheat,
     water_slant_a,
     water_slant_b,
     water_slant_c,

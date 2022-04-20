@@ -120,6 +120,7 @@ enum class SystemString {
     block_transporter,
     block_water,
     block_water_source,
+    block_wheat,
     block_workshop,
 
     bird_label,

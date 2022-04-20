@@ -42,7 +42,7 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
         auto cursor = state.data_->sector_.cursor();
         if (cursor.z < macro::terrain::Sector::z_limit - 1) {
             state.data_->sector_.set_block(cursor,
-                                           macro::terrain::Type::masonry);
+                                           macro::terrain::Type::wheat);
             ++cursor.z;
             state.data_->sector_.set_cursor(cursor);
             pfrm.speaker().play_sound("build0", 4);

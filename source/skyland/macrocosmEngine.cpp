@@ -58,6 +58,9 @@ SystemString terrain::name(Type t)
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
         return SystemString::block_water;
+
+    case terrain::Type::wheat:
+        return SystemString::block_wheat;
     }
 }
 
@@ -135,7 +138,7 @@ static bool blocks_light(terrain::Type t)
         true,
         true,
         false,
-        false,
+        true,
         false,
         false,
         false,
@@ -768,9 +771,13 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         }
 
     },
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        // TODO...
+        if (block.shadowed_) {
+            block.type_ = (u8)terrain::Type::rock_stacked;
+            block.repaint_ = true;
+            s.changed_ = true;
+        }
     },
     [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {

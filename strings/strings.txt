@@ -74,6 +74,7 @@ torch
 transporter
 water
 water*
+wheat
 workshop
 (bird)
 (human) 
