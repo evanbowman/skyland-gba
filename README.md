@@ -9,6 +9,8 @@ The production version of SKYLAND for gameboy advance.
 
 <img src="imgs_for_readme/dialog.png"/>
 
+<img src="imgs_for_readme/macro.png"/>
+
 ## Building
 
 1) Install all of the standard devkitpro libgba stuff.
