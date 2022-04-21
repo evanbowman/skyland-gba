@@ -38,6 +38,10 @@ namespace skyland::macro
 class MacrocosmScene : public Scene
 {
 public:
+
+    MacrocosmScene();
+
+
     void enter(Platform& pfrm, App& app, Scene& prev) override;
     void exit(Platform& pfrm, App& app, Scene& next) override;
 
@@ -58,9 +62,16 @@ public:
 
 
 private:
-    std::optional<UIMetric> coins_;
-    std::optional<UIMetric> population_;
-    std::optional<UIMetric> food_;
+    struct UIObjects
+    {
+        std::optional<UIMetric> coins_;
+        std::optional<UIMetric> population_;
+        std::optional<UIMetric> food_;
+        std::optional<UIMetric> employment_;
+        std::optional<UIMetric> housing_;
+    };
+
+    DynamicMemory<UIObjects> ui_;
 };
 
 

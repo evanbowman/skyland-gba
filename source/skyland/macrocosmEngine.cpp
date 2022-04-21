@@ -195,7 +195,7 @@ terrain::Stats terrain::Sector::stats() const
                     result.food_ += block_stats.food_;
                 }
 
-                result.employment_ = block_stats.employment_;
+                result.employment_ += block_stats.employment_;
 
                 result.housing_ += block_stats.housing_;
 

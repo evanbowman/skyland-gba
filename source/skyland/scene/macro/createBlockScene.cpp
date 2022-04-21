@@ -286,7 +286,7 @@ Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
 
     // Cheaper to build a crop next to an existing crop of the same type.
 
-    Coins cost = base_cost;
+    int cost = base_cost;
 
     auto cursor = state.sector().cursor();
     --cursor.z;
@@ -296,7 +296,7 @@ Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
         --temp.x;
         auto& block = state.sector().get_block(temp);
         if (block.type() == t) {
-            cost = base_cost / 2;
+            cost -= base_cost / 3;
         }
     }
 
@@ -305,7 +305,7 @@ Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
         ++temp.x;
         auto& block = state.sector().get_block(temp);
         if (block.type() == t) {
-            cost = base_cost / 2;
+            cost -= base_cost / 3;
         }
     }
 
@@ -314,7 +314,7 @@ Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
         --temp.y;
         auto& block = state.sector().get_block(temp);
         if (block.type() == t) {
-            cost = base_cost / 2;
+            cost -= base_cost / 3;
         }
     }
 
@@ -323,8 +323,12 @@ Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
         ++temp.y;
         auto& block = state.sector().get_block(temp);
         if (block.type() == t) {
-            cost = base_cost / 2;
+            cost -= base_cost / 3;
         }
+    }
+
+    if (cost < 0) {
+        cost = 0;
     }
 
     return cost;

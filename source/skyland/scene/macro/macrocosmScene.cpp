@@ -30,6 +30,13 @@ namespace skyland::macro
 
 
 
+MacrocosmScene::MacrocosmScene() :
+    ui_(allocate_dynamic<UIObjects>("macro-ui-objects"))
+{
+}
+
+
+
 ScenePtr<Scene>
 MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -99,7 +106,7 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto pop = sector.population_;
 
-    food_.emplace(
+    ui_->food_.emplace(
         pfrm,
         OverlayCoord{1, 1},
         414,
@@ -107,7 +114,7 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
         UIMetric::Align::left,
         UIMetric::Format::fraction_p_m);
 
-    population_.emplace(
+    ui_->population_.emplace(
         pfrm,
         OverlayCoord{1, 3},
         413,
@@ -115,13 +122,29 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
         UIMetric::Align::left,
         UIMetric::Format::integer_with_rate);
 
-    coins_.emplace(pfrm,
+    ui_->coins_.emplace(pfrm,
                    OverlayCoord{1, 2},
                    146,
                    format_ui_fraction((int)app.macrocosm()->data_->coins_,
                                       app.macrocosm()->coin_yield()),
                    UIMetric::Align::left,
                    UIMetric::Format::integer_with_rate);
+
+    ui_->employment_.emplace(
+        pfrm,
+        OverlayCoord{1, 4},
+        415,
+        stat.employment_,
+        UIMetric::Align::left);
+
+    ui_->housing_.emplace(
+        pfrm,
+        OverlayCoord{1, 5},
+        416,
+        stat.housing_,
+        UIMetric::Align::left);
+
+
 
     const auto year = app.macrocosm()->data_->year_ + 1;
 
@@ -153,9 +176,10 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::State& state)
 
 void MacrocosmScene::exit(Platform& pfrm, App& app, Scene& next)
 {
-    food_.reset();
-    population_.reset();
-    coins_.reset();
+    ui_->food_.reset();
+    ui_->population_.reset();
+    ui_->coins_.reset();
+    ui_->employment_.reset();
 }
 
 
