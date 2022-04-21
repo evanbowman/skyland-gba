@@ -125,6 +125,11 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
                        kill_menu);
 
+            add_option(pfrm,
+                       SYSTR(start_menu_macroverse)->c_str(),
+                       scene_pool::make_deferred_scene<macro::SelectorScene>(),
+                       kill_menu);
+
         } else {
             add_option(pfrm,
                        SYSTR(start_menu_resume)->c_str(),
@@ -214,6 +219,29 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             break;
 
         case App::GameMode::macro:
+
+            add_option(
+                pfrm,
+                SYSTR(start_menu_load)->c_str(),
+                [&pfrm, &app]() -> ScenePtr<Scene> {
+                    app.macrocosm()->load(pfrm);
+                    pfrm.screen().schedule_fade(0.f);
+                    pfrm.screen().pixelate(0);
+                    return scene_pool::alloc<macro::SelectorScene>();
+                },
+                cut);
+
+            add_option(
+                pfrm,
+                SYSTR(start_menu_save)->c_str(),
+                [&pfrm, &app]() -> ScenePtr<Scene> {
+                    app.macrocosm()->save(pfrm);
+                    pfrm.screen().schedule_fade(0.f);
+                    pfrm.screen().pixelate(0);
+                    return scene_pool::alloc<macro::SelectorScene>();
+                },
+                cut);
+
             add_option(
                 pfrm,
                 SYSTR(start_menu_quit)->c_str(),

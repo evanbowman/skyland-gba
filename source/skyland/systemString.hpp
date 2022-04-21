@@ -252,6 +252,9 @@ enum class SystemString {
     start_menu_sky_map,
     start_menu_hint,
     start_menu_sandbox_help,
+    start_menu_save,
+    start_menu_load,
+    start_menu_macroverse,
 
     salvage_prompt,
     salvage_option_A,

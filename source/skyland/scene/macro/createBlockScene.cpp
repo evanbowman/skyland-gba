@@ -228,11 +228,12 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
         auto cursor = state.sector().cursor();
         if (cursor.z < macro::terrain::Sector::z_limit - 1) {
             auto cost = this->cost(state, options_[selector_]);
-            if (cost > state.data_->coins_) {
+            if (cost > state.data_->p().coins_.get()) {
                 pfrm.speaker().play_sound("beep_error", 2);
                 return null_scene();
             } else {
-                state.data_->coins_ -= cost;
+                state.data_->p().coins_.set(state.data_->p().coins_.get() -
+                                            cost);
             }
 
             edit(state, options_[selector_]);
@@ -280,6 +281,12 @@ void CreateBlockScene::edit(macro::State& state, terrain::Type t)
 Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
 {
     const auto base_cost = terrain::cost(state.sector(), t);
+
+    if (t == terrain::Type::terrain) {
+        // The player's just clearing land to plant something else, don't levy
+        // excessive costs for doing so.
+        return base_cost / 4;
+    }
 
     if (terrain::category(t) not_eq terrain::Category::crop) {
         return base_cost;

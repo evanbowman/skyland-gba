@@ -189,6 +189,9 @@ scuttle (quit)
 sky map
 Give me a hint!
 what's sandbox mode?!
+save
+load
+macroverse
 really salvage?  +
 A: yes 
 B:  no 

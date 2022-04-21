@@ -30,8 +30,8 @@ namespace skyland::macro
 
 
 
-MacrocosmScene::MacrocosmScene() :
-    ui_(allocate_dynamic<UIObjects>("macro-ui-objects"))
+MacrocosmScene::MacrocosmScene()
+    : ui_(allocate_dynamic<UIObjects>("macro-ui-objects"))
 {
 }
 
@@ -104,7 +104,7 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto stat = sector.stats();
 
-    auto pop = sector.population_;
+    auto pop = sector.population();
 
     ui_->food_.emplace(
         pfrm,
@@ -122,31 +122,24 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
         UIMetric::Align::left,
         UIMetric::Format::integer_with_rate);
 
-    ui_->coins_.emplace(pfrm,
-                   OverlayCoord{1, 2},
-                   146,
-                   format_ui_fraction((int)app.macrocosm()->data_->coins_,
-                                      app.macrocosm()->coin_yield()),
-                   UIMetric::Align::left,
-                   UIMetric::Format::integer_with_rate);
+    ui_->coins_.emplace(
+        pfrm,
+        OverlayCoord{1, 2},
+        146,
+        format_ui_fraction((int)app.macrocosm()->data_->p().coins_.get(),
+                           app.macrocosm()->coin_yield()),
+        UIMetric::Align::left,
+        UIMetric::Format::integer_with_rate);
 
     ui_->employment_.emplace(
-        pfrm,
-        OverlayCoord{1, 4},
-        415,
-        stat.employment_,
-        UIMetric::Align::left);
+        pfrm, OverlayCoord{1, 4}, 415, stat.employment_, UIMetric::Align::left);
 
     ui_->housing_.emplace(
-        pfrm,
-        OverlayCoord{1, 5},
-        416,
-        stat.housing_,
-        UIMetric::Align::left);
+        pfrm, OverlayCoord{1, 5}, 416, stat.housing_, UIMetric::Align::left);
 
 
 
-    const auto year = app.macrocosm()->data_->year_ + 1;
+    const auto year = app.macrocosm()->data_->p().year_.get() + 1;
 
     auto yr = SYSTR(macro_year);
     auto yr_len = utf8::len(yr->c_str());
@@ -180,6 +173,7 @@ void MacrocosmScene::exit(Platform& pfrm, App& app, Scene& next)
     ui_->population_.reset();
     ui_->coins_.reset();
     ui_->employment_.reset();
+    ui_->housing_.reset();
 }
 
 

@@ -80,9 +80,9 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     sector.set_block({3, 3, 1}, macro::terrain::Type::building);
 
     sector.set_cursor({3, 3, 1});
-    sector.population_ = 8;
+    sector.set_population(8);
 
-    app.macrocosm()->data_->coins_ = 160;
+    app.macrocosm()->data_->p().coins_.set(160);
     app.game_mode() = App::GameMode::macro;
 
 

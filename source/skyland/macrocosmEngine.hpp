@@ -35,7 +35,15 @@ class Platform;
 namespace skyland::macro
 {
 using Coins = u32;
+
+
+namespace save
+{
+struct Sector;
 }
+
+
+} // namespace skyland::macro
 
 
 
@@ -152,64 +160,54 @@ static_assert(sizeof(Block) == 2);
 class Sector
 {
 public:
+    enum Orientation : u8 { north, east, south, west };
+
+
     Sector(Vec2<s8> position);
 
 
-    enum Orientation { north, east, south, west };
+    void restore(const save::Sector&);
 
 
     void set_block(const Vec3<u8>& coord, Type type);
-
 
     const Block& get_block(const Vec3<u8>& coord) const;
 
 
     void rotate();
-
-
     void update();
-
-
     void advance(int years);
+
+    void render(Platform& pfrm);
 
 
     Stats stats() const;
 
 
-    void render(Platform& pfrm);
-
-
     static const int z_limit = 9;
-
-
-    Vec3<u8> cursor() const
-    {
-        return cursor_;
-    }
 
 
     using Population = float;
 
 
-    Population population_ = 0;
+    Population population() const;
+
+    void set_population(Population p);
 
 
     Float population_growth_rate() const;
     Coins coin_yield() const;
 
 
-    Vec2<s8> coordinate();
+    Vec2<s8> coordinate() const;
 
+
+    Vec3<u8> cursor() const
+    {
+        return p_.cursor_;
+    }
 
     void set_cursor(const Vec3<u8>& pos, bool lock_to_floor = true);
-
-
-    bool changed_ = false;
-
-
-    void serialize(u8* output);
-    void deserialize(u8* input);
-
 
     // Projected position of the cursor onto the frame buffer.
     u16 cursor_raster_pos() const;
@@ -217,7 +215,7 @@ public:
 
     Orientation orientation() const
     {
-        return orientation_;
+        return p_.orientation_;
     }
 
 
@@ -228,29 +226,40 @@ public:
     }
 
 
-private:
+    // Should include almost all data that needs to be written to save memory,
+    // except for the blocks themselves.
+    struct Persistent
+    {
+
+        Orientation orientation_ = Orientation::north;
+
+        Vec3<u8> cursor_;
+
+        char name_[12];
+        Population population_ = 0;
+
+        s8 x_;
+        s8 y_;
+    };
+    static_assert(std::is_trivially_copyable<Persistent>());
+
+
     void shadowcast();
 
-    bool shrunk_ = false;
-    bool force_repaint_cursor_column_ = false;
+private:
 
-    Orientation orientation_ = Orientation::north;
-
-    Vec3<u8> cursor_;
-    bool cursor_moved_ = false;
-
-    StringBuffer<12> name_;
-
-    // We keep a cache of screen tiles used by the cursor, as an
-    // optimization. The cursor animation requires frequent redraw.
-    Buffer<u16, 8> cursor_raster_tiles_;
-
-    s8 x_;
-    s8 y_;
+    Persistent p_;
 
     u8 z_view_ = z_limit;
 
     Block blocks_[z_limit][8][8]; // (z, x, y)
+
+
+public:
+    const Persistent& persistent() const
+    {
+        return p_;
+    }
 };
 
 
@@ -280,10 +289,28 @@ struct State
         Buffer<DynamicMemory<macro::terrain::Sector>, 19> other_sectors_;
 
         int current_sector_ = -1;
-
-        u16 year_ = 0;
-        Coins coins_ = 0;
         Float cloud_scroll_ = 0;
+
+
+        // Contents will be written to save data.
+        struct Persistent
+        {
+            host_u16 year_;
+            HostInteger<Coins> coins_;
+
+            Persistent()
+            {
+                year_.set(0);
+                coins_.set(0);
+                static_assert(std::is_trivially_copyable<Persistent>());
+            }
+
+        } persistent_;
+
+        Persistent& p()
+        {
+            return persistent_;
+        }
     };
 
 
@@ -298,6 +325,10 @@ struct State
 
 
     Coins coin_yield();
+
+
+    void save(Platform& pfrm);
+    void load(Platform& pfrm);
 
 
     State() : data_(allocate_dynamic<Data>("macrocosm-data"))

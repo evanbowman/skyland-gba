@@ -24,11 +24,27 @@
 #include "allocator.hpp"
 #include "memory/buffer.hpp"
 #include "platform/platform.hpp"
+#include "platform/ram_filesystem.hpp"
 
 
 
 namespace skyland::macro
 {
+
+
+
+namespace raster
+{
+namespace globalstate
+{
+bool _changed = false;
+bool _shrunk = false;
+bool _force_repaint_cursor_column = false;
+bool _cursor_moved = false;
+
+Buffer<u16, 8> _cursor_raster_tiles;
+} // namespace globalstate
+} // namespace raster
 
 
 
@@ -51,14 +67,14 @@ Coins terrain::Sector::coin_yield() const
 
     auto st = stats();
 
-    int productive_population = population_;
+    int productive_population = p_.population_;
     int unproductive_population = 0;
 
-    if (st.housing_ < population_) {
+    if (st.housing_ < p_.population_) {
         // Homeless people are less economically productive? Sounds cynical, but
         // probably true.
         productive_population = st.housing_;
-        unproductive_population = population_ - st.housing_;
+        unproductive_population = p_.population_ - st.housing_;
     }
 
     int employed_population = productive_population;
@@ -96,24 +112,177 @@ Coins terrain::Sector::coin_yield() const
 void State::advance(int elapsed_years)
 {
     sector().advance(elapsed_years);
-    data_->year_ += elapsed_years;
+    data_->p().year_.set(data_->p().year_.get() + elapsed_years);
 
-    data_->coins_ += coin_yield() * elapsed_years;
+    auto add_coins = coin_yield() * elapsed_years;
+    data_->p().coins_.set(data_->p().coins_.get() + add_coins);
+}
+
+
+
+terrain::Sector::Population terrain::Sector::population() const
+{
+    return p_.population_;
+}
+
+
+
+void terrain::Sector::set_population(Population p)
+{
+    p_.population_ = p;
+}
+
+
+
+Vec2<s8> terrain::Sector::coordinate() const
+{
+    return {p_.x_, p_.y_};
+}
+
+
+
+namespace save
+{
+static const char* path = "/save/macro.dat";
+
+struct Header
+{
+    State::Data::Persistent p_;
+    u8 num_sectors_;
+};
+
+struct Sector
+{
+    macro::terrain::Sector::Persistent p_;
+    u8 blocks_[macro::terrain::Sector::z_limit][8][8];
+
+    Sector()
+    {
+    }
+
+    Sector(const macro::terrain::Sector& source)
+    {
+        memcpy(&p_, &source.persistent(), sizeof p_);
+
+        for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
+            for (u8 x = 0; x < 8; ++x) {
+                for (u8 y = 0; y < 8; ++y) {
+                    blocks_[z][x][y] = source.get_block({x, y, z}).type_;
+                }
+            }
+        }
+    }
+};
+} // namespace save
+
+
+
+void State::save(Platform& pfrm)
+{
+    Vector<char> save_data;
+
+    save::Header header;
+    memcpy(&header.p_, &data_->persistent_, sizeof data_->persistent_);
+    header.num_sectors_ = 1 + data_->other_sectors_.size();
+
+    for (u32 i = 0; i < sizeof header; ++i) {
+        save_data.push_back(((u8*)&header)[i]);
+    }
+
+    auto store_sector = [&save_data](const macro::terrain::Sector& sector) {
+        save::Sector out(sector);
+        for (u32 i = 0; i < sizeof out; ++i) {
+            save_data.push_back(((u8*)&out)[i]);
+        }
+    };
+
+    store_sector(data_->origin_sector_);
+
+    for (auto& s : data_->other_sectors_) {
+        store_sector(*s);
+    }
+
+    if (not ram_filesystem::store_file_data(pfrm, save::path, save_data)) {
+        info(pfrm, "macro save failed!");
+    }
+}
+
+
+
+void State::load(Platform& pfrm)
+{
+    Vector<char> input;
+
+    if (ram_filesystem::read_file_data(pfrm, save::path, input)) {
+        auto it = input.begin();
+
+        save::Header header;
+        for (u32 i = 0; i < sizeof header; ++i) {
+            if (it == input.end()) {
+                Platform::fatal("macro save data invalid!");
+            }
+            ((u8*)&header)[i] = *it;
+            ++it;
+        }
+
+        auto load_sector = [&](terrain::Sector& dest) {
+            save::Sector s;
+            for (u32 i = 0; i < sizeof s; ++i) {
+                if (it == input.end()) {
+                    Platform::fatal("macro save data invalid!");
+                }
+                ((u8*)&s)[i] = *it;
+                ++it;
+            }
+
+            dest.restore(s);
+            dest.shadowcast();
+        };
+
+        load_sector(data_->origin_sector_);
+
+        for (int i = 0; i < header.num_sectors_ - 1; ++i) {
+            data_->other_sectors_.push_back(
+                allocate_dynamic<terrain::Sector>("macro-sector", Vec2<s8>{}));
+            load_sector(*data_->other_sectors_.back());
+        }
+    }
+
+    data_->current_sector_ = -1;
+    raster::globalstate::_changed = true;
+    raster::globalstate::_shrunk = true;
+}
+
+
+
+void terrain::Sector::restore(const save::Sector& s)
+{
+    memcpy(&p_, &s.p_, sizeof s.p_);
+
+    for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
+        for (u8 x = 0; x < 8; ++x) {
+            for (u8 y = 0; y < 8; ++y) {
+                blocks_[z][x][y].type_ = s.blocks_[z][x][y];
+                blocks_[z][x][y].repaint_ = true;
+                blocks_[z][x][y].data_ = 0;
+            }
+        }
+    }
 }
 
 
 
 terrain::Sector::Sector(Vec2<s8> position)
 {
-    x_ = position.x;
-    y_ = position.y;
+    p_.x_ = position.x;
+    p_.y_ = position.y;
 }
 
 
 
 void terrain::Sector::advance(int years)
 {
-    population_ += population_growth_rate() * years;
+    p_.population_ += population_growth_rate() * years;
 }
 
 
@@ -230,7 +399,7 @@ Float terrain::Sector::population_growth_rate() const
 {
     auto s = stats();
 
-    auto required_food = population_ / food_consumption_factor;
+    auto required_food = p_.population_ / food_consumption_factor;
 
     Float result = 0.f;
 
@@ -241,10 +410,10 @@ Float terrain::Sector::population_growth_rate() const
         result = -0.5f * (required_food - s.food_);
     }
 
-    if (population_ > s.housing_) {
-        result -= 0.025f * (population_ - s.housing_);
+    if (p_.population_ > s.housing_) {
+        result -= 0.025f * (p_.population_ - s.housing_);
     } else {
-        result += 0.025f * (s.housing_ - population_);
+        result += 0.025f * (s.housing_ - p_.population_);
     }
 
 
@@ -320,7 +489,7 @@ Coins terrain::cost(Sector& s, Type t)
         return 100;
 
     case terrain::Type::light_source:
-        return 30;
+        return 200;
     }
 
     return 0;
@@ -408,16 +577,16 @@ void terrain::Sector::rotate()
                 auto& block = blocks_[z][x][y];
                 block.repaint_ = true;
                 if (block.type() == terrain::Type::selector) {
-                    cursor_ = {(u8)x, (u8)y, (u8)z};
+                    p_.cursor_ = {(u8)x, (u8)y, (u8)z};
                 }
             }
         }
     }
 
-    changed_ = true;
-    shrunk_ = true;
+    raster::globalstate::_changed = true;
+    raster::globalstate::_shrunk = true;
 
-    orientation_ = (Orientation)(((int)orientation_ + 1) % 4);
+    p_.orientation_ = (Orientation)(((int)p_.orientation_ + 1) % 4);
 }
 
 
@@ -433,6 +602,18 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
         result.push_back(Type::madder);
         break;
     }
+
+    case Type::wheat:
+        result.push_back(Type::terrain);
+        break;
+
+    case Type::indigo:
+        result.push_back(Type::terrain);
+        break;
+
+    case Type::madder:
+        result.push_back(Type::terrain);
+        break;
 
     default:
         break;
@@ -497,7 +678,7 @@ std::pair<int, int> terrain::icons(Type t)
 u16 terrain::Sector::cursor_raster_pos() const
 {
     int min = 9999;
-    for (auto p : cursor_raster_tiles_) {
+    for (auto p : raster::globalstate::_cursor_raster_tiles) {
         if (p < min) {
             min = p;
         }
@@ -678,8 +859,7 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 
     shadowcast();
 
-    if (prev_type == Type::light_source or
-        type == Type::light_source) {
+    if (prev_type == Type::light_source or type == Type::light_source) {
         // TODO: only redraw the ones adjacent to the light source!
         for (auto& slab : blocks_) {
             for (auto& slice : slab) {
@@ -690,19 +870,19 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
         }
     }
 
-    changed_ = true;
+    raster::globalstate::_changed = true;
 }
 
 
 
 void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
 {
-    auto old_cursor = cursor_;
+    auto old_cursor = p_.cursor_;
     auto& block = blocks_[old_cursor.z][old_cursor.x][old_cursor.y];
     if (block.type_ == (u8)terrain::Type::selector) {
         set_block(old_cursor, macro::terrain::Type::air);
         if (pos.z > old_cursor.z) {
-            force_repaint_cursor_column_ = true;
+            raster::globalstate::_force_repaint_cursor_column = true;
         }
     }
 
@@ -711,29 +891,29 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
         block.repaint_ = true;
     }
 
-    cursor_ = pos;
+    p_.cursor_ = pos;
 
     if (lock_to_floor) {
-        while (blocks_[cursor_.z][cursor_.x][cursor_.y].type() not_eq
+        while (blocks_[p_.cursor_.z][p_.cursor_.x][p_.cursor_.y].type() not_eq
                terrain::Type::air) {
-            ++cursor_.z;
+            ++p_.cursor_.z;
         }
 
-        cursor_moved_ = true;
+        raster::globalstate::_cursor_moved = true;
 
-        while (cursor_.z > 0 and
-               blocks_[cursor_.z - 1][cursor_.x][cursor_.y].type() ==
+        while (p_.cursor_.z > 0 and
+               blocks_[p_.cursor_.z - 1][p_.cursor_.x][p_.cursor_.y].type() ==
                    terrain::Type::air) {
-            --cursor_.z;
+            --p_.cursor_.z;
         }
     }
 
-    if (cursor_.z >= z_view_) {
-        set_z_view(cursor_.z + 1);
-        cursor_moved_ = false;
+    if (p_.cursor_.z >= z_view_) {
+        set_z_view(p_.cursor_.z + 1);
+        raster::globalstate::_cursor_moved = false;
     }
 
-    set_block(cursor_, terrain::Type::selector);
+    set_block(p_.cursor_, terrain::Type::selector);
 }
 
 
@@ -752,8 +932,8 @@ bool terrain::Sector::set_z_view(u8 z_view)
         z_view_ = z_view;
     }
 
-    changed_ = true;
-    shrunk_ = true;
+    raster::globalstate::_changed = true;
+    raster::globalstate::_shrunk = true;
     for (auto& slab : blocks_) {
         for (auto& slice : slab) {
             for (auto& block : slice) {
@@ -767,18 +947,38 @@ bool terrain::Sector::set_z_view(u8 z_view)
 
 
 
+static void revert_if_covered(terrain::Sector& s,
+                              terrain::Block& block,
+                              Vec3<u8> position)
+{
+    if (block.shadowed_) {
+        if (position.z < terrain::Sector::z_limit) {
+            position.z++;
+            auto& above = s.get_block(position);
+            if (above.type() not_eq terrain::Type::selector) {
+                block.type_ = (u8)terrain::Type::terrain;
+                block.repaint_ = true;
+                raster::globalstate::_changed = true;
+            }
+        }
+    }
+}
+
+
+
 // clang-format off
 typedef void(*UpdateFunction)(terrain::Sector&, terrain::Block&, Vec3<u8>);
 static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr, // Air has no update code.
+    // building
     [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
-        // TODO...
     },
+    // __invalid
     [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
-        // TODO...
     },
+    // water
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         // if (position.z == 0) {
@@ -806,14 +1006,15 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         // }
 
     },
+    // terrain
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        // TODO...
     },
+    // masonry
     [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
-        // TODO...
     },
+    // selector
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         block.data_++;
@@ -821,26 +1022,26 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             block.data_ = 0;
             block.shadowed_ = not block.shadowed_;
             block.repaint_ = true;
-            s.changed_ = true;
+            raster::globalstate::_changed = true;
         }
 
     },
+    // wheat
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        // if (block.shadowed_) {
-        //     block.type_ = (u8)terrain::Type::rock_stacked;
-        //     block.repaint_ = true;
-        //     s.changed_ = true;
-        // }
+        revert_if_covered(s, block, position);
     },
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    // indigo
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        // TODO...
+        revert_if_covered(s, block, position);
     },
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
+    // madder
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        // TODO...
+        revert_if_covered(s, block, position);
     },
+    // gold
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
 
@@ -1002,12 +1203,16 @@ void terrain::Sector::render(Platform& pfrm)
     // two tile layers, so there's some copy-pasted code that needs to be
     // re-organized into common functions.
 
-    if (not changed_) {
+    if (not raster::globalstate::_changed) {
         return;
     }
 
-    auto prev_cursor_raster_tiles = cursor_raster_tiles_;
-    cursor_raster_tiles_.clear();
+    const bool cursor_moved = raster::globalstate::_cursor_moved;
+    const bool shrunk = raster::globalstate::_shrunk;
+
+
+    auto prev_cursor_raster_tiles = raster::globalstate::_cursor_raster_tiles;
+    raster::globalstate::_cursor_raster_tiles.clear();
 
 
     auto rendering_pass = [&](auto rendering_function) {
@@ -1034,7 +1239,8 @@ void terrain::Sector::render(Platform& pfrm)
                 rendering_function(
                     Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
                 if (block.type() == Type::selector) {
-                    cursor_raster_tiles_.push_back(t_start);
+                    raster::globalstate::_cursor_raster_tiles.push_back(
+                        t_start);
                 }
             };
 
@@ -1114,7 +1320,7 @@ void terrain::Sector::render(Platform& pfrm)
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
-                if (cursor_moved_) {
+                if (cursor_moved) {
                     for (auto& t : prev_cursor_raster_tiles) {
                         if (t == i) {
                             skip_repaint = false;
@@ -1202,7 +1408,7 @@ void terrain::Sector::render(Platform& pfrm)
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
-                if (cursor_moved_) {
+                if (cursor_moved) {
                     for (auto& t : prev_cursor_raster_tiles) {
                         if (t - 480 == i) {
                             skip_repaint = false;
@@ -1381,7 +1587,7 @@ void terrain::Sector::render(Platform& pfrm)
                 stack.pop_back();
                 overwrite = false;
             }
-        } else if (shrunk_ and not depth_1_skip_clear.get(i)) {
+        } else if (shrunk and not depth_1_skip_clear.get(i)) {
             pfrm.blit_t0_erase(i);
         }
 
@@ -1402,20 +1608,20 @@ void terrain::Sector::render(Platform& pfrm)
                 stack.pop_back();
                 overwrite = false;
             }
-        } else if (shrunk_ and not depth_2_skip_clear.get(i)) {
+        } else if (shrunk and not depth_2_skip_clear.get(i)) {
             pfrm.blit_t1_erase(i);
         }
     }
 
 
-    if (cursor_moved_) {
+    if (raster::globalstate::_cursor_moved) {
         // Handle these out of line, as not to slow down the main rendering
         // block.
         for (int i = 0; i < 480; ++i) {
-            if (cursor_moved_ and depth_1_empty.get(i)) {
+            if (cursor_moved and depth_1_empty.get(i)) {
                 pfrm.blit_t0_erase(i);
             }
-            if (cursor_moved_ and depth_2_empty.get(i)) {
+            if (cursor_moved and depth_2_empty.get(i)) {
                 pfrm.blit_t1_erase(i);
             }
         }
@@ -1430,10 +1636,10 @@ void terrain::Sector::render(Platform& pfrm)
         }
     }
 
-    changed_ = false;
-    shrunk_ = false;
-    cursor_moved_ = false;
-    force_repaint_cursor_column_ = false;
+    raster::globalstate::_changed = false;
+    raster::globalstate::_shrunk = false;
+    raster::globalstate::_cursor_moved = false;
+    raster::globalstate::_force_repaint_cursor_column = false;
 }
 
 

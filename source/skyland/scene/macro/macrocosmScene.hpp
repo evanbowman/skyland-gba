@@ -38,7 +38,6 @@ namespace skyland::macro
 class MacrocosmScene : public Scene
 {
 public:
-
     MacrocosmScene();
 
 
