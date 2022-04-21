@@ -225,6 +225,8 @@ void State::load(Platform& pfrm)
             ++it;
         }
 
+        memcpy(&data_->p(), &header.p_, sizeof header.p_);
+
         auto load_sector = [&](terrain::Sector& dest) {
             save::Sector s;
             for (u32 i = 0; i < sizeof s; ++i) {

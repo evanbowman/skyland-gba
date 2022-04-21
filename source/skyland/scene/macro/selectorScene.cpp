@@ -22,8 +22,8 @@
 
 #include "selectorScene.hpp"
 #include "createBlockScene.hpp"
+#include "menuOptionsScene.hpp"
 #include "modifiedSelectorScene.hpp"
-#include "nextTurnScene.hpp"
 #include "skyland/scene/startMenuScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "tileOptionsScene.hpp"
@@ -61,10 +61,6 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
     auto& sector = state.sector();
     auto cursor = sector.cursor();
 
-    if (player.key_down(pfrm, Key::select)) {
-        return scene_pool::alloc<NextTurnScene>();
-    }
-
     if (player.key_down(pfrm, Key::start)) {
         return scene_pool::alloc<StartMenuScene>(0);
     }
@@ -92,8 +88,11 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         text_->assign(b.c_str());
     };
 
-    if (player.key_pressed(pfrm, Key::alt_1) or
-        player.key_pressed(pfrm, Key::alt_2)) {
+    if (player.key_pressed(pfrm, Key::alt_1)) {
+
+        return scene_pool::alloc<MenuOptionsScene>();
+
+    } else if (player.key_pressed(pfrm, Key::alt_2)) {
 
         return scene_pool::alloc<ModifiedSelectorScene>();
 

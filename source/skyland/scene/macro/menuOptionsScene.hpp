@@ -20,10 +20,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "menuOptionsScene.hpp"
-#include "nextTurnScene.hpp"
-#include "selectorScene.hpp"
-#include "skyland/skyland.hpp"
+#pragma once
+
+#include "macrocosmScene.hpp"
 
 
 
@@ -32,21 +31,25 @@ namespace skyland::macro
 
 
 
-ScenePtr<Scene>
-NextTurnScene::update(Platform& pfrm, App& app, Microseconds delta)
+class MenuOptionsScene : public MacrocosmScene
 {
-    // pfrm.speaker().play_sound("openbook", 1);
+public:
+    void enter(Platform& pfrm, App& app, Scene& prev) override;
 
-    app.macrocosm()->advance(1);
 
-    pfrm.keyboard().poll();
-    if (pfrm.keyboard().pressed(Key::alt_1)) {
-        return scene_pool::alloc<MenuOptionsScene>();
-    }
+    void exit(Platform& pfrm, App& app, Scene& next) override;
 
-    return scene_pool::alloc<SelectorScene>();
+
+    ScenePtr<Scene>
+    update(Platform& pfrm, Player& player, macro::State& state) override;
+
+
+private:
+    std::optional<Text> next_turn_text_;
+    int exit_timer_ = 0;
+    u32 frames_ = 0;
+};
+
+
+
 }
-
-
-
-} // namespace skyland::macro

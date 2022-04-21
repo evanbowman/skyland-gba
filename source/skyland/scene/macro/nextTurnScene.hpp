@@ -32,11 +32,11 @@ namespace skyland::macro
 
 
 
-class NextTurnScene : public MacrocosmScene
+class NextTurnScene : public Scene
 {
 public:
     ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::State& state) override;
+    update(Platform& pfrm, App& app, Microseconds delta) override;
 };
 
 

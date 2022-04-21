@@ -185,6 +185,7 @@ enum class SystemString {
     macro_rotate,
     macro_layers,
     macro_visible_layers,
+    macro_next_turn,
 
 
     description_power_core,
