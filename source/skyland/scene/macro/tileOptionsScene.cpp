@@ -100,8 +100,8 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
 {
     static const TileOptionsScene::OptionInfo options[] = {
         {SystemString::macro_create_block,
-         776,
-         760,
+         2568,
+         2584,
          []() -> ScenePtr<Scene> {
              return scene_pool::alloc<CreateBlockScene>();
          }},
@@ -111,7 +111,7 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
          []() -> ScenePtr<Scene> {
              return scene_pool::alloc<BuildImprovementScene>();
          }},
-        {SystemString::macro_demolish, 1672, 1688, []() -> ScenePtr<Scene> {
+        {SystemString::macro_demolish, 2088, 2104, []() -> ScenePtr<Scene> {
              return null_scene();
          }}};
 
@@ -161,6 +161,10 @@ void TileOptionsScene::show_options(Platform& pfrm)
 
     pfrm.load_overlay_chunk(
         197, options_[(selector_) % options_.size()]->sel_icon_, 16);
+
+    for (int i = st.x - 21; i < st.x - 9; ++i) {
+        pfrm.set_tile(Layer::overlay, i, st.y - 6, 425);
+    }
 
     draw_image(pfrm, 181, st.x - 21, st.y - 5, 4, 4, Layer::overlay);
     draw_image(pfrm, 197, st.x - 17, st.y - 5, 4, 4, Layer::overlay);
