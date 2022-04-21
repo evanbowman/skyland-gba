@@ -203,6 +203,7 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
             selector_ = 0;
         }
         show_options(pfrm);
+        pfrm.speaker().play_sound("click", 1);
     }
 
     if (player.key_down(pfrm, Key::left)) {
@@ -212,6 +213,7 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
             selector_ = options_.size() - 1;
         }
         show_options(pfrm);
+        pfrm.speaker().play_sound("click", 1);
     }
 
     if (player.key_down(pfrm, Key::action_1)) {
@@ -231,6 +233,8 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
             if (options_[selector_] not_eq terrain::Type::air) {
                 pfrm.speaker().play_sound("build0", 4);
                 return scene_pool::alloc<SelectorScene>();
+            } else {
+                pfrm.speaker().play_sound("cursor_tick", 2);
             }
         }
     }

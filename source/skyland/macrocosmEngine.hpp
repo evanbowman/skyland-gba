@@ -221,6 +221,8 @@ private:
     Vec3<u8> cursor_;
     bool cursor_moved_ = false;
 
+    StringBuffer<12> name_;
+
     // We keep a cache of screen tiles used by the cursor, as an
     // optimization. The cursor animation requires frequent redraw.
     Buffer<u16, 8> cursor_raster_tiles_;

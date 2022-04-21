@@ -69,6 +69,7 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
     }
 
     if (player.key_down(pfrm, Key::action_1)) {
+        pfrm.speaker().play_sound("button_wooden", 3);
         return options_[selector_]->next_();
     }
 
@@ -83,12 +84,14 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
             --selector_;
         }
         show_options(pfrm);
+        pfrm.speaker().play_sound("click", 1);
     }
 
     if (player.key_down(pfrm, Key::right)) {
         ++selector_;
         selector_ %= options_.size();
         show_options(pfrm);
+        pfrm.speaker().play_sound("click", 1);
     }
 
     return null_scene();
