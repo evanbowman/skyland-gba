@@ -82,7 +82,8 @@ Category category(Type t);
 
 
 
-struct Commodity {
+struct Commodity
+{
     enum Type : u8 {
         indigo,
         rose_madder,
@@ -150,7 +151,6 @@ static_assert(sizeof(Block) == 2);
 class Sector
 {
 public:
-
     Sector(Vec2<s8> position);
 
 
@@ -262,7 +262,9 @@ struct State
 {
     struct Data
     {
-        Data() : origin_sector_({0, 0}) {}
+        Data() : origin_sector_({0, 0})
+        {
+        }
 
         macro::terrain::Sector origin_sector_;
 

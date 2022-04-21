@@ -23,6 +23,7 @@
 #include "selectorScene.hpp"
 #include "createBlockScene.hpp"
 #include "nextTurnScene.hpp"
+#include "skyland/scene/startMenuScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "tileOptionsScene.hpp"
@@ -61,6 +62,10 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     if (player.key_down(pfrm, Key::select)) {
         return scene_pool::alloc<NextTurnScene>();
+    }
+
+    if (player.key_down(pfrm, Key::start)) {
+        return scene_pool::alloc<StartMenuScene>(0);
     }
 
     if (player.key_down(pfrm, Key::alt_1)) {

@@ -24,6 +24,7 @@
 #include "boxedDialogScene.hpp"
 #include "hibernateScene.hpp"
 #include "hideRoomsScene.hpp"
+#include "macro/selectorScene.hpp"
 #include "modules/glossaryViewerModule.hpp"
 #include "readyScene.hpp"
 #include "saveSandboxScene.hpp"
@@ -117,36 +118,50 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
     switch (state_) {
     case State::init: {
         pfrm.load_overlay_texture("overlay_challenges");
-        add_option(pfrm,
-                   SYSTR(start_menu_resume)->c_str(),
-                   scene_pool::make_deferred_scene<ReadyScene>(),
-                   kill_menu);
 
-        add_option(
-            pfrm,
-            SYSTR(start_menu_glossary)->c_str(),
-            [&pfrm] {
-                auto next = scene_pool::alloc<GlossaryViewerModule>();
-                next->set_next_scene(
-                    [&pfrm]() { return scene_pool::alloc<StartMenuScene>(1); });
-                return next;
-            },
-            cut);
+        if (app.game_mode() == App::GameMode::macro) {
+            add_option(pfrm,
+                       SYSTR(start_menu_resume)->c_str(),
+                       scene_pool::make_deferred_scene<macro::SelectorScene>(),
+                       kill_menu);
+
+        } else {
+            add_option(pfrm,
+                       SYSTR(start_menu_resume)->c_str(),
+                       scene_pool::make_deferred_scene<ReadyScene>(),
+                       kill_menu);
+
+            add_option(
+                pfrm,
+                SYSTR(start_menu_glossary)->c_str(),
+                [&pfrm] {
+                    auto next = scene_pool::alloc<GlossaryViewerModule>();
+                    next->set_next_scene([&pfrm]() {
+                        return scene_pool::alloc<StartMenuScene>(1);
+                    });
+                    return next;
+                },
+                cut);
+
+            add_option(
+                pfrm,
+                SYSTR(start_menu_disable_rooms)->c_str(),
+                [&pfrm] {
+                    auto next = scene_pool::alloc<HideRoomsScene>([&pfrm]() {
+                        return scene_pool::alloc<StartMenuScene>(1);
+                    });
+                    return next;
+                },
+                fade_sweep);
+        }
+
 
         add_option(pfrm,
                    SYSTR(start_menu_hibernate)->c_str(),
                    scene_pool::make_deferred_scene<HibernateScene>(),
                    fade_sweep);
 
-        add_option(
-            pfrm,
-            SYSTR(start_menu_disable_rooms)->c_str(),
-            [&pfrm] {
-                auto next = scene_pool::alloc<HideRoomsScene>(
-                    [&pfrm]() { return scene_pool::alloc<StartMenuScene>(1); });
-                return next;
-            },
-            fade_sweep);
+
 
         switch (app.game_mode()) {
         case App::GameMode::sandbox:
@@ -191,6 +206,18 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 SYSTR(start_menu_quit)->c_str(),
                 [&pfrm]() -> ScenePtr<Scene> {
                     lisp::set_var("sb-help", L_NIL);
+                    pfrm.fill_overlay(0);
+                    pfrm.screen().set_shader(passthrough_shader);
+                    return scene_pool::alloc<TitleScreenScene>(3);
+                },
+                fade_sweep);
+            break;
+
+        case App::GameMode::macro:
+            add_option(
+                pfrm,
+                SYSTR(start_menu_quit)->c_str(),
+                [&pfrm]() -> ScenePtr<Scene> {
                     pfrm.fill_overlay(0);
                     pfrm.screen().set_shader(passthrough_shader);
                     return scene_pool::alloc<TitleScreenScene>(3);
@@ -355,7 +382,12 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.load_overlay_texture("overlay");
         pfrm.screen().schedule_fade(0.f);
         pfrm.screen().pixelate(0);
-        return scene_pool::alloc<ReadyScene>();
+        if (app.game_mode() == App::GameMode::macro) {
+            return scene_pool::alloc<macro::SelectorScene>();
+        } else {
+            return scene_pool::alloc<ReadyScene>();
+        }
+
 
     case State::partial_clear: {
         for (u32 i = 0; i < data_->text_.size(); ++i) {
@@ -465,9 +497,6 @@ void StartMenuScene::display(Platform& pfrm, App& app)
         }
         pfrm.screen().draw(cursor);
     }
-
-
-    WorldScene::display(pfrm, app);
 }
 
 

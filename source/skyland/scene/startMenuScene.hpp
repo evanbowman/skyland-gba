@@ -23,7 +23,8 @@
 #pragma once
 
 #include "allocator.hpp"
-#include "worldScene.hpp"
+#include "graphics/overlay.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -32,7 +33,7 @@ namespace skyland
 
 
 
-class StartMenuScene : public WorldScene
+class StartMenuScene : public Scene
 {
 public:
     StartMenuScene(int fade_direction);

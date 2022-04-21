@@ -58,7 +58,9 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
         return;
     }
 
-    pfrm.system_call("_prlx_macro", (void*)(intptr_t)(int)app.macrocosm()->data_->cloud_scroll_);
+    pfrm.system_call(
+        "_prlx_macro",
+        (void*)(intptr_t)(int)app.macrocosm()->data_->cloud_scroll_);
 
     display(pfrm, *app.macrocosm());
 }
@@ -105,12 +107,13 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
         UIMetric::Align::left,
         UIMetric::Format::fraction_p_m);
 
-    population_.emplace(pfrm,
-                        OverlayCoord{1, 3},
-                        413,
-                        format_ui_fraction(pop, sector.population_growth_rate()),
-                        UIMetric::Align::left,
-                        UIMetric::Format::integer_with_rate);
+    population_.emplace(
+        pfrm,
+        OverlayCoord{1, 3},
+        413,
+        format_ui_fraction(pop, sector.population_growth_rate()),
+        UIMetric::Align::left,
+        UIMetric::Format::integer_with_rate);
 
     coins_.emplace(pfrm,
                    OverlayCoord{1, 2},
@@ -128,8 +131,9 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
     Text temp(
         pfrm,
         OverlayCoord{u8(st.x - (yr_len + integer_text_length(year) + 1)), 1});
-    temp.append(yr->c_str(), Text::OptColors{{ColorConstant::med_blue_gray,
-                                                      ColorConstant::rich_black}});
+    temp.append(yr->c_str(),
+                Text::OptColors{
+                    {ColorConstant::med_blue_gray, ColorConstant::rich_black}});
     temp.append(year);
     temp.__detach();
 

@@ -206,7 +206,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     redraw_margins(pfrm);
 
-    for (int i = 0; i < 32; ++i) {
+    for (int i = 0; i < 64; ++i) {
         for (int j = 0; j < 32; ++j) {
             pfrm.set_raw_tile(Layer::map_0, i, j, 0);
             pfrm.set_raw_tile(Layer::map_1, i, j, 0);

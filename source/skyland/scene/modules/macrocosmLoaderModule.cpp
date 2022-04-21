@@ -83,6 +83,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     sector.population_ = 8;
 
     app.macrocosm()->data_->coins_ = 160;
+    app.game_mode() = App::GameMode::macro;
 
 
     pfrm.screen().schedule_fade(0.f);

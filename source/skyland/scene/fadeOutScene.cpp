@@ -95,6 +95,9 @@ FadeOutScene::update(Platform& pfrm, App& app, Microseconds delta)
         case App::GameMode::co_op:
         case App::GameMode::multiplayer:
             return scene_pool::alloc<TitleScreenScene>();
+
+        case App::GameMode::macro:
+            Platform::fatal("logic error: macro fadeout!?");
         }
     } else {
         const auto amount = smoothstep(0.f, fade_duration, timer_);

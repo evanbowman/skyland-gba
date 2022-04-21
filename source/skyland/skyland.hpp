@@ -147,6 +147,7 @@ public:
         multiplayer,
         co_op,
         skyland_forever,
+        macro,
     };
 
 

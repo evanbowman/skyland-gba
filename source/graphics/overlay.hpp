@@ -523,8 +523,8 @@ private:
             auto v1 = value_ & 0x0000ffff;
             int v2 = (value_ & 0xffff0000) >> 16;
             text_->assign(v1);
-            auto clr = Text::OptColors{{ColorConstant::med_blue_gray,
-                                        ColorConstant::rich_black}};
+            auto clr = Text::OptColors{
+                {ColorConstant::med_blue_gray, ColorConstant::rich_black}};
             text_->append(",", clr);
 
             if (v2 > 0) {
@@ -537,7 +537,8 @@ private:
             }
 
 
-        } else if (format_ == Format::fraction or format_ == Format::fraction_p_m) {
+        } else if (format_ == Format::fraction or
+                   format_ == Format::fraction_p_m) {
             auto v1 = value_ & 0x0000ffff;
             auto v2 = (value_ & 0xffff0000) >> 16;
 
@@ -545,17 +546,17 @@ private:
 
             auto clr = [&] {
                 if (v1 < v2) {
-                    main_clr = Text::OptColors{{ColorConstant::rich_black,
-                                            ColorConstant::aerospace_orange}};
+                    main_clr =
+                        Text::OptColors{{ColorConstant::rich_black,
+                                         ColorConstant::aerospace_orange}};
                     return main_clr;
                 } else {
                     if (format_ == Format::fraction_p_m) {
                         return Text::OptColors{{ColorConstant::med_blue_gray,
-                                                    ColorConstant::rich_black}};
+                                                ColorConstant::rich_black}};
                     } else {
                         return Text::OptColors{};
                     }
-
                 }
             }();
 

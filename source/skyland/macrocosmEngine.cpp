@@ -69,8 +69,7 @@ Coins terrain::Sector::coin_yield() const
     }
 
     Float productivity =
-        employed_population * 0.3f +
-        unemployed_population * 0.1f;
+        employed_population * 0.3f + unemployed_population * 0.1f;
 
     // Un-housed people put a drain on state resources. Build them some housing!
     productivity -= unproductive_population * 0.1f;
@@ -305,10 +304,10 @@ Coins terrain::cost(Sector& s, Type t)
         return 40;
 
     case terrain::Type::indigo:
-        return 100;
+        return 120;
 
     case terrain::Type::madder:
-        return 100;
+        return 120;
 
     case terrain::Type::gold:
         return 1000;
@@ -462,7 +461,7 @@ std::pair<int, int> terrain::icons(Type t)
         return {2120, 2136};
 
     case terrain::Type::wheat:
-        return {1448, 1464};
+        return {2728, 2744};
 
     case terrain::Type::indigo:
         return {2696, 2712};
@@ -1187,9 +1186,14 @@ void terrain::Sector::render(Platform& pfrm)
     // #define RASTER_DEBUG_ENABLE
 
 #ifdef RASTER_DEBUG_ENABLE
-#define RASTER_DEBUG() do {pfrm.sleep(30);} while (false)
+#define RASTER_DEBUG()                                                         \
+    do {                                                                       \
+        pfrm.sleep(30);                                                        \
+    } while (false)
 #else
-#define RASTER_DEBUG() do {} while (false)
+#define RASTER_DEBUG()                                                         \
+    do {                                                                       \
+    } while (false)
 #endif
 
     // Actually perform the rendering. At this point, ideally, everything that's
