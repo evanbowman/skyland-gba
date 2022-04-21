@@ -455,10 +455,12 @@ public:
             }
         } else if (format_ == Format::integer_with_rate) {
             auto v1 = value & 0x0000ffff;
-            auto v2 = (value & 0xffff0000) >> 16;
+            int v2 = (value & 0xffff0000) >> 16;
             value_len = integer_text_length(v1) + 2 + integer_text_length(v2);
-            if (v2 >= 0) {
+            if (v2 > 0) {
                 ++value_len;
+            } else if (v2 == 0) {
+                value_len += 2;
             }
         }
 
@@ -525,10 +527,15 @@ private:
                                         ColorConstant::rich_black}};
             text_->append(",", clr);
 
-            if (v2 >= 0) {
+            if (v2 > 0) {
                 text_->append("+", clr);
+                text_->append(v2, clr);
+            } else if (v2 == 0) {
+                text_->append("+<1", clr);
+            } else {
+                text_->append(v2, clr);
             }
-            text_->append(v2, clr);
+
 
         } else if (format_ == Format::fraction or format_ == Format::fraction_p_m) {
             auto v1 = value_ & 0x0000ffff;

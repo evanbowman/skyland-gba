@@ -191,7 +191,8 @@ terrain::Stats terrain::Sector::stats() const
                 // NOTE: if a block is covered, then it's not possible to
                 // harvest the supplied food, so a stacked block should yield
                 // zero food.
-                if (blocks_[z + 1][x][y].type() == Type::air) {
+                if (blocks_[z + 1][x][y].type() == Type::air or
+                    blocks_[z + 1][x][y].type() == Type::selector) {
                     result.food_ += block_stats.food_;
                 }
 
@@ -249,7 +250,29 @@ Float terrain::Sector::population_growth_rate() const
 
 
 
-Coins terrain::cost(Type t)
+terrain::Category terrain::category(Type t)
+{
+    switch (t) {
+    default:
+        return Category::basic;
+
+    case terrain::Type::wheat:
+    case terrain::Type::madder:
+    case terrain::Type::indigo:
+        return Category::crop;
+
+    case terrain::Type::water:
+    case terrain::Type::water_slant_a:
+    case terrain::Type::water_slant_b:
+    case terrain::Type::water_slant_c:
+    case terrain::Type::water_slant_d:
+        return Category::fluid;
+    }
+}
+
+
+
+Coins terrain::cost(Sector& s, Type t)
 {
     switch (t) {
     case terrain::Type::__invalid:
@@ -282,10 +305,10 @@ Coins terrain::cost(Type t)
         return 40;
 
     case terrain::Type::indigo:
-        return 70;
+        return 100;
 
     case terrain::Type::madder:
-        return 70;
+        return 100;
 
     case terrain::Type::gold:
         return 1000;
@@ -421,7 +444,7 @@ std::pair<int, int> terrain::icons(Type t)
         return {1448, 1464};
 
     case terrain::Type::terrain:
-        return {1448, 1464};
+        return {2632, 2648};
 
     case terrain::Type::masonry:
         return {1448, 1464};
@@ -442,10 +465,10 @@ std::pair<int, int> terrain::icons(Type t)
         return {1448, 1464};
 
     case terrain::Type::indigo:
-        return {1448, 1464};
+        return {2696, 2712};
 
     case terrain::Type::madder:
-        return {1448, 1464};
+        return {2664, 2680};
 
     case terrain::Type::gold:
         return {2440, 2456};
@@ -601,11 +624,30 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     },
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        // Vec3<u8> spread_pos{(u8)(position.x + 1), position.y, position.z};
-        // auto a = s.get_block(spread_pos);
-        // if (a.type_ == (u8)terrain::Type::air) {
-        //     s.set_block(spread_pos, terrain::Type::water_slant_a);
+        // if (position.z == 0) {
+        //     return;
         // }
+
+        // auto lp = position;
+        // lp.x++;
+
+        // if (lp.x < 8) {
+        //     auto& block = s.get_block(lp);
+        //     if (block.type() == terrain::Type::air) {
+        //         s.set_block(lp, terrain::Type::water_slant_a);
+        //     }
+        // }
+
+        // if (position.y < 8) {
+        //     auto rp = position;
+        //     ++rp.y;
+
+        //     auto& block = s.get_block(rp);
+        //     if (block.type() == terrain::Type::air) {
+        //         s.set_block(rp, terrain::Type::water_slant_b);
+        //     }
+        // }
+
     },
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
@@ -702,7 +744,7 @@ static TileCategory tile_category(int texture_id)
     // bottom rows have transparent pixels, and cannot necessarily be skipped.
 
     // clang-format off
-    static const std::array<TileCategory, 200> category =
+    static const std::array<TileCategory, 400> category =
         {top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
@@ -721,6 +763,14 @@ static TileCategory tile_category(int texture_id)
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         empty, top_angled_r, empty, opaque, bot_angled_l, bot_angled_r,
+         empty, top_angled_r, empty, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, empty, opaque, empty, bot_angled_l, bot_angled_r,
+         top_angled_l, empty, opaque, empty, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,

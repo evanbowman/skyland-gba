@@ -44,13 +44,16 @@ public:
     update(Platform& pfrm, Player& player, macro::State& state) override;
 
 
-    void show_options(Platform& pfrm);
+    void show_options(Platform& pfrm, macro::State& state);
 
 
     virtual void collect_options(macro::State& state);
 
 
     virtual void edit(macro::State& state, terrain::Type t);
+
+
+    virtual Coins cost(macro::State& state, terrain::Type t);
 
 
 protected:
@@ -65,6 +68,9 @@ class BuildImprovementScene : public CreateBlockScene
 {
 public:
     void collect_options(macro::State& state) override;
+
+
+    Coins cost(macro::State& state, terrain::Type t) override;
 
 
     void edit(macro::State& state, terrain::Type t) override;

@@ -33,7 +33,7 @@ namespace skyland::macro
 ScenePtr<Scene>
 NextTurnScene::update(Platform& pfrm, Player& player, macro::State& state)
 {
-    pfrm.speaker().play_sound("openbook", 1);
+    // pfrm.speaker().play_sound("openbook", 1);
 
     state.advance(1);
 

@@ -70,6 +70,18 @@ enum class Type {
 
 
 
+enum class Category {
+    basic,
+    crop,
+    fluid,
+};
+
+
+
+Category category(Type t);
+
+
+
 struct Commodity {
     enum Type : u8 {
         indigo,
@@ -102,9 +114,6 @@ Stats stats(Type t);
 SystemString name(Type t);
 std::pair<int, int> icons(Type t);
 Improvements improvements(Type t);
-
-
-Coins cost(Type t);
 
 
 
@@ -234,6 +243,10 @@ private:
 
     Block blocks_[z_limit][8][8]; // (z, x, y)
 };
+
+
+
+Coins cost(Sector& s, Type t);
 
 
 

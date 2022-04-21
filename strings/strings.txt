@@ -46,7 +46,7 @@ lady-liberty
 lava
 lava*
 lemon-tree
-madder-rose
+rose-madder
 manufactory
 masonry
 missile-silo

@@ -50,7 +50,7 @@ void CreateBlockScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    show_options(pfrm);
+    show_options(pfrm, *app.macrocosm());
 }
 
 
@@ -75,7 +75,14 @@ void CreateBlockScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-void CreateBlockScene::show_options(Platform& pfrm)
+Coins CreateBlockScene::cost(macro::State& state, terrain::Type t)
+{
+    return terrain::cost(state.sector(), t);
+}
+
+
+
+void CreateBlockScene::show_options(Platform& pfrm, State& state)
 {
     auto st = calc_screen_tiles(pfrm);
 
@@ -83,7 +90,7 @@ void CreateBlockScene::show_options(Platform& pfrm)
     message += " ";
     message += loadstr(pfrm, terrain::name(options_[selector_]))->c_str();
     message += " ";
-    message += stringify(terrain::cost(options_[selector_]));
+    message += stringify(cost(state, options_[selector_]));
     message += "@";
 
     Text text(pfrm, OverlayCoord{0, u8(st.y - 1)});
@@ -202,7 +209,7 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
         } else {
             selector_ = 0;
         }
-        show_options(pfrm);
+        show_options(pfrm, state);
         pfrm.speaker().play_sound("click", 1);
     }
 
@@ -212,14 +219,14 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
         } else {
             selector_ = options_.size() - 1;
         }
-        show_options(pfrm);
+        show_options(pfrm, state);
         pfrm.speaker().play_sound("click", 1);
     }
 
     if (player.key_down(pfrm, Key::action_1)) {
         auto cursor = state.sector().cursor();
         if (cursor.z < macro::terrain::Sector::z_limit - 1) {
-            auto cost = terrain::cost(options_[selector_]);
+            auto cost = this->cost(state, options_[selector_]);
             if (cost > state.data_->coins_) {
                 pfrm.speaker().play_sound("beep_error", 2);
                 return null_scene();
@@ -265,6 +272,62 @@ void CreateBlockScene::edit(macro::State& state, terrain::Type t)
     state.sector().set_cursor(cursor, false);
 
     last_created = options_[selector_];
+}
+
+
+
+Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
+{
+    const auto base_cost = terrain::cost(state.sector(), t);
+
+    if (terrain::category(t) not_eq terrain::Category::crop) {
+        return base_cost;
+    }
+
+    // Cheaper to build a crop next to an existing crop of the same type.
+
+    Coins cost = base_cost;
+
+    auto cursor = state.sector().cursor();
+    --cursor.z;
+
+    if (cursor.x > 0) {
+        auto temp = cursor;
+        --temp.x;
+        auto& block = state.sector().get_block(temp);
+        if (block.type() == t) {
+            cost = base_cost / 2;
+        }
+    }
+
+    if (cursor.x < 7) {
+        auto temp = cursor;
+        ++temp.x;
+        auto& block = state.sector().get_block(temp);
+        if (block.type() == t) {
+            cost = base_cost / 2;
+        }
+    }
+
+    if (cursor.y > 0) {
+        auto temp = cursor;
+        --temp.y;
+        auto& block = state.sector().get_block(temp);
+        if (block.type() == t) {
+            cost = base_cost / 2;
+        }
+    }
+
+    if (cursor.y < 7) {
+        auto temp = cursor;
+        ++temp.y;
+        auto& block = state.sector().get_block(temp);
+        if (block.type() == t) {
+            cost = base_cost / 2;
+        }
+    }
+
+    return cost;
 }
 
 

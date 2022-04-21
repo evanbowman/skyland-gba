@@ -114,7 +114,7 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
          []() -> ScenePtr<Scene> {
              return scene_pool::alloc<BuildImprovementScene>();
          }},
-        {SystemString::macro_demolish, 2088, 2104, []() -> ScenePtr<Scene> {
+        {SystemString::macro_demolish, 2600, 2616, []() -> ScenePtr<Scene> {
              return null_scene();
          }}};
 
