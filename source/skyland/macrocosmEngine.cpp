@@ -34,18 +34,31 @@ namespace skyland::macro
 
 Coins State::coin_yield()
 {
+    auto coins = data_->origin_sector_.coin_yield();
+
+    for (auto& sector : data_->other_sectors_) {
+        coins += sector->coin_yield();
+    }
+
+    return coins;
+}
+
+
+
+Coins terrain::Sector::coin_yield() const
+{
     Coins result = 0;
 
-    auto st = sector().stats();
+    auto st = stats();
 
-    int productive_population = sector().population_;
+    int productive_population = population_;
     int unproductive_population = 0;
 
-    if (st.housing_ < sector().population_) {
+    if (st.housing_ < population_) {
         // Homeless people are less economically productive? Sounds cynical, but
         // probably true.
         productive_population = st.housing_;
-        unproductive_population = sector().population_ - st.housing_;
+        unproductive_population = population_ - st.housing_;
     }
 
     int employed_population = productive_population;
@@ -87,6 +100,14 @@ void State::advance(int elapsed_years)
     data_->year_ += elapsed_years;
 
     data_->coins_ += coin_yield() * elapsed_years;
+}
+
+
+
+terrain::Sector::Sector(Vec2<s8> position)
+{
+    x_ = position.x;
+    y_ = position.y;
 }
 
 
@@ -1128,10 +1149,6 @@ void terrain::Sector::render(Platform& pfrm)
     for (int i = 0; i < 480; ++i) {
 
         if (auto head = db_->depth_1_->visible_[i]) {
-            if (not depth_1_skip_clear.get(i)) {
-                RASTER_DEBUG();
-                pfrm.blit_t0_erase(i);
-            }
 
             Buffer<int, 6> stack;
             while (head) {
@@ -1141,21 +1158,22 @@ void terrain::Sector::render(Platform& pfrm)
                 head = head->next_;
             }
 
+            // The first tile can be drawn much faster, as we don't care what's
+            // currently onscreen.
+            bool overwrite = true;
+
             while (not stack.empty()) {
                 int tile = stack.back();
                 RASTER_DEBUG();
-                pfrm.blit_t0_tile_to_texture(tile + 480, i, false);
+                pfrm.blit_t0_tile_to_texture(tile + 480, i, overwrite);
                 stack.pop_back();
+                overwrite = false;
             }
         } else if (shrunk_ and not depth_1_skip_clear.get(i)) {
             pfrm.blit_t0_erase(i);
         }
 
         if (auto head = db_->depth_2_->visible_[i]) {
-            if (not depth_2_skip_clear.get(i)) {
-                RASTER_DEBUG();
-                pfrm.blit_t1_erase(i);
-            }
 
             Buffer<int, 6> stack;
             while (head) {
@@ -1163,11 +1181,14 @@ void terrain::Sector::render(Platform& pfrm)
                 head = head->next_;
             }
 
+            bool overwrite = true;
+
             while (not stack.empty()) {
                 int tile = stack.back();
                 RASTER_DEBUG();
-                pfrm.blit_t1_tile_to_texture(tile + 480, i, false);
+                pfrm.blit_t1_tile_to_texture(tile + 480, i, overwrite);
                 stack.pop_back();
+                overwrite = false;
             }
         } else if (shrunk_ and not depth_2_skip_clear.get(i)) {
             pfrm.blit_t1_erase(i);

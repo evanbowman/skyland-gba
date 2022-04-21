@@ -141,6 +141,10 @@ static_assert(sizeof(Block) == 2);
 class Sector
 {
 public:
+
+    Sector(Vec2<s8> position);
+
+
     enum Orientation { north, east, south, west };
 
 
@@ -181,6 +185,7 @@ public:
 
 
     Float population_growth_rate() const;
+    Coins coin_yield() const;
 
 
     Vec2<s8> coordinate();
@@ -193,6 +198,7 @@ public:
 
 
     void serialize(u8* output);
+    void deserialize(u8* input);
 
 
     // Projected position of the cursor onto the frame buffer.
@@ -241,7 +247,14 @@ struct State
 {
     struct Data
     {
-        macro::terrain::Sector sector_;
+        Data() : origin_sector_({0, 0}) {}
+
+        macro::terrain::Sector origin_sector_;
+
+        Buffer<DynamicMemory<macro::terrain::Sector>, 19> other_sectors_;
+
+        int current_sector_ = -1;
+
         u16 year_ = 0;
         Coins coins_ = 0;
         Float cloud_scroll_ = 0;
@@ -250,7 +263,11 @@ struct State
 
     macro::terrain::Sector& sector()
     {
-        return data_->sector_;
+        if (data_->current_sector_ == -1) {
+            return data_->origin_sector_;
+        } else {
+            return *data_->other_sectors_[data_->current_sector_];
+        }
     }
 
 
