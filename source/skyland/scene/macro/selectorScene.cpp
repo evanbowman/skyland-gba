@@ -22,9 +22,9 @@
 
 #include "selectorScene.hpp"
 #include "createBlockScene.hpp"
+#include "modifiedSelectorScene.hpp"
 #include "nextTurnScene.hpp"
 #include "skyland/scene/startMenuScene.hpp"
-#include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "tileOptionsScene.hpp"
 
@@ -95,34 +95,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
     if (player.key_pressed(pfrm, Key::alt_1) or
         player.key_pressed(pfrm, Key::alt_2)) {
 
-        if (player.key_down(pfrm, Key::left)) {
-            pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
-            pfrm.screen().clear();
-            pfrm.screen().display();
-            sector.rotate();
-            pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
-            draw_compass(pfrm, state);
-        } else if (player.key_down(pfrm, Key::right)) {
-            pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
-            pfrm.screen().clear();
-            pfrm.screen().display();
-            sector.rotate();
-            sector.rotate();
-            sector.rotate();
-            pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
-            draw_compass(pfrm, state);
-        } else if (player.key_down(pfrm, Key::down) and
-                   sector.get_z_view() > 0) {
-            bool success = sector.set_z_view(sector.get_z_view() - 1);
-            if (not success) {
-                pfrm.speaker().play_sound("beep_error", 2);
-            }
-        } else if (player.key_down(pfrm, Key::up)) {
-            bool success = sector.set_z_view(sector.get_z_view() + 1);
-            if (not success) {
-                pfrm.speaker().play_sound("beep_error", 2);
-            }
-        }
+        return scene_pool::alloc<ModifiedSelectorScene>();
 
     } else {
 
@@ -157,33 +130,12 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     if (player.key_down(pfrm, Key::action_1)) {
 
-        // if (cursor.z < macro::terrain::Sector::z_limit - 1) {
-        //     state.sector().set_block(cursor,
-        //                                    macro::terrain::Type::masonry);
-        //     ++cursor.z;
-        //     state.sector().set_cursor(cursor);
-        // }
-
         if (cursor.z == 0) {
             return scene_pool::alloc<CreateBlockScene>();
         } else {
             return scene_pool::alloc<TileOptionsScene>();
         }
-
-
-
-        // if (cursor.z < macro::terrain::Sector::z_limit - 1) {
-        //         state.sector().set_block(cursor, macro::terrain::Type::masonry);
-        //         ++cursor.z;
-        //         state.sector().set_cursor(cursor);
-        // msg();
-        //     }
     }
-
-    // if (player.key_down(pfrm, Key::action_2)) {
-    //     return scene_pool::alloc<TitleScreenScene>(3);
-    // }
-
 
     return null_scene();
 }

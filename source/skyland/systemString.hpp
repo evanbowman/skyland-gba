@@ -182,6 +182,10 @@ enum class SystemString {
     macro_create_block,
     macro_build_improvement,
     macro_demolish,
+    macro_rotate,
+    macro_layers,
+    macro_visible_layers,
+
 
     description_power_core,
     description_solar_cell,

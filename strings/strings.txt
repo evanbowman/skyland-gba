@@ -123,6 +123,9 @@ year:
 create block:
 build improvement:
 demolish block:
+:rotate
+:layers
+view threshold: 
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
 Energy from the sun! Power output reduced by 1/4 for each block directly above the solar-cell.
 While slightly less powerful than an ordinary cannon, its attacks spread fire.

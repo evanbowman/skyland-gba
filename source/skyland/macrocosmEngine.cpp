@@ -920,10 +920,10 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
 
 bool terrain::Sector::set_z_view(u8 z_view)
 {
-    auto c = cursor();
-    if (z_view <= c.z) {
-        return false;
-    }
+    // auto c = cursor();
+    // if (z_view <= c.z) {
+    //     return false;
+    // }
 
     if (z_view > z_limit) {
         z_view_ = z_limit;
