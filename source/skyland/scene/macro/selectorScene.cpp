@@ -24,10 +24,10 @@
 #include "createBlockScene.hpp"
 #include "menuOptionsScene.hpp"
 #include "modifiedSelectorScene.hpp"
+#include "nextTurnScene.hpp"
 #include "skyland/scene/startMenuScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "tileOptionsScene.hpp"
-
 
 
 namespace skyland::macro
@@ -64,6 +64,11 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
     if (player.key_down(pfrm, Key::start)) {
         return scene_pool::alloc<StartMenuScene>(0);
     }
+
+    if (player.key_down(pfrm, Key::select)) {
+        return scene_pool::alloc<NextTurnScene>();
+    }
+
 
     if (not text_) {
         text_.emplace(pfrm, OverlayCoord{0, 19});
