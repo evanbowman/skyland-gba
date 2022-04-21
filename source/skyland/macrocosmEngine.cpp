@@ -166,7 +166,11 @@ Coins terrain::Commodity::value(Commodity::Type t)
 
 terrain::Stats terrain::Block::stats() const
 {
-    return terrain::stats(type());
+    auto st = terrain::stats(type());
+    if (shadowed_) {
+        st.food_ /= 2;
+    }
+    return st;
 }
 
 
@@ -314,6 +318,9 @@ Coins terrain::cost(Sector& s, Type t)
 
     case terrain::Type::workshop:
         return 100;
+
+    case terrain::Type::light_source:
+        return 30;
     }
 
     return 0;
@@ -364,6 +371,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::workshop:
         return SystemString::block_workshop;
+
+    case terrain::Type::light_source:
+        return SystemString::block_light_source;
     }
 
     return SystemString::gs_error;
@@ -474,6 +484,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::workshop:
         return {776, 760};
+
+    case terrain::Type::light_source:
+        return {2280, 2296};
     }
 
     return {};
@@ -506,9 +519,15 @@ static bool blocks_light(terrain::Type t)
         true,
         false,
         true,
+        true,
+        true,
+        true,
+        true,
         false,
         false,
         false,
+        false,
+        true,
     };
 
     return result[(int)t];
@@ -539,6 +558,93 @@ void terrain::Sector::shadowcast()
             }
         }
     }
+
+    for (int z = 0; z < z_limit; ++z) {
+        for (int x = 0; x < 8; ++x) {
+            for (int y = 0; y < 8; ++y) {
+                auto& block = blocks_[z][x][y];
+                if (block.type() == Type::light_source) {
+                    // beneath:
+                    for (int zz = z - 1; zz > z - 4; --zz) {
+                        if (zz > -1) {
+                            auto& block = blocks_[zz][x][y];
+                            blocks_[zz][x][y].shadowed_ = false;
+                            if (blocks_light(block.type())) {
+                                break;
+                            }
+                        }
+                    }
+
+                    // raycast positive x:
+                    for (int xx = x + 1; xx < x + 3; ++xx) {
+                        if (xx < 8) {
+                            auto& block = blocks_[z][xx][y];
+                            if (blocks_light(block.type())) {
+                                break;
+                            }
+                            block.shadowed_ = false;
+                            if (z > 0) {
+                                blocks_[z - 1][xx][y].shadowed_ = false;
+                            }
+                        }
+                    }
+
+                    // raycast negative x:
+                    for (int xx = x - 1; xx > x - 3; --xx) {
+                        if (xx > 0) {
+                            auto& block = blocks_[z][xx][y];
+                            if (blocks_light(block.type())) {
+                                break;
+                            }
+                            block.shadowed_ = false;
+                            if (z > 0) {
+                                blocks_[z - 1][xx][y].shadowed_ = false;
+                            }
+                        }
+                    }
+
+                    // raycast positive y:
+                    for (int yy = y + 1; yy < y + 3; ++yy) {
+                        if (yy < 8) {
+                            auto& block = blocks_[z][x][yy];
+                            if (blocks_light(block.type())) {
+                                break;
+                            }
+                            block.shadowed_ = false;
+                            if (z > 0) {
+                                blocks_[z - 1][x][yy].shadowed_ = false;
+                            }
+                        }
+                    }
+
+                    // raycast negative y:
+                    for (int yy = y - 1; yy > y - 3; --yy) {
+                        if (yy > 0) {
+                            auto& block = blocks_[z][x][yy];
+                            if (blocks_light(block.type())) {
+                                break;
+                            }
+                            block.shadowed_ = false;
+                            if (z > 0) {
+                                blocks_[z - 1][x][yy].shadowed_ = false;
+                            }
+                        }
+                    }
+
+                    // above:
+                    for (int zz = z + 1; zz < z + 3; ++zz) {
+                        if (zz < z_limit) {
+                            auto& block = blocks_[zz][x][y];
+                            if (blocks_light(block.type())) {
+                                break;
+                            }
+                            blocks_[zz][x][y].shadowed_ = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 
@@ -553,7 +659,10 @@ const terrain::Block& terrain::Sector::get_block(const Vec3<u8>& coord) const
 void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 {
     auto& selected = blocks_[coord.z][coord.x][coord.y];
-    if (selected.type() == type) {
+
+    const auto prev_type = selected.type();
+
+    if (prev_type == type) {
         return;
     }
 
@@ -569,6 +678,18 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 
     shadowcast();
 
+    if (prev_type == Type::light_source or
+        type == Type::light_source) {
+        // TODO: only redraw the ones adjacent to the light source!
+        for (auto& slab : blocks_) {
+            for (auto& slice : slab) {
+                for (auto& block : slice) {
+                    block.repaint_ = true;
+                }
+            }
+        }
+    }
+
     changed_ = true;
 }
 
@@ -580,6 +701,9 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
     auto& block = blocks_[old_cursor.z][old_cursor.x][old_cursor.y];
     if (block.type_ == (u8)terrain::Type::selector) {
         set_block(old_cursor, macro::terrain::Type::air);
+        if (pos.z > old_cursor.z) {
+            force_repaint_cursor_column_ = true;
+        }
     }
 
     if (old_cursor.z > 0) {
@@ -604,7 +728,41 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
         }
     }
 
+    if (cursor_.z >= z_view_) {
+        set_z_view(cursor_.z + 1);
+        cursor_moved_ = false;
+    }
+
     set_block(cursor_, terrain::Type::selector);
+}
+
+
+
+bool terrain::Sector::set_z_view(u8 z_view)
+{
+    auto c = cursor();
+    if (z_view <= c.z) {
+        return false;
+    }
+
+    if (z_view > z_limit) {
+        z_view_ = z_limit;
+        return false;
+    } else {
+        z_view_ = z_view;
+    }
+
+    changed_ = true;
+    shrunk_ = true;
+    for (auto& slab : blocks_) {
+        for (auto& slice : slab) {
+            for (auto& block : slice) {
+                block.repaint_ = true;
+            }
+        }
+    }
+
+    return true;
 }
 
 
@@ -1275,6 +1433,7 @@ void terrain::Sector::render(Platform& pfrm)
     changed_ = false;
     shrunk_ = false;
     cursor_moved_ = false;
+    force_repaint_cursor_column_ = false;
 }
 
 

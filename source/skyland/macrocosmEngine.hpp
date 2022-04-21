@@ -65,6 +65,7 @@ enum class Type {
     water_slant_b,
     water_slant_c,
     water_slant_d,
+    light_source,
     count,
 };
 
@@ -220,10 +221,18 @@ public:
     }
 
 
+    bool set_z_view(u8 z_view);
+    u8 get_z_view() const
+    {
+        return z_view_;
+    }
+
+
 private:
     void shadowcast();
 
     bool shrunk_ = false;
+    bool force_repaint_cursor_column_ = false;
 
     Orientation orientation_ = Orientation::north;
 

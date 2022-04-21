@@ -58,7 +58,8 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         return scene;
     }
 
-    auto cursor = state.sector().cursor();
+    auto& sector = state.sector();
+    auto cursor = sector.cursor();
 
     if (player.key_down(pfrm, Key::select)) {
         return scene_pool::alloc<NextTurnScene>();
@@ -66,26 +67,6 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     if (player.key_down(pfrm, Key::start)) {
         return scene_pool::alloc<StartMenuScene>(0);
-    }
-
-    if (player.key_down(pfrm, Key::alt_1)) {
-        pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
-        pfrm.screen().clear();
-        pfrm.screen().display();
-        state.sector().rotate();
-        pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
-        draw_compass(pfrm, state);
-    }
-
-    if (player.key_down(pfrm, Key::alt_2)) {
-        pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
-        pfrm.screen().clear();
-        pfrm.screen().display();
-        state.sector().rotate();
-        state.sector().rotate();
-        state.sector().rotate();
-        pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
-        draw_compass(pfrm, state);
     }
 
     if (not text_) {
@@ -98,10 +79,10 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     auto msg = [&] {
         auto s = SystemString::block_air;
-        auto cursor = state.sector().cursor();
+        auto cursor = sector.cursor();
         if (cursor.z > 0) {
             --cursor.z;
-            auto& block = state.sector().get_block(cursor);
+            auto& block = sector.get_block(cursor);
             s = block.name();
         }
         StringBuffer<48> b;
@@ -111,33 +92,67 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         text_->assign(b.c_str());
     };
 
+    if (player.key_pressed(pfrm, Key::alt_1) or
+        player.key_pressed(pfrm, Key::alt_2)) {
 
-    if (test_key(Key::up) and cursor.y > 0) {
-        --cursor.y;
-        state.sector().set_cursor(cursor);
-        msg();
-        pfrm.speaker().play_sound("cursor_tick", 2);
-    }
+        if (player.key_down(pfrm, Key::left)) {
+            pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
+            pfrm.screen().clear();
+            pfrm.screen().display();
+            sector.rotate();
+            pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
+            draw_compass(pfrm, state);
+        } else if (player.key_down(pfrm, Key::right)) {
+            pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
+            pfrm.screen().clear();
+            pfrm.screen().display();
+            sector.rotate();
+            sector.rotate();
+            sector.rotate();
+            pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
+            draw_compass(pfrm, state);
+        } else if (player.key_down(pfrm, Key::down) and
+                   sector.get_z_view() > 0) {
+            bool success = sector.set_z_view(sector.get_z_view() - 1);
+            if (not success) {
+                pfrm.speaker().play_sound("beep_error", 2);
+            }
+        } else if (player.key_down(pfrm, Key::up)) {
+            bool success = sector.set_z_view(sector.get_z_view() + 1);
+            if (not success) {
+                pfrm.speaker().play_sound("beep_error", 2);
+            }
+        }
 
-    if (test_key(Key::down) and cursor.y < 7) {
-        ++cursor.y;
-        state.sector().set_cursor(cursor);
-        msg();
-        pfrm.speaker().play_sound("cursor_tick", 2);
-    }
+    } else {
 
-    if (test_key(Key::right) and cursor.x > 0) {
-        --cursor.x;
-        state.sector().set_cursor(cursor);
-        msg();
-        pfrm.speaker().play_sound("cursor_tick", 2);
-    }
+        if (test_key(Key::up) and cursor.y > 0) {
+            --cursor.y;
+            sector.set_cursor(cursor);
+            msg();
+            pfrm.speaker().play_sound("cursor_tick", 2);
+        }
 
-    if (test_key(Key::left) and cursor.x < 7) {
-        ++cursor.x;
-        state.sector().set_cursor(cursor);
-        msg();
-        pfrm.speaker().play_sound("cursor_tick", 2);
+        if (test_key(Key::down) and cursor.y < 7) {
+            ++cursor.y;
+            sector.set_cursor(cursor);
+            msg();
+            pfrm.speaker().play_sound("cursor_tick", 2);
+        }
+
+        if (test_key(Key::right) and cursor.x > 0) {
+            --cursor.x;
+            sector.set_cursor(cursor);
+            msg();
+            pfrm.speaker().play_sound("cursor_tick", 2);
+        }
+
+        if (test_key(Key::left) and cursor.x < 7) {
+            ++cursor.x;
+            sector.set_cursor(cursor);
+            msg();
+            pfrm.speaker().play_sound("cursor_tick", 2);
+        }
     }
 
     if (player.key_down(pfrm, Key::action_1)) {

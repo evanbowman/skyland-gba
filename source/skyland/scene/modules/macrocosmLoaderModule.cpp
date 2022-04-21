@@ -82,7 +82,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     sector.set_cursor({3, 3, 1});
     sector.population_ = 8;
 
-    app.macrocosm()->data_->coins_ = 160;
+    app.macrocosm()->data_->coins_ = 16000;
     app.game_mode() = App::GameMode::macro;
 
 
