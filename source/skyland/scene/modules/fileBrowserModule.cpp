@@ -270,8 +270,8 @@ void FileBrowserModule::repaint(Platform& pfrm)
 
     pfrm.set_tile(Layer::overlay, 1, 3 + scroll_index_, 475);
 
-    pfrm.set_tile(Layer::overlay, 0, 0, 401);
-    pfrm.set_tile(Layer::overlay, 29, 0, 411);
+    pfrm.set_tile(Layer::overlay, 0, 0, 450);
+    pfrm.set_tile(Layer::overlay, 29, 0, 451);
 
     while (line_count < lines_.size()) {
         lines_.pop_back();
