@@ -21,8 +21,8 @@
 
 
 
-#include "macroverseScene.hpp"
 #include "menuOptionsScene.hpp"
+#include "macroverseScene.hpp"
 #include "nextTurnScene.hpp"
 #include "selectorScene.hpp"
 #include "skyland/scene_pool.hpp"
@@ -63,9 +63,7 @@ void MenuOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
     StringBuffer<32> mv(":");
     mv += SYSTR(start_menu_macroverse)->c_str();
 
-    macroverse_text_.emplace(pfrm,
-                             mv.c_str(),
-                             OverlayCoord{1, (u8)(st.y - 1)});
+    macroverse_text_.emplace(pfrm, mv.c_str(), OverlayCoord{1, (u8)(st.y - 1)});
 
     // visible_layers_text_->assign(SYSTR(macro_visible_layers)->c_str());
     // visible_layers_text_->append(app.macrocosm()->sector().get_z_view());

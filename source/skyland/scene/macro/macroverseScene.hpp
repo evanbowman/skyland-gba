@@ -35,7 +35,6 @@ namespace skyland::macro
 class MacroverseScene : public Scene
 {
 public:
-
     MacroverseScene(bool fastload = false) : fastload_(fastload)
     {
     }
@@ -58,6 +57,7 @@ private:
         show,
         options,
         text_prompt,
+        create_colony,
     } state_ = State::reveal;
 
 
@@ -69,6 +69,8 @@ private:
     Vec2<s8> selected_ = {};
     Vec2<s8> initial_sector_;
     Vec2<Float> camera_;
+
+    Buffer<Vec2<s8>, 4> colony_create_slots_;
 
     bool exit_ = false;
     bool fastload_ = false;

@@ -25,8 +25,8 @@
 #include "platform/platform.hpp"
 #include "selectorScene.hpp"
 #include "skyland/scene/startMenuScene.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/scene/textEntryScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -123,16 +123,15 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    auto clear_description =
-        [&] {
-            text_objs_.clear();
-            auto st_y = calc_screen_tiles(pfrm).y;
-            for (int y = st_y - 6; y < st_y; ++y) {
-                for (int x = 0; x < calc_screen_tiles(pfrm).x; ++x) {
-                    pfrm.set_tile(Layer::overlay, x, y, 0);
-                }
+    auto clear_description = [&] {
+        text_objs_.clear();
+        auto st_y = calc_screen_tiles(pfrm).y;
+        for (int y = st_y - 6; y < st_y; ++y) {
+            for (int x = 0; x < calc_screen_tiles(pfrm).x; ++x) {
+                pfrm.set_tile(Layer::overlay, x, y, 0);
             }
-        };
+        }
+    };
 
 
     auto v = pfrm.screen().get_view();
@@ -230,14 +229,11 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             auto st = calc_screen_tiles(pfrm);
 
-            auto push_opt =
-                [&](SystemString str, u8 y) {
-                    auto s = loadstr(pfrm, str);
-                    u8 mg = centered_text_margins(pfrm, utf8::len(s->c_str()));
-                    text_objs_.emplace_back(pfrm,
-                                            s->c_str(),
-                                            OverlayCoord{mg, y});
-                };
+            auto push_opt = [&](SystemString str, u8 y) {
+                auto s = loadstr(pfrm, str);
+                u8 mg = centered_text_margins(pfrm, utf8::len(s->c_str())) + 1;
+                text_objs_.emplace_back(pfrm, s->c_str(), OverlayCoord{mg, y});
+            };
 
             push_opt(SystemString::macro_enter, st.y - 6);
             push_opt(SystemString::macro_create_colony, st.y - 4);
@@ -247,6 +243,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (app.player().key_down(pfrm, Key::action_2)) {
             m.bind_sector(initial_sector_);
             clear_description();
+            pfrm.fill_overlay(0);
             exit_ = true;
             pfrm.speaker().play_sound("button_wooden", 3);
         }
@@ -292,14 +289,9 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
 
-    case State::options:
-        if (app.player().key_down(pfrm, Key::action_2)) {
-            text_objs_.clear();
-            describe_selected(pfrm, m);
-            state_ = State::show;
-        }
-
-        if (app.player().key_down(pfrm, Key::down) and opt_cursor_ < text_objs_.size() - 1) {
+    case State::options: {
+        if (app.player().key_down(pfrm, Key::down) and
+            opt_cursor_ < text_objs_.size() - 1) {
             pfrm.speaker().play_sound("click_wooden", 2);
             ++opt_cursor_;
         }
@@ -309,43 +301,93 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             --opt_cursor_;
         }
 
+
+        Vec2<u8> sel_pos;
+
+        for (u32 i = 0; i < text_objs_.size(); ++i) {
+
+            u8 x = text_objs_[i].coord().x - 2;
+            u8 y = text_objs_[i].coord().y;
+
+            auto cursor_tile = 0;
+            if (opt_cursor_ == i) {
+                cursor_tile = 87;
+                sel_pos = {x, y};
+            }
+
+            pfrm.set_tile(Layer::overlay, x, y, cursor_tile);
+        }
+
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            pfrm.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
+            text_objs_.clear();
+            describe_selected(pfrm, m);
+            state_ = State::show;
+            opt_cursor_ = 0;
+        }
+
         if (app.player().key_down(pfrm, Key::action_1)) {
+            pfrm.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
             switch (opt_cursor_) {
             case 0:
                 text_objs_.clear();
+                pfrm.fill_overlay(0);
                 exit_ = true;
                 pfrm.speaker().play_sound("button_wooden", 2);
                 break;
 
-            case 1:
+            case 1: {
+                auto push = [&](s8 x, s8 y) {
+                                if (not m.load_sector({x, y})) {
+                                    colony_create_slots_.push_back({x, y});
+                                }
+                            };
+
+                push(selected_.x - 1, selected_.y);
+                push(selected_.x + 1, selected_.y);
+                push(selected_.x, selected_.y - 1);
+                push(selected_.x, selected_.y + 1);
+
+                if (colony_create_slots_.empty()) {
+                    pfrm.speaker().play_sound("beep_error", 2);
+                } else {
+                    state_ = State::create_colony;
+                    text_objs_.clear();
+                    pfrm.speaker().play_sound("button_wooden", 2);
+                }
                 break;
+            }
 
             case 2:
                 text_objs_.clear();
+                pfrm.fill_overlay(0);
                 pfrm.speaker().play_sound("button_wooden", 2);
                 state_ = State::text_prompt;
                 break;
             }
+
+            opt_cursor_ = 0;
         }
         break;
+    }
 
     case State::text_prompt: {
         const char* prompt = "Rename island:";
 
-        auto receive =
-            [&m](const char* text) {
-                m.sector().set_name(text);
-                return scene_pool::alloc<MacroverseScene>(true);
-            };
+        auto receive = [&m](const char* text) {
+            m.sector().set_name(text);
+            return scene_pool::alloc<MacroverseScene>(true);
+        };
 
-        return scene_pool::alloc<TextEntryScene>(prompt,
-                                                 receive,
-                                                 1,
-                                                 12,
-                                                 m.sector().name().c_str());
+        return scene_pool::alloc<TextEntryScene>(
+            prompt, receive, 1, 12, m.sector().name().c_str());
         break;
     }
 
+    case State::create_colony: {
+        // ...
+        break;
+    }
     }
 
     return null_scene();

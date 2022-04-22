@@ -124,6 +124,7 @@ TextEntryScene::update(Platform& pfrm, App& app, Microseconds delta)
             keyboard_cursor_.x = 0;
         }
         render_keyboard(pfrm);
+        pfrm.speaker().play_sound("click_wooden", 2);
     }
 
     if (test_key(Key::left)) {
@@ -133,6 +134,7 @@ TextEntryScene::update(Platform& pfrm, App& app, Microseconds delta)
             keyboard_cursor_.x = row_width - 1;
         }
         render_keyboard(pfrm);
+        pfrm.speaker().play_sound("click_wooden", 2);
     }
 
     if (test_key(Key::up)) {
@@ -142,6 +144,7 @@ TextEntryScene::update(Platform& pfrm, App& app, Microseconds delta)
             keyboard_cursor_.y = 3;
         }
         render_keyboard(pfrm);
+        pfrm.speaker().play_sound("click_wooden", 2);
     }
 
     if (test_key(Key::down)) {
@@ -151,6 +154,7 @@ TextEntryScene::update(Platform& pfrm, App& app, Microseconds delta)
             keyboard_cursor_.y = 0;
         }
         render_keyboard(pfrm);
+        pfrm.speaker().play_sound("click_wooden", 2);
     }
 
     if (player(app).key_down(pfrm, Key::start)) {
