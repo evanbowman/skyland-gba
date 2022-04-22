@@ -324,6 +324,76 @@ struct State
     };
 
 
+
+    bool make_sector(Vec2<s8> coord)
+    {
+        if (load_sector(coord)) {
+            return false;
+        }
+
+        auto s = allocate_dynamic<terrain::Sector>("macro-colony_mem", coord);
+        StringBuffer<terrain::Sector::name_len - 1> n("colony_");
+        n += stringify(data_->other_sectors_.size() + 1).c_str();
+        s->set_name(n);
+        data_->other_sectors_.push_back(std::move(s));
+
+        return true;
+    }
+
+
+
+    macro::terrain::Sector* bind_sector(Vec2<s8> coord)
+    {
+        if (data_->origin_sector_.coordinate() == coord) {
+            data_->current_sector_ = -1;
+            return &data_->origin_sector_;
+        } else {
+            int i = 0;
+            for (auto& s : data_->other_sectors_) {
+                if (s->coordinate() == coord) {
+                    data_->current_sector_ = i;
+                    return &*s;
+                }
+                ++i;
+            }
+
+            return nullptr;
+        }
+    }
+
+
+
+    macro::terrain::Sector* load_sector(Vec2<s8> coord)
+    {
+        if (data_->origin_sector_.coordinate() == coord) {
+            return &data_->origin_sector_;
+        } else {
+
+            for (auto& s : data_->other_sectors_) {
+                if (s->coordinate() == coord) {
+                    return &*s;
+                }
+            }
+
+            return nullptr;
+        }
+    }
+
+
+
+    macro::terrain::Sector* load_sector(int id)
+    {
+        if (id == -1) {
+            return &data_->origin_sector_;
+        } else if (id < (int)data_->other_sectors_.size()) {
+            return &*data_->other_sectors_[id];
+        } else {
+            return nullptr;
+        }
+    }
+
+
+
     macro::terrain::Sector& sector()
     {
         if (data_->current_sector_ == -1) {

@@ -46,6 +46,7 @@ public:
 
 private:
     std::optional<Text> next_turn_text_;
+    std::optional<Text> macroverse_text_;
     int exit_timer_ = 0;
     u32 frames_ = 0;
 };

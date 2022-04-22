@@ -309,6 +309,16 @@ terrain::Sector::Sector(Vec2<s8> position)
     p_.y_ = position.y;
 
     set_name("");
+
+    for (auto& slab : blocks_) {
+        for (auto& slice : slab) {
+            for (auto& block : slice) {
+                block.type_ = (u8)Type::air;
+            }
+        }
+    }
+
+    p_.population_ = 4;
 }
 
 

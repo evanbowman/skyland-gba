@@ -59,6 +59,10 @@ private:
     Microseconds timer_;
 
     Vec2<s8> selected_ = {};
+    Vec2<Float> camera_;
+
+    bool exit_ = false;
+
 
     std::optional<Text> selected_name_;
     std::optional<Text> selected_population_;

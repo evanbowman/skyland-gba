@@ -25,6 +25,7 @@
 #include "platform/platform.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/scene/startMenuScene.hpp"
+#include "selectorScene.hpp"
 
 
 
@@ -49,6 +50,10 @@ void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
     // Clear the background texture.
     pfrm.load_tile0_texture("macro_rendertexture");
     pfrm.load_tile1_texture("macro_rendertexture");
+
+    selected_ = app.macrocosm()->sector().coordinate();
+
+    Text::platform_retain_alphabet(pfrm);
 }
 
 
@@ -63,21 +68,63 @@ void MacroverseScene::exit(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.screen().set_shader(passthrough_shader);
 
+    pfrm.sleep(1);
+    pfrm.screen().fade(1.f);
+
+
     pfrm.fill_overlay(0);
 
     pfrm.load_overlay_texture("overlay");
     pfrm.load_sprite_texture("spritesheet");
+
+    pfrm.screen().schedule_fade(0.f);
+
+    pfrm.screen().set_view({});
 }
 
 
 
-    static const auto reveal_time = milliseconds(150);
+static const auto reveal_time = milliseconds(150);
+
+
+
+static Vec2<Fixnum> sector_map_display_pos(Platform& pfrm, Vec2<s8> coord)
+{
+    const auto sw = pfrm.screen().size();
+
+    Vec2<Fixnum> origin{sw.x / 2 - 16, sw.y / 2 - 16};
+    origin.x += coord.x * 32;
+    origin.y += coord.y * 32;
+
+    return origin;
+}
 
 
 
 ScenePtr<Scene>
 MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (not app.macrocosm()) {
+        Platform::fatal(format("% %", __FILE__, __LINE__).c_str());
+    }
+
+    if (exit_) {
+        return scene_pool::alloc<SelectorScene>();
+    }
+
+
+    auto v = pfrm.screen().get_view();
+    auto cam = sector_map_display_pos(pfrm, selected_);
+    Vec2<Float> target{cam.x.as_float() - (pfrm.screen().size().x / 2 - 16), cam.y.as_float() - (pfrm.screen().size().y / 2 - 16)};
+
+    camera_ = interpolate(target, camera_, delta * 0.0000081f);
+
+    v.set_center(camera_);
+    pfrm.screen().set_view(v);
+
+
+    auto& m = *app.macrocosm();
+
     app.macrocosm()->data_->cloud_scroll_ += 0.000001f * delta;
 
     switch (state_) {
@@ -145,7 +192,51 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::show:
         if (app.player().key_down(pfrm, Key::action_2)) {
-            return scene_pool::alloc<StartMenuScene>(1);
+            selected_name_.reset();
+            selected_population_.reset();
+            pfrm.fill_overlay(0);
+            exit_ = true;
+            pfrm.speaker().play_sound("button_wooden", 3);
+        }
+
+        if (app.player().key_down(pfrm, Key::left)) {
+            if (auto s = m.bind_sector({s8(selected_.x - 1), selected_.y})) {
+                selected_ = s->coordinate();
+                describe_selected(pfrm, m);
+                pfrm.speaker().play_sound("click_wooden", 2);
+            } else {
+                pfrm.speaker().play_sound("beep_error", 2);
+            }
+        }
+
+        if (app.player().key_down(pfrm, Key::right)) {
+            if (auto s = m.bind_sector({s8(selected_.x + 1), selected_.y})) {
+                selected_ = s->coordinate();
+                describe_selected(pfrm, m);
+                pfrm.speaker().play_sound("click_wooden", 2);
+            } else {
+                pfrm.speaker().play_sound("beep_error", 2);
+            }
+        }
+
+        if (app.player().key_down(pfrm, Key::up)) {
+            if (auto s = m.bind_sector({selected_.x, s8(selected_.y - 1)})) {
+                selected_ = s->coordinate();
+                describe_selected(pfrm, m);
+                pfrm.speaker().play_sound("click_wooden", 2);
+            } else {
+                pfrm.speaker().play_sound("beep_error", 2);
+            }
+        }
+
+        if (app.player().key_down(pfrm, Key::down)) {
+            if (auto s = m.bind_sector({selected_.x, s8(selected_.y + 1)})) {
+                selected_ = s->coordinate();
+                describe_selected(pfrm, m);
+                pfrm.speaker().play_sound("click_wooden", 2);
+            } else {
+                pfrm.speaker().play_sound("beep_error", 2);
+            }
         }
         break;
     }
@@ -163,11 +254,12 @@ void MacroverseScene::describe_selected(Platform& pfrm, macro::State& state)
         for (int i = 0; i < selected_name_->len(); ++i) {
             pfrm.set_tile(Layer::overlay, 1 + i, st.y - 3, 0);
         }
+    } else {
+        selected_name_.emplace(pfrm,
+                               OverlayCoord{1, (u8)(st.y - 4)});
     }
 
-    selected_name_.emplace(pfrm,
-                           state.sector().name().c_str(),
-                           OverlayCoord{1, (u8)(st.y - 4)});
+    selected_name_->assign(state.sector().name().c_str());
 
     for (int i = 0; i < selected_name_->len(); ++i) {
         pfrm.set_tile(Layer::overlay, 1 + i, st.y - 3, 86);
@@ -189,15 +281,17 @@ void MacroverseScene::describe_selected(Platform& pfrm, macro::State& state)
 
 void MacroverseScene::display(Platform& pfrm, App& app)
 {
+    if (exit_) {
+        return;
+    }
 
     pfrm.system_call(
         "_prlx_macro",
         (void*)(intptr_t)(int)app.macrocosm()->data_->cloud_scroll_);
 
 
-    const auto sw = pfrm.screen().size();
 
-    auto draw_node = [&] {
+    auto draw_node = [&](macro::terrain::Sector& s) {
         Sprite spr;
 
         if (state_ == State::reveal) {
@@ -205,15 +299,33 @@ void MacroverseScene::display(Platform& pfrm, App& app)
                          u8(255 * (1.f - (float(timer_) / reveal_time)))});
         }
 
-        spr.set_position({sw.x / 2 - 16, sw.y / 2 - 16});
-        spr.set_texture_index(6);
+        auto c = s.coordinate();
+
+        auto origin = sector_map_display_pos(pfrm, c);
+
+        int t_start = 8;
+
+        if (c == selected_) {
+            t_start = 6;
+        } else if (state_ not_eq State::show) {
+            return;
+        }
+
+        spr.set_position(origin);
+        spr.set_texture_index(t_start);
         pfrm.screen().draw(spr);
-        spr.set_texture_index(7);
-        spr.set_position({sw.x / 2 - 16, sw.y / 2 + 16});
+        spr.set_texture_index(t_start + 1);
+        spr.set_position({origin.x, origin.y + 32});
         pfrm.screen().draw(spr);
     };
 
-    draw_node();
+    auto& m = *app.macrocosm();
+
+    draw_node(m.data_->origin_sector_);
+
+    for (auto& s : m.data_->other_sectors_) {
+        draw_node(*s);
+    }
 }
 
 

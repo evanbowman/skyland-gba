@@ -47,7 +47,11 @@ void MenuOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
     //                      SYSTR(macro_layers)->c_str(),
     //                      OverlayCoord{3, 2});
 
-    pfrm.set_tile(Layer::overlay, 0, 19, 394);
+    const auto st = calc_screen_tiles(pfrm);
+
+    pfrm.set_tile(Layer::overlay, 0, st.y - 1, 393);
+    pfrm.set_tile(Layer::overlay, 0, st.y - 2, 394);
+
     // pfrm.set_tile(Layer::overlay, 2, 1, 395);
     // pfrm.set_tile(Layer::overlay, 1, 2, 392);
     // pfrm.set_tile(Layer::overlay, 2, 2, 393);
@@ -55,7 +59,12 @@ void MenuOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
     next_turn_text_.emplace(
         pfrm,
         SYSTR(macro_next_turn)->c_str(),
-        OverlayCoord{1, (u8)(calc_screen_tiles(pfrm).y - 1)});
+        OverlayCoord{1, (u8)(st.y - 2)});
+
+    macroverse_text_.emplace(
+        pfrm,
+        SYSTR(start_menu_macroverse)->c_str(),
+        OverlayCoord{1, (u8)(st.y - 1)});
 
     // visible_layers_text_->assign(SYSTR(macro_visible_layers)->c_str());
     // visible_layers_text_->append(app.macrocosm()->sector().get_z_view());
@@ -68,7 +77,10 @@ void MenuOptionsScene::exit(Platform& pfrm, App& app, Scene& next)
     if (not dynamic_cast<NextTurnScene*>(&next)) {
         MacrocosmScene::exit(pfrm, app, next);
         next_turn_text_.reset();
-        pfrm.set_tile(Layer::overlay, 0, 19, 0);
+        macroverse_text_.reset();
+        const auto st = calc_screen_tiles(pfrm);
+        pfrm.set_tile(Layer::overlay, 0, st.y - 1, 0);
+        pfrm.set_tile(Layer::overlay, 0, st.y - 2, 0);
     } else {
         next_turn_text_->__detach();
     }
