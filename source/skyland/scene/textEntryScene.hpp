@@ -43,7 +43,8 @@ public:
     TextEntryScene(const char* prompt,
                    Receiver receiver,
                    int required_chars,
-                   int char_limit);
+                   int char_limit,
+                   const char* default_text = "");
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;

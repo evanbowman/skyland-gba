@@ -35,6 +35,12 @@ namespace skyland::macro
 class MacroverseScene : public Scene
 {
 public:
+
+    MacroverseScene(bool fastload = false) : fastload_(fastload)
+    {
+    }
+
+
     void enter(Platform& pfrm, App& app, Scene& prev) override;
     void exit(Platform& pfrm, App& app, Scene& prev) override;
 
@@ -50,6 +56,8 @@ private:
         wait,
         fade_in,
         show,
+        options,
+        text_prompt,
     } state_ = State::reveal;
 
 
@@ -59,13 +67,15 @@ private:
     Microseconds timer_;
 
     Vec2<s8> selected_ = {};
+    Vec2<s8> initial_sector_;
     Vec2<Float> camera_;
 
     bool exit_ = false;
+    bool fastload_ = false;
 
+    u8 opt_cursor_ = 0;
 
-    std::optional<Text> selected_name_;
-    std::optional<Text> selected_population_;
+    Buffer<Text, 4> text_objs_;
 };
 
 

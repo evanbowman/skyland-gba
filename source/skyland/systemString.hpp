@@ -188,6 +188,9 @@ enum class SystemString {
     macro_layers,
     macro_visible_layers,
     macro_next_turn,
+    macro_enter,
+    macro_create_colony,
+    macro_set_name,
 
 
     description_power_core,

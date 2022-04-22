@@ -23,9 +23,10 @@
 #include "macroverseScene.hpp"
 #include "platform/color.hpp"
 #include "platform/platform.hpp"
-#include "skyland/skyland.hpp"
-#include "skyland/scene/startMenuScene.hpp"
 #include "selectorScene.hpp"
+#include "skyland/scene/startMenuScene.hpp"
+#include "skyland/skyland.hpp"
+#include "skyland/scene/textEntryScene.hpp"
 
 
 
@@ -40,6 +41,10 @@ void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.fatal("logic error while entering macroverse!");
     }
 
+    if (fastload_) {
+        pfrm.load_overlay_texture("overlay_challenges");
+    }
+
     pfrm.load_sprite_texture("spritesheet_macroverse");
 
     pfrm.screen().schedule_fade(0.f);
@@ -52,6 +57,7 @@ void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_tile1_texture("macro_rendertexture");
 
     selected_ = app.macrocosm()->sector().coordinate();
+    initial_sector_ = selected_;
 
     Text::platform_retain_alphabet(pfrm);
 }
@@ -74,7 +80,11 @@ void MacroverseScene::exit(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.fill_overlay(0);
 
+    if (text_objs_.size()) {
+        Platform::fatal("text objs not cleared, tearing will occur!");
+    }
     pfrm.load_overlay_texture("overlay");
+
     pfrm.load_sprite_texture("spritesheet");
 
     pfrm.screen().schedule_fade(0.f);
@@ -113,9 +123,22 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    auto clear_description =
+        [&] {
+            text_objs_.clear();
+            auto st_y = calc_screen_tiles(pfrm).y;
+            for (int y = st_y - 6; y < st_y; ++y) {
+                for (int x = 0; x < calc_screen_tiles(pfrm).x; ++x) {
+                    pfrm.set_tile(Layer::overlay, x, y, 0);
+                }
+            }
+        };
+
+
     auto v = pfrm.screen().get_view();
     auto cam = sector_map_display_pos(pfrm, selected_);
-    Vec2<Float> target{cam.x.as_float() - (pfrm.screen().size().x / 2 - 16), cam.y.as_float() - (pfrm.screen().size().y / 2 - 16)};
+    Vec2<Float> target{cam.x.as_float() - (pfrm.screen().size().x / 2 - 16),
+                       cam.y.as_float() - (pfrm.screen().size().y / 2 - 16)};
 
     camera_ = interpolate(target, camera_, delta * 0.0000081f);
 
@@ -126,6 +149,15 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     auto& m = *app.macrocosm();
 
     app.macrocosm()->data_->cloud_scroll_ += 0.000001f * delta;
+
+    auto reveal_time = macro::reveal_time;
+    auto wait_time = milliseconds(400);
+    auto fade_time = milliseconds(500);
+    if (fastload_) {
+        reveal_time = milliseconds(40);
+        wait_time = milliseconds(200);
+        fade_time = milliseconds(250);
+    }
 
     switch (state_) {
     case State::reveal: {
@@ -138,7 +170,6 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                                         ColorConstant k,
                                         int var,
                                         int index) -> ColorConstant {
-
                 auto blend = [&](auto sc, auto d) {
                     const Color dst(custom_color(sc));
                     const Color src(custom_color(d));
@@ -166,7 +197,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::wait:
         timer_ += delta;
-        if (timer_ > milliseconds(400)) {
+        if (timer_ > wait_time) {
             timer_ = 0;
             state_ = State::fade_in;
         }
@@ -174,7 +205,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::fade_in: {
         timer_ += delta;
-        auto tm = milliseconds(500);
+        auto tm = fade_time;
         if (timer_ > tm) {
             timer_ = 0;
             state_ = State::show;
@@ -191,10 +222,31 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::show:
-        if (app.player().key_down(pfrm, Key::action_2)) {
-            selected_name_.reset();
-            selected_population_.reset();
-            pfrm.fill_overlay(0);
+
+        if (app.player().key_down(pfrm, Key::action_1)) {
+            clear_description();
+            state_ = State::options;
+            text_objs_.clear();
+
+            auto st = calc_screen_tiles(pfrm);
+
+            auto push_opt =
+                [&](SystemString str, u8 y) {
+                    auto s = loadstr(pfrm, str);
+                    u8 mg = centered_text_margins(pfrm, utf8::len(s->c_str()));
+                    text_objs_.emplace_back(pfrm,
+                                            s->c_str(),
+                                            OverlayCoord{mg, y});
+                };
+
+            push_opt(SystemString::macro_enter, st.y - 6);
+            push_opt(SystemString::macro_create_colony, st.y - 4);
+            push_opt(SystemString::macro_set_name, st.y - 2);
+
+            pfrm.speaker().play_sound("button_wooden", 3);
+        } else if (app.player().key_down(pfrm, Key::action_2)) {
+            m.bind_sector(initial_sector_);
+            clear_description();
             exit_ = true;
             pfrm.speaker().play_sound("button_wooden", 3);
         }
@@ -239,6 +291,61 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
         break;
+
+    case State::options:
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            text_objs_.clear();
+            describe_selected(pfrm, m);
+            state_ = State::show;
+        }
+
+        if (app.player().key_down(pfrm, Key::down) and opt_cursor_ < text_objs_.size() - 1) {
+            pfrm.speaker().play_sound("click_wooden", 2);
+            ++opt_cursor_;
+        }
+
+        if (app.player().key_down(pfrm, Key::up) and opt_cursor_ > 0) {
+            pfrm.speaker().play_sound("click_wooden", 2);
+            --opt_cursor_;
+        }
+
+        if (app.player().key_down(pfrm, Key::action_1)) {
+            switch (opt_cursor_) {
+            case 0:
+                text_objs_.clear();
+                exit_ = true;
+                pfrm.speaker().play_sound("button_wooden", 2);
+                break;
+
+            case 1:
+                break;
+
+            case 2:
+                text_objs_.clear();
+                pfrm.speaker().play_sound("button_wooden", 2);
+                state_ = State::text_prompt;
+                break;
+            }
+        }
+        break;
+
+    case State::text_prompt: {
+        const char* prompt = "Rename island:";
+
+        auto receive =
+            [&m](const char* text) {
+                m.sector().set_name(text);
+                return scene_pool::alloc<MacroverseScene>(true);
+            };
+
+        return scene_pool::alloc<TextEntryScene>(prompt,
+                                                 receive,
+                                                 1,
+                                                 12,
+                                                 m.sector().name().c_str());
+        break;
+    }
+
     }
 
     return null_scene();
@@ -250,38 +357,33 @@ void MacroverseScene::describe_selected(Platform& pfrm, macro::State& state)
 {
     auto st = calc_screen_tiles(pfrm);
 
-    if (selected_name_) {
-        for (int i = 0; i < selected_name_->len(); ++i) {
-            pfrm.set_tile(Layer::overlay, 1 + i, st.y - 3, 0);
-        }
-    } else {
-        selected_name_.emplace(pfrm,
-                               OverlayCoord{1, (u8)(st.y - 4)});
+    if (text_objs_.size() not_eq 2) {
+        text_objs_.clear();
+
+        text_objs_.emplace_back(pfrm, OverlayCoord{1, (u8)(st.y - 4)});
+        text_objs_.emplace_back(pfrm, OverlayCoord{2, (u8)(st.y - 2)});
     }
 
-    selected_name_->assign(state.sector().name().c_str());
+    for (int i = 0; i < text_objs_[0].len(); ++i) {
+        pfrm.set_tile(Layer::overlay, 1 + i, st.y - 3, 0);
+    }
 
-    for (int i = 0; i < selected_name_->len(); ++i) {
+    text_objs_[0].assign(state.sector().name().c_str());
+
+    for (int i = 0; i < text_objs_[0].len(); ++i) {
         pfrm.set_tile(Layer::overlay, 1 + i, st.y - 3, 86);
     }
 
-
     pfrm.set_tile(Layer::overlay, 1, st.y - 2, 85);
 
-    if (not selected_population_) {
-        selected_population_.emplace(pfrm,
-                                     OverlayCoord{2, (u8)(st.y - 2)});
-    }
-
-    selected_population_->assign(state.sector().population());
-
+    text_objs_[1].assign(state.sector().population());
 }
 
 
 
 void MacroverseScene::display(Platform& pfrm, App& app)
 {
-    if (exit_) {
+    if (exit_ or state_ == State::text_prompt) {
         return;
     }
 
@@ -307,7 +409,7 @@ void MacroverseScene::display(Platform& pfrm, App& app)
 
         if (c == selected_) {
             t_start = 6;
-        } else if (state_ not_eq State::show) {
+        } else if ((int)state_ < (int)State::show) {
             return;
         }
 

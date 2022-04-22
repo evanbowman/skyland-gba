@@ -38,11 +38,13 @@ namespace skyland
 TextEntryScene::TextEntryScene(const char* prompt,
                                Receiver receiver,
                                int required_chars,
-                               int char_limit)
+                               int char_limit,
+                               const char* default_text)
     : state_(allocate_dynamic<State>("text-entry-buffer")), receiver_(receiver),
       required_chars_(required_chars), char_limit_(char_limit)
 {
     state_->prompt_ = prompt;
+    state_->buffer_ = default_text;
 }
 
 
@@ -56,6 +58,8 @@ void TextEntryScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto base_colors =
         FontColors{custom_color(0xffffff), custom_color(0x392194)};
+
+    pfrm.screen().schedule_fade(1.f, custom_color(0x392194));
 
     auto mapping_info_lbrace = locale_texture_map()('<');
     const u16 lbrace = pfrm.map_glyph('<', *mapping_info_lbrace);
@@ -81,6 +85,12 @@ void TextEntryScene::enter(Platform& pfrm, App& app, Scene& prev)
         FontColors{custom_color(0x392194), ColorConstant::silver_white};
 
     prompt_text_->assign(state_->prompt_.c_str(), status_colors);
+
+    if (not state_->buffer_.empty()) {
+        entry_->assign(
+            state_->buffer_.c_str(),
+            FontColors{custom_color(0xffffff), custom_color(0xbd7f14)});
+    }
 }
 
 
@@ -141,6 +151,14 @@ TextEntryScene::update(Platform& pfrm, App& app, Microseconds delta)
             keyboard_cursor_.y = 0;
         }
         render_keyboard(pfrm);
+    }
+
+    if (player(app).key_down(pfrm, Key::start)) {
+        if (state_->buffer_.length() >= (u32)required_chars_) {
+            return receiver_(state_->buffer_.c_str());
+        } else {
+            pfrm.speaker().play_sound("beep_error", 2);
+        }
     }
 
 

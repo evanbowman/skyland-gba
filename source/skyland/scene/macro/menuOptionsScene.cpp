@@ -21,6 +21,7 @@
 
 
 
+#include "macroverseScene.hpp"
 #include "menuOptionsScene.hpp"
 #include "nextTurnScene.hpp"
 #include "selectorScene.hpp"
@@ -57,14 +58,14 @@ void MenuOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
     // pfrm.set_tile(Layer::overlay, 2, 2, 393);
 
     next_turn_text_.emplace(
-        pfrm,
-        SYSTR(macro_next_turn)->c_str(),
-        OverlayCoord{1, (u8)(st.y - 2)});
+        pfrm, SYSTR(macro_next_turn)->c_str(), OverlayCoord{1, (u8)(st.y - 2)});
 
-    macroverse_text_.emplace(
-        pfrm,
-        SYSTR(start_menu_macroverse)->c_str(),
-        OverlayCoord{1, (u8)(st.y - 1)});
+    StringBuffer<32> mv(":");
+    mv += SYSTR(start_menu_macroverse)->c_str();
+
+    macroverse_text_.emplace(pfrm,
+                             mv.c_str(),
+                             OverlayCoord{1, (u8)(st.y - 1)});
 
     // visible_layers_text_->assign(SYSTR(macro_visible_layers)->c_str());
     // visible_layers_text_->append(app.macrocosm()->sector().get_z_view());
@@ -83,6 +84,7 @@ void MenuOptionsScene::exit(Platform& pfrm, App& app, Scene& next)
         pfrm.set_tile(Layer::overlay, 0, st.y - 2, 0);
     } else {
         next_turn_text_->__detach();
+        macroverse_text_->__detach();
     }
 }
 
@@ -121,8 +123,9 @@ MenuOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
 
             pfrm.speaker().play_sound("cursor_tick", 2);
         } else if (player.key_down(pfrm, Key::up)) {
-
             pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.fill_overlay(0);
+            return scene_pool::alloc<MacroverseScene>(true);
         }
 
     } else {
