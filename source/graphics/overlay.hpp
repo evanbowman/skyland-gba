@@ -300,12 +300,23 @@ public:
 
     void init(int width)
     {
+        if (width_ > width) {
+            for (int i = width; i < width_ + 1; ++i) {
+                pfrm_.set_tile(Layer::overlay, position_.x + i, position_.y, 0);
+            }
+        }
+
         width_ = width;
         timer_ = 0;
         index_ = 0;
     }
 
     enum { anim_len = 3 };
+
+    u8 width()
+    {
+        return width_;
+    }
 
     void update(Microseconds dt)
     {
@@ -347,7 +358,7 @@ private:
 
     Platform& pfrm_;
     OverlayCoord position_;
-    int width_;
+    u8 width_;
     int timer_;
     int index_;
 };
@@ -442,6 +453,11 @@ public:
 
     inline void set_value(u32 value)
     {
+        if (value_ == value) {
+            // unchanged
+            return;
+        }
+
         auto value_len = integer_text_length(value);
 
         if (format_ == Format::fraction or format_ == Format::fraction_p_m) {
@@ -456,7 +472,7 @@ public:
         } else if (format_ == Format::integer_with_rate) {
             auto v1 = value & 0x0000ffff;
             int v2 = (value & 0xffff0000) >> 16;
-            value_len = integer_text_length(v1) + 2 + integer_text_length(v2);
+            value_len = integer_text_length(v1) + 1 + integer_text_length(v2);
             if (v2 > 0) {
                 ++value_len;
             } else if (v2 == 0) {

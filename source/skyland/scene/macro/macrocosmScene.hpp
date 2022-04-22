@@ -60,6 +60,15 @@ public:
     void draw_compass(Platform& pfrm, macro::State& state);
 
 
+    void drop_ui()
+    {
+        ui_.reset();
+    }
+
+
+    void update_ui(macro::State& state);
+
+
 private:
     struct UIObjects
     {
@@ -70,7 +79,7 @@ private:
         std::optional<UIMetric> housing_;
     };
 
-    DynamicMemory<UIObjects> ui_;
+    std::optional<DynamicMemory<UIObjects>> ui_;
 };
 
 

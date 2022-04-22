@@ -133,7 +133,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
     }
 
     if (player.key_down(pfrm, Key::action_1)) {
-
+        pfrm.speaker().play_sound("button_wooden", 3);
         if (cursor.z == 0) {
             return scene_pool::alloc<CreateBlockScene>();
         } else {

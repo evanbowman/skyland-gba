@@ -46,7 +46,13 @@ void TileOptionsScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     MacrocosmScene::exit(pfrm, app, next);
     text_.reset();
-    pfrm.fill_overlay(0);
+
+    const auto st = calc_screen_tiles(pfrm);
+    for (int y = st.y - 8; y < st.y; ++y) {
+        for (int x = 0; x < 32; ++x) {
+            pfrm.set_tile(Layer::overlay, x, y, 0);
+        }
+    }
 }
 
 
@@ -70,7 +76,9 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     if (player.key_down(pfrm, Key::action_1)) {
         pfrm.speaker().play_sound("button_wooden", 3);
-        return options_[selector_]->next_(state);
+        auto next = options_[selector_]->next_(state);
+        update_ui(state);
+        return next;
     }
 
     if (player.key_down(pfrm, Key::action_2)) {

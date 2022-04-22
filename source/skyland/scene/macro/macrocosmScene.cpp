@@ -31,7 +31,6 @@ namespace skyland::macro
 
 
 MacrocosmScene::MacrocosmScene()
-    : ui_(allocate_dynamic<UIObjects>("macro-ui-objects"))
 {
 }
 
@@ -46,6 +45,15 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     app.player().update(pfrm, app, delta);
     app.camera()->update(pfrm, app, app.player_island(), {}, delta, true);
+
+
+    if (ui_) {
+        (*ui_)->coins_->update(pfrm, delta);
+        (*ui_)->population_->update(pfrm, delta);
+        (*ui_)->food_->update(pfrm, delta);
+        (*ui_)->employment_->update(pfrm, delta);
+        (*ui_)->housing_->update(pfrm, delta);
+    }
 
 
     if (auto scene = update(pfrm, app.player(), *app.macrocosm())) {
@@ -98,46 +106,92 @@ u32 format_ui_fraction(u16 avail, u16 used)
 
 
 
-void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
+void MacrocosmScene::update_ui(macro::State& state)
 {
-    auto& sector = app.macrocosm()->sector();
+    if (not ui_) {
+        return;
+    }
+
+
+    auto& sector = state.sector();
 
     auto stat = sector.stats();
-
     auto pop = sector.population();
 
-    ui_->food_.emplace(
-        pfrm,
-        OverlayCoord{1, 1},
-        414,
-        format_ui_fraction(stat.food_, pop / terrain::food_consumption_factor),
-        UIMetric::Align::left,
-        UIMetric::Format::fraction_p_m);
 
-    ui_->population_.emplace(
-        pfrm,
-        OverlayCoord{1, 3},
-        413,
-        format_ui_fraction(pop, sector.population_growth_rate()),
-        UIMetric::Align::left,
-        UIMetric::Format::integer_with_rate);
+    (*ui_)->food_->set_value(format_ui_fraction(stat.food_,
+                                                pop / terrain::food_consumption_factor));
 
-    ui_->coins_.emplace(
-        pfrm,
-        OverlayCoord{1, 2},
-        146,
-        format_ui_fraction((int)app.macrocosm()->data_->p().coins_.get(),
-                           app.macrocosm()->coin_yield()),
-        UIMetric::Align::left,
-        UIMetric::Format::integer_with_rate);
+    (*ui_)->population_->set_value(format_ui_fraction(pop, sector.population_growth_rate()));
 
-    ui_->employment_.emplace(
-        pfrm, OverlayCoord{1, 4}, 415, stat.employment_, UIMetric::Align::left);
+    (*ui_)->coins_->set_value(format_ui_fraction((int)state.data_->p().coins_.get(),
+                                                 state.coin_yield()));
 
-    ui_->housing_.emplace(
-        pfrm, OverlayCoord{1, 5}, 416, stat.housing_, UIMetric::Align::left);
+    (*ui_)->housing_->set_value(stat.housing_);
+
+    (*ui_)->employment_->set_value(stat.employment_);
+
+}
 
 
+
+void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
+{
+    if (not app.macrocosm()) {
+        Platform::fatal(format("logic error! % %", __FILE__, __LINE__).c_str());
+    }
+
+    auto m = dynamic_cast<MacrocosmScene*>(&prev);
+    if (m and m->ui_) {
+        ui_ = std::move(m->ui_);
+        update_ui(*app.macrocosm());
+    } else {
+        ui_ = allocate_dynamic<UIObjects>("macro-ui-objects");
+
+        auto& sector = app.macrocosm()->sector();
+
+        auto stat = sector.stats();
+        auto pop = sector.population();
+
+
+        (*ui_)->food_.emplace(
+            pfrm,
+            OverlayCoord{1, 1},
+            414,
+            format_ui_fraction(stat.food_,
+                               pop / terrain::food_consumption_factor),
+            UIMetric::Align::left,
+            UIMetric::Format::fraction_p_m);
+
+        (*ui_)->population_.emplace(
+            pfrm,
+            OverlayCoord{1, 3},
+            413,
+            format_ui_fraction(pop, sector.population_growth_rate()),
+            UIMetric::Align::left,
+            UIMetric::Format::integer_with_rate);
+
+        (*ui_)->coins_.emplace(
+            pfrm,
+            OverlayCoord{1, 2},
+            146,
+            format_ui_fraction((int)app.macrocosm()->data_->p().coins_.get(),
+                               app.macrocosm()->coin_yield()),
+            UIMetric::Align::left,
+            UIMetric::Format::integer_with_rate);
+
+        (*ui_)->employment_.emplace(pfrm,
+                                    OverlayCoord{1, 4},
+                                    415,
+                                    stat.employment_,
+                                    UIMetric::Align::left);
+
+        (*ui_)->housing_.emplace(pfrm,
+                                 OverlayCoord{1, 5},
+                                 416,
+                                 stat.housing_,
+                                 UIMetric::Align::left);
+    }
 
     const auto year = app.macrocosm()->data_->p().year_.get() + 1;
 
@@ -169,11 +223,9 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::State& state)
 
 void MacrocosmScene::exit(Platform& pfrm, App& app, Scene& next)
 {
-    ui_->food_.reset();
-    ui_->population_.reset();
-    ui_->coins_.reset();
-    ui_->employment_.reset();
-    ui_->housing_.reset();
+    if (not dynamic_cast<MacrocosmScene*>(&next)) {
+        ui_.reset();
+    }
 }
 
 

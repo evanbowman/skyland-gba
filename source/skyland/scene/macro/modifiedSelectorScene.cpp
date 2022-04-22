@@ -35,6 +35,10 @@ namespace skyland::macro
 
 void ModifiedSelectorScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    if (auto m = dynamic_cast<MacrocosmScene*>(&prev)) {
+        m->drop_ui();
+    }
+
     Text::platform_retain_alphabet(pfrm);
 
     rotate_text_.emplace(

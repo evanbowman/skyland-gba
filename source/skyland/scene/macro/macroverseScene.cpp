@@ -338,10 +338,10 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             case 1: {
                 auto push = [&](s8 x, s8 y) {
-                                if (not m.load_sector({x, y})) {
-                                    colony_create_slots_.push_back({x, y});
-                                }
-                            };
+                    if (not m.load_sector({x, y})) {
+                        colony_create_slots_.push_back({x, y});
+                    }
+                };
 
                 push(selected_.x - 1, selected_.y);
                 push(selected_.x + 1, selected_.y);

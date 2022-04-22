@@ -71,7 +71,13 @@ void CreateBlockScene::collect_options(macro::State& state)
 void CreateBlockScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     MacrocosmScene::exit(pfrm, app, next);
-    pfrm.fill_overlay(0);
+
+    const auto st = calc_screen_tiles(pfrm);
+    for (int y = st.y - 8; y < st.y; ++y) {
+        for (int x = 0; x < 32; ++x) {
+            pfrm.set_tile(Layer::overlay, x, y, 0);
+        }
+    }
 }
 
 
