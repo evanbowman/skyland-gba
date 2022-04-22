@@ -119,18 +119,18 @@ void MacrocosmScene::update_ui(macro::State& state)
     auto pop = sector.population();
 
 
-    (*ui_)->food_->set_value(format_ui_fraction(stat.food_,
-                                                pop / terrain::food_consumption_factor));
+    (*ui_)->food_->sync_value(
+        format_ui_fraction(stat.food_, pop / terrain::food_consumption_factor));
 
-    (*ui_)->population_->set_value(format_ui_fraction(pop, sector.population_growth_rate()));
+    (*ui_)->population_->sync_value(
+        format_ui_fraction(pop, sector.population_growth_rate()));
 
-    (*ui_)->coins_->set_value(format_ui_fraction((int)state.data_->p().coins_.get(),
-                                                 state.coin_yield()));
+    (*ui_)->coins_->sync_value(format_ui_fraction(
+        (int)state.data_->p().coins_.get(), state.coin_yield()));
 
-    (*ui_)->housing_->set_value(stat.housing_);
+    (*ui_)->housing_->sync_value(stat.housing_);
 
-    (*ui_)->employment_->set_value(stat.employment_);
-
+    (*ui_)->employment_->sync_value(stat.employment_);
 }
 
 

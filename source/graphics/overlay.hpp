@@ -300,12 +300,6 @@ public:
 
     void init(int width)
     {
-        if (width_ > width) {
-            for (int i = width; i < width_ + 1; ++i) {
-                pfrm_.set_tile(Layer::overlay, position_.x + i, position_.y, 0);
-            }
-        }
-
         width_ = width;
         timer_ = 0;
         index_ = 0;
@@ -451,50 +445,14 @@ public:
     {
     }
 
-    inline void set_value(u32 value)
+    inline void sync_value(u32 value)
     {
-        if (value_ == value) {
-            // unchanged
-            return;
-        }
-
-        auto value_len = integer_text_length(value);
-
-        if (format_ == Format::fraction or format_ == Format::fraction_p_m) {
-            auto v1 = value & 0x0000ffff;
-            auto v2 = (value & 0xffff0000) >> 16;
-            value_len = integer_text_length(v1) + 1 + integer_text_length(v2);
-            if (format_ == Format::fraction_p_m) {
-                value_len += integer_text_length(v1 - v2);
-                value_len += 1;
-                value_len += 2;
-            }
-        } else if (format_ == Format::integer_with_rate) {
-            auto v1 = value & 0x0000ffff;
-            int v2 = (value & 0xffff0000) >> 16;
-            value_len = integer_text_length(v1) + 1 + integer_text_length(v2);
-            if (v2 > 0) {
-                ++value_len;
-            } else if (v2 == 0) {
-                value_len += 2;
-            }
-        }
-
-        anim_.init(value_len);
-        value_ = value;
-
-
-        switch (align_) {
-        case Align::left:
-            anim_.set_position({u8(pos_.x + 1), pos_.y});
-            break;
-
-        case Align::right: {
-            anim_.set_position({u8(pos_.x - value_len), pos_.y});
-            break;
-        }
+        if (this->value() not_eq value) {
+            set_value(value);
         }
     }
+
+    void set_value(u32 value);
 
     inline void update(Platform& pfrm, Microseconds dt)
     {
@@ -517,93 +475,8 @@ public:
     }
 
 private:
-    inline void display(Platform& pfrm)
-    {
-        switch (align_) {
-        case Align::left: {
-            icon_.emplace(pfrm, icon_tile_, pos_);
-            text_.emplace(pfrm, OverlayCoord{u8(pos_.x + 1), pos_.y});
-            break;
-        }
 
-        case Align::right: {
-            const auto len = integer_text_length(value_);
-            icon_.emplace(pfrm, icon_tile_, pos_);
-            text_.emplace(pfrm, OverlayCoord{u8(pos_.x - len), pos_.y});
-            break;
-        }
-        }
-
-
-        if (format_ == Format::integer_with_rate) {
-            auto v1 = value_ & 0x0000ffff;
-            int v2 = (value_ & 0xffff0000) >> 16;
-            text_->assign(v1);
-            auto clr = Text::OptColors{
-                {ColorConstant::med_blue_gray, ColorConstant::rich_black}};
-            text_->append(",", clr);
-
-            if (v2 > 0) {
-                text_->append("+", clr);
-                text_->append(v2, clr);
-            } else if (v2 == 0) {
-                text_->append("+<1", clr);
-            } else {
-                text_->append(v2, clr);
-            }
-
-
-        } else if (format_ == Format::fraction or
-                   format_ == Format::fraction_p_m) {
-            auto v1 = value_ & 0x0000ffff;
-            auto v2 = (value_ & 0xffff0000) >> 16;
-
-            Text::OptColors main_clr;
-
-            auto clr = [&] {
-                if (v1 < v2) {
-                    main_clr =
-                        Text::OptColors{{ColorConstant::rich_black,
-                                         ColorConstant::aerospace_orange}};
-                    if (format_ == Format::fraction_p_m) {
-                        return Text::OptColors{{ColorConstant::med_blue_gray,
-                                                ColorConstant::rich_black}};
-                    } else {
-                        return main_clr;
-                    }
-                } else {
-                    if (format_ == Format::fraction_p_m) {
-                        return Text::OptColors{{ColorConstant::med_blue_gray,
-                                                ColorConstant::rich_black}};
-                    } else {
-                        return Text::OptColors{};
-                    }
-                }
-            }();
-
-            if (format_ == Format::fraction_p_m) {
-                text_->append(v1 - v2, main_clr);
-                text_->append(",", clr);
-                text_->append("-", clr);
-            }
-            text_->append(v2, clr);
-
-            if (format_ == Format::fraction_p_m) {
-                text_->append(",", clr);
-            } else {
-                text_->append("/", clr);
-            }
-
-            if (format_ == Format::fraction_p_m) {
-                text_->append("+", clr);
-            }
-            text_->append(v1, clr);
-
-
-        } else {
-            text_->assign(value_);
-        }
-    }
+    void display(Platform& pfrm);
 
     const int icon_tile_;
     std::optional<SmallIcon> icon_;
