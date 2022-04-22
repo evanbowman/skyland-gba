@@ -175,6 +175,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerCoOpAwaitLockScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/macrocosmScene.cpp
+  ${SOURCE_DIR}/skyland/scene/macro/macroverseScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/nextTurnScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/selectorScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/tileOptionsScene.cpp
@@ -346,6 +347,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/background_title_screen.s
     ${DATA_DIR}/spritesheet_title_screen.s
     ${DATA_DIR}/spritesheet_intro.s
+    ${DATA_DIR}/spritesheet_macroverse.s
     ${DATA_DIR}/music_unaccompanied_wind.s
     ${DATA_DIR}/music_isle_of_the_dead.s
     ${DATA_DIR}/music_life_in_silco.s
@@ -610,6 +612,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_spritesheet(spritesheet 2 4 NO)
     add_spritesheet(spritesheet_title_screen 2 4 NO)
     add_spritesheet(spritesheet_intro 2 4 NO)
+    add_spritesheet(spritesheet_macroverse 2 4 NO)
     add_tilesheet(tilesheet 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)

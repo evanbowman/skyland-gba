@@ -19,6 +19,8 @@
 //;
 #include "data/spritesheet_intro.h"
 //;
+#include "data/spritesheet_macroverse.h"
+//;
 #include "data/tilesheet.h"
 //;
 #include "data/tilesheet_enemy_0.h"
@@ -127,6 +129,8 @@ static const TextureData sprite_textures[] = {
     TEXTURE_INFO(spritesheet_title_screen),
 //;
     TEXTURE_INFO(spritesheet_intro),
+//;
+    TEXTURE_INFO(spritesheet_macroverse),
 //
 };
 

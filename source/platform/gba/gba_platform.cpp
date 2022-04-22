@@ -2326,7 +2326,7 @@ static void vblank_isr()
 {
     vblank_scroll_callback();
 
-    // watchdog_counter += 1;
+    watchdog_counter += 1;
 
     rumble_update();
 

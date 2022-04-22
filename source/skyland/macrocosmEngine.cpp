@@ -109,6 +109,33 @@ Coins terrain::Sector::coin_yield() const
 
 
 
+void terrain::Sector::set_name(const StringBuffer<name_len - 1>& name)
+{
+    memset(p_.name_, '\0', name_len);
+
+    auto out = p_.name_;
+    for (char c : name) {
+        *(out++) = c;
+    }
+}
+
+
+
+StringBuffer<terrain::Sector::name_len - 1> terrain::Sector::name()
+{
+    auto np = p_.name_;
+
+    StringBuffer<terrain::Sector::name_len - 1> result;
+
+    while (*np not_eq '\0') {
+        result.push_back(*(np++));
+    }
+
+    return result;
+}
+
+
+
 void State::advance(int elapsed_years)
 {
     sector().advance(elapsed_years);
@@ -243,6 +270,8 @@ void State::load(Platform& pfrm)
 
         load_sector(data_->origin_sector_);
 
+        data_->other_sectors_.clear();
+
         for (int i = 0; i < header.num_sectors_ - 1; ++i) {
             data_->other_sectors_.push_back(
                 allocate_dynamic<terrain::Sector>("macro-sector", Vec2<s8>{}));
@@ -278,6 +307,8 @@ terrain::Sector::Sector(Vec2<s8> position)
 {
     p_.x_ = position.x;
     p_.y_ = position.y;
+
+    set_name("");
 }
 
 
@@ -735,25 +766,8 @@ u16 terrain::Sector::cursor_raster_pos() const
 static bool blocks_light(terrain::Type t)
 {
     static const bool result[(int)terrain::Type::count] = {
-        false,
-        true,
-        true,
-        false,
-        true,
-        true,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
+        false, true, true,  false, true,  true,  false, true, true, true,
+        true,  true, false, false, false, false, true,  true, true,
     };
 
     return result[(int)t];
@@ -904,8 +918,7 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 
     shadowcast();
 
-    if (prev_type == Type::light_source or
-        type == Type::light_source or
+    if (prev_type == Type::light_source or type == Type::light_source or
         (type == Type::air and prev_type not_eq Type::selector)) {
 
         if (type == Type::air) {

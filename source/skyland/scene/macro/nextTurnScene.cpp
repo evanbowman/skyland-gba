@@ -20,8 +20,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "menuOptionsScene.hpp"
 #include "nextTurnScene.hpp"
+#include "menuOptionsScene.hpp"
 #include "selectorScene.hpp"
 #include "skyland/skyland.hpp"
 

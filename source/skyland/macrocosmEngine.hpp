@@ -230,6 +230,9 @@ public:
     }
 
 
+    static const int name_len = 12;
+
+
     // Should include almost all data that needs to be written to save memory,
     // except for the blocks themselves.
     struct Persistent
@@ -239,7 +242,7 @@ public:
 
         Vec3<u8> cursor_;
 
-        char name_[12];
+        char name_[name_len];
         Population population_ = 0;
 
         s8 x_;
@@ -248,10 +251,13 @@ public:
     static_assert(std::is_trivially_copyable<Persistent>());
 
 
+    void set_name(const StringBuffer<name_len - 1>& name);
+    StringBuffer<name_len - 1> name();
+
+
     void shadowcast();
 
 private:
-
     Persistent p_;
 
     u8 z_view_ = z_limit;

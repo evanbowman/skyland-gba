@@ -37,21 +37,19 @@ void ModifiedSelectorScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     Text::platform_retain_alphabet(pfrm);
 
-    rotate_text_.emplace(pfrm,
-                         SYSTR(macro_rotate)->c_str(),
-                         OverlayCoord{3, 1});
+    rotate_text_.emplace(
+        pfrm, SYSTR(macro_rotate)->c_str(), OverlayCoord{3, 1});
 
-    layers_text_.emplace(pfrm,
-                         SYSTR(macro_layers)->c_str(),
-                         OverlayCoord{3, 2});
+    layers_text_.emplace(
+        pfrm, SYSTR(macro_layers)->c_str(), OverlayCoord{3, 2});
 
     pfrm.set_tile(Layer::overlay, 1, 1, 394);
     pfrm.set_tile(Layer::overlay, 2, 1, 395);
     pfrm.set_tile(Layer::overlay, 1, 2, 392);
     pfrm.set_tile(Layer::overlay, 2, 2, 393);
 
-    visible_layers_text_.emplace(pfrm,
-                                 OverlayCoord{0, (u8)(calc_screen_tiles(pfrm).y - 1)});
+    visible_layers_text_.emplace(
+        pfrm, OverlayCoord{0, (u8)(calc_screen_tiles(pfrm).y - 1)});
 
     visible_layers_text_->assign(SYSTR(macro_visible_layers)->c_str());
     visible_layers_text_->append(app.macrocosm()->sector().get_z_view());
@@ -72,8 +70,9 @@ void ModifiedSelectorScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-ScenePtr<Scene>
-ModifiedSelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
+ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
+                                              Player& player,
+                                              macro::State& state)
 {
     if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
         return scene;
@@ -108,7 +107,8 @@ ModifiedSelectorScene::update(Platform& pfrm, Player& player, macro::State& stat
             if (not success) {
                 pfrm.speaker().play_sound("beep_error", 2);
             } else {
-                visible_layers_text_->assign(SYSTR(macro_visible_layers)->c_str());
+                visible_layers_text_->assign(
+                    SYSTR(macro_visible_layers)->c_str());
                 visible_layers_text_->append(state.sector().get_z_view());
                 pfrm.speaker().play_sound("cursor_tick", 2);
             }
@@ -117,7 +117,8 @@ ModifiedSelectorScene::update(Platform& pfrm, Player& player, macro::State& stat
             if (not success) {
                 pfrm.speaker().play_sound("beep_error", 2);
             } else {
-                visible_layers_text_->assign(SYSTR(macro_visible_layers)->c_str());
+                visible_layers_text_->assign(
+                    SYSTR(macro_visible_layers)->c_str());
                 visible_layers_text_->append(state.sector().get_z_view());
                 pfrm.speaker().play_sound("cursor_tick", 2);
             }

@@ -73,6 +73,7 @@ private:
         kill_menu,
         cut,
         fade_sweep,
+        fade_sweep_transparent_text,
     };
 
 
@@ -106,6 +107,8 @@ private:
     int fade_direction_ = 0;
 
     Microseconds timer_ = 0;
+
+    bool preserve_transparency_ = false;
 };
 
 

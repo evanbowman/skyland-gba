@@ -52,4 +52,4 @@ private:
 
 
 
-}
+} // namespace skyland::macro

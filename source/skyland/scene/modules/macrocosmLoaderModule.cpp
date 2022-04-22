@@ -66,8 +66,11 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     app.macrocosm().emplace();
-    auto& sector = app.macrocosm()->sector();
 
+    app.macrocosm()->data_->other_sectors_.push_back(allocate_dynamic<macro::terrain::Sector>("macro-colony-mem", Vec2<s8>{1, 0}));
+
+    auto& sector = app.macrocosm()->sector();
+    sector.set_name("origin");
 
     sector.set_block({3, 3, 0}, macro::terrain::Type::terrain);
     sector.set_block({3, 2, 0}, macro::terrain::Type::terrain);

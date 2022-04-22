@@ -22,10 +22,10 @@
 
 
 #include "menuOptionsScene.hpp"
+#include "nextTurnScene.hpp"
 #include "selectorScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "nextTurnScene.hpp"
 
 
 
@@ -52,9 +52,10 @@ void MenuOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
     // pfrm.set_tile(Layer::overlay, 1, 2, 392);
     // pfrm.set_tile(Layer::overlay, 2, 2, 393);
 
-    next_turn_text_.emplace(pfrm,
-                            SYSTR(macro_next_turn)->c_str(),
-                            OverlayCoord{1, (u8)(calc_screen_tiles(pfrm).y - 1)});
+    next_turn_text_.emplace(
+        pfrm,
+        SYSTR(macro_next_turn)->c_str(),
+        OverlayCoord{1, (u8)(calc_screen_tiles(pfrm).y - 1)});
 
     // visible_layers_text_->assign(SYSTR(macro_visible_layers)->c_str());
     // visible_layers_text_->append(app.macrocosm()->sector().get_z_view());

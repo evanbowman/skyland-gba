@@ -22,7 +22,9 @@
 
 #pragma once
 
-#include "macrocosmScene.hpp"
+#include "graphics/overlay.hpp"
+#include "skyland/macrocosmEngine.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -30,24 +32,36 @@ namespace skyland::macro
 {
 
 
-
-class ModifiedSelectorScene : public MacrocosmScene
+class MacroverseScene : public Scene
 {
 public:
     void enter(Platform& pfrm, App& app, Scene& prev) override;
+    void exit(Platform& pfrm, App& app, Scene& prev) override;
 
 
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::State& state) override;
-
+    void display(Platform&, App&) override;
 
 private:
-    std::optional<Text> rotate_text_;
-    std::optional<Text> layers_text_;
-    std::optional<Text> visible_layers_text_;
+    enum class State {
+        reveal,
+        wait,
+        fade_in,
+        show,
+    } state_ = State::reveal;
+
+
+    void describe_selected(Platform& pfrm, macro::State& state);
+
+
+    Microseconds timer_;
+
+    Vec2<s8> selected_ = {};
+
+    std::optional<Text> selected_name_;
+    std::optional<Text> selected_population_;
 };
 
 

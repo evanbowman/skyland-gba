@@ -24,6 +24,7 @@
 #include "boxedDialogScene.hpp"
 #include "hibernateScene.hpp"
 #include "hideRoomsScene.hpp"
+#include "macro/macroverseScene.hpp"
 #include "macro/selectorScene.hpp"
 #include "modules/glossaryViewerModule.hpp"
 #include "readyScene.hpp"
@@ -125,10 +126,11 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
                        kill_menu);
 
-            add_option(pfrm,
-                       SYSTR(start_menu_macroverse)->c_str(),
-                       scene_pool::make_deferred_scene<macro::SelectorScene>(),
-                       kill_menu);
+            add_option(
+                pfrm,
+                SYSTR(start_menu_macroverse)->c_str(),
+                scene_pool::make_deferred_scene<macro::MacroverseScene>(),
+                fade_sweep_transparent_text);
 
         } else {
             add_option(pfrm,
@@ -377,6 +379,9 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else if (mode == cut) {
                 data_->text_.clear();
                 state_ = State::cut;
+            } else if (mode == fade_sweep_transparent_text) {
+                state_ = State::partial_clear;
+                preserve_transparency_ = true;
             }
         }
         if (test_key(Key::down)) {
@@ -475,7 +480,9 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.screen().display();
 
             pfrm.set_overlay_origin(0, 0);
-            pfrm.load_overlay_texture("overlay");
+            if (not preserve_transparency_) {
+                pfrm.load_overlay_texture("overlay");
+            }
 
             pfrm.screen().schedule_fade(0.f);
             pfrm.screen().schedule_fade(1.f);
