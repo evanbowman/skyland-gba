@@ -549,7 +549,12 @@ private:
                     main_clr =
                         Text::OptColors{{ColorConstant::rich_black,
                                          ColorConstant::aerospace_orange}};
-                    return main_clr;
+                    if (format_ == Format::fraction_p_m) {
+                        return Text::OptColors{{ColorConstant::med_blue_gray,
+                                                ColorConstant::rich_black}};
+                    } else {
+                        return main_clr;
+                    }
                 } else {
                     if (format_ == Format::fraction_p_m) {
                         return Text::OptColors{{ColorConstant::med_blue_gray,

@@ -107,6 +107,7 @@ enum class SystemString {
     block_radiator,
     block_reactor,
     block_replicator,
+    block_shellfish,
     block_shrubbery,
     block_solar_cell,
     block_speaker,
@@ -124,6 +125,7 @@ enum class SystemString {
     block_water,
     block_water_source,
     block_wheat,
+    block_windmill,
     block_workshop,
 
     bird_label,

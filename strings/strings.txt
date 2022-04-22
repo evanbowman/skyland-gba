@@ -61,6 +61,7 @@ radar
 radiator
 reactor
 replicator
+shellfish
 shrubbery
 solar-cell
 speaker
@@ -78,6 +79,7 @@ transporter
 water
 water*
 wheat
+windmill
 workshop
 (bird)
 (human) 

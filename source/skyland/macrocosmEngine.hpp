@@ -74,6 +74,9 @@ enum class Type {
     water_slant_c,
     water_slant_d,
     light_source,
+    windmill,
+    windmill_stone_base,
+    shellfish,
     count,
 };
 
@@ -96,6 +99,7 @@ struct Commodity
     enum Type : u8 {
         indigo,
         rose_madder,
+        shellfish,
     };
     Type type_;
     u8 supply_;

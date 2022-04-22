@@ -56,7 +56,7 @@ struct TileOptionsScene::OptionInfo
     SystemString name_;
     int sel_icon_;
     int unsel_icon_;
-    ScenePtr<Scene> (*next_)();
+    ScenePtr<Scene> (*next_)(macro::State&);
 };
 
 
@@ -70,7 +70,7 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     if (player.key_down(pfrm, Key::action_1)) {
         pfrm.speaker().play_sound("button_wooden", 3);
-        return options_[selector_]->next_();
+        return options_[selector_]->next_(state);
     }
 
     if (player.key_down(pfrm, Key::action_2)) {
@@ -105,17 +105,23 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
         {SystemString::macro_create_block,
          2568,
          2584,
-         []() -> ScenePtr<Scene> {
+         [](macro::State& state) -> ScenePtr<Scene> {
              return scene_pool::alloc<CreateBlockScene>();
          }},
         {SystemString::macro_build_improvement,
          2520,
          2536,
-         []() -> ScenePtr<Scene> {
+         [](macro::State& state) -> ScenePtr<Scene> {
              return scene_pool::alloc<BuildImprovementScene>();
          }},
-        {SystemString::macro_demolish, 2600, 2616, []() -> ScenePtr<Scene> {
-             return null_scene();
+        {SystemString::macro_demolish,
+         2600,
+         2616,
+         [](macro::State& state) -> ScenePtr<Scene> {
+             auto c = state.sector().cursor();
+             c.z--;
+             state.sector().set_block(c, terrain::Type::air);
+             return scene_pool::alloc<SelectorScene>();
          }}};
 
     auto c = state.sector().cursor();

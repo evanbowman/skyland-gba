@@ -97,10 +97,10 @@ Coins terrain::Sector::coin_yield() const
     result += productivity;
 
     for (auto& c : st.commodities_) {
-        auto value = c.value(c.type_);
+        Float value = c.value(c.type_);
         for (int i = 0; i < c.supply_; ++i) {
             result += value;
-            value *= 0.75f; // Diminishing returns
+            value *= 0.85f; // Diminishing returns
         }
     }
 
@@ -318,6 +318,16 @@ terrain::Stats terrain::stats(Type t)
         result.employment_ += 4;
         break;
 
+    case terrain::Type::shellfish:
+        result.commodities_.push_back({Commodity::Type::shellfish, 1});
+        result.employment_ += 1;
+        break;
+
+    case terrain::Type::windmill_stone_base:
+    case terrain::Type::windmill:
+        result.employment_ += 20;
+        break;
+
     default:
         break;
     }
@@ -433,6 +443,7 @@ terrain::Category terrain::category(Type t)
     case terrain::Type::wheat:
     case terrain::Type::madder:
     case terrain::Type::indigo:
+    case terrain::Type::shellfish:
         return Category::crop;
 
     case terrain::Type::water:
@@ -481,6 +492,9 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::indigo:
         return 120;
 
+    case terrain::Type::shellfish:
+        return 160;
+
     case terrain::Type::madder:
         return 120;
 
@@ -492,6 +506,12 @@ Coins terrain::cost(Sector& s, Type t)
 
     case terrain::Type::light_source:
         return 200;
+
+    case terrain::Type::windmill_stone_base:
+        return 150;
+
+    case terrain::Type::windmill:
+        return 80;
     }
 
     return 0;
@@ -537,6 +557,9 @@ SystemString terrain::name(Type t)
     case terrain::Type::madder:
         return SystemString::block_madder;
 
+    case terrain::Type::shellfish:
+        return SystemString::block_shellfish;
+
     case terrain::Type::gold:
         return SystemString::block_gold;
 
@@ -545,6 +568,10 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::light_source:
         return SystemString::block_light_source;
+
+    case terrain::Type::windmill_stone_base:
+    case terrain::Type::windmill:
+        return SystemString::block_windmill;
     }
 
     return SystemString::gs_error;
@@ -602,8 +629,17 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
         result.push_back(Type::wheat);
         result.push_back(Type::indigo);
         result.push_back(Type::madder);
+        result.push_back(Type::windmill);
         break;
     }
+
+    case Type::water:
+        result.push_back(Type::shellfish);
+        break;
+
+    case Type::masonry:
+        result.push_back(Type::windmill_stone_base);
+        break;
 
     case Type::wheat:
         result.push_back(Type::terrain);
@@ -646,6 +682,7 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::selector:
         return {};
 
+    case terrain::Type::shellfish: // FIXME
     case terrain::Type::water:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
@@ -670,6 +707,10 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::light_source:
         return {2280, 2296};
+
+    case terrain::Type::windmill_stone_base:
+    case terrain::Type::windmill:
+        return {776, 760};
     }
 
     return {};
@@ -710,6 +751,8 @@ static bool blocks_light(terrain::Type t)
         false,
         false,
         false,
+        true,
+        true,
         true,
     };
 
@@ -774,7 +817,7 @@ void terrain::Sector::shadowcast()
 
                     // raycast negative x:
                     for (int xx = x - 1; xx > x - 3; --xx) {
-                        if (xx > 0) {
+                        if (xx > -1) {
                             auto& block = blocks_[z][xx][y];
                             if (blocks_light(block.type())) {
                                 break;
@@ -802,7 +845,7 @@ void terrain::Sector::shadowcast()
 
                     // raycast negative y:
                     for (int yy = y - 1; yy > y - 3; --yy) {
-                        if (yy > 0) {
+                        if (yy > -1) {
                             auto& block = blocks_[z][x][yy];
                             if (blocks_light(block.type())) {
                                 break;
@@ -861,8 +904,18 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 
     shadowcast();
 
-    if (prev_type == Type::light_source or type == Type::light_source) {
-        // TODO: only redraw the ones adjacent to the light source!
+    if (prev_type == Type::light_source or
+        type == Type::light_source or
+        (type == Type::air and prev_type not_eq Type::selector)) {
+
+        if (type == Type::air) {
+            raster::globalstate::_shrunk = true;
+        }
+
+
+        // Lighting pattern changed, or block removed (assigned as air), just
+        // redraw everything.
+
         for (auto& slab : blocks_) {
             for (auto& slice : slab) {
                 for (auto& block : slice) {
@@ -951,14 +1004,16 @@ bool terrain::Sector::set_z_view(u8 z_view)
 
 static void revert_if_covered(terrain::Sector& s,
                               terrain::Block& block,
-                              Vec3<u8> position)
+                              Vec3<u8> position,
+                              terrain::Type revert_to)
 {
     if (block.shadowed_) {
         if (position.z < terrain::Sector::z_limit) {
             position.z++;
             auto& above = s.get_block(position);
-            if (above.type() not_eq terrain::Type::selector) {
-                block.type_ = (u8)terrain::Type::terrain;
+            if (above.type() not_eq terrain::Type::selector and
+                above.type() not_eq terrain::Type::air) {
+                block.type_ = (u8)revert_to;
                 block.repaint_ = true;
                 raster::globalstate::_changed = true;
             }
@@ -1031,22 +1086,51 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // wheat
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        revert_if_covered(s, block, position);
+        revert_if_covered(s, block, position, terrain::Type::terrain);
     },
     // indigo
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        revert_if_covered(s, block, position);
+        revert_if_covered(s, block, position, terrain::Type::terrain);
     },
     // madder
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        revert_if_covered(s, block, position);
+        revert_if_covered(s, block, position, terrain::Type::terrain);
     },
     // gold
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
 
+    },
+    // workshop
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+
+    },
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    // light source
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+
+    },
+    // windmill
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::terrain);
+    },
+    // windmill_stone_base
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::masonry);
+    },
+    // shellfish
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::water);
     },
 };
 // clang-format on
