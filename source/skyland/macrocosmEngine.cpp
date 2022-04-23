@@ -177,7 +177,7 @@ u16 terrain::Sector::quantity_non_exported(Commodity::Type t)
     }
 
     for (auto& e : exports_) {
-        total -= e.export_supply_;
+        total -= e.export_supply_.get();
     }
 
     return std::max(0, total);
@@ -207,6 +207,13 @@ Coins terrain::Sector::coin_yield() const
 
 
 terrain::Sector::Exports& terrain::Sector::exports()
+{
+    return exports_;
+}
+
+
+
+const terrain::Sector::Exports& terrain::Sector::exports() const
 {
     return exports_;
 }
@@ -298,16 +305,27 @@ namespace save
 {
 static const char* path = "/save/macro.dat";
 
+static const char version = 'a';
+
+
 struct Header
 {
     State::Data::Persistent p_;
+    char version_ = version;
     u8 num_sectors_;
+
+    // NOTE: currently unused. In case we want to add extra stuff to the save
+    // file later and maintain backwards-compatibility, we store a number of
+    // appended attributes at the end of the file, which future versions will
+    // use.
+    host_u16 num_attributes_;
 };
 
 struct Sector
 {
     macro::terrain::Sector::Persistent p_;
     u8 blocks_[macro::terrain::Sector::z_limit][8][8];
+    u8 export_count_ = 0;
 
     Sector()
     {
@@ -324,6 +342,8 @@ struct Sector
                 }
             }
         }
+
+        export_count_ = source.exports().size();
     }
 };
 } // namespace save
@@ -346,6 +366,12 @@ void State::save(Platform& pfrm)
         save::Sector out(sector);
         for (u32 i = 0; i < sizeof out; ++i) {
             save_data.push_back(((u8*)&out)[i]);
+        }
+
+        for (auto& exp : sector.exports()) {
+            for (u32 i = 0; i < sizeof exp; ++i) {
+                save_data.push_back(((u8*)&exp)[i]);
+            }
         }
     };
 
@@ -378,6 +404,10 @@ void State::load(Platform& pfrm)
             ++it;
         }
 
+        if (header.version_ not_eq save::version) {
+            return;
+        }
+
         memcpy(&data_->p(), &header.p_, sizeof header.p_);
 
         auto load_sector = [&](terrain::Sector& dest) {
@@ -391,6 +421,19 @@ void State::load(Platform& pfrm)
             }
 
             dest.restore(s);
+
+            for (int i = 0; i < s.export_count_; ++i) {
+                terrain::Sector::ExportInfo info;
+                for (u32 i = 0; i < sizeof info; ++i) {
+                    if (it == input.end()) {
+                        Platform::fatal("failed while loading exports");
+                    }
+                    ((u8*)&s)[i] = *it;
+                    ++it;
+                }
+                dest.set_export(info);
+            }
+
             dest.shadowcast();
         };
 
@@ -610,11 +653,14 @@ static void intersector_exchange_commodities(const Vec2<s8> source_sector,
     for (auto& st : stats) {
         if (auto src_sector = state.load_sector(st.first)) {
             for (auto& exp : src_sector->exports()) {
-                remove_supply(st.second, exp.c, exp.export_supply_);
+
+                auto supply = exp.export_supply_.get();
+
+                remove_supply(st.second, exp.c, supply);
 
                 for (auto& target : stats) {
                     if (target.first == exp.destination_) {
-                        add_supply(target.second, exp.c, exp.export_supply_);
+                        add_supply(target.second, exp.c, supply);
                         break;
                     }
                 }

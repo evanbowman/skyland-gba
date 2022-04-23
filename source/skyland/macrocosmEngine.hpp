@@ -212,7 +212,7 @@ public:
         Commodity::Type c;
         Vec3<u8> source_coord_;
         Vec2<s8> destination_;
-        u16 export_supply_;
+        host_u16 export_supply_;
     };
 
 
@@ -220,6 +220,7 @@ public:
 
 
     Exports& exports();
+    const Exports& exports() const;
     void set_export(const ExportInfo& e);
     void remove_export(Vec3<u8> source_coord);
 

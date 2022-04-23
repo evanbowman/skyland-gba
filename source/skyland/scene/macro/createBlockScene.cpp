@@ -675,11 +675,13 @@ ScenePtr<Scene> ConfigurePortDestScene::update(Platform& pfrm,
     if (player.key_down(pfrm, Key::action_1)) {
         auto c = state.sector().cursor();
         --c.z;
-        state.sector().set_export(
-            {type_,
-             c,
-             state.load_sector(export_options_[selection_])->coordinate(),
-             (u16)export_count_});
+
+        terrain::Sector::ExportInfo info;
+        info.c = type_;
+        info.source_coord_ = c;
+        info.destination_ = state.load_sector(export_options_[selection_])->coordinate();
+        info.export_supply_.set((u16)export_count_);
+        state.sector().set_export(info);
 
         return scene_pool::alloc<SelectorScene>();
     }
