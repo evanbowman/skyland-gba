@@ -474,7 +474,12 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                         state_ = State::show;
                         describe_selected(pfrm, m);
 
-                        m.bind_sector(*selected_colony_);
+                        if (not m.bind_sector(*selected_colony_)) {
+                            Platform::fatal("logic error (bind sector)");
+                        }
+
+                        m.sector().set_block({3, 3, 0}, terrain::Type::terrain);
+                        m.sector().set_block({3, 3, 1}, terrain::Type::building);
 
                         pfrm.speaker().play_sound("button_wooden", 2);
                     }
