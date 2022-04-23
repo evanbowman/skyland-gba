@@ -61,6 +61,13 @@ Coins State::coin_yield()
 
 
 
+std::pair<Coins, terrain::Sector::Population> State::colony_cost() const
+{
+    return {1500 + 3000 * data_->other_sectors_.size(), 300};
+}
+
+
+
 Coins terrain::Sector::coin_yield() const
 {
     Coins result = 0;

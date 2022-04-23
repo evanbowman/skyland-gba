@@ -69,6 +69,7 @@ private:
     Vec2<s8> selected_ = {};
     Vec2<s8> initial_sector_;
     Vec2<Float> camera_;
+    std::optional<Vec2<s8>> selected_colony_;
 
     Buffer<Vec2<s8>, 4> colony_create_slots_;
 

@@ -68,7 +68,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     app.macrocosm().emplace();
 
     app.macrocosm()->make_sector({1, 0});
-    app.macrocosm()->make_sector({2, 0});
+    app.macrocosm()->make_sector({0, -1});
 
 
     auto& sector = app.macrocosm()->sector();

@@ -191,6 +191,8 @@ enum class SystemString {
     macro_enter,
     macro_create_colony,
     macro_set_name,
+    macro_colony_resources,
+    macro_colony_cost,
 
 
     description_power_core,

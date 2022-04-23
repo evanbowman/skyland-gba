@@ -49,8 +49,7 @@ void UIMetric::set_value(u32 value)
             value_len += 2;
         }
 
-        if (text_ and
-            text_->len() > value_len) {
+        if (text_ and text_->len() > value_len) {
             ++value_len;
         }
     }

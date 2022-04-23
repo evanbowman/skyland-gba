@@ -43,6 +43,13 @@ void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     if (fastload_) {
         pfrm.load_overlay_texture("overlay_challenges");
+        auto str = SYSTR(start_menu_macroverse);
+        Text heading(
+            pfrm,
+            OverlayCoord{
+                (u8)centered_text_margins(pfrm, utf8::len(str->c_str())), 1});
+        heading.assign(str->c_str());
+        heading.__detach();
     }
 
     pfrm.load_sprite_texture("spritesheet_macroverse");
@@ -104,7 +111,7 @@ static Vec2<Fixnum> sector_map_display_pos(Platform& pfrm, Vec2<s8> coord)
 
     Vec2<Fixnum> origin{sw.x / 2 - 16, sw.y / 2 - 16};
     origin.x += coord.x * 32;
-    origin.y += coord.y * 32;
+    origin.y += coord.y * 38;
 
     return origin;
 }
@@ -134,8 +141,35 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
 
+    auto enter_opt_state = [&] {
+        clear_description();
+        state_ = State::options;
+        text_objs_.clear();
+
+        auto st = calc_screen_tiles(pfrm);
+
+        auto push_opt = [&](SystemString str, u8 y) {
+            auto s = loadstr(pfrm, str);
+            u8 mg = centered_text_margins(pfrm, utf8::len(s->c_str())) + 1;
+            text_objs_.emplace_back(pfrm, s->c_str(), OverlayCoord{mg, y});
+        };
+
+        push_opt(SystemString::macro_enter, st.y - 6);
+        push_opt(SystemString::macro_create_colony, st.y - 4);
+        push_opt(SystemString::macro_set_name, st.y - 2);
+    };
+
+
     auto v = pfrm.screen().get_view();
     auto cam = sector_map_display_pos(pfrm, selected_);
+
+    if (state_ == State::create_colony and selected_colony_) {
+        cam = (cam + sector_map_display_pos(pfrm, *selected_colony_));
+        cam.x = cam.x.as_float() / 2;
+        cam.y = cam.y.as_float() / 2; // Fixed point division broke for this
+                                      // calculation.
+    }
+
     Vec2<Float> target{cam.x.as_float() - (pfrm.screen().size().x / 2 - 16),
                        cam.y.as_float() - (pfrm.screen().size().y / 2 - 16)};
 
@@ -223,22 +257,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::show:
 
         if (app.player().key_down(pfrm, Key::action_1)) {
-            clear_description();
-            state_ = State::options;
-            text_objs_.clear();
-
-            auto st = calc_screen_tiles(pfrm);
-
-            auto push_opt = [&](SystemString str, u8 y) {
-                auto s = loadstr(pfrm, str);
-                u8 mg = centered_text_margins(pfrm, utf8::len(s->c_str())) + 1;
-                text_objs_.emplace_back(pfrm, s->c_str(), OverlayCoord{mg, y});
-            };
-
-            push_opt(SystemString::macro_enter, st.y - 6);
-            push_opt(SystemString::macro_create_colony, st.y - 4);
-            push_opt(SystemString::macro_set_name, st.y - 2);
-
+            enter_opt_state();
             pfrm.speaker().play_sound("button_wooden", 3);
         } else if (app.player().key_down(pfrm, Key::action_2)) {
             m.bind_sector(initial_sector_);
@@ -337,6 +356,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
 
             case 1: {
+                colony_create_slots_.clear();
                 auto push = [&](s8 x, s8 y) {
                     if (not m.load_sector({x, y})) {
                         colony_create_slots_.push_back({x, y});
@@ -351,10 +371,56 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (colony_create_slots_.empty()) {
                     pfrm.speaker().play_sound("beep_error", 2);
                 } else {
+                    auto textline = [&](const StringBuffer<48>& str, u8 y) {
+                        text_objs_.emplace_back(
+                            pfrm, str.c_str(), OverlayCoord{1, y});
+                        u32 i = 0;
+
+                        bool coin_icon = false;
+
+                        auto s = str.c_str();
+                        while (*s not_eq '\0') {
+                            if (*s == '_') {
+                                if (not coin_icon) {
+                                    coin_icon = true;
+                                    pfrm.set_tile(Layer::overlay, 1 + i, y, 88);
+                                } else {
+                                    pfrm.set_tile(Layer::overlay, 1 + i, y, 85);
+                                }
+                            }
+                            ++s;
+                            ++i;
+                        }
+                    };
+
+
+                    auto cost = m.colony_cost();
+
                     state_ = State::create_colony;
                     text_objs_.clear();
                     pfrm.speaker().play_sound("button_wooden", 2);
+
+                    textline(format(SYSTR(macro_colony_cost)->c_str(),
+                                    cost.first,
+                                    cost.second)
+                                 .c_str(),
+                             calc_screen_tiles(pfrm).y - 2);
+
+                    text_objs_.emplace_back(
+                        pfrm,
+                        stringify(m.data_->p().coins_.get()).c_str(),
+                        OverlayCoord{2, 3});
+                    pfrm.set_tile(Layer::overlay, 1, 3, 88);
+
+                    text_objs_.emplace_back(
+                        pfrm,
+                        stringify(m.sector().population()).c_str(),
+                        OverlayCoord{2, 4});
+                    pfrm.set_tile(Layer::overlay, 1, 4, 85);
                 }
+
+                selected_colony_.reset();
+
                 break;
             }
 
@@ -385,7 +451,83 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::create_colony: {
-        // ...
+
+        if (app.player().key_down(pfrm, Key::action_1)) {
+            if (selected_colony_) {
+                auto cost = m.colony_cost();
+                if (m.data_->p().coins_.get() >= cost.first and
+                    m.sector().population() >= cost.second) {
+
+                    if (m.make_sector(*selected_colony_)) {
+
+                        m.data_->p().coins_.set(m.data_->p().coins_.get() -
+                                                cost.first);
+
+                        m.sector().set_population(m.sector().population() -
+                                                  cost.second);
+
+                        colony_create_slots_.clear();
+
+                        pfrm.set_tile(Layer::overlay, 1, 3, 0);
+                        pfrm.set_tile(Layer::overlay, 1, 4, 0);
+                        text_objs_.clear();
+                        state_ = State::show;
+                        describe_selected(pfrm, m);
+
+                        m.bind_sector(*selected_colony_);
+
+                        pfrm.speaker().play_sound("button_wooden", 2);
+                    }
+
+
+                } else {
+                    pfrm.speaker().play_sound("beep_error", 2);
+                }
+            }
+        }
+
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            pfrm.set_tile(Layer::overlay, 1, 3, 0);
+            pfrm.set_tile(Layer::overlay, 1, 4, 0);
+            enter_opt_state();
+        }
+
+        if (app.player().key_down(pfrm, Key::left)) {
+            for (auto& s : colony_create_slots_) {
+                if (s.x < selected_.x) {
+                    selected_colony_ = s;
+                    break;
+                }
+            }
+        }
+
+        if (app.player().key_down(pfrm, Key::right)) {
+            for (auto& s : colony_create_slots_) {
+                if (s.x > selected_.x) {
+                    selected_colony_ = s;
+                    break;
+                }
+            }
+        }
+
+        if (app.player().key_down(pfrm, Key::up)) {
+            for (auto& s : colony_create_slots_) {
+                if (s.y < selected_.y) {
+                    selected_colony_ = s;
+                    break;
+                }
+            }
+        }
+
+        if (app.player().key_down(pfrm, Key::down)) {
+            for (auto& s : colony_create_slots_) {
+                if (s.y > selected_.y) {
+                    selected_colony_ = s;
+                    break;
+                }
+            }
+        }
+
         break;
     }
     }
@@ -438,12 +580,16 @@ void MacroverseScene::display(Platform& pfrm, App& app)
     auto draw_node = [&](macro::terrain::Sector& s) {
         Sprite spr;
 
+        auto c = s.coordinate();
+
         if (state_ == State::reveal) {
             spr.set_mix({ColorConstant::rich_black,
                          u8(255 * (1.f - (float(timer_) / reveal_time)))});
+        } else if ((state_ == State::options or
+                    state_ == State::create_colony) and
+                   c not_eq selected_) {
+            return;
         }
-
-        auto c = s.coordinate();
 
         auto origin = sector_map_display_pos(pfrm, c);
 
@@ -462,6 +608,29 @@ void MacroverseScene::display(Platform& pfrm, App& app)
         spr.set_position({origin.x, origin.y + 32});
         pfrm.screen().draw(spr);
     };
+
+    if (state_ == State::create_colony) {
+        for (auto& slot : colony_create_slots_) {
+            auto origin = sector_map_display_pos(pfrm, slot);
+            origin.x += 8;
+            origin.y += 8;
+
+            Sprite spr;
+            spr.set_size(Sprite::Size::w16_h32);
+            spr.set_position(origin);
+
+            if (selected_colony_ and *selected_colony_ == slot) {
+                spr.set_texture_index(21);
+            } else if (not selected_colony_) {
+                spr.set_texture_index(20);
+            } else {
+                spr.set_texture_index(22);
+            }
+
+
+            pfrm.screen().draw(spr);
+        }
+    }
 
     auto& m = *app.macrocosm();
 

@@ -325,6 +325,10 @@ struct State
 
 
 
+    std::pair<Coins, terrain::Sector::Population> colony_cost() const;
+
+
+
     bool make_sector(Vec2<s8> coord)
     {
         if (load_sector(coord)) {
@@ -335,9 +339,7 @@ struct State
         StringBuffer<terrain::Sector::name_len - 1> n("colony_");
         n += stringify(data_->other_sectors_.size() + 1).c_str();
         s->set_name(n);
-        data_->other_sectors_.push_back(std::move(s));
-
-        return true;
+        return data_->other_sectors_.push_back(std::move(s));
     }
 
 
