@@ -551,72 +551,7 @@ add_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
 static void intersector_exchange_commodities(const Vec2<s8> source_sector,
                                              terrain::Stats& stat)
 {
-    Buffer<std::pair<const Vec2<s8>, terrain::Stats>, State::max_sectors - 1>
-        stats;
-
-    info(Platform::instance(),
-         stringify(stat.food_));
-
-    if (_bound_state->data_->origin_sector_.coordinate() == source_sector) {
-        stats.push_back({source_sector, stat});
-    } else {
-        auto st = _bound_state->data_->origin_sector_.base_stats();
-        if (st.export_capacity_ or st.import_capacity_) {
-            stats.push_back({_bound_state->data_->origin_sector_.coordinate(),
-                             st});
-        }
-
-    }
-
-    for (auto& sector : _bound_state->data_->other_sectors_) {
-        if (sector->coordinate() == source_sector) {
-            stats.push_back({source_sector, stat});
-        } else {
-            auto st = sector->base_stats();
-            if (st.export_capacity_ or st.import_capacity_) {
-                stats.push_back({sector->coordinate(), st});
-            }
-        }
-    }
-
-    for (auto& s : stats) {
-        while (s.second.export_capacity_) {
-            if (auto c = most_plentiful_commodity(s.second)) {
-                terrain::Stats* lowest_supply = nullptr;
-                for (auto& s2 : stats) {
-                    if (s2.first == s.first) {
-                        // No sense in exchanging with ourself.
-                        continue;
-                    }
-                    if (lowest_supply == nullptr) {
-                        if (s2.second.import_capacity_) {
-                            lowest_supply = &s2.second;
-                        }
-                    } else if (s2.second.import_capacity_ and
-                               get_supply(s2.second, c->type_) <
-                                   get_supply(*lowest_supply, c->type_)) {
-                        lowest_supply = &s2.second;
-                    }
-                }
-
-                if (lowest_supply) {
-                    --c->supply_;
-                    add_supply(*lowest_supply, c->type_, 1);
-                    --lowest_supply->import_capacity_;
-                }
-            }
-            --s.second.export_capacity_;
-        }
-    }
-
-    for (auto& data : stats) {
-        if (data.first == source_sector) {
-            stat = data.second;
-            info(Platform::instance(),
-                 stringify(stat.food_));
-            return;
-        }
-    }
+    // TODO...
 }
 
 
