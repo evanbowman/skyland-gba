@@ -163,6 +163,7 @@ enum class GlobalFlag {
     v_parallax,
     palette_sync,
     sound_startup_monkeypatch,
+    key_poll_called,
     count
 };
 
@@ -463,20 +464,29 @@ std::optional<Bitvector<int(Key::count)>> missed_keys;
 
 
 
+static void poll_keys(Platform::Keyboard::KeyStates& k)
+{
+    k[int(Key::action_1)] = ~(*keys) & KEY_A;
+    k[int(Key::action_2)] = ~(*keys) & KEY_B;
+    k[int(Key::start)] = ~(*keys) & KEY_START;
+    k[int(Key::select)] = ~(*keys) & KEY_SELECT;
+    k[int(Key::right)] = ~(*keys) & KEY_RIGHT;
+    k[int(Key::left)] = ~(*keys) & KEY_LEFT;
+    k[int(Key::down)] = ~(*keys) & KEY_DOWN;
+    k[int(Key::up)] = ~(*keys) & KEY_UP;
+    k[int(Key::alt_1)] = ~(*keys) & KEY_L;
+    k[int(Key::alt_2)] = ~(*keys) & KEY_R;
+}
+
+
+
 void Platform::Keyboard::poll()
 {
+    set_gflag(GlobalFlag::key_poll_called, true);
+
     std::copy(std::begin(states_), std::end(states_), std::begin(prev_));
 
-    states_[int(Key::action_1)] = ~(*keys) & KEY_A;
-    states_[int(Key::action_2)] = ~(*keys) & KEY_B;
-    states_[int(Key::start)] = ~(*keys) & KEY_START;
-    states_[int(Key::select)] = ~(*keys) & KEY_SELECT;
-    states_[int(Key::right)] = ~(*keys) & KEY_RIGHT;
-    states_[int(Key::left)] = ~(*keys) & KEY_LEFT;
-    states_[int(Key::down)] = ~(*keys) & KEY_DOWN;
-    states_[int(Key::up)] = ~(*keys) & KEY_UP;
-    states_[int(Key::alt_1)] = ~(*keys) & KEY_L;
-    states_[int(Key::alt_2)] = ~(*keys) & KEY_R;
+    poll_keys(states_);
 
     if (UNLIKELY(static_cast<bool>(::missed_keys))) {
         for (int i = 0; i < (int)Key::count; ++i) {
@@ -2351,6 +2361,23 @@ static void vblank_isr()
 
         restart();
     }
+
+    if (not get_gflag(GlobalFlag::key_poll_called)) {
+        Platform::Keyboard::KeyStates current_keys;
+        poll_keys(current_keys);
+
+        for (int i = 0; i < (int)Key::count; ++i) {
+            if (current_keys[i]) {
+                if (not ::missed_keys) {
+                    ::missed_keys.emplace();
+                    ::missed_keys->clear();
+                }
+                missed_keys->set(i, true);
+            }
+        }
+    }
+
+    set_gflag(GlobalFlag::key_poll_called, false);
 }
 
 

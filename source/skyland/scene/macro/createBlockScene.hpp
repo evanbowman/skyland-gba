@@ -47,7 +47,13 @@ public:
     void show_options(Platform& pfrm, macro::State& state);
 
 
+    virtual ScenePtr<Scene> onclick(Platform&, macro::State&);
+
+
     virtual void collect_options(macro::State& state);
+
+
+    virtual void message(Platform& pfrm, macro::State&);
 
 
     virtual void edit(macro::State& state, terrain::Type t);
@@ -74,6 +80,80 @@ public:
 
 
     void edit(macro::State& state, terrain::Type t) override;
+};
+
+
+
+class ConfigurePortScene : public CreateBlockScene
+{
+public:
+    void collect_options(macro::State& state) override;
+
+
+    void message(Platform&, macro::State&) override;
+
+
+    ScenePtr<Scene> onclick(Platform&, macro::State&) override;
+
+    Buffer<terrain::Commodity::Type, 32> commodity_types_;
+};
+
+
+
+class ConfigurePortCountScene : public MacrocosmScene
+{
+public:
+    ConfigurePortCountScene(terrain::Commodity::Type t) : type_(t)
+    {
+    }
+
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override;
+    void exit(Platform& pfrm, App& app, Scene& next) override;
+
+
+    ScenePtr<Scene>
+    update(Platform& pfrm, Player& player, macro::State& state) override;
+
+
+    void show(Platform& pfrm, macro::State& state);
+
+
+private:
+    terrain::Commodity::Type type_;
+    std::optional<Text> text_;
+    int count_ = 0;
+};
+
+
+
+class ConfigurePortDestScene : public MacrocosmScene
+{
+public:
+    ConfigurePortDestScene(terrain::Commodity::Type t, int export_count)
+        : type_(t), export_count_(export_count), selection_(0)
+    {
+    }
+
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override;
+    void exit(Platform& pfrm, App& app, Scene& next) override;
+
+
+    ScenePtr<Scene>
+    update(Platform& pfrm, Player& player, macro::State& state) override;
+
+
+    void show(Platform& pfrm, macro::State& state);
+
+
+private:
+    Buffer<Vec2<s8>, 32> export_options_;
+
+    std::optional<Text> text_;
+    terrain::Commodity::Type type_;
+    int export_count_;
+    int selection_;
 };
 
 

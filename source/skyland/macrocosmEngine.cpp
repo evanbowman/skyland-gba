@@ -28,6 +28,12 @@
 
 
 
+// NOTE: I put most of the code in this one file, because I originally intended
+// this code to be multiboot-compatible. But, at this point, it's grown too
+// large.
+
+
+
 namespace skyland::macro
 {
 
@@ -159,6 +165,26 @@ fiscal::Ledger terrain::Sector::budget() const
 
 
 
+u16 terrain::Sector::quantity_non_exported(Commodity::Type t)
+{
+    auto s = base_stats();
+    int total = 0;
+    for (auto& c : s.commodities_) {
+        if (c.type_ == t) {
+            total = c.supply_;
+            break;
+        }
+    }
+
+    for (auto& e : exports_) {
+        total -= e.export_supply_;
+    }
+
+    return std::max(0, total);
+}
+
+
+
 Coins terrain::Sector::coin_yield() const
 {
     Coins result = 0;
@@ -176,6 +202,35 @@ Coins terrain::Sector::coin_yield() const
     }
 
     return result;
+}
+
+
+
+terrain::Sector::Exports& terrain::Sector::exports()
+{
+    return exports_;
+}
+
+
+
+void terrain::Sector::set_export(const ExportInfo& e)
+{
+    remove_export(e.source_coord_);
+
+    exports_.push_back(e);
+}
+
+
+
+void terrain::Sector::remove_export(Vec3<u8> source_coord)
+{
+    for (auto it = exports_.begin(); it not_eq exports_.end();) {
+        if (it->source_coord_ == source_coord) {
+            it = exports_.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 
@@ -433,7 +488,7 @@ terrain::Stats terrain::stats(Type t)
     case terrain::Type::shellfish:
         result.commodities_.push_back({Commodity::Type::shellfish, 1});
         result.employment_ += 1;
-        result.food_ += 1;
+        result.food_ += 2;
         break;
 
     case terrain::Type::windmill_stone_base:
@@ -441,10 +496,8 @@ terrain::Stats terrain::stats(Type t)
         result.employment_ += 20;
         break;
 
-    case terrain::Type::harbor:
-        result.export_capacity_ += 5;
-        result.import_capacity_ += 5;
-        // result.employment_ += 10;
+    case terrain::Type::port:
+        result.employment_ += 8;
         break;
 
     default:
@@ -499,42 +552,7 @@ terrain::Improvements terrain::Block::improvements() const
 
 
 
-terrain::Commodity* most_plentiful_commodity(terrain::Stats& s)
-{
-    if (s.commodities_.empty()) {
-        return nullptr;
-    }
-
-    auto max = &s.commodities_[0];
-    for (auto& c : s.commodities_) {
-        if (c.supply_ > max->supply_) {
-            max = &c;
-        }
-    }
-
-    if (max->supply_ == 0) {
-        return nullptr;
-    }
-
-    return max;
-}
-
-
-
-int get_supply(const terrain::Stats& s, terrain::Commodity::Type t)
-{
-    for (auto& c : s.commodities_) {
-        if (c.type_ == t) {
-            return c.supply_;
-        }
-    }
-    return 0;
-}
-
-
-
-void
-add_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
+void add_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
 {
     for (auto& c : s.commodities_) {
         if (c.type_ == t) {
@@ -548,10 +566,70 @@ add_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
 
 
 
+void remove_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
+{
+    for (auto& c : s.commodities_) {
+        if (c.type_ == t) {
+            c.supply_ -= std::min((int)c.supply_, supply);
+            if (c.supply_ == 0) {
+                s.commodities_.erase(&c);
+            }
+            return;
+        }
+    }
+}
+
+
+
 static void intersector_exchange_commodities(const Vec2<s8> source_sector,
                                              terrain::Stats& stat)
 {
-    // TODO...
+    Buffer<std::pair<const Vec2<s8>, terrain::Stats>, State::max_sectors - 1>
+        stats;
+
+    info(Platform::instance(), stringify(stat.food_));
+
+    State& state = *_bound_state;
+
+    if (state.data_->origin_sector_.coordinate() == source_sector) {
+        stats.push_back({source_sector, stat});
+    } else {
+        stats.push_back({state.data_->origin_sector_.coordinate(),
+                         state.data_->origin_sector_.base_stats()});
+    }
+
+    for (auto& sector : state.data_->other_sectors_) {
+        if (sector->coordinate() == source_sector) {
+            stats.push_back({source_sector, stat});
+        } else {
+            stats.push_back({sector->coordinate(), sector->base_stats()});
+        }
+    }
+
+
+    for (auto& st : stats) {
+        if (auto src_sector = state.load_sector(st.first)) {
+            for (auto& exp : src_sector->exports()) {
+                remove_supply(st.second, exp.c, exp.export_supply_);
+
+                for (auto& target : stats) {
+                    if (target.first == exp.destination_) {
+                        add_supply(target.second, exp.c, exp.export_supply_);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+
+    for (auto& data : stats) {
+        if (data.first == source_sector) {
+            stat = data.second;
+            info(Platform::instance(), stringify(stat.food_));
+            return;
+        }
+    }
 }
 
 
@@ -560,9 +638,7 @@ terrain::Stats terrain::Sector::stats() const
 {
     auto result = base_stats();
 
-    if (result.export_capacity_) {
-        intersector_exchange_commodities(coordinate(), result);
-    }
+    intersector_exchange_commodities(coordinate(), result);
 
     return result;
 }
@@ -603,9 +679,6 @@ terrain::Stats terrain::Sector::base_stats() const
                         result.commodities_.push_back(c);
                     }
                 }
-
-                result.export_capacity_ += block_stats.export_capacity_;
-                result.import_capacity_ += block_stats.import_capacity_;
             }
         }
     }
@@ -721,8 +794,8 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::windmill:
         return 80;
 
-    case terrain::Type::harbor:
-        return 400;
+    case terrain::Type::port:
+        return 300;
     }
 
     return 0;
@@ -784,7 +857,7 @@ SystemString terrain::name(Type t)
     case terrain::Type::windmill:
         return SystemString::block_windmill;
 
-    case terrain::Type::harbor:
+    case terrain::Type::port:
         return SystemString::block_harbor;
     }
 
@@ -926,7 +999,7 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::windmill:
         return {776, 760};
 
-    case terrain::Type::harbor:
+    case terrain::Type::port:
         return {776, 760};
     }
 

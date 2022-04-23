@@ -114,7 +114,7 @@ enum class Type {
     windmill,
     windmill_stone_base,
     shellfish,
-    harbor,
+    port,
     count,
 };
 
@@ -154,8 +154,6 @@ struct Stats
     int food_ = 0;
     int housing_ = 0;
     int employment_ = 0;
-    s16 export_capacity_ = 0;
-    s16 import_capacity_ = 0;
 
     Buffer<Commodity, 16> commodities_;
 };
@@ -207,6 +205,26 @@ class Sector
 {
 public:
     enum Orientation : u8 { north, east, south, west };
+
+
+    struct ExportInfo
+    {
+        Commodity::Type c;
+        Vec3<u8> source_coord_;
+        Vec2<s8> destination_;
+        u16 export_supply_;
+    };
+
+
+    using Exports = Buffer<ExportInfo, 24>;
+
+
+    Exports& exports();
+    void set_export(const ExportInfo& e);
+    void remove_export(Vec3<u8> source_coord);
+
+
+    u16 quantity_non_exported(Commodity::Type t);
 
 
     Sector(Vec2<s8> position);
@@ -313,6 +331,8 @@ private:
 
     Block blocks_[z_limit][8][8]; // (z, x, y)
 
+    Exports exports_;
+
 
 public:
     const Persistent& persistent() const
@@ -333,6 +353,7 @@ Coins cost(Sector& s, Type t);
 
 namespace skyland::macro
 {
+
 
 
 struct State

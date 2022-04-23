@@ -82,9 +82,11 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
     auto msg = [&] {
         auto s = SystemString::block_air;
         auto cursor = sector.cursor();
+        auto tp = terrain::Type::air;
         if (cursor.z > 0) {
             --cursor.z;
             auto& block = sector.get_block(cursor);
+            tp = block.type();
             s = block.name();
         }
         StringBuffer<48> b;
@@ -92,6 +94,31 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         b += loadstr(pfrm, s)->c_str();
         b += ")";
         text_->assign(b.c_str());
+
+        auto stats = terrain::stats(tp);
+        if (stats.food_) {
+            text_->append("  ");
+            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 414);
+            text_->append(stats.food_);
+        }
+
+        if (stats.housing_) {
+            text_->append("  ");
+            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 416);
+            text_->append(stats.housing_);
+        }
+
+        if (stats.employment_) {
+            text_->append("  ");
+            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 415);
+            text_->append(stats.employment_);
+        }
+
+        if (not stats.commodities_.empty()) {
+            text_->append("  ");
+            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 417);
+            text_->append(stats.commodities_[0].supply_);
+        }
     };
 
     if (player.key_pressed(pfrm, Key::alt_1)) {

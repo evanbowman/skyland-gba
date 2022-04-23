@@ -60,7 +60,11 @@ void CreateBlockScene::collect_options(macro::State& state)
     options_.push_back(terrain::Type::terrain);
     options_.push_back(terrain::Type::building);
     options_.push_back(terrain::Type::water);
-    options_.push_back(terrain::Type::harbor);
+
+    if (not state.data_->other_sectors_.empty()) {
+        options_.push_back(terrain::Type::port);
+    }
+
     options_.push_back(terrain::Type::gold);
     options_.push_back(terrain::Type::light_source);
     options_.push_back(terrain::Type::masonry);
@@ -90,7 +94,7 @@ Coins CreateBlockScene::cost(macro::State& state, terrain::Type t)
 
 
 
-void CreateBlockScene::show_options(Platform& pfrm, State& state)
+void CreateBlockScene::message(Platform& pfrm, macro::State& state)
 {
     auto st = calc_screen_tiles(pfrm);
 
@@ -104,12 +108,47 @@ void CreateBlockScene::show_options(Platform& pfrm, State& state)
     Text text(pfrm, OverlayCoord{0, u8(st.y - 1)});
     text.assign(message.c_str());
 
+    auto stats = terrain::stats(options_[selector_]);
+    if (stats.food_) {
+        text.append("  ");
+        pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 414);
+        text.append(stats.food_);
+    }
+
+    if (stats.housing_) {
+        text.append("  ");
+        pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 416);
+        text.append(stats.housing_);
+    }
+
+    if (stats.employment_) {
+        text.append("  ");
+        pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 415);
+        text.append(stats.employment_);
+    }
+
+    if (not stats.commodities_.empty()) {
+        text.append("  ");
+        pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 417);
+        text.append(stats.commodities_[0].supply_);
+    }
+
+
     const int count = st.x - text.len();
     for (int i = 0; i < count; ++i) {
         pfrm.set_tile(Layer::overlay, i + text.len(), st.y - 1, 426);
     }
 
     text.__detach();
+}
+
+
+
+void CreateBlockScene::show_options(Platform& pfrm, State& state)
+{
+    auto st = calc_screen_tiles(pfrm);
+
+    message(pfrm, state);
 
     for (int i = 0; i < st.x; ++i) {
         pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
@@ -232,31 +271,46 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
     }
 
     if (player.key_down(pfrm, Key::action_1)) {
-        auto cursor = state.sector().cursor();
-        if (cursor.z < macro::terrain::Sector::z_limit - 1) {
-            auto cost = this->cost(state, options_[selector_]);
-            if (cost > state.data_->p().coins_.get()) {
-                pfrm.speaker().play_sound("beep_error", 2);
-                return null_scene();
-            } else {
-                state.data_->p().coins_.set(state.data_->p().coins_.get() -
-                                            cost);
-            }
-
-            edit(state, options_[selector_]);
-            state.sector().update();
-
-            if (options_[selector_] not_eq terrain::Type::air) {
-                pfrm.speaker().play_sound("build0", 4);
-                return scene_pool::alloc<SelectorScene>();
-            } else {
-                pfrm.speaker().play_sound("cursor_tick", 2);
-            }
-        }
+        return onclick(pfrm, state);
     }
 
     if (player.key_down(pfrm, Key::action_2)) {
         return scene_pool::alloc<SelectorScene>();
+    }
+
+    return null_scene();
+}
+
+
+
+ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm, macro::State& state)
+{
+    auto cursor = state.sector().cursor();
+    if (cursor.z < macro::terrain::Sector::z_limit - 1) {
+        auto cost = this->cost(state, options_[selector_]);
+        if (cost > state.data_->p().coins_.get()) {
+            pfrm.speaker().play_sound("beep_error", 2);
+            return null_scene();
+        } else {
+            state.data_->p().coins_.set(state.data_->p().coins_.get() - cost);
+        }
+
+        edit(state, options_[selector_]);
+        state.sector().update();
+
+        if (options_[selector_] not_eq terrain::Type::air) {
+            pfrm.speaker().play_sound("build0", 4);
+
+            auto& block = state.sector().get_block(cursor);
+            if (block.type() == terrain::Type::port) {
+                return scene_pool::alloc<ConfigurePortScene>();
+            } else {
+                return scene_pool::alloc<SelectorScene>();
+            }
+
+        } else {
+            pfrm.speaker().play_sound("cursor_tick", 2);
+        }
     }
 
     return null_scene();
@@ -381,6 +435,257 @@ void BuildImprovementScene::edit(macro::State& state, terrain::Type t)
     if (t not_eq terrain::Type::air) {
         state.sector().set_block(cursor, t);
     }
+}
+
+
+
+void ConfigurePortScene::collect_options(macro::State& state)
+{
+    selector_ = 0;
+
+    auto st = state.sector().base_stats();
+    for (auto& c : st.commodities_) {
+        switch (c.type_) {
+        case terrain::Commodity::indigo:
+            options_.push_back(terrain::Type::indigo);
+            break;
+
+        case terrain::Commodity::rose_madder:
+            options_.push_back(terrain::Type::madder);
+            break;
+
+        case terrain::Commodity::shellfish:
+            options_.push_back(terrain::Type::shellfish);
+            break;
+        }
+
+        commodity_types_.push_back(c.type_);
+    }
+}
+
+
+
+ScenePtr<Scene> ConfigurePortScene::onclick(Platform& pfrm, macro::State& state)
+{
+    auto c = state.sector().cursor();
+    --c.z;
+    state.sector().remove_export(c);
+    return scene_pool::alloc<ConfigurePortCountScene>(
+        commodity_types_[selector_]);
+}
+
+
+
+void ConfigurePortScene::message(Platform& pfrm, macro::State& state)
+{
+    auto st = calc_screen_tiles(pfrm);
+
+    StringBuffer<30> message = SYSTR(macro_export)->c_str();
+    message += " ";
+    message += loadstr(pfrm, terrain::name(options_[selector_]))->c_str();
+
+    Text text(pfrm, OverlayCoord{0, u8(st.y - 1)});
+    text.assign(message.c_str());
+
+    const int count = st.x - text.len();
+    for (int i = 0; i < count; ++i) {
+        pfrm.set_tile(Layer::overlay, i + text.len(), st.y - 1, 426);
+    }
+
+    text.__detach();
+}
+
+
+
+void ConfigurePortCountScene::enter(Platform& pfrm, App& app, Scene& prev)
+{
+    MacrocosmScene::enter(pfrm, app, prev);
+    show(pfrm, *app.macrocosm());
+}
+
+
+
+void ConfigurePortCountScene::exit(Platform& pfrm, App& app, Scene& next)
+{
+    MacrocosmScene::exit(pfrm, app, next);
+
+    for (int y = text_->coord().y - 6; y < text_->coord().y + 1; ++y) {
+        for (int x = 0; x < 32; ++x) {
+            pfrm.set_tile(Layer::overlay, x, y, 0);
+        }
+    }
+
+    text_.reset();
+}
+
+
+
+void ConfigurePortCountScene::show(Platform& pfrm, macro::State& state)
+{
+    auto st = calc_screen_tiles(pfrm);
+
+    StringBuffer<30> message = SYSTR(macro_export_how_many)->c_str();
+    message += " ";
+
+    if (not text_) {
+        text_.emplace(pfrm, OverlayCoord{0, u8(st.y - 1)});
+    }
+
+    text_->assign(message.c_str());
+    text_->append(count_);
+    text_->append("/");
+    text_->append(state.sector().quantity_non_exported(type_));
+
+    const int count = st.x - text_->len();
+    for (int i = 0; i < count; ++i) {
+        pfrm.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
+    }
+
+    for (int i = 0; i < 32; ++i) {
+        pfrm.set_tile(Layer::overlay, i, text_->coord().y - 1, 425);
+    }
+}
+
+
+
+ScenePtr<Scene> ConfigurePortCountScene::update(Platform& pfrm,
+                                                Player& player,
+                                                macro::State& state)
+{
+    if (player.key_down(pfrm, Key::up)) {
+        for (auto& c : state.sector().stats().commodities_) {
+            if (c.type_ == type_ and c.supply_ > count_) {
+                ++count_;
+                show(pfrm, state);
+                pfrm.speaker().play_sound("click", 1);
+                break;
+            }
+        }
+    }
+
+    if (player.key_down(pfrm, Key::down)) {
+        if (count_ > 0) {
+            --count_;
+            show(pfrm, state);
+            pfrm.speaker().play_sound("click", 1);
+        }
+    }
+
+    if (player.key_down(pfrm, Key::action_1)) {
+        return scene_pool::alloc<ConfigurePortDestScene>(type_, count_);
+    }
+
+    return null_scene();
+}
+
+
+
+void ConfigurePortDestScene::enter(Platform& pfrm, App& app, Scene& prev)
+{
+    MacrocosmScene::enter(pfrm, app, prev);
+
+    auto current = app.macrocosm()->sector().coordinate();
+
+    auto o = app.macrocosm()->data_->origin_sector_.coordinate();
+    if (o not_eq current) {
+        export_options_.push_back(o);
+    }
+
+    for (auto& s : app.macrocosm()->data_->other_sectors_) {
+        if (s->coordinate() not_eq current) {
+            export_options_.push_back(s->coordinate());
+        }
+    }
+
+    show(pfrm, *app.macrocosm());
+}
+
+
+
+void ConfigurePortDestScene::exit(Platform& pfrm, App& app, Scene& next)
+{
+    MacrocosmScene::exit(pfrm, app, next);
+
+    for (int y = text_->coord().y - 6; y < text_->coord().y + 1; ++y) {
+        for (int x = 0; x < 32; ++x) {
+            pfrm.set_tile(Layer::overlay, x, y, 0);
+        }
+    }
+
+    text_.reset();
+}
+
+
+
+void ConfigurePortDestScene::show(Platform& pfrm, macro::State& state)
+{
+    auto st = calc_screen_tiles(pfrm);
+
+    StringBuffer<30> message = SYSTR(macro_export_where)->c_str();
+    message += " ";
+
+    if (not text_) {
+        text_.emplace(pfrm, OverlayCoord{0, u8(st.y - 1)});
+    }
+
+
+    text_->assign(message.c_str());
+
+    if (auto s = state.load_sector(export_options_[selection_])) {
+        text_->append(s->name().c_str());
+    }
+
+
+    const int count = st.x - text_->len();
+    for (int i = 0; i < count; ++i) {
+        pfrm.set_tile(Layer::overlay, i + text_->len(), st.y - 1, 426);
+    }
+
+    for (int i = 0; i < 32; ++i) {
+        pfrm.set_tile(Layer::overlay, i, text_->coord().y - 1, 425);
+    }
+}
+
+
+
+ScenePtr<Scene> ConfigurePortDestScene::update(Platform& pfrm,
+                                               Player& player,
+                                               macro::State& state)
+{
+    if (player.key_down(pfrm, Key::up)) {
+        if (selection_ < (int)export_options_.size() - 1) {
+            ++selection_;
+        } else {
+            selection_ = 0;
+        }
+        show(pfrm, state);
+        pfrm.speaker().play_sound("click", 1);
+    }
+
+    if (player.key_down(pfrm, Key::down)) {
+        if (selection_ > 0) {
+            --selection_;
+        } else {
+            selection_ = export_options_.size() - 1;
+        }
+        show(pfrm, state);
+        pfrm.speaker().play_sound("click", 1);
+    }
+
+    if (player.key_down(pfrm, Key::action_1)) {
+        auto c = state.sector().cursor();
+        --c.z;
+        state.sector().set_export(
+            {type_,
+             c,
+             state.load_sector(export_options_[selection_])->coordinate(),
+             (u16)export_count_});
+
+        return scene_pool::alloc<SelectorScene>();
+    }
+
+
+    return null_scene();
 }
 
 

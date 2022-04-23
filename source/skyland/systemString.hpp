@@ -194,6 +194,9 @@ enum class SystemString {
     macro_set_name,
     macro_colony_resources,
     macro_colony_cost,
+    macro_export,
+    macro_export_how_many,
+    macro_export_where,
 
 
     description_power_core,

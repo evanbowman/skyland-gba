@@ -127,7 +127,14 @@ static const TileOptionsScene::OptionInfo options[] = {
          auto c = state.sector().cursor();
          c.z--;
          state.sector().set_block(c, terrain::Type::air);
+         state.sector().remove_export(c);
          return scene_pool::alloc<SelectorScene>();
+     }},
+    {SystemString::macro_demolish,
+     776,
+     760,
+     [](macro::State& state) -> ScenePtr<Scene> {
+         return scene_pool::alloc<ConfigurePortScene>();
      }}};
 
 
@@ -159,6 +166,10 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
         if (options_[i] == last_option_) {
             selector_ = i;
         }
+    }
+
+    if (block.type() == terrain::Type::port) {
+        options_.push_back(&options[3]);
     }
 }
 
