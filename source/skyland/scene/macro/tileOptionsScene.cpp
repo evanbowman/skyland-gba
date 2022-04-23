@@ -77,6 +77,7 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
     if (player.key_down(pfrm, Key::action_1)) {
         pfrm.speaker().play_sound("button_wooden", 3);
         auto next = options_[selector_]->next_(state);
+        last_option_ = options_[selector_];
         update_ui(state);
         return next;
     }
@@ -106,10 +107,7 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
 }
 
 
-
-void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
-{
-    static const TileOptionsScene::OptionInfo options[] = {
+static const TileOptionsScene::OptionInfo options[] = {
         {SystemString::macro_create_block,
          2568,
          2584,
@@ -132,6 +130,16 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
              return scene_pool::alloc<SelectorScene>();
          }}};
 
+
+
+const TileOptionsScene::OptionInfo* TileOptionsScene::last_option_ =
+    &options[1];
+
+
+
+void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
+{
+
     auto c = state.sector().cursor();
     if (c.z == 0) {
         Platform::fatal("logic error: collect options, z is zero");
@@ -146,6 +154,12 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
     options_.push_back(&options[0]);
 
     options_.push_back(&options[2]);
+
+    for (u32 i = 0; i < options_.size(); ++i) {
+        if (options_[i] == last_option_) {
+            selector_ = i;
+        }
+    }
 }
 
 

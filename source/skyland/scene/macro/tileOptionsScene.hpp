@@ -51,16 +51,18 @@ public:
     void msg(Platform& pfrm, const char* text);
 
 
-private:
-    void collect_options(Platform& pfrm, macro::State& state);
 
 
     struct OptionInfo;
 
 
+private:
+    void collect_options(Platform& pfrm, macro::State& state);
+
+
     Buffer<const OptionInfo*, 6> options_;
 
-
+    static const OptionInfo* last_option_;
     u8 selector_ = 0;
     std::optional<Text> text_;
 };
