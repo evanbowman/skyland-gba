@@ -39,6 +39,8 @@ void ModifiedSelectorScene::enter(Platform& pfrm, App& app, Scene& prev)
         m->drop_ui();
     }
 
+    pfrm.screen().schedule_fade(0.f);
+
     Text::platform_retain_alphabet(pfrm);
 
     rotate_text_.emplace(
@@ -84,10 +86,14 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
 
     auto& sector = state.sector();
 
-    if (player.key_pressed(pfrm, Key::alt_1) or
+    if (persist_ or
+        player.key_pressed(pfrm, Key::alt_1) or
         player.key_pressed(pfrm, Key::alt_2)) {
 
-        if (player.key_down(pfrm, Key::left)) {
+        if ((persist_ and player.key_down(pfrm, Key::alt_2)) or
+            player.key_down(pfrm, Key::action_2)) {
+            return scene_pool::alloc<SelectorScene>();
+        } else if (player.key_down(pfrm, Key::left)) {
             pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
             pfrm.screen().clear();
             pfrm.screen().display();

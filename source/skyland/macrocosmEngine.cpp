@@ -369,6 +369,7 @@ terrain::Stats terrain::stats(Type t)
     case terrain::Type::shellfish:
         result.commodities_.push_back({Commodity::Type::shellfish, 1});
         result.employment_ += 1;
+        result.food_ += 1;
         break;
 
     case terrain::Type::windmill_stone_base:

@@ -25,6 +25,8 @@
 #include "hibernateScene.hpp"
 #include "hideRoomsScene.hpp"
 #include "macro/macroverseScene.hpp"
+#include "macro/modifiedSelectorScene.hpp"
+#include "macro/nextTurnScene.hpp"
 #include "macro/selectorScene.hpp"
 #include "modules/glossaryViewerModule.hpp"
 #include "readyScene.hpp"
@@ -64,6 +66,7 @@ void StartMenuScene::add_option(Platform& pfrm,
                                 DeferredScene on_click,
                                 TransitionMode transition_mode)
 {
+
     int start_y = 3;
 
     u8 margin = centered_text_margins(pfrm, utf8::len(str));
@@ -121,10 +124,23 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.load_overlay_texture("overlay_challenges");
 
         if (app.game_mode() == App::GameMode::macro) {
+            diff_percent_ = 0.3f;
             add_option(pfrm,
                        SYSTR(start_menu_resume)->c_str(),
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
                        kill_menu);
+
+            add_option(
+                pfrm,
+                SYSTR(start_menu_next_turn)->c_str(),
+                scene_pool::make_deferred_scene<macro::NextTurnScene>(),
+                cut);
+
+            // add_option(
+            //     pfrm,
+            //     SYSTR(start_menu_adjust_view)->c_str(),
+            //     scene_pool::make_deferred_scene<macro::ModifiedSelectorScene>(),
+            //     cut);
 
             add_option(
                 pfrm,

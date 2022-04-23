@@ -97,9 +97,9 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
         return scene_pool::alloc<MenuOptionsScene>();
 
-    } else if (player.key_pressed(pfrm, Key::alt_2)) {
+    } else if (player.key_down(pfrm, Key::alt_2)) {
 
-        return scene_pool::alloc<ModifiedSelectorScene>();
+        return scene_pool::alloc<ModifiedSelectorScene>(false);
 
     } else {
 

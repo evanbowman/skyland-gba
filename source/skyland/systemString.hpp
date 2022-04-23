@@ -267,6 +267,8 @@ enum class SystemString {
     start_menu_save,
     start_menu_load,
     start_menu_macroverse,
+    start_menu_next_turn,
+    start_menu_adjust_view,
 
     salvage_prompt,
     salvage_option_A,

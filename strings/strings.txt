@@ -203,6 +203,8 @@ what's sandbox mode?!
 save
 load
 macroverse
+next turn
+adjust view
 really salvage?  +
 A: yes 
 B:  no 
