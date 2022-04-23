@@ -34,7 +34,44 @@ class Platform;
 
 namespace skyland::macro
 {
-using Coins = u32;
+using Coins = s32;
+
+
+
+namespace fiscal
+{
+
+
+
+struct LineItem
+{
+    using Label = StringBuffer<24>;
+
+    Label label_;
+    Float contribution_;
+    LineItem* next_;
+};
+
+
+
+class Ledger
+{
+public:
+    void add_entry(LineItem::Label, Float contribution);
+
+
+    const LineItem* entries() const;
+
+
+private:
+    LineItem* entries_ = nullptr;
+    ScratchBufferBulkAllocator alloc_;
+};
+
+
+
+} // namespace fiscal
+
 
 
 namespace save
@@ -77,6 +114,7 @@ enum class Type {
     windmill,
     windmill_stone_base,
     shellfish,
+    harbor,
     count,
 };
 
@@ -102,9 +140,11 @@ struct Commodity
         shellfish,
     };
     Type type_;
-    u8 supply_;
+    u16 supply_;
+    bool imported_ = false;
 
     static Coins value(Type t);
+    SystemString name() const;
 };
 
 
@@ -114,6 +154,8 @@ struct Stats
     int food_ = 0;
     int housing_ = 0;
     int employment_ = 0;
+    s16 export_capacity_ = 0;
+    s16 import_capacity_ = 0;
 
     Buffer<Commodity, 16> commodities_;
 };
@@ -203,6 +245,9 @@ public:
     Coins coin_yield() const;
 
 
+    fiscal::Ledger budget() const;
+
+
     Vec2<s8> coordinate() const;
 
 
@@ -257,6 +302,10 @@ public:
 
     void shadowcast();
 
+
+    Stats base_stats() const;
+
+
 private:
     Persistent p_;
 
@@ -288,6 +337,8 @@ namespace skyland::macro
 
 struct State
 {
+    static const int max_sectors = 20;
+
     struct Data
     {
         Data() : origin_sector_({0, 0})
@@ -296,7 +347,8 @@ struct State
 
         macro::terrain::Sector origin_sector_;
 
-        Buffer<DynamicMemory<macro::terrain::Sector>, 19> other_sectors_;
+        Buffer<DynamicMemory<macro::terrain::Sector>, max_sectors - 1>
+            other_sectors_;
 
         int current_sector_ = -1;
         Float cloud_scroll_ = 0;
@@ -413,9 +465,8 @@ struct State
     void load(Platform& pfrm);
 
 
-    State() : data_(allocate_dynamic<Data>("macrocosm-data"))
-    {
-    }
+    State();
+
 
     DynamicMemory<Data> data_;
 

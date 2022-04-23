@@ -257,12 +257,6 @@ bool Platform::NetworkPeer::supported_by_device()
 }
 
 
-Platform::NetworkPeer::Stats Platform::NetworkPeer::stats()
-{
-    return {0, 0, 0, 0, 0};
-}
-
-
 std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
 {
     auto finalizer =

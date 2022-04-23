@@ -55,6 +55,7 @@ public:
 
     const Buffer& operator=(const Buffer& other)
     {
+        clear();
         for (auto& elem : other) {
             push_back(elem);
         }
@@ -70,6 +71,7 @@ public:
 
     const Buffer& operator=(Buffer&& other)
     {
+        clear();
         for (auto& elem : other) {
             this->push_back(std::move(elem));
         }

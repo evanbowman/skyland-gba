@@ -82,6 +82,7 @@ enum class SystemString {
     block_forcefield2,
     block_fountain,
     block_gold,
+    block_harbor,
     block_hull,
     block_ice,
     block_indigo,

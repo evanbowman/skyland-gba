@@ -2359,13 +2359,6 @@ bool Platform::NetworkPeer::supported_by_device()
 
 
 
-Platform::NetworkPeer::Stats Platform::NetworkPeer::stats()
-{
-    return {};
-}
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // RemoteConsole

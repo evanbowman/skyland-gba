@@ -114,6 +114,9 @@ struct ScratchBufferBulkAllocator
     {
     }
 
+    ScratchBufferBulkAllocator(ScratchBufferBulkAllocator&&) = default;
+    ScratchBufferBulkAllocator(const ScratchBufferBulkAllocator&) = delete;
+
     template <typename T> using Ptr = std::unique_ptr<T, void (*)(T*)>;
 
     template <typename T> static Ptr<T> null()

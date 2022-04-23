@@ -51,14 +51,14 @@ void MenuOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
     const auto st = calc_screen_tiles(pfrm);
 
     pfrm.set_tile(Layer::overlay, 0, st.y - 1, 393);
-    // pfrm.set_tile(Layer::overlay, 0, st.y - 2, 394);
+    pfrm.set_tile(Layer::overlay, 0, st.y - 2, 394);
 
     // pfrm.set_tile(Layer::overlay, 2, 1, 395);
     // pfrm.set_tile(Layer::overlay, 1, 2, 392);
     // pfrm.set_tile(Layer::overlay, 2, 2, 393);
 
-    // next_turn_text_.emplace(
-    //     pfrm, SYSTR(macro_next_turn)->c_str(), OverlayCoord{1, (u8)(st.y - 2)});
+    next_turn_text_.emplace(
+        pfrm, SYSTR(macro_next_turn)->c_str(), OverlayCoord{1, (u8)(st.y - 2)});
 
     StringBuffer<32> mv(":");
     mv += SYSTR(start_menu_macroverse)->c_str();
@@ -75,13 +75,13 @@ void MenuOptionsScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     if (not dynamic_cast<NextTurnScene*>(&next)) {
         MacrocosmScene::exit(pfrm, app, next);
-        // next_turn_text_.reset();
+        next_turn_text_.reset();
         macroverse_text_.reset();
         const auto st = calc_screen_tiles(pfrm);
         pfrm.set_tile(Layer::overlay, 0, st.y - 1, 0);
         pfrm.set_tile(Layer::overlay, 0, st.y - 2, 0);
     } else {
-        // next_turn_text_->__detach();
+        next_turn_text_->__detach();
         macroverse_text_->__detach();
     }
 }

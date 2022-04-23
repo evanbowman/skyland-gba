@@ -2063,12 +2063,6 @@ Platform::NetworkPeer::~NetworkPeer()
 }
 
 
-Platform::NetworkPeer::Stats Platform::NetworkPeer::stats()
-{
-    return {0, 0, 0, 0, 0};
-}
-
-
 Platform::NetworkPeer::Interface Platform::NetworkPeer::interface() const
 {
     return Interface::internet;

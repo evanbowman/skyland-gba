@@ -48,6 +48,46 @@ Buffer<u16, 8> _cursor_raster_tiles;
 
 
 
+static State* _bound_state;
+
+
+State::State() : data_(allocate_dynamic<Data>("macrocosm-data"))
+{
+    _bound_state = this;
+}
+
+
+
+namespace fiscal
+{
+
+
+
+void Ledger::add_entry(LineItem::Label label, Float contribution)
+{
+    auto next = alloc_.alloc<LineItem>();
+    if (next) {
+        next->next_ = entries_;
+        next->label_ = label;
+        next->contribution_ = contribution;
+
+        entries_ = next.release();
+    }
+}
+
+
+
+const LineItem* Ledger::entries() const
+{
+    return entries_;
+}
+
+
+
+} // namespace fiscal
+
+
+
 Coins State::coin_yield()
 {
     auto coins = data_->origin_sector_.coin_yield();
@@ -68,9 +108,9 @@ std::pair<Coins, terrain::Sector::Population> State::colony_cost() const
 
 
 
-Coins terrain::Sector::coin_yield() const
+fiscal::Ledger terrain::Sector::budget() const
 {
-    Coins result = 0;
+    fiscal::Ledger result;
 
     auto st = stats();
 
@@ -91,24 +131,48 @@ Coins terrain::Sector::coin_yield() const
         employed_population = productive_population - unemployed_population;
     }
 
-    Float productivity =
-        employed_population * 0.3f + unemployed_population * 0.1f;
-
-    // Un-housed people put a drain on state resources. Build them some housing!
-    productivity -= unproductive_population * 0.1f;
-
-    if (productivity < 1) {
-        productivity = 1;
-    }
-
-    result += productivity;
+    result.add_entry("population (employed)", employed_population * 0.3f);
+    result.add_entry("population", unemployed_population * 0.1f);
+    result.add_entry("homelessness", -unproductive_population * 0.1f);
 
     for (auto& c : st.commodities_) {
+        int count = 0;
+        Float accum = 0;
         Float value = c.value(c.type_);
         for (int i = 0; i < c.supply_; ++i) {
-            result += value;
+            accum += value;
             value *= 0.85f; // Diminishing returns
+            ++count;
         }
+
+        fiscal::LineItem::Label l;
+        l += loadstr(Platform::instance(), c.name())->c_str();
+        l += " (";
+        l += stringify(count);
+        l += ")";
+
+        result.add_entry(l, accum);
+    }
+
+    return result;
+}
+
+
+
+Coins terrain::Sector::coin_yield() const
+{
+    Coins result = 0;
+
+    auto values = budget();
+    auto current = values.entries();
+
+    while (current) {
+        result += current->contribution_;
+        current = current->next_;
+    }
+
+    if (result <= 0) {
+        result = 1;
     }
 
     return result;
@@ -377,6 +441,12 @@ terrain::Stats terrain::stats(Type t)
         result.employment_ += 20;
         break;
 
+    case terrain::Type::harbor:
+        result.export_capacity_ += 5;
+        result.import_capacity_ += 5;
+        // result.employment_ += 10;
+        break;
+
     default:
         break;
     }
@@ -388,8 +458,25 @@ terrain::Stats terrain::stats(Type t)
 
 Coins terrain::Commodity::value(Commodity::Type t)
 {
-    // TODO...
     return 5;
+}
+
+
+
+SystemString terrain::Commodity::name() const
+{
+    switch (type_) {
+    case indigo:
+        return SystemString::block_indigo;
+
+    case rose_madder:
+        return SystemString::block_madder;
+
+    case shellfish:
+        return SystemString::block_shellfish;
+    }
+
+    return SystemString::empty;
 }
 
 
@@ -412,7 +499,141 @@ terrain::Improvements terrain::Block::improvements() const
 
 
 
+terrain::Commodity* most_plentiful_commodity(terrain::Stats& s)
+{
+    if (s.commodities_.empty()) {
+        return nullptr;
+    }
+
+    auto max = &s.commodities_[0];
+    for (auto& c : s.commodities_) {
+        if (c.supply_ > max->supply_) {
+            max = &c;
+        }
+    }
+
+    if (max->supply_ == 0) {
+        return nullptr;
+    }
+
+    return max;
+}
+
+
+
+int get_supply(const terrain::Stats& s, terrain::Commodity::Type t)
+{
+    for (auto& c : s.commodities_) {
+        if (c.type_ == t) {
+            return c.supply_;
+        }
+    }
+    return 0;
+}
+
+
+
+void
+add_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
+{
+    for (auto& c : s.commodities_) {
+        if (c.type_ == t) {
+            c.supply_ += supply;
+            return;
+        }
+    }
+
+    s.commodities_.push_back({t, (u16)supply, false});
+}
+
+
+
+static void intersector_exchange_commodities(const Vec2<s8> source_sector,
+                                             terrain::Stats& stat)
+{
+    Buffer<std::pair<const Vec2<s8>, terrain::Stats>, State::max_sectors - 1>
+        stats;
+
+    info(Platform::instance(),
+         stringify(stat.food_));
+
+    if (_bound_state->data_->origin_sector_.coordinate() == source_sector) {
+        stats.push_back({source_sector, stat});
+    } else {
+        auto st = _bound_state->data_->origin_sector_.base_stats();
+        if (st.export_capacity_ or st.import_capacity_) {
+            stats.push_back({_bound_state->data_->origin_sector_.coordinate(),
+                             st});
+        }
+
+    }
+
+    for (auto& sector : _bound_state->data_->other_sectors_) {
+        if (sector->coordinate() == source_sector) {
+            stats.push_back({source_sector, stat});
+        } else {
+            auto st = sector->base_stats();
+            if (st.export_capacity_ or st.import_capacity_) {
+                stats.push_back({sector->coordinate(), st});
+            }
+        }
+    }
+
+    for (auto& s : stats) {
+        while (s.second.export_capacity_) {
+            if (auto c = most_plentiful_commodity(s.second)) {
+                terrain::Stats* lowest_supply = nullptr;
+                for (auto& s2 : stats) {
+                    if (s2.first == s.first) {
+                        // No sense in exchanging with ourself.
+                        continue;
+                    }
+                    if (lowest_supply == nullptr) {
+                        if (s2.second.import_capacity_) {
+                            lowest_supply = &s2.second;
+                        }
+                    } else if (s2.second.import_capacity_ and
+                               get_supply(s2.second, c->type_) <
+                                   get_supply(*lowest_supply, c->type_)) {
+                        lowest_supply = &s2.second;
+                    }
+                }
+
+                if (lowest_supply) {
+                    --c->supply_;
+                    add_supply(*lowest_supply, c->type_, 1);
+                    --lowest_supply->import_capacity_;
+                }
+            }
+            --s.second.export_capacity_;
+        }
+    }
+
+    for (auto& data : stats) {
+        if (data.first == source_sector) {
+            stat = data.second;
+            info(Platform::instance(),
+                 stringify(stat.food_));
+            return;
+        }
+    }
+}
+
+
+
 terrain::Stats terrain::Sector::stats() const
+{
+    auto result = base_stats();
+
+    if (result.export_capacity_) {
+        intersector_exchange_commodities(coordinate(), result);
+    }
+
+    return result;
+}
+
+
+terrain::Stats terrain::Sector::base_stats() const
 {
     terrain::Stats result;
 
@@ -447,6 +668,9 @@ terrain::Stats terrain::Sector::stats() const
                         result.commodities_.push_back(c);
                     }
                 }
+
+                result.export_capacity_ += block_stats.export_capacity_;
+                result.import_capacity_ += block_stats.import_capacity_;
             }
         }
     }
@@ -458,7 +682,7 @@ terrain::Stats terrain::Sector::stats() const
 
 Float terrain::Sector::population_growth_rate() const
 {
-    auto s = stats();
+    auto s = base_stats();
 
     auto required_food = p_.population_ / food_consumption_factor;
 
@@ -561,6 +785,9 @@ Coins terrain::cost(Sector& s, Type t)
 
     case terrain::Type::windmill:
         return 80;
+
+    case terrain::Type::harbor:
+        return 400;
     }
 
     return 0;
@@ -621,6 +848,9 @@ SystemString terrain::name(Type t)
     case terrain::Type::windmill_stone_base:
     case terrain::Type::windmill:
         return SystemString::block_windmill;
+
+    case terrain::Type::harbor:
+        return SystemString::block_harbor;
     }
 
     return SystemString::gs_error;
@@ -760,6 +990,9 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::windmill_stone_base:
     case terrain::Type::windmill:
         return {776, 760};
+
+    case terrain::Type::harbor:
+        return {776, 760};
     }
 
     return {};
@@ -784,8 +1017,8 @@ u16 terrain::Sector::cursor_raster_pos() const
 static bool blocks_light(terrain::Type t)
 {
     static const bool result[(int)terrain::Type::count] = {
-        false, true, true,  false, true,  true,  false, true, true, true,
-        true,  true, false, false, false, false, true,  true, true,
+        false, true,  true,  true,  true,  true, false, true, true, true, true,
+        true,  false, false, false, false, true, true,  true, true, true,
     };
 
     return result[(int)t];
