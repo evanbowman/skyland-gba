@@ -119,6 +119,25 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm, k, milliseconds(500), milliseconds(100));
     };
 
+    auto check_button = [&] {
+        if (player(app).key_down(pfrm, Key::action_1)) {
+            pfrm.speaker().play_sound("button_wooden", 3);
+            const auto mode = data_->on_click_[data_->cursor_].mode_;
+            if (mode == kill_menu) {
+                state_ = State::clear;
+            } else if (mode == fade_sweep) {
+                state_ = State::partial_clear;
+            } else if (mode == cut) {
+                data_->text_.clear();
+                state_ = State::cut;
+            } else if (mode == fade_sweep_transparent_text) {
+                state_ = State::partial_clear;
+                preserve_transparency_ = true;
+            }
+        }
+    };
+
+
     switch (state_) {
     case State::init: {
         pfrm.load_overlay_texture("overlay_challenges");
@@ -130,11 +149,10 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
                        kill_menu);
 
-            add_option(
-                pfrm,
-                SYSTR(start_menu_next_turn)->c_str(),
-                scene_pool::make_deferred_scene<macro::NextTurnScene>(),
-                cut);
+            add_option(pfrm,
+                       SYSTR(start_menu_next_turn)->c_str(),
+                       scene_pool::make_deferred_scene<macro::NextTurnScene>(),
+                       cut);
 
             // add_option(
             //     pfrm,
@@ -377,6 +395,19 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             timer_ = 0;
         }
 
+        if (test_key(Key::down)) {
+            if (data_->cursor_ < data_->text_.size() - 1) {
+                ++data_->cursor_;
+                pfrm.speaker().play_sound("click_wooden", 2);
+            }
+        }
+        if (test_key(Key::up)) {
+            if (data_->cursor_ > 0) {
+                --data_->cursor_;
+                pfrm.speaker().play_sound("click_wooden", 2);
+            }
+        }
+        check_button();
         break;
     }
 
@@ -385,21 +416,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             player(app).key_down(pfrm, Key::start)) {
             state_ = State::clear;
         }
-        if (player(app).key_down(pfrm, Key::action_1)) {
-            pfrm.speaker().play_sound("button_wooden", 3);
-            const auto mode = data_->on_click_[data_->cursor_].mode_;
-            if (mode == kill_menu) {
-                state_ = State::clear;
-            } else if (mode == fade_sweep) {
-                state_ = State::partial_clear;
-            } else if (mode == cut) {
-                data_->text_.clear();
-                state_ = State::cut;
-            } else if (mode == fade_sweep_transparent_text) {
-                state_ = State::partial_clear;
-                preserve_transparency_ = true;
-            }
-        }
+        check_button();
         if (test_key(Key::down)) {
             if (data_->cursor_ < data_->text_.size() - 1) {
                 ++data_->cursor_;

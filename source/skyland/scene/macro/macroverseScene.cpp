@@ -101,7 +101,7 @@ void MacroverseScene::exit(Platform& pfrm, App& app, Scene& prev)
 
 
 
-static const auto reveal_time = milliseconds(150);
+static const auto reveal_time = milliseconds(90);
 
 
 
@@ -184,8 +184,8 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.macrocosm()->data_->cloud_scroll_ += 0.000001f * delta;
 
     auto reveal_time = macro::reveal_time;
-    auto wait_time = milliseconds(400);
-    auto fade_time = milliseconds(500);
+    auto wait_time = milliseconds(300);
+    auto fade_time = milliseconds(350);
     if (fastload_) {
         reveal_time = milliseconds(40);
         wait_time = milliseconds(200);
@@ -479,7 +479,8 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                         }
 
                         m.sector().set_block({3, 3, 0}, terrain::Type::terrain);
-                        m.sector().set_block({3, 3, 1}, terrain::Type::building);
+                        m.sector().set_block({3, 3, 1},
+                                             terrain::Type::building);
 
                         pfrm.speaker().play_sound("button_wooden", 2);
                     }

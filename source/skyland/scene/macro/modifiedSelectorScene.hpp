@@ -34,9 +34,7 @@ namespace skyland::macro
 class ModifiedSelectorScene : public MacrocosmScene
 {
 public:
-
-    ModifiedSelectorScene(bool persist = true) :
-        persist_(persist)
+    ModifiedSelectorScene(bool persist = true) : persist_(persist)
     {
     }
 

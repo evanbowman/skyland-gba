@@ -108,27 +108,27 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
 
 
 static const TileOptionsScene::OptionInfo options[] = {
-        {SystemString::macro_create_block,
-         2568,
-         2584,
-         [](macro::State& state) -> ScenePtr<Scene> {
-             return scene_pool::alloc<CreateBlockScene>();
-         }},
-        {SystemString::macro_build_improvement,
-         2520,
-         2536,
-         [](macro::State& state) -> ScenePtr<Scene> {
-             return scene_pool::alloc<BuildImprovementScene>();
-         }},
-        {SystemString::macro_demolish,
-         2600,
-         2616,
-         [](macro::State& state) -> ScenePtr<Scene> {
-             auto c = state.sector().cursor();
-             c.z--;
-             state.sector().set_block(c, terrain::Type::air);
-             return scene_pool::alloc<SelectorScene>();
-         }}};
+    {SystemString::macro_create_block,
+     2568,
+     2584,
+     [](macro::State& state) -> ScenePtr<Scene> {
+         return scene_pool::alloc<CreateBlockScene>();
+     }},
+    {SystemString::macro_build_improvement,
+     2520,
+     2536,
+     [](macro::State& state) -> ScenePtr<Scene> {
+         return scene_pool::alloc<BuildImprovementScene>();
+     }},
+    {SystemString::macro_demolish,
+     2600,
+     2616,
+     [](macro::State& state) -> ScenePtr<Scene> {
+         auto c = state.sector().cursor();
+         c.z--;
+         state.sector().set_block(c, terrain::Type::air);
+         return scene_pool::alloc<SelectorScene>();
+     }}};
 
 
 

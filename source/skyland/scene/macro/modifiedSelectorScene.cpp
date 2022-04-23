@@ -86,8 +86,7 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
 
     auto& sector = state.sector();
 
-    if (persist_ or
-        player.key_pressed(pfrm, Key::alt_1) or
+    if (persist_ or player.key_pressed(pfrm, Key::alt_1) or
         player.key_pressed(pfrm, Key::alt_2)) {
 
         if ((persist_ and player.key_down(pfrm, Key::alt_2)) or

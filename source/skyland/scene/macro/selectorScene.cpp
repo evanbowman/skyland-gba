@@ -66,6 +66,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
     }
 
     if (player.key_down(pfrm, Key::select)) {
+        pfrm.speaker().play_sound("button_wooden", 3);
         return scene_pool::alloc<NextTurnScene>();
     }
 
