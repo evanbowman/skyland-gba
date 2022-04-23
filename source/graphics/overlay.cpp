@@ -48,6 +48,11 @@ void UIMetric::set_value(u32 value)
         } else if (v2 == 0) {
             value_len += 2;
         }
+
+        if (text_ and
+            text_->len() > value_len) {
+            ++value_len;
+        }
     }
 
     anim_.init(value_len);
@@ -87,12 +92,20 @@ void UIMetric::display(Platform& pfrm)
     }
 
 
+    if (anim_.width() < text_->len()) {
+        for (int i = anim_.width(); i < text_->len(); ++i) {
+            pfrm.set_tile(
+                Layer::overlay, text_->coord().x + i, text_->coord().y, 0);
+        }
+    }
+
+
     if (format_ == Format::integer_with_rate) {
         auto v1 = value_ & 0x0000ffff;
         int v2 = (value_ & 0xffff0000) >> 16;
         text_->assign(v1);
         auto clr = Text::OptColors{
-                                   {ColorConstant::med_blue_gray, ColorConstant::rich_black}};
+            {ColorConstant::med_blue_gray, ColorConstant::rich_black}};
         text_->append(",", clr);
 
         if (v2 > 0) {
@@ -105,33 +118,31 @@ void UIMetric::display(Platform& pfrm)
         }
 
 
-    } else if (format_ == Format::fraction or
-               format_ == Format::fraction_p_m) {
+    } else if (format_ == Format::fraction or format_ == Format::fraction_p_m) {
         auto v1 = value_ & 0x0000ffff;
         auto v2 = (value_ & 0xffff0000) >> 16;
 
         Text::OptColors main_clr;
 
         auto clr = [&] {
-                       if (v1 < v2) {
-                           main_clr =
-                               Text::OptColors{{ColorConstant::rich_black,
-                                                ColorConstant::aerospace_orange}};
-                           if (format_ == Format::fraction_p_m) {
-                               return Text::OptColors{{ColorConstant::med_blue_gray,
-                                                               ColorConstant::rich_black}};
-                           } else {
-                               return main_clr;
-                           }
-                       } else {
-                           if (format_ == Format::fraction_p_m) {
-                               return Text::OptColors{{ColorConstant::med_blue_gray,
-                                                               ColorConstant::rich_black}};
-                           } else {
-                               return Text::OptColors{};
-                           }
-                       }
-                   }();
+            if (v1 < v2) {
+                main_clr = Text::OptColors{{ColorConstant::rich_black,
+                                            ColorConstant::aerospace_orange}};
+                if (format_ == Format::fraction_p_m) {
+                    return Text::OptColors{{ColorConstant::med_blue_gray,
+                                            ColorConstant::rich_black}};
+                } else {
+                    return main_clr;
+                }
+            } else {
+                if (format_ == Format::fraction_p_m) {
+                    return Text::OptColors{{ColorConstant::med_blue_gray,
+                                            ColorConstant::rich_black}};
+                } else {
+                    return Text::OptColors{};
+                }
+            }
+        }();
 
         if (format_ == Format::fraction_p_m) {
             text_->append(v1 - v2, main_clr);
@@ -156,7 +167,6 @@ void UIMetric::display(Platform& pfrm)
         text_->assign(value_);
     }
 }
-
 
 
 

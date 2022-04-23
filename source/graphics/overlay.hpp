@@ -475,7 +475,6 @@ public:
     }
 
 private:
-
     void display(Platform& pfrm);
 
     const int icon_tile_;
