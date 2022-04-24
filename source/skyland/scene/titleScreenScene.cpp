@@ -39,6 +39,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
 #include "zoneImageScene.hpp"
+#include "modules/macrocosmLoaderModule.hpp"
 
 
 
@@ -82,6 +83,10 @@ TitleScreenScene::TitleScreenScene(int start_page)
 
     case 3:
         state_ = State::resume_end;
+        break;
+
+    case 4:
+        state_ = State::resume_macro;
         break;
     }
 }
@@ -326,11 +331,12 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 
 
 
-static const SystemString menu_text[4] = {
+static const SystemString menu_text[5] = {
     SystemString::menu_text_adventure,
     SystemString::menu_text_challenge,
-    SystemString::menu_text_multiplayer,
+    SystemString::menu_text_macro,
     SystemString::menu_text_extras,
+    SystemString::menu_text_multiplayer,
 };
 
 
@@ -532,7 +538,10 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         view.set_center(c);
         pfrm.screen().set_view(view);
 
-        if (x_scroll_ < 0) {
+        if (x_scroll_ < -240) {
+            set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 272, -offset + 8);
+            set_scroll(pfrm, Layer::map_0_ext, x_scroll_ - 32, -offset + 8);
+        } else if (x_scroll_ < 0) {
             set_scroll(pfrm, Layer::map_1_ext, x_scroll_ - 272, -offset + 8);
             set_scroll(pfrm, Layer::map_0_ext, x_scroll_, -offset + 8);
         } else if (x_scroll_ > 240) {
@@ -591,6 +600,13 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         menu_selection_ = 3;
         pfrm.load_tile0_texture("skyland_title_3_flattened");
         x_scroll_ = 480;
+        break;
+
+    case State::resume_macro:
+        state_ = State::quick_fade_in;
+        menu_selection_ = 2;
+        pfrm.load_tile1_texture("skyland_title_2_flattened");
+        x_scroll_ = -240;
         break;
 
 
@@ -691,6 +707,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 put_menu_text(pfrm);
                 play_gust_sound(pfrm);
                 state_ = State::scroll_to_center;
+                pfrm.system_call("vsync", nullptr);
+                pfrm.load_tile0_texture("skyland_title_0_flattened");
                 timer_ = 0;
             } else if (menu_selection_ == 1) {
                 menu_selection_ = 3;
@@ -700,6 +718,12 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 timer_ = 0;
                 pfrm.system_call("vsync", nullptr);
                 pfrm.load_tile0_texture("skyland_title_3_flattened");
+            } else if (menu_selection_ == 4) {
+                menu_selection_ = 2;
+                put_menu_text(pfrm);
+                state_ = State::scroll_to_macro;
+                play_gust_sound(pfrm);
+                timer_ = 0;
             }
         }
         if (app.player().key_pressed(pfrm, Key::left) or
@@ -714,7 +738,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else if (menu_selection_ == 0) {
                 menu_selection_ = 2;
                 put_menu_text(pfrm);
-                state_ = State::scroll_multiplayer;
+                state_ = State::scroll_macro;
                 play_gust_sound(pfrm);
                 pfrm.system_call("vsync", nullptr);
                 pfrm.load_tile1_texture("skyland_title_2_flattened");
@@ -725,11 +749,47 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 play_gust_sound(pfrm);
                 state_ = State::scroll_from_end;
                 timer_ = 0;
+            } else if (menu_selection_ == 2) {
+                menu_selection_ = 4;
+                put_menu_text(pfrm);
+                play_gust_sound(pfrm);
+                state_ = State::scroll_multiplayer;
+                pfrm.system_call("vsync", nullptr);
+                pfrm.load_tile0_texture("skyland_title_4_flattened");
+                timer_ = 0;
             }
         }
         break;
 
     case State::scroll_multiplayer: {
+        timer_ += delta;
+        static const auto duration = milliseconds(1250);
+        if (timer_ > duration) {
+            timer_ = 0;
+            state_ = State::wait;
+            x_scroll_ = -480;
+        } else {
+            const auto amount = smoothstep(0.f, duration, timer_);
+            x_scroll_ = -240 + -240 * amount;
+        }
+        break;
+    }
+
+    case State::scroll_to_macro: {
+        timer_ += delta;
+        static const auto duration = milliseconds(1250);
+        if (timer_ > duration) {
+            timer_ = 0;
+            state_ = State::wait;
+            x_scroll_ = -240;
+        } else {
+            const auto amount = 1.f - smoothstep(0.f, duration, timer_);
+            x_scroll_ = -240 + -240 * amount;
+        }
+        break;
+    }
+
+    case State::scroll_macro: {
         timer_ += delta;
         static const auto duration = milliseconds(1250);
         if (timer_ > duration) {
@@ -866,12 +926,17 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             case 2:
+                run_init_scripts(pfrm, app, true);
+                return scene_pool::alloc<MacrocosmLoaderModule>();
+
+            case 3:
+                pfrm.fatal("logic error, this should be unreachable");
+
+            case 4:
                 app.game_mode() = App::GameMode::multiplayer;
                 run_init_scripts(pfrm, app, false);
                 return scene_pool::alloc<MultiplayerConnectScene>();
 
-            case 3:
-                pfrm.fatal("logic error, this should be unreachable");
             }
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
@@ -1132,12 +1197,18 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         sprite.set_texture_index(6);
 
         pfrm.screen().draw(sprite);
-    } else if (x_scroll_ < 0) {
+    } else if (x_scroll_ < -240) {
         pong_.display(pfrm, x_scroll_);
     }
     for (auto& bird : app.birds()) {
         auto spr = bird->sprite();
         auto pos = spr.get_position();
+
+        if (state_ == State::scroll_to_center and
+            pos.x < -x_scroll_) {
+            continue;
+        }
+
         pos.x = pos.x - x_scroll_ / 2;
 
         auto b = dynamic_cast<SmallBird*>(bird.get());
@@ -1274,7 +1345,7 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
     sprite.set_origin({1, 2});
     sprite.set_position(
         Vec2<Fixnum>{
-            (anchor.x) - (240 + x_scroll),
+            (anchor.x) - (480 + x_scroll),
             anchor.y +
                 clamp(interpolate(ball_.y, pad1_.pos_, 1.f - ball_.x / 22),
                       0.f,
@@ -1283,7 +1354,7 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
     pfrm.screen().draw(sprite);
 
     sprite.set_position(
-        Vec2<Fixnum>{(anchor.x + 24) - (240 + x_scroll),
+        Vec2<Fixnum>{(anchor.x + 24) - (480 + x_scroll),
                      anchor.y +
                          interpolate(ball_.y, pad2_.pos_, ball_.x / 22)} +
         scl);
@@ -1292,7 +1363,7 @@ void TitleScreenScene::Pong::display(Platform& pfrm, int x_scroll)
 
     sprite.set_origin({});
     sprite.set_texture_index(27);
-    sprite.set_position(Vec2<Fixnum>{(ball_.x + anchor.x) - (240 + x_scroll),
+    sprite.set_position(Vec2<Fixnum>{(ball_.x + anchor.x) - (480 + x_scroll),
                                      ball_.y + anchor.y} +
                         scl);
     pfrm.screen().draw(sprite);

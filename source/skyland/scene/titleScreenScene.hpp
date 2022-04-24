@@ -98,8 +98,10 @@ private:
         fade_out,
         scroll_right,
         scroll_left,
+        scroll_macro,
         scroll_multiplayer,
         scroll_to_center,
+        scroll_to_macro,
         wait_2,
         scroll_to_end,
         scroll_from_end,
@@ -107,6 +109,7 @@ private:
         show_modules,
         fade_modules_backout,
         resume_end,
+        resume_macro,
         resume_challenges,
     } state_ = State::fade_in;
 

@@ -155,12 +155,6 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                        scene_pool::make_deferred_scene<macro::NextTurnScene>(),
                        cut);
 
-            // add_option(
-            //     pfrm,
-            //     SYSTR(start_menu_adjust_view)->c_str(),
-            //     scene_pool::make_deferred_scene<macro::ModifiedSelectorScene>(),
-            //     cut);
-
             add_option(
                 pfrm,
                 SYSTR(start_menu_macroverse)->c_str(),
@@ -282,7 +276,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 [&pfrm]() -> ScenePtr<Scene> {
                     pfrm.fill_overlay(0);
                     pfrm.screen().set_shader(passthrough_shader);
-                    return scene_pool::alloc<TitleScreenScene>(3);
+                    return scene_pool::alloc<TitleScreenScene>(4);
                 },
                 fade_sweep);
             break;

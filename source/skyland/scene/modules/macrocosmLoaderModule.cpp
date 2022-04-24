@@ -101,7 +101,8 @@ MacrocosmLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-MacrocosmLoaderModule::Factory MacrocosmLoaderModule::factory_(false);
+// Moved to the title screen. Uncomment to add back to extras page.
+// MacrocosmLoaderModule::Factory MacrocosmLoaderModule::factory_(false);
 
 
 

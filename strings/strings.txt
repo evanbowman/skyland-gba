@@ -90,6 +90,7 @@ adventure
 challenge
 multiplayer
 extras
+macrocosm
 Achievements
 Credits
 Update Loader

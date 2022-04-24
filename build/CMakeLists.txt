@@ -324,6 +324,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/tilesheet_enemy_0_interior.s
     ${DATA_DIR}/tilesheet_interior.s
     ${DATA_DIR}/tilesheet_top.s
+    ${DATA_DIR}/skyland_title_4_flattened.s
     ${DATA_DIR}/skyland_title_3_flattened.s
     ${DATA_DIR}/skyland_title_2_flattened.s
     ${DATA_DIR}/skyland_title_1_flattened.s
@@ -618,6 +619,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
     add_tilesheet(tilesheet_interior 2 2 NO NO)
     add_tilesheet(tilesheet_world_map_backdrop 2 2 NO NO)
+    add_tilesheet(skyland_title_4 0 0 YES NO)
     add_tilesheet(skyland_title_3 0 0 YES NO)
     add_tilesheet(skyland_title_2 0 0 YES NO)
     add_tilesheet(skyland_title_1 0 0 YES NO)

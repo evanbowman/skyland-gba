@@ -139,6 +139,7 @@ enum class SystemString {
     menu_text_challenge,
     menu_text_multiplayer,
     menu_text_extras,
+    menu_text_macro,
 
     module_achievements,
     module_credits,
