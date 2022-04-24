@@ -992,7 +992,7 @@ std::pair<int, int> terrain::icons(Type t)
         return {2488, 2504};
 
     case terrain::Type::building:
-        return {1448, 1464};
+        return {2760, 2776};
 
     case terrain::Type::terrain:
         return {2632, 2648};
@@ -1033,7 +1033,7 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::windmill_stone_base:
     case terrain::Type::windmill:
-        return {776, 760};
+        return {2792, 2808};
 
     case terrain::Type::port:
         return {776, 760};

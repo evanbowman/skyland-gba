@@ -62,7 +62,10 @@ void CreateBlockScene::collect_options(macro::State& state)
     options_.push_back(terrain::Type::water);
 
     if (not state.data_->other_sectors_.empty()) {
-        options_.push_back(terrain::Type::port);
+        auto stats = state.sector().base_stats();
+        if (not stats.commodities_.empty()) {
+            options_.push_back(terrain::Type::port);
+        }
     }
 
     options_.push_back(terrain::Type::gold);

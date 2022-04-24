@@ -27,6 +27,7 @@
 #include "macro/macroverseScene.hpp"
 #include "macro/modifiedSelectorScene.hpp"
 #include "macro/nextTurnScene.hpp"
+#include "macro/saveConfirmScene.hpp"
 #include "macro/selectorScene.hpp"
 #include "modules/glossaryViewerModule.hpp"
 #include "readyScene.hpp"
@@ -271,12 +272,9 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm,
                 SYSTR(start_menu_save)->c_str(),
                 [&pfrm, &app]() -> ScenePtr<Scene> {
-                    app.macrocosm()->save(pfrm);
-                    pfrm.screen().schedule_fade(0.f);
-                    pfrm.screen().pixelate(0);
-                    return scene_pool::alloc<macro::SelectorScene>();
+                    return scene_pool::alloc<macro::SaveConfirmScene>();
                 },
-                cut);
+                fade_sweep);
 
             add_option(
                 pfrm,
