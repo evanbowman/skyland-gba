@@ -3125,15 +3125,31 @@ READ_ONLY_DATA alignas(4) [[gnu::used]] static const
     char backup_type[] = {'S', 'R', 'A', 'M', '_', 'V', 'n', 'n', 'n'};
 
 
+
+IWRAM_CODE
 void sram_save(const void* data, u32 offset, u32 length)
 {
-    u8* save_mem = (u8*)cartridge_ram + offset;
+    // Supposedly, some bootleg carts require interrupts to be disabled while
+    // saving, and the save code needs to run from IWRAM. Disable the sound chip
+    // as well, to prevent stuttering.
+    REG_SNDDMGCNT &= ~(1 << 0xb);
+    REG_SNDDMGCNT &= ~(1 << 0xf);
+
+    u16 ime = REG_IME;
+    REG_IME = 0;
+
+    u8* save_mem = (u8*)0x0E000000 + offset;
 
     // The cartridge has an 8-bit bus, so you have to write one byte at a time,
     // otherwise it won't work!
     for (size_t i = 0; i < length; ++i) {
         *save_mem++ = ((const u8*)data)[i];
     }
+
+    REG_IME = ime;
+
+    REG_SOUNDCNT_H |= (1 << 9);
+    REG_SOUNDCNT_H |= (1 << 8);
 }
 
 

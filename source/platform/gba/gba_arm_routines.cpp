@@ -30,12 +30,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifdef __GBA__
-#define IWRAM_CODE __attribute__((section(".iwram"), long_call))
-#else
-#define IWRAM_CODE
-#endif // __GBA__
-
 
 #include "gba.h"
 #include "mixer.hpp"
