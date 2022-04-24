@@ -311,21 +311,13 @@ static const char version = 'a';
 struct Header
 {
     State::Data::Persistent p_;
-    char version_ = version;
     u8 num_sectors_;
-
-    // NOTE: currently unused. In case we want to add extra stuff to the save
-    // file later and maintain backwards-compatibility, we store a number of
-    // appended attributes at the end of the file, which future versions will
-    // use.
-    host_u16 num_attributes_;
 };
 
 struct Sector
 {
     macro::terrain::Sector::Persistent p_;
     u8 blocks_[macro::terrain::Sector::z_limit][8][8];
-    u8 export_count_ = 0;
 
     Sector()
     {
@@ -342,8 +334,6 @@ struct Sector
                 }
             }
         }
-
-        export_count_ = source.exports().size();
     }
 };
 } // namespace save
@@ -368,9 +358,11 @@ void State::save(Platform& pfrm)
             save_data.push_back(((u8*)&out)[i]);
         }
 
+        save_data.push_back((u8)sector.exports().size());
+
         for (auto& exp : sector.exports()) {
-            for (u32 i = 0; i < sizeof exp; ++i) {
-                save_data.push_back(((u8*)&exp)[i]);
+            for (u32 j = 0; j < sizeof exp; ++j) {
+                save_data.push_back(((u8*)&exp)[j]);
             }
         }
     };
@@ -404,10 +396,6 @@ void State::load(Platform& pfrm)
             ++it;
         }
 
-        if (header.version_ not_eq save::version) {
-            return;
-        }
-
         memcpy(&data_->p(), &header.p_, sizeof header.p_);
 
         auto load_sector = [&](terrain::Sector& dest) {
@@ -422,13 +410,15 @@ void State::load(Platform& pfrm)
 
             dest.restore(s);
 
-            for (int i = 0; i < s.export_count_; ++i) {
+            u8 export_count = *(it++);
+
+            for (int i = 0; i < export_count; ++i) {
                 terrain::Sector::ExportInfo info;
                 for (u32 i = 0; i < sizeof info; ++i) {
                     if (it == input.end()) {
                         Platform::fatal("failed while loading exports");
                     }
-                    ((u8*)&s)[i] = *it;
+                    ((u8*)&info)[i] = *it;
                     ++it;
                 }
                 dest.set_export(info);

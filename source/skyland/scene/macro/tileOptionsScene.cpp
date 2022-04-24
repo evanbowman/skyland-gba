@@ -130,7 +130,7 @@ static const TileOptionsScene::OptionInfo options[] = {
          state.sector().remove_export(c);
          return scene_pool::alloc<SelectorScene>();
      }},
-    {SystemString::macro_demolish,
+    {SystemString::macro_export,
      776,
      760,
      [](macro::State& state) -> ScenePtr<Scene> {
@@ -169,7 +169,10 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
     }
 
     if (block.type() == terrain::Type::port) {
-        options_.push_back(&options[3]);
+        auto stats = state.sector().base_stats();
+        if (not stats.commodities_.empty()) {
+            options_.push_back(&options[3]);
+        }
     }
 }
 
