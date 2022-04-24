@@ -1005,7 +1005,9 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::selector:
         return {};
 
-    case terrain::Type::shellfish: // FIXME
+    case terrain::Type::shellfish:
+        return {2824, 2840};
+
     case terrain::Type::water:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
