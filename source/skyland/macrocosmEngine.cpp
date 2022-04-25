@@ -847,7 +847,7 @@ Coins terrain::cost(Sector& s, Type t)
         return 40;
 
     case terrain::Type::potatoes:
-        return 250;
+        return 270;
 
     case terrain::Type::sunflowers:
         return 120;
@@ -1022,6 +1022,15 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
         result.push_back(Type::indigo);
         result.push_back(Type::madder);
         result.push_back(Type::potatoes);
+        result.push_back(Type::windmill);
+        result.push_back(Type::sunflowers);
+        break;
+
+    case Type::potatoes:
+        result.push_back(Type::wheat);
+        result.push_back(Type::indigo);
+        result.push_back(Type::madder);
+        result.push_back(Type::windmill);
         result.push_back(Type::sunflowers);
         break;
 
