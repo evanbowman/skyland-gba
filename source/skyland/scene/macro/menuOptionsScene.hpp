@@ -45,6 +45,7 @@ public:
 
 
 private:
+    std::optional<Text> budget_text_;
     std::optional<Text> next_turn_text_;
     std::optional<Text> macroverse_text_;
     int exit_timer_ = 0;

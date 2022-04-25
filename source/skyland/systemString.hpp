@@ -190,6 +190,7 @@ enum class SystemString {
     macro_layers,
     macro_visible_layers,
     macro_next_turn,
+    macro_budget,
     macro_enter,
     macro_create_colony,
     macro_set_name,

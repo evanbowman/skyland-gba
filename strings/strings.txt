@@ -131,6 +131,7 @@ demolish block:
 :layers
 view threshold: 
 :next turn
+:budget
 enter
 create colony
 edit name
