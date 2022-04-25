@@ -137,9 +137,23 @@ fiscal::Ledger terrain::Sector::budget() const
         employed_population = productive_population - unemployed_population;
     }
 
-    result.add_entry("population (employed)", employed_population * 0.3f);
-    result.add_entry("population", unemployed_population * 0.1f);
-    result.add_entry("homelessness", -unproductive_population * 0.1f);
+    auto& pfrm = Platform::instance();
+
+    if (employed_population) {
+        result.add_entry(SYSTR(macro_fiscal_employed)->c_str(),
+                         employed_population * 0.3f);
+    }
+
+    if (unemployed_population) {
+        result.add_entry(SYSTR(macro_fiscal_unemployed)->c_str(),
+                         unemployed_population * 0.1f);
+    }
+
+    if (unproductive_population) {
+        result.add_entry(SYSTR(macro_fiscal_homelessness)->c_str(),
+                         -unproductive_population * 0.2f);
+    }
+
 
     for (auto& c : st.commodities_) {
         int count = 0;
@@ -152,7 +166,7 @@ fiscal::Ledger terrain::Sector::budget() const
         }
 
         fiscal::LineItem::Label l;
-        l += loadstr(Platform::instance(), c.name())->c_str();
+        l += loadstr(pfrm, c.name())->c_str();
         l += " (";
         l += stringify(count);
         l += ")";

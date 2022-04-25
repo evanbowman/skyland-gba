@@ -23,12 +23,12 @@
 #pragma once
 
 
+#include "selectorScene.hpp"
 #include "skyland/macrocosmEngine.hpp"
 #include "skyland/scene.hpp"
-#include "skyland/scene_pool.hpp"
 #include "skyland/scene/startMenuScene.hpp"
+#include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "selectorScene.hpp"
 
 
 
@@ -40,7 +40,6 @@ namespace skyland::macro
 class SaveConfirmScene : public Scene
 {
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         no_text_.emplace(pfrm, SYSTR(no)->c_str(), OverlayCoord{3, 5});
@@ -58,9 +57,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (pfrm.keyboard().down_transition(Key::action_1)) {
             pfrm.speaker().play_sound("button_wooden", 3);
@@ -99,4 +97,4 @@ private:
 
 
 
-}
+} // namespace skyland::macro

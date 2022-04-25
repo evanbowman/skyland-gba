@@ -199,6 +199,12 @@ enum class SystemString {
     macro_export_how_many,
     macro_export_where,
 
+    macro_fiscal_budget,
+    macro_fiscal_employed,
+    macro_fiscal_unemployed,
+    macro_fiscal_homelessness,
+    macro_fiscal_total,
+
 
     description_power_core,
     description_solar_cell,

@@ -26,6 +26,7 @@
 #include "loadModuleScene.hpp"
 #include "module.hpp"
 #include "modules/fileBrowserModule.hpp"
+#include "modules/macrocosmLoaderModule.hpp"
 #include "multiplayerConnectScene.hpp"
 #include "newgameScene.hpp"
 #include "platform/ram_filesystem.hpp"
@@ -39,7 +40,6 @@
 #include "skyland/skyland.hpp"
 #include "skyland/systemString.hpp"
 #include "zoneImageScene.hpp"
-#include "modules/macrocosmLoaderModule.hpp"
 
 
 
@@ -936,7 +936,6 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.game_mode() = App::GameMode::multiplayer;
                 run_init_scripts(pfrm, app, false);
                 return scene_pool::alloc<MultiplayerConnectScene>();
-
             }
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
@@ -1204,8 +1203,7 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         auto spr = bird->sprite();
         auto pos = spr.get_position();
 
-        if (state_ == State::scroll_to_center and
-            pos.x < -x_scroll_) {
+        if (state_ == State::scroll_to_center and pos.x < -x_scroll_) {
             continue;
         }
 

@@ -27,6 +27,7 @@
 #include "selectorScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "viewBudgetScene.hpp"
 
 
 
@@ -112,8 +113,8 @@ MenuOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
         player.key_pressed(pfrm, Key::alt_2)) {
 
         if (player.key_down(pfrm, Key::left)) {
-
             pfrm.speaker().play_sound("cursor_tick", 2);
+            return scene_pool::alloc<ViewBudgetScene>();
         } else if (player.key_down(pfrm, Key::right)) {
             pfrm.speaker().play_sound("cursor_tick", 2);
             return scene_pool::alloc<NextTurnScene>();

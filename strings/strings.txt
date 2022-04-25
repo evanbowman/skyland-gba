@@ -139,6 +139,11 @@ cost: %_ %_
 select export:
 how many?
 where?
+budget: 
+citizens (employed)
+citizens
+homelessness
+total
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
 Energy from the sun! Power output reduced by 1/4 for each block directly above the solar-cell.
 While slightly less powerful than an ordinary cannon, its attacks spread fire.
@@ -337,4 +342,4 @@ Many years have passed since the decline of industrial society. An endless winte
 The last remnants of humanity migrate above the clouds, escaping the terrors of the surface below...
 Civilization flourishes in a delicate peace, threatened by growing piracy and power-hungry warlords...
 ___NOTICE__ __META_COMMENT__: The latin alphabet on the following line is used for optimization purposes when loading glyphs. Text in some parts of the game may load faster if you place the characters in the string below:
-abcdefghijklmnopqrstuvwxyz- ()
+abcdefghijklmnopqrstuvwxyz- ()0123456789

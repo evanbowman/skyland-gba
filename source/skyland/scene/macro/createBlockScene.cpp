@@ -682,7 +682,8 @@ ScenePtr<Scene> ConfigurePortDestScene::update(Platform& pfrm,
         terrain::Sector::ExportInfo info;
         info.c = type_;
         info.source_coord_ = c;
-        info.destination_ = state.load_sector(export_options_[selection_])->coordinate();
+        info.destination_ =
+            state.load_sector(export_options_[selection_])->coordinate();
         info.export_supply_.set((u16)export_count_);
         state.sector().set_export(info);
 
