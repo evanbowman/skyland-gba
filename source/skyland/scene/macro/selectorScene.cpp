@@ -47,6 +47,7 @@ void SelectorScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     MacrocosmScene::exit(pfrm, app, next);
     text_.reset();
+    text_2_.reset();
 }
 
 
@@ -74,54 +75,14 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
     if (not text_) {
         text_.emplace(pfrm, OverlayCoord{0, 19});
     }
+    if (not text_2_) {
+        text_2_.emplace(pfrm, OverlayCoord{0, 18});
+    }
 
     auto test_key = [&](Key k) {
         return player.test_key(pfrm, k, milliseconds(500), milliseconds(100));
     };
 
-    auto msg = [&] {
-        auto s = SystemString::block_air;
-        auto cursor = sector.cursor();
-        auto tp = terrain::Type::air;
-        bool shadowed = false;
-        if (cursor.z > 0) {
-            --cursor.z;
-            auto& block = sector.get_block(cursor);
-            tp = block.type();
-            s = block.name();
-            shadowed = block.shadowed_;
-        }
-        StringBuffer<48> b;
-        b += "(";
-        b += loadstr(pfrm, s)->c_str();
-        b += ")";
-        text_->assign(b.c_str());
-
-        auto stats = terrain::stats(tp, shadowed);
-        if (stats.food_) {
-            text_->append("  ");
-            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 414);
-            text_->append(stats.food_);
-        }
-
-        if (stats.housing_) {
-            text_->append("  ");
-            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 416);
-            text_->append(stats.housing_);
-        }
-
-        if (stats.employment_) {
-            text_->append("  ");
-            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 415);
-            text_->append(stats.employment_);
-        }
-
-        if (not stats.commodities_.empty()) {
-            text_->append("  ");
-            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 417);
-            text_->append(stats.commodities_[0].supply_);
-        }
-    };
 
     if (player.key_pressed(pfrm, Key::alt_1)) {
 
@@ -136,28 +97,28 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         if (test_key(Key::up) and cursor.y > 0) {
             --cursor.y;
             sector.set_cursor(cursor);
-            msg();
+            describe_selected(pfrm, state);
             pfrm.speaker().play_sound("cursor_tick", 2);
         }
 
         if (test_key(Key::down) and cursor.y < 7) {
             ++cursor.y;
             sector.set_cursor(cursor);
-            msg();
+            describe_selected(pfrm, state);
             pfrm.speaker().play_sound("cursor_tick", 2);
         }
 
         if (test_key(Key::right) and cursor.x > 0) {
             --cursor.x;
             sector.set_cursor(cursor);
-            msg();
+            describe_selected(pfrm, state);
             pfrm.speaker().play_sound("cursor_tick", 2);
         }
 
         if (test_key(Key::left) and cursor.x < 7) {
             ++cursor.x;
             sector.set_cursor(cursor);
-            msg();
+            describe_selected(pfrm, state);
             pfrm.speaker().play_sound("cursor_tick", 2);
         }
     }
@@ -172,6 +133,78 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
     }
 
     return null_scene();
+}
+
+
+
+void SelectorScene::describe_selected(Platform& pfrm, macro::State& state)
+{
+    auto& sector = state.sector();
+
+    auto s = SystemString::block_air;
+    auto cursor = sector.cursor();
+    auto tp = terrain::Type::air;
+    bool shadowed = false;
+    if (cursor.z > 0) {
+        --cursor.z;
+        auto& block = sector.get_block(cursor);
+        tp = block.type();
+        s = block.name();
+        shadowed = block.shadowed_;
+    }
+
+    if (tp == terrain::Type::port) {
+        StringBuffer<48> b;
+        for (auto& e : sector.exports()) {
+            if (e.source_coord_ == cursor) {
+                b += loadstr(pfrm, name(e.c))->c_str();
+                b += "(";
+                b += stringify(e.export_supply_.get());
+                b += ")->";
+                if (auto dest = state.load_sector(e.destination_)) {
+                    b += dest->name();
+                }
+            }
+        }
+
+        if (not b.empty()) {
+            text_->assign(b.c_str());
+            return;
+        }
+    } else {
+        text_2_->erase();
+    }
+
+    StringBuffer<48> b;
+    b += "(";
+    b += loadstr(pfrm, s)->c_str();
+    b += ")";
+    text_->assign(b.c_str());
+
+    auto stats = terrain::stats(tp, shadowed);
+    if (stats.food_) {
+        text_->append("  ");
+        pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 414);
+        text_->append(stats.food_);
+    }
+
+    if (stats.housing_) {
+        text_->append("  ");
+        pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 416);
+        text_->append(stats.housing_);
+    }
+
+    if (stats.employment_) {
+        text_->append("  ");
+        pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 415);
+        text_->append(stats.employment_);
+    }
+
+    if (not stats.commodities_.empty()) {
+        text_->append("  ");
+        pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 417);
+        text_->append(stats.commodities_[0].supply_);
+    }
 }
 
 

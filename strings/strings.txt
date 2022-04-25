@@ -215,7 +215,7 @@ Give me a hint!
 what's sandbox mode?!
 save
 load
-macroverse
+macrocosm
 next turn
 adjust view
 really salvage?  +

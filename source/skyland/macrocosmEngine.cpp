@@ -191,7 +191,9 @@ u16 terrain::Sector::quantity_non_exported(Commodity::Type t)
     }
 
     for (auto& e : exports_) {
-        total -= e.export_supply_.get();
+        if (e.c == t) {
+            total -= e.export_supply_.get();
+        }
     }
 
     return std::max(0, total);
@@ -584,23 +586,30 @@ Coins terrain::Commodity::value(Commodity::Type t)
 
 
 
-SystemString terrain::Commodity::name() const
+SystemString terrain::name(terrain::Commodity::Type t)
 {
-    switch (type_) {
-    case indigo:
+    switch (t) {
+    case Commodity::indigo:
         return SystemString::block_indigo;
 
-    case rose_madder:
+    case Commodity::rose_madder:
         return SystemString::block_madder;
 
-    case shellfish:
+    case Commodity::shellfish:
         return SystemString::block_shellfish;
 
-    case sunflowers:
+    case Commodity::sunflowers:
         return SystemString::block_sunflower;
     }
 
     return SystemString::empty;
+}
+
+
+
+SystemString terrain::Commodity::name() const
+{
+    return terrain::name(type_);
 }
 
 
@@ -961,18 +970,30 @@ SystemString terrain::Block::name() const
 
 
 
+static Vec3<u8> rotate_coord(Vec3<u8> input)
+{
+    return {(u8)((8 - 1) - input.y), input.x, input.z};
+}
+
+
+
 void terrain::Sector::rotate()
 {
     for (int z = 0; z < z_limit; ++z) {
         for (int x = 0; x < 8 / 2; x++) {
             for (int y = x; y < 8 - x - 1; y++) {
                 auto temp = blocks_[z][x][y];
+                temp.repaint_ = true;
                 blocks_[z][x][y] = blocks_[z][y][8 - 1 - x];
                 blocks_[z][y][8 - 1 - x] = blocks_[z][8 - 1 - x][8 - 1 - y];
                 blocks_[z][8 - 1 - x][8 - 1 - y] = blocks_[z][8 - 1 - y][x];
                 blocks_[z][8 - 1 - y][x] = temp;
             }
         }
+    }
+
+    for (auto& exp : exports_) {
+        exp.source_coord_ = rotate_coord(exp.source_coord_);
     }
 
     for (int z = 0; z < z_limit; ++z) {

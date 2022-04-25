@@ -169,6 +169,7 @@ using Improvements = Buffer<Type, 10>;
 
 Stats stats(Type t, bool shadowed);
 SystemString name(Type t);
+SystemString name(Commodity::Type t);
 std::pair<int, int> icons(Type t);
 Improvements improvements(Type t);
 
