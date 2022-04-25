@@ -107,6 +107,7 @@ private:
     int fade_direction_ = 0;
 
     Microseconds timer_ = 0;
+    int start_y_ = 3;
 
     bool preserve_transparency_ = false;
 };

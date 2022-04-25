@@ -58,6 +58,10 @@ StartMenuScene::StartMenuScene(int fade_direction)
 void StartMenuScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.fill_overlay(0);
+
+    if (app.game_mode() == App::GameMode::macro) {
+        start_y_ = 0;
+    }
 }
 
 
@@ -67,15 +71,12 @@ void StartMenuScene::add_option(Platform& pfrm,
                                 DeferredScene on_click,
                                 TransitionMode transition_mode)
 {
-
-    int start_y = 3;
-
     u8 margin = centered_text_margins(pfrm, utf8::len(str));
 
     data_->text_.emplace_back(
         pfrm,
         str,
-        OverlayCoord{margin, (u8)(start_y + data_->text_.size() * 2)});
+        OverlayCoord{margin, (u8)(start_y_ + data_->text_.size() * 2)});
 
     data_->on_click_.push_back({on_click, transition_mode});
     data_->option_names_.push_back(str);
@@ -144,7 +145,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.load_overlay_texture("overlay_challenges");
 
         if (app.game_mode() == App::GameMode::macro) {
-            diff_percent_ = -0.1f;
+            diff_percent_ = 0.3f;
             add_option(pfrm,
                        SYSTR(start_menu_resume)->c_str(),
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
