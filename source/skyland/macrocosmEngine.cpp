@@ -1597,6 +1597,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         revert_if_covered(s, block, position, terrain::Type::water);
     },
+    // port
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        // ...
+    },
     // potatoes
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
@@ -1606,6 +1611,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::terrain);
+    },
+    // food
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        Platform::fatal("food sentinel created as a terrain block");
     },
 };
 // clang-format on

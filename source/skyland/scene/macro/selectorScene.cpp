@@ -46,6 +46,9 @@ void SelectorScene::enter(Platform& pfrm, App& app, Scene& prev)
 void SelectorScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     MacrocosmScene::exit(pfrm, app, next);
+    for (int i = 0; i < text_->len(); ++i) {
+        pfrm.set_tile(Layer::overlay, i, 18, 0);
+    }
     text_.reset();
     text_2_.reset();
 }
@@ -74,9 +77,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     if (not text_) {
         text_.emplace(pfrm, OverlayCoord{0, 19});
-    }
-    if (not text_2_) {
-        text_2_.emplace(pfrm, OverlayCoord{0, 18});
+        describe_selected(pfrm, state);
     }
 
     auto test_key = [&](Key k) {
@@ -141,6 +142,10 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::State& state)
 {
     auto& sector = state.sector();
 
+    for (int i = 0; i < text_->len(); ++i) {
+        pfrm.set_tile(Layer::overlay, i, 18, 0);
+    }
+
     auto s = SystemString::block_air;
     auto cursor = sector.cursor();
     auto tp = terrain::Type::air;
@@ -204,6 +209,10 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::State& state)
         text_->append("  ");
         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 417);
         text_->append(stats.commodities_[0].supply_);
+    }
+
+    for (int i = 0; i < text_->len(); ++i) {
+        pfrm.set_tile(Layer::overlay, i, 18, 425);
     }
 }
 
