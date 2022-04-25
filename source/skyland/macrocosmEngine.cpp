@@ -503,7 +503,9 @@ void terrain::Sector::advance(int years)
 
 
 
-terrain::Stats terrain::stats(Type t)
+namespace terrain
+{
+Stats stats(Type t, bool shadowed)
 {
     terrain::Stats result;
 
@@ -527,18 +529,31 @@ terrain::Stats terrain::stats(Type t)
         result.employment_ += 3;
         break;
 
+    case terrain::Type::sunflowers:
+        if (not shadowed) {
+            result.commodities_.push_back({Commodity::Type::sunflowers, 1});
+        }
+        result.employment_ += 2;
+        break;
+
     case terrain::Type::indigo:
-        result.commodities_.push_back({Commodity::Type::indigo, 1});
+        if (not shadowed) {
+            result.commodities_.push_back({Commodity::Type::indigo, 1});
+        }
         result.employment_ += 4;
         break;
 
     case terrain::Type::madder:
-        result.commodities_.push_back({Commodity::Type::rose_madder, 1});
+        if (not shadowed) {
+            result.commodities_.push_back({Commodity::Type::rose_madder, 1});
+        }
         result.employment_ += 4;
         break;
 
     case terrain::Type::shellfish:
-        result.commodities_.push_back({Commodity::Type::shellfish, 1});
+        if (not shadowed) {
+            result.commodities_.push_back({Commodity::Type::shellfish, 1});
+        }
         result.employment_ += 1;
         result.food_ += 2;
         break;
@@ -558,12 +573,13 @@ terrain::Stats terrain::stats(Type t)
 
     return result;
 }
+} // namespace terrain
 
 
 
 Coins terrain::Commodity::value(Commodity::Type t)
 {
-    return 5;
+    return 6;
 }
 
 
@@ -579,6 +595,9 @@ SystemString terrain::Commodity::name() const
 
     case shellfish:
         return SystemString::block_shellfish;
+
+    case sunflowers:
+        return SystemString::block_sunflower;
     }
 
     return SystemString::empty;
@@ -588,7 +607,7 @@ SystemString terrain::Commodity::name() const
 
 terrain::Stats terrain::Block::stats() const
 {
-    auto st = terrain::stats(type());
+    auto st = terrain::stats(type(), shadowed_);
     if (shadowed_) {
         st.food_ /= 2;
     }
@@ -781,6 +800,7 @@ terrain::Category terrain::category(Type t)
     case terrain::Type::madder:
     case terrain::Type::indigo:
     case terrain::Type::shellfish:
+    case terrain::Type::sunflowers:
         return Category::crop;
 
     case terrain::Type::water:
@@ -827,7 +847,10 @@ Coins terrain::cost(Sector& s, Type t)
         return 40;
 
     case terrain::Type::potatoes:
-        return 200;
+        return 250;
+
+    case terrain::Type::sunflowers:
+        return 120;
 
     case terrain::Type::indigo:
         return 120;
@@ -896,6 +919,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::potatoes:
         return SystemString::block_potatoes;
+
+    case terrain::Type::sunflowers:
+        return SystemString::block_sunflower;
 
     case terrain::Type::indigo:
         return SystemString::block_indigo;
@@ -976,10 +1002,11 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
     switch (t) {
     case Type::terrain: {
         result.push_back(Type::wheat);
-        result.push_back(Type::indigo);
-        result.push_back(Type::madder);
         result.push_back(Type::potatoes);
         result.push_back(Type::windmill);
+        result.push_back(Type::indigo);
+        result.push_back(Type::madder);
+        result.push_back(Type::sunflowers);
         break;
     }
 
@@ -995,6 +1022,15 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
         result.push_back(Type::indigo);
         result.push_back(Type::madder);
         result.push_back(Type::potatoes);
+        result.push_back(Type::sunflowers);
+        break;
+
+    case Type::sunflowers:
+        result.push_back(Type::wheat);
+        result.push_back(Type::indigo);
+        result.push_back(Type::madder);
+        result.push_back(Type::potatoes);
+        result.push_back(Type::windmill);
         break;
 
     case Type::indigo:
@@ -1002,6 +1038,7 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
         result.push_back(Type::madder);
         result.push_back(Type::potatoes);
         result.push_back(Type::windmill);
+        result.push_back(Type::sunflowers);
         break;
 
     case Type::madder:
@@ -1009,6 +1046,7 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
         result.push_back(Type::indigo);
         result.push_back(Type::potatoes);
         result.push_back(Type::windmill);
+        result.push_back(Type::sunflowers);
         break;
 
     default:
@@ -1052,6 +1090,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::potatoes:
         return {2856, 2872};
+
+    case terrain::Type::sunflowers:
+        return {1896, 1912};
 
     case terrain::Type::wheat:
         return {2728, 2744};
@@ -1481,6 +1522,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         revert_if_covered(s, block, position, terrain::Type::water);
     },
     // potatoes
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::terrain);
+    },
+    // sunflowers
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::terrain);

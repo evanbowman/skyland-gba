@@ -111,7 +111,9 @@ void CreateBlockScene::message(Platform& pfrm, macro::State& state)
     Text text(pfrm, OverlayCoord{0, u8(st.y - 1)});
     text.assign(message.c_str());
 
-    auto stats = terrain::stats(options_[selector_]);
+    auto stats = terrain::stats(options_[selector_],
+                                // FIXME!
+                                false);
     if (stats.food_) {
         text.append("  ");
         pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 414);
@@ -460,6 +462,10 @@ void ConfigurePortScene::collect_options(macro::State& state)
 
         case terrain::Commodity::shellfish:
             options_.push_back(terrain::Type::shellfish);
+            break;
+
+        case terrain::Commodity::sunflowers:
+            options_.push_back(terrain::Type::sunflowers);
             break;
         }
 

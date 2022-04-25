@@ -71,7 +71,7 @@ speaker
 stairwell
 statue
 sticky-piston
-sunflower
+sunflowers
 switch
 synth
 terrain

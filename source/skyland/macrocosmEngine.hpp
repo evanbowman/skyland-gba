@@ -116,6 +116,7 @@ enum class Type {
     shellfish,
     port,
     potatoes,
+    sunflowers,
     count,
 };
 
@@ -139,6 +140,7 @@ struct Commodity
         indigo,
         rose_madder,
         shellfish,
+        sunflowers,
     };
     Type type_;
     u16 supply_;
@@ -165,7 +167,7 @@ using Improvements = Buffer<Type, 10>;
 
 
 
-Stats stats(Type t);
+Stats stats(Type t, bool shadowed);
 SystemString name(Type t);
 std::pair<int, int> icons(Type t);
 Improvements improvements(Type t);

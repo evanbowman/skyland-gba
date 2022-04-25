@@ -83,11 +83,13 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         auto s = SystemString::block_air;
         auto cursor = sector.cursor();
         auto tp = terrain::Type::air;
+        bool shadowed = false;
         if (cursor.z > 0) {
             --cursor.z;
             auto& block = sector.get_block(cursor);
             tp = block.type();
             s = block.name();
+            shadowed = block.shadowed_;
         }
         StringBuffer<48> b;
         b += "(";
@@ -95,7 +97,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
         b += ")";
         text_->assign(b.c_str());
 
-        auto stats = terrain::stats(tp);
+        auto stats = terrain::stats(tp, shadowed);
         if (stats.food_) {
             text_->append("  ");
             pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 414);
