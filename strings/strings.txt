@@ -219,6 +219,7 @@ load
 macrocosm
 next turn
 adjust view
+newgame
 really salvage?  +
 A: yes 
 B:  no 

@@ -174,6 +174,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/levelCompleteOptionsScene.cpp
   ${SOURCE_DIR}/skyland/scene/playerIslandDestroyedScene.cpp
   ${SOURCE_DIR}/skyland/scene/multiplayerCoOpAwaitLockScene.cpp
+  ${SOURCE_DIR}/skyland/scene/macro/helpScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/macrocosmScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/macroverseScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/nextTurnScene.cpp

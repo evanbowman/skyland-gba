@@ -284,6 +284,7 @@ enum class SystemString {
     start_menu_macroverse,
     start_menu_next_turn,
     start_menu_adjust_view,
+    start_menu_newgame,
 
     salvage_prompt,
     salvage_option_A,

@@ -1,9 +1,10 @@
 #include "macrocosmLoaderModule.hpp"
 #include "skyland/macroCamera.hpp"
 #include "skyland/player/player.hpp"
-#include "skyland/scene/macro/selectorScene.hpp"
+#include "skyland/scene/macro/helpScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/weather/storm.hpp"
+#include "skyland/scene/macro/macroverseScene.hpp"
 
 
 
@@ -69,26 +70,14 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     auto& sector = app.macrocosm()->sector();
-    sector.set_name("origin");
 
-    sector.set_block({3, 3, 0}, macro::terrain::Type::terrain);
-    sector.set_block({3, 2, 0}, macro::terrain::Type::terrain);
-    sector.set_block({2, 3, 0}, macro::terrain::Type::terrain);
-    sector.set_block({3, 4, 0}, macro::terrain::Type::terrain);
-    sector.set_block({4, 3, 0}, macro::terrain::Type::terrain);
-    sector.set_block({4, 4, 0}, macro::terrain::Type::terrain);
-    sector.set_block({2, 2, 0}, macro::terrain::Type::masonry);
-    sector.set_block({4, 2, 0}, macro::terrain::Type::masonry);
-    sector.set_block({3, 3, 1}, macro::terrain::Type::building);
-
-    sector.set_cursor({3, 3, 1});
-    sector.set_population(8);
-
-    app.macrocosm()->data_->p().coins_.set(160);
+    app.macrocosm()->load(pfrm);
     app.game_mode() = App::GameMode::macro;
 
+    pfrm.system_call("vsync", nullptr);
+    sector.render(pfrm);
 
-    pfrm.screen().schedule_fade(0.f);
+    pfrm.load_overlay_texture("overlay_challenges");
 }
 
 
@@ -96,13 +85,8 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
 ScenePtr<Scene>
 MacrocosmLoaderModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    return scene_pool::alloc<macro::SelectorScene>();
+    return scene_pool::alloc<macro::MacroverseScene>();
 }
-
-
-
-// Moved to the title screen. Uncomment to add back to extras page.
-// MacrocosmLoaderModule::Factory MacrocosmLoaderModule::factory_(false);
 
 
 

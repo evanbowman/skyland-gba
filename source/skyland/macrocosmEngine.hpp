@@ -333,6 +333,9 @@ public:
     Stats base_stats() const;
 
 
+    void erase();
+
+
 private:
     Persistent p_;
 
@@ -492,7 +495,10 @@ struct State
 
 
     void save(Platform& pfrm);
-    void load(Platform& pfrm);
+    bool load(Platform& pfrm);
+
+
+    void newgame(Platform& pfrm);
 
 
     State();

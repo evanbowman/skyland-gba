@@ -64,6 +64,34 @@ State::State() : data_(allocate_dynamic<Data>("macrocosm-data"))
 
 
 
+void State::newgame(Platform& pfrm)
+{
+    data_->current_sector_ = -1;
+
+    data_->other_sectors_.clear();
+
+    auto& sector = this->sector();
+    sector.erase();
+    sector.set_name("origin");
+
+    sector.set_block({3, 3, 0}, macro::terrain::Type::terrain);
+    sector.set_block({3, 2, 0}, macro::terrain::Type::terrain);
+    sector.set_block({2, 3, 0}, macro::terrain::Type::terrain);
+    sector.set_block({3, 4, 0}, macro::terrain::Type::terrain);
+    sector.set_block({4, 3, 0}, macro::terrain::Type::terrain);
+    sector.set_block({4, 4, 0}, macro::terrain::Type::terrain);
+    sector.set_block({2, 2, 0}, macro::terrain::Type::masonry);
+    sector.set_block({4, 2, 0}, macro::terrain::Type::masonry);
+    sector.set_block({3, 3, 1}, macro::terrain::Type::building);
+
+    sector.set_cursor({3, 3, 1});
+    sector.set_population(8);
+
+    data_->p().coins_.set(160);
+}
+
+
+
 namespace fiscal
 {
 
@@ -408,7 +436,7 @@ void State::save(Platform& pfrm)
 
 
 
-void State::load(Platform& pfrm)
+bool State::load(Platform& pfrm)
 {
     Vector<char> input;
 
@@ -464,11 +492,17 @@ void State::load(Platform& pfrm)
                 allocate_dynamic<terrain::Sector>("macro-sector", Vec2<s8>{}));
             load_sector(*data_->other_sectors_.back());
         }
+    } else /* No existing save file */ {
+
+        newgame(pfrm);
+
     }
 
     data_->current_sector_ = -1;
     raster::globalstate::_changed = true;
     raster::globalstate::_shrunk = true;
+
+    return true;
 }
 
 
@@ -490,11 +524,9 @@ void terrain::Sector::restore(const save::Sector& s)
 
 
 
-terrain::Sector::Sector(Vec2<s8> position)
-{
-    p_.x_ = position.x;
-    p_.y_ = position.y;
 
+void terrain::Sector::erase()
+{
     set_name("");
 
     for (auto& slab : blocks_) {
@@ -504,6 +536,18 @@ terrain::Sector::Sector(Vec2<s8> position)
             }
         }
     }
+
+    exports_.clear();
+}
+
+
+
+terrain::Sector::Sector(Vec2<s8> position)
+{
+    erase();
+
+    p_.x_ = position.x;
+    p_.y_ = position.y;
 
     p_.population_ = 4;
 }

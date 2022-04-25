@@ -144,7 +144,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.load_overlay_texture("overlay_challenges");
 
         if (app.game_mode() == App::GameMode::macro) {
-            diff_percent_ = 0.3f;
+            diff_percent_ = -0.1f;
             add_option(pfrm,
                        SYSTR(start_menu_resume)->c_str(),
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
@@ -279,6 +279,17 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<TitleScreenScene>(4);
                 },
                 fade_sweep);
+
+            add_option(
+                pfrm,
+                SYSTR(start_menu_newgame)->c_str(),
+                [&pfrm, &app]() -> ScenePtr<Scene> {
+                    app.macrocosm()->newgame(pfrm);
+                    pfrm.load_overlay_texture("overlay_challenges");
+                    return scene_pool::alloc<macro::MacroverseScene>();
+                },
+                cut);
+
             break;
 
         case App::GameMode::adventure:
