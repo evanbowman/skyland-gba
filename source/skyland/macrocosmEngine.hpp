@@ -246,6 +246,7 @@ public:
     void update();
     void advance(int years);
 
+    void render_setup(Platform& pfrm);
     void render(Platform& pfrm);
 
 

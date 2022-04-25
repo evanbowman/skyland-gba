@@ -55,14 +55,13 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         (*ui_)->housing_->update(pfrm, delta);
     }
 
+    auto next = update(pfrm, app.player(), *app.macrocosm());
 
-    if (auto scene = update(pfrm, app.player(), *app.macrocosm())) {
-        return scene;
-    }
+    app.macrocosm()->sector().render_setup(pfrm);
 
     app.macrocosm()->data_->cloud_scroll_ += 0.000001f * delta;
 
-    return null_scene();
+    return next;
 }
 
 

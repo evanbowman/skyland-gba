@@ -2936,6 +2936,7 @@ void Platform::sleep(u32 frames)
             }
         }
 
+        watchdog_counter = 0;
         VBlankIntrWait();
     }
 

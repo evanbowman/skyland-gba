@@ -45,8 +45,8 @@ namespace globalstate
 {
 bool _changed = false;
 bool _shrunk = false;
-bool _force_repaint_cursor_column = false;
 bool _cursor_moved = false;
+bool _cursor_covered = false;
 
 Buffer<u16, 8> _cursor_raster_tiles;
 } // namespace globalstate
@@ -1291,15 +1291,24 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
         return;
     }
 
+    if (type == Type::selector) {
+        selected.data_ = 16;
+    }
+
     selected.type_ = (u8)type;
     selected.repaint_ = true;
 
-    for (int z = coord.z - 1; z > -1; --z) {
-        auto& selected = blocks_[z][coord.x][coord.y];
-        if (selected.type_ not_eq 0 and not selected.shadowed_) {
-            selected.repaint_ = true;
+    if ((prev_type not_eq Type::air and prev_type not_eq Type::selector and
+         type == Type::air) or
+        (type not_eq Type::selector and type not_eq Type::air)) {
+        for (int z = coord.z - 1; z > -1; --z) {
+            auto& selected = blocks_[z][coord.x][coord.y];
+            if (selected.type_ not_eq 0 and not selected.shadowed_) {
+                selected.repaint_ = true;
+            }
         }
     }
+
 
     shadowcast();
 
@@ -1334,9 +1343,6 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
     auto& block = blocks_[old_cursor.z][old_cursor.x][old_cursor.y];
     if (block.type_ == (u8)terrain::Type::selector) {
         set_block(old_cursor, macro::terrain::Type::air);
-        if (pos.z > old_cursor.z) {
-            raster::globalstate::_force_repaint_cursor_column = true;
-        }
     }
 
     if (old_cursor.z > 0) {
@@ -1472,9 +1478,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // selector
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        block.data_++;
-        if (block.data_ > 6) {
-            block.data_ = 0;
+        block.data_--;
+        if (block.data_ == 0) {
+            block.data_ = 8;
             block.shadowed_ = not block.shadowed_;
             block.repaint_ = true;
             raster::globalstate::_changed = true;
@@ -1713,7 +1719,17 @@ struct DepthBuffer
           depth_node_allocator_(pfrm)
     {
     }
+
+    Bitvector<480> depth_1_skip_clear;
+    Bitvector<480> depth_2_skip_clear;
+
+    Bitvector<480> depth_1_empty;
+    Bitvector<480> depth_2_empty;
 };
+
+
+
+std::optional<raster::DepthBuffer> _db;
 
 
 
@@ -1721,22 +1737,23 @@ struct DepthBuffer
 
 
 
-void terrain::Sector::render(Platform& pfrm)
+void terrain::Sector::render_setup(Platform& pfrm)
 {
-    // TODO: simplify this rendering code. The output texture is split across
-    // two tile layers, so there's some copy-pasted code that needs to be
-    // re-organized into common functions.
+    using namespace raster;
 
-    if (not raster::globalstate::_changed) {
+    if (not globalstate::_changed) {
         return;
     }
 
-    const bool cursor_moved = raster::globalstate::_cursor_moved;
-    const bool shrunk = raster::globalstate::_shrunk;
+    if (_db) {
+        // Already setup!
+        return;
+    }
 
+    auto prev_cursor_raster_tiles = globalstate::_cursor_raster_tiles;
+    globalstate::_cursor_raster_tiles.clear();
 
-    auto prev_cursor_raster_tiles = raster::globalstate::_cursor_raster_tiles;
-    raster::globalstate::_cursor_raster_tiles.clear();
+    const bool cursor_moved = globalstate::_cursor_moved;
 
 
     auto rendering_pass = [&](auto rendering_function) {
@@ -1763,7 +1780,7 @@ void terrain::Sector::render(Platform& pfrm)
                 rendering_function(
                     Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
                 if (block.type() == Type::selector) {
-                    raster::globalstate::_cursor_raster_tiles.push_back(
+                    globalstate::_cursor_raster_tiles.push_back(
                         t_start);
                 }
             };
@@ -1803,11 +1820,13 @@ void terrain::Sector::render(Platform& pfrm)
     };
 
 
-    raster::DepthBuffer db(pfrm);
+    if (not _db) {
+        _db.emplace(pfrm);
+    }
 
 
     rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
-        auto n = db.depth_node_allocator_.alloc<raster::DepthNode>();
+        auto n = _db->depth_node_allocator_.alloc<DepthNode>();
         if (n == nullptr) {
             Platform::fatal("depth node allocator out of memory!");
         }
@@ -1816,28 +1835,19 @@ void terrain::Sector::render(Platform& pfrm)
         n->tile_ = texture - 480;
 
         if (t_start < 480) {
-            n->next_ = db.depth_1_->visible_[t_start];
+            n->next_ = _db->depth_1_->visible_[t_start];
             // NOTE: it's bulk allocation, there's no leak here. The destructor
             // won't be called, but we're dealing with a primitive type.
-            db.depth_1_->visible_[t_start] = n.release();
+            _db->depth_1_->visible_[t_start] = n.release();
         } else {
-            n->next_ = db.depth_2_->visible_[t_start - 480];
-            db.depth_2_->visible_[t_start - 480] = n.release();
+            n->next_ = _db->depth_2_->visible_[t_start - 480];
+            _db->depth_2_->visible_[t_start - 480] = n.release();
         }
     });
 
 
-    // A combination of tiles fully covers whatever's beneath, so no need to
-    // clear out the current contents of vram.
-    Bitvector<480> depth_1_skip_clear;
-    Bitvector<480> depth_2_skip_clear;
-
-    Bitvector<480> depth_1_empty;
-    Bitvector<480> depth_2_empty;
-
-
     for (int i = 0; i < 480; ++i) {
-        if (auto head = db.depth_1_->visible_[i]) {
+        if (auto head = _db->depth_1_->visible_[i]) {
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
@@ -1855,8 +1865,8 @@ void terrain::Sector::render(Platform& pfrm)
                 temp = temp->next_;
             }
             if (skip_repaint) {
-                depth_1_skip_clear.set(i, true);
-                db.depth_1_->visible_[i] = nullptr;
+                _db->depth_1_skip_clear.set(i, true);
+                _db->depth_1_->visible_[i] = nullptr;
                 continue;
             }
             Buffer<TileCategory, 8> seen;
@@ -1865,7 +1875,7 @@ void terrain::Sector::render(Platform& pfrm)
                 if (cg == opaque) {
                     // Cull non-visible tiles.
                     head->next_ = nullptr;
-                    depth_1_skip_clear.set(i, true);
+                    _db->depth_1_skip_clear.set(i, true);
                     break;
                 } else {
                     switch (cg) {
@@ -1881,7 +1891,7 @@ void terrain::Sector::render(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == bot_angled_r) {
                                 head->next_ = nullptr;
-                                depth_1_skip_clear.set(i, true);
+                                _db->depth_1_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -1891,7 +1901,7 @@ void terrain::Sector::render(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == bot_angled_l) {
                                 head->next_ = nullptr;
-                                depth_1_skip_clear.set(i, true);
+                                _db->depth_1_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -1901,7 +1911,7 @@ void terrain::Sector::render(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == top_angled_r) {
                                 head->next_ = nullptr;
-                                depth_1_skip_clear.set(i, true);
+                                _db->depth_1_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -1911,7 +1921,7 @@ void terrain::Sector::render(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == top_angled_l) {
                                 head->next_ = nullptr;
-                                depth_1_skip_clear.set(i, true);
+                                _db->depth_1_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -1923,9 +1933,9 @@ void terrain::Sector::render(Platform& pfrm)
                 head = head->next_;
             }
         } else {
-            depth_1_empty.set(i, true);
+            _db->depth_1_empty.set(i, true);
         }
-        if (auto head = db.depth_2_->visible_[i]) {
+        if (auto head = _db->depth_2_->visible_[i]) {
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
@@ -1943,8 +1953,8 @@ void terrain::Sector::render(Platform& pfrm)
                 temp = temp->next_;
             }
             if (skip_repaint) {
-                depth_2_skip_clear.set(i, true);
-                db.depth_2_->visible_[i] = nullptr;
+                _db->depth_2_skip_clear.set(i, true);
+                _db->depth_2_->visible_[i] = nullptr;
                 continue;
             }
             Buffer<TileCategory, 8> seen;
@@ -1953,7 +1963,7 @@ void terrain::Sector::render(Platform& pfrm)
                 if (cg == opaque) {
                     // Cull non-visible tiles.
                     head->next_ = nullptr;
-                    depth_2_skip_clear.set(i, true);
+                    _db->depth_2_skip_clear.set(i, true);
                     break;
                 } else {
                     switch (cg) {
@@ -1969,7 +1979,7 @@ void terrain::Sector::render(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == bot_angled_r) {
                                 head->next_ = nullptr;
-                                depth_2_skip_clear.set(i, true);
+                                _db->depth_2_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -1979,7 +1989,7 @@ void terrain::Sector::render(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == bot_angled_l) {
                                 head->next_ = nullptr;
-                                depth_2_skip_clear.set(i, true);
+                                _db->depth_2_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -1989,7 +1999,7 @@ void terrain::Sector::render(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == top_angled_r) {
                                 head->next_ = nullptr;
-                                depth_2_skip_clear.set(i, true);
+                                _db->depth_2_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -1999,7 +2009,7 @@ void terrain::Sector::render(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == top_angled_l) {
                                 head->next_ = nullptr;
-                                depth_2_skip_clear.set(i, true);
+                                _db->depth_2_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -2011,7 +2021,7 @@ void terrain::Sector::render(Platform& pfrm)
                 head = head->next_;
             }
         } else {
-            depth_2_empty.set(i, true);
+            _db->depth_2_empty.set(i, true);
         }
     }
 
@@ -2044,7 +2054,7 @@ void terrain::Sector::render(Platform& pfrm)
                 if ((cat == bot_angled_l and not has_tr) or
                     (cat == bot_angled_r and not has_tl)) {
                     auto n =
-                        db.depth_node_allocator_.alloc<raster::DepthNode>();
+                        _db->depth_node_allocator_.alloc<DepthNode>();
                     n->set_position(head->position());
                     n->next_ = nullptr;
 
@@ -2059,21 +2069,42 @@ void terrain::Sector::render(Platform& pfrm)
             }
         };
 
-        if (auto head = db.depth_1_->visible_[i]) {
+        if (auto head = _db->depth_1_->visible_[i]) {
             insert_edges(head);
         }
 
-        if (auto head = db.depth_2_->visible_[i]) {
+        if (auto head = _db->depth_2_->visible_[i]) {
             insert_edges(head);
         }
     }
+}
 
-    // #define RASTER_DEBUG_ENABLE
+
+
+void terrain::Sector::render(Platform& pfrm)
+{
+    // TODO: simplify this rendering code. The output texture is split across
+    // two tile layers, so there's some copy-pasted code that needs to be
+    // re-organized into common functions.
+
+    using namespace raster;
+
+    if (not globalstate::_changed) {
+        return;
+    }
+
+    const bool cursor_moved = globalstate::_cursor_moved;
+    const bool shrunk = globalstate::_shrunk;
+
+
+    render_setup(pfrm);
+
+// #define RASTER_DEBUG_ENABLE
 
 #ifdef RASTER_DEBUG_ENABLE
 #define RASTER_DEBUG()                                                         \
     do {                                                                       \
-        pfrm.sleep(30);                                                        \
+        pfrm.sleep(7);                                                         \
     } while (false)
 #else
 #define RASTER_DEBUG()                                                         \
@@ -2081,13 +2112,9 @@ void terrain::Sector::render(Platform& pfrm)
     } while (false)
 #endif
 
-    // Actually perform the rendering. At this point, ideally, everything that's
-    // not actually visible in the output should have been removed from the
-    // depth buffer.
-    pfrm.system_call("vsync", nullptr);
     for (int i = 0; i < 480; ++i) {
 
-        if (auto head = db.depth_1_->visible_[i]) {
+        if (auto head = _db->depth_1_->visible_[i]) {
 
             Buffer<int, 6> stack;
             while (head) {
@@ -2108,11 +2135,11 @@ void terrain::Sector::render(Platform& pfrm)
                 stack.pop_back();
                 overwrite = false;
             }
-        } else if (shrunk and not depth_1_skip_clear.get(i)) {
+        } else if (shrunk and not _db->depth_1_skip_clear.get(i)) {
             pfrm.blit_t0_erase(i);
         }
 
-        if (auto head = db.depth_2_->visible_[i]) {
+        if (auto head = _db->depth_2_->visible_[i]) {
 
             Buffer<int, 6> stack;
             while (head) {
@@ -2129,20 +2156,20 @@ void terrain::Sector::render(Platform& pfrm)
                 stack.pop_back();
                 overwrite = false;
             }
-        } else if (shrunk and not depth_2_skip_clear.get(i)) {
+        } else if (shrunk and not _db->depth_2_skip_clear.get(i)) {
             pfrm.blit_t1_erase(i);
         }
     }
 
 
-    if (raster::globalstate::_cursor_moved) {
+    if (globalstate::_cursor_moved) {
         // Handle these out of line, as not to slow down the main rendering
         // block.
         for (int i = 0; i < 480; ++i) {
-            if (cursor_moved and depth_1_empty.get(i)) {
+            if (cursor_moved and _db->depth_1_empty.get(i)) {
                 pfrm.blit_t0_erase(i);
             }
-            if (cursor_moved and depth_2_empty.get(i)) {
+            if (cursor_moved and _db->depth_2_empty.get(i)) {
                 pfrm.blit_t1_erase(i);
             }
         }
@@ -2157,10 +2184,11 @@ void terrain::Sector::render(Platform& pfrm)
         }
     }
 
-    raster::globalstate::_changed = false;
-    raster::globalstate::_shrunk = false;
-    raster::globalstate::_cursor_moved = false;
-    raster::globalstate::_force_repaint_cursor_column = false;
+    globalstate::_changed = false;
+    globalstate::_shrunk = false;
+    globalstate::_cursor_moved = false;
+
+    _db.reset();
 }
 
 

@@ -91,6 +91,8 @@ void ViewBudgetScene::show(Platform& pfrm, macro::State& state)
             }
         }
 
+        auto len_before_value = s_->lines_.back().len();
+
         if (fraction) {
             auto upscale = abs(fval) * 10;
             if (fval < 0) {
@@ -102,6 +104,11 @@ void ViewBudgetScene::show(Platform& pfrm, macro::State& state)
         } else {
             s_->lines_.back().append(value);
         }
+
+        pfrm.set_tile(Layer::overlay,
+                      (len_before_value - 1) + s_->lines_.back().coord().x,
+                      s_->lines_.back().coord().y,
+                      88);
     };
 
     Float total = 0.f;
