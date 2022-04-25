@@ -467,9 +467,19 @@ void ConfigurePortScene::collect_options(macro::State& state)
         case terrain::Commodity::sunflowers:
             options_.push_back(terrain::Type::sunflowers);
             break;
+
+        case terrain::Commodity::food:
+            Platform::fatal("Food is a special case, and no tiles should "
+                            "ideally produce food as a commodity.");
+            break;
         }
 
         commodity_types_.push_back(c.type_);
+    }
+
+    if (st.food_ > 0) {
+        options_.push_back(terrain::Type::food);
+        commodity_types_.push_back(terrain::Commodity::Type::food);
     }
 }
 
@@ -564,13 +574,10 @@ ScenePtr<Scene> ConfigurePortCountScene::update(Platform& pfrm,
                                                 macro::State& state)
 {
     if (player.key_down(pfrm, Key::up)) {
-        for (auto& c : state.sector().stats().commodities_) {
-            if (c.type_ == type_ and c.supply_ > count_) {
-                ++count_;
-                show(pfrm, state);
-                pfrm.speaker().play_sound("click", 1);
-                break;
-            }
+        if (count_ < state.sector().quantity_non_exported(type_)) {
+            ++count_;
+            show(pfrm, state);
+            pfrm.speaker().play_sound("click", 1);
         }
     }
 

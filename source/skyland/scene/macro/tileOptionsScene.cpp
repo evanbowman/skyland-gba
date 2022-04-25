@@ -171,7 +171,7 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
 
     if (block.type() == terrain::Type::port) {
         auto stats = state.sector().base_stats();
-        if (not stats.commodities_.empty()) {
+        if (not stats.commodities_.empty() or stats.food_) {
             options_.push_back(&options[3]);
         }
     }

@@ -117,6 +117,7 @@ enum class Type {
     port,
     potatoes,
     sunflowers,
+    food, // Must not be constructed
     count,
 };
 
@@ -141,6 +142,7 @@ struct Commodity
         rose_madder,
         shellfish,
         sunflowers,
+        food,
     };
     Type type_;
     u16 supply_;
@@ -155,6 +157,7 @@ struct Commodity
 struct Stats
 {
     int food_ = 0;
+    int food_exports_ = 0;
     int housing_ = 0;
     int employment_ = 0;
 

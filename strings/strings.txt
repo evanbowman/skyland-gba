@@ -33,6 +33,7 @@ drone-bay
 escape-beacon
 flak-gun
 fire-charge
+food
 forcefield
 forcefield*
 fountain

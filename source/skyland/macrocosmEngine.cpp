@@ -156,6 +156,12 @@ fiscal::Ledger terrain::Sector::budget() const
 
 
     for (auto& c : st.commodities_) {
+
+        if (c.type_ == Commodity::Type::food) {
+            Platform::fatal("special case food commodity, unsupported in "
+                            "commodity list");
+        }
+
         int count = 0;
         Float accum = 0;
         Float value = c.value(c.type_);
@@ -183,12 +189,18 @@ u16 terrain::Sector::quantity_non_exported(Commodity::Type t)
 {
     auto s = base_stats();
     int total = 0;
-    for (auto& c : s.commodities_) {
-        if (c.type_ == t) {
-            total = c.supply_;
-            break;
+
+    if (t == Commodity::Type::food) {
+        total = s.food_;
+    } else {
+        for (auto& c : s.commodities_) {
+            if (c.type_ == t) {
+                total = c.supply_;
+                break;
+            }
         }
     }
+
 
     for (auto& e : exports_) {
         if (e.c == t) {
@@ -581,6 +593,9 @@ Stats stats(Type t, bool shadowed)
 
 Coins terrain::Commodity::value(Commodity::Type t)
 {
+    if (t == Commodity::Type::food) {
+        Platform::fatal("attempt to appraise value of food");
+    }
     return 6;
 }
 
@@ -600,6 +615,9 @@ SystemString terrain::name(terrain::Commodity::Type t)
 
     case Commodity::sunflowers:
         return SystemString::block_sunflower;
+
+    case Commodity::food:
+        return SystemString::block_food;
     }
 
     return SystemString::empty;
@@ -634,6 +652,11 @@ terrain::Improvements terrain::Block::improvements() const
 
 void add_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
 {
+    if (t == terrain::Commodity::Type::food) {
+        s.food_ += supply;
+        return;
+    }
+
     for (auto& c : s.commodities_) {
         if (c.type_ == t) {
             c.supply_ += supply;
@@ -646,17 +669,27 @@ void add_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
 
 
 
-void remove_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
+int remove_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
 {
+    if (t == terrain::Commodity::Type::food) {
+        auto remove_amount = std::min((int)s.food_, supply);
+        s.food_ -= remove_amount;
+        s.food_exports_ += remove_amount;
+        return remove_amount;
+    }
+
     for (auto& c : s.commodities_) {
         if (c.type_ == t) {
-            c.supply_ -= std::min((int)c.supply_, supply);
+            auto remove_amount = std::min((int)c.supply_, supply);
+            c.supply_ -= remove_amount;
             if (c.supply_ == 0) {
                 s.commodities_.erase(&c);
             }
-            return;
+            return remove_amount;
         }
     }
+
+    return 0;
 }
 
 
@@ -693,11 +726,11 @@ static void intersector_exchange_commodities(const Vec2<s8> source_sector,
 
                 auto supply = exp.export_supply_.get();
 
-                remove_supply(st.second, exp.c, supply);
+                auto exported = remove_supply(st.second, exp.c, supply);
 
                 for (auto& target : stats) {
                     if (target.first == exp.destination_) {
-                        add_supply(target.second, exp.c, supply);
+                        add_supply(target.second, exp.c, exported);
                         break;
                     }
                 }
@@ -709,7 +742,6 @@ static void intersector_exchange_commodities(const Vec2<s8> source_sector,
     for (auto& data : stats) {
         if (data.first == source_sector) {
             stat = data.second;
-            info(Platform::instance(), stringify(stat.food_));
             return;
         }
     }
@@ -826,6 +858,7 @@ terrain::Category terrain::category(Type t)
 Coins terrain::cost(Sector& s, Type t)
 {
     switch (t) {
+    case terrain::Type::food:
     case terrain::Type::__invalid:
         break;
 
@@ -956,6 +989,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::port:
         return SystemString::block_harbor;
+
+    case terrain::Type::food:
+        return SystemString::block_food;
     }
 
     return SystemString::gs_error;
@@ -1148,6 +1184,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::port:
         return {776, 760};
+
+    case terrain::Type::food:
+        return {2888, 2904};
     }
 
     return {};
@@ -1174,6 +1213,7 @@ static bool blocks_light(terrain::Type t)
     static const bool result[(int)terrain::Type::count] = {
         false, true,  true,  true,  true,  true, false, true, true, true, true,
         true,  false, false, false, false, true, true,  true, true, true, true,
+        false,
     };
 
     return result[(int)t];

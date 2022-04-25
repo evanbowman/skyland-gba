@@ -119,7 +119,9 @@ void MacrocosmScene::update_ui(macro::State& state)
 
 
     (*ui_)->food_->sync_value(
-        format_ui_fraction(stat.food_, pop / terrain::food_consumption_factor));
+        format_ui_fraction(stat.food_ + stat.food_exports_,
+                           stat.food_exports_ +
+                           pop / terrain::food_consumption_factor));
 
     (*ui_)->population_->sync_value(
         format_ui_fraction(pop, sector.population_growth_rate()));
@@ -159,7 +161,8 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
             pfrm,
             OverlayCoord{1, 1},
             414,
-            format_ui_fraction(stat.food_,
+            format_ui_fraction(stat.food_exports_ + stat.food_,
+                               stat.food_exports_ +
                                pop / terrain::food_consumption_factor),
             UIMetric::Align::left,
             UIMetric::Format::fraction_p_m);
