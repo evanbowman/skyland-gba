@@ -62,6 +62,7 @@ public:
     virtual Coins cost(macro::State& state, terrain::Type t);
 
 
+
 protected:
     Buffer<macro::terrain::Type, 32> options_;
 

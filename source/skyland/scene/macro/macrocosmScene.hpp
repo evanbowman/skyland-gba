@@ -69,6 +69,18 @@ public:
     void update_ui(macro::State& state);
 
 
+    bool should_update_ui_after_exit() const
+    {
+        return update_ui_on_exit_;
+    }
+
+
+    void update_ui_on_exit()
+    {
+        update_ui_on_exit_ = true;
+    }
+
+
 private:
     struct UIObjects
     {
@@ -79,6 +91,7 @@ private:
         std::optional<UIMetric> housing_;
     };
 
+    bool update_ui_on_exit_ = false;
     std::optional<DynamicMemory<UIObjects>> ui_;
 };
 

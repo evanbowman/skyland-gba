@@ -144,7 +144,9 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
     auto m = dynamic_cast<MacrocosmScene*>(&prev);
     if (m and m->ui_) {
         ui_ = std::move(m->ui_);
-        update_ui(*app.macrocosm());
+        if (m->should_update_ui_after_exit()) {
+            update_ui(*app.macrocosm());
+        }
     } else {
         ui_ = allocate_dynamic<UIObjects>("macro-ui-objects");
 

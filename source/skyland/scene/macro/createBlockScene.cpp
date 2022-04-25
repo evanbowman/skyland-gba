@@ -300,6 +300,7 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm, macro::State& state)
 
         edit(state, options_[selector_]);
         state.sector().update();
+        update_ui_on_exit();
 
         if (options_[selector_] not_eq terrain::Type::air) {
             pfrm.speaker().play_sound("build0", 4);
@@ -473,6 +474,7 @@ ScenePtr<Scene> ConfigurePortScene::onclick(Platform& pfrm, macro::State& state)
     auto c = state.sector().cursor();
     --c.z;
     state.sector().remove_export(c);
+    update_ui_on_exit();
     return scene_pool::alloc<ConfigurePortCountScene>(
         commodity_types_[selector_]);
 }
@@ -686,6 +688,8 @@ ScenePtr<Scene> ConfigurePortDestScene::update(Platform& pfrm,
             state.load_sector(export_options_[selection_])->coordinate();
         info.export_supply_.set((u16)export_count_);
         state.sector().set_export(info);
+
+        update_ui_on_exit();
 
         return scene_pool::alloc<SelectorScene>();
     }

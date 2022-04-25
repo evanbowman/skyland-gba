@@ -79,6 +79,7 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
         auto next = options_[selector_]->next_(state);
         last_option_ = options_[selector_];
         update_ui(state);
+        update_ui_on_exit();
         return next;
     }
 

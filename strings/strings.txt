@@ -20,6 +20,7 @@ basalt
 bridge
 bronze-hull
 building
+corn
 cesium
 stacked-hull
 mirror-hull
@@ -57,6 +58,7 @@ nemesis
 coconut-palm
 piston
 plundered-room
+potatoes
 energized-hull
 radar
 radiator

@@ -115,6 +115,7 @@ enum class Type {
     windmill_stone_base,
     shellfish,
     port,
+    potatoes,
     count,
 };
 

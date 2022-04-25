@@ -522,6 +522,11 @@ terrain::Stats terrain::stats(Type t)
         result.employment_ += 2;
         break;
 
+    case terrain::Type::potatoes:
+        result.food_ += 15;
+        result.employment_ += 3;
+        break;
+
     case terrain::Type::indigo:
         result.commodities_.push_back({Commodity::Type::indigo, 1});
         result.employment_ += 4;
@@ -772,6 +777,7 @@ terrain::Category terrain::category(Type t)
         return Category::basic;
 
     case terrain::Type::wheat:
+    case terrain::Type::potatoes:
     case terrain::Type::madder:
     case terrain::Type::indigo:
     case terrain::Type::shellfish:
@@ -819,6 +825,9 @@ Coins terrain::cost(Sector& s, Type t)
 
     case terrain::Type::wheat:
         return 40;
+
+    case terrain::Type::potatoes:
+        return 200;
 
     case terrain::Type::indigo:
         return 120;
@@ -884,6 +893,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::wheat:
         return SystemString::block_wheat;
+
+    case terrain::Type::potatoes:
+        return SystemString::block_potatoes;
 
     case terrain::Type::indigo:
         return SystemString::block_indigo;
@@ -966,6 +978,7 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
         result.push_back(Type::wheat);
         result.push_back(Type::indigo);
         result.push_back(Type::madder);
+        result.push_back(Type::potatoes);
         result.push_back(Type::windmill);
         break;
     }
@@ -979,15 +992,23 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
         break;
 
     case Type::wheat:
-        result.push_back(Type::terrain);
+        result.push_back(Type::indigo);
+        result.push_back(Type::madder);
+        result.push_back(Type::potatoes);
         break;
 
     case Type::indigo:
-        result.push_back(Type::terrain);
+        result.push_back(Type::wheat);
+        result.push_back(Type::madder);
+        result.push_back(Type::potatoes);
+        result.push_back(Type::windmill);
         break;
 
     case Type::madder:
-        result.push_back(Type::terrain);
+        result.push_back(Type::wheat);
+        result.push_back(Type::indigo);
+        result.push_back(Type::potatoes);
+        result.push_back(Type::windmill);
         break;
 
     default:
@@ -1028,6 +1049,9 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
         return {2120, 2136};
+
+    case terrain::Type::potatoes:
+        return {2856, 2872};
 
     case terrain::Type::wheat:
         return {2728, 2744};
@@ -1078,7 +1102,7 @@ static bool blocks_light(terrain::Type t)
 {
     static const bool result[(int)terrain::Type::count] = {
         false, true,  true,  true,  true,  true, false, true, true, true, true,
-        true,  false, false, false, false, true, true,  true, true, true,
+        true,  false, false, false, false, true, true,  true, true, true, true,
     };
 
     return result[(int)t];
@@ -1456,6 +1480,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         revert_if_covered(s, block, position, terrain::Type::water);
     },
+    // potatoes
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::terrain);
+    },
 };
 // clang-format on
 
@@ -1553,6 +1582,15 @@ static TileCategory tile_category(int texture_id)
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
         };
     // clang-format on
 
@@ -1568,10 +1606,31 @@ namespace raster
 
 struct DepthNode
 {
-    Vec3<u8> position_;
-    u8 tile_ = 0;
     DepthNode* next_;
+
+    // NOTE: a sector cube has dimensions 8x8x9. Bitfields sized accordingly.
+    u16 tile_;
+    u16 x_pos_ : 4;
+    u16 y_pos_ : 4;
+    u16 z_pos_ : 4;
+    u16 unused_ : 4;
+
+    void set_position(const Vec3<u8>& pos)
+    {
+        x_pos_ = pos.x;
+        y_pos_ = pos.y;
+        z_pos_ = pos.z;
+    }
+
+    Vec3<u8> position()
+    {
+        return {(u8)x_pos_, (u8)y_pos_, (u8)z_pos_};
+    }
 };
+#ifdef __GBA__
+static_assert(sizeof(DepthNode) == 8);
+#endif
+
 
 struct DepthBufferSlab
 {
@@ -1689,32 +1748,29 @@ void terrain::Sector::render(Platform& pfrm)
     };
 
 
-    std::optional<raster::DepthBuffer> db_;
+    raster::DepthBuffer db(pfrm);
 
 
-    if (not db_) {
-        db_.emplace(pfrm);
+    rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
+        auto n = db.depth_node_allocator_.alloc<raster::DepthNode>();
+        if (n == nullptr) {
+            Platform::fatal("depth node allocator out of memory!");
+        }
 
-        rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
-            auto n = db_->depth_node_allocator_.alloc<raster::DepthNode>();
-            if (n == nullptr) {
-                Platform::fatal("depth node allocator out of memory!");
-            }
+        n->set_position(p);
+        n->tile_ = texture - 480;
 
-            n->position_ = p;
-            n->tile_ = texture - 480;
+        if (t_start < 480) {
+            n->next_ = db.depth_1_->visible_[t_start];
+            // NOTE: it's bulk allocation, there's no leak here. The destructor
+            // won't be called, but we're dealing with a primitive type.
+            db.depth_1_->visible_[t_start] = n.release();
+        } else {
+            n->next_ = db.depth_2_->visible_[t_start - 480];
+            db.depth_2_->visible_[t_start - 480] = n.release();
+        }
+    });
 
-            if (t_start < 480) {
-                n->next_ = db_->depth_1_->visible_[t_start];
-                // NOTE: it's bulk allocation, there's no leak here. The destructor
-                // won't be called, but we're dealing with a primitive type.
-                db_->depth_1_->visible_[t_start] = n.release();
-            } else {
-                n->next_ = db_->depth_2_->visible_[t_start - 480];
-                db_->depth_2_->visible_[t_start - 480] = n.release();
-            }
-        });
-    }
 
     // A combination of tiles fully covers whatever's beneath, so no need to
     // clear out the current contents of vram.
@@ -1726,7 +1782,7 @@ void terrain::Sector::render(Platform& pfrm)
 
 
     for (int i = 0; i < 480; ++i) {
-        if (auto head = db_->depth_1_->visible_[i]) {
+        if (auto head = db.depth_1_->visible_[i]) {
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
@@ -1737,7 +1793,7 @@ void terrain::Sector::render(Platform& pfrm)
                         }
                     }
                 }
-                auto pos = temp->position_;
+                auto pos = temp->position();
                 if (blocks_[pos.z][pos.x][pos.y].repaint_) {
                     skip_repaint = false;
                 }
@@ -1745,7 +1801,7 @@ void terrain::Sector::render(Platform& pfrm)
             }
             if (skip_repaint) {
                 depth_1_skip_clear.set(i, true);
-                db_->depth_1_->visible_[i] = nullptr;
+                db.depth_1_->visible_[i] = nullptr;
                 continue;
             }
             Buffer<TileCategory, 8> seen;
@@ -1814,7 +1870,7 @@ void terrain::Sector::render(Platform& pfrm)
         } else {
             depth_1_empty.set(i, true);
         }
-        if (auto head = db_->depth_2_->visible_[i]) {
+        if (auto head = db.depth_2_->visible_[i]) {
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
@@ -1825,7 +1881,7 @@ void terrain::Sector::render(Platform& pfrm)
                         }
                     }
                 }
-                auto pos = temp->position_;
+                auto pos = temp->position();
                 if (blocks_[pos.z][pos.x][pos.y].repaint_) {
                     skip_repaint = false;
                 }
@@ -1833,7 +1889,7 @@ void terrain::Sector::render(Platform& pfrm)
             }
             if (skip_repaint) {
                 depth_2_skip_clear.set(i, true);
-                db_->depth_2_->visible_[i] = nullptr;
+                db.depth_2_->visible_[i] = nullptr;
                 continue;
             }
             Buffer<TileCategory, 8> seen;
@@ -1928,13 +1984,13 @@ void terrain::Sector::render(Platform& pfrm)
             const u8 edge_r = 497 - 480;
 
             auto cat = tile_category(head->tile_);
-            if (head->position_.z == 0 and head->tile_ not_eq edge_l and
+            if (head->position().z == 0 and head->tile_ not_eq edge_l and
                 head->tile_ not_eq edge_r) {
                 if ((cat == bot_angled_l and not has_tr) or
                     (cat == bot_angled_r and not has_tl)) {
                     auto n =
-                        db_->depth_node_allocator_.alloc<raster::DepthNode>();
-                    n->position_ = head->position_;
+                        db.depth_node_allocator_.alloc<raster::DepthNode>();
+                    n->set_position(head->position());
                     n->next_ = nullptr;
 
                     if (cat == bot_angled_l) {
@@ -1948,11 +2004,11 @@ void terrain::Sector::render(Platform& pfrm)
             }
         };
 
-        if (auto head = db_->depth_1_->visible_[i]) {
+        if (auto head = db.depth_1_->visible_[i]) {
             insert_edges(head);
         }
 
-        if (auto head = db_->depth_2_->visible_[i]) {
+        if (auto head = db.depth_2_->visible_[i]) {
             insert_edges(head);
         }
     }
@@ -1976,7 +2032,7 @@ void terrain::Sector::render(Platform& pfrm)
     pfrm.system_call("vsync", nullptr);
     for (int i = 0; i < 480; ++i) {
 
-        if (auto head = db_->depth_1_->visible_[i]) {
+        if (auto head = db.depth_1_->visible_[i]) {
 
             Buffer<int, 6> stack;
             while (head) {
@@ -2001,7 +2057,7 @@ void terrain::Sector::render(Platform& pfrm)
             pfrm.blit_t0_erase(i);
         }
 
-        if (auto head = db_->depth_2_->visible_[i]) {
+        if (auto head = db.depth_2_->visible_[i]) {
 
             Buffer<int, 6> stack;
             while (head) {
