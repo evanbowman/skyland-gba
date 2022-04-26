@@ -99,10 +99,10 @@ AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.speaker().play_sound("click_wooden", 2);
     }
 
-    auto sel = [&pfrm](auto& text, int tile)
-               {
-                   pfrm.set_tile(Layer::overlay, text->coord().x - 2, text->coord().y, tile);
-               };
+    auto sel = [&pfrm](auto& text, int tile) {
+        pfrm.set_tile(
+            Layer::overlay, text->coord().x - 2, text->coord().y, tile);
+    };
 
     switch (app.persistent_data().difficulty_) {
     case PersistentData::Difficulty::beginner:

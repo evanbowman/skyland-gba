@@ -35,7 +35,6 @@ namespace skyland::macro
 class HelpScene : public Scene
 {
 public:
-
     void enter(Platform&, App&, Scene&) override;
     void exit(Platform&, App&, Scene&) override;
 
@@ -49,4 +48,4 @@ private:
 
 
 
-}
+} // namespace skyland::macro

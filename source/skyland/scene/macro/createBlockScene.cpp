@@ -527,7 +527,9 @@ void ConfigurePortScene::message(Platform& pfrm, macro::State& state)
 
 
 
-void ConfigurePortCountScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
+void ConfigurePortCountScene::enter(Platform& pfrm,
+                                    macro::State& state,
+                                    Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
     show(pfrm, state);
@@ -535,7 +537,9 @@ void ConfigurePortCountScene::enter(Platform& pfrm, macro::State& state, Scene& 
 
 
 
-void ConfigurePortCountScene::exit(Platform& pfrm, macro::State& state, Scene& next)
+void ConfigurePortCountScene::exit(Platform& pfrm,
+                                   macro::State& state,
+                                   Scene& next)
 {
     MacrocosmScene::exit(pfrm, state, next);
 
@@ -607,7 +611,9 @@ ScenePtr<Scene> ConfigurePortCountScene::update(Platform& pfrm,
 
 
 
-void ConfigurePortDestScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
+void ConfigurePortDestScene::enter(Platform& pfrm,
+                                   macro::State& state,
+                                   Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
 
@@ -629,7 +635,9 @@ void ConfigurePortDestScene::enter(Platform& pfrm, macro::State& state, Scene& p
 
 
 
-void ConfigurePortDestScene::exit(Platform& pfrm, macro::State& state, Scene& next)
+void ConfigurePortDestScene::exit(Platform& pfrm,
+                                  macro::State& state,
+                                  Scene& next)
 {
     MacrocosmScene::exit(pfrm, state, next);
 

@@ -505,7 +505,6 @@ bool State::load(Platform& pfrm)
     } else /* No existing save file */ {
 
         newgame(pfrm);
-
     }
 
     data_->current_sector_ = -1;
@@ -531,7 +530,6 @@ void terrain::Sector::restore(const save::Sector& s)
         }
     }
 }
-
 
 
 
@@ -1263,9 +1261,9 @@ u16 terrain::Sector::cursor_raster_pos() const
 static bool blocks_light(terrain::Type t)
 {
     static const bool result[(int)terrain::Type::count] = {
-        false, true,  true,  true,  true,  true, false, true, true, true, true,
-        true,  false, false, false, false, true, true,  true, true, true, true,
-        false,
+        false, true, true, true, true,  true,  false, true,
+        true,  true, true, true, false, false, false, false,
+        true,  true, true, true, true,  true,  false,
     };
 
     return result[(int)t];
@@ -1479,6 +1477,10 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
                    terrain::Type::air) {
             --p_.cursor_.z;
         }
+    }
+
+    if (not(p_.cursor_ == old_cursor)) {
+        raster::globalstate::_cursor_moved = true;
     }
 
     if (p_.cursor_.z >= z_view_) {
@@ -1844,6 +1846,9 @@ struct DepthBuffer
     {
     }
 
+    Bitvector<480> depth_1_force_redraw;
+    Bitvector<480> depth_2_force_redraw;
+
     Bitvector<480> depth_1_skip_clear;
     Bitvector<480> depth_2_skip_clear;
 
@@ -1904,8 +1909,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 rendering_function(
                     Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
                 if (block.type() == Type::selector) {
-                    globalstate::_cursor_raster_tiles.push_back(
-                        t_start);
+                    globalstate::_cursor_raster_tiles.push_back(t_start);
                 }
             };
 
@@ -1945,10 +1949,19 @@ void terrain::Sector::render_setup(Platform& pfrm)
 
 
     if (not _db) {
-        _db.emplace(allocate_dynamic<raster::DepthBuffer>("depth-buffer",
-                                                          pfrm));
+        _db.emplace(
+            allocate_dynamic<raster::DepthBuffer>("depth-buffer", pfrm));
     }
 
+    if (cursor_moved) {
+        for (auto& t : prev_cursor_raster_tiles) {
+            if (t < 480) {
+                (*_db)->depth_1_force_redraw.set(t, true);
+            } else {
+                (*_db)->depth_2_force_redraw.set(t - 480, true);
+            }
+        }
+    }
 
     rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
         auto n = (*_db)->depth_node_allocator_.alloc<DepthNode>();
@@ -1976,12 +1989,8 @@ void terrain::Sector::render_setup(Platform& pfrm)
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
-                if (cursor_moved) {
-                    for (auto& t : prev_cursor_raster_tiles) {
-                        if (t == i) {
-                            skip_repaint = false;
-                        }
-                    }
+                if ((*_db)->depth_1_force_redraw.get(i)) {
+                    skip_repaint = false;
                 }
                 auto pos = temp->position();
                 if (blocks_[pos.z][pos.x][pos.y].repaint_) {
@@ -2064,12 +2073,8 @@ void terrain::Sector::render_setup(Platform& pfrm)
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
-                if (cursor_moved) {
-                    for (auto& t : prev_cursor_raster_tiles) {
-                        if (t - 480 == i) {
-                            skip_repaint = false;
-                        }
-                    }
+                if ((*_db)->depth_2_force_redraw.get(i)) {
+                    skip_repaint = false;
                 }
                 auto pos = temp->position();
                 if (blocks_[pos.z][pos.x][pos.y].repaint_) {
@@ -2178,8 +2183,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 head->tile_ not_eq edge_r) {
                 if ((cat == bot_angled_l and not has_tr) or
                     (cat == bot_angled_r and not has_tl)) {
-                    auto n =
-                        (*_db)->depth_node_allocator_.alloc<DepthNode>();
+                    auto n = (*_db)->depth_node_allocator_.alloc<DepthNode>();
                     n->set_position(head->position());
                     n->next_ = nullptr;
 
@@ -2241,36 +2245,32 @@ void terrain::Sector::render(Platform& pfrm)
     } while (false)
 #endif
 
-    auto flush_stack_t0 =
-        [&pfrm](auto& stack, int i)
-        {
-            // The first tile can be drawn much faster, as we don't care what's
-            // currently onscreen.
-            bool overwrite = true;
+    auto flush_stack_t0 = [&pfrm](auto& stack, int i) {
+        // The first tile can be drawn much faster, as we don't care what's
+        // currently onscreen.
+        bool overwrite = true;
 
-            while (not stack.empty()) {
-                int tile = stack.back();
-                RASTER_DEBUG();
-                pfrm.blit_t0_tile_to_texture(tile + 480, i, overwrite);
-                stack.pop_back();
-                overwrite = false;
-            }
-        };
+        while (not stack.empty()) {
+            int tile = stack.back();
+            RASTER_DEBUG();
+            pfrm.blit_t0_tile_to_texture(tile + 480, i, overwrite);
+            stack.pop_back();
+            overwrite = false;
+        }
+    };
 
 
-    auto flush_stack_t1 =
-        [&pfrm](auto& stack, int i)
-        {
-            bool overwrite = true;
+    auto flush_stack_t1 = [&pfrm](auto& stack, int i) {
+        bool overwrite = true;
 
-            while (not stack.empty()) {
-                int tile = stack.back();
-                RASTER_DEBUG();
-                pfrm.blit_t1_tile_to_texture(tile + 480, i, overwrite);
-                stack.pop_back();
-                overwrite = false;
-            }
-        };
+        while (not stack.empty()) {
+            int tile = stack.back();
+            RASTER_DEBUG();
+            pfrm.blit_t1_tile_to_texture(tile + 480, i, overwrite);
+            stack.pop_back();
+            overwrite = false;
+        }
+    };
 
 
     if (not globalstate::_changed_cursor_flicker_only and
@@ -2278,8 +2278,12 @@ void terrain::Sector::render(Platform& pfrm)
         return;
     }
 
-    if (globalstate::_changed_cursor_flicker_only and not
-        globalstate::_changed) {
+    if (globalstate::_changed_cursor_flicker_only and
+        not globalstate::_changed) {
+
+        // Optimized rendering for the flickering cursor. No need to perform
+        // depth testing and all that stuff just to repaint the cursor tiles!
+        // Use a cached copy.
 
         for (u32 i = 0; i < globalstate::_cursor_raster_tiles.size(); ++i) {
             auto t = globalstate::_cursor_raster_tiles[i];
@@ -2325,7 +2329,8 @@ void terrain::Sector::render(Platform& pfrm)
 
             flush_stack_t0(stack, i);
 
-        } else if (shrunk and not (*_db)->depth_1_skip_clear.get(i)) {
+        } else if ((cursor_moved or shrunk) and
+                   not(*_db)->depth_1_skip_clear.get(i)) {
             pfrm.blit_t0_erase(i);
         }
 
@@ -2339,7 +2344,8 @@ void terrain::Sector::render(Platform& pfrm)
 
             flush_stack_t1(stack, i);
 
-        } else if (shrunk and not (*_db)->depth_2_skip_clear.get(i)) {
+        } else if ((cursor_moved or shrunk) and
+                   not(*_db)->depth_2_skip_clear.get(i)) {
             pfrm.blit_t1_erase(i);
         }
     }

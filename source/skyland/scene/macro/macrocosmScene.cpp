@@ -123,10 +123,9 @@ void MacrocosmScene::update_ui(macro::State& state)
     auto pop = sector.population();
 
 
-    (*ui_)->food_->sync_value(
-        format_ui_fraction(stat.food_ + stat.food_exports_,
-                           stat.food_exports_ +
-                           pop / terrain::food_consumption_factor));
+    (*ui_)->food_->sync_value(format_ui_fraction(
+        stat.food_ + stat.food_exports_,
+        stat.food_exports_ + pop / terrain::food_consumption_factor));
 
     (*ui_)->population_->sync_value(
         format_ui_fraction(pop, sector.population_growth_rate()));
@@ -164,7 +163,7 @@ void MacrocosmScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
             414,
             format_ui_fraction(stat.food_exports_ + stat.food_,
                                stat.food_exports_ +
-                               pop / terrain::food_consumption_factor),
+                                   pop / terrain::food_consumption_factor),
             UIMetric::Align::left,
             UIMetric::Format::fraction_p_m);
 
@@ -176,14 +175,13 @@ void MacrocosmScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
             UIMetric::Align::left,
             UIMetric::Format::integer_with_rate);
 
-        (*ui_)->coins_.emplace(
-            pfrm,
-            OverlayCoord{1, 2},
-            146,
-            format_ui_fraction(state.data_->p().coins_.get(),
-                               state.coin_yield()),
-            UIMetric::Align::left,
-            UIMetric::Format::integer_with_rate);
+        (*ui_)->coins_.emplace(pfrm,
+                               OverlayCoord{1, 2},
+                               146,
+                               format_ui_fraction(state.data_->p().coins_.get(),
+                                                  state.coin_yield()),
+                               UIMetric::Align::left,
+                               UIMetric::Format::integer_with_rate);
 
         (*ui_)->employment_.emplace(pfrm,
                                     OverlayCoord{1, 4},

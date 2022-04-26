@@ -456,7 +456,8 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, integer);
          auto app = interp_get_app();
-         app->persistent_data().difficulty_ = (PersistentData::Difficulty)L_LOAD_INT(0);
+         app->persistent_data().difficulty_ =
+             (PersistentData::Difficulty)L_LOAD_INT(0);
          return L_NIL;
      }},
     {"key-bind",

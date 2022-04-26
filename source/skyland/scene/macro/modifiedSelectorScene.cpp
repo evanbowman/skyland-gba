@@ -33,7 +33,9 @@ namespace skyland::macro
 
 
 
-void ModifiedSelectorScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
+void ModifiedSelectorScene::enter(Platform& pfrm,
+                                  macro::State& state,
+                                  Scene& prev)
 {
     if (auto m = dynamic_cast<MacrocosmScene*>(&prev)) {
         m->drop_ui();
@@ -63,7 +65,9 @@ void ModifiedSelectorScene::enter(Platform& pfrm, macro::State& state, Scene& pr
 
 
 
-void ModifiedSelectorScene::exit(Platform& pfrm, macro::State& state, Scene& next)
+void ModifiedSelectorScene::exit(Platform& pfrm,
+                                 macro::State& state,
+                                 Scene& next)
 {
     MacrocosmScene::exit(pfrm, state, next);
     rotate_text_.reset();

@@ -45,7 +45,6 @@ public:
 
 
 private:
-
     void describe_selected(Platform& pfrm, macro::State& state);
 
     std::optional<Text> text_;
