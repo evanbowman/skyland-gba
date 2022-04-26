@@ -961,7 +961,7 @@ Coins terrain::cost(Sector& s, Type t)
         return 80;
 
     case terrain::Type::port:
-        return 300;
+        return 200;
     }
 
     return 0;
