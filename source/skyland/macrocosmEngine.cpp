@@ -49,7 +49,7 @@ bool _cursor_moved = false;
 bool _cursor_covered = false;
 
 // Repaint required, but only because the cursor toggled between light and
-// dark. NOTE: planned, but not yet used. Currently equivalent to _changed.
+// dark.
 bool _changed_cursor_flicker_only = false;
 
 
@@ -57,7 +57,7 @@ Buffer<u16, 6> _cursor_raster_tiles;
 
 // Used exclusively for optimizing the cursor flickering animation.  If the
 // cursor tile is at end of the buffer, then it can be redrawn without worring
-// about anything beneath it. NOTE: planned, but not yet used.
+// about anything beneath it.
 Buffer<u16, 6> _cursor_raster_stack[6];
 } // namespace globalstate
 } // namespace raster
@@ -2288,8 +2288,10 @@ void terrain::Sector::render(Platform& pfrm)
                 // light and dark if part of the cursor tile range.
                 if (elem > 59 and elem < 66) {
                     elem += 6;
+                    break;
                 } else if (elem > 65 and elem < 72) {
                     elem -= 6;
+                    break;
                 }
             }
             auto stk_cpy = globalstate::_cursor_raster_stack[i];
