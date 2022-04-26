@@ -48,7 +48,17 @@ bool _shrunk = false;
 bool _cursor_moved = false;
 bool _cursor_covered = false;
 
-Buffer<u16, 8> _cursor_raster_tiles;
+// Repaint required, but only because the cursor toggled between light and
+// dark. NOTE: planned, but not yet used. Currently equivalent to _changed.
+bool _changed_cursor_flicker_only = false;
+
+
+Buffer<u16, 6> _cursor_raster_tiles;
+
+// Used exclusively for optimizing the cursor flickering animation.  If the
+// cursor tile is at end of the buffer, then it can be redrawn without worring
+// about anything beneath it. NOTE: planned, but not yet used.
+Buffer<u16, 6> _cursor_raster_stack[6];
 } // namespace globalstate
 } // namespace raster
 
@@ -1449,6 +1459,7 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
     }
 
     if (old_cursor.z > 0) {
+        // FIXME
         auto& block = blocks_[old_cursor.z + 1][old_cursor.x][old_cursor.y];
         block.repaint_ = true;
     }
@@ -1583,10 +1594,10 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         block.data_--;
         if (block.data_ == 0) {
-            block.data_ = 8;
+            block.data_ = 10;
             block.shadowed_ = not block.shadowed_;
             block.repaint_ = true;
-            raster::globalstate::_changed = true;
+            raster::globalstate::_changed_cursor_flicker_only = true;
         }
 
     },
@@ -2191,29 +2202,33 @@ void terrain::Sector::render_setup(Platform& pfrm)
             insert_edges(head);
         }
     }
+
+    for (u32 i = 0; i < globalstate::_cursor_raster_tiles.size(); ++i) {
+        auto t = globalstate::_cursor_raster_tiles[i];
+
+        globalstate::_cursor_raster_stack[i].clear();
+
+        DepthNode* head = nullptr;
+        if (t >= 480) {
+            head = (*_db)->depth_2_->visible_[t - 480];
+        } else {
+            head = (*_db)->depth_1_->visible_[t];
+        }
+
+        while (head) {
+            globalstate::_cursor_raster_stack[i].push_back(head->tile_);
+            head = head->next_;
+        }
+    }
 }
 
 
 
 void terrain::Sector::render(Platform& pfrm)
 {
-    // TODO: simplify this rendering code. The output texture is split across
-    // two tile layers, so there's some copy-pasted code that needs to be
-    // re-organized into common functions.
-
     using namespace raster;
 
-    if (not globalstate::_changed) {
-        return;
-    }
-
-    const bool cursor_moved = globalstate::_cursor_moved;
-    const bool shrunk = globalstate::_shrunk;
-
-
-    render_setup(pfrm);
-
-// #define RASTER_DEBUG_ENABLE
+    // #define RASTER_DEBUG_ENABLE
 
 #ifdef RASTER_DEBUG_ENABLE
 #define RASTER_DEBUG()                                                         \
@@ -2226,18 +2241,9 @@ void terrain::Sector::render(Platform& pfrm)
     } while (false)
 #endif
 
-    for (int i = 0; i < 480; ++i) {
-
-        if (auto head = (*_db)->depth_1_->visible_[i]) {
-
-            Buffer<int, 6> stack;
-            while (head) {
-                stack.push_back(head->tile_);
-                if (head->tile_) {
-                }
-                head = head->next_;
-            }
-
+    auto flush_stack_t0 =
+        [&pfrm](auto& stack, int i)
+        {
             // The first tile can be drawn much faster, as we don't care what's
             // currently onscreen.
             bool overwrite = true;
@@ -2249,6 +2255,74 @@ void terrain::Sector::render(Platform& pfrm)
                 stack.pop_back();
                 overwrite = false;
             }
+        };
+
+
+    auto flush_stack_t1 =
+        [&pfrm](auto& stack, int i)
+        {
+            bool overwrite = true;
+
+            while (not stack.empty()) {
+                int tile = stack.back();
+                RASTER_DEBUG();
+                pfrm.blit_t1_tile_to_texture(tile + 480, i, overwrite);
+                stack.pop_back();
+                overwrite = false;
+            }
+        };
+
+
+    if (not globalstate::_changed_cursor_flicker_only and
+        not globalstate::_changed) {
+        return;
+    }
+
+    if (globalstate::_changed_cursor_flicker_only and not
+        globalstate::_changed) {
+
+        for (u32 i = 0; i < globalstate::_cursor_raster_tiles.size(); ++i) {
+            auto t = globalstate::_cursor_raster_tiles[i];
+            for (auto& elem : globalstate::_cursor_raster_stack[i]) {
+                // Flickering implementation, manually offset the tiles between
+                // light and dark if part of the cursor tile range.
+                if (elem > 59 and elem < 66) {
+                    elem += 6;
+                } else if (elem > 65 and elem < 72) {
+                    elem -= 6;
+                }
+            }
+            auto stk_cpy = globalstate::_cursor_raster_stack[i];
+            if (t >= 480) {
+                flush_stack_t1(stk_cpy, t - 480);
+            } else {
+                flush_stack_t0(stk_cpy, t);
+            }
+        }
+
+        globalstate::_changed_cursor_flicker_only = false;
+        return;
+    }
+
+    const bool cursor_moved = globalstate::_cursor_moved;
+    const bool shrunk = globalstate::_shrunk;
+
+
+    render_setup(pfrm);
+
+
+    for (int i = 0; i < 480; ++i) {
+
+        if (auto head = (*_db)->depth_1_->visible_[i]) {
+
+            Buffer<int, 6> stack;
+            while (head) {
+                stack.push_back(head->tile_);
+                head = head->next_;
+            }
+
+            flush_stack_t0(stack, i);
+
         } else if (shrunk and not (*_db)->depth_1_skip_clear.get(i)) {
             pfrm.blit_t0_erase(i);
         }
@@ -2261,15 +2335,8 @@ void terrain::Sector::render(Platform& pfrm)
                 head = head->next_;
             }
 
-            bool overwrite = true;
+            flush_stack_t1(stack, i);
 
-            while (not stack.empty()) {
-                int tile = stack.back();
-                RASTER_DEBUG();
-                pfrm.blit_t1_tile_to_texture(tile + 480, i, overwrite);
-                stack.pop_back();
-                overwrite = false;
-            }
         } else if (shrunk and not (*_db)->depth_2_skip_clear.get(i)) {
             pfrm.blit_t1_erase(i);
         }
@@ -2301,6 +2368,7 @@ void terrain::Sector::render(Platform& pfrm)
     globalstate::_changed = false;
     globalstate::_shrunk = false;
     globalstate::_cursor_moved = false;
+    globalstate::_changed_cursor_flicker_only = false;
 
     _db.reset();
 }
