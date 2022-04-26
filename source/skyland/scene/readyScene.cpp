@@ -317,6 +317,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 describe_room_timer_ = milliseconds(300);
                 cursor_moved = true;
                 sync_cursor();
+                pfrm.speaker().play_sound("cursor_tick", 2);
             }
         } else if (test_key(Key::right)) {
             if (cursor_loc.x < app.player_island().terrain().size()) {
@@ -326,6 +327,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_moved = true;
 
                 sync_cursor();
+                pfrm.speaker().play_sound("cursor_tick", 2);
 
             } else if ( // Do not allow the player to inspect the other island if we're in
                 // the multiplayer waiting room.
@@ -341,6 +343,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 app.player().network_sync_cursor(pfrm, cursor_loc, 0, false);
 
+                pfrm.speaker().play_sound("cursor_tick", 2);
                 return scene_pool::alloc<InspectP2Scene>();
             }
         }
@@ -352,6 +355,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 describe_room_timer_ = milliseconds(300);
                 cursor_moved = true;
                 sync_cursor();
+                pfrm.speaker().play_sound("cursor_tick", 2);
             }
         } else if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
@@ -360,6 +364,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 describe_room_timer_ = milliseconds(300);
                 cursor_moved = true;
                 sync_cursor();
+                pfrm.speaker().play_sound("cursor_tick", 2);
             }
         }
 

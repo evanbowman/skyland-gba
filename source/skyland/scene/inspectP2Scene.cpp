@@ -161,6 +161,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 describe_room_timer_ = milliseconds(300);
 
                 sync_cursor();
+                pfrm.speaker().play_sound("cursor_tick", 2);
 
             } else {
                 auto& near_cursor =
@@ -169,7 +170,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 near_cursor.y = cursor_loc.y;
 
                 app.player().network_sync_cursor(pfrm, near_cursor, 0, true);
-
+                pfrm.speaker().play_sound("cursor_tick", 2);
                 return scene_pool::alloc<ReadyScene>();
             }
         }
@@ -179,6 +180,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 ++cursor_loc.x;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+                pfrm.speaker().play_sound("cursor_tick", 2);
                 sync_cursor();
             }
         }
@@ -188,6 +190,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 --cursor_loc.y;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+                pfrm.speaker().play_sound("cursor_tick", 2);
                 sync_cursor();
             }
         }
@@ -197,6 +200,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 ++cursor_loc.y;
                 clear_room_description(pfrm, room_description_);
                 describe_room_timer_ = milliseconds(300);
+                pfrm.speaker().play_sound("cursor_tick", 2);
                 sync_cursor();
             }
         }

@@ -12,7 +12,7 @@
   (let ((data $0))
     (let ((load (lambda (cdr (assoc $0 data)))))
 
-      (if (equal (load 'save-protocol) 1)
+      (if (> (load 'save-protocol) 0)
           (progn
             (terrain (player) (load 'terrain))
 
@@ -37,4 +37,7 @@
 
             (setq quests (load 'quests))
 
-            (setq last-zone (load 'last-zone)))))))
+            (setq last-zone (load 'last-zone))))
+
+      (if (> (load 'save-protocol) 1)
+          (diff-set (load 'diff))))))

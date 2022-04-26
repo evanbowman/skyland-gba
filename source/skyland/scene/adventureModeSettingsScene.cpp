@@ -87,8 +87,45 @@ void AdventureModeSettingsScene::exit(Platform& pfrm, App& app, Scene& prev)
 ScenePtr<Scene>
 AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    // TODO: implement settings menu, allow switching settings.
-    if (true or app.player().key_down(pfrm, Key::action_1)) {
+    if (app.player().key_down(pfrm, Key::up)) {
+        auto& diff = app.persistent_data().difficulty_;
+        diff = (PersistentData::Difficulty)(((u8)diff - 1) % 3);
+        pfrm.speaker().play_sound("click_wooden", 2);
+    }
+
+    if (app.player().key_down(pfrm, Key::down)) {
+        auto& diff = app.persistent_data().difficulty_;
+        diff = (PersistentData::Difficulty)(((u8)diff + 1) % 3);
+        pfrm.speaker().play_sound("click_wooden", 2);
+    }
+
+    auto sel = [&pfrm](auto& text, int tile)
+               {
+                   pfrm.set_tile(Layer::overlay, text->coord().x - 2, text->coord().y, tile);
+               };
+
+    switch (app.persistent_data().difficulty_) {
+    case PersistentData::Difficulty::beginner:
+        sel(easy_text_, 396);
+        sel(normal_text_, 0);
+        sel(hard_text_, 0);
+        break;
+
+    case PersistentData::Difficulty::experienced:
+        sel(easy_text_, 0);
+        sel(normal_text_, 396);
+        sel(hard_text_, 0);
+        break;
+
+    case PersistentData::Difficulty::expert:
+        sel(easy_text_, 0);
+        sel(normal_text_, 0);
+        sel(hard_text_, 396);
+        break;
+    }
+
+    if (app.player().key_down(pfrm, Key::action_1)) {
+        pfrm.speaker().play_sound("button_wooden", 3);
         switch (app.persistent_data().difficulty_) {
         case PersistentData::Difficulty::beginner:
             app.invoke_script(pfrm, "/scripts/config/easy/score.lisp");

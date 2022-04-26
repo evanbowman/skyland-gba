@@ -351,7 +351,8 @@ static bool is_gui_sound(const char* sound_name)
            str_eq(sound_name, "openbag") or str_eq(sound_name, "beep_error") or
            str_eq(sound_name, "click_wooden") or
            str_eq(sound_name, "button_wooden") or
-           str_eq(sound_name, "click_negative");
+           str_eq(sound_name, "click_negative") or
+           str_eq(sound_name, "cursor_tick");
 }
 
 

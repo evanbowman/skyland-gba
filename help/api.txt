@@ -184,6 +184,21 @@ o----------------------------o
 
 o----------------------------o
 
+ (diff)
+
+ Return an int representing
+ the difficulty.
+
+
+o----------------------------o
+
+ (diff-set integer)
+
+ Set the difficulty.
+
+
+o----------------------------o
+
  (emit
   symbol-or-list
   island

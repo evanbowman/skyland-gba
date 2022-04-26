@@ -103,21 +103,25 @@ AssignWeaponGroupScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (test_key(Key::right)) {
             if (cursor_loc.x < app.player_island().terrain().size()) {
                 ++cursor_loc.x;
+                pfrm.speaker().play_sound("cursor_tick", 2);
             }
         }
         if (test_key(Key::down)) {
             if (cursor_loc.y < 14) {
                 ++cursor_loc.y;
+                pfrm.speaker().play_sound("cursor_tick", 2);
             }
         }
         if (test_key(Key::up)) {
             if (cursor_loc.y > construction_zone_min_y) {
                 --cursor_loc.y;
+                pfrm.speaker().play_sound("cursor_tick", 2);
             }
         }
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
                 --cursor_loc.x;
+                pfrm.speaker().play_sound("cursor_tick", 2);
             }
         }
         break;

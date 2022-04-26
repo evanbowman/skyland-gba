@@ -446,6 +446,19 @@ static const lisp::Binding script_api[] = {
          state_bit_store(*app, StateBit::launch_repl, true);
          return L_NIL;
      }},
+    {"diff",
+     [](int argc) {
+         auto app = interp_get_app();
+         return L_INT((int)app->persistent_data().difficulty_);
+     }},
+    {"diff-set",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+         auto app = interp_get_app();
+         app->persistent_data().difficulty_ = (PersistentData::Difficulty)L_LOAD_INT(0);
+         return L_NIL;
+     }},
     {"key-bind",
      [](int argc) {
          L_EXPECT_ARGC(argc, 2);

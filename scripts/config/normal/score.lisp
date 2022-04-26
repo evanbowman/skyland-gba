@@ -9,9 +9,9 @@
  ;; granted to the player
  ;; after defeating an
  ;; enemy.
- '((44 . "zone1_coin_yield")
-   (37 . "zone2_coin_yield")
-   (31 . "zone3_coin_yield")
-   (28 . "zone4_coin_yield")))
+ '((40 . "zone1_coin_yield")
+   (28 . "zone2_coin_yield")
+   (24 . "zone3_coin_yield")
+   (20 . "zone4_coin_yield")))
 
 (syscall "setvar" "score_multiplier" 2)

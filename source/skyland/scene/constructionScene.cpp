@@ -194,11 +194,14 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 ++selector_;
 
                 sync_cursor = true;
+                pfrm.speaker().play_sound("cursor_tick", 2);
 
             } else if (near_ and app.game_mode() == App::GameMode::sandbox and
                        app.opponent_island()) {
                 auto& cursor_loc =
                     std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+                pfrm.speaker().play_sound("cursor_tick", 2);
 
                 cursor_loc.x = 0;
                 cursor_loc.y =
@@ -213,6 +216,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                 sync_cursor = true;
 
+                pfrm.speaker().play_sound("cursor_tick", 2);
+
             } else if (not near_ and
                        app.game_mode() == App::GameMode::sandbox) {
                 auto& cursor_loc =
@@ -221,6 +226,9 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 cursor_loc.x = app.player_island().terrain().size();
                 cursor_loc.y =
                     std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y;
+
+                pfrm.speaker().play_sound("cursor_tick", 2);
+
                 return scene_pool::alloc<ConstructionScene>(true);
             }
         }
