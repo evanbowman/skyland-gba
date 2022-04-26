@@ -14,7 +14,7 @@
  "Another fortress approaches, flying a black flag...")
 
 
-(if (equal (choice 2) 0)
+(if (not (equal (choice 3) 0))
     (opponent-generate 0)
   (progn
     (island-configure

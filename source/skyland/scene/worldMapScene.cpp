@@ -58,7 +58,7 @@ void WorldGraph::generate()
     // Therefore, we ensure that at least one path from start to finish
     // exists. We place the remaining map nodes in somewhat arbitrary locations,
     // not too close to existing nodes, but within the player's movement range.
-    // We place at least six hostile levels, such that at least three hostile
+    // We place at least eight hostile levels, such that at least three hostile
     // levels lie along the guaranteed path from start to finish. We convert one
     // graph node outside of the central path to a quest level.
 
@@ -184,7 +184,7 @@ void WorldGraph::generate()
 
 
 
-    int hostile_levels = 6;
+    int hostile_levels = 8;
     int hostile_levels_critical_path = 0;
 
     for (int i = 1; i < exit_node; ++i) {
