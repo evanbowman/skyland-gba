@@ -33,18 +33,18 @@ namespace skyland::macro
 
 
 
-void TileOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
+void TileOptionsScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 {
-    MacrocosmScene::enter(pfrm, app, prev);
-    collect_options(pfrm, *app.macrocosm());
+    MacrocosmScene::enter(pfrm, state, prev);
+    collect_options(pfrm, state);
     show_options(pfrm);
 }
 
 
 
-void TileOptionsScene::exit(Platform& pfrm, App& app, Scene& next)
+void TileOptionsScene::exit(Platform& pfrm, macro::State& state, Scene& next)
 {
-    MacrocosmScene::exit(pfrm, app, next);
+    MacrocosmScene::exit(pfrm, state, next);
     text_.reset();
 
     const auto st = calc_screen_tiles(pfrm);

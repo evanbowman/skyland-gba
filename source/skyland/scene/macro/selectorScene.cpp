@@ -35,17 +35,17 @@ namespace skyland::macro
 
 
 
-void SelectorScene::enter(Platform& pfrm, App& app, Scene& prev)
+void SelectorScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 {
-    MacrocosmScene::enter(pfrm, app, prev);
+    MacrocosmScene::enter(pfrm, state, prev);
     Text::platform_retain_alphabet(pfrm);
 }
 
 
 
-void SelectorScene::exit(Platform& pfrm, App& app, Scene& next)
+void SelectorScene::exit(Platform& pfrm, macro::State& state, Scene& next)
 {
-    MacrocosmScene::exit(pfrm, app, next);
+    MacrocosmScene::exit(pfrm, state, next);
     for (int i = 0; i < text_->len(); ++i) {
         pfrm.set_tile(Layer::overlay, i, 18, 0);
     }

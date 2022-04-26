@@ -23,6 +23,7 @@
 #pragma once
 
 #include "allocator.hpp"
+#include "entity.hpp"
 #include "number/int.h"
 #include "systemString.hpp"
 
@@ -406,6 +407,8 @@ struct State
         {
             return persistent_;
         }
+
+        EntityList<Entity> entities_;
     };
 
 

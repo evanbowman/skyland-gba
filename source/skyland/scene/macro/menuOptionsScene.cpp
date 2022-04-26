@@ -36,10 +36,10 @@ namespace skyland::macro
 
 
 
-void MenuOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
+void MenuOptionsScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 {
     Text::platform_retain_alphabet(pfrm);
-    MacrocosmScene::enter(pfrm, app, prev);
+    MacrocosmScene::enter(pfrm, state, prev);
 
     const auto st = calc_screen_tiles(pfrm);
 
@@ -64,10 +64,10 @@ void MenuOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void MenuOptionsScene::exit(Platform& pfrm, App& app, Scene& next)
+void MenuOptionsScene::exit(Platform& pfrm, macro::State& state, Scene& next)
 {
     if (not dynamic_cast<NextTurnScene*>(&next)) {
-        MacrocosmScene::exit(pfrm, app, next);
+        MacrocosmScene::exit(pfrm, state, next);
         budget_text_.reset();
         next_turn_text_.reset();
         macroverse_text_.reset();

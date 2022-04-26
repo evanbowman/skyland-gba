@@ -41,8 +41,12 @@ public:
     MacrocosmScene();
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void enter(Platform& pfrm, App& app, Scene& prev) override final;
+    void exit(Platform& pfrm, App& app, Scene& next) override final;
+
+
+    virtual void enter(Platform& pfrm, macro::State&, Scene& prev);
+    virtual void exit(Platform& pfrm, macro::State&, Scene& next);
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override final;

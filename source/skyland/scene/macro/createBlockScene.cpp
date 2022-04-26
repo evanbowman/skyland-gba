@@ -37,11 +37,11 @@ static macro::terrain::Type last_created = terrain::Type::terrain;
 
 
 
-void CreateBlockScene::enter(Platform& pfrm, App& app, Scene& prev)
+void CreateBlockScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 {
-    MacrocosmScene::enter(pfrm, app, prev);
+    MacrocosmScene::enter(pfrm, state, prev);
 
-    collect_options(*app.macrocosm());
+    collect_options(state);
 
     for (u32 i = 0; i < options_.size(); ++i) {
         if (options_[i] == last_created) {
@@ -50,7 +50,7 @@ void CreateBlockScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    show_options(pfrm, *app.macrocosm());
+    show_options(pfrm, state);
 }
 
 
@@ -76,9 +76,9 @@ void CreateBlockScene::collect_options(macro::State& state)
 
 
 
-void CreateBlockScene::exit(Platform& pfrm, App& app, Scene& next)
+void CreateBlockScene::exit(Platform& pfrm, macro::State& state, Scene& next)
 {
-    MacrocosmScene::exit(pfrm, app, next);
+    MacrocosmScene::exit(pfrm, state, next);
 
     const auto st = calc_screen_tiles(pfrm);
     for (int y = st.y - 8; y < st.y; ++y) {
@@ -527,17 +527,17 @@ void ConfigurePortScene::message(Platform& pfrm, macro::State& state)
 
 
 
-void ConfigurePortCountScene::enter(Platform& pfrm, App& app, Scene& prev)
+void ConfigurePortCountScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 {
-    MacrocosmScene::enter(pfrm, app, prev);
-    show(pfrm, *app.macrocosm());
+    MacrocosmScene::enter(pfrm, state, prev);
+    show(pfrm, state);
 }
 
 
 
-void ConfigurePortCountScene::exit(Platform& pfrm, App& app, Scene& next)
+void ConfigurePortCountScene::exit(Platform& pfrm, macro::State& state, Scene& next)
 {
-    MacrocosmScene::exit(pfrm, app, next);
+    MacrocosmScene::exit(pfrm, state, next);
 
     for (int y = text_->coord().y - 6; y < text_->coord().y + 1; ++y) {
         for (int x = 0; x < 32; ++x) {
@@ -607,31 +607,31 @@ ScenePtr<Scene> ConfigurePortCountScene::update(Platform& pfrm,
 
 
 
-void ConfigurePortDestScene::enter(Platform& pfrm, App& app, Scene& prev)
+void ConfigurePortDestScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 {
-    MacrocosmScene::enter(pfrm, app, prev);
+    MacrocosmScene::enter(pfrm, state, prev);
 
-    auto current = app.macrocosm()->sector().coordinate();
+    auto current = state.sector().coordinate();
 
-    auto o = app.macrocosm()->data_->origin_sector_.coordinate();
+    auto o = state.data_->origin_sector_.coordinate();
     if (o not_eq current) {
         export_options_.push_back(o);
     }
 
-    for (auto& s : app.macrocosm()->data_->other_sectors_) {
+    for (auto& s : state.data_->other_sectors_) {
         if (s->coordinate() not_eq current) {
             export_options_.push_back(s->coordinate());
         }
     }
 
-    show(pfrm, *app.macrocosm());
+    show(pfrm, state);
 }
 
 
 
-void ConfigurePortDestScene::exit(Platform& pfrm, App& app, Scene& next)
+void ConfigurePortDestScene::exit(Platform& pfrm, macro::State& state, Scene& next)
 {
-    MacrocosmScene::exit(pfrm, app, next);
+    MacrocosmScene::exit(pfrm, state, next);
 
     for (int y = text_->coord().y - 6; y < text_->coord().y + 1; ++y) {
         for (int x = 0; x < 32; ++x) {

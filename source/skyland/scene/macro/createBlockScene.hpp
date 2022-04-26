@@ -34,10 +34,10 @@ namespace skyland::macro
 class CreateBlockScene : public MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
+    void enter(Platform& pfrm, macro::State& state, Scene& prev) override;
 
 
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void exit(Platform& pfrm, macro::State& state, Scene& next) override;
 
 
     ScenePtr<Scene>
@@ -109,8 +109,8 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void enter(Platform& pfrm, macro::State& state, Scene& prev) override;
+    void exit(Platform& pfrm, macro::State& state, Scene& next) override;
 
 
     ScenePtr<Scene>
@@ -137,8 +137,8 @@ public:
     }
 
 
-    void enter(Platform& pfrm, App& app, Scene& prev) override;
-    void exit(Platform& pfrm, App& app, Scene& next) override;
+    void enter(Platform& pfrm, macro::State& state, Scene& prev) override;
+    void exit(Platform& pfrm, macro::State& state, Scene& next) override;
 
 
     ScenePtr<Scene>

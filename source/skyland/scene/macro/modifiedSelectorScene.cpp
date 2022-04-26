@@ -33,7 +33,7 @@ namespace skyland::macro
 
 
 
-void ModifiedSelectorScene::enter(Platform& pfrm, App& app, Scene& prev)
+void ModifiedSelectorScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 {
     if (auto m = dynamic_cast<MacrocosmScene*>(&prev)) {
         m->drop_ui();
@@ -58,14 +58,14 @@ void ModifiedSelectorScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm, OverlayCoord{0, (u8)(calc_screen_tiles(pfrm).y - 1)});
 
     visible_layers_text_->assign(SYSTR(macro_visible_layers)->c_str());
-    visible_layers_text_->append(app.macrocosm()->sector().get_z_view());
+    visible_layers_text_->append(state.sector().get_z_view());
 }
 
 
 
-void ModifiedSelectorScene::exit(Platform& pfrm, App& app, Scene& next)
+void ModifiedSelectorScene::exit(Platform& pfrm, macro::State& state, Scene& next)
 {
-    MacrocosmScene::exit(pfrm, app, next);
+    MacrocosmScene::exit(pfrm, state, next);
     rotate_text_.reset();
     layers_text_.reset();
     pfrm.set_tile(Layer::overlay, 1, 1, 0);

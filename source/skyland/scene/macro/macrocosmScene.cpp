@@ -46,6 +46,7 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player().update(pfrm, app, delta);
     app.camera()->update(pfrm, app, app.player_island(), {}, delta, true);
 
+    update_entities(pfrm, app, delta, app.macrocosm()->data_->entities_);
 
     if (ui_) {
         (*ui_)->coins_->update(pfrm, delta);
@@ -70,6 +71,10 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
 {
     if (not app.macrocosm()) {
         return;
+    }
+
+    for (auto& e : app.macrocosm()->data_->entities_) {
+        pfrm.screen().draw(e->sprite());
     }
 
     pfrm.system_call(
@@ -136,22 +141,18 @@ void MacrocosmScene::update_ui(macro::State& state)
 
 
 
-void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
+void MacrocosmScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 {
-    if (not app.macrocosm()) {
-        Platform::fatal(format("logic error! % %", __FILE__, __LINE__).c_str());
-    }
-
     auto m = dynamic_cast<MacrocosmScene*>(&prev);
     if (m and m->ui_) {
         ui_ = std::move(m->ui_);
         if (m->should_update_ui_after_exit()) {
-            update_ui(*app.macrocosm());
+            update_ui(state);
         }
     } else {
         ui_ = allocate_dynamic<UIObjects>("macro-ui-objects");
 
-        auto& sector = app.macrocosm()->sector();
+        auto& sector = state.sector();
 
         auto stat = sector.stats();
         auto pop = sector.population();
@@ -179,8 +180,8 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
             pfrm,
             OverlayCoord{1, 2},
             146,
-            format_ui_fraction((int)app.macrocosm()->data_->p().coins_.get(),
-                               app.macrocosm()->coin_yield()),
+            format_ui_fraction(state.data_->p().coins_.get(),
+                               state.coin_yield()),
             UIMetric::Align::left,
             UIMetric::Format::integer_with_rate);
 
@@ -197,7 +198,7 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
                                  UIMetric::Align::left);
     }
 
-    const auto year = app.macrocosm()->data_->p().year_.get() + 1;
+    const auto year = state.data_->p().year_.get() + 1;
 
     auto yr = SYSTR(macro_year);
     auto yr_len = utf8::len(yr->c_str());
@@ -211,7 +212,27 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
     temp.append(year);
     temp.__detach();
 
-    draw_compass(pfrm, *app.macrocosm());
+    draw_compass(pfrm, state);
+}
+
+
+
+void MacrocosmScene::exit(Platform& pfrm, macro::State& state, Scene& next)
+{
+    if (not dynamic_cast<MacrocosmScene*>(&next)) {
+        ui_.reset();
+    }
+}
+
+
+
+void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
+{
+    if (not app.macrocosm()) {
+        Platform::fatal(format("logic error! % %", __FILE__, __LINE__).c_str());
+    }
+
+    enter(pfrm, *app.macrocosm(), prev);
 }
 
 
@@ -227,9 +248,7 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::State& state)
 
 void MacrocosmScene::exit(Platform& pfrm, App& app, Scene& next)
 {
-    if (not dynamic_cast<MacrocosmScene*>(&next)) {
-        ui_.reset();
-    }
+    exit(pfrm, *app.macrocosm(), next);
 }
 
 
