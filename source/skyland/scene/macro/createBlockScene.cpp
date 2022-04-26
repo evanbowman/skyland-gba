@@ -255,25 +255,34 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
         return next;
     }
 
-    if (player.key_down(pfrm, Key::right)) {
-        if (selector_ < (int)options_.size() - 1) {
-            ++selector_;
-        } else {
-            selector_ = 0;
+    if (player.key_pressed(pfrm, Key::alt_1)) {
+        if (player.key_down(pfrm, Key::right)) {
+            pfrm.speaker().play_sound("cursor_tick", 2);
+            state.advance(1);
+            update_ui(state);
         }
-        show_options(pfrm, state);
-        pfrm.speaker().play_sound("click", 1);
+    } else {
+        if (player.key_down(pfrm, Key::right)) {
+            if (selector_ < (int)options_.size() - 1) {
+                ++selector_;
+            } else {
+                selector_ = 0;
+            }
+            show_options(pfrm, state);
+            pfrm.speaker().play_sound("click", 1);
+        }
+
+        if (player.key_down(pfrm, Key::left)) {
+            if (selector_ > 0) {
+                --selector_;
+            } else {
+                selector_ = options_.size() - 1;
+            }
+            show_options(pfrm, state);
+            pfrm.speaker().play_sound("click", 1);
+        }
     }
 
-    if (player.key_down(pfrm, Key::left)) {
-        if (selector_ > 0) {
-            --selector_;
-        } else {
-            selector_ = options_.size() - 1;
-        }
-        show_options(pfrm, state);
-        pfrm.speaker().play_sound("click", 1);
-    }
 
     if (player.key_down(pfrm, Key::action_1)) {
         return onclick(pfrm, state);

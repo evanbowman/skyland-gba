@@ -1,6 +1,6 @@
 
 
-(opponent-init 8 'hostile)
+(opponent-init 10 'hostile)
 
 
 

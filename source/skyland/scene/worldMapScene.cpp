@@ -449,9 +449,11 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::deselected:
         if (app.player().key_down(pfrm, Key::action_1)) {
             state_ = State::selected;
+            pfrm.speaker().play_sound("button_wooden", 3);
         }
         if (app.player().key_down(pfrm, Key::right) or
             app.player().key_down(pfrm, Key::left)) {
+            pfrm.speaker().play_sound("click_wooden", 2);
             to_move_state();
         }
         if (app.player().key_down(pfrm, Key::down)) {
@@ -465,6 +467,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         if (app.player().key_down(pfrm, Key::right) or
             app.player().key_down(pfrm, Key::left)) {
+            pfrm.speaker().play_sound("click_wooden", 2);
             to_move_state();
         }
         if (app.player().key_down(pfrm, Key::action_2)) {
@@ -616,6 +619,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm, app, app.world_graph().storm_depth_, false);
                 state_ = State::storm_advance;
             } else {
+                pfrm.speaker().play_sound("button_wooden", 3);
                 state_ = State::wait;
                 cmix_ = {ColorConstant::stil_de_grain, 200};
             }
@@ -634,12 +638,14 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             if ((u32)movement_cursor_ == movement_targets_.size()) {
                 movement_cursor_ = 0;
             }
+            pfrm.speaker().play_sound("click_wooden", 2);
             render_map_key(pfrm, app);
         } else if (app.player().key_down(pfrm, Key::right)) {
             movement_cursor_--;
             if (movement_cursor_ < 0) {
                 movement_cursor_ = movement_targets_.size() - 1;
             }
+            pfrm.speaker().play_sound("click_wooden", 2);
             render_map_key(pfrm, app);
         }
         break;

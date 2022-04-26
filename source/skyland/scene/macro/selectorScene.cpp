@@ -174,6 +174,11 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::State& state)
 
         if (not b.empty()) {
             text_->assign(b.c_str());
+
+            for (int i = 0; i < text_->len(); ++i) {
+                pfrm.set_tile(Layer::overlay, i, 18, 425);
+            }
+
             return;
         }
     } else {

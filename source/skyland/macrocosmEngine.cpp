@@ -744,8 +744,6 @@ static void intersector_exchange_commodities(const Vec2<s8> source_sector,
     Buffer<std::pair<const Vec2<s8>, terrain::Stats>, State::max_sectors - 1>
         stats;
 
-    info(Platform::instance(), stringify(stat.food_));
-
     State& state = *_bound_state;
 
     if (state.data_->origin_sector_.coordinate() == source_sector) {
@@ -1844,7 +1842,7 @@ struct DepthBuffer
 
 
 
-std::optional<raster::DepthBuffer> _db;
+std::optional<DynamicMemory<raster::DepthBuffer>> _db;
 
 
 
@@ -1936,12 +1934,13 @@ void terrain::Sector::render_setup(Platform& pfrm)
 
 
     if (not _db) {
-        _db.emplace(pfrm);
+        _db.emplace(allocate_dynamic<raster::DepthBuffer>("depth-buffer",
+                                                          pfrm));
     }
 
 
     rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
-        auto n = _db->depth_node_allocator_.alloc<DepthNode>();
+        auto n = (*_db)->depth_node_allocator_.alloc<DepthNode>();
         if (n == nullptr) {
             Platform::fatal("depth node allocator out of memory!");
         }
@@ -1950,19 +1949,19 @@ void terrain::Sector::render_setup(Platform& pfrm)
         n->tile_ = texture - 480;
 
         if (t_start < 480) {
-            n->next_ = _db->depth_1_->visible_[t_start];
+            n->next_ = (*_db)->depth_1_->visible_[t_start];
             // NOTE: it's bulk allocation, there's no leak here. The destructor
             // won't be called, but we're dealing with a primitive type.
-            _db->depth_1_->visible_[t_start] = n.release();
+            (*_db)->depth_1_->visible_[t_start] = n.release();
         } else {
-            n->next_ = _db->depth_2_->visible_[t_start - 480];
-            _db->depth_2_->visible_[t_start - 480] = n.release();
+            n->next_ = (*_db)->depth_2_->visible_[t_start - 480];
+            (*_db)->depth_2_->visible_[t_start - 480] = n.release();
         }
     });
 
 
     for (int i = 0; i < 480; ++i) {
-        if (auto head = _db->depth_1_->visible_[i]) {
+        if (auto head = (*_db)->depth_1_->visible_[i]) {
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
@@ -1980,8 +1979,8 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 temp = temp->next_;
             }
             if (skip_repaint) {
-                _db->depth_1_skip_clear.set(i, true);
-                _db->depth_1_->visible_[i] = nullptr;
+                (*_db)->depth_1_skip_clear.set(i, true);
+                (*_db)->depth_1_->visible_[i] = nullptr;
                 continue;
             }
             Buffer<TileCategory, 8> seen;
@@ -1990,7 +1989,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 if (cg == opaque) {
                     // Cull non-visible tiles.
                     head->next_ = nullptr;
-                    _db->depth_1_skip_clear.set(i, true);
+                    (*_db)->depth_1_skip_clear.set(i, true);
                     break;
                 } else {
                     switch (cg) {
@@ -2006,7 +2005,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == bot_angled_r) {
                                 head->next_ = nullptr;
-                                _db->depth_1_skip_clear.set(i, true);
+                                (*_db)->depth_1_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -2016,7 +2015,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == bot_angled_l) {
                                 head->next_ = nullptr;
-                                _db->depth_1_skip_clear.set(i, true);
+                                (*_db)->depth_1_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -2026,7 +2025,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == top_angled_r) {
                                 head->next_ = nullptr;
-                                _db->depth_1_skip_clear.set(i, true);
+                                (*_db)->depth_1_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -2036,7 +2035,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == top_angled_l) {
                                 head->next_ = nullptr;
-                                _db->depth_1_skip_clear.set(i, true);
+                                (*_db)->depth_1_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -2048,9 +2047,9 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 head = head->next_;
             }
         } else {
-            _db->depth_1_empty.set(i, true);
+            (*_db)->depth_1_empty.set(i, true);
         }
-        if (auto head = _db->depth_2_->visible_[i]) {
+        if (auto head = (*_db)->depth_2_->visible_[i]) {
             auto temp = head;
             bool skip_repaint = true;
             while (temp) {
@@ -2068,8 +2067,8 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 temp = temp->next_;
             }
             if (skip_repaint) {
-                _db->depth_2_skip_clear.set(i, true);
-                _db->depth_2_->visible_[i] = nullptr;
+                (*_db)->depth_2_skip_clear.set(i, true);
+                (*_db)->depth_2_->visible_[i] = nullptr;
                 continue;
             }
             Buffer<TileCategory, 8> seen;
@@ -2078,7 +2077,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 if (cg == opaque) {
                     // Cull non-visible tiles.
                     head->next_ = nullptr;
-                    _db->depth_2_skip_clear.set(i, true);
+                    (*_db)->depth_2_skip_clear.set(i, true);
                     break;
                 } else {
                     switch (cg) {
@@ -2094,7 +2093,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == bot_angled_r) {
                                 head->next_ = nullptr;
-                                _db->depth_2_skip_clear.set(i, true);
+                                (*_db)->depth_2_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -2104,7 +2103,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == bot_angled_l) {
                                 head->next_ = nullptr;
-                                _db->depth_2_skip_clear.set(i, true);
+                                (*_db)->depth_2_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -2114,7 +2113,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == top_angled_r) {
                                 head->next_ = nullptr;
-                                _db->depth_2_skip_clear.set(i, true);
+                                (*_db)->depth_2_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -2124,7 +2123,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                         for (auto& s : seen) {
                             if (s == top_angled_l) {
                                 head->next_ = nullptr;
-                                _db->depth_2_skip_clear.set(i, true);
+                                (*_db)->depth_2_skip_clear.set(i, true);
                                 break;
                             }
                         }
@@ -2136,7 +2135,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 head = head->next_;
             }
         } else {
-            _db->depth_2_empty.set(i, true);
+            (*_db)->depth_2_empty.set(i, true);
         }
     }
 
@@ -2169,7 +2168,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 if ((cat == bot_angled_l and not has_tr) or
                     (cat == bot_angled_r and not has_tl)) {
                     auto n =
-                        _db->depth_node_allocator_.alloc<DepthNode>();
+                        (*_db)->depth_node_allocator_.alloc<DepthNode>();
                     n->set_position(head->position());
                     n->next_ = nullptr;
 
@@ -2184,11 +2183,11 @@ void terrain::Sector::render_setup(Platform& pfrm)
             }
         };
 
-        if (auto head = _db->depth_1_->visible_[i]) {
+        if (auto head = (*_db)->depth_1_->visible_[i]) {
             insert_edges(head);
         }
 
-        if (auto head = _db->depth_2_->visible_[i]) {
+        if (auto head = (*_db)->depth_2_->visible_[i]) {
             insert_edges(head);
         }
     }
@@ -2229,7 +2228,7 @@ void terrain::Sector::render(Platform& pfrm)
 
     for (int i = 0; i < 480; ++i) {
 
-        if (auto head = _db->depth_1_->visible_[i]) {
+        if (auto head = (*_db)->depth_1_->visible_[i]) {
 
             Buffer<int, 6> stack;
             while (head) {
@@ -2250,11 +2249,11 @@ void terrain::Sector::render(Platform& pfrm)
                 stack.pop_back();
                 overwrite = false;
             }
-        } else if (shrunk and not _db->depth_1_skip_clear.get(i)) {
+        } else if (shrunk and not (*_db)->depth_1_skip_clear.get(i)) {
             pfrm.blit_t0_erase(i);
         }
 
-        if (auto head = _db->depth_2_->visible_[i]) {
+        if (auto head = (*_db)->depth_2_->visible_[i]) {
 
             Buffer<int, 6> stack;
             while (head) {
@@ -2271,7 +2270,7 @@ void terrain::Sector::render(Platform& pfrm)
                 stack.pop_back();
                 overwrite = false;
             }
-        } else if (shrunk and not _db->depth_2_skip_clear.get(i)) {
+        } else if (shrunk and not (*_db)->depth_2_skip_clear.get(i)) {
             pfrm.blit_t1_erase(i);
         }
     }
@@ -2281,10 +2280,10 @@ void terrain::Sector::render(Platform& pfrm)
         // Handle these out of line, as not to slow down the main rendering
         // block.
         for (int i = 0; i < 480; ++i) {
-            if (cursor_moved and _db->depth_1_empty.get(i)) {
+            if (cursor_moved and (*_db)->depth_1_empty.get(i)) {
                 pfrm.blit_t0_erase(i);
             }
-            if (cursor_moved and _db->depth_2_empty.get(i)) {
+            if (cursor_moved and (*_db)->depth_2_empty.get(i)) {
                 pfrm.blit_t1_erase(i);
             }
         }
