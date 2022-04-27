@@ -119,6 +119,7 @@ enum class Type {
     potatoes,
     sunflowers,
     food, // Must not be constructed
+    shrubbery,
     count,
 };
 
@@ -162,7 +163,7 @@ struct Stats
     int housing_ = 0;
     int employment_ = 0;
 
-    Buffer<Commodity, 16> commodities_;
+    Buffer<Commodity, 24> commodities_;
 };
 
 
@@ -224,6 +225,33 @@ public:
     };
 
 
+    Sector(Vec2<s8> position);
+
+
+    void restore(const save::Sector&);
+
+
+    void set_block(const Vec3<u8>& coord, Type type);
+
+    void rotate();
+    void update();
+    void advance(int years);
+
+    void render_setup(Platform& pfrm);
+    void render(Platform& pfrm);
+
+    using Population = float;
+    void set_population(Population p);
+
+
+    void shadowcast();
+    void erase();
+
+
+    void clear_cache();
+
+
+
     using Exports = Buffer<ExportInfo, 24>;
 
 
@@ -236,23 +264,7 @@ public:
     u16 quantity_non_exported(Commodity::Type t);
 
 
-    Sector(Vec2<s8> position);
-
-
-    void restore(const save::Sector&);
-
-
-    void set_block(const Vec3<u8>& coord, Type type);
-
     const Block& get_block(const Vec3<u8>& coord) const;
-
-
-    void rotate();
-    void update();
-    void advance(int years);
-
-    void render_setup(Platform& pfrm);
-    void render(Platform& pfrm);
 
 
     Stats stats() const;
@@ -261,13 +273,8 @@ public:
     static const int z_limit = 9;
 
 
-    using Population = float;
-
 
     Population population() const;
-
-    void set_population(Population p);
-
 
     Float population_growth_rate() const;
     Coins coin_yield() const;
@@ -328,17 +335,19 @@ public:
     StringBuffer<name_len - 1> name();
 
 
-    void shadowcast();
-
 
     Stats base_stats() const;
 
 
-    void erase();
-
 
 private:
     Persistent p_;
+
+    // Recalculating stats for everything when we have multiple levels slows
+    // down the game significantly, so we cache previous results. I mean, a
+    // sector has ~512 blocks, and if you have 20 sectors, that's a lot of
+    // number crunching and will definitely lag the game if done frequently.
+    mutable std::optional<Stats> base_stats_cache_;
 
     u8 z_view_ = z_limit;
 

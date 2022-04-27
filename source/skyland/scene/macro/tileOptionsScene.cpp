@@ -62,7 +62,7 @@ struct TileOptionsScene::OptionInfo
     SystemString name_;
     int sel_icon_;
     int unsel_icon_;
-    ScenePtr<Scene> (*next_)(macro::State&);
+    ScenePtr<Scene> (*next_)(MacrocosmScene&, macro::State&);
 };
 
 
@@ -76,10 +76,8 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     if (player.key_down(pfrm, Key::action_1)) {
         pfrm.speaker().play_sound("button_wooden", 3);
-        auto next = options_[selector_]->next_(state);
+        auto next = options_[selector_]->next_(*this, state);
         last_option_ = options_[selector_];
-        update_ui(state);
-        update_ui_on_exit();
         return next;
     }
 
@@ -112,29 +110,30 @@ static const TileOptionsScene::OptionInfo options[] = {
     {SystemString::macro_create_block,
      2568,
      2584,
-     [](macro::State& state) -> ScenePtr<Scene> {
+     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<CreateBlockScene>();
      }},
     {SystemString::macro_build_improvement,
      2520,
      2536,
-     [](macro::State& state) -> ScenePtr<Scene> {
+     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<BuildImprovementScene>();
      }},
     {SystemString::macro_demolish,
      2600,
      2616,
-     [](macro::State& state) -> ScenePtr<Scene> {
+     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
          auto c = state.sector().cursor();
          c.z--;
          state.sector().set_block(c, terrain::Type::air);
          state.sector().remove_export(c);
+         s.update_ui(state);
          return scene_pool::alloc<SelectorScene>();
      }},
     {SystemString::macro_export,
      776,
      760,
-     [](macro::State& state) -> ScenePtr<Scene> {
+     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<ConfigurePortScene>();
      }}};
 

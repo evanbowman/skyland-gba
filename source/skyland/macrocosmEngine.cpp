@@ -175,7 +175,11 @@ Coins State::coin_yield()
 
 std::pair<Coins, terrain::Sector::Population> State::colony_cost() const
 {
-    return {1500 + 3000 * data_->other_sectors_.size(), 300};
+    if (data_->other_sectors_.size() < 8) {
+        return {1500 + 3000 * data_->other_sectors_.size(), 300};
+    } else {
+        return {6000 + 3000 * data_->other_sectors_.size(), 300};
+    }
 }
 
 
@@ -370,7 +374,12 @@ StringBuffer<terrain::Sector::name_len - 1> terrain::Sector::name()
 
 void State::advance(int elapsed_years)
 {
-    sector().advance(elapsed_years);
+    data_->origin_sector_.advance(elapsed_years);
+
+    for (auto& s : data_->other_sectors_) {
+        s->advance(elapsed_years);
+    }
+
     data_->p().year_.set(data_->p().year_.get() + elapsed_years);
 
     auto add_coins = coin_yield() * elapsed_years;
@@ -579,6 +588,8 @@ void terrain::Sector::erase()
     }
 
     exports_.clear();
+
+    base_stats_cache_.reset();
 }
 
 
@@ -844,11 +855,19 @@ terrain::Stats terrain::Sector::stats() const
 
 terrain::Stats terrain::Sector::base_stats() const
 {
+    if (base_stats_cache_) {
+        return *base_stats_cache_;
+    }
+
     terrain::Stats result;
 
     for (int z = 0; z < z_limit - 1; ++z) {
         for (int x = 0; x < 8; ++x) {
             for (int y = 0; y < 8; ++y) {
+                if (blocks_[z][x][y].type() == Type::air) {
+                    continue;
+                }
+
                 auto block_stats = blocks_[z][x][y].stats();
 
                 // NOTE: if a block is covered, then it's not possible to
@@ -881,6 +900,8 @@ terrain::Stats terrain::Sector::base_stats() const
         }
     }
 
+    base_stats_cache_ = result;
+
     return result;
 }
 
@@ -888,7 +909,7 @@ terrain::Stats terrain::Sector::base_stats() const
 
 Float terrain::Sector::population_growth_rate() const
 {
-    auto s = base_stats();
+    auto s = stats();
 
     auto required_food = p_.population_ / food_consumption_factor;
 
@@ -956,6 +977,9 @@ Coins terrain::cost(Sector& s, Type t)
 
     case terrain::Type::masonry:
         return 30;
+
+    case terrain::Type::shrubbery:
+        return 5;
 
     case terrain::Type::count:
     case terrain::Type::selector:
@@ -1027,6 +1051,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::masonry:
         return SystemString::block_masonry;
+
+    case terrain::Type::shrubbery:
+        return SystemString::block_shrubbery;
 
     case terrain::Type::count:
     case terrain::Type::selector:
@@ -1222,6 +1249,9 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::masonry:
         return {1448, 1464};
 
+    case terrain::Type::shrubbery:
+        return {1416, 1432};
+
     case terrain::Type::count:
     case terrain::Type::__invalid:
     case terrain::Type::selector:
@@ -1297,6 +1327,7 @@ static bool blocks_light(terrain::Type t)
         false, true, true, true, true,  true,  false, true,
         true,  true, true, true, false, false, false, false,
         true,  true, true, true, true,  true,  true, false,
+        true,
     };
 
     return result[(int)t];
@@ -1457,6 +1488,10 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
         raster::globalstate::_grew = true;
     }
 
+    if (type not_eq Type::selector) {
+        clear_cache();
+    }
+
 
     shadowcast();
 
@@ -1559,6 +1594,13 @@ bool terrain::Sector::set_z_view(u8 z_view)
 
 
 
+void terrain::Sector::clear_cache()
+{
+    base_stats_cache_.reset();
+}
+
+
+
 static void revert_if_covered(terrain::Sector& s,
                               terrain::Block& block,
                               Vec3<u8> position,
@@ -1573,6 +1615,7 @@ static void revert_if_covered(terrain::Sector& s,
                 block.type_ = (u8)revert_to;
                 block.repaint_ = true;
                 raster::globalstate::_changed = true;
+                s.clear_cache();
             }
         }
     }
@@ -1709,6 +1752,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         Platform::fatal("food sentinel created as a terrain block");
     },
+    // shrubbery
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        // ...
+    },
 };
 // clang-format on
 
@@ -1792,6 +1840,16 @@ static TileCategory tile_category(int texture_id)
          empty, top_angled_r, empty, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, empty, opaque, empty, bot_angled_l, bot_angled_r,
          top_angled_l, empty, opaque, empty, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
