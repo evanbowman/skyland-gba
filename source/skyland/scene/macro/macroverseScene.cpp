@@ -588,6 +588,8 @@ void MacroverseScene::display(Platform& pfrm, App& app)
 
         auto c = s.coordinate();
 
+        const bool darkened = manhattan_length(c, selected_) > 1;
+
         if (state_ == State::reveal) {
             spr.set_mix({ColorConstant::rich_black,
                          u8(255 * (1.f - (float(timer_) / reveal_time)))});
@@ -605,6 +607,8 @@ void MacroverseScene::display(Platform& pfrm, App& app)
             t_start = 6;
         } else if ((int)state_ < (int)State::show) {
             return;
+        } else if (darkened) {
+            t_start = 12;
         }
 
         spr.set_position(origin);

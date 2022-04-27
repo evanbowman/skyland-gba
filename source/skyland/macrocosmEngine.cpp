@@ -175,7 +175,9 @@ Coins State::coin_yield()
 
 std::pair<Coins, terrain::Sector::Population> State::colony_cost() const
 {
-    if (data_->other_sectors_.size() < 8) {
+    if (data_->other_sectors_.full()) {
+        return {999999999, 9999};
+    } else if (data_->other_sectors_.size() < 8) {
         return {1500 + 3000 * data_->other_sectors_.size(), 300};
     } else {
         return {6000 + 3000 * data_->other_sectors_.size(), 300};
@@ -560,6 +562,8 @@ bool State::load(Platform& pfrm)
 
 void terrain::Sector::restore(const save::Sector& s)
 {
+    erase();
+
     memcpy(&p_, &s.p_, sizeof s.p_);
 
     for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
