@@ -43,21 +43,49 @@ namespace raster
 {
 namespace globalstate
 {
+
+// Sorry about all of these state flags. I would definitely grumble a bit if I
+// had to work on anyone else's code if it were written in this way. We're
+// really trying to push the GBA hardware by redrawing as little as possible,
+// and we want to draw things differently depending on the specific way that the
+// terrain changed.
+
+// The layout of the world changed in some way.
 bool _changed = false;
+
+// The level layout got smaller. i.e. we need to do extra work to redraw (erase)
+// areas even where there are now no blocks, because we removed some.
 bool _shrunk = false;
+
+// We added blocks to the level. Normally, we throw out all draw calls for tiles
+// that don't overlap with the current or previous cursor block, unless the
+// terrain grew, i.e. if we added a block.
+bool _grew = false;
+
+// The cursor moved. If the cursor moved, and the structure of the level did not
+// grow (no blocks added), we can do all sorts of optimizations to render the
+// cursor faster. Cursor rendering is generally pretty heavily optimized,
+// because if the cursor movement lags, players would easily notice.
 bool _cursor_moved = false;
-bool _cursor_covered = false;
 
 // Repaint required, but only because the cursor toggled between light and
-// dark.
+// dark. Even more heavily optimized than cursor movement. Redoing the
+// depth-test each time that the cursor idly flickers would burn battery for no
+// particular purpose. While we don't want to keep the entire depth buffer in
+// memory, we keep a cache of the rendering stack expressly for redrawing the
+// flickering cursor without needing to redo the depth test.
 bool _changed_cursor_flicker_only = false;
 
-
+// Not exclusively a rendering optimization, actually! It's simply useful to
+// keep a cache of screen tiles overlapping with the cursor, for game logic that
+// cares about the normalized position of the cursor with respect to the screen
+// (e.g. camera movement, effects).
 Buffer<u16, 6> _cursor_raster_tiles;
 
-// Used exclusively for optimizing the cursor flickering animation.  If the
-// cursor tile is at end of the buffer, then it can be redrawn without worring
-// about anything beneath it.
+// Used exclusively for optimizing the cursor flickering animation. If the
+// cursor tile is at end of the buffer, then it can be redrawn without worrying
+// about anything beneath it (because the pixels for the light and the dark
+// cursor are the same).
 Buffer<u16, 6> _cursor_raster_stack[6];
 } // namespace globalstate
 } // namespace raster
@@ -1420,6 +1448,10 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
         }
     }
 
+    if (type not_eq Type::air and type not_eq Type::selector) {
+        raster::globalstate::_grew = true;
+    }
+
 
     shadowcast();
 
@@ -1846,8 +1878,11 @@ struct DepthBuffer
     {
     }
 
-    Bitvector<480> depth_1_force_redraw;
-    Bitvector<480> depth_2_force_redraw;
+    Bitvector<480> depth_1_needs_repaint;
+    Bitvector<480> depth_2_needs_repaint;
+
+    Bitvector<480> depth_1_cursor_redraw;
+    Bitvector<480> depth_2_cursor_redraw;
 
     Bitvector<480> depth_1_skip_clear;
     Bitvector<480> depth_2_skip_clear;
@@ -1883,6 +1918,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
     globalstate::_cursor_raster_tiles.clear();
 
     const bool cursor_moved = globalstate::_cursor_moved;
+    const bool grew = globalstate::_grew;
 
 
     auto rendering_pass = [&](auto rendering_function) {
@@ -1910,6 +1946,14 @@ void terrain::Sector::render_setup(Platform& pfrm)
                     Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
                 if (block.type() == Type::selector) {
                     globalstate::_cursor_raster_tiles.push_back(t_start);
+                }
+
+                if (block.repaint_) {
+                    if (t_start < 480) {
+                        (*_db)->depth_1_needs_repaint.set(t_start, true);
+                    } else {
+                        (*_db)->depth_2_needs_repaint.set(t_start - 480, true);
+                    }
                 }
             };
 
@@ -1953,16 +1997,6 @@ void terrain::Sector::render_setup(Platform& pfrm)
             allocate_dynamic<raster::DepthBuffer>("depth-buffer", pfrm));
     }
 
-    if (cursor_moved) {
-        for (auto& t : prev_cursor_raster_tiles) {
-            if (t < 480) {
-                (*_db)->depth_1_force_redraw.set(t, true);
-            } else {
-                (*_db)->depth_2_force_redraw.set(t - 480, true);
-            }
-        }
-    }
-
     rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
         auto n = (*_db)->depth_node_allocator_.alloc<DepthNode>();
         if (n == nullptr) {
@@ -1984,25 +2018,46 @@ void terrain::Sector::render_setup(Platform& pfrm)
     });
 
 
+    if (cursor_moved) {
+        for (auto& t : prev_cursor_raster_tiles) {
+            if (t < 480) {
+                (*_db)->depth_1_cursor_redraw.set(t, true);
+            } else {
+                (*_db)->depth_2_cursor_redraw.set(t - 480, true);
+            }
+        }
+        for (auto& t : globalstate::_cursor_raster_tiles) {
+            if (t < 480) {
+                (*_db)->depth_1_cursor_redraw.set(t, true);
+            } else {
+                (*_db)->depth_2_cursor_redraw.set(t - 480, true);
+            }
+        }
+    }
+
+
     for (int i = 0; i < 480; ++i) {
         if (auto head = (*_db)->depth_1_->visible_[i]) {
-            auto temp = head;
             bool skip_repaint = true;
-            while (temp) {
-                if ((*_db)->depth_1_force_redraw.get(i)) {
-                    skip_repaint = false;
-                }
-                auto pos = temp->position();
-                if (blocks_[pos.z][pos.x][pos.y].repaint_) {
-                    skip_repaint = false;
-                }
-                temp = temp->next_;
+            if ((*_db)->depth_1_cursor_redraw.get(i)) {
+                skip_repaint = false;
             }
+
+            // Some tiles think that they need to be repainted. But we know that
+            // the cursor simply moved position, the terrain layout did not in
+            // fact change, and we can often skip this step entirely.
+            if (grew or not cursor_moved) {
+                if ((*_db)->depth_1_needs_repaint.get(i)) {
+                    skip_repaint = false;
+                }
+            }
+
             if (skip_repaint) {
                 (*_db)->depth_1_skip_clear.set(i, true);
                 (*_db)->depth_1_->visible_[i] = nullptr;
                 continue;
             }
+
             Buffer<TileCategory, 8> seen;
             while (head) {
                 auto cg = tile_category(head->tile_);
@@ -2070,17 +2125,14 @@ void terrain::Sector::render_setup(Platform& pfrm)
             (*_db)->depth_1_empty.set(i, true);
         }
         if (auto head = (*_db)->depth_2_->visible_[i]) {
-            auto temp = head;
             bool skip_repaint = true;
-            while (temp) {
-                if ((*_db)->depth_2_force_redraw.get(i)) {
+            if ((*_db)->depth_2_cursor_redraw.get(i)) {
+                skip_repaint = false;
+            }
+            if (grew or not cursor_moved) {
+                if ((*_db)->depth_2_needs_repaint.get(i)) {
                     skip_repaint = false;
                 }
-                auto pos = temp->position();
-                if (blocks_[pos.z][pos.x][pos.y].repaint_) {
-                    skip_repaint = false;
-                }
-                temp = temp->next_;
             }
             if (skip_repaint) {
                 (*_db)->depth_2_skip_clear.set(i, true);
@@ -2312,6 +2364,7 @@ void terrain::Sector::render(Platform& pfrm)
 
     const bool cursor_moved = globalstate::_cursor_moved;
     const bool shrunk = globalstate::_shrunk;
+    const bool grew = globalstate::_grew;
 
 
     render_setup(pfrm);
@@ -2321,13 +2374,20 @@ void terrain::Sector::render(Platform& pfrm)
 
         if (auto head = (*_db)->depth_1_->visible_[i]) {
 
-            Buffer<int, 6> stack;
-            while (head) {
-                stack.push_back(head->tile_);
-                head = head->next_;
-            }
+            const bool redraw =
+                grew or
+                (not cursor_moved or
+                 (cursor_moved and (*_db)->depth_1_cursor_redraw.get(i)));
 
-            flush_stack_t0(stack, i);
+            if (redraw) {
+                Buffer<int, 6> stack;
+                while (head) {
+                    stack.push_back(head->tile_);
+                    head = head->next_;
+                }
+
+                flush_stack_t0(stack, i);
+            }
 
         } else if ((cursor_moved or shrunk) and
                    not(*_db)->depth_1_skip_clear.get(i)) {
@@ -2336,20 +2396,27 @@ void terrain::Sector::render(Platform& pfrm)
 
         if (auto head = (*_db)->depth_2_->visible_[i]) {
 
-            Buffer<int, 6> stack;
-            while (head) {
-                stack.push_back(head->tile_);
-                head = head->next_;
+            const bool redraw =
+                grew or
+                (not cursor_moved or
+                 (cursor_moved and (*_db)->depth_2_cursor_redraw.get(i)));
+
+            if (redraw) {
+                Buffer<int, 6> stack;
+                while (head) {
+                    stack.push_back(head->tile_);
+                    head = head->next_;
+                }
+
+                flush_stack_t1(stack, i);
             }
 
-            flush_stack_t1(stack, i);
 
         } else if ((cursor_moved or shrunk) and
                    not(*_db)->depth_2_skip_clear.get(i)) {
             pfrm.blit_t1_erase(i);
         }
     }
-
 
     if (globalstate::_cursor_moved) {
         // Handle these out of line, as not to slow down the main rendering
@@ -2375,6 +2442,7 @@ void terrain::Sector::render(Platform& pfrm)
 
     globalstate::_changed = false;
     globalstate::_shrunk = false;
+    globalstate::_grew = false;
     globalstate::_cursor_moved = false;
     globalstate::_changed_cursor_flicker_only = false;
 
