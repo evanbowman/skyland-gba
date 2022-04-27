@@ -2395,6 +2395,8 @@ void terrain::Sector::render(Platform& pfrm)
 
     render_setup(pfrm);
 
+    [[maybe_unused]]
+    auto start = pfrm.delta_clock().sample();
 
     for (int i = 0; i < 480; ++i) {
 
@@ -2443,6 +2445,11 @@ void terrain::Sector::render(Platform& pfrm)
             pfrm.blit_t1_erase(i);
         }
     }
+
+    [[maybe_unused]]
+    auto stop = pfrm.delta_clock().sample();
+    //pfrm.fatal(stringify(stop - start).c_str());
+
 
     if (globalstate::_cursor_moved) {
         // Handle these out of line, as not to slow down the main rendering
