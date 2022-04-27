@@ -210,6 +210,13 @@ void memcpy16(void* dst, const void* src, uint hwcount);
 }
 
 
+// Used for software rendering, needs to be stored in iwram and heavily
+// optimized.
+__attribute__((section(".iwram"), long_call))
+void blit_tile(u16* out, u16* in);
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Tile Memory Layout:
@@ -1583,37 +1590,6 @@ void Platform::blit_t1_erase(u16 index)
 
 
 
-// Accepts two vectors of four colors (four colors because indexed 4 bits per
-// pixel), and blends the new colors into the existing ones.
-static inline u16 blit(u16 prev, u16 replace)
-{
-    if (replace) {
-        if (replace & 0xf000) {
-            prev &= 0x0fff;
-            prev |= replace & 0xf000;
-        }
-
-        if (replace & 0x0f00) {
-            prev &= 0xf0ff;
-            prev |= replace & 0x0f00;
-        }
-
-        if (replace & 0x00f0) {
-            prev &= 0xff0f;
-            prev |= replace & 0x00f0;
-        }
-
-        if (replace & 0x000f) {
-            prev &= 0xfff0;
-            prev |= replace & 0x000f;
-        }
-    }
-
-    return prev;
-}
-
-
-
 void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 {
     auto data = (u8*)current_tilesheet0->tile_data_;
@@ -1625,20 +1601,7 @@ void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
     if (hard) {
         memcpy16(p, data, vram_tile_size() / 2);
     } else {
-
-        u16* out = (u16*)p;
-        u16* d = (u16*)data;
-
-        for (int i = 0; i < vram_tile_size() / 2; ++i) {
-
-            auto val = *d;
-            auto prev = *out;
-
-            *out = blit(prev, val);
-
-            ++out;
-            ++d;
-        }
+        blit_tile((u16*)p, (u16*)data);
     }
 }
 
@@ -1655,20 +1618,7 @@ void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
     if (hard) {
         memcpy16(p, data, vram_tile_size() / 2);
     } else {
-
-        u16* out = (u16*)p;
-        u16* d = (u16*)data;
-
-        for (int i = 0; i < vram_tile_size() / 2; ++i) {
-
-            auto val = *d;
-            auto prev = *out;
-
-            *out = blit(prev, val);
-
-            ++out;
-            ++d;
-        }
+        blit_tile((u16*)p, (u16*)data);
     }
 }
 

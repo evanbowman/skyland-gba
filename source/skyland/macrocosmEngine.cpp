@@ -2448,7 +2448,7 @@ void terrain::Sector::render(Platform& pfrm)
 
     [[maybe_unused]]
     auto stop = pfrm.delta_clock().sample();
-    //pfrm.fatal(stringify(stop - start).c_str());
+    // pfrm.fatal(stringify(stop - start).c_str());
 
 
     if (globalstate::_cursor_moved) {

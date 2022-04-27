@@ -803,7 +803,7 @@ elseif(GAMEBOY_ADVANCE)
 
   target_compile_options(ARM_ROUTINES PRIVATE
     -g
-    -Os
+    -O3
     ${G_COMPILE_FLAGS})
 
   target_compile_options(ARM_ROUTINES PRIVATE
