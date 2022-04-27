@@ -318,6 +318,11 @@ void terrain::Sector::set_export(const ExportInfo& e)
 {
     remove_export(e.source_coord_);
 
+    auto& block = get_block(e.source_coord_);
+    if (block.type() not_eq Type::port) {
+        return;
+    }
+
     exports_.push_back(e);
 }
 
