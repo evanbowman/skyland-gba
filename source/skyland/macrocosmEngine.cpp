@@ -2344,22 +2344,43 @@ void terrain::Sector::render(Platform& pfrm)
 
         for (u32 i = 0; i < globalstate::_cursor_raster_tiles.size(); ++i) {
             auto t = globalstate::_cursor_raster_tiles[i];
-            for (auto& elem : globalstate::_cursor_raster_stack[i]) {
+            auto& stk = globalstate::_cursor_raster_stack[i];
+            u32 j = 0;
+            for (; j < stk.size(); ++j) {
                 // Flickering implementation, manually offset the tiles between
                 // light and dark if part of the cursor tile range.
-                if (elem > 59 and elem < 66) {
-                    elem += 6;
+                if (stk[j] > 59 and stk[j] < 66) {
+                    stk[j] += 6;
                     break;
-                } else if (elem > 65 and elem < 72) {
-                    elem -= 6;
+                } else if (stk[j] > 65 and stk[j] < 72) {
+                    stk[j] -= 6;
                     break;
                 }
             }
-            auto stk_cpy = globalstate::_cursor_raster_stack[i];
-            if (t >= 480) {
-                flush_stack_t1(stk_cpy, t - 480);
+            if (j == stk.size()) {
+                // The rendering stack does not contain the cursor tile in the
+                // first place. Skip.
+                continue;
+            } else if (j == 0 and not stk.empty()) {
+                // If the cursor tile sits at the bottom of the rendering stack,
+                // it will be drawn last. Therefore, we don't need to worry
+                // about overlapping tiles on top of the cursor, and can just
+                // draw overtop of what's already in the frame buffer. NOTE:
+                // this only works because the two cursor frames occupy the same
+                // pixels.
+                RASTER_DEBUG();
+                if (t >= 480) {
+                    pfrm.blit_t1_tile_to_texture(stk[0] + 480, t - 480, false);
+                } else {
+                    pfrm.blit_t0_tile_to_texture(stk[0] + 480, t, false);
+                }
             } else {
-                flush_stack_t0(stk_cpy, t);
+                auto stk_cpy = globalstate::_cursor_raster_stack[i];
+                if (t >= 480) {
+                    flush_stack_t1(stk_cpy, t - 480);
+                } else {
+                    flush_stack_t0(stk_cpy, t);
+                }
             }
         }
 
