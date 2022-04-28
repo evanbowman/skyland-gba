@@ -77,8 +77,8 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     if (not text_) {
         text_.emplace(pfrm, OverlayCoord{0, 19});
-        describe_selected(pfrm, state);
     }
+    describe_selected(pfrm, state);
 
     auto test_key = [&](Key k) {
         return player.test_key(pfrm, k, milliseconds(500), milliseconds(100));
@@ -192,28 +192,34 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::State& state)
     text_->assign(b.c_str());
 
     auto stats = terrain::stats(tp, shadowed);
-    if (stats.food_) {
-        text_->append("  ");
-        pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 414);
-        text_->append(stats.food_);
-    }
 
-    if (stats.housing_) {
+    if (terrain::category(tp) == terrain::Category::crop and shadowed) {
         text_->append("  ");
-        pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 416);
-        text_->append(stats.housing_);
-    }
+        pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 411);
+    } else {
+        if (stats.food_) {
+            text_->append("  ");
+            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 414);
+            text_->append(stats.food_);
+        }
 
-    if (stats.employment_) {
-        text_->append("  ");
-        pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 415);
-        text_->append(stats.employment_);
-    }
+        if (stats.housing_) {
+            text_->append("  ");
+            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 416);
+            text_->append(stats.housing_);
+        }
 
-    if (not stats.commodities_.empty()) {
-        text_->append("  ");
-        pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 417);
-        text_->append(stats.commodities_[0].supply_);
+        if (stats.employment_) {
+            text_->append("  ");
+            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 415);
+            text_->append(stats.employment_);
+        }
+
+        if (not stats.commodities_.empty()) {
+            text_->append("  ");
+            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 417);
+            text_->append(stats.commodities_[0].supply_);
+        }
     }
 
     for (int i = 0; i < text_->len(); ++i) {

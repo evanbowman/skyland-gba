@@ -92,7 +92,7 @@ void MacroverseScene::exit(Platform& pfrm, App& app, Scene& prev)
     }
     pfrm.load_overlay_texture("overlay");
 
-    pfrm.load_sprite_texture("spritesheet");
+    pfrm.load_sprite_texture("spritesheet_macro");
 
     pfrm.screen().schedule_fade(0.f);
 

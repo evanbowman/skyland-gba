@@ -301,7 +301,7 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
 ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm, macro::State& state)
 {
     auto cursor = state.sector().cursor();
-    if (cursor.z < macro::terrain::Sector::z_limit - 1) {
+    if (not check_z() or cursor.z < macro::terrain::Sector::z_limit - 1) {
         auto cost = this->cost(state, options_[selector_]);
         if (cost > state.data_->p().coins_.get()) {
             pfrm.speaker().play_sound("beep_error", 2);
@@ -365,7 +365,8 @@ Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
         return base_cost / 4;
     }
 
-    if (terrain::category(t) not_eq terrain::Category::crop) {
+    if (terrain::category(t) not_eq terrain::Category::crop and
+        terrain::category(t) not_eq terrain::Category::livestock) {
         return base_cost;
     }
 
@@ -476,6 +477,10 @@ void ConfigurePortScene::collect_options(macro::State& state)
 
         case terrain::Commodity::sunflowers:
             options_.push_back(terrain::Type::sunflowers);
+            break;
+
+        case terrain::Commodity::wool:
+            options_.push_back(terrain::Type::wool);
             break;
 
         case terrain::Commodity::food:

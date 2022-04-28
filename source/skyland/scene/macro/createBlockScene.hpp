@@ -62,6 +62,11 @@ public:
     virtual Coins cost(macro::State& state, terrain::Type t);
 
 
+    virtual bool check_z()
+    {
+        return true;
+    }
+
 
 protected:
     Buffer<macro::terrain::Type, 32> options_;
@@ -78,6 +83,12 @@ public:
 
 
     Coins cost(macro::State& state, terrain::Type t) override;
+
+
+    bool check_z() override
+    {
+        return false;
+    }
 
 
     void edit(macro::State& state, terrain::Type t) override;

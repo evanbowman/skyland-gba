@@ -48,33 +48,36 @@ static constexpr int vram_tile_size()
 
 
 
-// Accepts two vectors of four colors (four colors because indexed 4 bits per
-// pixel), and blends the new colors into the existing ones.
-static inline u16 blit(u16 prev, u16 replace)
+// Accepts two vectors of four colors (indexed 4bpp).
+static inline u16 blit(u16 current_color, u16 add_color)
 {
-    if (replace) {
-        if (replace & 0xf000) {
-            prev &= 0x0fff;
-            prev |= replace & 0xf000;
-        }
+    u16 result = 0;
 
-        if (replace & 0x0f00) {
-            prev &= 0xf0ff;
-            prev |= replace & 0x0f00;
-        }
-
-        if (replace & 0x00f0) {
-            prev &= 0xff0f;
-            prev |= replace & 0x00f0;
-        }
-
-        if (replace & 0x000f) {
-            prev &= 0xfff0;
-            prev |= replace & 0x000f;
-        }
+    if (add_color & 0xf000) {
+        result |= add_color & 0xf000;
+    } else {
+        result |= current_color & 0xf000;
     }
 
-    return prev;
+    if (add_color & 0x0f00) {
+        result |= add_color & 0x0f00;
+    } else {
+        result |= current_color & 0x0f00;
+    }
+
+    if (add_color & 0x00f0) {
+        result |= add_color & 0x00f0;
+    } else {
+        result |= current_color & 0x00f0;
+    }
+
+    if (add_color & 0x000f) {
+        result |= add_color & 0x000f;
+    } else {
+        result |= current_color & 0x000f;
+    }
+
+    return result;
 }
 
 
@@ -93,3 +96,30 @@ void blit_tile(u16* out, u16* in)
         ++in;
     }
 }
+
+
+//
+// In case you're wondering why I'm not using a better blit function with a
+// pre-generated mask, I actually already tried it. It's not faster enough than
+// the above code to be worth wasting rom space on a mask image. Only marginally
+// faster, doesn't make graphical artifacts go away. Rather than optimizing
+// raster more than I already have, I'd prefer to focus on eliminating draw
+// calls in the first place.
+//
+// IWRAM_CODE
+// void _blit_tile(u16* out, const u16* in, const u16* in_mask)
+// {
+//     for (int i = 0; i < vram_tile_size() / 2; ++i) {
+//
+//         auto mask = *in_mask;
+//
+//         u16 result = 0;
+//         result |= *out & ~mask;
+//         result |= *in & mask;
+//         *out = result;
+//
+//         ++out;
+//         ++in;
+//         ++in_mask;
+//     }
+// }

@@ -223,7 +223,13 @@ fiscal::Ledger terrain::Sector::budget() const
 
     if (unproductive_population) {
         result.add_entry(SYSTR(macro_fiscal_homelessness)->c_str(),
-                         -unproductive_population * 0.2f);
+                         -unproductive_population * 0.4f);
+    }
+
+    if (st.food_ < population() / food_consumption_factor) {
+        result.add_entry(
+            SYSTR(macro_fiscal_starvation)->c_str(),
+            -0.4f * (population() - st.food_ * food_consumption_factor));
     }
 
 
@@ -274,7 +280,7 @@ u16 terrain::Sector::quantity_non_exported(Commodity::Type t)
     }
 
 
-    for (auto& e : exports_) {
+    for (auto& e : exports()) {
         if (e.c == t) {
             total -= e.export_supply_.get();
         }
@@ -306,13 +312,6 @@ Coins terrain::Sector::coin_yield() const
 
 
 
-terrain::Sector::Exports& terrain::Sector::exports()
-{
-    return exports_;
-}
-
-
-
 const terrain::Sector::Exports& terrain::Sector::exports() const
 {
     return exports_;
@@ -329,7 +328,10 @@ void terrain::Sector::set_export(const ExportInfo& e)
         return;
     }
 
-    exports_.push_back(e);
+    if (not exports_.full()) {
+        exports_.emplace_back();
+        memcpy(&exports_.back(), &e, sizeof e);
+    }
 }
 
 
@@ -339,6 +341,7 @@ void terrain::Sector::remove_export(Vec3<u8> source_coord)
     for (auto it = exports_.begin(); it not_eq exports_.end();) {
         if (it->source_coord_ == source_coord) {
             it = exports_.erase(it);
+            return;
         } else {
             ++it;
         }
@@ -672,6 +675,12 @@ Stats stats(Type t, bool shadowed)
         result.food_ += 2;
         break;
 
+    case terrain::Type::wool:
+        result.employment_ += 1;
+        result.food_ += 1;
+        result.commodities_.push_back({Commodity::Type::wool, 2});
+        break;
+
     case terrain::Type::windmill_stone_base:
     case terrain::Type::windmill:
         result.employment_ += 20;
@@ -715,6 +724,9 @@ SystemString terrain::name(terrain::Commodity::Type t)
 
     case Commodity::sunflowers:
         return SystemString::block_sunflower;
+
+    case Commodity::wool:
+        return SystemString::block_wool;
 
     case Commodity::food:
         return SystemString::block_food;
@@ -944,6 +956,9 @@ terrain::Category terrain::category(Type t)
     default:
         return Category::basic;
 
+    case terrain::Type::wool:
+        return Category::livestock;
+
     case terrain::Type::wheat:
     case terrain::Type::potatoes:
     case terrain::Type::madder:
@@ -1010,6 +1025,9 @@ Coins terrain::cost(Sector& s, Type t)
 
     case terrain::Type::shellfish:
         return 160;
+
+    case terrain::Type::wool:
+        return 260;
 
     case terrain::Type::madder:
         return 120;
@@ -1087,6 +1105,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::shellfish:
         return SystemString::block_shellfish;
+
+    case terrain::Type::wool:
+        return SystemString::block_wool;
 
     case terrain::Type::gold:
         return SystemString::block_gold;
@@ -1170,14 +1191,36 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
 {
     Buffer<terrain::Type, 10> result;
 
-    switch (t) {
-    case Type::terrain: {
+    auto remove_self = [&] {
+        for (auto it = result.begin(); it not_eq result.end(); ++it) {
+            if (*it == t) {
+                result.erase(it);
+                return;
+            }
+        }
+    };
+
+
+    auto push_terrain_defaults = [&] {
         result.push_back(Type::wheat);
         result.push_back(Type::potatoes);
         result.push_back(Type::windmill);
         result.push_back(Type::indigo);
         result.push_back(Type::madder);
         result.push_back(Type::sunflowers);
+        result.push_back(Type::wool);
+        remove_self();
+    };
+
+    switch (t) {
+    case Type::wheat:
+    case Type::potatoes:
+    case Type::sunflowers:
+    case Type::indigo:
+    case Type::madder:
+    case Type::wool:
+    case Type::terrain: {
+        push_terrain_defaults();
         break;
     }
 
@@ -1187,46 +1230,6 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
 
     case Type::masonry:
         result.push_back(Type::windmill_stone_base);
-        break;
-
-    case Type::wheat:
-        result.push_back(Type::indigo);
-        result.push_back(Type::madder);
-        result.push_back(Type::potatoes);
-        result.push_back(Type::windmill);
-        result.push_back(Type::sunflowers);
-        break;
-
-    case Type::potatoes:
-        result.push_back(Type::wheat);
-        result.push_back(Type::indigo);
-        result.push_back(Type::madder);
-        result.push_back(Type::windmill);
-        result.push_back(Type::sunflowers);
-        break;
-
-    case Type::sunflowers:
-        result.push_back(Type::wheat);
-        result.push_back(Type::indigo);
-        result.push_back(Type::madder);
-        result.push_back(Type::potatoes);
-        result.push_back(Type::windmill);
-        break;
-
-    case Type::indigo:
-        result.push_back(Type::wheat);
-        result.push_back(Type::madder);
-        result.push_back(Type::potatoes);
-        result.push_back(Type::windmill);
-        result.push_back(Type::sunflowers);
-        break;
-
-    case Type::madder:
-        result.push_back(Type::wheat);
-        result.push_back(Type::indigo);
-        result.push_back(Type::potatoes);
-        result.push_back(Type::windmill);
-        result.push_back(Type::sunflowers);
         break;
 
     default:
@@ -1263,6 +1266,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::shellfish:
         return {2824, 2840};
+
+    case terrain::Type::wool:
+        return {2920, 2936};
 
     case terrain::Type::water:
     case terrain::Type::water_slant_a:
@@ -1327,14 +1333,11 @@ u16 terrain::Sector::cursor_raster_pos() const
 
 static bool blocks_light(terrain::Type t)
 {
-    static const bool result[(int)terrain::Type::count] = {
-        false, true, true, true, true,  true,  false, true,
-        true,  true, true, true, false, false, false, false,
-        true,  true, true, true, true,  true,  true, false,
-        true,
-    };
+    if (t == terrain::Type::air or t == terrain::Type::selector) {
+        return false;
+    }
 
-    return result[(int)t];
+    return true;
 }
 
 
@@ -1526,16 +1529,14 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 
 void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
 {
+    if (pos.z >= z_limit or pos.x >= 8 or pos.y >= 8) {
+        Platform::fatal("set cursor to out of bounds position");
+    }
+
     auto old_cursor = p_.cursor_;
     auto& block = blocks_[old_cursor.z][old_cursor.x][old_cursor.y];
     if (block.type_ == (u8)terrain::Type::selector) {
         set_block(old_cursor, macro::terrain::Type::air);
-    }
-
-    if (old_cursor.z > 0) {
-        // FIXME
-        auto& block = blocks_[old_cursor.z + 1][old_cursor.x][old_cursor.y];
-        block.repaint_ = true;
     }
 
     p_.cursor_ = pos;
@@ -1760,6 +1761,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         // ...
+    },
+    // wool
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::terrain);
     },
 };
 // clang-format on
@@ -2457,8 +2463,7 @@ void terrain::Sector::render(Platform& pfrm)
 
     render_setup(pfrm);
 
-    [[maybe_unused]]
-    auto start = pfrm.delta_clock().sample();
+    [[maybe_unused]] auto start = pfrm.delta_clock().sample();
 
     for (int i = 0; i < 480; ++i) {
 
@@ -2508,8 +2513,7 @@ void terrain::Sector::render(Platform& pfrm)
         }
     }
 
-    [[maybe_unused]]
-    auto stop = pfrm.delta_clock().sample();
+    [[maybe_unused]] auto stop = pfrm.delta_clock().sample();
     // pfrm.fatal(stringify(stop - start).c_str());
 
 

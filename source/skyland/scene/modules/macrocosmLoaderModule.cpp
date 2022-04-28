@@ -33,6 +33,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_background_texture("background_macro");
     // pfrm.system_call("parallax-clouds", false);
 
+    pfrm.load_sprite_texture("spritesheet_macro");
     pfrm.load_tile0_texture("macro_rendertexture");
     pfrm.load_tile1_texture("macro_rendertexture");
 

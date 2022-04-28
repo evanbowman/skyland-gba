@@ -212,8 +212,7 @@ void memcpy16(void* dst, const void* src, uint hwcount);
 
 // Used for software rendering, needs to be stored in iwram and heavily
 // optimized.
-__attribute__((section(".iwram"), long_call))
-void blit_tile(u16* out, u16* in);
+__attribute__((section(".iwram"), long_call)) void blit_tile(u16* out, u16* in);
 
 
 

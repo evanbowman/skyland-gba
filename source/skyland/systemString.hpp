@@ -130,6 +130,7 @@ enum class SystemString {
     block_water_source,
     block_wheat,
     block_windmill,
+    block_wool,
     block_workshop,
 
     bird_label,
@@ -208,6 +209,7 @@ enum class SystemString {
     macro_fiscal_unemployed,
     macro_fiscal_homelessness,
     macro_fiscal_total,
+    macro_fiscal_starvation,
 
 
     description_power_core,

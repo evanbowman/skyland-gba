@@ -120,6 +120,7 @@ enum class Type {
     sunflowers,
     food, // Must not be constructed
     shrubbery,
+    wool,
     count,
 };
 
@@ -128,6 +129,7 @@ enum class Type {
 enum class Category {
     basic,
     crop,
+    livestock,
     fluid,
 };
 
@@ -145,6 +147,7 @@ struct Commodity
         shellfish,
         sunflowers,
         food,
+        wool,
     };
     Type type_;
     u16 supply_;
@@ -255,7 +258,6 @@ public:
     using Exports = Buffer<ExportInfo, 24>;
 
 
-    Exports& exports();
     const Exports& exports() const;
     void set_export(const ExportInfo& e);
     void remove_export(Vec3<u8> source_coord);
