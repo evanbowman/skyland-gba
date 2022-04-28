@@ -154,6 +154,73 @@ void destroy(Platform& pfrm)
 
 
 
+// Just in case we leak file blocks somehow. Maybe this is a bit paranoid.
+static void gc(Platform& pfrm)
+{
+    auto root = load_root(pfrm);
+
+    Vector<u16> in_use;
+
+    // First, scan through the file table, recording in-use blocks.
+    auto offset = fs_offset() + sizeof(Root);
+    for (int i = 0; i < root.file_count_.get(); ++i) {
+        FileInfo info;
+        pfrm.read_save_data(&info, sizeof info, offset);
+
+        if (auto file = info.file_contents_.get()) {
+            while (file) {
+                in_use.push_back(file);
+
+                FileContents::Header header;
+                pfrm.read_save_data(&header,
+                                    sizeof header,
+                                    fs_contents_offset() + file * block_size);
+                auto next_file = header.next_.get();
+
+                file = next_file;
+            }
+        }
+
+        offset += sizeof info;
+    }
+
+    // we're rebuilding the freelist, detach it...
+    root.freelist_.set(0);
+
+    {
+        const auto block_count =
+            (pfrm.save_capacity() - fs_offset()) / block_size;
+        auto offset = fs_contents_offset();
+        for (int i = 1; i < block_count; ++i) {
+            bool block_in_use = false;
+            for (auto& block : in_use) {
+                if (block == i - 1) {
+                    // Block was part of one of the files that we found in the
+                    // file table (above). Therefore, we don't want to relink
+                    // the block into the freelist.
+                    block_in_use = true;
+                    break;
+                }
+            }
+
+            if (not block_in_use) {
+                FileContents::Header header;
+                pfrm.read_save_data(&header, sizeof header, offset);
+                header.next_.set(root.freelist_.get());
+                pfrm.write_save_data(&header, sizeof header, offset);
+
+                root.freelist_.set(i - 1);
+            }
+
+            offset += block_size;
+        }
+    }
+
+    store_root(pfrm, root);
+}
+
+
+
 InitStatus initialize(Platform& pfrm, int fs_begin_offset)
 {
     ram_filesystem::fs_begin_offset = fs_begin_offset;
@@ -170,6 +237,8 @@ InitStatus initialize(Platform& pfrm, int fs_begin_offset)
         ::ram_filesystem::mounted = true;
 
         __path_cache_create(pfrm);
+
+        gc(pfrm);
 
         // Already initialized previously.
         return InitStatus::already_initialized;

@@ -8,11 +8,12 @@
 
 
 (list
- (cons 'save-protocol 1)
+ (cons 'save-protocol 2)
  (cons 'rooms (rooms (player)))
  (cons 'chrs (chrs (player)))
  (cons 'enemies-seen enemies-seen)
  (cons 'friendlies-seen friendlies-seen)
  (cons 'last-zone last-zone)
  (cons 'quests quests)
- (cons 'terrain (terrain (player))))
+ (cons 'terrain (terrain (player)))
+ (cons 'diff (diff)))
