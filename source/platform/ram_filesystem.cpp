@@ -57,7 +57,7 @@ void __path_cache_destroy()
 
 
 
-bool __path_cache_file_exists(const char* file_name)
+bool __path_cache_file_exists_maybe(const char* file_name)
 {
     return file_present_filter.exists(file_name, str_len(file_name));
 }
@@ -400,7 +400,7 @@ bool file_exists(Platform& pfrm, const char* path)
     }
 
 
-    if (__path_cache_file_exists(path)) {
+    if (__path_cache_file_exists_maybe(path)) {
         bool found = false;
 
         with_file(pfrm, path, [&](FileInfo& info, u16 file, u16 fs_offset) {
@@ -423,7 +423,7 @@ void unlink_file(Platform& pfrm, const char* path)
         return;
     }
 
-    if (not __path_cache_file_exists(path)) {
+    if (not __path_cache_file_exists_maybe(path)) {
         return;
     }
 
@@ -507,7 +507,7 @@ size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
         return 0;
     }
 
-    if (not __path_cache_file_exists(path)) {
+    if (not __path_cache_file_exists_maybe(path)) {
         return 0;
     }
 
@@ -581,12 +581,28 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
         return false;
     }
 
-    unlink_file(pfrm, path);
-
     const u16 path_len = str_len(path);
 
     if (path_len > max_path) {
         return false;
+    }
+
+
+    if (__path_cache_file_exists_maybe(path)) {
+        u16 existing_len = 0;
+
+        with_file(pfrm, path, [&](FileInfo& info, u16, u16) {
+            existing_len = info.file_size_.get();
+        });
+
+        auto s = statistics(pfrm);
+        const u16 avail_size = s.blocks_available_ * block_size;
+
+        if (existing_len + avail_size < (int)data.size() + (int)path_len) {
+            return false;
+        }
+
+        unlink_file(pfrm, path);
     }
 
     const int length = data.size() - 1; // -1 for the assumed null terminator.
