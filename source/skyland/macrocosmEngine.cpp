@@ -1733,6 +1733,9 @@ static void update_water_slanted(terrain::Sector& s,
     const auto tp = beneath.type();
     if (tp == terrain::Type::air) {
         s.set_block(beneath_coord, terrain::Type::water);
+    } else if (category(tp) == terrain::Category::fluid and
+               tp not_eq terrain::Type::water) {
+        s.set_block(beneath_coord, terrain::Type::water);
     }
 }
 
