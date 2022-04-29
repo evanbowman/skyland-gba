@@ -116,6 +116,7 @@ enum class Type {
     shrubbery,
     wool,
     saffron,
+    ice,
     count,
 };
 

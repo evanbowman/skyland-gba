@@ -1010,12 +1010,12 @@ terrain::Category terrain::category(Type t)
     case terrain::Type::potatoes:
     case terrain::Type::madder:
     case terrain::Type::indigo:
-    case terrain::Type::shellfish:
     case terrain::Type::sunflowers:
     case terrain::Type::saffron:
         return Category::crop;
 
     case terrain::Type::water:
+    case terrain::Type::shellfish:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
@@ -1045,6 +1045,9 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::masonry:
         return 30;
 
+    case terrain::Type::ice:
+        return 5;
+
     case terrain::Type::shrubbery:
         return 5;
 
@@ -1072,7 +1075,7 @@ Coins terrain::cost(Sector& s, Type t)
         return 120;
 
     case terrain::Type::shellfish:
-        return 160;
+        return 120;
 
     case terrain::Type::wool:
         return 260;
@@ -1138,6 +1141,9 @@ SystemString terrain::name(Type t)
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
         return SystemString::block_water;
+
+    case terrain::Type::ice:
+        return SystemString::block_ice;
 
     case terrain::Type::wheat:
         return SystemString::block_wheat;
@@ -1226,8 +1232,29 @@ void terrain::Sector::rotate()
             for (int y = 0; y < 8; ++y) {
                 auto& block = blocks_[z][x][y];
                 block.repaint_ = true;
-                if (block.type() == terrain::Type::selector) {
+                switch (block.type()) {
+                case terrain::Type::selector:
                     p_.cursor_ = {(u8)x, (u8)y, (u8)z};
+                    break;
+
+                case terrain::Type::water_slant_a:
+                    block.type_ = (u8)terrain::Type::water_slant_b;
+                    break;
+
+                case terrain::Type::water_slant_b:
+                    block.type_ = (u8)terrain::Type::water_slant_c;
+                    break;
+
+                case terrain::Type::water_slant_c:
+                    block.type_ = (u8)terrain::Type::water_slant_d;
+                    break;
+
+                case terrain::Type::water_slant_d:
+                    block.type_ = (u8)terrain::Type::water_slant_a;
+                    break;
+
+                default:
+                    break;
                 }
             }
         }
@@ -1282,6 +1309,7 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
 
     case Type::water:
         result.push_back(Type::shellfish);
+        result.push_back(Type::ice);
         break;
 
     case Type::masonry:
@@ -1311,6 +1339,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::masonry:
         return {1448, 1464};
+
+    case terrain::Type::ice:
+        return {2344, 2360};
 
     case terrain::Type::shrubbery:
         return {1416, 1432};
@@ -1392,7 +1423,7 @@ u16 terrain::Sector::cursor_raster_pos() const
 
 static bool blocks_light(terrain::Type t)
 {
-    if (t == terrain::Type::air or t == terrain::Type::selector) {
+    if (t == terrain::Type::air or t == terrain::Type::selector or terrain::category(t) == terrain::Category::fluid) {
         return false;
     }
 
@@ -1665,24 +1696,123 @@ void terrain::Sector::clear_cache()
 
 
 
-static void revert_if_covered(terrain::Sector& s,
+static bool revert_if_covered(terrain::Sector& s,
                               terrain::Block& block,
                               Vec3<u8> position,
                               terrain::Type revert_to)
 {
-    if (block.shadowed_) {
-        if (position.z < terrain::Sector::z_limit) {
-            position.z++;
-            auto& above = s.get_block(position);
-            if (above.type() not_eq terrain::Type::selector and
-                above.type() not_eq terrain::Type::air) {
-                block.type_ = (u8)revert_to;
-                block.repaint_ = true;
-                raster::globalstate::_changed = true;
-                s.clear_cache();
-            }
+    if (position.z < terrain::Sector::z_limit) {
+        position.z++;
+        auto& above = s.get_block(position);
+        if (above.type() not_eq terrain::Type::selector and
+            above.type() not_eq terrain::Type::air) {
+            block.type_ = (u8)revert_to;
+            block.repaint_ = true;
+            raster::globalstate::_changed = true;
+            s.clear_cache();
+            return true;
         }
     }
+
+    return false;
+}
+
+
+
+static void update_water_slanted(terrain::Sector& s,
+                                 terrain::Block& block,
+                                 Vec3<u8> position)
+{
+    if (position.z == 0) {
+        return;
+    }
+
+    const Vec3<u8> beneath_coord = {position.x, position.y, u8(position.z - 1)};
+
+    auto& beneath = s.get_block(beneath_coord);
+    const auto tp = beneath.type();
+    if (tp == terrain::Type::air) {
+        s.set_block(beneath_coord, terrain::Type::water);
+    }
+}
+
+
+
+static void water_spread(terrain::Sector& s,
+                         Vec3<u8> target,
+                         terrain::Type tp)
+{
+    auto prev_tp = s.get_block(target).type();
+    if (UNLIKELY(prev_tp not_eq tp and
+                 (prev_tp == terrain::Type::water_slant_a or
+                  prev_tp == terrain::Type::water_slant_b or
+                  prev_tp == terrain::Type::water_slant_c or
+                  prev_tp == terrain::Type::water_slant_d))) {
+        s.set_block(target, terrain::Type::water);
+    } else if (prev_tp == terrain::Type::air) {
+        s.set_block(target, tp);
+    }
+}
+
+
+
+static void update_water_still(terrain::Sector& s,
+                               terrain::Block& block,
+                               Vec3<u8> position)
+{
+    const Vec3<u8> beneath_coord = {position.x, position.y, u8(position.z - 1)};
+
+    auto beneath_tp = terrain::Type::air;
+    if (position.z > 0) {
+        auto& beneath = s.get_block(beneath_coord);
+        beneath_tp = beneath.type();
+    }
+
+    if (position.z > 0 and
+        (beneath_tp == terrain::Type::air or
+         beneath_tp == terrain::Type::water_slant_a or
+         beneath_tp == terrain::Type::water_slant_b or
+         beneath_tp == terrain::Type::water_slant_c or
+         beneath_tp == terrain::Type::water_slant_d)) {
+        s.set_block(beneath_coord, terrain::Type::water);
+    } else if (position.z == 0 or
+               beneath_tp not_eq terrain::Type::water) {
+        auto lp = position;
+        lp.x++;
+
+        if (lp.x < 7) {
+            water_spread(s, lp, terrain::Type::water_slant_a);
+        }
+
+        if (position.y < 7) {
+            auto rp = position;
+            ++rp.y;
+            water_spread(s, rp, terrain::Type::water_slant_b);
+        }
+
+        if (position.x > 0) {
+            auto up = position;
+            --up.x;
+            water_spread(s, up, terrain::Type::water_slant_c);
+        }
+
+        if (position.y > 0) {
+            auto down = position;
+            --down.y;
+            water_spread(s, down, terrain::Type::water_slant_d);
+        }
+    }
+}
+
+
+
+static bool is_still_water(terrain::Type t)
+{
+    return terrain::category(t) == terrain::Category::fluid and
+        t not_eq terrain::Type::water_slant_a and
+        t not_eq terrain::Type::water_slant_b and
+        t not_eq terrain::Type::water_slant_c and
+        t not_eq terrain::Type::water_slant_d;
 }
 
 
@@ -1692,49 +1822,18 @@ typedef void(*UpdateFunction)(terrain::Sector&, terrain::Block&, Vec3<u8>);
 static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr, // Air has no update code.
     // building
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
-    {
-    },
+    nullptr,
     // __invalid
     [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
     {
+        Platform::fatal("invoke hook for invalid block!");
     },
     // water
-    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
-    {
-        // if (position.z == 0) {
-        //     return;
-        // }
-
-        // auto lp = position;
-        // lp.x++;
-
-        // if (lp.x < 8) {
-        //     auto& block = s.get_block(lp);
-        //     if (block.type() == terrain::Type::air) {
-        //         s.set_block(lp, terrain::Type::water_slant_a);
-        //     }
-        // }
-
-        // if (position.y < 8) {
-        //     auto rp = position;
-        //     ++rp.y;
-
-        //     auto& block = s.get_block(rp);
-        //     if (block.type() == terrain::Type::air) {
-        //         s.set_block(rp, terrain::Type::water_slant_b);
-        //     }
-        // }
-
-    },
+    update_water_still,
     // terrain
-    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
-    {
-    },
+    nullptr,
     // masonry
-    [](terrain::Sector&, terrain::Block& block, Vec3<u8> position)
-    {
-    },
+    nullptr,
     // selector
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
@@ -1763,24 +1862,67 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         revert_if_covered(s, block, position, terrain::Type::terrain);
     },
     // gold
-    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
-    {
-
-    },
+    nullptr,
     // workshop
+    nullptr,
+    // water_slant_a
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-
+        if (position.x > 0) {
+            auto behind = position;
+            behind.x--;
+            auto& block = s.get_block(behind);
+            if (not is_still_water(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_water_slanted(s, block, position);
     },
-    nullptr,
-    nullptr,
-    nullptr,
-    nullptr,
+    // water_slant_b
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.y > 0) {
+            auto behind = position;
+            --behind.y;
+            auto& block = s.get_block(behind);
+            if (not is_still_water(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_water_slanted(s, block, position);
+    },
+    // water_slant_c
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.x < 7) {
+            auto behind = position;
+            ++behind.x;
+            auto& block = s.get_block(behind);
+            if (not is_still_water(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_water_slanted(s, block, position);
+    },
+    // water_slant_d
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.y < 7) {
+            auto behind = position;
+            ++behind.y;
+            auto& block = s.get_block(behind);
+            if (not is_still_water(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_water_slanted(s, block, position);
+    },
     // light source
-    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
-    {
-
-    },
+    nullptr,
     // windmill
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
@@ -1794,13 +1936,13 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // shellfish
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        revert_if_covered(s, block, position, terrain::Type::water);
+        if (not revert_if_covered(s, block, position, terrain::Type::water)) {
+            update_water_still(s, block, position);
+        }
+
     },
     // port
-    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
-    {
-        // ...
-    },
+    nullptr,
     // potatoes
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
@@ -1817,10 +1959,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         Platform::fatal("food sentinel created as a terrain block");
     },
     // shrubbery
-    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
-    {
-        // ...
-    },
+    nullptr,
     // wool
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
@@ -1831,6 +1970,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         revert_if_covered(s, block, position, terrain::Type::terrain);
     },
+    // ice
+    nullptr,
 };
 // clang-format on
 
@@ -1838,7 +1979,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
 void terrain::Sector::update()
 {
-    for (u8 z = 0; z < z_limit; ++z) {
+    for (int z = 0; z < z_limit; ++z) {
         for (u8 x = 0; x < 8; ++x) {
             for (u8 y = 0; y < 8; ++y) {
 
@@ -1846,7 +1987,7 @@ void terrain::Sector::update()
 
                 auto update = update_functions[block.type_];
                 if (update) {
-                    update(*this, block, {x, y, z});
+                    update(*this, block, {x, y, (u8)z});
                 }
             }
         }
@@ -1868,7 +2009,7 @@ static const u16 screen_mapping_lut[8][8] = {
 
 
 enum TileCategory {
-    empty,
+    irregular,
     opaque,
     top_angled_l,
     top_angled_r,
@@ -1898,8 +2039,8 @@ static TileCategory tile_category(int texture_id)
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         empty, empty, empty, empty, empty, empty,
-         empty, empty, empty, empty, empty, empty,
+         irregular, irregular, irregular, irregular, irregular, irregular,
+         irregular, irregular, irregular, irregular, irregular, irregular,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
@@ -1910,14 +2051,17 @@ static TileCategory tile_category(int texture_id)
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         empty, top_angled_r, empty, opaque, bot_angled_l, bot_angled_r,
-         empty, top_angled_r, empty, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, empty, opaque, empty, bot_angled_l, bot_angled_r,
-         top_angled_l, empty, opaque, empty, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+
+         // Non-standard shapes for slanted water blocks
+         irregular, top_angled_r, irregular, opaque, bot_angled_l, bot_angled_r,
+         irregular, top_angled_r, irregular, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, irregular, opaque, irregular, bot_angled_l, bot_angled_r,
+         top_angled_l, irregular, opaque, irregular, bot_angled_l, bot_angled_r,
+         irregular, irregular, opaque, top_angled_r, bot_angled_l, bot_angled_r,
+         irregular, irregular, opaque, top_angled_r, bot_angled_l, bot_angled_r,
+         irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
+         irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
+
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
          top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
