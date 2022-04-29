@@ -38,6 +38,11 @@ struct State;
 class MacrocosmEntity : public Entity
 {
 public:
+    MacrocosmEntity() : Entity({})
+    {
+    }
+
+
     virtual void update(Platform& pfrm, macro::State& s, Microseconds delta)
     {
     }

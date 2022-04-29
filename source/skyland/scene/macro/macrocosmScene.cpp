@@ -46,6 +46,8 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player().update(pfrm, app, delta);
     app.camera()->update(pfrm, app, app.player_island(), {}, delta, true);
 
+    app.environment().update(pfrm, app, delta);
+
     update_entities(pfrm, app, delta, app.macrocosm()->data_->entities_);
 
     if (ui_) {
