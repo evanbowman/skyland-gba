@@ -121,6 +121,7 @@ enum class Type {
     food, // Must not be constructed
     shrubbery,
     wool,
+    saffron,
     count,
 };
 
@@ -148,6 +149,7 @@ struct Commodity
         sunflowers,
         food,
         wool,
+        saffron,
     };
     Type type_;
     u16 supply_;

@@ -682,6 +682,11 @@ Stats stats(Type t, bool shadowed)
         result.commodities_.push_back({Commodity::Type::wool, 2});
         break;
 
+    case terrain::Type::saffron:
+        result.employment_ += 6;
+        result.commodities_.push_back({Commodity::Type::saffron, 2});
+        break;
+
     case terrain::Type::windmill_stone_base:
     case terrain::Type::windmill:
         result.employment_ += 20;
@@ -731,6 +736,9 @@ SystemString terrain::name(terrain::Commodity::Type t)
 
     case Commodity::food:
         return SystemString::block_food;
+
+    case Commodity::saffron:
+        return SystemString::block_saffron;
     }
 
     return SystemString::empty;
@@ -966,6 +974,7 @@ terrain::Category terrain::category(Type t)
     case terrain::Type::indigo:
     case terrain::Type::shellfish:
     case terrain::Type::sunflowers:
+    case terrain::Type::saffron:
         return Category::crop;
 
     case terrain::Type::water:
@@ -1028,6 +1037,9 @@ Coins terrain::cost(Sector& s, Type t)
         return 160;
 
     case terrain::Type::wool:
+        return 260;
+
+    case terrain::Type::saffron:
         return 260;
 
     case terrain::Type::madder:
@@ -1109,6 +1121,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::wool:
         return SystemString::block_wool;
+
+    case terrain::Type::saffron:
+        return SystemString::block_saffron;
 
     case terrain::Type::gold:
         return SystemString::block_gold;
@@ -1209,6 +1224,7 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
         result.push_back(Type::indigo);
         result.push_back(Type::madder);
         result.push_back(Type::sunflowers);
+        result.push_back(Type::saffron);
         result.push_back(Type::wool);
         remove_self();
     };
@@ -1220,6 +1236,7 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
     case Type::indigo:
     case Type::madder:
     case Type::wool:
+    case Type::saffron:
     case Type::terrain: {
         push_terrain_defaults();
         break;
@@ -1270,6 +1287,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::wool:
         return {2920, 2936};
+
+    case terrain::Type::saffron:
+        return {2952, 2968};
 
     case terrain::Type::water:
     case terrain::Type::water_slant_a:
@@ -1764,6 +1784,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         // ...
     },
     // wool
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::terrain);
+    },
+    // saffron
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::terrain);
