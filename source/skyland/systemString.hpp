@@ -203,6 +203,7 @@ enum class SystemString {
     macro_export,
     macro_export_how_many,
     macro_export_where,
+    macro_commodities,
 
     macro_fiscal_budget,
     macro_fiscal_employed,

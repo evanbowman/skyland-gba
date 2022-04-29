@@ -144,6 +144,7 @@ cost: %_ %_
 select export:
 how many?
 where?
+commodities
 budget: 
 citizens (employed)
 citizens

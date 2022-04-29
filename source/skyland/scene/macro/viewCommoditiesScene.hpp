@@ -22,7 +22,10 @@
 
 #pragma once
 
+#include "allocator.hpp"
+#include "graphics/overlay.hpp"
 #include "macrocosmScene.hpp"
+#include "skyland/macrocosmEngine.hpp"
 
 
 
@@ -31,26 +34,44 @@ namespace skyland::macro
 
 
 
-class MenuOptionsScene : public MacrocosmScene
+class ViewCommoditiesScene : public Scene
 {
 public:
-    void enter(Platform& pfrm, macro::State& state, Scene& prev) override;
+    ViewCommoditiesScene();
 
-
-    void exit(Platform& pfrm, macro::State& state, Scene& next) override;
+    void enter(Platform& pfrm, App& app, Scene& prev) override;
 
 
     ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::State& state) override;
+    update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
 private:
-    std::optional<Text> budget_text_;
-    std::optional<Text> next_turn_text_;
-    std::optional<Text> macroverse_text_;
-    std::optional<Text> commodities_text_;
-    int exit_timer_ = 0;
-    u32 frames_ = 0;
+    void show(Platform&, macro::State&);
+
+
+    struct State
+    {
+        std::optional<Text> heading_;
+        Buffer<Text, 7> lines_;
+        int page_ = 0;
+        int pages_ = 0;
+
+        struct CommodityInfo
+        {
+            terrain::Commodity::Type type_;
+            int supply_;
+            enum Source { local, exported, imported } source_;
+            Vec2<s8> destination_;
+        };
+
+        Buffer<CommodityInfo, 64> info_;
+    };
+
+    std::optional<Text> heading_;
+
+    DynamicMemory<State> s_;
+    bool exit_ = false;
 };
 
 

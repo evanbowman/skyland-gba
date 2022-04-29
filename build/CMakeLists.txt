@@ -184,6 +184,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/macro/tileOptionsScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/createBlockScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/menuOptionsScene.cpp
+  ${SOURCE_DIR}/skyland/scene/macro/viewCommoditiesScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/modifiedSelectorScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp

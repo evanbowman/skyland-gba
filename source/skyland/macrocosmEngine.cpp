@@ -107,6 +107,7 @@ void State::newgame(Platform& pfrm)
     data_->current_sector_ = -1;
 
     data_->other_sectors_.clear();
+    data_->p().year_.set(1);
 
     auto& sector = this->sector();
     sector.erase();

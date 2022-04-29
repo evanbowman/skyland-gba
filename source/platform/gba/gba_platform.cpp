@@ -6399,6 +6399,9 @@ Platform::Platform()
         ::save_capacity = flash_capacity(*this);
     }
 
+    const auto stk_size = 32000 - (&__data_end__ - &__iwram_start__);
+
+
     {
         StringBuffer<32> used("iwram used: ");
         used += stringify(&__data_end__ - &__iwram_start__);
@@ -6409,7 +6412,7 @@ Platform::Platform()
         info(*this, used.c_str());
 
         used = "estimated stack size: ";
-        used += stringify(32000 - (&__data_end__ - &__iwram_start__));
+        used += stringify(stk_size);
         info(*this, used.c_str());
     }
 
@@ -6572,7 +6575,15 @@ Platform::Platform()
         info(*::platform, str.c_str());
     }
 
-    // info(*this, stringify(sizeof multiplayer_comms));
+    const auto stk_size_min = 11000;
+    if (stk_size < stk_size_min) {
+        Platform::fatal(format("stack size % smaller than suggested %. "
+                               "Not a strict requirement, just that I tested "
+                               "the game with a stack of this size.",
+                               stk_size,
+                               stk_size_min)
+                            .c_str());
+    }
 }
 
 
