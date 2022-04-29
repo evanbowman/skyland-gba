@@ -75,12 +75,6 @@ private:
 
 
 
-namespace save
-{
-struct Sector;
-}
-
-
 } // namespace skyland::macro
 
 
@@ -233,9 +227,6 @@ public:
     Sector(Vec2<s8> position);
 
 
-    void restore(const save::Sector&);
-
-
     void set_block(const Vec3<u8>& coord, Type type);
 
     void rotate();
@@ -327,12 +318,15 @@ public:
         Vec3<u8> cursor_;
 
         char name_[name_len];
-        Population population_ = 0;
+        u8 population_packed_[sizeof(Population)];
 
         s8 x_;
         s8 y_;
+
+        u8 pad_[2]; // FIXME: remove. Added while packing this struct.
     };
     static_assert(std::is_trivially_copyable<Persistent>());
+    static_assert(alignof(Persistent) == 1);
 
 
     void set_name(const StringBuffer<name_len - 1>& name);
@@ -361,6 +355,11 @@ private:
 
 
 public:
+
+    // Restore from a previous save.
+    void restore(const Persistent& p, u8 blocks[z_limit][8][8]);
+
+
     const Persistent& persistent() const
     {
         return p_;

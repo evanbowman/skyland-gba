@@ -193,14 +193,14 @@ fiscal::Ledger terrain::Sector::budget() const
 
     auto st = stats();
 
-    int productive_population = p_.population_;
+    int productive_population = population();
     int unproductive_population = 0;
 
-    if (st.housing_ < p_.population_) {
+    if (st.housing_ < population()) {
         // Homeless people are less economically productive? Sounds cynical, but
         // probably true.
         productive_population = st.housing_;
-        unproductive_population = p_.population_ - st.housing_;
+        unproductive_population = population() - st.housing_;
     }
 
     int employed_population = productive_population;
@@ -396,14 +396,16 @@ void State::advance(int elapsed_years)
 
 terrain::Sector::Population terrain::Sector::population() const
 {
-    return p_.population_;
+    terrain::Sector::Population p;
+    memcpy(&p, p_.population_packed_, sizeof p);
+    return p;
 }
 
 
 
 void terrain::Sector::set_population(Population p)
 {
-    p_.population_ = p;
+    memcpy(p_.population_packed_, &p, sizeof p);
 }
 
 
@@ -428,9 +430,32 @@ struct Header
     u8 num_sectors_;
 };
 
+
+// Note about wrapper: I enjoy playing skyland macro mode myself, and sometimes
+// I want to add persistent fields without losing my own save data! So I use
+// these templates to add extra bytes to my save file when saving (but not
+// loading), allowing me to inflate sections of the save file, and fill in the
+// space later. Maybe you're wondering, why not just create something more
+// flexible, with tagged attributes appended to the end of the save data? I
+// could, but we're really limited in terms of available save memory on the gba.
+template <u32 extra_bytes>
+struct PersistentWrapper
+{
+    terrain::Sector::Persistent p_;
+    u8 extra_bytes_[extra_bytes];
+};
+template <>
+struct PersistentWrapper<0>
+{
+    terrain::Sector::Persistent p_;
+};
+
+
+
+template <u32 inflate>
 struct Sector
 {
-    macro::terrain::Sector::Persistent p_;
+    PersistentWrapper<inflate> p_;
     u8 blocks_[macro::terrain::Sector::z_limit][8][8];
 
     Sector()
@@ -439,7 +464,7 @@ struct Sector
 
     Sector(const macro::terrain::Sector& source)
     {
-        memcpy(&p_, &source.persistent(), sizeof p_);
+        memcpy(&p_.p_, &source.persistent(), sizeof p_);
 
         for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
             for (u8 x = 0; x < 8; ++x) {
@@ -450,6 +475,16 @@ struct Sector
         }
     }
 };
+
+struct Attribute
+{
+    u8 size_;
+    enum {
+          null,
+          test,
+    } type_;
+};
+
 } // namespace save
 
 
@@ -467,7 +502,7 @@ void State::save(Platform& pfrm)
     }
 
     auto store_sector = [&save_data](const macro::terrain::Sector& sector) {
-        save::Sector out(sector);
+        save::Sector<0> out(sector);
         for (u32 i = 0; i < sizeof out; ++i) {
             save_data.push_back(((u8*)&out)[i]);
         }
@@ -513,7 +548,7 @@ bool State::load(Platform& pfrm)
         memcpy(&data_->p(), &header.p_, sizeof header.p_);
 
         auto load_sector = [&](terrain::Sector& dest) {
-            save::Sector s;
+            save::Sector<0> s;
             for (u32 i = 0; i < sizeof s; ++i) {
                 if (it == input.end()) {
                     Platform::fatal("macro save data invalid!");
@@ -522,7 +557,7 @@ bool State::load(Platform& pfrm)
                 ++it;
             }
 
-            dest.restore(s);
+            dest.restore(s.p_.p_, s.blocks_);
 
             u8 export_count = *(it++);
 
@@ -550,6 +585,9 @@ bool State::load(Platform& pfrm)
                 allocate_dynamic<terrain::Sector>("macro-sector", Vec2<s8>{}));
             load_sector(*data_->other_sectors_.back());
         }
+
+
+
     } else /* No existing save file */ {
 
         newgame(pfrm);
@@ -564,16 +602,16 @@ bool State::load(Platform& pfrm)
 
 
 
-void terrain::Sector::restore(const save::Sector& s)
+void terrain::Sector::restore(const Persistent& p, u8 blocks[z_limit][8][8])
 {
     erase();
 
-    memcpy(&p_, &s.p_, sizeof s.p_);
+    memcpy(&p_, &p, sizeof p);
 
     for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
         for (u8 x = 0; x < 8; ++x) {
             for (u8 y = 0; y < 8; ++y) {
-                blocks_[z][x][y].type_ = s.blocks_[z][x][y];
+                blocks_[z][x][y].type_ = blocks[z][x][y];
                 blocks_[z][x][y].repaint_ = true;
                 blocks_[z][x][y].data_ = 0;
             }
@@ -609,14 +647,14 @@ terrain::Sector::Sector(Vec2<s8> position)
     p_.x_ = position.x;
     p_.y_ = position.y;
 
-    p_.population_ = 4;
+    set_population(4);
 }
 
 
 
 void terrain::Sector::advance(int years)
 {
-    p_.population_ += population_growth_rate() * years;
+    set_population(population() + population_growth_rate() * years);
 }
 
 
@@ -936,7 +974,7 @@ Float terrain::Sector::population_growth_rate() const
 {
     auto s = stats();
 
-    auto required_food = p_.population_ / food_consumption_factor;
+    auto required_food = population() / food_consumption_factor;
 
     Float result = 0.f;
 
@@ -947,10 +985,10 @@ Float terrain::Sector::population_growth_rate() const
         result = -0.5f * (required_food - s.food_);
     }
 
-    if (p_.population_ > s.housing_) {
-        result -= 0.025f * (p_.population_ - s.housing_);
+    if (population() > s.housing_) {
+        result -= 0.025f * (population() - s.housing_);
     } else {
-        result += 0.025f * (s.housing_ - p_.population_);
+        result += 0.025f * (s.housing_ - population());
     }
 
 
