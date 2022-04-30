@@ -122,6 +122,7 @@ enum class Type {
     lava_slant_b,
     lava_slant_c,
     lava_slant_d,
+    volcanic_soil,
     count,
 };
 

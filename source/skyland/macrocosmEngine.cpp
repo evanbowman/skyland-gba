@@ -1059,6 +1059,9 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::masonry:
         return 30;
 
+    case terrain::Type::volcanic_soil:
+        return 100;
+
     case terrain::Type::ice:
         return 5;
 
@@ -1148,6 +1151,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::masonry:
         return SystemString::block_masonry;
+
+    case terrain::Type::volcanic_soil:
+        return SystemString::block_volcanic_soil;
 
     case terrain::Type::shrubbery:
         return SystemString::block_shrubbery;
@@ -1370,6 +1376,10 @@ terrain::Improvements terrain::improvements(Type t)
         result.push_back(Type::windmill_stone_base);
         break;
 
+    case Type::volcanic_soil:
+        // TODO...
+        break;
+
     default:
         break;
     }
@@ -1400,6 +1410,7 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::shrubbery:
         return {1416, 1432};
 
+    case terrain::Type::volcanic_soil:
     case terrain::Type::count:
     case terrain::Type::__invalid:
     case terrain::Type::selector:
@@ -1768,8 +1779,16 @@ static bool revert_if_covered(terrain::Sector& s,
     if (position.z < terrain::Sector::z_limit) {
         position.z++;
         auto& above = s.get_block(position);
-        if (above.type() not_eq terrain::Type::selector and
-            above.type() not_eq terrain::Type::air) {
+        if (revert_to == terrain::Type::terrain and
+            terrain::categories(above.type()) &
+                terrain::Categories::fluid_lava) {
+            block.type_ = (u8)terrain::Type::volcanic_soil;
+            block.repaint_ = true;
+            raster::globalstate::_changed = true;
+            s.clear_cache();
+            return true;
+        } else if (above.type() not_eq terrain::Type::selector and
+                   above.type() not_eq terrain::Type::air) {
             block.type_ = (u8)revert_to;
             block.repaint_ = true;
             raster::globalstate::_changed = true;
@@ -1841,11 +1860,12 @@ update_lava_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
         beneath_tp = beneath.type();
     }
 
-    if (position.z > 0 and (beneath_tp == terrain::Type::air or
-                            beneath_tp == terrain::Type::lava_slant_a or
-                            beneath_tp == terrain::Type::lava_slant_b or
-                            beneath_tp == terrain::Type::lava_slant_c or
-                            beneath_tp == terrain::Type::lava_slant_d)) {
+    if (position.z > 0 and
+        (destroyed_by_lava(beneath_tp) or beneath_tp == terrain::Type::air or
+         beneath_tp == terrain::Type::lava_slant_a or
+         beneath_tp == terrain::Type::lava_slant_b or
+         beneath_tp == terrain::Type::lava_slant_c or
+         beneath_tp == terrain::Type::lava_slant_d)) {
         s.set_block(beneath_coord, terrain::Type::lava);
     } else if (position.z == 0 or beneath_tp not_eq terrain::Type::lava) {
         auto lp = position;
@@ -1889,7 +1909,9 @@ static void update_water_slanted(terrain::Sector& s,
 
     auto& beneath = s.get_block(beneath_coord);
     const auto tp = beneath.type();
-    if (tp == terrain::Type::air) {
+    if (terrain::categories(tp) & terrain::Categories::fluid_lava) {
+        s.set_block(beneath_coord, terrain::Type::volcanic_soil);
+    } else if (tp == terrain::Type::air) {
         s.set_block(beneath_coord, terrain::Type::water);
     } else if ((categories(tp) & terrain::Categories::fluid_water) and
                tp not_eq terrain::Type::water) {
@@ -1902,6 +1924,9 @@ static void update_water_slanted(terrain::Sector& s,
 static void water_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
 {
     auto prev_tp = s.get_block(target).type();
+    if (terrain::categories(tp) & terrain::Categories::fluid_lava) {
+        s.set_block(target, terrain::Type::volcanic_soil);
+    }
     if (UNLIKELY(prev_tp not_eq tp and
                  (prev_tp == terrain::Type::water_slant_a or
                   prev_tp == terrain::Type::water_slant_b or
@@ -1926,11 +1951,15 @@ update_water_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
         beneath_tp = beneath.type();
     }
 
-    if (position.z > 0 and (beneath_tp == terrain::Type::air or
-                            beneath_tp == terrain::Type::water_slant_a or
-                            beneath_tp == terrain::Type::water_slant_b or
-                            beneath_tp == terrain::Type::water_slant_c or
-                            beneath_tp == terrain::Type::water_slant_d)) {
+    if (position.z > 0 and
+        terrain::categories(beneath_tp) & terrain::Categories::fluid_lava) {
+        s.set_block(beneath_coord, terrain::Type::volcanic_soil);
+    } else if (position.z > 0 and
+               (beneath_tp == terrain::Type::air or
+                beneath_tp == terrain::Type::water_slant_a or
+                beneath_tp == terrain::Type::water_slant_b or
+                beneath_tp == terrain::Type::water_slant_c or
+                beneath_tp == terrain::Type::water_slant_d)) {
         s.set_block(beneath_coord, terrain::Type::water);
     } else if (position.z == 0 or beneath_tp not_eq terrain::Type::water) {
         auto lp = position;
@@ -1998,7 +2027,19 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // water
     update_water_still,
     // terrain
-    nullptr,
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.z < terrain::Sector::z_limit) {
+            position.z++;
+            auto& above = s.get_block(position);
+            if (terrain::categories(above.type()) & terrain::Categories::fluid_lava) {
+                block.type_ = (u8)terrain::Type::volcanic_soil;
+                block.repaint_ = true;
+                raster::globalstate::_changed = true;
+                s.clear_cache();
+            }
+        }
+    },
     // masonry
     nullptr,
     // selector
@@ -2197,6 +2238,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         }
         update_lava_slanted(s, block, position);
     },
+    // volcanic_soil
+    nullptr,
 };
 // clang-format on
 

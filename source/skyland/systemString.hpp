@@ -127,6 +127,7 @@ enum class SystemString {
     block_dynamite_2,
     block_torch,
     block_transporter,
+    block_volcanic_soil,
     block_water,
     block_water_source,
     block_wheat,

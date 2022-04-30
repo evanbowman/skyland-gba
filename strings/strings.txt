@@ -81,6 +81,7 @@ dynamite
 dynamite-ii
 torch
 transporter
+volcanic-soil
 water
 water*
 wheat

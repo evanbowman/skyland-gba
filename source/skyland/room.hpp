@@ -366,13 +366,13 @@ public:
 
     static Icon icon()
     {
-        return 450;
+        return 2504;
     }
 
 
     static Icon unsel_icon()
     {
-        return 450;
+        return 2504;
     }
 
 
