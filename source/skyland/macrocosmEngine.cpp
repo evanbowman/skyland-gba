@@ -479,15 +479,6 @@ struct Sector
     }
 };
 
-struct Attribute
-{
-    u8 size_;
-    enum {
-          null,
-          test,
-    } type_;
-};
-
 } // namespace save
 
 
