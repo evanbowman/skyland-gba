@@ -50,6 +50,9 @@ namespace globalstate
 // and we want to draw things differently depending on the specific way that the
 // terrain changed.
 
+// Recast shadows.
+bool _recast_shadows = false;
+
 // The layout of the world changed in some way.
 bool _changed = false;
 
@@ -1308,8 +1311,8 @@ Buffer<terrain::Type, 10> terrain::improvements(Type t)
     }
 
     case Type::water:
-        result.push_back(Type::shellfish);
         result.push_back(Type::ice);
+        result.push_back(Type::shellfish);
         break;
 
     case Type::masonry:
@@ -1590,7 +1593,8 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
     }
 
 
-    shadowcast();
+    raster::globalstate::_recast_shadows = true;
+
 
     if (prev_type == Type::light_source or type == Type::light_source or
         (type == Type::air and prev_type not_eq Type::selector)) {
@@ -2188,6 +2192,11 @@ std::optional<DynamicMemory<raster::DepthBuffer>> _db;
 void terrain::Sector::render_setup(Platform& pfrm)
 {
     using namespace raster;
+
+    if (globalstate::_recast_shadows) {
+        shadowcast();
+        globalstate::_recast_shadows = false;
+    }
 
     if (not globalstate::_changed) {
         return;
