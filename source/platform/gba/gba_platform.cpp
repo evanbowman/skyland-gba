@@ -1845,7 +1845,6 @@ void Platform::Screen::clear()
         memcpy32(MEM_BG_PALETTE + 32, bg_palette_back_buffer + 32, 8);
 
         set_gflag(GlobalFlag::partial_palette_sync, false);
-
     }
 
     // We want to do the dynamic texture remapping near the screen clear, to

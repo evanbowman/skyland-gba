@@ -71,8 +71,7 @@ void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-ColorConstant
-fluid_shader(ShaderPalette p, ColorConstant k, int var, int index)
+ColorConstant fluid_shader(ShaderPalette p, ColorConstant k, int var, int index)
 {
     if (p == ShaderPalette::tile0 or p == ShaderPalette::tile1) {
         if (index == 11) {
@@ -96,7 +95,6 @@ fluid_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
     return k;
 }
-
 
 
 

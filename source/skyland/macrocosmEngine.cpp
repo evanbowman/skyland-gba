@@ -1783,6 +1783,15 @@ static bool revert_if_covered(terrain::Sector& s,
 
 
 
+static bool destroyed_by_lava(terrain::Type t)
+{
+    return t == terrain::Type::building or t == terrain::Type::port or
+           t == terrain::Type::shrubbery or t == terrain::Type::ice or
+           categories(t) & terrain::Categories::fluid_water;
+}
+
+
+
 static void update_lava_slanted(terrain::Sector& s,
                                 terrain::Block& block,
                                 Vec3<u8> position)
@@ -1795,7 +1804,7 @@ static void update_lava_slanted(terrain::Sector& s,
 
     auto& beneath = s.get_block(beneath_coord);
     const auto tp = beneath.type();
-    if (tp == terrain::Type::air) {
+    if (tp == terrain::Type::air or destroyed_by_lava(tp)) {
         s.set_block(beneath_coord, terrain::Type::lava);
     } else if ((categories(tp) & terrain::Categories::fluid_lava) and
                tp not_eq terrain::Type::lava) {
@@ -1814,7 +1823,7 @@ static void lava_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
                   prev_tp == terrain::Type::lava_slant_c or
                   prev_tp == terrain::Type::lava_slant_d))) {
         s.set_block(target, terrain::Type::lava);
-    } else if (prev_tp == terrain::Type::air) {
+    } else if (prev_tp == terrain::Type::air or destroyed_by_lava(prev_tp)) {
         s.set_block(target, tp);
     }
 }
