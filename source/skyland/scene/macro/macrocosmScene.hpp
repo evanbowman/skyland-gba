@@ -99,6 +99,7 @@ private:
     std::optional<DynamicMemory<UIObjects>> ui_;
     Microseconds water_anim_timer_ = 0;
     u8 water_anim_index_ = 0;
+    u8 lava_anim_index_ = 128;
 };
 
 

@@ -1841,8 +1841,8 @@ void Platform::Screen::clear()
         set_gflag(GlobalFlag::palette_sync, false);
     } else if (get_gflag(GlobalFlag::partial_palette_sync)) {
 
-        // memcpy32(MEM_BG_PALETTE, bg_palette_back_buffer, 8);
-        // memcpy32(MEM_BG_PALETTE + 16, bg_palette_back_buffer + 16, 8);
+        memcpy32(MEM_BG_PALETTE, bg_palette_back_buffer, 8);
+        memcpy32(MEM_BG_PALETTE + 32, bg_palette_back_buffer + 32, 8);
 
         set_gflag(GlobalFlag::partial_palette_sync, false);
 
@@ -6149,10 +6149,9 @@ void* Platform::system_call(const char* feature_name, void* arg)
         }
         return nullptr;
     } else if (str_eq(feature_name, "psync")) {
-        // FIXME: bad indices?
-        // memcpy32(bg_palette_back_buffer + 16, tilesheet_1_palette, 8);
-        // memcpy32(bg_palette_back_buffer, tilesheet_0_palette, 8);
-        // set_gflag(GlobalFlag::partial_palette_sync, true);
+        memcpy32(bg_palette_back_buffer + 32, tilesheet_1_palette, 8);
+        memcpy32(bg_palette_back_buffer, tilesheet_0_palette, 8);
+        set_gflag(GlobalFlag::partial_palette_sync, true);
     } else if (str_eq(feature_name, "feed-watchdog")) {
         ::watchdog_counter = 0;
     } else if (str_cmp(feature_name, "_prlx7") == 0) {

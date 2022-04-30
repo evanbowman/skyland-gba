@@ -87,28 +87,29 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     update_entities(pfrm, app, delta, app.macrocosm()->data_->entities_);
 
-    // water_anim_timer_ += delta;
-    // bool was_gre = false;
-    // int val = 0;
-    // int val2 = 0;
-    // while (water_anim_timer_ > milliseconds(16)) {
-    //     water_anim_timer_ -= milliseconds(16);
-    //     was_gre = true;
-    //     val = sine8[water_anim_index_];
-    //     val2 = sine8[water_anim_index_ * 2];
-    //     // if (rng::choice<2>(rng::utility_state)) {
-    //     //     sin += rng::choice<8>(rng::utility_state);
-    //     // } else {
-    //     //     sin -= rng::choice<8>(rng::utility_state);
-    //     // }
+    water_anim_timer_ += delta;
+    bool was_gre = false;
+    int val = 0;
+    int val2 = 0;
+    while (water_anim_timer_ > milliseconds(16)) {
+        water_anim_timer_ -= milliseconds(16);
+        was_gre = true;
+        val = sine8[water_anim_index_];
+        val2 = sine8[lava_anim_index_];
+        // if (rng::choice<2>(rng::utility_state)) {
+        //     sin += rng::choice<8>(rng::utility_state);
+        // } else {
+        //     sin -= rng::choice<8>(rng::utility_state);
+        // }
 
-    //     water_anim_index_ += 4;
+        water_anim_index_ += 4;
+        lava_anim_index_ += 4;
 
-    // }
-    // if (was_gre) {
-    //     pfrm.screen().set_shader_argument((val << 8) | val2);
-    //     pfrm.system_call("psync", nullptr);
-    // }
+    }
+    if (was_gre) {
+        pfrm.screen().set_shader_argument((val << 8) | val2);
+        pfrm.system_call("psync", nullptr);
+    }
 
     if (ui_) {
         (*ui_)->coins_->update(pfrm, delta);
@@ -210,6 +211,7 @@ void MacrocosmScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
         if (m->should_update_ui_after_exit()) {
             update_ui(state);
         }
+        lava_anim_index_ = m->lava_anim_index_;
         water_anim_index_ = m->water_anim_index_;
         water_anim_timer_ = m->water_anim_timer_;
     } else {
