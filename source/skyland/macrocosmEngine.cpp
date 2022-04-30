@@ -1024,10 +1024,17 @@ terrain::Categories terrain::categories(Type t)
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
-        return Categories::fluid;
+        return Categories::fluid_water;
+
+    case terrain::Type::lava:
+    case terrain::Type::lava_slant_a:
+    case terrain::Type::lava_slant_b:
+    case terrain::Type::lava_slant_c:
+    case terrain::Type::lava_slant_d:
+        return Categories::fluid_lava;
 
     case terrain::Type::shellfish:
-        return (Categories)(Categories::crop | Categories::fluid);
+        return (Categories)(Categories::crop | Categories::fluid_water);
     }
 }
 
@@ -1068,6 +1075,13 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
         return 30;
+
+    case terrain::Type::lava:
+    case terrain::Type::lava_slant_a:
+    case terrain::Type::lava_slant_b:
+    case terrain::Type::lava_slant_c:
+    case terrain::Type::lava_slant_d:
+        return 800;
 
     case terrain::Type::wheat:
         return 40;
@@ -1148,6 +1162,13 @@ SystemString terrain::name(Type t)
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
         return SystemString::block_water;
+
+    case terrain::Type::lava:
+    case terrain::Type::lava_slant_a:
+    case terrain::Type::lava_slant_b:
+    case terrain::Type::lava_slant_c:
+    case terrain::Type::lava_slant_d:
+        return SystemString::block_lava;
 
     case terrain::Type::ice:
         return SystemString::block_ice;
@@ -1263,6 +1284,22 @@ void terrain::Sector::rotate()
 
                 case terrain::Type::water_slant_d:
                     block.type_ = (u8)terrain::Type::water_slant_a;
+                    break;
+
+                case terrain::Type::lava_slant_a:
+                    block.type_ = (u8)terrain::Type::lava_slant_b;
+                    break;
+
+                case terrain::Type::lava_slant_b:
+                    block.type_ = (u8)terrain::Type::lava_slant_c;
+                    break;
+
+                case terrain::Type::lava_slant_c:
+                    block.type_ = (u8)terrain::Type::lava_slant_d;
+                    break;
+
+                case terrain::Type::lava_slant_d:
+                    block.type_ = (u8)terrain::Type::lava_slant_a;
                     break;
 
                 default:
@@ -1384,6 +1421,13 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::water_slant_d:
         return {2120, 2136};
 
+    case terrain::Type::lava:
+    case terrain::Type::lava_slant_a:
+    case terrain::Type::lava_slant_b:
+    case terrain::Type::lava_slant_c:
+    case terrain::Type::lava_slant_d:
+        return {2152, 2168};
+
     case terrain::Type::potatoes:
         return {2856, 2872};
 
@@ -1441,7 +1485,8 @@ u16 terrain::Sector::cursor_raster_pos() const
 static bool blocks_light(terrain::Type t)
 {
     if (t == terrain::Type::air or t == terrain::Type::selector or
-        (terrain::categories(t) & terrain::Categories::fluid)) {
+        (terrain::categories(t) & terrain::Categories::fluid_water) or
+        (terrain::categories(t) & terrain::Categories::fluid_lava)) {
         return false;
     }
 
@@ -1738,6 +1783,91 @@ static bool revert_if_covered(terrain::Sector& s,
 
 
 
+static void update_lava_slanted(terrain::Sector& s,
+                                terrain::Block& block,
+                                Vec3<u8> position)
+{
+    if (position.z == 0) {
+        return;
+    }
+
+    const Vec3<u8> beneath_coord = {position.x, position.y, u8(position.z - 1)};
+
+    auto& beneath = s.get_block(beneath_coord);
+    const auto tp = beneath.type();
+    if (tp == terrain::Type::air) {
+        s.set_block(beneath_coord, terrain::Type::lava);
+    } else if ((categories(tp) & terrain::Categories::fluid_lava) and
+               tp not_eq terrain::Type::lava) {
+        s.set_block(beneath_coord, terrain::Type::lava);
+    }
+}
+
+
+
+static void lava_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
+{
+    auto prev_tp = s.get_block(target).type();
+    if (UNLIKELY(prev_tp not_eq tp and
+                 (prev_tp == terrain::Type::lava_slant_a or
+                  prev_tp == terrain::Type::lava_slant_b or
+                  prev_tp == terrain::Type::lava_slant_c or
+                  prev_tp == terrain::Type::lava_slant_d))) {
+        s.set_block(target, terrain::Type::lava);
+    } else if (prev_tp == terrain::Type::air) {
+        s.set_block(target, tp);
+    }
+}
+
+
+
+static void
+update_lava_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+{
+    const Vec3<u8> beneath_coord = {position.x, position.y, u8(position.z - 1)};
+
+    auto beneath_tp = terrain::Type::air;
+    if (position.z > 0) {
+        auto& beneath = s.get_block(beneath_coord);
+        beneath_tp = beneath.type();
+    }
+
+    if (position.z > 0 and (beneath_tp == terrain::Type::air or
+                            beneath_tp == terrain::Type::lava_slant_a or
+                            beneath_tp == terrain::Type::lava_slant_b or
+                            beneath_tp == terrain::Type::lava_slant_c or
+                            beneath_tp == terrain::Type::lava_slant_d)) {
+        s.set_block(beneath_coord, terrain::Type::lava);
+    } else if (position.z == 0 or beneath_tp not_eq terrain::Type::lava) {
+        auto lp = position;
+        lp.x++;
+
+        if (position.x < 7) {
+            lava_spread(s, lp, terrain::Type::lava_slant_a);
+        }
+
+        if (position.y < 7) {
+            auto rp = position;
+            ++rp.y;
+            lava_spread(s, rp, terrain::Type::lava_slant_b);
+        }
+
+        if (position.x > 0) {
+            auto up = position;
+            --up.x;
+            lava_spread(s, up, terrain::Type::lava_slant_c);
+        }
+
+        if (position.y > 0) {
+            auto down = position;
+            --down.y;
+            lava_spread(s, down, terrain::Type::lava_slant_d);
+        }
+    }
+}
+
+
+
 static void update_water_slanted(terrain::Sector& s,
                                  terrain::Block& block,
                                  Vec3<u8> position)
@@ -1752,7 +1882,7 @@ static void update_water_slanted(terrain::Sector& s,
     const auto tp = beneath.type();
     if (tp == terrain::Type::air) {
         s.set_block(beneath_coord, terrain::Type::water);
-    } else if ((categories(tp) & terrain::Categories::fluid) and
+    } else if ((categories(tp) & terrain::Categories::fluid_water) and
                tp not_eq terrain::Type::water) {
         s.set_block(beneath_coord, terrain::Type::water);
     }
@@ -1825,11 +1955,22 @@ update_water_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
 
 static bool is_still_water(terrain::Type t)
 {
-    return (terrain::categories(t) & terrain::Categories::fluid) and
+    return (terrain::categories(t) & terrain::Categories::fluid_water) and
            t not_eq terrain::Type::water_slant_a and
            t not_eq terrain::Type::water_slant_b and
            t not_eq terrain::Type::water_slant_c and
            t not_eq terrain::Type::water_slant_d;
+}
+
+
+
+static bool is_still_lava(terrain::Type t)
+{
+    return (terrain::categories(t) & terrain::Categories::fluid_lava) and
+           t not_eq terrain::Type::lava_slant_a and
+           t not_eq terrain::Type::lava_slant_b and
+           t not_eq terrain::Type::lava_slant_c and
+           t not_eq terrain::Type::lava_slant_d;
 }
 
 
@@ -1989,6 +2130,64 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     },
     // ice
     nullptr,
+    // lava
+    update_lava_still,
+    // lava_slant_a
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.x > 0) {
+            auto behind = position;
+            behind.x--;
+            auto& block = s.get_block(behind);
+            if (not is_still_lava(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_lava_slanted(s, block, position);
+    },
+    // lava_slant_b
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.y > 0) {
+            auto behind = position;
+            --behind.y;
+            auto& block = s.get_block(behind);
+            if (not is_still_lava(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_lava_slanted(s, block, position);
+    },
+    // lava_slant_c
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.x < 7) {
+            auto behind = position;
+            ++behind.x;
+            auto& block = s.get_block(behind);
+            if (not is_still_lava(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_lava_slanted(s, block, position);
+    },
+    // lava_slant_d
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.y < 7) {
+            auto behind = position;
+            ++behind.y;
+            auto& block = s.get_block(behind);
+            if (not is_still_lava(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_lava_slanted(s, block, position);
+    },
 };
 // clang-format on
 
@@ -2141,6 +2340,17 @@ static TileCategory tile_category(int texture_id)
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
+
+         // Non-standard shapes for slanted lava blocks
+         irregular, top_angled_r, irregular, opaque, bot_angled_l, bot_angled_r,
+         irregular, top_angled_r, irregular, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, irregular, opaque, irregular, bot_angled_l, bot_angled_r,
+         top_angled_l, irregular, opaque, irregular, bot_angled_l, bot_angled_r,
+         irregular, irregular, opaque, top_angled_r, bot_angled_l, bot_angled_r,
+         irregular, irregular, opaque, top_angled_r, bot_angled_l, bot_angled_r,
+         irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
+         irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
+
         };
     // clang-format on
 
@@ -2571,8 +2781,8 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 head = head->next_;
             }
 
-            const u8 edge_l = 496 - 480;
-            const u8 edge_r = 497 - 480;
+            const u16 edge_l = 496 - 480;
+            const u16 edge_r = 497 - 480;
 
             auto cat = tile_category(head->tile_);
             if (head->position().z == 0 and head->tile_ not_eq edge_l and
@@ -2633,7 +2843,7 @@ void terrain::Sector::render(Platform& pfrm)
 #ifdef RASTER_DEBUG_ENABLE
 #define RASTER_DEBUG()                                                         \
     do {                                                                       \
-        pfrm.sleep(7);                                                         \
+        pfrm.sleep(20);                                                        \
     } while (false)
 #else
 #define RASTER_DEBUG()                                                         \

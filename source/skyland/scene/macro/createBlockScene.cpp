@@ -70,6 +70,7 @@ void CreateBlockScene::collect_options(macro::State& state)
     }
 
     options_.push_back(terrain::Type::gold);
+    options_.push_back(terrain::Type::lava);
     options_.push_back(terrain::Type::light_source);
     options_.push_back(terrain::Type::masonry);
     options_.push_back(terrain::Type::air);

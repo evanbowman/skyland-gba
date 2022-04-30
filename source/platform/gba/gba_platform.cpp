@@ -161,6 +161,7 @@ enum class GlobalFlag {
     glyph_mode,
     parallax_clouds,
     v_parallax,
+    partial_palette_sync,
     palette_sync,
     sound_startup_monkeypatch,
     key_poll_called,
@@ -1824,6 +1825,7 @@ void Platform::Screen::clear()
     // VSync
     VBlankIntrWait();
 
+
     if (get_gflag(GlobalFlag::palette_sync)) {
 
         memcpy32(MEM_PALETTE, sp_palette_back_buffer, 16);
@@ -1837,6 +1839,13 @@ void Platform::Screen::clear()
             16); // 16 words, both the background palette and the flag palette.
 
         set_gflag(GlobalFlag::palette_sync, false);
+    } else if (get_gflag(GlobalFlag::partial_palette_sync)) {
+
+        // memcpy32(MEM_BG_PALETTE, bg_palette_back_buffer, 8);
+        // memcpy32(MEM_BG_PALETTE + 16, bg_palette_back_buffer + 16, 8);
+
+        set_gflag(GlobalFlag::partial_palette_sync, false);
+
     }
 
     // We want to do the dynamic texture remapping near the screen clear, to
@@ -6139,6 +6148,11 @@ void* Platform::system_call(const char* feature_name, void* arg)
             longjmp(stack_overflow_resume_context, 1);
         }
         return nullptr;
+    } else if (str_eq(feature_name, "psync")) {
+        // FIXME: bad indices?
+        // memcpy32(bg_palette_back_buffer + 16, tilesheet_1_palette, 8);
+        // memcpy32(bg_palette_back_buffer, tilesheet_0_palette, 8);
+        // set_gflag(GlobalFlag::partial_palette_sync, true);
     } else if (str_eq(feature_name, "feed-watchdog")) {
         ::watchdog_counter = 0;
     } else if (str_cmp(feature_name, "_prlx7") == 0) {

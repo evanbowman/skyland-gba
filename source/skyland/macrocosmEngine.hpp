@@ -117,6 +117,11 @@ enum class Type {
     wool,
     saffron,
     ice,
+    lava,
+    lava_slant_a,
+    lava_slant_b,
+    lava_slant_c,
+    lava_slant_d,
     count,
 };
 
@@ -126,7 +131,8 @@ enum Categories : u8 {
     basic = 1 << 0,
     crop = 1 << 1,
     livestock = 1 << 2,
-    fluid = 1 << 3,
+    fluid_water = 1 << 3,
+    fluid_lava = 1 << 4,
 };
 
 
