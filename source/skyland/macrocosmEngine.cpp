@@ -1000,14 +1000,14 @@ Float terrain::Sector::population_growth_rate() const
 
 
 
-terrain::Category terrain::category(Type t)
+terrain::Categories terrain::categories(Type t)
 {
     switch (t) {
     default:
-        return Category::basic;
+        return Categories::basic;
 
     case terrain::Type::wool:
-        return Category::livestock;
+        return Categories::livestock;
 
     case terrain::Type::wheat:
     case terrain::Type::potatoes:
@@ -1015,15 +1015,17 @@ terrain::Category terrain::category(Type t)
     case terrain::Type::indigo:
     case terrain::Type::sunflowers:
     case terrain::Type::saffron:
-        return Category::crop;
+        return Categories::crop;
 
     case terrain::Type::water:
-    case terrain::Type::shellfish:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
-        return Category::fluid;
+        return Categories::fluid;
+
+    case terrain::Type::shellfish:
+        return (Categories)(Categories::crop | Categories::fluid);
     }
 }
 
@@ -1426,7 +1428,7 @@ u16 terrain::Sector::cursor_raster_pos() const
 
 static bool blocks_light(terrain::Type t)
 {
-    if (t == terrain::Type::air or t == terrain::Type::selector or terrain::category(t) == terrain::Category::fluid) {
+    if (t == terrain::Type::air or t == terrain::Type::selector or (terrain::categories(t) & terrain::Categories::fluid)) {
         return false;
     }
 
@@ -1737,7 +1739,7 @@ static void update_water_slanted(terrain::Sector& s,
     const auto tp = beneath.type();
     if (tp == terrain::Type::air) {
         s.set_block(beneath_coord, terrain::Type::water);
-    } else if (category(tp) == terrain::Category::fluid and
+    } else if ((categories(tp) & terrain::Categories::fluid) and
                tp not_eq terrain::Type::water) {
         s.set_block(beneath_coord, terrain::Type::water);
     }
@@ -1787,7 +1789,7 @@ static void update_water_still(terrain::Sector& s,
         auto lp = position;
         lp.x++;
 
-        if (lp.x < 7) {
+        if (position.x < 7) {
             water_spread(s, lp, terrain::Type::water_slant_a);
         }
 
@@ -1815,7 +1817,7 @@ static void update_water_still(terrain::Sector& s,
 
 static bool is_still_water(terrain::Type t)
 {
-    return terrain::category(t) == terrain::Category::fluid and
+    return (terrain::categories(t) & terrain::Categories::fluid) and
         t not_eq terrain::Type::water_slant_a and
         t not_eq terrain::Type::water_slant_b and
         t not_eq terrain::Type::water_slant_c and

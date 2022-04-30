@@ -365,8 +365,8 @@ Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
         return base_cost / 4;
     }
 
-    if (terrain::category(t) not_eq terrain::Category::crop and
-        terrain::category(t) not_eq terrain::Category::livestock) {
+    if (not (terrain::categories(t) & terrain::Categories::crop) and
+        not (terrain::categories(t) & terrain::Categories::livestock)) {
         return base_cost;
     }
 

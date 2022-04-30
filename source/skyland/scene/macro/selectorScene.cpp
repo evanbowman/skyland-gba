@@ -193,7 +193,7 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::State& state)
 
     auto stats = terrain::stats(tp, shadowed);
 
-    if (terrain::category(tp) == terrain::Category::crop and shadowed) {
+    if ((terrain::categories(tp) & terrain::Categories::crop) and shadowed) {
         text_->append("  ");
         pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 411);
     } else {

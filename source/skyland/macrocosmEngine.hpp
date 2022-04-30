@@ -122,16 +122,16 @@ enum class Type {
 
 
 
-enum class Category {
-    basic,
-    crop,
-    livestock,
-    fluid,
+enum Categories : u8 {
+    basic = 1 << 0,
+    crop = 1 << 1,
+    livestock = 1 << 2,
+    fluid = 1 << 3,
 };
 
 
 
-Category category(Type t);
+Categories categories(Type t);
 
 
 
