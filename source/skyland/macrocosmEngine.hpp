@@ -168,7 +168,7 @@ struct Stats
 
 
 
-using Improvements = Buffer<Type, 10>;
+using Improvements = Buffer<Type, 32>;
 
 
 
@@ -356,7 +356,6 @@ private:
 
 
 public:
-
     // Restore from a previous save.
     void restore(const Persistent& p, u8 blocks[z_limit][8][8]);
 

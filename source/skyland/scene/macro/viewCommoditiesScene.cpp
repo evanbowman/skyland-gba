@@ -69,19 +69,18 @@ void ViewCommoditiesScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    auto gather_imports =
-        [&](terrain::Sector& other) {
-            if (other.coordinate() not_eq sector.coordinate()) {
-                for (auto& exp : other.exports()) {
-                    if (exp.destination_ == sector.coordinate()) {
-                        s_->info_.push_back({exp.c,
-                                             exp.export_supply_.get(),
-                                             State::CommodityInfo::imported,
-                                             other.coordinate()});
-                    }
+    auto gather_imports = [&](terrain::Sector& other) {
+        if (other.coordinate() not_eq sector.coordinate()) {
+            for (auto& exp : other.exports()) {
+                if (exp.destination_ == sector.coordinate()) {
+                    s_->info_.push_back({exp.c,
+                                         exp.export_supply_.get(),
+                                         State::CommodityInfo::imported,
+                                         other.coordinate()});
                 }
             }
-        };
+        }
+    };
 
     gather_imports(state.data_->origin_sector_);
 

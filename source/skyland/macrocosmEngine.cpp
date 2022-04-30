@@ -441,22 +441,19 @@ struct Header
 // space later. Maybe you're wondering, why not just create something more
 // flexible, with tagged attributes appended to the end of the save data? I
 // could, but we're really limited in terms of available save memory on the gba.
-template <u32 extra_bytes>
-struct PersistentWrapper
+template <u32 extra_bytes> struct PersistentWrapper
 {
     terrain::Sector::Persistent p_;
     u8 extra_bytes_[extra_bytes];
 };
-template <>
-struct PersistentWrapper<0>
+template <> struct PersistentWrapper<0>
 {
     terrain::Sector::Persistent p_;
 };
 
 
 
-template <u32 inflate>
-struct Sector
+template <u32 inflate> struct Sector
 {
     PersistentWrapper<inflate> p_;
     u8 blocks_[macro::terrain::Sector::z_limit][8][8];
@@ -480,6 +477,20 @@ struct Sector
 };
 
 } // namespace save
+
+
+
+// Save Format:
+// Header
+// Sector_0_data
+// Sector_0_export_count (one byte)
+// Sector_0_exports[...]
+// Sector_1_data
+// Sector_1_export_count
+// Sector_1_exports
+// ...
+// Sector_N_data
+// you get the idea, right?
 
 
 
@@ -1206,6 +1217,11 @@ static Vec3<u8> rotate_coord(Vec3<u8> input)
 
 void terrain::Sector::rotate()
 {
+    // NOTE: I decided to implement rotation by actually rotating the level's
+    // blocks and fixing up the coordinates. Simplifies the renderer,
+    // basically. Somewhat, costly, but an infrequent operation, unlike
+    // rendering.
+
     for (int z = 0; z < z_limit; ++z) {
         for (int x = 0; x < 8 / 2; x++) {
             for (int y = x; y < 8 - x - 1; y++) {
@@ -1257,6 +1273,11 @@ void terrain::Sector::rotate()
     }
 
     raster::globalstate::_changed = true;
+
+    // Technically, the level didn't shrink, but after a rotation, there may be
+    // raster slots where a block previously existed but no longer does, so we
+    // want to run the same logic to zero out screen entries as we do when
+    // removing a block.
     raster::globalstate::_shrunk = true;
 
     p_.orientation_ = (Orientation)(((int)p_.orientation_ + 1) % 4);
@@ -1264,9 +1285,9 @@ void terrain::Sector::rotate()
 
 
 
-Buffer<terrain::Type, 10> terrain::improvements(Type t)
+terrain::Improvements terrain::improvements(Type t)
 {
-    Buffer<terrain::Type, 10> result;
+    terrain::Improvements result;
 
     auto remove_self = [&] {
         for (auto it = result.begin(); it not_eq result.end(); ++it) {
@@ -1419,7 +1440,8 @@ u16 terrain::Sector::cursor_raster_pos() const
 
 static bool blocks_light(terrain::Type t)
 {
-    if (t == terrain::Type::air or t == terrain::Type::selector or (terrain::categories(t) & terrain::Categories::fluid)) {
+    if (t == terrain::Type::air or t == terrain::Type::selector or
+        (terrain::categories(t) & terrain::Categories::fluid)) {
         return false;
     }
 
@@ -1738,9 +1760,7 @@ static void update_water_slanted(terrain::Sector& s,
 
 
 
-static void water_spread(terrain::Sector& s,
-                         Vec3<u8> target,
-                         terrain::Type tp)
+static void water_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
 {
     auto prev_tp = s.get_block(target).type();
     if (UNLIKELY(prev_tp not_eq tp and
@@ -1756,9 +1776,8 @@ static void water_spread(terrain::Sector& s,
 
 
 
-static void update_water_still(terrain::Sector& s,
-                               terrain::Block& block,
-                               Vec3<u8> position)
+static void
+update_water_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
 {
     const Vec3<u8> beneath_coord = {position.x, position.y, u8(position.z - 1)};
 
@@ -1768,15 +1787,13 @@ static void update_water_still(terrain::Sector& s,
         beneath_tp = beneath.type();
     }
 
-    if (position.z > 0 and
-        (beneath_tp == terrain::Type::air or
-         beneath_tp == terrain::Type::water_slant_a or
-         beneath_tp == terrain::Type::water_slant_b or
-         beneath_tp == terrain::Type::water_slant_c or
-         beneath_tp == terrain::Type::water_slant_d)) {
+    if (position.z > 0 and (beneath_tp == terrain::Type::air or
+                            beneath_tp == terrain::Type::water_slant_a or
+                            beneath_tp == terrain::Type::water_slant_b or
+                            beneath_tp == terrain::Type::water_slant_c or
+                            beneath_tp == terrain::Type::water_slant_d)) {
         s.set_block(beneath_coord, terrain::Type::water);
-    } else if (position.z == 0 or
-               beneath_tp not_eq terrain::Type::water) {
+    } else if (position.z == 0 or beneath_tp not_eq terrain::Type::water) {
         auto lp = position;
         lp.x++;
 
@@ -1809,10 +1826,10 @@ static void update_water_still(terrain::Sector& s,
 static bool is_still_water(terrain::Type t)
 {
     return (terrain::categories(t) & terrain::Categories::fluid) and
-        t not_eq terrain::Type::water_slant_a and
-        t not_eq terrain::Type::water_slant_b and
-        t not_eq terrain::Type::water_slant_c and
-        t not_eq terrain::Type::water_slant_d;
+           t not_eq terrain::Type::water_slant_a and
+           t not_eq terrain::Type::water_slant_b and
+           t not_eq terrain::Type::water_slant_c and
+           t not_eq terrain::Type::water_slant_d;
 }
 
 
@@ -1996,6 +2013,7 @@ void terrain::Sector::update()
 
 
 
+// Projects isometric geometry into indices in the tilemap.
 static const u16 screen_mapping_lut[8][8] = {
     {14, 45, 76, 107, 138, 169, 200, 231},
     {43, 74, 105, 136, 167, 198, 229, 260},
@@ -2027,30 +2045,53 @@ static TileCategory tile_category(int texture_id)
     // don't need to worry about rendering anything underneath. The top and
     // bottom rows have transparent pixels, and cannot necessarily be skipped.
 
+    // Could I clean this table up to use less space? I tried to. But we
+    // basically have six tiles per isometric block, and I'm trying to avoid a
+    // div/mod 6. Each entry in the table describes the shape of the isometric
+    // tile in the tile texture.
+
+#define ISO_DEFAULT_CGS                                                        \
+    top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r
+
+#define ISO_SELECTOR_CGS                                                       \
+    irregular, irregular, irregular, irregular, irregular, irregular
+
     // clang-format off
-    static const std::array<TileCategory, 400> category =
-        {top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         irregular, irregular, irregular, irregular, irregular, irregular,
-         irregular, irregular, irregular, irregular, irregular, irregular,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+    static const std::array<TileCategory,
+                            // NOTE: 6 tiles per block, x2 for shadowed blocks.
+                            (int)terrain::Type::count * 6 * 2> category =
+        {ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_SELECTOR_CGS,
+         ISO_SELECTOR_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          // Non-standard shapes for slanted water blocks
          irregular, top_angled_r, irregular, opaque, bot_angled_l, bot_angled_r,
@@ -2062,35 +2103,44 @@ static TileCategory tile_category(int texture_id)
          irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
 
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
-         top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r,
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
         };
     // clang-format on
 
@@ -2134,6 +2184,14 @@ static_assert(sizeof(DepthNode) == 8);
 
 struct DepthBufferSlab
 {
+    // NOTE: we use two vertically-adjacent tile layers. The 2d strategy engine
+    // for skyland, which I developed first, needs two tile layers, and rather
+    // than redesign the hardware abstraction layer to handle tile layers of
+    // varying sizes, it's simply easier to handle things this way. Not
+    // convinced? The purpose of the hardware interface is to implement the
+    // minimal behavior needed to port the game to a new platform. Any feature
+    // that I add to the Platform class makes my life more difficult when trying
+    // to port the game.
     DepthNode* visible_[480];
 
     DepthBufferSlab()
@@ -2146,7 +2204,7 @@ struct DepthBufferSlab
 
 struct DepthBuffer
 {
-    // NOTE: DepthBufferSlab won't fit in a single allocation.
+    // NOTE: the two DepthBufferSlabs won't fit in a single allocation.
     DynamicMemory<DepthBufferSlab> depth_1_;
     DynamicMemory<DepthBufferSlab> depth_2_;
 
