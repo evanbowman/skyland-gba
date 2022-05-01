@@ -125,9 +125,25 @@ enum class Type {
     volcanic_soil,
     cocoa,
     water_spread_downwards,
-    water_spread_laterally,
+    // Why so many types of water blocks? When saving game state, we represent
+    // each block with a single byte type id, so blocks must be essentially
+    // stateless. Every variation in water behavior needs to use a different
+    // block type. If you want to check more generally whether a block is water,
+    // see Categories::fluid_water.
+    //
+    // water_spread_downwards represents a non-source water block where the
+    // parent block lies above. The lateral spread blocks represent a non-source
+    // water block where the parent block sits in the same z-plane, direction
+    // depending on a,b,c,d.
+    water_spread_laterally_a,
+    water_spread_laterally_b,
+    water_spread_laterally_c,
+    water_spread_laterally_d,
     lava_spread_downwards,
-    lava_spread_laterally,
+    lava_spread_laterally_a,
+    lava_spread_laterally_b,
+    lava_spread_laterally_c,
+    lava_spread_laterally_d,
     count,
 };
 

@@ -1031,7 +1031,10 @@ terrain::Categories terrain::categories(Type t)
 
     case terrain::Type::water_source:
     case terrain::Type::water_spread_downwards:
-    case terrain::Type::water_spread_laterally:
+    case terrain::Type::water_spread_laterally_a:
+    case terrain::Type::water_spread_laterally_b:
+    case terrain::Type::water_spread_laterally_c:
+    case terrain::Type::water_spread_laterally_d:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
@@ -1040,7 +1043,10 @@ terrain::Categories terrain::categories(Type t)
 
     case terrain::Type::lava_source:
     case terrain::Type::lava_spread_downwards:
-    case terrain::Type::lava_spread_laterally:
+    case terrain::Type::lava_spread_laterally_a:
+    case terrain::Type::lava_spread_laterally_b:
+    case terrain::Type::lava_spread_laterally_c:
+    case terrain::Type::lava_spread_laterally_d:
     case terrain::Type::lava_slant_a:
     case terrain::Type::lava_slant_b:
     case terrain::Type::lava_slant_c:
@@ -1091,7 +1097,10 @@ Coins terrain::cost(Sector& s, Type t)
 
     case terrain::Type::water_source:
     case terrain::Type::water_spread_downwards:
-    case terrain::Type::water_spread_laterally:
+    case terrain::Type::water_spread_laterally_a:
+    case terrain::Type::water_spread_laterally_b:
+    case terrain::Type::water_spread_laterally_c:
+    case terrain::Type::water_spread_laterally_d:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
@@ -1100,7 +1109,10 @@ Coins terrain::cost(Sector& s, Type t)
 
     case terrain::Type::lava_source:
     case terrain::Type::lava_spread_downwards:
-    case terrain::Type::lava_spread_laterally:
+    case terrain::Type::lava_spread_laterally_a:
+    case terrain::Type::lava_spread_laterally_b:
+    case terrain::Type::lava_spread_laterally_c:
+    case terrain::Type::lava_spread_laterally_d:
     case terrain::Type::lava_slant_a:
     case terrain::Type::lava_slant_b:
     case terrain::Type::lava_slant_c:
@@ -1185,7 +1197,10 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::water_source:
     case terrain::Type::water_spread_downwards:
-    case terrain::Type::water_spread_laterally:
+    case terrain::Type::water_spread_laterally_a:
+    case terrain::Type::water_spread_laterally_b:
+    case terrain::Type::water_spread_laterally_c:
+    case terrain::Type::water_spread_laterally_d:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
@@ -1194,7 +1209,10 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::lava_source:
     case terrain::Type::lava_spread_downwards:
-    case terrain::Type::lava_spread_laterally:
+    case terrain::Type::lava_spread_laterally_a:
+    case terrain::Type::lava_spread_laterally_b:
+    case terrain::Type::lava_spread_laterally_c:
+    case terrain::Type::lava_spread_laterally_d:
     case terrain::Type::lava_slant_a:
     case terrain::Type::lava_slant_b:
     case terrain::Type::lava_slant_c:
@@ -1304,6 +1322,38 @@ void terrain::Sector::rotate()
                     p_.cursor_ = {(u8)x, (u8)y, (u8)z};
                     break;
 
+                case terrain::Type::lava_spread_laterally_a:
+                    block.type_ = (u8)terrain::Type::lava_spread_laterally_b;
+                    break;
+
+                case terrain::Type::lava_spread_laterally_b:
+                    block.type_ = (u8)terrain::Type::lava_spread_laterally_c;
+                    break;
+
+                case terrain::Type::lava_spread_laterally_c:
+                    block.type_ = (u8)terrain::Type::lava_spread_laterally_d;
+                    break;
+
+                case terrain::Type::lava_spread_laterally_d:
+                    block.type_ = (u8)terrain::Type::lava_spread_laterally_a;
+                    break;
+
+                case terrain::Type::water_spread_laterally_a:
+                    block.type_ = (u8)terrain::Type::water_spread_laterally_b;
+                    break;
+
+                case terrain::Type::water_spread_laterally_b:
+                    block.type_ = (u8)terrain::Type::water_spread_laterally_c;
+                    break;
+
+                case terrain::Type::water_spread_laterally_c:
+                    block.type_ = (u8)terrain::Type::water_spread_laterally_d;
+                    break;
+
+                case terrain::Type::water_spread_laterally_d:
+                    block.type_ = (u8)terrain::Type::water_spread_laterally_a;
+                    break;
+
                 case terrain::Type::water_slant_a:
                     block.type_ = (u8)terrain::Type::water_slant_b;
                     break;
@@ -1397,7 +1447,10 @@ terrain::Improvements terrain::improvements(Type t)
 
     case terrain::Type::water_source:
     case terrain::Type::water_spread_downwards:
-    case terrain::Type::water_spread_laterally:
+    case terrain::Type::water_spread_laterally_a:
+    case terrain::Type::water_spread_laterally_b:
+    case terrain::Type::water_spread_laterally_c:
+    case terrain::Type::water_spread_laterally_d:
         result.push_back(Type::ice);
         result.push_back(Type::shellfish);
         break;
@@ -1460,7 +1513,10 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::water_source:
     case terrain::Type::water_spread_downwards:
-    case terrain::Type::water_spread_laterally:
+    case terrain::Type::water_spread_laterally_a:
+    case terrain::Type::water_spread_laterally_b:
+    case terrain::Type::water_spread_laterally_c:
+    case terrain::Type::water_spread_laterally_d:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
@@ -1469,7 +1525,10 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::lava_source:
     case terrain::Type::lava_spread_downwards:
-    case terrain::Type::lava_spread_laterally:
+    case terrain::Type::lava_spread_laterally_a:
+    case terrain::Type::lava_spread_laterally_b:
+    case terrain::Type::lava_spread_laterally_c:
+    case terrain::Type::lava_spread_laterally_d:
     case terrain::Type::lava_slant_a:
     case terrain::Type::lava_slant_b:
     case terrain::Type::lava_slant_c:
@@ -1676,6 +1735,8 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 
     if (type == Type::selector) {
         selected.data_ = 16;
+    } else {
+        selected.data_ = 0;
     }
 
     selected.type_ = (u8)type;
@@ -1865,7 +1926,10 @@ static void update_lava_slanted(terrain::Sector& s,
     } else if ((categories(tp) & terrain::Categories::fluid_lava) and
                tp not_eq terrain::Type::lava_source and
                tp not_eq terrain::Type::lava_spread_downwards and
-               tp not_eq terrain::Type::lava_spread_laterally) {
+               tp not_eq terrain::Type::lava_spread_laterally_a and
+               tp not_eq terrain::Type::lava_spread_laterally_b and
+               tp not_eq terrain::Type::lava_spread_laterally_c and
+               tp not_eq terrain::Type::lava_spread_laterally_d) {
         s.set_block(beneath_coord, terrain::Type::lava_spread_downwards);
     }
 }
@@ -1880,7 +1944,26 @@ static void lava_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
                   prev_tp == terrain::Type::lava_slant_b or
                   prev_tp == terrain::Type::lava_slant_c or
                   prev_tp == terrain::Type::lava_slant_d))) {
-        s.set_block(target, terrain::Type::lava_spread_laterally);
+        switch (tp) {
+        case terrain::Type::lava_slant_a:
+            s.set_block(target, terrain::Type::lava_spread_laterally_a);
+            break;
+
+        case terrain::Type::lava_slant_b:
+            s.set_block(target, terrain::Type::lava_spread_laterally_b);
+            break;
+
+        case terrain::Type::lava_slant_c:
+            s.set_block(target, terrain::Type::lava_spread_laterally_c);
+            break;
+
+        case terrain::Type::lava_slant_d:
+            s.set_block(target, terrain::Type::lava_spread_laterally_d);
+            break;
+
+        default:
+            Platform::fatal("Invalid water lateral spread type");
+        }
     } else if (prev_tp == terrain::Type::air or destroyed_by_lava(prev_tp)) {
         s.set_block(target, tp);
     }
@@ -1906,8 +1989,8 @@ update_lava_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
          beneath_tp == terrain::Type::lava_slant_c or
          beneath_tp == terrain::Type::lava_slant_d)) {
         s.set_block(beneath_coord, terrain::Type::lava_spread_downwards);
-    } else if (position.z == 0 or
-               not (terrain::categories(beneath_tp) & terrain::Categories::fluid_lava)) {
+    } else if (position.z == 0 or not(terrain::categories(beneath_tp) &
+                                      terrain::Categories::fluid_lava)) {
         auto lp = position;
         lp.x++;
 
@@ -1956,7 +2039,10 @@ static void update_water_slanted(terrain::Sector& s,
     } else if ((categories(tp) & terrain::Categories::fluid_water) and
                tp not_eq terrain::Type::water_source and
                tp not_eq terrain::Type::water_spread_downwards and
-               tp not_eq terrain::Type::water_spread_laterally) {
+               tp not_eq terrain::Type::water_spread_laterally_a and
+               tp not_eq terrain::Type::water_spread_laterally_b and
+               tp not_eq terrain::Type::water_spread_laterally_c and
+               tp not_eq terrain::Type::water_spread_laterally_d) {
         s.set_block(beneath_coord, terrain::Type::water_spread_downwards);
     }
 }
@@ -1974,7 +2060,26 @@ static void water_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
                   prev_tp == terrain::Type::water_slant_b or
                   prev_tp == terrain::Type::water_slant_c or
                   prev_tp == terrain::Type::water_slant_d))) {
-        s.set_block(target, terrain::Type::water_spread_laterally);
+        switch (tp) {
+        case terrain::Type::water_slant_a:
+            s.set_block(target, terrain::Type::water_spread_laterally_a);
+            break;
+
+        case terrain::Type::water_slant_b:
+            s.set_block(target, terrain::Type::water_spread_laterally_b);
+            break;
+
+        case terrain::Type::water_slant_c:
+            s.set_block(target, terrain::Type::water_spread_laterally_c);
+            break;
+
+        case terrain::Type::water_slant_d:
+            s.set_block(target, terrain::Type::water_spread_laterally_d);
+            break;
+
+        default:
+            Platform::fatal("Invalid water lateral spread type");
+        }
     } else if (prev_tp == terrain::Type::air) {
         s.set_block(target, tp);
     }
@@ -2003,8 +2108,8 @@ update_water_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
                 beneath_tp == terrain::Type::water_slant_c or
                 beneath_tp == terrain::Type::water_slant_d)) {
         s.set_block(beneath_coord, terrain::Type::water_spread_downwards);
-    } else if (position.z == 0 or
-               not (terrain::categories(beneath_tp) & terrain::Categories::fluid_water)) {
+    } else if (position.z == 0 or not(terrain::categories(beneath_tp) &
+                                      terrain::Categories::fluid_water)) {
         auto lp = position;
         lp.x++;
 
@@ -2053,6 +2158,10 @@ static bool is_still_lava(terrain::Type t)
            t not_eq terrain::Type::lava_slant_c and
            t not_eq terrain::Type::lava_slant_d;
 }
+
+
+
+static const int lava_spread_viscosity = 12;
 
 
 
@@ -2224,10 +2333,23 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // ice
     nullptr,
     // lava
-    update_lava_still,
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        block.data_++;
+        if (block.data_ > lava_spread_viscosity) {
+            update_lava_still(s, block, position);
+            block.data_ = 0;
+        }
+    },
     // lava_slant_a
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
+        block.data_++;
+        if (block.data_ < lava_spread_viscosity + 1) {
+            return;
+        }
+        block.data_ = 0;
+
         if (position.x > 0) {
             auto behind = position;
             behind.x--;
@@ -2242,6 +2364,12 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // lava_slant_b
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
+        block.data_++;
+        if (block.data_ < lava_spread_viscosity + 1) {
+            return;
+        }
+        block.data_ = 0;
+
         if (position.y > 0) {
             auto behind = position;
             --behind.y;
@@ -2256,6 +2384,12 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // lava_slant_c
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
+        block.data_++;
+        if (block.data_ < lava_spread_viscosity + 1) {
+            return;
+        }
+        block.data_ = 0;
+
         if (position.x < 7) {
             auto behind = position;
             ++behind.x;
@@ -2270,6 +2404,12 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // lava_slant_d
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
+        block.data_++;
+        if (block.data_ < lava_spread_viscosity + 1) {
+            return;
+        }
+        block.data_ = 0;
+
         if (position.y < 7) {
             auto behind = position;
             ++behind.y;
@@ -2297,29 +2437,162 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             auto above_coord = position;
             ++above_coord.z;
             auto& above = s.get_block(above_coord);
-            if (not (terrain::categories(above.type()) & terrain::Categories::fluid_water)) {
+            if (not (terrain::categories(above.type()) &
+                     terrain::Categories::fluid_water)) {
                 s.set_block(position, terrain::Type::air);
             }
         }
     },
-    // water_spread_laterally (TODO)
-    update_water_still,
+    // water_spread_laterally_a
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.x > 0) {
+            auto behind = position;
+            behind.x--;
+            auto& block = s.get_block(behind);
+            if (not is_still_water(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_water_still(s, block, position);
+    },
+    // water_spread_laterally_b
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.y > 0) {
+            auto behind = position;
+            --behind.y;
+            auto& block = s.get_block(behind);
+            if (not is_still_water(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_water_still(s, block, position);
+    },
+    // water_spread_laterally_c
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.x < 7) {
+            auto behind = position;
+            ++behind.x;
+            auto& block = s.get_block(behind);
+            if (not is_still_water(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_water_still(s, block, position);
+    },
+    // water_spread_laterally_d
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.y < 7) {
+            auto behind = position;
+            ++behind.y;
+            auto& block = s.get_block(behind);
+            if (not is_still_water(block.type())) {
+                s.set_block(position, terrain::Type::air);
+                return;
+            }
+        }
+        update_water_still(s, block, position);
+    },
     // lava_spread_down
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
+        block.data_++;
+        if (block.data_ < lava_spread_viscosity + 1) {
+            return;
+        }
+
+        block.data_ = 0;
+
         update_lava_still(s, block, position);
 
         if (position.z < terrain::Sector::z_limit - 1) {
             auto above_coord = position;
             ++above_coord.z;
             auto& above = s.get_block(above_coord);
-            if (not (terrain::categories(above.type()) & terrain::Categories::fluid_lava)) {
+            if (not (terrain::categories(above.type()) &
+                     terrain::Categories::fluid_lava)) {
                 s.set_block(position, terrain::Type::air);
             }
         }
     },
-    // water_flow_laterally (TODO)
-    update_lava_still,
+    // lava_spread_laterally_a
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        block.data_++;
+        if (block.data_ > lava_spread_viscosity) {
+            if (position.x > 0) {
+                auto behind = position;
+                behind.x--;
+                auto& block = s.get_block(behind);
+                if (not is_still_lava(block.type())) {
+                    s.set_block(position, terrain::Type::air);
+                    return;
+                }
+            }
+            update_lava_still(s, block, position);
+            block.data_ = 0;
+        }
+    },
+    // lava_spread_laterally_b
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        block.data_++;
+        if (block.data_ > lava_spread_viscosity) {
+            if (position.y > 0) {
+                auto behind = position;
+                --behind.y;
+                auto& block = s.get_block(behind);
+                if (not is_still_lava(block.type())) {
+                    s.set_block(position, terrain::Type::air);
+                    return;
+                }
+            }
+            update_lava_still(s, block, position);
+            block.data_ = 0;
+        }
+    },
+    // lava_spread_laterally_c
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        block.data_++;
+        if (block.data_ > lava_spread_viscosity) {
+            if (position.x < 7) {
+                auto behind = position;
+                ++behind.x;
+                auto& block = s.get_block(behind);
+                if (not is_still_lava(block.type())) {
+                    s.set_block(position, terrain::Type::air);
+                    return;
+                }
+            }
+            update_lava_still(s, block, position);
+            block.data_ = 0;
+        }
+    },
+    // lava_spread_laterally_d
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        block.data_++;
+        if (block.data_ > lava_spread_viscosity) {
+            if (position.y < 7) {
+                auto behind = position;
+                ++behind.y;
+                auto& block = s.get_block(behind);
+                if (not is_still_lava(block.type())) {
+                    s.set_block(position, terrain::Type::air);
+                    return;
+                }
+            }
+            update_lava_still(s, block, position);
+            block.data_ = 0;
+        }
+    },
 };
 // clang-format on
 
@@ -2482,6 +2755,42 @@ static TileCategory tile_category(int texture_id)
          irregular, irregular, opaque, top_angled_r, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
         };
     // clang-format on

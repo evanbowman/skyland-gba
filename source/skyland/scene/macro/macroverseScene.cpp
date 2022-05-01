@@ -71,8 +71,7 @@ void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-ColorConstant
-water_shader(ShaderPalette p, ColorConstant k, int var, int index)
+ColorConstant water_shader(ShaderPalette p, ColorConstant k, int var, int index)
 {
     if (p == ShaderPalette::tile0 or p == ShaderPalette::tile1) {
         if (index == 11) {
@@ -105,7 +104,6 @@ water_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
     return k;
 }
-
 
 
 
