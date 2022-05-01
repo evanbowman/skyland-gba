@@ -488,8 +488,8 @@ void ConfigurePortScene::collect_options(macro::State& state)
             options_.push_back(terrain::Type::saffron);
             break;
 
-        case terrain::Commodity::bananas:
-            options_.push_back(terrain::Type::bananas);
+        case terrain::Commodity::cocoa:
+            options_.push_back(terrain::Type::cocoa);
             break;
 
         case terrain::Commodity::food:

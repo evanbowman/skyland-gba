@@ -15,12 +15,12 @@ Waiting for other player...
 air
 arc-gun
 banana-plant
-bananas
 barrier
 basalt
 bridge
 bronze-hull
 building
+cocoa
 corn
 cesium
 stacked-hull

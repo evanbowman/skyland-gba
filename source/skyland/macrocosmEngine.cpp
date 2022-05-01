@@ -719,10 +719,10 @@ Stats stats(Type t, bool shadowed)
         result.food_ += 2;
         break;
 
-    case terrain::Type::bananas:
+    case terrain::Type::cocoa:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::bananas, 3});
-            result.food_ += 2;
+            result.commodities_.push_back({Commodity::Type::cocoa, 3});
+            result.employment_ += 6;
         }
         break;
 
@@ -790,8 +790,8 @@ SystemString terrain::name(terrain::Commodity::Type t)
     case Commodity::saffron:
         return SystemString::block_saffron;
 
-    case Commodity::bananas:
-        return SystemString::block_bananas;
+    case Commodity::cocoa:
+        return SystemString::block_cocoa;
     }
 
     return SystemString::empty;
@@ -1072,7 +1072,7 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::volcanic_soil:
         return 100;
 
-    case terrain::Type::bananas:
+    case terrain::Type::cocoa:
         return 90;
 
     case terrain::Type::ice:
@@ -1210,8 +1210,8 @@ SystemString terrain::name(Type t)
     case terrain::Type::shellfish:
         return SystemString::block_shellfish;
 
-    case terrain::Type::bananas:
-        return SystemString::block_bananas;
+    case terrain::Type::cocoa:
+        return SystemString::block_cocoa;
 
     case terrain::Type::wool:
         return SystemString::block_wool;
@@ -1393,7 +1393,7 @@ terrain::Improvements terrain::improvements(Type t)
         break;
 
     case Type::volcanic_soil:
-        result.push_back(Type::bananas);
+        result.push_back(Type::cocoa);
         break;
 
     default:
@@ -1420,7 +1420,7 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::masonry:
         return {1448, 1464};
 
-    case terrain::Type::bananas:
+    case terrain::Type::cocoa:
         return {1864, 1880};
 
     case terrain::Type::ice:
@@ -2259,10 +2259,10 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     },
     // volcanic_soil
     nullptr,
-    // bananas
+    // cocoa
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        revert_if_covered(s, block, position, terrain::Type::terrain);
+        revert_if_covered(s, block, position, terrain::Type::volcanic_soil);
     },
 };
 // clang-format on
