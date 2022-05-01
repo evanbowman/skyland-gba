@@ -91,7 +91,7 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         //     sin -= rng::choice<8>(rng::utility_state);
         // }
 
-        water_anim_index_ += 4;
+        water_anim_index_ += 1;
         lava_anim_index_ += 4;
     }
     if (was_gre) {

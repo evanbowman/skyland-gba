@@ -71,12 +71,22 @@ void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-ColorConstant fluid_shader(ShaderPalette p, ColorConstant k, int var, int index)
+ColorConstant
+water_shader(ShaderPalette p, ColorConstant k, int var, int index)
 {
     if (p == ShaderPalette::tile0 or p == ShaderPalette::tile1) {
         if (index == 11) {
 
-            // ...
+            int v1 = (var & 0xff00) >> 8;
+
+            static const Color input(k);
+            static const Color k2(custom_color(0x4f92ff));
+
+            Color result(fast_interpolate(k2.r_, input.r_, v1),
+                         fast_interpolate(k2.g_, input.g_, v1),
+                         fast_interpolate(k2.b_, input.b_, v1));
+
+            return result.hex();
 
         } else if (index == 3) {
 
@@ -98,6 +108,7 @@ ColorConstant fluid_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
 
 
+
 void MacroverseScene::exit(Platform& pfrm, App& app, Scene& prev)
 {
     auto& sector = app.macrocosm()->sector();
@@ -106,7 +117,7 @@ void MacroverseScene::exit(Platform& pfrm, App& app, Scene& prev)
     sector.rotate();
     sector.rotate(); // hack to force repaint.
 
-    pfrm.screen().set_shader(fluid_shader);
+    pfrm.screen().set_shader(water_shader);
 
     pfrm.sleep(1);
     pfrm.screen().fade(1.f);
