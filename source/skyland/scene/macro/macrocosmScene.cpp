@@ -21,6 +21,8 @@
 
 
 #include "macrocosmScene.hpp"
+#include "skyland/scene/lispReplScene.hpp"
+#include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -69,6 +71,17 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         Platform::fatal("macro state unbound!?");
     }
 
+    if (state_bit_load(app, StateBit::launch_repl)) {
+        state_bit_store(app, StateBit::launch_repl, false);
+        return scene_pool::alloc<LispReplScene>();
+    }
+
+    const auto exit_cond = app.exit_condition();
+    if (exit_cond not_eq App::ExitCondition::none) {
+        app.exit_condition() = App::ExitCondition::none;
+        return scene_pool::alloc<TitleScreenScene>();
+    }
+
     app.player().update(pfrm, app, delta);
     app.camera()->update(pfrm, app, app.player_island(), {}, delta, true);
 
@@ -85,11 +98,6 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         was_gre = true;
         val = sine8[water_anim_index_];
         val2 = sine8[lava_anim_index_];
-        // if (rng::choice<2>(rng::utility_state)) {
-        //     sin += rng::choice<8>(rng::utility_state);
-        // } else {
-        //     sin -= rng::choice<8>(rng::utility_state);
-        // }
 
         water_anim_index_ += 1;
         lava_anim_index_ += 4;
@@ -181,8 +189,16 @@ void MacrocosmScene::update_ui(macro::State& state)
     (*ui_)->population_->sync_value(
         format_ui_fraction(pop, sector.population_growth_rate()));
 
-    (*ui_)->coins_->sync_value(format_ui_fraction(
-        (int)state.data_->p().coins_.get(), state.coin_yield()));
+    auto disp_coins = (int)state.data_->p().coins_.get();
+    if (disp_coins > std::numeric_limits<u16>::max()) {
+        disp_coins /= 1000;
+        (*ui_)->coins_->use_large_numerator(true);
+    } else {
+        (*ui_)->coins_->use_large_numerator(false);
+    }
+
+    (*ui_)->coins_->sync_value(format_ui_fraction(disp_coins,
+                                                  state.coin_yield()));
 
     (*ui_)->housing_->sync_value(stat.housing_);
 
@@ -236,6 +252,18 @@ void MacrocosmScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
                                                   state.coin_yield()),
                                UIMetric::Align::left,
                                UIMetric::Format::integer_with_rate);
+
+        auto disp_coins = (int)state.data_->p().coins_.get();
+        if (disp_coins > std::numeric_limits<u16>::max()) {
+            disp_coins /= 1000;
+            (*ui_)->coins_->use_large_numerator(true);
+        } else {
+            (*ui_)->coins_->use_large_numerator(false);
+        }
+
+        (*ui_)->coins_->sync_value(format_ui_fraction(disp_coins,
+                                                      state.coin_yield()));
+
 
         (*ui_)->employment_.emplace(pfrm,
                                     OverlayCoord{1, 4},

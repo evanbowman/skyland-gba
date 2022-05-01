@@ -3336,8 +3336,8 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_scroll.hpp"
 #include "data/sound_thunder_1.hpp"
 #include "data/sound_thunder_2.hpp"
-// #include "data/sound_tw_bell.hpp"
-// #include "data/sound_typewriter.hpp"
+#include "data/sound_tw_bell.hpp"
+#include "data/sound_typewriter.hpp"
 #include "data/sound_beep_error.hpp"
 #include "data/sound_build0.hpp"
 #include "data/sound_cannon.hpp"
@@ -3359,7 +3359,7 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(gravel, sound_gravel),
     DEF_SOUND(beep_error, sound_beep_error),
     DEF_SOUND(drone_beep, sound_drone_beep),
-    // DEF_SOUND(typewriter, sound_typewriter),
+    DEF_SOUND(typewriter, sound_typewriter),
     DEF_SOUND(footstep1, sound_footstep1),
     DEF_SOUND(footstep2, sound_footstep2),
     DEF_SOUND(footstep3, sound_footstep3),
@@ -3367,7 +3367,7 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(gust2, sound_gust2),
     DEF_SOUND(openbook, sound_open_book),
     DEF_SOUND(openbag, sound_openbag),
-    // DEF_SOUND(tw_bell, sound_tw_bell),
+    DEF_SOUND(tw_bell, sound_tw_bell),
     DEF_SOUND(click, sound_scroll),
     DEF_SOUND(cursor_tick, sound_cursor_click),
     DEF_SOUND(click_negative, sound_click_negative),

@@ -21,8 +21,10 @@
 
 
 #include "lispReplScene.hpp"
+#include "skyland/scene/macro/selectorScene.hpp"
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -296,7 +298,11 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
     case DisplayMode::entry:
         if (pfrm.keyboard().down_transition<Key::action_2>()) {
             if (command_->empty()) {
-                return scene_pool::alloc<ReadyScene>();
+                if (app.macrocosm()) {
+                    return scene_pool::alloc<macro::SelectorScene>();
+                } else {
+                    return scene_pool::alloc<ReadyScene>();
+                }
             }
             command_->pop_back();
             repaint_entry(pfrm);

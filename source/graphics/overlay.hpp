@@ -474,6 +474,12 @@ public:
         return value_;
     }
 
+
+    void use_large_numerator(bool val)
+    {
+        large_numerator_ = val;
+    }
+
 private:
     void display(Platform& pfrm);
 
@@ -485,6 +491,7 @@ private:
     const Align align_;
     const Format format_;
     OverlayCoord pos_;
+    bool large_numerator_ = false;
 };
 
 

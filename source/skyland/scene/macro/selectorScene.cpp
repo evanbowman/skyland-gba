@@ -22,6 +22,7 @@
 
 #include "selectorScene.hpp"
 #include "createBlockScene.hpp"
+#include "keyComboScene.hpp"
 #include "menuOptionsScene.hpp"
 #include "modifiedSelectorScene.hpp"
 #include "nextTurnScene.hpp"
@@ -66,8 +67,19 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
     auto cursor = sector.cursor();
 
     if (player.key_down(pfrm, Key::start)) {
-        return scene_pool::alloc<StartMenuScene>(0);
+        await_start_key_ = true;
     }
+
+    if (player.key_pressed(pfrm, Key::start)) {
+        if (player.key_down(pfrm, Key::alt_2)) {
+            return scene_pool::alloc<KeyComboScene>(true);
+        }
+    } else {
+        if (await_start_key_ and player.key_up(pfrm, Key::start)) {
+            return scene_pool::alloc<StartMenuScene>(0);
+        }
+    }
+
 
     if (player.key_down(pfrm, Key::select)) {
         pfrm.speaker().play_sound("button_wooden", 3);

@@ -48,6 +48,9 @@ void UIMetric::set_value(u32 value)
         } else if (v2 == 0) {
             value_len += 2;
         }
+        if (large_numerator_) {
+            value_len += 1;
+        }
 
         if (text_ and text_->len() > value_len) {
             ++value_len;
@@ -105,6 +108,11 @@ void UIMetric::display(Platform& pfrm)
         text_->assign(v1);
         auto clr = Text::OptColors{
             {ColorConstant::med_blue_gray, ColorConstant::rich_black}};
+
+        if (large_numerator_) {
+            text_->append("k");
+        }
+
         text_->append(",", clr);
 
         if (v2 > 0) {

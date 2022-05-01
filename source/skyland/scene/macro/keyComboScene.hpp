@@ -22,7 +22,8 @@
 
 #pragma once
 
-#include "macrocosmScene.hpp"
+#include "graphics/overlay.hpp"
+#include "skyland/scene.hpp"
 
 
 
@@ -31,25 +32,27 @@ namespace skyland::macro
 
 
 
-class SelectorScene : public MacrocosmScene
+class KeyComboScene : public Scene
 {
 public:
-    void enter(Platform& pfrm, macro::State& state, Scene& prev) override;
+    KeyComboScene(bool near) : near_(near)
+    {
+    }
 
 
-    void exit(Platform& pfrm, macro::State& state, Scene& next) override;
+    void enter(Platform&, App&, Scene& prev) override;
 
 
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::State& state) override;
+    void exit(Platform&, App&, Scene& next) override;
+
+
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
 private:
-    void describe_selected(Platform& pfrm, macro::State& state);
-
+    bool near_;
+    StringBuffer<32> text_data_;
     std::optional<Text> text_;
-    std::optional<Text> text_2_;
-    bool await_start_key_ = false;
 };
 
 

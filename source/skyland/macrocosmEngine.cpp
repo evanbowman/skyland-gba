@@ -2216,7 +2216,6 @@ bool parent_exists_dir_c(terrain::Sector& s,
 
 
 
-
 template <typename F>
 bool parent_exists_dir_d(terrain::Sector& s,
                          terrain::Block& block,
@@ -2231,7 +2230,6 @@ bool parent_exists_dir_d(terrain::Sector& s,
     }
     return true;
 }
-
 
 
 

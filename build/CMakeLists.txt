@@ -179,6 +179,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/macro/macrocosmScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/macroverseScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/nextTurnScene.cpp
+  ${SOURCE_DIR}/skyland/scene/macro/keyComboScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/selectorScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/viewBudgetScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/tileOptionsScene.cpp

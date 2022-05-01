@@ -1025,7 +1025,12 @@ static const lisp::Binding script_api[] = {
     {"coins",
      [](int argc) {
          auto app = interp_get_app();
-         return lisp::make_integer(app->coins());
+         if (app->macrocosm()) {
+             return lisp::make_integer(
+                 app->macrocosm()->data_->p().coins_.get());
+         } else {
+             return lisp::make_integer(app->coins());
+         }
      }},
     {"coins-add",
      [](int argc) {
@@ -1033,10 +1038,16 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_OP(0, integer);
 
          auto app = interp_get_app();
-         app->set_coins(
-             *lisp::interp_get_pfrm(),
-             std::max(0,
-                      (int)(lisp::get_op(0)->integer().value_ + app->coins())));
+
+         if (app->macrocosm()) {
+             auto current = app->macrocosm()->data_->p().coins_.get();
+             current += L_LOAD_INT(0);
+             app->macrocosm()->data_->p().coins_.set(
+                 std::min(std::numeric_limits<macro::Coins>::max(), current));
+         } else {
+             app->set_coins(*lisp::interp_get_pfrm(),
+                            std::max(0, (int)(L_LOAD_INT(0) + app->coins())));
+         }
 
          return L_NIL;
      }},
@@ -1046,7 +1057,14 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_OP(0, integer);
 
          auto app = interp_get_app();
-         app->set_coins(*lisp::interp_get_pfrm(), L_LOAD_INT(0));
+         if (app->macrocosm()) {
+             auto val = L_LOAD_INT(0);
+             app->macrocosm()->data_->p().coins_.set(
+                 std::min(std::numeric_limits<macro::Coins>::max(), val));
+         } else {
+             app->set_coins(*lisp::interp_get_pfrm(), L_LOAD_INT(0));
+         }
+
 
          return L_NIL;
      }},
