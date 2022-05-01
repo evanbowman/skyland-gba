@@ -1027,6 +1027,7 @@ terrain::Categories terrain::categories(Type t)
     case terrain::Type::indigo:
     case terrain::Type::sunflowers:
     case terrain::Type::saffron:
+    case terrain::Type::cocoa:
         return Categories::crop;
 
     case terrain::Type::water_source:
@@ -1083,7 +1084,7 @@ Coins terrain::cost(Sector& s, Type t)
         return 100;
 
     case terrain::Type::cocoa:
-        return 90;
+        return 160;
 
     case terrain::Type::ice:
         return 5;
