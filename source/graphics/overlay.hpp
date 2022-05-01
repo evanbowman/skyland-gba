@@ -432,9 +432,11 @@ public:
                     int icon_tile,
                     u32 value,
                     Align align,
-                    Format format = Format::plain_integer)
+                    Format format = Format::plain_integer,
+                    bool large_numerator = false)
         : icon_tile_(icon_tile), value_(value), anim_(pfrm, pos), align_(align),
-          format_(format), pos_(pos)
+          format_(format), pos_(pos),
+          large_numerator_(large_numerator)
     {
         display(pfrm);
     }

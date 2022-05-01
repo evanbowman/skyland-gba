@@ -245,24 +245,22 @@ void MacrocosmScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
             UIMetric::Align::left,
             UIMetric::Format::integer_with_rate);
 
+
+        auto disp_coins = (int)state.data_->p().coins_.get();
+        bool coins_large_numerator = false;
+        if (disp_coins > std::numeric_limits<u16>::max()) {
+            disp_coins /= 1000;
+            coins_large_numerator = true;
+        }
+
         (*ui_)->coins_.emplace(pfrm,
                                OverlayCoord{1, 2},
                                146,
-                               format_ui_fraction(state.data_->p().coins_.get(),
+                               format_ui_fraction(disp_coins,
                                                   state.coin_yield()),
                                UIMetric::Align::left,
-                               UIMetric::Format::integer_with_rate);
-
-        auto disp_coins = (int)state.data_->p().coins_.get();
-        if (disp_coins > std::numeric_limits<u16>::max()) {
-            disp_coins /= 1000;
-            (*ui_)->coins_->use_large_numerator(true);
-        } else {
-            (*ui_)->coins_->use_large_numerator(false);
-        }
-
-        (*ui_)->coins_->sync_value(format_ui_fraction(disp_coins,
-                                                      state.coin_yield()));
+                               UIMetric::Format::integer_with_rate,
+                               coins_large_numerator);
 
 
         (*ui_)->employment_.emplace(pfrm,
