@@ -61,6 +61,7 @@ enum class SystemString {
     block_air,
     block_arcgun,
     block_banana_plant,
+    block_bananas,
     block_barrier,
     block_basalt,
     block_bridge,

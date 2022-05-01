@@ -719,6 +719,13 @@ Stats stats(Type t, bool shadowed)
         result.food_ += 2;
         break;
 
+    case terrain::Type::bananas:
+        if (not shadowed) {
+            result.commodities_.push_back({Commodity::Type::bananas, 3});
+            result.food_ += 2;
+        }
+        break;
+
     case terrain::Type::wool:
         result.employment_ += 1;
         result.food_ += 1;
@@ -782,6 +789,9 @@ SystemString terrain::name(terrain::Commodity::Type t)
 
     case Commodity::saffron:
         return SystemString::block_saffron;
+
+    case Commodity::bananas:
+        return SystemString::block_bananas;
     }
 
     return SystemString::empty;
@@ -1062,6 +1072,9 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::volcanic_soil:
         return 100;
 
+    case terrain::Type::bananas:
+        return 90;
+
     case terrain::Type::ice:
         return 5;
 
@@ -1196,6 +1209,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::shellfish:
         return SystemString::block_shellfish;
+
+    case terrain::Type::bananas:
+        return SystemString::block_bananas;
 
     case terrain::Type::wool:
         return SystemString::block_wool;
@@ -1377,7 +1393,7 @@ terrain::Improvements terrain::improvements(Type t)
         break;
 
     case Type::volcanic_soil:
-        // TODO...
+        result.push_back(Type::bananas);
         break;
 
     default:
@@ -1403,6 +1419,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::masonry:
         return {1448, 1464};
+
+    case terrain::Type::bananas:
+        return {1864, 1880};
 
     case terrain::Type::ice:
         return {2344, 2360};
@@ -2240,6 +2259,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     },
     // volcanic_soil
     nullptr,
+    // bananas
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::terrain);
+    },
 };
 // clang-format on
 

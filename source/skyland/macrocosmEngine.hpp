@@ -123,6 +123,7 @@ enum class Type {
     lava_slant_c,
     lava_slant_d,
     volcanic_soil,
+    bananas,
     count,
 };
 
@@ -152,6 +153,7 @@ struct Commodity
         food,
         wool,
         saffron,
+        bananas,
     };
     Type type_;
     u16 supply_;

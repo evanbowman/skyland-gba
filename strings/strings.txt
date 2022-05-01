@@ -15,6 +15,7 @@ Waiting for other player...
 air
 arc-gun
 banana-plant
+bananas
 barrier
 basalt
 bridge
