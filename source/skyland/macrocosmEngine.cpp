@@ -2165,6 +2165,76 @@ static const int lava_spread_viscosity = 12;
 
 
 
+template <typename F>
+bool parent_exists_dir_a(terrain::Sector& s,
+                         terrain::Block& block,
+                         Vec3<u8> position,
+                         F&& typecheck)
+{
+    if (position.x > 0) {
+        auto behind = position;
+        behind.x--;
+        auto& block = s.get_block(behind);
+        return typecheck(block.type());
+    }
+    return true;
+}
+
+
+
+template <typename F>
+bool parent_exists_dir_b(terrain::Sector& s,
+                         terrain::Block& block,
+                         Vec3<u8> position,
+                         F&& typecheck)
+{
+    if (position.y > 0) {
+        auto behind = position;
+        --behind.y;
+        auto& block = s.get_block(behind);
+        return typecheck(block.type());
+    }
+    return true;
+}
+
+
+
+template <typename F>
+bool parent_exists_dir_c(terrain::Sector& s,
+                         terrain::Block& block,
+                         Vec3<u8> position,
+                         F&& typecheck)
+{
+    if (position.x < 7) {
+        auto behind = position;
+        ++behind.x;
+        auto& block = s.get_block(behind);
+        return typecheck(block.type());
+    }
+    return true;
+}
+
+
+
+
+template <typename F>
+bool parent_exists_dir_d(terrain::Sector& s,
+                         terrain::Block& block,
+                         Vec3<u8> position,
+                         F&& typecheck)
+{
+    if (position.y < 7) {
+        auto behind = position;
+        ++behind.y;
+        auto& block = s.get_block(behind);
+        return typecheck(block.type());
+    }
+    return true;
+}
+
+
+
+
 // clang-format off
 typedef void(*UpdateFunction)(terrain::Sector&, terrain::Block&, Vec3<u8>);
 static const UpdateFunction update_functions[(int)terrain::Type::count] = {
@@ -2228,56 +2298,36 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // water_slant_a
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (position.x > 0) {
-            auto behind = position;
-            behind.x--;
-            auto& block = s.get_block(behind);
-            if (not is_still_water(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_a(s, block, position, is_still_water)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_water_slanted(s, block, position);
     },
     // water_slant_b
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (position.y > 0) {
-            auto behind = position;
-            --behind.y;
-            auto& block = s.get_block(behind);
-            if (not is_still_water(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_b(s, block, position, is_still_water)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_water_slanted(s, block, position);
     },
     // water_slant_c
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (position.x < 7) {
-            auto behind = position;
-            ++behind.x;
-            auto& block = s.get_block(behind);
-            if (not is_still_water(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_c(s, block, position, is_still_water)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_water_slanted(s, block, position);
     },
     // water_slant_d
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (position.y < 7) {
-            auto behind = position;
-            ++behind.y;
-            auto& block = s.get_block(behind);
-            if (not is_still_water(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_d(s, block, position, is_still_water)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_water_slanted(s, block, position);
     },
@@ -2350,14 +2400,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         }
         block.data_ = 0;
 
-        if (position.x > 0) {
-            auto behind = position;
-            behind.x--;
-            auto& block = s.get_block(behind);
-            if (not is_still_lava(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_a(s, block, position, is_still_lava)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_lava_slanted(s, block, position);
     },
@@ -2370,14 +2415,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         }
         block.data_ = 0;
 
-        if (position.y > 0) {
-            auto behind = position;
-            --behind.y;
-            auto& block = s.get_block(behind);
-            if (not is_still_lava(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_b(s, block, position, is_still_lava)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_lava_slanted(s, block, position);
     },
@@ -2390,14 +2430,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         }
         block.data_ = 0;
 
-        if (position.x < 7) {
-            auto behind = position;
-            ++behind.x;
-            auto& block = s.get_block(behind);
-            if (not is_still_lava(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_c(s, block, position, is_still_lava)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_lava_slanted(s, block, position);
     },
@@ -2410,14 +2445,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         }
         block.data_ = 0;
 
-        if (position.y < 7) {
-            auto behind = position;
-            ++behind.y;
-            auto& block = s.get_block(behind);
-            if (not is_still_lava(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_d(s, block, position, is_still_lava)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_lava_slanted(s, block, position);
     },
@@ -2446,56 +2476,36 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // water_spread_laterally_a
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (position.x > 0) {
-            auto behind = position;
-            behind.x--;
-            auto& block = s.get_block(behind);
-            if (not is_still_water(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_a(s, block, position, is_still_water)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_water_still(s, block, position);
     },
     // water_spread_laterally_b
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (position.y > 0) {
-            auto behind = position;
-            --behind.y;
-            auto& block = s.get_block(behind);
-            if (not is_still_water(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_b(s, block, position, is_still_water)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_water_still(s, block, position);
     },
     // water_spread_laterally_c
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (position.x < 7) {
-            auto behind = position;
-            ++behind.x;
-            auto& block = s.get_block(behind);
-            if (not is_still_water(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_c(s, block, position, is_still_water)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_water_still(s, block, position);
     },
     // water_spread_laterally_d
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (position.y < 7) {
-            auto behind = position;
-            ++behind.y;
-            auto& block = s.get_block(behind);
-            if (not is_still_water(block.type())) {
-                s.set_block(position, terrain::Type::air);
-                return;
-            }
+        if (not parent_exists_dir_d(s, block, position, is_still_water)) {
+            s.set_block(position, terrain::Type::air);
+            return;
         }
         update_water_still(s, block, position);
     },
@@ -2526,14 +2536,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         block.data_++;
         if (block.data_ > lava_spread_viscosity) {
-            if (position.x > 0) {
-                auto behind = position;
-                behind.x--;
-                auto& block = s.get_block(behind);
-                if (not is_still_lava(block.type())) {
-                    s.set_block(position, terrain::Type::air);
-                    return;
-                }
+            if (not parent_exists_dir_a(s, block, position, is_still_lava)) {
+                s.set_block(position, terrain::Type::air);
+                return;
             }
             update_lava_still(s, block, position);
             block.data_ = 0;
@@ -2544,14 +2549,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         block.data_++;
         if (block.data_ > lava_spread_viscosity) {
-            if (position.y > 0) {
-                auto behind = position;
-                --behind.y;
-                auto& block = s.get_block(behind);
-                if (not is_still_lava(block.type())) {
-                    s.set_block(position, terrain::Type::air);
-                    return;
-                }
+            if (not parent_exists_dir_b(s, block, position, is_still_lava)) {
+                s.set_block(position, terrain::Type::air);
+                return;
             }
             update_lava_still(s, block, position);
             block.data_ = 0;
@@ -2562,14 +2562,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         block.data_++;
         if (block.data_ > lava_spread_viscosity) {
-            if (position.x < 7) {
-                auto behind = position;
-                ++behind.x;
-                auto& block = s.get_block(behind);
-                if (not is_still_lava(block.type())) {
-                    s.set_block(position, terrain::Type::air);
-                    return;
-                }
+            if (not parent_exists_dir_c(s, block, position, is_still_lava)) {
+                s.set_block(position, terrain::Type::air);
+                return;
             }
             update_lava_still(s, block, position);
             block.data_ = 0;
@@ -2580,14 +2575,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         block.data_++;
         if (block.data_ > lava_spread_viscosity) {
-            if (position.y < 7) {
-                auto behind = position;
-                ++behind.y;
-                auto& block = s.get_block(behind);
-                if (not is_still_lava(block.type())) {
-                    s.set_block(position, terrain::Type::air);
-                    return;
-                }
+            if (not parent_exists_dir_d(s, block, position, is_still_lava)) {
+                s.set_block(position, terrain::Type::air);
+                return;
             }
             update_lava_still(s, block, position);
             block.data_ = 0;
