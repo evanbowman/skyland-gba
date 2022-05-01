@@ -92,7 +92,7 @@ enum class Type {
     air,
     building,
     __invalid,
-    water,
+    water_source,
     terrain,
     masonry,
     selector,
@@ -117,13 +117,17 @@ enum class Type {
     wool,
     saffron,
     ice,
-    lava,
+    lava_source,
     lava_slant_a,
     lava_slant_b,
     lava_slant_c,
     lava_slant_d,
     volcanic_soil,
     cocoa,
+    water_spread_downwards,
+    water_spread_laterally,
+    lava_spread_downwards,
+    lava_spread_laterally,
     count,
 };
 
@@ -191,12 +195,12 @@ Improvements improvements(Type t);
 
 struct Block
 {
-    u8 type_ : 6;
+    u8 type_;
 
     u8 shadowed_ : 1;
     u8 repaint_ : 1;
 
-    u8 data_;
+    u8 data_ : 6;
 
 
     Stats stats() const;

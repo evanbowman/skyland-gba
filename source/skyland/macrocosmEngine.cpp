@@ -1029,14 +1029,18 @@ terrain::Categories terrain::categories(Type t)
     case terrain::Type::saffron:
         return Categories::crop;
 
-    case terrain::Type::water:
+    case terrain::Type::water_source:
+    case terrain::Type::water_spread_downwards:
+    case terrain::Type::water_spread_laterally:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
         return Categories::fluid_water;
 
-    case terrain::Type::lava:
+    case terrain::Type::lava_source:
+    case terrain::Type::lava_spread_downwards:
+    case terrain::Type::lava_spread_laterally:
     case terrain::Type::lava_slant_a:
     case terrain::Type::lava_slant_b:
     case terrain::Type::lava_slant_c:
@@ -1085,14 +1089,18 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::selector:
         return 0;
 
-    case terrain::Type::water:
+    case terrain::Type::water_source:
+    case terrain::Type::water_spread_downwards:
+    case terrain::Type::water_spread_laterally:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
         return 30;
 
-    case terrain::Type::lava:
+    case terrain::Type::lava_source:
+    case terrain::Type::lava_spread_downwards:
+    case terrain::Type::lava_spread_laterally:
     case terrain::Type::lava_slant_a:
     case terrain::Type::lava_slant_b:
     case terrain::Type::lava_slant_c:
@@ -1175,14 +1183,18 @@ SystemString terrain::name(Type t)
     case terrain::Type::selector:
         return SystemString::gs_error;
 
-    case terrain::Type::water:
+    case terrain::Type::water_source:
+    case terrain::Type::water_spread_downwards:
+    case terrain::Type::water_spread_laterally:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
         return SystemString::block_water;
 
-    case terrain::Type::lava:
+    case terrain::Type::lava_source:
+    case terrain::Type::lava_spread_downwards:
+    case terrain::Type::lava_spread_laterally:
     case terrain::Type::lava_slant_a:
     case terrain::Type::lava_slant_b:
     case terrain::Type::lava_slant_c:
@@ -1383,7 +1395,9 @@ terrain::Improvements terrain::improvements(Type t)
         break;
     }
 
-    case Type::water:
+    case terrain::Type::water_source:
+    case terrain::Type::water_spread_downwards:
+    case terrain::Type::water_spread_laterally:
         result.push_back(Type::ice);
         result.push_back(Type::shellfish);
         break;
@@ -1444,14 +1458,18 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::saffron:
         return {2952, 2968};
 
-    case terrain::Type::water:
+    case terrain::Type::water_source:
+    case terrain::Type::water_spread_downwards:
+    case terrain::Type::water_spread_laterally:
     case terrain::Type::water_slant_a:
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
         return {2120, 2136};
 
-    case terrain::Type::lava:
+    case terrain::Type::lava_source:
+    case terrain::Type::lava_spread_downwards:
+    case terrain::Type::lava_spread_laterally:
     case terrain::Type::lava_slant_a:
     case terrain::Type::lava_slant_b:
     case terrain::Type::lava_slant_c:
@@ -1843,10 +1861,12 @@ static void update_lava_slanted(terrain::Sector& s,
     auto& beneath = s.get_block(beneath_coord);
     const auto tp = beneath.type();
     if (tp == terrain::Type::air or destroyed_by_lava(tp)) {
-        s.set_block(beneath_coord, terrain::Type::lava);
+        s.set_block(beneath_coord, terrain::Type::lava_spread_downwards);
     } else if ((categories(tp) & terrain::Categories::fluid_lava) and
-               tp not_eq terrain::Type::lava) {
-        s.set_block(beneath_coord, terrain::Type::lava);
+               tp not_eq terrain::Type::lava_source and
+               tp not_eq terrain::Type::lava_spread_downwards and
+               tp not_eq terrain::Type::lava_spread_laterally) {
+        s.set_block(beneath_coord, terrain::Type::lava_spread_downwards);
     }
 }
 
@@ -1860,7 +1880,7 @@ static void lava_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
                   prev_tp == terrain::Type::lava_slant_b or
                   prev_tp == terrain::Type::lava_slant_c or
                   prev_tp == terrain::Type::lava_slant_d))) {
-        s.set_block(target, terrain::Type::lava);
+        s.set_block(target, terrain::Type::lava_spread_laterally);
     } else if (prev_tp == terrain::Type::air or destroyed_by_lava(prev_tp)) {
         s.set_block(target, tp);
     }
@@ -1885,8 +1905,9 @@ update_lava_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
          beneath_tp == terrain::Type::lava_slant_b or
          beneath_tp == terrain::Type::lava_slant_c or
          beneath_tp == terrain::Type::lava_slant_d)) {
-        s.set_block(beneath_coord, terrain::Type::lava);
-    } else if (position.z == 0 or beneath_tp not_eq terrain::Type::lava) {
+        s.set_block(beneath_coord, terrain::Type::lava_spread_downwards);
+    } else if (position.z == 0 or
+               not (terrain::categories(beneath_tp) & terrain::Categories::fluid_lava)) {
         auto lp = position;
         lp.x++;
 
@@ -1931,10 +1952,12 @@ static void update_water_slanted(terrain::Sector& s,
     if (terrain::categories(tp) & terrain::Categories::fluid_lava) {
         s.set_block(beneath_coord, terrain::Type::volcanic_soil);
     } else if (tp == terrain::Type::air) {
-        s.set_block(beneath_coord, terrain::Type::water);
+        s.set_block(beneath_coord, terrain::Type::water_spread_downwards);
     } else if ((categories(tp) & terrain::Categories::fluid_water) and
-               tp not_eq terrain::Type::water) {
-        s.set_block(beneath_coord, terrain::Type::water);
+               tp not_eq terrain::Type::water_source and
+               tp not_eq terrain::Type::water_spread_downwards and
+               tp not_eq terrain::Type::water_spread_laterally) {
+        s.set_block(beneath_coord, terrain::Type::water_spread_downwards);
     }
 }
 
@@ -1951,7 +1974,7 @@ static void water_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
                   prev_tp == terrain::Type::water_slant_b or
                   prev_tp == terrain::Type::water_slant_c or
                   prev_tp == terrain::Type::water_slant_d))) {
-        s.set_block(target, terrain::Type::water);
+        s.set_block(target, terrain::Type::water_spread_laterally);
     } else if (prev_tp == terrain::Type::air) {
         s.set_block(target, tp);
     }
@@ -1979,8 +2002,9 @@ update_water_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
                 beneath_tp == terrain::Type::water_slant_b or
                 beneath_tp == terrain::Type::water_slant_c or
                 beneath_tp == terrain::Type::water_slant_d)) {
-        s.set_block(beneath_coord, terrain::Type::water);
-    } else if (position.z == 0 or beneath_tp not_eq terrain::Type::water) {
+        s.set_block(beneath_coord, terrain::Type::water_spread_downwards);
+    } else if (position.z == 0 or
+               not (terrain::categories(beneath_tp) & terrain::Categories::fluid_water)) {
         auto lp = position;
         lp.x++;
 
@@ -2163,7 +2187,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // shellfish
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (not revert_if_covered(s, block, position, terrain::Type::water)) {
+        if (not revert_if_covered(s, block, position, terrain::Type::water_source)) {
             update_water_still(s, block, position);
         }
 
@@ -2264,6 +2288,38 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         revert_if_covered(s, block, position, terrain::Type::volcanic_soil);
     },
+    // water_spread_down
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        update_water_still(s, block, position);
+
+        if (position.z < terrain::Sector::z_limit - 1) {
+            auto above_coord = position;
+            ++above_coord.z;
+            auto& above = s.get_block(above_coord);
+            if (not (terrain::categories(above.type()) & terrain::Categories::fluid_water)) {
+                s.set_block(position, terrain::Type::air);
+            }
+        }
+    },
+    // water_spread_laterally (TODO)
+    update_water_still,
+    // lava_spread_down
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        update_lava_still(s, block, position);
+
+        if (position.z < terrain::Sector::z_limit - 1) {
+            auto above_coord = position;
+            ++above_coord.z;
+            auto& above = s.get_block(above_coord);
+            if (not (terrain::categories(above.type()) & terrain::Categories::fluid_lava)) {
+                s.set_block(position, terrain::Type::air);
+            }
+        }
+    },
+    // water_flow_laterally (TODO)
+    update_lava_still,
 };
 // clang-format on
 
