@@ -1,0 +1,102 @@
+
+ api.txt
+
+ API calls compatible with
+ macro mode.
+
+
+o----------------------------o
+
+ (achieve integer)
+
+ Unlock achievement.
+
+
+o----------------------------o
+
+ (coins)
+
+ Return the player's coin
+ count.
+
+
+o----------------------------o
+
+ (coins-add integer)
+
+ Add integer coins to the
+ player's coint count.
+
+
+o----------------------------o
+
+ (coins-set integer)
+
+ Override coin count.
+
+
+o----------------------------o
+
+ (choice n)
+
+ Returns a random number
+ between 0 and n.
+
+
+o----------------------------o
+
+ (exit)
+
+ Exit the current level.
+
+
+o----------------------------o
+
+ (mcr-block-set
+  x y z type)
+
+ Set block at x y z to type.
+
+
+o----------------------------o
+
+ (mcr-block x y z)
+
+ Get type of block at x y z.
+
+
+o----------------------------o
+
+ (mcr-sector x y)
+
+ Switch to sector at x y
+
+
+o----------------------------o
+
+ (mcr-sector name)
+
+ Switch to sector specified
+ by name.
+
+
+o----------------------------o
+
+ (repl)
+
+ The game will launch a repl
+ the next time that it enters
+ an idle state.
+
+
+o----------------------------o
+
+ (version)
+
+ Return the engine version,
+ as a list:
+
+ '(major minor subminor patch)
+
+
+o----------------------------o

@@ -121,6 +121,13 @@ o----------------------------o
 
 o----------------------------o
 
+ (coins-set integer)
+
+ Override coin count.
+
+
+o----------------------------o
+
  (configure-rooms config)
 
  See

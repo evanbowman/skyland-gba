@@ -460,6 +460,74 @@ static const lisp::Binding script_api[] = {
              (PersistentData::Difficulty)L_LOAD_INT(0);
          return L_NIL;
      }},
+    {"mcr-block-set",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 4);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(2, integer);
+         L_EXPECT_OP(3, integer);
+
+         u8 x = L_LOAD_INT(3);
+         u8 y = L_LOAD_INT(2);
+         u8 z = L_LOAD_INT(1);
+         auto type = (macro::terrain::Type)L_LOAD_INT(0);
+
+         x %= 8;
+         y %= 8;
+         z %= 9;
+
+         interp_get_app()->macrocosm()->sector().set_block({x, y, z}, type);
+
+         return L_NIL;
+     }},
+    {"mcr-block",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 3);
+         L_EXPECT_OP(0, integer);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(2, integer);
+
+         u8 x = L_LOAD_INT(2);
+         u8 y = L_LOAD_INT(1);
+         u8 z = L_LOAD_INT(0);
+
+         auto& sector = interp_get_app()->macrocosm()->sector();
+         return L_INT((int)sector.get_block({x, y, z}).type());
+     }},
+    {"mcr-sector",
+     [](int argc) {
+         if (argc == 2) {
+             L_EXPECT_OP(0, integer);
+             L_EXPECT_OP(1, integer);
+
+             s8 x = L_LOAD_INT(1);
+             s8 y = L_LOAD_INT(0);
+             if (interp_get_app()->macrocosm()->bind_sector({x, y})) {
+                 return L_INT(1);
+             }
+             return L_NIL;
+         } else {
+             L_EXPECT_OP(0, string);
+
+             auto str = L_LOAD_STRING(0);
+
+             auto& m = *interp_get_app()->macrocosm();
+             if (m.data_->origin_sector_.name() == str) {
+                 m.bind_sector(m.data_->origin_sector_.coordinate());
+                 return L_INT(1);
+             }
+
+             for (auto& s : m.data_->other_sectors_) {
+                 if (s->name() == str) {
+                     m.bind_sector(s->coordinate());
+                     return L_INT(1);
+                 }
+             }
+         }
+
+         return L_NIL;
+     }},
     {"key-bind",
      [](int argc) {
          L_EXPECT_ARGC(argc, 2);
