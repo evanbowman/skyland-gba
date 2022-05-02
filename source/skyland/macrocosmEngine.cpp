@@ -634,6 +634,8 @@ void terrain::Sector::erase()
         for (auto& slice : slab) {
             for (auto& block : slice) {
                 block.type_ = (u8)Type::air;
+                block.repaint_ = true;
+                block.shadowed_ = true;
             }
         }
     }
@@ -645,7 +647,8 @@ void terrain::Sector::erase()
 
 
 
-terrain::Sector::Sector(Vec2<s8> position)
+terrain::Sector::Sector(Vec2<s8> position, Shape shape) :
+    shape_(shape)
 {
     erase();
 

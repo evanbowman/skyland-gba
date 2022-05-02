@@ -229,13 +229,10 @@ struct Block
     {
         return (Type)type_;
     }
-
-
-    Block() : shadowed_(true), repaint_(true)
-    {
-    }
 };
 static_assert(sizeof(Block) == 2);
+static_assert(std::is_standard_layout<Block>());
+static_assert(std::is_trivially_constructible<Block>());
 
 
 
@@ -243,6 +240,10 @@ class Sector
 {
 public:
     enum Orientation : u8 { north, east, south, west };
+
+    enum class Shape : u8 {
+        cube, pancake
+    };
 
 
     struct ExportInfo
@@ -254,7 +255,7 @@ public:
     };
 
 
-    Sector(Vec2<s8> position);
+    Sector(Vec2<s8> position, Shape shape = Shape::cube);
 
 
     void set_block(const Vec3<u8>& coord, Type type);
@@ -381,8 +382,10 @@ private:
 
     Block blocks_[z_limit][8][8]; // (z, x, y)
 
-    Exports exports_;
+    Shape shape_;
 
+
+    Exports exports_;
 
 public:
     // Restore from a previous save.
