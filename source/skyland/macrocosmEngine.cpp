@@ -456,7 +456,18 @@ template <> struct PersistentWrapper<0>
 template <u32 inflate> struct Sector
 {
     PersistentWrapper<inflate> p_;
-    u8 blocks_[9][8][8];
+
+    union
+    {
+        // NOTE: I probably should have used a linear array. But I wanted to
+        // hack new island layouts onto the game without losing my own save
+        // file, so we have this union.
+        u8 cube_[9][8][8];
+        u8 pancake_[4][12][12];
+        static_assert(sizeof cube_ == sizeof pancake_);
+    } blocks_;
+    static_assert(sizeof blocks_ == 9 * 8 * 8);
+
 
     Sector()
     {
@@ -467,9 +478,19 @@ template <u32 inflate> struct Sector
         memcpy(&p_.p_, &source.persistent(), sizeof p_);
 
         for (u8 z = 0; z < source.size().z; ++z) {
-            for (u8 x = 0; x < 8; ++x) {
-                for (u8 y = 0; y < 8; ++y) {
-                    blocks_[z][x][y] = source.get_block({x, y, z}).type_;
+            for (u8 x = 0; x < source.size().x; ++x) {
+                for (u8 y = 0; y < source.size().y; ++y) {
+                    switch (source.persistent().shape_) {
+                    case terrain::Sector::Shape::cube:
+                        blocks_.cube_[z][x][y] =
+                            source.get_block({x, y, z}).type_;
+                        break;
+
+                    case terrain::Sector::Shape::pancake:
+                        blocks_.pancake_[z][x][y] =
+                            source.get_block({x, y, z}).type_;
+                        break;
+                    }
                 }
             }
         }
@@ -562,7 +583,12 @@ bool State::load(Platform& pfrm)
                 ++it;
             }
 
-            dest.restore(s.p_.p_, s.blocks_);
+            if (s.p_.p_.shape_ == terrain::Sector::Shape::cube) {
+                dest.restore(s.p_.p_, s.blocks_.cube_);
+            } else {
+                dest.restore(s.p_.p_, s.blocks_.pancake_);
+            }
+
 
             u8 export_count = *(it++);
 
@@ -609,6 +635,8 @@ bool State::load(Platform& pfrm)
 
 void terrain::Sector::restore(const Persistent& p, u8 blocks[9][8][8])
 {
+    size_ = Vec3<u8>{8, 8, 9};
+
     erase();
 
     memcpy(&p_, &p, sizeof p);
@@ -616,10 +644,30 @@ void terrain::Sector::restore(const Persistent& p, u8 blocks[9][8][8])
     for (u8 z = 0; z < size().z; ++z) {
         for (u8 x = 0; x < size().x; ++x) {
             for (u8 y = 0; y < size().y; ++y) {
-                // FIXME!
                 blocks_.cube_[z][x][y].type_ = blocks[z][x][y];
                 blocks_.cube_[z][x][y].repaint_ = true;
                 blocks_.cube_[z][x][y].data_ = 0;
+            }
+        }
+    }
+}
+
+
+
+void terrain::Sector::restore(const Persistent& p, u8 blocks[4][12][12])
+{
+    size_ = Vec3<u8>{12, 12, 4};
+
+    erase();
+
+    memcpy(&p_, &p, sizeof p);
+
+    for (u8 z = 0; z < size().z; ++z) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                blocks_.pancake_[z][x][y].type_ = blocks[z][x][y];
+                blocks_.pancake_[z][x][y].repaint_ = true;
+                blocks_.pancake_[z][x][y].data_ = 0;
             }
         }
     }
@@ -648,7 +696,7 @@ void terrain::Sector::erase()
 terrain::Sector::Sector(Vec2<s8> position, Shape shape)
     : size_([&] {
           p_.shape_ = shape;
-          if (shape == Shape::cube) {
+          if (p_.shape_ == Shape::cube) {
               return Vec3<u8>{8, 8, 9};
           } else {
               return Vec3<u8>{12, 12, 4};
@@ -2657,7 +2705,7 @@ static const u16 screen_mapping_lut_cube[8][8] = {
 // So, should be pretty clear what this is, right? The coordinates in a z-plane
 // of the level, and the order to visit them in (for depth-testing
 // purposes). Formatted in an isometric plane, for readability :) Maybe you
-// could calculate the path at runtime, but they you'd need to waste cycles
+// could calculate the path at runtime, but then you'd need to waste cycles
 // calculating it.
 static const Vec2<u8> winding_path_cube[] = {
     // clang-format off
@@ -3080,7 +3128,6 @@ void terrain::Sector::render_setup(Platform& pfrm)
                     t_start += 30 * 8;
                     project_block(block, p.x, p.y, z, t_start);
                 }
-
             }
         } else {
             for (int z = 0; z < z_view_; ++z) {

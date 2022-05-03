@@ -154,6 +154,89 @@ static Vec2<Fixnum> sector_map_display_pos(Platform& pfrm, Vec2<s8> coord)
 
 
 
+static const u8 layout_icon_y_start_row = 6;
+static const int layout_icon_width = 6;
+
+
+
+u8 layout_icon_margins(Platform& pfrm)
+{
+    auto st = calc_screen_tiles(pfrm);
+    // six tile wide gfx.
+
+    st.x -= layout_icon_width * 2;
+    auto margin = st.x / 3;
+
+    return margin;
+}
+
+
+
+void MacroverseScene::show_layout_text(Platform& pfrm)
+{
+    text_objs_.clear();
+
+    Text::OptColors col_1_colors;
+    Text::OptColors col_2_colors;
+
+    if (shape_ == terrain::Sector::Shape::cube) {
+        col_2_colors = Text::OptColors{{custom_color(0xa6a6c1),
+                                        ColorConstant::rich_black}};
+    } else {
+        col_1_colors = Text::OptColors{{custom_color(0xa6a6c1),
+                                        ColorConstant::rich_black}};
+    }
+
+    auto sstr1 = SYSTR(macro_cube);
+    const auto sl1 = utf8::len(sstr1->c_str());
+    auto m = layout_icon_margins(pfrm);
+
+    text_objs_.emplace_back(
+        pfrm,
+        OverlayCoord{(u8)((m + layout_icon_width / 2) - sl1 / 2),
+                     (u8)(layout_icon_y_start_row + 8)});
+
+    text_objs_.back().assign(sstr1->c_str(), col_1_colors);
+
+
+    const char* str1_1 = "8x8x8";
+    const auto sl1_1 = utf8::len(str1_1);
+
+    text_objs_.emplace_back(
+        pfrm,
+        OverlayCoord{(u8)((m + layout_icon_width / 2) - sl1_1 / 2),
+                     (u8)(layout_icon_y_start_row + 10)});
+
+    text_objs_.back().assign(str1_1, col_1_colors);
+
+
+    auto sstr2 = SYSTR(macro_pancake);
+    const auto sl2 = utf8::len(sstr2->c_str());
+
+    text_objs_.emplace_back(pfrm,
+                            OverlayCoord{(u8)(((m * 2 + layout_icon_width) +
+                                               layout_icon_width / 2) -
+                                              sl2 / 2),
+                                         (u8)(layout_icon_y_start_row + 8)});
+
+    text_objs_.back().assign(sstr2->c_str(), col_2_colors);
+
+
+    const char* str2_2 = "12x12x3";
+    const auto sl2_2 = utf8::len(str2_2);
+
+    text_objs_.emplace_back(pfrm,
+                            OverlayCoord{(u8)(((m * 2 + layout_icon_width) +
+                                               layout_icon_width / 2) -
+                                              sl2_2 / 2),
+                                         (u8)(layout_icon_y_start_row + 10)});
+
+    text_objs_.back().assign(str2_2, col_2_colors);
+
+}
+
+
+
 ScenePtr<Scene>
 MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -494,34 +577,16 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (m.data_->p().coins_.get() >= cost.first and
                     m.sector().population() >= cost.second) {
 
-                    const auto sh = terrain::Sector::Shape::cube;
-                    if (m.make_sector(*selected_colony_, sh)) {
+                    state_ = State::select_colony_layout;
+                    pfrm.speaker().play_sound("button_wooden", 3);
 
-                        m.data_->p().coins_.set(m.data_->p().coins_.get() -
-                                                cost.first);
+                    pfrm.set_tile(Layer::overlay, 1, 3, 0);
+                    pfrm.set_tile(Layer::overlay, 1, 4, 0);
+                    text_objs_.clear();
 
-                        m.sector().set_population(m.sector().population() -
-                                                  cost.second);
+                    show_layout_text(pfrm);
 
-                        colony_create_slots_.clear();
-
-                        pfrm.set_tile(Layer::overlay, 1, 3, 0);
-                        pfrm.set_tile(Layer::overlay, 1, 4, 0);
-                        text_objs_.clear();
-                        state_ = State::show;
-                        describe_selected(pfrm, m);
-
-                        if (not m.bind_sector(*selected_colony_)) {
-                            Platform::fatal("logic error (bind sector)");
-                        }
-
-                        m.sector().set_block({3, 3, 0}, terrain::Type::terrain);
-                        m.sector().set_block({3, 3, 1},
-                                             terrain::Type::building);
-
-                        pfrm.speaker().play_sound("button_wooden", 2);
-                    }
-
+                    break;
 
                 } else {
                     pfrm.speaker().play_sound("beep_error", 2);
@@ -573,6 +638,51 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         break;
     }
+
+    case State::select_colony_layout: {
+
+        auto cost = m.colony_cost();
+
+        if (app.player().key_down(pfrm, Key::left)) {
+            shape_ = terrain::Sector::Shape::cube;
+            pfrm.speaker().play_sound("click_wooden", 2);
+            show_layout_text(pfrm);
+        } else if (app.player().key_down(pfrm, Key::right)) {
+            shape_ = terrain::Sector::Shape::pancake;
+            pfrm.speaker().play_sound("click_wooden", 2);
+            show_layout_text(pfrm);
+        }
+
+        if (app.player().key_down(pfrm, Key::action_1)) {
+
+            if (m.make_sector(*selected_colony_, shape_)) {
+
+                m.data_->p().coins_.set(m.data_->p().coins_.get() - cost.first);
+
+                m.sector().set_population(m.sector().population() -
+                                          cost.second);
+
+                colony_create_slots_.clear();
+
+
+                text_objs_.clear();
+
+                state_ = State::show;
+                describe_selected(pfrm, m);
+
+                if (not m.bind_sector(*selected_colony_)) {
+                    Platform::fatal("logic error (bind sector)");
+                }
+
+                m.sector().set_block({3, 3, 0}, terrain::Type::terrain);
+                m.sector().set_block({3, 3, 1}, terrain::Type::building);
+
+                pfrm.speaker().play_sound("button_wooden", 2);
+            }
+        }
+
+        break;
+    }
     }
 
     return null_scene();
@@ -618,6 +728,52 @@ void MacroverseScene::display(Platform& pfrm, App& app)
         "_prlx_macro",
         (void*)(intptr_t)(int)app.macrocosm()->data_->cloud_scroll_);
 
+
+    if (state_ == State::select_colony_layout) {
+
+        auto origin = camera_.cast<Fixnum>();
+        origin.y += 8 * layout_icon_y_start_row;
+
+        auto draw = [&pfrm](int t_start, Vec2<Fixnum> origin) {
+            Sprite spr;
+            spr.set_texture_index(t_start++);
+            spr.set_position(origin);
+            pfrm.screen().draw(spr);
+
+            origin.x += 32;
+            spr.set_texture_index(t_start++);
+            spr.set_position(origin);
+            pfrm.screen().draw(spr);
+
+            origin.x -= 32;
+            origin.y += 32;
+            spr.set_texture_index(t_start++);
+            spr.set_position(origin);
+            pfrm.screen().draw(spr);
+
+            origin.x += 32;
+            spr.set_texture_index(t_start);
+            spr.set_position(origin);
+            pfrm.screen().draw(spr);
+        };
+
+
+        auto mrgn = layout_icon_margins(pfrm);
+
+        int ic1 = 14;
+        int ic2 = 18;
+        if (shape_ == terrain::Sector::Shape::cube) {
+            ic2 = 22;
+        } else {
+            ic1 = 26;
+        }
+
+        draw(ic1, origin + Vec2<Fixnum>{mrgn * 8, 0});
+        draw(ic2, origin + Vec2<Fixnum>{(mrgn * 2 + layout_icon_width) * 8, 0});
+
+
+        return;
+    }
 
 
     auto draw_node = [&](macro::terrain::Sector& s) {

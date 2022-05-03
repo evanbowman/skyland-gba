@@ -58,10 +58,14 @@ private:
         options,
         text_prompt,
         create_colony,
+        select_colony_layout,
     } state_ = State::reveal;
 
 
     void describe_selected(Platform& pfrm, macro::State& state);
+
+
+    void show_layout_text(Platform& pfrm);
 
 
     Microseconds timer_;
@@ -70,6 +74,8 @@ private:
     Vec2<s8> initial_sector_;
     Vec2<Float> camera_;
     std::optional<Vec2<s8>> selected_colony_;
+
+    terrain::Sector::Shape shape_ = terrain::Sector::Shape::cube;
 
     Buffer<Vec2<s8>, 4> colony_create_slots_;
 

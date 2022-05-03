@@ -215,6 +215,9 @@ enum class SystemString {
     macro_fiscal_total,
     macro_fiscal_starvation,
 
+    macro_cube,
+    macro_pancake,
+
 
     description_power_core,
     description_solar_cell,

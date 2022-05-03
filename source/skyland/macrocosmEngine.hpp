@@ -416,13 +416,14 @@ private:
 
     } blocks_;
 
-    const Vec3<u8> size_;
+    Vec3<u8> size_;
 
     Exports exports_;
 
 public:
     // Restore from a previous save.
     void restore(const Persistent& p, u8 blocks[9][8][8]);
+    void restore(const Persistent& p, u8 blocks[4][12][12]);
 
 
     const Persistent& persistent() const
