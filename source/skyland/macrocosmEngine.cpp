@@ -3069,9 +3069,8 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 blit(texture + 5, t_start + 1);
             };
 
-        for (int z = 0; z < z_view_; ++z) {
-
-            if (p_.shape_ == Shape::cube) {
+        if (p_.shape_ == Shape::cube) {
+            for (int z = 0; z < z_view_; ++z) {
                 for (auto& p : winding_path_cube) {
                     auto slab = blocks_.cube_[z];
                     auto& block = slab[p.x][p.y];
@@ -3081,7 +3080,10 @@ void terrain::Sector::render_setup(Platform& pfrm)
                     t_start += 30 * 8;
                     project_block(block, p.x, p.y, z, t_start);
                 }
-            } else {
+
+            }
+        } else {
+            for (int z = 0; z < z_view_; ++z) {
                 for (auto& p : winding_path_pancake) {
                     auto slab = blocks_.pancake_[z];
                     auto& block = slab[p.x][p.y];
