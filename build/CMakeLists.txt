@@ -257,6 +257,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/transporter.cpp
   ${SOURCE_DIR}/skyland/rooms/escapeBeacon.cpp
   ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp
+  ${SOURCE_DIR}/skyland/macrocosmSector.cpp
   ${SOURCE_DIR}/skyland/macrocosmEngine.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/flak.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp

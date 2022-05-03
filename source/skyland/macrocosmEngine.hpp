@@ -26,6 +26,7 @@
 #include "entity.hpp"
 #include "number/int.h"
 #include "systemString.hpp"
+#include "macrocosmSector.hpp"
 
 
 
@@ -33,49 +34,73 @@ class Platform;
 
 
 
+
 namespace skyland::macro
 {
-using Coins = s32;
 
 
 
-namespace fiscal
+namespace raster
+{
+namespace globalstate
 {
 
+// Sorry about all of these state flags. I would definitely grumble a bit if I
+// had to work on anyone else's code if it were written in this way. We're
+// really trying to push the GBA hardware by redrawing as little as possible,
+// and we want to draw things differently depending on the specific way that the
+// terrain changed.
+
+// Recast shadows.
+extern bool _recast_shadows;
+
+// The layout of the world changed in some way.
+extern bool _changed;
+
+// The level layout got smaller. i.e. we need to do extra work to redraw (erase)
+// areas even where there are now no blocks, because we removed some.
+extern bool _shrunk;
+
+// We added blocks to the level. Normally, we throw out all draw calls for tiles
+// that don't overlap with the current or previous cursor block, unless the
+// terrain grew, i.e. if we added a block.
+extern bool _grew;
+
+// The cursor moved. If the cursor moved, and the structure of the level did not
+// grow (no blocks added), we can do all sorts of optimizations to render the
+// cursor faster. Cursor rendering is generally pretty heavily optimized,
+// because if the cursor movement lags, players would easily notice.
+extern bool _cursor_moved;
+
+// Repaint required, but only because the cursor toggled between light and
+// dark. Even more heavily optimized than cursor movement. Redoing the
+// depth-test each time that the cursor idly flickers would burn battery for no
+// particular purpose. While we don't want to keep the entire depth buffer in
+// memory, we keep a cache of the rendering stack expressly for redrawing the
+// flickering cursor without needing to redo the depth test.
+extern bool _changed_cursor_flicker_only;
+
+// Not exclusively a rendering optimization, actually! It's simply useful to
+// keep a cache of screen tiles overlapping with the cursor, for game logic that
+// cares about the normalized position of the cursor with respect to the screen
+// (e.g. camera movement, effects).
+extern Buffer<u16, 6> _cursor_raster_tiles;
+
+// Used exclusively for optimizing the cursor flickering animation. If the
+// cursor tile is at end of the buffer, then it can be redrawn without worrying
+// about anything beneath it (because the pixels for the light and the dark
+// cursor are the same).
+extern Buffer<u16, 6> _cursor_raster_stack[6];
+} // namespace globalstate
+} // namespace raster
 
 
-struct LineItem
-{
-    using Label = StringBuffer<24>;
-
-    Label label_;
-    Float contribution_;
-    LineItem* next_;
-};
+struct State;
+extern State* _bound_state;
 
 
+}
 
-class Ledger
-{
-public:
-    void add_entry(LineItem::Label, Float contribution);
-
-
-    const LineItem* entries() const;
-
-
-private:
-    LineItem* entries_ = nullptr;
-    ScratchBufferBulkAllocator alloc_;
-};
-
-
-
-} // namespace fiscal
-
-
-
-} // namespace skyland::macro
 
 
 
@@ -85,67 +110,6 @@ namespace skyland::macro::terrain
 
 
 static const int food_consumption_factor = 2;
-
-
-
-enum class Type {
-    air,
-    building,
-    __invalid,
-    water_source,
-    terrain,
-    masonry,
-    selector,
-    wheat,
-    indigo,
-    madder,
-    gold,
-    workshop,
-    water_slant_a,
-    water_slant_b,
-    water_slant_c,
-    water_slant_d,
-    light_source,
-    windmill,
-    windmill_stone_base,
-    shellfish,
-    port,
-    potatoes,
-    sunflowers,
-    food, // Must not be constructed
-    shrubbery,
-    wool,
-    saffron,
-    ice,
-    lava_source,
-    lava_slant_a,
-    lava_slant_b,
-    lava_slant_c,
-    lava_slant_d,
-    volcanic_soil,
-    cocoa,
-    water_spread_downwards,
-    // Why so many types of water blocks? When saving game state, we represent
-    // each block with a single byte type id, so blocks must be essentially
-    // stateless. Every variation in water behavior needs to use a different
-    // block type. If you want to check more generally whether a block is water,
-    // see Categories::fluid_water.
-    //
-    // water_spread_downwards represents a non-source water block where the
-    // parent block lies above. The lateral spread blocks represent a non-source
-    // water block where the parent block sits in the same z-plane, direction
-    // depending on a,b,c,d.
-    water_spread_laterally_a,
-    water_spread_laterally_b,
-    water_spread_laterally_c,
-    water_spread_laterally_d,
-    lava_spread_downwards,
-    lava_spread_laterally_a,
-    lava_spread_laterally_b,
-    lava_spread_laterally_c,
-    lava_spread_laterally_d,
-    count,
-};
 
 
 
@@ -162,276 +126,11 @@ enum Categories : u8 {
 Categories categories(Type t);
 
 
-
-struct Commodity
-{
-    enum Type : u8 {
-        indigo,
-        rose_madder,
-        shellfish,
-        sunflowers,
-        food,
-        wool,
-        saffron,
-        cocoa,
-    };
-    Type type_;
-    u16 supply_;
-    bool imported_ = false;
-
-    static Coins value(Type t);
-    SystemString name() const;
-};
-
-
-
-struct Stats
-{
-    int food_ = 0;
-    int food_exports_ = 0;
-    int housing_ = 0;
-    int employment_ = 0;
-
-    Buffer<Commodity, 24> commodities_;
-};
-
-
-
-using Improvements = Buffer<Type, 32>;
-
-
-
 Stats stats(Type t, bool shadowed);
 SystemString name(Type t);
 SystemString name(Commodity::Type t);
 std::pair<int, int> icons(Type t);
 Improvements improvements(Type t);
-
-
-
-struct Block
-{
-    u8 type_;
-
-    u8 shadowed_ : 1;
-    u8 repaint_ : 1;
-
-    u8 data_ : 6;
-
-
-    Stats stats() const;
-    SystemString name() const;
-
-    Improvements improvements() const;
-
-
-    Type type() const
-    {
-        return (Type)type_;
-    }
-};
-static_assert(sizeof(Block) == 2);
-static_assert(std::is_standard_layout<Block>());
-static_assert(std::is_trivially_constructible<Block>());
-
-
-
-class Sector
-{
-public:
-    enum Orientation : u8 { north, east, south, west };
-
-    enum class Shape : u8 { cube, pancake, pillar };
-
-
-    struct ExportInfo
-    {
-        Commodity::Type c;
-        Vec3<u8> source_coord_;
-        Vec2<s8> destination_;
-        host_u16 export_supply_;
-    };
-
-
-    Sector(Vec2<s8> position, Shape shape = Shape::cube);
-
-
-    void set_block(const Vec3<u8>& coord, Type type);
-
-    void rotate();
-    void update();
-    void advance(int years);
-
-    void render_setup(Platform& pfrm);
-    void render(Platform& pfrm);
-
-    using Population = float;
-    void set_population(Population p);
-
-
-    void shadowcast();
-    void erase();
-
-
-    void clear_cache();
-
-
-
-    using Exports = Buffer<ExportInfo, 24>;
-
-
-    const Exports& exports() const;
-    void set_export(const ExportInfo& e);
-    void remove_export(Vec3<u8> source_coord);
-
-
-    u16 quantity_non_exported(Commodity::Type t);
-
-
-    const Block& get_block(const Vec3<u8>& coord) const;
-
-
-    Stats stats() const;
-
-
-
-    Vec3<u8> size() const;
-
-
-    Population population() const;
-
-    Float population_growth_rate() const;
-    Coins coin_yield() const;
-
-
-    fiscal::Ledger budget() const;
-
-
-    Vec2<s8> coordinate() const;
-
-
-    Vec3<u8> cursor() const
-    {
-        return p_.cursor_;
-    }
-
-    void set_cursor(const Vec3<u8>& pos, bool lock_to_floor = true);
-
-    // Projected position of the cursor onto the frame buffer.
-    u16 cursor_raster_pos() const;
-
-
-    Orientation orientation() const
-    {
-        return p_.orientation_;
-    }
-
-
-    bool set_z_view(u8 z_view);
-    u8 get_z_view() const
-    {
-        return z_view_;
-    }
-
-
-    void sync_to_canvas() const;
-    void sync_from_canvas() const;
-
-
-    static const int name_len = 12;
-
-
-    // Should include almost all data that needs to be written to save memory,
-    // except for the blocks themselves.
-    struct Persistent
-    {
-
-        Orientation orientation_ = Orientation::north;
-
-        Vec3<u8> cursor_;
-
-        char name_[name_len];
-        u8 population_packed_[sizeof(Population)];
-
-        s8 x_;
-        s8 y_;
-
-        Shape shape_;
-
-        u8 pad_[1]; // FIXME: remove. Added while packing this struct.
-    };
-    static_assert(std::is_trivially_copyable<Persistent>());
-    static_assert(alignof(Persistent) == 1);
-
-
-    void set_name(const StringBuffer<name_len - 1>& name);
-    StringBuffer<name_len - 1> name();
-
-
-
-    Stats base_stats() const;
-
-
-
-    void repaint();
-
-
-
-private:
-    Persistent p_;
-
-    // Recalculating stats for everything when we have multiple levels slows
-    // down the game significantly, so we cache previous results. I mean, a
-    // sector has ~512 blocks, and if you have 20 sectors, that's a lot of
-    // number crunching and will definitely lag the game if done frequently.
-    mutable std::optional<Stats> base_stats_cache_;
-
-
-    Block& ref_block(const Vec3<u8>& coord);
-
-
-
-    template <typename F> void foreach (F&& f)
-    {
-        for (u8 z = 0; z < size().z; ++z) {
-            for (u8 x = 0; x < size().x; ++x) {
-                for (u8 y = 0; y < size().y; ++y) {
-                    f(ref_block({x, y, z}));
-                }
-            }
-        }
-    }
-
-
-    u8 z_view_ = 9;
-
-    mutable union
-    {
-        Block cube_[9][8][8]; // (z, x, y)
-        Block pancake_[4][12][12];
-        Block pillar_[16][6][6];
-
-        static_assert(sizeof cube_ == sizeof pancake_);
-
-    } blocks_;
-    static_assert(sizeof blocks_ == sizeof(Block) * 576);
-
-    Vec3<u8> size_;
-
-    Exports exports_;
-
-public:
-    // Restore from a previous save.
-    void restore(const Persistent& p, u8 blocks[9][8][8]);
-    void restore(const Persistent& p, u8 blocks[4][12][12]);
-    void restore(const Persistent& p, u8 blocks[16][6][6]);
-
-
-    const Persistent& persistent() const
-    {
-        return p_;
-    }
-};
 
 
 
@@ -502,8 +201,7 @@ struct State
             return false;
         }
 
-        auto s =
-            allocate_dynamic<terrain::Sector>("macro-colony_mem", coord, shape);
+        auto s = allocate_dynamic<terrain::Sector>("macro-colony_mem", coord, shape);
         StringBuffer<terrain::Sector::name_len - 1> n("colony_");
         n += stringify(data_->other_sectors_.size() + 1).c_str();
         s->set_name(n);
@@ -512,7 +210,24 @@ struct State
 
 
 
-    macro::terrain::Sector* bind_sector(Vec2<s8> coord);
+    macro::terrain::Sector* bind_sector(Vec2<s8> coord)
+    {
+        if (data_->origin_sector_.coordinate() == coord) {
+            data_->current_sector_ = -1;
+            return &data_->origin_sector_;
+        } else {
+            int i = 0;
+            for (auto& s : data_->other_sectors_) {
+                if (s->coordinate() == coord) {
+                    data_->current_sector_ = i;
+                    return &*s;
+                }
+                ++i;
+            }
+
+            return nullptr;
+        }
+    }
 
 
 
