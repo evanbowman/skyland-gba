@@ -180,11 +180,11 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
     Text::OptColors col_2_colors;
 
     if (shape_ == terrain::Sector::Shape::cube) {
-        col_2_colors = Text::OptColors{{custom_color(0xa6a6c1),
-                                        ColorConstant::rich_black}};
+        col_2_colors = Text::OptColors{
+            {custom_color(0xa6a6c1), ColorConstant::rich_black}};
     } else {
-        col_1_colors = Text::OptColors{{custom_color(0xa6a6c1),
-                                        ColorConstant::rich_black}};
+        col_1_colors = Text::OptColors{
+            {custom_color(0xa6a6c1), ColorConstant::rich_black}};
     }
 
     auto sstr1 = SYSTR(macro_cube);
@@ -232,7 +232,6 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
                                          (u8)(layout_icon_y_start_row + 10)});
 
     text_objs_.back().assign(str2_2, col_2_colors);
-
 }
 
 

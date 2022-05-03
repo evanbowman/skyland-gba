@@ -2672,18 +2672,38 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
 void terrain::Sector::update()
 {
-    for (int z = 0; z < size().z; ++z) {
-        for (u8 x = 0; x < size().x; ++x) {
-            for (u8 y = 0; y < size().y; ++y) {
+    switch (p_.shape_) {
+    case Shape::cube:
+        for (int z = 0; z < 9; ++z) {
+            for (u8 x = 0; x < 8; ++x) {
+                for (u8 y = 0; y < 8; ++y) {
 
-                auto& block = ref_block({x, y, (u8)z});
+                    auto& block = blocks_.cube_[z][x][y];
 
-                auto update = update_functions[block.type_];
-                if (update) {
-                    update(*this, block, {x, y, (u8)z});
+                    auto update = update_functions[block.type_];
+                    if (update) {
+                        update(*this, block, {x, y, (u8)z});
+                    }
                 }
             }
         }
+        break;
+
+    case Shape::pancake:
+        for (int z = 0; z < 4; ++z) {
+            for (u8 x = 0; x < 12; ++x) {
+                for (u8 y = 0; y < 12; ++y) {
+
+                    auto& block = blocks_.pancake_[z][x][y];
+
+                    auto update = update_functions[block.type_];
+                    if (update) {
+                        update(*this, block, {x, y, (u8)z});
+                    }
+                }
+            }
+        }
+        break;
     }
 }
 
