@@ -110,10 +110,7 @@ ColorConstant water_shader(ShaderPalette p, ColorConstant k, int var, int index)
 void MacroverseScene::exit(Platform& pfrm, App& app, Scene& prev)
 {
     auto& sector = app.macrocosm()->sector();
-    sector.rotate();
-    sector.rotate();
-    sector.rotate();
-    sector.rotate(); // hack to force repaint.
+    sector.repaint();
 
     pfrm.screen().set_shader(water_shader);
 

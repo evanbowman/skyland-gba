@@ -25,6 +25,13 @@
 #include "memory/buffer.hpp"
 #include "platform/platform.hpp"
 #include "platform/ram_filesystem.hpp"
+#if defined(__NDS__)
+#define HEAP_DATA
+#elif defined(__GBA__)
+#define HEAP_DATA __attribute__((section(".ewram")))
+#else
+#define HEAP_DATA
+#endif
 
 
 
@@ -36,6 +43,36 @@
 
 namespace skyland::macro
 {
+
+
+
+// NOTE: For performance reasons. Creating a duplicate copy of the
+// currently-displayed sector's blocks definitely complicates the logic, but
+// speeds up the code significantly. We want to support various level
+// orientations (cube, flat, etc). We don't have enough memory to store a huge
+// 9x12x12 matrix in every sector object. So we store arrays of various sizes in
+// a union the sector object, and expand them into this canvas matrix, for
+// faster indexing at runtime (each sector stores 576 blocks). Otherwise,
+// sectors would need to do a conditional to check which type of sector layout
+// before accessing a coordinate, which caused serious lag. _canvas should be
+// large enough to hold a sector of any orientation. Unfortunately, now we need
+// to keep this canvas matrix in sync with the currently-bound sector object, so
+// anything that modifies the canvas needs to write the result back to the
+// sector memory as well.  Mostly, all of this is handled for you by
+// set_block(). But some other calls, like shadowcast, needed modifications to
+// write the results back to the canvas.  Sector::set_block handles most
+// everything already, just wanted to leave an extensive comment here, because
+// the logic is delicate, and a very likely source of bugs if you're not careful
+// when modifying a Sector's blocks outside of the existing set_block(),
+// rotate(), and shadowcast() calls.
+static HEAP_DATA terrain::Block _canvas[9][12][12]; // z, x, y
+
+
+
+static terrain::Block& canvas_get_block(Vec3<u8> coord)
+{
+    return _canvas[coord.z][coord.x][coord.y];
+}
 
 
 
@@ -96,6 +133,8 @@ Buffer<u16, 6> _cursor_raster_stack[6];
 
 
 static State* _bound_state;
+static terrain::Sector* _bound_sector;
+
 
 
 State::State() : data_(allocate_dynamic<Data>("macrocosm-data"))
@@ -327,7 +366,7 @@ void terrain::Sector::set_export(const ExportInfo& e)
 {
     remove_export(e.source_coord_);
 
-    auto& block = get_block(e.source_coord_);
+    auto& block = ref_block(e.source_coord_);
     if (block.type() not_eq Type::port) {
         return;
     }
@@ -624,11 +663,50 @@ bool State::load(Platform& pfrm)
         newgame(pfrm);
     }
 
+    bind_sector({0, 0});
+
     data_->current_sector_ = -1;
     raster::globalstate::_changed = true;
     raster::globalstate::_shrunk = true;
 
     return true;
+}
+
+
+
+terrain::Sector* State::bind_sector(Vec2<s8> coord)
+{
+    terrain::Sector* found = nullptr;
+
+    if (data_->origin_sector_.coordinate() == coord) {
+        data_->current_sector_ = -1;
+        found = &data_->origin_sector_;
+    } else {
+        int i = 0;
+        for (auto& s : data_->other_sectors_) {
+            if (s->coordinate() == coord) {
+                data_->current_sector_ = i;
+                found =  &*s;
+                break;
+            }
+            ++i;
+        }
+
+    }
+
+    if (found) {
+
+        if (_bound_sector) {
+            _bound_sector->sync_from_canvas();
+        }
+
+        _bound_sector = found;
+
+        found->repaint();
+    }
+
+
+    return found;
 }
 
 
@@ -993,6 +1071,10 @@ terrain::Stats terrain::Sector::base_stats() const
         return *base_stats_cache_;
     }
 
+    if (this == _bound_sector) {
+        sync_from_canvas();
+    }
+
     terrain::Stats result;
 
     for (u8 z = 0; z < size().z - 1; ++z) {
@@ -1350,8 +1432,28 @@ static Vec3<u8> rotate_coord(terrain::Sector& s, Vec3<u8> input)
 
 
 
+void terrain::Sector::repaint()
+{
+    foreach([](auto& block) {
+                block.repaint_ = true;
+            });
+
+    if (this == _bound_sector) {
+        sync_to_canvas();
+    }
+
+    raster::globalstate::_changed = true;
+    raster::globalstate::_shrunk = true;;
+}
+
+
+
 void terrain::Sector::rotate()
 {
+    if (this not_eq _bound_sector) {
+        Platform::fatal("modify unbound sector");
+    }
+
     // NOTE: I decided to implement rotation by actually rotating the level's
     // blocks and fixing up the coordinates. Simplifies the renderer,
     // basically. Somewhat, costly, but an infrequent operation, unlike
@@ -1362,23 +1464,13 @@ void terrain::Sector::rotate()
     for (int z = 0; z < size().z; ++z) {
         for (int x = 0; x < len / 2; x++) {
             for (int y = x; y < len - x - 1; y++) {
-                if (p_.shape_ == Shape::cube) {
-                    auto& b = blocks_.cube_;
-                    auto temp = b[z][x][y];
-                    temp.repaint_ = true;
-                    b[z][x][y] = b[z][y][len - 1 - x];
-                    b[z][y][len - 1 - x] = b[z][len - 1 - x][len - 1 - y];
-                    b[z][len - 1 - x][len - 1 - y] = b[z][len - 1 - y][x];
-                    b[z][len - 1 - y][x] = temp;
-                } else {
-                    auto& b = blocks_.pancake_;
-                    auto temp = b[z][x][y];
-                    temp.repaint_ = true;
-                    b[z][x][y] = b[z][y][len - 1 - x];
-                    b[z][y][len - 1 - x] = b[z][len - 1 - x][len - 1 - y];
-                    b[z][len - 1 - x][len - 1 - y] = b[z][len - 1 - y][x];
-                    b[z][len - 1 - y][x] = temp;
-                }
+                auto& b = _canvas;
+                auto temp = b[z][x][y];
+                temp.repaint_ = true;
+                b[z][x][y] = b[z][y][len - 1 - x];
+                b[z][y][len - 1 - x] = b[z][len - 1 - x][len - 1 - y];
+                b[z][len - 1 - x][len - 1 - y] = b[z][len - 1 - y][x];
+                b[z][len - 1 - y][x] = temp;
             }
         }
     }
@@ -1390,7 +1482,7 @@ void terrain::Sector::rotate()
     for (int z = 0; z < size().z; ++z) {
         for (int x = 0; x < len; ++x) {
             for (int y = 0; y < len; ++y) {
-                auto& block = ref_block({(u8)x, (u8)y, (u8)z});
+                auto& block = canvas_get_block({(u8)x, (u8)y, (u8)z});
                 block.repaint_ = true;
                 switch (block.type()) {
                 case terrain::Type::selector:
@@ -1477,6 +1569,10 @@ void terrain::Sector::rotate()
     raster::globalstate::_shrunk = true;
 
     p_.orientation_ = (Orientation)(((int)p_.orientation_ + 1) % 4);
+
+    if (this == _bound_sector) {
+        sync_from_canvas();
+    }
 }
 
 
@@ -1677,6 +1773,36 @@ static bool blocks_light(terrain::Type t)
 
 
 
+void terrain::Sector::sync_to_canvas() const
+{
+    for (u8 z = 0; z < size().z; ++z) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                _canvas[z][x][y] = get_block({x, y, z});
+            }
+        }
+    }
+}
+
+
+
+void terrain::Sector::sync_from_canvas() const
+{
+    for (u8 z = 0; z < size().z; ++z) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                if (p_.shape_ == Shape::cube) {
+                    blocks_.cube_[z][x][y] = _canvas[z][x][y];
+                } else {
+                    blocks_.pancake_[z][x][y] = _canvas[z][x][y];;
+                }
+            }
+        }
+    }
+}
+
+
+
 void terrain::Sector::shadowcast()
 {
     for (int z = 0; z < size().z; ++z) {
@@ -1691,7 +1817,7 @@ void terrain::Sector::shadowcast()
         for (int y = 0; y < size().y; ++y) {
             bool shadow = false;
             for (int z = size().z - 1; z > -1; --z) {
-                auto t = ref_block({(u8)x, (u8)y, (u8)z}).type();
+                auto t = get_block({(u8)x, (u8)y, (u8)z}).type();
                 if (shadow) {
                     ref_block({(u8)x, (u8)y, (u8)z}).shadowed_ = true;
                 } else if (blocks_light(t)) {
@@ -1791,6 +1917,10 @@ void terrain::Sector::shadowcast()
             }
         }
     }
+
+    if (this == _bound_sector) {
+        sync_to_canvas();
+    }
 }
 
 
@@ -1875,6 +2005,12 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
     }
 
     raster::globalstate::_changed = true;
+
+    if (_bound_sector == this) {
+        _canvas[coord.z][coord.x][coord.y] = selected;
+    } else {
+        Platform::fatal("attempt to set block for unbound sector!");
+    }
 }
 
 
@@ -1960,7 +2096,7 @@ static bool revert_if_covered(terrain::Sector& s,
 {
     if (position.z < s.size().z) {
         position.z++;
-        const auto& above = s.get_block(position);
+        const auto& above = canvas_get_block(position);
         if (revert_to == terrain::Type::terrain and
             terrain::categories(above.type()) &
                 terrain::Categories::fluid_lava) {
@@ -2003,7 +2139,7 @@ static void update_lava_slanted(terrain::Sector& s,
 
     const Vec3<u8> beneath_coord = {position.x, position.y, u8(position.z - 1)};
 
-    auto& beneath = s.get_block(beneath_coord);
+    auto& beneath = canvas_get_block(beneath_coord);
     const auto tp = beneath.type();
     if (tp == terrain::Type::air or destroyed_by_lava(tp)) {
         s.set_block(beneath_coord, terrain::Type::lava_spread_downwards);
@@ -2022,7 +2158,7 @@ static void update_lava_slanted(terrain::Sector& s,
 
 static void lava_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
 {
-    auto prev_tp = s.get_block(target).type();
+    auto prev_tp = canvas_get_block(target).type();
     if (UNLIKELY(prev_tp not_eq tp and
                  (prev_tp == terrain::Type::lava_slant_a or
                   prev_tp == terrain::Type::lava_slant_b or
@@ -2062,7 +2198,7 @@ update_lava_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
 
     auto beneath_tp = terrain::Type::air;
     if (position.z > 0) {
-        auto& beneath = s.get_block(beneath_coord);
+        auto& beneath = canvas_get_block(beneath_coord);
         beneath_tp = beneath.type();
     }
 
@@ -2114,7 +2250,7 @@ static void update_water_slanted(terrain::Sector& s,
 
     const Vec3<u8> beneath_coord = {position.x, position.y, u8(position.z - 1)};
 
-    auto& beneath = s.get_block(beneath_coord);
+    auto& beneath = canvas_get_block(beneath_coord);
     const auto tp = beneath.type();
     if (terrain::categories(tp) & terrain::Categories::fluid_lava) {
         s.set_block(beneath_coord, terrain::Type::volcanic_soil);
@@ -2135,7 +2271,7 @@ static void update_water_slanted(terrain::Sector& s,
 
 static void water_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
 {
-    auto prev_tp = s.get_block(target).type();
+    auto prev_tp = canvas_get_block(target).type();
     if (terrain::categories(tp) & terrain::Categories::fluid_lava) {
         s.set_block(target, terrain::Type::volcanic_soil);
     }
@@ -2178,7 +2314,7 @@ update_water_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
 
     auto beneath_tp = terrain::Type::air;
     if (position.z > 0) {
-        auto& beneath = s.get_block(beneath_coord);
+        auto& beneath = canvas_get_block(beneath_coord);
         beneath_tp = beneath.type();
     }
 
@@ -2258,7 +2394,7 @@ bool parent_exists_dir_a(terrain::Sector& s,
     if (position.x > 0) {
         auto behind = position;
         behind.x--;
-        auto& block = s.get_block(behind);
+        auto& block = canvas_get_block(behind);
         return typecheck(block.type());
     }
     return true;
@@ -2275,7 +2411,7 @@ bool parent_exists_dir_b(terrain::Sector& s,
     if (position.y > 0) {
         auto behind = position;
         --behind.y;
-        auto& block = s.get_block(behind);
+        auto& block = canvas_get_block(behind);
         return typecheck(block.type());
     }
     return true;
@@ -2292,7 +2428,7 @@ bool parent_exists_dir_c(terrain::Sector& s,
     if (position.x < s.size().x - 1) {
         auto behind = position;
         ++behind.x;
-        auto& block = s.get_block(behind);
+        auto& block = canvas_get_block(behind);
         return typecheck(block.type());
     }
     return true;
@@ -2309,7 +2445,7 @@ bool parent_exists_dir_d(terrain::Sector& s,
     if (position.y < s.size().y - 1) {
         auto behind = position;
         ++behind.y;
-        auto& block = s.get_block(behind);
+        auto& block = canvas_get_block(behind);
         return typecheck(block.type());
     }
     return true;
@@ -2335,7 +2471,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         if (position.z < s.size().z) {
             position.z++;
-            auto& above = s.get_block(position);
+            auto& above = canvas_get_block(position);
             if (terrain::categories(above.type()) & terrain::Categories::fluid_lava) {
                 block.type_ = (u8)terrain::Type::volcanic_soil;
                 block.repaint_ = true;
@@ -2548,7 +2684,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         if (position.z < s.size().z - 1) {
             auto above_coord = position;
             ++above_coord.z;
-            auto& above = s.get_block(above_coord);
+            auto& above = canvas_get_block(above_coord);
             if (not (terrain::categories(above.type()) &
                      terrain::Categories::fluid_water)) {
                 s.set_block(position, terrain::Type::air);
@@ -2606,7 +2742,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         if (position.z < s.size().z - 1) {
             auto above_coord = position;
             ++above_coord.z;
-            auto& above = s.get_block(above_coord);
+            auto& above = canvas_get_block(above_coord);
             if (not (terrain::categories(above.type()) &
                      terrain::Categories::fluid_lava)) {
                 s.set_block(position, terrain::Type::air);
@@ -2678,7 +2814,7 @@ void terrain::Sector::update()
             for (u8 x = 0; x < 8; ++x) {
                 for (u8 y = 0; y < 8; ++y) {
 
-                    auto& block = blocks_.cube_[z][x][y];
+                    auto& block = canvas_get_block({x, y, (u8)z});
 
                     auto update = update_functions[block.type_];
                     if (update) {
@@ -2694,7 +2830,7 @@ void terrain::Sector::update()
             for (u8 x = 0; x < 12; ++x) {
                 for (u8 y = 0; y < 12; ++y) {
 
-                    auto& block = blocks_.pancake_[z][x][y];
+                    auto& block = canvas_get_block({x, y, (u8)z});
 
                     auto update = update_functions[block.type_];
                     if (update) {
@@ -3140,8 +3276,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
         if (p_.shape_ == Shape::cube) {
             for (int z = 0; z < z_view_; ++z) {
                 for (auto& p : winding_path_cube) {
-                    auto slab = blocks_.cube_[z];
-                    auto& block = slab[p.x][p.y];
+                    auto& block = canvas_get_block({p.x, p.y, (u8)z});
                     int t_start = screen_mapping_lut_cube[p.x][p.y];
                     // NOTE: start drawing a few rows down, becuase we'll be
                     // subtracting off rows as the Z coordinate increases.
@@ -3152,8 +3287,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
         } else {
             for (int z = 0; z < z_view_; ++z) {
                 for (auto& p : winding_path_pancake) {
-                    auto slab = blocks_.pancake_[z];
-                    auto& block = slab[p.x][p.y];
+                    auto& block = canvas_get_block({p.x, p.y, (u8)z});
                     int t_start = screen_mapping_lut_pancake[p.x][p.y];
                     t_start += 30 * 3;
                     project_block(block, p.x, p.y, z, t_start);

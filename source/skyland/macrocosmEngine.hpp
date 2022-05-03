@@ -334,6 +334,10 @@ public:
     }
 
 
+    void sync_to_canvas() const;
+    void sync_from_canvas() const;
+
+
     static const int name_len = 12;
 
 
@@ -369,6 +373,10 @@ public:
 
 
 
+    void repaint();
+
+
+
 private:
     Persistent p_;
 
@@ -385,20 +393,10 @@ private:
 
     template <typename F> void foreach (F&& f)
     {
-        if (p_.shape_ == Shape::cube) {
-            for (auto& slab : blocks_.cube_) {
-                for (auto& slice : slab) {
-                    for (auto& block : slice) {
-                        f(block);
-                    }
-                }
-            }
-        } else {
-            for (auto& slab : blocks_.pancake_) {
-                for (auto& slice : slab) {
-                    for (auto& block : slice) {
-                        f(block);
-                    }
+        for (u8 z = 0; z < size().z; ++z) {
+            for (u8 x = 0; x < size().x; ++x) {
+                for (u8 y = 0; y < size().y; ++y) {
+                    f(ref_block({x, y, z}));
                 }
             }
         }
@@ -407,7 +405,7 @@ private:
 
     u8 z_view_ = 9;
 
-    union
+    mutable union
     {
         Block cube_[9][8][8]; // (z, x, y)
         Block pancake_[4][12][12];
@@ -511,24 +509,7 @@ struct State
 
 
 
-    macro::terrain::Sector* bind_sector(Vec2<s8> coord)
-    {
-        if (data_->origin_sector_.coordinate() == coord) {
-            data_->current_sector_ = -1;
-            return &data_->origin_sector_;
-        } else {
-            int i = 0;
-            for (auto& s : data_->other_sectors_) {
-                if (s->coordinate() == coord) {
-                    data_->current_sector_ = i;
-                    return &*s;
-                }
-                ++i;
-            }
-
-            return nullptr;
-        }
-    }
+    macro::terrain::Sector* bind_sector(Vec2<s8> coord);
 
 
 
