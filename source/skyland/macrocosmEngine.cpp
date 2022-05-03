@@ -72,12 +72,6 @@ static HEAP_DATA terrain::Block _canvas[16][12][12]; // z, x, y
 
 
 
-static terrain::Block& canvas_get_block(Vec3<u8> coord)
-{
-    return _canvas[coord.z][coord.x][coord.y];
-}
-
-
 
 namespace raster
 {
@@ -1531,7 +1525,7 @@ void terrain::Sector::rotate()
     for (int z = 0; z < size().z; ++z) {
         for (int x = 0; x < len; ++x) {
             for (int y = 0; y < len; ++y) {
-                auto& block = canvas_get_block({(u8)x, (u8)y, (u8)z});
+                auto& block = _canvas[z][x][y];
                 block.repaint_ = true;
                 switch (block.type()) {
                 case terrain::Type::selector:
@@ -2169,7 +2163,7 @@ static bool revert_if_covered(terrain::Sector& s,
 {
     if (position.z < s.size().z) {
         position.z++;
-        const auto& above = canvas_get_block(position);
+        const auto& above = _canvas[position.z][position.x][position.y];
         if (revert_to == terrain::Type::terrain and
             terrain::categories(above.type()) &
                 terrain::Categories::fluid_lava) {
@@ -2212,7 +2206,7 @@ static void update_lava_slanted(terrain::Sector& s,
 
     const Vec3<u8> beneath_coord = {position.x, position.y, u8(position.z - 1)};
 
-    auto& beneath = canvas_get_block(beneath_coord);
+    auto& beneath = _canvas[beneath_coord.z][beneath_coord.x][beneath_coord.y];
     const auto tp = beneath.type();
     if (tp == terrain::Type::air or destroyed_by_lava(tp)) {
         s.set_block(beneath_coord, terrain::Type::lava_spread_downwards);
@@ -2231,7 +2225,7 @@ static void update_lava_slanted(terrain::Sector& s,
 
 static void lava_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
 {
-    auto prev_tp = canvas_get_block(target).type();
+    auto prev_tp = _canvas[target.z][target.x][target.y].type();
     if (UNLIKELY(prev_tp not_eq tp and
                  (prev_tp == terrain::Type::lava_slant_a or
                   prev_tp == terrain::Type::lava_slant_b or
@@ -2271,7 +2265,7 @@ update_lava_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
 
     auto beneath_tp = terrain::Type::air;
     if (position.z > 0) {
-        auto& beneath = canvas_get_block(beneath_coord);
+        auto& beneath = _canvas[beneath_coord.z][beneath_coord.x][beneath_coord.y];
         beneath_tp = beneath.type();
     }
 
@@ -2323,7 +2317,7 @@ static void update_water_slanted(terrain::Sector& s,
 
     const Vec3<u8> beneath_coord = {position.x, position.y, u8(position.z - 1)};
 
-    auto& beneath = canvas_get_block(beneath_coord);
+    auto& beneath = _canvas[beneath_coord.z][beneath_coord.x][beneath_coord.y];
     const auto tp = beneath.type();
     if (terrain::categories(tp) & terrain::Categories::fluid_lava) {
         s.set_block(beneath_coord, terrain::Type::volcanic_soil);
@@ -2344,7 +2338,7 @@ static void update_water_slanted(terrain::Sector& s,
 
 static void water_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
 {
-    auto prev_tp = canvas_get_block(target).type();
+    auto prev_tp = _canvas[target.z][target.x][target.y].type();
     if (terrain::categories(tp) & terrain::Categories::fluid_lava) {
         s.set_block(target, terrain::Type::volcanic_soil);
     }
@@ -2387,7 +2381,7 @@ update_water_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
 
     auto beneath_tp = terrain::Type::air;
     if (position.z > 0) {
-        auto& beneath = canvas_get_block(beneath_coord);
+        auto& beneath = _canvas[beneath_coord.z][beneath_coord.x][beneath_coord.y];
         beneath_tp = beneath.type();
     }
 
@@ -2467,7 +2461,7 @@ bool parent_exists_dir_a(terrain::Sector& s,
     if (position.x > 0) {
         auto behind = position;
         behind.x--;
-        auto& block = canvas_get_block(behind);
+        auto& block = _canvas[behind.z][behind.x][behind.y];
         return typecheck(block.type());
     }
     return true;
@@ -2484,7 +2478,7 @@ bool parent_exists_dir_b(terrain::Sector& s,
     if (position.y > 0) {
         auto behind = position;
         --behind.y;
-        auto& block = canvas_get_block(behind);
+        auto& block = _canvas[behind.z][behind.x][behind.y];
         return typecheck(block.type());
     }
     return true;
@@ -2501,7 +2495,7 @@ bool parent_exists_dir_c(terrain::Sector& s,
     if (position.x < s.size().x - 1) {
         auto behind = position;
         ++behind.x;
-        auto& block = canvas_get_block(behind);
+        auto& block = _canvas[behind.z][behind.x][behind.y];
         return typecheck(block.type());
     }
     return true;
@@ -2518,7 +2512,7 @@ bool parent_exists_dir_d(terrain::Sector& s,
     if (position.y < s.size().y - 1) {
         auto behind = position;
         ++behind.y;
-        auto& block = canvas_get_block(behind);
+        auto& block = _canvas[behind.z][behind.x][behind.y];
         return typecheck(block.type());
     }
     return true;
@@ -2544,7 +2538,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         if (position.z < s.size().z) {
             position.z++;
-            auto& above = canvas_get_block(position);
+            auto& above = _canvas[position.z][position.x][position.y];
             if (terrain::categories(above.type()) & terrain::Categories::fluid_lava) {
                 block.type_ = (u8)terrain::Type::volcanic_soil;
                 block.repaint_ = true;
@@ -2757,7 +2751,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         if (position.z < s.size().z - 1) {
             auto above_coord = position;
             ++above_coord.z;
-            auto& above = canvas_get_block(above_coord);
+            auto& above = _canvas[above_coord.z][above_coord.x][above_coord.y];
             if (not (terrain::categories(above.type()) &
                      terrain::Categories::fluid_water)) {
                 s.set_block(position, terrain::Type::air);
@@ -2815,7 +2809,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         if (position.z < s.size().z - 1) {
             auto above_coord = position;
             ++above_coord.z;
-            auto& above = canvas_get_block(above_coord);
+            auto& above = _canvas[above_coord.z][above_coord.x][above_coord.y];
             if (not (terrain::categories(above.type()) &
                      terrain::Categories::fluid_lava)) {
                 s.set_block(position, terrain::Type::air);
@@ -2887,7 +2881,7 @@ void terrain::Sector::update()
             for (u8 x = 0; x < 8; ++x) {
                 for (u8 y = 0; y < 8; ++y) {
 
-                    auto& block = canvas_get_block({x, y, (u8)z});
+                    auto& block = _canvas[z][x][y];
 
                     auto update = update_functions[block.type_];
                     if (update) {
@@ -2903,7 +2897,7 @@ void terrain::Sector::update()
             for (u8 x = 0; x < 12; ++x) {
                 for (u8 y = 0; y < 12; ++y) {
 
-                    auto& block = canvas_get_block({x, y, (u8)z});
+                    auto& block = _canvas[z][x][y];
 
                     auto update = update_functions[block.type_];
                     if (update) {
@@ -2919,7 +2913,7 @@ void terrain::Sector::update()
             for (u8 x = 0; x < 6; ++x) {
                 for (u8 y = 0; y < 6; ++y) {
 
-                    auto& block = canvas_get_block({x, y, (u8)z});
+                    auto& block = _canvas[z][x][y];
 
                     auto update = update_functions[block.type_];
                     if (update) {
@@ -3365,7 +3359,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
         case Shape::cube:
             for (int z = 0; z < z_view_; ++z) {
                 for (auto& p : winding_path_cube) {
-                    auto& block = canvas_get_block({p.x, p.y, (u8)z});
+                    auto& block = _canvas[z][p.x][p.y];
                     int t_start = screen_mapping_lut_cube[p.x][p.y];
                     // NOTE: start drawing a few rows down, becuase we'll be
                     // subtracting off rows as the Z coordinate increases.
@@ -3378,7 +3372,7 @@ void terrain::Sector::render_setup(Platform& pfrm)
         case Shape::pancake:
             for (int z = 0; z < z_view_; ++z) {
                 for (auto& p : winding_path_pancake) {
-                    auto& block = canvas_get_block({p.x, p.y, (u8)z});
+                    auto& block = _canvas[z][p.x][p.y];
                     int t_start = screen_mapping_lut_pancake[p.x][p.y];
                     t_start += 30 * 3;
                     project_block(block, p.x, p.y, z, t_start);
