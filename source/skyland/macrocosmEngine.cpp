@@ -68,7 +68,7 @@ namespace skyland::macro
 //
 // P.S. As we're doing software rendering, I probably should not have called
 // this a canvas, which is perhaps misleading.
-static HEAP_DATA terrain::Block _canvas[9][12][12]; // z, x, y
+static HEAP_DATA terrain::Block _canvas[16][12][12]; // z, x, y
 
 
 
@@ -507,6 +507,7 @@ template <u32 inflate> struct Sector
         // file, so we have this union.
         u8 cube_[9][8][8];
         u8 pancake_[4][12][12];
+        u8 pillar_[16][6][6];
         static_assert(sizeof cube_ == sizeof pancake_);
     } blocks_;
     static_assert(sizeof blocks_ == 9 * 8 * 8);
@@ -531,6 +532,11 @@ template <u32 inflate> struct Sector
 
                     case terrain::Sector::Shape::pancake:
                         blocks_.pancake_[z][x][y] =
+                            source.get_block({x, y, z}).type_;
+                        break;
+
+                    case terrain::Sector::Shape::pillar:
+                        blocks_.pillar_[z][x][y] =
                             source.get_block({x, y, z}).type_;
                         break;
                     }
@@ -630,8 +636,10 @@ bool State::load(Platform& pfrm)
 
             if (s.p_.p_.shape_ == terrain::Sector::Shape::cube) {
                 dest.restore(s.p_.p_, s.blocks_.cube_);
-            } else {
+            } else if (s.p_.p_.shape_ == terrain::Sector::Shape::pancake) {
                 dest.restore(s.p_.p_, s.blocks_.pancake_);
+            } else {
+                dest.restore(s.p_.p_, s.blocks_.pillar_);
             }
 
 
@@ -717,9 +725,28 @@ terrain::Sector* State::bind_sector(Vec2<s8> coord)
 
 
 
+static Vec3<u8> size(terrain::Sector::Shape shape)
+{
+    switch (shape) {
+    case terrain::Sector::Shape::cube:
+        return {8, 8, 9};
+
+    case terrain::Sector::Shape::pancake:
+        return {12, 12, 4};
+
+    case terrain::Sector::Shape::pillar:
+        return {6, 6, 16};
+
+    default:
+        return {1, 1, 1};
+    }
+}
+
+
+
 void terrain::Sector::restore(const Persistent& p, u8 blocks[9][8][8])
 {
-    size_ = Vec3<u8>{8, 8, 9};
+    size_ = macro::size(Shape::cube);
 
     erase();
 
@@ -740,7 +767,28 @@ void terrain::Sector::restore(const Persistent& p, u8 blocks[9][8][8])
 
 void terrain::Sector::restore(const Persistent& p, u8 blocks[4][12][12])
 {
-    size_ = Vec3<u8>{12, 12, 4};
+    size_ = macro::size(Shape::pancake);
+
+    erase();
+
+    memcpy(&p_, &p, sizeof p);
+
+    for (u8 z = 0; z < size().z; ++z) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                blocks_.pancake_[z][x][y].type_ = blocks[z][x][y];
+                blocks_.pancake_[z][x][y].repaint_ = true;
+                blocks_.pancake_[z][x][y].data_ = 0;
+            }
+        }
+    }
+}
+
+
+
+void terrain::Sector::restore(const Persistent& p, u8 blocks[16][6][6])
+{
+    size_ = macro::size(Shape::pillar);
 
     erase();
 
@@ -778,15 +826,10 @@ void terrain::Sector::erase()
 
 
 terrain::Sector::Sector(Vec2<s8> position, Shape shape)
-    : size_([&] {
-          p_.shape_ = shape;
-          if (p_.shape_ == Shape::cube) {
-              return Vec3<u8>{8, 8, 9};
-          } else {
-              return Vec3<u8>{12, 12, 4};
-          }
-      }())
+    : size_(macro::size(shape))
 {
+    p_.shape_ = shape;
+
     erase();
 
     p_.x_ = position.x;
@@ -1797,10 +1840,18 @@ void terrain::Sector::sync_from_canvas() const
     for (u8 z = 0; z < size().z; ++z) {
         for (u8 x = 0; x < size().x; ++x) {
             for (u8 y = 0; y < size().y; ++y) {
-                if (p_.shape_ == Shape::cube) {
+                switch (p_.shape_) {
+                case Shape::cube:
                     blocks_.cube_[z][x][y] = _canvas[z][x][y];
-                } else {
+                    break;
+
+                case Shape::pancake:
                     blocks_.pancake_[z][x][y] = _canvas[z][x][y];;
+                    break;
+
+                case Shape::pillar:
+                    blocks_.pillar_[z][x][y] = _canvas[z][x][y];
+                    break;
                 }
             }
         }
@@ -1933,10 +1984,18 @@ void terrain::Sector::shadowcast()
 
 const terrain::Block& terrain::Sector::get_block(const Vec3<u8>& coord) const
 {
-    if (p_.shape_ == Shape::cube) {
+    switch (p_.shape_) {
+    case Shape::cube:
         return blocks_.cube_[coord.z][coord.x][coord.y];
-    } else {
+
+    case Shape::pancake:
         return blocks_.pancake_[coord.z][coord.x][coord.y];
+
+    case Shape::pillar:
+        return blocks_.pillar_[coord.z][coord.x][coord.y];
+
+    default:
+        Platform::fatal("unexpected sector layout");
     }
 }
 
@@ -1944,10 +2003,18 @@ const terrain::Block& terrain::Sector::get_block(const Vec3<u8>& coord) const
 
 terrain::Block& terrain::Sector::ref_block(const Vec3<u8>& coord)
 {
-    if (p_.shape_ == Shape::cube) {
+    switch (p_.shape_) {
+    case Shape::cube:
         return blocks_.cube_[coord.z][coord.x][coord.y];
-    } else {
+
+    case Shape::pancake:
         return blocks_.pancake_[coord.z][coord.x][coord.y];
+
+    case Shape::pillar:
+        return blocks_.pillar_[coord.z][coord.x][coord.y];
+
+    default:
+        Platform::fatal("unexpected sector layout");
     }
 }
 
@@ -2846,6 +2913,21 @@ void terrain::Sector::update()
             }
         }
         break;
+
+    case Shape::pillar:
+        for (int z = 0; z < 16; ++z) {
+            for (u8 x = 0; x < 6; ++x) {
+                for (u8 y = 0; y < 6; ++y) {
+
+                    auto& block = canvas_get_block({x, y, (u8)z});
+
+                    auto update = update_functions[block.type_];
+                    if (update) {
+                        update(*this, block, {x, y, (u8)z});
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -3279,7 +3361,8 @@ void terrain::Sector::render_setup(Platform& pfrm)
                 blit(texture + 5, t_start + 1);
             };
 
-        if (p_.shape_ == Shape::cube) {
+        switch (p_.shape_) {
+        case Shape::cube:
             for (int z = 0; z < z_view_; ++z) {
                 for (auto& p : winding_path_cube) {
                     auto& block = canvas_get_block({p.x, p.y, (u8)z});
@@ -3290,7 +3373,9 @@ void terrain::Sector::render_setup(Platform& pfrm)
                     project_block(block, p.x, p.y, z, t_start);
                 }
             }
-        } else {
+            break;
+
+        case Shape::pancake:
             for (int z = 0; z < z_view_; ++z) {
                 for (auto& p : winding_path_pancake) {
                     auto& block = canvas_get_block({p.x, p.y, (u8)z});
@@ -3299,6 +3384,11 @@ void terrain::Sector::render_setup(Platform& pfrm)
                     project_block(block, p.x, p.y, z, t_start);
                 }
             }
+            break;
+
+        case Shape::pillar:
+            // TODO...
+            break;
         }
     };
 

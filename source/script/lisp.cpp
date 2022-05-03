@@ -46,7 +46,7 @@ namespace lisp {
 static int run_gc();
 
 
-static const u32 string_intern_table_size = 3000;
+static const u32 string_intern_table_size = 2900;
 
 
 #if defined(__NDS__)

@@ -241,7 +241,7 @@ class Sector
 public:
     enum Orientation : u8 { north, east, south, west };
 
-    enum class Shape : u8 { cube, pancake };
+    enum class Shape : u8 { cube, pancake, pillar };
 
 
     struct ExportInfo
@@ -409,10 +409,12 @@ private:
     {
         Block cube_[9][8][8]; // (z, x, y)
         Block pancake_[4][12][12];
+        Block pillar_[16][6][6];
 
         static_assert(sizeof cube_ == sizeof pancake_);
 
     } blocks_;
+    static_assert(sizeof blocks_ == sizeof(Block) * 576);
 
     Vec3<u8> size_;
 
@@ -422,6 +424,7 @@ public:
     // Restore from a previous save.
     void restore(const Persistent& p, u8 blocks[9][8][8]);
     void restore(const Persistent& p, u8 blocks[4][12][12]);
+    void restore(const Persistent& p, u8 blocks[16][6][6]);
 
 
     const Persistent& persistent() const
