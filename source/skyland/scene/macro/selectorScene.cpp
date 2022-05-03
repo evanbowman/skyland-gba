@@ -83,6 +83,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
     if (player.key_down(pfrm, Key::select)) {
         pfrm.speaker().play_sound("button_wooden", 3);
+        StringBuffer<48> temp;
         return scene_pool::alloc<NextTurnScene>();
     }
 
@@ -114,7 +115,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
             pfrm.speaker().play_sound("cursor_tick", 2);
         }
 
-        if (test_key(Key::down) and cursor.y < 7) {
+        if (test_key(Key::down) and cursor.y < sector.size().x - 1) {
             ++cursor.y;
             sector.set_cursor(cursor);
             describe_selected(pfrm, state);
@@ -128,7 +129,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
             pfrm.speaker().play_sound("cursor_tick", 2);
         }
 
-        if (test_key(Key::left) and cursor.x < 7) {
+        if (test_key(Key::left) and cursor.x < sector.size().y - 1) {
             ++cursor.x;
             sector.set_cursor(cursor);
             describe_selected(pfrm, state);
@@ -201,6 +202,7 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::State& state)
     b += "(";
     b += loadstr(pfrm, s)->c_str();
     b += ")";
+
     text_->assign(b.c_str());
 
     auto stats = terrain::stats(tp, shadowed);

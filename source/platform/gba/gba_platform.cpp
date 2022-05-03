@@ -3314,8 +3314,11 @@ static const AudioTrack* find_music(const char* name)
 // NOTE: Between remixing the audio track down to 8-bit 16kHz signed, generating
 // assembly output, adding the file to CMake, adding the include, and adding the
 // sound to the sounds array, it's just too tedious to keep working this way...
+#include "data/sound_beep_error.hpp"
 #include "data/sound_bell.hpp"
+#include "data/sound_build0.hpp"
 #include "data/sound_button_wooden.hpp"
+#include "data/sound_cannon.hpp"
 #include "data/sound_click.hpp"
 #include "data/sound_click_negative.hpp"
 #include "data/sound_click_wooden.hpp"
@@ -3323,13 +3326,18 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_coin.hpp"
 #include "data/sound_cursor_click.hpp"
 #include "data/sound_digital_click_1.hpp"
+#include "data/sound_drone_beep.hpp"
 #include "data/sound_explosion1.hpp"
 #include "data/sound_explosion2.hpp"
+#include "data/sound_fizzle.hpp"
 #include "data/sound_footstep1.hpp"
 #include "data/sound_footstep2.hpp"
 #include "data/sound_footstep3.hpp"
+#include "data/sound_gravel.hpp"
 #include "data/sound_gust.hpp"
 #include "data/sound_gust2.hpp"
+#include "data/sound_missile.hpp"
+#include "data/sound_missile_explosion.hpp"
 #include "data/sound_msg.hpp"
 #include "data/sound_open_book.hpp"
 #include "data/sound_openbag.hpp"
@@ -3338,14 +3346,6 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_thunder_2.hpp"
 #include "data/sound_tw_bell.hpp"
 #include "data/sound_typewriter.hpp"
-#include "data/sound_beep_error.hpp"
-#include "data/sound_build0.hpp"
-#include "data/sound_cannon.hpp"
-#include "data/sound_drone_beep.hpp"
-#include "data/sound_fizzle.hpp"
-#include "data/sound_gravel.hpp"
-#include "data/sound_missile.hpp"
-#include "data/sound_missile_explosion.hpp"
 
 
 

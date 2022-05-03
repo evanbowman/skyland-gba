@@ -302,7 +302,7 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
 ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm, macro::State& state)
 {
     auto cursor = state.sector().cursor();
-    if (not check_z() or cursor.z < macro::terrain::Sector::z_limit - 1) {
+    if (not check_z() or cursor.z < state.sector().size().z - 1) {
         auto cost = this->cost(state, options_[selector_]);
         if (cost > state.data_->p().coins_.get()) {
             pfrm.speaker().play_sound("beep_error", 2);

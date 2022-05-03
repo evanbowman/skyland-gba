@@ -435,8 +435,7 @@ public:
                     Format format = Format::plain_integer,
                     bool large_numerator = false)
         : icon_tile_(icon_tile), value_(value), anim_(pfrm, pos), align_(align),
-          format_(format), pos_(pos),
-          large_numerator_(large_numerator)
+          format_(format), pos_(pos), large_numerator_(large_numerator)
     {
         display(pfrm);
     }

@@ -494,7 +494,8 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (m.data_->p().coins_.get() >= cost.first and
                     m.sector().population() >= cost.second) {
 
-                    if (m.make_sector(*selected_colony_)) {
+                    const auto sh = terrain::Sector::Shape::cube;
+                    if (m.make_sector(*selected_colony_, sh)) {
 
                         m.data_->p().coins_.set(m.data_->p().coins_.get() -
                                                 cost.first);

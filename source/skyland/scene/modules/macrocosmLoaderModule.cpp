@@ -37,9 +37,10 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_tile0_texture("macro_rendertexture");
     pfrm.load_tile1_texture("macro_rendertexture");
 
-    for (int x = 0; x < 16; ++x) {
-        for (int y = 0; y < 16; ++y) {
-            pfrm.set_tile(Layer::map_1_ext, x, y, 0);
+    for (int x = 0; x < 32; ++x) {
+        for (int y = 0; y < 32; ++y) {
+            pfrm.set_raw_tile(Layer::map_0, x, y, 0);
+            pfrm.set_raw_tile(Layer::map_1, x, y, 0);
         }
     }
 

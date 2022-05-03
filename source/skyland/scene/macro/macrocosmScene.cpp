@@ -197,8 +197,8 @@ void MacrocosmScene::update_ui(macro::State& state)
         (*ui_)->coins_->use_large_numerator(false);
     }
 
-    (*ui_)->coins_->sync_value(format_ui_fraction(disp_coins,
-                                                  state.coin_yield()));
+    (*ui_)->coins_->sync_value(
+        format_ui_fraction(disp_coins, state.coin_yield()));
 
     (*ui_)->housing_->sync_value(stat.housing_);
 
@@ -253,14 +253,14 @@ void MacrocosmScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
             coins_large_numerator = true;
         }
 
-        (*ui_)->coins_.emplace(pfrm,
-                               OverlayCoord{1, 2},
-                               146,
-                               format_ui_fraction(disp_coins,
-                                                  state.coin_yield()),
-                               UIMetric::Align::left,
-                               UIMetric::Format::integer_with_rate,
-                               coins_large_numerator);
+        (*ui_)->coins_.emplace(
+            pfrm,
+            OverlayCoord{1, 2},
+            146,
+            format_ui_fraction(disp_coins, state.coin_yield()),
+            UIMetric::Align::left,
+            UIMetric::Format::integer_with_rate,
+            coins_large_numerator);
 
 
         (*ui_)->employment_.emplace(pfrm,

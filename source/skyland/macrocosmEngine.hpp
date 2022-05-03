@@ -241,9 +241,7 @@ class Sector
 public:
     enum Orientation : u8 { north, east, south, west };
 
-    enum class Shape : u8 {
-        cube, pancake
-    };
+    enum class Shape : u8 { cube, pancake };
 
 
     struct ExportInfo
@@ -296,8 +294,8 @@ public:
     Stats stats() const;
 
 
-    static const int z_limit = 9;
 
+    Vec3<u8> size() const;
 
 
     Population population() const;
@@ -354,7 +352,9 @@ public:
         s8 x_;
         s8 y_;
 
-        u8 pad_[2]; // FIXME: remove. Added while packing this struct.
+        Shape shape_;
+
+        u8 pad_[1]; // FIXME: remove. Added while packing this struct.
     };
     static_assert(std::is_trivially_copyable<Persistent>());
     static_assert(alignof(Persistent) == 1);
@@ -378,18 +378,51 @@ private:
     // number crunching and will definitely lag the game if done frequently.
     mutable std::optional<Stats> base_stats_cache_;
 
-    u8 z_view_ = z_limit;
 
-    Block blocks_[z_limit][8][8]; // (z, x, y)
+    Block& ref_block(const Vec3<u8>& coord);
 
-    Shape shape_;
 
+
+    template <typename F> void foreach (F&& f)
+    {
+        if (p_.shape_ == Shape::cube) {
+            for (auto& slab : blocks_.cube_) {
+                for (auto& slice : slab) {
+                    for (auto& block : slice) {
+                        f(block);
+                    }
+                }
+            }
+        } else {
+            for (auto& slab : blocks_.pancake_) {
+                for (auto& slice : slab) {
+                    for (auto& block : slice) {
+                        f(block);
+                    }
+                }
+            }
+        }
+    }
+
+
+    u8 z_view_ = 9;
+
+    union
+    {
+        Block cube_[9][8][8]; // (z, x, y)
+        Block pancake_[4][12][12];
+
+        static_assert(sizeof cube_ == sizeof pancake_);
+
+    } blocks_;
+
+    const Vec3<u8> size_;
 
     Exports exports_;
 
 public:
     // Restore from a previous save.
-    void restore(const Persistent& p, u8 blocks[z_limit][8][8]);
+    void restore(const Persistent& p, u8 blocks[9][8][8]);
 
 
     const Persistent& persistent() const
@@ -461,13 +494,14 @@ struct State
 
 
 
-    bool make_sector(Vec2<s8> coord)
+    bool make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
     {
         if (load_sector(coord)) {
             return false;
         }
 
-        auto s = allocate_dynamic<terrain::Sector>("macro-colony_mem", coord);
+        auto s =
+            allocate_dynamic<terrain::Sector>("macro-colony_mem", coord, shape);
         StringBuffer<terrain::Sector::name_len - 1> n("colony_");
         n += stringify(data_->other_sectors_.size() + 1).c_str();
         s->set_name(n);

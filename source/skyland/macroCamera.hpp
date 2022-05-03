@@ -39,7 +39,12 @@ public:
 
         //target_.x = -x * 4;
         target_.y = -24 + y * 4;
-        target_.y = clamp(target_.y, 0, 40);
+        if (app.macrocosm()->sector().size().x <= 8) {
+            target_.y = clamp(target_.y, 0, 40);
+        } else {
+            target_.y = clamp(target_.y, 0, 80);
+        }
+
 
         if (real_y < (current_.y + 10) or real_y > current_.y + 120) {
             current_ = interpolate(

@@ -456,7 +456,7 @@ template <> struct PersistentWrapper<0>
 template <u32 inflate> struct Sector
 {
     PersistentWrapper<inflate> p_;
-    u8 blocks_[macro::terrain::Sector::z_limit][8][8];
+    u8 blocks_[9][8][8];
 
     Sector()
     {
@@ -466,7 +466,7 @@ template <u32 inflate> struct Sector
     {
         memcpy(&p_.p_, &source.persistent(), sizeof p_);
 
-        for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
+        for (u8 z = 0; z < source.size().z; ++z) {
             for (u8 x = 0; x < 8; ++x) {
                 for (u8 y = 0; y < 8; ++y) {
                     blocks_[z][x][y] = source.get_block({x, y, z}).type_;
@@ -607,18 +607,19 @@ bool State::load(Platform& pfrm)
 
 
 
-void terrain::Sector::restore(const Persistent& p, u8 blocks[z_limit][8][8])
+void terrain::Sector::restore(const Persistent& p, u8 blocks[9][8][8])
 {
     erase();
 
     memcpy(&p_, &p, sizeof p);
 
-    for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
-        for (u8 x = 0; x < 8; ++x) {
-            for (u8 y = 0; y < 8; ++y) {
-                blocks_[z][x][y].type_ = blocks[z][x][y];
-                blocks_[z][x][y].repaint_ = true;
-                blocks_[z][x][y].data_ = 0;
+    for (u8 z = 0; z < size().z; ++z) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                // FIXME!
+                blocks_.cube_[z][x][y].type_ = blocks[z][x][y];
+                blocks_.cube_[z][x][y].repaint_ = true;
+                blocks_.cube_[z][x][y].data_ = 0;
             }
         }
     }
@@ -630,15 +631,12 @@ void terrain::Sector::erase()
 {
     set_name("");
 
-    for (auto& slab : blocks_) {
-        for (auto& slice : slab) {
-            for (auto& block : slice) {
-                block.type_ = (u8)Type::air;
-                block.repaint_ = true;
-                block.shadowed_ = true;
-            }
-        }
-    }
+    foreach ([](auto& block) {
+        block.type_ = (u8)Type::air;
+        block.repaint_ = true;
+        block.shadowed_ = true;
+    })
+        ;
 
     exports_.clear();
 
@@ -647,8 +645,15 @@ void terrain::Sector::erase()
 
 
 
-terrain::Sector::Sector(Vec2<s8> position, Shape shape) :
-    shape_(shape)
+terrain::Sector::Sector(Vec2<s8> position, Shape shape)
+    : size_([&] {
+          p_.shape_ = shape;
+          if (shape == Shape::cube) {
+              return Vec3<u8>{8, 8, 9};
+          } else {
+              return Vec3<u8>{12, 12, 4};
+          }
+      }())
 {
     erase();
 
@@ -942,20 +947,25 @@ terrain::Stats terrain::Sector::base_stats() const
 
     terrain::Stats result;
 
-    for (int z = 0; z < z_limit - 1; ++z) {
-        for (int x = 0; x < 8; ++x) {
-            for (int y = 0; y < 8; ++y) {
-                if (blocks_[z][x][y].type() == Type::air) {
+    for (u8 z = 0; z < size().z - 1; ++z) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+
+                auto& block = get_block({x, y, z});
+
+                if (block.type() == Type::air) {
                     continue;
                 }
 
-                auto block_stats = blocks_[z][x][y].stats();
+                auto block_stats = block.stats();
+
+                auto& above = get_block({x, y, (u8)(z + 1)});
 
                 // NOTE: if a block is covered, then it's not possible to
                 // harvest the supplied food, so a stacked block should yield
                 // zero food.
-                if (blocks_[z + 1][x][y].type() == Type::air or
-                    blocks_[z + 1][x][y].type() == Type::selector) {
+                if (above.type() == Type::air or
+                    above.type() == Type::selector) {
                     result.food_ += block_stats.food_;
                 }
 
@@ -1285,9 +1295,9 @@ SystemString terrain::Block::name() const
 
 
 
-static Vec3<u8> rotate_coord(Vec3<u8> input)
+static Vec3<u8> rotate_coord(terrain::Sector& s, Vec3<u8> input)
 {
-    return {(u8)((8 - 1) - input.y), input.x, input.z};
+    return {(u8)((s.size().x - 1) - input.y), input.x, input.z};
 }
 
 
@@ -1299,27 +1309,40 @@ void terrain::Sector::rotate()
     // basically. Somewhat, costly, but an infrequent operation, unlike
     // rendering.
 
-    for (int z = 0; z < z_limit; ++z) {
-        for (int x = 0; x < 8 / 2; x++) {
-            for (int y = x; y < 8 - x - 1; y++) {
-                auto temp = blocks_[z][x][y];
-                temp.repaint_ = true;
-                blocks_[z][x][y] = blocks_[z][y][8 - 1 - x];
-                blocks_[z][y][8 - 1 - x] = blocks_[z][8 - 1 - x][8 - 1 - y];
-                blocks_[z][8 - 1 - x][8 - 1 - y] = blocks_[z][8 - 1 - y][x];
-                blocks_[z][8 - 1 - y][x] = temp;
+    const auto len = size().x;
+
+    for (int z = 0; z < size().z; ++z) {
+        for (int x = 0; x < len / 2; x++) {
+            for (int y = x; y < len - x - 1; y++) {
+                if (p_.shape_ == Shape::cube) {
+                    auto& b = blocks_.cube_;
+                    auto temp = b[z][x][y];
+                    temp.repaint_ = true;
+                    b[z][x][y] = b[z][y][len - 1 - x];
+                    b[z][y][len - 1 - x] = b[z][len - 1 - x][len - 1 - y];
+                    b[z][len - 1 - x][len - 1 - y] = b[z][len - 1 - y][x];
+                    b[z][len - 1 - y][x] = temp;
+                } else {
+                    auto& b = blocks_.pancake_;
+                    auto temp = b[z][x][y];
+                    temp.repaint_ = true;
+                    b[z][x][y] = b[z][y][len - 1 - x];
+                    b[z][y][len - 1 - x] = b[z][len - 1 - x][len - 1 - y];
+                    b[z][len - 1 - x][len - 1 - y] = b[z][len - 1 - y][x];
+                    b[z][len - 1 - y][x] = temp;
+                }
             }
         }
     }
 
     for (auto& exp : exports_) {
-        exp.source_coord_ = rotate_coord(exp.source_coord_);
+        exp.source_coord_ = rotate_coord(*this, exp.source_coord_);
     }
 
-    for (int z = 0; z < z_limit; ++z) {
-        for (int x = 0; x < 8; ++x) {
-            for (int y = 0; y < 8; ++y) {
-                auto& block = blocks_[z][x][y];
+    for (int z = 0; z < size().z; ++z) {
+        for (int x = 0; x < len; ++x) {
+            for (int y = 0; y < len; ++y) {
+                auto& block = ref_block({(u8)x, (u8)y, (u8)z});
                 block.repaint_ = true;
                 switch (block.type()) {
                 case terrain::Type::selector:
@@ -1608,21 +1631,21 @@ static bool blocks_light(terrain::Type t)
 
 void terrain::Sector::shadowcast()
 {
-    for (int z = 0; z < z_limit; ++z) {
-        for (int x = 0; x < 8; ++x) {
-            for (int y = 0; y < 8; ++y) {
-                blocks_[z][x][y].shadowed_ = false;
+    for (int z = 0; z < size().z; ++z) {
+        for (int x = 0; x < size().x; ++x) {
+            for (int y = 0; y < size().y; ++y) {
+                ref_block({(u8)x, (u8)y, (u8)z}).shadowed_ = false;
             }
         }
     }
 
-    for (int x = 0; x < 8; ++x) {
-        for (int y = 0; y < 8; ++y) {
+    for (int x = 0; x < size().x; ++x) {
+        for (int y = 0; y < size().y; ++y) {
             bool shadow = false;
-            for (int z = z_limit - 1; z > -1; --z) {
-                auto t = blocks_[z][x][y].type();
+            for (int z = size().z - 1; z > -1; --z) {
+                auto t = ref_block({(u8)x, (u8)y, (u8)z}).type();
                 if (shadow) {
-                    blocks_[z][x][y].shadowed_ = true;
+                    ref_block({(u8)x, (u8)y, (u8)z}).shadowed_ = true;
                 } else if (blocks_light(t)) {
                     shadow = true;
                 }
@@ -1630,16 +1653,16 @@ void terrain::Sector::shadowcast()
         }
     }
 
-    for (int z = 0; z < z_limit; ++z) {
+    for (int z = 0; z < size().z; ++z) {
         for (int x = 0; x < 8; ++x) {
             for (int y = 0; y < 8; ++y) {
-                auto& block = blocks_[z][x][y];
+                auto& block = ref_block({(u8)x, (u8)y, (u8)z});
                 if (block.type() == Type::light_source) {
                     // beneath:
                     for (int zz = z - 1; zz > z - 4; --zz) {
                         if (zz > -1) {
-                            auto& block = blocks_[zz][x][y];
-                            blocks_[zz][x][y].shadowed_ = false;
+                            auto& block = ref_block({(u8)x, (u8)y, (u8)zz});
+                            block.shadowed_ = false;
                             if (blocks_light(block.type())) {
                                 break;
                             }
@@ -1648,14 +1671,15 @@ void terrain::Sector::shadowcast()
 
                     // raycast positive x:
                     for (int xx = x + 1; xx < x + 3; ++xx) {
-                        if (xx < 8) {
-                            auto& block = blocks_[z][xx][y];
+                        if (xx < size().x) {
+                            auto& block = ref_block({(u8)xx, (u8)y, (u8)z});
                             if (blocks_light(block.type())) {
                                 break;
                             }
                             block.shadowed_ = false;
                             if (z > 0) {
-                                blocks_[z - 1][xx][y].shadowed_ = false;
+                                ref_block({(u8)xx, (u8)y, (u8)(z - 1)})
+                                    .shadowed_ = false;
                             }
                         }
                     }
@@ -1663,27 +1687,29 @@ void terrain::Sector::shadowcast()
                     // raycast negative x:
                     for (int xx = x - 1; xx > x - 3; --xx) {
                         if (xx > -1) {
-                            auto& block = blocks_[z][xx][y];
+                            auto& block = ref_block({(u8)xx, (u8)y, (u8)z});
                             if (blocks_light(block.type())) {
                                 break;
                             }
                             block.shadowed_ = false;
                             if (z > 0) {
-                                blocks_[z - 1][xx][y].shadowed_ = false;
+                                ref_block({(u8)xx, (u8)y, (u8)(z - 1)})
+                                    .shadowed_ = false;
                             }
                         }
                     }
 
                     // raycast positive y:
                     for (int yy = y + 1; yy < y + 3; ++yy) {
-                        if (yy < 8) {
-                            auto& block = blocks_[z][x][yy];
+                        if (yy < size().y) {
+                            auto& block = ref_block({(u8)x, (u8)yy, (u8)z});
                             if (blocks_light(block.type())) {
                                 break;
                             }
                             block.shadowed_ = false;
                             if (z > 0) {
-                                blocks_[z - 1][x][yy].shadowed_ = false;
+                                ref_block({(u8)x, (u8)yy, (u8)(z - 1)})
+                                    .shadowed_ = false;
                             }
                         }
                     }
@@ -1691,25 +1717,26 @@ void terrain::Sector::shadowcast()
                     // raycast negative y:
                     for (int yy = y - 1; yy > y - 3; --yy) {
                         if (yy > -1) {
-                            auto& block = blocks_[z][x][yy];
+                            auto& block = ref_block({(u8)x, (u8)yy, (u8)z});
                             if (blocks_light(block.type())) {
                                 break;
                             }
                             block.shadowed_ = false;
                             if (z > 0) {
-                                blocks_[z - 1][x][yy].shadowed_ = false;
+                                ref_block({(u8)x, (u8)yy, (u8)(z - 1)})
+                                    .shadowed_ = false;
                             }
                         }
                     }
 
                     // above:
                     for (int zz = z + 1; zz < z + 3; ++zz) {
-                        if (zz < z_limit) {
-                            auto& block = blocks_[zz][x][y];
+                        if (zz < size().z) {
+                            auto& block = ref_block({(u8)x, (u8)y, (u8)zz});
                             if (blocks_light(block.type())) {
                                 break;
                             }
-                            blocks_[zz][x][y].shadowed_ = false;
+                            ref_block({(u8)x, (u8)y, (u8)zz}).shadowed_ = false;
                         }
                     }
                 }
@@ -1722,14 +1749,29 @@ void terrain::Sector::shadowcast()
 
 const terrain::Block& terrain::Sector::get_block(const Vec3<u8>& coord) const
 {
-    return blocks_[coord.z][coord.x][coord.y];
+    if (p_.shape_ == Shape::cube) {
+        return blocks_.cube_[coord.z][coord.x][coord.y];
+    } else {
+        return blocks_.pancake_[coord.z][coord.x][coord.y];
+    }
+}
+
+
+
+terrain::Block& terrain::Sector::ref_block(const Vec3<u8>& coord)
+{
+    if (p_.shape_ == Shape::cube) {
+        return blocks_.cube_[coord.z][coord.x][coord.y];
+    } else {
+        return blocks_.pancake_[coord.z][coord.x][coord.y];
+    }
 }
 
 
 
 void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 {
-    auto& selected = blocks_[coord.z][coord.x][coord.y];
+    auto& selected = ref_block(coord);
 
     const auto prev_type = selected.type();
 
@@ -1750,7 +1792,7 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
          type == Type::air) or
         (type not_eq Type::selector and type not_eq Type::air)) {
         for (int z = coord.z - 1; z > -1; --z) {
-            auto& selected = blocks_[z][coord.x][coord.y];
+            auto& selected = ref_block({coord.x, coord.y, (u8)z});
             if (selected.type_ not_eq 0 and not selected.shadowed_) {
                 selected.repaint_ = true;
             }
@@ -1780,13 +1822,8 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
         // Lighting pattern changed, or block removed (assigned as air), just
         // redraw everything.
 
-        for (auto& slab : blocks_) {
-            for (auto& slice : slab) {
-                for (auto& block : slice) {
-                    block.repaint_ = true;
-                }
-            }
-        }
+        foreach ([](auto& block) { block.repaint_ = true; })
+            ;
     }
 
     raster::globalstate::_changed = true;
@@ -1796,12 +1833,12 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 
 void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
 {
-    if (pos.z >= z_limit or pos.x >= 8 or pos.y >= 8) {
+    if (pos.z >= size().z or pos.x >= size().x or pos.y >= size().y) {
         Platform::fatal("set cursor to out of bounds position");
     }
 
     auto old_cursor = p_.cursor_;
-    auto& block = blocks_[old_cursor.z][old_cursor.x][old_cursor.y];
+    auto& block = get_block(old_cursor);
     if (block.type_ == (u8)terrain::Type::selector) {
         set_block(old_cursor, macro::terrain::Type::air);
     }
@@ -1809,16 +1846,15 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
     p_.cursor_ = pos;
 
     if (lock_to_floor) {
-        while (blocks_[p_.cursor_.z][p_.cursor_.x][p_.cursor_.y].type() not_eq
-               terrain::Type::air) {
+        while (get_block(p_.cursor_).type() not_eq terrain::Type::air) {
             ++p_.cursor_.z;
         }
 
         raster::globalstate::_cursor_moved = true;
 
         while (p_.cursor_.z > 0 and
-               blocks_[p_.cursor_.z - 1][p_.cursor_.x][p_.cursor_.y].type() ==
-                   terrain::Type::air) {
+               get_block({p_.cursor_.x, p_.cursor_.y, (u8)(p_.cursor_.z - 1)})
+                       .type() == terrain::Type::air) {
             --p_.cursor_.z;
         }
     }
@@ -1844,8 +1880,8 @@ bool terrain::Sector::set_z_view(u8 z_view)
     //     return false;
     // }
 
-    if (z_view > z_limit) {
-        z_view_ = z_limit;
+    if (z_view > size().z) {
+        z_view_ = size().z;
         return false;
     } else {
         z_view_ = z_view;
@@ -1853,13 +1889,9 @@ bool terrain::Sector::set_z_view(u8 z_view)
 
     raster::globalstate::_changed = true;
     raster::globalstate::_shrunk = true;
-    for (auto& slab : blocks_) {
-        for (auto& slice : slab) {
-            for (auto& block : slice) {
-                block.repaint_ = true;
-            }
-        }
-    }
+
+    foreach ([](auto& block) { block.repaint_ = true; })
+        ;
 
     return true;
 }
@@ -1878,9 +1910,9 @@ static bool revert_if_covered(terrain::Sector& s,
                               Vec3<u8> position,
                               terrain::Type revert_to)
 {
-    if (position.z < terrain::Sector::z_limit) {
+    if (position.z < s.size().z) {
         position.z++;
-        auto& above = s.get_block(position);
+        const auto& above = s.get_block(position);
         if (revert_to == terrain::Type::terrain and
             terrain::categories(above.type()) &
                 terrain::Categories::fluid_lava) {
@@ -1998,11 +2030,11 @@ update_lava_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
         auto lp = position;
         lp.x++;
 
-        if (position.x < 7) {
+        if (position.x < s.size().x - 1) {
             lava_spread(s, lp, terrain::Type::lava_slant_a);
         }
 
-        if (position.y < 7) {
+        if (position.y < s.size().y - 1) {
             auto rp = position;
             ++rp.y;
             lava_spread(s, rp, terrain::Type::lava_slant_b);
@@ -2117,11 +2149,11 @@ update_water_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
         auto lp = position;
         lp.x++;
 
-        if (position.x < 7) {
+        if (position.x < s.size().x - 1) {
             water_spread(s, lp, terrain::Type::water_slant_a);
         }
 
-        if (position.y < 7) {
+        if (position.y < s.size().x - 1) {
             auto rp = position;
             ++rp.y;
             water_spread(s, rp, terrain::Type::water_slant_b);
@@ -2209,7 +2241,7 @@ bool parent_exists_dir_c(terrain::Sector& s,
                          Vec3<u8> position,
                          F&& typecheck)
 {
-    if (position.x < 7) {
+    if (position.x < s.size().x - 1) {
         auto behind = position;
         ++behind.x;
         auto& block = s.get_block(behind);
@@ -2226,7 +2258,7 @@ bool parent_exists_dir_d(terrain::Sector& s,
                          Vec3<u8> position,
                          F&& typecheck)
 {
-    if (position.y < 7) {
+    if (position.y < s.size().y - 1) {
         auto behind = position;
         ++behind.y;
         auto& block = s.get_block(behind);
@@ -2253,7 +2285,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     // terrain
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
-        if (position.z < terrain::Sector::z_limit) {
+        if (position.z < s.size().z) {
             position.z++;
             auto& above = s.get_block(position);
             if (terrain::categories(above.type()) & terrain::Categories::fluid_lava) {
@@ -2465,7 +2497,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         update_water_still(s, block, position);
 
-        if (position.z < terrain::Sector::z_limit - 1) {
+        if (position.z < s.size().z - 1) {
             auto above_coord = position;
             ++above_coord.z;
             auto& above = s.get_block(above_coord);
@@ -2523,7 +2555,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
         update_lava_still(s, block, position);
 
-        if (position.z < terrain::Sector::z_limit - 1) {
+        if (position.z < s.size().z - 1) {
             auto above_coord = position;
             ++above_coord.z;
             auto& above = s.get_block(above_coord);
@@ -2592,11 +2624,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
 void terrain::Sector::update()
 {
-    for (int z = 0; z < z_limit; ++z) {
-        for (u8 x = 0; x < 8; ++x) {
-            for (u8 y = 0; y < 8; ++y) {
+    for (int z = 0; z < size().z; ++z) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
 
-                auto& block = blocks_[z][x][y];
+                auto& block = ref_block({x, y, (u8)z});
 
                 auto update = update_functions[block.type_];
                 if (update) {
@@ -2610,7 +2642,7 @@ void terrain::Sector::update()
 
 
 // Projects isometric geometry into indices in the tilemap.
-static const u16 screen_mapping_lut[8][8] = {
+static const u16 screen_mapping_lut_cube[8][8] = {
     {14, 45, 76, 107, 138, 169, 200, 231},
     {43, 74, 105, 136, 167, 198, 229, 260},
     {72, 103, 134, 165, 196, 227, 258, 289},
@@ -2619,6 +2651,80 @@ static const u16 screen_mapping_lut[8][8] = {
     {159, 190, 221, 252, 283, 314, 345, 376},
     {188, 219, 250, 281, 312, 343, 374, 405},
     {217, 248, 279, 310, 341, 372, 403, 434}};
+
+
+
+// So, should be pretty clear what this is, right? The coordinates in a z-plane
+// of the level, and the order to visit them in (for depth-testing
+// purposes). Formatted in an isometric plane, for readability :) Maybe you
+// could calculate the path at runtime, but they you'd need to waste cycles
+// calculating it.
+static const Vec2<u8> winding_path_cube[] = {
+    // clang-format off
+                                 {0, 0},
+                             {1, 0}, {0, 1},
+                         {2, 0}, {1, 1}, {0, 2},
+                     {3, 0}, {2, 1}, {1, 2}, {0, 3},
+                 {4, 0}, {3, 1}, {2, 2}, {1, 3}, {0, 4},
+             {5, 0}, {4, 1}, {3, 2}, {2, 3}, {1, 4}, {0, 5},
+         {6, 0}, {5, 1}, {4, 2}, {3, 3}, {2, 4}, {1, 5}, {0, 6},
+     {7, 0}, {6, 1}, {5, 2}, {4, 3}, {3, 4}, {2, 5}, {1, 6}, {0, 7},
+         {7, 1}, {6, 2}, {5, 3}, {4, 4}, {3, 5}, {2, 6}, {1, 7},
+             {7, 2}, {6, 3}, {5, 4}, {4, 5}, {3, 6}, {2, 7},
+                 {7, 3}, {6, 4}, {5, 5}, {4, 6}, {3, 7},
+                     {7, 4}, {6, 5}, {5, 6}, {4, 7},
+                         {7, 5}, {6, 6}, {5, 7},
+                             {7, 6}, {6, 7},
+                                 {7, 7},
+    // clang-format on
+};
+
+
+
+static const u16 screen_mapping_lut_pancake[12][12] = {
+    {14, 45, 76, 107, 138, 169, 200, 231, 262, 293, 324, 355},
+    {43, 74, 105, 136, 167, 198, 229, 260, 291, 322, 353, 384},
+    {72, 103, 134, 165, 196, 227, 258, 289, 320, 351, 382, 413},
+    {101, 132, 163, 194, 225, 256, 287, 318, 349, 380, 411, 442},
+    {130, 161, 192, 223, 254, 285, 316, 347, 378, 409, 440, 471},
+    {159, 190, 221, 252, 283, 314, 345, 376, 407, 438, 469, 500},
+    {188, 219, 250, 281, 312, 343, 374, 405, 436, 467, 498, 529},
+    {217, 248, 279, 310, 341, 372, 403, 434, 465, 496, 527, 558},
+    {246, 277, 308, 339, 370, 401, 432, 463, 494, 525, 556, 587},
+    {275, 306, 337, 368, 399, 430, 461, 492, 523, 554, 585, 616},
+    {304, 335, 366, 397, 428, 459, 490, 521, 552, 583, 614, 645},
+    {333, 364, 395, 426, 457, 488, 519, 550, 581, 612, 643, 674},
+};
+
+
+
+static const Vec2<u8> winding_path_pancake[] = {
+    // clang-format off
+                                              {0, 0},
+                                          {1, 0}, {0, 1},
+                                      {2, 0}, {1, 1}, {0, 2},
+                                  {3, 0}, {2, 1}, {1, 2}, {0, 3},
+                              {4, 0}, {3, 1}, {2, 2}, {1, 3}, {0, 4},
+                          {5, 0}, {4, 1}, {3, 2}, {2, 3}, {1, 4}, {0, 5},
+                      {6, 0}, {5, 1}, {4, 2}, {3, 3}, {2, 4}, {1, 5}, {0, 6},
+                  {7, 0}, {6, 1}, {5, 2}, {4, 3}, {3, 4}, {2, 5}, {1, 6}, {0, 7},
+              {8, 0}, {7, 1}, {6, 2}, {5, 3}, {4, 4}, {3, 5}, {2, 6}, {1, 7}, {0, 8},
+          {9, 0}, {8, 1}, {7, 2}, {6, 3}, {5, 4}, {4, 5}, {3, 6}, {2, 7}, {1, 8}, {0, 9},
+     {10, 0}, {9, 1}, {8, 2}, {7, 3}, {6, 4}, {5, 5}, {4, 6}, {3, 7}, {2, 8}, {1, 9}, {0, 10},
+{11, 0}, {10, 1}, {9, 2}, {8, 3}, {7, 4}, {6, 5}, {5, 6}, {4, 7}, {3, 8}, {2, 9}, {1, 10}, {0, 11},
+    {11, 1}, {10, 2}, {9, 3}, {8, 4}, {7, 5}, {6, 6}, {5, 7}, {4, 8}, {3, 9}, {2, 10}, {1, 11},
+        {11, 2}, {10, 3}, {9, 4}, {8, 5}, {7, 6}, {6, 7}, {5, 8}, {4, 9}, {3, 10}, {2, 11},
+            {11, 3}, {10, 4}, {9, 5}, {8, 6}, {7, 7}, {6, 8}, {5, 9}, {4, 10}, {3, 11},
+                {11, 4}, {10, 5}, {9, 6}, {8, 7}, {7, 8}, {6, 9}, {5, 10}, {4, 11},
+                    {11, 5}, {10, 6}, {9, 7}, {8, 8}, {7, 9}, {6, 10}, {5, 11},
+                        {11, 6}, {10, 7}, {9, 8}, {8, 9}, {7, 10}, {6, 11},
+                            {11, 7}, {10, 8}, {9, 9}, {8, 10}, {7, 11},
+                                {11, 8}, {10, 9}, {9, 10}, {8, 11},
+                                    {11, 9}, {10, 10}, {9, 11},
+                                        {11, 10}, {10, 11},
+                                             {11, 11},
+    // clang-format on
+};
 
 
 
@@ -2883,6 +2989,13 @@ std::optional<DynamicMemory<raster::DepthBuffer>> _db;
 
 
 
+Vec3<u8> terrain::Sector::size() const
+{
+    return size_;
+}
+
+
+
 void terrain::Sector::render_setup(Platform& pfrm)
 {
     using namespace raster;
@@ -2901,6 +3014,8 @@ void terrain::Sector::render_setup(Platform& pfrm)
         return;
     }
 
+    z_view_ = clamp(z_view_, (u8)0, size().z);
+
     auto prev_cursor_raster_tiles = globalstate::_cursor_raster_tiles;
     globalstate::_cursor_raster_tiles.clear();
 
@@ -2909,71 +3024,71 @@ void terrain::Sector::render_setup(Platform& pfrm)
 
 
     auto rendering_pass = [&](auto rendering_function) {
-        auto project_block = [&](int x, int y, int z) {
-            auto slab = blocks_[z];
-
-            auto& block = slab[x][y];
-
-            if (not(block.type_ > 0)) {
-                return;
-            }
-
-            int t_start = screen_mapping_lut[x][y];
-            t_start += 30 * 8;
-            t_start -= 30 * z;
-
-
-            int texture = (block.type_ - 1) * 12 + 480;
-            if (block.shadowed_) {
-                texture += 6;
-            }
-
-            auto blit = [&](int texture, int t_start) {
-                rendering_function(
-                    Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
-                if (block.type() == Type::selector) {
-                    globalstate::_cursor_raster_tiles.push_back(t_start);
+        auto project_block =
+            [&](const auto& block, int x, int y, int z, int t_start) {
+                if (not(block.type_ > 0)) {
+                    return;
                 }
 
-                if (block.repaint_) {
-                    if (t_start < 480) {
-                        (*_db)->depth_1_needs_repaint.set(t_start, true);
-                    } else {
-                        (*_db)->depth_2_needs_repaint.set(t_start - 480, true);
+                t_start -= 30 * z;
+
+
+                int texture = (block.type_ - 1) * 12 + 480;
+                if (block.shadowed_) {
+                    texture += 6;
+                }
+
+                auto blit = [&](int texture, int t_start) {
+                    rendering_function(
+                        Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
+                    if (block.type() == Type::selector) {
+                        globalstate::_cursor_raster_tiles.push_back(t_start);
                     }
-                }
+
+                    if (block.repaint_) {
+                        if (t_start < 480) {
+                            (*_db)->depth_1_needs_repaint.set(t_start, true);
+                        } else {
+                            (*_db)->depth_2_needs_repaint.set(t_start - 480,
+                                                              true);
+                        }
+                    }
+                };
+
+                blit(texture, t_start);
+                blit(texture + 1, t_start + 1);
+
+                t_start += 30;
+
+                blit(texture + 2, t_start);
+                blit(texture + 3, t_start + 1);
+
+                t_start += 30;
+
+                blit(texture + 4, t_start);
+                blit(texture + 5, t_start + 1);
             };
-
-            blit(texture, t_start);
-            blit(texture + 1, t_start + 1);
-
-            t_start += 30;
-
-            blit(texture + 2, t_start);
-            blit(texture + 3, t_start + 1);
-
-            t_start += 30;
-
-            blit(texture + 4, t_start);
-            blit(texture + 5, t_start + 1);
-        };
-
-
-        static const Vec2<u8> winding_path[] = {
-            {0, 0}, {1, 0}, {0, 1}, {2, 0}, {1, 1}, {0, 2}, {3, 0}, {2, 1},
-            {1, 2}, {0, 3}, {4, 0}, {3, 1}, {2, 2}, {1, 3}, {0, 4}, {5, 0},
-            {4, 1}, {3, 2}, {2, 3}, {1, 4}, {0, 5}, {6, 0}, {5, 1}, {4, 2},
-            {3, 3}, {2, 4}, {1, 5}, {0, 6}, {7, 0}, {6, 1}, {5, 2}, {4, 3},
-            {3, 4}, {2, 5}, {1, 6}, {0, 7}, {7, 1}, {6, 2}, {5, 3}, {4, 4},
-            {3, 5}, {2, 6}, {1, 7}, {7, 2}, {6, 3}, {5, 4}, {4, 5}, {3, 6},
-            {2, 7}, {7, 3}, {6, 4}, {5, 5}, {4, 6}, {3, 7}, {7, 4}, {6, 5},
-            {5, 6}, {4, 7}, {7, 5}, {6, 6}, {5, 7}, {7, 6}, {6, 7}, {7, 7},
-        };
 
         for (int z = 0; z < z_view_; ++z) {
 
-            for (auto& p : winding_path) {
-                project_block(p.x, p.y, z);
+            if (p_.shape_ == Shape::cube) {
+                for (auto& p : winding_path_cube) {
+                    auto slab = blocks_.cube_[z];
+                    auto& block = slab[p.x][p.y];
+                    int t_start = screen_mapping_lut_cube[p.x][p.y];
+                    // NOTE: start drawing a few rows down, becuase we'll be
+                    // subtracting off rows as the Z coordinate increases.
+                    t_start += 30 * 8;
+                    project_block(block, p.x, p.y, z, t_start);
+                }
+            } else {
+                for (auto& p : winding_path_pancake) {
+                    auto slab = blocks_.pancake_[z];
+                    auto& block = slab[p.x][p.y];
+                    int t_start = screen_mapping_lut_pancake[p.x][p.y];
+                    t_start += 30 * 3;
+                    project_block(block, p.x, p.y, z, t_start);
+                }
             }
         }
     };
@@ -3445,13 +3560,8 @@ void terrain::Sector::render(Platform& pfrm)
     }
 
 
-    for (auto& layer : blocks_) {
-        for (auto& slice : layer) {
-            for (auto& block : slice) {
-                block.repaint_ = false;
-            }
-        }
-    }
+    foreach ([](auto& block) { block.repaint_ = false; })
+        ;
 
     globalstate::_changed = false;
     globalstate::_shrunk = false;
