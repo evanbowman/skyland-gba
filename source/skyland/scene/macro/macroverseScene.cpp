@@ -92,7 +92,7 @@ ColorConstant water_shader(ShaderPalette p, ColorConstant k, int var, int index)
             int v2 = (var & 0xff);
 
             static const Color input(k);
-            static const Color k2(custom_color(0xf7a634));
+            static const Color k2(custom_color(0xf7ad36));
 
             Color result(fast_interpolate(k2.r_, input.r_, v2),
                          fast_interpolate(k2.g_, input.g_, v2),

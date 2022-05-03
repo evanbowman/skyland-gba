@@ -65,6 +65,9 @@ namespace skyland::macro
 // the logic is delicate, and a very likely source of bugs if you're not careful
 // when modifying a Sector's blocks outside of the existing set_block(),
 // rotate(), and shadowcast() calls.
+//
+// P.S. As we're doing software rendering, I probably should not have called
+// this a canvas, which is perhaps misleading.
 static HEAP_DATA terrain::Block _canvas[9][12][12]; // z, x, y
 
 
@@ -147,6 +150,7 @@ State::State() : data_(allocate_dynamic<Data>("macrocosm-data"))
 void State::newgame(Platform& pfrm)
 {
     data_->current_sector_ = -1;
+    _bound_sector = nullptr;
 
     data_->other_sectors_.clear();
     data_->p().year_.set(1);
@@ -556,6 +560,8 @@ template <u32 inflate> struct Sector
 
 void State::save(Platform& pfrm)
 {
+    sector().sync_from_canvas();
+
     Vector<char> save_data;
 
     save::Header header;
@@ -2008,7 +2014,7 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
 
     if (_bound_sector == this) {
         _canvas[coord.z][coord.x][coord.y] = selected;
-    } else {
+    } else if (_bound_sector) {
         Platform::fatal("attempt to set block for unbound sector!");
     }
 }
