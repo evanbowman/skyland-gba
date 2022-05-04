@@ -1770,6 +1770,21 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
 
 
+namespace terrain {
+bool blocks_light(terrain::Type t)
+{
+    if (t == terrain::Type::air or t == terrain::Type::selector or
+        (terrain::categories(t) & terrain::Categories::fluid_water) or
+        (terrain::categories(t) & terrain::Categories::fluid_lava)) {
+        return false;
+    }
+
+    return true;
+}
+}
+
+
+
 void terrain::CubeSector::update()
 {
     for (int z = 0; z < z_limit; ++z) {
