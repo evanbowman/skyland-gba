@@ -1178,11 +1178,11 @@ update_lava_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
         auto lp = position;
         lp.x++;
 
-        if (position.x < 7) {
+        if (position.x < s.size().x - 1) {
             lava_spread(s, lp, terrain::Type::lava_slant_a);
         }
 
-        if (position.y < 7) {
+        if (position.y < s.size().y - 1) {
             auto rp = position;
             ++rp.y;
             lava_spread(s, rp, terrain::Type::lava_slant_b);
@@ -1297,11 +1297,11 @@ update_water_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
         auto lp = position;
         lp.x++;
 
-        if (position.x < 7) {
+        if (position.x < s.size().x - 1) {
             water_spread(s, lp, terrain::Type::water_slant_a);
         }
 
-        if (position.y < 7) {
+        if (position.y < s.size().y - 1) {
             auto rp = position;
             ++rp.y;
             water_spread(s, rp, terrain::Type::water_slant_b);
@@ -1389,7 +1389,7 @@ bool parent_exists_dir_c(terrain::Sector& s,
                          Vec3<u8> position,
                          F&& typecheck)
 {
-    if (position.x < 7) {
+    if (position.x < s.size().x - 1) {
         auto behind = position;
         ++behind.x;
         auto& block = s.get_block(behind);
@@ -1406,7 +1406,7 @@ bool parent_exists_dir_d(terrain::Sector& s,
                          Vec3<u8> position,
                          F&& typecheck)
 {
-    if (position.y < 7) {
+    if (position.y < s.size().y - 1) {
         auto behind = position;
         ++behind.y;
         auto& block = s.get_block(behind);
