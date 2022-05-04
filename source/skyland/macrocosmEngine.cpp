@@ -217,7 +217,7 @@ template <u32 inflate> struct Sector
     union {
         u8 cube_[9][8][8];
         u8 pancake_[4][12][12];
-    };
+    } blocks_;
 
 
     Sector()
@@ -233,7 +233,7 @@ template <u32 inflate> struct Sector
             for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
                 for (u8 x = 0; x < 8; ++x) {
                     for (u8 y = 0; y < 8; ++y) {
-                        cube_[z][x][y] = source.get_block({x, y, z}).type_;
+                        blocks_.cube_[z][x][y] = source.get_block({x, y, z}).type_;
                     }
                 }
             }
@@ -243,7 +243,7 @@ template <u32 inflate> struct Sector
             for (u8 z = 0; z < 4; ++z) {
                 for (u8 x = 0; x < 12; ++x) {
                     for (u8 y = 0; y < 12; ++y) {
-                        pancake_[z][x][y] = source.get_block({x, y, z}).type_;
+                        blocks_.pancake_[z][x][y] = source.get_block({x, y, z}).type_;
                     }
                 }
             }
@@ -310,6 +310,20 @@ void State::save(Platform& pfrm)
 
 
 
+macro::terrain::Sector& State::sector()
+{
+    if (data_->current_sector_ == -1) {
+        return data_->origin_sector_;
+    } else {
+        if ((u32)data_->current_sector_ >= data_->other_sectors_.size()) {
+            Platform::fatal("out of bounds sector access");
+        }
+        return *data_->other_sectors_[data_->current_sector_];
+    }
+}
+
+
+
 bool State::load(Platform& pfrm)
 {
     Vector<char> input;
@@ -350,11 +364,11 @@ bool State::load(Platform& pfrm)
 
             switch (s.p_.p_.shape_) {
             case terrain::Sector::Shape::cube:
-                dest->restore(s.p_.p_, s.cube_);
+                dest->restore(s.p_.p_, s.blocks_.cube_);
                 break;
 
             case terrain::Sector::Shape::pancake:
-                dest->restore(s.p_.p_, s.pancake_);
+                dest->restore(s.p_.p_, s.blocks_.pancake_);
                 break;
             }
 

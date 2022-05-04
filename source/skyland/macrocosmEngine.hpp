@@ -373,14 +373,7 @@ struct State
 
 
 
-    macro::terrain::Sector& sector()
-    {
-        if (data_->current_sector_ == -1) {
-            return data_->origin_sector_;
-        } else {
-            return *data_->other_sectors_[data_->current_sector_];
-        }
-    }
+    macro::terrain::Sector& sector();
 
 
     Coins coin_yield();

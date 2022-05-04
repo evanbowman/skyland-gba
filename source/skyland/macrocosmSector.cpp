@@ -30,10 +30,12 @@ namespace skyland::macro
 
 
 
-terrain::Sector::Sector(Vec2<s8> position, Shape shape) : shape_(shape)
+terrain::Sector::Sector(Vec2<s8> position, Shape shape)
 {
+    p_.shape_ = shape;
+
     // FIXME: derived class should set the size, of course.
-    switch (shape_) {
+    switch (p_.shape_) {
     case Shape::cube:
         size_ = {8, 8, 9};
         break;

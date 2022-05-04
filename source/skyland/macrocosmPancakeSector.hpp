@@ -38,6 +38,7 @@ public:
     PancakeSector(Vec2<s8> position) : Sector(position, Shape::pancake)
     {
         erase();
+        z_view_ = 4;
     }
 
 

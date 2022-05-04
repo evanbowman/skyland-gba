@@ -115,7 +115,9 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         (*ui_)->housing_->update(pfrm, delta);
     }
 
+
     auto next = update(pfrm, app.player(), *app.macrocosm());
+
 
     app.macrocosm()->sector().render_setup(pfrm);
 

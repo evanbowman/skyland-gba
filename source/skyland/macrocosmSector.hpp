@@ -235,8 +235,6 @@ protected:
 
     u8 z_view_ = z_limit;
 
-
-    Shape shape_;
     Vec3<u8> size_;
 
     Exports exports_;

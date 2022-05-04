@@ -38,7 +38,7 @@ namespace skyland::macro
 
 
 
-void terrain::PancakeSector::restore(const Persistent& p, u8 blocks[4][12][12])
+void terrain::PancakeSector::restore (const Persistent& p, u8 blocks[4][12][12])
 {
     erase();
 
@@ -47,7 +47,7 @@ void terrain::PancakeSector::restore(const Persistent& p, u8 blocks[4][12][12])
     for (u8 z = 0; z < 4; ++z) {
         for (u8 x = 0; x < length; ++x) {
             for (u8 y = 0; y < length; ++y) {
-                blocks_[z][x][y].type_ = 0; // blocks[z][x][y];
+                blocks_[z][x][y].type_ = blocks[z][x][y];
                 blocks_[z][x][y].repaint_ = true;
                 blocks_[z][x][y].data_ = 0;
             }
