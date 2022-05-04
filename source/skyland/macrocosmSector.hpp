@@ -1,3 +1,25 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (C) 2022  Evan Bowman
+//
+// This program is free software; you can redistribute it and/or modify it under
+// the terms of version 2 of the GNU General Public License as published by the
+// Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program; if not, write to the Free Software Foundation, Inc., 51
+// Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// GPL2 ONLY. No later versions permitted.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
 #pragma once
 
 #include "allocator.hpp"
@@ -60,9 +82,7 @@ class Sector
 public:
     enum Orientation : u8 { north, east, south, west };
 
-    enum class Shape : u8 {
-        cube, pancake
-    };
+    enum class Shape : u8 { cube, pancake };
 
 
     struct ExportInfo
@@ -75,23 +95,25 @@ public:
 
 
     Sector(Vec2<s8> position, Shape shape = Shape::cube);
-
+    virtual ~Sector()
+    {
+    }
 
     void set_block(const Vec3<u8>& coord, Type type);
 
-    void rotate();
-    void update();
+    virtual void rotate() = 0;
+    virtual void update() = 0;
     void advance(int years);
 
-    void render_setup(Platform& pfrm);
+    virtual void render_setup(Platform& pfrm) = 0;
     void render(Platform& pfrm);
 
     using Population = float;
     void set_population(Population p);
 
 
-    void shadowcast();
-    void erase();
+    virtual void shadowcast() = 0;
+    virtual void erase() = 0;
 
 
     void clear_cache();
@@ -109,7 +131,8 @@ public:
     u16 quantity_non_exported(Commodity::Type t);
 
 
-    const Block& get_block(const Vec3<u8>& coord) const;
+    virtual const Block& get_block(const Vec3<u8>& coord) const = 0;
+    virtual Block& ref_block(const Vec3<u8>& coord) = 0;
 
 
     Stats stats() const;
@@ -192,13 +215,16 @@ public:
     void repaint();
 
 
-    Vec3<u8> size()
+    virtual void set_repaint(bool val) = 0;
+
+
+    Vec3<u8> size() const
     {
-        return {8, 8, 9};
+        return size_;
     }
 
 
-private:
+protected:
     Persistent p_;
 
     // Recalculating stats for everything when we have multiple levels slows
@@ -209,16 +235,23 @@ private:
 
     u8 z_view_ = z_limit;
 
-    Block blocks_[z_limit][8][8]; // (z, x, y)
 
     Shape shape_;
-
+    Vec3<u8> size_;
 
     Exports exports_;
 
 public:
     // Restore from a previous save.
-    void restore(const Persistent& p, u8 blocks[z_limit][8][8]);
+    virtual void restore(const Persistent& p, u8 blocks[z_limit][8][8])
+    {
+        Platform::fatal("logic error: restore non-cube from cube data");
+    }
+
+    virtual void restore(const Persistent& p, u8 blocks[4][12][12])
+    {
+        Platform::fatal("logic error: restore non-pancake from pancake data");
+    }
 
 
     const Persistent& persistent() const
@@ -229,4 +262,4 @@ public:
 
 
 
-}
+} // namespace skyland::macro::terrain

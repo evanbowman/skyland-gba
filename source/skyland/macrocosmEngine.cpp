@@ -22,6 +22,7 @@
 
 #include "macrocosmEngine.hpp"
 #include "allocator.hpp"
+#include "macrocosmPancakeSector.hpp"
 #include "memory/buffer.hpp"
 #include "platform/platform.hpp"
 #include "platform/ram_filesystem.hpp"
@@ -41,6 +42,13 @@ namespace skyland::macro
 
 namespace raster
 {
+
+
+
+std::optional<DynamicMemory<raster::DepthBuffer>> _db;
+
+
+
 namespace globalstate
 {
 
@@ -61,7 +69,7 @@ Buffer<u16, 6> _cursor_raster_stack[6];
 State* _bound_state;
 
 
-State::State() : data_(allocate_dynamic<Data>("macrocosm-data"))
+State::State(Platform& pfrm) : data_(allocate_dynamic<Data>("macrocosm-data"))
 {
     _bound_state = this;
 }
@@ -72,7 +80,8 @@ void State::newgame(Platform& pfrm)
 {
     data_->current_sector_ = -1;
 
-    data_->other_sectors_.clear();
+    data_->erase_other_sectors();
+    data_->other_sector_mem_.reset();
     data_->p().year_.set(1);
 
     auto& sector = this->sector();
@@ -205,7 +214,11 @@ template <> struct PersistentWrapper<0>
 template <u32 inflate> struct Sector
 {
     PersistentWrapper<inflate> p_;
-    u8 blocks_[macro::terrain::Sector::z_limit][8][8];
+    union {
+        u8 cube_[9][8][8];
+        u8 pancake_[4][12][12];
+    };
+
 
     Sector()
     {
@@ -215,12 +228,26 @@ template <u32 inflate> struct Sector
     {
         memcpy(&p_.p_, &source.persistent(), sizeof p_);
 
-        for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
-            for (u8 x = 0; x < 8; ++x) {
-                for (u8 y = 0; y < 8; ++y) {
-                    blocks_[z][x][y] = source.get_block({x, y, z}).type_;
+        switch (source.persistent().shape_) {
+        case terrain::Sector::Shape::cube:
+            for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
+                for (u8 x = 0; x < 8; ++x) {
+                    for (u8 y = 0; y < 8; ++y) {
+                        cube_[z][x][y] = source.get_block({x, y, z}).type_;
+                    }
                 }
             }
+            break;
+
+        case terrain::Sector::Shape::pancake:
+            for (u8 z = 0; z < 4; ++z) {
+                for (u8 x = 0; x < 12; ++x) {
+                    for (u8 y = 0; y < 12; ++y) {
+                        pancake_[z][x][y] = source.get_block({x, y, z}).type_;
+                    }
+                }
+            }
+            break;
         }
     }
 };
@@ -301,7 +328,7 @@ bool State::load(Platform& pfrm)
 
         memcpy(&data_->p(), &header.p_, sizeof header.p_);
 
-        auto load_sector = [&](terrain::Sector& dest) {
+        auto load_sector = [&](terrain::Sector* dest) {
             save::Sector<0> s;
             for (u32 i = 0; i < sizeof s; ++i) {
                 if (it == input.end()) {
@@ -311,7 +338,25 @@ bool State::load(Platform& pfrm)
                 ++it;
             }
 
-            dest.restore(s.p_.p_, s.blocks_);
+            if (dest == nullptr) {
+                if (make_sector({s.p_.p_.x_, s.p_.p_.y_}, s.p_.p_.shape_)) {
+                    dest = data_->other_sectors_.back();
+                }
+            }
+
+            if (dest == nullptr) {
+                info(pfrm, "failed to load sector!");
+            }
+
+            switch (s.p_.p_.shape_) {
+            case terrain::Sector::Shape::cube:
+                dest->restore(s.p_.p_, s.cube_);
+                break;
+
+            case terrain::Sector::Shape::pancake:
+                dest->restore(s.p_.p_, s.pancake_);
+                break;
+            }
 
             u8 export_count = *(it++);
 
@@ -324,23 +369,21 @@ bool State::load(Platform& pfrm)
                     ((u8*)&info)[i] = *it;
                     ++it;
                 }
-                dest.set_export(info);
+                dest->set_export(info);
             }
 
-            dest.shadowcast();
+            dest->shadowcast();
         };
 
-        load_sector(data_->origin_sector_);
+        load_sector(&data_->origin_sector_);
 
-        data_->other_sectors_.clear();
+        data_->erase_other_sectors();
+        data_->other_sector_mem_.reset();
+
 
         for (int i = 0; i < header.num_sectors_ - 1; ++i) {
-            data_->other_sectors_.push_back(
-                allocate_dynamic<terrain::Sector>("macro-sector", Vec2<s8>{}));
-            load_sector(*data_->other_sectors_.back());
+            load_sector(nullptr);
         }
-
-
 
     } else /* No existing save file */ {
 
@@ -352,6 +395,47 @@ bool State::load(Platform& pfrm)
     raster::globalstate::_shrunk = true;
 
     return true;
+}
+
+
+
+bool State::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
+{
+    if (load_sector(coord)) {
+        return false;
+    }
+
+    if (data_->other_sectors_.full()) {
+        return false;
+    }
+
+    if (not data_->other_sector_mem_) {
+        data_->other_sector_mem_.emplace(Platform::instance());
+    }
+
+    auto s = [&]() -> terrain::Sector* {
+        switch (shape) {
+        case terrain::Sector::Shape::cube:
+            return data_->other_sector_mem_->alloc<terrain::CubeSector>(coord)
+                .release();
+
+        case terrain::Sector::Shape::pancake:
+            return data_->other_sector_mem_->alloc<terrain::PancakeSector>(coord)
+                .release();
+
+        default:
+            return nullptr;
+        }
+    }();
+    if (s) {
+        StringBuffer<terrain::Sector::name_len - 1> n("colony_");
+        n += stringify(data_->other_sectors_.size() + 1).c_str();
+        s->set_name(n);
+        return data_->other_sectors_.push_back(s);
+    } else {
+        Platform::fatal("failed to allocate sector!");
+    }
+    return false;
 }
 
 
@@ -513,7 +597,6 @@ terrain::Improvements terrain::Block::improvements() const
 {
     return terrain::improvements(type());
 }
-
 
 
 
@@ -1673,7 +1756,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
 
 
-void terrain::Sector::update()
+void terrain::CubeSector::update()
 {
     for (int z = 0; z < z_limit; ++z) {
         for (u8 x = 0; x < 8; ++x) {
@@ -1688,6 +1771,184 @@ void terrain::Sector::update()
             }
         }
     }
+}
+
+
+
+void terrain::PancakeSector::update()
+{
+    for (int z = 0; z < z_limit; ++z) {
+        for (u8 x = 0; x < length; ++x) {
+            for (u8 y = 0; y < length; ++y) {
+
+                auto& block = blocks_[z][x][y];
+
+                auto update = update_functions[block.type_];
+                if (update) {
+                    update(*this, block, {x, y, (u8)z});
+                }
+            }
+        }
+    }
+}
+
+
+
+// Some texture indices completely cover everything underneath them, allowing
+// the render to skip some steps.
+raster::TileCategory raster::tile_category(int texture_id)
+{
+    // NOTE: for our isometric tiles, the middle row is fully opaque, i.e. we
+    // don't need to worry about rendering anything underneath. The top and
+    // bottom rows have transparent pixels, and cannot necessarily be skipped.
+
+    // Could I clean this table up to use less space? I tried to. But we
+    // basically have six tiles per isometric block, and I'm trying to avoid a
+    // div/mod 6. Each entry in the table describes the shape of the isometric
+    // tile in the tile texture.
+
+#define ISO_DEFAULT_CGS                                                        \
+    top_angled_l, top_angled_r, opaque, opaque, bot_angled_l, bot_angled_r
+
+#define ISO_SELECTOR_CGS                                                       \
+    irregular, irregular, irregular, irregular, irregular, irregular
+
+    // clang-format off
+    static const std::array<TileCategory,
+                            // NOTE: 6 tiles per block, x2 for shadowed blocks.
+                            (int)terrain::Type::count * 6 * 2> category =
+        {ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_SELECTOR_CGS,
+         ISO_SELECTOR_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         // Non-standard shapes for slanted water blocks
+         irregular, top_angled_r, irregular, opaque, bot_angled_l, bot_angled_r,
+         irregular, top_angled_r, irregular, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, irregular, opaque, irregular, bot_angled_l, bot_angled_r,
+         top_angled_l, irregular, opaque, irregular, bot_angled_l, bot_angled_r,
+         irregular, irregular, opaque, top_angled_r, bot_angled_l, bot_angled_r,
+         irregular, irregular, opaque, top_angled_r, bot_angled_l, bot_angled_r,
+         irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
+         irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         // Non-standard shapes for slanted lava blocks
+         irregular, top_angled_r, irregular, opaque, bot_angled_l, bot_angled_r,
+         irregular, top_angled_r, irregular, opaque, bot_angled_l, bot_angled_r,
+         top_angled_l, irregular, opaque, irregular, bot_angled_l, bot_angled_r,
+         top_angled_l, irregular, opaque, irregular, bot_angled_l, bot_angled_r,
+         irregular, irregular, opaque, top_angled_r, bot_angled_l, bot_angled_r,
+         irregular, irregular, opaque, top_angled_r, bot_angled_l, bot_angled_r,
+         irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
+         irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+        };
+    // clang-format on
+
+    return category[texture_id];
 }
 
 

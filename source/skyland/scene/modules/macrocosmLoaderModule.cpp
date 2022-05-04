@@ -68,7 +68,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     __draw_image(pfrm, 0, 0, 17, 30, 16, Layer::map_1);
 
 
-    app.macrocosm().emplace();
+    app.macrocosm().emplace(pfrm);
 
 
     auto& sector = app.macrocosm()->sector();

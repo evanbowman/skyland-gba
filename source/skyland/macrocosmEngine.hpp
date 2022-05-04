@@ -24,14 +24,14 @@
 
 #include "allocator.hpp"
 #include "entity.hpp"
+#include "macrocosmCubeSector.hpp"
+#include "macrocosmSector.hpp"
 #include "number/int.h"
 #include "systemString.hpp"
-#include "macrocosmSector.hpp"
 
 
 
 class Platform;
-
 
 
 
@@ -92,6 +92,106 @@ extern Buffer<u16, 6> _cursor_raster_tiles;
 // cursor are the same).
 extern Buffer<u16, 6> _cursor_raster_stack[6];
 } // namespace globalstate
+
+
+
+struct DepthNode
+{
+    DepthNode* next_;
+
+    // NOTE: a sector cube has dimensions 8x8x9. Bitfields sized accordingly.
+    u16 tile_;
+    u16 x_pos_ : 4;
+    u16 y_pos_ : 4;
+    u16 z_pos_ : 4;
+    u16 unused_ : 4;
+
+    void set_position(const Vec3<u8>& pos)
+    {
+        x_pos_ = pos.x;
+        y_pos_ = pos.y;
+        z_pos_ = pos.z;
+    }
+
+    Vec3<u8> position()
+    {
+        return {(u8)x_pos_, (u8)y_pos_, (u8)z_pos_};
+    }
+};
+#ifdef __GBA__
+static_assert(sizeof(DepthNode) == 8);
+#endif
+
+
+struct DepthBufferSlab
+{
+    // NOTE: we use two vertically-adjacent tile layers. The 2d strategy engine
+    // for skyland, which I developed first, needs two tile layers, and rather
+    // than redesign the hardware abstraction layer to handle tile layers of
+    // varying sizes, it's simply easier to handle things this way. Not
+    // convinced? The purpose of the hardware interface is to implement the
+    // minimal behavior needed to port the game to a new platform. Any feature
+    // that I add to the Platform class makes my life more difficult when trying
+    // to port the game.
+    DepthNode* visible_[480];
+
+    DepthBufferSlab()
+    {
+        for (auto& node : visible_) {
+            node = nullptr;
+        }
+    }
+};
+
+struct DepthBuffer
+{
+    // NOTE: the two DepthBufferSlabs won't fit in a single allocation.
+    DynamicMemory<DepthBufferSlab> depth_1_;
+    DynamicMemory<DepthBufferSlab> depth_2_;
+
+    BulkAllocator<18> depth_node_allocator_;
+
+    DepthBuffer(Platform& pfrm)
+        : depth_1_(allocate_dynamic<DepthBufferSlab>("iso-depth-buffer")),
+          depth_2_(allocate_dynamic<DepthBufferSlab>("iso-depth-buffer")),
+          depth_node_allocator_(pfrm)
+    {
+    }
+
+    Bitvector<480> depth_1_needs_repaint;
+    Bitvector<480> depth_2_needs_repaint;
+
+    Bitvector<480> depth_1_cursor_redraw;
+    Bitvector<480> depth_2_cursor_redraw;
+
+    Bitvector<480> depth_1_skip_clear;
+    Bitvector<480> depth_2_skip_clear;
+
+    Bitvector<480> depth_1_empty;
+    Bitvector<480> depth_2_empty;
+};
+
+
+
+extern std::optional<DynamicMemory<raster::DepthBuffer>> _db;
+
+
+
+enum TileCategory {
+    irregular,
+    opaque,
+    top_angled_l,
+    top_angled_r,
+    bot_angled_l,
+    bot_angled_r,
+};
+
+
+
+TileCategory tile_category(int texture_id);
+
+
+
 } // namespace raster
 
 
@@ -99,8 +199,7 @@ struct State;
 extern State* _bound_state;
 
 
-}
-
+} // namespace skyland::macro
 
 
 
@@ -157,10 +256,33 @@ struct State
         {
         }
 
-        macro::terrain::Sector origin_sector_;
+        Data(const Data&) = delete;
 
-        Buffer<DynamicMemory<macro::terrain::Sector>, max_sectors - 1>
-            other_sectors_;
+        ~Data()
+        {
+            erase_other_sectors();
+        }
+
+        macro::terrain::CubeSector origin_sector_;
+
+
+        std::optional<BulkAllocator<max_sectors - 1>> other_sector_mem_;
+
+        void erase_other_sectors()
+        {
+            // NOTE: allocated from a bulk allocator, does not need to be freed,
+            // but still need to invoke destructors. Not using unique ptr with
+            // deleter due to type errors from upcast. FIXME: is there a way to
+            // use unique_ptr instead?
+            for (auto& sector : other_sectors_) {
+                sector->~Sector();
+            }
+            other_sectors_.clear();
+        }
+
+        Buffer<terrain::Sector*, max_sectors - 1> other_sectors_;
+
+
 
         int current_sector_ = -1;
         Float cloud_scroll_ = 0;
@@ -195,18 +317,7 @@ struct State
 
 
 
-    bool make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
-    {
-        if (load_sector(coord)) {
-            return false;
-        }
-
-        auto s = allocate_dynamic<terrain::Sector>("macro-colony_mem", coord, shape);
-        StringBuffer<terrain::Sector::name_len - 1> n("colony_");
-        n += stringify(data_->other_sectors_.size() + 1).c_str();
-        s->set_name(n);
-        return data_->other_sectors_.push_back(std::move(s));
-    }
+    bool make_sector(Vec2<s8> coord, terrain::Sector::Shape shape);
 
 
 
@@ -282,7 +393,7 @@ struct State
     void newgame(Platform& pfrm);
 
 
-    State();
+    State(Platform&);
 
 
     DynamicMemory<Data> data_;
