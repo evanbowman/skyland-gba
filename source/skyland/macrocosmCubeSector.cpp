@@ -25,6 +25,11 @@
 
 
 
+// NOTE: I do have a branch where I refactored some of this copy-pasted code
+// into a class template. TODO: fix issues on branch and merge.
+
+
+
 namespace skyland::macro
 {
 
