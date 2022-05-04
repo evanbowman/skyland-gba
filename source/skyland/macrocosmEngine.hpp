@@ -25,10 +25,10 @@
 #include "allocator.hpp"
 #include "entity.hpp"
 #include "macrocosmCubeSector.hpp"
+#include "macrocosmRaster.hpp"
 #include "macrocosmSector.hpp"
 #include "number/int.h"
 #include "systemString.hpp"
-#include "macrocosmRaster.hpp"
 
 
 

@@ -557,8 +557,13 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
     if (pos.z >= size().z or pos.x >= size().x or pos.y >= size().y) {
         Platform::fatal(format("set cursor to out of bounds position"
                                " % % %, % % %",
-                               pos.x, pos.y, pos.z,
-                               size().x, size().y, size().z).c_str());
+                               pos.x,
+                               pos.y,
+                               pos.z,
+                               size().x,
+                               size().y,
+                               size().z)
+                            .c_str());
     }
 
     auto old_cursor = p_.cursor_;

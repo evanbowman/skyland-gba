@@ -30,7 +30,7 @@ namespace skyland::macro
 
 
 
-void terrain::PancakeSector::restore (const Persistent& p, u8 blocks[4][12][12])
+void terrain::PancakeSector::restore(const Persistent& p, u8 blocks[4][12][12])
 {
     erase();
 

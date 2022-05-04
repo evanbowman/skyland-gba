@@ -214,7 +214,8 @@ template <> struct PersistentWrapper<0>
 template <u32 inflate> struct Sector
 {
     PersistentWrapper<inflate> p_;
-    union {
+    union
+    {
         u8 cube_[9][8][8];
         u8 pancake_[4][12][12];
     } blocks_;
@@ -233,7 +234,8 @@ template <u32 inflate> struct Sector
             for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
                 for (u8 x = 0; x < 8; ++x) {
                     for (u8 y = 0; y < 8; ++y) {
-                        blocks_.cube_[z][x][y] = source.get_block({x, y, z}).type_;
+                        blocks_.cube_[z][x][y] =
+                            source.get_block({x, y, z}).type_;
                     }
                 }
             }
@@ -243,7 +245,8 @@ template <u32 inflate> struct Sector
             for (u8 z = 0; z < 4; ++z) {
                 for (u8 x = 0; x < 12; ++x) {
                     for (u8 y = 0; y < 12; ++y) {
-                        blocks_.pancake_[z][x][y] = source.get_block({x, y, z}).type_;
+                        blocks_.pancake_[z][x][y] =
+                            source.get_block({x, y, z}).type_;
                     }
                 }
             }
@@ -434,7 +437,8 @@ bool State::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
                 .release();
 
         case terrain::Sector::Shape::pancake:
-            return data_->other_sector_mem_->alloc<terrain::PancakeSector>(coord)
+            return data_->other_sector_mem_
+                ->alloc<terrain::PancakeSector>(coord)
                 .release();
 
         default:
@@ -1770,7 +1774,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
 
 
-namespace terrain {
+namespace terrain
+{
 bool blocks_light(terrain::Type t)
 {
     if (t == terrain::Type::air or t == terrain::Type::selector or
@@ -1781,7 +1786,7 @@ bool blocks_light(terrain::Type t)
 
     return true;
 }
-}
+} // namespace terrain
 
 
 
