@@ -82,7 +82,7 @@ class Sector
 public:
     enum Orientation : u8 { north, east, south, west };
 
-    enum class Shape : u8 { cube, pancake };
+    enum class Shape : u8 { cube, pancake, pillar };
 
 
     struct ExportInfo
@@ -249,6 +249,11 @@ public:
     virtual void restore(const Persistent& p, u8 blocks[4][12][12])
     {
         Platform::fatal("logic error: restore non-pancake from pancake data");
+    }
+
+    virtual void restore(const Persistent& p, u8 blocks[16][6][6])
+    {
+        Platform::fatal("logic error: restore non-pillar from pillar data");
     }
 
 

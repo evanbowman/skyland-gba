@@ -259,6 +259,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/plunderedRoom.cpp
   ${SOURCE_DIR}/skyland/macrocosmSector.cpp
   ${SOURCE_DIR}/skyland/macrocosmCubeSector.cpp
+  ${SOURCE_DIR}/skyland/macrocosmPillarSector.cpp
   ${SOURCE_DIR}/skyland/macrocosmPancakeSector.cpp
   ${SOURCE_DIR}/skyland/macrocosmEngine.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/flak.cpp

@@ -43,6 +43,9 @@ terrain::Sector::Sector(Vec2<s8> position, Shape shape)
     case Shape::pancake:
         size_ = {12, 12, 4};
         break;
+
+    case Shape::pillar:
+        size_ = {6, 6, 16};
     }
 
     set_name("");
@@ -402,7 +405,7 @@ terrain::Stats terrain::Sector::base_stats() const
 
     terrain::Stats result;
 
-    for (int z = 0; z < z_limit - 1; ++z) {
+    for (int z = 0; z < size_.z - 1; ++z) {
         for (int x = 0; x < 8; ++x) {
             for (int y = 0; y < 8; ++y) {
                 if (get_block({(u8)x, (u8)y, (u8)z}).type() == Type::air) {
@@ -609,8 +612,8 @@ bool terrain::Sector::set_z_view(u8 z_view)
     //     return false;
     // }
 
-    if (z_view > z_limit) {
-        z_view_ = z_limit;
+    if (z_view > size_.z) {
+        z_view_ = size_.z;
         return false;
     } else {
         z_view_ = z_view;

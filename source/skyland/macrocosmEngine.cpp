@@ -218,7 +218,9 @@ template <u32 inflate> struct Sector
     {
         u8 cube_[9][8][8];
         u8 pancake_[4][12][12];
+        u8 pillar_[16][6][6];
     } blocks_;
+    static_assert(sizeof blocks_ == 576);
 
 
     Sector()
@@ -242,6 +244,17 @@ template <u32 inflate> struct Sector
             break;
 
         case terrain::Sector::Shape::pancake:
+            for (u8 z = 0; z < 4; ++z) {
+                for (u8 x = 0; x < 12; ++x) {
+                    for (u8 y = 0; y < 12; ++y) {
+                        blocks_.pancake_[z][x][y] =
+                            source.get_block({x, y, z}).type_;
+                    }
+                }
+            }
+            break;
+
+        case terrain::Sector::Shape::pillar:
             for (u8 z = 0; z < 4; ++z) {
                 for (u8 x = 0; x < 12; ++x) {
                     for (u8 y = 0; y < 12; ++y) {
@@ -372,6 +385,10 @@ bool State::load(Platform& pfrm)
 
             case terrain::Sector::Shape::pancake:
                 dest->restore(s.p_.p_, s.blocks_.pancake_);
+                break;
+
+            case terrain::Sector::Shape::pillar:
+                dest->restore(s.p_.p_, s.blocks_.pillar_);
                 break;
             }
 
@@ -1795,6 +1812,25 @@ void terrain::CubeSector::update()
     for (int z = 0; z < z_limit; ++z) {
         for (u8 x = 0; x < 8; ++x) {
             for (u8 y = 0; y < 8; ++y) {
+
+                auto& block = blocks_[z][x][y];
+
+                auto update = update_functions[block.type_];
+                if (update) {
+                    update(*this, block, {x, y, (u8)z});
+                }
+            }
+        }
+    }
+}
+
+
+
+void terrain::PillarSector::update()
+{
+    for (int z = 0; z < 16; ++z) {
+        for (u8 x = 0; x < 6; ++x) {
+            for (u8 y = 0; y < 6; ++y) {
 
                 auto& block = blocks_[z][x][y];
 
