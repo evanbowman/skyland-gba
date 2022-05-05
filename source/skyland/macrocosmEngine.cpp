@@ -22,6 +22,7 @@
 
 #include "macrocosmEngine.hpp"
 #include "allocator.hpp"
+#include "macrocosmPillarSector.hpp"
 #include "macrocosmPancakeSector.hpp"
 #include "memory/buffer.hpp"
 #include "platform/platform.hpp"
