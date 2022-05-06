@@ -152,7 +152,7 @@ void SkylandForever::init(Platform& pfrm,
 
     pfrm.speaker().play_music(app.environment().music(), 0);
 
-    app.invoke_script(pfrm, "/scripts/skyland_forever.lisp");
+    app.invoke_script(pfrm, "/scripts/event/skyland_forever.lisp");
 
     prep_level(pfrm, app);
     app.player_island().set_position({10, 374});
