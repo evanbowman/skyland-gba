@@ -84,7 +84,7 @@ private:
 
     u8 opt_cursor_ = 0;
 
-    Buffer<Text, 4> text_objs_;
+    Buffer<Text, 6> text_objs_;
 };
 
 

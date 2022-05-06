@@ -217,6 +217,7 @@ enum class SystemString {
 
     macro_cube,
     macro_pancake,
+    macro_pillar,
 
 
     description_power_core,

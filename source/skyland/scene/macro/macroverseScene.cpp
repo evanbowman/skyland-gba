@@ -161,8 +161,8 @@ u8 layout_icon_margins(Platform& pfrm)
     auto st = calc_screen_tiles(pfrm);
     // six tile wide gfx.
 
-    st.x -= layout_icon_width * 2;
-    auto margin = st.x / 3;
+    st.x -= layout_icon_width * 3;
+    auto margin = st.x / 4;
 
     return margin;
 }
@@ -175,12 +175,22 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
 
     Text::OptColors col_1_colors;
     Text::OptColors col_2_colors;
+    Text::OptColors col_3_colors;
 
     if (shape_ == terrain::Sector::Shape::cube) {
         col_2_colors = Text::OptColors{
             {custom_color(0xa6a6c1), ColorConstant::rich_black}};
+        col_3_colors = Text::OptColors{
+            {custom_color(0xa6a6c1), ColorConstant::rich_black}};
+    } else if (shape_ == terrain::Sector::Shape::pancake) {
+        col_1_colors = Text::OptColors{
+            {custom_color(0xa6a6c1), ColorConstant::rich_black}};
+        col_3_colors = Text::OptColors{
+            {custom_color(0xa6a6c1), ColorConstant::rich_black}};
     } else {
         col_1_colors = Text::OptColors{
+            {custom_color(0xa6a6c1), ColorConstant::rich_black}};
+        col_2_colors = Text::OptColors{
             {custom_color(0xa6a6c1), ColorConstant::rich_black}};
     }
 
@@ -229,6 +239,32 @@ void MacroverseScene::show_layout_text(Platform& pfrm)
                                          (u8)(layout_icon_y_start_row + 10)});
 
     text_objs_.back().assign(str2_2, col_2_colors);
+
+
+
+    auto sstr3 = SYSTR(macro_pillar);
+    const auto sl3 = utf8::len(sstr3->c_str());
+
+    text_objs_.emplace_back(pfrm,
+                            OverlayCoord{(u8)(((m * 3 + layout_icon_width * 2) +
+                                               layout_icon_width / 2) -
+                                              sl3 / 2),
+                                         (u8)(layout_icon_y_start_row + 8)});
+
+    text_objs_.back().assign(sstr3->c_str(), col_3_colors);
+
+
+
+    const char* str3_2 = "6x6x16";
+    const auto sl3_2 = utf8::len(str2_2);
+
+    text_objs_.emplace_back(pfrm,
+                            OverlayCoord{(u8)(((m * 3 + layout_icon_width * 2) +
+                                               layout_icon_width / 2) -
+                                              sl3_2 / 2),
+                                         (u8)(layout_icon_y_start_row + 10)});
+
+    text_objs_.back().assign(str3_2, col_3_colors);
 }
 
 
@@ -639,12 +675,12 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         auto cost = m.colony_cost();
 
-        if (app.player().key_down(pfrm, Key::left)) {
-            shape_ = terrain::Sector::Shape::cube;
+        if (app.player().key_down(pfrm, Key::left) and (int)shape_ > 0) {
+            shape_ = (terrain::Sector::Shape)((int)shape_ - 1);
             pfrm.speaker().play_sound("click_wooden", 2);
             show_layout_text(pfrm);
-        } else if (app.player().key_down(pfrm, Key::right)) {
-            shape_ = terrain::Sector::Shape::pancake;
+        } else if (app.player().key_down(pfrm, Key::right) and (int)shape_ < 2) {
+            shape_ = (terrain::Sector::Shape)((int)shape_ + 1);
             pfrm.speaker().play_sound("click_wooden", 2);
             show_layout_text(pfrm);
         }
@@ -758,15 +794,21 @@ void MacroverseScene::display(Platform& pfrm, App& app)
 
         int ic1 = 14;
         int ic2 = 18;
+        int ic3 = 30;
         if (shape_ == terrain::Sector::Shape::cube) {
             ic2 = 22;
+            ic3 = 34;
+        } else if (shape_ == terrain::Sector::Shape::pancake) {
+            ic1 = 26;
+            ic3 = 34;
         } else {
             ic1 = 26;
+            ic2 = 22;
         }
 
         draw(ic1, origin + Vec2<Fixnum>{mrgn * 8, 0});
         draw(ic2, origin + Vec2<Fixnum>{(mrgn * 2 + layout_icon_width) * 8, 0});
-
+        draw(ic3, origin + Vec2<Fixnum>{(mrgn * 3 + layout_icon_width * 2) * 8, -16});
 
         return;
     }

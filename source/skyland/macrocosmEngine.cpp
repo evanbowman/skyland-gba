@@ -459,9 +459,11 @@ bool State::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
                 ->alloc<terrain::PancakeSector>(coord)
                 .release();
 
-        default:
-            return nullptr;
+        case terrain::Sector::Shape::pillar:
+            return data_->other_sector_mem_->alloc<terrain::PillarSector>(coord).release();
         }
+
+        return nullptr;
     }();
     if (s) {
         StringBuffer<terrain::Sector::name_len - 1> n("colony_");
