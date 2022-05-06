@@ -51,7 +51,7 @@ void SelectChallengeScene::enter(Platform& pfrm, App& app, Scene& prev)
     app.player_island().clear_rooms(pfrm, app);
     app.effects().clear();
 
-    challenges_ = app.invoke_script(pfrm, "/scripts/challenge.lisp");
+    challenges_ = app.invoke_script(pfrm, "/scripts/challenges/challenge.lisp");
     // lisp::DefaultPrinter p;
     // lisp::format(*challenges_, p);
     // pfrm.fatal(p.fmt_.c_str());

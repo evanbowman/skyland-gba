@@ -76,7 +76,7 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     app.game_mode() = App::GameMode::tutorial;
 
-    if (auto script = pfrm.load_file_contents("scripts", "tutorials.lisp")) {
+    if (auto script = pfrm.load_file_contents("scripts/tutorials/", "tutorials.lisp")) {
         lisp::BasicCharSequence seq(script);
         auto result = lisp::dostring(seq, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
