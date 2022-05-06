@@ -675,11 +675,12 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         auto cost = m.colony_cost();
 
-        if (app.player().key_down(pfrm, Key::left) and (int)shape_ > 0) {
+        if (app.player().key_down(pfrm, Key::left) and (int) shape_ > 0) {
             shape_ = (terrain::Sector::Shape)((int)shape_ - 1);
             pfrm.speaker().play_sound("click_wooden", 2);
             show_layout_text(pfrm);
-        } else if (app.player().key_down(pfrm, Key::right) and (int)shape_ < 2) {
+        } else if (app.player().key_down(pfrm, Key::right) and
+                   (int) shape_ < 2) {
             shape_ = (terrain::Sector::Shape)((int)shape_ + 1);
             pfrm.speaker().play_sound("click_wooden", 2);
             show_layout_text(pfrm);
@@ -808,7 +809,9 @@ void MacroverseScene::display(Platform& pfrm, App& app)
 
         draw(ic1, origin + Vec2<Fixnum>{mrgn * 8, 0});
         draw(ic2, origin + Vec2<Fixnum>{(mrgn * 2 + layout_icon_width) * 8, 0});
-        draw(ic3, origin + Vec2<Fixnum>{(mrgn * 3 + layout_icon_width * 2) * 8, -16});
+        draw(ic3,
+             origin +
+                 Vec2<Fixnum>{(mrgn * 3 + layout_icon_width * 2) * 8, -16});
 
         return;
     }

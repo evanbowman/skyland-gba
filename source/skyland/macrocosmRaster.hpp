@@ -186,4 +186,4 @@ TileCategory tile_category(int texture_id);
 
 
 } // namespace raster
-}
+} // namespace skyland::macro

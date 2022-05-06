@@ -22,8 +22,8 @@
 
 #include "macrocosmEngine.hpp"
 #include "allocator.hpp"
-#include "macrocosmPillarSector.hpp"
 #include "macrocosmPancakeSector.hpp"
+#include "macrocosmPillarSector.hpp"
 #include "memory/buffer.hpp"
 #include "platform/platform.hpp"
 #include "platform/ram_filesystem.hpp"
@@ -460,7 +460,8 @@ bool State::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
                 .release();
 
         case terrain::Sector::Shape::pillar:
-            return data_->other_sector_mem_->alloc<terrain::PillarSector>(coord).release();
+            return data_->other_sector_mem_->alloc<terrain::PillarSector>(coord)
+                .release();
         }
 
         return nullptr;

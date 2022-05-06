@@ -41,13 +41,12 @@ template <typename Derived, s32 sx, s32 sy, s32 sz, s32 screen_y_offset>
 class MacrocosmSectorImpl : public Sector
 {
 public:
-
     // Sectors must be square.
     static_assert(sx == sy);
 
 
-    MacrocosmSectorImpl(Vec2<s8> position, Sector::Shape shape) :
-        Sector(position, shape)
+    MacrocosmSectorImpl(Vec2<s8> position, Sector::Shape shape)
+        : Sector(position, shape)
     {
     }
 
@@ -77,17 +76,18 @@ public:
                     auto temp = blocks_[z][x][y];
                     temp.repaint_ = true;
                     blocks_[z][x][y] = blocks_[z][y][sx - 1 - x];
-                    blocks_[z][y][sx - 1 - x] = blocks_[z][sx - 1 - x][sx - 1 - y];
-                    blocks_[z][sx - 1 - x][sx - 1 - y] = blocks_[z][sx - 1 - y][x];
+                    blocks_[z][y][sx - 1 - x] =
+                        blocks_[z][sx - 1 - x][sx - 1 - y];
+                    blocks_[z][sx - 1 - x][sx - 1 - y] =
+                        blocks_[z][sx - 1 - y][x];
                     blocks_[z][sx - 1 - y][x] = temp;
                 }
             }
         }
 
-        auto rotate_coord = [](Vec3<u8> input) -> Vec3<u8>
-            {
-             return {(u8)((sx - 1) - input.y), input.x, input.z};
-            };
+        auto rotate_coord = [](Vec3<u8> input) -> Vec3<u8> {
+            return {(u8)((sx - 1) - input.y), input.x, input.z};
+        };
 
         for (auto& exp : exports_) {
             exp.source_coord_ = rotate_coord(exp.source_coord_);
@@ -104,35 +104,43 @@ public:
                         break;
 
                     case terrain::Type::lava_spread_laterally_a:
-                        block.type_ = (u8)terrain::Type::lava_spread_laterally_b;
+                        block.type_ =
+                            (u8)terrain::Type::lava_spread_laterally_b;
                         break;
 
                     case terrain::Type::lava_spread_laterally_b:
-                        block.type_ = (u8)terrain::Type::lava_spread_laterally_c;
+                        block.type_ =
+                            (u8)terrain::Type::lava_spread_laterally_c;
                         break;
 
                     case terrain::Type::lava_spread_laterally_c:
-                        block.type_ = (u8)terrain::Type::lava_spread_laterally_d;
+                        block.type_ =
+                            (u8)terrain::Type::lava_spread_laterally_d;
                         break;
 
                     case terrain::Type::lava_spread_laterally_d:
-                        block.type_ = (u8)terrain::Type::lava_spread_laterally_a;
+                        block.type_ =
+                            (u8)terrain::Type::lava_spread_laterally_a;
                         break;
 
                     case terrain::Type::water_spread_laterally_a:
-                        block.type_ = (u8)terrain::Type::water_spread_laterally_b;
+                        block.type_ =
+                            (u8)terrain::Type::water_spread_laterally_b;
                         break;
 
                     case terrain::Type::water_spread_laterally_b:
-                        block.type_ = (u8)terrain::Type::water_spread_laterally_c;
+                        block.type_ =
+                            (u8)terrain::Type::water_spread_laterally_c;
                         break;
 
                     case terrain::Type::water_spread_laterally_c:
-                        block.type_ = (u8)terrain::Type::water_spread_laterally_d;
+                        block.type_ =
+                            (u8)terrain::Type::water_spread_laterally_d;
                         break;
 
                     case terrain::Type::water_spread_laterally_d:
-                        block.type_ = (u8)terrain::Type::water_spread_laterally_a;
+                        block.type_ =
+                            (u8)terrain::Type::water_spread_laterally_a;
                         break;
 
                     case terrain::Type::water_slant_a:
@@ -361,88 +369,89 @@ public:
 
 
         auto rendering_pass = [&](auto rendering_function) {
-                                  auto project_block = [&](int x, int y, int z) {
-                                                           auto slab = blocks_[z];
+            auto project_block = [&](int x, int y, int z) {
+                auto slab = blocks_[z];
 
-                                                           auto& block = slab[x][y];
+                auto& block = slab[x][y];
 
-                                                           if (not(block.type_ > 0)) {
-                                                               return;
-                                                           }
+                if (not(block.type_ > 0)) {
+                    return;
+                }
 
-                                                           int t_start = Derived::screen_mapping_lut[x][y];
-                                                           t_start += 30 * screen_y_offset;
-                                                           t_start -= 30 * z;
+                int t_start = Derived::screen_mapping_lut[x][y];
+                t_start += 30 * screen_y_offset;
+                t_start -= 30 * z;
 
 
-                                                           int texture = (block.type_ - 1) * 12 + 480;
-                                                           if (block.shadowed_) {
-                                                               texture += 6;
-                                                           }
+                int texture = (block.type_ - 1) * 12 + 480;
+                if (block.shadowed_) {
+                    texture += 6;
+                }
 
-                                                           auto blit = [&](int texture, int t_start) {
-                                                                           rendering_function(
-                                                                                              Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
-                                                                           if (block.type() == Type::selector) {
-                                                                               globalstate::_cursor_raster_tiles.push_back(t_start);
-                                                                           }
+                auto blit = [&](int texture, int t_start) {
+                    rendering_function(
+                        Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
+                    if (block.type() == Type::selector) {
+                        globalstate::_cursor_raster_tiles.push_back(t_start);
+                    }
 
-                                                                           if (block.repaint_) {
-                                                                               if (t_start < 480) {
-                                                                                   (*_db)->depth_1_needs_repaint.set(t_start, true);
-                                                                               } else {
-                                                                                   (*_db)->depth_2_needs_repaint.set(t_start - 480, true);
-                                                                               }
-                                                                           }
-                                                                       };
+                    if (block.repaint_) {
+                        if (t_start < 480) {
+                            (*_db)->depth_1_needs_repaint.set(t_start, true);
+                        } else {
+                            (*_db)->depth_2_needs_repaint.set(t_start - 480,
+                                                              true);
+                        }
+                    }
+                };
 
-                                                           blit(texture, t_start);
-                                                           blit(texture + 1, t_start + 1);
+                blit(texture, t_start);
+                blit(texture + 1, t_start + 1);
 
-                                                           t_start += 30;
+                t_start += 30;
 
-                                                           blit(texture + 2, t_start);
-                                                           blit(texture + 3, t_start + 1);
+                blit(texture + 2, t_start);
+                blit(texture + 3, t_start + 1);
 
-                                                           t_start += 30;
+                t_start += 30;
 
-                                                           blit(texture + 4, t_start);
-                                                           blit(texture + 5, t_start + 1);
-                                                       };
+                blit(texture + 4, t_start);
+                blit(texture + 5, t_start + 1);
+            };
 
-                                  for (int z = 0; z < z_view_; ++z) {
+            for (int z = 0; z < z_view_; ++z) {
 
-                                      for (auto& p : Derived::winding_path) {
-                                          project_block(p.x, p.y, z);
-                                      }
-                                  }
-                              };
+                for (auto& p : Derived::winding_path) {
+                    project_block(p.x, p.y, z);
+                }
+            }
+        };
 
 
         if (not _db) {
             _db.emplace(
-                        allocate_dynamic<raster::DepthBuffer>("depth-buffer", pfrm));
+                allocate_dynamic<raster::DepthBuffer>("depth-buffer", pfrm));
         }
 
         rendering_pass([&](const Vec3<u8>& p, int texture, int t_start) {
-                           auto n = (*_db)->depth_node_allocator_.alloc<DepthNode>();
-                           if (n == nullptr) {
-                               Platform::fatal("depth node allocator out of memory!");
-                           }
+            auto n = (*_db)->depth_node_allocator_.alloc<DepthNode>();
+            if (n == nullptr) {
+                Platform::fatal("depth node allocator out of memory!");
+            }
 
-                           n->set_position(p);
-                           n->tile_ = texture - 480;
+            n->set_position(p);
+            n->tile_ = texture - 480;
 
-                           if (t_start < 480) {
-                               n->next_ = (*_db)->depth_1_->visible_[t_start];
-                               // NOTE: it's bulk allocation, there's no leak here. The destructor
-                               // won't be called, but we're dealing with a primitive type.
-                               (*_db)->depth_1_->visible_[t_start] = n.release();
-                           } else {
-                               n->next_ = (*_db)->depth_2_->visible_[t_start - 480];
-                               (*_db)->depth_2_->visible_[t_start - 480] = n.release();
-                           }
-                       });
+            if (t_start < 480) {
+                n->next_ = (*_db)->depth_1_->visible_[t_start];
+                // NOTE: it's bulk allocation, there's no leak here. The destructor
+                // won't be called, but we're dealing with a primitive type.
+                (*_db)->depth_1_->visible_[t_start] = n.release();
+            } else {
+                n->next_ = (*_db)->depth_2_->visible_[t_start - 480];
+                (*_db)->depth_2_->visible_[t_start - 480] = n.release();
+            }
+        });
 
 
         if (cursor_moved) {
@@ -638,44 +647,45 @@ public:
         for (int i = 0; i < 480; ++i) {
 
             auto insert_edges = [&](auto head) {
-                                    bool has_tl = false;
-                                    bool has_tr = false;
+                bool has_tl = false;
+                bool has_tr = false;
 
-                                    while (head->next_) {
-                                        auto cat = tile_category(head->tile_);
-                                        // The top-left or top-right tile would obscure the one that we
-                                        // want to draw anyway, so skip it.
-                                        if (cat == TileCategory::top_angled_l) {
-                                            has_tl = true;
-                                        }
-                                        if (cat == TileCategory::top_angled_r) {
-                                            has_tr = true;
-                                        }
-                                        head = head->next_;
-                                    }
+                while (head->next_) {
+                    auto cat = tile_category(head->tile_);
+                    // The top-left or top-right tile would obscure the one that we
+                    // want to draw anyway, so skip it.
+                    if (cat == TileCategory::top_angled_l) {
+                        has_tl = true;
+                    }
+                    if (cat == TileCategory::top_angled_r) {
+                        has_tr = true;
+                    }
+                    head = head->next_;
+                }
 
-                                    const u16 edge_l = 496 - 480;
-                                    const u16 edge_r = 497 - 480;
+                const u16 edge_l = 496 - 480;
+                const u16 edge_r = 497 - 480;
 
-                                    auto cat = tile_category(head->tile_);
-                                    if (head->position().z == 0 and head->tile_ not_eq edge_l and
-                                        head->tile_ not_eq edge_r) {
-                                        if ((cat == bot_angled_l and not has_tr) or
-                                            (cat == bot_angled_r and not has_tl)) {
-                                            auto n = (*_db)->depth_node_allocator_.alloc<DepthNode>();
-                                            n->set_position(head->position());
-                                            n->next_ = nullptr;
+                auto cat = tile_category(head->tile_);
+                if (head->position().z == 0 and head->tile_ not_eq edge_l and
+                    head->tile_ not_eq edge_r) {
+                    if ((cat == bot_angled_l and not has_tr) or
+                        (cat == bot_angled_r and not has_tl)) {
+                        auto n =
+                            (*_db)->depth_node_allocator_.alloc<DepthNode>();
+                        n->set_position(head->position());
+                        n->next_ = nullptr;
 
-                                            if (cat == bot_angled_l) {
-                                                n->tile_ = edge_l;
-                                            } else if (cat == bot_angled_r) {
-                                                n->tile_ = edge_r;
-                                            }
+                        if (cat == bot_angled_l) {
+                            n->tile_ = edge_l;
+                        } else if (cat == bot_angled_r) {
+                            n->tile_ = edge_r;
+                        }
 
-                                            head->next_ = n.release();
-                                        }
-                                    }
-                                };
+                        head->next_ = n.release();
+                    }
+                }
+            };
 
             if (auto head = (*_db)->depth_1_->visible_[i]) {
                 insert_edges(head);
@@ -707,11 +717,10 @@ public:
 
 
 
-
 protected:
     Block blocks_[sz][sx][sy];
 };
 
 
 
-}
+} // namespace skyland::macro::terrain

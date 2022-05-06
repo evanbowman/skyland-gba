@@ -33,10 +33,11 @@ namespace skyland::macro::terrain
 
 
 
-class PillarSector : public MacrocosmSectorImpl<PillarSector, 6, 6, 16, 14>
+class PillarSector : public MacrocosmSectorImpl<PillarSector, 6, 6, 16, 16>
 {
 public:
-    PillarSector(Vec2<s8> position) : MacrocosmSectorImpl(position, Shape::pillar)
+    PillarSector(Vec2<s8> position)
+        : MacrocosmSectorImpl(position, Shape::pillar)
     {
         erase();
     }
@@ -53,14 +54,10 @@ public:
 
 
     static constexpr const Vec2<u8> winding_path[] = {
-        {0, 0}, {1, 0}, {0, 1}, {2, 0}, {1, 1}, {0, 2}, {3, 0}, {2, 1},
-        {1, 2}, {0, 3}, {4, 0}, {3, 1}, {2, 2}, {1, 3}, {0, 4}, {5, 0},
-        {4, 1}, {3, 2}, {2, 3}, {1, 4}, {0, 5},
-        {5, 1}, {4, 2}, {3, 3}, {2, 4}, {1, 5},
-        {5, 2}, {4, 3}, {3, 4}, {2, 5},
-        {5, 3}, {4, 4}, {3, 5},
-        {5, 4}, {4, 5},
-        {5, 5},
+        {0, 0}, {1, 0}, {0, 1}, {2, 0}, {1, 1}, {0, 2}, {3, 0}, {2, 1}, {1, 2},
+        {0, 3}, {4, 0}, {3, 1}, {2, 2}, {1, 3}, {0, 4}, {5, 0}, {4, 1}, {3, 2},
+        {2, 3}, {1, 4}, {0, 5}, {5, 1}, {4, 2}, {3, 3}, {2, 4}, {1, 5}, {5, 2},
+        {4, 3}, {3, 4}, {2, 5}, {5, 3}, {4, 4}, {3, 5}, {5, 4}, {4, 5}, {5, 5},
     };
 
 
