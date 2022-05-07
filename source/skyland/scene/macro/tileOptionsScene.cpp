@@ -67,11 +67,50 @@ struct TileOptionsScene::OptionInfo
 
 
 
+static const TileOptionsScene::OptionInfo options[] = {
+    {SystemString::macro_create_block,
+     2568,
+     2584,
+     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
+         return scene_pool::alloc<CreateBlockScene>();
+     }},
+    {SystemString::macro_build_improvement,
+     2520,
+     2536,
+     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
+         return scene_pool::alloc<BuildImprovementScene>();
+     }},
+    {SystemString::macro_demolish,
+     2600,
+     2616,
+     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
+         auto c = state.sector().cursor();
+         c.z--;
+         state.sector().set_block(c, terrain::Type::air);
+         state.sector().remove_export(c);
+         s.update_ui(state);
+         return scene_pool::alloc<SelectorScene>();
+     }},
+    {SystemString::macro_export,
+     776,
+     760,
+     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
+         return scene_pool::alloc<ConfigurePortScene>();
+     }}};
+
+
 ScenePtr<Scene>
 TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
 {
     if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
         return scene;
+    }
+
+    if (state.sector().cursor().z == 0) {
+        // If z == 0, no tiles beneath, so you can't improve or remove a
+        // block. Go directly to the block creation menu.
+        last_option_ = &options[0];
+        return scene_pool::alloc<CreateBlockScene>();
     }
 
     if (player.key_down(pfrm, Key::action_1)) {
@@ -106,38 +145,6 @@ TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
 }
 
 
-static const TileOptionsScene::OptionInfo options[] = {
-    {SystemString::macro_create_block,
-     2568,
-     2584,
-     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
-         return scene_pool::alloc<CreateBlockScene>();
-     }},
-    {SystemString::macro_build_improvement,
-     2520,
-     2536,
-     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
-         return scene_pool::alloc<BuildImprovementScene>();
-     }},
-    {SystemString::macro_demolish,
-     2600,
-     2616,
-     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
-         auto c = state.sector().cursor();
-         c.z--;
-         state.sector().set_block(c, terrain::Type::air);
-         state.sector().remove_export(c);
-         s.update_ui(state);
-         return scene_pool::alloc<SelectorScene>();
-     }},
-    {SystemString::macro_export,
-     776,
-     760,
-     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
-         return scene_pool::alloc<ConfigurePortScene>();
-     }}};
-
-
 
 const TileOptionsScene::OptionInfo* TileOptionsScene::last_option_ =
     &options[1];
@@ -149,7 +156,7 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
 
     auto c = state.sector().cursor();
     if (c.z == 0) {
-        Platform::fatal("logic error: collect options, z is zero");
+        return;
     }
     --c.z;
     auto& block = state.sector().get_block(c);
@@ -180,6 +187,10 @@ void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
 
 void TileOptionsScene::show_options(Platform& pfrm)
 {
+    if (options_.empty()) {
+        return;
+    }
+
     auto st = calc_screen_tiles(pfrm);
 
     StringBuffer<32> str = loadstr(pfrm, options_[selector_]->name_)->c_str();
