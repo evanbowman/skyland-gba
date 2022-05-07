@@ -721,6 +721,7 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::building:
         return 320;
 
+    case terrain::Type::basalt:
     case terrain::Type::terrain:
         return 100;
 
@@ -838,6 +839,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::masonry:
         return SystemString::block_masonry;
+
+    case terrain::Type::basalt:
+        return SystemString::block_basalt;
 
     case terrain::Type::volcanic_soil:
         return SystemString::block_volcanic_soil;
@@ -1032,6 +1036,7 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::shrubbery:
         return {1416, 1432};
 
+    case terrain::Type::basalt:
     case terrain::Type::volcanic_soil:
     case terrain::Type::count:
     case terrain::Type::__invalid:
@@ -1281,7 +1286,7 @@ static void update_water_slanted(terrain::Sector& s,
     auto& beneath = s.get_block(beneath_coord);
     const auto tp = beneath.type();
     if (terrain::categories(tp) & terrain::Categories::fluid_lava) {
-        s.set_block(beneath_coord, terrain::Type::volcanic_soil);
+        s.set_block(beneath_coord, terrain::Type::basalt);
     } else if (tp == terrain::Type::air) {
         s.set_block(beneath_coord, terrain::Type::water_spread_downwards);
     } else if ((categories(tp) & terrain::Categories::fluid_water) and
@@ -1301,7 +1306,7 @@ static void water_spread(terrain::Sector& s, Vec3<u8> target, terrain::Type tp)
 {
     auto prev_tp = s.get_block(target).type();
     if (terrain::categories(tp) & terrain::Categories::fluid_lava) {
-        s.set_block(target, terrain::Type::volcanic_soil);
+        s.set_block(target, terrain::Type::basalt);
     }
     if (UNLIKELY(prev_tp not_eq tp and
                  (prev_tp == terrain::Type::water_slant_a or
@@ -1348,7 +1353,7 @@ update_water_still(terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
 
     if (position.z > 0 and
         terrain::categories(beneath_tp) & terrain::Categories::fluid_lava) {
-        s.set_block(beneath_coord, terrain::Type::volcanic_soil);
+        s.set_block(beneath_coord, terrain::Type::basalt);
     } else if (position.z > 0 and
                (beneath_tp == terrain::Type::air or
                 beneath_tp == terrain::Type::water_slant_a or
@@ -1835,6 +1840,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         revert_if_covered(s, block, position, terrain::Type::volcanic_soil);
     },
     // lumber
+    nullptr,
+    // basalt,
     nullptr,
 };
 // clang-format on

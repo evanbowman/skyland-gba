@@ -103,6 +103,7 @@ enum class Type {
     lava_spread_laterally_d,
     tea,
     lumber,
+    basalt,
     count,
 };
 
