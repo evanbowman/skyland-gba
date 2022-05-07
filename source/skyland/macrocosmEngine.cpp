@@ -30,12 +30,6 @@
 
 
 
-// NOTE: I put most of the code in this one file, because I originally intended
-// this code to be multiboot-compatible. But, at this point, it's grown too
-// large.
-
-
-
 namespace skyland::macro
 {
 
