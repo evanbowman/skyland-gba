@@ -154,10 +154,14 @@ std::pair<Coins, terrain::Sector::Population> State::colony_cost() const
 {
     if (data_->other_sectors_.full()) {
         return {999999999, 9999};
-    } else if (data_->other_sectors_.size() < 8) {
+    } else if (data_->other_sectors_.size() < 5) {
         return {1500 + 3000 * data_->other_sectors_.size(), 300};
+    } else if (data_->other_sectors_.size() < 11) {
+        return {4000 + 4000 * data_->other_sectors_.size(), 400};
+    } else if (data_->other_sectors_.size() < 16) {
+        return {6000 + 5000 * data_->other_sectors_.size(), 500};
     } else {
-        return {6000 + 3000 * data_->other_sectors_.size(), 300};
+        return {7000 + 6000 * data_->other_sectors_.size(), 600};
     }
 }
 
