@@ -492,6 +492,10 @@ void ConfigurePortScene::collect_options(macro::State& state)
             options_.push_back(terrain::Type::cocoa);
             break;
 
+        case terrain::Commodity::tea:
+            options_.push_back(terrain::Type::tea);
+            break;
+
         case terrain::Commodity::food:
             Platform::fatal("Food is a special case, and no tiles should "
                             "ideally produce food as a commodity.");

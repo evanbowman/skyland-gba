@@ -541,6 +541,13 @@ Stats stats(Type t, bool shadowed)
         }
         break;
 
+    case terrain::Type::tea:
+        if (not shadowed) {
+            result.commodities_.push_back({Commodity::Type::tea, 3});
+            result.employment_ += 4;
+        }
+        break;
+
     case terrain::Type::wool:
         result.employment_ += 1;
         result.food_ += 1;
@@ -607,6 +614,9 @@ SystemString terrain::name(terrain::Commodity::Type t)
 
     case Commodity::cocoa:
         return SystemString::block_cocoa;
+
+    case Commodity::tea:
+        return SystemString::block_tea;
     }
 
     return SystemString::empty;
@@ -655,6 +665,7 @@ terrain::Categories terrain::categories(Type t)
     case terrain::Type::sunflowers:
     case terrain::Type::saffron:
     case terrain::Type::cocoa:
+    case terrain::Type::tea:
         return Categories::crop;
 
     case terrain::Type::water_source:
@@ -712,6 +723,9 @@ Coins terrain::cost(Sector& s, Type t)
 
     case terrain::Type::cocoa:
         return 160;
+
+    case terrain::Type::tea:
+        return 140;
 
     case terrain::Type::ice:
         return 5;
@@ -871,6 +885,9 @@ SystemString terrain::name(Type t)
     case terrain::Type::cocoa:
         return SystemString::block_cocoa;
 
+    case terrain::Type::tea:
+        return SystemString::block_tea;
+
     case terrain::Type::wool:
         return SystemString::block_wool;
 
@@ -964,6 +981,7 @@ terrain::Improvements terrain::improvements(Type t)
 
     case Type::volcanic_soil:
         result.push_back(Type::cocoa);
+        result.push_back(Type::tea);
         break;
 
     default:
@@ -1071,6 +1089,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::food:
         return {2888, 2904};
+
+    case terrain::Type::tea:
+        return {2984, 3000};
     }
 
     return {};
@@ -1790,6 +1811,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             block.data_ = 0;
         }
     },
+    // tea
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::volcanic_soil);
+    },
 };
 // clang-format on
 
@@ -1982,6 +2008,9 @@ raster::TileCategory raster::tile_category(int texture_id)
          irregular, irregular, opaque, top_angled_r, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
