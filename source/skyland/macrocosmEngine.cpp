@@ -784,7 +784,7 @@ Coins terrain::cost(Sector& s, Type t)
         return 120;
 
     case terrain::Type::gold:
-        return 1000;
+        return 9000;
 
     case terrain::Type::workshop:
         return 100;
