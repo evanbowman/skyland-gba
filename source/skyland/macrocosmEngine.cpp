@@ -243,6 +243,20 @@ template <u32 inflate> struct Sector
             ++rd;
         }
 
+        if (encoded_size.get() == 0) {
+            // Special case: the RLE-compressed data was not larger than the
+            // uncompressed data. So we stored a size zero to indicate that we
+            // have a fixed-size block of uncompressed data.
+            for (u32 i = 0; i < sizeof blocks_; ++i) {
+                if (rd == save_data.end()) {
+                    Platform::fatal("error in unpacked data format!");
+                }
+                ((u8*)&blocks_)[i] = *rd;
+                ++rd;
+            }
+            return rd;
+        }
+
         Vector<u8> encoded_data;
 
         for (u32 i = 0; i < encoded_size.get(); ++i) {
@@ -288,13 +302,21 @@ template <u32 inflate> struct Sector
         auto encoded = rle::encode(block_data);
 
         HostInteger<u16> encoded_size;
-        encoded_size.set(encoded.size());
+
+        const bool use_encoded_data = encoded.size() < block_data.size();
+        if (use_encoded_data) {
+            encoded_size.set(encoded.size());
+        } else {
+            encoded_size.set(0);
+        }
 
         for (u32 i = 0; i < sizeof encoded_size; ++i) {
             save_data.push_back(((u8*)&encoded_size)[i]);
         }
 
-        for (auto it = encoded.begin(); it not_eq encoded.end(); ++it) {
+        auto& vec = use_encoded_data ? encoded : block_data;
+
+        for (auto it = vec.begin(); it not_eq vec.end(); ++it) {
             save_data.push_back(*it);
         }
     }
