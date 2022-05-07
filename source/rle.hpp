@@ -26,12 +26,16 @@
 
 
 
-namespace base32
+namespace rle
 {
 
 
 
-Vector<char> encode(Vector<char>& input, const char* alphabet = nullptr);
+Vector<u8> encode(Vector<u8>& data);
+
+
+
+Vector<u8> decode(Vector<u8>& data);
 
 
 

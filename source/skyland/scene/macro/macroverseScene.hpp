@@ -56,6 +56,7 @@ private:
         fade_in,
         show,
         options,
+        options_2,
         text_prompt,
         create_colony,
         select_colony_layout,

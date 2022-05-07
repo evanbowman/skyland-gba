@@ -307,7 +307,25 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         push_opt(SystemString::macro_enter, st.y - 6);
         push_opt(SystemString::macro_create_colony, st.y - 4);
-        push_opt(SystemString::macro_set_name, st.y - 2);
+        push_opt(SystemString::options, st.y - 2);
+    };
+
+    auto enter_opt2_state = [&] {
+        clear_description();
+        state_ = State::options_2;
+        text_objs_.clear();
+
+        auto st = calc_screen_tiles(pfrm);
+
+        auto push_opt = [&](SystemString str, u8 y) {
+            auto s = loadstr(pfrm, str);
+            u8 mg = centered_text_margins(pfrm, utf8::len(s->c_str())) + 1;
+            text_objs_.emplace_back(pfrm, s->c_str(), OverlayCoord{mg, y});
+        };
+
+        push_opt(SystemString::macro_set_name, st.y - 6);
+        // push_opt(SystemString::macro_trade, st.y - 4);
+        // push_opt(SystemString::options, st.y - 2);
     };
 
 
@@ -459,6 +477,58 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
 
+    case State::options_2: {
+        if (app.player().key_down(pfrm, Key::down) and
+            opt_cursor_ < text_objs_.size() - 1) {
+            pfrm.speaker().play_sound("click_wooden", 2);
+            ++opt_cursor_;
+        }
+
+        if (app.player().key_down(pfrm, Key::up) and opt_cursor_ > 0) {
+            pfrm.speaker().play_sound("click_wooden", 2);
+            --opt_cursor_;
+        }
+
+
+        Vec2<u8> sel_pos;
+
+        for (u32 i = 0; i < text_objs_.size(); ++i) {
+
+            u8 x = text_objs_[i].coord().x - 2;
+            u8 y = text_objs_[i].coord().y;
+
+            auto cursor_tile = 0;
+            if (opt_cursor_ == i) {
+                cursor_tile = 87;
+                sel_pos = {x, y};
+            }
+
+            pfrm.set_tile(Layer::overlay, x, y, cursor_tile);
+        }
+
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            enter_opt_state();
+            pfrm.speaker().play_sound("click_wooden", 2);
+            opt_cursor_ = 2;
+        } else if (app.player().key_down(pfrm, Key::action_1)) {
+            pfrm.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
+            switch (opt_cursor_) {
+            case 0:
+                text_objs_.clear();
+                pfrm.fill_overlay(0);
+                pfrm.speaker().play_sound("button_wooden", 2);
+                state_ = State::text_prompt;
+                break;
+
+            case 1:
+                // TODO: Connect, begin serializing sector out to other console.
+                break;
+            }
+        }
+
+        break;
+    }
+
     case State::options: {
         if (app.player().key_down(pfrm, Key::down) and
             opt_cursor_ < text_objs_.size() - 1) {
@@ -577,9 +647,9 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             case 2:
                 text_objs_.clear();
-                pfrm.fill_overlay(0);
-                pfrm.speaker().play_sound("button_wooden", 2);
-                state_ = State::text_prompt;
+                opt_cursor_ = 0;
+                enter_opt2_state();
+                pfrm.speaker().play_sound("button_wooden", 3);
                 break;
             }
 
@@ -828,6 +898,7 @@ void MacroverseScene::display(Platform& pfrm, App& app)
             spr.set_mix({ColorConstant::rich_black,
                          u8(255 * (1.f - (float(timer_) / reveal_time)))});
         } else if ((state_ == State::options or
+                    state_ == State::options_2 or
                     state_ == State::create_colony) and
                    c not_eq selected_) {
             return;

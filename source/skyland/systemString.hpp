@@ -209,6 +209,7 @@ enum class SystemString {
     macro_export_how_many,
     macro_export_where,
     macro_commodities,
+    macro_trade,
 
     macro_fiscal_budget,
     macro_fiscal_employed,
@@ -420,6 +421,8 @@ enum class SystemString {
     achievement_mycelium_description,
     achievement_primitive_name,
     achievement_primitive_description,
+
+    options,
 
     hint_title,
     hint_gamespeed,

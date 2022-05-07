@@ -100,32 +100,15 @@ struct State
         {
         }
 
-        Data(const Data&) = delete;
-
-        ~Data()
-        {
-            erase_other_sectors();
-        }
 
         macro::terrain::CubeSector origin_sector_;
 
 
-        std::optional<BulkAllocator<max_sectors - 1>> other_sector_mem_;
+        using SectorArray = Buffer<DynamicMemory<terrain::Sector>,
+                                   max_sectors - 1>;
 
-        void erase_other_sectors()
-        {
-            // NOTE: allocated from a bulk allocator, does not need to be freed,
-            // but still need to invoke destructors. Not using unique ptr with
-            // deleter due to type errors from upcast. FIXME: is there a way to
-            // use unique_ptr instead?
-            for (auto& sector : other_sectors_) {
-                sector->~Sector();
-            }
-            other_sectors_.clear();
-        }
 
-        Buffer<terrain::Sector*, max_sectors - 1> other_sectors_;
-
+        SectorArray other_sectors_;
 
 
         int current_sector_ = -1;

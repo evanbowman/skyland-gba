@@ -43,14 +43,56 @@ align(size_t __align, size_t __size, void*& __ptr, size_t& __space) noexcept
 }
 
 
-// An abstraction for a single large allocation. Must fit within 1K of
-// memory. If your data is nowhere near 1k, and the data is long lived, might be
+// An abstraction for a single large allocation. Must fit within 2K of
+// memory. If your data is nowhere near 2k, and the data is long lived, might be
 // better to use a bulk allocator, and share the underlying scratch buffer with
 // other stuff.
 template <typename T> struct DynamicMemory
 {
     ScratchBufferPtr memory_;
     std::unique_ptr<T, void (*)(T*)> obj_;
+
+    DynamicMemory() = default;
+    DynamicMemory(ScratchBufferPtr mem, std::unique_ptr<T, void (*)(T*)> obj) :
+        memory_(mem),
+        obj_(std::move(obj))
+
+    {
+    }
+
+
+    DynamicMemory(const DynamicMemory& other) = delete;
+
+
+    template <typename U>
+    DynamicMemory& operator=(DynamicMemory<U>&& rebind)
+    {
+        memory_ = rebind.memory_;
+        obj_ = {rebind.obj_.release(),
+                [](T* val) {
+                    if (val) {
+                        if constexpr (not std::is_trivial<T>()) {
+                                val->~T();
+                            }
+                    }
+                }};
+        return *this;
+    }
+
+
+    template <typename U>
+    DynamicMemory(DynamicMemory<U>&& rebind) :
+        memory_(rebind.memory_),
+        obj_(std::unique_ptr<T, void (*)(T*)>(rebind.obj_.release(),
+                [](T* val) {
+                    if (val) {
+                        if constexpr (not std::is_trivial<T>()) {
+                                val->~T();
+                            }
+                    }
+                }))
+    {
+    }
 
     T& operator*() const
     {

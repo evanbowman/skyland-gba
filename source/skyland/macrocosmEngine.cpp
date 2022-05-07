@@ -27,6 +27,7 @@
 #include "memory/buffer.hpp"
 #include "platform/platform.hpp"
 #include "platform/ram_filesystem.hpp"
+#include "rle.hpp"
 
 
 
@@ -75,8 +76,7 @@ void State::newgame(Platform& pfrm)
 {
     data_->current_sector_ = -1;
 
-    data_->erase_other_sectors();
-    data_->other_sector_mem_.reset();
+    data_->other_sectors_.clear();
     data_->p().year_.set(1);
 
     auto& sector = this->sector();
@@ -222,6 +222,84 @@ template <u32 inflate> struct Sector
     static_assert(sizeof blocks_ == 576);
 
 
+    auto read(Vector<char>& save_data, Vector<char>::Iterator rd)
+    {
+        for (u32 i = 0; i < sizeof p_; ++i) {
+            if (rd == save_data.end()) {
+                Platform::fatal("save data corrupted!");
+            }
+
+            ((u8*)&p_)[i] = *rd;
+            ++rd;
+        }
+
+        HostInteger<u16> encoded_size;
+        for (u32 i = 0; i < sizeof encoded_size; ++i) {
+            if (rd == save_data.end()) {
+                Platform::fatal("save data corrupted");
+            }
+
+            ((u8*)&encoded_size)[i] = *rd;
+            ++rd;
+        }
+
+        Vector<u8> encoded_data;
+
+        for (u32 i = 0; i < encoded_size.get(); ++i) {
+            if (rd == save_data.end()) {
+                Platform::fatal("save data corrupted");
+            }
+
+            encoded_data.push_back(*rd);
+            ++rd;
+        }
+
+        auto decoded = rle::decode(encoded_data);
+        if (decoded.size() not_eq sizeof blocks_) {
+            Platform::fatal(format("unpacked rle size % does not match %",
+                                   decoded.size(), sizeof blocks_).c_str());
+        }
+
+        auto store = decoded.begin();
+        for (u32 i = 0; i < sizeof blocks_; ++i) {
+            if (store == decoded.end()) {
+                Platform::fatal("error in unpacked data format!");
+            }
+            ((u8*)&blocks_)[i] = *store;
+            ++store;
+        }
+
+        return rd;
+    }
+
+
+    void write(Vector<char>& save_data)
+    {
+        for (u32 i = 0; i < sizeof p_; ++i) {
+            save_data.push_back(((u8*)&p_)[i]);
+        }
+
+        Vector<u8> block_data;
+
+        for (u32 i = 0; i < sizeof blocks_; ++i) {
+            block_data.push_back(((u8*)&blocks_)[i]);
+        }
+
+        auto encoded = rle::encode(block_data);
+
+        HostInteger<u16> encoded_size;
+        encoded_size.set(encoded.size());
+
+        for (u32 i = 0; i < sizeof encoded_size; ++i) {
+            save_data.push_back(((u8*)&encoded_size)[i]);
+        }
+
+        for (auto it = encoded.begin(); it not_eq encoded.end(); ++it) {
+            save_data.push_back(*it);
+        }
+    }
+
+
     Sector()
     {
     }
@@ -299,9 +377,7 @@ void State::save(Platform& pfrm)
 
     auto store_sector = [&save_data](const macro::terrain::Sector& sector) {
         save::Sector<0> out(sector);
-        for (u32 i = 0; i < sizeof out; ++i) {
-            save_data.push_back(((u8*)&out)[i]);
-        }
+        out.write(save_data);
 
         save_data.push_back((u8)sector.exports().size());
 
@@ -359,17 +435,11 @@ bool State::load(Platform& pfrm)
 
         auto load_sector = [&](terrain::Sector* dest) {
             save::Sector<0> s;
-            for (u32 i = 0; i < sizeof s; ++i) {
-                if (it == input.end()) {
-                    Platform::fatal("macro save data invalid!");
-                }
-                ((u8*)&s)[i] = *it;
-                ++it;
-            }
+            it = s.read(input, it);
 
             if (dest == nullptr) {
                 if (make_sector({s.p_.p_.x_, s.p_.p_.y_}, s.p_.p_.shape_)) {
-                    dest = data_->other_sectors_.back();
+                    dest = &*data_->other_sectors_.back();
                 }
             }
 
@@ -410,8 +480,7 @@ bool State::load(Platform& pfrm)
 
         load_sector(&data_->origin_sector_);
 
-        data_->erase_other_sectors();
-        data_->other_sector_mem_.reset();
+        data_->other_sectors_.clear();
 
 
         for (int i = 0; i < header.num_sectors_ - 1; ++i) {
@@ -442,24 +511,25 @@ bool State::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
         return false;
     }
 
-    if (not data_->other_sector_mem_) {
-        data_->other_sector_mem_.emplace(Platform::instance());
-    }
-
     auto s = [&]() -> terrain::Sector* {
         switch (shape) {
         case terrain::Sector::Shape::cube:
-            return data_->other_sector_mem_->alloc<terrain::CubeSector>(coord)
-                .release();
+            data_->other_sectors_.
+                emplace_back(allocate_dynamic<terrain::CubeSector>("sector-mem",
+                                                                   coord));
+            return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::pancake:
-            return data_->other_sector_mem_
-                ->alloc<terrain::PancakeSector>(coord)
-                .release();
+            data_->other_sectors_.
+                emplace_back(allocate_dynamic<terrain::PancakeSector>("sector-mem",
+                                                                      coord));
+            return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::pillar:
-            return data_->other_sector_mem_->alloc<terrain::PillarSector>(coord)
-                .release();
+            data_->other_sectors_.
+                emplace_back(allocate_dynamic<terrain::PillarSector>("sector-mem",
+                                                                     coord));
+            return &*data_->other_sectors_.back();
         }
 
         return nullptr;
@@ -468,7 +538,7 @@ bool State::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
         StringBuffer<terrain::Sector::name_len - 1> n("colony_");
         n += stringify(data_->other_sectors_.size() + 1).c_str();
         s->set_name(n);
-        return data_->other_sectors_.push_back(s);
+        return true;
     } else {
         Platform::fatal("failed to allocate sector!");
     }
