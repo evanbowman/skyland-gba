@@ -102,6 +102,7 @@ enum class Type {
     lava_spread_laterally_c,
     lava_spread_laterally_d,
     tea,
+    lumber,
     count,
 };
 
@@ -119,6 +120,7 @@ struct Commodity
         saffron,
         cocoa,
         tea,
+        lumber,
     };
     Type type_;
     u16 supply_;

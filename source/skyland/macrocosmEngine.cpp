@@ -546,6 +546,13 @@ Stats stats(Type t, bool shadowed)
         }
         break;
 
+    case terrain::Type::lumber:
+        if (not shadowed) {
+            result.commodities_.push_back({Commodity::Type::lumber, 2});
+            result.employment_ += 6;
+        }
+        break;
+
     case terrain::Type::wool:
         result.employment_ += 1;
         result.food_ += 1;
@@ -615,6 +622,9 @@ SystemString terrain::name(terrain::Commodity::Type t)
 
     case Commodity::tea:
         return SystemString::block_tea;
+
+    case Commodity::lumber:
+        return SystemString::block_lumber;
     }
 
     return SystemString::empty;
@@ -664,6 +674,7 @@ terrain::Categories terrain::categories(Type t)
     case terrain::Type::saffron:
     case terrain::Type::cocoa:
     case terrain::Type::tea:
+    case terrain::Type::lumber:
         return Categories::crop;
 
     case terrain::Type::water_source:
@@ -800,6 +811,9 @@ Coins terrain::cost(Sector& s, Type t)
 
     case terrain::Type::port:
         return 200;
+
+    case terrain::Type::lumber:
+        return 90;
     }
 
     return 0;
@@ -885,6 +899,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::tea:
         return SystemString::block_tea;
+
+    case terrain::Type::lumber:
+        return SystemString::block_lumber;
 
     case terrain::Type::wool:
         return SystemString::block_wool;
@@ -1090,6 +1107,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::tea:
         return {2984, 3000};
+
+    case terrain::Type::lumber:
+        return {3016, 3032};
     }
 
     return {};
@@ -1814,6 +1834,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     {
         revert_if_covered(s, block, position, terrain::Type::volcanic_soil);
     },
+    // lumber
+    nullptr,
 };
 // clang-format on
 
@@ -2006,6 +2028,9 @@ raster::TileCategory raster::tile_category(int texture_id)
          irregular, irregular, opaque, top_angled_r, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
          irregular, irregular, top_angled_l, opaque, bot_angled_l, bot_angled_r,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

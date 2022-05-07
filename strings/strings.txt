@@ -51,6 +51,7 @@ lava
 lava*
 lemon-tree
 light-source
+lumber
 rose-madder
 manufactory
 masonry

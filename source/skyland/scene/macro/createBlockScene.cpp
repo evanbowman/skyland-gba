@@ -69,6 +69,18 @@ void CreateBlockScene::collect_options(macro::State& state)
         }
     }
 
+    if (state.sector().cursor().z > 0) {
+        auto cursor = state.sector().cursor();
+        --cursor.z;
+        auto& block = state.sector().get_block(cursor);
+        if (block.type() == terrain::Type::terrain or
+            (block.type() not_eq terrain::Type::lumber and
+             (terrain::categories(block.type()) & terrain::Categories::crop) and not
+             (terrain::categories(block.type()) & terrain::Categories::fluid_water))) {
+            options_.push_back(terrain::Type::lumber);
+        }
+    }
+
     options_.push_back(terrain::Type::gold);
     options_.push_back(terrain::Type::lava_source);
     options_.push_back(terrain::Type::light_source);
@@ -486,6 +498,10 @@ void ConfigurePortScene::collect_options(macro::State& state)
 
         case terrain::Commodity::saffron:
             options_.push_back(terrain::Type::saffron);
+            break;
+
+        case terrain::Commodity::lumber:
+            options_.push_back(terrain::Type::lumber);
             break;
 
         case terrain::Commodity::cocoa:
