@@ -259,7 +259,7 @@ template <u32 inflate> struct Sector
             for (u8 z = 0; z < 16; ++z) {
                 for (u8 x = 0; x < 6; ++x) {
                     for (u8 y = 0; y < 6; ++y) {
-                        blocks_.pancake_[z][x][y] =
+                        blocks_.pillar_[z][x][y] =
                             source.get_block({x, y, z}).type_;
                     }
                 }
