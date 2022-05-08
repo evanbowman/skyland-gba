@@ -24,6 +24,7 @@
 #include "allocator.hpp"
 #include "macrocosmPancakeSector.hpp"
 #include "macrocosmPillarSector.hpp"
+#include "macrocosmFreebuildSector.hpp"
 #include "memory/buffer.hpp"
 #include "platform/platform.hpp"
 #include "platform/ram_filesystem.hpp"
@@ -333,6 +334,10 @@ template <u32 inflate> struct Sector
         memcpy(&p_.p_, &source.persistent(), sizeof p_);
 
         switch (source.persistent().shape_) {
+        case terrain::Sector::Shape::freebuild:
+            Platform::fatal("save unimplemented for freebuild sector");
+            break;
+
         case terrain::Sector::Shape::cube:
             for (u8 z = 0; z < macro::terrain::Sector::z_limit; ++z) {
                 for (u8 x = 0; x < 8; ++x) {
@@ -483,6 +488,10 @@ bool State::load(Platform& pfrm)
             case terrain::Sector::Shape::pillar:
                 dest->restore(s.p_.p_, s.blocks_.pillar_);
                 break;
+
+            case terrain::Sector::Shape::freebuild:
+                Platform::fatal("freebuild sector cannot be saved!");
+                break;
             }
 
             u8 export_count = *(it++);
@@ -550,6 +559,11 @@ bool State::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
         case terrain::Sector::Shape::pillar:
             data_->other_sectors_.emplace_back(
                 allocate_dynamic<terrain::PillarSector>("sector-mem", coord));
+            return &*data_->other_sectors_.back();
+
+        case terrain::Sector::Shape::freebuild:
+            data_->other_sectors_.emplace_back(
+                allocate_dynamic<terrain::FreebuildSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
         }
 
@@ -2009,6 +2023,25 @@ void terrain::PancakeSector::update()
     for (int z = 0; z < z_limit; ++z) {
         for (u8 x = 0; x < length; ++x) {
             for (u8 y = 0; y < length; ++y) {
+
+                auto& block = blocks_[z][x][y];
+
+                auto update = update_functions[block.type_];
+                if (update) {
+                    update(*this, block, {x, y, (u8)z});
+                }
+            }
+        }
+    }
+}
+
+
+
+void terrain::FreebuildSector::update()
+{
+    for (int z = 0; z < 7; ++z) {
+        for (u8 x = 0; x < 10; ++x) {
+            for (u8 y = 0; y < 10; ++y) {
 
                 auto& block = blocks_[z][x][y];
 

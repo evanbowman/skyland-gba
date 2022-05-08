@@ -84,14 +84,18 @@ void MacrocosmFreebuildModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_tile1_texture("macro_rendertexture");
 
 
-    auto& sector = app.macrocosm()->sector();
-
     app.macrocosm()->newgame(pfrm);
     app.macrocosm()->data_->freebuild_mode_ = true;
     app.game_mode() = App::GameMode::macro;
 
+    app.macrocosm()->make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild);
+    app.macrocosm()->bind_sector({0, 1});
+
     pfrm.system_call("vsync", nullptr);
-    sector.render(pfrm);
+    app.macrocosm()->sector().set_block({4, 4, 0}, macro::terrain::Type::terrain);
+    app.macrocosm()->sector().set_block({4, 4, 1}, macro::terrain::Type::building);
+    app.macrocosm()->sector().set_cursor({5, 4, 0});
+    app.macrocosm()->sector().render(pfrm);
 
     pfrm.sleep(1);
     pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));

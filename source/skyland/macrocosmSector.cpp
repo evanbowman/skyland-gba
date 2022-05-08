@@ -46,6 +46,11 @@ terrain::Sector::Sector(Vec2<s8> position, Shape shape)
 
     case Shape::pillar:
         size_ = {6, 6, 16};
+        break;
+
+    case Shape::freebuild:
+        size_ = {10, 10, 7};
+        break;
     }
 
     set_name("");
