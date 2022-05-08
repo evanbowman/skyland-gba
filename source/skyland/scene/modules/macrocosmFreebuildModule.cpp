@@ -88,12 +88,15 @@ void MacrocosmFreebuildModule::enter(Platform& pfrm, App& app, Scene& prev)
     app.macrocosm()->data_->freebuild_mode_ = true;
     app.game_mode() = App::GameMode::macro;
 
-    app.macrocosm()->make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild);
+    app.macrocosm()->make_sector({0, 1},
+                                 macro::terrain::Sector::Shape::freebuild);
     app.macrocosm()->bind_sector({0, 1});
 
     pfrm.system_call("vsync", nullptr);
-    app.macrocosm()->sector().set_block({4, 4, 0}, macro::terrain::Type::terrain);
-    app.macrocosm()->sector().set_block({4, 4, 1}, macro::terrain::Type::building);
+    app.macrocosm()->sector().set_block({4, 4, 0},
+                                        macro::terrain::Type::terrain);
+    app.macrocosm()->sector().set_block({4, 4, 1},
+                                        macro::terrain::Type::building);
     app.macrocosm()->sector().set_cursor({5, 4, 0});
     app.macrocosm()->sector().render(pfrm);
 
