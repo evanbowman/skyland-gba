@@ -62,7 +62,8 @@ void CreateBlockScene::collect_options(macro::State& state)
     options_.push_back(terrain::Type::water_source);
     options_.push_back(terrain::Type::shrubbery);
 
-    if (not state.data_->other_sectors_.empty()) {
+    if (not state.data_->freebuild_mode_ and
+        not state.data_->other_sectors_.empty()) {
         auto stats = state.sector().base_stats();
         if (not stats.commodities_.empty()) {
             options_.push_back(terrain::Type::port);

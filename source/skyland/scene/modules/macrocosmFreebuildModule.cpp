@@ -96,6 +96,10 @@ void MacrocosmFreebuildModule::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.sleep(1);
     pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
     pfrm.screen().schedule_fade(0.f);
+
+    pfrm.system_call(
+        "_prlx_macro",
+        (void*)(intptr_t)(int)app.macrocosm()->data_->cloud_scroll_);
 }
 
 

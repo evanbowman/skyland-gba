@@ -145,13 +145,16 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         pfrm.load_overlay_texture("overlay_challenges");
 
         if (app.game_mode() == App::GameMode::macro) {
-            diff_percent_ = 0.3f;
+
             add_option(pfrm,
                        SYSTR(start_menu_resume)->c_str(),
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
                        kill_menu);
 
             if (not app.macrocosm()->data_->freebuild_mode_) {
+
+                diff_percent_ = 0.3f;
+
                 add_option(
                     pfrm,
                     SYSTR(start_menu_next_turn)->c_str(),
