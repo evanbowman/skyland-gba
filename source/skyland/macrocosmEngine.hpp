@@ -104,8 +104,8 @@ struct State
         macro::terrain::CubeSector origin_sector_;
 
 
-        using SectorArray = Buffer<DynamicMemory<terrain::Sector>,
-                                   max_sectors - 1>;
+        using SectorArray =
+            Buffer<DynamicMemory<terrain::Sector>, max_sectors - 1>;
 
 
         SectorArray other_sectors_;
@@ -113,6 +113,8 @@ struct State
 
         int current_sector_ = -1;
         Float cloud_scroll_ = 0;
+
+        bool freebuild_mode_ = false;
 
 
         // Contents will be written to save data.

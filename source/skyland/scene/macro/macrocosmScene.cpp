@@ -220,7 +220,9 @@ void MacrocosmScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
         lava_anim_index_ = m->lava_anim_index_;
         water_anim_index_ = m->water_anim_index_;
         water_anim_timer_ = m->water_anim_timer_;
-    } else {
+
+    } else if (not state.data_->freebuild_mode_) {
+
         ui_ = allocate_dynamic<UIObjects>("macro-ui-objects");
 
         auto& sector = state.sector();
@@ -278,19 +280,21 @@ void MacrocosmScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
                                  UIMetric::Align::left);
     }
 
-    const auto year = state.data_->p().year_.get() + 1;
+    if (not state.data_->freebuild_mode_) {
+        const auto year = state.data_->p().year_.get() + 1;
 
-    auto yr = SYSTR(macro_year);
-    auto yr_len = utf8::len(yr->c_str());
-    auto st = calc_screen_tiles(pfrm);
-    Text temp(
-        pfrm,
-        OverlayCoord{u8(st.x - (yr_len + integer_text_length(year) + 1)), 1});
-    temp.append(yr->c_str(),
-                Text::OptColors{
-                    {ColorConstant::med_blue_gray, ColorConstant::rich_black}});
-    temp.append(year);
-    temp.__detach();
+        auto yr = SYSTR(macro_year);
+        auto yr_len = utf8::len(yr->c_str());
+        auto st = calc_screen_tiles(pfrm);
+        Text temp(pfrm,
+                  OverlayCoord{
+                      u8(st.x - (yr_len + integer_text_length(year) + 1)), 1});
+        temp.append(yr->c_str(),
+                    Text::OptColors{{ColorConstant::med_blue_gray,
+                                     ColorConstant::rich_black}});
+        temp.append(year);
+        temp.__detach();
+    }
 
     draw_compass(pfrm, state);
 }
@@ -321,7 +325,13 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::State& state)
 {
     auto o = state.sector().orientation();
     int compass_tile = 434 + (int)o * 4;
-    draw_image(pfrm, compass_tile, 27, 3, 2, 2, Layer::overlay);
+
+    int start_y = 3;
+    if (state.data_->freebuild_mode_) {
+        start_y = 1;
+    }
+
+    draw_image(pfrm, compass_tile, 27, start_y, 2, 2, Layer::overlay);
 }
 
 

@@ -75,8 +75,9 @@ void CreateBlockScene::collect_options(macro::State& state)
         auto& block = state.sector().get_block(cursor);
         if (block.type() == terrain::Type::terrain or
             (block.type() not_eq terrain::Type::lumber and
-             (terrain::categories(block.type()) & terrain::Categories::crop) and not
-             (terrain::categories(block.type()) & terrain::Categories::fluid_water))) {
+             (terrain::categories(block.type()) & terrain::Categories::crop) and
+             not(terrain::categories(block.type()) &
+                 terrain::Categories::fluid_water))) {
             options_.push_back(terrain::Type::lumber);
         }
     }
@@ -107,6 +108,9 @@ void CreateBlockScene::exit(Platform& pfrm, macro::State& state, Scene& next)
 
 Coins CreateBlockScene::cost(macro::State& state, terrain::Type t)
 {
+    if (state.data_->freebuild_mode_) {
+        return 0;
+    }
     return terrain::cost(state.sector(), t);
 }
 
@@ -119,40 +123,44 @@ void CreateBlockScene::message(Platform& pfrm, macro::State& state)
     StringBuffer<30> message = SYSTR(construction_build)->c_str();
     message += " ";
     message += loadstr(pfrm, terrain::name(options_[selector_]))->c_str();
-    message += " ";
-    message += stringify(cost(state, options_[selector_]));
-    message += "@";
+
+    if (not state.data_->freebuild_mode_) {
+        message += " ";
+        message += stringify(cost(state, options_[selector_]));
+        message += "@";
+    }
 
     Text text(pfrm, OverlayCoord{0, u8(st.y - 1)});
     text.assign(message.c_str());
 
-    auto stats = terrain::stats(options_[selector_],
-                                // FIXME!
-                                false);
-    if (stats.food_) {
-        text.append("  ");
-        pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 414);
-        text.append(stats.food_);
-    }
+    if (not state.data_->freebuild_mode_) {
+        auto stats = terrain::stats(options_[selector_],
+                                    // FIXME!
+                                    false);
+        if (stats.food_) {
+            text.append("  ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 414);
+            text.append(stats.food_);
+        }
 
-    if (stats.housing_) {
-        text.append("  ");
-        pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 416);
-        text.append(stats.housing_);
-    }
+        if (stats.housing_) {
+            text.append("  ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 416);
+            text.append(stats.housing_);
+        }
 
-    if (stats.employment_) {
-        text.append("  ");
-        pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 415);
-        text.append(stats.employment_);
-    }
+        if (stats.employment_) {
+            text.append("  ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 415);
+            text.append(stats.employment_);
+        }
 
-    if (not stats.commodities_.empty()) {
-        text.append("  ");
-        pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 417);
-        text.append(stats.commodities_[0].supply_);
+        if (not stats.commodities_.empty()) {
+            text.append("  ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 417);
+            text.append(stats.commodities_[0].supply_);
+        }
     }
-
 
     const int count = st.x - text.len();
     for (int i = 0; i < count; ++i) {
@@ -371,6 +379,10 @@ void CreateBlockScene::edit(macro::State& state, terrain::Type t)
 
 Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
 {
+    if (state.data_->freebuild_mode_) {
+        return 0;
+    }
+
     const auto base_cost = terrain::cost(state.sector(), t);
 
     if (t == terrain::Type::terrain) {

@@ -115,7 +115,7 @@ Text Editor
 Highscores
 Tutorials
 Developer Mode
-SKYLAND Macrocosm
+Macro Freebuild
 Enable developer mode? Lets you run custom code, but highscores will not be recorded while enabled.
 Developer mode successfully disabled!
 cargo: 

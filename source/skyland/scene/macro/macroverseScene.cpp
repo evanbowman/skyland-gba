@@ -71,7 +71,7 @@ void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-ColorConstant water_shader(ShaderPalette p, ColorConstant k, int var, int index)
+ColorConstant fluid_shader(ShaderPalette p, ColorConstant k, int var, int index)
 {
     if (p == ShaderPalette::tile0 or p == ShaderPalette::tile1) {
         if (index == 11) {
@@ -112,7 +112,7 @@ void MacroverseScene::exit(Platform& pfrm, App& app, Scene& prev)
     auto& sector = app.macrocosm()->sector();
     sector.repaint();
 
-    pfrm.screen().set_shader(water_shader);
+    pfrm.screen().set_shader(fluid_shader);
 
     pfrm.sleep(1);
     pfrm.screen().fade(1.f);
@@ -897,8 +897,7 @@ void MacroverseScene::display(Platform& pfrm, App& app)
         if (state_ == State::reveal) {
             spr.set_mix({ColorConstant::rich_black,
                          u8(255 * (1.f - (float(timer_) / reveal_time)))});
-        } else if ((state_ == State::options or
-                    state_ == State::options_2 or
+        } else if ((state_ == State::options or state_ == State::options_2 or
                     state_ == State::create_colony) and
                    c not_eq selected_) {
             return;

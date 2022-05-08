@@ -22,21 +22,51 @@
 
 #pragma once
 
-#include "containers/vector.hpp"
+
+#include "skyland/macrocosmEngine.hpp"
+#include "skyland/scene/module.hpp"
 
 
 
-namespace rle
+namespace skyland
 {
 
 
 
-Vector<u8> encode(Vector<u8>& data);
+class MacrocosmFreebuildModule : public Module<MacrocosmFreebuildModule>
+{
+public:
+    static SystemString module_name()
+    {
+        return SystemString::module_macro;
+    }
+
+
+    static u16 icon()
+    {
+        return 2552;
+    }
+
+
+    static bool run_scripts()
+    {
+        return false;
+    }
+
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override;
+
+
+    ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
+
+
+    static Factory factory_;
+
+    float scroll_ = 0;
+
+    Vec3<u8> cursor_;
+};
 
 
 
-Vector<u8> decode(Vector<u8>& data);
-
-
-
-} // namespace rle
+} // namespace skyland

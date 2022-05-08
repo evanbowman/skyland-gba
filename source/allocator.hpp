@@ -53,9 +53,8 @@ template <typename T> struct DynamicMemory
     std::unique_ptr<T, void (*)(T*)> obj_;
 
     DynamicMemory() = default;
-    DynamicMemory(ScratchBufferPtr mem, std::unique_ptr<T, void (*)(T*)> obj) :
-        memory_(mem),
-        obj_(std::move(obj))
+    DynamicMemory(ScratchBufferPtr mem, std::unique_ptr<T, void (*)(T*)> obj)
+        : memory_(mem), obj_(std::move(obj))
 
     {
     }
@@ -64,16 +63,14 @@ template <typename T> struct DynamicMemory
     DynamicMemory(const DynamicMemory& other) = delete;
 
 
-    template <typename U>
-    DynamicMemory& operator=(DynamicMemory<U>&& rebind)
+    template <typename U> DynamicMemory& operator=(DynamicMemory<U>&& rebind)
     {
         memory_ = rebind.memory_;
-        obj_ = {rebind.obj_.release(),
-                [](T* val) {
+        obj_ = {rebind.obj_.release(), [](T* val) {
                     if (val) {
                         if constexpr (not std::is_trivial<T>()) {
-                                val->~T();
-                            }
+                            val->~T();
+                        }
                     }
                 }};
         return *this;
@@ -81,16 +78,17 @@ template <typename T> struct DynamicMemory
 
 
     template <typename U>
-    DynamicMemory(DynamicMemory<U>&& rebind) :
-        memory_(rebind.memory_),
-        obj_(std::unique_ptr<T, void (*)(T*)>(rebind.obj_.release(),
-                [](T* val) {
-                    if (val) {
-                        if constexpr (not std::is_trivial<T>()) {
-                                val->~T();
-                            }
-                    }
-                }))
+    DynamicMemory(DynamicMemory<U>&& rebind)
+        : memory_(rebind.memory_),
+          obj_(std::unique_ptr<T, void (*)(T*)>(
+              rebind.obj_.release(),
+              [](T* val) {
+                  if (val) {
+                      if constexpr (not std::is_trivial<T>()) {
+                          val->~T();
+                      }
+                  }
+              }))
     {
     }
 

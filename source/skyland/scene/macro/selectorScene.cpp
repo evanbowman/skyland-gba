@@ -98,7 +98,8 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
     };
 
 
-    if (player.key_pressed(pfrm, Key::alt_1)) {
+    if (player.key_pressed(pfrm, Key::alt_1) and
+        not state.data_->freebuild_mode_) {
 
         return scene_pool::alloc<MenuOptionsScene>();
 
@@ -200,6 +201,11 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::State& state)
     b += ")";
 
     text_->assign(b.c_str());
+
+    if (state.data_->freebuild_mode_) {
+        // Don't show any block stats, they don't matter in this game mode.
+        return;
+    }
 
     auto stats = terrain::stats(tp, shadowed);
 

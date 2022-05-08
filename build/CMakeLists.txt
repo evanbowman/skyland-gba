@@ -191,6 +191,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/developerModeModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/macrocosmFreebuildModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcManagerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp

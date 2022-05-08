@@ -271,7 +271,9 @@ template <u32 inflate> struct Sector
         auto decoded = rle::decode(encoded_data);
         if (decoded.size() not_eq sizeof blocks_) {
             Platform::fatal(format("unpacked rle size % does not match %",
-                                   decoded.size(), sizeof blocks_).c_str());
+                                   decoded.size(),
+                                   sizeof blocks_)
+                                .c_str());
         }
 
         auto store = decoded.begin();
@@ -536,21 +538,18 @@ bool State::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
     auto s = [&]() -> terrain::Sector* {
         switch (shape) {
         case terrain::Sector::Shape::cube:
-            data_->other_sectors_.
-                emplace_back(allocate_dynamic<terrain::CubeSector>("sector-mem",
-                                                                   coord));
+            data_->other_sectors_.emplace_back(
+                allocate_dynamic<terrain::CubeSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::pancake:
-            data_->other_sectors_.
-                emplace_back(allocate_dynamic<terrain::PancakeSector>("sector-mem",
-                                                                      coord));
+            data_->other_sectors_.emplace_back(
+                allocate_dynamic<terrain::PancakeSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::pillar:
-            data_->other_sectors_.
-                emplace_back(allocate_dynamic<terrain::PillarSector>("sector-mem",
-                                                                     coord));
+            data_->other_sectors_.emplace_back(
+                allocate_dynamic<terrain::PillarSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
         }
 

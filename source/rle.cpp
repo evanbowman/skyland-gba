@@ -45,7 +45,6 @@ Vector<u8> encode(Vector<u8>& data)
 
 
 
-
 Vector<u8> decode(Vector<u8>& data)
 {
     Vector<u8> result;
@@ -76,5 +75,4 @@ Vector<u8> decode(Vector<u8>& data)
 
 
 
-
-}
+} // namespace rle

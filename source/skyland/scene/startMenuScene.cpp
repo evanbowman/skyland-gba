@@ -151,16 +151,19 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
                        kill_menu);
 
-            add_option(pfrm,
-                       SYSTR(start_menu_next_turn)->c_str(),
-                       scene_pool::make_deferred_scene<macro::NextTurnScene>(),
-                       cut);
+            if (not app.macrocosm()->data_->freebuild_mode_) {
+                add_option(
+                    pfrm,
+                    SYSTR(start_menu_next_turn)->c_str(),
+                    scene_pool::make_deferred_scene<macro::NextTurnScene>(),
+                    cut);
 
-            add_option(
-                pfrm,
-                SYSTR(start_menu_macroverse)->c_str(),
-                scene_pool::make_deferred_scene<macro::MacroverseScene>(),
-                fade_sweep_transparent_text);
+                add_option(
+                    pfrm,
+                    SYSTR(start_menu_macroverse)->c_str(),
+                    scene_pool::make_deferred_scene<macro::MacroverseScene>(),
+                    fade_sweep_transparent_text);
+            }
 
         } else {
             add_option(pfrm,
@@ -251,6 +254,19 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             break;
 
         case App::GameMode::macro:
+
+            if (app.macrocosm()->data_->freebuild_mode_) {
+                add_option(
+                    pfrm,
+                    SYSTR(start_menu_quit)->c_str(),
+                    [&pfrm]() -> ScenePtr<Scene> {
+                        pfrm.fill_overlay(0);
+                        pfrm.screen().set_shader(passthrough_shader);
+                        return scene_pool::alloc<TitleScreenScene>(3);
+                    },
+                    fade_sweep);
+                break;
+            }
 
             add_option(
                 pfrm,
