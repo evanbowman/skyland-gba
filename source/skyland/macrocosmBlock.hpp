@@ -104,6 +104,7 @@ enum class Type {
     tea,
     lumber,
     basalt,
+    arch,
     count,
 };
 

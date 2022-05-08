@@ -14,6 +14,7 @@ terrain size
 Waiting for other player...
 air
 arc-gun
+arch
 banana-plant
 barrier
 basalt

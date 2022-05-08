@@ -151,11 +151,11 @@ std::pair<Coins, terrain::Sector::Population> State::colony_cost() const
     } else if (data_->other_sectors_.size() < 5) {
         return {1500 + 3000 * data_->other_sectors_.size(), 300};
     } else if (data_->other_sectors_.size() < 11) {
-        return {4000 + 4000 * data_->other_sectors_.size(), 400};
+        return {4000 + 4000 * data_->other_sectors_.size(), 500};
     } else if (data_->other_sectors_.size() < 16) {
-        return {6000 + 5000 * data_->other_sectors_.size(), 500};
+        return {6000 + 5000 * data_->other_sectors_.size(), 700};
     } else {
-        return {7000 + 6000 * data_->other_sectors_.size(), 600};
+        return {7000 + 6000 * data_->other_sectors_.size(), 900};
     }
 }
 
@@ -820,6 +820,9 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::masonry:
         return 30;
 
+    case terrain::Type::arch:
+        return 40;
+
     case terrain::Type::volcanic_soil:
         return 100;
 
@@ -931,6 +934,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::masonry:
         return SystemString::block_masonry;
+
+    case terrain::Type::arch:
+        return SystemString::block_arch;
 
     case terrain::Type::basalt:
         return SystemString::block_basalt;
@@ -1118,6 +1124,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::masonry:
         return {1448, 1464};
+
+    case terrain::Type::arch:
+        return {1544, 1560};
 
     case terrain::Type::cocoa:
         return {1864, 1880};
@@ -1935,6 +1944,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // basalt,
     nullptr,
+    // arch
+    nullptr,
 };
 // clang-format on
 
@@ -2169,6 +2180,11 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
+
+         // Arch: similar to a solid block, but the lowest row has some
+         // transparency.
+         top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
+         top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
 
         };
     // clang-format on
