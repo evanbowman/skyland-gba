@@ -24,6 +24,7 @@
 #include "selectorScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/network.hpp"
 
 
 
@@ -335,7 +336,7 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm, macro::State& state)
             state.data_->p().coins_.set(state.data_->p().coins_.get() - cost);
         }
 
-        edit(state, options_[selector_]);
+        edit(pfrm, state, options_[selector_]);
         state.sector().update();
         update_ui_on_exit();
 
@@ -359,12 +360,22 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm, macro::State& state)
 
 
 
-void CreateBlockScene::edit(macro::State& state, terrain::Type t)
+void CreateBlockScene::edit(Platform& pfrm, macro::State& state, terrain::Type t)
 {
     auto cursor = state.sector().cursor();
 
     if (t not_eq terrain::Type::air) {
         state.sector().set_block(cursor, t);
+        if (state.data_->freebuild_mode_) {
+            network::packet::MacroSetBlock p;
+            p.x_ = cursor.x;
+            p.y_ = cursor.y;
+            p.z_ = cursor.z;
+            p.rot_ = (u8)state.sector().persistent().orientation_;
+            p.type_ = (u8)t;
+
+            network::transmit(pfrm, p);
+        }
     }
 
     ++cursor.z;
@@ -472,7 +483,9 @@ void BuildImprovementScene::collect_options(macro::State& state)
 
 
 
-void BuildImprovementScene::edit(macro::State& state, terrain::Type t)
+void BuildImprovementScene::edit(Platform& pfrm,
+                                 macro::State& state,
+                                 terrain::Type t)
 {
     auto cursor = state.sector().cursor();
 
@@ -480,6 +493,17 @@ void BuildImprovementScene::edit(macro::State& state, terrain::Type t)
 
     if (t not_eq terrain::Type::air) {
         state.sector().set_block(cursor, t);
+
+        if (state.data_->freebuild_mode_) {
+            network::packet::MacroSetBlock p;
+            p.x_ = cursor.x;
+            p.y_ = cursor.y;
+            p.z_ = cursor.z;
+            p.rot_ = (u8)state.sector().persistent().orientation_;
+            p.type_ = (u8)t;
+
+            network::transmit(pfrm, p);
+        }
     }
 }
 

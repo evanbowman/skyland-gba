@@ -235,6 +235,7 @@ macrocosm
 next turn
 adjust view
 newgame
+connect a friend
 really salvage?  +
 A: yes 
 B:  no 

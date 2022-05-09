@@ -24,6 +24,7 @@
 #include "boxedDialogScene.hpp"
 #include "hibernateScene.hpp"
 #include "hideRoomsScene.hpp"
+#include "macro/freebuildConnectFriendScene.hpp"
 #include "macro/macroverseScene.hpp"
 #include "macro/modifiedSelectorScene.hpp"
 #include "macro/nextTurnScene.hpp"
@@ -261,20 +262,35 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (app.macrocosm()->data_->freebuild_mode_) {
 
-                add_option(
-                    pfrm,
-                    SYSTR(start_menu_load)->c_str(),
-                    [&pfrm, &app]() -> ScenePtr<Scene> {
-                        auto& current = app.macrocosm()->sector();
-                        using namespace macro::terrain;
-                        if (auto f = dynamic_cast<FreebuildSector*>(&current)) {
-                            f->load(pfrm);
-                        }
-                        pfrm.screen().schedule_fade(0.f);
-                        pfrm.screen().pixelate(0);
-                        return scene_pool::alloc<macro::SelectorScene>();
-                    },
-                    cut);
+                if (not pfrm.network_peer().is_connected()) {
+
+                    add_option(
+                        pfrm,
+                        SYSTR(start_menu_link)->c_str(),
+                        [&pfrm, &app]() -> ScenePtr<Scene> {
+                            pfrm.screen().pixelate(0);
+                            pfrm.speaker().stop_music();
+                            using Next = macro::FreebuildConnectFriendScene;
+                            return scene_pool::alloc<Next>();
+                        },
+                        fade_sweep);
+
+                    add_option(
+                        pfrm,
+                        SYSTR(start_menu_load)->c_str(),
+                        [&pfrm, &app]() -> ScenePtr<Scene> {
+                            auto& current = app.macrocosm()->sector();
+                            using namespace macro::terrain;
+                            if (auto f =
+                                    dynamic_cast<FreebuildSector*>(&current)) {
+                                f->load(pfrm);
+                            }
+                            pfrm.screen().schedule_fade(0.f);
+                            pfrm.screen().pixelate(0);
+                            return scene_pool::alloc<macro::SelectorScene>();
+                        },
+                        cut);
+                }
 
                 add_option(
                     pfrm,
@@ -295,6 +311,9 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm,
                     SYSTR(start_menu_quit)->c_str(),
                     [&pfrm]() -> ScenePtr<Scene> {
+                        if (pfrm.network_peer().is_connected()) {
+                            pfrm.network_peer().disconnect();
+                        }
                         pfrm.fill_overlay(0);
                         pfrm.screen().set_shader(passthrough_shader);
                         return scene_pool::alloc<TitleScreenScene>(3);

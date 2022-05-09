@@ -90,6 +90,7 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::CoOpChrLockRelease)
             HANDLE_MESSAGE(packet::CoOpChrLockResponse)
             HANDLE_MESSAGE(packet::CoOpOpponentDestroyed)
+            HANDLE_MESSAGE(packet::MacroSetBlock)
         }
 
         error(pfrm, "garbled message!?");

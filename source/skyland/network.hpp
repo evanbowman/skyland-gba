@@ -72,6 +72,7 @@ struct Header
         co_op_chr_lock_release,
         co_op_chr_lock_response,
         co_op_opponent_destroyed,
+        macro_set_block,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -540,6 +541,29 @@ struct CoOpOpponentDestroyed
 
 
 
+struct MacroSetBlock
+{
+    Header header_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 z_ : 4;
+
+// The rotation of the island from the sender's perspective. I implemented
+    // rotation by actually pysically rotating an island's blocks into different
+    // slots, so orientation matters in multiplayer.
+    u8 rot_ : 2;
+
+    u8 unused_bits_ : 2;
+
+    u8 type_;
+
+    u8 unused_[2];
+
+    static const auto mt = Header::MessageType::macro_set_block;
+};
+
+
+
 } // namespace packet
 
 
@@ -552,156 +576,221 @@ public:
     }
 
 
-    virtual void receive(Platform&, App&, const packet::RoomConstructed&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::RoomSalvaged&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::TerrainConstructed&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::WeaponSetTarget&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::DroneSetTarget&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::CharacterSetTarget&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::RoomDestroyed&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::CharacterBoarded&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::CharacterDisembark&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::CharacterDied&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::ReplicantCreated&)
+    virtual void unhandled_message(Platform&, App&, const packet::Header&)
     {
     }
 
 
     virtual void
-    receive(Platform&, App&, const packet::OpponentBulkheadChanged&)
+    receive(Platform& pfrm, App& app, const packet::RoomConstructed& p)
     {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::ProgramVersion&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::DroneSpawn&)
-    {
-    }
-
-
-    virtual void receive(Platform&, App&, const packet::DroneDestroyed&)
-    {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
     virtual void
-    receive(Platform&, App&, const packet::GameMatchParameterUpdate&)
+    receive(Platform& pfrm, App& app, const packet::RoomSalvaged& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
     virtual void
-    receive(Platform&, App&, const packet::GameMatchSettingsCursor&)
+    receive(Platform& pfrm, App& app, const packet::TerrainConstructed& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::GameMatchReady&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::WeaponSetTarget& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::Heartbeat&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::DroneSetTarget& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::DynamiteActivated&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CharacterSetTarget& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoOpCursor&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::RoomDestroyed& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::SetWeaponGroup&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CharacterBoarded& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::PlayMusic&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CharacterDisembark& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoOpRoomLockAcquire&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CharacterDied& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoOpRoomLockRelease&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::ReplicantCreated& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoOpRoomLockResponse&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::OpponentBulkheadChanged& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoOpChrLockAcquire&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::ProgramVersion& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoOpChrLockRelease&)
+    virtual void receive(Platform& pfrm, App& app, const packet::DroneSpawn& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoOpChrLockResponse&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::DroneDestroyed& p)
     {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void receive(Platform&, App&, const packet::CoOpOpponentDestroyed&)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::GameMatchParameterUpdate& p)
     {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::GameMatchSettingsCursor& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::GameMatchReady& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void receive(Platform& pfrm, App& app, const packet::Heartbeat& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::DynamiteActivated& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void receive(Platform& pfrm, App& app, const packet::CoOpCursor& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::SetWeaponGroup& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void receive(Platform& pfrm, App& app, const packet::PlayMusic& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CoOpRoomLockAcquire& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CoOpRoomLockRelease& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CoOpRoomLockResponse& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CoOpChrLockAcquire& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CoOpChrLockRelease& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CoOpChrLockResponse& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CoOpOpponentDestroyed& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::MacroSetBlock& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
     }
 
 
