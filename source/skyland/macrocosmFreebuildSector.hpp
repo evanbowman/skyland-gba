@@ -89,12 +89,17 @@ public:
                 info(pfrm, "read invalid save format");
             }
 
-            for (int z = 0; z < 7; ++z) {
-                for (int x = 0; x < 10; ++x) {
-                    for (int y = 0; y < 10; ++y) {
+            for (u8 z = 0; z < 7; ++z) {
+                for (u8 x = 0; x < 10; ++x) {
+                    for (u8 y = 0; y < 10; ++y) {
                         blocks_[z][x][y].type_ = *it;
                         blocks_[z][x][y].data_ = 0;
                         blocks_[z][x][y].repaint_ = true;
+
+                        if ((Type)*it == Type::selector) {
+                            p_.cursor_ = {x, y, z};
+                        }
+
                         ++it;
                     }
                 }
