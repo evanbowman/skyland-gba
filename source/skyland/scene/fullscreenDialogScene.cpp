@@ -23,6 +23,7 @@
 #include "fullscreenDialogScene.hpp"
 #include "graphics/overlay.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
@@ -32,6 +33,10 @@ Platform::TextureCpMapper locale_texture_map();
 
 namespace skyland
 {
+
+
+
+SHARED_VARIABLE(text_scroll_direction);
 
 
 
@@ -113,7 +118,11 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
         }
 
         const int y_offset = text_state_.line_ == 0 ? 4 + y_start : 2 + y_start;
-        const int x_offset = text_state_.pos_ + 2;
+        int x_offset = text_state_.pos_ + 2;
+
+        if (text_scroll_direction == 1) {
+            x_offset = st.x - x_offset;
+        }
 
         pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), t);
 
@@ -185,13 +194,17 @@ FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (text_state_.timer_ > duration) {
             text_state_.timer_ = 0;
             const auto st = calc_screen_tiles(pfrm);
-            if (pfrm.get_tile(Layer::overlay, st.x - 3, st.y - (2 + y_start)) ==
+            int x = st.x - 3;
+            if (text_scroll_direction == 1) {
+                x = 3;
+            }
+            if (pfrm.get_tile(Layer::overlay, x, st.y - (2 + y_start)) ==
                 91) {
                 pfrm.set_tile(
-                    Layer::overlay, st.x - 3, st.y - (2 + y_start), 92);
+                    Layer::overlay, x, st.y - (2 + y_start), 92);
             } else {
                 pfrm.set_tile(
-                    Layer::overlay, st.x - 3, st.y - (2 + y_start), 91);
+                    Layer::overlay, x, st.y - (2 + y_start), 91);
             }
         }
     };

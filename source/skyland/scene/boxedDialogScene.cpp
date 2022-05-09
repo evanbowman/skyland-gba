@@ -28,6 +28,7 @@
 #include "selectTutorialScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
@@ -37,6 +38,10 @@ Platform::TextureCpMapper locale_texture_map();
 
 namespace skyland
 {
+
+
+
+extern SharedVariable text_scroll_direction;
 
 
 
@@ -243,9 +248,13 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
         }
 
         const int y_offset = text_state_.line_ == 0 ? 4 + y_start : 2 + y_start;
-        const int x_offset =
+        int x_offset =
             text_state_.pos_ + 2 +
             (data_->character_.image_ ? character_graphics_width : 0);
+
+        if (text_scroll_direction == 1) {
+            x_offset = st.x - (text_state_.pos_ + 2);
+        }
 
         if (cp == '@') {
             pfrm.set_tile(Layer::overlay, x_offset, st.y - (y_offset), 146);
@@ -272,7 +281,6 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
 void BoxedDialogScene::clear_textbox(Platform& pfrm)
 {
     const auto st = calc_screen_tiles(pfrm);
-
 
     for (int x = 1; x < st.x - 1; ++x) {
         pfrm.set_tile(Layer::overlay, x, st.y - (5 + y_start), 84);
@@ -395,13 +403,21 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (text_state_.timer_ > duration) {
             text_state_.timer_ = 0;
             const auto st = calc_screen_tiles(pfrm);
-            if (pfrm.get_tile(Layer::overlay, st.x - 3, st.y - (2 + y_start)) ==
+            int x = st.x - 3;
+            if (text_scroll_direction == 1) {
+                if (data_->character_.image_) {
+                    x = 6;
+                } else {
+                    x = 3;
+                }
+            }
+            if (pfrm.get_tile(Layer::overlay, x, st.y - (2 + y_start)) ==
                 91) {
                 pfrm.set_tile(
-                    Layer::overlay, st.x - 3, st.y - (2 + y_start), 92);
+                    Layer::overlay, x, st.y - (2 + y_start), 92);
             } else {
                 pfrm.set_tile(
-                    Layer::overlay, st.x - 3, st.y - (2 + y_start), 91);
+                    Layer::overlay, x, st.y - (2 + y_start), 91);
             }
         }
     };
