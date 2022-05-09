@@ -110,6 +110,7 @@ public:
         return RoomProperties::workshop_required | RoomProperties::roof_hidden |
                RoomProperties::accepts_ion_damage |
                RoomProperties::multiplayer_unsupported |
+               RoomProperties::disabled_in_tutorials |
                RoomProperties::skyland_forever_unsupported;
     }
 

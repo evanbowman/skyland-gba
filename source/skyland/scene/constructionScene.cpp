@@ -476,6 +476,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (app.coins() < get_cost(island(app), target)) {
                 category_label_.reset();
                 msg(pfrm, SYSTR(construction_insufficient_funds)->c_str());
+                pfrm.speaker().play_sound("beep_error", 2);
                 state_ = State::insufficient_funds;
                 break;
             }
@@ -486,6 +487,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 category_label_.reset();
                 msg(pfrm,
                     SYSTR(construction_insufficient_power_supply)->c_str());
+                pfrm.speaker().play_sound("beep_error", 2);
                 state_ = State::insufficient_funds;
                 break;
             }
@@ -494,6 +496,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 island(app)->rooms().full()) {
                 category_label_.reset();
                 msg(pfrm, SYSTR(construction_too_many_rooms)->c_str());
+                pfrm.speaker().play_sound("beep_error", 2);
                 state_ = State::insufficient_funds;
                 break;
             }
