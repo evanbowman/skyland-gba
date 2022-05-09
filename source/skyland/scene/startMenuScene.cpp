@@ -305,7 +305,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         pfrm.screen().pixelate(0);
                         return scene_pool::alloc<macro::SelectorScene>();
                     },
-                    fade_sweep);
+                    cut);
 
                 add_option(
                     pfrm,
