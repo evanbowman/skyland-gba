@@ -155,6 +155,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (not app.macrocosm()->data_->freebuild_mode_) {
 
+                // These options don't apply to freebuild_mode_.
+
                 diff_percent_ = 0.3f;
 
                 add_option(
@@ -170,7 +172,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     fade_sweep_transparent_text);
             }
 
-        } else {
+        } else /* Game mode not_eq macro  */  {
             add_option(pfrm,
                        SYSTR(start_menu_resume)->c_str(),
                        scene_pool::make_deferred_scene<ReadyScene>(),
@@ -202,6 +204,10 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
         if (not pfrm.network_peer().is_connected()) {
+            // Don't support the hibernate feature for active multiplayer
+            // games. On some devices, a serial interrupt for multiplayer will
+            // wake the system out of low power mode anyway.
+
             add_option(pfrm,
                        SYSTR(start_menu_hibernate)->c_str(),
                        scene_pool::make_deferred_scene<HibernateScene>(),
@@ -264,6 +270,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (app.macrocosm()->data_->freebuild_mode_) {
 
                 if (not pfrm.network_peer().is_connected()) {
+                    // NOTE: Don't display the connect or load options if we're
+                    // already in a multiplayer session.
 
                     add_option(
                         pfrm,
