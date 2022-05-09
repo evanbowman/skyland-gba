@@ -198,13 +198,10 @@ FullscreenDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (text_scroll_direction == 1) {
                 x = 3;
             }
-            if (pfrm.get_tile(Layer::overlay, x, st.y - (2 + y_start)) ==
-                91) {
-                pfrm.set_tile(
-                    Layer::overlay, x, st.y - (2 + y_start), 92);
+            if (pfrm.get_tile(Layer::overlay, x, st.y - (2 + y_start)) == 91) {
+                pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start), 92);
             } else {
-                pfrm.set_tile(
-                    Layer::overlay, x, st.y - (2 + y_start), 91);
+                pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start), 91);
             }
         }
     };

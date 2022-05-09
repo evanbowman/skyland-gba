@@ -25,6 +25,8 @@
 
 #include "macrocosmSector.hpp"
 #include "macrocosmSectorImpl.hpp"
+#include "platform/ram_filesystem.hpp"
+#include "rle.hpp"
 
 
 
@@ -41,6 +43,68 @@ public:
     {
         erase();
         z_view_ = 7;
+    }
+
+
+    static constexpr const char* freebuild_save_path = "/save/freebuild.dat";
+
+
+    void save(Platform& pfrm)
+    {
+        Vector<u8> out;
+
+        for (int z = 0; z < 7; ++z) {
+            for (int x = 0; x < 10; ++x) {
+                for (int y = 0; y < 10; ++y) {
+                    out.push_back(blocks_[z][x][y].type_);
+                }
+            }
+        }
+
+        auto encoded = rle::encode(out);
+        Vector<char> dummy;
+        for (u8 val : encoded) {
+            dummy.push_back(val);
+        }
+
+        ram_filesystem::store_file_data(pfrm, freebuild_save_path, dummy);
+    }
+
+
+    void load(Platform& pfrm)
+    {
+        Vector<char> input;
+        if (ram_filesystem::read_file_data(pfrm, freebuild_save_path, input)) {
+
+            Vector<u8> data; // rle::decode does not accept Vector<char>
+            for (char c : input) {
+                data.push_back(c);
+            }
+
+            auto decoded = rle::decode(data);
+
+            auto it = decoded.begin();
+
+            if (decoded.size() not_eq sizeof blocks_) {
+                info(pfrm, "read invalid save format");
+            }
+
+            for (int z = 0; z < 7; ++z) {
+                for (int x = 0; x < 10; ++x) {
+                    for (int y = 0; y < 10; ++y) {
+                        blocks_[z][x][y].type_ = *it;
+                        blocks_[z][x][y].data_ = 0;
+                        blocks_[z][x][y].repaint_ = true;
+                        ++it;
+                    }
+                }
+            }
+        }
+
+        shadowcast();
+
+        raster::globalstate::_changed = true;
+        raster::globalstate::_shrunk = true;
     }
 
 

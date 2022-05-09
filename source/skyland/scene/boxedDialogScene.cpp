@@ -27,8 +27,8 @@
 #include "scriptHookScene.hpp"
 #include "selectTutorialScene.hpp"
 #include "skyland/scene_pool.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -411,13 +411,10 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
                     x = 3;
                 }
             }
-            if (pfrm.get_tile(Layer::overlay, x, st.y - (2 + y_start)) ==
-                91) {
-                pfrm.set_tile(
-                    Layer::overlay, x, st.y - (2 + y_start), 92);
+            if (pfrm.get_tile(Layer::overlay, x, st.y - (2 + y_start)) == 91) {
+                pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start), 92);
             } else {
-                pfrm.set_tile(
-                    Layer::overlay, x, st.y - (2 + y_start), 91);
+                pfrm.set_tile(Layer::overlay, x, st.y - (2 + y_start), 91);
             }
         }
     };

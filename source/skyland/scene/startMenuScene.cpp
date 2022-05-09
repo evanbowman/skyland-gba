@@ -33,6 +33,7 @@
 #include "readyScene.hpp"
 #include "saveSandboxScene.hpp"
 #include "selectChallengeScene.hpp"
+#include "skyland/macrocosmFreebuildSector.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/scene_pool.hpp"
@@ -259,6 +260,37 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         case App::GameMode::macro:
 
             if (app.macrocosm()->data_->freebuild_mode_) {
+
+                add_option(
+                    pfrm,
+                    SYSTR(start_menu_load)->c_str(),
+                    [&pfrm, &app]() -> ScenePtr<Scene> {
+                        auto& current = app.macrocosm()->sector();
+                        using namespace macro::terrain;
+                        if (auto f = dynamic_cast<FreebuildSector*>(&current)) {
+                            f->load(pfrm);
+                        }
+                        pfrm.screen().schedule_fade(0.f);
+                        pfrm.screen().pixelate(0);
+                        return scene_pool::alloc<macro::SelectorScene>();
+                    },
+                    cut);
+
+                add_option(
+                    pfrm,
+                    SYSTR(start_menu_save)->c_str(),
+                    [&pfrm, &app]() -> ScenePtr<Scene> {
+                        auto& current = app.macrocosm()->sector();
+                        using namespace macro::terrain;
+                        if (auto f = dynamic_cast<FreebuildSector*>(&current)) {
+                            f->save(pfrm);
+                        }
+                        pfrm.screen().schedule_fade(0.f);
+                        pfrm.screen().pixelate(0);
+                        return scene_pool::alloc<macro::SelectorScene>();
+                    },
+                    fade_sweep);
+
                 add_option(
                     pfrm,
                     SYSTR(start_menu_quit)->c_str(),
