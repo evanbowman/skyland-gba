@@ -22,9 +22,9 @@
 
 #include "createBlockScene.hpp"
 #include "selectorScene.hpp"
+#include "skyland/network.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
-#include "skyland/network.hpp"
 
 
 
@@ -360,7 +360,9 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm, macro::State& state)
 
 
 
-void CreateBlockScene::edit(Platform& pfrm, macro::State& state, terrain::Type t)
+void CreateBlockScene::edit(Platform& pfrm,
+                            macro::State& state,
+                            terrain::Type t)
 {
     auto cursor = state.sector().cursor();
 

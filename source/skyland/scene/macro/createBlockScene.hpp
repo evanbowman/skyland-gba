@@ -56,9 +56,7 @@ public:
     virtual void message(Platform& pfrm, macro::State&);
 
 
-    virtual void edit(Platform&,
-                      macro::State& state,
-                      terrain::Type t);
+    virtual void edit(Platform&, macro::State& state, terrain::Type t);
 
 
     virtual Coins cost(macro::State& state, terrain::Type t);
@@ -93,9 +91,7 @@ public:
     }
 
 
-    void edit(Platform&,
-              macro::State& state,
-              terrain::Type t) override;
+    void edit(Platform&, macro::State& state, terrain::Type t) override;
 };
 
 

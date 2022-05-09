@@ -72,6 +72,30 @@ public:
     }
 
 
+    void reset()
+    {
+        p_.orientation_ = Orientation::north;
+        for (u8 z = 0; z < 7; ++z) {
+            for (u8 x = 0; x < 10; ++x) {
+                for (u8 y = 0; y < 10; ++y) {
+                    blocks_[z][x][y].type_ = 0;
+                    blocks_[z][x][y].data_ = 0;
+                    blocks_[z][x][y].repaint_ = true;
+                }
+            }
+        }
+
+        set_block({4, 4, 0}, macro::terrain::Type::terrain);
+        set_block({4, 4, 1}, macro::terrain::Type::building);
+        set_cursor({5, 4, 0});
+
+        shadowcast();
+
+        raster::globalstate::_changed = true;
+        raster::globalstate::_shrunk = true;
+    }
+
+
     void load(Platform& pfrm)
     {
         Vector<char> input;

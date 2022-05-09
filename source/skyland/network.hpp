@@ -548,7 +548,7 @@ struct MacroSetBlock
     u8 y_ : 4;
     u8 z_ : 4;
 
-// The rotation of the island from the sender's perspective. I implemented
+    // The rotation of the island from the sender's perspective. I implemented
     // rotation by actually pysically rotating an island's blocks into different
     // slots, so orientation matters in multiplayer.
     u8 rot_ : 2;

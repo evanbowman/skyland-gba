@@ -24,6 +24,7 @@
 
 #include "graphics/overlay.hpp"
 #include "selectorScene.hpp"
+#include "skyland/macrocosmFreebuildSector.hpp"
 #include "skyland/player/macroFreebuildTeam.hpp"
 #include "skyland/scene.hpp"
 #include "skyland/scene_pool.hpp"
@@ -92,6 +93,10 @@ public:
 
         case State::sync:
             app.swap_player<macro::FreebuildTeam>();
+            if (auto s = dynamic_cast<macro::terrain::FreebuildSector*>(
+                    &app.macrocosm()->sector())) {
+                s->reset();
+            }
             pfrm.speaker().play_music(app.environment().music(), 0);
             return scene_pool::alloc<SelectorScene>();
         }

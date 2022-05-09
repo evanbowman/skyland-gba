@@ -201,11 +201,12 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
 
-        add_option(pfrm,
-                   SYSTR(start_menu_hibernate)->c_str(),
-                   scene_pool::make_deferred_scene<HibernateScene>(),
-                   fade_sweep);
-
+        if (not pfrm.network_peer().is_connected()) {
+            add_option(pfrm,
+                       SYSTR(start_menu_hibernate)->c_str(),
+                       scene_pool::make_deferred_scene<HibernateScene>(),
+                       fade_sweep);
+        }
 
 
         switch (app.game_mode()) {
@@ -269,7 +270,6 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         SYSTR(start_menu_link)->c_str(),
                         [&pfrm, &app]() -> ScenePtr<Scene> {
                             pfrm.screen().pixelate(0);
-                            pfrm.speaker().stop_music();
                             using Next = macro::FreebuildConnectFriendScene;
                             return scene_pool::alloc<Next>();
                         },
