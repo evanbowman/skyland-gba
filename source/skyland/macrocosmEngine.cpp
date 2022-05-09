@@ -908,6 +908,9 @@ Coins terrain::cost(Sector& s, Type t)
         return 120;
 
     case terrain::Type::gold:
+        return 4000;
+
+    case terrain::Type::crystal:
         return 9000;
 
     case terrain::Type::workshop:
@@ -1033,6 +1036,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::gold:
         return SystemString::block_gold;
+
+    case terrain::Type::crystal:
+        return SystemString::block_crystal;
 
     case terrain::Type::workshop:
         return SystemString::block_workshop;
@@ -1239,6 +1245,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::lumber:
         return {3016, 3032};
+
+    case terrain::Type::crystal:
+        return {3080, 3096};
     }
 
     return {};
@@ -1971,6 +1980,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // sand
     nullptr,
+    // crystal
+    nullptr,
 };
 // clang-format on
 
@@ -1981,6 +1992,7 @@ namespace terrain
 bool blocks_light(terrain::Type t)
 {
     if (t == terrain::Type::air or t == terrain::Type::selector or
+        t == terrain::Type::crystal or
         (terrain::categories(t) & terrain::Categories::fluid_water) or
         (terrain::categories(t) & terrain::Categories::fluid_lava)) {
         return false;
@@ -2232,6 +2244,9 @@ raster::TileCategory raster::tile_category(int texture_id)
          // transparency.
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

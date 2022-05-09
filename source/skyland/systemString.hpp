@@ -70,6 +70,7 @@ enum class SystemString {
     block_cocoa,
     block_corn,
     block_cesium,
+    block_crystal,
     block_stacked_hull,
     block_mirror_hull,
     block_bulkhead_door,

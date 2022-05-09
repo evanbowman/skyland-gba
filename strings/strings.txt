@@ -24,6 +24,7 @@ building
 cocoa
 corn
 cesium
+crystal
 stacked-hull
 mirror-hull
 bulkhead-door
