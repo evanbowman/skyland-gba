@@ -105,6 +105,7 @@ enum class Type {
     lumber,
     basalt,
     arch,
+    sand,
     count,
 };
 

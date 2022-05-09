@@ -69,6 +69,7 @@ radiator
 reactor
 replicator
 saffron
+sand
 shellfish
 shrubbery
 solar-cell

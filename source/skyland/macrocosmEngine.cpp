@@ -834,6 +834,9 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::masonry:
         return 30;
 
+    case terrain::Type::sand:
+        return 30;
+
     case terrain::Type::arch:
         return 40;
 
@@ -948,6 +951,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::masonry:
         return SystemString::block_masonry;
+
+    case terrain::Type::sand:
+        return SystemString::block_sand;
 
     case terrain::Type::arch:
         return SystemString::block_arch;
@@ -1138,6 +1144,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::masonry:
         return {1448, 1464};
+
+    case terrain::Type::sand:
+        return {3048, 3064};
 
     case terrain::Type::arch:
         return {1544, 1560};
@@ -1960,6 +1969,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // arch
     nullptr,
+    // sand
+    nullptr,
 };
 // clang-format on
 
@@ -2214,10 +2225,16 @@ raster::TileCategory raster::tile_category(int texture_id)
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
 
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
          // Arch: similar to a solid block, but the lowest row has some
          // transparency.
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
         };
     // clang-format on
