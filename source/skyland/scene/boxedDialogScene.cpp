@@ -219,7 +219,9 @@ bool BoxedDialogScene::advance_text(Platform& pfrm,
              (text_state_.line_ == 0 ? 0 : 2)) -
             (data_->character_.image_ ? character_graphics_width : 0);
 
-        if (remaining < text_state_.current_word_remaining_) {
+        if (text_state_.current_word_remaining_ > st.x) {
+            text_state_.current_word_remaining_ = remaining;
+        } else if (remaining < text_state_.current_word_remaining_) {
             if (text_state_.line_ == 0) {
                 text_state_.line_++;
                 text_state_.pos_ = 0;

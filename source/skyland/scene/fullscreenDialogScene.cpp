@@ -89,7 +89,9 @@ bool FullscreenDialogScene::advance_text(Platform& pfrm,
         const auto remaining = (text_box_width - text_state_.pos_) -
                                (text_state_.line_ == 0 ? 0 : 2);
 
-        if (remaining < text_state_.current_word_remaining_) {
+        if (text_state_.current_word_remaining_ > st.x) {
+            text_state_.current_word_remaining_ = remaining;
+        } else if (remaining < text_state_.current_word_remaining_) {
             if (text_state_.line_ == 0) {
                 text_state_.line_++;
                 text_state_.pos_ = 0;
