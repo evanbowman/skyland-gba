@@ -917,6 +917,7 @@ Coins terrain::cost(Sector& s, Type t)
         return 9000;
 
     case terrain::Type::marble:
+    case terrain::Type::marble_top:
         return 1000;
 
     case terrain::Type::workshop:
@@ -1047,6 +1048,7 @@ SystemString terrain::name(Type t)
         return SystemString::block_crystal;
 
     case terrain::Type::marble:
+    case terrain::Type::marble_top:
         return SystemString::block_marble;
 
     case terrain::Type::workshop:
@@ -1258,8 +1260,9 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::crystal:
         return {3080, 3096};
 
+    case terrain::Type::marble_top:
     case terrain::Type::marble:
-        return {3080, 3096};
+        return {3112, 3128};
     }
 
     return {};
@@ -1996,6 +1999,21 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // marble
     nullptr,
+    // marble_top
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (position.z < terrain::Sector::z_limit) {
+            position.z++;
+            auto& above = s.get_block(position);
+            if (above.type() == terrain::Type::marble_top or
+                above.type() == terrain::Type::marble) {
+                block.type_ = (u8)terrain::Type::marble;
+                block.repaint_ = true;
+                raster::globalstate::_changed = true;
+                s.clear_cache();
+            }
+        }
+    },
 };
 // clang-format on
 
@@ -2258,6 +2276,9 @@ raster::TileCategory raster::tile_category(int texture_id)
          // transparency.
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

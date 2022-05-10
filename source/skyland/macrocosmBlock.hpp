@@ -108,6 +108,7 @@ enum class Type {
     sand,
     crystal,
     marble,
+    marble_top,
     count,
 };
 
