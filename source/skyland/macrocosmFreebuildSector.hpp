@@ -36,14 +36,14 @@ namespace skyland::macro::terrain
 
 
 class FreebuildSector
-    : public MacrocosmSectorImpl<FreebuildSector, 10, 10, 7, 6>
+    : public MacrocosmSectorImpl<FreebuildSector, 10, 10, 8, 8>
 {
 public:
     FreebuildSector(Vec2<s8> position)
         : MacrocosmSectorImpl(position, Shape::freebuild)
     {
         erase();
-        z_view_ = 7;
+        z_view_ = 8;
     }
 
 
@@ -54,7 +54,7 @@ public:
     {
         Vector<u8> out;
 
-        for (int z = 0; z < 7; ++z) {
+        for (int z = 0; z < 8; ++z) {
             for (int x = 0; x < 10; ++x) {
                 for (int y = 0; y < 10; ++y) {
                     out.push_back(blocks_[z][x][y].type_);
@@ -75,7 +75,7 @@ public:
     void reset()
     {
         p_.orientation_ = Orientation::north;
-        for (u8 z = 0; z < 7; ++z) {
+        for (u8 z = 0; z < 8; ++z) {
             for (u8 x = 0; x < 10; ++x) {
                 for (u8 y = 0; y < 10; ++y) {
                     blocks_[z][x][y].type_ = 0;
@@ -114,7 +114,7 @@ public:
                 info(pfrm, "read invalid save format");
             }
 
-            for (u8 z = 0; z < 7; ++z) {
+            for (u8 z = 0; z < 8; ++z) {
                 for (u8 x = 0; x < 10; ++x) {
                     for (u8 y = 0; y < 10; ++y) {
                         blocks_[z][x][y].type_ = *it;

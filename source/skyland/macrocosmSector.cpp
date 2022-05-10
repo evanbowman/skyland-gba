@@ -49,7 +49,7 @@ terrain::Sector::Sector(Vec2<s8> position, Shape shape)
         break;
 
     case Shape::freebuild:
-        size_ = {10, 10, 7};
+        size_ = {10, 10, 8};
         break;
     }
 
@@ -157,11 +157,14 @@ u16 terrain::Sector::quantity_non_exported(Commodity::Type t)
     }
 
 
-    for (auto& e : exports()) {
-        if (e.c == t) {
-            total -= e.export_supply_.get();
+    if (auto exp = exports()) {
+        for (auto& e : *exp) {
+            if (e.c == t) {
+                total -= e.export_supply_.get();
+            }
         }
     }
+
 
     return std::max(0, total);
 }
@@ -196,44 +199,6 @@ Coins terrain::Sector::coin_yield() const
     }
 
     return result;
-}
-
-
-
-const terrain::Sector::Exports& terrain::Sector::exports() const
-{
-    return exports_;
-}
-
-
-
-void terrain::Sector::set_export(const ExportInfo& e)
-{
-    remove_export(e.source_coord_);
-
-    auto& block = get_block(e.source_coord_);
-    if (block.type() not_eq Type::port) {
-        return;
-    }
-
-    if (not exports_.full()) {
-        exports_.emplace_back();
-        memcpy(&exports_.back(), &e, sizeof e);
-    }
-}
-
-
-
-void terrain::Sector::remove_export(Vec3<u8> source_coord)
-{
-    for (auto it = exports_.begin(); it not_eq exports_.end();) {
-        if (it->source_coord_ == source_coord) {
-            it = exports_.erase(it);
-            return;
-        } else {
-            ++it;
-        }
-    }
 }
 
 
@@ -365,7 +330,8 @@ static void intersector_exchange_commodities(const Vec2<s8> source_sector,
 
     for (auto& st : stats) {
         if (auto src_sector = state.load_sector(st.first)) {
-            for (auto& exp : src_sector->exports()) {
+            if (auto e = src_sector->exports()) {
+                for (auto& exp : *e) {
 
                 auto supply = exp.export_supply_.get();
 
@@ -377,6 +343,7 @@ static void intersector_exchange_commodities(const Vec2<s8> source_sector,
                         break;
                     }
                 }
+            }
             }
         }
     }

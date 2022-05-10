@@ -84,6 +84,8 @@ void CreateBlockScene::collect_options(macro::State& state)
         }
     }
 
+    options_.push_back(terrain::Type::air);
+    options_.push_back(terrain::Type::marble);
     options_.push_back(terrain::Type::gold);
     options_.push_back(terrain::Type::crystal);
     options_.push_back(terrain::Type::lava_source);
@@ -275,6 +277,53 @@ void CreateBlockScene::show_options(Platform& pfrm, State& state)
 
 
 
+void CreateBlockScene::adjust_cursor_z(Platform& pfrm,
+                                       Player& player,
+                                       macro::State& state)
+{
+    if (player.key_down(pfrm, Key::up)) {
+        auto cursor = state.sector().cursor();
+        if (cursor.z < state.sector().size().z - 1) {
+            cursor.z++;
+            while (state.sector().get_block(cursor).type() not_eq
+                   terrain::Type::air) {
+                if (cursor.z == state.sector().size().z - 1) {
+                    pfrm.speaker().play_sound("beep_error", 2);
+                    return;
+                }
+                cursor.z++;
+            }
+            auto& above = state.sector().get_block(cursor);
+            if (above.type() == terrain::Type::air) {
+                state.sector().set_cursor(cursor, false);
+                pfrm.speaker().play_sound("click", 1);
+            }
+        }
+    }
+
+    if (player.key_down(pfrm, Key::down)) {
+        auto cursor = state.sector().cursor();
+        if (cursor.z not_eq 0) {
+            cursor.z--;
+            while (state.sector().get_block(cursor).type() not_eq
+                   terrain::Type::air) {
+                if (cursor.z == 0) {
+                    pfrm.speaker().play_sound("beep_error", 2);
+                    return;
+                }
+                cursor.z--;
+            }
+            auto& beneath = state.sector().get_block(cursor);
+            if (beneath.type() == terrain::Type::air) {
+                state.sector().set_cursor(cursor, false);
+                pfrm.speaker().play_sound("click", 1);
+            }
+        }
+    }
+}
+
+
+
 ScenePtr<Scene>
 CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
 {
@@ -289,6 +338,9 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
             update_ui(state);
         }
     } else {
+
+        // adjust_cursor_z(pfrm, player, state);
+
         if (player.key_down(pfrm, Key::right)) {
             if (selector_ < (int)options_.size() - 1) {
                 ++selector_;

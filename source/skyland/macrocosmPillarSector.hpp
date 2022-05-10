@@ -33,11 +33,12 @@ namespace skyland::macro::terrain
 
 
 
-class PillarSector : public MacrocosmSectorImpl<PillarSector, 6, 6, 16, 16>
+class PillarSector
+    : public MacrocosmSectorImplWithExports<PillarSector, 6, 6, 16, 16>
 {
 public:
     PillarSector(Vec2<s8> position)
-        : MacrocosmSectorImpl(position, Shape::pillar)
+        : MacrocosmSectorImplWithExports(position, Shape::pillar)
     {
         erase();
     }

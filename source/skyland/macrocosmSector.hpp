@@ -123,9 +123,18 @@ public:
     using Exports = Buffer<ExportInfo, 24>;
 
 
-    const Exports& exports() const;
-    void set_export(const ExportInfo& e);
-    void remove_export(Vec3<u8> source_coord);
+    virtual Exports* exports()
+    {
+        return nullptr;
+    }
+
+    virtual void set_export(const ExportInfo& e)
+    {
+    }
+
+    virtual void remove_export(Vec3<u8> source_coord)
+    {
+    }
 
 
     u16 quantity_non_exported(Commodity::Type t);
@@ -237,7 +246,6 @@ protected:
 
     Vec3<u8> size_;
 
-    Exports exports_;
 
 public:
     // Restore from a previous save.

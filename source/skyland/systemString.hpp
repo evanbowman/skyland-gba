@@ -102,6 +102,7 @@ enum class SystemString {
     block_lumber,
     block_madder,
     block_manufactory,
+    block_marble,
     block_masonry,
     block_missile_silo,
     block_mycelium,

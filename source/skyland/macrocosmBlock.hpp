@@ -107,6 +107,7 @@ enum class Type {
     arch,
     sand,
     crystal,
+    marble,
     count,
 };
 

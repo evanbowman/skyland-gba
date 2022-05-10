@@ -57,9 +57,11 @@ void ViewCommoditiesScene::enter(Platform& pfrm, App& app, Scene& prev)
     auto stats = sector.base_stats();
 
     for (auto& cm : stats.commodities_) {
-        for (auto& exp : sector.exports()) {
-            if (exp.c == cm.type_) {
-                cm.supply_ = std::max(0, cm.supply_ - exp.export_supply_.get());
+        if (auto e = sector.exports()) {
+            for (auto& exp : *e) {
+                if (exp.c == cm.type_) {
+                    cm.supply_ = std::max(0, cm.supply_ - exp.export_supply_.get());
+                }
             }
         }
 
@@ -71,12 +73,14 @@ void ViewCommoditiesScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto gather_imports = [&](terrain::Sector& other) {
         if (other.coordinate() not_eq sector.coordinate()) {
-            for (auto& exp : other.exports()) {
-                if (exp.destination_ == sector.coordinate()) {
-                    s_->info_.push_back({exp.c,
-                                         exp.export_supply_.get(),
-                                         State::CommodityInfo::imported,
-                                         other.coordinate()});
+            if (auto e = other.exports()) {
+                for (auto& exp : *e) {
+                    if (exp.destination_ == sector.coordinate()) {
+                        s_->info_.push_back({exp.c,
+                                             exp.export_supply_.get(),
+                                             State::CommodityInfo::imported,
+                                             other.coordinate()});
+                    }
                 }
             }
         }
@@ -90,11 +94,13 @@ void ViewCommoditiesScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     stats = sector.base_stats();
 
-    for (auto& exp : sector.exports()) {
-        s_->info_.push_back({exp.c,
-                             exp.export_supply_.get(),
-                             State::CommodityInfo::exported,
-                             exp.destination_});
+    if (auto e = sector.exports()) {
+        for (auto& exp : *e) {
+            s_->info_.push_back({exp.c,
+                                 exp.export_supply_.get(),
+                                 State::CommodityInfo::exported,
+                                 exp.destination_});
+        }
     }
 
     show(pfrm, *app.macrocosm());

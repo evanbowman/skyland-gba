@@ -404,13 +404,16 @@ void State::save(Platform& pfrm)
         save_data.push_back(((u8*)&header)[i]);
     }
 
-    auto store_sector = [&save_data](const macro::terrain::Sector& sector) {
+    auto store_sector = [&save_data](macro::terrain::Sector& sector) {
         save::Sector<0> out(sector);
         out.write(save_data);
 
-        save_data.push_back((u8)sector.exports().size());
+        if (not sector.exports()) {
+            Platform::fatal("Attempt to save nonstandard sector");
+        }
+        save_data.push_back((u8)sector.exports()->size());
 
-        for (auto& exp : sector.exports()) {
+        for (auto& exp : *sector.exports()) {
             for (u32 j = 0; j < sizeof exp; ++j) {
                 save_data.push_back(((u8*)&exp)[j]);
             }
@@ -913,6 +916,9 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::crystal:
         return 9000;
 
+    case terrain::Type::marble:
+        return 1000;
+
     case terrain::Type::workshop:
         return 100;
 
@@ -1039,6 +1045,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::crystal:
         return SystemString::block_crystal;
+
+    case terrain::Type::marble:
+        return SystemString::block_marble;
 
     case terrain::Type::workshop:
         return SystemString::block_workshop;
@@ -1247,6 +1256,9 @@ std::pair<int, int> terrain::icons(Type t)
         return {3016, 3032};
 
     case terrain::Type::crystal:
+        return {3080, 3096};
+
+    case terrain::Type::marble:
         return {3080, 3096};
     }
 
@@ -1982,6 +1994,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // crystal
     nullptr,
+    // marble
+    nullptr,
 };
 // clang-format on
 
@@ -2063,7 +2077,7 @@ void terrain::PancakeSector::update()
 
 void terrain::FreebuildSector::update()
 {
-    for (int z = 0; z < 7; ++z) {
+    for (int z = 0; z < 8; ++z) {
         for (u8 x = 0; x < 10; ++x) {
             for (u8 y = 0; y < 10; ++y) {
 
@@ -2244,6 +2258,9 @@ raster::TileCategory raster::tile_category(int texture_id)
          // transparency.
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

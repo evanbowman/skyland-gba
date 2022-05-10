@@ -172,7 +172,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     fade_sweep_transparent_text);
             }
 
-        } else /* Game mode not_eq macro  */  {
+        } else /* Game mode not_eq macro  */ {
             add_option(pfrm,
                        SYSTR(start_menu_resume)->c_str(),
                        scene_pool::make_deferred_scene<ReadyScene>(),

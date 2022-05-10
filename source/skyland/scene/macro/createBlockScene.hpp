@@ -48,6 +48,7 @@ public:
 
 
     virtual ScenePtr<Scene> onclick(Platform&, macro::State&);
+    virtual void adjust_cursor_z(Platform&, Player& player, macro::State&);
 
 
     virtual void collect_options(macro::State& state);
@@ -69,7 +70,7 @@ public:
 
 
 protected:
-    Buffer<macro::terrain::Type, 32> options_;
+    Buffer<macro::terrain::Type, 34> options_;
 
     static s8 selector_;
 };
@@ -81,6 +82,9 @@ class BuildImprovementScene : public CreateBlockScene
 public:
     void collect_options(macro::State& state) override;
 
+    void adjust_cursor_z(Platform&, Player& player, macro::State&) override
+    {
+    }
 
     Coins cost(macro::State& state, terrain::Type t) override;
 
@@ -101,6 +105,9 @@ class ConfigurePortScene : public CreateBlockScene
 public:
     void collect_options(macro::State& state) override;
 
+    void adjust_cursor_z(Platform&, Player& player, macro::State&) override
+    {
+    }
 
     void message(Platform&, macro::State&) override;
 

@@ -89,9 +89,12 @@ public:
             return {(u8)((sx - 1) - input.y), input.x, input.z};
         };
 
-        for (auto& exp : exports_) {
-            exp.source_coord_ = rotate_coord(exp.source_coord_);
+        if (auto e = exports()) {
+            for (auto& exp : *e) {
+                exp.source_coord_ = rotate_coord(exp.source_coord_);
+            }
         }
+
 
         for (int z = 0; z < sz; ++z) {
             for (int x = 0; x < sx; ++x) {
@@ -208,7 +211,7 @@ public:
 
 
 
-    void erase() override final
+    void erase() override
     {
         set_name("");
 
@@ -222,7 +225,9 @@ public:
             }
         }
 
-        exports_.clear();
+        if (auto e = exports()) {
+            e->clear();
+        }
 
         base_stats_cache_.reset();
     }
@@ -719,6 +724,59 @@ public:
 
 protected:
     Block blocks_[sz][sx][sy];
+};
+
+
+
+template <typename Derived, s32 sx, s32 sy, s32 sz, s32 screen_y_offset>
+class MacrocosmSectorImplWithExports
+    : public MacrocosmSectorImpl<Derived, sx, sy, sz, screen_y_offset>
+{
+public:
+    MacrocosmSectorImplWithExports(Vec2<s8> position, Sector::Shape shape)
+        : MacrocosmSectorImpl<Derived, sx, sy, sz, screen_y_offset>(position,
+                                                                    shape)
+    {
+    }
+
+
+    Sector::Exports* exports() override
+    {
+        return &exports_;
+    }
+
+
+    void set_export(const Sector::ExportInfo& e) override
+    {
+        remove_export(e.source_coord_);
+
+        auto& block = this->get_block(e.source_coord_);
+        if (block.type() not_eq Type::port) {
+            return;
+        }
+
+        if (not exports_.full()) {
+            exports_.emplace_back();
+            memcpy(&exports_.back(), &e, sizeof e);
+        }
+    }
+
+
+    void remove_export(Vec3<u8> source_coord) override
+    {
+        for (auto it = exports_.begin(); it not_eq exports_.end();) {
+            if (it->source_coord_ == source_coord) {
+                it = exports_.erase(it);
+                return;
+            } else {
+                ++it;
+            }
+        }
+    }
+
+
+private:
+    Sector::Exports exports_;
 };
 
 
