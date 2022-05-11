@@ -60,6 +60,9 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    void init(Platform&, App&);
+
+
     static Factory factory_;
 
     float scroll_ = 0;

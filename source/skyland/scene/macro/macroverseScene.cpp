@@ -350,6 +350,14 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto& m = *app.macrocosm();
 
+    auto freebuild_flag = GlobalPersistentData::freebuild_unlocked;
+    if (not app.gp_.stateflags_.get(freebuild_flag)) {
+        if (m.data_->other_sectors_.size() > 9) {
+            app.gp_.stateflags_.set(freebuild_flag, true);
+            save::store_global_data(pfrm, app.gp_);
+        }
+    }
+
     app.macrocosm()->data_->cloud_scroll_ += 0.000001f * delta;
 
     auto reveal_time = macro::reveal_time;

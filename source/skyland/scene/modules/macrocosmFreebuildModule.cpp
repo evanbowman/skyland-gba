@@ -6,6 +6,8 @@
 #include "skyland/scene/macro/selectorScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/weather/storm.hpp"
+#include "skyland/scene/fullscreenDialogScene.hpp"
+#include "skyland/scene/titleScreenScene.hpp"
 
 
 
@@ -33,6 +35,12 @@ fluid_shader(ShaderPalette p, ColorConstant k, int var, int index);
 
 
 void MacrocosmFreebuildModule::enter(Platform& pfrm, App& app, Scene& prev)
+{
+}
+
+
+
+void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
 {
     pfrm.speaker().play_music(app.environment().music(), 0);
 
@@ -115,6 +123,16 @@ void MacrocosmFreebuildModule::enter(Platform& pfrm, App& app, Scene& prev)
 ScenePtr<Scene>
 MacrocosmFreebuildModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    if (not app.gp_.stateflags_.get(GlobalPersistentData::freebuild_unlocked)) {
+        auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
+        *buffer = SYSTR(freebuild_locked_text)->c_str();
+        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer), [] {
+            return scene_pool::alloc<TitleScreenScene>(3);
+        });
+    }
+
+    init(pfrm, app);
+
     return scene_pool::alloc<macro::SelectorScene>();
 }
 

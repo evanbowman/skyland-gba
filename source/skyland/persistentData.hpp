@@ -49,6 +49,7 @@ struct GlobalPersistentData
         tutorial_prompt,
         configured_clock,
         sandbox_prompt,
+        freebuild_unlocked,
     };
 
     Bitvector<64> stateflags_;

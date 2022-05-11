@@ -461,6 +461,8 @@ enum class SystemString {
     intro_sequence_message_2,
     intro_sequence_message_3,
 
+    freebuild_locked_text,
+
     __NOTICE__,
     patchfix_retain_alphabet,
     count,
