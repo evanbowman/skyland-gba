@@ -275,7 +275,7 @@ public:
                         }
 
                         // raycast positive x:
-                        for (int xx = x + 1; xx < x + 3; ++xx) {
+                        for (int xx = x + 1; xx < x + 4; ++xx) {
                             if (xx < sx) {
                                 auto& block = blocks_[z][xx][y];
                                 if (blocks_light(block.type())) {
@@ -289,7 +289,7 @@ public:
                         }
 
                         // raycast negative x:
-                        for (int xx = x - 1; xx > x - 3; --xx) {
+                        for (int xx = x - 1; xx > x - 4; --xx) {
                             if (xx > -1) {
                                 auto& block = blocks_[z][xx][y];
                                 if (blocks_light(block.type())) {
@@ -303,7 +303,7 @@ public:
                         }
 
                         // raycast positive y:
-                        for (int yy = y + 1; yy < y + 3; ++yy) {
+                        for (int yy = y + 1; yy < y + 4; ++yy) {
                             if (yy < sy) {
                                 auto& block = blocks_[z][x][yy];
                                 if (blocks_light(block.type())) {
@@ -317,7 +317,7 @@ public:
                         }
 
                         // raycast negative y:
-                        for (int yy = y - 1; yy > y - 3; --yy) {
+                        for (int yy = y - 1; yy > y - 4; --yy) {
                             if (yy > -1) {
                                 auto& block = blocks_[z][x][yy];
                                 if (blocks_light(block.type())) {
@@ -331,7 +331,7 @@ public:
                         }
 
                         // above:
-                        for (int zz = z + 1; zz < z + 3; ++zz) {
+                        for (int zz = z + 1; zz < z + 4; ++zz) {
                             if (zz < sz) {
                                 auto& block = blocks_[zz][x][y];
                                 if (blocks_light(block.type())) {
