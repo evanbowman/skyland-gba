@@ -352,7 +352,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto freebuild_flag = GlobalPersistentData::freebuild_unlocked;
     if (not app.gp_.stateflags_.get(freebuild_flag)) {
-        if (m.data_->other_sectors_.size() > 9) {
+        if (m.data_->other_sectors_.size() > 10) {
             app.gp_.stateflags_.set(freebuild_flag, true);
             save::store_global_data(pfrm, app.gp_);
         }
