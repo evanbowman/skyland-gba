@@ -109,6 +109,7 @@ enum class Type {
     crystal,
     marble,
     marble_top,
+    scaffolding,
     count,
 };
 

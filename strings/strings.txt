@@ -72,6 +72,7 @@ reactor
 replicator
 saffron
 sand
+truss
 shellfish
 shrubbery
 solar-cell

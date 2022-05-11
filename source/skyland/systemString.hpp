@@ -118,6 +118,7 @@ enum class SystemString {
     block_replicator,
     block_saffron,
     block_sand,
+    block_scaffolding,
     block_shellfish,
     block_shrubbery,
     block_solar_cell,

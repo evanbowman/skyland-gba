@@ -837,6 +837,9 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::masonry:
         return 30;
 
+    case terrain::Type::scaffolding:
+        return 30;
+
     case terrain::Type::sand:
         return 30;
 
@@ -961,6 +964,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::masonry:
         return SystemString::block_masonry;
+
+    case terrain::Type::scaffolding:
+        return SystemString::block_scaffolding;
 
     case terrain::Type::sand:
         return SystemString::block_sand;
@@ -1161,6 +1167,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::masonry:
         return {1448, 1464};
+
+    case terrain::Type::scaffolding:
+        return {3144, 3160};
 
     case terrain::Type::sand:
         return {3048, 3064};
@@ -2014,6 +2023,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             }
         }
     },
+    // scaffolding
+    nullptr,
 };
 // clang-format on
 
@@ -2134,7 +2145,7 @@ raster::TileCategory raster::tile_category(int texture_id)
     // clang-format off
     static const std::array<TileCategory,
                             // NOTE: 6 tiles per block, x2 for shadowed blocks.
-                            (int)terrain::Type::count * 6 * 2> category =
+                            ((int)terrain::Type::count - 1) * 6 * 2> category =
         {ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
 
@@ -2276,6 +2287,9 @@ raster::TileCategory raster::tile_category(int texture_id)
          // transparency.
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
