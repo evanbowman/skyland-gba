@@ -87,7 +87,9 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     app.environment().update(pfrm, app, delta);
 
-    update_entities(pfrm, app, delta, app.macrocosm()->data_->entities_);
+    auto& m = macrocosm(app);
+
+    update_entities(pfrm, app, delta, m.data_->entities_);
 
     water_anim_timer_ += delta;
     bool was_gre = false;
@@ -116,12 +118,12 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    auto next = update(pfrm, app.player(), *app.macrocosm());
+    auto next = update(pfrm, app.player(), m);
 
 
-    app.macrocosm()->sector().render_setup(pfrm);
+    m.sector().render_setup(pfrm);
 
-    app.macrocosm()->data_->cloud_scroll_ += 0.000001f * delta;
+    m.data_->cloud_scroll_ += 0.000001f * delta;
 
     return next;
 }
@@ -134,21 +136,22 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
         return;
     }
 
-    for (auto& e : app.macrocosm()->data_->entities_) {
+    auto& m = macrocosm(app);
+
+    for (auto& e : m.data_->entities_) {
         pfrm.screen().draw(e->sprite());
     }
 
-    pfrm.system_call(
-        "_prlx_macro",
-        (void*)(intptr_t)(int)app.macrocosm()->data_->cloud_scroll_);
+    pfrm.system_call("_prlx_macro",
+                     (void*)(intptr_t)(int)m.data_->cloud_scroll_);
 
-    display(pfrm, *app.macrocosm());
+    display(pfrm, macrocosm(app));
 }
 
 
 
 ScenePtr<Scene>
-MacrocosmScene::update(Platform& pfrm, Player& player, macro::State& state)
+MacrocosmScene::update(Platform& pfrm, Player& player, macro::StateImpl& state)
 {
     state.sector().update();
 
@@ -157,7 +160,7 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::State& state)
 
 
 
-void MacrocosmScene::display(Platform& pfrm, macro::State& state)
+void MacrocosmScene::display(Platform& pfrm, macro::StateImpl& state)
 {
     state.sector().render(pfrm);
 }
@@ -171,7 +174,7 @@ u32 format_ui_fraction(u16 avail, u16 used)
 
 
 
-void MacrocosmScene::update_ui(macro::State& state)
+void MacrocosmScene::update_ui(macro::StateImpl& state)
 {
     if (not ui_) {
         return;
@@ -209,7 +212,7 @@ void MacrocosmScene::update_ui(macro::State& state)
 
 
 
-void MacrocosmScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
+void MacrocosmScene::enter(Platform& pfrm, macro::StateImpl& state, Scene& prev)
 {
     auto m = dynamic_cast<MacrocosmScene*>(&prev);
     if (m and m->ui_) {
@@ -301,7 +304,7 @@ void MacrocosmScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 
 
 
-void MacrocosmScene::exit(Platform& pfrm, macro::State& state, Scene& next)
+void MacrocosmScene::exit(Platform& pfrm, macro::StateImpl& state, Scene& next)
 {
     if (not dynamic_cast<MacrocosmScene*>(&next)) {
         ui_.reset();
@@ -316,12 +319,12 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
         Platform::fatal(format("logic error! % %", __FILE__, __LINE__).c_str());
     }
 
-    enter(pfrm, *app.macrocosm(), prev);
+    enter(pfrm, macrocosm(app), prev);
 }
 
 
 
-void MacrocosmScene::draw_compass(Platform& pfrm, macro::State& state)
+void MacrocosmScene::draw_compass(Platform& pfrm, macro::StateImpl& state)
 {
     auto o = state.sector().orientation();
     int compass_tile = 434 + (int)o * 4;
@@ -338,7 +341,7 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::State& state)
 
 void MacrocosmScene::exit(Platform& pfrm, App& app, Scene& next)
 {
-    exit(pfrm, *app.macrocosm(), next);
+    exit(pfrm, macrocosm(app), next);
 }
 
 

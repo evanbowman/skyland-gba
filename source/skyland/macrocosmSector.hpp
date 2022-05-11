@@ -82,7 +82,7 @@ class Sector
 public:
     enum Orientation : u8 { north, east, south, west };
 
-    enum class Shape : u8 { cube, pancake, pillar, freebuild };
+    enum class Shape : u8 { cube, pancake, pillar, freebuild, outpost };
 
 
     struct ExportInfo
@@ -94,7 +94,9 @@ public:
     };
 
 
-    Sector(Vec2<s8> position, Shape shape = Shape::cube);
+    Sector(Vec2<s8> position, Shape shape, Vec3<u8> size);
+
+
     virtual ~Sector()
     {
     }
@@ -114,9 +116,6 @@ public:
 
     virtual void shadowcast() = 0;
     virtual void erase() = 0;
-
-
-    void clear_cache();
 
 
 
@@ -233,14 +232,25 @@ public:
     }
 
 
-protected:
-    Persistent p_;
+    virtual void base_stats_cache_clear() const
+    {
+    }
 
-    // Recalculating stats for everything when we have multiple levels slows
-    // down the game significantly, so we cache previous results. I mean, a
-    // sector has ~512 blocks, and if you have 20 sectors, that's a lot of
-    // number crunching and will definitely lag the game if done frequently.
-    mutable std::optional<Stats> base_stats_cache_;
+
+protected:
+    virtual void base_stats_cache_store(const Stats& s) const
+    {
+    }
+
+
+    virtual Stats* base_stats_cache_load() const
+    {
+        return nullptr;
+    }
+
+
+
+    Persistent p_;
 
     u8 z_view_ = z_limit;
 
@@ -262,6 +272,11 @@ public:
     virtual void restore(const Persistent& p, u8 blocks[16][6][6])
     {
         Platform::fatal("logic error: restore non-pillar from pillar data");
+    }
+
+    virtual void restore(const Persistent& p, u8 blocks[4][5][5])
+    {
+        Platform::fatal("logic error: restore non-outpost from outpost data");
     }
 
 

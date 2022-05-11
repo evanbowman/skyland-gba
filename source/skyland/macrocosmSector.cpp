@@ -30,28 +30,10 @@ namespace skyland::macro
 
 
 
-terrain::Sector::Sector(Vec2<s8> position, Shape shape)
+terrain::Sector::Sector(Vec2<s8> position, Shape shape, Vec3<u8> size)
+    : size_(size)
 {
     p_.shape_ = shape;
-
-    // FIXME: derived class should set the size, of course.
-    switch (p_.shape_) {
-    case Shape::cube:
-        size_ = {8, 8, 9};
-        break;
-
-    case Shape::pancake:
-        size_ = {12, 12, 4};
-        break;
-
-    case Shape::pillar:
-        size_ = {6, 6, 16};
-        break;
-
-    case Shape::freebuild:
-        size_ = {10, 10, 8};
-        break;
-    }
 
     set_name("");
 
@@ -307,10 +289,11 @@ int remove_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
 static void intersector_exchange_commodities(const Vec2<s8> source_sector,
                                              terrain::Stats& stat)
 {
-    Buffer<std::pair<const Vec2<s8>, terrain::Stats>, State::max_sectors - 1>
+    Buffer<std::pair<const Vec2<s8>, terrain::Stats>,
+           StateImpl::max_sectors - 1>
         stats;
 
-    State& state = *_bound_state;
+    StateImpl& state = *_bound_state;
 
     if (state.data_->origin_sector_.coordinate() == source_sector) {
         stats.push_back({source_sector, stat});
@@ -333,17 +316,17 @@ static void intersector_exchange_commodities(const Vec2<s8> source_sector,
             if (auto e = src_sector->exports()) {
                 for (auto& exp : *e) {
 
-                auto supply = exp.export_supply_.get();
+                    auto supply = exp.export_supply_.get();
 
-                auto exported = remove_supply(st.second, exp.c, supply);
+                    auto exported = remove_supply(st.second, exp.c, supply);
 
-                for (auto& target : stats) {
-                    if (target.first == exp.destination_) {
-                        add_supply(target.second, exp.c, exported);
-                        break;
+                    for (auto& target : stats) {
+                        if (target.first == exp.destination_) {
+                            add_supply(target.second, exp.c, exported);
+                            break;
+                        }
                     }
                 }
-            }
             }
         }
     }
@@ -371,8 +354,8 @@ terrain::Stats terrain::Sector::stats() const
 
 terrain::Stats terrain::Sector::base_stats() const
 {
-    if (base_stats_cache_) {
-        return *base_stats_cache_;
+    if (auto s = base_stats_cache_load()) {
+        return *s;
     }
 
     terrain::Stats result;
@@ -418,7 +401,7 @@ terrain::Stats terrain::Sector::base_stats() const
         }
     }
 
-    base_stats_cache_ = result;
+    base_stats_cache_store(result);
 
     return result;
 }
@@ -501,7 +484,7 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
     }
 
     if (type not_eq Type::selector) {
-        clear_cache();
+        base_stats_cache_clear();
     }
 
 
@@ -599,13 +582,6 @@ bool terrain::Sector::set_z_view(u8 z_view)
 
 
     return true;
-}
-
-
-
-void terrain::Sector::clear_cache()
-{
-    base_stats_cache_.reset();
 }
 
 

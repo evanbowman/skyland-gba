@@ -68,12 +68,13 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     __draw_image(pfrm, 0, 0, 17, 30, 16, Layer::map_1);
 
 
-    app.macrocosm().emplace(pfrm);
+    app.macrocosm().emplace();
+    app.macrocosm()->emplace<macro::StateImpl>(pfrm);
 
+    auto& m = macrocosm(app);
+    auto& sector = m.sector();
 
-    auto& sector = app.macrocosm()->sector();
-
-    app.macrocosm()->load(pfrm);
+    m.load(pfrm);
     app.game_mode() = App::GameMode::macro;
 
     pfrm.system_call("vsync", nullptr);

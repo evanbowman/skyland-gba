@@ -49,12 +49,12 @@ void ViewBudgetScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.screen().pixelate(128, false);
 
-    show(pfrm, *app.macrocosm());
+    show(pfrm, macrocosm(app));
 }
 
 
 
-void ViewBudgetScene::show(Platform& pfrm, macro::State& state)
+void ViewBudgetScene::show(Platform& pfrm, macro::StateImpl& state)
 {
     if (not s_->heading_) {
         s_->heading_.emplace(pfrm, OverlayCoord{1, 1});
@@ -177,7 +177,7 @@ ViewBudgetScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (player(app).key_down(pfrm, Key::left)) {
         if (s_->page_ > 0) {
             --s_->page_;
-            show(pfrm, *app.macrocosm());
+            show(pfrm, macrocosm(app));
             pfrm.speaker().play_sound("click_wooden", 2);
         }
     }
@@ -185,7 +185,7 @@ ViewBudgetScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (player(app).key_down(pfrm, Key::right)) {
         if (s_->page_ < s_->pages_) {
             ++s_->page_;
-            show(pfrm, *app.macrocosm());
+            show(pfrm, macrocosm(app));
             pfrm.speaker().play_sound("click_wooden", 2);
         }
     }

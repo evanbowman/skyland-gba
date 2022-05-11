@@ -38,7 +38,9 @@ static macro::terrain::Type last_created = terrain::Type::terrain;
 
 
 
-void CreateBlockScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
+void CreateBlockScene::enter(Platform& pfrm,
+                             macro::StateImpl& state,
+                             Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
 
@@ -56,7 +58,7 @@ void CreateBlockScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 
 
 
-void CreateBlockScene::collect_options(macro::State& state)
+void CreateBlockScene::collect_options(macro::StateImpl& state)
 {
     options_.push_back(terrain::Type::terrain);
     options_.push_back(terrain::Type::building);
@@ -66,7 +68,8 @@ void CreateBlockScene::collect_options(macro::State& state)
     if (not state.data_->freebuild_mode_ and
         not state.data_->other_sectors_.empty()) {
         auto stats = state.sector().base_stats();
-        if (not stats.commodities_.empty()) {
+        if (not stats.commodities_.empty() and
+            state.sector().exports()) {
             options_.push_back(terrain::Type::port);
         }
     }
@@ -99,7 +102,9 @@ void CreateBlockScene::collect_options(macro::State& state)
 
 
 
-void CreateBlockScene::exit(Platform& pfrm, macro::State& state, Scene& next)
+void CreateBlockScene::exit(Platform& pfrm,
+                            macro::StateImpl& state,
+                            Scene& next)
 {
     MacrocosmScene::exit(pfrm, state, next);
 
@@ -113,7 +118,7 @@ void CreateBlockScene::exit(Platform& pfrm, macro::State& state, Scene& next)
 
 
 
-Coins CreateBlockScene::cost(macro::State& state, terrain::Type t)
+Coins CreateBlockScene::cost(macro::StateImpl& state, terrain::Type t)
 {
     if (state.data_->freebuild_mode_) {
         return 0;
@@ -123,7 +128,7 @@ Coins CreateBlockScene::cost(macro::State& state, terrain::Type t)
 
 
 
-void CreateBlockScene::message(Platform& pfrm, macro::State& state)
+void CreateBlockScene::message(Platform& pfrm, macro::StateImpl& state)
 {
     auto st = calc_screen_tiles(pfrm);
 
@@ -179,7 +184,7 @@ void CreateBlockScene::message(Platform& pfrm, macro::State& state)
 
 
 
-void CreateBlockScene::show_options(Platform& pfrm, State& state)
+void CreateBlockScene::show_options(Platform& pfrm, StateImpl& state)
 {
     auto st = calc_screen_tiles(pfrm);
 
@@ -280,7 +285,7 @@ void CreateBlockScene::show_options(Platform& pfrm, State& state)
 
 void CreateBlockScene::adjust_cursor_z(Platform& pfrm,
                                        Player& player,
-                                       macro::State& state)
+                                       macro::StateImpl& state)
 {
     if (player.key_down(pfrm, Key::up)) {
         auto cursor = state.sector().cursor();
@@ -325,8 +330,9 @@ void CreateBlockScene::adjust_cursor_z(Platform& pfrm,
 
 
 
-ScenePtr<Scene>
-CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
+ScenePtr<Scene> CreateBlockScene::update(Platform& pfrm,
+                                         Player& player,
+                                         macro::StateImpl& state)
 {
     if (auto next = MacrocosmScene::update(pfrm, player, state)) {
         return next;
@@ -377,7 +383,8 @@ CreateBlockScene::update(Platform& pfrm, Player& player, macro::State& state)
 
 
 
-ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm, macro::State& state)
+ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
+                                          macro::StateImpl& state)
 {
     auto cursor = state.sector().cursor();
     if (not check_z() or cursor.z < state.sector().size().z - 1) {
@@ -414,7 +421,7 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm, macro::State& state)
 
 
 void CreateBlockScene::edit(Platform& pfrm,
-                            macro::State& state,
+                            macro::StateImpl& state,
                             terrain::Type t)
 {
     auto cursor = state.sector().cursor();
@@ -446,7 +453,7 @@ void CreateBlockScene::edit(Platform& pfrm,
 
 
 
-Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
+Coins BuildImprovementScene::cost(macro::StateImpl& state, terrain::Type t)
 {
     if (state.data_->freebuild_mode_) {
         return 0;
@@ -517,7 +524,7 @@ Coins BuildImprovementScene::cost(macro::State& state, terrain::Type t)
 
 
 
-void BuildImprovementScene::collect_options(macro::State& state)
+void BuildImprovementScene::collect_options(macro::StateImpl& state)
 {
     auto& sector = state.sector();
 
@@ -539,7 +546,7 @@ void BuildImprovementScene::collect_options(macro::State& state)
 
 
 void BuildImprovementScene::edit(Platform& pfrm,
-                                 macro::State& state,
+                                 macro::StateImpl& state,
                                  terrain::Type t)
 {
     auto cursor = state.sector().cursor();
@@ -564,7 +571,7 @@ void BuildImprovementScene::edit(Platform& pfrm,
 
 
 
-void ConfigurePortScene::collect_options(macro::State& state)
+void ConfigurePortScene::collect_options(macro::StateImpl& state)
 {
     selector_ = 0;
 
@@ -624,7 +631,8 @@ void ConfigurePortScene::collect_options(macro::State& state)
 
 
 
-ScenePtr<Scene> ConfigurePortScene::onclick(Platform& pfrm, macro::State& state)
+ScenePtr<Scene> ConfigurePortScene::onclick(Platform& pfrm,
+                                            macro::StateImpl& state)
 {
     auto c = state.sector().cursor();
     --c.z;
@@ -636,7 +644,7 @@ ScenePtr<Scene> ConfigurePortScene::onclick(Platform& pfrm, macro::State& state)
 
 
 
-void ConfigurePortScene::message(Platform& pfrm, macro::State& state)
+void ConfigurePortScene::message(Platform& pfrm, macro::StateImpl& state)
 {
     auto st = calc_screen_tiles(pfrm);
 
@@ -658,7 +666,7 @@ void ConfigurePortScene::message(Platform& pfrm, macro::State& state)
 
 
 void ConfigurePortCountScene::enter(Platform& pfrm,
-                                    macro::State& state,
+                                    macro::StateImpl& state,
                                     Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
@@ -668,7 +676,7 @@ void ConfigurePortCountScene::enter(Platform& pfrm,
 
 
 void ConfigurePortCountScene::exit(Platform& pfrm,
-                                   macro::State& state,
+                                   macro::StateImpl& state,
                                    Scene& next)
 {
     MacrocosmScene::exit(pfrm, state, next);
@@ -684,7 +692,7 @@ void ConfigurePortCountScene::exit(Platform& pfrm,
 
 
 
-void ConfigurePortCountScene::show(Platform& pfrm, macro::State& state)
+void ConfigurePortCountScene::show(Platform& pfrm, macro::StateImpl& state)
 {
     auto st = calc_screen_tiles(pfrm);
 
@@ -714,7 +722,7 @@ void ConfigurePortCountScene::show(Platform& pfrm, macro::State& state)
 
 ScenePtr<Scene> ConfigurePortCountScene::update(Platform& pfrm,
                                                 Player& player,
-                                                macro::State& state)
+                                                macro::StateImpl& state)
 {
     if (player.key_down(pfrm, Key::up)) {
         if (count_ < state.sector().quantity_non_exported(type_)) {
@@ -742,7 +750,7 @@ ScenePtr<Scene> ConfigurePortCountScene::update(Platform& pfrm,
 
 
 void ConfigurePortDestScene::enter(Platform& pfrm,
-                                   macro::State& state,
+                                   macro::StateImpl& state,
                                    Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
@@ -766,7 +774,7 @@ void ConfigurePortDestScene::enter(Platform& pfrm,
 
 
 void ConfigurePortDestScene::exit(Platform& pfrm,
-                                  macro::State& state,
+                                  macro::StateImpl& state,
                                   Scene& next)
 {
     MacrocosmScene::exit(pfrm, state, next);
@@ -782,7 +790,7 @@ void ConfigurePortDestScene::exit(Platform& pfrm,
 
 
 
-void ConfigurePortDestScene::show(Platform& pfrm, macro::State& state)
+void ConfigurePortDestScene::show(Platform& pfrm, macro::StateImpl& state)
 {
     auto st = calc_screen_tiles(pfrm);
 
@@ -815,7 +823,7 @@ void ConfigurePortDestScene::show(Platform& pfrm, macro::State& state)
 
 ScenePtr<Scene> ConfigurePortDestScene::update(Platform& pfrm,
                                                Player& player,
-                                               macro::State& state)
+                                               macro::StateImpl& state)
 {
     if (player.key_down(pfrm, Key::up)) {
         if (selection_ < (int)export_options_.size() - 1) {

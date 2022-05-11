@@ -58,12 +58,13 @@ private:
         options,
         options_2,
         text_prompt,
+        create_colony_options,
         create_colony,
         select_colony_layout,
     } state_ = State::reveal;
 
 
-    void describe_selected(Platform& pfrm, macro::State& state);
+    void describe_selected(Platform& pfrm, macro::StateImpl& state);
 
 
     void show_layout_text(Platform& pfrm);
@@ -75,6 +76,7 @@ private:
     Vec2<s8> initial_sector_;
     Vec2<Float> camera_;
     std::optional<Vec2<s8>> selected_colony_;
+    bool outpost_colony_;
 
     terrain::Sector::Shape shape_ = terrain::Sector::Shape::cube;
 

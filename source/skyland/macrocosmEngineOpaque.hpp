@@ -22,40 +22,18 @@
 
 #pragma once
 
-#include "macrocosmScene.hpp"
 
+// Macrocosm engine implemenatation Hidden, to reduce build times.
 
 
 namespace skyland::macro
 {
 
 
-
-class ModifiedSelectorScene : public MacrocosmScene
+struct State
 {
-public:
-    ModifiedSelectorScene(bool persist = true) : persist_(persist)
-    {
-    }
-
-
-    void enter(Platform& pfrm, macro::StateImpl& state, Scene& prev) override;
-
-
-    void exit(Platform& pfrm, macro::StateImpl& state, Scene& next) override;
-
-
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::StateImpl& state) override;
-
-
-private:
-    std::optional<Text> rotate_text_;
-    std::optional<Text> layers_text_;
-    std::optional<Text> visible_layers_text_;
-    bool persist_;
+    virtual ~State() {}
 };
 
 
-
-} // namespace skyland::macro
+}

@@ -63,7 +63,7 @@ void MacroverseScene::enter(Platform& pfrm, App& app, Scene& prev)
     pfrm.load_tile0_texture("macro_rendertexture");
     pfrm.load_tile1_texture("macro_rendertexture");
 
-    selected_ = app.macrocosm()->sector().coordinate();
+    selected_ = macrocosm(app).sector().coordinate();
     initial_sector_ = selected_;
 
     Text::platform_retain_alphabet(pfrm);
@@ -109,7 +109,7 @@ ColorConstant fluid_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
 void MacroverseScene::exit(Platform& pfrm, App& app, Scene& prev)
 {
-    auto& sector = app.macrocosm()->sector();
+    auto& sector = macrocosm(app).sector();
     sector.repaint();
 
     pfrm.screen().set_shader(fluid_shader);
@@ -308,6 +308,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         push_opt(SystemString::macro_enter, st.y - 6);
         push_opt(SystemString::macro_create_colony, st.y - 4);
         push_opt(SystemString::options, st.y - 2);
+        outpost_colony_ = false;
     };
 
     auto enter_opt2_state = [&] {
@@ -348,7 +349,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     pfrm.screen().set_view(v);
 
 
-    auto& m = *app.macrocosm();
+    auto& m = macrocosm(app);
 
     auto freebuild_flag = GlobalPersistentData::freebuild_unlocked;
     if (not app.gp_.stateflags_.get(freebuild_flag)) {
@@ -358,7 +359,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    app.macrocosm()->data_->cloud_scroll_ += 0.000001f * delta;
+    m.data_->cloud_scroll_ += 0.000001f * delta;
 
     auto reveal_time = macro::reveal_time;
     auto wait_time = milliseconds(300);
@@ -419,7 +420,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > tm) {
             timer_ = 0;
             state_ = State::show;
-            describe_selected(pfrm, *app.macrocosm());
+            describe_selected(pfrm, macrocosm(app));
 
         } else {
             const auto step = smoothstep(0.f, tm, timer_);
@@ -585,71 +586,36 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
 
             case 1: {
-                colony_create_slots_.clear();
-                auto push = [&](s8 x, s8 y) {
-                    if (not m.load_sector({x, y})) {
-                        colony_create_slots_.push_back({x, y});
-                    }
+                state_ = State::create_colony_options;
+                text_objs_.clear();
+                pfrm.speaker().play_sound("button_wooden", 2);
+                clear_description();
+                text_objs_.clear();
+
+                auto st = calc_screen_tiles(pfrm);
+
+                auto push_opt = [&](SystemString str, u8 y, u8 n1, u8 n2) {
+                    auto s = loadstr(pfrm, str);
+                    *s += " (";
+                    *s += stringify(n1);
+                    *s += "/";
+                    *s += stringify(n2);
+                    *s += ")";
+                    u8 mg =
+                        centered_text_margins(pfrm, utf8::len(s->c_str())) + 1;
+                    text_objs_.emplace_back(
+                        pfrm, s->c_str(), OverlayCoord{mg, y});
                 };
 
-                push(selected_.x - 1, selected_.y);
-                push(selected_.x + 1, selected_.y);
-                push(selected_.x, selected_.y - 1);
-                push(selected_.x, selected_.y + 1);
+                push_opt(SystemString::macro_fullsize_colony,
+                         st.y - 6,
+                         1 + m.data_->other_sectors_.size(),
+                         StateImpl::max_sectors);
 
-                if (colony_create_slots_.empty()) {
-                    pfrm.speaker().play_sound("beep_error", 2);
-                } else {
-                    auto textline = [&](const StringBuffer<48>& str, u8 y) {
-                        text_objs_.emplace_back(
-                            pfrm, str.c_str(), OverlayCoord{1, y});
-                        u32 i = 0;
-
-                        bool coin_icon = false;
-
-                        auto s = str.c_str();
-                        while (*s not_eq '\0') {
-                            if (*s == '_') {
-                                if (not coin_icon) {
-                                    coin_icon = true;
-                                    pfrm.set_tile(Layer::overlay, 1 + i, y, 88);
-                                } else {
-                                    pfrm.set_tile(Layer::overlay, 1 + i, y, 85);
-                                }
-                            }
-                            ++s;
-                            ++i;
-                        }
-                    };
-
-
-                    auto cost = m.colony_cost();
-
-                    state_ = State::create_colony;
-                    text_objs_.clear();
-                    pfrm.speaker().play_sound("button_wooden", 2);
-
-                    textline(format(SYSTR(macro_colony_cost)->c_str(),
-                                    cost.first,
-                                    cost.second)
-                                 .c_str(),
-                             calc_screen_tiles(pfrm).y - 2);
-
-                    text_objs_.emplace_back(
-                        pfrm,
-                        stringify(m.data_->p().coins_.get()).c_str(),
-                        OverlayCoord{2, 3});
-                    pfrm.set_tile(Layer::overlay, 1, 3, 88);
-
-                    text_objs_.emplace_back(
-                        pfrm,
-                        stringify(m.sector().population()).c_str(),
-                        OverlayCoord{2, 4});
-                    pfrm.set_tile(Layer::overlay, 1, 4, 85);
-                }
-
-                selected_colony_.reset();
-
+                push_opt(SystemString::macro_outpost_colony,
+                         st.y - 4,
+                         m.data_->outpost_sectors_.size(),
+                         StateImpl::max_outposts);
                 break;
             }
 
@@ -662,6 +628,109 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             opt_cursor_ = 0;
+        }
+        break;
+    }
+
+    case State::create_colony_options: {
+
+        Vec2<u8> sel_pos;
+
+        for (u32 i = 0; i < text_objs_.size(); ++i) {
+
+            u8 x = text_objs_[i].coord().x - 2;
+            u8 y = text_objs_[i].coord().y;
+
+            auto cursor_tile = 0;
+            if (outpost_colony_ == i) {
+                cursor_tile = 87;
+                sel_pos = {x, y};
+            }
+
+            pfrm.set_tile(Layer::overlay, x, y, cursor_tile);
+        }
+
+        if (app.player().key_down(pfrm, Key::up) or
+            app.player().key_down(pfrm, Key::down)) {
+            outpost_colony_ = not outpost_colony_;
+            pfrm.speaker().play_sound("click_wooden", 2);
+        }
+
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            text_objs_.clear();
+            opt_cursor_ = 0;
+            enter_opt_state();
+            pfrm.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
+            break;
+        }
+
+        if (app.player().key_down(pfrm, Key::action_1)) {
+            pfrm.set_tile(Layer::overlay, sel_pos.x, sel_pos.y, 0);
+            colony_create_slots_.clear();
+            auto push = [&](s8 x, s8 y) {
+                if (not m.load_sector({x, y})) {
+                    colony_create_slots_.push_back({x, y});
+                }
+            };
+
+            push(selected_.x - 1, selected_.y);
+            push(selected_.x + 1, selected_.y);
+            push(selected_.x, selected_.y - 1);
+            push(selected_.x, selected_.y + 1);
+
+            if (colony_create_slots_.empty()) {
+                pfrm.speaker().play_sound("beep_error", 2);
+            } else {
+                auto textline = [&](const StringBuffer<48>& str, u8 y) {
+                    text_objs_.emplace_back(
+                        pfrm, str.c_str(), OverlayCoord{1, y});
+                    u32 i = 0;
+
+                    bool coin_icon = false;
+
+                    auto s = str.c_str();
+                    while (*s not_eq '\0') {
+                        if (*s == '_') {
+                            if (not coin_icon) {
+                                coin_icon = true;
+                                pfrm.set_tile(Layer::overlay, 1 + i, y, 88);
+                            } else {
+                                pfrm.set_tile(Layer::overlay, 1 + i, y, 85);
+                            }
+                        }
+                        ++s;
+                        ++i;
+                    }
+                };
+
+
+                auto cost =
+                    outpost_colony_ ? m.outpost_cost() : m.colony_cost();
+
+                state_ = State::create_colony;
+                text_objs_.clear();
+                pfrm.speaker().play_sound("button_wooden", 2);
+
+                textline(format(SYSTR(macro_colony_cost)->c_str(),
+                                cost.first,
+                                cost.second)
+                             .c_str(),
+                         calc_screen_tiles(pfrm).y - 2);
+
+                text_objs_.emplace_back(
+                    pfrm,
+                    stringify(m.data_->p().coins_.get()).c_str(),
+                    OverlayCoord{2, 3});
+                pfrm.set_tile(Layer::overlay, 1, 3, 88);
+
+                text_objs_.emplace_back(
+                    pfrm,
+                    stringify(m.sector().population()).c_str(),
+                    OverlayCoord{2, 4});
+                pfrm.set_tile(Layer::overlay, 1, 4, 85);
+            }
+
+            selected_colony_.reset();
         }
         break;
     }
@@ -683,18 +752,62 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (app.player().key_down(pfrm, Key::action_1)) {
             if (selected_colony_) {
-                auto cost = m.colony_cost();
+                auto cost =
+                    outpost_colony_ ? m.outpost_cost() : m.colony_cost();
                 if (m.data_->p().coins_.get() >= cost.first and
                     m.sector().population() >= cost.second) {
 
-                    state_ = State::select_colony_layout;
                     pfrm.speaker().play_sound("button_wooden", 3);
 
-                    pfrm.set_tile(Layer::overlay, 1, 3, 0);
-                    pfrm.set_tile(Layer::overlay, 1, 4, 0);
-                    text_objs_.clear();
+                    if (outpost_colony_) {
 
-                    show_layout_text(pfrm);
+                        if (m.make_sector(*selected_colony_,
+                                          terrain::Sector::Shape::outpost)) {
+
+                            m.data_->p().coins_.set(m.data_->p().coins_.get() -
+                                                    cost.first);
+
+                            m.sector().set_population(m.sector().population() -
+                                                      cost.second);
+
+                            colony_create_slots_.clear();
+                            text_objs_.clear();
+
+                            state_ = State::show;
+                            describe_selected(pfrm, m);
+
+                            if (not m.bind_sector(*selected_colony_)) {
+                                Platform::fatal("logic error (bind sector)");
+                            }
+
+                            u8 width = m.sector().size().x;
+                            m.sector().set_block({u8(width / 2),
+                                                  u8(width / 2),
+                                                  0},
+                                                 terrain::Type::terrain);
+
+                            m.sector().set_block({u8(width / 2),
+                                                  u8(width / 2),
+                                                  1},
+                                                 terrain::Type::building);
+
+                            m.sector().set_cursor({u8(width / 2),
+                                                   u8(width / 2),
+                                                   2});
+
+                            pfrm.speaker().play_sound("button_wooden", 2);
+                        }
+
+
+                    } else {
+                        state_ = State::select_colony_layout;
+
+                        pfrm.set_tile(Layer::overlay, 1, 3, 0);
+                        pfrm.set_tile(Layer::overlay, 1, 4, 0);
+                        text_objs_.clear();
+
+                        show_layout_text(pfrm);
+                    }
 
                     break;
 
@@ -801,7 +914,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void MacroverseScene::describe_selected(Platform& pfrm, macro::State& state)
+void MacroverseScene::describe_selected(Platform& pfrm, macro::StateImpl& state)
 {
     auto st = calc_screen_tiles(pfrm);
 
@@ -835,9 +948,8 @@ void MacroverseScene::display(Platform& pfrm, App& app)
         return;
     }
 
-    pfrm.system_call(
-        "_prlx_macro",
-        (void*)(intptr_t)(int)app.macrocosm()->data_->cloud_scroll_);
+    pfrm.system_call("_prlx_macro",
+                     (void*)(intptr_t)(int)macrocosm(app).data_->cloud_scroll_);
 
 
     if (state_ == State::select_colony_layout) {
@@ -906,6 +1018,7 @@ void MacroverseScene::display(Platform& pfrm, App& app)
             spr.set_mix({ColorConstant::rich_black,
                          u8(255 * (1.f - (float(timer_) / reveal_time)))});
         } else if ((state_ == State::options or state_ == State::options_2 or
+                    state_ == State::create_colony_options or
                     state_ == State::create_colony) and
                    c not_eq selected_) {
             return;
@@ -954,12 +1067,16 @@ void MacroverseScene::display(Platform& pfrm, App& app)
         }
     }
 
-    auto& m = *app.macrocosm();
+    auto& m = macrocosm(app);
 
     draw_node(m.data_->origin_sector_);
 
     for (auto& s : m.data_->other_sectors_) {
         draw_node(*s);
+    }
+
+    for (auto& s : m.data_->outpost_sectors_) {
+        draw_node(s);
     }
 }
 

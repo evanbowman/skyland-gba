@@ -47,7 +47,7 @@ public:
 
 
 private:
-    void show(Platform&, macro::State&);
+    void show(Platform&, macro::StateImpl&);
 
 
     struct State

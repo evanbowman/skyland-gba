@@ -34,11 +34,11 @@ namespace skyland::macro::terrain
 
 
 class PancakeSector
-    : public MacrocosmSectorImplWithExports<PancakeSector, 12, 12, 4, 3>
+    : public MacrocosmSectorImplFull<PancakeSector, 12, 12, 4, 3>
 {
 public:
     PancakeSector(Vec2<s8> position)
-        : MacrocosmSectorImplWithExports(position, Shape::pancake)
+        : MacrocosmSectorImplFull(position, Shape::pancake)
     {
         erase();
         z_view_ = 4;

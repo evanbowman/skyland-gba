@@ -37,7 +37,9 @@ namespace skyland::macro
 
 
 
-void MenuOptionsScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
+void MenuOptionsScene::enter(Platform& pfrm,
+                             macro::StateImpl& state,
+                             Scene& prev)
 {
     Text::platform_retain_alphabet(pfrm);
     MacrocosmScene::enter(pfrm, state, prev);
@@ -69,7 +71,9 @@ void MenuOptionsScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 
 
 
-void MenuOptionsScene::exit(Platform& pfrm, macro::State& state, Scene& next)
+void MenuOptionsScene::exit(Platform& pfrm,
+                            macro::StateImpl& state,
+                            Scene& next)
 {
     if (not dynamic_cast<NextTurnScene*>(&next)) {
         MacrocosmScene::exit(pfrm, state, next);
@@ -92,8 +96,9 @@ void MenuOptionsScene::exit(Platform& pfrm, macro::State& state, Scene& next)
 
 
 
-ScenePtr<Scene>
-MenuOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
+ScenePtr<Scene> MenuOptionsScene::update(Platform& pfrm,
+                                         Player& player,
+                                         macro::StateImpl& state)
 {
     if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
         return scene;

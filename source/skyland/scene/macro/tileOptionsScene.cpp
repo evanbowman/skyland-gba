@@ -33,7 +33,9 @@ namespace skyland::macro
 
 
 
-void TileOptionsScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
+void TileOptionsScene::enter(Platform& pfrm,
+                             macro::StateImpl& state,
+                             Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
     collect_options(pfrm, state);
@@ -42,7 +44,9 @@ void TileOptionsScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 
 
 
-void TileOptionsScene::exit(Platform& pfrm, macro::State& state, Scene& next)
+void TileOptionsScene::exit(Platform& pfrm,
+                            macro::StateImpl& state,
+                            Scene& next)
 {
     MacrocosmScene::exit(pfrm, state, next);
     text_.reset();
@@ -62,7 +66,7 @@ struct TileOptionsScene::OptionInfo
     SystemString name_;
     int sel_icon_;
     int unsel_icon_;
-    ScenePtr<Scene> (*next_)(MacrocosmScene&, macro::State&);
+    ScenePtr<Scene> (*next_)(MacrocosmScene&, macro::StateImpl&);
 };
 
 
@@ -71,19 +75,19 @@ static const TileOptionsScene::OptionInfo options[] = {
     {SystemString::macro_create_block,
      2568,
      2584,
-     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
+     [](MacrocosmScene& s, macro::StateImpl& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<CreateBlockScene>();
      }},
     {SystemString::macro_build_improvement,
      2520,
      2536,
-     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
+     [](MacrocosmScene& s, macro::StateImpl& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<BuildImprovementScene>();
      }},
     {SystemString::macro_demolish,
      2600,
      2616,
-     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
+     [](MacrocosmScene& s, macro::StateImpl& state) -> ScenePtr<Scene> {
          auto c = state.sector().cursor();
          c.z--;
          state.sector().set_block(c, terrain::Type::air);
@@ -94,13 +98,14 @@ static const TileOptionsScene::OptionInfo options[] = {
     {SystemString::macro_export,
      776,
      760,
-     [](MacrocosmScene& s, macro::State& state) -> ScenePtr<Scene> {
+     [](MacrocosmScene& s, macro::StateImpl& state) -> ScenePtr<Scene> {
          return scene_pool::alloc<ConfigurePortScene>();
      }}};
 
 
-ScenePtr<Scene>
-TileOptionsScene::update(Platform& pfrm, Player& player, macro::State& state)
+ScenePtr<Scene> TileOptionsScene::update(Platform& pfrm,
+                                         Player& player,
+                                         macro::StateImpl& state)
 {
     if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
         return scene;
@@ -151,7 +156,7 @@ const TileOptionsScene::OptionInfo* TileOptionsScene::last_option_ =
 
 
 
-void TileOptionsScene::collect_options(Platform& pfrm, macro::State& state)
+void TileOptionsScene::collect_options(Platform& pfrm, macro::StateImpl& state)
 {
 
     auto c = state.sector().cursor();

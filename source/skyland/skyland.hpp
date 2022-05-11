@@ -35,7 +35,7 @@
 #include "highscores.hpp"
 #include "island.hpp"
 #include "keyCallbackProcessor.hpp"
-#include "macrocosmEngine.hpp"
+#include "macrocosmEngineOpaque.hpp"
 #include "persistentData.hpp"
 #include "platform/platform.hpp"
 #include "player/opponent/friendlyAI.hpp"
@@ -414,7 +414,8 @@ public:
     }
 
 
-    std::optional<macro::State>& macrocosm()
+    using MacrocosmState = Boxed<macro::State, macro::State, 16>;
+    std::optional<MacrocosmState>& macrocosm()
     {
         return macrocosm_;
     }
@@ -493,7 +494,7 @@ private:
     CustomTileMapper custom_tile_mapper_;
     CustomTileMapper custom_sprite_mapper_;
 
-    std::optional<macro::State> macrocosm_;
+    std::optional<MacrocosmState> macrocosm_;
 };
 
 

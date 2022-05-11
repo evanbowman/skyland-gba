@@ -23,8 +23,11 @@
 #pragma once
 
 #include "allocator.hpp"
+#include "containers/vector.hpp"
 #include "entity.hpp"
 #include "macrocosmCubeSector.hpp"
+#include "macrocosmEngineOpaque.hpp"
+#include "macrocosmOutpostSector.hpp"
 #include "macrocosmRaster.hpp"
 #include "macrocosmSector.hpp"
 #include "number/int.h"
@@ -39,8 +42,8 @@ class Platform;
 namespace skyland::macro
 {
 
-struct State;
-extern State* _bound_state;
+struct StateImpl;
+extern StateImpl* _bound_state;
 
 
 } // namespace skyland::macro
@@ -90,9 +93,10 @@ namespace skyland::macro
 
 
 
-struct State
+struct StateImpl : public State
 {
     static const int max_sectors = 20;
+    static const int max_outposts = 40;
 
     struct Data
     {
@@ -101,7 +105,7 @@ struct State
         }
 
 
-        macro::terrain::CubeSector origin_sector_;
+        terrain::CubeSector origin_sector_;
 
 
         using SectorArray =
@@ -110,8 +114,10 @@ struct State
 
         SectorArray other_sectors_;
 
+        Vector<terrain::OutpostSector> outpost_sectors_;
 
-        int current_sector_ = -1;
+
+        terrain::Sector* current_sector_ = &origin_sector_;
         Float cloud_scroll_ = 0;
 
         bool freebuild_mode_ = false;
@@ -143,26 +149,31 @@ struct State
 
 
     std::pair<Coins, terrain::Sector::Population> colony_cost() const;
+    std::pair<Coins, terrain::Sector::Population> outpost_cost() const;
 
 
-
-    bool make_sector(Vec2<s8> coord, terrain::Sector::Shape shape);
+    terrain::Sector* make_sector(Vec2<s8> coord, terrain::Sector::Shape shape);
 
 
 
     macro::terrain::Sector* bind_sector(Vec2<s8> coord)
     {
         if (data_->origin_sector_.coordinate() == coord) {
-            data_->current_sector_ = -1;
+            data_->current_sector_ = &data_->origin_sector_;
             return &data_->origin_sector_;
         } else {
-            int i = 0;
             for (auto& s : data_->other_sectors_) {
                 if (s->coordinate() == coord) {
-                    data_->current_sector_ = i;
+                    data_->current_sector_ = &*s;
                     return &*s;
                 }
-                ++i;
+            }
+
+            for (auto& s : data_->outpost_sectors_) {
+                if (s.coordinate() == coord) {
+                    data_->current_sector_ = &s;
+                    return &s;
+                }
             }
 
             return nullptr;
@@ -183,6 +194,12 @@ struct State
                 }
             }
 
+            for (auto& s : data_->outpost_sectors_) {
+                if (s.coordinate() == coord) {
+                    return &s;
+                }
+            }
+
             return nullptr;
         }
     }
@@ -193,6 +210,8 @@ struct State
     {
         if (id == -1) {
             return &data_->origin_sector_;
+        } else if (id < -1) {
+            return &data_->outpost_sectors_[-1 * (2 + id)];
         } else if (id < (int)data_->other_sectors_.size()) {
             return &*data_->other_sectors_[id];
         } else {
@@ -215,7 +234,7 @@ struct State
     void newgame(Platform& pfrm);
 
 
-    State(Platform&);
+    StateImpl(Platform&);
 
 
     DynamicMemory<Data> data_;
@@ -227,3 +246,16 @@ struct State
 
 
 } // namespace skyland::macro
+
+
+
+namespace skyland
+{
+
+
+
+macro::StateImpl& macrocosm(App& app);
+
+
+
+}

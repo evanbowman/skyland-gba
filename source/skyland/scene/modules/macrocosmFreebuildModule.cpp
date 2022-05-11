@@ -1,13 +1,14 @@
 #include "macrocosmFreebuildModule.hpp"
 #include "skyland/macroCamera.hpp"
+#include "skyland/macrocosmEngine.hpp"
 #include "skyland/macrocosmFreebuildSector.hpp"
 #include "skyland/player/player.hpp"
+#include "skyland/scene/fullscreenDialogScene.hpp"
 #include "skyland/scene/macro/helpScene.hpp"
 #include "skyland/scene/macro/selectorScene.hpp"
+#include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/weather/storm.hpp"
-#include "skyland/scene/fullscreenDialogScene.hpp"
-#include "skyland/scene/titleScreenScene.hpp"
 
 
 
@@ -85,21 +86,21 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
     __draw_image(pfrm, 0, 0, 17, 30, 16, Layer::map_1);
 
 
-    app.macrocosm().emplace(pfrm);
+    app.macrocosm().emplace();
+    app.macrocosm()->emplace<macro::StateImpl>(pfrm);
 
 
     pfrm.screen().set_shader(macro::fluid_shader);
     pfrm.load_tile0_texture("macro_rendertexture");
     pfrm.load_tile1_texture("macro_rendertexture");
 
-
-    app.macrocosm()->newgame(pfrm);
-    app.macrocosm()->data_->freebuild_mode_ = true;
+    auto& m = macrocosm(app);
+    m.newgame(pfrm);
+    m.data_->freebuild_mode_ = true;
     app.game_mode() = App::GameMode::macro;
 
-    app.macrocosm()->make_sector({0, 1},
-                                 macro::terrain::Sector::Shape::freebuild);
-    auto bound = app.macrocosm()->bind_sector({0, 1});
+    m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild);
+    auto bound = m.bind_sector({0, 1});
 
     if (auto s = dynamic_cast<macro::terrain::FreebuildSector*>(bound)) {
         s->reset();
@@ -107,15 +108,14 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
 
     pfrm.system_call("vsync", nullptr);
 
-    app.macrocosm()->sector().render(pfrm);
+    m.sector().render(pfrm);
 
     pfrm.sleep(1);
     pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
     pfrm.screen().schedule_fade(0.f);
 
-    pfrm.system_call(
-        "_prlx_macro",
-        (void*)(intptr_t)(int)app.macrocosm()->data_->cloud_scroll_);
+    pfrm.system_call("_prlx_macro",
+                     (void*)(intptr_t)(int)m.data_->cloud_scroll_);
 }
 
 

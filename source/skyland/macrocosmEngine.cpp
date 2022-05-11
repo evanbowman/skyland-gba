@@ -63,21 +63,23 @@ Buffer<u16, 6> _cursor_raster_stack[6];
 
 
 
-State* _bound_state;
+StateImpl* _bound_state;
 
 
-State::State(Platform& pfrm) : data_(allocate_dynamic<Data>("macrocosm-data"))
+StateImpl::StateImpl(Platform& pfrm)
+    : data_(allocate_dynamic<Data>("macrocosm-data"))
 {
     _bound_state = this;
 }
 
 
 
-void State::newgame(Platform& pfrm)
+void StateImpl::newgame(Platform& pfrm)
 {
-    data_->current_sector_ = -1;
+    data_->current_sector_ = &data_->origin_sector_;
 
     data_->other_sectors_.clear();
+    data_->outpost_sectors_.clear();
     data_->p().year_.set(1);
 
     auto& sector = this->sector();
@@ -132,7 +134,7 @@ const LineItem* Ledger::entries() const
 
 
 
-Coins State::coin_yield()
+Coins StateImpl::coin_yield()
 {
     auto coins = data_->origin_sector_.coin_yield();
 
@@ -140,12 +142,22 @@ Coins State::coin_yield()
         coins += sector->coin_yield();
     }
 
+    for (auto& sector : data_->outpost_sectors_) {
+        coins += sector.coin_yield();
+    }
+
     return coins;
 }
 
 
 
-std::pair<Coins, terrain::Sector::Population> State::colony_cost() const
+std::pair<Coins, terrain::Sector::Population> StateImpl::outpost_cost() const
+{
+    return {1000, 60};
+}
+
+
+std::pair<Coins, terrain::Sector::Population> StateImpl::colony_cost() const
 {
     if (data_->other_sectors_.full()) {
         return {999999999, 9999};
@@ -162,12 +174,16 @@ std::pair<Coins, terrain::Sector::Population> State::colony_cost() const
 
 
 
-void State::advance(int elapsed_years)
+void StateImpl::advance(int elapsed_years)
 {
     data_->origin_sector_.advance(elapsed_years);
 
     for (auto& s : data_->other_sectors_) {
         s->advance(elapsed_years);
+    }
+
+    for (auto& s : data_->outpost_sectors_) {
+        s.advance(elapsed_years);
     }
 
     data_->p().year_.set(data_->p().year_.get() + elapsed_years);
@@ -187,7 +203,7 @@ static const char version = 'a';
 
 struct Header
 {
-    State::Data::Persistent p_;
+    StateImpl::Data::Persistent p_;
     u8 num_sectors_;
 };
 
@@ -219,6 +235,7 @@ template <u32 inflate> struct Sector
         u8 cube_[9][8][8];
         u8 pancake_[4][12][12];
         u8 pillar_[16][6][6];
+        u8 outpost_[4][5][5];
     } blocks_;
     static_assert(sizeof blocks_ == 576);
 
@@ -370,6 +387,17 @@ template <u32 inflate> struct Sector
                 }
             }
             break;
+
+        case terrain::Sector::Shape::outpost:
+            for (u8 z = 0; z < 4; ++z) {
+                for (u8 x = 0; x < 5; ++x) {
+                    for (u8 y = 0; y < 5; ++y) {
+                        blocks_.outpost_[z][x][y] =
+                            source.get_block({x, y, z}).type_;
+                    }
+                }
+            }
+            break;
         }
     }
 };
@@ -392,13 +420,13 @@ template <u32 inflate> struct Sector
 
 
 
-void State::save(Platform& pfrm)
+void StateImpl::save(Platform& pfrm)
 {
     Vector<char> save_data;
 
     save::Header header;
     memcpy(&header.p_, &data_->persistent_, sizeof data_->persistent_);
-    header.num_sectors_ = 1 + data_->other_sectors_.size();
+    header.num_sectors_ = 1 + data_->other_sectors_.size() + data_->outpost_sectors_.size();
 
     for (u32 i = 0; i < sizeof header; ++i) {
         save_data.push_back(((u8*)&header)[i]);
@@ -409,13 +437,13 @@ void State::save(Platform& pfrm)
         out.write(save_data);
 
         if (not sector.exports()) {
-            Platform::fatal("Attempt to save nonstandard sector");
-        }
-        save_data.push_back((u8)sector.exports()->size());
-
-        for (auto& exp : *sector.exports()) {
-            for (u32 j = 0; j < sizeof exp; ++j) {
-                save_data.push_back(((u8*)&exp)[j]);
+            save_data.push_back(0);
+        } else {
+            save_data.push_back((u8)sector.exports()->size());
+            for (auto& exp : *sector.exports()) {
+                for (u32 j = 0; j < sizeof exp; ++j) {
+                    save_data.push_back(((u8*)&exp)[j]);
+                }
             }
         }
     };
@@ -426,6 +454,10 @@ void State::save(Platform& pfrm)
         store_sector(*s);
     }
 
+    for (auto& s : data_->outpost_sectors_) {
+        store_sector(s);
+    }
+
     if (not ram_filesystem::store_file_data(pfrm, save::path, save_data)) {
         info(pfrm, "macro save failed!");
     }
@@ -433,21 +465,18 @@ void State::save(Platform& pfrm)
 
 
 
-macro::terrain::Sector& State::sector()
+macro::terrain::Sector& StateImpl::sector()
 {
-    if (data_->current_sector_ == -1) {
-        return data_->origin_sector_;
+    if (data_->current_sector_) {
+        return *data_->current_sector_;
     } else {
-        if ((u32)data_->current_sector_ >= data_->other_sectors_.size()) {
-            Platform::fatal("out of bounds sector access");
-        }
-        return *data_->other_sectors_[data_->current_sector_];
+        Platform::fatal("out of bounds sector access");
     }
 }
 
 
 
-bool State::load(Platform& pfrm)
+bool StateImpl::load(Platform& pfrm)
 {
     Vector<char> input;
 
@@ -470,9 +499,7 @@ bool State::load(Platform& pfrm)
             it = s.read(input, it);
 
             if (dest == nullptr) {
-                if (make_sector({s.p_.p_.x_, s.p_.p_.y_}, s.p_.p_.shape_)) {
-                    dest = &*data_->other_sectors_.back();
-                }
+                dest = make_sector({s.p_.p_.x_, s.p_.p_.y_}, s.p_.p_.shape_);
             }
 
             if (dest == nullptr) {
@@ -490,6 +517,10 @@ bool State::load(Platform& pfrm)
 
             case terrain::Sector::Shape::pillar:
                 dest->restore(s.p_.p_, s.blocks_.pillar_);
+                break;
+
+            case terrain::Sector::Shape::outpost:
+                dest->restore(s.p_.p_, s.blocks_.outpost_);
                 break;
 
             case terrain::Sector::Shape::freebuild:
@@ -517,6 +548,7 @@ bool State::load(Platform& pfrm)
         load_sector(&data_->origin_sector_);
 
         data_->other_sectors_.clear();
+        data_->outpost_sectors_.clear();
 
 
         for (int i = 0; i < header.num_sectors_ - 1; ++i) {
@@ -528,7 +560,7 @@ bool State::load(Platform& pfrm)
         newgame(pfrm);
     }
 
-    data_->current_sector_ = -1;
+    data_->current_sector_ = &data_->origin_sector_;
     raster::globalstate::_changed = true;
     raster::globalstate::_shrunk = true;
 
@@ -537,14 +569,14 @@ bool State::load(Platform& pfrm)
 
 
 
-bool State::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
+terrain::Sector* StateImpl::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
 {
     if (load_sector(coord)) {
-        return false;
+        return nullptr;
     }
 
     if (data_->other_sectors_.full()) {
-        return false;
+        return nullptr;
     }
 
     auto s = [&]() -> terrain::Sector* {
@@ -564,6 +596,16 @@ bool State::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
                 allocate_dynamic<terrain::PillarSector>("sector-mem", coord));
             return &*data_->other_sectors_.back();
 
+        case terrain::Sector::Shape::outpost: {
+            if (data_->outpost_sectors_.size() > max_outposts) {
+                return nullptr;
+            }
+            data_->outpost_sectors_.emplace_back(coord);
+            auto result = data_->outpost_sectors_.end();
+            --result;
+            return &*result;
+        }
+
         case terrain::Sector::Shape::freebuild:
             data_->other_sectors_.emplace_back(
                 allocate_dynamic<terrain::FreebuildSector>("sector-mem",
@@ -574,14 +616,21 @@ bool State::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
         return nullptr;
     }();
     if (s) {
-        StringBuffer<terrain::Sector::name_len - 1> n("colony_");
-        n += stringify(data_->other_sectors_.size() + 1).c_str();
+        StringBuffer<terrain::Sector::name_len - 1> n;
+        if (shape == terrain::Sector::Shape::outpost) {
+            n += "cay_";
+            n += stringify(data_->outpost_sectors_.size());
+        } else {
+            n += "isle_";
+            n += stringify(data_->other_sectors_.size() + 1).c_str();
+        }
+
         s->set_name(n);
-        return true;
+        return s;
     } else {
         Platform::fatal("failed to allocate sector!");
     }
-    return false;
+    return nullptr;
 }
 
 
@@ -1293,14 +1342,14 @@ static bool revert_if_covered(terrain::Sector& s,
             block.type_ = (u8)terrain::Type::volcanic_soil;
             block.repaint_ = true;
             raster::globalstate::_changed = true;
-            s.clear_cache();
+            s.base_stats_cache_clear();
             return true;
         } else if (above.type() not_eq terrain::Type::selector and
                    above.type() not_eq terrain::Type::air) {
             block.type_ = (u8)revert_to;
             block.repaint_ = true;
             raster::globalstate::_changed = true;
-            s.clear_cache();
+            s.base_stats_cache_clear();
             return true;
         }
     }
@@ -1666,7 +1715,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
                 block.type_ = (u8)terrain::Type::volcanic_soil;
                 block.repaint_ = true;
                 raster::globalstate::_changed = true;
-                s.clear_cache();
+                s.base_stats_cache_clear();
             }
         }
     },
@@ -2019,7 +2068,7 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
                 block.type_ = (u8)terrain::Type::marble;
                 block.repaint_ = true;
                 raster::globalstate::_changed = true;
-                s.clear_cache();
+                s.base_stats_cache_clear();
             }
         }
     },
@@ -2109,6 +2158,25 @@ void terrain::FreebuildSector::update()
     for (int z = 0; z < 8; ++z) {
         for (u8 x = 0; x < 10; ++x) {
             for (u8 y = 0; y < 10; ++y) {
+
+                auto& block = blocks_[z][x][y];
+
+                auto update = update_functions[block.type_];
+                if (update) {
+                    update(*this, block, {x, y, (u8)z});
+                }
+            }
+        }
+    }
+}
+
+
+
+void terrain::OutpostSector::update()
+{
+    for (int z = 0; z < 4; ++z) {
+        for (u8 x = 0; x < 5; ++x) {
+            for (u8 y = 0; y < 5; ++y) {
 
                 auto& block = blocks_[z][x][y];
 

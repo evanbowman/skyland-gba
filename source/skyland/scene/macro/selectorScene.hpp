@@ -34,18 +34,18 @@ namespace skyland::macro
 class SelectorScene : public MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, macro::State& state, Scene& prev) override;
+    void enter(Platform& pfrm, macro::StateImpl& state, Scene& prev) override;
 
 
-    void exit(Platform& pfrm, macro::State& state, Scene& next) override;
+    void exit(Platform& pfrm, macro::StateImpl& state, Scene& next) override;
 
 
     ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::State& state) override;
+    update(Platform& pfrm, Player& player, macro::StateImpl& state) override;
 
 
 private:
-    void describe_selected(Platform& pfrm, macro::State& state);
+    void describe_selected(Platform& pfrm, macro::StateImpl& state);
 
     std::optional<Text> text_;
     std::optional<Text> text_2_;

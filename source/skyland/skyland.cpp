@@ -25,6 +25,7 @@
 #include "base32.hpp"
 #include "globals.hpp"
 #include "graphics/overlay.hpp"
+#include "macrocosmEngine.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
 #include "platform/ram_filesystem.hpp"
@@ -98,7 +99,9 @@ App::App(Platform& pfrm)
         if (backup_->valid_) {
             backup_->store(pfrm);
         }
-        pfrm.logger().flush();
+        if (is_developer_mode()) {
+            pfrm.logger().flush();
+        }
     });
 
 
@@ -604,6 +607,21 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
 weather::Environment& App::environment()
 {
     return *environment_;
+}
+
+
+
+macro::StateImpl& macrocosm(App& app)
+{
+    auto& m = app.macrocosm();
+    if (m) {
+        // NOTE: Only macro::StateImpl derives from macro::State, so this cast
+        // is fine. We're just trying to hide the implementation to reduce build
+        // times.
+        return *static_cast<macro::StateImpl*>(&**m);
+    } else {
+        Platform::fatal("access to unbound macrocosm");
+    }
 }
 
 

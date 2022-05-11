@@ -46,7 +46,7 @@ public:
 
 
     MacrocosmSectorImpl(Vec2<s8> position, Sector::Shape shape)
-        : Sector(position, shape)
+        : Sector(position, shape, {sx, sy, sz})
     {
     }
 
@@ -229,7 +229,7 @@ public:
             e->clear();
         }
 
-        base_stats_cache_.reset();
+        base_stats_cache_clear();
     }
 
 
@@ -729,11 +729,11 @@ protected:
 
 
 template <typename Derived, s32 sx, s32 sy, s32 sz, s32 screen_y_offset>
-class MacrocosmSectorImplWithExports
+class MacrocosmSectorImplFull
     : public MacrocosmSectorImpl<Derived, sx, sy, sz, screen_y_offset>
 {
 public:
-    MacrocosmSectorImplWithExports(Vec2<s8> position, Sector::Shape shape)
+    MacrocosmSectorImplFull(Vec2<s8> position, Sector::Shape shape)
         : MacrocosmSectorImpl<Derived, sx, sy, sz, screen_y_offset>(position,
                                                                     shape)
     {
@@ -775,8 +775,36 @@ public:
     }
 
 
+    void base_stats_cache_clear() const override
+    {
+        base_stats_cache_.reset();
+    }
+
+
+    void base_stats_cache_store(const Stats& s) const override
+    {
+        base_stats_cache_ = s;
+    }
+
+
+    Stats* base_stats_cache_load() const override
+    {
+        if (base_stats_cache_) {
+            return &*base_stats_cache_;
+        } else {
+            return nullptr;
+        }
+    }
+
+
 private:
     Sector::Exports exports_;
+
+    // Recalculating stats for everything when we have multiple levels slows
+    // down the game significantly, so we cache previous results. I mean, a
+    // sector has ~512 blocks, and if you have 20 sectors, that's a lot of
+    // number crunching and will definitely lag the game if done frequently.
+    mutable std::optional<Stats> base_stats_cache_;
 };
 
 

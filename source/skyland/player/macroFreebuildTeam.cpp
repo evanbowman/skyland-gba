@@ -21,6 +21,7 @@
 
 
 #include "macroFreebuildTeam.hpp"
+#include "skyland/macrocosmEngine.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -48,7 +49,7 @@ void FreebuildTeam::receive(Platform& pfrm,
                             App& app,
                             const network::packet::MacroSetBlock& p)
 {
-    auto orientation = (int)app.macrocosm()->sector().persistent().orientation_;
+    auto orientation = (int)macrocosm(app).sector().persistent().orientation_;
 
     Vec3<u8> coord = {p.x_, p.y_, p.z_};
 
@@ -64,12 +65,12 @@ void FreebuildTeam::receive(Platform& pfrm,
         orientation %= 4;
     }
 
-    auto& existing = app.macrocosm()->sector().get_block(coord);
+    auto& existing = macrocosm(app).sector().get_block(coord);
     if (existing.type() == terrain::Type::selector) {
-        app.macrocosm()->sector().set_cursor({p.x_, p.y_, u8(p.z_ + 1)});
+        macrocosm(app).sector().set_cursor({p.x_, p.y_, u8(p.z_ + 1)});
     }
 
-    app.macrocosm()->sector().set_block(coord, (terrain::Type)p.type_);
+    macrocosm(app).sector().set_block(coord, (terrain::Type)p.type_);
 }
 
 

@@ -35,14 +35,14 @@ namespace skyland::macro
 class TileOptionsScene : public MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, macro::State& state, Scene& prev) override;
+    void enter(Platform& pfrm, macro::StateImpl& state, Scene& prev) override;
 
 
-    void exit(Platform& pfrm, macro::State& state, Scene& next) override;
+    void exit(Platform& pfrm, macro::StateImpl& state, Scene& next) override;
 
 
     ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::State& state) override;
+    update(Platform& pfrm, Player& player, macro::StateImpl& state) override;
 
 
     void show_options(Platform& pfrm);
@@ -56,7 +56,7 @@ public:
 
 
 private:
-    void collect_options(Platform& pfrm, macro::State& state);
+    void collect_options(Platform& pfrm, macro::StateImpl& state);
 
 
     Buffer<const OptionInfo*, 6> options_;

@@ -51,7 +51,7 @@ void ViewCommoditiesScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     pfrm.screen().pixelate(128, false);
 
-    auto& state = *app.macrocosm();
+    auto& state = macrocosm(app);
     auto& sector = state.sector();
 
     auto stats = sector.base_stats();
@@ -60,7 +60,8 @@ void ViewCommoditiesScene::enter(Platform& pfrm, App& app, Scene& prev)
         if (auto e = sector.exports()) {
             for (auto& exp : *e) {
                 if (exp.c == cm.type_) {
-                    cm.supply_ = std::max(0, cm.supply_ - exp.export_supply_.get());
+                    cm.supply_ =
+                        std::max(0, cm.supply_ - exp.export_supply_.get());
                 }
             }
         }
@@ -103,12 +104,12 @@ void ViewCommoditiesScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    show(pfrm, *app.macrocosm());
+    show(pfrm, macrocosm(app));
 }
 
 
 
-void ViewCommoditiesScene::show(Platform& pfrm, macro::State& state)
+void ViewCommoditiesScene::show(Platform& pfrm, macro::StateImpl& state)
 {
     if (not s_->heading_) {
         s_->heading_.emplace(pfrm, OverlayCoord{1, 1});
@@ -183,7 +184,7 @@ ViewCommoditiesScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (player(app).key_down(pfrm, Key::left)) {
         if (s_->page_ > 0) {
             --s_->page_;
-            show(pfrm, *app.macrocosm());
+            show(pfrm, macrocosm(app));
             pfrm.speaker().play_sound("click_wooden", 2);
         }
     }
@@ -191,7 +192,7 @@ ViewCommoditiesScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (player(app).key_down(pfrm, Key::right)) {
         if (s_->page_ < s_->pages_ - 1) {
             ++s_->page_;
-            show(pfrm, *app.macrocosm());
+            show(pfrm, macrocosm(app));
             pfrm.speaker().play_sound("click_wooden", 2);
         }
     }

@@ -63,7 +63,7 @@ public:
         if (pfrm.keyboard().down_transition(Key::action_1)) {
             pfrm.speaker().play_sound("button_wooden", 3);
             if (selection_) {
-                app.macrocosm()->save(pfrm);
+                macrocosm(app).save(pfrm);
                 pfrm.screen().schedule_fade(0.f);
                 return scene_pool::alloc<SelectorScene>();
             } else {

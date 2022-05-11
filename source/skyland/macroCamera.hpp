@@ -1,6 +1,7 @@
 #pragma once
 
 #include "camera.hpp"
+#include "skyland/macrocosmEngine.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -32,16 +33,25 @@ public:
             return;
         }
 
-        auto p = app.macrocosm()->sector().cursor_raster_pos();
+        auto& m = macrocosm(app);
+
+        if (m.sector().size().x < 6) {
+            // For outposts, which are tiny:
+            pfrm.set_scroll(Layer::map_0, current_.x, 48);
+            pfrm.set_scroll(Layer::map_1, current_.x, 48 + 8);
+            return;
+        }
+
+        auto p = m.sector().cursor_raster_pos();
 
         int y = p / 30;
         int real_y = y * 8;
 
         //target_.x = -x * 4;
         target_.y = -24 + y * 4;
-        if (app.macrocosm()->sector().size().x == 8) {
+        if (macrocosm(app).sector().size().x == 8) {
             target_.y = clamp(target_.y, 0, 40);
-        } else if (app.macrocosm()->sector().size().x == 6) {
+        } else if (macrocosm(app).sector().size().x == 6) {
             target_.y = clamp(target_.y, 0, 80);
         } else {
             target_.y = clamp(target_.y, 0, 80);

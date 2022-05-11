@@ -33,11 +33,11 @@ namespace skyland::macro::terrain
 
 
 
-class CubeSector : public MacrocosmSectorImplWithExports<CubeSector, 8, 8, 9, 8>
+class CubeSector : public MacrocosmSectorImplFull<CubeSector, 8, 8, 9, 8>
 {
 public:
     CubeSector(Vec2<s8> position)
-        : MacrocosmSectorImplWithExports(position, Shape::cube)
+        : MacrocosmSectorImplFull(position, Shape::cube)
     {
         erase();
     }

@@ -39,7 +39,7 @@ NextTurnScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     pfrm.screen().schedule_fade(0.f);
 
-    app.macrocosm()->advance(1);
+    macrocosm(app).advance(1);
 
     pfrm.keyboard().poll();
     if (pfrm.keyboard().pressed(Key::alt_1)) {

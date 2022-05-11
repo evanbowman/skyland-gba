@@ -45,8 +45,8 @@ public:
     void exit(Platform& pfrm, App& app, Scene& next) override final;
 
 
-    virtual void enter(Platform& pfrm, macro::State&, Scene& prev);
-    virtual void exit(Platform& pfrm, macro::State&, Scene& next);
+    virtual void enter(Platform& pfrm, macro::StateImpl&, Scene& prev);
+    virtual void exit(Platform& pfrm, macro::StateImpl&, Scene& next);
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override final;
@@ -56,12 +56,12 @@ public:
 
 
     virtual ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::State& state);
+    update(Platform& pfrm, Player& player, macro::StateImpl& state);
 
-    virtual void display(Platform& pfrm, macro::State& state);
+    virtual void display(Platform& pfrm, macro::StateImpl& state);
 
 
-    void draw_compass(Platform& pfrm, macro::State& state);
+    void draw_compass(Platform& pfrm, macro::StateImpl& state);
 
 
     void drop_ui()
@@ -70,7 +70,7 @@ public:
     }
 
 
-    void update_ui(macro::State& state);
+    void update_ui(macro::StateImpl& state);
 
 
     bool should_update_ui_after_exit() const

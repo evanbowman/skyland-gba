@@ -207,6 +207,8 @@ enum class SystemString {
     macro_budget,
     macro_enter,
     macro_create_colony,
+    macro_fullsize_colony,
+    macro_outpost_colony,
     macro_set_name,
     macro_colony_resources,
     macro_colony_cost,

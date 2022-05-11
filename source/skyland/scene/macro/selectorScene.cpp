@@ -36,7 +36,7 @@ namespace skyland::macro
 
 
 
-void SelectorScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
+void SelectorScene::enter(Platform& pfrm, macro::StateImpl& state, Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
     Text::platform_retain_alphabet(pfrm);
@@ -44,7 +44,7 @@ void SelectorScene::enter(Platform& pfrm, macro::State& state, Scene& prev)
 
 
 
-void SelectorScene::exit(Platform& pfrm, macro::State& state, Scene& next)
+void SelectorScene::exit(Platform& pfrm, macro::StateImpl& state, Scene& next)
 {
     MacrocosmScene::exit(pfrm, state, next);
     for (int i = 0; i < text_->len(); ++i) {
@@ -57,7 +57,7 @@ void SelectorScene::exit(Platform& pfrm, macro::State& state, Scene& next)
 
 
 ScenePtr<Scene>
-SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
+SelectorScene::update(Platform& pfrm, Player& player, macro::StateImpl& state)
 {
     if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
         return scene;
@@ -148,7 +148,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::State& state)
 
 
 
-void SelectorScene::describe_selected(Platform& pfrm, macro::State& state)
+void SelectorScene::describe_selected(Platform& pfrm, macro::StateImpl& state)
 {
     auto& sector = state.sector();
 

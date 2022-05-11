@@ -153,7 +153,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
                        kill_menu);
 
-            if (not app.macrocosm()->data_->freebuild_mode_) {
+            if (not macrocosm(app).data_->freebuild_mode_) {
 
                 // These options don't apply to freebuild_mode_.
 
@@ -267,7 +267,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         case App::GameMode::macro:
 
-            if (app.macrocosm()->data_->freebuild_mode_) {
+            if (macrocosm(app).data_->freebuild_mode_) {
 
                 if (not pfrm.network_peer().is_connected()) {
                     // NOTE: Don't display the connect or load options if we're
@@ -287,7 +287,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         pfrm,
                         SYSTR(start_menu_load)->c_str(),
                         [&pfrm, &app]() -> ScenePtr<Scene> {
-                            auto& current = app.macrocosm()->sector();
+                            auto& current = macrocosm(app).sector();
                             using namespace macro::terrain;
                             if (auto f =
                                     dynamic_cast<FreebuildSector*>(&current)) {
@@ -304,7 +304,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm,
                     SYSTR(start_menu_save)->c_str(),
                     [&pfrm, &app]() -> ScenePtr<Scene> {
-                        auto& current = app.macrocosm()->sector();
+                        auto& current = macrocosm(app).sector();
                         using namespace macro::terrain;
                         if (auto f = dynamic_cast<FreebuildSector*>(&current)) {
                             f->save(pfrm);
@@ -334,7 +334,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm,
                 SYSTR(start_menu_load)->c_str(),
                 [&pfrm, &app]() -> ScenePtr<Scene> {
-                    app.macrocosm()->load(pfrm);
+                    macrocosm(app).load(pfrm);
                     pfrm.screen().schedule_fade(0.f);
                     pfrm.screen().pixelate(0);
                     return scene_pool::alloc<macro::SelectorScene>();
@@ -363,7 +363,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm,
                 SYSTR(start_menu_newgame)->c_str(),
                 [&pfrm, &app]() -> ScenePtr<Scene> {
-                    app.macrocosm()->newgame(pfrm);
+                    macrocosm(app).newgame(pfrm);
                     pfrm.load_overlay_texture("overlay_challenges");
                     return scene_pool::alloc<macro::MacroverseScene>();
                 },

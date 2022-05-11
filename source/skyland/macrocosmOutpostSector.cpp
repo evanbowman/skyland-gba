@@ -20,9 +20,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#pragma once
-
-#include "macrocosmScene.hpp"
+#include "macrocosmOutpostSector.hpp"
+#include "macrocosmEngine.hpp"
 
 
 
@@ -31,30 +30,26 @@ namespace skyland::macro
 
 
 
-class ModifiedSelectorScene : public MacrocosmScene
+void terrain::OutpostSector::restore(const Persistent& p, u8 blocks[4][5][5])
 {
-public:
-    ModifiedSelectorScene(bool persist = true) : persist_(persist)
-    {
+    erase();
+
+#ifdef __GBA__
+    static_assert(sizeof *this <= 232);
+#endif
+
+    memcpy(&p_, &p, sizeof p);
+
+    for (u8 z = 0; z < 4; ++z) {
+        for (u8 x = 0; x < 5; ++x) {
+            for (u8 y = 0; y < 5; ++y) {
+                blocks_[z][x][y].type_ = blocks[z][x][y];
+                blocks_[z][x][y].repaint_ = true;
+                blocks_[z][x][y].data_ = 0;
+            }
+        }
     }
-
-
-    void enter(Platform& pfrm, macro::StateImpl& state, Scene& prev) override;
-
-
-    void exit(Platform& pfrm, macro::StateImpl& state, Scene& next) override;
-
-
-    ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::StateImpl& state) override;
-
-
-private:
-    std::optional<Text> rotate_text_;
-    std::optional<Text> layers_text_;
-    std::optional<Text> visible_layers_text_;
-    bool persist_;
-};
+}
 
 
 

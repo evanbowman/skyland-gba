@@ -21,6 +21,7 @@
 
 
 #include "macrocosmEntity.hpp"
+#include "skyland/macrocosmEngine.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -32,7 +33,7 @@ namespace skyland::macro
 
 void MacrocosmEntity::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    update(pfrm, *app.macrocosm(), delta);
+    update(pfrm, macrocosm(app), delta);
 }
 
 

@@ -348,6 +348,36 @@ public:
     }
 
 
+    template <typename... Args> void emplace_back(Args&&... args)
+    {
+        Chunk* current = (Chunk*)data_->data_;
+
+        int size = size_;
+
+        if (end_cache_) {
+            current = end_cache_;
+            size = end_chunk_size_;
+        } else {
+            seek_chunk(current, size);
+        }
+
+        if (size == Chunk::elems() and not current->header_.next_) {
+            auto sbr = make_scratch_buffer("vector-segment");
+            Chunk::initialize(sbr, current);
+            current->header_.next_ = sbr;
+            current = (Chunk*)(*current->header_.next_)->data_;
+            size = 0;
+        }
+
+        end_cache_ = current;
+        end_chunk_size_ = size + 1;
+
+        new (current->array() + size) T(std::forward<Args>(args)...);
+
+        ++size_;
+    }
+
+
     void pop_back()
     {
         end_cache_ = nullptr;

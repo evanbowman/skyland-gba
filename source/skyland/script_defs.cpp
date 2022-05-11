@@ -24,6 +24,7 @@
 #include "allocator.hpp"
 #include "configure_island.hpp"
 #include "eternal/eternal.hpp"
+#include "macrocosmEngine.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "player/autopilotPlayer.hpp"
 #include "player/opponent/enemyAI.hpp"
@@ -477,7 +478,7 @@ static const lisp::Binding script_api[] = {
          y %= 8;
          z %= 9;
 
-         interp_get_app()->macrocosm()->sector().set_block({x, y, z}, type);
+         macrocosm(*interp_get_app()).sector().set_block({x, y, z}, type);
 
          return L_NIL;
      }},
@@ -492,7 +493,7 @@ static const lisp::Binding script_api[] = {
          u8 y = L_LOAD_INT(1);
          u8 z = L_LOAD_INT(0);
 
-         auto& sector = interp_get_app()->macrocosm()->sector();
+         auto& sector = macrocosm(*interp_get_app()).sector();
          return L_INT((int)sector.get_block({x, y, z}).type());
      }},
     {"mcr-sector",
@@ -503,7 +504,7 @@ static const lisp::Binding script_api[] = {
 
              s8 x = L_LOAD_INT(1);
              s8 y = L_LOAD_INT(0);
-             if (interp_get_app()->macrocosm()->bind_sector({x, y})) {
+             if (macrocosm(*interp_get_app()).bind_sector({x, y})) {
                  return L_INT(1);
              }
              return L_NIL;
@@ -512,7 +513,7 @@ static const lisp::Binding script_api[] = {
 
              auto str = L_LOAD_STRING(0);
 
-             auto& m = *interp_get_app()->macrocosm();
+             auto& m = macrocosm(*interp_get_app());
              if (m.data_->origin_sector_.name() == str) {
                  m.bind_sector(m.data_->origin_sector_.coordinate());
                  return L_INT(1);
@@ -1094,8 +1095,7 @@ static const lisp::Binding script_api[] = {
      [](int argc) {
          auto app = interp_get_app();
          if (app->macrocosm()) {
-             return lisp::make_integer(
-                 app->macrocosm()->data_->p().coins_.get());
+             return lisp::make_integer(macrocosm(*app).data_->p().coins_.get());
          } else {
              return lisp::make_integer(app->coins());
          }
@@ -1108,9 +1108,9 @@ static const lisp::Binding script_api[] = {
          auto app = interp_get_app();
 
          if (app->macrocosm()) {
-             auto current = app->macrocosm()->data_->p().coins_.get();
+             auto current = macrocosm(*app).data_->p().coins_.get();
              current += L_LOAD_INT(0);
-             app->macrocosm()->data_->p().coins_.set(
+             macrocosm(*app).data_->p().coins_.set(
                  std::min(std::numeric_limits<macro::Coins>::max(), current));
          } else {
              app->set_coins(*lisp::interp_get_pfrm(),
@@ -1127,7 +1127,7 @@ static const lisp::Binding script_api[] = {
          auto app = interp_get_app();
          if (app->macrocosm()) {
              auto val = L_LOAD_INT(0);
-             app->macrocosm()->data_->p().coins_.set(
+             macrocosm(*app).data_->p().coins_.set(
                  std::min(std::numeric_limits<macro::Coins>::max(), val));
          } else {
              app->set_coins(*lisp::interp_get_pfrm(), L_LOAD_INT(0));
