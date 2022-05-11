@@ -1014,6 +1014,12 @@ void MacroverseScene::display(Platform& pfrm, App& app)
 
         const bool darkened = manhattan_length(c, selected_) > 1;
 
+        if (manhattan_length(c, selected_) > 2) {
+            spr.set_alpha(Sprite::Alpha::translucent);
+        } else if (manhattan_length(c, selected_) > 3) {
+            return;
+        }
+
         if (state_ == State::reveal) {
             spr.set_mix({ColorConstant::rich_black,
                          u8(255 * (1.f - (float(timer_) / reveal_time)))});
@@ -1043,6 +1049,52 @@ void MacroverseScene::display(Platform& pfrm, App& app)
         spr.set_position({origin.x, origin.y + 32});
         pfrm.screen().draw(spr);
     };
+
+
+    auto draw_tiny_node = [&](macro::terrain::Sector& s) {
+        Sprite spr;
+
+        auto c = s.coordinate();
+
+        const bool darkened = manhattan_length(c, selected_) > 1;
+
+        if (manhattan_length(c, selected_) > 2) {
+            spr.set_alpha(Sprite::Alpha::translucent);
+        } else if (manhattan_length(c, selected_) > 3) {
+            return;
+        }
+
+        if (state_ == State::reveal) {
+            spr.set_mix({ColorConstant::rich_black,
+                         u8(255 * (1.f - (float(timer_) / reveal_time)))});
+        } else if ((state_ == State::options or state_ == State::options_2 or
+                    state_ == State::create_colony_options or
+                    state_ == State::create_colony) and
+                   c not_eq selected_) {
+            return;
+        }
+
+        auto origin = sector_map_display_pos(pfrm, c);
+        origin.x += 8;
+        origin.y += 8;
+
+        int t_start = 75;
+
+        spr.set_size(Sprite::Size::w16_h32);
+
+        if (c == selected_) {
+            t_start = 77;
+        } else if ((int)state_ < (int)State::show) {
+            return;
+        } else if (darkened) {
+            t_start = 76;
+        }
+
+        spr.set_position(origin);
+        spr.set_texture_index(t_start);
+        pfrm.screen().draw(spr);
+    };
+
 
     if (state_ == State::create_colony) {
         for (auto& slot : colony_create_slots_) {
@@ -1076,7 +1128,7 @@ void MacroverseScene::display(Platform& pfrm, App& app)
     }
 
     for (auto& s : m.data_->outpost_sectors_) {
-        draw_node(s);
+        draw_tiny_node(s);
     }
 }
 
