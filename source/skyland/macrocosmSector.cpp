@@ -568,6 +568,19 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
         switch (beneath.type()) {
         case Type::ice:
         case Type::masonry:
+        case Type::terrain:
+        case Type::gold:
+        case Type::shrubbery:
+        case Type::wool:
+        case Type::lumber:
+        case Type::arch:
+        case Type::sand:
+        case Type::crystal:
+        case Type::marble:
+        case Type::marble_top:
+        case Type::port:
+            // Use a darker default cursor color if the cursor appears overtop
+            // of a lighter block, for best visibility.
             cursor_block.shadowed_ = not beneath.shadowed_;
             break;
 
