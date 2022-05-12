@@ -152,8 +152,8 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
             } else {
                 pfrm.load_background_texture("background_macro");
             }
+            raster::globalstate::_recalc_depth_test.fill();
             sector.shadowcast();
-            sector.set_repaint(true);
             raster::globalstate::_changed = true;
             sector.render(pfrm);
             pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);

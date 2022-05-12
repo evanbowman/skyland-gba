@@ -40,7 +40,6 @@ void terrain::PancakeSector::restore(const Persistent& p, u8 blocks[4][12][12])
         for (u8 x = 0; x < length; ++x) {
             for (u8 y = 0; y < length; ++y) {
                 blocks_[z][x][y].type_ = blocks[z][x][y];
-                blocks_[z][x][y].repaint_ = true;
                 blocks_[z][x][y].data_ = 0;
             }
         }

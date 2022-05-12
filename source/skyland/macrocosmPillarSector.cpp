@@ -40,7 +40,6 @@ void terrain::PillarSector::restore(const Persistent& p, u8 blocks[16][6][6])
         for (u8 x = 0; x < 6; ++x) {
             for (u8 y = 0; y < 6; ++y) {
                 blocks_[z][x][y].type_ = blocks[z][x][y];
-                blocks_[z][x][y].repaint_ = true;
                 blocks_[z][x][y].data_ = 0;
             }
         }

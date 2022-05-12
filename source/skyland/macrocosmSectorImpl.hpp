@@ -74,7 +74,6 @@ public:
             for (int x = 0; x < sx / 2; x++) {
                 for (int y = x; y < sy - x - 1; y++) {
                     auto temp = blocks_[z][x][y];
-                    temp.repaint_ = true;
                     blocks_[z][x][y] = blocks_[z][y][sx - 1 - x];
                     blocks_[z][y][sx - 1 - x] =
                         blocks_[z][sx - 1 - x][sx - 1 - y];
@@ -100,7 +99,6 @@ public:
             for (int x = 0; x < sx; ++x) {
                 for (int y = 0; y < sy; ++y) {
                     auto& block = blocks_[z][x][y];
-                    block.repaint_ = true;
                     switch (block.type()) {
                     case terrain::Type::selector:
                         p_.cursor_ = {(u8)x, (u8)y, (u8)z};
@@ -194,21 +192,8 @@ public:
         raster::globalstate::_shrunk = true;
 
         p_.orientation_ = (Orientation)(((int)p_.orientation_ + 1) % 4);
+        raster::globalstate::_recalc_depth_test.fill();
     }
-
-
-
-    void set_repaint(bool value) override final
-    {
-        for (auto& slab : blocks_) {
-            for (auto& slice : slab) {
-                for (auto& block : slice) {
-                    block.repaint_ = value;
-                }
-            }
-        }
-    }
-
 
 
     void erase() override
@@ -219,7 +204,6 @@ public:
             for (auto& slice : slab) {
                 for (auto& block : slice) {
                     block.type_ = (u8)Type::air;
-                    block.repaint_ = true;
                     block.shadowed_ = true;
                     block.shadowed_day_ = true;
                 }
@@ -230,9 +214,30 @@ public:
             e->clear();
         }
 
+        raster::globalstate::_recalc_depth_test.fill();
+
         base_stats_cache_clear();
     }
 
+
+    void on_block_changed(const Vec3<u8>& coord) override
+    {
+        int t_start = Derived::screen_mapping_lut[coord.x][coord.y];
+        t_start += 30 * screen_y_offset;
+        t_start -= 30 * coord.z;
+        raster::globalstate::_recalc_depth_test.set(t_start, true);
+        raster::globalstate::_recalc_depth_test.set(t_start + 1, true);
+
+        t_start += 30;
+
+        raster::globalstate::_recalc_depth_test.set(t_start, true);
+        raster::globalstate::_recalc_depth_test.set(t_start + 1, true);
+
+        t_start += 30;
+
+        raster::globalstate::_recalc_depth_test.set(t_start, true);
+        raster::globalstate::_recalc_depth_test.set(t_start + 1, true);
+    }
 
 
     void shadowcast() override final
@@ -410,27 +415,29 @@ public:
                 t_start += 30 * screen_y_offset;
                 t_start -= 30 * z;
 
-
                 int texture = (block.type_ - 1) * 12 + 480;
                 if (block.shadowed_) {
                     texture += 6;
                 }
 
                 auto blit = [&](int texture, int t_start) {
+                    if (not raster::globalstate::_recalc_depth_test.get(t_start)) {
+                        return;
+                    }
                     rendering_function(
                         Vec3<u8>{(u8)x, (u8)y, (u8)z}, texture, t_start);
                     if (block.type() == Type::selector) {
                         globalstate::_cursor_raster_tiles.push_back(t_start);
                     }
 
-                    if (block.repaint_) {
-                        if (t_start < 480) {
-                            (*_db)->depth_1_needs_repaint.set(t_start, true);
-                        } else {
-                            (*_db)->depth_2_needs_repaint.set(t_start - 480,
-                                                              true);
-                        }
+
+                    if (t_start < 480) {
+                        (*_db)->depth_1_needs_repaint.set(t_start, true);
+                    } else {
+                        (*_db)->depth_2_needs_repaint.set(t_start - 480,
+                                                          true);
                     }
+
                 };
 
                 blit(texture, t_start);
@@ -517,7 +524,6 @@ public:
                 }
 
                 if (skip_repaint) {
-                    (*_db)->depth_1_skip_clear.set(i, true);
                     (*_db)->depth_1_->visible_[i] = nullptr;
                     continue;
                 }
@@ -528,7 +534,6 @@ public:
                     if (cg == opaque) {
                         // Cull non-visible tiles.
                         head->next_ = nullptr;
-                        (*_db)->depth_1_skip_clear.set(i, true);
                         break;
                     } else {
                         switch (cg) {
@@ -544,7 +549,6 @@ public:
                             for (auto& s : seen) {
                                 if (s == bot_angled_r) {
                                     head->next_ = nullptr;
-                                    (*_db)->depth_1_skip_clear.set(i, true);
                                     break;
                                 }
                             }
@@ -554,7 +558,6 @@ public:
                             for (auto& s : seen) {
                                 if (s == bot_angled_l) {
                                     head->next_ = nullptr;
-                                    (*_db)->depth_1_skip_clear.set(i, true);
                                     break;
                                 }
                             }
@@ -564,7 +567,6 @@ public:
                             for (auto& s : seen) {
                                 if (s == top_angled_r) {
                                     head->next_ = nullptr;
-                                    (*_db)->depth_1_skip_clear.set(i, true);
                                     break;
                                 }
                             }
@@ -574,7 +576,6 @@ public:
                             for (auto& s : seen) {
                                 if (s == top_angled_l) {
                                     head->next_ = nullptr;
-                                    (*_db)->depth_1_skip_clear.set(i, true);
                                     break;
                                 }
                             }
@@ -585,9 +586,8 @@ public:
 
                     head = head->next_;
                 }
-            } else {
-                (*_db)->depth_1_empty.set(i, true);
             }
+
             if (auto head = (*_db)->depth_2_->visible_[i]) {
                 bool skip_repaint = true;
                 if ((*_db)->depth_2_cursor_redraw.get(i)) {
@@ -599,7 +599,6 @@ public:
                     }
                 }
                 if (skip_repaint) {
-                    (*_db)->depth_2_skip_clear.set(i, true);
                     (*_db)->depth_2_->visible_[i] = nullptr;
                     continue;
                 }
@@ -609,7 +608,6 @@ public:
                     if (cg == opaque) {
                         // Cull non-visible tiles.
                         head->next_ = nullptr;
-                        (*_db)->depth_2_skip_clear.set(i, true);
                         break;
                     } else {
                         switch (cg) {
@@ -625,7 +623,6 @@ public:
                             for (auto& s : seen) {
                                 if (s == bot_angled_r) {
                                     head->next_ = nullptr;
-                                    (*_db)->depth_2_skip_clear.set(i, true);
                                     break;
                                 }
                             }
@@ -635,7 +632,6 @@ public:
                             for (auto& s : seen) {
                                 if (s == bot_angled_l) {
                                     head->next_ = nullptr;
-                                    (*_db)->depth_2_skip_clear.set(i, true);
                                     break;
                                 }
                             }
@@ -645,7 +641,6 @@ public:
                             for (auto& s : seen) {
                                 if (s == top_angled_r) {
                                     head->next_ = nullptr;
-                                    (*_db)->depth_2_skip_clear.set(i, true);
                                     break;
                                 }
                             }
@@ -655,7 +650,6 @@ public:
                             for (auto& s : seen) {
                                 if (s == top_angled_l) {
                                     head->next_ = nullptr;
-                                    (*_db)->depth_2_skip_clear.set(i, true);
                                     break;
                                 }
                             }
@@ -666,8 +660,6 @@ public:
 
                     head = head->next_;
                 }
-            } else {
-                (*_db)->depth_2_empty.set(i, true);
             }
         }
 

@@ -59,6 +59,8 @@ Buffer<u16, 6> _cursor_raster_tiles;
 Buffer<u16, 6> _cursor_raster_stack[6];
 bool is_night = false;
 
+Bitvector<480 * 2> _recalc_depth_test;
+
 } // namespace globalstate
 } // namespace raster
 
@@ -1343,16 +1345,16 @@ static bool revert_if_covered(terrain::Sector& s,
             terrain::categories(above.type()) &
                 terrain::Categories::fluid_lava) {
             block.type_ = (u8)terrain::Type::volcanic_soil;
-            block.repaint_ = true;
             raster::globalstate::_changed = true;
             s.base_stats_cache_clear();
+            s.on_block_changed(position);
             return true;
         } else if (above.type() not_eq terrain::Type::selector and
                    above.type() not_eq terrain::Type::air) {
             block.type_ = (u8)revert_to;
-            block.repaint_ = true;
             raster::globalstate::_changed = true;
             s.base_stats_cache_clear();
+            s.on_block_changed(position);
             return true;
         }
     }
@@ -1716,9 +1718,10 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             auto& above = s.get_block(position);
             if (terrain::categories(above.type()) & terrain::Categories::fluid_lava) {
                 block.type_ = (u8)terrain::Type::volcanic_soil;
-                block.repaint_ = true;
                 raster::globalstate::_changed = true;
                 s.base_stats_cache_clear();
+                position.z--;
+                s.on_block_changed(position);
             }
         }
     },
@@ -1731,7 +1734,6 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         if (block.data_ == 0) {
             block.data_ = 10;
             block.shadowed_ = not block.shadowed_;
-            block.repaint_ = true;
             raster::globalstate::_changed_cursor_flicker_only = true;
         }
 
@@ -2069,9 +2071,9 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             if (above.type() == terrain::Type::marble_top or
                 above.type() == terrain::Type::marble) {
                 block.type_ = (u8)terrain::Type::marble;
-                block.repaint_ = true;
                 raster::globalstate::_changed = true;
                 s.base_stats_cache_clear();
+                s.on_block_changed(position);
             }
         }
     },

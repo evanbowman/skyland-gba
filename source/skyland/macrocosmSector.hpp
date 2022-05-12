@@ -223,7 +223,7 @@ public:
     void repaint();
 
 
-    virtual void set_repaint(bool val) = 0;
+    virtual void on_block_changed(const Vec3<u8>& coord) = 0;
 
 
     Vec3<u8> size() const

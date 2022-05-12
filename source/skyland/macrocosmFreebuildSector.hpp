@@ -80,7 +80,6 @@ public:
                 for (u8 y = 0; y < 10; ++y) {
                     blocks_[z][x][y].type_ = 0;
                     blocks_[z][x][y].data_ = 0;
-                    blocks_[z][x][y].repaint_ = true;
                 }
             }
         }
@@ -119,7 +118,6 @@ public:
                     for (u8 y = 0; y < 10; ++y) {
                         blocks_[z][x][y].type_ = *it;
                         blocks_[z][x][y].data_ = 0;
-                        blocks_[z][x][y].repaint_ = true;
 
                         if ((Type)*it == Type::selector) {
                             p_.cursor_ = {x, y, z};

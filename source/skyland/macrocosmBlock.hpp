@@ -110,6 +110,7 @@ enum class Type {
     marble,
     marble_top,
     scaffolding,
+
     count,
 };
 
@@ -166,11 +167,7 @@ struct Block
     u8 shadowed_ : 1;
     u8 shadowed_day_ : 1;
 
-    // Should be redrawn on the next render call.
-    u8 repaint_ : 1;
-
-    u8 data_ : 5;
-
+    u8 data_ : 6;
 
     Stats stats() const;
     SystemString name() const;

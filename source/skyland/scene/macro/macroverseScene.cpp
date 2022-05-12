@@ -280,6 +280,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (exit_) {
         m.sector().shadowcast();
+        raster::globalstate::_recalc_depth_test.fill();
         return scene_pool::alloc<SelectorScene>();
     }
 

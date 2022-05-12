@@ -95,6 +95,13 @@ public:
         }
     }
 
+    constexpr void fill()
+    {
+        for (u8& byte : data_) {
+            byte = 255;
+        }
+    }
+
     const Data* data() const
     {
         return &data_;

@@ -155,7 +155,7 @@ u16 terrain::Sector::quantity_non_exported(Commodity::Type t)
 
 void terrain::Sector::repaint()
 {
-    set_repaint(true);
+    raster::globalstate::_recalc_depth_test.fill();
 
 
     raster::globalstate::_changed = true;
@@ -466,7 +466,6 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
     }
 
     selected.type_ = (u8)type;
-    selected.repaint_ = true;
 
     if ((prev_type not_eq Type::air and prev_type not_eq Type::selector and
          type == Type::air) or
@@ -474,7 +473,7 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
         for (int z = coord.z - 1; z > -1; --z) {
             auto& selected = ref_block({coord.x, coord.y, (u8)z});
             if (selected.type_ not_eq 0 and not selected.shadowed_day_) {
-                selected.repaint_ = true;
+                on_block_changed({coord.x, coord.y, (u8)z});
             }
         }
     }
@@ -504,10 +503,11 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
         // Lighting pattern changed, or block removed (assigned as air), just
         // redraw everything.
 
-        set_repaint(true);
+        raster::globalstate::_recalc_depth_test.fill();
     }
 
     raster::globalstate::_changed = true;
+    on_block_changed(coord);
 }
 
 
@@ -595,11 +595,6 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
 
 bool terrain::Sector::set_z_view(u8 z_view)
 {
-    // auto c = cursor();
-    // if (z_view <= c.z) {
-    //     return false;
-    // }
-
     if (z_view > size_.z) {
         z_view_ = size_.z;
         return false;
@@ -610,8 +605,10 @@ bool terrain::Sector::set_z_view(u8 z_view)
     raster::globalstate::_changed = true;
     raster::globalstate::_shrunk = true;
 
+    raster::globalstate::_recalc_depth_test.fill();
 
-    set_repaint(true);
+
+    raster::globalstate::_recalc_depth_test.fill();
 
 
     return true;
@@ -751,7 +748,7 @@ void terrain::Sector::render(Platform& pfrm)
             }
 
         } else if ((cursor_moved or shrunk) and
-                   not(*_db)->depth_1_skip_clear.get(i)) {
+                   raster::globalstate::_recalc_depth_test.get(i)) {
             pfrm.blit_t0_erase(i);
         }
 
@@ -774,30 +771,13 @@ void terrain::Sector::render(Platform& pfrm)
 
 
         } else if ((cursor_moved or shrunk) and
-                   not(*_db)->depth_2_skip_clear.get(i)) {
+                   raster::globalstate::_recalc_depth_test.get(i + 480)) {
             pfrm.blit_t1_erase(i);
         }
     }
 
     [[maybe_unused]] auto stop = pfrm.delta_clock().sample();
     // pfrm.fatal(stringify(stop - start).c_str());
-
-
-    if (globalstate::_cursor_moved) {
-        // Handle these out of line, as not to slow down the main rendering
-        // block.
-        for (int i = 0; i < 480; ++i) {
-            if (cursor_moved and (*_db)->depth_1_empty.get(i)) {
-                pfrm.blit_t0_erase(i);
-            }
-            if (cursor_moved and (*_db)->depth_2_empty.get(i)) {
-                pfrm.blit_t1_erase(i);
-            }
-        }
-    }
-
-
-    set_repaint(false);
 
 
     globalstate::_changed = false;
@@ -807,6 +787,7 @@ void terrain::Sector::render(Platform& pfrm)
     globalstate::_changed_cursor_flicker_only = false;
 
     _db.reset();
+    raster::globalstate::_recalc_depth_test.clear();
 }
 
 

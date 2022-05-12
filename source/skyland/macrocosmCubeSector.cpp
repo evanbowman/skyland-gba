@@ -45,7 +45,6 @@ void terrain::CubeSector::restore(const Persistent& p, u8 blocks[z_limit][8][8])
         for (u8 x = 0; x < 8; ++x) {
             for (u8 y = 0; y < 8; ++y) {
                 blocks_[z][x][y].type_ = blocks[z][x][y];
-                blocks_[z][x][y].repaint_ = true;
                 blocks_[z][x][y].data_ = 0;
             }
         }

@@ -88,6 +88,21 @@ extern Buffer<u16, 6> _cursor_raster_stack[6];
 // Day/Night
 extern bool is_night;
 
+// Specific screen entries queued for redraw. The engine will only render blocks
+// overlapping with the raster entry bits in this array. Without optimizations
+// to only redraw a subset of the map, the game lags significantly. Added after
+// a month of work on the engine, improved cursor scrolling speed
+// significantly. I did previous optimizations to only redraw changed blocks,
+// but storing a persistent global variable in this way allowed me to also skip
+// large parts of the depth testing, in addition to the redraw.
+//
+// NOTE: IMPORTANT: The engine will get confused and drop tiles if a block is
+// created and destroyed within the same frame. Not relevant in most cases, but
+// worth noting. i.e. I had to be careful to make sure that the cursor block
+// does not scroll e.g. right then down in the same frame, would result in
+// erasure of tiles under the block's first (right) position.
+extern Bitvector<480 * 2> _recalc_depth_test;
+
 } // namespace globalstate
 
 
@@ -160,12 +175,6 @@ struct DepthBuffer
 
     Bitvector<480> depth_1_cursor_redraw;
     Bitvector<480> depth_2_cursor_redraw;
-
-    Bitvector<480> depth_1_skip_clear;
-    Bitvector<480> depth_2_skip_clear;
-
-    Bitvector<480> depth_1_empty;
-    Bitvector<480> depth_2_empty;
 };
 
 
