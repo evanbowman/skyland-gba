@@ -58,10 +58,6 @@ AssignWeaponGroupScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case State::assign_rooms:
-        // if (app.player().key_down(pfrm, Key::action_2)) {
-        //     state_ = State::select_group;
-        //     break;
-        // }
 
         if (app.player().key_down(pfrm, Key::action_2)) {
             return scene_pool::alloc<ReadyScene>();
