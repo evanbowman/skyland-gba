@@ -366,6 +366,10 @@ public:
             return;
         }
 
+        if (z_view_ > size().z) {
+            set_z_view(size().z);
+        }
+
         auto prev_cursor_raster_tiles = globalstate::_cursor_raster_tiles;
         globalstate::_cursor_raster_tiles.clear();
 
