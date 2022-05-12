@@ -781,19 +781,16 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                             }
 
                             u8 width = m.sector().size().x;
-                            m.sector().set_block({u8(width / 2),
-                                                  u8(width / 2),
-                                                  0},
-                                                 terrain::Type::terrain);
+                            m.sector().set_block(
+                                {u8(width / 2), u8(width / 2), 0},
+                                terrain::Type::terrain);
 
-                            m.sector().set_block({u8(width / 2),
-                                                  u8(width / 2),
-                                                  1},
-                                                 terrain::Type::building);
+                            m.sector().set_block(
+                                {u8(width / 2), u8(width / 2), 1},
+                                terrain::Type::building);
 
-                            m.sector().set_cursor({u8(width / 2),
-                                                   u8(width / 2),
-                                                   2});
+                            m.sector().set_cursor(
+                                {u8(width / 2), u8(width / 2), 2});
 
                             pfrm.speaker().play_sound("button_wooden", 2);
                         }

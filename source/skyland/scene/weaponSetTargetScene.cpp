@@ -116,7 +116,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
 
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
             app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
         }
     }
@@ -126,7 +126,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
 
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
             app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
         }
     }
@@ -136,7 +136,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
 
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
             app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
         }
     }
@@ -146,7 +146,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
             clear_room_description(pfrm, room_description_);
             describe_room_timer_ = milliseconds(300);
 
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
             app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
         }
     }

@@ -109,7 +109,7 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
             sector.render(pfrm);
             pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
             draw_compass(pfrm, state);
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         } else if (player.key_down(pfrm, Key::right)) {
             pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
             pfrm.screen().clear();
@@ -120,7 +120,7 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
             sector.render(pfrm);
             pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
             draw_compass(pfrm, state);
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         } else if (player.key_down(pfrm, Key::down) and
                    sector.get_z_view() > 0) {
             bool success = sector.set_z_view(sector.get_z_view() - 1);
@@ -130,7 +130,7 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
                 visible_layers_text_->assign(
                     SYSTR(macro_visible_layers)->c_str());
                 visible_layers_text_->append(state.sector().get_z_view());
-                pfrm.speaker().play_sound("cursor_tick", 2);
+                pfrm.speaker().play_sound("cursor_tick", 0);
             }
         } else if (player.key_down(pfrm, Key::up)) {
             bool success = sector.set_z_view(sector.get_z_view() + 1);
@@ -140,7 +140,7 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
                 visible_layers_text_->assign(
                     SYSTR(macro_visible_layers)->c_str());
                 visible_layers_text_->append(state.sector().get_z_view());
-                pfrm.speaker().play_sound("cursor_tick", 2);
+                pfrm.speaker().play_sound("cursor_tick", 0);
             }
         } else if (player.key_down(pfrm, Key::action_1)) {
             pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
@@ -151,14 +151,13 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
                 pfrm.load_background_texture("background_macro_night");
             } else {
                 pfrm.load_background_texture("background_macro");
-
             }
             sector.shadowcast();
             sector.set_repaint(true);
             raster::globalstate::_changed = true;
             sector.render(pfrm);
             pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         }
 
     } else {

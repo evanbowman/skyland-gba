@@ -32,8 +32,10 @@ namespace skyland::macro
 
 struct State
 {
-    virtual ~State() {}
+    virtual ~State()
+    {
+    }
 };
 
 
-}
+} // namespace skyland::macro

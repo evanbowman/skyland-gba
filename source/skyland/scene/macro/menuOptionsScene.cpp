@@ -121,16 +121,16 @@ ScenePtr<Scene> MenuOptionsScene::update(Platform& pfrm,
         player.key_pressed(pfrm, Key::alt_2)) {
 
         if (player.key_down(pfrm, Key::left)) {
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
             return scene_pool::alloc<ViewBudgetScene>();
         } else if (player.key_down(pfrm, Key::right)) {
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
             return scene_pool::alloc<NextTurnScene>();
         } else if (player.key_down(pfrm, Key::down)) {
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
             return scene_pool::alloc<ViewCommoditiesScene>();
         } else if (player.key_down(pfrm, Key::up)) {
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
             pfrm.fill_overlay(0);
             return scene_pool::alloc<MacroverseScene>(true);
         }

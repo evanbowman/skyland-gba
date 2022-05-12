@@ -58,28 +58,28 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.player().key_down(pfrm, Key::left)) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         }
     }
 
     if (app.player().key_down(pfrm, Key::right)) {
         if (cursor_loc.x < app.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         }
     }
 
     if (app.player().key_down(pfrm, Key::up)) {
         if (cursor_loc.y > construction_zone_min_y) {
             --cursor_loc.y;
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         }
     }
 
     if (app.player().key_down(pfrm, Key::down)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         }
     }
 

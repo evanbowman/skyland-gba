@@ -488,8 +488,8 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
     }
 
 
-    if (not ((prev_type == Type::air and type == Type::selector) or
-             (prev_type == Type::selector and type == Type::air))) {
+    if (not((prev_type == Type::air and type == Type::selector) or
+            (prev_type == Type::selector and type == Type::air))) {
         raster::globalstate::_recast_shadows = true;
     }
 
@@ -564,7 +564,8 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
     cursor_block.shadowed_ = false;
 
     if (p_.cursor_.z > 0) {
-        auto& beneath = get_block({p_.cursor_.x, p_.cursor_.y, u8(p_.cursor_.z - 1)});
+        auto& beneath =
+            get_block({p_.cursor_.x, p_.cursor_.y, u8(p_.cursor_.z - 1)});
         switch (beneath.type()) {
         case Type::ice:
         case Type::masonry:

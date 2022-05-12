@@ -68,8 +68,7 @@ void CreateBlockScene::collect_options(macro::StateImpl& state)
     if (not state.data_->freebuild_mode_ and
         not state.data_->other_sectors_.empty()) {
         auto stats = state.sector().base_stats();
-        if (not stats.commodities_.empty() and
-            state.sector().exports()) {
+        if (not stats.commodities_.empty() and state.sector().exports()) {
             options_.push_back(terrain::Type::port);
         }
     }
@@ -340,7 +339,7 @@ ScenePtr<Scene> CreateBlockScene::update(Platform& pfrm,
 
     if (player.key_pressed(pfrm, Key::alt_1)) {
         if (player.key_down(pfrm, Key::right)) {
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
             state.advance(1);
             update_ui(state);
         }
@@ -411,7 +410,7 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
             }
 
         } else {
-            pfrm.speaker().play_sound("cursor_tick", 2);
+            pfrm.speaker().play_sound("cursor_tick", 0);
         }
     }
 

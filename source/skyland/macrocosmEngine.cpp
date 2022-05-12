@@ -427,7 +427,8 @@ void StateImpl::save(Platform& pfrm)
 
     save::Header header;
     memcpy(&header.p_, &data_->persistent_, sizeof data_->persistent_);
-    header.num_sectors_ = 1 + data_->other_sectors_.size() + data_->outpost_sectors_.size();
+    header.num_sectors_ =
+        1 + data_->other_sectors_.size() + data_->outpost_sectors_.size();
 
     for (u32 i = 0; i < sizeof header; ++i) {
         save_data.push_back(((u8*)&header)[i]);
@@ -570,7 +571,8 @@ bool StateImpl::load(Platform& pfrm)
 
 
 
-terrain::Sector* StateImpl::make_sector(Vec2<s8> coord, terrain::Sector::Shape shape)
+terrain::Sector* StateImpl::make_sector(Vec2<s8> coord,
+                                        terrain::Sector::Shape shape)
 {
     if (load_sector(coord)) {
         return nullptr;

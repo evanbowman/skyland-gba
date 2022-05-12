@@ -59,8 +59,7 @@ void background_init(Platform& pfrm)
 
 
 
-}
-
+} // namespace macro
 
 
 
