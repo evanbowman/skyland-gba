@@ -84,6 +84,10 @@ extern Buffer<u16, 6> _cursor_raster_tiles;
 // about anything beneath it (because the pixels for the light and the dark
 // cursor are the same).
 extern Buffer<u16, 6> _cursor_raster_stack[6];
+
+// Day/Night
+extern bool is_night;
+
 } // namespace globalstate
 
 

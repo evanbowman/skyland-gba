@@ -143,6 +143,7 @@ build improvement:
 demolish block:
 :rotate
 :layers
+:day.night
 view threshold: 
 :next turn
 :budget

@@ -473,7 +473,7 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
         (type not_eq Type::selector and type not_eq Type::air)) {
         for (int z = coord.z - 1; z > -1; --z) {
             auto& selected = ref_block({coord.x, coord.y, (u8)z});
-            if (selected.type_ not_eq 0 and not selected.shadowed_) {
+            if (selected.type_ not_eq 0 and not selected.shadowed_day_) {
                 selected.repaint_ = true;
             }
         }

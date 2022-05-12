@@ -221,6 +221,7 @@ public:
                     block.type_ = (u8)Type::air;
                     block.repaint_ = true;
                     block.shadowed_ = true;
+                    block.shadowed_day_ = true;
                 }
             }
         }
@@ -239,7 +240,12 @@ public:
         for (int z = 0; z < sz; ++z) {
             for (int x = 0; x < sx; ++x) {
                 for (int y = 0; y < sy; ++y) {
-                    blocks_[z][x][y].shadowed_ = false;
+                    blocks_[z][x][y].shadowed_day_ = false;
+                    if (raster::globalstate::is_night) {
+                        blocks_[z][x][y].shadowed_ = true;
+                    } else {
+                        blocks_[z][x][y].shadowed_ = false;
+                    }
                 }
             }
         }
@@ -250,7 +256,10 @@ public:
                 for (int z = sz - 1; z > -1; --z) {
                     auto t = blocks_[z][x][y].type();
                     if (shadow) {
-                        blocks_[z][x][y].shadowed_ = true;
+                        blocks_[z][x][y].shadowed_day_ = true;
+                        if (not raster::globalstate::is_night) {
+                            blocks_[z][x][y].shadowed_ = true;
+                        }
                     } else if (blocks_light(t)) {
                         shadow = true;
                     }
@@ -268,6 +277,7 @@ public:
                             if (zz > -1) {
                                 auto& block = blocks_[zz][x][y];
                                 blocks_[zz][x][y].shadowed_ = false;
+                                blocks_[zz][x][y].shadowed_day_ = false;
                                 if (blocks_light(block.type())) {
                                     break;
                                 }
@@ -284,6 +294,7 @@ public:
                                 block.shadowed_ = false;
                                 if (z > 0) {
                                     blocks_[z - 1][xx][y].shadowed_ = false;
+                                    blocks_[z - 1][xx][y].shadowed_day_ = false;
                                 }
                             }
                         }
@@ -298,6 +309,7 @@ public:
                                 block.shadowed_ = false;
                                 if (z > 0) {
                                     blocks_[z - 1][xx][y].shadowed_ = false;
+                                    blocks_[z - 1][xx][y].shadowed_day_ = false;
                                 }
                             }
                         }
@@ -312,6 +324,7 @@ public:
                                 block.shadowed_ = false;
                                 if (z > 0) {
                                     blocks_[z - 1][x][yy].shadowed_ = false;
+                                    blocks_[z - 1][x][yy].shadowed_day_ = false;
                                 }
                             }
                         }
@@ -326,6 +339,7 @@ public:
                                 block.shadowed_ = false;
                                 if (z > 0) {
                                     blocks_[z - 1][x][yy].shadowed_ = false;
+                                    blocks_[z - 1][x][yy].shadowed_day_ = false;
                                 }
                             }
                         }
@@ -338,6 +352,7 @@ public:
                                     break;
                                 }
                                 blocks_[zz][x][y].shadowed_ = false;
+                                blocks_[zz][x][y].shadowed_day_ = false;
                             }
                         }
                     }

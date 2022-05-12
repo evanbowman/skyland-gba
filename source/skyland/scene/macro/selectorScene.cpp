@@ -165,7 +165,7 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::StateImpl& state)
         auto& block = sector.get_block(cursor);
         tp = block.type();
         s = block.name();
-        shadowed = block.shadowed_;
+        shadowed = block.shadowed_day_;
     }
 
     if (tp == terrain::Type::port) {

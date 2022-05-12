@@ -159,10 +159,17 @@ struct Block
 {
     u8 type_;
 
+    // Make distinction between shadowed during the day and shadowed at night,
+    // b/c the engine considers daytime lighting when determining crop yields.
+    // Shadowed represents the current display state, while shadowed_day_
+    // represents which blocks are shadowed during daytime.
     u8 shadowed_ : 1;
+    u8 shadowed_day_ : 1;
+
+    // Should be redrawn on the next render call.
     u8 repaint_ : 1;
 
-    u8 data_ : 6;
+    u8 data_ : 5;
 
 
     Stats stats() const;

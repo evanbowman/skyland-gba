@@ -45,16 +45,20 @@ void ModifiedSelectorScene::enter(Platform& pfrm,
 
     Text::platform_retain_alphabet(pfrm);
 
+    StringBuffer<64> day_night_str("a");
+    day_night_str += SYSTR(macro_day_or_night)->c_str();
+    day_night_text_.emplace(pfrm, day_night_str.c_str(), OverlayCoord{1, 1});
+
     rotate_text_.emplace(
-        pfrm, SYSTR(macro_rotate)->c_str(), OverlayCoord{3, 1});
+        pfrm, SYSTR(macro_rotate)->c_str(), OverlayCoord{3, 2});
 
     layers_text_.emplace(
-        pfrm, SYSTR(macro_layers)->c_str(), OverlayCoord{3, 2});
+        pfrm, SYSTR(macro_layers)->c_str(), OverlayCoord{3, 3});
 
-    pfrm.set_tile(Layer::overlay, 1, 1, 394);
-    pfrm.set_tile(Layer::overlay, 2, 1, 395);
-    pfrm.set_tile(Layer::overlay, 1, 2, 392);
-    pfrm.set_tile(Layer::overlay, 2, 2, 393);
+    pfrm.set_tile(Layer::overlay, 1, 2, 394);
+    pfrm.set_tile(Layer::overlay, 2, 2, 395);
+    pfrm.set_tile(Layer::overlay, 1, 3, 392);
+    pfrm.set_tile(Layer::overlay, 2, 3, 393);
 
     visible_layers_text_.emplace(
         pfrm, OverlayCoord{0, (u8)(calc_screen_tiles(pfrm).y - 1)});
@@ -72,10 +76,11 @@ void ModifiedSelectorScene::exit(Platform& pfrm,
     MacrocosmScene::exit(pfrm, state, next);
     rotate_text_.reset();
     layers_text_.reset();
-    pfrm.set_tile(Layer::overlay, 1, 1, 0);
-    pfrm.set_tile(Layer::overlay, 2, 1, 0);
+    day_night_text_.reset();
     pfrm.set_tile(Layer::overlay, 1, 2, 0);
     pfrm.set_tile(Layer::overlay, 2, 2, 0);
+    pfrm.set_tile(Layer::overlay, 1, 3, 0);
+    pfrm.set_tile(Layer::overlay, 2, 3, 0);
 }
 
 
@@ -101,6 +106,7 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
             pfrm.screen().clear();
             pfrm.screen().display();
             sector.rotate();
+            sector.render(pfrm);
             pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
             draw_compass(pfrm, state);
             pfrm.speaker().play_sound("cursor_tick", 2);
@@ -111,6 +117,7 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
             sector.rotate();
             sector.rotate();
             sector.rotate();
+            sector.render(pfrm);
             pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
             draw_compass(pfrm, state);
             pfrm.speaker().play_sound("cursor_tick", 2);
@@ -135,6 +142,23 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
                 visible_layers_text_->append(state.sector().get_z_view());
                 pfrm.speaker().play_sound("cursor_tick", 2);
             }
+        } else if (player.key_down(pfrm, Key::action_1)) {
+            pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
+            pfrm.screen().clear();
+            pfrm.screen().display();
+            raster::globalstate::is_night = not raster::globalstate::is_night;
+            if (raster::globalstate::is_night) {
+                pfrm.load_background_texture("background_macro_night");
+            } else {
+                pfrm.load_background_texture("background_macro");
+
+            }
+            sector.shadowcast();
+            sector.set_repaint(true);
+            raster::globalstate::_changed = true;
+            sector.render(pfrm);
+            pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
+            pfrm.speaker().play_sound("cursor_tick", 2);
         }
 
     } else {

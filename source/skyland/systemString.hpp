@@ -202,6 +202,7 @@ enum class SystemString {
     macro_demolish,
     macro_rotate,
     macro_layers,
+    macro_day_or_night,
     macro_visible_layers,
     macro_next_turn,
     macro_budget,

@@ -50,6 +50,7 @@ public:
 
 
 private:
+    std::optional<Text> day_night_text_;
     std::optional<Text> rotate_text_;
     std::optional<Text> layers_text_;
     std::optional<Text> visible_layers_text_;

@@ -57,6 +57,7 @@ bool _cursor_moved = false;
 bool _changed_cursor_flicker_only = false;
 Buffer<u16, 6> _cursor_raster_tiles;
 Buffer<u16, 6> _cursor_raster_stack[6];
+bool is_night = false;
 
 } // namespace globalstate
 } // namespace raster
@@ -799,8 +800,8 @@ SystemString terrain::Commodity::name() const
 
 terrain::Stats terrain::Block::stats() const
 {
-    auto st = terrain::stats(type(), shadowed_);
-    if (shadowed_) {
+    auto st = terrain::stats(type(), shadowed_day_);
+    if (shadowed_day_) {
         st.food_ /= 2;
     }
     return st;

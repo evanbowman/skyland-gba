@@ -358,6 +358,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/spritesheet.s
     ${DATA_DIR}/background.s
     ${DATA_DIR}/background_macro.s
+    ${DATA_DIR}/background_macro_night.s
     ${DATA_DIR}/background_title_screen.s
     ${DATA_DIR}/spritesheet_title_screen.s
     ${DATA_DIR}/spritesheet_intro.s
@@ -654,6 +655,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_tilesheet(gba_health_safety_logo 2 2 YES NO)
     add_background(background 0 0 NO NO)
     add_background(background_macro 0 0 NO NO)
+    add_background(background_macro_night 0 0 NO NO)
     add_background(background_title_screen 0 0 NO NO)
     add_overlay(overlay 0 0 NO NO)
     add_overlay(overlay_qr 0 0 NO NO)

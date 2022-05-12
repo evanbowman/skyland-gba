@@ -276,7 +276,10 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         Platform::fatal(format("% %", __FILE__, __LINE__).c_str());
     }
 
+    auto& m = macrocosm(app);
+
     if (exit_) {
+        m.sector().shadowcast();
         return scene_pool::alloc<SelectorScene>();
     }
 
@@ -347,9 +350,6 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     v.set_center(camera_);
     pfrm.screen().set_view(v);
-
-
-    auto& m = macrocosm(app);
 
     auto freebuild_flag = GlobalPersistentData::freebuild_unlocked;
     if (not app.gp_.stateflags_.get(freebuild_flag)) {

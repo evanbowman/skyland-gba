@@ -73,6 +73,8 @@
 //;
 #include "data/background_macro.h"
 //;
+#include "data/background_macro_night.h"
+//;
 #include "data/background_title_screen.h"
 //;
 #include "data/overlay.h"
@@ -236,6 +238,8 @@ static const TextureData background_textures[] = {
     TEXTURE_INFO(background),
 //;
     TEXTURE_INFO(background_macro),
+//;
+    TEXTURE_INFO(background_macro_night),
 //;
     TEXTURE_INFO(background_title_screen),
 //
