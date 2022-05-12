@@ -618,7 +618,7 @@ terrain::Sector* StateImpl::make_sector(Vec2<s8> coord, terrain::Sector::Shape s
     if (s) {
         StringBuffer<terrain::Sector::name_len - 1> n;
         if (shape == terrain::Sector::Shape::outpost) {
-            n += "cay_";
+            n += "atol_";
             n += stringify(data_->outpost_sectors_.size());
         } else {
             n += "isle_";

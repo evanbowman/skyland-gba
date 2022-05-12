@@ -149,7 +149,7 @@ view threshold:
 enter
 create colony
 isle (fullsize)
-cay (tiny)
+atol (tiny)
 edit name
 available: %
 cost: %_ %_
