@@ -237,6 +237,8 @@ public:
 
     void shadowcast() override final
     {
+        auto& prev_cursor = ref_block(cursor());
+
         for (int z = 0; z < sz; ++z) {
             for (int x = 0; x < sx; ++x) {
                 for (int y = 0; y < sy; ++y) {
@@ -359,6 +361,8 @@ public:
                 }
             }
         }
+
+        ref_block(cursor()) = prev_cursor;
     }
 
 
