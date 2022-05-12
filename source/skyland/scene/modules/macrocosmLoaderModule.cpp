@@ -23,6 +23,47 @@ void __draw_image(Platform& pfrm,
 
 
 
+namespace macro
+{
+
+
+
+void background_init(Platform& pfrm)
+{
+    for (int x = 0; x < 32; ++x) {
+        for (int y = 0; y < 20; ++y) {
+            pfrm.set_tile(Layer::background, x, y, 72);
+        }
+        for (int y = 0; y < 2; ++y) {
+            pfrm.set_tile(Layer::background, x, y, 74);
+        }
+        for (int y = 2; y < 4; ++y) {
+            pfrm.set_tile(Layer::background, x, y, 75);
+        }
+    }
+    draw_image(pfrm, 4, 14, 17, 6, 3, Layer::background);
+    draw_image(pfrm, 22, 9, 8, 2, 1, Layer::background);
+    draw_image(pfrm, 24, 12, 5, 2, 1, Layer::background);
+    pfrm.set_tile(Layer::background, 3, 4, 26);
+
+    // Stars, for night view.
+    pfrm.set_tile(Layer::background, 0, 1, 77);
+    pfrm.set_tile(Layer::background, 16, 1, 78);
+    pfrm.set_tile(Layer::background, 23, 0, 79);
+
+    pfrm.set_tile(Layer::background, 11, 2, 80);
+    pfrm.set_tile(Layer::background, 12, 3, 81);
+    pfrm.set_tile(Layer::background, 21, 3, 82);
+    pfrm.set_tile(Layer::background, 27, 2, 83);
+}
+
+
+
+}
+
+
+
+
 void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.speaker().play_music(app.environment().music(), 0);
@@ -44,21 +85,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
         }
     }
 
-    for (int x = 0; x < 32; ++x) {
-        for (int y = 0; y < 20; ++y) {
-            pfrm.set_tile(Layer::background, x, y, 72);
-        }
-        for (int y = 0; y < 2; ++y) {
-            pfrm.set_tile(Layer::background, x, y, 74);
-        }
-        for (int y = 2; y < 4; ++y) {
-            pfrm.set_tile(Layer::background, x, y, 75);
-        }
-    }
-    draw_image(pfrm, 4, 14, 17, 6, 3, Layer::background);
-    draw_image(pfrm, 22, 9, 8, 2, 1, Layer::background);
-    draw_image(pfrm, 24, 12, 5, 2, 1, Layer::background);
-    pfrm.set_tile(Layer::background, 3, 4, 26);
+    macro::background_init(pfrm);
 
 
     pfrm.screen().set_view({});

@@ -245,6 +245,10 @@ struct StateImpl : public State
 
 
 
+void background_init(Platform&);
+
+
+
 } // namespace skyland::macro
 
 

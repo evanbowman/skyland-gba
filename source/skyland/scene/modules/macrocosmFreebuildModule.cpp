@@ -9,6 +9,7 @@
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/weather/storm.hpp"
+#include "skyland/macrocosmEngine.hpp"
 
 
 
@@ -62,21 +63,8 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
         }
     }
 
-    for (int x = 0; x < 32; ++x) {
-        for (int y = 0; y < 20; ++y) {
-            pfrm.set_tile(Layer::background, x, y, 72);
-        }
-        for (int y = 0; y < 2; ++y) {
-            pfrm.set_tile(Layer::background, x, y, 74);
-        }
-        for (int y = 2; y < 4; ++y) {
-            pfrm.set_tile(Layer::background, x, y, 75);
-        }
-    }
-    draw_image(pfrm, 4, 14, 17, 6, 3, Layer::background);
-    draw_image(pfrm, 22, 9, 8, 2, 1, Layer::background);
-    draw_image(pfrm, 24, 12, 5, 2, 1, Layer::background);
-    pfrm.set_tile(Layer::background, 3, 4, 26);
+
+    macro::background_init(pfrm);
 
 
     pfrm.screen().set_view({});
