@@ -390,6 +390,15 @@ public:
             return;
         }
 
+        // Deals with a number of edge cases, primarily where the layout of the
+        // level changes without the cursor moving, e.g. fluids. We keep a cache
+        // of the depth buffer entries associated with the cursor, so we need to
+        // make sure we do depth testing for raster tiles associated with the
+        // cursor block at all times. An inconvenience resulting from the many
+        // optimizations that I do on the cursor block to make the game feel
+        // smooth.
+        on_block_changed(p_.cursor_);
+
         if (z_view_ > size().z) {
             set_z_view(size().z);
         }
