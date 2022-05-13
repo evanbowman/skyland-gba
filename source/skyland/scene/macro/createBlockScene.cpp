@@ -593,6 +593,10 @@ void ConfigurePortScene::collect_options(macro::StateImpl& state)
             options_.push_back(terrain::Type::sunflowers);
             break;
 
+        case terrain::Commodity::tulips:
+            options_.push_back(terrain::Type::tulips);
+            break;
+
         case terrain::Commodity::wool:
             options_.push_back(terrain::Type::wool);
             break;

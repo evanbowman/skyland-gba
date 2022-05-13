@@ -131,6 +131,7 @@ enum class SystemString {
     block_synth,
     block_tea,
     block_terrain,
+    block_tulips,
     block_dynamite_1,
     block_dynamite_2,
     block_torch,

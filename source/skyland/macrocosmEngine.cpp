@@ -673,6 +673,13 @@ Stats stats(Type t, bool shadowed)
         result.employment_ += 2;
         break;
 
+    case terrain::Type::tulips:
+        if (not shadowed) {
+            result.commodities_.push_back({Commodity::Type::tulips, 1});
+        }
+        result.employment_ += 2;
+        break;
+
     case terrain::Type::indigo:
         if (not shadowed) {
             result.commodities_.push_back({Commodity::Type::indigo, 1});
@@ -771,6 +778,9 @@ SystemString terrain::name(terrain::Commodity::Type t)
     case Commodity::sunflowers:
         return SystemString::block_sunflower;
 
+    case Commodity::tulips:
+        return SystemString::block_tulips;
+
     case Commodity::wool:
         return SystemString::block_wool;
 
@@ -838,6 +848,7 @@ terrain::Categories terrain::categories(Type t)
     case terrain::Type::cocoa:
     case terrain::Type::tea:
     case terrain::Type::lumber:
+    case terrain::Type::tulips:
         return Categories::crop;
 
     case terrain::Type::water_source:
@@ -950,6 +961,9 @@ Coins terrain::cost(Sector& s, Type t)
         return 270;
 
     case terrain::Type::sunflowers:
+        return 120;
+
+    case terrain::Type::tulips:
         return 120;
 
     case terrain::Type::indigo:
@@ -1077,6 +1091,9 @@ SystemString terrain::name(Type t)
     case terrain::Type::sunflowers:
         return SystemString::block_sunflower;
 
+    case terrain::Type::tulips:
+        return SystemString::block_tulips;
+
     case terrain::Type::indigo:
         return SystemString::block_indigo;
 
@@ -1161,6 +1178,7 @@ terrain::Improvements terrain::improvements(Type t)
         result.push_back(Type::indigo);
         result.push_back(Type::madder);
         result.push_back(Type::sunflowers);
+        result.push_back(Type::tulips);
         result.push_back(Type::saffron);
         result.push_back(Type::wool);
         remove_self();
@@ -1173,6 +1191,7 @@ terrain::Improvements terrain::improvements(Type t)
     case Type::indigo:
     case Type::madder:
     case Type::wool:
+    case Type::tulips:
     case Type::saffron:
     case Type::terrain: {
         push_terrain_defaults();
@@ -1285,6 +1304,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::sunflowers:
         return {1896, 1912};
+
+    case terrain::Type::tulips:
+        return {3176, 3192};
 
     case terrain::Type::wheat:
         return {2728, 2744};
@@ -2079,6 +2101,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     },
     // scaffolding
     nullptr,
+    // tulips
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::terrain);
+    },
 };
 // clang-format on
 
@@ -2360,6 +2387,9 @@ raster::TileCategory raster::tile_category(int texture_id)
          // transparency.
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
