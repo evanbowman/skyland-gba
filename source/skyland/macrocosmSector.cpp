@@ -361,8 +361,8 @@ terrain::Stats terrain::Sector::base_stats() const
     terrain::Stats result;
 
     for (int z = 0; z < size_.z - 1; ++z) {
-        for (int x = 0; x < 8; ++x) {
-            for (int y = 0; y < 8; ++y) {
+        for (int x = 0; x < size_.x; ++x) {
+            for (int y = 0; y < size_.y; ++y) {
                 if (get_block({(u8)x, (u8)y, (u8)z}).type() == Type::air) {
                     continue;
                 }
