@@ -487,7 +487,7 @@ Coins BuildImprovementScene::cost(macro::StateImpl& state, terrain::Type t)
         }
     }
 
-    if (cursor.x < 7) {
+    if (cursor.x < state.sector().size().x - 1) {
         auto temp = cursor;
         ++temp.x;
         auto& block = state.sector().get_block(temp);
@@ -505,7 +505,7 @@ Coins BuildImprovementScene::cost(macro::StateImpl& state, terrain::Type t)
         }
     }
 
-    if (cursor.y < 7) {
+    if (cursor.y < state.sector().size().y - 1) {
         auto temp = cursor;
         ++temp.y;
         auto& block = state.sector().get_block(temp);

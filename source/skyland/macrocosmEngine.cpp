@@ -167,11 +167,11 @@ std::pair<Coins, terrain::Sector::Population> StateImpl::colony_cost() const
     } else if (data_->other_sectors_.size() < 5) {
         return {1500 + 3000 * data_->other_sectors_.size(), 300};
     } else if (data_->other_sectors_.size() < 11) {
-        return {4000 + 4000 * data_->other_sectors_.size(), 500};
+        return {4000 + 3200 * data_->other_sectors_.size(), 500};
     } else if (data_->other_sectors_.size() < 16) {
-        return {6000 + 5000 * data_->other_sectors_.size(), 700};
+        return {6000 + 3600 * data_->other_sectors_.size(), 700};
     } else {
-        return {7000 + 6000 * data_->other_sectors_.size(), 900};
+        return {7000 + 4000 * data_->other_sectors_.size(), 900};
     }
 }
 
@@ -915,10 +915,10 @@ Coins terrain::cost(Sector& s, Type t)
         return 100;
 
     case terrain::Type::cocoa:
-        return 160;
+        return 300;
 
     case terrain::Type::tea:
-        return 140;
+        return 300;
 
     case terrain::Type::ice:
         return 5;
@@ -967,16 +967,16 @@ Coins terrain::cost(Sector& s, Type t)
         return 120;
 
     case terrain::Type::indigo:
-        return 120;
+        return 210;
 
     case terrain::Type::shellfish:
         return 120;
 
     case terrain::Type::wool:
-        return 260;
+        return 410;
 
     case terrain::Type::saffron:
-        return 260;
+        return 460;
 
     case terrain::Type::madder:
         return 120;
