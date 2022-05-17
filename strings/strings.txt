@@ -160,6 +160,7 @@ how many?
 where?
 commodities
 trade colony
+abandon colony
 budget: 
 citizens (employed)
 citizens

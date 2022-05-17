@@ -333,10 +333,11 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         const bool origin = selected_ == m.data_->origin_sector_.coordinate();
         if (not origin) {
-            push_opt(SystemString::macro_trade, st.y - 4);
+            push_opt(SystemString::macro_abandon, st.y - 4);
+            push_opt(SystemString::macro_trade, st.y - 2);
         }
 
-        // push_opt(SystemString::options, st.y - 2);
+
     };
 
 
@@ -536,9 +537,24 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 state_ = State::text_prompt;
                 break;
 
-            case 1:
+            case 2:
                 text_objs_.clear();
                 return scene_pool::alloc<ExchangeColonyScene>(selected_);
+
+            case 1: {
+                auto& current = m.sector();
+                auto delete_coord = selected_;
+                if (current.coordinate() == selected_) {
+                    m.bind_sector({0, 0});
+                }
+                selected_ = {0, 0};
+                m.erase_sector(delete_coord);
+                text_objs_.clear();
+                opt_cursor_ = 0;
+                describe_selected(pfrm, m);
+                state_ = State::show;
+                break;
+            }
             }
         }
 

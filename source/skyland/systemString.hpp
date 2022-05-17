@@ -219,6 +219,7 @@ enum class SystemString {
     macro_export_where,
     macro_commodities,
     macro_trade,
+    macro_abandon,
 
     macro_fiscal_budget,
     macro_fiscal_employed,
