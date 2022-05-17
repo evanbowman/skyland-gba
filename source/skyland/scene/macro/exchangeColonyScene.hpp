@@ -73,7 +73,7 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta)
+    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds) override
     {
         auto& m = skyland::macrocosm(app);
 
@@ -90,7 +90,7 @@ public:
 
             pfrm.network_peer().listen();
             if (not pfrm.network_peer().is_connected()) {
-                Platform::fatal("failed to connect!");
+                return scene_pool::alloc<MacroverseScene>(true);
             }
 
             data_out_->payload_.orientation_ = s->orientation();
@@ -140,13 +140,8 @@ public:
 
                 send_segment();
                 send_segment();
-                send_segment();
-                send_segment();
 
-                // NOTE: because we're sending blocks of 16, the block of output
-                // data needs to be a multiple of 16 (4 bytes per packet, 4
-                // packets).
-                static_assert(sizeof(Schema) % 16 == 0);
+                static_assert(sizeof(Schema) % 8 == 0);
 
             } else {
                 network::packet::BlockTransferEnd pkt;
