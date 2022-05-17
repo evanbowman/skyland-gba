@@ -430,7 +430,8 @@ public:
                 }
 
                 auto blit = [&](int texture, int t_start) {
-                    if (not raster::globalstate::_recalc_depth_test.get(t_start)) {
+                    if (not raster::globalstate::_recalc_depth_test.get(
+                            t_start)) {
                         return;
                     }
                     rendering_function(
@@ -443,10 +444,8 @@ public:
                     if (t_start < 480) {
                         (*_db)->depth_1_needs_repaint.set(t_start, true);
                     } else {
-                        (*_db)->depth_2_needs_repaint.set(t_start - 480,
-                                                          true);
+                        (*_db)->depth_2_needs_repaint.set(t_start - 480, true);
                     }
-
                 };
 
                 blit(texture, t_start);

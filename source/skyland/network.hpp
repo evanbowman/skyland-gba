@@ -73,6 +73,10 @@ struct Header
         co_op_chr_lock_response,
         co_op_opponent_destroyed,
         macro_set_block,
+        block_transfer_start,
+        block_transfer_data,
+        block_transfer_end,
+        macro_trade_status,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -564,6 +568,53 @@ struct MacroSetBlock
 
 
 
+struct BlockTransferStart
+{
+    Header header_;
+    host_u16 length_; // 1024 max!
+
+    u8 unused_[3];
+
+    static const auto mt = Header::MessageType::block_transfer_start;
+};
+
+
+
+struct BlockTransferData
+{
+    Header header_;
+    u8 sequence_;
+    u8 data_[4];
+
+    static const auto mt = Header::MessageType::block_transfer_data;
+};
+
+
+
+struct BlockTransferEnd
+{
+    Header header_;
+
+    u8 unused_[5];
+
+    static const auto mt = Header::MessageType::block_transfer_end;
+};
+
+
+
+struct MacroTradeStatus
+{
+    Header header_;
+
+    u8 status_;
+
+    u8 unused_[4];
+
+    static const auto mt = Header::MessageType::macro_trade_status;
+};
+
+
+
 } // namespace packet
 
 
@@ -789,6 +840,34 @@ public:
 
     virtual void
     receive(Platform& pfrm, App& app, const packet::MacroSetBlock& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::BlockTransferStart& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::BlockTransferData& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::BlockTransferEnd& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::MacroTradeStatus& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }

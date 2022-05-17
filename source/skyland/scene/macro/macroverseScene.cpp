@@ -21,6 +21,7 @@
 
 
 #include "macroverseScene.hpp"
+#include "exchangeColonyScene.hpp"
 #include "platform/color.hpp"
 #include "platform/platform.hpp"
 #include "selectorScene.hpp"
@@ -329,7 +330,12 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         };
 
         push_opt(SystemString::macro_set_name, st.y - 6);
-        // push_opt(SystemString::macro_trade, st.y - 4);
+
+        const bool origin = selected_ == m.data_->origin_sector_.coordinate();
+        if (not origin) {
+            push_opt(SystemString::macro_trade, st.y - 4);
+        }
+
         // push_opt(SystemString::options, st.y - 2);
     };
 
@@ -531,8 +537,8 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
 
             case 1:
-                // TODO: Connect, begin serializing sector out to other console.
-                break;
+                text_objs_.clear();
+                return scene_pool::alloc<ExchangeColonyScene>(selected_);
             }
         }
 

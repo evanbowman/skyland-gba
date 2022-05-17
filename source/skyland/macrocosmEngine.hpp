@@ -156,6 +156,43 @@ struct StateImpl : public State
 
 
 
+    void erase_sector(Vec2<s8> coord)
+    {
+        if (data_->origin_sector_.coordinate() == coord) {
+            Platform::fatal("cannot erase origin sector!");
+        }
+
+        // Rebind the origin sector, in case we are erasing the currently bound
+        // sector.
+        bind_sector({0, 0});
+
+        for (auto it = data_->other_sectors_.begin();
+             it not_eq data_->other_sectors_.end();
+             /* ... */) {
+
+            if ((*it)->coordinate() == coord) {
+                it = data_->other_sectors_.erase(it);
+                return;
+            } else {
+                ++it;
+            }
+        }
+
+        for (auto it = data_->outpost_sectors_.begin();
+             it not_eq data_->outpost_sectors_.end();
+             /* ... */) {
+
+            if (it->coordinate() == coord) {
+                data_->outpost_sectors_.erase(it);
+                return;
+            } else {
+                ++it;
+            }
+        }
+    }
+
+
+
     macro::terrain::Sector* bind_sector(Vec2<s8> coord)
     {
         if (data_->origin_sector_.coordinate() == coord) {

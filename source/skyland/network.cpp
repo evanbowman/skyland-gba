@@ -91,6 +91,10 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::CoOpChrLockResponse)
             HANDLE_MESSAGE(packet::CoOpOpponentDestroyed)
             HANDLE_MESSAGE(packet::MacroSetBlock)
+            HANDLE_MESSAGE(packet::BlockTransferStart)
+            HANDLE_MESSAGE(packet::BlockTransferData)
+            HANDLE_MESSAGE(packet::BlockTransferEnd)
+            HANDLE_MESSAGE(packet::MacroTradeStatus)
         }
 
         error(pfrm, "garbled message!?");
