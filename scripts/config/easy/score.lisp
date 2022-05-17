@@ -11,7 +11,7 @@
  ;; enemy.
  '((58 . "zone1_coin_yield")
    (46 . "zone2_coin_yield")
-   (36 . "zone3_coin_yield")
-   (30 . "zone4_coin_yield")))
+   (40 . "zone3_coin_yield")
+   (36 . "zone4_coin_yield")))
 
 (syscall "setvar" "score_multiplier" 1)
