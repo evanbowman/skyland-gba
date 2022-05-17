@@ -45,8 +45,22 @@ void SelInputScene::enter(Platform& pfrm, App& app, Scene& prev)
     text_.emplace(pfrm,
                   // NOTE: sel-input should have already checked the types of
                   // its parameters.
-                  parameters_->cons().car()->string().value(),
+                  parameters_->cons().car()->cons().car()->string().value(),
                   OverlayCoord{0, 19});
+
+
+    auto cdr = parameters_->cons().cdr();
+    if (cdr->type() == lisp::Value::Type::cons) {
+        auto xrange = cdr->cons().car();
+        auto yrange = cdr->cons().cdr();
+
+        if (xrange->type() == lisp::Value::Type::integer and
+            yrange->type() == lisp::Value::Type::integer) {
+            required_space_ = {(u8)xrange->integer().value_,
+                               (u8)yrange->integer().value_};
+        }
+    }
+
 
     auto st = calc_screen_tiles(pfrm);
 
@@ -112,10 +126,10 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (cursor_loc.x < app.player_island().terrain().size()) {
                 ++cursor_loc.x;
             } else {
-                std::get<SkylandGlobalData>(globals()).far_cursor_loc_.x = 0;
-                std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y =
-                    cursor_loc.y;
-                near_ = false;
+                // std::get<SkylandGlobalData>(globals()).far_cursor_loc_.x = 0;
+                // std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y =
+                //     cursor_loc.y;
+                // near_ = false;
             }
         }
 
@@ -176,9 +190,24 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (app.player().key_down(pfrm, Key::action_1)) {
+
         auto& cursor_loc =
             near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
                   : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+
+        if (required_space_) {
+            for (u8 x = cursor_loc.x; x < cursor_loc.x + required_space_->x; ++x) {
+                for (u8 y = cursor_loc.y; y < cursor_loc.y + required_space_->y; ++y) {
+                    auto room = app.player_island().get_room({x, y});
+                    if (room or x == app.player_island().terrain().size()) {
+                        pfrm.speaker().play_sound("beep_error", 1);
+                        return null_scene();
+                    }
+                }
+            }
+
+        }
 
         lisp::push_op(lisp::make_userdata(near_ ? &app.player_island()
                                                 : app.opponent_island()));
@@ -186,7 +215,7 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
         lisp::push_op(lisp::make_integer(cursor_loc.x));
         lisp::push_op(lisp::make_integer(cursor_loc.y));
 
-        lisp::funcall(parameters_->cons().cdr(), 3);
+        lisp::funcall(parameters_->cons().car()->cons().cdr(), 3);
         lisp::pop_op(); // TODO: check for lisp::Error.
 
         std::get<SkylandGlobalData>(globals()).near_cursor_loc_ =

@@ -1,9 +1,16 @@
 ;;;
-;;; neutral/0/4.lisp
+;;; neutral/0/3.lisp
 ;;;
 
 
-(dialog "A distress signal sounds over your radio. You change course to investigate...")
+(dialog "Some merchants broadcast an advertisement for advanced technology! Let's see if they have anything useful!")
+
+
+(island-configure
+ (player)
+ '((power-core 3 13)
+   (hull 0 14)))
+(coins-set 1300)
 
 
 (opponent-init 5 'neutral)
@@ -14,46 +21,47 @@
  '((power-core 3 13)
    (hull 0 14)))
 
-
 (chr-new (opponent) 1 14 'neutral 0)
 (chr-new (opponent) 2 14 'neutral 0)
 
 
-(setq on-converge
-      (lambda
-        (dialog "You discover a damaged fortress. Spend 800@ in resources to rescue the survivors?")
-        (dialog-await-y/n)
-        (setq on-converge nil)))
+(let ((temp (sample '((arc-gun . (1 . 1))
+                      (fire-charge . (2 . 1))))))
+  (setq on-converge
+        (lambda
+          (dialog "<c:merchant:7> We ordered too many "
+                  (string (car temp))
+                  "s and we're having a big sale today! Much cheaper than if you built them yourself. 1300@ for two, what do you say?")
+          (dialog-await-y/n)
+          (setq on-converge nil)))
 
 
-(setq on-dialog-accepted
-      (lambda
-        (setq temp (chr-slots (player)))
 
-        (if (> 800 (coins))
-            (dialog "Unfortunately, you do not have enough resources.")
-          (if temp
+  (setq on-dialog-accepted
+        (lambda
+          (if (< (coins) 1300)
               (progn
-                (coins-add -800)
-                (setq temp (get temp (choice (length temp))))
-                (chr-new (player) (car temp) (cdr temp) 'neutral 0)
-                (chr-del (opponent) 1 14)
+                (dialog "<c:merchant:7> Sorry, that's not enough money!")
+                (exit))
+            (progn
+              (coins-add -1300)
+              (sel-input
+               (cdr temp)
+               (string "place first " (car temp) ":")
+               (lambda
+                 (room-new (player) (list (car temp) $1 $2))
+                 (sel-input
+                  (cdr temp)
+                  (string "place second " (car temp) ":")
+                  (lambda
+                    (room-new (player) (list (car temp) $1 $2))
+                    (dialog "<c:merchant:7> Looks great! You made a fine choice!")
+                    (setq on-dialog-closed exit))))))))))
 
-                (setq temp (chr-slots (player)))
-                (if temp
-                    (progn
-                      (setq temp (get temp (choice (length temp))))
-                      (chr-new (player) (car temp) (cdr temp) 'neutral 0)
-                      (chr-del (opponent) 2 14)
-                      (dialog "Two survivors joined your crew!"))
-                  (dialog "You rescue one of the survivors. The other survivor decides "
-                          "that your castle is too crowded and declines to come aboard.")))
-            (dialog "Sadly, there's no room in your castle for anyone else")))
+(gc) ;; just in case, no harm in running it.
 
-        (exit)))
 
 
 (setq on-dialog-declined
       (lambda
-        ;; TODO...
         (exit)))

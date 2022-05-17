@@ -48,3 +48,7 @@
 
 (defn/c zone
   (car (wg-pos)))
+
+;; Choose a random element of a list.
+(defn/c sample
+  (get $0 (choice (length $0))))

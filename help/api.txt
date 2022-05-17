@@ -547,7 +547,10 @@ o----------------------------o
 
 o----------------------------o
 
- (sel-input msg callback)
+ (sel-input
+  space
+  msg
+  callback)
 
  Opens up a selection prompt
  ingame, with string msg.
@@ -556,9 +559,18 @@ o----------------------------o
  function callback with
  parameters island, x, y.
 
+ If you pass a pair of ints
+ in argument zero, the engine
+ will reject selections if
+ there is there is less free
+ space at the cursor
+ coordinate than specified by
+ the pair of x,y constraints.
+ Pass nil if you don' care.
+
  For example:
 
-(sel-input "pick a coord:"
+(sel-input '(1 . 1) "pick a coord:"
  (lambda
   (syscall "log"
            (string

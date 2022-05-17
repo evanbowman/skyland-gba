@@ -1044,12 +1044,13 @@ static const lisp::Binding script_api[] = {
      }},
     {"sel-input",
      [](int argc) {
-         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_ARGC(argc, 3);
          L_EXPECT_OP(0, function);
          L_EXPECT_OP(1, string);
 
          if (auto app = interp_get_app()) {
              auto bundle = lisp::make_cons(lisp::get_op(1), lisp::get_op(0));
+             bundle = lisp::make_cons(bundle, lisp::get_op(2));
              if (bundle->type() == lisp::Value::Type::cons) {
                  app->setup_input(bundle);
              }
