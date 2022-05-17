@@ -634,6 +634,16 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     app.current_world_location() = 0;
                     app.world_graph().generate();
                     app.zone() += 1;
+
+                    if (app.zone() == 4) {
+                        // No exit in the final zone, you have to fight the
+                        // storm king.
+                        for (auto& node : app.world_graph().nodes_) {
+                            if (node.type_ == WorldGraph::Node::Type::exit) {
+                                node.type_ = WorldGraph::Node::Type::hostile;
+                            }
+                        }
+                    }
                 }
 
                 app.reset_opponent_island(pfrm);
