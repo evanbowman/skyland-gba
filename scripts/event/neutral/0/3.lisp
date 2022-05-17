@@ -6,13 +6,6 @@
 (dialog "Some merchants broadcast an advertisement for advanced technology! Let's see if they have anything useful!")
 
 
-(island-configure
- (player)
- '((power-core 3 13)
-   (hull 0 14)))
-(coins-set 1300)
-
-
 (opponent-init 5 'neutral)
 
 
@@ -26,6 +19,7 @@
 
 
 (let ((temp (sample '((arc-gun . (1 . 1))
+                      (flak-gun . (2 . 1))
                       (fire-charge . (2 . 1))))))
   (setq on-converge
         (lambda
