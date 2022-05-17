@@ -205,9 +205,14 @@ public:
                             const auto ind = z * s->size().x * s->size().y
                                 + x * s->size().y
                                 + y;
-                            s->set_block({x, y, z},
-                                         (terrain::Type)
-                                         rx->payload_.blocks_[ind]);
+
+                            auto b = (terrain::Type)rx->payload_.blocks_[ind];
+
+                            if (b == terrain::Type::selector) {
+                                s->set_block({x, y, z}, terrain::Type::air);
+                            } else {
+                                s->set_block({x, y, z}, b);
+                            }
                         }
                     }
                 }
