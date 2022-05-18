@@ -118,22 +118,42 @@ struct Symbol {
 
     static constexpr const u32 buffer_size = 4;
 
-    union
+    union Data
     {
-        const char* intern_name_;
+        // NOTE: We want to pack data into a six byte space, but buffer size + 1
+        // (5) bumps up the aligned size of the union to eight bytes, so we
+        // store the pointer value as bytes and memcpy it. Really annoying that
+        // I have to do this in the first place, as the data is always going to
+        // be aligned in practice, and I don't want the union to be padded. But
+        // it's out of my control.
+        char intern_name_[sizeof(const char*)];
         char small_name_[buffer_size + 1]; // +1 for null term
-    };
+    } data_;
 
 
-    const char* name()
+    const char* name() const
     {
         // NOTE: intern name is aliased to a small sized optimized array in the
         // same position. This returns a pointer to either the internd string or
         // the internal buffer.
         if (hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-            return small_name_;
+            return data_.small_name_;
         }
-        return intern_name_;
+        return get_intern_name();
+    }
+
+
+    const char* get_intern_name() const
+    {
+        const char* intern_name;
+        memcpy(&intern_name, data_.intern_name_, sizeof(const char*));
+        return intern_name;
+    }
+
+
+    void set_intern_name(const char* value)
+    {
+        memcpy(data_.intern_name_, &value, sizeof(const char*));
     }
 
 
@@ -141,19 +161,19 @@ struct Symbol {
     {
         switch ((ModeBits)hdr_.mode_bits_) {
         case ModeBits::requires_intern:
-            intern_name_ = intern(name);
+            set_intern_name(intern(name));
             break;
 
         case ModeBits::stable_pointer:
-            intern_name_ = name;
+            set_intern_name(name);
             break;
 
         case ModeBits::small:
-            intern_name_ = 0;
-            memset(small_name_, '\0', sizeof small_name_);
+            set_intern_name(0);
+            memset(data_.small_name_, '\0', sizeof data_.small_name_);
             for (u32 i = 0; i < buffer_size; ++i) {
                 if (*name not_eq '\0') {
-                    small_name_[i] = *(name++);
+                    data_.small_name_[i] = *(name++);
                 }
             }
             break;
@@ -166,10 +186,10 @@ struct Symbol {
     {
         if (hdr_.mode_bits_ == (u8)ModeBits::small) {
             const char* result = 0;
-            memcpy(&result, small_name_, buffer_size);
+            memcpy(&result, data_.small_name_, buffer_size);
             return result;
         } else {
-            return intern_name_;
+            return get_intern_name();
         }
     }
 

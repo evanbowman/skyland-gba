@@ -1326,6 +1326,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
             });
 
 
+            lisp::get_env(handle_completion_word);
             lisp::get_interns(handle_completion_word);
 
             mode_ = Mode::autocomplete;

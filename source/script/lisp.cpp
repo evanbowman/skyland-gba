@@ -3118,6 +3118,19 @@ static const Binding builtins[] = {
                      i += 2;
                      break;
 
+                 case LoadVarSmall::op(): {
+                     i += 1;
+                     out += "LOAD_VAR_SMALL(";
+                     StringBuffer<4> name;
+                     for (int j = 0; j < 4; ++j) {
+                         name.push_back(*(data->data_ + i + j));
+                     }
+                     out += name.c_str();
+                     out += ")";
+                     i += 4;
+                     break;
+                 }
+
                  case LoadVarRelocatable::op():
                      i += 1;
                      out += "LOAD_VAR_RELOCATABLE(";
@@ -3126,6 +3139,19 @@ static const Binding builtins[] = {
                      out += ")";
                      i += 2;
                      break;
+
+                 case PushSmallSymbol::op(): {
+                     i += 1;
+                     out += "PUSH_SMALL_SYMBOL(";
+                     StringBuffer<4> name;
+                     for (int j = 0; j < 4; ++j) {
+                         name.push_back(*(data->data_ + i + j));
+                     }
+                     out += name.c_str();
+                     out += ")";
+                     i += 4;
+                     break;
+                 }
 
                  case PushSymbol::op():
                      i += 1;
@@ -3352,6 +3378,19 @@ static const Binding builtins[] = {
                      i += sizeof(LexicalDef);
                      break;
 
+                 case LexicalDefSmall::op(): {
+                     out += LexicalDefSmall::name();
+                     i += 1;
+                     StringBuffer<4> name;
+                     for (int j = 0; j < 4; ++j) {
+                         name.push_back(*(data->data_ + i + j));
+                     }
+                     out += name.c_str();
+                     out += ")";
+                     i += 4;
+                     break;
+                 }
+
                  case LexicalDefRelocatable::op():
                      out += LexicalDefRelocatable::name();
                      out += "(";
@@ -3444,7 +3483,9 @@ void bind_functions(const Binding* bindings, int count)
         }
 
         for (auto& name : temp) {
-            intern(name);
+            if (str_len(name) > Symbol::buffer_size) {
+                intern(name);
+            }
         }
     }
 

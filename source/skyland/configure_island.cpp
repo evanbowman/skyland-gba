@@ -50,7 +50,7 @@ void configure_island(Platform& pfrm,
             u8 x = lisp::get_list(val, 1)->integer().value_;
             u8 y = lisp::get_list(val, 2)->integer().value_;
 
-            if (auto c = load_metaclass(name_symb->symbol().name_)) {
+            if (auto c = load_metaclass(name_symb->symbol().name())) {
                 (*c)->create(pfrm, app, &island, RoomCoord{x, y}, false);
                 if (auto room = island.get_room({x, y})) {
                     room->deserialize(val);

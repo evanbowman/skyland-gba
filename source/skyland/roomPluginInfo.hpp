@@ -102,7 +102,7 @@ struct RoomPluginInfo : public RoomMeta::Info
 
     const char* name() const override
     {
-        return fetch_info<FieldTag::name, lisp::Symbol>().name_;
+        return fetch_info<FieldTag::name, lisp::Symbol>().name();
     }
 
 

@@ -201,7 +201,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               auto island = (Island*)lisp::get_op(1)->user_data().obj_;
               for (auto& room : island->rooms()) {
-                  if (str_eq(room->name(), lisp::get_op(0)->symbol().name_)) {
+                  if (str_eq(room->name(), lisp::get_op(0)->symbol().name())) {
                       ++count;
                   }
               }
@@ -359,7 +359,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               L_EXPECT_OP(1, symbol);
               L_EXPECT_OP(0, integer);
 
-              auto mti = metaclass_index(lisp::get_op(1)->symbol().name_);
+              auto mti = metaclass_index(lisp::get_op(1)->symbol().name());
 
               set_enabled(mti, L_LOAD_INT(0));
 
@@ -535,10 +535,13 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_OP(1, string);
          L_EXPECT_OP(0, symbol);
 
+         auto s = lisp::get_op(0)->symbol();
+
          KeyCallbackProcessor::Binding b{
              KeyCallbackProcessor::MatchSeq{},
-             [n = lisp::get_op(0)->symbol().name_](Platform& pfrm, App& app) {
-                 auto fn = lisp::get_var(n);
+             [s](Platform& pfrm, App& app) {
+                 // Bad hack: construct dummy symbol.
+                 auto fn = lisp::get_var(s.name());
                  lisp::funcall(fn, 0);
                  lisp::pop_op(); // funcall result
              }};
@@ -726,13 +729,13 @@ static const lisp::Binding script_api[] = {
          auto [app, pfrm] = interp_get_context();
 
          auto conf = lisp::get_op(0);
-         if (str_cmp(conf->symbol().name_, "hostile") == 0) {
+         if (str_cmp(conf->symbol().name(), "hostile") == 0) {
              app->swap_opponent<EnemyAI>();
-         } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
+         } else if (str_cmp(conf->symbol().name(), "neutral") == 0) {
              app->swap_opponent<FriendlyAI>();
          } else {
              StringBuffer<30> err("bad ai sym: '");
-             err += conf->symbol().name_;
+             err += conf->symbol().name();
              pfrm->fatal(err.c_str());
          }
 
@@ -799,13 +802,13 @@ static const lisp::Binding script_api[] = {
          auto [app, pfrm] = interp_get_context();
 
          auto conf = lisp::get_op(0);
-         if (str_cmp(conf->symbol().name_, "hostile") == 0) {
+         if (str_cmp(conf->symbol().name(), "hostile") == 0) {
              app->swap_opponent<EnemyAI>();
-         } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
+         } else if (str_cmp(conf->symbol().name(), "neutral") == 0) {
              app->swap_opponent<FriendlyAI>();
          } else {
              StringBuffer<30> err("bad ai sym: '");
-             err += conf->symbol().name_;
+             err += conf->symbol().name();
              pfrm->fatal(err.c_str());
          }
 
@@ -840,7 +843,7 @@ static const lisp::Binding script_api[] = {
          auto [app, pfrm] = interp_get_context();
 
          auto island = (Island*)lisp::get_op(1)->user_data().obj_;
-         auto name = lisp::get_list(lisp::get_op(0), 0)->symbol().name_;
+         auto name = lisp::get_list(lisp::get_op(0), 0)->symbol().name();
          u8 x = lisp::get_list(lisp::get_op(0), 1)->integer().value_;
          u8 y = lisp::get_list(lisp::get_op(0), 2)->integer().value_;
 
@@ -976,7 +979,7 @@ static const lisp::Binding script_api[] = {
          const bool is_replicant = lisp::get_op(0)->integer().value_;
 
          auto conf = lisp::get_op(1);
-         if (str_cmp(conf->symbol().name_, "hostile") == 0) {
+         if (str_cmp(conf->symbol().name(), "hostile") == 0) {
              app->swap_opponent<EnemyAI>();
              auto chr = ::skyland::alloc_entity<BasicCharacter>(
                  island, &app->opponent(), coord, is_replicant);
@@ -984,7 +987,7 @@ static const lisp::Binding script_api[] = {
              if (chr) {
                  island->add_character(std::move(chr));
              }
-         } else if (str_cmp(conf->symbol().name_, "neutral") == 0) {
+         } else if (str_cmp(conf->symbol().name(), "neutral") == 0) {
              auto chr = ::skyland::alloc_entity<BasicCharacter>(
                  island, &app->player(), coord, is_replicant);
 
@@ -1211,7 +1214,7 @@ static const lisp::Binding script_api[] = {
 
              val = val->cons().cdr();
 
-             if (auto c = load_metaclass(name_sym->symbol().name_)) {
+             if (auto c = load_metaclass(name_sym->symbol().name())) {
                  auto health = val->cons().car()->integer().value_;
                  val = val->cons().cdr();
                  auto cost = val->cons().car()->integer().value_;
@@ -1554,7 +1557,7 @@ static const lisp::Binding script_api[] = {
                              "a list.");
          }
 
-         auto name = lisp::get_op(5)->symbol().name_;
+         auto name = lisp::get_op(5)->symbol().name();
 
 #define MAKE_PROJECTILE(NAME, CLASS, SOUND)                                    \
     if (str_eq(name, NAME)) {                                                  \

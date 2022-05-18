@@ -72,9 +72,9 @@ void DlcManagerModule::enter(Platform& pfrm, App& app, Scene& prev)
                     return;
                 }
 
-                if (str_eq(car->symbol().name_, "tile")) {
+                if (str_eq(car->symbol().name(), "tile")) {
                     tile_deps = cdr->integer().value_;
-                } else if (str_eq(car->symbol().name_, "spr")) {
+                } else if (str_eq(car->symbol().name(), "spr")) {
                     spr_deps = cdr->integer().value_;
                 }
             });

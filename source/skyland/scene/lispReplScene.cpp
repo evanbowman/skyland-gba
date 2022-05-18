@@ -339,7 +339,7 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // identifier out of the command buffer again.
                     cpl_->completion_prefix_len_ = ident.length();
 
-                    lisp::get_interns([&ident, this](const char* intern) {
+                    auto handle_completion = [&ident, this](const char* intern) {
                         if (cpl_->completion_strs_.full()) {
                             return;
                         }
@@ -358,8 +358,17 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
                             }
                         }
 
+                        for (auto& str : cpl_->completion_strs_) {
+                            if (str == intern) {
+                                return;
+                            }
+                        }
+
                         cpl_->completion_strs_.push_back(intern);
-                    });
+                    };
+
+                    lisp::get_env(handle_completion);
+                    lisp::get_interns(handle_completion);
 
                     if (not cpl_->completion_strs_.empty()) {
                         display_mode_ = DisplayMode::completion_list;

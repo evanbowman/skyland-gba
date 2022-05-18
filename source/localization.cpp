@@ -501,7 +501,7 @@ const char* locale_repr_smallnum(u8 num, std::array<char, 40>& buffer)
     auto lang = lisp::get_list(languages, ::language_id);
 
     const char* lang_name =
-        lang->expect<lisp::Cons>().car()->expect<lisp::Symbol>().name_;
+        lang->expect<lisp::Cons>().car()->expect<lisp::Symbol>().name();
 
     if (str_cmp(lang_name, "chinese") == 0) {
         // Yeah, this is lazy. I could write a string to
@@ -628,7 +628,7 @@ StringBuffer<31> locale_language_name(int language)
 
     auto lang = lisp::get_list(languages, language);
 
-    return lang->expect<lisp::Cons>().car()->expect<lisp::Symbol>().name_;
+    return lang->expect<lisp::Cons>().car()->expect<lisp::Symbol>().name();
 }
 
 

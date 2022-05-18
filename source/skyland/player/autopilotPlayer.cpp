@@ -186,7 +186,7 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
                 if (current->type() == lisp::Value::Type::cons) {
                     auto key = current->cons().car();
                     if (key->type() == lisp::Value::Type::symbol) {
-                        const char* name = key->symbol().name_;
+                        const char* name = key->symbol().name();
                         auto [key, state] = button_name_to_key(name);
                         next_timeout_key_ = key;
                         next_timeout_release_ = not state;

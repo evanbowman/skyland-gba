@@ -18,13 +18,13 @@
 (chr-new (opponent) 2 14 'neutral 0)
 
 
-(let ((temp (sample '((arc-gun . (1 . 1))
+(let ((item (sample '((arc-gun . (1 . 1))
                       (flak-gun . (2 . 1))
                       (fire-charge . (2 . 1))))))
   (setq on-converge
         (lambda
           (dialog "<c:merchant:7> We ordered too many "
-                  (string (car temp))
+                  (string (car item))
                   "s and we're having a big sale today! Much cheaper than if you built them yourself. 1300@ for two, what do you say?")
           (dialog-await-y/n)
           (setq on-converge nil)))
@@ -40,15 +40,15 @@
             (progn
               (coins-add -1300)
               (sel-input
-               (cdr temp)
-               (string "place first " (car temp) ":")
+               (cdr item)
+               (string "place first " (car item) ":")
                (lambda
-                 (room-new (player) (list (car temp) $1 $2))
+                 (room-new (player) (list (car item) $1 $2))
                  (sel-input
-                  (cdr temp)
-                  (string "place second " (car temp) ":")
+                  (cdr item)
+                  (string "place second " (car item) ":")
                   (lambda
-                    (room-new (player) (list (car temp) $1 $2))
+                    (room-new (player) (list (car item) $1 $2))
                     (dialog "<c:merchant:7> Looks great! You made a fine choice!")
                     (setq on-dialog-closed exit))))))))))
 
