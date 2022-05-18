@@ -735,6 +735,61 @@ struct LexicalDefRelocatable : public LexicalDef {
 static_assert(sizeof(LexicalDefRelocatable) == sizeof(LexicalDef));
 
 
+
+struct PushSmallSymbol {
+    Header header_;
+    u8 name_[4];
+
+    static const char* name()
+    {
+        return "PUSH_SMALL_SYMBOL";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 46;
+    }
+};
+
+
+
+struct LexicalDefSmall {
+    Header header_;
+    u8 name_[4];
+
+    static const char* name()
+    {
+        return "LEXICAL_DEF_SMALL";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 47;
+    }
+};
+
+
+
+struct LoadVarSmall {
+    Header header_;
+    u8 name_[4];
+
+    static const char* name()
+    {
+        return "LOAD_VAR_SMALL";
+    }
+
+    static constexpr Opcode op()
+    {
+        return 48;
+    }
+};
+
+
+
+
+
+
 // Just a utility intended for the compiler, not to be used by the vm.
 inline Header* load_instruction(ScratchBuffer& buffer, int index)
 {
@@ -807,6 +862,9 @@ inline Header* load_instruction(ScratchBuffer& buffer, int index)
             MATCH(LexicalFramePush)
             MATCH(LexicalFramePop)
             MATCH(LexicalVarLoad)
+            MATCH(PushSmallSymbol)
+            MATCH(LexicalDefSmall)
+            MATCH(LoadVarSmall)
         }
     }
     return nullptr;

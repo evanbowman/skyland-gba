@@ -199,7 +199,7 @@ static void globals_tree_insert(Value* key, Value* value)
 
             auto current_key = current->cons().car()->cons().car();
 
-            if (current_key->symbol().name_ == key->symbol().name_) {
+            if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
                 // The key alreay exists, overwrite the previous value.
                 current->cons().car()->cons().set_cdr(value);
                 return;
@@ -207,7 +207,7 @@ static void globals_tree_insert(Value* key, Value* value)
             } else {
                 prev = (Value*)current;
 
-                if (current_key->symbol().name_ < key->symbol().name_) {
+                if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
                     // Continue loop through left subtree
                     insert_left = true;
                     current = current->cons().cdr()->cons().car();
@@ -313,7 +313,7 @@ static void globals_tree_erase(Value* key)
 
         auto current_key = current->cons().car()->cons().car();
 
-        if (current_key->symbol().name_ == key->symbol().name_) {
+        if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
 
             Protected erased(current);
 
@@ -346,7 +346,7 @@ static void globals_tree_erase(Value* key)
 
         prev = current;
 
-        if (current_key->symbol().name_ < key->symbol().name_) {
+        if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
             erase_left = true;
             current = current->cons().cdr()->cons().car();
         } else {
@@ -371,11 +371,11 @@ static Value* globals_tree_find(Value* key)
 
         auto current_key = current->cons().car()->cons().car();
 
-        if (current_key->symbol().name_ == key->symbol().name_) {
+        if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
             return current->cons().car()->cons().cdr();
         }
 
-        if (current_key->symbol().name_ < key->symbol().name_) {
+        if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
             current = current->cons().cdr()->cons().car();
         } else {
             current = current->cons().cdr()->cons().cdr();
@@ -383,7 +383,7 @@ static Value* globals_tree_find(Value* key)
     }
 
     StringBuffer<31> hint("[var: ");
-    hint += key->symbol().name_;
+    hint += key->symbol().name();
     hint += "]";
 
     return make_error(Error::Code::undefined_variable_access,
@@ -456,7 +456,7 @@ void get_env(::Function<24, void(const char*)> callback)
     auto& ctx = bound_context;
 
     globals_tree_traverse(ctx->globals_tree_, [&callback](Value& val, Value&) {
-        callback((const char*)val.cons().car()->symbol().name_);
+        callback((const char*)val.cons().car()->symbol().name());
     });
 
     for (u16 i = 0; i < bound_context->constants_count_; ++i) {
@@ -716,18 +716,19 @@ Value* make_error(Error::Code error_code, Value* context)
 
 Value* make_symbol(const char* name, Symbol::ModeBits mode)
 {
+    if (mode == Symbol::ModeBits::small and
+        str_len(name) > Symbol::buffer_size) {
+        Platform::fatal("Symbol ModeBits small with len > internal buffer");
+    }
+
+    if (str_len(name) <= Symbol::buffer_size) {
+        mode = Symbol::ModeBits::small;
+    }
+
     if (auto val = alloc_value()) {
         val->hdr_.type_ = Value::Type::symbol;
-        val->symbol().name_ = [mode, name] {
-            switch (mode) {
-            case Symbol::ModeBits::requires_intern:
-                break;
-
-            case Symbol::ModeBits::stable_pointer:
-                return name;
-            }
-            return intern(name);
-        }();
+        val->hdr_.mode_bits_ = (u8)mode;
+        val->symbol().set_name(name);
         return val;
     }
     return bound_context->oom_;
@@ -738,7 +739,8 @@ static Value* intern_to_symbol(const char* already_interned_str)
 {
     if (auto val = alloc_value()) {
         val->hdr_.type_ = Value::Type::symbol;
-        val->symbol().name_ = already_interned_str;
+        val->hdr_.mode_bits_ = (u8)Symbol::ModeBits::stable_pointer;
+        val->symbol().set_name(already_interned_str);
         return val;
     }
     return bound_context->oom_;
@@ -1115,21 +1117,21 @@ Value* get_var_stable(const char* intern_str)
 
 Value* get_var(Value* symbol)
 {
-    if (symbol->symbol().name_[0] == '$') {
-        if (symbol->symbol().name_[1] == 'V') {
+    if (symbol->symbol().name()[0] == '$') {
+        if (symbol->symbol().name()[1] == 'V') {
             // Special case: use '$V' to access arguments as a list.
             ListBuilder lat;
             for (int i = bound_context->current_fn_argc_ - 1; i > -1; --i) {
                 lat.push_front(get_arg(i));
             }
             return lat.result();
-        } else if (symbol->symbol().name_[1] == 'q') {
+        } else if (symbol->symbol().name()[1] == 'q') {
             // A shortcut to allow you to refer to the quote symbol.
             return make_symbol("'");
         } else {
             s32 argn = 0;
-            for (u32 i = 1; symbol->symbol().name_[i] not_eq '\0'; ++i) {
-                argn = argn * 10 + (symbol->symbol().name_[i] - '0');
+            for (u32 i = 1; symbol->symbol().name()[i] not_eq '\0'; ++i) {
+                argn = argn * 10 + (symbol->symbol().name()[i] - '0');
             }
 
             return get_arg(argn);
@@ -1144,8 +1146,8 @@ Value* get_var(Value* symbol)
             auto bindings = stack->cons().car();
             while (bindings not_eq get_nil()) {
                 auto kvp = bindings->cons().car();
-                if (kvp->cons().car()->symbol().name_ ==
-                    symbol->symbol().name_) {
+                if (kvp->cons().car()->symbol().unique_id() ==
+                    symbol->symbol().unique_id()) {
                     return kvp->cons().cdr();
                 }
 
@@ -1163,7 +1165,7 @@ Value* get_var(Value* symbol)
     } else {
         for (u16 i = 0; i < bound_context->constants_count_; ++i) {
             const auto& k = bound_context->constants_[i];
-            if (str_eq(k.name_, symbol->symbol().name_)) {
+            if (str_eq(k.name_, symbol->symbol().name())) {
                 return lisp::make_integer(k.value_);
             }
         }
@@ -1182,8 +1184,8 @@ Value* set_var(Value* symbol, Value* val)
             auto bindings = stack->cons().car();
             while (bindings not_eq get_nil()) {
                 auto kvp = bindings->cons().car();
-                if (kvp->cons().car()->symbol().name_ ==
-                    symbol->symbol().name_) {
+                if (kvp->cons().car()->symbol().unique_id() ==
+                    symbol->symbol().unique_id()) {
 
                     kvp->cons().set_cdr(val);
                     return get_nil();
@@ -1320,7 +1322,7 @@ void format_impl(Value* value, Printer& p, int depth)
         break;
 
     case lisp::Value::Type::symbol:
-        p.put_str(value->symbol().name_);
+        p.put_str(value->symbol().name());
         break;
 
     case lisp::Value::Type::integer: {
@@ -1817,7 +1819,13 @@ static u32 read_symbol(CharSequence& code, int offset)
     if (code[offset] == '\'' or code[offset] == '`' or code[offset] == ',' or
         code[offset] == '@') {
         symbol.push_back(code[offset]);
-        push_op(make_symbol(symbol.c_str()));
+
+        auto mode = Symbol::ModeBits::requires_intern;
+        if (symbol.length() <= Symbol::buffer_size) {
+            mode = Symbol::ModeBits::small;
+        }
+
+        push_op(make_symbol(symbol.c_str(), mode));
         return 1;
     }
 
@@ -1848,7 +1856,11 @@ FINAL:
     } else if (symbol == "true") {
         push_op(make_integer(1));
     } else {
-        push_op(make_symbol(symbol.c_str()));
+        auto mode = Symbol::ModeBits::requires_intern;
+        if (symbol.length() <= Symbol::buffer_size) {
+            mode = Symbol::ModeBits::small;
+        }
+        push_op(make_symbol(symbol.c_str(), mode));
     }
 
     return i;
@@ -1964,8 +1976,8 @@ static void macroexpand()
         for (; macros not_eq get_nil(); macros = macros->cons().cdr()) {
 
             // if Symbol matches?
-            if (macros->cons().car()->cons().car()->symbol().name_ ==
-                lat->cons().car()->symbol().name_) {
+            if (macros->cons().car()->cons().car()->symbol().unique_id() ==
+                lat->cons().car()->symbol().unique_id()) {
 
                 auto supplied_macro_args = lat->cons().cdr();
 
@@ -1980,7 +1992,7 @@ static void macroexpand()
                     return;
                 }
 
-                Protected quote(make_symbol("'"));
+                Protected quote(make_symbol("'", Symbol::ModeBits::small));
 
                 // Ok, so I should explain what's going on here. For code reuse
                 // purposes, we basically generate a let expression from the
@@ -2125,8 +2137,8 @@ u32 read(CharSequence& code, int offset)
             // the value. Not sure how else to support top-level quoted
             // values outside of s-expressions.
             if (get_op0()->type() == Value::Type::symbol and
-                (str_cmp(get_op0()->symbol().name_, "'") == 0 or
-                 str_cmp(get_op0()->symbol().name_, "`") == 0)) {
+                (str_cmp(get_op0()->symbol().name(), "'") == 0 or
+                 str_cmp(get_op0()->symbol().name(), "`") == 0)) {
 
                 auto pair = make_cons(get_op0(), get_nil());
                 push_op(pair);
@@ -2287,7 +2299,7 @@ static void eval_quasiquote(Value* code)
 
     while (code not_eq get_nil()) {
         if (code->cons().car()->type() == Value::Type::symbol and
-            str_cmp(code->cons().car()->symbol().name_, ",") == 0) {
+            str_cmp(code->cons().car()->symbol().name(), ",") == 0) {
 
             code = code->cons().cdr();
 
@@ -2298,7 +2310,7 @@ static void eval_quasiquote(Value* code)
             }
 
             if (code->cons().car()->type() == Value::Type::symbol and
-                str_cmp(code->cons().car()->symbol().name_, "@") == 0) {
+                str_cmp(code->cons().car()->symbol().name(), "@") == 0) {
 
                 code = code->cons().cdr(); // skip over @ symbol
 
@@ -2357,7 +2369,7 @@ void eval(Value* code)
     } else if (code->type() == Value::Type::cons) {
         auto form = code->cons().car();
         if (form->type() == Value::Type::symbol) {
-            if (str_eq(form->symbol().name_, "if")) {
+            if (str_eq(form->symbol().name(), "if")) {
                 eval_if(code->cons().cdr());
                 auto result = get_op0();
                 pop_op(); // result
@@ -2365,7 +2377,7 @@ void eval(Value* code)
                 push_op(result);
                 --bound_context->interp_entry_count_;
                 return;
-            } else if (str_eq(form->symbol().name_, "lambda")) {
+            } else if (str_eq(form->symbol().name(), "lambda")) {
                 eval_lambda(code->cons().cdr());
                 auto result = get_op0();
                 pop_op(); // result
@@ -2373,12 +2385,12 @@ void eval(Value* code)
                 push_op(result);
                 --bound_context->interp_entry_count_;
                 return;
-            } else if (str_eq(form->symbol().name_, "'")) {
+            } else if (str_eq(form->symbol().name(), "'")) {
                 pop_op(); // code
                 push_op(code->cons().cdr());
                 --bound_context->interp_entry_count_;
                 return;
-            } else if (str_eq(form->symbol().name_, "`")) {
+            } else if (str_eq(form->symbol().name(), "`")) {
                 eval_quasiquote(code->cons().cdr());
                 auto result = get_op0();
                 pop_op(); // result
@@ -2386,7 +2398,7 @@ void eval(Value* code)
                 push_op(result);
                 --bound_context->interp_entry_count_;
                 return;
-            } else if (str_eq(form->symbol().name_, "let")) {
+            } else if (str_eq(form->symbol().name(), "let")) {
                 eval_let(code->cons().cdr());
                 auto result = get_op0();
                 pop_op();
@@ -2394,7 +2406,7 @@ void eval(Value* code)
                 push_op(result);
                 --bound_context->interp_entry_count_;
                 return;
-            } else if (str_eq(form->symbol().name_, "macro")) {
+            } else if (str_eq(form->symbol().name(), "macro")) {
                 eval_macro(code->cons().cdr());
                 pop_op();
                 // TODO: store macro!
@@ -2485,7 +2497,7 @@ bool is_equal(Value* lhs, Value* rhs)
         break;
 
     case Value::Type::symbol:
-        return lhs->symbol().name_ == rhs->symbol().name_;
+        return lhs->symbol().unique_id() == rhs->symbol().unique_id();
 
     case Value::Type::user_data:
         return lhs->user_data().obj_ == rhs->user_data().obj_;

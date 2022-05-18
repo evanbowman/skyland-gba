@@ -110,9 +110,70 @@ struct Nil {
 };
 
 
+const char* intern(const char* string);
+
+
 struct Symbol {
     ValueHeader hdr_;
-    const char* name_;
+
+    static constexpr const u32 buffer_size = 4;
+
+    union
+    {
+        const char* intern_name_;
+        char small_name_[buffer_size + 1]; // +1 for null term
+    };
+
+
+    const char* name()
+    {
+        // NOTE: intern name is aliased to a small sized optimized array in the
+        // same position. This returns a pointer to either the internd string or
+        // the internal buffer.
+        if (hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
+            return small_name_;
+        }
+        return intern_name_;
+    }
+
+
+    void set_name(const char* name)
+    {
+        switch ((ModeBits)hdr_.mode_bits_) {
+        case ModeBits::requires_intern:
+            intern_name_ = intern(name);
+            break;
+
+        case ModeBits::stable_pointer:
+            intern_name_ = name;
+            break;
+
+        case ModeBits::small:
+            intern_name_ = 0;
+            memset(small_name_, '\0', sizeof small_name_);
+            for (u32 i = 0; i < buffer_size; ++i) {
+                if (*name not_eq '\0') {
+                    small_name_[i] = *(name++);
+                }
+            }
+            break;
+        }
+    }
+
+
+
+    const char* unique_id()
+    {
+        if (hdr_.mode_bits_ == (u8)ModeBits::small) {
+            const char* result = 0;
+            memcpy(&result, small_name_, buffer_size);
+            return result;
+        } else {
+            return intern_name_;
+        }
+    }
+
+
 
     static ValueHeader::Type type()
     {
@@ -126,6 +187,7 @@ struct Symbol {
         // inserted into the string intern table. It will not perform the
         // slow lookup into the string intern memory region.
         stable_pointer,
+        small,
     };
 
     static void finalizer(Value*)
@@ -682,8 +744,6 @@ Value* dostring(CharSequence& code, ::Function<16, void(Value&)> on_error);
 
 bool is_executing();
 
-
-const char* intern(const char* string);
 
 
 #define L_EXPECT_OP(OFFSET, TYPE)                                              \

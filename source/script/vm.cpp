@@ -117,6 +117,16 @@ TOP:
             break;
         }
 
+        case LoadVarSmall::op(): {
+            auto inst = read<LoadVarSmall>(code, pc);
+            StringBuffer<4> name;
+            for (int i = 0; i < 4; ++i) {
+                name.push_back(inst->name_[i]);
+            }
+            push_op(get_var_stable(name.c_str()));
+            break;
+        }
+
         case Dup::op(): {
             read<Dup>(code, pc);
             push_op(get_op0());
@@ -160,6 +170,18 @@ TOP:
         case PushSmallInteger::op(): {
             auto inst = read<PushSmallInteger>(code, pc);
             push_op(make_integer(inst->value_));
+            break;
+        }
+
+        case PushSmallSymbol::op(): {
+            auto inst = read<PushSmallSymbol>(code, pc);
+            StringBuffer<4> str;
+            auto name = inst->name_;
+            for (int i = 0; i < 4; ++i) {
+                str.push_back(name[i]);
+            }
+            push_op(make_symbol(str.c_str(),
+                                Symbol::ModeBits::small));
             break;
         }
 
@@ -464,6 +486,27 @@ TOP:
             Protected sym(
                 make_symbol(symbol_from_offset(inst->name_offset_.get()),
                             Symbol::ModeBits::stable_pointer));
+
+            // pair of (sym . value)
+            auto pair = make_cons(sym, get_op0());
+            pop_op();      // pop value
+            push_op(pair); // store pair
+
+            lexical_frame_store(pair);
+            pop_op();
+            break;
+        }
+
+        case LexicalDefSmall::op(): {
+            auto inst = read<LexicalDefSmall>(code, pc);
+
+            StringBuffer<4> name;
+            for (int i = 0; i < 4; ++i) {
+                name.push_back(inst->name_[i]);
+            }
+
+            Protected sym(make_symbol(name.c_str(),
+                                      Symbol::ModeBits::small));
 
             // pair of (sym . value)
             auto pair = make_cons(sym, get_op0());

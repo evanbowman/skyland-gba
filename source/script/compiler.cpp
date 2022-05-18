@@ -102,8 +102,15 @@ int compile_quoted(ScratchBuffer& buffer,
     if (code->type() == Value::Type::integer) {
         write_pos = compile_impl(buffer, write_pos, code, 0, tail_expr);
     } else if (code->type() == Value::Type::symbol) {
-        auto inst = append<instruction::PushSymbol>(buffer, write_pos);
-        inst->name_offset_.set(symbol_offset(code->symbol().name_));
+        if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
+            auto inst = append<instruction::PushSmallSymbol>(buffer, write_pos);
+            auto name = code->symbol().name();
+            memcpy(inst->name_, name, Symbol::buffer_size);
+        } else {
+            auto inst = append<instruction::PushSymbol>(buffer, write_pos);
+            inst->name_offset_.set(symbol_offset(code->symbol().name()));
+        }
+
     } else if (code->type() == Value::Type::cons) {
 
         int list_len = 0;
@@ -163,8 +170,14 @@ int compile_let(ScratchBuffer& buffer,
                 write_pos = compile_impl(
                     buffer, write_pos, bind->cons().car(), jump_offset, false);
 
-                auto inst = append<instruction::LexicalDef>(buffer, write_pos);
-                inst->name_offset_.set(symbol_offset(sym->symbol().name_));
+                if (sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
+                    auto inst = append<instruction::LexicalDefSmall>(buffer, write_pos);
+                    auto name = code->symbol().name();
+                    memcpy(inst->name_, name, Symbol::buffer_size);
+                } else {
+                    auto inst = append<instruction::LexicalDef>(buffer, write_pos);
+                    inst->name_offset_.set(symbol_offset(sym->symbol().name()));
+                }
             }
         }
     })
@@ -236,11 +249,11 @@ int compile_impl(ScratchBuffer& buffer,
 
     } else if (code->type() == Value::Type::symbol) {
 
-        if (code->symbol().name_[0] == '$' and
-            code->symbol().name_[1] not_eq 'V') {
+        if (code->symbol().name()[0] == '$' and
+            code->symbol().name()[1] not_eq 'V') {
             s32 argn = 0;
-            for (u32 i = 1; code->symbol().name_[i] not_eq '\0'; ++i) {
-                argn = argn * 10 + (code->symbol().name_[i] - '0');
+            for (u32 i = 1; code->symbol().name()[i] not_eq '\0'; ++i) {
+                argn = argn * 10 + (code->symbol().name()[i] - '0');
             }
 
             switch (argn) {
@@ -264,8 +277,17 @@ int compile_impl(ScratchBuffer& buffer,
             }
 
         } else {
-            append<instruction::LoadVar>(buffer, write_pos)
-                ->name_offset_.set(symbol_offset(code->symbol().name_));
+
+            if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
+                auto inst = append<instruction::LoadVarSmall>(buffer, write_pos);
+                auto name = code->symbol().name();
+                memcpy(inst->name_, name, Symbol::buffer_size);
+            } else {
+                append<instruction::LoadVar>(buffer, write_pos)
+                    ->name_offset_.set(symbol_offset(code->symbol().name()));
+            }
+
+
         }
 
     } else if (code->type() == Value::Type::cons) {
@@ -275,13 +297,13 @@ int compile_impl(ScratchBuffer& buffer,
         auto fn = lat->cons().car();
 
         if (fn->type() == Value::Type::symbol and
-            str_eq(fn->symbol().name_, "let")) {
+            str_eq(fn->symbol().name(), "let")) {
 
             write_pos = compile_let(
                 buffer, write_pos, lat->cons().cdr(), jump_offset, tail_expr);
 
         } else if (fn->type() == Value::Type::symbol and
-                   str_eq(fn->symbol().name_, "if")) {
+                   str_eq(fn->symbol().name(), "if")) {
 
             lat = lat->cons().cdr();
             if (lat->type() not_eq Value::Type::cons) {
@@ -320,7 +342,7 @@ int compile_impl(ScratchBuffer& buffer,
             jmp->offset_.set(write_pos - jump_offset);
 
         } else if (fn->type() == Value::Type::symbol and
-                   str_eq(fn->symbol().name_, "lambda")) {
+                   str_eq(fn->symbol().name(), "lambda")) {
 
             lat = lat->cons().cdr();
 
@@ -343,12 +365,12 @@ int compile_impl(ScratchBuffer& buffer,
             lambda->lambda_end_.set(write_pos - jump_offset);
 
         } else if (fn->type() == Value::Type::symbol and
-                   str_eq(fn->symbol().name_, "'")) {
+                   str_eq(fn->symbol().name(), "'")) {
 
             write_pos =
                 compile_quoted(buffer, write_pos, lat->cons().cdr(), tail_expr);
         } else if (fn->type() == Value::Type::symbol and
-                   str_eq(fn->symbol().name_, "`")) {
+                   str_eq(fn->symbol().name(), "`")) {
             while (true)
                 ;
             // TODO: Implement quasiquote for compiled code.
@@ -379,31 +401,31 @@ int compile_impl(ScratchBuffer& buffer,
             }
 
             if (fn->type() == Value::Type::symbol and
-                str_eq(fn->symbol().name_, "cons") and argc == 2) {
+                str_eq(fn->symbol().name(), "cons") and argc == 2) {
 
                 append<instruction::MakePair>(buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       str_eq(fn->symbol().name_, "car") and argc == 1) {
+                       str_eq(fn->symbol().name(), "car") and argc == 1) {
 
                 append<instruction::First>(buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       str_eq(fn->symbol().name_, "cdr") and argc == 1) {
+                       str_eq(fn->symbol().name(), "cdr") and argc == 1) {
 
                 append<instruction::Rest>(buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       str_eq(fn->symbol().name_, "arg") and argc == 1) {
+                       str_eq(fn->symbol().name(), "arg") and argc == 1) {
 
                 append<instruction::Arg>(buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       str_eq(fn->symbol().name_, "this") and argc == 0) {
+                       str_eq(fn->symbol().name(), "this") and argc == 0) {
                 append<instruction::PushThis>(buffer, write_pos);
 
             } else if (fn->type() == Value::Type::symbol and
-                       str_eq(fn->symbol().name_, "not") and argc == 1) {
+                       str_eq(fn->symbol().name(), "not") and argc == 1) {
                 append<instruction::Not>(buffer, write_pos);
             } else {
 

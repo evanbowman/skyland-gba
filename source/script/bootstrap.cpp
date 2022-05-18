@@ -31,14 +31,6 @@
 // running the interpreter.
 
 
-static int scratch_buffers_in_use = 0;
-
-
-void Platform::stackcheck()
-{
-    // ...
-}
-
 
 rng::Value rng::get(LinearGenerator& gen)
 {
@@ -47,32 +39,9 @@ rng::Value rng::get(LinearGenerator& gen)
 }
 
 
-ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
-           scratch_buffer_count>
-    scratch_buffer_pool("sbr");
-
 
 GenericPool* GenericPool::instances_;
 
-
-ScratchBufferPtr Platform::make_scratch_buffer(const ScratchBuffer::Tag& tag)
-{
-    auto finalizer =
-        [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
-            --scratch_buffers_in_use;
-            ctrl->pool_->post(ctrl);
-        };
-
-    auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(
-        &scratch_buffer_pool, finalizer);
-    if (maybe_buffer) {
-        ++scratch_buffers_in_use;
-        return *maybe_buffer;
-    } else {
-        // screen().fade(1.f, ColorConstant::electric_blue);
-        fatal("scratch buffer pool exhausted");
-    }
-}
 
 
 void Platform::fatal(const char* msg)
@@ -82,15 +51,6 @@ void Platform::fatal(const char* msg)
 }
 
 
-int Platform::scratch_buffers_remaining()
-{
-    return scratch_buffer_count - scratch_buffers_in_use;
-}
-
-
-void Platform::feed_watchdog()
-{
-}
 
 void english__to_string(int num, char* buffer, int base)
 {
@@ -137,6 +97,21 @@ Platform::~Platform()
 }
 
 
+void* Platform::system_call(const char* feature_name, void* arg)
+{
+    return nullptr;
+}
+
+
+
+bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
+{
+    std::cout << text;
+    std::cout << prompt;
+    return true;
+}
+
+
 Platform::SystemClock::SystemClock()
 {
 }
@@ -177,13 +152,75 @@ Platform::NetworkPeer::~NetworkPeer()
 }
 
 
-bool Platform::RemoteConsole::printline(const char* text, bool show_prompt)
+void Platform::sleep(u32)
 {
-    std::cout << text;
-    return true;
 }
 
 
-void Platform::sleep(u32)
+
+static
+    ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
+               scratch_buffer_count>
+        scratch_buffer_pool("scratch-buffers");
+
+
+
+static int scratch_buffers_in_use_ = 0;
+
+
+
+int scratch_buffers_remaining()
 {
+    return scratch_buffer_count - scratch_buffers_in_use_;
+}
+
+
+
+int scratch_buffers_in_use()
+{
+    return scratch_buffers_in_use_;
+}
+
+
+
+std::optional<Function<16, void()>> scratch_buffer_oom_handler;
+
+
+
+void set_scratch_buffer_oom_handler(Function<16, void()> callback)
+{
+    scratch_buffer_oom_handler.emplace(callback);
+}
+
+
+
+ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)
+{
+    if (not scratch_buffers_remaining()) {
+        if (scratch_buffer_oom_handler) {
+            (*scratch_buffer_oom_handler)();
+
+            if (not scratch_buffers_remaining()) {
+                // Platform::instance().logger().clear();
+            }
+        }
+    }
+
+    auto finalizer =
+        [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
+            --scratch_buffers_in_use_;
+            ctrl->pool_->post(ctrl);
+        };
+
+    auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(
+        &scratch_buffer_pool, finalizer);
+    if (maybe_buffer) {
+        ++scratch_buffers_in_use_;
+
+        (*maybe_buffer)->tag_ = tag;
+
+        return *maybe_buffer;
+    } else {
+        Platform::fatal("scratch buffer pool exhausted");
+    }
 }
