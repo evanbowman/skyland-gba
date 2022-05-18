@@ -127,6 +127,8 @@ struct Symbol {
         // be aligned in practice, and I don't want the union to be padded. But
         // it's out of my control.
         char intern_name_[sizeof(const char*)];
+        // Small size optimized internal buffer. Symbols fewer than four bytes
+        // will be stored within the symbol object itself.
         char small_name_[buffer_size + 1]; // +1 for null term
     } data_;
 
