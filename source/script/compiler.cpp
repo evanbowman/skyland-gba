@@ -172,7 +172,7 @@ int compile_let(ScratchBuffer& buffer,
 
                 if (sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
                     auto inst = append<instruction::LexicalDefSmall>(buffer, write_pos);
-                    auto name = code->symbol().name();
+                    auto name = sym->symbol().name();
                     memcpy(inst->name_, name, Symbol::buffer_size);
                 } else {
                     auto inst = append<instruction::LexicalDef>(buffer, write_pos);
