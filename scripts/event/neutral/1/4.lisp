@@ -50,16 +50,17 @@
 (defn on-dialog-accepted
   (if (choice 3)
       (progn
-        (let ((temp (construction-sites (player) '(1 . 1))))
-          (if temp
+        (let ((locs (construction-sites (player) '(1 . 1))))
+          (if locs
               (progn
-                (let ((c (get temp (choice (length temp)))))
+                (let ((c (get locs (choice (length locs)))))
                   (room-new (player) (list 'mycelium (car c) (cdr c))))
                 (dialog "While attempting to board, several spores on the castle burst, infesting your island with mycelium!"))))
         (exit))
     (progn
       (let ((temp (+ 1000 (choice 1000))))
         (dialog "You explore, and find cargo worth " (string temp) "@!")
+        (coins-add temp)
         (exit)))))
 
 

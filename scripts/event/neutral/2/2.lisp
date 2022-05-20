@@ -14,29 +14,28 @@
 (opponent-mode 'neutral)
 
 
+(let ((val (+ 1000 (choice 800))))
+  (setq on-converge
+        (lambda
+          (dialog
+           "The pirates seem to have stolen a powerful imperial assault vessel. They demand "
+           (string val)
+           "@ and make crude gestures. Will you pay?")
 
-(setq on-converge
-      (lambda
-        (setq temp (+ 1000 (choice 800)))
-        (dialog
-         "The pirates seem to have stolen a powerful imperial assault vessel. They demand "
-         (string temp)
-         "@ and make crude gestures. Will you pay?")
-
-        (dialog-await-y/n)
-        (setq on-converge nil)))
+          (dialog-await-y/n)
+          (setq on-converge nil)))
 
 
-(setq on-dialog-accepted
-      (lambda
-        (if (> 500 (coins))
+  (setq on-dialog-accepted
+        (lambda
+          (if (> 500 (coins))
+              (progn
+                (opponent-mode 'hostile)
+                (dialog "You cannot afford to pay. Prepare for heavy damage..."))
             (progn
-              (opponent-mode 'hostile)
-              (dialog "You cannot afford to pay. Prepare for heavy damage..."))
-          (progn
-            (coins-add (- temp))
-            (dialog "The pirates accept your bribe and move on.")
-            (exit)))))
+              (coins-add (- val))
+              (dialog "The pirates accept your bribe and move on.")
+              (exit))))))
 
 
 (setq on-dialog-declined

@@ -14,12 +14,12 @@
 
 
 
-(let ((temp (+ 500 (choice 500))))
+(let ((val (+ 500 (choice 500))))
   (setq on-converge
         (lambda
           (dialog
            "<c:goblin king:3>#cackle# You're tresspasssing in my territory! I demand a tribute of "
-           (string temp)
+           (string val)
            "@! Pay!")
 
           (dialog-await-y/n)
@@ -28,14 +28,14 @@
 
   (setq on-dialog-accepted
         (lambda
-          (if (> temp (coins))
+          (if (> val (coins))
               (progn
                 (opponent-mode 'hostile)
                 (dialog "<c:globlin king:3>Thatsss not enough! Letss ssee if theress anything we can take!!"))
             (progn
-              (coins-add (- temp))
+              (coins-add (- val))
               (dialog "The goblin king rejoices, having successfully extorted "
-                      (string temp)
+                      (string val)
                       "@.")
               (exit))))))
 

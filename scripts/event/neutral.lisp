@@ -17,10 +17,10 @@
 
 (let ((avail-levels (filter
                      (lambda
-                       (setq temp $0)
-                       (not (filter
-                             (lambda (equal temp $0))
-                             friendlies-seen)))
+                       (let ((cmp $0))
+                         (not (filter
+                               (lambda (equal cmp $0))
+                               friendlies-seen))))
                      (gen
                       (get '(4 6 3 1) (zone)) ;; number of levels to select from
                                               ;; based on current zone
@@ -28,10 +28,10 @@
   (if (equal (length avail-levels) 1)
       (setq friendlies-seen '()))
 
-  (let ((lv-num (get avail-levels (choice (length avail-levels)))))
-    (setq friendlies-seen (cons lv-num friendlies-seen))
+  (let ((lv (get avail-levels (choice (length avail-levels)))))
+    (setq friendlies-seen (cons lv friendlies-seen))
 
-    (eval-file (string "/scripts/event/neutral/" (zone) "/" lv-num ".lisp"))))
+    (eval-file (string "/scripts/event/neutral/" (zone) "/" lv ".lisp"))))
 
 
 (gc)

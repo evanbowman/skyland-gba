@@ -28,10 +28,9 @@
 (setq on-dialog-accepted
       (lambda
         (if (equal (choice 2) 0)
-            (progn
-              (setq temp (+ 600 (choice 300)))
-              (dialog "You explore, and salvage " (string temp) "@ from the ruins.")
-              (coins-add temp)
+            (let ((val (+ 600 (choice 300))))
+              (dialog "You explore, and salvage " (string val) "@ from the ruins.")
+              (coins-add val)
               (exit))
           (progn
             (island-configure

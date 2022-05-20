@@ -41,10 +41,10 @@
 ;; sets the size of the player island's
 ;; terrain. Retrieve the value, and make the
 ;; opponent island the same size.
-(let ((temp (terrain (player))))
+(let ((t (terrain (player))))
   (island-configure
    (opponent)
-   `((power-core ,(- temp 3) 13)))
+   `((power-core ,(- t 3) 13)))
 
-  (chr-new (opponent) (- temp 3) 14 'hostile 0)
-  (chr-new (opponent) (- temp 2) 14 'hostile 0))
+  (chr-new (opponent) (- t 3) 14 'hostile 0)
+  (chr-new (opponent) (- t 2) 14 'hostile 0))
