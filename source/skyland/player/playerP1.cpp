@@ -71,7 +71,7 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
             last_key_ = 0;
         } else if (pfrm.keyboard().down_transition<Key::alt_1>()) {
             out += stringify(last_key_ / 1000);
-            out += " L)";
+            out += " L-p)";
             debug(pfrm, out.c_str());
             last_key_ = 0;
         } else if (pfrm.keyboard().down_transition<Key::alt_2>()) {
@@ -95,6 +95,12 @@ void PlayerP1::update(Platform& pfrm, App& app, Microseconds delta)
             out = "(";
             out += stringify(last_key_ / 1000);
             out += " Start-np)";
+            debug(pfrm, out.c_str());
+            last_key_ = 0;
+        } else if (pfrm.keyboard().up_transition<Key::alt_1>()) {
+            out = "(";
+            out += stringify(last_key_ / 1000);
+            out += " L-np)";
             debug(pfrm, out.c_str());
             last_key_ = 0;
         }

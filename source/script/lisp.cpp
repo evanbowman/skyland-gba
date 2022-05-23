@@ -2831,15 +2831,15 @@ static const Binding builtins[] = {
              // clang-format off
             switch (get_op0()->type()) {
             case Value::Type::nil: return "nil";
-            case Value::Type::integer: return "integer";
+            case Value::Type::integer: return "int";
             case Value::Type::cons: return "pair";
-            case Value::Type::function: return "function";
-            case Value::Type::error: return "error";
-            case Value::Type::symbol: return "symbol";
+            case Value::Type::function: return "fn";
+            case Value::Type::error: return "err";
+            case Value::Type::symbol: return "sym";
             case Value::Type::user_data: return "ud";
-            case Value::Type::data_buffer: return "databuffer";
-            case Value::Type::string: return "string";
-            case Value::Type::character: return "character";
+            case Value::Type::data_buffer: return "buf";
+            case Value::Type::string: return "str";
+            case Value::Type::character: return "chr";
             case Value::Type::count:
             case Value::Type::__reserved:
             case Value::Type::heap_node:
@@ -3028,12 +3028,6 @@ static const Binding builtins[] = {
      }},
     {"globals", [](int argc) { return bound_context->globals_tree_; }},
     {"this", [](int argc) { return bound_context->this_; }},
-    {"argc",
-     [](int argc) {
-         // NOTE: This works because native functions do not assign
-         // current_fn_argc_.
-         return make_integer(bound_context->current_fn_argc_);
-     }},
     {"env",
      [](int argc) {
          auto pfrm = interp_get_pfrm();

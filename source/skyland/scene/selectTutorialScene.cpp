@@ -26,6 +26,7 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "titleScreenScene.hpp"
+#include "skyland/timeStreamEvent.hpp"
 
 
 
@@ -63,6 +64,8 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
     app.player_island().projectiles().clear();
 
     pfrm.fill_overlay(0);
+
+    app.stat_timer().reset(0);
 
     // In case we came from a previous tutorial, give control back to the
     // player.
@@ -237,6 +240,12 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
             rng::critical_state = 42;
 
             pfrm.speaker().play_music(app.environment().music(), 0);
+
+            app.time_stream().enable_pushes(true);
+            app.time_stream().clear();
+
+            time_stream::event::Initial e;
+            app.time_stream().push(app.level_timer(), e);
 
             return scene_pool::alloc<FadeInScene>();
         } else {

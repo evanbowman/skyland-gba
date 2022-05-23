@@ -15,5 +15,6 @@
   ("Characters" .  "tutorials/characters.lisp")
   ("Advanced Structures" . "tutorials/advanced_structures.lisp")
   ("Power Balance" . "tutorials/power_balance.lisp")
+  ("Game Speed" . "tutorials/game_speed.lisp")
   ("Transporters" . "tutorials/transporter.lisp")
   ("Replicators" . "tutorials/replicator.lisp"))

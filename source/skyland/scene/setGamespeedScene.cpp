@@ -60,6 +60,8 @@ static const SystemStringBuffer gamespeed_text(Platform& pfrm, GameSpeed speed)
 ScenePtr<Scene>
 SetGamespeedScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    app.player().update(pfrm, app, delta);
+
     if (app.player().key_down(pfrm, Key::right)) {
         selection_++;
         selection_ %= (int)GameSpeed::count;

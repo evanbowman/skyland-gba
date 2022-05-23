@@ -77,11 +77,22 @@ static std::pair<Key, bool> button_name_to_key(const char* name)
         return {Key::start, false};
     } else if (str_cmp(name, "Select") == 0) {
         return {Key::select, true};
-    } else if (str_cmp(name, "L") == 0) {
+    } else if (str_cmp(name, "L-p") == 0) {
         return {Key::alt_1, true};
-    } else {
+    } else if (str_cmp(name, "L-np") == 0) {
+        return {Key::alt_1, false};
+    } else if (str_cmp(name, "R") == 0) {
         return {Key::alt_2, true};
+    } else {
+        Platform::fatal(name);
     }
+}
+
+
+
+static bool is_key_level_triggered(Key k)
+{
+    return k == Key::start or k == Key::alt_1;
 }
 
 
@@ -125,7 +136,7 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     for (int i = 0; i < (int)Key::count; ++i) {
-        if ((Key)i not_eq Key::start) {
+        if (not is_key_level_triggered((Key)i)) {
             prev_[i] = false;
         }
     }
@@ -138,7 +149,8 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
         // These events are level-triggered, so we only want to keep this state
         // set for one update of the game loop, or else the key pressed events
         // will fire repeatedly. The start key is handled separately.
-        if ((Key)i not_eq Key::start) {
+        // NOTE: alt_1 also handled separately.
+        if (not is_key_level_triggered((Key)i)) {
             states_[i] = false;
         }
     }
@@ -146,13 +158,14 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
     if (next_key_timeout_ <= 0) {
 
         if (next_timeout_key_) {
-            if (*next_timeout_key_ == Key::start) {
+            const auto next = *next_timeout_key_;
+            if (is_key_level_triggered(next)) {
                 for (auto& t : taps_) {
                     t = false;
                 }
 
-                states_[(int)Key::start] = not next_timeout_release_;
-                taps_[(int)Key::start] = not next_timeout_release_;
+                states_[(int)next] = not next_timeout_release_;
+                taps_[(int)next] = not next_timeout_release_;
                 if (next_timeout_release_) {
                     key_tap_timeout_ = milliseconds(300);
                 } else {
@@ -161,7 +174,7 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 states_[(int)*next_timeout_key_] = true;
                 for (int i = 0; i < (int)Key::count; ++i) {
-                    if ((Key)i not_eq Key::start) {
+                    if (not is_key_level_triggered((Key)i)) {
                         taps_[i] = false;
                     }
                 }
