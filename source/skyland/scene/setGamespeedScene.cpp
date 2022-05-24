@@ -124,6 +124,8 @@ void SetGamespeedScene::enter(Platform& pfrm, App& app, Scene& scene)
 
     repaint_selector(pfrm);
 
+    pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
+
     if (auto ws = dynamic_cast<WorldScene*>(&scene)) {
         if (ws->is_far_camera()) {
             far_camera();

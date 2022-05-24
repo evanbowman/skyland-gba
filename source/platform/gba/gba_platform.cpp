@@ -165,6 +165,7 @@ enum class GlobalFlag {
     palette_sync,
     sound_startup_monkeypatch,
     key_poll_called,
+    music_halfspeed_update,
     count
 };
 
@@ -4128,6 +4129,105 @@ static void audio_update_rewind_music_isr()
 
 
 
+static void audio_update_doublespeed_isr()
+{
+    alignas(4) AudioSample mixing_buffer[4];
+    alignas(4) AudioSample mixing_buffer2[4];
+
+    *((u32*)mixing_buffer) =
+        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos - 2];
+
+    *((u32*)mixing_buffer2) =
+        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos - 1];
+
+    mixing_buffer[1] = mixing_buffer[2];
+    mixing_buffer[2] = mixing_buffer2[0];
+    mixing_buffer[3] = mixing_buffer2[2];
+
+
+    snd_ctx.music_track_pos += 2;
+
+    if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length + 2)) {
+        snd_ctx.music_track_pos = 0;
+    }
+
+    for (auto it = snd_ctx.active_sounds.begin();
+         it not_eq snd_ctx.active_sounds.end();) {
+        if (UNLIKELY(it->position_ + 8 >= it->length_)) {
+            if (not completed_sounds_lock) {
+                completed_sounds_buffer.push_back(it->name_);
+            }
+            it = snd_ctx.active_sounds.erase(it);
+        } else {
+            for (int i = 0; i < 4; ++i) {
+                mixing_buffer[i] += (u8)it->data_[it->position_];
+                it->position_ += 2;
+            }
+            ++it;
+        }
+    }
+
+    REG_SGFIFOA = *((u32*)mixing_buffer);
+}
+
+
+
+static void audio_update_halfspeed_isr()
+{
+    if (not get_gflag(GlobalFlag::music_halfspeed_update)) {
+        set_gflag(GlobalFlag::music_halfspeed_update, true);
+        return;
+    } else {
+        set_gflag(GlobalFlag::music_halfspeed_update, false);
+    }
+
+    alignas(4) AudioSample mixing_buffer[4];
+
+    // NOTE: audio tracks in ROM should therefore have four byte alignment!
+    *((u32*)mixing_buffer) =
+        ((u32*)(snd_ctx.music_track))[snd_ctx.music_track_pos++];
+
+    if (UNLIKELY(snd_ctx.music_track_pos > snd_ctx.music_track_length)) {
+        snd_ctx.music_track_pos = 0;
+    }
+
+    for (auto it = snd_ctx.active_sounds.begin();
+         it not_eq snd_ctx.active_sounds.end();) {
+        if (UNLIKELY(it->position_ + 4 >= it->length_)) {
+            if (not completed_sounds_lock) {
+                completed_sounds_buffer.push_back(it->name_);
+            }
+            it = snd_ctx.active_sounds.erase(it);
+        } else {
+            for (int i = 0; i < 4; ++i) {
+                mixing_buffer[i] += (u8)it->data_[it->position_];
+                ++it->position_;
+            }
+            ++it;
+        }
+    }
+
+    alignas(4) AudioSample mixing_buffer_out_1[4];
+    alignas(4) AudioSample mixing_buffer_out_2[4];
+
+    mixing_buffer_out_1[0] = mixing_buffer[0];
+    mixing_buffer_out_1[1] = mixing_buffer[0];
+
+    mixing_buffer_out_1[2] = mixing_buffer[1];
+    mixing_buffer_out_1[3] = mixing_buffer[1];
+
+    mixing_buffer_out_2[0] = mixing_buffer[2];
+    mixing_buffer_out_2[1] = mixing_buffer[2];
+
+    mixing_buffer_out_2[2] = mixing_buffer[3];
+    mixing_buffer_out_2[3] = mixing_buffer[3];
+
+    REG_SGFIFOA = *((u32*)mixing_buffer_out_1);
+    REG_SGFIFOA = *((u32*)mixing_buffer_out_2);
+}
+
+
+
 static void audio_update_fast_isr()
 {
     alignas(4) AudioSample mixing_buffer[4];
@@ -4161,12 +4261,26 @@ static void audio_update_fast_isr()
 
 
 
-void Platform::Speaker::set_music_reversed(bool reversed)
+void Platform::Speaker::set_music_speed(MusicSpeed speed)
 {
-    if (reversed) {
-        irqSet(IRQ_TIMER1, audio_update_rewind_music_isr);
-    } else {
+    switch (speed) {
+    default:
+    case MusicSpeed::regular:
         irqSet(IRQ_TIMER1, audio_update_fast_isr);
+        break;
+
+    case MusicSpeed::doubled:
+        irqSet(IRQ_TIMER1, audio_update_doublespeed_isr);
+        break;
+
+    case MusicSpeed::reversed:
+        irqSet(IRQ_TIMER1, audio_update_rewind_music_isr);
+        break;
+
+    case MusicSpeed::halved:
+        set_gflag(GlobalFlag::music_halfspeed_update, true);
+        irqSet(IRQ_TIMER1, audio_update_halfspeed_isr);
+        break;
     }
 }
 

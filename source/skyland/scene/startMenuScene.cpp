@@ -388,8 +388,9 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     scuttle(pfrm, app);
                     pfrm.screen().schedule_fade(0.f);
                     pfrm.screen().pixelate(0);
-                    app.game_speed() = GameSpeed::normal;
-                    return scene_pool::alloc<ReadyScene>();
+                    auto next = scene_pool::alloc<ReadyScene>();
+                    next->set_gamespeed(pfrm, app, GameSpeed::normal);
+                    return next;
                 },
                 cut);
             break;

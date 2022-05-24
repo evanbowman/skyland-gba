@@ -758,7 +758,14 @@ public:
 
         void set_music_volume(u8 volume);
 
-        void set_music_reversed(bool reversed);
+        enum class MusicSpeed {
+            regular,
+            reversed,
+            doubled,
+            halved
+        };
+
+        void set_music_speed(MusicSpeed speed);
 
 
         bool is_music_playing(const char* name);

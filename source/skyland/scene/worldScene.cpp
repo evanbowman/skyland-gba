@@ -106,6 +106,32 @@ u16 gamespeed_icon(GameSpeed speed)
 
 void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
 {
+    switch (speed) {
+    case GameSpeed::stopped:
+    case GameSpeed::normal:
+        if (app.game_speed() not_eq GameSpeed::stopped and
+            app.game_speed() not_eq GameSpeed::normal) {
+            pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
+        }
+        break;
+
+    case GameSpeed::fast:
+        pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::doubled);
+        break;
+
+    case GameSpeed::rewind:
+        pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::reversed);
+        break;
+
+    case GameSpeed::slow:
+        pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::halved);
+        break;
+
+    case GameSpeed::count:
+        // Erroneous enumeration.
+        break;
+    }
+
     if (speed == GameSpeed::stopped) {
         pfrm.speaker().stash_sounds();
     } else if (app.game_speed() == GameSpeed::stopped) {

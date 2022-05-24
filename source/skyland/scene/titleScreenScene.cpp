@@ -173,6 +173,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     app.custom_tile_mapper().clear();
     app.custom_sprite_mapper().clear();
 
+    pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
+
     app.effects().clear();
     app.birds().clear();
 

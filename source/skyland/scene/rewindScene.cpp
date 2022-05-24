@@ -230,8 +230,6 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             app.time_stream().push(app.level_timer(), e);
         }
 
-        app.game_speed() = GameSpeed::stopped;
-
         if (far_camera_) {
             return scene_pool::alloc<InspectP2Scene>();
         } else {
@@ -1204,8 +1202,6 @@ void RewindScene::enter(Platform& pfrm, App& app, Scene& prev)
     } else {
         Platform::fatal("entering rewind scene from non-overworld scene");
     }
-
-    pfrm.speaker().set_music_reversed(true);
 }
 
 
@@ -1219,6 +1215,11 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
         Platform::fatal("sanity check: exit rewind scene, pushes not enabled");
     }
 
+    if (auto p = dynamic_cast<WorldScene*>(&next)) {
+        p->set_gamespeed(pfrm, app, GameSpeed::stopped);
+    } else {
+        Platform::fatal("exiting rewind scene into non-overworld scene");
+    }
 
     // Reset update dispatch when coming out of a rewind. Perhaps unnecessary.
     app.player_island().cancel_dispatch();
@@ -1226,8 +1227,6 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
     if (app.opponent_island()) {
         app.opponent_island()->cancel_dispatch();
     }
-
-    pfrm.speaker().set_music_reversed(false);
 }
 
 
