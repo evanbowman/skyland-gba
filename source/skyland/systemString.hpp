@@ -108,6 +108,7 @@ enum class SystemString {
     block_mycelium,
     block_nemesis,
     block_palm,
+    block_pearls,
     block_piston,
     block_plundered_room,
     block_potatoes,

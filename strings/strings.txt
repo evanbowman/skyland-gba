@@ -62,6 +62,7 @@ missile-silo
 mycelium
 nemesis
 coconut-palm
+pearls
 piston
 plundered-room
 potatoes

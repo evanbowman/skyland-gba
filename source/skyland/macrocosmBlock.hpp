@@ -111,6 +111,7 @@ enum class Type {
     marble_top,
     scaffolding,
     tulips,
+    pearls,
 
     count,
 };
@@ -131,6 +132,7 @@ struct Commodity
         tea,
         lumber,
         tulips,
+        pearls,
     };
     Type type_;
     u16 supply_;
