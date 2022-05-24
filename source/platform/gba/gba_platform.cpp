@@ -4174,6 +4174,9 @@ static void audio_update_doublespeed_isr()
 
 static void audio_update_halfspeed_isr()
 {
+    // NOTE: rather than change the logic for indices into the music track, I
+    // just exploit the unused depth of the sound fifo and run the isr half the
+    // time.
     if (not get_gflag(GlobalFlag::music_halfspeed_update)) {
         set_gflag(GlobalFlag::music_halfspeed_update, true);
         return;
