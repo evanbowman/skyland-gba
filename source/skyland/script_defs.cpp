@@ -153,7 +153,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
                   } else {
                       lisp::DefaultPrinter p;
                       format(lisp::get_op(0), p);
-                      debug(*pfrm, p.fmt_.c_str());
+                      debug(*pfrm, p.data_.c_str());
                   }
               }
 
@@ -187,7 +187,7 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               lisp::DefaultPrinter p;
               format(lisp::get_op(0), p);
-              Platform::fatal(p.fmt_.c_str());
+              Platform::fatal(p.data_.c_str());
 
               return L_NIL;
           }},
@@ -1625,7 +1625,7 @@ void App::init_scripts(Platform& pfrm)
         lisp::dostring(seq, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
-            pfrm.fatal(p.fmt_.c_str());
+            pfrm.fatal(p.data_.c_str());
         });
     }
 

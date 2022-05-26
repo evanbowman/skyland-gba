@@ -859,7 +859,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                         const char* tag = "lisp-fmt-buffer";
                         auto p = allocate_dynamic<lisp::DefaultPrinter>(tag);
                         lisp::format(result, *p);
-                        pfrm.fatal(p->fmt_.c_str());
+                        pfrm.fatal(p->data_.c_str());
                     }
                     lisp::pop_op(); // result
 

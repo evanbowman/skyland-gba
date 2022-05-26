@@ -54,7 +54,7 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
         lisp::dostring(seq, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
-            pfrm.fatal(p.fmt_.c_str());
+            pfrm.fatal(p.data_.c_str());
         });
     } else {
         Platform::fatal("missing multi init script!");

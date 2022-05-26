@@ -131,7 +131,7 @@ void PluginRoom::update(Platform& pfrm, App& app, Microseconds delta)
         if (result->type() == lisp::Value::Type::error) {
             lisp::DefaultPrinter p;
             lisp::format(result, p);
-            pfrm.fatal(p.fmt_.c_str());
+            pfrm.fatal(p.data_.c_str());
         }
 
         lisp::pop_op(); // funcall result

@@ -540,7 +540,7 @@ lisp::Value* App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
         return lisp::dostring(seq, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
-            pfrm.fatal(p.fmt_.c_str());
+            pfrm.fatal(p.data_.c_str());
         });
     }
 
@@ -569,7 +569,7 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
     auto on_err = [&pfrm](lisp::Value& err) {
         lisp::DefaultPrinter p;
         lisp::format(&err, p);
-        pfrm.fatal(p.fmt_.c_str());
+        pfrm.fatal(p.data_.c_str());
     };
 
     if (is_developer_mode() and not pfrm.network_peer().is_connected() and

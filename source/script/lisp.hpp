@@ -797,15 +797,25 @@ public:
 };
 
 
-class DefaultPrinter : public lisp::Printer {
+
+template <typename Container>
+class _Printer : public Printer
+{
 public:
     void put_str(const char* str) override
     {
-        fmt_ += str;
+        while (*str not_eq '\0') {
+            data_.push_back(*(str++));
+        }
     }
 
-    StringBuffer<1024> fmt_;
+    Container data_;
 };
+
+
+
+using DefaultPrinter = _Printer<StringBuffer<1024>>;
+
 
 
 void format(Value* value, Printer& p);

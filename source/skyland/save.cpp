@@ -129,7 +129,7 @@ void EmergencyBackup::store(Platform& pfrm)
 
 void store(Platform& pfrm, App& app, const PersistentData& d)
 {
-    LispPrinter p(pfrm);
+    lisp::_Printer<Vector<char>> p;
     auto val = app.invoke_script(pfrm, "/scripts/save.lisp");
     lisp::format(val, p);
 
@@ -146,8 +146,7 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
 
     pfrm.write_save_data(&save_data, sizeof save_data, offset);
 
-    ram_filesystem::store_file_data(
-        pfrm, "/save/data.lisp", p.fmt_.c_str(), p.fmt_.length());
+    ram_filesystem::store_file_data(pfrm, "/save/data.lisp", p.data_);
 
     synth_notes_store(pfrm, app.player_island(), "/save/synth.dat");
     speaker_data_store(pfrm, app.player_island(), "/save/speaker.dat");

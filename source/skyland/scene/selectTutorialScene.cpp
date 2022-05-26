@@ -85,7 +85,7 @@ void SelectTutorialScene::enter(Platform& pfrm, App& app, Scene& prev)
         auto result = lisp::dostring(seq, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
             lisp::format(&err, p);
-            pfrm.fatal(p.fmt_.c_str());
+            pfrm.fatal(p.data_.c_str());
         });
         tutorials_ = result;
         const auto tutorial_count = lisp::length(result);
@@ -231,7 +231,7 @@ SelectTutorialScene::update(Platform& pfrm, App& app, Microseconds delta)
             lisp::dostring(seq, [&pfrm](lisp::Value& err) {
                 lisp::DefaultPrinter p;
                 lisp::format(&err, p);
-                pfrm.fatal(p.fmt_.c_str());
+                pfrm.fatal(p.data_.c_str());
             });
             prep_level(pfrm, app);
             app.player_island().repaint(pfrm, app);
