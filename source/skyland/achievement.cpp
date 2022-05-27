@@ -263,20 +263,12 @@ static const AchievementInfo info[Achievement::count] = {
      SystemString::achievement_completionist_description,
      "gold",
      [](Platform&, App& app) {
-         u64 v = app.gp_.achievement_flags_.get();
-
          auto bc = count_ones(app.gp_.challenge_flags_.get());
          if (bc < 5) {
              // FIXME: use something other than hard-coding four!
              return false;
          }
 
-         for (int i = Achievement::builder; i < Achievement::completionist;
-              ++i) {
-             if ((v & (1 << i)) == 0) {
-                 return false;
-             }
-         }
          return true;
      },
      [](Platform&, App&, bool awarded) {

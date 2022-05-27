@@ -71,6 +71,7 @@ radar
 radiator
 reactor
 replicator
+rocket-bomb
 saffron
 sand
 truss
@@ -219,6 +220,7 @@ A block produced when water interacts with lava.
 Highly flammable, but takes no burn damage. Sandbox mode only.
 Reacts violently with water! Sandbox mode only.
 May be salvaged for one hundred percent of its value! Useful for co-op multiplayer.
+Weaker than regular missiles, but with a wider damage radius, and starts fires. Manufactory required.
 paused
 slow
 regular
@@ -342,7 +344,7 @@ Settle at least seven people in your castle at once!
 Meltdown
 Destroy an opponent's reactor with ion damage!
 Completionist
-Finish all challenge levels and achievements!
+Finish all challenge levels!
 Symbiosis
 Complete the "Mycelium!" challenge!
 Primitive

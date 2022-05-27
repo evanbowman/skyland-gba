@@ -216,6 +216,9 @@ struct Tile
         torch,
         cesium,
         gold,
+        rocket_silo_1,
+        rocket_silo_2,
+        rocket_silo_3,
     };
 };
 
@@ -403,6 +406,9 @@ struct InteriorTile
         torch,
         cesium,
         gold,
+        rocket_silo_1,
+        rocket_silo_2,
+        rocket_silo_3,
     };
 };
 

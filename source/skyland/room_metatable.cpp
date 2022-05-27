@@ -64,6 +64,7 @@
 #include "skyland/rooms/radiator.hpp"
 #include "skyland/rooms/reactor.hpp"
 #include "skyland/rooms/replicator.hpp"
+#include "skyland/rooms/rocketSilo.hpp"
 #include "skyland/rooms/shrubbery.hpp"
 #include "skyland/rooms/solarCell.hpp"
 #include "skyland/rooms/speaker.hpp"
@@ -284,6 +285,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Decimator,
                                         // Pummeler,
                                         MissileSilo,
+                                        RocketSilo,
                                         // factories
                                         Workshop,
                                         Manufactory,

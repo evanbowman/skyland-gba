@@ -81,7 +81,6 @@ public:
 protected:
     virtual void destroy(Platform& pfrm, App& app);
 
-private:
     Microseconds timer_ = 0;
     Fixnum target_x_;
 
@@ -114,6 +113,14 @@ public:
 
 
     void on_collision(Platform& pfrm, App& app, Room&) override;
+
+
+
+    void burst(Platform& pfrm,
+               App& app,
+               const Vec2<Fixnum>& position,
+               Room& origin_room);
+
 
 
 protected:

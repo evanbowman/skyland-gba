@@ -343,7 +343,8 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
     for (auto& room : app.player_island().rooms()) {
         const auto category = (*room->metaclass())->category();
 
-        if (str_eq(room->name(), "missile-silo")) {
+        if (str_eq(room->name(), "missile-silo") or
+            str_eq(room->name(), "rocket-bomb")) {
             ++missile_count;
         } else if (str_eq(room->name(), "drone-bay")) {
             ++drone_count;
@@ -654,7 +655,8 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
         if (power_remaining(app) > (*sel)->consumes_power()) {
 
-            if (str_eq((*sel)->name(), "missile-silo")) {
+            if (str_eq((*sel)->name(), "missile-silo") or
+                str_eq((*sel)->name(), "rocket-bomb")) {
                 ++place_missile_count;
             } else if (str_eq((*sel)->name(), "drone-bay")) {
                 place_drone_bay(sel);
@@ -698,7 +700,8 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
         int player_ion_cannon_count = 0;
         for (auto& room : app.player_island().rooms()) {
             if ((*room->metaclass())->category() == Room::Category::weapon) {
-                if (str_eq(room->name(), "missile-silo")) {
+                if (str_eq(room->name(), "missile-silo") or
+                    str_eq(room->name(), "rocket-bomb")) {
                     ++player_missile_count;
                 } else if (str_eq(room->name(), "ion-cannon")) {
                     ++player_ion_cannon_count;
@@ -712,7 +715,8 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
         int opponent_cannon_count = 0;
         for (auto& room : app.opponent_island()->rooms()) {
             if ((*room->metaclass())->category() == Room::Category::weapon) {
-                if (str_eq(room->name(), "missile-silo")) {
+                if (str_eq(room->name(), "missile-silo") or
+                    str_eq(room->name(), "rocket-bomb")) {
                     ++opponent_missile_count;
                 } else {
                     ++opponent_cannon_count;
@@ -731,7 +735,8 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
                 if (x < 15) {
                     if (app.opponent_island()->rooms_plot().get(x + 1, y)) {
                         if (auto room = get_room(x + 1, y)) {
-                            if ((not str_eq(room->name(), "missile-silo")) and
+                            if ((not str_eq(room->name(), "missile-silo") and
+                                 not str_eq(room->name(), "rocket-bomb") ) and
                                 (*room->metaclass())->category() ==
                                     Room::Category::weapon) {
 
@@ -750,6 +755,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
                     if (app.opponent_island()->rooms_plot().get(x, y + 1)) {
                         if (auto room = get_room(x, y + 1)) {
                             if (str_eq(room->name(), "missile-silo") or
+                                str_eq(room->name(), "rocket-bomb") or
                                 str_eq(room->name(), "drone-bay")) {
                                 if (opponent_missile_count >
                                     player_missile_count) {
@@ -829,7 +835,8 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
 
     int missile_count = 0;
     for (auto& room : app.player_island().rooms()) {
-        if (str_eq(room->name(), "missile-silo")) {
+        if (str_eq(room->name(), "missile-silo") or
+            str_eq(room->name(), "rocket-bomb")) {
             ++missile_count;
         }
     }
@@ -901,7 +908,9 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
                 }
                 if ((*right->metaclass())->category() ==
                         Room::Category::weapon and
-                    not str_eq(right->name(), "missile-silo")) {
+                    not str_eq(right->name(), "missile-silo") and
+                    not str_eq(right->name(), "rocket-bomb") and
+                    not str_eq(right->name(), "ion-cannon")) {
                     continue;
                 }
 
@@ -933,7 +942,8 @@ void ProcgenEnemyAI::generate_walls_behind_weapons(Platform& pfrm, App& app)
 
     for (auto& room : app.opponent_island()->rooms()) {
         if ((*room->metaclass())->category() == Room::Category::weapon and
-            not str_eq(room->name(), "missile-silo")) {
+            not str_eq(room->name(), "missile-silo") and
+            not str_eq(room->name(), "rocket-bomb")) {
 
             auto behind = room->position();
             behind.x += (*room->metaclass())->size().x;
@@ -943,7 +953,8 @@ void ProcgenEnemyAI::generate_walls_behind_weapons(Platform& pfrm, App& app)
                 for (u8 y = behind.y; y < 15; ++y) {
                     if (auto room =
                             app.opponent_island()->get_room({behind.x, y})) {
-                        if (str_eq(room->name(), "missile-silo")) {
+                        if (str_eq(room->name(), "missile-silo") or
+                            str_eq(room->name(), "rocket-bomb")) {
                             // Don't generate a hull over top of a missile
                             // silo. The enemy will just shoot itself with
                             // missiles.
@@ -1382,7 +1393,8 @@ void ProcgenEnemyAI::generate_foundation(Platform& pfrm, App& app)
                                 {u8(x + 1), yy})) {
                             if ((*room->metaclass())->category() ==
                                     Room::Category::weapon and
-                                not str_eq(room->name(), "missile-silo")) {
+                                not str_eq(room->name(), "missile-silo") and
+                                not str_eq(room->name(), "rocket-bomb")) {
                                 // Don't put a foundation block to the left of a
                                 // cannon-type weapon.
                                 continue;

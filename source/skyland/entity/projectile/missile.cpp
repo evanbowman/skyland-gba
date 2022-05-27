@@ -29,6 +29,8 @@
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/timeStreamEvent.hpp"
+#include "skyland/rooms/rocketSilo.hpp"
+#include "skyland/entity/misc/smokePuff.hpp"
 
 
 
@@ -36,6 +38,10 @@ namespace skyland
 {
 
 
+
+extern SharedVariable flak_r1_damage;
+extern SharedVariable flak_r2_damage;
+extern SharedVariable flak_r3_damage;
 
 SHARED_VARIABLE(missile_damage);
 
@@ -272,16 +278,107 @@ void Missile::on_collision(Platform& pfrm, App& app, Entity& entity)
 
 
 
+void RocketBomb::burst(Platform& pfrm,
+                 App& app,
+                 const Vec2<Fixnum>& position,
+                 Room& origin_room)
+{
+    int grid_x_start = origin_room.position().x;
+    int grid_y_start = origin_room.position().y;
+
+    auto apply_damage = [&](int x_off, int y_off, Health damage) {
+        auto island = origin_room.parent();
+        const int x = grid_x_start + x_off;
+        const int y = grid_y_start + y_off;
+        if (x >= 0 and x < 16 and y >= 0 and y < 16) {
+            if (auto room = island->get_room({u8(x), u8(y)})) {
+                if (str_cmp(room->name(), "stacked-hull") == 0) {
+                    room->apply_damage(pfrm, app, damage / 4);
+                } else {
+                    room->apply_damage(pfrm, app, damage);
+                }
+                origin_room.parent()->fire_create(pfrm, app, Vec2<u8>{(u8)x, (u8)y});
+            }
+        }
+    };
+
+    apply_damage(0, 0, 40);
+
+    apply_damage(1, 0, 16);
+    apply_damage(-1, 0, 16);
+    apply_damage(0, 1, 16);
+    apply_damage(0, -1, 16);
+}
+
+
+
+
 void RocketBomb::on_collision(Platform& pfrm, App& app, Room& room)
 {
-    // ...
+    if (source_ == room.parent() and str_eq(room.name(), RocketSilo::name())) {
+        return;
+    }
+
+    if (source_ == room.parent() and is_forcefield(room.metaclass())) {
+        return;
+    }
+
+    if ((*room.metaclass())->properties() & RoomProperties::fragile and
+        room.max_health() < missile_damage) {
+        room.apply_damage(pfrm, app, Room::health_upper_limit());
+        return;
+    }
+
+
+    burst(pfrm, app, sprite_.get_position(), room);
+
+    destroy(pfrm, app);
+
+
+    if (room.health()) {
+        sound_impact.play(pfrm, 1);
+    }
 }
 
 
 
 void RocketBomb::destroy(Platform& pfrm, App& app)
 {
-    // ...
+    auto setup_event = [&](time_stream::event::MissileDestroyed& e) {
+        e.timer_.set(timer_);
+        e.x_pos_.set(sprite_.get_position().x.as_integer());
+        e.y_pos_.set(sprite_.get_position().y.as_integer());
+        e.target_x_.set(target_x_.as_integer());
+        e.source_x_ = source_x_;
+        e.source_y_ = source_y_;
+        e.state_ = (u8)state_;
+    };
+
+    if (source_ == &app.player_island()) {
+        time_stream::event::PlayerRocketBombDestroyed e;
+        setup_event(e);
+        app.time_stream().push(app.level_timer(), e);
+    } else {
+        time_stream::event::OpponentRocketBombDestroyed e;
+        setup_event(e);
+        app.time_stream().push(app.level_timer(), e);
+    }
+
+    auto flak_smoke = [](Platform& pfrm, App& app, const Vec2<Fixnum>& pos) {
+        auto e = app.alloc_entity<SmokePuff>(
+            pfrm, rng::sample<48>(pos, rng::utility_state), 61);
+
+        if (e) {
+            app.effects().push(std::move(e));
+        }
+    };
+
+    flak_smoke(pfrm, app, sprite_.get_position());
+    flak_smoke(pfrm, app, sprite_.get_position());
+
+    kill();
+    app.camera()->shake(18);
+    big_explosion(pfrm, app, sprite_.get_position());
 }
 
 

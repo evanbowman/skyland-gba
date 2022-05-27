@@ -117,6 +117,7 @@ enum class SystemString {
     block_radiator,
     block_reactor,
     block_replicator,
+    block_rocket_bomb,
     block_saffron,
     block_sand,
     block_scaffolding,
@@ -283,6 +284,7 @@ enum class SystemString {
     description_torch,
     description_cesium,
     description_gold,
+    description_rocket_bomb,
 
     gs_paused,
     gs_slow,

@@ -20,6 +20,7 @@
    (ion-cannon   150 800  30)
    (fire-charge  200 1800 34)
    (flak-gun     125 2000 34)
+   (rocket-bomb  200 2600 30)
    (missile-silo 200 1400 30)
    (decimator    140 3300 160)
    (stairwell    60  500  5)
