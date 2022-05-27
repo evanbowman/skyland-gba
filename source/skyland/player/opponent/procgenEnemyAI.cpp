@@ -834,10 +834,14 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
     auto& ehull = require_metaclass("energized-hull");
 
     int missile_count = 0;
+    int bomb_count = 0;
     for (auto& room : app.player_island().rooms()) {
         if (str_eq(room->name(), "missile-silo") or
             str_eq(room->name(), "rocket-bomb")) {
             ++missile_count;
+        }
+        if (str_eq(room->name(), "rocket-bomb")) {
+            ++bomb_count;
         }
     }
 
@@ -846,7 +850,7 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
     auto generate_roof = [&](bool conservative, int ehull_count) {
         for (u8 x = 0; x < 15; ++x) {
 
-            for (u8 y = 0; y < 14; ++y) {
+            for (u8 y = construction_zone_min_y; y < 14; ++y) {
 
                 if (app.opponent_island()->rooms_plot().get(x, y + 1)) {
                     auto below =
@@ -893,7 +897,12 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
             break;
         }
         if (difficulty_ not_eq 0) {
-            missile_defense = rng::choice<2>(rng_source_);
+            if (missile_count > 4 or bomb_count > 2) {
+                missile_defense = true;
+            } else {
+                missile_defense = rng::choice<2>(rng_source_);
+            }
+
         }
         generate_roof(false, ehull_count);
     }
