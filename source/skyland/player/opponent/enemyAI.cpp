@@ -1411,7 +1411,8 @@ void EnemyAI::set_target(Platform& pfrm,
         for (int y = 0; y < 15; ++y) {
             if (matrix.get(x, y)) {
                 if (auto room = app.player_island().get_room({u8(x), u8(y)})) {
-                    visible_rooms.push_back({room, (*room->metaclass())->ai_base_weight()});
+                    visible_rooms.push_back(
+                        {room, (*room->metaclass())->ai_base_weight()});
                 }
                 break;
             }

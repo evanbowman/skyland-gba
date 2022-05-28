@@ -735,7 +735,6 @@ struct LexicalDefRelocatable : public LexicalDef {
 static_assert(sizeof(LexicalDefRelocatable) == sizeof(LexicalDef));
 
 
-
 struct PushSmallSymbol {
     Header header_;
     u8 name_[4];
@@ -750,7 +749,6 @@ struct PushSmallSymbol {
         return 46;
     }
 };
-
 
 
 struct LexicalDefSmall {
@@ -769,7 +767,6 @@ struct LexicalDefSmall {
 };
 
 
-
 struct LoadVarSmall {
     Header header_;
     u8 name_[4];
@@ -784,10 +781,6 @@ struct LoadVarSmall {
         return 48;
     }
 };
-
-
-
-
 
 
 // Just a utility intended for the compiler, not to be used by the vm.

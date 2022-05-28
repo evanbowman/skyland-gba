@@ -180,8 +180,7 @@ TOP:
             for (int i = 0; i < 4; ++i) {
                 str.push_back(name[i]);
             }
-            push_op(make_symbol(str.c_str(),
-                                Symbol::ModeBits::small));
+            push_op(make_symbol(str.c_str(), Symbol::ModeBits::small));
             break;
         }
 
@@ -505,8 +504,7 @@ TOP:
                 name.push_back(inst->name_[i]);
             }
 
-            Protected sym(make_symbol(name.c_str(),
-                                      Symbol::ModeBits::small));
+            Protected sym(make_symbol(name.c_str(), Symbol::ModeBits::small));
 
             // pair of (sym . value)
             auto pair = make_cons(sym, get_op0());

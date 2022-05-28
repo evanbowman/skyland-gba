@@ -118,8 +118,7 @@ struct Symbol {
 
     static constexpr const u32 buffer_size = 4;
 
-    union Data
-    {
+    union Data {
         // NOTE: We want to pack data into a six byte space, but buffer size + 1
         // (5) bumps up the aligned size of the union to eight bytes, so we
         // store the pointer value as bytes and memcpy it. Really annoying that
@@ -183,7 +182,6 @@ struct Symbol {
     }
 
 
-
     const char* unique_id()
     {
         if (hdr_.mode_bits_ == (u8)ModeBits::small) {
@@ -194,7 +192,6 @@ struct Symbol {
             return get_intern_name();
         }
     }
-
 
 
     static ValueHeader::Type type()
@@ -767,7 +764,6 @@ Value* dostring(CharSequence& code, ::Function<16, void(Value&)> on_error);
 bool is_executing();
 
 
-
 #define L_EXPECT_OP(OFFSET, TYPE)                                              \
     if (lisp::Value::Type::TYPE not_eq lisp::Value::Type::error and            \
         lisp::get_op((OFFSET))->type() == lisp::Value::Type::error) {          \
@@ -797,10 +793,7 @@ public:
 };
 
 
-
-template <typename Container>
-class _Printer : public Printer
-{
+template <typename Container> class _Printer : public Printer {
 public:
     void put_str(const char* str) override
     {
@@ -813,9 +806,7 @@ public:
 };
 
 
-
 using DefaultPrinter = _Printer<StringBuffer<1024>>;
-
 
 
 void format(Value* value, Printer& p);

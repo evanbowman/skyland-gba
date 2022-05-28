@@ -336,8 +336,6 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             push_opt(SystemString::macro_abandon, st.y - 4);
             push_opt(SystemString::macro_trade, st.y - 2);
         }
-
-
     };
 
 

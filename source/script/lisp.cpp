@@ -199,7 +199,8 @@ static void globals_tree_insert(Value* key, Value* value)
 
             auto current_key = current->cons().car()->cons().car();
 
-            if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
+            if (current_key->symbol().unique_id() ==
+                key->symbol().unique_id()) {
                 // The key alreay exists, overwrite the previous value.
                 current->cons().car()->cons().set_cdr(value);
                 return;
@@ -207,7 +208,8 @@ static void globals_tree_insert(Value* key, Value* value)
             } else {
                 prev = (Value*)current;
 
-                if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
+                if (current_key->symbol().unique_id() <
+                    key->symbol().unique_id()) {
                     // Continue loop through left subtree
                     insert_left = true;
                     current = current->cons().cdr()->cons().car();

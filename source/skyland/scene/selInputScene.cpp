@@ -197,8 +197,10 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
         if (required_space_) {
-            for (u8 x = cursor_loc.x; x < cursor_loc.x + required_space_->x; ++x) {
-                for (u8 y = cursor_loc.y; y < cursor_loc.y + required_space_->y; ++y) {
+            for (u8 x = cursor_loc.x; x < cursor_loc.x + required_space_->x;
+                 ++x) {
+                for (u8 y = cursor_loc.y; y < cursor_loc.y + required_space_->y;
+                     ++y) {
                     auto room = app.player_island().get_room({x, y});
                     if (room or x == app.player_island().terrain().size()) {
                         pfrm.speaker().play_sound("beep_error", 1);
@@ -206,7 +208,6 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
                     }
                 }
             }
-
         }
 
         lisp::push_op(lisp::make_userdata(near_ ? &app.player_island()

@@ -135,9 +135,9 @@ void respawn_missile(Platform& pfrm,
 
 
 void respawn_rocketbomb(Platform& pfrm,
-                     App& app,
-                     Island* parent,
-                     time_stream::event::MissileDestroyed& e)
+                        App& app,
+                        Island* parent,
+                        time_stream::event::MissileDestroyed& e)
 {
     auto m = app.alloc_entity<RocketBomb>(
         pfrm,

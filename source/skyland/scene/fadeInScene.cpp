@@ -75,8 +75,7 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         pfrm.screen().fade(0.f);
-        auto future_scene = [&pfrm, &app]()
-        {
+        auto future_scene = [&pfrm, &app]() {
             auto next = scene_pool::alloc<ReadyScene>();
             if (app.game_mode() not_eq App::GameMode::tutorial and
                 not pfrm.network_peer().is_connected()) {

@@ -736,7 +736,7 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
                     if (app.opponent_island()->rooms_plot().get(x + 1, y)) {
                         if (auto room = get_room(x + 1, y)) {
                             if ((not str_eq(room->name(), "missile-silo") and
-                                 not str_eq(room->name(), "rocket-bomb") ) and
+                                 not str_eq(room->name(), "rocket-bomb")) and
                                 (*room->metaclass())->category() ==
                                     Room::Category::weapon) {
 
@@ -902,7 +902,6 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
             } else {
                 missile_defense = rng::choice<2>(rng_source_);
             }
-
         }
         generate_roof(false, ehull_count);
     }

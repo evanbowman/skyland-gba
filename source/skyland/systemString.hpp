@@ -455,6 +455,9 @@ enum class SystemString {
     piston_setup,
     piston_error,
 
+    error_power_out,
+    error_friendly,
+
     factory_reset,
 
     dialog_tutorial_prompt,

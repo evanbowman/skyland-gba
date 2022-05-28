@@ -31,7 +31,6 @@
 // running the interpreter.
 
 
-
 rng::Value rng::get(LinearGenerator& gen)
 {
     gen = 1664525 * gen + 1013904223;
@@ -39,9 +38,7 @@ rng::Value rng::get(LinearGenerator& gen)
 }
 
 
-
 GenericPool* GenericPool::instances_;
-
 
 
 void Platform::fatal(const char* msg)
@@ -49,7 +46,6 @@ void Platform::fatal(const char* msg)
     std::cerr << "fatal error: " << msg << std::endl;
     exit(EXIT_FAILURE);
 }
-
 
 
 void english__to_string(int num, char* buffer, int base)
@@ -101,7 +97,6 @@ void* Platform::system_call(const char* feature_name, void* arg)
 {
     return nullptr;
 }
-
 
 
 bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
@@ -157,16 +152,12 @@ void Platform::sleep(u32)
 }
 
 
-
-static
-    ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
-               scratch_buffer_count>
-        scratch_buffer_pool("scratch-buffers");
-
+static ObjectPool<PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>,
+                  scratch_buffer_count>
+    scratch_buffer_pool("scratch-buffers");
 
 
 static int scratch_buffers_in_use_ = 0;
-
 
 
 int scratch_buffers_remaining()
@@ -175,23 +166,19 @@ int scratch_buffers_remaining()
 }
 
 
-
 int scratch_buffers_in_use()
 {
     return scratch_buffers_in_use_;
 }
 
 
-
 std::optional<Function<16, void()>> scratch_buffer_oom_handler;
-
 
 
 void set_scratch_buffer_oom_handler(Function<16, void()> callback)
 {
     scratch_buffer_oom_handler.emplace(callback);
 }
-
 
 
 ScratchBufferPtr make_scratch_buffer(const ScratchBuffer::Tag& tag)

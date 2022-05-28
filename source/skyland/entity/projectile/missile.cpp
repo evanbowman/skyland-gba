@@ -22,15 +22,15 @@
 
 #include "missile.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
+#include "skyland/entity/misc/smokePuff.hpp"
 #include "skyland/room.hpp"
 #include "skyland/room_metatable.hpp"
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/missileSilo.hpp"
+#include "skyland/rooms/rocketSilo.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/timeStreamEvent.hpp"
-#include "skyland/rooms/rocketSilo.hpp"
-#include "skyland/entity/misc/smokePuff.hpp"
 
 
 
@@ -279,9 +279,9 @@ void Missile::on_collision(Platform& pfrm, App& app, Entity& entity)
 
 
 void RocketBomb::burst(Platform& pfrm,
-                 App& app,
-                 const Vec2<Fixnum>& position,
-                 Room& origin_room)
+                       App& app,
+                       const Vec2<Fixnum>& position,
+                       Room& origin_room)
 {
     int grid_x_start = origin_room.position().x;
     int grid_y_start = origin_room.position().y;
@@ -297,7 +297,8 @@ void RocketBomb::burst(Platform& pfrm,
                 } else {
                     room->apply_damage(pfrm, app, damage);
                 }
-                origin_room.parent()->fire_create(pfrm, app, Vec2<u8>{(u8)x, (u8)y});
+                origin_room.parent()->fire_create(
+                    pfrm, app, Vec2<u8>{(u8)x, (u8)y});
             }
         }
     };
@@ -309,7 +310,6 @@ void RocketBomb::burst(Platform& pfrm,
     apply_damage(0, 1, 16);
     apply_damage(0, -1, 16);
 }
-
 
 
 

@@ -339,7 +339,8 @@ LispReplScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // identifier out of the command buffer again.
                     cpl_->completion_prefix_len_ = ident.length();
 
-                    auto handle_completion = [&ident, this](const char* intern) {
+                    auto handle_completion = [&ident,
+                                              this](const char* intern) {
                         if (cpl_->completion_strs_.full()) {
                             return;
                         }

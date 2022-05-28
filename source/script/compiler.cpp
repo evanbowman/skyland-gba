@@ -171,11 +171,13 @@ int compile_let(ScratchBuffer& buffer,
                     buffer, write_pos, bind->cons().car(), jump_offset, false);
 
                 if (sym->hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-                    auto inst = append<instruction::LexicalDefSmall>(buffer, write_pos);
+                    auto inst =
+                        append<instruction::LexicalDefSmall>(buffer, write_pos);
                     auto name = sym->symbol().name();
                     memcpy(inst->name_, name, Symbol::buffer_size);
                 } else {
-                    auto inst = append<instruction::LexicalDef>(buffer, write_pos);
+                    auto inst =
+                        append<instruction::LexicalDef>(buffer, write_pos);
                     inst->name_offset_.set(symbol_offset(sym->symbol().name()));
                 }
             }
@@ -279,15 +281,14 @@ int compile_impl(ScratchBuffer& buffer,
         } else {
 
             if (code->symbol().hdr_.mode_bits_ == (u8)Symbol::ModeBits::small) {
-                auto inst = append<instruction::LoadVarSmall>(buffer, write_pos);
+                auto inst =
+                    append<instruction::LoadVarSmall>(buffer, write_pos);
                 auto name = code->symbol().name();
                 memcpy(inst->name_, name, Symbol::buffer_size);
             } else {
                 append<instruction::LoadVar>(buffer, write_pos)
                     ->name_offset_.set(symbol_offset(code->symbol().name()));
             }
-
-
         }
 
     } else if (code->type() == Value::Type::cons) {

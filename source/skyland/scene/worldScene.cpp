@@ -111,7 +111,8 @@ void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
     case GameSpeed::normal:
         if (app.game_speed() not_eq GameSpeed::stopped and
             app.game_speed() not_eq GameSpeed::normal) {
-            pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
+            pfrm.speaker().set_music_speed(
+                Platform::Speaker::MusicSpeed::regular);
         }
         break;
 

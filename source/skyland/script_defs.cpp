@@ -537,14 +537,13 @@ static const lisp::Binding script_api[] = {
 
          auto s = lisp::get_op(0)->symbol();
 
-         KeyCallbackProcessor::Binding b{
-             KeyCallbackProcessor::MatchSeq{},
-             [s](Platform& pfrm, App& app) {
-                 // Bad hack: construct dummy symbol.
-                 auto fn = lisp::get_var(s.name());
-                 lisp::funcall(fn, 0);
-                 lisp::pop_op(); // funcall result
-             }};
+         KeyCallbackProcessor::Binding b{KeyCallbackProcessor::MatchSeq{},
+                                         [s](Platform& pfrm, App& app) {
+                                             // Bad hack: construct dummy symbol.
+                                             auto fn = lisp::get_var(s.name());
+                                             lisp::funcall(fn, 0);
+                                             lisp::pop_op(); // funcall result
+                                         }};
 
          int i = 0;
          auto str = lisp::get_op(1)->string().value();

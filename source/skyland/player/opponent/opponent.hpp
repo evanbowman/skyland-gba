@@ -47,6 +47,13 @@ public:
     {
     }
 
+
+    virtual bool is_friendly() const
+    {
+        return false;
+    }
+
+
     void on_room_damaged(Platform& pfrm, App& app, Room&) override;
 };
 

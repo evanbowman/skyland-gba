@@ -20,8 +20,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "platform/platform.hpp"
 #include "rocketSilo.hpp"
+#include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
@@ -54,7 +54,7 @@ void RocketSilo::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 static auto reload_time()
 {
-    return 1000 * missile_silo_reload_ms + seconds(4);
+    return 1000 * missile_silo_reload_ms + seconds(3);
 }
 
 

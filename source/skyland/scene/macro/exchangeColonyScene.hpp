@@ -25,11 +25,11 @@
 
 #include "allocator.hpp"
 #include "macroverseScene.hpp"
-#include "skyland/scene_pool.hpp"
 #include "skyland/macrocosmEngine.hpp"
 #include "skyland/macrocosmSector.hpp"
 #include "skyland/network.hpp"
 #include "skyland/scene.hpp"
+#include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -42,8 +42,6 @@ namespace skyland::macro
 class ExchangeColonyScene : public Scene, public network::Listener
 {
 public:
-
-
     struct Schema
     {
         struct Payload
@@ -60,11 +58,11 @@ public:
     static_assert(sizeof(Schema) == 1024);
 
 
-    ExchangeColonyScene(Vec2<s8> exchange_sector) :
-        data_in_(allocate_dynamic<Schema>("exchange_colony_buffer")),
-        data_out_(allocate_dynamic<Schema>("exchange_colony_buffer")),
-        input_ptr_(reinterpret_cast<u8*>(&*data_in_)),
-        exchange_sector_(exchange_sector)
+    ExchangeColonyScene(Vec2<s8> exchange_sector)
+        : data_in_(allocate_dynamic<Schema>("exchange_colony_buffer")),
+          data_out_(allocate_dynamic<Schema>("exchange_colony_buffer")),
+          input_ptr_(reinterpret_cast<u8*>(&*data_in_)),
+          exchange_sector_(exchange_sector)
     {
         output_ptr_ = reinterpret_cast<u8*>(&*data_out_);
         output_size_ = sizeof(Schema);
@@ -122,18 +120,18 @@ public:
         }
 
         case State::send: {
-            if (output_ptr_ < reinterpret_cast<u8*>(&*data_out_) + output_size_) {
+            if (output_ptr_ <
+                reinterpret_cast<u8*>(&*data_out_) + output_size_) {
                 network::packet::BlockTransferData pkt;
 
-                auto send_segment =
-                    [&] {
-                        pkt.sequence_ = output_sequence_++;
-                        pkt.data_[0] = *(output_ptr_++);
-                        pkt.data_[1] = *(output_ptr_++);
-                        pkt.data_[2] = *(output_ptr_++);
-                        pkt.data_[3] = *(output_ptr_++);
-                        network::transmit(pfrm, pkt);
-                    };
+                auto send_segment = [&] {
+                    pkt.sequence_ = output_sequence_++;
+                    pkt.data_[0] = *(output_ptr_++);
+                    pkt.data_[1] = *(output_ptr_++);
+                    pkt.data_[2] = *(output_ptr_++);
+                    pkt.data_[3] = *(output_ptr_++);
+                    network::transmit(pfrm, pkt);
+                };
 
                 // NOTE: we don't want to overflow the send queue, don't
                 // transmit too many packets all at once (four per frame).
@@ -163,11 +161,12 @@ public:
                 // island (outpost) for a fullsize island, as they're stored in
                 // different containers.
                 pkt.status_ =
-                    (rx->payload_.shape_ == terrain::Sector::Shape::outpost
-                     and m.data_->outpost_sectors_.size() <
-                     StateImpl::max_outposts) or
-                    (rx->payload_.shape_ not_eq terrain::Sector::Shape::outpost
-                     and not m.data_->other_sectors_.full());
+                    (rx->payload_.shape_ == terrain::Sector::Shape::outpost and
+                     m.data_->outpost_sectors_.size() <
+                         StateImpl::max_outposts) or
+                    (rx->payload_.shape_ not_eq
+                         terrain::Sector::Shape::outpost and
+                     not m.data_->other_sectors_.full());
                 network::transmit(pfrm, pkt);
                 state_ = State::await_status;
             }
@@ -197,9 +196,8 @@ public:
                 for (u8 z = 0; z < s->size().z; ++z) {
                     for (u8 x = 0; x < s->size().x; ++x) {
                         for (u8 y = 0; y < s->size().y; ++y) {
-                            const auto ind = z * s->size().x * s->size().y
-                                + x * s->size().y
-                                + y;
+                            const auto ind = z * s->size().x * s->size().y +
+                                             x * s->size().y + y;
 
                             auto b = (terrain::Type)rx->payload_.blocks_[ind];
 
@@ -269,9 +267,7 @@ public:
 
 
 private:
-
-    enum class State
-    {
+    enum class State {
         init,
         send,
         wait,
@@ -297,4 +293,4 @@ private:
 
 
 
-}
+} // namespace skyland::macro
