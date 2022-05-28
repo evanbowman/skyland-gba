@@ -40,6 +40,7 @@ class FlakGun;
 class DroneBay;
 class IonCannon;
 class FireCharge;
+class RocketSilo;
 class MissileSilo;
 class BasicCharacter;
 
@@ -78,6 +79,11 @@ private:
                     App&,
                     const Bitmatrix<16, 16>& matrix,
                     MissileSilo& silo);
+
+    void set_target(Platform&,
+                    App&,
+                    const Bitmatrix<16, 16>& matrix,
+                    RocketSilo& silo);
 
     void set_target(Platform&,
                     App&,

@@ -37,6 +37,7 @@
 #include "skyland/rooms/forcefield.hpp"
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/missileSilo.hpp"
+#include "skyland/rooms/rocketSilo.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/scene/constructionScene.hpp"
 #include "skyland/skyland.hpp"
@@ -253,6 +254,8 @@ void EnemyAI::update_room(Platform& pfrm,
 
     if (dynamic_cast<Decimator*>(&room)) {
         // Do nothing.
+    } else if (auto silo = dynamic_cast<RocketSilo*>(&room)) {
+        set_target(pfrm, app, matrix, *silo);
     } else if (auto silo = dynamic_cast<MissileSilo*>(&room)) {
         set_target(pfrm, app, matrix, *silo);
     } else if (auto flak_gun = dynamic_cast<FlakGun*>(&room)) {
@@ -1387,6 +1390,74 @@ void EnemyAI::offensive_drone_set_target(Platform& pfrm,
     if (ideal_pos) {
         drone.set_target(pfrm, app, *ideal_pos);
     }
+}
+
+
+
+void EnemyAI::set_target(Platform& pfrm,
+                         App& app,
+                         const Bitmatrix<16, 16>& matrix,
+                         RocketSilo& silo)
+{
+    if (silo.parent()->get_drift() not_eq 0) {
+        // Wait until we've stopped moving
+        return;
+    }
+
+    Buffer<std::pair<Room*, Float>, 32> visible_rooms;
+
+
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 15; ++y) {
+            if (matrix.get(x, y)) {
+                if (auto room = app.player_island().get_room({u8(x), u8(y)})) {
+                    visible_rooms.push_back({room, (*room->metaclass())->ai_base_weight()});
+                }
+                break;
+            }
+        }
+    }
+
+    for (auto& info : visible_rooms) {
+        auto pos = info.first->position();
+
+        if (auto room = app.player_island().get_room({pos.x, u8(pos.y - 1)})) {
+            info.second += 0.5f * (*room->metaclass())->ai_base_weight();
+        }
+
+        if (auto room = app.player_island().get_room({pos.x, u8(pos.y + 1)})) {
+            info.second += 0.5f * (*room->metaclass())->ai_base_weight();
+        }
+
+        if (auto room = app.player_island().get_room({u8(pos.x + 1), pos.y})) {
+            info.second += 0.5f * (*room->metaclass())->ai_base_weight();
+        }
+
+        if (auto room = app.player_island().get_room({u8(pos.x - 1), pos.y})) {
+            info.second += 0.5f * (*room->metaclass())->ai_base_weight();
+        }
+    }
+
+    if (visible_rooms.empty()) {
+        return;
+    }
+
+    Float highest_weight = -1.f;
+    Room* best_room = nullptr;
+
+    for (auto& info : visible_rooms) {
+        if (info.second > highest_weight) {
+            highest_weight = info.second;
+            best_room = info.first;
+        }
+    }
+
+    if (not best_room) {
+        // Should never happen.
+        return;
+    }
+
+    assign_weapon_target(pfrm, app, silo, best_room->position());
 }
 
 
