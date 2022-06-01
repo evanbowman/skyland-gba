@@ -84,7 +84,7 @@ private:
     u8 difficulty_ = 1;
 
     Vec2<u8> levelgen_size_;
-    int levelgen_enemy_count_ = 8;
+    int levelgen_enemy_count_ = 0;
 
     int core_count_ = 0;
 

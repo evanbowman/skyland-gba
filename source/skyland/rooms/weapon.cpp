@@ -239,16 +239,14 @@ Weapon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
         pfrm.speaker().play_sound("beep_error", 3);
         auto str = SYSTR(error_friendly);
-        return scene_pool::alloc<NotificationScene>(str->c_str(),
-                                                    future_scene);
+        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
     }
 
     if (parent()->power_supply() < parent()->power_drain()) {
         auto future_scene = []() { return scene_pool::alloc<ReadyScene>(); };
         pfrm.speaker().play_sound("beep_error", 2);
         auto str = SYSTR(error_power_out);
-        return scene_pool::alloc<NotificationScene>(str->c_str(),
-                                                    future_scene);
+        return scene_pool::alloc<NotificationScene>(str->c_str(), future_scene);
     }
 
 
