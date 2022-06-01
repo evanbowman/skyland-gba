@@ -164,6 +164,10 @@ public:
                  const network::packet::CoOpOpponentDestroyed&) override;
 
 
+    void
+    receive(Platform& pfrm, App& app, const network::packet::Paused&) override;
+
+
     void network_sync_cursor(Platform& pfrm,
                              const RoomCoord& cursor,
                              u8 cursor_icon,

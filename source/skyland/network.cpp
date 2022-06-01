@@ -95,6 +95,7 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::BlockTransferData)
             HANDLE_MESSAGE(packet::BlockTransferEnd)
             HANDLE_MESSAGE(packet::MacroTradeStatus)
+            HANDLE_MESSAGE(packet::Paused)
         }
 
         error(pfrm, "garbled message!?");

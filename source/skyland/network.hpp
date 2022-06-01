@@ -77,6 +77,7 @@ struct Header
         block_transfer_data,
         block_transfer_end,
         macro_trade_status,
+        paused,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -615,6 +616,18 @@ struct MacroTradeStatus
 
 
 
+struct Paused
+{
+    Header header_;
+
+    bool status_;
+    u8 unused_[4];
+
+    static const auto mt = Header::MessageType::paused;
+};
+
+
+
 } // namespace packet
 
 
@@ -868,6 +881,12 @@ public:
 
     virtual void
     receive(Platform& pfrm, App& app, const packet::MacroTradeStatus& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void receive(Platform& pfrm, App& app, const packet::Paused& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }

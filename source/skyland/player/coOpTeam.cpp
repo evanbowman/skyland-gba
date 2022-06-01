@@ -615,6 +615,23 @@ void CoOpTeam::receive(Platform& pfrm,
 
 
 
+void CoOpTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::Paused& pkt)
+{
+    Scene* s = &app.scene();
+
+    if (auto scene = dynamic_cast<WorldScene*>(s)) {
+        if (pkt.status_) {
+            scene->set_gamespeed(pfrm, app, GameSpeed::stopped);
+        } else {
+            scene->set_gamespeed(pfrm, app, GameSpeed::normal);
+        }
+    }
+}
+
+
+
 void CoOpTeam::network_sync_cursor(Platform& pfrm,
                                    const RoomCoord& cursor,
                                    u8 cursor_icon,

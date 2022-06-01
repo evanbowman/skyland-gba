@@ -69,8 +69,11 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
     show_island_exterior(pfrm, app, &app.player_island());
     show_island_exterior(pfrm, app, app.opponent_island());
 
-    std::get<SkylandGlobalData>(globals()).multiplayer_prep_timer_ = 0;
-    std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 120;
+    auto& g = std::get<SkylandGlobalData>(globals());
+    g.multiplayer_prep_timer_ = 0;
+    g.multiplayer_prep_seconds_ = 120;
+    g.multiplayer_pauses_remaining_ = 3;
+    g.multiplayer_pause_owner_ = false;
 }
 
 

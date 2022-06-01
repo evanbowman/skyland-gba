@@ -330,6 +330,9 @@ bool WorldScene::camera_update_check_key(Platform& pfrm, App& app)
 
 ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
+    auto& g = std::get<SkylandGlobalData>(globals());
+
+
     if (not pfrm.network_peer().is_connected()) {
         // We scale game updates based on frame delta. But if the game starts to
         // lag a lot, the logic can start to get screwed up, so at some point,
@@ -363,46 +366,45 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.time_stream().update(world_delta);
 
 
-    auto& mt_prep_timer =
-        std::get<SkylandGlobalData>(globals()).multiplayer_prep_timer_;
+    auto& mt_prep_timer = g.multiplayer_prep_timer_;
 
-    auto& mt_prep_seconds =
-        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+    auto& mt_prep_seconds = g.multiplayer_prep_seconds_;
 
 
     if (pfrm.network_peer().is_connected()) {
         if (mt_prep_seconds) {
-            mt_prep_timer += delta;
-            if (mt_prep_timer > seconds(1)) {
-                mt_prep_timer -= seconds(1);
-                mt_prep_seconds--;
+            if (app.game_speed() not_eq GameSpeed::stopped) {
+                mt_prep_timer += delta;
+                if (mt_prep_timer > seconds(1)) {
+                    mt_prep_timer -= seconds(1);
+                    mt_prep_seconds--;
 
-                if (mt_prep_seconds == 0 and
-                    app.game_mode() not_eq App::GameMode::co_op) {
-                    return scene_pool::alloc<MultiplayerReadyScene>();
+                    if (mt_prep_seconds == 0 and
+                        app.game_mode() not_eq App::GameMode::co_op) {
+                        return scene_pool::alloc<MultiplayerReadyScene>();
+                    }
+
+                    StringBuffer<30> msg = "get ready! 0";
+                    msg += stringify(mt_prep_seconds / 60);
+                    msg += ":";
+                    const auto rem = mt_prep_seconds % 60;
+                    if (rem < 10) {
+                        msg += "0";
+                    }
+                    msg += stringify(rem);
+
+                    const u8 margin = centered_text_margins(pfrm, msg.length());
+
+
+                    g.multiplayer_prep_text_.emplace(pfrm, msg.c_str(),
+                                                     OverlayCoord{margin, 4});
                 }
-
-                StringBuffer<30> msg = "get ready! 0";
-                msg += stringify(mt_prep_seconds / 60);
-                msg += ":";
-                const auto rem = mt_prep_seconds % 60;
-                if (rem < 10) {
-                    msg += "0";
-                }
-                msg += stringify(rem);
-
-                const u8 margin = centered_text_margins(pfrm, msg.length());
-
-                std::get<SkylandGlobalData>(globals())
-                    .multiplayer_prep_text_.emplace(
-                        pfrm, msg.c_str(), OverlayCoord{margin, 4});
             }
         } else {
-            std::get<SkylandGlobalData>(globals())
-                .multiplayer_prep_text_.reset();
+            g.multiplayer_prep_text_.reset();
         }
     } else {
-        std::get<SkylandGlobalData>(globals()).multiplayer_prep_text_.reset();
+        g.multiplayer_prep_text_.reset();
     }
 
 
@@ -417,20 +419,62 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
 
-    if (pfrm.network_peer().is_connected()) {
-        // We don't allow pausing during multiplayer games yet. Makes things
-        // simpler.
+    if (app.game_mode() == App::GameMode::multiplayer) {
+        // TODO... currently unsupported
         set_gamespeed(pfrm, app, GameSpeed::normal);
     } else if (app.player().key_up(pfrm, Key::alt_1) or
                tapped_topright_corner()) {
         if (app.game_speed() not_eq GameSpeed::stopped) {
-            app.pause_count()++;
-            set_gamespeed(pfrm, app, GameSpeed::stopped);
+
+            bool can_pause = true;
+
+            if (pfrm.network_peer().is_connected()) {
+                if (not g.multiplayer_pauses_remaining_) {
+                    can_pause = false;
+                    pfrm.speaker().play_sound("beep_error", 3);
+                } else {
+                    g.multiplayer_pause_owner_ = true;
+                    g.multiplayer_pauses_remaining_--;
+                }
+            }
+
+            if (can_pause) {
+                app.pause_count()++;
+                set_gamespeed(pfrm, app, GameSpeed::stopped);
+
+                if (pfrm.network_peer().is_connected()) {
+                    network::packet::Paused pkt;
+                    pkt.status_ = true;
+                    network::transmit(pfrm, pkt);
+                }
+            }
+
         } else {
-            set_gamespeed(pfrm, app, GameSpeed::normal);
+
+            bool can_unpause = true;
+
+            if (pfrm.network_peer().is_connected()) {
+                if (not g.multiplayer_pause_owner_) {
+                    can_unpause = false;
+                    pfrm.speaker().play_sound("beep_error", 3);
+                } else {
+                    g.multiplayer_pause_owner_ = false;
+                }
+            }
+
+            if (can_unpause) {
+                if (pfrm.network_peer().is_connected()) {
+                    network::packet::Paused pkt;
+                    pkt.status_ = false;
+                    network::transmit(pfrm, pkt);
+                }
+
+                set_gamespeed(pfrm, app, GameSpeed::normal);
+            }
         }
         app.player().touch_consume();
-    } else if (app.player().key_pressed(pfrm, Key::alt_1)) {
+    } else if (app.player().key_pressed(pfrm, Key::alt_1) and not
+               pfrm.network_peer().is_connected()) {
         set_gamespeed_keyheld_timer_ += delta;
         if (set_gamespeed_keyheld_timer_ > milliseconds(300)) {
             return scene_pool::alloc<SetGamespeedScene>();
@@ -511,13 +555,11 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         // same spot for a long time.
 
         if (app.opponent_island() and UNLIKELY(far_camera_)) {
-            auto& cursor_loc =
-                std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+            auto& cursor_loc = g.far_cursor_loc_;
             app.camera()->update(
                 pfrm, app, *app.opponent_island(), cursor_loc, delta, false);
         } else {
-            auto& cursor_loc =
-                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            auto& cursor_loc = g.near_cursor_loc_;
             app.camera()->update(
                 pfrm, app, app.player_island(), cursor_loc, delta, true);
         }

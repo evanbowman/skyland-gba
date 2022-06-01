@@ -75,20 +75,14 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (app.game_mode() == App::GameMode::co_op) {
-            int prep_seconds = 40;
 
-            if (levelgen_enemy_count_ > 13) {
-                prep_seconds = 100;
-            } else if (levelgen_enemy_count_ > 11) {
-                prep_seconds = 85;
-            } else if (levelgen_enemy_count_ > 8) {
-                prep_seconds = 70;
-            } else if (levelgen_enemy_count_ > 4) {
-                prep_seconds = 50;
-            }
+            int prep_seconds = 30;
 
-            std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ =
-                prep_seconds;
+            auto& g = std::get<SkylandGlobalData>(globals());
+
+            g.multiplayer_prep_seconds_ = prep_seconds;
+            g.multiplayer_pauses_remaining_ = 3;
+            g.multiplayer_pause_owner_ = false;
         }
     } else {
         auto mt_prep_seconds =

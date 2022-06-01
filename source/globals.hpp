@@ -73,6 +73,9 @@ struct SkylandGlobalData
     bool co_op_cursor_near_ = true;
     u8 co_op_cursor_icon_ = 15;
 
+    u8 multiplayer_pauses_remaining_ = 0;
+    bool multiplayer_pause_owner_ = false;
+
     SkylandGlobalData()
         : scene_pool_("scenes"), entity_node_pool_("entity-list-node")
     {
