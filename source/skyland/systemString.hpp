@@ -457,6 +457,7 @@ enum class SystemString {
 
     error_power_out,
     error_friendly,
+    error_no_more_pauses,
 
     factory_reset,
 

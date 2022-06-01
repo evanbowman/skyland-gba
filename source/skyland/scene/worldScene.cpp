@@ -469,7 +469,12 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                     can_pause = false;
                     pfrm.speaker().play_sound("beep_error", 3);
                     set_gamespeed(pfrm, app, GameSpeed::normal);
-                    show_multiplayer_pauses_remaining(pfrm);
+                    auto future_scene = []() {
+                        return scene_pool::alloc<ReadyScene>();
+                    };
+                    auto str = SYSTR(error_no_more_pauses);
+                    return scene_pool::alloc<NotificationScene>(str->c_str(),
+                                                                future_scene);
                 } else {
                     g.multiplayer_pause_owner_ = true;
                     g.multiplayer_pauses_remaining_--;
