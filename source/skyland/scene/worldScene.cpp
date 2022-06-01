@@ -104,6 +104,42 @@ u16 gamespeed_icon(GameSpeed speed)
 
 
 
+static void show_multiplayer_pauses_remaining(Platform& pfrm)
+{
+    auto& g = std::get<SkylandGlobalData>(globals());
+    auto st = calc_screen_tiles(pfrm);
+
+    auto current = pfrm.get_tile(Layer::overlay, st.x - 3, 3);
+    if (current == 410) {
+        // Already assigned, skip integer->text conversion below.
+        return;
+    }
+
+    pfrm.set_tile(Layer::overlay, st.x - 3, 3, 410);
+    Text t(pfrm, OverlayCoord{u8(st.x - 2), 3});
+    t.assign("x");
+    t.append(g.multiplayer_pauses_remaining_);
+    t.__detach();
+}
+
+
+
+static void hide_multiplayer_pauses_remaining(Platform& pfrm)
+{
+    auto st = calc_screen_tiles(pfrm);
+
+    auto current = pfrm.get_tile(Layer::overlay, st.x - 3, 3);
+    if (current == 0) {
+        return;
+    }
+
+    pfrm.set_tile(Layer::overlay, st.x - 3, 3, 0);
+    pfrm.set_tile(Layer::overlay, st.x - 2, 3, 0);
+    pfrm.set_tile(Layer::overlay, st.x - 1, 3, 0);
+}
+
+
+
 void WorldScene::set_gamespeed(Platform& pfrm, App& app, GameSpeed speed)
 {
     switch (speed) {
@@ -396,8 +432,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                     const u8 margin = centered_text_margins(pfrm, msg.length());
 
 
-                    g.multiplayer_prep_text_.emplace(pfrm, msg.c_str(),
-                                                     OverlayCoord{margin, 4});
+                    g.multiplayer_prep_text_.emplace(
+                        pfrm, msg.c_str(), OverlayCoord{margin, 4});
                 }
             }
         } else {
@@ -432,6 +468,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (not g.multiplayer_pauses_remaining_) {
                     can_pause = false;
                     pfrm.speaker().play_sound("beep_error", 3);
+                    set_gamespeed(pfrm, app, GameSpeed::normal);
+                    show_multiplayer_pauses_remaining(pfrm);
                 } else {
                     g.multiplayer_pause_owner_ = true;
                     g.multiplayer_pauses_remaining_--;
@@ -473,8 +511,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
         app.player().touch_consume();
-    } else if (app.player().key_pressed(pfrm, Key::alt_1) and not
-               pfrm.network_peer().is_connected()) {
+    } else if (app.player().key_pressed(pfrm, Key::alt_1) and
+               not pfrm.network_peer().is_connected()) {
         set_gamespeed_keyheld_timer_ += delta;
         if (set_gamespeed_keyheld_timer_ > milliseconds(300)) {
             return scene_pool::alloc<SetGamespeedScene>();
@@ -604,9 +642,13 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (app.game_speed() not_eq GameSpeed::stopped) {
-
+        hide_multiplayer_pauses_remaining(pfrm);
     } else {
         set_pause_icon(pfrm, gamespeed_icon(app.game_speed()));
+
+        if (pfrm.network_peer().is_connected()) {
+            show_multiplayer_pauses_remaining(pfrm);
+        }
     }
 
 
