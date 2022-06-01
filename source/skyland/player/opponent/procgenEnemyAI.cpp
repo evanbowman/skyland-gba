@@ -77,10 +77,10 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.game_mode() == App::GameMode::co_op) {
 
             const int prep_seconds = [&] {
-                if (levelgen_enemy_count_ < 2) {
+                if (levelgen_enemy_count_ < 4) {
                     return 30;
                 } else {
-                    return 15;
+                    return 20;
                 }
             }();
 
