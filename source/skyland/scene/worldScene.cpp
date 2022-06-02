@@ -454,6 +454,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         return false;
     };
 
+    auto ret = null_scene();
+
 
     if (app.game_mode() == App::GameMode::multiplayer) {
         // TODO... currently unsupported
@@ -473,8 +475,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                         return scene_pool::alloc<ReadyScene>();
                     };
                     auto str = SYSTR(error_no_more_pauses);
-                    return scene_pool::alloc<NotificationScene>(str->c_str(),
-                                                                future_scene);
+                    ret = scene_pool::alloc<NotificationScene>(str->c_str(),
+                                                               future_scene);
                 } else {
                     g.multiplayer_pause_owner_ = true;
                     g.multiplayer_pauses_remaining_--;
@@ -750,7 +752,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    return null_scene();
+    return ret;
 }
 
 

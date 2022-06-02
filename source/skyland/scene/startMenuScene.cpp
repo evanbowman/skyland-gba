@@ -334,7 +334,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm,
                 SYSTR(start_menu_load)->c_str(),
                 [&pfrm, &app]() -> ScenePtr<Scene> {
-                    macrocosm(app).load(pfrm);
+                    macrocosm(app).load(pfrm, app);
                     pfrm.screen().schedule_fade(0.f);
                     pfrm.screen().pixelate(0);
                     return scene_pool::alloc<macro::SelectorScene>();
@@ -363,7 +363,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm,
                 SYSTR(start_menu_newgame)->c_str(),
                 [&pfrm, &app]() -> ScenePtr<Scene> {
-                    macrocosm(app).newgame(pfrm);
+                    macrocosm(app).newgame(pfrm, app);
                     pfrm.load_overlay_texture("overlay_challenges");
                     return scene_pool::alloc<macro::MacroverseScene>();
                 },

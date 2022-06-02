@@ -100,7 +100,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
     auto& m = macrocosm(app);
     auto& sector = m.sector();
 
-    m.load(pfrm);
+    m.load(pfrm, app);
     app.game_mode() = App::GameMode::macro;
 
     pfrm.system_call("vsync", nullptr);

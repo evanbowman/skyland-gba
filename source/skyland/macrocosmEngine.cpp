@@ -29,6 +29,7 @@
 #include "platform/platform.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "rle.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -77,7 +78,7 @@ StateImpl::StateImpl(Platform& pfrm)
 
 
 
-void StateImpl::newgame(Platform& pfrm)
+void StateImpl::newgame(Platform& pfrm, App& app)
 {
     data_->current_sector_ = &data_->origin_sector_;
 
@@ -89,20 +90,10 @@ void StateImpl::newgame(Platform& pfrm)
     sector.erase();
     sector.set_name("origin");
 
-    sector.set_block({3, 3, 0}, macro::terrain::Type::terrain);
-    sector.set_block({3, 2, 0}, macro::terrain::Type::terrain);
-    sector.set_block({2, 3, 0}, macro::terrain::Type::terrain);
-    sector.set_block({3, 4, 0}, macro::terrain::Type::terrain);
-    sector.set_block({4, 3, 0}, macro::terrain::Type::terrain);
-    sector.set_block({4, 4, 0}, macro::terrain::Type::terrain);
-    sector.set_block({2, 2, 0}, macro::terrain::Type::masonry);
-    sector.set_block({4, 2, 0}, macro::terrain::Type::masonry);
-    sector.set_block({3, 3, 1}, macro::terrain::Type::building);
+    app.invoke_script(pfrm, "/scripts/macro/newgame.lisp");
 
     sector.set_cursor({3, 3, 1});
     sector.set_population(8);
-
-    data_->p().coins_.set(160);
 }
 
 
@@ -480,7 +471,7 @@ macro::terrain::Sector& StateImpl::sector()
 
 
 
-bool StateImpl::load(Platform& pfrm)
+bool StateImpl::load(Platform& pfrm, App& app)
 {
     Vector<char> input;
 
@@ -561,7 +552,7 @@ bool StateImpl::load(Platform& pfrm)
 
     } else /* No existing save file */ {
 
-        newgame(pfrm);
+        newgame(pfrm, app);
     }
 
     data_->current_sector_ = &data_->origin_sector_;

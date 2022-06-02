@@ -488,6 +488,9 @@ void gc_symbols()
     // fix all pointers by subtracting the intern pointers in symbols by the
     // freed offset if the intern pointer address is higher than the freed
     // address.
+    //
+    // NOTE: after performing short string optimizations for symbols, I put off
+    // gc for the string intern table.
 }
 
 

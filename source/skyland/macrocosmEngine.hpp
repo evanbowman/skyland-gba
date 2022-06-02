@@ -265,10 +265,10 @@ struct StateImpl : public State
 
 
     void save(Platform& pfrm);
-    bool load(Platform& pfrm);
+    bool load(Platform& pfrm, App& app);
 
 
-    void newgame(Platform& pfrm);
+    void newgame(Platform& pfrm, App& app);
 
 
     StateImpl(Platform&);

@@ -82,7 +82,7 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
     pfrm.load_tile1_texture("macro_rendertexture");
 
     auto& m = macrocosm(app);
-    m.newgame(pfrm);
+    m.newgame(pfrm, app);
     m.data_->freebuild_mode_ = true;
     app.game_mode() = App::GameMode::macro;
 
