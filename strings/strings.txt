@@ -163,6 +163,7 @@ where?
 commodities
 trade colony
 abandon colony
+Rename island:
 budget: 
 citizens (employed)
 citizens

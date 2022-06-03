@@ -757,15 +757,16 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::text_prompt: {
-        const char* prompt = "Rename island:";
 
         auto receive = [&m](const char* text) {
             m.sector().set_name(text);
             return scene_pool::alloc<MacroverseScene>(true);
         };
 
+        const auto prompt = SYSTR(macro_rename_island);
+
         return scene_pool::alloc<TextEntryScene>(
-            prompt, receive, 1, 12, m.sector().name().c_str());
+            prompt->c_str(), receive, 1, 12, m.sector().name().c_str());
         break;
     }
 
@@ -1032,10 +1033,10 @@ void MacroverseScene::display(Platform& pfrm, App& app)
 
         const bool darkened = manhattan_length(c, selected_) > 1;
 
-        if (manhattan_length(c, selected_) > 2) {
-            spr.set_alpha(Sprite::Alpha::translucent);
-        } else if (manhattan_length(c, selected_) > 3) {
+        if (manhattan_length(c, selected_) > 3) {
             return;
+        } else if (manhattan_length(c, selected_) > 2) {
+            spr.set_alpha(Sprite::Alpha::translucent);
         }
 
         if (state_ == State::reveal) {
@@ -1076,10 +1077,10 @@ void MacroverseScene::display(Platform& pfrm, App& app)
 
         const bool darkened = manhattan_length(c, selected_) > 1;
 
-        if (manhattan_length(c, selected_) > 2) {
-            spr.set_alpha(Sprite::Alpha::translucent);
-        } else if (manhattan_length(c, selected_) > 3) {
+        if (manhattan_length(c, selected_) > 3) {
             return;
+        } else if (manhattan_length(c, selected_) > 2) {
+            spr.set_alpha(Sprite::Alpha::translucent);
         }
 
         if (state_ == State::reveal) {

@@ -222,6 +222,7 @@ enum class SystemString {
     macro_commodities,
     macro_trade,
     macro_abandon,
+    macro_rename_island,
 
     macro_fiscal_budget,
     macro_fiscal_employed,

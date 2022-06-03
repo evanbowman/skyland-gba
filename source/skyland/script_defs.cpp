@@ -529,6 +529,31 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"mcr-sectors",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 0);
+
+         auto& m = macrocosm(*interp_get_app());
+         lisp::ListBuilder result;
+
+         for (auto& sector : m.data_->other_sectors_) {
+             lisp::Protected x(L_INT(sector->coordinate().x));
+             lisp::Protected y(L_INT(sector->coordinate().y));
+             result.push_back(L_CONS(x, y));
+         }
+
+         for (auto& sector : m.data_->outpost_sectors_) {
+             lisp::Protected x(L_INT(sector.coordinate().x));
+             lisp::Protected y(L_INT(sector.coordinate().y));
+             result.push_back(L_CONS(x, y));
+         }
+
+         lisp::Protected x(L_INT(m.data_->origin_sector_.coordinate().x));
+         lisp::Protected y(L_INT(m.data_->origin_sector_.coordinate().y));
+         result.push_back(L_CONS(x, y));
+
+         return result.result();
+     }},
     {"key-bind",
      [](int argc) {
          L_EXPECT_ARGC(argc, 2);
