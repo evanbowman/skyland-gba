@@ -391,6 +391,8 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
         cursor_loc.y = choices[0].second.y;
     }
 
+    pfrm.speaker().play_sound("weapon_target", 3);
+
     app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
 
     if (near_) {

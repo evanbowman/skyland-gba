@@ -3347,6 +3347,8 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_thunder_2.hpp"
 #include "data/sound_tw_bell.hpp"
 #include "data/sound_typewriter.hpp"
+#include "data/sound_transporter.hpp"
+#include "data/sound_weapon_target.hpp"
 
 
 
@@ -3377,6 +3379,8 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(click_digital_1, sound_digital_click_1),
     DEF_SOUND(cannon, sound_cannon),
     DEF_SOUND(cling, sound_cling),
+    DEF_SOUND(weapon_target, sound_weapon_target),
+    DEF_SOUND(transporter, sound_transporter),
     DEF_SOUND(thunder_1, sound_thunder_1),
     DEF_SOUND(thunder_2, sound_thunder_2),
     DEF_SOUND(coin, sound_coin),

@@ -292,6 +292,8 @@ void Transporter::transport_occupant(Platform& pfrm,
     }
 
     characters().erase(characters().begin());
+
+    pfrm.speaker().play_sound("transporter", 2);
 }
 
 

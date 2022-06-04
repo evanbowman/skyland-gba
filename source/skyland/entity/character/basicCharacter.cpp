@@ -328,6 +328,16 @@ void BasicCharacter::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         if (timer_ > milliseconds(500)) {
             timer_ = 0;
+
+            if (&parent_->owner() == owner_) {
+                // Wouldn't happen under normal circumstances, but if we're in a
+                // plundering state and rewind a transport, the character can
+                // end up in the player's island while continuing to plunder as
+                // if it were in the opponent's castle.
+                this->set_idle(app);
+                break;
+            }
+
             if (auto room = parent_->get_room(grid_position_)) {
                 auto metac = room->metaclass();
                 const bool is_plundered =
