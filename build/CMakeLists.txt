@@ -388,6 +388,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/sound_missile_explosion.s
     ${DATA_DIR}/sound_weapon_target.s
     ${DATA_DIR}/sound_transporter.s
+    ${DATA_DIR}/sound_core_destroyed.s
     ${DATA_DIR}/sound_gust.s
     ${DATA_DIR}/sound_gust2.s
     ${DATA_DIR}/sound_click_negative.s

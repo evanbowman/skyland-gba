@@ -3349,6 +3349,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_typewriter.hpp"
 #include "data/sound_transporter.hpp"
 #include "data/sound_weapon_target.hpp"
+#include "data/sound_core_destroyed.hpp"
 
 
 
@@ -3383,6 +3384,7 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(transporter, sound_transporter),
     DEF_SOUND(thunder_1, sound_thunder_1),
     DEF_SOUND(thunder_2, sound_thunder_2),
+    DEF_SOUND(core_destroyed, sound_core_destroyed),
     DEF_SOUND(coin, sound_coin),
     DEF_SOUND(bell, sound_bell),
     DEF_SOUND(msg, sound_msg)};

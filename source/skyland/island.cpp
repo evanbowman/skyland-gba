@@ -767,6 +767,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     // was no reason to do any optimizations on certain operations, because only
     // one room would be destroyed per frame, except in truely rare occasions.
     int destroyed_count = 0;
+    bool core_destroyed = false;
 
 
     bool do_repaint = false;
@@ -796,6 +797,11 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                 // we create tons of huge explosions all at once, we'll lag the
                 // game and use lots of entities.
                 big_explosion(pfrm, app, room->center());
+            }
+
+            if (str_eq(room->name(), "power-core") or
+                str_eq(room->name(), "reactor")) {
+                core_destroyed = true;
             }
 
             if (destroyed_count < 2 and
@@ -888,7 +894,10 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             }
 
 
-            if (destroyed_count < 2 and not quiet) {
+            if (destroyed_count < 2 and not quiet and
+                // Core and Reactor play a loud sound on their own, playing an
+                // explosion simultaneously causes clipping on some consoles.
+                not core_destroyed) {
                 pfrm.speaker().play_sound("explosion1", 2);
             }
 
