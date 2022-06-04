@@ -94,8 +94,7 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
     const auto& mt_prep_seconds =
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
 
-    if (targets_.empty() or not app.opponent_island() or
-        mt_prep_seconds not_eq 0) {
+    if (not app.opponent_island() or mt_prep_seconds not_eq 0) {
         return player_weapon_exit_scene();
     }
 
@@ -281,10 +280,6 @@ void WeaponSetTargetScene::display(Platform& pfrm, App& app)
 {
     WorldScene::display(pfrm, app);
 
-    if (targets_.empty()) {
-        return;
-    }
-
     if (not app.opponent_island()) {
         return;
     }
@@ -340,20 +335,63 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     ActiveWorldScene::enter(pfrm, app, prev);
 
-    collect_targets(pfrm, app);
-
-    if (not targets_.empty()) {
-        auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
-        cursor_loc.x = targets_[selector_].x;
-        cursor_loc.y = targets_[selector_].y;
-
-        app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
-
-        if (initial_pos_) {
-            cursor_loc = *initial_pos_;
-        }
+    if (not app.opponent_island()) {
+        return;
     }
+
+    auto& cursor_loc =
+        std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+
+    if (initial_pos_) {
+        cursor_loc = *initial_pos_;
+    } else {
+
+        bool weapon_is_missile = false;
+        if (auto weapon = app.player_island().get_room(weapon_loc_)) {
+            weapon_is_missile =
+                str_eq(weapon->name(), "missile-silo") or
+                str_eq(weapon->name(), "rocket-bomb");
+        }
+
+        Buffer<Room*, 16> choices;
+
+        if (weapon_is_missile) {
+            for (u32 x = 0; x < app.opponent_island()->terrain().size(); ++x) {
+                for (int y = construction_zone_min_y; y < 15; ++y) {
+                    auto room = app.opponent_island()->get_room({(u8)x, (u8)y});
+                    if (room) {
+                        choices.push_back(room);
+                        break;
+                    }
+                }
+            }
+        } else {
+            for (int y = construction_zone_min_y; y < 15; ++y) {
+                for (u32 x = 0; x < app.opponent_island()->terrain().size(); ++x) {
+                    auto room = app.opponent_island()->get_room({(u8)x, (u8)y});
+                    if (room) {
+                        choices.push_back(room);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (choices.empty()) {
+            return;
+        }
+
+        std::sort(choices.begin(), choices.end(),
+                  [](auto& lhs, auto& rhs) {
+                      return (*lhs->metaclass())->ai_base_weight()
+                          > (*rhs->metaclass())->ai_base_weight();
+                  });
+
+        cursor_loc.x = choices[0]->position().x;
+        cursor_loc.y = choices[0]->position().y;
+    }
+
+    app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
 
     if (near_) {
         if (auto room = app.player_island().get_room(weapon_loc_)) {
@@ -362,27 +400,6 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     far_camera();
-}
-
-
-
-void WeaponSetTargetScene::collect_targets(Platform& pfrm, App& app)
-{
-    targets_.clear();
-
-    if (app.opponent_island()) {
-        Island& island = *app.opponent_island();
-
-        for (auto& room : island.rooms()) {
-            targets_.push_back(room->position());
-        }
-    }
-
-    std::sort(targets_.begin(),
-              targets_.end(),
-              [](const RoomCoord& lhs, const RoomCoord& rhs) {
-                  return lhs.x < rhs.x || (lhs.x == rhs.x and lhs.y < rhs.y);
-              });
 }
 
 

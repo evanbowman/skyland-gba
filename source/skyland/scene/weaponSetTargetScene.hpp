@@ -59,10 +59,6 @@ private:
     const RoomCoord weapon_loc_;
 
 
-    void collect_targets(Platform&, App&);
-
-
-    Buffer<RoomCoord, 32> targets_;
     int selector_ = 0;
 
     Microseconds describe_room_timer_ = milliseconds(400);
