@@ -353,14 +353,14 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
                 str_eq(weapon->name(), "rocket-bomb");
         }
 
-        Buffer<Room*, 16> choices;
+        Buffer<std::pair<Room*, RoomCoord>, 16> choices;
 
         if (weapon_is_missile) {
             for (u32 x = 0; x < app.opponent_island()->terrain().size(); ++x) {
                 for (int y = construction_zone_min_y; y < 15; ++y) {
                     auto room = app.opponent_island()->get_room({(u8)x, (u8)y});
                     if (room) {
-                        choices.push_back(room);
+                        choices.push_back({room, {(u8)x, (u8)y}});
                         break;
                     }
                 }
@@ -370,7 +370,7 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
                 for (u32 x = 0; x < app.opponent_island()->terrain().size(); ++x) {
                     auto room = app.opponent_island()->get_room({(u8)x, (u8)y});
                     if (room) {
-                        choices.push_back(room);
+                        choices.push_back({room, {(u8)x, (u8)y}});
                         break;
                     }
                 }
@@ -383,12 +383,12 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
 
         std::sort(choices.begin(), choices.end(),
                   [](auto& lhs, auto& rhs) {
-                      return (*lhs->metaclass())->ai_base_weight()
-                          > (*rhs->metaclass())->ai_base_weight();
+                      return (*lhs.first->metaclass())->ai_base_weight()
+                          > (*rhs.first->metaclass())->ai_base_weight();
                   });
 
-        cursor_loc.x = choices[0]->position().x;
-        cursor_loc.y = choices[0]->position().y;
+        cursor_loc.x = choices[0].second.x;
+        cursor_loc.y = choices[0].second.y;
     }
 
     app.player().network_sync_cursor(pfrm, cursor_loc, 2, false);
