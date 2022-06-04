@@ -915,7 +915,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     // should have. So, instead, we attempt to enqueue a
                     // deferred callback, which transmits the RoomDestroyed
                     // packet at some point a frame or two in the future, at
-                    // which case, both games should already be synchronized,
+                    // which point, both games should already be synchronized,
                     // and there is in fact nothing to destroy. If we fail to
                     // enqueue the deferred callback for some reason, invoke
                     // immediately. I want to stress: we only transmit the
