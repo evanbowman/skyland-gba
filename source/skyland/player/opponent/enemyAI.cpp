@@ -1423,19 +1423,35 @@ void EnemyAI::set_target(Platform& pfrm,
         auto pos = info.first->position();
 
         if (auto room = app.player_island().get_room({pos.x, u8(pos.y - 1)})) {
-            info.second += 0.5f * (*room->metaclass())->ai_base_weight();
+            Float mult = 0.5f;
+            if (not app.player_island().fire_present(room->position())) {
+                mult = 0.8f;
+            }
+            info.second += mult * (*room->metaclass())->ai_base_weight();
         }
 
         if (auto room = app.player_island().get_room({pos.x, u8(pos.y + 1)})) {
-            info.second += 0.5f * (*room->metaclass())->ai_base_weight();
+            Float mult = 0.5f;
+            if (not app.player_island().fire_present(room->position())) {
+                mult = 0.8f;
+            }
+            info.second += mult * (*room->metaclass())->ai_base_weight();
         }
 
         if (auto room = app.player_island().get_room({u8(pos.x + 1), pos.y})) {
-            info.second += 0.5f * (*room->metaclass())->ai_base_weight();
+            Float mult = 0.5f;
+            if (not app.player_island().fire_present(room->position())) {
+                mult = 0.8f;
+            }
+            info.second += mult * (*room->metaclass())->ai_base_weight();
         }
 
         if (auto room = app.player_island().get_room({u8(pos.x - 1), pos.y})) {
-            info.second += 0.5f * (*room->metaclass())->ai_base_weight();
+            Float mult = 0.5f;
+            if (not app.player_island().fire_present(room->position())) {
+                mult = 0.8f;
+            }
+            info.second += mult * (*room->metaclass())->ai_base_weight();
         }
     }
 

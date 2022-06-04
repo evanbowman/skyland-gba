@@ -188,7 +188,9 @@ void IonBurst::on_collision(Platform& pfrm, App& app, Room& room)
 
         // A hack for the "meltdown" achievement.
         if (str_eq(room.name(), "reactor") and room.health() <= 0) {
-            achievements::raise(pfrm, app, achievements::Achievement::meltdown);
+            if (room.parent() == app.opponent_island()) {
+                achievements::raise(pfrm, app, achievements::Achievement::meltdown);
+            }
         }
     }
 }
