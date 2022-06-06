@@ -5,42 +5,42 @@
 ;;;
 
 
-(macro or (expr)
- `(if ,(car expr)
+(macro or (EXPR)
+ `(if ,(car EXPR)
       1
-    ,(if (cdr expr)
-         (cons 'or (cdr expr))
+    ,(if (cdr EXPR)
+         (cons 'or (cdr EXPR))
        0)))
 
 
-(macro and (expr)
- `(if (not ,(car expr))
+(macro and (EXPR)
+ `(if (not ,(car EXPR))
       0
-    ,(if (cdr expr)
-         (cons 'and (cdr expr))
+    ,(if (cdr EXPR)
+         (cons 'and (cdr EXPR))
        1)))
 
 
-(macro cond (expr)
- `(if ,(car (car expr))
-      ,(cons 'progn (cdr (car expr)))
-    ,(if (cdr expr)
-         (cons 'cond (cdr expr))
+(macro cond (EXPR)
+ `(if ,(car (car EXPR))
+      ,(cons 'progn (cdr (car EXPR)))
+    ,(if (cdr EXPR)
+         (cons 'cond (cdr EXPR))
        nil)))
 
 
 ;; Some useful macros for defining functions
 
 ;; Defines a function.
-(macro defn (name body) `(setq ,name (lambda ,@body)))
+(macro defn (NAME BODY) `(setq ,NAME (lambda ,@BODY)))
 ;; Defines a bytecode-compiled function.
-(macro defn/c (name body) `(setq ,name (compile (lambda ,@body))))
+(macro defn/c (NAME BODY) `(setq ,NAME (compile (lambda ,@BODY))))
 
-(macro += (name val)
- `(setq ,name (+ ,name ,@val)))
+(macro += (NAME VAL)
+ `(setq ,NAME (+ ,NAME ,@VAL)))
 
-(macro setq (name expr)
- `(set ,(cons $q name) ,@expr))
+(macro setq (NAME EXPR)
+ `(set ,(cons $q NAME) ,@EXPR))
 
 
 ;; For our onscreen keyboard, which has no + key
@@ -51,9 +51,9 @@
 ;; memory, we need to be really careful about symbol table usage, which is why,
 ;; traditionally, we only support numbered arguments for lambdas. But this
 ;; function macro allows you to declare functions with named arguments:
-(macro fn (args body)
- (if (not args)
-     `(lambda ,@body)
+(macro fn (ARGS BODY)
+ (if (not ARGS)
+     `(lambda ,@BODY)
    `(lambda
      (let ,((lambda
              (if (not $0)
@@ -62,24 +62,24 @@
                 (cdr $0)
                 (cons (list (car $0) (symbol (string "$" $2))) $1)
                 (+ $2 1))))
-            args nil 0)
-       ,@body))))
+            ARGS nil 0)
+       ,@BODY))))
 
 
-(macro while (expr body)
+(macro while (EXPR BODY)
  ;; The vm only performs TCO on compiled lambdas, so we need to enforce
  ;; compilation here, unfortunately. Quite slow, but then, how often do you
  ;; really _need_ a while loop in lisp?
  `((compile
     (lambda
-      (if ,expr
+      (if ,EXPR
           (let ()
-            ,@body
+            ,@BODY
             ((this))))))))
 
 
-(macro progn (body)
- `(let () ,@body))
+(macro progn (BODY)
+ `(let () ,@BODY))
 
 
 (defn/c acons

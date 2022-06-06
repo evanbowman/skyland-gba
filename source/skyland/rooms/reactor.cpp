@@ -57,10 +57,9 @@ void Reactor::finalize(Platform& pfrm, App& app)
     Room::finalize(pfrm, app);
 
     if (health() == 0) {
+        pfrm.speaker().play_sound("core_destroyed", 4);
         core_explosion(pfrm, app, center());
     }
-
-    pfrm.speaker().play_sound("core_destroyed", 4);
 }
 
 
