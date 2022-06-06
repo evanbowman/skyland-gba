@@ -37,7 +37,6 @@
 #include "sound.hpp"
 #include "timeStreamEvent.hpp"
 #include "weather/storm.hpp"
-#include "eternal/eternal.hpp"
 
 
 
@@ -351,25 +350,12 @@ void App::on_remote_console_text(Platform& pfrm,
 
 static bool is_gui_sound(const char* sound_name)
 {
-    static_assert(MAPBOX_ETERNAL_IS_CONSTEXPR);
-
-    // Library doesn't include a constexpr set, hence the zero dummy var.
-    MAPBOX_ETERNAL_CONSTEXPR const auto lut =
-        mapbox::eternal::map<mapbox::eternal::string, u8>({
-              {"click", 0},
-              {"drone_beep", 0},
-              {"openbag", 0},
-              {"beep_error", 0},
-              {"click_wooden", 0},
-              {"button_wooden", 0},
-              {"click_negative", 0},
-              {"cursor_tick", 0},
-              {"weapon_target", 0}
-            });
-
-    auto found = lut.find(sound_name);
-
-    return found not_eq lut.end();
+    return str_eq(sound_name, "click") or str_eq(sound_name, "drone_beep") or
+           str_eq(sound_name, "openbag") or str_eq(sound_name, "beep_error") or
+           str_eq(sound_name, "click_wooden") or
+           str_eq(sound_name, "button_wooden") or
+           str_eq(sound_name, "click_negative") or
+           str_eq(sound_name, "cursor_tick");
 }
 
 
