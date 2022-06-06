@@ -173,7 +173,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     app.custom_tile_mapper().clear();
     app.custom_sprite_mapper().clear();
 
-    pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
+    // pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
 
     app.effects().clear();
     app.birds().clear();
@@ -205,9 +205,9 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.load_sprite_texture("spritesheet_title_screen");
     }
 
-    if (not pfrm.speaker().is_music_playing("shadows")) {
-        pfrm.speaker().play_music("shadows", true);
-    }
+    // if (not pfrm.speaker().is_music_playing("shadows")) {
+    //     pfrm.speaker().play_music("shadows", true);
+    // }
 
     pfrm.fill_overlay(0);
 

@@ -158,6 +158,18 @@ struct Context {
     int eval_depth_ = 0;
     int interp_entry_count_ = 0;
 
+    struct GensymState
+    {
+        u8 char_1_ : 6;
+        u8 char_2_ : 6;
+        u8 char_3_ : 6;
+
+        GensymState() : char_1_(0), char_2_(0), char_3_(0)
+        {
+        }
+
+    } gensym_state_;
+
     Platform& pfrm_;
 };
 
@@ -2514,6 +2526,59 @@ bool is_equal(Value* lhs, Value* rhs)
 }
 
 
+
+Value* gensym()
+{
+    auto& ctx = bound_context;
+
+    char gen[5];
+    gen[0] = '#';
+    gen[4] = '\0';
+
+    const char* alphabet =
+        "abcdefghijklmnopqrstuvwxyz"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "1234567890-_";
+
+    // Explanation:
+    // We do an internal optimization for four-character strings, so we use a
+    // four-char string when generating symbols. Keep a counter and represent
+    // each of the three slots in the gensym output with one of the printable
+    // ascii characters, prefixed by a # to reduce likelihood of collision with
+    // a user-supplied symbol.
+    if (ctx->gensym_state_.char_1_ == 63) {
+        // Carry
+        ctx->gensym_state_.char_1_ = 0;
+        if (ctx->gensym_state_.char_2_ == 63) {
+            // Carry
+            ctx->gensym_state_.char_2_ = 0;
+            if (ctx->gensym_state_.char_3_ == 63) {
+                // Wrap! But at this point, we've run through quite a large
+                // number of generated symbols, i.e. a macro would need to be
+                // quite huge for wrapping to cause a collision in gensym
+                // output.
+                ctx->gensym_state_.char_1_ = 0;
+                ctx->gensym_state_.char_2_ = 0;
+                ctx->gensym_state_.char_3_ = 0;
+            } else {
+                ++ctx->gensym_state_.char_3_;
+            }
+        } else {
+            ++ctx->gensym_state_.char_2_;
+        }
+    } else {
+        ++ctx->gensym_state_.char_1_;
+    }
+
+    gen[1] = alphabet[ctx->gensym_state_.char_1_];
+    gen[2] = alphabet[ctx->gensym_state_.char_2_];
+    gen[3] = alphabet[ctx->gensym_state_.char_3_];
+
+    return make_symbol(gen);
+}
+
+
+
 static const Binding builtins[] = {
     {"set",
      [](int argc) {
@@ -2713,8 +2778,12 @@ static const Binding builtins[] = {
          return make_integer(get_op1()->integer().value_ /
                              get_op0()->integer().value_);
      }},
+    {"gensym",
+     [](int) {
+         return gensym();
+     }},
     {"interp-stat",
-     [](int argc) {
+     [](int) {
          auto& ctx = bound_context;
 
          int values_remaining = 0;

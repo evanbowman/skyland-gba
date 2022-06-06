@@ -595,6 +595,10 @@ Value* make_databuffer(const char* sbr_tag = "");
 Value* make_string(const char* str);
 Value* make_character(utf8::Codepoint cp);
 
+
+Value* gensym();
+
+
 // NOTE: Argument MUST be a C string literal.
 Value* make_string_from_literal(const char* str);
 
