@@ -412,9 +412,21 @@ void App::update(Platform& pfrm, Microseconds delta)
     for (const char* sound : pfrm.speaker().completed_sounds()) {
         // Do not play sounds associated with the game's ui.
         if (not is_gui_sound(sound)) {
-            time_stream::event::SoundCompleted e;
-            e.sound_name_ptr_.set((intptr_t)sound);
-            time_stream_.push(level_timer_, e);
+
+            if (str_eq(sound, "cannon")) {
+                time_stream::event::CannonSoundCompleted e;
+                time_stream_.push(level_timer_, e);
+            } else if (str_eq(sound, "missile")) {
+                time_stream::event::MissileSoundCompleted e;
+                time_stream_.push(level_timer_, e);
+            } else if (str_eq(sound, "impact")) {
+                time_stream::event::HitSoundCompleted e;
+                time_stream_.push(level_timer_, e);
+            } else {
+                time_stream::event::SoundCompleted e;
+                e.sound_name_ptr_.set((intptr_t)sound);
+                time_stream_.push(level_timer_, e);
+            }
         }
     }
 }

@@ -1179,6 +1179,30 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
         }
 
 
+        case time_stream::event::cannon_sound_completed: {
+            auto e = (time_stream::event::CannonSoundCompleted*)end;
+            pfrm.speaker().play_sound("cannon", 3);
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::missile_sound_completed: {
+            auto e = (time_stream::event::MissileSoundCompleted*)end;
+            pfrm.speaker().play_sound("missile", 3);
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
+        case time_stream::event::hit_sound_completed: {
+            auto e = (time_stream::event::HitSoundCompleted*)end;
+            pfrm.speaker().play_sound("impact", 3);
+            app.time_stream().pop(sizeof *e);
+            break;
+        }
+
+
         case time_stream::event::bird_left_map: {
             auto e = (time_stream::event::BirdLeftMap*)end;
 

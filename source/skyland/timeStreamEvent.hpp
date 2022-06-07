@@ -148,6 +148,12 @@ enum Type : u8 {
 
     sound_completed,
 
+    // These three sounds happen a lot, and we can save memory by using special
+    // events to represent them.
+    cannon_sound_completed,
+    missile_sound_completed,
+    hit_sound_completed,
+
     bird_left_map,
 
     player_fire_created,
@@ -836,6 +842,33 @@ struct SoundCompleted
 #endif
 
     static constexpr const auto t = Type::sound_completed;
+};
+
+
+
+struct CannonSoundCompleted
+{
+    Header header_;
+
+    static constexpr const auto t = Type::cannon_sound_completed;
+};
+
+
+
+struct MissileSoundCompleted
+{
+    Header header_;
+
+    static constexpr const auto t = Type::missile_sound_completed;
+};
+
+
+
+struct HitSoundCompleted
+{
+    Header header_;
+
+    static constexpr const auto t = Type::hit_sound_completed;
 };
 
 
