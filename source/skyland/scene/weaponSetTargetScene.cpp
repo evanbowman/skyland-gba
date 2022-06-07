@@ -339,8 +339,7 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
         return;
     }
 
-    auto& cursor_loc =
-        std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
     if (initial_pos_) {
         cursor_loc = *initial_pos_;
@@ -348,9 +347,8 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
 
         bool weapon_is_missile = false;
         if (auto weapon = app.player_island().get_room(weapon_loc_)) {
-            weapon_is_missile =
-                str_eq(weapon->name(), "missile-silo") or
-                str_eq(weapon->name(), "rocket-bomb");
+            weapon_is_missile = str_eq(weapon->name(), "missile-silo") or
+                                str_eq(weapon->name(), "rocket-bomb");
         }
 
         Buffer<std::pair<Room*, RoomCoord>, 16> choices;
@@ -367,7 +365,8 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
             }
         } else {
             for (int y = construction_zone_min_y; y < 15; ++y) {
-                for (u32 x = 0; x < app.opponent_island()->terrain().size(); ++x) {
+                for (u32 x = 0; x < app.opponent_island()->terrain().size();
+                     ++x) {
                     auto room = app.opponent_island()->get_room({(u8)x, (u8)y});
                     if (room) {
                         choices.push_back({room, {(u8)x, (u8)y}});
@@ -381,11 +380,10 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
             return;
         }
 
-        std::sort(choices.begin(), choices.end(),
-                  [](auto& lhs, auto& rhs) {
-                      return (*lhs.first->metaclass())->ai_base_weight()
-                          > (*rhs.first->metaclass())->ai_base_weight();
-                  });
+        std::sort(choices.begin(), choices.end(), [](auto& lhs, auto& rhs) {
+            return (*lhs.first->metaclass())->ai_base_weight() >
+                   (*rhs.first->metaclass())->ai_base_weight();
+        });
 
         cursor_loc.x = choices[0].second.x;
         cursor_loc.y = choices[0].second.y;

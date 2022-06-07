@@ -659,7 +659,8 @@ Stats stats(Type t, bool shadowed)
 
     case terrain::Type::sunflowers:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::sunflowers, false, 1});
+            result.commodities_.push_back(
+                {Commodity::Type::sunflowers, false, 1});
         }
         result.employment_ += 2;
         break;
@@ -680,14 +681,16 @@ Stats stats(Type t, bool shadowed)
 
     case terrain::Type::madder:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::rose_madder, false, 1});
+            result.commodities_.push_back(
+                {Commodity::Type::rose_madder, false, 1});
         }
         result.employment_ += 4;
         break;
 
     case terrain::Type::shellfish:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::shellfish, false, 1});
+            result.commodities_.push_back(
+                {Commodity::Type::shellfish, false, 1});
         }
         result.employment_ += 1;
         result.food_ += 2;

@@ -158,8 +158,7 @@ struct Context {
     int eval_depth_ = 0;
     int interp_entry_count_ = 0;
 
-    struct GensymState
-    {
+    struct GensymState {
         u8 char_1_ : 6;
         u8 char_2_ : 6;
         u8 char_3_ : 6;
@@ -2526,7 +2525,6 @@ bool is_equal(Value* lhs, Value* rhs)
 }
 
 
-
 Value* gensym()
 {
     auto& ctx = bound_context;
@@ -2535,10 +2533,9 @@ Value* gensym()
     gen[0] = '#';
     gen[4] = '\0';
 
-    const char* alphabet =
-        "abcdefghijklmnopqrstuvwxyz"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "1234567890-_";
+    const char* alphabet = "abcdefghijklmnopqrstuvwxyz"
+                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                           "1234567890-_";
 
     // Explanation:
     // We do an internal optimization for four-character strings, so we use a
@@ -2576,7 +2573,6 @@ Value* gensym()
 
     return make_symbol(gen);
 }
-
 
 
 static const Binding builtins[] = {
@@ -2778,10 +2774,7 @@ static const Binding builtins[] = {
          return make_integer(get_op1()->integer().value_ /
                              get_op0()->integer().value_);
      }},
-    {"gensym",
-     [](int) {
-         return gensym();
-     }},
+    {"gensym", [](int) { return gensym(); }},
     {"interp-stat",
      [](int) {
          auto& ctx = bound_context;

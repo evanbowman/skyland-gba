@@ -23,6 +23,7 @@
 #include "skyland.hpp"
 #include "achievement.hpp"
 #include "base32.hpp"
+#include "eternal/eternal.hpp"
 #include "globals.hpp"
 #include "graphics/overlay.hpp"
 #include "macrocosmEngine.hpp"
@@ -37,7 +38,6 @@
 #include "sound.hpp"
 #include "timeStreamEvent.hpp"
 #include "weather/storm.hpp"
-#include "eternal/eternal.hpp"
 
 
 
@@ -352,12 +352,12 @@ void App::on_remote_console_text(Platform& pfrm,
 static bool is_gui_sound(const char* sound_name)
 {
     return str_eq(sound_name, "click") or str_eq(sound_name, "drone_beep") or
-        str_eq(sound_name, "openbag") or str_eq(sound_name, "beep_error") or
-        str_eq(sound_name, "click_wooden") or
-        str_eq(sound_name, "button_wooden") or
-        str_eq(sound_name, "click_negative") or
-        str_eq(sound_name, "cursor_tick") or
-        str_eq(sound_name, "weapon_target");
+           str_eq(sound_name, "openbag") or str_eq(sound_name, "beep_error") or
+           str_eq(sound_name, "click_wooden") or
+           str_eq(sound_name, "button_wooden") or
+           str_eq(sound_name, "click_negative") or
+           str_eq(sound_name, "cursor_tick") or
+           str_eq(sound_name, "weapon_target");
 }
 
 

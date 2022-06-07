@@ -3325,6 +3325,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_click_wooden.hpp"
 #include "data/sound_cling.hpp"
 #include "data/sound_coin.hpp"
+#include "data/sound_core_destroyed.hpp"
 #include "data/sound_cursor_click.hpp"
 #include "data/sound_digital_click_1.hpp"
 #include "data/sound_drone_beep.hpp"
@@ -3345,11 +3346,10 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_scroll.hpp"
 #include "data/sound_thunder_1.hpp"
 #include "data/sound_thunder_2.hpp"
+#include "data/sound_transporter.hpp"
 #include "data/sound_tw_bell.hpp"
 #include "data/sound_typewriter.hpp"
-#include "data/sound_transporter.hpp"
 #include "data/sound_weapon_target.hpp"
-#include "data/sound_core_destroyed.hpp"
 
 
 

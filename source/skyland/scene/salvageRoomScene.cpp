@@ -221,8 +221,8 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                         const auto room_y = room->position().y;
 
                         auto setup = [&](time_stream::event::RoomSalvaged& e) {
-                                         e.x_ = room_x;
-                                         e.y_ = room_y;
+                            e.x_ = room_x;
+                            e.y_ = room_y;
                             e.type_ = mt_index;
                         };
 
