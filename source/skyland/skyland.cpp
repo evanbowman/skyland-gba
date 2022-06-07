@@ -305,8 +305,8 @@ void App::on_remote_console_text(Platform& pfrm,
             pfrm.remote_console().printline("\r\nDone!", "sc> ");
         } else if (parsed.size() == 2 and parsed[0] == "download") {
             Vector<char> data;
-            if (ram_filesystem::read_file_data(pfrm, parsed[1].c_str(), data)) {
-                data.pop_back(); // ignore null terminator added by ram_filesystem.
+            if (ram_filesystem::read_file_data_binary(
+                    pfrm, parsed[1].c_str(), data)) {
                 auto enc = base32::encode(data);
                 pfrm.system_call("console-write-buffer", &enc);
                 pfrm.remote_console().printline("\r\nComplete!", "sc> ");
@@ -549,7 +549,7 @@ lisp::Value* App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
     }
 
     Vector<char> buffer;
-    if (ram_filesystem::read_file_data(pfrm, ram_fs_path, buffer)) {
+    if (ram_filesystem::read_file_data_text(pfrm, ram_fs_path, buffer)) {
         lisp::VectorCharSequence seq(buffer);
         return lisp::dostring(seq, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
@@ -590,7 +590,7 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
         game_mode_ not_eq GameMode::tutorial and not rom_fs_only) {
 
         Vector<char> buffer;
-        if (ram_filesystem::read_file_data(pfrm, path, buffer)) {
+        if (ram_filesystem::read_file_data_text(pfrm, path, buffer)) {
             lisp::VectorCharSequence seq(buffer);
             auto result = lisp::dostring(seq, on_err);
             // In case the script took a bit to execute.

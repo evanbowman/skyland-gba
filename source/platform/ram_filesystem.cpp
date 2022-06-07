@@ -501,7 +501,8 @@ static u16 checksum(const FileContents& contents)
 
 
 
-size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
+size_t
+read_file_data_text(Platform& pfrm, const char* path, Vector<char>& output)
 {
     if (not ::ram_filesystem::mounted) {
         return 0;
@@ -575,7 +576,7 @@ size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 
 
 
-bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
+bool store_file_data_text(Platform& pfrm, const char* path, Vector<char>& data)
 {
     if (not ::ram_filesystem::mounted) {
         return false;

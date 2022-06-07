@@ -57,7 +57,8 @@ public:
 
         if (not create_) {
             Vector<char> data;
-            ram_filesystem::read_file_data(pfrm, file_path_.c_str(), data);
+            ram_filesystem::read_file_data_binary(
+                pfrm, file_path_.c_str(), data);
 
             if (data.size() >= sizeof texture_) {
                 auto it = data.begin();
@@ -91,7 +92,8 @@ public:
             }
             output.push_back('\0');
 
-            ram_filesystem::store_file_data(pfrm, file_path_.c_str(), output);
+            ram_filesystem::store_file_data_binary(
+                pfrm, file_path_.c_str(), output);
 
             return scene_pool::alloc<FileBrowserModule>();
         }

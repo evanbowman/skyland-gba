@@ -85,9 +85,9 @@ static void store_dlc(Platform& pfrm, Vector<char>& data)
             file_contents.push_back(*it);
             ++it;
         }
-        file_contents.push_back('\0');
 
-        ram_filesystem::store_file_data(pfrm, file_name.c_str(), file_contents);
+        ram_filesystem::store_file_data_binary(
+            pfrm, file_name.c_str(), file_contents);
     }
 }
 

@@ -104,11 +104,32 @@ void destroy(Platform& pfrm);
 
 
 
-size_t read_file_data(Platform& pfrm, const char* path, Vector<char>& output);
+size_t
+read_file_data_text(Platform& pfrm, const char* path, Vector<char>& output);
+
+bool store_file_data_text(Platform& pfrm, const char* path, Vector<char>& data);
 
 
+inline size_t
+read_file_data_binary(Platform& pfrm, const char* path, Vector<char>& output)
+{
+    auto read = read_file_data_text(pfrm, path, output);
+    if (read > 0) {
+        // This is binary data, ignore automatically-appended null byte.
+        output.pop_back();
+    }
+    return read - 1;
+}
 
-bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data);
+
+inline bool
+store_file_data_binary(Platform& pfrm, const char* path, Vector<char>& data)
+{
+    // NOTE: store_file_data assumes that the input is null terminated, and
+    // ignores the final null character.
+    data.push_back('\0');
+    return store_file_data_text(pfrm, path, data);
+}
 
 
 
@@ -121,7 +142,7 @@ store_file_data(Platform& pfrm, const char* path, const char* ptr, u32 length)
     }
     buffer.push_back('\0');
 
-    return store_file_data(pfrm, path, buffer);
+    return store_file_data_text(pfrm, path, buffer);
 }
 
 

@@ -3234,8 +3234,7 @@ void Platform::Logger::flush()
         return;
     }
 
-    log_data_->push_back('\0');
-    ram_filesystem::store_file_data(*::platform, "/log.txt", *log_data_);
+    ram_filesystem::store_file_data_binary(*::platform, "/log.txt", *log_data_);
 
     log_data_.reset();
 }

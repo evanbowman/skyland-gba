@@ -1874,8 +1874,7 @@ bool speaker_data_store(Platform& pfrm, Island& island, const char* path)
     }
 
     if (not data.size() == 0) {
-        data.push_back('\0');
-        return ram_filesystem::store_file_data(pfrm, path, data);
+        return ram_filesystem::store_file_data_binary(pfrm, path, data);
     } else {
         ram_filesystem::unlink_file(pfrm, path);
     }
@@ -1889,7 +1888,7 @@ bool speaker_data_load(Platform& pfrm, Island& island, const char* path)
 {
     Vector<char> data;
 
-    auto bytes = ram_filesystem::read_file_data(pfrm, path, data);
+    auto bytes = ram_filesystem::read_file_data_binary(pfrm, path, data);
 
     if (bytes) {
         auto current = data.begin();
@@ -1978,8 +1977,7 @@ bool synth_notes_store(Platform& pfrm, Island& island, const char* path)
     }
 
     if (not data.size() == 0) {
-        data.push_back('\0');
-        return ram_filesystem::store_file_data(pfrm, path, data);
+        return ram_filesystem::store_file_data_binary(pfrm, path, data);
     } else {
         ram_filesystem::unlink_file(pfrm, path);
     }
@@ -1993,7 +1991,7 @@ bool synth_notes_load(Platform& pfrm, Island& island, const char* path)
 {
     Vector<char> data;
 
-    auto bytes = ram_filesystem::read_file_data(pfrm, path, data);
+    auto bytes = ram_filesystem::read_file_data_binary(pfrm, path, data);
 
     if (bytes) {
         auto current = data.begin();

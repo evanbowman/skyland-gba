@@ -453,7 +453,8 @@ void StateImpl::save(Platform& pfrm)
         store_sector(s);
     }
 
-    if (not ram_filesystem::store_file_data(pfrm, save::path, save_data)) {
+    if (not ram_filesystem::store_file_data_binary(
+            pfrm, save::path, save_data)) {
         info(pfrm, "macro save failed!");
     }
 }
@@ -475,7 +476,7 @@ bool StateImpl::load(Platform& pfrm, App& app)
 {
     Vector<char> input;
 
-    if (ram_filesystem::read_file_data(pfrm, save::path, input)) {
+    if (ram_filesystem::read_file_data_binary(pfrm, save::path, input)) {
         auto it = input.begin();
 
         save::Header header;

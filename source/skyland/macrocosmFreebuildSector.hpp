@@ -68,7 +68,8 @@ public:
             dummy.push_back(val);
         }
 
-        ram_filesystem::store_file_data(pfrm, freebuild_save_path, dummy);
+        ram_filesystem::store_file_data_binary(
+            pfrm, freebuild_save_path, dummy);
     }
 
 
@@ -98,7 +99,8 @@ public:
     void load(Platform& pfrm)
     {
         Vector<char> input;
-        if (ram_filesystem::read_file_data(pfrm, freebuild_save_path, input)) {
+        if (ram_filesystem::read_file_data_binary(
+                pfrm, freebuild_save_path, input)) {
 
             Vector<u8> data; // rle::decode does not accept Vector<char>
             for (char c : input) {

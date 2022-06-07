@@ -1342,7 +1342,8 @@ static const lisp::Binding script_api[] = {
 
          const char* path = lisp::get_op(0)->string().value();
 
-         ram_filesystem::read_file_data(*lisp::interp_get_pfrm(), path, data);
+         ram_filesystem::read_file_data_text(
+             *lisp::interp_get_pfrm(), path, data);
 
          if (data.size() >= sizeof texture) {
              auto it = data.begin();
@@ -1374,7 +1375,8 @@ static const lisp::Binding script_api[] = {
 
          const char* path = lisp::get_op(0)->string().value();
 
-         ram_filesystem::read_file_data(*lisp::interp_get_pfrm(), path, data);
+         ram_filesystem::read_file_data_text(
+             *lisp::interp_get_pfrm(), path, data);
 
          if (data.size() >= sizeof texture) {
              auto it = data.begin();

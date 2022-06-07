@@ -147,7 +147,7 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
 
     pfrm.write_save_data(&save_data, sizeof save_data, offset);
 
-    ram_filesystem::store_file_data(pfrm, "/save/data.lisp", p.data_);
+    ram_filesystem::store_file_data_text(pfrm, "/save/data.lisp", p.data_);
 
     synth_notes_store(pfrm, app.player_island(), "/save/synth.dat");
     speaker_data_store(pfrm, app.player_island(), "/save/speaker.dat");
@@ -171,7 +171,8 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
 
     Vector<char> data;
 
-    auto bytes = ram_filesystem::read_file_data(pfrm, "/save/data.lisp", data);
+    auto bytes =
+        ram_filesystem::read_file_data_text(pfrm, "/save/data.lisp", data);
 
     if (bytes == 0) {
         return false;

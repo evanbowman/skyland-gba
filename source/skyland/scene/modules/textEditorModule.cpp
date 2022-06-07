@@ -536,7 +536,7 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
 
     if (file_mode == FileMode::update) {
         if (filesystem_ == FileSystem::sram) {
-            ram_filesystem::read_file_data(pfrm, file_path, text_buffer_);
+            ram_filesystem::read_file_data_text(pfrm, file_path, text_buffer_);
         } else {
             if (file_path[0] == '/') {
                 ++file_path;
@@ -1169,7 +1169,7 @@ TextEditorModule::update(Platform& pfrm, App& app, Microseconds delta)
                     if (file_mode_ == FileMode::readonly) {
                         // Do not save the file
                     } else if (filesystem_ == FileSystem::sram) {
-                        ram_filesystem::store_file_data(
+                        ram_filesystem::store_file_data_text(
                             pfrm, state_->file_path_.c_str(), text_buffer_);
                     } else {
                         return scene_pool::alloc<SramFileWritebackScene>(
