@@ -20,7 +20,7 @@
   (dialog-await-y/n)
 
   (defn on-dialog-accepted
-    (dialog "Rocket-bombs might be useful..."))
+    (dialog "Build a rocket-bomb, defend it well..."))
 
   (setq on-dialog-declined (lambda '())))
 

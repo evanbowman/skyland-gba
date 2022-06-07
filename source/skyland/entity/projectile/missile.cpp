@@ -156,7 +156,7 @@ void Missile::update(Platform& pfrm, App& app, Microseconds delta)
             pos.x = target_x_;
             if (not pfrm.network_peer().is_connected() and
                 app.game_mode() not_eq App::GameMode::tutorial) {
-                pos.x = rng::sample<5>(pos.x, rng::critical_state);
+                pos.x = rng::sample<3>(pos.x, rng::critical_state);
             }
             sprite_.set_position(pos);
             sprite_.set_flip({false, true});
