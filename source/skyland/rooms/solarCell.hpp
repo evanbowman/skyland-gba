@@ -46,6 +46,12 @@ public:
     Power power_usage() const override;
 
 
+    bool description_visible() override
+    {
+        return true;
+    }
+
+
     void render_interior(App& app, TileId buffer[16][16]) override;
     void render_exterior(App& app, TileId buffer[16][16]) override;
 

@@ -215,24 +215,9 @@ void Flak::burst(Platform& pfrm,
                  const Vec2<Fixnum>& position,
                  Room& origin_room)
 {
-    // Ok, so now we want to find the nearest tile with which we collided.
-    auto origin = origin_room.origin();
-    // Go from unconstrained coordinates to an index in the opponent's tile grid.
-    int y_offset = (origin.y - position.y).as_integer() / 16 + 1;
-    int grid_y_start = origin_room.position().y + y_offset;
 
-    int x_offset = (origin.x - position.x).as_integer() / 16;
-
-    if (origin_room.parent() == &app.player_island()) {
-        ++x_offset;
-    }
-
-    int grid_x_start = origin_room.position().x + x_offset;
-
-    // grid_x_start = clamp(x_offset, 0, 15);
-    // grid_y_start = clamp(y_offset, 0, 15);
-
-    // Alright, now we have grid coordinates at which to apply the flak damage.
+    int grid_x_start = origin_room.position().x;
+    int grid_y_start = origin_room.position().y;
 
     auto apply_damage = [&](int x_off, int y_off, Health damage) {
         auto island = origin_room.parent();

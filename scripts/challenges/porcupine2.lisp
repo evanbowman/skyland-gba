@@ -1,5 +1,5 @@
 ;;
-;; porcupine.lisp
+;; porcupine2.lisp
 ;;
 
 
@@ -85,4 +85,4 @@
 
 
 (defn on-victory
-  (syscall "challenge-complete" 5))
+  (syscall "challenge-complete" 6))
