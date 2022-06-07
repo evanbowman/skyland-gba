@@ -216,11 +216,18 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                     if (auto room = island(app)->get_room(cursor_loc)) {
                         auto mt_index =
                             metaclass_index((*room->metaclass())->name());
+
+                        const auto room_x = room->position().x;
+                        const auto room_y = room->position().y;
+
                         auto setup = [&](time_stream::event::RoomSalvaged& e) {
-                            e.x_ = room->position().x;
-                            e.y_ = room->position().y;
+                                         e.x_ = room_x;
+                                         e.y_ = room_y;
                             e.type_ = mt_index;
                         };
+
+                        island(app)->destroy_room(pfrm, app, cursor_loc);
+
                         if (island(app) == &app.player_island()) {
                             time_stream::event::PlayerRoomSalvaged e;
                             setup(e);
@@ -232,7 +239,6 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
                         }
                     }
 
-                    island(app)->destroy_room(pfrm, app, cursor_loc);
                     exit_countdown_ = milliseconds(500);
 
                     network::packet::RoomSalvaged packet;

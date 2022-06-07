@@ -125,6 +125,7 @@ void GenericBird::roost(Platform& pfrm, Island* island, Microseconds delta)
 
     case InteriorTile::null:
     case InteriorTile::grass:
+    case InteriorTile::airborne_selection:
         break;
 
     default:
