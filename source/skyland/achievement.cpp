@@ -264,7 +264,7 @@ static const AchievementInfo info[Achievement::count] = {
      "gold",
      [](Platform&, App& app) {
          auto bc = count_ones(app.gp_.challenge_flags_.get());
-         if (bc < 5) {
+         if (bc < 6) {
              // FIXME: use something other than hard-coding four!
              return false;
          }

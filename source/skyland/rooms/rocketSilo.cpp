@@ -94,7 +94,7 @@ void RocketSilo::fire(Platform& pfrm, App& app)
 
     if (not pfrm.network_peer().is_connected() and
         app.game_mode() not_eq App::GameMode::tutorial) {
-        target = rng::sample<4>(target, rng::critical_state);
+        target = rng::sample<2>(target, rng::critical_state);
     }
 
     auto start = center();

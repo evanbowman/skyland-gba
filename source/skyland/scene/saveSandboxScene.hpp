@@ -54,15 +54,15 @@ public:
 
         for (int x = 1; x < st.x - 1; ++x) {
             for (int y = 0; y < 4; ++y) {
-                pfrm.set_tile(Layer::overlay, x, 4 + y, 410);
+                pfrm.set_tile(Layer::overlay, x, 4 + y, 498);
             }
 
             for (int y = 0; y < 4; ++y) {
-                pfrm.set_tile(Layer::overlay, x, 9 + y, 410);
+                pfrm.set_tile(Layer::overlay, x, 9 + y, 498);
             }
 
             for (int y = 0; y < 4; ++y) {
-                pfrm.set_tile(Layer::overlay, x, 14 + y, 410);
+                pfrm.set_tile(Layer::overlay, x, 14 + y, 498);
             }
         }
 
