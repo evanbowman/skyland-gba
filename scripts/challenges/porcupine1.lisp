@@ -86,6 +86,9 @@
    (stacked-hull 6 6)
    (stacked-hull 6 5)))
 
+(chr-new (opponent) 5 14 'hostile 0)
+(flag-show (opponent))
+
 
 (defn on-victory
   (syscall "challenge-complete" 5))

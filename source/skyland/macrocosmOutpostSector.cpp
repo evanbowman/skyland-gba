@@ -35,7 +35,7 @@ void terrain::OutpostSector::restore(const Persistent& p, u8 blocks[4][5][5])
     erase();
 
 #ifdef __GBA__
-    static_assert(sizeof *this <= 232);
+    static_assert(sizeof *this <= 264);
 #endif
 
     memcpy(&p_, &p, sizeof p);

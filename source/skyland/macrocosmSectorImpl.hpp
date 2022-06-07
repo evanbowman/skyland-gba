@@ -810,13 +810,9 @@ public:
     }
 
 
-    Stats* base_stats_cache_load() const override
+    std::optional<Stats> base_stats_cache_load() const override
     {
-        if (base_stats_cache_) {
-            return &*base_stats_cache_;
-        } else {
-            return nullptr;
-        }
+        return base_stats_cache_;
     }
 
 

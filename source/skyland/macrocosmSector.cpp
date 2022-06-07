@@ -256,7 +256,7 @@ void add_supply(terrain::Stats& s, terrain::Commodity::Type t, int supply)
         }
     }
 
-    s.commodities_.push_back({t, (u16)supply, false});
+    s.commodities_.push_back({t, false, (u16)supply});
 }
 
 

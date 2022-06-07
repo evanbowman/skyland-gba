@@ -243,9 +243,9 @@ protected:
     }
 
 
-    virtual Stats* base_stats_cache_load() const
+    virtual std::optional<Stats> base_stats_cache_load() const
     {
-        return nullptr;
+        return {};
     }
 
 

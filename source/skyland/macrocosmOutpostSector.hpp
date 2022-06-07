@@ -62,6 +62,65 @@ public:
     void restore(const Persistent& p, u8 blocks[4][5][5]) override;
 
     void update() override;
+
+
+    void base_stats_cache_clear() const override
+    {
+        base_stats_cache_.reset();
+    }
+
+
+    static const int commodities_max = 5;
+
+
+    void base_stats_cache_store(const Stats& s) const override
+    {
+        base_stats_cache_.emplace();
+        base_stats_cache_->food_ = s.food_;
+        base_stats_cache_->housing_ = s.housing_;
+        base_stats_cache_->employment_ = s.employment_;
+
+        base_stats_cache_->commodity_count_ =
+            std::min(commodities_max, (int)s.commodities_.size());
+
+        for (u32 i = 0; i < base_stats_cache_->commodity_count_; ++i) {
+            base_stats_cache_->commodities_[i] = s.commodities_[i];
+        }
+    }
+
+
+    std::optional<Stats> base_stats_cache_load() const override
+    {
+        if (not base_stats_cache_) {
+            return {};
+        }
+
+        Stats result;
+        result.food_ = base_stats_cache_->food_;
+        result.housing_ = base_stats_cache_->housing_;
+        result.employment_ = base_stats_cache_->employment_;
+        result.food_exports_ = 0;
+
+        for (int i = 0; i < base_stats_cache_->commodity_count_; ++i) {
+            result.commodities_.push_back(base_stats_cache_->commodities_[i]);
+        }
+
+        return result;
+    }
+
+
+private:
+    struct SmallStats
+    {
+        s16 food_ = 0;
+        s16 housing_ = 0;
+        s16 employment_ = 0;
+        u8 commodity_count_;
+
+        Commodity commodities_[commodities_max];
+    };
+
+    mutable std::optional<SmallStats> base_stats_cache_;
 };
 
 

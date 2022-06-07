@@ -659,35 +659,35 @@ Stats stats(Type t, bool shadowed)
 
     case terrain::Type::sunflowers:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::sunflowers, 1});
+            result.commodities_.push_back({Commodity::Type::sunflowers, false, 1});
         }
         result.employment_ += 2;
         break;
 
     case terrain::Type::tulips:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::tulips, 1});
+            result.commodities_.push_back({Commodity::Type::tulips, false, 1});
         }
         result.employment_ += 2;
         break;
 
     case terrain::Type::indigo:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::indigo, 1});
+            result.commodities_.push_back({Commodity::Type::indigo, false, 1});
         }
         result.employment_ += 4;
         break;
 
     case terrain::Type::madder:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::rose_madder, 1});
+            result.commodities_.push_back({Commodity::Type::rose_madder, false, 1});
         }
         result.employment_ += 4;
         break;
 
     case terrain::Type::shellfish:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::shellfish, 1});
+            result.commodities_.push_back({Commodity::Type::shellfish, false, 1});
         }
         result.employment_ += 1;
         result.food_ += 2;
@@ -695,28 +695,28 @@ Stats stats(Type t, bool shadowed)
 
     case terrain::Type::pearls:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::pearls, 3});
+            result.commodities_.push_back({Commodity::Type::pearls, false, 3});
         }
         result.employment_ += 1;
         break;
 
     case terrain::Type::cocoa:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::cocoa, 3});
+            result.commodities_.push_back({Commodity::Type::cocoa, false, 3});
             result.employment_ += 6;
         }
         break;
 
     case terrain::Type::tea:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::tea, 3});
+            result.commodities_.push_back({Commodity::Type::tea, false, 3});
             result.employment_ += 4;
         }
         break;
 
     case terrain::Type::lumber:
         if (not shadowed) {
-            result.commodities_.push_back({Commodity::Type::lumber, 2});
+            result.commodities_.push_back({Commodity::Type::lumber, false, 2});
             result.employment_ += 6;
         }
         break;
@@ -724,12 +724,12 @@ Stats stats(Type t, bool shadowed)
     case terrain::Type::wool:
         result.employment_ += 1;
         result.food_ += 1;
-        result.commodities_.push_back({Commodity::Type::wool, 2});
+        result.commodities_.push_back({Commodity::Type::wool, false, 2});
         break;
 
     case terrain::Type::saffron:
         result.employment_ += 6;
-        result.commodities_.push_back({Commodity::Type::saffron, 2});
+        result.commodities_.push_back({Commodity::Type::saffron, false, 2});
         break;
 
     case terrain::Type::windmill_stone_base:

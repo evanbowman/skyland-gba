@@ -135,8 +135,8 @@ struct Commodity
         pearls,
     };
     Type type_;
-    u16 supply_;
     bool imported_ = false;
+    u16 supply_;
 
     static Coins value(Type t);
     SystemString name() const;
