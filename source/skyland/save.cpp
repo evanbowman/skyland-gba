@@ -132,6 +132,7 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
     lisp::_Printer<Vector<char>> p;
     auto val = app.invoke_script(pfrm, "/scripts/save.lisp");
     lisp::format(val, p);
+    p.data_.push_back('\0');
 
     SaveData save_data;
     save_data.magic_.set(save_data_magic);
