@@ -93,7 +93,7 @@ public:
                    const RoomCoord& to);
 
 
-    void init_terrain(Platform& pfrm, int width);
+    void init_terrain(Platform& pfrm, int width, bool render = true);
 
 
     bool add_character(EntityRef<BasicCharacter> character);

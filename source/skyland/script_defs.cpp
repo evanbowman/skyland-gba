@@ -1631,9 +1631,13 @@ static const lisp::Binding script_api[] = {
 
 
 
-void App::init_scripts(Platform& pfrm)
+void App::init_scripts(Platform& pfrm, Function<16, void(const char*)> msg)
 {
+    msg("lisp init...");
+
     lisp::init(pfrm);
+
+    msg("export api...");
 
     lisp::bind_functions(script_api,
                          sizeof(script_api) / sizeof(script_api[0]));
@@ -1644,6 +1648,8 @@ void App::init_scripts(Platform& pfrm)
     // someone could irreversibly mess up a game.
     const bool was_developer_mode = is_developer_mode();
     set_developer_mode(false);
+
+    msg("import lisp stdlib...");
 
     auto str = pfrm.load_file_contents("scripts", "init.lisp");
     if (str) {

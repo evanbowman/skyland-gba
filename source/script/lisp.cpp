@@ -841,9 +841,7 @@ Value* make_string(const char* string)
 
         auto write_ptr = existing_buffer->data_buffer().value()->data_ + offset;
 
-        while (*string) {
-            *write_ptr++ = *string++;
-        }
+        memcpy(write_ptr, string, len);
 
         if (auto val = alloc_value()) {
             val->hdr_.type_ = Value::Type::string;
@@ -3555,6 +3553,18 @@ void bind_functions(const Binding* bindings, int count)
         set_var(bindings[i].name_, lisp::make_function(bindings[i].function_));
     }
 }
+
+
+
+void gc()
+{
+    auto var = lisp::get_var("gc");
+    if (var->type() == lisp::Value::Type::function) {
+        lisp::funcall(var, 0);
+        lisp::pop_op();
+    }
+}
+
 
 
 void init(Platform& pfrm)

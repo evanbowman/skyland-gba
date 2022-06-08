@@ -21,9 +21,7 @@
 
 
 #include "scene_pool.hpp"
-#include "scene/introCreditsScene.hpp"
-#include "scene/introCutsceneScene.hpp"
-// #include "scene/qrViewerScene.hpp"
+#include "scene/bootScene.hpp"
 
 
 
@@ -47,24 +45,10 @@ ScenePtr<Scene> null_scene()
 }
 
 
+
 ScenePtr<Scene> initial_scene()
 {
-    // "skyland.github.io/hs?sc=100000000&m=2&v=255&t=fffffff"
-    //     auto next = []() {
-    //                     return scene_pool::alloc<ConfiguredURLQRViewerScene>(
-    // "/scripts/config/uploadscore.lisp",
-    //         "?sc=100000000&m=2&v=255&t=fffffff",
-    //         "Step 3: Scan to upload score!",
-    //         scene_pool::make_deferred_scene<IntroCreditsScene>());
-    //                 };
-
-    //     return scene_pool::alloc<ConfiguredURLQRViewerScene>(
-    //         "/scripts/config/login.lisp",
-    //         "",
-    //         "Step 1: Scan to request a login token!",
-    //         next);
-
-    return scene_pool::alloc<IntroCreditsScene>();
+    return scene_pool::alloc<BootScene>();
 }
 
 

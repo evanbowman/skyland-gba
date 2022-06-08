@@ -47,6 +47,12 @@ void __draw_image(Platform& pfrm,
 
 void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    for (int x = 0; x < 16; ++x) {
+        for (int y = 0; y < 16; ++y) {
+            pfrm.set_tile(Layer::map_1_ext, x, y, 0);
+        }
+    }
+
     pfrm.screen().set_view(View{});
     pfrm.set_scroll(Layer::map_1_ext, 0, 8);
     pfrm.set_scroll(Layer::map_0_ext, 0, 0);

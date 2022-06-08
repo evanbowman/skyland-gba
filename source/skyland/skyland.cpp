@@ -70,7 +70,6 @@ App::App(Platform& pfrm)
 
     init_clouds(pfrm);
 
-    pfrm.screen().fade(1.f);
 
     current_scene_ = initial_scene();
     next_scene_ = initial_scene();
@@ -111,12 +110,7 @@ App::App(Platform& pfrm)
     // at least 120kb of unused RAM in the worst case, so I'm not on the verge
     // of running out.
     set_scratch_buffer_oom_handler([this] {
-        auto var = lisp::get_var("gc");
-        if (var->type() == lisp::Value::Type::function) {
-            lisp::funcall(var, 0);
-            lisp::pop_op();
-        }
-
+        lisp::gc();
         time_stream_.clear();
     });
 

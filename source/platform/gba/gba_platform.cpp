@@ -765,8 +765,8 @@ static bool unlock_gameboy_player(Platform& pfrm)
     memcpy16((u16*)0x6008000, gbp_logo_pixels, (sizeof gbp_logo_pixels) / 2);
     memcpy16((u16*)0x6000000, gbp_logo_tiles, (sizeof gbp_logo_tiles) / 2);
 
-    static const int fadein_frames = 20;
-    static const int fadeout_frames = 15;
+    static const int fadein_frames = 15;
+    static const int fadeout_frames = 10;
 
     // The fadein/out effects are not required for gbp unlocking. Just looks
     // clean.
@@ -785,7 +785,7 @@ static bool unlock_gameboy_player(Platform& pfrm)
     push_palette(ColorConstant::rich_black, 0);
 
     using Frames = int;
-    static const Frames splashscreen_duration(40);
+    static const Frames splashscreen_duration(25);
 
     for (Frames i = 0; i < splashscreen_duration; ++i) {
         // If the gameboy player hardware/software accepted our spash screen,
@@ -801,6 +801,12 @@ static bool unlock_gameboy_player(Platform& pfrm)
 
     for (int i = 0; i < fadeout_frames; ++i) {
         push_palette(custom_color(0xffffff), (Float(i) / fadeout_frames) * 255);
+        VBlankIntrWait();
+    }
+
+    push_palette(custom_color(0xffffff), 255);
+
+    for (int i = 0; i < 10; ++i) {
         VBlankIntrWait();
     }
 
@@ -4483,7 +4489,7 @@ void ram_overclock()
 
 
 
-static void show_health_and_safety_message(Platform& pfrm)
+void show_health_and_safety_message(Platform& pfrm)
 {
     // Throwaway platform-specific code for displaying a health an safetly
     // warning, like late-era gba games.
@@ -6494,6 +6500,15 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
 
 
+void Platform::Speaker::start()
+{
+    audio_start();
+    clear_music();
+    play_music("unaccompanied_wind", 0);
+}
+
+
+
 Platform::Platform()
 {
     ::platform = this;
@@ -6603,15 +6618,6 @@ Platform::Platform()
         REG_TM3CNT_H = 1 << 7 | 1 << 6;
     });
     delta_clock().reset();
-
-    audio_start();
-    clear_music();
-    speaker().play_music("unaccompanied_wind", 0);
-    speaker().play_sound("click_digital_1", 1);
-
-    if (bios_version not_eq BiosVersion::NDS) {
-        show_health_and_safety_message(*this);
-    }
 
     irqSet(IRQ_VBLANK, vblank_isr);
 

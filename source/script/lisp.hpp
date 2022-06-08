@@ -658,6 +658,9 @@ Value* get_this();
 u8 get_argc();
 
 
+void gc();
+
+
 // Arguments should be pushed onto the operand stack prior to the function
 // call. The interpreter will consume the arguments, leaving the result on top
 // of the operand stack. i.e., use get_op(0) to read the result. Remember to

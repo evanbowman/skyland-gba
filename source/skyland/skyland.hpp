@@ -230,7 +230,7 @@ public:
     }
 
 
-    void init_scripts(Platform& pfrm);
+    void init_scripts(Platform& pfrm, Function<16, void(const char*)> msg);
 
 
     Coins& victory_coins()

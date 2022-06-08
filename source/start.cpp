@@ -27,42 +27,15 @@
 #include "skyland/achievement.hpp"
 #include "skyland/save.hpp"
 #include "skyland/skyland.hpp"
-#include "version.hpp"
+#include "skyland/scene/bootScene.hpp"
 
-
-
-// clang-format off
-
-const char* console_header =
-"\r\n"
-"*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n"
-"|  Skyland Console                                                             |\r\n"
-"*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n";
-
-// clang-format on
-
-
-
-static void console_display_startup_prompt(Platform& pfrm)
-{
-    StringBuffer<320> msg(console_header);
-    auto vn = format("engine version %.%.%.%",
-                     PROGRAM_MAJOR_VERSION,
-                     PROGRAM_MINOR_VERSION,
-                     PROGRAM_SUBMINOR_VERSION,
-                     PROGRAM_VERSION_REVISION);
-
-    msg += vn;
-
-    pfrm.remote_console().printline(msg.c_str());
-
-    info(pfrm, vn.c_str());
-}
 
 
 
 static inline void skyland_main_loop(Platform& pf)
 {
+    skyland::BootScene::init(pf);
+
     globals().emplace<SkylandGlobalData>();
     skyland::scene_pool::pool_ =
         &std::get<SkylandGlobalData>(globals()).scene_pool_;
@@ -71,15 +44,6 @@ static inline void skyland_main_loop(Platform& pf)
     std::get<SkylandGlobalData>(globals()).room_pools_.init();
 
     auto app = allocate_dynamic<skyland::App>("app-data", pf);
-
-    console_display_startup_prompt(pf);
-
-    app->init_scripts(pf);
-    skyland::achievements::init(pf, *app);
-
-    pf.enable_glyph_mode(true);
-    pf.load_overlay_texture("overlay");
-    pf.load_background_texture(app->environment().background_texture());
 
     while (pf.is_running()) {
         pf.keyboard().poll();

@@ -45,7 +45,7 @@ namespace skyland
 
 
 
-void Island::init_terrain(Platform& pfrm, int width)
+void Island::init_terrain(Platform& pfrm, int width, bool render)
 {
     if (width < 3) {
         return;
@@ -61,7 +61,10 @@ void Island::init_terrain(Platform& pfrm, int width)
 
     terrain_.push_back(14);
 
-    render_terrain(pfrm);
+    if (render) {
+        render_terrain(pfrm);
+    }
+
 }
 
 
@@ -72,7 +75,7 @@ Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
       has_radar_(false), is_boarded_(false), hidden_(false),
       flag_anim_index_(Tile::flag_start), owner_(&owner)
 {
-    init_terrain(pfrm, width);
+    init_terrain(pfrm, width, false);
 }
 
 
