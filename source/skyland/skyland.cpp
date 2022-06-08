@@ -21,7 +21,6 @@
 
 
 #include "skyland.hpp"
-#include "achievement.hpp"
 #include "base32.hpp"
 #include "eternal/eternal.hpp"
 #include "globals.hpp"
@@ -123,8 +122,6 @@ App::App(Platform& pfrm)
 
     const auto sb = StateBit::remote_console_force_newline;
     state_bit_store(*this, sb, true);
-
-    achievements::init(pfrm, *this);
 }
 
 

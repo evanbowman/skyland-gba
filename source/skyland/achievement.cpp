@@ -33,6 +33,10 @@ namespace skyland::achievements
 
 
 
+static u8 challenge_count;
+
+
+
 struct AchievementInfo
 {
     SystemString name_;
@@ -264,8 +268,7 @@ static const AchievementInfo info[Achievement::count] = {
      "gold",
      [](Platform&, App& app) {
          auto bc = count_ones(app.gp_.challenge_flags_.get());
-         if (bc < 7) {
-             // FIXME: use something other than hard-coding four!
+         if (bc < challenge_count) {
              return false;
          }
 
@@ -303,6 +306,10 @@ static const AchievementInfo info[Achievement::count] = {
 void init(Platform& pfrm, App& app)
 {
     auto flags = app.gp_.achievement_flags_;
+
+    // Required for an achievement.
+    challenge_count =
+        lisp::length(app.invoke_script(pfrm, "/scripts/challenges/index.lisp"));
 
     for (int i = 0; i < Achievement::count; ++i) {
         const u64 flag = 1 << i;

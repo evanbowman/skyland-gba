@@ -24,6 +24,7 @@
 #include "localization.hpp"
 #include "platform/ram_filesystem.hpp"
 #include "qr.hpp"
+#include "skyland/achievement.hpp"
 #include "skyland/save.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
@@ -74,6 +75,7 @@ static inline void skyland_main_loop(Platform& pf)
     console_display_startup_prompt(pf);
 
     app->init_scripts(pf);
+    skyland::achievements::init(pf, *app);
 
     pf.enable_glyph_mode(true);
     pf.load_overlay_texture("overlay");

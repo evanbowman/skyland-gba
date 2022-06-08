@@ -148,6 +148,8 @@ struct Context {
     Value* string_buffer_ = nullptr;
     Value* globals_tree_ = nullptr;
 
+    u16 string_buffer_remaining_ = 0;
+
     Value* lexical_bindings_ = nullptr;
     Value* macros_ = nullptr;
 
@@ -820,22 +822,16 @@ Value* make_string(const char* string)
     }
 
     Value* existing_buffer = nullptr;
-    decltype(len) free = 0;
+    auto free = bound_context->string_buffer_remaining_;
+
 
     if (bound_context->string_buffer_ not_eq L_NIL) {
-        auto buffer = bound_context->string_buffer_;
-        free = 0;
-        for (int i = SCRATCH_BUFFER_SIZE - 1; i > 0; --i) {
-            if (buffer->data_buffer().value()->data_[i] == '\0') {
-                ++free;
-            } else {
-                break;
-            }
-        }
         if (free > len + 1) { // +1 for null term, > for other null term
-            existing_buffer = buffer;
+            existing_buffer = bound_context->string_buffer_;
+            bound_context->string_buffer_remaining_ -= len + 1;
         } else {
             bound_context->string_buffer_ = L_NIL;
+            bound_context->string_buffer_remaining_ = 0;
         }
     }
 
@@ -859,6 +855,10 @@ Value* make_string(const char* string)
             return bound_context->oom_;
         }
     } else {
+        // Because we're allocating a fresh buffer, as the prior one was full.
+        bound_context->string_buffer_remaining_ =
+            SCRATCH_BUFFER_SIZE - (len + 1);
+
         auto buffer = make_databuffer("lisp-string-bulk-allocator");
 
         if (buffer == bound_context->oom_) {
@@ -1614,6 +1614,7 @@ static int gc_sweep()
 {
     if (not bound_context->string_buffer_->hdr_.mark_bit_) {
         bound_context->string_buffer_ = L_NIL;
+        bound_context->string_buffer_remaining_ = 0;
     }
 
     int collect_count = 0;
