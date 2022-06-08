@@ -4,6 +4,10 @@
  Describes all available
  SKYLAND API calls.
 
+ Does not describe the
+ SKYLAND lisp standard
+ library.
+
 
 o----------------------------o
 

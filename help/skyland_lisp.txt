@@ -1,0 +1,307 @@
+
+ SKYLAND lisp standard
+ library documentation
+
+
+o----------------------------o
+
+ (abs n)
+
+ Return absolute value of
+ integer n.
+
+
+o----------------------------o
+
+ (apply function list)
+
+ Invoke function with
+ elements of list as
+ arguments.
+
+ e.g.:
+
+ (apply cons '(1 2)) is the
+ same as calling (cons 1 2).
+
+ Allows you to
+ programatically create a
+ function call with arguments
+ sourced from a list.
+
+
+o----------------------------o
+
+ (arg n)
+
+ Programatically retrieve
+ function argument specified
+ by integer n.
+
+ If you want to access args
+ as a list, use special
+ variable $V.
+
+
+o----------------------------o
+
+ (bound symbol)
+
+ Return a true value if a
+ variable binding exists for
+ symbol. Return a false value
+ otherwise.
+
+
+o----------------------------o
+
+ (cons a b)
+
+ Return a pair containing
+ (a . b).
+
+
+o----------------------------o
+
+ (car pair)
+
+ Return the first element
+ of a pair.
+
+
+o----------------------------o
+
+ (cdr pair)
+
+ Return the second element
+ of a pair.
+
+
+o----------------------------o
+
+ (compile function)
+
+ Return a bytecode-compiled
+ version of supplied
+ function.
+
+
+o----------------------------o
+
+ (equal a b)
+
+ Return a true value if a
+ and b are equivalent. Return
+ a false value otherwise.
+
+ False values include 0 or
+ nil. True values include
+ everything else.
+
+ equal may not return zero
+ or one! Return type is not
+ specified, only guaranteed
+ to be true or false.
+
+
+o----------------------------o
+
+ (eval list)
+
+ Evaluate a list as lisp
+ code.
+
+
+o----------------------------o
+
+ (fill n value)
+
+ Return a list containing n
+ repetitions of value.
+
+
+o----------------------------o
+
+ (gc)
+
+ Invoke the garbage collcetor.
+
+
+o----------------------------o
+
+ (gensym)
+
+ Generate a unique symbol.
+ Technically, return values
+ wrap around after a few
+ hundred thousand gensym
+ calls. But a gba program
+ would never use a macro that
+ big! :)
+
+o----------------------------o
+
+ (get list index)
+
+ Retrieve element of list
+ specified by integer index.
+
+
+o----------------------------o
+
+ (interp-stat)
+
+ Return a list representing
+ statistics about the
+ lisp interpreter's internal
+ state, e.g. heap avialable,
+ stack slots used, string
+ intern table size, variable
+ binding count.
+
+
+o----------------------------o
+
+ (length list-or-string)
+
+ Return length of a list
+ or a string.
+
+
+o----------------------------o
+
+ (list ...)
+
+ Return a list containing
+ all of the arguments
+ supplied to the list
+ function.
+
+ e.g. (list 1 2 3) ->
+ '(1 2 3)
+
+o----------------------------o
+
+ (map function list)
+
+ Call function for each
+ element of input list,
+ return output list with
+ call results.
+
+ Note: for advanced users:
+ map does allow you to
+ pass multiple lists,
+ like in other popular lisp
+ dialects.
+
+
+o----------------------------o
+
+ (not value)
+
+ If value is true, return
+ a false value. Otherwise,
+ return a true value.
+
+
+o----------------------------o
+
+ (range n m)
+
+ Return a range of numbers
+ between n and m.
+
+ You may optionally supply
+ the step size in a third
+ argument.
+
+
+o----------------------------o
+
+ (read string)
+
+ Parse a lisp datastructure
+ encoded as a string.
+
+
+o----------------------------o
+
+ (reverse list)
+
+ Return list in reverse
+ order.
+
+
+o----------------------------o
+
+ (set symbol value)
+
+ Set a global variable or
+ let binding to a new value.
+
+ The standard libary defines
+ a setq macro, so usually no
+ need to call set manually.
+
+
+o----------------------------o
+
+ (string ...)
+
+ Compose a string by
+ converting each argument
+ to a string and
+ concatenating them.
+
+
+o----------------------------o
+
+ (symbol string)
+
+ Create a symbol from a
+ string.
+
+
+o----------------------------o
+
+ (this)
+
+ Return the current
+ executing function (if any).
+
+
+o----------------------------o
+
+ (type value)
+
+ Return a symbol
+ representing the type of a
+ value.
+
+
+o----------------------------o
+
+ (unbind symbol)
+
+ Delete variable binding
+ for symbol.
+
+
+o----------------------------o
+
+ (< a b)
+ (> a b)
+ (+ ...)
+ (- a b)
+ (* ...)
+ (/ a b)
+
+ Standard operators.
+
+ Note: (-) called with one
+ argument flips a number's
+ sign.
+
+
+o----------------------------o
