@@ -111,11 +111,15 @@ public:
     }
 
 
+    void finalize(Platform& pfrm, App& app) override;
+
+
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::workshop_required |
                RoomProperties::disallow_chimney | RoomProperties::roof_hidden |
-               RoomProperties::accepts_ion_damage | RoomProperties::fireproof;
+               RoomProperties::accepts_ion_damage | RoomProperties::fireproof |
+               RoomProperties::destroy_quietly;
     }
 };
 

@@ -23,6 +23,7 @@
 #include "forcefield.hpp"
 #include "platform/platform.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/sound.hpp"
 
 
 
@@ -85,6 +86,21 @@ void Forcefield2::render_interior(App& app, TileId buffer[16][16])
 void Forcefield2::render_exterior(App& app, TileId buffer[16][16])
 {
     buffer[position().x][position().y] = Tile::forcefield2;
+}
+
+
+
+Sound glass_break_sound("glass_break");
+
+
+
+void Forcefield::finalize(Platform& pfrm, App& app)
+{
+    Room::finalize(pfrm, app);
+
+    if (health() == 0) {
+        glass_break_sound.play(pfrm, 3);
+    }
 }
 
 
