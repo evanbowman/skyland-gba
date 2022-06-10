@@ -2170,6 +2170,38 @@ u32 read(CharSequence& code, int offset)
 }
 
 
+static void eval_while(Value* code)
+{
+    Protected result(get_nil());
+
+    if (code->type() not_eq Value::Type::cons) {
+        push_op(lisp::make_error(Error::Code::mismatched_parentheses, L_NIL));
+        return;
+    }
+
+    auto cond = code->cons().car();
+
+    while (true) {
+
+        eval(cond);
+        auto test = get_op0();
+        pop_op();
+
+        if (not is_boolean_true(test)) {
+            break;
+        }
+
+        foreach (code->cons().cdr(), [&](Value* val) {
+            eval(val);
+            result.set(get_op0());
+            pop_op();
+        });
+    }
+
+    push_op(result);
+}
+
+
 static void eval_let(Value* code)
 {
     // Overview:
@@ -2426,6 +2458,13 @@ void eval(Value* code)
                 pop_op();
                 // TODO: store macro!
                 --bound_context->interp_entry_count_;
+                return;
+            } else if (str_eq(form->symbol().name(), "while")) {
+                eval_while(code->cons().cdr());
+                auto result = get_op0();
+                pop_op();
+                pop_op();
+                push_op(result);
                 return;
             }
         }

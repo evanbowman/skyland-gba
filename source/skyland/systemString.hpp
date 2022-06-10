@@ -389,6 +389,7 @@ enum class SystemString {
     sandbox_weather,
     sandbox_title,
     sandbox_prompt,
+    sandbox_characters,
 
     sf_description,
     sf_hint,

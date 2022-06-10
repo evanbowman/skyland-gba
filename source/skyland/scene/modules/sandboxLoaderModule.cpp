@@ -27,6 +27,7 @@
 #include "skyland/skyland.hpp"
 #include "skyland/weather/storm.hpp"
 #include "skyland/weather/typhoon.hpp"
+#include "script/listBuilder.hpp"
 
 
 
@@ -49,7 +50,8 @@ const SandboxLoaderModule::ParameterInfo
         {SystemString::sandbox_terrain_size, 1, 4, 13},
         {SystemString::sandbox_music, 1, 0, 1},
         {SystemString::sandbox_building_dependencies, 1, 0, 1},
-        {SystemString::sandbox_weather, 1, 1, 3}};
+        {SystemString::sandbox_weather, 1, 1, 3},
+        {SystemString::sandbox_characters, 1, 1, 6}};
 
 
 
@@ -163,6 +165,7 @@ void SandboxLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
         parameters_[2] = 1;
         parameters_[3] = 0;
         parameters_[4] = 1;
+        parameters_[5] = 2;
     } else {
         environment_init(app, parameters_[4]);
         pfrm.screen().set_shader(app.environment().shader(app));
@@ -188,14 +191,18 @@ void SandboxLoaderModule::exit(Platform& pfrm, App& app, Scene& next)
 
     if (not cancelled_) {
 
-        app.set_coins(pfrm, parameters_[0]);
-        app.player_island().init_terrain(pfrm, parameters_[1]);
-
         environment_init(app, parameters_[4]);
 
         if (parameters_[2]) {
             pfrm.speaker().play_music(app.environment().music(), 0);
         }
+
+        lisp::ListBuilder list;
+        for (auto& param : parameters_) {
+            list.push_back(L_INT(param));
+        }
+
+        lisp::set_var("conf", list.result());
 
         app.invoke_script(pfrm, "/scripts/sandbox/new.lisp");
 

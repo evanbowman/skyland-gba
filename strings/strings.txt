@@ -305,6 +305,7 @@ dependencies
 weather
 Sandbox Settings
 Press A to begin
+characters
 Endless new levels! Survive as long as possible!
 Press A to begin
 SKYLAND Forever

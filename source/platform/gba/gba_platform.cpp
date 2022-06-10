@@ -370,12 +370,19 @@ static inline void on_stack_overflow()
 
     u8 write_pos = 3;
 
+    platform->screen().clear();
+
+
+    platform->fill_overlay(0);
+
     const char* msg = "stack overflow detected";
     while (*msg not_eq '\0') {
         print_char(*::platform, *msg, {write_pos, 7}, text_colors_inv);
         ++write_pos;
         ++msg;
     }
+
+    platform->screen().display();
 
     memcpy32(MEM_SCREENBLOCKS[sbb_overlay_tiles],
              overlay_back_buffer,

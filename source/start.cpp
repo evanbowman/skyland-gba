@@ -31,19 +31,27 @@
 
 
 
-
-static inline void skyland_main_loop(Platform& pf)
+namespace skyland
 {
-    skyland::BootScene::init(pf);
+
+
+
+static inline void main_loop(Platform& pf)
+{
+    BootScene::init(pf);
+
+    BootScene::message(pf, "init memory pools...");
 
     globals().emplace<SkylandGlobalData>();
-    skyland::scene_pool::pool_ =
+    scene_pool::pool_ =
         &std::get<SkylandGlobalData>(globals()).scene_pool_;
 
     std::get<SkylandGlobalData>(globals()).entity_pools_.init(pf);
     std::get<SkylandGlobalData>(globals()).room_pools_.init();
 
-    auto app = allocate_dynamic<skyland::App>("app-data", pf);
+    BootScene::message(pf, "start application...");
+
+    auto app = allocate_dynamic<App>("app-data", pf);
 
     while (pf.is_running()) {
         pf.keyboard().poll();
@@ -57,6 +65,9 @@ static inline void skyland_main_loop(Platform& pf)
     }
 }
 
+
+
+}
 
 
 void start(Platform& pfrm)
@@ -84,5 +95,5 @@ void start(Platform& pfrm)
             pfrm, "/mods/init.lisp", user_init_file, str_len(user_init_file));
     }
 
-    return skyland_main_loop(pfrm);
+    return skyland::main_loop(pfrm);
 }

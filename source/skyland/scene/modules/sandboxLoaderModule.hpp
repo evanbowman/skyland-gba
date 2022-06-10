@@ -93,7 +93,7 @@ private:
         int upper_limit_;
     };
 
-    Buffer<Text, 5> settings_text_;
+    Buffer<Text, 6> settings_text_;
     using ParamBuffer = Buffer<int, decltype(settings_text_)::capacity()>;
     static ParamBuffer parameters_;
 

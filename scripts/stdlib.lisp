@@ -29,6 +29,10 @@
        nil)))
 
 
+(macro repeat (N BODY)
+ `(map (lambda ,@BODY) (range 0 ,N)))
+
+
 ;; Some useful macros for defining functions
 
 ;; Defines a function.
@@ -64,18 +68,6 @@
                 (+ $2 1))))
             ARGS nil 0)
        ,@BODY))))
-
-
-(macro while (EXPR BODY)
- ;; The vm only performs TCO on compiled lambdas, so we need to enforce
- ;; compilation here, unfortunately. Quite slow, but then, how often do you
- ;; really _need_ a while loop in lisp?
- `((compile
-    (lambda
-      (if ,EXPR
-          (let ()
-            ,@BODY
-            ((this))))))))
 
 
 (macro progn (BODY)

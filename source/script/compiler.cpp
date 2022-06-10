@@ -371,6 +371,9 @@ int compile_impl(ScratchBuffer& buffer,
             write_pos =
                 compile_quoted(buffer, write_pos, lat->cons().cdr(), tail_expr);
         } else if (fn->type() == Value::Type::symbol and
+                   str_eq(fn->symbol().name(), "while")) {
+            Platform::fatal("'while' syntax unsupported in compiled lisp");
+        } else if (fn->type() == Value::Type::symbol and
                    str_eq(fn->symbol().name(), "`")) {
             while (true)
                 ;
