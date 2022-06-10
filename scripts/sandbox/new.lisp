@@ -77,6 +77,4 @@
 (mkch (opponent) 'hostile)
 
 
-;; Delete global config list var
-(unbind 'conf)
-(unbind 'mkch)
+(unbind 'conf 'mkch)

@@ -282,10 +282,16 @@ o----------------------------o
 
 o----------------------------o
 
- (unbind symbol)
+ (unbind symbols...)
 
  Delete variable binding
- for symbol.
+ for symbols.
+
+ Be careful! (unbind '+),
+ for example, will delete the
+ addition operator. Don't
+ go around unbinding
+ standard library functions.
 
 
 o----------------------------o

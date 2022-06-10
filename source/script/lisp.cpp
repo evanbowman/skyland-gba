@@ -2915,10 +2915,14 @@ static const Binding builtins[] = {
      }},
     {"unbind",
      [](int argc) {
-         L_EXPECT_ARGC(argc, 1);
-         L_EXPECT_OP(0, symbol);
-
-         globals_tree_erase(get_op0());
+         for (int i = 0; i < argc; ++i) {
+             auto sym = get_op(i);
+             if (sym->type() not_eq lisp::Value::Type::symbol) {
+                 auto err = lisp::Error::Code::invalid_argument_type;
+                 return lisp::make_error(err, L_NIL);
+             }
+             globals_tree_erase(sym);
+         }
 
          return get_nil();
      }},
