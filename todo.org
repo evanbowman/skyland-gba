@@ -1,0 +1,5 @@
+
+
+* TODO Auto-pause & rewind option when island destroyed in easy mode
+* TODO Random encounters in macrocosm, stuff to explore
+* TODO Ending? Opening cutscene for adventure mode?
