@@ -79,6 +79,8 @@
 //;
 #include "data/background_title_screen.h"
 //;
+#include "data/stack_overflow_flattened.h"
+//;
 #include "data/overlay.h"
 //;
 #include "data/overlay_qr.h"
@@ -200,6 +202,8 @@ static const TextureData tile_textures[] = {
 
 static const TextureData overlay_textures[] = {
 
+    TEXTURE_INFO(stack_overflow_flattened),
+//;
     TEXTURE_INFO(overlay),
 //;
     TEXTURE_INFO(overlay_qr),

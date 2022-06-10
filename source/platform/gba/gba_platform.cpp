@@ -338,6 +338,9 @@ int main(int argc, char** argv)
     const int resume = setjmp(stack_overflow_resume_context);
     if (resume) {
         ::platform = &pf; // In case it was corrupted.
+        // NOTE: assigning the global platform pointer from a cached version on
+        // the stack is fine. We overflowed the stack into iwram, but the stuff
+        // on the stack itself is not corrupted.
 
         if (unrecoverrable_error_callback) {
             (*unrecoverrable_error_callback)(pf);
@@ -363,30 +366,23 @@ static inline void on_stack_overflow()
     ::platform->screen().fade(1.f, bkg_color);
     ::platform->fill_overlay(0);
     irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
-    static const Text::OptColors text_colors{
-        {custom_color(0xffffff), bkg_color}};
-    static const Text::OptColors text_colors_inv{
-        {text_colors->background_, text_colors->foreground_}};
 
-    u8 write_pos = 3;
+    ::platform->speaker().stop_music();
 
-    platform->screen().clear();
-
-
+    ::platform->enable_glyph_mode(false);
     platform->fill_overlay(0);
 
-    const char* msg = "stack overflow detected";
-    while (*msg not_eq '\0') {
-        print_char(*::platform, *msg, {write_pos, 7}, text_colors_inv);
-        ++write_pos;
-        ++msg;
-    }
+    ::platform->load_overlay_texture("stack_overflow_flattened");
 
-    platform->screen().display();
+    draw_image(*::platform, 1, 0, 3, 30, 12, Layer::overlay);
 
     memcpy32(MEM_SCREENBLOCKS[sbb_overlay_tiles],
              overlay_back_buffer,
              (sizeof(u16) * (21 * 32)) / 4);
+
+    platform->screen().clear();
+    platform->screen().display();
+
     while (true)
         ;
 }
