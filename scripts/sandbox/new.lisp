@@ -64,22 +64,17 @@
 
 
 
-(opponent-init (terrain (player)) 'hostile)
+(opponent-init (get conf 1) 'hostile)
 
 
 (flag-show (opponent))
 
 
-;; Note: prior to running this script, the game
-;; sets the size of the player island's
-;; terrain. Retrieve the value, and make the
-;; opponent island the same size.
-(let ((t (terrain (player))))
-  (island-configure
-   (opponent)
-   `((power-core ,(- t 3) 13)))
+(island-configure
+ (opponent)
+ `((power-core ,(- (get conf 1) 3) 13)))
 
-  (mkch (opponent) 'hostile))
+(mkch (opponent) 'hostile)
 
 
 ;; Delete global config list var
