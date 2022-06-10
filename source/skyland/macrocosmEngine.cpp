@@ -416,6 +416,10 @@ template <u32 inflate> struct Sector
 
 void StateImpl::save(Platform& pfrm)
 {
+    // Dump any memory associated with the rasterizer. We don't want to run out
+    // of memory while saving...
+    raster::_db.reset();
+
     Vector<char> save_data;
 
     save::Header header;

@@ -6527,7 +6527,7 @@ Platform::Platform()
     // TODO: uncomment this after I finish development. Wouldn't want to build
     // something that doesn't work on some gba consoles, but speeding up the
     // ones that do work would be nice.
-    // ram_overclock();
+    ram_overclock();
 
     logger().set_threshold(Severity::fatal);
 
