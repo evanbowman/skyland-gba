@@ -764,7 +764,7 @@ Coins terrain::Commodity::value(Commodity::Type t)
     if (t == Commodity::Type::food) {
         Platform::fatal("attempt to appraise value of food");
     }
-    return 6;
+    return 5;
 }
 
 

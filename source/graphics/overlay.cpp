@@ -55,6 +55,9 @@ void UIMetric::set_value(u32 value)
         if (text_ and text_->len() > value_len) {
             ++value_len;
         }
+    } else if (format_ == Format::signed_integer) {
+        s32 value = value_;
+        value_len = integer_text_length(value);
     }
 
     anim_.init(value_len);
@@ -170,6 +173,8 @@ void UIMetric::display(Platform& pfrm)
         text_->append(v1, clr);
 
 
+    } else if (format_ == Format::signed_integer) {
+        text_->assign((s32)value_);
     } else {
         text_->assign(value_);
     }

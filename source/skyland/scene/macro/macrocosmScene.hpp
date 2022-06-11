@@ -93,6 +93,7 @@ private:
         std::optional<UIMetric> food_;
         std::optional<UIMetric> employment_;
         std::optional<UIMetric> housing_;
+        std::optional<UIMetric> happiness_;
     };
 
     bool update_ui_on_exit_ = false;

@@ -45,6 +45,26 @@ terrain::Sector::Sector(Vec2<s8> position, Shape shape, Vec3<u8> size)
 
 
 
+terrain::Sector::Happiness terrain::Sector::get_happiness() const
+{
+    auto stat = stats();
+
+    const auto food_avail =
+        stat.food_ - population() / terrain::food_consumption_factor;
+
+    const auto housing_avail = stat.housing_ - population();
+
+    int commodity_supply = 0;
+    for (auto& commodity : stat.commodities_) {
+        commodity_supply += commodity.supply_;
+    }
+
+    return (2 * commodity_supply + 0.3f * food_avail + 0.2f * housing_avail) - population() * 0.1f;
+
+}
+
+
+
 fiscal::Ledger terrain::Sector::budget() const
 {
     fiscal::Ledger result;
@@ -89,6 +109,15 @@ fiscal::Ledger terrain::Sector::budget() const
         result.add_entry(
             SYSTR(macro_fiscal_starvation)->c_str(),
             -0.4f * (population() - st.food_ * food_consumption_factor));
+    }
+
+    auto happiness = get_happiness();
+    if (happiness < 0) {
+        result.add_entry(SYSTR(macro_fiscal_unhappiness)->c_str(),
+                         happiness / 2);
+    } else {
+        result.add_entry(SYSTR(macro_fiscal_happiness)->c_str(),
+                         happiness / 2);
     }
 
 

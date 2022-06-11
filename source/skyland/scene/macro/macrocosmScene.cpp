@@ -115,6 +115,7 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         (*ui_)->food_->update(pfrm, delta);
         (*ui_)->employment_->update(pfrm, delta);
         (*ui_)->housing_->update(pfrm, delta);
+        (*ui_)->happiness_->update(pfrm, delta);
     }
 
 
@@ -208,6 +209,7 @@ void MacrocosmScene::update_ui(macro::StateImpl& state)
     (*ui_)->housing_->sync_value(stat.housing_);
 
     (*ui_)->employment_->sync_value(stat.employment_);
+    (*ui_)->happiness_->sync_value((s32)sector.get_happiness());
 }
 
 
@@ -281,6 +283,16 @@ void MacrocosmScene::enter(Platform& pfrm, macro::StateImpl& state, Scene& prev)
                                  416,
                                  stat.housing_,
                                  UIMetric::Align::left);
+
+        s32 happiness = sector.get_happiness();
+        (*ui_)->happiness_.emplace(pfrm,
+                                   OverlayCoord{1, 6},
+                                   409,
+                                   (u32)happiness,
+                                   UIMetric::Align::left,
+                                   UIMetric::Format::signed_integer);
+
+
     }
 
     if (not state.data_->freebuild_mode_) {

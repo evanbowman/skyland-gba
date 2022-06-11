@@ -170,6 +170,8 @@ citizens
 homelessness
 total
 starvation
+happiness
+unhappiness
 cube
 wide
 pillar

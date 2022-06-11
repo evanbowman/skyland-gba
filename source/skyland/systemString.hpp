@@ -230,6 +230,8 @@ enum class SystemString {
     macro_fiscal_homelessness,
     macro_fiscal_total,
     macro_fiscal_starvation,
+    macro_fiscal_happiness,
+    macro_fiscal_unhappiness,
 
     macro_cube,
     macro_pancake,

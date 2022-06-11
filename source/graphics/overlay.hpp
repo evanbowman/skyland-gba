@@ -424,6 +424,7 @@ public:
         fraction,
         fraction_p_m,
         integer_with_rate,
+        signed_integer,
     };
 
 

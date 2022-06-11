@@ -114,6 +114,10 @@ public:
     void set_population(Population p);
 
 
+    using Happiness = float;
+    Happiness get_happiness() const;
+
+
     virtual void shadowcast() = 0;
     virtual void erase() = 0;
 
