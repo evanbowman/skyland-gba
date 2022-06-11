@@ -977,7 +977,7 @@ Coins terrain::cost(Sector& s, Type t)
         return 120;
 
     case terrain::Type::indigo:
-        return 210;
+        return 120;
 
     case terrain::Type::pearls:
         return 300;
