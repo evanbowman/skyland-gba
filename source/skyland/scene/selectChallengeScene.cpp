@@ -109,6 +109,10 @@ void SelectChallengeScene::show_options(Platform& pfrm, App& app)
             return;
         }
 
+        if (index > start_index + 5) {
+            return;
+        }
+
         text_.emplace_back(pfrm,
                            name->string().value(),
                            OverlayCoord{4, u8(4 + text_.size() * 2)});
