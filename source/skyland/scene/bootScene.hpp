@@ -1,8 +1,8 @@
 #pragma once
 
-#include "skyland/skyland.hpp"
-#include "skyland/scene_pool.hpp"
 #include "skyland/scene/introCreditsScene.hpp"
+#include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
 #include "version.hpp"
 
 
@@ -25,8 +25,7 @@ void __draw_image(Platform& pfrm,
 class BootScene : public Scene
 {
 public:
-
-// clang-format off
+    // clang-format off
 
 static constexpr const char* console_header =
 "\r\n"
@@ -34,7 +33,7 @@ static constexpr const char* console_header =
 "|  Skyland Console                                                             |\r\n"
 "*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n";
 
-// clang-format on
+    // clang-format on
 
 
 
@@ -77,9 +76,9 @@ static constexpr const char* console_header =
         pfrm.screen().schedule_fade(0.f);
 
         Text text(pfrm, {4, 1});
-        text.append("_\\\\ SKYLAND engine //_",
-                    FontColors{ColorConstant::silver_white,
-                                   ColorConstant::rich_black});
+        text.append(
+            "_\\\\ SKYLAND engine //_",
+            FontColors{ColorConstant::silver_white, ColorConstant::rich_black});
         text.__detach();
 
         pfrm.screen().clear();
@@ -141,9 +140,7 @@ static constexpr const char* console_header =
         pfrm.screen().display();
 
 
-        app.init_scripts(pfrm, [&](const char* text) {
-                                   message(pfrm, text);
-                               });
+        app.init_scripts(pfrm, [&](const char* text) { message(pfrm, text); });
 
         message(pfrm, "doing stuff...");
         skyland::achievements::init(pfrm, app);
@@ -168,10 +165,8 @@ static constexpr const char* console_header =
 
         return scene_pool::alloc<IntroCreditsScene>();
     }
-
-
 };
 
 
 
-}
+} // namespace skyland

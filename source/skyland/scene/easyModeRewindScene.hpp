@@ -70,8 +70,9 @@ public:
                 pfrm.speaker().play_sound("click_wooden", 2);
             }
             selected_ = 1;
-        }if (app.player().key_down(pfrm, Key::action_1)) {
-            pfrm.speaker().play_sound("button_wooden", 3);
+        }
+
+        if (app.player().key_down(pfrm, Key::action_1)) {
             switch (selected_) {
             case 0:
                 state_bit_store(app, StateBit::easy_mode_rewind_declined, false);

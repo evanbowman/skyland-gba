@@ -64,7 +64,6 @@ void Island::init_terrain(Platform& pfrm, int width, bool render)
     if (render) {
         render_terrain(pfrm);
     }
-
 }
 
 

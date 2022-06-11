@@ -3266,8 +3266,8 @@ void Platform::Logger::flush()
 
 #include "data/music_isle_of_the_dead.hpp"
 #include "data/music_life_in_silco.hpp"
-#include "data/music_unaccompanied_wind.hpp"
 #include "data/music_sb_solecism.hpp"
+#include "data/music_unaccompanied_wind.hpp"
 #include "data/shadows.hpp"
 
 
@@ -3324,7 +3324,6 @@ static const AudioTrack* find_music(const char* name)
 // assembly output, adding the file to CMake, adding the include, and adding the
 // sound to the sounds array, it's just too tedious to keep working this way...
 #include "data/sound_beep_error.hpp"
-#include "data/sound_glass_break.hpp"
 #include "data/sound_bell.hpp"
 #include "data/sound_build0.hpp"
 #include "data/sound_button_wooden.hpp"
@@ -3344,6 +3343,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_footstep1.hpp"
 #include "data/sound_footstep2.hpp"
 #include "data/sound_footstep3.hpp"
+#include "data/sound_glass_break.hpp"
 #include "data/sound_gravel.hpp"
 #include "data/sound_gust.hpp"
 #include "data/sound_gust2.hpp"

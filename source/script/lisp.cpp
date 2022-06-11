@@ -2195,7 +2195,8 @@ static void eval_while(Value* code)
             eval(val);
             result.set(get_op0());
             pop_op();
-        });
+        })
+            ;
     }
 
     push_op(result);
@@ -3598,7 +3599,6 @@ void bind_functions(const Binding* bindings, int count)
 }
 
 
-
 void gc()
 {
     auto var = lisp::get_var("gc");
@@ -3607,7 +3607,6 @@ void gc()
         lisp::pop_op();
     }
 }
-
 
 
 void init(Platform& pfrm)

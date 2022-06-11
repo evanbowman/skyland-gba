@@ -26,8 +26,8 @@
 #include "qr.hpp"
 #include "skyland/achievement.hpp"
 #include "skyland/save.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/scene/bootScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -43,8 +43,7 @@ static inline void main_loop(Platform& pf)
     BootScene::message(pf, "init memory pools...");
 
     globals().emplace<SkylandGlobalData>();
-    scene_pool::pool_ =
-        &std::get<SkylandGlobalData>(globals()).scene_pool_;
+    scene_pool::pool_ = &std::get<SkylandGlobalData>(globals()).scene_pool_;
 
     std::get<SkylandGlobalData>(globals()).entity_pools_.init(pf);
     std::get<SkylandGlobalData>(globals()).room_pools_.init();
@@ -67,7 +66,7 @@ static inline void main_loop(Platform& pf)
 
 
 
-}
+} // namespace skyland
 
 
 void start(Platform& pfrm)

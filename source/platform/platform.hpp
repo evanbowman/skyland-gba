@@ -659,7 +659,6 @@ public:
     class Speaker
     {
     public:
-
         void start();
 
         enum Note : u8 {
