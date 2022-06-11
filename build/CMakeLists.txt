@@ -370,7 +370,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/music_unaccompanied_wind.s
     ${DATA_DIR}/music_isle_of_the_dead.s
     ${DATA_DIR}/music_life_in_silco.s
-    ${DATA_DIR}/sb_solecism.s
+    ${DATA_DIR}/music_sb_solecism.s
     ${DATA_DIR}/shadows.s
     ${DATA_DIR}/sound_msg.s
     ${DATA_DIR}/sound_pop.s
