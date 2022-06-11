@@ -117,8 +117,10 @@ read_file_data_binary(Platform& pfrm, const char* path, Vector<char>& output)
     if (read > 0) {
         // This is binary data, ignore automatically-appended null byte.
         output.pop_back();
+        return read - 1;
+    } else {
+        return 0;
     }
-    return read - 1;
 }
 
 
