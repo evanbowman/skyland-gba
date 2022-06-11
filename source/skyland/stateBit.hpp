@@ -36,6 +36,7 @@ enum class StateBit {
     launch_repl,
     surrender_offered,
     remote_console_force_newline,
+    easy_mode_rewind_declined,
     count,
 };
 

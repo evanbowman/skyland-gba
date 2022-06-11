@@ -461,6 +461,9 @@ enum class SystemString {
     error_friendly,
     error_no_more_pauses,
 
+    easy_mode_auto_rewind_title,
+    easy_mode_auto_rewind_text,
+
     factory_reset,
 
     dialog_tutorial_prompt,

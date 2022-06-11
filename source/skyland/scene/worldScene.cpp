@@ -23,6 +23,7 @@
 #include "worldScene.hpp"
 #include "achievementNotificationScene.hpp"
 #include "boxedDialogScene.hpp"
+#include "easyModeRewindScene.hpp"
 #include "globals.hpp"
 #include "multiplayerReadyScene.hpp"
 #include "notificationScene.hpp"
@@ -239,6 +240,18 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     if (app.player_island().is_destroyed()) {
+
+        if ((app.game_mode() == App::GameMode::adventure or
+             app.game_mode() == App::GameMode::skyland_forever) and
+            app.persistent_data().difficulty_ ==
+            PersistentData::Difficulty::beginner and
+            not state_bit_load(app, StateBit::easy_mode_rewind_declined)) {
+
+            return scene_pool::alloc<EasyModeRewindScene>();
+        }
+
+        state_bit_store(app, StateBit::easy_mode_rewind_declined, false);
+
         reset_gamespeed(pfrm, app);
 
         app.time_stream().clear();
