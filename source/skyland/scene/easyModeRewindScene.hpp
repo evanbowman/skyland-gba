@@ -36,6 +36,7 @@ public:
         text_.emplace(pfrm, SYSTR(easy_mode_auto_rewind_text)->c_str(),
                       OverlayCoord{1, 5});
 
+        pfrm.screen().pixelate(128, false);
         pfrm.screen().schedule_fade(0.7f);
     }
 
@@ -47,13 +48,14 @@ public:
         pfrm.screen().display();
 
         pfrm.load_overlay_texture("overlay");
-
         WorldScene::exit(pfrm, app, next);
 
         title_.reset();
+        text_.reset();
         yes_text_.reset();
         no_text_.reset();
 
+        pfrm.screen().pixelate(0, false);
         pfrm.screen().schedule_fade(0.f);
     }
 
