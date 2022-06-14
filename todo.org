@@ -1,9 +1,10 @@
 
+* June 2022
+** DONE Add a happiness/unhappiness mechanic to macro mode
+** DONE Auto-pause & rewind option when island destroyed in easy mode
+** TODO Add dialog boxes, description for macro mode
 
-* TODO Add a happiness/unhappiness mechanic to macro mode
-* TODO Auto-pause & rewind option when island destroyed in easy mode
-* TODO Add a tech tree to macro mode
-* TODO Random encounters in macrocosm, stuff to explore
-* TODO Ending? Opening cutscene for adventure mode?
-* TODO Add dialog boxes, description for macro mode
+** TODO Add a tech tree to macro mode
+** TODO Random encounters in macrocosm, stuff to explore
+** TODO Ending? Opening cutscene for adventure mode?
 
