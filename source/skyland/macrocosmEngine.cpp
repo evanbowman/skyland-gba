@@ -908,7 +908,7 @@ Coins terrain::cost(Sector& s, Type t)
         return 0;
 
     case terrain::Type::building:
-        return 320;
+        return 270;
 
     case terrain::Type::basalt:
     case terrain::Type::terrain:
