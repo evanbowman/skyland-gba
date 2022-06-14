@@ -150,6 +150,7 @@ demolish block:
 view threshold: 
 :next turn
 :budget
+citizens
 enter
 create colony
 isle (fullsize)
@@ -172,6 +173,10 @@ total
 starvation
 happiness
 unhappiness
+food supply
+housing scarcity
+population density
+total happiness
 cube
 wide
 pillar

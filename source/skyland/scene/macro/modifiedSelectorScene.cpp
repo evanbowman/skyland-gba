@@ -45,9 +45,10 @@ void ModifiedSelectorScene::enter(Platform& pfrm,
 
     Text::platform_retain_alphabet(pfrm);
 
-    StringBuffer<64> day_night_str("a");
-    day_night_str += SYSTR(macro_day_or_night)->c_str();
-    day_night_text_.emplace(pfrm, day_night_str.c_str(), OverlayCoord{1, 1});
+    day_night_text_.emplace(pfrm, OverlayCoord{1, 1});
+    day_night_text_->assign(
+        "a", FontColors{custom_color(0xa3c447), ColorConstant::rich_black});
+    day_night_text_->append(SYSTR(macro_day_or_night)->c_str());
 
     rotate_text_.emplace(
         pfrm, SYSTR(macro_rotate)->c_str(), OverlayCoord{3, 2});

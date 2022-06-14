@@ -47,6 +47,24 @@ terrain::Sector::Sector(Vec2<s8> position, Shape shape, Vec3<u8> size)
 
 terrain::Sector::Happiness terrain::Sector::get_happiness() const
 {
+    auto ledger = annotate_happiness();
+
+    auto ent = ledger.entries();
+
+    Happiness result = 0.f;
+
+    while (ent) {
+        result += ent->contribution_;
+        ent = ent->next_;
+    }
+
+    return result;
+}
+
+
+
+fiscal::Ledger terrain::Sector::annotate_happiness() const
+{
     auto stat = stats();
 
     const auto food_avail =
@@ -59,8 +77,20 @@ terrain::Sector::Happiness terrain::Sector::get_happiness() const
         commodity_supply += commodity.supply_;
     }
 
-    return (2 * commodity_supply + 0.3f * food_avail + 0.2f * housing_avail) - population() * 0.1f;
+    auto& pfrm = Platform::instance();
 
+    fiscal::Ledger result;
+    result.add_entry(SYSTR(macro_commodities)->c_str(), 2 * commodity_supply);
+
+    result.add_entry(SYSTR(macro_food_supply)->c_str(), 0.3f * food_avail);
+
+    result.add_entry(SYSTR(macro_housing_scarcity)->c_str(),
+                     0.2f * housing_avail);
+
+    result.add_entry(SYSTR(macro_population_density)->c_str(),
+                     population() * -0.1f);
+
+    return result;
 }
 
 
@@ -116,8 +146,7 @@ fiscal::Ledger terrain::Sector::budget() const
         result.add_entry(SYSTR(macro_fiscal_unhappiness)->c_str(),
                          happiness / 2);
     } else {
-        result.add_entry(SYSTR(macro_fiscal_happiness)->c_str(),
-                         happiness / 2);
+        result.add_entry(SYSTR(macro_fiscal_happiness)->c_str(), happiness / 2);
     }
 
 

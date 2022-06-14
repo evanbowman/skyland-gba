@@ -116,6 +116,7 @@ public:
 
     using Happiness = float;
     Happiness get_happiness() const;
+    fiscal::Ledger annotate_happiness() const;
 
 
     virtual void shadowcast() = 0;

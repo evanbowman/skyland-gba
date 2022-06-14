@@ -209,6 +209,7 @@ enum class SystemString {
     macro_visible_layers,
     macro_next_turn,
     macro_budget,
+    macro_citizens,
     macro_enter,
     macro_create_colony,
     macro_fullsize_colony,
@@ -232,6 +233,11 @@ enum class SystemString {
     macro_fiscal_starvation,
     macro_fiscal_happiness,
     macro_fiscal_unhappiness,
+
+    macro_food_supply,
+    macro_housing_scarcity,
+    macro_population_density,
+    macro_total_happiness,
 
     macro_cube,
     macro_pancake,

@@ -2,9 +2,9 @@
 
 #include "readyScene.hpp"
 #include "rewindScene.hpp"
-#include "worldScene.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
+#include "worldScene.hpp"
 
 
 namespace skyland
@@ -15,7 +15,6 @@ namespace skyland
 class EasyModeRewindScene : public WorldScene
 {
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         WorldScene::enter(pfrm, app, prev);
@@ -33,7 +32,8 @@ public:
 
         title_.emplace(pfrm, title_str->c_str(), OverlayCoord{mg, 1});
 
-        text_.emplace(pfrm, SYSTR(easy_mode_auto_rewind_text)->c_str(),
+        text_.emplace(pfrm,
+                      SYSTR(easy_mode_auto_rewind_text)->c_str(),
                       OverlayCoord{1, 5});
 
         pfrm.screen().pixelate(128, false);
@@ -60,7 +60,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (app.player().key_down(pfrm, Key::up)) {
             if (selected_ not_eq 0) {
@@ -77,7 +78,8 @@ public:
         if (app.player().key_down(pfrm, Key::action_1)) {
             switch (selected_) {
             case 0:
-                state_bit_store(app, StateBit::easy_mode_rewind_declined, false);
+                state_bit_store(
+                    app, StateBit::easy_mode_rewind_declined, false);
                 return scene_pool::alloc<RewindScene>(false);
 
             case 1:
@@ -116,4 +118,4 @@ private:
 
 
 
-}
+} // namespace skyland

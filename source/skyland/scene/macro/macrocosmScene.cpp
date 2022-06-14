@@ -291,8 +291,6 @@ void MacrocosmScene::enter(Platform& pfrm, macro::StateImpl& state, Scene& prev)
                                    (u32)happiness,
                                    UIMetric::Align::left,
                                    UIMetric::Format::signed_integer);
-
-
     }
 
     if (not state.data_->freebuild_mode_) {
