@@ -21,6 +21,8 @@
 
 
 #include "macrocosmScene.hpp"
+#include "selectorScene.hpp"
+#include "skyland/scene/boxedDialogScene.hpp"
 #include "skyland/scene/lispReplScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
@@ -80,6 +82,16 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (exit_cond not_eq App::ExitCondition::none) {
         app.exit_condition() = App::ExitCondition::none;
         return scene_pool::alloc<TitleScreenScene>();
+    }
+
+    if (app.dialog_buffer()) {
+        auto buffer = std::move(*app.dialog_buffer());
+        app.dialog_buffer().reset();
+        bool answer = state_bit_load(app, StateBit::dialog_expects_answer);
+        state_bit_store(app, StateBit::dialog_expects_answer, false);
+        auto next = scene_pool::alloc<BoxedDialogScene>(std::move(buffer), answer);
+        next->set_next_scene(scene_pool::make_deferred_scene<SelectorScene>());
+        return next;
     }
 
     app.player().update(pfrm, app, delta);

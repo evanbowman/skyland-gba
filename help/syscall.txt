@@ -143,3 +143,12 @@ o----------------------------o
 
 
 o----------------------------o
+
+ (syscall "fade" amount)
+
+ Fade screen to black by
+ integer amount 0->100.
+
+
+o----------------------------o
+

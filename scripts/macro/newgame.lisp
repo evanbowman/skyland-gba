@@ -1,22 +1,19 @@
 
+
+(eval-file "/scripts/reset_hooks.lisp")
+
+
 (coins-set 160)
 
-(mcr-sector 0 0)
+(eval-file "/scripts/macro/start_layout.lisp")
 
-(map
- (lambda
-   (mcr-block-set
-    (get $0 0)
-    (get $0 1)
-    (get $0 2)
-    4))
- '((3 3 0)
-   (3 2 0)
-   (2 3 0)
-   (3 4 0)
-   (4 3 0)
-   (4 4 0)))
+(dialog "<f:70>Welcome to the macrocosm! You and a group of settlers have just established a colony on a remote isle. Provide your population with food and housing, and it'll grow!")
 
-(mcr-block-set 2 2 0 5)
-(mcr-block-set 4 2 0 5)
-(mcr-block-set 3 3 1 1)
+(defn on-dialog-closed
+  (dialog "Produce commodities for extra coins. Commodities are cheaper to build near blocks improved with the same commodity, but produce diminishing returns. Export commodities to other islands to balance demand and scarcity.")
+
+  (defn on-dialog-closed
+    (dialog "But first! Make sure to plant some grains, your citizens will need food!")
+
+    (defn on-dialog-closed
+      (syscall "fade" 0))))

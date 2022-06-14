@@ -123,6 +123,11 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
         break;
     }
 
+    case 'f': {
+        pfrm.screen().schedule_fade(parse_command_int() / 100.f);
+        break;
+    }
+
     case 'd': {
         text_state_.timer_ = -milliseconds(parse_command_int());
         break;

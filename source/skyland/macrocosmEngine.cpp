@@ -90,7 +90,12 @@ void StateImpl::newgame(Platform& pfrm, App& app)
     sector.erase();
     sector.set_name("origin");
 
-    app.invoke_script(pfrm, "/scripts/macro/newgame.lisp");
+    if (data_->freebuild_mode_) {
+        app.invoke_script(pfrm, "/scripts/macro/start_layout.lisp");
+    } else {
+        app.invoke_script(pfrm, "/scripts/macro/newgame.lisp");
+    }
+
 
     sector.set_cursor({3, 3, 1});
     sector.set_population(8);
