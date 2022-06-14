@@ -22,7 +22,10 @@
 
 #pragma once
 
+#include "inspectP2Scene.hpp"
+#include "readyScene.hpp"
 #include "skyland/dialog.hpp"
+#include "skyland/scene_pool.hpp"
 #include "worldScene.hpp"
 
 
@@ -37,7 +40,7 @@ namespace skyland
 
 
 
-class BoxedDialogScene : public WorldScene
+class BoxedDialogScene : public Scene
 {
 public:
     BoxedDialogScene(DialogBuffer buffer, bool expects_answer_y_n)
@@ -45,6 +48,12 @@ public:
           data_(allocate_dynamic<Data>("dialog-data"))
     {
         goto_tutorial_ = 0;
+    }
+
+
+    void set_next_scene(DeferredScene scene)
+    {
+        data_->next_scene_ = scene;
     }
 
 
@@ -108,9 +117,59 @@ private:
             StringBuffer<32> name_;
             u16 image_ = 0;
         } character_;
+
+        DeferredScene next_scene_ = []() { return null_scene(); };
     };
 
     DynamicMemory<Data> data_;
+};
+
+
+
+class BoxedDialogSceneWS : public WorldScene
+{
+public:
+    BoxedDialogSceneWS(DialogBuffer buffer, bool expects_answer_y_n)
+        : dialog_scene_(std::move(buffer), expects_answer_y_n)
+    {
+    }
+
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override final
+    {
+        dialog_scene_.enter(pfrm, app, prev);
+
+        if (auto ws = dynamic_cast<WorldScene*>(&prev)) {
+            if (ws->is_far_camera()) {
+                far_camera();
+            }
+        }
+
+        if (is_far_camera()) {
+            dialog_scene_.set_next_scene(
+                scene_pool::make_deferred_scene<InspectP2Scene>());
+        } else {
+            dialog_scene_.set_next_scene(
+                scene_pool::make_deferred_scene<ReadyScene>());
+        }
+    }
+
+
+    void exit(Platform& pfrm, App& app, Scene& next) override final
+    {
+        dialog_scene_.exit(pfrm, app, next);
+    }
+
+
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override final
+    {
+        return dialog_scene_.update(pfrm, app, delta);
+    }
+
+
+private:
+    BoxedDialogScene dialog_scene_;
 };
 
 

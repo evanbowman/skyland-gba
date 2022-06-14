@@ -369,12 +369,6 @@ void BoxedDialogScene::enter(Platform& pfrm, App& app, Scene& prev)
         // Advance the timer, the text buffer starts with a command!
         text_state_.timer_ = milliseconds(81);
     }
-
-    if (auto ws = dynamic_cast<WorldScene*>(&prev)) {
-        if (ws->is_far_camera()) {
-            far_camera();
-        }
-    }
 }
 
 
@@ -587,11 +581,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
             next->quick_select(goto_tutorial_ - 1);
             return next;
         }
-        if (is_far_camera()) {
-            return scene_pool::alloc<InspectP2Scene>();
-        } else {
-            return scene_pool::alloc<ReadyScene>();
-        }
+        return data_->next_scene_();
     }
 
     return null_scene();

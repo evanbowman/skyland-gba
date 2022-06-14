@@ -641,7 +641,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.dialog_buffer().reset();
         bool answer = state_bit_load(app, StateBit::dialog_expects_answer);
         state_bit_store(app, StateBit::dialog_expects_answer, false);
-        return scene_pool::alloc<BoxedDialogScene>(std::move(buffer), answer);
+        return scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer), answer);
     }
 
 
