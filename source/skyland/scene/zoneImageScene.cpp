@@ -50,6 +50,7 @@ void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
     for (int x = 0; x < 16; ++x) {
         for (int y = 0; y < 16; ++y) {
             pfrm.set_tile(Layer::map_1_ext, x, y, 0);
+            pfrm.set_tile(Layer::map_0_ext, x, y, 0);
         }
     }
 
