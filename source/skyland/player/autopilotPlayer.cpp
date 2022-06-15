@@ -204,6 +204,7 @@ void AutopilotPlayer::update(Platform& pfrm, App& app, Microseconds delta)
                         next_timeout_key_ = key;
                         next_timeout_release_ = not state;
                     } else if (key->type() == lisp::Value::Type::string) {
+                        pfrm.fill_overlay(0);
                         app.dialog_buffer().emplace(
                             allocate_dynamic<DialogString>("dialog-buffer"));
                         **app.dialog_buffer() += key->string().value();
