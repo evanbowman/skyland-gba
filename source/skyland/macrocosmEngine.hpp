@@ -123,6 +123,22 @@ struct StateImpl : public State
         bool freebuild_mode_ = false;
 
 
+        struct RandomEncounters
+        {
+            u16 seed_ = 42;
+
+            struct SectorDesc
+            {
+                Vec2<s8> coordinate_;
+                u8 variant_;
+            };
+
+            Buffer<SectorDesc, 20> sectors_;
+
+        } random_encounters_;
+
+
+
         // Contents will be written to save data.
         struct Persistent
         {

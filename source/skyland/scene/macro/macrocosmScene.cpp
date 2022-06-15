@@ -26,6 +26,7 @@
 #include "skyland/scene/lispReplScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
+#include "macroverseScene.hpp"
 
 
 
@@ -81,7 +82,7 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     const auto exit_cond = app.exit_condition();
     if (exit_cond not_eq App::ExitCondition::none) {
         app.exit_condition() = App::ExitCondition::none;
-        return scene_pool::alloc<TitleScreenScene>();
+        return scene_pool::alloc<MacroverseScene>();
     }
 
     if (app.dialog_buffer()) {

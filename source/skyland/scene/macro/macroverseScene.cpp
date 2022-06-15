@@ -359,7 +359,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto freebuild_flag = GlobalPersistentData::freebuild_unlocked;
     if (not app.gp_.stateflags_.get(freebuild_flag)) {
-        if (m.data_->other_sectors_.size() > 10) {
+        if (m.data_->other_sectors_.size() > 8) {
             app.gp_.stateflags_.set(freebuild_flag, true);
             save::store_global_data(pfrm, app.gp_);
         }
@@ -1070,10 +1070,8 @@ void MacroverseScene::display(Platform& pfrm, App& app)
     };
 
 
-    auto draw_tiny_node = [&](macro::terrain::Sector& s) {
+    auto draw_tiny_node = [&](const Vec2<s8>& c) {
         Sprite spr;
-
-        auto c = s.coordinate();
 
         const bool darkened = manhattan_length(c, selected_) > 1;
 
@@ -1097,16 +1095,59 @@ void MacroverseScene::display(Platform& pfrm, App& app)
         origin.x += 8;
         origin.y += 8;
 
-        int t_start = 75;
+        int t_start = 76;
 
         spr.set_size(Sprite::Size::w16_h32);
 
         if (c == selected_) {
-            t_start = 77;
+            t_start = 78;
         } else if ((int)state_ < (int)State::show) {
             return;
         } else if (darkened) {
-            t_start = 76;
+            t_start = 77;
+        }
+
+        spr.set_position(origin);
+        spr.set_texture_index(t_start);
+        pfrm.screen().draw(spr);
+    };
+
+
+    auto draw_rng_node = [&](const Vec2<s8>& c) {
+        Sprite spr;
+
+        const bool darkened = manhattan_length(c, selected_) > 1;
+
+        if (manhattan_length(c, selected_) > 3) {
+            return;
+        } else if (manhattan_length(c, selected_) > 2) {
+            spr.set_alpha(Sprite::Alpha::translucent);
+        }
+
+        if (state_ == State::reveal) {
+            spr.set_mix({ColorConstant::rich_black,
+                         u8(255 * (1.f - (float(timer_) / reveal_time)))});
+        } else if ((state_ == State::options or state_ == State::options_2 or
+                    state_ == State::create_colony_options or
+                    state_ == State::create_colony) and
+                   c not_eq selected_) {
+            return;
+        }
+
+        auto origin = sector_map_display_pos(pfrm, c);
+        origin.x += 8;
+        origin.y += 8;
+
+        int t_start = 79;
+
+        spr.set_size(Sprite::Size::w16_h32);
+
+        if (c == selected_) {
+            t_start = 81;
+        } else if ((int)state_ < (int)State::show) {
+            return;
+        } else if (darkened) {
+            t_start = 80;
         }
 
         spr.set_position(origin);
@@ -1147,8 +1188,13 @@ void MacroverseScene::display(Platform& pfrm, App& app)
     }
 
     for (auto& s : m.data_->outpost_sectors_) {
-        draw_tiny_node(s);
+        draw_tiny_node(s.coordinate());
     }
+
+    (void)draw_rng_node;
+    // for (auto& s : m.data_->random_encounters_.sectors_) {
+    //     draw_rng_node(s.coordinate_);
+    // }
 }
 
 

@@ -4,15 +4,22 @@
 ** DONE Auto-pause & rewind option when island destroyed in easy mode
 ** DONE Add dialog boxes, description for macro mode
 ** TODO Random encounters in macrocosm, stuff to explore
+*** TODO Begin by selecting the positions of generated sectors and placing them on the map
+**** Q: how many to generate? Place them at small random offsets from fixed positions
+**** Begin by using a hard-coded seed value
 *** TODO Add scripted-sectors to macrocosm
 **** A scripted sector should appear as a question mark, or some other icon, on the world map
 **** Scripted sectors should be mapped into memory as needed, and all should be equally-sized (8x8x8?)
 **** Scripted sectors must be immutable, players cannot build on them
 **** Use some sort of hash to generate the positions of scripted sectors randomly
 **** Use random encounters to add story elements to macrocosm mode
+**** Add some means of storing which islands that the player previously visited?
+**** Player can optionally colonize an uninhabited island?
+***** Add commands to skyland LISP api for adopting an uninhabited scripted sector
 **** Ideas for script scenarios?
 ***** TODO Discover ruins of an abandoned civilization (award N coins)
-***** TODO TBD
+***** TODO Discover volcanic island, adopt?
+***** TODO Abandoned castle, bit of lore
 ** TODO Add a tech tree to macro mode
 ** TODO Ending? Opening cutscene for adventure mode?
 
