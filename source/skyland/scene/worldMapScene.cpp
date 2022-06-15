@@ -810,6 +810,9 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case State::show_saved_text:
         timer_ += delta;
+        if (timer_ > milliseconds(1200)) {
+            heading_.reset();
+        }
         if (timer_ > milliseconds(1300)) {
             return scene_pool::alloc<TitleScreenScene>();
         }
