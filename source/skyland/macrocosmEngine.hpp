@@ -123,6 +123,7 @@ struct StateImpl : public State
         bool freebuild_mode_ = false;
 
 
+        // NOTE: random encounters not yet implemented.
         struct RandomEncounters
         {
             u16 seed_ = 42;
