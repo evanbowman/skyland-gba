@@ -732,7 +732,14 @@ ScenePtr<Scene> ConfigurePortCountScene::update(Platform& pfrm,
                                                 Player& player,
                                                 macro::StateImpl& state)
 {
-    if (player.key_down(pfrm, Key::up)) {
+    auto test_key = [&](Key k) {
+        return player.test_key(
+            pfrm, k, milliseconds(500), milliseconds(100));
+    };
+
+
+
+    if (test_key(Key::up)) {
         if (count_ < state.sector().quantity_non_exported(type_)) {
             ++count_;
             show(pfrm, state);
@@ -740,7 +747,7 @@ ScenePtr<Scene> ConfigurePortCountScene::update(Platform& pfrm,
         }
     }
 
-    if (player.key_down(pfrm, Key::down)) {
+    if (test_key(Key::down)) {
         if (count_ > 0) {
             --count_;
             show(pfrm, state);
