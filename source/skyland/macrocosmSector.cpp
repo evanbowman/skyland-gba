@@ -47,7 +47,7 @@ terrain::Sector::Sector(Vec2<s8> position, Shape shape, Vec3<u8> size)
 
 terrain::Sector::Happiness terrain::Sector::get_happiness() const
 {
-    auto ledger = annotate_happiness();
+    auto ledger = annotate_happiness(true);
 
     auto ent = ledger.entries();
 
@@ -63,7 +63,7 @@ terrain::Sector::Happiness terrain::Sector::get_happiness() const
 
 
 
-fiscal::Ledger terrain::Sector::annotate_happiness() const
+fiscal::Ledger terrain::Sector::annotate_happiness(bool skip_labels) const
 {
     auto stat = stats();
 
@@ -80,15 +80,20 @@ fiscal::Ledger terrain::Sector::annotate_happiness() const
     auto& pfrm = Platform::instance();
 
     fiscal::Ledger result;
-    result.add_entry(SYSTR(macro_commodities)->c_str(), 2 * commodity_supply);
 
-    result.add_entry(SYSTR(macro_food_supply)->c_str(), 0.3f * food_avail);
+    auto add_entry =
+        [&](SystemString str, float value) {
+            if (skip_labels) {
+                result.add_entry("", value);
+            } else {
+                result.add_entry(loadstr(pfrm, str)->c_str(), value);
+            }
+        };
 
-    result.add_entry(SYSTR(macro_housing_scarcity)->c_str(),
-                     0.2f * housing_avail);
-
-    result.add_entry(SYSTR(macro_population_density)->c_str(),
-                     population() * -0.1f);
+    add_entry(SystemString::macro_commodities, 2 * commodity_supply);
+    add_entry(SystemString::macro_food_supply, 0.3f * food_avail);
+    add_entry(SystemString::macro_housing_scarcity, 0.2f * housing_avail);
+    add_entry(SystemString::macro_population_density, population() * -0.1f);
 
     return result;
 }
