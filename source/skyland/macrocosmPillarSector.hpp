@@ -40,6 +40,8 @@ public:
         : MacrocosmSectorImplFull(position, Shape::pillar)
     {
         erase();
+
+        set_z_view(16);
     }
 
 
