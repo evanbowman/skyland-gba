@@ -95,7 +95,7 @@ fiscal::Ledger terrain::Sector::annotate_happiness() const
 
 
 
-fiscal::Ledger terrain::Sector::budget() const
+fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
 {
     fiscal::Ledger result;
 
@@ -120,33 +120,42 @@ fiscal::Ledger terrain::Sector::budget() const
 
     auto& pfrm = Platform::instance();
 
+    auto add_entry =
+        [&](SystemString str, float value) {
+            if (skip_labels) {
+                result.add_entry("", value);
+            } else {
+                result.add_entry(loadstr(pfrm, str)->c_str(), value);
+            }
+        };
+
     if (employed_population) {
-        result.add_entry(SYSTR(macro_fiscal_employed)->c_str(),
-                         employed_population * 0.3f);
+        add_entry(SystemString::macro_fiscal_employed,
+                  employed_population * 0.37f);
     }
 
     if (unemployed_population) {
-        result.add_entry(SYSTR(macro_fiscal_unemployed)->c_str(),
-                         unemployed_population * 0.1f);
+        add_entry(SystemString::macro_fiscal_unemployed,
+                  unemployed_population * 0.1f);
     }
 
     if (unproductive_population) {
-        result.add_entry(SYSTR(macro_fiscal_homelessness)->c_str(),
-                         -unproductive_population * 0.4f);
+        add_entry(SystemString::macro_fiscal_homelessness,
+                  -unproductive_population * 0.4f);
     }
 
     if (st.food_ < population() / food_consumption_factor) {
-        result.add_entry(
-            SYSTR(macro_fiscal_starvation)->c_str(),
-            -0.4f * (population() - st.food_ * food_consumption_factor));
+        add_entry(SystemString::macro_fiscal_starvation,
+                  -0.4f * (population() - st.food_ * food_consumption_factor));
     }
 
     auto happiness = get_happiness();
     if (happiness < 0) {
-        result.add_entry(SYSTR(macro_fiscal_unhappiness)->c_str(),
-                         happiness / 2);
+        add_entry(SystemString::macro_fiscal_unhappiness,
+                  happiness / 2);
     } else {
-        result.add_entry(SYSTR(macro_fiscal_happiness)->c_str(), happiness / 2);
+        add_entry(SystemString::macro_fiscal_happiness,
+                  happiness / 2);
     }
 
 
@@ -166,13 +175,18 @@ fiscal::Ledger terrain::Sector::budget() const
             ++count;
         }
 
-        fiscal::LineItem::Label l;
-        l += loadstr(pfrm, c.name())->c_str();
-        l += " (";
-        l += stringify(count);
-        l += ")";
+        if (skip_labels) {
+            result.add_entry("", accum);
+        } else {
+            fiscal::LineItem::Label l;
+            l += loadstr(pfrm, c.name())->c_str();
+            l += " (";
+            l += stringify(count);
+            l += ")";
 
-        result.add_entry(l, accum);
+            result.add_entry(l, accum);
+        }
+
     }
 
     return result;
@@ -226,7 +240,8 @@ Coins terrain::Sector::coin_yield() const
 {
     Coins result = 0;
 
-    auto values = budget();
+    const bool skip_labels = true;
+    auto values = budget(skip_labels);
     auto current = values.entries();
 
     while (current) {

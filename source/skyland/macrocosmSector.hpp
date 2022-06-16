@@ -161,7 +161,7 @@ public:
     Coins coin_yield() const;
 
 
-    fiscal::Ledger budget() const;
+    fiscal::Ledger budget(bool skip_labels = false) const;
 
 
     Vec2<s8> coordinate() const;
