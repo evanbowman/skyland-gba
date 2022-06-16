@@ -653,6 +653,11 @@ Stats stats(Type t, bool shadowed)
         result.housing_ += 40;
         break;
 
+    case terrain::Type::workshop:
+        result.employment_ += 100;
+        result.housing_ += 6;
+        break;
+
     case terrain::Type::terrain:
         result.food_ += 1;
         break;
@@ -1010,7 +1015,7 @@ Coins terrain::cost(Sector& s, Type t)
         return 1000;
 
     case terrain::Type::workshop:
-        return 100;
+        return 700;
 
     case terrain::Type::light_source:
         return 200;
@@ -1415,6 +1420,7 @@ static bool destroyed_by_lava(terrain::Type t)
 {
     return t == terrain::Type::building or t == terrain::Type::port or
            t == terrain::Type::shrubbery or t == terrain::Type::ice or
+           t == terrain::Type::workshop or
            categories(t) & terrain::Categories::fluid_water;
 }
 

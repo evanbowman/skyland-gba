@@ -3,6 +3,7 @@
 ** DONE Add a happiness/unhappiness mechanic to macro mode
 ** DONE Auto-pause & rewind option when island destroyed in easy mode
 ** DONE Add dialog boxes, description for macro mode
+** TODO Ending? Opening cutscene for adventure mode?
 ** TODO Random encounters in macrocosm, stuff to explore
 *** TODO Begin by selecting the positions of generated sectors and placing them on the map
 **** Q: how many to generate? Place them at small random offsets from fixed positions
@@ -21,5 +22,4 @@
 ***** TODO Discover volcanic island, adopt?
 ***** TODO Abandoned castle, bit of lore
 ** TODO Add a tech tree to macro mode
-** TODO Ending? Opening cutscene for adventure mode?
 
