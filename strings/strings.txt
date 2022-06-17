@@ -131,7 +131,7 @@ none
 :build :add-terrain 
 insufficient funds!
 insufficient power supply!
-too many rooms
+too many blocks
 walls
 weapons
 factories
@@ -186,7 +186,7 @@ While slightly less powerful than an ordinary cannon, its attacks spread fire.
 A weapon for targeting the roof of an enemy fortress. Deals % damage every %.% seconds.
 Water! Puts out fire in adjacent tiles.
 Water source block.
-Slightly lowers the construction cost of all rooms.
+Slightly lowers the construction cost of all blocks.
 Scans the interior of other castles! Radars improve transporter accuracy, allowing transporters to select an exact position on another island.
 Cancels all ion damage on contact. Useful for protecting vulnerable structures, such as reactors or forcefields, from ion cannons.
 "Give me your tired, your poor, Your huddled masses yearning to breathe free"
@@ -195,7 +195,7 @@ Lava source block.
 ...
 Plays chiptunes! Connect up to four synth blocks to the right of the speaker block! When finished playing, activates whatever block is placed beneath it, if any.
 Ni!
-Deals ion damage. Ion bursts pass harmlessly through most rooms, but deal % damage every %.%s to forcefields, reactors, etc..
+Deals ion damage. Ion bursts pass harmlessly through most blocks, but deal % damage every %.%s to forcefields, reactors, etc..
 Deals % damage every %.% seconds, but unlike other weapons, damage chains to all identical neighboring structures.
 Hull, but made out of bronze! Pretty, huh?
 Takes 75% less damage from missiles.
@@ -209,7 +209,7 @@ An openable/closable door. Used for restricting the movement of enemy boarding p
 Transport boarding parties into an enemy castle! Selects a random destination, unless you have a radar.
 Upgraded hull. Much more durable, but succeptible to ion damage.
 Deals low damage, but spread over large areas. Highly destructive when used in groups against castles with thin hull.
-An upgraded workshop. Slightly lowers the construction cost of all rooms.
+An upgraded workshop. Slightly lowers the construction cost of all blocks.
 While ineffective against most modern weaponry, villagers in skyland still build structures with stone, because it looks nice. Fireproof.
 A massively destructive weapon with a sluggish %.% second recharge. Reloads and fires only when inhabited by a character.
 A structure designed to bridge a large vertical distance by dividing it into smaller vertical distances, often called steps.
@@ -283,7 +283,7 @@ shortcut:
 time
 pauses used
 coins spent
-rooms built/lost
+blocks built/lost
 select a destination:
 recover character?
 showing: repair range
