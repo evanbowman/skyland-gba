@@ -1764,6 +1764,17 @@ void Island::resolve_cancelled_dispatch()
 
 
 
+void Island::clear(Platform& pfrm, App& app)
+{
+    clear_rooms(pfrm, app);
+
+    characters_.clear();
+    projectiles_.clear();
+    drones_.clear();
+}
+
+
+
 void Island::clear_rooms(Platform& pfrm, App& app)
 {
     for (auto& room : rooms_) {

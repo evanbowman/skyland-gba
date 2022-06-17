@@ -163,7 +163,10 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     init_clouds(pfrm);
     pfrm.system_call("v-parallax", (void*)false);
 
-    app.player_island().clear_rooms(pfrm, app);
+    app.player_island().clear(pfrm, app);
+
+    std::get<SkylandGlobalData>(globals()).room_pools_.create();
+    std::get<SkylandGlobalData>(globals()).entity_pools_.create();
 
     if (app.opponent_island()) {
         app.reset_opponent_island(pfrm);
@@ -928,7 +931,26 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             case 2:
-                run_init_scripts(pfrm, app, true);
+                // Macrocosm mode does not use the room pool memory created for
+                // the 2d combat verison of skyland, unload the pool so that we
+                // have more memory to work with.
+                // We could create the room pool on demand only for game modes
+                // that need the memory pool, but most game modes need the pool,
+                // so easier to create it by default and destroy as needed.
+                std::get<SkylandGlobalData>(globals()).room_pools_.destroy();
+
+                // Clear out any references to entities before destroying the
+                // entity pool, as the pool implementation will raise a fatal
+                // error if you attempt to destroy a pool without returning all
+                // elements allocated from it (to avoid dangling pointer
+                // problems). Only the App class and the Island class store
+                // EntityLists, and the Island wouldn't store any references to
+                // entities, as we called Island::clear() when entering this
+                // scene.
+                app.birds().clear();
+                app.effects().clear();
+
+                std::get<SkylandGlobalData>(globals()).entity_pools_.destroy();
                 return scene_pool::alloc<MacrocosmLoaderModule>();
 
             case 3:

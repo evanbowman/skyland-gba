@@ -155,12 +155,25 @@ public:
         Pool<max_entity_size, entities_per_pool, entity_pool_align>;
 
 
-    void init(Platform& pfrm)
+    void create()
     {
-        for (u32 i = 0; i < pools_.capacity(); ++i) {
+        while (not pools_.full()) {
             pools_.push_back(
                 allocate_dynamic<EntityPool>("entity-pool", "entities"));
         }
+    }
+
+
+    void destroy()
+    {
+        for (auto& pool : pools_) {
+            if (pool->pooled_element_count() not_eq
+                pool->pooled_element_remaining()) {
+                Platform::fatal("attempt to destroy pool with outstanding "
+                                "references.");
+            }
+        }
+        pools_.clear();
     }
 
 

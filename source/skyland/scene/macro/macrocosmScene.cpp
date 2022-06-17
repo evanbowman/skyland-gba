@@ -102,8 +102,6 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto& m = macrocosm(app);
 
-    update_entities(pfrm, app, delta, m.data_->entities_);
-
     water_anim_timer_ += delta;
     bool was_gre = false;
     int val = 0;
@@ -151,10 +149,6 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
     }
 
     auto& m = macrocosm(app);
-
-    for (auto& e : m.data_->entities_) {
-        pfrm.screen().draw(e->sprite());
-    }
 
     pfrm.system_call("_prlx_macro",
                      (void*)(intptr_t)(int)m.data_->cloud_scroll_);

@@ -108,6 +108,9 @@ public:
     void clear_rooms(Platform&, App&);
 
 
+    void clear(Platform&, App&);
+
+
     void update(Platform&, App&, Microseconds delta);
 
 

@@ -159,8 +159,6 @@ struct StateImpl : public State
         {
             return persistent_;
         }
-
-        EntityList<Entity> entities_;
     };
 
 

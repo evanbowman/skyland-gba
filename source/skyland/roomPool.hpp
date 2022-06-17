@@ -72,12 +72,25 @@ public:
     using RoomPool = Pool<max_room_size, rooms_per_pool, entity_pool_align>;
 
 
-    void init()
+    void create()
     {
-        for (u32 i = 0; i < pools_.capacity(); ++i) {
+        while (not pools_.full()) {
             pools_.push_back(
                 allocate_dynamic<RoomPool>("room-pool-memory", "rooms"));
         }
+    }
+
+
+    void destroy()
+    {
+        for (auto& pool : pools_) {
+            if (pool->pooled_element_count() not_eq
+                pool->pooled_element_remaining()) {
+                Platform::fatal("attempt to destroy pool with outstanding "
+                                "references.");
+            }
+        }
+        pools_.clear();
     }
 
 

@@ -45,9 +45,6 @@ static inline void main_loop(Platform& pf)
     globals().emplace<SkylandGlobalData>();
     scene_pool::pool_ = &std::get<SkylandGlobalData>(globals()).scene_pool_;
 
-    std::get<SkylandGlobalData>(globals()).entity_pools_.init(pf);
-    std::get<SkylandGlobalData>(globals()).room_pools_.init();
-
     BootScene::message(pf, "start application...");
 
     auto app = allocate_dynamic<App>("app-data", pf);
