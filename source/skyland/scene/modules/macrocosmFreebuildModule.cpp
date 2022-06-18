@@ -82,8 +82,8 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
     pfrm.load_tile1_texture("macro_rendertexture");
 
     auto& m = macrocosm(app);
-    m.newgame(pfrm, app);
     m.data_->freebuild_mode_ = true;
+    m.newgame(pfrm, app);
     app.game_mode() = App::GameMode::macro;
 
     m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild);
