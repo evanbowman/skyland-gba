@@ -64,7 +64,7 @@ private:
     } state_ = State::reveal;
 
 
-    void describe_selected(Platform& pfrm, macro::StateImpl& state);
+    void describe_selected(Platform& pfrm, macro::EngineImpl& state);
 
 
     void show_layout_text(Platform& pfrm);

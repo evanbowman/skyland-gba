@@ -414,8 +414,8 @@ public:
     }
 
 
-    using MacrocosmState = Boxed<macro::State, macro::State, 16>;
-    std::optional<MacrocosmState>& macrocosm()
+    using MacrocosmEngine = Boxed<macro::Engine, macro::Engine, 16>;
+    std::optional<MacrocosmEngine>& macrocosm()
     {
         return macrocosm_;
     }
@@ -494,7 +494,7 @@ private:
     CustomTileMapper custom_tile_mapper_;
     CustomTileMapper custom_sprite_mapper_;
 
-    std::optional<MacrocosmState> macrocosm_;
+    std::optional<MacrocosmEngine> macrocosm_;
 };
 
 

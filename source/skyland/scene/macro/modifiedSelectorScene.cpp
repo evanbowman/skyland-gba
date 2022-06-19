@@ -34,7 +34,7 @@ namespace skyland::macro
 
 
 void ModifiedSelectorScene::enter(Platform& pfrm,
-                                  macro::StateImpl& state,
+                                  macro::EngineImpl& state,
                                   Scene& prev)
 {
     if (auto m = dynamic_cast<MacrocosmScene*>(&prev)) {
@@ -71,7 +71,7 @@ void ModifiedSelectorScene::enter(Platform& pfrm,
 
 
 void ModifiedSelectorScene::exit(Platform& pfrm,
-                                 macro::StateImpl& state,
+                                 macro::EngineImpl& state,
                                  Scene& next)
 {
     MacrocosmScene::exit(pfrm, state, next);
@@ -88,7 +88,7 @@ void ModifiedSelectorScene::exit(Platform& pfrm,
 
 ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
                                               Player& player,
-                                              macro::StateImpl& state)
+                                              macro::EngineImpl& state)
 {
     if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
         return scene;

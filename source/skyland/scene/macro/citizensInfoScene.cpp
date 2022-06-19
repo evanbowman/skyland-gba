@@ -55,7 +55,7 @@ void CitizensInfoScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void CitizensInfoScene::show(Platform& pfrm, macro::StateImpl& state)
+void CitizensInfoScene::show(Platform& pfrm, macro::EngineImpl& state)
 {
     if (not s_->heading_) {
         s_->heading_.emplace(pfrm, OverlayCoord{1, 1});

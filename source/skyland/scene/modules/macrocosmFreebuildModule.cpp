@@ -74,7 +74,7 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
 
 
     app.macrocosm().emplace();
-    app.macrocosm()->emplace<macro::StateImpl>(pfrm);
+    app.macrocosm()->emplace<macro::EngineImpl>(pfrm);
 
 
     pfrm.screen().set_shader(macro::fluid_shader);

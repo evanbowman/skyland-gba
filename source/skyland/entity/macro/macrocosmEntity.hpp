@@ -31,7 +31,7 @@ namespace skyland::macro
 {
 
 
-struct State;
+struct Engine;
 
 
 
@@ -43,7 +43,7 @@ public:
     }
 
 
-    virtual void update(Platform& pfrm, macro::State& s, Microseconds delta)
+    virtual void update(Platform& pfrm, macro::Engine& s, Microseconds delta)
     {
     }
 

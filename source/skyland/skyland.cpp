@@ -616,14 +616,14 @@ weather::Environment& App::environment()
 
 
 
-macro::StateImpl& macrocosm(App& app)
+macro::EngineImpl& macrocosm(App& app)
 {
     auto& m = app.macrocosm();
     if (m) {
-        // NOTE: Only macro::StateImpl derives from macro::State, so this cast
+        // NOTE: Only macro::EngineImpl derives from macro::State, so this cast
         // is fine. We're just trying to hide the implementation to reduce build
         // times.
-        return *static_cast<macro::StateImpl*>(&**m);
+        return *static_cast<macro::EngineImpl*>(&**m);
     } else {
         Platform::fatal("access to unbound macrocosm");
     }

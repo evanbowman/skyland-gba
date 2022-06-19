@@ -34,36 +34,36 @@ namespace skyland::macro
 class CreateBlockScene : public MacrocosmScene
 {
 public:
-    void enter(Platform& pfrm, macro::StateImpl& state, Scene& prev) override;
+    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override;
 
 
-    void exit(Platform& pfrm, macro::StateImpl& state, Scene& next) override;
+    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override;
 
 
     ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::StateImpl& state) override;
+    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override;
 
 
-    void show_options(Platform& pfrm, macro::StateImpl& state);
+    void show_options(Platform& pfrm, macro::EngineImpl& state);
 
 
-    virtual ScenePtr<Scene> onclick(Platform&, macro::StateImpl&);
-    virtual void adjust_cursor_z(Platform&, Player& player, macro::StateImpl&);
+    virtual ScenePtr<Scene> onclick(Platform&, macro::EngineImpl&);
+    virtual void adjust_cursor_z(Platform&, Player& player, macro::EngineImpl&);
 
 
-    virtual void init_cursor(macro::StateImpl& state);
+    virtual void init_cursor(macro::EngineImpl& state);
 
 
-    virtual void collect_options(macro::StateImpl& state);
+    virtual void collect_options(macro::EngineImpl& state);
 
 
-    virtual void message(Platform& pfrm, macro::StateImpl&);
+    virtual void message(Platform& pfrm, macro::EngineImpl&);
 
 
-    virtual void edit(Platform&, macro::StateImpl& state, terrain::Type t);
+    virtual void edit(Platform&, macro::EngineImpl& state, terrain::Type t);
 
 
-    virtual Coins cost(macro::StateImpl& state, terrain::Type t);
+    virtual Coins cost(macro::EngineImpl& state, terrain::Type t);
 
 
     virtual bool check_z()
@@ -83,15 +83,15 @@ protected:
 class BuildImprovementScene : public CreateBlockScene
 {
 public:
-    void collect_options(macro::StateImpl& state) override;
+    void collect_options(macro::EngineImpl& state) override;
 
-    void adjust_cursor_z(Platform&, Player& player, macro::StateImpl&) override
+    void adjust_cursor_z(Platform&, Player& player, macro::EngineImpl&) override
     {
     }
 
-    void init_cursor(macro::StateImpl& state) override;
+    void init_cursor(macro::EngineImpl& state) override;
 
-    Coins cost(macro::StateImpl& state, terrain::Type t) override;
+    Coins cost(macro::EngineImpl& state, terrain::Type t) override;
 
 
     bool check_z() override
@@ -100,7 +100,7 @@ public:
     }
 
 
-    void edit(Platform&, macro::StateImpl& state, terrain::Type t) override;
+    void edit(Platform&, macro::EngineImpl& state, terrain::Type t) override;
 };
 
 
@@ -108,16 +108,16 @@ public:
 class ConfigurePortScene : public CreateBlockScene
 {
 public:
-    void collect_options(macro::StateImpl& state) override;
+    void collect_options(macro::EngineImpl& state) override;
 
-    void adjust_cursor_z(Platform&, Player& player, macro::StateImpl&) override
+    void adjust_cursor_z(Platform&, Player& player, macro::EngineImpl&) override
     {
     }
 
-    void message(Platform&, macro::StateImpl&) override;
+    void message(Platform&, macro::EngineImpl&) override;
 
 
-    ScenePtr<Scene> onclick(Platform&, macro::StateImpl&) override;
+    ScenePtr<Scene> onclick(Platform&, macro::EngineImpl&) override;
 
     Buffer<terrain::Commodity::Type, 32> commodity_types_;
 };
@@ -132,15 +132,15 @@ public:
     }
 
 
-    void enter(Platform& pfrm, macro::StateImpl& state, Scene& prev) override;
-    void exit(Platform& pfrm, macro::StateImpl& state, Scene& next) override;
+    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override;
+    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override;
 
 
     ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::StateImpl& state) override;
+    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override;
 
 
-    void show(Platform& pfrm, macro::StateImpl& state);
+    void show(Platform& pfrm, macro::EngineImpl& state);
 
 
 private:
@@ -160,15 +160,15 @@ public:
     }
 
 
-    void enter(Platform& pfrm, macro::StateImpl& state, Scene& prev) override;
-    void exit(Platform& pfrm, macro::StateImpl& state, Scene& next) override;
+    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override;
+    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override;
 
 
     ScenePtr<Scene>
-    update(Platform& pfrm, Player& player, macro::StateImpl& state) override;
+    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override;
 
 
-    void show(Platform& pfrm, macro::StateImpl& state);
+    void show(Platform& pfrm, macro::EngineImpl& state);
 
 
 private:

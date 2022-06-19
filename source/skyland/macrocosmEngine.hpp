@@ -42,8 +42,8 @@ class Platform;
 namespace skyland::macro
 {
 
-struct StateImpl;
-extern StateImpl* _bound_state;
+struct EngineImpl;
+extern EngineImpl* _bound_state;
 
 
 } // namespace skyland::macro
@@ -93,7 +93,7 @@ namespace skyland::macro
 
 
 
-struct StateImpl : public State
+struct EngineImpl : public Engine
 {
     static const int max_sectors = 20;
     static const int max_outposts = 40;
@@ -121,6 +121,11 @@ struct StateImpl : public State
         Float cloud_scroll_ = 0;
 
         bool freebuild_mode_ = false;
+
+        // For palette animations.
+        Microseconds fluid_anim_timer_ = 0;
+        u8 water_anim_index_ = 0;
+        u8 lava_anim_index_ = 128;
 
 
         macro::terrain::Type last_created_ = terrain::Type::terrain;
@@ -280,6 +285,7 @@ struct StateImpl : public State
     macro::terrain::Sector& sector();
 
 
+
     Coins coin_yield();
 
 
@@ -290,7 +296,7 @@ struct StateImpl : public State
     void newgame(Platform& pfrm, App& app);
 
 
-    StateImpl(Platform&);
+    EngineImpl(Platform&);
 
 
     DynamicMemory<Data> data_;
@@ -314,7 +320,7 @@ namespace skyland
 
 
 
-macro::StateImpl& macrocosm(App& app);
+macro::EngineImpl& macrocosm(App& app);
 
 
 

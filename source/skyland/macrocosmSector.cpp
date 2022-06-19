@@ -363,10 +363,10 @@ static void intersector_exchange_commodities(const Vec2<s8> source_sector,
                                              terrain::Stats& stat)
 {
     Buffer<std::pair<const Vec2<s8>, terrain::Stats>,
-           StateImpl::max_sectors - 1>
+           EngineImpl::max_sectors - 1>
         stats;
 
-    StateImpl& state = *_bound_state;
+    EngineImpl& state = *_bound_state;
 
     if (state.data_->origin_sector_.coordinate() == source_sector) {
         stats.push_back({source_sector, stat});
@@ -532,6 +532,24 @@ void terrain::Sector::set_block(const Vec3<u8>& coord, Type type)
         return;
     }
 
+    if (type not_eq Type::selector) {
+        // We do an optimization for redrawing the cursor as it flickers. But
+        // doing so skips redrawing any other changes on the frames that the
+        // cursor changes, so we need to cancel the cursor optimizations if
+        // another block is created at the same time the the cursor
+        // changes. Mainly relevant for fluid blocks, which continue to flow
+        // into new spaces for a bit after they're created.
+
+        if (raster::globalstate::_changed_cursor_flicker_only) {
+            raster::globalstate::_changed_cursor_flicker_only = false;
+            on_block_changed(p_.cursor_);
+        }
+
+        if (raster::globalstate::_cursor_moved) {
+            raster::globalstate::_cursor_moved = false;
+        }
+    }
+
     if (type == Type::selector) {
         selected.data_ = 16;
     } else {
@@ -607,12 +625,30 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
 
     p_.cursor_ = pos;
 
+    auto set_cursor_moved =
+        [&] {
+            if (not raster::globalstate::_changed) {
+                raster::globalstate::_cursor_moved = true;
+            } else /* changed == true */ {
+                // Not really ideal, just a hacky short-term solution. I created
+                // tons of optimizations to make cursor redraw faster, but then
+                // added fluids, which expand into new blocks on their own,
+                // requiring the engine to cancel out of the optimized drawing
+                // code when another block changed in addition to the cursor
+                // block. But when we don't set _cursor_moved, the renderer will
+                // not clean up tiles in any empty space that the cursor used-to
+                // inhabit, so we set the _shrunk flag to tell the renderer to
+                // clean up any tiles where there may no longer be blocks.
+                raster::globalstate::_shrunk = true;
+            }
+        };
+
     if (lock_to_floor) {
         while (ref_block(p_.cursor_).type() not_eq terrain::Type::air) {
             ++p_.cursor_.z;
         }
 
-        raster::globalstate::_cursor_moved = true;
+        set_cursor_moved();
 
         while (p_.cursor_.z > 0 and
                ref_block({p_.cursor_.x, p_.cursor_.y, (u8)(p_.cursor_.z - 1)})
@@ -622,7 +658,7 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
     }
 
     if (not(p_.cursor_ == old_cursor)) {
-        raster::globalstate::_cursor_moved = true;
+        set_cursor_moved();
     }
 
     if (p_.cursor_.z >= z_view_) {

@@ -631,12 +631,12 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 push_opt(SystemString::macro_fullsize_colony,
                          st.y - 6,
                          1 + m.data_->other_sectors_.size(),
-                         StateImpl::max_sectors);
+                         EngineImpl::max_sectors);
 
                 push_opt(SystemString::macro_outpost_colony,
                          st.y - 4,
                          m.data_->outpost_sectors_.size(),
-                         StateImpl::max_outposts);
+                         EngineImpl::max_outposts);
                 break;
             }
 
@@ -933,7 +933,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void MacroverseScene::describe_selected(Platform& pfrm, macro::StateImpl& state)
+void MacroverseScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
 {
     auto st = calc_screen_tiles(pfrm);
 

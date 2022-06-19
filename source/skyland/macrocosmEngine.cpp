@@ -67,10 +67,10 @@ Bitvector<480 * 2> _recalc_depth_test;
 
 
 
-StateImpl* _bound_state;
+EngineImpl* _bound_state;
 
 
-StateImpl::StateImpl(Platform& pfrm)
+EngineImpl::EngineImpl(Platform& pfrm)
     : data_(allocate_dynamic<Data>("macrocosm-data"))
 {
     _bound_state = this;
@@ -78,7 +78,7 @@ StateImpl::StateImpl(Platform& pfrm)
 
 
 
-void StateImpl::newgame(Platform& pfrm, App& app)
+void EngineImpl::newgame(Platform& pfrm, App& app)
 {
     data_->current_sector_ = &data_->origin_sector_;
 
@@ -133,7 +133,7 @@ const LineItem* Ledger::entries() const
 
 
 
-Coins StateImpl::coin_yield()
+Coins EngineImpl::coin_yield()
 {
     auto coins = data_->origin_sector_.coin_yield();
 
@@ -150,13 +150,13 @@ Coins StateImpl::coin_yield()
 
 
 
-std::pair<Coins, terrain::Sector::Population> StateImpl::outpost_cost() const
+std::pair<Coins, terrain::Sector::Population> EngineImpl::outpost_cost() const
 {
     return {1000, 60};
 }
 
 
-std::pair<Coins, terrain::Sector::Population> StateImpl::colony_cost() const
+std::pair<Coins, terrain::Sector::Population> EngineImpl::colony_cost() const
 {
     if (data_->other_sectors_.full()) {
         return {999999999, 9999};
@@ -173,7 +173,7 @@ std::pair<Coins, terrain::Sector::Population> StateImpl::colony_cost() const
 
 
 
-void StateImpl::advance(int elapsed_years)
+void EngineImpl::advance(int elapsed_years)
 {
     data_->origin_sector_.advance(elapsed_years);
 
@@ -202,7 +202,7 @@ static const char version = 'a';
 
 struct Header
 {
-    StateImpl::Data::Persistent p_;
+    EngineImpl::Data::Persistent p_;
     u8 num_sectors_;
 };
 
@@ -419,7 +419,7 @@ template <u32 inflate> struct Sector
 
 
 
-void StateImpl::save(Platform& pfrm)
+void EngineImpl::save(Platform& pfrm)
 {
     // Dump any memory associated with the rasterizer. We don't want to run out
     // of memory while saving...
@@ -474,7 +474,7 @@ void StateImpl::save(Platform& pfrm)
 
 
 
-macro::terrain::Sector& StateImpl::sector()
+macro::terrain::Sector& EngineImpl::sector()
 {
     if (data_->current_sector_) {
         return *data_->current_sector_;
@@ -485,7 +485,7 @@ macro::terrain::Sector& StateImpl::sector()
 
 
 
-bool StateImpl::load(Platform& pfrm, App& app)
+bool EngineImpl::load(Platform& pfrm, App& app)
 {
     Vector<char> input;
 
@@ -578,7 +578,7 @@ bool StateImpl::load(Platform& pfrm, App& app)
 
 
 
-terrain::Sector* StateImpl::make_sector(Vec2<s8> coord,
+terrain::Sector* EngineImpl::make_sector(Vec2<s8> coord,
                                         terrain::Sector::Shape shape)
 {
     if (load_sector(coord)) {

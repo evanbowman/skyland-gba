@@ -30,9 +30,9 @@ namespace skyland::macro
 {
 
 
-struct State
+struct Engine
 {
-    virtual ~State()
+    virtual ~Engine()
     {
     }
 };

@@ -103,18 +103,18 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto& m = macrocosm(app);
 
-    water_anim_timer_ += delta;
+    m.data_->fluid_anim_timer_ += delta;
     bool was_gre = false;
     int val = 0;
     int val2 = 0;
-    while (water_anim_timer_ > milliseconds(16)) {
-        water_anim_timer_ -= milliseconds(16);
+    while (m.data_->fluid_anim_timer_ > milliseconds(16)) {
+        m.data_->fluid_anim_timer_ -= milliseconds(16);
         was_gre = true;
-        val = sine8[water_anim_index_];
-        val2 = sine8[lava_anim_index_];
+        val = sine8[m.data_->water_anim_index_];
+        val2 = sine8[m.data_->lava_anim_index_];
 
-        water_anim_index_ += 1;
-        lava_anim_index_ += 4;
+        m.data_->water_anim_index_ += 1;
+        m.data_->lava_anim_index_ += 4;
     }
     if (was_gre) {
         pfrm.screen().set_shader_argument((val << 8) | val2);
@@ -160,7 +160,7 @@ void MacrocosmScene::display(Platform& pfrm, App& app)
 
 
 ScenePtr<Scene>
-MacrocosmScene::update(Platform& pfrm, Player& player, macro::StateImpl& state)
+MacrocosmScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 {
     state.sector().update();
 
@@ -169,7 +169,7 @@ MacrocosmScene::update(Platform& pfrm, Player& player, macro::StateImpl& state)
 
 
 
-void MacrocosmScene::display(Platform& pfrm, macro::StateImpl& state)
+void MacrocosmScene::display(Platform& pfrm, macro::EngineImpl& state)
 {
     state.sector().render(pfrm);
 }
@@ -183,7 +183,7 @@ u32 format_ui_fraction(u16 avail, u16 used)
 
 
 
-void MacrocosmScene::update_ui(macro::StateImpl& state)
+void MacrocosmScene::update_ui(macro::EngineImpl& state)
 {
     if (not ui_) {
         return;
@@ -222,7 +222,7 @@ void MacrocosmScene::update_ui(macro::StateImpl& state)
 
 
 
-void MacrocosmScene::enter(Platform& pfrm, macro::StateImpl& state, Scene& prev)
+void MacrocosmScene::enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev)
 {
     auto m = dynamic_cast<MacrocosmScene*>(&prev);
     if (m and m->ui_) {
@@ -230,10 +230,6 @@ void MacrocosmScene::enter(Platform& pfrm, macro::StateImpl& state, Scene& prev)
         if (m->should_update_ui_after_exit()) {
             update_ui(state);
         }
-        lava_anim_index_ = m->lava_anim_index_;
-        water_anim_index_ = m->water_anim_index_;
-        water_anim_timer_ = m->water_anim_timer_;
-
     } else if (not state.data_->freebuild_mode_) {
 
         ui_ = allocate_dynamic<UIObjects>("macro-ui-objects");
@@ -322,7 +318,7 @@ void MacrocosmScene::enter(Platform& pfrm, macro::StateImpl& state, Scene& prev)
 
 
 
-void MacrocosmScene::exit(Platform& pfrm, macro::StateImpl& state, Scene& next)
+void MacrocosmScene::exit(Platform& pfrm, macro::EngineImpl& state, Scene& next)
 {
     if (not dynamic_cast<MacrocosmScene*>(&next)) {
         ui_.reset();
@@ -342,7 +338,7 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
 
 
 
-void MacrocosmScene::draw_compass(Platform& pfrm, macro::StateImpl& state)
+void MacrocosmScene::draw_compass(Platform& pfrm, macro::EngineImpl& state)
 {
     auto o = state.sector().orientation();
     int compass_tile = 434 + (int)o * 4;

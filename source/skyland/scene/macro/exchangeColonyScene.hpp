@@ -163,7 +163,7 @@ public:
                 pkt.status_ =
                     (rx->payload_.shape_ == terrain::Sector::Shape::outpost and
                      m.data_->outpost_sectors_.size() <
-                         StateImpl::max_outposts) or
+                         EngineImpl::max_outposts) or
                     (rx->payload_.shape_ not_eq
                          terrain::Sector::Shape::outpost and
                      not m.data_->other_sectors_.full());
