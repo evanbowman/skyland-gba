@@ -21,12 +21,12 @@
 
 
 #include "macrocosmScene.hpp"
+#include "macroverseScene.hpp"
 #include "selectorScene.hpp"
 #include "skyland/scene/boxedDialogScene.hpp"
 #include "skyland/scene/lispReplScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
-#include "macroverseScene.hpp"
 
 
 
@@ -90,7 +90,8 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.dialog_buffer().reset();
         bool answer = state_bit_load(app, StateBit::dialog_expects_answer);
         state_bit_store(app, StateBit::dialog_expects_answer, false);
-        auto next = scene_pool::alloc<BoxedDialogScene>(std::move(buffer), answer);
+        auto next =
+            scene_pool::alloc<BoxedDialogScene>(std::move(buffer), answer);
         next->set_next_scene(scene_pool::make_deferred_scene<SelectorScene>());
         return next;
     }

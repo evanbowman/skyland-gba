@@ -81,14 +81,13 @@ fiscal::Ledger terrain::Sector::annotate_happiness(bool skip_labels) const
 
     fiscal::Ledger result;
 
-    auto add_entry =
-        [&](SystemString str, float value) {
-            if (skip_labels) {
-                result.add_entry("", value);
-            } else {
-                result.add_entry(loadstr(pfrm, str)->c_str(), value);
-            }
-        };
+    auto add_entry = [&](SystemString str, float value) {
+        if (skip_labels) {
+            result.add_entry("", value);
+        } else {
+            result.add_entry(loadstr(pfrm, str)->c_str(), value);
+        }
+    };
 
     add_entry(SystemString::macro_commodities, 2 * commodity_supply);
     add_entry(SystemString::macro_food_supply, 0.3f * food_avail);
@@ -125,14 +124,13 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
 
     auto& pfrm = Platform::instance();
 
-    auto add_entry =
-        [&](SystemString str, float value) {
-            if (skip_labels) {
-                result.add_entry("", value);
-            } else {
-                result.add_entry(loadstr(pfrm, str)->c_str(), value);
-            }
-        };
+    auto add_entry = [&](SystemString str, float value) {
+        if (skip_labels) {
+            result.add_entry("", value);
+        } else {
+            result.add_entry(loadstr(pfrm, str)->c_str(), value);
+        }
+    };
 
     if (employed_population) {
         add_entry(SystemString::macro_fiscal_employed,
@@ -156,11 +154,9 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
 
     auto happiness = get_happiness();
     if (happiness < 0) {
-        add_entry(SystemString::macro_fiscal_unhappiness,
-                  happiness / 2);
+        add_entry(SystemString::macro_fiscal_unhappiness, happiness / 2);
     } else {
-        add_entry(SystemString::macro_fiscal_happiness,
-                  happiness / 2);
+        add_entry(SystemString::macro_fiscal_happiness, happiness / 2);
     }
 
 
@@ -191,7 +187,6 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
 
             result.add_entry(l, accum);
         }
-
     }
 
     return result;

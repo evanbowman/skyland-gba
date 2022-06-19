@@ -753,8 +753,7 @@ ScenePtr<Scene> ConfigurePortCountScene::update(Platform& pfrm,
                                                 macro::StateImpl& state)
 {
     auto test_key = [&](Key k) {
-        return player.test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+        return player.test_key(pfrm, k, milliseconds(500), milliseconds(100));
     };
 
 

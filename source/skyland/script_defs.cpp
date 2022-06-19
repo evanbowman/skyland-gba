@@ -163,7 +163,8 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
           [](int argc) {
               L_EXPECT_ARGC(argc, 1);
               L_EXPECT_OP(0, integer);
-              lisp::interp_get_pfrm()->screen().schedule_fade(L_LOAD_INT(0) / 100.f);
+              lisp::interp_get_pfrm()->screen().schedule_fade(L_LOAD_INT(0) /
+                                                              100.f);
               return L_NIL;
           }},
          {"challenge-complete",
