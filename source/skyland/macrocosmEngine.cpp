@@ -468,8 +468,7 @@ void StateImpl::save(Platform& pfrm)
             pfrm, save::path, save_data)) {
         info(pfrm, "macro save failed!");
     } else {
-        info(pfrm, format("macro save used % buffers",
-                          sbr_used).c_str());
+        info(pfrm, format("macro save used % buffers", sbr_used).c_str());
     }
 }
 
@@ -1068,8 +1067,10 @@ SystemString terrain::name(Type t)
         return SystemString::block_masonry;
 
     case terrain::Type::road_ns:
-        if (_bound_state->sector().orientation() == terrain::Sector::Orientation::north or
-            _bound_state->sector().orientation() == terrain::Sector::Orientation::south) {
+        if (_bound_state->sector().orientation() ==
+                terrain::Sector::Orientation::north or
+            _bound_state->sector().orientation() ==
+                terrain::Sector::Orientation::south) {
             return SystemString::block_road_ns;
         } else {
             return SystemString::block_road_we;
@@ -1077,8 +1078,10 @@ SystemString terrain::name(Type t)
 
 
     case terrain::Type::road_we:
-        if (_bound_state->sector().orientation() == terrain::Sector::Orientation::north or
-            _bound_state->sector().orientation() == terrain::Sector::Orientation::south) {
+        if (_bound_state->sector().orientation() ==
+                terrain::Sector::Orientation::north or
+            _bound_state->sector().orientation() ==
+                terrain::Sector::Orientation::south) {
             return SystemString::block_road_we;
         } else {
             return SystemString::block_road_ns;
