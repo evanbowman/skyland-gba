@@ -51,6 +51,9 @@ public:
     virtual void adjust_cursor_z(Platform&, Player& player, macro::StateImpl&);
 
 
+    virtual void init_cursor(macro::StateImpl& state);
+
+
     virtual void collect_options(macro::StateImpl& state);
 
 
@@ -85,6 +88,8 @@ public:
     void adjust_cursor_z(Platform&, Player& player, macro::StateImpl&) override
     {
     }
+
+    void init_cursor(macro::StateImpl& state) override;
 
     Coins cost(macro::StateImpl& state, terrain::Type t) override;
 

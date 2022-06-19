@@ -123,6 +123,10 @@ struct StateImpl : public State
         bool freebuild_mode_ = false;
 
 
+        macro::terrain::Type last_created_ = terrain::Type::terrain;
+        macro::terrain::Type last_improved_ = terrain::Type::terrain;
+
+
         // NOTE: random encounters not yet implemented.
         struct RandomEncounters
         {

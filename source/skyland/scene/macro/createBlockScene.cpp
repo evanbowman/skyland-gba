@@ -34,7 +34,30 @@ namespace skyland::macro
 
 
 s8 CreateBlockScene::selector_;
-static macro::terrain::Type last_created = terrain::Type::terrain;
+
+
+
+void CreateBlockScene::init_cursor(macro::StateImpl& state)
+{
+    for (u32 i = 0; i < options_.size(); ++i) {
+        if (options_[i] == state.data_->last_created_) {
+            selector_ = i;
+            break;
+        }
+    }
+}
+
+
+
+void BuildImprovementScene::init_cursor(macro::StateImpl& state)
+{
+    for (u32 i = 0; i < options_.size(); ++i) {
+        if (options_[i] == state.data_->last_improved_) {
+            selector_ = i;
+            break;
+        }
+    }
+}
 
 
 
@@ -46,12 +69,7 @@ void CreateBlockScene::enter(Platform& pfrm,
 
     collect_options(state);
 
-    for (u32 i = 0; i < options_.size(); ++i) {
-        if (options_[i] == last_created) {
-            selector_ = i;
-            break;
-        }
-    }
+    init_cursor(state);
 
     show_options(pfrm, state);
 }
@@ -448,7 +466,7 @@ void CreateBlockScene::edit(Platform& pfrm,
     }
     state.sector().set_cursor(cursor, false);
 
-    last_created = options_[selector_];
+    state.data_->last_created_ = options_[selector_];
 }
 
 
@@ -567,6 +585,8 @@ void BuildImprovementScene::edit(Platform& pfrm,
             network::transmit(pfrm, p);
         }
     }
+
+    state.data_->last_improved_ = options_[selector_];
 }
 
 

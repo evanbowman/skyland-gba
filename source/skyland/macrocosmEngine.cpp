@@ -1068,10 +1068,21 @@ SystemString terrain::name(Type t)
         return SystemString::block_masonry;
 
     case terrain::Type::road_ns:
-        return SystemString::block_road_ns;
+        if (_bound_state->sector().orientation() == terrain::Sector::Orientation::north or
+            _bound_state->sector().orientation() == terrain::Sector::Orientation::south) {
+            return SystemString::block_road_ns;
+        } else {
+            return SystemString::block_road_we;
+        }
+
 
     case terrain::Type::road_we:
-        return SystemString::block_road_we;
+        if (_bound_state->sector().orientation() == terrain::Sector::Orientation::north or
+            _bound_state->sector().orientation() == terrain::Sector::Orientation::south) {
+            return SystemString::block_road_we;
+        } else {
+            return SystemString::block_road_ns;
+        }
 
     case terrain::Type::scaffolding:
         return SystemString::block_scaffolding;
