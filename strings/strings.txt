@@ -71,6 +71,8 @@ radar
 radiator
 reactor
 replicator
+road-n/s
+road-w/e
 rocket-bomb
 saffron
 sand

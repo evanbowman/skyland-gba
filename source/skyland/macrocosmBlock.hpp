@@ -112,6 +112,8 @@ enum class Type {
     scaffolding,
     tulips,
     pearls,
+    road_ns,
+    road_we,
 
     count,
 };

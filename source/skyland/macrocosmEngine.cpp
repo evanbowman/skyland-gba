@@ -462,9 +462,14 @@ void StateImpl::save(Platform& pfrm)
         store_sector(s);
     }
 
+    const int sbr_used = save_data.chunks_used();
+
     if (not ram_filesystem::store_file_data_binary(
             pfrm, save::path, save_data)) {
         info(pfrm, "macro save failed!");
+    } else {
+        info(pfrm, format("macro save used % buffers",
+                          sbr_used).c_str());
     }
 }
 
@@ -922,6 +927,12 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::masonry:
         return 30;
 
+    case terrain::Type::road_ns:
+        return 5;
+
+    case terrain::Type::road_we:
+        return 5;
+
     case terrain::Type::scaffolding:
         return 30;
 
@@ -1055,6 +1066,12 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::masonry:
         return SystemString::block_masonry;
+
+    case terrain::Type::road_ns:
+        return SystemString::block_road_ns;
+
+    case terrain::Type::road_we:
+        return SystemString::block_road_we;
 
     case terrain::Type::scaffolding:
         return SystemString::block_scaffolding;
@@ -1237,6 +1254,8 @@ terrain::Improvements terrain::improvements(Type t)
 
     case Type::masonry:
         result.push_back(Type::windmill_stone_base);
+        result.push_back(Type::road_ns);
+        result.push_back(Type::road_we);
         break;
 
     case Type::volcanic_soil:
@@ -1361,6 +1380,12 @@ std::pair<int, int> terrain::icons(Type t)
         return {2792, 2808};
 
     case terrain::Type::port:
+        return {776, 760};
+
+    case terrain::Type::road_ns:
+        return {776, 760};
+
+    case terrain::Type::road_we:
         return {776, 760};
 
     case terrain::Type::food:
@@ -2144,7 +2169,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
             update_water_still(s, block, position);
         }
 
-    }
+    },
+    // road-ns
+    nullptr,
+    // road-we
+    nullptr,
 };
 // clang-format on
 

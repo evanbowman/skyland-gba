@@ -104,6 +104,14 @@ public:
                         p_.cursor_ = {(u8)x, (u8)y, (u8)z};
                         break;
 
+                    case terrain::Type::road_ns:
+                        block.type_ = (u8)terrain::Type::road_we;
+                        break;
+
+                    case terrain::Type::road_we:
+                        block.type_ = (u8)terrain::Type::road_ns;
+                        break;
+
                     case terrain::Type::lava_spread_laterally_a:
                         block.type_ =
                             (u8)terrain::Type::lava_spread_laterally_b;
