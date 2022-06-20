@@ -724,6 +724,13 @@ Stats stats(Type t, bool shadowed)
         result.employment_ += 1;
         break;
 
+    case terrain::Type::honey:
+        if (not shadowed) {
+            result.commodities_.push_back({Commodity::Type::honey, false, 2});
+        }
+        result.employment_ += 1;
+        break;
+
     case terrain::Type::cocoa:
         if (not shadowed) {
             result.commodities_.push_back({Commodity::Type::cocoa, false, 3});
@@ -810,6 +817,9 @@ SystemString terrain::name(terrain::Commodity::Type t)
     case Commodity::pearls:
         return SystemString::block_pearls;
 
+    case Commodity::honey:
+        return SystemString::block_honey;
+
     case Commodity::sunflowers:
         return SystemString::block_sunflower;
 
@@ -884,6 +894,7 @@ terrain::Categories terrain::categories(Type t)
     case terrain::Type::tea:
     case terrain::Type::lumber:
     case terrain::Type::tulips:
+    case terrain::Type::honey:
         return Categories::crop;
 
     case terrain::Type::water_source:
@@ -1013,6 +1024,9 @@ Coins terrain::cost(Sector& s, Type t)
 
     case terrain::Type::pearls:
         return 300;
+
+    case terrain::Type::honey:
+        return 410;
 
     case terrain::Type::shellfish:
         return 120;
@@ -1172,6 +1186,9 @@ SystemString terrain::name(Type t)
     case terrain::Type::pearls:
         return SystemString::block_pearls;
 
+    case terrain::Type::honey:
+        return SystemString::block_honey;
+
     case terrain::Type::cocoa:
         return SystemString::block_cocoa;
 
@@ -1250,6 +1267,7 @@ terrain::Improvements terrain::improvements(Type t)
         result.push_back(Type::tulips);
         result.push_back(Type::saffron);
         result.push_back(Type::wool);
+        result.push_back(Type::honey);
         remove_self();
     };
 
@@ -1343,6 +1361,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::pearls:
         return {3208, 3224};
+
+    case terrain::Type::honey:
+        return {3272, 3288};
 
     case terrain::Type::wool:
         return {2920, 2936};
@@ -2200,6 +2221,11 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // road-we
     nullptr,
+    // honey
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        revert_if_covered(s, block, position, terrain::Type::terrain);
+    },
 };
 // clang-format on
 
@@ -2481,6 +2507,9 @@ raster::TileCategory raster::tile_category(int texture_id)
          // transparency.
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

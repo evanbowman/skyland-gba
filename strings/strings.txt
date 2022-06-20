@@ -42,6 +42,7 @@ forcefield*
 fountain
 gold-block
 port
+honey
 hull
 ice
 indigo
@@ -84,7 +85,7 @@ speaker
 stairwell
 statue
 sticky-piston
-sunflowers
+sunflower
 switch
 synth
 tea

@@ -114,6 +114,7 @@ enum class Type {
     pearls,
     road_ns,
     road_we,
+    honey,
 
     count,
 };
@@ -135,6 +136,7 @@ struct Commodity
         lumber,
         tulips,
         pearls,
+        honey,
     };
     Type type_;
     bool imported_ = false;
