@@ -43,6 +43,14 @@ public:
     }
 
 
+    void enter(Platform& pfrm, App& app, Scene& prev) override
+    {
+        WorldScene::enter(pfrm, app, prev);
+
+        set_gamespeed(pfrm, app, GameSpeed::normal);
+    }
+
+
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 private:

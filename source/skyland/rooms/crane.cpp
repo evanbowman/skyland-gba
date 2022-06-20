@@ -25,7 +25,9 @@
 #include "skyland/island.hpp"
 #include "skyland/tile.hpp"
 #include "skyland/scene/craneDropScene.hpp"
-
+#include "skyland/scene/notificationScene.hpp"
+#include "skyland/scene/readyScene.hpp"
+#include "skyland/skyland.hpp"
 
 
 namespace skyland
@@ -117,6 +119,12 @@ ScenePtr<Scene> Crane::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     if (state_ == State::idle) {
         state_ = State::drop;
         timer_ = 0;
+    }
+
+    if (app.coins() < 2000) {
+        auto str = SYSTR(construction_insufficient_funds);
+        auto next = scene_pool::make_deferred_scene<ReadyScene>();
+        return scene_pool::alloc<NotificationScene>(str->c_str(), next);
     }
 
     return scene_pool::alloc<CraneDropScene>(position());

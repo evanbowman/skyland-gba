@@ -96,6 +96,10 @@ CraneDropScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     WorldScene::update(pfrm, app, delta);
 
+    if (timer_ == 0) {
+        app.set_coins(pfrm, app.coins() - 2000);
+    }
+
     timer_ += delta;
 
 
