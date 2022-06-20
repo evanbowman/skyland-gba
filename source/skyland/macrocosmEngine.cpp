@@ -579,7 +579,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
 
 
 terrain::Sector* EngineImpl::make_sector(Vec2<s8> coord,
-                                        terrain::Sector::Shape shape)
+                                         terrain::Sector::Shape shape)
 {
     if (load_sector(coord)) {
         return nullptr;
@@ -681,14 +681,16 @@ Stats stats(Type t, bool shadowed)
             result.commodities_.push_back(
                 {Commodity::Type::sunflowers, false, 1});
         }
-        result.employment_ += 2;
+        result.employment_ += 1;
+        result.happiness_ += 1;
         break;
 
     case terrain::Type::tulips:
         if (not shadowed) {
             result.commodities_.push_back({Commodity::Type::tulips, false, 1});
         }
-        result.employment_ += 2;
+        result.employment_ += 1;
+        result.happiness_ += 1;
         break;
 
     case terrain::Type::indigo:
@@ -762,6 +764,16 @@ Stats stats(Type t, bool shadowed)
     case terrain::Type::port:
         result.employment_ += 8;
         break;
+
+    case terrain::Type::marble:
+    case terrain::Type::marble_top:
+        result.happiness_ += 2;
+        break;
+
+    case terrain::Type::crystal:
+        result.happiness_ += 3;
+        break;
+
 
     default:
         break;

@@ -185,6 +185,12 @@ void CreateBlockScene::message(Platform& pfrm, macro::EngineImpl& state)
             text.append(stats.employment_);
         }
 
+        if (stats.happiness_) {
+            text.append("  ");
+            pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 409);
+            text.append(stats.happiness_);
+        }
+
         if (not stats.commodities_.empty()) {
             text.append("  ");
             pfrm.set_tile(Layer::overlay, text.len() - 1, st.y - 1, 417);

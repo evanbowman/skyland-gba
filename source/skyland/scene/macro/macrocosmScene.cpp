@@ -222,7 +222,9 @@ void MacrocosmScene::update_ui(macro::EngineImpl& state)
 
 
 
-void MacrocosmScene::enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev)
+void MacrocosmScene::enter(Platform& pfrm,
+                           macro::EngineImpl& state,
+                           Scene& prev)
 {
     auto m = dynamic_cast<MacrocosmScene*>(&prev);
     if (m and m->ui_) {

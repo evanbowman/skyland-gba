@@ -89,6 +89,7 @@ fiscal::Ledger terrain::Sector::annotate_happiness(bool skip_labels) const
         }
     };
 
+    add_entry(SystemString::category_misc, stat.happiness_);
     add_entry(SystemString::macro_commodities, 2 * commodity_supply);
     add_entry(SystemString::macro_food_supply, 0.3f * food_avail);
     add_entry(SystemString::macro_housing_scarcity, 0.2f * housing_avail);
@@ -453,6 +454,7 @@ terrain::Stats terrain::Sector::base_stats() const
                 }
 
                 result.employment_ += block_stats.employment_;
+                result.happiness_ += block_stats.happiness_;
 
                 result.housing_ += block_stats.housing_;
 
@@ -625,23 +627,22 @@ void terrain::Sector::set_cursor(const Vec3<u8>& pos, bool lock_to_floor)
 
     p_.cursor_ = pos;
 
-    auto set_cursor_moved =
-        [&] {
-            if (not raster::globalstate::_changed) {
-                raster::globalstate::_cursor_moved = true;
-            } else /* changed == true */ {
-                // Not really ideal, just a hacky short-term solution. I created
-                // tons of optimizations to make cursor redraw faster, but then
-                // added fluids, which expand into new blocks on their own,
-                // requiring the engine to cancel out of the optimized drawing
-                // code when another block changed in addition to the cursor
-                // block. But when we don't set _cursor_moved, the renderer will
-                // not clean up tiles in any empty space that the cursor used-to
-                // inhabit, so we set the _shrunk flag to tell the renderer to
-                // clean up any tiles where there may no longer be blocks.
-                raster::globalstate::_shrunk = true;
-            }
-        };
+    auto set_cursor_moved = [&] {
+        if (not raster::globalstate::_changed) {
+            raster::globalstate::_cursor_moved = true;
+        } else /* changed == true */ {
+            // Not really ideal, just a hacky short-term solution. I created
+            // tons of optimizations to make cursor redraw faster, but then
+            // added fluids, which expand into new blocks on their own,
+            // requiring the engine to cancel out of the optimized drawing
+            // code when another block changed in addition to the cursor
+            // block. But when we don't set _cursor_moved, the renderer will
+            // not clean up tiles in any empty space that the cursor used-to
+            // inhabit, so we set the _shrunk flag to tell the renderer to
+            // clean up any tiles where there may no longer be blocks.
+            raster::globalstate::_shrunk = true;
+        }
+    };
 
     if (lock_to_floor) {
         while (ref_block(p_.cursor_).type() not_eq terrain::Type::air) {

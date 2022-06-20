@@ -22,6 +22,7 @@
 
 #include "playerIslandDestroyedScene.hpp"
 #include "achievementNotificationScene.hpp"
+#include "boxedDialogScene.hpp"
 #include "highscoresScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
 #include "platform/color.hpp"
@@ -665,7 +666,17 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                         // Defeated the storm king!
                         app.persistent_data().score_.set(
                             20000 + app.persistent_data().score_.get());
-                        return scene_pool::alloc<HighscoresScene>(true, 1);
+
+                        auto dialog =
+                            allocate_dynamic<DialogString>("dialog-buffer");
+                        *dialog = SYS_CSTR(adventure_completed_message);
+                        auto next = scene_pool::alloc<BoxedDialogScene>(
+                            std::move(dialog), false);
+                        next->set_next_scene(
+                            scene_pool::make_deferred_scene<HighscoresScene>(
+                                true, 1));
+
+                        return next;
                     } else {
                         return scene_pool::alloc<ZoneImageScene>();
                     }

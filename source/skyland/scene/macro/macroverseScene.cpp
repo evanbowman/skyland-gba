@@ -933,7 +933,8 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-void MacroverseScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
+void MacroverseScene::describe_selected(Platform& pfrm,
+                                        macro::EngineImpl& state)
 {
     auto st = calc_screen_tiles(pfrm);
 

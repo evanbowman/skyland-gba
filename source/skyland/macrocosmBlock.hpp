@@ -148,10 +148,11 @@ struct Commodity
 
 struct Stats
 {
-    int food_ = 0;
-    int food_exports_ = 0;
-    int housing_ = 0;
-    int employment_ = 0;
+    s16 food_ = 0;
+    s16 food_exports_ = 0;
+    s16 housing_ = 0;
+    s16 employment_ = 0;
+    s16 happiness_ = 0;
 
     Buffer<Commodity, 24> commodities_;
 };

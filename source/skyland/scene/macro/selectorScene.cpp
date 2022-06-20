@@ -227,6 +227,12 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
             text_->append(stats.employment_);
         }
 
+        if (stats.happiness_) {
+            text_->append("  ");
+            pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 409);
+            text_->append(stats.happiness_);
+        }
+
         if (not stats.commodities_.empty()) {
             text_->append("  ");
             pfrm.set_tile(Layer::overlay, text_->len() - 1, 19, 417);
