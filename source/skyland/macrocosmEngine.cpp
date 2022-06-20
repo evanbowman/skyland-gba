@@ -163,11 +163,11 @@ std::pair<Coins, terrain::Sector::Population> EngineImpl::colony_cost() const
     } else if (data_->other_sectors_.size() < 5) {
         return {1500 + 3000 * data_->other_sectors_.size(), 300};
     } else if (data_->other_sectors_.size() < 11) {
-        return {4000 + 3200 * data_->other_sectors_.size(), 500};
+        return {4000 + 3200 * data_->other_sectors_.size(), 400};
     } else if (data_->other_sectors_.size() < 16) {
-        return {6000 + 3600 * data_->other_sectors_.size(), 700};
+        return {6000 + 3600 * data_->other_sectors_.size(), 600};
     } else {
-        return {7000 + 4000 * data_->other_sectors_.size(), 900};
+        return {7000 + 4000 * data_->other_sectors_.size(), 800};
     }
 }
 
@@ -2469,6 +2469,12 @@ raster::TileCategory raster::tile_category(int texture_id)
          // transparency.
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
          top_angled_l, top_angled_r, opaque, opaque, irregular, irregular,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
