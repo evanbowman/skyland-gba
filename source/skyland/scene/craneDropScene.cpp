@@ -33,13 +33,26 @@ namespace skyland
 
 
 
+void init_clouds(Platform& pfrm);
+
+
+
 class CraneFadeinScene : public WorldScene
 {
 public:
 
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
-        // TODO: stuff...
+        pfrm.load_sprite_texture("spritesheet");
+
+
+        show_island_exterior(pfrm, app, &app.player_island());
+
+        if (app.opponent_island()) {
+            app.opponent_island()->repaint(pfrm, app);
+        }
+
+        init_clouds(pfrm);
 
         WorldScene::enter(pfrm, app, prev);
     }
@@ -108,8 +121,182 @@ public:
                            App& app,
                            Microseconds delta) override
     {
+        pfrm.screen().schedule_fade(1.f);
         return scene_pool::alloc<CraneFadeinScene>();
     }
+};
+
+
+
+
+static void draw_anchor(Platform& pfrm, const Vec2<Fixnum>& offset)
+{
+    Sprite spr;
+
+    spr.set_size(Sprite::Size::w32_h32);
+    spr.set_texture_index(6);
+    spr.set_position({offset.x, offset.y});
+    spr.set_origin({16, 16});
+
+    pfrm.screen().draw(spr);
+
+    auto pos = offset;
+    while (pos.y > -16) {
+        spr.set_texture_index(22);
+        spr.set_size(Sprite::Size::w16_h32);
+        spr.set_position({offset.x + 8, pos.y - 28});
+        pfrm.screen().draw(spr);
+
+        pos.y -= 30;
+    }
+}
+
+
+
+class CraneDropCinematicScene : public Scene
+{
+public:
+
+    CraneDropCinematicScene() :
+        data_(allocate_dynamic<Data>("crane-drop-data"))
+    {
+    }
+
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override
+    {
+        pfrm.load_sprite_texture("spritesheet_fishing");
+        pfrm.screen().schedule_fade(1.f, ColorConstant::silver_white);
+
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) {
+                pfrm.set_tile(Layer::map_1_ext, x, y, 0);
+                pfrm.set_tile(Layer::map_0_ext, x, y, 0);
+            }
+        }
+
+        for (int x = 0; x < 32; ++x) {
+            for (int y = 0; y < 32; ++y) {
+                pfrm.set_tile(Layer::background, x, y, 4);
+            }
+        }
+
+        pfrm.screen().set_view({});
+
+        rng::utility_state = 1;
+    }
+
+
+    ScenePtr<Scene> update(Platform& pfrm,
+                           App& app,
+                           Microseconds delta) override
+    {
+        if (fadein_timer_ < milliseconds(1000)) {
+            fadein_timer_ += delta;
+            const auto amount = smoothstep(0.f,
+                                           milliseconds(1000),
+                                           fadein_timer_);
+
+            pfrm.screen().schedule_fade(1.f - amount, ColorConstant::silver_white);
+        }
+
+        timer_ += delta;
+        if (timer_ > seconds(7)) {
+            return scene_pool::alloc<FishingMinigameScene>();
+        }
+
+        if (timer_ < seconds(4)) {
+            cloud_timer_ += delta;
+            if (cloud_timer_ > cloud_respawn_) {
+                cloud_respawn_ += milliseconds(10);
+                cloud_timer_ = 0;
+                Vec2<Fixnum> pos;
+                pos.x = -80 + rng::choice<240 + 40>(rng::utility_state);
+                pos.y = 180;
+                data_->clouds_.push_back({pos, (u8)rng::choice<2>(rng::utility_state)});
+            }
+        }
+
+        anchor_offset_ += Fixnum(0.00001f) * delta;
+
+
+        for (auto& cloud : data_->clouds_) {
+            switch (cloud.graphics_) {
+            case 0:
+                cloud.position_.y -= Fixnum(0.00015f) * delta;
+                break;
+
+            case 1:
+                cloud.position_.y -= Fixnum(0.00024f) * delta;
+                break;
+            }
+        }
+
+        for (auto it = data_->clouds_.begin(); it not_eq data_->clouds_.end();) {
+            if (it->position_.y < -24) {
+                it = data_->clouds_.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
+        return null_scene();
+    }
+
+
+    void display(Platform& pfrm, App& app) override
+    {
+        draw_anchor(pfrm, {120, anchor_offset_});
+
+        Sprite spr;
+
+        for (auto& cloud : data_->clouds_) {
+            switch (cloud.graphics_) {
+            case 0:
+                spr.set_texture_index(10);
+                spr.set_position(cloud.position_);
+                pfrm.screen().draw(spr);
+                break;
+
+            case 1: {
+                auto pos = cloud.position_;
+                spr.set_texture_index(7);
+                spr.set_position(pos);
+                pfrm.screen().draw(spr);
+
+                pos.x += 32;
+                spr.set_texture_index(8);
+                spr.set_position(pos);
+                pfrm.screen().draw(spr);
+
+                pos.x += 32;
+                spr.set_texture_index(9);
+                spr.set_position(pos);
+                pfrm.screen().draw(spr);
+                break;
+            }
+            }
+        }
+    }
+
+
+private:
+    Microseconds fadein_timer_ = 0;
+    Microseconds timer_ = 0;
+    Microseconds cloud_respawn_ = milliseconds(40);
+    Fixnum anchor_offset_ = 20;
+
+    struct CloudInfo {
+        Vec2<Fixnum> position_;
+        u8 graphics_;
+    };
+
+    struct Data {
+        Buffer<CloudInfo, 18> clouds_;
+    };
+    DynamicMemory<Data> data_;
+
+    Microseconds cloud_timer_;
 };
 
 
@@ -144,7 +331,7 @@ CraneDropScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        return scene_pool::alloc<FishingMinigameScene>();
+        return scene_pool::alloc<CraneDropCinematicScene>();
 
     } else {
         const auto amount = smoothstep(0.f,

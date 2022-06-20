@@ -24,7 +24,7 @@ building
 cocoa
 corn
 cesium
-crane
+salvage-arm
 crystal
 stacked-hull
 mirror-hull

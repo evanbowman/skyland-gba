@@ -23,6 +23,8 @@
 //;
 #include "data/spritesheet_macroverse.h"
 //;
+#include "data/spritesheet_fishing.h"
+//;
 #include "data/tilesheet.h"
 //;
 #include "data/tilesheet_enemy_0.h"
@@ -143,6 +145,8 @@ static const TextureData sprite_textures[] = {
     TEXTURE_INFO(spritesheet_macro),
 //;
     TEXTURE_INFO(spritesheet_macroverse),
+//;
+    TEXTURE_INFO(spritesheet_fishing),
 //
 };
 

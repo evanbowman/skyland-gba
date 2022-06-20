@@ -362,6 +362,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/zone_image_2_flattened.s
     ${DATA_DIR}/zone_image_3_flattened.s
     ${DATA_DIR}/spritesheet.s
+    ${DATA_DIR}/spritesheet_fishing.s
     ${DATA_DIR}/background.s
     ${DATA_DIR}/background_macro.s
     ${DATA_DIR}/background_macro_night.s
@@ -640,6 +641,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_spritesheet(spritesheet_intro 2 4 NO)
     add_spritesheet(spritesheet_macro 2 4 NO)
     add_spritesheet(spritesheet_macroverse 2 4 NO)
+    add_spritesheet(spritesheet_fishing 2 4 NO)
     add_tilesheet(tilesheet 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)

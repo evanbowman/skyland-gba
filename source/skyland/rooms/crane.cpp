@@ -104,6 +104,7 @@ void Crane::display(Platform::Screen& screen)
     spr.set_texture_index(93);
 
     pos = start_pos;
+    pos.y -= 1;
     while (pos.y < claw_pos.y - 3) {
         spr.set_position(pos);
         screen.draw(spr);
