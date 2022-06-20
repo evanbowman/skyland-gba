@@ -219,6 +219,12 @@ struct Tile
         rocket_silo_1,
         rocket_silo_2,
         rocket_silo_3,
+        crane_1,
+        crane_2,
+        crane_3,
+        crane_4,
+        crane_5,
+        crane_6,
     };
 };
 
@@ -409,6 +415,12 @@ struct InteriorTile
         rocket_silo_1,
         rocket_silo_2,
         rocket_silo_3,
+        crane_1,
+        crane_2,
+        crane_3,
+        crane_4,
+        crane_5,
+        crane_6,
     };
 };
 

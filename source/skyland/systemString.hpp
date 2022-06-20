@@ -70,6 +70,7 @@ enum class SystemString {
     block_cocoa,
     block_corn,
     block_cesium,
+    block_crane,
     block_crystal,
     block_stacked_hull,
     block_mirror_hull,
@@ -247,6 +248,7 @@ enum class SystemString {
     macro_pillar,
 
 
+    description_crane,
     description_power_core,
     description_solar_cell,
     description_fire_charge,

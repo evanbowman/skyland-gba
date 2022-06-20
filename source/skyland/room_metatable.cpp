@@ -33,6 +33,7 @@
 #include "skyland/rooms/cannon.hpp"
 #include "skyland/rooms/cargoBay.hpp"
 #include "skyland/rooms/core.hpp"
+#include "skyland/rooms/crane.hpp"
 #include "skyland/rooms/decimator.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/escapeBeacon.hpp"
@@ -298,6 +299,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Bulkhead,
                                         Infirmary,
                                         CargoBay,
+                                        Crane,
                                         Water,
                                         WaterSource,
                                         Ice,
