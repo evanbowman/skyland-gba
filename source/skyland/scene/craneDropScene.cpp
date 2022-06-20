@@ -37,6 +37,14 @@ class CraneFadeinScene : public WorldScene
 {
 public:
 
+    void enter(Platform& pfrm, App& app, Scene& prev) override
+    {
+        // TODO: stuff...
+
+        WorldScene::enter(pfrm, app, prev);
+    }
+
+
     ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
     {
         timer_ += delta;
@@ -44,6 +52,10 @@ public:
 
         constexpr auto fade_duration = milliseconds(1400);
         constexpr auto fade_start = milliseconds(400);
+
+        if (app.game_speed() not_eq GameSpeed::normal) {
+            set_gamespeed(pfrm, app, GameSpeed::normal);
+        }
 
         if (timer_ < fade_start) {
 
@@ -53,6 +65,7 @@ public:
 
             WorldScene::update(pfrm, app, delta);
 
+            pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 
             pfrm.screen().schedule_fade(0.f);
             return scene_pool::alloc<ReadyScene>();
@@ -65,6 +78,9 @@ public:
             const auto amount = smoothstep(0.f,
                                            fade_duration - fade_start,
                                            timer_ - fade_start);
+
+            pfrm.speaker().set_music_volume(6 + 14 * amount);
+
             pfrm.screen().schedule_fade(1.f - amount);
         }
 
@@ -80,6 +96,13 @@ private:
 class FishingMinigameScene : public Scene
 {
 public:
+
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override
+    {
+        // ...
+    }
+
 
     ScenePtr<Scene> update(Platform& pfrm,
                            App& app,
@@ -102,6 +125,9 @@ CraneDropScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     timer_ += delta;
 
+    if (app.game_speed() not_eq GameSpeed::normal) {
+        set_gamespeed(pfrm, app, GameSpeed::normal);
+    }
 
     constexpr auto fade_duration = milliseconds(1400);
     constexpr auto fade_start = milliseconds(400);
@@ -124,6 +150,9 @@ CraneDropScene::update(Platform& pfrm, App& app, Microseconds delta)
         const auto amount = smoothstep(0.f,
                                        fade_duration - fade_start,
                                        timer_ - fade_start);
+
+        pfrm.speaker().set_music_volume(20 - 14 * amount);
+
         pfrm.screen().schedule_fade(amount);
     }
 
