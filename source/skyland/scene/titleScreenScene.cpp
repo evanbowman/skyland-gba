@@ -951,6 +951,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.effects().clear();
 
                 std::get<SkylandGlobalData>(globals()).entity_pools_.destroy();
+
+                app.invoke_script(pfrm, "/scripts/reset_hooks.lisp");
+
                 return scene_pool::alloc<MacrocosmLoaderModule>();
 
             case 3:

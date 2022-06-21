@@ -80,6 +80,7 @@ sand
 truss
 shellfish
 shrubbery
+singularity
 solar-cell
 speaker
 stairwell
@@ -166,7 +167,7 @@ how many?
 where?
 commodities
 trade colony
-abandon colony
+scuttle colony
 Rename island:
 budget: 
 citizens (employed)
@@ -391,6 +392,8 @@ The system will now accept software updates from another gameboy advance console
 Many years have passed since the decline of industrial society. An endless winter now spreads.
 The last remnants of humanity migrate above the clouds, escaping the terrors of the surface below...
 Civilization flourishes in a delicate peace, threatened by growing piracy and power-hungry warlords...
+WARNING: Gravitational collapse detected!!!
+The isle imploded! % citizens perished!
 Locked! To unlock Freebuild mode, create a civilization with more than eight isles in the SKYLAND Macrocosm!
 ___NOTICE__ __META_COMMENT__: The latin alphabet on the following line is used for optimization purposes when loading glyphs. Text in some parts of the game may load faster if you place the characters in the string below:
 abcdefghijklmnopqrstuvwxyz- ()0123456789
