@@ -41,7 +41,7 @@
    (nemesis      200 1800 40)
    (escape-beacon 90 1600 40)
    (piston       30  150  20)
-   (crane        30  3000 60)
+   (crane        30  1000 60)
    (sticky-piston 30  150  20)
    (coconut-palm 1   1    0)
    (lemon-tree   1   1    0)
