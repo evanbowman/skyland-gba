@@ -27,6 +27,8 @@
 //;
 #include "data/tilesheet.h"
 //;
+#include "data/tilesheet_fishing.h"
+//;
 #include "data/tilesheet_enemy_0.h"
 //;
 #include "data/tilesheet_enemy_0_interior.h"
@@ -154,6 +156,8 @@ static const TextureData sprite_textures[] = {
 static const TextureData tile_textures[] = {
 
     TEXTURE_INFO(tilesheet),
+//;
+    TEXTURE_INFO(tilesheet_fishing),
 //;
     TEXTURE_INFO(tilesheet_enemy_0),
 //;

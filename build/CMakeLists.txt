@@ -325,6 +325,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/overlay_world_map.s
     ${DATA_DIR}/stack_overflow_flattened.s
     ${DATA_DIR}/tilesheet_world_map_backdrop.s
+    ${DATA_DIR}/tilesheet_fishing.s
     ${DATA_DIR}/overlay_island_destroyed.s
     ${DATA_DIR}/overlay_challenges.s
     ${DATA_DIR}/overlay_gamespeed.s
@@ -643,6 +644,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_spritesheet(spritesheet_macroverse 2 4 NO)
     add_spritesheet(spritesheet_fishing 2 4 NO)
     add_tilesheet(tilesheet 2 2 NO NO)
+    add_tilesheet(tilesheet_fishing 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0 2 2 NO NO)
     add_tilesheet(tilesheet_enemy_0_interior 2 2 NO NO)
     add_tilesheet(tilesheet_interior 2 2 NO NO)

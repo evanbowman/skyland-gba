@@ -106,30 +106,8 @@ private:
 
 
 
-class FishingMinigameScene : public Scene
-{
-public:
 
-
-    void enter(Platform& pfrm, App& app, Scene& prev) override
-    {
-        // ...
-    }
-
-
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
-    {
-        pfrm.screen().schedule_fade(1.f);
-        return scene_pool::alloc<CraneFadeinScene>();
-    }
-};
-
-
-
-
-static void draw_anchor(Platform& pfrm, const Vec2<Fixnum>& offset)
+static void draw_crane(Platform& pfrm, const Vec2<Fixnum>& offset)
 {
     Sprite spr;
 
@@ -153,6 +131,77 @@ static void draw_anchor(Platform& pfrm, const Vec2<Fixnum>& offset)
 
 
 
+class FishingMinigameScene : public Scene
+{
+public:
+
+
+    FishingMinigameScene(const Vec2<Fixnum>& crane_pos) :
+        crane_pos_(crane_pos),
+        level_(allocate_dynamic<Level>("fishing-level-data"))
+    {
+    }
+
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override
+    {
+        // ...
+    }
+
+
+    ScenePtr<Scene> update(Platform& pfrm,
+                           App& app,
+                           Microseconds delta) override
+    {
+        if (app.player().key_down(pfrm, Key::action_2)) {
+            pfrm.screen().schedule_fade(1.f);
+            return scene_pool::alloc<CraneFadeinScene>();
+        }
+
+        if (crane_pos_.y > 30) {
+            crane_pos_.y -= Fixnum(0.00003f) * delta;
+        }
+
+        depth_ += Fixnum(0.00001f) * delta;
+
+        if (app.player().key_pressed(pfrm, Key::right)) {
+            crane_pos_.x += Fixnum(0.00006f) * delta;
+        }
+
+        if (app.player().key_pressed(pfrm, Key::left)) {
+            crane_pos_.x -= Fixnum(0.00006f) * delta;
+        }
+
+        return null_scene();
+    }
+
+
+    void display(Platform& pfrm, App& app) override
+    {
+        draw_crane(pfrm, crane_pos_);
+    }
+
+private:
+    Vec2<Fixnum> crane_pos_;
+    Fixnum depth_;
+
+    struct Level
+    {
+        struct Fish
+        {
+            u8 type_;
+            HostInteger<u16> y_;
+            HostInteger<u64> x_;
+        };
+
+        Buffer<Fish, 100> fish_;
+    };
+
+    DynamicMemory<Level> level_;
+};
+
+
+
 class CraneDropCinematicScene : public Scene
 {
 public:
@@ -166,12 +215,26 @@ public:
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         pfrm.load_sprite_texture("spritesheet_fishing");
+        pfrm.load_tile0_texture("tilesheet_fishing");
         pfrm.screen().schedule_fade(1.f, ColorConstant::silver_white);
+
+        pfrm.set_scroll(Layer::map_0_ext, 0, -160);
 
         for (int x = 0; x < 16; ++x) {
             for (int y = 0; y < 16; ++y) {
                 pfrm.set_tile(Layer::map_1_ext, x, y, 0);
                 pfrm.set_tile(Layer::map_0_ext, x, y, 0);
+            }
+        }
+
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 6; ++y) {
+                if (y == 0) {
+                    pfrm.set_tile(Layer::map_0_ext, x, y, 1);
+                } else {
+                    pfrm.set_tile(Layer::map_0_ext, x, y, 2);
+                }
+
             }
         }
 
@@ -191,54 +254,101 @@ public:
                            App& app,
                            Microseconds delta) override
     {
-        if (fadein_timer_ < milliseconds(1000)) {
-            fadein_timer_ += delta;
-            const auto amount = smoothstep(0.f,
-                                           milliseconds(1000),
-                                           fadein_timer_);
-
-            pfrm.screen().schedule_fade(1.f - amount, ColorConstant::silver_white);
+        if (app.player().key_pressed(pfrm, Key::right)) {
+            crane_x_ += Fixnum(0.00003f) * delta;
         }
 
-        timer_ += delta;
-        if (timer_ > seconds(7)) {
-            return scene_pool::alloc<FishingMinigameScene>();
+        if (app.player().key_pressed(pfrm, Key::left)) {
+            crane_x_ -= Fixnum(0.00003f) * delta;
         }
 
-        if (timer_ < seconds(4)) {
-            cloud_timer_ += delta;
-            if (cloud_timer_ > cloud_respawn_) {
-                cloud_respawn_ += milliseconds(10);
-                cloud_timer_ = 0;
-                Vec2<Fixnum> pos;
-                pos.x = -80 + rng::choice<240 + 40>(rng::utility_state);
-                pos.y = 180;
-                data_->clouds_.push_back({pos, (u8)rng::choice<2>(rng::utility_state)});
+        if (timer_ < seconds(7)) {
+            if (fadein_timer_ < milliseconds(1000)) {
+                fadein_timer_ += delta;
+                const auto amount = smoothstep(0.f,
+                                               milliseconds(1000),
+                                               fadein_timer_);
+
+                pfrm.screen().schedule_fade(1.f - amount, ColorConstant::silver_white);
+            }
+
+            timer_ += delta;
+
+            if (timer_ > seconds(7)) {
+                for (int x = 0; x < 16; ++x) {
+                    for (int y = 1; y < 10; ++y) {
+                        pfrm.set_tile(Layer::map_0_ext, x, y, 2);
+                    }
+                }
+
+                pfrm.sleep(4);
+            }
+
+
+            if (timer_ > milliseconds(6500)) {
+                auto amt = Float(timer_ - milliseconds(6500)) / milliseconds(500);
+                int offset = -160;
+                offset += 75 * amt;
+                pfrm.set_scroll(Layer::map_0_ext, 0, offset);
+            }
+
+            if (timer_ < seconds(4)) {
+                cloud_timer_ += delta;
+                if (cloud_timer_ > cloud_respawn_) {
+                    cloud_respawn_ += milliseconds(10);
+                    cloud_timer_ = 0;
+                    Vec2<Fixnum> pos;
+                    pos.x = -80 + rng::choice<240 + 40>(rng::utility_state);
+                    pos.y = 180;
+                    data_->clouds_.push_back({pos, (u8)rng::choice<2>(rng::utility_state)});
+                }
+            }
+
+            crane_offset_ += Fixnum(0.00001f) * delta;
+
+
+            for (auto& cloud : data_->clouds_) {
+                switch (cloud.graphics_) {
+                case 0:
+                    cloud.position_.y -= Fixnum(0.00015f) * delta;
+                    break;
+
+                case 1:
+                    cloud.position_.y -= Fixnum(0.00024f) * delta;
+                    break;
+                }
+            }
+
+            for (auto it = data_->clouds_.begin(); it not_eq data_->clouds_.end();) {
+                if (it->position_.y < -24) {
+                    it = data_->clouds_.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+        } else {
+            crane_offset_ -= Fixnum(0.000015f) * delta;
+
+            if (timer_ < seconds(9) and timer_ + delta > seconds(9)) {
+                for (int x = 0; x < 16; ++x) {
+                    for (int y = 10; y < 14; ++y) {
+                        pfrm.set_tile(Layer::map_0_ext, x, y, 2);
+                    }
+                }
+            }
+
+            timer_ += delta;
+            auto amt = Float(timer_ - seconds(7)) / milliseconds(2500);
+
+            int offset = -160 + 75;
+            offset += 105 * amt;
+            pfrm.set_scroll(Layer::map_0_ext, 0, offset);
+
+            if (timer_ > milliseconds(9500)) {
+                return scene_pool::alloc<FishingMinigameScene>(Vec2<Fixnum>{crane_x_, crane_offset_});
             }
         }
 
-        anchor_offset_ += Fixnum(0.00001f) * delta;
-
-
-        for (auto& cloud : data_->clouds_) {
-            switch (cloud.graphics_) {
-            case 0:
-                cloud.position_.y -= Fixnum(0.00015f) * delta;
-                break;
-
-            case 1:
-                cloud.position_.y -= Fixnum(0.00024f) * delta;
-                break;
-            }
-        }
-
-        for (auto it = data_->clouds_.begin(); it not_eq data_->clouds_.end();) {
-            if (it->position_.y < -24) {
-                it = data_->clouds_.erase(it);
-            } else {
-                ++it;
-            }
-        }
 
         return null_scene();
     }
@@ -246,7 +356,7 @@ public:
 
     void display(Platform& pfrm, App& app) override
     {
-        draw_anchor(pfrm, {120, anchor_offset_});
+        draw_crane(pfrm, {crane_x_, crane_offset_});
 
         Sprite spr;
 
@@ -284,7 +394,8 @@ private:
     Microseconds fadein_timer_ = 0;
     Microseconds timer_ = 0;
     Microseconds cloud_respawn_ = milliseconds(40);
-    Fixnum anchor_offset_ = 20;
+    Fixnum crane_offset_ = 20;
+    Fixnum crane_x_ = 120;
 
     struct CloudInfo {
         Vec2<Fixnum> position_;
