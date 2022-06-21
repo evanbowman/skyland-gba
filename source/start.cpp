@@ -73,6 +73,7 @@ void start(Platform& pfrm)
                                    sizeof(skyland::save::GlobalSaveData) +
                                        sizeof(skyland::save::SaveData));
 
+
     if (stat == ram_filesystem::InitStatus::initialized) {
         const char* user_init_file = ";;;\n"
                                      ";;; init.lisp\n"

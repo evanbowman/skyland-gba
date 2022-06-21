@@ -67,9 +67,9 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
-            RoomProperties::disabled_in_tutorials |
-            RoomProperties::skyland_forever_unsupported |
-            RoomProperties::multiplayer_unsupported;
+               RoomProperties::disabled_in_tutorials |
+               RoomProperties::skyland_forever_unsupported |
+               RoomProperties::multiplayer_unsupported;
     }
 
 

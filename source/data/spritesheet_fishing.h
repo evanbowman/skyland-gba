@@ -3,13 +3,13 @@
 
 //======================================================================
 //
-//	spritesheet_fishing, 1024x32@4, 
+//	spritesheet_fishing, 2016x32@4, 
 //	Transparent color : FF,00,FF
 //	+ palette 256 entries, not compressed
-//	+ 512 tiles Metatiled by 2x4 not compressed
-//	Total size: 512 + 16384 = 16896
+//	+ 1008 tiles Metatiled by 2x4 not compressed
+//	Total size: 512 + 32256 = 32768
 //
-//	Time-stamp: 2022-06-20, 23:25:31
+//	Time-stamp: 2022-06-21, 08:37:05
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,8 +18,8 @@
 #ifndef GRIT_SPRITESHEET_FISHING_H
 #define GRIT_SPRITESHEET_FISHING_H
 
-#define spritesheet_fishingTilesLen 16384
-extern const unsigned int spritesheet_fishingTiles[4096];
+#define spritesheet_fishingTilesLen 32256
+extern const unsigned int spritesheet_fishingTiles[8064];
 
 #define spritesheet_fishingPalLen 512
 extern const unsigned short spritesheet_fishingPal[256];

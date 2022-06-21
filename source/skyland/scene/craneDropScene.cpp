@@ -21,10 +21,10 @@
 
 
 #include "craneDropScene.hpp"
-#include "skyland/scene_pool.hpp"
-#include "skyland/skyland.hpp"
 #include "readyScene.hpp"
 #include "skyland/rooms/crane.hpp"
+#include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -40,7 +40,6 @@ void init_clouds(Platform& pfrm);
 class CraneFadeinScene : public WorldScene
 {
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         pfrm.load_sprite_texture("spritesheet");
@@ -58,7 +57,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         timer_ += delta;
 
@@ -78,7 +78,8 @@ public:
 
             WorldScene::update(pfrm, app, delta);
 
-            pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+            pfrm.speaker().set_music_volume(
+                Platform::Speaker::music_volume_max);
 
             pfrm.screen().schedule_fade(0.f);
             return scene_pool::alloc<ReadyScene>();
@@ -88,9 +89,8 @@ public:
             WorldScene::update(pfrm, app, delta);
 
 
-            const auto amount = smoothstep(0.f,
-                                           fade_duration - fade_start,
-                                           timer_ - fade_start);
+            const auto amount = smoothstep(
+                0.f, fade_duration - fade_start, timer_ - fade_start);
 
             pfrm.speaker().set_music_volume(6 + 14 * amount);
 
@@ -106,13 +106,13 @@ private:
 
 
 
-
-static void draw_crane(Platform& pfrm, const Vec2<Fixnum>& offset)
+static void
+draw_crane(Platform& pfrm, const Vec2<Fixnum>& offset, u16 image = 6)
 {
     Sprite spr;
 
     spr.set_size(Sprite::Size::w32_h32);
-    spr.set_texture_index(6);
+    spr.set_texture_index(image);
     spr.set_position({offset.x, offset.y});
     spr.set_origin({16, 16});
 
@@ -134,42 +134,117 @@ static void draw_crane(Platform& pfrm, const Vec2<Fixnum>& offset)
 class FishingMinigameScene : public Scene
 {
 public:
-
-
-    FishingMinigameScene(const Vec2<Fixnum>& crane_pos) :
-        crane_pos_(crane_pos),
-        level_(allocate_dynamic<Level>("fishing-level-data"))
+    FishingMinigameScene(const Vec2<Fixnum>& crane_pos)
+        : crane_pos_(crane_pos),
+          level_(allocate_dynamic<Level>("fishing-level-data"))
     {
     }
 
 
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
-        // ...
+        Level::Fish fish;
+        fish.type_ = 0;
+        fish.x_.set(Fixnum(30.f).data());
+        fish.y_.set(100);
+        level_->fish_.push_back(fish);
+
+        fish.y_.set(300);
+        fish.x_.set(Fixnum(50.f).data());
+        level_->fish_.push_back(fish);
+
+        fish.y_.set(500);
+        fish.x_.set(Fixnum(70.f).data());
+        level_->fish_.push_back(fish);
+
+        fish.y_.set(580);
+        fish.x_.set(Fixnum(120.f).data());
+        level_->fish_.push_back(fish);
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (app.player().key_down(pfrm, Key::action_2)) {
             pfrm.screen().schedule_fade(1.f);
             return scene_pool::alloc<CraneFadeinScene>();
         }
 
-        if (crane_pos_.y > 30) {
-            crane_pos_.y -= Fixnum(0.00003f) * delta;
+        if (got_fish_) {
+            if (crane_pos_.y < 120) {
+                crane_pos_.y += Fixnum(0.00003f) * delta;
+                depth_ -= Fixnum(0.00006f) * delta;
+            } else {
+                depth_ -= Fixnum(0.00009f) * delta;
+            }
+            if (depth_ < -32) {
+                pfrm.screen().fade(1.f);
+                return scene_pool::alloc<CraneFadeinScene>();
+            }
+        } else {
+            if (crane_pos_.y > 30) {
+                crane_pos_.y -= Fixnum(0.00003f) * delta;
+            }
+            depth_ += Fixnum(0.00005f) * delta;
         }
 
-        depth_ += Fixnum(0.00001f) * delta;
 
         if (app.player().key_pressed(pfrm, Key::right)) {
-            crane_pos_.x += Fixnum(0.00006f) * delta;
+            crane_pos_.x += Fixnum(0.00007f) * delta;
         }
 
         if (app.player().key_pressed(pfrm, Key::left)) {
-            crane_pos_.x -= Fixnum(0.00006f) * delta;
+            crane_pos_.x -= Fixnum(0.00007f) * delta;
+        }
+
+        HitBox crane_hb;
+        crane_hb.position_ = &crane_pos_;
+        crane_hb.dimension_.size_ = {24, 24};
+        crane_hb.dimension_.origin_ = {16, 16};
+
+        bool seen_fish = false;
+
+        for (auto it = level_->fish_.begin(); it not_eq level_->fish_.end();) {
+            auto& fish = *it;
+
+            auto screen_y = fish.y_.get() - depth_;
+            if (screen_y < -24 or screen_y > 180) {
+                if (seen_fish) {
+                    break;
+                } else {
+                    ++it;
+                    continue;
+                }
+            }
+            seen_fish = true;
+
+            Vec2<Fixnum> fish_pos;
+            fish_pos.y = (fish.y_.get() - depth_);
+            fish_pos.x = Fixnum::create(fish.x_.get());
+
+            HitBox fish_hb;
+            fish_hb.position_ = &fish_pos;
+            fish_hb.dimension_.size_ = {24, 10};
+            fish_hb.dimension_.origin_ = {16, 16};
+
+            if (fish_hb.overlapping(crane_hb)) {
+                got_fish_ = true;
+
+                Level::CaughtFish c;
+                c.type_ = fish.type_;
+                c.crane_x_offset_ =
+                    rng::sample<4>((fish_pos.x - crane_pos_.x).as_integer(),
+                                   rng::utility_state);
+                c.crane_y_offset_ =
+                    rng::sample<4>((fish_pos.y - crane_pos_.y).as_integer(),
+                                   rng::utility_state);
+                level_->caught_fish_.push_back(c);
+
+                it = level_->fish_.erase(it);
+            } else {
+                ++it;
+            }
         }
 
         return null_scene();
@@ -178,12 +253,38 @@ public:
 
     void display(Platform& pfrm, App& app) override
     {
-        draw_crane(pfrm, crane_pos_);
+        Sprite spr;
+
+        for (auto& fish : level_->fish_) {
+            auto y = fish.y_.get() - depth_;
+            if (y < -24 or y > 180) {
+                continue;
+            }
+
+            auto x = Fixnum::create(fish.x_.get());
+
+            spr.set_origin({16, 16});
+            spr.set_texture_index(12);
+            spr.set_position({x, y});
+            pfrm.screen().draw(spr);
+        }
+
+        spr.set_mix({ColorConstant::electric_blue, 100});
+        for (auto& fish : level_->caught_fish_) {
+            spr.set_texture_index(12);
+            spr.set_origin({16, 16});
+            spr.set_position({crane_pos_.x + fish.crane_x_offset_ / 2,
+                              crane_pos_.y + fish.crane_y_offset_ / 2});
+            pfrm.screen().draw(spr);
+        }
+
+        draw_crane(pfrm, crane_pos_, got_fish_ ? 13 : 6);
     }
 
 private:
     Vec2<Fixnum> crane_pos_;
     Fixnum depth_;
+    bool got_fish_ = false;
 
     struct Level
     {
@@ -195,6 +296,15 @@ private:
         };
 
         Buffer<Fish, 100> fish_;
+
+        struct CaughtFish
+        {
+            u8 type_;
+            s8 crane_x_offset_;
+            s8 crane_y_offset_;
+        };
+
+        Buffer<CaughtFish, 10> caught_fish_;
     };
 
     DynamicMemory<Level> level_;
@@ -205,9 +315,7 @@ private:
 class CraneDropCinematicScene : public Scene
 {
 public:
-
-    CraneDropCinematicScene() :
-        data_(allocate_dynamic<Data>("crane-drop-data"))
+    CraneDropCinematicScene() : data_(allocate_dynamic<Data>("crane-drop-data"))
     {
     }
 
@@ -234,7 +342,6 @@ public:
                 } else {
                     pfrm.set_tile(Layer::map_0_ext, x, y, 2);
                 }
-
             }
         }
 
@@ -250,9 +357,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (app.player().key_pressed(pfrm, Key::right)) {
             crane_x_ += Fixnum(0.00003f) * delta;
@@ -265,11 +371,11 @@ public:
         if (timer_ < seconds(7)) {
             if (fadein_timer_ < milliseconds(1000)) {
                 fadein_timer_ += delta;
-                const auto amount = smoothstep(0.f,
-                                               milliseconds(1000),
-                                               fadein_timer_);
+                const auto amount =
+                    smoothstep(0.f, milliseconds(1000), fadein_timer_);
 
-                pfrm.screen().schedule_fade(1.f - amount, ColorConstant::silver_white);
+                pfrm.screen().schedule_fade(1.f - amount,
+                                            ColorConstant::silver_white);
             }
 
             timer_ += delta;
@@ -286,7 +392,8 @@ public:
 
 
             if (timer_ > milliseconds(6500)) {
-                auto amt = Float(timer_ - milliseconds(6500)) / milliseconds(500);
+                auto amt =
+                    Float(timer_ - milliseconds(6500)) / milliseconds(500);
                 int offset = -160;
                 offset += 75 * amt;
                 pfrm.set_scroll(Layer::map_0_ext, 0, offset);
@@ -300,7 +407,8 @@ public:
                     Vec2<Fixnum> pos;
                     pos.x = -80 + rng::choice<240 + 40>(rng::utility_state);
                     pos.y = 180;
-                    data_->clouds_.push_back({pos, (u8)rng::choice<2>(rng::utility_state)});
+                    data_->clouds_.push_back(
+                        {pos, (u8)rng::choice<2>(rng::utility_state)});
                 }
             }
 
@@ -319,7 +427,8 @@ public:
                 }
             }
 
-            for (auto it = data_->clouds_.begin(); it not_eq data_->clouds_.end();) {
+            for (auto it = data_->clouds_.begin();
+                 it not_eq data_->clouds_.end();) {
                 if (it->position_.y < -24) {
                     it = data_->clouds_.erase(it);
                 } else {
@@ -345,7 +454,8 @@ public:
             pfrm.set_scroll(Layer::map_0_ext, 0, offset);
 
             if (timer_ > milliseconds(9500)) {
-                return scene_pool::alloc<FishingMinigameScene>(Vec2<Fixnum>{crane_x_, crane_offset_});
+                return scene_pool::alloc<FishingMinigameScene>(
+                    Vec2<Fixnum>{crane_x_, crane_offset_});
             }
         }
 
@@ -397,12 +507,14 @@ private:
     Fixnum crane_offset_ = 20;
     Fixnum crane_x_ = 120;
 
-    struct CloudInfo {
+    struct CloudInfo
+    {
         Vec2<Fixnum> position_;
         u8 graphics_;
     };
 
-    struct Data {
+    struct Data
+    {
         Buffer<CloudInfo, 18> clouds_;
     };
     DynamicMemory<Data> data_;
@@ -445,9 +557,8 @@ CraneDropScene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<CraneDropCinematicScene>();
 
     } else {
-        const auto amount = smoothstep(0.f,
-                                       fade_duration - fade_start,
-                                       timer_ - fade_start);
+        const auto amount =
+            smoothstep(0.f, fade_duration - fade_start, timer_ - fade_start);
 
         pfrm.speaker().set_music_volume(20 - 14 * amount);
 

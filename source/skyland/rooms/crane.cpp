@@ -23,11 +23,11 @@
 #include "crane.hpp"
 #include "platform/platform.hpp"
 #include "skyland/island.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/scene/craneDropScene.hpp"
 #include "skyland/scene/notificationScene.hpp"
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/tile.hpp"
 
 
 namespace skyland
@@ -110,7 +110,6 @@ void Crane::display(Platform::Screen& screen)
         screen.draw(spr);
         pos.y += 8;
     }
-
 }
 
 

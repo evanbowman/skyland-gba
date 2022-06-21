@@ -36,9 +36,7 @@ namespace skyland
 class CraneDropScene : public WorldScene
 {
 public:
-
-    CraneDropScene(const RoomCoord& crane_pos) :
-        crane_pos_(crane_pos)
+    CraneDropScene(const RoomCoord& crane_pos) : crane_pos_(crane_pos)
     {
     }
 
