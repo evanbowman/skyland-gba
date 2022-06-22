@@ -117,6 +117,10 @@ struct EngineImpl : public Engine
         Vector<terrain::OutpostSector> outpost_sectors_;
 
 
+        u16 singularity_count_ = 0;
+        bool singularity_expand_ = false;
+
+
         terrain::Sector* current_sector_ = &origin_sector_;
         Float cloud_scroll_ = 0;
 

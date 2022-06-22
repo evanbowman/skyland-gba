@@ -211,7 +211,7 @@ public:
 
         Shape shape_;
 
-        u8 pad_[1]; // FIXME: remove. Added while packing this struct.
+        u8 pad_[1];
     };
     static_assert(std::is_trivially_copyable<Persistent>());
     static_assert(alignof(Persistent) == 1);

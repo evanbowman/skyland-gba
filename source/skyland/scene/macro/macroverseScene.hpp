@@ -84,6 +84,7 @@ private:
 
     bool exit_ = false;
     bool fastload_ = false;
+    bool abandon_ = false;
 
     u8 opt_cursor_ = 0;
 

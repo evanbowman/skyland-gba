@@ -115,6 +115,7 @@ enum class Type {
     road_ns,
     road_we,
     honey,
+    singularity,
 
     count,
 };

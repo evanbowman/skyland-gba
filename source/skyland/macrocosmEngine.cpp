@@ -1028,6 +1028,9 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::honey:
         return 410;
 
+    case terrain::Type::singularity:
+        return 1;
+
     case terrain::Type::shellfish:
         return 120;
 
@@ -1079,6 +1082,9 @@ SystemString terrain::name(Type t)
     switch (t) {
     case terrain::Type::__invalid:
         break;
+
+    case terrain::Type::singularity:
+        return SystemString::block_singularity;
 
     case terrain::Type::air:
         return SystemString::block_air;
@@ -1319,6 +1325,7 @@ terrain::Improvements terrain::improvements(Type t)
 std::pair<int, int> terrain::icons(Type t)
 {
     switch (t) {
+    case terrain::Type::singularity:
     case terrain::Type::air:
         return {2488, 2504};
 
@@ -2215,7 +2222,6 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
         if (not revert_if_covered(s, block, position, terrain::Type::water_source)) {
             update_water_still(s, block, position);
         }
-
     },
     // road-ns
     nullptr,
@@ -2225,6 +2231,56 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
     {
         revert_if_covered(s, block, position, terrain::Type::terrain);
+    },
+    // singularity
+    [](terrain::Sector& s, terrain::Block& block, Vec3<u8> position)
+    {
+        if (block.data_ > 3) {
+            --block.data_;
+            return;
+        }
+        if (block.data_ == 3) {
+            s.set_block(position, terrain::Type::air);
+            return;
+        }
+
+        block.data_++;
+        if (block.data_ < 3) {
+            return;
+        }
+        block.data_ = 0;
+
+        auto spread = [&](Vec3<u8> pos) {
+
+                          s.set_block(pos, terrain::Type::singularity);
+
+                      };
+
+        if (position.z > 0) {
+            spread({position.x, position.y, u8(position.z - 1)});
+        }
+
+        if (position.z < s.size().z - 2) {
+            spread({position.x, position.y, u8(position.z + 1)});
+        }
+
+        if (position.x < s.size().x - 1) {
+            spread({(u8)(position.x + 1), position.y, position.z});
+        }
+
+        if (position.y < s.size().y - 1) {
+            spread({position.x, (u8)(position.y + 1), position.z});
+        }
+
+        if (position.x > 0) {
+            spread({(u8)(position.x - 1), position.y, position.z});
+        }
+
+        if (position.y > 0) {
+            spread({position.x, (u8)(position.y - 1), position.z});
+        }
+
+        block.data_ = 24;
     },
 };
 // clang-format on
@@ -2537,6 +2593,10 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
         };
     // clang-format on
 

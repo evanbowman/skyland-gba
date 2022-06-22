@@ -20,6 +20,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include "abandonColonyScene.hpp"
+#include "skyland/scene/boxedDialogScene.hpp"
 #include "macroverseScene.hpp"
 #include "exchangeColonyScene.hpp"
 #include "platform/color.hpp"
@@ -282,7 +284,18 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (exit_) {
         m.sector().shadowcast();
         raster::globalstate::_recalc_depth_test.fill();
-        return scene_pool::alloc<SelectorScene>();
+        if (abandon_) {
+            auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
+            *buffer = SYSTR(grav_collapse_started)->c_str();
+            state_bit_store(app, StateBit::dialog_expects_answer, false);
+            auto next =
+                scene_pool::alloc<BoxedDialogScene>(std::move(buffer), false);
+            next->set_next_scene(scene_pool::make_deferred_scene<AbandonColonyScene>());
+            m.sector().render(pfrm);
+            return next;
+        } else {
+            return scene_pool::alloc<SelectorScene>();
+        }
     }
 
 
@@ -540,18 +553,19 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 return scene_pool::alloc<ExchangeColonyScene>(selected_);
 
             case 1: {
-                auto& current = m.sector();
-                auto delete_coord = selected_;
-                if (current.coordinate() == selected_) {
-                    m.bind_sector({0, 0});
-                }
-                selected_ = {0, 0};
-                m.erase_sector(delete_coord);
-                text_objs_.clear();
-                opt_cursor_ = 0;
-                describe_selected(pfrm, m);
-                state_ = State::show;
-                break;
+                exit_ = true;
+                abandon_ = true;
+                clear_description();
+
+                pfrm.speaker().play_sound("button_wooden", 2);
+
+                auto sz = m.sector().size();
+                m.sector().set_block({u8(sz.x / 2),
+                                      u8(sz.y / 2),
+                                      u8(sz.z / 2)},
+                                     terrain::Type::singularity);
+
+                pfrm.speaker().set_music_volume(5);
             }
             }
         }

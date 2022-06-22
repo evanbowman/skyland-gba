@@ -54,7 +54,7 @@ public:
     virtual void init_cursor(macro::EngineImpl& state);
 
 
-    virtual void collect_options(macro::EngineImpl& state);
+    virtual void collect_options(Platform&, macro::EngineImpl& state);
 
 
     virtual void message(Platform& pfrm, macro::EngineImpl&);
@@ -83,7 +83,7 @@ protected:
 class BuildImprovementScene : public CreateBlockScene
 {
 public:
-    void collect_options(macro::EngineImpl& state) override;
+    void collect_options(Platform&, macro::EngineImpl& state) override;
 
     void adjust_cursor_z(Platform&, Player& player, macro::EngineImpl&) override
     {
@@ -108,7 +108,7 @@ public:
 class ConfigurePortScene : public CreateBlockScene
 {
 public:
-    void collect_options(macro::EngineImpl& state) override;
+    void collect_options(Platform&, macro::EngineImpl& state) override;
 
     void adjust_cursor_z(Platform&, Player& player, macro::EngineImpl&) override
     {

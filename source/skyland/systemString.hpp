@@ -127,6 +127,7 @@ enum class SystemString {
     block_scaffolding,
     block_shellfish,
     block_shrubbery,
+    block_singularity,
     block_solar_cell,
     block_speaker,
     block_stairwell,
@@ -491,6 +492,9 @@ enum class SystemString {
     intro_sequence_message_1,
     intro_sequence_message_2,
     intro_sequence_message_3,
+
+    grav_collapse_started,
+    grav_collapse_ended,
 
     freebuild_locked_text,
 
