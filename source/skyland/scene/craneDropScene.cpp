@@ -160,6 +160,8 @@ public:
         fish.y_.set(580);
         fish.x_.set(Fixnum(120.f).data());
         level_->fish_.push_back(fish);
+
+        x_speed_ = 0;
     }
 
 
@@ -171,12 +173,26 @@ public:
             return scene_pool::alloc<CraneFadeinScene>();
         }
 
+
+        if (app.player().key_pressed(pfrm, Key::down)) {
+            descent_speed_ += Fixnum(0.0000045f);
+        }
+
+        if (app.player().key_pressed(pfrm, Key::up)) {
+            descent_speed_ -= Fixnum(0.0000045f);
+        }
+
+
+        descent_speed_ = clamp(descent_speed_,
+                               Fixnum(0.000045f),
+                               Fixnum(0.000055f));
+
         if (got_fish_) {
             if (crane_pos_.y < 120) {
                 crane_pos_.y += Fixnum(0.00003f) * delta;
                 depth_ -= Fixnum(0.00006f) * delta;
             } else {
-                depth_ -= Fixnum(0.00009f) * delta;
+                depth_ -= Fixnum(1.5f) * descent_speed_ * delta;
             }
             if (depth_ < -32) {
                 pfrm.screen().fade(1.f);
@@ -184,19 +200,31 @@ public:
             }
         } else {
             if (crane_pos_.y > 30) {
-                crane_pos_.y -= Fixnum(0.00003f) * delta;
+                crane_pos_.y -= descent_speed_ * delta;
             }
-            depth_ += Fixnum(0.00005f) * delta;
+            depth_ += descent_speed_ * delta;
+        }
+
+
+        x_speed_ = clamp(x_speed_, Fixnum(-0.0001f), Fixnum(0.0001f));
+
+        if (x_speed_ > 0) {
+            x_speed_ -= Fixnum(0.000002f);
+        } else if (x_speed_ < 0) {
+            x_speed_ += Fixnum(0.000002f);
         }
 
 
         if (app.player().key_pressed(pfrm, Key::right)) {
-            crane_pos_.x += Fixnum(0.00007f) * delta;
+            x_speed_ += Fixnum(0.0000045f);
         }
 
         if (app.player().key_pressed(pfrm, Key::left)) {
-            crane_pos_.x -= Fixnum(0.00007f) * delta;
+            x_speed_ -= Fixnum(0.0000045f);
         }
+
+        crane_pos_.x += x_speed_ * delta;
+
 
         HitBox crane_hb;
         crane_hb.position_ = &crane_pos_;
@@ -247,6 +275,7 @@ public:
             }
         }
 
+        draw_crane(pfrm, crane_pos_, got_fish_ ? 13 : 6);
         return null_scene();
     }
 
@@ -277,13 +306,13 @@ public:
                               crane_pos_.y + fish.crane_y_offset_ / 2});
             pfrm.screen().draw(spr);
         }
-
-        draw_crane(pfrm, crane_pos_, got_fish_ ? 13 : 6);
     }
 
 private:
     Vec2<Fixnum> crane_pos_;
+    Fixnum x_speed_;
     Fixnum depth_;
+    Fixnum descent_speed_ = Fixnum(0.00005f);
     bool got_fish_ = false;
 
     struct Level
@@ -360,13 +389,25 @@ public:
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override
     {
+        x_speed_ = clamp(x_speed_, Fixnum(-0.00004f), Fixnum(0.00004f));
+
+        if (x_speed_ > 0) {
+            x_speed_ -= Fixnum(0.000001f);
+        } else if (x_speed_ < 0) {
+            x_speed_ += Fixnum(0.000001f);
+        }
+
+
         if (app.player().key_pressed(pfrm, Key::right)) {
-            crane_x_ += Fixnum(0.00003f) * delta;
+            x_speed_ += Fixnum(0.000003f);
         }
 
         if (app.player().key_pressed(pfrm, Key::left)) {
-            crane_x_ -= Fixnum(0.00003f) * delta;
+            x_speed_ -= Fixnum(0.000003f);
         }
+
+        crane_x_ += x_speed_ * delta;
+
 
         if (timer_ < seconds(7)) {
             if (fadein_timer_ < milliseconds(1000)) {
@@ -506,6 +547,7 @@ private:
     Microseconds cloud_respawn_ = milliseconds(40);
     Fixnum crane_offset_ = 20;
     Fixnum crane_x_ = 120;
+    Fixnum x_speed_ = 0;
 
     struct CloudInfo
     {

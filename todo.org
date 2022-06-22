@@ -1,5 +1,11 @@
 
 * June 2022
+** TODO Crane Minigame
+*** Add add code for seafloor depth
+*** Generate positions of sea mines
+*** Generate different sorts of awards
+**** Random item, coins, etc. at the bottom of the sea
+**** Items could be story elements, world building stuff, etc.
 ** DONE Add a happiness/unhappiness mechanic to macro mode
 ** DONE Auto-pause & rewind option when island destroyed in easy mode
 ** DONE Add dialog boxes, description for macro mode
