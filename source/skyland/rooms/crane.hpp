@@ -125,6 +125,12 @@ public:
     }
 
 
+    void set_item(int item)
+    {
+        item_ = item;
+    }
+
+
     void apply_damage(Platform& pfrm, App& app, Health damage) override
     {
         if (state_ == State::idle) {
@@ -143,6 +149,8 @@ private:
         drop,
         retract,
     } state_ = State::idle;
+
+    int item_ = 0;
 };
 
 

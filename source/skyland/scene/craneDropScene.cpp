@@ -131,35 +131,145 @@ draw_crane(Platform& pfrm, const Vec2<Fixnum>& offset, u16 image = 6)
 
 
 
-class FishingMinigameScene : public Scene
+class CraneMinigameScene : public Scene
 {
 public:
-    FishingMinigameScene(const Vec2<Fixnum>& crane_pos)
-        : crane_pos_(crane_pos),
+
+    using ChunkData = u8[7][7];
+
+    static constexpr const ChunkData init_chunk = {
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {1, 0, 0, 0, 1, 0, 1},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 0, 1, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+    };
+
+    static constexpr const ChunkData sector_empty = {
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+    };
+
+    static constexpr const ChunkData sector_0 = {
+        {0, 0, 0, 0, 0, 0, 0},
+        {1, 0, 0, 0, 1, 0, 0},
+        {0, 1, 0, 0, 0, 0, 1},
+        {0, 0, 1, 0, 0, 1, 0},
+        {0, 0, 0, 0, 1, 0, 0},
+        {0, 1, 0, 0, 0, 1, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+    };
+
+    static constexpr const ChunkData sector_1 = {
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 1, 0, 1, 1, 1, 0},
+        {1, 1, 0, 1, 0, 1, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {1, 1, 1, 0, 0, 1, 1},
+        {0, 0, 1, 1, 0, 0, 0},
+    };
+
+    static constexpr const ChunkData sector_2 = {
+        {1, 0, 0, 0, 0, 0, 0},
+        {0, 1, 0, 0, 1, 0, 0},
+        {0, 0, 1, 0, 0, 1, 0},
+        {0, 0, 0, 1, 0, 0, 1},
+        {0, 0, 0, 0, 1, 0, 1},
+        {0, 0, 0, 1, 0, 0, 0},
+        {0, 0, 0, 1, 0, 1, 1},
+    };
+
+    static constexpr const ChunkData sector_3 = {
+        {0, 0, 0, 0, 0, 0, 0},
+        {1, 0, 1, 0, 1, 0, 1},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 1, 0, 1, 0, 1, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {1, 0, 1, 0, 1, 0, 1},
+        {0, 0, 0, 0, 0, 0, 0},
+    };
+
+    static constexpr const ChunkData sector_4 = {
+        {0, 0, 0, 0, 0, 0, 0},
+        {1, 1, 1, 1, 1, 0, 1},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+        {1, 1, 0, 1, 1, 1, 1},
+        {0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0},
+    };
+
+
+
+
+    CraneMinigameScene(const RoomCoord& crane_loc,
+                       const Vec2<Fixnum>& crane_pos)
+        : crane_loc_(crane_loc),
+          crane_pos_(crane_pos),
           level_(allocate_dynamic<Level>("fishing-level-data"))
     {
     }
 
 
+    static constexpr const Float spacing = 35.f;
+
+
+    void load_chunk(const u8 chunk[7][7], Fixnum y_offset)
+    {
+        Level::Object object;
+        object.type_ = 0;
+
+        for (int x = 0; x < 7; ++x) {
+            for (int y = 0; y < 7; ++y) {
+                if (chunk[y][x]) {
+                    object.x_.set(Fixnum(15 + x * spacing).data());
+                    object.y_.set((y_offset + y * spacing).as_integer());
+                    level_->objects_.push_back(object);
+                }
+            }
+        }
+    }
+
+
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
-        Level::Fish fish;
-        fish.type_ = 0;
-        fish.x_.set(Fixnum(30.f).data());
-        fish.y_.set(100);
-        level_->fish_.push_back(fish);
+        rng::LinearGenerator seed = app.crane_game_rng();
 
-        fish.y_.set(300);
-        fish.x_.set(Fixnum(50.f).data());
-        level_->fish_.push_back(fish);
+        std::array<const ChunkData*, 5> choices = {&sector_0,
+                                                   &sector_1,
+                                                   &sector_2,
+                                                   &sector_3,
+                                                   &sector_4};
 
-        fish.y_.set(500);
-        fish.x_.set(Fixnum(70.f).data());
-        level_->fish_.push_back(fish);
+        Buffer<const ChunkData*, choices.size() * 2> pattern;
+        for (auto& c : choices) {
+            pattern.push_back(c);
+            pattern.push_back(c);
+        }
+        rng::shuffle(pattern, seed);
 
-        fish.y_.set(580);
-        fish.x_.set(Fixnum(120.f).data());
-        level_->fish_.push_back(fish);
+        Buffer<const ChunkData*, 5> result;
+        for (u32 i = 0; i < result.capacity(); ++i) {
+            result.push_back(pattern.back());
+            pattern.pop_back();
+        }
+
+
+        load_chunk(init_chunk, 100.f);
+
+
+        int offset = 1;
+        for (auto& c : result) {
+            load_chunk(*c, 100.f + spacing * ((offset++) * 7));
+        }
 
         x_speed_ = 0;
     }
@@ -168,12 +278,6 @@ public:
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override
     {
-        if (app.player().key_down(pfrm, Key::action_2)) {
-            pfrm.screen().schedule_fade(1.f);
-            return scene_pool::alloc<CraneFadeinScene>();
-        }
-
-
         if (app.player().key_pressed(pfrm, Key::down)) {
             descent_speed_ += Fixnum(0.0000045f);
         }
@@ -184,18 +288,35 @@ public:
 
 
         descent_speed_ = clamp(descent_speed_,
-                               Fixnum(0.000045f),
-                               Fixnum(0.000055f));
+                               Fixnum(0.000055f),
+                               Fixnum(0.000065f));
 
-        if (got_fish_) {
+        if (got_treasure_ or got_bomb_) {
             if (crane_pos_.y < 120) {
                 crane_pos_.y += Fixnum(0.00003f) * delta;
                 depth_ -= Fixnum(0.00006f) * delta;
             } else {
-                depth_ -= Fixnum(1.5f) * descent_speed_ * delta;
+                depth_ -= descent_speed_ * delta;
             }
-            if (depth_ < -32) {
-                pfrm.screen().fade(1.f);
+
+            bomb_timer_ += delta;
+
+            if ((got_bomb_ and bomb_timer_ > milliseconds(750))
+                or depth_ < -32) {
+
+                pfrm.screen().schedule_fade(1.f);
+                pfrm.screen().clear();
+                pfrm.screen().display();
+
+                if (got_bomb_) {
+                    if (auto room = app.player_island().get_room(crane_loc_)) {
+                        if (auto crane = dynamic_cast<Crane*>(room)) {
+                            crane->set_item(0);
+                        }
+                    }
+                }
+
+                exit_ = true;
                 return scene_pool::alloc<CraneFadeinScene>();
             }
         } else {
@@ -209,9 +330,9 @@ public:
         x_speed_ = clamp(x_speed_, Fixnum(-0.0001f), Fixnum(0.0001f));
 
         if (x_speed_ > 0) {
-            x_speed_ -= Fixnum(0.000002f);
+            x_speed_ -= Fixnum(0.0000007f);
         } else if (x_speed_ < 0) {
-            x_speed_ += Fixnum(0.000002f);
+            x_speed_ += Fixnum(0.0000007f);
         }
 
 
@@ -231,66 +352,74 @@ public:
         crane_hb.dimension_.size_ = {24, 24};
         crane_hb.dimension_.origin_ = {16, 16};
 
-        bool seen_fish = false;
+        bool seen_object = false;
 
-        for (auto it = level_->fish_.begin(); it not_eq level_->fish_.end();) {
-            auto& fish = *it;
+        for (auto it = level_->objects_.begin(); it not_eq level_->objects_.end();) {
+            auto& object = *it;
 
-            auto screen_y = fish.y_.get() - depth_;
+            auto screen_y = object.y_.get() - depth_;
             if (screen_y < -24 or screen_y > 180) {
-                if (seen_fish) {
+                if (seen_object) {
                     break;
                 } else {
                     ++it;
                     continue;
                 }
             }
-            seen_fish = true;
+            seen_object = true;
 
-            Vec2<Fixnum> fish_pos;
-            fish_pos.y = (fish.y_.get() - depth_);
-            fish_pos.x = Fixnum::create(fish.x_.get());
+            Vec2<Fixnum> object_pos;
+            object_pos.y = (object.y_.get() - depth_);
+            object_pos.x = Fixnum::create(object.x_.get());
 
-            HitBox fish_hb;
-            fish_hb.position_ = &fish_pos;
-            fish_hb.dimension_.size_ = {24, 10};
-            fish_hb.dimension_.origin_ = {16, 16};
+            HitBox object_hb;
+            object_hb.position_ = &object_pos;
+            object_hb.dimension_.size_ = {24, 14};
+            object_hb.dimension_.origin_ = {16, 16};
 
-            if (fish_hb.overlapping(crane_hb)) {
-                got_fish_ = true;
+            if (object_hb.overlapping(crane_hb)) {
 
-                Level::CaughtFish c;
-                c.type_ = fish.type_;
+                if (object.type_ == 0) {
+                    got_bomb_ = true;
+                } else {
+                    got_treasure_ = true;
+                }
+
+                Level::CaughtObject c;
+                c.type_ = object.type_;
                 c.crane_x_offset_ =
-                    rng::sample<4>((fish_pos.x - crane_pos_.x).as_integer(),
+                    rng::sample<4>((object_pos.x - crane_pos_.x).as_integer(),
                                    rng::utility_state);
                 c.crane_y_offset_ =
-                    rng::sample<4>((fish_pos.y - crane_pos_.y).as_integer(),
+                    rng::sample<4>((object_pos.y - crane_pos_.y).as_integer(),
                                    rng::utility_state);
-                level_->caught_fish_.push_back(c);
+                level_->caught_objects_.push_back(c);
 
-                it = level_->fish_.erase(it);
+                it = level_->objects_.erase(it);
             } else {
                 ++it;
             }
         }
 
-        draw_crane(pfrm, crane_pos_, got_fish_ ? 13 : 6);
+        draw_crane(pfrm, crane_pos_, got_treasure_ ? 13 : 6);
         return null_scene();
     }
 
 
     void display(Platform& pfrm, App& app) override
     {
+        if (exit_) {
+            return;
+        }
         Sprite spr;
 
-        for (auto& fish : level_->fish_) {
-            auto y = fish.y_.get() - depth_;
+        for (auto& object : level_->objects_) {
+            auto y = object.y_.get() - depth_;
             if (y < -24 or y > 180) {
                 continue;
             }
 
-            auto x = Fixnum::create(fish.x_.get());
+            auto x = Fixnum::create(object.x_.get());
 
             spr.set_origin({16, 16});
             spr.set_texture_index(12);
@@ -299,41 +428,45 @@ public:
         }
 
         spr.set_mix({ColorConstant::electric_blue, 100});
-        for (auto& fish : level_->caught_fish_) {
+        for (auto& object : level_->caught_objects_) {
             spr.set_texture_index(12);
             spr.set_origin({16, 16});
-            spr.set_position({crane_pos_.x + fish.crane_x_offset_ / 2,
-                              crane_pos_.y + fish.crane_y_offset_ / 2});
+            spr.set_position({crane_pos_.x + object.crane_x_offset_ / 2,
+                              crane_pos_.y + object.crane_y_offset_ / 2});
             pfrm.screen().draw(spr);
         }
     }
 
 private:
+    RoomCoord crane_loc_;
     Vec2<Fixnum> crane_pos_;
     Fixnum x_speed_;
     Fixnum depth_;
-    Fixnum descent_speed_ = Fixnum(0.00005f);
-    bool got_fish_ = false;
+    Fixnum descent_speed_ = Fixnum(0.00006f);
+    bool got_treasure_ = false;
+    bool got_bomb_ = false;
+    Microseconds bomb_timer_ = 0;
+    bool exit_ = false;
 
     struct Level
     {
-        struct Fish
+        struct Object
         {
             u8 type_;
             HostInteger<u16> y_;
             HostInteger<u64> x_;
         };
 
-        Buffer<Fish, 100> fish_;
+        Buffer<Object, 100> objects_;
 
-        struct CaughtFish
+        struct CaughtObject
         {
             u8 type_;
             s8 crane_x_offset_;
             s8 crane_y_offset_;
         };
 
-        Buffer<CaughtFish, 10> caught_fish_;
+        Buffer<CaughtObject, 10> caught_objects_;
     };
 
     DynamicMemory<Level> level_;
@@ -344,7 +477,9 @@ private:
 class CraneDropCinematicScene : public Scene
 {
 public:
-    CraneDropCinematicScene() : data_(allocate_dynamic<Data>("crane-drop-data"))
+    CraneDropCinematicScene(const RoomCoord& crane_pos) :
+        data_(allocate_dynamic<Data>("crane-drop-data")),
+        crane_pos_(crane_pos)
     {
     }
 
@@ -495,7 +630,7 @@ public:
             pfrm.set_scroll(Layer::map_0_ext, 0, offset);
 
             if (timer_ > milliseconds(9500)) {
-                return scene_pool::alloc<FishingMinigameScene>(
+                return scene_pool::alloc<CraneMinigameScene>(crane_pos_,
                     Vec2<Fixnum>{crane_x_, crane_offset_});
             }
         }
@@ -560,6 +695,7 @@ private:
         Buffer<CloudInfo, 18> clouds_;
     };
     DynamicMemory<Data> data_;
+    RoomCoord crane_pos_;
 
     Microseconds cloud_timer_;
 };
@@ -570,10 +706,6 @@ ScenePtr<Scene>
 CraneDropScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     WorldScene::update(pfrm, app, delta);
-
-    if (timer_ == 0) {
-        app.set_coins(pfrm, app.coins() - 2000);
-    }
 
     timer_ += delta;
 
@@ -596,7 +728,7 @@ CraneDropScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        return scene_pool::alloc<CraneDropCinematicScene>();
+        return scene_pool::alloc<CraneDropCinematicScene>(crane_pos_);
 
     } else {
         const auto amount =

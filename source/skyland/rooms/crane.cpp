@@ -28,6 +28,7 @@
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/entity/explosion/explosion.hpp"
 
 
 namespace skyland
@@ -76,6 +77,16 @@ void Crane::update(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ < 0) {
             timer_ = 0;
             state_ = State::idle;
+
+            auto pos = center();
+            pos.x += 14;
+            pos.y += parent()->get_ambient_movement();
+            pos.y += 2;
+            pos.y += timer_ * Fixnum(0.00004f);
+
+            pfrm.speaker().play_sound("explosion1", 2);
+            big_explosion(pfrm, app, pos);
+            apply_damage(pfrm, app, 5);
         }
         break;
     }
@@ -86,8 +97,8 @@ void Crane::update(Platform& pfrm, App& app, Microseconds delta)
 void Crane::display(Platform::Screen& screen)
 {
     Sprite spr;
-    spr.set_texture_index(92);
     spr.set_size(Sprite::Size::w16_h32);
+
     auto pos = center();
     pos.x += 14;
     pos.y += parent()->get_ambient_movement();
@@ -95,8 +106,21 @@ void Crane::display(Platform::Screen& screen)
     const auto start_pos = pos;
 
     pos.y += timer_ * Fixnum(0.00004f);
-
     spr.set_position(pos);
+
+
+    if (state_ == State::retract) {
+        switch (item_) {
+        case 0:
+            spr.set_texture_index(94);
+            screen.draw(spr);
+            break;
+        }
+    }
+
+
+    spr.set_texture_index(92);
+
     screen.draw(spr);
 
     const auto claw_pos = pos;
@@ -119,12 +143,6 @@ ScenePtr<Scene> Crane::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     if (state_ == State::idle) {
         state_ = State::drop;
         timer_ = 0;
-    }
-
-    if (app.coins() < 2000) {
-        auto str = SYSTR(construction_insufficient_funds);
-        auto next = scene_pool::make_deferred_scene<ReadyScene>();
-        return scene_pool::alloc<NotificationScene>(str->c_str(), next);
     }
 
     return scene_pool::alloc<CraneDropScene>(position());

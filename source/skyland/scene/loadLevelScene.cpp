@@ -101,6 +101,7 @@ void prep_level(Platform& pfrm, App& app)
     app.stat_timer().reset(0);
     app.level_timer().reset(0);
     state_bit_store(app, StateBit::surrender_offered, false);
+    rng::get(app.crane_game_rng());
 
     if (app.game_mode() not_eq App::GameMode::skyland_forever and
         app.game_mode() not_eq App::GameMode::co_op) {

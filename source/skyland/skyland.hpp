@@ -310,7 +310,7 @@ public:
     }
 
 
-    int& pause_count()
+    u16& pause_count()
     {
         return pause_count_;
     }
@@ -421,6 +421,12 @@ public:
     }
 
 
+    rng::LinearGenerator& crane_game_rng()
+    {
+        return world_state_->crane_game_rng_;
+    }
+
+
 private:
     // NOTE: As islands take a lot of memory, and App is created on the stack, I
     // ended up moving them into a scratch buffer.
@@ -433,6 +439,7 @@ private:
 
         Island player_;
         std::optional<Island> opponent_;
+        rng::LinearGenerator crane_game_rng_;
     };
 
     void on_remote_console_text(Platform& pfrm,
@@ -449,7 +456,7 @@ private:
     Coins level_coins_spent_ = 0;
     Boxed<Camera, Camera, 32> camera_;
     GameSpeed game_speed_ = GameSpeed::normal;
-    int pause_count_ = 0;
+    u16 pause_count_ = 0;
     Rumble rumble_;
 
     KeyCallbackProcessor key_callback_processor_;
