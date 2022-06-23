@@ -37,8 +37,15 @@
         (exit))
     (progn
       (coins-add -1300)
+
+      ;; We wouldn't want the player to get into a position where there isn't
+      ;; enough terrain to place the weapon! The game would get locked
+      ;; up. Just give the player some terrain for free.
       (if (not (construction-sites (player) '(2 . 2)))
-          (terrain (player) (+ (terrain (player)) 2)))
+          (terrain (player) (+ (terrain (player)) 1)))
+      (if (not (construction-sites (player) '(2 . 2)))
+          (terrain (player) (+ (terrain (player)) 1)))
+
       (sel-input
        '(2 . 2)
        "Place weapon where? (2x2)"
