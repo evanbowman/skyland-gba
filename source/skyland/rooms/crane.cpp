@@ -22,13 +22,13 @@
 
 #include "crane.hpp"
 #include "platform/platform.hpp"
+#include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/island.hpp"
 #include "skyland/scene/craneDropScene.hpp"
 #include "skyland/scene/notificationScene.hpp"
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/entity/explosion/explosion.hpp"
 
 
 namespace skyland
@@ -84,9 +84,13 @@ void Crane::update(Platform& pfrm, App& app, Microseconds delta)
             pos.y += 2;
             pos.y += timer_ * Fixnum(0.00004f);
 
-            pfrm.speaker().play_sound("explosion1", 2);
-            big_explosion(pfrm, app, pos);
-            apply_damage(pfrm, app, 5);
+            if (item_ == 0) {
+                pfrm.speaker().play_sound("explosion1", 2);
+                big_explosion(pfrm, app, pos);
+                apply_damage(pfrm, app, 5);
+            } else {
+                // ...
+            }
         }
         break;
     }
@@ -115,6 +119,11 @@ void Crane::display(Platform::Screen& screen)
             spr.set_texture_index(94);
             screen.draw(spr);
             break;
+
+        case 1:
+            spr.set_texture_index(51);
+            screen.draw(spr);
+            break;
         }
     }
 
@@ -140,6 +149,12 @@ void Crane::display(Platform::Screen& screen)
 
 ScenePtr<Scene> Crane::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
+    if (state_bit_load(app, StateBit::crane_game_got_treasure)) {
+        pfrm.speaker().play_sound("beep_error", 3);
+        // TODO: show notification message
+        return null_scene();
+    }
+
     if (state_ == State::idle) {
         state_ = State::drop;
         timer_ = 0;

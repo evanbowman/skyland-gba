@@ -134,7 +134,6 @@ draw_crane(Platform& pfrm, const Vec2<Fixnum>& offset, u16 image = 6)
 class CraneMinigameScene : public Scene
 {
 public:
-
     using ChunkData = u8[7][7];
 
     static constexpr const ChunkData init_chunk = {
@@ -208,12 +207,9 @@ public:
     };
 
 
-
-
     CraneMinigameScene(const RoomCoord& crane_loc,
                        const Vec2<Fixnum>& crane_pos)
-        : crane_loc_(crane_loc),
-          crane_pos_(crane_pos),
+        : crane_loc_(crane_loc), crane_pos_(crane_pos),
           level_(allocate_dynamic<Level>("fishing-level-data"))
     {
     }
@@ -243,11 +239,8 @@ public:
     {
         rng::LinearGenerator seed = app.crane_game_rng();
 
-        std::array<const ChunkData*, 5> choices = {&sector_0,
-                                                   &sector_1,
-                                                   &sector_2,
-                                                   &sector_3,
-                                                   &sector_4};
+        std::array<const ChunkData*, 5> choices = {
+            &sector_0, &sector_1, &sector_2, &sector_3, &sector_4};
 
         Buffer<const ChunkData*, choices.size() * 2> pattern;
         for (auto& c : choices) {
@@ -271,6 +264,13 @@ public:
             load_chunk(*c, 100.f + spacing * ((offset++) * 7));
         }
 
+        Level::Object object;
+        object.type_ = 1;
+
+        object.x_.set(Fixnum(120.f).data());
+        object.y_.set(6 * 7 * spacing + 150);
+        level_->objects_.push_back(object);
+
         x_speed_ = 0;
     }
 
@@ -287,9 +287,13 @@ public:
         }
 
 
-        descent_speed_ = clamp(descent_speed_,
-                               Fixnum(0.000055f),
-                               Fixnum(0.000065f));
+        descent_speed_ =
+            clamp(descent_speed_, Fixnum(0.000055f), Fixnum(0.000065f));
+
+        if (depth_ > 6 * 7 * spacing + 90) {
+            crane_pos_.x = interpolate(Fixnum(120.f), crane_pos_.x, 0.15f);
+        }
+
 
         if (got_treasure_ or got_bomb_) {
             if (crane_pos_.y < 120) {
@@ -301,17 +305,18 @@ public:
 
             bomb_timer_ += delta;
 
-            if ((got_bomb_ and bomb_timer_ > milliseconds(750))
-                or depth_ < -32) {
+            if (bomb_timer_ > milliseconds(750)) {
 
                 pfrm.screen().schedule_fade(1.f);
                 pfrm.screen().clear();
                 pfrm.screen().display();
 
-                if (got_bomb_) {
-                    if (auto room = app.player_island().get_room(crane_loc_)) {
-                        if (auto crane = dynamic_cast<Crane*>(room)) {
+                if (auto room = app.player_island().get_room(crane_loc_)) {
+                    if (auto crane = dynamic_cast<Crane*>(room)) {
+                        if (got_bomb_) {
                             crane->set_item(0);
+                        } else {
+                            crane->set_item(1);
                         }
                     }
                 }
@@ -354,7 +359,8 @@ public:
 
         bool seen_object = false;
 
-        for (auto it = level_->objects_.begin(); it not_eq level_->objects_.end();) {
+        for (auto it = level_->objects_.begin();
+             it not_eq level_->objects_.end();) {
             auto& object = *it;
 
             auto screen_y = object.y_.get() - depth_;
@@ -382,6 +388,8 @@ public:
                 if (object.type_ == 0) {
                     got_bomb_ = true;
                 } else {
+                    state_bit_store(
+                        app, StateBit::crane_game_got_treasure, true);
                     got_treasure_ = true;
                 }
 
@@ -401,7 +409,7 @@ public:
             }
         }
 
-        draw_crane(pfrm, crane_pos_, got_treasure_ ? 13 : 6);
+        draw_crane(pfrm, crane_pos_, (got_treasure_ or got_bomb_) ? 13 : 6);
         return null_scene();
     }
 
@@ -422,14 +430,32 @@ public:
             auto x = Fixnum::create(object.x_.get());
 
             spr.set_origin({16, 16});
-            spr.set_texture_index(12);
+
+            switch (object.type_) {
+            case 0:
+                spr.set_texture_index(12);
+                break;
+
+            case 1:
+                spr.set_texture_index(14);
+                break;
+            }
+
             spr.set_position({x, y});
             pfrm.screen().draw(spr);
         }
 
         spr.set_mix({ColorConstant::electric_blue, 100});
         for (auto& object : level_->caught_objects_) {
-            spr.set_texture_index(12);
+            switch (object.type_) {
+            case 0:
+                spr.set_texture_index(12);
+                break;
+
+            case 1:
+                spr.set_texture_index(14);
+                break;
+            }
             spr.set_origin({16, 16});
             spr.set_position({crane_pos_.x + object.crane_x_offset_ / 2,
                               crane_pos_.y + object.crane_y_offset_ / 2});
@@ -477,9 +503,9 @@ private:
 class CraneDropCinematicScene : public Scene
 {
 public:
-    CraneDropCinematicScene(const RoomCoord& crane_pos) :
-        data_(allocate_dynamic<Data>("crane-drop-data")),
-        crane_pos_(crane_pos)
+    CraneDropCinematicScene(const RoomCoord& crane_pos)
+        : data_(allocate_dynamic<Data>("crane-drop-data")),
+          crane_pos_(crane_pos)
     {
     }
 
@@ -524,6 +550,10 @@ public:
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override
     {
+        if (app.player().key_pressed(pfrm, Key::action_2)) {
+            delta *= 2;
+        }
+
         x_speed_ = clamp(x_speed_, Fixnum(-0.00004f), Fixnum(0.00004f));
 
         if (x_speed_ > 0) {
@@ -544,7 +574,7 @@ public:
         crane_x_ += x_speed_ * delta;
 
 
-        if (timer_ < seconds(7)) {
+        if (timer_ < seconds(5)) {
             if (fadein_timer_ < milliseconds(1000)) {
                 fadein_timer_ += delta;
                 const auto amount =
@@ -556,7 +586,7 @@ public:
 
             timer_ += delta;
 
-            if (timer_ > seconds(7)) {
+            if (timer_ > seconds(5)) {
                 for (int x = 0; x < 16; ++x) {
                     for (int y = 1; y < 10; ++y) {
                         pfrm.set_tile(Layer::map_0_ext, x, y, 2);
@@ -567,9 +597,9 @@ public:
             }
 
 
-            if (timer_ > milliseconds(6500)) {
+            if (timer_ > milliseconds(4800)) {
                 auto amt =
-                    Float(timer_ - milliseconds(6500)) / milliseconds(500);
+                    Float(timer_ - milliseconds(4800)) / milliseconds(200);
                 int offset = -160;
                 offset += 75 * amt;
                 pfrm.set_scroll(Layer::map_0_ext, 0, offset);
@@ -578,7 +608,7 @@ public:
             if (timer_ < seconds(4)) {
                 cloud_timer_ += delta;
                 if (cloud_timer_ > cloud_respawn_) {
-                    cloud_respawn_ += milliseconds(10);
+                    cloud_respawn_ += milliseconds(7);
                     cloud_timer_ = 0;
                     Vec2<Fixnum> pos;
                     pos.x = -80 + rng::choice<240 + 40>(rng::utility_state);
@@ -594,11 +624,11 @@ public:
             for (auto& cloud : data_->clouds_) {
                 switch (cloud.graphics_) {
                 case 0:
-                    cloud.position_.y -= Fixnum(0.00015f) * delta;
+                    cloud.position_.y -= Fixnum(0.00020f) * delta;
                     break;
 
                 case 1:
-                    cloud.position_.y -= Fixnum(0.00024f) * delta;
+                    cloud.position_.y -= Fixnum(0.00029f) * delta;
                     break;
                 }
             }
@@ -614,7 +644,7 @@ public:
         } else {
             crane_offset_ -= Fixnum(0.000015f) * delta;
 
-            if (timer_ < seconds(9) and timer_ + delta > seconds(9)) {
+            if (timer_ < seconds(7) and timer_ + delta > seconds(7)) {
                 for (int x = 0; x < 16; ++x) {
                     for (int y = 10; y < 14; ++y) {
                         pfrm.set_tile(Layer::map_0_ext, x, y, 2);
@@ -623,15 +653,15 @@ public:
             }
 
             timer_ += delta;
-            auto amt = Float(timer_ - seconds(7)) / milliseconds(2500);
+            auto amt = Float(timer_ - seconds(5)) / milliseconds(2500);
 
             int offset = -160 + 75;
             offset += 105 * amt;
             pfrm.set_scroll(Layer::map_0_ext, 0, offset);
 
-            if (timer_ > milliseconds(9500)) {
-                return scene_pool::alloc<CraneMinigameScene>(crane_pos_,
-                    Vec2<Fixnum>{crane_x_, crane_offset_});
+            if (timer_ > milliseconds(7500)) {
+                return scene_pool::alloc<CraneMinigameScene>(
+                    crane_pos_, Vec2<Fixnum>{crane_x_, crane_offset_});
             }
         }
 
@@ -679,7 +709,7 @@ public:
 private:
     Microseconds fadein_timer_ = 0;
     Microseconds timer_ = 0;
-    Microseconds cloud_respawn_ = milliseconds(40);
+    Microseconds cloud_respawn_ = milliseconds(30);
     Fixnum crane_offset_ = 20;
     Fixnum crane_x_ = 120;
     Fixnum x_speed_ = 0;

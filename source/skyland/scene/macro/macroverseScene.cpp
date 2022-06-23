@@ -20,13 +20,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "abandonColonyScene.hpp"
-#include "skyland/scene/boxedDialogScene.hpp"
 #include "macroverseScene.hpp"
+#include "abandonColonyScene.hpp"
 #include "exchangeColonyScene.hpp"
 #include "platform/color.hpp"
 #include "platform/platform.hpp"
 #include "selectorScene.hpp"
+#include "skyland/scene/boxedDialogScene.hpp"
 #include "skyland/scene/startMenuScene.hpp"
 #include "skyland/scene/textEntryScene.hpp"
 #include "skyland/skyland.hpp"
@@ -290,7 +290,8 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_bit_store(app, StateBit::dialog_expects_answer, false);
             auto next =
                 scene_pool::alloc<BoxedDialogScene>(std::move(buffer), false);
-            next->set_next_scene(scene_pool::make_deferred_scene<AbandonColonyScene>());
+            next->set_next_scene(
+                scene_pool::make_deferred_scene<AbandonColonyScene>());
             m.sector().render(pfrm);
             return next;
         } else {
@@ -560,9 +561,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.speaker().play_sound("button_wooden", 2);
 
                 auto sz = m.sector().size();
-                m.sector().set_block({u8(sz.x / 2),
-                                      u8(sz.y / 2),
-                                      u8(sz.z / 2)},
+                m.sector().set_block({u8(sz.x / 2), u8(sz.y / 2), u8(sz.z / 2)},
                                      terrain::Type::singularity);
 
                 pfrm.speaker().set_music_volume(5);

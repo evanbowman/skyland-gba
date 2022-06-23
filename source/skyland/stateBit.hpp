@@ -37,6 +37,7 @@ enum class StateBit {
     surrender_offered,
     remote_console_force_newline,
     easy_mode_rewind_declined,
+    crane_game_got_treasure,
     count,
 };
 
