@@ -83,6 +83,7 @@ App::App(Platform& pfrm)
         // Hidden by default. Just as an incentive to the player to figure out
         // how the room hide menu works.
         gp_.hidden_rooms_.set(metaclass_index("sunflower"), true);
+        gp_.hidden_rooms_.set(metaclass_index("crane"), true);
 
         DateTime dt;
         if (pfrm.system_call("startup-time", &dt)) {
