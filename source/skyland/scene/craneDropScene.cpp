@@ -20,6 +20,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+#include "boxedDialogScene.hpp"
 #include "craneDropScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/rooms/crane.hpp"
@@ -40,6 +41,17 @@ void init_clouds(Platform& pfrm);
 class CraneFadeinScene : public WorldScene
 {
 public:
+
+    bool got_treasure_;
+
+
+    CraneFadeinScene(bool got_treasure)
+        : got_treasure_(got_treasure)
+    {
+
+    }
+
+
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         pfrm.load_sprite_texture("spritesheet");
@@ -65,6 +77,7 @@ public:
 
         constexpr auto fade_duration = milliseconds(1400);
         constexpr auto fade_start = milliseconds(400);
+        constexpr auto wait_duration = milliseconds(750);
 
         if (app.game_speed() not_eq GameSpeed::normal) {
             set_gamespeed(pfrm, app, GameSpeed::normal);
@@ -76,13 +89,36 @@ public:
 
         } else if (timer_ > fade_duration) {
 
+            pfrm.screen().schedule_fade(0.f);
+
             WorldScene::update(pfrm, app, delta);
 
-            pfrm.speaker().set_music_volume(
-                Platform::Speaker::music_volume_max);
+            if (not got_treasure_ or
+                (timer_ > fade_duration + wait_duration)) {
+                WorldScene::update(pfrm, app, delta);
 
-            pfrm.screen().schedule_fade(0.f);
-            return scene_pool::alloc<ReadyScene>();
+                pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+
+                if (got_treasure_) {
+                    pfrm.speaker().play_sound("coin", 2);
+
+                    rng::LinearGenerator seed = app.crane_game_rng();
+
+                    Coins award = 400;
+                    award += rng::choice<2000>(seed);
+
+                    auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
+                    *buffer = format("You discovered %@!", award);
+                    auto next =
+                        scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer), false);
+
+                    app.set_coins(pfrm, app.coins() + award);
+
+                    return next;
+                }
+
+                return scene_pool::alloc<ReadyScene>();
+            }
 
         } else {
 
@@ -278,6 +314,8 @@ public:
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override
     {
+        app.stat_timer().count_up(delta);
+
         if (app.player().key_pressed(pfrm, Key::down)) {
             descent_speed_ += Fixnum(0.0000045f);
         }
@@ -322,7 +360,7 @@ public:
                 }
 
                 exit_ = true;
-                return scene_pool::alloc<CraneFadeinScene>();
+                return scene_pool::alloc<CraneFadeinScene>(got_treasure_);
             }
         } else {
             if (crane_pos_.y > 30) {
