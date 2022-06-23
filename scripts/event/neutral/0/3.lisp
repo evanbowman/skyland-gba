@@ -17,8 +17,20 @@
 (chr-new (opponent) 1 14 'neutral 0)
 (chr-new (opponent) 2 14 'neutral 0)
 
+(coins-set 100000)
+(island-configure
+ (player)
+ '((power-core 0 13)))
 
-(let ((item (sample '((arc-gun . (1 . 1))
+(let ((mktr (lambda
+              ;; Generate some terrain! Just to avoid the situation where
+              ;; there's not enough space on the island to actually place the
+              ;; weapon that we just bought. The game would basically soft-lock.
+              (while (not (construction-sites (player) $0))
+                ;; Give the player +1 terrain until a construction site exists.
+                (terrain (player) (+ (terrain (player)) 1)))))
+
+      (item (sample '((arc-gun . (1 . 1))
                       (flak-gun . (2 . 1))
                       (fire-charge . (2 . 1))))))
   (setq on-converge
@@ -39,11 +51,13 @@
                 (exit))
             (progn
               (coins-add -1300)
+              (mktr (cdr item))
               (sel-input
                (cdr item)
                (string "place first " (car item) ":")
                (lambda
                  (room-new (player) (list (car item) $1 $2))
+                 (mktr (cdr item))
                  (sel-input
                   (cdr item)
                   (string "place second " (car item) ":")
