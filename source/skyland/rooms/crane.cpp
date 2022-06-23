@@ -120,7 +120,7 @@ void Crane::display(Platform::Screen& screen)
             screen.draw(spr);
             break;
 
-        case 1:
+        default:
             spr.set_texture_index(51);
             screen.draw(spr);
             break;

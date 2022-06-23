@@ -453,7 +453,7 @@ public:
                 break;
 
             case 1:
-                spr.set_texture_index(14);
+                spr.set_texture_index(15);
                 break;
             }
             spr.set_origin({16, 16});
