@@ -202,7 +202,8 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
                 for (u8 y = cursor_loc.y; y < cursor_loc.y + required_space_->y;
                      ++y) {
                     auto room = app.player_island().get_room({x, y});
-                    if (room or x == app.player_island().terrain().size()) {
+                    if (room or x == app.player_island().terrain().size() or
+                        y == 15) {
                         pfrm.speaker().play_sound("beep_error", 1);
                         return null_scene();
                     }

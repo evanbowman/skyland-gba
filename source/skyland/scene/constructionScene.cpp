@@ -979,7 +979,7 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
         if (matrix[x][current.y]) {
             break;
         }
-        for (int y = current.y; y > 1; --y) {
+        for (int y = current.y; y > construction_zone_min_y - 1; --y) {
             if (matrix[x][y]) {
                 break;
             }

@@ -33,6 +33,7 @@
 #include "room_metatable.hpp"
 #include "rooms/cargoBay.hpp"
 #include "rooms/core.hpp"
+#include "scene/constructionScene.hpp"
 #include "scene/scriptHookScene.hpp"
 #include "script/lisp.hpp"
 #include "script/listBuilder.hpp"
@@ -1491,13 +1492,16 @@ static const lisp::Binding script_api[] = {
 
          lisp::ListBuilder builder;
 
-         for (int x = 0; x < 16; ++x) {
-             for (int y = 0; y < 15; ++y) {
+         for (u32 x = 0; x < island->terrain().size(); ++x) {
+             for (int y = construction_zone_min_y + 1; y < 15; ++y) {
                  if ((*matrix)[x][y] and y - (sy - 1) > 0) {
                      bool has_space = true;
                      for (int xx = 0; xx < sx and x + xx < 16; ++xx) {
                          for (int yy = 0; yy < sy and y - yy > 0; ++yy) {
                              if (island->rooms_plot().get(x + xx, y - yy)) {
+                                 has_space = false;
+                             }
+                             if (x + xx >= island->terrain().size()) {
                                  has_space = false;
                              }
                          }
