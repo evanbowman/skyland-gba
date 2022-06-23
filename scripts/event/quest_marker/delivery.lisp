@@ -30,7 +30,7 @@
                    "")
 
                   (dialog
-                   "<c:Margot:6>Thank you! I wasn't sure it would arrive! Here's "
+                   "<c:Customer:6>Thank you! I wasn't sure it would arrive! Here's "
                    (string temp)
                    "@ for your trouble!")
 
