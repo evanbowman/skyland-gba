@@ -70,10 +70,12 @@ Bitvector<480 * 2> _recalc_depth_test;
 EngineImpl* _bound_state;
 
 
-EngineImpl::EngineImpl(Platform& pfrm)
+EngineImpl::EngineImpl(Platform& pfrm, App& app)
     : data_(allocate_dynamic<Data>("macrocosm-data"))
 {
     _bound_state = this;
+
+    app.invoke_script(pfrm, "/scripts/config/macro.lisp", true);
 }
 
 
@@ -931,6 +933,8 @@ terrain::Categories terrain::categories(Type t)
 
 Coins terrain::cost(Sector& s, Type t)
 {
+    auto& b = *_bound_state->data_->bindings_;
+
     switch (t) {
     case terrain::Type::food:
     case terrain::Type::__invalid:
@@ -940,44 +944,42 @@ Coins terrain::cost(Sector& s, Type t)
         return 0;
 
     case terrain::Type::building:
-        return 270;
+        return b.mcr_building_cost;
 
     case terrain::Type::basalt:
     case terrain::Type::terrain:
-        return 100;
+        return b.mcr_terrain_cost;
 
     case terrain::Type::masonry:
-        return 30;
+        return b.mcr_masonry_cost;
 
     case terrain::Type::road_ns:
-        return 5;
-
     case terrain::Type::road_we:
-        return 5;
+        return b.mcr_road_cost;
 
     case terrain::Type::scaffolding:
-        return 30;
+        return b.mcr_scaffolding_cost;
 
     case terrain::Type::sand:
-        return 30;
+        return b.mcr_sand_cost;
 
     case terrain::Type::arch:
-        return 40;
+        return b.mcr_arch_cost;
 
     case terrain::Type::volcanic_soil:
         return 100;
 
     case terrain::Type::cocoa:
-        return 300;
+        return b.mcr_cocoa_cost;
 
     case terrain::Type::tea:
-        return 300;
+        return b.mcr_tea_cost;
 
     case terrain::Type::ice:
-        return 5;
+        return b.mcr_ice_cost;
 
     case terrain::Type::shrubbery:
-        return 5;
+        return b.mcr_shrubbery_cost;
 
     case terrain::Type::count:
     case terrain::Type::selector:
@@ -993,7 +995,7 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::water_slant_b:
     case terrain::Type::water_slant_c:
     case terrain::Type::water_slant_d:
-        return 30;
+        return b.mcr_water_cost;
 
     case terrain::Type::lava_source:
     case terrain::Type::lava_spread_downwards:
@@ -1005,71 +1007,71 @@ Coins terrain::cost(Sector& s, Type t)
     case terrain::Type::lava_slant_b:
     case terrain::Type::lava_slant_c:
     case terrain::Type::lava_slant_d:
-        return 800;
+        return b.mcr_lava_cost;
 
     case terrain::Type::wheat:
-        return 40;
+        return b.mcr_wheat_cost;
 
     case terrain::Type::potatoes:
-        return 270;
+        return b.mcr_potatoes_cost;
 
     case terrain::Type::sunflowers:
-        return 120;
+        return b.mcr_sunflowers_cost;
 
     case terrain::Type::tulips:
-        return 120;
+        return b.mcr_tulips_cost;
 
     case terrain::Type::indigo:
-        return 120;
+        return b.mcr_indigo_cost;
 
     case terrain::Type::pearls:
-        return 300;
+        return b.mcr_pearls_cost;
 
     case terrain::Type::honey:
-        return 410;
+        return b.mcr_honey_cost;
 
     case terrain::Type::singularity:
         return 1;
 
     case terrain::Type::shellfish:
-        return 120;
+        return b.mcr_shellfish_cost;
 
     case terrain::Type::wool:
-        return 410;
+        return b.mcr_wool_cost;
 
     case terrain::Type::saffron:
-        return 460;
+        return b.mcr_saffron_cost;
 
     case terrain::Type::madder:
-        return 120;
+        return b.mcr_madder_cost;
 
     case terrain::Type::gold:
-        return 4000;
+        return b.mcr_gold_cost;
 
     case terrain::Type::crystal:
-        return 9000;
+        return b.mcr_crystal_cost;
 
     case terrain::Type::marble:
     case terrain::Type::marble_top:
-        return 1000;
+        return b.mcr_marble_cost;
 
     case terrain::Type::workshop:
-        return 700;
+        return b.mcr_workshop_cost;
 
     case terrain::Type::light_source:
-        return 200;
+        return b.mcr_light_source_cost;
 
     case terrain::Type::windmill_stone_base:
-        return 150;
+        return b.mcr_windmill_stone_base_cost;
 
     case terrain::Type::windmill:
-        return 80;
+        return b.mcr_windmill_cost;
 
     case terrain::Type::port:
-        return 200;
+        return b.mcr_port_cost;
 
     case terrain::Type::lumber:
-        return 90;
+        return b.mcr_lumber_cost;
     }
 
     return 0;

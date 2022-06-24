@@ -31,6 +31,7 @@
 #include "macrocosmRaster.hpp"
 #include "macrocosmSector.hpp"
 #include "number/int.h"
+#include "sharedVariable.hpp"
 #include "systemString.hpp"
 
 
@@ -100,7 +101,54 @@ struct EngineImpl : public Engine
 
     struct Data
     {
-        Data() : origin_sector_({0, 0})
+#define MCR_SHARED(name) SharedVariable name = #name
+
+        struct Bindings
+        {
+            // Variables exposed to the script engine.
+            MCR_SHARED(mcr_building_cost);
+            MCR_SHARED(mcr_water_cost);
+            MCR_SHARED(mcr_lava_cost);
+            MCR_SHARED(mcr_terrain_cost);
+            MCR_SHARED(mcr_masonry_cost);
+            MCR_SHARED(mcr_wheat_cost);
+            MCR_SHARED(mcr_indigo_cost);
+            MCR_SHARED(mcr_madder_cost);
+            MCR_SHARED(mcr_gold_cost);
+            MCR_SHARED(mcr_workshop_cost);
+            MCR_SHARED(mcr_light_source_cost);
+            MCR_SHARED(mcr_windmill_cost);
+            MCR_SHARED(mcr_windmill_stone_base_cost);
+            MCR_SHARED(mcr_shellfish_cost);
+            MCR_SHARED(mcr_port_cost);
+            MCR_SHARED(mcr_potatoes_cost);
+            MCR_SHARED(mcr_sunflowers_cost);
+            MCR_SHARED(mcr_shrubbery_cost);
+            MCR_SHARED(mcr_wool_cost);
+            MCR_SHARED(mcr_saffron_cost);
+            MCR_SHARED(mcr_ice_cost);
+            MCR_SHARED(mcr_cocoa_cost);
+            MCR_SHARED(mcr_tea_cost);
+            MCR_SHARED(mcr_lumber_cost);
+            MCR_SHARED(mcr_arch_cost);
+            MCR_SHARED(mcr_sand_cost);
+            MCR_SHARED(mcr_crystal_cost);
+            MCR_SHARED(mcr_marble_cost);
+            MCR_SHARED(mcr_scaffolding_cost);
+            MCR_SHARED(mcr_tulips_cost);
+            MCR_SHARED(mcr_pearls_cost);
+            MCR_SHARED(mcr_road_cost);
+            MCR_SHARED(mcr_honey_cost);
+        };
+
+
+        DynamicMemory<Bindings> bindings_;
+
+
+
+        Data() :
+            bindings_(allocate_dynamic<Bindings>("mcr-script-bindings")),
+            origin_sector_({0, 0})
         {
         }
 
@@ -300,7 +348,7 @@ struct EngineImpl : public Engine
     void newgame(Platform& pfrm, App& app);
 
 
-    EngineImpl(Platform&);
+    EngineImpl(Platform&, App&);
 
 
     DynamicMemory<Data> data_;
