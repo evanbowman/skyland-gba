@@ -228,7 +228,6 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                     std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y;
 
                 pfrm.speaker().play_sound("cursor_tick", 0);
-
                 return scene_pool::alloc<ConstructionScene>(true);
             }
         }
@@ -435,11 +434,14 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             u32 i = 0;
             for (i = 0; i < data_->available_buildings_.size(); ++i) {
+                int index = building_selector_ - i;
+                if (index < 0) {
+                    index += data_->available_buildings_.size();
+                }
+
                 auto other_category =
                     (*load_metaclass(
-                         data_->available_buildings_[(building_selector_ - i) %
-                                                     data_->available_buildings_
-                                                         .size()]))
+                         data_->available_buildings_[index]))
                         ->category();
                 if (other_category not_eq current_category) {
                     target_category = other_category;
