@@ -4489,6 +4489,9 @@ void ram_overclock()
 
     if (ewram_static_data != 1) {
         memctrl_register = 0x0D000020;
+        info(*::platform, "ewram overclocking disabled");
+    } else {
+        info(*::platform, "overclocked ewram");
     }
 }
 
@@ -6520,11 +6523,6 @@ Platform::Platform()
 
     const auto tm1 = system_clock_.now();
 
-    // TODO: uncomment this after I finish development. Wouldn't want to build
-    // something that doesn't work on some gba consoles, but speeding up the
-    // ones that do work would be nice.
-    ram_overclock();
-
     logger().set_threshold(Severity::fatal);
 
     keyboard().poll();
@@ -6685,6 +6683,8 @@ Platform::Platform()
     init_video(screen());
 
     fill_overlay(0);
+
+    ram_overclock();
 
     for (u32 i = 0; i < Screen::sprite_limit; ++i) {
         // This was a really insidious bug to track down! When failing to hide
