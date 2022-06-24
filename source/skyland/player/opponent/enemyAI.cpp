@@ -1038,7 +1038,7 @@ static void place_offensive_drone(Platform& pfrm,
             player_island.drones().push(*drone);
         }
     } else {
-        Platform::fatal("no coord!?jlk!?kl?!");
+        // ...
     }
 }
 
