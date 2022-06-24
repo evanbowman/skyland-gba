@@ -36,15 +36,14 @@
         (dialog "<c:captain:7> Sorry, I went to all this trouble, I really can't sell you this tech for less than @1500.")
         (exit))
     (progn
-      (coins-add -1300)
+      (coins-add -1500)
 
       ;; We wouldn't want the player to get into a position where there isn't
-      ;; enough terrain to place the weapon! The game would get locked
-      ;; up. Just give the player some terrain for free.
-      (if (not (construction-sites (player) '(2 . 2)))
-          (terrain (player) (+ (terrain (player)) 1)))
-      (if (not (construction-sites (player) '(2 . 2)))
-          (terrain (player) (+ (terrain (player)) 1)))
+      ;; enough terrain to place the weapon! The game would get locked up. Just
+      ;; give the player some terrain for free.
+      (repeat 2
+              (if (not (construction-sites (player) '(2 . 2)))
+                  (terrain (player) (+ (terrain (player)) 1))))
 
       (sel-input
        '(2 . 2)
