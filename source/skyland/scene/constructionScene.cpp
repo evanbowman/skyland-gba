@@ -920,13 +920,6 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
     } else if (selector_ >= data_->construction_sites_.size()) {
         selector_--;
     }
-
-    // if (not construction_sites_.empty()) {
-    //     Vec2<u8> cursor_loc;
-    //     cursor_loc.x = construction_sites_[selector_].x;
-    //     cursor_loc.y = construction_sites_[selector_].y;
-
-    // }
 }
 
 
@@ -1103,10 +1096,6 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     pfrm.screen().fade(0.f);
-
-    // if (not dynamic_cast<ConstructionScene*>(&prev)) {
-    //     pfrm.speaker().play_sound("openbag", 1);
-    // }
 
     WorldScene::enter(pfrm, app, prev);
 
