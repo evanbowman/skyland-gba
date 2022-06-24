@@ -84,7 +84,7 @@ public:
 
     void push(const T& elem)
     {
-        if (auto mem = data_.pool().get()) {
+        if (auto mem = data_.pool().alloc()) {
             new (mem) Node{data_.begin_, nullptr, elem};
             if (data_.begin_) {
                 data_.begin_->left_ = reinterpret_cast<Node*>(mem);
@@ -95,7 +95,7 @@ public:
 
     void push(T&& elem)
     {
-        if (auto mem = data_.pool().get()) {
+        if (auto mem = data_.pool().alloc()) {
             new (mem) Node{data_.begin_, nullptr, std::forward<T>(elem)};
             if (data_.begin_) {
                 data_.begin_->left_ = reinterpret_cast<Node*>(mem);
@@ -110,7 +110,7 @@ public:
             auto popped = data_.begin_;
 
             popped->~Node();
-            data_.pool().post(reinterpret_cast<u8*>(popped));
+            data_.pool().free(reinterpret_cast<u8*>(popped));
 
             data_.begin_ = data_.begin_->right_;
             if (data_.begin_) {
@@ -186,7 +186,7 @@ public:
         auto next = it.node_->right_;
 
         it.node_->~Node();
-        data_.pool().post(reinterpret_cast<u8*>(it.node_));
+        data_.pool().free(reinterpret_cast<u8*>(it.node_));
 
         return Iterator(next);
     }

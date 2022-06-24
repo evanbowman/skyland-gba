@@ -154,7 +154,7 @@ public:
 
     Pool(const Pool&) = delete;
 
-    u8* get()
+    u8* alloc()
     {
         if (freelist_) {
             const auto ret = freelist_;
@@ -165,7 +165,16 @@ public:
         }
     }
 
-    void post(u8* mem)
+    u8* alloc_init(u8 fill_byte)
+    {
+        if (auto mem = alloc()) {
+            memset(mem, fill_byte, size);
+            return mem;
+        }
+        return nullptr;
+    }
+
+    void free(u8* mem)
     {
         auto cell = (Cell*)mem;
         cell->next_ = freelist_;
@@ -224,9 +233,9 @@ private:
 template <typename T, u32 count> class ObjectPool
 {
 public:
-    template <typename... Args> T* get(Args&&... args)
+    template <typename... Args> T* alloc(Args&&... args)
     {
-        auto mem = pool_.get();
+        auto mem = pool_.alloc();
         if (mem) {
             new (mem) T(std::forward<Args>(args)...);
             return reinterpret_cast<T*>(mem);
@@ -239,10 +248,10 @@ public:
     {
     }
 
-    void post(T* obj)
+    void free(T* obj)
     {
         obj->~T();
-        pool_.post((u8*)obj);
+        pool_.free((u8*)obj);
     }
 
     u32 remaining() const

@@ -177,23 +177,23 @@ public:
     }
 
 
-    void* get()
+    void* alloc()
     {
         for (auto& pl : pools_) {
             if (not pl->empty()) {
-                return pl->get();
+                return pl->alloc();
             }
         }
         return nullptr;
     }
 
 
-    void post(void* e)
+    void free(void* e)
     {
         for (auto& pl : pools_) {
             if (e >= (void*)pl->cells().data() and
                 e < (void*)(pl->cells().data() + pl->cells().size())) {
-                pl->post((u8*)e);
+                pl->free((u8*)e);
                 return;
             }
         }

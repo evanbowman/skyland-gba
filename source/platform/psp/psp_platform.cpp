@@ -155,7 +155,7 @@ ScratchBufferPtr Platform::make_scratch_buffer()
     auto finalizer =
         [](RcBase<ScratchBuffer, scratch_buffer_count>::ControlBlock* ctrl) {
             --scratch_buffers_in_use;
-            ctrl->pool_->post(ctrl);
+            ctrl->pool_->free(ctrl);
         };
 
     auto maybe_buffer = Rc<ScratchBuffer, scratch_buffer_count>::create(
@@ -263,7 +263,7 @@ std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
         [](RcBase<Platform::DynamicTexture,
                   Platform::dynamic_texture_count>::ControlBlock* ctrl) {
             // Nothing managed, so nothing to do.
-            dynamic_texture_pool.post(ctrl);
+            dynamic_texture_pool.free(ctrl);
         };
 
     auto dt = DynamicTexturePtr::create(&dynamic_texture_pool, finalizer, 0);

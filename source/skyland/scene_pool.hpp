@@ -55,7 +55,7 @@ inline void deleter(Scene* scene)
 {
     if (scene) {
         scene->~Scene();
-        pool_->post(reinterpret_cast<u8*>(scene));
+        pool_->free(reinterpret_cast<u8*>(scene));
     }
 }
 
@@ -70,7 +70,7 @@ template <typename T, typename... Args> ScenePtr<T> alloc(Args&&... args)
         return {nullptr, deleter};
     }
 
-    if (auto mem = pool_->get()) {
+    if (auto mem = pool_->alloc()) {
         new (mem) T(std::forward<Args>(args)...);
 
         return {reinterpret_cast<T*>(mem), deleter};

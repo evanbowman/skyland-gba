@@ -2695,7 +2695,7 @@ std::optional<Platform::DynamicTexturePtr> Platform::make_dynamic_texture()
         [](PooledRcControlBlock<DynamicTexture, dynamic_texture_count>* ctrl) {
             dynamic_texture_mappings[ctrl->data_.mapping_index()].reserved_ =
                 false;
-            dynamic_texture_pool.post(ctrl);
+            dynamic_texture_pool.free(ctrl);
         };
 
     for (u8 i = 0; i < dynamic_texture_count; ++i) {
@@ -5333,7 +5333,7 @@ static void rx_ring_push(RxInfo* message)
         auto lost_message = mc.rx_ring[mc.rx_ring_write_pos];
 
         mc.rx_ring[mc.rx_ring_write_pos] = nullptr;
-        mc.rx_message_pool.post(lost_message);
+        mc.rx_message_pool.free(lost_message);
     }
 
     mc.rx_ring[mc.rx_ring_write_pos] = message;
@@ -5375,7 +5375,7 @@ static void multiplayer_rx_receive()
     if (mc.rx_iter_state == message_iters) {
         if (mc.rx_current_message) {
             if (mc.rx_current_all_zeroes) {
-                mc.rx_message_pool.post(mc.rx_current_message);
+                mc.rx_message_pool.free(mc.rx_current_message);
             } else {
                 rx_ring_push(mc.rx_current_message);
             }
@@ -5383,7 +5383,7 @@ static void multiplayer_rx_receive()
 
         mc.rx_current_all_zeroes = true;
 
-        mc.rx_current_message = mc.rx_message_pool.get();
+        mc.rx_current_message = mc.rx_message_pool.alloc();
         if (not mc.rx_current_message) {
             mc.rx_loss += 1;
         }
@@ -5452,10 +5452,10 @@ bool Platform::NetworkPeer::send_message(const Message& message)
         auto lost_message = mc.tx_ring[mc.tx_ring_write_pos];
         mc.tx_ring[mc.tx_ring_write_pos] = nullptr;
 
-        mc.tx_message_pool.post(lost_message);
+        mc.tx_message_pool.free(lost_message);
     }
 
-    auto msg = mc.tx_message_pool.get();
+    auto msg = mc.tx_message_pool.alloc();
     if (not msg) {
         // error! Could not transmit messages fast enough, i.e. we've exhausted
         // the message pool! How to handle this condition!?
@@ -5479,7 +5479,7 @@ static void multiplayer_tx_send()
 
     if (mc.tx_iter_state == message_iters) {
         if (mc.tx_current_message) {
-            mc.tx_message_pool.post(mc.tx_current_message);
+            mc.tx_message_pool.free(mc.tx_current_message);
             mc.tx_message_count += 1;
         }
         mc.tx_current_message = tx_ring_pop();
@@ -5590,7 +5590,7 @@ Platform::NetworkPeer::poll_message()
     if (auto msg = rx_ring_pop()) {
         if (UNLIKELY(mc.poller_current_message not_eq nullptr)) {
             // failure to deallocate/consume message!
-            mc.rx_message_pool.post(msg);
+            mc.rx_message_pool.free(msg);
             disconnect();
             return {};
         }
@@ -5608,7 +5608,7 @@ void Platform::NetworkPeer::poll_consume(u32 size)
     auto& mc = multiplayer_comms;
 
     if (mc.poller_current_message) {
-        mc.rx_message_pool.post(mc.poller_current_message);
+        mc.rx_message_pool.free(mc.poller_current_message);
     } else {
         ::platform->fatal("logic error in net poll");
     }
@@ -5780,13 +5780,13 @@ void Platform::NetworkPeer::disconnect()
 
         if (mc.poller_current_message) {
             // Not sure whether this is the correct thing to do here...
-            mc.rx_message_pool.post(mc.poller_current_message);
+            mc.rx_message_pool.free(mc.poller_current_message);
             mc.poller_current_message = nullptr;
         }
 
         mc.rx_iter_state = 0;
         if (mc.rx_current_message) {
-            mc.rx_message_pool.post(mc.rx_current_message);
+            mc.rx_message_pool.free(mc.rx_current_message);
             mc.rx_current_message = nullptr;
         }
         mc.rx_current_all_zeroes = true;
@@ -5801,7 +5801,7 @@ void Platform::NetworkPeer::disconnect()
                 note.push_back(((char*)msg->data_)[6]);
                 note += " during disconnect";
                 info(*::platform, note.c_str());
-                mc.rx_message_pool.post(msg);
+                mc.rx_message_pool.free(msg);
                 msg = nullptr;
             }
         }
@@ -5810,12 +5810,12 @@ void Platform::NetworkPeer::disconnect()
 
         mc.tx_iter_state = 0;
         if (mc.tx_current_message) {
-            mc.tx_message_pool.post(mc.tx_current_message);
+            mc.tx_message_pool.free(mc.tx_current_message);
             mc.tx_current_message = nullptr;
         }
         for (auto& msg : mc.tx_ring) {
             if (msg) {
-                mc.tx_message_pool.post(msg);
+                mc.tx_message_pool.free(msg);
                 msg = nullptr;
             }
         }

@@ -64,7 +64,7 @@ template <typename T, u32 Count> struct PooledControlBlock
     {
         if (finalizer_hook_ == nullptr) {
             finalizer_hook_ = [](PooledControlBlock* ctrl) {
-                ctrl->pool_->post(ctrl);
+                ctrl->pool_->free(ctrl);
             };
         }
     }
@@ -264,7 +264,7 @@ create_pooled_rc(ObjectPool<PooledRcControlBlock<T, PoolSize>, PoolSize>* pool,
                  void (*finalizer_hook)(PooledRcControlBlock<T, PoolSize>*),
                  Args&&... args)
 {
-    auto ctrl = pool->get(pool, finalizer_hook, std::forward<Args>(args)...);
+    auto ctrl = pool->alloc(pool, finalizer_hook, std::forward<Args>(args)...);
     if (ctrl) {
         return Rc<T, PooledRcControlBlock<T, PoolSize>>(ctrl);
     } else {

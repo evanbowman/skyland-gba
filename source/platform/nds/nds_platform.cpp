@@ -878,7 +878,7 @@ ScratchBufferPtr Platform::make_scratch_buffer(const ScratchBuffer::Tag& tag)
     auto finalizer =
         [](PooledRcControlBlock<ScratchBuffer, scratch_buffer_count>* ctrl) {
             --scratch_buffers_in_use;
-            ctrl->pool_->post(ctrl);
+            ctrl->pool_->free(ctrl);
         };
 
     auto maybe_buffer = create_pooled_rc<ScratchBuffer, scratch_buffer_count>(

@@ -94,11 +94,11 @@ public:
     }
 
 
-    void* get()
+    void* alloc()
     {
         for (auto& pl : pools_) {
             if (not pl->empty()) {
-                return pl->get();
+                return pl->alloc();
             }
         }
         return nullptr;
@@ -116,12 +116,12 @@ public:
     }
 
 
-    void post(void* r)
+    void free(void* r)
     {
         for (auto& pl : pools_) {
             if (r >= (void*)pl->cells().data() and
                 r < (void*)(pl->cells().data() + pl->cells().size())) {
-                pl->post((u8*)r);
+                pl->free((u8*)r);
                 return;
             }
         }
