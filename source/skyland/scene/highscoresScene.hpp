@@ -71,6 +71,7 @@ private:
     int title_screen_page_;
 
     std::optional<Text> upload_hint_;
+    std::optional<Text> leaderboard_text_;
 
     int page_ = 0;
 

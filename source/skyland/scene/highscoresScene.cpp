@@ -66,10 +66,14 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     const auto screen_tiles = calc_screen_tiles(pfrm);
 
-    int metrics_y_offset_ = -5;
+    int metrics_y_offset_ = -6;
 
-    if (show_current_score_) {
-        --metrics_y_offset_;
+    if (not show_current_score_) {
+        auto str = SYSTR(highscores_leaderboard);
+        auto len = utf8::len(str->c_str());
+        u8 margin = centered_text_margins(pfrm, len);
+        leaderboard_text_.emplace(pfrm, OverlayCoord{margin, 17});
+        leaderboard_text_->assign(str->c_str());
     }
 
 
@@ -187,6 +191,7 @@ void HighscoresScene::exit(Platform& pfrm, App& app, Scene& prev)
 {
     lines_.clear();
     upload_hint_.reset();
+    leaderboard_text_.reset();
 }
 
 
@@ -256,6 +261,14 @@ static Vector<char> encode_highscore_data(App& app)
 
 ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
 {
+    if (app.player().key_pressed(pfrm, Key::select)) {
+        return scene_pool::alloc<ConfiguredURLQRViewerScene>(
+            "/scripts/config/leaderboard.lisp",
+            "",
+            SYSTR(highscores_scan_qr_leaderboard)->c_str(),
+            scene_pool::make_deferred_scene<HighscoresScene>());
+    }
+
     if (app.player().key_pressed(pfrm, Key::alt_1) and
         app.player().key_pressed(pfrm, Key::alt_2)) {
         pfrm.speaker().play_sound("button_wooden", 3);
@@ -283,7 +296,7 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
             return next();
         }
 
-        auto gettext = [next]() {
+        auto gettext = [next, &pfrm]() {
             auto receive = [next](const char* text) {
                 __login_token.valid_ = true;
                 if (str_len(text) not_eq 8) {
@@ -293,8 +306,9 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
                 memcpy(__login_token.text_, text, 8);
                 return next();
             };
-            const char* prompt = "Enter your token:";
-            return scene_pool::alloc<TextEntryScene>(prompt, receive, 8, 8);
+            auto prompt = SYSTR(score_upload_enter_token);
+            return scene_pool::alloc<TextEntryScene>(prompt->c_str(),
+                                                     receive, 8, 8);
         };
 
         return scene_pool::alloc<ConfiguredURLQRViewerScene>(

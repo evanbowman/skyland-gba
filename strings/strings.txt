@@ -274,6 +274,9 @@ launch drone: select position
 -- highscores --
 score
 l + r: share top score
+SEL: leaderboard
+Scan to view leaderboard!
+Enter your token:
 Step 1: Scan to request a login token!
 
 Scan to upload score!

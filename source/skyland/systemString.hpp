@@ -346,7 +346,11 @@ enum class SystemString {
     highscores_title,
     highscores_score,
     highscores_upload,
+    highscores_leaderboard,
 
+    highscores_scan_qr_leaderboard,
+
+    score_upload_enter_token,
     score_upload_prompt_1,
     score_upload_prompt_2,
     score_upload_prompt_3,
