@@ -17,10 +17,6 @@
 (chr-new (opponent) 1 14 'neutral 0)
 (chr-new (opponent) 2 14 'neutral 0)
 
-(coins-set 100000)
-(island-configure
- (player)
- '((power-core 0 13)))
 
 (let ((mktr (lambda
               ;; Generate some terrain! Just to avoid the situation where
