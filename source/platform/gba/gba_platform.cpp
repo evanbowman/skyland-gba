@@ -36,6 +36,7 @@
 #ifdef __GBA__
 
 #include "allocator.hpp"
+#include "bootleg_cart.hpp"
 #include "containers/vector.hpp"
 #include "filesystem.hpp"
 #include "gbp_logo.hpp"
@@ -3088,6 +3089,7 @@ static void flash_load(void* dest, u32 flash_offset, u32 length)
 // know...
 READ_ONLY_DATA alignas(4) [[gnu::used]] static const
     char backup_type[] = {'S', 'R', 'A', 'M', '_', 'V', 'n', 'n', 'n'};
+
 
 
 
@@ -6530,6 +6532,22 @@ Platform::Platform()
         keyboard().pressed<Key::alt_2>() and
         keyboard().pressed<Key::action_1>()) {
     }
+
+    // Check to see if we're running with a bootleg cart.
+    const auto bootleg_cart_id = bootleg_get_flash_type();
+    switch (bootleg_cart_id) {
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+        info(*this, format("Repro cart detected! (type %)", bootleg_cart_id));
+        break;
+
+    case 0:
+        // NOT DETECTED
+        break;
+    }
+
 
     // Not sure how else to determine whether the cartridge has sram, flash, or
     // something else. An sram write will fail if the cartridge ram is flash, so
