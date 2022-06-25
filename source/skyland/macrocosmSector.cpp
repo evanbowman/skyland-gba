@@ -137,23 +137,28 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
 
     if (employed_population) {
         add_entry(SystemString::macro_fiscal_employed,
-                  employed_population * 0.37f);
+                  employed_population * 0.01f *
+                      EngineImpl::bindings().mcr_employment_yield_percent);
     }
 
     if (unemployed_population) {
         add_entry(SystemString::macro_fiscal_unemployed,
-                  unemployed_population * 0.1f);
+                  unemployed_population * 0.01f *
+                      EngineImpl::bindings().mcr_jobless_yield_percent);
     }
 
     if (unproductive_population) {
         add_entry(SystemString::macro_fiscal_homelessness,
-                  -unproductive_population * 0.4f);
+                  -unproductive_population * 0.01f *
+                      EngineImpl::bindings().mcr_homelessness_penalty_percent);
     }
 
     auto f = EngineImpl::food_consumption_factor();
     if (st.food_ < population() / f) {
         add_entry(SystemString::macro_fiscal_starvation,
-                  -0.4f * (population() - st.food_ * f));
+                  -0.01f *
+                      EngineImpl::bindings().mcr_starvation_penalty_percent *
+                      (population() - st.food_ * f));
     }
 
     auto happiness = get_happiness();
@@ -497,17 +502,26 @@ Float terrain::Sector::population_growth_rate() const
 
     Float result = 0.f;
 
+    auto& b = EngineImpl::bindings();
 
     if (s.food_ >= required_food) {
-        result = 0.1f * (s.food_ - required_food);
+        result = 0.01f * b.mcr_pop_growth_food_surplus_percent
+            * (s.food_ - required_food);
     } else {
-        result = -0.5f * (required_food - s.food_);
+        result = -0.01f * b.mcr_pop_growth_food_shortage_percent
+            * (required_food - s.food_);
     }
 
     if (population() > s.housing_) {
-        result -= 0.025f * (population() - s.housing_);
+        result -=
+            0.001f *
+            b.mcr_pop_growth_housing_factor *
+            (population() - s.housing_);
     } else {
-        result += 0.025f * (s.housing_ - population());
+        result +=
+            0.001f *
+            b.mcr_pop_growth_housing_factor *
+            (s.housing_ - population());
     }
 
 

@@ -135,6 +135,17 @@ const LineItem* Ledger::entries() const
 
 
 
+EngineImpl::Data::Bindings& EngineImpl::bindings()
+{
+    if (not _bound_state) {
+        Platform::fatal("access to bindings without macro context");
+    }
+
+    return *_bound_state->data_->bindings_;
+}
+
+
+
 Coins EngineImpl::coin_yield()
 {
     auto coins = data_->origin_sector_.coin_yield();

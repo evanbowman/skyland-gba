@@ -96,6 +96,14 @@ struct EngineImpl : public Engine
 
             MCR_SHARED(mcr_food_consumption_factor);
             MCR_SHARED(mcr_commodity_diminishing_return_percent);
+            MCR_SHARED(mcr_employment_yield_percent);
+            MCR_SHARED(mcr_jobless_yield_percent);
+            MCR_SHARED(mcr_homelessness_penalty_percent);
+            MCR_SHARED(mcr_starvation_penalty_percent);
+
+            MCR_SHARED(mcr_pop_growth_food_surplus_percent);
+            MCR_SHARED(mcr_pop_growth_food_shortage_percent);
+            MCR_SHARED(mcr_pop_growth_housing_factor);
         };
 
 
@@ -187,6 +195,9 @@ struct EngineImpl : public Engine
 
     terrain::Sector* make_sector(Vec2<s8> coord, terrain::Sector::Shape shape);
 
+
+
+    static Data::Bindings& bindings();
 
 
     static int food_consumption_factor();
