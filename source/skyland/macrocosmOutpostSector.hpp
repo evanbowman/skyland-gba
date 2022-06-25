@@ -79,6 +79,7 @@ public:
         base_stats_cache_->food_ = s.food_;
         base_stats_cache_->housing_ = s.housing_;
         base_stats_cache_->employment_ = s.employment_;
+        base_stats_cache_->happiness_ = s.happiness_;
 
         base_stats_cache_->commodity_count_ =
             std::min(commodities_max, (int)s.commodities_.size());
@@ -100,6 +101,7 @@ public:
         result.housing_ = base_stats_cache_->housing_;
         result.employment_ = base_stats_cache_->employment_;
         result.food_exports_ = 0;
+        result.happiness_ = base_stats_cache_->happiness_;
 
         for (int i = 0; i < base_stats_cache_->commodity_count_; ++i) {
             result.commodities_.push_back(base_stats_cache_->commodities_[i]);
@@ -116,6 +118,7 @@ private:
         s16 housing_ = 0;
         s16 employment_ = 0;
         u8 commodity_count_;
+        u8 happiness_;
 
         Commodity commodities_[commodities_max];
     };

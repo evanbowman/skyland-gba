@@ -426,6 +426,7 @@ terrain::Stats terrain::Sector::stats() const
 }
 
 
+
 terrain::Stats terrain::Sector::base_stats() const
 {
     if (auto s = base_stats_cache_load()) {
