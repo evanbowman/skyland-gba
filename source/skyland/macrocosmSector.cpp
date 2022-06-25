@@ -67,8 +67,10 @@ fiscal::Ledger terrain::Sector::annotate_happiness(bool skip_labels) const
 {
     auto stat = stats();
 
+
+
     const auto food_avail =
-        stat.food_ - population() / terrain::food_consumption_factor;
+        stat.food_ - population() / EngineImpl::food_consumption_factor();
 
     const auto housing_avail = stat.housing_ - population();
 
@@ -148,9 +150,10 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
                   -unproductive_population * 0.4f);
     }
 
-    if (st.food_ < population() / food_consumption_factor) {
+    auto f = EngineImpl::food_consumption_factor();
+    if (st.food_ < population() / f) {
         add_entry(SystemString::macro_fiscal_starvation,
-                  -0.4f * (population() - st.food_ * food_consumption_factor));
+                  -0.4f * (population() - st.food_ * f));
     }
 
     auto happiness = get_happiness();
@@ -160,6 +163,8 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
         add_entry(SystemString::macro_fiscal_happiness, happiness / 2);
     }
 
+
+    const auto dp = EngineImpl::commodity_diminishing_return_percent();
 
     for (auto& c : st.commodities_) {
 
@@ -173,7 +178,7 @@ fiscal::Ledger terrain::Sector::budget(bool skip_labels) const
         Float value = c.value(c.type_);
         for (int i = 0; i < c.supply_; ++i) {
             accum += value;
-            value *= 0.85f; // Diminishing returns
+            value *= dp;
             ++count;
         }
 
@@ -488,7 +493,7 @@ Float terrain::Sector::population_growth_rate() const
 {
     auto s = stats();
 
-    auto required_food = population() / food_consumption_factor;
+    auto required_food = population() / EngineImpl::food_consumption_factor();
 
     Float result = 0.f;
 

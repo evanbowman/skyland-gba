@@ -196,4 +196,26 @@ static_assert(std::is_trivially_constructible<Block>());
 
 
 
+enum Categories : u8 {
+    basic = 1 << 0,
+    crop = 1 << 1,
+    livestock = 1 << 2,
+    fluid_water = 1 << 3,
+    fluid_lava = 1 << 4,
+};
+
+
+
+Categories categories(Type t);
+
+
+Stats stats(Type t, bool shadowed);
+SystemString name(Type t);
+SystemString name(Commodity::Type t);
+std::pair<int, int> icons(Type t);
+Improvements improvements(Type t);
+Coins cost(Type t);
+
+
+
 } // namespace skyland::macro::terrain

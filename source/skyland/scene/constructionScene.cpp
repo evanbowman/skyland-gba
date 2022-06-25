@@ -440,8 +440,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 }
 
                 auto other_category =
-                    (*load_metaclass(
-                         data_->available_buildings_[index]))
+                    (*load_metaclass(data_->available_buildings_[index]))
                         ->category();
                 if (other_category not_eq current_category) {
                     target_category = other_category;

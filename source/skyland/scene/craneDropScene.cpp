@@ -20,8 +20,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "boxedDialogScene.hpp"
 #include "craneDropScene.hpp"
+#include "boxedDialogScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/rooms/crane.hpp"
 #include "skyland/scene_pool.hpp"
@@ -41,14 +41,11 @@ void init_clouds(Platform& pfrm);
 class CraneFadeinScene : public WorldScene
 {
 public:
-
     bool got_treasure_;
 
 
-    CraneFadeinScene(bool got_treasure)
-        : got_treasure_(got_treasure)
+    CraneFadeinScene(bool got_treasure) : got_treasure_(got_treasure)
     {
-
     }
 
 
@@ -93,11 +90,11 @@ public:
 
             WorldScene::update(pfrm, app, delta);
 
-            if (not got_treasure_ or
-                (timer_ > fade_duration + wait_duration)) {
+            if (not got_treasure_ or (timer_ > fade_duration + wait_duration)) {
                 WorldScene::update(pfrm, app, delta);
 
-                pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+                pfrm.speaker().set_music_volume(
+                    Platform::Speaker::music_volume_max);
 
                 if (got_treasure_) {
                     pfrm.speaker().play_sound("coin", 2);
@@ -107,10 +104,11 @@ public:
                     Coins award = 400;
                     award += rng::choice<2000>(seed);
 
-                    auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
+                    auto buffer =
+                        allocate_dynamic<DialogString>("dialog-buffer");
                     *buffer = format("You discovered %@!", award);
-                    auto next =
-                        scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer), false);
+                    auto next = scene_pool::alloc<BoxedDialogSceneWS>(
+                        std::move(buffer), false);
 
                     app.set_coins(pfrm, app.coins() + award);
 

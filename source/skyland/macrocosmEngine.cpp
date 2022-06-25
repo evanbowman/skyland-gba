@@ -152,6 +152,28 @@ Coins EngineImpl::coin_yield()
 
 
 
+Float EngineImpl::commodity_diminishing_return_percent()
+{
+    int p = _bound_state->data_->bindings_
+                ->mcr_commodity_diminishing_return_percent;
+    return p * 0.01;
+}
+
+
+
+int EngineImpl::food_consumption_factor()
+{
+    int factor = _bound_state->data_->bindings_->mcr_food_consumption_factor;
+
+    if (factor == 0) {
+        Platform::fatal("food consumption factor cannot be zero!");
+    }
+
+    return factor;
+}
+
+
+
 std::pair<Coins, terrain::Sector::Population> EngineImpl::outpost_cost() const
 {
     return {1000, 60};
@@ -931,7 +953,7 @@ terrain::Categories terrain::categories(Type t)
 
 
 
-Coins terrain::cost(Sector& s, Type t)
+Coins terrain::cost(Type t)
 {
     auto& b = *_bound_state->data_->bindings_;
 

@@ -146,7 +146,7 @@ Coins CreateBlockScene::cost(macro::EngineImpl& state, terrain::Type t)
     if (state.data_->freebuild_mode_) {
         return 0;
     }
-    return terrain::cost(state.sector(), t);
+    return terrain::cost(t);
 }
 
 
@@ -488,7 +488,7 @@ Coins BuildImprovementScene::cost(macro::EngineImpl& state, terrain::Type t)
         return 0;
     }
 
-    const auto base_cost = terrain::cost(state.sector(), t);
+    const auto base_cost = terrain::cost(t);
 
     if (t == terrain::Type::terrain) {
         // The player's just clearing land to plant something else, don't levy

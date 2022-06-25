@@ -307,8 +307,8 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
                 return next();
             };
             auto prompt = SYSTR(score_upload_enter_token);
-            return scene_pool::alloc<TextEntryScene>(prompt->c_str(),
-                                                     receive, 8, 8);
+            return scene_pool::alloc<TextEntryScene>(
+                prompt->c_str(), receive, 8, 8);
         };
 
         return scene_pool::alloc<ConfiguredURLQRViewerScene>(

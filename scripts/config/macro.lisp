@@ -33,7 +33,10 @@
    (800 . "mcr_lava_cost")
    (1000 . "mcr_marble_cost")
    (4000 . "mcr_gold_cost")
-   (9000 . "mcr_crystal_cost")))
+   (9000 . "mcr_crystal_cost")
+
+   (2 . "mcr_food_consumption_factor")
+   (85 . "mcr_commodity_diminishing_return_percent")))
 
 
 (gc)

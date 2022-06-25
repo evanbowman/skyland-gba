@@ -47,52 +47,6 @@ struct EngineImpl;
 extern EngineImpl* _bound_state;
 
 
-} // namespace skyland::macro
-
-
-
-namespace skyland::macro::terrain
-{
-
-
-
-static const int food_consumption_factor = 2;
-
-
-
-enum Categories : u8 {
-    basic = 1 << 0,
-    crop = 1 << 1,
-    livestock = 1 << 2,
-    fluid_water = 1 << 3,
-    fluid_lava = 1 << 4,
-};
-
-
-
-Categories categories(Type t);
-
-
-Stats stats(Type t, bool shadowed);
-SystemString name(Type t);
-SystemString name(Commodity::Type t);
-std::pair<int, int> icons(Type t);
-Improvements improvements(Type t);
-
-
-
-Coins cost(Sector& s, Type t);
-
-
-
-} // namespace skyland::macro::terrain
-
-
-
-namespace skyland::macro
-{
-
-
 
 struct EngineImpl : public Engine
 {
@@ -139,6 +93,9 @@ struct EngineImpl : public Engine
             MCR_SHARED(mcr_pearls_cost);
             MCR_SHARED(mcr_road_cost);
             MCR_SHARED(mcr_honey_cost);
+
+            MCR_SHARED(mcr_food_consumption_factor);
+            MCR_SHARED(mcr_commodity_diminishing_return_percent);
         };
 
 
@@ -146,9 +103,9 @@ struct EngineImpl : public Engine
 
 
 
-        Data() :
-            bindings_(allocate_dynamic<Bindings>("mcr-script-bindings")),
-            origin_sector_({0, 0})
+        Data()
+            : bindings_(allocate_dynamic<Bindings>("mcr-script-bindings")),
+              origin_sector_({0, 0})
         {
         }
 
@@ -229,6 +186,11 @@ struct EngineImpl : public Engine
 
 
     terrain::Sector* make_sector(Vec2<s8> coord, terrain::Sector::Shape shape);
+
+
+
+    static int food_consumption_factor();
+    static Float commodity_diminishing_return_percent();
 
 
 
