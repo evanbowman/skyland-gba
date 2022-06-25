@@ -813,7 +813,7 @@ Stats stats(Type t, bool shadowed)
         break;
 
     case terrain::Type::crystal:
-        result.happiness_ += 3;
+        result.happiness_ += 5;
         break;
 
 
