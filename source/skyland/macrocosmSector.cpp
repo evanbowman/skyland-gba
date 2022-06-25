@@ -505,23 +505,19 @@ Float terrain::Sector::population_growth_rate() const
     auto& b = EngineImpl::bindings();
 
     if (s.food_ >= required_food) {
-        result = 0.01f * b.mcr_pop_growth_food_surplus_percent
-            * (s.food_ - required_food);
+        result = 0.01f * b.mcr_pop_growth_food_surplus_percent *
+                 (s.food_ - required_food);
     } else {
-        result = -0.01f * b.mcr_pop_growth_food_shortage_percent
-            * (required_food - s.food_);
+        result = -0.01f * b.mcr_pop_growth_food_shortage_percent *
+                 (required_food - s.food_);
     }
 
     if (population() > s.housing_) {
-        result -=
-            0.001f *
-            b.mcr_pop_growth_housing_factor *
-            (population() - s.housing_);
+        result -= 0.001f * b.mcr_pop_growth_housing_factor *
+                  (population() - s.housing_);
     } else {
-        result +=
-            0.001f *
-            b.mcr_pop_growth_housing_factor *
-            (s.housing_ - population());
+        result += 0.001f * b.mcr_pop_growth_housing_factor *
+                  (s.housing_ - population());
     }
 
 

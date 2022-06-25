@@ -59,6 +59,36 @@ Root* get_root()
 
 
 
+u32 size()
+{
+    if (not is_mounted()) {
+        return 0;
+    }
+
+    u32 size = sizeof(Root);
+
+    const char* current = &__rom_end__;
+    current += sizeof(Root);
+
+    const auto root = get_root();
+
+    u32 files_remaining = root->file_count_.get();
+
+
+    while (files_remaining) {
+        auto hdr = (FileHeader*)current;
+
+        size += sizeof(FileHeader) + hdr->size_.get();
+
+        --files_remaining;
+        current += sizeof(FileHeader) + hdr->size_.get();
+    }
+
+    return size;
+}
+
+
+
 bool is_mounted()
 {
     return get_root() not_eq nullptr;

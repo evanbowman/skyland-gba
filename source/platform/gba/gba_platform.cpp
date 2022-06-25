@@ -167,6 +167,7 @@ enum class GlobalFlag {
     sound_startup_monkeypatch,
     key_poll_called,
     music_halfspeed_update,
+    sram_stale,
     count
 };
 
@@ -3092,7 +3093,6 @@ READ_ONLY_DATA alignas(4) [[gnu::used]] static const
 
 
 
-
 IWRAM_CODE
 void sram_save(const void* data, u32 offset, u32 length)
 {
@@ -3120,6 +3120,7 @@ void sram_save(const void* data, u32 offset, u32 length)
 }
 
 
+
 void sram_load(void* dest, u32 offset, u32 length)
 {
     u8* save_mem = (u8*)cartridge_ram + offset;
@@ -3131,6 +3132,8 @@ void sram_load(void* dest, u32 offset, u32 length)
 
 bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 {
+    set_gflag(GlobalFlag::sram_stale, true);
+
     if (get_gflag(GlobalFlag::save_using_flash)) {
         return flash_save(data, offset, length);
     } else {
@@ -6278,6 +6281,10 @@ static void uart_blocking_write(char c)
 
 
 
+static BootlegFlashType bootleg_flash_type = 0;
+
+
+
 void* Platform::system_call(const char* feature_name, void* arg)
 {
     if (str_eq(feature_name, "sc")) { // Stackcheck, abreviated for speed.
@@ -6503,6 +6510,13 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
         // Re-enable the async non-blocking console.
         remote_console_start();
+    } else if (str_eq(feature_name, "sram-flash-writeback")) {
+        if (bootleg_flash_type not_eq 0) {
+            if (get_gflag(GlobalFlag::sram_stale)) {
+                bootleg_flash_write(bootleg_flash_type);
+                set_gflag(GlobalFlag::sram_stale, false);
+            }
+        }
     }
 
     return nullptr;
@@ -6534,13 +6548,21 @@ Platform::Platform()
     }
 
     // Check to see if we're running with a bootleg cart.
-    const auto bootleg_cart_id = bootleg_get_flash_type();
-    switch (bootleg_cart_id) {
+    bootleg_flash_type = bootleg_get_flash_type();
+    switch (bootleg_flash_type) {
     case 1:
     case 2:
     case 3:
     case 4:
-        info(*this, format("Repro cart detected! (type %)", bootleg_cart_id));
+        info(*this, format("Repro cart detected! (type %)",
+                           bootleg_flash_type));
+
+        // These bootleg flashcarts place save data in flash memory alongside
+        // the ROM. Kind of a dumb idea, but some of these things retail at $2,
+        // I'm guessing the manufacturers are trying to cut costs on the sram
+        // battery. The carts still use SRAM, and data persisted to flash needs
+        // to be copied back to sram at startup.
+        bootleg_cart_init_sram(*this);
         break;
 
     case 0:

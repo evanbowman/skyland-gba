@@ -67,4 +67,8 @@ void walk(Function<8 * sizeof(void*), void(const char* path)> callback);
 
 
 
+u32 size();
+
+
+
 } // namespace filesystem
