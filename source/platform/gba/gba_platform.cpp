@@ -6516,6 +6516,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
                 get_gflag(GlobalFlag::sram_stale)) {
                 bootleg_flash_write(bootleg_flash_type);
                 set_gflag(GlobalFlag::sram_stale, false);
+                info(*this, "flash wb");
             }
         }
     }

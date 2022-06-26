@@ -67,6 +67,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (save::load(pfrm, app, app.persistent_data())) {
         save::erase(pfrm);
+        pfrm.system_call("sram-flash-writeback", nullptr);
     } else {
         app.set_coins(pfrm, 0);
 

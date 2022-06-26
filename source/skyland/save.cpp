@@ -48,15 +48,37 @@ static const u32 global_save_data_magic = 0xABCD + 2;
 
 
 
+const char* global_data_filename = "/save/global.dat";
+const char* save_data_filename = "/save/meta.dat";
+
+
+
 bool load_global_data(Platform& pfrm, GlobalPersistentData& data)
 {
-    GlobalSaveData loaded;
+    Vector<char> read;
 
-    pfrm.read_save_data(&loaded, sizeof loaded, 0);
+    auto byte_count =
+        ram_filesystem::read_file_data_binary(pfrm,
+                                              global_data_filename,
+                                              read);
 
-    if (loaded.magic_.get() == global_save_data_magic) {
-        data = loaded.data_;
-        return true;
+    if (byte_count == sizeof(GlobalSaveData)) {
+        // Read successful!
+
+        GlobalSaveData loaded;
+
+        auto it = read.begin();
+        auto write = (u8*)&loaded;
+
+        while (it not_eq read.end()) {
+            *(write++) = *it;
+            ++it;
+        }
+
+        if (loaded.magic_.get() == global_save_data_magic) {
+            data = loaded.data_;
+            return true;
+        }
     }
 
     return false;
@@ -70,7 +92,13 @@ void store_global_data(Platform& pfrm, const GlobalPersistentData& data)
     out.magic_.set(global_save_data_magic);
     out.data_ = data;
 
-    pfrm.write_save_data(&out, sizeof out, 0);
+    auto out_ptr = (char*)&out;
+
+    Vector<char> buffer;
+    for (u32 i = 0; i < sizeof(out); ++i) {
+        buffer.push_back(*(out_ptr++));
+    }
+    ram_filesystem::store_file_data_binary(pfrm, global_data_filename, buffer);
 }
 
 
@@ -108,18 +136,31 @@ void EmergencyBackup::init(Platform& pfrm, App& app)
 
 
 
+static void store(Platform& pfrm, const SaveData& sd)
+{
+    Vector<char> out_buffer;
+    auto out_ptr = (const u8*)&sd;
+    for (u32 i = 0; i < sizeof sd; ++i) {
+        out_buffer.push_back(*(out_ptr++));
+    }
+    ram_filesystem::store_file_data_binary(pfrm,
+                                           save_data_filename,
+                                           out_buffer);
+}
+
+
+
 void EmergencyBackup::store(Platform& pfrm)
 {
     SaveData save_data;
     save_data.magic_.set(save_data_magic);
 
+
     save_data.script_length_.set(0);
 
     save_data.data_ = persistent_data_;
 
-    u32 offset = sizeof(GlobalSaveData);
-
-    pfrm.write_save_data(&save_data, sizeof save_data, offset);
+    save::store(pfrm, save_data);
 
     ram_filesystem::store_file_data(
         pfrm, "/save/data.lisp", lisp_data_.c_str(), lisp_data_.length());
@@ -143,9 +184,7 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
 
     memcpy(&save_data.data_, &d, sizeof d);
 
-    u32 offset = sizeof(GlobalSaveData);
-
-    pfrm.write_save_data(&save_data, sizeof save_data, offset);
+    store(pfrm, save_data);
 
     ram_filesystem::store_file_data_text(pfrm, "/save/data.lisp", p.data_);
 
@@ -162,19 +201,35 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
 
 bool load(Platform& pfrm, App& app, PersistentData& d)
 {
-    u32 offset = sizeof(GlobalSaveData);
+    Vector<char> data;
 
-    SaveData save_data;
-    pfrm.read_save_data(&save_data, sizeof save_data, offset);
+    const auto byte_count =
+        ram_filesystem::read_file_data_binary(pfrm,
+                                              save_data_filename,
+                                              data);
 
-    offset += sizeof save_data;
+    if (byte_count == sizeof(SaveData)) {
+        SaveData save_data;
 
-    if (save_data.magic_.get() not_eq save_data_magic) {
+        auto it = data.begin();
+        auto write = (u8*)&save_data;
+
+        while (it not_eq data.end()) {
+            *(write++) = *it;
+            ++it;
+        }
+
+        if (save_data.magic_.get() not_eq save_data_magic) {
+            return false;
+        }
+
+        memcpy(&d, &save_data.data_, sizeof d);
+    } else {
         return false;
     }
 
+    data.clear();
 
-    Vector<char> data;
 
     auto bytes =
         ram_filesystem::read_file_data_text(pfrm, "/save/data.lisp", data);
@@ -182,8 +237,6 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
     if (bytes == 0) {
         return false;
     }
-
-    memcpy(&d, &save_data.data_, sizeof d);
 
     lisp::VectorCharSequence seq(data);
     lisp::read(seq);             // (0)
@@ -221,9 +274,7 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
 
 void erase(Platform& pfrm)
 {
-    SaveData save_data;
-    save_data.magic_.set(0);
-    pfrm.write_save_data(&save_data, sizeof save_data, sizeof(GlobalSaveData));
+    ram_filesystem::unlink_file(pfrm, save_data_filename);
 }
 
 

@@ -52,9 +52,6 @@ FactoryResetModule::update(Platform& pfrm, App& app, Microseconds delta)
         app.player().key_down(pfrm, Key::action_1)) {
         ++key_count_;
         if (key_count_ == 5) {
-            save::GlobalSaveData save;
-            save.magic_.set(0xBADF00D);
-            pfrm.write_save_data(&save, sizeof save, 0);
             ram_filesystem::destroy(pfrm);
             pfrm.system_call("sram-flash-writeback", nullptr);
             pfrm.restart();

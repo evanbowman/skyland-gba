@@ -105,6 +105,12 @@ App::App(Platform& pfrm)
     });
 
 
+    ram_filesystem::walk(pfrm,
+                         [&](const char* path) {
+                             info(pfrm, path);
+                         });
+
+
     // If the platform runs out of scratch buffers, try to do anything that we
     // can to free up non-essential or potentially unused buffers. NOTE: I
     // technically haven't tested this code, because the application still has
