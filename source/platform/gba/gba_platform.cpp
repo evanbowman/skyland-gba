@@ -47,7 +47,7 @@
 #include "number/random.hpp"
 #include "platform/color.hpp"
 #include "platform/platform.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "rumble.h"
 #include "script/lisp.hpp"
 #include "string.hpp"
@@ -3155,6 +3155,21 @@ bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
 }
 
 
+
+static BootlegFlashType bootleg_flash_type = 0;
+
+
+
+void Platform::erase_save_sector()
+{
+    u8* save_mem = (u8*)0x0E000000;
+    // Simulate a flash erase.
+    for (int i = 0; i < 32000; ++i) {
+        save_mem[i] = 0xff;
+    }
+}
+
+
 void SynchronizedBase::init(Platform& pf)
 {
 }
@@ -3248,7 +3263,7 @@ void Platform::Logger::flush()
         return;
     }
 
-    ram_filesystem::store_file_data_binary(*::platform, "/log.txt", *log_data_);
+    flash_filesystem::store_file_data_binary(*::platform, "/log.txt", *log_data_);
 
     log_data_.reset();
 }
@@ -6278,10 +6293,6 @@ static void uart_blocking_write(char c)
     uart_blocking_send_sync();
     REG_SIODATA8 = c;
 }
-
-
-
-static BootlegFlashType bootleg_flash_type = 0;
 
 
 

@@ -25,7 +25,7 @@
 #include "configure_island.hpp"
 #include "eternal/eternal.hpp"
 #include "macrocosmEngine.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "player/autopilotPlayer.hpp"
 #include "player/opponent/enemyAI.hpp"
 #include "player/opponent/friendlyAI.hpp"
@@ -1365,7 +1365,7 @@ static const lisp::Binding script_api[] = {
 
          const char* path = lisp::get_op(0)->string().value();
 
-         ram_filesystem::read_file_data_text(
+         flash_filesystem::read_file_data_text(
              *lisp::interp_get_pfrm(), path, data);
 
          if (data.size() >= sizeof texture) {
@@ -1398,7 +1398,7 @@ static const lisp::Binding script_api[] = {
 
          const char* path = lisp::get_op(0)->string().value();
 
-         ram_filesystem::read_file_data_text(
+         flash_filesystem::read_file_data_text(
              *lisp::interp_get_pfrm(), path, data);
 
          if (data.size() >= sizeof texture) {

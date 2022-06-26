@@ -346,6 +346,8 @@ public:
 
     int save_capacity();
 
+    void erase_save_sector();
+
 
 
     // For historical reasons, allows you to specify a folder and filename

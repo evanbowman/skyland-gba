@@ -28,7 +28,7 @@
 #include "globals.hpp"
 #include "network.hpp"
 #include "number/random.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "roomPool.hpp"
 #include "room_metatable.hpp"
 #include "rooms/core.hpp"
@@ -1887,9 +1887,9 @@ bool speaker_data_store(Platform& pfrm, Island& island, const char* path)
     }
 
     if (not data.size() == 0) {
-        return ram_filesystem::store_file_data_binary(pfrm, path, data);
+        return flash_filesystem::store_file_data_binary(pfrm, path, data);
     } else {
-        ram_filesystem::unlink_file(pfrm, path);
+        flash_filesystem::unlink_file(pfrm, path);
     }
 
     return true;
@@ -1901,7 +1901,7 @@ bool speaker_data_load(Platform& pfrm, Island& island, const char* path)
 {
     Vector<char> data;
 
-    auto bytes = ram_filesystem::read_file_data_binary(pfrm, path, data);
+    auto bytes = flash_filesystem::read_file_data_binary(pfrm, path, data);
 
     if (bytes) {
         auto current = data.begin();
@@ -1911,7 +1911,7 @@ bool speaker_data_load(Platform& pfrm, Island& island, const char* path)
             const u8 y = coord & 0x0f;
             ++current;
 
-            // ram_filesystem library automatically appends a null byte to the
+            // flash_filesystem library automatically appends a null byte to the
             // end of whatever you read from it.
             if (coord == 0) {
                 break;
@@ -1990,9 +1990,9 @@ bool synth_notes_store(Platform& pfrm, Island& island, const char* path)
     }
 
     if (not data.size() == 0) {
-        return ram_filesystem::store_file_data_binary(pfrm, path, data);
+        return flash_filesystem::store_file_data_binary(pfrm, path, data);
     } else {
-        ram_filesystem::unlink_file(pfrm, path);
+        flash_filesystem::unlink_file(pfrm, path);
     }
 
     return true;
@@ -2004,7 +2004,7 @@ bool synth_notes_load(Platform& pfrm, Island& island, const char* path)
 {
     Vector<char> data;
 
-    auto bytes = ram_filesystem::read_file_data_binary(pfrm, path, data);
+    auto bytes = flash_filesystem::read_file_data_binary(pfrm, path, data);
 
     if (bytes) {
         auto current = data.begin();

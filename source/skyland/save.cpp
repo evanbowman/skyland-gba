@@ -23,7 +23,7 @@
 #include "save.hpp"
 #include "flag.hpp"
 #include "platform/platform.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "script/lisp.hpp"
 #include "skyland.hpp"
 
@@ -58,7 +58,7 @@ bool load_global_data(Platform& pfrm, GlobalPersistentData& data)
     Vector<char> read;
 
     auto byte_count =
-        ram_filesystem::read_file_data_binary(pfrm,
+        flash_filesystem::read_file_data_binary(pfrm,
                                               global_data_filename,
                                               read);
 
@@ -98,7 +98,7 @@ void store_global_data(Platform& pfrm, const GlobalPersistentData& data)
     for (u32 i = 0; i < sizeof(out); ++i) {
         buffer.push_back(*(out_ptr++));
     }
-    ram_filesystem::store_file_data_binary(pfrm, global_data_filename, buffer);
+    flash_filesystem::store_file_data_binary(pfrm, global_data_filename, buffer);
 }
 
 
@@ -143,7 +143,7 @@ static void store(Platform& pfrm, const SaveData& sd)
     for (u32 i = 0; i < sizeof sd; ++i) {
         out_buffer.push_back(*(out_ptr++));
     }
-    ram_filesystem::store_file_data_binary(pfrm,
+    flash_filesystem::store_file_data_binary(pfrm,
                                            save_data_filename,
                                            out_buffer);
 }
@@ -162,7 +162,7 @@ void EmergencyBackup::store(Platform& pfrm)
 
     save::store(pfrm, save_data);
 
-    ram_filesystem::store_file_data(
+    flash_filesystem::store_file_data(
         pfrm, "/save/data.lisp", lisp_data_.c_str(), lisp_data_.length());
 }
 
@@ -186,7 +186,7 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
 
     store(pfrm, save_data);
 
-    ram_filesystem::store_file_data_text(pfrm, "/save/data.lisp", p.data_);
+    flash_filesystem::store_file_data_text(pfrm, "/save/data.lisp", p.data_);
 
     synth_notes_store(pfrm, app.player_island(), "/save/synth.dat");
     speaker_data_store(pfrm, app.player_island(), "/save/speaker.dat");
@@ -204,7 +204,7 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
     Vector<char> data;
 
     const auto byte_count =
-        ram_filesystem::read_file_data_binary(pfrm,
+        flash_filesystem::read_file_data_binary(pfrm,
                                               save_data_filename,
                                               data);
 
@@ -232,7 +232,7 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
 
 
     auto bytes =
-        ram_filesystem::read_file_data_text(pfrm, "/save/data.lisp", data);
+        flash_filesystem::read_file_data_text(pfrm, "/save/data.lisp", data);
 
     if (bytes == 0) {
         return false;
@@ -274,7 +274,7 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
 
 void erase(Platform& pfrm)
 {
-    ram_filesystem::unlink_file(pfrm, save_data_filename);
+    flash_filesystem::unlink_file(pfrm, save_data_filename);
 }
 
 

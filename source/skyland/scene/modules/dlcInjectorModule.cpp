@@ -22,7 +22,7 @@
 
 #include "dlcInjectorModule.hpp"
 #include "containers/vector.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "skyland/dlc.hpp"
 #include "skyland/scene/fullscreenDialogScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
@@ -86,7 +86,7 @@ static void store_dlc(Platform& pfrm, Vector<char>& data)
             ++it;
         }
 
-        ram_filesystem::store_file_data_binary(
+        flash_filesystem::store_file_data_binary(
             pfrm, file_name.c_str(), file_contents);
     }
 

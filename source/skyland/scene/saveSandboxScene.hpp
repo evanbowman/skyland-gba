@@ -24,7 +24,7 @@
 
 #include "fadeInScene.hpp"
 #include "graphics/overlay.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "script/lisp.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene.hpp"
@@ -177,7 +177,7 @@ public:
 
         p.data_.push_back('\0');
 
-        ram_filesystem::store_file_data_text(
+        flash_filesystem::store_file_data_text(
             pfrm, format("/save/sb%.lisp", cursor_).c_str(), p.data_);
 
         synth_notes_store(pfrm,
@@ -225,7 +225,7 @@ public:
     {
         Vector<char> data;
 
-        auto bytes = ram_filesystem::read_file_data_text(
+        auto bytes = flash_filesystem::read_file_data_text(
             pfrm, format("/save/sb%.lisp", cursor()).c_str(), data);
 
         if (bytes == 0) {

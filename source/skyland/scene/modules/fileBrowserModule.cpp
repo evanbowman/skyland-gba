@@ -21,7 +21,7 @@
 
 
 #include "fileBrowserModule.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "skyland/scene/createFileScene.hpp"
 #include "skyland/scene/paintScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
@@ -230,15 +230,15 @@ void FileBrowserModule::repaint(Platform& pfrm)
 
     case SelectedFilesystem::sram: {
 
-        ram_filesystem::walk(pfrm, walk_fs);
+        flash_filesystem::walk(pfrm, walk_fs);
 
-        auto stats = ram_filesystem::statistics(pfrm);
+        auto stats = flash_filesystem::statistics(pfrm);
         info_.emplace(pfrm, OverlayCoord{0, 19});
         info_->append("used: ");
-        info_->append(stats.blocks_used_ * ram_filesystem::block_size);
+        info_->append(stats.blocks_used_ * flash_filesystem::block_size);
         info_->append("/");
         info_->append((stats.blocks_available_ + stats.blocks_used_) *
-                      ram_filesystem::block_size);
+                      flash_filesystem::block_size);
         info_->append(" bytes");
         break;
     }
@@ -420,7 +420,7 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                     } else {
                         auto path = this->cwd();
                         path += selected;
-                        ram_filesystem::unlink_file(pfrm, path.c_str());
+                        flash_filesystem::unlink_file(pfrm, path.c_str());
                         on_dir_changed();
                         pfrm.speaker().play_sound("button_wooden", 3);
                     }

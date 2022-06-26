@@ -28,7 +28,7 @@
 #include "macrocosmEngine.hpp"
 #include "number/random.hpp"
 #include "platform/platform.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "player/playerP1.hpp"
 #include "room_metatable.hpp"
 #include "save.hpp"
@@ -108,40 +108,46 @@ App::App(Platform& pfrm)
     // NOTE: commented out code, from when I re-adjusted the base-address of the
     // filesystem. Could be useful at a future date.
     //
-    Buffer<StringBuffer<64>, 10> file_names;
-    Buffer<Vector<char>, 10> files;
-    ram_filesystem::walk(pfrm,
-                         [&](const char* path) {
-                             file_names.push_back(path);
-                             files.emplace_back();
-                             ram_filesystem::read_file_data_binary(pfrm,
-                                                                   path,
-                                                                   files.back());
-                         });
+    // Buffer<StringBuffer<64>, 10> file_names;
+    // Buffer<Vector<char>, 10> files;
+    // flash_filesystem::walk(pfrm,
+    //                      [&](const char* path) {
+    //                          file_names.push_back(path);
+    //                          files.emplace_back();
+    //                          flash_filesystem::read_file_data_binary(pfrm,
+    //                                                                path,
+    //                                                                files.back());
+    //                      });
 
-    // ram_filesystem::destroy(pfrm);
-    // ram_filesystem::initialize(pfrm, 8);
-    int output_offset = 16;
-    for (u32 i = 0; i < file_names.size(); ++i) {
-        flash_filesystem::Record record;
-        record.invalidate_ = flash_filesystem::Record::valid;
-        record.file_info_.name_length_ = file_names[i].length();
-        record.file_info_.data_length_.set(files[i].size());
+    // // flash_filesystem::destroy(pfrm);
+    // // flash_filesystem::initialize(pfrm, 8);
 
-        pfrm.write_save_data(&record, sizeof record, output_offset);
-        output_offset += sizeof record;
-        pfrm.write_save_data(file_names[i].c_str(),
-                             file_names[i].length(),
-                             output_offset);
-        output_offset += file_names[i].length();
+    // for (int i = 0; i < 32000; ++i) {
+    //     char erase = 0xff;
+    //     pfrm.write_save_data(&erase, 1, i);
+    // }
 
-        for (u32 j = 0; j < files[i].size(); ++j) {
-            pfrm.write_save_data(&files[i][j], 1, output_offset);
-            ++output_offset;
-        }
-    }
+    // int output_offset = 16;
+    // for (u32 i = 0; i < file_names.size(); ++i) {
+    //     flash_filesystem::Record record;
+    //     record.invalidate_ = flash_filesystem::Record::valid;
+    //     record.file_info_.name_length_ = file_names[i].length();
+    //     record.file_info_.data_length_.set(files[i].size());
 
-    while (true) ;
+    //     pfrm.write_save_data(&record, sizeof record, output_offset);
+    //     output_offset += sizeof record;
+    //     pfrm.write_save_data(file_names[i].c_str(),
+    //                          file_names[i].length(),
+    //                          output_offset);
+    //     output_offset += file_names[i].length();
+
+    //     for (u32 j = 0; j < files[i].size(); ++j) {
+    //         pfrm.write_save_data(&files[i][j], 1, output_offset);
+    //         ++output_offset;
+    //     }
+    // }
+
+    // while (true) ;
 
     // If the platform runs out of scratch buffers, try to do anything that we
     // can to free up non-essential or potentially unused buffers. NOTE: I
@@ -335,7 +341,7 @@ void App::on_remote_console_text(Platform& pfrm,
             pfrm.remote_console().printline("\r\nDone!", "sc> ");
         } else if (parsed.size() == 2 and parsed[0] == "download") {
             Vector<char> data;
-            if (ram_filesystem::read_file_data_binary(
+            if (flash_filesystem::read_file_data_binary(
                     pfrm, parsed[1].c_str(), data)) {
                 auto enc = base32::encode(data);
                 pfrm.system_call("console-write-buffer", &enc);
@@ -579,7 +585,7 @@ lisp::Value* App::invoke_ram_script(Platform& pfrm, const char* ram_fs_path)
     }
 
     Vector<char> buffer;
-    if (ram_filesystem::read_file_data_text(pfrm, ram_fs_path, buffer)) {
+    if (flash_filesystem::read_file_data_text(pfrm, ram_fs_path, buffer)) {
         lisp::VectorCharSequence seq(buffer);
         return lisp::dostring(seq, [&pfrm](lisp::Value& err) {
             lisp::DefaultPrinter p;
@@ -620,7 +626,7 @@ App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
         game_mode_ not_eq GameMode::tutorial and not rom_fs_only) {
 
         Vector<char> buffer;
-        if (ram_filesystem::read_file_data_text(pfrm, path, buffer)) {
+        if (flash_filesystem::read_file_data_text(pfrm, path, buffer)) {
             lisp::VectorCharSequence seq(buffer);
             auto result = lisp::dostring(seq, on_err);
             // In case the script took a bit to execute.

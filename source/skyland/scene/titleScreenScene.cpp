@@ -29,7 +29,7 @@
 #include "modules/macrocosmLoaderModule.hpp"
 #include "multiplayerConnectScene.hpp"
 #include "newgameScene.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "script/lisp.hpp"
 #include "selectChallengeScene.hpp"
 #include "skyland/alloc_entity.hpp"
@@ -453,13 +453,13 @@ void TitleScreenScene::run_init_scripts(Platform& pfrm,
             StringBuffer<16> init_filename("init.lisp");
 
             if (ends_with(init_filename, path_str)) {
-                StringBuffer<ram_filesystem::max_path> full_path("/dlc/");
+                StringBuffer<flash_filesystem::max_path> full_path("/dlc/");
                 full_path += path_str;
                 app.invoke_ram_script(pfrm, full_path.c_str());
             }
         };
 
-        ram_filesystem::walk_directory(pfrm, "/dlc/", on_match);
+        flash_filesystem::walk_directory(pfrm, "/dlc/", on_match);
     }
 }
 

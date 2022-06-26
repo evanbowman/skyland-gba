@@ -21,7 +21,7 @@
 
 
 #include "dlcManagerModule.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "skyland/scene/fullscreenDialogScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
@@ -50,7 +50,7 @@ void DlcManagerModule::enter(Platform& pfrm, App& app, Scene& prev)
             }
         }
 
-        StringBuffer<ram_filesystem::max_path> patch_info_path;
+        StringBuffer<flash_filesystem::max_path> patch_info_path;
         patch_info_path += "/dlc/";
         patch_info_path += patch_name;
         patch_info_path += "/meta.lisp";
@@ -87,7 +87,7 @@ void DlcManagerModule::enter(Platform& pfrm, App& app, Scene& prev)
             PatchInfo{patch_name, tile_deps, spr_deps});
     };
 
-    ram_filesystem::walk_directory(pfrm, "/dlc/", on_match);
+    flash_filesystem::walk_directory(pfrm, "/dlc/", on_match);
 
     pfrm.screen().fade(0.95);
     pfrm.screen().schedule_fade(1.f, ColorConstant::silver_white);
@@ -235,11 +235,11 @@ DlcManagerModule::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_held(Key::action_1, seconds(2))) {
-        StringBuffer<ram_filesystem::max_path> folder("/dlc/");
+        StringBuffer<flash_filesystem::max_path> folder("/dlc/");
         folder += (*patches_)->list_[index_].name_.c_str();
 
         auto destroy_file = [&](const char* const path) {
-            StringBuffer<ram_filesystem::max_path> path_str(path);
+            StringBuffer<flash_filesystem::max_path> path_str(path);
             // FIXME: bug??!! path pointer seems to be completely wiped out
             // after this line. I've investigated this over and over again, and
             // I just can't make any sense of it. Seeing as I'm passing a lambda
@@ -249,13 +249,13 @@ DlcManagerModule::update(Platform& pfrm, App& app, Microseconds delta)
             // never seen any issues like this. I'm always inclined to blame
             // myself whenever the code breaks, as compiler bugs are so rare,
             // but I'm just stumped on this one.
-            StringBuffer<ram_filesystem::max_path> full_path;
+            StringBuffer<flash_filesystem::max_path> full_path;
             full_path += folder;
             full_path += path_str;
-            ram_filesystem::unlink_file(pfrm, full_path.c_str());
+            flash_filesystem::unlink_file(pfrm, full_path.c_str());
         };
 
-        ram_filesystem::walk_directory(pfrm, folder.c_str(), destroy_file);
+        flash_filesystem::walk_directory(pfrm, folder.c_str(), destroy_file);
 
         app.player().key_held_reset(Key::action_1, seconds(2));
 

@@ -22,7 +22,7 @@
 
 #include "sramFileWritebackScene.hpp"
 #include "modules/fileBrowserModule.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 
 
 
@@ -44,7 +44,7 @@ SramFileWritebackScene::SramFileWritebackScene(const char* path,
 ScenePtr<Scene>
 SramFileWritebackScene::update(Platform& pfrm, App&, Microseconds delta)
 {
-    ram_filesystem::store_file_data_text(pfrm, path_.c_str(), text_buffer_);
+    flash_filesystem::store_file_data_text(pfrm, path_.c_str(), text_buffer_);
 
     return scene_pool::alloc<FileBrowserModule>(
         std::move(user_context_), path_.c_str(), true);

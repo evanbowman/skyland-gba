@@ -1,7 +1,50 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (C) 2022  Evan Bowman
+//
+// This program is free software; you can redistribute it and/or modify it under
+// the terms of version 2 of the GNU General Public License as published by the
+// Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program; if not, write to the Free Software Foundation, Inc., 51
+// Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// GPL2 ONLY. No later versions permitted.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
 #pragma once
 
 #include "number/int.h"
 #include "number/endian.hpp"
+#include "memory/buffer.hpp"
+#include "function.hpp"
+#include "string.hpp"
+
+
+
+class Platform;
+
+#ifndef __GBA__
+#include <iostream>
+#include <fstream>
+#include <vector>
+inline void info(Platform& pfrm, const StringBuffer<200>& msg)
+{
+    std::cout << msg.c_str() << std::endl;
+}
+template <typename T>
+using Vector = Buffer<T, 32000>;
+#else
+#include "containers/vector.hpp"
+#endif // __GBA__
 
 
 
@@ -10,35 +53,129 @@ namespace flash_filesystem
 
 
 
-struct Record
+#ifndef FS_MAX_PATH
+#define FS_MAX_PATH 86
+#endif
+
+
+
+static constexpr const int max_path = FS_MAX_PATH;
+static constexpr const int block_size = 200; // remove me!
+
+
+
+struct Statistics
 {
-    enum InvalidateStatus
-    {
-        // A flash erase will set all values in a sector to 0xffff. This is
-        // simply how flash storage works. A flash write can only change bits
-        // from one to zero, an erase operation sets all bits in a flash sector
-        // to one.
-        valid = 0xff,
-        invalid = 0x00
-    };
-
-    InvalidateStatus invalidate_;
-
-    struct FileInfo
-    {
-        // Sanity check byte. In case a cosmic ray flipped a bit or something.
-        u8 crc_;
-        u8 flags_; // unused
-        u8 name_length_;
-        host_u16 data_length_;
-
-
-        // NOTE: appended data:
-        //
-        // char name_[name_length_];
-        // char data_[data_length_];
-    } file_info_;
+    u16 blocks_used_;
+    u16 blocks_available_;
 };
+
+
+
+Statistics statistics(Platform& pfrm);
+
+
+
+enum InitStatus {
+    // Newly initialized
+    initialized,
+
+    // Previously initialized
+    already_initialized,
+
+    failed,
+};
+
+
+
+InitStatus initialize(Platform& pfrm, u32 offset);
+
+
+
+bool store_file_data(Platform&, const char* path, Vector<char>& data);
+
+
+
+u32 read_file_data(Platform&, const char* path, Vector<char>& output);
+
+
+
+inline u32 read_file_data_text(Platform& pfrm, const char* path, Vector<char>& output)
+{
+    auto read = read_file_data(pfrm, path, output);
+    output.push_back('\0');
+
+    return read;
+}
+
+
+
+inline bool store_file_data_text(Platform& pfrm, const char* path, Vector<char>& data)
+{
+    data.pop_back();
+    auto result = store_file_data(pfrm, path, data);
+    data.push_back('\n');
+
+    return result;
+}
+
+
+
+inline u32 read_file_data_binary(Platform& pfrm, const char* path, Vector<char>& output)
+{
+    return read_file_data(pfrm, path, output);
+
+}
+
+
+
+inline bool store_file_data_binary(Platform& pfrm, const char* path, Vector<char>& data)
+{
+    return store_file_data(pfrm, path, data);
+}
+
+
+
+inline bool
+store_file_data(Platform& pfrm, const char* path, const char* ptr, u32 length)
+{
+    Vector<char> buffer;
+    for (u32 i = 0; i < length; ++i) {
+        buffer.push_back(ptr[i]);
+    }
+    buffer.push_back('\0');
+
+    return store_file_data_text(pfrm, path, buffer);
+}
+
+
+
+void walk(Platform& pfrm, Function<32, void(const char*)> callback);
+
+
+
+template <typename F>
+void walk_directory(Platform& pfrm, const char* directory, F callback)
+{
+    walk(pfrm, [callback, directory](const char* path) {
+        auto remainder = starts_with(directory, StringBuffer<FS_MAX_PATH>(path));
+        if (remainder) {
+            callback(remainder);
+        }
+    });
+}
+
+
+
+void unlink_file(Platform& pfrm, const char* path);
+
+
+
+bool file_exists(Platform& pfrm, const char* path);
+
+
+
+void destroy(Platform& pfrm);
 
 
 

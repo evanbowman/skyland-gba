@@ -23,7 +23,7 @@
 #pragma once
 
 #include "modules/fileBrowserModule.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "skyland/img.hpp"
 #include "skyland/paint.hpp"
 #include "skyland/scene.hpp"
@@ -57,7 +57,7 @@ public:
 
         if (not create_) {
             Vector<char> data;
-            ram_filesystem::read_file_data_binary(
+            flash_filesystem::read_file_data_binary(
                 pfrm, file_path_.c_str(), data);
 
             if (data.size() >= sizeof texture_) {
@@ -92,7 +92,7 @@ public:
             }
             output.push_back('\0');
 
-            ram_filesystem::store_file_data_binary(
+            flash_filesystem::store_file_data_binary(
                 pfrm, file_path_.c_str(), output);
 
             return scene_pool::alloc<FileBrowserModule>();

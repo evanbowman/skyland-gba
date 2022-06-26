@@ -25,7 +25,7 @@
 
 #include "macrocosmSector.hpp"
 #include "macrocosmSectorImpl.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "rle.hpp"
 
 
@@ -68,7 +68,7 @@ public:
             dummy.push_back(val);
         }
 
-        ram_filesystem::store_file_data_binary(
+        flash_filesystem::store_file_data_binary(
             pfrm, freebuild_save_path, dummy);
     }
 
@@ -99,7 +99,7 @@ public:
     void load(Platform& pfrm)
     {
         Vector<char> input;
-        if (ram_filesystem::read_file_data_binary(
+        if (flash_filesystem::read_file_data_binary(
                 pfrm, freebuild_save_path, input)) {
 
             Vector<u8> data; // rle::decode does not accept Vector<char>

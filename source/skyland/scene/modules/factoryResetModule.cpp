@@ -21,7 +21,7 @@
 
 
 #include "factoryResetModule.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "skyland/save.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
 #include "skyland/skyland.hpp"
@@ -52,7 +52,7 @@ FactoryResetModule::update(Platform& pfrm, App& app, Microseconds delta)
         app.player().key_down(pfrm, Key::action_1)) {
         ++key_count_;
         if (key_count_ == 5) {
-            ram_filesystem::destroy(pfrm);
+            flash_filesystem::destroy(pfrm);
             pfrm.system_call("sram-flash-writeback", nullptr);
             pfrm.restart();
         }

@@ -22,7 +22,7 @@
 
 #include "developerModeModule.hpp"
 #include "containers/vector.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "skyland/dlc.hpp"
 #include "skyland/scene/fullscreenDialogScene.hpp"
 #include "skyland/scene/titleScreenScene.hpp"

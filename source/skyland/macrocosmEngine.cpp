@@ -27,7 +27,7 @@
 #include "macrocosmPillarSector.hpp"
 #include "memory/buffer.hpp"
 #include "platform/platform.hpp"
-#include "platform/ram_filesystem.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "rle.hpp"
 #include "skyland/skyland.hpp"
 
@@ -499,7 +499,7 @@ void EngineImpl::save(Platform& pfrm)
 
     const int sbr_used = save_data.chunks_used();
 
-    if (not ram_filesystem::store_file_data_binary(
+    if (not flash_filesystem::store_file_data_binary(
             pfrm, save::path, save_data)) {
         info(pfrm, "macro save failed!");
     } else {
@@ -524,7 +524,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
 {
     Vector<char> input;
 
-    if (ram_filesystem::read_file_data_binary(pfrm, save::path, input)) {
+    if (flash_filesystem::read_file_data_binary(pfrm, save::path, input)) {
         auto it = input.begin();
 
         save::Header header;
