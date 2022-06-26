@@ -75,6 +75,8 @@ public:
 
     bool write_save_data(const void* data, u32 data_length, u32 offset)
     {
+        std::cout << "write size " << data_length << std::endl;
+
         if (offset % 2 not_eq 0 or data_length % 2 not_eq 0) {
             std::cout << "bad flash write alignment" << std::endl;
         }
@@ -130,9 +132,8 @@ private:
 // rewrites the data, compacted to remove gaps.
 //
 // NOTE: we don't actually optimize flash writes in the platform implementation
-// yet, and this filesystem library may require some more changes. But the
-// structure of the filesystem, perhaps with some slight edits, is more
-// appropriate for optimizing flash writes than the previous implementation.
+// yet, but the structure of the filesystem, perhaps with some slight edits,
+// should be ready for this sort of optimization.
 
 
 
@@ -793,7 +794,7 @@ int main()
     test.clear();
     flash_filesystem::read_file_data(pfrm, "/save/macro.dat", test);
 
-    puts("stress test:");
+    puts("stress test: write a large object repeatedly to trigger compaction:");
     flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
     flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
     flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
