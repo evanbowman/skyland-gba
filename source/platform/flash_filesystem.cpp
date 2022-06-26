@@ -66,9 +66,24 @@ public:
     }
 
 
+    void insert_save_byte(u32 offset)
+    {
+        auto iter = data_.begin() + offset;
+        data_.insert(iter, 0xff);
+    }
+
+
     bool write_save_data(const void* data, u32 data_length, u32 offset)
     {
+        if (offset % 2 not_eq 0 or data_length % 2 not_eq 0) {
+            std::cout << "bad flash write alignment" << std::endl;
+        }
+
         for (u32 i = 0; i < data_length; ++i) {
+            if (data_[offset + i] not_eq 0xff) {
+                std::cout << "bad flash write to previously-written mem"
+                          << std::endl;
+            }
             data_[offset + i] = ((u8*)data)[i];
         }
         return true;
@@ -188,16 +203,29 @@ struct Record
     {
         // Sanity check byte. In case a cosmic ray flipped a bit or something.
         u8 crc_;
-        u8 flags_; // unused
+
+        enum Flags0
+        {
+             has_end_padding = (1 << 0),
+        };
+
+        u8 flags_[2];
+
         u8 name_length_;
         host_u16 data_length_;
-
 
         // NOTE: appended data:
         //
         // char name_[name_length_];
+        // char padding_[0 or 1];
         // char data_[data_length_];
+        // char padding_[0 or 1];
     } file_info_;
+
+    static_assert(sizeof(invalidate_) % 2 == 0 and
+                  sizeof(FileInfo) % 2 == 0,
+                  "Flash writes require halfword granularity. Struct must be "
+                  "neatly halfword copyable.");
 
 
     u32 appended_size() const
@@ -297,6 +325,11 @@ InitStatus initialize(Platform& pfrm, u32 offset)
     }
 
     while (true) {
+
+        if (offset % 2 not_eq 0) {
+            info(pfrm, "warning: bad filesystem alignment!");
+        }
+
         Record r;
         pfrm.read_save_data(&r, sizeof r, offset);
 
@@ -348,6 +381,7 @@ void walk(Platform& pfrm, Function<32, void(const char*)> callback)
         } else {
 #ifndef __GBA__
             callback(("(INVALID)" + std::string(file_name)).c_str());
+            std::cout << offset << std::endl;
 #endif
         }
 
@@ -500,17 +534,41 @@ static void compact(Platform& pfrm)
 
     pfrm.erase_save_sector();
 
+
     const auto start_align = start_offset + sizeof(Root);
+
+    u32 write_offset = start_align;
+    Buffer<u8, 64> buffer;
+
+    auto flush = [&] {
+                     if (buffer.empty()) {
+                         return;
+                     }
+                     pfrm.write_save_data(buffer.data(),
+                                          buffer.size(),
+                                          write_offset);
+                     write_offset += buffer.size();
+                     buffer.clear();
+                 };
+
+
     for (u32 i = 0; i < data.size(); ++i) {
         if (i == breaks[0]) {
+            flush();
+            write_offset += 2;
             breaks.erase(breaks.begin());
             ++i; // Skip the next byte too.
             static_assert(sizeof(Record) == sizeof(Record::FileInfo) + 2);
         } else {
             auto val = data[i];
-            pfrm.write_save_data(&val, 1, start_align + i);
+            if (buffer.full()) {
+                flush();
+            }
+            buffer.push_back(val);
         }
     }
+
+    flush();
 
     end_offset = start_align + data.size();
     gap_space = 0;
@@ -523,43 +581,80 @@ static void compact(Platform& pfrm)
 
 
 
+static void batch_write(Platform& pfrm,
+                        u32& offset,
+                        Vector<char>::Iterator begin,
+                        Vector<char>::Iterator end)
+{
+    Buffer<u8, 64> stack;
+
+    auto flush = [&] {
+                     if (stack.empty()) {
+                         return;
+                     }
+                     pfrm.write_save_data(stack.data(),
+                                          stack.size(),
+                                          offset);
+
+                     offset += stack.size();
+                     stack.clear();
+                 };
+
+    while (begin not_eq end) {
+        if (stack.full()) {
+            flush();
+        }
+
+        stack.push_back(*begin);
+        ++begin;
+    }
+
+    flush();
+}
+
+
+
 bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 {
     // Append a new file to the end of the filesystem log.
 
+
+    bool data_padding = false;
+    if (data.size() % 2 not_eq 0) {
+        data.push_back(0);
+        data_padding = true;
+    }
+
+
     auto path_len = str_len(path);
+    u8 path_padding = 0;
+    if (path_len % 2 not_eq 0) {
+        // Add an extra null byte to the end, to bring total size up to a
+        // multiple of two.
+        path_padding = 1;
+    }
 
-    u32 required_space = data.size() + path_len + sizeof(Record);
+    const auto path_total = path_len + path_padding;
 
-    const auto freed_space = [&] {
-        if (not __path_cache_file_exists_maybe(path)) {
-            return u32(0);
-        }
-        Record found;
-        auto result = find_file(pfrm, path, found);
-        if (result not_eq -1) {
-            return found.full_size();
-        }
-        return u32(0);
-    }();
-
-    auto avail_space = (freed_space + sector_avail(pfrm)) - sizeof(Record);
+    const u32 required_space = data.size() + path_total + sizeof(Record);
+    const auto avail_space = sector_avail(pfrm) - sizeof(Record);
 
     if ((required_space >= avail_space) and
         avail_space + gap_space > required_space) {
         // We can reclaim enough space to store the file by compacting the
         // storage data to squeeze out gaps.
-        unlink_file(pfrm, path);
         compact(pfrm);
     } else if (required_space >= avail_space) {
         // NOTE: don't unlink the existing file, we don't have enough space to
         // store the replacement.
+        if (data_padding) {
+            data.pop_back();
+        }
         return false;
-    } else {
-        // We have enough space, but, of course, we do want to delete the
-        // previous version of the file (if it exists).
-        unlink_file(pfrm, path);
     }
+
+    unlink_file(pfrm, path);
+
 
     auto off = end_offset;
     static_assert(sizeof(Record) == sizeof(Record::FileInfo) + 2);
@@ -568,25 +663,33 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 
 
     Record::FileInfo info;
-    info.name_length_ = path_len;
+    info.name_length_ = path_total;
     info.data_length_.set(data.size());
+
+    if (data_padding) {
+        info.flags_[0] |= Record::FileInfo::Flags0::has_end_padding;
+    }
 
     pfrm.write_save_data(&info, sizeof info, off);
     off += sizeof info;
 
-    pfrm.write_save_data(path, path_len, off);
-    off += path_len;
+    char file_name[FS_MAX_PATH + 1];
+    memset(file_name, 0, FS_MAX_PATH + 1);
+    memcpy(file_name, path, path_len);
+
+    pfrm.write_save_data(file_name, path_total, off);
+    off += path_total;
 
 
-    for (auto it = data.begin(); it not_eq data.end(); ++it) {
-        auto val = *it;
-        pfrm.write_save_data(&val, 1, off);
-        ++off;
-    }
+    batch_write(pfrm, off, data.begin(), data.end());
 
     end_offset = off;
 
     __path_cache_insert(path);
+
+    if (data_padding) {
+        data.pop_back();
+    }
 
     return true;
 }
@@ -615,6 +718,10 @@ u32 read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
         output.push_back(val);
     }
 
+    if (r.file_info_.flags_[0] & Record::FileInfo::Flags0::has_end_padding) {
+        output.pop_back();
+    }
+
     return output.size();
 }
 
@@ -635,6 +742,7 @@ int main()
                                      std::cout << name << std::endl;
                                  });
 
+
     std::cout << "used: " << flash_filesystem::sector_used() << std::endl;
     std::cout << "avail: " << flash_filesystem::sector_avail(pfrm) << std::endl;
 
@@ -649,7 +757,7 @@ int main()
 
     puts("test...");
     Vector<char> test;
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 999; ++i) {
         test.push_back('a');
     }
 
@@ -680,5 +788,26 @@ int main()
     std::cout << "avail: " << flash_filesystem::sector_avail(pfrm) << std::endl;
     std::cout << "gap: " << flash_filesystem::gap_space << std::endl;
 
+    flash_filesystem::unlink_file(pfrm, "/mods/init.lisp");
+
+    test.clear();
+    flash_filesystem::read_file_data(pfrm, "/save/macro.dat", test);
+
+    puts("stress test:");
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+
+    flash_filesystem::walk(pfrm, [](const char* name) {
+                                     std::cout << name << std::endl;
+                                 });
 }
 #endif // __GBA__
