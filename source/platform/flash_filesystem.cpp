@@ -305,8 +305,6 @@ InitStatus initialize(Platform& pfrm, u32 offset)
             break;
         }
 
-        info(pfrm, "flash fs got record");
-
         if (r.invalidate_.get() not_eq Record::InvalidateStatus::valid) {
             gap_space += r.full_size();
         }
