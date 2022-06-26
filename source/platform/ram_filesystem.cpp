@@ -229,6 +229,7 @@ InitStatus initialize(Platform& pfrm, int fs_begin_offset)
 
     pfrm.read_save_data(&root, sizeof root, fs_offset());
 
+
     static const char fs_version = '1';
 
     if (root.magic_[0] == '_' and root.magic_[1] == 'F' and

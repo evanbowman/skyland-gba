@@ -68,10 +68,7 @@ static inline void main_loop(Platform& pf)
 
 void start(Platform& pfrm)
 {
-    auto stat =
-        ram_filesystem::initialize(pfrm,
-                                   sizeof(skyland::save::GlobalSaveData) +
-                                       sizeof(skyland::save::SaveData));
+    auto stat = ram_filesystem::initialize(pfrm, 8);
 
 
     if (stat == ram_filesystem::InitStatus::initialized) {

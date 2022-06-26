@@ -104,11 +104,28 @@ App::App(Platform& pfrm)
         }
     });
 
+    // NOTE: commented out code, from when I re-adjusted the base-address of the
+    // filesystem. Could be useful at a future date.
+    //
+    // Buffer<StringBuffer<64>, 10> file_names;
+    // Buffer<Vector<char>, 10> files;
+    // ram_filesystem::walk(pfrm,
+    //                      [&](const char* path) {
+    //                          file_names.push_back(path);
+    //                          files.emplace_back();
+    //                          ram_filesystem::read_file_data_binary(pfrm,
+    //                                                                path,
+    //                                                                files.back());
+    //                      });
 
-    ram_filesystem::walk(pfrm,
-                         [&](const char* path) {
-                             info(pfrm, path);
-                         });
+    // ram_filesystem::destroy(pfrm);
+    // ram_filesystem::initialize(pfrm, 8);
+    // for (u32 i = 0; i < file_names.size(); ++i) {
+    //     info(pfrm, format("migrate %", file_names[i].c_str()));
+    //     ram_filesystem::store_file_data_binary(pfrm,
+    //                                            file_names[i].c_str(),
+    //                                            files[i]);
+    // }
 
 
     // If the platform runs out of scratch buffers, try to do anything that we
