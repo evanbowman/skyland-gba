@@ -37,6 +37,7 @@
 #include "sound.hpp"
 #include "timeStreamEvent.hpp"
 #include "weather/storm.hpp"
+#include "platform/flash_filesystem.hpp"
 
 
 
@@ -107,26 +108,40 @@ App::App(Platform& pfrm)
     // NOTE: commented out code, from when I re-adjusted the base-address of the
     // filesystem. Could be useful at a future date.
     //
-    // Buffer<StringBuffer<64>, 10> file_names;
-    // Buffer<Vector<char>, 10> files;
-    // ram_filesystem::walk(pfrm,
-    //                      [&](const char* path) {
-    //                          file_names.push_back(path);
-    //                          files.emplace_back();
-    //                          ram_filesystem::read_file_data_binary(pfrm,
-    //                                                                path,
-    //                                                                files.back());
-    //                      });
+    Buffer<StringBuffer<64>, 10> file_names;
+    Buffer<Vector<char>, 10> files;
+    ram_filesystem::walk(pfrm,
+                         [&](const char* path) {
+                             file_names.push_back(path);
+                             files.emplace_back();
+                             ram_filesystem::read_file_data_binary(pfrm,
+                                                                   path,
+                                                                   files.back());
+                         });
 
     // ram_filesystem::destroy(pfrm);
     // ram_filesystem::initialize(pfrm, 8);
-    // for (u32 i = 0; i < file_names.size(); ++i) {
-    //     info(pfrm, format("migrate %", file_names[i].c_str()));
-    //     ram_filesystem::store_file_data_binary(pfrm,
-    //                                            file_names[i].c_str(),
-    //                                            files[i]);
-    // }
+    int output_offset = 16;
+    for (u32 i = 0; i < file_names.size(); ++i) {
+        flash_filesystem::Record record;
+        record.invalidate_ = flash_filesystem::Record::valid;
+        record.file_info_.name_length_ = file_names[i].length();
+        record.file_info_.data_length_.set(files[i].size());
 
+        pfrm.write_save_data(&record, sizeof record, output_offset);
+        output_offset += sizeof record;
+        pfrm.write_save_data(file_names[i].c_str(),
+                             file_names[i].length(),
+                             output_offset);
+        output_offset += file_names[i].length();
+
+        for (u32 j = 0; j < files[i].size(); ++j) {
+            pfrm.write_save_data(&files[i][j], 1, output_offset);
+            ++output_offset;
+        }
+    }
+
+    while (true) ;
 
     // If the platform runs out of scratch buffers, try to do anything that we
     // can to free up non-essential or potentially unused buffers. NOTE: I
