@@ -56,6 +56,7 @@ FactoryResetModule::update(Platform& pfrm, App& app, Microseconds delta)
             save.magic_.set(0xBADF00D);
             pfrm.write_save_data(&save, sizeof save, 0);
             ram_filesystem::destroy(pfrm);
+            pfrm.system_call("sram-flash-writeback", nullptr);
             pfrm.restart();
         }
     }
