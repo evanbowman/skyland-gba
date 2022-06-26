@@ -89,6 +89,8 @@ static void store_dlc(Platform& pfrm, Vector<char>& data)
         ram_filesystem::store_file_data_binary(
             pfrm, file_name.c_str(), file_contents);
     }
+
+    pfrm.system_call("sram-flash-writeback", nullptr);
 }
 
 

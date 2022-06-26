@@ -308,6 +308,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         using namespace macro::terrain;
                         if (auto f = dynamic_cast<FreebuildSector*>(&current)) {
                             f->save(pfrm);
+                            pfrm.system_call("sram-flash-writeback", nullptr);
                         }
                         pfrm.screen().schedule_fade(0.f);
                         pfrm.screen().pixelate(0);

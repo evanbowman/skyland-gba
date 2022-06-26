@@ -90,6 +90,10 @@ void FileBrowserModule::exit(Platform& pfrm, App&, Scene& next)
     lines_.clear();
     info_.reset();
     pfrm.fill_overlay(0);
+
+    if (dynamic_cast<TitleScreenScene*>(&next)) {
+        pfrm.system_call("sram-flash-writeback", nullptr);
+    }
 }
 
 

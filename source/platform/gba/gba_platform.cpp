@@ -6512,7 +6512,8 @@ void* Platform::system_call(const char* feature_name, void* arg)
         remote_console_start();
     } else if (str_eq(feature_name, "sram-flash-writeback")) {
         if (bootleg_flash_type not_eq 0) {
-            if (get_gflag(GlobalFlag::sram_stale)) {
+            if (not network_peer().is_connected() and
+                get_gflag(GlobalFlag::sram_stale)) {
                 bootleg_flash_write(bootleg_flash_type);
                 set_gflag(GlobalFlag::sram_stale, false);
             }
@@ -6554,8 +6555,8 @@ Platform::Platform()
     case 2:
     case 3:
     case 4:
-        info(*this, format("Repro cart detected! (type %)",
-                           bootleg_flash_type));
+        info(*this,
+             format("Repro cart detected! (type %)", bootleg_flash_type));
 
         // These bootleg flashcarts place save data in flash memory alongside
         // the ROM. Kind of a dumb idea, but some of these things retail at $2,

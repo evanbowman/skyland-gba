@@ -371,6 +371,7 @@ Achievement update(Platform& pfrm, App& app)
             raised_achievements.set(check_achievement, false);
             flags.set(flags.get() | flag);
             save::store_global_data(pfrm, app.gp_);
+            pfrm.system_call("sram-flash-writeback", nullptr);
             return static_cast<Achievement>(check_achievement);
         }
     }
@@ -390,22 +391,6 @@ void lock(Platform& pfrm, App& app, Achievement achievement)
     save::store_global_data(pfrm, app.gp_);
 
     info[achievement].award_(pfrm, app, false);
-}
-
-
-
-bool unlock(Platform& pfrm, App& app, Achievement achievement)
-{
-    auto& flags = app.gp_.achievement_flags_;
-    const u64 flag = 1 << achievement;
-
-    if (not(flags.get() & flag)) {
-        flags.set(flags.get() | flag);
-        save::store_global_data(pfrm, app.gp_);
-        return true;
-    }
-
-    return false;
 }
 
 

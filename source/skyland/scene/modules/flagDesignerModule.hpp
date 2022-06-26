@@ -74,6 +74,7 @@ public:
 
 
 private:
+    bool changed_ = false;
     static Factory factory_;
 };
 

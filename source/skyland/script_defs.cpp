@@ -139,8 +139,13 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               auto app = interp_get_app();
               auto prev = app->gp_.stateflags_.get(L_LOAD_INT(1));
 
-              app->gp_.stateflags_.set(L_LOAD_INT(1), L_LOAD_INT(0));
-              save::store_global_data(*lisp::interp_get_pfrm(), app->gp_);
+              const bool was_set = app->gp_.stateflags_.get(L_LOAD_INT(1));
+              if (not was_set) {
+                  app->gp_.stateflags_.set(L_LOAD_INT(1), L_LOAD_INT(0));
+                  save::store_global_data(*lisp::interp_get_pfrm(), app->gp_);
+                  lisp::interp_get_pfrm()->system_call("sram-flash-writeback",
+                                                       nullptr);
+              }
 
               return L_INT(prev);
           }},
@@ -177,11 +182,20 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               u64 challenge_bitmask = 1 << challenge;
 
               auto app = interp_get_app();
-              app->gp_.challenge_flags_.set(app->gp_.challenge_flags_.get() |
-                                            challenge_bitmask);
 
-              save::store_global_data(*lisp::interp_get_pfrm(),
-                                      interp_get_app()->gp_);
+              const bool was_set =
+                  app->gp_.challenge_flags_.get() & challenge_bitmask;
+
+              if (not was_set) {
+                  app->gp_.challenge_flags_.set(
+                      app->gp_.challenge_flags_.get() | challenge_bitmask);
+
+                  save::store_global_data(*lisp::interp_get_pfrm(),
+                                          interp_get_app()->gp_);
+                  lisp::interp_get_pfrm()->system_call("sram-flash-writeback",
+                                                       nullptr);
+              }
+
 
               return L_NIL;
           }},

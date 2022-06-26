@@ -271,13 +271,13 @@ void bootleg_flash_write(BootlegFlashType flash_type)
     // Interrupts off
     const u16 ie = REG_IE;
     REG_IE = 0;
-    u16 ime = REG_IME;
+    const u16 ime = REG_IME;
     REG_IME = 0;
 
-    REG_SOUNDCNT_X = 0;
-    REG_SOUNDCNT_H = 0;
-    REG_TM0CNT_H = 0;
-    REG_TM1CNT_H = 0;
+    // REG_SOUNDCNT_X = 0;
+    // REG_SOUNDCNT_H = 0;
+    // REG_TM0CNT_H = 0;
+    // REG_TM1CNT_H = 0;
 
     bootleg_flash_write_impl(flash_type);
 
@@ -285,14 +285,14 @@ void bootleg_flash_write(BootlegFlashType flash_type)
     REG_IE = ie;
     REG_IME = ime;
 
-    REG_SOUNDCNT_X = 0x0080; //turn sound chip on
-    REG_SOUNDCNT_H = SDS_DMG100 | 1 << 2 | 1 << 3 | 1 << 8 | 1 << 9;
-    REG_TM0CNT_H = 0x0083;
-    REG_TM1CNT_H = 0x00C3;
-    REG_TM0CNT_L = 0xffff;
-    REG_TM1CNT_L = 0xffff - 3;
+    // REG_SOUNDCNT_X = 0x0080; //turn sound chip on
+    // REG_SOUNDCNT_H = SDS_DMG100 | 1 << 2 | 1 << 3 | 1 << 8 | 1 << 9;
+    // REG_TM0CNT_H = 0x0083;
+    // REG_TM1CNT_H = 0x00C3;
+    // REG_TM0CNT_L = 0xffff;
+    // REG_TM1CNT_L = 0xffff - 3;
 
-    // Sound on
+    // directsound on
     REG_SOUNDCNT_H |= (1 << 9);
     REG_SOUNDCNT_H |= (1 << 8);
 }
@@ -314,7 +314,8 @@ static void bytecopy(u8* dest, u8* src, u32 size)
 
 void bootleg_cart_init_sram(Platform& pfrm)
 {
-    const u32 total_rom_size = u32(&__rom_end__ - 0x8000000) + filesystem::size();
+    const u32 total_rom_size =
+        u32(&__rom_end__ - 0x8000000) + filesystem::size();
     u32 flash_size = 0;
     flash_sram_area = 0;
 

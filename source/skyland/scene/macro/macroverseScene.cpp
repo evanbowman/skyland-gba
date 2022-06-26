@@ -376,6 +376,7 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (m.data_->other_sectors_.size() > 7) {
             app.gp_.stateflags_.set(freebuild_flag, true);
             save::store_global_data(pfrm, app.gp_);
+            pfrm.system_call("sram-flash-writeback", nullptr);
         }
     }
 

@@ -126,10 +126,13 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto& highscores = app.gp_.highscores_;
 
+    bool changed = false;
+
     if (not app.is_developer_mode()) {
         for (auto& highscore : reversed(highscores.values_)) {
             if (highscore.get() < (u32)score) {
                 highscore.set(score);
+                changed = true;
                 break;
             }
         }
@@ -172,7 +175,10 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
             highscores.highest_score_multiplier_used_ = score_multiplier;
         }
 
-        save::store_global_data(pfrm, app.gp_);
+        if (changed) {
+            save::store_global_data(pfrm, app.gp_);
+            pfrm.system_call("sram-flash-writeback", nullptr);
+        }
     }
 
     auto upload = SYSTR(highscores_upload);

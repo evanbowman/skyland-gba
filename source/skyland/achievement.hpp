@@ -93,12 +93,9 @@ void raise(Platform& pfrm, App& app, Achievement achievement);
 
 
 
-// Manually unlock an achievement. Returns true if the achievement was locked.
-bool unlock(Platform& pfrm, App& app, Achievement achievement);
-
-
 // Re-lock the achievement. Really just needed for implementing rewind.
 void lock(Platform& pfrm, App& app, Achievement achievement);
+
 
 
 // update() or unlock() return an achievement, or true (respectively), call

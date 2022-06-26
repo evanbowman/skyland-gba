@@ -913,6 +913,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                     pfrm.screen().fade(1.f);
 
                     save::store_global_data(pfrm, app.gp_);
+                    pfrm.system_call("sram-flash-writeback", nullptr);
                     app.invoke_script(pfrm, "/scripts/reset_hooks.lisp");
                     auto dialog =
                         allocate_dynamic<DialogString>("dialog-buffer");
