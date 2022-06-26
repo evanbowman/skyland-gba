@@ -107,9 +107,6 @@ bootleg_flash_write_impl(BootlegFlashType flash_type)
 
     if (flash_type == 0)
         return;
-    u16 ie = REG_IE;
-
-    REG_IE = ie & 0xFFFE;
 
     if (flash_type == 1) {
         // Erase flash sector
@@ -255,19 +252,47 @@ bootleg_flash_write_impl(BootlegFlashType flash_type)
             c += 1024;
         }
     }
-
-    REG_IE = ie;
 }
 
 
 
 void bootleg_flash_write(BootlegFlashType flash_type)
 {
-    REG_SNDDMGCNT &= ~(1 << 0xb);
-    REG_SNDDMGCNT &= ~(1 << 0xf);
+    // Disable directsound
+    REG_SOUNDCNT_H &= ~(1 << 8);
+    REG_SOUNDCNT_H &= ~(1 << 9);
+
+    int temp = 0;
+
+    // Stop dma transfers
+    DMA_TRANSFER((volatile short*)0x4000014, &temp, 1, 0, 0);
+    DMA_TRANSFER((volatile short*)0x4000016, &temp, 1, 3, 0);
+
+    // Interrupts off
+    const u16 ie = REG_IE;
+    REG_IE = 0;
+    u16 ime = REG_IME;
+    REG_IME = 0;
+
+    REG_SOUNDCNT_X = 0;
+    REG_SOUNDCNT_H = 0;
+    REG_TM0CNT_H = 0;
+    REG_TM1CNT_H = 0;
 
     bootleg_flash_write_impl(flash_type);
 
+    // Interrupts on
+    REG_IE = ie;
+    REG_IME = ime;
+
+    REG_SOUNDCNT_X = 0x0080; //turn sound chip on
+    REG_SOUNDCNT_H = SDS_DMG100 | 1 << 2 | 1 << 3 | 1 << 8 | 1 << 9;
+    REG_TM0CNT_H = 0x0083;
+    REG_TM1CNT_H = 0x00C3;
+    REG_TM0CNT_L = 0xffff;
+    REG_TM1CNT_L = 0xffff - 3;
+
+    // Sound on
     REG_SOUNDCNT_H |= (1 << 9);
     REG_SOUNDCNT_H |= (1 << 8);
 }
@@ -289,9 +314,11 @@ static void bytecopy(u8* dest, u8* src, u32 size)
 
 void bootleg_cart_init_sram(Platform& pfrm)
 {
-    u32 total_rom_size = (__rom_end__ - 0x8000000) + filesystem::size();
+    const u32 total_rom_size = u32(&__rom_end__ - 0x8000000) + filesystem::size();
     u32 flash_size = 0;
     flash_sram_area = 0;
+
+    info(pfrm, format("rom size: %kb", total_rom_size / 1000));
 
     // Determine the size of the flash chip by checking for ROM loops,
     // then set the SRAM storage area 0x40000 bytes before the end.
@@ -306,6 +333,8 @@ void bootleg_cart_init_sram(Platform& pfrm)
     } else {
         flash_size = 0x2000000;
     }
+    info(pfrm, format("flash size detected: %kb", flash_size / 1000));
+
     if (flash_sram_area == 0) {
         flash_sram_area = flash_size - 0x40000;
     }
