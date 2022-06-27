@@ -310,7 +310,7 @@ InitStatus initialize(Platform& pfrm, u32 offset)
 
         init_root(pfrm, root);
 
-        end_offset = start_offset;
+        end_offset = start_offset + sizeof root;
 
         __path_cache_create(pfrm);
 
@@ -666,6 +666,9 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
     Record::FileInfo info;
     info.name_length_ = path_total;
     info.data_length_.set(data.size());
+
+    info.flags_[0] = 0;
+    info.flags_[1] = 0;
 
     if (data_padding) {
         info.flags_[0] |= Record::FileInfo::Flags0::has_end_padding;

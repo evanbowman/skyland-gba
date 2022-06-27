@@ -3130,6 +3130,11 @@ void sram_load(void* dest, u32 offset, u32 length)
 }
 
 
+
+static BootlegFlashType bootleg_flash_type = 0;
+
+
+
 bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 {
     set_gflag(GlobalFlag::sram_stale, true);
@@ -3138,6 +3143,11 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
         return flash_save(data, offset, length);
     } else {
         sram_save(data, offset, length);
+
+        if (bootleg_flash_type) {
+            bootleg_flash_writeback(bootleg_flash_type, offset, length);
+        }
+
         return true;
     }
 }
@@ -3156,10 +3166,6 @@ bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
 
 
 
-static BootlegFlashType bootleg_flash_type = 0;
-
-
-
 void Platform::erase_save_sector()
 {
     u8* save_mem = (u8*)0x0E000000;
@@ -3167,12 +3173,19 @@ void Platform::erase_save_sector()
     for (int i = 0; i < 32000; ++i) {
         save_mem[i] = 0xff;
     }
+
+    if (bootleg_flash_type) {
+        info(*this, "flash erase!");
+        bootleg_flash_erase(bootleg_flash_type);
+    }
 }
+
 
 
 void SynchronizedBase::init(Platform& pf)
 {
 }
+
 
 
 void SynchronizedBase::lock()
@@ -3319,7 +3332,7 @@ struct AudioTrack
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
 } music_tracks[] = {
-    // DEF_MUSIC(isle_of_the_dead, music_isle_of_the_dead),
+    DEF_MUSIC(isle_of_the_dead, music_isle_of_the_dead),
     DEF_MUSIC(shadows, shadows),
     DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
     DEF_MUSIC(life_in_silco, music_life_in_silco),
@@ -6521,16 +6534,16 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
         // Re-enable the async non-blocking console.
         remote_console_start();
-    } else if (str_eq(feature_name, "sram-flash-writeback")) {
-        if (bootleg_flash_type not_eq 0) {
-            if (not network_peer().is_connected() and
-                get_gflag(GlobalFlag::sram_stale)) {
-                bootleg_flash_write(bootleg_flash_type);
-                set_gflag(GlobalFlag::sram_stale, false);
-                info(*this, "flash wb");
-            }
-        }
-    }
+    }//  else if (str_eq(feature_name, "sram-flash-writeback")) {
+    //     if (bootleg_flash_type not_eq 0) {
+    //         if (not network_peer().is_connected() and
+    //             get_gflag(GlobalFlag::sram_stale)) {
+    //             bootleg_flash_write(bootleg_flash_type);
+    //             set_gflag(GlobalFlag::sram_stale, false);
+    //             info(*this, "flash wb");
+    //         }
+    //     }
+    // }
 
     return nullptr;
 }
@@ -6566,7 +6579,6 @@ Platform::Platform()
     case 1:
     case 2:
     case 3:
-    case 4:
         info(*this,
              format("Repro cart detected! (type %)", bootleg_flash_type));
 
@@ -6578,7 +6590,8 @@ Platform::Platform()
         bootleg_cart_init_sram(*this);
         break;
 
-    case 0:
+    default:
+        bootleg_flash_type = 0;
         // NOT DETECTED
         break;
     }

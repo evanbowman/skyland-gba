@@ -76,6 +76,7 @@ App::App(Platform& pfrm)
     next_scene_ = initial_scene();
 
     if (not save::load_global_data(pfrm, gp_)) {
+        info(pfrm, "global data not found");
         load_default_flag(pfrm, *this);
         for (auto& score : gp_.highscores_.values_) {
             score.set(0);

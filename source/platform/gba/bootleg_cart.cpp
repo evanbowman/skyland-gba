@@ -92,13 +92,8 @@ __attribute__((section(".ewram"))) u32 bootleg_get_flash_type()
 
 
 
-// This function will issue a flash sector erase
-// operation at the given sector address and then
-// write 64 kilobytes of SRAM data to Flash ROM.
-// Must run in EWRAM because ROM data is
-// not visible to the system while erasing/writing.
-__attribute__((section(".ewram"))) void
-bootleg_flash_write_impl(BootlegFlashType flash_type)
+__attribute__((section(".ewram")))
+void bootleg_flash_erase_impl(BootlegFlashType flash_type)
 {
     if (flash_sram_area == 0) {
         return;
@@ -123,21 +118,6 @@ bootleg_flash_write_impl(BootlegFlashType flash_type)
         }
         BOOTLEG_FLASH_WRITE(sa, 0xFF);
 
-        // Write data
-        for (int i = 0; i < BOOTLEG_SRAM_SIZE; i += 2) {
-            BOOTLEG_FLASH_WRITE(sa + i, 0x40);
-            BOOTLEG_FLASH_WRITE(sa + i,
-                                (*(u8*)(BOOTLEG_SRAM + i + 1)) << 8 |
-                                    (*(u8*)(BOOTLEG_SRAM + i)));
-            while (1) {
-                __asm("nop");
-                if (*(((u16*)AGB_ROM) + (sa / 2)) == 0x80) {
-                    break;
-                }
-            }
-        }
-        BOOTLEG_FLASH_WRITE(sa, 0xFF);
-
     } else if (flash_type == 2) {
         // Erase flash sector
         BOOTLEG_FLASH_WRITE(sa, 0xF0);
@@ -151,25 +131,6 @@ bootleg_flash_write_impl(BootlegFlashType flash_type)
             __asm("nop");
             if (*(((u16*)AGB_ROM) + (sa / 2)) == 0xFFFF) {
                 break;
-            }
-        }
-        BOOTLEG_FLASH_WRITE(sa, 0xF0);
-
-        // Write data
-        for (int i = 0; i < BOOTLEG_SRAM_SIZE; i += 2) {
-            BOOTLEG_FLASH_WRITE(0xAAA, 0xA9);
-            BOOTLEG_FLASH_WRITE(0x555, 0x56);
-            BOOTLEG_FLASH_WRITE(0xAAA, 0xA0);
-            BOOTLEG_FLASH_WRITE(sa + i,
-                                (*(u8*)(BOOTLEG_SRAM + i + 1)) << 8 |
-                                    (*(u8*)(BOOTLEG_SRAM + i)));
-            while (1) {
-                __asm("nop");
-                if (*(((u16*)AGB_ROM) + ((sa + i) / 2)) ==
-                    ((*(u8*)(BOOTLEG_SRAM + i + 1)) << 8 |
-                     (*(u8*)(BOOTLEG_SRAM + i)))) {
-                    break;
-                }
             }
         }
         BOOTLEG_FLASH_WRITE(sa, 0xF0);
@@ -190,73 +151,12 @@ bootleg_flash_write_impl(BootlegFlashType flash_type)
             }
         }
         BOOTLEG_FLASH_WRITE(sa, 0xF0);
-
-        // Write data
-        for (int i = 0; i < BOOTLEG_SRAM_SIZE; i += 2) {
-            BOOTLEG_FLASH_WRITE(0xAAA, 0xAA);
-            BOOTLEG_FLASH_WRITE(0x555, 0x55);
-            BOOTLEG_FLASH_WRITE(0xAAA, 0xA0);
-            BOOTLEG_FLASH_WRITE(sa + i,
-                                (*(u8*)(BOOTLEG_SRAM + i + 1)) << 8 |
-                                    (*(u8*)(BOOTLEG_SRAM + i)));
-            while (1) {
-                __asm("nop");
-                if (*(((u16*)AGB_ROM) + ((sa + i) / 2)) ==
-                    ((*(u8*)(BOOTLEG_SRAM + i + 1)) << 8 |
-                     (*(u8*)(BOOTLEG_SRAM + i)))) {
-                    break;
-                }
-            }
-        }
-        BOOTLEG_FLASH_WRITE(sa, 0xF0);
-
-    } else if (flash_type == 4) {
-        // Erase flash sector
-        BOOTLEG_FLASH_WRITE(sa, 0xFF);
-        BOOTLEG_FLASH_WRITE(sa, 0x60);
-        BOOTLEG_FLASH_WRITE(sa, 0xD0);
-        BOOTLEG_FLASH_WRITE(sa, 0x20);
-        BOOTLEG_FLASH_WRITE(sa, 0xD0);
-        while (1) {
-            __asm("nop");
-            if ((*(((u16*)AGB_ROM) + (sa / 2)) & 0x80) == 0x80) {
-                break;
-            }
-        }
-        BOOTLEG_FLASH_WRITE(sa, 0xFF);
-
-        // Write data
-        int c = 0;
-        while (c < BOOTLEG_SRAM_SIZE) {
-            BOOTLEG_FLASH_WRITE(sa + c, 0xEA);
-            while (1) {
-                __asm("nop");
-                if ((*(((u16*)AGB_ROM) + ((sa + c) / 2)) & 0x80) == 0x80) {
-                    break;
-                }
-            }
-            BOOTLEG_FLASH_WRITE(sa + c, 0x1FF);
-            for (int i = 0; i < 1024; i += 2) {
-                BOOTLEG_FLASH_WRITE(sa + c + i,
-                                    (*(u8*)(BOOTLEG_SRAM + c + i + 1)) << 8 |
-                                        (*(u8*)(BOOTLEG_SRAM + c + i)));
-            }
-            BOOTLEG_FLASH_WRITE(sa + c, 0xD0);
-            while (1) {
-                __asm("nop");
-                if ((*(((u16*)AGB_ROM) + ((sa + c) / 2)) & 0x80) == 0x80) {
-                    break;
-                }
-            }
-            BOOTLEG_FLASH_WRITE(sa + c, 0xFF);
-            c += 1024;
-        }
     }
 }
 
 
 
-void bootleg_flash_write(BootlegFlashType flash_type)
+void bootleg_flash_erase(BootlegFlashType flash_type)
 {
     // Disable directsound
     REG_SOUNDCNT_H &= ~(1 << 8);
@@ -274,23 +174,127 @@ void bootleg_flash_write(BootlegFlashType flash_type)
     const u16 ime = REG_IME;
     REG_IME = 0;
 
-    // REG_SOUNDCNT_X = 0;
-    // REG_SOUNDCNT_H = 0;
-    // REG_TM0CNT_H = 0;
-    // REG_TM1CNT_H = 0;
-
-    bootleg_flash_write_impl(flash_type);
+    bootleg_flash_erase_impl(flash_type);
 
     // Interrupts on
     REG_IE = ie;
     REG_IME = ime;
 
-    // REG_SOUNDCNT_X = 0x0080; //turn sound chip on
-    // REG_SOUNDCNT_H = SDS_DMG100 | 1 << 2 | 1 << 3 | 1 << 8 | 1 << 9;
-    // REG_TM0CNT_H = 0x0083;
-    // REG_TM1CNT_H = 0x00C3;
-    // REG_TM0CNT_L = 0xffff;
-    // REG_TM1CNT_L = 0xffff - 3;
+    // directsound on
+    REG_SOUNDCNT_H |= (1 << 9);
+    REG_SOUNDCNT_H |= (1 << 8);
+}
+
+
+
+// This function will issue a flash sector erase
+// operation at the given sector address and then
+// write 64 kilobytes of SRAM data to Flash ROM.
+// Must run in EWRAM because ROM data is
+// not visible to the system while erasing/writing.
+__attribute__((section(".ewram"))) void
+bootleg_flash_writeback_impl(BootlegFlashType flash_type,
+                             u32 offset,
+                             u32 length)
+{
+    if (flash_sram_area == 0) {
+        return;
+    }
+    u32 sa = flash_sram_area;
+
+    if (flash_type == 0)
+        return;
+
+    if (flash_type == 1) {
+
+        // Write data
+        for (u32 i = offset; i < offset + length; i += 2) {
+            BOOTLEG_FLASH_WRITE(sa + i, 0x40);
+            BOOTLEG_FLASH_WRITE(sa + i,
+                                (*(u8*)(BOOTLEG_SRAM + i + 1)) << 8 |
+                                    (*(u8*)(BOOTLEG_SRAM + i)));
+            while (1) {
+                __asm("nop");
+                if (*(((u16*)AGB_ROM) + (sa / 2)) == 0x80) {
+                    break;
+                }
+            }
+        }
+        BOOTLEG_FLASH_WRITE(sa, 0xFF);
+
+    } else if (flash_type == 2) {
+
+        BOOTLEG_FLASH_WRITE(sa, 0xF0);
+
+        // Write data
+        for (u32 i = offset; i < offset + length; i += 2) {
+            BOOTLEG_FLASH_WRITE(0xAAA, 0xA9);
+            BOOTLEG_FLASH_WRITE(0x555, 0x56);
+            BOOTLEG_FLASH_WRITE(0xAAA, 0xA0);
+            BOOTLEG_FLASH_WRITE(sa + i,
+                                (*(u8*)(BOOTLEG_SRAM + i + 1)) << 8 |
+                                    (*(u8*)(BOOTLEG_SRAM + i)));
+            while (1) {
+                __asm("nop");
+                if (*(((u16*)AGB_ROM) + ((sa + i) / 2)) ==
+                    ((*(u8*)(BOOTLEG_SRAM + i + 1)) << 8 |
+                     (*(u8*)(BOOTLEG_SRAM + i)))) {
+                    break;
+                }
+            }
+        }
+        BOOTLEG_FLASH_WRITE(sa, 0xF0);
+
+    } else if (flash_type == 3) {
+
+        // Write data
+        for (u32 i = offset; i < offset + length; i += 2) {
+            BOOTLEG_FLASH_WRITE(0xAAA, 0xAA);
+            BOOTLEG_FLASH_WRITE(0x555, 0x55);
+            BOOTLEG_FLASH_WRITE(0xAAA, 0xA0);
+            BOOTLEG_FLASH_WRITE(sa + i,
+                                (*(u8*)(BOOTLEG_SRAM + i + 1)) << 8 |
+                                    (*(u8*)(BOOTLEG_SRAM + i)));
+            while (1) {
+                __asm("nop");
+                if (*(((u16*)AGB_ROM) + ((sa + i) / 2)) ==
+                    ((*(u8*)(BOOTLEG_SRAM + i + 1)) << 8 |
+                     (*(u8*)(BOOTLEG_SRAM + i)))) {
+                    break;
+                }
+            }
+        }
+        BOOTLEG_FLASH_WRITE(sa, 0xF0);
+    }
+}
+
+
+
+void bootleg_flash_writeback(BootlegFlashType flash_type,
+                             u32 offset,
+                             u32 length)
+{
+    // Disable directsound
+    REG_SOUNDCNT_H &= ~(1 << 8);
+    REG_SOUNDCNT_H &= ~(1 << 9);
+
+    int temp = 0;
+
+    // Stop dma transfers
+    DMA_TRANSFER((volatile short*)0x4000014, &temp, 1, 0, 0);
+    DMA_TRANSFER((volatile short*)0x4000016, &temp, 1, 3, 0);
+
+    // Interrupts off
+    const u16 ie = REG_IE;
+    REG_IE = 0;
+    const u16 ime = REG_IME;
+    REG_IME = 0;
+
+    bootleg_flash_writeback_impl(flash_type, offset, length);
+
+    // Interrupts on
+    REG_IE = ie;
+    REG_IME = ime;
 
     // directsound on
     REG_SOUNDCNT_H |= (1 << 9);
