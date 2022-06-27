@@ -40,8 +40,10 @@ inline void info(Platform& pfrm, const StringBuffer<200>& msg)
 {
     std::cout << msg.c_str() << std::endl;
 }
+#ifdef __FAKEVECTOR__
 template <typename T>
 using Vector = Buffer<T, 32000>;
+#endif // __FAKEVECTOR__
 #else
 #include "containers/vector.hpp"
 #endif // __GBA__
