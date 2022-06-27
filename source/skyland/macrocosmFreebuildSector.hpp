@@ -131,10 +131,10 @@ public:
             }
         }
 
-        shadowcast();
 
-        raster::globalstate::_changed = true;
-        raster::globalstate::_shrunk = true;
+        repaint();
+
+        shadowcast();
     }
 
 
