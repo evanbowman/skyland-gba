@@ -21,18 +21,17 @@
 
 
 #include "flash_filesystem.hpp"
-#include "string.hpp"
 #include "bloomFilter.hpp"
+#include "string.hpp"
 
 
 
 #ifndef __GBA__
+// Test harness for non-gba backtesting
 class Platform
 {
 
 public:
-
-
     ~Platform()
     {
         std::ofstream stream("Skyland.logstructured.edit.sav",
@@ -188,8 +187,7 @@ struct Root
 struct Record
 {
     // NOTE: u16 because our flash chip writes in halfwords.
-    enum InvalidateStatus : u16
-    {
+    enum InvalidateStatus : u16 {
         // A flash erase will set all values in a sector to 0xffff. This is
         // simply how flash storage works. A flash write can only change bits
         // from one to zero, an erase operation sets all bits in a flash sector
@@ -205,9 +203,8 @@ struct Record
         // Sanity check byte. In case a cosmic ray flipped a bit or something.
         u8 crc_;
 
-        enum Flags0
-        {
-             has_end_padding = (1 << 0),
+        enum Flags0 {
+            has_end_padding = (1 << 0),
         };
 
         u8 flags_[2];
@@ -223,8 +220,7 @@ struct Record
         // char padding_[0 or 1];
     } file_info_;
 
-    static_assert(sizeof(invalidate_) % 2 == 0 and
-                  sizeof(FileInfo) % 2 == 0,
+    static_assert(sizeof(invalidate_) % 2 == 0 and sizeof(FileInfo) % 2 == 0,
                   "Flash writes require halfword granularity. Struct must be "
                   "neatly halfword copyable.");
 
@@ -239,7 +235,6 @@ struct Record
     {
         return sizeof(Record) + appended_size();
     }
-
 };
 
 
@@ -302,6 +297,10 @@ static void init_root(Platform& pfrm, Root& root)
 
 InitStatus initialize(Platform& pfrm, u32 offset)
 {
+    if (offset % 2 not_eq 0) {
+        return failed;
+    }
+
     start_offset = offset;
     auto root = load_root(pfrm);
 
@@ -320,10 +319,6 @@ InitStatus initialize(Platform& pfrm, u32 offset)
     info(pfrm, "flash fs found root...");
 
     offset += sizeof(Root);
-
-    if (offset not_eq 16) {
-        while (true) ;
-    }
 
     while (true) {
 
@@ -348,6 +343,12 @@ InitStatus initialize(Platform& pfrm, u32 offset)
     end_offset = offset;
 
     __path_cache_create(pfrm);
+
+    info(pfrm,
+         format("flash fs init: begin: %, end: %, gaps: %",
+                start_offset,
+                end_offset,
+                gap_space));
 
     return already_initialized;
 }
@@ -382,7 +383,6 @@ void walk(Platform& pfrm, Function<32, void(const char*)> callback)
         } else {
 #ifndef __GBA__
             callback(("(INVALID)" + std::string(file_name)).c_str());
-            std::cout << offset << std::endl;
 #endif
         }
 
@@ -496,7 +496,7 @@ static void compact(Platform& pfrm)
         Record r;
         pfrm.read_save_data(&r, sizeof r, offset);
 
-        if (r.file_info_.name_length_ == 0xff) {
+        if (r.file_info_.name_length_ == 0xff or offset >= end_offset) {
             // uninitialized, as it holds the default flash erase value.
             break;
         }
@@ -542,20 +542,20 @@ static void compact(Platform& pfrm)
     Buffer<u8, 64> buffer;
 
     auto flush = [&] {
-                     if (buffer.empty()) {
-                         return;
-                     }
-                     pfrm.write_save_data(buffer.data(),
-                                          buffer.size(),
-                                          write_offset);
-                     write_offset += buffer.size();
-                     buffer.clear();
-                 };
+        if (buffer.empty()) {
+            return;
+        }
+        pfrm.write_save_data(buffer.data(), buffer.size(), write_offset);
+        write_offset += buffer.size();
+        buffer.clear();
+    };
 
 
     for (u32 i = 0; i < data.size(); ++i) {
         if (i == breaks[0]) {
             flush();
+            // Bump the write offset past the invalid designator bytes in the
+            // record header.
             write_offset += 2;
             breaks.erase(breaks.begin());
             ++i; // Skip the next byte too.
@@ -582,35 +582,43 @@ static void compact(Platform& pfrm)
 
 
 
-static void batch_write(Platform& pfrm,
-                        u32& offset,
-                        Vector<char>::Iterator begin,
-                        Vector<char>::Iterator end)
+static int batch_write(Platform& pfrm,
+                       u32& offset,
+                       Vector<char>::Iterator begin,
+                       Vector<char>::Iterator end)
 {
-    Buffer<u8, 64> stack;
+    constexpr int batch_size = 64;
+
+    Buffer<u8, batch_size> queue;
+
+    int errors = 0;
 
     auto flush = [&] {
-                     if (stack.empty()) {
-                         return;
-                     }
-                     pfrm.write_save_data(stack.data(),
-                                          stack.size(),
-                                          offset);
+        if (queue.empty()) {
+            return;
+        }
+        bool success = pfrm.write_save_data(queue.data(), queue.size(), offset);
 
-                     offset += stack.size();
-                     stack.clear();
-                 };
+        if (not success) {
+            ++errors;
+        }
+
+        offset += queue.size();
+        queue.clear();
+    };
 
     while (begin not_eq end) {
-        if (stack.full()) {
+        if (queue.full()) {
             flush();
         }
 
-        stack.push_back(*begin);
+        queue.push_back(*begin);
         ++begin;
     }
 
     flush();
+
+    return errors;
 }
 
 
@@ -674,18 +682,24 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
         info.flags_[0] |= Record::FileInfo::Flags0::has_end_padding;
     }
 
-    pfrm.write_save_data(&info, sizeof info, off);
+    int write_errors = 0;
+
+    if (not pfrm.write_save_data(&info, sizeof info, off)) {
+        ++write_errors;
+    }
     off += sizeof info;
 
     char file_name[FS_MAX_PATH + 1];
     memset(file_name, 0, FS_MAX_PATH + 1);
     memcpy(file_name, path, path_len);
 
-    pfrm.write_save_data(file_name, path_total, off);
+    if (not pfrm.write_save_data(file_name, path_total, off)) {
+        ++write_errors;
+    }
     off += path_total;
 
 
-    batch_write(pfrm, off, data.begin(), data.end());
+    write_errors += batch_write(pfrm, off, data.begin(), data.end());
 
     end_offset = off;
 
@@ -693,6 +707,20 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 
     if (data_padding) {
         data.pop_back();
+    }
+
+    if (write_errors) {
+        // NOTE: write errors indicate that a simultaneous writeback to flash
+        // did not work correctly. The data is still stored correctly in SRAM,
+        // so future calls to Platform::read_save_data() will work correctly.
+        // However, we do want the data to be persisted correctly in flash, so
+        // let's try running a compaction operation, which erases the flash chip
+        // and writes sram contents back to the flash device. Hopefully doing
+        // this will free up any stuck bits.
+
+        ::info(pfrm, "bad flash checksum detected, rewriting sector...");
+
+        compact(pfrm);
     }
 
     return true;
@@ -731,7 +759,7 @@ u32 read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 
 
 
-}
+} // namespace flash_filesystem
 
 
 
@@ -742,9 +770,8 @@ int main()
 
     flash_filesystem::initialize(pfrm, 8);
 
-    flash_filesystem::walk(pfrm, [](const char* name) {
-                                     std::cout << name << std::endl;
-                                 });
+    flash_filesystem::walk(
+        pfrm, [](const char* name) { std::cout << name << std::endl; });
 
 
     std::cout << "used: " << flash_filesystem::sector_used() << std::endl;
@@ -770,9 +797,8 @@ int main()
 
     puts("");
 
-    flash_filesystem::walk(pfrm, [](const char* name) {
-                                     std::cout << name << std::endl;
-                                 });
+    flash_filesystem::walk(
+        pfrm, [](const char* name) { std::cout << name << std::endl; });
 
     std::cout << "used: " << flash_filesystem::sector_used() << std::endl;
     std::cout << "avail: " << flash_filesystem::sector_avail(pfrm) << std::endl;
@@ -784,9 +810,8 @@ int main()
     flash_filesystem::compact(pfrm);
     puts("");
 
-    flash_filesystem::walk(pfrm, [](const char* name) {
-                                     std::cout << name << std::endl;
-                                 });
+    flash_filesystem::walk(
+        pfrm, [](const char* name) { std::cout << name << std::endl; });
 
     std::cout << "used: " << flash_filesystem::sector_used() << std::endl;
     std::cout << "avail: " << flash_filesystem::sector_avail(pfrm) << std::endl;
@@ -810,8 +835,7 @@ int main()
     flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
     flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
 
-    flash_filesystem::walk(pfrm, [](const char* name) {
-                                     std::cout << name << std::endl;
-                                 });
+    flash_filesystem::walk(
+        pfrm, [](const char* name) { std::cout << name << std::endl; });
 }
 #endif // __GBA__

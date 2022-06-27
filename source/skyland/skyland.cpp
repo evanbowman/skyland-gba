@@ -27,8 +27,8 @@
 #include "graphics/overlay.hpp"
 #include "macrocosmEngine.hpp"
 #include "number/random.hpp"
-#include "platform/platform.hpp"
 #include "platform/flash_filesystem.hpp"
+#include "platform/platform.hpp"
 #include "player/playerP1.hpp"
 #include "room_metatable.hpp"
 #include "save.hpp"
@@ -37,7 +37,6 @@
 #include "sound.hpp"
 #include "timeStreamEvent.hpp"
 #include "weather/storm.hpp"
-#include "platform/flash_filesystem.hpp"
 
 
 

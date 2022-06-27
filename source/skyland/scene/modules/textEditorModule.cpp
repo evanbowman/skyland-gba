@@ -536,7 +536,8 @@ TextEditorModule::TextEditorModule(Platform& pfrm,
 
     if (file_mode == FileMode::update) {
         if (filesystem_ == FileSystem::sram) {
-            flash_filesystem::read_file_data_text(pfrm, file_path, text_buffer_);
+            flash_filesystem::read_file_data_text(
+                pfrm, file_path, text_buffer_);
         } else {
             if (file_path[0] == '/') {
                 ++file_path;

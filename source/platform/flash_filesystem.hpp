@@ -22,10 +22,10 @@
 
 #pragma once
 
-#include "number/int.h"
-#include "number/endian.hpp"
-#include "memory/buffer.hpp"
 #include "function.hpp"
+#include "memory/buffer.hpp"
+#include "number/endian.hpp"
+#include "number/int.h"
 #include "string.hpp"
 
 
@@ -33,17 +33,14 @@
 class Platform;
 
 #ifndef __GBA__
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <vector>
 inline void info(Platform& pfrm, const StringBuffer<200>& msg)
 {
     std::cout << msg.c_str() << std::endl;
 }
-#ifdef __FAKEVECTOR__
-template <typename T>
-using Vector = Buffer<T, 32000>;
-#endif // __FAKEVECTOR__
+template <typename T> using Vector = Buffer<T, 32000>;
 #else
 #include "containers/vector.hpp"
 #endif // __GBA__
@@ -102,7 +99,8 @@ u32 read_file_data(Platform&, const char* path, Vector<char>& output);
 
 
 
-inline u32 read_file_data_text(Platform& pfrm, const char* path, Vector<char>& output)
+inline u32
+read_file_data_text(Platform& pfrm, const char* path, Vector<char>& output)
 {
     auto read = read_file_data(pfrm, path, output);
     output.push_back('\0');
@@ -112,7 +110,8 @@ inline u32 read_file_data_text(Platform& pfrm, const char* path, Vector<char>& o
 
 
 
-inline bool store_file_data_text(Platform& pfrm, const char* path, Vector<char>& data)
+inline bool
+store_file_data_text(Platform& pfrm, const char* path, Vector<char>& data)
 {
     data.pop_back();
     auto result = store_file_data(pfrm, path, data);
@@ -123,15 +122,16 @@ inline bool store_file_data_text(Platform& pfrm, const char* path, Vector<char>&
 
 
 
-inline u32 read_file_data_binary(Platform& pfrm, const char* path, Vector<char>& output)
+inline u32
+read_file_data_binary(Platform& pfrm, const char* path, Vector<char>& output)
 {
     return read_file_data(pfrm, path, output);
-
 }
 
 
 
-inline bool store_file_data_binary(Platform& pfrm, const char* path, Vector<char>& data)
+inline bool
+store_file_data_binary(Platform& pfrm, const char* path, Vector<char>& data)
 {
     return store_file_data(pfrm, path, data);
 }
@@ -160,7 +160,8 @@ template <typename F>
 void walk_directory(Platform& pfrm, const char* directory, F callback)
 {
     walk(pfrm, [callback, directory](const char* path) {
-        auto remainder = starts_with(directory, StringBuffer<FS_MAX_PATH>(path));
+        auto remainder =
+            starts_with(directory, StringBuffer<FS_MAX_PATH>(path));
         if (remainder) {
             callback(remainder);
         }
@@ -181,5 +182,4 @@ void destroy(Platform& pfrm);
 
 
 
-
-}
+} // namespace flash_filesystem

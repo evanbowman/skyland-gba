@@ -22,8 +22,8 @@
 
 #include "save.hpp"
 #include "flag.hpp"
-#include "platform/platform.hpp"
 #include "platform/flash_filesystem.hpp"
+#include "platform/platform.hpp"
 #include "script/lisp.hpp"
 #include "skyland.hpp"
 
@@ -57,10 +57,8 @@ bool load_global_data(Platform& pfrm, GlobalPersistentData& data)
 {
     Vector<char> read;
 
-    auto byte_count =
-        flash_filesystem::read_file_data_binary(pfrm,
-                                              global_data_filename,
-                                              read);
+    auto byte_count = flash_filesystem::read_file_data_binary(
+        pfrm, global_data_filename, read);
 
     if (byte_count == sizeof(GlobalSaveData)) {
         // Read successful!
@@ -98,7 +96,8 @@ void store_global_data(Platform& pfrm, const GlobalPersistentData& data)
     for (u32 i = 0; i < sizeof(out); ++i) {
         buffer.push_back(*(out_ptr++));
     }
-    flash_filesystem::store_file_data_binary(pfrm, global_data_filename, buffer);
+    flash_filesystem::store_file_data_binary(
+        pfrm, global_data_filename, buffer);
 }
 
 
@@ -143,9 +142,8 @@ static void store(Platform& pfrm, const SaveData& sd)
     for (u32 i = 0; i < sizeof sd; ++i) {
         out_buffer.push_back(*(out_ptr++));
     }
-    flash_filesystem::store_file_data_binary(pfrm,
-                                           save_data_filename,
-                                           out_buffer);
+    flash_filesystem::store_file_data_binary(
+        pfrm, save_data_filename, out_buffer);
 }
 
 
@@ -204,9 +202,7 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
     Vector<char> data;
 
     const auto byte_count =
-        flash_filesystem::read_file_data_binary(pfrm,
-                                              save_data_filename,
-                                              data);
+        flash_filesystem::read_file_data_binary(pfrm, save_data_filename, data);
 
     if (byte_count == sizeof(SaveData)) {
         SaveData save_data;

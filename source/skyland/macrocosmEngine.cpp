@@ -26,8 +26,8 @@
 #include "macrocosmPancakeSector.hpp"
 #include "macrocosmPillarSector.hpp"
 #include "memory/buffer.hpp"
-#include "platform/platform.hpp"
 #include "platform/flash_filesystem.hpp"
+#include "platform/platform.hpp"
 #include "rle.hpp"
 #include "skyland/skyland.hpp"
 

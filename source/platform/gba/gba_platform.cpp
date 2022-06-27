@@ -46,8 +46,8 @@
 #include "mixer.hpp"
 #include "number/random.hpp"
 #include "platform/color.hpp"
-#include "platform/platform.hpp"
 #include "platform/flash_filesystem.hpp"
+#include "platform/platform.hpp"
 #include "rumble.h"
 #include "script/lisp.hpp"
 #include "string.hpp"
@@ -3145,7 +3145,12 @@ bool Platform::write_save_data(const void* data, u32 length, u32 offset)
         sram_save(data, offset, length);
 
         if (bootleg_flash_type) {
-            bootleg_flash_writeback(bootleg_flash_type, offset, length);
+            bool success =
+                bootleg_flash_writeback(bootleg_flash_type, offset, length);
+            if (not success) {
+                info(*this, "flash write verification failed!");
+                return false;
+            }
         }
 
         return true;
@@ -3276,7 +3281,8 @@ void Platform::Logger::flush()
         return;
     }
 
-    flash_filesystem::store_file_data_binary(*::platform, "/log.txt", *log_data_);
+    flash_filesystem::store_file_data_binary(
+        *::platform, "/log.txt", *log_data_);
 
     log_data_.reset();
 }
@@ -3332,7 +3338,7 @@ struct AudioTrack
     int length_; // NOTE: For music, this is the track length in 32 bit words,
                  // but for sounds, length_ reprepresents bytes.
 } music_tracks[] = {
-    DEF_MUSIC(isle_of_the_dead, music_isle_of_the_dead),
+    // DEF_MUSIC(isle_of_the_dead, music_isle_of_the_dead),
     DEF_MUSIC(shadows, shadows),
     DEF_MUSIC(unaccompanied_wind, music_unaccompanied_wind),
     DEF_MUSIC(life_in_silco, music_life_in_silco),
@@ -6534,7 +6540,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
         // Re-enable the async non-blocking console.
         remote_console_start();
-    }//  else if (str_eq(feature_name, "sram-flash-writeback")) {
+    } //  else if (str_eq(feature_name, "sram-flash-writeback")) {
     //     if (bootleg_flash_type not_eq 0) {
     //         if (not network_peer().is_connected() and
     //             get_gflag(GlobalFlag::sram_stale)) {
@@ -6568,10 +6574,6 @@ Platform::Platform()
     logger().set_threshold(Severity::fatal);
 
     keyboard().poll();
-    if (keyboard().pressed<Key::alt_1>() and
-        keyboard().pressed<Key::alt_2>() and
-        keyboard().pressed<Key::action_1>()) {
-    }
 
     // Check to see if we're running with a bootleg cart.
     bootleg_flash_type = bootleg_get_flash_type();
@@ -6798,6 +6800,18 @@ Platform::Platform()
 
     if (&__eheap_start - &__ewram_start > 256000) {
         Platform::fatal("EWRAM Usage exceeds hardware maximum!");
+    }
+
+
+    if (keyboard().pressed<Key::alt_1>() and
+        keyboard().pressed<Key::alt_2>() and
+        keyboard().pressed<Key::action_1>() and
+        keyboard().pressed<Key::select>()) {
+
+        // Just in case something gets messed up.
+        if (bootleg_flash_type) {
+            erase_save_sector();
+        }
     }
 }
 

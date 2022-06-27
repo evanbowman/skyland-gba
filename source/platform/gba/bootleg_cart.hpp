@@ -14,7 +14,7 @@ using BootlegFlashType = u32;
 BootlegFlashType bootleg_get_flash_type();
 
 
-void bootleg_flash_writeback(BootlegFlashType flash_type,
+bool bootleg_flash_writeback(BootlegFlashType flash_type,
                              u32 offset,
                              u32 length);
 

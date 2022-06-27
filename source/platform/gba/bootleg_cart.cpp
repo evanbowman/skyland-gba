@@ -92,8 +92,8 @@ __attribute__((section(".ewram"))) u32 bootleg_get_flash_type()
 
 
 
-__attribute__((section(".ewram")))
-void bootleg_flash_erase_impl(BootlegFlashType flash_type)
+__attribute__((section(".ewram"))) void
+bootleg_flash_erase_impl(BootlegFlashType flash_type)
 {
     if (flash_sram_area == 0) {
         return;
@@ -270,7 +270,7 @@ bootleg_flash_writeback_impl(BootlegFlashType flash_type,
 
 
 
-void bootleg_flash_writeback(BootlegFlashType flash_type,
+bool bootleg_flash_writeback(BootlegFlashType flash_type,
                              u32 offset,
                              u32 length)
 {
@@ -299,6 +299,23 @@ void bootleg_flash_writeback(BootlegFlashType flash_type,
     // directsound on
     REG_SOUNDCNT_H |= (1 << 9);
     REG_SOUNDCNT_H |= (1 << 8);
+
+
+    // Byte verify:
+
+    auto cmp1 = (u8*)BOOTLEG_SRAM;
+    auto cmp2 = (u8*)AGB_ROM + flash_sram_area;
+
+    cmp1 += offset;
+    cmp2 += offset;
+
+    for (u32 i = 0; i < length; ++i) {
+        if (*cmp1 not_eq *cmp2) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 
