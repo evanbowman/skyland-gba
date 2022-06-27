@@ -36,7 +36,7 @@ namespace skyland::macro::terrain
 
 
 class FreebuildSector
-    : public MacrocosmSectorImpl<FreebuildSector, 10, 10, 8, 8>
+    : public MacrocosmSectorImpl<FreebuildSector, 10, 10, 9, 8>
 {
 public:
     FreebuildSector(Vec2<s8> position)
