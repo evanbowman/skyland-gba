@@ -271,8 +271,8 @@ u32 sector_avail(Platform& pfrm)
 Statistics statistics(Platform& pfrm)
 {
     Statistics ret;
-    ret.blocks_used_ = sector_used() / 200 - gap_space / 200;
-    ret.blocks_available_ = sector_avail(pfrm) / 200 + gap_space / 200;
+    ret.bytes_used_ = sector_used() - gap_space;
+    ret.bytes_available_ = sector_avail(pfrm) + gap_space;
 
     return ret;
 }

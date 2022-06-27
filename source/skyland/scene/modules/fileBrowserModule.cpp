@@ -232,10 +232,9 @@ void FileBrowserModule::repaint(Platform& pfrm)
         auto stats = flash_filesystem::statistics(pfrm);
         info_.emplace(pfrm, OverlayCoord{0, 19});
         info_->append("used: ");
-        info_->append(stats.blocks_used_ * flash_filesystem::block_size);
+        info_->append(stats.bytes_used_);
         info_->append("/");
-        info_->append((stats.blocks_available_ + stats.blocks_used_) *
-                      flash_filesystem::block_size);
+        info_->append(stats.bytes_available_ + stats.bytes_used_);
         info_->append(" bytes");
         break;
     }

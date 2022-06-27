@@ -107,10 +107,16 @@ public:
                 const u32 start = row * 8;
                 const u32 end = row * 8 + 8;
 
-                for (u32 i = start; i < end and i < data_.size(); ++i) {
-                    u8 byte = data_[i];
-                    line.push_back(hex[(byte & 0xf0) >> 4]);
-                    line.push_back(hex[(byte & 0x0f)]);
+                for (u32 i = start; i < end; ++i) {
+                    if (i >= data_.size()) {
+                        line.push_back('?');
+                        line.push_back('?');
+                    } else {
+                        u8 byte = data_[i];
+                        line.push_back(hex[(byte & 0xf0) >> 4]);
+                        line.push_back(hex[(byte & 0x0f)]);
+                    }
+
 
                     if (space) {
                         line.push_back(' ');
@@ -127,8 +133,11 @@ public:
                                   FontColors{custom_color(0xc2d9a9), custom_color(0x110731)});
                 }
 
-                for (u32 i = start; i < end and i < data_.size(); ++i) {
-                    char c = data_[i];
+                for (u32 i = start; i < end; ++i) {
+                    char c = '?';
+                    if (i < data_.size()) {
+                        c = data_[i];
+                    }
                     auto mapping_info = locale_texture_map()(c);
                     if (not mapping_info) {
                         mapping_info = locale_texture_map()('.');
@@ -175,6 +184,17 @@ public:
             --row_offset_;
             repaint(pfrm, row_offset_);
         }
+
+        if (test_key(Key::right)) {
+            row_offset_ += 64;
+            repaint(pfrm, row_offset_);
+        }
+
+        if (test_key(Key::left) and row_offset_ >= 64) {
+            row_offset_ -= 64;
+            repaint(pfrm, row_offset_);
+        }
+
 
         if (pfrm.keyboard().down_transition<Key::action_2>()) {
             pfrm.fill_overlay(0);

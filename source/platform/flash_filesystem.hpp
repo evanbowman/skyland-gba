@@ -61,14 +61,13 @@ namespace flash_filesystem
 
 
 static constexpr const int max_path = FS_MAX_PATH;
-static constexpr const int block_size = 200; // remove me!
 
 
 
 struct Statistics
 {
-    u16 blocks_used_;
-    u16 blocks_available_;
+    u16 bytes_used_;
+    u16 bytes_available_;
 };
 
 
