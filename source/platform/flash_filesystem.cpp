@@ -200,6 +200,8 @@ struct Record
         u8 crc_;
 
         enum Flags0 {
+            // Pad the end of the record to bring it's byte count up to an even
+            // size, thus aligning the next record at a halfword boundary.
             has_end_padding = (1 << 0),
         };
 
