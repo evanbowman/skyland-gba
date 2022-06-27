@@ -200,8 +200,6 @@ public:
 
         pfrm.fill_overlay(0);
 
-        pfrm.system_call("sram-flash-writeback", nullptr);
-
         return scene_pool::alloc<FadeInScene>();
     }
 

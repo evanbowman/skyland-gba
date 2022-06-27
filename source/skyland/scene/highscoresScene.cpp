@@ -177,7 +177,6 @@ void HighscoresScene::enter(Platform& pfrm, App& app, Scene& prev)
 
         if (changed) {
             save::store_global_data(pfrm, app.gp_);
-            pfrm.system_call("sram-flash-writeback", nullptr);
         }
     }
 

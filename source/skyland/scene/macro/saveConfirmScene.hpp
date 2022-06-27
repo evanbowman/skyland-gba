@@ -64,7 +64,6 @@ public:
             pfrm.speaker().play_sound("button_wooden", 3);
             if (selection_) {
                 macrocosm(app).save(pfrm);
-                pfrm.system_call("sram-flash-writeback", nullptr);
                 pfrm.screen().schedule_fade(0.f);
                 return scene_pool::alloc<SelectorScene>();
             } else {

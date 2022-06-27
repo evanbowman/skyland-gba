@@ -192,11 +192,15 @@ struct Record
         invalid = 0x0000
     };
 
+    // NOTE: Don't write this field until you want to invalidate an entry. I
+    // mean, no value can be copied to the address of this value, not even
+    // InvalidateStatus::valid. On some flash chips, you get one write per
+    // address, then the system locks up if you attempt to overwrite anything.
     HostInteger<u16> invalidate_;
 
     struct FileInfo
     {
-        // Sanity check byte. In case a cosmic ray flipped a bit or something.
+        // Currently unused.
         u8 crc_;
 
         enum Flags0 {
@@ -819,8 +823,11 @@ int main()
 
     test.clear();
     flash_filesystem::read_file_data(pfrm, "/save/macro.dat", test);
+    std::cout << test.size() << std::endl;
 
     puts("stress test: write a large object repeatedly to trigger compaction:");
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
+    flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
     flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
     flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);
     flash_filesystem::store_file_data(pfrm, "/save/macro.dat", test);

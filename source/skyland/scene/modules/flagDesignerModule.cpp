@@ -90,7 +90,6 @@ FlagDesignerModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::action_2)) {
         save::store_global_data(pfrm, app.gp_);
-        pfrm.system_call("sram-flash-writeback", nullptr);
         return scene_pool::alloc<TitleScreenScene>(3);
     }
 

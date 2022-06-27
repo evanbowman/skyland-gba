@@ -143,8 +143,6 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               if (not was_set) {
                   app->gp_.stateflags_.set(L_LOAD_INT(1), L_LOAD_INT(0));
                   save::store_global_data(*lisp::interp_get_pfrm(), app->gp_);
-                  lisp::interp_get_pfrm()->system_call("sram-flash-writeback",
-                                                       nullptr);
               }
 
               return L_INT(prev);
@@ -192,8 +190,6 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
                   save::store_global_data(*lisp::interp_get_pfrm(),
                                           interp_get_app()->gp_);
-                  lisp::interp_get_pfrm()->system_call("sram-flash-writeback",
-                                                       nullptr);
               }
 
 

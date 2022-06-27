@@ -53,7 +53,6 @@ FactoryResetModule::update(Platform& pfrm, App& app, Microseconds delta)
         ++key_count_;
         if (key_count_ == 5) {
             flash_filesystem::destroy(pfrm);
-            pfrm.system_call("sram-flash-writeback", nullptr);
             pfrm.restart();
         }
     }

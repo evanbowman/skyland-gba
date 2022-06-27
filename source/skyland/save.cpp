@@ -188,11 +188,6 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
 
     synth_notes_store(pfrm, app.player_island(), "/save/synth.dat");
     speaker_data_store(pfrm, app.player_island(), "/save/speaker.dat");
-
-    // NOTE: sram-flash-writeback persists save media to flash memory. Required
-    // on reprogrammed gba cartridges, where sram is volatile and data needs to
-    // be manually written back to flash.
-    pfrm.system_call("sram-flash-writeback", nullptr);
 }
 
 

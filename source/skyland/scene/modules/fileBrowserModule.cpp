@@ -21,6 +21,7 @@
 
 
 #include "fileBrowserModule.hpp"
+#include "hexViewerModule.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "skyland/scene/createFileScene.hpp"
 #include "skyland/scene/paintScene.hpp"
@@ -90,10 +91,6 @@ void FileBrowserModule::exit(Platform& pfrm, App&, Scene& next)
     lines_.clear();
     info_.reset();
     pfrm.fill_overlay(0);
-
-    if (dynamic_cast<TitleScreenScene*>(&next)) {
-        pfrm.system_call("sram-flash-writeback", nullptr);
-    }
 }
 
 
@@ -142,7 +139,7 @@ void FileBrowserModule::repaint(Platform& pfrm)
     StringBuffer<200> path;
     for (u32 i = 0; i < (*path_)->size(); ++i) {
         if (i == 1 and selected_filesystem_ == SelectedFilesystem::sram) {
-            path += "sram/";
+            path += "flash/";
         } else if (i == 1 and selected_filesystem_ == SelectedFilesystem::rom) {
             path += "rom/";
         }
@@ -151,7 +148,7 @@ void FileBrowserModule::repaint(Platform& pfrm)
 
     if ((*path_)->size() == 1 and
         selected_filesystem_ == SelectedFilesystem::sram) {
-        path += "sram/";
+        path += "flash/";
     } else if ((*path_)->size() == 1 and
                selected_filesystem_ == SelectedFilesystem::rom) {
         path += "rom/";
@@ -219,10 +216,10 @@ void FileBrowserModule::repaint(Platform& pfrm)
 
     switch (selected_filesystem_) {
     case SelectedFilesystem::none:
-        enq_line("sram/");
+        enq_line("flash/");
         enq_line("rom/");
         enq_line("*syslog*");
-        (*cwd_names_)->push_back("sram/");
+        (*cwd_names_)->push_back("flash/");
         (*cwd_names_)->push_back("rom/");
         (*cwd_names_)->push_back("*syslog*");
         break;
@@ -496,11 +493,11 @@ FileBrowserModule::update(Platform& pfrm, App& app, Microseconds delta)
                     path += selected;
 
                     if (get_extension(path) == ".dat") {
-                        // FIXME: we don't want to allow the user to open .dat
-                        // files. TODO: instead, either write a hex viewer, or
-                        // show a meaningful error message, even if just by
-                        // returning a dialog scene with the error text.
-                        return scene_pool::alloc<TitleScreenScene>(3);
+                        return scene_pool::alloc<HexViewerModule>(
+                            pfrm,
+                            std::move(user_context_),
+                            path.c_str(),
+                            false);
                     } else if (get_extension(path) == ".img") {
                         return scene_pool::alloc<PaintScene>(path.c_str(),
                                                              false);

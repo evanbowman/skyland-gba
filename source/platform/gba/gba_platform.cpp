@@ -6540,16 +6540,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
         // Re-enable the async non-blocking console.
         remote_console_start();
-    } //  else if (str_eq(feature_name, "sram-flash-writeback")) {
-    //     if (bootleg_flash_type not_eq 0) {
-    //         if (not network_peer().is_connected() and
-    //             get_gflag(GlobalFlag::sram_stale)) {
-    //             bootleg_flash_write(bootleg_flash_type);
-    //             set_gflag(GlobalFlag::sram_stale, false);
-    //             info(*this, "flash wb");
-    //         }
-    //     }
-    // }
+    }
 
     return nullptr;
 }

@@ -371,7 +371,6 @@ Achievement update(Platform& pfrm, App& app)
             raised_achievements.set(check_achievement, false);
             flags.set(flags.get() | flag);
             save::store_global_data(pfrm, app.gp_);
-            pfrm.system_call("sram-flash-writeback", nullptr);
             return static_cast<Achievement>(check_achievement);
         }
     }
