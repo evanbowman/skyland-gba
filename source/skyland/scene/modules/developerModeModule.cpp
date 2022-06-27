@@ -133,6 +133,7 @@ DeveloperModeModule::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (was_developer_mode_ not_eq option_) {
             app.set_developer_mode(not app.is_developer_mode());
+            save::store_global_data(pfrm, app.gp_);
         }
 
         message_.reset();
