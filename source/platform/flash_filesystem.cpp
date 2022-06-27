@@ -129,10 +129,6 @@ private:
 // for slots in the previous entries used for invalidating old versions of a
 // file. When the fs runs out of space, it erases the whole save media and
 // rewrites the data, compacted to remove gaps.
-//
-// NOTE: we don't actually optimize flash writes in the platform implementation
-// yet, but the structure of the filesystem, perhaps with some slight edits,
-// should be ready for this sort of optimization.
 
 
 
