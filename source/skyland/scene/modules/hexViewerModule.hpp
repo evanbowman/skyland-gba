@@ -23,12 +23,12 @@
 #pragma once
 
 #include "containers/vector.hpp"
-#include "graphics/overlay.hpp"
-#include "skyland/scene.hpp"
-#include "platform/flash_filesystem.hpp"
-#include "userContext.hpp"
 #include "fileBrowserModule.hpp"
+#include "graphics/overlay.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "skyland/player/player.hpp"
+#include "skyland/scene.hpp"
+#include "userContext.hpp"
 
 
 
@@ -44,13 +44,11 @@ namespace skyland
 class HexViewerModule : public Scene
 {
 public:
-
     HexViewerModule(Platform& pfrm,
                     UserContext&& user_context,
                     const char* file_path,
-                    bool rom_file) :
-        path_(file_path),
-        user_context_(std::move(user_context))
+                    bool rom_file)
+        : path_(file_path), user_context_(std::move(user_context))
     {
         if (rom_file) {
             // In practice, I'll never bundle binary blobs with the game in the
@@ -64,8 +62,8 @@ public:
     void enter(Platform& pfrm, App&, Scene&) override
     {
         Text title(pfrm, OverlayCoord{1, 1});
-        auto colors = FontColors{custom_color(0xc2d9a9),
-                                 custom_color(0x110731)};
+        auto colors =
+            FontColors{custom_color(0xc2d9a9), custom_color(0x110731)};
         title.append(path_.c_str(), colors);
         title.__detach();
 
@@ -89,8 +87,8 @@ public:
         pfrm.system_call("vsync", 0);
 
         Text offset(pfrm, OverlayCoord{14, 18});
-        auto colors = FontColors{custom_color(0xc2d9a9),
-                                 custom_color(0x110731)};
+        auto colors =
+            FontColors{custom_color(0xc2d9a9), custom_color(0x110731)};
         offset.append("offset ", colors);
         offset.append(row_offset * 8, colors);
         offset.append("       ", colors);
@@ -99,55 +97,60 @@ public:
 
         const char* hex = "0123456789abcdef";
 
-        auto draw_row =
-            [&](int row, int y) {
-                StringBuffer<32> line;
-                bool space = false;
+        auto draw_row = [&](int row, int y) {
+            StringBuffer<32> line;
+            bool space = false;
 
-                const u32 start = row * 8;
-                const u32 end = row * 8 + 8;
+            const u32 start = row * 8;
+            const u32 end = row * 8 + 8;
 
-                for (u32 i = start; i < end; ++i) {
-                    if (i >= data_.size()) {
-                        line.push_back('?');
-                        line.push_back('?');
-                    } else {
-                        u8 byte = data_[i];
-                        line.push_back(hex[(byte & 0xf0) >> 4]);
-                        line.push_back(hex[(byte & 0x0f)]);
-                    }
-
-
-                    if (space) {
-                        line.push_back(' ');
-                        space = false;
-                    } else {
-                        space = true;
-                    }
+            for (u32 i = start; i < end; ++i) {
+                if (i >= data_.size()) {
+                    line.push_back('?');
+                    line.push_back('?');
+                } else {
+                    u8 byte = data_[i];
+                    line.push_back(hex[(byte & 0xf0) >> 4]);
+                    line.push_back(hex[(byte & 0x0f)]);
                 }
 
-                for (u32 i = 0; i < line.length(); ++i) {
-                    auto mapping_info = locale_texture_map()(line[i]);
-                    const u16 t = pfrm.map_glyph(line[i], *mapping_info);
-                    pfrm.set_tile(1 + i, y, t,
-                                  FontColors{custom_color(0xc2d9a9), custom_color(0x110731)});
+
+                if (space) {
+                    line.push_back(' ');
+                    space = false;
+                } else {
+                    space = true;
+                }
+            }
+
+            for (u32 i = 0; i < line.length(); ++i) {
+                auto mapping_info = locale_texture_map()(line[i]);
+                const u16 t = pfrm.map_glyph(line[i], *mapping_info);
+                pfrm.set_tile(
+                    1 + i,
+                    y,
+                    t,
+                    FontColors{custom_color(0xc2d9a9), custom_color(0x110731)});
+            }
+
+            for (u32 i = start; i < end; ++i) {
+                char c = '?';
+                if (i < data_.size()) {
+                    c = data_[i];
+                }
+                auto mapping_info = locale_texture_map()(c);
+                if (not mapping_info) {
+                    mapping_info = locale_texture_map()('.');
                 }
 
-                for (u32 i = start; i < end; ++i) {
-                    char c = '?';
-                    if (i < data_.size()) {
-                        c = data_[i];
-                    }
-                    auto mapping_info = locale_texture_map()(c);
-                    if (not mapping_info) {
-                        mapping_info = locale_texture_map()('.');
-                    }
-
-                    const u16 t = pfrm.map_glyph(c, *mapping_info);
-                    pfrm.set_tile(21 + (i - start), y, t,
-                                  FontColors{custom_color(0xc2d9a9), custom_color(0x110731)});
-                }
-            };
+                const u16 t = pfrm.map_glyph(c, *mapping_info);
+                pfrm.set_tile(
+                    21 + (i - start),
+                    y,
+                    t,
+                    FontColors{custom_color(0xc2d9a9), custom_color(0x110731)});
+            }
+        };
 
         draw_row(row_offset++, 3);
         draw_row(row_offset++, 4);
@@ -166,7 +169,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm, App& app, Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         player(app).update(pfrm, app, delta);
 
@@ -199,9 +203,7 @@ public:
         if (pfrm.keyboard().down_transition<Key::action_2>()) {
             pfrm.fill_overlay(0);
             return scene_pool::alloc<FileBrowserModule>(
-                    std::move(user_context_),
-                    path_.c_str(),
-                    false);
+                std::move(user_context_), path_.c_str(), false);
         }
 
         return null_scene();
@@ -219,4 +221,4 @@ private:
 
 
 
-}
+} // namespace skyland

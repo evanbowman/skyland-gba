@@ -13,6 +13,7 @@
 (terrain (player) (get conf 1))
 
 
+
 (defn sb-help
   (dialog "Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own! You may also reposition your opponent's characters! Try out strategies, or just play around!"))
 

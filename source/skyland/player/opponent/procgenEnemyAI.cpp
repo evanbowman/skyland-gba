@@ -237,6 +237,16 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
                 frac = sf_p1_coin_yield * 0.01;
             }
 
+            // NOTE: we award coins based on opponent island value. But we
+            // generate mirror-hull to discourage certain playing styles, so do
+            // not award extra value to players when generating mirror-hull.
+            Coins cost = 0;
+            if (str_eq(room->name(), "mirror-hull")) {
+                cost = 200;
+            } else {
+                cost = (*room->metaclass())->cost();
+            }
+
             if (app.game_mode() == App::GameMode::co_op) {
                 // For co-op, our score calculation differs slightly. Give each
                 // player half of the resulting coins.
@@ -244,10 +254,9 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
                 // Actually... let's give players score * 0.6f coins, not
                 // exactly half, as coordination between the players will
                 // inevitably be difficult.
-                app.victory_coins() +=
-                    (frac * (*room->metaclass())->cost()) * 0.6f;
+                app.victory_coins() += (frac * cost * 0.6f);
             } else {
-                app.victory_coins() += frac * (*room->metaclass())->cost();
+                app.victory_coins() += frac * cost;
             }
         }
     }
@@ -833,18 +842,41 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
     auto& mhull = require_metaclass("mirror-hull");
     auto& shull = require_metaclass("stacked-hull");
     auto& ehull = require_metaclass("energized-hull");
+    auto& bhull = require_metaclass("bronze-hull");
 
     int missile_count = 0;
     int bomb_count = 0;
+
+    int lateral_count = 0;
+    int cannon_count = 0;
+    int flak_count = 0;
+    int arc_count = 0;
+    int fire_count = 0;
+
     for (auto& room : app.player_island().rooms()) {
         if (str_eq(room->name(), "missile-silo") or
             str_eq(room->name(), "rocket-bomb")) {
             ++missile_count;
+        } else if (str_eq(room->name(), "cannon")) {
+            ++cannon_count;
+            ++lateral_count;
+        } else if (str_eq(room->name(), "flak-gun")) {
+            ++flak_count;
+            ++lateral_count;
+        } else if (str_eq(room->name(), "arc-gun")) {
+            ++arc_count;
+            ++lateral_count;
+        } else if (str_eq(room->name(), "fire-charge")) {
+            ++fire_count;
+            ++lateral_count;
         }
         if (str_eq(room->name(), "rocket-bomb")) {
             ++bomb_count;
         }
     }
+
+    const int max_identical =
+        std::max({cannon_count, flak_count, arc_count, fire_count});
 
     bool missile_defense = false;
 
@@ -907,38 +939,113 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
         generate_roof(false, ehull_count);
     }
 
-    for (u8 x = 0; x < 15; ++x) {
-        for (u8 y = 0; y < 15; ++y) {
+    auto make_lateral_hull = [&](bool ignore_if_wall) {
+        for (u8 x = 0; x < 15; ++x) {
+            for (u8 y = 0; y < 15; ++y) {
 
-            if (app.opponent_island()->rooms_plot().get(x + 1, y)) {
-                auto right = app.opponent_island()->get_room({u8(x + 1), y});
-                if (not right) {
-                    continue;
-                }
-                if ((*right->metaclass())->category() ==
-                        Room::Category::weapon and
-                    not str_eq(right->name(), "missile-silo") and
-                    not str_eq(right->name(), "rocket-bomb") and
-                    not str_eq(right->name(), "ion-cannon")) {
-                    continue;
-                }
+                if (app.opponent_island()->rooms_plot().get(x + 1, y)) {
+                    auto right =
+                        app.opponent_island()->get_room({u8(x + 1), y});
+                    if (not right) {
+                        continue;
+                    }
+                    if ((*right->metaclass())->category() ==
+                            Room::Category::weapon and
+                        not str_eq(right->name(), "missile-silo") and
+                        not str_eq(right->name(), "rocket-bomb") and
+                        not str_eq(right->name(), "ion-cannon")) {
+                        continue;
+                    }
 
-                bool place_mhull = false;
-                if (difficulty_ > 0 and levelgen_enemy_count_ > 8) {
-                    place_mhull = rng::choice<8>(rng_source_) == 0;
-                }
+                    bool place_bhull = false;
+                    bool place_mhull = false;
+                    if (difficulty_ > 0 and levelgen_enemy_count_ > 8) {
+                        place_mhull = rng::choice<8>(rng_source_) == 0;
+                    }
 
-                if ((*right->metaclass())->category() not_eq
-                        Room::Category::wall and
-                    not app.opponent_island()->rooms_plot().get(x, y)) {
-
-                    if (place_mhull) {
-                        mhull->create(pfrm, app, app.opponent_island(), {x, y});
+                    if (max_identical > 6 and max_identical == arc_count) {
+                        // NOTE: use completely different logic if the player
+                        // built lots of arc-guns, as mirror-hull would be weak
+                        // to arc-chaining. 1/2 of rooms generated as mirror
+                        // hull would be technically the most frustrating thing
+                        // for a strategy that heavily favors arc-guns.
+                        // But... rather than relying on randomness, let's use
+                        // coordinate even/odd parity! That way, every other
+                        // hull will be mirrored.
+                        place_mhull = x % 2 not_eq y % 2;
                     } else {
-                        hull->create(pfrm, app, app.opponent_island(), {x, y});
+                        // If the player just tried to build tons of cannons,
+                        // generate some mirror-hull to encourage the player to
+                        // attack in a different way.
+                        if (max_identical >= 7 and not place_mhull) {
+                            place_mhull = true;
+                        }
+                        if (max_identical >= 6 and not place_mhull) {
+                            place_mhull = rng::choice<2>(rng_source_) == 0;
+                        } else if (max_identical >= 5 and not place_mhull) {
+                            if (difficulty_ > 0) {
+                                place_mhull = rng::choice<2>(rng_source_) == 0;
+                            } else {
+                                place_mhull = rng::choice<3>(rng_source_) == 0;
+                            }
+                        } else if (max_identical > 3 and not place_mhull) {
+                            if (difficulty_ > 0) {
+                                place_mhull = rng::choice<4>(rng_source_) == 0;
+                            }
+                        }
+                    }
+
+                    if (not place_mhull and arc_count > 4) {
+                        place_bhull = x % 2 not_eq y % 2;
+                    }
+
+                    auto cat = (*right->metaclass())->category();
+
+                    if ((not ignore_if_wall or
+                         (ignore_if_wall and
+                          cat not_eq Room::Category::wall)) and
+                        not app.opponent_island()->rooms_plot().get(x, y)) {
+
+                        if (place_mhull) {
+                            mhull->create(
+                                pfrm, app, app.opponent_island(), {x, y});
+                        } else if (place_bhull) {
+                            bhull->create(
+                                pfrm, app, app.opponent_island(), {x, y});
+                        } else {
+                            hull->create(
+                                pfrm, app, app.opponent_island(), {x, y});
+                        }
                     }
                 }
             }
+        }
+    };
+
+    make_lateral_hull(true);
+
+    if (lateral_count > 5 and difficulty_ > 0) {
+        // Generate an extra later of forward hull if the player has a lot of
+        // cannon-type weapons.
+
+        u32 unused_columns = 0;
+        for (unused_columns = 0;
+             unused_columns < app.opponent_island()->terrain().size();
+             ++unused_columns) {
+
+            u8 x = unused_columns;
+
+            for (u8 y = 0; y < 15; ++y) {
+                if (app.opponent_island()->get_room({x, y})) {
+                    goto DONE;
+                }
+            }
+        }
+    DONE:
+        // But, only generate an extra layer of hull if there's significant
+        // space in front of the generated layout.
+        if (unused_columns > 0) {
+            make_lateral_hull(false);
         }
     }
 }

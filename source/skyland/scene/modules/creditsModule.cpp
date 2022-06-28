@@ -113,8 +113,12 @@ static const char* const page_end_lines[] = {"-- P.S. --",
 
 
 
-
-std::array<Page, 6> pages_ = {{{page_0_lines}, {page_01_lines}, {page_1_lines}, {page_2_lines}, {page_3_lines}, {page_end_lines}}};
+std::array<Page, 6> pages_ = {{{page_0_lines},
+                               {page_01_lines},
+                               {page_1_lines},
+                               {page_2_lines},
+                               {page_3_lines},
+                               {page_end_lines}}};
 
 
 

@@ -531,8 +531,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     hover_timer_ += delta;
 
-    const bool pong_sounds_on = (menu_selection_ == 4 or
-                                 state_ == State::scroll_to_macro);
+    const bool pong_sounds_on =
+        (menu_selection_ == 4 or state_ == State::scroll_to_macro);
     pong_.update(pfrm, pong_sounds_on);
 
     if (menu_selection_ == 3 and state_ not_eq State::scroll_to_end) {
@@ -1131,8 +1131,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                              module_cursor_->y * modules_per_row;
                 if (auto f = detail::_Module::Factory::get(index, dev_)) {
                     // if (f->stop_sound()) {
-                        pfrm.speaker().clear_sounds();
-                        pfrm.speaker().play_music("unaccompanied_wind", 0);
+                    pfrm.speaker().clear_sounds();
+                    pfrm.speaker().play_music("unaccompanied_wind", 0);
                     // }
                     pfrm.speaker().play_sound("button_wooden", 3);
                     pfrm.fill_overlay(0);

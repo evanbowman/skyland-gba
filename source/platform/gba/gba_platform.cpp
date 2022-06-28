@@ -3362,6 +3362,7 @@ static const AudioTrack* find_music(const char* name)
 // NOTE: Between remixing the audio track down to 8-bit 16kHz signed, generating
 // assembly output, adding the file to CMake, adding the include, and adding the
 // sound to the sounds array, it's just too tedious to keep working this way...
+#include "data/music_struttin.hpp"
 #include "data/sound_beep_error.hpp"
 #include "data/sound_bell.hpp"
 #include "data/sound_build0.hpp"
@@ -3391,6 +3392,8 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_msg.hpp"
 #include "data/sound_open_book.hpp"
 #include "data/sound_openbag.hpp"
+#include "data/sound_pong_blip1.hpp"
+#include "data/sound_pong_blip2.hpp"
 #include "data/sound_scroll.hpp"
 #include "data/sound_thunder_1.hpp"
 #include "data/sound_thunder_2.hpp"
@@ -3398,9 +3401,6 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_tw_bell.hpp"
 #include "data/sound_typewriter.hpp"
 #include "data/sound_weapon_target.hpp"
-#include "data/sound_pong_blip1.hpp"
-#include "data/sound_pong_blip2.hpp"
-#include "data/music_struttin.hpp"
 
 
 static const AudioTrack sounds[] = {
@@ -4132,7 +4132,8 @@ static void audio_update_music_volume_isr()
             it = snd_ctx.active_sounds.erase(it);
         } else {
             for (int i = 0; i < 4; ++i) {
-                mixing_buffer[i] += (*sound_volume_lut)[(u8)it->data_[it->position_]];
+                mixing_buffer[i] +=
+                    (*sound_volume_lut)[(u8)it->data_[it->position_]];
                 ++it->position_;
             }
             ++it;
