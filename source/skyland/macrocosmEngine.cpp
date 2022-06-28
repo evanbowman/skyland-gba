@@ -2398,7 +2398,7 @@ void terrain::PancakeSector::update()
 
 void terrain::FreebuildSector::update()
 {
-    for (int z = 0; z < 8; ++z) {
+    for (int z = 0; z < 9; ++z) {
         for (u8 x = 0; x < 10; ++x) {
             for (u8 y = 0; y < 10; ++y) {
 

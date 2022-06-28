@@ -43,7 +43,7 @@ public:
         : MacrocosmSectorImpl(position, Shape::freebuild)
     {
         erase();
-        z_view_ = 8;
+        z_view_ = 9;
     }
 
 
@@ -76,7 +76,7 @@ public:
     void reset()
     {
         p_.orientation_ = Orientation::north;
-        for (u8 z = 0; z < 8; ++z) {
+        for (u8 z = 0; z < 9; ++z) {
             for (u8 x = 0; x < 10; ++x) {
                 for (u8 y = 0; y < 10; ++y) {
                     blocks_[z][x][y].type_ = 0;

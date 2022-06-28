@@ -84,7 +84,7 @@ private:
         Vec2<Float> ball_ = {3, 3};
         Vec2<Float> ball_speed_ = {0.35f, 0.35f};
 
-        void update();
+        void update(Platform&, bool sound_effects);
         void display(Platform&, int x_scroll);
     } pong_;
 

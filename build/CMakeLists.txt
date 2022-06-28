@@ -378,6 +378,8 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/music_life_in_silco.s
     ${DATA_DIR}/music_sb_solecism.s
     ${DATA_DIR}/shadows.s
+    ${DATA_DIR}/sound_pong_blip1.s
+    ${DATA_DIR}/sound_pong_blip2.s
     ${DATA_DIR}/sound_msg.s
     ${DATA_DIR}/sound_pop.s
     ${DATA_DIR}/sound_coin.s

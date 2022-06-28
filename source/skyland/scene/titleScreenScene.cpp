@@ -524,7 +524,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     hover_timer_ += delta;
 
-    pong_.update();
+    const bool pong_sounds_on = (menu_selection_ == 4 or
+                                 state_ == State::scroll_to_macro);
+    pong_.update(pfrm, pong_sounds_on);
 
     if (app.player().key_down(pfrm, Key::action_4)) {
         // For the nintendo ds
@@ -1316,18 +1318,30 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
 
 
 
-void TitleScreenScene::Pong::update()
+void TitleScreenScene::Pong::update(Platform& pfrm, bool sound_effects)
 {
     if (ball_.x >= 23) {
+        if (sound_effects) {
+            pfrm.speaker().play_sound("pong_blip_1", 0);
+        }
         ball_speed_.x *= -1;
     }
     if (ball_.y >= 20) {
+        if (sound_effects) {
+            pfrm.speaker().play_sound("pong_blip_2", 0);
+        }
         ball_speed_.y *= -1;
     }
     if (ball_.y < 1) {
+        if (sound_effects) {
+            pfrm.speaker().play_sound("pong_blip_2", 0);
+        }
         ball_speed_.y *= -1;
     }
     if (ball_.x < 1) {
+        if (sound_effects) {
+            pfrm.speaker().play_sound("pong_blip_1", 0);
+        }
         ball_speed_.x *= -1;
     }
 
