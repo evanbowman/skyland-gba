@@ -1024,7 +1024,8 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
 
     make_lateral_hull(true);
 
-    if (lateral_count > 5 and difficulty_ > 0) {
+    if ((flak_count > 4 or
+         lateral_count > 5) and difficulty_ > 0) {
         // Generate an extra later of forward hull if the player has a lot of
         // cannon-type weapons.
 

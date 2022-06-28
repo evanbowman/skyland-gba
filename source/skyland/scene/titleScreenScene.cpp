@@ -535,7 +535,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         (menu_selection_ == 4 or state_ == State::scroll_to_macro);
     pong_.update(pfrm, pong_sounds_on);
 
-    if (menu_selection_ == 3 and state_ not_eq State::scroll_to_end) {
+    if (menu_selection_ == 3) {
         if (not pfrm.speaker().is_sound_playing("struttin")) {
             pfrm.speaker().play_sound("struttin", 0);
         }
@@ -856,6 +856,12 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else {
             const auto amount = smoothstep(0.f, duration, timer_);
             x_scroll_ = 240 + 240 * amount;
+
+            static const auto max_vol = Platform::Speaker::music_volume_max;
+            const auto low = faded_music_volume;
+            const auto vol_diff = Platform::Speaker::music_volume_max - low;
+            pfrm.speaker().set_music_volume(max_vol - vol_diff * amount);
+            pfrm.speaker().set_sounds_volume(max_vol * amount);
         }
         break;
     }
