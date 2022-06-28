@@ -138,6 +138,7 @@ struct EngineImpl : public Engine
         Float cloud_scroll_ = 0;
 
         bool freebuild_mode_ = false;
+        bool checkers_mode_ = false;
 
         // For palette animations.
         Microseconds fluid_anim_timer_ = 0;

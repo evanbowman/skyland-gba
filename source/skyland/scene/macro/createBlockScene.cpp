@@ -113,7 +113,7 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
     options_.push_back(terrain::Type::light_source);
     if (state.data_->freebuild_mode_ and
         not pfrm.network_peer().is_connected()) {
-        options_.push_back(terrain::Type::singularity);
+        // options_.push_back(terrain::Type::singularity);
     }
     options_.push_back(terrain::Type::sand);
     options_.push_back(terrain::Type::marble_top);

@@ -232,7 +232,8 @@ void MacrocosmScene::enter(Platform& pfrm,
         if (m->should_update_ui_after_exit()) {
             update_ui(state);
         }
-    } else if (not state.data_->freebuild_mode_) {
+    } else if (not state.data_->freebuild_mode_ and
+               not state.data_->checkers_mode_) {
 
         ui_ = allocate_dynamic<UIObjects>("macro-ui-objects");
 
@@ -299,7 +300,8 @@ void MacrocosmScene::enter(Platform& pfrm,
                                    UIMetric::Format::signed_integer);
     }
 
-    if (not state.data_->freebuild_mode_) {
+    if (not state.data_->freebuild_mode_ and
+        not state.data_->checkers_mode_) {
         const auto year = state.data_->p().year_.get() + 1;
 
         auto yr = SYSTR(macro_year);
@@ -346,7 +348,7 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::EngineImpl& state)
     int compass_tile = 434 + (int)o * 4;
 
     int start_y = 3;
-    if (state.data_->freebuild_mode_) {
+    if (state.data_->freebuild_mode_ or state.data_->checkers_mode_) {
         start_y = 1;
     }
 

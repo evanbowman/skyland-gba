@@ -151,6 +151,9 @@ enum class SystemString {
     block_wool,
     block_workshop,
 
+    red,
+    black,
+
     bird_label,
 
     character_label_human,
@@ -178,6 +181,7 @@ enum class SystemString {
     module_tutorials,
     module_developer_mode,
     module_macro,
+    module_checkers,
 
     developer_mode_msg,
     developer_mode_msg_2,

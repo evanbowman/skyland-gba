@@ -153,7 +153,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                        scene_pool::make_deferred_scene<macro::SelectorScene>(),
                        kill_menu);
 
-            if (not macrocosm(app).data_->freebuild_mode_) {
+            if (not macrocosm(app).data_->freebuild_mode_ and
+                not macrocosm(app).data_->checkers_mode_) {
 
                 // These options don't apply to freebuild_mode_.
 
@@ -267,7 +268,16 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         case App::GameMode::macro:
 
-            if (macrocosm(app).data_->freebuild_mode_) {
+            if (macrocosm(app).data_->checkers_mode_) {
+                add_option(
+                    pfrm,
+                    SYSTR(start_menu_quit)->c_str(),
+                    [&pfrm]() -> ScenePtr<Scene> {
+                        return scene_pool::alloc<TitleScreenScene>(3);
+                    },
+                    fade_sweep);
+                break;
+            } else if (macrocosm(app).data_->freebuild_mode_) {
 
                 if (not pfrm.network_peer().is_connected()) {
                     // NOTE: Don't display the connect or load options if we're

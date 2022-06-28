@@ -92,7 +92,9 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
     sector.erase();
     sector.set_name("origin");
 
-    if (data_->freebuild_mode_) {
+    if (data_->checkers_mode_) {
+        // ...
+    } else if (data_->freebuild_mode_) {
         app.invoke_script(pfrm, "/scripts/macro/start_layout.lisp");
     } else {
         app.invoke_script(pfrm, "/scripts/macro/newgame.lisp");
@@ -976,6 +978,10 @@ Coins terrain::cost(Type t)
     case terrain::Type::air:
         return 0;
 
+    case terrain::Type::checker_red:
+    case terrain::Type::checker_black:
+        return 0;
+
     case terrain::Type::building:
         return b.mcr_building_cost;
 
@@ -1117,6 +1123,12 @@ SystemString terrain::name(Type t)
     switch (t) {
     case terrain::Type::__invalid:
         break;
+
+    case terrain::Type::checker_red:
+        return SystemString::red;
+
+    case terrain::Type::checker_black:
+        return SystemString::black;
 
     case terrain::Type::singularity:
         return SystemString::block_singularity;
@@ -1360,6 +1372,8 @@ terrain::Improvements terrain::improvements(Type t)
 std::pair<int, int> terrain::icons(Type t)
 {
     switch (t) {
+    case terrain::Type::checker_red:
+    case terrain::Type::checker_black:
     case terrain::Type::singularity:
     case terrain::Type::air:
         return {2488, 2504};
@@ -2317,6 +2331,10 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
 
         block.data_ = 24;
     },
+    // checker_red
+    nullptr,
+    // checker_black
+    nullptr,
 };
 // clang-format on
 
@@ -2631,6 +2649,12 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
+
+         // checkers:
+         ISO_SELECTOR_CGS,
+         ISO_SELECTOR_CGS,
+         ISO_SELECTOR_CGS,
+         ISO_SELECTOR_CGS,
 
         };
     // clang-format on

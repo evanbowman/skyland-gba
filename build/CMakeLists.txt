@@ -194,6 +194,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/macro/modifiedSelectorScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/checkersModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/developerModeModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/macrocosmFreebuildModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcManagerModule.cpp

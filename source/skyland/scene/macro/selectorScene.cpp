@@ -99,7 +99,8 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 
 
     if (player.key_pressed(pfrm, Key::alt_1) and
-        not state.data_->freebuild_mode_) {
+        not state.data_->freebuild_mode_ and
+        not state.data_->checkers_mode_) {
 
         return scene_pool::alloc<MenuOptionsScene>();
 
@@ -134,7 +135,12 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 
     if (player.key_down(pfrm, Key::action_1)) {
         pfrm.speaker().play_sound("button_wooden", 3);
-        return scene_pool::alloc<TileOptionsScene>();
+        if (state.data_->checkers_mode_) {
+
+        } else {
+            return scene_pool::alloc<TileOptionsScene>();
+        }
+
     }
 
     return null_scene();
@@ -198,7 +204,7 @@ void SelectorScene::describe_selected(Platform& pfrm, macro::EngineImpl& state)
 
     text_->assign(b.c_str());
 
-    if (state.data_->freebuild_mode_) {
+    if (state.data_->freebuild_mode_ or state.data_->checkers_mode_) {
         // Don't show any block stats, they don't matter in this game mode.
         return;
     }

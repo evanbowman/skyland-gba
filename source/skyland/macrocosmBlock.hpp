@@ -117,6 +117,9 @@ enum class Type {
     honey,
     singularity,
 
+    checker_red,
+    checker_black,
+
     count,
 };
 
