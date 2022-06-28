@@ -55,6 +55,18 @@ static const char* const page_0_lines[] = {"-- Programming --",
 
 
 
+static const char* const page_01_lines[] = {"-- Programming (contd.) --",
+                                            "",
+                                            "Thanks to the GBA",
+                                            "homebrew dev community",
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            nullptr};
+
+
+
 static const char* const page_1_lines[] = {"-- Design --",
                                            "",
                                            "Design and Artwork",
@@ -77,7 +89,32 @@ static const char* const page_2_lines[] = {"-- Music --",
 
 
 
-std::array<Page, 3> pages_ = {{{page_0_lines}, {page_1_lines}, {page_2_lines}}};
+static const char* const page_3_lines[] = {"-- Music (Contd.) --",
+                                           "",
+                                           "\x12 Struttin (sample) \x12",
+                                           "Louis Armstrong",
+                                           "",
+                                           "\x12 Interface Sounds \x12",
+                                           "The Boom Library",
+                                           nullptr};
+
+
+static const char* const page_end_lines[] = {"-- P.S. --",
+                                             "",
+                                             "I worked on this project",
+                                             "Obsessively for months.",
+                                             "",
+                                             "Making games is so hard!",
+                                             "",
+                                             "Please enjoy!",
+                                             "",
+                                             "-- Evan",
+                                             nullptr};
+
+
+
+
+std::array<Page, 6> pages_ = {{{page_0_lines}, {page_01_lines}, {page_1_lines}, {page_2_lines}, {page_3_lines}, {page_end_lines}}};
 
 
 

@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 //
 // Copyright (C) 2022  Evan Bowman
 //
@@ -761,6 +761,7 @@ public:
         static const u8 music_volume_max = 19;
 
         void set_music_volume(u8 volume);
+        void set_sounds_volume(u8 volume);
 
         enum class MusicSpeed { regular, reversed, doubled, halved };
 

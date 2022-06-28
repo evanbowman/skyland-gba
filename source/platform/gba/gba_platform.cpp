@@ -3400,7 +3400,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_weapon_target.hpp"
 #include "data/sound_pong_blip1.hpp"
 #include "data/sound_pong_blip2.hpp"
-
+#include "data/music_struttin.hpp"
 
 
 static const AudioTrack sounds[] = {
@@ -3438,6 +3438,7 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(core_destroyed, sound_core_destroyed),
     DEF_SOUND(pong_blip_1, sound_pong_blip1),
     DEF_SOUND(pong_blip_2, sound_pong_blip2),
+    DEF_SOUND(struttin, music_struttin),
     DEF_SOUND(coin, sound_coin),
     DEF_SOUND(bell, sound_bell),
     DEF_SOUND(msg, sound_msg)};
@@ -4104,7 +4105,8 @@ static EWRAM_DATA GlyphTable glyph_table;
 
 
 
-static const VolumeScaleLUT* music_volume_lut = &volume_scale_LUTs[0];
+static const VolumeScaleLUT* music_volume_lut = &volume_scale_LUTs[19];
+static const VolumeScaleLUT* sound_volume_lut = &volume_scale_LUTs[19];
 
 
 
@@ -4130,7 +4132,7 @@ static void audio_update_music_volume_isr()
             it = snd_ctx.active_sounds.erase(it);
         } else {
             for (int i = 0; i < 4; ++i) {
-                mixing_buffer[i] += (u8)it->data_[it->position_];
+                mixing_buffer[i] += (*sound_volume_lut)[(u8)it->data_[it->position_]];
                 ++it->position_;
             }
             ++it;
@@ -4360,6 +4362,17 @@ void Platform::Speaker::set_music_volume(u8 volume)
         music_volume_lut = &volume_scale_LUTs[volume];
         irqSet(IRQ_TIMER1, audio_update_music_volume_isr);
     }
+}
+
+
+
+void Platform::Speaker::set_sounds_volume(u8 volume)
+{
+    if (volume >= volume_scale_LUTs.size()) {
+        return;
+    }
+
+    sound_volume_lut = &volume_scale_LUTs[volume];
 }
 
 

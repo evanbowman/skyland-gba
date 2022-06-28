@@ -299,6 +299,9 @@ void TitleScreenScene::redraw_margins(Platform& pfrm)
 
 void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
 {
+    pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+    pfrm.speaker().set_sounds_volume(Platform::Speaker::music_volume_max);
+
     pfrm.set_overlay_origin(0, 0);
 
     init_clouds(pfrm);
@@ -528,6 +531,13 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                                  state_ == State::scroll_to_macro);
     pong_.update(pfrm, pong_sounds_on);
 
+    if (menu_selection_ == 3 and state_ not_eq State::scroll_to_end) {
+        if (not pfrm.speaker().is_sound_playing("struttin")) {
+            pfrm.speaker().play_sound("struttin", 0);
+        }
+    }
+
+
     if (app.player().key_down(pfrm, Key::action_4)) {
         // For the nintendo ds
         pfrm.system_call("swap-screens", nullptr);
@@ -606,6 +616,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::resume_end:
         state_ = State::quick_fade_in;
         menu_selection_ = 3;
+        pfrm.speaker().set_music_volume(7);
         pfrm.load_tile0_texture("skyland_title_3_flattened");
         x_scroll_ = 480;
         break;
@@ -659,6 +670,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case State::wait:
+
         selector_timer_ += delta;
         if (selector_timer_ > milliseconds(100)) {
             selector_timer_ = 0;
@@ -834,6 +846,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         static const auto duration = milliseconds(1250);
         if (timer_ > duration) {
             timer_ = 0;
+            pfrm.speaker().set_music_volume(7);
             state_ = State::wait;
             x_scroll_ = 480;
         } else {
@@ -847,14 +860,21 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::scroll_from_end: {
         timer_ += delta;
         static const auto duration = milliseconds(1250);
+        static const auto max_vol = Platform::Speaker::music_volume_max;
         if (timer_ > duration) {
             timer_ = 0;
             state_ = State::wait;
             x_scroll_ = 240;
             pfrm.system_call("vsync", nullptr);
             pfrm.load_tile0_texture("skyland_title_0_flattened");
+            pfrm.speaker().set_music_volume(max_vol);
+            pfrm.speaker().set_sounds_volume(max_vol);
+            pfrm.speaker().clear_sounds();
         } else {
             const auto amount = smoothstep(0.f, duration, timer_);
+            const auto vol_diff = Platform::Speaker::music_volume_max - 7;
+            pfrm.speaker().set_music_volume(7 + vol_diff * amount);
+            pfrm.speaker().set_sounds_volume(max_vol - max_vol * amount);
             x_scroll_ = 480 - 240 * amount;
         }
         break;
@@ -996,6 +1016,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::wait;
             timer_ = 0;
 
+            pfrm.speaker().set_music_volume(8);
+
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
 
@@ -1013,6 +1035,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             redraw_margins(pfrm);
             show_module_icons(pfrm, module_page_);
             state_ = State::show_modules;
+
+            pfrm.speaker().set_music_volume(2);
 
             pfrm.screen().schedule_fade(
                 0.7f, ColorConstant::rich_black, true, true);
@@ -1101,10 +1125,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                              module_cursor_->x +
                              module_cursor_->y * modules_per_row;
                 if (auto f = detail::_Module::Factory::get(index, dev_)) {
-                    pfrm.speaker().play_sound("button_wooden", 3);
-                    if (f->stop_sound()) {
+                    // if (f->stop_sound()) {
+                        pfrm.speaker().clear_sounds();
                         pfrm.speaker().play_music("unaccompanied_wind", 0);
-                    }
+                    // }
+                    pfrm.speaker().play_sound("button_wooden", 3);
                     pfrm.fill_overlay(0);
                     pfrm.screen().fade(
                         1.f, ColorConstant::rich_black, {}, true, true);
