@@ -537,7 +537,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (menu_selection_ == 3) {
         if (not pfrm.speaker().is_sound_playing("struttin")) {
-            pfrm.speaker().play_sound("struttin", 0);
+            pfrm.speaker().play_sound("struttin", 7);
         }
     }
 
