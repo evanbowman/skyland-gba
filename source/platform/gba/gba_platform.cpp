@@ -4357,6 +4357,20 @@ void Platform::Speaker::set_music_volume(u8 volume)
     }
 
     if (volume == volume_scale_LUTs.size() - 1) {
+        // Ok, so... I'm aware that the platform header would appear to support
+        // changing sound effect volume without modifying music volume. Maybe
+        // I'll fix it sometime... but for now, sound volume may only be
+        // adjusted when music volume is not at maximum. I just never had a
+        // reason to fade sounds without fading music as well.
+        //
+        // Maybe, I'll fix it sometime. But my future plans for this project,
+        // after the gba release, just involve targetting other platforms, so
+        // eventually, this defficiency won't matter anymore when this file
+        // becomes legacy code.
+        //
+        // Modifying sound/music volume in a timer irq is a heavy operation, so
+        // I have no real incentive to make the sound volume behave as expected
+        // unless I actually need the behavior for implementing features.
         irqSet(IRQ_TIMER1, audio_update_fast_isr);
     } else {
         music_volume_lut = &volume_scale_LUTs[volume];

@@ -514,6 +514,10 @@ void TitleScreenScene::play_gust_sound(Platform& pfrm)
 
 
 
+static const int faded_music_volume = 6;
+
+
+
 ScenePtr<Scene>
 TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -616,7 +620,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
     case State::resume_end:
         state_ = State::quick_fade_in;
         menu_selection_ = 3;
-        pfrm.speaker().set_music_volume(7);
+        pfrm.speaker().set_music_volume(faded_music_volume);
         pfrm.load_tile0_texture("skyland_title_3_flattened");
         x_scroll_ = 480;
         break;
@@ -846,7 +850,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         static const auto duration = milliseconds(1250);
         if (timer_ > duration) {
             timer_ = 0;
-            pfrm.speaker().set_music_volume(7);
+            pfrm.speaker().set_music_volume(faded_music_volume);
             state_ = State::wait;
             x_scroll_ = 480;
         } else {
@@ -872,8 +876,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.speaker().clear_sounds();
         } else {
             const auto amount = smoothstep(0.f, duration, timer_);
-            const auto vol_diff = Platform::Speaker::music_volume_max - 7;
-            pfrm.speaker().set_music_volume(7 + vol_diff * amount);
+            const auto low = faded_music_volume;
+            const auto vol_diff = Platform::Speaker::music_volume_max - low;
+            pfrm.speaker().set_music_volume(low + vol_diff * amount);
             pfrm.speaker().set_sounds_volume(max_vol - max_vol * amount);
             x_scroll_ = 480 - 240 * amount;
         }
@@ -1016,7 +1021,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             state_ = State::wait;
             timer_ = 0;
 
-            pfrm.speaker().set_music_volume(8);
+            pfrm.speaker().set_music_volume(faded_music_volume);
 
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);
