@@ -12,8 +12,7 @@ namespace skyland::macro
 
 struct CheckerBoard
 {
-    enum Checker : u8
-    {
+    enum Checker : u8 {
         none,
         red,
         black,
@@ -84,5 +83,4 @@ struct CheckerBoard
 
 
 
-
-}
+} // namespace skyland::macro

@@ -22,15 +22,19 @@
 
 #pragma once
 
+#include "checkers.hpp"
 #include "macrocosmScene.hpp"
 #include "selectorScene.hpp"
 #include "skyland/scene_pool.hpp"
-#include "checkers.hpp"
 
 
 
 namespace skyland::macro
 {
+
+
+
+// TODO: implement forced capture!
 
 
 
@@ -90,11 +94,12 @@ inline Vec2<s8> checker_forward_vector(const CheckerBoard& board,
 
 
 
-inline bool checker_color_same(CheckerBoard::Checker lhs, CheckerBoard::Checker rhs)
+inline bool checker_color_same(CheckerBoard::Checker lhs,
+                               CheckerBoard::Checker rhs)
 {
     auto is_red = [](auto v) {
-                      return v == CheckerBoard::red or v == CheckerBoard::red_king;
-                  };
+        return v == CheckerBoard::red or v == CheckerBoard::red_king;
+    };
 
     return is_red(lhs) == is_red(rhs);
 }
@@ -129,47 +134,46 @@ inline auto checker_get_movement_slots(const CheckerBoard& board,
         }
     };
 
-    auto push_moves =
-        [&] {
-            if (dif.x not_eq 0) {
-                auto slot1 = pos;
-                slot1.x += dif.x;
-                auto slot2 = slot1;
+    auto push_moves = [&] {
+        if (dif.x not_eq 0) {
+            auto slot1 = pos;
+            slot1.x += dif.x;
+            auto slot2 = slot1;
 
-                slot1.y += 1;
-                slot2.y -= 1;
+            slot1.y += 1;
+            slot2.y -= 1;
 
-                auto jc1 = slot1;
-                jc1.x += dif.x;
-                jc1.y += 1;
+            auto jc1 = slot1;
+            jc1.x += dif.x;
+            jc1.y += 1;
 
-                auto jc2 = slot2;
-                jc2.x += dif.x;
-                jc2.y -= 1;
+            auto jc2 = slot2;
+            jc2.x += dif.x;
+            jc2.y -= 1;
 
-                push(slot1, jc1);
-                push(slot2, jc2);
+            push(slot1, jc1);
+            push(slot2, jc2);
 
-            } else {
-                auto slot1 = pos;
-                slot1.y += dif.y;
-                auto slot2 = slot1;
+        } else {
+            auto slot1 = pos;
+            slot1.y += dif.y;
+            auto slot2 = slot1;
 
-                slot1.x += 1;
-                slot2.x -= 1;
+            slot1.x += 1;
+            slot2.x -= 1;
 
-                auto jc1 = slot1;
-                jc1.y += dif.y;
-                jc1.x += 1;
+            auto jc1 = slot1;
+            jc1.y += dif.y;
+            jc1.x += 1;
 
-                auto jc2 = slot2;
-                jc2.y += dif.y;
-                jc2.x -= 1;
+            auto jc2 = slot2;
+            jc2.y += dif.y;
+            jc2.x -= 1;
 
-                push(slot1, jc1);
-                push(slot2, jc2);
-            }
-        };
+            push(slot1, jc1);
+            push(slot2, jc2);
+        }
+    };
 
     push_moves();
 
@@ -185,16 +189,29 @@ inline auto checker_get_movement_slots(const CheckerBoard& board,
 
 
 
+inline bool checker_has_jumps(const CheckerBoard& board, const Vec2<u8>& pos)
+{
+    auto slots = checker_get_movement_slots(board, pos);
+    for (auto& slot : slots) {
+        if (abs(slot.x - pos.x) > 1 and abs(slot.y - pos.y) > 1) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
 inline std::optional<std::pair<CheckerBoard::Checker, Vec2<u8>>>
-checker_move(CheckerBoard& board,
-             const Vec2<u8>& from,
-             const Vec2<u8>& to)
+checker_move(CheckerBoard& board, const Vec2<u8>& from, const Vec2<u8>& to)
 {
     const auto type = board.data_[from.x][from.y];
     board.data_[from.x][from.y] = CheckerBoard::Checker::none;
     board.data_[to.x][to.y] = type;
 
-    if (not slot_within_bounds((to.cast<int>() + checker_forward_vector(board, to).cast<int>()).cast<u8>())) {
+    if (not slot_within_bounds(
+            (to.cast<int>() + checker_forward_vector(board, to).cast<int>())
+                .cast<u8>())) {
         // We've reached the edge of the board. King me!
         if (board.data_[to.x][to.y] == CheckerBoard::red) {
             board.data_[to.x][to.y] = CheckerBoard::red_king;
@@ -234,10 +251,12 @@ using MinimaxResult = int;
 
 
 
-inline MinimaxResult checkers_minimax(CheckerBoard& board,
-                                      int depth,
-                                      int alpha,
-                                      int beta)
+bool checkers_forced_jumps = true;
+
+
+
+inline MinimaxResult
+checkers_minimax(CheckerBoard& board, int depth, int alpha, int beta)
 {
     // NOTE: max depth needs even parity? Or doesn't matter?
     if (depth > 4) {
@@ -248,56 +267,90 @@ inline MinimaxResult checkers_minimax(CheckerBoard& board,
     const bool maximize = not minimize;
 
     MinimaxResult best = 0;
-    if (minimize) {
-        best = 999999;
-    } else {
-        best = -999999;
-    }
+    auto reset_best = [&]() {
+        if (minimize) {
+            best = 999999;
+        } else {
+            best = -999999;
+        }
+    };
+    reset_best();
+
+    Buffer<Vec2<u8>, 12> pieces;
+    Buffer<Vec2<u8>, 12> pieces_with_jumps;
 
     for (u8 x = 1; x < 9; ++x) {
         for (u8 y = 1; y < 9; ++y) {
             auto c = board.data_[x][y];
-            if (((c == CheckerBoard::red or c == CheckerBoard::red_king) and maximize) or
-                ((c == CheckerBoard::black or c == CheckerBoard::black_king) and minimize)) {
-                auto slots = checker_get_movement_slots(board, {x, y});
-                for (auto& s : slots) {
-                    // NOTE: need to store prev because checker_move does king
-                    // conversion.
-                    const auto prev = board.data_[x][y];
-                    auto took = checker_move(board, {x, y}, s);
-
-                    auto result = checkers_minimax(board, depth + 1, alpha, beta);
-                    if (minimize) {
-                        best = std::min(best, result);
-                        beta = std::min(best, beta);
-                    } else {
-                        best = std::max(best, result);
-                        alpha = std::max(best, alpha);
-                    }
-
-                    // Undo each state change, as we're doing everything
-                    // in-place. If we had a large stack, it'd be less bug-prone
-                    // to just copy the board every time. But, we're on a
-                    // gameboy, and only have a few kb for the stack.
-                    if (took) {
-                        // un-add value from taking the piece
-                        // un-take the taken piece
-                        board.data_[took->second.x][took->second.y] = took->first;
-                    }
-
-                    // un-move the piece
-                    board.data_[s.x][s.y] = CheckerBoard::Checker::none;
-                    board.data_[x][y] = prev;
-
-                    if (beta <= alpha) {
-                        goto DONE;
-                    }
-                }
+            if (((c == CheckerBoard::red or c == CheckerBoard::red_king) and
+                 maximize) or
+                ((c == CheckerBoard::black or c == CheckerBoard::black_king) and
+                 minimize)) {
+                pieces.push_back({x, y});
             }
         }
     }
 
- DONE:
+    if (checkers_forced_jumps) {
+        for (auto& p : pieces) {
+            if (checker_has_jumps(board, p)) {
+                pieces_with_jumps.push_back(p);
+            }
+        }
+        if (not pieces_with_jumps.empty()) {
+            pieces = pieces_with_jumps;
+        }
+    }
+
+    for (auto& piece : pieces) {
+        auto slots = checker_get_movement_slots(board, piece);
+        const u8 x = piece.x;
+        const u8 y = piece.y;
+        for (auto& s : slots) {
+
+            if (not pieces_with_jumps.empty()) {
+                if (abs(s.x - x) < 2 or abs(s.y - y) < 2) {
+                    // Forced jump, the piece cannot move without
+                    // jumping.
+                    continue;
+                }
+            }
+
+            // NOTE: need to store prev because checker_move does king
+            // conversion.
+            const auto prev = board.data_[x][y];
+            auto took = checker_move(board, {x, y}, s);
+
+            auto result = checkers_minimax(board, depth + 1, alpha, beta);
+            if (minimize) {
+                best = std::min(best, result);
+                beta = std::min(best, beta);
+            } else {
+                best = std::max(best, result);
+                alpha = std::max(best, alpha);
+            }
+
+            // Undo each state change, as we're doing everything
+            // in-place. If we had a large stack, it'd be less bug-prone
+            // to just copy the board every time. But, we're on a
+            // gameboy, and only have a few kb for the stack.
+            if (took) {
+                // un-add value from taking the piece
+                // un-take the taken piece
+                board.data_[took->second.x][took->second.y] = took->first;
+            }
+
+            // un-move the piece
+            board.data_[s.x][s.y] = CheckerBoard::Checker::none;
+            board.data_[x][y] = prev;
+
+            if (beta <= alpha) {
+                goto DONE;
+            }
+        }
+    }
+
+DONE:
 
     return best;
 }
@@ -315,41 +368,71 @@ inline std::pair<Vec2<u8>, Vec2<u8>> checkers_opponent_move(CheckerBoard& board)
 
     Buffer<Move, 48> moves_;
 
+    Buffer<Vec2<u8>, 12> pieces;
+    Buffer<Vec2<u8>, 12> pieces_with_jumps;
+
     for (u8 x = 1; x < 9; ++x) {
         for (u8 y = 1; y < 9; ++y) {
             auto c = board.data_[x][y];
-            if (c == CheckerBoard::Checker::red or
-                c == CheckerBoard::Checker::red_king) {
-                auto slots = checker_get_movement_slots(board, {x, y});
-                if (not slots.empty()) {
-                    for (auto& slot : slots) {
-                        const auto prev = board.data_[x][y];
-                        auto took = checker_move(board, {x, y}, slot);
-                        Move m;
-                        m.from_ = {x, y};
-                        m.to_ = slot;
+            if ((c == CheckerBoard::red or c == CheckerBoard::red_king)) {
+                pieces.push_back({x, y});
+            }
+        }
+    }
 
-                        m.data_ = checkers_minimax(board, 0, -9999, 9999);
-                        moves_.push_back(m);
+    if (checkers_forced_jumps) {
+        for (auto& p : pieces) {
+            if (checker_has_jumps(board, p)) {
+                pieces_with_jumps.push_back(p);
+            }
+        }
+        if (not pieces_with_jumps.empty()) {
+            pieces = pieces_with_jumps;
+        }
+    }
 
-                        // Undo move!
-                        if (took) {
-                            board.data_[took->second.x][took->second.y] =
-                                took->first;
+    for (auto& piece : pieces) {
+        const u8 x = piece.x;
+        const u8 y = piece.y;
+
+        auto c = board.data_[x][y];
+        if (c == CheckerBoard::Checker::red or
+            c == CheckerBoard::Checker::red_king) {
+            auto slots = checker_get_movement_slots(board, {x, y});
+            if (not slots.empty()) {
+                for (auto& slot : slots) {
+                    if (not pieces_with_jumps.empty()) {
+                        if (abs(slot.x - x) < 2 or abs(slot.y - y) < 2) {
+                            // Forced jump, the piece cannot move without
+                            // jumping.
+                            continue;
                         }
-                        board.data_[slot.x][slot.y] = CheckerBoard::Checker::none;
-                        board.data_[x][y] = prev;
                     }
+                    const auto prev = board.data_[x][y];
+                    auto took = checker_move(board, {x, y}, slot);
+                    Move m;
+                    m.from_ = {x, y};
+                    m.to_ = slot;
+
+                    m.data_ = checkers_minimax(board, 0, -9999, 9999);
+                    moves_.push_back(m);
+
+                    // Undo move!
+                    if (took) {
+                        board.data_[took->second.x][took->second.y] =
+                            took->first;
+                    }
+                    board.data_[slot.x][slot.y] =
+                        CheckerBoard::Checker::none;
+                    board.data_[x][y] = prev;
                 }
             }
         }
     }
 
-    std::sort(moves_.begin(), moves_.end(),
-              [](auto& lhs, auto& rhs)
-              {
-                  return lhs.data_ < rhs.data_;
-              });
+    std::sort(moves_.begin(), moves_.end(), [](auto& lhs, auto& rhs) {
+        return lhs.data_ < rhs.data_;
+    });
 
     if (not moves_.empty()) {
         return {moves_.back().from_, moves_.back().to_};
@@ -363,7 +446,8 @@ inline std::pair<Vec2<u8>, Vec2<u8>> checkers_opponent_move(CheckerBoard& board)
 class OpponentMoveCheckerScene : public MacrocosmScene
 {
 public:
-    ScenePtr<Scene> update(Platform& pfrm, Player& player, macro::EngineImpl& state)
+    ScenePtr<Scene>
+    update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     {
         Text t(pfrm, SYSTR(checkers_ai_thinking)->c_str(), OverlayCoord{0, 19});
         pfrm.screen().clear();
@@ -389,7 +473,8 @@ public:
 
         if (board.data_[opp_to.x][opp_to.y] not_eq board_prev) {
             if (board.data_[opp_to.x][opp_to.y] == CheckerBoard::red_king) {
-                sector.set_block({opp_to.x, opp_to.y, 1}, terrain::Type::checker_red_king);
+                sector.set_block({opp_to.x, opp_to.y, 1},
+                                 terrain::Type::checker_red_king);
             }
         }
 
@@ -403,11 +488,9 @@ public:
 class MoveCheckerScene : public MacrocosmScene
 {
 public:
-
     MoveCheckerScene(const Vec3<u8>& piece_loc,
-                     const Buffer<Vec2<u8>, 4>& slots) :
-        piece_loc_(piece_loc),
-        slots_(slots)
+                     const Buffer<Vec2<u8>, 4>& slots)
+        : piece_loc_(piece_loc), slots_(slots)
     {
     }
 
@@ -436,6 +519,7 @@ public:
             auto& sector = state.sector();
 
             for (auto& slot : slots_) {
+
                 sector.set_block({slot.x, slot.y, 1}, terrain::Type::air);
             }
 
@@ -449,9 +533,7 @@ public:
             auto board = CheckerBoard::from_sector(sector);
             auto board_prev = board.data_[piece_loc_.x][piece_loc_.y];
             auto slot = slots_[current_slot_];
-            auto took = checker_move(board,
-                                     {piece_loc_.x, piece_loc_.y},
-                                     slot);
+            auto took = checker_move(board, {piece_loc_.x, piece_loc_.y}, slot);
 
             const bool king_convert =
                 board_prev not_eq board.data_[slot.x][slot.y] and
@@ -464,15 +546,14 @@ public:
             }
             if (not slots_.empty()) {
                 auto s = slots_[current_slot_];
-                sector.set_block({s.x, s.y, 1},
-                                 king_convert ? terrain::Type::checker_black_king : type);
+                sector.set_block(
+                    {s.x, s.y, 1},
+                    king_convert ? terrain::Type::checker_black_king : type);
             }
 
             if (took) {
-                sector.set_block({took->second.x,
-                                  took->second.y,
-                                  1},
-                    terrain::Type::air);
+                sector.set_block({took->second.x, took->second.y, 1},
+                                 terrain::Type::air);
             }
 
             sector.set_block(piece_loc_, terrain::Type::air);
@@ -502,7 +583,8 @@ public:
             if (i == current_slot_) {
                 sector.set_block({s.x, s.y, 1}, terrain::Type::air);
             } else {
-                sector.set_block({s.x, s.y, 1}, terrain::Type::checker_highlight);
+                sector.set_block({s.x, s.y, 1},
+                                 terrain::Type::checker_highlight);
             }
         }
 
@@ -521,4 +603,4 @@ private:
 
 
 
-}
+} // namespace skyland::macro

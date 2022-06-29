@@ -140,11 +140,52 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
             Vec3<u8> pos = {cursor.x, cursor.y, u8(cursor.z - 1)};
             auto& s = state.sector();
             auto board = CheckerBoard::from_sector(s);
+
             auto slots = checker_get_movement_slots(board, {pos.x, pos.y});
+
+            Buffer<Vec2<u8>, 12> pieces_with_jumps;
+            if (checkers_forced_jumps) {
+                for (u8 x = 1; x < 9; ++x) {
+                    for (u8 y = 1; y < 9; ++y) {
+                        auto p = board.data_[x][y];
+                        if (p == CheckerBoard::black or p == CheckerBoard::black_king) {
+                            if (checker_has_jumps(board, {x, y})) {
+                                pieces_with_jumps.push_back({x, y});
+                            }
+                        }
+                    }
+                }
+                if (not pieces_with_jumps.empty()) {
+                    bool found = false;
+                    for (auto& piece : pieces_with_jumps) {
+                        if (pos.x == piece.x and pos.y == piece.y) {
+                            found = true;
+                        }
+                    }
+                    if (not found) {
+                        pfrm.speaker().play_sound("beep_error", 3);
+                        return null_scene();
+                    }
+
+                    // Forced jumps: remove any slot that isn't a jump, because
+                    // the piece can jump.
+                    for (auto it = slots.begin(); it not_eq slots.end();) {
+                        auto s = *it;
+                        if (abs(s.x - pos.x) < 2 or abs(s.y - pos.y) < 2) {
+                            it = slots.erase(it);
+                        } else {
+                            ++it;
+                        }
+                    }
+                }
+            }
+
             if (not slots.empty()) {
                 pfrm.speaker().play_sound("button_wooden", 3);
                 state.sector().set_block(cursor, terrain::Type::air);
                 return scene_pool::alloc<MoveCheckerScene>(pos, slots);
+            } else {
+                pfrm.speaker().play_sound("beep_error", 3);
             }
 
         } else {
