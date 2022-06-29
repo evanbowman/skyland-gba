@@ -340,16 +340,19 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            add_option(
-                pfrm,
-                SYSTR(start_menu_load)->c_str(),
-                [&pfrm, &app]() -> ScenePtr<Scene> {
-                    macrocosm(app).load(pfrm, app);
-                    pfrm.screen().schedule_fade(0.f);
-                    pfrm.screen().pixelate(0);
-                    return scene_pool::alloc<macro::SelectorScene>();
-                },
-                cut);
+            // Actually, the player can just access the load option from the
+            // title screen. Having this here will just confuse people, who
+            // press load and lose their unsaved progress.
+            // add_option(
+            //     pfrm,
+            //     SYSTR(start_menu_load)->c_str(),
+            //     [&pfrm, &app]() -> ScenePtr<Scene> {
+            //         macrocosm(app).load(pfrm, app);
+            //         pfrm.screen().schedule_fade(0.f);
+            //         pfrm.screen().pixelate(0);
+            //         return scene_pool::alloc<macro::SelectorScene>();
+            //     },
+            //     cut);
 
             add_option(
                 pfrm,

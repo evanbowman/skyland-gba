@@ -136,7 +136,19 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     if (player.key_down(pfrm, Key::action_1)) {
         pfrm.speaker().play_sound("button_wooden", 3);
         if (state.data_->checkers_mode_) {
-
+            auto& block = sector.get_block({cursor.x, cursor.y, u8(cursor.z - 1)});
+            if (block.type() == terrain::Type::checker_red) {
+                sector.set_block({u8(cursor.x + 1), cursor.y, u8(cursor.z - 1)},
+                                 terrain::Type::checker_red);
+                sector.set_block({cursor.x, cursor.y, u8(cursor.z - 1)},
+                                 terrain::Type::air);
+            }
+            if (block.type() == terrain::Type::checker_black) {
+                sector.set_block({u8(cursor.x - 1), cursor.y, u8(cursor.z - 1)},
+                                 terrain::Type::checker_black);
+                sector.set_block({cursor.x, cursor.y, u8(cursor.z - 1)},
+                                 terrain::Type::air);
+            }
         } else {
             return scene_pool::alloc<TileOptionsScene>();
         }
