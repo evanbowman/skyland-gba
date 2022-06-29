@@ -21,6 +21,7 @@
 
 
 #include "selectorScene.hpp"
+#include "checkers.hpp"
 #include "createBlockScene.hpp"
 #include "keyComboScene.hpp"
 #include "menuOptionsScene.hpp"
@@ -30,6 +31,7 @@
 #include "skyland/scene/startMenuScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "tileOptionsScene.hpp"
+
 
 
 namespace skyland::macro
@@ -53,109 +55,6 @@ void SelectorScene::exit(Platform& pfrm, macro::EngineImpl& state, Scene& next)
     }
     text_.reset();
     text_2_.reset();
-}
-
-
-
-static Vec2<s8> checker_forward_vector(EngineImpl& state, const Vec3<u8>& pos)
-{
-    auto& sector = state.sector();
-    const auto rot = sector.orientation();
-
-    switch (sector.get_block(pos).type()) {
-    case terrain::Type::checker_red:
-        switch (rot) {
-        case terrain::Sector::Orientation::north:
-            return {1, 0};
-
-        case terrain::Sector::Orientation::south:
-            return {-1, 0};
-
-        case terrain::Sector::Orientation::east:
-            return {0, 1};
-
-        case terrain::Sector::Orientation::west:
-            return {0, -1};
-        }
-        break;
-
-    case terrain::Type::checker_black:
-        switch (rot) {
-        case terrain::Sector::Orientation::north:
-            return {-1, 0};
-
-        case terrain::Sector::Orientation::south:
-            return {1, 0};
-
-        case terrain::Sector::Orientation::east:
-            return {0, -1};
-
-        case terrain::Sector::Orientation::west:
-            return {0, 1};
-        }
-        break;
-
-    default:
-        break;
-    }
-
-    return {};
-}
-
-
-
-bool slot_within_bounds(const Vec3<u8>& pos)
-{
-    return pos.x > 0 and pos.y > 0 and pos.x < 9 and pos.y < 9;
-}
-
-
-
-auto checker_get_movement_slots(EngineImpl& state, const Vec3<u8>& pos)
-{
-    Buffer<Vec3<u8>, 2> result;
-
-    auto dif = checker_forward_vector(state, pos);
-    auto& s = state.sector();
-
-    auto is_free = [&](auto& coord) {
-        return s.get_block(coord).type() == terrain::Type::air;
-    };
-
-    auto push = [&](auto& coord) {
-        if (is_free(coord)) {
-            if (slot_within_bounds(coord)) {
-                result.push_back(coord);
-            }
-        } else {
-            // TODO: capture piece...
-        }
-    };
-
-    if (dif.x not_eq 0) {
-        auto slot1 = pos;
-        slot1.x += dif.x;
-        auto slot2 = slot1;
-
-        slot1.y += 1;
-        slot2.y -= 1;
-
-        push(slot1);
-        push(slot2);
-
-    } else {
-        auto slot1 = pos;
-        slot1.y += dif.y;
-        auto slot2 = slot1;
-
-        slot1.x += 1;
-        slot2.x -= 1;
-
-        push(slot1);
-        push(slot2);
-    }
-
-    return result;
 }
 
 
@@ -239,7 +138,9 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     if (player.key_down(pfrm, Key::action_1)) {
         if (state.data_->checkers_mode_) {
             Vec3<u8> pos = {cursor.x, cursor.y, u8(cursor.z - 1)};
-            auto slots = checker_get_movement_slots(state, pos);
+            auto& s = state.sector();
+            auto board = CheckerBoard::from_sector(s);
+            auto slots = checker_get_movement_slots(board, {pos.x, pos.y});
             if (not slots.empty()) {
                 pfrm.speaker().play_sound("button_wooden", 3);
                 state.sector().set_block(cursor, terrain::Type::air);

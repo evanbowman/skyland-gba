@@ -980,6 +980,8 @@ Coins terrain::cost(Type t)
 
     case terrain::Type::checker_red:
     case terrain::Type::checker_black:
+    case terrain::Type::checker_red_king:
+    case terrain::Type::checker_black_king:
     case terrain::Type::checker_highlight:
         return 0;
 
@@ -1126,9 +1128,11 @@ SystemString terrain::name(Type t)
         break;
 
     case terrain::Type::checker_red:
+    case terrain::Type::checker_red_king:
         return SystemString::red;
 
     case terrain::Type::checker_black:
+    case terrain::Type::checker_black_king:
         return SystemString::black;
 
     case terrain::Type::singularity:
@@ -1377,6 +1381,8 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::checker_highlight:
     case terrain::Type::checker_red:
     case terrain::Type::checker_black:
+    case terrain::Type::checker_red_king:
+    case terrain::Type::checker_black_king:
     case terrain::Type::singularity:
     case terrain::Type::air:
         return {2488, 2504};
@@ -2338,6 +2344,12 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // checker_black
     nullptr,
+    // checker_sel
+    nullptr,
+    // checker_red_king
+    nullptr,
+    // checker_black_king
+    nullptr,
 };
 // clang-format on
 
@@ -2656,12 +2668,19 @@ raster::TileCategory raster::tile_category(int texture_id)
          // checkers:
          ISO_SELECTOR_CGS,
          ISO_SELECTOR_CGS,
-         ISO_SELECTOR_CGS,
-         ISO_SELECTOR_CGS,
+
          ISO_SELECTOR_CGS,
          ISO_SELECTOR_CGS,
 
-        };
+         ISO_SELECTOR_CGS,
+         ISO_SELECTOR_CGS,
+
+         ISO_SELECTOR_CGS,
+         ISO_SELECTOR_CGS,
+
+         ISO_SELECTOR_CGS,
+         ISO_SELECTOR_CGS,
+    };
     // clang-format on
 
     return category[texture_id];

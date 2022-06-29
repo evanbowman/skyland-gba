@@ -120,6 +120,8 @@ enum class Type {
     checker_red,
     checker_black,
     checker_highlight,
+    checker_red_king,
+    checker_black_king,
 
     count,
 };

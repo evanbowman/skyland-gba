@@ -2306,27 +2306,27 @@ static void vblank_isr()
 
     rumble_update();
 
-    const auto ten_seconds = 60 * 10; // approx. 60 fps
-    if (UNLIKELY(::watchdog_counter > ten_seconds)) {
-        ::watchdog_counter = 0;
+    // const auto twenty_seconds = 500 * 10; // approx. 60 fps
+    // if (UNLIKELY(::watchdog_counter > twenty_seconds)) {
+    //     ::watchdog_counter = 0;
 
-        ::platform->speaker().stop_music();
+    //     ::platform->speaker().stop_music();
 
-        if (not canary_check()) {
-            REG_SOUNDCNT_X = 0; // Disable the sound chip.
-            // on_stack_overflow() disables some interrupts, but we want to
-            // disable additional ones, as we will not be leaving this interrupt
-            // handler.
-            irqDisable(IRQ_TIMER1 | IRQ_SERIAL);
-            on_stack_overflow();
-        } else {
-            if (::platform and ::unrecoverrable_error_callback) {
-                (*::unrecoverrable_error_callback)(*platform);
-            }
-        }
+    //     if (not canary_check()) {
+    //         REG_SOUNDCNT_X = 0; // Disable the sound chip.
+    //         // on_stack_overflow() disables some interrupts, but we want to
+    //         // disable additional ones, as we will not be leaving this interrupt
+    //         // handler.
+    //         irqDisable(IRQ_TIMER1 | IRQ_SERIAL);
+    //         on_stack_overflow();
+    //     } else {
+    //         if (::platform and ::unrecoverrable_error_callback) {
+    //             (*::unrecoverrable_error_callback)(*platform);
+    //         }
+    //     }
 
-        restart();
-    }
+    //     restart();
+    // }
 
     if (not get_gflag(GlobalFlag::key_poll_called)) {
         Platform::Keyboard::KeyStates current_keys;
