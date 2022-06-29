@@ -300,8 +300,7 @@ void MacrocosmScene::enter(Platform& pfrm,
                                    UIMetric::Format::signed_integer);
     }
 
-    if (not state.data_->freebuild_mode_ and
-        not state.data_->checkers_mode_) {
+    if (not state.data_->freebuild_mode_ and not state.data_->checkers_mode_) {
         const auto year = state.data_->p().year_.get() + 1;
 
         auto yr = SYSTR(macro_year);

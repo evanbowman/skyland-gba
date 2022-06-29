@@ -980,6 +980,7 @@ Coins terrain::cost(Type t)
 
     case terrain::Type::checker_red:
     case terrain::Type::checker_black:
+    case terrain::Type::checker_highlight:
         return 0;
 
     case terrain::Type::building:
@@ -1133,6 +1134,7 @@ SystemString terrain::name(Type t)
     case terrain::Type::singularity:
         return SystemString::block_singularity;
 
+    case terrain::Type::checker_highlight:
     case terrain::Type::air:
         return SystemString::block_air;
 
@@ -1372,6 +1374,7 @@ terrain::Improvements terrain::improvements(Type t)
 std::pair<int, int> terrain::icons(Type t)
 {
     switch (t) {
+    case terrain::Type::checker_highlight:
     case terrain::Type::checker_red:
     case terrain::Type::checker_black:
     case terrain::Type::singularity:
@@ -2345,7 +2348,7 @@ namespace terrain
 bool blocks_light(terrain::Type t)
 {
     if (t == terrain::Type::air or t == terrain::Type::selector or
-        t == terrain::Type::crystal or
+        t == terrain::Type::checker_highlight or t == terrain::Type::crystal or
         (terrain::categories(t) & terrain::Categories::fluid_water) or
         (terrain::categories(t) & terrain::Categories::fluid_lava)) {
         return false;
@@ -2651,6 +2654,8 @@ raster::TileCategory raster::tile_category(int texture_id)
          ISO_DEFAULT_CGS,
 
          // checkers:
+         ISO_SELECTOR_CGS,
+         ISO_SELECTOR_CGS,
          ISO_SELECTOR_CGS,
          ISO_SELECTOR_CGS,
          ISO_SELECTOR_CGS,

@@ -60,7 +60,9 @@ public:
         if (timer_ > seconds(6)) {
             text_.reset();
             pfrm.screen().display();
+            info(pfrm, "enter hibernate...");
             pfrm.system_call("hibernate", nullptr);
+            info(pfrm, "resume!");
             return scene_pool::alloc<StartMenuScene>(1);
         }
 

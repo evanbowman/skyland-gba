@@ -119,6 +119,7 @@ enum class Type {
 
     checker_red,
     checker_black,
+    checker_highlight,
 
     count,
 };
