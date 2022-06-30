@@ -78,6 +78,7 @@ void ModifiedSelectorScene::exit(Platform& pfrm,
     rotate_text_.reset();
     layers_text_.reset();
     day_night_text_.reset();
+    visible_layers_text_.reset();
     pfrm.set_tile(Layer::overlay, 1, 2, 0);
     pfrm.set_tile(Layer::overlay, 2, 2, 0);
     pfrm.set_tile(Layer::overlay, 1, 3, 0);

@@ -34,10 +34,6 @@ namespace skyland::macro
 
 
 
-// TODO: implement forced capture!
-
-
-
 inline bool slot_within_bounds(const Vec2<u8>& pos)
 {
     return pos.x > 0 and pos.y > 0 and pos.x < 9 and pos.y < 9;
