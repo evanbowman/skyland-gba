@@ -139,6 +139,7 @@ struct EngineImpl : public Engine
 
         bool freebuild_mode_ = false;
         bool checkers_mode_ = false;
+        bool checkers_ai_moved_ = false;
 
         // For palette animations.
         Microseconds fluid_anim_timer_ = 0;

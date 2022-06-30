@@ -27,6 +27,7 @@
 #include "selectorScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/scene/modules/checkersModule.hpp"
+#include "number/random.hpp"
 
 
 
@@ -372,6 +373,7 @@ DONE:
 
 inline std::pair<Vec2<u8>, Vec2<u8>>
 checkers_opponent_move(CheckerBoard& board,
+                       bool first_move,
                        std::optional<Vec2<u8>> piece = {})
 {
     struct Move
@@ -464,9 +466,16 @@ checkers_opponent_move(CheckerBoard& board,
         }
     }
 
-    std::sort(moves_.begin(), moves_.end(), [](auto& lhs, auto& rhs) {
-        return lhs.data_ < rhs.data_;
-    });
+    if (first_move) {
+        // Pick a random move for the first move. Makes the game more
+        // interesting.
+        rng::shuffle(moves_, rng::utility_state);
+    } else {
+        std::sort(moves_.begin(), moves_.end(), [](auto& lhs, auto& rhs) {
+                                                    return lhs.data_ < rhs.data_;
+                                                });
+    }
+
 
     if (not moves_.empty()) {
         return {moves_.back().from_, moves_.back().to_};
@@ -571,7 +580,13 @@ public:
         auto& sector = state.sector();
         auto board = CheckerBoard::from_sector(sector);
 
-        auto result = checkers_opponent_move(board, piece_);
+        const bool first_move = not state.data_->checkers_ai_moved_;
+        auto result = checkers_opponent_move(board,
+                                             first_move,
+                                             piece_);
+
+        state.data_->checkers_ai_moved_ = true;
+
         auto opp_from = result.first;
         auto opp_to = result.second;
         auto prev = sector.get_block({opp_from.x, opp_from.y, 1}).type();
