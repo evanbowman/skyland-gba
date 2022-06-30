@@ -26,6 +26,7 @@
 #include "macrocosmScene.hpp"
 #include "selectorScene.hpp"
 #include "skyland/scene_pool.hpp"
+#include "skyland/scene/modules/checkersModule.hpp"
 
 
 
@@ -322,7 +323,7 @@ checkers_minimax(CheckerBoard& board,
             auto took = checker_move(board, {x, y}, s);
 
             bool jump_again = false;
-            if (took) {
+            if (took and checkers_forced_jumps) {
                 auto slots2 = checker_get_movement_slots(board, s);
                 for (auto& s2 : slots2) {
                     if (abs(s.x - s2.x) > 1 and abs(s.y - s2.y) > 1) {
@@ -435,7 +436,7 @@ checkers_opponent_move(CheckerBoard& board,
                     m.to_ = slot;
 
                     bool jump_again = false;
-                    if (took) {
+                    if (took and checkers_forced_jumps) {
                         auto slots2 = checker_get_movement_slots(board, slot);
                         for (auto& s2 : slots2) {
                             if (abs(s2.x - slot.x) > 1 and abs(s2.y - slot.y) > 1) {
@@ -473,6 +474,79 @@ checkers_opponent_move(CheckerBoard& board,
         return {{0, 0}, {0, 0}};
     }
 }
+
+
+
+class CheckersVictoryScene : public MacrocosmScene
+{
+public:
+
+    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
+    {
+        bool red_has_moves = false;
+        bool black_has_moves = false;
+
+        auto& sector = state.sector();
+        auto board = CheckerBoard::from_sector(sector);
+        for (u8 x = 1; x < 9; ++x) {
+            for (u8 y = 1; y < 9; ++y) {
+                auto c = board.data_[x][y];
+                if (c == CheckerBoard::red or c == CheckerBoard::red_king) {
+                    if (not checker_get_movement_slots(board, {x, y}).empty()) {
+                        red_has_moves = true;
+                    }
+                }
+                if (c == CheckerBoard::black or c == CheckerBoard::black_king) {
+                    if (not checker_get_movement_slots(board, {x, y}).empty()) {
+                        black_has_moves = true;
+                    }
+                }
+            }
+        }
+
+        bool black_won = not red_has_moves;
+        bool red_won = not black_has_moves;
+
+
+        player_won_ = red_won or black_won;
+
+        if (player_won_) {
+            auto str = format(SYSTR(checker_wins)->c_str(),
+                              black_won ? SYSTR(black)->c_str() :
+                              SYSTR(red)->c_str());
+
+            u8 margin = centered_text_margins(pfrm, utf8::len(str.c_str()));
+
+            text_.emplace(pfrm, str.c_str(), OverlayCoord{margin, 8});
+        }
+
+    }
+
+
+    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override
+    {
+        text_.reset();
+    }
+
+
+    ScenePtr<Scene>
+    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override
+    {
+        if (not player_won_) {
+            return scene_pool::alloc<SelectorScene>();
+        } else if (not player_won_ or
+            player.key_down(pfrm, Key::action_1) or
+            player.key_down(pfrm, Key::action_2)) {
+
+            return scene_pool::alloc<CheckersModule>();
+        }
+
+        return null_scene();
+    }
+
+    bool player_won_;
+    std::optional<Text> text_;
+};
 
 
 
@@ -518,7 +592,7 @@ public:
                                  terrain::Type::checker_red_king);
             }
         } else {
-            if (took) {
+            if (took and checkers_forced_jumps) {
                 // We took a piece, we may need to move again...
                 auto slots = checker_get_movement_slots(board, opp_to);
                 for (auto it = slots.begin(); it not_eq slots.end();) {
@@ -538,7 +612,7 @@ public:
         }
 
 
-        return scene_pool::alloc<SelectorScene>();
+        return scene_pool::alloc<CheckersVictoryScene>();
     }
 };
 
@@ -619,7 +693,7 @@ public:
 
             sector.set_block(piece_loc_, terrain::Type::air);
 
-            if (took and not king_convert) {
+            if (took and not king_convert and checkers_forced_jumps) {
                 auto slots = checker_get_movement_slots(board, slot);
                 for (auto it = slots.begin(); it not_eq slots.end();) {
                     auto s = *it;
