@@ -251,20 +251,24 @@ using MinimaxResult = int;
 
 
 
-bool checkers_forced_jumps = true;
+static const bool checkers_forced_jumps = true;
 
 
 
 inline MinimaxResult
-checkers_minimax(CheckerBoard& board, int depth, int alpha, int beta)
+checkers_minimax(CheckerBoard& board,
+                 int depth,
+                 int alpha,
+                 int beta,
+                 bool opponent_move)
 {
     // NOTE: max depth needs even parity? Or doesn't matter?
     if (depth > 4) {
         return board.score();
     }
 
-    const bool minimize = depth % 2 == 0;
-    const bool maximize = not minimize;
+    const bool minimize = not opponent_move;
+    const bool maximize = opponent_move;
 
     MinimaxResult best = 0;
     auto reset_best = [&]() {
@@ -321,8 +325,19 @@ checkers_minimax(CheckerBoard& board, int depth, int alpha, int beta)
             const auto prev = board.data_[x][y];
             auto took = checker_move(board, {x, y}, s);
 
+            bool jump_again = false;
+            if (took) {
+                auto slots2 = checker_get_movement_slots(board, s);
+                for (auto& s2 : slots2) {
+                    if (abs(s.x - s2.x) > 1 and abs(s.y - s2.y) > 1) {
+                        jump_again = true;
+                        break;
+                    }
+                }
+            }
 
-            auto result = checkers_minimax(board, depth + 1, alpha, beta);
+            bool next_move = jump_again ? opponent_move : not opponent_move;
+            auto result = checkers_minimax(board, depth + 1, alpha, beta, next_move);
             if (minimize) {
                 best = std::min(best, result);
                 beta = std::min(best, beta);
@@ -423,7 +438,21 @@ checkers_opponent_move(CheckerBoard& board,
                     m.from_ = {x, y};
                     m.to_ = slot;
 
-                    m.data_ = checkers_minimax(board, 0, -9999, 9999);
+                    bool jump_again = false;
+                    if (took) {
+                        auto slots2 = checker_get_movement_slots(board, slot);
+                        for (auto& s2 : slots2) {
+                            if (abs(s2.x - slot.x) > 1 and abs(s2.y - slot.y) > 1) {
+                                jump_again = true;
+                            }
+                        }
+                    }
+
+                    bool opponent_move = false;
+                    if (jump_again) {
+                        opponent_move = true;
+                    }
+                    m.data_ = checkers_minimax(board, 0, -9999, 9999, opponent_move);
                     moves_.push_back(m);
 
                     // Undo move!
@@ -550,6 +579,8 @@ public:
 
         const u32 prev_slot = current_slot_;
 
+        auto& sector = state.sector();
+
         if (player.key_down(pfrm, Key::action_2) and cancellable_) {
             auto& sector = state.sector();
 
@@ -563,7 +594,6 @@ public:
             return scene_pool::alloc<SelectorScene>();
 
         } else if (player.key_down(pfrm, Key::action_1)) {
-            auto& sector = state.sector();
 
             auto board = CheckerBoard::from_sector(sector);
             auto board_prev = board.data_[piece_loc_.x][piece_loc_.y];
