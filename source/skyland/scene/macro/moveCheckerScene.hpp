@@ -321,6 +321,7 @@ checkers_minimax(CheckerBoard& board, int depth, int alpha, int beta)
             const auto prev = board.data_[x][y];
             auto took = checker_move(board, {x, y}, s);
 
+
             auto result = checkers_minimax(board, depth + 1, alpha, beta);
             if (minimize) {
                 best = std::min(best, result);
@@ -357,7 +358,9 @@ DONE:
 
 
 
-inline std::pair<Vec2<u8>, Vec2<u8>> checkers_opponent_move(CheckerBoard& board)
+inline std::pair<Vec2<u8>, Vec2<u8>>
+checkers_opponent_move(CheckerBoard& board,
+                       std::optional<Vec2<u8>> piece = {})
 {
     struct Move
     {
@@ -371,23 +374,29 @@ inline std::pair<Vec2<u8>, Vec2<u8>> checkers_opponent_move(CheckerBoard& board)
     Buffer<Vec2<u8>, 12> pieces;
     Buffer<Vec2<u8>, 12> pieces_with_jumps;
 
-    for (u8 x = 1; x < 9; ++x) {
-        for (u8 y = 1; y < 9; ++y) {
-            auto c = board.data_[x][y];
-            if ((c == CheckerBoard::red or c == CheckerBoard::red_king)) {
-                pieces.push_back({x, y});
+    if (piece) {
+        // Move one specific piece.
+        pieces.push_back(*piece);
+        pieces_with_jumps.push_back(*piece);
+    } else {
+        for (u8 x = 1; x < 9; ++x) {
+            for (u8 y = 1; y < 9; ++y) {
+                auto c = board.data_[x][y];
+                if ((c == CheckerBoard::red or c == CheckerBoard::red_king)) {
+                    pieces.push_back({x, y});
+                }
             }
         }
-    }
 
-    if (checkers_forced_jumps) {
-        for (auto& p : pieces) {
-            if (checker_has_jumps(board, p)) {
-                pieces_with_jumps.push_back(p);
+        if (checkers_forced_jumps) {
+            for (auto& p : pieces) {
+                if (checker_has_jumps(board, p)) {
+                    pieces_with_jumps.push_back(p);
+                }
             }
-        }
-        if (not pieces_with_jumps.empty()) {
-            pieces = pieces_with_jumps;
+            if (not pieces_with_jumps.empty()) {
+                pieces = pieces_with_jumps;
+            }
         }
     }
 
@@ -422,8 +431,7 @@ inline std::pair<Vec2<u8>, Vec2<u8>> checkers_opponent_move(CheckerBoard& board)
                         board.data_[took->second.x][took->second.y] =
                             took->first;
                     }
-                    board.data_[slot.x][slot.y] =
-                        CheckerBoard::Checker::none;
+                    board.data_[slot.x][slot.y] = CheckerBoard::Checker::none;
                     board.data_[x][y] = prev;
                 }
             }
@@ -446,6 +454,14 @@ inline std::pair<Vec2<u8>, Vec2<u8>> checkers_opponent_move(CheckerBoard& board)
 class OpponentMoveCheckerScene : public MacrocosmScene
 {
 public:
+
+    std::optional<Vec2<u8>> piece_;
+
+    OpponentMoveCheckerScene(std::optional<Vec2<u8>> piece = {}) :
+        piece_(piece)
+    {
+    }
+
     ScenePtr<Scene>
     update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     {
@@ -456,7 +472,7 @@ public:
         auto& sector = state.sector();
         auto board = CheckerBoard::from_sector(sector);
 
-        auto result = checkers_opponent_move(board);
+        auto result = checkers_opponent_move(board, piece_);
         auto opp_from = result.first;
         auto opp_to = result.second;
         auto prev = sector.get_block({opp_from.x, opp_from.y, 1}).type();
@@ -476,6 +492,24 @@ public:
                 sector.set_block({opp_to.x, opp_to.y, 1},
                                  terrain::Type::checker_red_king);
             }
+        } else {
+            if (took) {
+                // We took a piece, we may need to move again...
+                auto slots = checker_get_movement_slots(board, opp_to);
+                for (auto it = slots.begin(); it not_eq slots.end();) {
+                    auto s = *it;
+                    if (abs(s.x - opp_to.x) > 1 and abs(s.y - opp_to.y) > 1) {
+                        // Slot is a jump
+                        ++it;
+                    } else {
+                        it = slots.erase(it);
+                    }
+                }
+                // We have jumps left for this checker, we must jump again!
+                if (not slots.empty()) {
+                    return scene_pool::alloc<OpponentMoveCheckerScene>(opp_to);
+                }
+            }
         }
 
 
@@ -489,8 +523,9 @@ class MoveCheckerScene : public MacrocosmScene
 {
 public:
     MoveCheckerScene(const Vec3<u8>& piece_loc,
-                     const Buffer<Vec2<u8>, 4>& slots)
-        : piece_loc_(piece_loc), slots_(slots)
+                     const Buffer<Vec2<u8>, 4>& slots,
+                     bool cancellable = true)
+        : piece_loc_(piece_loc), slots_(slots), cancellable_(cancellable)
     {
     }
 
@@ -515,7 +550,7 @@ public:
 
         const u32 prev_slot = current_slot_;
 
-        if (player.key_down(pfrm, Key::action_2)) {
+        if (player.key_down(pfrm, Key::action_2) and cancellable_) {
             auto& sector = state.sector();
 
             for (auto& slot : slots_) {
@@ -557,7 +592,26 @@ public:
             }
 
             sector.set_block(piece_loc_, terrain::Type::air);
-            sector.set_cursor(piece_loc_);
+
+            if (took and not king_convert) {
+                auto slots = checker_get_movement_slots(board, slot);
+                for (auto it = slots.begin(); it not_eq slots.end();) {
+                    auto s = *it;
+                    if (abs(s.x - slot.x) > 1 and abs(s.y - slot.y) > 1) {
+                        // Slot is a jump
+                        ++it;
+                    } else {
+                        it = slots.erase(it);
+                    }
+                }
+                // We have jumps left for this checker, we must jump again!
+                if (not slots.empty()) {
+                    return scene_pool::alloc<MoveCheckerScene>(
+                        Vec3<u8>{slot.x, slot.y, 1}, slots, false);
+                }
+            } else {
+                sector.set_cursor(piece_loc_);
+            }
 
             return scene_pool::alloc<OpponentMoveCheckerScene>();
 
@@ -599,6 +653,7 @@ private:
     Vec3<u8> piece_loc_;
     Buffer<Vec2<u8>, 4> slots_;
     u32 current_slot_ = 0;
+    bool cancellable_ = false;
 };
 
 

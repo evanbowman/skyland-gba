@@ -43,6 +43,11 @@ void SelectorScene::enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
     Text::platform_retain_alphabet(pfrm);
+
+    if (not text_) {
+        text_.emplace(pfrm, OverlayCoord{0, 19});
+        describe_selected(pfrm, state);
+    }
 }
 
 
@@ -91,11 +96,6 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     }
 
 
-    if (not text_) {
-        text_.emplace(pfrm, OverlayCoord{0, 19});
-    }
-    describe_selected(pfrm, state);
-
     auto test_key = [&](Key k) {
         return player.test_key(pfrm, k, milliseconds(500), milliseconds(100));
     };
@@ -117,29 +117,44 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
             sector.set_cursor(cursor);
             describe_selected(pfrm, state);
             pfrm.speaker().play_sound("cursor_tick", 0);
+            describe_selected(pfrm, state);
         } else if (test_key(Key::down) and cursor.y < sector.size().x - 1) {
             ++cursor.y;
             sector.set_cursor(cursor);
             describe_selected(pfrm, state);
             pfrm.speaker().play_sound("cursor_tick", 0);
+            describe_selected(pfrm, state);
         } else if (test_key(Key::right) and cursor.x > 0) {
             --cursor.x;
             sector.set_cursor(cursor);
             describe_selected(pfrm, state);
             pfrm.speaker().play_sound("cursor_tick", 0);
+            describe_selected(pfrm, state);
         } else if (test_key(Key::left) and cursor.x < sector.size().y - 1) {
             ++cursor.x;
             sector.set_cursor(cursor);
             describe_selected(pfrm, state);
             pfrm.speaker().play_sound("cursor_tick", 0);
+            describe_selected(pfrm, state);
         }
     }
 
     if (player.key_down(pfrm, Key::action_1)) {
         if (state.data_->checkers_mode_) {
+
+            if (cursor.z not_eq 2) {
+                return null_scene();
+            }
+
             Vec3<u8> pos = {cursor.x, cursor.y, u8(cursor.z - 1)};
             auto& s = state.sector();
             auto board = CheckerBoard::from_sector(s);
+
+            auto val = board.data_[cursor.x][cursor.y];
+            if (val == CheckerBoard::red or val == CheckerBoard::red_king) {
+                pfrm.speaker().play_sound("beep_error", 3);
+                return null_scene();
+            }
 
             auto slots = checker_get_movement_slots(board, {pos.x, pos.y});
 
@@ -148,7 +163,8 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
                 for (u8 x = 1; x < 9; ++x) {
                     for (u8 y = 1; y < 9; ++y) {
                         auto p = board.data_[x][y];
-                        if (p == CheckerBoard::black or p == CheckerBoard::black_king) {
+                        if (p == CheckerBoard::black or
+                            p == CheckerBoard::black_king) {
                             if (checker_has_jumps(board, {x, y})) {
                                 pieces_with_jumps.push_back({x, y});
                             }
@@ -163,6 +179,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
                         }
                     }
                     if (not found) {
+                        text_->assign(SYSTR(checkers_forced_jump)->c_str());
                         pfrm.speaker().play_sound("beep_error", 3);
                         return null_scene();
                     }

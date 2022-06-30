@@ -507,6 +507,7 @@ enum class SystemString {
     freebuild_locked_text,
 
     checkers_ai_thinking,
+    checkers_forced_jump,
 
     __NOTICE__,
     patchfix_retain_alphabet,
