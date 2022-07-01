@@ -106,16 +106,9 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
 
     switch (lines_.size()) {
     case 0:
-        if (app.game_mode() == App::GameMode::skyland_forever or
-            app.game_mode() == App::GameMode::co_op) {
-            print_metric_impl(
-                SYSTR(level_complete_time)->c_str(),
-                format_time(app.persistent_data().total_seconds_.get(), true));
-        } else {
-            print_metric_impl(
-                SYSTR(level_complete_time)->c_str(),
-                format_time(app.stat_timer().whole_seconds(), true));
-        }
+        print_metric_impl(
+            SYSTR(level_complete_time)->c_str(),
+            format_time(app.stat_timer().whole_seconds(), true));
         break;
 
     case 1:

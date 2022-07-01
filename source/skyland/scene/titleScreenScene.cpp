@@ -34,6 +34,7 @@
 #include "selectChallengeScene.hpp"
 #include "skyland/alloc_entity.hpp"
 #include "skyland/entity/birds/smallBird.hpp"
+#include "skyland/entity/misc/titleScreenMusicNote.hpp"
 #include "skyland/keyCallbackProcessor.hpp"
 #include "skyland/player/playerP1.hpp"
 #include "skyland/scene_pool.hpp"
@@ -335,6 +336,7 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
     set_scroll(pfrm, Layer::map_0_ext, 0, 0);
 
     app.birds().clear();
+    app.effects().clear();
 }
 
 
@@ -599,6 +601,20 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.birds().push(std::move(e));
             }
         }
+    } else if (menu_selection_ == 3) {
+        if (state_ not_eq State::show_modules) {
+            note_timer_ -= delta;
+            if (note_timer_ < 0) {
+                note_timer_ = milliseconds(400) +
+                    milliseconds(500) -
+                    milliseconds(rng::choice<700>(rng::critical_state));
+                Vec2<Fixnum> pos{552, 140};
+                u16 gfx = 62 + rng::choice<2>(rng::utility_state);
+                if (auto e = alloc_entity<TitleScreenMusicNote>(pos, gfx)) {
+                    app.effects().push(std::move(e));
+                }
+            }
+        }
     }
 
     for (auto& bird : app.birds()) {
@@ -608,6 +624,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
     update_entities(pfrm, app, delta, app.birds());
+    update_entities(pfrm, app, delta, app.effects());
 
 
     switch (state_) {
@@ -1043,6 +1060,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = milliseconds(500);
 
         if (timer_ > fade_duration) {
+            app.effects().clear();
             redraw_margins(pfrm);
             show_module_icons(pfrm, module_page_);
             state_ = State::show_modules;
@@ -1264,6 +1282,13 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
         pfrm.screen().draw(sprite);
     } else if (x_scroll_ < -240) {
         pong_.display(pfrm, x_scroll_);
+    }
+    for (auto& effect : app.effects()) {
+        auto spr = effect->sprite();
+        auto pos = spr.get_position();
+        pos.x = pos.x - x_scroll_;
+        spr.set_position(pos);
+        pfrm.screen().draw(spr);
     }
     for (auto& bird : app.birds()) {
         auto spr = bird->sprite();
