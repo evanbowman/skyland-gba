@@ -65,7 +65,7 @@ public:
         auto pos = sprite_.get_position();
 
         x_anchor_ -= Float(delta) * 0.00002f;
-        auto wave_amp = (8 * (int)sine(4 * 3.14f * 0.001f * timer_ + 180)) / INT16_MAX;
+        auto wave_amp = (4 * (int)sine(4 * 3.14f * 0.001f * timer_ + 180)) / INT16_MAX;
         pos.x = x_anchor_ + (wave_flip_ ? -wave_amp : wave_amp);
         pos.y -= +Float(delta) * 0.00002f;
 
@@ -73,7 +73,7 @@ public:
 
 
         const s16 shrink_amount =
-            interpolate(-450, -1, Float(timer_) / seconds(12));
+            interpolate(-450, 0, Float(timer_) / seconds(10));
 
         sprite_.set_scale({shrink_amount, shrink_amount});
 

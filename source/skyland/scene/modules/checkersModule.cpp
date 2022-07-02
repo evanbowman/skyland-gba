@@ -153,6 +153,12 @@ void CheckersModule::init(Platform& pfrm, App& app)
                 }
             }
         }
+
+        s->set_block({0, 0, 0}, macro::terrain::Type::madder);
+        s->set_block({0, 9, 0}, macro::terrain::Type::madder);
+
+        s->set_block({9, 0, 0}, macro::terrain::Type::indigo);
+        s->set_block({9, 9, 0}, macro::terrain::Type::indigo);
     }
 
 

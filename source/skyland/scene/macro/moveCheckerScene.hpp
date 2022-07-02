@@ -281,8 +281,8 @@ checkers_minimax(CheckerBoard& board,
     Buffer<Vec2<u8>, 12> pieces;
     Buffer<Vec2<u8>, 12> pieces_with_jumps;
 
-    for (u8 x = 1; x < 9; ++x) {
-        for (u8 y = 1; y < 9; ++y) {
+    auto push =
+        [&](u8 x, u8 y) {
             auto c = board.data_[x][y];
             if (((c == CheckerBoard::red or c == CheckerBoard::red_king) and
                  maximize) or
@@ -290,7 +290,37 @@ checkers_minimax(CheckerBoard& board,
                  minimize)) {
                 pieces.push_back({x, y});
             }
+        };
+
+    switch (board.orientation_) {
+    case terrain::Sector::Orientation::north:
+    case terrain::Sector::Orientation::south:
+        // NOTE: this iteration skips half of the squares, as checkers only
+        // appear on darker squares.
+        for (u8 x = 1; x < 9; x += 2) {
+            for (u8 y = 1; y < 9; y += 2) {
+                push(x, y);
+            }
         }
+        for (u8 x = 2; x < 9; x += 2) {
+            for (u8 y = 2; y < 9; y += 2) {
+                push(x, y);
+            }
+        }
+        break;
+
+    default:
+        for (u8 x = 2; x < 9; x += 2) {
+            for (u8 y = 1; y < 9; y += 2) {
+                push(x, y);
+            }
+        }
+        for (u8 x = 1; x < 9; x += 2) {
+            for (u8 y = 2; y < 9; y += 2) {
+                push(x, y);
+            }
+        }
+        break;
     }
 
     if (checkers_forced_jumps) {
