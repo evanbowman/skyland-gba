@@ -605,8 +605,8 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (state_ not_eq State::show_modules) {
             note_timer_ -= delta;
             if (note_timer_ < 0) {
-                note_timer_ = milliseconds(400) +
-                    milliseconds(500) -
+                note_timer_ =
+                    milliseconds(400) + milliseconds(500) -
                     milliseconds(rng::choice<700>(rng::critical_state));
                 Vec2<Fixnum> pos{552, 140};
                 u16 gfx = 62 + rng::choice<2>(rng::utility_state);

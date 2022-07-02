@@ -36,8 +36,8 @@ namespace skyland
 class TitleScreenMusicNote : public Entity
 {
 public:
-    TitleScreenMusicNote(const Vec2<Fixnum>& position, u16 tile) :
-        Entity({{}, {}})
+    TitleScreenMusicNote(const Vec2<Fixnum>& position, u16 tile)
+        : Entity({{}, {}})
     {
         sprite_.set_size(Sprite::Size::w16_h32);
         sprite_.set_texture_index(tile);
@@ -65,7 +65,8 @@ public:
         auto pos = sprite_.get_position();
 
         x_anchor_ -= Float(delta) * 0.00002f;
-        auto wave_amp = (4 * (int)sine(4 * 3.14f * 0.001f * timer_ + 180)) / INT16_MAX;
+        auto wave_amp =
+            (4 * (int)sine(4 * 3.14f * 0.001f * timer_ + 180)) / INT16_MAX;
         pos.x = x_anchor_ + (wave_flip_ ? -wave_amp : wave_amp);
         pos.y -= +Float(delta) * 0.00002f;
 

@@ -106,9 +106,8 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
 
     switch (lines_.size()) {
     case 0:
-        print_metric_impl(
-            SYSTR(level_complete_time)->c_str(),
-            format_time(app.stat_timer().whole_seconds(), true));
+        print_metric_impl(SYSTR(level_complete_time)->c_str(),
+                          format_time(app.stat_timer().whole_seconds(), true));
         break;
 
     case 1:

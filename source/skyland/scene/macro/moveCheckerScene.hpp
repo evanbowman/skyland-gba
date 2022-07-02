@@ -24,10 +24,10 @@
 
 #include "checkers.hpp"
 #include "macrocosmScene.hpp"
-#include "selectorScene.hpp"
-#include "skyland/scene_pool.hpp"
-#include "skyland/scene/modules/checkersModule.hpp"
 #include "number/random.hpp"
+#include "selectorScene.hpp"
+#include "skyland/scene/modules/checkersModule.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 
@@ -253,12 +253,11 @@ static const bool checkers_forced_jumps = true;
 
 
 
-inline MinimaxResult
-checkers_minimax(CheckerBoard& board,
-                 int depth,
-                 int alpha,
-                 int beta,
-                 bool opponent_move)
+inline MinimaxResult checkers_minimax(CheckerBoard& board,
+                                      int depth,
+                                      int alpha,
+                                      int beta,
+                                      bool opponent_move)
 {
     // NOTE: max depth needs even parity? Or doesn't matter?
     if (depth > 4) {
@@ -281,16 +280,15 @@ checkers_minimax(CheckerBoard& board,
     Buffer<Vec2<u8>, 12> pieces;
     Buffer<Vec2<u8>, 12> pieces_with_jumps;
 
-    auto push =
-        [&](u8 x, u8 y) {
-            auto c = board.data_[x][y];
-            if (((c == CheckerBoard::red or c == CheckerBoard::red_king) and
-                 maximize) or
-                ((c == CheckerBoard::black or c == CheckerBoard::black_king) and
-                 minimize)) {
-                pieces.push_back({x, y});
-            }
-        };
+    auto push = [&](u8 x, u8 y) {
+        auto c = board.data_[x][y];
+        if (((c == CheckerBoard::red or c == CheckerBoard::red_king) and
+             maximize) or
+            ((c == CheckerBoard::black or c == CheckerBoard::black_king) and
+             minimize)) {
+            pieces.push_back({x, y});
+        }
+    };
 
     switch (board.orientation_) {
     case terrain::Sector::Orientation::north:
@@ -365,7 +363,8 @@ checkers_minimax(CheckerBoard& board,
             }
 
             bool next_move = jump_again ? opponent_move : not opponent_move;
-            auto result = checkers_minimax(board, depth + 1, alpha, beta, next_move);
+            auto result =
+                checkers_minimax(board, depth + 1, alpha, beta, next_move);
             if (minimize) {
                 best = std::min(best, result);
                 beta = std::min(best, beta);
@@ -471,7 +470,8 @@ checkers_opponent_move(CheckerBoard& board,
                     if (took and checkers_forced_jumps) {
                         auto slots2 = checker_get_movement_slots(board, slot);
                         for (auto& s2 : slots2) {
-                            if (abs(s2.x - slot.x) > 1 and abs(s2.y - slot.y) > 1) {
+                            if (abs(s2.x - slot.x) > 1 and
+                                abs(s2.y - slot.y) > 1) {
                                 jump_again = true;
                             }
                         }
@@ -481,7 +481,8 @@ checkers_opponent_move(CheckerBoard& board,
                     if (jump_again) {
                         opponent_move = true;
                     }
-                    m.data_ = checkers_minimax(board, 0, -9999, 9999, opponent_move);
+                    m.data_ =
+                        checkers_minimax(board, 0, -9999, 9999, opponent_move);
                     moves_.push_back(m);
 
                     // Undo move!
@@ -502,8 +503,8 @@ checkers_opponent_move(CheckerBoard& board,
         rng::shuffle(moves_, rng::utility_state);
     } else {
         std::sort(moves_.begin(), moves_.end(), [](auto& lhs, auto& rhs) {
-                                                    return lhs.data_ < rhs.data_;
-                                                });
+            return lhs.data_ < rhs.data_;
+        });
     }
 
 
@@ -519,7 +520,6 @@ checkers_opponent_move(CheckerBoard& board,
 class CheckersVictoryScene : public MacrocosmScene
 {
 public:
-
     void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
     {
         bool red_has_moves = false;
@@ -550,15 +550,14 @@ public:
         player_won_ = red_won or black_won;
 
         if (player_won_) {
-            auto str = format(SYSTR(checker_wins)->c_str(),
-                              black_won ? SYSTR(black)->c_str() :
-                              SYSTR(red)->c_str());
+            auto str =
+                format(SYSTR(checker_wins)->c_str(),
+                       black_won ? SYSTR(black)->c_str() : SYSTR(red)->c_str());
 
             u8 margin = centered_text_margins(pfrm, utf8::len(str.c_str()));
 
             text_.emplace(pfrm, str.c_str(), OverlayCoord{margin, 8});
         }
-
     }
 
 
@@ -573,9 +572,8 @@ public:
     {
         if (not player_won_) {
             return scene_pool::alloc<SelectorScene>();
-        } else if (not player_won_ or
-            player.key_down(pfrm, Key::action_1) or
-            player.key_down(pfrm, Key::action_2)) {
+        } else if (not player_won_ or player.key_down(pfrm, Key::action_1) or
+                   player.key_down(pfrm, Key::action_2)) {
 
             return scene_pool::alloc<CheckersModule>();
         }
@@ -592,11 +590,9 @@ public:
 class OpponentMoveCheckerScene : public MacrocosmScene
 {
 public:
-
     std::optional<Vec2<u8>> piece_;
 
-    OpponentMoveCheckerScene(std::optional<Vec2<u8>> piece = {}) :
-        piece_(piece)
+    OpponentMoveCheckerScene(std::optional<Vec2<u8>> piece = {}) : piece_(piece)
     {
     }
 
@@ -611,9 +607,7 @@ public:
         auto board = CheckerBoard::from_sector(sector);
 
         const bool first_move = not state.data_->checkers_ai_moved_;
-        auto result = checkers_opponent_move(board,
-                                             first_move,
-                                             piece_);
+        auto result = checkers_opponent_move(board, first_move, piece_);
 
         state.data_->checkers_ai_moved_ = true;
 
