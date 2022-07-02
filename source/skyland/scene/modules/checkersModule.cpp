@@ -60,7 +60,6 @@ void CheckersModule::init(Platform& pfrm, App& app)
     app.camera().emplace<macro::Camera>(pfrm);
 
     pfrm.load_background_texture("background_macro");
-    // pfrm.system_call("parallax-clouds", false);
 
     pfrm.load_sprite_texture("spritesheet_macro");
     pfrm.load_tile0_texture("macro_rendertexture");
