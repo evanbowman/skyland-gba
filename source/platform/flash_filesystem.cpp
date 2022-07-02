@@ -221,7 +221,9 @@ struct Record
 
     struct FileInfo
     {
-        // Currently unused.
+        // Crc of the file data. Maybe I should have included the FileInfo in
+        // the crc as well. But the file info contains the crc, so I skipped it
+        // at the time.
         u8 crc_;
 
         enum Flags0 {
@@ -360,14 +362,21 @@ InitStatus initialize(Platform& pfrm, u32 offset)
         pfrm.read_save_data(&r, sizeof r, offset);
 
         if (r.file_info_.name_length_ == 0xff) {
-            // uninitialized, as it holds the default flash erase value.
+            // Uninitialized, as it holds the default flash erase value.
+            // Uninitialzied name length indicates an unwritten record, i.e. the
+            // end of the sector.
             break;
         }
 
         u8 crc8 = 0;
-        for (int i = 0; i < r.file_info_.data_length_.get(); ++i) {
+        int read_size = r.file_info_.data_length_.get();
+        if (r.file_info_.flags_[0] & Record::FileInfo::Flags0::has_end_padding) {
+            // We included the trailing null byte in the crc.
+            ++read_size;
+        }
+        for (int i = 0; i < read_size; ++i) {
             u8 val;
-            const u32 off = offset + (sizeof r) + r.file_info_.name_length_;
+            const u32 off = i + offset + (sizeof r) + r.file_info_.name_length_;
             pfrm.read_save_data(&val, 1, off);
             crc8 = crc8_table[((u8)val) ^ crc8];
         }
@@ -376,7 +385,13 @@ InitStatus initialize(Platform& pfrm, u32 offset)
             // A record has an invalid crc. We'll try to reformat the filesystem
             // and maybe it'll be fixed. I don't know how this can even happen
             // in the first place.
-            info(pfrm, "bad crc!");
+            // NOTE: The filesystem library should not corrupt memory in this
+            // way. But the filesystem data blob should be considered an
+            // external input to the program and checked for all classes of
+            // errors.
+            info(pfrm, format("bad crc! expected: %, got: %",
+                              r.file_info_.crc_,
+                              crc8));
             reformat = true;
             break;
         }
@@ -734,6 +749,7 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
         crc8 = crc8_table[((u8)c) ^ crc8];
     }
 
+    // info(pfrm, format("calculated crc %", crc8));
 
     auto off = end_offset;
     static_assert(sizeof(Record) == sizeof(Record::FileInfo) + 2);
@@ -841,6 +857,7 @@ int main()
 
     flash_filesystem::initialize(pfrm, 8);
 
+    std::cout << "initial walk: " << std::endl;
     flash_filesystem::walk(
         pfrm, [](const char* name) { std::cout << name << std::endl; });
 

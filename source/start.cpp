@@ -40,6 +40,29 @@ static inline void main_loop(Platform& pf)
 {
     BootScene::init(pf);
 
+
+    BootScene::message(pf, "mount flash filesystem...");
+
+    auto stat = flash_filesystem::initialize(pf, 8);
+    if (stat == flash_filesystem::InitStatus::initialized) {
+        const char* user_init_file = ";;;\n"
+                                     ";;; init.lisp\n"
+                                     ";;;\n"
+                                     ";;; The game will run this\n"
+                                     ";;; script upon entering\n"
+                                     ";;; a game session.\n"
+                                     ";;; Create scripts in the\n"
+                                     ";;; mods dir, and load them\n"
+                                     ";;; here.\n"
+                                     ";;;\n"
+                                     "\n(key-bind \"du\" 'repl)\n"
+                                     "(port 1)\n";
+
+        flash_filesystem::store_file_data(
+            pf, "/mods/init.lisp", user_init_file, str_len(user_init_file));
+    }
+
+
     BootScene::message(pf, "init memory pools...");
 
     globals().emplace<SkylandGlobalData>();
@@ -68,26 +91,5 @@ static inline void main_loop(Platform& pf)
 
 void start(Platform& pfrm)
 {
-    auto stat = flash_filesystem::initialize(pfrm, 8);
-
-
-    if (stat == flash_filesystem::InitStatus::initialized) {
-        const char* user_init_file = ";;;\n"
-                                     ";;; init.lisp\n"
-                                     ";;;\n"
-                                     ";;; The game will run this\n"
-                                     ";;; script upon entering\n"
-                                     ";;; a game session.\n"
-                                     ";;; Create scripts in the\n"
-                                     ";;; mods dir, and load them\n"
-                                     ";;; here.\n"
-                                     ";;;\n"
-                                     "\n(key-bind \"du\" 'repl)\n"
-                                     "(port 1)\n";
-
-        flash_filesystem::store_file_data(
-            pfrm, "/mods/init.lisp", user_init_file, str_len(user_init_file));
-    }
-
     return skyland::main_loop(pfrm);
 }

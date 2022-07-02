@@ -54,7 +54,7 @@ public:
     {
         Vector<u8> out;
 
-        for (int z = 0; z < 8; ++z) {
+        for (int z = 0; z < 9; ++z) {
             for (int x = 0; x < 10; ++x) {
                 for (int y = 0; y < 10; ++y) {
                     out.push_back(blocks_[z][x][y].type_);
@@ -115,7 +115,7 @@ public:
                 info(pfrm, "read invalid save format");
             }
 
-            for (u8 z = 0; z < 8; ++z) {
+            for (u8 z = 0; z < 9; ++z) {
                 for (u8 x = 0; x < 10; ++x) {
                     for (u8 y = 0; y < 10; ++y) {
                         blocks_[z][x][y].type_ = *it;
