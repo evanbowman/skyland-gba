@@ -573,7 +573,7 @@ static void compact(Platform& pfrm)
 
     flush();
 
-    end_offset = start_align + data.size();
+    end_offset = write_offset;
     gap_space = 0;
 
     Root root;
