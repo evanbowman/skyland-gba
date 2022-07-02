@@ -74,9 +74,8 @@ public:
 
     bool write_save_data(const void* data, u32 data_length, u32 offset)
     {
-        std::cout << "write size " << data_length << std::endl;
-
         if (offset % 2 not_eq 0 or data_length % 2 not_eq 0) {
+            std::cout << "write size " << data_length << std::endl;
             std::cout << "bad flash write alignment" << std::endl;
         }
 
@@ -319,6 +318,10 @@ static void init_root(Platform& pfrm, Root& root)
 
 
 
+static void compact(Platform& pfrm);
+
+
+
 InitStatus initialize(Platform& pfrm, u32 offset)
 {
     if (offset % 2 not_eq 0) {
@@ -344,6 +347,9 @@ InitStatus initialize(Platform& pfrm, u32 offset)
 
     offset += sizeof(Root);
 
+    bool reformat = false;
+
+
     while (true) {
 
         if (offset % 2 not_eq 0) {
@@ -358,6 +364,23 @@ InitStatus initialize(Platform& pfrm, u32 offset)
             break;
         }
 
+        u8 crc8 = 0;
+        for (int i = 0; i < r.file_info_.data_length_.get(); ++i) {
+            u8 val;
+            const u32 off = offset + (sizeof r) + r.file_info_.name_length_;
+            pfrm.read_save_data(&val, 1, off);
+            crc8 = crc8_table[((u8)val) ^ crc8];
+        }
+
+        if (crc8 not_eq r.file_info_.crc_) {
+            // A record has an invalid crc. We'll try to reformat the filesystem
+            // and maybe it'll be fixed. I don't know how this can even happen
+            // in the first place.
+            info(pfrm, "bad crc!");
+            reformat = true;
+            break;
+        }
+
         if (r.invalidate_.get() not_eq Record::InvalidateStatus::valid) {
             gap_space += r.full_size();
         }
@@ -365,6 +388,25 @@ InitStatus initialize(Platform& pfrm, u32 offset)
         offset += r.full_size();
     }
     end_offset = offset;
+
+    // Now... we want to scan the rest of the unused portion of the flash
+    // filesystem. If any byte is not 0xff, the bit must have been flipped
+    // somehow, by, idk, cosmic radiation or something. A successive write to an
+    // address in some flash controllers will brick the system, so we want to
+    // erase and rewrite the sector in this case.
+    for (int i = end_offset; i < pfrm.save_capacity(); ++i) {
+        u8 val = 0;
+        pfrm.read_save_data(&val, 1, i);
+        if (val not_eq 0xff) {
+            info(pfrm, "trailing bits unexpectedly flipped!?");
+            reformat = true;
+            break;
+        }
+    }
+
+    if (reformat) {
+        compact(pfrm);
+    }
 
     __path_cache_create(pfrm);
 
