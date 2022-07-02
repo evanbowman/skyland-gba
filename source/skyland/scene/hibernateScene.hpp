@@ -55,9 +55,7 @@ public:
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override
     {
-        timer_ += delta;
-
-        if (timer_ > seconds(6)) {
+        if (key_down<Key::action_1>(pfrm)) {
             text_.reset();
             pfrm.screen().display();
             info(pfrm, "enter hibernate...");
@@ -72,7 +70,6 @@ public:
 
 private:
     std::optional<TextView> text_;
-    Microseconds timer_ = 0;
 };
 
 
