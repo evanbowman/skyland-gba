@@ -374,8 +374,8 @@ void walk(Platform& pfrm, Function<32, void(const char*)> callback)
 
         offset += sizeof r;
 
-        char file_name[FS_MAX_PATH + 1];
-        memset(file_name, 0, FS_MAX_PATH + 1);
+        char file_name[256];
+        memset(file_name, 0, 256);
 
         pfrm.read_save_data(&file_name, r.file_info_.name_length_, offset);
 
@@ -417,8 +417,8 @@ int find_file(Platform& pfrm, const char* path, Record& result)
 
         offset += sizeof r;
 
-        char file_name[FS_MAX_PATH + 1];
-        memset(file_name, 0, FS_MAX_PATH + 1);
+        char file_name[256];
+        memset(file_name, 0, 256);
 
         pfrm.read_save_data(&file_name, r.file_info_.name_length_, offset);
 
@@ -505,8 +505,8 @@ static void compact(Platform& pfrm)
 
         offset += sizeof r;
 
-        char file_name[FS_MAX_PATH + 1];
-        memset(file_name, 0, FS_MAX_PATH + 1);
+        char file_name[256];
+        memset(file_name, 0, 256);
 
         pfrm.read_save_data(&file_name, r.file_info_.name_length_, offset);
 
@@ -691,8 +691,8 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
     }
     off += sizeof info;
 
-    char file_name[FS_MAX_PATH + 1];
-    memset(file_name, 0, FS_MAX_PATH + 1);
+    char file_name[256];
+    memset(file_name, 0, 256);
     memcpy(file_name, path, path_len);
 
     if (not pfrm.write_save_data(file_name, path_total, off)) {
