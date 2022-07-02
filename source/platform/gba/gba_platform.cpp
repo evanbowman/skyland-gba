@@ -6831,10 +6831,7 @@ Platform::Platform()
         keyboard().pressed<Key::action_1>() and
         keyboard().pressed<Key::select>()) {
 
-        // Just in case something gets messed up.
-        if (bootleg_flash_type) {
-            erase_save_sector();
-        }
+        erase_save_sector();
     }
 }
 
