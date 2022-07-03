@@ -225,6 +225,8 @@ struct Tile
         crane_4,
         crane_5,
         crane_6,
+        annihilator_1,
+        annihilator_2,
     };
 };
 
@@ -421,6 +423,8 @@ struct InteriorTile
         crane_4,
         crane_5,
         crane_6,
+        annihilator_1,
+        annihilator_2,
     };
 };
 

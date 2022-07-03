@@ -23,6 +23,7 @@
 #include "room_metatable.hpp"
 
 #include "roomPluginInfo.hpp"
+#include "skyland/rooms/annihilator.hpp"
 #include "skyland/rooms/arcGun.hpp"
 #include "skyland/rooms/bananaPlant.hpp"
 #include "skyland/rooms/barrier.hpp"
@@ -284,6 +285,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Nemesis,
                                         FireCharge,
                                         Decimator,
+                                        Annihilator,
                                         // Pummeler,
                                         MissileSilo,
                                         RocketSilo,

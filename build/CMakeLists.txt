@@ -260,6 +260,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/bronzeHull.cpp
   ${SOURCE_DIR}/skyland/rooms/mirrorHull.cpp
   ${SOURCE_DIR}/skyland/rooms/rocketSilo.cpp
+  ${SOURCE_DIR}/skyland/rooms/annihilator.cpp
   ${SOURCE_DIR}/skyland/rooms/poweredHull.cpp
   ${SOURCE_DIR}/skyland/rooms/stackedHull.cpp
   ${SOURCE_DIR}/skyland/rooms/manufactory.cpp
@@ -277,6 +278,7 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/entity/projectile/missile.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/cannonball.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/projectile.cpp
+  ${SOURCE_DIR}/skyland/entity/projectile/antimatter.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/fireBolt.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/nemesisBlast.cpp
   ${SOURCE_DIR}/skyland/entity/projectile/arcBolt.cpp

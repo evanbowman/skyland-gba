@@ -26,6 +26,7 @@
 #include "skyland/entity/birds/genericBird.hpp"
 #include "skyland/entity/drones/droneMeta.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
+#include "skyland/entity/projectile/antimatter.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/entity/projectile/cannonball.hpp"
 #include "skyland/entity/projectile/decimatorBurst.hpp"
@@ -637,6 +638,26 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
             auto e = (time_stream::event::OpponentIonBurstDestroyed*)end;
             respawn_basic_projectile<IonBurst>(
                 pfrm, app, app.opponent_island(), *e, medium_explosion_inv);
+            app.time_stream().pop(sizeof *e);
+            app.camera()->shake(8);
+            break;
+        }
+
+
+        case time_stream::event::Type::player_antimatter_destroyed: {
+            auto e = (time_stream::event::PlayerAntimatterDestroyed*)end;
+            respawn_basic_projectile<Antimatter>(
+                pfrm, app, &app.player_island(), *e, medium_explosion_inv);
+            app.time_stream().pop(sizeof *e);
+            app.camera()->shake(8);
+            break;
+        }
+
+
+        case time_stream::event::Type::opponent_antimatter_destroyed: {
+            auto e = (time_stream::event::OpponentAntimatterDestroyed*)end;
+            respawn_basic_projectile<Antimatter>(
+                pfrm, app, &app.player_island(), *e, medium_explosion_inv);
             app.time_stream().pop(sizeof *e);
             app.camera()->shake(8);
             break;

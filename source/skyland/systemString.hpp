@@ -59,6 +59,7 @@ enum class SystemString {
     mt_waiting,
 
     block_air,
+    block_annihilator,
     block_arcgun,
     block_arch,
     block_banana_plant,
@@ -253,6 +254,7 @@ enum class SystemString {
     macro_pillar,
 
 
+    description_annihilator,
     description_crane,
     description_power_core,
     description_solar_cell,

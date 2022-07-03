@@ -370,7 +370,8 @@ InitStatus initialize(Platform& pfrm, u32 offset)
 
         u8 crc8 = 0;
         int read_size = r.file_info_.data_length_.get();
-        if (r.file_info_.flags_[0] & Record::FileInfo::Flags0::has_end_padding) {
+        if (r.file_info_.flags_[0] &
+            Record::FileInfo::Flags0::has_end_padding) {
             // We included the trailing null byte in the crc.
             ++read_size;
         }
@@ -389,9 +390,9 @@ InitStatus initialize(Platform& pfrm, u32 offset)
             // way. But the filesystem data blob should be considered an
             // external input to the program and checked for all classes of
             // errors.
-            info(pfrm, format("bad crc! expected: %, got: %",
-                              r.file_info_.crc_,
-                              crc8));
+            info(pfrm,
+                 format(
+                     "bad crc! expected: %, got: %", r.file_info_.crc_, crc8));
             reformat = true;
             break;
         }

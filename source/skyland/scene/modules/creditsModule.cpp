@@ -91,7 +91,7 @@ static const char* const page_2_lines[] = {"-- Music --",
 
 static const char* const page_3_lines[] = {"-- Music (Contd.) --",
                                            "",
-                                           "\x12 Struttin (sample) \x12",
+                                           "\x12 Struttin With Some BBQ \x12",
                                            "Louis Armstrong",
                                            "",
                                            "\x12 Interface Sounds \x12",

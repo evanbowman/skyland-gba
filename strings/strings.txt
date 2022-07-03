@@ -13,6 +13,7 @@ coins
 terrain size
 Waiting for other player...
 air
+annihilator
 arc-gun
 arch
 banana-plant
@@ -188,6 +189,7 @@ total happiness
 cube
 wide
 pillar
+...
 Dredging crane, salvage scrap from the flooded world below!
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
 Energy from the sun! Power output reduced by 1/4 for each block directly above the solar-cell.
