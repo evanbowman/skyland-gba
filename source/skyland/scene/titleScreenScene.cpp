@@ -516,7 +516,7 @@ void TitleScreenScene::play_gust_sound(Platform& pfrm)
 
 
 
-static const int faded_music_volume = 6;
+static const int faded_music_volume = 5;
 
 
 
