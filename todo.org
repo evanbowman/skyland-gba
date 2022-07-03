@@ -1,10 +1,15 @@
 
 * July 2022
-** Add CRC to flash filesystem
+** DONE Add CRC to flash filesystem
 *** Upon startup, calculate CRC for each loaded file
 **** If not matching, then give up loading files and reformat disk
 **** See whether adjustments to CRC allows loading the corrupted sample data
-** Write lots of unit tests!
+** TODO Write lots of unit tests for flash fs!
+** TODO Add new type of ion weapon?
+*** Extra-strong against forcefields?
+*** Causes forcefields to explode on contact
+**** Would need to be a reward for completing the challenge levels, as it would make them too easy
+
 * June 2022
 ** DONE Crane Minigame
 *** Add add code for seafloor depth
