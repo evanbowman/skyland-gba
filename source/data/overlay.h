@@ -3,13 +3,13 @@
 
 //======================================================================
 //
-//	overlay, 26944x8@4, 
+//	overlay, 27072x8@4, 
 //	Transparent color : FF,00,FF
 //	+ palette 256 entries, not compressed
-//	+ 3368 tiles not compressed
-//	Total size: 512 + 107776 = 108288
+//	+ 3384 tiles not compressed
+//	Total size: 512 + 108288 = 108800
 //
-//	Time-stamp: 2022-06-28, 13:53:40
+//	Time-stamp: 2022-07-03, 09:10:31
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,8 +18,8 @@
 #ifndef GRIT_OVERLAY_H
 #define GRIT_OVERLAY_H
 
-#define overlayTilesLen 107776
-extern const unsigned int overlayTiles[26944];
+#define overlayTilesLen 108288
+extern const unsigned int overlayTiles[27072];
 
 #define overlayPalLen 512
 extern const unsigned short overlayPal[256];

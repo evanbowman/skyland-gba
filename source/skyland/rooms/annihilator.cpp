@@ -42,6 +42,7 @@ extern Sound ion_cannon_sound;
 
 void Annihilator::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
+    buffer = SYSTR(description_annihilator)->c_str();
 }
 
 

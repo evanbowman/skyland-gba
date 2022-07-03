@@ -214,8 +214,8 @@ void Antimatter::on_collision(Platform& pfrm, App& app, Room& room)
                     continue;
                 }
 
-                auto pos =
-                    RoomCoord{u8(room.position().x + x), u8(room.position().y + y)};
+                auto pos = RoomCoord{u8(room.position().x + x),
+                                     u8(room.position().y + y)};
 
                 if (auto other = room.parent()->get_room(pos)) {
                     bool found = false;
