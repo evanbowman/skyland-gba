@@ -85,7 +85,7 @@ public:
 
     static Float ai_base_weight()
     {
-        return 800.f;
+        return 1200.f;
     }
 
 
@@ -99,7 +99,8 @@ public:
     {
         return RoomProperties::workshop_required | RoomProperties::roof_hidden |
                RoomProperties::disabled_in_tutorials |
-               RoomProperties::manufactory_required;
+               RoomProperties::manufactory_required |
+               RoomProperties::locked_by_default;
     }
 
 

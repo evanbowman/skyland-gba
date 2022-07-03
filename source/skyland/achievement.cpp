@@ -265,7 +265,7 @@ static const AchievementInfo info[Achievement::count] = {
 
     {SystemString::achievement_completionist_name,
      SystemString::achievement_completionist_description,
-     "gold",
+     "annihilator",
      [](Platform&, App& app) {
          auto bc = count_ones(app.gp_.challenge_flags_.get());
          if (bc < challenge_count) {
@@ -291,7 +291,7 @@ static const AchievementInfo info[Achievement::count] = {
 
     {SystemString::achievement_primitive_name,
      SystemString::achievement_primitive_description,
-     "sticky-piston",
+     "gold",
      [](Platform&, App& app) {
          return app.zone() > 3 and
                 not(app.persistent_data().state_flags_.get() &

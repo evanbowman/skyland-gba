@@ -42,7 +42,6 @@ public:
     {
     }
 
-
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
     {
         buffer += SYSTR(description_gold)->c_str();
@@ -63,7 +62,7 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return Decoration::properties();
+        return (Decoration::properties() & ~RoomProperties::locked_by_default);
     }
 
 
