@@ -48,6 +48,7 @@ ScenePtr<Scene> AchievementNotificationScene::update(Platform& pfrm,
         if (skip_fade_ or timer_ > fade_duration) {
             pfrm.screen().schedule_fade(0.5f);
             timer_ = 0;
+            pfrm.speaker().play_sound("click_digital_1", 1);
             state_ = State::animate_box_sweep;
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

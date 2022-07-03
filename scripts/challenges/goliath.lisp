@@ -20,6 +20,7 @@
  '((power-core 1 13)
    (workshop 1 11)))
 
+(flag-show (player))
 
 (chr-new (player) 1 14 'neutral 0)
 (chr-new (player) 2 14 'neutral 0)

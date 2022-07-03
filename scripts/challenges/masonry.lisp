@@ -45,6 +45,8 @@
  '((power-core 1 13)
    (workshop 3 13)))
 
+(flag-show (player))
+
 
 (coins-add 9000)
 

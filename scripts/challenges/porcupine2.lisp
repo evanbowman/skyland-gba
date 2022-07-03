@@ -25,6 +25,9 @@
   (setq on-dialog-declined (lambda '())))
 
 
+(flag-show (player))
+
+
 (opponent-init 12 'hostile)
 
 (island-configure

@@ -36,6 +36,7 @@
    (workshop 1 11)
    (radar 5 13)))
 
+(flag-show (player))
 
 (chr-new (player) 2 14 'neutral 0)
 
