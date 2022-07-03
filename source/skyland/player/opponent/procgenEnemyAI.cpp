@@ -708,9 +708,12 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
         int player_missile_count = 0;
         int player_cannon_count = 0;
         int player_ion_cannon_count = 0;
+        int player_annihilator_count = 0;
         for (auto& room : app.player_island().rooms()) {
             if ((*room->metaclass())->category() == Room::Category::weapon) {
-                if (str_eq(room->name(), "missile-silo") or
+                if (str_eq(room->name(), "annihilator")) {
+                    ++player_annihilator_count;
+                } else if (str_eq(room->name(), "missile-silo") or
                     str_eq(room->name(), "rocket-bomb")) {
                     ++player_missile_count;
                 } else if (str_eq(room->name(), "ion-cannon")) {
@@ -768,13 +771,14 @@ void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
                                 str_eq(room->name(), "rocket-bomb") or
                                 str_eq(room->name(), "drone-bay")) {
                                 if (opponent_missile_count >
-                                    player_missile_count) {
+                                    player_missile_count or
+                                    player_annihilator_count) {
                                     weight += 150.f;
                                 } else {
                                     weight += 100.f;
                                 }
                             } else if (str_eq(room->name(), "drone-bay")) {
-                                if (player_missile_count) {
+                                if (player_missile_count or player_annihilator_count) {
                                     weight += 110.f;
                                 }
                             }
