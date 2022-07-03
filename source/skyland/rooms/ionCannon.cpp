@@ -26,6 +26,7 @@
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -37,6 +38,10 @@ namespace skyland
 
 extern SharedVariable ion_burst_damage;
 SHARED_VARIABLE(ion_cannon_reload_ms);
+
+
+
+Sound ion_cannon_sound("ion_cannon");
 
 
 
@@ -89,6 +94,8 @@ void IonCannon::fire(Platform& pfrm, App& app)
         app.game_mode() not_eq App::GameMode::tutorial) {
         target = rng::sample<6>(target, rng::critical_state);
     }
+
+    ion_cannon_sound.play(pfrm, 3);
 
     auto c =
         app.alloc_entity<IonBurst>(pfrm, start, target, parent(), position());

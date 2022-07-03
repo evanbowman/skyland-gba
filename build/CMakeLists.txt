@@ -381,6 +381,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/music_sb_solecism.s
     ${DATA_DIR}/music_struttin.s
     ${DATA_DIR}/shadows.s
+    ${DATA_DIR}/sound_ion_cannon.s
     ${DATA_DIR}/sound_pong_blip1.s
     ${DATA_DIR}/sound_pong_blip2.s
     ${DATA_DIR}/sound_msg.s

@@ -3363,6 +3363,7 @@ static const AudioTrack* find_music(const char* name)
 // assembly output, adding the file to CMake, adding the include, and adding the
 // sound to the sounds array, it's just too tedious to keep working this way...
 #include "data/music_struttin.hpp"
+#include "data/sound_ion_cannon.hpp"
 #include "data/sound_beep_error.hpp"
 #include "data/sound_bell.hpp"
 #include "data/sound_build0.hpp"
@@ -3418,6 +3419,7 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(footstep1, sound_footstep1),
     DEF_SOUND(footstep2, sound_footstep2),
     DEF_SOUND(footstep3, sound_footstep3),
+    DEF_SOUND(ion_cannon, sound_ion_cannon),
     DEF_SOUND(gust1, sound_gust),
     DEF_SOUND(gust2, sound_gust2),
     DEF_SOUND(openbook, sound_open_book),
