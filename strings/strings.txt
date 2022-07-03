@@ -189,7 +189,7 @@ total happiness
 cube
 wide
 pillar
-...
+Emits weak antimatter pulses that explode when colliding with forcefields.
 Dredging crane, salvage scrap from the flooded world below!
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
 Energy from the sun! Power output reduced by 1/4 for each block directly above the solar-cell.
