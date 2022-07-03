@@ -170,10 +170,22 @@ void Antimatter::on_collision(Platform& pfrm, App& app, Room& room)
         return;
     }
 
-    if (str_eq(room.name(), "forcefield") or
-        str_eq(room.name(), "forcefield*")) {
+    const bool is_energized_hull = str_eq(room.name(), "energized-hull");
 
-        room.apply_damage(pfrm, app, 9999);
+    if (str_eq(room.name(), "forcefield") or
+        str_eq(room.name(), "forcefield*") or
+        is_energized_hull) {
+
+        int range = 2;
+
+
+        if (is_energized_hull) {
+            room.apply_damage(pfrm, app, 70);
+            range = 1;
+        } else {
+            room.apply_damage(pfrm, app, 9999);
+        }
+
 
         auto flak_smoke =
             [](Platform& pfrm, App& app, const Vec2<Fixnum>& pos) {
@@ -202,8 +214,6 @@ void Antimatter::on_collision(Platform& pfrm, App& app, Room& room)
 
         auto targets =
             allocate_dynamic<Buffer<Room*, 300>>("antimatter-target-buffer");
-
-        const int range = 2;
 
         static const Health damage = 58;
 
