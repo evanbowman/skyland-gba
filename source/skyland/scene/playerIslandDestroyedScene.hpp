@@ -105,6 +105,8 @@ private:
 
     bool options_allowed_ = true;
 
+    bool fastforward_ = false;
+
     std::optional<DynamicMemory<ConfettiBuffer>> confetti_;
 
     void show_stats(Platform&, App&);

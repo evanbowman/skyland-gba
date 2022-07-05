@@ -448,11 +448,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = seconds(3) + milliseconds(500);
 
         if (app.player().key_pressed(pfrm, Key::action_1) or
-            app.player().key_pressed(pfrm, Key::action_2)) {
+            app.player().key_pressed(pfrm, Key::action_2) or
+            fastforward_) {
             // We already added the delta to the timer. Add again if player is
             // pressing A or B, because he's impatient and wants to skip past
             // the death sequence.
             timer_ += delta;
+            fastforward_ = true;
         }
 
         sink_speed_ += 0.0000013f;
@@ -475,8 +477,10 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case AnimState::wait_1: {
         if (app.player().key_pressed(pfrm, Key::action_1) or
-            app.player().key_pressed(pfrm, Key::action_2)) {
+            app.player().key_pressed(pfrm, Key::action_2) or
+            fastforward_) {
             timer_ += delta;
+            fastforward_ = true;
         }
 
         if (timer_ > milliseconds(120)) {
@@ -592,6 +596,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     case AnimState::fade_out: {
         coins_.reset();
         power_.reset();
+
+        if (app.player().key_pressed(pfrm, Key::action_1) or
+            app.player().key_pressed(pfrm, Key::action_2) or
+            fastforward_) {
+            timer_ += delta;
+            fastforward_ = true;
+        }
 
         if (timer_ - delta < milliseconds(600) and timer_ > milliseconds(600)) {
             pfrm.load_overlay_texture("overlay_island_destroyed");
