@@ -511,6 +511,7 @@ enum class SystemString {
     checkers_ai_thinking,
     checkers_forced_jump,
     checker_wins,
+    checkers_jump_again,
 
     __NOTICE__,
     patchfix_retain_alphabet,

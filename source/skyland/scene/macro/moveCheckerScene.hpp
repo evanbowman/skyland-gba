@@ -668,14 +668,25 @@ public:
     }
 
 
+    std::optional<Text> text_;
+
+
     void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
     {
         refresh(state);
+
+        if (not cancellable_) {
+            text_.emplace(pfrm,
+                          SYSTR(checkers_jump_again)->c_str(),
+                          OverlayCoord{0, 19});
+        }
+
     }
 
 
     void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override
     {
+        text_.reset();
     }
 
 
