@@ -110,7 +110,7 @@ IntroCreditsScene::update(Platform& pfrm, App&, Microseconds delta)
 
         auto t = pfrm.screen().touch();
         if (timer_ > milliseconds(5500) or key_down<Key::action_2>(pfrm) or
-            t->up_transition()) {
+            (t and t->up_transition())) {
             text_.reset();
             copyright_text_.reset();
             pfrm.fill_overlay(0);

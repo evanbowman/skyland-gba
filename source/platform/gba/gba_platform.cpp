@@ -37,6 +37,7 @@
 
 #include "allocator.hpp"
 #include "bootleg_cart.hpp"
+#include "platform/conf.hpp"
 #include "containers/vector.hpp"
 #include "filesystem.hpp"
 #include "gbp_logo.hpp"
@@ -4056,10 +4057,6 @@ void Platform::walk_filesystem(
 
 
 
-static const bool use_optimized_waitstates = true;
-
-
-
 Platform::~Platform()
 {
     // ...
@@ -6603,28 +6600,41 @@ Platform::Platform()
 
     keyboard().poll();
 
-    // Check to see if we're running with a bootleg cart.
-    bootleg_flash_type = bootleg_get_flash_type();
-    switch (bootleg_flash_type) {
-    case 1:
-    case 2:
-    case 3:
-        info(*this,
-             format("Repro cart detected! (type %)", bootleg_flash_type));
+    Conf conf(*this);
 
-        // These bootleg flashcarts place save data in flash memory alongside
-        // the ROM. Kind of a dumb idea, but some of these things retail at $2,
-        // I'm guessing the manufacturers are trying to cut costs on the sram
-        // battery. The carts still use SRAM, and data persisted to flash needs
-        // to be copied back to sram at startup.
-        bootleg_cart_init_sram(*this);
-        break;
+#define CONF_BOOL(NAME)                                                 \
+    const bool NAME = conf.expect<Conf::String>("hardware.gameboy_advance", \
+                                                #NAME) == "yes";
 
-    default:
+    CONF_BOOL(detect_repro_flash);
+
+    if (detect_repro_flash) {
+        // Check to see if we're running with a bootleg cart.
+        bootleg_flash_type = bootleg_get_flash_type();
+        switch (bootleg_flash_type) {
+        case 1:
+        case 2:
+        case 3:
+            info(*this,
+                 format("Repro cart detected! (type %)", bootleg_flash_type));
+
+            // These bootleg flashcarts place save data in flash memory
+            // alongside the ROM. Kind of a dumb idea, but some of these things
+            // retail at $2, I'm guessing the manufacturers are trying to cut
+            // costs on the sram battery. The carts still use SRAM, and data
+            // persisted to flash needs to be copied back to sram at startup.
+            bootleg_cart_init_sram(*this);
+            break;
+
+        default:
+            bootleg_flash_type = 0;
+            // NOT DETECTED
+            break;
+        }
+    } else {
         bootleg_flash_type = 0;
-        // NOT DETECTED
-        break;
     }
+
 
 
     // Not sure how else to determine whether the cartridge has sram, flash, or
@@ -6682,21 +6692,6 @@ Platform::Platform()
         break;
     }
 
-    // NOTE: Non-sequential 8 and sequential 3 seem to work well for Cart 0 wait
-    // states, although setting these options unmasks a few obscure audio bugs,
-    // the game displays visibly less tearing. The cartridge prefetch unmasks
-    // even more aggressive audio bugs, and doesn't seem to grant obvious
-    // performance benefits, so I'm leaving the cartridge prefetch turned off...
-    if (use_optimized_waitstates) {
-        // Although there is less tearing when running with optimized
-        // waitstates, I actually prefer the feature turned off. I really tuned
-        // the feel of the controls before I knew about waitstates, and
-        // something just feels off to me when turning this feature on. The game
-        // is almost too smooth.
-        REG_WAITCNT = 0b0000001100010111;
-        info(*this, "enabled optimized waitstates...");
-    }
-
     // NOTE: initializing the system clock is easier before interrupts are
     // enabled, because the system clock pulls data from the gpio port on the
     // cartridge.
@@ -6720,7 +6715,8 @@ Platform::Platform()
 
     irqSet(IRQ_VBLANK, vblank_isr);
 
-    if (unlock_gameboy_player(*this)) {
+    CONF_BOOL(detect_gbp);
+    if (detect_gbp and unlock_gameboy_player(*this)) {
         info(*this, "gameboy player unlocked!");
 
         set_gflag(GlobalFlag::gbp_unlocked, true);
@@ -6801,6 +6797,23 @@ Platform::Platform()
     if (not filesystem::is_mounted()) {
         keyboard_.poll();
         fatal("resource bundle missing");
+    }
+
+    CONF_BOOL(fast_waitstates)
+
+    // NOTE: Non-sequential 8 and sequential 3 seem to work well for Cart 0 wait
+    // states, although setting these options unmasks a few obscure audio bugs,
+    // the game displays visibly less tearing. The cartridge prefetch unmasks
+    // even more aggressive audio bugs, and doesn't seem to grant obvious
+    // performance benefits, so I'm leaving the cartridge prefetch turned off...
+    if (fast_waitstates) {
+        // Although there is less tearing when running with optimized
+        // waitstates, I actually prefer the feature turned off. I really tuned
+        // the feel of the controls before I knew about waitstates, and
+        // something just feels off to me when turning this feature on. The game
+        // is almost too smooth.
+        REG_WAITCNT = 0b0000001100010111;
+        info(*this, "enabled optimized waitstates...");
     }
 
     if (not rtc_verify_operability(tm1, *this)) {

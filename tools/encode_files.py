@@ -63,6 +63,7 @@ with open('fs.bin', 'wb') as filesystem:
     collect_paths(files_list, "tools")
 
     files_list.append(["/readme.txt", os.path.join(project_root_path, "readme.txt")])
+    files_list.append(["/boot.ini", os.path.join(project_root_path, "boot.ini")])
 
     fs_count = len(files_list)
     print("encoding %d files..." % fs_count)
