@@ -38,6 +38,9 @@ namespace skyland
 
 static inline void main_loop(Platform& pf)
 {
+    systemstring_bind_file("strings.txt");
+
+
     BootScene::init(pf);
 
 

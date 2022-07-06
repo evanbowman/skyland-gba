@@ -44,6 +44,18 @@ static std::optional<DynamicMemory<IndexCache>> index_cache;
 
 
 
+static StringBuffer<48> lang_file;
+
+
+
+void systemstring_bind_file(const char* path)
+{
+    lang_file = path;
+    systemstring_drop_index_cache();
+}
+
+
+
 void systemstring_drop_index_cache()
 {
     index_cache.reset();
@@ -66,10 +78,7 @@ SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
 
     auto result = allocate_dynamic<StringBuffer<1900>>("system-string");
 
-
-    const char* file = "strings.txt";
-
-    if (auto data = pfrm.load_file_contents("strings", file)) {
+    if (auto data = pfrm.load_file_contents("strings", lang_file.c_str())) {
         const char* const data_start = data;
 
         if ((*index_cache)->file_offset_[(int)str]) {
@@ -110,7 +119,8 @@ SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
         return result;
 
     } else {
-        Platform::fatal(format("missing language file %", file).c_str());
+        Platform::fatal(format("missing language file %",
+                               lang_file.c_str()).c_str());
     }
 }
 
