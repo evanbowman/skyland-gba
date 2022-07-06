@@ -44,7 +44,7 @@ static std::optional<DynamicMemory<IndexCache>> index_cache;
 
 
 
-static StringBuffer<48> lang_file;
+static StringBuffer<32> lang_file;
 
 
 
