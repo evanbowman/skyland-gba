@@ -6,7 +6,6 @@
 
 
 // FIXME: I think bootleg carts actually support up to 64 * 1024 bytes of sram.
-#define BOOTLEG_SRAM_SIZE 32 * 1024
 #define BOOTLEG_SRAM ((u8*)0xE000000)
 
 
@@ -321,7 +320,7 @@ bool bootleg_flash_writeback(BootlegFlashType flash_type,
 
 
 extern char __rom_end__;
-
+extern int save_capacity;
 
 
 static void bytecopy(u8* dest, u8* src, u32 size)
@@ -369,7 +368,7 @@ void bootleg_cart_init_sram(Platform& pfrm)
     }
 
     // Finally, restore the SRAM data and proceed.
-    bytecopy(BOOTLEG_SRAM, ((u8*)AGB_ROM + flash_sram_area), BOOTLEG_SRAM_SIZE);
+    bytecopy(BOOTLEG_SRAM, ((u8*)AGB_ROM + flash_sram_area), save_capacity);
 
     info(pfrm, "Restored SRAM from repro flash.");
 }

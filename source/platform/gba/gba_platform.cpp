@@ -6602,8 +6602,10 @@ Platform::Platform()
 
     Conf conf(*this);
 
+    static const char* conf_section = "hardware.gameboy_advance";
+
 #define CONF_BOOL(NAME)                                                 \
-    const bool NAME = conf.expect<Conf::String>("hardware.gameboy_advance", \
+    const bool NAME = conf.expect<Conf::String>(conf_section, \
                                                 #NAME) == "yes";
 
     CONF_BOOL(detect_repro_flash);
@@ -6655,6 +6657,9 @@ Platform::Platform()
         info(*this, "SRAM write failed, falling back to FLASH");
 
         ::save_capacity = flash_capacity(*this);
+    } else {
+        ::save_capacity = conf.expect<Conf::Integer>(conf_section,
+                                                     "sram_capacity");
     }
 
     const auto stk_size = 32000 - (&__data_end__ - &__iwram_start__);
