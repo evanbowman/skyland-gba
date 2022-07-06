@@ -416,7 +416,8 @@ get_line_from_file(Platform& pfrm, const char* file_name, int line)
     if (auto contents = pfrm.load_file_contents("", file_name)) {
 
         while (line) {
-            while (*contents not_eq '\n') {
+            while (*contents not_eq '\n' and
+                   *contents not_eq '\r') {
                 if (*contents == '\0') {
                     return result;
                 }
@@ -1235,6 +1236,7 @@ static const lisp::Binding script_api[] = {
                                         lisp::get_op(0)->integer().value_);
 
          if (line) {
+             info(*lisp::interp_get_pfrm(), line->c_str());
              return lisp::make_string(line->c_str());
          }
 

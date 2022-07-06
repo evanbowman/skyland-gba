@@ -593,6 +593,26 @@ o----------------------------o
 
 o----------------------------o
 
+ (get-line-of-file path line)
+
+ Retrieve a string containing
+ a line of a file given by
+ integer line, and path to
+ file given by path.
+
+ Added for localization
+ purposes, currently unused.
+
+ for example:
+
+ (setq lang "/strings/english.txt")
+
+ (defn locale-string
+   (get-line-of-file lang $0))
+
+
+o----------------------------o
+
  (syscall string ...)
 
  Invoke a skyland engine

@@ -100,7 +100,9 @@ SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
 
         (*index_cache)->file_offset_[(int)str] = data - data_start;
 
-        while (*data not_eq '\0' and *data not_eq '\n') {
+        while (*data not_eq '\0' and
+               *data not_eq '\n' and
+               *data not_eq '\r') {
             result->push_back(*data);
             ++data;
         }

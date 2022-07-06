@@ -4036,6 +4036,9 @@ const char* Platform::load_file_contents(const char* folder,
     if (str_len(folder) > 0) {
         path += folder;
         path += "/";
+    } else if (*filename == '/') {
+        // Redundant beginning slash.
+        path.clear();
     }
 
     path += filename;
