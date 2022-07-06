@@ -3100,8 +3100,15 @@ void sram_save(const void* data, u32 offset, u32 length)
     // Supposedly, some bootleg carts require interrupts to be disabled while
     // saving, and the save code needs to run from IWRAM. Disable the sound chip
     // as well, to prevent stuttering.
-    REG_SNDDMGCNT &= ~(1 << 0xb);
-    REG_SNDDMGCNT &= ~(1 << 0xf);
+    //
+    // NOTE: I am highly skeptical that this code needs to be in iwram. No one
+    // has ever demonstrated an example of sram writes failing with interrupts
+    // enabled.
+    const bool sound_was_enabled = (REG_SOUNDCNT_X & 1 << 7);
+    if (sound_was_enabled) {
+        REG_SNDDMGCNT &= ~(1 << 0xb);
+        REG_SNDDMGCNT &= ~(1 << 0xf);
+    }
 
     u16 ime = REG_IME;
     REG_IME = 0;
@@ -3116,8 +3123,10 @@ void sram_save(const void* data, u32 offset, u32 length)
 
     REG_IME = ime;
 
-    REG_SOUNDCNT_H |= (1 << 9);
-    REG_SOUNDCNT_H |= (1 << 8);
+    if (sound_was_enabled) {
+        REG_SOUNDCNT_H |= (1 << 9);
+        REG_SOUNDCNT_H |= (1 << 8);
+    }
 }
 
 
@@ -6781,7 +6790,10 @@ Platform::Platform()
 
     fill_overlay(0);
 
-    ram_overclock();
+    CONF_BOOL(ewram_overclock);
+    if (ewram_overclock) {
+        ram_overclock();
+    }
 
     for (u32 i = 0; i < Screen::sprite_limit; ++i) {
         // This was a really insidious bug to track down! When failing to hide
@@ -6821,7 +6833,9 @@ Platform::Platform()
         info(*this, "enabled optimized waitstates...");
     }
 
-    if (not rtc_verify_operability(tm1, *this)) {
+    CONF_BOOL(detect_rtc);
+
+    if (detect_rtc and not rtc_verify_operability(tm1, *this)) {
         set_gflag(GlobalFlag::rtc_faulty, true);
         info(*this, "RTC chip appears either non-existant or non-functional");
     } else {
