@@ -4697,6 +4697,7 @@ void show_health_and_safety_message(Platform& pfrm)
             }
         }
 
+        missed_keys.reset();
         pfrm.keyboard().poll();
         bool exit = false;
         for (int i = 0; i < (int)Key::count; ++i) {
@@ -6728,6 +6729,11 @@ Platform::Platform()
     delta_clock().reset();
 
     irqSet(IRQ_VBLANK, vblank_isr);
+
+    CONF_BOOL(show_epilepsy_warning);
+    if (show_epilepsy_warning) {
+        show_health_and_safety_message(*this);
+    }
 
     CONF_BOOL(detect_gbp);
     if (detect_gbp and unlock_gameboy_player(*this)) {
