@@ -2,6 +2,7 @@
 #include "filesystem.hpp"
 #include "gba.h"
 #include "platform/platform.hpp"
+#include "platform/conf.hpp"
 
 
 
@@ -338,6 +339,10 @@ void bootleg_cart_init_sram(Platform& pfrm)
         u32(&__rom_end__ - 0x8000000) + filesystem::size();
     u32 flash_size = 0;
     flash_sram_area = 0;
+
+    Conf conf(pfrm);
+    flash_sram_area = conf.expect<Conf::Integer>("hardware.gameboy_advance",
+                                                 "repro_flash_save_address");
 
     info(pfrm, format("rom size: %kb", total_rom_size / 1000));
 
