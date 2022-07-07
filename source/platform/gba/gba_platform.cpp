@@ -168,7 +168,6 @@ enum class GlobalFlag {
     sound_startup_monkeypatch,
     key_poll_called,
     music_halfspeed_update,
-    sram_stale,
     count
 };
 
@@ -2931,9 +2930,9 @@ flash_byteverify(void* in_dst, const void* in_src, unsigned int length)
     for (; length > 0; length--) {
 
         if (*dst++ != *src++)
-            return true;
+            return false;
     }
-    return false;
+    return true;
 }
 
 
@@ -3147,8 +3146,6 @@ static BootlegFlashType bootleg_flash_type = 0;
 
 bool Platform::write_save_data(const void* data, u32 length, u32 offset)
 {
-    set_gflag(GlobalFlag::sram_stale, true);
-
     if (get_gflag(GlobalFlag::save_using_flash)) {
         return flash_save(data, offset, length);
     } else {
@@ -3183,10 +3180,20 @@ bool Platform::read_save_data(void* buffer, u32 data_length, u32 offset)
 
 void Platform::erase_save_sector()
 {
-    u8* save_mem = (u8*)0x0E000000;
-    // Simulate a flash erase.
-    for (int i = 0; i < ::save_capacity; ++i) {
-        save_mem[i] = 0xff;
+    if (not get_gflag(GlobalFlag::save_using_flash)) {
+        u8* save_mem = (u8*)0x0E000000;
+        // Simulate a flash erase.
+        for (int i = 0; i < ::save_capacity; ++i) {
+            save_mem[i] = 0xff;
+        }
+    } else {
+        FLASH_CMD(FLASH_CMD_ERASE);
+        FLASH_CMD(FLASH_CMD_ERASE_CHIP);
+
+        info(*this, "begin flash erase!");
+
+        // Wait for erase to complete.
+        while (*((volatile u8*)0x0E000000) not_eq 0xff) ;
     }
 
     if (bootleg_flash_type) {
@@ -6654,19 +6661,24 @@ Platform::Platform()
     // attempt to save, and if the save fails, assume flash. I don't really know
     // anything about the EEPROM hardware interface...
 
+    CONF_BOOL(detect_flash);
+    if (detect_flash) {
+        static const u32 sram_test_const = 0xAAAAAAAA;
+        sram_save(&sram_test_const, 0, sizeof sram_test_const);
 
-    static const u32 sram_test_const = 0xAAAAAAAA;
-    sram_save(&sram_test_const, 0, sizeof sram_test_const);
-
-    u32 sram_test_result = 0;
-    sram_load(&sram_test_result, 0, sizeof sram_test_result);
+        u32 sram_test_result = 0;
+        sram_load(&sram_test_result, 0, sizeof sram_test_result);
 
 
-    if (sram_test_result not_eq sram_test_const) {
-        set_gflag(GlobalFlag::save_using_flash, true);
-        info(*this, "SRAM write failed, falling back to FLASH");
+        if (sram_test_result not_eq sram_test_const) {
+            set_gflag(GlobalFlag::save_using_flash, true);
+            info(*this, "SRAM write failed, falling back to FLASH");
 
-        ::save_capacity = flash_capacity(*this);
+            ::save_capacity = flash_capacity(*this);
+        } else {
+            ::save_capacity = conf.expect<Conf::Integer>(conf_section,
+                                                         "sram_capacity");
+        }
     } else {
         ::save_capacity = conf.expect<Conf::Integer>(conf_section,
                                                      "sram_capacity");
