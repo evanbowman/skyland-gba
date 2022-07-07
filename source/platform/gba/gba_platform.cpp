@@ -3185,7 +3185,7 @@ void Platform::erase_save_sector()
 {
     u8* save_mem = (u8*)0x0E000000;
     // Simulate a flash erase.
-    for (int i = 0; i < 32000; ++i) {
+    for (int i = 0; i < ::save_capacity; ++i) {
         save_mem[i] = 0xff;
     }
 
