@@ -427,18 +427,18 @@ int main(int argc, char** argv)
 
     result.create(240, 240, bkg_color);
 
-    if (not texture.loadFromFile("../../images/macro_rendertexture.png")) {
+    if (argc not_eq 4) {
+        puts("usage: macro-rast <name> <texture_path> <base32-island-data-from-qr-code>");
+        return EXIT_FAILURE;
+    }
+
+    if (not texture.loadFromFile(argv[2])) {
         puts("failed to load macro texture!");
         return EXIT_FAILURE;
     }
 
-    if (argc not_eq 3) {
-        puts("usage: macro-rast <name> <base32-island-data-from-qr-code>");
-        return EXIT_FAILURE;
-    }
-
     auto out_name = argv[1];
-    auto arg = argv[2];
+    auto arg = argv[3];
     u8 decode_buffer[4096];
     int decoded = base32_decode((const u8*)arg, decode_buffer);
 
