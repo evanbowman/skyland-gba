@@ -5,7 +5,7 @@
 // At time of writing, I've worked on this game for a year, it's behind schedule
 // and over budget, and I just want to finish.
 //
-// g++ standalone_island_raster.cpp -std=c++17 -I../ -I../../external -o macro_rast
+// g++ standalone_island_raster.cpp -std=c++17 -I../ -I../../external -o macro_rast -lsfml-graphics
 //
 // This file produces a commandline tool that accepts data extracted from a
 // qr-encoded island and outputs an image. Intended for the skyland webserver.
@@ -432,12 +432,13 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    if (argc not_eq 2) {
-        puts("usage: macro-rast <base32-island-data-from-qr-code>");
+    if (argc not_eq 3) {
+        puts("usage: macro-rast <name> <base32-island-data-from-qr-code>");
         return EXIT_FAILURE;
     }
 
-    auto arg = argv[1];
+    auto out_name = argv[1];
+    auto arg = argv[2];
     u8 decode_buffer[4096];
     int decoded = base32_decode((const u8*)arg, decode_buffer);
 
@@ -511,26 +512,28 @@ int main(int argc, char** argv)
 
         puts("loaded blocks");
 
+        std::string name(out_name);
+
         s->render(pfrm);
-        result.saveToFile("macro-rast1.png");
+        result.saveToFile(name + "1.png");
         s->rotate();
 
         result.create(240, 240, bkg_color);
 
         s->render(pfrm);
-        result.saveToFile("macro-rast2.png");
+        result.saveToFile(name + "2.png");
         s->rotate();
 
         result.create(240, 240, bkg_color);
 
         s->render(pfrm);
-        result.saveToFile("macro-rast3.png");
+        result.saveToFile(name + "3.png");
         s->rotate();
 
         result.create(240, 240, bkg_color);
 
         s->render(pfrm);
-        result.saveToFile("macro-rast4.png");
+        result.saveToFile(name + "4.png");
     }
 
     std::cout << decomp.size() << std::endl;
