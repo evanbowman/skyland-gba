@@ -32,6 +32,7 @@ extern "C" {
 #include "memory/pool.cpp"
 #include "sharedVariable.cpp"
 #include "rle.cpp"
+#include <SFML/Graphics.hpp>
 
 
 
@@ -52,7 +53,6 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 
 
 }
-
 
 
 // Boostrap just the platform code that we need:
@@ -83,19 +83,55 @@ void Platform::set_tile(Layer layer,
                         u16 val,
                         std::optional<u16> palette)
 {
-    // TODO...
+    // ...
 }
+
+
+static sf::Image* texture;
+static sf::Image* img;
 
 
 void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 {
-    // TODO!
+    auto x_start = 0;
+    x_start += from_index * 8;
+
+    int dest_x = (to_index % 30) * 8;
+    int dest_y = (to_index / 30) * 8;
+
+    for (int x = 0; x < 8; ++x) {
+        for (int y = 0; y < 8; ++y) {
+            const int src_x = x_start + x;
+            const int src_y = y;
+
+            auto px = texture->getPixel(src_x, src_y);
+            if (px.a not_eq 0) {
+                img->setPixel(dest_x + x, dest_y + y, px);
+            }
+        }
+    }
 }
 
 
 void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 {
-    // TODO!
+    auto x_start = 0;
+    x_start += from_index * 8;
+
+    int dest_x = (to_index % 30) * 8;
+    int dest_y = (to_index / 30) * 8;
+
+    for (int x = 0; x < 8; ++x) {
+        for (int y = 0; y < 8; ++y) {
+            const int src_x = x_start + x;
+            const int src_y = y;
+
+            auto px = texture->getPixel(src_x, src_y);
+            if (px.a not_eq 0) {
+                img->setPixel(dest_x + x, (16 * 8) + dest_y + y, px);
+            }
+        }
+    }
 }
 
 
@@ -358,6 +394,18 @@ int main(int argc, char** argv)
 {
     Platform pfrm;
 
+    sf::Image texture;
+    sf::Image result;
+    ::img = &result;
+    ::texture = &texture;
+
+    result.create(240, 240, sf::Color{90, 173, 239});
+
+    if (not texture.loadFromFile("../../images/macro_rendertexture.png")) {
+        puts("failed to load macro texture!");
+        return EXIT_FAILURE;
+    }
+
     if (argc not_eq 2) {
         puts("usage: macro-rast <base32-island-data-from-qr-code>");
         return EXIT_FAILURE;
@@ -423,9 +471,14 @@ int main(int argc, char** argv)
         for (u8 z = 0; z < sz.z; ++z) {
             for (u8 x = 0; x < sz.x; ++x) {
                 for (u8 y = 0; y < sz.y; ++y) {
-                    auto index = 1 + z * sz.z + x * sz.x + y;
-                    s->set_block({x, y, z},
-                                 (macro::terrain::Type)decomp[index]);
+                    auto index = 1 +
+                        y + sz.y * (x + sz.x * z);
+                    auto blk = (macro::terrain::Type)decomp[index];
+                    if (blk not_eq macro::terrain::Type::selector) {
+                        s->set_block({x, y, z}, blk);
+                    } else {
+                        s->set_block({x, y, z}, macro::terrain::Type::air);
+                    }
                 }
             }
         }
@@ -438,4 +491,6 @@ int main(int argc, char** argv)
     }
 
     std::cout << decomp.size() << std::endl;
+
+    result.saveToFile("macro-rast.png");
 }
