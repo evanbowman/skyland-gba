@@ -95,7 +95,7 @@ void MacrocosmLoaderModule::enter(Platform& pfrm, App& app, Scene& prev)
 
 
     app.macrocosm().emplace();
-    app.macrocosm()->emplace<macro::EngineImpl>(pfrm, app);
+    app.macrocosm()->emplace<macro::EngineImpl>(pfrm, &app);
 
     auto& m = macrocosm(app);
     auto& sector = m.sector();

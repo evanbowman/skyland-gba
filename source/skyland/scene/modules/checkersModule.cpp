@@ -84,7 +84,7 @@ void CheckersModule::init(Platform& pfrm, App& app)
 
 
     app.macrocosm().emplace();
-    app.macrocosm()->emplace<macro::EngineImpl>(pfrm, app);
+    app.macrocosm()->emplace<macro::EngineImpl>(pfrm, &app);
 
 
     pfrm.screen().set_shader(macro::fluid_shader);

@@ -70,7 +70,9 @@ public:
     }
 
 
-    static const int commodities_max = 5;
+    enum {
+          commodities_max = 5
+    };
 
 
     void base_stats_cache_store(const Stats& s) const override
@@ -82,7 +84,7 @@ public:
         base_stats_cache_->happiness_ = s.happiness_;
 
         base_stats_cache_->commodity_count_ =
-            std::min(commodities_max, (int)s.commodities_.size());
+            std::min((int)commodities_max, (int)s.commodities_.size());
 
         for (u32 i = 0; i < base_stats_cache_->commodity_count_; ++i) {
             base_stats_cache_->commodities_[i] = s.commodities_[i];

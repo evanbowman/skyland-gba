@@ -49,9 +49,10 @@ QRViewerScene::QRViewerScene(const char* text,
 QRViewerScene::QRViewerScene(QRCode& qr,
                              DeferredScene next,
                              ColorConstant exit_color)
-    : message_("foo"), next_(next), exit_color_(exit_color)
+    : message_(""), next_(next), exit_color_(exit_color)
 {
     qr_ = qr;
+
 }
 
 
@@ -62,7 +63,8 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     tv_.emplace(pfrm);
 
-    if (qr_ or not text_.empty()) {
+    if (qr_ or
+        not text_.empty()) {
 
         {
             auto str = SYSTR(qr_prep);
@@ -92,17 +94,17 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 
             u8 margin = 1;
 
-            if (qr_->size() <= 40) {
+            if (qr_->size() <= 38) {
                 const auto st = calc_screen_tiles(pfrm);
 
                 margin = (st.y - qr_->size() / 2) / 2;
 
                 int lc = [&] {
-                    return tv_->assign(message_.c_str(),
-                                       {u8(5 + qr_->size() / 2), 1},
-                                       {u8(st.x - (6 + qr_->size() / 2)), 18},
-                                       0);
-                }();
+                             return tv_->assign(message_.c_str(),
+                                                {u8(5 + qr_->size() / 2), 1},
+                                                {u8(st.x - (6 + qr_->size() / 2)), 18},
+                                                0);
+                         }();
 
                 pfrm.fill_overlay(0);
 
@@ -114,7 +116,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
                             {u8(st.x - (6 + qr_->size() / 2)), 18},
                             0,
                             OptColors{{custom_color(0x392194),
-                                       ColorConstant::silver_white}});
+                                        ColorConstant::silver_white}});
 
                 auto next_str = SYSTR(a_next);
 
@@ -122,7 +124,7 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
                 next_text_.emplace(pfrm, OverlayCoord{next_start, 19});
                 next_text_->assign(next_str->c_str(),
                                    OptColors{{ColorConstant::silver_white,
-                                              custom_color(0x392194)}});
+                                          custom_color(0x392194)}});
             }
 
             qr_->draw(pfrm, {2, (u8)margin});

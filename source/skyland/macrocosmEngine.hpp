@@ -323,7 +323,7 @@ struct EngineImpl : public Engine
     void newgame(Platform& pfrm, App& app);
 
 
-    EngineImpl(Platform&, App&);
+    EngineImpl(Platform&, App*);
 
 
     DynamicMemory<Data> data_;

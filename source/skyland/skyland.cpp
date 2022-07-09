@@ -37,6 +37,10 @@
 #include "sound.hpp"
 #include "timeStreamEvent.hpp"
 #include "weather/storm.hpp"
+extern "C" {
+// FIXME! CMake target_link_libraries isn't working for some reason?
+#include "heatshrink/heatshrink_encoder.c"
+}
 
 
 

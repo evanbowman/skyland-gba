@@ -74,12 +74,14 @@ Bitvector<480 * 2> _recalc_depth_test;
 EngineImpl* _bound_state;
 
 
-EngineImpl::EngineImpl(Platform& pfrm, App& app)
+EngineImpl::EngineImpl(Platform& pfrm, App* app)
     : data_(allocate_dynamic<Data>("macrocosm-data"))
 {
     _bound_state = this;
 
-    app.invoke_script(pfrm, "/scripts/config/macro.lisp", true);
+    if (app) {
+        app->invoke_script(pfrm, "/scripts/config/macro.lisp", true);
+    }
 }
 
 

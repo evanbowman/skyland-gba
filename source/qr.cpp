@@ -117,7 +117,7 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset)
         return not is_position_marker_inner(x, y) and x < 7 and y < 7;
     };
 
-    if (sz > 40) {
+    if (sz > 36) {
         for (int y = 0; y < sz; y += 4) {
             for (int x = 0; x < sz; x += 4) {
                 u8 tile_data[16][16];
@@ -191,7 +191,7 @@ void QRCode::draw(Platform& pfrm, const Vec2<u8>& screen_coord)
 
     copy_to_vram(pfrm, 181);
 
-    if (sz > 40) {
+    if (sz > 36) {
         draw_image(pfrm,
                    181,
                    screen_coord.x,

@@ -1,0 +1,441 @@
+// NOTE: I know that I've done some bad things in this source file. CMake
+// doesn't handle multiple build toolchains in a single project very well, so I
+// just did a unity build so that I can just run g++ on a single file to build
+// this utility. Actually, I have no good excuse, I was just feeling lazy today.
+// At time of writing, I've worked on this game for a year, it's behind schedule
+// and over budget, and I just want to finish.
+//
+// g++ standalone_island_raster.cpp -std=c++17 -I../ -I../../external -o macro_rast
+//
+// This file produces a commandline tool that accepts data extracted from a
+// qr-encoded island and outputs an image. Intended for the skyland webserver.
+
+
+#define HS_COMPRESSOR_OFF
+#include <iostream>
+#include "base32.cpp"
+#include "macrocosmSectorImpl.hpp"
+#include "macrocosmSector.hpp"
+#include "macrocosmSector.cpp"
+#include "platform/platform.hpp"
+#include "macrocosmCubeSector.cpp"
+#include "macrocosmEngine.cpp"
+#include "macrocosmOutpostSector.cpp"
+#include "macrocosmPancakeSector.cpp"
+#include "macrocosmPillarSector.cpp"
+#include "platform/scratch_buffer.cpp"
+#include "string.cpp"
+#include "qr.cpp"
+extern "C" {
+#include "qr/qrcodegen.c"
+}
+#include "memory/pool.cpp"
+#include "sharedVariable.cpp"
+#include "rle.cpp"
+
+
+
+namespace flash_filesystem
+{
+
+
+u32 read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
+{
+    return 0;
+}
+
+
+bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
+{
+    return false;
+}
+
+
+}
+
+
+
+// Boostrap just the platform code that we need:
+static Platform* platform;
+
+Platform::Platform()
+{
+    ::platform = this;
+}
+
+
+Platform& Platform::instance()
+{
+    return *platform;
+}
+
+
+void Platform::fatal(const char* msg)
+{
+    std::cout << msg << std::endl;
+    exit(EXIT_FAILURE);
+}
+
+
+void Platform::set_tile(Layer layer,
+                        u16 x,
+                        u16 y,
+                        u16 val,
+                        std::optional<u16> palette)
+{
+    // TODO...
+}
+
+
+void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
+{
+    // TODO!
+}
+
+
+void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
+{
+    // TODO!
+}
+
+
+void Platform::blit_t0_erase(u16 index)
+{
+    // TODO!
+}
+
+
+void Platform::blit_t1_erase(u16 index)
+{
+    // TODO!
+}
+
+
+Microseconds Platform::DeltaClock::sample() const
+{
+    return 1;
+}
+
+
+void Platform::Logger::clear()
+{
+}
+
+
+bool Platform::RemoteConsole::printline(const char* text, const char* prompt)
+{
+    std::cout << prompt << text << std::endl;
+    return true;
+}
+
+
+void Platform::sleep(u32)
+{
+}
+
+
+void* Platform::system_call(char const*, void*)
+{
+    return nullptr;
+}
+
+
+Platform::EncodedTile Platform::encode_tile(u8 tile_data[16][16])
+{
+    fatal("jdklfjsd");
+}
+
+
+void Platform::overwrite_overlay_tile(u16 index, const EncodedTile& t)
+{
+}
+
+
+Platform::SystemClock::SystemClock()
+{
+}
+
+
+Platform::NetworkPeer::NetworkPeer()
+{
+}
+
+
+Platform::DeltaClock::DeltaClock()
+{
+}
+
+
+Platform::Screen::Screen()
+{
+}
+
+
+Platform::Speaker::Speaker()
+{
+}
+
+
+Platform::Logger::Logger()
+{
+}
+
+
+Platform::DeltaClock::~DeltaClock()
+{
+}
+
+
+Platform::NetworkPeer::~NetworkPeer()
+{
+}
+
+
+Platform::~Platform()
+{
+}
+
+
+void Platform::Logger::log(Severity level, const char* msg)
+{
+}
+
+
+void english__to_string(int num, char* buffer, int base)
+{
+    int i = 0;
+    bool is_negative = false;
+
+    if (num == 0) {
+        buffer[i++] = '0';
+        buffer[i] = '\0';
+        return;
+    }
+
+    // Based on the behavior of itoa()
+    if (num < 0 && base == 10) {
+        is_negative = true;
+        num = -num;
+    }
+
+    while (num != 0) {
+        int rem = num % base;
+        buffer[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
+        num = num / base;
+    }
+
+    if (is_negative) {
+        buffer[i++] = '-';
+    }
+
+    buffer[i] = '\0';
+
+    str_reverse(buffer, i);
+
+    return;
+}
+
+
+namespace skyland
+{
+    SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
+    {
+        return allocate_dynamic<StringBuffer<1900>>("dummy");
+    }
+
+    bool App::is_developer_mode()
+    {
+        return true;
+    }
+
+    void App::set_developer_mode(bool value)
+    {
+        // ...
+    }
+
+    static lisp::Nil lnil;
+
+    lisp::Value*
+    App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
+    {
+        // lol super hacky
+        lnil.hdr_.type_ = lisp::Value::Type::nil;
+        return (lisp::Value*)&lnil;
+    }
+}
+
+const char* lisp::String::value()
+{
+    return "";
+}
+
+
+
+
+static int get_octet(int block)
+{
+	assert(block >= 0 && block < 8);
+	return (block*5) / 8;
+}
+
+static int get_offset(int block)
+{
+    assert(block >= 0 && block < 8);
+    return (8 - 5 - (5*block) % 8);
+}
+
+/**
+ * Like "b >> offset" but it will do the right thing with negative offset.
+ * We need this as bitwise shifting by a negative offset is undefined
+ * behavior.
+ */
+static unsigned char shift_right(unsigned char byte, char offset)
+{
+    if (offset > 0)
+        return byte >>  offset;
+    else
+        return byte << -offset;
+}
+
+static unsigned char shift_left(unsigned char byte, char offset)
+{
+    return shift_right(byte, - offset);
+}
+
+
+static int decode_char(unsigned char c)
+{
+    char retval = -1;
+
+    if (c >= 'A' && c <= 'Z')
+        retval = c - 'A';
+    if (c >= '2' && c <= '7')
+        retval = c - '2' + 26;
+
+    assert(retval == -1 || ((retval & 0x1F) == retval));
+
+    return  retval;
+}
+
+
+
+static int decode_sequence(const unsigned char *coded, unsigned char *plain)
+{
+    assert(CHAR_BIT == 8);
+    assert(coded && plain);
+
+    plain[0] = 0;
+    for (int block = 0; block < 8; block++) {
+        int offset = get_offset(block);
+        int octet = get_octet(block);
+
+        int c = decode_char(coded[block]);
+        if (c < 0)  // invalid char, stop here
+            return octet;
+
+        plain[octet] |= shift_left(c, offset);
+        if (offset < 0) {  // does this block overflows to next octet?
+            assert(octet < 4);
+            plain[octet+1] = shift_left(c, 8 + offset);
+        }
+    }
+    return 5;
+}
+
+size_t base32_decode(const unsigned char *coded, unsigned char *plain)
+{
+    size_t written = 0;
+    for (size_t i = 0, j = 0; ; i += 8, j += 5) {
+        int n = decode_sequence(&coded[i], &plain[j]);
+        written += n;
+        if (n < 5)
+            return written;
+    }
+}
+
+
+int main(int argc, char** argv)
+{
+    Platform pfrm;
+
+    if (argc not_eq 2) {
+        puts("usage: macro-rast <base32-island-data-from-qr-code>");
+        return EXIT_FAILURE;
+    }
+
+    auto arg = argv[1];
+    u8 decode_buffer[4096];
+    int decoded = base32_decode((const u8*)arg, decode_buffer);
+
+    Buffer<char, 1000> decomp_input;
+    for (int i = 0; i < decoded; ++i) {
+        decomp_input.push_back(decode_buffer[i]);
+    }
+
+    using namespace skyland;
+
+    auto decomp = decompress(decomp_input);
+
+    auto shape = (macro::terrain::Sector::Shape)decomp[0];
+    switch (shape) {
+    case macro::terrain::Sector::Shape::cube:
+        puts("cube");
+        if (decomp.size() not_eq 577) {
+            puts("decoded bad input size");
+            return EXIT_FAILURE;
+        }
+        break;
+
+    case macro::terrain::Sector::Shape::pancake:
+        puts("pancake");
+        if (decomp.size() not_eq 577) {
+            puts("decoded bad input size");
+            return EXIT_FAILURE;
+        }
+        break;
+
+    case macro::terrain::Sector::Shape::pillar:
+        puts("pillar");
+        if (decomp.size() not_eq 577) {
+            puts("decoded bad input size");
+            return EXIT_FAILURE;
+        }
+        break;
+
+    case macro::terrain::Sector::Shape::freebuild:
+        puts("freebuild");
+        break;
+
+    case macro::terrain::Sector::Shape::outpost:
+        puts("outpost");
+        break;
+
+    default:
+        puts("invalid sector type!");
+        return EXIT_FAILURE;
+    }
+
+    macro::EngineImpl engine(pfrm, nullptr);
+
+    if (auto s = engine.make_sector({0, 1}, shape)) {
+        auto sz = s->size();
+
+        for (u8 z = 0; z < sz.z; ++z) {
+            for (u8 x = 0; x < sz.x; ++x) {
+                for (u8 y = 0; y < sz.y; ++y) {
+                    auto index = 1 + z * sz.z + x * sz.x + y;
+                    s->set_block({x, y, z},
+                                 (macro::terrain::Type)decomp[index]);
+                }
+            }
+        }
+
+        puts("loaded blocks");
+
+        puts("rendering...");
+        s->render(pfrm);
+        puts("render complete!");
+    }
+
+    std::cout << decomp.size() << std::endl;
+}

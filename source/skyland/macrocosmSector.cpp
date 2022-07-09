@@ -25,10 +25,6 @@
 #include "compression.hpp"
 #include "macrocosmEngine.hpp"
 #include "rle.hpp"
-extern "C" {
-// FIXME!
-#include "heatshrink/heatshrink_encoder.c"
-}
 #include "skyland/skyland.hpp"
 
 
@@ -977,7 +973,7 @@ std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm, App& app) const
         // anything larger and we'd need to represent qr blocks with single
         // pixels, which wouldn't register on most cameras given the gba screen
         // size.
-        if (qr->size() <= 80) {
+        if (qr->size() <= 78) {
             return qr;
         }
     }

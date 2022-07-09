@@ -116,7 +116,6 @@ public:
     }
 
     void set_block(const Vec3<u8>& coord, Type type);
-
     virtual void rotate() = 0;
     virtual void update() = 0;
     void advance(int years);
