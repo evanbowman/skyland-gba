@@ -57,8 +57,19 @@ static const char* const page_0_lines[] = {"-- Programming --",
 
 static const char* const page_01_lines[] = {"-- Programming (contd.) --",
                                             "",
+                                            "",
                                             "QR Code Generator by",
                                             "Project Nayuki",
+                                            "",
+                                            "Heatshrink Algorithm by",
+                                            "Atomic Object",
+                                            "",
+                                            "",
+                                            "",
+                                            nullptr};
+
+static const char* const page_02_lines[] = {"-- Programming (contd.) --",
+                                            "",
                                             "",
                                             "Thanks to Martin Korth",
                                             "for the GBATEK hardware docs",
@@ -66,8 +77,9 @@ static const char* const page_01_lines[] = {"-- Programming (contd.) --",
                                             "Thanks to the GBA",
                                             "homebrew dev community",
                                             "",
+                                            "",
+                                            "",
                                             nullptr};
-
 
 
 static const char* const page_1_lines[] = {"-- Design --",
@@ -116,8 +128,9 @@ static const char* const page_end_lines[] = {"-- P.S. --",
 
 
 
-std::array<Page, 6> pages_ = {{{page_0_lines},
+std::array<Page, 7> pages_ = {{{page_0_lines},
                                {page_01_lines},
+                               {page_02_lines},
                                {page_1_lines},
                                {page_2_lines},
                                {page_3_lines},
