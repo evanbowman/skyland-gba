@@ -46,13 +46,23 @@ QRViewerScene::QRViewerScene(const char* text,
 
 
 
+QRViewerScene::QRViewerScene(QRCode& qr,
+                             DeferredScene next,
+                             ColorConstant exit_color)
+    : message_("foo"), next_(next), exit_color_(exit_color)
+{
+    qr_ = qr;
+}
+
+
+
 void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.load_overlay_texture("overlay_qr");
 
     tv_.emplace(pfrm);
 
-    if (not text_.empty()) {
+    if (qr_ or not text_.empty()) {
 
         {
             auto str = SYSTR(qr_prep);
@@ -68,45 +78,56 @@ void QRViewerScene::enter(Platform& pfrm, App& app, Scene& prev)
             pfrm.screen().display();
         }
 
+        if (not qr_ and not text_.empty()) {
+            qr_ = QRCode::create(text_.c_str());
+        }
 
-        if (auto code = QRCode::create(text_.c_str())) {
+        if (qr_) {
 
             pfrm.screen().display();
 
-            code->data_color_index(7);
-            code->position_marker_outer_color_index(7);
-            code->position_marker_inner_color_index(8);
+            qr_->data_color_index(7);
+            qr_->position_marker_outer_color_index(7);
+            qr_->position_marker_inner_color_index(8);
 
-            const auto st = calc_screen_tiles(pfrm);
+            u8 margin = 1;
 
-            auto margin = (st.y - code->size() / 2) / 2;
+            if (qr_->size() <= 40) {
+                const auto st = calc_screen_tiles(pfrm);
 
-            int lc = [&] {
-                return tv_->assign(message_.c_str(),
-                                   {u8(5 + code->size() / 2), 1},
-                                   {u8(st.x - (6 + code->size() / 2)), 18},
-                                   0);
-            }();
+                margin = (st.y - qr_->size() / 2) / 2;
 
-            pfrm.fill_overlay(0);
+                int lc = [&] {
+                    return tv_->assign(message_.c_str(),
+                                       {u8(5 + qr_->size() / 2), 1},
+                                       {u8(st.x - (6 + qr_->size() / 2)), 18},
+                                       0);
+                }();
 
-            u8 text_margin = (st.y - lc) / 2;
-            tv_->assign(message_.c_str(),
-                        {u8(5 + code->size() / 2), text_margin},
-                        {u8(st.x - (6 + code->size() / 2)), 18},
-                        0,
-                        OptColors{{custom_color(0x392194),
-                                   ColorConstant::silver_white}});
+                pfrm.fill_overlay(0);
 
-            auto next_str = SYSTR(a_next);
 
-            u8 next_start = st.x - utf8::len(next_str->c_str());
-            next_text_.emplace(pfrm, OverlayCoord{next_start, 19});
-            next_text_->assign(next_str->c_str(),
-                               OptColors{{ColorConstant::silver_white,
-                                          custom_color(0x392194)}});
 
-            code->draw(pfrm, {2, (u8)margin});
+                u8 text_margin = (st.y - lc) / 2;
+                tv_->assign(message_.c_str(),
+                            {u8(5 + qr_->size() / 2), text_margin},
+                            {u8(st.x - (6 + qr_->size() / 2)), 18},
+                            0,
+                            OptColors{{custom_color(0x392194),
+                                       ColorConstant::silver_white}});
+
+                auto next_str = SYSTR(a_next);
+
+                u8 next_start = st.x - utf8::len(next_str->c_str());
+                next_text_.emplace(pfrm, OverlayCoord{next_start, 19});
+                next_text_->assign(next_str->c_str(),
+                                   OptColors{{ColorConstant::silver_white,
+                                              custom_color(0x392194)}});
+            }
+
+            qr_->draw(pfrm, {2, (u8)margin});
+        } else {
+            Platform::fatal("qr gen failed");
         }
     }
 

@@ -416,8 +416,7 @@ get_line_from_file(Platform& pfrm, const char* file_name, int line)
     if (auto contents = pfrm.load_file_contents("", file_name)) {
 
         while (line) {
-            while (*contents not_eq '\n' and
-                   *contents not_eq '\r') {
+            while (*contents not_eq '\n' and *contents not_eq '\r') {
                 if (*contents == '\0') {
                     return result;
                 }

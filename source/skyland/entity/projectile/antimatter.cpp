@@ -173,8 +173,7 @@ void Antimatter::on_collision(Platform& pfrm, App& app, Room& room)
     const bool is_energized_hull = str_eq(room.name(), "energized-hull");
 
     if (str_eq(room.name(), "forcefield") or
-        str_eq(room.name(), "forcefield*") or
-        is_energized_hull) {
+        str_eq(room.name(), "forcefield*") or is_energized_hull) {
 
         int range = 2;
 

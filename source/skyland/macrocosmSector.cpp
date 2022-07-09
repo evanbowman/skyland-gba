@@ -21,7 +21,15 @@
 
 
 #include "macrocosmSector.hpp"
+#include "base32.hpp"
+#include "compression.hpp"
 #include "macrocosmEngine.hpp"
+#include "rle.hpp"
+extern "C" {
+// FIXME!
+#include "heatshrink/heatshrink_encoder.c"
+}
+#include "skyland/skyland.hpp"
 
 
 
@@ -914,6 +922,67 @@ void terrain::Sector::render(Platform& pfrm)
 
     _db.reset();
     raster::globalstate::_recalc_depth_test.clear();
+}
+
+
+
+std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm, App& app) const
+{
+    Vector<u8> data;
+
+    for (u8 z = 0; z < size().z; ++z) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                data.push_back(get_block({x, y, z}).type_);
+            }
+        }
+    }
+
+    Buffer<char, 800> contiguous_data;
+
+    contiguous_data.push_back((u8)p_.shape_);
+    for (char c : data) {
+        contiguous_data.push_back(c);
+    }
+
+    auto compr = compress(contiguous_data);
+    Vector<char> b32_array;
+    for (char c : compr) {
+        b32_array.push_back(c);
+    }
+
+
+    const bool was_developer_mode = app.is_developer_mode();
+    app.set_developer_mode(true);
+    auto v = app.invoke_script(pfrm, "/scripts/config/uploadisle.lisp");
+    if (v->type() not_eq lisp::Value::Type::string) {
+        Platform::fatal("url lisp script returned non-string result");
+    }
+    app.set_developer_mode(was_developer_mode);
+
+
+    // Encode as base32, because the data is going into a url
+    auto encoded = base32::encode(b32_array);
+    StringBuffer<800> result = v->string().value();
+    result += "?d="; // url parameter
+
+    // the encoded data
+    for (char c : encoded) {
+        result.push_back(c);
+    }
+
+    if (auto qr = QRCode::create(result.c_str())) {
+        // NOTE: at resolution 240x160, an 80x80 qrcode is the largest that we
+        // can display while still allowing the qrcode to show up onscreen,
+        // anything larger and we'd need to represent qr blocks with single
+        // pixels, which wouldn't register on most cameras given the gba screen
+        // size.
+        if (qr->size() <= 80) {
+            return qr;
+        }
+    }
+
+    return {};
 }
 
 

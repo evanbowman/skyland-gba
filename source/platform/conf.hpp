@@ -1,8 +1,8 @@
 #pragma once
 
+#include "platform.hpp"
 #include "string.hpp"
 #include <variant>
-#include "platform.hpp"
 
 
 // This code is kind of junk. I realized that I needed an INI parser, and
@@ -10,7 +10,8 @@
 
 
 
-class Conf {
+class Conf
+{
 public:
     Conf(Platform& pfrm) : pfrm_(pfrm)
     {
@@ -29,9 +30,9 @@ public:
         if (auto val = std::get_if<T>(&v)) {
             return *val;
         } else {
-            Platform::fatal(format("in config ini: missing % from [%]",
-                                   key,
-                                   section).c_str());
+            Platform::fatal(
+                format("in config ini: missing % from [%]", key, section)
+                    .c_str());
         }
     }
 

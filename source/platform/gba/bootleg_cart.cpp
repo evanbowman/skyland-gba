@@ -1,8 +1,8 @@
 #include "bootleg_cart.hpp"
 #include "filesystem.hpp"
 #include "gba.h"
-#include "platform/platform.hpp"
 #include "platform/conf.hpp"
+#include "platform/platform.hpp"
 
 
 

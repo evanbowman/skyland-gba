@@ -838,6 +838,14 @@ elseif(GAMEBOY_ADVANCE)
     -O2
     ${ARM7_THUMB_FLAGS})
 
+  add_library(HEATSHRINK
+    ${ROOT_DIR}/external/heatshrink/heatshrink_encoder.c
+    ${ROOT_DIR}/external/heatshrink/heatshrink_decoder.c)
+
+  target_compile_options(HEATSHRINK PRIVATE
+    -O2
+    ${ARM7_THUMB_FLAGS})
+
 
 
   add_library(ARM_ROUTINES ${SOURCE_DIR}/platform/gba/gba_arm_routines.cpp)
@@ -867,6 +875,7 @@ elseif(GAMEBOY_ADVANCE)
   target_link_libraries(SkylandEngine PRIVATE
     LIBGBA
     QR
+    HEATSHRINK
     ARM_ROUTINES)
 
   target_compile_options(SkylandEngine PRIVATE

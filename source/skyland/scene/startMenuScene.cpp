@@ -31,6 +31,7 @@
 #include "macro/saveConfirmScene.hpp"
 #include "macro/selectorScene.hpp"
 #include "modules/glossaryViewerModule.hpp"
+#include "qrViewerScene.hpp"
 #include "readyScene.hpp"
 #include "saveSandboxScene.hpp"
 #include "selectChallengeScene.hpp"
@@ -340,20 +341,6 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            // Actually, the player can just access the load option from the
-            // title screen. Having this here will just confuse people, who
-            // press load and lose their unsaved progress.
-            // add_option(
-            //     pfrm,
-            //     SYSTR(start_menu_load)->c_str(),
-            //     [&pfrm, &app]() -> ScenePtr<Scene> {
-            //         macrocosm(app).load(pfrm, app);
-            //         pfrm.screen().schedule_fade(0.f);
-            //         pfrm.screen().pixelate(0);
-            //         return scene_pool::alloc<macro::SelectorScene>();
-            //     },
-            //     cut);
-
             add_option(
                 pfrm,
                 SYSTR(start_menu_save)->c_str(),
@@ -364,11 +351,35 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             add_option(
                 pfrm,
-                SYSTR(start_menu_quit)->c_str(),
-                [&pfrm]() -> ScenePtr<Scene> {
+                SYSTR(start_menu_share)->c_str(),
+                [&pfrm, &app]() -> ScenePtr<Scene> {
                     pfrm.fill_overlay(0);
-                    pfrm.screen().set_shader(passthrough_shader);
-                    return scene_pool::alloc<TitleScreenScene>(4);
+                    Text t(pfrm,
+                           SYSTR(macro_share_please_wait)->c_str(),
+                           OverlayCoord{1, 1});
+                    pfrm.screen().clear();
+                    pfrm.screen().display();
+
+                    auto& current = macrocosm(app).sector();
+                    auto qr = current.qr_encode(pfrm, app);
+                    if (qr) {
+                        pfrm.screen().pixelate(0);
+                        pfrm.fill_overlay(0);
+                        return scene_pool::alloc<QRViewerScene>(
+                            *qr,
+                            [&pfrm]() {
+                                pfrm.load_overlay_texture("overlay");
+                                pfrm.screen().schedule_fade(0.f);
+                                return scene_pool::alloc<
+                                    macro::SelectorScene>();
+                            },
+                            ColorConstant::rich_black);
+                    } else {
+                        pfrm.screen().schedule_fade(0.f);
+                        pfrm.screen().pixelate(0);
+
+                        return scene_pool::alloc<macro::SelectorScene>();
+                    }
                 },
                 fade_sweep);
 
@@ -381,6 +392,17 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     return scene_pool::alloc<macro::MacroverseScene>();
                 },
                 cut);
+
+
+            add_option(
+                pfrm,
+                SYSTR(start_menu_quit)->c_str(),
+                [&pfrm]() -> ScenePtr<Scene> {
+                    pfrm.fill_overlay(0);
+                    pfrm.screen().set_shader(passthrough_shader);
+                    return scene_pool::alloc<TitleScreenScene>(4);
+                },
+                fade_sweep);
 
             break;
 

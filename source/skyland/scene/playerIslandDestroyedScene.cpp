@@ -448,8 +448,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = seconds(3) + milliseconds(500);
 
         if (app.player().key_pressed(pfrm, Key::action_1) or
-            app.player().key_pressed(pfrm, Key::action_2) or
-            fastforward_) {
+            app.player().key_pressed(pfrm, Key::action_2) or fastforward_) {
             // We already added the delta to the timer. Add again if player is
             // pressing A or B, because he's impatient and wants to skip past
             // the death sequence.
@@ -477,8 +476,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case AnimState::wait_1: {
         if (app.player().key_pressed(pfrm, Key::action_1) or
-            app.player().key_pressed(pfrm, Key::action_2) or
-            fastforward_) {
+            app.player().key_pressed(pfrm, Key::action_2) or fastforward_) {
             timer_ += delta;
             fastforward_ = true;
         }
@@ -598,8 +596,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         power_.reset();
 
         if (app.player().key_pressed(pfrm, Key::action_1) or
-            app.player().key_pressed(pfrm, Key::action_2) or
-            fastforward_) {
+            app.player().key_pressed(pfrm, Key::action_2) or fastforward_) {
             timer_ += delta;
             fastforward_ = true;
         }

@@ -30,6 +30,10 @@
 #include "platform/platform.hpp"
 #include "rle.hpp"
 #include "skyland/skyland.hpp"
+extern "C" {
+// FIXME!!!
+#include "heatshrink/heatshrink_decoder.c"
+}
 
 
 

@@ -676,11 +676,9 @@ public:
         refresh(state);
 
         if (not cancellable_) {
-            text_.emplace(pfrm,
-                          SYSTR(checkers_jump_again)->c_str(),
-                          OverlayCoord{0, 19});
+            text_.emplace(
+                pfrm, SYSTR(checkers_jump_again)->c_str(), OverlayCoord{0, 19});
         }
-
     }
 
 

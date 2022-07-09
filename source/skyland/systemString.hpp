@@ -337,6 +337,9 @@ enum class SystemString {
     start_menu_adjust_view,
     start_menu_newgame,
     start_menu_link,
+    start_menu_share,
+
+    macro_share_please_wait,
 
     salvage_prompt,
     salvage_option_A,

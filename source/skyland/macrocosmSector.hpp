@@ -24,6 +24,20 @@
 
 #include "allocator.hpp"
 #include "macrocosmBlock.hpp"
+#include "qr.hpp"
+
+
+
+namespace skyland
+{
+
+
+
+class App;
+
+
+
+}
 
 
 
@@ -122,6 +136,10 @@ public:
     virtual void shadowcast() = 0;
     virtual void erase() = 0;
 
+
+    // The qrcode will hold binary data in the form:
+    // first byte: island layout, rest: rle-encoded data.
+    std::optional<QRCode> qr_encode(Platform&, App& app) const;
 
 
     using Exports = Buffer<ExportInfo, 24>;

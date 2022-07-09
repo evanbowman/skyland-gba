@@ -57,14 +57,14 @@ static const char* const page_0_lines[] = {"-- Programming --",
 
 static const char* const page_01_lines[] = {"-- Programming (contd.) --",
                                             "",
+                                            "QR Code Generator by",
+                                            "Project Nayuki",
+                                            "",
                                             "Thanks to Martin Korth",
                                             "for the GBATEK hardware docs",
                                             "",
                                             "Thanks to the GBA",
                                             "homebrew dev community",
-                                            "",
-                                            "",
-                                            "",
                                             "",
                                             nullptr};
 

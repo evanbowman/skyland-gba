@@ -37,7 +37,6 @@
 
 #include "allocator.hpp"
 #include "bootleg_cart.hpp"
-#include "platform/conf.hpp"
 #include "containers/vector.hpp"
 #include "filesystem.hpp"
 #include "gbp_logo.hpp"
@@ -47,6 +46,7 @@
 #include "mixer.hpp"
 #include "number/random.hpp"
 #include "platform/color.hpp"
+#include "platform/conf.hpp"
 #include "platform/flash_filesystem.hpp"
 #include "platform/platform.hpp"
 #include "rumble.h"
@@ -2306,8 +2306,8 @@ static void vblank_isr()
 
     rumble_update();
 
-    const auto ten_seconds = 600; // approx. 60 fps
-    if (UNLIKELY(::watchdog_counter > ten_seconds)) {
+    const auto twenty_seconds = 1200; // approx. 60 fps
+    if (UNLIKELY(::watchdog_counter > twenty_seconds)) {
         ::watchdog_counter = 0;
 
         ::platform->speaker().stop_music();
@@ -3193,7 +3193,8 @@ void Platform::erase_save_sector()
         info(*this, "begin flash erase!");
 
         // Wait for erase to complete.
-        while (*((volatile u8*)0x0E000000) not_eq 0xff) ;
+        while (*((volatile u8*)0x0E000000) not_eq 0xff)
+            ;
     }
 
     if (bootleg_flash_type) {
@@ -6621,9 +6622,8 @@ Platform::Platform()
 
     static const char* conf_section = "hardware.gameboy_advance";
 
-#define CONF_BOOL(NAME)                                                 \
-    const bool NAME = conf.expect<Conf::String>(conf_section, \
-                                                #NAME) == "yes";
+#define CONF_BOOL(NAME)                                                        \
+    const bool NAME = conf.expect<Conf::String>(conf_section, #NAME) == "yes";
 
     CONF_BOOL(detect_repro_flash);
 
@@ -6676,12 +6676,12 @@ Platform::Platform()
 
             ::save_capacity = flash_capacity(*this);
         } else {
-            ::save_capacity = conf.expect<Conf::Integer>(conf_section,
-                                                         "sram_capacity");
+            ::save_capacity =
+                conf.expect<Conf::Integer>(conf_section, "sram_capacity");
         }
     } else {
-        ::save_capacity = conf.expect<Conf::Integer>(conf_section,
-                                                     "sram_capacity");
+        ::save_capacity =
+            conf.expect<Conf::Integer>(conf_section, "sram_capacity");
     }
 
     const auto stk_size = 32000 - (&__data_end__ - &__iwram_start__);
