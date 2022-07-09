@@ -36,6 +36,10 @@ extern "C" {
 
 
 
+auto bkg_color = sf::Color{90, 173, 239};
+
+
+
 namespace flash_filesystem
 {
 
@@ -93,6 +97,10 @@ static sf::Image* img;
 
 void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 {
+    if (hard) {
+        blit_t0_erase(to_index);
+    }
+
     auto x_start = 0;
     x_start += from_index * 8;
 
@@ -115,6 +123,10 @@ void Platform::blit_t0_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 
 void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 {
+    if (hard) {
+        blit_t1_erase(to_index);
+    }
+
     auto x_start = 0;
     x_start += from_index * 8;
 
@@ -137,13 +149,27 @@ void Platform::blit_t1_tile_to_texture(u16 from_index, u16 to_index, bool hard)
 
 void Platform::blit_t0_erase(u16 index)
 {
-    // TODO!
+    // int dest_x = (index % 30) * 8;
+    // int dest_y = (index / 30) * 8;
+
+    // for (int x = 0; x < 8; ++x) {
+    //     for (int y = 0; y < 8; ++y) {
+    //         img->setPixel(dest_x + x, dest_y + y, bkg_color);
+    //     }
+    // }
 }
 
 
 void Platform::blit_t1_erase(u16 index)
 {
-    // TODO!
+    // int dest_x = (index % 30) * 8;
+    // int dest_y = (index / 30) * 8;
+
+    // for (int x = 0; x < 8; ++x) {
+    //     for (int y = 0; y < 8; ++y) {
+    //         img->setPixel(dest_x + x, (16 * 8) + dest_y + y, bkg_color);
+    //     }
+    // }
 }
 
 
@@ -399,7 +425,7 @@ int main(int argc, char** argv)
     ::img = &result;
     ::texture = &texture;
 
-    result.create(240, 240, sf::Color{90, 173, 239});
+    result.create(240, 240, bkg_color);
 
     if (not texture.loadFromFile("../../images/macro_rendertexture.png")) {
         puts("failed to load macro texture!");
@@ -485,12 +511,28 @@ int main(int argc, char** argv)
 
         puts("loaded blocks");
 
-        puts("rendering...");
         s->render(pfrm);
-        puts("render complete!");
+        result.saveToFile("macro-rast1.png");
+        s->rotate();
+
+        result.create(240, 240, bkg_color);
+
+        s->render(pfrm);
+        result.saveToFile("macro-rast2.png");
+        s->rotate();
+
+        result.create(240, 240, bkg_color);
+
+        s->render(pfrm);
+        result.saveToFile("macro-rast3.png");
+        s->rotate();
+
+        result.create(240, 240, bkg_color);
+
+        s->render(pfrm);
+        result.saveToFile("macro-rast4.png");
     }
 
     std::cout << decomp.size() << std::endl;
 
-    result.saveToFile("macro-rast.png");
 }
