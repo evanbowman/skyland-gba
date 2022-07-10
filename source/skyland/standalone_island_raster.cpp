@@ -5,7 +5,19 @@
 // At time of writing, I've worked on this game for a year, it's behind schedule
 // and over budget, and I just want to finish.
 //
-// g++ standalone_island_raster.cpp -std=c++17 -I../ -I../../external -o macro_rast -lsfml-graphics
+//
+// NOTE: The below compile command is really nasty. Explanation: The webserver
+// host does not allow me to install anything with sudo, and there's no good png
+// library for C++, so I originally built this with SFML. But sfml depends on a
+// bunch of shared libraries, which I cannot install on the webserver host (at
+// least, not to the directories where the sfml build system expects them to
+// be). So I tried for about five minutes to get it to work, decided that doing
+// things correctly wasn't worth the trouble, and just compiled the sfml sources
+// into the macro_rast executable. The only interface that I need from SFML is
+// the image class, which just wraps stb_image, so it's not really as bad as it
+// looks. This repository includes both stb and the sfml source code.
+//
+// g++ standalone_island_raster.cpp -std=c++17 -I../ -I../../external -I../../external/SFML-2.5.1/src/ -I../../external/stb/ -o macro_rast ../../external/SFML-2.5.1/src/SFML/Graphics/Image.cpp ../../external/SFML-2.5.1/src/SFML/Graphics/Color.cpp ../../external/SFML-2.5.1/src/SFML/Graphics/ImageLoader.cpp ../../external/SFML-2.5.1/src/SFML/System/Err.cpp
 //
 // This file produces a commandline tool that accepts data extracted from a
 // qr-encoded island and outputs an image. Intended for the skyland webserver.
