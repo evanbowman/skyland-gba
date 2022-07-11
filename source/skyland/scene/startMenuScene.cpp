@@ -164,6 +164,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         *qr,
                         [&pfrm]() {
                             pfrm.load_overlay_texture("overlay");
+                            pfrm.load_background_texture("background_macro");
                             pfrm.screen().schedule_fade(0.f);
                             return scene_pool::alloc<macro::SelectorScene>();
                         },
@@ -171,6 +172,9 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 } else {
                     pfrm.screen().schedule_fade(0.f);
                     pfrm.screen().pixelate(0);
+
+                    // Just in case the variable isn't bound...
+                    lisp::set_var("on-dialog-closed", L_NIL);
 
                     auto dialog =
                         allocate_dynamic<DialogString>("dialog-buffer");
