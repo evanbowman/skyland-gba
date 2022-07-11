@@ -151,12 +151,20 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.fill_overlay(0);
                 Text t(pfrm,
                        SYSTR(macro_share_please_wait)->c_str(),
-                       OverlayCoord{1, 1});
+                       OverlayCoord{1, 3});
                 pfrm.screen().clear();
                 pfrm.screen().display();
 
+                Text info(pfrm, "", OverlayCoord{1, 1});
+
+                auto msg = [&pfrm, &info](const char* text) {
+                               pfrm.screen().clear();
+                               info.assign(text);
+                               pfrm.screen().display();
+                           };
+
                 auto& current = macrocosm(app).sector();
-                auto qr = current.qr_encode(pfrm, app);
+                auto qr = current.qr_encode(pfrm, app, msg);
                 if (qr) {
                     pfrm.screen().pixelate(0);
                     pfrm.fill_overlay(0);

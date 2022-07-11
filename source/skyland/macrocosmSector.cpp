@@ -922,7 +922,9 @@ void terrain::Sector::render(Platform& pfrm)
 
 
 
-std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm, App& app) const
+std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm,
+                                                 App& app,
+                                                 Function<16, void(const char*)> msg) const
 {
     Vector<u8> data;
 
@@ -933,6 +935,8 @@ std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm, App& app) const
             }
         }
     }
+
+    msg("compression... (heatshrink)");
 
     struct Buffers
     {
@@ -954,6 +958,7 @@ std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm, App& app) const
         b32_array.push_back(c);
     }
 
+    msg("fetch upload url...");
 
     const bool was_developer_mode = app.is_developer_mode();
     app.set_developer_mode(true);
@@ -963,6 +968,8 @@ std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm, App& app) const
     }
     app.set_developer_mode(was_developer_mode);
 
+
+    msg("base32 encoding...");
 
     // Encode as base32, because the data is going into a url
     auto encoded = base32::encode(b32_array);
@@ -974,6 +981,8 @@ std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm, App& app) const
     for (char c : encoded) {
         result->push_back(c);
     }
+
+    msg("QR encoding...");
 
     if (auto qr = QRCode::create(result->c_str())) {
         // NOTE: at resolution 240x160, an 80x80 qrcode is the largest that we
