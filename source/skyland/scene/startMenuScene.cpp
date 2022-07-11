@@ -143,6 +143,50 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
     };
 
 
+    auto add_macro_share_opt = [&] {
+        add_option(
+            pfrm,
+            SYSTR(start_menu_share)->c_str(),
+            [&pfrm, &app]() -> ScenePtr<Scene> {
+                pfrm.fill_overlay(0);
+                Text t(pfrm,
+                       SYSTR(macro_share_please_wait)->c_str(),
+                       OverlayCoord{1, 1});
+                pfrm.screen().clear();
+                pfrm.screen().display();
+
+                auto& current = macrocosm(app).sector();
+                auto qr = current.qr_encode(pfrm, app);
+                if (qr) {
+                    pfrm.screen().pixelate(0);
+                    pfrm.fill_overlay(0);
+                    return scene_pool::alloc<QRViewerScene>(
+                        *qr,
+                        [&pfrm]() {
+                            pfrm.load_overlay_texture("overlay");
+                            pfrm.screen().schedule_fade(0.f);
+                            return scene_pool::alloc<macro::SelectorScene>();
+                        },
+                        ColorConstant::rich_black);
+                } else {
+                    pfrm.screen().schedule_fade(0.f);
+                    pfrm.screen().pixelate(0);
+
+                    auto dialog =
+                        allocate_dynamic<DialogString>("dialog-buffer");
+                    *dialog = SYS_CSTR(qr_code_size_error);
+                    auto next = scene_pool::alloc<BoxedDialogScene>(
+                        std::move(dialog), false);
+                    next->set_next_scene(scene_pool::make_deferred_scene<
+                                         macro::SelectorScene>());
+
+                    return next;
+                }
+            },
+            fade_sweep);
+    };
+
+
     switch (state_) {
     case State::init: {
         pfrm.load_overlay_texture("overlay_challenges");
@@ -294,6 +338,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         },
                         fade_sweep);
 
+                    add_macro_share_opt();
+
                     add_option(
                         pfrm,
                         SYSTR(start_menu_load)->c_str(),
@@ -349,39 +395,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 },
                 fade_sweep);
 
-            add_option(
-                pfrm,
-                SYSTR(start_menu_share)->c_str(),
-                [&pfrm, &app]() -> ScenePtr<Scene> {
-                    pfrm.fill_overlay(0);
-                    Text t(pfrm,
-                           SYSTR(macro_share_please_wait)->c_str(),
-                           OverlayCoord{1, 1});
-                    pfrm.screen().clear();
-                    pfrm.screen().display();
-
-                    auto& current = macrocosm(app).sector();
-                    auto qr = current.qr_encode(pfrm, app);
-                    if (qr) {
-                        pfrm.screen().pixelate(0);
-                        pfrm.fill_overlay(0);
-                        return scene_pool::alloc<QRViewerScene>(
-                            *qr,
-                            [&pfrm]() {
-                                pfrm.load_overlay_texture("overlay");
-                                pfrm.screen().schedule_fade(0.f);
-                                return scene_pool::alloc<
-                                    macro::SelectorScene>();
-                            },
-                            ColorConstant::rich_black);
-                    } else {
-                        pfrm.screen().schedule_fade(0.f);
-                        pfrm.screen().pixelate(0);
-
-                        return scene_pool::alloc<macro::SelectorScene>();
-                    }
-                },
-                fade_sweep);
+            add_macro_share_opt();
 
             add_option(
                 pfrm,

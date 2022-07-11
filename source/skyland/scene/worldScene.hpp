@@ -39,10 +39,7 @@ namespace skyland
 class WorldScene : public Scene
 {
 public:
-    WorldScene() :
-        far_camera_(false),
-        birds_drawn_(false),
-        noreturn_(false)
+    WorldScene() : far_camera_(false), birds_drawn_(false), noreturn_(false)
     {
     }
 

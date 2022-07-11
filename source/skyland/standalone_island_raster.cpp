@@ -490,6 +490,11 @@ int main(int argc, char** argv)
         break;
 
     case macro::terrain::Sector::Shape::freebuild:
+        if (decomp.size() not_eq 901) {
+            puts("decoded bad input size for freebuild sector");
+            std::cout << decomp.size() << std::endl;
+            return EXIT_FAILURE;
+        }
         puts("freebuild");
         break;
 

@@ -515,6 +515,8 @@ enum class SystemString {
 
     freebuild_locked_text,
 
+    qr_code_size_error,
+
     checkers_ai_thinking,
     checkers_forced_jump,
     checker_wins,

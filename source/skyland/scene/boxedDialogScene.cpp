@@ -436,8 +436,7 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (not text_busy) {
             display_mode_ = DisplayMode::key_released_check1;
         } else {
-            if (text_state_.speed_ == 0 and
-                allow_fastforward_ and
+            if (text_state_.speed_ == 0 and allow_fastforward_ and
                 (key_down<Key::action_2>(pfrm) or
                  key_down<Key::action_1>(pfrm))) {
 

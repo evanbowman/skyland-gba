@@ -934,14 +934,21 @@ std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm, App& app) const
         }
     }
 
-    Buffer<char, 800> contiguous_data;
+    struct Buffers
+    {
+        Buffer<char, 920> b1_;
+        Buffer<char, 920> b2_;
+    };
+    auto buffers = allocate_dynamic<Buffers>("enc-input");
+    auto contiguous_data = &buffers->b1_;
 
-    contiguous_data.push_back((u8)p_.shape_);
+    contiguous_data->push_back((u8)p_.shape_);
     for (char c : data) {
-        contiguous_data.push_back(c);
+        contiguous_data->push_back(c);
     }
 
-    auto compr = compress(contiguous_data);
+    auto& compr = buffers->b2_;
+    compr = compress(*contiguous_data);
     Vector<char> b32_array;
     for (char c : compr) {
         b32_array.push_back(c);
@@ -959,21 +966,22 @@ std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm, App& app) const
 
     // Encode as base32, because the data is going into a url
     auto encoded = base32::encode(b32_array);
-    StringBuffer<800> result = v->string().value();
-    result += "?d="; // url parameter
+    auto result = allocate_dynamic<StringBuffer<1900>>("result-str");
+    *result = v->string().value();
+    (*result) += "?d="; // url parameter
 
     // the encoded data
     for (char c : encoded) {
-        result.push_back(c);
+        result->push_back(c);
     }
 
-    if (auto qr = QRCode::create(result.c_str())) {
+    if (auto qr = QRCode::create(result->c_str())) {
         // NOTE: at resolution 240x160, an 80x80 qrcode is the largest that we
         // can display while still allowing the qrcode to show up onscreen,
         // anything larger and we'd need to represent qr blocks with single
         // pixels, which wouldn't register on most cameras given the gba screen
         // size.
-        if (qr->size() <= 78) {
+        if (qr->size() <= 77) {
             return qr;
         }
     }

@@ -25,10 +25,10 @@
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
 #include "skyland/dialog.hpp"
-#include "skyland/scene_pool.hpp"
-#include "worldScene.hpp"
-#include "skyland/skyland.hpp"
 #include "skyland/player/opponent/enemyAI.hpp"
+#include "skyland/scene_pool.hpp"
+#include "skyland/skyland.hpp"
+#include "worldScene.hpp"
 
 
 
