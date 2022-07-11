@@ -473,8 +473,9 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.game_mode() == App::GameMode::multiplayer) {
         // TODO... currently unsupported
         set_gamespeed(pfrm, app, GameSpeed::normal);
-    } else if (app.player().key_up(pfrm, Key::alt_1) or
-               tapped_topright_corner()) {
+    } else if (not noreturn_ and
+               (app.player().key_up(pfrm, Key::alt_1) or
+                tapped_topright_corner())) {
         if (app.game_speed() not_eq GameSpeed::stopped) {
 
             bool can_pause = true;
@@ -531,7 +532,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
         app.player().touch_consume();
-    } else if (app.player().key_pressed(pfrm, Key::alt_1) and
+    } else if (not noreturn_ and
+               app.player().key_pressed(pfrm, Key::alt_1) and
                not pfrm.network_peer().is_connected()) {
         set_gamespeed_keyheld_timer_ += delta;
         if (set_gamespeed_keyheld_timer_ > milliseconds(300)) {
@@ -636,7 +638,7 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (app.dialog_buffer()) {
+    if (not noreturn_ and app.dialog_buffer()) {
         auto buffer = std::move(*app.dialog_buffer());
         app.dialog_buffer().reset();
         bool answer = state_bit_load(app, StateBit::dialog_expects_answer);

@@ -39,7 +39,10 @@ namespace skyland
 class WorldScene : public Scene
 {
 public:
-    WorldScene() : far_camera_(false), birds_drawn_(false)
+    WorldScene() :
+        far_camera_(false),
+        birds_drawn_(false),
+        noreturn_(false)
     {
     }
 
@@ -83,6 +86,14 @@ public:
     virtual bool camera_update_check_key(Platform& pfrm, App& app);
 
 
+    // Do not return any new scenes. For derived scenes that want to run the
+    // world logic, but not transition through any state changes.
+    void notransitions()
+    {
+        noreturn_ = true;
+    }
+
+
 protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;
@@ -103,6 +114,7 @@ private:
     Power last_power_used_ = 0;
     bool far_camera_ : 1;
     bool birds_drawn_ : 1;
+    bool noreturn_ : 1;
 
 protected:
     bool power_fraction_opponent_island_ = false;

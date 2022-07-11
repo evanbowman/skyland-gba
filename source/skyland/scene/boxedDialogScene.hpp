@@ -27,6 +27,8 @@
 #include "skyland/dialog.hpp"
 #include "skyland/scene_pool.hpp"
 #include "worldScene.hpp"
+#include "skyland/skyland.hpp"
+#include "skyland/player/opponent/enemyAI.hpp"
 
 
 
@@ -137,7 +139,15 @@ public:
 
     void enter(Platform& pfrm, App& app, Scene& prev) override final
     {
+        WorldScene::enter(pfrm, app, prev);
+
+        WorldScene::notransitions();
+
         dialog_scene_.enter(pfrm, app, prev);
+
+        if (dynamic_cast<EnemyAI*>(&app.opponent())) {
+            set_gamespeed(pfrm, app, GameSpeed::stopped);
+        }
 
         if (auto ws = dynamic_cast<WorldScene*>(&prev)) {
             if (ws->is_far_camera()) {
@@ -157,6 +167,8 @@ public:
 
     void exit(Platform& pfrm, App& app, Scene& next) override final
     {
+        WorldScene::enter(pfrm, app, next);
+
         dialog_scene_.exit(pfrm, app, next);
     }
 
@@ -164,6 +176,12 @@ public:
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override final
     {
+        if (auto scene = WorldScene::update(pfrm, app, delta)) {
+            return scene;
+        }
+
+        app.environment().update(pfrm, app, delta);
+
         return dialog_scene_.update(pfrm, app, delta);
     }
 

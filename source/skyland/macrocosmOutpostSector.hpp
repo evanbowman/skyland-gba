@@ -70,9 +70,7 @@ public:
     }
 
 
-    enum {
-          commodities_max = 5
-    };
+    enum { commodities_max = 5 };
 
 
     void base_stats_cache_store(const Stats& s) const override
