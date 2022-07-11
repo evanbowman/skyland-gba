@@ -85,6 +85,7 @@ private:
     bool exit_ = false;
     bool fastload_ = false;
     bool abandon_ = false;
+    bool freebuild_size_configure_ = false;
 
     u8 opt_cursor_ = 0;
 
