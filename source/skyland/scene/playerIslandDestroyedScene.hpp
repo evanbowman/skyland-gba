@@ -126,6 +126,7 @@ private:
 
     Microseconds confetti_timer_ = 0;
     Microseconds music_fadeback_timer_ = 0;
+    bool restore_volume_ = true;
 };
 
 

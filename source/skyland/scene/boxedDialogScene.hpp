@@ -50,6 +50,13 @@ public:
           data_(allocate_dynamic<Data>("dialog-data"))
     {
         goto_tutorial_ = 0;
+        allow_fastforward_ = true;
+    }
+
+
+    void disallow_fastforward()
+    {
+        allow_fastforward_ = false;
     }
 
 
@@ -101,6 +108,7 @@ private:
 
     u8 expects_answer_y_n_ : 1;
     u8 goto_tutorial_ : 5;
+    u8 allow_fastforward_ : 1;
 
     std::optional<Text> yes_text_;
     std::optional<Text> no_text_;

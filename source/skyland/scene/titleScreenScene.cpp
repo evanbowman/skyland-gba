@@ -140,6 +140,8 @@ static void set_scroll(Platform& pfrm, Layer layer, int x_scroll, int y_scroll)
 
 void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+
     auto ic = dynamic_cast<IntroCreditsScene*>(&prev);
     if (ic and ic->flower_effect_) {
         flower_effect_ = true;

@@ -47,3 +47,13 @@ o----------------------------o
 
 
 o----------------------------o
+
+ <m:INTEGER>
+
+ Set music volume to a value
+ between 0 and 19. Remember
+ to restore music volume back
+ to the full value.
+
+
+o----------------------------o

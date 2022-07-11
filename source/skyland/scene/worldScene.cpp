@@ -278,8 +278,15 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
                 o->offensive_capabilities() == 0 and o->character_count() and
                 o->projectiles().empty()) {
 
+                // The final boss will never surrender.
+                if (app.world_graph()
+                    .nodes_[app.current_world_location()]
+                    .type_ not_eq WorldGraph::Node::Type::corrupted) {
+
+                    return scene_pool::alloc<SurrenderWaitScene>();
+                }
+
                 state_bit_store(app, StateBit::surrender_offered, true);
-                return scene_pool::alloc<SurrenderWaitScene>();
             }
         }
     }

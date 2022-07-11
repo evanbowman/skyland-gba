@@ -685,6 +685,12 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                         *dialog = SYS_CSTR(adventure_completed_message);
                         auto next = scene_pool::alloc<BoxedDialogScene>(
                             std::move(dialog), false);
+
+                        next->disallow_fastforward();
+
+                        restore_volume_ = false;
+                        pfrm.speaker().set_music_volume(13);
+
                         next->set_next_scene(
                             scene_pool::make_deferred_scene<HighscoresScene>(
                                 true, 1));
@@ -918,7 +924,9 @@ void PlayerIslandDestroyedScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::noise);
     pfrm.speaker().stop_chiptune_note(Platform::Speaker::Channel::wave);
 
-    pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+    if (restore_volume_) {
+        pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+    }
 
     pfrm.screen().set_shader(app.environment().shader(app));
 }

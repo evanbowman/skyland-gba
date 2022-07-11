@@ -143,6 +143,12 @@ void BoxedDialogScene::process_command(Platform& pfrm, App& app)
         break;
     }
 
+    case 'm': {
+        pfrm.speaker().set_music_volume(parse_command_int());
+        break;
+    }
+
+
     default:
         pfrm.fatal(format("Invald command %", c).c_str());
     }
@@ -430,8 +436,10 @@ BoxedDialogScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (not text_busy) {
             display_mode_ = DisplayMode::key_released_check1;
         } else {
-            if (text_state_.speed_ == 0 and (key_down<Key::action_2>(pfrm) or
-                                             key_down<Key::action_1>(pfrm))) {
+            if (text_state_.speed_ == 0 and
+                allow_fastforward_ and
+                (key_down<Key::action_2>(pfrm) or
+                 key_down<Key::action_1>(pfrm))) {
 
                 while (advance_text(pfrm, app, delta, false)) {
                     if (display_mode_ not_eq DisplayMode::busy) {
