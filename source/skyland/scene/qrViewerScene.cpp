@@ -46,7 +46,7 @@ QRViewerScene::QRViewerScene(const char* text,
 
 
 
-QRViewerScene::QRViewerScene(QRCode& qr,
+QRViewerScene::QRViewerScene(const QRCode& qr,
                              DeferredScene next,
                              ColorConstant exit_color)
     : message_(""), next_(next), exit_color_(exit_color)

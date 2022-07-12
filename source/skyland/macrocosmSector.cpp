@@ -990,9 +990,9 @@ std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm,
         // anything larger and we'd need to represent qr blocks with single
         // pixels, which wouldn't register on most cameras given the gba screen
         // size.
-        if (qr->size() <= 77) {
+        // if (qr->size() <= 77) {
             return qr;
-        }
+        // }
     }
 
     return {};

@@ -32,30 +32,6 @@ namespace skyland
 
 
 
-std::optional<QRCode> QRCode::create_binary(const char* text, u32 len)
-{
-    auto qr_data = make_scratch_buffer("qrcode-data-buffer");
-
-    auto temp = make_scratch_buffer("qr-temp-buffer");
-    memcpy(temp->data_, text, len);
-
-    bool ok = qrcodegen_encodeBinary((u8*)temp->data_,
-                                     len,
-                                     (u8*)qr_data->data_,
-                                     qrcodegen_Ecc_LOW,
-                                     qrcodegen_VERSION_MIN,
-                                     qrcodegen_VERSION_MAX,
-                                     qrcodegen_Mask_AUTO,
-                                     false);
-    if (ok) {
-        return QRCode(qr_data);
-    } else {
-        return {};
-    }
-}
-
-
-
 std::optional<QRCode> QRCode::create(const char* text)
 {
     auto qr_data = make_scratch_buffer("qrcode-data-buffer");
@@ -117,7 +93,27 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset)
         return not is_position_marker_inner(x, y) and x < 7 and y < 7;
     };
 
-    if (sz > 36) {
+    if (sz > 77) {
+        for (int y = 0; y < sz; y += 8) {
+            for (int x = 0; x < sz; x += 8) {
+                u8 tile_data[16][16];
+                memset(tile_data, 0, sizeof(tile_data));
+
+                for (int yy = 0; yy < 8; ++yy) {
+                    for (int xx = 0; xx < 8; ++xx) {
+                        if (get_module({y + yy, x + xx})) {
+                            u8 color = data_color_;
+
+                            tile_data[xx][yy] = color;
+                        }
+                    }
+                }
+
+                pfrm.overwrite_overlay_tile(output_tile++,
+                                            pfrm.encode_tile(tile_data));
+            }
+        }
+    } else if (sz > 36) {
         for (int y = 0; y < sz; y += 4) {
             for (int x = 0; x < sz; x += 4) {
                 u8 tile_data[16][16];
@@ -127,11 +123,6 @@ void QRCode::copy_to_vram(Platform& pfrm, u16 tile_start_offset)
                     for (int xx = 0; xx < 4; ++xx) {
                         if (get_module({y + yy, x + xx})) {
                             u8 color = data_color_;
-                            // if (is_position_marker_inner(x, y)) {
-                            //     color = position_marker_inner_color_;
-                            // } else if (is_position_marker_outer(x, y)) {
-                            //     color = position_marker_outer_color_;
-                            // }
 
                             // Set bits for 2x2 block.
                             for (int j = 0; j < 2; ++j) {
@@ -191,7 +182,16 @@ void QRCode::draw(Platform& pfrm, const Vec2<u8>& screen_coord)
 
     copy_to_vram(pfrm, 181);
 
-    if (sz > 36) {
+    if (sz > 77) {
+        draw_image(pfrm,
+                   181,
+                   screen_coord.x,
+                   screen_coord.y,
+                   // NOTE: two QR blocks per tile, i.e. size / 2
+                   size() / 8 + size() % 8,
+                   size() / 8 + size() % 8,
+                   Layer::overlay);
+    } else if (sz > 36) {
         draw_image(pfrm,
                    181,
                    screen_coord.x,
