@@ -21,6 +21,7 @@
 
 
 #include "crane.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "platform/platform.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/island.hpp"
@@ -29,7 +30,6 @@
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
-#include "platform/flash_filesystem.hpp"
 
 
 
@@ -213,9 +213,8 @@ Crane::Discoveries Crane::load_discoveries(Platform& pfrm)
     const char* fname = crane_save_fname;
 
     Vector<char> output;
-    const auto bytes_read = flash_filesystem::read_file_data_binary(pfrm,
-                                                                    fname,
-                                                                    output);
+    const auto bytes_read =
+        flash_filesystem::read_file_data_binary(pfrm, fname, output);
 
     if (bytes_read == sizeof(result)) {
         for (u32 i = 0; i < bytes_read; ++i) {

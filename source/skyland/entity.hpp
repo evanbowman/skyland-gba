@@ -146,10 +146,8 @@ static constexpr const int max_entity_size = 200;
 
 
 
-using EntityPools = SegmentedPool<max_entity_size,
-                                  entity_pool_size,
-                                  14,
-                                  entity_pool_align>;
+using EntityPools =
+    SegmentedPool<max_entity_size, entity_pool_size, 14, entity_pool_align>;
 
 
 

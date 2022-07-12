@@ -153,9 +153,8 @@ public:
 
         dialog_scene_.enter(pfrm, app, prev);
 
-        if (pause_if_hostile_
-            and app.opponent_island()
-            and dynamic_cast<EnemyAI*>(&app.opponent())) {
+        if (pause_if_hostile_ and app.opponent_island() and
+            dynamic_cast<EnemyAI*>(&app.opponent())) {
             set_gamespeed(pfrm, app, GameSpeed::stopped);
         }
 
@@ -182,7 +181,8 @@ public:
         dialog_scene_.exit(pfrm, app, next);
 
         if (autorestore_music_volume_) {
-            pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
+            pfrm.speaker().set_music_volume(
+                Platform::Speaker::music_volume_max);
         }
     }
 

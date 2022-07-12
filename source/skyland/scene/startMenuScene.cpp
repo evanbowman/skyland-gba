@@ -158,10 +158,10 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 Text info(pfrm, "", OverlayCoord{1, 1});
 
                 auto msg = [&pfrm, &info](const char* text) {
-                               pfrm.screen().clear();
-                               info.assign(text);
-                               pfrm.screen().display();
-                           };
+                    pfrm.screen().clear();
+                    info.assign(text);
+                    pfrm.screen().display();
+                };
 
                 // Just in case the variable isn't bound...
                 lisp::set_var("on-dialog-closed", L_NIL);
@@ -172,23 +172,26 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (qr) {
                     pfrm.screen().pixelate(0);
                     pfrm.fill_overlay(0);
-                    auto show_qr =
-                        [&pfrm, code = *qr]() -> ScenePtr<Scene> {
-                            return scene_pool::alloc<QRViewerScene>(code,
-                                [&pfrm]() {
-                                    pfrm.load_overlay_texture("overlay");
-                                    pfrm.load_background_texture("background_macro");
-                                    pfrm.screen().schedule_fade(0.f);
-                                    return scene_pool::alloc<macro::SelectorScene>();
-                                },
-                                ColorConstant::rich_black);
-                        };
-                    if (qr->size() > 77) {
+                    auto show_qr = [&pfrm, code = *qr]() -> ScenePtr<Scene> {
+                        return scene_pool::alloc<QRViewerScene>(
+                            code,
+                            [&pfrm]() {
+                                pfrm.load_overlay_texture("overlay");
+                                pfrm.load_background_texture(
+                                    "background_macro");
+                                pfrm.screen().schedule_fade(0.f);
+                                return scene_pool::alloc<
+                                    macro::SelectorScene>();
+                            },
+                            ColorConstant::rich_black);
+                    };
+                    if (qr->size() > 76) {
                         pfrm.screen().schedule_fade(0.f);
                         auto dialog =
                             allocate_dynamic<DialogString>("dialog-buffer");
                         *dialog = SYS_CSTR(qr_code_size_warning);
-                        auto next = scene_pool::alloc<BoxedDialogScene>(std::move(dialog), false);
+                        auto next = scene_pool::alloc<BoxedDialogScene>(
+                            std::move(dialog), false);
                         next->set_next_scene(show_qr);
                         return next;
                     } else {

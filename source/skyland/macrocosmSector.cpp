@@ -922,9 +922,10 @@ void terrain::Sector::render(Platform& pfrm)
 
 
 
-std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm,
-                                                 App& app,
-                                                 Function<16, void(const char*)> msg) const
+std::optional<QRCode>
+terrain::Sector::qr_encode(Platform& pfrm,
+                           App& app,
+                           Function<16, void(const char*)> msg) const
 {
     Vector<u8> data;
 
@@ -991,7 +992,7 @@ std::optional<QRCode> terrain::Sector::qr_encode(Platform& pfrm,
         // pixels, which wouldn't register on most cameras given the gba screen
         // size.
         // if (qr->size() <= 77) {
-            return qr;
+        return qr;
         // }
     }
 

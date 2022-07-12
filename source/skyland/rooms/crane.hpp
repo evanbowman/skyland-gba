@@ -36,8 +36,6 @@ namespace skyland
 class Crane : public Room
 {
 public:
-
-
     struct Discoveries
     {
         enum Item {

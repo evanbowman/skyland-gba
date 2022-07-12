@@ -49,10 +49,7 @@ static constexpr const int alignment = 8;
 
 
 
-using RoomPools = SegmentedPool<max_room_size,
-                                pool_capacity,
-                                26,
-                                8>;
+using RoomPools = SegmentedPool<max_room_size, pool_capacity, 26, 8>;
 
 static_assert(RoomPools::segment_count() < 7);
 

@@ -151,7 +151,13 @@ QRViewerScene::update(Platform& pfrm, App& app, Microseconds delta)
         return next_();
     }
 
-    if (player(app).key_down(pfrm, Key::action_1)) {
+    timer_ += delta;
+    if (timer_ < 0) { // overflow? Would take 30 minutes or so, but...
+        timer_ = 0;
+    }
+
+    if (timer_ > milliseconds(300) and
+        player(app).key_down(pfrm, Key::action_1)) {
         exit_ = true;
         tv_.reset();
         pfrm.fill_overlay(0);
