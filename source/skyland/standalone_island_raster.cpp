@@ -275,7 +275,7 @@ void Platform::Logger::log(Severity level, const char* msg)
 }
 
 
-void english__to_string(int num, char* buffer, int base)
+void arabic__to_string(int num, char* buffer, int base)
 {
     int i = 0;
     bool is_negative = false;

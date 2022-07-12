@@ -648,7 +648,7 @@ bool locale_requires_doublesize_font()
 
 
 
-void english__to_string(int num, char* buffer, int base)
+void arabic__to_string(int num, char* buffer, int base)
 {
     int i = 0;
     bool is_negative = false;
@@ -685,5 +685,5 @@ void english__to_string(int num, char* buffer, int base)
 
 void locale_num2str(int num, char* buffer, int base)
 {
-    english__to_string(num, buffer, base);
+    arabic__to_string(num, buffer, base);
 }
