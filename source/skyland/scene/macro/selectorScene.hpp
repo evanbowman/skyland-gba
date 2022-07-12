@@ -44,12 +44,19 @@ public:
     update(Platform& pfrm, Player& player, macro::EngineImpl& state) override;
 
 
+    void show_island_size()
+    {
+        show_island_size_ = true;
+    }
+
+
 private:
     void describe_selected(Platform& pfrm, macro::EngineImpl& state);
 
     std::optional<Text> text_;
     std::optional<Text> text_2_;
     bool await_start_key_ = false;
+    bool show_island_size_ = false;
 };
 
 

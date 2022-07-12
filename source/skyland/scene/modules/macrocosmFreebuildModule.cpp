@@ -120,7 +120,9 @@ MacrocosmFreebuildModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     init(pfrm, app);
 
-    return scene_pool::alloc<macro::SelectorScene>();
+    auto next = scene_pool::alloc<macro::SelectorScene>();
+    next->show_island_size();
+    return next;
 }
 
 

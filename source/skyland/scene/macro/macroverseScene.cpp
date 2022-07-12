@@ -295,7 +295,9 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
             m.sector().render(pfrm);
             return next;
         } else {
-            return scene_pool::alloc<SelectorScene>();
+            auto next = scene_pool::alloc<SelectorScene>();
+            next->show_island_size();
+            return next;
         }
     }
 

@@ -44,7 +44,18 @@ void SelectorScene::enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev)
     MacrocosmScene::enter(pfrm, state, prev);
     Text::platform_retain_alphabet(pfrm);
 
-    if (not text_) {
+    if (show_island_size_) {
+        text_.emplace(pfrm, OverlayCoord{0, 19});
+        auto& s = state.sector();
+        auto sz = s.size();
+        text_->append("(");
+        text_->append(sz.x);
+        text_->append("x");
+        text_->append(sz.y);
+        text_->append("x");
+        text_->append(sz.z - 1);
+        text_->append(")");
+    } else if (not text_) {
         text_.emplace(pfrm, OverlayCoord{0, 19});
         describe_selected(pfrm, state);
     }
