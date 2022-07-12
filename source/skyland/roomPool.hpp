@@ -23,7 +23,7 @@
 #pragma once
 
 #include "allocator.hpp"
-#include "memory/pool.hpp"
+#include "memory/segmentedPool.hpp"
 #include "skyland/room.hpp"
 #include <memory>
 
@@ -49,90 +49,12 @@ static constexpr const int alignment = 8;
 
 
 
-struct RoomPools
-{
-public:
-    // NOTE: each room occupies 52 bytes, plus a four byte freelist pointer, so
-    // 56 bytes, i.e. ~35 rooms fit in each pool, as pools are reified as
-    // scratch buffers (2k pages).
-    static const auto rooms_per_pool = 26;
-    static const auto pool_count = pool_capacity / rooms_per_pool;
+using RoomPools = SegmentedPool<max_room_size,
+                                pool_capacity,
+                                26,
+                                8>;
 
-    static_assert(pool_count < 7,
-                  "Just a sanity check. We want to understand memory usage "
-                  "in the room pool.");
-
-
-    static constexpr int capacity()
-    {
-        return pool_count * rooms_per_pool;
-    }
-
-
-    using RoomPool = Pool<max_room_size, rooms_per_pool, entity_pool_align>;
-
-
-    void create()
-    {
-        while (not pools_.full()) {
-            pools_.push_back(
-                allocate_dynamic<RoomPool>("room-pool-memory", "rooms"));
-        }
-    }
-
-
-    void destroy()
-    {
-        for (auto& pool : pools_) {
-            if (pool->pooled_element_count() not_eq
-                pool->pooled_element_remaining()) {
-                Platform::fatal("attempt to destroy pool with outstanding "
-                                "references.");
-            }
-        }
-        pools_.clear();
-    }
-
-
-    void* alloc()
-    {
-        for (auto& pl : pools_) {
-            if (not pl->empty()) {
-                return pl->alloc();
-            }
-        }
-        return nullptr;
-    }
-
-
-    bool empty()
-    {
-        for (auto& pl : pools_) {
-            if (not pl->empty()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-
-    void free(void* r)
-    {
-        for (auto& pl : pools_) {
-            if (r >= (void*)pl->cells().data() and
-                r < (void*)(pl->cells().data() + pl->cells().size())) {
-                pl->free((u8*)r);
-                return;
-            }
-        }
-
-        Platform::fatal("attempt to free entity not allocated from pool");
-    }
-
-
-private:
-    Buffer<DynamicMemory<RoomPool>, pool_count> pools_;
-};
+static_assert(RoomPools::segment_count() < 7);
 
 
 

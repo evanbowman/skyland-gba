@@ -168,8 +168,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     app.player_island().clear(pfrm, app);
 
-    std::get<SkylandGlobalData>(globals()).room_pools_.create();
-    std::get<SkylandGlobalData>(globals()).entity_pools_.create();
+    std::get<SkylandGlobalData>(globals()).room_pools_.create("room-mem");
+    std::get<SkylandGlobalData>(globals()).entity_pools_.create("entity-mem");
 
     if (app.opponent_island()) {
         app.reset_opponent_island(pfrm);

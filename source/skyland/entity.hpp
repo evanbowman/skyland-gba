@@ -30,6 +30,7 @@
 #include "health.hpp"
 #include "hitbox.hpp"
 #include "memory/buffer.hpp"
+#include "memory/segmentedPool.hpp"
 #include "number/numeric.hpp"
 #include <memory>
 
@@ -144,67 +145,12 @@ static constexpr const int max_entity_size = 200;
 #endif
 
 
-struct EntityPools
-{
-public:
-    static const auto entities_per_pool = 14;
-    static const auto pool_count = entity_pool_size / entities_per_pool;
 
+using EntityPools = SegmentedPool<max_entity_size,
+                                  entity_pool_size,
+                                  14,
+                                  entity_pool_align>;
 
-    using EntityPool =
-        Pool<max_entity_size, entities_per_pool, entity_pool_align>;
-
-
-    void create()
-    {
-        while (not pools_.full()) {
-            pools_.push_back(
-                allocate_dynamic<EntityPool>("entity-pool", "entities"));
-        }
-    }
-
-
-    void destroy()
-    {
-        for (auto& pool : pools_) {
-            if (pool->pooled_element_count() not_eq
-                pool->pooled_element_remaining()) {
-                Platform::fatal("attempt to destroy pool with outstanding "
-                                "references.");
-            }
-        }
-        pools_.clear();
-    }
-
-
-    void* alloc()
-    {
-        for (auto& pl : pools_) {
-            if (not pl->empty()) {
-                return pl->alloc();
-            }
-        }
-        return nullptr;
-    }
-
-
-    void free(void* e)
-    {
-        for (auto& pl : pools_) {
-            if (e >= (void*)pl->cells().data() and
-                e < (void*)(pl->cells().data() + pl->cells().size())) {
-                pl->free((u8*)e);
-                return;
-            }
-        }
-
-        Platform::fatal("attempt to free entity not allocated from pool");
-    }
-
-
-private:
-    Buffer<DynamicMemory<EntityPool>, pool_count> pools_;
-};
 
 
 template <typename T> using EntityRef = std::unique_ptr<T, void (*)(Entity*)>;
