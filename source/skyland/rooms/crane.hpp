@@ -43,8 +43,11 @@ public:
         enum Item {
             bomb,
             coins,
-            // ... TODO: actual items ...
-            letter,
+
+            data_disc1,
+            data_disc2,
+            old_boot,
+
             count,
         };
 

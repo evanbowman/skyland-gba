@@ -113,11 +113,14 @@ public:
                         Crane::store_discoveries(pfrm, d);
 
 
-
-                        *buffer = format("You discovered '%'! View it in the title screen extras menu!",
-                                         get_line_from_file(pfrm,
-                                                            "/strings/crane.txt",
-                                                            1 + choice * 2)->c_str());
+                        make_format(*buffer,
+                                    "You discovered '%'! %",
+                                    get_line_from_file(pfrm,
+                                                       "/strings/crane.txt",
+                                                       1 + choice * 2)->c_str(),
+                                    get_line_from_file(pfrm,
+                                                       "/strings/crane.txt",
+                                                       1 + choice * 2 + 1)->c_str());
 
                     } else {
                         rng::LinearGenerator seed = app.crane_game_rng();
@@ -131,7 +134,13 @@ public:
                         app.set_coins(pfrm, app.coins() + award);
                     }
 
-                    return scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer), false);
+                    auto next =
+                        scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer), false);
+
+                    next->pause_if_hostile_ = false;
+                    next->autorestore_music_volume_ = true;
+
+                    return next;
                 }
 
                 return scene_pool::alloc<ReadyScene>();
