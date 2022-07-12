@@ -190,7 +190,7 @@ cube
 wide
 pillar
 Emits antimatter pulses that explode when colliding with forcefields, damaging everything within range = 2. For energized-hull, smaller explosion and range = 1.
-Dredging crane, salvage scrap from the flooded world below!
+Dredging crane, salvage scrap from the flooded world below! Adventure mode only.
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
 Energy from the sun! Power output reduced by 1/4 for each block directly above the solar-cell.
 While slightly less powerful than an ordinary cannon, its attacks spread fire.
@@ -226,7 +226,7 @@ A massively destructive weapon with a sluggish %.% second recharge. Reloads and 
 A structure designed to bridge a large vertical distance by dividing it into smaller vertical distances, often called steps.
 A placeholder structure created after a character destroys a room by plundering.
 Programmable audio block. Must be placed within four tiles to the right of a speaker block. Position determines  channel (+1 sqr, +2 sqr, +3 wav, +4 noise).
-Stores one unit of cargo. Required for trading and quests in adventure mode!
+Stores one unit of cargo. Required for quests in adventure mode!
 A reliable artillery weapon. Deals % damage every %.% seconds.
 Emits harmful radiation, damaging any character standing within two spaces away.
 A switch! When the lefthand side of the switch is selected, it'll select one of two targets, epending on the position of the switch.

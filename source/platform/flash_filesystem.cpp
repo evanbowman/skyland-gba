@@ -27,6 +27,59 @@
 
 
 #ifndef __GBA__
+
+
+void arabic__to_string(int num, char* buffer, int base)
+{
+    int i = 0;
+    bool is_negative = false;
+
+    if (num == 0) {
+        buffer[i++] = '0';
+        buffer[i] = '\0';
+        return;
+    }
+
+    // Based on the behavior of itoa()
+    if (num < 0 && base == 10) {
+        is_negative = true;
+        num = -num;
+    }
+
+    while (num != 0) {
+        int rem = num % base;
+        buffer[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
+        num = num / base;
+    }
+
+    if (is_negative) {
+        buffer[i++] = '-';
+    }
+
+    buffer[i] = '\0';
+
+    str_reverse(buffer, i);
+
+    return;
+}
+
+
+template <u32 length> StringBuffer<length> to_string(int num)
+{
+    char temp[length];
+    arabic__to_string(num, temp, 10);
+
+    return temp;
+}
+
+
+
+StringBuffer<12> stringify(s32 num)
+{
+    return to_string<12>(num);
+}
+
+
 // Test harness for non-gba backtesting
 class Platform
 {
@@ -370,11 +423,7 @@ InitStatus initialize(Platform& pfrm, u32 offset)
 
         u8 crc8 = 0;
         int read_size = r.file_info_.data_length_.get();
-        if (r.file_info_.flags_[0] &
-            Record::FileInfo::Flags0::has_end_padding) {
-            // We included the trailing null byte in the crc.
-            ++read_size;
-        }
+
         for (int i = 0; i < read_size; ++i) {
             u8 val;
             const u32 off = i + offset + (sizeof r) + r.file_info_.name_length_;
