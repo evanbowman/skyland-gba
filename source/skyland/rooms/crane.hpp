@@ -36,6 +36,38 @@ namespace skyland
 class Crane : public Room
 {
 public:
+
+
+    struct Discoveries
+    {
+        enum Item {
+            bomb,
+            coins,
+            // ... TODO: actual items ...
+            letter,
+            count,
+        };
+
+        host_u64 items_;
+
+        Buffer<Item, count> unallocated_items() const
+        {
+            Buffer<Item, count> result;
+
+            for (int i = coins + 1; i < count; ++i) {
+                if ((items_.get() & (1 << i)) == 0) {
+                    result.push_back((Item)i);
+                }
+            }
+
+            return result;
+        }
+    };
+
+    static Discoveries load_discoveries(Platform& pfrm);
+    static void store_discoveries(Platform& pfrm, const Discoveries& d);
+
+
     Crane(Island* parent, const RoomCoord& position, const char* n = name());
 
 

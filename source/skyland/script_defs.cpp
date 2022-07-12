@@ -399,9 +399,6 @@ std::pair<App*, Platform*> interp_get_context()
 
 
 
-using FileLine = StringBuffer<1980>;
-
-
 DynamicMemory<FileLine>
 get_line_from_file(Platform& pfrm, const char* file_name, int line)
 {

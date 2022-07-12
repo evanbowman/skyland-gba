@@ -99,20 +99,39 @@ public:
                 if (got_treasure_) {
                     pfrm.speaker().play_sound("coin", 2);
 
-                    rng::LinearGenerator seed = app.crane_game_rng();
-
-                    Coins award = 400;
-                    award += rng::choice<2000>(seed);
+                    auto d = Crane::load_discoveries(pfrm);
+                    auto choices = d.unallocated_items();
 
                     auto buffer =
                         allocate_dynamic<DialogString>("dialog-buffer");
-                    *buffer = format("You discovered %@!", award);
-                    auto next = scene_pool::alloc<BoxedDialogSceneWS>(
-                        std::move(buffer), false);
 
-                    app.set_coins(pfrm, app.coins() + award);
+                    if (not choices.empty() and rng::choice<2>(app.crane_game_rng())) {
 
-                    return next;
+                        auto idx = rng::choice(choices.size(), app.crane_game_rng());
+                        auto choice = choices[idx];
+                        d.items_.set(d.items_.get() | (1 << choice));
+                        Crane::store_discoveries(pfrm, d);
+
+
+
+                        *buffer = format("You discovered '%'! View it in the title screen extras menu!",
+                                         get_line_from_file(pfrm,
+                                                            "/strings/crane.txt",
+                                                            1 + choice * 2)->c_str());
+
+                    } else {
+                        rng::LinearGenerator seed = app.crane_game_rng();
+
+                        Coins award = 200;
+                        award += rng::choice<1000>(seed);
+
+
+                        *buffer = format("You discovered %@!", award);
+
+                        app.set_coins(pfrm, app.coins() + award);
+                    }
+
+                    return scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer), false);
                 }
 
                 return scene_pool::alloc<ReadyScene>();

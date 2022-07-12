@@ -29,6 +29,8 @@
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "platform/flash_filesystem.hpp"
+
 
 
 namespace skyland
@@ -84,7 +86,7 @@ void Crane::update(Platform& pfrm, App& app, Microseconds delta)
             pos.y += 2;
             pos.y += timer_ * Fixnum(0.00004f);
 
-            if (item_ == 0) {
+            if (item_ == Discoveries::Item::bomb) {
                 pfrm.speaker().play_sound("explosion1", 2);
                 big_explosion(pfrm, app, pos);
                 apply_damage(pfrm, app, 5);
@@ -149,7 +151,11 @@ void Crane::display(Platform::Screen& screen)
 
 ScenePtr<Scene> Crane::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
-    if (state_bit_load(app, StateBit::crane_game_got_treasure)) {
+    auto& env = app.environment();
+    auto clear_skies = dynamic_cast<weather::ClearSkies*>(&env);
+
+    if (clear_skies and
+        state_bit_load(app, StateBit::crane_game_got_treasure)) {
         pfrm.speaker().play_sound("beep_error", 3);
         // TODO: show notification message
         return null_scene();
@@ -191,6 +197,47 @@ void Crane::render_exterior(App& app, TileId buffer[16][16])
     buffer[x][y + 1] = Tile::crane_4;
     buffer[x + 1][y + 1] = Tile::crane_5;
     buffer[x + 2][y + 1] = Tile::crane_6;
+}
+
+
+
+static const char* crane_save_fname = "/save/crane.dat";
+
+
+
+Crane::Discoveries Crane::load_discoveries(Platform& pfrm)
+{
+    Discoveries result;
+    result.items_.set(0);
+
+    const char* fname = crane_save_fname;
+
+    Vector<char> output;
+    const auto bytes_read = flash_filesystem::read_file_data_binary(pfrm,
+                                                                    fname,
+                                                                    output);
+
+    if (bytes_read == sizeof(result)) {
+        for (u32 i = 0; i < bytes_read; ++i) {
+            ((u8*)&result)[i] = output[i];
+        }
+    }
+
+
+    return result;
+}
+
+
+
+void Crane::store_discoveries(Platform& pfrm, const Discoveries& d)
+{
+    Vector<char> output;
+
+    for (u32 i = 0; i < sizeof d; ++i) {
+        output.push_back(((u8*)&d)[i]);
+    }
+
+    flash_filesystem::store_file_data_binary(pfrm, crane_save_fname, output);
 }
 
 

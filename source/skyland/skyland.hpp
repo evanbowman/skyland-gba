@@ -510,4 +510,10 @@ void write_custom_graphics(Platform& pfrm, App& app);
 
 
 
+using FileLine = StringBuffer<1980>;
+DynamicMemory<FileLine>
+get_line_from_file(Platform& pfrm, const char* file_name, int line);
+
+
+
 } // namespace skyland
