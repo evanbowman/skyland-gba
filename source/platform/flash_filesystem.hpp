@@ -40,9 +40,9 @@ inline void info(Platform& pfrm, const StringBuffer<200>& msg)
 {
     std::cout << msg.c_str() << std::endl;
 }
-#ifdef __FAKE_VECTOR__
+// #ifdef __FAKE_VECTOR__
 template <typename T> using Vector = Buffer<T, 32000>;
-#endif
+// #endif
 #else
 #include "containers/vector.hpp"
 #endif // __GBA__

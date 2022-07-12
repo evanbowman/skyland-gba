@@ -406,8 +406,9 @@ The last remnants of humanity migrate above the clouds, escaping the terrors of 
 Civilization flourishes in a delicate peace, threatened by growing piracy and power-hungry warlords...
 WARNING: Gravitational collapse detected!!!
 The isle imploded!
-Locked! To unlock Freebuild mode, create a civilization with more than four isles in the SKYLAND Macrocosm!
+Locked! To unlock Freebuild mode, create a civilization with at least three isles in the SKYLAND Macrocosm!
 Error! Island has too many blocks to compress into a legible QR code! Sorry, this is a technical limitation, not much can be done, other than reducing the number of blocks in your island.
+WARNING: Your island is pretty big, and the resulting QR code does not fit onscreen except when using 1-pixel-per-block. We highly recommended that you reduce the number of blocks on your island, as you may have trouble scanning.
 ai thinking...
 if you can jump, you must!
 % wins!

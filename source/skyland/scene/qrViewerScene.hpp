@@ -37,7 +37,7 @@ namespace skyland
 class QRViewerScene : public Scene
 {
 public:
-    QRViewerScene(QRCode& qr, DeferredScene next, ColorConstant exit_color);
+    QRViewerScene(const QRCode& qr, DeferredScene next, ColorConstant exit_color);
 
     QRViewerScene(const char* text,    // Text to encode
                   const char* message, // message to display alongside qr code
