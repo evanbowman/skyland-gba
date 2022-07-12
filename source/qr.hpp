@@ -35,6 +35,7 @@ class QRCode
 {
 public:
     static std::optional<QRCode> create(const char* text);
+    static std::optional<QRCode> create_binary(const char* text, u32 len);
 
 
     bool get_module(const Vec2<int>& position) const;
