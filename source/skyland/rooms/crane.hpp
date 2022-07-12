@@ -104,6 +104,7 @@ public:
         return RoomProperties::roof_hidden | RoomProperties::flag_mount |
                RoomProperties::disabled_in_tutorials |
                RoomProperties::skyland_forever_unsupported |
+               RoomProperties::adventure_mode_only |
                RoomProperties::multiplayer_unsupported;
     }
 
