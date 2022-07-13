@@ -373,13 +373,6 @@ MacroverseScene::update(Platform& pfrm, App& app, Microseconds delta)
     v.set_center(camera_);
     pfrm.screen().set_view(v);
 
-    auto freebuild_flag = GlobalPersistentData::freebuild_unlocked;
-    if (not app.gp_.stateflags_.get(freebuild_flag)) {
-        if (m.data_->other_sectors_.size() > 0) {
-            app.gp_.stateflags_.set(freebuild_flag, true);
-            save::store_global_data(pfrm, app.gp_);
-        }
-    }
 
     m.data_->cloud_scroll_ += 0.000001f * delta;
 

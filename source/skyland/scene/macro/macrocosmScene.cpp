@@ -336,6 +336,12 @@ void MacrocosmScene::enter(Platform& pfrm, App& app, Scene& prev)
         Platform::fatal(format("logic error! % %", __FILE__, __LINE__).c_str());
     }
 
+    auto freebuild_flag = GlobalPersistentData::freebuild_unlocked;
+    if (not app.gp_.stateflags_.get(freebuild_flag)) {
+        app.gp_.stateflags_.set(freebuild_flag, true);
+        save::store_global_data(pfrm, app.gp_);
+    }
+
     enter(pfrm, macrocosm(app), prev);
 }
 
