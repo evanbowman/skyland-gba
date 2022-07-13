@@ -116,6 +116,14 @@ ScenePtr<Scene> TileOptionsScene::update(Platform& pfrm,
         // block. Go directly to the block creation menu.
         last_option_ = &options[0];
         return scene_pool::alloc<CreateBlockScene>();
+    } else {
+        auto c = state.sector().cursor();
+        --c.z;
+        auto& beneath = state.sector().get_block(c);
+        if (beneath.type() == terrain::Type::air) {
+            last_option_ = &options[0];
+            return scene_pool::alloc<CreateBlockScene>();
+        }
     }
 
     if (player.key_down(pfrm, Key::action_1)) {

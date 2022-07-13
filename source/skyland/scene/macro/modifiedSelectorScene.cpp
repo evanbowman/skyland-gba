@@ -47,8 +47,13 @@ void ModifiedSelectorScene::enter(Platform& pfrm,
 
     day_night_text_.emplace(pfrm, OverlayCoord{1, 1});
     day_night_text_->assign(
-        "a", FontColors{custom_color(0xa3c447), ColorConstant::rich_black});
+        "b", FontColors{custom_color(0xa3c447), ColorConstant::rich_black});
     day_night_text_->append(SYSTR(macro_day_or_night)->c_str());
+
+    cursor_text_.emplace(pfrm, OverlayCoord{1, 4});
+    cursor_text_->assign("a", FontColors{custom_color(0xa3c447),
+                                             ColorConstant::rich_black});
+    cursor_text_->append(SYSTR(macro_raise)->c_str());
 
     rotate_text_.emplace(
         pfrm, SYSTR(macro_rotate)->c_str(), OverlayCoord{3, 2});
@@ -79,6 +84,7 @@ void ModifiedSelectorScene::exit(Platform& pfrm,
     layers_text_.reset();
     day_night_text_.reset();
     visible_layers_text_.reset();
+    cursor_text_.reset();
     pfrm.set_tile(Layer::overlay, 1, 2, 0);
     pfrm.set_tile(Layer::overlay, 2, 2, 0);
     pfrm.set_tile(Layer::overlay, 1, 3, 0);
@@ -97,13 +103,10 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
 
     auto& sector = state.sector();
 
-    if (persist_ or player.key_pressed(pfrm, Key::alt_1) or
+    if (player.key_pressed(pfrm, Key::alt_1) or
         player.key_pressed(pfrm, Key::alt_2)) {
 
-        if ((persist_ and player.key_down(pfrm, Key::alt_2)) or
-            player.key_down(pfrm, Key::action_2)) {
-            return scene_pool::alloc<SelectorScene>();
-        } else if (player.key_down(pfrm, Key::left)) {
+        if (player.key_down(pfrm, Key::left)) {
             pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
             pfrm.screen().clear();
             pfrm.screen().display();
@@ -144,7 +147,7 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
                 visible_layers_text_->append(state.sector().get_z_view());
                 pfrm.speaker().play_sound("cursor_tick", 0);
             }
-        } else if (player.key_down(pfrm, Key::action_1)) {
+        } else if (player.key_down(pfrm, Key::action_2)) {
             pfrm.screen().schedule_fade(0.7f, custom_color(0x102447));
             pfrm.screen().clear();
             pfrm.screen().display();
@@ -160,6 +163,25 @@ ScenePtr<Scene> ModifiedSelectorScene::update(Platform& pfrm,
             sector.render(pfrm);
             pfrm.screen().schedule_fade(0.f, ColorConstant::rich_black);
             pfrm.speaker().play_sound("cursor_tick", 0);
+        } else if (player.key_down(pfrm, Key::action_1)) {
+            auto c = sector.cursor();
+            if (c.z < sector.size().z - 1) {
+                ++c.z;
+                auto block = state.sector().get_block(c);
+                while (block.type_ not_eq (u8) terrain::Type::air) {
+                    ++c.z;
+                    block = state.sector().get_block(c);
+                }
+                if (c.z <= sector.size().z - 1) {
+                    pfrm.speaker().play_sound("cursor_tick", 0);
+                    state.sector().set_cursor(c, false);
+                } else {
+                    pfrm.speaker().play_sound("beep_error", 2);
+                }
+
+            } else {
+                pfrm.speaker().play_sound("beep_error", 2);
+            }
         }
 
     } else {

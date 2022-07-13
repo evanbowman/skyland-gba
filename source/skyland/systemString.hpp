@@ -218,6 +218,7 @@ enum class SystemString {
     macro_build_improvement,
     macro_demolish,
     macro_rotate,
+    macro_raise,
     macro_layers,
     macro_day_or_night,
     macro_visible_layers,

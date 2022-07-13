@@ -108,13 +108,8 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
     options_.push_back(terrain::Type::gold);
     options_.push_back(terrain::Type::crystal);
 
-    options_.push_back(terrain::Type::air);
     options_.push_back(terrain::Type::lava_source);
     options_.push_back(terrain::Type::light_source);
-    if (state.data_->freebuild_mode_ and
-        not pfrm.network_peer().is_connected()) {
-        // options_.push_back(terrain::Type::singularity);
-    }
     options_.push_back(terrain::Type::sand);
     options_.push_back(terrain::Type::marble_top);
     options_.push_back(terrain::Type::scaffolding);
@@ -442,6 +437,8 @@ ScenePtr<Scene> CreateBlockScene::onclick(Platform& pfrm,
         } else {
             pfrm.speaker().play_sound("cursor_tick", 0);
         }
+    } else {
+        pfrm.speaker().play_sound("beep_error", 2);
     }
 
     return null_scene();

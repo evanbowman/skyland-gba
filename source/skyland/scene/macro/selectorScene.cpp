@@ -119,7 +119,7 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
 
     } else if (player.key_down(pfrm, Key::alt_2)) {
 
-        return scene_pool::alloc<ModifiedSelectorScene>(false);
+        return scene_pool::alloc<ModifiedSelectorScene>();
 
     } else {
 

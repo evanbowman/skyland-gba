@@ -34,10 +34,6 @@ namespace skyland::macro
 class ModifiedSelectorScene : public MacrocosmScene
 {
 public:
-    ModifiedSelectorScene(bool persist = true) : persist_(persist)
-    {
-    }
-
 
     void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override;
 
@@ -53,8 +49,8 @@ private:
     std::optional<Text> day_night_text_;
     std::optional<Text> rotate_text_;
     std::optional<Text> layers_text_;
+    std::optional<Text> cursor_text_;
     std::optional<Text> visible_layers_text_;
-    bool persist_;
 };
 
 
