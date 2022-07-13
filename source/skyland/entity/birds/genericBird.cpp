@@ -172,14 +172,6 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
 
         roost(pfrm, island, delta);
 
-        // anim_timer_ += delta;
-        // if (anim_timer_ > seconds(10) and rng::choice<1400>(rng::utility_state) == 0) {
-        //     anim_timer_ = 0;
-        //     anim_index_ = 0;
-        //     flight_timer_ = 0;
-        //     state_ = State::caw;
-        // }
-
         if (alerted_ and delta > 0) {
             state_ = State::fly;
             anim_timer_ = 0;
