@@ -153,7 +153,8 @@ public:
 
         dialog_scene_.enter(pfrm, app, prev);
 
-        if (pause_if_hostile_ and app.opponent_island() and
+        if (app.game_mode() not_eq App::GameMode::tutorial and
+            pause_if_hostile_ and app.opponent_island() and
             dynamic_cast<EnemyAI*>(&app.opponent())) {
             set_gamespeed(pfrm, app, GameSpeed::stopped);
         }
@@ -190,8 +191,10 @@ public:
     ScenePtr<Scene>
     update(Platform& pfrm, App& app, Microseconds delta) override final
     {
-        if (auto scene = WorldScene::update(pfrm, app, delta)) {
-            return scene;
+        if (app.game_mode() not_eq App::GameMode::tutorial) {
+            if (auto scene = WorldScene::update(pfrm, app, delta)) {
+                return scene;
+            }
         }
 
         app.environment().update(pfrm, app, delta);
