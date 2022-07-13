@@ -87,7 +87,7 @@ class Platform
 public:
     ~Platform()
     {
-        std::ofstream stream("Skyland.logstructured.edit.sav",
+        std::ofstream stream("Skyland" + output_,
                              std::ios::out | std::ios::binary);
 
         for (u8 byte : data_) {
@@ -95,16 +95,22 @@ public:
         }
     }
 
+    std::string input_;
+    std::string output_;
 
-    Platform()
+
+    Platform(const std::string& input,
+             const std::string& output) :
+        input_(input),
+        output_(output)
     {
-        std::ifstream stream("Skyland.logstructured.sav",
+        std::ifstream stream("Skyland" + input_,
                              std::ios::in | std::ios::binary);
         std::vector<uint8_t> contents((std::istreambuf_iterator<char>(stream)),
                                       std::istreambuf_iterator<char>());
         data_ = contents;
 
-        std::cout << "loaded data, size: " << data_.size() << std::endl;
+        // std::cout << "loaded data, size: " << data_.size() << std::endl;
     }
 
 
@@ -901,9 +907,81 @@ u32 read_file_data(Platform& pfrm, const char* path, Vector<char>& output)
 
 
 #ifndef __GBA__
+
+
+
+namespace flash_filesystem
+{
+
+
+
+void reset()
+{
+    start_offset = 0;
+    end_offset = 0;
+    gap_space = 0;
+}
+
+
+
+bool basic_readwrite()
+{
+    Platform pfrm(".regr_input", ".regr_output");
+
+
+    return false;
+}
+
+
+
+bool compaction()
+{
+    Platform pfrm(".regr_input", ".regr_output");
+
+    return true;
+}
+
+
+
+void regression()
+{
+    int pass_count = 0;
+    int fail_count = 0;
+
+    std::cout << "starting fs regression...\n" << std::endl;
+
+#define TEST_CASE(PROC)                       \
+    reset();                                  \
+    std::cout << "running: " #PROC "... ";    \
+    if (not PROC()) {                         \
+        puts("[failed]");                     \
+        ++fail_count;                         \
+    } else {                                  \
+        puts("[passed]");                     \
+        ++pass_count;                         \
+    }
+
+    TEST_CASE(basic_readwrite);
+    TEST_CASE(compaction);
+
+    puts("");
+    std::cout << pass_count << " tests passed" << std::endl;
+    std::cout << fail_count << " tests failed" << std::endl;
+}
+
+
+
+}
+
+
+
 int main()
 {
-    Platform pfrm;
+    flash_filesystem::regression();
+
+    return 0;
+
+    Platform pfrm(".logstructured.sav", ".logstructured.edit.sav");
 
     flash_filesystem::initialize(pfrm, 8);
 
