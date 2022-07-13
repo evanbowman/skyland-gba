@@ -97,6 +97,16 @@ void EscapeBeacon::rewind(Platform& pfrm, App& app, Microseconds delta)
 ScenePtr<Scene>
 EscapeBeacon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
+    if (app.game_mode() == App::GameMode::adventure) {
+        if (app.world_graph()
+            .nodes_[app.current_world_location()]
+            .type_ == WorldGraph::Node::Type::corrupted) {
+            pfrm.speaker().play_sound("beep_error", 3);
+            // You can't run from the boss.
+            return null_scene();
+        }
+    }
+
     const bool was_activated = activated_;
 
     activated_ = true;
