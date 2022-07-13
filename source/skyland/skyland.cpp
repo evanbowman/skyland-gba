@@ -206,6 +206,7 @@ void App::create_backup(Platform& pfrm)
 void App::delete_backup()
 {
     backup_->valid_ = false;
+    backup_->lisp_data_.reset();
 }
 
 

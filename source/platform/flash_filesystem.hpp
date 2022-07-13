@@ -116,7 +116,7 @@ store_file_data_text(Platform& pfrm, const char* path, Vector<char>& data)
 {
     data.pop_back();
     auto result = store_file_data(pfrm, path, data);
-    data.push_back('\n');
+    data.push_back('\0');
 
     return result;
 }

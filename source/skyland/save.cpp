@@ -105,17 +105,18 @@ void store_global_data(Platform& pfrm, const GlobalPersistentData& data)
 class LispPrinter : public lisp::Printer
 {
 public:
-    LispPrinter(Platform& pfrm) : pfrm_(pfrm)
+    LispPrinter(Vector<char>& v) : v_(v)
     {
     }
 
     void put_str(const char* str) override
     {
-        fmt_ += str;
+        while (*str not_eq '\0') {
+            v_.push_back(*str);
+        }
     }
 
-    StringBuffer<1024> fmt_;
-    Platform& pfrm_;
+    Vector<char>& v_;
 };
 
 
@@ -124,11 +125,13 @@ void EmergencyBackup::init(Platform& pfrm, App& app)
 {
     persistent_data_ = app.persistent_data();
 
-    LispPrinter p(pfrm);
+    lisp_data_.emplace();
+
+    LispPrinter p(*lisp_data_);
     auto val = app.invoke_script(pfrm, "/scripts/save.lisp");
     lisp::format(val, p);
 
-    lisp_data_ = p.fmt_;
+    lisp_data_->push_back('\0');
 
     valid_ = true;
 }
@@ -160,8 +163,9 @@ void EmergencyBackup::store(Platform& pfrm)
 
     save::store(pfrm, save_data);
 
-    flash_filesystem::store_file_data(
-        pfrm, "/save/data.lisp", lisp_data_.c_str(), lisp_data_.length());
+    flash_filesystem::store_file_data_text(pfrm,
+                                           "/save/data.lisp",
+                                           *lisp_data_);
 }
 
 

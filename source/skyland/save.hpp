@@ -25,6 +25,7 @@
 #include "persistentData.hpp"
 #include "serial.hpp"
 #include "string.hpp"
+#include "containers/vector.hpp"
 
 
 
@@ -47,7 +48,8 @@ namespace save
 struct EmergencyBackup
 {
     PersistentData persistent_data_;
-    SerialString lisp_data_;
+    std::optional<Vector<char>> lisp_data_;
+
     bool valid_ = false;
 
     void init(Platform& pfrm, App& app);

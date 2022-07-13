@@ -38,6 +38,8 @@ std::optional<QRCode> QRCode::create(const char* text)
 
     auto temp = make_scratch_buffer("qr-temp-buffer");
 
+    Platform::instance().system_call("watchdog-off", 0);
+
     bool ok = qrcodegen_encodeText(text,
                                    (u8*)temp->data_,
                                    (u8*)qr_data->data_,
@@ -46,6 +48,9 @@ std::optional<QRCode> QRCode::create(const char* text)
                                    qrcodegen_VERSION_MAX,
                                    qrcodegen_Mask_AUTO,
                                    true);
+
+    Platform::instance().system_call("watchdog-on", 0);
+
     if (ok) {
         return QRCode(qr_data);
     } else {

@@ -168,6 +168,7 @@ enum class GlobalFlag {
     sound_startup_monkeypatch,
     key_poll_called,
     music_halfspeed_update,
+    watchdog_disabled,
     count
 };
 
@@ -2306,26 +2307,29 @@ static void vblank_isr()
 
     rumble_update();
 
-    const auto twenty_seconds = 1200; // approx. 60 fps
-    if (UNLIKELY(::watchdog_counter > twenty_seconds)) {
+    const auto ten_seconds = 600; // approx. 60 fps
+    if (UNLIKELY(::watchdog_counter > ten_seconds)) {
+
         ::watchdog_counter = 0;
 
-        ::platform->speaker().stop_music();
+        if (not get_gflag(GlobalFlag::watchdog_disabled)) {
+            ::platform->speaker().stop_music();
 
-        if (not canary_check()) {
-            REG_SOUNDCNT_X = 0; // Disable the sound chip.
-            // on_stack_overflow() disables some interrupts, but we want to
-            // disable additional ones, as we will not be leaving this interrupt
-            // handler.
-            irqDisable(IRQ_TIMER1 | IRQ_SERIAL);
-            on_stack_overflow();
-        } else {
-            if (::platform and ::unrecoverrable_error_callback) {
-                (*::unrecoverrable_error_callback)(*platform);
+            if (not canary_check()) {
+                REG_SOUNDCNT_X = 0; // Disable the sound chip.
+                // on_stack_overflow() disables some interrupts, but we want to
+                // disable additional ones, as we will not be leaving this
+                // interrupt handler.
+                irqDisable(IRQ_TIMER1 | IRQ_SERIAL);
+                on_stack_overflow();
+            } else {
+                if (::platform and ::unrecoverrable_error_callback) {
+                    (*::unrecoverrable_error_callback)(*platform);
+                }
             }
-        }
 
-        restart();
+            restart();
+        }
     }
 
     if (not get_gflag(GlobalFlag::key_poll_called)) {
@@ -6592,6 +6596,10 @@ void* Platform::system_call(const char* feature_name, void* arg)
 
         // Re-enable the async non-blocking console.
         remote_console_start();
+    } else if (str_eq(feature_name, "watchdog-on")) {
+        set_gflag(GlobalFlag::watchdog_disabled, false);
+    } else if (str_eq(feature_name, "watchdog-off")) {
+        set_gflag(GlobalFlag::watchdog_disabled, true);
     }
 
     return nullptr;
