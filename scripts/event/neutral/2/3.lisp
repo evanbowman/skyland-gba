@@ -30,6 +30,9 @@
   (dialog-await-y/n))
 
 
+(setq on-dialog-declined exit)
+
+
 (defn on-dialog-accepted
   (if (< (coins) 1500)
       (progn

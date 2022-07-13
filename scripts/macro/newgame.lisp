@@ -3,7 +3,7 @@
 (eval-file "/scripts/reset_hooks.lisp")
 
 
-(coins-set 160)
+(coins-set 200)
 
 (eval-file "/scripts/macro/start_layout.lisp")
 

@@ -36,7 +36,7 @@
 (setq on-converge
       (lambda
         (dialog
-         "<c:banana man:8>Waaa! My precious 'nanas! Stolen by goblins! Why do I need them, you ask!? That's TOP SECRET! Help me teach those goblins a lesson?")
+         "<c:banana man:8>Waaa! My precious b'nanas! Stolen by goblins! Why do I need them, you ask!? That's TOP SECRET! Help me teach those goblins a lesson?")
         (dialog-await-y/n)
 
         (setq on-dialog-accepted
