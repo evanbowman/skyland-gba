@@ -927,16 +927,221 @@ void reset()
 bool basic_readwrite()
 {
     Platform pfrm(".regr_input", ".regr_output");
+    initialize(pfrm, 8);
+
+    Vector<char> v1;
+    for (int i = 0; i < 21; ++i) {
+        v1.push_back('a');
+    }
+
+    flash_filesystem::store_file_data(pfrm, "/tmp/rwtest.dat", v1);
+
+    Vector<char> v2;
+
+    flash_filesystem::read_file_data(pfrm, "/tmp/rwtest.dat", v2);
+
+    if (v1.size() not_eq v2.size()) {
+        return false;
+    }
+
+    for (u32 i = 0; i < v1.size(); ++i) {
+        if (v1[i] not_eq v2[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 
-    return false;
+
+bool persistence()
+{
+    Vector<char> v1;
+    for (int i = 0; i < 21; ++i) {
+        v1.push_back('a');
+    }
+
+    Vector<char> v2;
+    for (int i = 0; i < 20; ++i) {
+        v1.push_back('b');
+    }
+
+    {
+        Platform pfrm(".regr_input", ".regr_output");
+        initialize(pfrm, 8);
+
+        flash_filesystem::store_file_data(pfrm, "/tmp/ptest.dat", v1);
+        flash_filesystem::store_file_data(pfrm, "/tmp/ptest2.dat", v2);
+    }
+
+    {
+        reset();
+        Platform pfrm(".regr_output", ".regr_output2");
+        initialize(pfrm, 8);
+
+        Vector<char> v1_1;
+        Vector<char> v2_1;
+
+        flash_filesystem::read_file_data(pfrm, "/tmp/ptest.dat", v1_1);
+        flash_filesystem::read_file_data(pfrm, "/tmp/ptest2.dat", v2_1);
+
+        if (v1_1.size() not_eq v1.size() or v2_1.size() not_eq v2.size()) {
+            return false;
+        }
+
+        for (u32 i = 0; i < v1.size(); ++i) {
+            if (v1_1[i] not_eq v1[i]) {
+                return false;
+            }
+        }
+
+        for (u32 i = 0; i < v2.size(); ++i) {
+            if (v2_1[i] not_eq v2[i]) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 
 
 bool compaction()
 {
-    Platform pfrm(".regr_input", ".regr_output");
+    Buffer<std::pair<StringBuffer<68>, Vector<char>>, 9> files;
+
+    {
+        Platform pfrm(".regr_input", ".regr_output");
+        initialize(pfrm, 8);
+
+        walk(pfrm,
+             [&files, &pfrm](const char* path) {
+                 Vector<char> file_data;
+                 read_file_data(pfrm, path, file_data);
+                 files.push_back({path, file_data});
+             });
+
+        compact(pfrm);
+
+        for (auto& kvp : files) {
+            Vector<char> data;
+            read_file_data(pfrm, kvp.first.c_str(), data);
+
+            if (data.size() not_eq kvp.second.size()) {
+                return false;
+            }
+
+            for (u32 i = 0; i < data.size(); ++i) {
+                if (data[i] not_eq kvp.second[i]) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    // Persistence test: make sure everything comes up ok after a restart
+    // following compaction.
+    reset();
+    Platform pfrm(".regr_output", ".regr_output2");
+    initialize(pfrm, 8);
+
+    if (end_offset not_eq 5396) {
+        return false;
+    }
+
+    if (gap_space not_eq 0) {
+        return false;
+    }
+
+    for (auto& kvp : files) {
+        Vector<char> data;
+        read_file_data(pfrm, kvp.first.c_str(), data);
+
+        if (data.size() not_eq kvp.second.size()) {
+            return false;
+        }
+
+        for (u32 i = 0; i < data.size(); ++i) {
+            if (data[i] not_eq kvp.second[i]) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+
+
+bool write_triggered_compaction()
+{
+    Buffer<std::pair<StringBuffer<68>, Vector<char>>, 9> files;
+
+    Vector<char> test;
+    for (int i = 0; i < 9999; ++i) {
+        test.push_back('A');
+    }
+
+    {
+        Platform pfrm(".regr_input", ".regr_output");
+        initialize(pfrm, 8);
+
+        walk(pfrm,
+             [&files, &pfrm](const char* path) {
+                 Vector<char> file_data;
+                 read_file_data(pfrm, path, file_data);
+                 files.push_back({path, file_data});
+             });
+
+        // trigger compaction
+        store_file_data(pfrm, "/stuff.dat", test);
+
+        for (auto& kvp : files) {
+            Vector<char> data;
+            read_file_data(pfrm, kvp.first.c_str(), data);
+
+            if (data.size() not_eq kvp.second.size()) {
+                return false;
+            }
+
+            for (u32 i = 0; i < data.size(); ++i) {
+                if (data[i] not_eq kvp.second[i]) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    // Persistence test: make sure everything comes up ok after a restart
+    // following compaction.
+    reset();
+    Platform pfrm(".regr_output", ".regr_output2");
+    initialize(pfrm, 8);
+
+    if (end_offset not_eq 15414) {
+        return false;
+    }
+
+    if (gap_space not_eq 0) {
+        return false;
+    }
+
+    for (auto& kvp : files) {
+        Vector<char> data;
+        read_file_data(pfrm, kvp.first.c_str(), data);
+
+        if (data.size() not_eq kvp.second.size()) {
+            return false;
+        }
+
+        for (u32 i = 0; i < data.size(); ++i) {
+            if (data[i] not_eq kvp.second[i]) {
+                return false;
+            }
+        }
+    }
 
     return true;
 }
@@ -952,17 +1157,19 @@ void regression()
 
 #define TEST_CASE(PROC)                       \
     reset();                                  \
-    std::cout << "running: " #PROC "... ";    \
+    std::cout << "running: " #PROC "... \n";  \
     if (not PROC()) {                         \
         puts("[failed]");                     \
         ++fail_count;                         \
     } else {                                  \
         puts("[passed]");                     \
         ++pass_count;                         \
-    }
+    } puts("");                               \
 
     TEST_CASE(basic_readwrite);
+    TEST_CASE(persistence);
     TEST_CASE(compaction);
+    TEST_CASE(write_triggered_compaction);
 
     puts("");
     std::cout << pass_count << " tests passed" << std::endl;
