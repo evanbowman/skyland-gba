@@ -360,6 +360,12 @@ public:
     void fire_create(Platform& pfrm, App& app, const RoomCoord& coord);
 
 
+    const EntityList<BasicCharacter>& outdoor_characters()
+    {
+        return characters_;
+    }
+
+
 private:
     void resolve_cancelled_dispatch();
 

@@ -161,6 +161,12 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
         this->kill();
     }
 
+    for (auto& c : island->outdoor_characters()) {
+        if (c->grid_position() == coordinate()) {
+            alerted_ = true;
+        }
+    }
+
     switch (state_) {
     case State::roost: {
 
