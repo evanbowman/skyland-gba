@@ -6847,8 +6847,14 @@ Platform::Platform()
         // the feel of the controls before I knew about waitstates, and
         // something just feels off to me when turning this feature on. The game
         // is almost too smooth.
-        REG_WAITCNT = 0b0000001100010111;
+        REG_WAITCNT = 0b0000000000010111;
         info(*this, "enabled optimized waitstates...");
+    }
+
+    CONF_BOOL(prefetch);
+
+    if (prefetch) {
+        REG_WAITCNT |= 1 << 14;
     }
 
     CONF_BOOL(detect_rtc);
