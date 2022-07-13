@@ -159,11 +159,14 @@ void GenericBird::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (island == nullptr) {
         this->kill();
+        return;
     }
 
-    for (auto& c : island->outdoor_characters()) {
-        if (c->grid_position() == coordinate()) {
-            alerted_ = true;
+    if (island not_eq nullptr) {
+        for (auto& c : island->outdoor_characters()) {
+            if (c->grid_position() == coordinate()) {
+                alerted_ = true;
+            }
         }
     }
 

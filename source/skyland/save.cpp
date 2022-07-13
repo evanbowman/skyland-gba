@@ -113,6 +113,7 @@ public:
     {
         while (*str not_eq '\0') {
             v_.push_back(*str);
+            str++;
         }
     }
 
@@ -153,6 +154,10 @@ static void store(Platform& pfrm, const SaveData& sd)
 
 void EmergencyBackup::store(Platform& pfrm)
 {
+    if (not valid_) {
+        return;
+    }
+
     SaveData save_data;
     save_data.magic_.set(save_data_magic);
 
