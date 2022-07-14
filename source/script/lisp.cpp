@@ -3093,6 +3093,11 @@ static const Binding builtins[] = {
     {"reverse",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);
+
+         if (get_op0()->type() not_eq lisp::Value::Type::cons) {
+             return L_NIL;
+         }
+
          L_EXPECT_OP(0, cons);
 
          Value* result = get_nil();
