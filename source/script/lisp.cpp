@@ -2959,6 +2959,38 @@ static const Binding builtins[] = {
              return "???";
          }());
      }},
+    {"format",
+     [](int argc) {
+         if (argc < 2) {
+             return L_NIL;
+         }
+
+         int fmt_arg = argc - 2;
+
+         L_EXPECT_OP(argc - 1, string);
+         auto builder = allocate_dynamic<StringBuffer<1800>>("lisp-fmt");
+
+         auto str = get_op(argc - 1)->string().value();
+
+         while (*str not_eq '\0') {
+             if (*str == '%') {
+                 if (fmt_arg == -1) {
+                     return L_NIL;
+                 }
+
+                 DefaultPrinter p;
+                 format(get_op(fmt_arg), p);
+                 *builder += p.data_.c_str();
+
+                 --fmt_arg;
+             } else {
+                 builder->push_back(*str);
+             }
+             ++str;
+         }
+
+         return make_string(builder->c_str());
+     }},
     {"string",
      [](int argc) {
          EvalBuffer b;
