@@ -658,7 +658,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                             .type_ == WorldGraph::Node::Type::corrupted) {
                         // Defeated the storm king!
                         app.persistent_data().score_.set(
-                            20000 + app.persistent_data().score_.get());
+                            300000 + app.persistent_data().score_.get());
 
                         auto dialog =
                             allocate_dynamic<DialogString>("dialog-buffer");
