@@ -41,7 +41,7 @@
    (10 . "jobless_yield_percent")
    (40 . "homelessness_penalty_percent")
    (40 . "starvation_penalty_percent")
-   (10 . "pop_growth_food_surplus_percent")
+   (25 . "pop_growth_food_surplus_percent")
    (50 . "pop_growth_food_shortage_percent")
    (25 . "pop_growth_housing_factor")))
 
