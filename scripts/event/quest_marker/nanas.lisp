@@ -63,7 +63,7 @@
                          (construction-sites (player) '(1 . 1)))
 
                         (dialog
-                         "<c:banana man:8>Horay! My bananas! Time for Banana Breakfast!")
+                         "<c:banana man:8>Hooray! My bananas! Time for Banana Breakfast!")
                         (setq on-dialog-closed
                               (lambda
                                 (achieve 11)
