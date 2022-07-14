@@ -53,6 +53,7 @@
             ;; lemon trees and passing them off as Farmer Meyer's trees.
             (setq lemon-quest-max-reward 0)
 
+            (push 'qids 2)
             (push 'quests (cons "/scripts/event/quest_marker/lemons.lisp" m))
 
             (map

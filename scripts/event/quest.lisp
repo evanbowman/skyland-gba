@@ -5,7 +5,21 @@
 
 (gc)
 
+(setq lv 0)
+
+(let ((lvs
+       ;; Collect all quest ids not in the qids (seen) list
+       (filter
+        (lambda
+          (let ((cmp $0))
+            (not (filter (lambda (equal cmp $0)) qids))))
+        (range 0 4))))
+  (if lvs
+      (setq lv (sample lvs))))
+
 (eval-file
- (string "/scripts/event/quest/" (choice 3) ".lisp"))
+ (string "/scripts/event/quest/" lv ".lisp"))
+
+(unbind 'lv)
 
 (gc)

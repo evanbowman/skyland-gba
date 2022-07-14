@@ -45,6 +45,7 @@
                   (setq on-dialog-closed exit)
                   (if m
                       (progn
+                        (push 'qids 1)
                         (push 'quests (cons "/scripts/event/quest_marker/nanas.lisp"
                                             m))
                         (dialog "<c:banana man:8>No time to waste! I know exactly where they've taken my bananas, and I marked the location on your sky chart with an *!"))

@@ -59,6 +59,7 @@
                   (if (and m c)
                       (progn
                         (coins-add 500)
+                        (push 'qids 0)
                         (push 'quests (cons "/scripts/event/quest_marker/delivery.lisp"
                                             m))
                         (cargo-set (player) (car c) (cdr c) "parcel")
