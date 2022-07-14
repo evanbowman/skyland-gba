@@ -57,6 +57,14 @@ Decimator::Decimator(Island* parent, const RoomCoord& position)
 
 
 
+void Decimator::unset_target(Platform& pfrm, App& app)
+{
+    reload_ = 1000 * decimator_reload_ms;
+    counter_ = 0;
+}
+
+
+
 void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
@@ -77,20 +85,27 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    if (has_pilot and reload_ > 0) {
-        reload_ -= delta;
+    const bool opponent_friendly = parent() == &app.player_island() and
+        static_cast<Opponent&>(app.opponent_island()->owner()).is_friendly();
 
-        if (reload_ < 0) {
-            if (parent() == &app.player_island()) {
-                time_stream::event::PlayerRoomReloadComplete e;
-                e.room_x_ = position().x;
-                e.room_y_ = position().y;
-                app.time_stream().push(app.level_timer(), e);
-            } else {
-                time_stream::event::OpponentRoomReloadComplete e;
-                e.room_x_ = position().x;
-                e.room_y_ = position().y;
-                app.time_stream().push(app.level_timer(), e);
+
+    if (has_pilot and reload_ > 0) {
+
+        if (not opponent_friendly) {
+            reload_ -= delta;
+
+            if (reload_ < 0) {
+                if (parent() == &app.player_island()) {
+                    time_stream::event::PlayerRoomReloadComplete e;
+                    e.room_x_ = position().x;
+                    e.room_y_ = position().y;
+                    app.time_stream().push(app.level_timer(), e);
+                } else {
+                    time_stream::event::OpponentRoomReloadComplete e;
+                    e.room_x_ = position().x;
+                    e.room_y_ = position().y;
+                    app.time_stream().push(app.level_timer(), e);
+                }
             }
         }
 
