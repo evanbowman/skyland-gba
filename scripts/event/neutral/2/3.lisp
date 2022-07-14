@@ -54,4 +54,5 @@
        (lambda
          (room-new (player) (list 'decimator $1 $2))
          (room-del (opponent) 0 13)
-         (dialog "<c:captain:7> Ok, all finished! The weapon recharges quite slowly, but nothing's more destructive! You need to move one of your crew into the weapon, though, or it won't recharge."))))))
+         (dialog "<c:captain:7> Ok, all finished! The weapon recharges quite slowly, but nothing's more destructive! You need to move one of your crew into the weapon, though, or it won't recharge.")
+         (exit))))))
