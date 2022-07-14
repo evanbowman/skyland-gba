@@ -37,7 +37,9 @@
 
             (setq quests (load 'quests))
 
-            (setq last-zone (load 'last-zone))))
+            (setq last-zone (load 'last-zone))
+
+            (setq qids (load 'qids))))
 
       (if (> (load 'save-protocol) 1)
           (diff-set (load 'diff))))))

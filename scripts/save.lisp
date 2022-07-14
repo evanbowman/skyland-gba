@@ -16,4 +16,5 @@
  (cons 'last-zone last-zone)
  (cons 'quests quests)
  (cons 'terrain (terrain (player)))
- (cons 'diff (diff)))
+ (cons 'diff (diff))
+ (cons 'qids qids))

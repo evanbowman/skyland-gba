@@ -12,6 +12,9 @@
 (setq enemies-seen '())
 (setq friendlies-seen '())
 
+;; Ids of previously seen quests
+(setq qids '())
+
 (setq quests '())
 (setq enemy-count 0)
 
