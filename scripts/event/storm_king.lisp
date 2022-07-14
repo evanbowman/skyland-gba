@@ -6,7 +6,12 @@
 
 
 (dialog
- "The storm overtakes your castle... A massive fortress emerges from the tempest... There is little hope of survival...")
+ "The storm overtakes your castle... A massive fortress emerges from the tempest... "
+ (cond
+  ((equal (zone) 0) "There is little hope of survival...")
+  ((equal (zone) 1) "You probably aren't strong enough yet...")
+  ((equal (zone) 2) "You just might survive...")
+  ((equal (zone) 3) "Ready for the final showdown?")))
 
 
 (setq on-fadein
