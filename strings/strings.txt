@@ -19,6 +19,8 @@ arch
 banana-plant
 barrier
 basalt
+basalt-brick
+carved-basalt
 bridge
 bronze-hull
 building

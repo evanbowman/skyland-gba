@@ -123,6 +123,9 @@ enum class Type {
     checker_red_king,
     checker_black_king,
 
+    carved_basalt,
+    basalt_brick,
+
     count,
 };
 

@@ -998,6 +998,8 @@ Coins terrain::cost(Type t)
     case terrain::Type::terrain:
         return b.mcr_terrain_cost;
 
+    case terrain::Type::carved_basalt:
+    case terrain::Type::basalt_brick:
     case terrain::Type::masonry:
         return b.mcr_masonry_cost;
 
@@ -1187,6 +1189,12 @@ SystemString terrain::name(Type t)
     case terrain::Type::arch:
         return SystemString::block_arch;
 
+    case terrain::Type::carved_basalt:
+        return SystemString::block_basalt_carved;
+
+    case terrain::Type::basalt_brick:
+        return SystemString::block_basalt_brick;
+
     case terrain::Type::basalt:
         return SystemString::block_basalt;
 
@@ -1372,6 +1380,11 @@ terrain::Improvements terrain::improvements(Type t)
         result.push_back(Type::tea);
         break;
 
+    case Type::basalt:
+        result.push_back(Type::carved_basalt);
+        result.push_back(Type::basalt_brick);
+        break;
+
     default:
         break;
     }
@@ -1419,6 +1432,10 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::shrubbery:
         return {1416, 1432};
+
+    case terrain::Type::basalt_brick:
+    case terrain::Type::carved_basalt:
+        return {3384, 3400};
 
     case terrain::Type::basalt:
     case terrain::Type::volcanic_soil:
@@ -1498,7 +1515,7 @@ std::pair<int, int> terrain::icons(Type t)
         return {2792, 2808};
 
     case terrain::Type::port:
-        return {776, 760};
+        return {1512, 1528};
 
     case terrain::Type::road_ns:
         return {776, 760};
@@ -2356,6 +2373,10 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // checker_black_king
     nullptr,
+    // carved basalt
+    nullptr,
+    // basalt brick
+    nullptr,
 };
 // clang-format on
 
@@ -2686,6 +2707,12 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          ISO_SELECTOR_CGS,
          ISO_SELECTOR_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
     };
     // clang-format on
 
