@@ -122,6 +122,18 @@ o----------------------------o
 
 o----------------------------o
 
+ (format string values...)
+
+ Substitute values into
+ string for each % character.
+
+ e.g.:
+ (format "nums % %" 1 'cat)
+ -> "nums 1 cat"
+
+
+o----------------------------o
+
  (gc)
 
  Invoke the garbage collcetor.
