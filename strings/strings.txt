@@ -24,6 +24,7 @@ carved-basalt
 bridge
 bronze-hull
 building
+carved-stone
 cocoa
 corn
 cesium

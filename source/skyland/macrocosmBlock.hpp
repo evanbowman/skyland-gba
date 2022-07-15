@@ -126,6 +126,10 @@ enum class Type {
     carved_basalt,
     basalt_brick,
 
+    hull,
+
+    carved_stone,
+
     count,
 };
 

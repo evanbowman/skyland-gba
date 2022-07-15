@@ -1001,6 +1001,8 @@ Coins terrain::cost(Type t)
     case terrain::Type::carved_basalt:
     case terrain::Type::basalt_brick:
     case terrain::Type::masonry:
+    case terrain::Type::carved_stone:
+    case terrain::Type::hull:
         return b.mcr_masonry_cost;
 
     case terrain::Type::road_ns:
@@ -1158,6 +1160,12 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::masonry:
         return SystemString::block_masonry;
+
+    case terrain::Type::carved_stone:
+        return SystemString::block_carved_masonry;
+
+    case terrain::Type::hull:
+        return SystemString::block_hull;
 
     case terrain::Type::road_ns:
         if (_bound_state->sector().orientation() ==
@@ -1371,6 +1379,7 @@ terrain::Improvements terrain::improvements(Type t)
 
     case Type::masonry:
         result.push_back(Type::windmill_stone_base);
+        result.push_back(Type::carved_stone);
         result.push_back(Type::road_ns);
         result.push_back(Type::road_we);
         break;
@@ -1415,6 +1424,9 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::masonry:
         return {1448, 1464};
 
+    case terrain::Type::hull:
+        return {520, 504};
+
     case terrain::Type::scaffolding:
         return {3144, 3160};
 
@@ -1435,6 +1447,7 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::basalt_brick:
     case terrain::Type::carved_basalt:
+    case terrain::Type::carved_stone:
         return {3384, 3400};
 
     case terrain::Type::basalt:
@@ -2377,6 +2390,10 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // basalt brick
     nullptr,
+    // hull
+    nullptr,
+    // carved stone
+    nullptr,
 };
 // clang-format on
 
@@ -2707,6 +2724,12 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          ISO_SELECTOR_CGS,
          ISO_SELECTOR_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

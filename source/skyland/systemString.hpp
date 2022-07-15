@@ -74,6 +74,7 @@ enum class SystemString {
     block_bridge,
     block_bronze_hull,
     block_building,
+    block_carved_masonry,
     block_cocoa,
     block_corn,
     block_cesium,
