@@ -30,7 +30,7 @@
    (410 . "honey_cost")
    (460 . "saffron_cost")
    (700 . "workshop_cost")
-   (800 . "lava_cost")
+   (400 . "lava_cost")
    (1000 . "marble_cost")
    (4000 . "gold_cost")
    (9000 . "crystal_cost")
