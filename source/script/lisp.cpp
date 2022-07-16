@@ -571,6 +571,10 @@ Value* dcompr(CompressedPtr ptr)
 
 int length(Value* lat)
 {
+    if (lat->type() == Value::Type::nil) {
+        return 0;
+    }
+
     int len = 0;
     while (true) {
         ++len;
