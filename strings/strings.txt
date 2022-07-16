@@ -81,6 +81,7 @@ reactor
 replicator
 rail-ns (decoration)
 rail-we (decoration)
+rail-hub
 rocket-bomb
 saffron
 sand

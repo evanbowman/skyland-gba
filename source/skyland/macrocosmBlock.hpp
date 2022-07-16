@@ -135,6 +135,8 @@ enum class Type {
 
     stone_pillar,
 
+    road_hub,
+
     count,
 };
 

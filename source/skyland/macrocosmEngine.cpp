@@ -1010,6 +1010,7 @@ Coins terrain::cost(Type t)
 
     case terrain::Type::road_ns:
     case terrain::Type::road_we:
+    case terrain::Type::road_hub:
         return b.mcr_road_cost;
 
     case terrain::Type::scaffolding:
@@ -1176,6 +1177,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::hull:
         return SystemString::block_hull;
+
+    case terrain::Type::road_hub:
+        return SystemString::block_road_hub;
 
     case terrain::Type::road_ns:
         if (_bound_state->sector().orientation() ==
@@ -1399,6 +1403,7 @@ terrain::Improvements terrain::improvements(Type t)
         result.push_back(Type::stone_pillar);
         result.push_back(Type::road_ns);
         result.push_back(Type::road_we);
+        result.push_back(Type::road_hub);
         break;
 
     case Type::volcanic_soil:
@@ -1556,8 +1561,7 @@ std::pair<int, int> terrain::icons(Type t)
         return {1512, 1528};
 
     case terrain::Type::road_ns:
-        return {776, 760};
-
+    case terrain::Type::road_hub:
     case terrain::Type::road_we:
         return {776, 760};
 
@@ -2425,6 +2429,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // stone pillar
     nullptr,
+    // road hub
+    nullptr,
 };
 // clang-format on
 
@@ -2756,6 +2762,9 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          ISO_SELECTOR_CGS,
          ISO_SELECTOR_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

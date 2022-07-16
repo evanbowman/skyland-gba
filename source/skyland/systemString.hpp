@@ -131,6 +131,7 @@ enum class SystemString {
     block_replicator,
     block_road_ns,
     block_road_we,
+    block_road_hub,
     block_rocket_bomb,
     block_saffron,
     block_sand,
