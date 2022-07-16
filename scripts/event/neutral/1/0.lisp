@@ -24,7 +24,7 @@
 (setq on-converge
       (lambda
         (dialog "One of the mercenaries offers to join you crew, for a cost of "
-                (string (* 400 (zone)))
+                (string (* 600 (zone)))
                 "@. Accept offer?")
 
         (dialog-await-y/n)
