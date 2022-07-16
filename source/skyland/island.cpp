@@ -947,7 +947,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
             check_destroyed();
 
-            recalculate_power_usage();
+            recalculate_power_usage(app);
 
             do_repaint = true;
 
@@ -1262,13 +1262,13 @@ void Island::plot_rooms(u8 matrix[16][16]) const
 }
 
 
-void Island::recalculate_power_usage()
+void Island::recalculate_power_usage(App& app)
 {
     power_supply_ = 0;
     power_drain_ = 0;
 
     for (auto& room : rooms_) {
-        auto power = room->power_usage();
+        auto power = room->power_usage(app);
 
         if (power < 0) {
             power_supply_ += -power;
@@ -1302,7 +1302,7 @@ void Island::move_room(Platform& pfrm,
             auto room = std::move(*it);
             it = rooms_.erase(it);
 
-            recalculate_power_usage();
+            recalculate_power_usage(app);
             on_layout_changed(app, from);
 
             room->__set_position(to);
@@ -1725,7 +1725,7 @@ void Island::destroy_room(Platform& pfrm, App& app, const RoomCoord& coord)
             on_layout_changed(app, coord);
 
             repaint(pfrm, app);
-            recalculate_power_usage();
+            recalculate_power_usage(app);
             return;
         }
     }

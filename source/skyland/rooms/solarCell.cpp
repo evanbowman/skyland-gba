@@ -23,6 +23,7 @@
 #include "solarCell.hpp"
 #include "skyland/island.hpp"
 #include "skyland/room_metatable.hpp"
+#include "skyland/skyland.hpp"
 
 
 
@@ -31,17 +32,13 @@ namespace skyland
 
 
 
-Power SolarCell::power_usage() const
+Power SolarCell::power_usage(App& app) const
 {
     const auto base_power = (*metaclass())->consumes_power();
     auto power = base_power;
 
-    if (parent()->get_room({position().x, u8(position().y - 1)})) {
-        power -= base_power / 4;
-    }
-
-    if (parent()->get_room({u8(position().x + 1), u8(position().y - 1)})) {
-        power -= base_power / 4;
+    if (not dynamic_cast<weather::ClearSkies*>(&app.environment())) {
+        power /= 2;
     }
 
     return power;

@@ -43,7 +43,7 @@ public:
     }
 
 
-    Power power_usage() const override;
+    Power power_usage(App& app) const override;
 
 
     bool description_visible() override

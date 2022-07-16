@@ -200,7 +200,7 @@ pillar
 Emits antimatter pulses that explode when colliding with forcefields, damaging everything within range = 2. For energized-hull, smaller explosion and range = 1.
 Dredging crane, salvage scrap from the flooded world below! Adventure mode only.
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
-Energy from the sun! Power output reduced by 1/4 for each block directly above the solar-cell.
+Energy from the sun! 1/2 power output during cloudy weather.
 While slightly less powerful than an ordinary cannon, its attacks spread fire.
 A weapon for targeting the roof of an enemy fortress. Deals % damage every %.% seconds.
 Water! Puts out fire in adjacent tiles.
@@ -382,6 +382,8 @@ Symbiosis
 Complete the "Mycelium!" challenge!
 Primitive
 Reach zone 4 without building a workshop!
+Hero
+Defeat the Storm King!
 options
 tips and tricks
 Press and hold the pause button to set the game speed. Slow motion and fastforward speeds available! You can even rewind!

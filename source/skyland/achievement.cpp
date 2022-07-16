@@ -299,6 +299,17 @@ static const AchievementInfo info[Achievement::count] = {
      },
      [](Platform&, App& app, bool awarded) {
          set_enabled(metaclass_index(info[primitive].reward_), awarded);
+     }},
+
+    {SystemString::achievement_primitive_name,
+     SystemString::achievement_primitive_description,
+     "gold",
+     [](Platform&, App& app) {
+         // invoked manually through achievements::raise().
+         return false;
+     },
+     [](Platform&, App&, bool awarded) {
+         set_enabled(metaclass_index(info[meltdown].reward_), awarded);
      }}};
 
 

@@ -73,3 +73,6 @@
    (hull 7 8)))
 
 (chr-new (opponent) 5 11 'hostile 0)
+
+
+(weather 2)

@@ -94,3 +94,6 @@
 
 (defn on-victory
   (syscall "challenge-complete" 5))
+
+
+(weather 2)

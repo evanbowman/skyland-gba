@@ -361,7 +361,7 @@ public:
     }
 
 
-    virtual Power power_usage() const;
+    virtual Power power_usage(App& app) const;
 
 
     static Icon icon()

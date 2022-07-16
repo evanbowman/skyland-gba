@@ -58,7 +58,7 @@ public:
         if (do_repaint) {
             repaint(pfrm, app);
         }
-        recalculate_power_usage();
+        recalculate_power_usage(app);
         on_layout_changed(app, insert->position());
         return result;
     }
@@ -77,7 +77,7 @@ public:
                 if (do_repaint) {
                     repaint(pfrm, app);
                 }
-                recalculate_power_usage();
+                recalculate_power_usage(app);
                 on_layout_changed(app, position);
                 return true;
             }
@@ -370,7 +370,7 @@ private:
     void resolve_cancelled_dispatch();
 
 
-    void recalculate_power_usage();
+    void recalculate_power_usage(App& app);
 
 
     void check_destroyed();

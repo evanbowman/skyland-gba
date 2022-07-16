@@ -476,6 +476,8 @@ enum class SystemString {
     achievement_mycelium_description,
     achievement_primitive_name,
     achievement_primitive_description,
+    achievement_hero_name,
+    achievement_hero_description,
 
     options,
 
