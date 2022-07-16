@@ -77,8 +77,8 @@ radar
 radiator
 reactor
 replicator
-road-ns (decoration)
-road-we (decoration)
+rail-ns (decoration)
+rail-we (decoration)
 rocket-bomb
 saffron
 sand
