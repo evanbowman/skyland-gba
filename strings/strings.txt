@@ -29,7 +29,9 @@ cocoa
 corn
 cesium
 salvage-arm
+carved-crystal
 crystal
+crystal-pillar
 stacked-hull
 mirror-hull
 bulkhead-door
@@ -90,6 +92,7 @@ solar-cell
 speaker
 stairwell
 statue
+stone-pillar
 sticky-piston
 sunflower
 switch

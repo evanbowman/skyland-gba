@@ -130,6 +130,11 @@ enum class Type {
 
     carved_stone,
 
+    carved_crystal,
+    crystal_pillar,
+
+    stone_pillar,
+
     count,
 };
 

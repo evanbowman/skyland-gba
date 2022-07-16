@@ -820,6 +820,8 @@ Stats stats(Type t, bool shadowed)
         result.happiness_ += 2;
         break;
 
+    case terrain::Type::carved_crystal:
+    case terrain::Type::crystal_pillar:
     case terrain::Type::crystal:
         result.happiness_ += 5;
         break;
@@ -1002,6 +1004,7 @@ Coins terrain::cost(Type t)
     case terrain::Type::basalt_brick:
     case terrain::Type::masonry:
     case terrain::Type::carved_stone:
+    case terrain::Type::stone_pillar:
     case terrain::Type::hull:
         return b.mcr_masonry_cost;
 
@@ -1100,6 +1103,10 @@ Coins terrain::cost(Type t)
     case terrain::Type::gold:
         return b.mcr_gold_cost;
 
+    case terrain::Type::carved_crystal:
+    case terrain::Type::crystal_pillar:
+        return b.mcr_masonry_cost;
+
     case terrain::Type::crystal:
         return b.mcr_crystal_cost;
 
@@ -1157,6 +1164,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::terrain:
         return SystemString::block_terrain;
+
+    case terrain::Type::stone_pillar:
+        return SystemString::block_stone_pillar;
 
     case terrain::Type::masonry:
         return SystemString::block_masonry;
@@ -1288,6 +1298,12 @@ SystemString terrain::name(Type t)
     case terrain::Type::gold:
         return SystemString::block_gold;
 
+    case terrain::Type::carved_crystal:
+        return SystemString::block_carved_crystal;
+
+    case terrain::Type::crystal_pillar:
+        return SystemString::block_crystal_pillar;
+
     case terrain::Type::crystal:
         return SystemString::block_crystal;
 
@@ -1380,6 +1396,7 @@ terrain::Improvements terrain::improvements(Type t)
     case Type::masonry:
         result.push_back(Type::windmill_stone_base);
         result.push_back(Type::carved_stone);
+        result.push_back(Type::stone_pillar);
         result.push_back(Type::road_ns);
         result.push_back(Type::road_we);
         break;
@@ -1392,6 +1409,11 @@ terrain::Improvements terrain::improvements(Type t)
     case Type::basalt:
         result.push_back(Type::carved_basalt);
         result.push_back(Type::basalt_brick);
+        break;
+
+    case Type::crystal:
+        result.push_back(Type::carved_crystal);
+        result.push_back(Type::crystal_pillar);
         break;
 
     default:
@@ -1445,6 +1467,9 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::shrubbery:
         return {1416, 1432};
 
+    case terrain::Type::stone_pillar:
+    case terrain::Type::carved_crystal:
+    case terrain::Type::crystal_pillar:
     case terrain::Type::basalt_brick:
     case terrain::Type::carved_basalt:
     case terrain::Type::carved_stone:
@@ -2394,6 +2419,12 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // carved stone
     nullptr,
+    // carved crystal
+    nullptr,
+    // crystal pillar
+    nullptr,
+    // stone pillar
+    nullptr,
 };
 // clang-format on
 
@@ -2405,6 +2436,7 @@ bool blocks_light(terrain::Type t)
 {
     if (t == terrain::Type::air or t == terrain::Type::selector or
         t == terrain::Type::checker_highlight or t == terrain::Type::crystal or
+        t == terrain::Type::carved_crystal or t == terrain::Type::crystal_pillar or
         (terrain::categories(t) & terrain::Categories::fluid_water) or
         (terrain::categories(t) & terrain::Categories::fluid_lava)) {
         return false;
@@ -2724,6 +2756,15 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          ISO_SELECTOR_CGS,
          ISO_SELECTOR_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
