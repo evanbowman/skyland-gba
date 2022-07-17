@@ -108,6 +108,7 @@ transporter
 volcanic-soil
 water
 water*
+weather-engine
 wheat
 windmill
 wool
@@ -248,6 +249,7 @@ Highly flammable, but takes no burn damage. Sandbox mode only.
 Reacts violently with water! Sandbox mode only.
 May be salvaged for one hundred percent of its value! Useful for co-op multiplayer.
 Weaker than regular missiles, but with a wider damage radius, and starts fires. Manufactory required.
+Changes the weather to clear skies!
 paused
 slow
 regular

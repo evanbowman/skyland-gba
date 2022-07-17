@@ -227,6 +227,8 @@ struct Tile
         crane_6,
         annihilator_1,
         annihilator_2,
+        weather_engine_1,
+        weather_engine_2,
     };
 };
 
@@ -425,6 +427,8 @@ struct InteriorTile
         crane_6,
         annihilator_1,
         annihilator_2,
+        weather_engine_1,
+        weather_engine_2,
     };
 };
 

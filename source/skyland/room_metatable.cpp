@@ -80,6 +80,7 @@
 #include "skyland/rooms/torch.hpp"
 #include "skyland/rooms/transporter.hpp"
 #include "skyland/rooms/water.hpp"
+#include "skyland/rooms/weatherEngine.hpp"
 #include "skyland/rooms/workshop.hpp"
 
 
@@ -302,6 +303,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Infirmary,
                                         CargoBay,
                                         Crane,
+                                        WeatherEngine,
                                         Water,
                                         WaterSource,
                                         Ice,

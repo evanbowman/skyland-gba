@@ -158,6 +158,7 @@ enum class SystemString {
     block_volcanic_soil,
     block_water,
     block_water_source,
+    block_weather_engine,
     block_wheat,
     block_windmill,
     block_wool,
@@ -318,6 +319,7 @@ enum class SystemString {
     description_cesium,
     description_gold,
     description_rocket_bomb,
+    description_weather_engine,
 
     gs_paused,
     gs_slow,

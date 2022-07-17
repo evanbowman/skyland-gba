@@ -301,15 +301,15 @@ static const AchievementInfo info[Achievement::count] = {
          set_enabled(metaclass_index(info[primitive].reward_), awarded);
      }},
 
-    {SystemString::achievement_primitive_name,
-     SystemString::achievement_primitive_description,
-     "gold",
+    {SystemString::achievement_hero_name,
+     SystemString::achievement_hero_description,
+     "weather-engine",
      [](Platform&, App& app) {
          // invoked manually through achievements::raise().
          return false;
      },
      [](Platform&, App&, bool awarded) {
-         set_enabled(metaclass_index(info[meltdown].reward_), awarded);
+         set_enabled(metaclass_index(info[hero].reward_), awarded);
      }}};
 
 
