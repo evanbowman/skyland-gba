@@ -658,6 +658,11 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     if (app.world_graph()
                             .nodes_[app.current_world_location()]
                             .type_ == WorldGraph::Node::Type::corrupted) {
+
+                        achievements::raise(pfrm,
+                                            app,
+                                            achievements::Achievement::hero);
+
                         // Defeated the storm king!
                         app.persistent_data().score_.set(
                             300000 + app.persistent_data().score_.get());

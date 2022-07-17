@@ -551,9 +551,9 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.opponent_island()) {
 
         const bool show_opponent_interior =
-            (app.player_island().has_radar() and not
-             static_cast<Opponent&>(app.opponent_island()->owner())
-            .is_friendly()) or
+            (app.player_island().has_radar() and
+             not static_cast<Opponent&>(app.opponent_island()->owner())
+                     .is_friendly()) or
             app.opponent_island()->is_boarded() or
             (app.player_island().interior_visible() and
              app.game_mode() == App::GameMode::sandbox);

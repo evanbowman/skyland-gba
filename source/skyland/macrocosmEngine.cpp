@@ -2442,7 +2442,8 @@ bool blocks_light(terrain::Type t)
 {
     if (t == terrain::Type::air or t == terrain::Type::selector or
         t == terrain::Type::checker_highlight or t == terrain::Type::crystal or
-        t == terrain::Type::carved_crystal or t == terrain::Type::crystal_pillar or
+        t == terrain::Type::carved_crystal or
+        t == terrain::Type::crystal_pillar or
         (terrain::categories(t) & terrain::Categories::fluid_water) or
         (terrain::categories(t) & terrain::Categories::fluid_lava)) {
         return false;

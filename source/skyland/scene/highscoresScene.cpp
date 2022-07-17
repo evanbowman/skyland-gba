@@ -30,6 +30,7 @@
 #include "skyland/skyland.hpp"
 #include "textEntryScene.hpp"
 #include "titleScreenScene.hpp"
+#include "achievementNotificationScene.hpp"
 
 
 
@@ -325,6 +326,23 @@ ScenePtr<Scene> HighscoresScene::update(Platform& pfrm, App& app, Microseconds)
 
     if (app.player().key_down(pfrm, Key::action_1) or
         app.player().key_down(pfrm, Key::action_2)) {
+
+        for (int i = 0; i < 64; ++i) {
+            const auto achievement = achievements::update(pfrm, app);
+            if (achievement not_eq achievements::Achievement::none) {
+                achievements::award(pfrm, app, achievement);
+
+                pfrm.screen().fade(1.f);
+
+                const auto pg = title_screen_page_;
+
+                auto next =
+                    scene_pool::make_deferred_scene<TitleScreenScene>(pg);
+                return scene_pool::alloc<AchievementNotificationScene>(
+                    achievement, next, true);
+            }
+        }
+
         return scene_pool::alloc<TitleScreenScene>(title_screen_page_);
     }
     return null_scene();

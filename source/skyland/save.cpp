@@ -168,9 +168,8 @@ void EmergencyBackup::store(Platform& pfrm)
 
     save::store(pfrm, save_data);
 
-    flash_filesystem::store_file_data_text(pfrm,
-                                           "/save/data.lisp",
-                                           *lisp_data_);
+    flash_filesystem::store_file_data_text(
+        pfrm, "/save/data.lisp", *lisp_data_);
 }
 
 

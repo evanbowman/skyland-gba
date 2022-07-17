@@ -24,26 +24,26 @@
 
 
 #define HS_COMPRESSOR_OFF
-#include <iostream>
 #include "base32.cpp"
-#include "macrocosmSectorImpl.hpp"
-#include "macrocosmSector.hpp"
-#include "macrocosmSector.cpp"
-#include "platform/platform.hpp"
 #include "macrocosmCubeSector.cpp"
 #include "macrocosmEngine.cpp"
 #include "macrocosmOutpostSector.cpp"
 #include "macrocosmPancakeSector.cpp"
 #include "macrocosmPillarSector.cpp"
+#include "macrocosmSector.cpp"
+#include "macrocosmSector.hpp"
+#include "macrocosmSectorImpl.hpp"
+#include "platform/platform.hpp"
 #include "platform/scratch_buffer.cpp"
-#include "string.cpp"
 #include "qr.cpp"
+#include "string.cpp"
+#include <iostream>
 extern "C" {
 #include "qr/qrcodegen.c"
 }
 #include "memory/pool.cpp"
-#include "sharedVariable.cpp"
 #include "rle.cpp"
+#include "sharedVariable.cpp"
 #include <SFML/Graphics.hpp>
 
 
@@ -68,7 +68,7 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 }
 
 
-}
+} // namespace flash_filesystem
 
 
 // Boostrap just the platform code that we need:
@@ -312,31 +312,31 @@ void arabic__to_string(int num, char* buffer, int base)
 
 namespace skyland
 {
-    SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
-    {
-        return allocate_dynamic<StringBuffer<1900>>("dummy");
-    }
-
-    bool App::is_developer_mode()
-    {
-        return true;
-    }
-
-    void App::set_developer_mode(bool value)
-    {
-        // ...
-    }
-
-    static lisp::Nil lnil;
-
-    lisp::Value*
-    App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
-    {
-        // lol super hacky
-        lnil.hdr_.type_ = lisp::Value::Type::nil;
-        return (lisp::Value*)&lnil;
-    }
+SystemStringBuffer loadstr(Platform& pfrm, SystemString str)
+{
+    return allocate_dynamic<StringBuffer<1900>>("dummy");
 }
+
+bool App::is_developer_mode()
+{
+    return true;
+}
+
+void App::set_developer_mode(bool value)
+{
+    // ...
+}
+
+static lisp::Nil lnil;
+
+lisp::Value*
+App::invoke_script(Platform& pfrm, const char* path, bool rom_fs_only)
+{
+    // lol super hacky
+    lnil.hdr_.type_ = lisp::Value::Type::nil;
+    return (lisp::Value*)&lnil;
+}
+} // namespace skyland
 
 const char* lisp::String::value()
 {
@@ -345,17 +345,16 @@ const char* lisp::String::value()
 
 
 
-
 static int get_octet(int block)
 {
-	assert(block >= 0 && block < 8);
-	return (block*5) / 8;
+    assert(block >= 0 && block < 8);
+    return (block * 5) / 8;
 }
 
 static int get_offset(int block)
 {
     assert(block >= 0 && block < 8);
-    return (8 - 5 - (5*block) % 8);
+    return (8 - 5 - (5 * block) % 8);
 }
 
 /**
@@ -366,14 +365,14 @@ static int get_offset(int block)
 static unsigned char shift_right(unsigned char byte, char offset)
 {
     if (offset > 0)
-        return byte >>  offset;
+        return byte >> offset;
     else
         return byte << -offset;
 }
 
 static unsigned char shift_left(unsigned char byte, char offset)
 {
-    return shift_right(byte, - offset);
+    return shift_right(byte, -offset);
 }
 
 
@@ -388,12 +387,12 @@ static int decode_char(unsigned char c)
 
     assert(retval == -1 || ((retval & 0x1F) == retval));
 
-    return  retval;
+    return retval;
 }
 
 
 
-static int decode_sequence(const unsigned char *coded, unsigned char *plain)
+static int decode_sequence(const unsigned char* coded, unsigned char* plain)
 {
     assert(CHAR_BIT == 8);
     assert(coded && plain);
@@ -404,22 +403,22 @@ static int decode_sequence(const unsigned char *coded, unsigned char *plain)
         int octet = get_octet(block);
 
         int c = decode_char(coded[block]);
-        if (c < 0)  // invalid char, stop here
+        if (c < 0) // invalid char, stop here
             return octet;
 
         plain[octet] |= shift_left(c, offset);
-        if (offset < 0) {  // does this block overflows to next octet?
+        if (offset < 0) { // does this block overflows to next octet?
             assert(octet < 4);
-            plain[octet+1] = shift_left(c, 8 + offset);
+            plain[octet + 1] = shift_left(c, 8 + offset);
         }
     }
     return 5;
 }
 
-size_t base32_decode(const unsigned char *coded, unsigned char *plain)
+size_t base32_decode(const unsigned char* coded, unsigned char* plain)
 {
     size_t written = 0;
-    for (size_t i = 0, j = 0; ; i += 8, j += 5) {
+    for (size_t i = 0, j = 0;; i += 8, j += 5) {
         int n = decode_sequence(&coded[i], &plain[j]);
         written += n;
         if (n < 5)
@@ -440,7 +439,8 @@ int main(int argc, char** argv)
     result.create(240, 240, bkg_color);
 
     if (argc not_eq 4) {
-        puts("usage: macro-rast <name> <texture_path> <base32-island-data-from-qr-code>");
+        puts("usage: macro-rast <name> <texture_path> "
+             "<base32-island-data-from-qr-code>");
         return EXIT_FAILURE;
     }
 
@@ -515,8 +515,7 @@ int main(int argc, char** argv)
         for (u8 z = 0; z < sz.z; ++z) {
             for (u8 x = 0; x < sz.x; ++x) {
                 for (u8 y = 0; y < sz.y; ++y) {
-                    auto index = 1 +
-                        y + sz.y * (x + sz.x * z);
+                    auto index = 1 + y + sz.y * (x + sz.x * z);
                     auto blk = (macro::terrain::Type)decomp[index];
                     if (blk not_eq macro::terrain::Type::selector) {
                         s->set_block({x, y, z}, blk);
@@ -554,5 +553,4 @@ int main(int argc, char** argv)
     }
 
     std::cout << decomp.size() << std::endl;
-
 }

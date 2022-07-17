@@ -51,8 +51,8 @@ void ModifiedSelectorScene::enter(Platform& pfrm,
     day_night_text_->append(SYSTR(macro_day_or_night)->c_str());
 
     cursor_text_.emplace(pfrm, OverlayCoord{1, 4});
-    cursor_text_->assign("a", FontColors{custom_color(0xa3c447),
-                                             ColorConstant::rich_black});
+    cursor_text_->assign(
+        "a", FontColors{custom_color(0xa3c447), ColorConstant::rich_black});
     cursor_text_->append(SYSTR(macro_raise)->c_str());
 
     rotate_text_.emplace(

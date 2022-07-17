@@ -99,10 +99,8 @@ public:
     std::string output_;
 
 
-    Platform(const std::string& input,
-             const std::string& output) :
-        input_(input),
-        output_(output)
+    Platform(const std::string& input, const std::string& output)
+        : input_(input), output_(output)
     {
         std::ifstream stream("Skyland" + input_,
                              std::ios::in | std::ios::binary);
@@ -1016,12 +1014,11 @@ bool compaction()
         Platform pfrm(".regr_input", ".regr_output");
         initialize(pfrm, 8);
 
-        walk(pfrm,
-             [&files, &pfrm](const char* path) {
-                 Vector<char> file_data;
-                 read_file_data(pfrm, path, file_data);
-                 files.push_back({path, file_data});
-             });
+        walk(pfrm, [&files, &pfrm](const char* path) {
+            Vector<char> file_data;
+            read_file_data(pfrm, path, file_data);
+            files.push_back({path, file_data});
+        });
 
         compact(pfrm);
 
@@ -1088,12 +1085,11 @@ bool write_triggered_compaction()
         Platform pfrm(".regr_input", ".regr_output");
         initialize(pfrm, 8);
 
-        walk(pfrm,
-             [&files, &pfrm](const char* path) {
-                 Vector<char> file_data;
-                 read_file_data(pfrm, path, file_data);
-                 files.push_back({path, file_data});
-             });
+        walk(pfrm, [&files, &pfrm](const char* path) {
+            Vector<char> file_data;
+            read_file_data(pfrm, path, file_data);
+            files.push_back({path, file_data});
+        });
 
         // trigger compaction
         store_file_data(pfrm, "/stuff.dat", test);
@@ -1155,16 +1151,17 @@ void regression()
 
     std::cout << "starting fs regression...\n" << std::endl;
 
-#define TEST_CASE(PROC)                       \
-    reset();                                  \
-    std::cout << "running: " #PROC "... \n";  \
-    if (not PROC()) {                         \
-        puts("[failed]");                     \
-        ++fail_count;                         \
-    } else {                                  \
-        puts("[passed]");                     \
-        ++pass_count;                         \
-    } puts("");                               \
+#define TEST_CASE(PROC)                                                        \
+    reset();                                                                   \
+    std::cout << "running: " #PROC "... \n";                                   \
+    if (not PROC()) {                                                          \
+        puts("[failed]");                                                      \
+        ++fail_count;                                                          \
+    } else {                                                                   \
+        puts("[passed]");                                                      \
+        ++pass_count;                                                          \
+    }                                                                          \
+    puts("");
 
     TEST_CASE(basic_readwrite);
     TEST_CASE(persistence);
@@ -1178,7 +1175,7 @@ void regression()
 
 
 
-}
+} // namespace flash_filesystem
 
 
 

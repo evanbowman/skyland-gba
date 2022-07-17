@@ -22,8 +22,8 @@
 
 #include "weatherEngine.hpp"
 #include "platform/platform.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/skyland.hpp"
+#include "skyland/tile.hpp"
 
 
 
@@ -32,27 +32,29 @@ namespace skyland
 
 
 
-void WeatherEngine::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void WeatherEngine::format_description(Platform& pfrm,
+                                       StringBuffer<512>& buffer)
 {
     buffer += SYSTR(description_weather_engine)->c_str();
 }
 
 
 
-WeatherEngine::WeatherEngine(Island* parent, const RoomCoord& position, const char* n)
+WeatherEngine::WeatherEngine(Island* parent,
+                             const RoomCoord& position,
+                             const char* n)
     : Room(parent, n, position)
 {
 }
 
 
 
-void environment_init(App & app, int type);
+void environment_init(App& app, int type);
 
 
 
-ScenePtr<Scene> WeatherEngine::select(Platform& pfrm,
-                                      App& app,
-                                      const RoomCoord& cursor)
+ScenePtr<Scene>
+WeatherEngine::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     environment_init(app, 1);
     pfrm.screen().set_shader(app.environment().shader(app));

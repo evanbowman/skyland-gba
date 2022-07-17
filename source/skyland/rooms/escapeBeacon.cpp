@@ -98,9 +98,8 @@ ScenePtr<Scene>
 EscapeBeacon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     if (app.game_mode() == App::GameMode::adventure) {
-        if (app.world_graph()
-            .nodes_[app.current_world_location()]
-            .type_ == WorldGraph::Node::Type::corrupted) {
+        if (app.world_graph().nodes_[app.current_world_location()].type_ ==
+            WorldGraph::Node::Type::corrupted) {
             pfrm.speaker().play_sound("beep_error", 3);
             // You can't run from the boss.
             return null_scene();

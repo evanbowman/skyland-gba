@@ -27,10 +27,7 @@
 
 
 
-template <u32 max_obj_size,
-          u32 objs,
-          u32 objs_per_subpool,
-          u32 align>
+template <u32 max_obj_size, u32 objs, u32 objs_per_subpool, u32 align>
 class SegmentedPool
 {
 public:
@@ -55,8 +52,7 @@ public:
     void create(const char* pool_label)
     {
         while (not pools_.full()) {
-            pools_.push_back(allocate_dynamic<Pool>(pool_label,
-                                                    pool_label));
+            pools_.push_back(allocate_dynamic<Pool>(pool_label, pool_label));
         }
     }
 
@@ -112,6 +108,5 @@ public:
 
 
 private:
-
     Buffer<DynamicMemory<Pool>, pool_count> pools_;
 };

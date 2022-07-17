@@ -39,7 +39,9 @@ namespace skyland
 class WeatherEngine : public Room
 {
 public:
-    WeatherEngine(Island* parent, const RoomCoord& position, const char* n = name());
+    WeatherEngine(Island* parent,
+                  const RoomCoord& position,
+                  const char* n = name());
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -64,8 +66,11 @@ public:
 
     static RoomProperties::Bitmask properties()
     {
-        return RoomProperties::roof_hidden | RoomProperties::flag_mount | RoomProperties::disabled_in_tutorials | RoomProperties::disallow_chimney | RoomProperties::multiplayer_unsupported // | RoomProperties::locked_by_default
-            ;
+        return RoomProperties::roof_hidden | RoomProperties::flag_mount |
+               RoomProperties::disabled_in_tutorials |
+               RoomProperties::disallow_chimney |
+               RoomProperties::multiplayer_unsupported |
+               RoomProperties::locked_by_default;
     }
 
 

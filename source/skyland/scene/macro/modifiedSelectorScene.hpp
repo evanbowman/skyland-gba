@@ -34,7 +34,6 @@ namespace skyland::macro
 class ModifiedSelectorScene : public MacrocosmScene
 {
 public:
-
     void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override;
 
 
