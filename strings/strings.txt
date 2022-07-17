@@ -199,7 +199,7 @@ cube
 wide
 pillar
 Emits antimatter pulses that explode when colliding with forcefields, damaging everything within range = 2. For energized-hull, smaller explosion and range = 1.
-Dredging crane, salvage scrap from the flooded world below! Adventure mode only.
+Dredging crane, salvage scrap from the flooded world below! Adventure mode only. Usable once per level, during clear weather.
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.
 Energy from the sun! 1/2 power output during cloudy weather.
 While slightly less powerful than an ordinary cannon, its attacks spread fire.
