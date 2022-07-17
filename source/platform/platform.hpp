@@ -515,7 +515,8 @@ public:
                            ColorConstant color = ColorConstant::rich_black,
                            bool include_sprites = true,
                            bool include_overlay = false,
-                           bool include_background = true);
+                           bool include_background = true,
+                           bool include_tiles = true);
 
 
         void pixelate(u8 amount,

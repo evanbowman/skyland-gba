@@ -29,6 +29,17 @@ public:
             return scene;
         }
 
+        if (counter_ < 10) {
+            pfrm.screen().schedule_fade(counter_ / 10.f,
+                                        ColorConstant::rich_black,
+                                        false,
+                                        false,
+                                        true,
+                                        false);
+        } else if (counter_ == 10) {
+            pfrm.speaker().set_music_volume(2);
+        }
+
         counter_ += 1;
 
         if (counter_ > 70) {

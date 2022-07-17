@@ -2593,7 +2593,8 @@ void Platform::Screen::schedule_fade(Float amount,
                                      ColorConstant k,
                                      bool include_sprites,
                                      bool include_overlay,
-                                     bool include_background)
+                                     bool include_background,
+                                     bool include_tiles)
 {
     const u8 amt = amount * 255;
 
@@ -2620,7 +2621,7 @@ void Platform::Screen::schedule_fade(Float amount,
     // Tile0 palette
     for (int i = 0; i < 16; ++i) {
         auto from = Color::from_bgr_hex_555(tilesheet_0_palette[i]);
-        bg_palette_back_buffer[i] = blend(from, c, amt);
+        bg_palette_back_buffer[i] = blend(from, c, include_tiles ? amt : 0);
     }
     // Custom flag/tile/sprite palette:
     for (int i = 0; i < 16; ++i) {
@@ -2632,7 +2633,7 @@ void Platform::Screen::schedule_fade(Float amount,
     // Tile1 palette
     for (int i = 0; i < 16; ++i) {
         auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
-        bg_palette_back_buffer[32 + i] = blend(from, c, amt);
+        bg_palette_back_buffer[32 + i] = blend(from, c, include_tiles ? amt : 0);
     }
     for (int i = 0; i < 16; ++i) {
         auto from = Color::from_bgr_hex_555(background_palette[i]);
