@@ -70,7 +70,7 @@ WeatherEngine::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     pfrm.sleep(4);
     pfrm.screen().schedule_fade(0.f);
 
-    pfrm.speaker().play_sound("button_wooden", 3);
+    pfrm.speaker().play_sound("bell", 3);
 
     return null_scene();
 }
