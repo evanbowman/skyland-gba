@@ -84,15 +84,20 @@ void ZoneImageScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.load_tile1_texture("zone_image_1_flattened");
     } else if (app.zone() == 2) {
         pfrm.load_tile1_texture("zone_image_2_flattened");
-    } else {
+    } else if (app.zone() == 3) {
         pfrm.load_tile1_texture("zone_image_3_flattened");
+    } else {
+        pfrm.load_tile1_texture("zone_image_4_flattened");
     }
 
     __draw_image(pfrm, 1, 0, 3, 30, 14, Layer::map_1);
 
     pfrm.set_overlay_origin(0, 4);
 
-    auto buffer = format<32>(SYSTR(zone_text)->c_str(), app.zone());
+    auto buffer = format<200>(SYSTR(zone_text)->c_str(), app.zone());
+    if (app.zone() == 4) {
+        buffer += SYSTR(final_zone)->c_str();
+    }
     auto margin = centered_text_margins(pfrm, buffer.length());
     text_.emplace(
         pfrm,

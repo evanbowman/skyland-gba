@@ -73,6 +73,8 @@
 //;
 #include "data/zone_image_3_flattened.h"
 //;
+#include "data/zone_image_4_flattened.h"
+//;
 #include "data/gba_health_safety_logo_flattened.h"
 //;
 #include "data/background.h"
@@ -202,6 +204,8 @@ static const TextureData tile_textures[] = {
     TEXTURE_INFO(zone_image_2_flattened),
 //;
     TEXTURE_INFO(zone_image_3_flattened),
+//;
+    TEXTURE_INFO(zone_image_4_flattened),
 //;
     TEXTURE_INFO(gba_health_safety_logo_flattened),
 //
