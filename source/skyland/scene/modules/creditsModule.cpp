@@ -109,9 +109,24 @@ static const char* const page_3_lines[] = {"-- Music (Contd.) --",
                                            "\x12 Struttin With Some BBQ \x12",
                                            "Louis Armstrong",
                                            "",
+                                           "",
+                                           "-- Sounds --",
+                                           "",
                                            "\x12 Interface Sounds \x12",
                                            "The Boom Library",
                                            nullptr};
+
+static const char* const page_4_lines[] = {"-- Sounds (Contd.) --",
+                                           "",
+                                           "\x12 misc. effects \x12",
+                                           "Evan + The Public Domain",
+                                           "",
+                                           "(Evan used public-domain",
+                                           "recordings of nature, bells,",
+                                           "and machinery, and remixed",
+                                           "them to make the game's sfx)",
+                                           nullptr};
+
 
 
 static const char* const page_end_lines[] = {"-- P.S. --",
@@ -120,6 +135,7 @@ static const char* const page_end_lines[] = {"-- P.S. --",
                                              "Obsessively for months.",
                                              "",
                                              "Making games is so hard!",
+                                             "GBA games are even harder.",
                                              "",
                                              "Please enjoy!",
                                              "",
@@ -128,12 +144,13 @@ static const char* const page_end_lines[] = {"-- P.S. --",
 
 
 
-std::array<Page, 7> pages_ = {{{page_0_lines},
+std::array<Page, 8> pages_ = {{{page_0_lines},
                                {page_01_lines},
                                {page_02_lines},
                                {page_1_lines},
                                {page_2_lines},
                                {page_3_lines},
+                               {page_4_lines},
                                {page_end_lines}}};
 
 
