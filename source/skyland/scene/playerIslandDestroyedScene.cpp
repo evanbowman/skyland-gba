@@ -755,9 +755,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::action_1) or
             app.player().tap_released(pfrm)) {
             timer_ = 0;
-            lines_.clear();
             pfrm.fill_overlay(0);
-            app.reset_opponent_island(pfrm);
 
             if (opponent_defeated and
                 app.game_mode() == App::GameMode::adventure) {
