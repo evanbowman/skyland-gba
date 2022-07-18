@@ -128,30 +128,36 @@ static const char* const page_4_lines[] = {"-- Sounds (Contd.) --",
                                            nullptr};
 
 
+static const char* const page_end_lines0[] = {"-- Postscript --",
+                                              "",
+                                              "Making games is so hard...",
+                                              "",
+                                              "",
+                                             nullptr};
 
-static const char* const page_end_lines[] = {"-- P.S. --",
+static const char* const page_end_lines1[] = {"-- Postscript --",
                                              "",
-                                             "I worked on this project",
-                                             "Obsessively for months.",
-                                             "",
-                                             "Making games is so hard!",
-                                             "GBA games are even harder.",
-                                             "",
-                                             "Please enjoy!",
+                                             "I started with an empty",
+                                             "text file. 100,000 lines",
+                                             "of code later, I've created",
+                                             "a little world inside of the",
+                                             "computer. Please enjoy!",
                                              "",
                                              "-- Evan",
+                                             "",
                                              nullptr};
 
 
 
-std::array<Page, 8> pages_ = {{{page_0_lines},
+std::array<Page, 9> pages_ = {{{page_0_lines},
                                {page_01_lines},
                                {page_02_lines},
                                {page_1_lines},
                                {page_2_lines},
                                {page_3_lines},
                                {page_4_lines},
-                               {page_end_lines}}};
+                               {page_end_lines0},
+                               {page_end_lines1}}};
 
 
 
