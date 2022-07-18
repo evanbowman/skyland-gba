@@ -42,14 +42,30 @@ public:
             bomb,
             coins,
 
-            data_disc1,
-            data_disc2,
             old_boot,
+            data_disk1,
+            data_disk2,
+            data_disk3,
 
             count,
         };
 
         host_u64 items_;
+
+
+        Buffer<Item, count> items() const
+        {
+            Buffer<Item, count> result;
+
+            for (int i = coins + 1; i < count; ++i) {
+                if ((items_.get() & (1 << i))) {
+                    result.push_back((Item)i);
+                }
+            }
+
+            return result;
+        }
+
 
         Buffer<Item, count> unallocated_items() const
         {

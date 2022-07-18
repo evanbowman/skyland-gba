@@ -30,6 +30,10 @@
 #include "skyland/scene/readyScene.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/scene/worldScene.hpp"
+#include "skyland/scene/readyScene.hpp"
+#include "skyland/scene/boxedDialogScene.hpp"
+#include "skyland/scene_pool.hpp"
 
 
 
@@ -149,16 +153,139 @@ void Crane::display(Platform::Screen& screen)
 
 
 
+class CraneItemScene : public ActiveWorldScene
+{
+public:
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override
+    {
+        ActiveWorldScene::enter(pfrm, app, prev);
+
+        auto d = Crane::load_discoveries(pfrm);
+        items_ = d.items();
+
+        if (not items_.empty()) {
+            show(pfrm);
+        }
+    }
+
+
+    void exit(Platform& pfrm, App& app, Scene& next) override
+    {
+        ActiveWorldScene::exit(pfrm, app, next);
+        text_.reset();
+        pfrm.fill_overlay(0);
+    }
+
+
+    void show(Platform& pfrm)
+    {
+        const u8 y = calc_screen_tiles(pfrm).y - 1;
+
+        if (text_) {
+            for (int i = 0; i < text_->len() + 2; ++i) {
+                pfrm.set_tile(Layer::overlay, i, y - 1, 0);
+            }
+        }
+
+        auto item = (int)items_[index_];
+        auto name = get_line_from_file(pfrm,
+                                       "/strings/crane.txt",
+                                       1 + item * 2);
+
+
+        pfrm.set_tile(Layer::overlay, 0, y, 392);
+        pfrm.set_tile(Layer::overlay, 1, y, 393);
+        text_.emplace(pfrm, ":", OverlayCoord{2, y});
+        text_->append(name->c_str());
+
+        for (int i = 0; i < text_->len() + 2; ++i) {
+            pfrm.set_tile(Layer::overlay, i, y - 1, 425);
+        }
+    }
+
+
+    ScenePtr<Scene> update(Platform& pfrm,
+                           App& app,
+                           Microseconds delta) override
+    {
+        if (items_.empty()) {
+            pfrm.speaker().play_sound("beep_error", 3);
+            return scene_pool::alloc<ReadyScene>();
+        }
+
+        if (key_down<Key::action_2>(pfrm)) {
+            return scene_pool::alloc<ReadyScene>();
+        }
+
+        if (key_down<Key::down>(pfrm)) {
+            if (index_ == items_.size() - 1) {
+                index_  = 0;
+            } else {
+                ++index_;
+            }
+            pfrm.speaker().play_sound("click", 1);
+            show(pfrm);
+        }
+
+        if (key_down<Key::up>(pfrm)) {
+            if (index_ == 0) {
+                index_ = items_.size() - 1;
+            } else {
+                --index_;
+            }
+            pfrm.speaker().play_sound("click", 1);
+            show(pfrm);
+        }
+
+        if (key_down<Key::action_1>(pfrm)) {
+            auto item = (int)items_[index_];
+            auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
+            *buffer += get_line_from_file(pfrm,
+                                          "/strings/crane.txt",
+                                          1 + item * 2)->c_str();
+            *buffer += ": ";
+            *buffer += get_line_from_file(pfrm,
+                                         "/strings/crane.txt",
+                                         1 + item * 2 + 1)->c_str();
+            auto next = scene_pool::alloc<BoxedDialogSceneWS>(
+                        std::move(buffer), false);
+
+            next->pause_if_hostile_ = false;
+            next->autorestore_music_volume_ = true;
+
+            return next;
+        }
+
+        return null_scene();
+    }
+
+
+private:
+    u32 index_ = 0;
+    std::optional<Text> text_;
+    Buffer<Crane::Discoveries::Item,
+           (int)Crane::Discoveries::Item::count> items_;
+};
+
+
+
 ScenePtr<Scene> Crane::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     auto& env = app.environment();
     auto clear_skies = dynamic_cast<weather::ClearSkies*>(&env);
 
-    if (clear_skies and
-        state_bit_load(app, StateBit::crane_game_got_treasure)) {
-        pfrm.speaker().play_sound("beep_error", 3);
-        // TODO: show notification message
-        return null_scene();
+    auto pos = position();
+    if (cursor.x == pos.x + 2) {
+        if (not clear_skies) {
+            pfrm.speaker().play_sound("beep_error", 3);
+        }
+
+        if (state_bit_load(app, StateBit::crane_game_got_treasure)) {
+            pfrm.speaker().play_sound("beep_error", 3);
+        }
+    } else {
+        return scene_pool::alloc<CraneItemScene>();
     }
 
     if (state_ == State::idle) {
