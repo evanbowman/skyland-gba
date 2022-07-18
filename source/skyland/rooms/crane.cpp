@@ -104,6 +104,39 @@ void Crane::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+void Crane::display_on_hover(Platform::Screen& screen,
+                             App& app,
+                             const RoomCoord& cursor)
+{
+    auto origin = parent()->visual_origin();
+
+    const auto pos = position();
+    origin.x += pos.x * 16;
+    origin.y += pos.y * 16;
+
+    if (cursor.y == pos.y) {
+        origin.y += 16;
+    }
+
+    Sprite icon;
+    icon.set_size(Sprite::Size::w16_h32);
+    icon.set_texture_index(49);
+
+    auto p1 = origin;
+    icon.set_position(p1);
+
+    screen.draw(icon);
+
+    auto p2 = origin;
+    p2.x += 32;
+    icon.set_position(p2);
+    icon.set_texture_index(50);
+
+    screen.draw(icon);
+}
+
+
+
 void Crane::display(Platform::Screen& screen)
 {
     Sprite spr;

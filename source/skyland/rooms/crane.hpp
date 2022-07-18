@@ -92,6 +92,11 @@ public:
     void display(Platform::Screen& screen) override;
 
 
+    void display_on_hover(Platform::Screen& screen,
+                          App& app,
+                          const RoomCoord& cursor) override;
+
+
     void rewind(Platform& pfrm, App& app, Microseconds delta) override;
 
 
