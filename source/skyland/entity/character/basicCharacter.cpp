@@ -89,7 +89,7 @@ BasicCharacter::BasicCharacter(Island* parent,
 
     is_replicant_ = is_replicant;
 
-    health_ = 255;
+    health_ = max_health;
 }
 
 

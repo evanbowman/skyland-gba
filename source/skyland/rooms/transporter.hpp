@@ -138,12 +138,10 @@ private:
 
 
 void transport_character_impl(App& app,
-                              bool ai_controlled,
                               Island* src_island,
                               Island* dst_island,
-                              const RoomCoord& src,
-                              const RoomCoord& dst,
-                              int signal = 0);
+                              CharacterId chr_id,
+                              const RoomCoord& dst);
 
 
 

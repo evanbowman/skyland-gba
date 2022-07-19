@@ -277,14 +277,26 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (path and *path) {
                 sel_chr->set_movement_path(pfrm, app, std::move(*path));
 
-                network::packet::CharacterSetTarget packet;
-                packet.src_x_ = current.x;
-                packet.src_y_ = current.y;
-                packet.dst_x_ = cursor_loc->x;
-                packet.dst_y_ = cursor_loc->y;
-                packet.owned_by_ai_ = false;
-                packet.near_island_ = island not_eq &app.player_island();
-                network::transmit(pfrm, packet);
+
+                if (app.game_mode() == App::GameMode::co_op) {
+                    network::packet::ChrSetTargetV2 packet;
+                    packet.target_x_ = cursor_loc->x;
+                    packet.target_y_ = cursor_loc->y;
+                    packet.chr_id_.set(sel_chr->id());
+                    packet.near_island_ = island not_eq &app.player_island();
+                    network::transmit(pfrm, packet);
+
+                } else {
+                    // FIXME!!! Use new CharacterSetTarget message with id!
+                    network::packet::CharacterSetTarget packet;
+                    packet.src_x_ = current.x;
+                    packet.src_y_ = current.y;
+                    packet.dst_x_ = cursor_loc->x;
+                    packet.dst_y_ = cursor_loc->y;
+                    packet.owned_by_ai_ = false;
+                    packet.near_island_ = island not_eq &app.player_island();
+                    network::transmit(pfrm, packet);
+                }
 
             } else {
                 // path not found, raise error?

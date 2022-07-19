@@ -47,10 +47,14 @@ struct Header
         room_salvaged,
         weapon_set_target,
         character_set_target,
+        chr_set_target_v2,
         room_destroyed,
         character_boarded,
+        chr_boarded_v2,
         character_disembark,
+        chr_disembark_v2,
         character_died,
+        chr_died_v2,
         replicant_created,
         bulkhead_changed,
         program_version,
@@ -285,6 +289,18 @@ struct CharacterDied
 
 
 
+struct ChrDiedV2
+{
+    Header header_;
+    HostInteger<CharacterId> chr_id_;
+    bool near_island_;
+    u8 unused_[2];
+
+    static const auto mt = Header::MessageType::chr_died_v2;
+};
+
+
+
 struct CharacterBoarded
 {
     Header header_;
@@ -303,6 +319,20 @@ struct CharacterBoarded
 
 
 
+struct ChrBoardedV2
+{
+    Header header_;
+    HostInteger<CharacterId> chr_id_;
+    u8 dst_x_;
+    u8 dst_y_;
+
+    bool transporter_near_ : 1;
+
+    static const auto mt = Header::MessageType::chr_boarded_v2;
+};
+
+
+
 struct CharacterDisembark
 {
     Header header_;
@@ -317,6 +347,20 @@ struct CharacterDisembark
     bool unused_ : 6;
 
     static const auto mt = Header::MessageType::character_disembark;
+};
+
+
+
+struct ChrDisembarkV2
+{
+    Header header_;
+    HostInteger<CharacterId> chr_id_;
+    u8 dst_x_;
+    u8 dst_y_;
+
+    bool transporter_near_ : 1;
+
+    static const auto mt = Header::MessageType::chr_disembark_v2;
 };
 
 
@@ -535,6 +579,22 @@ struct CoOpChrLockResponse
 
 
 
+// NOTE: USE THIS MESSAGE RATHER THAN CHARACTER SET TARGET, EXCEPT FOR VS
+// MULTIPLAYER, WHERE WE FIRST NEED TO FIX CHARACTER IDS TO MAKE THEM DISTINCT!
+struct ChrSetTargetV2
+{
+    Header header_;
+    HostInteger<CharacterId> chr_id_;
+    bool near_island_;
+    u8 target_x_;
+    u8 target_y_;
+
+    static const auto mt = Header::MessageType::chr_set_target_v2;
+};
+
+
+
+
 // This message should be unnecessary in most cases. Just as a failsafe.
 struct CoOpOpponentDestroyed
 {
@@ -702,6 +762,13 @@ public:
 
 
     virtual void
+    receive(Platform& pfrm, App& app, const packet::ChrBoardedV2& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
     receive(Platform& pfrm, App& app, const packet::CharacterDisembark& p)
     {
         unhandled_message(pfrm, app, p.header_);
@@ -709,7 +776,21 @@ public:
 
 
     virtual void
+    receive(Platform& pfrm, App& app, const packet::ChrDisembarkV2& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
     receive(Platform& pfrm, App& app, const packet::CharacterDied& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::ChrDiedV2& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }
@@ -887,6 +968,14 @@ public:
 
 
     virtual void receive(Platform& pfrm, App& app, const packet::Paused& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void receive(Platform& pfrm,
+                         App& app,
+                         const packet::ChrSetTargetV2& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }

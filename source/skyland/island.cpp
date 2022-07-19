@@ -695,15 +695,22 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
         for (auto it = chr_list.begin(); it not_eq chr_list.end();) {
             if (not(*it)->alive()) {
 
-                network::packet::CharacterDied packet;
-                packet.chr_x_ = (*it)->grid_position().x;
-                packet.chr_y_ = (*it)->grid_position().y;
-                // NOTE: some fields intentionally inverted, everything is sort
-                // of flipped from the receiver's perspective.
-                packet.near_island_ = this not_eq &app.player_island();
-                packet.chr_owned_by_player_ =
-                    (*it)->owner() not_eq &app.player();
-                network::transmit(pfrm, packet);
+                if (app.game_mode() == App::GameMode::co_op) {
+                    network::packet::ChrDiedV2 packet;
+                    packet.chr_id_.set((*it)->id());
+                    packet.near_island_ = this not_eq &app.player_island();
+                    network::transmit(pfrm, packet);
+                } else {
+                    network::packet::CharacterDied packet;
+                    packet.chr_x_ = (*it)->grid_position().x;
+                    packet.chr_y_ = (*it)->grid_position().y;
+                    // NOTE: some fields intentionally inverted, everything is sort
+                    // of flipped from the receiver's perspective.
+                    packet.near_island_ = this not_eq &app.player_island();
+                    packet.chr_owned_by_player_ =
+                        (*it)->owner() not_eq &app.player();
+                    network::transmit(pfrm, packet);
+                }
 
                 record_character_died(**it);
 

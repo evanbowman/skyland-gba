@@ -202,92 +202,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
 void CoOpTeam::receive(Platform& pfrm,
                        App& app,
-                       const network::packet::CharacterDied& packet)
-{
-    Island* island = nullptr;
-
-    if (not packet.near_island_) {
-        island = &player_island(app);
-    } else {
-        island = opponent_island(app);
-    }
-
-    const RoomCoord chr_loc = {packet.chr_x_, packet.chr_y_};
-
-    if (island) {
-        if (auto room = island->get_room(chr_loc)) {
-            for (auto it = room->characters().begin();
-                 it not_eq room->characters().end();) {
-
-                const bool owned_by_player = (*it)->owner() == &player(app);
-                if ((*it)->grid_position() == chr_loc and
-                    (not packet.chr_owned_by_player_) == owned_by_player and
-                    (*it)->health() < 20) {
-                    // FIXME: Added the < 20 heuristic in case another character
-                    // happens to be walking to be walking through the slot at
-                    // the same that the character dies. Eventually, we should
-                    // associate unique identifiers with all characters.
-                    (*it)->apply_damage(pfrm, app, 20);
-                    return;
-                } else {
-                    ++it;
-                }
-            }
-        }
-    }
-}
-
-
-
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::CharacterBoarded& packet)
-{
-    if (not opponent_island(app)) {
-        return;
-    }
-
-    const auto src = RoomCoord{packet.src_x_, packet.src_y_};
-    const auto dst = RoomCoord{packet.dst_x_, packet.dst_y_};
-
-    auto source_island =
-        packet.transporter_near_ ? &player_island(app) : opponent_island(app);
-
-    auto dest_island =
-        packet.transporter_near_ ? opponent_island(app) : &player_island(app);
-
-    transport_character_impl(
-        app, packet.owned_by_ai_, source_island, dest_island, src, dst);
-}
-
-
-
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::CharacterDisembark& packet)
-{
-    if (not opponent_island(app)) {
-        return;
-    }
-
-    const auto src = RoomCoord{packet.src_x_, packet.src_y_};
-    const auto dst = RoomCoord{packet.dst_x_, packet.dst_y_};
-
-    auto dest_island =
-        packet.transporter_near_ ? &player_island(app) : opponent_island(app);
-
-    auto source_island =
-        packet.transporter_near_ ? opponent_island(app) : &player_island(app);
-
-    transport_character_impl(
-        app, packet.owned_by_ai_, source_island, dest_island, src, dst);
-}
-
-
-
-void CoOpTeam::receive(Platform& pfrm,
-                       App& app,
-                       const network::packet::CharacterSetTarget& packet)
+                       const network::packet::ChrDiedV2& packet)
 {
     Island* island = nullptr;
 
@@ -298,26 +213,105 @@ void CoOpTeam::receive(Platform& pfrm,
     }
 
     if (island) {
-        const RoomCoord src_coord{packet.src_x_, packet.src_y_};
-        const RoomCoord dst_coord{packet.dst_x_, packet.dst_y_};
 
-        if (auto room = island->get_room(src_coord)) {
-            for (auto& chr : room->characters()) {
-                if (chr->grid_position() == src_coord and
-                    ((not packet.owned_by_ai_) ==
-                     (chr->owner() == &player(app)))) {
+        auto found = island->find_character_by_id(packet.chr_id_.get());
 
-                    auto path =
-                        find_path(pfrm, app, island, src_coord, dst_coord);
-
-                    if (path and *path) {
-                        chr->set_movement_path(pfrm, app, std::move(*path));
-                        return;
-                    }
-                }
-            }
+        if (found.first) {
+            // kill character
+            found.first->apply_damage(pfrm, app, BasicCharacter::max_health);
         }
     }
+}
+
+
+
+void CoOpTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::ChrBoardedV2& packet)
+{
+    if (not opponent_island(app)) {
+        return;
+    }
+
+    const auto dst = RoomCoord{packet.dst_x_, packet.dst_y_};
+
+    auto source_island =
+        packet.transporter_near_ ? &player_island(app) : opponent_island(app);
+
+    auto dest_island =
+        packet.transporter_near_ ? opponent_island(app) : &player_island(app);
+
+    transport_character_impl(app,
+                             source_island,
+                             dest_island,
+                             packet.chr_id_.get(),
+                             dst);
+}
+
+
+
+void CoOpTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::ChrDisembarkV2& packet)
+{
+    if (not opponent_island(app)) {
+        return;
+    }
+
+    const auto dst = RoomCoord{packet.dst_x_, packet.dst_y_};
+
+    auto dest_island =
+        packet.transporter_near_ ? &player_island(app) : opponent_island(app);
+
+    auto source_island =
+        packet.transporter_near_ ? opponent_island(app) : &player_island(app);
+
+    transport_character_impl(app,
+                             source_island,
+                             dest_island,
+                             packet.chr_id_.get(),
+                             dst);
+}
+
+
+
+void CoOpTeam::receive(Platform& pfrm,
+                       App& app,
+                       const network::packet::ChrSetTargetV2& packet)
+{
+    Island* island = nullptr;
+
+    if (not packet.near_island_) {
+        island = &player_island(app);
+    } else {
+        island = opponent_island(app);
+    }
+
+    if (island) {
+        const RoomCoord dst_coord{packet.target_x_, packet.target_y_};
+
+        auto info = island->find_character_by_id(packet.chr_id_.get());
+
+        if (info.first) {
+            auto path = find_path(pfrm, app, island,
+                                  info.first->grid_position(), dst_coord);
+            if (path and *path) {
+                info.first->set_movement_path(pfrm, app, std::move(*path));
+                return;
+            } else {
+                Platform::fatal(format("path not found from %,% to %,%",
+                                       dst_coord.x,
+                                       dst_coord.y,
+                                       info.first->grid_position().x,
+                                       info.first->grid_position().y).c_str());
+            }
+        } else {
+            Platform::fatal("chr not found!!!");
+        }
+    } else {
+        Platform::fatal("island null");
+    }
+    Platform::fatal("here!?");
 }
 
 

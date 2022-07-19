@@ -677,17 +677,31 @@ void EnemyAI::assign_local_character(Platform& pfrm,
             // represents a single node with the character's current position.
             character.set_movement_path(pfrm, app, std::move(*path));
 
-            network::packet::CharacterSetTarget packet;
-            packet.src_x_ = current_pos.x;
-            packet.src_y_ = current_pos.y;
-            packet.dst_x_ = target.coord_.x;
-            packet.dst_y_ = target.coord_.x;
-            packet.owned_by_ai_ = true;
+            if (app.game_mode() == App::GameMode::co_op) {
+                network::packet::ChrSetTargetV2 packet;
+                packet.target_x_ = target.coord_.x;
+                packet.target_y_ = target.coord_.x;
+                packet.chr_id_.set(character.id());
 
-            // Intentionally inverted, for historical reasons
-            packet.near_island_ = true;
+                // Intentionally inverted, for historical reasons
+                packet.near_island_ = true;
 
-            network::transmit(pfrm, packet);
+                network::transmit(pfrm, packet);
+
+            } else {
+                // FIXME!!! Use new CharacterSetTarget message with id!
+                network::packet::CharacterSetTarget packet;
+                packet.src_x_ = current_pos.x;
+                packet.src_y_ = current_pos.y;
+                packet.dst_x_ = target.coord_.x;
+                packet.dst_y_ = target.coord_.x;
+                packet.owned_by_ai_ = true;
+
+                // Intentionally inverted, for historical reasons
+                packet.near_island_ = true;
+
+                network::transmit(pfrm, packet);
+            }
         }
     }
 }
@@ -846,14 +860,26 @@ void EnemyAI::assign_boarded_character(Platform& pfrm,
             // represents a single node with the character's current position.
             character.set_movement_path(pfrm, app, std::move(*path));
 
-            network::packet::CharacterSetTarget packet;
-            packet.src_x_ = current_pos.x;
-            packet.src_y_ = current_pos.y;
-            packet.dst_x_ = target.coord_.x;
-            packet.dst_y_ = target.coord_.x;
-            packet.owned_by_ai_ = true;
-            packet.near_island_ = false;
-            network::transmit(pfrm, packet);
+
+            if (app.game_mode() == App::GameMode::co_op) {
+                network::packet::ChrSetTargetV2 packet;
+                packet.target_x_ = target.coord_.x;
+                packet.target_y_ = target.coord_.x;
+                packet.chr_id_.set(character.id());
+                packet.near_island_ = false;
+                network::transmit(pfrm, packet);
+
+            } else {
+                // FIXME!!! Use new CharacterSetTarget message with id!
+                network::packet::CharacterSetTarget packet;
+                packet.src_x_ = current_pos.x;
+                packet.src_y_ = current_pos.y;
+                packet.dst_x_ = target.coord_.x;
+                packet.dst_y_ = target.coord_.x;
+                packet.owned_by_ai_ = true;
+                packet.near_island_ = false;
+                network::transmit(pfrm, packet);
+            }
         }
     }
 }
