@@ -55,28 +55,36 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
-    if (app.player().key_down(pfrm, Key::left)) {
+    auto test_key = [&](Key k) {
+        return app.player().test_key(
+            pfrm, k, milliseconds(500), milliseconds(100));
+    };
+
+    app.player().key_held_distribute(pfrm);
+
+
+    if (test_key(Key::left)) {
         if (cursor_loc.x > 0) {
             --cursor_loc.x;
             pfrm.speaker().play_sound("cursor_tick", 0);
         }
     }
 
-    if (app.player().key_down(pfrm, Key::right)) {
+    if (test_key(Key::right)) {
         if (cursor_loc.x < app.opponent_island()->terrain().size()) {
             ++cursor_loc.x;
             pfrm.speaker().play_sound("cursor_tick", 0);
         }
     }
 
-    if (app.player().key_down(pfrm, Key::up)) {
+    if (test_key(Key::up)) {
         if (cursor_loc.y > construction_zone_min_y) {
             --cursor_loc.y;
             pfrm.speaker().play_sound("cursor_tick", 0);
         }
     }
 
-    if (app.player().key_down(pfrm, Key::down)) {
+    if (test_key(Key::down)) {
         if (cursor_loc.y < 14) {
             ++cursor_loc.y;
             pfrm.speaker().play_sound("cursor_tick", 0);
