@@ -293,7 +293,7 @@ static const AchievementInfo info[Achievement::count] = {
      SystemString::achievement_primitive_description,
      "gold",
      [](Platform&, App& app) {
-         return app.zone() > 3 and
+         return app.zone() > 2 and
                 not(app.persistent_data().state_flags_.get() &
                     PersistentData::workshop_built);
      },

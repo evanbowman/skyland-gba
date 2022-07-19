@@ -383,7 +383,7 @@ Finish all challenge levels!
 Symbiosis
 Complete the "Mycelium!" challenge!
 Primitive
-Reach zone 4 without building a workshop!
+Reach zone 3 without building a workshop!
 Hero
 Defeat the Storm King!
 options
