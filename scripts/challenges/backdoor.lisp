@@ -36,7 +36,10 @@
 
 (island-configure
  (opponent)
- '((forcefield 1 13)
+ '((hull 1 10)
+   (hull 1 9)
+   (hull 1 8)
+   (forcefield 1 13)
    (forcefield 1 12)
    (forcefield 1 14)
    (energized-hull 2 9)
@@ -48,7 +51,8 @@
    (energized-hull 2 10)
    (hull 3 6)
    (hull 3 7)
-   (forcefield 3 11)
+   (hull 3 11)
+   (forcefield 2 11)
    (energized-hull 3 10)
    (power-core 3 8)
    ;; NOTE: intentionally damaged
@@ -61,7 +65,7 @@
    (reactor 5 9)
    (hull 5 8)
    (hull 5 7)
-   (energized-hull 6 12)
+   (hull 6 12)
    (energized-hull 6 13)
    (energized-hull 6 14)
    (hull 6 8)
