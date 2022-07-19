@@ -111,6 +111,7 @@ LevelCompleteOptionsScene::update(Platform& pfrm, App& app, Microseconds delta)
             pfrm.screen().schedule_fade(0.f);
             pfrm.load_overlay_texture("overlay");
             pfrm.screen().pixelate(0, false);
+            app.reset_opponent_island(pfrm);
             return scene_pool::alloc<ReadyScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);
