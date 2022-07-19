@@ -164,6 +164,11 @@ LoadLevelScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
     app.player_island().drones().clear();
 
+    if (app.zone() > 2) {
+        app.swap_environment<weather::Storm>();
+    } else {
+        app.swap_environment<weather::ClearSkies>();
+    }
 
     switch (node.type_) {
     case WorldGraph::Node::Type::neutral:
