@@ -299,19 +299,18 @@ void CoOpTeam::receive(Platform& pfrm,
                 info.first->set_movement_path(pfrm, app, std::move(*path));
                 return;
             } else {
-                Platform::fatal(format("path not found from %,% to %,%",
-                                       dst_coord.x,
-                                       dst_coord.y,
-                                       info.first->grid_position().x,
-                                       info.first->grid_position().y).c_str());
+                ::info(pfrm, format("path not found from %,% to %,%",
+                                    dst_coord.x,
+                                    dst_coord.y,
+                                    info.first->grid_position().x,
+                                    info.first->grid_position().y));
             }
         } else {
-            Platform::fatal("chr not found!!!");
+            ::info(pfrm, "chr not found!!!");
         }
     } else {
-        Platform::fatal("island null");
+        ::info(pfrm, "island null");
     }
-    Platform::fatal("here!?");
 }
 
 
