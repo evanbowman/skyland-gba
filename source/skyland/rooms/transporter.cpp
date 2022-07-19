@@ -130,7 +130,7 @@ void Transporter::recover_character(Platform& pfrm,
                                     App& app,
                                     const RoomCoord& position)
 {
-    recharge_ = 1000 * transporter_reload_ms;
+    begin_recharge();
 
     if (parent()->interior_visible()) {
         parent()->repaint(pfrm, app);
@@ -162,6 +162,8 @@ void Transporter::recover_character(Platform& pfrm,
                     packet.chr_id_.set((*unlinked).id());
                     packet.dst_x_ = dst.x;
                     packet.dst_y_ = dst.y;
+                    packet.transporter_x_ = dst.x;
+                    packet.transporter_y_ = dst.x;
                     packet.transporter_near_ = &parent()->owner() == &app.player();
                     network::transmit(pfrm, packet);
                 } else {
@@ -219,7 +221,7 @@ void Transporter::transport_occupant(Platform& pfrm,
                                      App& app,
                                      std::optional<RoomCoord> destination)
 {
-    recharge_ = 1000 * transporter_reload_ms;
+    begin_recharge();
 
     if (parent()->interior_visible()) {
         parent()->repaint(pfrm, app);
@@ -278,6 +280,8 @@ void Transporter::transport_occupant(Platform& pfrm,
             packet.chr_id_.set((*chr)->id());
             packet.dst_x_ = dest->x;
             packet.dst_y_ = dest->y;
+            packet.transporter_x_ = (*chr)->grid_position().x;
+            packet.transporter_y_ = (*chr)->grid_position().y;
             packet.transporter_near_ = &parent()->owner() == &app.player();
             network::transmit(pfrm, packet);
         } else {
@@ -402,6 +406,9 @@ void transport_character_impl(App& app,
     }
 
     if (auto room = found.second) {
+
+
+
         for (auto it = room->characters().begin();
              it not_eq room->characters().end();) {
 

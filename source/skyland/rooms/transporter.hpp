@@ -131,6 +131,12 @@ public:
     }
 
 
+    void begin_recharge()
+    {
+        recharge_ = 1000 * transporter_reload_ms;
+    }
+
+
 private:
     Microseconds recharge_ = 1000 * transporter_reload_ms;
 };

@@ -238,6 +238,16 @@ void CoOpTeam::receive(Platform& pfrm,
     auto source_island =
         packet.transporter_near_ ? &player_island(app) : opponent_island(app);
 
+    if (auto room = source_island->get_room({packet.transporter_x_,
+                                             packet.transporter_y_})) {
+        if (auto t = dynamic_cast<Transporter*>(room)) {
+            t->begin_recharge();
+            if (t->parent()->interior_visible()) {
+                t->parent()->schedule_repaint();
+            }
+        }
+    }
+
     auto dest_island =
         packet.transporter_near_ ? opponent_island(app) : &player_island(app);
 
@@ -262,6 +272,16 @@ void CoOpTeam::receive(Platform& pfrm,
 
     auto dest_island =
         packet.transporter_near_ ? &player_island(app) : opponent_island(app);
+
+    if (auto room = dest_island->get_room({packet.transporter_x_,
+                                           packet.transporter_y_})) {
+        if (auto t = dynamic_cast<Transporter*>(room)) {
+            t->begin_recharge();
+            if (t->parent()->interior_visible()) {
+                t->parent()->schedule_repaint();
+            }
+        }
+    }
 
     auto source_island =
         packet.transporter_near_ ? opponent_island(app) : &player_island(app);
