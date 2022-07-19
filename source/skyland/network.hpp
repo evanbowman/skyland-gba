@@ -323,8 +323,12 @@ struct ChrBoardedV2
 {
     Header header_;
     HostInteger<CharacterId> chr_id_;
-    u8 dst_x_;
-    u8 dst_y_;
+    u8 dst_x_ : 4;
+    u8 dst_y_ : 4;
+
+    // NOTE: for invalidating a transporter after use.
+    u8 transporter_x_ : 4;
+    u8 transporter_y_ : 4;
 
     bool transporter_near_ : 1;
 
@@ -355,8 +359,12 @@ struct ChrDisembarkV2
 {
     Header header_;
     HostInteger<CharacterId> chr_id_;
-    u8 dst_x_;
-    u8 dst_y_;
+    u8 dst_x_ : 4;
+    u8 dst_y_ : 4;
+
+    // NOTE: for invalidating a transporter after use.
+    u8 transporter_x_ : 4;
+    u8 transporter_y_ : 4;
 
     bool transporter_near_ : 1;
 
