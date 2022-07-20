@@ -137,7 +137,7 @@ static const char* const page_end_lines0[] = {"-- Postscript --",
                                               "",
                                               "",
                                               "",
-                                             nullptr};
+                                              nullptr};
 
 static const char* const page_end_lines1[] = {"-- Postscript --",
                                               "",

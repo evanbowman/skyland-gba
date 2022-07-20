@@ -7,7 +7,7 @@
 
 (eval-file "/scripts/macro/start_layout.lisp")
 
-(dialog "<f:70>Welcome to the macrocosm! You and a group of settlers have just established a colony on a remote isle. Provide your population with food and housing, and it'll grow!")
+(dialog "<f:70>Welcome to the macrocosm! You and a group of settlers have just established a colony on a remote isle. Presence of food and housing on your island result in population growth, through births and immigration.")
 
 (defn on-dialog-closed
   (dialog "Produce commodities for extra coins. Commodities are cheaper to build near blocks improved with the same commodity, but produce diminishing returns. Export commodities to other islands to balance demand and scarcity.")

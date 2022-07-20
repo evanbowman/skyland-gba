@@ -2633,7 +2633,8 @@ void Platform::Screen::schedule_fade(Float amount,
     // Tile1 palette
     for (int i = 0; i < 16; ++i) {
         auto from = Color::from_bgr_hex_555(tilesheet_1_palette[i]);
-        bg_palette_back_buffer[32 + i] = blend(from, c, include_tiles ? amt : 0);
+        bg_palette_back_buffer[32 + i] =
+            blend(from, c, include_tiles ? amt : 0);
     }
     for (int i = 0; i < 16; ++i) {
         auto from = Color::from_bgr_hex_555(background_palette[i]);

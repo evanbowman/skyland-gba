@@ -262,6 +262,8 @@ enum class SystemString {
     macro_population_density,
     macro_total_happiness,
 
+    macro_population_growth,
+
     macro_cube,
     macro_pancake,
     macro_pillar,

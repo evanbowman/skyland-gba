@@ -164,7 +164,8 @@ void Transporter::recover_character(Platform& pfrm,
                     packet.dst_y_ = dst.y;
                     packet.transporter_x_ = dst.x;
                     packet.transporter_y_ = dst.x;
-                    packet.transporter_near_ = &parent()->owner() == &app.player();
+                    packet.transporter_near_ =
+                        &parent()->owner() == &app.player();
                     network::transmit(pfrm, packet);
                 } else {
                     network::packet::CharacterDisembark packet;
@@ -172,8 +173,10 @@ void Transporter::recover_character(Platform& pfrm,
                     packet.src_y_ = unlinked->grid_position().y;
                     packet.dst_x_ = dst.x;
                     packet.dst_y_ = dst.y;
-                    packet.transporter_near_ = &parent()->owner() == &app.player();
-                    packet.owned_by_ai_ = (*unlinked).owner() not_eq &app.player();
+                    packet.transporter_near_ =
+                        &parent()->owner() == &app.player();
+                    packet.owned_by_ai_ =
+                        (*unlinked).owner() not_eq &app.player();
                     network::transmit(pfrm, packet);
                 }
 

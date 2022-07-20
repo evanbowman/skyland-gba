@@ -42,7 +42,6 @@ class Player;
 class BasicCharacter : public Entity
 {
 public:
-
     static constexpr const Health max_health = 255;
 
 

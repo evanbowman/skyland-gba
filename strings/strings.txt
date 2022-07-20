@@ -192,9 +192,10 @@ starvation
 happiness
 unhappiness
 food supply
-housing scarcity
+housing supply
 population density
 total happiness
+population growth pressure
 cube
 wide
 pillar

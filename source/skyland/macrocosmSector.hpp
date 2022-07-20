@@ -175,6 +175,8 @@ public:
 
     Population population() const;
 
+    Float population_growth_rate_from_food_supply() const;
+    Float population_growth_rate_from_housing_supply() const;
     Float population_growth_rate() const;
     Coins coin_yield() const;
 

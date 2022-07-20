@@ -238,8 +238,8 @@ void CoOpTeam::receive(Platform& pfrm,
     auto source_island =
         packet.transporter_near_ ? &player_island(app) : opponent_island(app);
 
-    if (auto room = source_island->get_room({packet.transporter_x_,
-                                             packet.transporter_y_})) {
+    if (auto room = source_island->get_room(
+            {packet.transporter_x_, packet.transporter_y_})) {
         if (auto t = dynamic_cast<Transporter*>(room)) {
             t->begin_recharge();
             if (t->parent()->interior_visible()) {
@@ -251,11 +251,8 @@ void CoOpTeam::receive(Platform& pfrm,
     auto dest_island =
         packet.transporter_near_ ? opponent_island(app) : &player_island(app);
 
-    transport_character_impl(app,
-                             source_island,
-                             dest_island,
-                             packet.chr_id_.get(),
-                             dst);
+    transport_character_impl(
+        app, source_island, dest_island, packet.chr_id_.get(), dst);
 }
 
 
@@ -273,8 +270,8 @@ void CoOpTeam::receive(Platform& pfrm,
     auto dest_island =
         packet.transporter_near_ ? &player_island(app) : opponent_island(app);
 
-    if (auto room = dest_island->get_room({packet.transporter_x_,
-                                           packet.transporter_y_})) {
+    if (auto room = dest_island->get_room(
+            {packet.transporter_x_, packet.transporter_y_})) {
         if (auto t = dynamic_cast<Transporter*>(room)) {
             t->begin_recharge();
             if (t->parent()->interior_visible()) {
@@ -286,11 +283,8 @@ void CoOpTeam::receive(Platform& pfrm,
     auto source_island =
         packet.transporter_near_ ? opponent_island(app) : &player_island(app);
 
-    transport_character_impl(app,
-                             source_island,
-                             dest_island,
-                             packet.chr_id_.get(),
-                             dst);
+    transport_character_impl(
+        app, source_island, dest_island, packet.chr_id_.get(), dst);
 }
 
 
@@ -313,17 +307,18 @@ void CoOpTeam::receive(Platform& pfrm,
         auto info = island->find_character_by_id(packet.chr_id_.get());
 
         if (info.first) {
-            auto path = find_path(pfrm, app, island,
-                                  info.first->grid_position(), dst_coord);
+            auto path = find_path(
+                pfrm, app, island, info.first->grid_position(), dst_coord);
             if (path and *path) {
                 info.first->set_movement_path(pfrm, app, std::move(*path));
                 return;
             } else {
-                ::info(pfrm, format("path not found from %,% to %,%",
-                                    dst_coord.x,
-                                    dst_coord.y,
-                                    info.first->grid_position().x,
-                                    info.first->grid_position().y));
+                ::info(pfrm,
+                       format("path not found from %,% to %,%",
+                              dst_coord.x,
+                              dst_coord.y,
+                              info.first->grid_position().x,
+                              info.first->grid_position().y));
             }
         } else {
             ::info(pfrm, "chr not found!!!");

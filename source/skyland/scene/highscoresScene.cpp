@@ -21,6 +21,7 @@
 
 
 #include "highscoresScene.hpp"
+#include "achievementNotificationScene.hpp"
 #include "base32.hpp"
 #include "qrViewerScene.hpp"
 #include "skyland/loginToken.hpp"
@@ -30,7 +31,6 @@
 #include "skyland/skyland.hpp"
 #include "textEntryScene.hpp"
 #include "titleScreenScene.hpp"
-#include "achievementNotificationScene.hpp"
 
 
 

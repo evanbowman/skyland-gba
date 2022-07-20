@@ -69,8 +69,6 @@ void CitizensInfoScene::show(Platform& pfrm, macro::EngineImpl& state)
 
     s_->lines_.clear();
 
-    auto b = state.sector().annotate_happiness();
-
     const auto st = calc_screen_tiles(pfrm);
 
     auto append_value = [&](Float fval) {
@@ -113,59 +111,87 @@ void CitizensInfoScene::show(Platform& pfrm, macro::EngineImpl& state)
 
     Float total = 0.f;
 
-    int skip = s_->lines_.capacity() * s_->page_;
+    if (s_->page_ == 0) {
+        auto b = state.sector().annotate_happiness();
 
-    int count = 0;
-    auto item = b.entries();
-    while (item) {
-        ++count;
-        item = item->next_;
-    }
+        int skip = s_->lines_.capacity() * s_->page_;
 
-    s_->lines_.emplace_back(pfrm,
-                            OverlayCoord{1, u8(4 + s_->lines_.size() * 2)});
-    s_->lines_.back().assign("");
-    s_->lines_.back().append(SYSTR(macro_fiscal_happiness)->c_str());
-    s_->lines_.back().append(":");
-
-    item = b.entries();
-    while (item and not s_->lines_.full()) {
-
-        if (skip == 0) {
-            s_->lines_.emplace_back(
-                pfrm, OverlayCoord{1, u8(5 + s_->lines_.size() * 2)});
-            s_->lines_.back().assign(item->label_.c_str());
-
-            append_value(item->contribution_);
-        } else {
-            --skip;
+        int count = 0;
+        auto item = b.entries();
+        while (item) {
+            ++count;
+            item = item->next_;
         }
 
-        total += item->contribution_;
-
-        item = item->next_;
-    }
-
-    s_->pages_ = count / s_->lines_.capacity();
-    // Add an extra page for the Total line.
-    s_->pages_ += (count % s_->lines_.capacity()) == 0;
-
-    if (not s_->lines_.full()) {
         s_->lines_.emplace_back(pfrm,
-                                OverlayCoord{1, u8(5 + s_->lines_.size() * 2)});
-        s_->lines_.back().append(SYSTR(macro_total_happiness)->c_str());
+                                OverlayCoord{1, u8(4 + s_->lines_.size() * 2)});
+        s_->lines_.back().assign("");
+        s_->lines_.back().append(SYSTR(macro_fiscal_happiness)->c_str());
+        s_->lines_.back().append(":");
 
-        append_value(total);
+        item = b.entries();
+        while (item and not s_->lines_.full()) {
+
+            if (skip == 0) {
+                s_->lines_.emplace_back(
+                    pfrm, OverlayCoord{1, u8(4 + s_->lines_.size() * 2)});
+                s_->lines_.back().assign(item->label_.c_str());
+
+                append_value(item->contribution_);
+            } else {
+                --skip;
+            }
+
+            total += item->contribution_;
+
+            item = item->next_;
+        }
+
+        if (not s_->lines_.full()) {
+            s_->lines_.emplace_back(
+                pfrm, OverlayCoord{1, u8(4 + s_->lines_.size() * 2)});
+            s_->lines_.back().append(SYSTR(macro_total_happiness)->c_str());
+
+            append_value(total);
+        }
+    } else /* s->page_ == 1 */ {
+        s_->lines_.emplace_back(pfrm,
+                                OverlayCoord{1, u8(4 + s_->lines_.size() * 2)});
+        s_->lines_.back().assign("");
+        s_->lines_.back().append(SYSTR(macro_population_growth)->c_str());
+        s_->lines_.back().append(":");
+
+        auto push = [&](SystemString s, Float val) {
+                        const u8 y = 4 + s_->lines_.size() * 2;
+                        s_->lines_.emplace_back(pfrm, OverlayCoord{1, y});
+                        s_->lines_.back().assign("");
+                        s_->lines_.back().append(loadstr(pfrm, s)->c_str());
+                        append_value(val);
+
+                        pfrm.set_tile(Layer::overlay, st.x - 2, y, 85);
+                    };
+
+        for (int y = 0; y < st.y; ++y) {
+            pfrm.set_tile(Layer::overlay, st.x - 2, y, 0);
+        }
+
+        push(SystemString::macro_food_supply,
+             state.sector().population_growth_rate_from_food_supply());
+
+        push(SystemString::macro_housing_scarcity,
+             state.sector().population_growth_rate_from_housing_supply());
     }
 
-    if (count + 1 > (int)s_->lines_.capacity()) {
-        int margin = (calc_screen_tiles(pfrm).x - s_->pages_ * 2) / 2;
-        for (int i = 0; i < s_->pages_ + 1; ++i) {
-            if (i == s_->page_) {
-                pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 83);
-            } else {
-                pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 82);
-            }
+
+    s_->pages_ = 2;
+
+
+    int margin = (calc_screen_tiles(pfrm).x - s_->pages_ * 2) / 2;
+    for (int i = 0; i < s_->pages_; ++i) {
+        if (i == s_->page_) {
+            pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 83);
+        } else {
+            pfrm.set_tile(Layer::overlay, margin + i * 2, 18, 82);
         }
     }
 }
@@ -189,7 +215,7 @@ CitizensInfoScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (player(app).key_down(pfrm, Key::right)) {
-        if (s_->page_ < s_->pages_) {
+        if (s_->page_ < s_->pages_ - 1) {
             ++s_->page_;
             show(pfrm, macrocosm(app));
             pfrm.speaker().play_sound("click_wooden", 2);

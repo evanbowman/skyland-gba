@@ -25,15 +25,14 @@
 #include "platform/platform.hpp"
 #include "skyland/entity/explosion/explosion.hpp"
 #include "skyland/island.hpp"
+#include "skyland/scene/boxedDialogScene.hpp"
 #include "skyland/scene/craneDropScene.hpp"
 #include "skyland/scene/notificationScene.hpp"
 #include "skyland/scene/readyScene.hpp"
+#include "skyland/scene/worldScene.hpp"
+#include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/scene/worldScene.hpp"
-#include "skyland/scene/readyScene.hpp"
-#include "skyland/scene/boxedDialogScene.hpp"
-#include "skyland/scene_pool.hpp"
 
 
 
@@ -189,7 +188,6 @@ void Crane::display(Platform::Screen& screen)
 class CraneItemScene : public ActiveWorldScene
 {
 public:
-
     void enter(Platform& pfrm, App& app, Scene& prev) override
     {
         ActiveWorldScene::enter(pfrm, app, prev);
@@ -222,9 +220,8 @@ public:
         }
 
         auto item = (int)items_[index_];
-        auto name = get_line_from_file(pfrm,
-                                       "/strings/crane.txt",
-                                       1 + item * 2);
+        auto name =
+            get_line_from_file(pfrm, "/strings/crane.txt", 1 + item * 2);
 
 
         pfrm.set_tile(Layer::overlay, 0, y, 392);
@@ -238,9 +235,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (items_.empty()) {
             pfrm.speaker().play_sound("beep_error", 3);
@@ -253,7 +249,7 @@ public:
 
         if (key_down<Key::down>(pfrm)) {
             if (index_ == items_.size() - 1) {
-                index_  = 0;
+                index_ = 0;
             } else {
                 ++index_;
             }
@@ -274,15 +270,15 @@ public:
         if (key_down<Key::action_1>(pfrm)) {
             auto item = (int)items_[index_];
             auto buffer = allocate_dynamic<DialogString>("dialog-buffer");
-            *buffer += get_line_from_file(pfrm,
-                                          "/strings/crane.txt",
-                                          1 + item * 2)->c_str();
+            *buffer +=
+                get_line_from_file(pfrm, "/strings/crane.txt", 1 + item * 2)
+                    ->c_str();
             *buffer += ": ";
-            *buffer += get_line_from_file(pfrm,
-                                         "/strings/crane.txt",
-                                         1 + item * 2 + 1)->c_str();
-            auto next = scene_pool::alloc<BoxedDialogSceneWS>(
-                        std::move(buffer), false);
+            *buffer +=
+                get_line_from_file(pfrm, "/strings/crane.txt", 1 + item * 2 + 1)
+                    ->c_str();
+            auto next =
+                scene_pool::alloc<BoxedDialogSceneWS>(std::move(buffer), false);
 
             next->pause_if_hostile_ = false;
             next->autorestore_music_volume_ = true;
@@ -297,8 +293,8 @@ public:
 private:
     u32 index_ = 0;
     std::optional<Text> text_;
-    Buffer<Crane::Discoveries::Item,
-           (int)Crane::Discoveries::Item::count> items_;
+    Buffer<Crane::Discoveries::Item, (int)Crane::Discoveries::Item::count>
+        items_;
 };
 
 

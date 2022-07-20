@@ -822,6 +822,9 @@ Stats stats(Type t, bool shadowed)
 
     case terrain::Type::carved_crystal:
     case terrain::Type::crystal_pillar:
+        result.happiness_ += 8;
+        break;
+
     case terrain::Type::crystal:
         result.happiness_ += 5;
         break;

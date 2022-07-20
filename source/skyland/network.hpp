@@ -602,7 +602,6 @@ struct ChrSetTargetV2
 
 
 
-
 // This message should be unnecessary in most cases. Just as a failsafe.
 struct CoOpOpponentDestroyed
 {
@@ -797,8 +796,7 @@ public:
     }
 
 
-    virtual void
-    receive(Platform& pfrm, App& app, const packet::ChrDiedV2& p)
+    virtual void receive(Platform& pfrm, App& app, const packet::ChrDiedV2& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }
@@ -981,9 +979,8 @@ public:
     }
 
 
-    virtual void receive(Platform& pfrm,
-                         App& app,
-                         const packet::ChrSetTargetV2& p)
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::ChrSetTargetV2& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }

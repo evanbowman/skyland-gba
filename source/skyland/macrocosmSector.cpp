@@ -498,34 +498,45 @@ terrain::Stats terrain::Sector::base_stats() const
 
 
 
-Float terrain::Sector::population_growth_rate() const
+Float terrain::Sector::population_growth_rate_from_food_supply() const
 {
     auto s = stats();
+    auto& b = EngineImpl::bindings();
 
     auto required_food = population() / EngineImpl::food_consumption_factor();
 
-    Float result = 0.f;
-
-    auto& b = EngineImpl::bindings();
 
     if (s.food_ >= required_food) {
-        result = 0.01f * b.mcr_pop_growth_food_surplus_percent *
+        return 0.01f * b.mcr_pop_growth_food_surplus_percent *
                  (s.food_ - required_food);
     } else {
-        result = -0.01f * b.mcr_pop_growth_food_shortage_percent *
+        return -0.01f * b.mcr_pop_growth_food_shortage_percent *
                  (required_food - s.food_);
     }
+}
+
+
+
+Float terrain::Sector::population_growth_rate_from_housing_supply() const
+{
+    auto s = stats();
+    auto& b = EngineImpl::bindings();
 
     if (population() > s.housing_) {
-        result -= 0.001f * b.mcr_pop_growth_housing_factor *
-                  (population() - s.housing_);
+        return -0.001f * b.mcr_pop_growth_housing_factor *
+            (population() - s.housing_);
     } else {
-        result += 0.001f * b.mcr_pop_growth_housing_factor *
-                  (s.housing_ - population());
+        return 0.001f * b.mcr_pop_growth_housing_factor *
+            (s.housing_ - population());
     }
+}
 
 
-    return result;
+
+Float terrain::Sector::population_growth_rate() const
+{
+    return population_growth_rate_from_food_supply() +
+        population_growth_rate_from_housing_supply();
 }
 
 
