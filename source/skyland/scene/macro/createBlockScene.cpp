@@ -113,7 +113,7 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
     options_.push_back(terrain::Type::sand);
     options_.push_back(terrain::Type::marble_top);
     options_.push_back(terrain::Type::scaffolding);
-    // options_.push_back(terrain::Type::hull);
+    options_.push_back(terrain::Type::hull);
     options_.push_back(terrain::Type::arch);
     options_.push_back(terrain::Type::masonry);
     options_.push_back(terrain::Type::air);

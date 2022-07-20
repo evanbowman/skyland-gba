@@ -1455,7 +1455,7 @@ std::pair<int, int> terrain::icons(Type t)
         return {1448, 1464};
 
     case terrain::Type::hull:
-        return {520, 504};
+        return {1624, 1640};
 
     case terrain::Type::scaffolding:
         return {3144, 3160};
