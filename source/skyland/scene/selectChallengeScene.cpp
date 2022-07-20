@@ -197,6 +197,8 @@ SelectChallengeScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (achievement not_eq achievements::Achievement::none) {
                 achievements::award(pfrm, app, achievement);
 
+                app.player_island().show_flag(false);
+
                 pfrm.screen().fade(1.f);
 
                 auto next =
