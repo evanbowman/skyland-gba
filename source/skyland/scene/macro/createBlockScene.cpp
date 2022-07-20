@@ -82,6 +82,7 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
     options_.push_back(terrain::Type::building);
     options_.push_back(terrain::Type::workshop);
     options_.push_back(terrain::Type::water_source);
+    options_.push_back(terrain::Type::lava_source);
     options_.push_back(terrain::Type::shrubbery);
 
     if (not state.data_->freebuild_mode_ and
@@ -107,8 +108,8 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
 
     options_.push_back(terrain::Type::gold);
     options_.push_back(terrain::Type::crystal);
+    options_.push_back(terrain::Type::hematite);
 
-    options_.push_back(terrain::Type::lava_source);
     options_.push_back(terrain::Type::light_source);
     options_.push_back(terrain::Type::sand);
     options_.push_back(terrain::Type::marble_top);

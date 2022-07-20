@@ -1003,6 +1003,9 @@ Coins terrain::cost(Type t)
     case terrain::Type::terrain:
         return b.mcr_terrain_cost;
 
+    case terrain::Type::hematite:
+    case terrain::Type::carved_hematite:
+    case terrain::Type::hematite_pillar:
     case terrain::Type::carved_basalt:
     case terrain::Type::basalt_brick:
     case terrain::Type::masonry:
@@ -1208,6 +1211,15 @@ SystemString terrain::name(Type t)
     case terrain::Type::scaffolding:
         return SystemString::block_scaffolding;
 
+    case terrain::Type::carved_hematite:
+        return SystemString::block_carved_hematite;
+
+    case terrain::Type::hematite_pillar:
+        return SystemString::block_hematite_pillar;
+
+    case terrain::Type::hematite:
+        return SystemString::block_hematite;
+
     case terrain::Type::sand:
         return SystemString::block_sand;
 
@@ -1409,6 +1421,11 @@ terrain::Improvements terrain::improvements(Type t)
         result.push_back(Type::road_hub);
         break;
 
+    case Type::hematite:
+        result.push_back(Type::carved_hematite);
+        result.push_back(Type::hematite_pillar);
+        break;
+
     case Type::volcanic_soil:
         result.push_back(Type::cocoa);
         result.push_back(Type::tea);
@@ -1460,6 +1477,9 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::scaffolding:
         return {3144, 3160};
 
+    case terrain::Type::hematite:
+        return {3448, 3464};
+
     case terrain::Type::sand:
         return {3048, 3064};
 
@@ -1475,6 +1495,8 @@ std::pair<int, int> terrain::icons(Type t)
     case terrain::Type::shrubbery:
         return {1416, 1432};
 
+    case terrain::Type::carved_hematite:
+    case terrain::Type::hematite_pillar:
     case terrain::Type::stone_pillar:
     case terrain::Type::carved_crystal:
     case terrain::Type::crystal_pillar:
@@ -2434,6 +2456,12 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // road hub
     nullptr,
+    // hematite
+    nullptr,
+    // hematite pillar
+    nullptr,
+    // carved hematite
+    nullptr,
 };
 // clang-format on
 
@@ -2766,6 +2794,15 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          ISO_SELECTOR_CGS,
          ISO_SELECTOR_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,

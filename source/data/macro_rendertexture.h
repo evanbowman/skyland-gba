@@ -3,13 +3,13 @@
 
 //======================================================================
 //
-//	macro_rendertexture, 10800x8@4, 
+//	macro_rendertexture, 12920x8@4, 
 //	Transparent color : FF,00,FF
 //	+ palette 256 entries, not compressed
-//	+ 1350 tiles not compressed
-//	Total size: 512 + 43200 = 43712
+//	+ 1615 tiles not compressed
+//	Total size: 512 + 51680 = 52192
 //
-//	Time-stamp: 2022-07-20, 08:33:35
+//	Time-stamp: 2022-07-20, 18:49:33
 //	Exported by Cearn's GBA Image Transmogrifier, v0.8.16
 //	( http://www.coranac.com/projects/#grit )
 //
@@ -18,8 +18,8 @@
 #ifndef GRIT_MACRO_RENDERTEXTURE_H
 #define GRIT_MACRO_RENDERTEXTURE_H
 
-#define macro_rendertextureTilesLen 43200
-extern const unsigned int macro_rendertextureTiles[10800];
+#define macro_rendertextureTilesLen 51680
+extern const unsigned int macro_rendertextureTiles[12920];
 
 #define macro_rendertexturePalLen 512
 extern const unsigned short macro_rendertexturePal[256];

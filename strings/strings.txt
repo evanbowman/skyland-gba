@@ -24,6 +24,7 @@ carved-basalt
 bridge
 bronze-hull
 building
+carved-hematite
 carved-stone
 cocoa
 corn
@@ -49,6 +50,8 @@ forcefield*
 fountain
 gold-block
 port
+hematite
+hematite-pillar
 honey
 hull
 ice

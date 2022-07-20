@@ -137,6 +137,10 @@ enum class Type {
 
     road_hub,
 
+    hematite,
+    carved_hematite,
+    hematite_pillar,
+
     count,
 };
 
