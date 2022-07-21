@@ -198,12 +198,12 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/checkersModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/developerModeModule.cpp
-  ${SOURCE_DIR}/skyland/scene/modules/macrocosmFreebuildModule.cpp
+  ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcManagerModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/dlcInjectorModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/fileBrowserModule.cpp
   ${SOURCE_DIR}/skyland/scene/selectTutorialScene.cpp
-  ${SOURCE_DIR}/skyland/scene/highscoresScene.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/macrocosmFreebuildModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/macrocosmLoaderModule.cpp
   ${SOURCE_DIR}/skyland/scene/achievementNotificationScene.cpp
   ${SOURCE_DIR}/skyland/scene/modules/achievementViewerModule.cpp
