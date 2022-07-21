@@ -763,9 +763,50 @@ public:
 
             return scene_pool::alloc<OpponentMoveCheckerScene>();
 
+        } else if (player.key_down(pfrm, Key::up)) {
+            Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
+            for (u32 i = 0; i < slots_.size(); ++i) {
+                auto s = slots_[i];
+                const int xdiff = pl.x - s.x;
+                const int ydiff = pl.y - s.y;
+
+                if (xdiff > 0 and ydiff > 0) {
+                    current_slot_ = i;
+                }
+            }
+        } else if (player.key_down(pfrm, Key::down)) {
+            Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
+            for (u32 i = 0; i < slots_.size(); ++i) {
+                auto s = slots_[i];
+                const int xdiff = pl.x - s.x;
+                const int ydiff = pl.y - s.y;
+
+                if (xdiff < 0 and ydiff < 0) {
+                    current_slot_ = i;
+                }
+            }
         } else if (player.key_down(pfrm, Key::right)) {
-            ++current_slot_;
-            current_slot_ %= slots_.size();
+            Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
+            for (u32 i = 0; i < slots_.size(); ++i) {
+                auto s = slots_[i];
+                const int xdiff = pl.x - s.x;
+                const int ydiff = pl.y - s.y;
+
+                if (xdiff > 0 and ydiff < 0) {
+                    current_slot_ = i;
+                }
+            }
+        } else if (player.key_down(pfrm, Key::left)) {
+            Vec2<u8> pl = {piece_loc_.x, piece_loc_.y};
+            for (u32 i = 0; i < slots_.size(); ++i) {
+                auto s = slots_[i];
+                const int xdiff = pl.x - s.x;
+                const int ydiff = pl.y - s.y;
+
+                if (xdiff < 0 and ydiff > 0) {
+                    current_slot_ = i;
+                }
+            }
         }
 
         if (current_slot_ not_eq prev_slot) {
