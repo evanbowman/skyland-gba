@@ -365,25 +365,30 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::EngineImpl& state)
 
 void MacrocosmScene::draw_keylock(Platform& pfrm, macro::EngineImpl& state)
 {
+    int y = 5;
+    if (state.data_->freebuild_mode_ or state.data_->checkers_mode_) {
+        y = 4;
+    }
+
     switch (state.data_->keylock_) {
     case Keylock::nolock:
-        pfrm.set_tile(Layer::overlay, 27, 4, 0);
-        pfrm.set_tile(Layer::overlay, 28, 4, 0);
+        pfrm.set_tile(Layer::overlay, 27, y, 0);
+        pfrm.set_tile(Layer::overlay, 28, y, 0);
         break;
 
     case Keylock::buildlock:
-        pfrm.set_tile(Layer::overlay, 27, 4, 388);
-        pfrm.set_tile(Layer::overlay, 28, 4, 390);
+        pfrm.set_tile(Layer::overlay, 27, y, 388);
+        pfrm.set_tile(Layer::overlay, 28, y, 390);
         break;
 
     case Keylock::improvelock:
-        pfrm.set_tile(Layer::overlay, 27, 4, 387);
-        pfrm.set_tile(Layer::overlay, 28, 4, 390);
+        pfrm.set_tile(Layer::overlay, 27, y, 387);
+        pfrm.set_tile(Layer::overlay, 28, y, 390);
         break;
 
     case Keylock::deletelock:
-        pfrm.set_tile(Layer::overlay, 27, 4, 389);
-        pfrm.set_tile(Layer::overlay, 28, 4, 390);
+        pfrm.set_tile(Layer::overlay, 27, y, 389);
+        pfrm.set_tile(Layer::overlay, 28, y, 390);
         break;
     }
 }
