@@ -176,6 +176,26 @@ enum class GlobalFlag {
 static Bitvector<static_cast<int>(GlobalFlag::count)> gflags;
 
 
+
+static enum class ModelId : u8 {
+    gba, nds, gbmicro, gbplayer
+} model_id;
+
+
+
+Platform::ModelName Platform::model_name() const
+{
+    switch (model_id) {
+    default:
+    case ModelId::gba: return "AGB_OR_AGS";
+    case ModelId::nds: return "NDS";
+    case ModelId::gbmicro: return "MICRO";
+    case ModelId::gbplayer: return "GBP";
+    }
+}
+
+
+
 static void set_gflag(GlobalFlag f, bool val)
 {
     gflags.set(static_cast<int>(f), val);
@@ -4574,7 +4594,7 @@ __attribute__((section(".ewram"))) int _ewram_static_data = 0;
 }
 
 
-void ram_overclock()
+bool ram_overclock()
 {
     volatile unsigned& memctrl_register =
         *reinterpret_cast<unsigned*>(0x4000800);
@@ -4586,8 +4606,10 @@ void ram_overclock()
     if (ewram_static_data != 1) {
         memctrl_register = 0x0D000020;
         info(*::platform, "ewram overclocking disabled");
+        return false;
     } else {
         info(*::platform, "overclocked ewram");
+        return true;
     }
 }
 
@@ -6826,9 +6848,15 @@ Platform::Platform()
 
     fill_overlay(0);
 
+    bool is_gameboy_micro = false;
+
     CONF_BOOL(ewram_overclock);
     if (ewram_overclock) {
-        ram_overclock();
+        if (not ram_overclock()) {
+            if (bios_version == BiosVersion::NDS) {
+                is_gameboy_micro = true;
+            }
+        }
     }
 
     for (u32 i = 0; i < Screen::sprite_limit; ++i) {
@@ -6911,6 +6939,16 @@ Platform::Platform()
         keyboard().pressed<Key::select>()) {
 
         erase_save_sector();
+    }
+
+    if (get_gflag(GlobalFlag::gbp_unlocked)) {
+        model_id = ModelId::gbplayer;
+    } else if (bios_version == BiosVersion::NDS) {
+        model_id = ModelId::nds;
+    } else if (is_gameboy_micro) {
+        model_id = ModelId::gbmicro;
+    } else {
+        model_id = ModelId::gba;
     }
 }
 

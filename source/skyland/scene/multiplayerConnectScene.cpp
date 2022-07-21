@@ -97,6 +97,20 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
     // TEST
     // return scene_pool::alloc<MultiplayerSettingsScene>();
 
+    auto future_scene = [] {
+        return scene_pool::alloc<TitleScreenScene>();
+    };
+
+
+    if (pfrm.device_name() == "GameboyAdvance" and
+        pfrm.model_name() == "NDS") {
+
+        auto buffer = allocate_dynamic<DialogString>("dialog-string");
+        *buffer = SYSTR(error_link_nds)->c_str();
+        return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
+                                                        future_scene);
+    }
+
 
     pfrm.network_peer().listen();
 
@@ -104,9 +118,6 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 0;
 
-        auto future_scene = [] {
-            return scene_pool::alloc<TitleScreenScene>();
-        };
         auto buffer = allocate_dynamic<DialogString>("dialog-string");
         *buffer = SYSTR(multi_connection_failure)->c_str();
         return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),

@@ -86,6 +86,9 @@ public:
     using DeviceName = StringBuffer<23>;
     DeviceName device_name() const;
 
+    using ModelName = StringBuffer<24>;
+    ModelName model_name() const;
+
 
     static Platform& instance();
 

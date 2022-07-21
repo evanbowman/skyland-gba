@@ -534,6 +534,8 @@ enum class SystemString {
     qr_code_size_error,
     qr_code_size_warning,
 
+    error_link_nds,
+
     final_zone,
 
     checkers_ai_thinking,

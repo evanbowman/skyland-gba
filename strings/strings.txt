@@ -424,6 +424,7 @@ The isle imploded!
 Locked! Why not try out the regular macrocosm mode for a bit!
 Error! Island has too many blocks to compress into a legible QR code! Sorry, this is a technical limitation, not much can be done, other than reducing the number of blocks in your island.
 WARNING: Your island is pretty big, and the resulting QR code does not fit onscreen except when using 1-pixel-per-block. We highly recommended that you reduce the number of blocks on your island, as you may have trouble scanning the QR code (hint: if you are using Android, you may need to scan with Google lens).
+The Nintendo DS does not have a Gameboy Advance Link Port, sorry!
  (showdown)
 ai thinking...
 if you can jump, you must!
