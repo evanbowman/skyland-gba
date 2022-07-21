@@ -141,6 +141,8 @@ enum class Type {
     carved_hematite,
     hematite_pillar,
 
+    ocher,
+
     count,
 };
 

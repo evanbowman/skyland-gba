@@ -122,6 +122,7 @@ enum class SystemString {
     block_missile_silo,
     block_mycelium,
     block_nemesis,
+    block_ocher,
     block_palm,
     block_pearls,
     block_piston,

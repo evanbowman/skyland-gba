@@ -108,6 +108,7 @@ void CreateBlockScene::collect_options(Platform& pfrm, macro::EngineImpl& state)
 
     options_.push_back(terrain::Type::gold);
     options_.push_back(terrain::Type::crystal);
+    options_.push_back(terrain::Type::ocher);
     options_.push_back(terrain::Type::hematite);
 
     if (state.data_->freebuild_mode_) {

@@ -1011,6 +1011,7 @@ Coins terrain::cost(Type t)
     case terrain::Type::masonry:
     case terrain::Type::carved_stone:
     case terrain::Type::stone_pillar:
+    case terrain::Type::ocher:
     case terrain::Type::hull:
         return b.mcr_masonry_cost;
 
@@ -1174,6 +1175,9 @@ SystemString terrain::name(Type t)
 
     case terrain::Type::stone_pillar:
         return SystemString::block_stone_pillar;
+
+    case terrain::Type::ocher:
+        return SystemString::block_ocher;
 
     case terrain::Type::masonry:
         return SystemString::block_masonry;
@@ -1467,6 +1471,9 @@ std::pair<int, int> terrain::icons(Type t)
 
     case terrain::Type::terrain:
         return {2632, 2648};
+
+    case terrain::Type::ocher:
+        return {3512, 3528};
 
     case terrain::Type::masonry:
         return {1448, 1464};
@@ -2464,6 +2471,8 @@ static const UpdateFunction update_functions[(int)terrain::Type::count] = {
     nullptr,
     // carved hematite
     nullptr,
+    // ocher
+    nullptr,
 };
 // clang-format on
 
@@ -2796,6 +2805,9 @@ raster::TileCategory raster::tile_category(int texture_id)
 
          ISO_SELECTOR_CGS,
          ISO_SELECTOR_CGS,
+
+         ISO_DEFAULT_CGS,
+         ISO_DEFAULT_CGS,
 
          ISO_DEFAULT_CGS,
          ISO_DEFAULT_CGS,
