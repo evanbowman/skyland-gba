@@ -1012,10 +1012,12 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
             case 3:
                 pfrm.fatal("logic error, this should be unreachable");
 
-            case 4:
+            case 4: {
                 app.game_mode() = App::GameMode::multiplayer;
                 run_init_scripts(pfrm, app, false);
-                return scene_pool::alloc<MultiplayerConnectScene>();
+
+                return MultiplayerConnectScene::setup(pfrm);
+            }
             }
         } else {
             auto amount = smoothstep(0.f, fade_duration, timer_);

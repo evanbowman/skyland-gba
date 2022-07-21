@@ -82,7 +82,7 @@ void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::RoomConstructed& packet)
 {
-    if (app.player_island().get_room({packet.x_, packet.y_})) {
+    if (auto room = app.player_island().get_room({packet.x_, packet.y_})) {
         // Co-op player managed to construct a room in exactly the same slot as
         // one of our own, tell the other player that the room was destroyed.
         network::packet::RoomDestroyed d;
@@ -91,6 +91,9 @@ void CoOpTeam::receive(Platform& pfrm,
         d.near_island_ = false;
         d.metaclass_index_.set(packet.metaclass_index_.get());
         network::transmit(pfrm, d);
+
+        // Destroy our own copy, as it overlaps with the other player's.
+        room->apply_damage(pfrm, app, Room::health_upper_limit());
     }
 
     auto metac = load_metaclass(packet.metaclass_index_.get());

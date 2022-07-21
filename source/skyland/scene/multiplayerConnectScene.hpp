@@ -43,6 +43,9 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    static ScenePtr<Scene> setup(Platform&);
+
+
 private:
     bool ready_ = false;
     std::optional<Text> text_;
