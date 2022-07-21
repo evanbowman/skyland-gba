@@ -271,6 +271,8 @@ enum class SystemString {
     macro_pancake,
     macro_pillar,
 
+    macro_mode_lock,
+
 
     description_annihilator,
     description_crane,

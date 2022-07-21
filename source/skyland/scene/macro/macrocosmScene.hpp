@@ -62,6 +62,7 @@ public:
 
 
     void draw_compass(Platform& pfrm, macro::EngineImpl& state);
+    void draw_keylock(Platform& pfrm, macro::EngineImpl& state);
 
 
     void drop_ui()

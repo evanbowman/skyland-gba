@@ -48,6 +48,12 @@ extern EngineImpl* _bound_state;
 
 
 
+enum Keylock {
+    nolock, buildlock, improvelock, deletelock
+};
+
+
+
 struct EngineImpl : public Engine
 {
     static const int max_sectors = 20;
@@ -146,6 +152,7 @@ struct EngineImpl : public Engine
         u8 water_anim_index_ = 0;
         u8 lava_anim_index_ = 128;
 
+        Keylock keylock_ = nolock;
 
         macro::terrain::Type last_created_ = terrain::Type::terrain;
         macro::terrain::Type last_improved_ = terrain::Type::terrain;

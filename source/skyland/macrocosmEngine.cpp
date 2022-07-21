@@ -1506,6 +1506,8 @@ std::pair<int, int> terrain::icons(Type t)
         return {3384, 3400};
 
     case terrain::Type::basalt:
+        return {3480, 3496};
+
     case terrain::Type::volcanic_soil:
     case terrain::Type::count:
     case terrain::Type::__invalid:

@@ -852,6 +852,7 @@ public:
         // received on some platforms, so you should have at least some high
         // bits in your message.
         bool send_message(const Message& message);
+        int send_queue_capacity() const;
         int send_queue_size() const;
         bool send_queue_empty() const
         {

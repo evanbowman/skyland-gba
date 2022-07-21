@@ -202,6 +202,7 @@ population growth pressure
 cube
 wide
 pillar
+(mode-lock)
 Emits antimatter pulses that explode when colliding with forcefields, damaging everything within range = 2. For energized-hull, smaller explosion and range = 1.
 Dredging crane, salvage scrap from the flooded world below! Adventure mode only. Usable once per level, during clear weather.
 Every flying island needs a power core to stay afloat! Supplies power to your castle's structures.

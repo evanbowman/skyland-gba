@@ -68,6 +68,12 @@ public:
     }
 
 
+    bool autoadvance_ = false;
+
+
+    std::optional<DeferredScene> next_scene_;
+
+
 private:
     enum class State {
         fade_in,
@@ -85,7 +91,6 @@ private:
     Microseconds timer_ = 0;
 
     int page_ = 0;
-
 
     static Factory factory_;
 };

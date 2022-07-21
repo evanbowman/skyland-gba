@@ -39,6 +39,76 @@ namespace skyland::macro
 
 
 
+class KeylockScene : public MacrocosmScene
+{
+public:
+
+    void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
+    {
+        MacrocosmScene::enter(pfrm, state, prev);
+
+        Text(pfrm, SYSTR(macro_mode_lock)->c_str(), OverlayCoord{1, 1}).__detach();
+
+        pfrm.set_tile(Layer::overlay, 1, 2, 393);
+        Text(pfrm, ":", OverlayCoord{2, 2}).__detach();
+        pfrm.set_tile(Layer::overlay, 3, 2, 387);
+        pfrm.set_tile(Layer::overlay, 4, 2, 390);
+
+        pfrm.set_tile(Layer::overlay, 1, 3, 395);
+        Text(pfrm, ":", OverlayCoord{2, 3}).__detach();
+        pfrm.set_tile(Layer::overlay, 3, 3, 388);
+        pfrm.set_tile(Layer::overlay, 4, 3, 390);
+
+        pfrm.set_tile(Layer::overlay, 1, 4, 394);
+        Text(pfrm, ":", OverlayCoord{2, 4}).__detach();
+        pfrm.set_tile(Layer::overlay, 3, 4, 389);
+        pfrm.set_tile(Layer::overlay, 4, 4, 390);
+
+        pfrm.set_tile(Layer::overlay, 1, 5, 392);
+        Text(pfrm, ":", OverlayCoord{2, 5}).__detach();
+        pfrm.set_tile(Layer::overlay, 3, 5, 112);
+        pfrm.set_tile(Layer::overlay, 4, 5, 391);
+    }
+
+
+    void exit(Platform& pfrm, macro::EngineImpl& state, Scene& next) override
+    {
+        MacrocosmScene::exit(pfrm, state, next);
+        pfrm.fill_overlay(0);
+    }
+
+
+    ScenePtr<Scene>
+    update(Platform& pfrm, Player& player, macro::EngineImpl& state) override
+    {
+        if (auto scene = MacrocosmScene::update(pfrm, player, state)) {
+            return scene;
+        }
+
+        if (player.key_pressed(pfrm, Key::up)) {
+            state.data_->keylock_ = Keylock::improvelock;
+            draw_keylock(pfrm, state);
+        } else if (player.key_pressed(pfrm, Key::left)) {
+            state.data_->keylock_ = Keylock::buildlock;
+            draw_keylock(pfrm, state);
+        } else if (player.key_pressed(pfrm, Key::right)) {
+            state.data_->keylock_ = Keylock::deletelock;
+            draw_keylock(pfrm, state);
+        } else if (player.key_pressed(pfrm, Key::down)) {
+            state.data_->keylock_ = Keylock::nolock;
+            draw_keylock(pfrm, state);
+        }
+
+        if (not player.key_pressed(pfrm, Key::alt_1)) {
+            return scene_pool::alloc<SelectorScene>();
+        }
+
+        return null_scene();
+    }
+};
+
+
+
 void SelectorScene::enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev)
 {
     MacrocosmScene::enter(pfrm, state, prev);
@@ -112,7 +182,11 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
     };
 
 
-    if (player.key_pressed(pfrm, Key::alt_1) and
+    if (player.key_pressed(pfrm, Key::alt_1) and state.data_->freebuild_mode_) {
+
+        return scene_pool::alloc<KeylockScene>();
+
+    } else if (player.key_pressed(pfrm, Key::alt_1) and
         not state.data_->freebuild_mode_ and not state.data_->checkers_mode_) {
 
         return scene_pool::alloc<MenuOptionsScene>();
@@ -217,8 +291,41 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
             }
 
         } else {
-            pfrm.speaker().play_sound("button_wooden", 3);
-            return scene_pool::alloc<TileOptionsScene>();
+            switch (state.data_->keylock_) {
+            case Keylock::nolock:
+                pfrm.speaker().play_sound("button_wooden", 3);
+                return scene_pool::alloc<TileOptionsScene>();
+
+            case Keylock::buildlock:
+                pfrm.speaker().play_sound("button_wooden", 3);
+                return scene_pool::alloc<CreateBlockScene>();
+
+            case Keylock::improvelock: {
+                auto c = state.sector().cursor();
+                if (c.z > 0) {
+                    --c.z;
+                    auto& block = state.sector().get_block(c);
+                    auto improvements = terrain::improvements((terrain::Type)block.type_);
+                    if (not improvements.empty()) {
+                        pfrm.speaker().play_sound("button_wooden", 3);
+                        return scene_pool::alloc<BuildImprovementScene>();
+                    }
+                }
+                break;
+            }
+
+            case Keylock::deletelock: {
+                auto c = state.sector().cursor();
+                if (c.z > 0) {
+                    c.z--;
+                    pfrm.speaker().play_sound("button_wooden", 3);
+                    state.sector().set_block(c, terrain::Type::air);
+                    state.sector().set_cursor(c);
+                }
+                break;
+            }
+            }
+
         }
     }
 

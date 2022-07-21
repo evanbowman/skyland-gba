@@ -179,17 +179,32 @@ static const char* const page_end_lines3[] = {"-- Postscript --",
 
 
 
-std::array<Page, 11> pages_ = {{{page_0_lines},
-                                {page_01_lines},
-                                {page_02_lines},
-                                {page_1_lines},
-                                {page_2_lines},
-                                {page_3_lines},
-                                {page_4_lines},
-                                {page_end_lines0},
-                                {page_end_lines1},
-                                {page_end_lines2},
-                                {page_end_lines3}}};
+static const std::array<Microseconds, 11> page_times_ = {
+    milliseconds(3000),
+    milliseconds(3000),
+    milliseconds(3000),
+    milliseconds(1500),
+    milliseconds(3000),
+    milliseconds(3000),
+    milliseconds(4500),
+    milliseconds(1000),
+    milliseconds(5000),
+    milliseconds(5000),
+    milliseconds(2000),
+};
+
+
+static const std::array<Page, 11> pages_ = {{{page_0_lines},
+                                             {page_01_lines},
+                                             {page_02_lines},
+                                             {page_1_lines},
+                                             {page_2_lines},
+                                             {page_3_lines},
+                                             {page_4_lines},
+                                             {page_end_lines0},
+                                             {page_end_lines1},
+                                             {page_end_lines2},
+                                             {page_end_lines3}}};
 
 
 
@@ -251,7 +266,11 @@ CreditsModule::update(Platform& pfrm, App& app, Microseconds delta)
 
     switch (state_) {
     case State::idle:
-        if (player(app).key_down(pfrm, Key::action_1)) {
+        if (autoadvance_) {
+            timer_ += delta;
+        }
+        if ((autoadvance_ and timer_ > page_times_[page_]) or
+            player(app).key_down(pfrm, Key::action_1)) {
             if (player(app).key_down(pfrm, Key::action_2) or
                 (u32) page_ + 1 == ::skyland::pages_.size()) {
                 state_ = State::fade_out_exit;
@@ -290,6 +309,9 @@ CreditsModule::update(Platform& pfrm, App& app, Microseconds delta)
     case State::fade_out_exit:
         timer_ += delta;
         if (timer_ > fade_duration) {
+            if (next_scene_) {
+                return (*next_scene_)();
+            }
             return scene_pool::alloc<TitleScreenScene>(3);
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

@@ -5507,6 +5507,14 @@ static bool multiplayer_busy()
 }
 
 
+
+int Platform::NetworkPeer::send_queue_capacity() const
+{
+    return MultiplayerComms::tx_ring_size;
+}
+
+
+
 int Platform::NetworkPeer::send_queue_size() const
 {
     int result = 0;

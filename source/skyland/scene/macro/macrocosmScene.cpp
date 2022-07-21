@@ -317,6 +317,7 @@ void MacrocosmScene::enter(Platform& pfrm,
     }
 
     draw_compass(pfrm, state);
+    draw_keylock(pfrm, state);
 }
 
 
@@ -358,6 +359,33 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::EngineImpl& state)
     }
 
     draw_image(pfrm, compass_tile, 27, start_y, 2, 2, Layer::overlay);
+}
+
+
+
+void MacrocosmScene::draw_keylock(Platform& pfrm, macro::EngineImpl& state)
+{
+    switch (state.data_->keylock_) {
+    case Keylock::nolock:
+        pfrm.set_tile(Layer::overlay, 27, 4, 0);
+        pfrm.set_tile(Layer::overlay, 28, 4, 0);
+        break;
+
+    case Keylock::buildlock:
+        pfrm.set_tile(Layer::overlay, 27, 4, 388);
+        pfrm.set_tile(Layer::overlay, 28, 4, 390);
+        break;
+
+    case Keylock::improvelock:
+        pfrm.set_tile(Layer::overlay, 27, 4, 387);
+        pfrm.set_tile(Layer::overlay, 28, 4, 390);
+        break;
+
+    case Keylock::deletelock:
+        pfrm.set_tile(Layer::overlay, 27, 4, 389);
+        pfrm.set_tile(Layer::overlay, 28, 4, 390);
+        break;
+    }
 }
 
 
