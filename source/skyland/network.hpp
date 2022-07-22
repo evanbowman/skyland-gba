@@ -84,6 +84,7 @@ struct Header
         paused,
         co_op_sync_begin,
         co_op_sync_block,
+        co_op_sync_chr,
         co_op_sync_end,
     } message_type_;
 };
@@ -723,6 +724,21 @@ struct CoOpSyncBlock
 
 
 
+struct CoOpSyncChr
+{
+    Header header_;
+    HostInteger<CharacterId> chr_id_;
+    u8 x_ : 4;
+    u8 y_ : 4;
+    u8 health_;
+    u8 is_replicant_ : 1;
+    u8 unused_ : 7;
+
+    static const auto mt = Header::MessageType::co_op_sync_chr;
+};
+
+
+
 struct CoOpSyncEnd
 {
     Header header_;
@@ -1033,6 +1049,13 @@ public:
 
     virtual void
     receive(Platform& pfrm, App& app, const packet::CoOpSyncBlock& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CoOpSyncChr& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }

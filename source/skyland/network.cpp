@@ -102,6 +102,7 @@ void poll_messages(Platform& pfrm, App& app, Listener& listener)
             HANDLE_MESSAGE(packet::Paused)
             HANDLE_MESSAGE(packet::CoOpSyncBegin)
             HANDLE_MESSAGE(packet::CoOpSyncBlock)
+            HANDLE_MESSAGE(packet::CoOpSyncChr)
             HANDLE_MESSAGE(packet::CoOpSyncEnd)
         }
 

@@ -553,11 +553,9 @@ void BasicCharacter::movement_step(Platform& pfrm, App& app, Microseconds delta)
             e.previous_y_ = grid_position_.y;
             e.near_ = parent_ == &app.player_island();
 
-            app.time_stream().push(app.level_timer(), e);
-
-            // Now, we've moved to a new location. We want to re-assign
-            // ourself, having (potentially) moved from one room to another.
-            reassign_room(grid_position_, current_position);
+            if (reassign_room(grid_position_, current_position)) {
+                app.time_stream().push(app.level_timer(), e);
+            }
 
             (*movement_path_)->pop_back();
         } else {
@@ -650,9 +648,14 @@ void BasicCharacter::apply_damage(Platform& pfrm, App& app, Health damage)
 
 
 
-void BasicCharacter::reassign_room(const RoomCoord& old_coord,
+bool BasicCharacter::reassign_room(const RoomCoord& old_coord,
                                    const RoomCoord& new_coord)
 {
+    auto target_room = parent_->get_room(new_coord);
+    if (not target_room) {
+        return false;
+    }
+
     if (auto room = parent_->get_room(old_coord)) {
 
         std::optional<EntityRef<BasicCharacter>> self;
@@ -669,14 +672,14 @@ void BasicCharacter::reassign_room(const RoomCoord& old_coord,
         }
 
         if (self) {
-            if (auto room = parent_->get_room(new_coord)) {
-                room->characters().push(std::move(*self));
-                room->ready();
-            }
+            target_room->characters().push(std::move(*self));
+            target_room->ready();
         }
     }
 
     grid_position_ = new_coord;
+
+    return true;
 }
 
 

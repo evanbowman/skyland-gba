@@ -24,6 +24,7 @@
 
 
 #include "readyScene.hpp"
+#include "skyland/alloc_entity.hpp"
 #include "skyland/island.hpp"
 #include "skyland/network.hpp"
 #include "skyland/scene.hpp"
@@ -35,7 +36,7 @@
 // island.
 //
 // 1) Both devices exchange CoOpSyncBegin messages
-// 2) host begins sending info about its rooms
+// 2) host begins sending info about its rooms and characters
 // 3) host sends CoOpSyncEnd message and waits
 // 4) Peer gets CoOpSyncEnd message, syncs stuff, and then proceeds to game
 // 5) Host receives CoOpSyncEnd message and then proceeds to game
@@ -60,6 +61,7 @@ public:
     enum class State {
         wait,
         host_send_rooms,
+        host_send_chrs,
         host_wait_after_send,
         peer_receive_rooms,
         host_await_accept,
@@ -75,11 +77,31 @@ public:
         u16 health_;
     };
 
+
     struct Context
     {
         Buffer<RoomSyncInfo, 200> received_;
+        Buffer<network::packet::CoOpSyncChr, 40> chr_info_;
         u32 room_send_index_ = 0;
+
+        // Note: of course, there should never be this many characters on an
+        // island, but who even knows what players will try to do.
+        Buffer<BasicCharacter*, 64> send_chrs_;
+        u32 chr_send_index_ = 0;
     };
+
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override
+    {
+        // Yeah, so only the host needs to send out its characters. But collect
+        // them on both consoles regardless.
+        auto& island = player_island(app);
+        for (auto& room : island.rooms()) {
+            for (auto& chr : room->characters()) {
+                ctx_->send_chrs_.push_back(chr.get());
+            }
+        }
+    }
 
 
     void to_state(State s)
@@ -124,6 +146,14 @@ public:
 
     void receive(Platform& pfrm,
                  App& app,
+                 const network::packet::CoOpSyncChr& p) override
+    {
+        ctx_->chr_info_.push_back(p);
+    }
+
+
+    void receive(Platform& pfrm,
+                 App& app,
                  const network::packet::CoOpSyncEnd& p) override
     {
         if (state_ == State::peer_receive_rooms) {
@@ -158,7 +188,7 @@ public:
         case State::host_send_rooms: {
             auto& rooms = player_island(app).rooms();
             if (ctx_->room_send_index_ == rooms.size()) {
-                to_state(State::host_wait_after_send);
+                to_state(State::host_send_chrs);
             } else {
 
                 // Yeah, I'm only transmitting one per frame. But no reason to
@@ -172,6 +202,23 @@ public:
                 pkt.block_x_ = room->position().x;
                 pkt.block_y_ = room->position().y;
                 pkt.health_.set(room->health());
+                network::transmit(pfrm, pkt);
+            }
+            break;
+        }
+
+        case State::host_send_chrs: {
+            if (ctx_->chr_send_index_ == ctx_->send_chrs_.size()) {
+                to_state(State::host_wait_after_send);
+            } else {
+                auto chr = ctx_->send_chrs_[ctx_->chr_send_index_++];
+
+                network::packet::CoOpSyncChr pkt;
+                pkt.chr_id_.set(chr->id());
+                pkt.x_ = chr->grid_position().x;
+                pkt.y_ = chr->grid_position().y;
+                pkt.health_ = chr->health();
+                pkt.is_replicant_ = chr->is_replicant();
                 network::transmit(pfrm, pkt);
             }
             break;
@@ -214,6 +261,10 @@ public:
 
         for (auto& room : island.rooms()) {
             room->unmark();
+
+            for (auto& chr : room->characters()) {
+                chr->unmark();
+            }
         }
 
         for (auto& rx : ctx_->received_) {
@@ -228,6 +279,7 @@ public:
                 (*mt)->create(pfrm, app, &island, {rx.x_, rx.y_});
                 if (auto room = island.get_room({rx.x_, rx.y_})) {
                     room->__set_health(rx.health_);
+                    room->mark();
                 }
             }
         }
@@ -237,6 +289,35 @@ public:
                 // Destroy any leftover rooms that the other console didn't tell
                 // us about.
                 room->apply_damage(pfrm, app, Room::health_upper_limit());
+            }
+        }
+
+        for (auto& chr_rx : ctx_->chr_info_) {
+            auto info = island.find_character_by_id(chr_rx.chr_id_.get());
+            if (auto chr = info.first) {
+                chr->__set_health(chr_rx.health_);
+                chr->mark();
+            } else {
+                const bool is_replicant = chr_rx.is_replicant_;
+                const Vec2<u8> coord{chr_rx.x_, chr_rx.y_};
+                auto e = alloc_entity<BasicCharacter>(&island,
+                                                      &player(app),
+                                                      coord,
+                                                      is_replicant);
+                e->__set_health(chr_rx.health_);
+                e->mark();
+
+                if (e) {
+                    island.add_character(std::move(e));
+                }
+            }
+        }
+
+        for (auto& room : island.rooms()) {
+            for (auto& chr : room->characters()) {
+                if (not chr->marked()) {
+                    chr->__set_health(0);
+                }
             }
         }
     }

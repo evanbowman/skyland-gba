@@ -211,6 +211,24 @@ public:
                                                         CharacterId id);
 
 
+    void mark()
+    {
+        mark_ = 1;
+    }
+
+
+    bool marked() const
+    {
+        return mark_;
+    }
+
+
+    void unmark()
+    {
+        mark_ = 0;
+    }
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -224,7 +242,8 @@ private:
 
     u8 co_op_locked_ : 1;
 
-    u8 unused_ : 4;
+    u8 mark_ : 1;
+    u8 unused_ : 3;
 
     State state_ = State::moving_or_idle;
     u16 idle_count_ = 0;
@@ -233,7 +252,7 @@ private:
 
     std::optional<Path> movement_path_;
 
-    void reassign_room(const RoomCoord& old_coord, const RoomCoord& new_coord);
+    bool reassign_room(const RoomCoord& old_coord, const RoomCoord& new_coord);
 
 
     void movement_step(Platform& pfrm, App& app, Microseconds delta);
