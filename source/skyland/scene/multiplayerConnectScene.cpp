@@ -85,7 +85,8 @@ void MultiplayerConnectScene::exit(Platform&, App&, Scene& next)
 
 
 
-class LinkScene : public Scene {
+class LinkScene : public Scene
+{
 public:
     std::optional<Text> t_;
 
@@ -96,8 +97,7 @@ public:
         auto str = SYSTR(mt_hint);
         u8 mr = centered_text_margins(pfrm, utf8::len(str->c_str()));
         t_.emplace(pfrm, OverlayCoord{mr, 8});
-        FontColors c{custom_color(0x163061),
-                     ColorConstant::silver_white};
+        FontColors c{custom_color(0x163061), ColorConstant::silver_white};
         t_->assign(str->c_str(), c);
     }
 
@@ -113,7 +113,6 @@ public:
         }
         return null_scene();
     }
-
 };
 
 
@@ -122,8 +121,7 @@ ScenePtr<Scene> MultiplayerConnectScene::setup(Platform& pfrm)
 {
     auto buffer = allocate_dynamic<DialogString>("dialog-string");
 
-    if (pfrm.device_name() == "GameboyAdvance" and
-        pfrm.model_name() == "NDS") {
+    if (pfrm.device_name() == "GameboyAdvance" and pfrm.model_name() == "NDS") {
 
         auto future_scene = [] {
             return scene_pool::alloc<TitleScreenScene>();
@@ -135,9 +133,7 @@ ScenePtr<Scene> MultiplayerConnectScene::setup(Platform& pfrm)
     } else if (pfrm.device_name() == "GameboyAdvance") {
         *buffer = SYSTR(link_gba_setup)->c_str();
 
-        auto future_scene = [] {
-            return scene_pool::alloc<LinkScene>();
-        };
+        auto future_scene = [] { return scene_pool::alloc<LinkScene>(); };
 
         return scene_pool::alloc<FullscreenDialogScene>(std::move(buffer),
                                                         future_scene);
@@ -157,9 +153,7 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    auto future_scene = [] {
-        return scene_pool::alloc<TitleScreenScene>();
-    };
+    auto future_scene = [] { return scene_pool::alloc<TitleScreenScene>(); };
 
 
     pfrm.network_peer().listen();

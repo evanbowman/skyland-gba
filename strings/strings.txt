@@ -203,6 +203,8 @@ population growth pressure
 cube
 wide
 pillar
+wider
+standard
 (mode-lock)
 Emits antimatter pulses that explode when colliding with forcefields, damaging everything within range = 2. For energized-hull, smaller explosion and range = 1.
 Dredging crane, salvage scrap from the flooded world below! Adventure mode only. Usable once per level, during clear weather.
@@ -422,6 +424,7 @@ The system will now accept software updates from another gameboy advance console
 WARNING: Gravitational collapse detected!!!
 The isle imploded!
 Locked! Why not try out the regular macrocosm mode for a bit!
+terrain size?
 Error! Island has too many blocks to compress into a legible QR code! Sorry, this is a technical limitation, not much can be done, other than reducing the number of blocks in your island.
 WARNING: Your island is pretty big, and the resulting QR code does not fit onscreen except when using 1-pixel-per-block. We highly recommended that you reduce the number of blocks on your island, as you may have trouble scanning the QR code (hint: if you are using Android, you may need to scan with Google lens).
 The Nintendo DS does not have a Gameboy Advance Link Port, sorry!

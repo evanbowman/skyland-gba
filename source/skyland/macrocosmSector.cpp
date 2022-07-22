@@ -508,10 +508,10 @@ Float terrain::Sector::population_growth_rate_from_food_supply() const
 
     if (s.food_ >= required_food) {
         return 0.01f * b.mcr_pop_growth_food_surplus_percent *
-                 (s.food_ - required_food);
+               (s.food_ - required_food);
     } else {
         return -0.01f * b.mcr_pop_growth_food_shortage_percent *
-                 (required_food - s.food_);
+               (required_food - s.food_);
     }
 }
 
@@ -524,10 +524,10 @@ Float terrain::Sector::population_growth_rate_from_housing_supply() const
 
     if (population() > s.housing_) {
         return -0.001f * b.mcr_pop_growth_housing_factor *
-            (population() - s.housing_);
+               (population() - s.housing_);
     } else {
         return 0.001f * b.mcr_pop_growth_housing_factor *
-            (s.housing_ - population());
+               (s.housing_ - population());
     }
 }
 
@@ -536,7 +536,7 @@ Float terrain::Sector::population_growth_rate_from_housing_supply() const
 Float terrain::Sector::population_growth_rate() const
 {
     return population_growth_rate_from_food_supply() +
-        population_growth_rate_from_housing_supply();
+           population_growth_rate_from_housing_supply();
 }
 
 
@@ -1008,6 +1008,75 @@ terrain::Sector::qr_encode(Platform& pfrm,
     }
 
     return {};
+}
+
+
+
+
+void terrain::Sector::pack(Vector<char>& result)
+{
+    Vector<u8> out;
+
+    for (u8 z = 0; z < size().z; ++z) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                out.push_back(get_block({x, y, z}).type_);
+            }
+        }
+    }
+
+    auto encoded = rle::encode(out);
+    result.push_back((char)p_.shape_);
+
+    for (u8 val : encoded) {
+        result.push_back(val);
+    }
+}
+
+
+
+void terrain::Sector::unpack(Vector<char>& input)
+{
+    bool skip_first = false;
+
+    Vector<u8> data; // rle::decode does not accept Vector<char>
+    for (char c : input) {
+        if (not skip_first) {
+            // Contains island shape byte, not rle data.
+            skip_first = true;
+        } else {
+            data.push_back(c);
+        }
+    }
+
+    auto decoded = rle::decode(data);
+
+    auto it = decoded.begin();
+
+    const u32 block_count = size().z * size().x * size().y;
+
+    if (decoded.size() not_eq block_count) {
+        return;
+    }
+
+    for (u8 z = 0; z < size().z; ++z) {
+        for (u8 x = 0; x < size().x; ++x) {
+            for (u8 y = 0; y < size().y; ++y) {
+                set_block({x, y, z}, (terrain::Type)*it);
+
+                if ((Type)*it == Type::selector) {
+                    p_.cursor_ = {x, y, z};
+                }
+
+                ++it;
+            }
+        }
+    }
+
+    repaint();
+
+    shadowcast();
+
 }
 
 

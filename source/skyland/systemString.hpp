@@ -271,6 +271,9 @@ enum class SystemString {
     macro_cube,
     macro_pancake,
     macro_pillar,
+    macro_wide,
+    macro_deep,
+
 
     macro_mode_lock,
 
@@ -530,6 +533,7 @@ enum class SystemString {
     grav_collapse_ended,
 
     freebuild_locked_text,
+    freebuild_terrain_size,
 
     qr_code_size_error,
     qr_code_size_warning,

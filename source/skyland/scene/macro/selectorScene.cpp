@@ -42,12 +42,12 @@ namespace skyland::macro
 class KeylockScene : public MacrocosmScene
 {
 public:
-
     void enter(Platform& pfrm, macro::EngineImpl& state, Scene& prev) override
     {
         MacrocosmScene::enter(pfrm, state, prev);
 
-        Text(pfrm, SYSTR(macro_mode_lock)->c_str(), OverlayCoord{1, 1}).__detach();
+        Text(pfrm, SYSTR(macro_mode_lock)->c_str(), OverlayCoord{1, 1})
+            .__detach();
 
         pfrm.set_tile(Layer::overlay, 1, 2, 393);
         Text(pfrm, ":", OverlayCoord{2, 2}).__detach();
@@ -187,7 +187,8 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
         return scene_pool::alloc<KeylockScene>();
 
     } else if (player.key_pressed(pfrm, Key::alt_1) and
-        not state.data_->freebuild_mode_ and not state.data_->checkers_mode_) {
+               not state.data_->freebuild_mode_ and
+               not state.data_->checkers_mode_) {
 
         return scene_pool::alloc<MenuOptionsScene>();
 
@@ -305,7 +306,8 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
                 if (c.z > 0) {
                     --c.z;
                     auto& block = state.sector().get_block(c);
-                    auto improvements = terrain::improvements((terrain::Type)block.type_);
+                    auto improvements =
+                        terrain::improvements((terrain::Type)block.type_);
                     if (not improvements.empty()) {
                         pfrm.speaker().play_sound("button_wooden", 3);
                         return scene_pool::alloc<BuildImprovementScene>();
@@ -325,7 +327,6 @@ SelectorScene::update(Platform& pfrm, Player& player, macro::EngineImpl& state)
                 break;
             }
             }
-
         }
     }
 

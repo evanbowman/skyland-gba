@@ -96,7 +96,8 @@ class Sector
 public:
     enum Orientation : u8 { north, east, south, west };
 
-    enum class Shape : u8 { cube, pancake, pillar, freebuild, outpost };
+    enum class Shape : u8 { cube, pancake, pillar, freebuild, outpost,
+                            freebuild_wide };
 
 
     struct ExportInfo
@@ -260,6 +261,13 @@ public:
     virtual void base_stats_cache_clear() const
     {
     }
+
+
+    // Format:
+    // 1: byte containing layout.
+    // 2: rle-compressed data.
+    void pack(Vector<char>& result);
+    void unpack(Vector<char>& input);
 
 
 protected:

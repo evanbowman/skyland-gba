@@ -23,6 +23,7 @@
 #pragma once
 
 
+#include "graphics/overlay.hpp"
 #include "skyland/macrocosmEngine.hpp"
 #include "skyland/scene/module.hpp"
 
@@ -55,6 +56,7 @@ public:
 
 
     void enter(Platform& pfrm, App& app, Scene& prev) override;
+    void exit(Platform& pfrm, App& app, Scene& next) override;
 
 
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
@@ -68,6 +70,12 @@ public:
     float scroll_ = 0;
 
     Vec3<u8> cursor_;
+
+
+    std::optional<Text> prompt_;
+    std::optional<Text> t1_;
+    std::optional<Text> t2_;
+    int size_sel_ = 0;
 };
 
 

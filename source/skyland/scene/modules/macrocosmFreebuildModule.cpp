@@ -2,6 +2,7 @@
 #include "skyland/macroCamera.hpp"
 #include "skyland/macrocosmEngine.hpp"
 #include "skyland/macrocosmFreebuildSector.hpp"
+#include "skyland/macrocosmFreebuildWideSector.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene/fullscreenDialogScene.hpp"
 #include "skyland/scene/macro/helpScene.hpp"
@@ -37,6 +38,30 @@ fluid_shader(ShaderPalette p, ColorConstant k, int var, int index);
 
 void MacrocosmFreebuildModule::enter(Platform& pfrm, App& app, Scene& prev)
 {
+    pfrm.screen().schedule_fade(0.f);
+    pfrm.screen().schedule_fade(1.f);
+
+    auto prompt_str = SYSTR(freebuild_terrain_size);
+    u8 margin = centered_text_margins(pfrm, utf8::len(prompt_str->c_str()));
+
+    prompt_.emplace(pfrm, prompt_str->c_str(), OverlayCoord{margin, 4});
+
+    t1_.emplace(pfrm, SYSTR(macro_deep)->c_str(), OverlayCoord{3, 7});
+    t1_->append(" 10x10x8");
+
+    t2_.emplace(pfrm, SYSTR(macro_wide)->c_str(), OverlayCoord{3, 9});
+    t2_->append(" 12x12x5");
+}
+
+
+
+void MacrocosmFreebuildModule::exit(Platform& pfrm, App& app, Scene& prev)
+{
+    prompt_.reset();
+    t1_.reset();
+    t2_.reset();
+
+    pfrm.fill_overlay(0);
 }
 
 
@@ -86,11 +111,26 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
     m.newgame(pfrm, app);
     app.game_mode() = App::GameMode::macro;
 
-    m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild);
-    auto bound = m.bind_sector({0, 1});
+    switch (size_sel_) {
+    case 0: {
+        m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild);
+        auto bound = m.bind_sector({0, 1});
 
-    if (auto s = dynamic_cast<macro::terrain::FreebuildSector*>(bound)) {
-        s->reset();
+        if (auto s = dynamic_cast<macro::terrain::FreebuildSector*>(bound)) {
+            s->reset();
+        }
+        break;
+    }
+
+    case 1: {
+        m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild_wide);
+        auto bound = m.bind_sector({0, 1});
+
+        if (auto s = dynamic_cast<macro::terrain::FreebuildWideSector*>(bound)) {
+            s->reset();
+        }
+        break;
+    }
     }
 
     pfrm.system_call("vsync", nullptr);
@@ -118,11 +158,44 @@ MacrocosmFreebuildModule::update(Platform& pfrm, App& app, Microseconds delta)
         });
     }
 
-    init(pfrm, app);
+    if (app.player().key_down(pfrm, Key::action_1)) {
+        pfrm.speaker().play_sound("button_wooden", 3);
 
-    auto next = scene_pool::alloc<macro::SelectorScene>();
-    next->show_island_size();
-    return next;
+        init(pfrm, app);
+
+        auto next = scene_pool::alloc<macro::SelectorScene>();
+        next->show_island_size();
+        return next;
+    }
+
+    if (app.player().key_down(pfrm, Key::up)) {
+        if (size_sel_ > 0) {
+            --size_sel_;
+            pfrm.speaker().play_sound("click_wooden", 2);
+        }
+    }
+
+    if (app.player().key_down(pfrm, Key::down)) {
+        if (size_sel_ < 1) {
+            ++size_sel_;
+            pfrm.speaker().play_sound("click_wooden", 2);
+        }
+    }
+
+    switch (size_sel_) {
+    case 0:
+        pfrm.set_tile(Layer::overlay, 1, 7, 396);
+        pfrm.set_tile(Layer::overlay, 1, 9, 0);
+        break;
+
+    case 1:
+        pfrm.set_tile(Layer::overlay, 1, 7, 0);
+        pfrm.set_tile(Layer::overlay, 1, 9, 396);
+        break;
+    }
+
+
+    return null_scene();
 }
 
 

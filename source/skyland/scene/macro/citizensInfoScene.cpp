@@ -162,14 +162,14 @@ void CitizensInfoScene::show(Platform& pfrm, macro::EngineImpl& state)
         s_->lines_.back().append(":");
 
         auto push = [&](SystemString s, Float val) {
-                        const u8 y = 4 + s_->lines_.size() * 2;
-                        s_->lines_.emplace_back(pfrm, OverlayCoord{1, y});
-                        s_->lines_.back().assign("");
-                        s_->lines_.back().append(loadstr(pfrm, s)->c_str());
-                        append_value(val);
+            const u8 y = 4 + s_->lines_.size() * 2;
+            s_->lines_.emplace_back(pfrm, OverlayCoord{1, y});
+            s_->lines_.back().assign("");
+            s_->lines_.back().append(loadstr(pfrm, s)->c_str());
+            append_value(val);
 
-                        pfrm.set_tile(Layer::overlay, st.x - 2, y, 85);
-                    };
+            pfrm.set_tile(Layer::overlay, st.x - 2, y, 85);
+        };
 
         for (int y = 0; y < st.y; ++y) {
             pfrm.set_tile(Layer::overlay, st.x - 2, y, 0);

@@ -177,9 +177,7 @@ static Bitvector<static_cast<int>(GlobalFlag::count)> gflags;
 
 
 
-static enum class ModelId : u8 {
-    gba, nds, gbmicro, gbplayer
-} model_id;
+static enum class ModelId : u8 { gba, nds, gbmicro, gbplayer } model_id;
 
 
 
@@ -187,10 +185,14 @@ Platform::ModelName Platform::model_name() const
 {
     switch (model_id) {
     default:
-    case ModelId::gba: return "AGB_OR_AGS";
-    case ModelId::nds: return "NDS";
-    case ModelId::gbmicro: return "MICRO";
-    case ModelId::gbplayer: return "GBP";
+    case ModelId::gba:
+        return "AGB_OR_AGS";
+    case ModelId::nds:
+        return "NDS";
+    case ModelId::gbmicro:
+        return "MICRO";
+    case ModelId::gbplayer:
+        return "GBP";
     }
 }
 

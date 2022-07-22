@@ -51,8 +51,6 @@ namespace skyland
 class CoOpSyncScene : public Scene, public network::Listener
 {
 public:
-
-
     CoOpSyncScene() : ctx_(allocate_dynamic<Context>("co_op_sync_ctx"))
     {
     }
@@ -167,9 +165,8 @@ public:
     }
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         network::poll_messages(pfrm, app, *this);
 
@@ -300,10 +297,8 @@ public:
             } else {
                 const bool is_replicant = chr_rx.is_replicant_;
                 const Vec2<u8> coord{chr_rx.x_, chr_rx.y_};
-                auto e = alloc_entity<BasicCharacter>(&island,
-                                                      &player(app),
-                                                      coord,
-                                                      is_replicant);
+                auto e = alloc_entity<BasicCharacter>(
+                    &island, &player(app), coord, is_replicant);
                 e->__set_health(chr_rx.health_);
                 e->mark();
 
@@ -332,4 +327,4 @@ private:
 
 
 
-}
+} // namespace skyland

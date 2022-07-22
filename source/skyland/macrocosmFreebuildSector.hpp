@@ -47,32 +47,6 @@ public:
     }
 
 
-    static constexpr const char* freebuild_save_path = "/save/freebuild.dat";
-
-
-    void save(Platform& pfrm)
-    {
-        Vector<u8> out;
-
-        for (int z = 0; z < 9; ++z) {
-            for (int x = 0; x < 10; ++x) {
-                for (int y = 0; y < 10; ++y) {
-                    out.push_back(blocks_[z][x][y].type_);
-                }
-            }
-        }
-
-        auto encoded = rle::encode(out);
-        Vector<char> dummy;
-        for (u8 val : encoded) {
-            dummy.push_back(val);
-        }
-
-        flash_filesystem::store_file_data_binary(
-            pfrm, freebuild_save_path, dummy);
-    }
-
-
     void reset()
     {
         p_.orientation_ = Orientation::north;
@@ -93,48 +67,6 @@ public:
 
         raster::globalstate::_changed = true;
         raster::globalstate::_shrunk = true;
-    }
-
-
-    void load(Platform& pfrm)
-    {
-        Vector<char> input;
-        if (flash_filesystem::read_file_data_binary(
-                pfrm, freebuild_save_path, input)) {
-
-            Vector<u8> data; // rle::decode does not accept Vector<char>
-            for (char c : input) {
-                data.push_back(c);
-            }
-
-            auto decoded = rle::decode(data);
-
-            auto it = decoded.begin();
-
-            if (decoded.size() not_eq sizeof blocks_) {
-                info(pfrm, "read invalid save format");
-            }
-
-            for (u8 z = 0; z < 9; ++z) {
-                for (u8 x = 0; x < 10; ++x) {
-                    for (u8 y = 0; y < 10; ++y) {
-                        blocks_[z][x][y].type_ = *it;
-                        blocks_[z][x][y].data_ = 0;
-
-                        if ((Type)*it == Type::selector) {
-                            p_.cursor_ = {x, y, z};
-                        }
-
-                        ++it;
-                    }
-                }
-            }
-        }
-
-
-        repaint();
-
-        shadowcast();
     }
 
 

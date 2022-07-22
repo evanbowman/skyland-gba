@@ -1054,15 +1054,13 @@ public:
     }
 
 
-    virtual void
-    receive(Platform& pfrm, App& app, const packet::CoOpSyncChr& p)
+    virtual void receive(Platform& pfrm, App& app, const packet::CoOpSyncChr& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }
 
 
-    virtual void
-    receive(Platform& pfrm, App& app, const packet::CoOpSyncEnd& p)
+    virtual void receive(Platform& pfrm, App& app, const packet::CoOpSyncEnd& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }

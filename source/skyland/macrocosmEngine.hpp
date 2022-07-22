@@ -48,9 +48,7 @@ extern EngineImpl* _bound_state;
 
 
 
-enum Keylock {
-    nolock, buildlock, improvelock, deletelock
-};
+enum Keylock { nolock, buildlock, improvelock, deletelock };
 
 
 

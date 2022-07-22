@@ -114,6 +114,10 @@ static void scuttle(Platform& pfrm, App& app)
 
 
 
+static const char* fb_save_file = "/save/fbld.dat";
+
+
+
 ScenePtr<Scene>
 StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -357,15 +361,20 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     // NOTE: Don't display the connect or load options if we're
                     // already in a multiplayer session.
 
-                    add_option(
+                    auto& current = macrocosm(app).sector();
+                    using macro::terrain::FreebuildSector;
+                    if (dynamic_cast<FreebuildSector*>(&current)) {
+                        add_option(
                         pfrm,
                         SYSTR(start_menu_link)->c_str(),
                         [&pfrm, &app]() -> ScenePtr<Scene> {
+
                             pfrm.screen().pixelate(0);
                             using Next = macro::FreebuildConnectFriendScene;
                             return scene_pool::alloc<Next>();
                         },
                         fade_sweep);
+                    }
 
                     add_macro_share_opt();
 
@@ -373,12 +382,34 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         pfrm,
                         SYSTR(start_menu_load)->c_str(),
                         [&pfrm, &app]() -> ScenePtr<Scene> {
-                            auto& current = macrocosm(app).sector();
+                            auto& m = macrocosm(app);
+
                             using namespace macro::terrain;
-                            if (auto f =
-                                    dynamic_cast<FreebuildSector*>(&current)) {
-                                f->load(pfrm);
+
+                            Vector<char> data;
+                            if (flash_filesystem::read_file_data_binary(pfrm,
+                                                                        fb_save_file,
+                                                                        data)) {
+
+                                auto& current = m.sector();
+                                auto coord = current.coordinate();
+                                m.erase_sector(coord);
+
+                                switch ((Sector::Shape)data[0]) {
+                                case Sector::Shape::freebuild:
+                                case Sector::Shape::freebuild_wide:
+                                    break;
+
+                                default:
+                                    Platform::fatal("load fb sector, bad shape");
+                                }
+
+                                m.make_sector(coord, (Sector::Shape)data[0]);
+                                if (auto s = m.bind_sector(coord)) {
+                                    s->unpack(data);
+                                }
                             }
+
                             pfrm.screen().schedule_fade(0.f);
                             pfrm.screen().pixelate(0);
                             return scene_pool::alloc<macro::SelectorScene>();
@@ -391,10 +422,13 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     SYSTR(start_menu_save)->c_str(),
                     [&pfrm, &app]() -> ScenePtr<Scene> {
                         auto& current = macrocosm(app).sector();
-                        using namespace macro::terrain;
-                        if (auto f = dynamic_cast<FreebuildSector*>(&current)) {
-                            f->save(pfrm);
-                        }
+                        Vector<char> data;
+                        current.pack(data);
+
+                        flash_filesystem::store_file_data_binary(pfrm,
+                                                                 fb_save_file,
+                                                                 data);
+
                         pfrm.screen().schedule_fade(0.f);
                         pfrm.screen().pixelate(0);
                         return scene_pool::alloc<macro::SelectorScene>();
