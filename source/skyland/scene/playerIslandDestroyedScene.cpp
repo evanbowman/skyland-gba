@@ -23,6 +23,7 @@
 #include "playerIslandDestroyedScene.hpp"
 #include "achievementNotificationScene.hpp"
 #include "boxedDialogScene.hpp"
+#include "coOpSyncScene.hpp"
 #include "highscoresScene.hpp"
 #include "levelCompleteOptionsScene.hpp"
 #include "platform/color.hpp"
@@ -568,6 +569,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                             chr->co_op_release_lock();
                         }
                     }
+
+                    return scene_pool::alloc<CoOpSyncScene>();
                 }
 
                 return scene_pool::alloc<ReadyScene>();

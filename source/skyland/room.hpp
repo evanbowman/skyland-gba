@@ -483,6 +483,25 @@ public:
     //
     ////////////////////////////////////////////////////////////////////////////
 
+
+    void mark()
+    {
+        mark_bit_ = 1;
+    }
+
+
+    bool marked() const
+    {
+        return mark_bit_;
+    }
+
+
+    void unmark()
+    {
+        mark_bit_ = 0;
+    }
+
+
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 
@@ -553,7 +572,8 @@ private:
     u8 group_ : 2;
 
     u8 co_op_locked_ : 1;
-    u8 unused_ : 7;
+    u8 mark_bit_ : 1;
+    u8 unused_ : 6;
 
     // Bytes freed up by various space optimization techniques.
     u8 reserved_[6];

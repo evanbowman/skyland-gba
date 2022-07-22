@@ -1,0 +1,254 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (C) 2022  Evan Bowman
+//
+// This program is free software; you can redistribute it and/or modify it under
+// the terms of version 2 of the GNU General Public License as published by the
+// Free Software Foundation.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU General Public License along with
+// this program; if not, write to the Free Software Foundation, Inc., 51
+// Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+// GPL2 ONLY. No later versions permitted.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
+#pragma once
+
+
+#include "readyScene.hpp"
+#include "skyland/island.hpp"
+#include "skyland/network.hpp"
+#include "skyland/scene.hpp"
+
+
+// The host console sends out its state, the peer console verifies and updates
+// its state from the host. Required at the end of a level, to ensure that both
+// players go into the generation algorithm for the next level with the same
+// island.
+//
+// 1) Both devices exchange CoOpSyncBegin messages
+// 2) host begins sending info about its rooms
+// 3) host sends CoOpSyncEnd message and waits
+// 4) Peer gets CoOpSyncEnd message, syncs stuff, and then proceeds to game
+// 5) Host receives CoOpSyncEnd message and then proceeds to game
+
+
+
+namespace skyland
+{
+
+
+
+class CoOpSyncScene : public Scene, public network::Listener
+{
+public:
+
+
+    CoOpSyncScene() : ctx_(allocate_dynamic<Context>("co_op_sync_ctx"))
+    {
+    }
+
+
+    enum class State {
+        wait,
+        host_send_rooms,
+        host_wait_after_send,
+        peer_receive_rooms,
+        host_await_accept,
+        done,
+    };
+
+
+    struct RoomSyncInfo
+    {
+        u8 room_metaclass_;
+        u8 x_ : 4;
+        u8 y_ : 4;
+        u16 health_;
+    };
+
+    struct Context
+    {
+        Buffer<RoomSyncInfo, 200> received_;
+        u32 room_send_index_ = 0;
+    };
+
+
+    void to_state(State s)
+    {
+        state_ = s;
+        timer_ = 0;
+    }
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::CoOpSyncBegin& p) override
+    {
+        if (state_ == State::wait) {
+            if (pfrm.network_peer().is_host()) {
+                to_state(State::host_send_rooms);
+            } else {
+                to_state(State::peer_receive_rooms);
+            }
+            // Just in case of a race condition (where first device sends out
+            // SyncBegin, second device is arrives in the scene in time to
+            // receive the syncbegin but not in time to send out its own).
+            network::packet::CoOpSyncBegin pkt;
+            network::transmit(pfrm, pkt);
+        }
+    }
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::CoOpSyncBlock& p) override
+    {
+        RoomSyncInfo info;
+        info.x_ = p.block_x_;
+        info.y_ = p.block_y_;
+        info.room_metaclass_ = p.block_metaclass_index_;
+        info.health_ = p.health_.get();
+
+        ctx_->received_.push_back(info);
+    }
+
+
+    void receive(Platform& pfrm,
+                 App& app,
+                 const network::packet::CoOpSyncEnd& p) override
+    {
+        if (state_ == State::peer_receive_rooms) {
+            peer_synchronize(pfrm, app);
+            network::packet::CoOpSyncEnd pkt;
+            network::transmit(pfrm, pkt);
+            to_state(State::done);
+        } else if (state_ == State::host_await_accept) {
+            to_state(State::done);
+        }
+    }
+
+
+    ScenePtr<Scene> update(Platform& pfrm,
+                           App& app,
+                           Microseconds delta) override
+    {
+        network::poll_messages(pfrm, app, *this);
+
+        switch (state_) {
+        case State::wait:
+            timer_ += delta;
+            if (timer_ > milliseconds(300)) {
+                timer_ = 0;
+                // Repeatedly transmit until other player sends its own sync
+                // begin.
+                network::packet::CoOpSyncBegin pkt;
+                network::transmit(pfrm, pkt);
+            }
+            break;
+
+        case State::host_send_rooms: {
+            auto& rooms = player_island(app).rooms();
+            if (ctx_->room_send_index_ == rooms.size()) {
+                to_state(State::host_wait_after_send);
+            } else {
+
+                // Yeah, I'm only transmitting one per frame. But no reason to
+                // try to push to the limits of the bandwidth and drop messages,
+                // as this is a sanity check game state where we want to make
+                // sure that everything is absolutely correct. In practice, we
+                // could send at least a few messages per update.
+                auto& room = rooms[ctx_->room_send_index_++];
+                network::packet::CoOpSyncBlock pkt;
+                pkt.block_metaclass_index_ = room->metaclass_index();
+                pkt.block_x_ = room->position().x;
+                pkt.block_y_ = room->position().y;
+                pkt.health_.set(room->health());
+                network::transmit(pfrm, pkt);
+            }
+            break;
+        }
+
+        case State::host_wait_after_send:
+            // Wait after send to make sure that the receiver was able to
+            // process all of it's packets before sending a sync end
+            // packet. We're just being extra careful to make sure that we don't
+            // lose any data.
+            timer_ += delta;
+            if (timer_ > milliseconds(200)) {
+                network::packet::CoOpSyncEnd pkt;
+                network::transmit(pfrm, pkt);
+                to_state(State::host_await_accept);
+            }
+            break;
+
+        case State::host_await_accept:
+            // Handled in Listener overrides
+            break;
+
+        case State::peer_receive_rooms:
+            // Handled in Listener overrides
+            break;
+
+        case State::done:
+            return scene_pool::alloc<ReadyScene>();
+        }
+
+        return null_scene();
+    }
+
+
+    // Called by the receiver to sync its state after the sender finished
+    // sending everything.
+    void peer_synchronize(Platform& pfrm, App& app)
+    {
+        auto& island = player_island(app);
+
+        for (auto& room : island.rooms()) {
+            room->unmark();
+        }
+
+        for (auto& rx : ctx_->received_) {
+            if (auto room = island.get_room({rx.x_, rx.y_})) {
+                if (room->metaclass_index() == rx.room_metaclass_) {
+                    room->mark();
+                    room->__set_health(rx.health_);
+                }
+            } else {
+                // Create room if it doesn't exist.
+                auto mt = load_metaclass(rx.room_metaclass_);
+                (*mt)->create(pfrm, app, &island, {rx.x_, rx.y_});
+                if (auto room = island.get_room({rx.x_, rx.y_})) {
+                    room->__set_health(rx.health_);
+                }
+            }
+        }
+
+        for (auto& room : island.rooms()) {
+            if (not room->marked()) {
+                // Destroy any leftover rooms that the other console didn't tell
+                // us about.
+                room->apply_damage(pfrm, app, Room::health_upper_limit());
+            }
+        }
+    }
+
+
+private:
+    Microseconds timer_ = 0;
+
+    State state_ = State::wait;
+    DynamicMemory<Context> ctx_;
+};
+
+
+
+}

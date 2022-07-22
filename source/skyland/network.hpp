@@ -82,6 +82,9 @@ struct Header
         block_transfer_end,
         macro_trade_status,
         paused,
+        co_op_sync_begin,
+        co_op_sync_block,
+        co_op_sync_end,
     } message_type_;
 };
 static_assert(sizeof(Header) == 1);
@@ -695,6 +698,41 @@ struct Paused
 
 
 
+struct CoOpSyncBegin
+{
+    Header header_;
+    u8 unused_[5];
+
+    static const auto mt = Header::MessageType::co_op_sync_begin;
+};
+
+
+
+struct CoOpSyncBlock
+{
+    Header header_;
+    u8 block_metaclass_index_;
+    u8 block_x_ : 4;
+    u8 block_y_ : 4;
+    HostInteger<u16> health_;
+
+    u8 unused_[1];
+
+    static const auto mt = Header::MessageType::co_op_sync_block;
+};
+
+
+
+struct CoOpSyncEnd
+{
+    Header header_;
+    u8 unused_[5];
+
+    static const auto mt = Header::MessageType::co_op_sync_end;
+};
+
+
+
 } // namespace packet
 
 
@@ -981,6 +1019,27 @@ public:
 
     virtual void
     receive(Platform& pfrm, App& app, const packet::ChrSetTargetV2& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CoOpSyncBegin& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CoOpSyncBlock& p)
+    {
+        unhandled_message(pfrm, app, p.header_);
+    }
+
+
+    virtual void
+    receive(Platform& pfrm, App& app, const packet::CoOpSyncEnd& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }
