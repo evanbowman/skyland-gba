@@ -250,11 +250,7 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
             if (app.game_mode() == App::GameMode::co_op) {
                 // For co-op, our score calculation differs slightly. Give each
                 // player half of the resulting coins.
-                //
-                // Actually... let's give players score * 0.6f coins, not
-                // exactly half, as coordination between the players will
-                // inevitably be difficult.
-                app.victory_coins() += (frac * cost * 0.6f);
+                app.victory_coins() += (frac * cost * 0.5f);
             } else {
                 app.victory_coins() += frac * cost;
             }
