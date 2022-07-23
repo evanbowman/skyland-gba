@@ -67,6 +67,35 @@ static const u8 sine8[256] = {
 
 
 
+void MacrocosmScene::draw_season(Platform& pfrm, int season)
+{
+    auto str = [&] {
+                   switch (season) {
+                   case 0: return SYSTR(spring);
+                   case 1: return SYSTR(summer);
+                   case 2: return SYSTR(fall);
+                   case 3: return SYSTR(winter);
+                   default: return SYSTR(empty);
+                   }
+               }();
+
+    u8 pos = calc_screen_tiles(pfrm).x - (utf8::len(str->c_str()) + 1);
+    for (int x = pos - 8; x < calc_screen_tiles(pfrm).x; ++x) {
+        pfrm.set_tile(Layer::overlay, x, 2, 0);
+    }
+    Text season_text(pfrm, OverlayCoord{pos, 2});
+
+    season_text.assign(str->c_str(),
+                       Text::OptColors{{ColorConstant::med_blue_gray,
+                                                ColorConstant::rich_black}});
+
+    season_text.__detach();
+
+    last_season_ = season;
+}
+
+
+
 ScenePtr<Scene>
 MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
@@ -119,6 +148,38 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (was_gre) {
         pfrm.screen().set_shader_argument((val << 8) | val2);
         pfrm.system_call("psync", nullptr);
+    }
+
+    if (ui_ and not m.data_->freebuild_mode_) {
+        m.data_->year_timer_ += delta;
+        auto& b = *m.data_->bindings_;
+        auto added_secs = seconds(b.mcr_added_seconds_per_year_per_island);
+        added_secs *= 1 + m.data_->other_sectors_.size() + m.data_->outpost_sectors_.size();
+        auto secs = added_secs + seconds(b.mcr_base_seconds_per_year);
+        auto secs_per_season = secs / 4;
+
+        if (m.data_->year_timer_ > secs) {
+            m.data_->year_timer_ = 0;
+            m.advance(1);
+            pfrm.speaker().play_sound("openbook", 1);
+            draw_year(pfrm, m);
+            if (ui_) {
+                update_ui(m);
+            }
+        }
+
+        int season = 0;
+        if (m.data_->year_timer_ > secs_per_season * 3) {
+            season = 3;
+        } else if (m.data_->year_timer_ > secs_per_season * 2) {
+            season = 2;
+        } else if (m.data_->year_timer_ > secs_per_season * 1) {
+            season = 1;
+        }
+
+        if (season not_eq last_season_) {
+            draw_season(pfrm, season);
+        }
     }
 
     if (ui_) {
@@ -226,6 +287,22 @@ void MacrocosmScene::enter(Platform& pfrm,
                            macro::EngineImpl& state,
                            Scene& prev)
 {
+    auto& b = *state.data_->bindings_;
+    auto added_secs = seconds(b.mcr_added_seconds_per_year_per_island);
+    added_secs *= 1 + state.data_->other_sectors_.size() + state.data_->outpost_sectors_.size();
+    auto secs = added_secs + seconds(b.mcr_base_seconds_per_year);
+    auto secs_per_season = secs / 4;
+
+    int season = 0;
+    if (state.data_->year_timer_ > secs_per_season * 3) {
+        season = 3;
+    } else if (state.data_->year_timer_ > secs_per_season * 2) {
+        season = 2;
+    } else if (state.data_->year_timer_ > secs_per_season * 1) {
+        season = 1;
+    }
+
+
     auto m = dynamic_cast<MacrocosmScene*>(&prev);
     if (m and m->ui_) {
         ui_ = std::move(m->ui_);
@@ -241,7 +318,6 @@ void MacrocosmScene::enter(Platform& pfrm,
 
         auto stat = sector.stats();
         auto pop = sector.population();
-
 
         (*ui_)->food_.emplace(
             pfrm,
@@ -300,6 +376,17 @@ void MacrocosmScene::enter(Platform& pfrm,
                                    UIMetric::Format::signed_integer);
     }
 
+    draw_year(pfrm, state);
+    draw_season(pfrm, season);
+
+    draw_compass(pfrm, state);
+    draw_keylock(pfrm, state);
+}
+
+
+
+void MacrocosmScene::draw_year(Platform& pfrm, macro::EngineImpl& state)
+{
     if (not state.data_->freebuild_mode_ and not state.data_->checkers_mode_) {
         const auto year = state.data_->p().year_.get() + 1;
 
@@ -315,9 +402,6 @@ void MacrocosmScene::enter(Platform& pfrm,
         temp.append(year);
         temp.__detach();
     }
-
-    draw_compass(pfrm, state);
-    draw_keylock(pfrm, state);
 }
 
 
@@ -353,7 +437,7 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::EngineImpl& state)
     auto o = state.sector().orientation();
     int compass_tile = 434 + (int)o * 4;
 
-    int start_y = 3;
+    int start_y = 4;
     if (state.data_->freebuild_mode_ or state.data_->checkers_mode_) {
         start_y = 1;
     }
@@ -365,7 +449,7 @@ void MacrocosmScene::draw_compass(Platform& pfrm, macro::EngineImpl& state)
 
 void MacrocosmScene::draw_keylock(Platform& pfrm, macro::EngineImpl& state)
 {
-    int y = 5;
+    int y = 6;
     if (state.data_->freebuild_mode_ or state.data_->checkers_mode_) {
         y = 4;
     }

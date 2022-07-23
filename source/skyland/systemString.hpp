@@ -548,6 +548,11 @@ enum class SystemString {
     checker_wins,
     checkers_jump_again,
 
+    spring,
+    summer,
+    fall,
+    winter,
+
     __NOTICE__,
     patchfix_retain_alphabet,
     count,

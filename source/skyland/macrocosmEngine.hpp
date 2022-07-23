@@ -108,6 +108,9 @@ struct EngineImpl : public Engine
             MCR_SHARED(mcr_pop_growth_food_surplus_percent);
             MCR_SHARED(mcr_pop_growth_food_shortage_percent);
             MCR_SHARED(mcr_pop_growth_housing_factor);
+
+            MCR_SHARED(mcr_base_seconds_per_year);
+            MCR_SHARED(mcr_added_seconds_per_year_per_island);
         };
 
 
@@ -144,6 +147,8 @@ struct EngineImpl : public Engine
         bool freebuild_mode_ = false;
         bool checkers_mode_ = false;
         bool checkers_ai_moved_ = false;
+
+        Microseconds year_timer_ = 0;
 
         // For palette animations.
         Microseconds fluid_anim_timer_ = 0;

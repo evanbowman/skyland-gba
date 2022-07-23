@@ -35,6 +35,9 @@
    (4000 . "gold_cost")
    (9000 . "crystal_cost")
 
+   (25 . "base_seconds_per_year")
+   (5 . "added_seconds_per_year_per_island")
+
    (2 . "food_consumption_factor")
    (85 . "commodity_diminishing_return_percent")
    (37 . "employment_yield_percent")

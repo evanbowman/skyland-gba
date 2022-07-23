@@ -86,6 +86,9 @@ public:
     }
 
 
+    void draw_year(Platform& pfrm, macro::EngineImpl& state);
+    void draw_season(Platform& pfrm, int season);
+
 private:
     struct UIObjects
     {
@@ -97,6 +100,7 @@ private:
         std::optional<UIMetric> happiness_;
     };
 
+    u8 last_season_ = 255;
     bool update_ui_on_exit_ = false;
     std::optional<DynamicMemory<UIObjects>> ui_;
 };

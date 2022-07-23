@@ -35,8 +35,6 @@ namespace skyland::macro
 ScenePtr<Scene>
 NextTurnScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    // pfrm.speaker().play_sound("openbook", 1);
-
     pfrm.screen().schedule_fade(0.f);
 
     macrocosm(app).advance(1);
