@@ -96,8 +96,14 @@ class Sector
 public:
     enum Orientation : u8 { north, east, south, west };
 
-    enum class Shape : u8 { cube, pancake, pillar, freebuild, outpost,
-                            freebuild_wide };
+    enum class Shape : u8 {
+        cube,
+        pancake,
+        pillar,
+        freebuild,
+        outpost,
+        freebuild_wide
+    };
 
 
     struct ExportInfo

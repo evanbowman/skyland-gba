@@ -1012,7 +1012,6 @@ terrain::Sector::qr_encode(Platform& pfrm,
 
 
 
-
 void terrain::Sector::pack(Vector<char>& result)
 {
     Vector<u8> out;
@@ -1076,7 +1075,6 @@ void terrain::Sector::unpack(Vector<char>& input)
     repaint();
 
     shadowcast();
-
 }
 
 

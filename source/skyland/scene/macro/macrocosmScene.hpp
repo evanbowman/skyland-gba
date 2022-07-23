@@ -90,6 +90,12 @@ public:
     void draw_season(Platform& pfrm, int season);
 
 private:
+    int current_season(Microseconds year_timer, Microseconds secs_per_season);
+
+
+    Microseconds year_length(macro::EngineImpl& state);
+
+
     struct UIObjects
     {
         std::optional<UIMetric> coins_;

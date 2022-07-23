@@ -365,15 +365,14 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                     using macro::terrain::FreebuildSector;
                     if (dynamic_cast<FreebuildSector*>(&current)) {
                         add_option(
-                        pfrm,
-                        SYSTR(start_menu_link)->c_str(),
-                        [&pfrm, &app]() -> ScenePtr<Scene> {
-
-                            pfrm.screen().pixelate(0);
-                            using Next = macro::FreebuildConnectFriendScene;
-                            return scene_pool::alloc<Next>();
-                        },
-                        fade_sweep);
+                            pfrm,
+                            SYSTR(start_menu_link)->c_str(),
+                            [&pfrm, &app]() -> ScenePtr<Scene> {
+                                pfrm.screen().pixelate(0);
+                                using Next = macro::FreebuildConnectFriendScene;
+                                return scene_pool::alloc<Next>();
+                            },
+                            fade_sweep);
                     }
 
                     add_macro_share_opt();
@@ -387,9 +386,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                             using namespace macro::terrain;
 
                             Vector<char> data;
-                            if (flash_filesystem::read_file_data_binary(pfrm,
-                                                                        fb_save_file,
-                                                                        data)) {
+                            if (flash_filesystem::read_file_data_binary(
+                                    pfrm, fb_save_file, data)) {
 
                                 auto& current = m.sector();
                                 auto coord = current.coordinate();
@@ -401,7 +399,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                                     break;
 
                                 default:
-                                    Platform::fatal("load fb sector, bad shape");
+                                    Platform::fatal(
+                                        "load fb sector, bad shape");
                                 }
 
                                 m.make_sector(coord, (Sector::Shape)data[0]);
@@ -425,9 +424,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                         Vector<char> data;
                         current.pack(data);
 
-                        flash_filesystem::store_file_data_binary(pfrm,
-                                                                 fb_save_file,
-                                                                 data);
+                        flash_filesystem::store_file_data_binary(
+                            pfrm, fb_save_file, data);
 
                         pfrm.screen().schedule_fade(0.f);
                         pfrm.screen().pixelate(0);

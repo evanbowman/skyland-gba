@@ -126,7 +126,8 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
         m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild_wide);
         auto bound = m.bind_sector({0, 1});
 
-        if (auto s = dynamic_cast<macro::terrain::FreebuildWideSector*>(bound)) {
+        if (auto s =
+                dynamic_cast<macro::terrain::FreebuildWideSector*>(bound)) {
             s->reset();
         }
         break;

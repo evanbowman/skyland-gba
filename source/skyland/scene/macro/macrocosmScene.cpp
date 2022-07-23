@@ -70,14 +70,19 @@ static const u8 sine8[256] = {
 void MacrocosmScene::draw_season(Platform& pfrm, int season)
 {
     auto str = [&] {
-                   switch (season) {
-                   case 0: return SYSTR(spring);
-                   case 1: return SYSTR(summer);
-                   case 2: return SYSTR(fall);
-                   case 3: return SYSTR(winter);
-                   default: return SYSTR(empty);
-                   }
-               }();
+        switch (season) {
+        case 0:
+            return SYSTR(spring);
+        case 1:
+            return SYSTR(summer);
+        case 2:
+            return SYSTR(fall);
+        case 3:
+            return SYSTR(winter);
+        default:
+            return SYSTR(empty);
+        }
+    }();
 
     u8 pos = calc_screen_tiles(pfrm).x - (utf8::len(str->c_str()) + 1);
     for (int x = pos - 8; x < calc_screen_tiles(pfrm).x; ++x) {
@@ -87,7 +92,7 @@ void MacrocosmScene::draw_season(Platform& pfrm, int season)
 
     season_text.assign(str->c_str(),
                        Text::OptColors{{ColorConstant::med_blue_gray,
-                                                ColorConstant::rich_black}});
+                                        ColorConstant::rich_black}});
 
     season_text.__detach();
 
@@ -152,10 +157,8 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (ui_ and not m.data_->freebuild_mode_) {
         m.data_->year_timer_ += delta;
-        auto& b = *m.data_->bindings_;
-        auto added_secs = seconds(b.mcr_added_seconds_per_year_per_island);
-        added_secs *= 1 + m.data_->other_sectors_.size() + m.data_->outpost_sectors_.size();
-        auto secs = added_secs + seconds(b.mcr_base_seconds_per_year);
+
+        auto secs = year_length(m);
         auto secs_per_season = secs / 4;
 
         if (m.data_->year_timer_ > secs) {
@@ -168,14 +171,8 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
 
-        int season = 0;
-        if (m.data_->year_timer_ > secs_per_season * 3) {
-            season = 3;
-        } else if (m.data_->year_timer_ > secs_per_season * 2) {
-            season = 2;
-        } else if (m.data_->year_timer_ > secs_per_season * 1) {
-            season = 1;
-        }
+        const int season =
+            current_season(m.data_->year_timer_, secs_per_season);
 
         if (season not_eq last_season_) {
             draw_season(pfrm, season);
@@ -202,6 +199,21 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
     return next;
 }
 
+
+
+int MacrocosmScene::current_season(Microseconds year_timer,
+                                   Microseconds secs_per_season)
+{
+    if (year_timer > secs_per_season * 3) {
+        return 3;
+    } else if (year_timer > secs_per_season * 2) {
+        return 2;
+    } else if (year_timer > secs_per_season * 1) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
 
 
 void MacrocosmScene::display(Platform& pfrm, App& app)
@@ -283,25 +295,26 @@ void MacrocosmScene::update_ui(macro::EngineImpl& state)
 
 
 
+Microseconds MacrocosmScene::year_length(macro::EngineImpl& state)
+{
+    auto& b = *state.data_->bindings_;
+    auto added_secs = seconds(b.mcr_added_seconds_per_year_per_island);
+    added_secs *= 1 + state.data_->other_sectors_.size() +
+                  state.data_->outpost_sectors_.size();
+    return added_secs + seconds(b.mcr_base_seconds_per_year);
+}
+
+
+
 void MacrocosmScene::enter(Platform& pfrm,
                            macro::EngineImpl& state,
                            Scene& prev)
 {
-    auto& b = *state.data_->bindings_;
-    auto added_secs = seconds(b.mcr_added_seconds_per_year_per_island);
-    added_secs *= 1 + state.data_->other_sectors_.size() + state.data_->outpost_sectors_.size();
-    auto secs = added_secs + seconds(b.mcr_base_seconds_per_year);
+    auto secs = year_length(state);
     auto secs_per_season = secs / 4;
 
-    int season = 0;
-    if (state.data_->year_timer_ > secs_per_season * 3) {
-        season = 3;
-    } else if (state.data_->year_timer_ > secs_per_season * 2) {
-        season = 2;
-    } else if (state.data_->year_timer_ > secs_per_season * 1) {
-        season = 1;
-    }
-
+    const int season =
+        current_season(state.data_->year_timer_, secs_per_season);
 
     auto m = dynamic_cast<MacrocosmScene*>(&prev);
     if (m and m->ui_) {
