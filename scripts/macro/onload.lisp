@@ -28,7 +28,7 @@
               (setq diff (- (hrs now) (hrs tm)))
 
               (if (> diff 0)
-                  (setq yrs (diff / 8))
+                  (setq yrs (diff / 6))
                 (setq diff 0))
 
               (setq year (mcr-next yrs))
