@@ -94,7 +94,7 @@ void EngineImpl::newgame(Platform& pfrm, App& app)
 
     data_->other_sectors_.clear();
     data_->outpost_sectors_.clear();
-    data_->p().year_.set(1);
+    data_->p().year_.set(0);
 
     auto& sector = this->sector();
     sector.erase();

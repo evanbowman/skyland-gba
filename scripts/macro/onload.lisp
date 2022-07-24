@@ -34,7 +34,7 @@
               (setq year (mcr-next yrs))
 
               (dialog
-               (format "Welcome back! Time seems to pass more slowly while you're gone, % years have passed, and the current year is %. Why not check on your cities and make sure they're ok!" yrs year))))))))
+               (format "Welcome back! Time seems to pass more slowly while you're gone, % years have passed, and the current year is %. Why not check on your cities and make sure they're ok!" yrs (+ year 1)))))))))
 
 
 (unbind 'conf 'hrs)
