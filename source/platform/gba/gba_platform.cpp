@@ -6911,13 +6911,25 @@ Platform::Platform()
         set_gflag(GlobalFlag::rtc_faulty, true);
         info(*this, "RTC chip appears either non-existant or non-functional");
     } else {
-        ::start_time = system_clock_.now();
+        auto now = system_clock_.now();
+        if (now->date_.year_ not_eq 0 and
+            now->date_.month_ not_eq 0 and
+            now->date_.day_ not_eq 0 and
+            now->hour_ not_eq 0 and
+            now->minute_ not_eq 0 and
+            now->second_ not_eq 0) {
 
-        StringBuffer<100> str = "startup time: ";
+            ::start_time = now;
 
-        log_format_time(str, *::start_time);
+            StringBuffer<100> str = "startup time: ";
 
-        info(*::platform, str.c_str());
+            log_format_time(str, *::start_time);
+
+            info(*::platform, str.c_str());
+
+        } else {
+            info(*this, "RTC chip exists, but starttime is zeroed!");
+        }
     }
 
     const auto stk_size_min = 11000;

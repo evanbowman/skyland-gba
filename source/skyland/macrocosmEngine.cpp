@@ -35,6 +35,7 @@ extern "C" {
 // FIXME!!!
 #include "heatshrink/heatshrink_decoder.c"
 }
+#include "script/listBuilder.hpp"
 
 
 
@@ -240,6 +241,7 @@ void EngineImpl::advance(int elapsed_years)
 namespace save
 {
 static const char* path = "/save/macro.dat";
+static const char* timestamp_path = "/save/mt.dat";
 
 static const char version = 'a';
 
@@ -515,6 +517,19 @@ void EngineImpl::save(Platform& pfrm)
     } else {
         info(pfrm, format("macro save used % buffers", sbr_used).c_str());
     }
+
+    DateTime dt;
+    if (pfrm.system_call("startup-time", &dt)) {
+        save_data.clear();
+
+        for (u32 i = 0; i < sizeof(dt); ++i) {
+            save_data.push_back(((u8*)&dt)[i]);
+        }
+
+        flash_filesystem::store_file_data_binary(pfrm,
+                                                 save::timestamp_path,
+                                                 save_data);
+    }
 }
 
 
@@ -618,6 +633,32 @@ bool EngineImpl::load(Platform& pfrm, App& app)
     data_->current_sector_ = &data_->origin_sector_;
     raster::globalstate::_changed = true;
     raster::globalstate::_shrunk = true;
+
+
+    lisp::ListBuilder conf;
+
+    input.clear();
+    if (flash_filesystem::read_file_data_binary(pfrm,
+                                                save::timestamp_path,
+                                                input)) {
+        DateTime dt;
+        for (u32 i = 0; i < sizeof dt; ++i) {
+            ((u8*)&dt)[i] = input[i];
+        }
+
+        lisp::ListBuilder fmt;
+        fmt.push_back(L_INT(dt.date_.year_));
+        fmt.push_back(L_INT(dt.date_.month_));
+        fmt.push_back(L_INT(dt.date_.day_));
+        fmt.push_back(L_INT(dt.hour_));
+        fmt.push_back(L_INT(dt.minute_));
+        fmt.push_back(L_INT(dt.second_));
+
+        conf.push_back(L_CONS(lisp::make_symbol("tm"), fmt.result()));
+    }
+
+    lisp::set_var("conf", conf.result());
+    app.invoke_script(pfrm, "/scripts/macro/onload.lisp");
 
     return true;
 }
