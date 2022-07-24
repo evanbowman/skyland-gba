@@ -20,6 +20,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+// NOTE: to compile the unit tests:
+// g++ -std=c++17 flash_filesystem.cpp -I /home/evan/skyland/source/ -g3 -D__FAKE_VECTOR__
+
+
+
 #pragma once
 
 #include "function.hpp"
@@ -97,6 +102,10 @@ bool store_file_data(Platform&, const char* path, Vector<char>& data);
 
 
 u32 read_file_data(Platform&, const char* path, Vector<char>& output);
+
+
+
+u32 file_size(Platform&, const char* path);
 
 
 

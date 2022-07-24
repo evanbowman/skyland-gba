@@ -764,6 +764,9 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
 
     bool data_padding = false;
     if (data.size() % 2 not_eq 0) {
+        // On the gameboy advance, commodity flash carts can be written only in
+        // halfwords (two bytes), so we need to pad the data size to a multiple
+        // of two, to ensure that all data has two-byte alignment.
         data.push_back(0);
         data_padding = true;
     }
@@ -782,10 +785,25 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
     const u32 required_space = data.size() + path_total + sizeof(Record);
     const auto avail_space = sector_avail(pfrm) - sizeof(Record);
 
-    if ((required_space >= avail_space) and
-        avail_space + gap_space > required_space) {
+    auto existing_size = file_size(pfrm, path);
+    // The file already exists. We will unlink it, allowing us to count the
+    // existing size toward the available space.
+    if (existing_size) {
+        existing_size += sizeof(Record) + path_total;
+    }
+
+    const bool insufficient_space_remaining = (required_space >= avail_space);
+    const bool sufficient_space_after_defrag =
+        avail_space + gap_space + existing_size > required_space;
+
+    if (insufficient_space_remaining and sufficient_space_after_defrag) {
         // We can reclaim enough space to store the file by compacting the
         // storage data to squeeze out gaps.
+
+        // We counted the size of the file that we're overwriting toward the
+        // available space total. So we have to unlink it.
+        unlink_file(pfrm, path);
+
         compact(pfrm);
     } else if (required_space >= avail_space) {
         // NOTE: don't unlink the existing file, we don't have enough space to
@@ -865,6 +883,24 @@ bool store_file_data(Platform& pfrm, const char* path, Vector<char>& data)
     }
 
     return true;
+}
+
+
+
+u32 file_size(Platform& pfrm, const char* path)
+{
+    if (not __path_cache_file_exists_maybe(path)) {
+        return 0;
+    }
+
+    Record r;
+
+    auto offset = find_file(pfrm, path, r);
+    if (offset == -1) {
+        return 0;
+    }
+
+    return r.file_info_.data_length_.get();
 }
 
 
