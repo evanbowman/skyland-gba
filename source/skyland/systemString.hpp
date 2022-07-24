@@ -199,6 +199,7 @@ enum class SystemString {
     module_developer_mode,
     module_macro,
     module_checkers,
+    module_datetime,
 
     developer_mode_msg,
     developer_mode_msg_2,

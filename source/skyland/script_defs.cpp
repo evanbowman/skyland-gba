@@ -210,17 +210,30 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               return L_NIL;
           }},
+         {"now",
+          [](int argc) {
+              lisp::ListBuilder builder;
+              if (auto dt = lisp::interp_get_pfrm()->system_clock().now()) {
+                  builder.push_back(lisp::make_integer(dt->date_.year_));
+                  builder.push_back(lisp::make_integer(dt->date_.month_));
+                  builder.push_back(lisp::make_integer(dt->date_.day_));
+                  builder.push_back(lisp::make_integer(dt->hour_));
+                  builder.push_back(lisp::make_integer(dt->minute_));
+                  builder.push_back(lisp::make_integer(dt->second_));
+              }
+              return builder.result();
+          }},
          {"startup-time",
           [](int argc) {
               lisp::ListBuilder builder;
-              DateTime dt;
-              if (lisp::interp_get_pfrm()->system_call("startup-time", &dt)) {
-                  builder.push_back(lisp::make_integer(dt.date_.year_));
-                  builder.push_back(lisp::make_integer(dt.date_.month_));
-                  builder.push_back(lisp::make_integer(dt.date_.day_));
-                  builder.push_back(lisp::make_integer(dt.hour_));
-                  builder.push_back(lisp::make_integer(dt.minute_));
-                  builder.push_back(lisp::make_integer(dt.second_));
+              auto pfrm = lisp::interp_get_pfrm();
+              if (auto dt = pfrm->system_clock().initial_time()) {
+                  builder.push_back(lisp::make_integer(dt->date_.year_));
+                  builder.push_back(lisp::make_integer(dt->date_.month_));
+                  builder.push_back(lisp::make_integer(dt->date_.day_));
+                  builder.push_back(lisp::make_integer(dt->hour_));
+                  builder.push_back(lisp::make_integer(dt->minute_));
+                  builder.push_back(lisp::make_integer(dt->second_));
               }
               return builder.result();
           }},

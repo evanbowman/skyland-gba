@@ -402,9 +402,9 @@ public:
     class SystemClock
     {
     public:
-        // NOTE: SystemClock::now() sometimes causes minor audio bugs on the
-        // GAMEBOY ADVANCE. Avoid.
+
         std::optional<DateTime> now();
+        std::optional<DateTime> initial_time();
 
         void configure(DateTime dt);
 

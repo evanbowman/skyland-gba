@@ -519,7 +519,8 @@ void EngineImpl::save(Platform& pfrm)
     }
 
     DateTime dt;
-    if (pfrm.system_call("startup-time", &dt)) {
+    if (auto tm = pfrm.system_clock().now()) {
+        dt = *tm;
         save_data.clear();
 
         for (u32 i = 0; i < sizeof(dt); ++i) {

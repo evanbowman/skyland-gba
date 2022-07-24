@@ -55,6 +55,7 @@
 #include "util.hpp"
 #include <algorithm>
 #include <setjmp.h>
+#include "critical_section.hpp"
 
 
 
@@ -6087,19 +6088,56 @@ static u32 bcd_to_binary(u8 bcd)
 }
 
 
+
+IrqState critical_section_enter()
+{
+    int temp = 0;
+
+    // Stop dma transfers
+    DMA_TRANSFER((volatile short*)0x4000014, &temp, 1, 0, 0);
+    DMA_TRANSFER((volatile short*)0x4000016, &temp, 1, 3, 0);
+
+    REG_SOUNDCNT_H &= ~(1 << 8);
+    REG_SOUNDCNT_H &= ~(1 << 9);
+
+    const u16 ime = REG_IME;
+    REG_IME = 0;
+    const u16 ie = REG_IE;
+    REG_IE = 0;
+
+    return {ime, ie};
+}
+
+
+
+void critical_section_exit(IrqState state)
+{
+    REG_IE = state.second;
+    REG_IME = state.first;
+
+    REG_SOUNDCNT_H |= (1 << 9);
+    REG_SOUNDCNT_H |= (1 << 8);
+}
+
+
+
+std::optional<DateTime> Platform::SystemClock::initial_time()
+{
+    return start_time;
+}
+
+
+
 std::optional<DateTime> Platform::SystemClock::now()
 {
     if (get_gflag(GlobalFlag::rtc_faulty)) {
         return {};
     }
 
-    REG_IME = 0; // hopefully we don't miss anything important, like a serial
-                 // interrupt! But nothing should call SystemClock::now() very
-                 // often...
-
+    auto irq = critical_section_enter();
     const auto [year, month, day, dow, hr, min, sec] = rtc_get_datetime();
+    critical_section_exit(irq);
 
-    REG_IME = 1;
 
     DateTime info;
     info.date_.year_ = bcd_to_binary(year);
@@ -6580,12 +6618,6 @@ void* Platform::system_call(const char* feature_name, void* arg)
             KEY_SELECT | KEY_START | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
     } else if (str_eq(feature_name, "print-memory-diagnostics")) {
         scratch_buffer_memory_diagnostics(*this);
-    } else if (str_eq(feature_name, "startup-time")) {
-        if (start_time) {
-            *((DateTime*)arg) = *start_time;
-            return arg;
-        }
-        return nullptr;
     } else if (str_eq(feature_name, "console-write-buffer")) {
         auto v = (Vector<char>*)arg;
 
@@ -6907,7 +6939,7 @@ Platform::Platform()
 
     CONF_BOOL(detect_rtc);
 
-    if (detect_rtc and not rtc_verify_operability(tm1, *this)) {
+    if (not detect_rtc or not rtc_verify_operability(tm1, *this)) {
         set_gflag(GlobalFlag::rtc_faulty, true);
         info(*this, "RTC chip appears either non-existant or non-functional");
     } else {

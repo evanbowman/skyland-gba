@@ -113,6 +113,8 @@
 //;
 #include "data/overlay_challenges.h"
 //;
+#include "data/overlay_large_numeral.h"
+//;
 #include "data/hint_infirmary.h"
 //;
 #include "data/hint_goblin.h"
@@ -241,6 +243,8 @@ static const TextureData overlay_textures[] = {
     TEXTURE_INFO(overlay_island_destroyed),
 //;
     TEXTURE_INFO(overlay_challenges),
+//;
+    TEXTURE_INFO(overlay_large_numeral),
 //;
     TEXTURE_INFO(hint_infirmary),
 //;

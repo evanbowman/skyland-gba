@@ -17,7 +17,7 @@
 (let ((tm (assoc 'tm conf)))
   ;; If the game was saved on a cartridge with a realtime clock.
   (if tm
-      (let ((now (syscall "startup-time"))
+      (let ((now (syscall "now"))
             (diff 0)
             (yrs 0)
             (year 0))

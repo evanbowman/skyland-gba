@@ -194,6 +194,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/scene/macro/viewCommoditiesScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/moveCheckerScene.cpp
   ${SOURCE_DIR}/skyland/scene/macro/modifiedSelectorScene.cpp
+  ${SOURCE_DIR}/skyland/scene/modules/datetimeModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/factoryResetModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/creditsModule.cpp
   ${SOURCE_DIR}/skyland/scene/modules/checkersModule.cpp
@@ -333,6 +334,7 @@ if(NINTENDO_DS OR GAMEBOY_ADVANCE)
     ${DATA_DIR}/stack_overflow_flattened.s
     ${DATA_DIR}/tilesheet_world_map_backdrop.s
     ${DATA_DIR}/tilesheet_fishing.s
+    ${DATA_DIR}/overlay_large_numeral.s
     ${DATA_DIR}/overlay_island_destroyed.s
     ${DATA_DIR}/overlay_challenges.s
     ${DATA_DIR}/overlay_gamespeed.s
@@ -700,6 +702,7 @@ if(GAMEBOY_ADVANCE OR NINTENDO_DS)
     add_overlay(overlay_world_map 0 0 NO NO)
     add_overlay(overlay_island_destroyed 0 0 NO NO)
     add_overlay(overlay_challenges 0 0 NO NO)
+    add_overlay(overlay_large_numeral 0 0 NO NO)
     add_overlay(hint_infirmary 0 0 NO NO)
     add_overlay(hint_goblin 0 0 NO NO)
     add_overlay(hint_plunder 0 0 NO NO)

@@ -144,6 +144,7 @@ Tutorials
 Developer Mode
 Macro Freebuild
 Checkers
+Date/Time
 Enable developer mode? Lets you run custom code, but highscores will not be recorded while enabled.
 Developer mode successfully disabled!
 cargo: 

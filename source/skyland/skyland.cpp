@@ -89,13 +89,6 @@ App::App(Platform& pfrm)
         // how the room hide menu works.
         gp_.hidden_rooms_.set(metaclass_index("sunflower"), true);
         gp_.hidden_rooms_.set(metaclass_index("crane"), true);
-
-        DateTime dt;
-        if (pfrm.system_call("startup-time", &dt)) {
-            // TODO: we have a functional system clock, enter a scene for
-            // configuring the system clock.
-            // ...
-        }
     }
 
     // On unrecoverrable errors: try to store a backup, and flush the system log

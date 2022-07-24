@@ -3,6 +3,7 @@
 #include "gba.h"
 #include "platform/conf.hpp"
 #include "platform/platform.hpp"
+#include "critical_section.hpp"
 
 
 
@@ -158,31 +159,9 @@ bootleg_flash_erase_impl(BootlegFlashType flash_type)
 
 void bootleg_flash_erase(BootlegFlashType flash_type)
 {
-    // Disable directsound
-    REG_SOUNDCNT_H &= ~(1 << 8);
-    REG_SOUNDCNT_H &= ~(1 << 9);
-
-    int temp = 0;
-
-    // Stop dma transfers
-    DMA_TRANSFER((volatile short*)0x4000014, &temp, 1, 0, 0);
-    DMA_TRANSFER((volatile short*)0x4000016, &temp, 1, 3, 0);
-
-    // Interrupts off
-    const u16 ie = REG_IE;
-    REG_IE = 0;
-    const u16 ime = REG_IME;
-    REG_IME = 0;
-
+    auto ctx = critical_section_enter();
     bootleg_flash_erase_impl(flash_type);
-
-    // Interrupts on
-    REG_IE = ie;
-    REG_IME = ime;
-
-    // directsound on
-    REG_SOUNDCNT_H |= (1 << 9);
-    REG_SOUNDCNT_H |= (1 << 8);
+    critical_section_exit(ctx);
 }
 
 
@@ -274,32 +253,9 @@ bool bootleg_flash_writeback(BootlegFlashType flash_type,
                              u32 offset,
                              u32 length)
 {
-    // Disable directsound
-    REG_SOUNDCNT_H &= ~(1 << 8);
-    REG_SOUNDCNT_H &= ~(1 << 9);
-
-    int temp = 0;
-
-    // Stop dma transfers
-    DMA_TRANSFER((volatile short*)0x4000014, &temp, 1, 0, 0);
-    DMA_TRANSFER((volatile short*)0x4000016, &temp, 1, 3, 0);
-
-    // Interrupts off
-    const u16 ie = REG_IE;
-    REG_IE = 0;
-    const u16 ime = REG_IME;
-    REG_IME = 0;
-
+    auto ctx = critical_section_enter();
     bootleg_flash_writeback_impl(flash_type, offset, length);
-
-    // Interrupts on
-    REG_IE = ie;
-    REG_IME = ime;
-
-    // directsound on
-    REG_SOUNDCNT_H |= (1 << 9);
-    REG_SOUNDCNT_H |= (1 << 8);
-
+    critical_section_exit(ctx);
 
     // Byte verify:
 
