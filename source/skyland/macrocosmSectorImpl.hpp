@@ -245,6 +245,8 @@ public:
 
         raster::globalstate::_recalc_depth_test.set(t_start, true);
         raster::globalstate::_recalc_depth_test.set(t_start + 1, true);
+
+        coin_yield_cache_clear();
     }
 
 
@@ -779,6 +781,8 @@ public:
 
     void set_export(const Sector::ExportInfo& e) override
     {
+        this->coin_yield_cache_clear();
+
         remove_export(e.source_coord_);
 
         auto& block = this->get_block(e.source_coord_);
@@ -824,6 +828,24 @@ public:
     }
 
 
+    void coin_yield_cache_clear() const override
+    {
+        coin_yield_cache_.reset();
+    }
+
+
+    void coin_yield_cache_store(Coins c) const override
+    {
+        coin_yield_cache_ = c;
+    }
+
+
+    std::optional<Coins> coin_yield_cache_load() const override
+    {
+        return coin_yield_cache_;
+    }
+
+
 private:
     Sector::Exports exports_;
 
@@ -832,6 +854,8 @@ private:
     // sector has ~512 blocks, and if you have 20 sectors, that's a lot of
     // number crunching and will definitely lag the game if done frequently.
     mutable std::optional<Stats> base_stats_cache_;
+
+    mutable std::optional<Coins> coin_yield_cache_;
 };
 
 

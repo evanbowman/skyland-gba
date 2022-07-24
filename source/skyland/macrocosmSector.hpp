@@ -288,6 +288,21 @@ protected:
     }
 
 
+    virtual void coin_yield_cache_store(Coins c) const
+    {
+    }
+
+
+    virtual std::optional<Coins> coin_yield_cache_load() const
+    {
+        return {};
+    }
+
+
+    virtual void coin_yield_cache_clear() const
+    {
+    }
+
 
     Persistent p_;
 

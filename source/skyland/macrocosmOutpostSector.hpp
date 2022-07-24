@@ -70,6 +70,12 @@ public:
     }
 
 
+    void coin_yield_cache_clear() const override
+    {
+        coin_yield_cache_.reset();
+    }
+
+
     enum { commodities_max = 5 };
 
 
@@ -87,6 +93,12 @@ public:
         for (u32 i = 0; i < base_stats_cache_->commodity_count_; ++i) {
             base_stats_cache_->commodities_[i] = s.commodities_[i];
         }
+    }
+
+
+    void coin_yield_cache_store(Coins c) const override
+    {
+        coin_yield_cache_ = c;
     }
 
 
@@ -111,6 +123,12 @@ public:
     }
 
 
+    std::optional<Coins> coin_yield_cache_load() const override
+    {
+        return coin_yield_cache_;
+    }
+
+
 private:
     struct SmallStats
     {
@@ -124,6 +142,7 @@ private:
     };
 
     mutable std::optional<SmallStats> base_stats_cache_;
+    mutable std::optional<Coins> coin_yield_cache_;
 };
 
 

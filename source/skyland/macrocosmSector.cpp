@@ -253,6 +253,10 @@ void terrain::Sector::repaint()
 
 Coins terrain::Sector::coin_yield() const
 {
+    if (auto coins = coin_yield_cache_load()) {
+        return *coins;
+    }
+
     Coins result = 0;
 
     const bool skip_labels = true;
@@ -267,6 +271,8 @@ Coins terrain::Sector::coin_yield() const
     if (result <= 0) {
         result = 1;
     }
+
+    coin_yield_cache_store(result);
 
     return result;
 }
@@ -325,6 +331,7 @@ Vec2<s8> terrain::Sector::coordinate() const
 
 void terrain::Sector::advance(int years)
 {
+    coin_yield_cache_clear();
     set_population(population() + population_growth_rate() * years);
 }
 
