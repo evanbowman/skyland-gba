@@ -508,6 +508,16 @@ o----------------------------o
 
 o----------------------------o
 
+ (rcnt island name-sym)
+
+ Return the number of room
+ instances matching name-sym
+ that're registered with the
+ engine.
+
+
+o----------------------------o
+
  (repl)
 
  The game will launch a repl

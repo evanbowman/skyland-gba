@@ -82,21 +82,20 @@ o----------------------------o
 
 o----------------------------o
 
+ (mcr-next count)
+
+ Advance the macrocosm state
+ by count years. Returns the
+ new year value.
+
+
+o----------------------------o
+
  (repl)
 
  The game will launch a repl
  the next time that it enters
  an idle state.
-
-
-o----------------------------o
-
- (version)
-
- Return the engine version,
- as a list:
-
- '(major minor subminor patch)
 
 
 o----------------------------o

@@ -210,23 +210,6 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
 
               return L_NIL;
           }},
-         {"instance-count",
-          [](int argc) {
-              L_EXPECT_ARGC(argc, 2);
-              L_EXPECT_OP(0, symbol);
-              L_EXPECT_OP(1, user_data);
-
-              int count = 0;
-
-              auto island = (Island*)lisp::get_op(1)->user_data().obj_;
-              for (auto& room : island->rooms()) {
-                  if (str_eq(room->name(), lisp::get_op(0)->symbol().name())) {
-                      ++count;
-                  }
-              }
-
-              return lisp::make_integer(count);
-          }},
          {"startup-time",
           [](int argc) {
               lisp::ListBuilder builder;
@@ -569,6 +552,40 @@ static const lisp::Binding script_api[] = {
          result.push_back(L_CONS(x, y));
 
          return result.result();
+     }},
+    {"mcr-next",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 1);
+         L_EXPECT_OP(0, integer);
+
+         auto& m = macrocosm(*interp_get_app());
+
+         int y = m.data_->p().year_.get();
+
+         auto arg = L_LOAD_INT(0);
+         if (arg not_eq 0) {
+             m.advance(arg);
+             y += arg;
+         }
+
+         return L_INT(y);
+     }},
+    {"rcnt",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(0, symbol);
+         L_EXPECT_OP(1, user_data);
+
+         int count = 0;
+
+         auto island = (Island*)lisp::get_op(1)->user_data().obj_;
+         for (auto& room : island->rooms()) {
+             if (str_eq(room->name(), lisp::get_op(0)->symbol().name())) {
+                 ++count;
+             }
+         }
+
+         return lisp::make_integer(count);
      }},
     {"key-bind",
      [](int argc) {
