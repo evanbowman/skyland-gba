@@ -20,21 +20,22 @@
       (let ((now (syscall "now"))
             (diff 0)
             (yrs 0)
+            (prev (mcr-next 0))
             (year 0))
         (if now
             (cond
-             ((equal now tm) '())
+             ((equal now (cdr tm)) '())
              (1
-              (setq diff (- (hrs now) (hrs tm)))
+              (setq diff (- (hrs now) (hrs (cdr tm))))
 
               (if (> diff 0)
-                  (setq yrs (diff / 6))
+                  (setq yrs (/ diff 12))
                 (setq diff 0))
 
               (setq year (mcr-next yrs))
 
               (dialog
-               (format "Welcome back! Time seems to pass more slowly while you're gone, % years have passed, and the current year is %. Why not check on your cities and make sure they're ok!" yrs (+ year 1)))))))))
+               (format "Welcome back! Time seems to pass more slowly while you're gone, % years have passed, and the current year is %. Why not check on your cities and make sure they're ok!" (- year prev) (+ year 1)))))))))
 
 
 (unbind 'conf 'hrs)

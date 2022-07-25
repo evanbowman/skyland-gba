@@ -390,7 +390,7 @@ DatetimeModule::update(Platform& pfrm, App& app, Microseconds delta)
 
             // Datetime cache created by macrocosm saves. Erase, or people can
             // cheat.
-            flash_filesystem::unlink_file(pfrm, "/save/mt.dat");
+            // flash_filesystem::unlink_file(pfrm, "/save/mt.dat");
             if (not next_scene_) {
                 return scene_pool::alloc<TitleScreenScene>(3);
             } else {

@@ -103,7 +103,7 @@ public:
                                                   path,
                                                   str_len(path));
             }
-            auto has_clock = pfrm.system_clock().now();
+            auto has_clock = pfrm.system_clock().initial_time();
             if (clean_boot_ and has_clock) {
                 auto next = scene_pool::alloc<DatetimeModule>();
                 next->next_scene_ = scene_pool::make_deferred_scene<IntroCreditsScene>();

@@ -218,22 +218,78 @@ std::pair<Coins, terrain::Sector::Population> EngineImpl::colony_cost() const
 
 
 
-void EngineImpl::advance(int elapsed_years)
+void EngineImpl::advance(int years)
 {
-    data_->origin_sector_.advance(elapsed_years);
+    auto do_advance =
+        [&](int elapsed_years) {
+            data_->origin_sector_.advance(elapsed_years);
 
-    for (auto& s : data_->other_sectors_) {
-        s->advance(elapsed_years);
+            for (auto& s : data_->other_sectors_) {
+                s->advance(elapsed_years);
+            }
+
+            for (auto& s : data_->outpost_sectors_) {
+                s.advance(elapsed_years);
+            }
+
+            data_->p().year_.set(data_->p().year_.get() + elapsed_years);
+
+            auto add_coins = coin_yield() * elapsed_years;
+            data_->p().coins_.set(data_->p().coins_.get() + add_coins);
+
+            years -= elapsed_years;
+        };
+
+    // Explanation: we want to skip ahead in time quickly. If the player's been
+    // away a while, running the simulation for each year takes a long time.  We
+    // don't want to just begin by skipping a 100 year interval, because that
+    // could vastly overestimate changes by multiplying up a population growth
+    // rate or coin yeild too much, without accounting for equilibrium.
+    // Start by attempting to advance the simulation in small interval, before
+    // skipping past huge year ranges.
+
+    if (years > 5) {
+        do_advance(1);
+        do_advance(1);
+        do_advance(1);
+        do_advance(1);
     }
 
-    for (auto& s : data_->outpost_sectors_) {
-        s.advance(elapsed_years);
+    if (years > 10) {
+        do_advance(5);
+        do_advance(5);
+        do_advance(5);
     }
 
-    data_->p().year_.set(data_->p().year_.get() + elapsed_years);
+    if (years > 20) {
+        do_advance(10);
+        do_advance(10);
+    }
 
-    auto add_coins = coin_yield() * elapsed_years;
-    data_->p().coins_.set(data_->p().coins_.get() + add_coins);
+    if (years > 50) {
+        do_advance(10);
+        do_advance(10);
+    }
+
+    while (years > 75) {
+        do_advance(30);
+    }
+
+    while (years > 50) {
+        do_advance(25);
+    }
+
+    while (years > 50) {
+        do_advance(10);
+    }
+
+    while (years > 10) {
+        do_advance(5);
+    }
+
+    while (years) {
+        do_advance(1);
+    }
 }
 
 
