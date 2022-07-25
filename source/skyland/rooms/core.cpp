@@ -23,6 +23,7 @@
 #include "core.hpp"
 #include "platform/platform.hpp"
 #include "skyland/entity/explosion/coreExplosion.hpp"
+#include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -53,12 +54,16 @@ void Core::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+Sound core_destroyed("core_destroyed");
+
+
+
 void Core::finalize(Platform& pfrm, App& app)
 {
     Room::finalize(pfrm, app);
 
     if (health() == 0) {
-        pfrm.speaker().play_sound("core_destroyed", 4);
+        core_destroyed.play(pfrm, 4, milliseconds(600));
         core_explosion(pfrm, app, center());
     }
 }

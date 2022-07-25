@@ -5989,8 +5989,7 @@ static void rtc_gpio_write_command(u8 value)
 }
 
 
-static void
-rtc_gpio_write_data(u8 value)
+static void rtc_gpio_write_data(u8 value)
 {
     u8 temp;
 
@@ -6156,6 +6155,15 @@ void Platform::SystemClock::configure(DateTime dt)
     data[0] = BCD_ENCODE(dt.date_.year_);
     data[1] = BCD_ENCODE(dt.date_.month_);
     data[2] = BCD_ENCODE(dt.date_.day_);
+
+    int d = dt.date_.day_;
+    int m = dt.date_.month_;
+    int y = dt.date_.year_;
+    int day_of_week = (d += m < 3 ? y-- : y - 2,
+                       23 * m / 9 + d + 4 + y / 4 - y / 100 + y / 400) %
+                      7;
+
+    data[3] = BCD_ENCODE(day_of_week);
     data[4] = BCD_ENCODE(dt.hour_);
     data[5] = BCD_ENCODE(dt.minute_);
     data[6] = BCD_ENCODE(dt.second_);

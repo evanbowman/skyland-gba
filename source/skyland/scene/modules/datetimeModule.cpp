@@ -21,7 +21,10 @@
 
 
 #include "datetimeModule.hpp"
+#include "platform/flash_filesystem.hpp"
+#include "skyland/player/player.hpp"
 #include "skyland/scene/titleScreenScene.hpp"
+
 
 
 namespace skyland
@@ -245,113 +248,156 @@ void DatetimeModule::exit(Platform& pfrm, App& app, Scene& next)
 ScenePtr<Scene>
 DatetimeModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    if (key_down<Key::action_2>(pfrm)) {
-        return scene_pool::alloc<TitleScreenScene>(3);
-    }
+    auto& p = player(app);
+    p.update(pfrm, app, delta);
+
+    auto test_key = [&](Key k) {
+        return player(app).test_key(
+            pfrm, k, milliseconds(500), milliseconds(100));
+    };
 
     switch (state_) {
     case State::set_month:
-        if (key_down<Key::up>(pfrm)) {
+        if (test_key(Key::up)) {
             if (dt_.date_.month_ == 1) {
                 dt_.date_.month_ = 12;
             } else {
                 dt_.date_.month_--;
             }
+            pfrm.speaker().play_sound("click", 1);
             repaint(pfrm);
-        } else if (key_down<Key::down>(pfrm)) {
+        } else if (test_key(Key::down)) {
             if (dt_.date_.month_ == 12) {
                 dt_.date_.month_ = 1;
             } else {
                 dt_.date_.month_++;
             }
+            pfrm.speaker().play_sound("click", 1);
             repaint(pfrm);
         } else if (key_down<Key::action_1>(pfrm)) {
             state_ = State::set_year;
             repaint(pfrm);
+        } else if (key_down<Key::action_2>(pfrm)) {
+            if (not next_scene_) {
+                return scene_pool::alloc<TitleScreenScene>(3);
+            }
         }
         break;
 
     case State::set_year:
-        if (key_down<Key::up>(pfrm)) {
+        if (test_key(Key::up)) {
             if (dt_.date_.year_ > 1) {
-                dt_.date_.month_--;
+                dt_.date_.year_--;
+                pfrm.speaker().play_sound("click", 1);
                 repaint(pfrm);
             }
-        } else if (key_down<Key::down>(pfrm)) {
+        } else if (test_key(Key::down)) {
             dt_.date_.year_++;
+            pfrm.speaker().play_sound("click", 1);
             repaint(pfrm);
         } else if (key_down<Key::action_1>(pfrm)) {
             state_ = State::set_day;
+            repaint(pfrm);
+        } else if (key_down<Key::action_2>(pfrm)) {
+            state_ = State::set_month;
             repaint(pfrm);
         }
         break;
 
     case State::set_day:
-        if (key_down<Key::up>(pfrm)) {
+        if (test_key(Key::up)) {
             if (dt_.date_.day_ > 1) {
                 dt_.date_.day_--;
+                pfrm.speaker().play_sound("click", 1);
                 repaint(pfrm);
             }
-        } else if (key_down<Key::down>(pfrm)) {
+        } else if (test_key(Key::down)) {
             if (dt_.date_.day_ <
                 days_per_month(dt_.date_.month_ - 1, 2000 + dt_.date_.year_)) {
                 dt_.date_.day_++;
+                pfrm.speaker().play_sound("click", 1);
             }
             repaint(pfrm);
         } else if (key_down<Key::action_1>(pfrm)) {
             state_ = State::set_hour;
             repaint(pfrm);
+        } else if (key_down<Key::action_2>(pfrm)) {
+            state_ = State::set_year;
+            repaint(pfrm);
         }
         break;
 
     case State::set_hour:
-        if (key_down<Key::up>(pfrm)) {
+        if (test_key(Key::up)) {
             if (dt_.hour_ > 0) {
                 dt_.hour_--;
+                pfrm.speaker().play_sound("click", 1);
                 repaint(pfrm);
             }
-        } else if (key_down<Key::down>(pfrm)) {
+        } else if (test_key(Key::down)) {
             if (dt_.hour_ < 23) {
                 dt_.hour_++;
+                pfrm.speaker().play_sound("click", 1);
             }
             repaint(pfrm);
         } else if (key_down<Key::action_1>(pfrm)) {
             state_ = State::set_min;
             repaint(pfrm);
+        } else if (key_down<Key::action_2>(pfrm)) {
+            state_ = State::set_day;
+            repaint(pfrm);
         }
         break;
 
     case State::set_min:
-        if (key_down<Key::up>(pfrm)) {
+        if (test_key(Key::up)) {
             if (dt_.minute_ > 0) {
                 dt_.minute_--;
+                pfrm.speaker().play_sound("click", 1);
                 repaint(pfrm);
             }
-        } else if (key_down<Key::down>(pfrm)) {
+        } else if (test_key(Key::down)) {
             if (dt_.minute_ < 59) {
                 dt_.minute_++;
+                pfrm.speaker().play_sound("click", 1);
             }
             repaint(pfrm);
         } else if (key_down<Key::action_1>(pfrm)) {
             state_ = State::set_sec;
             repaint(pfrm);
+        } else if (key_down<Key::action_2>(pfrm)) {
+            state_ = State::set_hour;
+            repaint(pfrm);
         }
         break;
 
     case State::set_sec:
-        if (key_down<Key::up>(pfrm)) {
+        if (test_key(Key::up)) {
             if (dt_.second_ > 0) {
                 dt_.second_--;
                 repaint(pfrm);
+                pfrm.speaker().play_sound("click", 1);
             }
-        } else if (key_down<Key::down>(pfrm)) {
+        } else if (test_key(Key::down)) {
             if (dt_.second_ < 59) {
                 dt_.second_++;
+                pfrm.speaker().play_sound("click", 1);
             }
             repaint(pfrm);
         } else if (key_down<Key::action_1>(pfrm)) {
             pfrm.system_clock().configure(dt_);
-            return scene_pool::alloc<TitleScreenScene>(3);
+
+            // Datetime cache created by macrocosm saves. Erase, or people can
+            // cheat.
+            flash_filesystem::unlink_file(pfrm, "/save/mt.dat");
+            if (not next_scene_) {
+                return scene_pool::alloc<TitleScreenScene>(3);
+            } else {
+                return (*next_scene_)();
+            }
+        } else if (key_down<Key::action_2>(pfrm)) {
+            state_ = State::set_min;
+            repaint(pfrm);
         }
         break;
 
@@ -365,7 +411,7 @@ DatetimeModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-// DatetimeModule::Factory DatetimeModule::factory_;
+DatetimeModule::Factory DatetimeModule::factory_(true);
 
 
 

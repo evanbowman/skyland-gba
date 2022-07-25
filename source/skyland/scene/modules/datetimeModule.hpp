@@ -44,11 +44,17 @@ public:
 
     static u16 icon()
     {
-        return 1304;
+        return 1576;
     }
 
 
     static bool run_scripts()
+    {
+        return false;
+    }
+
+
+    static bool enable_custom_scripts()
     {
         return false;
     }
@@ -62,6 +68,15 @@ public:
 
 
     void repaint(Platform&);
+
+
+    std::optional<DeferredScene> next_scene_;
+
+
+    static bool requires_developer_mode()
+    {
+        return true;
+    }
 
 
 private:
