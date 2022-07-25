@@ -5989,8 +5989,6 @@ static void rtc_gpio_write_command(u8 value)
 }
 
 
-[[gnu::
-      unused]] // Currently unused, but this is how you would write to the chip...
 static void
 rtc_gpio_write_data(u8 value)
 {
@@ -6071,9 +6069,29 @@ static auto rtc_get_datetime()
 }
 
 
+
+static void rtc_set_datetime(std::array<u8, 7> vals)
+{
+    GPIO_PORT_DATA = 1;
+    GPIO_PORT_DATA = 5;
+    GPIO_PORT_DIRECTION = 7;
+
+    rtc_gpio_write_command(S3511A_CMD_DATETIME | S3511A_WR);
+
+    for (u32 i = 0; i < vals.size(); i++) {
+        rtc_gpio_write_data(vals[i]);
+    }
+
+    GPIO_PORT_DATA = 1;
+    GPIO_PORT_DATA = 1;
+}
+
+
+
 Platform::SystemClock::SystemClock()
 {
 }
+
 
 
 static u32 bcd_to_binary(u8 bcd)
@@ -6128,6 +6146,27 @@ std::optional<DateTime> Platform::SystemClock::initial_time()
 
 
 
+#define BCD_ENCODE(X) (((X) % 10) + (((X) / 10) << 4))
+
+
+
+void Platform::SystemClock::configure(DateTime dt)
+{
+    std::array<u8, 7> data;
+    data[0] = BCD_ENCODE(dt.date_.year_);
+    data[1] = BCD_ENCODE(dt.date_.month_);
+    data[2] = BCD_ENCODE(dt.date_.day_);
+    data[4] = BCD_ENCODE(dt.hour_);
+    data[5] = BCD_ENCODE(dt.minute_);
+    data[6] = BCD_ENCODE(dt.second_);
+
+    auto irq = critical_section_enter();
+    rtc_set_datetime(data);
+    critical_section_exit(irq);
+}
+
+
+
 std::optional<DateTime> Platform::SystemClock::now()
 {
     if (get_gflag(GlobalFlag::rtc_faulty)) {
@@ -6137,7 +6176,6 @@ std::optional<DateTime> Platform::SystemClock::now()
     auto irq = critical_section_enter();
     const auto [year, month, day, dow, hr, min, sec] = rtc_get_datetime();
     critical_section_exit(irq);
-
 
     DateTime info;
     info.date_.year_ = bcd_to_binary(year);
@@ -6149,6 +6187,7 @@ std::optional<DateTime> Platform::SystemClock::now()
 
     return info;
 }
+
 
 
 void Platform::SystemClock::init(Platform& pfrm)

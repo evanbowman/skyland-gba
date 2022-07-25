@@ -365,7 +365,7 @@ DatetimeModule::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-DatetimeModule::Factory DatetimeModule::factory_;
+// DatetimeModule::Factory DatetimeModule::factory_;
 
 
 
