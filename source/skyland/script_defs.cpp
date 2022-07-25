@@ -313,6 +313,10 @@ MAPBOX_ETERNAL_CONSTEXPR const auto syscall_table =
               GenericPool::print_diagnostics(*lisp::interp_get_pfrm());
               return L_NIL;
           }},
+         {"lang",
+          [](int argc) {
+              return lisp::make_string(systemstring_bound_file());
+          }},
          {"synth-notes-store",
           [](int argc) {
               L_EXPECT_ARGC(argc, 2);

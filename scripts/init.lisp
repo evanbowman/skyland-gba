@@ -19,7 +19,6 @@
 
 (eval-file "/scripts/stdlib.lisp")
 
-(setq language 'english)
 
 ;; Let's define some useful
 ;; builtin functions:

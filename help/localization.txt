@@ -40,17 +40,24 @@ Now comes the tricky part.
 There are tons of strings
 embedded in all of the game's
 lisp level scripts. But
-the engine binds the language
-file at startup to a lisp
-variable called lang,
+the engine provide the 
+language file path via
+(syscall "lang"),
 so technically you could
 localize the text in the lisp
 scripts by moving the dialog
-strings to the language files
-and calling the lisp builtin
+strings to the end of the
+language file  and calling
+the lisp builtin
 get-line-of-file with the
 language file path as a
 parameter.
+e.g.:
+(defn/c locale_string
+  ;; args: line, integer
+  (get-line-of-file
+   (syscall "lang")
+   $0))
 
 Repack the rom by using
 the encode_files.py script.

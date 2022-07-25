@@ -56,6 +56,13 @@ void systemstring_bind_file(const char* path)
 
 
 
+const char* systemstring_bound_file()
+{
+    return lang_file.c_str();
+}
+
+
+
 void systemstring_drop_index_cache()
 {
     index_cache.reset();

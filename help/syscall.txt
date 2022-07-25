@@ -21,6 +21,16 @@
 
 o----------------------------o
 
+ (syscall "lang")
+
+ Return the bound language
+ file. e.g.:
+
+ "/strings/strings.txt"
+
+
+o----------------------------o
+
  (syscall "log" val)
 
  Write a value to the
