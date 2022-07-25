@@ -527,9 +527,8 @@ void EngineImpl::save(Platform& pfrm)
             save_data.push_back(((u8*)&dt)[i]);
         }
 
-        flash_filesystem::store_file_data_binary(pfrm,
-                                                 save::timestamp_path,
-                                                 save_data);
+        flash_filesystem::store_file_data_binary(
+            pfrm, save::timestamp_path, save_data);
     }
 }
 
@@ -639,9 +638,8 @@ bool EngineImpl::load(Platform& pfrm, App& app)
     lisp::ListBuilder conf;
 
     input.clear();
-    if (flash_filesystem::read_file_data_binary(pfrm,
-                                                save::timestamp_path,
-                                                input)) {
+    if (flash_filesystem::read_file_data_binary(
+            pfrm, save::timestamp_path, input)) {
         DateTime dt;
         for (u32 i = 0; i < sizeof dt; ++i) {
             ((u8*)&dt)[i] = input[i];

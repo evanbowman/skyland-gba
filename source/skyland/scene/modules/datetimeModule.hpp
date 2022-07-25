@@ -36,7 +36,6 @@ namespace skyland
 class DatetimeModule : public Module<DatetimeModule>
 {
 public:
-
     static SystemString module_name()
     {
         return SystemString::module_datetime;
@@ -68,10 +67,20 @@ public:
 private:
     DateTime dt_;
 
+
+    enum class State {
+        set_month,
+        set_year,
+        set_day,
+        set_hour,
+        set_min,
+        set_sec
+    } state_ = State::set_month;
+
+
     static Factory factory_;
 };
 
 
 
-
-}
+} // namespace skyland

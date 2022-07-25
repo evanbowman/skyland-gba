@@ -38,6 +38,7 @@
 #include "allocator.hpp"
 #include "bootleg_cart.hpp"
 #include "containers/vector.hpp"
+#include "critical_section.hpp"
 #include "filesystem.hpp"
 #include "gbp_logo.hpp"
 #include "graphics/overlay.hpp"
@@ -55,7 +56,6 @@
 #include "util.hpp"
 #include <algorithm>
 #include <setjmp.h>
-#include "critical_section.hpp"
 
 
 
@@ -6944,12 +6944,9 @@ Platform::Platform()
         info(*this, "RTC chip appears either non-existant or non-functional");
     } else {
         auto now = system_clock_.now();
-        if (now->date_.year_ not_eq 0 and
-            now->date_.month_ not_eq 0 and
-            now->date_.day_ not_eq 0 and
-            now->hour_ not_eq 0 and
-            now->minute_ not_eq 0 and
-            now->second_ not_eq 0) {
+        if (now->date_.year_ not_eq 0 and now->date_.month_ not_eq 0 and
+            now->date_.day_ not_eq 0 and now->hour_ not_eq 0 and
+            now->minute_ not_eq 0 and now->second_ not_eq 0) {
 
             ::start_time = now;
 

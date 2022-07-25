@@ -1,9 +1,9 @@
 #include "bootleg_cart.hpp"
+#include "critical_section.hpp"
 #include "filesystem.hpp"
 #include "gba.h"
 #include "platform/conf.hpp"
 #include "platform/platform.hpp"
-#include "critical_section.hpp"
 
 
 

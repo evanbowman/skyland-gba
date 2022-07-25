@@ -201,6 +201,8 @@ enum class SystemString {
     module_checkers,
     module_datetime,
 
+    months,
+
     developer_mode_msg,
     developer_mode_msg_2,
 

@@ -402,7 +402,6 @@ public:
     class SystemClock
     {
     public:
-
         std::optional<DateTime> now();
         std::optional<DateTime> initial_time();
 
