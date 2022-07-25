@@ -52,6 +52,9 @@ get-line-of-file with the
 language file path as a
 parameter.
 
+Repack the rom by using
+the encode_files.py script.
+
 All of the tools for
 localizing the game should
 already exist, without

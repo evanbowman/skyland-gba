@@ -65,18 +65,33 @@ public:
     void exit(Platform& pfrm, App& app, Scene& prev) override
     {
         text_opts_.clear();
+        for (int y = 0; y < 20; ++y) {
+            pfrm.set_tile(Layer::overlay, 1, y, 0);
+        }
     }
 
 
     ScenePtr<Scene> update(Platform& pfrm, App&, Microseconds delta) override
     {
+        auto show_cursor =
+            [&] {
+                for (int y = 0; y < 20; ++y) {
+                    pfrm.set_tile(Layer::overlay, 1, y, 0);
+                }
+                pfrm.set_tile(Layer::overlay, 1, 3 + sel_ * 2, 396);
+            };
+
+        show_cursor();
+
         if (key_down<Key::up>(pfrm)) {
             if (sel_ > 0) {
                 --sel_;
+                pfrm.speaker().play_sound("click_wooden", 2);
             }
         } else if (key_down<Key::down>(pfrm)) {
             if (sel_ < (int)opts_->size()) {
                 ++sel_;
+                pfrm.speaker().play_sound("click_wooden", 2);
             }
         } else if (opts_->empty() or
             opts_->size() == 1 or key_down<Key::action_1>(pfrm)) {
