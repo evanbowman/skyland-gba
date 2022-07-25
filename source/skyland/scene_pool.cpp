@@ -46,9 +46,9 @@ ScenePtr<Scene> null_scene()
 
 
 
-ScenePtr<Scene> initial_scene()
+ScenePtr<Scene> initial_scene(bool clean_boot)
 {
-    return scene_pool::alloc<BootScene>();
+    return scene_pool::alloc<BootScene>(clean_boot);
 }
 
 

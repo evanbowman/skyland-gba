@@ -40,11 +40,12 @@ static inline void main_loop(Platform& pf)
 {
     systemstring_bind_file("strings.txt");
 
-
     BootScene::init(pf);
 
 
     BootScene::message(pf, "mount flash filesystem...");
+
+    bool clean_boot = false;
 
     auto stat = flash_filesystem::initialize(pf, 8);
     if (stat == flash_filesystem::InitStatus::initialized) {
@@ -63,6 +64,8 @@ static inline void main_loop(Platform& pf)
 
         flash_filesystem::store_file_data(
             pf, "/mods/init.lisp", user_init_file, str_len(user_init_file));
+
+        clean_boot = true;
     }
 
 
@@ -73,7 +76,7 @@ static inline void main_loop(Platform& pf)
 
     BootScene::message(pf, "start application...");
 
-    auto app = allocate_dynamic<App>("app-data", pf);
+    auto app = allocate_dynamic<App>("app-data", pf, clean_boot);
 
     while (pf.is_running()) {
         pf.keyboard().poll();

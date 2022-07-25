@@ -60,7 +60,7 @@ Player& player(App& app)
 
 
 
-App::App(Platform& pfrm)
+App::App(Platform& pfrm, bool clean_boot)
     : world_state_(allocate_dynamic<WorldState>("env-buffer",
                                                 pfrm,
                                                 Layer::map_0_ext,
@@ -75,8 +75,8 @@ App::App(Platform& pfrm)
     init_clouds(pfrm);
 
 
-    current_scene_ = initial_scene();
-    next_scene_ = initial_scene();
+    current_scene_ = initial_scene(clean_boot);
+    next_scene_ = initial_scene(clean_boot);
 
     if (not save::load_global_data(pfrm, gp_)) {
         info(pfrm, "global data not found");

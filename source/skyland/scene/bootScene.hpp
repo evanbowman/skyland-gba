@@ -4,11 +4,17 @@
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
+#include "platform/flash_filesystem.hpp"
+#include "modules/datetimeModule.hpp"
 
 
 
 namespace skyland
 {
+
+
+
+static constexpr const char* lang_file = "/lang.txt";
 
 
 
@@ -19,6 +25,120 @@ void __draw_image(Platform& pfrm,
                   u16 width,
                   u16 height,
                   Layer layer);
+
+
+
+
+class LanguageSelectScene : public Scene
+{
+private:
+    using LanguageOptions = Buffer<std::pair<StringBuffer<48>, StringBuffer<48>>, 16>;
+    DynamicMemory<LanguageOptions> opts_;
+
+    int sel_ = 0;
+
+    Buffer<Text, 8> text_opts_;
+
+    bool clean_boot_;
+
+public:
+
+    LanguageSelectScene(Platform& pfrm, bool clean_boot) :
+        opts_(load_language_options(pfrm)),
+        clean_boot_(clean_boot)
+    {
+    }
+
+
+    void enter(Platform& pfrm, App& app, Scene& prev) override
+    {
+        if (opts_->size() > 1) {
+            u8 row = 3;
+            for (auto& opt : *opts_) {
+                text_opts_.emplace_back(pfrm, opt.first.c_str(), OverlayCoord{3, row});
+                row += 2;
+            }
+        }
+    }
+
+
+    void exit(Platform& pfrm, App& app, Scene& prev) override
+    {
+        text_opts_.clear();
+    }
+
+
+    ScenePtr<Scene> update(Platform& pfrm, App&, Microseconds delta) override
+    {
+        if (key_down<Key::up>(pfrm)) {
+            if (sel_ > 0) {
+                --sel_;
+            }
+        } else if (key_down<Key::down>(pfrm)) {
+            if (sel_ < (int)opts_->size()) {
+                ++sel_;
+            }
+        } else if (opts_->empty() or
+            opts_->size() == 1 or key_down<Key::action_1>(pfrm)) {
+            if (opts_->size() > 1) {
+                auto path = (*opts_)[sel_].second.c_str();
+                systemstring_bind_file(path);
+                flash_filesystem::store_file_data(pfrm,
+                                                  lang_file,
+                                                  path,
+                                                  str_len(path));
+            }
+            auto has_clock = pfrm.system_clock().now();
+            if (clean_boot_ and has_clock) {
+                auto next = scene_pool::alloc<DatetimeModule>();
+                next->next_scene_ = scene_pool::make_deferred_scene<IntroCreditsScene>();
+                return next;
+            } else {
+                return scene_pool::alloc<IntroCreditsScene>();
+            }
+        }
+
+        return null_scene();
+    }
+
+
+private:
+    static DynamicMemory<LanguageOptions> load_language_options(Platform& pfrm)
+    {
+        auto result = allocate_dynamic<LanguageOptions>("lang-table");
+
+        auto cp = pfrm.load_file_contents("strings", "lang.txt");
+
+        std::pair<StringBuffer<48>, StringBuffer<48>> current;
+        int parse_state = 0;
+        utf8::scan([&](utf8::Codepoint cp, const char* raw, int) {
+                       if (cp == '=') {
+                           parse_state = 1;
+                       } else if (cp == '\n') {
+                           parse_state = 0;
+                           result->emplace_back(current);
+                           current.first.clear();
+                           current.second.clear();
+                       } else {
+                           if (parse_state == 0) {
+                               current.first += raw;
+                           } else {
+                               current.second += raw;
+                           }
+                       }
+                   },
+            cp,
+            str_len(cp));
+
+        for (auto& r : *result) {
+            info(pfrm, r.first.c_str());
+            info(pfrm, r.second.c_str());
+        }
+
+        return result;
+    }
+
+};
 
 
 
@@ -34,6 +154,14 @@ static constexpr const char* console_header =
 "*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*\r\n";
 
     // clang-format on
+
+
+    bool clean_boot_;
+
+
+    BootScene(bool clean_boot) : clean_boot_(clean_boot)
+    {
+    }
 
 
 
@@ -163,7 +291,20 @@ static constexpr const char* console_header =
         pfrm.screen().display();
         pfrm.sleep(10);
 
-        return scene_pool::alloc<IntroCreditsScene>();
+        if (not flash_filesystem::file_exists(pfrm, lang_file) or clean_boot_) {
+            return scene_pool::alloc<LanguageSelectScene>(pfrm, clean_boot_);
+        } else {
+            Vector<char> data;
+            if (flash_filesystem::read_file_data(pfrm, lang_file, data)) {
+                StringBuffer<48> path;
+                for (char c : data) {
+                    path.push_back(c);
+                }
+                systemstring_bind_file(path.c_str());
+            }
+            return scene_pool::alloc<IntroCreditsScene>();
+        }
+
     }
 };
 

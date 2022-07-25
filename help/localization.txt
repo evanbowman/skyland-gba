@@ -1,0 +1,64 @@
+
+For anyone who wants to
+translate the game. Skyland
+natively supports unicode,
+and ships with all of the
+glyphs required for english,
+spanish, french, italian,
+russian, ukrainian,
+japanese, and a subset of
+2500 of the most common
+chinese words.
+
+To begin localization,
+first you'll need to
+unpack the rom. You may use
+the python script included
+in the tools directory for
+rom unpacking.
+
+Next, you'll need to add
+a new entry in
+strings/lang.txt, to map
+the utf8 language name to
+an ascii skyland filesystem
+path. See lang.txt for
+examples. Just add a new
+line following the existing
+format.
+
+Create a file containing
+the translated text, by
+copy-pasting strings.txt
+and translating each line.
+The entry you created in
+lang.txt should of course
+refer to the name of your
+new transation file.
+
+Now comes the tricky part.
+There are tons of strings
+embedded in all of the game's
+lisp level scripts. But
+the engine binds the language
+file at startup to a lisp
+variable called lang,
+so technically you could
+localize the text in the lisp
+scripts by moving the dialog
+strings to the language files
+and calling the lisp builtin
+get-line-of-file with the
+language file path as a
+parameter.
+
+All of the tools for
+localizing the game should
+already exist, without
+needing to disassemble the
+game or mess with the C++
+code.
+
+If you have any trouble,
+please email me at
+evan.a.bowman@gmail.com.

@@ -68,7 +68,7 @@ public:
 };
 
 
-ScenePtr<Scene> initial_scene();
+ScenePtr<Scene> initial_scene(bool clean_boot);
 
 
 using DeferredScene = Function<16, ScenePtr<Scene>()>;

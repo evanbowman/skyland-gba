@@ -241,6 +241,7 @@ void DatetimeModule::enter(Platform& pfrm, App& app, Scene& prev)
 
 void DatetimeModule::exit(Platform& pfrm, App& app, Scene& next)
 {
+    pfrm.fill_overlay(0);
 }
 
 

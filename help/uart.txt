@@ -85,7 +85,8 @@
  is the default in picocom.
 
  Ok, you should be all set
- up! Restart skyland, and
+ up! Enable developer mode,
+ Restart skyland, and
  the game should print
  a command prompt into
  picocom.
