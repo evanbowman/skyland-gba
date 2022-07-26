@@ -49,7 +49,8 @@ static const u32 global_save_data_magic = 0xABCD + 2;
 
 
 const char* global_data_filename = "/save/global.dat";
-const char* save_data_filename = "/save/meta.dat";
+const char* save_data_filename = "/save/adventure.dat";
+const char* save_data_lisp_filename = "/save/adventure.lisp";
 
 
 
@@ -169,7 +170,7 @@ void EmergencyBackup::store(Platform& pfrm)
     save::store(pfrm, save_data);
 
     flash_filesystem::store_file_data_text(
-        pfrm, "/save/data.lisp", *lisp_data_);
+        pfrm, save_data_lisp_filename, *lisp_data_);
 }
 
 
@@ -192,7 +193,7 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
 
     store(pfrm, save_data);
 
-    flash_filesystem::store_file_data_text(pfrm, "/save/data.lisp", p.data_);
+    flash_filesystem::store_file_data_text(pfrm, save_data_lisp_filename, p.data_);
 
     synth_notes_store(pfrm, app.player_island(), "/save/synth.dat");
     speaker_data_store(pfrm, app.player_island(), "/save/speaker.dat");
@@ -231,7 +232,7 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
 
 
     auto bytes =
-        flash_filesystem::read_file_data_text(pfrm, "/save/data.lisp", data);
+        flash_filesystem::read_file_data_text(pfrm, save_data_lisp_filename, data);
 
     if (bytes == 0) {
         return false;

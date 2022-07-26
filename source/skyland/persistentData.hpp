@@ -41,7 +41,6 @@ namespace skyland
 
 struct GlobalPersistentData
 {
-    FlagPixels flag_img_;
     Highscores highscores_;
 
     enum Flags {
@@ -52,17 +51,18 @@ struct GlobalPersistentData
         freebuild_unlocked,
     };
 
+    enum class Difficulty : u8 {
+        beginner,
+        experienced,
+        expert,
+    } difficulty_ = Difficulty::experienced;
+
+    Bitvector<128> hidden_rooms_;
+
     Bitvector<64> stateflags_;
 
     host_u64 achievement_flags_;
     host_u64 challenge_flags_;
-
-    // Yeah, we'll break compatibility with save files if we ever have to resize
-    // this bitvector. But in that case, we could simply offload the data to the
-    // sram filesystem instead, and use this bitvector for something else. At
-    // time of writing this comment, the game has around 44 different blocks, so
-    // we're nowhere near running out.
-    Bitvector<128> hidden_rooms_;
 
     GlobalPersistentData()
     {
@@ -80,12 +80,6 @@ struct PersistentData
     WorldGraph world_graph_;
     int current_world_location_ = 0;
     int zone_ = 0;
-
-    enum class Difficulty : u8 {
-        beginner,
-        experienced,
-        expert,
-    } difficulty_ = Difficulty::experienced;
 
     HostInteger<u32> total_seconds_;
     HostInteger<u32> total_pauses_;

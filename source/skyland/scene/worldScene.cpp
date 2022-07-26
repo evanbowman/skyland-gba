@@ -243,8 +243,8 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if ((app.game_mode() == App::GameMode::adventure or
              app.game_mode() == App::GameMode::skyland_forever) and
-            app.persistent_data().difficulty_ ==
-                PersistentData::Difficulty::beginner and
+            app.gp_.difficulty_ ==
+                GlobalPersistentData::Difficulty::beginner and
             not state_bit_load(app, StateBit::easy_mode_rewind_declined)) {
 
             return scene_pool::alloc<EasyModeRewindScene>();

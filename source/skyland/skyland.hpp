@@ -346,8 +346,8 @@ public:
 
 
 
+    FlagPixels custom_flag_image_;
     GlobalPersistentData gp_;
-
 
 
     lisp::Value* invoke_ram_script(Platform& pfrm, const char* ram_fs_path);

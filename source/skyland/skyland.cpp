@@ -78,9 +78,10 @@ App::App(Platform& pfrm, bool clean_boot)
     current_scene_ = initial_scene(clean_boot);
     next_scene_ = initial_scene(clean_boot);
 
+    custom_flag_image_.load(pfrm, *this);
+
     if (not save::load_global_data(pfrm, gp_)) {
         info(pfrm, "global data not found");
-        load_default_flag(pfrm, *this);
         for (auto& score : gp_.highscores_.values_) {
             score.set(0);
         }
@@ -206,7 +207,7 @@ void App::delete_backup()
 
 void write_custom_graphics(Platform& pfrm, App& app)
 {
-    vram_write_flag(pfrm, app.gp_.flag_img_);
+    vram_write_flag(pfrm, app.custom_flag_image_);
     app.custom_tile_mapper().publish_as_tiles(pfrm);
 }
 

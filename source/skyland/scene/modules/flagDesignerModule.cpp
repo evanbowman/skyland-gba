@@ -80,7 +80,7 @@ void FlagDesignerModule::show(Platform& pfrm, App& app)
 {
     Paint::show(pfrm, app);
 
-    vram_write_flag(pfrm, app.gp_.flag_img_);
+    vram_write_flag(pfrm, app.custom_flag_image_);
 }
 
 
@@ -89,7 +89,9 @@ ScenePtr<Scene>
 FlagDesignerModule::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::action_2)) {
-        save::store_global_data(pfrm, app.gp_);
+        if (changed_) {
+            app.custom_flag_image_.save(pfrm);
+        }
         return scene_pool::alloc<TitleScreenScene>(3);
     }
 
@@ -114,7 +116,7 @@ u8 FlagDesignerModule::get_pixel(App& app, u8 x, u8 y)
     if (x >= width() or y >= height()) {
         return 111;
     }
-    return app.gp_.flag_img_.pixels[x][y];
+    return app.custom_flag_image_.pixels[x][y];
 }
 
 
@@ -124,7 +126,7 @@ void FlagDesignerModule::set_pixel(App& app, u8 x, u8 y, u8 value)
     if (x >= width() or y >= height()) {
         return;
     }
-    app.gp_.flag_img_.pixels[x][y] = value;
+    app.custom_flag_image_.pixels[x][y] = value;
     changed_ = true;
 }
 

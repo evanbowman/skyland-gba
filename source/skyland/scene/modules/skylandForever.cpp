@@ -70,6 +70,8 @@ void SkylandForever::enter(Platform& pfrm, App& app, Scene& prev)
     parameters_.push_back(1);
     parameters_.push_back(1);
 
+    parameters_[0] = (int)app.gp_.difficulty_;
+
     environment_init(app, parameters_[1]);
     pfrm.screen().set_shader(app.environment().shader(app));
 
@@ -134,19 +136,19 @@ void SkylandForever::init(Platform& pfrm,
 
     switch (difficulty) {
     case 0:
-        app.persistent_data().difficulty_ =
-            PersistentData::Difficulty::beginner;
+        app.gp_.difficulty_ =
+            GlobalPersistentData::Difficulty::beginner;
         app.invoke_script(pfrm, "/scripts/config/forever/easy.lisp");
         break;
 
     case 1:
-        app.persistent_data().difficulty_ =
-            PersistentData::Difficulty::experienced;
+        app.gp_.difficulty_ =
+            GlobalPersistentData::Difficulty::experienced;
         app.invoke_script(pfrm, "/scripts/config/forever/normal.lisp");
         break;
 
     case 2:
-        app.persistent_data().difficulty_ = PersistentData::Difficulty::expert;
+        app.gp_.difficulty_ = GlobalPersistentData::Difficulty::expert;
         app.invoke_script(pfrm, "/scripts/config/forever/hard.lisp");
         break;
     }

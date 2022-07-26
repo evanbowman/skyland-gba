@@ -65,9 +65,6 @@ void AdventureModeSettingsScene::enter(Platform& pfrm, App& app, Scene& prev)
         hard_str,
         OverlayCoord{(u8)centered_text_margins(pfrm, str_len(hard_str)), 8});
 
-
-    app.persistent_data().difficulty_ = PersistentData::Difficulty::experienced;
-
     pfrm.screen().fade(0.96f);
     pfrm.screen().fade(1.f);
 }
@@ -88,14 +85,14 @@ ScenePtr<Scene>
 AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     if (app.player().key_down(pfrm, Key::up)) {
-        auto& diff = app.persistent_data().difficulty_;
-        diff = (PersistentData::Difficulty)(((u8)diff - 1) % 3);
+        auto& diff = app.gp_.difficulty_;
+        diff = (GlobalPersistentData::Difficulty)(((u8)diff - 1) % 3);
         pfrm.speaker().play_sound("click_wooden", 2);
     }
 
     if (app.player().key_down(pfrm, Key::down)) {
-        auto& diff = app.persistent_data().difficulty_;
-        diff = (PersistentData::Difficulty)(((u8)diff + 1) % 3);
+        auto& diff = app.gp_.difficulty_;
+        diff = (GlobalPersistentData::Difficulty)(((u8)diff + 1) % 3);
         pfrm.speaker().play_sound("click_wooden", 2);
     }
 
@@ -104,20 +101,20 @@ AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
             Layer::overlay, text->coord().x - 2, text->coord().y, tile);
     };
 
-    switch (app.persistent_data().difficulty_) {
-    case PersistentData::Difficulty::beginner:
+    switch (app.gp_.difficulty_) {
+    case GlobalPersistentData::Difficulty::beginner:
         sel(easy_text_, 396);
         sel(normal_text_, 0);
         sel(hard_text_, 0);
         break;
 
-    case PersistentData::Difficulty::experienced:
+    case GlobalPersistentData::Difficulty::experienced:
         sel(easy_text_, 0);
         sel(normal_text_, 396);
         sel(hard_text_, 0);
         break;
 
-    case PersistentData::Difficulty::expert:
+    case GlobalPersistentData::Difficulty::expert:
         sel(easy_text_, 0);
         sel(normal_text_, 0);
         sel(hard_text_, 396);
@@ -126,19 +123,21 @@ AdventureModeSettingsScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (app.player().key_down(pfrm, Key::action_1)) {
         pfrm.speaker().play_sound("button_wooden", 3);
-        switch (app.persistent_data().difficulty_) {
-        case PersistentData::Difficulty::beginner:
+        switch (app.gp_.difficulty_) {
+        case GlobalPersistentData::Difficulty::beginner:
             app.invoke_script(pfrm, "/scripts/config/easy/score.lisp");
             break;
 
-        case PersistentData::Difficulty::experienced:
+        case GlobalPersistentData::Difficulty::experienced:
             app.invoke_script(pfrm, "/scripts/config/normal/score.lisp");
             break;
 
-        case PersistentData::Difficulty::expert:
+        case GlobalPersistentData::Difficulty::expert:
             app.invoke_script(pfrm, "/scripts/config/hard/score.lisp");
             break;
         }
+
+        save::store_global_data(pfrm, app.gp_);
 
         return scene_pool::alloc<WorldMapScene>();
     }

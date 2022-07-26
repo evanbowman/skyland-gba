@@ -21,6 +21,7 @@
 
 
 #include "flag.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "platform/platform.hpp"
 #include "skyland/skyland.hpp"
 #include "tile.hpp"
@@ -104,8 +105,38 @@ void load_default_flag(Platform& pfrm, App& app)
     auto data = pfrm.extract_tile(Layer::map_0, Tile::flag_start);
     for (int x = 0; x < 13; ++x) {
         for (int y = 0; y < 11; ++y) {
-            app.gp_.flag_img_.pixels[x][y] = data.data_[x][y + 1];
+            app.custom_flag_image_.pixels[x][y] = data.data_[x][y + 1];
         }
+    }
+}
+
+
+
+static const char* flag_save_file = "/save/flag.dat";
+
+
+
+void FlagPixels::save(Platform& pfrm)
+{
+    Vector<char> img;
+    for (u32 i = 0; i < sizeof pixels; ++i) {
+        img.push_back(((u8*)pixels)[i]);
+    }
+
+    flash_filesystem::store_file_data_binary(pfrm, flag_save_file, img);
+}
+
+
+
+void FlagPixels::load(Platform& pfrm, App& app)
+{
+    Vector<char> img;
+    if (flash_filesystem::read_file_data_binary(pfrm, flag_save_file, img)) {
+        for (u32 i = 0; i < img.size(); ++i) {
+            ((u8*)pixels)[i] = img[i];
+        }
+    } else {
+        load_default_flag(pfrm, app);
     }
 }
 

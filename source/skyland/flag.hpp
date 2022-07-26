@@ -46,6 +46,9 @@ struct FlagPixels
     static const int height = 11;
 
     u8 pixels[width][height];
+
+    void save(Platform&);
+    void load(Platform&, App&);
 };
 
 
