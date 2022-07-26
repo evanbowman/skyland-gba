@@ -26,6 +26,7 @@
 #include "allocator.hpp"
 #include "opponent.hpp"
 #include "skyland/coins.hpp"
+#include "skyland/island.hpp"
 
 
 
@@ -49,6 +50,21 @@ class BasicCharacter;
 class EnemyAI : public Opponent
 {
 public:
+
+    EnemyAI()
+    {
+        ai_island_ = nullptr;
+        target_island_ = nullptr;
+    }
+
+
+    EnemyAI(Island* ai_island, Island* target_island)
+    {
+        ai_island_ = ai_island;
+        target_island_ = target_island;
+    }
+
+
     void update(Platform&, App&, Microseconds delta) override;
 
 
@@ -126,6 +142,10 @@ private:
                               App&,
                               Room& weapon,
                               const RoomCoord& target);
+
+
+    Island* ai_island_;
+    Island* target_island_;
 
 
     static const auto next_action_timeout = seconds(1);

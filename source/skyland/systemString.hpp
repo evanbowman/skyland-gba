@@ -363,6 +363,9 @@ enum class SystemString {
     start_menu_newgame,
     start_menu_link,
     start_menu_share,
+    start_menu_spectate,
+
+    spectate_msg,
 
     macro_share_please_wait,
 

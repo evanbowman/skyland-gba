@@ -286,6 +286,8 @@ adjust view
 newgame
 connect a friend
 share island
+spectate
+START: drop in
 please wait...
 really salvage?  +
 A: yes 
