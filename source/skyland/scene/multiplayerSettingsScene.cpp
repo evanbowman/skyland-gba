@@ -247,8 +247,23 @@ void MultiplayerSettingsScene::setup_co_op_game(Platform& pfrm, App& app)
 
 
 
+
+
+
 void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
 {
+    const bool is_host = pfrm.network_peer().is_host();
+    const auto non_host_start_id =
+        BasicCharacter::multiplayer_vs_client_chr_start_id;
+
+    if (is_host) {
+        BasicCharacter::__reset_ids();
+    } else {
+        const auto start = non_host_start_id;
+        BasicCharacter::__reset_ids(start);
+    }
+
+
     std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ =
         vs_parameters_[1];
 
@@ -278,13 +293,17 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
     const u8 player_start_x = vs_parameters_[4] > 3 ? 1 : 0;
     app.player_island().add_room<Core>(pfrm, app, {player_start_x, 13}, true);
 
-    auto add_player_chr = [&app](u8 x, u8 y) {
-        app.player_island().add_character(alloc_entity<BasicCharacter>(
-            &app.player_island(), &app.player(), RoomCoord{x, y}, false));
+    auto add_player_chr = [&app](u8 x, u8 y, int id) {
+        auto chr = alloc_entity<BasicCharacter>(
+            &app.player_island(), &app.player(), RoomCoord{x, y}, false);
+
+        chr->__assign_id(id);
+
+        app.player_island().add_character(std::move(chr));
     };
 
-    add_player_chr(player_start_x, 14);
-    add_player_chr(player_start_x + 1, 14);
+    add_player_chr(player_start_x, 14, is_host ? 1 : non_host_start_id + 1);
+    add_player_chr(player_start_x + 1, 14, is_host ? 2 : non_host_start_id);
 
 
     const u8 opponent_start_x =
@@ -292,13 +311,16 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
     app.opponent_island()->add_room<Core>(
         pfrm, app, {opponent_start_x, 13}, true);
 
-    auto add_opponent_chr = [&app](u8 x, u8 y) {
-        app.opponent_island()->add_character(alloc_entity<BasicCharacter>(
-            app.opponent_island(), &app.opponent(), RoomCoord{x, y}, false));
+    auto add_opponent_chr = [&app](u8 x, u8 y, int id) {
+        auto chr = alloc_entity<BasicCharacter>(
+            app.opponent_island(), &app.opponent(), RoomCoord{x, y}, false);
+        chr->__assign_id(id);
+        app.opponent_island()->add_character(std::move(chr));
     };
 
-    add_opponent_chr(opponent_start_x, 14);
-    add_opponent_chr(opponent_start_x + 1, 14);
+    add_opponent_chr(opponent_start_x, 14, is_host ? non_host_start_id : 2);
+
+    add_opponent_chr(opponent_start_x + 1, 14, is_host ? non_host_start_id + 1 : 1);
 
     app.player_island().repaint(pfrm, app);
     app.opponent_island()->repaint(pfrm, app);

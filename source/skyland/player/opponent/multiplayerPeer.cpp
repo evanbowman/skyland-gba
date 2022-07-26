@@ -27,6 +27,7 @@
 #include "skyland/rooms/bulkhead.hpp"
 #include "skyland/rooms/droneBay.hpp"
 #include "skyland/rooms/tnt.hpp"
+#include "skyland/rooms/transporter.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
 
@@ -191,38 +192,38 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 void MultiplayerPeer::receive(Platform& pfrm,
                               App& app,
-                              const network::packet::CharacterSetTarget& packet)
+                              const network::packet::ChrSetTargetV2& packet)
 {
     Island* island = nullptr;
 
     if (packet.near_island_) {
-        island = &app.player_island();
+        island = &player_island(app);
     } else {
-        if (app.opponent_island()) {
-            island = app.opponent_island();
-        }
+        island = opponent_island(app);
     }
 
     if (island) {
-        const RoomCoord src_coord{invert_axis(app, packet.src_x_),
-                                  packet.src_y_};
-        const RoomCoord dst_coord{invert_axis(app, packet.dst_x_),
-                                  packet.dst_y_};
+        const RoomCoord dst_coord{invert_axis(app, packet.target_x_),
+                                  packet.target_y_};
 
-        if (auto room = island->get_room(src_coord)) {
-            for (auto& chr : room->characters()) {
-                if (chr->grid_position() == src_coord and
-                    chr->owner() not_eq &app.player()) {
+        auto info = island->find_character_by_id(packet.chr_id_.get());
 
-                    auto path =
-                        find_path(pfrm, app, island, src_coord, dst_coord);
-
-                    if (path and *path) {
-                        chr->set_movement_path(pfrm, app, std::move(*path));
-                        return;
-                    }
+        if (info.first) {
+            auto path = find_path(
+                pfrm, app, island, info.first->grid_position(), dst_coord);
+            if (path and *path) {
+                info.first->set_movement_path(pfrm, app, std::move(*path));
+                return;
+            }
+        } else {
+            auto str = format("chr id % not found!", packet.chr_id_.get());
+            for (auto& room : island->rooms()) {
+                for (auto& chr : room->characters()) {
+                    str += " ";
+                    str += stringify(chr->id());
                 }
             }
+            Platform::fatal(str.c_str());
         }
     }
 }
@@ -231,127 +232,93 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
 void MultiplayerPeer::receive(Platform& pfrm,
                               App& app,
-                              const network::packet::CharacterBoarded& packet)
+                              const network::packet::ChrBoardedV2& packet)
 {
-    if (not app.opponent_island()) {
+    if (not opponent_island(app)) {
         return;
     }
 
-    const auto src = RoomCoord{invert_axis(app, packet.src_x_), packet.src_y_};
-    const auto dst = RoomCoord{invert_axis(app, packet.dst_x_), packet.dst_y_};
+    const auto dst = RoomCoord{invert_axis(app, packet.dst_x_),
+                               packet.dst_y_};
 
-    if (auto room = app.opponent_island()->get_room(src)) {
-        for (auto it = room->characters().begin();
-             it not_eq room->characters().end();) {
+    auto source_island =
+        packet.transporter_near_ ? opponent_island(app) : &player_island(app);
 
-            if ((*it)->grid_position() == src and
-                (*it)->owner() not_eq &app.player()) {
-
-                auto unlinked = std::move(*it);
-                room->characters().erase(it);
-
-                unlinked->set_grid_position(dst);
-                unlinked->set_parent(&app.player_island());
-                unlinked->transported();
-
-                if (auto dst_room = app.player_island().get_room(dst)) {
-                    dst_room->characters().push(std::move(unlinked));
-                    dst_room->ready();
-                }
-
-                return;
-
-            } else {
-                ++it;
+    if (auto room = source_island->get_room(
+            {invert_axis(app, packet.transporter_x_), packet.transporter_y_})) {
+        if (auto t = dynamic_cast<Transporter*>(room)) {
+            t->begin_recharge();
+            if (t->parent()->interior_visible()) {
+                t->parent()->schedule_repaint();
             }
         }
     }
+
+    auto dest_island =
+        packet.transporter_near_ ? &player_island(app) : opponent_island(app);
+
+    transport_character_impl(
+        app, source_island, dest_island, packet.chr_id_.get(), dst);
 }
 
 
 
 void MultiplayerPeer::receive(Platform& pfrm,
                               App& app,
-                              const network::packet::CharacterDisembark& packet)
+                              const network::packet::ChrDisembarkV2& packet)
 {
-    if (not app.opponent_island()) {
+    if (not opponent_island(app)) {
         return;
     }
 
-    // TODO: pretty much identical to the code above for the CharacterBoarded
-    // event, refactor this stuff to one function.x
-
-    const auto src = RoomCoord{invert_axis(app, packet.src_x_), packet.src_y_};
     const auto dst = RoomCoord{invert_axis(app, packet.dst_x_), packet.dst_y_};
 
-    if (auto room = app.player_island().get_room(src)) {
-        for (auto it = room->characters().begin();
-             it not_eq room->characters().end();) {
+    auto dest_island =
+        packet.transporter_near_ ? opponent_island(app) : &player_island(app);
 
-            if ((*it)->grid_position() == src and
-                (*it)->owner() not_eq &app.player()) {
-
-                auto unlinked = std::move(*it);
-                room->characters().erase(it);
-
-                unlinked->set_grid_position(dst);
-                unlinked->set_parent(app.opponent_island());
-                unlinked->transported();
-
-                if (auto dst_room = app.opponent_island()->get_room(dst)) {
-                    dst_room->characters().push(std::move(unlinked));
-                    dst_room->ready();
-                }
-
-                return;
-            } else {
-                ++it;
+    if (auto room = dest_island->get_room(
+            {invert_axis(app, packet.transporter_x_), packet.transporter_y_})) {
+        if (auto t = dynamic_cast<Transporter*>(room)) {
+            t->begin_recharge();
+            if (t->parent()->interior_visible()) {
+                t->parent()->schedule_repaint();
             }
         }
     }
+
+    auto source_island =
+        packet.transporter_near_ ? &player_island(app) : opponent_island(app);
+
+    transport_character_impl(
+        app, source_island, dest_island, packet.chr_id_.get(), dst);
+
 }
 
 
 
 void MultiplayerPeer::receive(Platform& pfrm,
                               App& app,
-                              const network::packet::CharacterDied& packet)
+                              const network::packet::ChrDiedV2& packet)
 {
     Island* island = nullptr;
 
     if (packet.near_island_) {
-        island = &app.player_island();
+        island = &player_island(app);
     } else {
-        if (app.opponent_island()) {
-            island = app.opponent_island();
-        }
+        island = opponent_island(app);
     }
-
-    const RoomCoord chr_loc = {invert_axis(app, packet.chr_x_), packet.chr_y_};
 
     if (island) {
-        if (auto room = island->get_room(chr_loc)) {
-            for (auto it = room->characters().begin();
-                 it not_eq room->characters().end();) {
 
-                const bool owned_by_player = (*it)->owner() == &app.player();
-                if ((*it)->grid_position() == chr_loc and
-                    packet.chr_owned_by_player_ == owned_by_player and
-                    (*it)->health() < 20) {
-                    // FIXME: Added the < 20 heuristic in case another character
-                    // happens to be walking to be walking through the slot at
-                    // the same that the character dies. Eventually, we should
-                    // associate unique identifiers with all characters.
-                    (*it)->apply_damage(pfrm, app, 20);
-                    return;
-                } else {
-                    ++it;
-                }
-            }
+        auto found = island->find_character_by_id(packet.chr_id_.get());
+
+        if (found.first) {
+            // kill character
+            found.first->apply_damage(pfrm, app, BasicCharacter::max_health);
         }
     }
-}
 
+}
 
 
 void MultiplayerPeer::receive(Platform& pfrm,
@@ -366,6 +333,8 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
     auto chr = app.alloc_entity<BasicCharacter>(
         pfrm, app.opponent_island(), &app.opponent(), loc, true);
+
+    chr->__assign_id(packet.chr_id_.get());
 
     if (chr) {
         chr->apply_damage(pfrm, app, 255 - packet.health_);

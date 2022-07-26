@@ -66,22 +66,22 @@ public:
 
     void receive(Platform& pfrm,
                  App& app,
-                 const network::packet::CharacterSetTarget& packet) override;
+                 const network::packet::ChrSetTargetV2& packet) override;
 
 
     void receive(Platform& pfrm,
                  App& app,
-                 const network::packet::CharacterBoarded& packet) override;
+                 const network::packet::ChrBoardedV2& packet) override;
 
 
     void receive(Platform& pfrm,
                  App& app,
-                 const network::packet::CharacterDisembark& packet) override;
+                 const network::packet::ChrDisembarkV2& packet) override;
 
 
     void receive(Platform& pfrm,
                  App& app,
-                 const network::packet::CharacterDied& packet) override;
+                 const network::packet::ChrDiedV2& packet) override;
 
 
     void receive(Platform& pfrm,

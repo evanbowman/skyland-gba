@@ -59,9 +59,9 @@ static CharacterId alloc_character_id()
 
 
 
-void BasicCharacter::__reset_ids()
+void BasicCharacter::__reset_ids(int start_id)
 {
-    character_id_generator = 1;
+    character_id_generator = start_id;
 }
 
 

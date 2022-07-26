@@ -157,28 +157,15 @@ void Transporter::recover_character(Platform& pfrm,
                 const RoomCoord dst = {this->position().x,
                                        u8(this->position().y + 1)};
 
-                if (app.game_mode() == App::GameMode::co_op) {
-                    network::packet::ChrDisembarkV2 packet;
-                    packet.chr_id_.set((*unlinked).id());
-                    packet.dst_x_ = dst.x;
-                    packet.dst_y_ = dst.y;
-                    packet.transporter_x_ = dst.x;
-                    packet.transporter_y_ = dst.x;
-                    packet.transporter_near_ =
-                        &parent()->owner() == &app.player();
-                    network::transmit(pfrm, packet);
-                } else {
-                    network::packet::CharacterDisembark packet;
-                    packet.src_x_ = unlinked->grid_position().x;
-                    packet.src_y_ = unlinked->grid_position().y;
-                    packet.dst_x_ = dst.x;
-                    packet.dst_y_ = dst.y;
-                    packet.transporter_near_ =
-                        &parent()->owner() == &app.player();
-                    packet.owned_by_ai_ =
-                        (*unlinked).owner() not_eq &app.player();
-                    network::transmit(pfrm, packet);
-                }
+                network::packet::ChrDisembarkV2 packet;
+                packet.chr_id_.set((*unlinked).id());
+                packet.dst_x_ = dst.x;
+                packet.dst_y_ = dst.y;
+                packet.transporter_x_ = dst.x;
+                packet.transporter_y_ = dst.x;
+                packet.transporter_near_ =
+                    &parent()->owner() == &app.player();
+                network::transmit(pfrm, packet);
 
                 // Maybe you're thinking: why is he recording two separate
                 // events? Wouldn't it be better to just record a single type of
@@ -278,26 +265,15 @@ void Transporter::transport_occupant(Platform& pfrm,
 
     if (auto room = island->get_room(*dest)) {
 
-        if (app.game_mode() == App::GameMode::co_op) {
-            network::packet::ChrBoardedV2 packet;
-            packet.chr_id_.set((*chr)->id());
-            packet.dst_x_ = dest->x;
-            packet.dst_y_ = dest->y;
-            packet.transporter_x_ = (*chr)->grid_position().x;
-            packet.transporter_y_ = (*chr)->grid_position().y;
-            packet.transporter_near_ = &parent()->owner() == &app.player();
-            network::transmit(pfrm, packet);
-        } else {
-            network::packet::CharacterBoarded packet;
-            packet.src_x_ = (*chr)->grid_position().x;
-            packet.src_y_ = (*chr)->grid_position().y;
-            packet.dst_x_ = dest->x;
-            packet.dst_y_ = dest->y;
-            packet.transporter_near_ = &parent()->owner() == &app.player();
-            packet.owned_by_ai_ = (*chr)->owner() not_eq &app.player();
-            network::transmit(pfrm, packet);
-        }
 
+        network::packet::ChrBoardedV2 packet;
+        packet.chr_id_.set((*chr)->id());
+        packet.dst_x_ = dest->x;
+        packet.dst_y_ = dest->y;
+        packet.transporter_x_ = (*chr)->grid_position().x;
+        packet.transporter_y_ = (*chr)->grid_position().y;
+        packet.transporter_near_ = &parent()->owner() == &app.player();
+        network::transmit(pfrm, packet);
 
         time_stream::event::CharacterTransported e;
         e.previous_x_ = (*chr)->grid_position().x;

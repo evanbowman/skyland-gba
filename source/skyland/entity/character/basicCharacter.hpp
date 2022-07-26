@@ -198,7 +198,10 @@ public:
     }
 
 
-    static void __reset_ids();
+    static constexpr const int multiplayer_vs_client_chr_start_id = 4000;
+
+
+    static void __reset_ids(int start_id = 1);
 
 
     bool co_op_acquire_lock();

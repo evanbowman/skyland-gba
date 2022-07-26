@@ -88,6 +88,7 @@ bool Replicator::create_replicant(Platform& pfrm, App& app)
             packet.src_x_ = dst.x;
             packet.src_y_ = dst.y;
             packet.health_ = replicant_health;
+            packet.chr_id_.set(chr->id());
             network::transmit(pfrm, packet);
 
 

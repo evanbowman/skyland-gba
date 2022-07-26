@@ -46,14 +46,10 @@ struct Header
         terrain_constructed,
         room_salvaged,
         weapon_set_target,
-        character_set_target,
         chr_set_target_v2,
         room_destroyed,
-        character_boarded,
         chr_boarded_v2,
-        character_disembark,
         chr_disembark_v2,
-        character_died,
         chr_died_v2,
         replicant_created,
         bulkhead_changed,
@@ -206,33 +202,6 @@ struct DroneSetTarget
 
 
 
-struct CharacterSetTarget
-{
-    Header header_;
-
-    // FIXME: Rather than src_x_ and src_y_, we should be identifying a
-    // character by character id. We already do this elsewhere in the code,
-    // e.g. in some of the character-related messages for co-op mode, and in the
-    // rewind logic. But, using character id becomes tricky in vs-multiplayer,
-    // where we need to first add extra logic to assign character ids
-    // differently than we currently do when setting up a game, as nothing
-    // prevents each console from generating the same ids for each player's
-    // characters. For co-op mode, both players control the same castle, so
-    // there's no id issue, only a problem in vs-multiplayer.
-
-    u8 src_x_;
-    u8 src_y_;
-    u8 dst_x_;
-    u8 dst_y_;
-
-    bool near_island_ : 1;
-    bool owned_by_ai_ : 1;
-
-    static const auto mt = Header::MessageType::character_set_target;
-};
-
-
-
 struct TimekeeperSync
 {
     Header header_;
@@ -270,29 +239,6 @@ struct RoomDestroyed
 
 
 
-// Like the RoomDestroyed Event, the CharacterDied Event is intended for
-// preventing scenarios where the games become out of sync. Usually, a character
-// that dies in one game will already be equally dead on the connected console.
-// This event generally only needs to be transmitted when a character dies in
-// combat, as destruction of a room will also destroy the characters within the
-// room, so the RoomDestroyed event already covers one of the major ways that a
-// character can die in the game.
-struct CharacterDied
-{
-    Header header_;
-    u8 chr_x_;
-    u8 chr_y_;
-
-    bool near_island_;
-    bool chr_owned_by_player_;
-
-    u8 unused_[1];
-
-    static const auto mt = Header::MessageType::character_died;
-};
-
-
-
 struct ChrDiedV2
 {
     Header header_;
@@ -301,24 +247,6 @@ struct ChrDiedV2
     u8 unused_[2];
 
     static const auto mt = Header::MessageType::chr_died_v2;
-};
-
-
-
-struct CharacterBoarded
-{
-    Header header_;
-
-    u8 src_x_;
-    u8 src_y_;
-    u8 dst_x_;
-    u8 dst_y_;
-
-    bool owned_by_ai_ : 1;
-    bool transporter_near_ : 1;
-    bool unused_ : 6;
-
-    static const auto mt = Header::MessageType::character_boarded;
 };
 
 
@@ -337,24 +265,6 @@ struct ChrBoardedV2
     bool transporter_near_ : 1;
 
     static const auto mt = Header::MessageType::chr_boarded_v2;
-};
-
-
-
-struct CharacterDisembark
-{
-    Header header_;
-
-    u8 src_x_;
-    u8 src_y_;
-    u8 dst_x_;
-    u8 dst_y_;
-
-    bool owned_by_ai_ : 1;
-    bool transporter_near_ : 1;
-    bool unused_ : 6;
-
-    static const auto mt = Header::MessageType::character_disembark;
 };
 
 
@@ -386,7 +296,7 @@ struct ReplicantCreated
 
     u8 health_;
 
-    u8 unused_[2];
+    HostInteger<CharacterId> chr_id_;
 
     static const auto mt = Header::MessageType::replicant_created;
 };
@@ -802,24 +712,11 @@ public:
 
 
     virtual void
-    receive(Platform& pfrm, App& app, const packet::CharacterSetTarget& p)
-    {
-        unhandled_message(pfrm, app, p.header_);
-    }
-
-
-    virtual void
     receive(Platform& pfrm, App& app, const packet::RoomDestroyed& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }
 
-
-    virtual void
-    receive(Platform& pfrm, App& app, const packet::CharacterBoarded& p)
-    {
-        unhandled_message(pfrm, app, p.header_);
-    }
 
 
     virtual void
@@ -830,21 +727,7 @@ public:
 
 
     virtual void
-    receive(Platform& pfrm, App& app, const packet::CharacterDisembark& p)
-    {
-        unhandled_message(pfrm, app, p.header_);
-    }
-
-
-    virtual void
     receive(Platform& pfrm, App& app, const packet::ChrDisembarkV2& p)
-    {
-        unhandled_message(pfrm, app, p.header_);
-    }
-
-
-    virtual void
-    receive(Platform& pfrm, App& app, const packet::CharacterDied& p)
     {
         unhandled_message(pfrm, app, p.header_);
     }
