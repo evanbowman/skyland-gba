@@ -15,7 +15,7 @@
 
 
 (defn sb-help
-  (dialog "Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own! You may also reposition your opponent's characters! Try out strategies, or just play around!"))
+  (dialog "Sandbox mode gives you nearly unlimited coins, and allows you to build on your opponent's island in addition to your own! You may also reposition your opponent's characters! Try out strategies, or just play around! You can even build a couple of big fortresses, select spectate on the start menu, and let the AI control both castles!"))
 
 
 (if (not (syscall "save-bit-load" 3))
