@@ -87,7 +87,9 @@ public:
 
 
     void draw_year(Platform& pfrm, macro::EngineImpl& state);
-    void draw_season(Platform& pfrm, int season);
+    void draw_season(Platform& pfrm,
+                     macro::EngineImpl& state,
+                     int season);
 
 private:
     int current_season(Microseconds year_timer, Microseconds secs_per_season);

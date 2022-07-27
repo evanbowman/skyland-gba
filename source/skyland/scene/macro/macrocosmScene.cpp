@@ -67,8 +67,14 @@ static const u8 sine8[256] = {
 
 
 
-void MacrocosmScene::draw_season(Platform& pfrm, int season)
+void MacrocosmScene::draw_season(Platform& pfrm,
+                                 macro::EngineImpl& state,
+                                 int season)
 {
+    if (state.data_->checkers_mode_) {
+        return;
+    }
+
     auto str = [&] {
         switch (season) {
         case 0:
@@ -175,7 +181,7 @@ MacrocosmScene::update(Platform& pfrm, App& app, Microseconds delta)
             current_season(m.data_->year_timer_, secs_per_season);
 
         if (season not_eq last_season_) {
-            draw_season(pfrm, season);
+            draw_season(pfrm, m, season);
         }
     }
 
@@ -390,7 +396,7 @@ void MacrocosmScene::enter(Platform& pfrm,
     }
 
     draw_year(pfrm, state);
-    draw_season(pfrm, season);
+    draw_season(pfrm, state, season);
 
     draw_compass(pfrm, state);
     draw_keylock(pfrm, state);
