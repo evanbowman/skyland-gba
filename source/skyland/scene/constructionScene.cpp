@@ -1111,12 +1111,22 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
             near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
                   : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
 
+        // Pick a construction site in the same column as our selector
         for (u32 i = 0; i < data_->construction_sites_.size(); ++i) {
             if (data_->construction_sites_[i].x == cursor_loc.x) {
-
                 selector_ = i;
             }
         }
+
+        // In case the cursor happens to be hovering over an empty slot, select
+        // it.
+        for (u32 i = 0; i < data_->construction_sites_.size(); ++i) {
+            if (data_->construction_sites_[i].x == cursor_loc.x and
+                data_->construction_sites_[i].y == cursor_loc.y) {
+                selector_ = i;
+            }
+        }
+
 
         app.player().network_sync_cursor(pfrm, cursor_loc, 3, true);
     }
