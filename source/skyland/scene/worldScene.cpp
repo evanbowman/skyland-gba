@@ -637,7 +637,8 @@ ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (app.player().key_down(pfrm, Key::select)) {
+    if (not app.player().key_pressed(pfrm, Key::start) and
+        app.player().key_down(pfrm, Key::select)) {
         if (app.player_island().interior_visible()) {
             show_island_exterior(pfrm, app, &app.player_island());
         } else {

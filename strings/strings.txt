@@ -102,6 +102,7 @@ sticky-piston
 sunflower
 switch
 synth
+targeting-computer
 tea
 terrain
 tulips
@@ -260,6 +261,7 @@ Reacts violently with water! Sandbox mode only.
 May be salvaged for one hundred percent of its value! Useful for co-op multiplayer.
 Weaker than regular missiles, but with a wider damage radius, and starts fires. Manufactory required.
 Changes the weather to clear skies!
+Automatically chooses weapon targets for you! You can probably do a better job yourself, though...
 paused
 slow
 regular
@@ -311,12 +313,13 @@ Step 1: Scan to request a login token!
 Scan to upload score!
  A: next 
 Preparing QR Code...
-combos: START + _
+combos: START + ?
 set weapon groups
 weapon group 1
 weapon group 2
 weapon group 3
 pick weapon group
+SEL auto assign crew
 shortcut: 
 time
 pauses used
@@ -355,7 +358,7 @@ Endless new levels! Survive as long as possible!
 Press A to begin
 SKYLAND Forever
 difficulty
-casual
+easy
 normal
 hard
 Builder

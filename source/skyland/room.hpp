@@ -137,6 +137,9 @@ struct RoomProperties
 
         // Melts nearby ice blocks.
         generates_heat = (1 << 23),
+
+        // Only available in easy-mode.
+        easy_mode_only = (1 << 24),
     };
 };
 

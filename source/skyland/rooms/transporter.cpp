@@ -163,8 +163,7 @@ void Transporter::recover_character(Platform& pfrm,
                 packet.dst_y_ = dst.y;
                 packet.transporter_x_ = dst.x;
                 packet.transporter_y_ = dst.x;
-                packet.transporter_near_ =
-                    &parent()->owner() == &app.player();
+                packet.transporter_near_ = &parent()->owner() == &app.player();
                 network::transmit(pfrm, packet);
 
                 // Maybe you're thinking: why is he recording two separate

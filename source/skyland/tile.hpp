@@ -229,6 +229,10 @@ struct Tile
         annihilator_2,
         weather_engine_1,
         weather_engine_2,
+        targeting_computer_1,
+        targeting_computer_2,
+        targeting_computer_3,
+        targeting_computer_4,
     };
 };
 
@@ -429,6 +433,10 @@ struct InteriorTile
         annihilator_2,
         weather_engine_1,
         weather_engine_2,
+        targeting_computer_1,
+        targeting_computer_2,
+        targeting_computer_3,
+        targeting_computer_4,
     };
 };
 

@@ -76,6 +76,7 @@
 #include "skyland/rooms/sunflower.hpp"
 #include "skyland/rooms/switch.hpp"
 #include "skyland/rooms/synth.hpp"
+#include "skyland/rooms/targetingComputer.hpp"
 #include "skyland/rooms/tnt.hpp"
 #include "skyland/rooms/torch.hpp"
 #include "skyland/rooms/transporter.hpp"
@@ -316,13 +317,13 @@ using RoomMetatableType = RoomMetatable<15,
                                         // StickyPiston,
                                         Radar,
                                         Transporter,
+                                        TargetingComputer,
                                         EscapeBeacon,
                                         Replicator,
                                         DroneBay,
                                         // decoration
                                         Speaker,
                                         Synth,
-                                        Switch,
                                         Statue,
                                         LadyLiberty,
                                         Bridge,

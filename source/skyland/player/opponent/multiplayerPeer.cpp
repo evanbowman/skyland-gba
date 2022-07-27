@@ -238,8 +238,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
         return;
     }
 
-    const auto dst = RoomCoord{invert_axis(app, packet.dst_x_),
-                               packet.dst_y_};
+    const auto dst = RoomCoord{invert_axis(app, packet.dst_x_), packet.dst_y_};
 
     auto source_island =
         packet.transporter_near_ ? opponent_island(app) : &player_island(app);
@@ -291,7 +290,6 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
     transport_character_impl(
         app, source_island, dest_island, packet.chr_id_.get(), dst);
-
 }
 
 
@@ -317,7 +315,6 @@ void MultiplayerPeer::receive(Platform& pfrm,
             found.first->apply_damage(pfrm, app, BasicCharacter::max_health);
         }
     }
-
 }
 
 

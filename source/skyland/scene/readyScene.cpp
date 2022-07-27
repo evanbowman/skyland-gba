@@ -180,6 +180,88 @@ bool tapped_topleft_corner(Platform& pfrm, App& app)
 
 
 
+class AutoassignCharactersScene : public ActiveWorldScene
+{
+public:
+    Buffer<CharacterId, 40> local_chrs_;
+    Buffer<CharacterId, 40> boarded_chrs_;
+
+
+    void enter(Platform& pfrm, App& app, Scene& prev)
+    {
+        ActiveWorldScene::enter(pfrm, app, prev);
+
+        pfrm.speaker().play_sound("drone_beep", 1);
+
+        if (not app.opponent_island()) {
+            return;
+        }
+
+        for (auto& room : app.player_island().rooms()) {
+            for (auto& chr : room->characters()) {
+                if (chr->owner() == &app.player() and not chr->co_op_locked()) {
+                    local_chrs_.push_back(chr->id());
+                }
+            }
+        }
+
+        for (auto& room : app.opponent_island()->rooms()) {
+            for (auto& chr : room->characters()) {
+                if (chr->owner() == &app.player() and not chr->co_op_locked()) {
+                    boarded_chrs_.push_back(chr->id());
+                }
+            }
+        }
+    }
+
+
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
+    {
+        if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
+            return scene;
+        }
+
+        if (not app.opponent_island()) {
+            return scene_pool::alloc<ReadyScene>();
+        }
+
+        if (not local_chrs_.empty()) {
+            auto current = local_chrs_.back();
+            local_chrs_.pop_back();
+
+            auto info = app.player_island().find_character_by_id(current);
+            if (info.first) {
+                EnemyAI::assign_local_character(pfrm,
+                                                app,
+                                                *info.first,
+                                                &app.player(),
+                                                &app.player_island(),
+                                                app.opponent_island());
+            }
+        } else if (not boarded_chrs_.empty()) {
+            auto current = boarded_chrs_.back();
+            boarded_chrs_.pop_back();
+
+            auto info = app.opponent_island()->find_character_by_id(current);
+            if (info.first) {
+                EnemyAI::assign_boarded_character(pfrm,
+                                                  app,
+                                                  *info.first,
+                                                  &app.player(),
+                                                  &app.player_island(),
+                                                  app.opponent_island());
+            }
+        } else {
+            return scene_pool::alloc<ReadyScene>();
+        }
+
+        return null_scene();
+    }
+};
+
+
+
 ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
 {
     if (app.player().key_down(pfrm, Key::alt_2)) {
@@ -214,6 +296,8 @@ ScenePtr<Scene> update_modifier_keys(Platform& pfrm, App& app)
     } else if (app.player().key_down(pfrm, Key::action_1)) {
         auto resume = scene_pool::make_deferred_scene<ReadyScene>();
         return scene_pool::alloc<SelectWeaponGroupScene>(resume);
+    } else if (app.player().key_down(pfrm, Key::select)) {
+        return scene_pool::alloc<AutoassignCharactersScene>();
     }
 
     return null_scene();

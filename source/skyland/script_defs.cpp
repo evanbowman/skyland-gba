@@ -473,8 +473,7 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, integer);
          auto app = interp_get_app();
-         app->gp_.difficulty_ =
-             (GlobalPersistentData::Difficulty)L_LOAD_INT(0);
+         app->gp_.difficulty_ = (GlobalPersistentData::Difficulty)L_LOAD_INT(0);
          return L_NIL;
      }},
     {"mcr-block-set",

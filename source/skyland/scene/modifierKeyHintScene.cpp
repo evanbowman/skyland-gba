@@ -66,20 +66,20 @@ void ModifierKeyHintScene::enter(Platform& pfrm, App& app, Scene& prev)
     const auto st = calc_screen_tiles(pfrm);
 
     for (int x = 3; x < st.x - 3; ++x) {
-        for (int y = 3; y < st.y - 3; ++y) {
+        for (int y = 2; y < st.y - 2; ++y) {
             pfrm.set_tile(Layer::overlay, x, y, 112);
         }
     }
 
-    pfrm.set_tile(Layer::overlay, 4, 7, 392);
-    pfrm.set_tile(Layer::overlay, 4, 9, 393);
-    pfrm.set_tile(Layer::overlay, 4, 11, 394);
-    pfrm.set_tile(Layer::overlay, 4, 13, 395);
+    pfrm.set_tile(Layer::overlay, 4, 6, 392);
+    pfrm.set_tile(Layer::overlay, 4, 8, 393);
+    pfrm.set_tile(Layer::overlay, 4, 10, 394);
+    pfrm.set_tile(Layer::overlay, 4, 12, 395);
 
-    Text b_opt(pfrm, "/B", OverlayCoord{5, 7});
+    Text b_opt(pfrm, "/B", OverlayCoord{5, 6});
     b_opt.__detach();
 
-    Text a_opt(pfrm, "A", OverlayCoord({4, 15}));
+    Text a_opt(pfrm, "A", OverlayCoord({4, 14}));
     a_opt.__detach();
 
     auto title = SYSTR(modifier_keys_title);
@@ -87,22 +87,25 @@ void ModifierKeyHintScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm,
         title->c_str(),
         OverlayCoord{(u8)centered_text_margins(pfrm, utf8::len(title->c_str())),
-                     4});
+                     3});
 
     text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_1)->c_str(), OverlayCoord{8, 7});
+        pfrm, SYSTR(modifier_keys_opt_1)->c_str(), OverlayCoord{8, 6});
 
     text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_2)->c_str(), OverlayCoord{8, 9});
+        pfrm, SYSTR(modifier_keys_opt_2)->c_str(), OverlayCoord{8, 8});
 
     text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_3)->c_str(), OverlayCoord{8, 11});
+        pfrm, SYSTR(modifier_keys_opt_3)->c_str(), OverlayCoord{8, 10});
 
     text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_4)->c_str(), OverlayCoord{8, 13});
+        pfrm, SYSTR(modifier_keys_opt_4)->c_str(), OverlayCoord{8, 12});
 
     text_.emplace_back(
-        pfrm, SYSTR(modifier_keys_opt_5)->c_str(), OverlayCoord{8, 15});
+        pfrm, SYSTR(modifier_keys_opt_5)->c_str(), OverlayCoord{8, 14});
+
+    text_.emplace_back(
+        pfrm, SYSTR(modifier_keys_opt_6)->c_str(), OverlayCoord{4, 16});
 
     pfrm.screen().schedule_fade(0.5f);
 }

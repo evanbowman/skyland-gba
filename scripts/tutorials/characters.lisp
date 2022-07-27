@@ -98,5 +98,5 @@
    (13600 Right)
    (232 Right)
    (250 Down)
-   (100 "<c:Milo:5>Ok! Now you should have no trouble ordering your crew around! I still need to explain combat and boarding, but let's take a break first...")
+   (100 "<c:Milo:5>Ok! Now you should have no trouble ordering your crew around! If you need to re-arrange your crew in a pinch, you can hold START and then press SELECT, and your castle will auto-assign your crew where it thinks that they should go (hold start for more options), pretty neat, huh? I still need to explain combat and boarding, but let's take a break first...")
    (449 Down)))

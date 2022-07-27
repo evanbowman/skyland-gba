@@ -66,4 +66,5 @@
    (dynamite-ii  35  500  0)
    (weather-engine 60 500 0)
    (energized-hull 380 450 20)
-   (plundered-room 20  30  0)))
+   (plundered-room 20  30  0)
+   (targeting-computer 10 500 20)))

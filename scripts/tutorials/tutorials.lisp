@@ -12,7 +12,7 @@
 '(("Introduction" . "tutorials/overview.lisp")
   ("Weapon Groups" . "tutorials/weapon_groups.lisp")
   ("Salvage" . "tutorials/salvage.lisp")
-  ("Characters" .  "tutorials/characters.lisp")
+  ("Your Crew" .  "tutorials/characters.lisp")
   ("Advanced Structures" . "tutorials/advanced_structures.lisp")
   ("Power Balance" . "tutorials/power_balance.lisp")
   ("Game Speed" . "tutorials/game_speed.lisp")

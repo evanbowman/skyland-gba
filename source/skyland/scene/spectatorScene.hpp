@@ -22,11 +22,12 @@
 #pragma once
 
 #include "constructionScene.hpp"
-#include "worldScene.hpp"
 #include "readyScene.hpp"
 #include "skyland/island.hpp"
 #include "skyland/player/playerP1.hpp"
 #include "skyland/skyland.hpp"
+#include "worldScene.hpp"
+#include "skyland/rooms/targetingComputer.hpp"
 
 
 
@@ -51,15 +52,21 @@ void clear_room_description(Platform& pfrm,
 class SpectatorScene : public ActiveWorldScene
 {
 public:
-
-
     void enter(Platform& pfrm, App& app, Scene& prev)
     {
         ActiveWorldScene::enter(pfrm, app, prev);
 
-        text_.emplace(pfrm,
-                      SYSTR(spectate_msg)->c_str(),
-                      OverlayCoord{0, 0});
+        for (auto& room : app.player_island().rooms()) {
+            // Hack to turn off targeting computer, as the AI will instead take
+            // responsibility for setting weapon targets.
+            if (auto t = dynamic_cast<TargetingComputer*>(room.get())) {
+                if (t->enabled()) {
+                    t->select(pfrm, app, {});
+                }
+            }
+        }
+
+        text_.emplace(pfrm, SYSTR(spectate_msg)->c_str(), OverlayCoord{0, 0});
     }
 
 
@@ -72,9 +79,8 @@ public:
 
 
 
-    ScenePtr<Scene> update(Platform& pfrm,
-                           App& app,
-                           Microseconds delta) override
+    ScenePtr<Scene>
+    update(Platform& pfrm, App& app, Microseconds delta) override
     {
         if (auto scene = ActiveWorldScene::update(pfrm, app, delta)) {
             app.swap_player<PlayerP1>();
@@ -86,15 +92,15 @@ public:
         }
 
         auto test_key = [&](Key k) {
-        return player(app).test_key(
-            pfrm, k, milliseconds(500), milliseconds(100));
+            return player(app).test_key(
+                pfrm, k, milliseconds(500), milliseconds(100));
         };
 
 
         auto& cursor_loc =
-            is_far_camera() ?
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ :
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            is_far_camera()
+                ? std::get<SkylandGlobalData>(globals()).far_cursor_loc_
+                : std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
 
         cursor_anim_timer_ += delta;
@@ -174,8 +180,7 @@ public:
             if (describe_room_timer_ <= 0) {
                 describe_room_timer_ = milliseconds(500);
 
-                describe_room(
-                    pfrm, app, island, cursor_loc, room_description_);
+                describe_room(pfrm, app, island, cursor_loc, room_description_);
             }
         }
 
@@ -186,9 +191,9 @@ public:
     void display(Platform& pfrm, App& app)
     {
         auto& cursor_loc =
-            is_far_camera() ?
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ :
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            is_far_camera()
+                ? std::get<SkylandGlobalData>(globals()).far_cursor_loc_
+                : std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
 
         Island* island;
         if (is_far_camera()) {
@@ -229,4 +234,4 @@ private:
 
 
 
-}
+} // namespace skyland

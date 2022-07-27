@@ -247,9 +247,6 @@ void MultiplayerSettingsScene::setup_co_op_game(Platform& pfrm, App& app)
 
 
 
-
-
-
 void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
 {
     const bool is_host = pfrm.network_peer().is_host();
@@ -320,7 +317,8 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
 
     add_opponent_chr(opponent_start_x, 14, is_host ? non_host_start_id : 2);
 
-    add_opponent_chr(opponent_start_x + 1, 14, is_host ? non_host_start_id + 1 : 1);
+    add_opponent_chr(
+        opponent_start_x + 1, 14, is_host ? non_host_start_id + 1 : 1);
 
     app.player_island().repaint(pfrm, app);
     app.opponent_island()->repaint(pfrm, app);

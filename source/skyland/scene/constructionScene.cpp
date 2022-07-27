@@ -1057,7 +1057,9 @@ bool ConstructionScene::collect_available_buildings(Platform& pfrm, App& app)
             (pfrm.network_peer().is_connected() and
              meta->properties() & RoomProperties::multiplayer_unsupported) or
             (app.game_mode() == App::GameMode::skyland_forever and
-             meta->properties() & RoomProperties::skyland_forever_unsupported);
+             meta->properties() & RoomProperties::skyland_forever_unsupported) or
+            (app.gp_.difficulty_ not_eq GlobalPersistentData::Difficulty::beginner and
+             meta->properties() & RoomProperties::easy_mode_only);
 
         if (i >= app.gp_.hidden_rooms_.size()) {
             Platform::fatal("hidden rooms Bitvector requires resize!");

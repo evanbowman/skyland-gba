@@ -23,7 +23,7 @@ void SandboxSpectatorPlayer::update(Platform& pfrm,
     }
 
     if (pfrm.keyboard()
-        .down_transition<Key::up, Key::down, Key::left, Key::right>()) {
+            .down_transition<Key::up, Key::down, Key::left, Key::right>()) {
         app.camera()->reset_default(app);
     }
 }
@@ -94,4 +94,4 @@ void SandboxSpectatorPlayer::key_held_distribute(Platform& pfrm,
 
 
 
-}
+} // namespace skyland

@@ -44,7 +44,7 @@ public:
 
 private:
     std::optional<Text> title_;
-    Buffer<Text, 5> text_;
+    Buffer<Text, 6> text_;
 };
 
 

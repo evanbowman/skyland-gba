@@ -60,12 +60,6 @@ public:
     }
 
 
-    static RoomProperties::Bitmask properties()
-    {
-        return (Decoration::properties() & ~RoomProperties::locked_by_default);
-    }
-
-
     static const char* name()
     {
         return "gold";

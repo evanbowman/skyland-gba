@@ -153,6 +153,7 @@ enum class SystemString {
     block_sunflower,
     block_switch,
     block_synth,
+    block_targeting_computer,
     block_tea,
     block_terrain,
     block_tulips,
@@ -335,6 +336,7 @@ enum class SystemString {
     description_gold,
     description_rocket_bomb,
     description_weather_engine,
+    description_targeting_computer,
 
     gs_paused,
     gs_slow,
@@ -405,6 +407,7 @@ enum class SystemString {
     modifier_keys_opt_3,
     modifier_keys_opt_4,
     modifier_keys_opt_5,
+    modifier_keys_opt_6,
 
     key_combo_prompt,
 

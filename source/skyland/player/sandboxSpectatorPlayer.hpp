@@ -41,9 +41,8 @@ namespace skyland
 class SandboxSpectatorPlayer : public EnemyAI
 {
 public:
-
-    SandboxSpectatorPlayer(App& app) :
-        EnemyAI(&player_island(app), opponent_island(app))
+    SandboxSpectatorPlayer(App& app)
+        : EnemyAI(&player_island(app), opponent_island(app))
     {
     }
 
@@ -75,4 +74,4 @@ private:
 
 
 
-}
+} // namespace skyland

@@ -220,25 +220,24 @@ std::pair<Coins, terrain::Sector::Population> EngineImpl::colony_cost() const
 
 void EngineImpl::advance(int years)
 {
-    auto do_advance =
-        [&](int elapsed_years) {
-            data_->origin_sector_.advance(elapsed_years);
+    auto do_advance = [&](int elapsed_years) {
+        data_->origin_sector_.advance(elapsed_years);
 
-            for (auto& s : data_->other_sectors_) {
-                s->advance(elapsed_years);
-            }
+        for (auto& s : data_->other_sectors_) {
+            s->advance(elapsed_years);
+        }
 
-            for (auto& s : data_->outpost_sectors_) {
-                s.advance(elapsed_years);
-            }
+        for (auto& s : data_->outpost_sectors_) {
+            s.advance(elapsed_years);
+        }
 
-            data_->p().year_.set(data_->p().year_.get() + elapsed_years);
+        data_->p().year_.set(data_->p().year_.get() + elapsed_years);
 
-            auto add_coins = coin_yield() * elapsed_years;
-            data_->p().coins_.set(data_->p().coins_.get() + add_coins);
+        auto add_coins = coin_yield() * elapsed_years;
+        data_->p().coins_.set(data_->p().coins_.get() + add_coins);
 
-            years -= elapsed_years;
-        };
+        years -= elapsed_years;
+    };
 
     // Explanation: we want to skip ahead in time quickly. If the player's been
     // away a while, running the simulation for each year takes a long time.  We

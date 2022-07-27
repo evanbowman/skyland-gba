@@ -136,14 +136,12 @@ void SkylandForever::init(Platform& pfrm,
 
     switch (difficulty) {
     case 0:
-        app.gp_.difficulty_ =
-            GlobalPersistentData::Difficulty::beginner;
+        app.gp_.difficulty_ = GlobalPersistentData::Difficulty::beginner;
         app.invoke_script(pfrm, "/scripts/config/forever/easy.lisp");
         break;
 
     case 1:
-        app.gp_.difficulty_ =
-            GlobalPersistentData::Difficulty::experienced;
+        app.gp_.difficulty_ = GlobalPersistentData::Difficulty::experienced;
         app.invoke_script(pfrm, "/scripts/config/forever/normal.lisp");
         break;
 

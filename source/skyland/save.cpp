@@ -193,7 +193,8 @@ void store(Platform& pfrm, App& app, const PersistentData& d)
 
     store(pfrm, save_data);
 
-    flash_filesystem::store_file_data_text(pfrm, save_data_lisp_filename, p.data_);
+    flash_filesystem::store_file_data_text(
+        pfrm, save_data_lisp_filename, p.data_);
 
     synth_notes_store(pfrm, app.player_island(), "/save/synth.dat");
     speaker_data_store(pfrm, app.player_island(), "/save/speaker.dat");
@@ -231,8 +232,8 @@ bool load(Platform& pfrm, App& app, PersistentData& d)
     data.clear();
 
 
-    auto bytes =
-        flash_filesystem::read_file_data_text(pfrm, save_data_lisp_filename, data);
+    auto bytes = flash_filesystem::read_file_data_text(
+        pfrm, save_data_lisp_filename, data);
 
     if (bytes == 0) {
         return false;

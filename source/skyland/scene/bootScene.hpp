@@ -1,11 +1,11 @@
 #pragma once
 
+#include "modules/datetimeModule.hpp"
+#include "platform/flash_filesystem.hpp"
 #include "skyland/scene/introCreditsScene.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
 #include "version.hpp"
-#include "platform/flash_filesystem.hpp"
-#include "modules/datetimeModule.hpp"
 
 
 
@@ -28,11 +28,11 @@ void __draw_image(Platform& pfrm,
 
 
 
-
 class LanguageSelectScene : public Scene
 {
 private:
-    using LanguageOptions = Buffer<std::pair<StringBuffer<48>, StringBuffer<48>>, 16>;
+    using LanguageOptions =
+        Buffer<std::pair<StringBuffer<48>, StringBuffer<48>>, 16>;
     DynamicMemory<LanguageOptions> opts_;
 
     int sel_ = 0;
@@ -42,10 +42,8 @@ private:
     bool clean_boot_;
 
 public:
-
-    LanguageSelectScene(Platform& pfrm, bool clean_boot) :
-        opts_(load_language_options(pfrm)),
-        clean_boot_(clean_boot)
+    LanguageSelectScene(Platform& pfrm, bool clean_boot)
+        : opts_(load_language_options(pfrm)), clean_boot_(clean_boot)
     {
     }
 
@@ -55,7 +53,8 @@ public:
         if (opts_->size() > 1) {
             u8 row = 3;
             for (auto& opt : *opts_) {
-                text_opts_.emplace_back(pfrm, opt.first.c_str(), OverlayCoord{3, row});
+                text_opts_.emplace_back(
+                    pfrm, opt.first.c_str(), OverlayCoord{3, row});
                 row += 2;
             }
         }
@@ -73,13 +72,12 @@ public:
 
     ScenePtr<Scene> update(Platform& pfrm, App&, Microseconds delta) override
     {
-        auto show_cursor =
-            [&] {
-                for (int y = 0; y < 20; ++y) {
-                    pfrm.set_tile(Layer::overlay, 1, y, 0);
-                }
-                pfrm.set_tile(Layer::overlay, 1, 3 + sel_ * 2, 396);
-            };
+        auto show_cursor = [&] {
+            for (int y = 0; y < 20; ++y) {
+                pfrm.set_tile(Layer::overlay, 1, y, 0);
+            }
+            pfrm.set_tile(Layer::overlay, 1, 3 + sel_ * 2, 396);
+        };
 
         show_cursor();
 
@@ -93,20 +91,19 @@ public:
                 ++sel_;
                 pfrm.speaker().play_sound("click_wooden", 2);
             }
-        } else if (opts_->empty() or
-            opts_->size() == 1 or key_down<Key::action_1>(pfrm)) {
+        } else if (opts_->empty() or opts_->size() == 1 or
+                   key_down<Key::action_1>(pfrm)) {
             if (opts_->size() > 1) {
                 auto path = (*opts_)[sel_].second.c_str();
                 systemstring_bind_file(path);
-                flash_filesystem::store_file_data(pfrm,
-                                                  lang_file,
-                                                  path,
-                                                  str_len(path));
+                flash_filesystem::store_file_data(
+                    pfrm, lang_file, path, str_len(path));
             }
             auto has_clock = pfrm.system_clock().initial_time();
             if (clean_boot_ and has_clock) {
                 auto next = scene_pool::alloc<DatetimeModule>();
-                next->next_scene_ = scene_pool::make_deferred_scene<IntroCreditsScene>();
+                next->next_scene_ =
+                    scene_pool::make_deferred_scene<IntroCreditsScene>();
                 return next;
             } else {
                 return scene_pool::alloc<IntroCreditsScene>();
@@ -126,22 +123,23 @@ private:
 
         std::pair<StringBuffer<48>, StringBuffer<48>> current;
         int parse_state = 0;
-        utf8::scan([&](utf8::Codepoint cp, const char* raw, int) {
-                       if (cp == '=') {
-                           parse_state = 1;
-                       } else if (cp == '\n') {
-                           parse_state = 0;
-                           result->emplace_back(current);
-                           current.first.clear();
-                           current.second.clear();
-                       } else {
-                           if (parse_state == 0) {
-                               current.first += raw;
-                           } else {
-                               current.second += raw;
-                           }
-                       }
-                   },
+        utf8::scan(
+            [&](utf8::Codepoint cp, const char* raw, int) {
+                if (cp == '=') {
+                    parse_state = 1;
+                } else if (cp == '\n') {
+                    parse_state = 0;
+                    result->emplace_back(current);
+                    current.first.clear();
+                    current.second.clear();
+                } else {
+                    if (parse_state == 0) {
+                        current.first += raw;
+                    } else {
+                        current.second += raw;
+                    }
+                }
+            },
             cp,
             str_len(cp));
 
@@ -152,7 +150,6 @@ private:
 
         return result;
     }
-
 };
 
 
@@ -319,7 +316,6 @@ static constexpr const char* console_header =
             }
             return scene_pool::alloc<IntroCreditsScene>();
         }
-
     }
 };
 

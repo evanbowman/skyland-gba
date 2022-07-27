@@ -357,7 +357,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         if (not opponent_defeated) {
             app.swap_player<PlayerP1>();
-        } else if (opponent_defeated and app.game_mode() == App::GameMode::sandbox) {
+        } else if (opponent_defeated and
+                   app.game_mode() == App::GameMode::sandbox) {
             // In case we were in spectator mode.
             app.swap_player<PlayerP1>();
         }

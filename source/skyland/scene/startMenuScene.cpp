@@ -309,14 +309,15 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                        scene_pool::make_deferred_scene<LoadSandboxScene>(),
                        fade_sweep);
 
-            add_option(pfrm,
-                       SYSTR(start_menu_spectate)->c_str(),
-                       [&pfrm, &app]() -> ScenePtr<Scene> {
-                           app.swap_player<SandboxSpectatorPlayer>(app);
-                           pfrm.screen().schedule_fade(0.f);
-                           return scene_pool::alloc<SpectatorScene>();
-                       },
-                       cut);
+            add_option(
+                pfrm,
+                SYSTR(start_menu_spectate)->c_str(),
+                [&pfrm, &app]() -> ScenePtr<Scene> {
+                    app.swap_player<SandboxSpectatorPlayer>(app);
+                    pfrm.screen().schedule_fade(0.f);
+                    return scene_pool::alloc<SpectatorScene>();
+                },
+                cut);
 
             add_option(
                 pfrm,
