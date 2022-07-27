@@ -72,7 +72,7 @@ public:
     }
 
 
-    static Float ai_base_weight()
+    static Float atp_value()
     {
         return 2.f;
     }

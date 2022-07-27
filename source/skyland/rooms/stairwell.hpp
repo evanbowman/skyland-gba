@@ -52,7 +52,7 @@ public:
     void plot_walkable_zones(App& app, bool matrix[16][16]) override;
 
 
-    static Float ai_base_weight()
+    static Float atp_value()
     {
         return 50.f;
     }

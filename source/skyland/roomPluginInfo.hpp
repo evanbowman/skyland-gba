@@ -128,7 +128,7 @@ struct RoomPluginInfo : public RoomMeta::Info
     }
 
 
-    Float ai_base_weight() const override
+    Float atp_value() const override
     {
         // FIXME!
         return 2;

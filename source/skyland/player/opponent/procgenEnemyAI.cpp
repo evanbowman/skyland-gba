@@ -1281,7 +1281,7 @@ void ProcgenEnemyAI::generate_characters(Platform& pfrm, App& app)
                 if (c->matrix_[x][y]) {
                     if (auto room = app.opponent_island()->get_room({x, y})) {
                         c->slots_.push_back(
-                            {{x, y}, (*room->metaclass())->ai_base_weight()});
+                            {{x, y}, (*room->metaclass())->atp_value()});
                     }
                 }
             }

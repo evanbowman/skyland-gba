@@ -154,9 +154,9 @@ template <typename T> struct InfoImpl : public RoomMeta::Info
         return cost_;
     }
 
-    Float ai_base_weight() const override
+    Float atp_value() const override
     {
-        return T::ai_base_weight();
+        return T::atp_value();
     }
 
     Power consumes_power() const override

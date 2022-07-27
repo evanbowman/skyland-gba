@@ -381,8 +381,8 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
         }
 
         std::sort(choices.begin(), choices.end(), [](auto& lhs, auto& rhs) {
-            return (*lhs.first->metaclass())->ai_base_weight() >
-                   (*rhs.first->metaclass())->ai_base_weight();
+            return (*lhs.first->metaclass())->atp_value() >
+                   (*rhs.first->metaclass())->atp_value();
         });
 
         cursor_loc.x = choices[0].second.x;

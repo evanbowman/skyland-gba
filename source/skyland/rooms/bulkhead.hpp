@@ -65,7 +65,7 @@ public:
     void ___rewind___finished_reload(Platform&, App&) override;
 
 
-    static Float ai_base_weight()
+    static Float atp_value()
     {
         return 20.f;
     }
