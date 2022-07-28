@@ -129,6 +129,7 @@ private:
     } confetti_state_ = ConfettiState::dormant;
 
     u16 circ_effect_radius_ = 0;
+    u16 last_radius_ = 0;
     Microseconds confetti_timer_ = 0;
     Microseconds music_fadeback_timer_ = 0;
     bool restore_volume_ = true;

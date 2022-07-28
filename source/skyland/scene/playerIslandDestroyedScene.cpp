@@ -141,6 +141,9 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
 
 void PlayerIslandDestroyedScene::display(Platform& pfrm, App& app)
 {
+    if (circ_effect_radius_ > 70 and last_radius_ < 70) {
+        pfrm.fill_overlay(496);
+    }
 
     auto pos = island_->get_position();
     auto origin_coord = island_->critical_core_loc();
@@ -406,8 +409,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
 
-    case AnimState::explosion_wait2:
-
+    case AnimState::explosion_wait2: {
+        last_radius_ = circ_effect_radius_;
         circ_effect_radius_ =
             ease_in(timer_, 0, 140, milliseconds(120));
         smoothstep(0.f, milliseconds(120), timer_);
@@ -469,6 +472,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
         }
         break;
+    }
 
     case AnimState::begin_fade: {
         anim_state_ = AnimState::begin_fade2;
@@ -912,6 +916,10 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
+
+    for (auto& bird : app.birds()) {
+        bird->signal(pfrm, app);
+    }
 
     circ_effect_ = rng::choice<3>(rng::utility_state);
 
