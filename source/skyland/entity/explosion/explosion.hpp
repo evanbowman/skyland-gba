@@ -38,8 +38,7 @@ public:
     static const int start_index = 19;
 
 
-    Explosion(const Vec2<Fixnum>& position,
-              int priority = 1) : Entity({{}, {}})
+    Explosion(const Vec2<Fixnum>& position, int priority = 1) : Entity({{}, {}})
     {
         sprite_.set_position(position);
         sprite_.set_size(Sprite::Size::w16_h32);

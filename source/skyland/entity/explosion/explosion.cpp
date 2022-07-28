@@ -88,33 +88,45 @@ void big_explosion(Platform& pfrm,
                    int draw_priority)
 {
     for (int i = 0; i < 4; ++i) {
-        app.effects().push(app.alloc_entity<Explosion>(pfrm, rng::sample<18>(position, rng::utility_state), draw_priority));
+        app.effects().push(app.alloc_entity<Explosion>(
+            pfrm,
+            rng::sample<18>(position, rng::utility_state),
+            draw_priority));
     }
 
     int p = draw_priority;
     auto ipos = ivec(position);
 
     app.on_timeout(
-                   pfrm, milliseconds(90), [pos = ipos, p](Platform& pf, App& app) {
+        pfrm, milliseconds(90), [pos = ipos, p](Platform& pf, App& app) {
             app.rumble().activate(pf, milliseconds(390));
 
             for (int i = 0; i < 3; ++i) {
                 app.effects().push(app.alloc_entity<Explosion>(
-                                                               pf, rng::sample<32>(pos.cast<Fixnum>(), rng::utility_state), p));
+                    pf,
+                    rng::sample<32>(pos.cast<Fixnum>(), rng::utility_state),
+                    p));
             }
-            app.on_timeout(pf, milliseconds(90), [pos, p](Platform& pf, App& app) {
-                for (int i = 0; i < 2; ++i) {
-                    app.effects().push(app.alloc_entity<Explosion>(
-                                                                   pf, rng::sample<48>(pos.cast<Fixnum>(), rng::utility_state), p));
-                }
-                app.on_timeout(
-                               pf, milliseconds(90), [pos, p](Platform& pf, App& app) {
-                        for (int i = 0; i < 1; ++i) {
-                            app.effects().push(app.alloc_entity<Explosion>(
-                                                                           pf, rng::sample<48>(pos.cast<Fixnum>(), rng::utility_state), p));
-                        }
-                    });
-            });
+            app.on_timeout(
+                pf, milliseconds(90), [pos, p](Platform& pf, App& app) {
+                    for (int i = 0; i < 2; ++i) {
+                        app.effects().push(app.alloc_entity<Explosion>(
+                            pf,
+                            rng::sample<48>(pos.cast<Fixnum>(),
+                                            rng::utility_state),
+                            p));
+                    }
+                    app.on_timeout(
+                        pf, milliseconds(90), [pos, p](Platform& pf, App& app) {
+                            for (int i = 0; i < 1; ++i) {
+                                app.effects().push(app.alloc_entity<Explosion>(
+                                    pf,
+                                    rng::sample<48>(pos.cast<Fixnum>(),
+                                                    rng::utility_state),
+                                    p));
+                            }
+                        });
+                });
         });
 
     app.camera()->shake(18);

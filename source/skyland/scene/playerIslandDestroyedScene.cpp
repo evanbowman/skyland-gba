@@ -147,8 +147,10 @@ void PlayerIslandDestroyedScene::display(Platform& pfrm, App& app)
 
     auto pos = island_->get_position();
     auto origin_coord = island_->critical_core_loc();
-    int circ_center_x = (pos.x.as_integer() + origin_coord.x * 16 + 16) - pfrm.screen().get_view().get_center().x;
-    int circ_center_y = (pos.y.as_integer() + origin_coord.y * 16 + 16) - pfrm.screen().get_view().get_center().y - 510;
+    int circ_center_x = (pos.x.as_integer() + origin_coord.x * 16 + 16) -
+                        pfrm.screen().get_view().get_center().x;
+    int circ_center_y = (pos.y.as_integer() + origin_coord.y * 16 + 16) -
+                        pfrm.screen().get_view().get_center().y - 510;
     // Platform::fatal(stringify(circ_center_y).c_str());
     int params[] = {circ_effect_radius_, circ_center_x, circ_center_y};
     pfrm.system_call("overlay-circle-effect", params);
@@ -411,8 +413,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case AnimState::explosion_wait2: {
         last_radius_ = circ_effect_radius_;
-        circ_effect_radius_ =
-            ease_in(timer_, 0, 140, milliseconds(120));
+        circ_effect_radius_ = ease_in(timer_, 0, 140, milliseconds(120));
         smoothstep(0.f, milliseconds(120), timer_);
 
         if (timer_ > milliseconds(120)) {
@@ -483,11 +484,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         anim_state_ = AnimState::fade;
         pfrm.system_call("vsync", 0);
         pfrm.fill_overlay(0);
-        pfrm.screen().fade(1.f,
-                           ColorConstant::silver_white,
-                           {},
-                           true,
-                           true);
+        pfrm.screen().fade(1.f, ColorConstant::silver_white, {}, true, true);
         break;
     }
 

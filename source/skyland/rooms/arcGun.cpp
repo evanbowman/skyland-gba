@@ -97,8 +97,7 @@ void ArcGun::fire(Platform& pfrm, App& app)
         parent()->projectiles().push(std::move(ab));
     }
 
-    auto e = alloc_entity<AnimatedEffect>(start,
-                                          96, 98, milliseconds(100));
+    auto e = alloc_entity<AnimatedEffect>(start, 96, 98, milliseconds(100));
     if (e) {
         app.effects().push(std::move(e));
     }

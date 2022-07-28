@@ -25,9 +25,9 @@
 #include "readyScene.hpp"
 #include "skyland/island.hpp"
 #include "skyland/player/playerP1.hpp"
+#include "skyland/rooms/targetingComputer.hpp"
 #include "skyland/skyland.hpp"
 #include "worldScene.hpp"
-#include "skyland/rooms/targetingComputer.hpp"
 
 
 

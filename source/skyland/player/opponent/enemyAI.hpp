@@ -101,7 +101,6 @@ public:
                             Island* target_island);
 
 private:
-
     static void set_target(Platform&,
                            App&,
                            const Bitmatrix<16, 16>& matrix,
