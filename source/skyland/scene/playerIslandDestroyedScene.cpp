@@ -408,14 +408,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     case AnimState::explosion_wait2:
 
-        // circ_effect_radius_ =
-        //     ease_in(timer_, 0, 140, milliseconds(120));
-        // smoothstep(0.f, milliseconds(120), timer_);
+        circ_effect_radius_ =
+            ease_in(timer_, 0, 140, milliseconds(120));
+        smoothstep(0.f, milliseconds(120), timer_);
 
         if (timer_ > milliseconds(120)) {
             timer_ = 0;
-            anim_state_ = AnimState::fade;
-            circ_effect_radius_ = 0;
+            anim_state_ = AnimState::begin_fade;
 
             app.rumble().activate(pfrm, milliseconds(190));
 
@@ -471,8 +470,27 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         break;
 
+    case AnimState::begin_fade: {
+        anim_state_ = AnimState::begin_fade2;
+        break;
+    }
+
+    case AnimState::begin_fade2: {
+        anim_state_ = AnimState::fade;
+        pfrm.system_call("vsync", 0);
+        pfrm.fill_overlay(0);
+        pfrm.screen().fade(1.f,
+                           ColorConstant::silver_white,
+                           {},
+                           true,
+                           true);
+        break;
+    }
+
     case AnimState::fade: {
         constexpr auto fade_duration = seconds(3) + milliseconds(500);
+
+        circ_effect_radius_ = 0;
 
         sink_speed_ += 0.0000013f;
         if (timer_ > fade_duration) {

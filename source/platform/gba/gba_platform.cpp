@@ -2310,6 +2310,11 @@ void Platform::restart()
 
 using OptDmaBufferData = std::array<u16, 161>;
 EWRAM_DATA std::optional<DynamicMemory<OptDmaBufferData>> opt_dma_buffer_;
+EWRAM_DATA int dma_effect_params[3];
+
+
+
+void win_circle(u16 winh[], int x0, int y0, int rr);
 
 
 
@@ -2322,6 +2327,11 @@ static void vblank_circle_effect_isr()
                  1,
                  3,
                  DMA_HDMA);
+
+    win_circle((*opt_dma_buffer_)->data(),
+               dma_effect_params[1],
+               dma_effect_params[2],
+               dma_effect_params[0]);
 
     DMA_TRANSFER(&REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
 }
@@ -6538,7 +6548,7 @@ void CpuFastSet( const void *source,  void *dest, u32 mode)
 }
 
 
-static void memset16(u16* data, u16 val, int count)
+void memset16(u16* data, u16 val, int count)
 {
     for (int i = 0; i < count; ++i) {
         data[i] = val;
@@ -6557,7 +6567,7 @@ void win_circle(u16 winh[], int x0, int y0, int rr)
 
     // u32 col = 0;
     // CpuFastSet(&col, winh, 160 | (1 << 24));
-    memset16(winh, 0, 160);
+    // memset16(winh, 0, 160);
 
     while(y >= x)
     {
@@ -6758,19 +6768,27 @@ void* Platform::system_call(const char* feature_name, void* arg)
         int x = ((int*)arg)[1];
         int y = ((int*)arg)[2];
         if (radius == 0 and opt_dma_buffer_) {
+            // Cancel DMA transfer. Important, because we're freeing the buffer
+            // of data used by the hdma when we drop the opt_dma_buffer.
+            DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
             vblank_dma_callback = vblank_full_transfer_scroll_isr;
             opt_dma_buffer_.reset();
             fill_overlay(0);
             window_init_default();
         } else if (radius not_eq 0) {
             if (not opt_dma_buffer_) {
+                VBlankIntrWait();
                 opt_dma_buffer_ = allocate_dynamic<OptDmaBufferData>("opt-dma-buffer");
                 memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
-                fill_overlay(110);
                 window_init_effectmode();
+                win_circle((*opt_dma_buffer_)->data(), x, y, radius);
+                DMA_TRANSFER(&REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
+                fill_overlay(491);
             }
             vblank_dma_callback = vblank_circle_effect_isr;
-            win_circle((*opt_dma_buffer_)->data(), x, y, radius);
+            dma_effect_params[0] = radius;
+            dma_effect_params[1] = x;
+            dma_effect_params[2] = y;
         }
     } else if (str_eq(feature_name, "hibernate")) {
         REG_KEYCNT = KEY_SELECT | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;

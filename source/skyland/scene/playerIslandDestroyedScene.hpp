@@ -56,6 +56,8 @@ public:
         init,
         explosion_wait1,
         explosion_wait2,
+        begin_fade,
+        begin_fade2,
         fade,
         wait_1,
         show_coins,
