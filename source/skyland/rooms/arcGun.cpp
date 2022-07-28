@@ -21,6 +21,7 @@
 
 
 #include "arcGun.hpp"
+#include "skyland/entity/misc/animatedEffect.hpp"
 #include "skyland/entity/projectile/arcBolt.hpp"
 #include "skyland/skyland.hpp"
 #include "skyland/sound.hpp"
@@ -94,6 +95,12 @@ void ArcGun::fire(Platform& pfrm, App& app)
         app.alloc_entity<ArcBolt>(pfrm, start, target, parent(), position());
     if (ab) {
         parent()->projectiles().push(std::move(ab));
+    }
+
+    auto e = alloc_entity<AnimatedEffect>(start,
+                                          96, 98, milliseconds(100));
+    if (e) {
+        app.effects().push(std::move(e));
     }
 }
 

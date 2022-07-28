@@ -23,6 +23,7 @@
 #include "missileSilo.hpp"
 #include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/entity/misc/animatedEffect.hpp"
 #include "skyland/entity/projectile/missile.hpp"
 #include "skyland/scene/weaponSetTargetScene.hpp"
 #include "skyland/scene_pool.hpp"
@@ -109,6 +110,12 @@ void MissileSilo::fire(Platform& pfrm, App& app)
 
     if (m) {
         parent()->projectiles().push(std::move(m));
+    }
+
+    auto e = alloc_entity<AnimatedEffect>(start,
+                                          96, 98, milliseconds(100));
+    if (e) {
+        app.effects().push(std::move(e));
     }
 }
 

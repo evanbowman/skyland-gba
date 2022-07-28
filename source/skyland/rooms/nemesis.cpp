@@ -23,6 +23,7 @@
 #include "nemesis.hpp"
 #include "platform/platform.hpp"
 #include "skyland/alloc_entity.hpp"
+#include "skyland/entity/misc/animatedEffect.hpp"
 #include "skyland/entity/projectile/nemesisBlast.hpp"
 #include "skyland/scene_pool.hpp"
 #include "skyland/skyland.hpp"
@@ -106,6 +107,13 @@ void Nemesis::fire(Platform& pfrm, App& app)
 
         parent()->projectiles().push(std::move(v));
     }
+
+    auto e = alloc_entity<AnimatedEffect>(start,
+                                          96, 98, milliseconds(100));
+    if (e) {
+        app.effects().push(std::move(e));
+    }
+
 }
 
 
