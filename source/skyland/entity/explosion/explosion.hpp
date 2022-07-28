@@ -38,12 +38,14 @@ public:
     static const int start_index = 19;
 
 
-    Explosion(const Vec2<Fixnum>& position) : Entity({{}, {}})
+    Explosion(const Vec2<Fixnum>& position,
+              int priority = 1) : Entity({{}, {}})
     {
         sprite_.set_position(position);
         sprite_.set_size(Sprite::Size::w16_h32);
         sprite_.set_texture_index(start_index);
         sprite_.set_origin({8, 8});
+        sprite_.set_priority(priority);
     }
 
 
@@ -100,7 +102,11 @@ void medium_explosion_inv(Platform& pfrm,
                           const Vec2<Fixnum>& position);
 
 
-void big_explosion(Platform& pfrm, App& app, const Vec2<Fixnum>& position);
+void big_explosion(Platform& pfrm,
+                   App& app,
+                   const Vec2<Fixnum>& position,
+                   int draw_priority = 1);
+
 void big_explosion_inv(Platform& pfrm, App& app, const Vec2<Fixnum>& position);
 
 

@@ -366,6 +366,12 @@ public:
     }
 
 
+    RoomCoord critical_core_loc() const
+    {
+        return {critical_core_x_, critical_core_y_};
+    }
+
+
 private:
     void resolve_cancelled_dispatch();
 
@@ -421,6 +427,12 @@ private:
     u8 manufactory_count_ = 0;
     u8 core_count_ = 0;
     u8 min_y_ = 0;
+
+    // These parameters represent the location where a power core might possibly
+    // be. Used during the death animation when placing the center of the
+    // explosion effect, as the power core no longer exists.
+    u8 critical_core_x_ : 4;
+    u8 critical_core_y_ : 4;
 
     u8 character_count_ = 0;
     u8 offensive_capabilities_ = 0;

@@ -1448,6 +1448,8 @@ void Island::repaint(Platform& pfrm, App& app)
         } else if (str_cmp((*metac)->name(), "manufactory") == 0) {
             ++manufactory_count_;
         } else if ((*room->metaclass())->category() == Room::Category::power) {
+            critical_core_x_ = room->position().x;
+            critical_core_y_ = room->position().y;
             ++core_count_;
         } else if ((*metac)->category() == Room::Category::weapon or
                    (character_count_ and

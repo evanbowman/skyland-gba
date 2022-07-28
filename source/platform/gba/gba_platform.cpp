@@ -170,6 +170,7 @@ enum class GlobalFlag {
     key_poll_called,
     music_halfspeed_update,
     watchdog_disabled,
+    effect_window_mode,
     count
 };
 
@@ -712,6 +713,32 @@ static auto blend(const Color& c1, const Color& c2, u8 amt)
 }
 
 
+
+void window_init_default()
+{
+    set_gflag(GlobalFlag::effect_window_mode, false);
+
+    REG_WININ = WIN_ALL;
+    // Outside the window, display the background and the overlay, also objects.
+    REG_WINOUT = WIN_OBJ | WIN_BG1 | WIN_BG2;
+}
+
+
+
+void window_init_effectmode()
+{
+    set_gflag(GlobalFlag::effect_window_mode, true);
+
+    REG_WININ = WIN_ALL;
+    // everything but the overlay:
+    REG_WINOUT = WIN_BG1 | WIN_BG3 | WIN_BG0 | WIN_OBJ;
+
+    REG_WIN0V = 160;
+    REG_WIN0H = 240;
+}
+
+
+
 // Most of the game uses tile-based graphics modes, but some parts of the intro
 // sequence, which display the gameboy player logo, currently use the bitmap
 // graphics modes, for simplicity.
@@ -720,12 +747,7 @@ static void init_video(Platform::Screen& screen)
     REG_DISPCNT = MODE_0 | OBJ_ENABLE | OBJ_MAP_1D | BG0_ENABLE | BG1_ENABLE |
                   BG2_ENABLE | BG3_ENABLE | WIN0_ENABLE;
 
-    REG_WININ = WIN_ALL;
-
-    // Always display the starfield and the overlay in the outer window. We just
-    // want to mask off areas of the game map that have wrapped to the other
-    // side of the screen.
-    REG_WINOUT = WIN_OBJ | WIN_BG1 | WIN_BG2;
+    window_init_default();
 
     REG_BLENDCNT = BLD_BUILD(BLD_OBJ, BLD_BG0 | BLD_BG1 | BLD_BG3, 0);
 
@@ -2009,25 +2031,22 @@ void Platform::Screen::display()
     // useful if you were making certain kinds of games, like some kind of
     // Civilization clone, but for BlindJump, it doesn't make sense to display
     // the wrapped area).
-    const s32 scroll_limit_x_max = 512 - size().x;
-    // const s32 scroll_limit_y_max = 480 - size().y;
-    if (view_offset.x > scroll_limit_x_max) {
-        REG_WIN0H =
-            (0 << 8) | (size().x - (view_offset.x - scroll_limit_x_max));
-    } else if (view_offset.x < 0) {
-        REG_WIN0H = ((view_offset.x * -1) << 8) | (0);
-    } else {
-        REG_WIN0H = (0 << 8) | (size().x);
+
+    if (not get_gflag(GlobalFlag::effect_window_mode)) {
+        const s32 scroll_limit_x_max = 512 - size().x;
+        // const s32 scroll_limit_y_max = 480 - size().y;
+        if (view_offset.x > scroll_limit_x_max) {
+            REG_WIN0H =
+                (0 << 8) | (size().x - (view_offset.x - scroll_limit_x_max));
+        } else if (view_offset.x < 0) {
+            REG_WIN0H = ((view_offset.x * -1) << 8) | (0);
+        } else {
+            REG_WIN0H = (0 << 8) | (size().x);
+        }
+
+        REG_WIN0V = (0 << 8) | (size().y);
     }
 
-    // if (view_offset.y > scroll_limit_y_max) {
-    //     REG_WIN0V =
-    //         (0 << 8) | (size().y - (view_offset.y - scroll_limit_y_max));
-    // } else if (view_offset.y < 0) {
-    //     REG_WIN0V = ((view_offset.y * -1) << 8) | (0);
-    // } else {
-    REG_WIN0V = (0 << 8) | (size().y);
-    // }
     if (not get_gflag(GlobalFlag::parallax_clouds)) {
         BG1_X_SCROLL = view_offset.x * 0.3f;
         BG1_Y_SCROLL = view_offset.y * 0.3f;
@@ -2289,6 +2308,26 @@ void Platform::restart()
 
 
 
+using OptDmaBufferData = std::array<u16, 161>;
+EWRAM_DATA std::optional<DynamicMemory<OptDmaBufferData>> opt_dma_buffer_;
+
+
+
+static void vblank_circle_effect_isr()
+{
+    DMA_TRANSFER(
+        (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
+    DMA_TRANSFER((volatile short*)0x4000016,
+                 &vertical_parallax_table[1],
+                 1,
+                 3,
+                 DMA_HDMA);
+
+    DMA_TRANSFER(&REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
+}
+
+
+
 static void vblank_full_transfer_scroll_isr()
 {
     DMA_TRANSFER(
@@ -2298,6 +2337,8 @@ static void vblank_full_transfer_scroll_isr()
                  1,
                  3,
                  DMA_HDMA);
+
+    DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
 }
 
 
@@ -2307,14 +2348,15 @@ static void vblank_horizontal_transfer_scroll_isr()
     DMA_TRANSFER(
         (volatile short*)0x4000014, &parallax_table[1], 1, 0, DMA_HDMA);
 
-    // Disable prior transfer.
+    // Disable prior transfers.
     DMA_TRANSFER(
         (volatile short*)0x4000016, &vertical_parallax_table[1], 1, 3, 0);
+    DMA_TRANSFER(&REG_WIN0H, &vertical_parallax_table[1], 1, 2, 0);
 }
 
 
 
-void (*vblank_scroll_callback)() = vblank_full_transfer_scroll_isr;
+void (*vblank_dma_callback)() = vblank_full_transfer_scroll_isr;
 
 
 
@@ -2324,7 +2366,7 @@ static int watchdog_counter;
 
 static void vblank_isr()
 {
-    vblank_scroll_callback();
+    vblank_dma_callback();
 
     watchdog_counter += 1;
 
@@ -6490,6 +6532,64 @@ static void uart_blocking_write(char c)
 
 
 
+void CpuFastSet( const void *source,  void *dest, u32 mode)
+{
+    SystemCall(12);
+}
+
+
+static void memset16(u16* data, u16 val, int count)
+{
+    for (int i = 0; i < count; ++i) {
+        data[i] = val;
+    }
+}
+
+
+// Ripped from tonc demo. This code is decent already, no need to write my code
+// for drawing a circle.
+void win_circle(u16 winh[], int x0, int y0, int rr)
+{
+#define IN_RANGE(x, min, max)	( ((x)>=(min)) && ((x)<(max)) )
+
+    int x=0, y= rr, d= 1-rr;
+    u32 tmp;
+
+    // u32 col = 0;
+    // CpuFastSet(&col, winh, 160 | (1 << 24));
+    memset16(winh, 0, 160);
+
+    while(y >= x)
+    {
+        // Side octs
+        tmp  = clamp(x0+y, 0, 240);
+        tmp += clamp(x0-y, 0, 240)<<8;
+
+        if(IN_RANGE(y0-x, 0, 160))       // o4, o7
+            winh[y0-x]= tmp;
+        if(IN_RANGE(y0+x, 0, 160))       // o0, o3
+            winh[y0+x]= tmp;
+
+        // Change in y: top/bottom octs
+        if(d >= 0)
+        {
+            tmp  = clamp(x0+x, 0, 240);
+            tmp += clamp(x0-x, 0, 240)<<8;
+
+            if(IN_RANGE(y0-y, 0, 160))   // o5, o6
+                winh[y0-y]= tmp;
+            if(IN_RANGE(y0+y, 0, 160))   // o1, o2
+                winh[y0+y]= tmp;
+
+            d -= 2*(--y);
+        }
+        d += 2*(x++)+3;
+    }
+    winh[160]= winh[0];
+}
+
+
+
 void* Platform::system_call(const char* feature_name, void* arg)
 {
     if (str_eq(feature_name, "sc")) { // Stackcheck, abreviated for speed.
@@ -6632,7 +6732,7 @@ void* Platform::system_call(const char* feature_name, void* arg)
         set_gflag(GlobalFlag::parallax_clouds, (bool)arg);
 
         if ((bool)arg) {
-            vblank_scroll_callback = vblank_full_transfer_scroll_isr;
+            vblank_dma_callback = vblank_full_transfer_scroll_isr;
             for (int i = 0; i < 280; ++i) {
                 if (i < 140) {
                     vertical_parallax_table[i] = 200;
@@ -6645,14 +6745,33 @@ void* Platform::system_call(const char* feature_name, void* arg)
         set_gflag(GlobalFlag::v_parallax, (bool)arg);
 
         if ((bool)arg) {
-            vblank_scroll_callback = vblank_full_transfer_scroll_isr;
+            vblank_dma_callback = vblank_full_transfer_scroll_isr;
         } else {
-            vblank_scroll_callback = vblank_horizontal_transfer_scroll_isr;
+            vblank_dma_callback = vblank_horizontal_transfer_scroll_isr;
         }
     } else if (str_cmp(feature_name, "dlc-download") == 0) {
         download_dlc_blob(*this, *(Vector<char>*)arg);
     } else if (str_eq(feature_name, "vsync")) {
         VBlankIntrWait();
+    } else if (str_eq(feature_name, "overlay-circle-effect")) {
+        int radius = ((int*)arg)[0];
+        int x = ((int*)arg)[1];
+        int y = ((int*)arg)[2];
+        if (radius == 0 and opt_dma_buffer_) {
+            vblank_dma_callback = vblank_full_transfer_scroll_isr;
+            opt_dma_buffer_.reset();
+            fill_overlay(0);
+            window_init_default();
+        } else if (radius not_eq 0) {
+            if (not opt_dma_buffer_) {
+                opt_dma_buffer_ = allocate_dynamic<OptDmaBufferData>("opt-dma-buffer");
+                memset((*opt_dma_buffer_)->data(), 0, 160 * 2);
+                fill_overlay(110);
+                window_init_effectmode();
+            }
+            vblank_dma_callback = vblank_circle_effect_isr;
+            win_circle((*opt_dma_buffer_)->data(), x, y, radius);
+        }
     } else if (str_eq(feature_name, "hibernate")) {
         REG_KEYCNT = KEY_SELECT | KEY_R | KEY_L | KEYIRQ_ENABLE | KEYIRQ_AND;
 

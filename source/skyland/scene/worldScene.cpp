@@ -130,7 +130,7 @@ static void hide_multiplayer_pauses_remaining(Platform& pfrm)
     auto st = calc_screen_tiles(pfrm);
 
     auto current = pfrm.get_tile(Layer::overlay, st.x - 3, 3);
-    if (current == 0) {
+    if (current == 0 or current == 110) {
         return;
     }
 

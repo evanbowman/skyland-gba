@@ -143,11 +143,6 @@ private:
             cp,
             str_len(cp));
 
-        for (auto& r : *result) {
-            info(pfrm, r.first.c_str());
-            info(pfrm, r.second.c_str());
-        }
-
         return result;
     }
 };

@@ -141,6 +141,16 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
 
 void PlayerIslandDestroyedScene::display(Platform& pfrm, App& app)
 {
+
+    auto pos = island_->get_position();
+    auto origin_coord = island_->critical_core_loc();
+    int circ_center_x = (pos.x.as_integer() + origin_coord.x * 16 + 16) - pfrm.screen().get_view().get_center().x;
+    int circ_center_y = (pos.y.as_integer() + origin_coord.y * 16 + 16) - pfrm.screen().get_view().get_center().y - 510;
+    // Platform::fatal(stringify(circ_center_y).c_str());
+    int params[] = {circ_effect_radius_, circ_center_x, circ_center_y};
+    pfrm.system_call("overlay-circle-effect", params);
+
+
     WorldScene::display(pfrm, app);
 
     if (confetti_ and *confetti_) {
@@ -243,7 +253,9 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
     WorldScene::update(pfrm, app, delta);
 
-    reset_gamespeed(pfrm, app);
+    if (app.game_speed() not_eq GameSpeed::normal) {
+        reset_gamespeed(pfrm, app);
+    }
 
     app.environment().update(pfrm, app, delta);
 
@@ -351,7 +363,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         pfrm.speaker().play_sound("explosion1", 3);
 
-        big_explosion(pfrm, app, origin);
+        big_explosion(pfrm, app, origin, 0);
 
         const auto off = 50.f;
 
@@ -363,8 +375,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.swap_player<PlayerP1>();
         }
 
-        big_explosion(pfrm, app, {origin.x - off, origin.y - off});
-        big_explosion(pfrm, app, {origin.x + off, origin.y + off});
+        big_explosion(pfrm, app, {origin.x - off, origin.y - off}, 0);
+        big_explosion(pfrm, app, {origin.x + off, origin.y + off}, 0);
         timer_ = 0;
 
         for (auto& room : app.player_island().rooms()) {
@@ -376,15 +388,16 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     case AnimState::explosion_wait1:
+
         if (timer_ > milliseconds(300)) {
 
             pfrm.speaker().play_sound("explosion1", 3);
 
-            big_explosion(pfrm, app, origin);
+            big_explosion(pfrm, app, origin, 0);
             const auto off = -50.f;
 
-            big_explosion(pfrm, app, {origin.x - off, origin.y + off});
-            big_explosion(pfrm, app, {origin.x + off, origin.y - off});
+            big_explosion(pfrm, app, {origin.x - off, origin.y + off}, 0);
+            big_explosion(pfrm, app, {origin.x + off, origin.y - off}, 0);
 
             anim_state_ = AnimState::explosion_wait2;
 
@@ -394,9 +407,16 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
         break;
 
     case AnimState::explosion_wait2:
+
+        // circ_effect_radius_ =
+        //     ease_in(timer_, 0, 140, milliseconds(120));
+        // smoothstep(0.f, milliseconds(120), timer_);
+
         if (timer_ > milliseconds(120)) {
             timer_ = 0;
             anim_state_ = AnimState::fade;
+            circ_effect_radius_ = 0;
+
             app.rumble().activate(pfrm, milliseconds(190));
 
             pfrm.speaker().play_sound("explosion2", 4);
@@ -874,6 +894,8 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
 void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
+
+    circ_effect_ = rng::choice<3>(rng::utility_state);
 
     app.persistent_data().total_seconds_.set(
         (u32)(app.persistent_data().total_seconds_.get() +

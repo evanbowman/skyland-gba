@@ -101,6 +101,8 @@ private:
     Fixnum sink_speed_;
     Island* island_;
 
+    bool circ_effect_ = false;
+
     Buffer<Text, 5> lines_;
 
     bool options_allowed_ = true;
@@ -124,6 +126,7 @@ private:
         wait_3,
     } confetti_state_ = ConfettiState::dormant;
 
+    u16 circ_effect_radius_ = 0;
     Microseconds confetti_timer_ = 0;
     Microseconds music_fadeback_timer_ = 0;
     bool restore_volume_ = true;
