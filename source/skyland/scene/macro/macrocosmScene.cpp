@@ -71,7 +71,7 @@ void MacrocosmScene::draw_season(Platform& pfrm,
                                  macro::EngineImpl& state,
                                  int season)
 {
-    if (state.data_->checkers_mode_) {
+    if (state.data_->checkers_mode_ or state.data_->freebuild_mode_) {
         return;
     }
 

@@ -2328,10 +2328,16 @@ static void vblank_circle_effect_isr()
                  3,
                  DMA_HDMA);
 
+    // NOTE: fixes an audio bug that occurs when an audio timer irq occurs while
+    // drawing the circle effect.
+    REG_SOUNDCNT_H &= ~(1 << 8);
+    REG_SOUNDCNT_H &= ~(1 << 9);
     win_circle((*opt_dma_buffer_)->data(),
                dma_effect_params[1],
                dma_effect_params[2],
                dma_effect_params[0]);
+    REG_SOUNDCNT_H |= (1 << 9);
+    REG_SOUNDCNT_H |= (1 << 8);
 
     DMA_TRANSFER(&REG_WIN0H, (*opt_dma_buffer_)->data(), 1, 2, DMA_HDMA);
 }

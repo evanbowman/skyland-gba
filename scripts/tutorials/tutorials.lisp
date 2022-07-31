@@ -17,4 +17,5 @@
   ("Power Balance" . "tutorials/power_balance.lisp")
   ("Game Speed" . "tutorials/game_speed.lisp")
   ("Transporters" . "tutorials/transporter.lisp")
-  ("Replicators" . "tutorials/replicator.lisp"))
+  ("Replicators" . "tutorials/replicator.lisp")
+  ("Adding Terrain" . "tutorials/terrain.lisp"))
