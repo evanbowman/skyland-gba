@@ -951,7 +951,8 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     auto lv_score = app.score().get() - app.level_begin_score();
-    auto score_time_penalty = 0.5f * (lv_score - (lv_score / level_seconds_));
+    auto score_time_penalty = 0.5f * (lv_score - (lv_score /
+                                                  (std::max(1, level_seconds_ / 15))));
     app.score().set(app.score().get() - score_time_penalty);
 
 
