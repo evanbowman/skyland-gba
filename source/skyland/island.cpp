@@ -871,6 +871,16 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
                     // spent too long executing custom lisp code. Otherwise
                     // collision checking and other stuff could get messed up!
                     pfrm.delta_clock().reset();
+                } else if (destroyed_count == 0) {
+                    // No pauses during multiplayer, of course.
+                    if (not pfrm.network_peer().is_connected()) {
+                        // Sleep a few frames when a block is destroyed.
+                        if (this == &app.player_island()) {
+                            pfrm.sleep(4);
+                        } else {
+                            pfrm.sleep(2);
+                        }
+                    }
                 }
             }
 
@@ -941,6 +951,10 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             on_layout_changed(app, pos);
 
             check_destroyed();
+
+            if (is_destroyed() and not pfrm.network_peer().is_connected()) {
+                pfrm.sleep(2);
+            }
 
             recalculate_power_usage(app);
 

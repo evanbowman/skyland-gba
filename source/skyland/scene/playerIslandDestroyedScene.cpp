@@ -127,13 +127,25 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
                      app.level_coins_spent());
         break;
 
-    case 3:
+    case 3: {
         StringBuffer<24> fmt;
-        fmt += stringify(app.player().rooms_built_);
+        fmt += stringify(rooms_built_);
         fmt += "/";
-        fmt += stringify(app.player().rooms_lost_);
+        fmt += stringify(rooms_lost_);
         print_metric_impl(SYSTR(level_complete_rooms)->c_str(), fmt.c_str());
         break;
+    }
+
+    case 4: {
+        if (app.game_mode() not_eq App::GameMode::skyland_forever) {
+            StringBuffer<24> fmt;
+            auto score_diff = app.score().get() - app.level_begin_score();
+            fmt += "+";
+            fmt += stringify(score_diff);
+            print_metric_impl(SYSTR(highscores_score)->c_str(), fmt.c_str());
+        }
+        break;
+    }
     }
 }
 
@@ -700,17 +712,13 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                 case App::GameMode::challenge:
                     return scene_pool::alloc<SelectChallengeScene>();
 
-                case App::GameMode::adventure:
+                case App::GameMode::adventure: {
                     if (app.world_graph()
                             .nodes_[app.current_world_location()]
                             .type_ == WorldGraph::Node::Type::corrupted) {
 
                         achievements::raise(
                             pfrm, app, achievements::Achievement::hero);
-
-                        // Defeated the storm king!
-                        app.persistent_data().score_.set(
-                            300000 + app.persistent_data().score_.get());
 
                         auto dialog =
                             allocate_dynamic<DialogString>("dialog-buffer");
@@ -731,6 +739,7 @@ PlayerIslandDestroyedScene::update(Platform& pfrm, App& app, Microseconds delta)
                     } else {
                         return scene_pool::alloc<ZoneImageScene>();
                     }
+                }
 
                 case App::GameMode::sandbox:
                     return scene_pool::alloc<SandboxResetScene>();
@@ -914,6 +923,9 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     WorldScene::enter(pfrm, app, prev);
 
+    rooms_built_ = app.player().rooms_built_;
+    rooms_lost_ = app.player().rooms_lost_;
+
     for (auto& bird : app.birds()) {
         bird->signal(pfrm, app);
     }
@@ -923,6 +935,25 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
     app.persistent_data().total_seconds_.set(
         (u32)(app.persistent_data().total_seconds_.get() +
               app.stat_timer().whole_seconds()));
+
+    level_seconds_ = app.stat_timer().whole_seconds();
+
+    if (app.world_graph()
+        .nodes_[app.current_world_location()]
+        .type_ == WorldGraph::Node::Type::corrupted) {
+
+        // At endgame, award the player score for any unused coins.
+        app.score().set(app.score().get() + app.coins() * 8);
+
+        if (island_ not_eq &app.player_island()) {
+            app.persistent_data().score_.set(300000 + app.persistent_data().score_.get());
+        }
+    }
+
+    auto lv_score = app.score().get() - app.level_begin_score();
+    auto score_time_penalty = 0.5f * (lv_score - (lv_score / level_seconds_));
+    app.score().set(app.score().get() - score_time_penalty);
+
 
     app.persistent_data().total_pauses_.set(
         app.persistent_data().total_pauses_.get() + app.pause_count());

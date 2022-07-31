@@ -133,6 +133,10 @@ private:
     Microseconds confetti_timer_ = 0;
     Microseconds music_fadeback_timer_ = 0;
     bool restore_volume_ = true;
+
+    int level_seconds_ = 0;
+    int rooms_built_ = 0;
+    int rooms_lost_ = 0;
 };
 
 
