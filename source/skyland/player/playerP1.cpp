@@ -217,7 +217,7 @@ void PlayerP1::on_room_plundered(Platform& pfrm, App& app, Room& room)
     if (room.parent() not_eq &app.player_island()) {
         app.score().set(
             (app.score().get() +
-             1.2f * (score_multiplier * (*room.metaclass())->cost())));
+             1.5f * (score_multiplier * (*room.metaclass())->cost())));
 
         if (str_eq((*room.metaclass())->name(), "decimator")) {
             achievements::raise(
