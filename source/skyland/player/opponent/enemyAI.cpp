@@ -112,6 +112,7 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
 
     next_action_timer_ -= delta;
     character_reassign_timer_ -= delta;
+    local_character_reassign_timer_ -= delta;
 
     drone_update_timer_ -= delta;
 
@@ -205,17 +206,58 @@ void EnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
                 }
             }
         }
+    }
+
+    if (local_character_reassign_timer_ <= 0) {
 
         if (ai_island_) {
-            for (auto& room : ai_island_->rooms()) {
-                for (auto& character : room->characters()) {
-                    if (character->owner() == this) {
-                        assign_local_character(pfrm,
-                                               app,
-                                               *character,
-                                               this,
-                                               ai_island_,
-                                               target_island_);
+            if (ai_island_->character_count() > 4) {
+                bool reassigned = false;
+                for (auto& room : ai_island_->rooms()) {
+                    for (auto& character : room->characters()) {
+                        if (character->owner() == this) {
+                            if (not character->ai_marked()) {
+                                assign_local_character(pfrm,
+                                                       app,
+                                                       *character,
+                                                       this,
+                                                       ai_island_,
+                                                       target_island_);
+                                character->ai_mark();
+                                reassigned = true;
+                                goto DONE;
+                            }
+                        }
+                    }
+                }
+            DONE:
+                if (reassigned) {
+                    local_character_reassign_timer_ = milliseconds(30);
+                } else {
+                    for (auto& room : ai_island_->rooms()) {
+                        for (auto& character : room->characters()) {
+                            if (character->owner() == this) {
+                                if (character->ai_marked()) {
+                                    character->ai_unmark();
+                                }
+                            }
+                        }
+                    }
+                    local_character_reassign_timer_ =
+                        character_reassign_timeout - seconds(3);
+                }
+            } else {
+                local_character_reassign_timer_ = character_reassign_timeout;
+                for (auto& room : ai_island_->rooms()) {
+                    for (auto& character : room->characters()) {
+                        if (character->owner() == this) {
+                            assign_local_character(pfrm,
+                                                   app,
+                                                   *character,
+                                                   this,
+                                                   ai_island_,
+                                                   target_island_);
+                        }
                     }
                 }
             }

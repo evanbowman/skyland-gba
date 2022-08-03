@@ -232,6 +232,25 @@ public:
     }
 
 
+    void ai_mark()
+    {
+        ai_mark_ = 1;
+    }
+
+
+    bool ai_marked() const
+    {
+        return ai_mark_;
+    }
+
+
+    void ai_unmark()
+    {
+        ai_mark_ = 0;
+    }
+
+
+
 private:
     Island* parent_;
     Player* owner_;
@@ -246,7 +265,8 @@ private:
     u8 co_op_locked_ : 1;
 
     u8 mark_ : 1;
-    u8 unused_ : 3;
+    u8 ai_mark_ : 1;
+    u8 unused_ : 2;
 
     State state_ = State::moving_or_idle;
     u16 idle_count_ = 0;

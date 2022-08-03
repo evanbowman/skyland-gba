@@ -192,6 +192,7 @@ private:
     static const auto character_reassign_timeout = seconds(6);
 
     Microseconds character_reassign_timer_ = character_reassign_timeout;
+    Microseconds local_character_reassign_timer_ = character_reassign_timeout;
 
     Coins coins_ = 0;
 

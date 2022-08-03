@@ -76,6 +76,8 @@ BasicCharacter::BasicCharacter(Island* parent,
     sprite_.set_texture_index(40);
     sprite_.set_size(Sprite::Size::w16_h32);
 
+    ai_mark_ = false;
+
     auto o = parent_->visual_origin();
     o.x += grid_position_.x * 16;
     o.y += grid_position_.y * 16 - 3;
