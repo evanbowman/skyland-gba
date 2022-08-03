@@ -153,19 +153,24 @@ void PlayerIslandDestroyedScene::show_stats(Platform& pfrm, App& app)
 
 void PlayerIslandDestroyedScene::display(Platform& pfrm, App& app)
 {
-    if (circ_effect_radius_ > 70 and last_radius_ < 70) {
-        pfrm.fill_overlay(496);
-    }
+    // No overlay circle effect in multiplayer, because the vblank handler could
+    // spend too long calculating the circle edges and cause a missed serial
+    // interrupt.
+    if (not pfrm.network_peer().is_connected()) {
+        if (circ_effect_radius_ > 70 and last_radius_ < 70) {
+            pfrm.fill_overlay(496);
+        }
 
-    auto pos = island_->get_position();
-    auto origin_coord = island_->critical_core_loc();
-    int circ_center_x = (pos.x.as_integer() + origin_coord.x * 16 + 16) -
-                        pfrm.screen().get_view().get_center().x;
-    int circ_center_y = (pos.y.as_integer() + origin_coord.y * 16 + 16) -
-                        pfrm.screen().get_view().get_center().y - 510;
-    // Platform::fatal(stringify(circ_center_y).c_str());
-    int params[] = {circ_effect_radius_, circ_center_x, circ_center_y};
-    pfrm.system_call("overlay-circle-effect", params);
+        auto pos = island_->get_position();
+        auto origin_coord = island_->critical_core_loc();
+        int circ_center_x = (pos.x.as_integer() + origin_coord.x * 16 + 16) -
+            pfrm.screen().get_view().get_center().x;
+        int circ_center_y = (pos.y.as_integer() + origin_coord.y * 16 + 16) -
+            pfrm.screen().get_view().get_center().y - 510;
+        // Platform::fatal(stringify(circ_center_y).c_str());
+        int params[] = {circ_effect_radius_, circ_center_x, circ_center_y};
+        pfrm.system_call("overlay-circle-effect", params);
+    }
 
 
     WorldScene::display(pfrm, app);
