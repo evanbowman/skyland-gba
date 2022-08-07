@@ -469,12 +469,11 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
             app.player().key_down(pfrm, Key::left)) {
             pfrm.speaker().play_sound("click_wooden", 2);
             to_move_state();
+        } else if (app.player().key_down(pfrm, Key::down)) {
+            state_ = State::save_selected;
         }
         if (app.player().key_down(pfrm, Key::action_2)) {
             state_ = State::deselected;
-        }
-        if (app.player().key_down(pfrm, Key::down)) {
-            state_ = State::save_selected;
         }
         break;
 
@@ -586,13 +585,6 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     case State::move: {
-        if (app.player().key_down(pfrm, Key::down)) {
-            state_ = State::save_selected;
-            map_key_.reset();
-            redraw_icons(pfrm);
-            update_storm_frontier(pfrm, app.world_graph(), 0);
-            break;
-        }
         if (app.player().key_down(pfrm, Key::action_1)) {
             app.world_graph().nodes_[cursor_].type_ =
                 WorldGraph::Node::Type::visited;
@@ -634,18 +626,189 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
         // auto current = movement_targets_[movement_cursor_];
         if (app.player().key_down(pfrm, Key::left)) {
-            movement_cursor_++;
-            if ((u32)movement_cursor_ == movement_targets_.size()) {
-                movement_cursor_ = 0;
+            Buffer<int, 10> left;
+
+            auto search =
+                [&](int width) {
+                    left.clear();
+                    for (u32 i = 0; i < movement_targets_.size(); ++i) {
+                        auto& t = movement_targets_[i];
+                        if (abs(t.y - movement_targets_[movement_cursor_].y) < width
+                            and t.x < movement_targets_[movement_cursor_].x) {
+                            left.push_back(i);
+                        }
+                    }
+                    std::sort(left.begin(), left.end(),
+                              [&](auto& lhs, auto& rhs) {
+                                  return movement_targets_[lhs].x >
+                                      movement_targets_[rhs].x;
+                              });
+                };
+
+            search(2);
+
+            if (not left.empty()) {
+                pfrm.speaker().play_sound("click_wooden", 2);
+                movement_cursor_ = left[0];
+            } else {
+                search(3);
+
+                if (not left.empty()) {
+                    pfrm.speaker().play_sound("click_wooden", 2);
+                    movement_cursor_ = left[0];
+                } else {
+                    search(5);
+                    if (not left.empty()) {
+                        pfrm.speaker().play_sound("click_wooden", 2);
+                        movement_cursor_ = left[0];
+                    } else {
+                        search(7);
+                        if (not left.empty()) {
+                            pfrm.speaker().play_sound("click_wooden", 2);
+                            movement_cursor_ = left[0];
+                        }
+                    }
+                }
             }
-            pfrm.speaker().play_sound("click_wooden", 2);
             render_map_key(pfrm, app);
         } else if (app.player().key_down(pfrm, Key::right)) {
-            movement_cursor_--;
-            if (movement_cursor_ < 0) {
-                movement_cursor_ = movement_targets_.size() - 1;
+            Buffer<int, 10> right;
+
+            auto search =
+                [&](int width) {
+                    right.clear();
+                    for (u32 i = 0; i < movement_targets_.size(); ++i) {
+                        auto& t = movement_targets_[i];
+                        if (abs(t.y - movement_targets_[movement_cursor_].y) < width
+                            and t.x > movement_targets_[movement_cursor_].x) {
+                            right.push_back(i);
+                        }
+                    }
+                    std::sort(right.begin(), right.end(),
+                              [&](auto& lhs, auto& rhs) {
+                                  return movement_targets_[lhs].x <
+                                      movement_targets_[rhs].x;
+                              });
+                };
+
+            search(2);
+
+            if (not right.empty()) {
+                pfrm.speaker().play_sound("click_wooden", 2);
+                movement_cursor_ = right[0];
+            } else {
+                search(3);
+
+                if (not right.empty()) {
+                    pfrm.speaker().play_sound("click_wooden", 2);
+                    movement_cursor_ = right[0];
+                } else {
+                    search(5);
+
+                    if (not right.empty()) {
+                        pfrm.speaker().play_sound("click_wooden", 2);
+                        movement_cursor_ = right[0];
+                    } else {
+                        search(7);
+                        if (not right.empty()) {
+                            pfrm.speaker().play_sound("click_wooden", 2);
+                            movement_cursor_ = right[0];
+                        }
+                    }
+                }
             }
-            pfrm.speaker().play_sound("click_wooden", 2);
+            render_map_key(pfrm, app);
+        } else if (app.player().key_down(pfrm, Key::up)) {
+            Buffer<int, 10> above;
+
+            auto search =
+                [&](int width) {
+                    above.clear();
+                    for (u32 i = 0; i < movement_targets_.size(); ++i) {
+                        auto& t = movement_targets_[i];
+                        if (abs(t.x - movement_targets_[movement_cursor_].x) < width
+                            and t.y < movement_targets_[movement_cursor_].y) {
+                            above.push_back(i);
+                        }
+                    }
+                    std::sort(above.begin(), above.end(),
+                              [&](auto& lhs, auto& rhs) {
+                                  return movement_targets_[lhs].y >
+                                      movement_targets_[rhs].y;
+                              });
+                };
+
+            search(2);
+
+            if (not above.empty()) {
+                pfrm.speaker().play_sound("click_wooden", 2);
+                movement_cursor_ = above[0];
+            } else {
+                search(3);
+                if (not above.empty()) {
+                    pfrm.speaker().play_sound("click_wooden", 2);
+                    movement_cursor_ = above[0];
+                } else {
+                    search(5);
+                    if (not above.empty()) {
+                        pfrm.speaker().play_sound("click_wooden", 2);
+                        movement_cursor_ = above[0];
+                    } else {
+                        search(7);
+                        if (not above.empty()) {
+                            pfrm.speaker().play_sound("click_wooden", 2);
+                            movement_cursor_ = above[0];
+                        }
+                    }
+                }
+            }
+            render_map_key(pfrm, app);
+        } else if (app.player().key_down(pfrm, Key::down)) {
+            Buffer<int, 10> beneath;
+
+            auto search =
+                [&](int width) {
+                    beneath.clear();
+                    for (u32 i = 0; i < movement_targets_.size(); ++i) {
+                        auto& t = movement_targets_[i];
+                        if (abs(t.x - movement_targets_[movement_cursor_].x) < width
+                            and t.y > movement_targets_[movement_cursor_].y) {
+                            beneath.push_back(i);
+                        }
+                    }
+                    std::sort(beneath.begin(), beneath.end(),
+                              [&](auto& lhs, auto& rhs) {
+                                  return movement_targets_[lhs].y <
+                                      movement_targets_[rhs].y;
+                              });
+                };
+
+            search(2);
+
+            if (not beneath.empty()) {
+                pfrm.speaker().play_sound("click_wooden", 2);
+                movement_cursor_ = beneath[0];
+            } else {
+
+                search(3);
+
+                if (not beneath.empty()) {
+                    pfrm.speaker().play_sound("click_wooden", 2);
+                    movement_cursor_ = beneath[0];
+                } else {
+                    search(5);
+                    if (not beneath.empty()) {
+                        pfrm.speaker().play_sound("click_wooden", 2);
+                        movement_cursor_ = beneath[0];
+                    } else {
+                        search(7);
+                        if (not beneath.empty()) {
+                            pfrm.speaker().play_sound("click_wooden", 2);
+                            movement_cursor_ = beneath[0];
+                        }
+                    }
+                }
+            }
             render_map_key(pfrm, app);
         }
         break;
