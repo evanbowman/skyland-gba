@@ -50,6 +50,8 @@ public:
     {
         if ((u32)delta < time_.get()) {
             time_.set(time_.get() - delta);
+        } else {
+            time_.set(0);
         }
     }
 

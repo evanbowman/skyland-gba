@@ -245,7 +245,6 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
     auto end_timestamp = app.time_stream().end_timestamp();
 
     if (not app.opponent_island() or not end_timestamp or
-        app.level_timer().whole_seconds() == 0 or
         app.player().key_down(pfrm, Key::alt_1)) {
 
         app.time_stream().enable_pushes(true);
