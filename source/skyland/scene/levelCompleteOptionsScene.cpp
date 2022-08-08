@@ -196,7 +196,7 @@ void LevelCompleteOptionsScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     auto st = calc_screen_tiles(pfrm);
 
-    StringBuffer<32> resume = SYSTR(start_menu_resume)->c_str();
+    StringBuffer<32> resume = SYSTR(start_menu_continue_building)->c_str();
     StringBuffer<32> sky_map = SYSTR(start_menu_sky_map)->c_str();
 
     options_.emplace_back(

@@ -366,6 +366,7 @@ enum class SystemString {
     start_menu_link,
     start_menu_share,
     start_menu_spectate,
+    start_menu_continue_building,
 
     spectate_msg,
 
@@ -509,6 +510,7 @@ enum class SystemString {
     hint_infirmary,
     hint_navigation,
     hint_doors,
+    hint_repair,
     hint_hotkeys,
     hint_glossary,
     hint_plunder,

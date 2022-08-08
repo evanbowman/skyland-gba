@@ -289,6 +289,7 @@ newgame
 connect a friend
 share island
 spectate
+continue building
 START: drop in
 please wait...
 really salvage?  +
@@ -407,6 +408,7 @@ Press and hold the pause button to set the game speed. Slow motion and fastforwa
 Build an infirmary to heal your crew!
 In the construction menu, the up/down buttons scroll through categories: defenses, weapons, workshops, power, misc.
 Use bulkhead doors to protect your power-cores against goblins!
+Overwhelmed by goblins? Try building some repair drones!
 You can assign groups of weapons to hotkeys! Press and hold start for more options!
 The Glossary, found on the title screen extras menu, describes all structures in the game!
 Raid and plunder castles for extra coins!
