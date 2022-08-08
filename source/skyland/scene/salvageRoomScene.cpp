@@ -163,8 +163,10 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    auto exit_scene = [near = near_]() -> ScenePtr<Scene> {
-        if (near) {
+    auto exit_scene = [near = near_, this]() -> ScenePtr<Scene> {
+        if (next_) {
+            return (*next_)();
+        } else if (near) {
             return scene_pool::alloc<ReadyScene>();
         } else {
             return scene_pool::alloc<InspectP2Scene>();
@@ -182,8 +184,12 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
             auto future_scene = [exit_scene]() { return exit_scene(); };
             auto msg = SYSTR(salvage_error_populated);
             pfrm.speaker().play_sound("beep_error", 2);
-            return scene_pool::alloc<NotificationScene>(msg->c_str(),
-                                                        future_scene);
+            if (next_) {
+                return (*next_)();
+            } else {
+                return scene_pool::alloc<NotificationScene>(msg->c_str(),
+                                                            future_scene);
+            }
         }
     } else {
         return exit_scene();

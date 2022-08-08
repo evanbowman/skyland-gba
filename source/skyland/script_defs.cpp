@@ -816,6 +816,32 @@ static const lisp::Binding script_api[] = {
 
          return L_NIL;
      }},
+    {"on-timeout",
+     [](int argc) {
+         L_EXPECT_ARGC(argc, 2);
+         L_EXPECT_OP(1, integer);
+         L_EXPECT_OP(0, symbol);
+
+         auto [app, pfrm] = interp_get_context();
+
+         auto s = lisp::get_op(0)->symbol();
+
+         app->on_timeout(
+             *pfrm, milliseconds(L_LOAD_INT(1)), [s](Platform&, App&) {
+                 auto v = lisp::get_var(s.name());
+                 if (v->type() == lisp::Value::Type::function) {
+                     lisp::funcall(v, 0);
+                     lisp::pop_op();
+                 } else {
+                     Platform::fatal(format("on-timeout: % is not "
+                                            "a function!",
+                                            s.name())
+                                         .c_str());
+                 }
+             });
+
+         return L_NIL;
+     }},
     {"port",
      [](int argc) {
          L_EXPECT_ARGC(argc, 1);

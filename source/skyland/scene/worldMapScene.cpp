@@ -628,22 +628,20 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         if (app.player().key_down(pfrm, Key::left)) {
             Buffer<int, 10> left;
 
-            auto search =
-                [&](int width) {
-                    left.clear();
-                    for (u32 i = 0; i < movement_targets_.size(); ++i) {
-                        auto& t = movement_targets_[i];
-                        if (abs(t.y - movement_targets_[movement_cursor_].y) < width
-                            and t.x < movement_targets_[movement_cursor_].x) {
-                            left.push_back(i);
-                        }
+            auto search = [&](int width) {
+                left.clear();
+                for (u32 i = 0; i < movement_targets_.size(); ++i) {
+                    auto& t = movement_targets_[i];
+                    if (abs(t.y - movement_targets_[movement_cursor_].y) <
+                            width and
+                        t.x < movement_targets_[movement_cursor_].x) {
+                        left.push_back(i);
                     }
-                    std::sort(left.begin(), left.end(),
-                              [&](auto& lhs, auto& rhs) {
-                                  return movement_targets_[lhs].x >
-                                      movement_targets_[rhs].x;
-                              });
-                };
+                }
+                std::sort(left.begin(), left.end(), [&](auto& lhs, auto& rhs) {
+                    return movement_targets_[lhs].x > movement_targets_[rhs].x;
+                });
+            };
 
             search(2);
 
@@ -674,22 +672,22 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (app.player().key_down(pfrm, Key::right)) {
             Buffer<int, 10> right;
 
-            auto search =
-                [&](int width) {
-                    right.clear();
-                    for (u32 i = 0; i < movement_targets_.size(); ++i) {
-                        auto& t = movement_targets_[i];
-                        if (abs(t.y - movement_targets_[movement_cursor_].y) < width
-                            and t.x > movement_targets_[movement_cursor_].x) {
-                            right.push_back(i);
-                        }
+            auto search = [&](int width) {
+                right.clear();
+                for (u32 i = 0; i < movement_targets_.size(); ++i) {
+                    auto& t = movement_targets_[i];
+                    if (abs(t.y - movement_targets_[movement_cursor_].y) <
+                            width and
+                        t.x > movement_targets_[movement_cursor_].x) {
+                        right.push_back(i);
                     }
-                    std::sort(right.begin(), right.end(),
-                              [&](auto& lhs, auto& rhs) {
-                                  return movement_targets_[lhs].x <
-                                      movement_targets_[rhs].x;
-                              });
-                };
+                }
+                std::sort(
+                    right.begin(), right.end(), [&](auto& lhs, auto& rhs) {
+                        return movement_targets_[lhs].x <
+                               movement_targets_[rhs].x;
+                    });
+            };
 
             search(2);
 
@@ -721,22 +719,22 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (app.player().key_down(pfrm, Key::up)) {
             Buffer<int, 10> above;
 
-            auto search =
-                [&](int width) {
-                    above.clear();
-                    for (u32 i = 0; i < movement_targets_.size(); ++i) {
-                        auto& t = movement_targets_[i];
-                        if (abs(t.x - movement_targets_[movement_cursor_].x) < width
-                            and t.y < movement_targets_[movement_cursor_].y) {
-                            above.push_back(i);
-                        }
+            auto search = [&](int width) {
+                above.clear();
+                for (u32 i = 0; i < movement_targets_.size(); ++i) {
+                    auto& t = movement_targets_[i];
+                    if (abs(t.x - movement_targets_[movement_cursor_].x) <
+                            width and
+                        t.y < movement_targets_[movement_cursor_].y) {
+                        above.push_back(i);
                     }
-                    std::sort(above.begin(), above.end(),
-                              [&](auto& lhs, auto& rhs) {
-                                  return movement_targets_[lhs].y >
-                                      movement_targets_[rhs].y;
-                              });
-                };
+                }
+                std::sort(
+                    above.begin(), above.end(), [&](auto& lhs, auto& rhs) {
+                        return movement_targets_[lhs].y >
+                               movement_targets_[rhs].y;
+                    });
+            };
 
             search(2);
 
@@ -766,22 +764,22 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         } else if (app.player().key_down(pfrm, Key::down)) {
             Buffer<int, 10> beneath;
 
-            auto search =
-                [&](int width) {
-                    beneath.clear();
-                    for (u32 i = 0; i < movement_targets_.size(); ++i) {
-                        auto& t = movement_targets_[i];
-                        if (abs(t.x - movement_targets_[movement_cursor_].x) < width
-                            and t.y > movement_targets_[movement_cursor_].y) {
-                            beneath.push_back(i);
-                        }
+            auto search = [&](int width) {
+                beneath.clear();
+                for (u32 i = 0; i < movement_targets_.size(); ++i) {
+                    auto& t = movement_targets_[i];
+                    if (abs(t.x - movement_targets_[movement_cursor_].x) <
+                            width and
+                        t.y > movement_targets_[movement_cursor_].y) {
+                        beneath.push_back(i);
                     }
-                    std::sort(beneath.begin(), beneath.end(),
-                              [&](auto& lhs, auto& rhs) {
-                                  return movement_targets_[lhs].y <
-                                      movement_targets_[rhs].y;
-                              });
-                };
+                }
+                std::sort(
+                    beneath.begin(), beneath.end(), [&](auto& lhs, auto& rhs) {
+                        return movement_targets_[lhs].y <
+                               movement_targets_[rhs].y;
+                    });
+            };
 
             search(2);
 

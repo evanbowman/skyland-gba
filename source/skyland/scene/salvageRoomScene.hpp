@@ -55,8 +55,17 @@ public:
     ScenePtr<Scene> update(Platform&, App&, Microseconds delta) override;
 
 
+    void set_next_scene(DeferredScene next)
+    {
+        next_ = next;
+    }
+
+
 private:
     Island* island(App& app);
+
+
+    std::optional<DeferredScene> next_;
 
 
     std::optional<Text> text_;

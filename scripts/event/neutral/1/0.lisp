@@ -37,7 +37,7 @@
         (setq temp (chr-slots (player)))
 
         (if (> (* 400 (zone)) (coins))
-            (dialog "You cannot afford to pay. The mercenaries become frustrated, and cut the transmission.")
+            (dialog "You cannot afford to pay. The mercenaries become impatient, and cut the transmission.")
           (if temp
               (progn
                 (coins-add (* -400 (zone)))

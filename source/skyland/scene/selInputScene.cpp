@@ -25,6 +25,7 @@
 #include "inspectP2Scene.hpp"
 #include "readyScene.hpp"
 #include "skyland/scene/constructionScene.hpp"
+#include "skyland/scene/salvageRoomScene.hpp"
 #include "skyland/skyland.hpp"
 
 
@@ -189,7 +190,12 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    if (app.player().key_down(pfrm, Key::action_1)) {
+    if (near_ and app.player().key_down(pfrm, Key::action_2)) {
+        auto next = scene_pool::alloc<SalvageRoomScene>();
+        next->set_next_scene(scene_pool::make_deferred_scene<SelInputScene>(
+            parameters_.get(), near_));
+        return next;
+    } else if (app.player().key_down(pfrm, Key::action_1)) {
 
         auto& cursor_loc =
             near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_

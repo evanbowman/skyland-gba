@@ -164,9 +164,9 @@ void PlayerIslandDestroyedScene::display(Platform& pfrm, App& app)
         auto pos = island_->get_position();
         auto origin_coord = island_->critical_core_loc();
         int circ_center_x = (pos.x.as_integer() + origin_coord.x * 16 + 16) -
-            pfrm.screen().get_view().get_center().x;
+                            pfrm.screen().get_view().get_center().x;
         int circ_center_y = (pos.y.as_integer() + origin_coord.y * 16 + 16) -
-            pfrm.screen().get_view().get_center().y - 510;
+                            pfrm.screen().get_view().get_center().y - 510;
         // Platform::fatal(stringify(circ_center_y).c_str());
         int params[] = {circ_effect_radius_, circ_center_x, circ_center_y};
         pfrm.system_call("overlay-circle-effect", params);
@@ -943,21 +943,21 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     level_seconds_ = app.stat_timer().whole_seconds();
 
-    if (app.world_graph()
-        .nodes_[app.current_world_location()]
-        .type_ == WorldGraph::Node::Type::corrupted) {
+    if (app.world_graph().nodes_[app.current_world_location()].type_ ==
+        WorldGraph::Node::Type::corrupted) {
 
         // At endgame, award the player score for any unused coins.
         app.score().set(app.score().get() + app.coins() * 8);
 
         if (island_ not_eq &app.player_island()) {
-            app.persistent_data().score_.set(300000 + app.persistent_data().score_.get());
+            app.persistent_data().score_.set(
+                300000 + app.persistent_data().score_.get());
         }
     }
 
     auto lv_score = app.score().get() - app.level_begin_score();
-    auto score_time_penalty = 0.5f * (lv_score - (lv_score /
-                                                  (std::max(1, level_seconds_ / 15))));
+    auto score_time_penalty =
+        0.5f * (lv_score - (lv_score / (std::max(1, level_seconds_ / 15))));
     app.score().set(app.score().get() - score_time_penalty);
 
 

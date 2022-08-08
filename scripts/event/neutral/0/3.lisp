@@ -41,10 +41,23 @@
 
   (setq on-dialog-accepted
         (lambda
+          (if (bound 'fut) (unbind 'fut))
+
           (if (< (coins) 1300)
               (progn
-                (dialog "<c:merchant:7> Sorry, that's not enough money!")
-                (exit))
+                (dialog "<c:merchant:7> Sorry, that's not enough money! Do you want to salvage some stuff to come up with the funds? I'll check back in in 15 seconds?")
+                (dialog-await-y/n)
+                ;; Capture the current executing function, reinvoke after n seconds...
+                (let ((f (this)))
+                  (setq fut
+                        (lambda
+                          (if (> (coins) 1299)
+                              (progn
+                                (dialog "<c:merchant:7> Seems like you have enough now!")
+                                (setq on-dialog-closed f))
+                            (f)))))
+                (setq on-dialog-accepted (lambda (on-timeout 15000 'fut)))
+                (setq on-dialog-declined (lambda (unbind 'fut) (exit))))
             (progn
               (coins-add -1300)
               (mktr (cdr item))

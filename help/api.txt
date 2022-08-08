@@ -342,6 +342,17 @@ o----------------------------o
 
 o----------------------------o
 
+ (on-timeout
+  milliseconds
+  callback-sym)
+
+ Invoke function bound to
+ callback-sym after integer
+ milliseconds have passed.
+
+
+o----------------------------o
+
  (opponent) -> island
 
  Returns a reference to the
