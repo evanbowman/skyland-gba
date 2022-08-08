@@ -87,7 +87,14 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
                     node.type_ == WorldGraph::Node::Type::hostile_hidden or
                     node.type_ == WorldGraph::Node::Type::exit or
                     app.game_mode() == App::GameMode::challenge) {
-                    next->set_gamespeed(pfrm, app, GameSpeed::stopped);
+
+                    app.on_timeout(
+                        pfrm, milliseconds(250), [](Platform& pfrm, App& app) {
+                            if (auto w =
+                                    dynamic_cast<WorldScene*>(&app.scene())) {
+                                w->set_gamespeed(pfrm, app, GameSpeed::stopped);
+                            }
+                        });
                 }
             }
             return next;

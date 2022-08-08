@@ -293,7 +293,9 @@ void Transporter::transport_occupant(Platform& pfrm,
 
     characters().erase(characters().begin());
 
-    pfrm.speaker().play_sound("transporter", 2);
+    if (not pfrm.speaker().is_sound_playing("transporter")) {
+        pfrm.speaker().play_sound("transporter", 2);
+    }
 }
 
 
