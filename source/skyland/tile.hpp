@@ -261,7 +261,7 @@ struct InteriorTile
         ladder_base,
         ladder_mid,
         roof_3,
-        __unused__,
+        backup_core,
         ladder_top,
         grass,
         empty,

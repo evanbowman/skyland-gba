@@ -16,6 +16,7 @@ air
 annihilator
 arc-gun
 arch
+standby-core
 banana-plant
 barrier
 basalt
@@ -262,6 +263,7 @@ May be salvaged for one hundred percent of its value! Useful for co-op multiplay
 Weaker than regular missiles, but with a wider damage radius, and starts fires. Manufactory required.
 Changes the weather to clear skies!
 Automatically chooses weapon targets for you! You can probably do a better job yourself, though...
+Produces zero power, unless all of your other power supplies are destroyed. A last resort! Only one allowed per island.
 paused
 slow
 regular

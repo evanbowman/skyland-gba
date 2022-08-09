@@ -36,7 +36,9 @@ namespace skyland
 class Core : public Room
 {
 public:
-    Core(Island* parent, const RoomCoord& position);
+    Core(Island* parent,
+         const RoomCoord& position,
+         const char* n = name());
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -98,6 +100,66 @@ public:
     {
         return RoomProperties::workshop_required | RoomProperties::has_chimney |
                RoomProperties::habitable;
+    }
+};
+
+
+
+class BackupCore : public Core
+{
+public:
+    BackupCore(Island* parent, const RoomCoord& position) :
+        Core(parent, position, name())
+    {
+    }
+
+
+    Power power_usage(App& app) const override;
+
+
+    void update(Platform&, App&, Microseconds delta) override;
+
+
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+
+
+    static Float atp_value()
+    {
+        return Core::atp_value() - 1;
+    }
+
+
+    static const char* name()
+    {
+        return "backup-core";
+    }
+
+
+    static RoomProperties::Bitmask properties()
+    {
+        return RoomProperties::workshop_required | RoomProperties::has_chimney |
+            RoomProperties::habitable | RoomProperties::disabled_in_tutorials;
+    }
+
+
+    void render_interior(App& app, TileId buffer[16][16]) override;
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_backup_core;
+    }
+
+
+    static Icon icon()
+    {
+        return 3592;
+    }
+
+
+    static Icon unsel_icon()
+    {
+        return 3576;
     }
 };
 

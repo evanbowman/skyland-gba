@@ -28,6 +28,7 @@
    (radiator     60  400  50)
    (workshop     60  2000 10)
    (infirmary    60  1000 10)
+   (backup-core  50  900  -150)
    (power-core   60  3000 -150)
    (reactor      140 4200 -400)
    (solar-cell   40  1000  -75)

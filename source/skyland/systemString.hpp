@@ -67,6 +67,7 @@ enum class SystemString {
     block_annihilator,
     block_arcgun,
     block_arch,
+    block_backup_core,
     block_banana_plant,
     block_barrier,
     block_basalt,
@@ -337,6 +338,7 @@ enum class SystemString {
     description_rocket_bomb,
     description_weather_engine,
     description_targeting_computer,
+    description_backup_core,
 
     gs_paused,
     gs_slow,

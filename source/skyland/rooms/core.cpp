@@ -25,6 +25,7 @@
 #include "skyland/entity/explosion/coreExplosion.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/room_metatable.hpp"
 
 
 
@@ -40,8 +41,10 @@ void Core::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Core::Core(Island* parent, const RoomCoord& position)
-    : Room(parent, name(), position)
+Core::Core(Island* parent,
+           const RoomCoord& position,
+           const char* n)
+    : Room(parent, n, position)
 {
 }
 
@@ -87,6 +90,74 @@ void Core::render_exterior(App& app, TileId buffer[16][16])
     buffer[position().x + 1][position().y] = Tile::wall_plain_1;
     buffer[position().x + 1][position().y + 1] = Tile::wall_plain_2;
 }
+
+
+
+Power BackupCore::power_usage(App& app) const
+{
+    auto base_power = Core::power_usage(app);
+
+    if (health() == 0) {
+        return 0;
+    }
+
+    for (auto& room : parent()->rooms()) {
+        if ((*room->metaclass())->category() == Room::Category::power) {
+            if (room.get() not_eq this) {
+                // Another power-generating structure exists.
+                return 0;
+            }
+        }
+    }
+    return base_power;
+}
+
+
+
+void BackupCore::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::update(pfrm, app, delta);
+
+    for (auto& room : parent()->rooms()) {
+        if ((*room->metaclass())->category() == Room::Category::power) {
+            if (room.get() not_eq this and
+                room->metaclass() == metaclass()) {
+
+                // One allowed per island.
+                if (length(characters()) < length(room->characters())) {
+                    apply_damage(pfrm,
+                                 app,
+                                 Room::health_upper_limit());
+                } else {
+                    room->apply_damage(pfrm,
+                                       app,
+                                       Room::health_upper_limit());
+                }
+
+                return;
+            }
+        }
+    }
+
+}
+
+
+
+void BackupCore::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+{
+    buffer += SYSTR(description_backup_core)->c_str();
+}
+
+
+
+void BackupCore::render_interior(App& app, TileId buffer[16][16])
+{
+    buffer[position().x][position().y] = InteriorTile::core_1;
+    buffer[position().x][position().y + 1] = InteriorTile::core_2;
+    buffer[position().x + 1][position().y] = InteriorTile::backup_core;
+    buffer[position().x + 1][position().y + 1] = InteriorTile::core_4;
+}
+
 
 
 

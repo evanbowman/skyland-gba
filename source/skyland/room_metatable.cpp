@@ -298,6 +298,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         Core,
                                         Reactor,
                                         SolarCell,
+                                        BackupCore,
                                         // misc
                                         Stairwell,
                                         Bulkhead,
