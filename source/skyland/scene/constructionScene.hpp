@@ -121,6 +121,8 @@ private:
     int touchscroll_ = 0;
     int last_touch_x_ = 0;
 
+    Island::BlockChecksum checksum_;
+
     bool near_;
 };
 

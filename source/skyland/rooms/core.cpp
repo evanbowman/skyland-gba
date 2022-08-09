@@ -23,9 +23,9 @@
 #include "core.hpp"
 #include "platform/platform.hpp"
 #include "skyland/entity/explosion/coreExplosion.hpp"
+#include "skyland/room_metatable.hpp"
 #include "skyland/sound.hpp"
 #include "skyland/tile.hpp"
-#include "skyland/room_metatable.hpp"
 
 
 
@@ -41,9 +41,7 @@ void Core::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 
 
 
-Core::Core(Island* parent,
-           const RoomCoord& position,
-           const char* n)
+Core::Core(Island* parent, const RoomCoord& position, const char* n)
     : Room(parent, n, position)
 {
 }
@@ -120,25 +118,19 @@ void BackupCore::update(Platform& pfrm, App& app, Microseconds delta)
 
     for (auto& room : parent()->rooms()) {
         if ((*room->metaclass())->category() == Room::Category::power) {
-            if (room.get() not_eq this and
-                room->metaclass() == metaclass()) {
+            if (room.get() not_eq this and room->metaclass() == metaclass()) {
 
                 // One allowed per island.
                 if (length(characters()) < length(room->characters())) {
-                    apply_damage(pfrm,
-                                 app,
-                                 Room::health_upper_limit());
+                    apply_damage(pfrm, app, Room::health_upper_limit());
                 } else {
-                    room->apply_damage(pfrm,
-                                       app,
-                                       Room::health_upper_limit());
+                    room->apply_damage(pfrm, app, Room::health_upper_limit());
                 }
 
                 return;
             }
         }
     }
-
 }
 
 
@@ -157,7 +149,6 @@ void BackupCore::render_interior(App& app, TileId buffer[16][16])
     buffer[position().x + 1][position().y] = InteriorTile::backup_core;
     buffer[position().x + 1][position().y + 1] = InteriorTile::core_4;
 }
-
 
 
 

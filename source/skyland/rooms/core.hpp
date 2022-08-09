@@ -36,9 +36,7 @@ namespace skyland
 class Core : public Room
 {
 public:
-    Core(Island* parent,
-         const RoomCoord& position,
-         const char* n = name());
+    Core(Island* parent, const RoomCoord& position, const char* n = name());
 
 
     void update(Platform&, App&, Microseconds delta) override;
@@ -108,8 +106,8 @@ public:
 class BackupCore : public Core
 {
 public:
-    BackupCore(Island* parent, const RoomCoord& position) :
-        Core(parent, position, name())
+    BackupCore(Island* parent, const RoomCoord& position)
+        : Core(parent, position, name())
     {
     }
 
@@ -138,7 +136,8 @@ public:
     static RoomProperties::Bitmask properties()
     {
         return RoomProperties::workshop_required | RoomProperties::has_chimney |
-            RoomProperties::habitable | RoomProperties::disabled_in_tutorials;
+               RoomProperties::habitable |
+               RoomProperties::disabled_in_tutorials;
     }
 
 

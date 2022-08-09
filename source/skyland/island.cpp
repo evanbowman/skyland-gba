@@ -1008,6 +1008,8 @@ void Island::on_layout_changed(App& app,
     bool buffer[16][16];
     plot_walkable_zones(app, buffer);
 
+    checksum_ = 0;
+
     for (auto& room : rooms()) {
         for (auto& chr : room->characters()) {
             if (auto path = chr->get_movement_path()) {
@@ -1032,6 +1034,12 @@ void Island::on_layout_changed(App& app,
                 }
             }
         }
+
+        // NOTE: the checksum must incorporate room type as well as position,
+        // otherwise, in some scenarios, the checksum may be the same after a
+        // block is removed. Checksums can still collide, of course.
+        checksum_ +=
+            room->metaclass_index() + room->position().y + room->position().x;
     }
 }
 

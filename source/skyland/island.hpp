@@ -372,6 +372,15 @@ public:
     }
 
 
+    using BlockChecksum = u16;
+
+
+    BlockChecksum checksum() const
+    {
+        return checksum_;
+    }
+
+
 private:
     void resolve_cancelled_dispatch();
 
@@ -427,6 +436,7 @@ private:
     u8 manufactory_count_ = 0;
     u8 core_count_ = 0;
     u8 min_y_ = 0;
+    BlockChecksum checksum_ = 0;
 
     // These parameters represent the location where a power core might possibly
     // be. Used during the death animation when placing the center of the
@@ -436,6 +446,8 @@ private:
 
     u8 character_count_ = 0;
     u8 offensive_capabilities_ = 0;
+    u8 flag_anim_index_;
+
 
     bool destroyed_ = false;
     bool all_characters_awaiting_movement_ = false;
@@ -446,7 +458,6 @@ private:
 
     std::optional<RoomCoord> flag_pos_;
     Microseconds flag_anim_timer_ = 0;
-    int flag_anim_index_;
 
     EntityList<BasicCharacter> characters_;
     EntityList<Entity> projectiles_;

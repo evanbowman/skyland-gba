@@ -189,6 +189,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
     switch (state_) {
     case State::select_loc:
 
+        if (island(app)->checksum() not_eq checksum_) {
+            find_construction_sites(pfrm, app);
+            category_label_.reset();
+            msg(pfrm, SYSTR(construction_build)->c_str());
+            checksum_ = island(app)->checksum();
+        }
+
         if (test_key(Key::right)) {
             if (selector_ < data_->construction_sites_.size() - 1) {
                 ++selector_;
@@ -515,6 +522,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             target->create(pfrm, app, island(app), {dest_x, dest_y});
             data_->last_constructed_building_ = metaclass_index(target->name());
+
+            checksum_ = island(app)->checksum();
 
             if (str_eq(target->name(), "workshop")) {
                 app.persistent_data().set_flag(PersistentData::workshop_built);
@@ -897,6 +906,8 @@ void ConstructionScene::find_construction_sites(Platform& pfrm, App& app)
     data_->construction_sites_.clear();
 
     bool matrix[16][16];
+
+    checksum_ = island(app)->checksum();
 
     island(app)->plot_construction_zones(matrix);
 
