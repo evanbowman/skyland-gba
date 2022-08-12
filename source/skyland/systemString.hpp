@@ -279,6 +279,7 @@ enum class SystemString {
     macro_pillar,
     macro_wide,
     macro_deep,
+    macro_superflat,
 
 
     macro_mode_lock,

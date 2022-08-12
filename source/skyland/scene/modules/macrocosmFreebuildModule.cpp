@@ -3,6 +3,7 @@
 #include "skyland/macrocosmEngine.hpp"
 #include "skyland/macrocosmFreebuildSector.hpp"
 #include "skyland/macrocosmFreebuildWideSector.hpp"
+#include "skyland/macrocosmFreebuildFlatSector.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene/fullscreenDialogScene.hpp"
 #include "skyland/scene/macro/helpScene.hpp"
@@ -51,6 +52,9 @@ void MacrocosmFreebuildModule::enter(Platform& pfrm, App& app, Scene& prev)
 
     t2_.emplace(pfrm, SYSTR(macro_wide)->c_str(), OverlayCoord{3, 9});
     t2_->append(" 12x12x5");
+
+    t3_.emplace(pfrm, SYSTR(macro_superflat)->c_str(), OverlayCoord{3, 11});
+    t3_->append(" 14x14x4");
 }
 
 
@@ -60,6 +64,7 @@ void MacrocosmFreebuildModule::exit(Platform& pfrm, App& app, Scene& prev)
     prompt_.reset();
     t1_.reset();
     t2_.reset();
+    t3_.reset();
 
     pfrm.fill_overlay(0);
 }
@@ -132,6 +137,17 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
         }
         break;
     }
+
+    case 2: {
+        m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild_flat);
+        auto bound = m.bind_sector({0, 1});
+
+        if (auto s = dynamic_cast<macro::terrain::FreebuildFlatSector*>(bound)) {
+            s->reset();
+        }
+        break;
+    }
+
     }
 
     pfrm.system_call("vsync", nullptr);
@@ -177,7 +193,7 @@ MacrocosmFreebuildModule::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     if (app.player().key_down(pfrm, Key::down)) {
-        if (size_sel_ < 1) {
+        if (size_sel_ < 2) {
             ++size_sel_;
             pfrm.speaker().play_sound("click_wooden", 2);
         }
@@ -187,11 +203,19 @@ MacrocosmFreebuildModule::update(Platform& pfrm, App& app, Microseconds delta)
     case 0:
         pfrm.set_tile(Layer::overlay, 1, 7, 396);
         pfrm.set_tile(Layer::overlay, 1, 9, 0);
+        pfrm.set_tile(Layer::overlay, 1, 11, 0);
         break;
 
     case 1:
         pfrm.set_tile(Layer::overlay, 1, 7, 0);
         pfrm.set_tile(Layer::overlay, 1, 9, 396);
+        pfrm.set_tile(Layer::overlay, 1, 11, 0);
+        break;
+
+    case 2:
+        pfrm.set_tile(Layer::overlay, 1, 7, 0);
+        pfrm.set_tile(Layer::overlay, 1, 9, 0);
+        pfrm.set_tile(Layer::overlay, 1, 11, 396);
         break;
     }
 

@@ -75,6 +75,7 @@ public:
     std::optional<Text> prompt_;
     std::optional<Text> t1_;
     std::optional<Text> t2_;
+    std::optional<Text> t3_;
     int size_sel_ = 0;
 };
 

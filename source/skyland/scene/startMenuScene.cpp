@@ -407,6 +407,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
                                 switch ((Sector::Shape)data[0]) {
                                 case Sector::Shape::freebuild:
                                 case Sector::Shape::freebuild_wide:
+                                case Sector::Shape::freebuild_flat:
                                     break;
 
                                 default:

@@ -102,7 +102,8 @@ public:
         pillar,
         freebuild,
         outpost,
-        freebuild_wide
+        freebuild_wide,
+        freebuild_flat,
     };
 
 
