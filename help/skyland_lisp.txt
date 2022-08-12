@@ -3,6 +3,370 @@
  library documentation
 
 
+ Generally, you should refer
+ to the existing game scripts
+ for examples of how to use
+ the engine's scripting
+ language.
+
+ A brief over of features,
+ followed by documentation
+ for the language's
+ builtin functions:
+
+
+ NOTE: You'll find tons
+ of info on the internet
+ about the common language
+ semantics in LISP dialects.
+ Please review online
+ references first, and then
+ consult the brief
+ description, below, to
+ understand how this lisp
+ might differ semantically
+ from other lisp dialects.
+
+
+ #### Integers: ####
+
+ To declare an integer, type
+ a number, like so:
+
+ 1
+ 2
+ 567
+ -22
+
+ The interpreter does not
+ support rational numbers,
+ i.e., no floating point
+ or decimal values.
+
+ #### Function call syntax: ####
+
+ To call a function, type the
+ function name, followed by
+ its arguments, wrapped with
+ parentheses. For example, to
+ call the builtin + function,
+ you would type:
+
+ (+ 1 2)
+ ; result: 3
+
+
+ #### Nil: ####
+
+ An empty value. Represents
+ the absence of a value.
+ You may either type nil,
+ or write '().
+
+
+ #### Pairs: ####
+
+ You may associate two
+ values by pairing them
+ together, with the cons
+ function.
+ 
+ (cons 1 2)
+ ; result: '(1 . 2)
+
+ To retrieve the first
+ element of a pair, call
+ the car function:
+
+ (car (cons 1 2))
+ ; result: 1
+
+ To retrieve the second
+ element of a piar, call
+ the cdr function:
+
+ (cdr (cons 1 3))
+ ; result: 2
+
+ Now, you may be wondering:
+ what if I cons together
+ multiple pairs? For example:
+
+ (cons 1 (cons 2 (cons 3 4))
+ ;result: '(1 . (2 . (3 . 4)))
+
+ You may find it convenient
+ to represent list data
+ structures by cons'ing
+ together pairs, and using
+ the 'nil' value as a
+ terminating element, for
+ example:
+
+(cons 1 (cons 2 (cons 3 nil)))
+ ;result: '(1 2 3)
+
+ By terminating our chain of
+ pairs with nil, we've
+ created a list container!
+
+
+ #### Lists: ####
+ The language's central
+ datatype.
+
+ To create a list, you may
+ use cons, as described above.
+
+ But repeatedly calling cons
+ is kinda tedious, so the
+ language provides a list
+ function:
+
+ (list 1 2 3 4)
+ ;result: '(1 2 3 4)
+
+ (list 1)
+ ;result: '(1)
+
+ (list)
+ ;result: '()
+ 
+ What about retrieving
+ elements from a list?
+ As described in the Pairs
+ section, a list is simply
+ a nil terminated chain of
+ pairs, so you may use car
+ and cdr for referencing
+ elements (see above).
+
+
+ #### Quoting: ####
+
+ In addition to using the
+ list and cons functions
+ for building lists, you
+ may also specify list
+ elements directly, enclosed
+ by parentheses:
+
+ '(1 2 3 4)
+
+ Why the quote character?
+ As described in the section
+ above about function call
+ syntax, the first element
+ in a parentheses-enclosed
+ list will be interpreted
+ as a function name.
+
+ Prefixing a list with a
+ quote character defers
+ evaluation, preventing
+ the interpreter from calling
+ the first element as a
+ function.
+
+ For example:
+ (+ 1 2)
+ ;result: 3
+
+ '(+ 1 2)
+ ;result: '(+ 1 2)
+ As the above list, '(+ 1 2)
+ is unevaluated, the + in the
+ list is not a function, but
+ a symbol containing the
+ function's name.
+
+ #### Symbols: ####
+
+ A special datatype
+ representing a word.
+ Specify a symbol by prefixing
+ it with a quote character:
+ 'abc
+ ;result: 'abc
+
+ Any word appearing in a
+ quoted list is also a symbol:
+
+ (car '(a b c))
+ ;result: 'a
+
+ But what good are symbols,
+ anyway? All symbols are
+ globally unique, so, for
+ example, each instance
+ of 'abc in a program
+ will compare equal to
+ every other instance of 'abc
+
+ Furthermore, data may be
+ evaluated as code with the
+ eval function:
+
+ (eval '(+ 1 2 3))
+ ;result: 6
+
+ Because lisp code looks
+ exactly like lisp lists,
+ there is almost no
+ distinction between code
+ and data, making it possible
+ to generate code at rutime!
+
+ NOTE: The interpreter
+ heavily optimizes symbol
+ names with four characters
+ or less. For lowest memory
+ usage, limit symbols to
+ four characters.
+
+
+ #### Variables ####
+
+ To store data in variables,
+ you may use the setq
+ function:
+
+ (setq a 5)
+
+ a
+ ;result: 5
+
+ #### Functions ####
+
+ You may define your own
+ functions with the lambda
+ keyword. All functions
+ return the result of the
+ last expression in the
+ function body.
+
+ The language uses  numbered
+ arguments by default.
+
+ For example:
+
+ (setq add (lambda (+ $0 $1)))
+
+ (add 1 2)
+ ;result: 3
+
+ Why numbered arguments?
+ Using numbered parameters
+ decreases memory usage
+ required for storing symbols.
+ If you really hate
+ numbered arguments, the
+ environment defines a macro
+ called fn, which supports
+ named arguments:
+
+ (fn add (lhs rhs)
+   (+ lhs rhs))
+
+ Because named arguments
+ can be hacked onto the
+ language with a macro, but
+ numbered arguments cannot,
+ numbered arguments are the
+ default in this lisp dialect.
+
+
+ #### Lexical Bindings: ####
+
+ Each call to setq defines
+ a global variable if one
+ does not already exist. But
+ what if you want to define
+ local variables? Use the
+ let syntax:
+
+ (let ((a 5)
+       (b 6))
+   (+ a b))
+
+ ;result: 11
+
+ setq may be used within a
+ let block to overwrite
+ variable bindings.
+
+ (let ((a 5)
+       (b 6))
+   (setq b 5)
+   (+ a b))
+
+ ;result: 10
+
+ #### Lexical Closures ####
+
+ All functions act as
+ lexical closures. If you
+ don't know what that means,
+ don't worry about it too
+ much. Basically, you may
+ safely refer to a local
+ variable defined outside
+ of a function:
+
+ (setq A
+  (lambda
+   (let ((b $0))
+    (lambda
+     (+ b $0)))))
+
+ ((A 5) 7)
+ ;result: 12
+
+ What just happened? The
+ function A accepted a
+ parameter and bound it to
+ local variable b, and then
+ returned a function that
+ refers to b. But functions
+ capture any local variables
+ defined outside of the
+ function definition, so
+ no problem. Here's another
+ example:
+
+ (setq A
+  (let ((var 0))
+   (lambda
+    (setq var (+ var 1))
+    var)))
+
+ (A)
+ ;result: 1
+ (A)
+ ;result: 2
+ (A)
+ ;result: 3
+
+ In this case, the lambda
+ captured a local binding
+ called var, and overwrites
+ it with each subsequent
+ function call. Closures
+ are quite powerful!
+
+
+
+
+ Alright! I think I've
+ explained the basics of
+ SKYLAND Lisp semantics! A
+ simple yet expressive
+ language.
+
+
+ Builtin Function
+ documentation:
+
 o----------------------------o
 
  (abs n)
