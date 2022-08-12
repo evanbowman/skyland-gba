@@ -968,7 +968,7 @@ terrain::Sector::qr_encode(Platform& pfrm,
     }
 
     auto& compr = *buffer2;
-    compr = compress(*contiguous_data);
+    compress(*contiguous_data, compr);
     Vector<char> b32_array;
     for (char c : compr) {
         b32_array.push_back(c);

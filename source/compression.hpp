@@ -9,10 +9,9 @@ extern "C" {
 
 
 
-template <u32 sz> Buffer<char, sz> compress(const Buffer<char, sz>& input)
+template <u32 sz> Buffer<char, sz> compress(const Buffer<char, sz>& input,
+                                            Buffer<char, sz>& result)
 {
-    Buffer<char, sz> result;
-
 #ifndef HS_COMPRESSOR_OFF
     heatshrink_encoder enc;
     heatshrink_encoder_reset(&enc);
