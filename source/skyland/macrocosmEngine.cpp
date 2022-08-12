@@ -693,6 +693,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
     raster::globalstate::_shrunk = true;
 
 
+#ifndef __CMD_MACRO_RAST__
     lisp::ListBuilder conf;
 
     input.clear();
@@ -716,6 +717,7 @@ bool EngineImpl::load(Platform& pfrm, App& app)
 
     lisp::set_var("conf", conf.result());
     app.invoke_script(pfrm, "/scripts/macro/onload.lisp");
+#endif
 
     return true;
 }

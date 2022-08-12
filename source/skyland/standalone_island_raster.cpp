@@ -17,7 +17,7 @@
 // the image class, which just wraps stb_image, so it's not really as bad as it
 // looks. This repository includes both stb and the sfml source code.
 //
-// g++ standalone_island_raster.cpp -std=c++17 -I../ -I../../external -I../../external/SFML-2.5.1/src/ -I../../external/stb/ -o macro_rast ../../external/SFML-2.5.1/src/SFML/Graphics/Image.cpp ../../external/SFML-2.5.1/src/SFML/Graphics/Color.cpp ../../external/SFML-2.5.1/src/SFML/Graphics/ImageLoader.cpp ../../external/SFML-2.5.1/src/SFML/System/Err.cpp
+// g++ standalone_island_raster.cpp -std=c++17 -I../ -I../../external -I../../external/SFML-2.5.1/src/ -I../../external/stb/ -o macro_rast ../../external/SFML-2.5.1/src/SFML/Graphics/Image.cpp ../../external/SFML-2.5.1/src/SFML/Graphics/Color.cpp ../../external/SFML-2.5.1/src/SFML/Graphics/ImageLoader.cpp ../../external/SFML-2.5.1/src/SFML/System/Err.cpp -D__CMD_MACRO_RAST__
 //
 // This file produces a commandline tool that accepts data extracted from a
 // qr-encoded island and outputs an image. Intended for the skyland webserver.
@@ -270,6 +270,14 @@ Platform::~Platform()
 }
 
 
+
+std::optional<DateTime> Platform::SystemClock::now()
+{
+    return std::nullopt;
+}
+
+
+
 void Platform::Logger::log(Severity level, const char* msg)
 {
 }
@@ -493,6 +501,15 @@ int main(int argc, char** argv)
         puts("freebuild_wide");
         if (decomp.size() not_eq 865) {
             puts("decoded bad input size");
+            return EXIT_FAILURE;
+        }
+        break;
+
+    case macro::terrain::Sector::Shape::freebuild_flat:
+        puts("freebuild_flat");
+        if (decomp.size() not_eq 981) {
+            puts("decoded bad input size");
+            std::cout << decomp.size() << std::endl;
             return EXIT_FAILURE;
         }
         break;

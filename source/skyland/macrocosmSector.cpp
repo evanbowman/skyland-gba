@@ -957,20 +957,17 @@ terrain::Sector::qr_encode(Platform& pfrm,
 
     msg("compression... (heatshrink)");
 
-    struct Buffers
-    {
-        Buffer<char, 920> b1_;
-        Buffer<char, 920> b2_;
-    };
-    auto buffers = allocate_dynamic<Buffers>("enc-input");
-    auto contiguous_data = &buffers->b1_;
+
+    auto buffer1 = allocate_dynamic<Buffer<char, 1000>>("enc-input");
+    auto buffer2 = allocate_dynamic<Buffer<char, 1000>>("enc-input");
+    auto contiguous_data = &*buffer1;
 
     contiguous_data->push_back((u8)p_.shape_);
     for (char c : data) {
         contiguous_data->push_back(c);
     }
 
-    auto& compr = buffers->b2_;
+    auto& compr = *buffer2;
     compr = compress(*contiguous_data);
     Vector<char> b32_array;
     for (char c : compr) {
