@@ -233,18 +233,26 @@ public:
         int t_start = Derived::screen_mapping_lut[coord.x][coord.y];
         t_start += 30 * screen_y_offset;
         t_start -= 30 * coord.z;
-        raster::globalstate::_recalc_depth_test.set(t_start, true);
-        raster::globalstate::_recalc_depth_test.set(t_start + 1, true);
+
+        auto safeset =
+            [&](int index) {
+                if (index >= 0) {
+                    raster::globalstate::_recalc_depth_test.set(index, true);
+                }
+            };
+
+        safeset(t_start);
+        safeset(t_start + 1);
 
         t_start += 30;
 
-        raster::globalstate::_recalc_depth_test.set(t_start, true);
-        raster::globalstate::_recalc_depth_test.set(t_start + 1, true);
+        safeset(t_start);
+        safeset(t_start + 1);
 
         t_start += 30;
 
-        raster::globalstate::_recalc_depth_test.set(t_start, true);
-        raster::globalstate::_recalc_depth_test.set(t_start + 1, true);
+        safeset(t_start);
+        safeset(t_start + 1);
 
         coin_yield_cache_clear();
     }
@@ -440,7 +448,8 @@ public:
                 }
 
                 auto blit = [&](int texture, int t_start) {
-                    if (not raster::globalstate::_recalc_depth_test.get(
+                    if (t_start < 0 or
+                        not raster::globalstate::_recalc_depth_test.get(
                             t_start)) {
                         return;
                     }
