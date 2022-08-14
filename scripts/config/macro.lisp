@@ -35,7 +35,7 @@
    (4000 . "gold_cost")
    (9000 . "crystal_cost")
 
-   (30 . "base_seconds_per_year")
+   (40 . "base_seconds_per_year")
    (5 . "added_seconds_per_year_per_island")
 
    (2 . "food_consumption_factor")
