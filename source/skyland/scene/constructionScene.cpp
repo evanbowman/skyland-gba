@@ -827,8 +827,33 @@ void ConstructionScene::display(Platform& pfrm, App& app)
 
             sprite.set_size(Sprite::Size::w16_h32);
 
-
             pfrm.screen().draw(sprite);
+
+
+            if (data_->construction_sites_[selector_].y == 15) {
+                origin = island(app)->visual_origin();
+                origin.x += (island(app)->terrain().size() - 1) * 16;
+                origin.y += 15 * 16;
+
+                sprite.set_position(origin);
+                sprite.set_texture_index(99);
+                sprite.set_alpha(Sprite::Alpha::translucent);
+                pfrm.screen().draw(sprite);
+                sprite.set_texture_index(100);
+                origin.x += 16;
+                sprite.set_position(origin);
+                pfrm.screen().draw(sprite);
+            } else if (data_->construction_sites_[selector_].x ==
+                       island(app)->terrain().size() - 1) {
+                origin = island(app)->visual_origin();
+                origin.x += (island(app)->terrain().size()) * 16;
+                origin.y += 15 * 16;
+
+                sprite.set_position(origin);
+                sprite.set_texture_index(73);
+                sprite.set_alpha(Sprite::Alpha::translucent);
+                pfrm.screen().draw(sprite);
+            }
         }
         break;
 
