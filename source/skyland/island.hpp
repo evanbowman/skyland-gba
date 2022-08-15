@@ -382,6 +382,14 @@ public:
 
 
 private:
+
+
+    bool repaint_alloc_tiles(Platform& pfrm,
+                             App& app,
+                             TileId buffer[16][16],
+                             bool retry);
+
+
     void resolve_cancelled_dispatch();
 
 

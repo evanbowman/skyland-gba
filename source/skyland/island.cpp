@@ -1409,6 +1409,55 @@ void Island::plot_construction_zones(bool matrix[16][16]) const
 
 
 
+bool Island::repaint_alloc_tiles(Platform& pfrm,
+                                 App& app,
+                                 TileId buffer[16][16],
+                                 bool retry)
+{
+    for (int x = 0; x < 16; ++x) {
+        // NOTE: only handle 15 rows because render_terrain() takes care of the
+        // last row.
+        for (int y = 0; y < 15; ++y) {
+
+            if (buffer[x][y] >= Tile::dlc_tiles_begin and
+                buffer[x][y] < Tile::dlc_tiles_begin + 15) {
+                pfrm.set_tile(layer_, x, y, buffer[x][y]);
+                pfrm.set_palette(layer_, x, y, 12);
+                continue;
+            }
+
+            auto tile_handle = layer_ == Layer::map_0_ext
+                                   ? pfrm.map_tile0_chunk(buffer[x][y])
+                                   : pfrm.map_tile1_chunk(buffer[x][y]);
+
+            if (min_y_ == 0 and tile_handle) {
+                min_y_ = y;
+            }
+
+            if (tile_handle == 112 and not retry) {
+
+                // We ran out of vram for storing tiles! Clear out all mapped
+                // tiles, and attempt to reconstruct. A bit of a lazy
+                // brute-force solution. Alternatively, we could attempt to
+                // automatically clean up tile mappings when a room's destroyed,
+                // but then, all tiles would need to be reference-counted, and
+                // running out of tiles is a rare edge-case, so it's not worth
+                // optimizing at the moment.
+
+                layer_ == Layer::map_0_ext ? pfrm.clear_tile0_mappings()
+                                           : pfrm.clear_tile1_mappings();
+
+                return false;
+            }
+
+            pfrm.set_tile(layer_, x, y, tile_handle);
+        }
+    }
+    return true;
+}
+
+
+
 void Island::repaint(Platform& pfrm, App& app)
 {
     if (hidden_) {
@@ -1603,52 +1652,9 @@ void Island::repaint(Platform& pfrm, App& app)
         }
     }
 
-
-    bool retried = false;
-
-RETRY:
-    for (int x = 0; x < 16; ++x) {
-        // NOTE: only handle 15 rows because render_terrain() takes care of the
-        // last row.
-        for (int y = 0; y < 15; ++y) {
-
-            if (buffer[x][y] >= Tile::dlc_tiles_begin and
-                buffer[x][y] < Tile::dlc_tiles_begin + 15) {
-                pfrm.set_tile(layer_, x, y, buffer[x][y]);
-                pfrm.set_palette(layer_, x, y, 12);
-                continue;
-            }
-
-            auto tile_handle = layer_ == Layer::map_0_ext
-                                   ? pfrm.map_tile0_chunk(buffer[x][y])
-                                   : pfrm.map_tile1_chunk(buffer[x][y]);
-
-            if (min_y_ == 0 and tile_handle) {
-                min_y_ = y;
-            }
-
-            if (tile_handle == 112 and not retried) {
-
-                // We ran out of vram for storing tiles! Clear out all mapped
-                // tiles, and attempt to reconstruct. A bit of a lazy
-                // brute-force solution. Alternatively, we could attempt to
-                // automatically clean up tile mappings when a room's destroyed,
-                // but then, all tiles would need to be reference-counted, and
-                // running out of tiles is a rare edge-case, so it's not worth
-                // optimizing at the moment.
-
-                retried = true;
-
-                layer_ == Layer::map_0_ext ? pfrm.clear_tile0_mappings()
-                                           : pfrm.clear_tile1_mappings();
-
-                goto RETRY;
-            }
-
-            pfrm.set_tile(layer_, x, y, tile_handle);
-        }
+    if (not repaint_alloc_tiles(pfrm, app, buffer, false)) {
+        repaint_alloc_tiles(pfrm, app, buffer, true);
     }
-
 
     if (layer_ == Layer::map_0_ext and flag_pos_) {
         pfrm.set_palette(layer_, flag_pos_->x, flag_pos_->y, 12);
