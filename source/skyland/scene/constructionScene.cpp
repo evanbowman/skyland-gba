@@ -850,7 +850,7 @@ void ConstructionScene::display(Platform& pfrm, App& app)
                 origin.y += 15 * 16;
 
                 sprite.set_position(origin);
-                sprite.set_texture_index(73);
+                sprite.set_texture_index(101);
                 sprite.set_alpha(Sprite::Alpha::translucent);
                 pfrm.screen().draw(sprite);
             }
