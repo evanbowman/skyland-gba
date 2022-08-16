@@ -107,7 +107,7 @@ void Bulkhead::set_open(Platform& pfrm, App& app, bool open)
     open_ = open;
 
     if (parent()->interior_visible()) {
-        parent()->repaint(pfrm, app);
+        schedule_repaint();
     }
     parent()->on_layout_changed(app, {position().x, u8(position().y + 1)});
 }

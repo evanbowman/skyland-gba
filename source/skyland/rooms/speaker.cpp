@@ -133,7 +133,7 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
             }
             playing_ = false;
 
-            parent()->repaint(pfrm, app);
+            schedule_repaint();
 
             return;
         }
@@ -252,7 +252,7 @@ Speaker::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     play(pfrm);
 
     if (not was_playing_) {
-        parent()->repaint(pfrm, app);
+        schedule_repaint();
     }
 
     return null_scene();

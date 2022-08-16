@@ -83,7 +83,7 @@ void Transporter::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
             if (parent()->interior_visible()) {
-                parent()->repaint(pfrm, app);
+                schedule_repaint();
             }
         }
     }
@@ -133,7 +133,7 @@ void Transporter::recover_character(Platform& pfrm,
     begin_recharge();
 
     if (parent()->interior_visible()) {
-        parent()->repaint(pfrm, app);
+        schedule_repaint();
     }
 
     auto island = other_island(app);
@@ -213,7 +213,7 @@ void Transporter::transport_occupant(Platform& pfrm,
     begin_recharge();
 
     if (parent()->interior_visible()) {
-        parent()->repaint(pfrm, app);
+        schedule_repaint();
     }
 
     auto chr = characters().begin();

@@ -87,7 +87,7 @@ void EscapeBeacon::rewind(Platform& pfrm, App& app, Microseconds delta)
         if (timer_ > escape_beacon_countdown) {
             timer_ = 0;
             activated_ = false;
-            parent()->schedule_repaint();
+            schedule_repaint();
         }
     }
 }
@@ -111,7 +111,7 @@ EscapeBeacon::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     activated_ = true;
 
     if (not was_activated) {
-        parent()->schedule_repaint();
+        schedule_repaint();
         timer_ = escape_beacon_countdown;
     }
 

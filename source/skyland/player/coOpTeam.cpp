@@ -187,7 +187,6 @@ void CoOpTeam::receive(Platform& pfrm,
 {
     if (auto room = player_island(app).get_room({packet.x_, packet.y_})) {
         room->set_group((Room::Group)packet.group_);
-        player_island(app).show_groups(true);
         player_island(app).repaint(pfrm, app);
     }
 }

@@ -511,6 +511,23 @@ public:
     }
 
 
+    // The island class has a function, schedule_repaint(), allowing rooms to
+    // request a full redraw when their tile graphics change. But a full repaint
+    // isn't always necessary. Some tiles are joined with other tiles by the
+    // island tile renderer, while some tiles are fully isolated and not joined
+    // with any other tiles, and in those cases, there's no reason to redraw the
+    // entire island's tile layer.
+    void schedule_repaint();
+
+
+    bool poll_repaint()
+    {
+        bool ret = partial_repaint_flag_;
+        partial_repaint_flag_ = false;
+        return ret;
+    }
+
+
 protected:
     ScenePtr<Scene> do_select(Platform& pfrm, App& app);
 
@@ -582,7 +599,10 @@ private:
 
     u8 co_op_locked_ : 1;
     u8 mark_bit_ : 1;
-    u8 unused_ : 6;
+
+    u8 partial_repaint_flag_ : 1;
+
+    u8 unused_ : 5;
 
     // Bytes freed up by various space optimization techniques.
     u8 reserved_[6];

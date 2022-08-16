@@ -197,6 +197,14 @@ u8 Room::default_palette()
 
 
 
+void Room::schedule_repaint()
+{
+    parent()->schedule_repaint_partial();
+    partial_repaint_flag_ = true;
+}
+
+
+
 void Room::update(Platform& pfrm, App& app, Microseconds delta)
 {
     dispatch_queued_ = false;

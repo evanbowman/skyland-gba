@@ -42,7 +42,7 @@ void MirrorHull::update(Platform& pfrm, App& app, Microseconds delta)
     Room::update(pfrm, app, delta);
 
     if (last_tile_ not_eq tile()) {
-        parent()->schedule_repaint();
+        schedule_repaint();
     }
 }
 

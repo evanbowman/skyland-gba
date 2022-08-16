@@ -137,7 +137,6 @@ void AssignWeaponGroupScene::enter(Platform& pfrm, App& app, Scene& prev)
                  OverlayCoord{0, u8(calc_screen_tiles(pfrm).y - 1)});
 
 
-    app.player_island().show_groups(true);
     app.player_island().repaint(pfrm, app);
 }
 

@@ -70,7 +70,8 @@ void Island::init_terrain(Platform& pfrm, int width, bool render)
 
 Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
     : layer_(layer), timer_(0), interior_visible_(false), show_flag_(false),
-      dispatch_cancelled_(false), show_groups_(false), schedule_repaint_(false),
+      dispatch_cancelled_(false), schedule_repaint_(false),
+      schedule_repaint_partial_(false),
       has_radar_(false), is_boarded_(false), hidden_(false),
       flag_anim_index_(Tile::flag_start), owner_(&owner)
 {
@@ -304,7 +305,11 @@ void Island::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     if (schedule_repaint_) {
         schedule_repaint_ = false;
+        schedule_repaint_partial_ = false;
         repaint(pfrm, app);
+    } else if (schedule_repaint_partial_) {
+        schedule_repaint_partial_ = false;
+        repaint_partial(pfrm, app);
     }
 
 
@@ -979,6 +984,10 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
 
     if (do_repaint) {
         repaint(pfrm, app);
+        schedule_repaint_partial_ = false;
+    } else if (schedule_repaint_partial_) {
+        schedule_repaint_partial_ = false;
+        repaint_partial(pfrm, app);
     }
 
 
@@ -1470,6 +1479,44 @@ bool Island::repaint_alloc_tiles(Platform& pfrm,
 
 
 
+void Island::repaint_partial(Platform& pfrm, App& app)
+{
+    TileId buffer[16][16];
+    for (u32 x = 0; x < terrain_.size(); ++x) {
+        for (int y = 0; y < 16; ++y) {
+            buffer[x][y] = 0;
+        }
+    }
+
+    for (auto& r : rooms_) {
+        if (r->poll_repaint()) {
+            if (interior_visible_) {
+                r->render_interior(app, buffer);
+            } else {
+                r->render_exterior(app, buffer);
+            }
+        }
+    }
+
+    for (u32 x = 0; x < terrain_.size(); ++x) {
+        for (u32 y = 0; y < 15; ++y) {
+            if (buffer[x][y] not_eq 0) {
+                auto tile_handle = layer_ == Layer::map_0_ext
+                    ? pfrm.map_tile0_chunk(buffer[x][y])
+                    : pfrm.map_tile1_chunk(buffer[x][y]);
+
+                if (min_y_ == 0 and tile_handle) {
+                    min_y_ = y;
+                }
+
+                pfrm.set_tile(layer_, x, y, tile_handle);
+            }
+        }
+    }
+}
+
+
+
 void Island::repaint(Platform& pfrm, App& app)
 {
     if (hidden_) {
@@ -1674,19 +1721,17 @@ void Island::repaint(Platform& pfrm, App& app)
 
     render_terrain(pfrm);
 
-    if (show_groups_) {
-        for (auto& room : rooms_) {
-            if ((*room->metaclass())->category() == Room::Category::weapon) {
-                if (room->group() not_eq Room::Group::none) {
-                    auto pos = room->position();
-                    pos.y += room->size().y - 1;
-                    // NOTE: 8x8px tile, so start index = 4 * 16ptile + 1.
-                    // +1 to skip the none enumeration.
-                    const auto tile = (6 * 4 - 1) + (int)room->group();
-                    if (layer_ == Layer::map_0_ext) {
-                        pfrm.set_raw_tile(
-                            Layer::map_0, pos.x * 2, pos.y * 2 + 1, tile);
-                    }
+    for (auto& room : rooms_) {
+        if ((*room->metaclass())->category() == Room::Category::weapon) {
+            if (room->group() not_eq Room::Group::none) {
+                auto pos = room->position();
+                pos.y += room->size().y - 1;
+                // NOTE: 8x8px tile, so start index = 4 * 16ptile + 1.
+                // +1 to skip the none enumeration.
+                const auto tile = (6 * 4 - 1) + (int)room->group();
+                if (layer_ == Layer::map_0_ext) {
+                    pfrm.set_raw_tile(
+                                      Layer::map_0, pos.x * 2, pos.y * 2 + 1, tile);
                 }
             }
         }
@@ -1849,7 +1894,6 @@ u8 Island::character_count() const
 void show_island_interior(Platform& pfrm, App& app, Island* island)
 {
     if (island) {
-        island->show_groups(true);
         island->render_interior(pfrm, app);
     }
 
@@ -1861,7 +1905,6 @@ void show_island_interior(Platform& pfrm, App& app, Island* island)
 void show_island_exterior(Platform& pfrm, App& app, Island* island)
 {
     if (island) {
-        // island->show_groups(false);
         island->render_exterior(pfrm, app);
     }
 
@@ -1873,13 +1916,6 @@ void show_island_exterior(Platform& pfrm, App& app, Island* island)
 u8 Island::min_y() const
 {
     return min_y_;
-}
-
-
-
-void Island::show_groups(bool enabled)
-{
-    show_groups_ = enabled;
 }
 
 

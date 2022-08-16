@@ -331,9 +331,6 @@ public:
     void cancel_dispatch();
 
 
-    void show_groups(bool enabled);
-
-
     // The number of ways that the enemy has of attacking the player (weapons,
     // transporters, etc.).
     u8 offensive_capabilities() const;
@@ -349,6 +346,12 @@ public:
     void schedule_repaint()
     {
         schedule_repaint_ = true;
+    }
+
+
+    void schedule_repaint_partial()
+    {
+        schedule_repaint_partial_ = true;
     }
 
 
@@ -382,6 +385,10 @@ public:
 
 
 private:
+
+    void repaint_partial(Platform& pfrm, App& app);
+
+
     bool repaint_alloc_tiles(Platform& pfrm,
                              App& app,
                              TileId buffer[16][16],
@@ -412,8 +419,8 @@ private:
     bool interior_visible_ : 1;
     bool show_flag_ : 1;
     bool dispatch_cancelled_ : 1;
-    bool show_groups_ : 1;
     bool schedule_repaint_ : 1;
+    bool schedule_repaint_partial_ : 1;
 
     bool has_radar_ : 1;
     bool is_boarded_ : 1;

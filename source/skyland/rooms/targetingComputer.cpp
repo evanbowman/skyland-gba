@@ -137,7 +137,7 @@ TargetingComputer::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 
     enabled_ = not enabled_;
 
-    parent()->schedule_repaint();
+    schedule_repaint();
 
     Room::ready();
 
@@ -149,7 +149,7 @@ TargetingComputer::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 void TargetingComputer::___rewind___finished_reload(Platform& pfrm, App& app)
 {
     enabled_ = not enabled_;
-    parent()->schedule_repaint();
+    schedule_repaint();
 }
 
 
