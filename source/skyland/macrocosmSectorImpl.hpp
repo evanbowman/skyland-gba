@@ -234,12 +234,11 @@ public:
         t_start += 30 * screen_y_offset;
         t_start -= 30 * coord.z;
 
-        auto safeset =
-            [&](int index) {
-                if (index >= 0) {
-                    raster::globalstate::_recalc_depth_test.set(index, true);
-                }
-            };
+        auto safeset = [&](int index) {
+            if (index >= 0) {
+                raster::globalstate::_recalc_depth_test.set(index, true);
+            }
+        };
 
         safeset(t_start);
         safeset(t_start + 1);

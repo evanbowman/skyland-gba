@@ -136,9 +136,9 @@ Coins App::terrain_cost(Island& island)
         2800,
         3200,
         // Terrain wider than 13 tiles isn't supported in most game modes!
-        std::numeric_limits<Coins>::max(),
-        std::numeric_limits<Coins>::max(),
-        std::numeric_limits<Coins>::max(),
+        99999999,
+        99999999,
+        99999999,
     };
 
     return terrain_cost_table[island.terrain().size() - 1];

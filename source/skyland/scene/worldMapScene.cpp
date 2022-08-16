@@ -421,6 +421,12 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
+    if (pfrm.speaker().is_music_playing("unaccompanied_wind") and
+        not pfrm.speaker().is_sound_playing("creaking")) {
+        pfrm.speaker().play_sound("creaking", 9);
+    }
+
+
     auto to_move_state = [&] {
         state_ = State::move;
         movement_cursor_ = 0;
@@ -831,9 +837,7 @@ WorldMapScene::update(Platform& pfrm, App& app, Microseconds delta)
         timer_ += delta;
         constexpr auto fade_duration = milliseconds(700);
         if (timer_ > fade_duration) {
-            // Create a backup before entering a level. If the game encounters
-            // an unrecoverrable error, it will create a save from the backup
-            // data before crashing.
+            pfrm.speaker().clear_sounds();
             return scene_pool::alloc<LoadLevelScene>();
         } else {
             const auto amount = smoothstep(0.f, fade_duration, timer_);

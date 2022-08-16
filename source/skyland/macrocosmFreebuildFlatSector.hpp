@@ -37,7 +37,6 @@ class FreebuildFlatSector
     : public MacrocosmSectorImpl<FreebuildFlatSector, 14, 14, 5, 2>
 {
 public:
-
     FreebuildFlatSector(Vec2<s8> position)
         : MacrocosmSectorImpl(position, Shape::freebuild_flat)
     {

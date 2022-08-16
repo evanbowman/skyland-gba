@@ -541,8 +541,11 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (menu_selection_ == 3) {
         if (not pfrm.speaker().is_sound_playing("struttin")) {
+            pfrm.speaker().stop_sound("creaking");
             pfrm.speaker().play_sound("struttin", 7);
         }
+    } else if (not pfrm.speaker().is_sound_playing("creaking")) {
+        pfrm.speaker().play_sound("creaking", 9);
     }
 
 
@@ -946,6 +949,9 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
         constexpr auto fade_duration = milliseconds(600);
         if (timer_ > fade_duration) {
             text_.reset();
+            if (menu_selection_ not_eq 0) {
+                pfrm.speaker().clear_sounds();
+            }
             switch (menu_selection_) {
             case 0: {
                 app.game_mode() = App::GameMode::adventure;
@@ -956,6 +962,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (app.gp_.stateflags_.get(tutorial_flag)) {
                     return scene_pool::alloc<NewgameScene>();
                 } else {
+                    pfrm.speaker().clear_sounds();
                     app.gp_.stateflags_.set(tutorial_flag, true);
 
                     // Title Screen Graphical bugfix (1)

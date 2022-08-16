@@ -3479,6 +3479,7 @@ static const AudioTrack* find_music(const char* name)
 #include "data/sound_cling.hpp"
 #include "data/sound_coin.hpp"
 #include "data/sound_core_destroyed.hpp"
+#include "data/sound_creaking.hpp"
 #include "data/sound_cursor_click.hpp"
 #include "data/sound_digital_click_1.hpp"
 #include "data/sound_drone_beep.hpp"
@@ -3546,6 +3547,7 @@ static const AudioTrack sounds[] = {
     DEF_SOUND(pong_blip_1, sound_pong_blip1),
     DEF_SOUND(pong_blip_2, sound_pong_blip2),
     DEF_SOUND(struttin, music_struttin),
+    DEF_SOUND(creaking, sound_creaking),
     DEF_SOUND(coin, sound_coin),
     DEF_SOUND(bell, sound_bell),
     DEF_SOUND(msg, sound_msg)};
@@ -3709,6 +3711,22 @@ Buffer<const char*, 4> Platform::Speaker::completed_sounds()
     completed_sounds_lock = false;
 
     return result;
+}
+
+
+
+void Platform::Speaker::stop_sound(const char* name)
+{
+    modify_audio([&] {
+        for (auto it = snd_ctx.active_sounds.begin();
+             it not_eq snd_ctx.active_sounds.end();) {
+            if (str_eq(name, it->name_)) {
+                it = snd_ctx.active_sounds.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    });
 }
 
 

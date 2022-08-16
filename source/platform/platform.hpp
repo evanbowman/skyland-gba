@@ -800,6 +800,7 @@ public:
         Buffer<const char*, 4> completed_sounds();
 
         void clear_sounds();
+        void stop_sound(const char* name);
 
         Microseconds track_length(const char* sound_or_music_name);
 

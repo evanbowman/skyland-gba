@@ -22,9 +22,9 @@
 
 #include "macrocosmEngine.hpp"
 #include "allocator.hpp"
+#include "macrocosmFreebuildFlatSector.hpp"
 #include "macrocosmFreebuildSector.hpp"
 #include "macrocosmFreebuildWideSector.hpp"
-#include "macrocosmFreebuildFlatSector.hpp"
 #include "macrocosmPancakeSector.hpp"
 #include "macrocosmPillarSector.hpp"
 #include "memory/buffer.hpp"
@@ -769,7 +769,9 @@ terrain::Sector* EngineImpl::make_sector(Vec2<s8> coord,
             return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::freebuild_flat:
-            data_->other_sectors_.emplace_back(allocate_dynamic<terrain::FreebuildFlatSector>("sector-mem", coord));
+            data_->other_sectors_.emplace_back(
+                allocate_dynamic<terrain::FreebuildFlatSector>("sector-mem",
+                                                               coord));
             return &*data_->other_sectors_.back();
 
         case terrain::Sector::Shape::freebuild:

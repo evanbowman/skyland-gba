@@ -382,8 +382,6 @@ public:
 
 
 private:
-
-
     bool repaint_alloc_tiles(Platform& pfrm,
                              App& app,
                              TileId buffer[16][16],

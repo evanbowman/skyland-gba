@@ -540,7 +540,8 @@ int main(int argc, char** argv)
         for (u8 z = 0; z < sz.z; ++z) {
             for (u8 x = 0; x < sz.x; ++x) {
                 for (u8 y = 0; y < sz.y; ++y) {
-                    std::cout << (int)z << ", " << (int)x << ", " << (int)y << std::endl;
+                    std::cout << (int)z << ", " << (int)x << ", " << (int)y
+                              << std::endl;
                     auto index = 1 + y + sz.y * (x + sz.x * z);
                     auto blk = (macro::terrain::Type)decomp[index];
                     if (blk not_eq macro::terrain::Type::selector) {

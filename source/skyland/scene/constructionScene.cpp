@@ -189,7 +189,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
     switch (state_) {
     case State::select_loc:
 
-        if (// NOTE: just because I don't want to retest the tutorials.
+        if ( // NOTE: just because I don't want to retest the tutorials.
             app.game_mode() not_eq App::GameMode::tutorial and
             island(app)->checksum() not_eq checksum_) {
             find_construction_sites(pfrm, app);

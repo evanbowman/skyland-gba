@@ -1,9 +1,9 @@
 #include "macrocosmFreebuildModule.hpp"
 #include "skyland/macroCamera.hpp"
 #include "skyland/macrocosmEngine.hpp"
+#include "skyland/macrocosmFreebuildFlatSector.hpp"
 #include "skyland/macrocosmFreebuildSector.hpp"
 #include "skyland/macrocosmFreebuildWideSector.hpp"
-#include "skyland/macrocosmFreebuildFlatSector.hpp"
 #include "skyland/player/player.hpp"
 #include "skyland/scene/fullscreenDialogScene.hpp"
 #include "skyland/scene/macro/helpScene.hpp"
@@ -142,12 +142,12 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
         m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild_flat);
         auto bound = m.bind_sector({0, 1});
 
-        if (auto s = dynamic_cast<macro::terrain::FreebuildFlatSector*>(bound)) {
+        if (auto s =
+                dynamic_cast<macro::terrain::FreebuildFlatSector*>(bound)) {
             s->reset();
         }
         break;
     }
-
     }
 
     pfrm.system_call("vsync", nullptr);
