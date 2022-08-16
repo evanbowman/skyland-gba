@@ -119,6 +119,7 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/player/opponent/multiplayerPeer.cpp
   ${SOURCE_DIR}/skyland/weather/storm.cpp
   ${SOURCE_DIR}/skyland/weather/typhoon.cpp
+  ${SOURCE_DIR}/skyland/weather/dynamic.cpp
   ${SOURCE_DIR}/skyland/scene_pool.cpp
   ${SOURCE_DIR}/skyland/sharedVariable.cpp
   ${SOURCE_DIR}/skyland/room_metatable.cpp

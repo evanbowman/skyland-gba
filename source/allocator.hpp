@@ -43,6 +43,7 @@ align(size_t __align, size_t __size, void*& __ptr, size_t& __space) noexcept
 }
 
 
+
 // An abstraction for a single large allocation. Must fit within 2K of
 // memory. If your data is nowhere near 2k, and the data is long lived, might be
 // better to use a bulk allocator, and share the underlying scratch buffer with
@@ -140,6 +141,85 @@ DynamicMemory<T> allocate_dynamic(const ScratchBuffer::Tag& tag, Args&&... args)
     }
     return {sc_buf, {nullptr, deleter}};
 }
+
+
+
+// A lightweight, copyable, reference-counted large allocation. Stored data must
+// be trivially destructible.
+template <typename T>
+class ScratchMemory
+{
+private:
+    // ScratchMemory stores the aligned offset of the data in the scratch buffer
+    // in a single byte value in the first byte of the buffer.
+    struct DataHeader
+    {
+        u8 data_offset_;
+    };
+
+    // Layout:
+    // u8 data_offset_;
+    // u8 alignment_padding_[...];
+    // u8 data_[sizeof(T)];
+
+public:
+
+    ScratchMemory() :
+        handle_(make_scratch_buffer("scratch-memory"))
+    {
+        void* alloc_ptr = handle_->data_;
+        std::size_t size = sizeof handle_->data_;
+
+        auto header = (DataHeader*)alloc_ptr;
+
+        alloc_ptr = (u8*)alloc_ptr + sizeof(DataHeader);
+        size -= sizeof(DataHeader);
+
+        if (align(alignof(T), sizeof(T), alloc_ptr, size)) {
+            T* result = reinterpret_cast<T*>(alloc_ptr);
+            new (result) T();
+            alloc_ptr = (char*)alloc_ptr + sizeof(T);
+            size -= sizeof(T);
+
+            header->data_offset_ = (u8*)result - (u8*)header;
+
+        } else {
+            Platform::fatal("ScratchData does not fit in ScratchBuffer");
+        }
+    }
+
+
+    // And here's the downside: addition operation required whenever accessing
+    // ScratchMemory contents. Best to dereference once and store the resulting
+    // T& on the stack.
+    T& operator*() const
+    {
+        u8* data = (u8*)handle_->data_;
+        auto header = (DataHeader*)data;
+        data += header->data_offset_;
+        return *reinterpret_cast<T*>(data);
+    }
+
+
+    // Intentionally unimplemented, see description alongside operator*.
+    // T* operator->() const
+    // {
+    //     return **this;
+    // }
+
+
+    ScratchMemory(const ScratchMemory& other) : handle_(other.handle_)
+    {
+    }
+
+
+    static_assert(std::is_trivially_destructible<T>());
+
+
+private:
+    ScratchBufferPtr handle_;
+};
+
 
 
 // Does not provide any mechanism for deallocation. Everything allocated from

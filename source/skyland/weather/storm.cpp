@@ -36,14 +36,16 @@ static_assert(rain_pos_scale % 2 == 0);
 
 
 
-Storm::Storm() : state_(allocate_dynamic<State>("storm-state-buffer"))
+Storm::Storm()
 {
-    state_->thunder_timer_ =
+    auto& s = *state_;
+
+    s.thunder_timer_ =
         seconds(6) + rng::choice(seconds(5), rng::utility_state);
 
     const auto scale = rain_pos_scale;
 
-    for (auto& rd : state_->raindrops_) {
+    for (auto& rd : s.raindrops_) {
         // FIXME: pass in Platform::screen() and use screen size!
         rd.x = rng::choice(240 * scale, rng::utility_state);
         rd.y = rng::choice(160 * scale, rng::utility_state);
@@ -62,9 +64,11 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
     auto camera_diff_x = camera.x - last_camera_.x;
     auto camera_diff_y = camera.y - last_camera_.y;
 
-    state_->thunder_timer_ -= delta;
-    if (state_->thunder_timer_ <= 0) {
-        state_->thunder_timer_ = seconds(8) + rng::choice(seconds(25), gen);
+    auto& s = *state_;
+
+    s.thunder_timer_ -= delta;
+    if (s.thunder_timer_ <= 0) {
+        s.thunder_timer_ = seconds(8) + rng::choice(seconds(25), gen);
         if (rng::choice<2>(gen)) {
             pfrm.speaker().play_sound("thunder_1", 0);
         } else {
@@ -73,7 +77,7 @@ void Storm::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
 
-    for (auto& rd : state_->raindrops_) {
+    for (auto& rd : s.raindrops_) {
         if ((rd.x / scale) < 0 or
             (rd.y / scale) > (s16)pfrm.screen().size().y or
             (rd.x / scale) > (s16)pfrm.screen().size().x + 24 or
@@ -113,7 +117,9 @@ void Storm::rewind(Platform& pfrm, App& app, Microseconds delta)
 
     auto& gen = rng::utility_state;
 
-    for (auto& rd : state_->raindrops_) {
+    auto& s = *state_;
+
+    for (auto& rd : s.raindrops_) {
         if ((rd.x / scale) > (s16)pfrm.screen().size().x or
             (rd.y / scale) < 0) {
             if (rng::choice<2>(rng::utility_state)) {
@@ -138,7 +144,9 @@ void Storm::display(Platform& pfrm, App& app)
 
     const auto scale = rain_pos_scale;
 
-    for (auto& rd : state_->raindrops_) {
+    auto& s = *state_;
+
+    for (auto& rd : s.raindrops_) {
         batch->push_back({rd.x / scale, rd.y / scale});
     }
 

@@ -24,6 +24,7 @@
 
 #include "environment.hpp"
 #include "skyland/island.hpp"
+#include "typhoon.hpp"
 
 
 
@@ -32,47 +33,25 @@ namespace skyland::weather
 
 
 
-class Storm : public CleanEnvironment
+class Dynamic : public Typhoon
 {
-protected:
-    Vec2<s16> last_camera_;
-
-    struct State
-    {
-        Vec2<s16> raindrops_[6];
-        Microseconds thunder_timer_;
-
-        struct ColorTable
-        {
-            ColorConstant values_[16];
-        };
-
-        ColorTable t0_palette_;
-        ColorTable t1_palette_;
-        ColorTable background_palette_;
-        ColorTable sprite_palette_;
-    };
-
-
-    ScratchMemory<State> state_;
-
 public:
-    Storm();
 
 
-    void update(Platform& pfrm, App& app, Microseconds delta);
+    Dynamic(App& app);
 
 
-    void rewind(Platform& pfrm, App& app, Microseconds delta);
+    void update(Platform& pfrm, App& app, Microseconds delta) override;
 
 
-    void display(Platform& pfrm, App& app) override;
-
-
-    const char* music() const override;
+    void rewind(Platform& pfrm, App& app, Microseconds delta) override;
 
 
     Platform::Screen::Shader shader(App& app) const override;
+
+
+    void compute_palettes(App& app, u8 scale);
+
 };
 
 
