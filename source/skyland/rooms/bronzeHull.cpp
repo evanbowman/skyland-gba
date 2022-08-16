@@ -21,6 +21,7 @@
 
 
 #include "bronzeHull.hpp"
+#include "skyland/island.hpp"
 
 
 
@@ -36,16 +37,45 @@ BronzeHull::BronzeHull(Island* parent, const RoomCoord& position)
 
 
 
+extern SharedVariable block_crack_threshold_health;
+
+
+
+TileId BronzeHull::tile() const
+{
+    if (health() < block_crack_threshold_health) {
+        return Tile::damaged_bronze_hull;
+    } else {
+        return Tile::bronze;
+    }
+}
+
+
+
+void BronzeHull::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::update(pfrm, app, delta);
+
+    if (last_tile_ not_eq tile()) {
+        parent()->schedule_repaint();
+    }
+}
+
+
+
+
 void BronzeHull::render_interior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = InteriorTile::bronze;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 
 
 void BronzeHull::render_exterior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::bronze;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 

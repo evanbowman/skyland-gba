@@ -24,6 +24,7 @@
 
 #include "skyland/coins.hpp"
 #include "skyland/room.hpp"
+#include "skyland/sharedVariable.hpp"
 #include "skyland/systemString.hpp"
 
 
@@ -105,6 +106,11 @@ public:
     {
         return 504;
     }
+
+    TileId tile() const;
+
+protected:
+    TileId last_tile_;
 };
 
 

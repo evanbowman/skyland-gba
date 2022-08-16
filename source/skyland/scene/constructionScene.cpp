@@ -617,6 +617,40 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             network::transmit(pfrm, packet);
 
 
+            if (island(app) == app.opponent_island()) {
+                // Supporting this is just convenient for players. Because
+                // terrain is added to the righthand side of the map in all
+                // cases, let's be nice to the player and shift everything over
+                // in sandbox mode, so that adding terrain works the same way
+                // for both islands; new terrain is effectively inserted at the
+                // island's leading edge.
+                auto tmp = allocate_dynamic<Buffer<Room*, 100>>("shift-buf");
+                for (auto& room : app.opponent_island()->rooms()) {
+                    tmp->push_back(room.get());
+                }
+                for (auto& r : reversed(*tmp)) {
+                    island(app)->move_room(pfrm, app,
+                                           r->position(),
+                                           {(u8)(r->position().x + 1),
+                                            r->position().y});
+                }
+                // NOTE: because we shifted all blocks to the right by one
+                // coordinate, a drone may now be inside of a block, which we
+                // don't want to deal with at the moment, so just destroy them
+                // all.
+                for (auto& d : island(app)->drones()) {
+                    d->apply_damage(pfrm, app, 999);
+                }
+                // Furthermore... all weapons on the players' island need to
+                // have their targets adjusted accordingly:
+                for (auto& r : app.player_island().rooms()) {
+                    if (auto t = r->get_target()) {
+                        t->x += 1;
+                        r->set_target(pfrm, app, *t);
+                    }
+                }
+            }
+
             find_construction_sites(pfrm, app);
             state_ = State::select_loc;
 

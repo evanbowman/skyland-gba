@@ -370,6 +370,7 @@ enum class SystemString {
     start_menu_share,
     start_menu_spectate,
     start_menu_continue_building,
+    start_menu_repl,
 
     spectate_msg,
 

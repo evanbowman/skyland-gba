@@ -233,6 +233,11 @@ struct Tile
         targeting_computer_2,
         targeting_computer_3,
         targeting_computer_4,
+        damaged_hull,
+        damaged_bronze_hull,
+        damaged_mirror_hull,
+        damaged_stacked_hull,
+        damaged_energized_hull,
     };
 };
 
@@ -437,6 +442,11 @@ struct InteriorTile
         targeting_computer_2,
         targeting_computer_3,
         targeting_computer_4,
+        damaged_hull,
+        damaged_bronze_hull,
+        damagad_mirror_hull,
+        damaged_stacked_hull,
+        damaged_energized_hull,
     };
 };
 

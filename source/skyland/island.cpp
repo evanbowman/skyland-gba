@@ -1319,12 +1319,24 @@ void Island::move_room(Platform& pfrm,
             auto room = std::move(*it);
             it = rooms_.erase(it);
 
-            recalculate_power_usage(app);
-            on_layout_changed(app, from);
-
             room->__set_position(to);
 
+            const int x_off = to.x - from.x;
+            const int y_off = to.y - from.y;
+
+            for (auto& chr : room->characters()) {
+                auto p = chr->grid_position();
+                p.x = p.x + x_off;
+                p.y = p.y + y_off;
+
+                chr->set_grid_position(p);
+                chr->drop_movement_path();
+            }
+
             rooms_.insert_room(std::move(room));
+
+            recalculate_power_usage(app);
+            on_layout_changed(app, from);
 
             schedule_repaint_ = true;
 

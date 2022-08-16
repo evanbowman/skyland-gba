@@ -244,6 +244,12 @@ public:
     select(Platform& pfrm, App& app, const RoomCoord& cursor);
 
 
+    virtual std::optional<RoomCoord> get_target() const
+    {
+        return {};
+    }
+
+
     virtual void set_target(Platform& pfrm, App& app, const RoomCoord& target)
     {
     }

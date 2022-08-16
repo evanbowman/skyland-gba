@@ -21,6 +21,7 @@
 
 
 #include "stackedHull.hpp"
+#include "skyland/island.hpp"
 
 
 
@@ -36,16 +37,44 @@ StackedHull::StackedHull(Island* parent, const RoomCoord& position)
 
 
 
+void StackedHull::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::update(pfrm, app, delta);
+
+    if (last_tile_ not_eq tile()) {
+        parent()->schedule_repaint();
+    }
+}
+
+
+
+extern SharedVariable block_crack_threshold_health;
+
+
+
+TileId StackedHull::tile() const
+{
+    if (health() <= block_crack_threshold_health) {
+        return Tile::damaged_stacked_hull;
+    } else {
+        return Tile::stacked_hull;
+    }
+}
+
+
+
 void StackedHull::render_interior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = InteriorTile::stacked_hull;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 
 
 void StackedHull::render_exterior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::stacked_hull;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 

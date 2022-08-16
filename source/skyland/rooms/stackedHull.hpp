@@ -42,6 +42,12 @@ public:
     using Hull::Hull;
 
 
+    void update(Platform&, App&, Microseconds delta) override;
+
+
+    TileId tile() const;
+
+
     static const char* name()
     {
         return "stacked-hull";

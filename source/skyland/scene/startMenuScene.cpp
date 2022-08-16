@@ -24,6 +24,7 @@
 #include "boxedDialogScene.hpp"
 #include "hibernateScene.hpp"
 #include "hideRoomsScene.hpp"
+#include "lispReplScene.hpp"
 #include "macro/freebuildConnectFriendScene.hpp"
 #include "macro/macroverseScene.hpp"
 #include "macro/modifiedSelectorScene.hpp"
@@ -253,6 +254,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
             }
 
         } else /* Game mode not_eq macro  */ {
+
             add_option(pfrm,
                        SYSTR(start_menu_resume)->c_str(),
                        scene_pool::make_deferred_scene<ReadyScene>(),
@@ -283,7 +285,8 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
 
-        if (not pfrm.network_peer().is_connected()) {
+        if (not pfrm.network_peer().is_connected() and
+            app.game_mode() not_eq App::GameMode::sandbox) {
             // Don't support the hibernate feature for active multiplayer
             // games. On some devices, a serial interrupt for multiplayer will
             // wake the system out of low power mode anyway.
@@ -298,6 +301,13 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         switch (app.game_mode()) {
         case App::GameMode::sandbox:
             diff_percent_ = -0.1f;
+
+            add_option(pfrm,
+                       SYSTR(start_menu_repl)->c_str(),
+                       [&app]() {
+                           return scene_pool::alloc<LispReplScene>();
+                       },
+                       cut);
 
             add_option(pfrm,
                        SYSTR(start_menu_save_sandbox)->c_str(),

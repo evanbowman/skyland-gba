@@ -85,6 +85,12 @@ public:
     void unset_target(Platform& pfrm, App& app) override;
 
 
+    std::optional<RoomCoord> get_target() const override
+    {
+        return target_;
+    }
+
+
     void display_on_hover(Platform::Screen& screen,
                           App& app,
                           const RoomCoord& cursor) override;

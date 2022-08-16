@@ -79,6 +79,12 @@ public:
     }
 
 
+    TileId tile() const;
+
+
+    void update(Platform&, App&, Microseconds delta) override;
+
+
     void render_interior(App& app, TileId buffer[16][16]) override;
 
 

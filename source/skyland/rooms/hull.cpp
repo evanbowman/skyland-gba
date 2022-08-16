@@ -23,6 +23,7 @@
 #include "hull.hpp"
 #include "platform/platform.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/island.hpp"
 
 
 
@@ -45,23 +46,44 @@ Hull::Hull(Island* parent, const RoomCoord& position, const char* n)
 
 
 
+SHARED_VARIABLE(block_crack_threshold_health);
+
+
+
+TileId Hull::tile() const
+{
+    if (health() <= block_crack_threshold_health) {
+        return Tile::damaged_hull;
+    } else {
+        return Tile::hull;
+    }
+}
+
+
+
 void Hull::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
+
+    if (last_tile_ not_eq tile()) {
+        parent()->schedule_repaint();
+    }
 }
 
 
 
 void Hull::render_interior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = InteriorTile::hull;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 
 
 void Hull::render_exterior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::hull;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 

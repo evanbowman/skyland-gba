@@ -39,6 +39,9 @@ public:
     MirrorHull(Island* parent, const RoomCoord& position);
 
 
+    void update(Platform&, App&, Microseconds delta) override;
+
+
     static const char* name()
     {
         return "mirror-hull";
@@ -81,6 +84,9 @@ public:
     {
         return 0.5f;
     }
+
+
+    TileId tile() const;
 
 
     void render_interior(App& app, TileId buffer[16][16]) override;

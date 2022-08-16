@@ -293,6 +293,7 @@ connect a friend
 share island
 spectate
 continue building
+script console
 START: drop in
 please wait...
 really salvage?  +

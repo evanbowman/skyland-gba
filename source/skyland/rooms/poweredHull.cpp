@@ -23,6 +23,8 @@
 #include "poweredHull.hpp"
 #include "platform/platform.hpp"
 #include "skyland/tile.hpp"
+#include "skyland/island.hpp"
+#include "skyland/sharedVariable.hpp"
 
 
 
@@ -48,20 +50,41 @@ PoweredHull::PoweredHull(Island* parent, const RoomCoord& position)
 void PoweredHull::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
+
+    if (last_tile_ not_eq tile()) {
+        parent()->schedule_repaint();
+    }
+}
+
+
+
+extern SharedVariable block_crack_threshold_health;
+
+
+
+TileId PoweredHull::tile() const
+{
+    if (health() <= block_crack_threshold_health) {
+        return Tile::damaged_mirror_hull;
+    } else {
+        return Tile::mirror_hull;
+    }
 }
 
 
 
 void PoweredHull::render_interior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = InteriorTile::field_hull;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 
 
 void PoweredHull::render_exterior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::field_hull;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 

@@ -21,6 +21,7 @@
 
 
 #include "mirrorHull.hpp"
+#include "skyland/island.hpp"
 
 
 
@@ -36,16 +37,44 @@ MirrorHull::MirrorHull(Island* parent, const RoomCoord& position)
 
 
 
+void MirrorHull::update(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::update(pfrm, app, delta);
+
+    if (last_tile_ not_eq tile()) {
+        parent()->schedule_repaint();
+    }
+}
+
+
+
+extern SharedVariable block_crack_threshold_health;
+
+
+
+TileId MirrorHull::tile() const
+{
+    if (health() <= block_crack_threshold_health) {
+        return Tile::damaged_mirror_hull;
+    } else {
+        return Tile::mirror_hull;
+    }
+}
+
+
+
 void MirrorHull::render_interior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = InteriorTile::mirror_hull;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 
 
 void MirrorHull::render_exterior(App& app, TileId buffer[16][16])
 {
-    buffer[position().x][position().y] = Tile::mirror_hull;
+    last_tile_ = tile();
+    buffer[position().x][position().y] = last_tile_;
 }
 
 

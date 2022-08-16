@@ -13,3 +13,5 @@
    (12  . "flak_r2_damage")
    (10  . "flak_r3_damage")
    (20  . "arcbolt_damage")))
+
+(syscall "setvar" "block_crack_threshold_health" 60)

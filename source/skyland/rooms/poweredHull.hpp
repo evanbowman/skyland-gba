@@ -42,6 +42,9 @@ public:
     void update(Platform&, App&, Microseconds delta) override;
 
 
+    TileId tile() const;
+
+
     void render_interior(App& app, TileId buffer[16][16]) override;
     void render_exterior(App& app, TileId buffer[16][16]) override;
 
@@ -113,6 +116,9 @@ public:
         return RoomProperties::manufactory_required |
                RoomProperties::roof_hidden | RoomProperties::accepts_ion_damage;
     }
+
+private:
+    TileId last_tile_;
 };
 
 
