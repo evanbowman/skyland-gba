@@ -63,7 +63,6 @@ void BronzeHull::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
-
 void BronzeHull::render_interior(App& app, TileId buffer[16][16])
 {
     last_tile_ = tile();
