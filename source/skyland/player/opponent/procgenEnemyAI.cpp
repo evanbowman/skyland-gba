@@ -192,6 +192,7 @@ void ProcgenEnemyAI::generate_level(Platform& pfrm, App& app)
 
     if (core_count_ >= 2 or difficulty_ >= 2) {
         generate_forcefields(pfrm, app);
+        generate_missile_defenses(pfrm, app);
     }
 
     generate_foundation(pfrm, app);
@@ -682,6 +683,68 @@ void ProcgenEnemyAI::generate_weapons(Platform& pfrm, App& app, int max)
 
 
 
+void ProcgenEnemyAI::generate_missile_defenses(Platform& pfrm, App& app)
+{
+    if (rng::choice<4>(rng_source_) == 0) {
+        // Skip it sometimes.
+        return;
+    }
+
+    int missile_count = 0;
+    int lateral_count = 0;
+
+    auto& shull = require_metaclass("stacked-hull");
+
+    for (auto& room : app.player_island().rooms()) {
+        if (str_eq(room->name(), "missile-silo") or
+            str_eq(room->name(), "rocket-bomb")) {
+            ++missile_count;
+        } else if ((*room->metaclass())->category() == Room::Category::weapon) {
+            ++lateral_count;
+        }
+    }
+
+    // If the player has a missile heavy build, create extra defenses.
+    if ((lateral_count == 0 and
+         missile_count > 0 and
+         rng::choice<3>(rng_source_) == 0) or
+        (missile_count > lateral_count and
+         missile_count - lateral_count > 3)) {
+
+        bool invalid_rows[16];
+        memset(invalid_rows, false, sizeof invalid_rows);
+        for (int y = 0; y < construction_zone_min_y; ++y) {
+            invalid_rows[y] = true;
+        }
+
+        for (auto& room : app.opponent_island()->rooms()) {
+            if ((*room->metaclass())->category() == Room::Category::weapon) {
+                invalid_rows[room->position().y] = true;
+            }
+        }
+
+        for (auto& room : app.opponent_island()->rooms()) {
+            if ((*room->metaclass())->category() == Room::Category::weapon and
+                not str_eq(room->name(), "missile-silo") and
+                not str_eq(room->name(), "rocket-bomb")) {
+                auto p = room->position();
+                p.y--;
+                if (invalid_rows[p.y]) {
+                    continue;
+                }
+                for (int x = 0; x < room->size().x; ++x) {
+                    if (not app.opponent_island()->get_room(p)) {
+                        shull->create(pfrm, app, app.opponent_island(), p);
+                    }
+                    ++p.x;
+                }
+            }
+        }
+    }
+}
+
+
+
 void ProcgenEnemyAI::generate_forcefields(Platform& pfrm, App& app)
 {
     struct Context
@@ -934,6 +997,13 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
             if (missile_count > 4 or bomb_count > 2) {
                 missile_defense = true;
             } else {
+                missile_defense = rng::choice<2>(rng_source_);
+            }
+        }
+
+        if (not missile_defense and
+            missile_count > 0 and lateral_count == 0) {
+            if (levelgen_enemy_count_ > 5) {
                 missile_defense = rng::choice<2>(rng_source_);
             }
         }
