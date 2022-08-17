@@ -44,6 +44,17 @@
 using TileDesc = u16;
 
 
+
+#if defined(__NDS__)
+#define WORKRAM
+#elif defined(__GBA__)
+#define WORKRAM __attribute__((section(".ewram")))
+#else
+#define WORKRAM
+#endif
+
+
+
 struct FontColors
 {
     ColorConstant foreground_;

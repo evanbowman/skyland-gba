@@ -60,6 +60,7 @@ indigo
 infirmary
 ion-cannon
 ion-fizzler
+ladder
 lady-liberty
 lava
 lava*
@@ -265,6 +266,7 @@ Weaker than regular missiles, but with a wider damage radius, and starts fires. 
 Changes the weather to clear skies!
 Automatically chooses weapon targets for you! You can probably do a better job yourself, though...
 Produces zero power, unless all of your other power supplies are destroyed. A last resort! Only one allowed per island.
+Like a stairwell, but half as tall.
 paused
 slow
 regular

@@ -495,8 +495,6 @@ Platform::DeltaClock::~DeltaClock()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-static volatile u32* keys = (volatile u32*)0x04000130;
-
 
 std::optional<Bitvector<int(Key::count)>> missed_keys;
 
@@ -504,6 +502,8 @@ std::optional<Bitvector<int(Key::count)>> missed_keys;
 
 static void poll_keys(Platform::Keyboard::KeyStates& k)
 {
+    volatile u32* keys = (volatile u32*)0x04000130;
+
     k[int(Key::action_1)] = ~(*keys) & KEY_A;
     k[int(Key::action_2)] = ~(*keys) & KEY_B;
     k[int(Key::start)] = ~(*keys) & KEY_START;
@@ -780,6 +780,8 @@ static void init_video(Platform::Screen& screen)
 
 static bool unlock_gameboy_player(Platform& pfrm)
 {
+    volatile u32* keys = (volatile u32*)0x04000130;
+
     bool gbp_detected = false;
 
     RegisterRamReset(RESET_VRAM);
@@ -3436,7 +3438,7 @@ static const u32 null_music[null_music_len] = {0};
 
 
 // static const
-struct AudioTrack
+static const struct AudioTrack
 {
     const char* name_;
     const AudioSample* data_;
@@ -3608,13 +3610,14 @@ constexpr auto generate_array(Generator g)
 } // namespace detail
 
 
-auto make_volume_lut = [](float scale) {
+constexpr auto make_volume_lut(float scale)
+{
     return detail::generate_array<256>(
         [scale](std::size_t curr, std::size_t total) -> s8 {
             const auto real = (s8)((u8)curr);
             return real * scale;
         });
-};
+}
 
 
 // Each table entry contains the whole number space of a signed 8-bit value,
@@ -3781,7 +3784,7 @@ static const uint __snd_rates[13] = {
 
 
 
-struct NoiseFrequencyTableEntry
+static const struct NoiseFrequencyTableEntry
 {
     u8 shift_;
     u8 ratio_;

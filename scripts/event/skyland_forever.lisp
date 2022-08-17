@@ -10,9 +10,13 @@
 
 (island-configure
  (player)
- '((power-core 1 13)))
+ '((power-core 1 13)
+   (ladder 0 13)
+   (hull 0 12)))
 
 
-(chr-new (player) 1 14 'neutral 0)
-(chr-new (player) 2 14 'neutral 0)
+(map (lambda
+       (chr-new (player) $0 14 'neutral 0))
+     (range 0 3))
+
 (flag-show (player))

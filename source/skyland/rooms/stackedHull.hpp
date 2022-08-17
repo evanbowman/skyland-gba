@@ -43,6 +43,7 @@ public:
 
 
     void update(Platform&, App&, Microseconds delta) override;
+    void rewind(Platform&, App&, Microseconds delta) override;
 
 
     TileId tile() const;

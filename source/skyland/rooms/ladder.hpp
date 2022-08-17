@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include "hull.hpp"
+#include "skyland/coins.hpp"
+#include "skyland/room.hpp"
 #include "skyland/systemString.hpp"
-#include "skyland/tile.hpp"
 
 
 
@@ -33,63 +33,66 @@ namespace skyland
 
 
 
-class BronzeHull : public Hull
+class Ladder : public Room
 {
 public:
-    BronzeHull(Island* parent, const RoomCoord& position);
+    Ladder(Island* parent, const RoomCoord& position);
 
 
-    using Hull::Hull;
+    void update(Platform&, App&, Microseconds delta) override;
+
+
+    static void format_description(Platform& pfrm, StringBuffer<512>& buffer);
+
+
+    void render_interior(App& app, TileId buffer[16][16]) override;
+    void render_exterior(App& app, TileId buffer[16][16]) override;
+
+
+    void plot_walkable_zones(App& app, bool matrix[16][16]) override;
+
+
+    static Float atp_value()
+    {
+        return 50.f;
+    }
+
+
+    static Vec2<u8> size()
+    {
+        return {1, 2};
+    }
 
 
     static const char* name()
     {
-        return "bronze-hull";
-    }
-
-
-    static SystemString ui_name()
-    {
-        return SystemString::block_bronze_hull;
-    }
-
-
-    static void format_description(Platform& pfrm, StringBuffer<512>& buffer)
-    {
-        buffer += SYSTR(description_bronze_hull)->c_str();
+        return "ladder";
     }
 
 
     static RoomProperties::Bitmask properties()
     {
-        return Hull::properties() | RoomProperties::disabled_in_tutorials |
-               RoomProperties::locked_by_default;
+        return RoomProperties::habitable |
+               RoomProperties::disabled_in_tutorials;
+    }
+
+
+    static SystemString ui_name()
+    {
+        return SystemString::block_ladder;
     }
 
 
     static Icon icon()
     {
-        return 1624;
+        return 616;
     }
 
 
     static Icon unsel_icon()
     {
-        return 1640;
+        return 600;
     }
-
-
-    TileId tile() const;
-
-
-    void update(Platform&, App&, Microseconds delta) override;
-    void rewind(Platform&, App&, Microseconds delta) override;
-
-
-    void render_interior(App& app, TileId buffer[16][16]) override;
-
-
-    void render_exterior(App& app, TileId buffer[16][16]) override;
 };
 
 

@@ -24,6 +24,7 @@
    (missile-silo 200 1400 30)
    (decimator    140 3300 160)
    (stairwell    60  500  5)
+   (ladder       30  400  5)
    (bulkhead-door 100 400  10)
    (radiator     60  400  50)
    (workshop     60  2000 10)

@@ -48,6 +48,17 @@ void MirrorHull::update(Platform& pfrm, App& app, Microseconds delta)
 
 
 
+void MirrorHull::rewind(Platform& pfrm, App& app, Microseconds delta)
+{
+    Room::rewind(pfrm, app, delta);
+
+    if (last_tile_ not_eq tile()) {
+        schedule_repaint();
+    }
+}
+
+
+
 extern SharedVariable block_crack_threshold_health;
 
 

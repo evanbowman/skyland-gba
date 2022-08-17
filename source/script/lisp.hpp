@@ -767,6 +767,7 @@ void load_module(Module* module);
 
 // Returns the result of the last expression in the string.
 Value* dostring(CharSequence& code, ::Function<16, void(Value&)> on_error);
+Value* dostring(const char* code);
 
 
 bool is_executing();

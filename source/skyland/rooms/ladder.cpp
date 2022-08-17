@@ -20,9 +20,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "hull.hpp"
+#include "ladder.hpp"
 #include "platform/platform.hpp"
-#include "skyland/island.hpp"
 #include "skyland/tile.hpp"
 
 
@@ -32,69 +31,49 @@ namespace skyland
 
 
 
-void Hull::format_description(Platform& pfrm, StringBuffer<512>& buffer)
+void Ladder::format_description(Platform& pfrm, StringBuffer<512>& buffer)
 {
-    buffer += SYSTR(description_hull)->c_str();
+    buffer += SYSTR(description_ladder)->c_str();
 }
 
 
 
-Hull::Hull(Island* parent, const RoomCoord& position, const char* n)
-    : Room(parent, n, position)
+Ladder::Ladder(Island* parent, const RoomCoord& position)
+    : Room(parent, name(), position)
 {
 }
 
 
 
-SHARED_VARIABLE(block_crack_threshold_health);
-
-
-
-TileId Hull::tile() const
-{
-    if (health() <= block_crack_threshold_health) {
-        return Tile::damaged_hull;
-    } else {
-        return Tile::hull;
-    }
-}
-
-
-
-void Hull::update(Platform& pfrm, App& app, Microseconds delta)
+void Ladder::update(Platform& pfrm, App& app, Microseconds delta)
 {
     Room::update(pfrm, app, delta);
+}
 
-    if (last_tile_ not_eq tile()) {
-        schedule_repaint();
+
+
+void Ladder::render_interior(App& app, TileId buffer[16][16])
+{
+    buffer[position().x][position().y] = InteriorTile::ladder_top;
+    buffer[position().x][position().y + 1] = InteriorTile::ladder_base;
+}
+
+
+
+void Ladder::render_exterior(App& app, TileId buffer[16][16])
+{
+    buffer[position().x][position().y] = Tile::wall_window_1;
+    buffer[position().x][position().y + 1] = Tile::wall_window_2;
+}
+
+
+
+void Ladder::plot_walkable_zones(App& app, bool matrix[16][16])
+{
+    // All tiles in a ladder are walkable, that's kind of the point.
+    for (int y = 0; y < size().y; ++y) {
+        matrix[position().x][position().y + y] = true;
     }
-}
-
-
-
-void Hull::rewind(Platform& pfrm, App& app, Microseconds delta)
-{
-    Room::rewind(pfrm, app, delta);
-
-    if (last_tile_ not_eq tile()) {
-        schedule_repaint();
-    }
-}
-
-
-
-void Hull::render_interior(App& app, TileId buffer[16][16])
-{
-    last_tile_ = tile();
-    buffer[position().x][position().y] = last_tile_;
-}
-
-
-
-void Hull::render_exterior(App& app, TileId buffer[16][16])
-{
-    last_tile_ = tile();
-    buffer[position().x][position().y] = last_tile_;
 }
 
 

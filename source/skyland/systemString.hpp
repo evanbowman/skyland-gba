@@ -111,6 +111,7 @@ enum class SystemString {
     block_infirmary,
     block_ion_cannon,
     block_ion_fizzler,
+    block_ladder,
     block_lady_liberty,
     block_lava,
     block_lava_source,
@@ -340,6 +341,7 @@ enum class SystemString {
     description_weather_engine,
     description_targeting_computer,
     description_backup_core,
+    description_ladder,
 
     gs_paused,
     gs_slow,

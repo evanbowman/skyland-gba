@@ -48,6 +48,7 @@
 #include "skyland/rooms/infirmary.hpp"
 #include "skyland/rooms/ionCannon.hpp"
 #include "skyland/rooms/ionFizzler.hpp"
+#include "skyland/rooms/ladder.hpp"
 #include "skyland/rooms/ladyLiberty.hpp"
 #include "skyland/rooms/lava.hpp"
 #include "skyland/rooms/lemonTree.hpp"
@@ -74,7 +75,6 @@
 #include "skyland/rooms/stairwell.hpp"
 #include "skyland/rooms/statue.hpp"
 #include "skyland/rooms/sunflower.hpp"
-#include "skyland/rooms/switch.hpp"
 #include "skyland/rooms/synth.hpp"
 #include "skyland/rooms/targetingComputer.hpp"
 #include "skyland/rooms/tnt.hpp"
@@ -301,6 +301,7 @@ using RoomMetatableType = RoomMetatable<15,
                                         BackupCore,
                                         // misc
                                         Stairwell,
+                                        Ladder,
                                         Bulkhead,
                                         Infirmary,
                                         CargoBay,
@@ -314,8 +315,6 @@ using RoomMetatableType = RoomMetatable<15,
                                         Explosive,
                                         TNT,
                                         Cesium,
-                                        // Piston,
-                                        // StickyPiston,
                                         Radar,
                                         Transporter,
                                         TargetingComputer,
