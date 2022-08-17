@@ -90,6 +90,7 @@ App::App(Platform& pfrm, bool clean_boot)
         // how the room hide menu works.
         gp_.hidden_rooms_.set(metaclass_index("sunflower"), true);
         gp_.hidden_rooms_.set(metaclass_index("crane"), true);
+        gp_.hidden_rooms_.set(metaclass_index("ladder"), true);
     }
 
     // On unrecoverrable errors: try to store a backup, and flush the system log
