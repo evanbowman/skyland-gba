@@ -510,9 +510,24 @@ static int module_page_count(bool dev)
 void TitleScreenScene::play_gust_sound(Platform& pfrm)
 {
     if (rng::choice<4>(rng::utility_state)) {
-        pfrm.speaker().play_sound("gust1", 1);
+        if (pfrm.speaker().is_sound_playing("gust1")) {
+            if (rng::choice<2>(rng::utility_state)) {
+                pfrm.speaker().stop_sound("gust1");
+                pfrm.speaker().play_sound("gust2", 1);
+            } else {
+                pfrm.speaker().stop_sound("gust1");
+                pfrm.speaker().play_sound("gust1", 1);
+            }
+        } else {
+            pfrm.speaker().play_sound("gust1", 1);
+        }
     } else {
-        pfrm.speaker().play_sound("gust2", 1);
+        if (pfrm.speaker().is_sound_playing("gust2")) {
+            pfrm.speaker().stop_sound("gust2");
+            pfrm.speaker().play_sound("gust1", 1);
+        } else {
+            pfrm.speaker().play_sound("gust2", 1);
+        }
     }
 }
 
