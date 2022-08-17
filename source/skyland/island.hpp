@@ -385,7 +385,6 @@ public:
 
 
 private:
-
     void repaint_partial(Platform& pfrm, App& app);
 
 

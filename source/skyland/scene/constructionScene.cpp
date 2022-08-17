@@ -629,10 +629,11 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                     tmp->push_back(room.get());
                 }
                 for (auto& r : reversed(*tmp)) {
-                    island(app)->move_room(pfrm, app,
-                                           r->position(),
-                                           {(u8)(r->position().x + 1),
-                                            r->position().y});
+                    island(app)->move_room(
+                        pfrm,
+                        app,
+                        r->position(),
+                        {(u8)(r->position().x + 1), r->position().y});
                 }
                 // NOTE: because we shifted all blocks to the right by one
                 // coordinate, a drone may now be inside of a block, which we

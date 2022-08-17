@@ -22,9 +22,9 @@
 
 #include "poweredHull.hpp"
 #include "platform/platform.hpp"
-#include "skyland/tile.hpp"
 #include "skyland/island.hpp"
 #include "skyland/sharedVariable.hpp"
+#include "skyland/tile.hpp"
 
 
 

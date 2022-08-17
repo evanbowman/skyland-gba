@@ -40,8 +40,7 @@ Storm::Storm()
 {
     auto& s = *state_;
 
-    s.thunder_timer_ =
-        seconds(6) + rng::choice(seconds(5), rng::utility_state);
+    s.thunder_timer_ = seconds(6) + rng::choice(seconds(5), rng::utility_state);
 
     const auto scale = rain_pos_scale;
 

@@ -146,8 +146,7 @@ DynamicMemory<T> allocate_dynamic(const ScratchBuffer::Tag& tag, Args&&... args)
 
 // A lightweight, copyable, reference-counted large allocation. Stored data must
 // be trivially destructible.
-template <typename T>
-class ScratchMemory
+template <typename T> class ScratchMemory
 {
 private:
     // ScratchMemory stores the aligned offset of the data in the scratch buffer
@@ -163,9 +162,7 @@ private:
     // u8 data_[sizeof(T)];
 
 public:
-
-    ScratchMemory() :
-        handle_(make_scratch_buffer("scratch-memory"))
+    ScratchMemory() : handle_(make_scratch_buffer("scratch-memory"))
     {
         void* alloc_ptr = handle_->data_;
         std::size_t size = sizeof handle_->data_;

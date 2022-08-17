@@ -705,11 +705,9 @@ void ProcgenEnemyAI::generate_missile_defenses(Platform& pfrm, App& app)
     }
 
     // If the player has a missile heavy build, create extra defenses.
-    if ((lateral_count == 0 and
-         missile_count > 0 and
+    if ((lateral_count == 0 and missile_count > 0 and
          rng::choice<3>(rng_source_) == 0) or
-        (missile_count > lateral_count and
-         missile_count - lateral_count > 3)) {
+        (missile_count > lateral_count and missile_count - lateral_count > 3)) {
 
         bool invalid_rows[16];
         memset(invalid_rows, false, sizeof invalid_rows);
@@ -1001,8 +999,7 @@ void ProcgenEnemyAI::generate_hull(Platform& pfrm, App& app)
             }
         }
 
-        if (not missile_defense and
-            missile_count > 0 and lateral_count == 0) {
+        if (not missile_defense and missile_count > 0 and lateral_count == 0) {
             if (levelgen_enemy_count_ > 5) {
                 missile_defense = rng::choice<2>(rng_source_);
             }

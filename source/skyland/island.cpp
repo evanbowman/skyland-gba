@@ -71,9 +71,8 @@ void Island::init_terrain(Platform& pfrm, int width, bool render)
 Island::Island(Platform& pfrm, Layer layer, u8 width, Player& owner)
     : layer_(layer), timer_(0), interior_visible_(false), show_flag_(false),
       dispatch_cancelled_(false), schedule_repaint_(false),
-      schedule_repaint_partial_(false),
-      has_radar_(false), is_boarded_(false), hidden_(false),
-      flag_anim_index_(Tile::flag_start), owner_(&owner)
+      schedule_repaint_partial_(false), has_radar_(false), is_boarded_(false),
+      hidden_(false), flag_anim_index_(Tile::flag_start), owner_(&owner)
 {
     init_terrain(pfrm, width, false);
 }
@@ -1502,8 +1501,8 @@ void Island::repaint_partial(Platform& pfrm, App& app)
         for (u32 y = 0; y < 15; ++y) {
             if (buffer[x][y] not_eq 0) {
                 auto tile_handle = layer_ == Layer::map_0_ext
-                    ? pfrm.map_tile0_chunk(buffer[x][y])
-                    : pfrm.map_tile1_chunk(buffer[x][y]);
+                                       ? pfrm.map_tile0_chunk(buffer[x][y])
+                                       : pfrm.map_tile1_chunk(buffer[x][y]);
 
                 if (min_y_ == 0 and tile_handle) {
                     min_y_ = y;
@@ -1731,7 +1730,7 @@ void Island::repaint(Platform& pfrm, App& app)
                 const auto tile = (6 * 4 - 1) + (int)room->group();
                 if (layer_ == Layer::map_0_ext) {
                     pfrm.set_raw_tile(
-                                      Layer::map_0, pos.x * 2, pos.y * 2 + 1, tile);
+                        Layer::map_0, pos.x * 2, pos.y * 2 + 1, tile);
                 }
             }
         }

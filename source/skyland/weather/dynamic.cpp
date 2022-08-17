@@ -92,32 +92,29 @@ static const ColorConstant background_clear_palette[4] = {
 
 
 
-
 void Dynamic::compute_palettes(App& app, u8 scale)
 {
-    auto mix = [&](auto c1, auto c2, int var)
-               {
-                   auto col1 = Color(c1);
-                   auto col2 = Color(c2);
+    auto mix = [&](auto c1, auto c2, int var) {
+        auto col1 = Color(c1);
+        auto col2 = Color(c2);
 
-                   return Color(fast_interpolate(col1.r_, col2.r_, var),
-                                fast_interpolate(col1.g_, col2.g_, var),
-                                fast_interpolate(col1.b_, col2.b_, var));
-               };
+        return Color(fast_interpolate(col1.r_, col2.r_, var),
+                     fast_interpolate(col1.g_, col2.g_, var),
+                     fast_interpolate(col1.b_, col2.b_, var));
+    };
 
 
     auto& s = *state_;
 
     for (int i = 0; i < 15; ++i) {
-        s.t0_palette_.values_[i + 1] = mix(t0_clear_palette[i],
-                                           t0_storm_palette[i],
-                                           scale).hex();
+        s.t0_palette_.values_[i + 1] =
+            mix(t0_clear_palette[i], t0_storm_palette[i], scale).hex();
     }
 
     for (int i = 0; i < 4; ++i) {
-        s.background_palette_.values_[i + 1] = mix(background_clear_palette[i],
-                                                   background_storm_palette[i],
-                                                   scale).hex();
+        s.background_palette_.values_[i + 1] =
+            mix(background_clear_palette[i], background_storm_palette[i], scale)
+                .hex();
     }
 }
 
@@ -125,66 +122,61 @@ void Dynamic::compute_palettes(App& app, u8 scale)
 
 void Dynamic::update(Platform& pfrm, App& app, Microseconds delta)
 {
-
 }
 
 
 
 void Dynamic::rewind(Platform& pfrm, App& app, Microseconds delta)
 {
-
 }
 
 
 
 Platform::Screen::Shader Dynamic::shader(App& app) const
 {
-    return [state = ScratchMemory<State>(state_)](ShaderPalette palette,
-                                                  ColorConstant k,
-                                                  int arg,
-                                                  int index)
-           {
-               auto& s = *state;
+    return [state = ScratchMemory<State>(state_)](
+               ShaderPalette palette, ColorConstant k, int arg, int index) {
+        auto& s = *state;
 
-               switch (palette) {
-               case ShaderPalette::tile0: {
-                   auto v = s.t0_palette_.values_[index];
-                   if ((int)v) {
-                       return v;
-                   }
-                   return k;
-               }
+        switch (palette) {
+        case ShaderPalette::tile0: {
+            auto v = s.t0_palette_.values_[index];
+            if ((int)v) {
+                return v;
+            }
+            return k;
+        }
 
-               case ShaderPalette::tile1: {
-                   auto v = s.t1_palette_.values_[index];
-                   if ((int)v) {
-                       return v;
-                   }
-                   return k;
-               }
+        case ShaderPalette::tile1: {
+            auto v = s.t1_palette_.values_[index];
+            if ((int)v) {
+                return v;
+            }
+            return k;
+        }
 
-               case ShaderPalette::background: {
-                   auto v = s.background_palette_.values_[index];
-                   if ((int)v) {
-                       return v;
-                   }
-                   return k;
-               }
+        case ShaderPalette::background: {
+            auto v = s.background_palette_.values_[index];
+            if ((int)v) {
+                return v;
+            }
+            return k;
+        }
 
-               case ShaderPalette::spritesheet: {
-                   auto v = s.sprite_palette_.values_[index];
-                   if ((int)v) {
-                       return v;
-                   }
-                   return k;
-               }
+        case ShaderPalette::spritesheet: {
+            auto v = s.sprite_palette_.values_[index];
+            if ((int)v) {
+                return v;
+            }
+            return k;
+        }
 
-               default:
-                   return k;
-               }
+        default:
+            return k;
+        }
 
-               return k;
-           };
+        return k;
+    };
 }
 
 

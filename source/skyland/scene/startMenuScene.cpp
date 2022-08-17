@@ -302,12 +302,11 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
         case App::GameMode::sandbox:
             diff_percent_ = -0.1f;
 
-            add_option(pfrm,
-                       SYSTR(start_menu_repl)->c_str(),
-                       [&app]() {
-                           return scene_pool::alloc<LispReplScene>();
-                       },
-                       cut);
+            add_option(
+                pfrm,
+                SYSTR(start_menu_repl)->c_str(),
+                [&app]() { return scene_pool::alloc<LispReplScene>(); },
+                cut);
 
             add_option(pfrm,
                        SYSTR(start_menu_save_sandbox)->c_str(),

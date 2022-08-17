@@ -36,8 +36,6 @@ namespace skyland::weather
 class Dynamic : public Typhoon
 {
 public:
-
-
     Dynamic(App& app);
 
 
@@ -51,7 +49,6 @@ public:
 
 
     void compute_palettes(App& app, u8 scale);
-
 };
 
 
