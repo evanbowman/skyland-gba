@@ -71,7 +71,6 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
             if (not pfrm.speaker().is_music_playing(
                     app.environment().music())) {
                 pfrm.speaker().play_music(app.environment().music(), 0);
-                pfrm.speaker().play_sound("nash_point", 7);
             }
         }
 
