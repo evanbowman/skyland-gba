@@ -66,7 +66,7 @@ void TransportCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
         for (u8 y = 0; y < 16; ++y) {
             if ((**matrix_)[x][y]) {
                 if (not set_cursor) {
-                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {
+                    globals().far_cursor_loc_ = {
                         x, y};
                     set_cursor = true;
                 }
@@ -104,7 +104,7 @@ void TransportCharacterScene::display(Platform& pfrm, App& app)
     }
 
     const auto cursor_loc =
-        std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        globals().far_cursor_loc_;
 
     origin.x += cursor_loc.x * 16;
     origin.y += cursor_loc.y * 16;
@@ -134,7 +134,7 @@ TransportCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     RoomCoord* cursor_loc = nullptr;
-    cursor_loc = &std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+    cursor_loc = &globals().far_cursor_loc_;
 
     if (app.player().key_down(pfrm, Key::left)) {
         if (cursor_loc->x > 0) {

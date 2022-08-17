@@ -22,8 +22,6 @@
 
 #pragma once
 
-#include <variant>
-
 // #include "blind_jump/game.hpp"
 #include "graphics/overlay.hpp"
 #include "skyland/entity.hpp"
@@ -82,13 +80,7 @@ struct SkylandGlobalData
 };
 
 
-// This data used to be static members of the EntityGroup<> class template. But
-// I am trying to keep better track of global variables across the project, so I
-// am declaring them all in this one structure. I have been toying with the idea
-// of compiling multiple games into a single rom/executable, which makes keeping
-// track of global variable memory usage important.
-using Globals = std::variant< // BlindJumpGlobalData,
-    SkylandGlobalData>;
+using Globals = SkylandGlobalData;
 
 
 Globals& globals();

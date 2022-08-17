@@ -121,7 +121,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         return scene_pool::alloc<ReadyScene>();
     }
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+    auto& cursor_loc = globals().far_cursor_loc_;
 
 
     auto test_key = [&](Key k) {
@@ -165,7 +165,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 
             } else {
                 auto& near_cursor =
-                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+                    globals().near_cursor_loc_;
 
                 near_cursor.y = cursor_loc.y;
 
@@ -256,7 +256,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
         cursor_loc.x = 0;
 
         auto& near_cursor =
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            globals().near_cursor_loc_;
 
         near_cursor.y = cursor_loc.y;
 
@@ -277,13 +277,13 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                                                    {x, y})) {
                 return scene;
             } else {
-                std::get<SkylandGlobalData>(globals()).near_cursor_loc_ = {x,
+                globals().near_cursor_loc_ = {x,
                                                                            y};
                 return scene_pool::alloc<ReadyScene>();
             }
         } else if (island == app.opponent_island()) {
             camera_update_timer_ = milliseconds(500);
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {x, y};
+            globals().far_cursor_loc_ = {x, y};
         } else if (island == nullptr) {
             const auto view_offset =
                 pfrm.screen().get_view().get_center().cast<s32>();
@@ -291,7 +291,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             island_pos.x -= view_offset.x;
 
             if (pos->x < island_pos.x) {
-                std::get<SkylandGlobalData>(globals()).near_cursor_loc_ = {
+                globals().near_cursor_loc_ = {
                     0, cursor_loc.y};
                 return scene_pool::alloc<ReadyScene>();
             }
@@ -374,7 +374,7 @@ void InspectP2Scene::display(Platform& pfrm, App& app)
         auto origin = app.opponent_island()->visual_origin();
 
         auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+            globals().far_cursor_loc_;
 
         origin.x += cursor_loc.x * 16;
         origin.y += cursor_loc.y * 16;

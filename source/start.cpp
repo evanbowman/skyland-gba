@@ -71,8 +71,7 @@ static inline void main_loop(Platform& pf)
 
     BootScene::message(pf, "init memory pools...");
 
-    globals().emplace<SkylandGlobalData>();
-    scene_pool::pool_ = &std::get<SkylandGlobalData>(globals()).scene_pool_;
+    scene_pool::pool_ = &globals().scene_pool_;
 
     BootScene::message(pf, "start application...");
 

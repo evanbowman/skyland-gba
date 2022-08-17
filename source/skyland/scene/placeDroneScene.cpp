@@ -182,9 +182,9 @@ void PlaceDroneScene::display(Platform& pfrm, App& app)
 
     RoomCoord cursor_loc;
     if (near_) {
-        cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        cursor_loc = globals().near_cursor_loc_;
     } else {
-        cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        cursor_loc = globals().far_cursor_loc_;
     }
 
     origin.x += cursor_loc.x * 16;
@@ -221,9 +221,9 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     RoomCoord* cursor_loc;
     if (near_) {
-        cursor_loc = &std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        cursor_loc = &globals().near_cursor_loc_;
     } else {
-        cursor_loc = &std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        cursor_loc = &globals().far_cursor_loc_;
     }
 
     if (app.player().key_down(pfrm, Key::action_1)) {
@@ -278,9 +278,9 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
             --cursor_loc->x;
             pfrm.speaker().play_sound("cursor_tick", 0);
         } else if (not near_) {
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y =
+            globals().near_cursor_loc_.y =
                 cursor_loc->y;
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_.x =
+            globals().near_cursor_loc_.x =
                 app.player_island().terrain().size() - 1;
             return scene_pool::alloc<PlaceDroneScene>(
                 pfrm, origin_, drone_class_, true);
@@ -292,9 +292,9 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
             ++cursor_loc->x;
             pfrm.speaker().play_sound("cursor_tick", 0);
         } else if (near_ and app.opponent_island()) {
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y =
+            globals().far_cursor_loc_.y =
                 cursor_loc->y;
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_.x = 0;
+            globals().far_cursor_loc_.x = 0;
             return scene_pool::alloc<PlaceDroneScene>(
                 pfrm, origin_, drone_class_, false);
         }

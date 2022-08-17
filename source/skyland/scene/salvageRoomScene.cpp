@@ -78,8 +78,8 @@ void SalvageRoomScene::enter(Platform& pfrm, App& app, Scene& prev)
     StringBuffer<30> text(SYSTR(salvage_prompt)->c_str());
 
     auto& cursor_loc =
-        near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
-              : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        near_ ? globals().near_cursor_loc_
+              : globals().far_cursor_loc_;
 
     if (auto room = island(app)->get_room(cursor_loc)) {
         if (auto mt = room->metaclass()) {
@@ -143,8 +143,8 @@ void SalvageRoomScene::exit(Platform& pfrm, App& app, Scene& next)
     }
 
     auto& cursor_loc =
-        near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
-              : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        near_ ? globals().near_cursor_loc_
+              : globals().far_cursor_loc_;
 
     if (app.game_mode() == App::GameMode::co_op) {
         if (auto room = island(app)->get_room(cursor_loc)) {
@@ -175,8 +175,8 @@ SalvageRoomScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     auto& cursor_loc =
-        near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
-              : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        near_ ? globals().near_cursor_loc_
+              : globals().far_cursor_loc_;
 
 
     if (auto room = island(app)->get_room(cursor_loc)) {

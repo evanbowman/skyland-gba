@@ -87,7 +87,7 @@ NewgameScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.persistent_data().state_flags_.set(0);
     }
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    auto& cursor_loc = globals().near_cursor_loc_;
     cursor_loc.x = 0;
     cursor_loc.y = 14;
 

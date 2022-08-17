@@ -152,8 +152,8 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
     }
 
     auto& cursor_loc =
-        near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
-              : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        near_ ? globals().near_cursor_loc_
+              : globals().far_cursor_loc_;
 
 
     if (tapped_topleft_corner(pfrm, app) or
@@ -208,13 +208,13 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else if (near_ and app.game_mode() == App::GameMode::sandbox and
                        app.opponent_island()) {
                 auto& cursor_loc =
-                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+                    globals().far_cursor_loc_;
 
                 pfrm.speaker().play_sound("cursor_tick", 0);
 
                 cursor_loc.x = 0;
                 cursor_loc.y =
-                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
+                    globals().near_cursor_loc_.y;
                 return scene_pool::alloc<ConstructionScene>(false);
             }
         }
@@ -230,11 +230,11 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else if (not near_ and
                        app.game_mode() == App::GameMode::sandbox) {
                 auto& cursor_loc =
-                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+                    globals().near_cursor_loc_;
 
                 cursor_loc.x = app.player_island().terrain().size();
                 cursor_loc.y =
-                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y;
+                    globals().far_cursor_loc_.y;
 
                 pfrm.speaker().play_sound("cursor_tick", 0);
                 return scene_pool::alloc<ConstructionScene>(true);
@@ -502,7 +502,7 @@ ConstructionScene::update(Platform& pfrm, App& app, Microseconds delta)
                 break;
             }
 
-            if (std::get<SkylandGlobalData>(globals()).room_pools_.empty() or
+            if (globals().room_pools_.empty() or
                 island(app)->rooms().full()) {
                 category_label_.reset();
                 msg(pfrm, SYSTR(construction_too_many_rooms)->c_str());
@@ -1199,8 +1199,8 @@ void ConstructionScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     if (not data_->construction_sites_.empty()) {
         auto& cursor_loc =
-            near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
-                  : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+            near_ ? globals().near_cursor_loc_
+                  : globals().far_cursor_loc_;
 
         // Pick a construction site in the same column as our selector
         for (u32 i = 0; i < data_->construction_sites_.size(); ++i) {

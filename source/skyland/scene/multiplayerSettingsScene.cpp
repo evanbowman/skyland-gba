@@ -229,8 +229,8 @@ void MultiplayerSettingsScene::setup_co_op_game(Platform& pfrm, App& app)
 
     BasicCharacter::__reset_ids();
 
-    std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_ = true;
-    std::get<SkylandGlobalData>(globals()).co_op_cursor_icon_ = 15;
+    globals().unhide_multiplayer_prep_ = true;
+    globals().co_op_cursor_icon_ = 15;
 
     // NOTE: A co-op game is basically just SKYLAND Forever where both players
     // share control of a castle.
@@ -261,10 +261,10 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
     }
 
 
-    std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ =
+    globals().multiplayer_prep_seconds_ =
         vs_parameters_[1];
 
-    std::get<SkylandGlobalData>(globals()).unhide_multiplayer_prep_ =
+    globals().unhide_multiplayer_prep_ =
         vs_parameters_[2];
 
     app.set_coins(pfrm, vs_parameters_[3]);

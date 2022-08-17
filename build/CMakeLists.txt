@@ -61,8 +61,10 @@ set(G_COMPILE_FLAGS
   -Werror
   -pedantic
   -nostdlib
+  -ffreestanding
   -ffast-math
   -fno-math-errno
+  -fno-exceptions
   -Wdouble-promotion
   -fomit-frame-pointer)
 
@@ -314,7 +316,6 @@ add_library(LISP ${LISP_SOURCES})
 target_compile_options(LISP PRIVATE
   -g
   -O3 # Script execution is a bit of a bottleneck
-  -fstack-protector-strong
   ${G_COMPILE_FLAGS})
 
 
@@ -460,7 +461,6 @@ elseif(GAMEBOY_ADVANCE)
     ${SOURCE_DIR}/platform/gba/bootleg_cart.cpp
 
     ${SOURCE_DIR}/platform/gba/rumble.c
-    ${SOURCE_DIR}/platform/gba/co_thread.c
     ${SOURCE_DIR}/platform/gba/dlc_download.cpp)
 
 else()
@@ -807,6 +807,8 @@ elseif(GAMEBOY_ADVANCE)
     -mthumb-interwork
     -mcpu=arm7tdmi
     -mtune=arm7tdmi
+    -nostdlib
+    -ffreestanding
     -D__GBA__)
 
 
@@ -839,7 +841,8 @@ elseif(GAMEBOY_ADVANCE)
 
   target_compile_options(LIBGBA PRIVATE
     -O2
-    ${ARM7_THUMB_FLAGS})
+    ${ARM7_THUMB_FLAGS}
+    ${G_COMPILE_FLAGS})
 
 
   add_library(QR
@@ -871,26 +874,30 @@ elseif(GAMEBOY_ADVANCE)
     -mlong-calls
     -mthumb-interwork
     -mcpu=arm7tdmi
-    -mtune=arm7tdmi)
+    -mtune=arm7tdmi
+    -nostdlib
+    -ffreestanding)
 
   set(CMAKE_EXE_LINKER_FLAGS
     "-mthumb -mthumb-interwork -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"
     CACHE INTERNAL "" FORCE)
 
   target_compile_options(LISP PRIVATE
-    ${ARM7_THUMB_FLAGS})
+    ${ARM7_THUMB_FLAGS}
+    ${G_COMPILE_FLAGS})
 
   target_compile_options(FASTPATH PRIVATE
-    ${ARM7_THUMB_FLAGS})
+    ${ARM7_THUMB_FLAGS}
+    ${G_COMPILE_FLAGS})
 
   target_link_libraries(SkylandEngine PRIVATE
     LIBGBA
     QR
-    HEATSHRINK
     ARM_ROUTINES)
 
   target_compile_options(SkylandEngine PRIVATE
-    ${ARM7_THUMB_FLAGS})
+    ${ARM7_THUMB_FLAGS}
+    ${G_COMPILE_FLAGS})
 
   add_custom_command(TARGET SkylandEngine POST_BUILD
     COMMENT "building cartridge"

@@ -978,8 +978,8 @@ void PlayerIslandDestroyedScene::enter(Platform& pfrm, App& app, Scene& prev)
     // than deal with the issue, simply restrict the y range of the view, so the
     // player cannot see the portion of the screen where the tile layer wraps
     // around.
-    std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y =
-        clamp(std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y,
+    globals().near_cursor_loc_.y =
+        clamp(globals().near_cursor_loc_.y,
               (u8)9,
               (u8)14);
 }

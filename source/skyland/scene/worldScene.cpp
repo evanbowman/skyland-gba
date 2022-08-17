@@ -107,7 +107,7 @@ u16 gamespeed_icon(GameSpeed speed)
 
 static void show_multiplayer_pauses_remaining(Platform& pfrm)
 {
-    auto& g = std::get<SkylandGlobalData>(globals());
+    auto& g = globals();
     auto st = calc_screen_tiles(pfrm);
 
     auto current = pfrm.get_tile(Layer::overlay, st.x - 3, 3);
@@ -257,7 +257,7 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         app.time_stream().clear();
 
         auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            globals().near_cursor_loc_;
 
         cursor_loc.x = 0;
 
@@ -295,7 +295,7 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
         reset_gamespeed(pfrm, app);
 
         auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            globals().near_cursor_loc_;
 
         cursor_loc.x = 0;
 
@@ -317,11 +317,11 @@ void WorldScene::display(Platform& pfrm, App& app)
         Sprite cursor;
         cursor.set_size(Sprite::Size::w16_h32);
         cursor.set_texture_index(
-            std::get<SkylandGlobalData>(globals()).co_op_cursor_icon_);
+            globals().co_op_cursor_icon_);
 
-        auto cursor_loc = std::get<SkylandGlobalData>(globals()).co_op_cursor_;
+        auto cursor_loc = globals().co_op_cursor_;
 
-        if (std::get<SkylandGlobalData>(globals()).co_op_cursor_near_) {
+        if (globals().co_op_cursor_near_) {
 
             auto origin = app.player_island().visual_origin();
 
@@ -386,7 +386,7 @@ bool WorldScene::camera_update_check_key(Platform& pfrm, App& app)
 
 ScenePtr<Scene> WorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 {
-    auto& g = std::get<SkylandGlobalData>(globals());
+    auto& g = globals();
 
 
     if (not pfrm.network_peer().is_connected()) {

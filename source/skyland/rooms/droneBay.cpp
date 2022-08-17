@@ -153,7 +153,7 @@ DroneBay::select(Platform& pfrm, App& app, const RoomCoord& cursor)
     }
 
     const auto& mt_prep_seconds =
-        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+        globals().multiplayer_prep_seconds_;
 
     if (mt_prep_seconds) {
         return null_scene();

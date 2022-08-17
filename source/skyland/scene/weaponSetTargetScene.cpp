@@ -81,24 +81,24 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto drone_exit_scene = [&](Drone* drone) -> ScenePtr<Scene> {
         if (drone->destination() == &app.player_island()) {
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_ =
+            globals().near_cursor_loc_ =
                 drone->position();
             return scene_pool::alloc<ReadyScene>();
         } else {
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ =
+            globals().far_cursor_loc_ =
                 drone->position();
             return scene_pool::alloc<InspectP2Scene>();
         }
     };
 
     const auto& mt_prep_seconds =
-        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+        globals().multiplayer_prep_seconds_;
 
     if (not app.opponent_island() or mt_prep_seconds not_eq 0) {
         return player_weapon_exit_scene();
     }
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+    auto& cursor_loc = globals().far_cursor_loc_;
 
 
     auto test_key = [&](Key k) {
@@ -286,7 +286,7 @@ void WeaponSetTargetScene::display(Platform& pfrm, App& app)
 
     auto origin = app.opponent_island()->visual_origin();
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+    auto& cursor_loc = globals().far_cursor_loc_;
 
     origin.x += cursor_loc.x * 16;
     origin.y += cursor_loc.y * 16;
@@ -339,7 +339,7 @@ void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
         return;
     }
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+    auto& cursor_loc = globals().far_cursor_loc_;
 
     if (initial_pos_) {
         cursor_loc = *initial_pos_;

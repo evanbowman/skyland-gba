@@ -60,7 +60,7 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
         Platform::fatal("missing multi init script!");
     }
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    auto& cursor_loc = globals().near_cursor_loc_;
     cursor_loc.x = 0;
     cursor_loc.y = 14;
 
@@ -69,7 +69,7 @@ void MultiplayerConnectScene::enter(Platform& pfrm, App& app, Scene& prev)
     show_island_exterior(pfrm, app, &app.player_island());
     show_island_exterior(pfrm, app, app.opponent_island());
 
-    auto& g = std::get<SkylandGlobalData>(globals());
+    auto& g = globals();
     g.multiplayer_prep_timer_ = 0;
     g.multiplayer_prep_seconds_ = 120;
     g.multiplayer_pauses_remaining_ = 3;
@@ -160,7 +160,7 @@ MultiplayerConnectScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (not pfrm.network_peer().is_connected()) {
 
-        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_ = 0;
+        globals().multiplayer_prep_seconds_ = 0;
 
         auto buffer = allocate_dynamic<DialogString>("dialog-string");
         *buffer = SYSTR(multi_connection_failure)->c_str();

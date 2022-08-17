@@ -46,11 +46,11 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto exit_scene = [&]() -> ScenePtr<Scene> {
         if (drone_->destination() == &app.player_island()) {
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_ =
+            globals().near_cursor_loc_ =
                 drone_->position();
             return scene_pool::alloc<ReadyScene>();
         } else {
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ =
+            globals().far_cursor_loc_ =
                 drone_->position();
             return scene_pool::alloc<InspectP2Scene>();
         }
@@ -100,11 +100,11 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     if (target->destination() == &app.player_island()) {
         near_camera();
-        std::get<SkylandGlobalData>(globals()).near_cursor_loc_ = loc;
+        globals().near_cursor_loc_ = loc;
         near_ = true;
     } else {
         far_camera();
-        std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = loc;
+        globals().far_cursor_loc_ = loc;
         near_ = false;
     }
 

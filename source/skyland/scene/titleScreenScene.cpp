@@ -168,8 +168,8 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     app.player_island().clear(pfrm, app);
 
-    std::get<SkylandGlobalData>(globals()).room_pools_.create("room-mem");
-    std::get<SkylandGlobalData>(globals()).entity_pools_.create("entity-mem");
+    globals().room_pools_.create("room-mem");
+    globals().entity_pools_.create("entity-mem");
 
     if (app.opponent_island()) {
         app.reset_opponent_island(pfrm);
@@ -1012,7 +1012,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 // We could create the room pool on demand only for game modes
                 // that need the memory pool, but most game modes need the pool,
                 // so easier to create it by default and destroy as needed.
-                std::get<SkylandGlobalData>(globals()).room_pools_.destroy();
+                globals().room_pools_.destroy();
 
                 // Clear out any references to entities before destroying the
                 // entity pool, as the pool implementation will raise a fatal
@@ -1025,7 +1025,7 @@ TitleScreenScene::update(Platform& pfrm, App& app, Microseconds delta)
                 app.birds().clear();
                 app.effects().clear();
 
-                std::get<SkylandGlobalData>(globals()).entity_pools_.destroy();
+                globals().entity_pools_.destroy();
 
                 app.invoke_script(pfrm, "/scripts/reset_hooks.lisp");
 

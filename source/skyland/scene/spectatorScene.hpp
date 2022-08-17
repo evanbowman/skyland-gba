@@ -99,8 +99,8 @@ public:
 
         auto& cursor_loc =
             is_far_camera()
-                ? std::get<SkylandGlobalData>(globals()).far_cursor_loc_
-                : std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+                ? globals().far_cursor_loc_
+                : globals().near_cursor_loc_;
 
 
         cursor_anim_timer_ += delta;
@@ -135,9 +135,9 @@ public:
                 describe_room_timer_ = milliseconds(300);
                 pfrm.speaker().play_sound("cursor_tick", 0);
             } else if (is_far_camera()) {
-                std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y =
-                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y;
-                std::get<SkylandGlobalData>(globals()).near_cursor_loc_.x =
+                globals().near_cursor_loc_.y =
+                    globals().far_cursor_loc_.y;
+                globals().near_cursor_loc_.x =
                     player_island(app).terrain().size();
                 pfrm.speaker().play_sound("cursor_tick", 0);
                 near_camera();
@@ -150,9 +150,9 @@ public:
                 describe_room_timer_ = milliseconds(300);
                 pfrm.speaker().play_sound("cursor_tick", 0);
             } else if (not is_far_camera()) {
-                std::get<SkylandGlobalData>(globals()).far_cursor_loc_.y =
-                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
-                std::get<SkylandGlobalData>(globals()).far_cursor_loc_.x = 0;
+                globals().far_cursor_loc_.y =
+                    globals().near_cursor_loc_.y;
+                globals().far_cursor_loc_.x = 0;
                 pfrm.speaker().play_sound("cursor_tick", 0);
                 far_camera();
                 return null_scene();
@@ -192,8 +192,8 @@ public:
     {
         auto& cursor_loc =
             is_far_camera()
-                ? std::get<SkylandGlobalData>(globals()).far_cursor_loc_
-                : std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+                ? globals().far_cursor_loc_
+                : globals().near_cursor_loc_;
 
         Island* island;
         if (is_far_camera()) {

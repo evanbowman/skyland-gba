@@ -146,10 +146,10 @@ ScenePtr<Scene> player_island_onclick(Platform& pfrm,
                 camera_update_timer = milliseconds(500);
                 clear_room_description(pfrm, room_description);
                 if ((*drone)->destination() == &app.player_island()) {
-                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_ =
+                    globals().near_cursor_loc_ =
                         (*drone)->position();
                 } else {
-                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_ =
+                    globals().far_cursor_loc_ =
                         (*drone)->position();
                     return scene_pool::alloc<InspectP2Scene>();
                 }
@@ -363,7 +363,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     }
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    auto& cursor_loc = globals().near_cursor_loc_;
 
 
 
@@ -376,7 +376,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
 
     const auto& mt_prep_seconds =
-        std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+        globals().multiplayer_prep_seconds_;
 
 
     auto sync_cursor = [&] {
@@ -416,14 +416,14 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else if ( // Do not allow the player to inspect the other island if we're in
                 // the multiplayer waiting room.
                 app.opponent_island() and
-                (mt_prep_seconds == 0 or std::get<SkylandGlobalData>(globals())
+                (mt_prep_seconds == 0 or globals()
                                              .unhide_multiplayer_prep_)) {
                 auto& cursor_loc =
-                    std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+                    globals().far_cursor_loc_;
 
                 cursor_loc.x = 0;
                 cursor_loc.y =
-                    std::get<SkylandGlobalData>(globals()).near_cursor_loc_.y;
+                    globals().near_cursor_loc_.y;
 
                 app.player().network_sync_cursor(pfrm, cursor_loc, 0, false);
 
@@ -529,7 +529,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
                 camera_update_timer_ = milliseconds(500);
             }
         } else if (island == app.opponent_island()) {
-            std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {x, y};
+            globals().far_cursor_loc_ = {x, y};
             return scene_pool::alloc<InspectP2Scene>();
         } else if (island == nullptr) {
             const auto view_offset =
@@ -539,7 +539,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (pos->x >=
                 island_pos.x + app.player_island().terrain().size() * 16 + 32) {
-                std::get<SkylandGlobalData>(globals()).far_cursor_loc_ = {
+                globals().far_cursor_loc_ = {
                     0, cursor_loc.y};
                 return scene_pool::alloc<InspectP2Scene>();
             }
@@ -788,7 +788,7 @@ void ReadyScene::display(Platform& pfrm, App& app)
 
     auto origin = app.player_island().visual_origin();
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    auto& cursor_loc = globals().near_cursor_loc_;
 
     origin.x += cursor_loc.x * 16;
     origin.y += cursor_loc.y * 16;

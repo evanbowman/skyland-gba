@@ -92,7 +92,7 @@ public:
         player(app).key_held_distribute(pfrm);
 
         auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            globals().near_cursor_loc_;
 
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
@@ -159,7 +159,7 @@ public:
 
         auto origin = player_island(app).visual_origin();
         auto& cursor_loc =
-            std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            globals().near_cursor_loc_;
 
         origin.x += cursor_loc.x * 16;
         origin.y += cursor_loc.y * 16;

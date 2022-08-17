@@ -1128,13 +1128,13 @@ static const lisp::Binding script_api[] = {
 
          if (auto app = interp_get_app()) {
              RoomCoord& sel =
-                 std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+                 globals().near_cursor_loc_;
 
              if (auto ws = dynamic_cast<WorldScene*>(&app->scene())) {
                  if (lisp::get_op(2)->user_data().obj_ ==
                      &app->player_island()) {
                      sel =
-                         std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+                         globals().far_cursor_loc_;
                      ws->near_camera();
                  } else {
                      ws->far_camera();

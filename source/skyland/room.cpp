@@ -379,10 +379,9 @@ ScenePtr<Scene> Room::do_select(Platform& pfrm, App& app)
         RoomCoord cursor_loc;
 
         if (near) {
-            cursor_loc =
-                std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+            cursor_loc = globals().near_cursor_loc_;
         } else {
-            cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+            cursor_loc = globals().far_cursor_loc_;
         }
 
         const bool is_co_op = app.game_mode() == App::GameMode::co_op;

@@ -134,11 +134,11 @@ void CoOpTeam::receive(Platform& pfrm,
                        App& app,
                        const network::packet::CoOpCursor& packet)
 {
-    std::get<SkylandGlobalData>(globals()).co_op_cursor_.x = packet.x_;
-    std::get<SkylandGlobalData>(globals()).co_op_cursor_.y = packet.y_;
-    std::get<SkylandGlobalData>(globals()).co_op_cursor_near_ = packet.near_;
+    globals().co_op_cursor_.x = packet.x_;
+    globals().co_op_cursor_.y = packet.y_;
+    globals().co_op_cursor_near_ = packet.near_;
 
-    std::get<SkylandGlobalData>(globals()).co_op_cursor_icon_ = [&] {
+    globals().co_op_cursor_icon_ = [&] {
         switch (packet.icon_) {
         default:
             // Why not simply add an offset? I guess I could... But doing so

@@ -59,13 +59,6 @@
 
 
 
-void __stack_chk_fail(void)
-{
-    Platform::fatal("Stack smashing detected.");
-}
-
-
-
 extern char __iwram_overlay_end;
 
 
@@ -376,6 +369,8 @@ int main(int argc, char** argv)
     }
 
     start(pf);
+
+    return 0;
 }
 
 

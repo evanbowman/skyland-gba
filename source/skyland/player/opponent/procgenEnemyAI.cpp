@@ -85,7 +85,7 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
             }();
 
 
-            auto& g = std::get<SkylandGlobalData>(globals());
+            auto& g = globals();
 
             g.multiplayer_prep_seconds_ = prep_seconds;
             g.multiplayer_pauses_remaining_ = 3;
@@ -93,7 +93,7 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
         }
     } else {
         auto mt_prep_seconds =
-            std::get<SkylandGlobalData>(globals()).multiplayer_prep_seconds_;
+            globals().multiplayer_prep_seconds_;
 
         if (app.game_mode() == App::GameMode::co_op) {
 

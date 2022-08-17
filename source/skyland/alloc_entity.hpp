@@ -38,7 +38,7 @@ inline void entity_deleter(Entity* entity)
 {
     if (entity) {
         entity->~Entity();
-        auto& pools = std::get<SkylandGlobalData>(globals()).entity_pools_;
+        auto& pools = globals().entity_pools_;
         pools.free(reinterpret_cast<u8*>(entity));
     }
 }
@@ -68,7 +68,7 @@ public:
 template <typename T, typename... Args>
 EntityRef<T> alloc_entity(Args&&... args)
 {
-    auto& pool = std::get<SkylandGlobalData>(globals()).entity_pools_;
+    auto& pool = globals().entity_pools_;
 
     static_assert(sizeof(T) <= max_entity_size);
     static_assert(alignof(T) <= entity_pool_align);
@@ -93,7 +93,7 @@ EntityRef<T> alloc_entity(Args&&... args)
 template <typename T, typename Base, typename... Args>
 std::optional<SharedEntityRef<Base>> alloc_shared_entity(Args&&... args)
 {
-    auto& pool = std::get<SkylandGlobalData>(globals()).entity_pools_;
+    auto& pool = globals().entity_pools_;
 
     static_assert(sizeof(T) <= max_entity_size);
     static_assert(alignof(T) <= entity_pool_align);
@@ -103,7 +103,7 @@ std::optional<SharedEntityRef<Base>> alloc_shared_entity(Args&&... args)
 
         mem->finalizer_hook_ = [](IntrusiveRcControlBlock<Base>* cb) {
             cb->data_->~Base();
-            auto& pools = std::get<SkylandGlobalData>(globals()).entity_pools_;
+            auto& pools = globals().entity_pools_;
             pools.free(reinterpret_cast<u8*>(cb->data_));
         };
 

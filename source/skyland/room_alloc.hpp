@@ -38,7 +38,7 @@ inline void deleter(Room* room)
 {
     if (room) {
         room->~Room();
-        auto& pools = std::get<SkylandGlobalData>(globals()).room_pools_;
+        auto& pools = globals().room_pools_;
         pools.free(reinterpret_cast<u8*>(room));
     }
 }
@@ -47,7 +47,7 @@ inline void deleter(Room* room)
 
 template <typename T, typename... Args> RoomPtr<T> alloc(Args&&... args)
 {
-    auto& pool = std::get<SkylandGlobalData>(globals()).room_pools_;
+    auto& pool = globals().room_pools_;
 
     static_assert(sizeof(T) <= max_room_size);
     static_assert(alignof(T) <= alignment);

@@ -41,7 +41,7 @@ AssignWeaponGroupScene::update(Platform& pfrm, App& app, Microseconds delta)
         return new_scene;
     }
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    auto& cursor_loc = globals().near_cursor_loc_;
 
     auto test_key = [&](Key k) {
         return app.player().test_key(
@@ -160,7 +160,7 @@ void AssignWeaponGroupScene::display(Platform& pfrm, App& app)
 
     auto origin = app.player_island().visual_origin();
 
-    auto& cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+    auto& cursor_loc = globals().near_cursor_loc_;
 
     origin.x += cursor_loc.x * 16 + 3;
     origin.y += cursor_loc.y * 16;

@@ -106,9 +106,9 @@ void MoveCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
     RoomCoord cursor_loc;
 
     if (near_) {
-        cursor_loc = std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        cursor_loc = globals().near_cursor_loc_;
     } else {
-        cursor_loc = std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        cursor_loc = globals().far_cursor_loc_;
     }
 
     if (not(*matrix_)[cursor_loc.x][cursor_loc.y]) {
@@ -179,9 +179,9 @@ MoveCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
     RoomCoord* cursor_loc = nullptr;
 
     if (near_) {
-        cursor_loc = &std::get<SkylandGlobalData>(globals()).near_cursor_loc_;
+        cursor_loc = &globals().near_cursor_loc_;
     } else {
-        cursor_loc = &std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        cursor_loc = &globals().far_cursor_loc_;
     }
 
     auto test_key = [&](Key k) {
@@ -318,8 +318,8 @@ void MoveCharacterScene::display(Platform& pfrm, App& app)
     }
 
     const auto cursor_loc =
-        near_ ? std::get<SkylandGlobalData>(globals()).near_cursor_loc_
-              : std::get<SkylandGlobalData>(globals()).far_cursor_loc_;
+        near_ ? globals().near_cursor_loc_
+              : globals().far_cursor_loc_;
 
     origin.x += cursor_loc.x * 16;
     origin.y += cursor_loc.y * 16;
