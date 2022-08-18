@@ -21,11 +21,17 @@
  *   Software.
  */
 
-#include <assert.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include "qrcodegen.h"
+
+
+void assert(bool success)
+{
+
+}
+
 
 #ifndef QRCODEGEN_TEST
 	#define testable static  // Keep functions private
