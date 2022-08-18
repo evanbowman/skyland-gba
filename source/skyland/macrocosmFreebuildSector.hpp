@@ -47,6 +47,12 @@ public:
     }
 
 
+    FreebuildSector* cast_freebuild_sector() override
+    {
+        return this;
+    }
+
+
     void reset()
     {
         p_.orientation_ = Orientation::north;

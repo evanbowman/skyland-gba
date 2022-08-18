@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class StackedHull : public Hull
+class StackedHull final : public Hull
 {
 public:
     StackedHull(Island* parent, const RoomCoord& position);

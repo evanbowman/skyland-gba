@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class PoweredHull : public Room
+class PoweredHull final : public Room
 {
 public:
     PoweredHull(Island* parent, const RoomCoord& position);

@@ -59,7 +59,7 @@ public:
         for (auto& room : app.player_island().rooms()) {
             // Hack to turn off targeting computer, as the AI will instead take
             // responsibility for setting weapon targets.
-            if (auto t = dynamic_cast<TargetingComputer*>(room.get())) {
+            if (auto t = room->cast<TargetingComputer>()) {
                 if (t->enabled()) {
                     t->select(pfrm, app, {});
                 }

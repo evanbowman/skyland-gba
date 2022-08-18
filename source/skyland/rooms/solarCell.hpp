@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class SolarCell : public Room
+class SolarCell final : public Room
 {
 public:
     SolarCell(Island* parent, const RoomCoord& position)

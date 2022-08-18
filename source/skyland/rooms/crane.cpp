@@ -302,7 +302,7 @@ private:
 ScenePtr<Scene> Crane::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
     auto& env = app.environment();
-    auto clear_skies = dynamic_cast<weather::ClearSkies*>(&env);
+    auto clear_skies = not env.is_overcast();
 
     auto pos = position();
     if (cursor.x == pos.x + 2) {

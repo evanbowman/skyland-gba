@@ -97,7 +97,7 @@ RecoverCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
                 if (auto origin =
                         app.player_island().get_room(transporter_loc_)) {
 
-                    if (auto transporter = dynamic_cast<Transporter*>(origin)) {
+                    if (auto transporter = origin->cast<Transporter>()) {
                         transporter->recover_character(pfrm, app, cursor_loc);
                         return scene_pool::alloc<ReadyScene>();
                     }

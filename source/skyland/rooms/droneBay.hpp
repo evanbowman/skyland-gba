@@ -40,7 +40,7 @@ extern SharedVariable drone_bay_reload_ms;
 
 
 
-class DroneBay : public Room
+class DroneBay final : public Room
 {
 public:
     DroneBay(Island* parent, const RoomCoord& position);

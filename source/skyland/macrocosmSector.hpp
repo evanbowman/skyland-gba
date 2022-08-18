@@ -91,6 +91,10 @@ namespace skyland::macro::terrain
 
 
 
+class FreebuildSector;
+
+
+
 class Sector
 {
 public:
@@ -122,6 +126,13 @@ public:
     virtual ~Sector()
     {
     }
+
+
+    virtual FreebuildSector* cast_freebuild_sector()
+    {
+        return nullptr;
+    }
+
 
     void set_block(const Vec3<u8>& coord, Type type);
     virtual void rotate() = 0;

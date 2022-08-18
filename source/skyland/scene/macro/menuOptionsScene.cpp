@@ -83,24 +83,18 @@ void MenuOptionsScene::exit(Platform& pfrm,
                             macro::EngineImpl& state,
                             Scene& next)
 {
-    if (not dynamic_cast<NextTurnScene*>(&next)) {
-        MacrocosmScene::exit(pfrm, state, next);
-        citizens_text_.reset();
-        budget_text_.reset();
-        next_turn_text_.reset();
-        macroverse_text_.reset();
-        commodities_text_.reset();
-        const auto st = calc_screen_tiles(pfrm);
-        pfrm.set_tile(Layer::overlay, 0, st.y - 1, 0);
-        pfrm.set_tile(Layer::overlay, 0, st.y - 2, 0);
-        pfrm.set_tile(Layer::overlay, 0, st.y - 3, 0);
-        pfrm.set_tile(Layer::overlay, 0, st.y - 4, 0);
-    } else {
-        next_turn_text_->__detach();
-        macroverse_text_->__detach();
-        budget_text_->__detach();
-        commodities_text_->__detach();
-    }
+
+    MacrocosmScene::exit(pfrm, state, next);
+    citizens_text_.reset();
+    budget_text_.reset();
+    next_turn_text_.reset();
+    macroverse_text_.reset();
+    commodities_text_.reset();
+    const auto st = calc_screen_tiles(pfrm);
+    pfrm.set_tile(Layer::overlay, 0, st.y - 1, 0);
+    pfrm.set_tile(Layer::overlay, 0, st.y - 2, 0);
+    pfrm.set_tile(Layer::overlay, 0, st.y - 3, 0);
+    pfrm.set_tile(Layer::overlay, 0, st.y - 4, 0);
 }
 
 

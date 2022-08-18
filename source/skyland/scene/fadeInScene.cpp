@@ -90,8 +90,7 @@ FadeInScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     app.on_timeout(
                         pfrm, milliseconds(250), [](Platform& pfrm, App& app) {
-                            if (auto w =
-                                    dynamic_cast<WorldScene*>(&app.scene())) {
+                            if (auto w = app.scene().cast_world_scene()) {
                                 w->set_gamespeed(pfrm, app, GameSpeed::stopped);
                             }
                         });

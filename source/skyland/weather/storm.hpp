@@ -60,6 +60,12 @@ public:
     Storm();
 
 
+    bool is_overcast() const override
+    {
+        return true;
+    }
+
+
     void update(Platform& pfrm, App& app, Microseconds delta);
 
 

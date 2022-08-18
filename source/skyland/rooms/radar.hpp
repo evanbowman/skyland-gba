@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class Radar : public Room
+class Radar final : public Room
 {
 public:
     Radar(Island* parent, const RoomCoord& position);

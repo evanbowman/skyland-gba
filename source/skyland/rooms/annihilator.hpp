@@ -35,7 +35,7 @@ namespace skyland
 
 
 
-class Annihilator : public Weapon
+class Annihilator final : public Weapon
 {
 public:
     Annihilator(Island* parent, const RoomCoord& position);

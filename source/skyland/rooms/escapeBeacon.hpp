@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-class EscapeBeacon : public Room
+class EscapeBeacon final : public Room
 {
 public:
     EscapeBeacon(Island* parent, const RoomCoord& position);

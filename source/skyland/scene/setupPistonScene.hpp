@@ -66,7 +66,7 @@ public:
             room = player_island(app).get_room(piston_loc_);
         }
 
-        Piston* piston = dynamic_cast<Piston*>(room);
+        Piston* piston = room->cast<Piston>();
 
         auto last_dir = dir_;
 

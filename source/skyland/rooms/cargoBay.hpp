@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-class CargoBay : public Room
+class CargoBay final : public Room
 {
 public:
     CargoBay(Island* parent, const RoomCoord& position);

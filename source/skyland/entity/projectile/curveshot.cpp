@@ -228,13 +228,6 @@ void Curveshot::on_collision(Platform& pfrm, App& app, Entity& entity)
 {
     // FIXME: Probably slow... but then... in most cases it only happens once,
     // as the Curveshot explodes upon collision.
-    if (auto drone = dynamic_cast<Drone*>(&entity)) {
-        if (drone->position() == origin_tile_ and drone->parent() == source_) {
-            // Do not shoot ourself.
-            return;
-        }
-    }
-
 
     this->destroy(pfrm, app, true);
 

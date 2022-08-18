@@ -208,7 +208,7 @@ void Cannonball::on_collision(Platform& pfrm, App& app, Entity& entity)
 {
     // FIXME: Probably slow... but then... in most cases it only happens once,
     // as the Cannonball explodes upon collision.
-    if (auto drone = dynamic_cast<Drone*>(&entity)) {
+    if (auto drone = entity.cast_drone()) {
         if (drone->position() == origin_tile_ and drone->parent() == source_) {
             // Do not shoot ourself.
             return;

@@ -139,7 +139,7 @@ ScenePtr<Scene> player_island_onclick(Platform& pfrm,
         }
         if (auto scene = room->select(pfrm, app, pos)) {
             return scene;
-        } else if (auto db = dynamic_cast<DroneBay*>(room)) {
+        } else if (auto db = room->cast<DroneBay>()) {
             if (auto drone = db->drone()) {
                 // If a user selects a drone bay with a drone already
                 // attached, jump the cursor to the drone's location.
@@ -661,7 +661,7 @@ void describe_room(Platform& pfrm,
                 bool skip = false;
 
                 if (str_eq((*metac)->name(), "cargo-bay")) {
-                    if (auto cb = dynamic_cast<CargoBay*>(room)) {
+                    if (auto cb = room->cast<CargoBay>()) {
                         if (cb->position().y == cursor_loc.y - 1) {
                             room_description->assign(SYSTR(cargo)->c_str());
                             if (*cb->cargo() not_eq '\0') {
@@ -796,7 +796,7 @@ void ReadyScene::display(Platform& pfrm, App& app)
     cursor.set_position(origin);
 
     if (not(app.next_scene() and
-            dynamic_cast<BoxedDialogSceneWS*>(app.next_scene().get()))) {
+            app.next_scene()->cast_boxed_dialog_scene_ws())) {
         // Don't draw the cursor if we're going into a dialog box. If we did,
         // the cursor would flicker in and out for one frame during the scene in
         // between two dialog boxes.

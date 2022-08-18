@@ -1231,7 +1231,7 @@ void ConstructionScene::exit(Platform& pfrm, App& app, Scene& next)
 {
     WorldScene::exit(pfrm, app, next);
 
-    if (dynamic_cast<ConstructionScene*>(&next)) {
+    if (next.cast_construction_scene()) {
         // We do not want the menus to flicker between scenes when we switch
         // between two construction scenes, so disable cleanup for text. Only
         // really happens in sandbox mode, where you can build on either your

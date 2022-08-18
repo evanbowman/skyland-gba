@@ -41,11 +41,12 @@ PluginRoom::PluginRoom(Island* parent,
                        RoomMeta* metaclass)
     : Room(parent, (*metaclass)->name(), position)
 {
-    if (not dynamic_cast<RoomPluginInfo*>(this->metaclass()->box())) {
-        // By checking things upon creation, we can skip the slow cast
-        // elsewhere, as Room::metaclass_ cannont change (private var).
-        Platform::fatal("Plugin room assigned a non-plugin metaclass");
-    }
+    // FIXME: I had to banish dynamic_cast from the codebase.
+    // if (not dynamic_cast<RoomPluginInfo*>(this->metaclass()->box())) {
+    //     // By checking things upon creation, we can skip the slow cast
+    //     // elsewhere, as Room::metaclass_ cannont change (private var).
+    //     Platform::fatal("Plugin room assigned a non-plugin metaclass");
+    // }
 }
 
 

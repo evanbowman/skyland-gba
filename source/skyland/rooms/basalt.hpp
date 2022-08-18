@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class Basalt : public Decoration
+class Basalt final : public Decoration
 {
 public:
     Basalt(Island* parent, const RoomCoord& position)

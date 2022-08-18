@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class LadyLiberty : public Decoration
+class LadyLiberty final : public Decoration
 {
 public:
     LadyLiberty(Island* parent, const RoomCoord& position)

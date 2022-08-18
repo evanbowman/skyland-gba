@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class Soil : public Decoration
+class Soil final : public Decoration
 {
 public:
     Soil(Island* parent, const RoomCoord& position)

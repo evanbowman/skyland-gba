@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class Barrier : public Room
+class Barrier final : public Room
 {
 public:
     Barrier(Island* parent, const RoomCoord& position);

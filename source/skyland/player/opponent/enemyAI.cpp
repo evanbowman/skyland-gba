@@ -320,19 +320,19 @@ void EnemyAI::update_room(Platform& pfrm,
         }
     }
 
-    if (dynamic_cast<Decimator*>(&room)) {
+    if (room.cast<Decimator>()) {
         // Do nothing.
-    } else if (auto silo = dynamic_cast<RocketSilo*>(&room)) {
+    } else if (auto silo = room.cast<RocketSilo>()) {
         set_target(pfrm, app, matrix, *silo, owner, ai_island, target_island);
-    } else if (auto silo = dynamic_cast<MissileSilo*>(&room)) {
+    } else if (auto silo = room.cast<MissileSilo>()) {
         set_target(pfrm, app, matrix, *silo, owner, ai_island, target_island);
-    } else if (auto flak_gun = dynamic_cast<FlakGun*>(&room)) {
+    } else if (auto flak_gun = room.cast<FlakGun>()) {
         set_target(
             pfrm, app, matrix, *flak_gun, owner, ai_island, target_island);
-    } else if (auto ion_cannon = dynamic_cast<IonCannon*>(&room)) {
+    } else if (auto ion_cannon = room.cast<IonCannon>()) {
         set_target(
             pfrm, app, matrix, *ion_cannon, owner, ai_island, target_island);
-    } else if (auto fire_charge = dynamic_cast<FireCharge*>(&room)) {
+    } else if (auto fire_charge = room.cast<FireCharge>()) {
         set_target(
             pfrm, app, matrix, *fire_charge, owner, ai_island, target_island);
     } else if (category == Room::Category::weapon or
@@ -340,7 +340,7 @@ void EnemyAI::update_room(Platform& pfrm,
         // NOTE: if we haven't hit any of the cases above, assume that the
         // weapon is a generic cannon-type weapon.
         set_target(pfrm, app, matrix, room, owner, ai_island, target_island);
-    } else if (auto db = dynamic_cast<DroneBay*>(&room)) {
+    } else if (auto db = room.cast<DroneBay>()) {
         // Don't spawn drones until the level's been running for a
         // bit.
         if (ai_island->get_drift() == 0.f) {
@@ -349,7 +349,7 @@ void EnemyAI::update_room(Platform& pfrm,
                     pfrm, app, matrix, *db, ai_island, target_island);
             }
         }
-    } else if (auto transporter = dynamic_cast<Transporter*>(&room)) {
+    } else if (auto transporter = room.cast<Transporter>()) {
         if (length(transporter->characters()) and transporter->ready()) {
             auto transport_chr = transporter->characters().begin();
             if ((*transport_chr)->state() not_eq
@@ -665,7 +665,7 @@ void EnemyAI::assign_local_character(Platform& pfrm,
                            not player_characters_local) {
                     slot.ai_weight_ += 2000.f;
                 }
-            } else if (auto transporter = dynamic_cast<Transporter*>(room)) {
+            } else if (auto transporter = room->cast<Transporter>()) {
                 // Now, let's see. We want to raid the player's island if we
                 // have more characters, but also...
                 //

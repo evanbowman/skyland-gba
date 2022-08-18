@@ -39,7 +39,7 @@ extern SharedVariable decimator_reload_ms;
 
 
 
-class Decimator : public Room
+class Decimator final : public Room
 {
 public:
     Decimator(Island* parent, const RoomCoord& position);

@@ -52,6 +52,12 @@ public:
     }
 
 
+    MultiplayerCoOpAwaitLockScene* cast_co_op_await_lock_scene() override
+    {
+        return this;
+    }
+
+
 private:
     DeferredScene next_;
     RoomCoord coord_;
@@ -77,6 +83,12 @@ public:
     void signal_result(bool result)
     {
         result_ = result;
+    }
+
+
+    MultiplayerCoOpAwaitChrLockScene* cast_co_op_await_chr_lock_scene() override
+    {
+        return this;
     }
 
 

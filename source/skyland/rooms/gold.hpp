@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class Gold : public Decoration
+class Gold final : public Decoration
 {
 public:
     Gold(Island* parent, const RoomCoord& position)

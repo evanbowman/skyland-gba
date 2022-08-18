@@ -147,7 +147,7 @@ protected:
 
 
 
-class WaterSource : public Water
+class WaterSource final : public Water
 {
 public:
     WaterSource(Island* parent, const RoomCoord& position);

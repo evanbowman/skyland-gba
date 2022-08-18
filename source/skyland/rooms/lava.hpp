@@ -155,7 +155,7 @@ protected:
 
 
 
-class LavaSource : public Lava
+class LavaSource final : public Lava
 {
 public:
     LavaSource(Island* parent, const RoomCoord& position);

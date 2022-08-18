@@ -32,7 +32,7 @@
 #include "memory/buffer.hpp"
 #include "memory/segmentedPool.hpp"
 #include "number/numeric.hpp"
-#include <memory>
+#include "memory/uniquePtr.hpp"
 
 
 
@@ -47,6 +47,7 @@ namespace skyland
 
 class App;
 class Room;
+class Drone;
 
 
 
@@ -127,6 +128,12 @@ public:
     }
 
 
+    virtual Drone* cast_drone()
+    {
+        return nullptr;
+    }
+
+
 protected:
     Sprite sprite_;
     HitBox hitbox_;
@@ -151,7 +158,7 @@ using EntityPools =
 
 
 
-template <typename T> using EntityRef = std::unique_ptr<T, void (*)(Entity*)>;
+template <typename T> using EntityRef = UniquePtr<T, void (*)(Entity*)>;
 
 
 

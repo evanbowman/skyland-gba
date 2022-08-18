@@ -245,7 +245,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
     if (auto room = source_island->get_room(
             {invert_axis(app, packet.transporter_x_), packet.transporter_y_})) {
-        if (auto t = dynamic_cast<Transporter*>(room)) {
+        if (auto t = room->cast<Transporter>()) {
             t->begin_recharge();
             if (t->parent()->interior_visible()) {
                 t->parent()->schedule_repaint();
@@ -277,7 +277,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
 
     if (auto room = dest_island->get_room(
             {invert_axis(app, packet.transporter_x_), packet.transporter_y_})) {
-        if (auto t = dynamic_cast<Transporter*>(room)) {
+        if (auto t = room->cast<Transporter>()) {
             t->begin_recharge();
             if (t->parent()->interior_visible()) {
                 t->parent()->schedule_repaint();
@@ -423,7 +423,7 @@ void MultiplayerPeer::receive(
     const RoomCoord loc = {invert_axis(app, packet.room_x_), packet.room_y_};
 
     if (auto room = app.opponent_island()->get_room(loc)) {
-        if (auto bulkhead = dynamic_cast<Bulkhead*>(room)) {
+        if (auto bulkhead = room->cast<Bulkhead>()) {
             bulkhead->set_open(pfrm, app, packet.open_);
         }
     }
@@ -476,7 +476,7 @@ void MultiplayerPeer::receive(Platform& pfrm,
             // need anything from the Explosive class. Just a sanity check, as
             // we shouldn't simply blindly trust whatever the linked game tells
             // us.
-            if (dynamic_cast<Explosive*>(room)) {
+            if (room->cast<Explosive>() or room->cast<TNT>()) {
                 // Selecting an explosive starts off a countdown by applying one
                 // damage point. We want to do the same thing here.
                 room->apply_damage(pfrm, app, 1);

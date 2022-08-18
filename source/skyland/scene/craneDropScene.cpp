@@ -379,7 +379,7 @@ public:
                 pfrm.screen().display();
 
                 if (auto room = app.player_island().get_room(crane_loc_)) {
-                    if (auto crane = dynamic_cast<Crane*>(room)) {
+                    if (auto crane = room->cast<Crane>()) {
                         if (got_bomb_) {
                             crane->set_item(0);
                         } else {
@@ -820,7 +820,7 @@ CraneDropScene::update(Platform& pfrm, App& app, Microseconds delta)
     } else if (timer_ > fade_duration) {
 
         if (auto room = app.player_island().get_room(crane_pos_)) {
-            if (auto crane = dynamic_cast<Crane*>(room)) {
+            if (auto crane = room->cast<Crane>()) {
                 crane->retract();
             }
         }

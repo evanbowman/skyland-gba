@@ -238,7 +238,6 @@ add_library(FASTPATH
   ${SOURCE_DIR}/skyland/rooms/arcGun.cpp
   ${SOURCE_DIR}/skyland/rooms/cannon.cpp
   ${SOURCE_DIR}/skyland/rooms/piston.cpp
-  ${SOURCE_DIR}/skyland/rooms/switch.cpp
   ${SOURCE_DIR}/skyland/rooms/basalt.cpp
   ${SOURCE_DIR}/skyland/rooms/ladder.cpp
   ${SOURCE_DIR}/skyland/rooms/weapon.cpp
@@ -299,6 +298,7 @@ add_library(FASTPATH
 
 target_compile_options(FASTPATH PRIVATE
   -O3
+  -fno-rtti
   ${G_COMPILE_FLAGS})
 
 
@@ -316,6 +316,7 @@ add_library(LISP ${LISP_SOURCES})
 target_compile_options(LISP PRIVATE
   -g
   -O3 # Script execution is a bit of a bottleneck
+  -fno-rtti
   ${G_COMPILE_FLAGS})
 
 
@@ -460,7 +461,6 @@ elseif(GAMEBOY_ADVANCE)
     ${SOURCE_DIR}/platform/gba/filesystem.cpp
     ${SOURCE_DIR}/platform/gba/bootleg_cart.cpp
 
-    ${SOURCE_DIR}/platform/gba/rumble.c
     ${SOURCE_DIR}/platform/gba/dlc_download.cpp)
 
 else()
@@ -836,7 +836,8 @@ elseif(GAMEBOY_ADVANCE)
     #
     ${ROOT_DIR}/external/libgba/interrupt.c
     ${ROOT_DIR}/external/libgba/interrupt_dispatch.s
-    ${ROOT_DIR}/external/libgba/reset.s)
+    ${ROOT_DIR}/external/libgba/reset.s
+    ${SOURCE_DIR}/platform/gba/rumble.c)
 
 
   target_compile_options(LIBGBA PRIVATE
@@ -852,21 +853,13 @@ elseif(GAMEBOY_ADVANCE)
     -O2
     ${ARM7_THUMB_FLAGS})
 
-  add_library(HEATSHRINK
-    ${ROOT_DIR}/external/heatshrink/heatshrink_encoder.c
-    ${ROOT_DIR}/external/heatshrink/heatshrink_decoder.c)
-
-  target_compile_options(HEATSHRINK PRIVATE
-    -O2
-    ${ARM7_THUMB_FLAGS})
-
-
 
   add_library(ARM_ROUTINES ${SOURCE_DIR}/platform/gba/gba_arm_routines.cpp)
 
   target_compile_options(ARM_ROUTINES PRIVATE
     -g
     -O3
+    -fno-rtti
     ${G_COMPILE_FLAGS})
 
   target_compile_options(ARM_ROUTINES PRIVATE
@@ -879,7 +872,7 @@ elseif(GAMEBOY_ADVANCE)
     -ffreestanding)
 
   set(CMAKE_EXE_LINKER_FLAGS
-    "-mthumb -mthumb-interwork -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"
+    "-mthumb -mthumb-interwork -Wl,--trace-symbol=malloc -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"
     CACHE INTERNAL "" FORCE)
 
   target_compile_options(LISP PRIVATE
@@ -890,13 +883,19 @@ elseif(GAMEBOY_ADVANCE)
     ${ARM7_THUMB_FLAGS}
     ${G_COMPILE_FLAGS})
 
-  target_link_libraries(SkylandEngine PRIVATE
+  target_link_libraries(SkylandEngine PUBLIC
     LIBGBA
     QR
-    ARM_ROUTINES)
+    ARM_ROUTINES
+    # $ENV{DEVKITARM}/arm-none-eabi/lib/libc.a
+    # $ENV{DEVKITARM}/bin/../lib/gcc/arm-none-eabi/10.2.0/../../../../arm-none-eabi/lib/thumb/gba_crt0.o
+    # $ENV{DEVKITARM}/bin/../lib/gcc/arm-none-eabi/10.2.0/thumb/libgcc.a
+    # $ENV{DEVKITARM}/bin/../lib/gcc/arm-none-eabi/10.2.0/../../../../arm-none-eabi/lib/thumb/libstdc++.a
+    )
 
   target_compile_options(SkylandEngine PRIVATE
     ${ARM7_THUMB_FLAGS}
+    -fno-rtti
     ${G_COMPILE_FLAGS})
 
   add_custom_command(TARGET SkylandEngine POST_BUILD

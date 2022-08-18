@@ -38,7 +38,7 @@ extern SharedVariable transporter_reload_ms;
 
 
 
-class Transporter : public Room
+class Transporter final : public Room
 {
 public:
     Transporter(Island* parent, const RoomCoord& position);

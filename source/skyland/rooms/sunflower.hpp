@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class Sunflower : public Decoration
+class Sunflower final : public Decoration
 {
 public:
     Sunflower(Island* parent, const RoomCoord& position)

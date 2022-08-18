@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class Fountain : public Decoration
+class Fountain final : public Decoration
 {
 public:
     Fountain(Island* parent, const RoomCoord& position)

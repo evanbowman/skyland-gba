@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class Replicator : public Room
+class Replicator final : public Room
 {
 public:
     Replicator(Island* parent, const RoomCoord& position);

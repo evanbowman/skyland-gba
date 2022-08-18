@@ -26,7 +26,7 @@
 #include "graphics/overlay.hpp"
 #include "number/numeric.hpp"
 #include "string.hpp"
-#include <memory>
+#include "memory/uniquePtr.hpp"
 
 
 class Platform;
@@ -34,7 +34,7 @@ class Game;
 class State;
 
 
-using StatePtr = std::unique_ptr<State, void (*)(State*)>;
+using StatePtr = UniquePtr<State, void (*)(State*)>;
 using DeferredState = Function<16, StatePtr()>;
 
 class State

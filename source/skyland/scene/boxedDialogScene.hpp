@@ -145,6 +145,14 @@ public:
     }
 
 
+
+    BoxedDialogSceneWS* cast_boxed_dialog_scene_ws() override
+    {
+        return this;
+    }
+
+
+
     void enter(Platform& pfrm, App& app, Scene& prev) override final
     {
         WorldScene::enter(pfrm, app, prev);
@@ -155,11 +163,11 @@ public:
 
         if (app.game_mode() not_eq App::GameMode::tutorial and
             pause_if_hostile_ and app.opponent_island() and
-            dynamic_cast<EnemyAI*>(&app.opponent())) {
+            not app.opponent().is_friendly()) {
             set_gamespeed(pfrm, app, GameSpeed::stopped);
         }
 
-        if (auto ws = dynamic_cast<WorldScene*>(&prev)) {
+        if (auto ws = prev.cast_world_scene()) {
             if (ws->is_far_camera()) {
                 far_camera();
             }

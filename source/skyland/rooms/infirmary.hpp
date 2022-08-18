@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class Infirmary : public Room
+class Infirmary final : public Room
 {
 public:
     Infirmary(Island* parent, const RoomCoord& position);

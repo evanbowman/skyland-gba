@@ -39,7 +39,7 @@ extern SharedVariable missile_silo_reload_ms;
 
 
 
-class RocketSilo : public Weapon
+class RocketSilo final : public Weapon
 {
 public:
     RocketSilo(Island* parent, const RoomCoord& position);

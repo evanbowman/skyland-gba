@@ -217,14 +217,6 @@ void FireBolt::destroy(Platform& pfrm, App& app, bool explosion)
 
 void FireBolt::on_collision(Platform& pfrm, App& app, Entity& entity)
 {
-    if (auto drone = dynamic_cast<Drone*>(&entity)) {
-        if (drone->position() == origin_tile_ and drone->parent() == source_) {
-            // Do not shoot ourself.
-            return;
-        }
-    }
-
-
     this->destroy(pfrm, app, true);
 
     entity.apply_damage(pfrm, app, 30);

@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class BronzeHull : public Hull
+class BronzeHull final : public Hull
 {
 public:
     BronzeHull(Island* parent, const RoomCoord& position);

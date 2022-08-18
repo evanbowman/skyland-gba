@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-class Mycelium : public Room
+class Mycelium final : public Room
 {
 public:
     Mycelium(Island* parent,

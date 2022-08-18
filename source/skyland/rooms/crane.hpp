@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class Crane : public Room
+class Crane final : public Room
 {
 public:
     struct Discoveries

@@ -39,7 +39,7 @@ void show_island_interior(Platform& pfrm, App& app, Island* island);
 
 
 
-class Bridge : public Decoration
+class Bridge final : public Decoration
 {
 public:
     Bridge(Island* parent, const RoomCoord& position)

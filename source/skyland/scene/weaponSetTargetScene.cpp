@@ -319,7 +319,7 @@ void WeaponSetTargetScene::exit(Platform& pfrm, App& app, Scene& next)
 
 void WeaponSetTargetScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
-    if (auto w = dynamic_cast<WorldScene*>(&prev)) {
+    if (auto w = prev.cast_world_scene()) {
         // Yeah I know, this doesn't look pretty. If we came from a scene where
         // our camera was anchored on the far island, remember to return to the
         // far island. Originally, the WeaponSetTargetScene was only created

@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class MirrorHull : public Hull
+class MirrorHull final : public Hull
 {
 public:
     MirrorHull(Island* parent, const RoomCoord& position);

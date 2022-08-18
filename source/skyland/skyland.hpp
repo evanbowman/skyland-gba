@@ -214,12 +214,13 @@ public:
     }
 
 
-    template <typename T, typename... Args> void swap_opponent(Args&&... args)
+    template <typename T, typename... Args> T& swap_opponent(Args&&... args)
     {
         opponent_.emplace<T>(std::forward<Args>(args)...);
         if (opponent_island()) {
             opponent_island()->set_owner(*opponent_);
         }
+        return (T&)*opponent_;
     }
 
 
@@ -402,7 +403,7 @@ public:
     }
 
 
-    const ScenePtr<Scene>& next_scene() const
+    ScenePtr<Scene>& next_scene()
     {
         return next_scene_;
     }

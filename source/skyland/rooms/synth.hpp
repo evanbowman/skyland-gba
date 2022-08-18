@@ -38,7 +38,7 @@ class Speaker;
 
 
 
-class Synth : public Decoration
+class Synth final : public Decoration
 {
 public:
     static void format_description(Platform& pfrm, StringBuffer<512>& buffer);

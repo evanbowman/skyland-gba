@@ -91,6 +91,12 @@ public:
     }
 
 
+    WorldScene* cast_world_scene() override
+    {
+        return this;
+    }
+
+
 protected:
     std::optional<UIMetric> coins_;
     std::optional<UIMetric> power_;

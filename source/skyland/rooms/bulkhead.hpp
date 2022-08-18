@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class Bulkhead : public Room
+class Bulkhead final : public Room
 {
 public:
     Bulkhead(Island* parent, const RoomCoord& position);

@@ -51,11 +51,16 @@ void Water::check_flood_parent(Platform& pfrm, App& app, Microseconds delta)
     bool flood_source_is_water = false;
 
     if (auto room = parent()->get_room(flood_parent_)) {
-        if (auto w = dynamic_cast<Water*>(room)) {
+        Water* w = room->cast<Water>();
+        if (not w) {
+            w = room->cast<WaterSource>();
+        }
+
+        if (w) {
             flood_source_is_water = true;
             if (w->has_flood_parent_) {
                 has_flood_parent_ = true;
-            } else if (dynamic_cast<WaterSource*>(w)) {
+            } else if (w->cast<WaterSource>()) {
                 has_flood_parent_ = true;
             }
         }
@@ -126,7 +131,7 @@ void Water::update(Platform& pfrm, App& app, Microseconds delta)
             parent()->schedule_repaint();
 
             if (auto room = parent()->get_room({x, y})) {
-                if (auto w = dynamic_cast<Water*>(room)) {
+                if (auto w = room->cast<Water>()) {
                     w->set_flood_parent(position());
                 }
             }

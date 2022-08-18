@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class IonFizzler : public Room
+class IonFizzler final : public Room
 {
 public:
     IonFizzler(Island* parent, const RoomCoord& position);

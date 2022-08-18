@@ -919,7 +919,7 @@ void ComposeSynthScene::enter(Platform& pfrm, App& app, Scene& prev)
 
     for (auto& room : island->rooms()) {
         // Stop any currently-playing chiptunes.
-        if (auto b = dynamic_cast<Speaker*>(room.get())) {
+        if (auto b = room->cast<Speaker>()) {
             b->reset(pfrm);
         }
     }
@@ -974,7 +974,7 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
 
     if (synth_near_) {
         if (auto room = player_island(app).get_room(synth_pos_)) {
-            if (auto s = dynamic_cast<Synth*>(room)) {
+            if (auto s = room->cast<Synth>()) {
                 memcpy(s->notes(), notes_, sizeof notes_);
                 memcpy(s->effect_parameters(),
                        effect_parameters_,
@@ -993,7 +993,7 @@ void ComposeSynthScene::exit(Platform& pfrm, App& app, Scene& next)
     } else {
         if (opponent_island(app)) {
             if (auto room = opponent_island(app)->get_room(synth_pos_)) {
-                if (auto s = dynamic_cast<Synth*>(room)) {
+                if (auto s = room->cast<Synth>()) {
                     memcpy(s->notes(), notes_, sizeof notes_);
                     memcpy(s->effect_parameters(),
                            effect_parameters_,

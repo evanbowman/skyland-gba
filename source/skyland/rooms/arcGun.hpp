@@ -39,7 +39,7 @@ extern SharedVariable arc_gun_reload_ms;
 
 
 
-class ArcGun : public Weapon
+class ArcGun final : public Weapon
 {
 public:
     ArcGun(Island* parent, const RoomCoord& position);

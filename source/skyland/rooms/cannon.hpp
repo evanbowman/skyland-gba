@@ -39,7 +39,7 @@ extern SharedVariable cannon_reload_ms;
 
 
 
-class Cannon : public Weapon
+class Cannon final : public Weapon
 {
 public:
     Cannon(Island* parent, const RoomCoord& position);

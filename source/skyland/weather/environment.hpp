@@ -67,6 +67,12 @@ public:
     virtual const char* background_texture() const = 0;
 
 
+    virtual bool is_overcast() const
+    {
+        return false;
+    }
+
+
     virtual Platform::Screen::Shader shader(App& app) const
     {
         return passthrough_shader;

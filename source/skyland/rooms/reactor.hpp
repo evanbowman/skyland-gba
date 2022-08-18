@@ -32,7 +32,7 @@ namespace skyland
 
 
 
-class Reactor : public Room
+class Reactor final : public Room
 {
 public:
     Reactor(Island* parent, const RoomCoord& position);

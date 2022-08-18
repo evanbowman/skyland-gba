@@ -884,11 +884,11 @@ static const lisp::Binding script_api[] = {
          // Swap in the procedural-generation enemy AI that we created for
          // SKYLAND Forever, generate a level, and then swap the regular Enemy
          // AI back in.
-         app->swap_opponent<ProcgenEnemyAI>(rng::get(rng::critical_state), 1);
-         if (auto p = dynamic_cast<ProcgenEnemyAI*>(&app->opponent())) {
-             p->set_levelgen_count(lisp::get_op(0)->integer().value_);
-             p->generate_level(*pfrm, *app);
-         }
+         auto& o =
+             app->swap_opponent<ProcgenEnemyAI>(rng::get(rng::critical_state), 1);
+
+         o.set_levelgen_count(lisp::get_op(0)->integer().value_);
+         o.generate_level(*pfrm, *app);
 
          app->swap_opponent<EnemyAI>();
 
@@ -1130,7 +1130,7 @@ static const lisp::Binding script_api[] = {
              RoomCoord& sel =
                  globals().near_cursor_loc_;
 
-             if (auto ws = dynamic_cast<WorldScene*>(&app->scene())) {
+             if (auto ws = app->scene().cast_world_scene()) {
                  if (lisp::get_op(2)->user_data().obj_ ==
                      &app->player_island()) {
                      sel =
@@ -1378,7 +1378,7 @@ static const lisp::Binding script_api[] = {
          const u8 y = lisp::get_op(0)->integer().value_;
 
          if (auto room = island->get_room({x, y})) {
-             if (auto cb = dynamic_cast<CargoBay*>(room)) {
+             if (auto cb = room->cast<CargoBay>()) {
                  if (*cb->cargo() not_eq '\0') {
                      return lisp::make_string(cb->cargo());
                  }
@@ -1402,7 +1402,7 @@ static const lisp::Binding script_api[] = {
          const u8 y = lisp::get_op(1)->integer().value_;
 
          if (auto room = island->get_room({x, y})) {
-             if (auto cb = dynamic_cast<CargoBay*>(room)) {
+             if (auto cb = room->cast<CargoBay>()) {
                  cb->set_cargo(lisp::get_op(0)->string().value(), 1);
              }
          }

@@ -1286,7 +1286,7 @@ void RewindScene::enter(Platform& pfrm, App& app, Scene& prev)
         Platform::fatal("entering rewind scene with recording disabled");
     }
 
-    if (auto p = dynamic_cast<WorldScene*>(&prev)) {
+    if (auto p = prev.cast_world_scene()) {
         p->set_gamespeed(pfrm, app, GameSpeed::rewind);
     } else {
         Platform::fatal("entering rewind scene from non-overworld scene");
@@ -1304,7 +1304,7 @@ void RewindScene::exit(Platform& pfrm, App& app, Scene& next)
         Platform::fatal("sanity check: exit rewind scene, pushes not enabled");
     }
 
-    if (auto p = dynamic_cast<WorldScene*>(&next)) {
+    if (auto p = next.cast_world_scene()) {
         p->set_gamespeed(pfrm, app, GameSpeed::stopped);
     } else {
         Platform::fatal("exiting rewind scene into non-overworld scene");

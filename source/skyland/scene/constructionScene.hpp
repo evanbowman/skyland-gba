@@ -70,6 +70,12 @@ public:
     bool camera_update_check_key(Platform& pfrm, App& app) override;
 
 
+    ConstructionScene* cast_construction_scene() override
+    {
+        return this;
+    }
+
+
 private:
     enum class State {
         select_loc,

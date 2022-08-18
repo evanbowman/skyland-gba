@@ -37,7 +37,7 @@ Power SolarCell::power_usage(App& app) const
     const auto base_power = (*metaclass())->consumes_power();
     auto power = base_power;
 
-    if (not dynamic_cast<weather::ClearSkies*>(&app.environment())) {
+    if (app.environment().is_overcast()) {
         power /= 2;
     }
 

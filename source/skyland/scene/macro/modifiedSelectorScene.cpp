@@ -37,7 +37,7 @@ void ModifiedSelectorScene::enter(Platform& pfrm,
                                   macro::EngineImpl& state,
                                   Scene& prev)
 {
-    if (auto m = dynamic_cast<MacrocosmScene*>(&prev)) {
+    if (auto m = prev.cast_macrocosm_scene()) {
         m->drop_ui();
     }
 

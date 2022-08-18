@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class Palm : public Decoration
+class Palm final : public Decoration
 {
 public:
     Palm(Island* parent, const RoomCoord& position)

@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class Workshop : public Room
+class Workshop final : public Room
 {
 public:
     Workshop(Island* parent, const RoomCoord& position);

@@ -146,7 +146,7 @@ protected:
 
 
 
-class TNT : public Explosive
+class TNT final : public Explosive
 {
 public:
     TNT(Island* parent, const RoomCoord& position)

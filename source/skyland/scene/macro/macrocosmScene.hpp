@@ -55,6 +55,12 @@ public:
     void display(Platform&, App&) override final;
 
 
+    MacrocosmScene* cast_macrocosm_scene() override
+    {
+        return this;
+    }
+
+
     virtual ScenePtr<Scene>
     update(Platform& pfrm, Player& player, macro::EngineImpl& state);
 

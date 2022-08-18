@@ -142,13 +142,7 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
 {
     pfrm.speaker().set_music_volume(Platform::Speaker::music_volume_max);
 
-    auto ic = dynamic_cast<IntroCreditsScene*>(&prev);
-    if (ic and ic->flower_effect_) {
-        flower_effect_ = true;
-        pfrm.screen().schedule_fade(1.f, ColorConstant::rich_black, {}, false);
-    } else {
-        pfrm.screen().schedule_fade(1.f);
-    }
+    pfrm.screen().schedule_fade(1.f);
 
     pfrm.screen().set_shader(passthrough_shader);
     app.swap_environment<weather::ClearSkies>();
@@ -1325,13 +1319,8 @@ void TitleScreenScene::display(Platform& pfrm, App& app)
 
         pos.x = pos.x - x_scroll_ / 2;
 
-        auto b = dynamic_cast<SmallBird*>(bird.get());
-        if (b == nullptr) {
-            // Well, this should never happen... I also shouldn't really be
-            // using dynamic_cast in this way.
-            app.birds().clear();
-            break;
-        }
+        // FIXME!!!! checked cast.
+        auto b = static_cast<SmallBird*>(bird.get());
 
         const auto ambient_movement =
             8 *

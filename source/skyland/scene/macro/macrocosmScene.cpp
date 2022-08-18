@@ -322,7 +322,7 @@ void MacrocosmScene::enter(Platform& pfrm,
     const int season =
         current_season(state.data_->year_timer_, secs_per_season);
 
-    auto m = dynamic_cast<MacrocosmScene*>(&prev);
+    auto m = prev.cast_macrocosm_scene();
     if (m and m->ui_) {
         ui_ = std::move(m->ui_);
         if (m->should_update_ui_after_exit()) {
@@ -427,7 +427,7 @@ void MacrocosmScene::draw_year(Platform& pfrm, macro::EngineImpl& state)
 
 void MacrocosmScene::exit(Platform& pfrm, macro::EngineImpl& state, Scene& next)
 {
-    if (not dynamic_cast<MacrocosmScene*>(&next)) {
+    if (not next.cast_macrocosm_scene()) {
         ui_.reset();
     }
 }

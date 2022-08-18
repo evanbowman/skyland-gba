@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class Manufactory : public Room
+class Manufactory final : public Room
 {
 public:
     Manufactory(Island* parent, const RoomCoord& position);

@@ -38,7 +38,7 @@ extern SharedVariable fire_charge_reload_ms;
 
 
 
-class FireCharge : public Weapon
+class FireCharge final : public Weapon
 {
 public:
     FireCharge(Island* parent, const RoomCoord& position);

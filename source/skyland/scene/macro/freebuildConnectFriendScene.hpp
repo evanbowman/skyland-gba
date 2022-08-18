@@ -94,8 +94,7 @@ public:
 
         case State::sync:
             app.swap_player<macro::FreebuildTeam>();
-            if (auto s = dynamic_cast<macro::terrain::FreebuildSector*>(
-                    &macrocosm(app).sector())) {
+            if (auto s = macrocosm(app).sector().cast_freebuild_sector()) {
                 s->reset();
             }
             pfrm.speaker().play_music(app.environment().music(), 0);

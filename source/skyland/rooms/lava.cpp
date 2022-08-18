@@ -52,11 +52,16 @@ void Lava::check_flood_parent(Platform& pfrm, App& app, Microseconds delta)
     bool flood_source_is_lava = false;
 
     if (auto room = parent()->get_room(flood_parent_)) {
-        if (auto w = dynamic_cast<Lava*>(room)) {
+        Lava* l = room->cast<Lava>();
+        if (not l) {
+            l = room->cast<LavaSource>();
+        }
+
+        if (l) {
             flood_source_is_lava = true;
-            if (w->has_flood_parent_) {
+            if (l->has_flood_parent_) {
                 has_flood_parent_ = true;
-            } else if (dynamic_cast<LavaSource*>(w)) {
+            } else if (l->cast<LavaSource>()) {
                 has_flood_parent_ = true;
             }
         }
@@ -99,7 +104,7 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
 
         auto damage = [&](u8 x, u8 y) {
             if (auto room = parent()->get_room({x, y})) {
-                if (not dynamic_cast<Lava*>(room) and
+                if (not room->cast<Lava>() and
                     not str_eq(room->name(), "barrier") and
                     not str_eq(room->name(), "masonry")) {
 
@@ -114,7 +119,7 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
                         // This cast should happen only once. If we're a
                         // non-lava fluid, water's sort of the only other
                         // option.
-                        if (dynamic_cast<Water*>(room)) {
+                        if (room->cast<Water>()) {
                             solidify = true;
                             if (position().y <= y) {
                                 room->apply_damage(pfrm, app, 9999);
@@ -152,7 +157,7 @@ void Lava::update(Platform& pfrm, App& app, Microseconds delta)
             parent()->schedule_repaint();
 
             if (auto room = parent()->get_room({x, y})) {
-                if (auto w = dynamic_cast<Lava*>(room)) {
+                if (auto w = room->cast<Lava>()) {
                     w->set_flood_parent(position());
                 }
             }

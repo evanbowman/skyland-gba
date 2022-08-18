@@ -383,7 +383,7 @@ StartMenuScene::update(Platform& pfrm, App& app, Microseconds delta)
 
                     auto& current = macrocosm(app).sector();
                     using macro::terrain::FreebuildSector;
-                    if (dynamic_cast<FreebuildSector*>(&current)) {
+                    if (current.cast_freebuild_sector()) {
                         add_option(
                             pfrm,
                             SYSTR(start_menu_link)->c_str(),

@@ -39,7 +39,7 @@ extern SharedVariable flak_gun_reload_ms;
 
 
 
-class FlakGun : public Weapon
+class FlakGun final : public Weapon
 {
 public:
     FlakGun(Island* parent, const RoomCoord& position);

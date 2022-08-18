@@ -373,8 +373,10 @@ void plugin_rooms_unregister()
     for (int i = plugin_rooms_begin(); i < __metatable().size(); ++i) {
         __metatable().enabled_rooms_.set(i, false);
 
+        // FIXME: do checked cast. RTTI unsupported on some embedded platforms,
+        // due to no libstdc++. This code doesn't run anyway.
         if (auto b =
-                dynamic_cast<RoomPluginInfo*>(__metatable().table_[i].box())) {
+                reinterpret_cast<RoomPluginInfo*>(__metatable().table_[i].box())) {
             b->info_.reset();
         } else {
             Platform::fatal(
@@ -395,7 +397,7 @@ bool plugin_room_register(lisp::Value* config)
             // Lock the slot.
             __metatable().enabled_rooms_.set(i, true);
 
-            if (auto b = dynamic_cast<RoomPluginInfo*>(
+            if (auto b = reinterpret_cast<RoomPluginInfo*>(
                     __metatable().table_[i].box())) {
                 b->info_ = config;
             } else {

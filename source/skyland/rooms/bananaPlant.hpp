@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class BananaPlant : public Decoration
+class BananaPlant final : public Decoration
 {
 public:
     BananaPlant(Island* parent, const RoomCoord& position)

@@ -798,7 +798,7 @@ void WorldScene::enter(Platform& pfrm, App& app, Scene& prev)
     last_coins_ = app.coins();
 
     // If we came from another world scene where the coins were visible...
-    if (auto last = dynamic_cast<WorldScene*>(&prev)) {
+    if (auto last = prev.cast_world_scene()) {
         if (last->coins_) {
             coins_.emplace(pfrm,
                            OverlayCoord{1, 2},

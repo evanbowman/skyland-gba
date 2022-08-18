@@ -34,7 +34,7 @@ namespace skyland
 
 
 
-class Shrubbery : public Decoration
+class Shrubbery final : public Decoration
 {
 public:
     Shrubbery(Island* parent, const RoomCoord& position)

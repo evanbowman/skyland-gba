@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class Statue : public Decoration
+class Statue final : public Decoration
 {
 public:
     Statue(Island* parent, const RoomCoord& position)

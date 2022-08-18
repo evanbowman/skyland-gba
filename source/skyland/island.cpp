@@ -1938,7 +1938,7 @@ bool speaker_data_store(Platform& pfrm, Island& island, const char* path)
     Vector<char> data;
 
     for (auto& room : island.rooms()) {
-        if (auto speaker = dynamic_cast<Speaker*>(room.get())) {
+        if (auto speaker = room->cast<Speaker>()) {
             u8 coord = 0;
             coord |= (speaker->position().x << 4);
             coord |= 0x0f & (speaker->position().y);
@@ -1990,7 +1990,7 @@ bool speaker_data_load(Platform& pfrm, Island& island, const char* path)
             }
 
             if (auto room = island.get_room({x, y})) {
-                if (auto speaker = dynamic_cast<Speaker*>(room)) {
+                if (auto speaker = room->cast<Speaker>()) {
 
                     Speaker::EffectVector v;
 
@@ -2044,7 +2044,7 @@ bool synth_notes_store(Platform& pfrm, Island& island, const char* path)
     Vector<char> data;
 
     for (auto& room : island.rooms()) {
-        if (auto synth = dynamic_cast<Synth*>(room.get())) {
+        if (auto synth = room->cast<Synth>()) {
             u8 coord = 0;
             coord |= (synth->position().x << 4);
             coord |= 0x0f & (synth->position().y);
@@ -2091,7 +2091,7 @@ bool synth_notes_load(Platform& pfrm, Island& island, const char* path)
             }
 
             if (auto room = island.get_room({x, y})) {
-                if (auto synth = dynamic_cast<Synth*>(room)) {
+                if (auto synth = room->cast<Synth>()) {
                     for (int i = 0; i < 16; ++i) {
                         if (current == data.end()) {
                             info(pfrm, "synth notes truncated");

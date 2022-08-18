@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class LemonTree : public Decoration
+class LemonTree final : public Decoration
 {
 public:
     LemonTree(Island* parent, const RoomCoord& position)

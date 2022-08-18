@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class Radiator : public Room
+class Radiator final : public Room
 {
 public:
     Radiator(Island* parent, const RoomCoord& position);

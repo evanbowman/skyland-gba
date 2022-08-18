@@ -121,7 +121,8 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
         m.make_sector({0, 1}, macro::terrain::Sector::Shape::freebuild);
         auto bound = m.bind_sector({0, 1});
 
-        if (auto s = dynamic_cast<macro::terrain::FreebuildSector*>(bound)) {
+        // FIXME: had to eliminate RTTI, add back checked cast.
+        if (auto s = static_cast<macro::terrain::FreebuildSector*>(bound)) {
             s->reset();
         }
         break;
@@ -132,7 +133,7 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
         auto bound = m.bind_sector({0, 1});
 
         if (auto s =
-                dynamic_cast<macro::terrain::FreebuildWideSector*>(bound)) {
+                static_cast<macro::terrain::FreebuildWideSector*>(bound)) {
             s->reset();
         }
         break;
@@ -143,7 +144,7 @@ void MacrocosmFreebuildModule::init(Platform& pfrm, App& app)
         auto bound = m.bind_sector({0, 1});
 
         if (auto s =
-                dynamic_cast<macro::terrain::FreebuildFlatSector*>(bound)) {
+                static_cast<macro::terrain::FreebuildFlatSector*>(bound)) {
             s->reset();
         }
         break;

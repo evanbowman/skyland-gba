@@ -36,7 +36,7 @@ namespace skyland
 
 
 
-class WeatherEngine : public Room
+class WeatherEngine final : public Room
 {
 public:
     WeatherEngine(Island* parent,

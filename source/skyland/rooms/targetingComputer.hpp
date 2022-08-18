@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class TargetingComputer : public Room
+class TargetingComputer final : public Room
 {
 public:
     TargetingComputer(Island* parent,

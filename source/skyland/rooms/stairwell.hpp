@@ -33,7 +33,7 @@ namespace skyland
 
 
 
-class Stairwell : public Room
+class Stairwell final : public Room
 {
 public:
     Stairwell(Island* parent, const RoomCoord& position);

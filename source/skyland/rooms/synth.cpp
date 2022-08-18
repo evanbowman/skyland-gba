@@ -129,7 +129,7 @@ Speaker* Synth::speaker() const
         if (coord > -1) {
             if (auto room = parent()->get_room({u8(coord), position().y})) {
                 if (str_eq(room->name(), "speaker")) {
-                    return dynamic_cast<Speaker*>(room);
+                    return room->cast<Speaker>();
                 }
             }
         }

@@ -38,7 +38,7 @@ namespace skyland
 
 
 
-class Speaker : public Decoration
+class Speaker final : public Decoration
 {
 public:
     Speaker(Island* parent, const RoomCoord& position);

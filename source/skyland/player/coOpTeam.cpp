@@ -171,7 +171,7 @@ void CoOpTeam::receive(Platform& pfrm,
     RoomCoord pos{packet.x_, packet.y_};
 
     if (auto room = player_island(app).get_room(pos)) {
-        if (dynamic_cast<Explosive*>(room)) {
+        if (room->cast<Explosive>() or room->cast<TNT>()) {
             room->apply_damage(pfrm, app, 1);
         } else {
             // TODO: fatal error?
@@ -242,7 +242,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
     if (auto room = source_island->get_room(
             {packet.transporter_x_, packet.transporter_y_})) {
-        if (auto t = dynamic_cast<Transporter*>(room)) {
+        if (auto t = room->cast<Transporter>()) {
             t->begin_recharge();
             if (t->parent()->interior_visible()) {
                 t->parent()->schedule_repaint();
@@ -274,7 +274,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
     if (auto room = dest_island->get_room(
             {packet.transporter_x_, packet.transporter_y_})) {
-        if (auto t = dynamic_cast<Transporter*>(room)) {
+        if (auto t = room->cast<Transporter>()) {
             t->begin_recharge();
             if (t->parent()->interior_visible()) {
                 t->parent()->schedule_repaint();
@@ -405,7 +405,7 @@ void CoOpTeam::receive(Platform& pfrm,
     const RoomCoord loc = {packet.room_x_, packet.room_y_};
 
     if (auto room = player_island(app).get_room(loc)) {
-        if (auto bulkhead = dynamic_cast<Bulkhead*>(room)) {
+        if (auto bulkhead = room->cast<Bulkhead>()) {
             bulkhead->set_open(pfrm, app, packet.open_);
         }
     }
@@ -550,7 +550,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
     Scene* s = &app.scene();
 
-    if (auto scene = dynamic_cast<MultiplayerCoOpAwaitLockScene*>(s)) {
+    if (auto scene = s->cast_co_op_await_lock_scene()) {
         scene->signal_result(packet.status_ == RespType::success);
     }
 }
@@ -601,7 +601,7 @@ void CoOpTeam::receive(Platform& pfrm,
 
     Scene* s = &app.scene();
 
-    if (auto scene = dynamic_cast<MultiplayerCoOpAwaitChrLockScene*>(s)) {
+    if (auto scene = s->cast_co_op_await_chr_lock_scene()) {
         scene->signal_result(packet.status_ == RespType::success);
     }
 }
@@ -631,7 +631,7 @@ void CoOpTeam::receive(Platform& pfrm,
 {
     Scene* s = &app.scene();
 
-    if (auto scene = dynamic_cast<WorldScene*>(s)) {
+    if (auto scene = s->cast_world_scene()) {
         if (pkt.status_) {
             scene->set_gamespeed(pfrm, app, GameSpeed::stopped);
         } else {

@@ -54,6 +54,12 @@ public:
 
 
 
+    Drone* cast_drone() override
+    {
+        return this;
+    }
+
+
     virtual void ___rewind___ability_used(Platform& pfrm, App& app)
     {
     }

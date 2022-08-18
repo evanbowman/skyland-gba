@@ -22,9 +22,10 @@
 
 #pragma once
 
+#include "memory/uniquePtr.hpp"
 #include "platform/platform.hpp"
-#include <memory>
 #include <new>
+
 
 
 // borrowed from standard library
@@ -51,10 +52,10 @@ align(size_t __align, size_t __size, void*& __ptr, size_t& __space) noexcept
 template <typename T> struct DynamicMemory
 {
     ScratchBufferPtr memory_;
-    std::unique_ptr<T, void (*)(T*)> obj_;
+    UniquePtr<T, void (*)(T*)> obj_;
 
     DynamicMemory() = default;
-    DynamicMemory(ScratchBufferPtr mem, std::unique_ptr<T, void (*)(T*)> obj)
+    DynamicMemory(ScratchBufferPtr mem, UniquePtr<T, void (*)(T*)> obj)
         : memory_(mem), obj_(std::move(obj))
 
     {
@@ -81,7 +82,7 @@ template <typename T> struct DynamicMemory
     template <typename U>
     DynamicMemory(DynamicMemory<U>&& rebind)
         : memory_(rebind.memory_),
-          obj_(std::unique_ptr<T, void (*)(T*)>(
+          obj_(UniquePtr<T, void (*)(T*)>(
               rebind.obj_.release(),
               [](T* val) {
                   if (val) {
@@ -234,7 +235,7 @@ struct ScratchBufferBulkAllocator
     ScratchBufferBulkAllocator(ScratchBufferBulkAllocator&&) = default;
     ScratchBufferBulkAllocator(const ScratchBufferBulkAllocator&) = delete;
 
-    template <typename T> using Ptr = std::unique_ptr<T, void (*)(T*)>;
+    template <typename T> using Ptr = UniquePtr<T, void (*)(T*)>;
 
     template <typename T> static Ptr<T> null()
     {

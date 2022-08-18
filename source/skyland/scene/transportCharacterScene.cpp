@@ -191,7 +191,7 @@ TransportCharacterScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
 
         if (auto room = app.player_island().get_room(origin_)) {
-            if (auto transporter = dynamic_cast<Transporter*>(room)) {
+            if (auto transporter = room->cast<Transporter>()) {
                 transporter->transport_occupant(pfrm, app, *cursor_loc);
                 return scene_pool::alloc<InspectP2Scene>();
             } else {

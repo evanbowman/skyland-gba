@@ -46,9 +46,9 @@ void IntroCreditsScene::enter(Platform& pfrm, App&, Scene& prev)
 
     rng::critical_state = 2021;
 
-    if (pfrm.keyboard().pressed<Key::select>()) {
-        flower_effect_ = true;
-    }
+    // if (pfrm.keyboard().pressed<Key::select>()) {
+    //     flower_effect_ = true;
+    // }
 }
 
 

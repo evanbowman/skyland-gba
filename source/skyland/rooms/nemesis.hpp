@@ -39,7 +39,7 @@ extern SharedVariable nemesis_reload_ms;
 
 
 
-class Nemesis : public Weapon
+class Nemesis final : public Weapon
 {
 public:
     Nemesis(Island* parent, const RoomCoord& position);

@@ -113,7 +113,7 @@ void Speaker::update(Platform& pfrm, App& app, Microseconds delta)
         if (index_ == 16) {
             if (auto room =
                     parent()->get_room({position().x, u8(position().y + 1)})) {
-                auto s = dynamic_cast<Speaker*>(room);
+                auto s = room->cast<Speaker>();
                 if (s and signal_) {
                     s->play(pfrm);
                 } else {
@@ -277,7 +277,7 @@ void Speaker::play(Platform& pfrm, bool signal)
     signal_ = signal;
 
     for (auto& room : parent()->rooms()) {
-        if (auto b = dynamic_cast<Speaker*>(room.get())) {
+        if (auto b = room->cast<Speaker>()) {
             b->reset(pfrm, false);
             b->end_music_ = false;
         }
@@ -298,7 +298,7 @@ Synth* Speaker::square_1() const
     u8 y = position().y;
 
     if (auto room = parent()->get_room({x, y})) {
-        return dynamic_cast<Synth*>(room);
+        return room->cast<Synth>();
     }
 
     return nullptr;
@@ -334,7 +334,7 @@ Synth* Speaker::wave() const
     }
 
     if (auto room = parent()->get_room({x, y})) {
-        return dynamic_cast<Synth*>(room);
+        return room->cast<Synth>();
     }
 
     return nullptr;
@@ -354,7 +354,7 @@ Synth* Speaker::square_2() const
     }
 
     if (auto room = parent()->get_room({x, y})) {
-        return dynamic_cast<Synth*>(room);
+        return room->cast<Synth>();
     }
 
     return nullptr;
@@ -380,7 +380,7 @@ Synth* Speaker::noise() const
     }
 
     if (auto room = parent()->get_room({x, y})) {
-        return dynamic_cast<Synth*>(room);
+        return room->cast<Synth>();
     }
 
     return nullptr;
