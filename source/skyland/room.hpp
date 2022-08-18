@@ -191,16 +191,8 @@ public:
     template <typename T> T* cast()
     {
         // Basically, there are some obscure cases where I need to downcast
-        // stuff, and RTTI can't be used on GBA, because linking libstdc++ drags
-        // in newlib's malloc and a giant global array into IWRAM, because
-        // libstdc++ calls malloc to allocate data for a global pool to handle
-        // exceptions in cases of std::bad_alloc. Rooms are already tagged with
-        // unique names, so we can do a string compairison to implement our own
-        // runtime cast.
-        // NOTE: I was using dynamic_cast until I realized the impact on
-        // IWRAM. So I didn't devise this dynamic_cast replacement without first
-        // using the builting language features. T::name() already existed,
-        // offering a simple enough way to implement checked casts.
+        // stuff, and RTTI, in its current implementation, was causing issues on
+        // GBA.
         if (str_eq(T::name(), name())) {
             return reinterpret_cast<T*>(this);
         }

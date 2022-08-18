@@ -60,8 +60,6 @@ set(G_COMPILE_FLAGS
   -Wall
   -Werror
   -pedantic
-  -nostdlib
-  -ffreestanding
   -ffast-math
   -fno-math-errno
   -fno-exceptions
@@ -807,8 +805,6 @@ elseif(GAMEBOY_ADVANCE)
     -mthumb-interwork
     -mcpu=arm7tdmi
     -mtune=arm7tdmi
-    -nostdlib
-    -ffreestanding
     -D__GBA__)
 
 
@@ -867,9 +863,7 @@ elseif(GAMEBOY_ADVANCE)
     -mlong-calls
     -mthumb-interwork
     -mcpu=arm7tdmi
-    -mtune=arm7tdmi
-    -nostdlib
-    -ffreestanding)
+    -mtune=arm7tdmi)
 
   set(CMAKE_EXE_LINKER_FLAGS
     #  -Wl,--trace-symbol=__cxa_allocate_exception
