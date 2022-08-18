@@ -31,8 +31,34 @@
 
 
 
+void operator delete(void*, unsigned int)
+{
+    Platform::instance().fatal("delete called");
+}
+
+
+extern "C"
+{
+    void abort()
+    {
+        while (1) ;
+    }
+
+    int strcmp(const char* p1, const char* p2)
+    {
+        return str_cmp(p1, p2);
+    }
+
+    void __sync_synchronize()
+    {
+
+    }
+}
+
+
 namespace skyland
 {
+
 
 
 

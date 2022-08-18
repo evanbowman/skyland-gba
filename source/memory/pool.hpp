@@ -27,11 +27,6 @@
 #include <new>
 
 
-#ifdef POOL_USE_HEAP
-#include <vector>
-#endif
-
-
 
 class Platform;
 
@@ -108,11 +103,7 @@ public:
         Cell* next_;
     };
 
-#ifdef POOL_USE_HEAP
-    using Cells = std::vector<Cell>;
-#else
     using Cells = std::array<Cell, count>;
-#endif
 
 
     u32 pooled_element_size() const override
@@ -141,9 +132,6 @@ public:
 
     Pool(const char* name) : GenericPool(name), freelist_(nullptr)
     {
-#ifdef POOL_USE_HEAP
-        cells_.resize(count);
-#endif
 
         for (decltype(count) i = 0; i < count; ++i) {
             Cell* next = &cells_[i];
