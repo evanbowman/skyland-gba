@@ -97,8 +97,7 @@ void ReplicatorSelectionScene::exit(Platform& pfrm, App& app, Scene& next)
     if (app.game_mode() == App::GameMode::co_op) {
 
         auto& cursor_loc =
-            near_ ? globals().near_cursor_loc_
-                  : globals().far_cursor_loc_;
+            near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
         Island* island = near_ ? &app.player_island() : app.opponent_island();
 
@@ -128,8 +127,7 @@ ReplicatorSelectionScene::update(Platform& pfrm, App& app, Microseconds delta)
         }
     } else {
         auto& cursor_loc =
-            near_ ? globals().near_cursor_loc_
-                  : globals().far_cursor_loc_;
+            near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
         Island* island = near_ ? &app.player_island() : app.opponent_island();
 

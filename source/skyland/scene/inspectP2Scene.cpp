@@ -164,8 +164,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                 pfrm.speaker().play_sound("cursor_tick", 0);
 
             } else {
-                auto& near_cursor =
-                    globals().near_cursor_loc_;
+                auto& near_cursor = globals().near_cursor_loc_;
 
                 near_cursor.y = cursor_loc.y;
 
@@ -255,8 +254,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
 
         cursor_loc.x = 0;
 
-        auto& near_cursor =
-            globals().near_cursor_loc_;
+        auto& near_cursor = globals().near_cursor_loc_;
 
         near_cursor.y = cursor_loc.y;
 
@@ -277,8 +275,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
                                                    {x, y})) {
                 return scene;
             } else {
-                globals().near_cursor_loc_ = {x,
-                                                                           y};
+                globals().near_cursor_loc_ = {x, y};
                 return scene_pool::alloc<ReadyScene>();
             }
         } else if (island == app.opponent_island()) {
@@ -291,8 +288,7 @@ InspectP2Scene::update(Platform& pfrm, App& app, Microseconds delta)
             island_pos.x -= view_offset.x;
 
             if (pos->x < island_pos.x) {
-                globals().near_cursor_loc_ = {
-                    0, cursor_loc.y};
+                globals().near_cursor_loc_ = {0, cursor_loc.y};
                 return scene_pool::alloc<ReadyScene>();
             }
         }
@@ -373,8 +369,7 @@ void InspectP2Scene::display(Platform& pfrm, App& app)
 
         auto origin = app.opponent_island()->visual_origin();
 
-        auto& cursor_loc =
-            globals().far_cursor_loc_;
+        auto& cursor_loc = globals().far_cursor_loc_;
 
         origin.x += cursor_loc.x * 16;
         origin.y += cursor_loc.y * 16;

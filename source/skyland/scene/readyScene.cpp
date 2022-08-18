@@ -146,11 +146,9 @@ ScenePtr<Scene> player_island_onclick(Platform& pfrm,
                 camera_update_timer = milliseconds(500);
                 clear_room_description(pfrm, room_description);
                 if ((*drone)->destination() == &app.player_island()) {
-                    globals().near_cursor_loc_ =
-                        (*drone)->position();
+                    globals().near_cursor_loc_ = (*drone)->position();
                 } else {
-                    globals().far_cursor_loc_ =
-                        (*drone)->position();
+                    globals().far_cursor_loc_ = (*drone)->position();
                     return scene_pool::alloc<InspectP2Scene>();
                 }
             }
@@ -375,8 +373,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
     app.player().key_held_distribute(pfrm);
 
 
-    const auto& mt_prep_seconds =
-        globals().multiplayer_prep_seconds_;
+    const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
 
     auto sync_cursor = [&] {
@@ -416,14 +413,11 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else if ( // Do not allow the player to inspect the other island if we're in
                 // the multiplayer waiting room.
                 app.opponent_island() and
-                (mt_prep_seconds == 0 or globals()
-                                             .unhide_multiplayer_prep_)) {
-                auto& cursor_loc =
-                    globals().far_cursor_loc_;
+                (mt_prep_seconds == 0 or globals().unhide_multiplayer_prep_)) {
+                auto& cursor_loc = globals().far_cursor_loc_;
 
                 cursor_loc.x = 0;
-                cursor_loc.y =
-                    globals().near_cursor_loc_.y;
+                cursor_loc.y = globals().near_cursor_loc_.y;
 
                 app.player().network_sync_cursor(pfrm, cursor_loc, 0, false);
 
@@ -539,8 +533,7 @@ ScenePtr<Scene> ReadyScene::update(Platform& pfrm, App& app, Microseconds delta)
 
             if (pos->x >=
                 island_pos.x + app.player_island().terrain().size() * 16 + 32) {
-                globals().far_cursor_loc_ = {
-                    0, cursor_loc.y};
+                globals().far_cursor_loc_ = {0, cursor_loc.y};
                 return scene_pool::alloc<InspectP2Scene>();
             }
         }

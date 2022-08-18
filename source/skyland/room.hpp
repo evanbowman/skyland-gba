@@ -188,8 +188,7 @@ public:
 
 
 
-    template <typename T>
-    T* cast()
+    template <typename T> T* cast()
     {
         // Basically, there are some obscure cases where I need to downcast
         // stuff, and RTTI can't be used on GBA, because linking libstdc++ drags

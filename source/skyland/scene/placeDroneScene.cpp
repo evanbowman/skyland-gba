@@ -278,8 +278,7 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
             --cursor_loc->x;
             pfrm.speaker().play_sound("cursor_tick", 0);
         } else if (not near_) {
-            globals().near_cursor_loc_.y =
-                cursor_loc->y;
+            globals().near_cursor_loc_.y = cursor_loc->y;
             globals().near_cursor_loc_.x =
                 app.player_island().terrain().size() - 1;
             return scene_pool::alloc<PlaceDroneScene>(
@@ -292,8 +291,7 @@ PlaceDroneScene::update(Platform& pfrm, App& app, Microseconds delta)
             ++cursor_loc->x;
             pfrm.speaker().play_sound("cursor_tick", 0);
         } else if (near_ and app.opponent_island()) {
-            globals().far_cursor_loc_.y =
-                cursor_loc->y;
+            globals().far_cursor_loc_.y = cursor_loc->y;
             globals().far_cursor_loc_.x = 0;
             return scene_pool::alloc<PlaceDroneScene>(
                 pfrm, origin_, drone_class_, false);

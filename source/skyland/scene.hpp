@@ -23,8 +23,8 @@
 #pragma once
 
 #include "function.hpp"
-#include "number/numeric.hpp"
 #include "memory/uniquePtr.hpp"
+#include "number/numeric.hpp"
 
 
 
@@ -53,7 +53,7 @@ class MultiplayerCoOpAwaitLockScene;
 class MultiplayerCoOpAwaitChrLockScene;
 namespace macro
 {
-    class MacrocosmScene;
+class MacrocosmScene;
 }
 
 
@@ -75,10 +75,10 @@ public:
     }
 
 
-    virtual void enter(Platform&, App&, Scene& prev_scene) {};
+    virtual void enter(Platform&, App&, Scene& prev_scene){};
 
 
-    virtual void exit(Platform&, App&, Scene& next_scene) {};
+    virtual void exit(Platform&, App&, Scene& next_scene){};
 
 
     // Yeah, I should be using a visitor.

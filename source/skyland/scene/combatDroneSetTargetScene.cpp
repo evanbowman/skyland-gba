@@ -46,12 +46,10 @@ CombatDroneSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto exit_scene = [&]() -> ScenePtr<Scene> {
         if (drone_->destination() == &app.player_island()) {
-            globals().near_cursor_loc_ =
-                drone_->position();
+            globals().near_cursor_loc_ = drone_->position();
             return scene_pool::alloc<ReadyScene>();
         } else {
-            globals().far_cursor_loc_ =
-                drone_->position();
+            globals().far_cursor_loc_ = drone_->position();
             return scene_pool::alloc<InspectP2Scene>();
         }
     };

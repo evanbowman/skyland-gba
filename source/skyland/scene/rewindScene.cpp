@@ -228,13 +228,11 @@ ScenePtr<Scene> RewindScene::update(Platform& pfrm, App& app, Microseconds)
 
 
     if (far_camera_) {
-        auto& cursor_loc =
-            globals().far_cursor_loc_;
+        auto& cursor_loc = globals().far_cursor_loc_;
         app.camera()->update(
             pfrm, app, *app.opponent_island(), cursor_loc, delta, false);
     } else {
-        auto& cursor_loc =
-            globals().near_cursor_loc_;
+        auto& cursor_loc = globals().near_cursor_loc_;
         app.camera()->update(
             pfrm, app, app.player_island(), cursor_loc, delta, true);
     }

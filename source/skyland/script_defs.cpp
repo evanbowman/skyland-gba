@@ -884,8 +884,8 @@ static const lisp::Binding script_api[] = {
          // Swap in the procedural-generation enemy AI that we created for
          // SKYLAND Forever, generate a level, and then swap the regular Enemy
          // AI back in.
-         auto& o =
-             app->swap_opponent<ProcgenEnemyAI>(rng::get(rng::critical_state), 1);
+         auto& o = app->swap_opponent<ProcgenEnemyAI>(
+             rng::get(rng::critical_state), 1);
 
          o.set_levelgen_count(lisp::get_op(0)->integer().value_);
          o.generate_level(*pfrm, *app);
@@ -1127,14 +1127,12 @@ static const lisp::Binding script_api[] = {
          L_EXPECT_OP(2, user_data);
 
          if (auto app = interp_get_app()) {
-             RoomCoord& sel =
-                 globals().near_cursor_loc_;
+             RoomCoord& sel = globals().near_cursor_loc_;
 
              if (auto ws = app->scene().cast_world_scene()) {
                  if (lisp::get_op(2)->user_data().obj_ ==
                      &app->player_island()) {
-                     sel =
-                         globals().far_cursor_loc_;
+                     sel = globals().far_cursor_loc_;
                      ws->near_camera();
                  } else {
                      ws->far_camera();

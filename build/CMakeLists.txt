@@ -872,7 +872,8 @@ elseif(GAMEBOY_ADVANCE)
     -ffreestanding)
 
   set(CMAKE_EXE_LINKER_FLAGS
-    "-mthumb -mthumb-interwork -Wl,--trace-symbol=malloc -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"
+    #  -Wl,--trace-symbol=__cxa_allocate_exception
+    "-mthumb -mthumb-interwork -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"
     CACHE INTERNAL "" FORCE)
 
   target_compile_options(LISP PRIVATE
@@ -886,12 +887,7 @@ elseif(GAMEBOY_ADVANCE)
   target_link_libraries(SkylandEngine PUBLIC
     LIBGBA
     QR
-    ARM_ROUTINES
-    # $ENV{DEVKITARM}/arm-none-eabi/lib/libc.a
-    # $ENV{DEVKITARM}/bin/../lib/gcc/arm-none-eabi/10.2.0/../../../../arm-none-eabi/lib/thumb/gba_crt0.o
-    # $ENV{DEVKITARM}/bin/../lib/gcc/arm-none-eabi/10.2.0/thumb/libgcc.a
-    # $ENV{DEVKITARM}/bin/../lib/gcc/arm-none-eabi/10.2.0/../../../../arm-none-eabi/lib/thumb/libstdc++.a
-    )
+    ARM_ROUTINES)
 
   target_compile_options(SkylandEngine PRIVATE
     ${ARM7_THUMB_FLAGS}

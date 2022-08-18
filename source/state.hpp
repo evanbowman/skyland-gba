@@ -24,9 +24,9 @@
 
 
 #include "graphics/overlay.hpp"
+#include "memory/uniquePtr.hpp"
 #include "number/numeric.hpp"
 #include "string.hpp"
-#include "memory/uniquePtr.hpp"
 
 
 class Platform;

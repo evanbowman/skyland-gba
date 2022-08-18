@@ -82,15 +82,13 @@ template <typename T> struct DynamicMemory
     template <typename U>
     DynamicMemory(DynamicMemory<U>&& rebind)
         : memory_(rebind.memory_),
-          obj_(UniquePtr<T, void (*)(T*)>(
-              rebind.obj_.release(),
-              [](T* val) {
-                  if (val) {
-                      if constexpr (not std::is_trivial<T>()) {
-                          val->~T();
-                      }
+          obj_(UniquePtr<T, void (*)(T*)>(rebind.obj_.release(), [](T* val) {
+              if (val) {
+                  if constexpr (not std::is_trivial<T>()) {
+                      val->~T();
                   }
-              }))
+              }
+          }))
     {
     }
 

@@ -90,8 +90,7 @@ void prep_level(Platform& pfrm, App& app)
     auto& cursor_loc = globals().near_cursor_loc_;
     cursor_loc.x = 0;
     cursor_loc.y = 14;
-    auto& far_cursor_loc =
-        globals().far_cursor_loc_;
+    auto& far_cursor_loc = globals().far_cursor_loc_;
     far_cursor_loc.x = 0;
     far_cursor_loc.y = 14;
 

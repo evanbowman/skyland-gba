@@ -31,8 +31,8 @@
 #include "hitbox.hpp"
 #include "memory/buffer.hpp"
 #include "memory/segmentedPool.hpp"
-#include "number/numeric.hpp"
 #include "memory/uniquePtr.hpp"
+#include "number/numeric.hpp"
 
 
 

@@ -318,8 +318,7 @@ void MoveCharacterScene::display(Platform& pfrm, App& app)
     }
 
     const auto cursor_loc =
-        near_ ? globals().near_cursor_loc_
-              : globals().far_cursor_loc_;
+        near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
     origin.x += cursor_loc.x * 16;
     origin.y += cursor_loc.y * 16;

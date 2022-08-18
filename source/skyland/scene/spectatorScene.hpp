@@ -97,10 +97,8 @@ public:
         };
 
 
-        auto& cursor_loc =
-            is_far_camera()
-                ? globals().far_cursor_loc_
-                : globals().near_cursor_loc_;
+        auto& cursor_loc = is_far_camera() ? globals().far_cursor_loc_
+                                           : globals().near_cursor_loc_;
 
 
         cursor_anim_timer_ += delta;
@@ -135,8 +133,7 @@ public:
                 describe_room_timer_ = milliseconds(300);
                 pfrm.speaker().play_sound("cursor_tick", 0);
             } else if (is_far_camera()) {
-                globals().near_cursor_loc_.y =
-                    globals().far_cursor_loc_.y;
+                globals().near_cursor_loc_.y = globals().far_cursor_loc_.y;
                 globals().near_cursor_loc_.x =
                     player_island(app).terrain().size();
                 pfrm.speaker().play_sound("cursor_tick", 0);
@@ -150,8 +147,7 @@ public:
                 describe_room_timer_ = milliseconds(300);
                 pfrm.speaker().play_sound("cursor_tick", 0);
             } else if (not is_far_camera()) {
-                globals().far_cursor_loc_.y =
-                    globals().near_cursor_loc_.y;
+                globals().far_cursor_loc_.y = globals().near_cursor_loc_.y;
                 globals().far_cursor_loc_.x = 0;
                 pfrm.speaker().play_sound("cursor_tick", 0);
                 far_camera();
@@ -190,10 +186,8 @@ public:
 
     void display(Platform& pfrm, App& app)
     {
-        auto& cursor_loc =
-            is_far_camera()
-                ? globals().far_cursor_loc_
-                : globals().near_cursor_loc_;
+        auto& cursor_loc = is_far_camera() ? globals().far_cursor_loc_
+                                           : globals().near_cursor_loc_;
 
         Island* island;
         if (is_far_camera()) {

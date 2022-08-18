@@ -69,8 +69,7 @@ void SelInputScene::enter(Platform& pfrm, App& app, Scene& prev)
         pfrm.set_tile(Layer::overlay, i, st.y - 2, 425);
     }
 
-    cached_near_cursor_ =
-        globals().near_cursor_loc_;
+    cached_near_cursor_ = globals().near_cursor_loc_;
     cached_far_cursor_ = globals().far_cursor_loc_;
 }
 
@@ -114,8 +113,7 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         near_camera();
 
-        auto& cursor_loc =
-            globals().near_cursor_loc_;
+        auto& cursor_loc = globals().near_cursor_loc_;
 
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
@@ -155,8 +153,7 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         far_camera();
 
-        auto& cursor_loc =
-            globals().far_cursor_loc_;
+        auto& cursor_loc = globals().far_cursor_loc_;
 
         if (test_key(Key::left)) {
             if (cursor_loc.x > 0) {
@@ -164,8 +161,7 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
             } else {
                 globals().near_cursor_loc_.x =
                     app.player_island().terrain().size();
-                globals().near_cursor_loc_.y =
-                    cursor_loc.y;
+                globals().near_cursor_loc_.y = cursor_loc.y;
                 near_ = true;
             }
         }
@@ -198,8 +194,7 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
     } else if (app.player().key_down(pfrm, Key::action_1)) {
 
         auto& cursor_loc =
-            near_ ? globals().near_cursor_loc_
-                  : globals().far_cursor_loc_;
+            near_ ? globals().near_cursor_loc_ : globals().far_cursor_loc_;
 
 
         if (required_space_) {
@@ -226,10 +221,8 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
         lisp::funcall(parameters_->cons().car()->cons().cdr(), 3);
         lisp::pop_op(); // TODO: check for lisp::Error.
 
-        globals().near_cursor_loc_ =
-            cached_near_cursor_;
-        globals().far_cursor_loc_ =
-            cached_far_cursor_;
+        globals().near_cursor_loc_ = cached_near_cursor_;
+        globals().far_cursor_loc_ = cached_far_cursor_;
 
         if (started_near_) {
             return scene_pool::alloc<ReadyScene>();
@@ -254,8 +247,7 @@ void SelInputScene::display(Platform& pfrm, App& app)
     if (near_) {
         auto origin = app.player_island().visual_origin();
 
-        auto& cursor_loc =
-            globals().near_cursor_loc_;
+        auto& cursor_loc = globals().near_cursor_loc_;
 
         origin.x += cursor_loc.x * 16;
         origin.y += cursor_loc.y * 16;
@@ -264,8 +256,7 @@ void SelInputScene::display(Platform& pfrm, App& app)
     } else if (app.opponent_island()) {
         auto origin = app.opponent_island()->visual_origin();
 
-        auto& cursor_loc =
-            globals().far_cursor_loc_;
+        auto& cursor_loc = globals().far_cursor_loc_;
 
         origin.x += cursor_loc.x * 16;
         origin.y += cursor_loc.y * 16;

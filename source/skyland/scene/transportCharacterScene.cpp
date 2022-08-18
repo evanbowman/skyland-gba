@@ -66,8 +66,7 @@ void TransportCharacterScene::enter(Platform& pfrm, App& app, Scene& prev)
         for (u8 y = 0; y < 16; ++y) {
             if ((**matrix_)[x][y]) {
                 if (not set_cursor) {
-                    globals().far_cursor_loc_ = {
-                        x, y};
+                    globals().far_cursor_loc_ = {x, y};
                     set_cursor = true;
                 }
                 pfrm.set_tile(app.opponent_island()->layer(),
@@ -103,8 +102,7 @@ void TransportCharacterScene::display(Platform& pfrm, App& app)
         origin = app.opponent_island()->visual_origin();
     }
 
-    const auto cursor_loc =
-        globals().far_cursor_loc_;
+    const auto cursor_loc = globals().far_cursor_loc_;
 
     origin.x += cursor_loc.x * 16;
     origin.y += cursor_loc.y * 16;

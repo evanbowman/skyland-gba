@@ -71,8 +71,7 @@ void Decimator::update(Platform& pfrm, App& app, Microseconds delta)
 
     Room::ready();
 
-    const auto& mt_prep_seconds =
-        globals().multiplayer_prep_seconds_;
+    const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
     if (mt_prep_seconds) {
         return;

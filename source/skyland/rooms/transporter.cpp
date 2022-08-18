@@ -307,8 +307,7 @@ Transporter::select(Platform& pfrm, App& app, const RoomCoord& cursor)
         return new_scene;
     }
 
-    const auto& mt_prep_seconds =
-        globals().multiplayer_prep_seconds_;
+    const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
 
     if (mt_prep_seconds) {

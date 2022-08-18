@@ -1272,15 +1272,12 @@ bool is_executing()
 }
 
 
-
 Value* dostring(const char* code)
 {
     BasicCharSequence cs(code);
-    return dostring(cs, [](Value&) {
-                            Platform::fatal("fatal error in dostring...");
-                        });
+    return dostring(
+        cs, [](Value&) { Platform::fatal("fatal error in dostring..."); });
 }
-
 
 
 Value* dostring(CharSequence& code, ::Function<16, void(Value&)> on_error)

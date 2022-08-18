@@ -92,8 +92,7 @@ void ProcgenEnemyAI::update(Platform& pfrm, App& app, Microseconds delta)
             g.multiplayer_pause_owner_ = false;
         }
     } else {
-        auto mt_prep_seconds =
-            globals().multiplayer_prep_seconds_;
+        auto mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
         if (app.game_mode() == App::GameMode::co_op) {
 

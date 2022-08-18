@@ -375,8 +375,8 @@ void plugin_rooms_unregister()
 
         // FIXME: do checked cast. RTTI unsupported on some embedded platforms,
         // due to no libstdc++. This code doesn't run anyway.
-        if (auto b =
-                reinterpret_cast<RoomPluginInfo*>(__metatable().table_[i].box())) {
+        if (auto b = reinterpret_cast<RoomPluginInfo*>(
+                __metatable().table_[i].box())) {
             b->info_.reset();
         } else {
             Platform::fatal(

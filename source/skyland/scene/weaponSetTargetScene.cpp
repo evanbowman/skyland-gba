@@ -81,18 +81,15 @@ WeaponSetTargetScene::update(Platform& pfrm, App& app, Microseconds delta)
 
     auto drone_exit_scene = [&](Drone* drone) -> ScenePtr<Scene> {
         if (drone->destination() == &app.player_island()) {
-            globals().near_cursor_loc_ =
-                drone->position();
+            globals().near_cursor_loc_ = drone->position();
             return scene_pool::alloc<ReadyScene>();
         } else {
-            globals().far_cursor_loc_ =
-                drone->position();
+            globals().far_cursor_loc_ = drone->position();
             return scene_pool::alloc<InspectP2Scene>();
         }
     };
 
-    const auto& mt_prep_seconds =
-        globals().multiplayer_prep_seconds_;
+    const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
     if (not app.opponent_island() or mt_prep_seconds not_eq 0) {
         return player_weapon_exit_scene();

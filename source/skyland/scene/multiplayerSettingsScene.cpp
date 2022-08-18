@@ -261,11 +261,9 @@ void MultiplayerSettingsScene::setup_vs_game(Platform& pfrm, App& app)
     }
 
 
-    globals().multiplayer_prep_seconds_ =
-        vs_parameters_[1];
+    globals().multiplayer_prep_seconds_ = vs_parameters_[1];
 
-    globals().unhide_multiplayer_prep_ =
-        vs_parameters_[2];
+    globals().unhide_multiplayer_prep_ = vs_parameters_[2];
 
     app.set_coins(pfrm, vs_parameters_[3]);
 

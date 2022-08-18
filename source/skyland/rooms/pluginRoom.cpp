@@ -162,8 +162,7 @@ void PluginRoom::rewind(Platform& pfrm, App& app, Microseconds delta)
 ScenePtr<Scene>
 PluginRoom::select(Platform& pfrm, App& app, const RoomCoord& cursor)
 {
-    const auto& mt_prep_seconds =
-        globals().multiplayer_prep_seconds_;
+    const auto& mt_prep_seconds = globals().multiplayer_prep_seconds_;
 
     if (mt_prep_seconds) {
         return null_scene();

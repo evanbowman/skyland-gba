@@ -256,8 +256,7 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
 
         app.time_stream().clear();
 
-        auto& cursor_loc =
-            globals().near_cursor_loc_;
+        auto& cursor_loc = globals().near_cursor_loc_;
 
         cursor_loc.x = 0;
 
@@ -294,8 +293,7 @@ ActiveWorldScene::update(Platform& pfrm, App& app, Microseconds delta)
     if (app.opponent_island() and app.opponent_island()->is_destroyed()) {
         reset_gamespeed(pfrm, app);
 
-        auto& cursor_loc =
-            globals().near_cursor_loc_;
+        auto& cursor_loc = globals().near_cursor_loc_;
 
         cursor_loc.x = 0;
 
@@ -316,8 +314,7 @@ void WorldScene::display(Platform& pfrm, App& app)
     if (app.game_mode() == App::GameMode::co_op) {
         Sprite cursor;
         cursor.set_size(Sprite::Size::w16_h32);
-        cursor.set_texture_index(
-            globals().co_op_cursor_icon_);
+        cursor.set_texture_index(globals().co_op_cursor_icon_);
 
         auto cursor_loc = globals().co_op_cursor_;
 
