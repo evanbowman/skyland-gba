@@ -74,5 +74,6 @@ void GenericPool::print_diagnostics(Platform& pfrm)
         pool = pool->next();
     }
 
+    pfrm.logger().log(Severity::info, output->c_str());
     pfrm.remote_console().printline(output->c_str(), "sc> ");
 }
