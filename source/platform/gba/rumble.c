@@ -73,11 +73,11 @@ enum GBPCommsStage {
 
 
 static struct GBPComms {
-    enum GBPCommsStage stage_;
     u32 serial_in_;
     u16 index_;
     u16 out_0_;
     u16 out_1_;
+    enum GBPCommsStage stage_;
 } gbp_comms;
 
 

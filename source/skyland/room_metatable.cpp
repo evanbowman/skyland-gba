@@ -341,10 +341,12 @@ using RoomMetatableType = RoomMetatable<15,
 
 
 
+static RoomMetatableType __room_metatable;
+
+
+
 static auto& __metatable()
 {
-    static RoomMetatableType __room_metatable;
-
     return __room_metatable;
 }
 

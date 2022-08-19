@@ -40,7 +40,7 @@ class PlaceDroneScene : public ActiveWorldScene
 public:
     PlaceDroneScene(Platform& pfrm,
                     RoomCoord origin,
-                    DroneMeta* drone_class,
+                    const DroneMeta* drone_class,
                     bool near = true);
 
 
@@ -62,7 +62,7 @@ private:
     bool near_;
 
     std::optional<Text> message_;
-    DroneMeta* drone_class_;
+    const DroneMeta* drone_class_;
 };
 
 

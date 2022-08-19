@@ -10,8 +10,8 @@ extern "C" {
 
 
 template <u32 sz>
-Buffer<char, sz> compress(const Buffer<char, sz>& input,
-                          Buffer<char, sz>& result)
+void compress(const Buffer<char, sz>& input,
+              Buffer<char, sz>& result)
 {
 #ifndef HS_COMPRESSOR_OFF
     heatshrink_encoder enc;
@@ -64,8 +64,6 @@ Buffer<char, sz> compress(const Buffer<char, sz>& input,
 #else
     Platform::fatal("hs encoder disabled!");
 #endif
-
-    return result;
 }
 
 

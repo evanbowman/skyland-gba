@@ -37,8 +37,7 @@ namespace skyland
 struct DroneMeta
 {
 
-
-    static DroneMeta* load(const char* name);
+    static const DroneMeta* load(const char* name);
 
 
     static int index(const char* name);
@@ -71,54 +70,6 @@ struct DroneMeta
 
 
         virtual Coins cost() const = 0;
-    };
-
-
-    struct PluginBox : public Box
-    {
-        DroneMeta* mt_;
-        mutable std::optional<lisp::Protected> info_;
-
-
-        PluginBox(DroneMeta* mt) : mt_(mt)
-        {
-        }
-
-
-        const char* name() const override
-        {
-            // TODO...
-            return "__PLUGIN__";
-        }
-
-
-        u16 icon() const override
-        {
-            // TODO...
-            return 0;
-        }
-
-
-        u16 unsel_icon() const override
-        {
-            return 0;
-        }
-
-
-        Coins cost() const override
-        {
-            return 0;
-        }
-
-
-        std::optional<SharedEntityRef<Drone>>
-        create(Island* parent,
-               Island* destination,
-               const RoomCoord& grid_pos) const override
-        {
-            // TODO: support plugin (scriptable) drones
-            return {};
-        }
     };
 
 
@@ -162,9 +113,8 @@ struct DroneMeta
         }
     };
 
-    static constexpr int align = 8;
-
-    alignas(align) u8 buffer_[sizeof(PluginBox)];
+    static constexpr const auto align = alignof(void*);
+    alignas(align) u8 buffer_[8];
 
 
     template <typename T> void init()
@@ -174,13 +124,6 @@ struct DroneMeta
 
         new (buffer_) BoxImpl<T>();
     }
-
-
-    void init_plugin()
-    {
-        new (buffer_) PluginBox(this);
-    }
-
 
     DroneMeta()
     {
@@ -206,7 +149,7 @@ struct DroneMeta
 
 
 
-template <int plugin_slots, typename... Drones> struct DroneMetatable
+template <typename... Drones> struct DroneMetatable
 {
 public:
     template <size_t i, typename First, typename... Rest> void init()
@@ -221,23 +164,19 @@ public:
     DroneMetatable()
     {
         init<0, Drones...>();
-
-        for (int i = 0; i < plugin_slots; ++i) {
-            table_[sizeof...(Drones) + i].init_plugin();
-        }
     }
 
-    constexpr int size()
+    constexpr int size() const
     {
         return sizeof...(Drones);
     }
 
-    DroneMeta table_[sizeof...(Drones) + plugin_slots];
+    DroneMeta table_[sizeof...(Drones)];
 };
 
 
 
-std::pair<DroneMeta*, int> drone_metatable();
+std::pair<const DroneMeta*, int> drone_metatable();
 
 
 

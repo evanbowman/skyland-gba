@@ -989,7 +989,7 @@ static void place_offensive_drone(Platform& pfrm,
                                   const Bitmatrix<16, 16>& player_rooms,
                                   bool left_anchor,
                                   bool restrict_columns[16],
-                                  DroneMeta* metac,
+                                  const DroneMeta* metac,
                                   Island& player_island,
                                   Island& ai_island)
 {

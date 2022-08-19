@@ -38,7 +38,7 @@ namespace skyland
 
 PlaceDroneScene::PlaceDroneScene(Platform& pfrm,
                                  RoomCoord origin,
-                                 DroneMeta* drone_class,
+                                 const DroneMeta* drone_class,
                                  bool near)
     : matrix_(allocate_dynamic<bool[16][16]>("drone-placement-matrix")),
       origin_(origin), near_(near), drone_class_(drone_class)
