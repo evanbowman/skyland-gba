@@ -105,7 +105,7 @@ struct Nil {
         return ValueHeader::Type::nil;
     }
 
-    static void finalizer(Value*)
+    static constexpr void finalizer(Value*)
     {
     }
 };
@@ -210,7 +210,7 @@ struct Symbol {
         small,
     };
 
-    static void finalizer(Value*)
+    static constexpr void finalizer(Value*)
     {
     }
 };
@@ -225,7 +225,7 @@ struct Integer {
         return ValueHeader::Type::integer;
     }
 
-    static void finalizer(Value*)
+    static constexpr void finalizer(Value*)
     {
     }
 };
@@ -240,7 +240,7 @@ struct Character {
         return ValueHeader::Type::character;
     }
 
-    static void finalizer(Value*)
+    static constexpr void finalizer(Value*)
     {
     }
 };
@@ -287,7 +287,7 @@ struct Cons {
         cdr_ = val;
     }
 
-    static void finalizer(Value*)
+    static constexpr void finalizer(Value*)
     {
     }
 
@@ -337,7 +337,7 @@ struct Function {
         lisp_bytecode_function,
     };
 
-    static void finalizer(Value*)
+    static constexpr void finalizer(Value*)
     {
     }
 };
@@ -390,7 +390,7 @@ struct String {
 
     const char* value();
 
-    static void finalizer(Value*)
+    static constexpr void finalizer(Value*)
     {
     }
 };
@@ -443,7 +443,7 @@ struct Error {
         return "Unknown error";
     }
 
-    static void finalizer(Value*)
+    static constexpr void finalizer(Value*)
     {
     }
 };
@@ -458,7 +458,7 @@ struct UserData {
         return ValueHeader::Type::user_data;
     }
 
-    static void finalizer(Value*)
+    static constexpr void finalizer(Value*)
     {
     }
 };
@@ -474,7 +474,7 @@ struct __Reserved {
 
     // Reserved for future use
 
-    static void finalizer(Value*)
+    static constexpr void finalizer(Value*)
     {
     }
 };
@@ -489,7 +489,7 @@ struct HeapNode {
         return ValueHeader::Type::heap_node;
     }
 
-    static void finalizer(Value*)
+    static constexpr void finalizer(Value*)
     {
         // Should be unreachable.
         while (true)

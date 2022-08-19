@@ -1235,7 +1235,7 @@ bool is_boolean_true(Value* val)
 }
 
 
-static const long hextable[] = {
+static constexpr const long hextable[] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0,  1,  2,  3,  4,  5,  6,  7,  8,
@@ -1583,7 +1583,7 @@ static void gc_mark()
 using Finalizer = void (*)(Value*);
 
 struct FinalizerTableEntry {
-    FinalizerTableEntry(Finalizer fn) : fn_(fn)
+    constexpr FinalizerTableEntry(Finalizer fn) : fn_(fn)
     {
     }
 
@@ -1591,25 +1591,27 @@ struct FinalizerTableEntry {
 };
 
 
+constexpr const std::array<FinalizerTableEntry, Value::Type::count> fin_table = {
+    HeapNode::finalizer,
+    Nil::finalizer,
+    Integer::finalizer,
+    Cons::finalizer,
+    Function::finalizer,
+    Error::finalizer,
+    Symbol::finalizer,
+    UserData::finalizer,
+    DataBuffer::finalizer,
+    String::finalizer,
+    Character::finalizer,
+    __Reserved::finalizer,
+};
+
+
 static void invoke_finalizer(Value* value)
 {
     // NOTE: This ordering should match the Value::Type enum.
-    static const std::array<FinalizerTableEntry, Value::Type::count> table = {
-        HeapNode::finalizer,
-        Nil::finalizer,
-        Integer::finalizer,
-        Cons::finalizer,
-        Function::finalizer,
-        Error::finalizer,
-        Symbol::finalizer,
-        UserData::finalizer,
-        DataBuffer::finalizer,
-        String::finalizer,
-        Character::finalizer,
-        __Reserved::finalizer,
-    };
 
-    table[value->type()].fn_(value);
+    fin_table[value->type()].fn_(value);
 }
 
 

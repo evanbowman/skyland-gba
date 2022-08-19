@@ -729,7 +729,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
     };
 
 
-    static const auto sync_delay = milliseconds(100);
+    static constexpr const auto sync_delay = milliseconds(100);
 
 
     for (auto it = drones_.begin(); it not_eq drones_.end();) {
@@ -1053,7 +1053,7 @@ void Island::on_layout_changed(App& app,
 
 
 
-static const int screen_limit_y = 700;
+static constexpr const int screen_limit_y = 700;
 
 
 
@@ -1136,7 +1136,7 @@ void Island::test_collision(Platform& pfrm, App& app, Entity& entity)
 
             if (rooms_plot_.get(x, y)) {
                 if (auto room = get_room({(u8)x, (u8)y})) {
-                    static const int tile_size = 16;
+                    static constexpr const int tile_size = 16;
 
                     auto hitbox_pos = this->origin();
                     hitbox_pos.x += room->position().x * tile_size;

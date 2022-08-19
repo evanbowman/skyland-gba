@@ -867,7 +867,7 @@ elseif(GAMEBOY_ADVANCE)
 
   set(CMAKE_EXE_LINKER_FLAGS
     #  -Wl,--trace-symbol=__cxa_allocate_exception
-    "-mthumb -mthumb-interwork -Wl,--trace-symbol=atexit  -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"
+    "-mthumb -mthumb-interwork -Wl,--trace-symbol=__cxa_guard_acquire  -Wl,-Map,SkylandEngine.elf.map -specs=gba.specs"
     CACHE INTERNAL "" FORCE)
 
   target_compile_options(LISP PRIVATE

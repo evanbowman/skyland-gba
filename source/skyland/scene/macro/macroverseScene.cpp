@@ -81,8 +81,8 @@ ColorConstant fluid_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
             int v1 = (var & 0xff00) >> 8;
 
-            static const Color input(k);
-            static const Color k2(custom_color(0x4f92ff));
+            const Color input(k);
+            static constexpr const Color k2(custom_color(0x4f92ff));
 
             Color result(fast_interpolate(k2.r_, input.r_, v1),
                          fast_interpolate(k2.g_, input.g_, v1),
@@ -94,8 +94,8 @@ ColorConstant fluid_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
             int v2 = (var & 0xff);
 
-            static const Color input(k);
-            static const Color k2(custom_color(0xf7ad36));
+            const Color input(k);
+            static constexpr const Color k2(custom_color(0xf7ad36));
 
             Color result(fast_interpolate(k2.r_, input.r_, v2),
                          fast_interpolate(k2.g_, input.g_, v2),

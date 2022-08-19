@@ -257,7 +257,7 @@ redden_shader(ShaderPalette p, ColorConstant k, int var, int index)
 
     auto k1 = contrast_shader(p, k, std::max(-(var / 2), -64), index);
 
-    static const Color ao(ColorConstant::aerospace_orange);
+    static constexpr const Color ao(ColorConstant::aerospace_orange);
     const Color input(k1);
 
     Color result(fast_interpolate(ao.r_, input.r_, var),

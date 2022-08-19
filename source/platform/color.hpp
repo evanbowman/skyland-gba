@@ -29,7 +29,8 @@
 class Color
 {
 public:
-    Color(ColorConstant k)
+    constexpr Color(ColorConstant k) :
+        r_(0), g_(0), b_(0)
     {
         const auto val = static_cast<int>(k);
         r_ = (val & 0xFF0000) >> 16;
@@ -42,7 +43,7 @@ public:
         b_ >>= 3;
     }
 
-    ColorConstant hex() const
+    constexpr ColorConstant hex() const
     {
         auto r = r_ << 3;
         auto g = g_ << 3;
@@ -51,11 +52,11 @@ public:
         return static_cast<ColorConstant>(r << 16 | g << 8 | b);
     }
 
-    Color(u8 r, u8 g, u8 b) : r_(r), g_(g), b_(b)
+    constexpr Color(u8 r, u8 g, u8 b) : r_(r), g_(g), b_(b)
     {
     }
 
-    inline u16 bgr_hex_555() const
+    constexpr inline u16 bgr_hex_555() const
     {
         return (r_) + ((g_) << 5) + ((b_) << 10);
     }

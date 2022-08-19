@@ -83,6 +83,37 @@ void* malloc(size_t sz)
 void free(void*)
 {
 }
+
+
+int __aeabi_atexit(void*, void (*)(void*), void*)
+{
+    return 0;
+}
+
+
+void __cxa_pure_virtual()
+{
+    Platform::fatal("pure virtual call!");
+}
+
+
+int __cxa_guard_acquire(uint64_t* guard_object)
+{
+    if (*(u8*)guard_object == 1) {
+        return 0;
+    } else if (*(u8*)guard_object == 0) {
+        *(u8*)guard_object = 1;
+        return 1;
+    }
+    return 0;
+}
+
+
+void __cxa_guard_release(uint64_t* guard_object)
+{
+}
+
+
 }
 
 
@@ -91,6 +122,9 @@ extern char __iwram_overlay_end;
 
 
 
+// Explanation: iwram_overlay_end points to the end of the stack. I write 16
+// bytes of stack canary data, and perform a stack overflow check at least once
+// per frame, to determine whether the software exceeded the stack limits.
 static const char* stack_canary_value = "（・θ・）";
 
 
@@ -412,7 +446,7 @@ void print_char(Platform& pfrm,
 
 static inline void on_stack_overflow()
 {
-    static const auto bkg_color = custom_color(0xcb1500);
+    static constexpr const auto bkg_color = custom_color(0xcb1500);
     ::platform->screen().fade(1.f, bkg_color);
     ::platform->fill_overlay(0);
     irqDisable(IRQ_TIMER2 | IRQ_TIMER3 | IRQ_VBLANK);
@@ -815,7 +849,7 @@ static bool unlock_gameboy_player(Platform& pfrm)
     BG0_X_SCROLL = 0;
     BG0_Y_SCROLL = 0;
 
-    static const auto white_555 = Color(custom_color(0xffffff)).bgr_hex_555();
+    static constexpr const auto white_555 = Color(custom_color(0xffffff)).bgr_hex_555();
 
     // The fade effect is costly, pre-populate the palette with the start color
     // to mitigate (visible) tearing.
@@ -905,35 +939,35 @@ Color real_color(ColorConstant k)
 {
     switch (k) {
     case ColorConstant::electric_blue:
-        static const Color el_blue(0, 31, 31);
+        static constexpr const Color el_blue(0, 31, 31);
         return el_blue;
 
     case ColorConstant::turquoise_blue:
-        static const Color turquoise_blue(0, 31, 27);
+        static constexpr const Color turquoise_blue(0, 31, 27);
         return turquoise_blue;
 
     case ColorConstant::cerulean_blue:
-        static const Color cerulean_blue(12, 27, 31);
+        static constexpr const Color cerulean_blue(12, 27, 31);
         return cerulean_blue;
 
     case ColorConstant::picton_blue:
-        static const Color picton_blue(9, 20, 31);
+        static constexpr const Color picton_blue(9, 20, 31);
         return picton_blue;
 
     case ColorConstant::maya_blue:
-        static const Color maya_blue(10, 23, 31);
+        static constexpr const Color maya_blue(10, 23, 31);
         return maya_blue;
 
     case ColorConstant::aged_paper:
-        static const Color aged_paper(27, 24, 18);
+        static constexpr const Color aged_paper(27, 24, 18);
         return aged_paper;
 
     case ColorConstant::silver_white:
-        static const Color silver_white(29, 29, 30);
+        static constexpr const Color silver_white(29, 29, 30);
         return silver_white;
 
     case ColorConstant::rich_black:
-        static const Color rich_black(0, 0, 2);
+        static constexpr const Color rich_black(0, 0, 2);
         return rich_black;
 
     default:
@@ -2088,7 +2122,7 @@ void Platform::Screen::display()
 
 Vec2<u32> Platform::Screen::size() const
 {
-    static const Vec2<u32> gba_widescreen{240, 160};
+    static constexpr const Vec2<u32> gba_widescreen{240, 160};
     return gba_widescreen;
 }
 
@@ -2478,10 +2512,10 @@ void Platform::fatal(const char* msg)
     ::platform->load_overlay_texture("overlay");
     ::platform->enable_glyph_mode(true);
 
-    static const Text::OptColors text_colors{
+    static constexpr const Text::OptColors text_colors{
         {custom_color(0xffffff), bkg_color}};
 
-    static const Text::OptColors text_colors_inv{
+    static constexpr const Text::OptColors text_colors_inv{
         {text_colors->background_, text_colors->foreground_}};
 
     Text text(*::platform, {1, 1});
@@ -3200,7 +3234,7 @@ static void flash_load(void* dest, u32 flash_offset, u32 length)
 // backup ID string anyway, because we'd really prefer to have SRAM. Unlikely
 // that anyone would ever agree to make me a GBA cartridge, but hey, you never
 // know...
-READ_ONLY_DATA alignas(4) [[gnu::used]] static const
+READ_ONLY_DATA alignas(4) [[gnu::used]] static constexpr const
     char backup_type[] = {'S', 'R', 'A', 'M', '_', 'V', 'n', 'n', 'n'};
 
 
@@ -3785,7 +3819,7 @@ static void add_sound(Buffer<ActiveSoundInfo, 3>& sounds,
 
 
 
-static const uint __snd_rates[13] = {
+static constexpr const uint __snd_rates[13] = {
     0,
     8013, // C
     7566, // C#
@@ -3807,7 +3841,7 @@ static const uint __snd_rates[13] = {
 
 
 
-static const struct NoiseFrequencyTableEntry
+static constexpr const struct NoiseFrequencyTableEntry
 {
     u8 shift_;
     u8 ratio_;
