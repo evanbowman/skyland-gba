@@ -37,6 +37,7 @@ extern "C" {
 #include "heatshrink/heatshrink_decoder.c"
 }
 #include "script/listBuilder.hpp"
+#include "compression.hpp"
 
 
 
@@ -362,42 +363,34 @@ template <u32 inflate> struct Sector
             ++rd;
         }
 
-        if (encoded_size.get() == 0) {
-            // Special case: the RLE-compressed data was not larger than the
-            // uncompressed data. So we stored a size zero to indicate that we
-            // have a fixed-size block of uncompressed data.
-            for (u32 i = 0; i < sizeof blocks_; ++i) {
-                if (rd == save_data.end()) {
-                    Platform::fatal("error in unpacked data format!");
-                }
-                ((u8*)&blocks_)[i] = *rd;
-                ++rd;
-            }
-            return rd;
-        }
+        static_assert(sizeof blocks_ == 576);
+        struct Ctx {
+            Buffer<char, 900> compressed;
+            Buffer<char, 900> decompressed;
+        };
 
-        Vector<u8> encoded_data;
+        auto c = allocate_dynamic<Ctx>("decompression-context");
 
         for (u32 i = 0; i < encoded_size.get(); ++i) {
             if (rd == save_data.end()) {
                 Platform::fatal("save data corrupted");
             }
 
-            encoded_data.push_back(*rd);
+            c->compressed.push_back(*rd);
             ++rd;
         }
 
-        auto decoded = rle::decode(encoded_data);
-        if (decoded.size() not_eq sizeof blocks_) {
+        decompress(c->compressed, c->decompressed);
+        if (c->decompressed.size() not_eq sizeof blocks_) {
             Platform::fatal(format("unpacked rle size % does not match %",
-                                   decoded.size(),
+                                   c->decompressed.size(),
                                    sizeof blocks_)
                                 .c_str());
         }
 
-        auto store = decoded.begin();
+        auto store = c->decompressed.begin();
         for (u32 i = 0; i < sizeof blocks_; ++i) {
-            if (store == decoded.end()) {
+            if (store == c->decompressed.end()) {
                 Platform::fatal("error in unpacked data format!");
             }
             ((u8*)&blocks_)[i] = *store;
@@ -414,31 +407,29 @@ template <u32 inflate> struct Sector
             save_data.push_back(((u8*)&p_)[i]);
         }
 
-        Vector<u8> block_data;
+        static_assert(sizeof blocks_ == 576);
+        struct Ctx {
+            Buffer<char, 900> block_data;
+            Buffer<char, 900> compressed;
+        };
+
+        auto c = allocate_dynamic<Ctx>("compression-context");
 
         for (u32 i = 0; i < sizeof blocks_; ++i) {
-            block_data.push_back(((u8*)&blocks_)[i]);
+            c->block_data.push_back(((u8*)&blocks_)[i]);
         }
 
-        auto encoded = rle::encode(block_data);
+        compress(c->block_data, c->compressed);
 
         HostInteger<u16> encoded_size;
-
-        const bool use_encoded_data = encoded.size() < block_data.size();
-        if (use_encoded_data) {
-            encoded_size.set(encoded.size());
-        } else {
-            encoded_size.set(0);
-        }
+        encoded_size.set(c->compressed.size());
 
         for (u32 i = 0; i < sizeof encoded_size; ++i) {
             save_data.push_back(((u8*)&encoded_size)[i]);
         }
 
-        auto& vec = use_encoded_data ? encoded : block_data;
-
-        for (auto it = vec.begin(); it not_eq vec.end(); ++it) {
-            save_data.push_back(*it);
+        for (char c : c->compressed) {
+            save_data.push_back(c);
         }
     }
 

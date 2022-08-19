@@ -68,12 +68,12 @@ void compress(const Buffer<char, sz>& input,
 
 
 
-template <u32 sz> Buffer<char, sz> decompress(const Buffer<char, sz>& input)
+template <u32 sz>
+void decompress(const Buffer<char, sz>& input,
+                Buffer<char, sz>& result)
 {
     heatshrink_decoder enc;
     heatshrink_decoder_reset(&enc);
-
-    Buffer<char, sz> result;
 
     int write_index = 0;
     while ((u32)write_index < input.size()) {
@@ -117,6 +117,4 @@ template <u32 sz> Buffer<char, sz> decompress(const Buffer<char, sz>& input)
             }
         }
     } while (fin not_eq HSDR_FINISH_DONE);
-
-    return result;
 }

@@ -469,7 +469,8 @@ int main(int argc, char** argv)
 
     using namespace skyland;
 
-    auto decomp = decompress(decomp_input);
+    Buffer<char, 1000> decomp;
+    decompress(decomp_input, decomp);
 
     auto shape = (macro::terrain::Sector::Shape)decomp[0];
     switch (shape) {
