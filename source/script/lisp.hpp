@@ -84,10 +84,19 @@ struct ValueHeader {
         __reserved,
         count,
     };
+
     u8 type_ : 4;
 
+    // For identifying which cells in the heap represent live objects.
     bool alive_ : 1;
+
+    // Used by the garbage collector.
     bool mark_bit_ : 1;
+
+    // NOTE:
+    // I had two leftover bits in the value header, which I did not dedicate to
+    // anything specific. Some datatypes use the spare bits for storing flags or
+    // enumerated properties.
     u8 mode_bits_ : 2;
 
     Type type() const
@@ -574,14 +583,6 @@ struct Value {
     }
 };
 
-
-struct IntegralConstant {
-    const char* const name_;
-    const int value_;
-};
-
-
-void set_constants(const IntegralConstant* array, u16 count);
 
 
 Value* make_function(Function::CPP_Impl impl);

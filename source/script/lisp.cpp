@@ -153,9 +153,6 @@ struct Context {
     Value* lexical_bindings_ = nullptr;
     Value* macros_ = nullptr;
 
-    const IntegralConstant* constants_ = nullptr;
-    u16 constants_count_ = 0;
-
     int string_intern_pos_ = 0;
     int eval_depth_ = 0;
     int interp_entry_count_ = 0;
@@ -418,17 +415,6 @@ static bool is_list(Value* val)
 }
 
 
-void set_constants(const IntegralConstant* constants, u16 count)
-{
-    if (not bound_context) {
-        return;
-    }
-
-    bound_context->constants_ = constants;
-    bound_context->constants_count_ = count;
-}
-
-
 u16 symbol_offset(const char* symbol)
 {
     return symbol - symbol_intern_table;
@@ -460,9 +446,6 @@ void get_interns(::Function<24, void(const char*)> callback)
         ++i;
     }
 
-    for (u16 i = 0; i < bound_context->constants_count_; ++i) {
-        callback((const char*)bound_context->constants_[i].name_);
-    }
 }
 
 
@@ -474,9 +457,6 @@ void get_env(::Function<24, void(const char*)> callback)
         callback((const char*)val.cons().car()->symbol().name());
     });
 
-    for (u16 i = 0; i < bound_context->constants_count_; ++i) {
-        callback((const char*)bound_context->constants_[i].name_);
-    }
 }
 
 
@@ -1181,12 +1161,6 @@ Value* get_var(Value* symbol)
     if (found->type() not_eq Value::Type::error) {
         return found;
     } else {
-        for (u16 i = 0; i < bound_context->constants_count_; ++i) {
-            const auto& k = bound_context->constants_[i];
-            if (str_eq(k.name_, symbol->symbol().name())) {
-                return lisp::make_integer(k.value_);
-            }
-        }
         return found;
     }
 }
