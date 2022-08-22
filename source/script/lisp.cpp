@@ -225,9 +225,7 @@ Value* globals_tree_splay(Value* t, Value* key) {
 
     // Top-down traversal requires one proxy object, which we'll manually
     // deallocate later.
-    Value* temp = make_cons_safe(get_nil(),
-                                 make_cons_safe(get_nil(),
-                                                get_nil()));
+    Value* temp = bound_context->tree_nullnode_;
 
     L = R = temp;
 
@@ -266,9 +264,6 @@ Value* globals_tree_splay(Value* t, Value* key) {
     SLST(R, RST(t));
     SLST(t, RST(temp));
     SRST(t, LST(temp));
-
-    // value_pool_free(temp->cons().cdr());
-    // value_pool_free(temp);
 
     return t;
 }
@@ -310,6 +305,7 @@ static void globals_tree_insert(Value* key, Value* value)
             ctx.globals_tree_ = node;
         } else {
             pt->cons().car()->cons().set_cdr(value);
+            ctx.globals_tree_ = pt;
         }
     }
 }
@@ -352,64 +348,64 @@ static void globals_tree_traverse(Value* root, GlobalsTreeVisitor callback)
 }
 
 
-// static void globals_tree_erase(Value* key)
-// {
-//     auto& ctx = *bound_context;
+static void globals_tree_erase(Value* key)
+{
+    auto& ctx = *bound_context;
 
-//     if (ctx.globals_tree_ == get_nil()) {
-//         return;
-//     }
+    if (ctx.globals_tree_ == get_nil()) {
+        return;
+    }
 
-//     auto current = ctx.globals_tree_;
-//     auto prev = current;
-//     bool erase_left = true;
+    auto current = ctx.globals_tree_;
+    auto prev = current;
+    bool erase_left = true;
 
-//     while (current not_eq get_nil()) {
+    while (current not_eq get_nil()) {
 
-//         auto current_key = current->cons().car()->cons().car();
+        auto current_key = current->cons().car()->cons().car();
 
-//         if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
+        if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
 
-//             Protected erased(current);
+            Protected erased(current);
 
-//             if (current == prev) {
-//                 ctx.globals_tree_ = get_nil();
-//             } else {
-//                 if (erase_left) {
-//                     prev->cons().cdr()->cons().set_car(get_nil());
-//                 } else {
-//                     prev->cons().cdr()->cons().set_cdr(get_nil());
-//                 }
-//             }
+            if (current == prev) {
+                ctx.globals_tree_ = get_nil();
+            } else {
+                if (erase_left) {
+                    prev->cons().cdr()->cons().set_car(get_nil());
+                } else {
+                    prev->cons().cdr()->cons().set_cdr(get_nil());
+                }
+            }
 
-//             auto reattach_child = [](Value& kvp, Value&) {
-//                 globals_tree_insert(kvp.cons().car(), kvp.cons().cdr());
-//             };
+            auto reattach_child = [](Value& kvp, Value&) {
+                globals_tree_insert(kvp.cons().car(), kvp.cons().cdr());
+            };
 
-//             auto left_child = erased->cons().cdr()->cons().car();
-//             if (left_child not_eq get_nil()) {
-//                 globals_tree_traverse(left_child, reattach_child);
-//             }
+            auto left_child = erased->cons().cdr()->cons().car();
+            if (left_child not_eq get_nil()) {
+                globals_tree_traverse(left_child, reattach_child);
+            }
 
-//             auto right_child = erased->cons().cdr()->cons().cdr();
-//             if (right_child not_eq get_nil()) {
-//                 globals_tree_traverse(right_child, reattach_child);
-//             }
+            auto right_child = erased->cons().cdr()->cons().cdr();
+            if (right_child not_eq get_nil()) {
+                globals_tree_traverse(right_child, reattach_child);
+            }
 
-//             return;
-//         }
+            return;
+        }
 
-//         prev = current;
+        prev = current;
 
-//         if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
-//             erase_left = true;
-//             current = current->cons().cdr()->cons().car();
-//         } else {
-//             erase_left = false;
-//             current = current->cons().cdr()->cons().cdr();
-//         }
-//     }
-// }
+        if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
+            erase_left = true;
+            current = current->cons().cdr()->cons().car();
+        } else {
+            erase_left = false;
+            current = current->cons().cdr()->cons().cdr();
+        }
+    }
+}
 
 
 static Value* globals_tree_find(Value* key)
@@ -428,21 +424,6 @@ static Value* globals_tree_find(Value* key)
         pt->cons().car()->cons().car()->symbol().unique_id()) {
         return pt->cons().car()->cons().cdr();
     }
-
-    // while (current not_eq get_nil()) {
-
-    //     auto current_key = current->cons().car()->cons().car();
-
-    //     if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
-    //         return current->cons().car()->cons().cdr();
-    //     }
-
-    //     if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
-    //         current = current->cons().cdr()->cons().car();
-    //     } else {
-    //         current = current->cons().cdr()->cons().cdr();
-    //     }
-    // }
 
     StringBuffer<31> hint("[var: ");
     hint += key->symbol().name();
@@ -1579,6 +1560,7 @@ static void gc_mark()
     gc_mark_value(bound_context->oom_);
     gc_mark_value(bound_context->lexical_bindings_);
     gc_mark_value(bound_context->macros_);
+    gc_mark_value(bound_context->tree_nullnode_);
 
     auto& ctx = bound_context;
 
@@ -2952,14 +2934,14 @@ static const Binding builtins[] = {
      }},
     {"unbind",
      [](int argc) {
-         // for (int i = 0; i < argc; ++i) {
-         //     auto sym = get_op(i);
-         //     if (sym->type() not_eq lisp::Value::Type::symbol) {
-         //         auto err = lisp::Error::Code::invalid_argument_type;
-         //         return lisp::make_error(err, L_NIL);
-         //     }
-         //     globals_tree_erase(sym);
-         // }
+         for (int i = 0; i < argc; ++i) {
+             auto sym = get_op(i);
+             if (sym->type() not_eq lisp::Value::Type::symbol) {
+                 auto err = lisp::Error::Code::invalid_argument_type;
+                 return lisp::make_error(err, L_NIL);
+             }
+             globals_tree_erase(sym);
+         }
 
          return get_nil();
      }},
@@ -3706,6 +3688,9 @@ void init(Platform& pfrm)
     bound_context->string_buffer_ = bound_context->nil_;
     bound_context->macros_ = bound_context->nil_;
 
+    bound_context->tree_nullnode_ = make_cons(get_nil(),
+                                              make_cons(get_nil(),
+                                                        get_nil()));
 
     // Push a few nil onto the operand stack. Allows us to access the first few
     // elements of the operand stack without performing size checks.
