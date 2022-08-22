@@ -147,6 +147,7 @@ struct Context {
     Value* oom_ = nullptr;
     Value* string_buffer_ = nullptr;
     Value* globals_tree_ = nullptr;
+    Value* tree_nullnode_ = nullptr;
 
     u16 string_buffer_remaining_ = 0;
 
@@ -181,76 +182,6 @@ static std::optional<Context> bound_context;
 // i.e.: Each global variable binding uses three cons cells.
 
 
-static void globals_tree_insert(Value* key, Value* value)
-{
-    auto& ctx = *bound_context;
-
-    Protected new_kvp(make_cons(key, value));
-
-    if (ctx.globals_tree_ == get_nil()) {
-        // The empty set of left/right children
-        push_op(make_cons(get_nil(), get_nil()));
-
-        auto new_tree = make_cons(new_kvp, get_op0());
-        pop_op();
-
-        ctx.globals_tree_ = new_tree;
-
-    } else {
-        // Ok, if the tree exists, now we need to scan the tree, looking for the
-        // key. If it exists, replace the existing value with our new
-        // value. Otherwise, insert key at the terminal point.
-
-        Protected current(ctx.globals_tree_);
-        Protected prev(ctx.globals_tree_);
-        bool insert_left = true;
-
-        while (current not_eq get_nil()) {
-
-            auto current_key = current->cons().car()->cons().car();
-
-            if (current_key->symbol().unique_id() ==
-                key->symbol().unique_id()) {
-                // The key alreay exists, overwrite the previous value.
-                current->cons().car()->cons().set_cdr(value);
-                return;
-
-            } else {
-                prev = (Value*)current;
-
-                if (current_key->symbol().unique_id() <
-                    key->symbol().unique_id()) {
-                    // Continue loop through left subtree
-                    insert_left = true;
-                    current = current->cons().cdr()->cons().car();
-                } else {
-                    // Continue loop through right subtree
-                    insert_left = false;
-                    current = current->cons().cdr()->cons().cdr();
-                }
-            }
-        }
-
-        if (insert_left) {
-            push_op(make_cons(get_nil(), get_nil()));
-
-            auto new_tree = make_cons(new_kvp, get_op0());
-            pop_op();
-
-            prev->cons().cdr()->cons().set_car(new_tree);
-
-        } else {
-            push_op(make_cons(get_nil(), get_nil()));
-
-            auto new_tree = make_cons(new_kvp, get_op0());
-            pop_op();
-
-            prev->cons().cdr()->cons().set_cdr(new_tree);
-        }
-    }
-}
-
-
 using GlobalsTreeVisitor = ::Function<24, void(Value&, Value&)>;
 
 
@@ -269,6 +200,118 @@ static Value* right_subtree(Value* tree)
 static void set_right_subtree(Value* tree, Value* value)
 {
     tree->cons().cdr()->cons().set_cdr(value);
+}
+
+
+static void set_left_subtree(Value* tree, Value* value)
+{
+    tree->cons().cdr()->cons().set_car(value);
+}
+
+
+// Abbreviations, for the sake of my own sanity.
+#define RST(T) right_subtree(T)
+#define LST(T) left_subtree(T)
+#define SRST(T, V) set_right_subtree(T, V)
+#define SLST(T, V) set_left_subtree(T, V);
+#define TKEY(T) T->cons().car()->cons().car()->symbol().unique_id()
+
+
+Value* globals_tree_splay(Value* t, Value* key) {
+    Value *L, *R, *Y;
+    if (t == get_nil()) {
+        return t;
+    }
+
+    // Top-down traversal requires one proxy object, which we'll manually
+    // deallocate later.
+    Value* temp = make_cons_safe(get_nil(),
+                                 make_cons_safe(get_nil(),
+                                                get_nil()));
+
+    L = R = temp;
+
+    auto inp_key = key->symbol().unique_id();
+
+    for (;;) {
+	if (inp_key < TKEY(t)) {
+	    if (LST(t) == get_nil()) break;
+	    if (inp_key < TKEY(LST(t))) {
+		Y = LST(t);                           /* rotate right */
+                SLST(t, RST(Y));
+		SRST(Y, t);
+		t = Y;
+		if (LST(t) == get_nil()) break;
+	    }
+            SLST(R, t);                               /* link right */
+	    R = t;
+	    t = LST(t);
+	} else if (inp_key > TKEY(t)) {
+	    if (RST(t) == get_nil()) break;
+	    if (inp_key > TKEY(RST(t))) {
+		Y = RST(t);                           /* rotate left */
+                SRST(t, LST(Y));
+                SLST(Y, t);
+		t = Y;
+		if (RST(t) == get_nil()) break;
+	    }
+            SRST(L, t);                               /* link left */
+	    L = t;
+	    t = RST(t);
+	} else {
+	    break;
+	}
+    }
+    SRST(L, LST(t));                                  /* assemble */
+    SLST(R, RST(t));
+    SLST(t, RST(temp));
+    SRST(t, LST(temp));
+
+    // value_pool_free(temp->cons().cdr());
+    // value_pool_free(temp);
+
+    return t;
+}
+
+
+static void globals_tree_insert(Value* key, Value* value)
+{
+    auto& ctx = *bound_context;
+
+    if (ctx.globals_tree_ == get_nil()) {
+
+        Protected new_kvp(make_cons(key, value));
+
+        // The empty set of left/right children
+        push_op(make_cons(get_nil(), get_nil()));
+
+        auto new_tree = make_cons(new_kvp, get_op0());
+        pop_op();
+
+        ctx.globals_tree_ = new_tree;
+
+    } else {
+        auto& ctx = *bound_context;
+        auto pt = globals_tree_splay(ctx.globals_tree_, key);
+
+        if (key->symbol().unique_id() < TKEY(pt)) {
+            Protected new_kvp(make_cons(key, value));
+            auto node = make_cons(new_kvp, make_cons(get_nil(), get_nil()));
+            SLST(node, LST(pt));
+            SRST(node, pt);
+            SLST(pt, get_nil());
+            ctx.globals_tree_ = node;
+        } else if (key->symbol().unique_id() > TKEY(pt)) {
+            Protected new_kvp(make_cons(key, value));
+            auto node = make_cons(new_kvp, make_cons(get_nil(), get_nil()));
+            SRST(node, RST(pt));
+            SLST(node, pt);
+            SRST(pt, get_nil());
+            ctx.globals_tree_ = node;
+        } else {
+            pt->cons().car()->cons().set_cdr(value);
+        }
+    }
 }
 
 
@@ -309,64 +352,64 @@ static void globals_tree_traverse(Value* root, GlobalsTreeVisitor callback)
 }
 
 
-static void globals_tree_erase(Value* key)
-{
-    auto& ctx = *bound_context;
+// static void globals_tree_erase(Value* key)
+// {
+//     auto& ctx = *bound_context;
 
-    if (ctx.globals_tree_ == get_nil()) {
-        return;
-    }
+//     if (ctx.globals_tree_ == get_nil()) {
+//         return;
+//     }
 
-    auto current = ctx.globals_tree_;
-    auto prev = current;
-    bool erase_left = true;
+//     auto current = ctx.globals_tree_;
+//     auto prev = current;
+//     bool erase_left = true;
 
-    while (current not_eq get_nil()) {
+//     while (current not_eq get_nil()) {
 
-        auto current_key = current->cons().car()->cons().car();
+//         auto current_key = current->cons().car()->cons().car();
 
-        if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
+//         if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
 
-            Protected erased(current);
+//             Protected erased(current);
 
-            if (current == prev) {
-                ctx.globals_tree_ = get_nil();
-            } else {
-                if (erase_left) {
-                    prev->cons().cdr()->cons().set_car(get_nil());
-                } else {
-                    prev->cons().cdr()->cons().set_cdr(get_nil());
-                }
-            }
+//             if (current == prev) {
+//                 ctx.globals_tree_ = get_nil();
+//             } else {
+//                 if (erase_left) {
+//                     prev->cons().cdr()->cons().set_car(get_nil());
+//                 } else {
+//                     prev->cons().cdr()->cons().set_cdr(get_nil());
+//                 }
+//             }
 
-            auto reattach_child = [](Value& kvp, Value&) {
-                globals_tree_insert(kvp.cons().car(), kvp.cons().cdr());
-            };
+//             auto reattach_child = [](Value& kvp, Value&) {
+//                 globals_tree_insert(kvp.cons().car(), kvp.cons().cdr());
+//             };
 
-            auto left_child = erased->cons().cdr()->cons().car();
-            if (left_child not_eq get_nil()) {
-                globals_tree_traverse(left_child, reattach_child);
-            }
+//             auto left_child = erased->cons().cdr()->cons().car();
+//             if (left_child not_eq get_nil()) {
+//                 globals_tree_traverse(left_child, reattach_child);
+//             }
 
-            auto right_child = erased->cons().cdr()->cons().cdr();
-            if (right_child not_eq get_nil()) {
-                globals_tree_traverse(right_child, reattach_child);
-            }
+//             auto right_child = erased->cons().cdr()->cons().cdr();
+//             if (right_child not_eq get_nil()) {
+//                 globals_tree_traverse(right_child, reattach_child);
+//             }
 
-            return;
-        }
+//             return;
+//         }
 
-        prev = current;
+//         prev = current;
 
-        if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
-            erase_left = true;
-            current = current->cons().cdr()->cons().car();
-        } else {
-            erase_left = false;
-            current = current->cons().cdr()->cons().cdr();
-        }
-    }
-}
+//         if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
+//             erase_left = true;
+//             current = current->cons().cdr()->cons().car();
+//         } else {
+//             erase_left = false;
+//             current = current->cons().cdr()->cons().cdr();
+//         }
+//     }
+// }
 
 
 static Value* globals_tree_find(Value* key)
@@ -377,22 +420,29 @@ static Value* globals_tree_find(Value* key)
         return get_nil();
     }
 
-    auto current = ctx.globals_tree_;
+    // auto current = ctx.globals_tree_;
 
-    while (current not_eq get_nil()) {
-
-        auto current_key = current->cons().car()->cons().car();
-
-        if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
-            return current->cons().car()->cons().cdr();
-        }
-
-        if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
-            current = current->cons().cdr()->cons().car();
-        } else {
-            current = current->cons().cdr()->cons().cdr();
-        }
+    auto pt = globals_tree_splay(ctx.globals_tree_, key);
+    ctx.globals_tree_ = pt;
+    if (key->symbol().unique_id() ==
+        pt->cons().car()->cons().car()->symbol().unique_id()) {
+        return pt->cons().car()->cons().cdr();
     }
+
+    // while (current not_eq get_nil()) {
+
+    //     auto current_key = current->cons().car()->cons().car();
+
+    //     if (current_key->symbol().unique_id() == key->symbol().unique_id()) {
+    //         return current->cons().car()->cons().cdr();
+    //     }
+
+    //     if (current_key->symbol().unique_id() < key->symbol().unique_id()) {
+    //         current = current->cons().cdr()->cons().car();
+    //     } else {
+    //         current = current->cons().cdr()->cons().cdr();
+    //     }
+    // }
 
     StringBuffer<31> hint("[var: ");
     hint += key->symbol().name();
@@ -445,7 +495,6 @@ void get_interns(::Function<24, void(const char*)> callback)
         }
         ++i;
     }
-
 }
 
 
@@ -456,7 +505,6 @@ void get_env(::Function<24, void(const char*)> callback)
     globals_tree_traverse(ctx->globals_tree_, [&callback](Value& val, Value&) {
         callback((const char*)val.cons().car()->symbol().name());
     });
-
 }
 
 
@@ -2904,14 +2952,14 @@ static const Binding builtins[] = {
      }},
     {"unbind",
      [](int argc) {
-         for (int i = 0; i < argc; ++i) {
-             auto sym = get_op(i);
-             if (sym->type() not_eq lisp::Value::Type::symbol) {
-                 auto err = lisp::Error::Code::invalid_argument_type;
-                 return lisp::make_error(err, L_NIL);
-             }
-             globals_tree_erase(sym);
-         }
+         // for (int i = 0; i < argc; ++i) {
+         //     auto sym = get_op(i);
+         //     if (sym->type() not_eq lisp::Value::Type::symbol) {
+         //         auto err = lisp::Error::Code::invalid_argument_type;
+         //         return lisp::make_error(err, L_NIL);
+         //     }
+         //     globals_tree_erase(sym);
+         // }
 
          return get_nil();
      }},
@@ -3161,7 +3209,6 @@ static const Binding builtins[] = {
 
          return result;
      }},
-    {"globals", [](int argc) { return bound_context->globals_tree_; }},
     {"this", [](int argc) { return bound_context->this_; }},
     {"env",
      [](int argc) {
@@ -3199,6 +3246,7 @@ static const Binding builtins[] = {
              return get_op0();
          }
      }},
+    {"globals", [](int argc) { return bound_context->globals_tree_; }},
     {"disassemble", [](int argc) {
          L_EXPECT_ARGC(argc, 1);
          L_EXPECT_OP(0, function);
@@ -3645,6 +3693,7 @@ void init(Platform& pfrm)
     value_pool_init();
     bound_context->nil_ = alloc_value();
     bound_context->nil_->hdr_.type_ = Value::Type::nil;
+    bound_context->nil_->hdr_.mode_bits_ = 0;
     bound_context->globals_tree_ = bound_context->nil_;
     bound_context->this_ = bound_context->nil_;
     bound_context->lexical_bindings_ = bound_context->nil_;
@@ -3663,13 +3712,13 @@ void init(Platform& pfrm)
     push_op(get_nil());
     push_op(get_nil());
 
+
+
     if (dcompr(compr(get_nil())) not_eq get_nil()) {
         bound_context->pfrm_.fatal("pointer compression test failed 1");
     }
 
     intern("'");
-
-    lisp::set_var("*pfrm*", lisp::make_userdata(&pfrm));
 
     bind_functions(builtins, sizeof(builtins) / sizeof(builtins[0]));
 }

@@ -25,25 +25,25 @@ target_compile_options(LISP PRIVATE
   -O3)
 
 
-add_executable(LISPC
-  vm.cpp
-  lisp.cpp
-  commandlineCompiler.cpp
-  compiler.cpp
-  bootstrap.cpp)
+# add_executable(LISPC
+#   vm.cpp
+#   lisp.cpp
+#   commandlineCompiler.cpp
+#   compiler.cpp
+#   bootstrap.cpp)
 
 
-target_compile_options(LISPC PRIVATE
-  -g3)
+# target_compile_options(LISPC PRIVATE
+#   -g3)
 
 
-add_executable(LISPP
-  vm.cpp
-  lisp.cpp
-  commandlineDisassembler.cpp
-  compiler.cpp
-  bootstrap.cpp)
+# add_executable(LISPP
+#   vm.cpp
+#   lisp.cpp
+#   commandlineDisassembler.cpp
+#   compiler.cpp
+#   bootstrap.cpp)
 
 
-target_compile_options(LISPC PRIVATE
-  -g3)
+# target_compile_options(LISPC PRIVATE
+#   -g3)
