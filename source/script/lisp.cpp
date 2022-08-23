@@ -416,8 +416,6 @@ static Value* globals_tree_find(Value* key)
         return get_nil();
     }
 
-    // auto current = ctx.globals_tree_;
-
     auto pt = globals_tree_splay(ctx.globals_tree_, key);
     ctx.globals_tree_ = pt;
     if (key->symbol().unique_id() ==
