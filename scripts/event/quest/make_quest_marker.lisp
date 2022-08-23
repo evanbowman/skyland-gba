@@ -30,16 +30,14 @@
 
     (if (> (length n) 4)
         (progn
-          (setq n (sort
-                   n
-                   (lambda
-                     ;; Sort by manhattan length from current coord,
-                     ;; descending.
-                     (> (+ (abs (- (car (cdr $0)) (car (cdr pos))))
-                           (abs (- (cdr (cdr $0)) (cdr (cdr pos)))))
-                        (+ (abs (- (car (cdr $1)) (car (cdr pos))))
-                           (abs (- (cdr (cdr $1)) (cdr (cdr pos)))))))))
-          (let ((n (get n (choice 3))))
+          (setq n (map (lambda
+                         (cons $0
+                               ;; Append manhattan length
+                               (+ (abs (- (car (cdr $0)) (car (cdr pos))))
+                                  (abs (- (cdr (cdr $0)) (cdr (cdr pos)))))))
+                       n))
+          (setq n (sort n (lambda (> (cdr $0) (cdr $1)))))
+          (let ((n (car (get n (choice 3)))))
             (wg-node-set
              (car (cdr n))
              (cdr (cdr n))
