@@ -27,7 +27,7 @@
 
 (setq on-converge
       (lambda
-        (dialog "The warship requests a tribute of 300@. Will you pay?")
+        (dialog "The warship requests a tribute of 600@. Will you pay?")
 
         (dialog-await-y/n)
         (setq on-converge nil)))
@@ -35,12 +35,12 @@
 
 (setq on-dialog-accepted
       (lambda
-        (if (< (coins) 300)
+        (if (< (coins) 600)
             (progn
               (dialog "You do not have enough resources to pay! The fortress begins charging its weapons...")
               (opponent-mode 'hostile))
           (progn
-            (coins-add -300)
+            (coins-add -600)
             (dialog "The fortress' captain peers smugly from behind her spectacles. "
                     "She's glad that you understand the nature of the situation.")
             (exit)))))
