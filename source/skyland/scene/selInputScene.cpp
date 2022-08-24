@@ -221,8 +221,8 @@ SelInputScene::update(Platform& pfrm, App& app, Microseconds delta)
         lisp::funcall(parameters_->cons().car()->cons().cdr(), 3);
         lisp::pop_op(); // TODO: check for lisp::Error.
 
-        globals().near_cursor_loc_ = cached_near_cursor_;
-        globals().far_cursor_loc_ = cached_far_cursor_;
+        // globals().near_cursor_loc_ = cached_near_cursor_;
+        // globals().far_cursor_loc_ = cached_far_cursor_;
 
         if (started_near_) {
             return scene_pool::alloc<ReadyScene>();
