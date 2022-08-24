@@ -143,12 +143,14 @@ public:
                         target_island = &app.player_island();
                     }
 
-                    if (auto room = target_island->get_room(*target_)) {
+                    if (target_) {
 
                         auto start = sprite_.get_position();
                         start.x += 8;
                         start.y += 8;
-                        auto target = room->center();
+                        auto target = target_island->origin();
+                        target.x += target_->x * 16 + 8;
+                        target.y += target_->y * 16 + 8;
 
                         cannon_sound.play(pfrm, 3);
 
@@ -160,8 +162,6 @@ public:
                         }
                         timer_ = 0;
                         state_ = Drone::State::ready;
-                    } else {
-                        target_.reset();
                     }
                 }
             } else {
