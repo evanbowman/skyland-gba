@@ -35,7 +35,8 @@
   (dialog
    "The island seems thoroughly ransacked... but the pirates inexplicably "
    "left behind a weapon. Haul it aboard?")
-  (dialog-await-y/n))
+  (dialog-await-y/n)
+  (setq on-converge nil))
 
 
 (defn on-dialog-accepted
