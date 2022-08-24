@@ -97,23 +97,6 @@ void __cxa_pure_virtual()
 }
 
 
-int __cxa_guard_acquire(uint64_t* guard_object)
-{
-    if (*(u8*)guard_object == 1) {
-        return 0;
-    } else if (*(u8*)guard_object == 0) {
-        *(u8*)guard_object = 1;
-        return 1;
-    }
-    return 0;
-}
-
-
-void __cxa_guard_release(uint64_t* guard_object)
-{
-}
-
-
 }
 
 
