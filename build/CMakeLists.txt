@@ -62,7 +62,7 @@ set(G_COMPILE_FLAGS
   -pedantic
   -ffast-math
   -fno-math-errno
-  -fno-exceptions
+  # -fno-exceptions
   -Wdouble-promotion
   -fomit-frame-pointer)
 
