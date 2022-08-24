@@ -3,7 +3,7 @@
 ;;;
 
 
-(let ((c (choice 3))
+(let ((c (choice 2))
       (p "/scripts/event/surrender/"))
   (cond
    ((equal c 0)
