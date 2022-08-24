@@ -31,6 +31,17 @@
                       (fire-charge . (2 . 1)))))
       (skip 1))
 
+  (terrain (opponent) (+ (terrain (opponent)) (* 2 (car (cdr item)))))
+  (room-new (opponent) (list (car item) 5 14))
+  (room-new (opponent) (list (car item) 5 13))
+  (room-new (opponent) (list (car item) 5 12))
+  (room-new (opponent) (list (car item) 5 11))
+
+  (room-new (opponent) (list (car item) (+ 5 (car (cdr item))) 14))
+  (room-new (opponent) (list (car item) (+ 5 (car (cdr item))) 13))
+  (room-new (opponent) (list (car item) (+ 5 (car (cdr item))) 12))
+  (room-new (opponent) (list (car item) (+ 5 (car (cdr item))) 11))
+
   (setq on-converge
         (lambda
           (dialog "<c:merchant:7> We ordered too many "

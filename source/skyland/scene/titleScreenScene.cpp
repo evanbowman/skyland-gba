@@ -170,8 +170,6 @@ void TitleScreenScene::enter(Platform& pfrm, App& app, Scene& prev)
     }
 
     app.key_callback_processor().clear();
-    app.custom_tile_mapper().clear();
-    app.custom_sprite_mapper().clear();
 
     pfrm.speaker().set_music_speed(Platform::Speaker::MusicSpeed::regular);
 
@@ -313,7 +311,6 @@ void TitleScreenScene::exit(Platform& pfrm, App& app, Scene& next)
     pfrm.load_background_texture(app.environment().background_texture());
 
     write_custom_graphics(pfrm, app);
-    app.custom_sprite_mapper().publish_as_sprites(pfrm);
 
 
     for (int x = 0; x < 16; ++x) {

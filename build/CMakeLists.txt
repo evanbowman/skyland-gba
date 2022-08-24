@@ -106,7 +106,6 @@ set(SOURCES
   ${SOURCE_DIR}/skyland/achievement.cpp
   ${SOURCE_DIR}/skyland/systemString.cpp
   ${SOURCE_DIR}/skyland/configure_island.cpp
-  ${SOURCE_DIR}/skyland/customTileMapper.cpp
   ${SOURCE_DIR}/skyland/player/playerP1.cpp
   ${SOURCE_DIR}/skyland/player/sandboxSpectatorPlayer.cpp
   ${SOURCE_DIR}/skyland/player/coOpTeam.cpp

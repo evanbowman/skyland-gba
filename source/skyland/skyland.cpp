@@ -165,7 +165,6 @@ void App::delete_backup()
 void write_custom_graphics(Platform& pfrm, App& app)
 {
     vram_write_flag(pfrm, app.custom_flag_image_);
-    app.custom_tile_mapper().publish_as_tiles(pfrm);
 }
 
 
