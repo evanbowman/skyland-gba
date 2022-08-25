@@ -957,7 +957,7 @@ void Island::update(Platform& pfrm, App& app, Microseconds dt)
             check_destroyed();
 
             if (is_destroyed() and not pfrm.network_peer().is_connected()) {
-                pfrm.sleep(2);
+                pfrm.sleep(3);
             }
 
             recalculate_power_usage(app);
