@@ -221,7 +221,7 @@ A weapon for targeting the roof of an enemy fortress. Deals % damage every %.% s
 Water! Puts out fire in adjacent tiles.
 Water source block.
 Slightly lowers the construction cost of all blocks.
-Scans the interior of other castles! Radars improve transporter accuracy, allowing transporters to select an exact position on another island.
+Scans the interior of hostile castles! Radars improve transporter accuracy, allowing transporters to select an exact position on another island.
 Cancels all ion damage on contact. Useful for protecting vulnerable structures, such as reactors or forcefields, from ion cannons.
 "Give me your tired, your poor, Your huddled masses yearning to breathe free"
 Flows across an island, sets non-fireproof blocks aflame.

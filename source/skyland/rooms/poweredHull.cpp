@@ -76,9 +76,9 @@ extern SharedVariable block_crack_threshold_health;
 TileId PoweredHull::tile() const
 {
     if (health() <= block_crack_threshold_health) {
-        return Tile::damaged_mirror_hull;
+        return Tile::damaged_energized_hull;
     } else {
-        return Tile::mirror_hull;
+        return Tile::field_hull;
     }
 }
 
